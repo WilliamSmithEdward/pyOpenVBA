@@ -365,7 +365,11 @@ class ExcelFile:
             write_back_modules(cfb, project)
 
             # 5. Rewrite the dir + PROJECT streams when the module set's
-            #    identity has changed (add / rename / delete).
+            #    identity has changed (add / rename / delete).  PROJECT is
+            #    always rewritten on a structural save so that any duplicate
+            #    declarations or stale ``[Workspace]`` entries left behind by
+            #    earlier buggy writes are scrubbed via the dedup pass in
+            #    ``serialize_project_stream``.
             if project.dir_structure_dirty:
                 new_dir_raw = serialize_dir_stream(project)
                 cfb.write_stream_in_storage("VBA", "dir", compress(new_dir_raw))
@@ -373,9 +377,7 @@ class ExcelFile:
                     project_raw = cfb.get_stream("PROJECT")
                 except KeyError:
                     project_raw = None
-                if project_raw is not None and (
-                    rename_map or add_modules_for_project or delete_names
-                ):
+                if project_raw is not None:
                     new_project = serialize_project_stream(
                         project_raw,
                         rename_map,

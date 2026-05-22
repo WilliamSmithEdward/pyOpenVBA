@@ -186,3 +186,96 @@ class TestCompress:
         chunk_flag = (header >> 15) & 0x1
         assert chunk_flag == 1, "partial final chunk must be token-compressed, not raw"
 
+    def test_full_chunk_emitted_as_token_compressed_not_raw(self) -> None:
+        """Regression: full 4096-byte chunks of realistic VBA source must be
+        emitted as token-compressed (flag=1), not raw (flag=0).  Excel's VBE
+        rejects modules whose CompressedSourceCode begins with a raw chunk
+        with "An error occurred while loading <Module>", even though raw
+        chunks are spec-legal.  Office itself never emits raw chunks for
+        module source, so we must match that behaviour."""
+        # Construct a 5000-byte VBA-like source that spans two chunks.
+        line = b"    Debug.Print \"line %04d -- pyOpenVBA round-trip\"\r\n"
+        body = b"".join(line.replace(b"%04d", f"{i:04d}".encode()) for i in range(100))
+        data = b"Sub LongRoutine()\r\n" + body + b"End Sub\r\n"
+        assert len(data) > 4096, "test fixture must span more than one chunk"
+
+        compressed = compress(data)
+        # Walk all chunks and confirm every one is flag=1.
+        pos = 1
+        chunk_flags: list[int] = []
+        while pos < len(compressed):
+            header = struct.unpack_from("<H", compressed, pos)[0]
+            size = (header & 0x0FFF) + 1
+            chunk_flags.append((header >> 15) & 0x1)
+            pos += 2 + size
+        assert chunk_flags and all(f == 1 for f in chunk_flags), (
+            f"every emitted chunk must be token-compressed; got flags={chunk_flags}"
+        )
+        # Round-trip must still hold.
+        assert decompress(compressed) == data
+
+    def test_long_module_round_trip_through_excel_save(self, tmp_path) -> None:  # type: ignore[no-untyped-def]
+        """Regression for the bug that crashed VBE on long fresh-add modules.
+
+        Adding a module whose compressed source spans more than one 4096-byte
+        chunk (e.g. the ``DemoShowcase`` push demo) used to emit a raw first
+        chunk that Excel rejected as "An error occurred while loading
+        <Module>".  This test exercises the full add-then-save-then-reopen
+        round-trip with such a module."""
+        from pathlib import Path
+        from pyopenvba.excel import ExcelFile
+        from pyopenvba.vba import VBAModuleKind
+
+        # Use the same live fixture as the rest of the gate tests.
+        live = (
+            Path(__file__).resolve().parent
+            / "live_excel_testing"
+            / "test_macro_workbook.xlsm"
+        )
+        if not live.exists():
+            import pytest as _pytest
+            _pytest.skip("live xlsm fixture not available")
+
+        # Realistic VBA source > 4096 bytes after encoding.
+        body_lines = [
+            f"    Cells({i + 1}, 1).Value = \"row {i + 1} -- pyOpenVBA test\"\r\n"
+            for i in range(150)
+        ]
+        src = (
+            "Attribute VB_Name = \"LongMod\"\r\n"
+            "Sub LongRoutine()\r\n"
+            + "".join(body_lines)
+            + "End Sub\r\n"
+        )
+        assert len(src.encode("cp1252")) > 4096
+
+        out = tmp_path / "long_module.xlsm"
+        with ExcelFile(live) as wb:
+            wb.vba_project().add_module(
+                "LongMod", src, kind=VBAModuleKind.standard
+            )
+            wb.save(out)
+
+        with ExcelFile(out) as wb2:
+            assert wb2.get_module("LongMod") == src
+            # Inspect the on-disk stream: every chunk must be flag=1.
+            from pyopenvba.cfb import CFB as _CFB
+            from pyopenvba.vba import parse_vba_project as _parse
+            cfb = _CFB.from_bytes(wb2.vba_project_bytes())
+            proj = _parse(cfb)
+            module = next(m for m in proj.modules if m.name == "LongMod")
+            raw = cfb.get_stream_in_storage("VBA", module.stream_name)
+            cs = raw[module.text_offset:]
+            pos = 1
+            flags: list[int] = []
+            while pos < len(cs):
+                header = struct.unpack_from("<H", cs, pos)[0]
+                size = (header & 0x0FFF) + 1
+                flags.append((header >> 15) & 0x1)
+                pos += 2 + size
+            assert len(flags) >= 2, f"expected multi-chunk stream, got {flags}"
+            assert all(f == 1 for f in flags), (
+                f"every CompressedSourceCode chunk must be token-compressed; "
+                f"got flags={flags}"
+            )
+

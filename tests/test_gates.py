@@ -66,6 +66,11 @@ LIVE_EMPTY_XLSM = (
     / "live_excel_testing"
     / "xlsm_file_with_no_vba_entered_yet.xlsm"
 )
+LIVE_LARGE_MODULE_XLSM = (
+    Path(__file__).parent
+    / "live_excel_testing"
+    / "large_vba_module.xlsm"
+)
 
 
 @pytest.fixture(scope="session")
@@ -1361,6 +1366,125 @@ class TestGate21_MutationRoundTrip:
             assert "FinalName" in vba_streams
             assert "TempName" not in vba_streams
 
+    def test_delete_then_readd_same_name_does_not_duplicate_project_decl(
+        self, live_xlsm_path: Path, tmp_path: Path
+    ) -> None:
+        """Regression: an idempotent ``delete_module`` + ``add_module`` of the
+        same name across two consecutive saves (e.g. a "replace this module"
+        script run twice) must not emit duplicate ``Module=NAME`` declarations
+        or duplicate ``[Workspace]`` entries in the PROJECT stream.  Excel
+        rejects such duplicates as workbook corruption."""
+        out = tmp_path / "replace_idempotent.xlsm"
+        src1 = "Attribute VB_Name = \"Demo\"\r\nSub A(): End Sub\r\n"
+        src2 = "Attribute VB_Name = \"Demo\"\r\nSub B(): End Sub\r\n"
+
+        # First save: fresh add.
+        with ExcelFile(live_xlsm_path) as wb:
+            wb.vba_project().add_module("Demo", src1, kind=VBAModuleKind.standard)
+            wb.save(out)
+
+        # Second save: delete-then-readd the same name (simulating a
+        # "wipe and re-push this module" script being re-run).
+        with ExcelFile(out) as wb:
+            proj = wb.vba_project()
+            proj.delete_module("Demo")
+            proj.add_module("Demo", src2, kind=VBAModuleKind.standard)
+            wb.save()
+
+        with ExcelFile(out) as wb2:
+            assert wb2.get_module("Demo") == src2
+            cfb = CFB.from_bytes(wb2.vba_project_bytes())
+            project_text = cfb.get_stream("PROJECT").decode("cp1252", errors="replace")
+            assert project_text.count("Module=Demo\r\n") == 1, project_text
+            # And the Workspace entry must appear exactly once.
+            ws_entries = [
+                line for line in project_text.splitlines()
+                if line.startswith("Demo=")
+            ]
+            assert len(ws_entries) == 1, project_text
+
+    def test_save_heals_preexisting_duplicate_project_declarations(
+        self, live_xlsm_path: Path, tmp_path: Path
+    ) -> None:
+        """Regression: opening an already-corrupted workbook (with duplicate
+        ``Module=NAME`` / ``[Workspace]`` entries in PROJECT, as produced by
+        the pre-fix buggy delete-then-readd flow) and performing any
+        structural save (add / rename / delete) MUST scrub the duplicates."""
+        from pyopenvba.cfb import CFB as _CFB
+        from pyopenvba.vba import compress as _compress, decompress as _decompress
+
+        out = tmp_path / "preexisting_corruption.xlsm"
+
+        # Step 1: add a module legitimately.
+        with ExcelFile(live_xlsm_path) as wb:
+            wb.vba_project().add_module(
+                "Demo",
+                "Attribute VB_Name = \"Demo\"\r\nSub A(): End Sub\r\n",
+                kind=VBAModuleKind.standard,
+            )
+            wb.save(out)
+
+        # Step 2: forge corruption by injecting duplicate declarations
+        # directly into the PROJECT stream of the saved xlsm.
+        import io as _io
+        import zipfile as _zipfile
+
+        raw = out.read_bytes()
+        with _zipfile.ZipFile(_io.BytesIO(raw), "r") as zin:
+            vba_bytes = zin.read("xl/vbaProject.bin")
+            other = {
+                name: (zin.read(name), zin.getinfo(name))
+                for name in zin.namelist()
+                if name != "xl/vbaProject.bin"
+            }
+        cfb = _CFB.from_bytes(vba_bytes)
+        project_text = cfb.get_stream("PROJECT").decode("cp1252", errors="replace")
+        # Duplicate the module declaration and workspace entry.
+        forged = project_text.replace(
+            "Module=Demo\r\n", "Module=Demo\r\nModule=Demo\r\n", 1
+        ).replace(
+            "Demo=0, 0, 0, 0, C\r\n",
+            "Demo=0, 0, 0, 0, C\r\nDemo=0, 0, 0, 0, C\r\n",
+            1,
+        )
+        cfb.write_stream("PROJECT", forged.encode("cp1252", errors="replace"))
+        forged_vba = cfb.to_bytes()
+
+        buf = _io.BytesIO()
+        with _zipfile.ZipFile(buf, "w") as zout:
+            zout.writestr("xl/vbaProject.bin", forged_vba)
+            for name, (data, info) in other.items():
+                zout.writestr(info, data)
+        out.write_bytes(buf.getvalue())
+
+        # Sanity: confirm the forgery actually produced duplicates.
+        with ExcelFile(out) as wb:
+            text = _CFB.from_bytes(wb.vba_project_bytes()).get_stream("PROJECT")
+            assert text.decode("cp1252").count("Module=Demo\r\n") == 2
+
+        # Step 3: any structural save must heal the duplicates.
+        with ExcelFile(out) as wb:
+            wb.vba_project().add_module(
+                "Healer",
+                "Attribute VB_Name = \"Healer\"\r\nSub H(): End Sub\r\n",
+                kind=VBAModuleKind.standard,
+            )
+            wb.save()
+
+        with ExcelFile(out) as wb2:
+            project_text = _CFB.from_bytes(
+                wb2.vba_project_bytes()
+            ).get_stream("PROJECT").decode("cp1252", errors="replace")
+            assert project_text.count("Module=Demo\r\n") == 1, project_text
+            assert project_text.count("Module=Healer\r\n") == 1, project_text
+            ws_demo = [
+                line for line in project_text.splitlines()
+                if line.startswith("Demo=")
+            ]
+            assert len(ws_demo) == 1, project_text
+            # Suppress unused-import lint
+            _ = _compress, _decompress
+
 
 # ===========================================================================
 # GATE 22 — Corpus Gate
@@ -1666,6 +1790,84 @@ class TestGate24_APIContract:
     def test_mutation_methods_exposed(self) -> None:
         for m in ["add_module", "rename_module", "delete_module"]:
             assert callable(getattr(VBAProject, m)), m
+
+
+# ---------------------------------------------------------------------------
+# Excel-authored large-module fixture: smoke + round-trip
+# ---------------------------------------------------------------------------
+
+class TestLargeModuleFixture:
+    """Regression coverage using `large_vba_module.xlsm`, a workbook authored
+    by Excel that contains a multi-chunk (>4 KB compressed) VBA module
+    (`Large_Module_`).  This file was the empirical reference that proved
+    Office never emits raw (flag=0) chunks for module source streams."""
+
+    def _fixture_or_skip(self) -> Path:
+        if not LIVE_LARGE_MODULE_XLSM.exists():
+            pytest.skip(f"fixture missing: {LIVE_LARGE_MODULE_XLSM}")
+        return LIVE_LARGE_MODULE_XLSM
+
+    @staticmethod
+    def _chunk_flags(stream: bytes, text_offset: int) -> list[int]:
+        cs = stream[text_offset:]
+        pos = 1
+        flags: list[int] = []
+        while pos < len(cs):
+            header = struct.unpack_from("<H", cs, pos)[0]
+            size = (header & 0x0FFF) + 1
+            flags.append((header >> 15) & 0x1)
+            pos += 2 + size
+        return flags
+
+    def test_excel_authored_large_module_uses_only_token_compressed_chunks(
+        self,
+    ) -> None:
+        """Empirical anchor: Office never writes raw chunks for source."""
+        from pyopenvba.cfb import CFB
+        from pyopenvba.vba import parse_vba_project
+
+        path = self._fixture_or_skip()
+        with ExcelFile(path) as wb:
+            cfb = CFB.from_bytes(wb.vba_project_bytes())
+        proj = parse_vba_project(cfb)
+        module = next(m for m in proj.modules if m.name == "Large_Module_")
+        raw = cfb.get_stream_in_storage("VBA", module.stream_name)
+        flags = self._chunk_flags(raw, module.text_offset)
+        assert len(flags) >= 2, (
+            f"fixture should be multi-chunk, got {len(flags)} chunks"
+        )
+        assert all(f == 1 for f in flags), (
+            f"Excel-authored modules should never contain raw chunks; "
+            f"got flags={flags}"
+        )
+
+    def test_resave_preserves_token_compressed_chunk_structure(
+        self, tmp_path: Path
+    ) -> None:
+        """pyOpenVBA must resave a multi-chunk module with the same all-flag=1
+        chunk discipline Office uses, and preserve the source byte-for-byte."""
+        from pyopenvba.cfb import CFB
+        from pyopenvba.vba import parse_vba_project
+
+        path = self._fixture_or_skip()
+        out = tmp_path / "large_vba_module_resave.xlsm"
+        with ExcelFile(path) as wb:
+            original_source = wb.get_module("Large_Module_")
+            wb.set_module("Large_Module_", original_source)
+            wb.save(out)
+
+        with ExcelFile(out) as wb2:
+            assert wb2.get_module("Large_Module_") == original_source
+            cfb = CFB.from_bytes(wb2.vba_project_bytes())
+        proj = parse_vba_project(cfb)
+        module = next(m for m in proj.modules if m.name == "Large_Module_")
+        raw = cfb.get_stream_in_storage("VBA", module.stream_name)
+        flags = self._chunk_flags(raw, module.text_offset)
+        assert len(flags) >= 2, "resave should still produce multiple chunks"
+        assert all(f == 1 for f in flags), (
+            f"resaved module must use only token-compressed chunks; "
+            f"got flags={flags}"
+        )
 
 
 # ===========================================================================

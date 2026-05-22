@@ -185,8 +185,17 @@ def compress(data: bytes) -> bytes:
 
     [MS-OVBA] 2.4.1 — write path.
 
-    Full 4096-byte chunks are stored as raw chunks.
-    Partial final chunks are token-compressed via greedy LZ.
+    Every chunk is emitted as token-compressed (CompressedChunkFlag=1).
+    Although the spec permits raw (flag=0) chunks of exactly 4096 bytes,
+    Office itself never writes them in CompressedSourceCode streams: every
+    chunk in an Excel-authored module stream is token-compressed.
+    Empirically, the Excel/VBE reader refuses to load module source whose
+    first chunk is raw ("An error occurred while loading <Module>"), even
+    though the bytes round-trip through a spec-compliant decompressor.
+    We therefore always emit token-compressed chunks and only fall back to
+    a raw chunk if the LZ encoding overflows 4096 bytes — which does not
+    happen for realistic VBA source text but is a valid escape hatch for
+    adversarial high-entropy input.
     """
     out = bytearray([0x01])   # SignatureByte
     cursor = 0
@@ -195,21 +204,28 @@ def compress(data: bytes) -> bytes:
         chunk = data[cursor: cursor + 4096]
         cursor += len(chunk)
 
-        if len(chunk) == 4096:
-            # Raw chunk: header flag=0, sig=0b011, size-1=0x0FFF → header=0x3FFF
-            out.extend(struct.pack("<H", 0x3FFF))
-            out.extend(chunk)
-        else:
-            encoded = _encode_token_chunk(chunk)
-            if len(encoded) > 4096:
-                raise VBAProjectError(
-                    f"Token-compressed chunk is {len(encoded)} bytes (max 4096)."
-                )
+        encoded = _encode_token_chunk(chunk)
+        if len(encoded) <= 4096:
             # header: flag=1, sig=0b011, size-1 = len(encoded)-1
             # 0x8000 | 0x3000 = 0xB000
             header = 0xB000 | (len(encoded) - 1)
             out.extend(struct.pack("<H", header))
             out.extend(encoded)
+            continue
+
+        # Token encoding overflowed (high-entropy input). Spec permits a
+        # raw chunk here, but only at a strict 4096 data bytes; smaller
+        # final chunks cannot be raw.
+        if len(chunk) != 4096:
+            raise VBAProjectError(
+                f"Final partial chunk ({len(chunk)} bytes) encoded to "
+                f"{len(encoded)} bytes, exceeding the 4096-byte chunk "
+                f"limit. The data cannot be represented as a single "
+                f"CompressedChunk."
+            )
+        # Raw chunk: header flag=0, sig=0b011, size-1=0x0FFF → header=0x3FFF
+        out.extend(struct.pack("<H", 0x3FFF))
+        out.extend(chunk)
 
     return bytes(out)
 
@@ -714,10 +730,19 @@ class VBAProject:
         )
         self.modules.append(module)
         self.dir_structure_dirty = True
-        self.pending_adds.add(module.stream_name)
-        # If the same stream name was queued for deletion (uncommon but
-        # possible: delete-then-readd), cancel the deletion instead.
-        self.pending_deletes.discard(module.stream_name)
+        # If the same stream name was queued for deletion (delete-then-readd
+        # of the same name, e.g. an idempotent "replace" script), cancel the
+        # deletion and do NOT queue an add: the CFB stream and its PROJECT/
+        # dir declaration are still on disk and must be reused as-is.  The
+        # ``dirty=True`` flag above ensures the stream's source bytes are
+        # rewritten via ``write_back_modules`` during ``save()``.  Without
+        # this branch, ``save()`` would append a duplicate ``Module=NAME``
+        # declaration (and matching ``[Workspace]`` entry) to PROJECT, which
+        # Excel rejects as workbook corruption.
+        if module.stream_name in self.pending_deletes:
+            self.pending_deletes.discard(module.stream_name)
+        else:
+            self.pending_adds.add(module.stream_name)
         return module
 
     def rename_module(self, old_name: str, new_name: str) -> VBAModule:
@@ -984,8 +1009,10 @@ def serialize_project_stream(
     """
     add_modules = add_modules or []
     delete_names = delete_names or set()
-    if not rename_map and not add_modules and not delete_names:
-        return raw
+    # NOTE: we deliberately do not short-circuit on "all inputs empty" —
+    # callers may invoke this to run the dedup/normalization pass on a
+    # PROJECT stream that was previously corrupted by buggy writes (e.g.
+    # duplicate ``Module=NAME`` lines from a delete-then-readd flow).
     try:
         text = raw.decode("cp1252", errors="replace")
     except LookupError:
@@ -993,6 +1020,15 @@ def serialize_project_stream(
 
     rename_ci: dict[str, str] = {k.casefold(): v for k, v in rename_map.items()}
     delete_ci: set[str] = {n.casefold() for n in delete_names}
+
+    # Track which declaration names have already been emitted (case-folded)
+    # so that any duplicate ``Module=``/``Class=``/``BaseClass=``/``Document=``
+    # lines that may already exist in the input PROJECT stream are scrubbed
+    # on the way out.  Excel treats duplicate declarations as workbook
+    # corruption, so save() must converge to a deduplicated state even when
+    # repairing an already-broken input.
+    seen_decls: set[str] = set()
+    seen_workspace: set[str] = set()
 
     out_lines: list[str] = []
     in_workspace = False
@@ -1025,6 +1061,10 @@ def serialize_project_stream(
             if key_s.casefold() in delete_ci:
                 continue
             new_key = rename_ci.get(key_s.casefold(), key_s)
+            ws_key = new_key.casefold()
+            if ws_key in seen_workspace:
+                continue
+            seen_workspace.add(ws_key)
             out_lines.append(f"{new_key}={value.strip()}")
             continue
         if key_s in ("Module", "Class", "BaseClass"):
@@ -1032,6 +1072,10 @@ def serialize_project_stream(
             if v.casefold() in delete_ci:
                 continue
             new_val = rename_ci.get(v.casefold(), v)
+            decl_key = new_val.casefold()
+            if decl_key in seen_decls:
+                continue
+            seen_decls.add(decl_key)
             out_lines.append(f"{key_s}={new_val}")
             last_decl_idx = len(out_lines) - 1
             continue
@@ -1040,6 +1084,10 @@ def serialize_project_stream(
             if name_part.casefold() in delete_ci:
                 continue
             new_name = rename_ci.get(name_part.casefold(), name_part)
+            decl_key = new_name.casefold()
+            if decl_key in seen_decls:
+                continue
+            seen_decls.add(decl_key)
             out_lines.append(f"Document={new_name}{sep}{id_part}")
             last_decl_idx = len(out_lines) - 1
             continue
@@ -1047,11 +1095,20 @@ def serialize_project_stream(
 
     # Splice in any newly-added module declarations after the last existing
     # one; if there were none, append at the project-section end (immediately
-    # before the first '[' header, or at the very end).
-    if add_modules:
+    # before the first '[' header, or at the very end).  Skip any name that
+    # already has a declaration (defensive: caller may pass an add for a
+    # module whose declaration survived from a previous save).
+    fresh_adds = [
+        (name, decl_key)
+        for name, decl_key in add_modules
+        if name.casefold() not in seen_decls
+    ]
+    if fresh_adds:
         insert_at = last_decl_idx + 1 if last_decl_idx >= 0 else _project_section_end(out_lines)
-        new_decl_lines = [f"{decl_key}={name}" for name, decl_key in add_modules]
+        new_decl_lines = [f"{decl_key}={name}" for name, decl_key in fresh_adds]
         out_lines[insert_at:insert_at] = new_decl_lines
+        for name, _ in fresh_adds:
+            seen_decls.add(name.casefold())
         # Shift workspace markers if they were after the insertion point.
         if workspace_idx >= insert_at:
             workspace_idx += len(new_decl_lines)
@@ -1059,11 +1116,19 @@ def serialize_project_stream(
             workspace_end_idx += len(new_decl_lines)
 
         # Append matching [Workspace] entries.  Real Office writes
-        # "<Name>=0, 0, 0, 0, C" by default; replicate that.
+        # "<Name>=0, 0, 0, 0, C" by default; replicate that.  Skip names
+        # that already have a Workspace entry.
         if workspace_idx >= 0:
-            ws_insert = workspace_end_idx if workspace_end_idx > workspace_idx else len(out_lines)
-            ws_lines = [f"{name}=0, 0, 0, 0, C" for name, _ in add_modules]
-            out_lines[ws_insert:ws_insert] = ws_lines
+            ws_new = [
+                (name, f"{name}=0, 0, 0, 0, C")
+                for name, _ in fresh_adds
+                if name.casefold() not in seen_workspace
+            ]
+            if ws_new:
+                ws_insert = workspace_end_idx if workspace_end_idx > workspace_idx else len(out_lines)
+                out_lines[ws_insert:ws_insert] = [line for _, line in ws_new]
+                for name, _ in ws_new:
+                    seen_workspace.add(name.casefold())
 
     return ("\r\n".join(out_lines) + "\r\n").encode("cp1252", errors="replace")
 

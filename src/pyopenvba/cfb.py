@@ -138,6 +138,36 @@ class CFB:
                 return self._read_stream(entry)
         raise KeyError(f"Stream {name!r} not found in storage {storage!r}")
 
+    def list_storages(self) -> list[str]:
+        """Return the names of all storage entries (excluding the root)."""
+        return [
+            e.name for e in self._directory
+            if e.obj_type == _OBJTYPE_STORAGE
+        ]
+
+    def list_streams_in_storage(self, storage: str) -> list[str]:
+        """
+        Return the names of all streams whose case-folded parent storage matches
+        ``storage``.
+
+        .. note::
+            The current scan is linear over the directory and does not walk the
+            red-black sibling tree.  For Excel-produced ``vbaProject.bin`` this
+            is sufficient because storage names are unique.
+        """
+        needle = storage.casefold()
+        found_storage = False
+        for e in self._directory:
+            if e.obj_type == _OBJTYPE_STORAGE and e.name.casefold() == needle:
+                found_storage = True
+                break
+        if not found_storage:
+            raise KeyError(f"Storage not found: {storage!r}")
+        return [
+            e.name for e in self._directory
+            if e.obj_type == _OBJTYPE_STREAM
+        ]
+
     # ------------------------------------------------------------------
     # Internal parsing
     # ------------------------------------------------------------------

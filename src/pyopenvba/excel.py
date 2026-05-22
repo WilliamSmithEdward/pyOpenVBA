@@ -24,7 +24,7 @@ from typing import Union
 
 from pyopenvba.cfb import CFB
 from pyopenvba.exceptions import UnsupportedFormatError, VBAProjectError
-from pyopenvba.vba import VBAProject, parse_vba_project
+from pyopenvba.vba import VBAProject, parse_vba_project, write_back_modules
 
 _ZIP_FORMATS = frozenset({".xlsm", ".xlsb", ".xlam"})
 _CFB_FORMATS = frozenset({".xls"})
@@ -46,7 +46,7 @@ class ExcelFile:
         self._suffix = self._path.suffix.lower()
         self._zip: zipfile.ZipFile | None = None
         self._cfb: CFB | None = None
-        self._zip_bytes: bytearray | None = None   # in-memory copy for write-back
+        self._zip_bytes: bytes | None = None
         self._project: VBAProject | None = None
         self._open()
 
@@ -76,6 +76,14 @@ class ExcelFile:
             self._project = parse_vba_project(cfb)
         return self._project
 
+    def vba_project_bytes(self) -> bytes:
+        """Return the raw bytes of ``xl/vbaProject.bin`` (or the whole CFB
+        file for legacy ``.xls``)."""
+        if self._suffix in _CFB_FORMATS:
+            return self._path.read_bytes()
+        assert self._zip is not None
+        return self._zip.read(_VBA_ENTRY)
+
     def vba_modules(self) -> dict[str, str]:
         """Return a mapping of module name -> source code."""
         return {m.name: m.source for m in self.vba_project().modules}
@@ -93,35 +101,67 @@ class ExcelFile:
         Replace the source code of an existing VBA module in memory.
 
         Changes are not written to disk until :meth:`save` is called.
-
-        .. note::
-            This updates only the decompressed source text tracked by
-            pyOpenVBA.  Writing back requires re-compressing and patching
-            the CFB, which is not yet implemented.  See the roadmap in
-            README.md.
         """
         project = self.vba_project()
         for m in project.modules:
             if m.name.casefold() == name.casefold():
                 m.source = source
+                m.dirty = True
                 return
         raise KeyError(f"Module not found: {name!r}")
 
+    def validate(self) -> list[str]:
+        """Return cross-structure inconsistency messages; empty list means OK."""
+        return self.vba_project().validate(self._get_cfb())
+
     def save(self, dest: Union[str, Path, None] = None) -> None:
         """
-        Save the workbook.
+        Save the workbook, applying any pending module edits.
 
         ``dest`` defaults to the original file path (in-place overwrite).
 
-        .. warning::
-            Write-back (re-compressing and patching the CFB / ZIP) is not
-            yet implemented.  This method raises :exc:`NotImplementedError`
-            until that feature lands.
+        Only ``xl/vbaProject.bin`` is rewritten; every other ZIP entry is
+        preserved byte-for-byte along with its compression method and
+        metadata so the workbook's non-VBA structure remains intact.
+
+        Legacy ``.xls`` (raw CFB) writes the CFB bytes directly.
         """
-        raise NotImplementedError(
-            "Write-back is not yet implemented. "
-            "Tracked in: https://github.com/WilliamGreenlee/pyOpenVBA/issues/1"
-        )
+        cfb = self._get_cfb()
+        if self._project is not None:
+            write_back_modules(cfb, self._project)
+        new_cfb_bytes = cfb.to_bytes()
+        out_path = Path(dest) if dest is not None else self._path
+
+        if self._suffix in _CFB_FORMATS:
+            out_path.write_bytes(new_cfb_bytes)
+            return
+
+        if self._zip is None:
+            raise RuntimeError("ExcelFile is not open.")
+
+        buf = io.BytesIO()
+        with zipfile.ZipFile(buf, "w") as out_zip:
+            for info in self._zip.infolist():
+                if info.filename == _VBA_ENTRY:
+                    out_info = zipfile.ZipInfo(
+                        filename=info.filename,
+                        date_time=info.date_time,
+                    )
+                    out_info.compress_type = info.compress_type
+                    out_info.external_attr = info.external_attr
+                    out_info.create_system = info.create_system
+                    out_zip.writestr(out_info, new_cfb_bytes)
+                else:
+                    data = self._zip.read(info.filename)
+                    out_info = zipfile.ZipInfo(
+                        filename=info.filename,
+                        date_time=info.date_time,
+                    )
+                    out_info.compress_type = info.compress_type
+                    out_info.external_attr = info.external_attr
+                    out_info.create_system = info.create_system
+                    out_zip.writestr(out_info, data)
+        out_path.write_bytes(buf.getvalue())
 
     # ------------------------------------------------------------------
     # Internal helpers
@@ -140,7 +180,7 @@ class ExcelFile:
 
     def _open_zip(self) -> None:
         raw = self._path.read_bytes()
-        self._zip_bytes = bytearray(raw)
+        self._zip_bytes = raw
         self._zip = zipfile.ZipFile(io.BytesIO(raw), mode="r")
         if _VBA_ENTRY not in self._zip.namelist():
             raise VBAProjectError(

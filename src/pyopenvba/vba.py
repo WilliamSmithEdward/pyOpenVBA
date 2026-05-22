@@ -95,6 +95,11 @@ def decompress(data: bytes) -> bytes:
             )
 
         chunk_end = pos + chunk_data_size
+        if chunk_end > len(data):
+            raise VBAProjectError(
+                f"Truncated chunk: header announces {chunk_data_size} bytes but only "
+                f"{len(data) - pos} remain."
+            )
         decompressed_chunk_start = len(out)
 
         if chunk_flag == 0:
@@ -336,43 +341,32 @@ def _parse_dir_stream(raw: bytes) -> tuple[int, list[_ModuleInfo]]:
 
     # ------------------------------------------------------------------
     # Phase 1 — PROJECTINFORMATION + PROJECTREFERENCES
-    # Scan records until PROJECTMODULES (0x000F).
+    #
+    # Records in this section have heterogeneous layouts: some are
+    # (Id, Size, Data) but others (PROJECTDOCSTRING, PROJECTVERSION,
+    # PROJECTCONSTANTS, REFERENCENAME, REFERENCECONTROL) carry inline
+    # sub-fields that fall outside the Size field.  Fully decoding every
+    # variant is large and brittle, and we don't currently need the data.
+    #
+    # Pragmatic approach: locate PROJECTCODEPAGE (used for MBCS decoding)
+    # and PROJECTMODULES (start of the modules section) by signature scan.
+    # The PROJECTMODULES record always begins with bytes "0F 00 02 00 00 00"
+    # immediately followed by the module-count u16 and then the
+    # PROJECTCOOKIE record "13 00 02 00 00 00", so the 14-byte combined
+    # signature is highly distinctive.
     # ------------------------------------------------------------------
-    while pos + 6 <= len(raw):
-        record_id = _read_u16()
-        if record_id == 0x000F:
-            pos -= 2   # rewind — handle in phase 2
-            break
-        record_size = _read_u32()
-        if record_id == 0x0003:           # PROJECTCODEPAGE
-            if record_size >= 2:
-                code_page = _read_u16()
-                _skip(record_size - 2)
-            else:
-                _skip(record_size)
-        else:
-            _skip(record_size)
+    # PROJECTCODEPAGE = Id 0x0003, Size=2.
+    cp_marker = b"\x03\x00\x02\x00\x00\x00"
+    cp_idx = raw.find(cp_marker)
+    if cp_idx != -1 and cp_idx + 8 <= len(raw):
+        code_page = int(struct.unpack_from("<H", raw, cp_idx + 6)[0])
 
-    # ------------------------------------------------------------------
-    # Phase 2 — PROJECTMODULES header
-    # ------------------------------------------------------------------
-    if pos + 6 > len(raw):
-        raise VBAProjectError("dir stream truncated before PROJECTMODULES.")
-
-    modules_id = _read_u16()
-    if modules_id != 0x000F:
-        raise VBAProjectError(
-            f"Expected PROJECTMODULES id 0x000F, got {modules_id:#06x}."
-        )
-    _skip(_read_u32())   # Size=2, Count:u16 — we count from the records themselves
-
-    # PROJECTCOOKIE (0x0013) immediately follows.
-    if pos + 6 <= len(raw):
-        peek_id = _read_u16()
-        if peek_id == 0x0013:
-            _skip(_read_u32())
-        else:
-            pos -= 2   # not a cookie — rewind
+    # PROJECTMODULES = Id 0x000F, Size=2.
+    pm_marker = b"\x0F\x00\x02\x00\x00\x00"
+    pm_idx = raw.find(pm_marker)
+    if pm_idx == -1:
+        raise VBAProjectError("dir stream contains no PROJECTMODULES record.")
+    pos = pm_idx + 8   # skip Id(2) + Size(4) + ModuleCount(2)
 
     # ------------------------------------------------------------------
     # Phase 3 — MODULE records
@@ -473,6 +467,13 @@ class VBAModule:
     text_offset: int = 0
     is_read_only: bool = False
     is_private: bool = False
+    # Original bytes 0..text_offset of the module stream (performance cache
+    # / version-dependent prefix).  Preserved across write-back so that
+    # Office's cache invalidation logic operates the same way as it would
+    # for an untouched stream.
+    prefix_bytes: bytes = field(default=b"", repr=False)
+    # Whether the source has been edited and needs to be recompressed on save.
+    dirty: bool = field(default=False, repr=False)
 
 
 @dataclass
@@ -490,6 +491,89 @@ class VBAProject:
 
     def module_names(self) -> list[str]:
         return [m.name for m in self.modules]
+
+    # ------------------------------------------------------------------
+    # Validation (Gate 19)
+    # ------------------------------------------------------------------
+
+    def validate(self, cfb: "CFB | None" = None) -> list[str]:
+        """
+        Return a list of cross-structure inconsistency messages.
+
+        An empty list means the in-memory project is internally consistent.
+        Pass the originating CFB to additionally validate that every
+        ``MODULESTREAMNAME`` resolves to a real stream inside ``VBA/``.
+        """
+        problems: list[str] = []
+        seen_names: set[str] = set()
+        seen_streams: set[str] = set()
+        for m in self.modules:
+            key = m.name.casefold()
+            if key in seen_names:
+                problems.append(f"duplicate module name: {m.name!r}")
+            seen_names.add(key)
+            skey = m.stream_name.casefold()
+            if skey in seen_streams:
+                problems.append(f"duplicate module stream name: {m.stream_name!r}")
+            seen_streams.add(skey)
+            if not m.stream_name:
+                problems.append(f"module {m.name!r} has empty MODULESTREAMNAME")
+        if cfb is not None:
+            try:
+                vba_streams = {
+                    n.casefold() for n in cfb.list_streams_in_storage("VBA")
+                }
+            except KeyError:
+                problems.append("CFB has no VBA storage")
+                return problems
+            for m in self.modules:
+                if m.stream_name.casefold() not in vba_streams:
+                    problems.append(
+                        f"module {m.name!r} references missing stream "
+                        f"VBA/{m.stream_name!r}"
+                    )
+        return problems
+
+
+# ---------------------------------------------------------------------------
+# Write-back helpers
+# ---------------------------------------------------------------------------
+
+def _encoding_for_codepage(code_page: int) -> str:
+    try:
+        encoding = f"cp{code_page}"
+        "".encode(encoding)
+    except LookupError:
+        encoding = "latin-1"
+    return encoding
+
+
+def rebuild_module_stream(module: VBAModule, code_page: int) -> bytes:
+    """
+    Rebuild a module stream by preserving the original ``[0:text_offset]``
+    performance-cache prefix and replacing ``[text_offset:]`` with a freshly
+    compressed copy of ``module.source``.
+
+    The replacement is byte-exact in the prefix region, so any cache-
+    invalidation logic that Office performs on the prefix remains valid.
+    """
+    encoding = _encoding_for_codepage(code_page)
+    source_bytes = module.source.encode(encoding, errors="replace")
+    compressed = compress(source_bytes)
+    return module.prefix_bytes + compressed
+
+
+def write_back_modules(cfb: CFB, project: VBAProject) -> None:
+    """
+    Push every dirty module's source back into ``cfb`` via
+    :meth:`CFB.write_stream_in_storage`.  Clean modules are left untouched.
+    """
+    for m in project.modules:
+        if not m.dirty:
+            continue
+        new_stream = rebuild_module_stream(m, project.code_page)
+        cfb.write_stream_in_storage("VBA", m.stream_name, new_stream)
+        m.dirty = False
 
 
 # ---------------------------------------------------------------------------
@@ -515,12 +599,7 @@ def parse_vba_project(cfb: CFB) -> VBAProject:
 
     dir_raw = decompress(dir_compressed)
     code_page, module_infos = _parse_dir_stream(dir_raw)
-
-    try:
-        encoding = f"cp{code_page}"
-        "".encode(encoding)
-    except LookupError:
-        encoding = "latin-1"
+    encoding = _encoding_for_codepage(code_page)
 
     modules: list[VBAModule] = []
     for info in module_infos:
@@ -552,6 +631,7 @@ def parse_vba_project(cfb: CFB) -> VBAProject:
             text_offset=info.text_offset,
             is_read_only=info.is_read_only,
             is_private=info.is_private,
+            prefix_bytes=stream_compressed[: info.text_offset],
         ))
 
     return VBAProject(modules=modules, code_page=code_page)

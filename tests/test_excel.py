@@ -47,8 +47,11 @@ class TestExcelFileOpen:
         with ExcelFile(path) as wb:
             assert wb is not None
 
-    def test_save_raises_not_implemented(self, tmp_path: Path) -> None:
+    def test_save_invalid_vba_bin_raises(self, tmp_path: Path) -> None:
+        # The fake xlsm above only stores 8 zero bytes as vbaProject.bin,
+        # so save() must fail at CFB parsing, not silently emit garbage.
+        from pyopenvba.exceptions import CFBError
         path = _make_empty_zip_xlsm(tmp_path)
         with ExcelFile(path) as wb:
-            with pytest.raises(NotImplementedError):
-                wb.save()
+            with pytest.raises(CFBError):
+                wb.save(tmp_path / "out.xlsm")

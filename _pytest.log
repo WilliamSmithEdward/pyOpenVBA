@@ -1,0 +1,43 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.14.3, pytest-9.0.3, pluggy-1.6.0
+rootdir: C:\Users\William\Documents\GitHub\pyOpenVBA
+configfile: pyproject.toml
+plugins: anyio-4.12.1
+collected 91 items
+
+tests\test_gates.py ...........F....x..........F......xxx.xx..........xx [ 57%]
+xxxxx.x.........xx.x......F..F.....x...                                  [100%]
+
+================================== FAILURES ===================================
+____________ TestGate02_CFB.test_srp_streams_not_emitted_on_write _____________
+tests\test_gates.py:194: in test_srp_streams_not_emitted_on_write
+    assert not s.lower().startswith("__srp_"), (
+E   AssertionError: writer emitted SRP stream '__SRP_2'
+E   assert not True
+E    +  where True = <built-in method startswith of str object at 0x0000020CD8DA9440>('__srp_')
+E    +    where <built-in method startswith of str object at 0x0000020CD8DA9440> = '__srp_2'.startswith
+E    +      where '__srp_2' = <built-in method lower of str object at 0x0000020CD8DA9530>()
+E    +        where <built-in method lower of str object at 0x0000020CD8DA9530> = '__SRP_2'.lower
+________ TestGate04_Compression.test_compress_decompress_random_corpus ________
+tests\test_gates.py:260: in test_compress_decompress_random_corpus
+    assert decompress(compress(data)) == data, f"failed at n={n}"
+                      ^^^^^^^^^^^^^^
+src\pyopenvba\vba.py:180: in compress
+    raise VBAProjectError(
+E   pyopenvba.exceptions.VBAProjectError: Token-compressed chunk is 4607 bytes (max 4096).
+_____ TestGate23_Fuzz.test_malformed_compressed_input_fails_cleanly[\x01] _____
+tests\test_gates.py:817: in test_malformed_compressed_input_fails_cleanly
+    with pytest.raises(VBAProjectError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'pyopenvba.exceptions.VBAProjectError'>
+___________ TestGate23_Fuzz.test_truncated_chunk_data_fails_cleanly ___________
+tests\test_gates.py:823: in test_truncated_chunk_data_fails_cleanly
+    with pytest.raises(VBAProjectError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'pyopenvba.exceptions.VBAProjectError'>
+=========================== short test summary info ===========================
+FAILED tests/test_gates.py::TestGate02_CFB::test_srp_streams_not_emitted_on_write
+FAILED tests/test_gates.py::TestGate04_Compression::test_compress_decompress_random_corpus
+FAILED tests/test_gates.py::TestGate23_Fuzz::test_malformed_compressed_input_fails_cleanly[\x01]
+FAILED tests/test_gates.py::TestGate23_Fuzz::test_truncated_chunk_data_fails_cleanly
+================== 4 failed, 69 passed, 18 xfailed in 0.85s ===================

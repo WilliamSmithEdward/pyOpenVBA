@@ -35,3 +35,7 @@ Thumbs.db
 # Test artifacts
 tests/fixtures/*.xlsm
 tests/fixtures/*.xls
+
+# Manually-generated Excel verification set (rebuilt by
+# scripts/build_excel_verification_set.py)
+tests/live_excel_testing/_excel_verify/

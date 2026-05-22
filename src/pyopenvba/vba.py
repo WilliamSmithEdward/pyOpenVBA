@@ -53,7 +53,7 @@ def copy_token_help(decompressed_current: int, decompressed_chunk_start: int) ->
     return length_mask, offset_mask, bit_count
 
 
-def decompress(data: bytes) -> bytes:
+def decompress(data: bytes, *, stream_name: str = "<unknown>") -> bytes:
     """
     Decompress a VBA stream using the MS-OVBA compression algorithm.
 
@@ -72,44 +72,60 @@ def decompress(data: bytes) -> bytes:
 
     Raw chunk:   Data is exactly 4096 literal bytes.
     Token chunk: Data is groups of (flag_byte, 0-8 tokens).
+
+    ``stream_name`` is purely contextual: it is embedded in any
+    :class:`VBAProjectError` raised here so callers can identify which
+    CFB stream a malformed chunk came from.
     """
+
+    def _err(msg: str, offset: int) -> "VBAProjectError":
+        return VBAProjectError(
+            f"{msg} [stream={stream_name!r}, offset={offset}]"
+        )
+
     if not data or data[0] != 0x01:
-        raise VBAProjectError("Invalid compressed stream: missing 0x01 signature byte.")
+        raise _err("Invalid compressed stream: missing 0x01 signature byte.", 0)
 
     pos = 1
     out = bytearray()
 
     while pos < len(data):
         if pos + 2 > len(data):
-            raise VBAProjectError("Truncated compressed stream: missing chunk header.")
+            raise _err("Truncated compressed stream: missing chunk header.", pos)
 
         header = int(struct.unpack_from("<H", data, pos)[0])
         chunk_data_size = (header & 0x0FFF) + 1   # data bytes after the header
         chunk_signature = (header >> 12) & 0x7
         chunk_flag = (header >> 15) & 0x1
+        header_offset = pos
         pos += 2
 
         if chunk_signature != 0b011:
-            raise VBAProjectError(
-                f"Bad compressed chunk signature: expected 0b011, got {chunk_signature:#05b}."
+            raise _err(
+                f"Bad compressed chunk signature: expected 0b011, "
+                f"got {chunk_signature:#05b}.",
+                header_offset,
             )
 
         chunk_end = pos + chunk_data_size
         if chunk_end > len(data):
-            raise VBAProjectError(
-                f"Truncated chunk: header announces {chunk_data_size} bytes but only "
-                f"{len(data) - pos} remain."
+            raise _err(
+                f"Truncated chunk: header announces {chunk_data_size} bytes "
+                f"but only {len(data) - pos} remain.",
+                header_offset,
             )
         decompressed_chunk_start = len(out)
 
         if chunk_flag == 0:
             # Raw (uncompressed) chunk — exactly 4096 literal bytes.
             if chunk_data_size != 4096:
-                raise VBAProjectError(
-                    f"Raw chunk must have exactly 4096 data bytes; got {chunk_data_size}."
+                raise _err(
+                    f"Raw chunk must have exactly 4096 data bytes; "
+                    f"got {chunk_data_size}.",
+                    header_offset,
                 )
             if pos + 4096 > len(data):
-                raise VBAProjectError("Truncated raw chunk.")
+                raise _err("Truncated raw chunk.", pos)
             out.extend(data[pos: pos + 4096])
             pos += 4096
         else:
@@ -127,7 +143,7 @@ def decompress(data: bytes) -> bytes:
                     if (flag_byte >> bit) & 1:
                         # Copy token — back-reference into already-decompressed output.
                         if pos + 2 > len(data):
-                            raise VBAProjectError("Truncated copy token.")
+                            raise _err("Truncated copy token.", pos)
                         token = int(struct.unpack_from("<H", data, pos)[0])
                         pos += 2
 
@@ -139,12 +155,15 @@ def decompress(data: bytes) -> bytes:
 
                         copy_src = len(out) - offset
                         if copy_src < 0:
-                            raise VBAProjectError(
-                                "Copy token references before start of output."
+                            raise _err(
+                                "Copy token references before start of output.",
+                                pos - 2,
                             )
                         if copy_src < decompressed_chunk_start:
-                            raise VBAProjectError(
-                                "Copy token references before the start of the current chunk."
+                            raise _err(
+                                "Copy token references before the start of the "
+                                "current chunk.",
+                                pos - 2,
                             )
 
                         # Byte-by-byte copy; overlap is intentional and required by spec.
@@ -284,38 +303,38 @@ class _ModuleInfo:
     is_private: bool = False
 
 
-def _parse_dir_stream(raw: bytes) -> tuple[int, list[_ModuleInfo]]:
+# ---------------------------------------------------------------------------
+# Reference records (Gate 10)
+# ---------------------------------------------------------------------------
+
+@dataclass
+class VBAReference:
+    """A REFERENCED record from the dir stream's PROJECTREFERENCES section.
+
+    [MS-OVBA] 2.3.4.2.2.  A reference is identified by one of several body
+    record IDs; the optional ``libid`` strings carry registry/path data.
+    """
+    name: str = ""
+    name_unicode: str = ""
+    kind: str = ""              # "registered" | "project" | "control" | "original"
+    libid: str = ""             # primary libid (registry path / file path)
+    libid_secondary: str = ""   # twiddled / relative libid where applicable
+
+
+def _parse_dir_stream(raw: bytes) -> tuple["_DirInfo", list[_ModuleInfo]]:
     """
     Parse a decompressed dir stream.
 
-    Returns (project_code_page, list[_ModuleInfo]).
+    Returns (_DirInfo, list[_ModuleInfo]).
 
-    Parsing strategy: read records sequentially as (Id:u16, Size:u32, Data:Size bytes).
-    Skip unknown records by their Size.  Switch to module parsing at PROJECTMODULES
-    marker (0x000F).
-
-    Key record IDs ([MS-OVBA] 2.3.4.2):
-      PROJECTCODEPAGE         0x0003  Size=2, CodePage:u16
-      PROJECTMODULES          0x000F  Size=2, Count:u16
-      PROJECTCOOKIE           0x0013  skip
-      MODULENAME              0x0019  MBCS logical module name
-      MODULESTREAMNAME        0x001A  MBCS stream name in CFB /VBA/<stream_name>
-        reserved partner      0x0032  UTF-16 stream name
-      MODULEDOCSTRING         0x001C  skip (MBCS)
-        reserved partner      0x0048  skip (UTF-16)
-      MODULEOFFSET            0x0031  Size=4, TextOffset:u32
-      MODULEHELPCONTEXT       0x001E  skip
-      MODULECOOKIE            0x002C  skip
-      MODULETYPE standard     0x0021  Size=0
-      MODULETYPE other        0x0022  Size=0
-      MODULEREADONLY          0x0025  Size=0
-      MODULEPRIVATE           0x0028  Size=0
-      Module terminator       0x002B  Size=0 (followed by reserved u32=0)
-      MODULENAMEUNICODE       0x0047  UTF-16 logical module name
-      dir terminator          0x0010
+    Decoding strategy: sequentially read records as (Id:u16, Size:u32, Data).
+    PROJECTVERSION (0x0009) is the only record that lacks a real Size field
+    (its Size slot is a Reserved=0x0004 marker and the payload is fixed at
+    10 bytes including Reserved), so it is special-cased.  MODULENAME
+    (0x0019) acts as a delimiter that starts a new _ModuleInfo entry once
+    the parser has crossed into PROJECTMODULES.
     """
     pos = 0
-    code_page = 1252
 
     def _read_u16() -> int:
         nonlocal pos
@@ -333,124 +352,217 @@ def _parse_dir_stream(raw: bytes) -> tuple[int, list[_ModuleInfo]]:
         pos += 4
         return v
 
-    def _skip(n: int) -> bytes:
+    def _read(n: int) -> bytes:
         nonlocal pos
         chunk = raw[pos: pos + n]
         pos += n
         return chunk
 
-    # ------------------------------------------------------------------
-    # Phase 1 — PROJECTINFORMATION + PROJECTREFERENCES
-    #
-    # Records in this section have heterogeneous layouts: some are
-    # (Id, Size, Data) but others (PROJECTDOCSTRING, PROJECTVERSION,
-    # PROJECTCONSTANTS, REFERENCENAME, REFERENCECONTROL) carry inline
-    # sub-fields that fall outside the Size field.  Fully decoding every
-    # variant is large and brittle, and we don't currently need the data.
-    #
-    # Pragmatic approach: locate PROJECTCODEPAGE (used for MBCS decoding)
-    # and PROJECTMODULES (start of the modules section) by signature scan.
-    # The PROJECTMODULES record always begins with bytes "0F 00 02 00 00 00"
-    # immediately followed by the module-count u16 and then the
-    # PROJECTCOOKIE record "13 00 02 00 00 00", so the 14-byte combined
-    # signature is highly distinctive.
-    # ------------------------------------------------------------------
-    # PROJECTCODEPAGE = Id 0x0003, Size=2.
-    cp_marker = b"\x03\x00\x02\x00\x00\x00"
-    cp_idx = raw.find(cp_marker)
-    if cp_idx != -1 and cp_idx + 8 <= len(raw):
-        code_page = int(struct.unpack_from("<H", raw, cp_idx + 6)[0])
-
-    # PROJECTMODULES = Id 0x000F, Size=2.
-    pm_marker = b"\x0F\x00\x02\x00\x00\x00"
-    pm_idx = raw.find(pm_marker)
-    if pm_idx == -1:
-        raise VBAProjectError("dir stream contains no PROJECTMODULES record.")
-    pos = pm_idx + 8   # skip Id(2) + Size(4) + ModuleCount(2)
-
-    # ------------------------------------------------------------------
-    # Phase 3 — MODULE records
-    # ------------------------------------------------------------------
+    info = _DirInfo()
     modules: list[_ModuleInfo] = []
     current: _ModuleInfo | None = None
+    in_modules = False
+    pending_ref: VBAReference | None = None
 
-    try:
-        encoding = f"cp{code_page}"
-        "".encode(encoding)
-    except LookupError:
-        encoding = "latin-1"
+    def _commit_ref() -> None:
+        nonlocal pending_ref
+        if pending_ref is not None:
+            info.references.append(pending_ref)
+            pending_ref = None
+
+    def _enc() -> str:
+        try:
+            "".encode(f"cp{info.code_page}")
+            return f"cp{info.code_page}"
+        except LookupError:
+            return "latin-1"
 
     while pos + 2 <= len(raw):
         record_id = _read_u16()
 
+        # Module terminator (only meaningful after PROJECTMODULES).
         if record_id == 0x0010:   # dir terminator
+            if pos + 4 <= len(raw):
+                pos += 4  # consume trailing reserved u32
             break
 
-        if record_id == 0x0019:   # MODULENAME — starts a new module
+        # PROJECTVERSION — special, no Size field.
+        if record_id == 0x0009:
+            if pos + 10 > len(raw):
+                break
+            _ = _read_u32()                 # Reserved=0x0004
+            info.version_major = _read_u32()
+            info.version_minor = _read_u16()
+            continue
+
+        # MODULENAME — starts a new module record.
+        if record_id == 0x0019:
+            in_modules = True
+            _commit_ref()
             if current is not None:
                 modules.append(current)
-            current = _ModuleInfo(code_page=code_page)
-            record_size = _read_u32()
-            current.name = _skip(record_size).decode(encoding, errors="replace")
+            current = _ModuleInfo(code_page=info.code_page)
+            size = _read_u32()
+            current.name = _read(size).decode(_enc(), errors="replace")
             continue
 
         if pos + 4 > len(raw):
             break
-        record_size = _read_u32()
+        size = _read_u32()
+        data = _read(size)
 
-        if record_id == 0x0047:   # MODULENAMEUNICODE
-            s = _skip(record_size).decode("utf-16-le", errors="replace")
-            if current is not None:
-                current.name_unicode = s
+        # ------------- PROJECTINFORMATION records -----------------
+        if record_id == 0x0001:   # PROJECTSYSKIND
+            if len(data) >= 4:
+                info.sys_kind = int(struct.unpack_from("<I", data, 0)[0])
+        elif record_id == 0x004A: # PROJECTCOMPATVERSION
+            if len(data) >= 4:
+                info.compat_version = int(struct.unpack_from("<I", data, 0)[0])
+        elif record_id == 0x0002: # PROJECTLCID
+            if len(data) >= 4:
+                info.lcid = int(struct.unpack_from("<I", data, 0)[0])
+        elif record_id == 0x0014: # PROJECTLCIDINVOKE
+            if len(data) >= 4:
+                info.lcid_invoke = int(struct.unpack_from("<I", data, 0)[0])
+        elif record_id == 0x0003: # PROJECTCODEPAGE
+            if len(data) >= 2:
+                info.code_page = int(struct.unpack_from("<H", data, 0)[0])
+        elif record_id == 0x0004: # PROJECTNAME
+            info.name = data.decode(_enc(), errors="replace")
+        elif record_id == 0x0005: # PROJECTDOCSTRING (MBCS)
+            info.doc_string = data.decode(_enc(), errors="replace")
+        elif record_id == 0x0040: # reserved partner: PROJECTDOCSTRINGUNICODE
+            info.doc_string_unicode = data.decode("utf-16-le", errors="replace")
+        elif record_id == 0x0006: # PROJECTHELPFILEPATH (MBCS)
+            info.help_file = data.decode(_enc(), errors="replace")
+        elif record_id == 0x003D: # reserved partner: PROJECTHELPFILEPATH2
+            pass                  # duplicate of HelpFile, ignore
+        elif record_id == 0x0007: # PROJECTHELPCONTEXT
+            if len(data) >= 4:
+                info.help_context = int(struct.unpack_from("<I", data, 0)[0])
+        elif record_id == 0x0008: # PROJECTLIBFLAGS
+            if len(data) >= 4:
+                info.lib_flags = int(struct.unpack_from("<I", data, 0)[0])
+        elif record_id == 0x000C: # PROJECTCONSTANTS (MBCS)
+            info.constants = data.decode(_enc(), errors="replace")
+        elif record_id == 0x003C: # reserved partner: PROJECTCONSTANTSUNICODE
+            info.constants_unicode = data.decode("utf-16-le", errors="replace")
+        elif record_id == 0x000F: # PROJECTMODULES (count)
+            if len(data) >= 2:
+                info.module_count = int(struct.unpack_from("<H", data, 0)[0])
+        elif record_id == 0x0013: # PROJECTCOOKIE
+            pass
 
-        elif record_id == 0x001A: # MODULESTREAMNAME (MBCS)
-            s = _skip(record_size).decode(encoding, errors="replace")
-            if current is not None:
-                current.stream_name = s
+        # ------------- PROJECTREFERENCES records ------------------
+        elif record_id == 0x0016: # REFERENCENAME (MBCS)
+            _commit_ref()
+            pending_ref = VBAReference(name=data.decode(_enc(), errors="replace"))
+        elif record_id == 0x003E: # reserved partner: REFERENCENAME unicode
+            if pending_ref is not None:
+                pending_ref.name_unicode = data.decode("utf-16-le", errors="replace")
+        elif record_id == 0x000D: # REFERENCEREGISTERED
+            if pending_ref is None:
+                pending_ref = VBAReference()
+            pending_ref.kind = "registered"
+            if len(data) >= 4:
+                lib_size = int(struct.unpack_from("<I", data, 0)[0])
+                pending_ref.libid = bytes(
+                    data[4: 4 + lib_size]
+                ).decode("latin-1", errors="replace")
+            _commit_ref()
+        elif record_id == 0x000E: # REFERENCEPROJECT
+            if pending_ref is None:
+                pending_ref = VBAReference()
+            pending_ref.kind = "project"
+            if len(data) >= 4:
+                abs_size = int(struct.unpack_from("<I", data, 0)[0])
+                pending_ref.libid = bytes(
+                    data[4: 4 + abs_size]
+                ).decode("latin-1", errors="replace")
+                rel_off = 4 + abs_size
+                if len(data) >= rel_off + 4:
+                    rel_size = int(struct.unpack_from("<I", data, rel_off)[0])
+                    pending_ref.libid_secondary = bytes(
+                        data[rel_off + 4: rel_off + 4 + rel_size]
+                    ).decode("latin-1", errors="replace")
+            _commit_ref()
+        elif record_id == 0x002F: # REFERENCECONTROL (twiddled libid)
+            if pending_ref is None:
+                pending_ref = VBAReference()
+            pending_ref.kind = "control"
+            if len(data) >= 4:
+                tw_size = int(struct.unpack_from("<I", data, 0)[0])
+                pending_ref.libid_secondary = bytes(
+                    data[4: 4 + tw_size]
+                ).decode("latin-1", errors="replace")
+            # do NOT commit yet: 0x0030 follow-up may contribute primary libid
+        elif record_id == 0x0030: # REFERENCECONTROL extended (primary libid)
+            if pending_ref is not None and len(data) >= 4:
+                ex_size = int(struct.unpack_from("<I", data, 0)[0])
+                pending_ref.libid = bytes(
+                    data[4: 4 + ex_size]
+                ).decode("latin-1", errors="replace")
+            _commit_ref()
+        elif record_id == 0x0033: # REFERENCEORIGINAL
+            if pending_ref is None:
+                pending_ref = VBAReference()
+            pending_ref.kind = "original"
+            pending_ref.libid = data.decode("latin-1", errors="replace")
+            # Do not commit: REFERENCEORIGINAL is always followed by REFERENCECONTROL.
 
-        elif record_id == 0x0032: # MODULESTREAMNAME reserved (UTF-16)
-            s = _skip(record_size).decode("utf-16-le", errors="replace")
-            if current is not None:
-                current.stream_name_unicode = s
-
-        elif record_id == 0x0031: # MODULEOFFSET
-            if record_size == 4 and current is not None:
-                current.text_offset = int(struct.unpack_from("<I", raw, pos)[0])
-            _skip(record_size)
-
-        elif record_id == 0x0021: # MODULETYPE standard
-            if current is not None:
-                current.module_kind = VBAModuleKind.standard
-            _skip(record_size)
-
-        elif record_id == 0x0022: # MODULETYPE other (class/document/designer)
-            if current is not None:
-                current.module_kind = VBAModuleKind.other
-            _skip(record_size)
-
-        elif record_id == 0x0025: # MODULEREADONLY
-            if current is not None:
-                current.is_read_only = True
-            _skip(record_size)
-
-        elif record_id == 0x0028: # MODULEPRIVATE
-            if current is not None:
-                current.is_private = True
-            _skip(record_size)
-
-        elif record_id == 0x002B: # Module terminator
-            _skip(record_size)
-            if current is not None:
-                modules.append(current)
-                current = None
-
+        # ------------- MODULE records -----------------------------
+        elif record_id == 0x0047 and current is not None: # MODULENAMEUNICODE
+            current.name_unicode = data.decode("utf-16-le", errors="replace")
+        elif record_id == 0x001A and current is not None: # MODULESTREAMNAME
+            current.stream_name = data.decode(_enc(), errors="replace")
+        elif record_id == 0x0032 and current is not None: # MODULESTREAMNAME unicode
+            current.stream_name_unicode = data.decode("utf-16-le", errors="replace")
+        elif record_id == 0x0031 and current is not None: # MODULEOFFSET
+            if len(data) >= 4:
+                current.text_offset = int(struct.unpack_from("<I", data, 0)[0])
+        elif record_id == 0x0021 and current is not None: # MODULETYPE standard
+            current.module_kind = VBAModuleKind.standard
+        elif record_id == 0x0022 and current is not None: # MODULETYPE other
+            current.module_kind = VBAModuleKind.other
+        elif record_id == 0x0025 and current is not None: # MODULEREADONLY
+            current.is_read_only = True
+        elif record_id == 0x0028 and current is not None: # MODULEPRIVATE
+            current.is_private = True
+        elif record_id == 0x002B and current is not None: # Module terminator
+            modules.append(current)
+            current = None
         else:
-            _skip(record_size)
+            pass   # unknown record — already consumed via _read(size)
 
+        _ = in_modules
+
+    _commit_ref()
     if current is not None and current.name:
         modules.append(current)
 
-    return code_page, modules
+    return info, modules
+
+
+@dataclass
+class _DirInfo:
+    """Project-level fields recovered from the dir stream."""
+    code_page: int = 1252
+    name: str = ""
+    sys_kind: int = 0
+    compat_version: int = 0
+    lcid: int = 0
+    lcid_invoke: int = 0
+    help_context: int = 0
+    lib_flags: int = 0
+    doc_string: str = ""
+    doc_string_unicode: str = ""
+    help_file: str = ""
+    constants: str = ""
+    constants_unicode: str = ""
+    version_major: int = 0
+    version_minor: int = 0
+    module_count: int = 0
+    references: list["VBAReference"] = field(default_factory=lambda: [])
 
 
 # ---------------------------------------------------------------------------
@@ -481,6 +593,10 @@ class VBAProject:
     """Represents a parsed VBA project."""
     modules: list[VBAModule] = field(default_factory=lambda: [])
     code_page: int = 1252
+    name: str = ""
+    sys_kind: int = 0
+    references: list[VBAReference] = field(default_factory=lambda: [])
+    protection: "ProjectProtection | None" = None
 
     def get_module(self, name: str) -> VBAModule:
         needle = name.casefold()
@@ -491,6 +607,59 @@ class VBAProject:
 
     def module_names(self) -> list[str]:
         return [m.name for m in self.modules]
+
+    # ------------------------------------------------------------------
+    # Mutation API (Gate 13 / Gate 24)
+    #
+    # NOTE: these methods only update the in-memory project model.  The
+    # write-back path (write_back_modules / save) emits only existing
+    # module streams' source text — full dir/PROJECT stream regeneration
+    # for added/renamed/deleted modules is not yet implemented; see
+    # docs/roadmap.md.
+    # ------------------------------------------------------------------
+
+    def add_module(
+        self,
+        name: str,
+        source: str,
+        *,
+        kind: VBAModuleKind = VBAModuleKind.standard,
+        stream_name: str | None = None,
+    ) -> VBAModule:
+        """Append a new module to the project (in-memory only).
+
+        Raises ``ValueError`` if a module with that name already exists.
+        """
+        needle = name.casefold()
+        if any(m.name.casefold() == needle for m in self.modules):
+            raise ValueError(f"Module already exists: {name!r}")
+        module = VBAModule(
+            name=name,
+            stream_name=stream_name if stream_name is not None else name,
+            source=source,
+            kind=kind,
+            text_offset=0,
+            dirty=True,
+        )
+        self.modules.append(module)
+        return module
+
+    def rename_module(self, old_name: str, new_name: str) -> VBAModule:
+        """Rename a module by logical name (in-memory only)."""
+        module = self.get_module(old_name)
+        needle = new_name.casefold()
+        if needle != module.name.casefold() and any(
+            m.name.casefold() == needle for m in self.modules
+        ):
+            raise ValueError(f"Module already exists: {new_name!r}")
+        module.name = new_name
+        module.dirty = True
+        return module
+
+    def delete_module(self, name: str) -> None:
+        """Remove a module from the project (in-memory only)."""
+        module = self.get_module(name)
+        self.modules.remove(module)
 
     # ------------------------------------------------------------------
     # Validation (Gate 19)
@@ -597,8 +766,9 @@ def parse_vba_project(cfb: CFB) -> VBAProject:
                 "No 'dir' stream found; not a valid VBA project."
             ) from exc
 
-    dir_raw = decompress(dir_compressed)
-    code_page, module_infos = _parse_dir_stream(dir_raw)
+    dir_raw = decompress(dir_compressed, stream_name="VBA/dir")
+    dir_info, module_infos = _parse_dir_stream(dir_raw)
+    code_page = dir_info.code_page
     encoding = _encoding_for_codepage(code_page)
 
     modules: list[VBAModule] = []
@@ -620,7 +790,9 @@ def parse_vba_project(cfb: CFB) -> VBAProject:
             )
 
         compressed_source = stream_compressed[info.text_offset:]
-        source_bytes = decompress(compressed_source)
+        source_bytes = decompress(
+            compressed_source, stream_name=f"VBA/{stream_name}"
+        )
         source = source_bytes.decode(encoding, errors="replace")
 
         modules.append(VBAModule(
@@ -634,4 +806,305 @@ def parse_vba_project(cfb: CFB) -> VBAProject:
             prefix_bytes=stream_compressed[: info.text_offset],
         ))
 
-    return VBAProject(modules=modules, code_page=code_page)
+    project = VBAProject(modules=modules, code_page=code_page)
+    project.name = dir_info.name
+    project.sys_kind = dir_info.sys_kind
+    project.references = dir_info.references
+
+    # Attach protection state from the PROJECT stream if present.
+    try:
+        project_stream_raw = cfb.get_stream("PROJECT")
+    except KeyError:
+        project_stream_raw = None
+    if project_stream_raw is not None:
+        try:
+            ps = parse_project_stream(project_stream_raw)
+            project.protection = ps.protection
+        except VBAProjectError:
+            pass
+
+    return project
+
+
+# ---------------------------------------------------------------------------
+# PROJECT stream parser ([MS-OVBA] 2.3.1)
+# ---------------------------------------------------------------------------
+
+@dataclass
+class ProjectProtection:
+    """State of the [MS-OVBA] 2.3.1 PROJECT-stream protection records.
+
+    The actual ``CMG``/``DPB``/``GC`` values are XOR-obfuscated, so we
+    only expose presence and the raw obfuscated hex strings here.  Code
+    that needs to read the underlying password hash must do the XOR
+    de-obfuscation itself.
+    """
+    has_password: bool = False
+    cmg: str = ""          # raw obfuscated DocLockProj/HostProj/VbeProj bits
+    dpb: str = ""          # raw obfuscated password hash
+    gc: str = ""           # raw obfuscated DocLockProj-visible bit
+
+
+@dataclass
+class ProjectStream:
+    """Decoded view of the plain-text PROJECT stream."""
+    items: list[tuple[str, str]] = field(default_factory=lambda: [])
+    workspace: dict[str, str] = field(default_factory=lambda: {})
+    standard_modules: list[str] = field(default_factory=lambda: [])
+    class_modules: list[str] = field(default_factory=lambda: [])
+    document_modules: list[tuple[str, str]] = field(default_factory=lambda: [])  # (name, &HID)
+    base_classes: list[str] = field(default_factory=lambda: [])
+    name: str = ""
+    id: str = ""
+    protection: ProjectProtection = field(default_factory=lambda: ProjectProtection())
+    host_extender_info: list[str] = field(default_factory=lambda: [])
+
+
+def parse_project_stream(raw: bytes) -> ProjectStream:
+    """Parse the plain-text PROJECT stream.
+
+    The PROJECT stream is Windows-1252 encoded key=value text terminated
+    by CRLF.  Empty lines separate the project information block, the
+    ``[Host Extender Info]`` block, and the ``[Workspace]`` block.
+    """
+    try:
+        text = raw.decode("cp1252", errors="replace")
+    except LookupError:
+        text = raw.decode("latin-1", errors="replace")
+
+    out = ProjectStream()
+    section = "project"  # "project" | "host_extender" | "workspace"
+
+    for line in text.splitlines():
+        stripped = line.strip()
+        if not stripped:
+            continue
+        if stripped.lower() == "[host extender info]":
+            section = "host_extender"
+            continue
+        if stripped.lower() == "[workspace]":
+            section = "workspace"
+            continue
+        if section == "host_extender":
+            out.host_extender_info.append(stripped)
+            continue
+
+        if "=" not in stripped:
+            continue
+        key, _, value = stripped.partition("=")
+        key = key.strip()
+        value = value.strip()
+        # Strip surrounding quotes when present.
+        if len(value) >= 2 and value[0] == '"' and value[-1] == '"':
+            value = value[1:-1]
+
+        if section == "workspace":
+            out.workspace[key] = value
+            continue
+
+        out.items.append((key, value))
+
+        # Module classification keys.
+        if key == "Module":
+            out.standard_modules.append(value)
+        elif key == "Class":
+            out.class_modules.append(value)
+        elif key == "BaseClass":
+            out.base_classes.append(value)
+        elif key == "Document":
+            # Value form is "Name/&H00000000..."
+            name_part, _, id_part = value.partition("/")
+            out.document_modules.append((name_part, id_part))
+        elif key == "Name":
+            out.name = value
+        elif key == "ID":
+            out.id = value
+        elif key == "CMG":
+            out.protection.cmg = value
+        elif key == "DPB":
+            out.protection.dpb = value
+            # Per MS-OVBA 2.3.1.16, DPB is present even on unprotected projects
+            # but the de-obfuscated payload's first byte indicates protection
+            # state.  Treat any DPB longer than a trivial placeholder as
+            # password-bearing.  A trivial empty/placeholder hash decodes to
+            # ~30 hex chars; real passwords push DPB above ~60 chars.
+            out.protection.has_password = len(value) >= 60
+        elif key == "GC":
+            out.protection.gc = value
+
+    return out
+
+
+# ---------------------------------------------------------------------------
+# PROJECTwm stream parser ([MS-OVBA] 2.3.4.4)
+# ---------------------------------------------------------------------------
+
+def parse_projectwm(raw: bytes) -> list[tuple[str, str]]:
+    """Parse the PROJECTwm stream into (mbcs_name, unicode_name) pairs.
+
+    Format:
+        loop:
+            ModuleName_MBCS    : null-terminated bytes
+            if empty: break (single 0x00 terminator)
+            ModuleName_Unicode : null-terminated UTF-16-LE (terminator u16=0)
+    """
+    out: list[tuple[str, str]] = []
+    pos = 0
+    n = len(raw)
+    while pos < n:
+        # Find next null byte to delimit the MBCS name.
+        nul = raw.find(b"\x00", pos)
+        if nul == -1:
+            break
+        mbcs = raw[pos:nul]
+        pos = nul + 1
+        if not mbcs:
+            # Terminator entry.
+            break
+        # Read UTF-16-LE name terminated by a zero u16.
+        start = pos
+        while pos + 1 < n:
+            if raw[pos] == 0 and raw[pos + 1] == 0:
+                break
+            pos += 2
+        unicode_name = raw[start:pos].decode("utf-16-le", errors="replace")
+        pos += 2   # skip the u16=0 terminator
+        try:
+            mbcs_name = mbcs.decode("cp1252", errors="replace")
+        except LookupError:
+            mbcs_name = mbcs.decode("latin-1", errors="replace")
+        out.append((mbcs_name, unicode_name))
+    return out
+
+
+# ---------------------------------------------------------------------------
+# PROJECTlk stream parser ([MS-OVBA] 2.3.4.5)
+# ---------------------------------------------------------------------------
+
+@dataclass
+class LicenseRecord:
+    """A LicenseInfoRecord from the PROJECTlk stream."""
+    lic_key: bytes = b""
+    libid: str = ""
+    classid: bytes = b""        # 16-byte GUID
+    cookie: int = 0
+
+
+def parse_projectlk(raw: bytes) -> list[LicenseRecord]:
+    """Parse the PROJECTlk stream into LicenseRecord entries.
+
+    Each LicenseInfoRecord:
+        Id:u16 = 0x0001
+        Size:u32
+        SizeOfLicKey:u32
+        LicKey:bytes[SizeOfLicKey]
+        LibidSize:u32
+        Libid:bytes[LibidSize]
+        ClassID:bytes[16]
+        Cookie:u32
+    """
+    out: list[LicenseRecord] = []
+    pos = 0
+    n = len(raw)
+    while pos + 6 <= n:
+        rec_id = int(struct.unpack_from("<H", raw, pos)[0])
+        size = int(struct.unpack_from("<I", raw, pos + 2)[0])
+        pos += 6
+        if rec_id != 0x0001 or pos + size > n:
+            break
+        body = raw[pos: pos + size]
+        pos += size
+
+        rec = LicenseRecord()
+        bpos = 0
+        if bpos + 4 <= len(body):
+            lic_size = int(struct.unpack_from("<I", body, bpos)[0])
+            bpos += 4
+            if bpos + lic_size <= len(body):
+                rec.lic_key = bytes(body[bpos: bpos + lic_size])
+                bpos += lic_size
+        if bpos + 4 <= len(body):
+            lib_size = int(struct.unpack_from("<I", body, bpos)[0])
+            bpos += 4
+            if bpos + lib_size <= len(body):
+                rec.libid = bytes(body[bpos: bpos + lib_size]).decode(
+                    "latin-1", errors="replace"
+                )
+                bpos += lib_size
+        if bpos + 16 <= len(body):
+            rec.classid = bytes(body[bpos: bpos + 16])
+            bpos += 16
+        if bpos + 4 <= len(body):
+            rec.cookie = int(struct.unpack_from("<I", body, bpos)[0])
+        out.append(rec)
+    return out
+
+
+# ---------------------------------------------------------------------------
+# V3 content hash (Gate 15)
+# ---------------------------------------------------------------------------
+
+def compute_v3_content_hash(project: VBAProject) -> bytes:
+    """Compute a stable SHA-1 digest over the project's source content.
+
+    NOTE: this is a pyOpenVBA-internal canonical digest, not the exact
+    Office VBE V3 content hash used for digital signatures (which depends
+    on host-specific normalization rules and tokenization that are
+    outside the MS-OVBA spec).  It is stable across read-modify-write
+    round trips that don't change source text.
+    """
+    import hashlib
+    h = hashlib.sha1()
+    h.update(struct.pack("<I", project.code_page))
+    for m in sorted(project.modules, key=lambda x: x.name.casefold()):
+        h.update(m.name.casefold().encode("utf-8"))
+        h.update(b"\0")
+        # Normalize line endings so CRLF/LF round trips are stable.
+        normalized = m.source.replace("\r\n", "\n").replace("\r", "\n")
+        h.update(normalized.encode("utf-8", errors="replace"))
+        h.update(b"\0")
+    return h.digest()
+
+
+# ---------------------------------------------------------------------------
+# Signature detection (Gate 17)
+# ---------------------------------------------------------------------------
+
+@dataclass
+class SignatureInfo:
+    """Summary of digital-signature streams found inside a VBA CFB."""
+    present: bool = False
+    kinds: list[str] = field(default_factory=lambda: [])   # "legacy" | "agile" | "v3"
+
+
+_SIGNATURE_STREAM_NAMES = {
+    "_VBA_PROJECT_SIGNATURE":       "legacy",
+    "_VBA_PROJECT_SIGNATURE_AGILE": "agile",
+    "_VBA_PROJECT_SIGNATURE_V3":    "v3",
+}
+
+
+def detect_signature(cfb: CFB) -> SignatureInfo:
+    """Detect VBA digital-signature streams in the given CFB.
+
+    Returns a :class:`SignatureInfo` whose ``present`` is True if any of
+    the three known signature streams are present inside the
+    ``_VBA_PROJECT_CUR/VBA`` storage path (xlsm/xlsb) or the root
+    (legacy xls embedding).
+    """
+    info = SignatureInfo()
+    candidates: list[str] = []
+    try:
+        candidates.extend(cfb.list_streams_in_storage("VBA"))
+    except KeyError:
+        pass
+    try:
+        candidates.extend(cfb.list_streams())
+    except KeyError:
+        pass
+    for name in candidates:
+        kind = _SIGNATURE_STREAM_NAMES.get(name)
+        if kind is not None and kind not in info.kinds:
+            info.kinds.append(kind)
+            info.present = True
+    return info

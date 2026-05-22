@@ -29,19 +29,17 @@ pyOpenVBA today is best described as:
 - Pure Python 3.10+, zero runtime dependencies.
 
 ### Unsupported (today)
-- Adding, renaming, or deleting modules.
+- Persisting added / renamed / deleted modules through save (in-memory mutation works; the disk writer for `dir` + `PROJECT` is pending).
 - UserForm layout / Office Forms editing (form layout bytes survive
   verbatim through the CFB round-trip but the library does not interpret
   them).
 - ActiveX license editing (PROJECTlk).
-- Project password / protection editing.
-- Digital signature detection or re-signing.
-- Content-hash / agile-content-hash recomputation.
-- Non-ASCII module names (untested — no corpus fixture).
-- PROJECTwm name-mapping editing.
-- Full PROJECTINFORMATION and REFERENCE record decoding (records survive
-  verbatim via the unchanged `dir` stream, but are not exposed in the Python
-  data model).
+- Project password / protection editing (parsing-only).
+- Digital signature re-signing (detection-only).
+- Office-compatible V3 / agile content-hash recomputation (a stable
+  pyOpenVBA-internal digest is available via `compute_v3_content_hash`).
+- Non-ASCII module names (untested -- no corpus fixture).
+- PROJECTwm name-mapping editing (reader-only).
 
 ## Gate-by-gate status
 
@@ -50,42 +48,42 @@ pyOpenVBA today is best described as:
 | 0 | Scope Declaration | PASS | `ExcelFile` rejects unsupported hosts; CFB and VBA layers separated; `vba_project_bytes()` exposes raw `vbaProject.bin`. |
 | 1 | Host Package | PARTIAL | No-op + single-module-edit save preserves every other ZIP entry. "Opens in Excel without repair" is not asserted from Python. |
 | 2 | OLE/CFB Container | PARTIAL | Reader + writer round-trip; case-insensitive lookup. SRP-stream dropping on write is TODO (requires CFB directory-entry removal API). |
-| 3 | Binary Parsing Discipline | PARTIAL | Bounds-checked, signature-checked. Error messages do not yet carry stream name + offset metadata. |
+| 3 | Binary Parsing Discipline | PASS | Bounds-checked, signature-checked; `decompress()` carries `stream_name` + byte offset in `VBAProjectError` messages. |
 | 4 | Compression / Decompression | PASS | Spec-compliant chunk-based codec; randomized round-trips up to 32 KB. |
 | 5 | `_VBA_PROJECT` / Performance Cache | PARTIAL | Module performance-cache prefix preserved verbatim across writes. Stale-cache invalidation logic that Office uses (e.g. zeroing the `_VBA_PROJECT` stream contents) is not yet performed. |
-| 6 | PROJECT Stream | VERBATIM | Stream survives round-trip unchanged; grammar not parsed. |
-| 7 | PROJECTwm | VERBATIM | Stream survives round-trip unchanged when present. |
-| 8 | PROJECTlk | VERBATIM | Stream survives round-trip unchanged when present. |
-| 9 | dir Project Information | PARTIAL | PROJECTCODEPAGE is decoded; other records survive in the unchanged `dir` bytes. |
-| 10 | dir References | VERBATIM | Reference records survive in the unchanged `dir` bytes; not exposed in the model. |
+| 6 | PROJECT Stream | PASS | `parse_project_stream()` decodes the full plain-text grammar (project section, `[Host Extender Info]`, `[Workspace]`); writer is pending mutation support. |
+| 7 | PROJECTwm | PASS | `parse_projectwm()` decodes (MBCS, Unicode) module-name pairs; writer is pending. |
+| 8 | PROJECTlk | PASS | `parse_projectlk()` decodes `LicenseInfoRecord`s; writer is pending. |
+| 9 | dir Project Information | PASS | All PROJECTINFORMATION records decoded: code page, name, SysKind, LCID(invoke), DocString, HelpFile, HelpContext, LibFlags, Version, Constants, CompatVersion. |
+| 10 | dir References | PASS | REFERENCENAME / REFERENCEREGISTERED / REFERENCEPROJECT / REFERENCECONTROL / REFERENCEORIGINAL records exposed as `VBAReference` entries on `VBAProject.references`. |
 | 11 | dir Module Records | PARTIAL | Module name, stream name, offset, type, read-only, private parsed. MODULEDOCSTRING, MODULEHELPCONTEXT, MODULECOOKIE not decoded. |
 | 12 | Module Stream | PASS | Source decompressed from `MODULEOFFSET`; replacement preserves cache prefix; reparse yields identical source. |
-| 13 | Module Mutation | PARTIAL | Replace works for standard/class/document modules. Add / rename / delete not implemented. |
+| 13 | Module Mutation | PARTIAL | Replace works end-to-end for standard/class/document modules. `add_module`/`rename_module`/`delete_module` mutate the in-memory project model but the disk writer for `dir` + `PROJECT` is not yet implemented. |
 | 14 | Designer / UserForm | VERBATIM | Designer storages survive round-trip; no fixture/test yet. |
-| 15 | Content Hash / Integrity | TODO | V3 content hash, agile content hash, project normalized data — none implemented. |
-| 16 | Protection / Encryption / Password | TODO | Protected projects round-trip verbatim but cannot be safely modified. |
-| 17 | Digital Signature | TODO | Signed projects round-trip verbatim. Editing a signed project will leave a stale signature; the library does not yet report this. |
+| 15 | Content Hash / Integrity | PARTIAL | `compute_v3_content_hash()` provides a stable SHA-1 digest over normalized module sources. The Office-compatible V3 / agile content hash (host-specific tokenization) is not implemented. |
+| 16 | Protection / Encryption / Password | PARTIAL | `ProjectProtection` exposes raw obfuscated CMG/DPB/GC plus a `has_password` heuristic. Password decryption / re-encryption is not implemented. |
+| 17 | Digital Signature | PARTIAL | `detect_signature()` identifies legacy / agile / V3 signature streams. Editing a signed project will still leave a stale signature; re-signing is out of scope. |
 | 18 | Encoding | PARTIAL | cp1252 source round-trips through the project code page. Non-ASCII module names / source untested. |
 | 19 | Cross-Structure Consistency | PASS | `VBAProject.validate(cfb)` reports duplicates and missing streams. |
 | 20 | Round-Trip Preservation | PARTIAL | No-op parse-write-reopen preserves every module source, every ZIP entry, and every module-stream cache prefix. "Opens in Excel" requires manual verification. |
-| 21 | Mutation Round-Trip | PARTIAL | Replace-source mutations round-trip for standard, class, and document modules. UserForm code-behind / add / rename / delete pending. |
+| 21 | Mutation Round-Trip | PARTIAL | Replace-source mutations round-trip for standard, class, and document modules. UserForm code-behind / add / rename / delete persistence pending. |
 | 22 | Corpus | PARTIAL | One fixture: `tests/live_excel_testing/test_macro_workbook.xlsm` (standard + class + document modules). UserForm, ActiveX, non-ASCII, password-protected, and signed fixtures pending. |
 | 23 | Fuzz / Malformed Input | PARTIAL | Truncated and zero-length inputs fail cleanly. No structured fuzz corpus yet. |
-| 24 | API Contract | PASS | Layered modules: `pyopenvba.cfb`, `pyopenvba.vba`, `pyopenvba.excel`. Mutation surface (`add_module`/`rename_module`/`delete_module`) pending. |
+| 24 | API Contract | PASS | Layered modules: `pyopenvba.cfb`, `pyopenvba.vba`, `pyopenvba.excel`. Mutation surface (`add_module`/`rename_module`/`delete_module`) exposed (in-memory). |
 | 25 | Documentation | PARTIAL | This roadmap exists. README needs to be expanded with the scope statement above. |
 
 ## Near-term roadmap (in priority order)
 
-1. **PROJECT stream grammar parser** (Gate 6). Required for safe add/rename/delete (Gate 13) because every mutation must update the `Module=...` declarations in `PROJECT` alongside `dir` and the CFB stream name.
-2. **`dir` stream writer** (Gate 11 full). Required for any mutation that changes module identity — replace-source today works only because we never rewrite `dir`.
-3. **`add_module`, `rename_module`, `delete_module`** (Gate 13). Builds on (1) and (2).
-4. **PROJECTwm reader/writer** (Gate 7). Required as soon as non-ASCII module names enter the corpus.
-5. **Non-ASCII corpus fixture + Gate 18 hardening**.
-6. **Signature detection** (Gate 17). Detect-and-report only is enough to fail closed on signed workbooks; full re-signing is out of scope.
-7. **Content-hash recomputation** (Gate 15). Required before signature detection can do better than refuse-to-edit.
+1. **`dir` stream writer** (Gate 11 full + Gate 13 persistence). Required for any mutation that changes module identity — replace-source today works only because we never rewrite `dir`.
+2. **`PROJECT` stream writer** (Gate 6 full). Pair with (1) so that `Module=`/`Class=`/`Document=` declarations stay in sync after add/rename/delete.
+3. **CFB stream-removal API** (Gate 2 closure). Per MS-OVBA 2.3.4.1, SRP streams MUST be ignored on read and should not be emitted by non-host writers. Required for `delete_module` persistence. Implementation requires red-black-tree directory surgery in `CFB.to_bytes()`.
+4. **CFB stream-creation API** (new `_VBA_PROJECT_CUR/VBA/<NewMod>` streams). Required for `add_module` persistence.
+5. **PROJECTwm writer** (Gate 7). Required as soon as non-ASCII module names enter the corpus.
+6. **Non-ASCII corpus fixture + Gate 18 hardening**.
+7. **Office-compatible V3 / agile content hash** (Gate 15 full). The current SHA-1 digest is stable for internal use but does not match Excel's signature payload.
 8. **UserForm corpus fixture + Gate 14 round-trip assertion**.
-9. **Protected-project detection** (Gate 16). Detect-and-refuse is the minimum; password manipulation is explicitly out of scope.
-10. **CFB stream-removal API + SRP-drop on write** (Gate 2 closure). Per MS-OVBA 2.3.4.1, SRP streams MUST be ignored on read and should not be emitted by non-host writers. Implementation requires red-black-tree directory surgery in `CFB.to_bytes()`.
+9. **Protected-project refuse-to-edit gate** (Gate 16 hardening). Save-on-protected-project should fail closed unless the caller opts in.
+10. **Signed-project staleness reporting** (Gate 17 hardening). Save-on-signed-project should warn that the signature will be invalidated.
 
 ## Out of scope (no current plans)
 

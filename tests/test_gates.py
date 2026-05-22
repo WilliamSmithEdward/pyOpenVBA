@@ -225,15 +225,13 @@ class TestGate03_ParsingDiscipline:
         with pytest.raises(VBAProjectError):
             decompress(b"\x01\x00\x00")    # zero chunk signature
 
-    @pytest.mark.xfail(
-        strict=True,
-        reason="Parser errors do not yet include stream name and offset.",
-    )
     def test_parse_error_includes_stream_name_and_offset(self) -> None:
         try:
-            decompress(b"\x01\x00\x10")
+            decompress(b"\x01\x00\x10", stream_name="VBA/Module1")
         except VBAProjectError as exc:
-            assert "offset" in str(exc) and "stream" in str(exc)
+            msg = str(exc)
+            assert "offset" in msg and "stream" in msg
+            assert "Module1" in msg
         else:
             pytest.fail("no error raised")
 
@@ -349,13 +347,17 @@ class TestGate06_ProjectStream:
         text = raw.decode("cp1252", errors="replace")
         assert "ID=" in text or "Name=" in text or "Module=" in text
 
-    @pytest.mark.xfail(
-        strict=True,
-        reason="PROJECT stream grammar parser not implemented.",
-    )
-    def test_project_stream_full_grammar_parsed(self) -> None:
-        from pyopenvba.vba import parse_project_stream    # type: ignore[attr-defined]
-        assert parse_project_stream
+    def test_project_stream_full_grammar_parsed(self, live_vba_bin: bytes) -> None:
+        from pyopenvba.vba import parse_project_stream
+        cfb = CFB.from_bytes(live_vba_bin)
+        raw = cfb.get_stream("PROJECT")
+        ps = parse_project_stream(raw)
+        # Project ID and Name records are always present.
+        assert ps.id
+        assert ps.name
+        # Item list should contain at least one Module / Document / Class record.
+        keys = {k for k, _ in ps.items}
+        assert keys & {"Module", "Document", "Class", "BaseClass"}
 
 
 # ===========================================================================
@@ -363,13 +365,18 @@ class TestGate06_ProjectStream:
 # ===========================================================================
 
 class TestGate07_ProjectWm:
-    @pytest.mark.xfail(
-        strict=True,
-        reason="PROJECTwm parser not implemented.",
-    )
-    def test_projectwm_parser_present(self) -> None:
-        from pyopenvba.vba import parse_projectwm    # type: ignore[attr-defined]
-        assert parse_projectwm
+    def test_projectwm_parser_present(self, live_vba_bin: bytes) -> None:
+        from pyopenvba.vba import parse_projectwm
+        cfb = CFB.from_bytes(live_vba_bin)
+        try:
+            raw = cfb.get_stream("PROJECTwm")
+        except KeyError:
+            pytest.skip("fixture has no PROJECTwm stream")
+        pairs = parse_projectwm(raw)
+        # The MBCS and Unicode names of each module must agree byte-for-byte
+        # when limited to ASCII module names (true for the live fixture).
+        for mbcs, uni in pairs:
+            assert mbcs == uni or not mbcs.isascii()
 
 
 # ===========================================================================
@@ -377,14 +384,19 @@ class TestGate07_ProjectWm:
 # ===========================================================================
 
 class TestGate08_ProjectLk:
-    @pytest.mark.xfail(
-        strict=True,
-        reason="PROJECTlk parser not implemented; library currently preserves "
-               "ActiveX license bytes only via verbatim CFB stream round-trip.",
-    )
-    def test_projectlk_parser_present(self) -> None:
-        from pyopenvba.vba import parse_projectlk    # type: ignore[attr-defined]
-        assert parse_projectlk
+    def test_projectlk_parser_present(self, live_vba_bin: bytes) -> None:
+        from pyopenvba.vba import parse_projectlk
+        cfb = CFB.from_bytes(live_vba_bin)
+        try:
+            raw = cfb.get_stream("PROJECTlk")
+        except KeyError:
+            # PROJECTlk is only present when the project references ActiveX
+            # controls; the fallback empty-input check still exercises the parser.
+            assert parse_projectlk(b"") == []
+            return
+        records = parse_projectlk(raw)
+        # Even if no controls are present the parser must not raise.
+        assert isinstance(records, list)
 
 
 # ===========================================================================
@@ -400,17 +412,14 @@ class TestGate09_DirProjectInfo:
         # The fixture workbook is cp1252; assert we recovered a real code page.
         assert proj.code_page in {1250, 1251, 1252, 1253, 1254, 65001, 932, 936}
 
-    @pytest.mark.xfail(
-        strict=True,
-        reason="Full PROJECTINFORMATION record decoding not implemented.",
-    )
     def test_full_project_information_records_decoded(
         self, live_vba_bin: bytes
     ) -> None:
         cfb = CFB.from_bytes(live_vba_bin)
         proj = parse_vba_project(cfb)
-        assert getattr(proj, "name", None)
-        assert getattr(proj, "sys_kind", None) is not None
+        assert proj.name
+        # SysKind values per [MS-OVBA] 2.3.4.2.1.1: 0=16-bit, 1=32-bit, 2=Mac, 3=64-bit
+        assert proj.sys_kind in (0, 1, 2, 3)
 
 
 # ===========================================================================
@@ -418,16 +427,15 @@ class TestGate09_DirProjectInfo:
 # ===========================================================================
 
 class TestGate10_DirReferences:
-    @pytest.mark.xfail(
-        strict=True,
-        reason="Reference records (REFERENCEREGISTERED/CONTROL/PROJECT) "
-               "not parsed; references survive only via verbatim dir bytes.",
-    )
     def test_references_parsed(self, live_vba_bin: bytes) -> None:
         cfb = CFB.from_bytes(live_vba_bin)
         proj = parse_vba_project(cfb)
-        refs = getattr(proj, "references", None)
-        assert refs
+        refs = proj.references
+        assert refs, "every Excel workbook references at least stdole+VBA"
+        # Each reference must have a non-empty name and a known kind.
+        for r in refs:
+            assert r.name
+            assert r.kind in {"registered", "project", "control", "original"}
 
 
 # ===========================================================================
@@ -552,24 +560,32 @@ class TestGate13_ModuleMutation:
             with pytest.raises(KeyError):
                 wb.set_module("DoesNotExist", "x")
 
-    @pytest.mark.xfail(strict=True, reason="add_module not implemented")
     def test_add_module(self, live_xlsm_path: Path) -> None:
         with ExcelFile(live_xlsm_path) as wb:
-            wb.vba_project().add_module(    # type: ignore[attr-defined]
+            proj = wb.vba_project()
+            module = proj.add_module(
                 "NewMod", "Sub X(): End Sub", kind=VBAModuleKind.standard
             )
+            assert module.name == "NewMod"
+            assert module.kind == VBAModuleKind.standard
+            assert "NewMod" in proj.module_names()
+            with pytest.raises(ValueError):
+                proj.add_module("NewMod", "")
 
-    @pytest.mark.xfail(strict=True, reason="rename_module not implemented")
     def test_rename_module(self, live_xlsm_path: Path) -> None:
         with ExcelFile(live_xlsm_path) as wb:
-            wb.vba_project().rename_module(    # type: ignore[attr-defined]
-                "Module1", "RenamedModule"
-            )
+            proj = wb.vba_project()
+            proj.rename_module("Module1", "RenamedModule")
+            names = {n.casefold() for n in proj.module_names()}
+            assert "renamedmodule" in names
+            assert "module1" not in names
 
-    @pytest.mark.xfail(strict=True, reason="delete_module not implemented")
     def test_delete_module(self, live_xlsm_path: Path) -> None:
         with ExcelFile(live_xlsm_path) as wb:
-            wb.vba_project().delete_module("Module1")    # type: ignore[attr-defined]
+            proj = wb.vba_project()
+            proj.delete_module("Module1")
+            names = {n.casefold() for n in proj.module_names()}
+            assert "module1" not in names
 
 
 # ===========================================================================
@@ -591,15 +607,17 @@ class TestGate14_Designer:
 # ===========================================================================
 
 class TestGate15_ContentHash:
-    @pytest.mark.xfail(
-        strict=True,
-        reason="V3 content hash / agile content hash / project normalized data "
-               "not implemented.  Modified projects rely on Office's tolerance "
-               "of stale integrity metadata; for signed projects this is wrong.",
-    )
-    def test_v3_content_hash_implemented(self) -> None:
-        from pyopenvba.vba import compute_v3_content_hash    # type: ignore[attr-defined]
-        assert compute_v3_content_hash
+    def test_v3_content_hash_implemented(self, live_vba_bin: bytes) -> None:
+        from pyopenvba.vba import compute_v3_content_hash
+        cfb = CFB.from_bytes(live_vba_bin)
+        proj = parse_vba_project(cfb)
+        h1 = compute_v3_content_hash(proj)
+        h2 = compute_v3_content_hash(proj)
+        assert isinstance(h1, bytes) and len(h1) == 20   # SHA-1 size
+        assert h1 == h2, "hash must be deterministic for the same project"
+        # Mutating source must change the hash.
+        proj.modules[0].source = proj.modules[0].source + "\n' edit\n"
+        assert compute_v3_content_hash(proj) != h1
 
 
 # ===========================================================================
@@ -607,14 +625,16 @@ class TestGate15_ContentHash:
 # ===========================================================================
 
 class TestGate16_Protection:
-    @pytest.mark.xfail(
-        strict=True,
-        reason="Project protection / password hash / data encryption not "
-               "implemented.  Modifying a protected project may corrupt it.",
-    )
-    def test_protection_state_parsed(self) -> None:
-        from pyopenvba.vba import ProjectProtection    # type: ignore[attr-defined]
-        assert ProjectProtection
+    def test_protection_state_parsed(self, live_vba_bin: bytes) -> None:
+        from pyopenvba.vba import ProjectProtection, parse_project_stream
+        cfb = CFB.from_bytes(live_vba_bin)
+        raw = cfb.get_stream("PROJECT")
+        ps = parse_project_stream(raw)
+        assert isinstance(ps.protection, ProjectProtection)
+        # DPB record is always present on a real Excel workbook.
+        assert ps.protection.dpb
+        # The live fixture is unprotected.
+        assert ps.protection.has_password is False
 
 
 # ===========================================================================
@@ -622,15 +642,13 @@ class TestGate16_Protection:
 # ===========================================================================
 
 class TestGate17_Signature:
-    @pytest.mark.xfail(
-        strict=True,
-        reason="Digital signature detection / invalidation reporting not "
-               "implemented.  Editing a signed project will leave a stale "
-               "signature.",
-    )
-    def test_signature_detected(self) -> None:
-        from pyopenvba.vba import detect_signature    # type: ignore[attr-defined]
-        assert detect_signature
+    def test_signature_detected(self, live_vba_bin: bytes) -> None:
+        from pyopenvba.vba import detect_signature
+        cfb = CFB.from_bytes(live_vba_bin)
+        info = detect_signature(cfb)
+        # Live fixture is unsigned; the detector must report that cleanly.
+        assert info.present is False
+        assert info.kinds == []
 
 
 # ===========================================================================
@@ -880,7 +898,6 @@ class TestGate24_APIContract:
         ]:
             assert callable(getattr(CFB, m)), m
 
-    @pytest.mark.xfail(strict=True, reason="add/rename/delete not implemented")
     def test_mutation_methods_exposed(self) -> None:
         for m in ["add_module", "rename_module", "delete_module"]:
             assert callable(getattr(VBAProject, m)), m

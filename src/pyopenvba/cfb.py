@@ -34,6 +34,7 @@ _FREESECT: int = 0xFFFF_FFFF   # unused sector
 _ENDOFCHAIN: int = 0xFFFF_FFFE  # end of a FAT chain
 _FATSECT: int = 0xFFFF_FFFD    # sector is part of the FAT
 _DIFSECT: int = 0xFFFF_FFFC    # sector is part of the DIFAT
+_NOSTREAM: int = 0xFFFF_FFFF   # no sibling / no child
 
 # Directory entry object types
 _OBJTYPE_EMPTY: int = 0
@@ -66,6 +67,8 @@ class DirEntry:
     start_sector: int
     size: int
     is_mini: bool = False  # True when size < mini-stream cutoff
+    # Preserved verbatim for round-trip writes (CLSID, state, timestamps, color, etc.)
+    raw: bytes = b""
 
 
 class CFB:
@@ -84,6 +87,8 @@ class CFB:
         self._minifat: list[int] = []
         self._directory: list[DirEntry] = []
         self._mini_stream: bytes = b""
+        # Pending overrides for write-back; key = directory index, value = new stream bytes.
+        self._stream_overrides: dict[int, bytes] = {}
 
     # ------------------------------------------------------------------
     # Factory
@@ -252,6 +257,7 @@ class CFB:
 
     def _parse_dir_entry(self, raw: bytes | bytearray, index: int) -> DirEntry:
         offset = index * _DIR_ENTRY_SIZE
+        entry_raw = bytes(raw[offset: offset + _DIR_ENTRY_SIZE])
         (
             name_raw,
             name_len,
@@ -281,9 +287,14 @@ class CFB:
             right_sibling_id=right_id,
             start_sector=start_sector,
             size=size,
+            raw=entry_raw,
         )
 
     def _read_stream(self, entry: DirEntry) -> bytes:
+        # Honor pending write-back overrides.
+        for idx, e in enumerate(self._directory):
+            if e is entry and idx in self._stream_overrides:
+                return self._stream_overrides[idx]
         if entry.size < self.mini_stream_cutoff and entry.obj_type != _OBJTYPE_ROOT:
             # Read from mini-stream
             raw = bytearray()
@@ -297,3 +308,333 @@ class CFB:
             for sect in self._chain(entry.start_sector):
                 raw.extend(self._sector(sect))
             return bytes(raw[: entry.size])
+
+    # ------------------------------------------------------------------
+    # Mutation API
+    # ------------------------------------------------------------------
+
+    def write_stream(self, name: str, data: bytes) -> None:
+        """
+        Replace the bytes of an existing top-level stream by name.
+
+        The change is held in memory until :meth:`to_bytes` is called.
+        """
+        needle = name.casefold()
+        for idx, entry in enumerate(self._directory):
+            if entry.obj_type == _OBJTYPE_STREAM and entry.name.casefold() == needle:
+                self._stream_overrides[idx] = bytes(data)
+                return
+        raise KeyError(f"Stream not found: {name!r}")
+
+    def write_stream_in_storage(self, storage: str, name: str, data: bytes) -> None:
+        """
+        Replace the bytes of an existing stream nested inside a storage.
+
+        Currently scans the directory linearly; the first matching stream wins.
+        """
+        needle_s = storage.casefold()
+        needle_n = name.casefold()
+        if not any(
+            e.obj_type == _OBJTYPE_STORAGE and e.name.casefold() == needle_s
+            for e in self._directory
+        ):
+            raise KeyError(f"Storage not found: {storage!r}")
+        for idx, entry in enumerate(self._directory):
+            if entry.obj_type == _OBJTYPE_STREAM and entry.name.casefold() == needle_n:
+                self._stream_overrides[idx] = bytes(data)
+                return
+        raise KeyError(f"Stream {name!r} not found in storage {storage!r}")
+
+    # ------------------------------------------------------------------
+    # Serializer ([MS-CFB] write-path)
+    # ------------------------------------------------------------------
+
+    def to_bytes(self) -> bytes:
+        """
+        Serialize this CFB back to bytes, honoring any pending stream overrides.
+
+        Output uses major version 3 (512-byte sectors, 64-byte mini-sectors,
+        4096-byte mini-stream cutoff).  Preserves the original directory-tree
+        topology and per-entry metadata (CLSID, state, color, timestamps).
+
+        Layout, in sector order:
+            [mini-stream data] [regular stream data] [directory] [mini-FAT] [FAT]
+
+        Files large enough to require a DIFAT chain (more than 109 FAT sectors,
+        about 27 MB of total payload) are rejected — vbaProject.bin is always
+        well under this limit.
+        """
+        SECTOR = 512
+        MINI = 64
+        CUTOFF = 4096
+        ENTRIES_PER_SECTOR = SECTOR // 4              # 128 FAT entries / sector
+        DIR_ENTRIES_PER_SECTOR = SECTOR // _DIR_ENTRY_SIZE  # 4 dir entries / sector
+
+        # ---- 1. Snapshot every directory entry's stream data ----
+        stream_bytes: list[bytes] = []
+        for i, entry in enumerate(self._directory):
+            if entry.obj_type == _OBJTYPE_STREAM:
+                if i in self._stream_overrides:
+                    stream_bytes.append(self._stream_overrides[i])
+                else:
+                    stream_bytes.append(self._read_stream(entry))
+            else:
+                stream_bytes.append(b"")
+
+        # ---- 2. Pack mini-eligible streams into the mini-stream + mini-FAT ----
+        minifat: list[int] = []
+        mini_stream = bytearray()
+        mini_starts: dict[int, int] = {}   # dir_idx -> first mini-sector
+        for i, entry in enumerate(self._directory):
+            if entry.obj_type != _OBJTYPE_STREAM:
+                continue
+            data = stream_bytes[i]
+            if len(data) == 0 or len(data) >= CUTOFF:
+                continue
+            n = (len(data) + MINI - 1) // MINI
+            first = len(minifat)
+            for k in range(n):
+                minifat.append(first + k + 1 if k + 1 < n else _ENDOFCHAIN)
+            mini_stream.extend(data)
+            if len(data) % MINI != 0:
+                mini_stream.extend(b"\x00" * (MINI - len(data) % MINI))
+            mini_starts[i] = first
+
+        mini_stream_used_bytes = len(minifat) * MINI  # logical length for Root.size
+
+        # Pad mini-stream to a 512-byte sector boundary.
+        if len(mini_stream) % SECTOR != 0:
+            mini_stream.extend(b"\x00" * (SECTOR - len(mini_stream) % SECTOR))
+
+        # Pad mini-FAT array to a full sector.
+        while len(minifat) % ENTRIES_PER_SECTOR != 0:
+            minifat.append(_FREESECT)
+
+        # ---- 3. Assign sector indices ----
+        sector_payloads: list[bytes] = []
+
+        # 3a. Mini-stream sectors
+        n_mini_stream_sectors = len(mini_stream) // SECTOR
+        if n_mini_stream_sectors > 0:
+            mini_stream_first = len(sector_payloads)
+            for k in range(n_mini_stream_sectors):
+                sector_payloads.append(bytes(mini_stream[k * SECTOR:(k + 1) * SECTOR]))
+        else:
+            mini_stream_first = _ENDOFCHAIN
+
+        # 3b. Regular stream sectors
+        reg_starts: dict[int, int] = {}
+        for i, entry in enumerate(self._directory):
+            if entry.obj_type != _OBJTYPE_STREAM:
+                continue
+            data = stream_bytes[i]
+            if len(data) < CUTOFF:
+                continue
+            n = (len(data) + SECTOR - 1) // SECTOR
+            first = len(sector_payloads)
+            padded = data + b"\x00" * (n * SECTOR - len(data))
+            for k in range(n):
+                sector_payloads.append(padded[k * SECTOR:(k + 1) * SECTOR])
+            reg_starts[i] = first
+
+        # 3c. Directory sectors
+        n_dir_entries = len(self._directory)
+        n_dir_sectors = max(
+            1,
+            (n_dir_entries + DIR_ENTRIES_PER_SECTOR - 1) // DIR_ENTRIES_PER_SECTOR,
+        )
+        dir_buf = bytearray()
+        for i, entry in enumerate(self._directory):
+            dir_buf.extend(self._build_dir_entry_bytes(
+                entry=entry,
+                data_size=len(stream_bytes[i]),
+                mini_starts=mini_starts,
+                reg_starts=reg_starts,
+                mini_stream_first=mini_stream_first,
+                mini_stream_used_bytes=mini_stream_used_bytes,
+                idx=i,
+            ))
+        # Pad remaining entries in the last dir sector with empty entries.
+        empty_entry = self._empty_dir_entry_bytes()
+        while len(dir_buf) < n_dir_sectors * SECTOR:
+            dir_buf.extend(empty_entry)
+
+        dir_first = len(sector_payloads)
+        for k in range(n_dir_sectors):
+            sector_payloads.append(bytes(dir_buf[k * SECTOR:(k + 1) * SECTOR]))
+
+        # 3d. Mini-FAT sectors
+        if minifat:
+            minifat_first = len(sector_payloads)
+            minifat_bytes = struct.pack(f"<{len(minifat)}I", *minifat)
+            n_minifat_sectors = len(minifat_bytes) // SECTOR
+            for k in range(n_minifat_sectors):
+                sector_payloads.append(minifat_bytes[k * SECTOR:(k + 1) * SECTOR])
+        else:
+            minifat_first = _ENDOFCHAIN
+            n_minifat_sectors = 0
+
+        # ---- 4. Decide how many FAT sectors we need (fixed-point) ----
+        n_data = len(sector_payloads)
+        n_fat = 1
+        while True:
+            needed = ((n_data + n_fat) + ENTRIES_PER_SECTOR - 1) // ENTRIES_PER_SECTOR
+            if needed <= n_fat:
+                break
+            n_fat = needed
+        if n_fat > 109:
+            raise CFBError(
+                "CFB writer requires DIFAT chain support for files this large; "
+                "not implemented."
+            )
+
+        fat_first = n_data
+        fat_sector_ids = list(range(fat_first, fat_first + n_fat))
+
+        # ---- 5. Build the FAT ----
+        fat = [_FREESECT] * (n_fat * ENTRIES_PER_SECTOR)
+
+        def chain(start: int, n: int) -> None:
+            for k in range(n):
+                fat[start + k] = (start + k + 1) if k + 1 < n else _ENDOFCHAIN
+
+        if n_mini_stream_sectors > 0:
+            chain(mini_stream_first, n_mini_stream_sectors)
+        for i, entry in enumerate(self._directory):
+            if entry.obj_type == _OBJTYPE_STREAM:
+                data = stream_bytes[i]
+                if len(data) >= CUTOFF:
+                    n_s = (len(data) + SECTOR - 1) // SECTOR
+                    chain(reg_starts[i], n_s)
+        chain(dir_first, n_dir_sectors)
+        if n_minifat_sectors > 0:
+            chain(minifat_first, n_minifat_sectors)
+        for s in fat_sector_ids:
+            fat[s] = _FATSECT
+
+        fat_bytes = struct.pack(f"<{len(fat)}I", *fat)
+        for k in range(n_fat):
+            sector_payloads.append(fat_bytes[k * SECTOR:(k + 1) * SECTOR])
+
+        # ---- 6. Build the header ----
+        difat = list(fat_sector_ids) + [_FREESECT] * (109 - len(fat_sector_ids))
+        difat_bytes = struct.pack("<109I", *difat)
+
+        header = struct.pack(
+            _HEADER_FMT,
+            _MAGIC,
+            b"\x00" * 16,         # CLSID — must be zero per spec
+            0x003E,               # minor version
+            3,                    # major version
+            0xFFFE,               # byte-order mark (little-endian)
+            9,                    # sector shift: 2^9 = 512
+            6,                    # mini-sector shift: 2^6 = 64
+            b"\x00" * 6,          # reserved
+            0,                    # num_dir_sectors (must be 0 for v3)
+            n_fat,                # num_fat_sectors
+            dir_first,            # first_dir_sector
+            0,                    # transaction signature
+            CUTOFF,               # mini-stream cutoff size
+            minifat_first,        # first mini-FAT sector
+            n_minifat_sectors,    # num mini-FAT sectors
+            _ENDOFCHAIN,          # first DIFAT sector (none)
+            0,                    # num DIFAT sectors
+            difat_bytes,          # 436-byte DIFAT array
+        )
+
+        out = bytearray(header)
+        for s in sector_payloads:
+            out.extend(s)
+        return bytes(out)
+
+    # ------------------------------------------------------------------
+    # Serializer helpers
+    # ------------------------------------------------------------------
+
+    def _build_dir_entry_bytes(
+        self,
+        entry: DirEntry,
+        data_size: int,
+        mini_starts: dict[int, int],
+        reg_starts: dict[int, int],
+        mini_stream_first: int,
+        mini_stream_used_bytes: int,
+        idx: int,
+    ) -> bytes:
+        """
+        Re-emit a 128-byte directory entry, patching in updated start_sector and
+        size while preserving the original CLSID, color, state, and timestamps.
+        """
+        CUTOFF = 4096
+
+        if entry.obj_type == _OBJTYPE_ROOT:
+            start_sector = mini_stream_first
+            size = mini_stream_used_bytes
+        elif entry.obj_type == _OBJTYPE_STREAM:
+            if data_size == 0:
+                start_sector = _ENDOFCHAIN
+                size = 0
+            elif data_size < CUTOFF:
+                start_sector = mini_starts[idx]
+                size = data_size
+            else:
+                start_sector = reg_starts[idx]
+                size = data_size
+        else:
+            # Storage entry: no stream data.
+            start_sector = _ENDOFCHAIN
+            size = 0
+
+        # Start from the preserved raw entry (or a synthesised blank if missing).
+        if len(entry.raw) == _DIR_ENTRY_SIZE:
+            buf = bytearray(entry.raw)
+        else:
+            buf = bytearray(self._synth_dir_entry_bytes(entry))
+
+        # Patch sibling/child pointers and name in case they have been edited.
+        name_utf16 = entry.name.encode("utf-16-le") + b"\x00\x00"
+        if len(name_utf16) > 64:
+            raise CFBError(f"Directory entry name too long: {entry.name!r}")
+        name_bytes = name_utf16 + b"\x00" * (64 - len(name_utf16))
+        struct.pack_into("<64sHBB", buf, 0,
+                         name_bytes, len(name_utf16), entry.obj_type, buf[67])
+        struct.pack_into("<III", buf, 68,
+                         entry.left_sibling_id,
+                         entry.right_sibling_id,
+                         entry.child_id)
+        # start_sector at offset 116, size_low at 120, size_high at 124.
+        struct.pack_into("<III", buf, 116,
+                         start_sector & 0xFFFFFFFF,
+                         size & 0xFFFFFFFF,
+                         (size >> 32) & 0xFFFFFFFF)
+        return bytes(buf)
+
+    def _synth_dir_entry_bytes(self, entry: DirEntry) -> bytes:
+        """Build a fresh directory entry from scratch when no preserved raw exists."""
+        return struct.pack(
+            _DIR_ENTRY_FMT,
+            b"\x00" * 64,             # name (patched in by caller)
+            0,                        # name_len
+            entry.obj_type,
+            0,                        # color (red)
+            entry.left_sibling_id,
+            entry.right_sibling_id,
+            entry.child_id,
+            b"\x00" * 16,             # CLSID
+            0,                        # state
+            0,                        # created
+            0,                        # modified
+            _ENDOFCHAIN,              # start_sector (patched in by caller)
+            0,                        # size_low (patched in by caller)
+            0,                        # size_high
+        )
+
+    def _empty_dir_entry_bytes(self) -> bytes:
+        """A fully-empty directory entry slot ([MS-CFB] 2.6.4)."""
+        return struct.pack(
+            _DIR_ENTRY_FMT,
+            b"\x00" * 64, 0, _OBJTYPE_EMPTY, 0,
+            _NOSTREAM, _NOSTREAM, _NOSTREAM,
+            b"\x00" * 16, 0, 0, 0,
+            _FREESECT, 0, 0,
+        )

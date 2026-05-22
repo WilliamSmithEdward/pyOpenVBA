@@ -51,7 +51,7 @@ pyOpenVBA today is best described as:
 | 5 | `_VBA_PROJECT` / Performance Cache | PARTIAL | Module performance-cache prefix preserved verbatim across writes. Stale-cache invalidation logic that Office uses (e.g. zeroing the `_VBA_PROJECT` stream contents) is not yet performed. |
 | 6 | PROJECT Stream | PASS | `parse_project_stream()` decodes the full plain-text grammar (project section, `[Host Extender Info]`, `[Workspace]`). `serialize_project_stream()` rewrites `Module=`/`Class=`/`BaseClass=`/`Document=` and `[Workspace]` keys to follow logical-name renames. |
 | 7 | PROJECTwm | PASS | `parse_projectwm()` + `serialize_projectwm()` round-trip the live fixture byte-for-byte; `ExcelFile.save()` rebuilds `PROJECTwm` whenever the module set changes (add / rename / delete). |
-| 8 | PROJECTlk | PASS | `parse_projectlk()` decodes `LicenseInfoRecord`s; writer is pending. |
+| 8 | PROJECTlk | PASS | `parse_projectlk()` + `serialize_projectlk()` round-trip `LicenseInfoRecord`s; `ExcelFile.save()` preserves PROJECTlk bytes verbatim until ActiveX license editing is required. |
 | 9 | dir Project Information | PASS | All PROJECTINFORMATION records decoded: code page, name, SysKind, LCID(invoke), DocString, HelpFile, HelpContext, LibFlags, Version, Constants, CompatVersion. |
 | 10 | dir References | PASS | REFERENCENAME / REFERENCEREGISTERED / REFERENCEPROJECT / REFERENCECONTROL / REFERENCEORIGINAL records exposed as `VBAReference` entries on `VBAProject.references`. |
 | 11 | dir Module Records | PASS | Module name (MBCS + Unicode), stream name (MBCS + Unicode), offset, type, read-only, private, doc-string (MBCS + Unicode), help-context, cookie all decoded. `serialize_dir_modules_section()` re-emits the full block. |
@@ -66,9 +66,9 @@ pyOpenVBA today is best described as:
 | 20 | Round-Trip Preservation | PARTIAL | No-op parse-write-reopen preserves every module source, every ZIP entry, and every module-stream cache prefix. "Opens in Excel" requires manual verification. |
 | 21 | Mutation Round-Trip | PASS | Replace-source, add, rename, and delete mutations all round-trip through save/reopen (parsed model, CFB streams, dir stream, and PROJECT stream all consistent). UserForm code-behind edits persist while the sibling designer sub-storage stays byte-for-byte identical (`test_replace_userform_code_behind_round_trip`). |
 | 22 | Corpus | PARTIAL | One fixture: `tests/live_excel_testing/test_macro_workbook.xlsm` (standard + class + document + UserForm modules with Office Forms 2.0 designer storage). ActiveX, non-cp1252-codepage, password-protected, and signed fixtures pending. |
-| 23 | Fuzz / Malformed Input | PARTIAL | Truncated and zero-length inputs fail cleanly. No structured fuzz corpus yet. |
+| 23 | Fuzz / Malformed Input | PARTIAL | Truncated, zero-length, and random-byte inputs fail cleanly. Bit-flip fuzz harnesses exercise the CFB, dir, PROJECT, and PROJECTwm parsers (~120 mutated inputs per run, seeded for reproducibility). A persistent fuzz corpus is not yet maintained. |
 | 24 | API Contract | PASS | Layered modules: `pyopenvba.cfb`, `pyopenvba.vba`, `pyopenvba.excel`. Mutation surface (`add_module`/`rename_module`/`delete_module`) persists end-to-end through `save()`. |
-| 25 | Documentation | PARTIAL | This roadmap exists. README needs to be expanded with the scope statement above. |
+| 25 | Documentation | PASS | `README.md` carries the scope statement, supported formats, push/pull workflow, and safety-guard summary; `docs/roadmap.md` tracks per-gate status. |
 
 ## Near-term roadmap (in priority order)
 

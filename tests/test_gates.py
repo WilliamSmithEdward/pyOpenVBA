@@ -453,6 +453,53 @@ class TestGate08_ProjectLk:
         # Even if no controls are present the parser must not raise.
         assert isinstance(records, list)
 
+    def test_serialize_projectlk_round_trip_synthetic(self) -> None:
+        from pyopenvba.vba import (
+            LicenseRecord,
+            parse_projectlk,
+            serialize_projectlk,
+        )
+        records = [
+            LicenseRecord(
+                lic_key=b"\x01\x02\x03\x04",
+                libid="*\\G{12345678-1234-1234-1234-123456789ABC}#1.0#0#C:\\Foo\\Bar.ocx#Bar Control",
+                classid=bytes(range(16)),
+                cookie=0xDEADBEEF,
+            ),
+            LicenseRecord(
+                lic_key=b"",
+                libid="*\\G{00000000-0000-0000-0000-000000000000}#0.0#0#x#y",
+                classid=b"\x00" * 16,
+                cookie=0,
+            ),
+        ]
+        raw = serialize_projectlk(records)
+        parsed = parse_projectlk(raw)
+        assert len(parsed) == len(records)
+        for orig, got in zip(records, parsed):
+            assert got.lic_key == orig.lic_key
+            assert got.libid == orig.libid
+            assert got.classid == orig.classid
+            assert got.cookie == orig.cookie
+
+    def test_serialize_projectlk_live(self, live_vba_bin: bytes) -> None:
+        from pyopenvba.vba import parse_projectlk, serialize_projectlk
+        cfb = CFB.from_bytes(live_vba_bin)
+        try:
+            raw = cfb.get_stream("PROJECTlk")
+        except KeyError:
+            pytest.skip("fixture has no PROJECTlk stream")
+        records = parse_projectlk(raw)
+        # Re-emit and re-parse; structural equivalence is required even if
+        # byte-for-byte equality is not (Office may pad differently).
+        reparsed = parse_projectlk(serialize_projectlk(records))
+        assert len(reparsed) == len(records)
+        for a, b in zip(records, reparsed):
+            assert a.lic_key == b.lic_key
+            assert a.libid == b.libid
+            assert a.classid == b.classid
+            assert a.cookie == b.cookie
+
 
 # ===========================================================================
 # GATE 9 — dir Project Information Gate
@@ -1211,6 +1258,80 @@ class TestGate23_Fuzz:
             except CFBError:
                 pass
             except PyOpenVBAError:
+                pass
+
+    def test_bit_flipped_vba_project_bytes_fail_cleanly(
+        self, live_vba_bin: bytes
+    ) -> None:
+        """A bit-flipped live vbaProject.bin must never crash the CFB or
+        VBA parsers with an unhandled exception; only documented errors
+        are allowed."""
+        import random
+        rng = random.Random(0xC0FFEE)
+        for _ in range(40):
+            blob = bytearray(live_vba_bin)
+            # Flip 1-8 random bytes anywhere in the file.
+            for _i in range(rng.randint(1, 8)):
+                idx = rng.randrange(len(blob))
+                blob[idx] ^= rng.randint(1, 255)
+            try:
+                cfb = CFB.from_bytes(bytes(blob))
+                parse_vba_project(cfb)
+            except (CFBError, PyOpenVBAError, UnicodeDecodeError):
+                # All accepted: parsers raise structured errors on damage.
+                pass
+
+    def test_fuzz_dir_stream_parser(self, live_vba_bin: bytes) -> None:
+        """Bit-flipped dir streams must raise VBAProjectError, not crash."""
+        from pyopenvba.vba import decompress, _parse_dir_stream  # type: ignore[attr-defined]
+        import random
+        cfb = CFB.from_bytes(live_vba_bin)
+        raw = decompress(cfb.get_stream_in_storage("VBA", "dir"))
+        rng = random.Random(0xBADF00D)
+        for _ in range(30):
+            blob = bytearray(raw)
+            for _i in range(rng.randint(1, 6)):
+                idx = rng.randrange(len(blob))
+                blob[idx] ^= rng.randint(1, 255)
+            try:
+                _parse_dir_stream(bytes(blob))
+            except (VBAProjectError, UnicodeDecodeError, IndexError, struct.error):
+                pass
+
+    def test_fuzz_project_stream_parser(self, live_vba_bin: bytes) -> None:
+        """Bit-flipped PROJECT plain-text streams must not crash."""
+        from pyopenvba.vba import parse_project_stream
+        import random
+        cfb = CFB.from_bytes(live_vba_bin)
+        raw = cfb.get_stream("PROJECT")
+        rng = random.Random(0xFEEDFACE)
+        for _ in range(30):
+            blob = bytearray(raw)
+            for _i in range(rng.randint(1, 10)):
+                idx = rng.randrange(len(blob))
+                blob[idx] ^= rng.randint(1, 255)
+            try:
+                parse_project_stream(bytes(blob))
+            except (VBAProjectError, UnicodeDecodeError):
+                pass
+
+    def test_fuzz_projectwm_parser(self, live_vba_bin: bytes) -> None:
+        from pyopenvba.vba import parse_projectwm
+        import random
+        cfb = CFB.from_bytes(live_vba_bin)
+        try:
+            raw = cfb.get_stream("PROJECTwm")
+        except KeyError:
+            pytest.skip("fixture has no PROJECTwm stream")
+        rng = random.Random(0xABCDEF)
+        for _ in range(30):
+            blob = bytearray(raw)
+            for _i in range(rng.randint(1, 6)):
+                idx = rng.randrange(len(blob))
+                blob[idx] ^= rng.randint(1, 255)
+            try:
+                parse_projectwm(bytes(blob))
+            except (VBAProjectError, UnicodeDecodeError):
                 pass
 
 

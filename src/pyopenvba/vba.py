@@ -1410,6 +1410,29 @@ def parse_projectlk(raw: bytes) -> list[LicenseRecord]:
     return out
 
 
+def serialize_projectlk(records: Iterable[LicenseRecord]) -> bytes:
+    """Serialize ``LicenseRecord`` entries to a PROJECTlk stream.
+
+    Inverse of :func:`parse_projectlk`.  Each record is emitted as a
+    LicenseInfoRecord (Id=0x0001) per [MS-OVBA] 2.3.4.5.  ClassID is
+    zero-padded or truncated to 16 bytes.
+    """
+    out = bytearray()
+    for rec in records:
+        classid = rec.classid[:16].ljust(16, b"\x00")
+        libid_bytes = rec.libid.encode("latin-1", errors="replace")
+        body = bytearray()
+        body += struct.pack("<I", len(rec.lic_key))
+        body += rec.lic_key
+        body += struct.pack("<I", len(libid_bytes))
+        body += libid_bytes
+        body += classid
+        body += struct.pack("<I", rec.cookie & 0xFFFFFFFF)
+        out += struct.pack("<HI", 0x0001, len(body))
+        out += body
+    return bytes(out)
+
+
 # ---------------------------------------------------------------------------
 # V3 content hash (Gate 15)
 # ---------------------------------------------------------------------------

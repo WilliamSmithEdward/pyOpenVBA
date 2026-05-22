@@ -26,7 +26,12 @@ from pyopenvba.cfb import CFB
 from pyopenvba.exceptions import UnsupportedFormatError, VBAProjectError
 from pyopenvba.vba import VBAProject, parse_vba_project, write_back_modules
 from pyopenvba.vba import VBAModuleKind
-from pyopenvba.vba import compress, serialize_dir_stream, serialize_project_stream
+from pyopenvba.vba import (
+    compress,
+    rebuild_module_stream,
+    serialize_dir_stream,
+    serialize_project_stream,
+)
 
 _ZIP_FORMATS = frozenset({".xlsm", ".xlsb", ".xlam"})
 _CFB_FORMATS = frozenset({".xls"})
@@ -235,31 +240,76 @@ class ExcelFile:
         """
         cfb = self._get_cfb()
         if self._project is not None:
-            # Snapshot pending CFB stream renames (logical name == stream
-            # name in Excel-saved files, so this dict drives both the CFB
-            # directory-entry rename and the PROJECT-stream rewrite).
-            rename_map = dict(self._project.pending_renames)
+            project = self._project
+            # Snapshot pending mutations.  Logical name == stream name in
+            # Excel-saved files, so these dicts drive both the CFB-level
+            # operations and the PROJECT-stream rewrite.
+            rename_map = dict(project.pending_renames)
+            add_names = set(project.pending_adds)
+            delete_names = set(project.pending_deletes)
+
+            # 1. Apply renames first so that pre-existing streams are at
+            #    their new names before any other lookup runs.
             for old, new in rename_map.items():
                 try:
                     cfb.rename_stream_in_storage("VBA", old, new)
                 except KeyError:
-                    # Stream may already have been renamed by a prior save.
                     pass
-            self._project.pending_renames.clear()
-            write_back_modules(cfb, self._project)
-            # Rewrite the dir + PROJECT streams when the module set's
-            # identity has changed (add / rename / delete).
-            if self._project.dir_structure_dirty:
-                new_dir_raw = serialize_dir_stream(self._project)
+
+            # 2. Create brand-new streams for pending adds.
+            add_modules_for_project: list[tuple[str, str]] = []
+            for name in add_names:
+                module = next(
+                    (m for m in project.modules if m.stream_name == name), None
+                )
+                if module is None:
+                    continue
+                seed = rebuild_module_stream(module, project.code_page)
+                try:
+                    cfb.add_stream_to_storage("VBA", name, seed)
+                except ValueError:
+                    # Stream already exists (e.g. add-then-save called twice).
+                    cfb.write_stream_in_storage("VBA", name, seed)
+                module.dirty = False
+                decl_key = (
+                    "Module" if module.kind == VBAModuleKind.standard else "Class"
+                )
+                add_modules_for_project.append((module.name, decl_key))
+
+            # 3. Delete streams the user removed in-memory.
+            for name in delete_names:
+                try:
+                    cfb.remove_stream_in_storage("VBA", name)
+                except KeyError:
+                    pass
+
+            project.pending_renames.clear()
+            project.pending_adds.clear()
+            project.pending_deletes.clear()
+
+            # 4. Replace contents of any remaining dirty (pre-existing) modules.
+            write_back_modules(cfb, project)
+
+            # 5. Rewrite the dir + PROJECT streams when the module set's
+            #    identity has changed (add / rename / delete).
+            if project.dir_structure_dirty:
+                new_dir_raw = serialize_dir_stream(project)
                 cfb.write_stream_in_storage("VBA", "dir", compress(new_dir_raw))
                 try:
                     project_raw = cfb.get_stream("PROJECT")
                 except KeyError:
                     project_raw = None
-                if project_raw is not None and rename_map:
-                    new_project = serialize_project_stream(project_raw, rename_map)
+                if project_raw is not None and (
+                    rename_map or add_modules_for_project or delete_names
+                ):
+                    new_project = serialize_project_stream(
+                        project_raw,
+                        rename_map,
+                        add_modules=add_modules_for_project,
+                        delete_names=delete_names,
+                    )
                     cfb.write_stream("PROJECT", new_project)
-                self._project.dir_structure_dirty = False
+                project.dir_structure_dirty = False
         # [MS-OVBA] writers MUST NOT emit performance-cache (__SRP_*) streams.
         try:
             cfb.drop_streams_in_storage("VBA", lambda n: n.startswith("__SRP_"))

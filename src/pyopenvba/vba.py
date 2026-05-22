@@ -642,6 +642,10 @@ class VBAProject:
     dir_modules_offset: int = field(default=-1, repr=False)
     # Pending logical renames (old_name -> new_name); flushed by save().
     pending_renames: dict[str, str] = field(default_factory=lambda: {}, repr=False)
+    # Pending newly-added stream names; flushed by save() into the CFB.
+    pending_adds: set[str] = field(default_factory=lambda: set(), repr=False)
+    # Pending stream names to delete from the CFB; flushed by save().
+    pending_deletes: set[str] = field(default_factory=lambda: set(), repr=False)
     # Set whenever the module list's identity changes (add/rename/delete).
     dir_structure_dirty: bool = field(default=False, repr=False)
 
@@ -692,6 +696,10 @@ class VBAProject:
         )
         self.modules.append(module)
         self.dir_structure_dirty = True
+        self.pending_adds.add(module.stream_name)
+        # If the same stream name was queued for deletion (uncommon but
+        # possible: delete-then-readd), cancel the deletion instead.
+        self.pending_deletes.discard(module.stream_name)
         return module
 
     def rename_module(self, old_name: str, new_name: str) -> VBAModule:
@@ -719,15 +727,21 @@ class VBAProject:
         self.dir_structure_dirty = True
         # Queue CFB stream rename only if the stream name actually changed.
         if old_stream != module.stream_name:
-            # Compose with any prior pending rename so the chain collapses.
-            existing_src = next(
-                (k for k, v in self.pending_renames.items() if v == old_stream),
-                None,
-            )
-            if existing_src is not None:
-                self.pending_renames[existing_src] = module.stream_name
+            # If this stream was queued as a pending add (never saved yet),
+            # just retarget the add — no rename needs to hit the CFB.
+            if old_stream in self.pending_adds:
+                self.pending_adds.discard(old_stream)
+                self.pending_adds.add(module.stream_name)
             else:
-                self.pending_renames[old_stream] = module.stream_name
+                # Compose with any prior pending rename so the chain collapses.
+                existing_src = next(
+                    (k for k, v in self.pending_renames.items() if v == old_stream),
+                    None,
+                )
+                if existing_src is not None:
+                    self.pending_renames[existing_src] = module.stream_name
+                else:
+                    self.pending_renames[old_stream] = module.stream_name
         # Also remember the logical-name change for PROJECT stream rewriting.
         # (We use the same dict keyed by logical names when stream==logical,
         # which is the common Excel case.)
@@ -739,6 +753,16 @@ class VBAProject:
         module = self.get_module(name)
         self.modules.remove(module)
         self.dir_structure_dirty = True
+        # If this was a never-saved module (still queued as an add), just
+        # cancel the add; nothing exists on disk yet.
+        if module.stream_name in self.pending_adds:
+            self.pending_adds.discard(module.stream_name)
+        else:
+            self.pending_deletes.add(module.stream_name)
+        # If a rename had been queued targeting this stream, drop it.
+        for old, new in list(self.pending_renames.items()):
+            if new == module.stream_name or old == module.stream_name:
+                self.pending_renames.pop(old, None)
 
     # ------------------------------------------------------------------
     # Validation (Gate 19)
@@ -911,39 +935,66 @@ def serialize_dir_stream(project: VBAProject) -> bytes:
 # ---------------------------------------------------------------------------
 
 def serialize_project_stream(
-    raw: bytes, rename_map: dict[str, str]
+    raw: bytes,
+    rename_map: dict[str, str],
+    *,
+    add_modules: "list[tuple[str, str]] | None" = None,
+    delete_names: "set[str] | None" = None,
 ) -> bytes:
     """
-    Apply a logical-name rename map to a PROJECT stream's plain-text body.
+    Rewrite a PROJECT stream's plain-text body to apply pending mutations.
 
-    Only the right-hand side of ``Module=`` / ``Class=`` / ``BaseClass=`` /
-    ``Document=NAME/&H...`` declarations and the ``Workspace`` keys are
-    rewritten.  Everything else (``ID``, ``Name``, ``CMG``, ``DPB``, ``GC``,
+    ``rename_map``:
+        Old-logical-name to new-logical-name.  Rewrites the right-hand side of
+        ``Module=`` / ``Class=`` / ``BaseClass=`` / ``Document=NAME/&H...``
+        and keys inside ``[Workspace]``.
+    ``add_modules``:
+        Sequence of ``(name, declaration_key)`` pairs where ``declaration_key``
+        is either ``"Module"`` (standard) or ``"Class"`` (class / other).
+        Each pair is appended as ``"<key>=<name>"`` after the existing
+        declarations and a matching ``[Workspace]`` entry is appended.
+    ``delete_names``:
+        Logical names to remove.  Any ``Module=NAME`` / ``Class=NAME`` /
+        ``BaseClass=NAME`` / ``Document=NAME/...`` line with a matching name
+        is dropped, as is any ``[Workspace]`` key with that name.
+
+    Everything else (``ID``, ``Name``, ``CMG``, ``DPB``, ``GC``,
     ``[Host Extender Info]``) is preserved byte-for-byte except for the
     targeted substitutions.
 
     Returns cp1252-encoded bytes with CRLF line endings.
     """
-    if not rename_map:
+    add_modules = add_modules or []
+    delete_names = delete_names or set()
+    if not rename_map and not add_modules and not delete_names:
         return raw
     try:
         text = raw.decode("cp1252", errors="replace")
     except LookupError:
         text = raw.decode("latin-1", errors="replace")
 
-    # Build a case-insensitive lookup so identifiers compare case-insensitively
-    # while preserving the new-name casing in the output.
     rename_ci: dict[str, str] = {k.casefold(): v for k, v in rename_map.items()}
+    delete_ci: set[str] = {n.casefold() for n in delete_names}
 
     out_lines: list[str] = []
     in_workspace = False
+    # Track the last index where a module-declaration line was emitted, so
+    # we can splice newly-added Module=/Class= lines right after them.
+    last_decl_idx = -1
+    # Track where [Workspace] block sits so we can append new entries to it.
+    workspace_idx = -1
+    workspace_end_idx = -1
+
     for line in text.splitlines():
         stripped = line.strip()
         if stripped.lower() == "[workspace]":
             in_workspace = True
+            workspace_idx = len(out_lines)
             out_lines.append(line)
             continue
         if stripped.startswith("[") and stripped.endswith("]"):
+            if in_workspace:
+                workspace_end_idx = len(out_lines)
             in_workspace = False
             out_lines.append(line)
             continue
@@ -953,21 +1004,59 @@ def serialize_project_stream(
         key, _, value = stripped.partition("=")
         key_s = key.strip()
         if in_workspace:
+            if key_s.casefold() in delete_ci:
+                continue
             new_key = rename_ci.get(key_s.casefold(), key_s)
             out_lines.append(f"{new_key}={value.strip()}")
             continue
         if key_s in ("Module", "Class", "BaseClass"):
-            new_val = rename_ci.get(value.strip().casefold(), value.strip())
+            v = value.strip()
+            if v.casefold() in delete_ci:
+                continue
+            new_val = rename_ci.get(v.casefold(), v)
             out_lines.append(f"{key_s}={new_val}")
+            last_decl_idx = len(out_lines) - 1
             continue
         if key_s == "Document":
             name_part, sep, id_part = value.strip().partition("/")
+            if name_part.casefold() in delete_ci:
+                continue
             new_name = rename_ci.get(name_part.casefold(), name_part)
             out_lines.append(f"Document={new_name}{sep}{id_part}")
+            last_decl_idx = len(out_lines) - 1
             continue
         out_lines.append(line)
 
+    # Splice in any newly-added module declarations after the last existing
+    # one; if there were none, append at the project-section end (immediately
+    # before the first '[' header, or at the very end).
+    if add_modules:
+        insert_at = last_decl_idx + 1 if last_decl_idx >= 0 else _project_section_end(out_lines)
+        new_decl_lines = [f"{decl_key}={name}" for name, decl_key in add_modules]
+        out_lines[insert_at:insert_at] = new_decl_lines
+        # Shift workspace markers if they were after the insertion point.
+        if workspace_idx >= insert_at:
+            workspace_idx += len(new_decl_lines)
+        if workspace_end_idx >= insert_at:
+            workspace_end_idx += len(new_decl_lines)
+
+        # Append matching [Workspace] entries.  Real Office writes
+        # "<Name>=0, 0, 0, 0, C" by default; replicate that.
+        if workspace_idx >= 0:
+            ws_insert = workspace_end_idx if workspace_end_idx > workspace_idx else len(out_lines)
+            ws_lines = [f"{name}=0, 0, 0, 0, C" for name, _ in add_modules]
+            out_lines[ws_insert:ws_insert] = ws_lines
+
     return ("\r\n".join(out_lines) + "\r\n").encode("cp1252", errors="replace")
+
+
+def _project_section_end(lines: list[str]) -> int:
+    """Return the index of the first ``[...]`` header line, or ``len(lines)``."""
+    for i, line in enumerate(lines):
+        s = line.strip()
+        if s.startswith("[") and s.endswith("]"):
+            return i
+    return len(lines)
 
 
 # ---------------------------------------------------------------------------

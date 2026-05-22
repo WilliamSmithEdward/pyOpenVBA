@@ -834,9 +834,65 @@ class TestGate21_MutationRoundTrip:
             assert "MyMod" in vba_streams
             assert "Module1" not in vba_streams
 
-    @pytest.mark.xfail(strict=True, reason="add_module not implemented")
-    def test_add_module_round_trip(self) -> None:
-        pytest.fail("add not implemented")
+    def test_add_module_round_trip(
+        self, live_xlsm_path: Path, tmp_path: Path
+    ) -> None:
+        """add_module persists to disk: new CFB stream + dir + PROJECT."""
+        out = tmp_path / "added.xlsm"
+        src = "Attribute VB_Name = \"BrandNew\"\r\nSub Hi(): End Sub\r\n"
+        with ExcelFile(live_xlsm_path) as wb:
+            proj = wb.vba_project()
+            proj.add_module("BrandNew", src, kind=VBAModuleKind.standard)
+            wb.save(out)
+
+        with ExcelFile(out) as wb2:
+            assert "BrandNew" in wb2.module_names()
+            assert wb2.get_module("BrandNew") == src
+            # PROJECT stream advertises the new module declaration.
+            cfb = CFB.from_bytes(wb2.vba_project_bytes())
+            project_text = cfb.get_stream("PROJECT").decode("cp1252", errors="replace")
+            assert "Module=BrandNew" in project_text
+            assert "BrandNew" in set(cfb.list_streams_in_storage("VBA"))
+
+    def test_delete_module_round_trip(
+        self, live_xlsm_path: Path, tmp_path: Path
+    ) -> None:
+        """delete_module persists to disk: CFB stream gone + dir + PROJECT scrubbed."""
+        out = tmp_path / "deleted.xlsm"
+        with ExcelFile(live_xlsm_path) as wb:
+            proj = wb.vba_project()
+            proj.delete_module("Module1")
+            wb.save(out)
+
+        with ExcelFile(out) as wb2:
+            names = {n.casefold() for n in wb2.module_names()}
+            assert "module1" not in names
+            cfb = CFB.from_bytes(wb2.vba_project_bytes())
+            assert "Module1" not in set(cfb.list_streams_in_storage("VBA"))
+            project_text = cfb.get_stream("PROJECT").decode("cp1252", errors="replace")
+            assert "Module=Module1" not in project_text
+
+    def test_add_then_rename_round_trip(
+        self, live_xlsm_path: Path, tmp_path: Path
+    ) -> None:
+        """Add a module then rename it before saving: only the new name persists."""
+        out = tmp_path / "add_then_rename.xlsm"
+        src = "Sub G(): End Sub\r\n"
+        with ExcelFile(live_xlsm_path) as wb:
+            proj = wb.vba_project()
+            proj.add_module("TempName", src, kind=VBAModuleKind.standard)
+            proj.rename_module("TempName", "FinalName")
+            wb.save(out)
+
+        with ExcelFile(out) as wb2:
+            names = set(wb2.module_names())
+            assert "FinalName" in names
+            assert "TempName" not in names
+            assert wb2.get_module("FinalName") == src
+            cfb = CFB.from_bytes(wb2.vba_project_bytes())
+            vba_streams = set(cfb.list_streams_in_storage("VBA"))
+            assert "FinalName" in vba_streams
+            assert "TempName" not in vba_streams
 
 
 # ===========================================================================

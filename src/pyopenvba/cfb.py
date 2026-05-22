@@ -375,6 +375,57 @@ class CFB:
                 return
         raise KeyError(f"Stream {name!r} not found in storage {storage!r}")
 
+    def add_stream_to_storage(self, storage: str, name: str, data: bytes) -> None:
+        """
+        Create a new stream as a child of ``storage`` and seed it with ``data``.
+
+        A new :class:`DirEntry` is appended to the directory (re-using an
+        existing empty slot when one is available) and inserted into the
+        storage's child subtree.  Raises ``KeyError`` if the storage does not
+        exist and ``ValueError`` if a child stream of that name already exists.
+        """
+        if not name:
+            raise ValueError("stream name must be non-empty")
+        parent_idx = self._find_storage_index(storage)
+        if self._find_child_stream_index(parent_idx, name) is not None:
+            raise ValueError(
+                f"Stream {name!r} already exists in storage {storage!r}"
+            )
+        # Prefer to recycle an existing EMPTY slot so the directory does not
+        # grow unnecessarily; otherwise append a fresh entry.
+        target_idx: int | None = None
+        for i, e in enumerate(self._directory):
+            if e.obj_type == _OBJTYPE_EMPTY:
+                target_idx = i
+                break
+        if target_idx is None:
+            self._directory.append(DirEntry(
+                name=name,
+                obj_type=_OBJTYPE_STREAM,
+                child_id=_NOSTREAM,
+                left_sibling_id=_NOSTREAM,
+                right_sibling_id=_NOSTREAM,
+                start_sector=_ENDOFCHAIN,
+                size=0,
+                raw=b"",
+            ))
+            target_idx = len(self._directory) - 1
+        else:
+            slot = self._directory[target_idx]
+            slot.name = name
+            slot.obj_type = _OBJTYPE_STREAM
+            slot.child_id = _NOSTREAM
+            slot.left_sibling_id = _NOSTREAM
+            slot.right_sibling_id = _NOSTREAM
+            slot.start_sector = _ENDOFCHAIN
+            slot.size = 0
+            slot.raw = b""
+        self._stream_overrides[target_idx] = bytes(data)
+        # Splice the new entry into the parent's child subtree and rebalance.
+        siblings = self._collect_subtree(self._directory[parent_idx].child_id)
+        siblings.append(target_idx)
+        self._directory[parent_idx].child_id = self._rebuild_balanced_subtree(siblings)
+
     # ------------------------------------------------------------------
     # Directory mutation (stream removal / drop)
     # ------------------------------------------------------------------

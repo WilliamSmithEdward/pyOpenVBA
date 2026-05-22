@@ -1,5 +1,11 @@
 # pyOpenVBA
 
+[![PyPI version](https://img.shields.io/pypi/v/pyOpenVBA.svg)](https://pypi.org/project/pyOpenVBA/)
+[![Python versions](https://img.shields.io/pypi/pyversions/pyOpenVBA.svg)](https://pypi.org/project/pyOpenVBA/)
+[![CI](https://github.com/WilliamSmithEdward/pyOpenVBA/actions/workflows/ci.yml/badge.svg)](https://github.com/WilliamSmithEdward/pyOpenVBA/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.md)
+[![Downloads](https://img.shields.io/pypi/dm/pyOpenVBA.svg)](https://pypi.org/project/pyOpenVBA/)
+
 **Read and write the VBA macros inside Excel workbooks, in pure Python.**
 
 No external dependencies. No Excel install required. Works on Windows,
@@ -50,19 +56,28 @@ you will not have to switch later.
 
 ## Installation
 
+From PyPI:
+
 ```bash
 pip install pyOpenVBA
 ```
 
-Or from source:
+Requires Python 3.10 or newer. There are no other dependencies.
+
+After install, the CLI is available either as a module or as a script:
+
+```bash
+python -m pyopenvba --help
+pyopenvba --help
+```
+
+From source (for development):
 
 ```bash
 git clone https://github.com/WilliamSmithEdward/pyOpenVBA
 cd pyOpenVBA
-pip install -e .
+pip install -e ".[dev]"
 ```
-
-That's it. There are no other dependencies.
 
 ---
 
@@ -239,13 +254,18 @@ Bug reports, weird workbooks that break the library, and PRs are all
 welcome. Please include the workbook (or a minimal redacted version)
 when filing a parsing bug.
 
-Run the test suite:
+Run the full local check (same as CI):
 
 ```bash
-pip install pytest pyright
-pytest
+pip install -e ".[dev]"
 pyright src tests
+pytest -p no:randomly
 ```
+
+CI runs the test matrix on Python 3.10 / 3.11 / 3.12 / 3.13 across
+Linux, plus 3.12 on Windows and macOS, on every push and pull request.
+Releases are published to PyPI automatically when a `v*.*.*` tag is
+pushed.
 
 ---
 

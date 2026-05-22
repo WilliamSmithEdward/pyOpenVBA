@@ -4,19 +4,76 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pyOpenVBA"
-version = "0.1.0"
-description = "Read and write VBA sections of xlsm/xlsb/xls files using pure Python — no external dependencies."
+version = "1.0.0"
+description = "Read and write VBA macros inside Excel workbooks (.xlsm, .xlsb, .xlam, .xls) in pure Python, no dependencies."
 readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.10"
+authors = [
+    { name = "William Smith", email = "williamsmithe@icloud.com" },
+]
+keywords = [
+    "vba",
+    "excel",
+    "xlsm",
+    "xlsb",
+    "xls",
+    "xlam",
+    "ms-ovba",
+    "ms-cfb",
+    "macros",
+    "office",
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Office/Business",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: System :: Archiving",
+    "Typing :: Typed",
+]
 dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8",
+    "pyright>=1.1.350",
+    "build>=1.2",
+    "twine>=5",
+]
 
 [project.urls]
 Homepage = "https://github.com/WilliamSmithEdward/pyOpenVBA"
+Repository = "https://github.com/WilliamSmithEdward/pyOpenVBA"
 Issues = "https://github.com/WilliamSmithEdward/pyOpenVBA/issues"
+Documentation = "https://github.com/WilliamSmithEdward/pyOpenVBA#readme"
+
+[project.scripts]
+pyopenvba = "pyopenvba.__main__:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/pyopenvba"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "src/pyopenvba",
+    "README.md",
+    "LICENSE.md",
+    "pyproject.toml",
+    "docs/architecture.md",
+    "docs/roadmap.md",
+    "docs/ms-ovba-implementation-guide_v2.md",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

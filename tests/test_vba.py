@@ -281,3 +281,228 @@ class TestCompress:
                 f"got flags={flags}"
             )
 
+
+# ---------------------------------------------------------------------------
+# Attribute header preservation (VBE-style body-only edits)
+# ---------------------------------------------------------------------------
+
+class TestAttributeHeaderPreservation:
+    """Body-only source edits must preserve the leading Attribute VB_* block.
+
+    Document modules (ThisWorkbook, Sheet1, ...) carry host-binding
+    attributes in their source.  Stripping them on a source replacement
+    breaks the workbook in Excel.
+    """
+
+    def test_split_attribute_header_standard(self) -> None:
+        from pyopenvba.vba import split_attribute_header
+        src = 'Attribute VB_Name = "Module1"\r\nSub Foo()\r\nEnd Sub\r\n'
+        header, body = split_attribute_header(src)
+        assert header == 'Attribute VB_Name = "Module1"\r\n'
+        assert body == "Sub Foo()\r\nEnd Sub\r\n"
+
+    def test_split_attribute_header_document_with_blank_separator(self) -> None:
+        from pyopenvba.vba import split_attribute_header
+        src = (
+            'Attribute VB_Name = "ThisWorkbook"\r\n'
+            'Attribute VB_Base = "0{00020819-0000-0000-C000-000000000046}"\r\n'
+            'Attribute VB_GlobalNameSpace = False\r\n'
+            'Attribute VB_Creatable = False\r\n'
+            'Attribute VB_PredeclaredId = True\r\n'
+            'Attribute VB_Exposed = True\r\n'
+            'Attribute VB_TemplateDerived = False\r\n'
+            'Attribute VB_Customizable = True\r\n'
+            '\r\n'
+            'Sub Hello()\r\nEnd Sub\r\n'
+        )
+        header, body = split_attribute_header(src)
+        assert header.endswith('VB_Customizable = True\r\n\r\n')
+        assert body == "Sub Hello()\r\nEnd Sub\r\n"
+
+    def test_split_attribute_header_class_with_version_block(self) -> None:
+        from pyopenvba.vba import split_attribute_header
+        src = (
+            "VERSION 1.0 CLASS\r\n"
+            "BEGIN\r\n"
+            "  MultiUse = -1  'True\r\n"
+            "END\r\n"
+            'Attribute VB_Name = "Class1"\r\n'
+            'Attribute VB_GlobalNameSpace = False\r\n'
+            '\r\n'
+            "Sub Bar()\r\nEnd Sub\r\n"
+        )
+        header, body = split_attribute_header(src)
+        assert header.startswith("VERSION 1.0 CLASS\r\n")
+        assert 'Attribute VB_Name = "Class1"' in header
+        assert body == "Sub Bar()\r\nEnd Sub\r\n"
+
+    def test_split_attribute_header_no_header(self) -> None:
+        from pyopenvba.vba import split_attribute_header
+        header, body = split_attribute_header("Sub Foo()\r\nEnd Sub\r\n")
+        assert header == ""
+        assert body == "Sub Foo()\r\nEnd Sub\r\n"
+
+    def test_set_module_body_only_preserves_document_header(
+        self, tmp_path: Path
+    ) -> None:
+        """`set_module('ThisWorkbook', body)` must keep the Attribute header."""
+        from pyopenvba.excel import ExcelFile
+
+        src_path = Path("tests/live_excel_testing/workbook_only_module_test.xlsm")
+        if not src_path.exists():
+            pytest.skip("requires workbook_only_module_test.xlsm fixture")
+        out = tmp_path / "wb_body_only.xlsm"
+        import shutil
+        shutil.copy(src_path, out)
+
+        with ExcelFile(out) as wb:
+            original = wb.get_module("ThisWorkbook")
+            assert original.startswith('Attribute VB_Name = "ThisWorkbook"')
+            wb.set_module(
+                "ThisWorkbook",
+                'Sub Hello()\r\n    MsgBox "hi"\r\nEnd Sub\r\n',
+            )
+            wb.save()
+
+        with ExcelFile(out) as wb2:
+            new_src = wb2.get_module("ThisWorkbook")
+            # Header preserved verbatim.
+            assert new_src.startswith('Attribute VB_Name = "ThisWorkbook"')
+            assert 'Attribute VB_PredeclaredId = True' in new_src
+            assert 'Attribute VB_Customizable = True' in new_src
+            # New body appears after the header.
+            assert 'Sub Hello()' in new_src
+            assert 'MsgBox "hi"' in new_src
+            # Old body is gone.
+            assert 'ThisWorkbookTest' not in new_src
+
+    def test_set_module_full_source_replacement_still_works(
+        self, tmp_path: Path
+    ) -> None:
+        """An explicit full-source replacement (with Attribute header) is honored as-is."""
+        from pyopenvba.excel import ExcelFile
+
+        src_path = Path("tests/live_excel_testing/workbook_only_module_test.xlsm")
+        if not src_path.exists():
+            pytest.skip("requires workbook_only_module_test.xlsm fixture")
+        out = tmp_path / "wb_full_replace.xlsm"
+        import shutil
+        shutil.copy(src_path, out)
+
+        full = (
+            'Attribute VB_Name = "ThisWorkbook"\r\n'
+            'Attribute VB_Base = "0{00020819-0000-0000-C000-000000000046}"\r\n'
+            'Attribute VB_GlobalNameSpace = False\r\n'
+            'Attribute VB_Creatable = False\r\n'
+            'Attribute VB_PredeclaredId = True\r\n'
+            'Attribute VB_Exposed = True\r\n'
+            'Attribute VB_TemplateDerived = False\r\n'
+            'Attribute VB_Customizable = True\r\n'
+            '\r\n'
+            'Sub Custom()\r\nEnd Sub\r\n'
+        )
+        with ExcelFile(out) as wb:
+            wb.set_module("ThisWorkbook", full)
+            wb.save()
+
+        with ExcelFile(out) as wb2:
+            assert wb2.get_module("ThisWorkbook") == full
+
+    def test_add_module_standard_synthesizes_header(self, tmp_path: Path) -> None:
+        """add_module(kind=standard) prepends Attribute VB_Name when missing."""
+        from pyopenvba.excel import ExcelFile
+        from pyopenvba.vba import VBAModuleKind
+
+        src_path = Path("tests/live_excel_testing/test_macro_workbook.xlsm")
+        if not src_path.exists():
+            pytest.skip("requires test_macro_workbook.xlsm fixture")
+        out = tmp_path / "synth_header.xlsm"
+        import shutil
+        shutil.copy(src_path, out)
+
+        with ExcelFile(out) as wb:
+            proj = wb.vba_project()
+            proj.add_module(
+                "BodyOnly",
+                "Sub Foo()\r\n    MsgBox \"foo\"\r\nEnd Sub\r\n",
+                kind=VBAModuleKind.standard,
+            )
+            wb.save()
+
+        with ExcelFile(out) as wb2:
+            src = wb2.get_module("BodyOnly")
+            assert src.startswith('Attribute VB_Name = "BodyOnly"\r\n')
+            assert 'Sub Foo()' in src
+
+    def test_add_module_standard_honors_supplied_header(self, tmp_path: Path) -> None:
+        """If caller supplies an Attribute header, add_module uses it as-is."""
+        from pyopenvba.excel import ExcelFile
+        from pyopenvba.vba import VBAModuleKind
+
+        src_path = Path("tests/live_excel_testing/test_macro_workbook.xlsm")
+        if not src_path.exists():
+            pytest.skip("requires test_macro_workbook.xlsm fixture")
+        out = tmp_path / "supplied_header.xlsm"
+        import shutil
+        shutil.copy(src_path, out)
+
+        full = (
+            'Attribute VB_Name = "FullSrc"\r\n'
+            'Sub Bar()\r\nEnd Sub\r\n'
+        )
+        with ExcelFile(out) as wb:
+            wb.vba_project().add_module(
+                "FullSrc", full, kind=VBAModuleKind.standard
+            )
+            wb.save()
+
+        with ExcelFile(out) as wb2:
+            assert wb2.get_module("FullSrc") == full
+
+    def test_add_module_other_without_header_rejected(self) -> None:
+        """Class/document modules cannot be invented without an explicit header."""
+        from pyopenvba.excel import ExcelFile
+        from pyopenvba.vba import VBAModuleKind
+
+        src_path = Path("tests/live_excel_testing/test_macro_workbook.xlsm")
+        if not src_path.exists():
+            pytest.skip("requires test_macro_workbook.xlsm fixture")
+        with ExcelFile(src_path) as wb:
+            proj = wb.vba_project()
+            with pytest.raises(ValueError, match="attribute header"):
+                proj.add_module(
+                    "InventedClass",
+                    "Sub Baz()\r\nEnd Sub\r\n",
+                    kind=VBAModuleKind.other,
+                )
+
+    def test_module_body_property_round_trip(self, tmp_path: Path) -> None:
+        """``VBAModule.body`` exposes the source minus its attribute header."""
+        from pyopenvba.excel import ExcelFile
+
+        src_path = Path("tests/live_excel_testing/workbook_only_module_test.xlsm")
+        if not src_path.exists():
+            pytest.skip("requires workbook_only_module_test.xlsm fixture")
+        out = tmp_path / "body_prop.xlsm"
+        import shutil
+        shutil.copy(src_path, out)
+
+        with ExcelFile(out) as wb:
+            proj = wb.vba_project()
+            mod = proj.get_module("ThisWorkbook")
+            assert "Attribute VB_Name" not in mod.body
+            assert mod.body.startswith("Sub ThisWorkbookTest()")
+            mod.body = "Sub Replaced()\r\nEnd Sub\r\n"
+            assert mod.source.startswith('Attribute VB_Name = "ThisWorkbook"')
+            assert "Sub Replaced()" in mod.source
+            wb.save()
+
+        with ExcelFile(out) as wb2:
+            src = wb2.get_module("ThisWorkbook")
+            assert src.startswith('Attribute VB_Name = "ThisWorkbook"')
+            assert "Sub Replaced()" in src
+            assert "ThisWorkbookTest" not in src
+
+
+
+

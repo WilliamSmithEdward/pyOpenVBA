@@ -652,6 +652,25 @@ class VBAModule:
     prefix_bytes: bytes = field(default=b"", repr=False)
     # Whether the source has been edited and needs to be recompressed on save.
     dirty: bool = field(default=False, repr=False)
+    # Cached attribute header captured at parse time so a body-only source
+    # replacement (the VBE-style edit surface) can re-prepend the required
+    # ``Attribute VB_*`` / ``VERSION ... CLASS`` block.  Re-derived on demand
+    # when missing via ``split_attribute_header(self.source)``.
+    attribute_header: str = field(default="", repr=False)
+
+    @property
+    def body(self) -> str:
+        """Return the source text with its leading attribute header stripped."""
+        _, body = split_attribute_header(self.source)
+        return body
+
+    @body.setter
+    def body(self, value: str) -> None:
+        """Replace the body, preserving the cached ``attribute_header``."""
+        header = self.attribute_header or split_attribute_header(self.source)[0]
+        self.source = header + value
+        self.attribute_header = header
+        self.dirty = True
 
 
 @dataclass
@@ -713,19 +732,46 @@ class VBAProject:
     ) -> VBAModule:
         """Append a new module to the project (in-memory only).
 
+        ``source`` may be either a full source (already starting with an
+        ``Attribute VB_*`` / ``VERSION ... CLASS`` header) or a bare body.
+        For standard modules a minimal ``Attribute VB_Name = "<name>"``
+        header is synthesized if one is not provided, matching the VBE UX
+        where the user only types the executable body.
+
         Raises ``ValueError`` if a module with that name already exists.
         """
         needle = name.casefold()
         if any(m.name.casefold() == needle for m in self.modules):
             raise ValueError(f"Module already exists: {name!r}")
+
+        # Normalize header: parse out any caller-supplied header, otherwise
+        # synthesize a minimal standard-module header.  Other (class/document)
+        # modules must be provided with a full header by the caller — we do
+        # not invent class metadata or host bindings.
+        existing_header, body = split_attribute_header(source)
+        if existing_header:
+            header = existing_header
+            full_source = source
+        elif kind == VBAModuleKind.standard:
+            header = synthesize_standard_header(name)
+            full_source = header + source
+        else:
+            raise ValueError(
+                f"add_module(kind={kind.name}) requires the source to start "
+                "with its own attribute header (e.g. 'VERSION 1.0 CLASS' "
+                "for a class module).  pyOpenVBA does not invent class or "
+                "document module headers."
+            )
+
         module = VBAModule(
             name=name,
             stream_name=stream_name if stream_name is not None else name,
-            source=source,
+            source=full_source,
             kind=kind,
             text_offset=0,
             name_unicode=name,
             stream_name_unicode=(stream_name if stream_name is not None else name),
+            attribute_header=header,
             dirty=True,
         )
         self.modules.append(module)
@@ -766,6 +812,19 @@ class VBAProject:
         # Keep stream name aligned with module name (matches Office behavior).
         module.stream_name = new_name
         module.stream_name_unicode = new_name
+        # Re-key the in-source ``Attribute VB_Name = "..."`` line to the new
+        # name.  Excel uses MODULENAME from the dir stream as the authoritative
+        # binding, but VBE re-exports the attribute on edit and a stale name
+        # in the source confuses round-trip diff tooling.  Only rewrite when
+        # the existing header literally references the old logical name.
+        if module.attribute_header:
+            old_attr = f'Attribute VB_Name = "{old_logical}"'
+            new_attr = f'Attribute VB_Name = "{new_name}"'
+            if old_attr in module.attribute_header:
+                module.attribute_header = module.attribute_header.replace(
+                    old_attr, new_attr, 1
+                )
+                module.source = module.source.replace(old_attr, new_attr, 1)
         module.dirty = True
         self.dir_structure_dirty = True
         # Queue CFB stream rename only if the stream name actually changed.
@@ -861,6 +920,65 @@ def _encoding_for_codepage(code_page: int) -> str:
     except LookupError:
         encoding = "latin-1"
     return encoding
+
+
+def split_attribute_header(source: str) -> tuple[str, str]:
+    """
+    Split a VBA module source into ``(attribute_header, body)``.
+
+    The header captures the optional class ``VERSION ... CLASS / BEGIN ... END``
+    block, followed by any contiguous run of leading ``Attribute VB_*`` lines,
+    and (if present) the single ``\\r\\n`` blank separator that VBE inserts
+    between the attributes and the executable body.  Everything after that
+    is the body.
+
+    Detection is deterministic — header lines must literally start with
+    ``Attribute `` or be part of the ``VERSION ... CLASS`` preamble.  No
+    pattern-matching against names or values is performed.
+
+    Always succeeds: when no header is present, returns ``("", source)``.
+    """
+    if not source:
+        return "", ""
+    # Normalize line ending lookup without mutating data.
+    pos = 0
+    n = len(source)
+
+    # Optional VERSION ... CLASS block (class modules).
+    if source.startswith("VERSION ") and " CLASS" in source[:64]:
+        # Find the terminating "END\r\n" line.
+        end_idx = source.find("\r\nEND\r\n")
+        if end_idx != -1:
+            pos = end_idx + len("\r\nEND\r\n")
+        else:
+            end_idx = source.find("\nEND\n")
+            if end_idx != -1:
+                pos = end_idx + len("\nEND\n")
+
+    # Run of "Attribute " lines.
+    while pos < n and source.startswith("Attribute ", pos):
+        nl = source.find("\n", pos)
+        if nl == -1:
+            pos = n
+            break
+        pos = nl + 1
+
+    # If no attribute lines and no VERSION block was consumed, no header.
+    if pos == 0:
+        return "", source
+
+    # Consume a single blank-line separator if present (CRLF or LF).
+    if source.startswith("\r\n", pos):
+        pos += 2
+    elif source.startswith("\n", pos):
+        pos += 1
+
+    return source[:pos], source[pos:]
+
+
+def synthesize_standard_header(name: str) -> str:
+    """Return the minimum attribute header for a new standard module."""
+    return f'Attribute VB_Name = "{name}"\r\n'
 
 
 def rebuild_module_stream(module: VBAModule, code_page: int) -> bytes:
@@ -1191,6 +1309,7 @@ def parse_vba_project(cfb: CFB) -> VBAProject:
             compressed_source, stream_name=f"VBA/{stream_name}"
         )
         source = source_bytes.decode(encoding, errors="replace")
+        header, _ = split_attribute_header(source)
 
         modules.append(VBAModule(
             name=info.name,
@@ -1207,6 +1326,7 @@ def parse_vba_project(cfb: CFB) -> VBAProject:
             help_context=info.help_context,
             cookie=info.cookie,
             prefix_bytes=stream_compressed[: info.text_offset],
+            attribute_header=header,
         ))
 
     project = VBAProject(modules=modules, code_page=code_page)

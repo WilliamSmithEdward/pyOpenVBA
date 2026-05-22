@@ -144,12 +144,28 @@ class ExcelFile:
         """
         Replace the source code of an existing VBA module in memory.
 
+        ``source`` may be either a full source replacement (starting with
+        ``Attribute VB_*`` or ``VERSION ... CLASS``) or a bare body.  When
+        a bare body is supplied, the module's existing attribute header is
+        automatically re-prepended so document modules (``ThisWorkbook``,
+        ``Sheet1``, ...) keep their host-binding ``Attribute VB_*`` lines.
+        This mirrors the VBE UX where the user only types the body.
+
         Changes are not written to disk until :meth:`save` is called.
         """
+        from pyopenvba.vba import split_attribute_header
         project = self.vba_project()
         for m in project.modules:
             if m.name.casefold() == name.casefold():
-                m.source = source
+                supplied_header, _ = split_attribute_header(source)
+                if supplied_header:
+                    # Full-source replacement — also refresh the cached header.
+                    m.source = source
+                    m.attribute_header = supplied_header
+                else:
+                    header = m.attribute_header or split_attribute_header(m.source)[0]
+                    m.attribute_header = header
+                    m.source = header + source
                 m.dirty = True
                 return
         raise KeyError(f"Module not found: {name!r}")

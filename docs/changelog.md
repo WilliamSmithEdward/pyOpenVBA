@@ -3,6 +3,49 @@
 All notable changes to pyOpenVBA are documented here. This project follows
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] - 2026-05-22
+
+### Fixed
+
+- **Editing a document module's source via `set_module()` (e.g. `ThisWorkbook`,
+  `Sheet1`) silently broke the workbook in Excel.** The leading
+  `Attribute VB_Name = "ThisWorkbook"` / `Attribute VB_Base = "..."` /
+  `Attribute VB_PredeclaredId = True` header lines that bind a document
+  module to its host object were being stripped on a source replacement.
+  Excel then re-compiled the module without those bindings and either
+  silently dropped the code or showed an empty module in the VBE.
+
+### Added
+
+- **VBE-style body-only source edits.** `ExcelFile.set_module(name, text)`
+  now accepts either a full source replacement (text beginning with
+  `Attribute VB_*` or `VERSION ... CLASS`) or a bare body. When a bare
+  body is supplied, the module's existing attribute header is
+  automatically re-prepended, matching the VBE UX where the user only
+  types the executable code.
+- **`VBAModule.body`** property: read or write a module's executable body
+  without touching its attribute header.
+- **`VBAModule.attribute_header`** field: the contiguous leading
+  `VERSION ... CLASS` block + `Attribute VB_*` lines + separator,
+  captured at parse time.
+- **`split_attribute_header(source) -> (header, body)`** public helper.
+- **`add_module(name, body, kind=standard)` now synthesizes a minimal
+  `Attribute VB_Name = "<name>"` header** when the caller doesn't supply
+  one. Caller-supplied headers are passed through unchanged.
+- **`add_module(kind=other)` requires an explicit attribute header.**
+  pyOpenVBA refuses to invent class or document module headers since
+  their host-binding metadata can't be safely guessed.
+- **`rename_module()` re-keys the in-source `Attribute VB_Name = "..."`
+  line** to the new logical name so the source matches the dir-stream
+  binding.
+- New `TestAttributeHeaderPreservation` test class covering:
+  header splitting (standard, document, class, headerless),
+  `set_module` body-only preservation on a document module,
+  `set_module` full-source replacement,
+  `add_module` header synthesis vs. caller-supplied,
+  `add_module(kind=other)` rejection without a header,
+  and the `VBAModule.body` property round-trip.
+
 ## [1.1.0] - 2026-05-22
 
 ### Added

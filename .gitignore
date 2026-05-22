@@ -39,3 +39,7 @@ tests/fixtures/*.xls
 # Manually-generated Excel verification set (rebuilt by
 # scripts/build_excel_verification_set.py)
 tests/live_excel_testing/_excel_verify/
+
+# Live header-fix test set (rebuilt by
+# scripts/bake_header_fix_live_tests.py)
+tests/live_excel_testing/_header_fix_live/

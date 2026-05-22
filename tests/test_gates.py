@@ -1116,7 +1116,10 @@ class TestGate18_Encoding:
 
         with ExcelFile(out) as wb2:
             assert mod_name in wb2.module_names()
-            assert wb2.get_module(mod_name) == src
+            # add_module synthesizes an Attribute VB_Name header for standard
+            # modules when the caller doesn't supply one (matches VBE UX).
+            expected = f'Attribute VB_Name = "{mod_name}"\r\n' + src
+            assert wb2.get_module(mod_name) == expected
             # CFB stream name preserved verbatim (UTF-16 directory entry).
             cfb = CFB.from_bytes(wb2.vba_project_bytes())
             assert mod_name in set(cfb.list_streams_in_storage("VBA"))
@@ -1271,7 +1274,13 @@ class TestGate21_MutationRoundTrip:
             names = {n.casefold() for n in wb2.module_names()}
             assert "mymod" in names
             assert "module1" not in names
-            assert wb2.get_module("MyMod") == original_src
+            # rename_module re-keys the in-source Attribute VB_Name line.
+            expected = original_src.replace(
+                'Attribute VB_Name = "Module1"',
+                'Attribute VB_Name = "MyMod"',
+                1,
+            )
+            assert wb2.get_module("MyMod") == expected
 
     def test_rename_persists_in_project_stream(
         self, live_xlsm_path: Path, tmp_path: Path
@@ -1360,7 +1369,10 @@ class TestGate21_MutationRoundTrip:
             names = set(wb2.module_names())
             assert "FinalName" in names
             assert "TempName" not in names
-            assert wb2.get_module("FinalName") == src
+            # add_module synthesizes an Attribute VB_Name header, and
+            # rename_module re-keys it to the new name.
+            expected = 'Attribute VB_Name = "FinalName"\r\n' + src
+            assert wb2.get_module("FinalName") == expected
             cfb = CFB.from_bytes(wb2.vba_project_bytes())
             vba_streams = set(cfb.list_streams_in_storage("VBA"))
             assert "FinalName" in vba_streams

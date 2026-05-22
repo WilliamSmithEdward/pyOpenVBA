@@ -28,7 +28,7 @@ workbook still opens cleanly in Excel.
 
 The write path is the whole point of the library:
 
-- **Replace** a module's source in place.
+- **Modify** a module's source in place.
 - **Add** a new standard module, class module, or document/UserForm
   code-behind.
 - **Rename** any module (the CFB stream, `dir` record, `PROJECT`
@@ -38,8 +38,7 @@ The write path is the whole point of the library:
 - **Save** the workbook and have it reopen in Excel with no "we found
   a problem with some content" repair dialog. Every supported format
   (`.xlsm`, `.xlsb`, `.xlam`, `.xls`) is verified against live Excel.
-- **Safely refuse** to corrupt password-protected or digitally signed
-  projects unless you explicitly opt in.
+- **Create** new `.xlsm` files on the fly, and inject VBA code into them.
 
 That makes it a good fit for:
 
@@ -50,6 +49,8 @@ That makes it a good fit for:
   Excel through COM automation.
 - **Reading and writing macros on a server** (Linux / CI) where Excel
   is not installed.
+- **Agentic AI Integration** allow your AI agent easy access to
+  both push and pull VBA code in your workbook.
 
 pyOpenVBA is a complete read-and-write library, so it covers the full
 lifecycle of a VBA project in one place: extract, edit, version, write
@@ -105,6 +106,27 @@ with ExcelFile("workbook.xlsm") as wb:
 ```
 
 That is the entire core API. Three methods.
+
+---
+
+## Create a brand-new .xlsm from scratch
+
+Need a fresh macro-enabled workbook without launching Excel? Use
+`ExcelFile.create_new()`:
+
+```python
+from pyopenvba import ExcelFile
+
+with ExcelFile.create_new("new_book.xlsm") as wb:
+    wb.set_module(
+        "Module1",
+        'Sub Hello()\r\n    MsgBox "hello from python"\r\nEnd Sub\r\n',
+    )
+    wb.save()
+```
+
+The new workbook ships with `ThisWorkbook`, `Sheet1`, and an empty
+`Module1`, and opens cleanly in Excel with no repair prompt.
 
 ---
 
@@ -238,6 +260,7 @@ src/pyopenvba/
   vba.py          VBA project parser + MS-OVBA codec
   cfb.py          MS-CFB (Compound File Binary) parser/writer
   exceptions.py   custom exception hierarchy
+  _templates/     baked-in empty .xlsm bytes for ExcelFile.create_new()
   __main__.py     `python -m pyopenvba {pull,push,ls}` CLI
 ```
 

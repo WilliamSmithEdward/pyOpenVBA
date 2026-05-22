@@ -55,3 +55,60 @@ class TestExcelFileOpen:
         with ExcelFile(path) as wb:
             with pytest.raises(CFBError):
                 wb.save(tmp_path / "out.xlsm")
+
+
+class TestExcelFileCreateNew:
+    def test_create_new_writes_file(self, tmp_path: Path) -> None:
+        target = tmp_path / "new_book.xlsm"
+        wb = ExcelFile.create_new(target)
+        try:
+            assert target.exists()
+            assert target.stat().st_size > 0
+        finally:
+            wb.close()
+
+    def test_create_new_has_expected_modules(self, tmp_path: Path) -> None:
+        target = tmp_path / "new_book.xlsm"
+        with ExcelFile.create_new(target) as wb:
+            proj = wb.vba_project()
+            names = {m.name for m in proj.modules}
+        assert {"ThisWorkbook", "Sheet1", "Module1"}.issubset(names)
+
+    def test_create_new_module1_is_empty(self, tmp_path: Path) -> None:
+        target = tmp_path / "new_book.xlsm"
+        with ExcelFile.create_new(target) as wb:
+            proj = wb.vba_project()
+            m = proj.get_module("Module1")
+        assert m.source == 'Attribute VB_Name = "Module1"\r\n'
+
+    def test_create_new_round_trip_with_user_code(self, tmp_path: Path) -> None:
+        target = tmp_path / "new_book.xlsm"
+        with ExcelFile.create_new(target) as wb:
+            proj = wb.vba_project()
+            m = proj.get_module("Module1")
+            m.source = (
+                'Attribute VB_Name = "Module1"\r\n'
+                "Public Sub Hello()\r\n"
+                "    MsgBox \"Hi\"\r\n"
+                "End Sub\r\n"
+            )
+            m.dirty = True
+            wb.save()
+        with ExcelFile(target) as wb2:
+            proj2 = wb2.vba_project()
+            m2 = proj2.get_module("Module1")
+            assert "Public Sub Hello()" in m2.source
+            assert "MsgBox" in m2.source
+
+    def test_create_new_overwrites_existing(self, tmp_path: Path) -> None:
+        target = tmp_path / "new_book.xlsm"
+        target.write_bytes(b"junk")
+        with ExcelFile.create_new(target) as wb:
+            proj = wb.vba_project()
+            assert any(m.name == "ThisWorkbook" for m in proj.modules)
+
+    def test_create_new_creates_parent_dirs(self, tmp_path: Path) -> None:
+        target = tmp_path / "nested" / "dir" / "new_book.xlsm"
+        with ExcelFile.create_new(target) as wb:
+            assert target.exists()
+            assert wb.vba_project() is not None

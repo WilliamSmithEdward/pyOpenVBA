@@ -41,6 +41,11 @@ Other files:
 - `__init__.py` — public re-exports (`ExcelFile`, `pull`, `push`,
   `VBAModuleKind`, exceptions).
 - `__main__.py` — `python -m pyopenvba {pull,push,ls}` CLI.
+- `_templates/__init__.py` — generated module embedding a
+  zlib-compressed base85 blob of a freshly Excel-authored empty `.xlsm`,
+  consumed by `ExcelFile.create_new()`. Regenerated from
+  `tests/live_excel_testing/freshly_touched.xlsm` by
+  `scripts/bake_empty_template.py`. No binary fixtures ship in the wheel.
 
 ### 1.1 Layer rules
 
@@ -63,6 +68,7 @@ change without notice.
 | Public name           | Defined in   | Purpose                              |
 |-----------------------|--------------|--------------------------------------|
 | `ExcelFile`           | `excel.py`   | Main facade; context manager         |
+| `ExcelFile.create_new`| `excel.py`   | Build a brand-new .xlsm from baked template |
 | `VBAModuleKind`       | `vba.py`     | enum: standard / class / document / designer |
 | `pull`                | `__init__.py`| One-call disk export                 |
 | `push`                | `__init__.py`| One-call disk import + save          |

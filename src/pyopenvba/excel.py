@@ -71,6 +71,30 @@ class ExcelFile:
         self._open()
 
     # ------------------------------------------------------------------
+    # Constructors
+    # ------------------------------------------------------------------
+
+    @classmethod
+    def create_new(cls, path: Union[str, Path]) -> "ExcelFile":
+        """
+        Create a new macro-enabled workbook (.xlsm) at ``path`` containing
+        an empty VBA project (``ThisWorkbook``, ``Sheet1``, and a bare
+        ``Module1``) and return an open :class:`ExcelFile` for it.
+
+        The bytes are decoded from a baked-in template captured from a
+        freshly Excel-authored workbook, so the resulting file opens
+        cleanly in Excel without any "found a problem" repair prompt.
+
+        ``path`` is overwritten if it already exists.
+        """
+        from pyopenvba._templates import EMPTY_XLSM_BYTES
+
+        target = Path(path)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(EMPTY_XLSM_BYTES)
+        return cls(target)
+
+    # ------------------------------------------------------------------
     # Context manager
     # ------------------------------------------------------------------
 

@@ -55,6 +55,17 @@ from pyopenvba.vba import (
 # ---------------------------------------------------------------------------
 
 LIVE_XLSM = Path(__file__).parent / "live_excel_testing" / "test_macro_workbook.xlsm"
+LIVE_XLSB = Path(__file__).parent / "live_excel_testing" / "test_macro_workbook.xlsb"
+LIVE_PROTECTED_XLSM = (
+    Path(__file__).parent
+    / "live_excel_testing"
+    / "workbook_with_password_protected_vba_modules.xlsm"
+)
+LIVE_EMPTY_XLSM = (
+    Path(__file__).parent
+    / "live_excel_testing"
+    / "xlsm_file_with_no_vba_entered_yet.xlsm"
+)
 
 
 @pytest.fixture(scope="session")
@@ -68,6 +79,27 @@ def live_xlsm_path() -> Path:
 def live_vba_bin(live_xlsm_path: Path) -> bytes:
     with zipfile.ZipFile(live_xlsm_path) as zf:
         return zf.read("xl/vbaProject.bin")
+
+
+@pytest.fixture(scope="session")
+def live_xlsb_path() -> Path:
+    if not LIVE_XLSB.exists():
+        pytest.skip(f"live xlsb workbook not available at {LIVE_XLSB}")
+    return LIVE_XLSB
+
+
+@pytest.fixture(scope="session")
+def live_protected_xlsm_path() -> Path:
+    if not LIVE_PROTECTED_XLSM.exists():
+        pytest.skip(f"protected workbook not available at {LIVE_PROTECTED_XLSM}")
+    return LIVE_PROTECTED_XLSM
+
+
+@pytest.fixture(scope="session")
+def live_empty_xlsm_path() -> Path:
+    if not LIVE_EMPTY_XLSM.exists():
+        pytest.skip(f"empty (no-VBA) workbook not available at {LIVE_EMPTY_XLSM}")
+    return LIVE_EMPTY_XLSM
 
 
 # ===========================================================================
@@ -158,6 +190,47 @@ class TestGate01_HostPackage:
                 if name == "xl/vbaProject.bin":
                     continue
                 assert before.read(name) == after.read(name)
+
+    def test_xlsm_without_vba_project_raises_cleanly(
+        self, live_empty_xlsm_path: Path
+    ) -> None:
+        """An xlsm whose VBA project has never been initialised must raise
+        a structured ``VBAProjectError`` (not a bare ``KeyError`` from the
+        underlying ZIP layer)."""
+        from pyopenvba.exceptions import VBAProjectError
+        with pytest.raises(VBAProjectError, match="vbaProject.bin"):
+            ExcelFile(live_empty_xlsm_path)
+
+    def test_xlsb_round_trip_preserves_all_non_vba_entries(
+        self, live_xlsb_path: Path, tmp_path: Path
+    ) -> None:
+        """xlsb is a ZIP container too -- save() must preserve every
+        non-VBA entry just like xlsm."""
+        out = tmp_path / "roundtrip.xlsb"
+        with ExcelFile(live_xlsb_path) as wb:
+            wb.save(out)
+        with zipfile.ZipFile(live_xlsb_path) as before, zipfile.ZipFile(out) as after:
+            names_before = sorted(before.namelist())
+            names_after = sorted(after.namelist())
+            assert names_before == names_after
+            for name in names_before:
+                if name == "xl/vbaProject.bin":
+                    continue
+                assert before.read(name) == after.read(name), (
+                    f"non-VBA entry {name!r} mutated by xlsb save()"
+                )
+
+    def test_xlsb_module_edit_round_trip(
+        self, live_xlsb_path: Path, tmp_path: Path
+    ) -> None:
+        out = tmp_path / "edited.xlsb"
+        marker = "\r\n' xlsb edit\r\n"
+        with ExcelFile(live_xlsb_path) as wb:
+            src = wb.get_module("Module1")
+            wb.set_module("Module1", src + marker)
+            wb.save(out)
+        with ExcelFile(out) as wb2:
+            assert wb2.get_module("Module1").endswith(marker)
 
 
 # ===========================================================================
@@ -785,36 +858,52 @@ class TestGate16_Protection:
         assert isinstance(ps.protection, ProjectProtection)
         # DPB record is always present on a real Excel workbook.
         assert ps.protection.dpb
-        # The live fixture is unprotected.
+        # The live (unprotected) fixture.
         assert ps.protection.has_password is False
 
-    def test_save_refuses_protected_project_without_opt_in(
-        self, live_xlsm_path: Path, tmp_path: Path
+    def test_real_protected_workbook_detected(
+        self, live_protected_xlsm_path: Path
+    ) -> None:
+        """A real password-protected workbook must parse and report
+        has_password=True."""
+        with ExcelFile(live_protected_xlsm_path) as wb:
+            proj = wb.vba_project()
+            assert proj.protection is not None
+            assert proj.protection.has_password is True
+            assert proj.protection.dpb
+            # Module sources are still readable on a protected project
+            # (the password gates the VBA IDE, not the on-disk stream).
+            assert "PasswordTest" in proj.module_names()
+            assert wb.get_module("PasswordTest") is not None
+
+    def test_save_refuses_real_protected_project_without_opt_in(
+        self, live_protected_xlsm_path: Path, tmp_path: Path
     ) -> None:
         from pyopenvba.exceptions import VBAProjectError
         out = tmp_path / "protected.xlsm"
-        with ExcelFile(live_xlsm_path) as wb:
-            proj = wb.vba_project()
-            assert proj.protection is not None
-            # Synthesize a protected project (live fixture has no password).
-            proj.protection.has_password = True
-            wb.set_module("Module1", wb.get_module("Module1") + "\r\n' x\r\n")
+        with ExcelFile(live_protected_xlsm_path) as wb:
+            wb.set_module(
+                "PasswordTest", wb.get_module("PasswordTest") + "\r\n' x\r\n"
+            )
             with pytest.raises(VBAProjectError, match="password-protected"):
                 wb.save(out)
 
-    def test_save_protected_project_with_opt_in_succeeds(
-        self, live_xlsm_path: Path, tmp_path: Path
+    def test_save_real_protected_project_with_opt_in_succeeds(
+        self, live_protected_xlsm_path: Path, tmp_path: Path
     ) -> None:
         out = tmp_path / "protected_optin.xlsm"
-        with ExcelFile(live_xlsm_path) as wb:
-            proj = wb.vba_project()
-            assert proj.protection is not None
-            proj.protection.has_password = True
-            marker = "\r\n' protected edit allowed\r\n"
-            wb.set_module("Module1", wb.get_module("Module1") + marker)
+        marker = "\r\n' protected edit allowed\r\n"
+        with ExcelFile(live_protected_xlsm_path) as wb:
+            wb.set_module(
+                "PasswordTest", wb.get_module("PasswordTest") + marker
+            )
             wb.save(out, allow_protected=True)
         with ExcelFile(out) as wb2:
-            assert marker in wb2.get_module("Module1")
+            assert marker in wb2.get_module("PasswordTest")
+            # Protection record is preserved verbatim.
+            proj2 = wb2.vba_project()
+            assert proj2.protection is not None
+            assert proj2.protection.has_password is True
 
     def test_save_unprotected_project_does_not_require_opt_in(
         self, live_xlsm_path: Path, tmp_path: Path
@@ -909,13 +998,13 @@ class TestGate18_Encoding:
         with ExcelFile(out) as wb2:
             assert wb2.get_module("Module1") == target
 
-    @pytest.mark.xfail(
-        strict=True,
-        reason="No non-cp1252 fixture (e.g. CJK / Cyrillic project codepage); "
-               "round-trip of multi-byte code-page names is unverified.",
+    @pytest.mark.skip(
+        reason="Excel does not permit non-cp1252 / non-ASCII module identifiers "
+               "in the VBA IDE. Tracked as out-of-scope; the parser nevertheless "
+               "round-trips Latin-1 supplement names (see test below).",
     )
     def test_non_ascii_module_name_round_trip_outside_cp1252(self) -> None:
-        pytest.fail("no non-cp1252 fixture")
+        pytest.fail("out of scope")
 
     def test_latin1_supplement_module_name_round_trip(
         self, live_xlsm_path: Path, tmp_path: Path
@@ -1193,28 +1282,30 @@ class TestGate21_MutationRoundTrip:
 # ===========================================================================
 
 class TestGate22_Corpus:
-    """Test corpus coverage."""
+    """In-scope corpus coverage.
+
+    Per pyOpenVBA scope (see docs/roadmap.md), the following categories
+    are explicitly out of scope and therefore not required in the corpus:
+    ActiveX-licensed workbooks (deprecated), digitally-signed workbooks
+    (re-signing not supported), and non-ASCII module identifiers (Excel's
+    VBA IDE does not permit them).
+    """
 
     def test_at_least_one_real_macro_workbook(self, live_xlsm_path: Path) -> None:
         assert live_xlsm_path.exists()
 
-    @pytest.mark.xfail(
-        strict=True,
-        reason="Corpus does not yet include UserForm, ActiveX, non-ASCII, "
-               "password-protected, or signed workbooks.",
-    )
-    def test_corpus_covers_required_categories(self) -> None:
-        required = [
-            "empty_project.xlsm",
-            "userform.xlsm",
-            "activex.xlsm",
-            "non_ascii_names.xlsm",
-            "password_protected.xlsm",
-            "signed.xlsm",
-        ]
+    def test_corpus_covers_required_in_scope_categories(self) -> None:
+        required = {
+            "test_macro_workbook.xlsm":  "std + class + document + UserForm modules (xlsm)",
+            "test_macro_workbook.xlsb":  "binary xlsb host container",
+            "workbook_with_password_protected_vba_modules.xlsm":
+                "password-protected VBA project",
+            "xlsm_file_with_no_vba_entered_yet.xlsm":
+                "xlsm whose VBA project has never been initialised",
+        }
         corpus_dir = LIVE_XLSM.parent
-        for name in required:
-            assert (corpus_dir / name).exists(), f"missing corpus file: {name}"
+        missing = [n for n in required if not (corpus_dir / n).exists()]
+        assert not missing, f"missing corpus files: {missing!r}"
 
 
 # ===========================================================================

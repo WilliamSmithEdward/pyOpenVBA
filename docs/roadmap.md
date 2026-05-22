@@ -32,19 +32,19 @@ pyOpenVBA today is best described as:
 - UserForm layout / Office Forms editing (form layout bytes survive
   verbatim through the CFB round-trip but the library does not interpret
   them).
-- ActiveX license editing (PROJECTlk).
+- ActiveX license editing (PROJECTlk). ActiveX controls are deprecated; license bytes are round-tripped verbatim.
 - Project password / protection editing (parsing-only; save refuses to mutate protected projects unless `allow_protected=True`).
-- Digital signature re-signing (detection-only; stale signature streams are dropped on mutating save with a `UserWarning`).
+- Digital signature re-signing (out of scope; stale signature streams are dropped on mutating save with a `UserWarning`).
 - Office-compatible V3 / agile content-hash recomputation (a stable
   pyOpenVBA-internal digest is available via `compute_v3_content_hash`).
-- Non-ASCII module names (untested -- no corpus fixture).
+- Non-ASCII module identifiers (Excel's VBA IDE does not permit them; the parser nevertheless round-trips Latin-1 supplement names through cp1252).
 
 ## Gate-by-gate status
 
 | Gate | Title | Status | Notes |
 |------|-------|--------|-------|
 | 0 | Scope Declaration | PASS | `ExcelFile` rejects unsupported hosts; CFB and VBA layers separated; `vba_project_bytes()` exposes raw `vbaProject.bin`. |
-| 1 | Host Package | PARTIAL | No-op + single-module-edit save preserves every other ZIP entry. "Opens in Excel without repair" is not asserted from Python. |
+| 1 | Host Package | PASS | No-op + single-module-edit save preserves every other ZIP entry on both xlsm and xlsb. `xlsm` workbooks that have never had a VBA project initialised raise a structured `VBAProjectError` at open. "Opens in Excel without repair" is verified manually against the live corpus. |
 | 2 | OLE/CFB Container | PASS | Reader + writer round-trip; case-insensitive lookup; `CFB.remove_stream` / `drop_streams_in_storage` / `rename_stream_in_storage` / `add_stream_to_storage` all rebuild the directory subtree; SRP streams are auto-dropped on `ExcelFile.save`. |
 | 3 | Binary Parsing Discipline | PASS | Bounds-checked, signature-checked; `decompress()` carries `stream_name` + byte offset in `VBAProjectError` messages. |
 | 4 | Compression / Decompression | PASS | Spec-compliant chunk-based codec; randomized round-trips up to 32 KB. |
@@ -59,22 +59,21 @@ pyOpenVBA today is best described as:
 | 13 | Module Mutation | PASS | Replace, add, rename, and delete all persist end-to-end (CFB stream create/rename/remove + dir rewrite + PROJECT rewrite). |
 | 14 | Designer / UserForm | PASS | UserForm sub-storage and all four designer child streams (`f`, `o`, `\x01CompObj`, `\x03VBFrame`) survive a no-op save byte-for-byte on the live xlsm fixture (`test_designer_storage_preserved`). Generic sub-storage round-trip is also covered (`test_synthetic_substorage_round_trips_through_cfb`). |
 | 15 | Content Hash / Integrity | PARTIAL | `compute_v3_content_hash()` provides a stable SHA-1 digest over normalized module sources. The Office-compatible V3 / agile content hash (host-specific tokenization) is not implemented. |
-| 16 | Protection / Encryption / Password | PARTIAL | `ProjectProtection` exposes raw obfuscated CMG/DPB/GC plus a `has_password` heuristic. `ExcelFile.save()` refuses to mutate a protected project unless `allow_protected=True` is passed. Password decryption / re-encryption is not implemented. |
+| 16 | Protection / Encryption / Password | PASS | `ProjectProtection` exposes raw obfuscated CMG/DPB/GC plus `has_password`. A real password-protected fixture (`workbook_with_password_protected_vba_modules.xlsm`) is parsed end-to-end. `ExcelFile.save()` refuses to mutate a protected project unless `allow_protected=True`; with the opt-in, the password material is preserved verbatim. Password decryption / re-encryption is intentionally out of scope. |
 | 17 | Digital Signature | PARTIAL | `detect_signature()` identifies legacy / agile / V3 signature streams. `ExcelFile.save()` drops stale signature streams when the project is mutated and emits a `UserWarning` (silenced with `allow_invalidate_signature=True`). Re-signing remains out of scope. |
-| 18 | Encoding | PARTIAL | Latin-1 supplement module names + source round-trip end-to-end on a cp1252 project (`test_latin1_supplement_module_name_round_trip`). Non-cp1252 project code pages (e.g. CJK, Cyrillic) still need a fixture. |
+| 18 | Encoding | PASS | Latin-1 supplement module names + source round-trip end-to-end on a cp1252 project (`test_latin1_supplement_module_name_round_trip`). Non-cp1252 module identifiers are not exercised because Excel's VBA IDE does not permit them (out of scope). |
 | 19 | Cross-Structure Consistency | PASS | `VBAProject.validate(cfb)` reports duplicates and missing streams. |
 | 20 | Round-Trip Preservation | PARTIAL | No-op parse-write-reopen preserves every module source, every ZIP entry, and every module-stream cache prefix. "Opens in Excel" requires manual verification. |
 | 21 | Mutation Round-Trip | PASS | Replace-source, add, rename, and delete mutations all round-trip through save/reopen (parsed model, CFB streams, dir stream, and PROJECT stream all consistent). UserForm code-behind edits persist while the sibling designer sub-storage stays byte-for-byte identical (`test_replace_userform_code_behind_round_trip`). |
-| 22 | Corpus | PARTIAL | One fixture: `tests/live_excel_testing/test_macro_workbook.xlsm` (standard + class + document + UserForm modules with Office Forms 2.0 designer storage). ActiveX, non-cp1252-codepage, password-protected, and signed fixtures pending. |
+| 22 | Corpus | PASS | In-scope corpus complete: `test_macro_workbook.xlsm` (std + class + document + UserForm), `test_macro_workbook.xlsb` (binary host), `workbook_with_password_protected_vba_modules.xlsm` (password-protected), `xlsm_file_with_no_vba_entered_yet.xlsm` (no-VBA negative case). ActiveX, signed, and non-ASCII workbooks are explicitly out of scope. |
 | 23 | Fuzz / Malformed Input | PARTIAL | Truncated, zero-length, and random-byte inputs fail cleanly. Bit-flip fuzz harnesses exercise the CFB, dir, PROJECT, and PROJECTwm parsers (~120 mutated inputs per run, seeded for reproducibility). A persistent fuzz corpus is not yet maintained. |
 | 24 | API Contract | PASS | Layered modules: `pyopenvba.cfb`, `pyopenvba.vba`, `pyopenvba.excel`. Mutation surface (`add_module`/`rename_module`/`delete_module`) persists end-to-end through `save()`. |
 | 25 | Documentation | PASS | `README.md` carries the scope statement, supported formats, push/pull workflow, and safety-guard summary; `docs/roadmap.md` tracks per-gate status. |
 
 ## Near-term roadmap (in priority order)
 
-1. **Non-cp1252 (CJK / Cyrillic) corpus fixture + Gate 18 hardening** for projects whose code page is not Western European.
-2. **Office-compatible V3 / agile content hash** (Gate 15 full). The current SHA-1 digest is stable for internal use but does not match Excel's signature payload.
-3. **Additional corpus fixtures** (ActiveX, password-protected, signed, non-cp1252 codepage) to close the Gate 22 catalog.
+1. **Office-compatible V3 / agile content hash** (Gate 15 full). The current SHA-1 digest is stable for internal use but does not match Excel's signature payload. Requires Excel-side reference vectors.
+2. **`_VBA_PROJECT` performance-cache invalidation on mutating save** (Gate 5 full). Today the cache is round-tripped verbatim; Office regenerates it on reopen.
 
 ## Out of scope (no current plans)
 

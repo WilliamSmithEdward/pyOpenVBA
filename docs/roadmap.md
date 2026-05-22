@@ -33,12 +33,11 @@ pyOpenVBA today is best described as:
   verbatim through the CFB round-trip but the library does not interpret
   them).
 - ActiveX license editing (PROJECTlk).
-- Project password / protection editing (parsing-only).
-- Digital signature re-signing (detection-only).
+- Project password / protection editing (parsing-only; save refuses to mutate protected projects unless `allow_protected=True`).
+- Digital signature re-signing (detection-only; stale signature streams are dropped on mutating save with a `UserWarning`).
 - Office-compatible V3 / agile content-hash recomputation (a stable
   pyOpenVBA-internal digest is available via `compute_v3_content_hash`).
 - Non-ASCII module names (untested -- no corpus fixture).
-- PROJECTwm name-mapping editing (reader-only).
 
 ## Gate-by-gate status
 
@@ -51,7 +50,7 @@ pyOpenVBA today is best described as:
 | 4 | Compression / Decompression | PASS | Spec-compliant chunk-based codec; randomized round-trips up to 32 KB. |
 | 5 | `_VBA_PROJECT` / Performance Cache | PARTIAL | Module performance-cache prefix preserved verbatim across writes. Stale-cache invalidation logic that Office uses (e.g. zeroing the `_VBA_PROJECT` stream contents) is not yet performed. |
 | 6 | PROJECT Stream | PASS | `parse_project_stream()` decodes the full plain-text grammar (project section, `[Host Extender Info]`, `[Workspace]`). `serialize_project_stream()` rewrites `Module=`/`Class=`/`BaseClass=`/`Document=` and `[Workspace]` keys to follow logical-name renames. |
-| 7 | PROJECTwm | PASS | `parse_projectwm()` decodes (MBCS, Unicode) module-name pairs; writer is pending. |
+| 7 | PROJECTwm | PASS | `parse_projectwm()` + `serialize_projectwm()` round-trip the live fixture byte-for-byte; `ExcelFile.save()` rebuilds `PROJECTwm` whenever the module set changes (add / rename / delete). |
 | 8 | PROJECTlk | PASS | `parse_projectlk()` decodes `LicenseInfoRecord`s; writer is pending. |
 | 9 | dir Project Information | PASS | All PROJECTINFORMATION records decoded: code page, name, SysKind, LCID(invoke), DocString, HelpFile, HelpContext, LibFlags, Version, Constants, CompatVersion. |
 | 10 | dir References | PASS | REFERENCENAME / REFERENCEREGISTERED / REFERENCEPROJECT / REFERENCECONTROL / REFERENCEORIGINAL records exposed as `VBAReference` entries on `VBAProject.references`. |
@@ -60,8 +59,8 @@ pyOpenVBA today is best described as:
 | 13 | Module Mutation | PASS | Replace, add, rename, and delete all persist end-to-end (CFB stream create/rename/remove + dir rewrite + PROJECT rewrite). |
 | 14 | Designer / UserForm | PASS | UserForm sub-storage and all four designer child streams (`f`, `o`, `\x01CompObj`, `\x03VBFrame`) survive a no-op save byte-for-byte on the live xlsm fixture (`test_designer_storage_preserved`). Generic sub-storage round-trip is also covered (`test_synthetic_substorage_round_trips_through_cfb`). |
 | 15 | Content Hash / Integrity | PARTIAL | `compute_v3_content_hash()` provides a stable SHA-1 digest over normalized module sources. The Office-compatible V3 / agile content hash (host-specific tokenization) is not implemented. |
-| 16 | Protection / Encryption / Password | PARTIAL | `ProjectProtection` exposes raw obfuscated CMG/DPB/GC plus a `has_password` heuristic. Password decryption / re-encryption is not implemented. |
-| 17 | Digital Signature | PARTIAL | `detect_signature()` identifies legacy / agile / V3 signature streams. Editing a signed project will still leave a stale signature; re-signing is out of scope. |
+| 16 | Protection / Encryption / Password | PARTIAL | `ProjectProtection` exposes raw obfuscated CMG/DPB/GC plus a `has_password` heuristic. `ExcelFile.save()` refuses to mutate a protected project unless `allow_protected=True` is passed. Password decryption / re-encryption is not implemented. |
+| 17 | Digital Signature | PARTIAL | `detect_signature()` identifies legacy / agile / V3 signature streams. `ExcelFile.save()` drops stale signature streams when the project is mutated and emits a `UserWarning` (silenced with `allow_invalidate_signature=True`). Re-signing remains out of scope. |
 | 18 | Encoding | PARTIAL | Latin-1 supplement module names + source round-trip end-to-end on a cp1252 project (`test_latin1_supplement_module_name_round_trip`). Non-cp1252 project code pages (e.g. CJK, Cyrillic) still need a fixture. |
 | 19 | Cross-Structure Consistency | PASS | `VBAProject.validate(cfb)` reports duplicates and missing streams. |
 | 20 | Round-Trip Preservation | PARTIAL | No-op parse-write-reopen preserves every module source, every ZIP entry, and every module-stream cache prefix. "Opens in Excel" requires manual verification. |
@@ -73,12 +72,9 @@ pyOpenVBA today is best described as:
 
 ## Near-term roadmap (in priority order)
 
-1. **PROJECTwm writer** (Gate 7). Required as soon as non-ASCII module names enter the corpus.
-2. **Non-cp1252 (CJK / Cyrillic) corpus fixture + Gate 18 hardening** for projects whose code page is not Western European.
-3. **Office-compatible V3 / agile content hash** (Gate 15 full). The current SHA-1 digest is stable for internal use but does not match Excel's signature payload.
-4. **Additional corpus fixtures** (ActiveX, password-protected, signed, non-cp1252 codepage) to close the Gate 22 catalog.
-5. **Protected-project refuse-to-edit gate** (Gate 16 hardening). Save-on-protected-project should fail closed unless the caller opts in.
-6. **Signed-project staleness reporting** (Gate 17 hardening). Save-on-signed-project should warn that the signature will be invalidated.
+1. **Non-cp1252 (CJK / Cyrillic) corpus fixture + Gate 18 hardening** for projects whose code page is not Western European.
+2. **Office-compatible V3 / agile content hash** (Gate 15 full). The current SHA-1 digest is stable for internal use but does not match Excel's signature payload.
+3. **Additional corpus fixtures** (ActiveX, password-protected, signed, non-cp1252 codepage) to close the Gate 22 catalog.
 
 ## Out of scope (no current plans)
 

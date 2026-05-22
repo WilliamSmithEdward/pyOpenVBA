@@ -22,6 +22,7 @@ from __future__ import annotations
 import io
 import os
 import struct
+import warnings
 import zipfile
 from pathlib import Path
 from typing import cast
@@ -379,6 +380,59 @@ class TestGate07_ProjectWm:
         for mbcs, uni in pairs:
             assert mbcs == uni or not mbcs.isascii()
 
+    def test_serialize_projectwm_round_trip(self, live_vba_bin: bytes) -> None:
+        from pyopenvba.vba import parse_projectwm, serialize_projectwm
+        cfb = CFB.from_bytes(live_vba_bin)
+        try:
+            raw = cfb.get_stream("PROJECTwm")
+        except KeyError:
+            pytest.skip("fixture has no PROJECTwm stream")
+        pairs = parse_projectwm(raw)
+        rebuilt = serialize_projectwm(pairs, code_page=1252)
+        assert rebuilt == raw, "ASCII-only PROJECTwm must round-trip byte-for-byte"
+
+    def test_serialize_projectwm_terminator_only(self) -> None:
+        from pyopenvba.vba import parse_projectwm, serialize_projectwm
+        # An empty pair list must produce only the terminator (0x00 + u16=0)
+        # which the parser recognises as an empty stream.
+        blob = serialize_projectwm([])
+        assert blob == b"\x00\x00"
+        assert parse_projectwm(blob) == []
+
+    def test_projectwm_rewritten_on_module_add(
+        self, live_xlsm_path: Path, tmp_path: Path
+    ) -> None:
+        from pyopenvba.vba import parse_projectwm
+        out = tmp_path / "wm_add.xlsm"
+        new_name = "BrandNewWmModule"
+        with ExcelFile(live_xlsm_path) as wb:
+            proj = wb.vba_project()
+            proj.add_module(new_name, "' wm\r\n", kind=VBAModuleKind.standard)
+            wb.save(out)
+        with ExcelFile(out) as wb2:
+            cfb = CFB.from_bytes(wb2.vba_project_bytes())
+            pairs = parse_projectwm(cfb.get_stream("PROJECTwm"))
+            names = [m for (m, _u) in pairs]
+            assert new_name in names
+            # All originals still enumerated.
+            for orig in ("ThisWorkbook", "Sheet1", "Module1", "Class1", "UserForm1"):
+                assert orig in names
+
+    def test_projectwm_rewritten_on_module_delete(
+        self, live_xlsm_path: Path, tmp_path: Path
+    ) -> None:
+        from pyopenvba.vba import parse_projectwm
+        out = tmp_path / "wm_del.xlsm"
+        with ExcelFile(live_xlsm_path) as wb:
+            proj = wb.vba_project()
+            proj.delete_module("Module1")
+            wb.save(out)
+        with ExcelFile(out) as wb2:
+            cfb = CFB.from_bytes(wb2.vba_project_bytes())
+            pairs = parse_projectwm(cfb.get_stream("PROJECTwm"))
+            names = [m for (m, _u) in pairs]
+            assert "Module1" not in names
+
 
 # ===========================================================================
 # GATE 8 — PROJECTlk / ActiveX License Gate
@@ -687,6 +741,45 @@ class TestGate16_Protection:
         # The live fixture is unprotected.
         assert ps.protection.has_password is False
 
+    def test_save_refuses_protected_project_without_opt_in(
+        self, live_xlsm_path: Path, tmp_path: Path
+    ) -> None:
+        from pyopenvba.exceptions import VBAProjectError
+        out = tmp_path / "protected.xlsm"
+        with ExcelFile(live_xlsm_path) as wb:
+            proj = wb.vba_project()
+            assert proj.protection is not None
+            # Synthesize a protected project (live fixture has no password).
+            proj.protection.has_password = True
+            wb.set_module("Module1", wb.get_module("Module1") + "\r\n' x\r\n")
+            with pytest.raises(VBAProjectError, match="password-protected"):
+                wb.save(out)
+
+    def test_save_protected_project_with_opt_in_succeeds(
+        self, live_xlsm_path: Path, tmp_path: Path
+    ) -> None:
+        out = tmp_path / "protected_optin.xlsm"
+        with ExcelFile(live_xlsm_path) as wb:
+            proj = wb.vba_project()
+            assert proj.protection is not None
+            proj.protection.has_password = True
+            marker = "\r\n' protected edit allowed\r\n"
+            wb.set_module("Module1", wb.get_module("Module1") + marker)
+            wb.save(out, allow_protected=True)
+        with ExcelFile(out) as wb2:
+            assert marker in wb2.get_module("Module1")
+
+    def test_save_unprotected_project_does_not_require_opt_in(
+        self, live_xlsm_path: Path, tmp_path: Path
+    ) -> None:
+        # The live fixture is unprotected: save without opt-in must succeed.
+        out = tmp_path / "unprotected.xlsm"
+        with ExcelFile(live_xlsm_path) as wb:
+            wb.set_module("Module1", wb.get_module("Module1") + "\r\n' y\r\n")
+            wb.save(out)
+        with ExcelFile(out) as wb2:
+            assert wb2.get_module("Module1").endswith("' y\r\n")
+
 
 # ===========================================================================
 # GATE 17 — Digital Signature Gate
@@ -700,6 +793,55 @@ class TestGate17_Signature:
         # Live fixture is unsigned; the detector must report that cleanly.
         assert info.present is False
         assert info.kinds == []
+
+    def test_save_drops_stale_signature_with_warning(
+        self, live_xlsm_path: Path, tmp_path: Path
+    ) -> None:
+        """Mutating a signed project must drop the stale signature streams
+        and emit a UserWarning."""
+        from pyopenvba.vba import detect_signature
+        out = tmp_path / "signed.xlsm"
+        # Inject a fake legacy signature stream so detect_signature triggers.
+        with ExcelFile(live_xlsm_path) as wb:
+            cfb_inject = wb._get_cfb()        # pyright: ignore[reportPrivateUsage]
+            cfb_inject.add_stream_to_storage(
+                "VBA", "_VBA_PROJECT_SIGNATURE", b"\xde\xad\xbe\xef" * 64
+            )
+            assert detect_signature(cfb_inject).present
+            wb.set_module("Module1", wb.get_module("Module1") + "\r\n' sig\r\n")
+            with pytest.warns(UserWarning, match="signature"):
+                wb.save(out)
+        with ExcelFile(out) as wb2:
+            cfb_after = CFB.from_bytes(wb2.vba_project_bytes())
+            assert not detect_signature(cfb_after).present
+
+    def test_save_signed_project_silent_with_opt_in(
+        self, live_xlsm_path: Path, tmp_path: Path
+    ) -> None:
+        from pyopenvba.vba import detect_signature
+        out = tmp_path / "signed_silent.xlsm"
+        with ExcelFile(live_xlsm_path) as wb:
+            cfb_inject = wb._get_cfb()        # pyright: ignore[reportPrivateUsage]
+            cfb_inject.add_stream_to_storage(
+                "VBA", "_VBA_PROJECT_SIGNATURE", b"\x01" * 128
+            )
+            wb.set_module("Module1", wb.get_module("Module1") + "\r\n' s2\r\n")
+            with warnings.catch_warnings():
+                warnings.simplefilter("error")  # any UserWarning would fail
+                wb.save(out, allow_invalidate_signature=True)
+        with ExcelFile(out) as wb2:
+            cfb_after = CFB.from_bytes(wb2.vba_project_bytes())
+            assert not detect_signature(cfb_after).present
+
+    def test_save_does_not_warn_when_no_signature_present(
+        self, live_xlsm_path: Path, tmp_path: Path
+    ) -> None:
+        out = tmp_path / "unsigned.xlsm"
+        with ExcelFile(live_xlsm_path) as wb:
+            wb.set_module("Module1", wb.get_module("Module1") + "\r\n' u\r\n")
+            with warnings.catch_warnings():
+                warnings.simplefilter("error")
+                wb.save(out)
 
 
 # ===========================================================================

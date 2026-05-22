@@ -18,6 +18,7 @@ Usage
 from __future__ import annotations
 
 import io
+import warnings
 import zipfile
 from pathlib import Path
 from typing import Union
@@ -28,9 +29,11 @@ from pyopenvba.vba import VBAProject, parse_vba_project, write_back_modules
 from pyopenvba.vba import VBAModuleKind
 from pyopenvba.vba import (
     compress,
+    detect_signature,
     rebuild_module_stream,
     serialize_dir_stream,
     serialize_project_stream,
+    serialize_projectwm,
 )
 
 _ZIP_FORMATS = frozenset({".xlsm", ".xlsb", ".xlam"})
@@ -226,7 +229,13 @@ class ExcelFile:
             updated.append(module.name)
         return updated
 
-    def save(self, dest: Union[str, Path, None] = None) -> None:
+    def save(
+        self,
+        dest: Union[str, Path, None] = None,
+        *,
+        allow_protected: bool = False,
+        allow_invalidate_signature: bool = False,
+    ) -> None:
         """
         Save the workbook, applying any pending module edits.
 
@@ -237,6 +246,19 @@ class ExcelFile:
         metadata so the workbook's non-VBA structure remains intact.
 
         Legacy ``.xls`` (raw CFB) writes the CFB bytes directly.
+
+        Safety gates:
+
+        - If the project is password-protected (``has_password``) and the
+          save would emit any change, raise ``VBAProjectError`` unless
+          ``allow_protected=True`` is passed.  Saving a protected project
+          without re-encrypting the password material would leave the
+          workbook in an inconsistent state.
+        - If the project carries any digital-signature stream and the
+          save would emit any change, the existing signature streams are
+          dropped (they are guaranteed to be stale) and a
+          ``UserWarning`` is emitted.  Set
+          ``allow_invalidate_signature=True`` to silence the warning.
         """
         cfb = self._get_cfb()
         if self._project is not None:
@@ -247,6 +269,54 @@ class ExcelFile:
             rename_map = dict(project.pending_renames)
             add_names = set(project.pending_adds)
             delete_names = set(project.pending_deletes)
+            has_source_edits = any(m.dirty for m in project.modules)
+            mutating = bool(
+                rename_map or add_names or delete_names or has_source_edits
+            )
+
+            # Safety gate 1: refuse to mutate a password-protected project
+            # unless the caller explicitly opts in.
+            if (
+                mutating
+                and project.protection is not None
+                and project.protection.has_password
+                and not allow_protected
+            ):
+                raise VBAProjectError(
+                    "Refusing to save: the VBA project is password-protected. "
+                    "Pass allow_protected=True to override (the password "
+                    "material will be preserved verbatim, which may leave "
+                    "the workbook inconsistent)."
+                )
+
+            # Safety gate 2: any change invalidates a present digital
+            # signature.  Drop the stale signature streams and warn.
+            if mutating:
+                sig_info = detect_signature(cfb)
+                if sig_info.present:
+                    for sig_stream in (
+                        "_VBA_PROJECT_SIGNATURE",
+                        "_VBA_PROJECT_SIGNATURE_AGILE",
+                        "_VBA_PROJECT_SIGNATURE_V3",
+                    ):
+                        try:
+                            cfb.remove_stream_in_storage("VBA", sig_stream)
+                        except KeyError:
+                            pass
+                        try:
+                            cfb.remove_stream(sig_stream)
+                        except KeyError:
+                            pass
+                    if not allow_invalidate_signature:
+                        warnings.warn(
+                            "Dropped stale VBA digital signature streams "
+                            f"({', '.join(sig_info.kinds)}) because the "
+                            "project was modified.  Re-sign externally to "
+                            "restore trust.  Pass "
+                            "allow_invalidate_signature=True to silence.",
+                            UserWarning,
+                            stacklevel=2,
+                        )
 
             # 1. Apply renames first so that pre-existing streams are at
             #    their new names before any other lookup runs.
@@ -309,6 +379,23 @@ class ExcelFile:
                         delete_names=delete_names,
                     )
                     cfb.write_stream("PROJECT", new_project)
+                # Rewrite PROJECTwm to enumerate the current module set in
+                # both MBCS and Unicode forms.  Required whenever the module
+                # identity set changes ([MS-OVBA] 2.3.4.4).
+                try:
+                    cfb.get_stream_in_storage("VBA", "PROJECTwm")
+                except KeyError:
+                    pass
+                else:
+                    wm_pairs = [
+                        (m.name, m.name_unicode or m.name)
+                        for m in project.modules
+                    ]
+                    cfb.write_stream_in_storage(
+                        "VBA",
+                        "PROJECTwm",
+                        serialize_projectwm(wm_pairs, code_page=project.code_page),
+                    )
                 project.dir_structure_dirty = False
         # [MS-OVBA] writers MUST NOT emit performance-cache (__SRP_*) streams.
         try:

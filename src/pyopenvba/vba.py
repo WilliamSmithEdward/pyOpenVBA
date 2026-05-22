@@ -25,6 +25,7 @@ Critical implementation traps (guide section 31)
 from __future__ import annotations
 
 import struct
+from collections.abc import Iterable
 from dataclasses import dataclass, field
 from enum import Enum
 
@@ -1315,6 +1316,35 @@ def parse_projectwm(raw: bytes) -> list[tuple[str, str]]:
             mbcs_name = mbcs.decode("latin-1", errors="replace")
         out.append((mbcs_name, unicode_name))
     return out
+
+
+def serialize_projectwm(
+    pairs: Iterable[tuple[str, str]], *, code_page: int = 1252
+) -> bytes:
+    """Serialize ``(mbcs_name, unicode_name)`` pairs to a PROJECTwm stream.
+
+    The stream format ([MS-OVBA] 2.3.4.4) is a sequence of records each
+    consisting of a null-terminated MBCS module name followed by a
+    null-terminated (u16=0) UTF-16-LE module name.  The stream is
+    terminated by a single empty MBCS record (one 0x00 byte).
+
+    ``code_page`` selects the MBCS code page used to encode the first
+    name in each pair; unencodable characters are replaced.
+    """
+    enc = _encoding_for_codepage(code_page)
+    buf = bytearray()
+    for mbcs, unicode_name in pairs:
+        if not mbcs:
+            # An empty MBCS name would terminate the stream prematurely.
+            continue
+        buf += mbcs.encode(enc, errors="replace")
+        buf += b"\x00"
+        buf += unicode_name.encode("utf-16-le", errors="replace")
+        buf += b"\x00\x00"
+    # Final terminator per [MS-OVBA] 2.3.4.4: empty MBCS name (single 0x00)
+    # plus a trailing alignment byte (Excel always emits two zero bytes).
+    buf += b"\x00\x00"
+    return bytes(buf)
 
 
 # ---------------------------------------------------------------------------

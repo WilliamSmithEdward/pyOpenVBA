@@ -367,6 +367,12 @@ def _parse_dir_stream(raw: bytes) -> tuple["_DirInfo", list[_ModuleInfo]]:
     current: _ModuleInfo | None = None
     in_modules = False
     pending_ref: VBAReference | None = None
+    # After a REFERENCECONTROL TWIDDLED (0x002F) record, the spec
+    # ([MS-OVBA] 2.3.4.2.2.9 / 2.3.4.2.2.7) allows a NameRecordExtended
+    # (REFERENCENAME 0x0016 + optional 0x003E) inside the extended
+    # record portion.  Those embedded name records must NOT be treated
+    # as the start of a new reference.
+    expecting_extended_name = False
 
     def _commit_ref() -> None:
         nonlocal pending_ref
@@ -464,10 +470,15 @@ def _parse_dir_stream(raw: bytes) -> tuple["_DirInfo", list[_ModuleInfo]]:
 
         # ------------- PROJECTREFERENCES records ------------------
         elif record_id == 0x0016: # REFERENCENAME (MBCS)
-            _commit_ref()
-            pending_ref = VBAReference(name=data.decode(_enc(), errors="replace"))
+            if expecting_extended_name and pending_ref is not None:
+                # Embedded name inside REFERENCECONTROL extended record.
+                # Keep current pending_ref intact; do not start a new ref.
+                pass
+            else:
+                _commit_ref()
+                pending_ref = VBAReference(name=data.decode(_enc(), errors="replace"))
         elif record_id == 0x003E: # reserved partner: REFERENCENAME unicode
-            if pending_ref is not None:
+            if pending_ref is not None and not expecting_extended_name:
                 pending_ref.name_unicode = data.decode("utf-16-le", errors="replace")
         elif record_id == 0x000D: # REFERENCEREGISTERED
             if pending_ref is None:
@@ -504,6 +515,11 @@ def _parse_dir_stream(raw: bytes) -> tuple["_DirInfo", list[_ModuleInfo]]:
                 pending_ref.libid_secondary = bytes(
                     data[4: 4 + tw_size]
                 ).decode("latin-1", errors="replace")
+            # The TWIDDLED record is followed by an Extended record
+            # ([MS-OVBA] 2.3.4.2.2.9) whose preamble is a NameRecordExtended
+            # (REFERENCENAME + optional REFERENCENAME unicode partner).
+            # Mark those as belonging to the current pending_ref.
+            expecting_extended_name = True
             # do NOT commit yet: 0x0030 follow-up may contribute primary libid
         elif record_id == 0x0030: # REFERENCECONTROL extended (primary libid)
             if pending_ref is not None and len(data) >= 4:
@@ -511,6 +527,7 @@ def _parse_dir_stream(raw: bytes) -> tuple["_DirInfo", list[_ModuleInfo]]:
                 pending_ref.libid = bytes(
                     data[4: 4 + ex_size]
                 ).decode("latin-1", errors="replace")
+            expecting_extended_name = False
             _commit_ref()
         elif record_id == 0x0033: # REFERENCEORIGINAL
             if pending_ref is None:

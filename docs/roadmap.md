@@ -58,15 +58,15 @@ pyOpenVBA today is best described as:
 | 11 | dir Module Records | PASS | Module name (MBCS + Unicode), stream name (MBCS + Unicode), offset, type, read-only, private, doc-string (MBCS + Unicode), help-context, cookie all decoded. `serialize_dir_modules_section()` re-emits the full block. |
 | 12 | Module Stream | PASS | Source decompressed from `MODULEOFFSET`; replacement preserves cache prefix; reparse yields identical source. |
 | 13 | Module Mutation | PASS | Replace, add, rename, and delete all persist end-to-end (CFB stream create/rename/remove + dir rewrite + PROJECT rewrite). |
-| 14 | Designer / UserForm | VERBATIM | Designer storages survive round-trip; no fixture/test yet. |
+| 14 | Designer / UserForm | PASS | UserForm sub-storage and all four designer child streams (`f`, `o`, `\x01CompObj`, `\x03VBFrame`) survive a no-op save byte-for-byte on the live xlsm fixture (`test_designer_storage_preserved`). Generic sub-storage round-trip is also covered (`test_synthetic_substorage_round_trips_through_cfb`). |
 | 15 | Content Hash / Integrity | PARTIAL | `compute_v3_content_hash()` provides a stable SHA-1 digest over normalized module sources. The Office-compatible V3 / agile content hash (host-specific tokenization) is not implemented. |
 | 16 | Protection / Encryption / Password | PARTIAL | `ProjectProtection` exposes raw obfuscated CMG/DPB/GC plus a `has_password` heuristic. Password decryption / re-encryption is not implemented. |
 | 17 | Digital Signature | PARTIAL | `detect_signature()` identifies legacy / agile / V3 signature streams. Editing a signed project will still leave a stale signature; re-signing is out of scope. |
-| 18 | Encoding | PARTIAL | cp1252 source round-trips through the project code page. Non-ASCII module names / source untested. |
+| 18 | Encoding | PARTIAL | Latin-1 supplement module names + source round-trip end-to-end on a cp1252 project (`test_latin1_supplement_module_name_round_trip`). Non-cp1252 project code pages (e.g. CJK, Cyrillic) still need a fixture. |
 | 19 | Cross-Structure Consistency | PASS | `VBAProject.validate(cfb)` reports duplicates and missing streams. |
 | 20 | Round-Trip Preservation | PARTIAL | No-op parse-write-reopen preserves every module source, every ZIP entry, and every module-stream cache prefix. "Opens in Excel" requires manual verification. |
-| 21 | Mutation Round-Trip | PARTIAL | Replace-source, add, rename, and delete mutations all round-trip through save/reopen (parsed model, CFB streams, dir stream, and PROJECT stream all consistent). UserForm code-behind round-trip pending. |
-| 22 | Corpus | PARTIAL | One fixture: `tests/live_excel_testing/test_macro_workbook.xlsm` (standard + class + document modules). UserForm, ActiveX, non-ASCII, password-protected, and signed fixtures pending. |
+| 21 | Mutation Round-Trip | PASS | Replace-source, add, rename, and delete mutations all round-trip through save/reopen (parsed model, CFB streams, dir stream, and PROJECT stream all consistent). UserForm code-behind edits persist while the sibling designer sub-storage stays byte-for-byte identical (`test_replace_userform_code_behind_round_trip`). |
+| 22 | Corpus | PARTIAL | One fixture: `tests/live_excel_testing/test_macro_workbook.xlsm` (standard + class + document + UserForm modules with Office Forms 2.0 designer storage). ActiveX, non-cp1252-codepage, password-protected, and signed fixtures pending. |
 | 23 | Fuzz / Malformed Input | PARTIAL | Truncated and zero-length inputs fail cleanly. No structured fuzz corpus yet. |
 | 24 | API Contract | PASS | Layered modules: `pyopenvba.cfb`, `pyopenvba.vba`, `pyopenvba.excel`. Mutation surface (`add_module`/`rename_module`/`delete_module`) persists end-to-end through `save()`. |
 | 25 | Documentation | PARTIAL | This roadmap exists. README needs to be expanded with the scope statement above. |
@@ -74,9 +74,9 @@ pyOpenVBA today is best described as:
 ## Near-term roadmap (in priority order)
 
 1. **PROJECTwm writer** (Gate 7). Required as soon as non-ASCII module names enter the corpus.
-2. **Non-ASCII corpus fixture + Gate 18 hardening**.
+2. **Non-cp1252 (CJK / Cyrillic) corpus fixture + Gate 18 hardening** for projects whose code page is not Western European.
 3. **Office-compatible V3 / agile content hash** (Gate 15 full). The current SHA-1 digest is stable for internal use but does not match Excel's signature payload.
-4. **UserForm corpus fixture + Gate 14 round-trip assertion**.
+4. **Additional corpus fixtures** (ActiveX, password-protected, signed, non-cp1252 codepage) to close the Gate 22 catalog.
 5. **Protected-project refuse-to-edit gate** (Gate 16 hardening). Save-on-protected-project should fail closed unless the caller opts in.
 6. **Signed-project staleness reporting** (Gate 17 hardening). Save-on-signed-project should warn that the signature will be invalidated.
 

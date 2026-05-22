@@ -426,6 +426,56 @@ class CFB:
         siblings.append(target_idx)
         self._directory[parent_idx].child_id = self._rebuild_balanced_subtree(siblings)
 
+    def add_substorage(self, parent: str, name: str) -> None:
+        """
+        Create a new storage as a child of ``parent``.
+
+        Use :meth:`add_stream_to_storage` afterwards to place child streams
+        inside the new sub-storage.  Raises ``KeyError`` if ``parent`` does
+        not exist and ``ValueError`` if a sibling storage already uses ``name``.
+        """
+        if not name:
+            raise ValueError("storage name must be non-empty")
+        parent_idx = self._find_storage_index(parent)
+        # Refuse duplicate sibling storages (case-insensitive).
+        needle = name.casefold()
+        for child_idx in self._collect_subtree(self._directory[parent_idx].child_id):
+            sib = self._directory[child_idx]
+            if sib.obj_type == _OBJTYPE_STORAGE and sib.name.casefold() == needle:
+                raise ValueError(
+                    f"Storage {name!r} already exists under {parent!r}"
+                )
+        target_idx: int | None = None
+        for i, e in enumerate(self._directory):
+            if e.obj_type == _OBJTYPE_EMPTY:
+                target_idx = i
+                break
+        if target_idx is None:
+            self._directory.append(DirEntry(
+                name=name,
+                obj_type=_OBJTYPE_STORAGE,
+                child_id=_NOSTREAM,
+                left_sibling_id=_NOSTREAM,
+                right_sibling_id=_NOSTREAM,
+                start_sector=_ENDOFCHAIN,
+                size=0,
+                raw=b"",
+            ))
+            target_idx = len(self._directory) - 1
+        else:
+            slot = self._directory[target_idx]
+            slot.name = name
+            slot.obj_type = _OBJTYPE_STORAGE
+            slot.child_id = _NOSTREAM
+            slot.left_sibling_id = _NOSTREAM
+            slot.right_sibling_id = _NOSTREAM
+            slot.start_sector = _ENDOFCHAIN
+            slot.size = 0
+            slot.raw = b""
+        siblings = self._collect_subtree(self._directory[parent_idx].child_id)
+        siblings.append(target_idx)
+        self._directory[parent_idx].child_id = self._rebuild_balanced_subtree(siblings)
+
     # ------------------------------------------------------------------
     # Directory mutation (stream removal / drop)
     # ------------------------------------------------------------------

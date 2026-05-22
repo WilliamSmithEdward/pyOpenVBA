@@ -594,13 +594,63 @@ class TestGate13_ModuleMutation:
 # ===========================================================================
 
 class TestGate14_Designer:
-    @pytest.mark.xfail(
-        strict=True,
-        reason="UserForm-bearing fixture not available; designer storage "
-               "round-trip support is verbatim only.",
-    )
-    def test_designer_storage_preserved(self) -> None:
-        pytest.fail("no UserForm test fixture")
+    """UserForm / designer sub-storage round-trip on the live fixture.
+
+    The live xlsm carries a real Office Forms 2.0 UserForm (`UserForm1`),
+    contributing both a code-behind stream under ``VBA/`` and a sibling
+    sub-storage ``UserForm1/`` whose children are the designer blobs
+    ``f``, ``o``, ``\x01CompObj`` and ``\x03VBFrame``.
+    """
+
+    # Names of the four designer child streams that live under VBA/UserForm1/.
+    DESIGNER_CHILDREN = ("f", "o", "\x01CompObj", "\x03VBFrame")
+
+    def test_designer_storage_preserved(
+        self, live_xlsm_path: Path, tmp_path: Path
+    ) -> None:
+        """A no-op save must preserve the UserForm1 sub-storage byte-for-byte."""
+        out = tmp_path / "userform_noop.xlsm"
+
+        with ExcelFile(live_xlsm_path) as wb:
+            cfb_before = CFB.from_bytes(wb.vba_project_bytes())
+            before = {
+                n: cfb_before.get_stream_in_storage("UserForm1", n)
+                for n in self.DESIGNER_CHILDREN
+            }
+            wb.save(out)
+
+        with ExcelFile(out) as wb2:
+            cfb_after = CFB.from_bytes(wb2.vba_project_bytes())
+            assert "UserForm1" in cfb_after.list_storages()
+            for name, blob in before.items():
+                assert cfb_after.get_stream_in_storage("UserForm1", name) == blob, name
+            # The PROJECT stream still declares the UserForm.
+            assert b"BaseClass=UserForm1" in cfb_after.get_stream("PROJECT")
+
+    def test_synthetic_substorage_round_trips_through_cfb(
+        self, live_vba_bin: bytes
+    ) -> None:
+        """A synthetic sub-storage with binary child streams survives CFB
+        serialize / re-parse, mimicking the structural shape of a designer
+        storage (parent storage + opaque child blobs).
+        """
+        cfb = CFB.from_bytes(live_vba_bin)
+        cfb.add_substorage("VBA", "ZzDesigner")
+        # Designer-like opaque blobs: a tiny "f" record + a larger "o" record.
+        cfb.add_stream_to_storage("VBA", "Zz_f_stream", b"\x00\x04FORM" + b"\xaa" * 64)
+        cfb.add_stream_to_storage("VBA", "Zz_o_stream", b"\xff" * 8192)
+
+        round_tripped = CFB.from_bytes(cfb.to_bytes())
+        # New storage shows up in the directory.
+        assert "ZzDesigner" in round_tripped.list_storages()
+        # Both opaque child streams survive byte-for-byte.
+        assert round_tripped.get_stream_in_storage("VBA", "Zz_f_stream") == (
+            b"\x00\x04FORM" + b"\xaa" * 64
+        )
+        assert round_tripped.get_stream_in_storage("VBA", "Zz_o_stream") == b"\xff" * 8192
+        # Existing VBA streams remain intact.
+        assert "dir" in round_tripped.list_streams_in_storage("VBA")
+        assert "PROJECT" in round_tripped.list_streams()
 
 
 # ===========================================================================
@@ -672,11 +722,36 @@ class TestGate18_Encoding:
 
     @pytest.mark.xfail(
         strict=True,
-        reason="No non-ASCII test fixture; round-trip of non-ASCII source/names "
-               "is unverified.",
+        reason="No non-cp1252 fixture (e.g. CJK / Cyrillic project codepage); "
+               "round-trip of multi-byte code-page names is unverified.",
     )
-    def test_non_ascii_module_name_round_trip(self) -> None:
-        pytest.fail("no non-ASCII fixture")
+    def test_non_ascii_module_name_round_trip_outside_cp1252(self) -> None:
+        pytest.fail("no non-cp1252 fixture")
+
+    def test_latin1_supplement_module_name_round_trip(
+        self, live_xlsm_path: Path, tmp_path: Path
+    ) -> None:
+        """Latin-1 supplement (eacute, ntilde, ouml) round-trips through cp1252."""
+        out = tmp_path / "non_ascii.xlsm"
+        # Latin-1 supplement characters, fully encodable in cp1252.
+        mod_name = "M\u00f3d\u00fcle_\u00e9\u00f1"   # "Modüle_éñ"
+        src = (
+            "' Modul name: " + mod_name + "\r\n"
+            "Public Sub Hej_v\u00e4rlden()\r\n"      # 'världen'
+            "    Debug.Print \"\u00a1Hola, mundo!\"\r\n"  # '!Hola...'
+            "End Sub\r\n"
+        )
+        with ExcelFile(live_xlsm_path) as wb:
+            proj = wb.vba_project()
+            proj.add_module(mod_name, src, kind=VBAModuleKind.standard)
+            wb.save(out)
+
+        with ExcelFile(out) as wb2:
+            assert mod_name in wb2.module_names()
+            assert wb2.get_module(mod_name) == src
+            # CFB stream name preserved verbatim (UTF-16 directory entry).
+            cfb = CFB.from_bytes(wb2.vba_project_bytes())
+            assert mod_name in set(cfb.list_streams_in_storage("VBA"))
 
 
 # ===========================================================================
@@ -779,9 +854,38 @@ class TestGate21_MutationRoundTrip:
                 with ExcelFile(live_xlsm_path) as orig:
                     assert wb2.get_module(n) == orig.get_module(n), n
 
-    @pytest.mark.xfail(strict=True, reason="UserForm round-trip not exercised")
-    def test_replace_userform_code_behind_round_trip(self) -> None:
-        pytest.fail("no UserForm fixture")
+    def test_replace_userform_code_behind_round_trip(
+        self, live_xlsm_path: Path, tmp_path: Path
+    ) -> None:
+        """Editing a UserForm's code-behind module must persist while the
+        sibling designer sub-storage remains byte-for-byte identical.
+        """
+        out = tmp_path / "userform_edit.xlsm"
+        marker = "\r\n' UserForm code-behind edit\r\nPrivate Sub Edit_Marker(): End Sub\r\n"
+
+        with ExcelFile(live_xlsm_path) as wb:
+            assert "UserForm1" in wb.module_names()
+            before_src = wb.get_module("UserForm1")
+            cfb_before = CFB.from_bytes(wb.vba_project_bytes())
+            designer_before = {
+                n: cfb_before.get_stream_in_storage("UserForm1", n)
+                for n in TestGate14_Designer.DESIGNER_CHILDREN
+            }
+            wb.set_module("UserForm1", before_src + marker)
+            wb.save(out)
+
+        with ExcelFile(out) as wb2:
+            new_src = wb2.get_module("UserForm1")
+            assert marker in new_src
+            assert new_src.startswith(before_src)
+            # Designer storage children are unchanged byte-for-byte.
+            cfb_after = CFB.from_bytes(wb2.vba_project_bytes())
+            for name, blob in designer_before.items():
+                assert cfb_after.get_stream_in_storage("UserForm1", name) == blob, name
+            # Other modules unchanged.
+            with ExcelFile(live_xlsm_path) as orig:
+                for n in ("Module1", "Class1", "ThisWorkbook", "Sheet1"):
+                    assert wb2.get_module(n) == orig.get_module(n), n
 
     def test_rename_module_round_trip(
         self, live_xlsm_path: Path, tmp_path: Path

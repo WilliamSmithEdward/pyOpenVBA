@@ -1477,6 +1477,46 @@ _SIGNATURE_STREAM_NAMES = {
 }
 
 
+def invalidate_vba_project_cache(cfb: CFB) -> bool:
+    """Invalidate the ``_VBA_PROJECT`` performance cache.
+
+    Per [MS-OVBA] 2.3.4.1 the ``_VBA_PROJECT`` stream is laid out as::
+
+        Reserved1 (2 bytes) = 0x61CC
+        Version   (2 bytes) = host-defined cookie
+        Reserved2 (1 byte)  = 0x00
+        PerformanceCache (variable bytes; "undefined and MUST be ignored on read")
+
+    The PerformanceCache may reference offsets / module identities that
+    become stale after a mutating save (add / rename / delete / source
+    edit).  Office regenerates the cache on next open, but if the cache
+    body still parses, some Office builds have been observed to honor
+    its stale contents and either re-prompt for repair or surface
+    incorrect p-code on first open.
+
+    This helper preserves the 5-byte header (so the host still
+    recognises the stream) and zeroes the cache body in place.  Returns
+    ``True`` if the stream was found and invalidated, ``False`` if the
+    stream is absent or too short to carry a header.
+    """
+    try:
+        stream = cfb.get_stream_in_storage("VBA", "_VBA_PROJECT")
+    except KeyError:
+        return False
+    if len(stream) < 5:
+        return False
+    if stream[0] != 0xCC or stream[1] != 0x61:
+        # Not the documented header; do not touch.
+        return False
+    if stream[4] != 0x00:
+        return False
+    if len(stream) == 5:
+        return False  # Already minimal; nothing to invalidate.
+    body = bytes(stream[:5]) + bytes(len(stream) - 5)
+    cfb.write_stream_in_storage("VBA", "_VBA_PROJECT", body)
+    return True
+
+
 def detect_signature(cfb: CFB) -> SignatureInfo:
     """Detect VBA digital-signature streams in the given CFB.
 

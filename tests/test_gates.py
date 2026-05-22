@@ -405,6 +405,91 @@ class TestGate05_PerformanceCache:
                     f"non-target module {m.name!r} had cache prefix mutated"
                 )
 
+    def test_vba_project_cache_preserved_verbatim_on_noop_save(
+        self, live_xlsm_path: Path, tmp_path: Path
+    ) -> None:
+        """A pure no-op save must not touch the ``_VBA_PROJECT`` stream."""
+        out = tmp_path / "noop_cache.xlsm"
+        with ExcelFile(live_xlsm_path) as wb:
+            cache_before = CFB.from_bytes(wb.vba_project_bytes()).get_stream_in_storage(
+                "VBA", "_VBA_PROJECT"
+            )
+            wb.save(out)
+        with ExcelFile(out) as wb2:
+            cache_after = CFB.from_bytes(wb2.vba_project_bytes()).get_stream_in_storage(
+                "VBA", "_VBA_PROJECT"
+            )
+        assert bytes(cache_after) == bytes(cache_before), (
+            "no-op save must not mutate the _VBA_PROJECT cache stream"
+        )
+
+    def test_vba_project_cache_invalidated_on_source_edit(
+        self, live_xlsm_path: Path, tmp_path: Path
+    ) -> None:
+        """A mutating save must zero the cache body and preserve the header.
+
+        Per [MS-OVBA] 2.3.4.1 the PerformanceCache "MUST be ignored on
+        read" and Office regenerates it on next open.  pyOpenVBA zeroes
+        the body so stale offsets cannot be honored.
+        """
+        out = tmp_path / "edited_cache.xlsm"
+        with ExcelFile(live_xlsm_path) as wb:
+            cache_before = bytes(
+                CFB.from_bytes(wb.vba_project_bytes()).get_stream_in_storage(
+                    "VBA", "_VBA_PROJECT"
+                )
+            )
+            wb.set_module("Module1", wb.get_module("Module1") + "\r\n'edit\r\n")
+            wb.save(out)
+        with ExcelFile(out) as wb2:
+            cache_after = bytes(
+                CFB.from_bytes(wb2.vba_project_bytes()).get_stream_in_storage(
+                    "VBA", "_VBA_PROJECT"
+                )
+            )
+        # Length unchanged.
+        assert len(cache_after) == len(cache_before)
+        # Header preserved (Reserved1=0x61CC, Version, Reserved2=0x00).
+        assert cache_after[:5] == cache_before[:5]
+        # Body zeroed.
+        assert cache_after[5:] == bytes(len(cache_after) - 5)
+        # Sanity: original cache had non-zero content beyond the header.
+        assert any(b != 0 for b in cache_before[5:]), (
+            "fixture _VBA_PROJECT cache body is unexpectedly all zeros"
+        )
+
+    def test_vba_project_cache_invalidated_helper_is_idempotent(
+        self, live_xlsm_path: Path, tmp_path: Path
+    ) -> None:
+        from pyopenvba.vba import invalidate_vba_project_cache
+
+        out = tmp_path / "twice.xlsm"
+        with ExcelFile(live_xlsm_path) as wb:
+            cfb = wb._get_cfb()        # pyright: ignore[reportPrivateUsage]
+            assert invalidate_vba_project_cache(cfb) is True
+            first = bytes(cfb.get_stream_in_storage("VBA", "_VBA_PROJECT"))
+            # Second call sees an already-zeroed body; helper still reports
+            # True (header is valid, body is non-empty) but produces no
+            # observable change.
+            invalidate_vba_project_cache(cfb)
+            second = bytes(cfb.get_stream_in_storage("VBA", "_VBA_PROJECT"))
+            assert first == second
+            wb.save(out)
+        # Round-trip through save still readable.
+        with ExcelFile(out) as wb2:
+            assert "Module1" in [m.name for m in wb2.vba_project().modules]
+
+    def test_vba_project_cache_invalidate_skips_missing_stream(
+        self, live_xlsm_path: Path
+    ) -> None:
+        """The helper returns False (not raises) when the stream is absent."""
+        from pyopenvba.vba import invalidate_vba_project_cache
+
+        with ExcelFile(live_xlsm_path) as wb:
+            cfb = wb._get_cfb()        # pyright: ignore[reportPrivateUsage]
+            cfb.remove_stream_in_storage("VBA", "_VBA_PROJECT")
+            assert invalidate_vba_project_cache(cfb) is False
+
 
 # ===========================================================================
 # GATE 6 — PROJECT Stream Gate

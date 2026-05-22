@@ -30,6 +30,7 @@ from pyopenvba.vba import VBAModuleKind
 from pyopenvba.vba import (
     compress,
     detect_signature,
+    invalidate_vba_project_cache,
     rebuild_module_stream,
     serialize_dir_stream,
     serialize_project_stream,
@@ -259,6 +260,9 @@ class ExcelFile:
           dropped (they are guaranteed to be stale) and a
           ``UserWarning`` is emitted.  Set
           ``allow_invalidate_signature=True`` to silence the warning.
+        - If the save would emit any change, the ``_VBA_PROJECT``
+          performance cache body is zeroed (header preserved) so Office
+          regenerates the cache on next open ([MS-OVBA] 2.3.4.1).
         """
         cfb = self._get_cfb()
         if self._project is not None:
@@ -397,6 +401,14 @@ class ExcelFile:
                         serialize_projectwm(wm_pairs, code_page=project.code_page),
                     )
                 project.dir_structure_dirty = False
+
+            # 6. Invalidate the _VBA_PROJECT performance cache so Office
+            #    regenerates it on next open ([MS-OVBA] 2.3.4.1 -- the
+            #    cache MUST be ignored on read; the verbatim cache may
+            #    reference offsets that no longer match the updated
+            #    module set or source).
+            if mutating:
+                invalidate_vba_project_cache(cfb)
         # [MS-OVBA] writers MUST NOT emit performance-cache (__SRP_*) streams.
         try:
             cfb.drop_streams_in_storage("VBA", lambda n: n.startswith("__SRP_"))

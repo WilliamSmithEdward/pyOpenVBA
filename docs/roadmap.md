@@ -48,7 +48,7 @@ pyOpenVBA today is best described as:
 | 2 | OLE/CFB Container | PASS | Reader + writer round-trip; case-insensitive lookup; `CFB.remove_stream` / `drop_streams_in_storage` / `rename_stream_in_storage` / `add_stream_to_storage` all rebuild the directory subtree; SRP streams are auto-dropped on `ExcelFile.save`. |
 | 3 | Binary Parsing Discipline | PASS | Bounds-checked, signature-checked; `decompress()` carries `stream_name` + byte offset in `VBAProjectError` messages. |
 | 4 | Compression / Decompression | PASS | Spec-compliant chunk-based codec; randomized round-trips up to 32 KB. |
-| 5 | `_VBA_PROJECT` / Performance Cache | PARTIAL | Module performance-cache prefix preserved verbatim across writes. Stale-cache invalidation logic that Office uses (e.g. zeroing the `_VBA_PROJECT` stream contents) is not yet performed. |
+| 5 | `_VBA_PROJECT` / Performance Cache | PASS | Module performance-cache prefix preserved verbatim across no-op writes. On any mutating save (add / rename / delete / source edit) the `_VBA_PROJECT` stream body is zeroed (5-byte header preserved) so Office regenerates the cache on next open ([MS-OVBA] 2.3.4.1: PerformanceCache MUST be ignored on read). Writers never emit `__SRP_*` streams. |
 | 6 | PROJECT Stream | PASS | `parse_project_stream()` decodes the full plain-text grammar (project section, `[Host Extender Info]`, `[Workspace]`). `serialize_project_stream()` rewrites `Module=`/`Class=`/`BaseClass=`/`Document=` and `[Workspace]` keys to follow logical-name renames. |
 | 7 | PROJECTwm | PASS | `parse_projectwm()` + `serialize_projectwm()` round-trip the live fixture byte-for-byte; `ExcelFile.save()` rebuilds `PROJECTwm` whenever the module set changes (add / rename / delete). |
 | 8 | PROJECTlk | PASS | `parse_projectlk()` + `serialize_projectlk()` round-trip `LicenseInfoRecord`s; `ExcelFile.save()` preserves PROJECTlk bytes verbatim until ActiveX license editing is required. |
@@ -73,7 +73,6 @@ pyOpenVBA today is best described as:
 ## Near-term roadmap (in priority order)
 
 1. **Office-compatible V3 / agile content hash** (Gate 15 full). The current SHA-1 digest is stable for internal use but does not match Excel's signature payload. Requires Excel-side reference vectors.
-2. **`_VBA_PROJECT` performance-cache invalidation on mutating save** (Gate 5 full). Today the cache is round-tripped verbatim; Office regenerates it on reopen.
 
 ## Out of scope (no current plans)
 

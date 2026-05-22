@@ -11,7 +11,10 @@
 No external dependencies. No Excel install required. Works on Windows,
 macOS, and Linux. Python 3.10 or newer.
 
+  
 Supports `.xlsm`, `.xlsb`, `.xlam`, and legacy `.xls`.
+
+<a href="https://github.com/sponsors/WilliamSmithEdward"><img src="https://img.shields.io/badge/Sponsor-%E2%9D%A4-pink?style=for-the-badge" alt="Sponsor WilliamSmithEdward"></a>
 
 ---
 

@@ -20,6 +20,16 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Verify tag matches package version
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          PKG=$(python -c "import tomllib; f=open('pyproject.toml','rb'); d=tomllib.load(f); print(d['project']['version'])")
+          if [ "$TAG" != "$PKG" ]; then
+            echo "ERROR: tag '$TAG' does not match pyproject.toml version '$PKG'"
+            exit 1
+          fi
+          echo "Version check passed: $PKG"
+
       - name: Install build tooling
         run: python -m pip install --upgrade build twine
 

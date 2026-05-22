@@ -21,7 +21,7 @@ Supports `.xlsm`, `.xlsb`, `.xlam`, and legacy `.xls`.
 ## Why use this?
 
 Several excellent Python tools already exist for **reading** VBA out of
-Excel files (oletools, olefile, and friends), and they remain the right
+Excel files (oletools, olefile, and friends), and they remain a strong
 choice for forensics, malware analysis, and audit use-cases. pyOpenVBA
 focuses on the next step: safely **writing** changes back so the
 workbook still opens cleanly in Excel.

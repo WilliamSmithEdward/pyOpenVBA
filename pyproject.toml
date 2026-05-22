@@ -1,0 +1,27 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pyOpenVBA"
+version = "0.1.0"
+description = "Read and write VBA sections of xlsm/xlsb/xls files using pure Python — no external dependencies."
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.10"
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/WilliamGreenlee/pyOpenVBA"
+Issues = "https://github.com/WilliamGreenlee/pyOpenVBA/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/pyopenvba"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.pyright]
+include = ["src", "tests"]
+pythonVersion = "3.10"
+typeCheckingMode = "strict"

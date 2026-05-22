@@ -748,7 +748,7 @@ class VBAProject:
         # synthesize a minimal standard-module header.  Other (class/document)
         # modules must be provided with a full header by the caller — we do
         # not invent class metadata or host bindings.
-        existing_header, body = split_attribute_header(source)
+        existing_header, _body = split_attribute_header(source)
         if existing_header:
             header = existing_header
             full_source = source

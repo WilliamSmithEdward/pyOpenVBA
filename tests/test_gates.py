@@ -1397,6 +1397,33 @@ class TestGate22_Corpus:
 # GATE 23 — Fuzz / Malformed Input Gate
 # ===========================================================================
 
+_FUZZ_CORPUS_DIR = Path(__file__).parent / "fuzz_corpus"
+
+
+def _collect_persistent_fuzz_seeds() -> list[tuple[str, str, bytes]]:
+    """Walk the persistent corpus and return (target, name, data) triples.
+
+    Called at import time so the results can drive ``pytest.mark.parametrize``.
+    Returns an empty list if the corpus directory is missing; the harness
+    test below skips in that case (and a sibling sanity test reports it).
+    """
+    seeds: list[tuple[str, str, bytes]] = []
+    if not _FUZZ_CORPUS_DIR.is_dir():
+        return seeds
+    for subdir in sorted(_FUZZ_CORPUS_DIR.iterdir()):
+        if not subdir.is_dir():
+            continue
+        target = subdir.name
+        for seed_file in sorted(subdir.iterdir()):
+            if not seed_file.is_file():
+                continue
+            seeds.append((target, seed_file.name, seed_file.read_bytes()))
+    return seeds
+
+
+_PERSISTENT_FUZZ_SEEDS: list[tuple[str, str, bytes]] = _collect_persistent_fuzz_seeds()
+
+
 class TestGate23_Fuzz:
     """Parsers must fail cleanly on malformed input, never crash silently."""
 
@@ -1509,6 +1536,93 @@ class TestGate23_Fuzz:
                 parse_projectwm(bytes(blob))
             except (VBAProjectError, UnicodeDecodeError):
                 pass
+
+    # ------------------------------------------------------------------
+    # Persistent on-disk fuzz corpus
+    # ------------------------------------------------------------------
+
+    _CORPUS_DIR = Path(__file__).parent / "fuzz_corpus"
+
+    @staticmethod
+    def _run_persistent_seed(target: str, data: bytes) -> None:
+        """Dispatch a corpus seed to the matching parser.
+
+        Each parser must either succeed or raise one of the documented
+        exception types.  Any other escape is a fuzz regression.
+        """
+        from pyopenvba.vba import (
+            decompress,
+            parse_project_stream,
+            parse_projectwm,
+            _parse_dir_stream,  # type: ignore[attr-defined]
+        )
+
+        if target == "cfb":
+            try:
+                CFB.from_bytes(data)
+            except (CFBError, PyOpenVBAError):
+                pass
+        elif target == "decompress":
+            try:
+                decompress(data)
+            except VBAProjectError:
+                pass
+        elif target == "dir":
+            try:
+                _parse_dir_stream(data)
+            except (VBAProjectError, UnicodeDecodeError, IndexError, struct.error):
+                pass
+        elif target == "project":
+            try:
+                parse_project_stream(data)
+            except (VBAProjectError, UnicodeDecodeError):
+                pass
+        elif target == "projectwm":
+            try:
+                parse_projectwm(data)
+            except (VBAProjectError, UnicodeDecodeError):
+                pass
+        else:
+            raise AssertionError(
+                f"unknown fuzz target {target!r} (add a dispatch branch)"
+            )
+
+    def test_persistent_fuzz_corpus_is_present(self) -> None:
+        """The checked-in fuzz corpus must exist and cover every target."""
+        assert self._CORPUS_DIR.is_dir(), (
+            f"fuzz corpus directory missing: {self._CORPUS_DIR}.  "
+            f"Run: python scripts/seed_fuzz_corpus.py"
+        )
+        expected = {"cfb", "decompress", "dir", "project", "projectwm"}
+        present = {
+            p.name
+            for p in self._CORPUS_DIR.iterdir()
+            if p.is_dir() and any(p.iterdir())
+        }
+        missing = expected - present
+        assert not missing, (
+            f"fuzz corpus is missing seeds for: {sorted(missing)}.  "
+            f"Run: python scripts/seed_fuzz_corpus.py"
+        )
+
+    @pytest.mark.parametrize(
+        ("target", "name", "data"),
+        _PERSISTENT_FUZZ_SEEDS,
+        ids=[f"{t}/{n}" for (t, n, _d) in _PERSISTENT_FUZZ_SEEDS]
+        or ["__empty__"],
+    )
+    def test_persistent_fuzz_corpus(
+        self, target: str, name: str, data: bytes
+    ) -> None:
+        """Every checked-in seed must fail cleanly (or succeed).
+
+        The corpus accumulates regression seeds over time; see
+        ``tests/fuzz_corpus/README.md``.
+        """
+        if not _PERSISTENT_FUZZ_SEEDS:
+            pytest.skip("fuzz corpus is empty; run scripts/seed_fuzz_corpus.py")
+        del name  # only used for the pytest ID
+        self._run_persistent_seed(target, data)
 
 
 # ===========================================================================

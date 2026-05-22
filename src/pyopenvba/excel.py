@@ -25,10 +25,20 @@ from typing import Union
 from pyopenvba.cfb import CFB
 from pyopenvba.exceptions import UnsupportedFormatError, VBAProjectError
 from pyopenvba.vba import VBAProject, parse_vba_project, write_back_modules
+from pyopenvba.vba import VBAModuleKind
 
 _ZIP_FORMATS = frozenset({".xlsm", ".xlsb", ".xlam"})
 _CFB_FORMATS = frozenset({".xls"})
 _VBA_ENTRY = "xl/vbaProject.bin"
+
+# File extensions used by the VBE export/import workflow.
+# - Standard procedural modules -> .bas
+# - Everything else (class, document/sheet/workbook, designer/form) -> .cls
+# We do not write .frm/.frx layout bytes; UserForm layout is preserved
+# inside the CFB and never round-trips through disk.
+_BAS_EXT = ".bas"
+_CLS_EXT = ".cls"
+_SOURCE_EXTS = frozenset({_BAS_EXT, _CLS_EXT})
 
 
 class ExcelFile:
@@ -113,6 +123,102 @@ class ExcelFile:
     def validate(self) -> list[str]:
         """Return cross-structure inconsistency messages; empty list means OK."""
         return self.vba_project().validate(self._get_cfb())
+
+    # ------------------------------------------------------------------
+    # Push / pull (disk-based module sync)
+    # ------------------------------------------------------------------
+
+    def pull_modules(
+        self,
+        dest_dir: Union[str, Path],
+        *,
+        encoding: str = "utf-8",
+        overwrite: bool = True,
+    ) -> list[Path]:
+        """
+        Export every VBA module's source to a file in ``dest_dir``.
+
+        Standard procedural modules are written as ``<name>.bas``; class,
+        document, and designer modules are written as ``<name>.cls``.
+        Source bytes use CRLF line endings to match VBE's own export
+        format. UserForm layout (``.frx``) is **not** exported — it is
+        preserved verbatim inside the workbook on save.
+
+        Returns the list of file paths written.
+        """
+        out_dir = Path(dest_dir)
+        out_dir.mkdir(parents=True, exist_ok=True)
+
+        written: list[Path] = []
+        for m in self.vba_project().modules:
+            ext = _BAS_EXT if m.kind == VBAModuleKind.standard else _CLS_EXT
+            target = out_dir / f"{m.name}{ext}"
+            if target.exists() and not overwrite:
+                raise FileExistsError(
+                    f"Refusing to overwrite {target} (overwrite=False)."
+                )
+            text = m.source.replace("\r\n", "\n").replace("\r", "\n")
+            data = text.replace("\n", "\r\n").encode(encoding, errors="replace")
+            target.write_bytes(data)
+            written.append(target)
+        return written
+
+    def push_modules(
+        self,
+        src_dir: Union[str, Path],
+        *,
+        encoding: str = "utf-8",
+        strict: bool = False,
+    ) -> list[str]:
+        """
+        Update module source from files in ``src_dir``.
+
+        Each ``<name>.bas`` or ``<name>.cls`` file is matched (case-
+        insensitively) to a module of the same logical name and its
+        source replaces the module's current source. Line endings are
+        normalised to CRLF.
+
+        Files whose stem does not match any module are reported via
+        ``strict``:
+
+        - ``strict=False`` (default): unmatched files are ignored.
+        - ``strict=True``: raises :class:`KeyError` on the first
+          unmatched file.
+
+        Does **not** write to disk — call :meth:`save` afterwards to
+        persist.
+
+        Returns the list of module names that were updated.
+        """
+        src = Path(src_dir)
+        if not src.is_dir():
+            raise NotADirectoryError(f"Not a directory: {src}")
+
+        project = self.vba_project()
+        by_name = {m.name.casefold(): m for m in project.modules}
+        updated: list[str] = []
+
+        for child in sorted(src.iterdir()):
+            if not child.is_file():
+                continue
+            if child.suffix.lower() not in _SOURCE_EXTS:
+                continue
+            key = child.stem.casefold()
+            module = by_name.get(key)
+            if module is None:
+                if strict:
+                    raise KeyError(
+                        f"No module matches file {child.name!r} "
+                        f"(known: {sorted(m.name for m in project.modules)})."
+                    )
+                continue
+            raw = child.read_bytes().decode(encoding, errors="replace")
+            text = raw.replace("\r\n", "\n").replace("\r", "\n").replace("\n", "\r\n")
+            if module.source != text:
+                module.source = text
+                module.dirty = True
+            updated.append(module.name)
+        return updated
 
     def save(self, dest: Union[str, Path, None] = None) -> None:
         """

@@ -20,6 +20,10 @@ pyOpenVBA today is best described as:
 - `.xls` (legacy BIFF8 — vbaProject.bin is the entire file).
 - Read all VBA module sources (standard, class, document, designer code-behind).
 - Replace source of any existing module.
+- **Disk-based push/pull** (`pyopenvba.pull` / `pyopenvba.push`, and
+  `python -m pyopenvba {pull,push,ls}`) — export modules to `.bas` / `.cls`
+  files for use with any text editor / version control, then push edits back
+  into the workbook.
 - No-op round-trip preservation of every non-VBA ZIP entry.
 - No-op round-trip preservation of every module's performance-cache prefix.
 - Pure Python 3.10+, zero runtime dependencies.

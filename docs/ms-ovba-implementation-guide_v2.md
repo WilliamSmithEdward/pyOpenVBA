@@ -1,6 +1,6 @@
 # MS-OVBA Implementation Guide v2
 
-A practical, language-agnostic guide for building a feature-complete,
+A practical, language-agnostic guide for building a module-complete,
 deterministic reader/writer for VBA modules embedded in Microsoft
 Office files. Distilled from the implementation of
 [pyOpenVBA](../README.md) against
@@ -42,11 +42,11 @@ workbook.xlsm                          (host container)
     +-- xl/vbaProject.bin              (the MS-OVBA payload)
         +-- MS-CFB compound file
             +-- /PROJECT               (plain text, MBCS)
-            +-- /PROJECTwm  (optional) (module-name MBCS<->UTF-16 map)
             +-- /PROJECTlk  (optional) (ActiveX license info)
             +-- /VBA                   (storage)
             |   +-- _VBA_PROJECT       (performance cache; opaque)
             |   +-- dir                (compressed binary; the spine)
+            |   +-- PROJECTwm (optional) (module-name MBCS<->UTF-16 map)
             |   +-- <Module1>          (compressed source w/ cache prefix)
             |   +-- <Module2>
             |   +-- __SRP_*  (optional) (perf cache; NEVER write)

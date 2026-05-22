@@ -182,10 +182,6 @@ class TestGate02_CFB:
         b = cfb.get_stream("PROJECT")
         assert a == b
 
-    @pytest.mark.xfail(
-        strict=True,
-        reason="SRP-stream dropping on write requires CFB directory-removal API; tracked in roadmap.",
-    )
     def test_srp_streams_not_emitted_on_write(
         self, live_xlsm_path: Path, tmp_path: Path
     ) -> None:
@@ -196,10 +192,15 @@ class TestGate02_CFB:
             wb.save(out)
         with ExcelFile(out) as reread:
             cfb = CFB.from_bytes(reread.vba_project_bytes())
-        for s in cfb.list_streams():
+        all_streams = cfb.list_streams()
+        for s in all_streams:
             assert not s.lower().startswith("__srp_"), (
                 f"writer emitted SRP stream {s!r}"
             )
+        # Sanity: real VBA streams must survive the SRP cull.
+        names_lower = {s.lower() for s in all_streams}
+        assert "dir" in names_lower
+        assert "_vba_project" in names_lower
 
 
 # ===========================================================================

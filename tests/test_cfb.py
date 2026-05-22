@@ -268,6 +268,54 @@ class TestCFBWriter:
         assert obj_type == 5    # OBJTYPE_ROOT
 
 
+class TestCFBStreamRemoval:
+    """Coverage for the directory-mutation API (remove_stream / drop_streams_in_storage)."""
+
+    def test_remove_top_level_stream(self) -> None:
+        original = _make_cfb_with_one_stream("Doomed", b"goodbye")
+        cfb = CFB.from_bytes(original)
+        assert "Doomed" in cfb.list_streams()
+        cfb.remove_stream("Doomed")
+        # Even before serialization the stream is gone from listings.
+        assert "Doomed" not in cfb.list_streams()
+        out = cfb.to_bytes()
+        cfb2 = CFB.from_bytes(out)
+        assert "Doomed" not in cfb2.list_streams()
+        with pytest.raises(KeyError):
+            cfb2.get_stream("Doomed")
+
+    def test_remove_stream_unknown_name_raises(self) -> None:
+        cfb = CFB.from_bytes(_make_minimal_cfb())
+        with pytest.raises(KeyError):
+            cfb.remove_stream("nope")
+
+    def test_drop_streams_in_storage_predicate(self) -> None:
+        from pathlib import Path
+        import zipfile
+
+        live = Path(__file__).parent / "live_excel_testing" / "test_macro_workbook.xlsm"
+        if not live.exists():
+            pytest.skip("live workbook fixture not available")
+        with zipfile.ZipFile(live) as zf:
+            raw = zf.read("xl/vbaProject.bin")
+        cfb = CFB.from_bytes(raw)
+        # Live fixture is known to ship with __SRP_0..__SRP_3 under VBA.
+        before = [s for s in cfb.list_streams() if s.startswith("__SRP_")]
+        assert before, "live fixture lacks __SRP_* streams; refresh the fixture"
+        removed = cfb.drop_streams_in_storage("VBA", lambda n: n.startswith("__SRP_"))
+        assert sorted(removed) == sorted(before)
+        out = cfb.to_bytes()
+        cfb2 = CFB.from_bytes(out)
+        assert not [s for s in cfb2.list_streams() if s.startswith("__SRP_")]
+        # Surviving streams must still be intact.
+        assert cfb2.get_stream("dir") == cfb.get_stream("dir")
+
+    def test_drop_streams_unknown_storage_raises(self) -> None:
+        cfb = CFB.from_bytes(_make_minimal_cfb())
+        with pytest.raises(KeyError):
+            cfb.drop_streams_in_storage("NoSuchStorage", lambda n: True)
+
+
 # ---------------------------------------------------------------------------
 # Fixture builder: CFB with one stream
 # ---------------------------------------------------------------------------

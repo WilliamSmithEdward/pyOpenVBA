@@ -47,7 +47,7 @@ pyOpenVBA today is best described as:
 |------|-------|--------|-------|
 | 0 | Scope Declaration | PASS | `ExcelFile` rejects unsupported hosts; CFB and VBA layers separated; `vba_project_bytes()` exposes raw `vbaProject.bin`. |
 | 1 | Host Package | PARTIAL | No-op + single-module-edit save preserves every other ZIP entry. "Opens in Excel without repair" is not asserted from Python. |
-| 2 | OLE/CFB Container | PARTIAL | Reader + writer round-trip; case-insensitive lookup. SRP-stream dropping on write is TODO (requires CFB directory-entry removal API). |
+| 2 | OLE/CFB Container | PASS | Reader + writer round-trip; case-insensitive lookup; `CFB.remove_stream` / `drop_streams_in_storage` rebuild the directory subtree; SRP streams are auto-dropped on `ExcelFile.save`. |
 | 3 | Binary Parsing Discipline | PASS | Bounds-checked, signature-checked; `decompress()` carries `stream_name` + byte offset in `VBAProjectError` messages. |
 | 4 | Compression / Decompression | PASS | Spec-compliant chunk-based codec; randomized round-trips up to 32 KB. |
 | 5 | `_VBA_PROJECT` / Performance Cache | PARTIAL | Module performance-cache prefix preserved verbatim across writes. Stale-cache invalidation logic that Office uses (e.g. zeroing the `_VBA_PROJECT` stream contents) is not yet performed. |
@@ -76,14 +76,13 @@ pyOpenVBA today is best described as:
 
 1. **`dir` stream writer** (Gate 11 full + Gate 13 persistence). Required for any mutation that changes module identity — replace-source today works only because we never rewrite `dir`.
 2. **`PROJECT` stream writer** (Gate 6 full). Pair with (1) so that `Module=`/`Class=`/`Document=` declarations stay in sync after add/rename/delete.
-3. **CFB stream-removal API** (Gate 2 closure). Per MS-OVBA 2.3.4.1, SRP streams MUST be ignored on read and should not be emitted by non-host writers. Required for `delete_module` persistence. Implementation requires red-black-tree directory surgery in `CFB.to_bytes()`.
-4. **CFB stream-creation API** (new `_VBA_PROJECT_CUR/VBA/<NewMod>` streams). Required for `add_module` persistence.
-5. **PROJECTwm writer** (Gate 7). Required as soon as non-ASCII module names enter the corpus.
-6. **Non-ASCII corpus fixture + Gate 18 hardening**.
-7. **Office-compatible V3 / agile content hash** (Gate 15 full). The current SHA-1 digest is stable for internal use but does not match Excel's signature payload.
-8. **UserForm corpus fixture + Gate 14 round-trip assertion**.
-9. **Protected-project refuse-to-edit gate** (Gate 16 hardening). Save-on-protected-project should fail closed unless the caller opts in.
-10. **Signed-project staleness reporting** (Gate 17 hardening). Save-on-signed-project should warn that the signature will be invalidated.
+3. **CFB stream-creation API** (new `VBA/<NewMod>` streams). Required for `add_module` persistence; pairs with the dir/PROJECT writers.
+4. **PROJECTwm writer** (Gate 7). Required as soon as non-ASCII module names enter the corpus.
+5. **Non-ASCII corpus fixture + Gate 18 hardening**.
+6. **Office-compatible V3 / agile content hash** (Gate 15 full). The current SHA-1 digest is stable for internal use but does not match Excel's signature payload.
+7. **UserForm corpus fixture + Gate 14 round-trip assertion**.
+8. **Protected-project refuse-to-edit gate** (Gate 16 hardening). Save-on-protected-project should fail closed unless the caller opts in.
+9. **Signed-project staleness reporting** (Gate 17 hardening). Save-on-signed-project should warn that the signature will be invalidated.
 
 ## Out of scope (no current plans)
 

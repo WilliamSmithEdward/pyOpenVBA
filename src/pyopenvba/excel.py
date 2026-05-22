@@ -235,6 +235,11 @@ class ExcelFile:
         cfb = self._get_cfb()
         if self._project is not None:
             write_back_modules(cfb, self._project)
+        # [MS-OVBA] writers MUST NOT emit performance-cache (__SRP_*) streams.
+        try:
+            cfb.drop_streams_in_storage("VBA", lambda n: n.startswith("__SRP_"))
+        except KeyError:
+            pass
         new_cfb_bytes = cfb.to_bytes()
         out_path = Path(dest) if dest is not None else self._path
 

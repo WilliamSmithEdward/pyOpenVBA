@@ -21,7 +21,7 @@ from __future__ import annotations
 
 import struct
 from dataclasses import dataclass
-from typing import BinaryIO
+from typing import BinaryIO, Callable
 from pyopenvba.exceptions import CFBError
 
 # ---------------------------------------------------------------------------
@@ -376,6 +376,131 @@ class CFB:
         raise KeyError(f"Stream {name!r} not found in storage {storage!r}")
 
     # ------------------------------------------------------------------
+    # Directory mutation (stream removal / drop)
+    # ------------------------------------------------------------------
+
+    def remove_stream_in_storage(self, storage: str, name: str) -> None:
+        """
+        Remove a stream from a named storage.
+
+        The stream's directory entry is marked empty and unlinked from the
+        storage's red-black sibling tree.  The change is held in memory until
+        :meth:`to_bytes` is called.
+        """
+        parent_idx = self._find_storage_index(storage)
+        target_idx = self._find_child_stream_index(parent_idx, name)
+        if target_idx is None:
+            raise KeyError(f"Stream {name!r} not found in storage {storage!r}")
+        self._unlink_and_clear(parent_idx, target_idx)
+
+    def remove_stream(self, name: str) -> None:
+        """Remove a top-level stream (child of the root entry)."""
+        target_idx = self._find_child_stream_index(0, name)
+        if target_idx is None:
+            raise KeyError(f"Stream not found: {name!r}")
+        self._unlink_and_clear(0, target_idx)
+
+    def drop_streams_in_storage(
+        self, storage: str, predicate: "Callable[[str], bool]"
+    ) -> list[str]:
+        """
+        Remove every stream child of ``storage`` whose name satisfies ``predicate``.
+
+        Returns the names of removed streams (in directory order).  Raises
+        :class:`KeyError` if the storage does not exist.
+        """
+        parent_idx = self._find_storage_index(storage)
+        children = self._collect_subtree(self._directory[parent_idx].child_id)
+        removed: list[str] = []
+        for child_idx in children:
+            entry = self._directory[child_idx]
+            if entry.obj_type == _OBJTYPE_STREAM and predicate(entry.name):
+                removed.append(entry.name)
+        for name in removed:
+            self.remove_stream_in_storage(storage, name)
+        return removed
+
+    # ------------------------------------------------------------------
+    # Directory tree helpers
+    # ------------------------------------------------------------------
+
+    def _find_storage_index(self, storage: str) -> int:
+        needle = storage.casefold()
+        for idx, entry in enumerate(self._directory):
+            if entry.obj_type == _OBJTYPE_STORAGE and entry.name.casefold() == needle:
+                return idx
+        raise KeyError(f"Storage not found: {storage!r}")
+
+    def _find_child_stream_index(self, parent_idx: int, name: str) -> int | None:
+        needle = name.casefold()
+        for child_idx in self._collect_subtree(self._directory[parent_idx].child_id):
+            entry = self._directory[child_idx]
+            if entry.obj_type == _OBJTYPE_STREAM and entry.name.casefold() == needle:
+                return child_idx
+        return None
+
+    def _collect_subtree(self, root_id: int) -> list[int]:
+        """Walk the sibling subtree rooted at ``root_id`` and return all node indices."""
+        out: list[int] = []
+        seen: set[int] = set()
+        stack: list[int] = []
+        if root_id != _NOSTREAM and root_id < len(self._directory):
+            stack.append(root_id)
+        while stack:
+            node = stack.pop()
+            if node in seen or node == _NOSTREAM or node >= len(self._directory):
+                continue
+            seen.add(node)
+            out.append(node)
+            entry = self._directory[node]
+            if entry.left_sibling_id != _NOSTREAM:
+                stack.append(entry.left_sibling_id)
+            if entry.right_sibling_id != _NOSTREAM:
+                stack.append(entry.right_sibling_id)
+        return out
+
+    def _rebuild_balanced_subtree(self, indices: list[int]) -> int:
+        """
+        Build a balanced BST from ``indices`` sorted by ``([MS-CFB] 2.6.4)``
+        ordering: ``(len(name), upper(name))``.  Returns the new root id, or
+        ``_NOSTREAM`` if empty.  Side-effect: rewrites the participating
+        entries' left/right sibling pointers.
+        """
+        if not indices:
+            return _NOSTREAM
+        ordered = sorted(
+            indices,
+            key=lambda i: (len(self._directory[i].name), self._directory[i].name.upper()),
+        )
+        return self._build_from_sorted(ordered)
+
+    def _build_from_sorted(self, ordered: list[int]) -> int:
+        if not ordered:
+            return _NOSTREAM
+        mid = len(ordered) // 2
+        root = ordered[mid]
+        self._directory[root].left_sibling_id = self._build_from_sorted(ordered[:mid])
+        self._directory[root].right_sibling_id = self._build_from_sorted(ordered[mid + 1:])
+        return root
+
+    def _unlink_and_clear(self, parent_idx: int, target_idx: int) -> None:
+        parent = self._directory[parent_idx]
+        siblings = [i for i in self._collect_subtree(parent.child_id) if i != target_idx]
+        parent.child_id = self._rebuild_balanced_subtree(siblings)
+        # Clear the removed entry so the serializer emits an empty slot.
+        dead = self._directory[target_idx]
+        dead.name = ""
+        dead.obj_type = _OBJTYPE_EMPTY
+        dead.left_sibling_id = _NOSTREAM
+        dead.right_sibling_id = _NOSTREAM
+        dead.child_id = _NOSTREAM
+        dead.start_sector = _FREESECT
+        dead.size = 0
+        dead.raw = b""
+        # Drop any pending override for the removed stream.
+        self._stream_overrides.pop(target_idx, None)
+
+    # ------------------------------------------------------------------
     # Serializer ([MS-CFB] write-path)
     # ------------------------------------------------------------------
 
@@ -596,6 +721,9 @@ class CFB:
         size while preserving the original CLSID, color, state, and timestamps.
         """
         CUTOFF = 4096
+
+        if entry.obj_type == _OBJTYPE_EMPTY:
+            return self._empty_dir_entry_bytes()
 
         if entry.obj_type == _OBJTYPE_ROOT:
             start_sector = mini_stream_first

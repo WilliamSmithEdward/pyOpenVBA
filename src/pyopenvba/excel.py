@@ -26,6 +26,7 @@ from pyopenvba.cfb import CFB
 from pyopenvba.exceptions import UnsupportedFormatError, VBAProjectError
 from pyopenvba.vba import VBAProject, parse_vba_project, write_back_modules
 from pyopenvba.vba import VBAModuleKind
+from pyopenvba.vba import compress, serialize_dir_stream, serialize_project_stream
 
 _ZIP_FORMATS = frozenset({".xlsm", ".xlsb", ".xlam"})
 _CFB_FORMATS = frozenset({".xls"})
@@ -234,7 +235,31 @@ class ExcelFile:
         """
         cfb = self._get_cfb()
         if self._project is not None:
+            # Snapshot pending CFB stream renames (logical name == stream
+            # name in Excel-saved files, so this dict drives both the CFB
+            # directory-entry rename and the PROJECT-stream rewrite).
+            rename_map = dict(self._project.pending_renames)
+            for old, new in rename_map.items():
+                try:
+                    cfb.rename_stream_in_storage("VBA", old, new)
+                except KeyError:
+                    # Stream may already have been renamed by a prior save.
+                    pass
+            self._project.pending_renames.clear()
             write_back_modules(cfb, self._project)
+            # Rewrite the dir + PROJECT streams when the module set's
+            # identity has changed (add / rename / delete).
+            if self._project.dir_structure_dirty:
+                new_dir_raw = serialize_dir_stream(self._project)
+                cfb.write_stream_in_storage("VBA", "dir", compress(new_dir_raw))
+                try:
+                    project_raw = cfb.get_stream("PROJECT")
+                except KeyError:
+                    project_raw = None
+                if project_raw is not None and rename_map:
+                    new_project = serialize_project_stream(project_raw, rename_map)
+                    cfb.write_stream("PROJECT", new_project)
+                self._project.dir_structure_dirty = False
         # [MS-OVBA] writers MUST NOT emit performance-cache (__SRP_*) streams.
         try:
             cfb.drop_streams_in_storage("VBA", lambda n: n.startswith("__SRP_"))

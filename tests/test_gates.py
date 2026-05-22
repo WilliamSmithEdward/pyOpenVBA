@@ -783,6 +783,57 @@ class TestGate21_MutationRoundTrip:
     def test_replace_userform_code_behind_round_trip(self) -> None:
         pytest.fail("no UserForm fixture")
 
+    def test_rename_module_round_trip(
+        self, live_xlsm_path: Path, tmp_path: Path
+    ) -> None:
+        """rename_module persists to disk: dir, PROJECT, and CFB all updated."""
+        out = tmp_path / "renamed.xlsm"
+        with ExcelFile(live_xlsm_path) as wb:
+            original_src = wb.get_module("Module1")
+            proj = wb.vba_project()
+            proj.rename_module("Module1", "MyMod")
+            wb.save(out)
+
+        # Reopen and verify the parsed model reflects the rename.
+        with ExcelFile(out) as wb2:
+            names = {n.casefold() for n in wb2.module_names()}
+            assert "mymod" in names
+            assert "module1" not in names
+            assert wb2.get_module("MyMod") == original_src
+
+    def test_rename_persists_in_project_stream(
+        self, live_xlsm_path: Path, tmp_path: Path
+    ) -> None:
+        """The PROJECT stream's Module= / Workspace= entries follow the rename."""
+        out = tmp_path / "renamed_project.xlsm"
+        with ExcelFile(live_xlsm_path) as wb:
+            proj = wb.vba_project()
+            proj.rename_module("Module1", "MyMod")
+            wb.save(out)
+
+        with ExcelFile(out) as wb2:
+            cfb = CFB.from_bytes(wb2.vba_project_bytes())
+            project_raw = cfb.get_stream("PROJECT")
+            text = project_raw.decode("cp1252", errors="replace")
+            assert "Module=MyMod" in text
+            assert "Module=Module1" not in text
+
+    def test_rename_renames_cfb_stream(
+        self, live_xlsm_path: Path, tmp_path: Path
+    ) -> None:
+        """The VBA storage's child stream is renamed (not duplicated)."""
+        out = tmp_path / "renamed_cfb.xlsm"
+        with ExcelFile(live_xlsm_path) as wb:
+            proj = wb.vba_project()
+            proj.rename_module("Module1", "MyMod")
+            wb.save(out)
+
+        with ExcelFile(out) as wb2:
+            cfb = CFB.from_bytes(wb2.vba_project_bytes())
+            vba_streams = set(cfb.list_streams_in_storage("VBA"))
+            assert "MyMod" in vba_streams
+            assert "Module1" not in vba_streams
+
     @pytest.mark.xfail(strict=True, reason="add_module not implemented")
     def test_add_module_round_trip(self) -> None:
         pytest.fail("add not implemented")

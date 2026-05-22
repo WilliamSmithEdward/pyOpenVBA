@@ -301,6 +301,10 @@ class _ModuleInfo:
     module_kind: VBAModuleKind = VBAModuleKind.standard
     is_read_only: bool = False
     is_private: bool = False
+    doc_string: str = ""             # MODULEDOCSTRING (MBCS)
+    doc_string_unicode: str = ""     # MODULEDOCSTRINGUNICODE
+    help_context: int = 0            # MODULEHELPCONTEXT
+    cookie: int = 0                  # MODULECOOKIE (u16)
 
 
 # ---------------------------------------------------------------------------
@@ -450,8 +454,13 @@ def _parse_dir_stream(raw: bytes) -> tuple["_DirInfo", list[_ModuleInfo]]:
         elif record_id == 0x000F: # PROJECTMODULES (count)
             if len(data) >= 2:
                 info.module_count = int(struct.unpack_from("<H", data, 0)[0])
+            # First record of the PROJECTMODULES section — capture its absolute
+            # start so save() can splice in a freshly serialized modules block.
+            if info.modules_section_offset == -1:
+                info.modules_section_offset = pos - 6 - len(data)
         elif record_id == 0x0013: # PROJECTCOOKIE
-            pass
+            if len(data) >= 2:
+                info.project_cookie = int(struct.unpack_from("<H", data, 0)[0])
 
         # ------------- PROJECTREFERENCES records ------------------
         elif record_id == 0x0016: # REFERENCENAME (MBCS)
@@ -517,9 +526,19 @@ def _parse_dir_stream(raw: bytes) -> tuple["_DirInfo", list[_ModuleInfo]]:
             current.stream_name = data.decode(_enc(), errors="replace")
         elif record_id == 0x0032 and current is not None: # MODULESTREAMNAME unicode
             current.stream_name_unicode = data.decode("utf-16-le", errors="replace")
+        elif record_id == 0x001C and current is not None: # MODULEDOCSTRING (MBCS)
+            current.doc_string = data.decode(_enc(), errors="replace")
+        elif record_id == 0x0048 and current is not None: # MODULEDOCSTRINGUNICODE
+            current.doc_string_unicode = data.decode("utf-16-le", errors="replace")
         elif record_id == 0x0031 and current is not None: # MODULEOFFSET
             if len(data) >= 4:
                 current.text_offset = int(struct.unpack_from("<I", data, 0)[0])
+        elif record_id == 0x001E and current is not None: # MODULEHELPCONTEXT
+            if len(data) >= 4:
+                current.help_context = int(struct.unpack_from("<I", data, 0)[0])
+        elif record_id == 0x002C and current is not None: # MODULECOOKIE
+            if len(data) >= 2:
+                current.cookie = int(struct.unpack_from("<H", data, 0)[0])
         elif record_id == 0x0021 and current is not None: # MODULETYPE standard
             current.module_kind = VBAModuleKind.standard
         elif record_id == 0x0022 and current is not None: # MODULETYPE other
@@ -562,6 +581,12 @@ class _DirInfo:
     version_major: int = 0
     version_minor: int = 0
     module_count: int = 0
+    project_cookie: int = 0
+    # Absolute byte offset of the first PROJECTMODULES (0x000F) record within
+    # the decompressed dir stream; -1 if the dir stream had no modules section.
+    # Used by the writer to splice in a freshly serialized modules block while
+    # leaving the project-information + references prefix verbatim.
+    modules_section_offset: int = -1
     references: list["VBAReference"] = field(default_factory=lambda: [])
 
 
@@ -579,6 +604,13 @@ class VBAModule:
     text_offset: int = 0
     is_read_only: bool = False
     is_private: bool = False
+    # Dir-stream sub-records preserved for round-trip serialization.
+    name_unicode: str = ""
+    stream_name_unicode: str = ""
+    doc_string: str = ""
+    doc_string_unicode: str = ""
+    help_context: int = 0
+    cookie: int = 0
     # Original bytes 0..text_offset of the module stream (performance cache
     # / version-dependent prefix).  Preserved across write-back so that
     # Office's cache invalidation logic operates the same way as it would
@@ -597,6 +629,21 @@ class VBAProject:
     sys_kind: int = 0
     references: list[VBAReference] = field(default_factory=lambda: [])
     protection: "ProjectProtection | None" = None
+    # Dir-stream PROJECTMODULES coupling fields.
+    project_cookie: int = 0
+    # Raw decompressed dir bytes captured at parse time, kept so that
+    # save() can re-emit the project-information + references prefix verbatim
+    # while regenerating only the modules section.  ``dir_modules_offset``
+    # marks the start of the first 0x000F record within ``dir_raw``.
+    # These fields are technically internal but are exposed without a leading
+    # underscore so that pyopenvba.excel can drive the save path without
+    # triggering pyright's reportPrivateUsage.
+    dir_raw: bytes = field(default=b"", repr=False)
+    dir_modules_offset: int = field(default=-1, repr=False)
+    # Pending logical renames (old_name -> new_name); flushed by save().
+    pending_renames: dict[str, str] = field(default_factory=lambda: {}, repr=False)
+    # Set whenever the module list's identity changes (add/rename/delete).
+    dir_structure_dirty: bool = field(default=False, repr=False)
 
     def get_module(self, name: str) -> VBAModule:
         needle = name.casefold()
@@ -639,27 +686,59 @@ class VBAProject:
             source=source,
             kind=kind,
             text_offset=0,
+            name_unicode=name,
+            stream_name_unicode=(stream_name if stream_name is not None else name),
             dirty=True,
         )
         self.modules.append(module)
+        self.dir_structure_dirty = True
         return module
 
     def rename_module(self, old_name: str, new_name: str) -> VBAModule:
-        """Rename a module by logical name (in-memory only)."""
+        """Rename a module by logical name.
+
+        Updates the in-memory project model and queues a CFB stream rename plus
+        a dir/PROJECT stream rewrite that ``ExcelFile.save()`` will apply.
+        """
         module = self.get_module(old_name)
+        if module.name == new_name:
+            return module
         needle = new_name.casefold()
         if needle != module.name.casefold() and any(
             m.name.casefold() == needle for m in self.modules
         ):
             raise ValueError(f"Module already exists: {new_name!r}")
+        old_stream = module.stream_name
+        old_logical = module.name
         module.name = new_name
+        module.name_unicode = new_name
+        # Keep stream name aligned with module name (matches Office behavior).
+        module.stream_name = new_name
+        module.stream_name_unicode = new_name
         module.dirty = True
+        self.dir_structure_dirty = True
+        # Queue CFB stream rename only if the stream name actually changed.
+        if old_stream != module.stream_name:
+            # Compose with any prior pending rename so the chain collapses.
+            existing_src = next(
+                (k for k, v in self.pending_renames.items() if v == old_stream),
+                None,
+            )
+            if existing_src is not None:
+                self.pending_renames[existing_src] = module.stream_name
+            else:
+                self.pending_renames[old_stream] = module.stream_name
+        # Also remember the logical-name change for PROJECT stream rewriting.
+        # (We use the same dict keyed by logical names when stream==logical,
+        # which is the common Excel case.)
+        _ = old_logical
         return module
 
     def delete_module(self, name: str) -> None:
         """Remove a module from the project (in-memory only)."""
         module = self.get_module(name)
         self.modules.remove(module)
+        self.dir_structure_dirty = True
 
     # ------------------------------------------------------------------
     # Validation (Gate 19)
@@ -746,6 +825,152 @@ def write_back_modules(cfb: CFB, project: VBAProject) -> None:
 
 
 # ---------------------------------------------------------------------------
+# dir-stream writer (Gate 13 persistence)
+# ---------------------------------------------------------------------------
+
+def _pack_record(rid: int, data: bytes) -> bytes:
+    """[MS-OVBA] generic record encoding: Id(u16) + Size(u32) + Data."""
+    return struct.pack("<HI", rid, len(data)) + data
+
+
+def serialize_dir_modules_section(project: VBAProject) -> bytes:
+    """
+    Serialize the PROJECTMODULES section of a dir stream from ``project``.
+
+    Output layout, per [MS-OVBA] 2.3.4.2.3:
+        0x000F  PROJECTMODULES   Count:u16
+        0x0013  PROJECTCOOKIE    Cookie:u16
+        Module*  per-module record block
+        0x0010  Terminator       (followed by Reserved:u32=0)
+
+    Each per-module block emits:
+        MODULENAME, MODULENAMEUNICODE, MODULESTREAMNAME, MODULESTREAMNAMEUNICODE,
+        MODULEDOCSTRING, MODULEDOCSTRINGUNICODE, MODULEOFFSET, MODULEHELPCONTEXT,
+        MODULECOOKIE, MODULETYPE, MODULEREADONLY?, MODULEPRIVATE?, Terminator.
+    """
+    enc = _encoding_for_codepage(project.code_page)
+    out = bytearray()
+    out += _pack_record(0x000F, struct.pack("<H", len(project.modules)))
+    out += _pack_record(0x0013, struct.pack("<H", project.project_cookie & 0xFFFF))
+
+    for m in project.modules:
+        name = m.name
+        name_u = m.name_unicode or m.name
+        stream = m.stream_name or m.name
+        stream_u = m.stream_name_unicode or stream
+        out += _pack_record(0x0019, name.encode(enc, errors="replace"))
+        out += _pack_record(0x0047, name_u.encode("utf-16-le"))
+        out += _pack_record(0x001A, stream.encode(enc, errors="replace"))
+        out += _pack_record(0x0032, stream_u.encode("utf-16-le"))
+        out += _pack_record(0x001C, m.doc_string.encode(enc, errors="replace"))
+        out += _pack_record(0x0048, m.doc_string_unicode.encode("utf-16-le"))
+        out += _pack_record(0x0031, struct.pack("<I", m.text_offset))
+        out += _pack_record(0x001E, struct.pack("<I", m.help_context))
+        out += _pack_record(0x002C, struct.pack("<H", m.cookie & 0xFFFF))
+        # MODULETYPE: 0x0021 standard / 0x0022 other (data is empty per spec).
+        out += _pack_record(
+            0x0021 if m.kind == VBAModuleKind.standard else 0x0022, b""
+        )
+        if m.is_read_only:
+            out += _pack_record(0x0025, b"")
+        if m.is_private:
+            out += _pack_record(0x0028, b"")
+        # Module terminator.
+        out += _pack_record(0x002B, b"")
+
+    # dir-stream terminator: 0x0010 with size 0, followed by Reserved:u32 = 0.
+    out += _pack_record(0x0010, b"") + b"\x00\x00\x00\x00"
+    return bytes(out)
+
+
+def serialize_dir_stream(project: VBAProject) -> bytes:
+    """
+    Build a fresh decompressed dir stream from ``project``.
+
+    Splice strategy: the project-information + references prefix is reused
+    verbatim from ``project._dir_raw`` (captured at parse time), and only the
+    PROJECTMODULES section is regenerated.  This avoids round-trip drift in
+    records the parser does not fully decode (e.g. extended REFERENCECONTROL
+    cookies).
+    """
+    if project.dir_raw and project.dir_modules_offset >= 0:
+        prefix = project.dir_raw[: project.dir_modules_offset]
+    else:
+        # Synthesized projects have no captured prefix; the caller is
+        # responsible for supplying a valid PROJECTINFORMATION + REFERENCES
+        # prefix in some other way before save.
+        raise VBAProjectError(
+            "serialize_dir_stream() requires dir_raw + dir_modules_offset; "
+            "use a parsed VBAProject."
+        )
+    return prefix + serialize_dir_modules_section(project)
+
+
+# ---------------------------------------------------------------------------
+# PROJECT-stream writer (Gate 6 persistence)
+# ---------------------------------------------------------------------------
+
+def serialize_project_stream(
+    raw: bytes, rename_map: dict[str, str]
+) -> bytes:
+    """
+    Apply a logical-name rename map to a PROJECT stream's plain-text body.
+
+    Only the right-hand side of ``Module=`` / ``Class=`` / ``BaseClass=`` /
+    ``Document=NAME/&H...`` declarations and the ``Workspace`` keys are
+    rewritten.  Everything else (``ID``, ``Name``, ``CMG``, ``DPB``, ``GC``,
+    ``[Host Extender Info]``) is preserved byte-for-byte except for the
+    targeted substitutions.
+
+    Returns cp1252-encoded bytes with CRLF line endings.
+    """
+    if not rename_map:
+        return raw
+    try:
+        text = raw.decode("cp1252", errors="replace")
+    except LookupError:
+        text = raw.decode("latin-1", errors="replace")
+
+    # Build a case-insensitive lookup so identifiers compare case-insensitively
+    # while preserving the new-name casing in the output.
+    rename_ci: dict[str, str] = {k.casefold(): v for k, v in rename_map.items()}
+
+    out_lines: list[str] = []
+    in_workspace = False
+    for line in text.splitlines():
+        stripped = line.strip()
+        if stripped.lower() == "[workspace]":
+            in_workspace = True
+            out_lines.append(line)
+            continue
+        if stripped.startswith("[") and stripped.endswith("]"):
+            in_workspace = False
+            out_lines.append(line)
+            continue
+        if "=" not in stripped:
+            out_lines.append(line)
+            continue
+        key, _, value = stripped.partition("=")
+        key_s = key.strip()
+        if in_workspace:
+            new_key = rename_ci.get(key_s.casefold(), key_s)
+            out_lines.append(f"{new_key}={value.strip()}")
+            continue
+        if key_s in ("Module", "Class", "BaseClass"):
+            new_val = rename_ci.get(value.strip().casefold(), value.strip())
+            out_lines.append(f"{key_s}={new_val}")
+            continue
+        if key_s == "Document":
+            name_part, sep, id_part = value.strip().partition("/")
+            new_name = rename_ci.get(name_part.casefold(), name_part)
+            out_lines.append(f"Document={new_name}{sep}{id_part}")
+            continue
+        out_lines.append(line)
+
+    return ("\r\n".join(out_lines) + "\r\n").encode("cp1252", errors="replace")
+
+
+# ---------------------------------------------------------------------------
 # Public factory
 # ---------------------------------------------------------------------------
 
@@ -803,6 +1028,12 @@ def parse_vba_project(cfb: CFB) -> VBAProject:
             text_offset=info.text_offset,
             is_read_only=info.is_read_only,
             is_private=info.is_private,
+            name_unicode=info.name_unicode,
+            stream_name_unicode=info.stream_name_unicode,
+            doc_string=info.doc_string,
+            doc_string_unicode=info.doc_string_unicode,
+            help_context=info.help_context,
+            cookie=info.cookie,
             prefix_bytes=stream_compressed[: info.text_offset],
         ))
 
@@ -810,6 +1041,9 @@ def parse_vba_project(cfb: CFB) -> VBAProject:
     project.name = dir_info.name
     project.sys_kind = dir_info.sys_kind
     project.references = dir_info.references
+    project.project_cookie = dir_info.project_cookie
+    project.dir_raw = dir_raw
+    project.dir_modules_offset = dir_info.modules_section_offset
 
     # Attach protection state from the PROJECT stream if present.
     try:

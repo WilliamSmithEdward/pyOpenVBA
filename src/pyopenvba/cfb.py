@@ -400,6 +400,38 @@ class CFB:
             raise KeyError(f"Stream not found: {name!r}")
         self._unlink_and_clear(0, target_idx)
 
+    def rename_stream_in_storage(self, storage: str, old: str, new: str) -> None:
+        """
+        Rename a stream within a storage.
+
+        The entry's name is replaced and the storage's child subtree is rebuilt
+        to keep BST ordering ([MS-CFB] 2.6.4) valid.  Raises ``KeyError`` if
+        the source stream is missing and ``ValueError`` if a sibling already
+        uses ``new``.
+        """
+        if not new:
+            raise ValueError("new stream name must be non-empty")
+        if old.casefold() == new.casefold():
+            # Same name (case-insensitive): just patch the displayed casing.
+            parent_idx = self._find_storage_index(storage)
+            target_idx = self._find_child_stream_index(parent_idx, old)
+            if target_idx is None:
+                raise KeyError(f"Stream {old!r} not found in storage {storage!r}")
+            self._directory[target_idx].name = new
+            return
+        parent_idx = self._find_storage_index(storage)
+        target_idx = self._find_child_stream_index(parent_idx, old)
+        if target_idx is None:
+            raise KeyError(f"Stream {old!r} not found in storage {storage!r}")
+        if self._find_child_stream_index(parent_idx, new) is not None:
+            raise ValueError(
+                f"Stream {new!r} already exists in storage {storage!r}"
+            )
+        self._directory[target_idx].name = new
+        # Rebuild the parent's subtree so BST ordering reflects the new name.
+        siblings = self._collect_subtree(self._directory[parent_idx].child_id)
+        self._directory[parent_idx].child_id = self._rebuild_balanced_subtree(siblings)
+
     def drop_streams_in_storage(
         self, storage: str, predicate: "Callable[[str], bool]"
     ) -> list[str]:

@@ -1453,7 +1453,7 @@ class TestGate21_MutationRoundTrip:
         buf = _io.BytesIO()
         with _zipfile.ZipFile(buf, "w") as zout:
             zout.writestr("xl/vbaProject.bin", forged_vba)
-            for name, (data, info) in other.items():
+            for _name, (data, info) in other.items():
                 zout.writestr(info, data)
         out.write_bytes(buf.getvalue())
 

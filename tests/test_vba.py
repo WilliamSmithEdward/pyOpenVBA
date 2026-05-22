@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import struct
+from pathlib import Path
 
 import pytest
 
@@ -214,7 +215,9 @@ class TestCompress:
         # Round-trip must still hold.
         assert decompress(compressed) == data
 
-    def test_long_module_round_trip_through_excel_save(self, tmp_path) -> None:  # type: ignore[no-untyped-def]
+    def test_long_module_round_trip_through_excel_save(
+        self, tmp_path: Path
+    ) -> None:
         """Regression for the bug that crashed VBE on long fresh-add modules.
 
         Adding a module whose compressed source spans more than one 4096-byte
@@ -222,7 +225,6 @@ class TestCompress:
         chunk that Excel rejected as "An error occurred while loading
         <Module>".  This test exercises the full add-then-save-then-reopen
         round-trip with such a module."""
-        from pathlib import Path
         from pyopenvba.excel import ExcelFile
         from pyopenvba.vba import VBAModuleKind
 

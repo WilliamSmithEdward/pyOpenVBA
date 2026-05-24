@@ -3,6 +3,51 @@
 All notable changes to pyOpenVBA are documented here. This project follows
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2026-05-24
+
+### Added
+
+- **`WordFile`** -- full read/write support for Word macro-enabled files:
+  `.docm`, `.dotm` (OOXML/ZIP), and legacy `.doc` (raw CFB/BIFF8).
+  Exposes the same API as `ExcelFile`: `module_names()`, `get_module()`,
+  `set_module()`, `vba_project()`, `save()`, `pull_modules()`,
+  `push_modules()`.
+- **`PowerPointFile`** -- full read/write support for PowerPoint
+  macro-enabled files: `.pptm`, `.potm` (OOXML/ZIP), and legacy `.ppt`
+  (raw CFB). Same API surface as `ExcelFile` and `WordFile`.
+- **`WordFile.create_new(path)`** -- create a brand-new `.docm` from
+  scratch without launching Word. Ships with `ThisDocument` and an empty
+  `Module1`; opens cleanly with no repair prompt.
+- **`PowerPointFile.create_new(path)`** -- create a brand-new `.pptm`
+  from scratch without launching PowerPoint. Ships with an empty
+  `Module1`; opens cleanly with no repair prompt.
+- **`ExcelFile.create_new()` now supports `.xlsb`** in addition to
+  `.xlsm`. The extension in the path controls which baked-in template is
+  used.
+- **`pull_word(document, dest_dir)`** / **`push_word(src_dir, document)`**
+  -- disk-based pull/push helpers for Word, mirroring the Excel `pull()`
+  / `push()` API.
+- **`pull_ppt(presentation, dest_dir)`** / **`push_ppt(src_dir, presentation)`**
+  -- disk-based pull/push helpers for PowerPoint.
+- **`scripts/bake_xlsb_template.py`** -- bakes the empty `.xlsb` template
+  blob into `_templates/__init__.py` using the same splice pattern as the
+  docm/pptm bake scripts.
+- Class module creation is now fully supported across all three hosts.
+  When adding a class module via `add_module(kind=other)`, callers must
+  supply the full attribute header including
+  `Attribute VB_Base = "0{FCFB3D2A-A0FA-1068-A738-08002B3371B5}"` (the
+  universal VBA class CLSID); without it Office raises "Invalid procedure
+  call or argument" on instantiation.
+
+### Changed
+
+- `pyproject.toml` description updated to reflect all three supported
+  Office hosts; `word`, `powerpoint`, `docm`, and `pptm` added to
+  keywords.
+- README fully updated: tagline, supported formats tables, 30-second tour,
+  `create_new` section, and pull/push workflow section now cover Excel,
+  Word, and PowerPoint.
+
 ## [1.1.1] - 2026-05-22
 
 ### Fixed
@@ -113,5 +158,8 @@ MS-OVBA compression, module add/edit/rename/delete, `PROJECT`/`PROJECTwm`
 serialization, `_VBA_PROJECT` cache invalidation, and round-trip
 preservation including password-protected projects.
 
+[2.0.0]: https://github.com/WilliamSmithEdward/pyOpenVBA/compare/v1.1.1...v2.0.0
+[1.1.1]: https://github.com/WilliamSmithEdward/pyOpenVBA/compare/v1.1.0...v1.1.1
+[1.1.0]: https://github.com/WilliamSmithEdward/pyOpenVBA/compare/v1.0.1...v1.1.0
 [1.0.1]: https://github.com/WilliamSmithEdward/pyOpenVBA/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/WilliamSmithEdward/pyOpenVBA/releases/tag/v1.0.0

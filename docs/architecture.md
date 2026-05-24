@@ -23,6 +23,16 @@ knows about the layer below it but not the layer above.
 |   - save() pipeline (safety gates, structural rewrites)|
 |   - pull / push disk workflow                          |
 +--------------------------------------------------------+
+| word.py         WordFile facade                        |
+|   - ZIP / raw-CFB dispatch by extension                |
+|   - identical save() pipeline as ExcelFile             |
+|   - pull / push disk workflow                          |
++--------------------------------------------------------+
+| powerpoint.py   PowerPointFile facade                  |
+|   - ZIP / raw-CFB dispatch by extension                |
+|   - identical save() pipeline as ExcelFile             |
+|   - pull / push disk workflow                          |
++--------------------------------------------------------+
 | vba.py          VBA project layer                      |
 |   - MS-OVBA compression / decompression                |
 |   - dir / PROJECT / PROJECTwm / PROJECTlk parsers      |
@@ -67,11 +77,14 @@ change without notice.
 
 | Public name           | Defined in   | Purpose                              |
 |-----------------------|--------------|--------------------------------------|
-| `ExcelFile`           | `excel.py`   | Main facade; context manager         |
+| `ExcelFile`           | `excel.py`   | Excel facade; context manager        |
 | `ExcelFile.create_new`| `excel.py`   | Build a brand-new .xlsm from baked template |
+| `WordFile`            | `word.py`    | Word facade; context manager         |
 | `VBAModuleKind`       | `vba.py`     | enum: standard / class / document / designer |
-| `pull`                | `__init__.py`| One-call disk export                 |
-| `push`                | `__init__.py`| One-call disk import + save          |
+| `pull`                | `__init__.py`| One-call disk export (Excel)         |
+| `push`                | `__init__.py`| One-call disk import + save (Excel)  |
+| `pull_word`           | `__init__.py`| One-call disk export (Word)          |
+| `push_word`           | `__init__.py`| One-call disk import + save (Word)   |
 | `PyOpenVBAError`      | `exceptions.py` | Library root exception            |
 | `UnsupportedFormatError` | `exceptions.py` | Bad extension / host           |
 | `CFBError`            | `exceptions.py` | Malformed CFB                     |
@@ -159,13 +172,31 @@ removes signatures.
 
 ## 5. Outer-container dispatch
 
-`ExcelFile._open()` selects the container by extension:
+`ExcelFile._open()` and `WordFile._open()` each select the container by extension:
+
+**ExcelFile**
 
 | Extension                    | Container       | Implementation       |
 |------------------------------|-----------------|----------------------|
 | `.xlsm`, `.xlsb`, `.xlam`    | ZIP (OOXML)     | `_open_zip()`        |
 | `.xls`                       | raw CFB (BIFF8) | `_open_cfb_direct()` |
 | anything else                | n/a             | `UnsupportedFormatError` |
+
+**WordFile**
+
+| Extension        | Container         | VBA entry path           |
+|------------------|-------------------|---------------------------|
+| `.docm`, `.dotm` | ZIP (OOXML)       | `word/vbaProject.bin`    |
+| `.doc`           | raw CFB (Word 97) | (whole file is CFB)      |
+| anything else    | n/a               | `UnsupportedFormatError` |
+
+**PowerPointFile**
+
+| Extension        | Container              | VBA entry path         |
+|------------------|------------------------|------------------------|
+| `.pptm`, `.potm` | ZIP (OOXML)            | `ppt/vbaProject.bin`   |
+| `.ppt`           | raw CFB (PPT 97)       | (whole file is CFB)    |
+| anything else    | n/a                    | `UnsupportedFormatError` |
 
 For the ZIP case, the VBA project is at the fixed path
 `xl/vbaProject.bin`. On save, exactly that entry is replaced while
@@ -218,13 +249,17 @@ Rules:
 
 ```
 tests/
-  test_cfb.py            CFB primitives + round-trip
-  test_vba.py            MS-OVBA codec + dir/PROJECT parsers
-  test_excel.py          ExcelFile facade, end-to-end
-  test_pull_push.py      Disk workflow
-  test_gates.py          Per-roadmap-gate regression tests
-  fuzz_corpus/           Persistent fuzz seeds (see test_gates.py Gate 23)
-  live_excel_testing/    Real fixture workbooks
+  test_cfb.py                  CFB primitives + round-trip
+  test_vba.py                  MS-OVBA codec + dir/PROJECT parsers
+  test_excel.py                ExcelFile facade, end-to-end
+  test_word.py                 WordFile facade, end-to-end
+  test_powerpoint.py           PowerPointFile facade, end-to-end
+  test_pull_push.py            Disk workflow
+  test_gates.py                Per-roadmap-gate regression tests
+  fuzz_corpus/                 Persistent fuzz seeds (see test_gates.py Gate 23)
+  live_excel_testing/          Real fixture workbooks (Excel)
+  live_word_testing/           Real fixture documents (Word)
+  live_powerpoint_testing/     Real fixture presentations (PowerPoint)
 ```
 
 - **Always** run pytest with `-p no:randomly` to keep ordering
@@ -265,7 +300,9 @@ files in the same commit:
 | New layer / module                           | This file (sections 1 and 2), README architecture box |
 | New roadmap gate or status change            | `docs/roadmap.md`                                 |
 | New mutation safety gate                     | This file section 4, README "Safety guards"       |
-| New supported file extension                 | `excel.py` dispatch, README table, this file section 5 |
+| New supported file extension (Excel)         | `excel.py` dispatch, README table, this file section 5       |
+| New supported file extension (Word)          | `word.py` dispatch, README table, this file section 5        |
+| New supported file extension (PowerPoint)    | `powerpoint.py` dispatch, README table, this file section 5  |
 | New test file or fuzz target                 | This file section 8                               |
 | Spec/behavior change worth telling other implementers | `docs/ms-ovba-implementation-guide_v2.md` |
 

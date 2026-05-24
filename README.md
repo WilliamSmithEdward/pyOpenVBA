@@ -1,4 +1,4 @@
-# pyOpenVBA
+﻿# pyOpenVBA
 
 [![PyPI version](https://img.shields.io/pypi/v/pyOpenVBA.svg)](https://pypi.org/project/pyOpenVBA/)
 [![Python versions](https://img.shields.io/pypi/pyversions/pyOpenVBA.svg)](https://pypi.org/project/pyOpenVBA/)
@@ -6,13 +6,16 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.md)
 [![Downloads](https://img.shields.io/pypi/dm/pyOpenVBA.svg)](https://pypi.org/project/pyOpenVBA/)
 
-**Read and write the VBA macros inside Excel workbooks, in pure Python.**
+**Read and write VBA macros inside Excel, Word, and PowerPoint files, in pure Python.**
 
-No external dependencies. No Excel install required. Works on Windows,
+No external dependencies. No Office install required. Works on Windows,
 macOS, and Linux. Python 3.10 or newer.
 
-  
-Supports `.xlsm`, `.xlsb`, `.xlam`, and legacy `.xls`.
+Supports:
+
+* Excel (`.xlsm`, `.xlsb`, `.xlam`, `.xls`)
+* PowerPoint (`.pptm`, `.potm`, `.ppt`)
+* Word (`.docm`, `.dotm`, `.doc`)
 
 <a href="https://github.com/sponsors/WilliamSmithEdward"><img src="https://img.shields.io/badge/Sponsor-%E2%9D%A4-pink?style=for-the-badge" alt="Sponsor WilliamSmithEdward"></a>
 
@@ -21,10 +24,10 @@ Supports `.xlsm`, `.xlsb`, `.xlam`, and legacy `.xls`.
 ## Why use this?
 
 Several excellent Python tools already exist for **reading** VBA out of
-Excel files (oletools, olefile, and friends), and they remain a strong
+Office files (oletools, olefile, and friends), and they remain a strong
 choice for forensics, malware analysis, and audit use-cases. pyOpenVBA
-focuses on the next step: safely **writing** changes back so the
-workbook still opens cleanly in Excel.
+focuses on the next step: safely **writing** changes back so the file
+still opens cleanly in the host application.
 
 The write path is the whole point of the library:
 
@@ -35,28 +38,26 @@ The write path is the whole point of the library:
   declaration, `PROJECTwm` name map, and `Attribute VB_Name` are all
   updated in lockstep).
 - **Delete** a module cleanly.
-- **Save** the workbook and have it reopen in Excel with no "we found
-  a problem with some content" repair dialog. Every supported format
-  (`.xlsm`, `.xlsb`, `.xlam`, `.xls`) is verified against live Excel.
-- **Create** new `.xlsm` files on the fly, and inject VBA code into them.
+- **Save** the file and have it reopen in the host application with no
+  repair dialog. Every supported format is verified against live Office.
+- **Create** new `.xlsm`, `.xlsb`, `.docm`, or `.pptm` files on the
+  fly, and inject VBA code into them.
 
 That makes it a good fit for:
 
 - **Version-controlling your VBA** in git like normal source code, then
-  pushing edits back without ever opening Excel.
-- **Diffing** two workbooks to see what changed in `Module1`.
+  pushing edits back without ever opening Office.
+- **Diffing** two workbooks or documents to see what changed in a module.
 - **Generating or updating macros from a script** without scripting
-  Excel through COM automation.
-- **Reading and writing macros on a server** (Linux / CI) where Excel
+  Office through COM automation.
+- **Reading and writing macros on a server** (Linux / CI) where Office
   is not installed.
-- **Agentic AI Integration** allow your AI agent easy access to
-  both push and pull VBA code in your workbook.
+- **Agentic AI Integration** - allow your AI agent easy access to
+  both push and pull VBA code in your Office files.
 
 pyOpenVBA is a complete read-and-write library, so it covers the full
 lifecycle of a VBA project in one place: extract, edit, version, write
-back, and verify. If you only ever need to read, the existing tools
-remain a solid choice; if you might ever need to write, start here and
-you will not have to switch later.
+back, and verify.
 
 ## Installation
 
@@ -87,6 +88,8 @@ pip install -e ".[dev]"
 
 ## 30-second tour
 
+### Excel
+
 ```python
 from pyopenvba import ExcelFile
 
@@ -105,32 +108,74 @@ with ExcelFile("workbook.xlsm") as wb:
     # wb.save("edited.xlsm")        # ...or save to a new file
 ```
 
-That is the entire core API. Three methods.
+### Word
+
+```python
+from pyopenvba import WordFile
+
+with WordFile("document.docm") as doc:
+    print(doc.module_names())
+    # ['ThisDocument', 'Module1']
+
+    doc.set_module("Module1", 'Sub Hello()\r\n    MsgBox "hi"\r\nEnd Sub\r\n')
+    doc.save()
+```
+
+### PowerPoint
+
+```python
+from pyopenvba import PowerPointFile
+
+with PowerPointFile("presentation.pptm") as prs:
+    print(prs.module_names())
+    # ['Module1']
+
+    prs.set_module("Module1", 'Sub Hello()\r\n    MsgBox "hi"\r\nEnd Sub\r\n')
+    prs.save()
+```
+
+The API is identical across all three hosts: `module_names()`, `get_module()`,
+`set_module()`, `save()`.
 
 ---
 
-## Create a brand-new .xlsm from scratch
+## Create a brand-new file from scratch
 
-Need a fresh macro-enabled workbook without launching Excel? Use
-`ExcelFile.create_new()`:
+Need a fresh macro-enabled file without launching Office? Use
+`create_new()` on any of the three file classes. The extension in the
+path controls the format:
 
 ```python
-from pyopenvba import ExcelFile
+from pyopenvba import ExcelFile, WordFile, PowerPointFile
 
+# Excel - macro-enabled workbook (.xlsm) or binary workbook (.xlsb)
 with ExcelFile.create_new("new_book.xlsm") as wb:
-    wb.set_module(
-        "Module1",
-        'Sub Hello()\r\n    MsgBox "hello from python"\r\nEnd Sub\r\n',
-    )
+    wb.set_module("Module1", 'Sub Hello()\r\n    MsgBox "xlsm"\r\nEnd Sub\r\n')
     wb.save()
+
+with ExcelFile.create_new("new_book.xlsb") as wb:
+    wb.set_module("Module1", 'Sub Hello()\r\n    MsgBox "xlsb"\r\nEnd Sub\r\n')
+    wb.save()
+
+# Word - macro-enabled document (.docm)
+with WordFile.create_new("new_doc.docm") as doc:
+    doc.set_module("Module1", 'Sub Hello()\r\n    MsgBox "docm"\r\nEnd Sub\r\n')
+    doc.save()
+
+# PowerPoint - macro-enabled presentation (.pptm)
+with PowerPointFile.create_new("new_prs.pptm") as prs:
+    prs.set_module("Module1", 'Sub Hello()\r\n    MsgBox "pptm"\r\nEnd Sub\r\n')
+    prs.save()
 ```
 
-The new workbook ships with `ThisWorkbook`, `Sheet1`, and an empty
-`Module1`, and opens cleanly in Excel with no repair prompt.
+Each new file is built from a baked-in template captured from a
+freshly Office-authored file, so it opens cleanly with no repair prompt.
 
 ---
 
 ## Add, rename, or delete a module
+
+The same `vba_project()` API works for all three hosts:
 
 ```python
 from pyopenvba import ExcelFile, VBAModuleKind
@@ -138,11 +183,29 @@ from pyopenvba import ExcelFile, VBAModuleKind
 with ExcelFile("workbook.xlsm") as wb:
     project = wb.vba_project()
 
+    # Add a standard module
     project.add_module(
         "NewModule",
-        "Sub Hi()\r\n    MsgBox \"hi\"\r\nEnd Sub\r\n",
+        'Sub Hi()\r\n    MsgBox "hi"\r\nEnd Sub\r\n',
         kind=VBAModuleKind.standard,
     )
+
+    # Add a class module (VB_Base attribute is required)
+    _CLASS_VB_BASE = "0{FCFB3D2A-A0FA-1068-A738-08002B3371B5}"
+    project.add_module(
+        "MyClass",
+        f'Attribute VB_Name = "MyClass"\r\n'
+        f'Attribute VB_Base = "{_CLASS_VB_BASE}"\r\n'
+        "Attribute VB_GlobalNameSpace = False\r\n"
+        "Attribute VB_Creatable = False\r\n"
+        "Attribute VB_PredeclaredId = False\r\n"
+        "Attribute VB_Exposed = False\r\n"
+        "Attribute VB_TemplateDerived = False\r\n"
+        "Attribute VB_Customizable = False\r\n"
+        "Option Explicit\r\n",
+        kind=VBAModuleKind.other,
+    )
+
     project.rename_module("OldName", "NewName")
     project.delete_module("Obsolete")
 
@@ -155,20 +218,22 @@ with ExcelFile("workbook.xlsm") as wb:
 
 This is the easiest way to manage VBA in a git repo. Export every
 module to a folder, edit the files in any text editor, then push the
-changes back into the workbook.
+changes back.
+
+### Excel
 
 From the command line:
 
 ```bash
-# 1. Pull every module out of the workbook into ./vba/
+# Pull every module out of the workbook into ./vba/
 python -m pyopenvba pull workbook.xlsm ./vba
 
-# 2. ...edit ./vba/Module1.bas in your editor of choice...
+# ...edit ./vba/Module1.bas in your editor of choice...
 
-# 3. Push your edits back into the workbook
+# Push your edits back into the workbook
 python -m pyopenvba push ./vba workbook.xlsm
 
-# Bonus: list modules without extracting anything
+# List modules without extracting
 python -m pyopenvba ls workbook.xlsm
 ```
 
@@ -178,33 +243,70 @@ From Python:
 from pyopenvba import pull, push
 
 pull("workbook.xlsm", "./vba")
-# ...edit files...
-push("./vba", "workbook.xlsm")                       # in place
-push("./vba", "workbook.xlsm", out="edited.xlsm")    # to a new file
+push("./vba", "workbook.xlsm")                    # in place
+push("./vba", "workbook.xlsm", out="edited.xlsm") # to a new file
+```
+
+### Word
+
+```python
+from pyopenvba import pull_word, push_word
+
+pull_word("document.docm", "./vba")
+push_word("./vba", "document.docm")
+push_word("./vba", "document.docm", out="edited.docm")
+```
+
+### PowerPoint
+
+```python
+from pyopenvba import pull_ppt, push_ppt
+
+pull_ppt("presentation.pptm", "./vba")
+push_ppt("./vba", "presentation.pptm")
+push_ppt("./vba", "presentation.pptm", out="edited.pptm")
 ```
 
 Module files use the extensions VBA already uses: `.bas` for standard
-modules, `.cls` for class modules, `.frm` for UserForm code-behind.
+modules, `.cls` for class modules and code-behind.
 
 ---
 
 ## Supported formats
 
-| Extension | What it is                   | Read | Write |
-|-----------|------------------------------|:----:|:-----:|
-| `.xlsm`   | Macro-enabled workbook       |  yes |  yes  |
-| `.xlsb`   | Binary workbook              |  yes |  yes  |
-| `.xlam`   | Macro-enabled add-in         |  yes |  yes  |
-| `.xls`    | Legacy (Excel 97-2003)       |  yes |  yes  |
+### Excel
 
-Every save is verified to reopen in Excel **without** the "we found a
-problem with some content" repair dialog.
+| Extension | What it is                   | Read | Write | create_new |
+|-----------|------------------------------|:----:|:-----:|:----------:|
+| `.xlsm`   | Macro-enabled workbook       |  yes |  yes  |    yes     |
+| `.xlsb`   | Binary workbook              |  yes |  yes  |    yes     |
+| `.xlam`   | Macro-enabled add-in         |  yes |  yes  |    no      |
+| `.xls`    | Legacy (Excel 97-2003)       |  yes |  yes  |    no      |
+
+### Word
+
+| Extension | What it is                   | Read | Write | create_new |
+|-----------|------------------------------|:----:|:-----:|:----------:|
+| `.docm`   | Macro-enabled document       |  yes |  yes  |    yes     |
+| `.dotm`   | Macro-enabled template       |  yes |  yes  |    no      |
+| `.doc`    | Legacy (Word 97-2003)        |  yes |  yes  |    no      |
+
+### PowerPoint
+
+| Extension | What it is                   | Read | Write | create_new |
+|-----------|------------------------------|:----:|:-----:|:----------:|
+| `.pptm`   | Macro-enabled presentation   |  yes |  yes  |    yes     |
+| `.potm`   | Macro-enabled template       |  yes |  yes  |    no      |
+| `.ppt`    | Legacy (PowerPoint 97-2003)  |  yes |  yes  |    no      |
+
+Every save is verified to reopen in the host application **without** the
+"we found a problem with some content" repair dialog.
 
 ---
 
 ## Safety guards
 
-`save()` refuses to silently produce a broken workbook.
+`save()` refuses to silently produce a broken file.
 
 ### Password-protected projects
 
@@ -216,8 +318,8 @@ wb.save(allow_protected=True)
 ```
 
 The library never tries to decrypt or change the password - it just
-preserves the existing protection bytes verbatim. The resulting
-workbook still requires the original password to open the VBE.
+preserves the existing protection bytes verbatim. The resulting file
+still requires the original password to open the VBE.
 
 ### Digitally-signed projects
 
@@ -255,12 +357,16 @@ See [docs/roadmap.md](docs/roadmap.md) for the full feature matrix.
 
 ```
 src/pyopenvba/
-  __init__.py     public API (ExcelFile, pull, push, exceptions)
+  __init__.py     public API (ExcelFile, WordFile, PowerPointFile,
+                              pull/push, pull_word/push_word, pull_ppt/push_ppt,
+                              VBAModuleKind, exceptions)
   excel.py        ExcelFile facade (ZIP / CFB dispatch, pull/push helpers)
+  word.py         WordFile facade
+  powerpoint.py   PowerPointFile facade
   vba.py          VBA project parser + MS-OVBA codec
   cfb.py          MS-CFB (Compound File Binary) parser/writer
   exceptions.py   custom exception hierarchy
-  _templates/     baked-in empty .xlsm bytes for ExcelFile.create_new()
+  _templates/     baked-in empty .xlsm/.xlsb/.docm/.pptm bytes for create_new()
   __main__.py     `python -m pyopenvba {pull,push,ls}` CLI
 ```
 
@@ -268,17 +374,16 @@ For deeper documentation:
 
 - [docs/architecture.md](docs/architecture.md) - internal module layout.
 - [docs/ms-ovba-implementation-guide_v2.md](docs/ms-ovba-implementation-guide_v2.md) -
-  language-agnostic guide for re-implementing MS-OVBA in another
-  language.
+  language-agnostic guide for re-implementing MS-OVBA in another language.
 - [docs/roadmap.md](docs/roadmap.md) - per-feature implementation status.
 
 ---
 
 ## Contributing
 
-Bug reports, weird workbooks that break the library, and PRs are all
-welcome. Please include the workbook (or a minimal redacted version)
-when filing a parsing bug.
+Bug reports, weird files that break the library, and PRs are all
+welcome. Please include the file (or a minimal redacted version) when
+filing a parsing bug.
 
 Run the full local check (same as CI):
 

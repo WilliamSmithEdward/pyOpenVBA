@@ -1,18 +1,18 @@
 """
-Excel file handler.
+Word file handler.
 
 Supports:
-  - .xlsm  (OOXML macro-enabled workbook — ZIP containing xl/vbaProject.bin)
-  - .xlsb  (Binary workbook — ZIP containing xl/vbaProject.bin)
-  - .xls   (Legacy BIFF8 — the entire file is a CFB)
+  - .docm  (OOXML macro-enabled document -- ZIP containing word/vbaProject.bin)
+  - .dotm  (OOXML macro-enabled template -- ZIP containing word/vbaProject.bin)
+  - .doc   (Legacy Word -- the entire file is a CFB)
 
 Usage
 -----
-    with ExcelFile("book.xlsm") as wb:
-        project = wb.vba_project()        # -> VBAProject
-        modules = wb.vba_modules()        # -> dict[str, str]
-        wb.set_module("Module1", src)
-        wb.save("book_out.xlsm")
+    with WordFile("document.docm") as doc:
+        project = doc.vba_project()       # -> VBAProject
+        modules = doc.vba_modules()       # -> dict[str, str]
+        doc.set_module("Module1", src)
+        doc.save("document_out.docm")
 """
 
 from __future__ import annotations
@@ -37,27 +37,22 @@ from pyopenvba.vba import (
     serialize_projectwm,
 )
 
-_ZIP_FORMATS = frozenset({".xlsm", ".xlsb", ".xlam"})
-_CFB_FORMATS = frozenset({".xls"})
-_VBA_ENTRY = "xl/vbaProject.bin"
+_ZIP_FORMATS = frozenset({".docm", ".dotm"})
+_CFB_FORMATS = frozenset({".doc"})
+_VBA_ENTRY = "word/vbaProject.bin"
 
-# File extensions used by the VBE export/import workflow.
-# - Standard procedural modules -> .bas
-# - Everything else (class, document/sheet/workbook, designer/form) -> .cls
-# We do not write .frm/.frx layout bytes; UserForm layout is preserved
-# inside the CFB and never round-trips through disk.
 _BAS_EXT = ".bas"
 _CLS_EXT = ".cls"
 _SOURCE_EXTS = frozenset({_BAS_EXT, _CLS_EXT})
 
 
-class ExcelFile:
+class WordFile:
     """
-    Open an Excel file and provide access to its VBA project.
+    Open a Word file and provide access to its VBA project.
 
     Can be used as a context manager::
 
-        with ExcelFile("book.xlsm") as wb:
+        with WordFile("document.docm") as doc:
             ...
     """
 
@@ -66,7 +61,6 @@ class ExcelFile:
         self._suffix = self._path.suffix.lower()
         self._zip: zipfile.ZipFile | None = None
         self._cfb: CFB | None = None
-        self._zip_bytes: bytes | None = None
         self._project: VBAProject | None = None
         self._open()
 
@@ -75,37 +69,30 @@ class ExcelFile:
     # ------------------------------------------------------------------
 
     @classmethod
-    def create_new(cls, path: Union[str, Path]) -> "ExcelFile":
+    def create_new(cls, path: Union[str, Path]) -> "WordFile":
         """
-        Create a new macro-enabled workbook at ``path`` containing an empty
-        VBA project (``ThisWorkbook``, ``Sheet1``, and a bare ``Module1``)
-        and return an open :class:`ExcelFile` for it.
-
-        Supported extensions: ``.xlsm`` (default) and ``.xlsb``.
+        Create a new macro-enabled document (``.docm``) at ``path``
+        containing an empty VBA project (``ThisDocument`` and a bare
+        ``Module1``) and return an open :class:`WordFile` for it.
 
         The bytes are decoded from a baked-in template captured from a
-        freshly Excel-authored workbook, so the resulting file opens
-        cleanly in Excel without any "found a problem" repair prompt.
+        freshly Word-authored document, so the resulting file opens
+        cleanly in Word without any repair prompt.
 
         ``path`` is overwritten if it already exists.
         """
+        from pyopenvba._templates import EMPTY_DOCM_BYTES
+
         target = Path(path)
-        suffix = target.suffix.lower()
-        if suffix == ".xlsb":
-            from pyopenvba._templates import EMPTY_XLSB_BYTES
-            template = EMPTY_XLSB_BYTES
-        else:
-            from pyopenvba._templates import EMPTY_XLSM_BYTES
-            template = EMPTY_XLSM_BYTES
         target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_bytes(template)
+        target.write_bytes(EMPTY_DOCM_BYTES)
         return cls(target)
 
     # ------------------------------------------------------------------
     # Context manager
     # ------------------------------------------------------------------
 
-    def __enter__(self) -> "ExcelFile":
+    def __enter__(self) -> "WordFile":
         return self
 
     def __exit__(self, *_: object) -> None:
@@ -128,8 +115,8 @@ class ExcelFile:
         return self._project
 
     def vba_project_bytes(self) -> bytes:
-        """Return the raw bytes of ``xl/vbaProject.bin`` (or the whole CFB
-        file for legacy ``.xls``)."""
+        """Return the raw bytes of ``word/vbaProject.bin`` (or the whole CFB
+        file for legacy ``.doc``)."""
         if self._suffix in _CFB_FORMATS:
             return self._path.read_bytes()
         assert self._zip is not None
@@ -154,9 +141,8 @@ class ExcelFile:
         ``source`` may be either a full source replacement (starting with
         ``Attribute VB_*`` or ``VERSION ... CLASS``) or a bare body.  When
         a bare body is supplied, the module's existing attribute header is
-        automatically re-prepended so document modules (``ThisWorkbook``,
-        ``Sheet1``, ...) keep their host-binding ``Attribute VB_*`` lines.
-        This mirrors the VBE UX where the user only types the body.
+        automatically re-prepended so document modules keep their host-binding
+        ``Attribute VB_*`` lines.
 
         Changes are not written to disk until :meth:`save` is called.
         """
@@ -166,7 +152,6 @@ class ExcelFile:
             if m.name.casefold() == name.casefold():
                 supplied_header, _ = split_attribute_header(source)
                 if supplied_header:
-                    # Full-source replacement — also refresh the cached header.
                     m.source = source
                     m.attribute_header = supplied_header
                 else:
@@ -197,9 +182,7 @@ class ExcelFile:
 
         Standard procedural modules are written as ``<name>.bas``; class,
         document, and designer modules are written as ``<name>.cls``.
-        Source bytes use CRLF line endings to match VBE's own export
-        format. UserForm layout (``.frx``) is **not** exported — it is
-        preserved verbatim inside the workbook on save.
+        Source bytes use CRLF line endings to match VBE's own export format.
 
         Returns the list of file paths written.
         """
@@ -231,19 +214,14 @@ class ExcelFile:
         Update module source from files in ``src_dir``.
 
         Each ``<name>.bas`` or ``<name>.cls`` file is matched (case-
-        insensitively) to a module of the same logical name and its
-        source replaces the module's current source. Line endings are
-        normalised to CRLF.
+        insensitively) to a module of the same logical name and its source
+        replaces the module's current source.  Line endings are normalised
+        to CRLF.
 
-        Files whose stem does not match any module are reported via
-        ``strict``:
+        Files whose stem does not match any module are silently skipped
+        (``strict=False``) or raise :class:`KeyError` (``strict=True``).
 
-        - ``strict=False`` (default): unmatched files are ignored.
-        - ``strict=True``: raises :class:`KeyError` on the first
-          unmatched file.
-
-        Does **not** write to disk — call :meth:`save` afterwards to
-        persist.
+        Does **not** write to disk -- call :meth:`save` afterwards.
 
         Returns the list of module names that were updated.
         """
@@ -285,38 +263,25 @@ class ExcelFile:
         allow_invalidate_signature: bool = False,
     ) -> None:
         """
-        Save the workbook, applying any pending module edits.
+        Save the document, applying any pending module edits.
 
         ``dest`` defaults to the original file path (in-place overwrite).
 
-        Only ``xl/vbaProject.bin`` is rewritten; every other ZIP entry is
-        preserved byte-for-byte along with its compression method and
-        metadata so the workbook's non-VBA structure remains intact.
+        Only ``word/vbaProject.bin`` is rewritten; every other ZIP entry is
+        preserved byte-for-byte.
 
-        Legacy ``.xls`` (raw CFB) writes the CFB bytes directly.
+        Legacy ``.doc`` (raw CFB) writes the CFB bytes directly.
 
-        Safety gates:
+        Safety gates mirror those of :class:`~pyopenvba.excel.ExcelFile`:
 
-        - If the project is password-protected (``has_password``) and the
-          save would emit any change, raise ``VBAProjectError`` unless
-          ``allow_protected=True`` is passed.  Saving a protected project
-          without re-encrypting the password material would leave the
-          workbook in an inconsistent state.
-        - If the project carries any digital-signature stream and the
-          save would emit any change, the existing signature streams are
-          dropped (they are guaranteed to be stale) and a
-          ``UserWarning`` is emitted.  Set
-          ``allow_invalidate_signature=True`` to silence the warning.
-        - If the save would emit any change, the ``_VBA_PROJECT``
-          performance cache body is zeroed (header preserved) so Office
-          regenerates the cache on next open ([MS-OVBA] 2.3.4.1).
+        - Password-protected projects raise ``VBAProjectError`` on mutation
+          unless ``allow_protected=True`` is passed.
+        - Digital-signature streams are dropped on mutation with a
+          ``UserWarning`` unless ``allow_invalidate_signature=True``.
         """
         cfb = self._get_cfb()
         if self._project is not None:
             project = self._project
-            # Snapshot pending mutations.  Logical name == stream name in
-            # Excel-saved files, so these dicts drive both the CFB-level
-            # operations and the PROJECT-stream rewrite.
             rename_map = dict(project.pending_renames)
             add_names = set(project.pending_adds)
             delete_names = set(project.pending_deletes)
@@ -325,8 +290,6 @@ class ExcelFile:
                 rename_map or add_names or delete_names or has_source_edits
             )
 
-            # Safety gate 1: refuse to mutate a password-protected project
-            # unless the caller explicitly opts in.
             if (
                 mutating
                 and project.protection is not None
@@ -337,11 +300,9 @@ class ExcelFile:
                     "Refusing to save: the VBA project is password-protected. "
                     "Pass allow_protected=True to override (the password "
                     "material will be preserved verbatim, which may leave "
-                    "the workbook inconsistent)."
+                    "the document inconsistent)."
                 )
 
-            # Safety gate 2: any change invalidates a present digital
-            # signature.  Drop the stale signature streams and warn.
             if mutating:
                 sig_info = detect_signature(cfb)
                 if sig_info.present:
@@ -369,15 +330,12 @@ class ExcelFile:
                             stacklevel=2,
                         )
 
-            # 1. Apply renames first so that pre-existing streams are at
-            #    their new names before any other lookup runs.
             for old, new in rename_map.items():
                 try:
                     cfb.rename_stream_in_storage("VBA", old, new)
                 except KeyError:
                     pass
 
-            # 2. Create brand-new streams for pending adds.
             add_modules_for_project: list[tuple[str, str]] = []
             for name in add_names:
                 module = next(
@@ -389,7 +347,6 @@ class ExcelFile:
                 try:
                     cfb.add_stream_to_storage("VBA", name, seed)
                 except ValueError:
-                    # Stream already exists (e.g. add-then-save called twice).
                     cfb.write_stream_in_storage("VBA", name, seed)
                 module.dirty = False
                 decl_key = (
@@ -397,7 +354,6 @@ class ExcelFile:
                 )
                 add_modules_for_project.append((module.name, decl_key))
 
-            # 3. Delete streams the user removed in-memory.
             for name in delete_names:
                 try:
                     cfb.remove_stream_in_storage("VBA", name)
@@ -408,15 +364,8 @@ class ExcelFile:
             project.pending_adds.clear()
             project.pending_deletes.clear()
 
-            # 4. Replace contents of any remaining dirty (pre-existing) modules.
             write_back_modules(cfb, project)
 
-            # 5. Rewrite the dir + PROJECT streams when the module set's
-            #    identity has changed (add / rename / delete).  PROJECT is
-            #    always rewritten on a structural save so that any duplicate
-            #    declarations or stale ``[Workspace]`` entries left behind by
-            #    earlier buggy writes are scrubbed via the dedup pass in
-            #    ``serialize_project_stream``.
             if project.dir_structure_dirty:
                 new_dir_raw = serialize_dir_stream(project)
                 cfb.write_stream_in_storage("VBA", "dir", compress(new_dir_raw))
@@ -432,9 +381,6 @@ class ExcelFile:
                         delete_names=delete_names,
                     )
                     cfb.write_stream("PROJECT", new_project)
-                # Rewrite PROJECTwm to enumerate the current module set in
-                # both MBCS and Unicode forms.  Required whenever the module
-                # identity set changes ([MS-OVBA] 2.3.4.4).
                 try:
                     cfb.get_stream_in_storage("VBA", "PROJECTwm")
                 except KeyError:
@@ -451,18 +397,14 @@ class ExcelFile:
                     )
                 project.dir_structure_dirty = False
 
-            # 6. Invalidate the _VBA_PROJECT performance cache so Office
-            #    regenerates it on next open ([MS-OVBA] 2.3.4.1 -- the
-            #    cache MUST be ignored on read; the verbatim cache may
-            #    reference offsets that no longer match the updated
-            #    module set or source).
             if mutating:
                 invalidate_vba_project_cache(cfb)
-        # [MS-OVBA] writers MUST NOT emit performance-cache (__SRP_*) streams.
+
         try:
             cfb.drop_streams_in_storage("VBA", lambda n: n.startswith("__SRP_"))
         except KeyError:
             pass
+
         new_cfb_bytes = cfb.to_bytes()
         out_path = Path(dest) if dest is not None else self._path
 
@@ -471,7 +413,7 @@ class ExcelFile:
             return
 
         if self._zip is None:
-            raise RuntimeError("ExcelFile is not open.")
+            raise RuntimeError("WordFile is not open.")
 
         buf = io.BytesIO()
         with zipfile.ZipFile(buf, "w") as out_zip:
@@ -514,12 +456,11 @@ class ExcelFile:
 
     def _open_zip(self) -> None:
         raw = self._path.read_bytes()
-        self._zip_bytes = raw
         self._zip = zipfile.ZipFile(io.BytesIO(raw), mode="r")
         if _VBA_ENTRY not in self._zip.namelist():
             raise VBAProjectError(
                 f"{self._path.name!r} contains no {_VBA_ENTRY!r}. "
-                "Make sure the workbook has a VBA project (save as .xlsm in Excel)."
+                "Make sure the document has a VBA project (save as .docm in Word)."
             )
 
     def _open_cfb_direct(self) -> None:
@@ -530,7 +471,7 @@ class ExcelFile:
         if self._cfb is not None:
             return self._cfb
         if self._zip is None:
-            raise RuntimeError("ExcelFile is not open.")
+            raise RuntimeError("WordFile is not open.")
         vba_bin = self._zip.read(_VBA_ENTRY)
         self._cfb = CFB.from_bytes(vba_bin)
         return self._cfb

@@ -755,12 +755,14 @@ class VBAProject:
         elif kind == VBAModuleKind.standard:
             header = synthesize_standard_header(name)
             full_source = header + source
+        elif kind == VBAModuleKind.other:
+            header = synthesize_class_header(name)
+            full_source = header + source
         else:
             raise ValueError(
                 f"add_module(kind={kind.name}) requires the source to start "
-                "with its own attribute header (e.g. 'VERSION 1.0 CLASS' "
-                "for a class module).  pyOpenVBA does not invent class or "
-                "document module headers."
+                "with its own attribute header.  pyOpenVBA does not invent "
+                "document or designer module headers."
             )
 
         module = VBAModule(
@@ -979,6 +981,33 @@ def split_attribute_header(source: str) -> tuple[str, str]:
 def synthesize_standard_header(name: str) -> str:
     """Return the minimum attribute header for a new standard module."""
     return f'Attribute VB_Name = "{name}"\r\n'
+
+
+# Universal CLSID for plain VBA class modules (not document/designer modules).
+_CLASS_MODULE_CLSID = "0{FCFB3D2A-A0FA-1068-A738-08002B3371B5}"
+
+
+def synthesize_class_header(name: str) -> str:
+    """Return the standard attribute header for a new plain class module.
+
+    Uses the universal VBA class CLSID as ``VB_Base`` and the conventional
+    default values for all other class attributes.  This header is equivalent
+    to what VBE emits when you insert a new Class Module.
+
+    Only suitable for plain class modules.  Document modules (ThisWorkbook,
+    Sheet1, ThisDocument, etc.) and designer modules (UserForms) carry host-
+    specific CLSIDs and must be provided with an explicit attribute header.
+    """
+    return (
+        f'Attribute VB_Name = "{name}"\r\n'
+        f'Attribute VB_Base = "{_CLASS_MODULE_CLSID}"\r\n'
+        'Attribute VB_GlobalNameSpace = False\r\n'
+        'Attribute VB_Creatable = False\r\n'
+        'Attribute VB_PredeclaredId = False\r\n'
+        'Attribute VB_Exposed = False\r\n'
+        'Attribute VB_TemplateDerived = False\r\n'
+        'Attribute VB_Customizable = False\r\n'
+    )
 
 
 def rebuild_module_stream(module: VBAModule, code_page: int) -> bytes:

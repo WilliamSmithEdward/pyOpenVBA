@@ -3,7 +3,7 @@
 [![PyPI version](https://img.shields.io/pypi/v/pyOpenVBA.svg)](https://pypi.org/project/pyOpenVBA/)
 [![Python versions](https://img.shields.io/pypi/pyversions/pyOpenVBA.svg)](https://pypi.org/project/pyOpenVBA/)
 [![CI](https://github.com/WilliamSmithEdward/pyOpenVBA/actions/workflows/ci.yml/badge.svg)](https://github.com/WilliamSmithEdward/pyOpenVBA/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.md)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/LICENSE.md)
 [![Downloads](https://img.shields.io/pypi/dm/pyOpenVBA.svg)](https://pypi.org/project/pyOpenVBA/)
 
 **Read and write VBA macros inside Excel, Word, and PowerPoint files, in pure Python.**
@@ -190,18 +190,9 @@ with ExcelFile("workbook.xlsm") as wb:
         kind=VBAModuleKind.standard,
     )
 
-    # Add a class module (VB_Base attribute is required)
-    _CLASS_VB_BASE = "0{FCFB3D2A-A0FA-1068-A738-08002B3371B5}"
+    # Add a class module (header is synthesized automatically)
     project.add_module(
         "MyClass",
-        f'Attribute VB_Name = "MyClass"\r\n'
-        f'Attribute VB_Base = "{_CLASS_VB_BASE}"\r\n'
-        "Attribute VB_GlobalNameSpace = False\r\n"
-        "Attribute VB_Creatable = False\r\n"
-        "Attribute VB_PredeclaredId = False\r\n"
-        "Attribute VB_Exposed = False\r\n"
-        "Attribute VB_TemplateDerived = False\r\n"
-        "Attribute VB_Customizable = False\r\n"
         "Option Explicit\r\n",
         kind=VBAModuleKind.other,
     )
@@ -349,7 +340,7 @@ following are preserved byte-for-byte but not interpreted:
 - Re-signing digitally signed projects.
 - ActiveX license editing.
 
-See [docs/roadmap.md](docs/roadmap.md) for the full feature matrix.
+See [docs/roadmap.md](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/docs/roadmap.md) for the full feature matrix.
 
 ---
 
@@ -359,7 +350,7 @@ See [docs/roadmap.md](docs/roadmap.md) for the full feature matrix.
 src/pyopenvba/
   __init__.py     public API (ExcelFile, WordFile, PowerPointFile,
                               pull/push, pull_word/push_word, pull_ppt/push_ppt,
-                              VBAModuleKind, exceptions)
+                              VBAModuleKind, synthesize_class_header, exceptions)
   excel.py        ExcelFile facade (ZIP / CFB dispatch, pull/push helpers)
   word.py         WordFile facade
   powerpoint.py   PowerPointFile facade
@@ -372,10 +363,10 @@ src/pyopenvba/
 
 For deeper documentation:
 
-- [docs/architecture.md](docs/architecture.md) - internal module layout.
-- [docs/ms-ovba-implementation-guide_v2.md](docs/ms-ovba-implementation-guide_v2.md) -
+- [docs/architecture.md](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/docs/architecture.md) - internal module layout.
+- [docs/ms-ovba-implementation-guide_v2.md](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/docs/ms-ovba-implementation-guide_v2.md) -
   language-agnostic guide for re-implementing MS-OVBA in another language.
-- [docs/roadmap.md](docs/roadmap.md) - per-feature implementation status.
+- [docs/roadmap.md](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/docs/roadmap.md) - per-feature implementation status.
 
 ---
 
@@ -402,4 +393,4 @@ pushed.
 
 ## License
 
-[MIT](LICENSE.md).
+[MIT](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/LICENSE.md).

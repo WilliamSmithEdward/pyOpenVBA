@@ -459,22 +459,66 @@ class TestAttributeHeaderPreservation:
         with ExcelFile(out) as wb2:
             assert wb2.get_module("FullSrc") == full
 
-    def test_add_module_other_without_header_rejected(self) -> None:
-        """Class/document modules cannot be invented without an explicit header."""
+    def test_add_module_other_synthesizes_class_header(self, tmp_path: Path) -> None:
+        """add_module(kind=other) synthesizes a standard class header when none is supplied."""
         from pyopenvba.excel import ExcelFile
-        from pyopenvba.vba import VBAModuleKind
+        from pyopenvba.vba import VBAModuleKind, _CLASS_MODULE_CLSID
 
         src_path = Path("tests/live_excel_testing/test_macro_workbook.xlsm")
         if not src_path.exists():
             pytest.skip("requires test_macro_workbook.xlsm fixture")
-        with ExcelFile(src_path) as wb:
+        import shutil
+        out = tmp_path / "class_synth.xlsm"
+        shutil.copy(src_path, out)
+
+        with ExcelFile(out) as wb:
             proj = wb.vba_project()
-            with pytest.raises(ValueError, match="attribute header"):
-                proj.add_module(
-                    "InventedClass",
-                    "Sub Baz()\r\nEnd Sub\r\n",
-                    kind=VBAModuleKind.other,
-                )
+            proj.add_module(
+                "MyClass",
+                "Option Explicit\r\n",
+                kind=VBAModuleKind.other,
+            )
+            wb.save()
+
+        with ExcelFile(out) as wb2:
+            src = wb2.get_module("MyClass")
+            assert src.startswith('Attribute VB_Name = "MyClass"\r\n')
+            assert f'Attribute VB_Base = "{_CLASS_MODULE_CLSID}"' in src
+            assert 'Attribute VB_GlobalNameSpace = False' in src
+            assert 'Attribute VB_PredeclaredId = False' in src
+            assert 'Option Explicit' in src
+
+    def test_add_module_other_honors_supplied_header(self, tmp_path: Path) -> None:
+        """add_module(kind=other) uses a caller-supplied header as-is."""
+        from pyopenvba.excel import ExcelFile
+        from pyopenvba.vba import VBAModuleKind, _CLASS_MODULE_CLSID
+
+        src_path = Path("tests/live_excel_testing/test_macro_workbook.xlsm")
+        if not src_path.exists():
+            pytest.skip("requires test_macro_workbook.xlsm fixture")
+        import shutil
+        out = tmp_path / "class_explicit.xlsm"
+        shutil.copy(src_path, out)
+
+        full = (
+            f'Attribute VB_Name = "ExplicitClass"\r\n'
+            f'Attribute VB_Base = "{_CLASS_MODULE_CLSID}"\r\n'
+            'Attribute VB_GlobalNameSpace = False\r\n'
+            'Attribute VB_Creatable = False\r\n'
+            'Attribute VB_PredeclaredId = False\r\n'
+            'Attribute VB_Exposed = False\r\n'
+            'Attribute VB_TemplateDerived = False\r\n'
+            'Attribute VB_Customizable = False\r\n'
+            'Option Explicit\r\n'
+        )
+        with ExcelFile(out) as wb:
+            wb.vba_project().add_module(
+                "ExplicitClass", full, kind=VBAModuleKind.other
+            )
+            wb.save()
+
+        with ExcelFile(out) as wb2:
+            assert wb2.get_module("ExplicitClass") == full
 
     def test_module_body_property_round_trip(self, tmp_path: Path) -> None:
         """``VBAModule.body`` exposes the source minus its attribute header."""

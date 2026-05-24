@@ -14,9 +14,6 @@ from pyopenvba.vba import VBAModuleKind
 
 OUT = Path(__file__).parent / "output" / "new_excel_with_class.xlsm"
 
-# Universal VBA class-module CLSID; required as VB_Base for plain class modules.
-_CLASS_VB_BASE = "0{FCFB3D2A-A0FA-1068-A738-08002B3371B5}"
-
 # ---------------------------------------------------------------------------
 # Module1  (standard)
 # ---------------------------------------------------------------------------
@@ -32,18 +29,8 @@ End Sub
 """
 
 # ---------------------------------------------------------------------------
-# DataModel  (class, kind=other)
+# DataModel  (class, kind=other — header synthesized automatically)
 # ---------------------------------------------------------------------------
-DATAMODEL_HEADER = (
-    'Attribute VB_Name = "DataModel"\r\n'
-    f'Attribute VB_Base = "{_CLASS_VB_BASE}"\r\n'
-    "Attribute VB_GlobalNameSpace = False\r\n"
-    "Attribute VB_Creatable = False\r\n"
-    "Attribute VB_PredeclaredId = False\r\n"
-    "Attribute VB_Exposed = False\r\n"
-    "Attribute VB_TemplateDerived = False\r\n"
-    "Attribute VB_Customizable = False\r\n"
-)
 DATAMODEL_BODY = """\
 Option Explicit
 
@@ -84,7 +71,7 @@ def main() -> None:
         wb.set_module("Module1", MODULE1_SOURCE)
         wb.vba_project().add_module(
             "DataModel",
-            DATAMODEL_HEADER + DATAMODEL_BODY,
+            DATAMODEL_BODY,
             kind=VBAModuleKind.other,
         )
         wb.save()

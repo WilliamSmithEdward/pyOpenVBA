@@ -3,6 +3,36 @@
 All notable changes to pyOpenVBA are documented here. This project follows
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.1] - 2026-05-24
+
+### Added
+
+- **`synthesize_class_header(name)`** -- new public helper (importable from
+  `pyopenvba`) that returns the standard eight-line attribute header for a
+  plain VBA class module, including the universal `VB_Base` CLSID. It is
+  now also emitted automatically by `add_module(kind=VBAModuleKind.other)`
+  when a bare body is supplied, matching the existing behaviour for standard
+  modules. Callers no longer need to construct or hard-code the CLSID
+  constant themselves.
+
+### Fixed
+
+- **README relative links were broken on PyPI.** The links to `LICENSE.md`,
+  `docs/roadmap.md`, `docs/architecture.md`, and
+  `docs/ms-ovba-implementation-guide_v2.md` were relative paths that
+  resolved correctly on GitHub but 404'd on the PyPI project page. All
+  five occurrences are now absolute `github.com/blob/main/...` URLs.
+
+### Changed
+
+- Demo scripts (`create_new_excel_with_class_demo.py`,
+  `create_new_with_class_demo.py`, `create_new_word_with_class_demo.py`,
+  `inject_xlsb_with_class_demo.py`) updated to use the body-only
+  `add_module` call, removing the manual `_CLASS_VB_BASE` constant and
+  `DATAMODEL_HEADER` block.
+- README Architecture section updated to include `synthesize_class_header`
+  in the `__init__.py` public API listing.
+
 ## [2.0.0] - 2026-05-24
 
 ### Added

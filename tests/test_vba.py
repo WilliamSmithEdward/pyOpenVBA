@@ -462,7 +462,7 @@ class TestAttributeHeaderPreservation:
     def test_add_module_other_synthesizes_class_header(self, tmp_path: Path) -> None:
         """add_module(kind=other) synthesizes a standard class header when none is supplied."""
         from pyopenvba.excel import ExcelFile
-        from pyopenvba.vba import VBAModuleKind, _CLASS_MODULE_CLSID
+        from pyopenvba.vba import VBAModuleKind, CLASS_MODULE_CLSID
 
         src_path = Path("tests/live_excel_testing/test_macro_workbook.xlsm")
         if not src_path.exists():
@@ -483,7 +483,7 @@ class TestAttributeHeaderPreservation:
         with ExcelFile(out) as wb2:
             src = wb2.get_module("MyClass")
             assert src.startswith('Attribute VB_Name = "MyClass"\r\n')
-            assert f'Attribute VB_Base = "{_CLASS_MODULE_CLSID}"' in src
+            assert f'Attribute VB_Base = "{CLASS_MODULE_CLSID}"' in src
             assert 'Attribute VB_GlobalNameSpace = False' in src
             assert 'Attribute VB_PredeclaredId = False' in src
             assert 'Option Explicit' in src
@@ -491,7 +491,7 @@ class TestAttributeHeaderPreservation:
     def test_add_module_other_honors_supplied_header(self, tmp_path: Path) -> None:
         """add_module(kind=other) uses a caller-supplied header as-is."""
         from pyopenvba.excel import ExcelFile
-        from pyopenvba.vba import VBAModuleKind, _CLASS_MODULE_CLSID
+        from pyopenvba.vba import VBAModuleKind, CLASS_MODULE_CLSID
 
         src_path = Path("tests/live_excel_testing/test_macro_workbook.xlsm")
         if not src_path.exists():
@@ -502,7 +502,7 @@ class TestAttributeHeaderPreservation:
 
         full = (
             f'Attribute VB_Name = "ExplicitClass"\r\n'
-            f'Attribute VB_Base = "{_CLASS_MODULE_CLSID}"\r\n'
+            f'Attribute VB_Base = "{CLASS_MODULE_CLSID}"\r\n'
             'Attribute VB_GlobalNameSpace = False\r\n'
             'Attribute VB_Creatable = False\r\n'
             'Attribute VB_PredeclaredId = False\r\n'

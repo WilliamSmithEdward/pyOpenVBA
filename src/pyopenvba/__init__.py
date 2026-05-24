@@ -58,7 +58,7 @@ from pyopenvba.exceptions import (
     VBAProjectError,
     UnsupportedFormatError,
 )
-from pyopenvba.vba import VBAModuleKind, synthesize_class_header
+from pyopenvba.vba import VBAModuleKind, synthesize_class_header as synthesize_class_header
 
 
 def pull(

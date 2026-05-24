@@ -984,7 +984,7 @@ def synthesize_standard_header(name: str) -> str:
 
 
 # Universal CLSID for plain VBA class modules (not document/designer modules).
-_CLASS_MODULE_CLSID = "0{FCFB3D2A-A0FA-1068-A738-08002B3371B5}"
+CLASS_MODULE_CLSID = "0{FCFB3D2A-A0FA-1068-A738-08002B3371B5}"
 
 
 def synthesize_class_header(name: str) -> str:
@@ -1000,7 +1000,7 @@ def synthesize_class_header(name: str) -> str:
     """
     return (
         f'Attribute VB_Name = "{name}"\r\n'
-        f'Attribute VB_Base = "{_CLASS_MODULE_CLSID}"\r\n'
+        f'Attribute VB_Base = "{CLASS_MODULE_CLSID}"\r\n'
         'Attribute VB_GlobalNameSpace = False\r\n'
         'Attribute VB_Creatable = False\r\n'
         'Attribute VB_PredeclaredId = False\r\n'

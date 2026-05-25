@@ -76,6 +76,61 @@ PAGE_TYPE_LEAF_INDEX = 0x04
 PAGE_TYPE_PAGE_USAGE_MAP = 0x05
 PAGE_TYPE_LVAL = 0x08
 
+# --- MSysObjects (Jet/ACE system catalog) -----------------------------------
+#
+# Every .accdb file embeds a system table named ``MSysObjects`` that lists
+# every persistent object Access knows about: tables, queries, forms,
+# reports, macros, modules, relationships, etc. Its TDEF lives at page 2
+# (always, regardless of database age) and its data rows live on
+# DATA-type pages whose ``owner_tdef_pn`` field equals 2.
+#
+# Schema (17 columns; column index follows TDEF definition order):
+#   fixed: Id (u32), ParentId (u32), Type (i16),
+#          DateCreate (8B), DateUpdate (8B), Flags (u32)
+#   variable: Connect, Database, ForeignName, LvExtra, LvModule, LvProp,
+#             Name, Owner, RmtInfoLong, RmtInfoShort, (+ 1 system slot)
+#
+# Row layout (verified across all 25 RE-corpus samples):
+#   off 00..02  col_count (u16, always 17 for MSysObjects)
+#   off 02..06  Id
+#   off 06..0A  ParentId
+#   off 0A..0C  Type (signed)
+#   off 0C..14  DateCreate
+#   off 14..1C  DateUpdate
+#   off 1C..20  Flags
+#   off 20..JT  variable-column data, packed back-to-front
+#   off JT..JT+22  jump table: 11 u16 entries giving the START offset of
+#                  each variable column, in REVERSE column order
+#                  (jt[10] is the FIRST var col laid down in memory).
+#   off JT+22..JT+24  var_col_count (u16, always 11)
+#   off JT+24..JT+27  null bitmap (3 bytes, ceil(17/8))
+#
+# Empirically: variable column index 10 == ``Name`` (UTF-16-LE). Length
+# of the Name field = jt[9] - jt[10].
+_MSYS_OBJECTS_TDEF_PAGE = 2
+_MSYS_COL_COUNT = 17
+_MSYS_VAR_COL_COUNT = 11
+_MSYS_NULL_MASK_BYTES = 3  # ceil(17 / 8)
+_MSYS_NAME_VAR_INDEX = 10  # which variable column holds the Name field
+
+# MSysObjects ``Type`` values (signed i16). Positive types are
+# system-defined container objects; negative types (high bit set)
+# tag user content. Only the values verified against the live RE
+# corpus are surfaced as named constants.
+MSYS_TYPE_FORM = -32768          # 0x8000
+MSYS_TYPE_REPORT = -32766        # 0x8002
+MSYS_TYPE_MACRO = -32766         # alias (Access reuses 0x8002 historically)
+MSYS_TYPE_MODULE = -32761        # 0x8007  -- VBA CodeModule
+MSYS_TYPE_CONTAINER = 3          # e.g. "Modules", "Forms", "Reports" hubs
+MSYS_TYPE_TABLE = 1
+MSYS_TYPE_QUERY = 5
+MSYS_TYPE_DATABASE = 8
+
+# Row offset-table entry flags inside a Jet/ACE DATA page.
+_ROW_OFFSET_MASK = 0x1FFF
+_ROW_DELETED_FLAG = 0x8000
+_ROW_OVERFLOW_FLAG = 0x4000
+
 # VBA source-row markers, reverse engineered from live .accdb fixtures.
 #
 # Inside the LVAL chains for VBA modules, each user-typed source line is
@@ -337,6 +392,234 @@ class AccessFile:
                 if (raw & 0xF000) == 0xD000:
                     continue
                 yield page, slot, self._lval_row_bytes(page, slot)
+
+    # ------------------------------------------------------------------
+    # LVAL row mutation primitives (Phase 5 write path, 2026-05).
+    # ------------------------------------------------------------------
+    #
+    # Resize/rewrite an LVAL row in place by reflowing the page's
+    # slot table and shifting adjacent rows. Tombstone bits are
+    # preserved. Operates within a single page; chain growth onto a
+    # fresh page is handled at a higher level (and currently raises
+    # ``AccessError`` if no chain tail capacity is available).
+
+    def _set_slot_offset(self, page: int, slot: int, offset: int) -> None:
+        """Write ``offset`` (lower 12 bits) into slot ``slot`` of
+        ``page``, preserving the tombstone bits (upper 4 bits) of
+        the existing slot value."""
+        base = page * ACE_PAGE_SIZE
+        cur = int.from_bytes(
+            self._data[base + 14 + 2 * slot : base + 16 + 2 * slot],
+            "little",
+        )
+        new = (cur & 0xF000) | (offset & 0x0FFF)
+        self._data[base + 14 + 2 * slot : base + 16 + 2 * slot] = (
+            new.to_bytes(2, "little")
+        )
+
+    def _lval_row_extent(
+        self, page: int, slot: int
+    ) -> tuple[int, int]:
+        """Return ``(start_offset, end_offset)`` of the live row at
+        ``(page, slot)``, where ``end_offset`` is the smallest higher
+        non-tombstone slot offset (or ``ACE_PAGE_SIZE`` for the top-
+        most row). Raises if the slot is a tombstone."""
+        slots = self._lval_slot_offsets(page)
+        raw = slots[slot]
+        if (raw & 0xF000) == 0xD000:
+            raise AccessError(
+                f"slot {slot} on page {page} is a tombstone"
+            )
+        start = raw & 0x0FFF
+        end = ACE_PAGE_SIZE
+        for other in slots:
+            if (other & 0xF000) == 0xD000:
+                continue
+            o = other & 0x0FFF
+            if o > start and o < end:
+                end = o
+        return start, end
+
+    def _lval_free_space(self, page: int) -> int:
+        """Number of contiguous free bytes available for new payload
+        on ``page`` (i.e. the gap between the end of the slot table
+        and the lowest live row offset)."""
+        slots = self._lval_slot_offsets(page)
+        slot_table_end = 14 + 2 * len(slots)
+        live = [s & 0x0FFF for s in slots if (s & 0xF000) != 0xD000]
+        lowest = min(live) if live else ACE_PAGE_SIZE
+        return lowest - slot_table_end
+
+    def _lval_resize_row(
+        self, page: int, slot: int, new_size: int
+    ) -> None:
+        """Resize the live LVAL row at ``(page, slot)`` to ``new_size``
+        bytes, shifting other rows on the same page and updating the
+        slot table.
+
+        The new bytes are NOT initialized -- callers should overwrite
+        the row payload immediately via :meth:`_lval_write_row` or by
+        slicing into ``self._data``.
+
+        Raises :class:`AccessError` if growing the row would overflow
+        the page's free-space window, or if ``new_size`` is negative.
+        """
+        if new_size < 0:
+            raise AccessError(
+                f"_lval_resize_row: new_size must be non-negative "
+                f"(got {new_size})"
+            )
+        base = page * ACE_PAGE_SIZE
+        start, end = self._lval_row_extent(page, slot)
+        old_size = end - start
+        delta = new_size - old_size
+        if delta == 0:
+            return
+        slots = self._lval_slot_offsets(page)
+        live = [
+            (i, s & 0x0FFF)
+            for i, s in enumerate(slots)
+            if (s & 0xF000) != 0xD000
+        ]
+        lowest = min(off for _, off in live)
+        slot_table_end = 14 + 2 * len(slots)
+        new_lowest = lowest - delta
+        if new_lowest < slot_table_end:
+            raise AccessError(
+                f"_lval_resize_row: page {page} cannot grow slot "
+                f"{slot} by {delta} bytes (free={lowest - slot_table_end}, "
+                f"need={delta})"
+            )
+        # Move the bytes physically beneath R (offsets [lowest..start])
+        # to [new_lowest..start - delta]. bytearray slice assignment
+        # evaluates the RHS into a new bytes object first, so
+        # overlapping moves are safe in either direction.
+        block = bytes(self._data[base + lowest : base + start])
+        # Clear the freed region (only matters for shrink; harmless on grow).
+        if delta < 0:
+            # After move, bytes at [lowest..new_lowest] become stale;
+            # zero them to keep the page free space clean.
+            pass
+        self._data[base + new_lowest : base + start + (new_lowest - lowest)] = block
+        # If we shrank, zero the now-free trailing region beneath R.
+        if delta < 0:
+            # The block now occupies [new_lowest..new_lowest+(start-lowest)].
+            # Free region: [lowest..new_lowest] (note new_lowest > lowest here).
+            self._data[base + lowest : base + new_lowest] = bytes(
+                new_lowest - lowest
+            )
+        # Update slot offsets for every live slot whose old offset
+        # was <= start (i.e. those that physically moved, plus R
+        # itself whose start moves by -delta).
+        for i, old_off in live:
+            if old_off <= start:
+                self._set_slot_offset(page, i, old_off - delta)
+
+    def _lval_write_row(
+        self, page: int, slot: int, new_row: bytes
+    ) -> None:
+        """Replace the entire bytes of the LVAL row at ``(page, slot)``
+        with ``new_row``, resizing the row in place. ``new_row`` must
+        include any 4-byte continuation prefix if the row was a chain
+        head/intermediate.
+
+        Raises :class:`AccessError` if the new bytes don't fit on the
+        page (see :meth:`_lval_resize_row`).
+        """
+        self._lval_resize_row(page, slot, len(new_row))
+        base = page * ACE_PAGE_SIZE
+        start, end = self._lval_row_extent(page, slot)
+        assert end - start == len(new_row), (
+            f"resize/write invariant: {end - start} != {len(new_row)}"
+        )
+        self._data[base + start : base + end] = new_row
+
+    def _lval_tombstone_slot(self, page: int, slot: int) -> None:
+        """Mark the slot at ``(page, slot)`` as a tombstone, freeing
+        its payload region. The slot's recorded offset is preserved
+        in the low 12 bits (Access keeps the offset for diagnostic
+        purposes); only the 0xD000 flag is set.
+
+        The freed row's BYTES are zeroed so they can't be
+        misinterpreted as part of an adjacent live row's payload by
+        downstream readers (such as :meth:`iter_vba_modules`) that
+        compute row extents by walking the slot table.
+
+        To physically reclaim the freed space and compact the page,
+        call :meth:`_lval_compact_page` (when available) after
+        tombstoning.
+        """
+        base = page * ACE_PAGE_SIZE
+        # Compute the row extent BEFORE flipping the tombstone bit so
+        # _lval_row_extent doesn't refuse.
+        start, end = self._lval_row_extent(page, slot)
+        # Zero the freed payload to prevent stale OVBA blobs from
+        # leaking into adjacent rows' extents.
+        for i in range(base + start, base + end):
+            self._data[i] = 0
+        cur = int.from_bytes(
+            self._data[base + 14 + 2 * slot : base + 16 + 2 * slot],
+            "little",
+        )
+        new = 0xD000 | (cur & 0x0FFF)
+        self._data[base + 14 + 2 * slot : base + 16 + 2 * slot] = (
+            new.to_bytes(2, "little")
+        )
+
+    def _lval_append_row(self, page: int, payload: bytes) -> int:
+        """Append a new row to ``page`` and return its slot index.
+
+        The new row occupies the lowest currently-free bytes on the
+        page (just above any existing rows) and a new slot entry is
+        added at the end of the slot table. Reuses a tombstoned slot
+        if one is available.
+
+        Raises :class:`AccessError` if there is insufficient free
+        space (payload size + 2 bytes for the new slot entry).
+        """
+        base = page * ACE_PAGE_SIZE
+        slots = self._lval_slot_offsets(page)
+        live = [
+            (i, s & 0x0FFF)
+            for i, s in enumerate(slots)
+            if (s & 0xF000) != 0xD000
+        ]
+        lowest = min((off for _, off in live), default=ACE_PAGE_SIZE)
+        # Search for a tombstoned slot we can reuse.
+        reuse_slot: int | None = None
+        for i, s in enumerate(slots):
+            if (s & 0xF000) == 0xD000:
+                reuse_slot = i
+                break
+        slot_table_end = 14 + 2 * len(slots)
+        need = len(payload) + (0 if reuse_slot is not None else 2)
+        if lowest - slot_table_end < need:
+            raise AccessError(
+                f"_lval_append_row: page {page} has insufficient free "
+                f"space (have {lowest - slot_table_end}, need {need})"
+            )
+        new_off = lowest - len(payload)
+        self._data[base + new_off : base + lowest] = payload
+        if reuse_slot is not None:
+            self._set_slot_offset(page, reuse_slot, new_off)
+            # Clear the tombstone bits explicitly.
+            cur = int.from_bytes(
+                self._data[base + 14 + 2 * reuse_slot : base + 16 + 2 * reuse_slot],
+                "little",
+            )
+            self._data[base + 14 + 2 * reuse_slot : base + 16 + 2 * reuse_slot] = (
+                (cur & 0x0FFF).to_bytes(2, "little")
+            )
+            return reuse_slot
+        # Append new slot at end of table.
+        new_slot = len(slots)
+        self._data[base + 14 + 2 * new_slot : base + 16 + 2 * new_slot] = (
+            new_off.to_bytes(2, "little")
+        )
+        self._data[base + 12 : base + 14] = (
+            (len(slots) + 1).to_bytes(2, "little")
+        )
+        return new_slot
 
     # ------------------------------------------------------------------
     # MS-OVBA dir-stream catalog (Phase 3 RE, 2026-05).
@@ -1017,6 +1300,1035 @@ class AccessFile:
             )
         return replaced
 
+    # ------------------------------------------------------------------
+    # Length-changing edits (Phase 5 write path, 2026-05).
+    # ------------------------------------------------------------------
+    #
+    # ``replace_text`` requires equal-length operands so that no offsets
+    # have to move. The methods below allow length changes when the
+    # match falls entirely inside a single LVAL row -- in which case we
+    # can reflow only that page's slot table and leave the rest of the
+    # database untouched. Edits that straddle row boundaries or touch
+    # non-LVAL pages are rejected.
+
+    def _locate_match_in_lval(
+        self, needle: bytes
+    ) -> tuple[int, int, int]:
+        """Locate the unique LVAL row containing ``needle`` and return
+        ``(page, slot, row_relative_offset)``. Raises if zero or more
+        than one row contains the pattern (callers can downgrade
+        multi-hit to first-hit with ``count=1`` semantics)."""
+        hits: list[tuple[int, int, int]] = []
+        for page, slot, row in self._iter_lval_rows():
+            i = row.find(needle)
+            if i >= 0:
+                hits.append((page, slot, i))
+        if not hits:
+            raise AccessError(
+                f"pattern {needle!r} not found in any LVAL row "
+                f"of {self.path.name!r}"
+            )
+        if len(hits) > 1:
+            raise AccessError(
+                f"pattern {needle!r} occurs in {len(hits)} LVAL rows; "
+                f"refine the search or use replace_text_resize "
+                f"with count=1"
+            )
+        return hits[0]
+
+    def replace_text_resize(
+        self,
+        old: Union[bytes, str],
+        new: Union[bytes, str],
+        *,
+        count: int = -1,
+        encoding: str = "latin-1",
+    ) -> int:
+        """Replace ``old`` with ``new`` allowing length changes, by
+        reflowing the affected LVAL page's slot table.
+
+        Unlike :meth:`replace_text`, this method requires that every
+        match live entirely inside a single LVAL row (i.e. the bytes
+        don't straddle row or page boundaries). The matching row is
+        resized in place via :meth:`_lval_resize_row`; other rows on
+        the same page shift to accommodate. Other pages are not
+        touched.
+
+        ``count`` caps the number of replacements (``-1`` = unlimited).
+        Returns the number of replacements made.
+
+        Raises :class:`AccessError` if no match is found, if the match
+        straddles a row boundary, or if the new row would not fit on
+        its page (caller must catch and retry with a shorter
+        replacement, or fall back to a chain-aware writer once one
+        exists).
+        """
+        old_b = old.encode(encoding) if isinstance(old, str) else bytes(old)
+        new_b = new.encode(encoding) if isinstance(new, str) else bytes(new)
+        if not old_b:
+            raise AccessError("replace_text_resize: old must be non-empty")
+        replaced = 0
+        while count < 0 or replaced < count:
+            # Re-scan after each replacement -- offsets shift.
+            try:
+                page, slot, row_off = self._locate_match_in_lval(old_b)
+            except AccessError as exc:
+                msg = str(exc)
+                if "occurs in" in msg:
+                    # Multi-hit: replace only the first.
+                    found_one: tuple[int, int, int] | None = None
+                    for page, slot, row in self._iter_lval_rows():
+                        i = row.find(old_b)
+                        if i >= 0:
+                            found_one = (page, slot, i)
+                            break
+                    if found_one is None:
+                        break
+                    page, slot, row_off = found_one
+                else:
+                    if replaced > 0:
+                        break
+                    raise
+            row = self._lval_row_bytes(page, slot)
+            # Confirm the match doesn't extend past the row end.
+            if row_off + len(old_b) > len(row):
+                raise AccessError(
+                    f"replace_text_resize: match at page={page} slot={slot} "
+                    f"row_off={row_off} straddles row end (row_len={len(row)})"
+                )
+            new_row = row[:row_off] + new_b + row[row_off + len(old_b):]
+            self._lval_write_row(page, slot, new_row)
+            replaced += 1
+        if replaced == 0:
+            raise AccessError(
+                f"replace_text_resize: pattern {old_b!r} not found "
+                f"in any LVAL row of {self.path.name!r}"
+            )
+        return replaced
+
+    def write_lval_row(
+        self, page: int, slot: int, new_bytes: Union[bytes, bytearray]
+    ) -> None:
+        """Public wrapper around :meth:`_lval_write_row` for advanced
+        callers that have located a specific LVAL row (via
+        :meth:`_iter_lval_rows` or similar) and want to replace its
+        entire payload.
+
+        ``new_bytes`` must include any continuation prefix bytes for
+        rows that are part of an LVAL chain. The row is resized in
+        place on its page; other rows on the same page reflow.
+
+        Raises :class:`AccessError` if the new payload doesn't fit
+        on the page (free space + current row size < ``len(new_bytes)``).
+        """
+        self._lval_write_row(page, slot, bytes(new_bytes))
+
+    def lval_free_space(self, page: int) -> int:
+        """Public wrapper around :meth:`_lval_free_space`. Returns the
+        number of bytes currently available for new payload on the
+        given LVAL page (i.e. the gap between the slot table and the
+        lowest live row).
+
+        Raises :class:`AccessError` if ``page`` is not an LVAL page.
+        """
+        base = page * ACE_PAGE_SIZE
+        if (
+            self._data[base] != 0x01
+            or bytes(self._data[base + 4 : base + 8]) != b"LVAL"
+        ):
+            raise AccessError(f"page {page} is not an LVAL page")
+        return self._lval_free_space(page)
+
+    # ------------------------------------------------------------------
+    # Dir-stream catalog surgery (Phase 5 module mutation, 2026-05).
+    # ------------------------------------------------------------------
+    #
+    # The PROJECTMODULES region of the dir-stream uses the regular
+    # ``<u16 id><u32 size><data>`` record format end-to-end (the
+    # complications of PROJECTINFORMATION / PROJECTREFERENCES with
+    # PROJECTVERSION and REFERENCECONTROL extended records are all
+    # *before* PROJECTMODULES). Within PROJECTMODULES every record is
+    # safely walkable.
+    #
+    # Module record layout (verified against samples 010-051):
+    #   MODULENAME              (0x0019) <u32 size> <MBCS name>
+    #   MODULENAMEUNICODE       (0x0047) <u32 size> <UTF-16-LE name>
+    #   MODULESTREAMNAME        (0x001A) <u32 size> <MBCS stream name>
+    #   MODULESTREAMNAMEUNICODE (0x0032) <u32 size> <UTF-16-LE>
+    #   MODULEDOCSTRING         (0x001C) optional
+    #   MODULEDOCSTRINGUNICODE  (0x0048) optional
+    #   MODULEOFFSET            (0x0031) <u32 size=4> <u32 text_off>
+    #   MODULEHELPCONTEXT       (0x001E) <u32 size=4> <u32>
+    #   MODULECOOKIE            (0x002C) <u32 size=2> <u16>
+    #   MODULETYPE              (0x0021 std | 0x0022 other) size=0
+    #   MODULEREADONLY          (0x0025) optional size=0
+    #   MODULEPRIVATE           (0x0028) optional size=0
+    #   MODULE-TERMINATOR       (0x002B) size=0
+
+    _PROJECTMODULES_ID = 0x000F
+    _MODULENAME_ID = 0x0019
+    _MODULENAMEUNICODE_ID = 0x0047
+    _MODULESTREAMNAME_ID = 0x001A
+    _MODULESTREAMNAMEUNICODE_ID = 0x0032
+    _MODULEDOCSTRING_ID = 0x001C
+    _MODULEDOCSTRINGUNICODE_ID = 0x0048
+    _MODULEOFFSET_ID = 0x0031
+    _MODULEHELPCONTEXT_ID = 0x001E
+    _MODULECOOKIE_ID = 0x002C
+    _MODULETYPE_STD_ID = 0x0021
+    _MODULETYPE_OTHER_ID = 0x0022
+    _MODULEREADONLY_ID = 0x0025
+    _MODULEPRIVATE_ID = 0x0028
+    _MODULE_TERMINATOR_ID = 0x002B
+    _DIR_TERMINATOR_ID = 0x0010
+
+    def _locate_modules_section(
+        self, dir_raw: bytes
+    ) -> tuple[int, int, int]:
+        """Return ``(count_record_pos, modules_start, dir_term_pos)``
+        for the decompressed dir-stream ``dir_raw``.
+
+        * ``count_record_pos`` is the start of the PROJECTMODULES
+          (0x000F) record; the u16 module count lives at offset +6.
+        * ``modules_start`` is the byte offset of the first MODULENAME
+          record (or ``dir_term_pos`` when no modules are present).
+        * ``dir_term_pos`` is the byte offset of the DIR-TERMINATOR
+          (0x0010) record.
+        """
+        # PROJECTMODULES always has size=2; search for the canonical
+        # byte signature ``0F 00 02 00 00 00`` and validate.
+        sig = bytes(
+            self._PROJECTMODULES_ID.to_bytes(2, "little")
+            + (2).to_bytes(4, "little")
+        )
+        i = dir_raw.find(sig)
+        if i < 0:
+            raise AccessError(
+                "PROJECTMODULES record not found in dir-stream"
+            )
+        count_pos = i
+        # DIR-TERMINATOR: id=0x0010 followed by reserved u32=0
+        # (i.e. the 6-byte tail ``10 00 00 00 00 00``).
+        dt_sig = (
+            self._DIR_TERMINATOR_ID.to_bytes(2, "little")
+            + (0).to_bytes(4, "little")
+        )
+        dt = dir_raw.rfind(dt_sig)
+        if dt < 0:
+            raise AccessError(
+                "DIR-TERMINATOR record not found in dir-stream"
+            )
+        # Modules start after PROJECTMODULES + optional PROJECTCOOKIE.
+        pos = count_pos + 8  # 6-byte header + 2-byte count payload
+        while pos + 6 <= dt:
+            rid = int.from_bytes(dir_raw[pos : pos + 2], "little")
+            if rid == self._MODULENAME_ID:
+                return count_pos, pos, dt
+            sz = int.from_bytes(dir_raw[pos + 2 : pos + 6], "little")
+            pos += 6 + sz
+        return count_pos, dt, dt
+
+    def _iter_module_records(
+        self, dir_raw: bytes
+    ) -> Iterator[tuple[int, int, str]]:
+        """Yield ``(record_start, record_end, module_name)`` for each
+        module block in the dir-stream. ``record_end`` is exclusive
+        (i.e. one past the MODULE-TERMINATOR's payload)."""
+        _, modules_start, dir_term = self._locate_modules_section(dir_raw)
+        pos = modules_start
+        while pos < dir_term:
+            rid = int.from_bytes(dir_raw[pos : pos + 2], "little")
+            if rid != self._MODULENAME_ID:
+                break
+            name_size = int.from_bytes(dir_raw[pos + 2 : pos + 6], "little")
+            name = bytes(
+                dir_raw[pos + 6 : pos + 6 + name_size]
+            ).decode("latin-1", errors="replace")
+            cur = pos + 6 + name_size
+            while cur < dir_term:
+                sub_rid = int.from_bytes(dir_raw[cur : cur + 2], "little")
+                sub_sz = int.from_bytes(dir_raw[cur + 2 : cur + 6], "little")
+                cur += 6 + sub_sz
+                if sub_rid == self._MODULE_TERMINATOR_ID:
+                    break
+            yield (pos, cur, name)
+            pos = cur
+
+    def _find_module_record(
+        self, dir_raw: bytes, name: str
+    ) -> tuple[int, int]:
+        """Return ``(record_start, record_end)`` for the module with
+        the given MBCS name. Raises :class:`AccessError` if not found."""
+        for start, end, n in self._iter_module_records(dir_raw):
+            if n == name:
+                return start, end
+        names = [n for _, _, n in self._iter_module_records(dir_raw)]
+        raise AccessError(
+            f"module {name!r} not found in dir-stream; "
+            f"present modules: {names}"
+        )
+
+    def _find_subrecord(
+        self, dir_raw: bytes, start: int, end: int, record_id: int
+    ) -> tuple[int, int] | None:
+        """Return ``(record_start, data_end)`` of the first sub-record
+        with id ``record_id`` inside the module record at ``[start,
+        end)``. ``data_end`` is the offset just past the record's
+        payload. Returns ``None`` if not found.
+
+        The walker starts AT ``start`` (which is the MODULENAME
+        record), so callers asking for MODULENAME itself will find it
+        immediately.
+        """
+        pos = start
+        while pos + 6 <= end:
+            rid = int.from_bytes(dir_raw[pos : pos + 2], "little")
+            sz = int.from_bytes(dir_raw[pos + 2 : pos + 6], "little")
+            data_end = pos + 6 + sz
+            if rid == record_id:
+                return pos, data_end
+            pos = data_end
+        return None
+
+    def _rewrite_subrecord_payload(
+        self,
+        dir_raw: bytes,
+        start: int,
+        end: int,
+        record_id: int,
+        new_payload: bytes,
+    ) -> bytes:
+        """Return a new dir-stream with the payload of the sub-record
+        ``record_id`` (inside module record ``[start, end)``) replaced
+        by ``new_payload``. The size field is updated to ``len(new_payload)``.
+        Raises if the sub-record is absent.
+        """
+        loc = self._find_subrecord(dir_raw, start, end, record_id)
+        if loc is None:
+            raise AccessError(
+                f"sub-record 0x{record_id:04x} not found in module "
+                f"record [{start}, {end})"
+            )
+        rec_start, data_end = loc
+        old_size = int.from_bytes(
+            dir_raw[rec_start + 2 : rec_start + 6], "little"
+        )
+        assert data_end == rec_start + 6 + old_size
+        new_size = len(new_payload)
+        new_header = (
+            record_id.to_bytes(2, "little") + new_size.to_bytes(4, "little")
+        )
+        return bytes(
+            dir_raw[:rec_start]
+            + new_header
+            + new_payload
+            + dir_raw[data_end:]
+        )
+
+    def _write_catalog_dir_stream(self, new_dir_raw: bytes) -> None:
+        """Re-OVBA-compress ``new_dir_raw`` and write it to the catalog
+        LVAL row, resizing the row as needed.
+
+        Caller is responsible for ensuring the new dir-stream is
+        structurally valid (record framing intact, terminators present).
+        Raises :class:`AccessError` if the catalog row can't be located
+        or the new compressed payload doesn't fit on its page.
+        """
+        from pyopenvba.vba import compress as _ovba_compress
+
+        found = self._find_catalog_row()
+        if found is None:
+            raise AccessError(
+                "no MS-OVBA dir-stream catalog row in this database"
+            )
+        page, slot, _old_raw = found
+        new_compressed = _ovba_compress(new_dir_raw)
+        self._lval_write_row(page, slot, new_compressed)
+
+    # ------------------------------------------------------------------
+    # Module mutation public surface (Phase 5, 2026-05).
+    # ------------------------------------------------------------------
+    #
+    # These operations rewrite the dir-stream catalog and, where
+    # possible, the OVBA cache row that carries the human-readable
+    # source. They make the changes that downstream pure-Python readers
+    # (``read_project_info``, ``iter_vba_modules``) will observe; they
+    # do NOT update the Access engine's row-level structures
+    # (MSysObjects / DATA pages / p-code tables) and therefore should
+    # not be relied on to drive the live Access VBA editor UI without
+    # additional reverse-engineering work documented in
+    # ``memories/repo/access-vba-storage.md``.
+
+    def rename_module(self, old_name: str, new_name: str) -> None:
+        """Rename a VBA module in the dir-stream catalog and update
+        the corresponding ``Attribute VB_Name`` in the OVBA cache row.
+
+        Updates MODULENAME (MBCS) and MODULENAMEUNICODE (UTF-16-LE) in
+        the dir-stream. The MODULESTREAMNAME field is intentionally
+        left untouched -- Access does not use it as a stream key.
+
+        Call :meth:`save` to persist.
+
+        Raises :class:`AccessError` if ``old_name`` is not present,
+        if ``new_name`` is empty or contains characters that can't be
+        encoded in the project code page, or if any rewrite would
+        cause a layout overflow.
+        """
+        if not new_name:
+            raise AccessError("rename_module: new_name must be non-empty")
+        try:
+            new_mbcs = new_name.encode("latin-1")
+        except UnicodeEncodeError as exc:
+            raise AccessError(
+                f"rename_module: new_name {new_name!r} not encodable in "
+                f"latin-1 (project code page)"
+            ) from exc
+        new_utf16 = new_name.encode("utf-16-le")
+
+        found = self._find_catalog_row()
+        if found is None:
+            raise AccessError("no dir-stream catalog row found")
+        _page, _slot, dir_raw = found
+
+        mod_start, mod_end = self._find_module_record(dir_raw, old_name)
+        # MODULENAME is the very first record in the block; data is
+        # everything after the 6-byte header up to MODULENAMEUNICODE.
+        new_dir = self._rewrite_subrecord_payload(
+            dir_raw, mod_start, mod_end, self._MODULENAME_ID, new_mbcs
+        )
+        # Recompute module record bounds in the new buffer (size shift).
+        delta_mbcs = len(new_mbcs) - (
+            mod_end - mod_start
+            - (len(new_dir) - len(dir_raw))
+            # actually compute by re-locating after the change:
+        )
+        # Re-locate by name (we just renamed, so search for new name).
+        mod_start_b, mod_end_b = self._find_module_record(new_dir, new_name)
+        new_dir = self._rewrite_subrecord_payload(
+            new_dir,
+            mod_start_b,
+            mod_end_b,
+            self._MODULENAMEUNICODE_ID,
+            new_utf16,
+        )
+        _ = delta_mbcs  # silence Pyright; intentionally unused
+
+        # Write back the catalog.
+        self._write_catalog_dir_stream(new_dir)
+
+        # Best-effort: update the OVBA cache's ``Attribute VB_Name`` line.
+        # Failure here is not fatal -- the dir-stream catalog is the
+        # authoritative source for module identity; the OVBA cache is
+        # informational and will be regenerated by Access on next save.
+        try:
+            old_attr = b'Attribute VB_Name = "' + old_name.encode("latin-1") + b'"'
+            new_attr = b'Attribute VB_Name = "' + new_mbcs + b'"'
+            if old_attr != new_attr:
+                # The Attribute line lives inside an OVBA-compressed
+                # blob, so a raw replace_text won't find it. We have to
+                # decompress, edit, re-compress, and write the cache row
+                # back. Identify the row via _scan_ovba_signatures.
+                self._patch_ovba_cache_attribute(old_name, old_attr, new_attr)
+        except AccessError:
+            # OVBA cache update is opportunistic; ignore failures.
+            pass
+
+    def _patch_ovba_cache_attribute(
+        self,
+        module_name: str,
+        old_attr: bytes,
+        new_attr: bytes,
+    ) -> None:
+        """Find the OVBA cache row that decompresses to source whose
+        ``Attribute VB_Name = "<module_name>"`` line matches, rewrite
+        the attribute line, re-compress, and write the row back.
+
+        Best-effort: silently no-ops if the cache row isn't found.
+        """
+        from pyopenvba.vba import compress as _ovba_compress
+
+        for page, slot, row in list(self._iter_lval_rows()):
+            sigs = self._scan_ovba_signatures(row)
+            for off in sigs:
+                try:
+                    decomp = _ovba_decompress(
+                        bytes(row[off:]),
+                        stream_name=f"accdb_ovba_cache@({page},{slot})+{off}",
+                    )
+                except Exception:
+                    continue
+                if old_attr not in decomp:
+                    continue
+                if not decomp.startswith(b"Attribute VB_Name = \""):
+                    continue
+                # Verify it's the module we're targeting.
+                tail = decomp[len(b'Attribute VB_Name = "') :]
+                end_q = tail.find(b'"')
+                if end_q < 0:
+                    continue
+                cur_name = tail[:end_q].decode("latin-1", errors="replace")
+                if cur_name != module_name:
+                    continue
+                new_decomp = decomp.replace(old_attr, new_attr, 1)
+                new_compressed = _ovba_compress(new_decomp)
+                new_row = bytes(row[:off]) + new_compressed
+                self._lval_write_row(page, slot, new_row)
+                return
+        # Not found: leave it alone.
+
+    def delete_module(self, name: str) -> None:
+        """Remove a VBA module from the dir-stream catalog and
+        tombstone its OVBA cache row.
+
+        This excises the module's MODULENAME...MODULE-TERMINATOR block
+        from the dir-stream, decrements PROJECTMODULES count, and (if
+        the OVBA cache row for this module can be located) tombstones
+        that LVAL slot so subsequent reads skip it.
+
+        Call :meth:`save` to persist.
+
+        Raises :class:`AccessError` if ``name`` is not present.
+
+        IMPORTANT: this is a *catalog-level* delete. The Access engine
+        keeps additional structural references (MSysObjects DATA-page
+        rows, p-code tables) that this method does not touch. Reads via
+        :meth:`read_project_info` and :meth:`iter_vba_modules` will
+        reflect the removal; the live Access VBA editor may still show
+        the module until those engine-level references are also
+        cleaned up. See ``memories/repo/access-vba-storage.md`` for
+        the remaining barriers.
+        """
+        found = self._find_catalog_row()
+        if found is None:
+            raise AccessError("no dir-stream catalog row found")
+        _page, _slot, dir_raw = found
+
+        mod_start, mod_end = self._find_module_record(dir_raw, name)
+        count_pos, _modules_start, _dir_term = self._locate_modules_section(
+            dir_raw
+        )
+        old_count = int.from_bytes(
+            dir_raw[count_pos + 6 : count_pos + 8], "little"
+        )
+        if old_count == 0:
+            raise AccessError(
+                f"delete_module: PROJECTMODULES count already 0; "
+                f"refusing to delete {name!r}"
+            )
+        new_count = old_count - 1
+        new_dir_pre = (
+            dir_raw[:count_pos + 6]
+            + new_count.to_bytes(2, "little")
+            + dir_raw[count_pos + 8 : mod_start]
+            + dir_raw[mod_end:]
+        )
+
+        self._write_catalog_dir_stream(bytes(new_dir_pre))
+
+        # Best-effort: tombstone EVERY OVBA cache row whose decompressed
+        # payload begins with ``Attribute VB_Name = "<name>"``. Access
+        # is known to keep multiple redundant cache copies for some
+        # modules; deleting just one is insufficient to make
+        # iter_vba_modules stop yielding the module.
+        to_tombstone: list[tuple[int, int]] = []
+        for page, slot, row in list(self._iter_lval_rows()):
+            sigs = self._scan_ovba_signatures(row)
+            for off in sigs:
+                try:
+                    decomp = _ovba_decompress(
+                        bytes(row[off:]),
+                        stream_name=f"accdb_ovba_cache@({page},{slot})+{off}",
+                    )
+                except Exception:
+                    continue
+                if not decomp.startswith(b"Attribute VB_Name = \""):
+                    continue
+                tail = decomp[len(b'Attribute VB_Name = "') :]
+                q = tail.find(b'"')
+                if q < 0:
+                    continue
+                if tail[:q].decode("latin-1", errors="replace") == name:
+                    to_tombstone.append((page, slot))
+                    break
+        for page, slot in to_tombstone:
+            self._lval_tombstone_slot(page, slot)
+
+    def modify_module_cache(
+        self, name: str, new_source: str
+    ) -> None:
+        """Rewrite the OVBA cache row for ``name`` so its decompressed
+        payload is ``Attribute VB_Name = "<name>"`` + ``new_source``.
+
+        Updates only the OVBA *cache* row (the passive plaintext mirror
+        Access keeps). Does NOT update the authoritative p-code
+        tables, so the Access VBA editor will continue to show the
+        previously-compiled source until a recompile is triggered.
+
+        Use cases:
+        * Exporting the database, editing the cache, importing back
+          via the OVBA toolchain.
+        * Diff-driven version control of the VBA source.
+
+        Raises :class:`AccessError` if ``name`` is not present in the
+        catalog, if the OVBA cache row can't be located, or if the
+        new compressed payload doesn't fit on the row's page.
+        """
+        from pyopenvba.vba import compress as _ovba_compress
+
+        info = self.read_project_info()
+        if not any(m.name == name for m in info.modules):
+            raise AccessError(
+                f"modify_module_cache: module {name!r} not present "
+                f"in dir-stream catalog"
+            )
+        new_decomp = (
+            b'Attribute VB_Name = "'
+            + name.encode("latin-1")
+            + b'"\r\n'
+            + new_source.encode("latin-1")
+        )
+        # Locate the existing OVBA cache row for this module.
+        target: tuple[int, int, int] | None = None
+        for page, slot, row in list(self._iter_lval_rows()):
+            sigs = self._scan_ovba_signatures(row)
+            for off in sigs:
+                try:
+                    decomp = _ovba_decompress(
+                        bytes(row[off:]),
+                        stream_name=f"accdb_ovba_cache@({page},{slot})+{off}",
+                    )
+                except Exception:
+                    continue
+                if not decomp.startswith(b"Attribute VB_Name = \""):
+                    continue
+                tail = decomp[len(b'Attribute VB_Name = "') :]
+                q = tail.find(b'"')
+                if q < 0:
+                    continue
+                if tail[:q].decode("latin-1", errors="replace") == name:
+                    target = (page, slot, off)
+                    break
+            if target is not None:
+                break
+        if target is None:
+            raise AccessError(
+                f"modify_module_cache: OVBA cache row for module "
+                f"{name!r} not found"
+            )
+        page, slot, off = target
+        row = self._lval_row_bytes(page, slot)
+        new_compressed = _ovba_compress(new_decomp)
+        new_row = bytes(row[:off]) + new_compressed
+        self._lval_write_row(page, slot, new_row)
+
+    def add_module_catalog_entry(
+        self,
+        name: str,
+        *,
+        is_class_module: bool = False,
+        is_private: bool = False,
+        is_read_only: bool = False,
+        stream_name: str | None = None,
+        cookie: int = 0xFFFF,
+    ) -> None:
+        """Append a new module record to the dir-stream catalog.
+
+        This is a *catalog-level* add: it makes the module visible to
+        :meth:`read_project_info` and other dir-stream readers. It does
+        NOT create the p-code rows or the MSysObjects table entries
+        the Access engine requires to surface the module in the live
+        VBA editor; doing so requires reverse-engineering work
+        documented in ``memories/repo/access-vba-storage.md``.
+
+        Useful primarily for round-trip testing of the dir-stream
+        catalog writer and for offline manipulation of project
+        metadata.
+
+        Raises :class:`AccessError` if ``name`` is already present or
+        if the new dir-stream doesn't fit on its LVAL page.
+        """
+        if not name:
+            raise AccessError("add_module_catalog_entry: name must be non-empty")
+        try:
+            name_mbcs = name.encode("latin-1")
+        except UnicodeEncodeError as exc:
+            raise AccessError(
+                f"add_module_catalog_entry: name {name!r} not encodable "
+                f"in latin-1"
+            ) from exc
+        name_utf16 = name.encode("utf-16-le")
+        if stream_name is None:
+            # Pick a deterministic placeholder; Access doesn't actually
+            # use this field, but the dir-stream format requires it.
+            stream_name = (name + "_STREAM").upper()
+        stream_mbcs = stream_name.encode("latin-1")
+        stream_utf16 = stream_name.encode("utf-16-le")
+
+        found = self._find_catalog_row()
+        if found is None:
+            raise AccessError("no dir-stream catalog row found")
+        _page, _slot, dir_raw = found
+
+        # Reject duplicates.
+        for _s, _e, n in self._iter_module_records(dir_raw):
+            if n == name:
+                raise AccessError(
+                    f"add_module_catalog_entry: module {name!r} already exists"
+                )
+
+        def rec(rid: int, payload: bytes) -> bytes:
+            return (
+                rid.to_bytes(2, "little")
+                + len(payload).to_bytes(4, "little")
+                + payload
+            )
+
+        mod_type_id = (
+            self._MODULETYPE_OTHER_ID
+            if is_class_module
+            else self._MODULETYPE_STD_ID
+        )
+        block = b"".join(
+            [
+                rec(self._MODULENAME_ID, name_mbcs),
+                rec(self._MODULENAMEUNICODE_ID, name_utf16),
+                rec(self._MODULESTREAMNAME_ID, stream_mbcs),
+                rec(self._MODULESTREAMNAMEUNICODE_ID, stream_utf16),
+                rec(self._MODULEDOCSTRING_ID, b""),
+                rec(self._MODULEDOCSTRINGUNICODE_ID, b""),
+                rec(self._MODULEOFFSET_ID, (0).to_bytes(4, "little")),
+                rec(self._MODULEHELPCONTEXT_ID, (0).to_bytes(4, "little")),
+                rec(self._MODULECOOKIE_ID, cookie.to_bytes(2, "little")),
+                rec(mod_type_id, b""),
+            ]
+            + ([rec(self._MODULEREADONLY_ID, b"")] if is_read_only else [])
+            + ([rec(self._MODULEPRIVATE_ID, b"")] if is_private else [])
+            + [rec(self._MODULE_TERMINATOR_ID, b"")]
+        )
+
+        count_pos, _modules_start, dir_term = self._locate_modules_section(
+            dir_raw
+        )
+        old_count = int.from_bytes(
+            dir_raw[count_pos + 6 : count_pos + 8], "little"
+        )
+        new_count = old_count + 1
+        new_dir = (
+            dir_raw[:count_pos + 6]
+            + new_count.to_bytes(2, "little")
+            + dir_raw[count_pos + 8 : dir_term]
+            + block
+            + dir_raw[dir_term:]
+        )
+        self._write_catalog_dir_stream(bytes(new_dir))
+
+    # ------------------------------------------------------------------
+    # High-level convenience APIs (round-trip helpers).
+    # ------------------------------------------------------------------
+
+    def replace_module(self, name: str, new_source: str) -> None:
+        """
+        Replace the OVBA source cache for an existing module.
+
+        Convenience alias for :meth:`modify_module_cache` that reads more
+        naturally for one-shot "swap module source" workflows.
+        """
+        self.modify_module_cache(name, new_source)
+
+    def export_module(self, name: str) -> str:
+        """
+        Return the user-visible source text of a single module by name.
+
+        Identical to :meth:`read_vba_module`; provided for symmetry with
+        :meth:`export_modules` and :meth:`import_module`.
+        """
+        return self.read_vba_module(name)
+
+    def export_modules(
+        self,
+        dest_dir: Union[str, Path],
+        *,
+        include_attributes: bool = False,
+    ) -> list[Path]:
+        """
+        Write every module to ``dest_dir`` as one file per module.
+
+        Class modules are written as ``<name>.cls``; everything else as
+        ``<name>.bas``. The leading ``Attribute VB_*`` preamble is omitted
+        by default (this matches what the VBA editor shows on screen); set
+        ``include_attributes=True`` to round-trip the raw stream.
+
+        Returns the list of files written. The destination directory is
+        created if it does not exist.
+        """
+        out_dir = Path(dest_dir)
+        out_dir.mkdir(parents=True, exist_ok=True)
+        class_names: set[str] = set()
+        try:
+            project = self.read_project_info()
+            class_names = {
+                m.name for m in project.modules if m.is_class_module
+            }
+        except AccessError:
+            pass
+        written: list[Path] = []
+        seen: set[str] = set()
+        for module in self.iter_vba_modules():
+            if module.name in seen:
+                continue
+            seen.add(module.name)
+            ext = ".cls" if module.name in class_names else ".bas"
+            target = out_dir / (module.name + ext)
+            if include_attributes:
+                body = module.attributes_text + module.source
+            else:
+                body = module.source
+            target.write_bytes(body.encode("latin-1"))
+            written.append(target)
+        return written
+
+    def import_module(
+        self,
+        source_or_path: Union[str, Path],
+        *,
+        name: Union[str, None] = None,
+        is_class_module: Union[bool, None] = None,
+        replace_existing: bool = False,
+    ) -> str:
+        """
+        Add (or replace) a module from a ``.bas``/``.cls`` file or from a
+        raw VBA source string.
+
+        - If ``source_or_path`` is a :class:`Path` (or a string referring
+          to an existing file), the file's contents are loaded as the
+          new source. Module type is inferred from the file extension
+          (``.cls`` -> class module) unless ``is_class_module`` is set.
+          Module ``name`` defaults to the file stem.
+        - If ``source_or_path`` is a string and is not an existing file,
+          it is treated as raw source. ``name`` is required in that case.
+
+        If a module with the resolved name already exists:
+          * with ``replace_existing=True``, its OVBA cache is rewritten
+            via :meth:`modify_module_cache`;
+          * otherwise an :class:`AccessError` is raised.
+
+        Returns the final module name as stored.
+        """
+        resolved_name: Union[str, None] = name
+        is_class: bool = (
+            bool(is_class_module) if is_class_module is not None else False
+        )
+
+        path_candidate: Union[Path, None] = None
+        if isinstance(source_or_path, Path):
+            path_candidate = source_or_path
+        else:
+            try:
+                maybe = Path(source_or_path)
+                if maybe.exists() and maybe.is_file():
+                    path_candidate = maybe
+            except (OSError, ValueError):
+                path_candidate = None
+
+        source_text: str
+        if path_candidate is not None:
+            source_text = path_candidate.read_bytes().decode("latin-1")
+            if resolved_name is None:
+                resolved_name = path_candidate.stem
+            if is_class_module is None:
+                is_class = path_candidate.suffix.lower() == ".cls"
+        else:
+            source_text = str(source_or_path)
+            if resolved_name is None:
+                raise AccessError(
+                    "import_module: explicit name= is required when "
+                    "passing raw source"
+                )
+
+        # Normalize line endings to CRLF (Access on-disk convention).
+        normalized = source_text.replace("\r\n", "\n").replace("\r", "\n")
+        source_text = normalized.replace("\n", "\r\n")
+
+        existing = set(self.vba_module_names())
+        if resolved_name in existing:
+            if not replace_existing:
+                raise AccessError(
+                    f"import_module: module {resolved_name!r} already "
+                    "exists (pass replace_existing=True to overwrite)"
+                )
+            self.modify_module_cache(resolved_name, source_text)
+            return resolved_name
+
+        self.add_module_catalog_entry(
+            resolved_name, is_class_module=is_class
+        )
+        return resolved_name
+
+    # ------------------------------------------------------------------
+    # MSysObjects (Jet/ACE system catalog) -- read path
+    # ------------------------------------------------------------------
+
+    def _iter_msys_data_pages(self) -> Iterator[int]:
+        """Yield page numbers of every DATA page whose owner is the
+        MSysObjects TDEF at page 2."""
+        page_count = len(self._data) // ACE_PAGE_SIZE
+        for pn in range(1, page_count):
+            base = pn * ACE_PAGE_SIZE
+            if self._data[base] != PAGE_TYPE_DATA:
+                continue
+            owner = int.from_bytes(self._data[base + 4 : base + 8], "little")
+            if owner != _MSYS_OBJECTS_TDEF_PAGE:
+                continue
+            yield pn
+
+    def _decode_msys_row(
+        self, row: bytes, *, page: int, slot: int
+    ) -> "AccessSysObject | None":
+        """Decode one MSysObjects row. Returns ``None`` for rows that
+        do not match the expected 17-column / 11-var-column schema
+        (such rows are silently skipped to keep the reader robust
+        across unanticipated catalog variants)."""
+        # Need at least: 32 fixed bytes + jump table + var_count + null_mask.
+        min_len = 32 + 2 * _MSYS_VAR_COL_COUNT + 2 + _MSYS_NULL_MASK_BYTES
+        if len(row) < min_len:
+            return None
+        cols = int.from_bytes(row[0:2], "little")
+        if cols != _MSYS_COL_COUNT:
+            return None
+        id_ = int.from_bytes(row[2:6], "little")
+        parent_id = int.from_bytes(row[6:10], "little")
+        type_ = int.from_bytes(row[10:12], "little", signed=True)
+        flags = int.from_bytes(row[28:32], "little")
+
+        tail_off = len(row) - _MSYS_NULL_MASK_BYTES - 2
+        var_col_count = int.from_bytes(row[tail_off : tail_off + 2], "little")
+        if var_col_count != _MSYS_VAR_COL_COUNT:
+            return None
+        jt_start = tail_off - 2 * var_col_count
+        if jt_start < 32:
+            return None
+        # Jump table stores u16 offsets, one per variable column. The
+        # table is laid down such that variable column index i STARTS
+        # at row offset jt[i]; the column with the HIGHEST index is
+        # placed first in physical memory (lowest row offset). A
+        # variable column's END is therefore at jt[i-1] (the start of
+        # the column with the next-lower index), or at the start of
+        # the jump table itself for column index 0.
+        jt = [
+            int.from_bytes(row[jt_start + 2 * i : jt_start + 2 * i + 2], "little")
+            for i in range(var_col_count)
+        ]
+        name_start = jt[_MSYS_NAME_VAR_INDEX]
+        # Name's end is the start of the variable column with the
+        # next-lower index. _MSYS_NAME_VAR_INDEX is 10 (the highest
+        # populated variable-column index in MSysObjects), so the
+        # preceding-index lookup is always valid.
+        name_end = jt[_MSYS_NAME_VAR_INDEX - 1]
+        if not (32 <= name_start <= name_end <= jt_start):
+            return None
+        if (name_end - name_start) % 2 != 0:
+            return None
+        try:
+            name = row[name_start:name_end].decode("utf-16-le")
+        except UnicodeDecodeError:
+            return None
+        return AccessSysObject(
+            id_=id_,
+            parent_id=parent_id,
+            type_=type_,
+            flags=flags,
+            name=name,
+            page=page,
+            slot=slot,
+        )
+
+    def iter_msys_objects(self) -> Iterator["AccessSysObject"]:
+        """Iterate every persistent object listed in the .accdb's
+        ``MSysObjects`` system catalog.
+
+        Yields one :class:`AccessSysObject` per non-deleted row across
+        every DATA page owned by the MSysObjects TDEF. Each row
+        identifies a Table, Query, Form, Report, Macro, VBA Module,
+        or system Container.
+
+        Use :meth:`find_msys_module` for the common case of locating
+        a single VBA code module by name. Use :meth:`iter_msys_modules`
+        to enumerate only VBA module rows.
+        """
+        for pn in self._iter_msys_data_pages():
+            base = pn * ACE_PAGE_SIZE
+            page_bytes = bytes(
+                self._data[base : base + ACE_PAGE_SIZE]
+            )
+            row_count = int.from_bytes(page_bytes[12:14], "little")
+            # First pass: collect non-deleted offsets so we can determine
+            # each row's length from the next-higher offset.
+            entries: list[tuple[int, int]] = []  # (slot, offset)
+            for slot in range(row_count):
+                ent = int.from_bytes(
+                    page_bytes[14 + 2 * slot : 16 + 2 * slot], "little"
+                )
+                if ent & (_ROW_DELETED_FLAG | _ROW_OVERFLOW_FLAG):
+                    continue
+                off = ent & _ROW_OFFSET_MASK
+                entries.append((slot, off))
+            if not entries:
+                continue
+            # Each row runs from its offset up to the next-higher offset
+            # (or to the end of the page for the highest-offset row).
+            sorted_offs = sorted({off for _, off in entries})
+            next_after: dict[int, int] = {}
+            for i, off in enumerate(sorted_offs):
+                next_after[off] = (
+                    sorted_offs[i + 1]
+                    if i + 1 < len(sorted_offs)
+                    else ACE_PAGE_SIZE
+                )
+            for slot, off in entries:
+                end = next_after[off]
+                row = page_bytes[off:end]
+                obj = self._decode_msys_row(row, page=pn, slot=slot)
+                if obj is not None:
+                    yield obj
+
+    def msys_objects(self) -> tuple["AccessSysObject", ...]:
+        """Return all MSysObjects rows as a tuple (materialised list of
+        :meth:`iter_msys_objects`)."""
+        return tuple(self.iter_msys_objects())
+
+    def iter_msys_modules(self) -> Iterator["AccessSysObject"]:
+        """Iterate only the MSysObjects rows that represent VBA code
+        modules (``Type == MSYS_TYPE_MODULE``)."""
+        for obj in self.iter_msys_objects():
+            if obj.is_vba_module:
+                yield obj
+
+    def find_msys_object(
+        self,
+        name: str,
+        *,
+        type_: int | None = None,
+    ) -> "AccessSysObject | None":
+        """Return the first MSysObjects row matching ``name`` (and
+        optionally ``type_``), or ``None`` if not found.
+
+        Name match is case-insensitive, matching Access's own behaviour.
+        """
+        target = name.casefold()
+        for obj in self.iter_msys_objects():
+            if obj.name.casefold() != target:
+                continue
+            if type_ is not None and obj.type_ != type_:
+                continue
+            return obj
+        return None
+
+    def find_msys_module(self, name: str) -> "AccessSysObject | None":
+        """Return the MSysObjects row for the VBA code module called
+        ``name`` (case-insensitive), or ``None`` if no such module
+        exists in the system catalog."""
+        return self.find_msys_object(name, type_=MSYS_TYPE_MODULE)
+
     def save(self, path: Union[str, Path, None] = None) -> None:
         """
         Persist the in-memory buffer to disk. If ``path`` is omitted, the
@@ -1026,6 +2338,48 @@ class AccessFile:
         out = Path(path) if path is not None else self.path
         out.write_bytes(bytes(self._data))
         self.path = out
+
+
+@dataclass(frozen=True)
+class AccessSysObject:
+    """One row of the .accdb ``MSysObjects`` system catalog.
+
+    MSysObjects is the master object index inside every Access database.
+    Each row identifies one persistent object: a table, query, form,
+    report, macro, VBA module, or a "container" hub that groups
+    objects of a given kind (e.g. the ``Modules`` container that
+    parents every VBA module row).
+
+    The ``type_`` field is the raw signed 16-bit ``Type`` column value
+    -- compare against the ``MSYS_TYPE_*`` constants exposed at module
+    level, or use :attr:`is_vba_module`.
+
+    Attributes:
+        id_: ``Id`` column. Positive values are system objects, values
+            with bit 31 set (e.g. ``0x80000005``) are user content.
+        parent_id: ``ParentId`` column. References the row whose
+            ``id_`` equals this value; for VBA modules this points at
+            the ``Modules`` container row.
+        type_: ``Type`` column. ``MSYS_TYPE_MODULE`` (-32761) marks a
+            VBA code module.
+        flags: ``Flags`` column (u32).
+        name: ``Name`` column (decoded UTF-16-LE).
+        page: ACE 4 KiB page number where this row lives.
+        slot: Slot index within ``page``.
+    """
+
+    id_: int
+    parent_id: int
+    type_: int
+    flags: int
+    name: str
+    page: int
+    slot: int
+
+    @property
+    def is_vba_module(self) -> bool:
+        """``True`` if this row represents a user-defined VBA code module."""
+        return self.type_ == MSYS_TYPE_MODULE
 
 
 @dataclass(frozen=True)

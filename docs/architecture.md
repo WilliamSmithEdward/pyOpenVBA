@@ -39,6 +39,13 @@ knows about the layer below it but not the layer above.
 |   - LVAL page-chain walker                             |
 |   - read_vba_module(name) -> str (pure Python)         |
 |   - replace_text(old, new) same-length plaintext patch |
+|   - replace_text_resize(old, new) reflow-aware patch   |
+|   - write_lval_row / lval_free_space LVAL primitives   |
+|   - rename_module / delete_module / add_module_catalog |
+|   - modify_module_cache / replace_module               |
+|   - export_modules(dir) / import_module(path|source)   |
+|   - iter_msys_objects / find_msys_module               |
+|       (MSysObjects system catalog reader)              |
 |   - save([path]) -> persists in-memory edits           |
 +--------------------------------------------------------+
 | vba.py          VBA project layer                      |
@@ -221,6 +228,58 @@ and string literal contents (verified through Access COM and the live
 VBA editor). Changing literal/comment lengths or modifying code structure
 (renaming subs, adding statements) is out of scope until the p-code
 tables are reverse-engineered.
+
+For **length-changing** edits inside a single LVAL row,
+`AccessFile.replace_text_resize(old, new)` reflows the affected page's
+slot table in place: the row is grown/shrunk, neighbour rows shift
+within the page, and other pages are untouched. The underlying LVAL
+mutation primitives (`_lval_resize_row`, `_lval_write_row`,
+`_lval_tombstone_slot`, `_lval_append_row`) are also exposed publicly
+as `write_lval_row` and `lval_free_space` for callers that have
+located a specific row via `_iter_lval_rows`. Edits that would (a)
+straddle row boundaries, (b) overflow the page free space, or (c)
+require allocating a new LVAL page (chain growth) are rejected with
+`AccessError`.
+
+Module **rename / delete / add / source-cache modify** are exposed
+as catalog-level operations:
+`AccessFile.rename_module(old, new)` rewrites MODULENAME +
+MODULENAMEUNICODE in the dir-stream and updates the `Attribute
+VB_Name` line inside the corresponding OVBA cache row.
+`AccessFile.delete_module(name)` excises the module's record block
+from the dir-stream, decrements PROJECTMODULES count, and tombstones
+every matching OVBA cache row (Access keeps redundant copies).
+`AccessFile.add_module_catalog_entry(name, *, is_class_module,
+is_private, is_read_only)` appends a new module record block before
+DIR-TERM. `AccessFile.modify_module_cache(name, new_source)` rewrites
+the OVBA cache row's decompressed payload (Attribute VB_Name line
+preserved). `AccessFile.replace_module(name, new_source)` is a
+convenience alias. `AccessFile.export_modules(dest_dir)` writes every
+module to `<name>.bas` / `<name>.cls` on disk (class modules detected
+via the dir-stream MODULETYPE record); `AccessFile.import_module(
+path_or_source, *, name=None, is_class_module=None, replace_existing
+=False)` adds a new module from a `.bas`/`.cls` file or raw source
+string, optionally overwriting an existing module's cache. These
+operations make the changes visible to pure-Python readers
+(`read_project_info`, `iter_vba_modules`); they do NOT update the
+Access engine's MSysObjects catalog or p-code tables, so the live
+Access VBA editor may not immediately reflect every change. Those
+engine-level writes remain documented as future RE phases in
+`memories/repo/access-vba-storage.md`.
+
+`AccessFile.iter_msys_objects()` (and the convenience helpers
+`msys_objects()`, `iter_msys_modules()`, `find_msys_object(name,
+*, type_=None)`, `find_msys_module(name)`) read the Jet/ACE
+**MSysObjects** system catalog: the master index of every persistent
+object inside a .accdb (tables, queries, forms, reports, scripts,
+modules, and the container hubs that group them). Each row is
+surfaced as an `AccessSysObject` dataclass (id_, parent_id, type_,
+flags, name, page, slot). VBA code modules carry `Type ==
+MSYS_TYPE_MODULE` (-32761, 0x8007) and have `parent_id` equal to
+the Id of the row named `Modules` (Type=3 container). This reader
+is the foundation for the future write path that will make
+`rename_module` / `delete_module` / `add_module_catalog_entry`
+visible inside the live Access UI.
 
 ---
 

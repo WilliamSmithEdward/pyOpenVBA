@@ -1,4 +1,4 @@
-﻿"""
+"""
 Pure-Python Access backend tests.
 
 These tests verify the byte-level parser in ``pyopenvba.access`` against a
@@ -1787,3 +1787,989 @@ def test_cli_access_disasm_with_source_flag(
     assert "===== M =====" in out
     assert '; >   3:     MsgBox "hello"' in out
     assert "ArgsCall" in out
+
+
+# ---------------------------------------------------------------------------
+# LVAL row mutation primitives (Phase 5 write path).
+# ---------------------------------------------------------------------------
+
+
+_SAMPLE_040 = _RE_CORPUS / "040__sub_msgbox_hello.accdb"
+
+
+@pytest.mark.skipif(
+    not _SAMPLE_040.exists(),
+    reason="sample 040 not present",
+)
+def test_lval_resize_row_grows_and_shrinks(tmp_path: Path) -> None:
+    """Resize an LVAL row larger then back to its original size; the
+    slot table and other rows on the page must reflow correctly so
+    that all modules still parse with identical source after each
+    step."""
+    import shutil
+
+    dst = tmp_path / "resize.accdb"
+    shutil.copy(_SAMPLE_040, dst)
+    db = AccessFile(dst)
+    before_mods = [(m.name, m.source) for m in db.iter_vba_modules()]
+    before_slots = db._lval_slot_offsets(68)  # pyright: ignore[reportPrivateUsage]
+    before_free = db._lval_free_space(68)  # pyright: ignore[reportPrivateUsage]
+
+    # Grow slot 1 by 64 bytes.
+    start, end = db._lval_row_extent(68, 1)  # pyright: ignore[reportPrivateUsage]
+    db._lval_resize_row(68, 1, end - start + 64)  # pyright: ignore[reportPrivateUsage]
+
+    grown_slots = db._lval_slot_offsets(68)  # pyright: ignore[reportPrivateUsage]
+    grown_free = db._lval_free_space(68)  # pyright: ignore[reportPrivateUsage]
+    assert grown_free == before_free - 64
+    # Slot 0 (top row) must not move; lower-offset slots must shift down.
+    assert grown_slots[0] == before_slots[0]
+    for i in (1, 2, 3):
+        assert (grown_slots[i] & 0x0FFF) < (before_slots[i] & 0x0FFF)
+
+    # Modules still parse identically while the page is in the grown
+    # state -- the OVBA blob in slot 0 wasn't touched.
+    grown_mods = [(m.name, m.source) for m in db.iter_vba_modules()]
+    assert grown_mods == before_mods
+
+    # Shrink back; slot table must match exactly.
+    db._lval_resize_row(68, 1, end - start)  # pyright: ignore[reportPrivateUsage]
+    assert db._lval_slot_offsets(68) == before_slots  # pyright: ignore[reportPrivateUsage]
+    assert db._lval_free_space(68) == before_free  # pyright: ignore[reportPrivateUsage]
+
+
+@pytest.mark.skipif(
+    not _SAMPLE_040.exists(),
+    reason="sample 040 not present",
+)
+def test_lval_resize_row_zero_delta_is_noop() -> None:
+    db = AccessFile(_SAMPLE_040)
+    before = db._lval_slot_offsets(68)  # pyright: ignore[reportPrivateUsage]
+    start, end = db._lval_row_extent(68, 1)  # pyright: ignore[reportPrivateUsage]
+    db._lval_resize_row(68, 1, end - start)  # pyright: ignore[reportPrivateUsage]
+    assert db._lval_slot_offsets(68) == before  # pyright: ignore[reportPrivateUsage]
+
+
+@pytest.mark.skipif(
+    not _SAMPLE_040.exists(),
+    reason="sample 040 not present",
+)
+def test_lval_resize_row_overflow_raises() -> None:
+    from pyopenvba.access import AccessError
+
+    db = AccessFile(_SAMPLE_040)
+    # Free space on page 68 is ~1283 bytes; ask to grow slot 1 well
+    # beyond that.
+    start, end = db._lval_row_extent(68, 1)  # pyright: ignore[reportPrivateUsage]
+    with pytest.raises(AccessError, match="cannot grow"):
+        db._lval_resize_row(68, 1, end - start + 10_000)  # pyright: ignore[reportPrivateUsage]
+
+
+@pytest.mark.skipif(
+    not _SAMPLE_040.exists(),
+    reason="sample 040 not present",
+)
+def test_lval_resize_row_negative_raises() -> None:
+    from pyopenvba.access import AccessError
+
+    db = AccessFile(_SAMPLE_040)
+    with pytest.raises(AccessError, match="non-negative"):
+        db._lval_resize_row(68, 1, -1)  # pyright: ignore[reportPrivateUsage]
+
+
+@pytest.mark.skipif(
+    not _SAMPLE_040.exists(),
+    reason="sample 040 not present",
+)
+def test_lval_write_row_round_trips_through_disk(tmp_path: Path) -> None:
+    """Replace the entire payload of an LVAL row with a longer one,
+    save to disk, reopen, and confirm the new payload is intact
+    while other modules still parse identically."""
+    import shutil
+
+    dst = tmp_path / "write_row.accdb"
+    shutil.copy(_SAMPLE_040, dst)
+    db = AccessFile(dst)
+    before_mods = [(m.name, m.source) for m in db.iter_vba_modules()]
+
+    row_before = db._lval_row_bytes(68, 1)  # pyright: ignore[reportPrivateUsage]
+    new_row = row_before + b"\x00" * 32  # extend by 32 zero bytes
+    db.write_lval_row(68, 1, new_row)
+    assert db._lval_row_bytes(68, 1) == new_row  # pyright: ignore[reportPrivateUsage]
+
+    db.save()
+    db2 = AccessFile(dst)
+    assert db2._lval_row_bytes(68, 1) == new_row  # pyright: ignore[reportPrivateUsage]
+    assert [(m.name, m.source) for m in db2.iter_vba_modules()] == before_mods
+
+
+@pytest.mark.skipif(
+    not _SAMPLE_040.exists(),
+    reason="sample 040 not present",
+)
+def test_lval_tombstone_slot_marks_high_nibble() -> None:
+    import shutil
+    import tempfile
+
+    with tempfile.TemporaryDirectory() as td:
+        dst = Path(td) / "tomb.accdb"
+        shutil.copy(_SAMPLE_040, dst)
+        db = AccessFile(dst)
+        before = db._lval_slot_offsets(68)  # pyright: ignore[reportPrivateUsage]
+        db._lval_tombstone_slot(68, 3)  # pyright: ignore[reportPrivateUsage]
+        after = db._lval_slot_offsets(68)  # pyright: ignore[reportPrivateUsage]
+        # Low 12 bits preserved.
+        assert (after[3] & 0x0FFF) == (before[3] & 0x0FFF)
+        # High nibble now 0xD.
+        assert (after[3] & 0xF000) == 0xD000
+        # _iter_lval_rows must skip the tombstoned slot.
+        rows = list(db._iter_lval_rows())  # pyright: ignore[reportPrivateUsage]
+        assert not any(p == 68 and s == 3 for p, s, _ in rows)
+
+
+@pytest.mark.skipif(
+    not _SAMPLE_040.exists(),
+    reason="sample 040 not present",
+)
+def test_lval_append_row_creates_new_slot(tmp_path: Path) -> None:
+    """Append a new payload row to an LVAL page; the slot count
+    increments, the payload is readable, and existing rows are
+    untouched."""
+    import shutil
+
+    dst = tmp_path / "append.accdb"
+    shutil.copy(_SAMPLE_040, dst)
+    db = AccessFile(dst)
+    before_slot_count = db._lval_slot_count(68)  # pyright: ignore[reportPrivateUsage]
+    before_rows = [db._lval_row_bytes(68, s) for s in range(before_slot_count)]  # pyright: ignore[reportPrivateUsage]
+
+    payload = b"PYOPENVBA_APPEND_TEST" + bytes(range(64))
+    new_slot = db._lval_append_row(68, payload)  # pyright: ignore[reportPrivateUsage]
+    assert new_slot == before_slot_count
+    assert db._lval_slot_count(68) == before_slot_count + 1  # pyright: ignore[reportPrivateUsage]
+    assert db._lval_row_bytes(68, new_slot) == payload  # pyright: ignore[reportPrivateUsage]
+    # Existing rows unchanged.
+    for s, prev in enumerate(before_rows):
+        assert db._lval_row_bytes(68, s) == prev  # pyright: ignore[reportPrivateUsage]
+
+
+@pytest.mark.skipif(
+    not _SAMPLE_040.exists(),
+    reason="sample 040 not present",
+)
+def test_lval_append_row_overflow_raises() -> None:
+    from pyopenvba.access import AccessError
+
+    db = AccessFile(_SAMPLE_040)
+    free = db._lval_free_space(68)  # pyright: ignore[reportPrivateUsage]
+    with pytest.raises(AccessError, match="insufficient free space"):
+        db._lval_append_row(68, b"\x00" * (free + 100))  # pyright: ignore[reportPrivateUsage]
+
+
+# ---------------------------------------------------------------------------
+# Relayout-aware replace_text_resize.
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.skipif(
+    not _SAMPLE_040.exists(),
+    reason="sample 040 not present",
+)
+def test_replace_text_resize_lengthens_payload(tmp_path: Path) -> None:
+    """Replace ``MsgBox`` with a longer literal that exists only in
+    one LVAL row; the page reflows, the file saves+reloads, and the
+    new bytes are visible."""
+    import shutil
+
+    dst = tmp_path / "resize_text.accdb"
+    shutil.copy(_SAMPLE_040, dst)
+    db = AccessFile(dst)
+    # Locate a unique short marker we can extend. The identifier
+    # table on page 67/68 contains ``MsgBox``; we won't pick that
+    # because identifier-table mutations would break p-code. Instead
+    # use a more obscure substring near the tail of the OVBA blob.
+    needle = b"hello"
+    raw = dst.read_bytes()
+    assert raw.count(needle) >= 1
+    n = db.replace_text_resize(needle, b"hello_extended_payload", count=1)
+    assert n == 1
+    db.save()
+    raw2 = dst.read_bytes()
+    assert b"hello_extended_payload" in raw2
+
+
+@pytest.mark.skipif(
+    not _SAMPLE_040.exists(),
+    reason="sample 040 not present",
+)
+def test_replace_text_resize_rejects_missing_pattern() -> None:
+    from pyopenvba.access import AccessError
+
+    db = AccessFile(_SAMPLE_040)
+    with pytest.raises(AccessError, match="not found"):
+        db.replace_text_resize(b"ZZZ_no_such_pattern_ZZZ", b"AAA")
+
+
+@pytest.mark.skipif(
+    not _SAMPLE_040.exists(),
+    reason="sample 040 not present",
+)
+def test_replace_text_resize_rejects_empty_old() -> None:
+    from pyopenvba.access import AccessError
+
+    db = AccessFile(_SAMPLE_040)
+    with pytest.raises(AccessError, match="non-empty"):
+        db.replace_text_resize(b"", b"x")
+
+
+@pytest.mark.skipif(
+    not _SAMPLE_040.exists(),
+    reason="sample 040 not present",
+)
+def test_lval_free_space_rejects_non_lval_page() -> None:
+    from pyopenvba.access import AccessError
+
+    db = AccessFile(_SAMPLE_040)
+    # Page 0 is the database header, not an LVAL page.
+    with pytest.raises(AccessError, match="not an LVAL page"):
+        db.lval_free_space(0)
+
+
+# ============================================================
+# Phase 5: dir-stream catalog mutation (rename / delete / add)
+# Verified against sample 040 (single std module "M" with one Sub).
+# ============================================================
+
+
+def _copy_sample_040(tmp_path: Path) -> Path:
+    """Copy sample 040 into a writable temp file. Skip the calling
+    test if the sample isn't present in the corpus."""
+    import pytest as _pytest
+    src = _SAMPLE_040
+    if not src.exists():
+        _pytest.skip(f"sample 040 unavailable: {src}")
+    dst = tmp_path / src.name
+    import shutil as _shutil
+    _shutil.copy(src, dst)
+    return dst
+
+
+def test_rename_module_updates_dir_stream(tmp_path: Path) -> None:
+    from pyopenvba.access import AccessFile
+
+    p = _copy_sample_040(tmp_path)
+    db = AccessFile(p)
+    info_before = db.read_project_info()
+    assert [m.name for m in info_before.modules] == ["M"]
+
+    db.rename_module("M", "RenamedM")
+    info_after = db.read_project_info()
+    names = [(m.name, m.name_unicode) for m in info_after.modules]
+    assert names == [("RenamedM", "RenamedM")]
+
+
+def test_rename_module_updates_ovba_cache(tmp_path: Path) -> None:
+    from pyopenvba.access import AccessFile
+
+    p = _copy_sample_040(tmp_path)
+    db = AccessFile(p)
+    db.rename_module("M", "RenamedM")
+    mods = list(db.iter_vba_modules())
+    assert len(mods) == 1
+    assert mods[0].name == "RenamedM"
+    assert 'Attribute VB_Name = "RenamedM"' in mods[0].attributes_text
+
+
+def test_rename_module_survives_save_reload(tmp_path: Path) -> None:
+    from pyopenvba.access import AccessFile
+
+    p = _copy_sample_040(tmp_path)
+    db = AccessFile(p)
+    db.rename_module("M", "Roundtrip")
+    db.save()
+
+    db2 = AccessFile(p)
+    info = db2.read_project_info()
+    assert [m.name for m in info.modules] == ["Roundtrip"]
+    mods = list(db2.iter_vba_modules())
+    assert [m.name for m in mods] == ["Roundtrip"]
+
+
+def test_rename_module_missing_raises(tmp_path: Path) -> None:
+    from pyopenvba.access import AccessFile, AccessError
+
+    p = _copy_sample_040(tmp_path)
+    db = AccessFile(p)
+    with pytest.raises(AccessError, match="not found in dir-stream"):
+        db.rename_module("DoesNotExist", "Whatever")
+
+
+def test_rename_module_empty_new_name_raises(tmp_path: Path) -> None:
+    from pyopenvba.access import AccessFile, AccessError
+
+    p = _copy_sample_040(tmp_path)
+    db = AccessFile(p)
+    with pytest.raises(AccessError, match="non-empty"):
+        db.rename_module("M", "")
+
+
+def test_delete_module_updates_dir_stream(tmp_path: Path) -> None:
+    from pyopenvba.access import AccessFile
+
+    p = _copy_sample_040(tmp_path)
+    db = AccessFile(p)
+    db.delete_module("M")
+    info = db.read_project_info()
+    assert list(info.modules) == []
+
+
+def test_delete_module_tombstones_ovba_cache(tmp_path: Path) -> None:
+    from pyopenvba.access import AccessFile
+
+    p = _copy_sample_040(tmp_path)
+    db = AccessFile(p)
+    db.delete_module("M")
+    assert list(db.iter_vba_modules()) == []
+
+
+def test_delete_module_survives_save_reload(tmp_path: Path) -> None:
+    from pyopenvba.access import AccessFile
+
+    p = _copy_sample_040(tmp_path)
+    db = AccessFile(p)
+    db.delete_module("M")
+    db.save()
+
+    db2 = AccessFile(p)
+    assert list(db2.read_project_info().modules) == []
+    assert list(db2.iter_vba_modules()) == []
+
+
+def test_delete_module_missing_raises(tmp_path: Path) -> None:
+    from pyopenvba.access import AccessFile, AccessError
+
+    p = _copy_sample_040(tmp_path)
+    db = AccessFile(p)
+    with pytest.raises(AccessError, match="not found in dir-stream"):
+        db.delete_module("NotThere")
+
+
+def test_add_module_catalog_entry_appends_record(tmp_path: Path) -> None:
+    from pyopenvba.access import AccessFile
+
+    p = _copy_sample_040(tmp_path)
+    db = AccessFile(p)
+    db.add_module_catalog_entry("AddedMod")
+    info = db.read_project_info()
+    names = [m.name for m in info.modules]
+    assert names == ["M", "AddedMod"]
+
+
+def test_add_module_catalog_entry_survives_save_reload(
+    tmp_path: Path,
+) -> None:
+    from pyopenvba.access import AccessFile
+
+    p = _copy_sample_040(tmp_path)
+    db = AccessFile(p)
+    db.add_module_catalog_entry(
+        "AddedMod", is_class_module=False, is_private=True
+    )
+    db.save()
+
+    db2 = AccessFile(p)
+    info = db2.read_project_info()
+    names = [(m.name, m.name_unicode) for m in info.modules]
+    assert ("AddedMod", "AddedMod") in names
+
+
+def test_add_module_catalog_entry_duplicate_raises(tmp_path: Path) -> None:
+    from pyopenvba.access import AccessFile, AccessError
+
+    p = _copy_sample_040(tmp_path)
+    db = AccessFile(p)
+    with pytest.raises(AccessError, match="already exists"):
+        db.add_module_catalog_entry("M")
+
+
+def test_modify_module_cache_round_trip(tmp_path: Path) -> None:
+    from pyopenvba.access import AccessFile
+
+    p = _copy_sample_040(tmp_path)
+    db = AccessFile(p)
+    new_src = (
+        "Option Compare Database\r\n\r\n"
+        "Sub Greet()\r\n"
+        "    MsgBox \"hi from pyopenvba\"\r\n"
+        "End Sub\r\n"
+    )
+    db.modify_module_cache("M", new_src)
+    db.save()
+
+    db2 = AccessFile(p)
+    mods = list(db2.iter_vba_modules())
+    assert len(mods) == 1
+    assert mods[0].name == "M"
+    assert "Sub Greet()" in mods[0].source
+    assert "hi from pyopenvba" in mods[0].source
+    assert "MsgBox \"hello\"" not in mods[0].source
+
+
+def test_modify_module_cache_unknown_module_raises(tmp_path: Path) -> None:
+    from pyopenvba.access import AccessFile, AccessError
+
+    p = _copy_sample_040(tmp_path)
+    db = AccessFile(p)
+    with pytest.raises(AccessError, match="not present"):
+        db.modify_module_cache("NotHere", "Sub X(): End Sub\r\n")
+
+
+def test_combined_rename_then_delete(tmp_path: Path) -> None:
+    """Two-step mutation: rename then delete the renamed module."""
+    from pyopenvba.access import AccessFile
+
+    p = _copy_sample_040(tmp_path)
+    db = AccessFile(p)
+    db.rename_module("M", "Tmp")
+    db.delete_module("Tmp")
+    db.save()
+
+    db2 = AccessFile(p)
+    assert list(db2.read_project_info().modules) == []
+    assert list(db2.iter_vba_modules()) == []
+
+
+def test_combined_add_then_rename(tmp_path: Path) -> None:
+    from pyopenvba.access import AccessFile
+
+    p = _copy_sample_040(tmp_path)
+    db = AccessFile(p)
+    db.add_module_catalog_entry("NewOne")
+    db.rename_module("NewOne", "RenamedOne")
+    db.save()
+
+    db2 = AccessFile(p)
+    names = [m.name for m in db2.read_project_info().modules]
+    assert "RenamedOne" in names
+    assert "NewOne" not in names
+
+
+def test_tombstone_zeroes_freed_row_payload(tmp_path: Path) -> None:
+    """Regression: tombstoning must destroy the freed bytes so they
+    can't leak into an adjacent slot's extent walk."""
+    from pyopenvba.access import AccessFile
+
+    p = _copy_sample_040(tmp_path)
+    db = AccessFile(p)
+    # Locate one OVBA cache row to tombstone.
+    target: tuple[int, int] | None = None
+    for page, slot, _row in db._iter_lval_rows():  # pyright: ignore[reportPrivateUsage]
+        if page != 68:
+            continue
+        if slot == 0:
+            target = (page, slot)
+            break
+    assert target is not None
+    db._lval_tombstone_slot(*target)  # pyright: ignore[reportPrivateUsage]
+    # The freed region must now be zero bytes.
+    base = target[0] * 4096
+    # After tombstone, the next live slot's extent should NOT pick up
+    # the M attribute prefix from the zeroed region.
+    found_attr = False
+    for _p, _s, row in db._iter_lval_rows():  # pyright: ignore[reportPrivateUsage]
+        if b'Attribute VB_Name = "M"' in row:
+            found_attr = True
+    _ = base
+    assert not found_attr, (
+        "freed bytes still discoverable via adjacent slot extent"
+    )
+
+
+# ============================================================
+# Corpus-wide mutation parametrization: every RE corpus sample
+# survives the full rename/delete/add/modify round-trip.
+# ============================================================
+
+
+def _all_corpus_samples() -> list[Path]:
+    if not _RE_CORPUS.exists():
+        return []
+    return sorted(_RE_CORPUS.glob("0*__*.accdb"))
+
+
+@pytest.mark.parametrize(
+    "sample",
+    _all_corpus_samples(),
+    ids=lambda p: p.stem,
+)
+def test_corpus_rename_round_trip(
+    sample: Path, tmp_path: Path
+) -> None:
+    from pyopenvba.access import AccessFile
+
+    import shutil
+    dst = tmp_path / sample.name
+    shutil.copy(sample, dst)
+    db = AccessFile(dst)
+    info = db.read_project_info()
+    if not info.modules:
+        pytest.skip(f"{sample.name}: no modules")
+    target = info.modules[0].name
+    db.rename_module(target, "CorpusRenamed")
+    db.save()
+    db2 = AccessFile(dst)
+    names = [m.name for m in db2.read_project_info().modules]
+    assert "CorpusRenamed" in names
+    assert target not in names
+    iter_names = [m.name for m in db2.iter_vba_modules()]
+    assert "CorpusRenamed" in iter_names
+
+
+@pytest.mark.parametrize(
+    "sample",
+    _all_corpus_samples(),
+    ids=lambda p: p.stem,
+)
+def test_corpus_delete_round_trip(
+    sample: Path, tmp_path: Path
+) -> None:
+    from pyopenvba.access import AccessFile
+
+    import shutil
+    dst = tmp_path / sample.name
+    shutil.copy(sample, dst)
+    db = AccessFile(dst)
+    info = db.read_project_info()
+    if not info.modules:
+        pytest.skip(f"{sample.name}: no modules")
+    target = info.modules[0].name
+    before = len(info.modules)
+    db.delete_module(target)
+    db.save()
+    db2 = AccessFile(dst)
+    after_info = db2.read_project_info()
+    assert len(after_info.modules) == before - 1
+    iter_names = [m.name for m in db2.iter_vba_modules()]
+    assert target not in iter_names
+
+
+@pytest.mark.parametrize(
+    "sample",
+    _all_corpus_samples(),
+    ids=lambda p: p.stem,
+)
+def test_corpus_add_round_trip(sample: Path, tmp_path: Path) -> None:
+    from pyopenvba.access import AccessFile
+
+    import shutil
+    dst = tmp_path / sample.name
+    shutil.copy(sample, dst)
+    db = AccessFile(dst)
+    before_names = {m.name for m in db.read_project_info().modules}
+    if "CorpusAdded" in before_names:
+        pytest.skip("name collision")
+    db.add_module_catalog_entry("CorpusAdded")
+    db.save()
+    db2 = AccessFile(dst)
+    after_names = {m.name for m in db2.read_project_info().modules}
+    assert "CorpusAdded" in after_names
+    assert before_names.issubset(after_names)
+
+
+@pytest.mark.parametrize(
+    "sample",
+    _all_corpus_samples(),
+    ids=lambda p: p.stem,
+)
+def test_corpus_modify_cache_short(
+    sample: Path, tmp_path: Path
+) -> None:
+    from pyopenvba.access import AccessFile
+
+    import shutil
+    dst = tmp_path / sample.name
+    shutil.copy(sample, dst)
+    db = AccessFile(dst)
+    info = db.read_project_info()
+    if not info.modules:
+        pytest.skip(f"{sample.name}: no modules")
+    target = info.modules[0].name
+    db.modify_module_cache(target, "Option Compare Database\r\n")
+    db.save()
+    db2 = AccessFile(dst)
+    mods = list(db2.iter_vba_modules())
+    m = next((m for m in mods if m.name == target), None)
+    assert m is not None
+    assert "Option Compare Database" in m.source
+
+
+@pytest.mark.parametrize(
+    "sample",
+    _all_corpus_samples(),
+    ids=lambda p: p.stem,
+)
+def test_corpus_modify_cache_long(
+    sample: Path, tmp_path: Path
+) -> None:
+    from pyopenvba.access import AccessFile
+
+    import shutil
+    dst = tmp_path / sample.name
+    shutil.copy(sample, dst)
+    db = AccessFile(dst)
+    info = db.read_project_info()
+    if not info.modules:
+        pytest.skip(f"{sample.name}: no modules")
+    target = info.modules[0].name
+    new_src = (
+        "Option Compare Database\r\n"
+        "Option Explicit\r\n\r\n"
+        "Sub Generated()\r\n"
+        '    Dim i As Long\r\n'
+        '    For i = 1 To 10\r\n'
+        '        Debug.Print "iter " & i\r\n'
+        '    Next i\r\n'
+        "End Sub\r\n"
+    )
+    db.modify_module_cache(target, new_src)
+    db.save()
+    db2 = AccessFile(dst)
+    mods = list(db2.iter_vba_modules())
+    m = next((m for m in mods if m.name == target), None)
+    assert m is not None
+    assert "Sub Generated()" in m.source
+    assert "For i = 1 To 10" in m.source
+
+
+# ============================================================
+# Phase 5c: high-level convenience APIs (export / import /
+# replace_module).
+# ============================================================
+
+
+def test_export_modules_writes_bas_files(tmp_path: Path) -> None:
+    from pyopenvba.access import AccessFile
+
+    sample = _RE_CORPUS / "040__sub_msgbox_hello.accdb"
+    if not sample.exists():
+        pytest.skip("sample 040 missing")
+    import shutil
+    dst = tmp_path / sample.name
+    shutil.copy(sample, dst)
+    db = AccessFile(dst)
+    out_dir = tmp_path / "exported"
+    written = db.export_modules(out_dir)
+    assert len(written) >= 1
+    bas = out_dir / "M.bas"
+    assert bas.exists()
+    text = bas.read_text(encoding="latin-1")
+    # Source should not contain the Attribute VB_Name preamble by default.
+    assert "Attribute VB_Name" not in text
+
+
+def test_export_modules_include_attributes(tmp_path: Path) -> None:
+    from pyopenvba.access import AccessFile
+
+    sample = _RE_CORPUS / "040__sub_msgbox_hello.accdb"
+    if not sample.exists():
+        pytest.skip("sample 040 missing")
+    import shutil
+    dst = tmp_path / sample.name
+    shutil.copy(sample, dst)
+    db = AccessFile(dst)
+    out_dir = tmp_path / "exported"
+    db.export_modules(out_dir, include_attributes=True)
+    text = (out_dir / "M.bas").read_text(encoding="latin-1")
+    assert 'Attribute VB_Name = "M"' in text
+
+
+def test_export_modules_class_module_extension(tmp_path: Path) -> None:
+    from pyopenvba.access import AccessFile
+
+    sample = _RE_CORPUS / "021__empty_ClassModule_Class1.accdb"
+    if not sample.exists():
+        pytest.skip("sample 021 missing")
+    import shutil
+    dst = tmp_path / sample.name
+    shutil.copy(sample, dst)
+    db = AccessFile(dst)
+    out_dir = tmp_path / "exported"
+    written = db.export_modules(out_dir)
+    cls = out_dir / "Class1.cls"
+    assert cls in written
+    assert cls.exists()
+
+
+def test_import_module_from_source_string(tmp_path: Path) -> None:
+    from pyopenvba.access import AccessFile
+
+    sample = _RE_CORPUS / "040__sub_msgbox_hello.accdb"
+    if not sample.exists():
+        pytest.skip("sample 040 missing")
+    import shutil
+    dst = tmp_path / sample.name
+    shutil.copy(sample, dst)
+    db = AccessFile(dst)
+    db.import_module(
+        "Option Compare Database\r\nSub Hi(): MsgBox \"hi\": End Sub\r\n",
+        name="Imported",
+    )
+    db.save()
+    db2 = AccessFile(dst)
+    names = [m.name for m in db2.read_project_info().modules]
+    assert "Imported" in names
+
+
+def test_import_module_from_bas_file(tmp_path: Path) -> None:
+    from pyopenvba.access import AccessFile
+
+    sample = _RE_CORPUS / "040__sub_msgbox_hello.accdb"
+    if not sample.exists():
+        pytest.skip("sample 040 missing")
+    import shutil
+    dst = tmp_path / sample.name
+    shutil.copy(sample, dst)
+    bas = tmp_path / "ToImport.bas"
+    bas.write_text(
+        "Option Compare Database\r\nSub Hello()\r\n    Debug.Print \"hi\"\r\nEnd Sub\r\n",
+        encoding="latin-1",
+    )
+    db = AccessFile(dst)
+    final = db.import_module(bas)
+    db.save()
+    assert final == "ToImport"
+    db2 = AccessFile(dst)
+    names = [m.name for m in db2.read_project_info().modules]
+    assert "ToImport" in names
+
+
+def test_import_module_replace_existing(tmp_path: Path) -> None:
+    from pyopenvba.access import AccessFile, AccessError
+
+    sample = _RE_CORPUS / "040__sub_msgbox_hello.accdb"
+    if not sample.exists():
+        pytest.skip("sample 040 missing")
+    import shutil
+    dst = tmp_path / sample.name
+    shutil.copy(sample, dst)
+    db = AccessFile(dst)
+    # First import without replace should collide.
+    with pytest.raises(AccessError):
+        db.import_module("Option Compare Database\r\n", name="M")
+    # With replace_existing=True it should succeed.
+    db.import_module(
+        "Option Compare Database\r\n'replaced via import_module\r\n",
+        name="M",
+        replace_existing=True,
+    )
+    db.save()
+    db2 = AccessFile(dst)
+    m = next(mm for mm in db2.iter_vba_modules() if mm.name == "M")
+    assert "replaced via import_module" in m.source
+
+
+def test_import_module_class_inference(tmp_path: Path) -> None:
+    from pyopenvba.access import AccessFile
+
+    sample = _RE_CORPUS / "040__sub_msgbox_hello.accdb"
+    if not sample.exists():
+        pytest.skip("sample 040 missing")
+    import shutil
+    dst = tmp_path / sample.name
+    shutil.copy(sample, dst)
+    cls_path = tmp_path / "MyClass.cls"
+    cls_path.write_text(
+        "Option Compare Database\r\nPrivate myField As Long\r\n",
+        encoding="latin-1",
+    )
+    db = AccessFile(dst)
+    db.import_module(cls_path)
+    db.save()
+    db2 = AccessFile(dst)
+    project = db2.read_project_info()
+    target = next(m for m in project.modules if m.name == "MyClass")
+    assert target.is_class_module is True
+
+
+def test_replace_module_alias_works(tmp_path: Path) -> None:
+    from pyopenvba.access import AccessFile
+
+    sample = _RE_CORPUS / "040__sub_msgbox_hello.accdb"
+    if not sample.exists():
+        pytest.skip("sample 040 missing")
+    import shutil
+    dst = tmp_path / sample.name
+    shutil.copy(sample, dst)
+    db = AccessFile(dst)
+    new_src = (
+        "Option Compare Database\r\n"
+        "Sub Renamed()\r\n    Debug.Print \"hello replace\"\r\nEnd Sub\r\n"
+    )
+    db.replace_module("M", new_src)
+    db.save()
+    db2 = AccessFile(dst)
+    m = next(mm for mm in db2.iter_vba_modules() if mm.name == "M")
+    assert "hello replace" in m.source
+
+
+def test_export_then_import_round_trip(tmp_path: Path) -> None:
+    from pyopenvba.access import AccessFile
+
+    sample = _RE_CORPUS / "040__sub_msgbox_hello.accdb"
+    if not sample.exists():
+        pytest.skip("sample 040 missing")
+    import shutil
+    dst = tmp_path / sample.name
+    shutil.copy(sample, dst)
+    db = AccessFile(dst)
+    out_dir = tmp_path / "exported"
+    db.export_modules(out_dir)
+    bas = out_dir / "M.bas"
+    assert bas.exists()
+    db.delete_module("M")
+    db.save()
+
+    db2 = AccessFile(dst)
+    assert "M" not in {m.name for m in db2.read_project_info().modules}
+
+    db2.import_module(bas)
+    db2.save()
+
+    db3 = AccessFile(dst)
+    names = [m.name for m in db3.read_project_info().modules]
+    assert "M" in names
+
+
+# ============================================================
+# MSysObjects (Jet/ACE system catalog) reader
+# ============================================================
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "040__sub_msgbox_hello.accdb").exists(),
+    reason="RE corpus sample 040 not present",
+)
+def test_msys_objects_includes_standard_containers() -> None:
+    """Every .accdb has the same set of bootstrap container rows."""
+    from pyopenvba.access import AccessFile
+
+    db = AccessFile(_RE_CORPUS / "040__sub_msgbox_hello.accdb")
+    by_name = {o.name: o for o in db.iter_msys_objects()}
+    # Bootstrap containers always present in a fresh .accdb.
+    for required in (
+        "Tables",
+        "Databases",
+        "Relationships",
+        "Forms",
+        "Reports",
+        "Scripts",
+        "Modules",
+        "MSysObjects",
+    ):
+        assert required in by_name, f"missing container {required!r}"
+    # The Modules container is type=3 (CONTAINER) with parent = 0x0F000000.
+    modules = by_name["Modules"]
+    assert modules.type_ == 3
+    assert modules.parent_id == 0x0F000000
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "040__sub_msgbox_hello.accdb").exists(),
+    reason="RE corpus sample 040 not present",
+)
+def test_msys_module_M_round_trip() -> None:
+    from pyopenvba.access import AccessFile, MSYS_TYPE_MODULE
+
+    db = AccessFile(_RE_CORPUS / "040__sub_msgbox_hello.accdb")
+    mod = db.find_msys_module("M")
+    assert mod is not None
+    assert mod.name == "M"
+    assert mod.type_ == MSYS_TYPE_MODULE
+    assert mod.is_vba_module is True
+    # The Modules container parents every VBA module row.
+    modules_container = db.find_msys_object("Modules", type_=3)
+    assert modules_container is not None
+    assert mod.parent_id == modules_container.id_
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "040__sub_msgbox_hello.accdb").exists(),
+    reason="RE corpus sample 040 not present",
+)
+def test_msys_find_is_case_insensitive() -> None:
+    from pyopenvba.access import AccessFile
+
+    db = AccessFile(_RE_CORPUS / "040__sub_msgbox_hello.accdb")
+    assert db.find_msys_module("M") is not None
+    assert db.find_msys_module("m") is not None
+    assert db.find_msys_object("MODULES", type_=3) is not None
+    assert db.find_msys_object("modules", type_=3) is not None
+    assert db.find_msys_module("nonexistent_module_name") is None
+
+
+@pytest.mark.skipif(
+    not _RE_CORPUS.exists(),
+    reason="RE corpus directory not present",
+)
+@pytest.mark.parametrize(
+    "sample",
+    _all_corpus_samples(),
+    ids=lambda p: p.stem,
+)
+def test_corpus_msys_objects_matches_vba_module_names(sample: Path) -> None:
+    """Across every corpus sample, the VBA module names found via
+    iter_vba_modules() exactly match the user-module rows in
+    MSysObjects (Type == MSYS_TYPE_MODULE)."""
+    from pyopenvba.access import AccessFile
+
+    db = AccessFile(sample)
+    src_names = set(db.vba_module_names())
+    msys_names = {m.name for m in db.iter_msys_modules()}
+    assert src_names == msys_names, (
+        f"{sample.name}: src={sorted(src_names)} msys={sorted(msys_names)}"
+    )
+
+
+@pytest.mark.skipif(
+    not _RE_CORPUS.exists(),
+    reason="RE corpus directory not present",
+)
+@pytest.mark.parametrize(
+    "sample",
+    _all_corpus_samples(),
+    ids=lambda p: p.stem,
+)
+def test_corpus_msys_module_parent_is_modules_container(
+    sample: Path,
+) -> None:
+    """Every VBA module row's ParentId points at the row whose name is
+    'Modules' and whose Type is the container type (3)."""
+    from pyopenvba.access import AccessFile
+
+    db = AccessFile(sample)
+    modules_container = db.find_msys_object("Modules", type_=3)
+    assert modules_container is not None
+    for mod in db.iter_msys_modules():
+        assert mod.parent_id == modules_container.id_, (
+            f"{sample.name}: module {mod.name!r} parent "
+            f"0x{mod.parent_id:08x} != Modules container "
+            f"0x{modules_container.id_:08x}"
+        )
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "040__sub_msgbox_hello.accdb").exists(),
+    reason="RE corpus sample 040 not present",
+)
+def test_msys_objects_returns_tuple() -> None:
+    from pyopenvba.access import AccessFile
+
+    db = AccessFile(_RE_CORPUS / "040__sub_msgbox_hello.accdb")
+    result = db.msys_objects()
+    assert isinstance(result, tuple)
+    assert len(result) > 0
+    # Identity-stable across calls (decoded fresh each call).
+    again = db.msys_objects()
+    assert [o.id_ for o in result] == [o.id_ for o in again]
+    assert [o.name for o in result] == [o.name for o in again]
+

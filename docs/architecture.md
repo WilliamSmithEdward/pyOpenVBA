@@ -46,6 +46,8 @@ knows about the layer below it but not the layer above.
 |   - export_modules(dir) / import_module(path|source)   |
 |   - iter_msys_objects / find_msys_module               |
 |       (MSysObjects system catalog reader)              |
+|   - rename_msys_object / delete_msys_object /          |
+|       add_msys_module_object (MSysObjects write path)  |
 |   - save([path]) -> persists in-memory edits           |
 +--------------------------------------------------------+
 | vba.py          VBA project layer                      |
@@ -259,12 +261,13 @@ module to `<name>.bas` / `<name>.cls` on disk (class modules detected
 via the dir-stream MODULETYPE record); `AccessFile.import_module(
 path_or_source, *, name=None, is_class_module=None, replace_existing
 =False)` adds a new module from a `.bas`/`.cls` file or raw source
-string, optionally overwriting an existing module's cache. These
-operations make the changes visible to pure-Python readers
-(`read_project_info`, `iter_vba_modules`); they do NOT update the
-Access engine's MSysObjects catalog or p-code tables, so the live
-Access VBA editor may not immediately reflect every change. Those
-engine-level writes remain documented as future RE phases in
+string, optionally overwriting an existing module's cache. The
+high-level mutation APIs (`rename_module`, `delete_module`,
+`add_module_catalog_entry`) automatically keep the MSysObjects
+system catalog in sync with the dir-stream catalog so the live
+Access Navigation Pane / VBA editor reflects the change. p-code
+table writes (required to make recompiled VBA visible without an
+Access-side recompile) remain documented as a future RE phase in
 `memories/repo/access-vba-storage.md`.
 
 `AccessFile.iter_msys_objects()` (and the convenience helpers
@@ -276,10 +279,19 @@ modules, and the container hubs that group them). Each row is
 surfaced as an `AccessSysObject` dataclass (id_, parent_id, type_,
 flags, name, page, slot). VBA code modules carry `Type ==
 MSYS_TYPE_MODULE` (-32761, 0x8007) and have `parent_id` equal to
-the Id of the row named `Modules` (Type=3 container). This reader
-is the foundation for the future write path that will make
-`rename_module` / `delete_module` / `add_module_catalog_entry`
-visible inside the live Access UI.
+the Id of the row named `Modules` (Type=3 container).
+
+The paired write path -- `AccessFile.rename_msys_object(old, new)`,
+`delete_msys_object(name)`, `add_msys_module_object(name)` --
+mutates MSysObjects DATA pages directly using the Jet row offset
+table (`0x8000` deleted flag, `0x4000` overflow flag, `0x1FFF`
+offset mask). Renames take a fast in-place path when the new UTF-16
+Name has the same byte length as the old one; longer/shorter names
+reflow the row in place, shifting other rows on the same page and
+updating their slot offsets. Adds allocate a fresh user-content Id
+(bit 31 set, max-existing + 1), copy date stamps from the current
+UTC time as OLE Dates, parent the row at the `Modules` container,
+and append onto the first MSysObjects DATA page with room.
 
 ---
 

@@ -2773,3 +2773,283 @@ def test_msys_objects_returns_tuple() -> None:
     assert [o.id_ for o in result] == [o.id_ for o in again]
     assert [o.name for o in result] == [o.name for o in again]
 
+
+
+# ============================================================
+# Phase 5e: MSysObjects write path -- rename / delete / add
+# ============================================================
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "040__sub_msgbox_hello.accdb").exists(),
+    reason="RE corpus sample 040 not present",
+)
+def test_msys_rename_same_length(tmp_path: Path) -> None:
+    """Renaming a module to a same-byte-length name uses the fast
+    in-place patch and survives save+reload."""
+    import shutil
+
+    src = _RE_CORPUS / "040__sub_msgbox_hello.accdb"
+    dst = tmp_path / "rename_same.accdb"
+    shutil.copy(src, dst)
+
+    db = AccessFile(dst)
+    assert db.find_msys_module("M") is not None
+    db.rename_msys_object("M", "X")
+    db.save()
+
+    db2 = AccessFile(dst)
+    assert db2.find_msys_module("M") is None
+    obj = db2.find_msys_module("X")
+    assert obj is not None
+    assert obj.name == "X"
+    # Round-trip via msys_objects() must remain coherent.
+    names = [o.name for o in db2.msys_objects()]
+    assert "X" in names and "M" not in names
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "040__sub_msgbox_hello.accdb").exists(),
+    reason="RE corpus sample 040 not present",
+)
+def test_msys_rename_longer(tmp_path: Path) -> None:
+    """Renaming to a longer name triggers row resize + offset reflow
+    and still round-trips."""
+    import shutil
+
+    src = _RE_CORPUS / "040__sub_msgbox_hello.accdb"
+    dst = tmp_path / "rename_longer.accdb"
+    shutil.copy(src, dst)
+
+    db = AccessFile(dst)
+    db.rename_msys_object("M", "ModuleOneLongerName")
+    db.save()
+
+    db2 = AccessFile(dst)
+    assert db2.find_msys_module("M") is None
+    obj = db2.find_msys_module("ModuleOneLongerName")
+    assert obj is not None
+    # Other system rows must still be readable after the reflow.
+    assert any(o.name == "Modules" for o in db2.msys_objects())
+    assert any(o.name == "Tables" for o in db2.msys_objects())
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "014__module_named_Module1.accdb").exists()
+    and not (_RE_CORPUS / "040__sub_msgbox_hello.accdb").exists(),
+    reason="RE corpus not present",
+)
+def test_msys_rename_shorter(tmp_path: Path) -> None:
+    """Renaming to a shorter name shrinks the row and pads tombstone
+    bytes; other rows remain decodable."""
+    import shutil
+
+    # Pick whichever sample exists. We start from "ModuleOneLongerName"
+    # produced via a longer rename, then shrink to single char.
+    src = _RE_CORPUS / "040__sub_msgbox_hello.accdb"
+    dst = tmp_path / "rename_shorter.accdb"
+    shutil.copy(src, dst)
+    db = AccessFile(dst)
+    db.rename_msys_object("M", "ABCDEFGHIJ")
+    db.save()
+
+    db2 = AccessFile(dst)
+    assert db2.find_msys_module("ABCDEFGHIJ") is not None
+    db2.rename_msys_object("ABCDEFGHIJ", "Y")
+    db2.save()
+
+    db3 = AccessFile(dst)
+    obj = db3.find_msys_module("Y")
+    assert obj is not None
+    assert obj.name == "Y"
+    assert db3.find_msys_module("ABCDEFGHIJ") is None
+    assert any(o.name == "Modules" for o in db3.msys_objects())
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "040__sub_msgbox_hello.accdb").exists(),
+    reason="RE corpus sample 040 not present",
+)
+def test_msys_delete_row(tmp_path: Path) -> None:
+    """Tombstoning a module row removes it from the system catalog
+    iterators and survives save+reload."""
+    import shutil
+
+    src = _RE_CORPUS / "040__sub_msgbox_hello.accdb"
+    dst = tmp_path / "delete_msys.accdb"
+    shutil.copy(src, dst)
+
+    db = AccessFile(dst)
+    assert db.find_msys_module("M") is not None
+    db.delete_msys_object("M")
+    db.save()
+
+    db2 = AccessFile(dst)
+    assert db2.find_msys_module("M") is None
+    # Tables container must still exist (we didn't damage neighbors).
+    assert any(o.name == "Tables" for o in db2.msys_objects())
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "040__sub_msgbox_hello.accdb").exists(),
+    reason="RE corpus sample 040 not present",
+)
+def test_msys_add_module_object(tmp_path: Path) -> None:
+    """Adding a fresh module row appends to MSysObjects with a new
+    Id, the Modules container as parent, type=MODULE."""
+    import shutil
+    from pyopenvba.access import MSYS_TYPE_MODULE
+
+    src = _RE_CORPUS / "040__sub_msgbox_hello.accdb"
+    dst = tmp_path / "add_msys.accdb"
+    shutil.copy(src, dst)
+
+    db = AccessFile(dst)
+    modules_container = db.find_msys_object("Modules")
+    assert modules_container is not None
+    obj = db.add_msys_module_object("Brand_New_Mod")
+    assert obj.name == "Brand_New_Mod"
+    assert obj.type_ == MSYS_TYPE_MODULE
+    assert obj.parent_id == modules_container.id_
+    # Id must be a fresh user-content Id (bit 31 set, > any existing).
+    assert obj.id_ & 0x80000000
+    db.save()
+
+    db2 = AccessFile(dst)
+    again = db2.find_msys_module("Brand_New_Mod")
+    assert again is not None
+    assert again.id_ == obj.id_
+    assert again.parent_id == modules_container.id_
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "040__sub_msgbox_hello.accdb").exists(),
+    reason="RE corpus sample 040 not present",
+)
+def test_rename_module_updates_msys(tmp_path: Path) -> None:
+    """The high-level :meth:`rename_module` API drives both the
+    dir-stream catalog AND the MSysObjects row."""
+    import shutil
+
+    src = _RE_CORPUS / "040__sub_msgbox_hello.accdb"
+    dst = tmp_path / "rename_high.accdb"
+    shutil.copy(src, dst)
+
+    db = AccessFile(dst)
+    db.rename_module("M", "RenamedByHigh")
+    db.save()
+
+    db2 = AccessFile(dst)
+    info = db2.read_project_info()
+    assert any(m.name == "RenamedByHigh" for m in info.modules)
+    assert not any(m.name == "M" for m in info.modules)
+    # MSysObjects must reflect the rename too.
+    assert db2.find_msys_module("M") is None
+    assert db2.find_msys_module("RenamedByHigh") is not None
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "040__sub_msgbox_hello.accdb").exists(),
+    reason="RE corpus sample 040 not present",
+)
+def test_delete_module_updates_msys(tmp_path: Path) -> None:
+    """The high-level :meth:`delete_module` API also tombstones the
+    matching MSysObjects row."""
+    import shutil
+
+    src = _RE_CORPUS / "040__sub_msgbox_hello.accdb"
+    dst = tmp_path / "delete_high.accdb"
+    shutil.copy(src, dst)
+
+    db = AccessFile(dst)
+    assert db.find_msys_module("M") is not None
+    db.delete_module("M")
+    db.save()
+
+    db2 = AccessFile(dst)
+    info = db2.read_project_info()
+    assert not any(m.name == "M" for m in info.modules)
+    assert db2.find_msys_module("M") is None
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "040__sub_msgbox_hello.accdb").exists(),
+    reason="RE corpus sample 040 not present",
+)
+def test_add_module_catalog_entry_updates_msys(tmp_path: Path) -> None:
+    """The high-level :meth:`add_module_catalog_entry` API creates a
+    paired MSysObjects row alongside the dir-stream record."""
+    import shutil
+
+    src = _RE_CORPUS / "040__sub_msgbox_hello.accdb"
+    dst = tmp_path / "add_high.accdb"
+    shutil.copy(src, dst)
+
+    db = AccessFile(dst)
+    db.add_module_catalog_entry("Created_Via_HighLevel")
+    db.save()
+
+    db2 = AccessFile(dst)
+    info = db2.read_project_info()
+    assert any(m.name == "Created_Via_HighLevel" for m in info.modules)
+    assert db2.find_msys_module("Created_Via_HighLevel") is not None
+
+
+@pytest.mark.skipif(
+    not _RE_CORPUS.exists(),
+    reason="RE corpus not present",
+)
+@pytest.mark.parametrize(
+    "sample",
+    _all_corpus_samples(),
+    ids=lambda p: p.stem,
+)
+def test_corpus_msys_rename_round_trip(sample: Path, tmp_path: Path) -> None:
+    """Every corpus sample with at least one VBA module survives a
+    MSysObjects-level rename+save+reload."""
+    import shutil
+
+    dst = tmp_path / sample.name
+    shutil.copy(sample, dst)
+    db = AccessFile(dst)
+    modules = list(db.iter_msys_modules())
+    if not modules:
+        pytest.skip(f"{sample.name}: no VBA modules in MSysObjects")
+    target = modules[0].name
+    db.rename_msys_object(target, "CorpusMsysRenamed")
+    db.save()
+
+    db2 = AccessFile(dst)
+    assert db2.find_msys_module(target) is None
+    obj = db2.find_msys_module("CorpusMsysRenamed")
+    assert obj is not None
+
+
+@pytest.mark.skipif(
+    not _RE_CORPUS.exists(),
+    reason="RE corpus not present",
+)
+@pytest.mark.parametrize(
+    "sample",
+    _all_corpus_samples(),
+    ids=lambda p: p.stem,
+)
+def test_corpus_msys_delete_round_trip(sample: Path, tmp_path: Path) -> None:
+    """Every corpus sample with at least one VBA module survives a
+    MSysObjects-level delete+save+reload."""
+    import shutil
+
+    dst = tmp_path / sample.name
+    shutil.copy(sample, dst)
+    db = AccessFile(dst)
+    modules = list(db.iter_msys_modules())
+    if not modules:
+        pytest.skip(f"{sample.name}: no VBA modules in MSysObjects")
+    target = modules[0].name
+    db.delete_msys_object(target)
+    db.save()
+
+    db2 = AccessFile(dst)
+    assert db2.find_msys_module(target) is None
+    # Standard system rows must remain readable.
+    assert any(o.name == "Tables" for o in db2.msys_objects())

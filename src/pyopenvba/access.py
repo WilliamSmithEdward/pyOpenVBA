@@ -51,6 +51,8 @@ source extraction and use :meth:`AccessFile.iter_vba_modules` instead.
 
 from __future__ import annotations
 
+import datetime
+import struct
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterator, Union
@@ -1733,6 +1735,16 @@ class AccessFile:
             # OVBA cache update is opportunistic; ignore failures.
             pass
 
+        # MSysObjects (Jet/ACE system catalog) update: the live Access
+        # engine consults MSysObjects to drive the Navigation Pane and
+        # the VBA editor. Updating only the dir-stream catalog leaves
+        # the two sources of truth desynchronised. If no MSysObjects
+        # row exists for ``old_name`` (e.g. the module was just added
+        # via add_module_catalog_entry without a paired MSysObjects
+        # row) silently skip; otherwise rename succeeds.
+        if self.find_msys_object(old_name) is not None:
+            self.rename_msys_object(old_name, new_name)
+
     def _patch_ovba_cache_attribute(
         self,
         module_name: str,
@@ -1852,6 +1864,13 @@ class AccessFile:
                     break
         for page, slot in to_tombstone:
             self._lval_tombstone_slot(page, slot)
+
+        # MSysObjects: tombstone the matching system-catalog row so
+        # Access's Navigation Pane no longer surfaces the module. We
+        # use find_msys_object (not _module) to match by name only,
+        # in case Type happens to differ on legacy files.
+        if self.find_msys_object(name) is not None:
+            self.delete_msys_object(name)
 
     def modify_module_cache(
         self, name: str, new_source: str
@@ -2022,8 +2041,13 @@ class AccessFile:
         )
         self._write_catalog_dir_stream(bytes(new_dir))
 
-    # ------------------------------------------------------------------
-    # High-level convenience APIs (round-trip helpers).
+        # MSysObjects: add a parallel system-catalog row so the Access
+        # Navigation Pane / VBA editor knows about this module. If
+        # MSysObjects already has a row for ``name`` (rare -- e.g.
+        # caller pre-populated it), skip rather than duplicate.
+        if self.find_msys_object(name) is None:
+            self.add_msys_module_object(name)
+
     # ------------------------------------------------------------------
 
     def replace_module(self, name: str, new_source: str) -> None:
@@ -2328,6 +2352,515 @@ class AccessFile:
         ``name`` (case-insensitive), or ``None`` if no such module
         exists in the system catalog."""
         return self.find_msys_object(name, type_=MSYS_TYPE_MODULE)
+
+    # ------------------------------------------------------------------
+    # MSysObjects (Jet/ACE system catalog) -- write path
+    # ------------------------------------------------------------------
+    #
+    # Updating MSysObjects rows is required to make module-catalog
+    # mutations (rename / delete / add) visible to the live Access
+    # engine (and hence the VBA editor and the Navigation Pane).
+    #
+    # The underlying DATA pages share the row offset-table format used
+    # by LVAL pages, but with different tombstone semantics:
+    #   * LVAL  pages: top nibble 0xD = tombstone (preserves low 12 bits)
+    #   * DATA  pages: bit 0x8000 = deleted, bit 0x4000 = overflow
+    # so we cannot reuse the LVAL helpers verbatim.
+
+    def _data_slot_count(self, page_num: int) -> int:
+        base = page_num * ACE_PAGE_SIZE
+        return int.from_bytes(self._data[base + 12 : base + 14], "little")
+
+    def _data_slot_entries(self, page_num: int) -> list[int]:
+        """Raw u16 slot table entries for a DATA page (including the
+        ``0x8000`` deleted and ``0x4000`` overflow flag bits)."""
+        base = page_num * ACE_PAGE_SIZE
+        n = self._data_slot_count(page_num)
+        return [
+            int.from_bytes(
+                self._data[base + 14 + 2 * i : base + 16 + 2 * i], "little"
+            )
+            for i in range(n)
+        ]
+
+    def _data_set_slot_entry(
+        self, page_num: int, slot: int, new_entry: int
+    ) -> None:
+        base = page_num * ACE_PAGE_SIZE
+        self._data[base + 14 + 2 * slot : base + 16 + 2 * slot] = (
+            (new_entry & 0xFFFF).to_bytes(2, "little")
+        )
+
+    def _data_row_is_live(self, entry: int) -> bool:
+        return (entry & (_ROW_DELETED_FLAG | _ROW_OVERFLOW_FLAG)) == 0
+
+    def _data_row_extent(
+        self, page_num: int, slot: int
+    ) -> tuple[int, int]:
+        """Return ``(start, end)`` byte offsets on ``page_num`` for the
+        live DATA row at slot index ``slot``.
+
+        End is the next-higher live row offset, or ``ACE_PAGE_SIZE``
+        for the top-most row. Raises :class:`AccessError` if the slot
+        is deleted or an overflow pointer.
+        """
+        entries = self._data_slot_entries(page_num)
+        if slot < 0 or slot >= len(entries):
+            raise AccessError(
+                f"_data_row_extent: slot {slot} out of range on page "
+                f"{page_num} (have {len(entries)} slots)"
+            )
+        ent = entries[slot]
+        if not self._data_row_is_live(ent):
+            raise AccessError(
+                f"_data_row_extent: slot {slot} on page {page_num} is "
+                f"not a live row (flags=0x{ent & 0xE000:04x})"
+            )
+        start = ent & _ROW_OFFSET_MASK
+        end = ACE_PAGE_SIZE
+        for other in entries:
+            if not self._data_row_is_live(other):
+                continue
+            o = other & _ROW_OFFSET_MASK
+            if o > start and o < end:
+                end = o
+        return start, end
+
+    def _data_free_space(self, page_num: int) -> int:
+        """Contiguous free bytes available for new row data on a
+        DATA page (gap between the end of the slot table and the
+        lowest live row offset)."""
+        entries = self._data_slot_entries(page_num)
+        slot_table_end = 14 + 2 * len(entries)
+        live = [
+            e & _ROW_OFFSET_MASK
+            for e in entries
+            if self._data_row_is_live(e)
+        ]
+        lowest = min(live) if live else ACE_PAGE_SIZE
+        return lowest - slot_table_end
+
+    def _data_resize_row(
+        self, page_num: int, slot: int, new_size: int
+    ) -> None:
+        """Resize a DATA-page row in place, shifting other rows on the
+        same page and updating their slot offsets. Mirrors
+        :meth:`_lval_resize_row` but uses DATA-page tombstone bits.
+        """
+        if new_size < 0:
+            raise AccessError(
+                f"_data_resize_row: new_size must be non-negative "
+                f"(got {new_size})"
+            )
+        base = page_num * ACE_PAGE_SIZE
+        start, end = self._data_row_extent(page_num, slot)
+        old_size = end - start
+        delta = new_size - old_size
+        if delta == 0:
+            return
+        entries = self._data_slot_entries(page_num)
+        live: list[tuple[int, int]] = [
+            (i, ent & _ROW_OFFSET_MASK)
+            for i, ent in enumerate(entries)
+            if self._data_row_is_live(ent)
+        ]
+        lowest = min(off for _, off in live)
+        slot_table_end = 14 + 2 * len(entries)
+        new_lowest = lowest - delta
+        if new_lowest < slot_table_end:
+            raise AccessError(
+                f"_data_resize_row: page {page_num} cannot grow slot "
+                f"{slot} by {delta} bytes (free="
+                f"{lowest - slot_table_end}, need={delta})"
+            )
+        block = bytes(self._data[base + lowest : base + start])
+        self._data[
+            base + new_lowest : base + start + (new_lowest - lowest)
+        ] = block
+        if delta < 0:
+            # Zero the now-free trailing region beneath the resized row.
+            self._data[base + lowest : base + new_lowest] = bytes(
+                new_lowest - lowest
+            )
+        # Update slot offsets for every live slot whose old offset
+        # was <= the resized row's old start.
+        for i, old_off in live:
+            if old_off <= start:
+                ent = entries[i]
+                new_off = old_off - delta
+                # Preserve the entry's flag bits (none are set on live
+                # rows -- but keep the high bits for forward-compat).
+                self._data_set_slot_entry(
+                    page_num, i, (ent & 0xE000) | (new_off & _ROW_OFFSET_MASK)
+                )
+
+    def _data_write_row(
+        self, page_num: int, slot: int, new_row: bytes
+    ) -> None:
+        """Replace the bytes of a DATA-page row, resizing as needed."""
+        self._data_resize_row(page_num, slot, len(new_row))
+        base = page_num * ACE_PAGE_SIZE
+        start, end = self._data_row_extent(page_num, slot)
+        assert end - start == len(new_row), (
+            f"_data_write_row invariant: {end - start} != {len(new_row)}"
+        )
+        self._data[base + start : base + end] = new_row
+
+    def _data_tombstone_row(self, page_num: int, slot: int) -> None:
+        """Mark a DATA-page row as deleted via the ``0x8000`` flag.
+        The row's bytes are zeroed so they cannot be misread by
+        higher-level scanners that compute extents naively."""
+        base = page_num * ACE_PAGE_SIZE
+        start, end = self._data_row_extent(page_num, slot)
+        for i in range(base + start, base + end):
+            self._data[i] = 0
+        entries = self._data_slot_entries(page_num)
+        ent = entries[slot]
+        self._data_set_slot_entry(
+            page_num, slot, _ROW_DELETED_FLAG | (ent & _ROW_OFFSET_MASK)
+        )
+
+    def _data_append_row(self, page_num: int, payload: bytes) -> int:
+        """Append a new row to a DATA page and return its slot index.
+        Reuses a deleted slot if available. Mirrors
+        :meth:`_lval_append_row` for DATA-page tombstones."""
+        base = page_num * ACE_PAGE_SIZE
+        entries = self._data_slot_entries(page_num)
+        live: list[tuple[int, int]] = [
+            (i, ent & _ROW_OFFSET_MASK)
+            for i, ent in enumerate(entries)
+            if self._data_row_is_live(ent)
+        ]
+        lowest = min((off for _, off in live), default=ACE_PAGE_SIZE)
+        reuse_slot: int | None = None
+        for i, ent in enumerate(entries):
+            if (ent & _ROW_DELETED_FLAG) and not (ent & _ROW_OVERFLOW_FLAG):
+                reuse_slot = i
+                break
+        slot_table_end = 14 + 2 * len(entries)
+        need = len(payload) + (0 if reuse_slot is not None else 2)
+        if lowest - slot_table_end < need:
+            raise AccessError(
+                f"_data_append_row: page {page_num} has insufficient "
+                f"free space (have {lowest - slot_table_end}, need "
+                f"{need})"
+            )
+        new_off = lowest - len(payload)
+        self._data[base + new_off : base + lowest] = payload
+        if reuse_slot is not None:
+            self._data_set_slot_entry(page_num, reuse_slot, new_off)
+            return reuse_slot
+        new_slot = len(entries)
+        self._data_set_slot_entry(page_num, new_slot, new_off)
+        self._data[base + 12 : base + 14] = (
+            (len(entries) + 1).to_bytes(2, "little")
+        )
+        return new_slot
+
+    # ----- MSysObjects-specific row builder + mutators ----------------
+
+    @staticmethod
+    def _ole_date_now() -> bytes:
+        """Return the current UTC time encoded as an 8-byte OLE Date
+        (IEEE 754 double; days since 1899-12-30)."""
+        epoch = datetime.datetime(1899, 12, 30)
+        delta_days = (
+            datetime.datetime.now() - epoch
+        ).total_seconds() / 86400.0
+        return struct.pack("<d", delta_days)
+
+    def _build_msys_module_row(
+        self,
+        *,
+        id_: int,
+        parent_id: int,
+        name: str,
+        date_create: bytes,
+        date_update: bytes,
+        owner_var9: bytes = b"\x00\x00",
+    ) -> bytes:
+        """Construct a complete MSysObjects row for a VBA code module.
+
+        The row mirrors the structure observed in fresh-from-template
+        .accdb files (17 columns; only Name is populated in the
+        variable section, plus a 2-byte "var col 9" sentinel that
+        Access writes -- empirically a small Owner-like value, default
+        ``00 00`` if unknown). All other variable columns are NULL.
+        Null bitmap is ``ff 00 00`` (matches every observed row).
+        """
+        if not name:
+            raise AccessError("_build_msys_module_row: name must be non-empty")
+        name_bytes = name.encode("utf-16-le")
+        if len(date_create) != 8 or len(date_update) != 8:
+            raise AccessError(
+                "_build_msys_module_row: date_create/date_update must "
+                "each be exactly 8 bytes"
+            )
+        if len(owner_var9) != 2:
+            raise AccessError(
+                "_build_msys_module_row: owner_var9 must be exactly 2 bytes"
+            )
+        # Fixed columns (32 bytes).
+        fixed = (
+            (_MSYS_COL_COUNT).to_bytes(2, "little")
+            + (id_ & 0xFFFFFFFF).to_bytes(4, "little")
+            + (parent_id & 0xFFFFFFFF).to_bytes(4, "little")
+            + struct.pack("<h", MSYS_TYPE_MODULE)
+            + date_create
+            + date_update
+            + (0).to_bytes(4, "little")  # Flags = 0
+        )
+        assert len(fixed) == 32
+
+        # Variable section: var col 10 = Name (first in memory),
+        # var col 9 = sentinel (next), var cols 0..8 = empty.
+        var_data = name_bytes + owner_var9  # var col 10 then var col 9
+        var_data_len = len(var_data)
+
+        # Jump table (11 u16 entries): jt[i] = start offset (within ROW)
+        # of variable column i.  Highest-index col is first in memory.
+        # Layout in our row:
+        #   var col 10 starts at row offset 32 (immediately after fixed).
+        #   var col 9  starts at row offset 32 + len(name_bytes).
+        #   var cols 0..8 are NULL -> their start == jt_start (var section
+        #   ends at the jump table).
+        row_start_var10 = 32
+        row_start_var9 = 32 + len(name_bytes)
+        jt_start_in_row = 32 + var_data_len
+        jt_entries: list[int] = []
+        for i in range(_MSYS_VAR_COL_COUNT):
+            if i == 10:
+                jt_entries.append(row_start_var10)
+            elif i == 9:
+                jt_entries.append(row_start_var9)
+            else:
+                # Null var cols all point at jt_start_in_row.
+                jt_entries.append(jt_start_in_row)
+        jt_bytes = b"".join(
+            e.to_bytes(2, "little") for e in jt_entries
+        )
+        var_col_count_bytes = (_MSYS_VAR_COL_COUNT).to_bytes(2, "little")
+        # Null mask: cols 0..7 set (matches every observed row).
+        null_mask_bytes = b"\xff\x00\x00"
+        assert len(null_mask_bytes) == _MSYS_NULL_MASK_BYTES
+
+        row = (
+            fixed
+            + var_data
+            + jt_bytes
+            + var_col_count_bytes
+            + null_mask_bytes
+        )
+        return row
+
+    def _msys_next_user_id(self) -> int:
+        """Allocate the next available user-content Id (bit 31 set)."""
+        max_user = 0x80000000 - 1
+        for obj in self.iter_msys_objects():
+            if obj.id_ & 0x80000000 and obj.id_ > max_user:
+                max_user = obj.id_
+        return max_user + 1
+
+    def rename_msys_object(self, old_name: str, new_name: str) -> None:
+        """Rewrite the ``Name`` column of the MSysObjects row whose
+        current name matches ``old_name`` (case-insensitive). Updates
+        the row in place, resizing the page layout if the UTF-16-LE
+        byte length changes.
+
+        Raises :class:`AccessError` if no such row exists, if
+        ``new_name`` is empty, or if growing the row would overflow
+        the containing DATA page.
+
+        This is the catalog-level companion to :meth:`rename_module`
+        for VBA modules, but it works for any MSysObjects row (table,
+        query, form, etc.) the caller addresses by name.
+        """
+        if not new_name:
+            raise AccessError("rename_msys_object: new_name must be non-empty")
+        obj = self.find_msys_object(old_name)
+        if obj is None:
+            raise AccessError(
+                f"rename_msys_object: no MSysObjects row named "
+                f"{old_name!r}"
+            )
+        base = obj.page * ACE_PAGE_SIZE
+        start, end = self._data_row_extent(obj.page, obj.slot)
+        row = bytes(self._data[base + start : base + end])
+
+        # Decode jump table to locate Name field byte-precisely.
+        tail_off = len(row) - _MSYS_NULL_MASK_BYTES - 2
+        var_col_count = int.from_bytes(
+            row[tail_off : tail_off + 2], "little"
+        )
+        if var_col_count != _MSYS_VAR_COL_COUNT:
+            raise AccessError(
+                f"rename_msys_object: unexpected var_col_count "
+                f"{var_col_count} on row {obj.name!r}"
+            )
+        jt_start = tail_off - 2 * var_col_count
+        jt = [
+            int.from_bytes(row[jt_start + 2 * i : jt_start + 2 * i + 2], "little")
+            for i in range(var_col_count)
+        ]
+        name_start = jt[_MSYS_NAME_VAR_INDEX]
+        name_end = jt[_MSYS_NAME_VAR_INDEX - 1]
+        old_name_bytes = row[name_start:name_end]
+        new_name_bytes = new_name.encode("utf-16-le")
+        delta = len(new_name_bytes) - len(old_name_bytes)
+
+        if delta == 0:
+            # Fast path: in-place byte patch, no offset reflow needed.
+            self._data[base + start + name_start : base + start + name_end] = (
+                new_name_bytes
+            )
+            return
+
+        # Rebuild the row with the new Name, shifting other var-column
+        # offsets in the jump table accordingly. The Name column (var
+        # index 10) is FIRST in physical memory, so its end-offset
+        # equals the start of var col 9 (jt[9]). Shifting Name's
+        # length shifts every var col with index < 10 by `delta`.
+        new_jt = list(jt)
+        for i in range(_MSYS_NAME_VAR_INDEX):  # cols 0..9
+            new_jt[i] = jt[i] + delta
+        new_jt_bytes = b"".join(
+            e.to_bytes(2, "little") for e in new_jt
+        )
+        # Compose the new row.
+        # Fixed bytes 0..32 remain identical.
+        # Variable data: [Name bytes] [rest of original var data
+        # (cols 9..0 in memory order)].
+        original_var_data = row[32 : 32 + (jt_start - 32)]
+        # Replace the Name slice within original_var_data.
+        # Name occupies [name_start - 32 .. name_end - 32) in
+        # original_var_data, and was always the FIRST chunk
+        # (name_start - 32 == 0 by construction).
+        if name_start != 32:
+            raise AccessError(
+                "rename_msys_object: unexpected MSysObjects layout "
+                "(Name not at row offset 32)"
+            )
+        new_var_data = new_name_bytes + original_var_data[name_end - 32 :]
+        new_row = (
+            row[:32]
+            + new_var_data
+            + new_jt_bytes
+            + row[tail_off : tail_off + 2]  # var_col_count
+            + row[tail_off + 2 : tail_off + 2 + _MSYS_NULL_MASK_BYTES]
+        )
+        # Sanity: total row length must equal old length + delta.
+        if len(new_row) != len(row) + delta:
+            raise AccessError(
+                f"rename_msys_object: internal length mismatch "
+                f"(expected {len(row) + delta}, got {len(new_row)})"
+            )
+        self._data_write_row(obj.page, obj.slot, new_row)
+
+    def delete_msys_object(self, name: str) -> None:
+        """Tombstone the MSysObjects row whose ``Name`` matches
+        ``name`` (case-insensitive). The row's offset-table entry
+        gets the ``0x8000`` deleted flag and its bytes are zeroed.
+
+        Raises :class:`AccessError` if no such row exists.
+        """
+        obj = self.find_msys_object(name)
+        if obj is None:
+            raise AccessError(
+                f"delete_msys_object: no MSysObjects row named {name!r}"
+            )
+        self._data_tombstone_row(obj.page, obj.slot)
+
+    def add_msys_module_object(self, name: str) -> "AccessSysObject":
+        """Add a new ``MSysObjects`` row for a VBA code module called
+        ``name`` and return the resulting :class:`AccessSysObject`.
+
+        Allocates a fresh ``Id`` (next available user-content Id),
+        sets ``ParentId`` to the ``Modules`` container, ``Type`` to
+        ``MSYS_TYPE_MODULE``, and writes the current time into the
+        date columns. The row is appended to the first MSysObjects
+        DATA page with enough free space.
+
+        Raises :class:`AccessError` if the database has no ``Modules``
+        container (should never happen on a real .accdb), or if no
+        MSysObjects DATA page has room for the new row.
+        """
+        if not name:
+            raise AccessError("add_msys_module_object: name must be non-empty")
+        if self.find_msys_object(name) is not None:
+            raise AccessError(
+                f"add_msys_module_object: an MSysObjects row named "
+                f"{name!r} already exists"
+            )
+        modules_container = self.find_msys_object(
+            "Modules", type_=MSYS_TYPE_CONTAINER
+        )
+        if modules_container is None:
+            raise AccessError(
+                "add_msys_module_object: Modules container row not found "
+                "(database does not look like an .accdb with VBA enabled)"
+            )
+        # Match owner_var9 of any existing module if present, else 0.
+        sample_module = next(iter(self.iter_msys_modules()), None)
+        if sample_module is not None:
+            sample_base = sample_module.page * ACE_PAGE_SIZE
+            s_start, s_end = self._data_row_extent(
+                sample_module.page, sample_module.slot
+            )
+            sample_row = bytes(self._data[sample_base + s_start : sample_base + s_end])
+            s_tail = len(sample_row) - _MSYS_NULL_MASK_BYTES - 2
+            s_jt_start = s_tail - 2 * _MSYS_VAR_COL_COUNT
+            s_jt9 = int.from_bytes(
+                sample_row[s_jt_start + 2 * 9 : s_jt_start + 2 * 9 + 2], "little"
+            )
+            s_jt10 = int.from_bytes(
+                sample_row[s_jt_start + 2 * 10 : s_jt_start + 2 * 10 + 2], "little"
+            )
+            owner_var9 = sample_row[s_jt9 : s_jt9 + (s_jt_start + 32 - s_jt_start)]
+            # Recompute: var col 9 length is (next start) - jt[9] = jt_start_in_row - jt[9]
+            # = (32 + var_data_len) - jt[9].
+            owner_var9 = sample_row[s_jt9 : s_tail - 2 * _MSYS_VAR_COL_COUNT]
+            # Actually simpler: var col 9 ends at jt_start of the row.
+            owner_var9 = sample_row[s_jt9 : s_jt_start]
+            # And var col 10's end is jt[9], so its size is jt[9] - jt[10].
+            _ = s_jt10  # keep for diagnostic clarity
+            if len(owner_var9) != 2:
+                # Schema variant: fall back to default sentinel.
+                owner_var9 = b"\x00\x00"
+        else:
+            owner_var9 = b"\x00\x00"
+        now = self._ole_date_now()
+        new_id = self._msys_next_user_id()
+        new_row = self._build_msys_module_row(
+            id_=new_id,
+            parent_id=modules_container.id_,
+            name=name,
+            date_create=now,
+            date_update=now,
+            owner_var9=owner_var9,
+        )
+        # Find the first MSysObjects DATA page with room (need row + 2
+        # bytes for slot table entry, conservatively).
+        target_page: int | None = None
+        for pn in self._iter_msys_data_pages():
+            if self._data_free_space(pn) >= len(new_row) + 2:
+                target_page = pn
+                break
+        if target_page is None:
+            raise AccessError(
+                "add_msys_module_object: no MSysObjects DATA page has "
+                f"enough free space for a {len(new_row)}-byte row "
+                "(growing onto a fresh page is not yet implemented)"
+            )
+        slot = self._data_append_row(target_page, new_row)
+        return AccessSysObject(
+            id_=new_id,
+            parent_id=modules_container.id_,
+            type_=MSYS_TYPE_MODULE,
+            flags=0,
+            name=name,
+            page=target_page,
+            slot=slot,
+        )
 
     def save(self, path: Union[str, Path, None] = None) -> None:
         """

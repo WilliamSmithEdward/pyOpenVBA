@@ -2459,7 +2459,10 @@ class AccessFile:
             ext = ".cls" if module.name in class_names else ".bas"
             target = out_dir / (module.name + ext)
             if include_attributes:
-                body = module.attributes_text + module.source
+                attrs = module.attributes_text
+                if attrs and not attrs.endswith("\r\n"):
+                    attrs += "\r\n"
+                body = attrs + module.source
             else:
                 body = module.source
             target.write_bytes(body.encode("latin-1"))

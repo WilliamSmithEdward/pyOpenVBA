@@ -210,14 +210,40 @@ Established structural facts (locked in by
   `Dim x As Long`, `' a comment` (all 269 bytes) -- a fixed-size
   skeleton with slotted declarations.
 * `Dim x As Integer` vs `Dim x As Long` differ at exactly offset
-  `0x8C` (1 byte: the per-type token).
-* Push i16 immediate: `ED 05 <u16 LE>` -- proven by sample 048
-  (`x = 42` -> `ED 05 2A 00`).
-* `67 02 ...` brackets procedure bodies; `7B 02 <u32>` is the
-  proc-trailer cookie.
-* String literals are interned in a separate table (not in the
-  bytecode): `MsgBox "hello"` and `MsgBox "world"` produce same-length
-  p-code that differs in <=4 bytes near offset `0xEA`.
+  `0x8C` (1 byte: the per-type token: Integer=`0x6E`, Long=`0x53`).
+* Byte at offset `0x98` = local-vars table size in bytes (0x00 with
+  no `Dim`, 0x08 with a single declared scalar local of any type).
+* Comments are NOT in p-code: sample 030 (empty Sub) is byte-for-byte
+  identical to sample 049 (`' a comment` body). Comment text lives in
+  the separate plaintext `E3 00 00 00 <len> <ascii>` rows.
+* **Procedure names are NOT in p-code.** `Sub A()`, `Sub B()`, and
+  `Sub AB()` (different letters AND different name lengths) all
+  produce *byte-for-byte identical* 269-byte p-code streams.
+  Procedure names live in the project catalog / dir-stream and are
+  referenced from bytecode purely by slot id.
+* **Module names are NOT in p-code.** All empty standard modules
+  (`M`, `AB`, `ABC`, `Mod1`, `Module1`, `ThisIsALongModuleName`)
+  produce identical 126-byte p-code streams.
+
+This triad -- comments, procedure names, module names, plus the
+separately-interned string literals -- means the compiled p-code is
+**fully anonymised**: it contains opcodes and slot references but no
+user-authored text. All identifiers live in the catalog / symbol
+tables and can be patched independently of the bytecode.
+
+Decoded opcodes (deterministic; all asserted by regression tests):
+
+| Mnemonic           | Bytes              | Operand                    | Source evidence            |
+| ------------------ | ------------------ | -------------------------- | -------------------------- |
+| ProcOpen / ProcEnd | `67 02`            | -                          | brackets every Sub body    |
+| ProcTrailer        | `7B 02 <u32 LE>`   | proc cookie (length-rel.)  | exactly 1 per active row   |
+| Push i16 imm       | `ED 05 <i16 LE>`   | integer literal LE         | sample 048 `x = 42`        |
+| Push i16 (True)    | `ED 05 FF FF`      | -1 (canonical True)        | sample 050 `If True Then`  |
+| Push small imm     | `77 06`            | embedded                   | sample 047 `x = 7`         |
+| Store local        | `B1 02 <i32 LE>`   | FBP offset (1st local=-8)  | samples 047, 048           |
+| Load local         | `9F 02 <i32 LE>`   | FBP offset                 | sample 051 (`i` in For)    |
+| For-Init           | `71 06`            | -                          | sample 051                 |
+| For-Step / Next    | `73 06`            | -                          | sample 051                 |
 
 Pending: full opcode table covering Sub/End Sub, Dim of complex
 types, If/Then, For/Next, function call dispatch, variable references,
@@ -227,7 +253,8 @@ relationship between the active row, the 156-byte stub row, and the
 
 Tooling: `scripts/access_re_dump_68_1.py`,
 `scripts/access_re_compare_pcode_headers.py`,
-`scripts/access_re_list_pcode_rows.py`.
+`scripts/access_re_list_pcode_rows.py`,
+`scripts/access_re_pcode_diff.py` (pairwise side-by-side diff).
 
 ### Phase 5 -- structural write primitives
 

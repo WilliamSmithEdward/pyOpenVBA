@@ -183,7 +183,11 @@ because Access stores VBA source very differently from Excel/Word/PowerPoint:
     deterministically by the 12-byte prefix
     `72 55 40 00 00 00 00 00 00 00 40 00` (byte 10 = 0x40). Exposed via
     `AccessFile.read_module_pcode_stream()` and `iter_pcode_streams()`.
-    Full opcode field guide in progress; see
+    Compiled p-code is **fully anonymised**: it contains opcodes and
+    slot references but no user-authored text. Procedure names,
+    module names, comments, and string literals all live in separate
+    catalog / symbol / plaintext rows and are referenced from the
+    bytecode by slot id only. Opcode field guide in progress; see
     `docs/access_pcode_re.md` Phase 4.
   * **Comment text** — stored verbatim in plaintext rows tagged
     `E3 00 00 00 <u16-LE length> <ASCII payload>` (apostrophe stripped).

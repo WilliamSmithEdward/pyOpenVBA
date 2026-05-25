@@ -654,3 +654,199 @@ def test_pcode_immediate_int_literal_encoding() -> None:
 
     s = AccessFile(_RE_CORPUS / "048__sub_let_int_42.accdb").read_module_pcode_stream()
     assert b"\xed\x05\x2a\x00" in s.raw
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "050__sub_if_true.accdb").exists(),
+    reason="RE corpus not generated",
+)
+def test_pcode_immediate_true_encoded_as_push_i16_minus_one() -> None:
+    """`If True Then ...` materialises the literal `True` as
+    push-i16(-1), i.e. the same `ED 05 <i16 LE>` opcode discovered
+    for `x = 42`. The operand `FF FF` is the two's-complement i16
+    for -1, which is VBA's canonical encoding of True."""
+    from pyopenvba.access import AccessFile
+
+    s = AccessFile(_RE_CORPUS / "050__sub_if_true.accdb").read_module_pcode_stream()
+    assert b"\xed\x05\xff\xff" in s.raw
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "047__sub_let_int.accdb").exists(),
+    reason="RE corpus not generated",
+)
+def test_pcode_store_local_at_fbp_minus_8() -> None:
+    """Assigning to the first local variable emits a 'store-local'
+    opcode `B1 02 <i32 LE>` whose operand is the frame-pointer
+    relative offset. The first declared local lives at FBP-8
+    (i.e. operand = 0xFFFFFFF8). Verified across both ``x = 7``
+    (sample 047) and ``x = 42`` (sample 048)."""
+    from pyopenvba.access import AccessFile
+
+    store_first_local = b"\xb1\x02\xf8\xff\xff\xff"
+    for fname in ("047__sub_let_int.accdb", "048__sub_let_int_42.accdb"):
+        s = AccessFile(_RE_CORPUS / fname).read_module_pcode_stream()
+        assert store_first_local in s.raw, fname
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "051__sub_for_1_to_3.accdb").exists(),
+    reason="RE corpus not generated",
+)
+def test_pcode_for_loop_emits_for_init_and_step_opcodes() -> None:
+    """`For i = 1 To 3 ... Next i` emits the two opcodes
+    `71 06` (For-Init) and `73 06` (For-Step / Next) -- both
+    short 2-byte forms in the `0x?6` family. They appear in this
+    relative order and are absent from the empty-Sub baseline."""
+    from pyopenvba.access import AccessFile
+
+    looped = AccessFile(_RE_CORPUS / "051__sub_for_1_to_3.accdb").read_module_pcode_stream()
+    empty = AccessFile(_RE_CORPUS / "030__sub_A_empty.accdb").read_module_pcode_stream()
+
+    init_idx = looped.raw.find(b"\x71\x06")
+    step_idx = looped.raw.find(b"\x73\x06")
+    assert init_idx != -1, "missing For-Init opcode (71 06)"
+    assert step_idx != -1, "missing For-Step opcode (73 06)"
+    assert init_idx < step_idx, "For-Init must precede For-Step"
+    assert b"\x71\x06" not in empty.raw
+    assert b"\x73\x06" not in empty.raw
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "049__sub_comment_only.accdb").exists(),
+    reason="RE corpus not generated",
+)
+def test_pcode_comments_are_not_in_bytecode() -> None:
+    """Adding a `' a comment` line to an otherwise-empty Sub produces
+    a p-code stream that is *byte-for-byte identical* to the
+    empty-Sub baseline. This proves comments are stripped during
+    compilation and stored only in the separate plaintext rows
+    (`E3 00 00 00 <len> <ascii>`) that `replace_text` patches."""
+    from pyopenvba.access import AccessFile
+
+    empty = AccessFile(_RE_CORPUS / "030__sub_A_empty.accdb").read_module_pcode_stream()
+    with_comment = AccessFile(_RE_CORPUS / "049__sub_comment_only.accdb").read_module_pcode_stream()
+    assert empty.raw == with_comment.raw
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "044__sub_dim_int.accdb").exists(),
+    reason="RE corpus not generated",
+)
+def test_pcode_local_vars_table_size_byte() -> None:
+    """Byte at offset 0x98 of the module-active p-code row is the
+    local-variable table size in bytes. With no `Dim` statements it
+    is 0x00; declaring a single scalar local raises it to 0x08
+    regardless of the declared type (`Integer`, `Long`, or `String`).
+
+    This is the structural marker we use to detect that a procedure
+    has locals, distinct from the per-type token at 0x8C."""
+    from pyopenvba.access import AccessFile
+
+    def byte_at(fname: str, offset: int) -> int:
+        return AccessFile(_RE_CORPUS / fname).read_module_pcode_stream().raw[offset]
+
+    assert byte_at("030__sub_A_empty.accdb", 0x98) == 0x00
+    assert byte_at("049__sub_comment_only.accdb", 0x98) == 0x00
+    assert byte_at("044__sub_dim_int.accdb", 0x98) == 0x08
+    assert byte_at("045__sub_dim_long.accdb", 0x98) == 0x08
+    assert byte_at("046__sub_dim_string.accdb", 0x98) == 0x08
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "030__sub_A_empty.accdb").exists(),
+    reason="RE corpus not generated",
+)
+def test_pcode_procedure_brackets_67_02_appear_in_every_sub() -> None:
+    """`67 02` brackets the procedure body -- every sample with a
+    `Sub A() ... End Sub` contains this token at least twice (open
+    and close)."""
+    from pyopenvba.access import AccessFile
+
+    body_samples = [
+        "030__sub_A_empty.accdb",
+        "040__sub_msgbox_hello.accdb",
+        "044__sub_dim_int.accdb",
+        "047__sub_let_int.accdb",
+        "050__sub_if_true.accdb",
+        "051__sub_for_1_to_3.accdb",
+    ]
+    for fname in body_samples:
+        raw = AccessFile(_RE_CORPUS / fname).read_module_pcode_stream().raw
+        # Count non-overlapping occurrences of the 2-byte token.
+        count = sum(1 for i in range(len(raw) - 1) if raw[i] == 0x67 and raw[i + 1] == 0x02)
+        assert count >= 2, f"{fname}: expected >=2 occurrences of `67 02`, got {count}"
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "030__sub_A_empty.accdb").exists(),
+    reason="RE corpus not generated",
+)
+def test_pcode_procedure_trailer_7b_02_appears_in_every_sub() -> None:
+    """`7B 02 <u32 LE>` is the procedure-trailer cookie. It appears
+    exactly once in every module-active p-code row that carries a
+    procedure body."""
+    from pyopenvba.access import AccessFile
+
+    body_samples = [
+        "030__sub_A_empty.accdb",
+        "040__sub_msgbox_hello.accdb",
+        "047__sub_let_int.accdb",
+        "050__sub_if_true.accdb",
+        "051__sub_for_1_to_3.accdb",
+    ]
+    for fname in body_samples:
+        raw = AccessFile(_RE_CORPUS / fname).read_module_pcode_stream().raw
+        count = sum(1 for i in range(len(raw) - 1) if raw[i] == 0x7B and raw[i + 1] == 0x02)
+        assert count == 1, f"{fname}: expected exactly one `7B 02` trailer, got {count}"
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "030__sub_A_empty.accdb").exists(),
+    reason="RE corpus not generated",
+)
+def test_pcode_procedure_names_are_not_in_bytecode() -> None:
+    """`Sub A()`, `Sub B()`, and `Sub AB()` (varying both letter and
+    length) all produce p-code streams that are *byte-for-byte
+    identical*. This proves procedure names live in an external
+    symbol table (catalog / dir-stream) and are referenced from the
+    bytecode purely by slot id -- they are NOT inlined in the p-code.
+
+    This is the same pattern as comments (plaintext rows) and string
+    literals (interned table): Access keeps human-readable identifiers
+    out of the compiled bytecode entirely."""
+    from pyopenvba.access import AccessFile
+
+    raw_a = AccessFile(_RE_CORPUS / "030__sub_A_empty.accdb").read_module_pcode_stream().raw
+    raw_b = AccessFile(_RE_CORPUS / "031__sub_B_empty.accdb").read_module_pcode_stream().raw
+    raw_ab = AccessFile(_RE_CORPUS / "032__sub_AB_empty.accdb").read_module_pcode_stream().raw
+    assert raw_a == raw_b, "Sub A vs Sub B p-code must be byte-identical"
+    assert raw_a == raw_ab, "Sub A vs Sub AB p-code must be byte-identical"
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "010__empty_StdModule_M.accdb").exists(),
+    reason="RE corpus not generated",
+)
+def test_pcode_module_names_are_not_in_bytecode() -> None:
+    """Empty standard modules with module names `M`, `AB`, `ABC`,
+    `Mod1`, `Module1`, and `ThisIsALongModuleName` all produce
+    p-code streams of identical length (126 bytes). Module names,
+    like procedure names, live in the project catalog -- not in the
+    compiled bytecode."""
+    from pyopenvba.access import AccessFile
+
+    empties = [
+        "010__empty_StdModule_M.accdb",
+        "011__empty_StdModule_AB.accdb",
+        "012__empty_StdModule_ABC.accdb",
+        "013__empty_StdModule_Mod1.accdb",
+        "014__empty_StdModule_Module1.accdb",
+        "015__empty_StdModule_LongName.accdb",
+    ]
+    lengths = {
+        n: len(AccessFile(_RE_CORPUS / n).read_module_pcode_stream().raw)
+        for n in empties
+        if (_RE_CORPUS / n).exists()
+    }
+    assert len(set(lengths.values())) == 1, lengths

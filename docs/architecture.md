@@ -33,6 +33,14 @@ knows about the layer below it but not the layer above.
 |   - identical save() pipeline as ExcelFile             |
 |   - pull / push disk workflow                          |
 +--------------------------------------------------------+
+| access.py       AccessFile facade  (EXPERIMENTAL)      |
+|   - ACE / Jet 4 page reader (.accdb, .mdb)             |
+|   - MS-OVBA blob discovery via signature scan          |
+|   - LVAL page-chain walker                             |
+|   - read_vba_module(name) -> str (pure Python)         |
+|   - replace_text(old, new) same-length plaintext patch |
+|   - save([path]) -> persists in-memory edits           |
++--------------------------------------------------------+
 | vba.py          VBA project layer                      |
 |   - MS-OVBA compression / decompression                |
 |   - dir / PROJECT / PROJECTwm / PROJECTlk parsers      |
@@ -154,6 +162,30 @@ If any of steps 3-10 fail, the on-disk file is **never modified** —
 all work is done on the in-memory CFB and the final bytes are written
 in one atomic-ish operation.
 
+### 3.3 Access write model (`AccessFile`)
+
+`.accdb`/`.mdb` does **not** follow the OOXML/CFB write pipeline above
+because Access stores VBA source very differently from Excel/Word/PowerPoint:
+
+* The MS-OVBA blob on the LVAL chain is a **passive cache**. Zero-filling
+  the entire blob has no effect on what Access (or the VBA editor)
+  displays — verified end-to-end on a live fixture.
+* The **authoritative** sources Access reads from are:
+  * **Comment text** — stored verbatim in plaintext rows tagged
+    `E3 00 00 00 <u16-LE length> <ASCII payload>` (apostrophe stripped).
+  * **String literal text** — stored verbatim in rows tagged
+    `B9 00 <u16-LE length> <ASCII payload> <12-byte trailer>`.
+  * **Code structure** (procedure names, statements, keywords) — stored
+    as Access-flavoured p-code in tables we do not currently parse.
+
+Consequently the only safe pure-Python write primitive today is
+`AccessFile.replace_text(old, new)`: a **same-length byte substitution**
+inside the plaintext rows. This is sufficient to patch comment bodies
+and string literal contents (verified through Access COM and the live
+VBA editor). Changing literal/comment lengths or modifying code structure
+(renaming subs, adding statements) is out of scope until the p-code
+tables are reverse-engineered.
+
 ---
 
 ## 4. Mutation safety gates
@@ -256,10 +288,14 @@ tests/
   test_powerpoint.py           PowerPointFile facade, end-to-end
   test_pull_push.py            Disk workflow
   test_gates.py                Per-roadmap-gate regression tests
+  test_access.py               AccessFile read path: page walk,
+                               LVAL chain walk, MS-OVBA blob decode,
+                               byte-for-byte oracle parity (EXPERIMENTAL)
   fuzz_corpus/                 Persistent fuzz seeds (see test_gates.py Gate 23)
   live_excel_testing/          Real fixture workbooks (Excel)
   live_word_testing/           Real fixture documents (Word)
   live_powerpoint_testing/     Real fixture presentations (PowerPoint)
+  live_access_test/            Real fixture databases (Access) + COM oracle
 ```
 
 - **Always** run pytest with `-p no:randomly` to keep ordering

@@ -3,6 +3,30 @@
 All notable changes to pyOpenVBA are documented here. This project follows
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **`AccessFile`** (EXPERIMENTAL) -- pure-Python **read** support for
+  Microsoft Access `.accdb` / `.mdb` (ACE / Jet 4) databases:
+  - `AccessFile(path)` parses the 4 KiB page-layout file header and
+    validates the ACE / Jet signature.
+  - `iter_vba_modules()` yields every embedded VBA module (`VBAModule`
+    dataclass with `name`, `start_offset`, `attributes_text`, `source`).
+    Modules are discovered by scanning for MS-OVBA stream signatures and
+    walking the LVAL page chains they live on -- no Access COM, no
+    MSysObjects parser required.
+  - `vba_module_names()` deduplicates shadow / undo copies and returns
+    the live module name list.
+  - `read_vba_module(name)` returns the user-visible source string with
+    `\r\n` line endings preserved; matches Access COM
+    `CodeModule.Lines()` output byte-for-byte (verified on a 1000-line
+    Module + 1000-line Class + 500-line Module live fixture against an
+    Access COM oracle).
+  - Re-exported from `pyopenvba` as `AccessFile`.
+  - Write path (re-compress + re-allocate LVAL pages) is not yet
+    implemented.
+
 ## [2.0.1] - 2026-05-24
 
 ### Added

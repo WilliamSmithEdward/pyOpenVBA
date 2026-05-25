@@ -52,6 +52,7 @@ from typing import Union
 from pyopenvba.excel import ExcelFile
 from pyopenvba.word import WordFile
 from pyopenvba.powerpoint import PowerPointFile
+from pyopenvba.access import AccessFile
 from pyopenvba.exceptions import (
     PyOpenVBAError,
     CFBError,
@@ -167,6 +168,7 @@ __all__ = [
     "ExcelFile",
     "WordFile",
     "PowerPointFile",
+    "AccessFile",
     "VBAModuleKind",
     "PyOpenVBAError",
     "CFBError",

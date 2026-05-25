@@ -1,0 +1,20 @@
+﻿[
+    {
+        "Name":  "Module1",
+        "Type":  1,
+        "Lines":  1007,
+        "File":  "Module1.bas.txt"
+    },
+    {
+        "Name":  "Class1",
+        "Type":  2,
+        "Lines":  1006,
+        "File":  "Class1.bas.txt"
+    },
+    {
+        "Name":  "Module2",
+        "Type":  1,
+        "Lines":  510,
+        "File":  "Module2.bas.txt"
+    }
+]

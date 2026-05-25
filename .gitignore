@@ -50,3 +50,8 @@ demo/output/
 # Debug/diagnostic scratch scripts
 demo/_diag*.py
 demo/_isolate.py
+
+# Access p-code RE corpus (regenerable via
+# tests/live_access_test/_corpus_generate.ps1)
+tests/live_access_test/re_corpus/
+

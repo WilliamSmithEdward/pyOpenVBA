@@ -135,8 +135,25 @@ with PowerPointFile("presentation.pptm") as prs:
     prs.save()
 ```
 
-The API is identical across all three hosts: `module_names()`, `get_module()`,
-`set_module()`, `save()`.
+### Access (read-only)
+
+```python
+from pyopenvba import AccessReader
+
+with AccessReader("database.accdb") as db:
+    # 1. List all VBA modules in the database.
+    modules = db.vba_modules()
+    print(list(modules))
+    # ['Module1', 'Form_Form1']
+
+    # 2. Read a module's source as a string.
+    source = db.get_module("Module1")
+    print(source)
+```
+
+Excel, Word, and PowerPoint share the same read/write API:
+`module_names()`, `get_module()`, `set_module()`, `save()`. Access is
+currently read-only and exposes `vba_modules()` and `get_module()`.
 
 ---
 

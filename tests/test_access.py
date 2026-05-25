@@ -344,3 +344,119 @@ def test_corpus_module_names_match_filename_hints() -> None:
         assert db.vba_module_names() == expected, f"{filename}: {db.vba_module_names()}"
 
 
+# ---------------------------------------------------------------------------
+# Phase 3 RE: MS-OVBA dir-stream catalog
+#
+# Access embeds a standard MS-OVBA "dir" stream (MS-OVBA section 2.3.4.2)
+# OVBA-compressed into a single LVAL row. AccessFile.read_project_info()
+# locates that row and returns the parsed project metadata.
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "010__empty_StdModule_M.accdb").exists(),
+    reason="RE corpus not generated",
+)
+def test_catalog_basic_project_metadata() -> None:
+    from pyopenvba.access import AccessFile, AccessVBAProject
+
+    db = AccessFile(_RE_CORPUS / "010__empty_StdModule_M.accdb")
+    proj = db.read_project_info()
+    assert isinstance(proj, AccessVBAProject)
+    assert proj.project_name == "baseline_empty_proj"
+    assert proj.code_page == 1252
+    assert proj.lcid == 1033
+    # Access standard registered references: stdole + DAO/ACEDAO.
+    assert len(proj.references) == 2
+    ref_names = {r.name for r in proj.references}
+    assert "stdole" in ref_names
+    assert "DAO" in ref_names
+    # Single standard module named "M".
+    assert len(proj.modules) == 1
+    mod = proj.modules[0]
+    assert mod.name == "M"
+    assert mod.name_unicode == "M"
+    assert mod.is_class_module is False
+    assert mod.is_private is False
+    assert mod.is_read_only is False
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "020__empty_ClassModule_C.accdb").exists(),
+    reason="RE corpus not generated",
+)
+def test_catalog_distinguishes_class_vs_standard_modules() -> None:
+    """The dir-stream catalog must mark class modules with the
+    MODULETYPE 0x0022 (`is_class_module=True`) and standard modules
+    with 0x0021 (`is_class_module=False`)."""
+    db_class = AccessFile(_RE_CORPUS / "020__empty_ClassModule_C.accdb")
+    proj_class = db_class.read_project_info()
+    assert len(proj_class.modules) == 1
+    assert proj_class.modules[0].name == "C"
+    assert proj_class.modules[0].is_class_module is True
+
+    db_std = AccessFile(_RE_CORPUS / "010__empty_StdModule_M.accdb")
+    proj_std = db_std.read_project_info()
+    assert proj_std.modules[0].is_class_module is False
+
+
+@pytest.mark.skipif(
+    not _RE_CORPUS.exists(),
+    reason="RE corpus not generated",
+)
+def test_catalog_module_names_track_filename_hints() -> None:
+    """Catalog-derived module names must match the filename-encoded
+    name for every named single-module sample."""
+    cases = {
+        "010__empty_StdModule_M.accdb": "M",
+        "011__empty_StdModule_AB.accdb": "AB",
+        "014__empty_StdModule_Module1.accdb": "Module1",
+        "015__empty_StdModule_LongName.accdb": "ThisIsALongModuleName",
+        "020__empty_ClassModule_C.accdb": "C",
+        "021__empty_ClassModule_Class1.accdb": "Class1",
+    }
+    for filename, expected_name in cases.items():
+        path = _RE_CORPUS / filename
+        if not path.exists():
+            continue
+        db = AccessFile(path)
+        proj = db.read_project_info()
+        assert len(proj.modules) == 1, f"{filename}: {len(proj.modules)} modules"
+        assert proj.modules[0].name == expected_name, (
+            f"{filename}: catalog says {proj.modules[0].name!r}, "
+            f"expected {expected_name!r}"
+        )
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "010__empty_StdModule_M.accdb").exists(),
+    reason="RE corpus not generated",
+)
+def test_catalog_row_location_recorded_for_diagnostics() -> None:
+    """The catalog row's (page, slot) must be recorded on the parsed
+    project so future investigators can pinpoint where Access stored
+    the dir stream in the database."""
+    db = AccessFile(_RE_CORPUS / "010__empty_StdModule_M.accdb")
+    proj = db.read_project_info()
+    assert proj.catalog_page > 0
+    assert proj.catalog_slot >= 0
+    assert proj.catalog_raw_size > 0
+    # The recorded row must actually exist on disk and be a non-empty
+    # LVAL row.
+    row = db._lval_row_bytes(proj.catalog_page, proj.catalog_slot)  # pyright: ignore[reportPrivateUsage]
+    assert len(row) > 0
+    assert row[0] == 0x01  # OVBA signature byte
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "010__empty_StdModule_M.accdb").exists(),
+    reason="RE corpus not generated",
+)
+def test_vba_module_names_uses_catalog_ordering() -> None:
+    """`vba_module_names()` returns the catalog's authoritative module
+    list when the catalog can be located."""
+    db = AccessFile(_RE_CORPUS / "010__empty_StdModule_M.accdb")
+    proj = db.read_project_info()
+    assert db.vba_module_names() == [m.name for m in proj.modules]
+
+

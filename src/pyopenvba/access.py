@@ -56,7 +56,7 @@ from pathlib import Path
 from typing import Iterator, Union
 
 from pyopenvba.exceptions import PyOpenVBAError, UnsupportedFormatError
-from pyopenvba.vba import decompress as _ovba_decompress
+from pyopenvba.vba import VBAReference, decompress as _ovba_decompress
 
 
 ACE_PAGE_SIZE = 4096
@@ -334,6 +334,85 @@ class AccessFile:
                     continue
                 yield page, slot, self._lval_row_bytes(page, slot)
 
+    # ------------------------------------------------------------------
+    # MS-OVBA dir-stream catalog (Phase 3 RE, 2026-05).
+    # ------------------------------------------------------------------
+    #
+    # Access embeds a standard MS-OVBA "dir" stream (section 2.3.4.2 of
+    # MS-OVBA) into exactly one LVAL row of every database that contains
+    # a VBA project. The row is OVBA-RLE-compressed in the usual way;
+    # decompressed, it parses byte-for-byte with our existing dir-stream
+    # parser in `pyopenvba.vba`.
+    #
+    # We locate it by attempting OVBA decompression on each LVAL row and
+    # accepting the one whose decompressed bytes start with the
+    # PROJECTSYSKIND record header `01 00 04 00 00 00`. That signature
+    # is fully deterministic and avoids any reliance on the slot index
+    # (which is not stable across .accdb files).
+
+    _DIR_STREAM_MAGIC = b"\x01\x00\x04\x00\x00\x00"
+
+    def _find_catalog_row(self) -> tuple[int, int, bytes] | None:
+        """Return ``(page, slot, decompressed_dir_stream_bytes)`` for the
+        single LVAL row that holds the project's MS-OVBA dir stream, or
+        ``None`` if no such row is present (e.g. databases with no VBA
+        project initialized)."""
+        for page, slot, row in self._iter_lval_rows():
+            if not row or row[0] != 0x01 or len(row) < 3:
+                continue
+            hdr = int.from_bytes(row[1:3], "little")
+            if ((hdr >> 12) & 0x7) != 0b011:
+                continue
+            try:
+                raw = _ovba_decompress(
+                    bytes(row), stream_name=f"accdb_catalog@({page},{slot})"
+                )
+            except Exception:
+                continue
+            if raw.startswith(self._DIR_STREAM_MAGIC):
+                return page, slot, raw
+        return None
+
+    def read_project_info(self) -> "AccessVBAProject":
+        """Parse and return the project-level VBA metadata embedded in
+        this database.
+
+        Raises :class:`AccessError` if no VBA dir-stream catalog row is
+        present (the database has no VBA project, or the catalog row
+        could not be located -- file an issue with the fixture).
+        """
+        from pyopenvba.vba import parse_dir_stream
+
+        found = self._find_catalog_row()
+        if found is None:
+            raise AccessError(
+                f"no MS-OVBA dir-stream catalog row found in "
+                f"{self.path.name!r}; this database may have no VBA project"
+            )
+        page, slot, raw = found
+        info, mods = parse_dir_stream(raw)
+        return AccessVBAProject(
+            catalog_page=page,
+            catalog_slot=slot,
+            catalog_raw_size=raw.__len__(),
+            sys_kind=info.sys_kind,
+            lcid=info.lcid,
+            code_page=info.code_page,
+            project_name=info.name,
+            references=tuple(info.references),
+            modules=tuple(
+                AccessVBAModuleEntry(
+                    name=m.name,
+                    name_unicode=m.name_unicode,
+                    stream_name=m.stream_name,
+                    is_class_module=(m.module_kind.value == 0x0022),
+                    is_private=m.is_private,
+                    is_read_only=m.is_read_only,
+                )
+                for m in mods
+            ),
+        )
+
     def iter_vba_modules(self) -> Iterator["VBAModule"]:
         """
         Discover and yield every VBA module embedded in this database.
@@ -459,10 +538,18 @@ class AccessFile:
         Return the names of every distinct VBA module in this database, in
         the order they are first encountered.
 
-        Access keeps shadow / undo copies of edited modules, so the same
-        module name may appear multiple times in
-        :meth:`iter_vba_modules`. This helper deduplicates.
+        When the MS-OVBA dir-stream catalog can be located (the normal
+        case), its authoritative module ordering is returned and shadow /
+        undo copies of edited modules are ignored. Otherwise this falls
+        back to scanning every OVBA stream for ``Attribute VB_Name`` and
+        deduplicating in encounter order.
         """
+        try:
+            project = self.read_project_info()
+        except AccessError:
+            project = None
+        if project is not None:
+            return [m.name for m in project.modules]
         seen: list[str] = []
         for m in self.iter_vba_modules():
             if m.name and m.name not in seen:
@@ -634,3 +721,53 @@ class VBAModule:
     decompressed_size: int
     attributes_text: str
     source: str
+
+
+@dataclass(frozen=True)
+class AccessVBAModuleEntry:
+    """A single module record parsed from the .accdb dir-stream catalog.
+
+    This is the project-level *catalog* view of a module (its declared
+    name, kind, and access flags). The actual user source for the module
+    is loaded separately via :meth:`AccessFile.iter_vba_modules`.
+
+    Attributes:
+        name: MBCS module name (PROJECTNAME code page).
+        name_unicode: UTF-16 module name as stored in MODULENAMEUNICODE.
+        stream_name: Obfuscated identifier Access stores in MODULESTREAMNAME.
+            Unlike Excel/Word/PowerPoint, Access does not use this as an
+            actual CFB stream name (there is no CFB), but the field is
+            present in the dir stream.
+        is_class_module: ``True`` for ClassModule (MODULETYPE 0x0022),
+            ``False`` for procedural standard modules (0x0021).
+        is_private: ``MODULEPRIVATE`` flag.
+        is_read_only: ``MODULEREADONLY`` flag.
+    """
+
+    name: str
+    name_unicode: str
+    stream_name: str
+    is_class_module: bool
+    is_private: bool
+    is_read_only: bool
+
+
+@dataclass(frozen=True)
+class AccessVBAProject:
+    """Project-level VBA metadata parsed from the .accdb dir-stream catalog.
+
+    See [MS-OVBA] section 2.3.4.2 for the underlying record layout. The
+    dir stream is stored inside Access as a single OVBA-compressed LVAL
+    row; ``catalog_page`` / ``catalog_slot`` identify that row in the
+    database for diagnostic purposes.
+    """
+
+    catalog_page: int
+    catalog_slot: int
+    catalog_raw_size: int
+    sys_kind: int
+    lcid: int
+    code_page: int
+    project_name: str
+    references: tuple[VBAReference, ...]
+    modules: tuple[AccessVBAModuleEntry, ...]

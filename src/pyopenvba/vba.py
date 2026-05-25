@@ -1097,6 +1097,12 @@ def serialize_dir_modules_section(project: VBAProject) -> bytes:
     return bytes(out)
 
 
+# Public alias for cross-module use (e.g. pyopenvba.access).
+# Kept alongside `serialize_dir_stream` so the read-side and write-side
+# of the MS-OVBA dir stream are symmetric in the public surface.
+parse_dir_stream = _parse_dir_stream
+
+
 def serialize_dir_stream(project: VBAProject) -> bytes:
     """
     Build a fresh decompressed dir stream from ``project``.

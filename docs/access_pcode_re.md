@@ -136,17 +136,46 @@ every non-tombstone LVAL row, scans for MS-OVBA stream signatures
 and accepts any candidate that decompresses to a stream beginning
 with `Attribute VB_Name = "..."`.
 
-### Phase 3 -- symbol/catalog table
+### Phase 3 -- symbol/catalog table (DONE 2026-05)
 
-Diff the binary section between the end of the PROJECT plaintext and
-the first OVBA stream across corpus samples that differ only in:
+**Finding: there is no Access-specific symbol-table format. The
+"binary catalog" is just an MS-OVBA `dir` stream (MS-OVBA section
+2.3.4.2) OVBA-compressed in a single LVAL row.**
 
-* module name (010..016): isolates module-name table entries
-* module kind (Std vs Class) (010 vs 020): isolates kind flag
-* procedure name (030..033): isolates proc-name table entries
-* source body (040..051): isolates body-only deltas
+In every corpus sample examined, exactly one LVAL row OVBA-decompresses
+to bytes starting with the PROJECTSYSKIND record header
+`01 00 04 00 00 00`. That row contains the full standard dir-stream
+TLV record sequence:
 
-Deliverable: byte-precise documentation of the catalog structure.
+* PROJECTSYSKIND / PROJECTLCID / PROJECTLCIDINVOKE / PROJECTCODEPAGE
+* PROJECTNAME (`baseline_empty_proj` in the empty-project corpus)
+* PROJECTVERSION (special-cased: no real size field; 10-byte payload)
+* PROJECTREFERENCES -- `stdole` plus `DAO` (ACEDAO.DLL) are standard
+* PROJECTMODULES blocks: MODULENAME / MODULENAMEUNICODE /
+  MODULESTREAMNAME (a mangled obfuscated identifier; Access does not
+  use it as a real stream name since there is no CFB) /
+  MODULEDOCSTRING / MODULEOFFSET / MODULETYPE
+  (0x0021 = procedural, 0x0022 = class) / MODULEREADONLY /
+  MODULEPRIVATE / module terminator 0x002B
+* Dir-stream terminator 0x0010
+
+The catalog row's slot index is **not** stable across files (010..015
+put it at (68, 1); class-module sample 020 places it at (68, 2)). We
+locate it by content -- decompress every LVAL row and accept the one
+whose decompressed prefix is `01 00 04 00 00 00`.
+
+Production wiring (`AccessFile.read_project_info`) reuses
+`pyopenvba.vba.parse_dir_stream` directly (same parser that drives the
+Excel/Word/PowerPoint paths). `vba_module_names()` now prefers the
+catalog's authoritative ordered list when available, falling back to
+the OVBA-scan path only if the catalog row cannot be located.
+
+Deliverable: DONE. Byte-precise documentation lives in MS-OVBA
+section 2.3.4.2; the parser in `pyopenvba/vba.py:parse_dir_stream`
+handles all currently observed records. Reference-record decoding
+(beyond the standard `registered` kind) and write-back (catalog
+mutation when modules are added/removed/renamed) are still pending and
+fall under Phase 5.
 
 ### Phase 4 -- p-code opcode field guide
 

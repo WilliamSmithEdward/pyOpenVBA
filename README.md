@@ -4,7 +4,7 @@
 [![Python versions](https://img.shields.io/pypi/pyversions/pyOpenVBA.svg)](https://pypi.org/project/pyOpenVBA/)
 [![CI](https://github.com/WilliamSmithEdward/pyOpenVBA/actions/workflows/ci.yml/badge.svg)](https://github.com/WilliamSmithEdward/pyOpenVBA/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/LICENSE.md)
-[![Downloads](https://img.shields.io/pypi/dm/pyOpenVBA.svg)](https://pypi.org/project/pyOpenVBA/)
+[![Downloads](https://static.pepy.tech/badge/pyOpenVBA/month)](https://pepy.tech/project/pyOpenVBA)
 
 **Read and write VBA macros inside Excel, Word, and PowerPoint files, in pure Python.**
 

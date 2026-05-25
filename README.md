@@ -16,8 +16,7 @@ Supports:
 * Excel (`.xlsm`, `.xlsb`, `.xlam`, `.xls`)
 * PowerPoint (`.pptm`, `.potm`, `.ppt`)
 * Word (`.docm`, `.dotm`, `.doc`)
-* Access (`.accdb`) - **read-only**, see
-  [docs/msaccess_lessons_learned.md](docs/msaccess_lessons_learned.md)
+* Access (`.accdb`) - **read-only**
 
 <a href="https://github.com/sponsors/WilliamSmithEdward"><img src="https://img.shields.io/badge/Sponsor-%E2%9D%A4-pink?style=for-the-badge" alt="Sponsor WilliamSmithEdward"></a>
 

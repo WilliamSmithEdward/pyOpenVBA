@@ -193,4 +193,3 @@ def test_read_vba_module_unknown_name_raises() -> None:
     with AccessReader(ACCDB) as db, pytest.raises(AccessError):
         db.read_vba_module("DoesNotExist_zzzzz")
 
-

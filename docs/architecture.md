@@ -47,6 +47,11 @@ knows about the layer below it but not the layer above.
 |   - VBAProject + VBAModule data model                  |
 |   - cache invalidation, signature detection            |
 +--------------------------------------------------------+
+| vba_pcode.py    VBA7 p-code disassembler  (EXPERIMENTAL)|
+|   - 264-entry VBA7 opcode table (factual data)         |
+|   - per-line p-code streaming parser                   |
+|   - dependency-free (no oletools, no pcodedmp)         |
++--------------------------------------------------------+
 | cfb.py          MS-CFB layer                           |
 |   - Compound File Binary parser/writer                 |
 |   - stream + storage CRUD (case-insensitive lookup)    |
@@ -189,6 +194,17 @@ because Access stores VBA source very differently from Excel/Word/PowerPoint:
     catalog / symbol / plaintext rows and are referenced from the
     bytecode by slot id only. Opcode field guide in progress; see
     `docs/access_pcode_re.md` Phase 4.
+  * **Identifier inventory** — every project-level identifier name
+    (typelib refs, project name, module/proc/variable names, intrinsic
+    call targets such as `MsgBox`) is enumerated in the
+    `_VBA_PROJECT`-equivalent stream stored UNCOMPRESSED in the LVAL
+    row whose first 2 bytes are the `CC 61` Office magic. Each entry
+    on disk uses the record layout
+    `<u8 len><u8 type>[<6B descriptor>]<ASCII name><u16 id><10 00>`.
+    Exposed via `AccessFile.identifiers()` ->
+    `tuple[AccessVBAIdentifier, ...]`. Note: this is a project-wide
+    inventory only; the `name_id` operands in compiled p-code are
+    per-procedure reference-table slots (resolution pending).
   * **Comment text** — stored verbatim in plaintext rows tagged
     `E3 00 00 00 <u16-LE length> <ASCII payload>` (apostrophe stripped).
   * **String literal text** — stored verbatim in rows tagged

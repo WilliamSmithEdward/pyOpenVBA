@@ -247,6 +247,11 @@ Decoded opcodes (deterministic; all asserted by regression tests):
 | Load local         | `9F 02 <i32 LE>`   | FBP offset                 | sample 051 (`i` in For)    |
 | For-Init           | `71 06`            | -                          | sample 051                 |
 | For-Step / Next    | `73 06`            | -                          | sample 051                 |
+| BranchIfFalse      | `C7 02 <u32 LE>`   | forward jump target        | sample 050 `If True Then`  |
+| LoadAddress local  | `F1 01 <i32 LE>`   | FBP-relative slot addr     | sample 040 (MsgBox arg)    |
+| Call-block open    | `67 02 4C 00 00 00`| -                          | sample 040 (MsgBox call)   |
+| Call dispatch      | `<u16 stmt#> 49 06 <i32 LE>`| 1-based stmt index + FBP-rel target | samples 040, 043 |
+| ProcEnd close      | `67 02 00 00 00 00`| -                          | every Sub body             |
 
 Pending: full opcode table covering Sub/End Sub, Dim of complex
 types, If/Then, For/Next, function call dispatch, variable references,
@@ -281,6 +286,150 @@ Production API: `AccessFile.find_interned_strings()` performs a
 deterministic content-based scan -- it locates literal records by
 their structural `0B <u32> <UTF-16-LE>` shape, with no hard-coded
 row coordinates.
+
+### Phase 4c -- ProcTrailer block layout (decoded)
+
+Every Sub body ends with a fixed-shape trailer block immediately
+following the `67 02 00 00 00 00` ProcEnd. The structure is:
+
+```
+7B 02 <u32 LE cookie>            -- ProcTrailer; cookie reproducible
+                                    for identical bytecode, content-
+                                    dependent (full algorithm pending).
+00 00 00 00 00 00                -- six zero bytes
+08 00                            -- fixed sentinel
+<u16 LE frame_size>              -- = max FBP-relative local offset
+<u16 LE body_size>               -- bytes from ProcOpen to ProcEnd
+```
+
+Frame-size observations:
+
+* empty Sub (no locals) -> `00 00`
+* `Dim x As Integer` (one scalar) -> `08 00`
+* MsgBox 4-slot arg frame -> `C0 00`
+
+Cookie observations (deterministic for identical bytecode):
+
+* Body-identical samples 030 / 044 / 049 -> cookie `0x6E`
+* `MsgBox "hello"` (040) -> cookie `0x30`; `MsgBox "world"` (041) ->
+  cookie `0xA995`. The cookie changes with literal content even
+  though the bytecode between ProcOpen and ProcEnd does NOT (see
+  `test_pcode_call_dispatch_is_literal_independent`). The exact
+  cookie algorithm is the remaining Phase 4 unknown.
+
+### Phase 4d -- standard VBA module stream coexists (decoded)
+
+In every Access database we inspected, the **same** LVAL row that
+carries the OVBA-compressed source ALSO carries -- at an earlier
+in-row offset -- the standard Office VBA module stream's
+``PerformanceCache`` region, identified by the well-known
+``0xCAFE`` magic word.
+
+This region is the **canonical portable VBA7 p-code** as documented
+in [MS-OVBA] section 2.3.4.3 and consumed by public disassemblers
+such as [bontchev/pcodedmp](https://github.com/bontchev/pcodedmp).
+Its layout (decompressed):
+
+```
+<binary metadata, declaration/indirect/object tables>
+...
+0xCAFE                           -- magic
+<u16 numLines>
+<numLines * 12-byte line records>
+<per-line p-code bytes>          -- 264-opcode VBA7 instruction set
+```
+
+Each per-line p-code instruction is a u16 (low 10 bits = opcode,
+upper 6 = opType flags), then 0-3 operand words depending on the
+mnemonic. The full opcode table (264 mnemonics: ``Ld``, ``LitStr``,
+``ArgsCall``, ``FuncDefn``, ``EndSub`` ...) is the VBA7 spec.
+
+**This is NOT the same as the ``rU@``-prefixed bytecode** that
+:meth:`AccessFile.read_module_pcode_stream` returns. The two forms
+coexist in different LVAL rows:
+
+* ``rU@`` row -- Access-specific cached/execodes form. Access uses
+  this at runtime; modifying it breaks execution. Phase 4a-4c above
+  reverse-engineered this form.
+* CAFE-magic row -- standard portable VBA7 p-code. Runs on any
+  Office host that supports VBA7. Production API:
+  :meth:`AccessFile.find_module_streams` returns the raw bytes plus
+  CAFE offset.
+
+Locked by `test_module_stream_contains_cafe_magic` (all 10
+single-Sub corpus samples 040-049) and
+`test_module_stream_is_distinct_from_rU_pcode_stream`.
+
+**Strategic implication**: the standard VBA module stream is a
+well-documented format with a public disassembler. Production work
+can build on top of `find_module_streams()` immediately (full VBA
+disassembly, structural source replacement) without further
+reverse-engineering the ``rU@`` form -- as long as we also keep
+``rU@`` in sync (or force Access to recompile from source on next
+open).
+
+### Phase 4e -- dependency-free VBA7 disassembler (SHIPPED)
+
+`pyopenvba.vba_pcode` ships a **pure-Python, dependency-free**
+disassembler for the canonical CAFE-magic VBA7 p-code. It contains
+the full 264-entry VBA7 opcode table (factual data; clean
+re-implementation -- no GPL'd source code reused from `pcodedmp` or
+any other project) plus a streaming line/instruction parser.
+
+Encoding note: every Access database produced by the modern Office
+toolchain uses **VBA7 64-bit encoding** -- raw opcode index ==
+canonical table index, with no remap. This is the disassembler's
+default (`is_64bit=True`). Pass `is_64bit=False` for VBA6 or 32-bit
+VBA7 hosts; the +1/+2/+3 remap above raw opcode 173 will be applied.
+
+The disassembler walks:
+
+```
+CAFE word -> 2 reserved -> u16 numLines ->
+numLines * 12-byte line records
+    (4 skip, u16 line_length, 2 skip, u32 line_offset) ->
+10 reserved -> p-code region
+```
+
+Records with `line_offset == 0xFFFFFFFF` are source-only lines
+(`Attribute VB_Name = ...`, `Option Compare Database`, blank lines)
+with no compiled bytecode -- the disassembler emits an empty
+`PCodeLine` for these so output indices line up with source order.
+
+Production API:
+
+* `AccessFile.disassemble_module(name, *, is_64bit=True) -> DisassembledModule`
+  -- end-to-end disassembly of a named module.
+* `pyopenvba.vba_pcode.disassemble_module_stream(raw_bytes, *, is_64bit=True)`
+  -- low-level entry point if you already have the carrier-row bytes.
+* `DisassembledModule(cafe_offset, num_lines, lines)`,
+  `PCodeLine(line_no, start_offset, byte_length, instructions)`,
+  `PCodeInstruction(offset, raw_word, opcode, op_type, mnemonic,
+   operands, payload)`.
+
+Verified mnemonic recovery on the RE corpus:
+
+| Sample | Source                       | Decoded p-code                                                                      |
+|--------|------------------------------|-------------------------------------------------------------------------------------|
+| 030    | `Sub A() : End Sub`          | `FuncDefn func_0x0 ; EndSub`                                                        |
+| 040    | `Sub A() : MsgBox "hello"`   | `FuncDefn func_0x0 ; LitStr "hello" ; ArgsCall (op_type=0x10, argc=1) ; EndSub`     |
+| 044    | `Sub A() : Dim x As Integer` | `FuncDefn func_0x0 ; Dim ; VarDefn var_0x58 ; EndSub`                               |
+
+Locked by `test_disassemble_empty_sub_yields_funcdefn_and_endsub`,
+`test_disassemble_msgbox_recovers_litstr_and_argscall`,
+`test_disassemble_dim_recovers_dim_and_vardefn`, and
+`test_disassemble_module_raises_for_unknown_name`.
+
+**Not yet resolved (v1 scope)**: identifier-table resolution. The
+opaque `name_id` / `var_id` / `func_id` operands carry a u16 / u32
+slot id into the project's identifier table, which in Access lives
+in a separate LVAL row not yet located by content scan. Without it,
+disassembly emits placeholders like `name_0x22c` instead of the
+human name (`MsgBox`). Mnemonic-level disassembly is fully usable
+without it.
+
+Tooling: `scripts/access_re_disasm_smoke.py` -- corpus-wide
+sanity-check of the disassembler output.
 
 Tooling: `scripts/access_re_dump_68_1.py`,
 `scripts/access_re_compare_pcode_headers.py`,

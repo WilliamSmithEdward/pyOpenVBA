@@ -852,6 +852,679 @@ def test_pcode_module_names_are_not_in_bytecode() -> None:
     assert len(set(lengths.values())) == 1, lengths
 
 
+# --- Phase 4 RE: control flow + call dispatch opcodes ------------------
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "050__sub_if_true.accdb").exists(),
+    reason="RE corpus not generated",
+)
+def test_pcode_branch_if_false_follows_push_true() -> None:
+    """`If True Then MsgBox "y"` compiles to a sequence beginning
+    with ``ED 05 FF FF`` (push -1 = True) immediately followed by
+    ``C7 02 <u32 LE>`` (BranchIfFalse with a 32-bit jump target).
+
+    This pair is the deterministic signature of a Visual Basic
+    `If <expr> Then` statement in compiled p-code."""
+    from pyopenvba.access import AccessFile
+
+    raw = AccessFile(
+        _RE_CORPUS / "050__sub_if_true.accdb"
+    ).read_module_pcode_stream().raw
+    push_true = raw.find(b"\xed\x05\xff\xff")
+    assert push_true != -1, "missing Push True opcode (ED 05 FF FF)"
+    # BranchIfFalse must follow the push and consume 6 bytes total
+    # (opcode + 4-byte target).
+    branch_pos = push_true + 4
+    assert raw[branch_pos:branch_pos + 2] == b"\xc7\x02", (
+        f"expected C7 02 BranchIfFalse at offset {branch_pos:#x}, "
+        f"got {raw[branch_pos:branch_pos + 2].hex()}"
+    )
+    target = int.from_bytes(raw[branch_pos + 2:branch_pos + 6], "little")
+    # The branch target points forward into the Sub body (within the
+    # bounds of this stream) -- it must NOT be zero and must NOT
+    # exceed the row length.
+    assert 0 < target < len(raw), target
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "040__sub_msgbox_hello.accdb").exists()
+    or not (_RE_CORPUS / "041__sub_msgbox_world.accdb").exists(),
+    reason="RE corpus not generated",
+)
+def test_pcode_call_dispatch_is_literal_independent() -> None:
+    """The p-code call-dispatch sequence for `MsgBox "hello"` is
+    byte-for-byte identical to the one for `MsgBox "world"` *except*
+    at the 4-byte ProcTrailer cookie (which differs because the
+    literal interning context changed).
+
+    Concretely: both streams contain the identical 60-byte
+    dispatch block starting at the `67 02 4C 00 00 00` call-block
+    marker. The string value lives only in the intern table; the
+    bytecode references it indirectly through the local-vars
+    frame."""
+    from pyopenvba.access import AccessFile
+
+    raw_hello = AccessFile(
+        _RE_CORPUS / "040__sub_msgbox_hello.accdb"
+    ).read_module_pcode_stream().raw
+    raw_world = AccessFile(
+        _RE_CORPUS / "041__sub_msgbox_world.accdb"
+    ).read_module_pcode_stream().raw
+    # Identical lengths.
+    assert len(raw_hello) == len(raw_world)
+    # Exactly two bytes differ (at the ProcTrailer cookie).
+    diffs = [i for i, (a, b) in enumerate(zip(raw_hello, raw_world)) if a != b]
+    assert len(diffs) == 2, diffs
+    # Both diff offsets immediately follow a `7B 02` (ProcTrailer).
+    proc_trailer = raw_hello.find(b"\x7b\x02")
+    assert proc_trailer != -1
+    assert min(diffs) == proc_trailer + 2
+    assert max(diffs) <= proc_trailer + 5
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "040__sub_msgbox_hello.accdb").exists(),
+    reason="RE corpus not generated",
+)
+def test_pcode_call_dispatch_block_marker_present() -> None:
+    """`MsgBox "..."` introduces a call-dispatch block that opens
+    with ``67 02 4C 00 00 00`` -- ProcOpen with a 0x4C ``call-block``
+    tag (as opposed to the ``06`` tag used for the top-level Sub
+    bracket). This marker is absent from empty-Sub bytecode."""
+    from pyopenvba.access import AccessFile
+
+    raw_call = AccessFile(
+        _RE_CORPUS / "040__sub_msgbox_hello.accdb"
+    ).read_module_pcode_stream().raw
+    raw_empty = AccessFile(
+        _RE_CORPUS / "030__sub_A_empty.accdb"
+    ).read_module_pcode_stream().raw
+    assert b"\x67\x02\x4c\x00\x00\x00" in raw_call
+    assert b"\x67\x02\x4c\x00\x00\x00" not in raw_empty
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "040__sub_msgbox_hello.accdb").exists(),
+    reason="RE corpus not generated",
+)
+def test_pcode_load_address_local_opcode() -> None:
+    """The call-dispatch block pushes argument frame slots with
+    ``F1 01 <i32 LE>`` (LoadAddress local; FBP-relative). A MsgBox
+    call pushes three such addresses in a row, at FBP offsets
+    -0xC0, -0x90, -0x60 -- a deterministic signature of a 3-slot
+    arg frame."""
+    from pyopenvba.access import AccessFile
+
+    raw = AccessFile(
+        _RE_CORPUS / "040__sub_msgbox_hello.accdb"
+    ).read_module_pcode_stream().raw
+    expected = (
+        b"\xf1\x01\x40\xff\xff\xff"   # LoadAddr FBP+(-0xC0)
+        b"\xf1\x01\x70\xff\xff\xff"   # LoadAddr FBP+(-0x90)
+        b"\xf1\x01\xa0\xff\xff\xff"   # LoadAddr FBP+(-0x60)
+    )
+    assert expected in raw
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "040__sub_msgbox_hello.accdb").exists()
+    or not (_RE_CORPUS / "043__sub_msgbox_two.accdb").exists()
+    or not (_RE_CORPUS / "030__sub_A_empty.accdb").exists(),
+    reason="RE corpus not generated",
+)
+def test_pcode_statement_counter_increments_per_call_site() -> None:
+    """Each call-site in a Sub carries a 1-based 16-bit statement
+    counter immediately before its ``49 06`` opcode. A single MsgBox
+    call emits ``01 00 49 06``; two consecutive MsgBox calls emit
+    ``01 00 49 06`` (first) and ``02 00 49 06`` (second). An
+    empty Sub emits no ``49 06`` at all.
+
+    This per-call-site counter is what lets VBA's runtime report
+    'error on statement N' and is therefore part of the bytecode's
+    deterministic contract."""
+    from pyopenvba.access import AccessFile
+
+    one = AccessFile(
+        _RE_CORPUS / "040__sub_msgbox_hello.accdb"
+    ).read_module_pcode_stream().raw
+    two = AccessFile(
+        _RE_CORPUS / "043__sub_msgbox_two.accdb"
+    ).read_module_pcode_stream().raw
+    empty = AccessFile(
+        _RE_CORPUS / "030__sub_A_empty.accdb"
+    ).read_module_pcode_stream().raw
+
+    # Single call site: counter == 1.
+    assert b"\x01\x00\x49\x06" in one
+    assert b"\x02\x00\x49\x06" not in one
+    # Two call sites: counters 1 and 2, in source order.
+    pos1 = two.find(b"\x01\x00\x49\x06")
+    pos2 = two.find(b"\x02\x00\x49\x06")
+    assert pos1 != -1
+    assert pos2 != -1
+    assert pos1 < pos2
+    # Empty Sub: no call sites at all.
+    assert b"\x49\x06" not in empty
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "030__sub_A_empty.accdb").exists(),
+    reason="RE corpus not generated",
+)
+def test_pcode_procend_close_form_present_in_every_sub() -> None:
+    """The closing ProcEnd bracket of every Sub body is the 6-byte
+    sequence ``67 02 00 00 00 00`` (distinct from the call-block
+    open form ``67 02 4C 00 00 00`` and the Sub-open form
+    ``67 02 06 00 00 00``). Locked across all body samples
+    (030-051)."""
+    from pyopenvba.access import AccessFile
+
+    bodies = [
+        "030__sub_A_empty.accdb",
+        "040__sub_msgbox_hello.accdb",
+        "043__sub_msgbox_two.accdb",
+        "044__sub_dim_int.accdb",
+        "047__sub_let_int.accdb",
+        "050__sub_if_true.accdb",
+        "051__sub_for_1_to_3.accdb",
+    ]
+    for name in bodies:
+        if not (_RE_CORPUS / name).exists():
+            continue
+        raw = AccessFile(_RE_CORPUS / name).read_module_pcode_stream().raw
+        assert b"\x67\x02\x00\x00\x00\x00" in raw, name
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "030__sub_A_empty.accdb").exists(),
+    reason="RE corpus not generated",
+)
+def test_pcode_trailer_layout_has_fixed_sentinel_and_frame_size() -> None:
+    """The ProcTrailer is followed at a fixed offset by an ``08 00``
+    sentinel and then a ``<u16 LE>`` frame-size word.
+
+    Frame size deterministically matches the max FBP-relative local
+    offset:
+
+    * empty Sub (no locals)             -> frame_size = 0x0000
+    * `Dim x As Integer` (one scalar)   -> frame_size = 0x0008
+    * MsgBox 4-slot arg frame           -> frame_size = 0x00C0
+
+    Locked here against samples 030, 044, 040, 043."""
+    from pyopenvba.access import AccessFile
+
+    cases = {
+        "030__sub_A_empty.accdb": 0x0000,
+        "044__sub_dim_int.accdb": 0x0008,
+        "040__sub_msgbox_hello.accdb": 0x00C0,
+        "043__sub_msgbox_two.accdb": 0x00C0,
+    }
+    for name, expected_frame in cases.items():
+        if not (_RE_CORPUS / name).exists():
+            continue
+        raw = AccessFile(_RE_CORPUS / name).read_module_pcode_stream().raw
+        trailer = raw.rfind(b"\x7b\x02")
+        assert trailer != -1, name
+        # +2 .. +6  : u32 LE cookie (content-dependent; not locked here)
+        # +6 .. +12 : six zero bytes
+        # +12 .. +14: 08 00 sentinel
+        # +14 .. +16: u16 LE frame_size
+        assert raw[trailer + 6:trailer + 12] == b"\x00" * 6, name
+        assert raw[trailer + 12:trailer + 14] == b"\x08\x00", name
+        frame_size = int.from_bytes(
+            raw[trailer + 14:trailer + 16], "little"
+        )
+        assert frame_size == expected_frame, (
+            f"{name}: expected frame_size {expected_frame:#x}, "
+            f"got {frame_size:#x}"
+        )
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "030__sub_A_empty.accdb").exists()
+    or not (_RE_CORPUS / "044__sub_dim_int.accdb").exists()
+    or not (_RE_CORPUS / "049__sub_comment_only.accdb").exists(),
+    reason="RE corpus not generated",
+)
+def test_pcode_trailer_cookie_is_deterministic_for_identical_bodies() -> None:
+    """For Subs whose compiled p-code streams are byte-for-byte
+    identical, the ProcTrailer cookie is also identical. Specifically:
+
+    * ``Sub A() / End Sub`` (030),
+    * ``Sub A() / ' a comment / End Sub`` (049),
+    * ``Sub A() / Dim x As Integer / End Sub`` (044)
+
+    all share cookie 0x6E (the cookie is structural, not random).
+
+    This rules out the cookie being an uninitialised memory artefact
+    or a timestamp -- it is reproducibly determined by the bytecode
+    surrounding it."""
+    from pyopenvba.access import AccessFile
+
+    def cookie_of(path: Path) -> int:
+        raw = AccessFile(path).read_module_pcode_stream().raw
+        t = raw.rfind(b"\x7b\x02")
+        return int.from_bytes(raw[t + 2:t + 6], "little")
+
+    c030 = cookie_of(_RE_CORPUS / "030__sub_A_empty.accdb")
+    c049 = cookie_of(_RE_CORPUS / "049__sub_comment_only.accdb")
+    c044 = cookie_of(_RE_CORPUS / "044__sub_dim_int.accdb")
+    assert c030 == c049 == c044 == 0x6E, (c030, c049, c044)
+
+
+# --- Phase 4d RE: standard VBA module stream (CAFE magic) --------------
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "040__sub_msgbox_hello.accdb").exists(),
+    reason="RE corpus not generated",
+)
+def test_module_stream_contains_cafe_magic() -> None:
+    """Every Access database carries -- in the same LVAL row as the
+    OVBA-compressed VBA source -- the standard Office VBA module
+    stream's binary ``PerformanceCache`` region, identified by the
+    ``0xCAFE`` magic word.
+
+    This is the canonical portable VBA7 p-code (as documented in
+    [MS-OVBA] and consumed by public disassemblers like
+    ``pcodedmp``), NOT the Access-specific ``rU@``-prefixed cached
+    bytecode. Both forms coexist; Access uses ``rU@`` at runtime,
+    but the canonical p-code lives here.
+
+    Locked here against all 10 single-Sub corpus samples 040-049."""
+    from pyopenvba.access import AccessFile
+
+    for name in (
+        "040__sub_msgbox_hello.accdb",
+        "041__sub_msgbox_world.accdb",
+        "042__sub_msgbox_long.accdb",
+        "043__sub_msgbox_two.accdb",
+        "044__sub_dim_int.accdb",
+        "045__sub_dim_long.accdb",
+        "046__sub_dim_string.accdb",
+        "047__sub_let_int.accdb",
+        "048__sub_let_int_42.accdb",
+        "049__sub_comment_only.accdb",
+    ):
+        path = _RE_CORPUS / name
+        if not path.exists():
+            continue
+        streams = AccessFile(path).find_module_streams()
+        assert len(streams) == 1, (
+            f"{name}: expected exactly one module stream, got "
+            f"{len(streams)}"
+        )
+        s = streams[0]
+        assert s.cafe_offset > 0, name
+        # 0xCAFE magic in LE byte order is FE CA
+        assert s.raw[s.cafe_offset:s.cafe_offset + 2] == b"\xfe\xca", name
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "040__sub_msgbox_hello.accdb").exists()
+    or not (_RE_CORPUS / "049__sub_comment_only.accdb").exists(),
+    reason="RE corpus not generated",
+)
+def test_module_stream_is_distinct_from_rU_pcode_stream() -> None:
+    """The canonical VBA module stream (CAFE-prefixed) and the
+    Access-specific ``rU@`` p-code stream are stored in *different*
+    LVAL rows. This proves both forms coexist and that
+    :meth:`find_module_streams` and
+    :meth:`read_module_pcode_stream` target distinct storage."""
+    from pyopenvba.access import AccessFile
+
+    for name in (
+        "040__sub_msgbox_hello.accdb",
+        "049__sub_comment_only.accdb",
+    ):
+        path = _RE_CORPUS / name
+        if not path.exists():
+            continue
+        db = AccessFile(path)
+        ms = db.find_module_streams()
+        rU = db.read_module_pcode_stream()
+        assert len(ms) == 1, name
+        assert (ms[0].page, ms[0].slot) != (rU.page, rU.slot), (
+            f"{name}: module stream and rU@ stream landed in the same "
+            f"LVAL row, which contradicts the two-form hypothesis"
+        )
+
+
+# --- Phase 4d RE: dependency-free VBA7 p-code disassembler -------------
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "030__sub_A_empty.accdb").exists(),
+    reason="RE corpus not generated",
+)
+def test_disassemble_empty_sub_yields_funcdefn_and_endsub() -> None:
+    """An empty ``Sub A() : End Sub`` compiles to two p-code lines:
+    a ``FuncDefn`` opening the procedure and an ``EndSub`` closing
+    it. This is the minimal procedure-body footprint."""
+    from pyopenvba.access import AccessFile
+
+    db = AccessFile(_RE_CORPUS / "030__sub_A_empty.accdb")
+    # Module name in fixture: pull from iter_vba_modules.
+    name = next(iter(db.iter_vba_modules())).name
+    mod = db.disassemble_module(name)
+    mnemonics = [
+        ins.mnemonic
+        for line in mod.lines
+        for ins in line.instructions
+    ]
+    assert "FuncDefn" in mnemonics
+    assert "EndSub" in mnemonics
+    # FuncDefn precedes EndSub in source order.
+    assert mnemonics.index("FuncDefn") < mnemonics.index("EndSub")
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "040__sub_msgbox_hello.accdb").exists(),
+    reason="RE corpus not generated",
+)
+def test_disassemble_msgbox_recovers_litstr_and_argscall() -> None:
+    """``Sub A() : MsgBox "hello" : End Sub`` decodes to a procedure
+    body of exactly: ``LitStr "hello"`` (string literal pushed
+    inline as the call argument) followed by ``ArgsCall`` (call
+    dispatch with arg-count = 1)."""
+    from pyopenvba.access import AccessFile
+
+    db = AccessFile(_RE_CORPUS / "040__sub_msgbox_hello.accdb")
+    name = next(iter(db.iter_vba_modules())).name
+    mod = db.disassemble_module(name)
+    litstrs = [
+        ins
+        for line in mod.lines
+        for ins in line.instructions
+        if ins.mnemonic == "LitStr"
+    ]
+    assert len(litstrs) == 1
+    assert litstrs[0].payload == b"hello"
+    argscalls = [
+        ins
+        for line in mod.lines
+        for ins in line.instructions
+        if ins.mnemonic == "ArgsCall"
+    ]
+    assert len(argscalls) == 1
+    # ArgsCall carries (name_id, argcount). argcount = 1 for MsgBox "hello".
+    operands = dict(argscalls[0].operands)
+    assert operands["0x"] == 1
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "044__sub_dim_int.accdb").exists(),
+    reason="RE corpus not generated",
+)
+def test_disassemble_dim_recovers_dim_and_vardefn() -> None:
+    """``Sub A() : Dim x As Integer : End Sub`` decodes to a
+    declaration line of ``Dim; VarDefn var_<id>`` -- the variable
+    table entry id is opaque without the indirect-table walker but
+    is guaranteed to be a u32 reference."""
+    from pyopenvba.access import AccessFile
+
+    db = AccessFile(_RE_CORPUS / "044__sub_dim_int.accdb")
+    name = next(iter(db.iter_vba_modules())).name
+    mod = db.disassemble_module(name)
+    mnemonics = [
+        ins.mnemonic
+        for line in mod.lines
+        for ins in line.instructions
+    ]
+    assert "Dim" in mnemonics
+    assert "VarDefn" in mnemonics
+    assert mnemonics.index("Dim") < mnemonics.index("VarDefn")
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "030__sub_A_empty.accdb").exists(),
+    reason="RE corpus not generated",
+)
+def test_disassemble_module_raises_for_unknown_name() -> None:
+    """Disassembling a name not present in the database raises
+    ``AccessError`` rather than returning an empty result."""
+    from pyopenvba.access import AccessError, AccessFile
+
+    db = AccessFile(_RE_CORPUS / "030__sub_A_empty.accdb")
+    with pytest.raises(AccessError, match="not found"):
+        db.disassemble_module("NoSuchModuleNamePlease")
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "040__sub_msgbox_hello.accdb").exists(),
+    reason="RE corpus not generated",
+)
+def test_disassemble_to_listing_renders_human_readable_dump() -> None:
+    """``DisassembledModule.to_listing()`` emits a deterministic
+    multi-line ``.lst``-style dump: header line, per-line comments,
+    indented mnemonic+operand text. For the MsgBox sample we expect
+    the LitStr payload rendered as a quoted literal and the
+    ArgsCall instruction with both operands."""
+    from pyopenvba.access import AccessFile
+
+    db = AccessFile(_RE_CORPUS / "040__sub_msgbox_hello.accdb")
+    name = next(iter(db.iter_vba_modules())).name
+    listing = db.disassemble_module(name).to_listing()
+    assert "; DisassembledModule" in listing
+    assert "; Line" in listing
+    # Indented mnemonics:
+    assert "    FuncDefn" in listing
+    assert "    EndSub" in listing
+    # Quoted varg payload:
+    assert '    LitStr "hello"' in listing
+    # ArgsCall with op_type and both operands:
+    assert "    ArgsCall (op_type=0x10) name022C 0x0001" in listing
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "040__sub_msgbox_hello.accdb").exists(),
+    reason="RE corpus not generated",
+)
+def test_disassemble_all_modules_returns_name_keyed_mapping() -> None:
+    """``disassemble_all_modules`` returns one entry per VBA module
+    that has compiled p-code. Single-module corpus samples therefore
+    yield exactly one mapping entry whose key equals the module
+    name returned by ``iter_vba_modules``."""
+    from pyopenvba.access import AccessFile
+    from pyopenvba.vba_pcode import DisassembledModule
+
+    db = AccessFile(_RE_CORPUS / "040__sub_msgbox_hello.accdb")
+    expected_name = next(iter(db.iter_vba_modules())).name
+    out = db.disassemble_all_modules()
+    assert list(out) == [expected_name]
+    assert isinstance(out[expected_name], DisassembledModule)
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "040__sub_msgbox_hello.accdb").exists(),
+    reason="RE corpus not generated",
+)
+def test_disassemble_iter_instructions_is_flat_source_order() -> None:
+    """``DisassembledModule.iter_instructions`` is a flat in-source-
+    order view across every line. For the MsgBox sample the order
+    must be: Option (from ``Option Compare Database``) -> FuncDefn
+    -> LitStr -> ArgsCall -> EndSub."""
+    from pyopenvba.access import AccessFile
+
+    db = AccessFile(_RE_CORPUS / "040__sub_msgbox_hello.accdb")
+    name = next(iter(db.iter_vba_modules())).name
+    mnemonics = [
+        ins.mnemonic
+        for ins in db.disassemble_module(name).iter_instructions()
+    ]
+    assert mnemonics == [
+        "Option", "FuncDefn", "LitStr", "ArgsCall", "EndSub",
+    ]
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "043__sub_msgbox_two.accdb").exists(),
+    reason="RE corpus not generated",
+)
+def test_disassemble_recovers_two_msgbox_calls_in_order() -> None:
+    """Two consecutive ``MsgBox`` calls produce two LitStr+ArgsCall
+    pairs in source order, with the right payloads."""
+    from pyopenvba.access import AccessFile
+
+    db = AccessFile(_RE_CORPUS / "043__sub_msgbox_two.accdb")
+    name = next(iter(db.iter_vba_modules())).name
+    flat = db.disassemble_module(name).iter_instructions()
+    litstrs = [ins for ins in flat if ins.mnemonic == "LitStr"]
+    payloads = [ins.payload for ins in litstrs]
+    assert payloads == [b"one", b"two"]
+    argscalls = [ins for ins in flat if ins.mnemonic == "ArgsCall"]
+    assert len(argscalls) == 2
+    for call in argscalls:
+        # operands is a tuple of (arg_type, value); ArgsCall has
+        # (name, name_id) and (0x, argc).
+        argc = dict(call.operands)["0x"]
+        assert argc == 1
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "048__sub_let_int_42.accdb").exists(),
+    reason="RE corpus not generated",
+)
+def test_disassemble_recovers_literal_42_assignment() -> None:
+    """``x = 42`` must compile to ``LitDI2 0x002A`` followed by
+    ``St name<id>``. 0x2A == 42 in decimal."""
+    from pyopenvba.access import AccessFile
+
+    db = AccessFile(_RE_CORPUS / "048__sub_let_int_42.accdb")
+    name = next(iter(db.iter_vba_modules())).name
+    flat = db.disassemble_module(name).iter_instructions()
+    mnemonics = [ins.mnemonic for ins in flat]
+    # Order somewhere inside the body:
+    i_lit = mnemonics.index("LitDI2")
+    assert mnemonics[i_lit + 1] == "St"
+    assert dict(flat[i_lit].operands)["0x"] == 42
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "050__sub_if_true.accdb").exists(),
+    reason="RE corpus not generated",
+)
+def test_disassemble_recovers_if_endif_control_flow() -> None:
+    """``If True Then MsgBox "y"`` must produce ``If`` and ``EndIf``
+    opcodes in addition to the body."""
+    from pyopenvba.access import AccessFile
+
+    db = AccessFile(_RE_CORPUS / "050__sub_if_true.accdb")
+    name = next(iter(db.iter_vba_modules())).name
+    mnemonics = {
+        ins.mnemonic
+        for ins in db.disassemble_module(name).iter_instructions()
+    }
+    assert "If" in mnemonics
+    assert "EndIf" in mnemonics
+    assert "LitStr" in mnemonics
+    assert "ArgsCall" in mnemonics
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "051__sub_for_1_to_3.accdb").exists(),
+    reason="RE corpus not generated",
+)
+def test_disassemble_recovers_for_next_control_flow() -> None:
+    """``For x = 1 To 3 ... Next x`` must produce ``For`` and
+    ``NextVar`` opcodes plus ``StartForVariable`` / ``EndForVariable``
+    wrappers around the loop var."""
+    from pyopenvba.access import AccessFile
+
+    db = AccessFile(_RE_CORPUS / "051__sub_for_1_to_3.accdb")
+    name = next(iter(db.iter_vba_modules())).name
+    mnemonics = [
+        ins.mnemonic
+        for ins in db.disassemble_module(name).iter_instructions()
+    ]
+    assert "For" in mnemonics
+    assert "NextVar" in mnemonics
+    assert mnemonics.count("StartForVariable") == 2
+    assert mnemonics.count("EndForVariable") == 2
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "043__sub_msgbox_two.accdb").exists(),
+    reason="RE corpus not generated",
+)
+def test_iter_procedures_groups_funcdefn_through_endsub() -> None:
+    """``iter_procedures`` collapses each ``FuncDefn``...``EndSub``
+    block into one ``PCodeProcedure``. Top-level ``Option`` lines
+    are NOT included in any procedure."""
+    from pyopenvba.access import AccessFile
+
+    db = AccessFile(_RE_CORPUS / "043__sub_msgbox_two.accdb")
+    name = next(iter(db.iter_vba_modules())).name
+    procs = db.disassemble_module(name).iter_procedures()
+    assert len(procs) == 1
+    proc = procs[0]
+    assert proc.kind == "FuncDefn"
+    body = [ins.mnemonic for ins in proc.instructions]
+    assert body[0] == "FuncDefn"
+    assert body[-1] == "EndSub"
+    # The two MsgBox calls are inside the body:
+    assert body.count("LitStr") == 2
+    assert body.count("ArgsCall") == 2
+
+
+def test_cli_access_ls_lists_modules(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """``python -m pyopenvba access-ls`` lists module names + kinds."""
+    if not (_RE_CORPUS / "040__sub_msgbox_hello.accdb").exists():
+        pytest.skip("RE corpus not generated")
+    from pyopenvba.__main__ import main
+
+    rc = main(["access-ls", str(_RE_CORPUS / "040__sub_msgbox_hello.accdb")])
+    captured = capsys.readouterr().out
+    assert rc == 0
+    # At least one non-empty module name was printed.
+    assert any(line.strip() for line in captured.splitlines())
+
+
+def test_cli_access_pull_writes_source_files(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """``python -m pyopenvba access-pull`` writes one .bas/.cls file
+    per module under the destination directory."""
+    if not (_RE_CORPUS / "040__sub_msgbox_hello.accdb").exists():
+        pytest.skip("RE corpus not generated")
+    from pyopenvba.__main__ import main
+
+    dest = tmp_path / "out"
+    rc = main([
+        "access-pull",
+        str(_RE_CORPUS / "040__sub_msgbox_hello.accdb"),
+        str(dest),
+    ])
+    assert rc == 0
+    written = list(dest.glob("*"))
+    assert written, "access-pull must write at least one file"
+    # Each written file must contain VBA source text.
+    body = written[0].read_text(encoding="utf-8")
+    assert "Sub" in body or "Function" in body or "Option" in body
+
+
+def test_cli_access_disasm_prints_listing(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """``python -m pyopenvba access-disasm`` prints a ``.lst``-style
+    dump including the ``; DisassembledModule`` header."""
+    if not (_RE_CORPUS / "040__sub_msgbox_hello.accdb").exists():
+        pytest.skip("RE corpus not generated")
+    from pyopenvba.__main__ import main
+
+    rc = main([
+        "access-disasm",
+        str(_RE_CORPUS / "040__sub_msgbox_hello.accdb"),
+    ])
+    captured = capsys.readouterr().out
+    assert rc == 0
+    assert "; DisassembledModule" in captured
+    assert "LitStr" in captured
+
+
 # --- Phase 4 RE: VBA string-literal intern table -----------------------
 
 
@@ -957,3 +1630,91 @@ def test_intern_table_record_byte_layout() -> None:
             found = True
             break
     assert found, "expected on-disk literal record for 'hello' not found"
+
+
+# ---------------------------------------------------------------------------
+# Phase 4f: identifier table parsed from the _VBA_PROJECT-equivalent
+# (cc 61 magic) LVAL row stored uncompressed in every .accdb.
+# ---------------------------------------------------------------------------
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "030__sub_A_empty.accdb").exists(),
+    reason="RE corpus sample 030 unavailable",
+)
+def test_identifiers_includes_standard_typelib_references() -> None:
+    from pyopenvba.access import AccessFile
+
+    db = AccessFile(_RE_CORPUS / "030__sub_A_empty.accdb")
+    idents = db.identifiers()
+    names = [i.name for i in idents]
+    # Every Access VBA project lists the standard typelib refs.
+    for expected in ("Access", "VBA", "Win32", "Win64", "stdole", "DAO"):
+        assert expected in names, f"missing standard ref {expected!r}"
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "010__empty_StdModule_M.accdb").exists()
+    or not (_RE_CORPUS / "011__empty_StdModule_AB.accdb").exists(),
+    reason="RE corpus samples 010/011 unavailable",
+)
+def test_identifiers_reflects_user_module_name_rename() -> None:
+    from pyopenvba.access import AccessFile
+
+    db_m = AccessFile(_RE_CORPUS / "010__empty_StdModule_M.accdb")
+    db_ab = AccessFile(_RE_CORPUS / "011__empty_StdModule_AB.accdb")
+    names_m = [i.name for i in db_m.identifiers()]
+    names_ab = [i.name for i in db_ab.identifiers()]
+    assert "M" in names_m
+    assert "M" not in names_ab
+    assert "AB" in names_ab
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "030__sub_A_empty.accdb").exists()
+    or not (_RE_CORPUS / "048__sub_let_int_42.accdb").exists(),
+    reason="RE corpus samples 030/048 unavailable",
+)
+def test_identifiers_adds_user_variable_x_only_in_048() -> None:
+    from pyopenvba.access import AccessFile
+
+    db030 = AccessFile(_RE_CORPUS / "030__sub_A_empty.accdb")
+    db048 = AccessFile(_RE_CORPUS / "048__sub_let_int_42.accdb")
+    names030 = [i.name for i in db030.identifiers()]
+    names048 = [i.name for i in db048.identifiers()]
+    assert "x" not in names030
+    assert "x" in names048
+    # The user procedure 'A' is present in both.
+    assert "A" in names030 and "A" in names048
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "040__sub_msgbox_hello.accdb").exists(),
+    reason="RE corpus sample 040 unavailable",
+)
+def test_identifiers_includes_msgbox_when_called() -> None:
+    from pyopenvba.access import AccessFile
+
+    db = AccessFile(_RE_CORPUS / "040__sub_msgbox_hello.accdb")
+    names = [i.name for i in db.identifiers()]
+    assert "MsgBox" in names
+    # Calling MsgBox does not erase the user proc/module names.
+    assert "A" in names and "M" in names
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "030__sub_A_empty.accdb").exists(),
+    reason="RE corpus sample 030 unavailable",
+)
+def test_identifiers_records_are_canonical_dataclass_instances() -> None:
+    from pyopenvba.access import AccessFile, AccessVBAIdentifier
+
+    db = AccessFile(_RE_CORPUS / "030__sub_A_empty.accdb")
+    idents = db.identifiers()
+    assert len(idents) > 0
+    for i in idents:
+        assert isinstance(i, AccessVBAIdentifier)
+        assert isinstance(i.name, str) and len(i.name) > 0
+        assert 0 <= i.id_low <= 0xFFFF
+        assert isinstance(i.prefix, bytes)
+        # Indices are sequential starting at 0.
+    assert [i.index for i in idents] == list(range(len(idents)))

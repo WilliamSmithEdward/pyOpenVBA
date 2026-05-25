@@ -57,6 +57,10 @@ from typing import Iterator, Union
 
 from pyopenvba.exceptions import PyOpenVBAError, UnsupportedFormatError
 from pyopenvba.vba import VBAReference, decompress as _ovba_decompress
+from pyopenvba.vba_pcode import (
+    DisassembledModule,
+    disassemble_module_stream,
+)
 
 
 ACE_PAGE_SIZE = 4096
@@ -585,6 +589,172 @@ class AccessFile:
                 i += 1
         return tuple(out)
 
+    # ------------------------------------------------------------------
+    # Standard VBA module-stream p-code (Phase 4d RE, 2026-05).
+    # ------------------------------------------------------------------
+    # In every Access database we inspected, the LVAL row carrying the
+    # OVBA-compressed VBA source ALSO contains -- at a content-dependent
+    # offset earlier in the same row -- the standard Office VBA module
+    # stream's "PerformanceCache" region, recognisable by the
+    # well-known ``0xCAFE`` magic word. This is the same per-line
+    # p-code layout described in [MS-OVBA] section 2.3.4.3 and
+    # disassembled by the public `pcodedmp` tool. It is *NOT* the
+    # ``rU@``-prefixed bytecode (read by
+    # :meth:`read_module_pcode_stream`); the ``rU@`` stream is the
+    # Access-specific cached/execodes form. Both forms coexist in the
+    # database; Access uses ``rU@`` at runtime, but the canonical VBA7
+    # p-code -- portable across all Office hosts -- lives here.
+
+    def find_module_streams(self) -> tuple["AccessVBAModuleStream", ...]:
+        """Return the standard Office VBA module-stream bytes for
+        every VBA module in the database.
+
+        For each VBA module, the LVAL row containing its OVBA-
+        compressed source also contains -- at an earlier offset in
+        the same row -- the standard module stream's binary
+        ``PerformanceCache`` region. That region is recognisable by
+        the ``0xCAFE`` magic word and contains the canonical VBA7
+        p-code (per-line opcodes), in the exact layout defined by
+        [MS-OVBA] and consumed by public disassemblers.
+
+        Returns one :class:`AccessVBAModuleStream` per module,
+        carrying the source page, slot, raw row bytes, and the
+        in-row offset of the ``0xCAFE`` magic. The raw bytes can be
+        fed directly to any disassembler that expects an Office VBA
+        module stream.
+
+        This is a deterministic content-based scan: we identify
+        carrier rows by intersecting "row decompresses to a valid
+        VBA source attribute prefix" with "row contains a single
+        ``0xCAFE`` word".
+        """
+        results: list[AccessVBAModuleStream] = []
+        seen: set[tuple[int, int]] = set()
+        for module in self.iter_vba_modules():
+            page = module.start_offset // ACE_PAGE_SIZE
+            for p, slot, row in self._iter_lval_rows():
+                if p != page:
+                    continue
+                raw = bytes(row)
+                cafe = raw.find(b"\xfe\xca")
+                if cafe < 0:
+                    continue
+                if (p, slot) in seen:
+                    break
+                seen.add((p, slot))
+                results.append(
+                    AccessVBAModuleStream(
+                        page=p, slot=slot, raw=raw, cafe_offset=cafe
+                    )
+                )
+                break
+        return tuple(results)
+
+    def identifiers(self) -> tuple[AccessVBAIdentifier, ...]:
+        """Enumerate every project-level identifier name decoded from
+        the ``_VBA_PROJECT``-equivalent LVAL row.
+
+        Returns a tuple of :class:`AccessVBAIdentifier` records in
+        on-disk order. The list contains:
+
+        * Typelib reference names (``Access``, ``VBA``, ``Win32``,
+          ``Win64``, ``stdole``, ``DAO``, etc.)
+        * The project name (``Project1`` and the project file stem).
+        * The original module-template name (``Module1``) plus the
+          current user module name(s).
+        * User-defined procedure and variable names.
+        * Intrinsic VBA function names referenced from compiled code
+          (``MsgBox``, ``_Evaluate``, etc.).
+
+        Returns an empty tuple if no ``CC 61`` row is present
+        (corrupted / non-VBA-enabled database).
+
+        Note: this is a project-wide *inventory*; the ``name_id``
+        u16 operands in p-code do **NOT** index into this table
+        directly (they index a per-procedure reference table -- a
+        future RE deliverable). The inventory is still useful for
+        diagnostic and auditing purposes (e.g. listing every
+        intrinsic a project calls).
+        """
+        rows = list(self._iter_lval_rows())
+        stream = _find_vba_project_row(rows)
+        if stream is None:
+            return ()
+        return _parse_vba_project_identifiers(stream)
+
+    def disassemble_module(
+        self, name: str, *, is_64bit: bool = True
+    ) -> DisassembledModule:
+        """Disassemble the canonical VBA7 p-code of the named module.
+
+        Locates the module's ``0xCAFE`` p-code region via
+        :meth:`find_module_streams`, then walks the per-line opcode
+        stream using :func:`pyopenvba.vba_pcode.disassemble_module_stream`.
+
+        Args:
+            name: Module name (matches ``VBAModule.name`` /
+                ``Attribute VB_Name``).
+            is_64bit: P-code encoding flavour. Defaults to ``True``
+                because every Access database in the project's test
+                corpus uses VBA7 64-bit encoding. Set ``False`` for
+                databases produced by 32-bit Office / VBA6 hosts.
+
+        Returns:
+            A fully decoded :class:`DisassembledModule`.
+
+        Raises:
+            AccessError: If no module with that name is present, or
+                the module is present but has no compiled p-code
+                (e.g. source-only module that has never been
+                executed).
+        """
+        modules = list(self.iter_vba_modules())
+        streams = self.find_module_streams()
+        # iter_vba_modules() and find_module_streams() walk the
+        # database in the same page order, but find_module_streams
+        # only emits an entry when a CAFE region is present in the
+        # carrier row. Match by (page, slot) to be robust.
+        by_page: dict[int, AccessVBAModuleStream] = {
+            s.page: s for s in streams
+        }
+        for module in modules:
+            if module.name != name:
+                continue
+            stream = by_page.get(module.start_offset // ACE_PAGE_SIZE)
+            if stream is None:
+                raise AccessError(
+                    f"module {name!r} has no compiled p-code "
+                    "(no 0xCAFE region in carrier row)"
+                )
+            return disassemble_module_stream(
+                stream.raw, is_64bit=is_64bit
+            )
+        raise AccessError(f"module {name!r} not found in database")
+
+    def disassemble_all_modules(
+        self, *, is_64bit: bool = True
+    ) -> dict[str, DisassembledModule]:
+        """Disassemble every VBA module in the database.
+
+        Convenience wrapper around :meth:`disassemble_module`. Returns
+        a name-keyed mapping; modules with no compiled p-code (no
+        ``0xCAFE`` carrier row) are silently skipped, mirroring
+        :meth:`find_module_streams` semantics.
+
+        Args:
+            is_64bit: See :meth:`disassemble_module`.
+        """
+        out: dict[str, DisassembledModule] = {}
+        streams = {s.page: s for s in self.find_module_streams()}
+        for module in self.iter_vba_modules():
+            stream = streams.get(module.start_offset // ACE_PAGE_SIZE)
+            if stream is None:
+                continue
+            out[module.name] = disassemble_module_stream(
+                stream.raw, is_64bit=is_64bit
+            )
+        return out
+
     def iter_vba_modules(self) -> Iterator["VBAModule"]:
         """
         Discover and yield every VBA module embedded in this database.
@@ -967,6 +1137,38 @@ class AccessVBAPCodeStream:
 
 
 @dataclass(frozen=True)
+class AccessVBAModuleStream:
+    """Standard Office VBA module-stream bytes for a single VBA module,
+    extracted from the LVAL row that also carries its OVBA-compressed
+    source.
+
+    Recognisable by the ``0xCAFE`` magic word in ``raw[cafe_offset:]``
+    that marks the start of the per-line p-code region (see [MS-OVBA]
+    section 2.3.4.3). The full byte layout matches what public VBA
+    disassemblers (e.g. ``pcodedmp``) consume.
+
+    This is the *canonical* portable VBA p-code -- the form that any
+    Office host running VBA7 can execute. It coexists with the
+    Access-specific ``rU@``-prefixed cached form (see
+    :class:`AccessVBAPCodeStream`).
+
+    Attributes:
+        page: ACE 4 KiB page number containing the LVAL row.
+        slot: Slot index within ``page``.
+        raw: Entire row bytes; the module-stream-format region runs
+            from offset 0 through the start of the OVBA compressed
+            source.
+        cafe_offset: In-row byte offset of the ``0xCAFE`` magic word
+            that opens the p-code region.
+    """
+
+    page: int
+    slot: int
+    raw: bytes
+    cafe_offset: int
+
+
+@dataclass(frozen=True)
 class AccessVBAInternedString:
     """A single VBA string-literal record decoded from the project's
     intern table.
@@ -988,3 +1190,165 @@ class AccessVBAInternedString:
     slot: int
     offset: int
     value: str
+
+
+@dataclass(frozen=True)
+class AccessVBAIdentifier:
+    """A single identifier name decoded from the project's
+    ``_VBA_PROJECT``-equivalent stream.
+
+    The Access ``_VBA_PROJECT`` payload is stored uncompressed in an
+    LVAL row whose first two bytes are the magic ``CC 61``. Near the
+    tail of that row the host emits a list of identifier records, one
+    per typelib reference, project name, module, procedure, variable,
+    and intrinsic. Each record uses the layout::
+
+        <u8 name_len> <u8 type_byte> <ASCII name>
+        <u16 LE id_low> <u8 0x10> <u8 0x00>
+
+    Empirically verified across the 25-sample RE corpus (samples
+    010..051). Trailing ``10 00`` bytes appear to be a type-tag /
+    cookie pair; ``id_low`` is the per-record token; ``type_byte`` is
+    ``0x04`` for typelib refs / module/proc/variable names and ``0x00``
+    for intrinsic function names (e.g. ``MsgBox``). Other type bytes
+    (e.g. ``0x80``, ``0xac``) introduce variable-length descriptor
+    blocks that we currently surface verbatim via :attr:`prefix`.
+
+    Note: the ``name_id`` operands in compiled p-code do **NOT** index
+    this table directly; they are per-procedure reference-table slots
+    (see ``docs/access_pcode_re.md`` Phase 4f). This dataclass simply
+    exposes the canonical project-wide identifier inventory.
+
+    Attributes:
+        index: 0-based position within the identifier table.
+        type_byte: The single type byte preceding the name in the
+            record.
+        name: ASCII name, decoded from the on-disk byte payload.
+        id_low: 16-bit ID cookie that follows the name on disk.
+        prefix: Any extra descriptor bytes seen before this record that
+            could not be parsed as another ``<len><type><name>`` entry.
+            Empty for fully canonical records.
+    """
+
+    index: int
+    type_byte: int
+    name: str
+    id_low: int
+    prefix: bytes
+
+
+def _find_vba_project_row(rows: list[tuple[int, int, bytes]]) -> bytes | None:
+    """Return the ``_VBA_PROJECT``-equivalent row payload, or ``None``
+    if no row starts with the ``CC 61`` magic."""
+    for _page, _slot, row in rows:
+        b = bytes(row)
+        if b.startswith(b"\xcc\x61"):
+            return b
+    return None
+
+
+def _parse_vba_project_identifiers(
+    stream: bytes,
+) -> tuple[AccessVBAIdentifier, ...]:
+    """Parse the identifier list from a ``CC 61``-magic Access
+    ``_VBA_PROJECT`` stream.
+
+    Strategy: locate the references count marker ``02 00 06 04
+    'Access'`` (or ``02 00 06 0C 'Access'`` -- type byte is ``0x04``
+    in zero-module projects and ``0x0C`` once any user code exists)
+    and walk forward through ``<len><type><ASCII name><id u16> 10 00``
+    records, recording any non-conforming bytes as a per-record
+    ``prefix`` so the parse is lossless. The very first ``Access``
+    record has no ``10 00`` trailer (the next entry begins
+    immediately); subsequent entries do.
+
+    Records terminate at the first byte where the length byte is
+    ``0x02`` and the next byte is ``0xFF`` (sentinel observed across
+    every corpus sample), or when fewer than 6 bytes remain.
+    """
+    start = -1
+    for type_byte in (0x04, 0x0C):
+        cand = stream.find(b"\x02\x00\x06" + bytes([type_byte]) + b"Access")
+        if cand >= 0:
+            start = cand
+            break
+    if start < 0:
+        return ()
+    pos = start + 2  # Skip the u16 count; entries begin at 'Access'.
+    out: list[AccessVBAIdentifier] = []
+    pending_prefix = b""
+    index = 0
+    end = len(stream)
+    # Special-case: first entry is 'Access' with NO id trailer.
+    if (
+        pos + 8 <= end
+        and stream[pos] == 0x06
+        and stream[pos + 1] in (0x04, 0x0C)
+        and stream[pos + 2:pos + 8] == b"Access"
+    ):
+        out.append(
+            AccessVBAIdentifier(
+                index=0,
+                type_byte=stream[pos + 1],
+                name="Access",
+                id_low=0,
+                prefix=b"",
+            )
+        )
+        index = 1
+        pos += 8
+    while pos + 6 <= end:
+        # End-of-table sentinel: 02 FF FF 01 01 ...
+        if stream[pos] == 0x02 and stream[pos + 1] == 0xFF:
+            break
+        name_len = stream[pos]
+        type_byte = stream[pos + 1]
+        # Type bytes 0x80 (intrinsic special, e.g. _Evaluate) and
+        # 0xac (procedure with body) insert a 6-byte descriptor block
+        # between <len><type> and the ASCII name.
+        name_start = pos + 2
+        if type_byte in (0x80, 0xAC):
+            name_start = pos + 2 + 6
+        name_end = name_start + name_len
+        # The "canonical" record needs:
+        #   <len> <type> [<6B descriptor>] <name(name_len)>
+        #     <id u16> <0x10> <0x00>
+        record_end = name_end + 4
+        if (
+            name_len > 0
+            and name_len < 64
+            and record_end <= end
+            and stream[record_end - 2] == 0x10
+            and stream[record_end - 1] == 0x00
+            and all(
+                0x20 <= stream[i] < 0x7F or stream[i] == 0x5F
+                for i in range(name_start, name_end)
+            )
+        ):
+            name = stream[name_start:name_end].decode(
+                "ascii", errors="replace"
+            )
+            id_low = int.from_bytes(
+                stream[name_end:name_end + 2], "little"
+            )
+            # Pre-name descriptor bytes (if any) become this entry's
+            # prefix metadata, alongside any pending unparsed bytes.
+            descriptor = stream[pos + 2:name_start]
+            out.append(
+                AccessVBAIdentifier(
+                    index=index,
+                    type_byte=type_byte,
+                    name=name,
+                    id_low=id_low,
+                    prefix=pending_prefix + descriptor,
+                )
+            )
+            index += 1
+            pending_prefix = b""
+            pos = record_end
+            continue
+        # Non-canonical byte -- accumulate into pending prefix and
+        # advance one byte. The next valid record carries it.
+        pending_prefix += bytes([stream[pos]])
+        pos += 1
+    return tuple(out)

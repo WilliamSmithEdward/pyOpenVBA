@@ -1,0 +1,162 @@
+﻿sample                                          len   pos      cookie
+--------------------------------------------------------------------------------
+010__empty_StdModule_M.accdb                    126  0x-1  0x-0000001
+011__empty_StdModule_AB.accdb                   126  0x-1  0x-0000001
+012__empty_StdModule_ABC.accdb                  126  0x-1  0x-0000001
+013__empty_StdModule_Mod1.accdb                 126  0x-1  0x-0000001
+014__empty_StdModule_Module1.accdb              126  0x-1  0x-0000001
+015__empty_StdModule_LongName.accdb             126  0x-1  0x-0000001
+016__empty_StdModule_UnicodeA.accdb             126  0x-1  0x-0000001
+020__empty_ClassModule_C.accdb                  174  0x-1  0x-0000001
+021__empty_ClassModule_Class1.accdb             174  0x-1  0x-0000001
+030__sub_A_empty.accdb                          269  0x8a  0x0000006e
+031__sub_B_empty.accdb                          269  0x8a  0x0000006e
+032__sub_AB_empty.accdb                         269  0x8a  0x0000006e
+033__sub_LongName_empty.accdb                   269  0x8a  0x0000006e
+040__sub_msgbox_hello.accdb                     393  0xee  0x00000030
+041__sub_msgbox_world.accdb                     393  0xee  0x0000a995
+042__sub_msgbox_long.accdb                      393  0xee  0x00000033
+043__sub_msgbox_two.accdb                       481  0x146  0x00000030
+044__sub_dim_int.accdb                          269  0x8a  0x0000006e
+045__sub_dim_long.accdb                         269  0x8a  0x00000053
+046__sub_dim_string.accdb                       277  0x8a  0x00000053
+047__sub_let_int.accdb                          281  0x98  0x00000000
+048__sub_let_int_42.accdb                       285  0x9a  0x00000061
+049__sub_comment_only.accdb                     269  0x8a  0x0000006e
+050__sub_if_true.accdb                          409  0xfe  0x00000043
+051__sub_for_1_to_3.accdb                       317  0xba  0x00000032
+
+--- candidate: CRC32(raw[:pos]) low 32 bits ---
+  010__empty_StdModule_M.accdb                   cookie=0x-0000001  crc=0x8213a33b      
+  011__empty_StdModule_AB.accdb                  cookie=0x-0000001  crc=0x8213a33b      
+  012__empty_StdModule_ABC.accdb                 cookie=0x-0000001  crc=0x8213a33b      
+  013__empty_StdModule_Mod1.accdb                cookie=0x-0000001  crc=0x8213a33b      
+  014__empty_StdModule_Module1.accdb             cookie=0x-0000001  crc=0x8213a33b      
+  015__empty_StdModule_LongName.accdb            cookie=0x-0000001  crc=0x8213a33b      
+  016__empty_StdModule_UnicodeA.accdb            cookie=0x-0000001  crc=0x8213a33b      
+  020__empty_ClassModule_C.accdb                 cookie=0x-0000001  crc=0xd15ef4a4      
+  021__empty_ClassModule_Class1.accdb            cookie=0x-0000001  crc=0xad66f0be      
+  030__sub_A_empty.accdb                         cookie=0x0000006e  crc=0x675c371e      
+  031__sub_B_empty.accdb                         cookie=0x0000006e  crc=0x675c371e      
+  032__sub_AB_empty.accdb                        cookie=0x0000006e  crc=0x675c371e      
+  033__sub_LongName_empty.accdb                  cookie=0x0000006e  crc=0x675c371e      
+  040__sub_msgbox_hello.accdb                    cookie=0x00000030  crc=0x3c30c956      
+  041__sub_msgbox_world.accdb                    cookie=0x0000a995  crc=0x3c30c956      
+  042__sub_msgbox_long.accdb                     cookie=0x00000033  crc=0x982668cf      
+  043__sub_msgbox_two.accdb                      cookie=0x00000030  crc=0x5de4453e      
+  044__sub_dim_int.accdb                         cookie=0x0000006e  crc=0x675c371e      
+  045__sub_dim_long.accdb                        cookie=0x00000053  crc=0x675c371e      
+  046__sub_dim_string.accdb                      cookie=0x00000053  crc=0x4713ad86      
+  047__sub_let_int.accdb                         cookie=0x00000000  crc=0xe7969e63      
+  048__sub_let_int_42.accdb                      cookie=0x00000061  crc=0xf76f4123      
+  049__sub_comment_only.accdb                    cookie=0x0000006e  crc=0x675c371e      
+  050__sub_if_true.accdb                         cookie=0x00000043  crc=0x74e0a05d      
+  051__sub_for_1_to_3.accdb                      cookie=0x00000032  crc=0xc8b8ecf6      
+
+--- candidate: CRC32(raw[:pos+2]) ---
+  010__empty_StdModule_M.accdb                   cookie=0x-0000001  crc=0x6c09ff9d      
+  011__empty_StdModule_AB.accdb                  cookie=0x-0000001  crc=0x6c09ff9d      
+  012__empty_StdModule_ABC.accdb                 cookie=0x-0000001  crc=0x6c09ff9d      
+  013__empty_StdModule_Mod1.accdb                cookie=0x-0000001  crc=0x6c09ff9d      
+  014__empty_StdModule_Module1.accdb             cookie=0x-0000001  crc=0x6c09ff9d      
+  015__empty_StdModule_LongName.accdb            cookie=0x-0000001  crc=0x6c09ff9d      
+  016__empty_StdModule_UnicodeA.accdb            cookie=0x-0000001  crc=0x6c09ff9d      
+  020__empty_ClassModule_C.accdb                 cookie=0x-0000001  crc=0x6c09ff9d      
+  021__empty_ClassModule_Class1.accdb            cookie=0x-0000001  crc=0x6c09ff9d      
+  030__sub_A_empty.accdb                         cookie=0x0000006e  crc=0x0fe02e62      
+  031__sub_B_empty.accdb                         cookie=0x0000006e  crc=0x0fe02e62      
+  032__sub_AB_empty.accdb                        cookie=0x0000006e  crc=0x0fe02e62      
+  033__sub_LongName_empty.accdb                  cookie=0x0000006e  crc=0x0fe02e62      
+  040__sub_msgbox_hello.accdb                    cookie=0x00000030  crc=0x6d456f18      
+  041__sub_msgbox_world.accdb                    cookie=0x0000a995  crc=0x6d456f18      
+  042__sub_msgbox_long.accdb                     cookie=0x00000033  crc=0x6c176923      
+  043__sub_msgbox_two.accdb                      cookie=0x00000030  crc=0x246f2068      
+  044__sub_dim_int.accdb                         cookie=0x0000006e  crc=0x0fe02e62      
+  045__sub_dim_long.accdb                        cookie=0x00000053  crc=0x0fe02e62      
+  046__sub_dim_string.accdb                      cookie=0x00000053  crc=0xa6a27465      
+  047__sub_let_int.accdb                         cookie=0x00000000  crc=0x3a7bb25f      
+  048__sub_let_int_42.accdb                      cookie=0x00000061  crc=0xdc6e22e6      
+  049__sub_comment_only.accdb                    cookie=0x0000006e  crc=0x0fe02e62      
+  050__sub_if_true.accdb                         cookie=0x00000043  crc=0xbadf27ff      
+  051__sub_for_1_to_3.accdb                      cookie=0x00000032  crc=0x8846f33e      
+
+--- candidate: CRC32(raw[:pos]) & 0xFFFF ---
+  010__empty_StdModule_M.accdb                   cookie=0xffff  crc=0xa33b      
+  011__empty_StdModule_AB.accdb                  cookie=0xffff  crc=0xa33b      
+  012__empty_StdModule_ABC.accdb                 cookie=0xffff  crc=0xa33b      
+  013__empty_StdModule_Mod1.accdb                cookie=0xffff  crc=0xa33b      
+  014__empty_StdModule_Module1.accdb             cookie=0xffff  crc=0xa33b      
+  015__empty_StdModule_LongName.accdb            cookie=0xffff  crc=0xa33b      
+  016__empty_StdModule_UnicodeA.accdb            cookie=0xffff  crc=0xa33b      
+  020__empty_ClassModule_C.accdb                 cookie=0xffff  crc=0xf4a4      
+  021__empty_ClassModule_Class1.accdb            cookie=0xffff  crc=0xf0be      
+  030__sub_A_empty.accdb                         cookie=0x006e  crc=0x371e      
+  031__sub_B_empty.accdb                         cookie=0x006e  crc=0x371e      
+  032__sub_AB_empty.accdb                        cookie=0x006e  crc=0x371e      
+  033__sub_LongName_empty.accdb                  cookie=0x006e  crc=0x371e      
+  040__sub_msgbox_hello.accdb                    cookie=0x0030  crc=0xc956      
+  041__sub_msgbox_world.accdb                    cookie=0xa995  crc=0xc956      
+  042__sub_msgbox_long.accdb                     cookie=0x0033  crc=0x68cf      
+  043__sub_msgbox_two.accdb                      cookie=0x0030  crc=0x453e      
+  044__sub_dim_int.accdb                         cookie=0x006e  crc=0x371e      
+  045__sub_dim_long.accdb                        cookie=0x0053  crc=0x371e      
+  046__sub_dim_string.accdb                      cookie=0x0053  crc=0xad86      
+  047__sub_let_int.accdb                         cookie=0x0000  crc=0x9e63      
+  048__sub_let_int_42.accdb                      cookie=0x0061  crc=0x4123      
+  049__sub_comment_only.accdb                    cookie=0x006e  crc=0x371e      
+  050__sub_if_true.accdb                         cookie=0x0043  crc=0xa05d      
+  051__sub_for_1_to_3.accdb                      cookie=0x0032  crc=0xecf6      
+
+--- candidate: offset of last `67 02 00 00 00 00` ProcEnd ---
+  010__empty_StdModule_M.accdb                   cookie=-0x0000001  procend@=-0x0000001  MATCH
+  011__empty_StdModule_AB.accdb                  cookie=-0x0000001  procend@=-0x0000001  MATCH
+  012__empty_StdModule_ABC.accdb                 cookie=-0x0000001  procend@=-0x0000001  MATCH
+  013__empty_StdModule_Mod1.accdb                cookie=-0x0000001  procend@=-0x0000001  MATCH
+  014__empty_StdModule_Module1.accdb             cookie=-0x0000001  procend@=-0x0000001  MATCH
+  015__empty_StdModule_LongName.accdb            cookie=-0x0000001  procend@=-0x0000001  MATCH
+  016__empty_StdModule_UnicodeA.accdb            cookie=-0x0000001  procend@=-0x0000001  MATCH
+  020__empty_ClassModule_C.accdb                 cookie=-0x0000001  procend@=-0x0000001  MATCH
+  021__empty_ClassModule_Class1.accdb            cookie=-0x0000001  procend@=-0x0000001  MATCH
+  030__sub_A_empty.accdb                         cookie=0x0000006e  procend@=0x00000084      
+  031__sub_B_empty.accdb                         cookie=0x0000006e  procend@=0x00000084      
+  032__sub_AB_empty.accdb                        cookie=0x0000006e  procend@=0x00000084      
+  033__sub_LongName_empty.accdb                  cookie=0x0000006e  procend@=0x00000084      
+  040__sub_msgbox_hello.accdb                    cookie=0x00000030  procend@=0x000000e8      
+  041__sub_msgbox_world.accdb                    cookie=0x0000a995  procend@=0x000000e8      
+  042__sub_msgbox_long.accdb                     cookie=0x00000033  procend@=0x000000e8      
+  043__sub_msgbox_two.accdb                      cookie=0x00000030  procend@=0x00000140      
+  044__sub_dim_int.accdb                         cookie=0x0000006e  procend@=0x00000084      
+  045__sub_dim_long.accdb                        cookie=0x00000053  procend@=0x00000084      
+  046__sub_dim_string.accdb                      cookie=0x00000053  procend@=0x00000084      
+  047__sub_let_int.accdb                         cookie=0x00000000  procend@=0x00000092      
+  048__sub_let_int_42.accdb                      cookie=0x00000061  procend@=0x00000094      
+  049__sub_comment_only.accdb                    cookie=0x0000006e  procend@=0x00000084      
+  050__sub_if_true.accdb                         cookie=0x00000043  procend@=0x000000f8      
+  051__sub_for_1_to_3.accdb                      cookie=0x00000032  procend@=0x000000b4      
+
+--- candidate: body byte-length (between ProcOpen and ProcEnd) ---
+  010__empty_StdModule_M.accdb                   cookie=-0x0000001  body_len=-0x0000001  MATCH
+  011__empty_StdModule_AB.accdb                  cookie=-0x0000001  body_len=-0x0000001  MATCH
+  012__empty_StdModule_ABC.accdb                 cookie=-0x0000001  body_len=-0x0000001  MATCH
+  013__empty_StdModule_Mod1.accdb                cookie=-0x0000001  body_len=-0x0000001  MATCH
+  014__empty_StdModule_Module1.accdb             cookie=-0x0000001  body_len=-0x0000001  MATCH
+  015__empty_StdModule_LongName.accdb            cookie=-0x0000001  body_len=-0x0000001  MATCH
+  016__empty_StdModule_UnicodeA.accdb            cookie=-0x0000001  body_len=-0x0000001  MATCH
+  020__empty_ClassModule_C.accdb                 cookie=-0x0000001  body_len=-0x0000001  MATCH
+  021__empty_ClassModule_Class1.accdb            cookie=-0x0000001  body_len=-0x0000001  MATCH
+  030__sub_A_empty.accdb                         cookie=0x0000006e  body_len=0x00000000      
+  031__sub_B_empty.accdb                         cookie=0x0000006e  body_len=0x00000000      
+  032__sub_AB_empty.accdb                        cookie=0x0000006e  body_len=0x00000000      
+  033__sub_LongName_empty.accdb                  cookie=0x0000006e  body_len=0x00000000      
+  040__sub_msgbox_hello.accdb                    cookie=0x00000030  body_len=0x0000004c      
+  041__sub_msgbox_world.accdb                    cookie=0x0000a995  body_len=0x0000004c      
+  042__sub_msgbox_long.accdb                     cookie=0x00000033  body_len=0x0000004c      
+  043__sub_msgbox_two.accdb                      cookie=0x00000030  body_len=0x00000098      
+  044__sub_dim_int.accdb                         cookie=0x0000006e  body_len=0x00000000      
+  045__sub_dim_long.accdb                        cookie=0x00000053  body_len=0x00000000      
+  046__sub_dim_string.accdb                      cookie=0x00000053  body_len=0x00000000      
+  047__sub_let_int.accdb                         cookie=0x00000000  body_len=0x0000000e      
+  048__sub_let_int_42.accdb                      cookie=0x00000061  body_len=0x00000010      
+  049__sub_comment_only.accdb                    cookie=0x0000006e  body_len=0x00000000      
+  050__sub_if_true.accdb                         cookie=0x00000043  body_len=0x0000005c      
+  051__sub_for_1_to_3.accdb                      cookie=0x00000032  body_len=0x00000030      

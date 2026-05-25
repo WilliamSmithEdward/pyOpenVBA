@@ -38,11 +38,14 @@ knows about the layer below it but not the layer above.
 |   - MS-OVBA blob discovery via signature scan          |
 |   - LVAL page-chain walker                             |
 |   - read_vba_module(name) -> str (pure Python)         |
+|   - get_module / set_module / vba_modules (Excel API)  |
+|   - pull_modules / push_modules (Excel-symmetric)      |
 |   - replace_text(old, new) same-length plaintext patch |
 |   - replace_text_resize(old, new) reflow-aware patch   |
 |   - write_lval_row / lval_free_space LVAL primitives   |
 |   - rename_module / delete_module / add_module_catalog |
 |   - modify_module_cache / replace_module               |
+|   - read_vba_module_with_attributes (full preamble)    |
 |   - export_modules(dir) / import_module(path|source)   |
 |   - iter_msys_objects / find_msys_module               |
 |       (MSysObjects system catalog reader)              |
@@ -292,6 +295,48 @@ updating their slot offsets. Adds allocate a fresh user-content Id
 (bit 31 set, max-existing + 1), copy date stamps from the current
 UTC time as OLE Dates, parent the row at the `Modules` container,
 and append onto the first MSysObjects DATA page with room.
+
+### Excel-symmetric VBA module API (Phase 5f)
+
+`AccessFile` exposes the same ergonomic surface as `ExcelFile` /
+`WordFile` / `PowerPointFile` for multiline source replacement:
+`get_module(name)`, `set_module(name, source)`, `vba_modules() ->
+dict[str, str]`, `pull_modules(dest_dir)`, `push_modules(src_dir,
+strict=False)`. Plus top-level `pyopenvba.pull_access(database,
+dest_dir)` / `push_access(src_dir, database)` that match
+`pull`/`push`/`pull_word`/`push_word`/`pull_ppt`/`push_ppt`.
+
+`set_module` accepts either a bare body (just executable code) or a
+full source that begins with `Attribute VB_*` / `VERSION ... CLASS`.
+In the bare-body case the existing module's attribute preamble is
+preserved verbatim -- so class modules keep their VB_PredeclaredId /
+VB_GlobalNameSpace / VB_Creatable / VB_Exposed / VB_TemplateDerived /
+VB_Customizable lines across edits. In the full-source case the
+caller's header is used verbatim; only the `Attribute VB_Name`
+line is force-rewritten to match the target module name. Line
+endings are normalised to CRLF on disk.
+
+These writes update the OVBA *cache* row (the passive plaintext
+mirror pyOpenVBA reads on the next open) and, as of Phase 5g, are
+byte-compatible with the Access VBE: opening the rewritten `.accdb`
+in Microsoft Access shows the new source cleanly without the "Error
+accessing file. Network connection may have been lost." rejection
+that earlier 5f builds triggered.
+
+Phase 5g resolution: Access byte-validates the OVBA blob (it appears
+to re-run its own compressor on the decompressed plaintext and compare
+the bytes). The previous `pyopenvba.vba.compress` implementation
+contained a literal-only fast-path for chunks <= 3640 bytes that
+emitted MS-OVBA-compliant but byte-different output. The fast-path
+has been removed; `_encode_token_chunk` always runs the greedy LZ
+encoder, which is byte-identical to Access's encoder on every corpus
+sample. The invariant is pinned by
+`tests/test_vba.py::test_compress_byte_exact_against_access_sample_040`
+and any future compressor change MUST keep that test green or Access
+UI compatibility will silently regress.
+
+The Python-side round-trip (`set_module` -> `save` -> reopen ->
+`get_module`) remains byte-exact.
 
 ---
 

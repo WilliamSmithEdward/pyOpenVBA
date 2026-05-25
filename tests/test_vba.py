@@ -548,5 +548,76 @@ class TestAttributeHeaderPreservation:
             assert "ThisWorkbookTest" not in src
 
 
+def test_compress_short_input_emits_lz_not_literal_only():
+    """Regression for Phase 5g: short inputs (<= 3640 bytes) must
+    be processed by the LZ encoder, not a literal-only fast path.
+
+    Access byte-validates the OVBA cache blob and rejects modules
+    whose compressed bytes don't match its own compressor's output,
+    even when the decompressed plaintext is identical. The literal-
+    only path is MS-OVBA-spec-compliant and round-trips correctly
+    but produces all-zero flag bytes, which Access never emits for
+    inputs containing 3+ byte repeats.
+    """
+    # Plaintext with an obvious back-referenceable repeat.
+    plain = b"\r\n\r\n" * 4
+    out = compress(plain)
+    assert decompress(out) == plain
+    assert out[0] == 0x01
+    header = int.from_bytes(out[1:3], "little")
+    payload_len = (header & 0x0FFF) + 1
+    payload = out[3:3 + payload_len]
+    # Scan flag bytes for any non-zero (copy-token) bit.
+    pos = 0
+    saw_copy_token = False
+    while pos < len(payload):
+        flag = payload[pos]
+        pos += 1
+        if flag != 0:
+            saw_copy_token = True
+            break
+        pos += 8  # 8 literal bytes
+    assert saw_copy_token, (
+        f"compress() emitted literal-only output for repeatable input; "
+        f"Access UI will reject this. payload={payload.hex()}"
+    )
 
 
+def test_compress_byte_exact_against_access_sample_040():
+    """Pin the byte-exact MS-OVBA compressor parity with Access.
+
+    Decompresses sample 040 module M's OVBA cache blob, recompresses
+    the resulting plaintext through pyopenvba.vba.compress, and
+    requires byte-for-byte identity with the original blob. This is
+    the invariant that gates Access UI acceptance of rewritten
+    modules (Phase 5g).
+    """
+    from pyopenvba.access import AccessFile
+
+    sample = (
+        Path(__file__).resolve().parent
+        / "live_access_test"
+        / "re_corpus"
+        / "samples"
+        / "040__sub_msgbox_hello.accdb"
+    )
+    if not sample.exists():
+        pytest.skip(f"RE corpus sample missing: {sample}")
+    db = AccessFile(sample)
+    for page, slot, row in db._iter_lval_rows():  # pyright: ignore[reportPrivateUsage]
+        for off in db._scan_ovba_signatures(row):  # pyright: ignore[reportPrivateUsage]
+            blob = bytes(row)[off:]
+            try:
+                plain = decompress(blob)
+            except Exception:
+                continue
+            if not plain.startswith(b'Attribute VB_Name = "M"'):
+                continue
+            recomp = compress(plain)
+            assert recomp == blob, (
+                f"compressor diverges from Access at (page={page}, "
+                f"slot={slot}, off={off}). orig={len(blob)}B "
+                f"ours={len(recomp)}B"
+            )
+            return
+    pytest.skip("module M not located in sample 040")

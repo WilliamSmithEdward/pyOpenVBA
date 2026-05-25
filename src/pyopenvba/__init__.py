@@ -13,8 +13,9 @@ Supported formats
 Public API
 ----------
     from pyopenvba import (
-        ExcelFile, WordFile, PowerPointFile,
+        ExcelFile, WordFile, PowerPointFile, AccessFile,
         pull, push, pull_word, push_word, pull_ppt, push_ppt,
+        pull_access, push_access,
     )
 
     # In-process module edit (Excel)
@@ -44,6 +45,9 @@ Public API
 
     pull_ppt("presentation.pptm", "./vba_src") # extract modules (PowerPoint)
     push_ppt("./vba_src", "presentation.pptm")
+
+    pull_access("database.accdb", "./vba_src") # extract modules (Access)
+    push_access("./vba_src", "database.accdb")
 """
 
 from pathlib import Path
@@ -164,6 +168,46 @@ def push_ppt(
     return updated
 
 
+def pull_access(
+    database: Union[str, Path],
+    dest_dir: Union[str, Path],
+    *,
+    encoding: str = "utf-8",
+    overwrite: bool = True,
+) -> list[Path]:
+    """
+    Export every VBA module from an Access ``database`` (.accdb) into
+    ``dest_dir`` as ``.bas`` / ``.cls`` files. Returns the paths
+    written. Mirrors :func:`pull` / :func:`pull_word` / :func:`pull_ppt`.
+    """
+    db = AccessFile(database)
+    return db.pull_modules(dest_dir, encoding=encoding, overwrite=overwrite)
+
+
+def push_access(
+    src_dir: Union[str, Path],
+    database: Union[str, Path],
+    *,
+    out: Union[str, Path, None] = None,
+    encoding: str = "utf-8",
+    strict: bool = False,
+) -> list[str]:
+    """
+    Update VBA modules in an Access ``database`` (.accdb) from ``.bas`` /
+    ``.cls`` files in ``src_dir`` and save. Saves in place unless ``out``
+    is given. Returns the list of updated module names.
+
+    Note: writes mirror the OVBA cache (authoritative for pyOpenVBA's
+    own read path); the live Access VBA editor may still show the
+    previously-compiled source until Access recompiles. See
+    ``docs/architecture.md`` for the engine-level caveats.
+    """
+    db = AccessFile(database)
+    updated = db.push_modules(src_dir, encoding=encoding, strict=strict)
+    db.save(out)
+    return updated
+
+
 __all__ = [
     "ExcelFile",
     "WordFile",
@@ -180,6 +224,8 @@ __all__ = [
     "push_word",
     "pull_ppt",
     "push_ppt",
+    "pull_access",
+    "push_access",
 ]
 
 __version__ = "2.0.0"

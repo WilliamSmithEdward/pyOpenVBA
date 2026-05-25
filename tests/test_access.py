@@ -3053,3 +3053,296 @@ def test_corpus_msys_delete_round_trip(sample: Path, tmp_path: Path) -> None:
     assert db2.find_msys_module(target) is None
     # Standard system rows must remain readable.
     assert any(o.name == "Tables" for o in db2.msys_objects())
+
+
+# =====================================================================
+# Phase 5f -- Excel-symmetric ergonomic multiline-source API
+# =====================================================================
+
+_SAMPLE_020 = _RE_CORPUS / "020__empty_ClassModule_C.accdb"
+
+
+@pytest.mark.skipif(
+    not _SAMPLE_040.exists(),
+    reason="RE corpus not present",
+)
+def test_set_module_multiline_roundtrip(tmp_path: Path) -> None:
+    """set_module(name, multiline_body) -> save -> reload -> get_module
+    returns the same body verbatim (Excel-parallel ergonomics)."""
+    import shutil
+
+    dst = tmp_path / _SAMPLE_040.name
+    shutil.copy(_SAMPLE_040, dst)
+    db = AccessFile(dst)
+    new_src = (
+        "Option Explicit\r\n\r\n"
+        "Sub Hello()\r\n"
+        "    MsgBox \"Hi from Python!\"\r\n"
+        "    MsgBox \"Line 2\"\r\n"
+        "End Sub\r\n"
+    )
+    db.set_module("M", new_src)
+    db.save()
+
+    db2 = AccessFile(dst)
+    got = db2.get_module("M")
+    assert got == new_src
+
+
+@pytest.mark.skipif(
+    not _SAMPLE_040.exists(),
+    reason="RE corpus not present",
+)
+def test_set_module_normalises_line_endings(tmp_path: Path) -> None:
+    """Bare LF input is normalised to CRLF on disk."""
+    import shutil
+
+    dst = tmp_path / _SAMPLE_040.name
+    shutil.copy(_SAMPLE_040, dst)
+    db = AccessFile(dst)
+    db.set_module("M", "Sub LF()\n    MsgBox \"x\"\nEnd Sub\n")
+    db.save()
+    got = AccessFile(dst).get_module("M")
+    assert "\r\n" in got
+    assert "\n" not in got.replace("\r\n", "")
+
+
+@pytest.mark.skipif(
+    not _SAMPLE_020.exists(),
+    reason="RE corpus not present",
+)
+def test_set_module_preserves_class_attributes(tmp_path: Path) -> None:
+    """Replacing a class module's body via set_module preserves its
+    VB_PredeclaredId / VB_GlobalNameSpace / VB_Creatable / etc."""
+    import shutil
+
+    dst = tmp_path / _SAMPLE_020.name
+    shutil.copy(_SAMPLE_020, dst)
+    db = AccessFile(dst)
+    db.set_module("C", "Public Sub Greet()\r\n    Debug.Print \"hi\"\r\nEnd Sub\r\n")
+    db.save()
+
+    db2 = AccessFile(dst)
+    full = db2.read_vba_module_with_attributes("C")
+    # All the class-specific attribute lines must survive.
+    for line in (
+        'Attribute VB_Name = "C"',
+        "Attribute VB_GlobalNameSpace = False",
+        "Attribute VB_Creatable = False",
+        "Attribute VB_PredeclaredId = False",
+        "Attribute VB_Exposed = False",
+    ):
+        assert line in full, f"missing class attribute: {line!r}"
+    # And the new body is present too.
+    assert "Public Sub Greet()" in full
+    assert 'Debug.Print "hi"' in full
+
+
+@pytest.mark.skipif(
+    not _SAMPLE_020.exists(),
+    reason="RE corpus not present",
+)
+def test_set_module_full_source_mode(tmp_path: Path) -> None:
+    """When the caller supplies a full source with its own Attribute
+    header, that header is used verbatim (VB_Name is forced to match)."""
+    import shutil
+
+    dst = tmp_path / _SAMPLE_020.name
+    shutil.copy(_SAMPLE_020, dst)
+    full_src = (
+        'Attribute VB_Name = "C"\r\n'
+        'Attribute VB_GlobalNameSpace = False\r\n'
+        'Attribute VB_Creatable = False\r\n'
+        'Attribute VB_PredeclaredId = True\r\n'
+        'Attribute VB_Exposed = True\r\n'
+        '\r\n'
+        'Sub FromCaller()\r\nEnd Sub\r\n'
+    )
+    db = AccessFile(dst)
+    db.set_module("C", full_src)
+    db.save()
+
+    db2 = AccessFile(dst)
+    full = db2.read_vba_module_with_attributes("C")
+    assert "Attribute VB_PredeclaredId = True" in full
+    assert "Attribute VB_Exposed = True" in full
+    assert "Sub FromCaller()" in full
+
+
+@pytest.mark.skipif(
+    not _SAMPLE_040.exists(),
+    reason="RE corpus not present",
+)
+def test_vba_modules_returns_dict(tmp_path: Path) -> None:
+    db = AccessFile(_SAMPLE_040)
+    mods = db.vba_modules()
+    assert isinstance(mods, dict)
+    assert "M" in mods
+    assert isinstance(mods["M"], str)
+    assert mods["M"] == db.get_module("M")
+
+
+@pytest.mark.skipif(
+    not _SAMPLE_040.exists(),
+    reason="RE corpus not present",
+)
+def test_get_module_alias_matches_read_vba_module() -> None:
+    db = AccessFile(_SAMPLE_040)
+    assert db.get_module("M") == db.read_vba_module("M")
+
+
+@pytest.mark.skipif(
+    not _SAMPLE_040.exists(),
+    reason="RE corpus not present",
+)
+def test_pull_modules_writes_files(tmp_path: Path) -> None:
+    db = AccessFile(_SAMPLE_040)
+    out = db.pull_modules(tmp_path)
+    assert len(out) == 1
+    assert out[0].name == "M.bas"
+    assert out[0].read_bytes().decode("utf-8").startswith("Option Compare Database")
+
+
+@pytest.mark.skipif(
+    not _SAMPLE_020.exists(),
+    reason="RE corpus not present",
+)
+def test_pull_modules_class_extension(tmp_path: Path) -> None:
+    db = AccessFile(_SAMPLE_020)
+    out = db.pull_modules(tmp_path)
+    assert any(p.suffix == ".cls" for p in out)
+
+
+@pytest.mark.skipif(
+    not _SAMPLE_040.exists(),
+    reason="RE corpus not present",
+)
+def test_push_modules_bulk_roundtrip(tmp_path: Path) -> None:
+    import shutil
+
+    dst = tmp_path / _SAMPLE_040.name
+    shutil.copy(_SAMPLE_040, dst)
+    src_dir = tmp_path / "src"
+    src_dir.mkdir()
+    (src_dir / "M.bas").write_text(
+        "Sub Pushed()\r\n    MsgBox \"pushed!\"\r\nEnd Sub\r\n",
+        encoding="utf-8",
+    )
+    db = AccessFile(dst)
+    updated = db.push_modules(src_dir)
+    db.save()
+    assert updated == ["M"]
+
+    db2 = AccessFile(dst)
+    assert "Sub Pushed()" in db2.get_module("M")
+    assert 'MsgBox "pushed!"' in db2.get_module("M")
+
+
+@pytest.mark.skipif(
+    not _SAMPLE_040.exists(),
+    reason="RE corpus not present",
+)
+def test_push_modules_case_insensitive_match(tmp_path: Path) -> None:
+    import shutil
+
+    dst = tmp_path / _SAMPLE_040.name
+    shutil.copy(_SAMPLE_040, dst)
+    src_dir = tmp_path / "src"
+    src_dir.mkdir()
+    # File stem 'm' (lowercase) must match module 'M'.
+    (src_dir / "m.bas").write_text("Sub Lower()\r\nEnd Sub\r\n", encoding="utf-8")
+    db = AccessFile(dst)
+    updated = db.push_modules(src_dir)
+    assert updated == ["M"]
+
+
+@pytest.mark.skipif(
+    not _SAMPLE_040.exists(),
+    reason="RE corpus not present",
+)
+def test_push_modules_strict_raises_on_unknown(tmp_path: Path) -> None:
+    import shutil
+
+    dst = tmp_path / _SAMPLE_040.name
+    shutil.copy(_SAMPLE_040, dst)
+    src_dir = tmp_path / "src"
+    src_dir.mkdir()
+    (src_dir / "DoesNotExist.bas").write_text("Sub X()\r\nEnd Sub\r\n", encoding="utf-8")
+    db = AccessFile(dst)
+    with pytest.raises(KeyError):
+        db.push_modules(src_dir, strict=True)
+
+
+@pytest.mark.skipif(
+    not _SAMPLE_040.exists(),
+    reason="RE corpus not present",
+)
+def test_push_modules_ignores_unknown_by_default(tmp_path: Path) -> None:
+    import shutil
+
+    dst = tmp_path / _SAMPLE_040.name
+    shutil.copy(_SAMPLE_040, dst)
+    src_dir = tmp_path / "src"
+    src_dir.mkdir()
+    (src_dir / "DoesNotExist.bas").write_text("Sub X()\r\nEnd Sub\r\n", encoding="utf-8")
+    db = AccessFile(dst)
+    updated = db.push_modules(src_dir)
+    assert updated == []
+
+
+@pytest.mark.skipif(
+    not _SAMPLE_040.exists(),
+    reason="RE corpus not present",
+)
+def test_pull_access_push_access_top_level(tmp_path: Path) -> None:
+    """Top-level pull_access / push_access roundtrip an Access database
+    through a directory of .bas files."""
+    import shutil
+
+    import pyopenvba
+
+    dst = tmp_path / _SAMPLE_040.name
+    shutil.copy(_SAMPLE_040, dst)
+    out_dir = tmp_path / "out"
+
+    paths = pyopenvba.pull_access(dst, out_dir)
+    assert len(paths) == 1
+    assert paths[0].name == "M.bas"
+
+    new_body = "Sub TopLevel()\r\n    MsgBox \"top\"\r\nEnd Sub\r\n"
+    (out_dir / "M.bas").write_bytes(new_body.encode("utf-8"))
+
+    updated = pyopenvba.push_access(out_dir, dst)
+    assert updated == ["M"]
+    assert pyopenvba.AccessFile(dst).get_module("M") == new_body
+
+
+@pytest.mark.skipif(
+    not _RE_CORPUS.exists(),
+    reason="RE corpus not present",
+)
+@pytest.mark.parametrize(
+    "sample",
+    _all_corpus_samples(),
+    ids=lambda p: p.stem,
+)
+def test_corpus_set_module_round_trip(sample: Path, tmp_path: Path) -> None:
+    """Every corpus sample with at least one VBA module survives a
+    set_module + save + reload roundtrip via the Excel-parallel API."""
+    import shutil
+
+    dst = tmp_path / sample.name
+    shutil.copy(sample, dst)
+    db = AccessFile(dst)
+    names = db.vba_module_names()
+    if not names:
+        pytest.skip(f"{sample.name}: no VBA modules")
+    target = names[0]
+    new_body = "Sub Replaced()\r\n    MsgBox \"ok\"\r\nEnd Sub\r\n"
+    db.set_module(target, new_body)
+    db.save()
+
+    db2 = AccessFile(dst)
+    got = db2.get_module(target)
+    assert 'MsgBox "ok"' in got
+    assert "Sub Replaced()" in got

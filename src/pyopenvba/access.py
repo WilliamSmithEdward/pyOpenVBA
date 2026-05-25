@@ -1745,6 +1745,15 @@ class AccessFile:
         if self.find_msys_object(old_name) is not None:
             self.rename_msys_object(old_name, new_name)
 
+        # PROJECT INI stream update: Access's plaintext PROJECT INI
+        # row (analogous to the \PROJECT stream in Excel/Word/
+        # PowerPoint) lists every module by user-visible name in
+        # ``Module=<name>`` lines and stores per-module VBE window
+        # geometry in a ``[Workspace]`` section. If the dir-stream
+        # MODULENAME and PROJECT INI ``Module=`` line disagree, Access
+        # crashes the VBE to desktop when the user tries to open it.
+        self._rewrite_project_ini_module_name(old_name, new_name)
+
     def _patch_ovba_cache_attribute(
         self,
         module_name: str,
@@ -1787,6 +1796,143 @@ class AccessFile:
                 self._lval_write_row(page, slot, new_row)
                 return
         # Not found: leave it alone.
+
+    # The PROJECT stream is an INI-style plaintext block Access stores
+    # in a dedicated LVAL row alongside the dir-stream catalog. It
+    # lists every module by user-visible name (``Module=<name>``) and
+    # holds a ``[Workspace]`` section with per-module VBE window
+    # geometry (``<name>=left, top, right, bottom, state``). It is
+    # the Access-side analogue of Excel/Word/PowerPoint's ``\PROJECT``
+    # CFB stream. Access *requires* the names listed here to match
+    # the dir-stream MODULENAMEs verbatim; any mismatch crashes the
+    # VBE on open (verified empirically May 2026, phase 5h).
+    _PROJECT_INI_MARKER = b'ID="{'
+    _PROJECT_INI_HOST_EXT = b"[Host Extender Info]"
+
+    def _find_project_ini_row(self) -> tuple[int, int, bytes] | None:
+        """Return ``(page, slot, raw_bytes)`` for the single LVAL row
+        that holds the PROJECT INI stream, or ``None`` if not present.
+
+        The row is identified by starting with ``ID="{`` and
+        containing a ``[Host Extender Info]`` section header.
+        """
+        for page, slot, row in self._iter_lval_rows():
+            raw = bytes(row)
+            if raw.startswith(self._PROJECT_INI_MARKER) and (
+                self._PROJECT_INI_HOST_EXT in raw
+            ):
+                return page, slot, raw
+        return None
+
+    def _rewrite_project_ini_module_name(
+        self, old_name: str, new_name: str
+    ) -> None:
+        """Update the PROJECT INI row's ``Module=<old>`` line and the
+        ``[Workspace]`` window-geometry line for the module.
+
+        Both lines use latin-1 MBCS, terminated by ``\\r\\n``. The row
+        is written back via :meth:`_lval_write_row`, which handles
+        in-place growth.
+
+        Silently no-ops if no PROJECT INI row exists, or if the row
+        exists but contains no ``Module=<old>`` line. The latter is
+        legitimate: Access only writes a ``Module=`` entry for modules
+        that have been opened in the VBE at least once, so a freshly
+        programmatically-added module won't have one until Access
+        first surfaces it in the editor.
+        """
+        found = self._find_project_ini_row()
+        if found is None:
+            return
+        page, slot, raw = found
+        old_b = old_name.encode("latin-1")
+        new_b = new_name.encode("latin-1")
+
+        # 1) Module=<old>\r\n  -> Module=<new>\r\n
+        # Anchor the search on the exact line to avoid colliding with a
+        # module whose name is a prefix/suffix of another.
+        old_mod_line = b"Module=" + old_b + b"\r\n"
+        new_mod_line = b"Module=" + new_b + b"\r\n"
+        if old_mod_line not in raw:
+            # Module not listed in PROJECT INI yet (never opened in
+            # VBE). Nothing to rewrite; no desync possible.
+            return
+        new_raw = raw.replace(old_mod_line, new_mod_line, 1)
+
+        # 2) [Workspace] section: <old>=geometry\r\n -> <new>=geometry\r\n
+        # The line begins right after the [Workspace]\r\n marker.
+        # Access writes one such line per module. Find by anchoring on
+        # the preceding \r\n so we don't accidentally match a substring
+        # in some other section's value.
+        ws_anchor = b"[Workspace]\r\n"
+        ws_pos = new_raw.find(ws_anchor)
+        if ws_pos >= 0:
+            ws_body_start = ws_pos + len(ws_anchor)
+            ws_old_prefix = old_b + b"="
+            # Search within the [Workspace] section only.
+            ws_section = new_raw[ws_body_start:]
+            # Module-name= must start at line beginning. The very first
+            # line of the section starts at ws_body_start; subsequent
+            # lines start after \r\n.
+            if ws_section.startswith(ws_old_prefix):
+                new_raw = (
+                    new_raw[:ws_body_start]
+                    + new_b
+                    + b"="
+                    + new_raw[ws_body_start + len(ws_old_prefix):]
+                )
+            else:
+                ws_old_line_anchor = b"\r\n" + ws_old_prefix
+                wp = new_raw.find(ws_old_line_anchor, ws_body_start)
+                if wp >= 0:
+                    new_raw = (
+                        new_raw[: wp + 2]
+                        + new_b
+                        + b"="
+                        + new_raw[wp + 2 + len(ws_old_prefix):]
+                    )
+                # If absent, that's fine -- not every module has a
+                # window-geometry entry (only ones that have been
+                # opened in the VBE).
+
+        # Try in-place rewrite first. If the row outgrows its current
+        # page's free space, relocate it to another LVAL page. The
+        # PROJECT INI row is discovered by content scan (no other
+        # structure holds a (page, slot) reference to it), so a move
+        # is safe.
+        try:
+            self._lval_write_row(page, slot, new_raw)
+        except AccessError:
+            self._lval_relocate_row(page, slot, new_raw)
+
+    def _lval_relocate_row(
+        self, old_page: int, old_slot: int, payload: bytes
+    ) -> tuple[int, int]:
+        """Move an LVAL row to a different page that has enough free
+        space, returning the new ``(page, slot)``. The old slot is
+        tombstoned.
+
+        Suitable only for rows that are NOT referenced by (page, slot)
+        from elsewhere in the file (e.g. content-addressed rows like
+        the PROJECT INI row). Callers that need to preserve a stable
+        row identity must NOT use this.
+
+        Raises :class:`AccessError` if no LVAL page has enough free
+        space for the payload plus a new slot entry.
+        """
+        need = len(payload) + 2  # +2 for a new slot table entry
+        for p in self._iter_lval_pages():
+            if p == old_page:
+                continue
+            if self._lval_free_space(p) >= need:
+                new_slot = self._lval_append_row(p, payload)
+                self._lval_tombstone_slot(old_page, old_slot)
+                return p, new_slot
+        raise AccessError(
+            f"_lval_relocate_row: no LVAL page has {need} bytes free "
+            f"to host the relocated row from (page={old_page}, "
+            f"slot={old_slot})"
+        )
 
     def delete_module(self, name: str) -> None:
         """Remove a VBA module from the dir-stream catalog and
@@ -1876,23 +2022,31 @@ class AccessFile:
         self, name: str, new_source: str
     ) -> None:
         """Rewrite the OVBA cache row for ``name`` so its decompressed
-        payload is ``Attribute VB_Name = "<name>"`` + ``new_source``.
+        payload contains the (preserved or supplied) attribute header
+        plus ``new_source``.
+
+        ``new_source`` may be either:
+
+        * A **bare body** (``"Sub Foo()\\r\\n  ...\\r\\nEnd Sub\\r\\n"``).
+          The existing module's full attribute preamble -- including
+          any ``VERSION ... CLASS`` block and every ``Attribute VB_*``
+          line for class modules -- is preserved and prepended.
+        * A **full source replacement** that already begins with
+          ``VERSION ... CLASS`` or ``Attribute ``. The supplied header
+          is used verbatim; only the ``Attribute VB_Name = "<name>"``
+          line is forced to match ``name`` so renames stay coherent.
 
         Updates only the OVBA *cache* row (the passive plaintext mirror
         Access keeps). Does NOT update the authoritative p-code
         tables, so the Access VBA editor will continue to show the
         previously-compiled source until a recompile is triggered.
 
-        Use cases:
-        * Exporting the database, editing the cache, importing back
-          via the OVBA toolchain.
-        * Diff-driven version control of the VBA source.
-
         Raises :class:`AccessError` if ``name`` is not present in the
         catalog, if the OVBA cache row can't be located, or if the
         new compressed payload doesn't fit on the row's page.
         """
         from pyopenvba.vba import compress as _ovba_compress
+        from pyopenvba.vba import split_attribute_header
 
         info = self.read_project_info()
         if not any(m.name == name for m in info.modules):
@@ -1900,12 +2054,32 @@ class AccessFile:
                 f"modify_module_cache: module {name!r} not present "
                 f"in dir-stream catalog"
             )
-        new_decomp = (
-            b'Attribute VB_Name = "'
-            + name.encode("latin-1")
-            + b'"\r\n'
-            + new_source.encode("latin-1")
-        )
+
+        # Resolve the attribute header to use. If the caller supplied
+        # one inside ``new_source``, use that (force VB_Name to match).
+        # Otherwise inherit the existing module's full header so class
+        # modules keep their VB_GlobalNameSpace / VB_Creatable / etc.
+        supplied_header, supplied_body = split_attribute_header(new_source)
+        if supplied_header:
+            header_text = self._force_vb_name(supplied_header, name)
+            body_text = supplied_body
+        else:
+            existing_attrs = ""
+            for m in self.iter_vba_modules():
+                if m.name == name:
+                    existing_attrs = m.attributes_text
+                    break
+            if existing_attrs:
+                # ``attributes_text`` carries no trailing CRLF; add one
+                # so the on-disk concat parses back identically.
+                header_text = self._force_vb_name(
+                    existing_attrs + "\r\n", name
+                )
+            else:
+                header_text = f'Attribute VB_Name = "{name}"\r\n'
+            body_text = new_source
+
+        new_decomp = (header_text + body_text).encode("latin-1")
         # Locate the existing OVBA cache row for this module.
         target: tuple[int, int, int] | None = None
         for page, slot, row in list(self._iter_lval_rows()):
@@ -1939,6 +2113,40 @@ class AccessFile:
         new_compressed = _ovba_compress(new_decomp)
         new_row = bytes(row[:off]) + new_compressed
         self._lval_write_row(page, slot, new_row)
+
+    @staticmethod
+    def _force_vb_name(header_text: str, name: str) -> str:
+        """Return ``header_text`` with its ``Attribute VB_Name = "..."``
+        line rewritten to bind ``name`` (case-sensitive). If no such
+        line is present, one is prepended."""
+        import re
+
+        pattern = re.compile(r'^Attribute VB_Name = "[^"]*"', re.MULTILINE)
+        new_line = f'Attribute VB_Name = "{name}"'
+        if pattern.search(header_text):
+            return pattern.sub(new_line, header_text, count=1)
+        # No VB_Name line -- prepend one inside the header.
+        return new_line + "\r\n" + header_text
+
+    def read_vba_module_with_attributes(self, name: str) -> str:
+        """Like :meth:`read_vba_module` but returns the full module
+        text including the leading ``Attribute VB_*`` preamble (and
+        the ``VERSION ... CLASS`` block for class modules), separated
+        from the body by the canonical CRLF terminator.
+
+        Raises :class:`AccessError` if no module with that name exists.
+        """
+        candidates = [m for m in self.iter_vba_modules() if m.name == name]
+        if not candidates:
+            raise AccessError(
+                f"VBA module {name!r} not found in {self.path.name!r}"
+            )
+        candidates.sort(key=lambda m: m.start_offset)
+        m = candidates[-1]
+        attrs = m.attributes_text
+        if attrs and not attrs.endswith("\r\n"):
+            attrs = attrs + "\r\n"
+        return attrs + m.source
 
     def add_module_catalog_entry(
         self,
@@ -2058,6 +2266,153 @@ class AccessFile:
         naturally for one-shot "swap module source" workflows.
         """
         self.modify_module_cache(name, new_source)
+
+    # ------------------------------------------------------------------
+    # Excel-parallel ergonomic API: get/set/vba_modules/push/pull.
+    # ------------------------------------------------------------------
+
+    def get_module(self, name: str) -> str:
+        """Return the body source of module ``name`` (no attribute
+        preamble). Excel-parallel alias for :meth:`read_vba_module`."""
+        return self.read_vba_module(name)
+
+    def set_module(self, name: str, source: str) -> None:
+        """Replace the source of an existing VBA module from a
+        multiline string.
+
+        Mirrors :meth:`pyopenvba.ExcelFile.set_module` so any source
+        string that round-trips through Excel/Word/PowerPoint
+        round-trips through Access too. The body may be either a bare
+        body (``"Sub Foo()\\r\\n  ...\\r\\nEnd Sub\\r\\n"``) or a full
+        source with its own ``Attribute VB_*`` / ``VERSION ... CLASS``
+        preamble; the on-disk attribute header is preserved when the
+        caller supplies only a body.
+
+        Line endings are normalised to CRLF on disk (matches Access's
+        own convention). Call :meth:`save` to persist the change.
+
+        Raises :class:`AccessError` if ``name`` is not in the catalog.
+        """
+        normalised = (
+            source.replace("\r\n", "\n").replace("\r", "\n").replace("\n", "\r\n")
+        )
+        self.modify_module_cache(name, normalised)
+
+    def vba_modules(self) -> dict[str, str]:
+        """Return ``{module_name: body_source}`` for every module in
+        the catalog. Excel-parallel."""
+        out: dict[str, str] = {}
+        seen: set[str] = set()
+        for m in self.iter_vba_modules():
+            if m.name in seen:
+                continue
+            seen.add(m.name)
+            out[m.name] = m.source
+        return out
+
+    def pull_modules(
+        self,
+        dest_dir: Union[str, Path],
+        *,
+        encoding: str = "utf-8",
+        overwrite: bool = True,
+    ) -> list[Path]:
+        """Export every VBA module body to ``dest_dir`` as one file per
+        module (``.bas`` for std modules, ``.cls`` for class modules).
+        Excel-parallel. Returns the list of files written.
+
+        Like Excel's :meth:`pull_modules`, this writes only the user-
+        visible *body* (no ``Attribute VB_*`` preamble). To include the
+        preamble use :meth:`export_modules` with
+        ``include_attributes=True``.
+        """
+        out_dir = Path(dest_dir)
+        out_dir.mkdir(parents=True, exist_ok=True)
+        if not overwrite:
+            class_names: set[str] = set()
+            try:
+                class_names = {
+                    m.name for m in self.read_project_info().modules
+                    if m.is_class_module
+                }
+            except AccessError:
+                pass
+            for module_name in self.vba_modules():
+                ext = ".cls" if module_name in class_names else ".bas"
+                target = out_dir / (module_name + ext)
+                if target.exists():
+                    raise FileExistsError(
+                        f"Refusing to overwrite {target} "
+                        f"(overwrite=False)."
+                    )
+        # Delegate the heavy lifting to export_modules but re-encode
+        # under the caller's chosen encoding (export_modules always
+        # uses latin-1 since that's what Access stores).
+        class_names_for_encode: set[str] = set()
+        try:
+            class_names_for_encode = {
+                m.name for m in self.read_project_info().modules
+                if m.is_class_module
+            }
+        except AccessError:
+            pass
+        written: list[Path] = []
+        for module_name, body in self.vba_modules().items():
+            ext = ".cls" if module_name in class_names_for_encode else ".bas"
+            target = out_dir / (module_name + ext)
+            text = body.replace("\r\n", "\n").replace("\r", "\n")
+            data = text.replace("\n", "\r\n").encode(encoding, errors="replace")
+            target.write_bytes(data)
+            written.append(target)
+        return written
+
+    def push_modules(
+        self,
+        src_dir: Union[str, Path],
+        *,
+        encoding: str = "utf-8",
+        strict: bool = False,
+    ) -> list[str]:
+        """Update VBA module source from ``.bas`` / ``.cls`` files in
+        ``src_dir``. Excel-parallel.
+
+        Each file's stem is matched case-insensitively to an existing
+        module name; matched modules are rewritten via
+        :meth:`set_module`. Line endings are normalised to CRLF.
+
+        - ``strict=False`` (default): unmatched files are ignored.
+        - ``strict=True``: raises :class:`KeyError` on the first
+          unmatched file.
+
+        Does **not** save to disk -- call :meth:`save` to persist.
+
+        Returns the list of module names that were updated.
+        """
+        src = Path(src_dir)
+        if not src.is_dir():
+            raise NotADirectoryError(f"Not a directory: {src}")
+        existing = {n.casefold(): n for n in self.vba_module_names()}
+        updated: list[str] = []
+        for child in sorted(src.iterdir()):
+            if not child.is_file():
+                continue
+            if child.suffix.lower() not in {".bas", ".cls"}:
+                continue
+            key = child.stem.casefold()
+            real_name = existing.get(key)
+            if real_name is None:
+                if strict:
+                    raise KeyError(
+                        f"No module matches file {child.name!r} "
+                        f"(known: {sorted(existing.values())})."
+                    )
+                continue
+            raw = child.read_bytes().decode(encoding, errors="replace")
+            self.set_module(real_name, raw)
+            updated.append(real_name)
+        return updated
+
+    # ------------------------------------------------------------------
 
     def export_module(self, name: str) -> str:
         """

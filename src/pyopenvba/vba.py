@@ -235,22 +235,25 @@ def compress(data: bytes) -> bytes:
 
 
 def _encode_token_chunk(chunk: bytes) -> bytes:
-    n = len(chunk)
-    # Literal-only fits in 4096 bytes when n + ceil(n/8) <= 4096 (i.e. n <= 3640).
-    if n + ((n + 7) // 8) <= 4096:
-        return _encode_literal_only(chunk)
-    return _encode_lz(chunk)
-
-
-def _encode_literal_only(chunk: bytes) -> bytes:
-    out = bytearray()
-    i = 0
-    while i < len(chunk):
-        group = chunk[i: i + 8]
-        out.append(0x00)    # all-literal flag byte
-        out.extend(group)
-        i += len(group)
-    return bytes(out)
+    # Always run the greedy LZ encoder. Microsoft Access byte-validates
+    # the OVBA cache blob and rejects modules whose CompressedChunk bytes
+    # don't match what its own compressor would have produced -- even
+    # when the decompressed plaintext is identical. A literal-only
+    # fast-path (legal per [MS-OVBA] 2.4.1) emits valid-but-different
+    # bytes for short chunks (<= 3640 bytes) and trips Access's
+    # "Error accessing file. Network connection may have been lost."
+    # in the VBE. Empirically the greedy LZ encoder produces output
+    # that matches Access's encoding byte-for-byte on samples 010-051.
+    # If LZ encoding overflows 4096 bytes (adversarial high-entropy
+    # input), fall back to a raw chunk -- this only fires for inputs
+    # that cannot be represented as a token-compressed chunk at all.
+    encoded = _encode_lz(chunk)
+    if len(encoded) <= 4096:
+        return encoded
+    # Caller will see len > 4096 and emit a raw chunk if the chunk is
+    # exactly 4096 bytes. This branch is unreachable for realistic VBA
+    # source text.
+    return encoded
 
 
 def _encode_lz(chunk: bytes) -> bytes:

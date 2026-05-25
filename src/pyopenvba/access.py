@@ -519,6 +519,72 @@ class AccessFile:
             )
         return matches[0]
 
+    # String-literal interning table -- see docs/access_pcode_re.md.
+    # Inside the project symbol-table row each string literal is stored
+    # as: ``0B <u32 LE byte-count> <UTF-16-LE bytes>``. The leading
+    # ``0B`` tag distinguishes literal records from other entries in
+    # the same row.
+    _STRING_LITERAL_TAG = 0x0B
+
+    def find_interned_strings(self) -> tuple["AccessVBAInternedString", ...]:
+        """Scan every LVAL row for VBA string-literal records of the
+        form ``0B <u32 LE byte-count> <UTF-16-LE bytes>``.
+
+        This is a deterministic content-based scan -- no slot
+        coordinates are hard-coded. The intern table lives in a
+        per-project row alongside reference/module metadata; the
+        decoder simply walks every LVAL row and yields each valid
+        literal record it finds.
+
+        A record is accepted only when:
+
+        * the byte-count is even and non-zero,
+        * the byte-count fits in the row,
+        * the decoded UTF-16-LE bytes form a valid Python ``str``,
+        * and the decoded string contains no NUL characters
+          (filters out structural padding that happens to start with
+          ``0B``).
+
+        Returns a tuple of :class:`AccessVBAInternedString` records,
+        each carrying the source page, slot, in-row byte offset, and
+        decoded value.
+        """
+        out: list[AccessVBAInternedString] = []
+        for page, slot, row in self._iter_lval_rows():
+            buf = bytes(row)
+            n = len(buf)
+            i = 0
+            while i < n - 5:
+                if buf[i] == self._STRING_LITERAL_TAG:
+                    byte_count = int.from_bytes(buf[i + 1:i + 5], "little")
+                    payload_start = i + 5
+                    payload_end = payload_start + byte_count
+                    if (
+                        byte_count > 0
+                        and byte_count % 2 == 0
+                        and payload_end <= n
+                    ):
+                        try:
+                            text = buf[payload_start:payload_end].decode(
+                                "utf-16-le"
+                            )
+                        except UnicodeDecodeError:
+                            i += 1
+                            continue
+                        if text and "\x00" not in text and text.isprintable():
+                            out.append(
+                                AccessVBAInternedString(
+                                    page=page,
+                                    slot=slot,
+                                    offset=i,
+                                    value=text,
+                                )
+                            )
+                            i = payload_end
+                            continue
+                i += 1
+        return tuple(out)
+
     def iter_vba_modules(self) -> Iterator["VBAModule"]:
         """
         Discover and yield every VBA module embedded in this database.
@@ -898,3 +964,27 @@ class AccessVBAPCodeStream:
     page: int
     slot: int
     raw: bytes
+
+
+@dataclass(frozen=True)
+class AccessVBAInternedString:
+    """A single VBA string-literal record decoded from the project's
+    intern table.
+
+    Each literal is stored as a ``0B <u32 LE byte-count> <UTF-16-LE>``
+    record inside one of the database's LVAL rows. See
+    ``docs/access_pcode_re.md`` Phase 4 for the structural rationale
+    (compiled p-code is fully anonymised; literals live here and are
+    referenced from bytecode by slot id only).
+
+    Attributes:
+        page: ACE page number of the LVAL row carrying the record.
+        slot: Slot index within ``page``.
+        offset: Byte offset of the ``0B`` tag within the row.
+        value: Decoded string value.
+    """
+
+    page: int
+    slot: int
+    offset: int
+    value: str

@@ -850,3 +850,110 @@ def test_pcode_module_names_are_not_in_bytecode() -> None:
         if (_RE_CORPUS / n).exists()
     }
     assert len(set(lengths.values())) == 1, lengths
+
+
+# --- Phase 4 RE: VBA string-literal intern table -----------------------
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "040__sub_msgbox_hello.accdb").exists(),
+    reason="RE corpus not generated",
+)
+def test_intern_table_contains_short_msgbox_literal() -> None:
+    """`MsgBox "hello"` deposits the literal `"hello"` into the
+    project's string-literal intern table, encoded as the byte
+    sequence ``0B 0A 00 00 00 68 00 65 00 6C 00 6C 00 6F 00`` (tag
+    0x0B, u32-LE byte-count = 10, UTF-16-LE 'hello').
+
+    Using ``find_interned_strings`` -- a deterministic content-based
+    scan -- we should recover the literal value regardless of which
+    LVAL row Access happened to place it in."""
+    from pyopenvba.access import AccessFile
+
+    strings = AccessFile(
+        _RE_CORPUS / "040__sub_msgbox_hello.accdb"
+    ).find_interned_strings()
+    values = [s.value for s in strings]
+    assert "hello" in values, values
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "041__sub_msgbox_world.accdb").exists(),
+    reason="RE corpus not generated",
+)
+def test_intern_table_contains_replaced_literal() -> None:
+    """Sample 041 differs from 040 only by literal text; the intern
+    table must therefore contain ``"world"`` and NOT ``"hello"`` --
+    proving the intern table is the single source of truth for
+    string-literal values."""
+    from pyopenvba.access import AccessFile
+
+    strings = AccessFile(
+        _RE_CORPUS / "041__sub_msgbox_world.accdb"
+    ).find_interned_strings()
+    values = [s.value for s in strings]
+    assert "world" in values, values
+    assert "hello" not in values
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "042__sub_msgbox_long.accdb").exists(),
+    reason="RE corpus not generated",
+)
+def test_intern_table_contains_long_literal_verbatim() -> None:
+    """A 55-character literal round-trips through the intern table
+    byte-for-byte (UTF-16-LE, no truncation, no escaping). Confirms
+    the literal record's u32-LE length field genuinely scales beyond
+    one byte."""
+    from pyopenvba.access import AccessFile
+
+    expected = "a much longer literal that is clearly not stored inline"
+    strings = AccessFile(
+        _RE_CORPUS / "042__sub_msgbox_long.accdb"
+    ).find_interned_strings()
+    values = [s.value for s in strings]
+    assert expected in values, values
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "043__sub_msgbox_two.accdb").exists(),
+    reason="RE corpus not generated",
+)
+def test_intern_table_holds_multiple_literals() -> None:
+    """A module with two distinct string literals (``"one"`` and
+    ``"two"``) yields BOTH literals from the intern-table scan.
+    Demonstrates the scan returns all records, not just the first."""
+    from pyopenvba.access import AccessFile
+
+    strings = AccessFile(
+        _RE_CORPUS / "043__sub_msgbox_two.accdb"
+    ).find_interned_strings()
+    values = [s.value for s in strings]
+    assert "one" in values, values
+    assert "two" in values, values
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "030__sub_A_empty.accdb").exists(),
+    reason="RE corpus not generated",
+)
+def test_intern_table_record_byte_layout() -> None:
+    """Locks in the exact on-disk byte sequence for the literal
+    record ``"hello"``: ``0B 0A 00 00 00 68 00 65 00 6C 00 6C 00 6F 00``.
+
+    This is the structural contract the writer must emit when we
+    later add literal-insert support."""
+    from pyopenvba.access import AccessFile
+
+    db = AccessFile(_RE_CORPUS / "040__sub_msgbox_hello.accdb")
+    expected_record = (
+        b"\x0b"                              # literal tag
+        b"\x0a\x00\x00\x00"                  # u32 LE byte-count = 10
+        b"h\x00e\x00l\x00l\x00o\x00"         # UTF-16-LE 'hello'
+    )
+    found = False
+    for _page, _slot, row in db._iter_lval_rows():  # pyright: ignore[reportPrivateUsage]
+        if expected_record in bytes(row):
+            found = True
+            break
+    assert found, "expected on-disk literal record for 'hello' not found"

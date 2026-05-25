@@ -197,6 +197,9 @@ Production API:
 * `AccessFile.read_module_pcode_stream() -> AccessVBAPCodeStream`
 * `AccessFile.iter_pcode_streams() -> tuple[AccessVBAPCodeStream, ...]`
 * `AccessVBAPCodeStream(page, slot, raw)` dataclass
+* `AccessFile.find_interned_strings() -> tuple[AccessVBAInternedString, ...]`
+  -- deterministic content-based scan of the project intern table
+* `AccessVBAInternedString(page, slot, offset, value)` dataclass
 
 Slot location is NOT stable -- 030 stores the active row at (68, 0);
 040..051 store it at (68, 1). Locate by content only.
@@ -247,9 +250,37 @@ Decoded opcodes (deterministic; all asserted by regression tests):
 
 Pending: full opcode table covering Sub/End Sub, Dim of complex
 types, If/Then, For/Next, function call dispatch, variable references,
-local-vars table layout, string-literal slot table layout, and the
-relationship between the active row, the 156-byte stub row, and the
-~114-byte project bootstrap row.
+local-vars table layout, and the relationship between the active row,
+the 156-byte stub row, and the ~114-byte project bootstrap row.
+
+### Phase 4b -- string-literal intern table (decoded)
+
+VBA string literals are **not** stored inline in the p-code. They live
+in a separate per-project intern table, in one of the database's LVAL
+rows alongside the reference / module-metadata blob.
+
+Record format (locked by regression tests on corpus samples 040, 041,
+042, 043):
+
+```
+0B               -- literal tag (1 byte)
+<u32 LE>         -- byte-count of the UTF-16-LE payload
+<UTF-16-LE>      -- the string value, no NUL terminator
+```
+
+Examples observed on disk:
+
+* `"hello"` -> `0B 0A 00 00 00 68 00 65 00 6C 00 6C 00 6F 00`
+* `"world"` -> `0B 0A 00 00 00 77 00 6F 00 72 00 6C 00 64 00`
+* 55-char literal -> `0B 6E 00 00 00 <110 bytes UTF-16-LE>`
+
+Comments are *not* in this table (sample 049's `' a comment` exists
+only as plain ASCII in a separate `E3 00`-tagged source-text row).
+
+Production API: `AccessFile.find_interned_strings()` performs a
+deterministic content-based scan -- it locates literal records by
+their structural `0B <u32> <UTF-16-LE>` shape, with no hard-coded
+row coordinates.
 
 Tooling: `scripts/access_re_dump_68_1.py`,
 `scripts/access_re_compare_pcode_headers.py`,

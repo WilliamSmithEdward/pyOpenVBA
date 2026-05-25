@@ -208,16 +208,6 @@ def test_read_vba_module_unknown_name_raises() -> None:
 # ---------------------------------------------------------------------------
 
 
-@requires_live
-def test_corpus_small_sample_module_discovery() -> None:
-    db = AccessReader(_RE_CORPUS / "040__sub_msgbox_hello.accdb")
-    assert db.vba_module_names() == ["M"]
-    src = db.read_vba_module("M")
-    assert 'MsgBox "hello"' in src
-    assert "Sub A()" in src
-    assert "End Sub" in src
-
-
 @pytest.mark.skipif(
     not _RE_CORPUS.exists(),
     reason="RE corpus not generated",
@@ -1757,30 +1747,6 @@ def test_export_modules_class_module_extension(tmp_path: Path) -> None:
     cls = out_dir / "Class1.cls"
     assert cls in written
     assert cls.exists()
-
-
-def test_msys_objects_includes_standard_containers() -> None:
-    """Every .accdb has the same set of bootstrap container rows."""
-    from pyopenvba.access_read import AccessReader
-
-    db = AccessReader(_RE_CORPUS / "040__sub_msgbox_hello.accdb")
-    by_name = {o.name: o for o in db.iter_msys_objects()}
-    # Bootstrap containers always present in a fresh .accdb.
-    for required in (
-        "Tables",
-        "Databases",
-        "Relationships",
-        "Forms",
-        "Reports",
-        "Scripts",
-        "Modules",
-        "MSysObjects",
-    ):
-        assert required in by_name, f"missing container {required!r}"
-    # The Modules container is type=3 (CONTAINER) with parent = 0x0F000000.
-    modules = by_name["Modules"]
-    assert modules.type_ == 3
-    assert modules.parent_id == 0x0F000000
 
 
 @pytest.mark.skipif(

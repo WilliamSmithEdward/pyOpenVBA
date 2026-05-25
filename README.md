@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/LICENSE.md)
 [![Downloads](https://static.pepy.tech/badge/pyOpenVBA/month)](https://pepy.tech/project/pyOpenVBA)
 
-**Read and write VBA macros inside Excel, Word, and PowerPoint files, in pure Python.**
+**Read and write VBA macros inside Office 365 files, in pure Python.**
 
 No external dependencies. No Office install required. Works on Windows,
 macOS, and Linux. Python 3.10 or newer.
@@ -321,7 +321,7 @@ survive reload because Access never recompiles from the cache. After
 extensive reverse-engineering experiments we concluded that a
 production-quality writer would require a complete VBA7 p-code
 assembler, which is out of scope. See
-[docs/msaccess_lessons_learned.md](docs/msaccess_lessons_learned.md)
+[docs/msaccess_lessons_learned.md](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/docs/msaccess_lessons_learned.md)
 for the full chronicle.
 
 What `AccessReader` does support:

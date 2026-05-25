@@ -1718,3 +1718,72 @@ def test_identifiers_records_are_canonical_dataclass_instances() -> None:
         assert isinstance(i.prefix, bytes)
         # Indices are sequential starting at 0.
     assert [i.index for i in idents] == list(range(len(idents)))
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "040__sub_msgbox_hello.accdb").exists(),
+    reason="RE corpus sample 040 unavailable",
+)
+def test_to_annotated_listing_interleaves_source_with_pcode() -> None:
+    from pyopenvba.access import AccessFile
+
+    db = AccessFile(_RE_CORPUS / "040__sub_msgbox_hello.accdb")
+    module = next(m for m in db.iter_vba_modules() if m.name == "M")
+    disasm = db.disassemble_module("M")
+    listing = disasm.to_annotated_listing(module.source)
+    # Source lines appear as ; > N: ... comments.
+    assert '; >   2: Sub A()' in listing
+    assert '; >   3:     MsgBox "hello"' in listing
+    assert '; >   4: End Sub' in listing
+    # P-code instructions are still emitted.
+    assert "FuncDefn" in listing
+    assert 'LitStr "hello"' in listing
+    assert "ArgsCall" in listing
+    assert "EndSub" in listing
+    # Source lines appear BEFORE the p-code they compile to.
+    msgbox_src_idx = listing.index('MsgBox "hello"')
+    args_call_idx = listing.index("ArgsCall")
+    assert msgbox_src_idx < args_call_idx
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "030__sub_A_empty.accdb").exists(),
+    reason="RE corpus sample 030 unavailable",
+)
+def test_to_annotated_listing_handles_source_only_lines() -> None:
+    from pyopenvba.access import AccessFile
+
+    db = AccessFile(_RE_CORPUS / "030__sub_A_empty.accdb")
+    module = next(m for m in db.iter_vba_modules() if m.name == "M")
+    disasm = db.disassemble_module("M")
+    listing = disasm.to_annotated_listing(module.source)
+    # Source-only lines (Option, blank) get the ; > marker but no
+    # following p-code instructions.
+    assert '; >   0: Option Compare Database' in listing
+    # Empty source lines also surface.
+    assert '; >   1: ' in listing
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "040__sub_msgbox_hello.accdb").exists(),
+    reason="RE corpus sample 040 unavailable",
+)
+def test_cli_access_disasm_with_source_flag(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    from pyopenvba.__main__ import main
+
+    rc = main(
+        [
+            "access-disasm",
+            str(_RE_CORPUS / "040__sub_msgbox_hello.accdb"),
+            "--module",
+            "M",
+            "--with-source",
+        ]
+    )
+    assert rc == 0
+    out = capsys.readouterr().out
+    assert "===== M =====" in out
+    assert '; >   3:     MsgBox "hello"' in out
+    assert "ArgsCall" in out

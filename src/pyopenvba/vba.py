@@ -28,9 +28,13 @@ import struct
 from collections.abc import Iterable
 from dataclasses import dataclass, field
 from enum import Enum
+from typing import TYPE_CHECKING
 
 from pyopenvba.cfb import CFB
 from pyopenvba.exceptions import VBAProjectError
+
+if TYPE_CHECKING:
+    from pyopenvba.vba_pcode import DisassembledModule
 
 # ---------------------------------------------------------------------------
 # Section 2.4 — MS-OVBA compression / decompression
@@ -671,6 +675,30 @@ class VBAModule:
         self.source = header + value
         self.attribute_header = header
         self.dirty = True
+
+    def disassemble(self, *, is_64bit: bool = True) -> "DisassembledModule":
+        """Decode the compiled VBA7 p-code from this module's
+        ``prefix_bytes`` (the binary PerformanceCache region containing
+        the ``0xCAFE`` magic word).
+
+        Returns an empty :class:`DisassembledModule` when the module
+        has no p-code cached (e.g. modules that have never been
+        compiled, or hosts that strip the cache on save).
+
+        See :mod:`pyopenvba.vba_pcode` for the full opcode field guide.
+        """
+        from pyopenvba.vba_pcode import (
+            DisassembledModule,
+            disassemble_module_stream,
+        )
+
+        if not self.prefix_bytes:
+            return DisassembledModule(
+                cafe_offset=-1, num_lines=0, lines=()
+            )
+        return disassemble_module_stream(
+            self.prefix_bytes, is_64bit=is_64bit
+        )
 
 
 @dataclass

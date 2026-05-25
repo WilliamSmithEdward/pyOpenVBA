@@ -540,6 +540,45 @@ class DisassembledModule:
                 out.append(f"    {ins.format()}")
         return "\n".join(out)
 
+    def to_annotated_listing(self, source: str) -> str:
+        """Render the disassembly interleaved with the original source.
+
+        ``source`` is the OVBA-decompressed VBA module source. Each
+        source line is emitted as a ``; >`` comment immediately before
+        the p-code instructions that line compiled into. Source lines
+        that produced no p-code (``Attribute`` headers, ``Option``,
+        comments, blank lines) appear as ``; >`` comments with no
+        following instructions. Lines beyond the cafe ``num_lines``
+        count are appended verbatim at the end.
+
+        This mirrors a familiar ``pcodedmp``-style annotated dump and
+        is what the ``pyopenvba access-disasm --with-source`` CLI
+        flag prints.
+        """
+        source_lines = source.splitlines()
+        out: list[str] = []
+        out.append(
+            f"; DisassembledModule cafe_offset=0x{self.cafe_offset:X} "
+            f"num_lines={self.num_lines}"
+        )
+        for line in self.lines:
+            src_text = (
+                source_lines[line.line_no]
+                if 0 <= line.line_no < len(source_lines)
+                else ""
+            )
+            out.append(f"; > {line.line_no:3d}: {src_text}")
+            for ins in line.instructions:
+                out.append(f"    {ins.format()}")
+        # Append any trailing source lines that have no cafe line
+        # record (the cafe num_lines often omits the closing blank
+        # line after End Sub).
+        for trailing_no in range(self.num_lines, len(source_lines)):
+            out.append(
+                f"; > {trailing_no:3d}: {source_lines[trailing_no]}"
+            )
+        return "\n".join(out)
+
 
 def find_cafe_offset(data: bytes) -> int:
     """Return the offset of the ``0xCAFE`` magic word in ``data``, or

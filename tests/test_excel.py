@@ -112,3 +112,37 @@ class TestExcelFileCreateNew:
         with ExcelFile.create_new(target) as wb:
             assert target.exists()
             assert wb.vba_project() is not None
+
+
+def test_vba_module_disassemble_decodes_pcode() -> None:
+    import pyopenvba
+
+    fixture = Path("tests/live_excel_testing/large_vba_module.xlsm")
+    if not fixture.exists():
+        import pytest
+        pytest.skip("large_vba_module.xlsm not present")
+    with pyopenvba.ExcelFile(fixture) as wb:
+        project = wb.vba_project()
+    target = next(
+        m for m in project.modules if m.name == "Large_Module_"
+    )
+    disasm = target.disassemble()
+    assert disasm.cafe_offset >= 0
+    assert disasm.num_lines > 0
+    listing = disasm.to_annotated_listing(target.source)
+    assert "; >   0: Attribute VB_Name" in listing
+    # Re-running with to_listing() should also succeed and not contain
+    # source comments.
+    plain = disasm.to_listing()
+    assert "; DisassembledModule" in plain
+    assert "; >" not in plain
+
+
+def test_vba_module_disassemble_returns_empty_when_no_prefix() -> None:
+    from pyopenvba.vba import VBAModule
+
+    mod = VBAModule(name="Empty", stream_name="Empty", source="")
+    disasm = mod.disassemble()
+    assert disasm.cafe_offset == -1
+    assert disasm.num_lines == 0
+    assert disasm.lines == ()

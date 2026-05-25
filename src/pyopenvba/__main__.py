@@ -8,7 +8,8 @@ Usage::
     python -m pyopenvba ls   <workbook>
     python -m pyopenvba access-ls    <accdb>
     python -m pyopenvba access-pull  <accdb> <dest_dir>
-    python -m pyopenvba access-disasm <accdb> [--module <name>]
+    python -m pyopenvba access-disasm <accdb> [--module <name>] [--with-source]
+    python -m pyopenvba disasm <workbook|doc|pptx> [--module <name>] [--with-source]
 """
 
 from __future__ import annotations
@@ -17,7 +18,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from pyopenvba import ExcelFile, pull, push
+from pyopenvba import ExcelFile, PowerPointFile, WordFile, pull, push
 
 
 def _cmd_pull(args: argparse.Namespace) -> int:
@@ -66,14 +67,70 @@ def _cmd_access_disasm(args: argparse.Namespace) -> int:
     from pyopenvba.access import AccessFile
 
     db = AccessFile(args.database)
+    sources: dict[str, str] = {}
+    if args.with_source:
+        sources = {m.name: m.source for m in db.iter_vba_modules()}
     if args.module is not None:
-        listing = db.disassemble_module(args.module).to_listing()
+        mod = db.disassemble_module(args.module)
+        src = sources.get(args.module, "") if args.with_source else ""
+        listing = (
+            mod.to_annotated_listing(src)
+            if args.with_source
+            else mod.to_listing()
+        )
         print(f"===== {args.module} =====")
         print(listing)
         return 0
     for name, mod in db.disassemble_all_modules().items():
         print(f"===== {name} =====")
-        print(mod.to_listing())
+        if args.with_source:
+            print(mod.to_annotated_listing(sources.get(name, "")))
+        else:
+            print(mod.to_listing())
+    return 0
+
+
+_HOST_BY_SUFFIX: dict[str, type] = {
+    ".xlsm": ExcelFile,
+    ".xlsb": ExcelFile,
+    ".xltm": ExcelFile,
+    ".xlam": ExcelFile,
+    ".docm": WordFile,
+    ".dotm": WordFile,
+    ".pptm": PowerPointFile,
+    ".potm": PowerPointFile,
+    ".ppam": PowerPointFile,
+}
+
+
+def _cmd_disasm(args: argparse.Namespace) -> int:
+    suffix = args.workbook.suffix.lower()
+    host_cls = _HOST_BY_SUFFIX.get(suffix)
+    if host_cls is None:
+        print(
+            f"error: unsupported file type {suffix!r}; expected one of "
+            f"{sorted(_HOST_BY_SUFFIX)}",
+            file=sys.stderr,
+        )
+        return 2
+    with host_cls(args.workbook) as host:
+        project = host.vba_project()
+        modules = list(project.modules)
+    if args.module is not None:
+        modules = [m for m in modules if m.name == args.module]
+        if not modules:
+            print(
+                f"error: module {args.module!r} not found",
+                file=sys.stderr,
+            )
+            return 1
+    for mod in modules:
+        disasm = mod.disassemble()
+        print(f"===== {mod.name} =====")
+        if args.with_source:
+            print(disasm.to_annotated_listing(mod.source))
+        else:
+            print(disasm.to_listing())
     return 0
 
 
@@ -124,7 +181,32 @@ def main(argv: list[str] | None = None) -> int:
         default=None,
         help="Disassemble just this module (default: every module).",
     )
+    p_ad.add_argument(
+        "--with-source",
+        action="store_true",
+        help="Interleave original VBA source lines with the p-code.",
+    )
     p_ad.set_defaults(func=_cmd_access_disasm)
+
+    p_d = sub.add_parser(
+        "disasm",
+        help=(
+            "Disassemble compiled VBA p-code from an Excel/Word/"
+            "PowerPoint host (.xlsm/.docm/.pptm/...)."
+        ),
+    )
+    p_d.add_argument("workbook", type=Path)
+    p_d.add_argument(
+        "--module",
+        default=None,
+        help="Disassemble just this module (default: every module).",
+    )
+    p_d.add_argument(
+        "--with-source",
+        action="store_true",
+        help="Interleave original VBA source lines with the p-code.",
+    )
+    p_d.set_defaults(func=_cmd_disasm)
 
     args = parser.parse_args(argv)
     return int(args.func(args))

@@ -50,6 +50,7 @@ knows about the layer below it but not the layer above.
 | vba_pcode.py    VBA7 p-code disassembler  (EXPERIMENTAL)|
 |   - 264-entry VBA7 opcode table (factual data)         |
 |   - per-line p-code streaming parser                   |
+|   - source-line correlation (to_annotated_listing)     |
 |   - dependency-free (no oletools, no pcodedmp)         |
 +--------------------------------------------------------+
 | cfb.py          MS-CFB layer                           |
@@ -63,7 +64,10 @@ Other files:
 - `exceptions.py` — exception hierarchy shared by all layers.
 - `__init__.py` — public re-exports (`ExcelFile`, `pull`, `push`,
   `VBAModuleKind`, exceptions).
-- `__main__.py` — `python -m pyopenvba {pull,push,ls}` CLI.
+- `__main__.py` — `python -m pyopenvba
+  {pull,push,ls,access-ls,access-pull,access-disasm,disasm}` CLI.
+  `disasm` / `access-disasm` accept `--with-source` to interleave
+  the original VBA source with the decoded p-code.
 - `_templates/__init__.py` — generated module embedding a
   zlib-compressed base85 blob of a freshly Excel-authored empty `.xlsm`,
   consumed by `ExcelFile.create_new()`. Regenerated from

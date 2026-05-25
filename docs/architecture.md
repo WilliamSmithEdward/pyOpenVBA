@@ -171,12 +171,24 @@ because Access stores VBA source very differently from Excel/Word/PowerPoint:
   the entire blob has no effect on what Access (or the VBA editor)
   displays — verified end-to-end on a live fixture.
 * The **authoritative** sources Access reads from are:
+  * **Project metadata** — the MS-OVBA `dir` stream (Section 2.3.4.2)
+    OVBA-compressed in a single LVAL row; located by content
+    (decompressed prefix = `01 00 04 00 00 00`). Parsed by
+    `AccessFile.read_project_info()` -> `AccessVBAProject` (system kind,
+    LCID, code page, project name, references, modules with class flag,
+    private/read-only flags).
+  * **Module bytecode** — the compiled VBA p-code. Lives in LVAL rows
+    whose payload starts with magic `72 55 40 00` ('rU@\0'). Each
+    database has 2-3 such rows; the **module-active** one is identified
+    deterministically by the 12-byte prefix
+    `72 55 40 00 00 00 00 00 00 00 40 00` (byte 10 = 0x40). Exposed via
+    `AccessFile.read_module_pcode_stream()` and `iter_pcode_streams()`.
+    Full opcode field guide in progress; see
+    `docs/access_pcode_re.md` Phase 4.
   * **Comment text** — stored verbatim in plaintext rows tagged
     `E3 00 00 00 <u16-LE length> <ASCII payload>` (apostrophe stripped).
   * **String literal text** — stored verbatim in rows tagged
     `B9 00 <u16-LE length> <ASCII payload> <12-byte trailer>`.
-  * **Code structure** (procedure names, statements, keywords) — stored
-    as Access-flavoured p-code in tables we do not currently parse.
 
 Consequently the only safe pure-Python write primitive today is
 `AccessFile.replace_text(old, new)`: a **same-length byte substitution**

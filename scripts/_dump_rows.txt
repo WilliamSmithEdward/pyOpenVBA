@@ -1,0 +1,225 @@
+﻿# Sample bodies
+
+## 030__sub_A_empty.accdb
+```
+´╗┐Sub A()
+End Sub
+
+```
+
+## 040__sub_msgbox_hello.accdb
+```
+´╗┐Sub A()
+    MsgBox "hello"
+End Sub
+
+```
+
+## 041__sub_msgbox_world.accdb
+```
+´╗┐Sub A()
+    MsgBox "world"
+End Sub
+
+```
+
+## 042__sub_msgbox_long.accdb
+```
+´╗┐Sub A()
+    MsgBox "a much longer literal that is clearly not stored inline"
+End Sub
+
+```
+
+## 043__sub_msgbox_two.accdb
+```
+´╗┐Sub A()
+    MsgBox "one"
+    MsgBox "two"
+End Sub
+
+```
+
+## 044__sub_dim_int.accdb
+```
+´╗┐Sub A()
+    Dim x As Integer
+End Sub
+
+```
+
+## 046__sub_dim_string.accdb
+```
+´╗┐Sub A()
+    Dim x As String
+End Sub
+
+```
+
+## 047__sub_let_int.accdb
+```
+´╗┐Sub A()
+    Dim x As Integer
+    x = 7
+End Sub
+
+```
+
+## 048__sub_let_int_42.accdb
+```
+´╗┐Sub A()
+    Dim x As Integer
+    x = 42
+End Sub
+
+```
+
+## 049__sub_comment_only.accdb
+```
+´╗┐Sub A()
+    ' a comment
+End Sub
+
+```
+
+## 050__sub_if_true.accdb
+```
+´╗┐Sub A()
+    If True Then MsgBox "y"
+End Sub
+
+```
+
+## 051__sub_for_1_to_3.accdb
+```
+´╗┐Sub A()
+    Dim i As Integer
+    For i = 1 To 3
+    Next i
+End Sub
+
+```
+
+==========================================================================================
+All non-page-42 rows by sample
+==========================================================================================
+
+### 030__sub_A_empty.accdb  module='M'  proc=''
+  (67,6) len=1199 ['ovba-prefix', 'has-mod=M']
+  (67,7) len=114 []
+  (68,0) len=269 []
+  (68,1) len=156 []
+  (68,2) len=574 ['ovba-prefix', 'has-mod=M']
+  (68,3) len=2327 ['has-mod=M']
+  (69,0) len=1374 ['has-mod=M']
+  (69,1) len=342 ['PROJECT-plaintext', 'has-mod=M']
+
+### 040__sub_msgbox_hello.accdb  module='M'  proc=''
+  (67,6) len=156 []
+  (67,7) len=114 []
+  (68,0) len=1482 ['ovba-prefix', 'has-mod=M', 'has-string-literal']
+  (68,1) len=393 []
+  (68,2) len=574 ['ovba-prefix', 'has-mod=M']
+  (68,3) len=342 ['PROJECT-plaintext', 'has-mod=M']
+  (69,0) len=2345 ['has-mod=M']
+  (69,1) len=1502 ['has-mod=M']
+
+### 041__sub_msgbox_world.accdb  module='M'  proc=''
+  (67,6) len=156 []
+  (67,7) len=114 []
+  (68,0) len=1482 ['ovba-prefix', 'has-mod=M', 'has-string-literal']
+  (68,1) len=393 []
+  (68,2) len=577 ['ovba-prefix', 'has-mod=M']
+  (68,3) len=342 ['PROJECT-plaintext', 'has-mod=M']
+  (69,0) len=2345 ['has-mod=M']
+  (69,1) len=1502 ['has-mod=M']
+
+### 042__sub_msgbox_long.accdb  module='M'  proc=''
+  (67,6) len=156 []
+  (67,7) len=114 []
+  (68,0) len=1594 ['ovba-prefix', 'has-mod=M']
+  (68,1) len=393 []
+  (68,2) len=573 ['ovba-prefix', 'has-mod=M']
+  (68,3) len=342 ['PROJECT-plaintext', 'has-mod=M']
+  (69,0) len=2345 ['has-mod=M']
+  (69,1) len=1610 ['has-mod=M']
+
+### 043__sub_msgbox_two.accdb  module='M'  proc=''
+  (67,6) len=156 []
+  (67,7) len=114 []
+  (68,0) len=1515 ['ovba-prefix', 'has-mod=M']
+  (68,1) len=481 []
+  (68,2) len=577 ['ovba-prefix', 'has-mod=M']
+  (68,3) len=358 ['PROJECT-plaintext', 'has-mod=M']
+  (69,0) len=2345 ['has-mod=M']
+  (69,1) len=1516 ['has-mod=M']
+
+### 044__sub_dim_int.accdb  module='M'  proc=''
+  (67,6) len=156 []
+  (67,7) len=114 []
+  (68,0) len=1266 ['ovba-prefix', 'has-mod=M']
+  (68,1) len=269 []
+  (68,2) len=576 ['ovba-prefix', 'has-mod=M']
+  (69,0) len=2334 ['has-mod=M']
+  (69,1) len=1374 ['has-mod=M']
+  (69,2) len=358 ['PROJECT-plaintext', 'has-mod=M']
+
+### 046__sub_dim_string.accdb  module='M'  proc=''
+  (67,6) len=156 []
+  (67,7) len=114 []
+  (68,0) len=1264 ['ovba-prefix', 'has-mod=M']
+  (68,1) len=277 []
+  (68,2) len=578 ['ovba-prefix', 'has-mod=M']
+  (69,0) len=2334 ['has-mod=M']
+  (69,1) len=1374 ['has-mod=M']
+  (69,2) len=350 ['PROJECT-plaintext', 'has-mod=M']
+
+### 047__sub_let_int.accdb  module='M'  proc=''
+  (67,6) len=156 []
+  (67,7) len=114 []
+  (68,0) len=1293 ['ovba-prefix', 'has-mod=M']
+  (68,1) len=281 []
+  (68,2) len=574 ['ovba-prefix', 'has-mod=M']
+  (69,0) len=2334 ['has-mod=M']
+  (69,1) len=1374 ['has-mod=M']
+  (69,2) len=350 ['PROJECT-plaintext', 'has-mod=M']
+
+### 048__sub_let_int_42.accdb  module='M'  proc=''
+  (67,6) len=156 []
+  (67,7) len=114 []
+  (68,0) len=1294 ['ovba-prefix', 'has-mod=M']
+  (68,1) len=285 []
+  (68,2) len=576 ['ovba-prefix', 'has-mod=M']
+  (69,0) len=2334 ['has-mod=M']
+  (69,1) len=1374 ['has-mod=M']
+  (69,2) len=350 ['PROJECT-plaintext', 'has-mod=M']
+
+### 049__sub_comment_only.accdb  module='M'  proc=''
+  (67,6) len=156 []
+  (67,7) len=114 []
+  (68,0) len=1245 ['ovba-prefix', 'has-mod=M']
+  (68,1) len=269 []
+  (68,2) len=572 ['ovba-prefix', 'has-mod=M']
+  (69,0) len=2327 ['has-mod=M']
+  (69,1) len=1374 ['has-mod=M']
+  (69,2) len=350 ['PROJECT-plaintext', 'has-mod=M']
+
+### 050__sub_if_true.accdb  module='M'  proc=''
+  (67,6) len=156 []
+  (67,7) len=114 []
+  (68,0) len=1500 ['ovba-prefix', 'has-mod=M']
+  (68,1) len=409 []
+  (68,2) len=576 ['ovba-prefix', 'has-mod=M']
+  (68,3) len=358 ['PROJECT-plaintext', 'has-mod=M']
+  (69,0) len=2345 ['has-mod=M']
+  (69,1) len=1494 ['has-mod=M']
+
+### 051__sub_for_1_to_3.accdb  module='M'  proc=''
+  (67,6) len=156 []
+  (67,7) len=114 []
+  (68,0) len=1452 ['ovba-prefix', 'has-mod=M']
+  (68,1) len=317 []
+  (68,2) len=575 ['ovba-prefix', 'has-mod=M']
+  (69,0) len=2334 ['has-mod=M']
+  (69,1) len=1374 ['has-mod=M']
+  (69,2) len=354 ['PROJECT-plaintext', 'has-mod=M']

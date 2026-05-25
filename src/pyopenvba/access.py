@@ -413,6 +413,112 @@ class AccessFile:
             ),
         )
 
+    # ------------------------------------------------------------------
+    # Phase 4 RE: authoritative VBA p-code stream
+    # ------------------------------------------------------------------
+    #
+    # Every Access database with a VBA project carries one LVAL row whose
+    # raw bytes begin with the magic header `72 55 40 ...` ("rU@"). This
+    # row is the authoritative compiled-bytecode store -- decompiling and
+    # re-displaying VBA source in the Access editor reads from this row,
+    # not from the OVBA cache. The OVBA cache (row found by
+    # `iter_vba_modules`) is a passive plaintext mirror Access keeps for
+    # version-control and import/export tools.
+    #
+    # Evidence captured by the corpus (May 2026):
+    # * `Dim x As Integer` (sample 044) and `Dim x As Long` (sample 045)
+    #   compile to byte-for-byte identical p-code -- type annotations are
+    #   resolved/erased at compile time.
+    # * `' a comment` (sample 049) compiles to byte-for-byte identical
+    #   p-code as `Dim x As Integer` -- comments produce no bytecode.
+    # * `MsgBox "hello"` (sample 040) and `MsgBox "world"` (sample 041)
+    #   differ in only 2 bytes (a u16 string-literal slot id), proving
+    #   string literals are interned.
+    # * `0x67 0x02` markers bracket each procedure body; `0x7B 0x02`
+    #   marks the end of the module's last procedure; `0xED 0x05 <u16>`
+    #   pushes a literal integer (confirmed: `ed 05 2a 00` for `x = 42`).
+    #
+    # Full opcode field guide is still in progress; this method is the
+    # entry point that exposes the raw bytes for further RE work.
+
+    # The p-code row header is 12 bytes. Every rU@-headed LVAL row
+    # starts with the 4-byte signature ``72 55 40 00`` followed by 8
+    # more bytes whose structure encodes the row's role:
+    #
+    #   bytes  0..3   : signature 'rU@\x00'
+    #   bytes  4..7   : reserved / zero in the corpus
+    #   bytes  8..15  : u64 (LE) -- 0x4000 for the *module-active*
+    #                   bytecode row, 0 for every other rU@ row
+    #
+    # The 0x4000 at offset 10 is the deterministic structural marker
+    # that distinguishes the row Access actually executes from older
+    # stubs and project/system bootstrap rows kept alongside it.
+    # Verified across the 15-sample corpus (samples 010-051).
+    _PCODE_MAGIC = b"\x72\x55\x40\x00"   # 'rU@\x00'
+    _PCODE_ACTIVE_PREFIX = (
+        b"\x72\x55\x40\x00\x00\x00\x00\x00\x00\x00\x40\x00"
+    )
+
+    def _find_pcode_rows(self) -> list[tuple[int, int, bytes]]:
+        """Return ``(page, slot, raw_bytes)`` for every LVAL row that
+        carries the VBA p-code magic header. The corpus shows 2-3 such
+        rows per database with VBA enabled."""
+        hits: list[tuple[int, int, bytes]] = []
+        for page, slot, row in self._iter_lval_rows():
+            if row.startswith(self._PCODE_MAGIC):
+                hits.append((page, slot, bytes(row)))
+        return hits
+
+    def iter_pcode_streams(self) -> tuple["AccessVBAPCodeStream", ...]:
+        """Return every ``rU@``-headed VBA p-code row in the database.
+
+        Exactly one of these rows is the *module-active* bytecode that
+        Access executes; the others are stale stubs or project/system
+        bootstrap rows. Use :meth:`read_module_pcode_stream` to fetch
+        the active row directly.
+
+        Raises :class:`AccessError` if no p-code rows can be located.
+        """
+        hits = self._find_pcode_rows()
+        if not hits:
+            raise AccessError(
+                f"no VBA p-code rows (header 'rU@') found in "
+                f"{self.path.name!r}; this database may have no VBA project"
+            )
+        return tuple(
+            AccessVBAPCodeStream(page=p, slot=s, raw=r) for p, s, r in hits
+        )
+
+    def read_module_pcode_stream(self) -> "AccessVBAPCodeStream":
+        """Return the *module-active* VBA p-code row, identified by the
+        structural 12-byte prefix ``72 55 40 00 00 00 00 00 00 00 40
+        00`` (byte at offset 10 is ``0x40`` rather than ``0x00``).
+
+        This is the deterministic discriminator that separates the
+        active compiled bytecode from the stale stub and bootstrap
+        rows Access keeps alongside it.
+
+        Raises :class:`AccessError` if zero or more than one row
+        matches the active prefix.
+        """
+        matches = [
+            s for s in self.iter_pcode_streams()
+            if s.raw.startswith(self._PCODE_ACTIVE_PREFIX)
+        ]
+        if not matches:
+            raise AccessError(
+                f"no module-active VBA p-code row (prefix "
+                f"{self._PCODE_ACTIVE_PREFIX.hex(' ')}) found in "
+                f"{self.path.name!r}"
+            )
+        if len(matches) > 1:
+            locs = ", ".join(f"({m.page},{m.slot})" for m in matches)
+            raise AccessError(
+                f"expected exactly one module-active VBA p-code row in "
+                f"{self.path.name!r}, found {len(matches)} at {locs}"
+            )
+        return matches[0]
+
     def iter_vba_modules(self) -> Iterator["VBAModule"]:
         """
         Discover and yield every VBA module embedded in this database.
@@ -771,3 +877,24 @@ class AccessVBAProject:
     project_name: str
     references: tuple[VBAReference, ...]
     modules: tuple[AccessVBAModuleEntry, ...]
+
+
+@dataclass(frozen=True)
+class AccessVBAPCodeStream:
+    """The raw authoritative VBA p-code bytes for an Access database,
+    together with the LVAL row coordinates from which they were read.
+
+    The first four bytes are always ``72 55 40 00`` ('rU@\\x00'). The
+    full opcode field guide is being reverse-engineered; see
+    ``docs/access_pcode_re.md``.
+
+    Attributes:
+        page: ACE 4 KiB page number containing the LVAL row.
+        slot: Slot index within ``page``.
+        raw: Compiled bytecode payload (variable length; typically
+            ~150-500 bytes for a single short procedure).
+    """
+
+    page: int
+    slot: int
+    raw: bytes

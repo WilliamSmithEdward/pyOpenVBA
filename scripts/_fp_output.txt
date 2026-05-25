@@ -1,0 +1,278 @@
+﻿# Corpus: 25 samples
+
+## 010__empty_StdModule_M.accdb
+   module=''  proc=None
+   (67, 6)  len=880    ovba_cache_wrapped@818
+   (67, 7)  len=126    <no-match>
+   (67, 8)  len=114    <no-match>
+   (68, 0)  len=106    <no-match>
+   (68, 1)  len=573    catalog_dir, catalog_wrapped@0, references_libid
+   (68, 2)  len=2320   <no-match>
+   (69, 0)  len=1345   <no-match>
+   (69, 1)  len=358    project_plaintext
+
+## 011__empty_StdModule_AB.accdb
+   module=''  proc=None
+   (67, 6)  len=881    ovba_cache_wrapped@818
+   (67, 7)  len=126    <no-match>
+   (67, 8)  len=114    <no-match>
+   (68, 0)  len=106    <no-match>
+   (68, 1)  len=570    catalog_dir, catalog_wrapped@0, references_libid
+   (68, 2)  len=2323   <no-match>
+   (69, 0)  len=1346   <no-match>
+   (69, 1)  len=356    project_plaintext
+
+## 012__empty_StdModule_ABC.accdb
+   module=''  proc=None
+   (67, 6)  len=882    ovba_cache_wrapped@818, has_b9_markers
+   (67, 7)  len=126    <no-match>
+   (67, 8)  len=114    <no-match>
+   (68, 0)  len=106    <no-match>
+   (68, 1)  len=578    catalog_dir, catalog_wrapped@0, references_libid
+   (68, 2)  len=2326   has_b9_markers
+   (69, 0)  len=1347   <no-match>
+   (69, 1)  len=358    project_plaintext
+
+## 013__empty_StdModule_Mod1.accdb
+   module=''  proc=None
+   (67, 6)  len=883    ovba_cache_wrapped@818
+   (67, 7)  len=126    <no-match>
+   (67, 8)  len=114    <no-match>
+   (68, 0)  len=106    <no-match>
+   (68, 1)  len=583    catalog_dir, catalog_wrapped@0, references_libid
+   (68, 2)  len=2329   <no-match>
+   (69, 0)  len=1348   <no-match>
+   (69, 1)  len=356    project_plaintext
+
+## 014__empty_StdModule_Module1.accdb
+   module=''  proc=None
+   (67, 6)  len=887    ovba_cache_wrapped@818
+   (67, 7)  len=126    <no-match>
+   (67, 8)  len=114    <no-match>
+   (68, 0)  len=106    <no-match>
+   (68, 1)  len=589    catalog_dir, catalog_wrapped@0, references_libid
+   (68, 2)  len=2325   <no-match>
+   (69, 0)  len=1328   <no-match>
+   (69, 1)  len=354    project_plaintext
+
+## 015__empty_StdModule_LongName.accdb
+   module=''  proc=None
+   (67, 6)  len=900    ovba_cache_wrapped@818
+   (67, 7)  len=126    <no-match>
+   (67, 8)  len=114    <no-match>
+   (67, 9)  len=68     <no-match>
+   (68, 0)  len=106    <no-match>
+   (68, 1)  len=633    catalog_dir, catalog_wrapped@0, references_libid
+   (68, 2)  len=2380   <no-match>
+   (69, 0)  len=1365   <no-match>
+   (69, 1)  len=382    project_plaintext
+
+## 016__empty_StdModule_UnicodeA.accdb
+   module=''  proc=None
+   (67, 6)  len=882    ovba_cache_wrapped@818
+   (67, 7)  len=126    <no-match>
+   (67, 8)  len=114    <no-match>
+   (68, 0)  len=106    <no-match>
+   (68, 1)  len=578    catalog_dir, catalog_wrapped@0, references_libid
+   (68, 2)  len=2326   <no-match>
+   (69, 0)  len=1347   <no-match>
+   (69, 1)  len=350    project_plaintext
+
+## 020__empty_ClassModule_C.accdb
+   module=''  proc=None
+   (67, 6)  len=1184   ovba_cache_wrapped@984
+   (67, 7)  len=174    <no-match>
+   (68, 0)  len=254    <no-match>
+   (68, 1)  len=106    <no-match>
+   (68, 2)  len=576    catalog_dir, catalog_wrapped@0, references_libid
+   (68, 3)  len=2330   <no-match>
+   (69, 0)  len=1597   <no-match>
+   (69, 1)  len=341    project_plaintext
+
+## 021__empty_ClassModule_Class1.accdb
+   module=''  proc=None
+   (67, 6)  len=1189   ovba_cache_wrapped@984
+   (67, 7)  len=174    <no-match>
+   (68, 0)  len=254    <no-match>
+   (68, 1)  len=106    <no-match>
+   (68, 2)  len=590    catalog_dir, catalog_wrapped@0, references_libid
+   (68, 3)  len=2333   <no-match>
+   (69, 0)  len=1580   <no-match>
+   (69, 1)  len=355    project_plaintext
+
+## 030__sub_A_empty.accdb
+   module=''  proc=None
+   (67, 6)  len=1199   ovba_cache_wrapped@1118
+   (67, 7)  len=114    <no-match>
+   (68, 0)  len=269    <no-match>
+   (68, 1)  len=156    <no-match>
+   (68, 2)  len=574    catalog_dir, catalog_wrapped@0, references_libid
+   (68, 3)  len=2327   <no-match>
+   (69, 0)  len=1374   <no-match>
+   (69, 1)  len=342    project_plaintext
+
+## 031__sub_B_empty.accdb
+   module=''  proc=None
+   (67, 6)  len=1199   ovba_cache_wrapped@1118
+   (67, 7)  len=114    <no-match>
+   (68, 0)  len=269    <no-match>
+   (68, 1)  len=156    <no-match>
+   (68, 2)  len=572    catalog_dir, catalog_wrapped@0, references_libid
+   (68, 3)  len=2327   <no-match>
+   (69, 0)  len=1374   <no-match>
+   (69, 1)  len=346    project_plaintext
+
+## 032__sub_AB_empty.accdb
+   module=''  proc=None
+   (67, 6)  len=1200   ovba_cache_wrapped@1118
+   (67, 7)  len=114    <no-match>
+   (68, 0)  len=269    <no-match>
+   (68, 1)  len=156    <no-match>
+   (68, 2)  len=577    catalog_dir, catalog_wrapped@0, references_libid
+   (68, 3)  len=2328   <no-match>
+   (69, 0)  len=1375   <no-match>
+   (69, 1)  len=342    project_plaintext
+
+## 033__sub_LongName_empty.accdb
+   module=''  proc=None
+   (67, 6)  len=156    <no-match>
+   (67, 7)  len=114    <no-match>
+   (68, 0)  len=1212   ovba_cache_wrapped@1118
+   (68, 1)  len=269    <no-match>
+   (68, 2)  len=572    catalog_dir, catalog_wrapped@0, references_libid
+   (69, 0)  len=2341   <no-match>
+   (69, 1)  len=1388   <no-match>
+   (69, 2)  len=346    project_plaintext
+
+## 040__sub_msgbox_hello.accdb
+   module=''  proc=None
+   (67, 6)  len=156    <no-match>
+   (67, 7)  len=114    <no-match>
+   (68, 0)  len=1482   ovba_cache_wrapped@1381, has_b9_markers
+   (68, 1)  len=393    <no-match>
+   (68, 2)  len=574    catalog_dir, catalog_wrapped@0, references_libid
+   (68, 3)  len=342    project_plaintext
+   (69, 0)  len=2345   <no-match>
+   (69, 1)  len=1502   <no-match>
+
+## 041__sub_msgbox_world.accdb
+   module=''  proc=None
+   (67, 6)  len=156    <no-match>
+   (67, 7)  len=114    <no-match>
+   (68, 0)  len=1482   ovba_cache_wrapped@1381, has_b9_markers
+   (68, 1)  len=393    <no-match>
+   (68, 2)  len=577    catalog_dir, catalog_wrapped@0, references_libid
+   (68, 3)  len=342    project_plaintext
+   (69, 0)  len=2345   <no-match>
+   (69, 1)  len=1502   <no-match>
+
+## 042__sub_msgbox_long.accdb
+   module=''  proc=None
+   (67, 6)  len=156    <no-match>
+   (67, 7)  len=114    <no-match>
+   (68, 0)  len=1594   ovba_cache_wrapped@1437, has_b9_markers
+   (68, 1)  len=393    <no-match>
+   (68, 2)  len=573    catalog_dir, catalog_wrapped@0, references_libid
+   (68, 3)  len=342    project_plaintext
+   (69, 0)  len=2345   <no-match>
+   (69, 1)  len=1610   <no-match>
+
+## 043__sub_msgbox_two.accdb
+   module=''  proc=None
+   (67, 6)  len=156    <no-match>
+   (67, 7)  len=114    <no-match>
+   (68, 0)  len=1515   ovba_cache_wrapped@1409, has_b9_markers
+   (68, 1)  len=481    <no-match>
+   (68, 2)  len=577    catalog_dir, catalog_wrapped@0, references_libid
+   (68, 3)  len=358    project_plaintext
+   (69, 0)  len=2345   <no-match>
+   (69, 1)  len=1516   <no-match>
+
+## 044__sub_dim_int.accdb
+   module=''  proc=None
+   (67, 6)  len=156    <no-match>
+   (67, 7)  len=114    <no-match>
+   (68, 0)  len=1266   ovba_cache_wrapped@1162
+   (68, 1)  len=269    <no-match>
+   (68, 2)  len=576    catalog_dir, catalog_wrapped@0, references_libid
+   (69, 0)  len=2334   <no-match>
+   (69, 1)  len=1374   <no-match>
+   (69, 2)  len=358    project_plaintext
+
+## 045__sub_dim_long.accdb
+   module=''  proc=None
+   (67, 6)  len=156    <no-match>
+   (67, 7)  len=114    <no-match>
+   (68, 0)  len=1263   ovba_cache_wrapped@1162
+   (68, 1)  len=269    <no-match>
+   (68, 2)  len=572    catalog_dir, catalog_wrapped@0, references_libid
+   (69, 0)  len=2334   <no-match>
+   (69, 1)  len=1374   <no-match>
+   (69, 2)  len=350    project_plaintext
+
+## 046__sub_dim_string.accdb
+   module=''  proc=None
+   (67, 6)  len=156    <no-match>
+   (67, 7)  len=114    <no-match>
+   (68, 0)  len=1264   ovba_cache_wrapped@1162
+   (68, 1)  len=277    <no-match>
+   (68, 2)  len=578    catalog_dir, catalog_wrapped@0, references_libid
+   (69, 0)  len=2334   <no-match>
+   (69, 1)  len=1374   <no-match>
+   (69, 2)  len=350    project_plaintext
+
+## 047__sub_let_int.accdb
+   module=''  proc=None
+   (67, 6)  len=156    <no-match>
+   (67, 7)  len=114    <no-match>
+   (68, 0)  len=1293   ovba_cache_wrapped@1182
+   (68, 1)  len=281    <no-match>
+   (68, 2)  len=574    catalog_dir, catalog_wrapped@0, references_libid
+   (69, 0)  len=2334   <no-match>
+   (69, 1)  len=1374   <no-match>
+   (69, 2)  len=350    project_plaintext
+
+## 048__sub_let_int_42.accdb
+   module=''  proc=None
+   (67, 6)  len=156    <no-match>
+   (67, 7)  len=114    <no-match>
+   (68, 0)  len=1294   ovba_cache_wrapped@1182
+   (68, 1)  len=285    <no-match>
+   (68, 2)  len=576    catalog_dir, catalog_wrapped@0, references_libid
+   (69, 0)  len=2334   <no-match>
+   (69, 1)  len=1374   <no-match>
+   (69, 2)  len=350    project_plaintext
+
+## 049__sub_comment_only.accdb
+   module=''  proc=None
+   (67, 6)  len=156    <no-match>
+   (67, 7)  len=114    <no-match>
+   (68, 0)  len=1245   ovba_cache_wrapped@1146
+   (68, 1)  len=269    <no-match>
+   (68, 2)  len=572    catalog_dir, catalog_wrapped@0, references_libid
+   (69, 0)  len=2327   <no-match>
+   (69, 1)  len=1374   <no-match>
+   (69, 2)  len=350    project_plaintext
+
+## 050__sub_if_true.accdb
+   module=''  proc=None
+   (67, 6)  len=156    <no-match>
+   (67, 7)  len=114    <no-match>
+   (68, 0)  len=1500   ovba_cache_wrapped@1389, has_b9_markers
+   (68, 1)  len=409    <no-match>
+   (68, 2)  len=576    catalog_dir, catalog_wrapped@0, references_libid
+   (68, 3)  len=358    project_plaintext
+   (69, 0)  len=2345   <no-match>
+   (69, 1)  len=1494   <no-match>
+
+## 051__sub_for_1_to_3.accdb
+   module=''  proc=None
+   (67, 6)  len=156    <no-match>
+   (67, 7)  len=114    <no-match>
+   (68, 0)  len=1452   ovba_cache_wrapped@1322
+   (68, 1)  len=317    <no-match>
+   (68, 2)  len=575    catalog_dir, catalog_wrapped@0, references_libid
+   (69, 0)  len=2334   <no-match>
+   (69, 1)  len=1374   <no-match>
+   (69, 2)  len=354    project_plaintext
+

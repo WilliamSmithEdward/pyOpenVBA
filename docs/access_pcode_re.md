@@ -179,13 +179,55 @@ fall under Phase 5.
 
 ### Phase 4 -- p-code opcode field guide
 
-Decompress each per-module OVBA stream via
-`pyopenvba.vba.decompress(..., stream_name="VBA")` and diff the
-resulting bytes across the body-varying samples (040..051) to learn the
-opcode encoding.
+**Status (May 2026): row location SOLVED; opcode decoding IN PROGRESS.**
 
-Deliverable: `docs/access_pcode_re.md` opcode table section, expanded
-turn by turn.
+The compiled VBA bytecode lives in LVAL rows whose payload starts with
+the 4-byte magic `72 55 40 00` ('rU@\0'). Every Access database with VBA
+enabled carries 2-3 such rows; exactly one of them is the
+**module-active** row that Access executes. The deterministic structural
+discriminator is the 12-byte prefix
+
+    72 55 40 00 00 00 00 00 00 00 40 00
+
+i.e. byte at offset 10 is `0x40` for active and `0x00` for stale /
+bootstrap rows. Verified across the 15-sample corpus.
+
+Production API:
+
+* `AccessFile.read_module_pcode_stream() -> AccessVBAPCodeStream`
+* `AccessFile.iter_pcode_streams() -> tuple[AccessVBAPCodeStream, ...]`
+* `AccessVBAPCodeStream(page, slot, raw)` dataclass
+
+Slot location is NOT stable -- 030 stores the active row at (68, 0);
+040..051 store it at (68, 1). Locate by content only.
+
+Established structural facts (locked in by
+`tests/test_access.py::test_pcode_*`):
+
+* Active-row 12-byte prefix discriminator (one match per database).
+* Corpus baseline row lengths (drift detection).
+* Same length for `Sub A() / End Sub`, `Dim x As Integer`,
+  `Dim x As Long`, `' a comment` (all 269 bytes) -- a fixed-size
+  skeleton with slotted declarations.
+* `Dim x As Integer` vs `Dim x As Long` differ at exactly offset
+  `0x8C` (1 byte: the per-type token).
+* Push i16 immediate: `ED 05 <u16 LE>` -- proven by sample 048
+  (`x = 42` -> `ED 05 2A 00`).
+* `67 02 ...` brackets procedure bodies; `7B 02 <u32>` is the
+  proc-trailer cookie.
+* String literals are interned in a separate table (not in the
+  bytecode): `MsgBox "hello"` and `MsgBox "world"` produce same-length
+  p-code that differs in <=4 bytes near offset `0xEA`.
+
+Pending: full opcode table covering Sub/End Sub, Dim of complex
+types, If/Then, For/Next, function call dispatch, variable references,
+local-vars table layout, string-literal slot table layout, and the
+relationship between the active row, the 156-byte stub row, and the
+~114-byte project bootstrap row.
+
+Tooling: `scripts/access_re_dump_68_1.py`,
+`scripts/access_re_compare_pcode_headers.py`,
+`scripts/access_re_list_pcode_rows.py`.
 
 ### Phase 5 -- structural write primitives
 

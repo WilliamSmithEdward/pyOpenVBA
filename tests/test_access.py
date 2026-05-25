@@ -1,4 +1,4 @@
-"""
+﻿"""
 Pure-Python Access backend tests.
 
 These tests verify the byte-level parser in ``pyopenvba.access`` against a
@@ -460,3 +460,197 @@ def test_vba_module_names_uses_catalog_ordering() -> None:
     assert db.vba_module_names() == [m.name for m in proj.modules]
 
 
+
+# --- Phase 4 RE: authoritative VBA p-code stream -----------------------
+
+
+# Expected lengths of the module-active p-code row -- the rU@-headed
+# LVAL row whose 12-byte prefix is
+# ``72 55 40 00 00 00 00 00 00 00 40 00``. These lengths were
+# captured against our canonical corpus and lock the byte-level
+# layout in place; if Office shifts encoding the test fires.
+_PCODE_SAMPLES = {
+    "010__empty_StdModule_M.accdb":   126,
+    "020__empty_ClassModule_C.accdb": 174,
+    "030__sub_A_empty.accdb":         269,
+    "040__sub_msgbox_hello.accdb":    393,
+    "041__sub_msgbox_world.accdb":    393,
+    "042__sub_msgbox_long.accdb":     393,
+    "043__sub_msgbox_two.accdb":      481,
+    "044__sub_dim_int.accdb":         269,
+    "045__sub_dim_long.accdb":        269,
+    "046__sub_dim_string.accdb":      277,
+    "047__sub_let_int.accdb":         281,
+    "048__sub_let_int_42.accdb":      285,
+    "049__sub_comment_only.accdb":    269,
+    "050__sub_if_true.accdb":         409,
+    "051__sub_for_1_to_3.accdb":      317,
+}
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "030__sub_A_empty.accdb").exists(),
+    reason="RE corpus not generated",
+)
+def test_pcode_stream_locatable_and_signature_correct() -> None:
+    """The authoritative VBA p-code row exists and starts with the
+    'rU@\\x00' signature in every corpus sample that has VBA code."""
+    from pyopenvba.access import AccessFile
+
+    for fname in _PCODE_SAMPLES:
+        path = _RE_CORPUS / fname
+        if not path.exists():
+            continue
+        db = AccessFile(path)
+        stream = db.read_module_pcode_stream()
+        assert stream.raw[:4] == b"\x72\x55\x40\x00", (
+            f"{fname}: expected 'rU@\\x00' header, got {stream.raw[:4]!r}"
+        )
+        assert stream.page > 0
+        assert stream.slot >= 0
+        # The recorded row coordinates must actually contain these bytes.
+        row = db._lval_row_bytes(stream.page, stream.slot)  # pyright: ignore[reportPrivateUsage]
+        assert bytes(row) == stream.raw
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "030__sub_A_empty.accdb").exists(),
+    reason="RE corpus not generated",
+)
+def test_pcode_module_active_discriminator_is_byte_10_eq_0x40() -> None:
+    """The structural discriminator that separates the module-active
+    p-code row from every other rU@-headed row is the byte at offset
+    10: ``0x40`` for active, ``0x00`` for stubs / bootstrap rows.
+
+    This test asserts that property holds across the whole corpus and
+    that exactly one row per database has the active marker."""
+    from pyopenvba.access import AccessFile
+
+    for fname in _PCODE_SAMPLES:
+        path = _RE_CORPUS / fname
+        if not path.exists():
+            continue
+        db = AccessFile(path)
+        streams = db.iter_pcode_streams()
+        markers = [s.raw[10] for s in streams]
+        assert set(markers) <= {0x40, 0x00}, (
+            f"{fname}: byte[10] of every rU@ row must be 0x40 or 0x00, "
+            f"got {markers}"
+        )
+        assert markers.count(0x40) == 1, (
+            f"{fname}: expected exactly one module-active row "
+            f"(byte[10]==0x40), got markers={markers}"
+        )
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "030__sub_A_empty.accdb").exists(),
+    reason="RE corpus not generated",
+)
+def test_pcode_stream_lengths_match_corpus_baseline() -> None:
+    """Lock in the known p-code row lengths for our corpus baseline.
+
+    If a future Office build shifts the byte layout, this test fires
+    immediately so we can investigate rather than silently accepting a
+    structural drift."""
+    from pyopenvba.access import AccessFile
+
+    for fname, expected_len in _PCODE_SAMPLES.items():
+        path = _RE_CORPUS / fname
+        if not path.exists():
+            continue
+        stream = AccessFile(path).read_module_pcode_stream()
+        assert len(stream.raw) == expected_len, (
+            f"{fname}: expected p-code len={expected_len}, got {len(stream.raw)}"
+        )
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "044__sub_dim_int.accdb").exists(),
+    reason="RE corpus not generated",
+)
+def test_pcode_same_length_for_dim_variants_and_comment() -> None:
+    """`Sub A() / End Sub`, `Dim x As Integer`, `Dim x As Long`, and
+    `' a comment` all produce p-code rows of the same length (269
+    bytes). That equality is a deterministic structural property of
+    Access's compiler: simple `Dim` declarations and comments occupy
+    fixed-size slots, and the empty-procedure baseline is the same
+    underlying skeleton.
+
+    NOTE: the bytes ARE NOT identical -- `Dim` updates a local-vars
+    table and the per-type encoding differs -- but the row length is
+    invariant. See ``docs/access_pcode_re.md`` for the opcode field
+    guide."""
+    from pyopenvba.access import AccessFile
+
+    names = [
+        "030__sub_A_empty.accdb",
+        "044__sub_dim_int.accdb",
+        "045__sub_dim_long.accdb",
+        "049__sub_comment_only.accdb",
+    ]
+    lengths = {
+        n: len(AccessFile(_RE_CORPUS / n).read_module_pcode_stream().raw)
+        for n in names
+    }
+    assert len(set(lengths.values())) == 1, lengths
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "044__sub_dim_int.accdb").exists(),
+    reason="RE corpus not generated",
+)
+def test_pcode_type_token_differs_between_dim_integer_and_dim_long() -> None:
+    """`Dim x As Integer` and `Dim x As Long` produce p-code rows that
+    are the same length but DIFFER at a small, deterministic set of
+    byte offsets -- the per-type encoding tokens. Locking this in
+    proves Access does retain type information in the bytecode
+    (rather than erasing it)."""
+    from pyopenvba.access import AccessFile
+
+    a = AccessFile(_RE_CORPUS / "044__sub_dim_int.accdb").read_module_pcode_stream()
+    b = AccessFile(_RE_CORPUS / "045__sub_dim_long.accdb").read_module_pcode_stream()
+    assert len(a.raw) == len(b.raw)
+    diff_offsets = [i for i, (x, y) in enumerate(zip(a.raw, b.raw)) if x != y]
+    # Empirically a single 1-byte type token differs at offset 0x8C.
+    # If a future Office build moves that token, this test will fire.
+    assert diff_offsets == [0x8C], diff_offsets
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "040__sub_msgbox_hello.accdb").exists(),
+    reason="RE corpus not generated",
+)
+def test_pcode_invariant_string_literals_are_interned() -> None:
+    """Two `MsgBox` calls that differ only in a same-length string
+    literal produce p-code streams of the same length that differ in
+    only a small number of bytes (the literal's slot id), proving
+    string literals live in a separate interned table, not inline in
+    the bytecode."""
+    from pyopenvba.access import AccessFile
+
+    a = AccessFile(_RE_CORPUS / "040__sub_msgbox_hello.accdb").read_module_pcode_stream()
+    b = AccessFile(_RE_CORPUS / "041__sub_msgbox_world.accdb").read_module_pcode_stream()
+    assert len(a.raw) == len(b.raw)
+    diff = sum(1 for x, y in zip(a.raw, b.raw) if x != y)
+    # Empirically the only difference between "hello" and "world" is
+    # the 2-byte literal slot id near offset 0xea. Allow a tiny budget
+    # in case Access adds an aux cookie elsewhere on a future build.
+    assert diff <= 4, (
+        f"expected <=4 byte difference between hello/world p-code, got {diff}"
+    )
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "047__sub_let_int.accdb").exists(),
+    reason="RE corpus not generated",
+)
+def test_pcode_immediate_int_literal_encoding() -> None:
+    """`x = 42` emits the byte sequence `ed 05 2a 00` -- a 4-byte
+    'push i16 immediate' instruction whose operand is the literal
+    value in little-endian. This is one of the first opcodes we
+    decoded."""
+    from pyopenvba.access import AccessFile
+
+    s = AccessFile(_RE_CORPUS / "048__sub_let_int_42.accdb").read_module_pcode_stream()
+    assert b"\xed\x05\x2a\x00" in s.raw

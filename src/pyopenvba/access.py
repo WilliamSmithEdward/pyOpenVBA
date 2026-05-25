@@ -208,84 +208,131 @@ class AccessFile:
     # VBA module discovery & extraction
     # ------------------------------------------------------------------
 
-    def _lval_next_page(self, page_num: int) -> int:
-        """
-        Return the next page in this LVAL chain, or 0 if this is the last page.
+    # ------------------------------------------------------------------
+    # LVAL page / slot decoding (Phase 2 RE, 2026-05).
+    # ------------------------------------------------------------------
+    #
+    # Each LVAL page lays out as:
+    #     [0]      page_type 0x01
+    #     [1]      0x01 (subtype)
+    #     [2:4]    checksum / version
+    #     [4:8]    'LVAL'
+    #     [8:12]   reserved (zero)
+    #     [12:14]  u16 LE slot count N
+    #     [14:14+2N]  u16 LE slot table; top nibble 0xD = tombstone,
+    #                 else low 12 bits = byte offset of row in page.
+    # Rows grow downward from PAGE end. Row END = next-higher slot offset
+    # in the table, or PAGE_SIZE for the top-most row.
+    #
+    # A long-value stored across multiple chunks places each chunk in one
+    # slot. The first 4 bytes of such a chunk are
+    #     [0]      next_slot (u8)
+    #     [1:4]    next_page (u24 LE)
+    #     [4:]     chunk payload
+    # with (0, 0) marking the last chunk. Long-values that fit in a
+    # single chunk are stored WITHOUT a continuation prefix (the row IS
+    # the payload).
+    #
+    # Both forms occur in the wild: the canonical 1 MB fixture stores its
+    # entire VBA project state in ONE chained long-value of 21 chunks; a
+    # small .accdb with one tiny module stores ~6 separate standalone
+    # long-values, one per VBA project section.
 
-        For ACE LVAL pages, the chain pointer is a 3-byte little-endian
-        value at offsets 21..23 of the page header (byte 24 is part of the
-        following field). A value of 0 marks end-of-chain.
-        """
+    def _lval_slot_count(self, page_num: int) -> int:
         base = page_num * ACE_PAGE_SIZE
-        return int.from_bytes(self._data[base + 21 : base + 24], "little")
+        return int.from_bytes(self._data[base + 12 : base + 14], "little")
 
-    def _lval_continuation_offset(self, page_num: int) -> int:
-        """
-        For a continuation LVAL page, return the absolute file offset at
-        which this page's contribution to the long-value byte stream begins.
-
-        Page header bytes 14..15 (little-endian) give the page-relative
-        offset of the record header for this page's long-value chunk; the
-        first 4 bytes at that offset are a record prefix and the stream
-        bytes themselves start 4 bytes later.
-        """
+    def _lval_slot_offsets(self, page_num: int) -> list[int]:
+        """Return the slot table for an LVAL page, as raw u16 values
+        (including the 0xD000 tombstone flag)."""
         base = page_num * ACE_PAGE_SIZE
-        rec_off = int.from_bytes(self._data[base + 14 : base + 16], "little")
-        return base + rec_off + 4
+        n = self._lval_slot_count(page_num)
+        return [
+            int.from_bytes(self._data[base + 14 + 2 * i : base + 16 + 2 * i], "little")
+            for i in range(n)
+        ]
 
-    def _read_lval_chain(self, start_offset: int) -> bytes:
-        """
-        Walk the LVAL page chain starting at ``start_offset`` (the absolute
-        file offset where the long value begins on its first page) and
-        return the reassembled byte stream.
+    def _lval_row_bytes(self, page_num: int, slot: int) -> bytes:
+        """Return the raw bytes of one LVAL row including any
+        4-byte continuation prefix. Raises if the slot is a tombstone
+        or out of range."""
+        slots = self._lval_slot_offsets(page_num)
+        if slot < 0 or slot >= len(slots):
+            raise AccessError(
+                f"slot {slot} out of range on page {page_num} (n={len(slots)})"
+            )
+        raw = slots[slot]
+        if (raw & 0xF000) == 0xD000:
+            raise AccessError(
+                f"slot {slot} on page {page_num} is a tombstone"
+            )
+        start = raw & 0x0FFF
+        end = ACE_PAGE_SIZE
+        for other in slots:
+            if (other & 0xF000) == 0xD000:
+                continue
+            o = other & 0x0FFF
+            if o > start and o < end:
+                end = o
+        base = page_num * ACE_PAGE_SIZE
+        return bytes(self._data[base + start : base + end])
 
-        The first page contributes bytes from ``start_offset`` to the end
-        of that page. Each subsequent chained page contributes from
-        :meth:`_lval_continuation_offset` to the end of that page.
-        """
-        return b"".join(
-            bytes(self._data[off : off + length])
-            for off, length in self._lval_segments(start_offset)
-        )
+    def _walk_lval_chain(
+        self, page_num: int, slot: int, max_chunks: int = 4096
+    ) -> bytes:
+        """Treat (page_num, slot) as the head of a chained long-value
+        and return the concatenated payload of every chunk in the chain,
+        stripping the 4-byte (next_slot, u24 next_page) prefix from each
+        chunk. Stops when the prefix is (0, 0).
 
-    def _lval_segments(self, start_offset: int) -> list[tuple[int, int]]:
+        Raises :class:`AccessError` if the chain is malformed (cycle,
+        out-of-range page, etc.).
         """
-        Return the list of ``(file_offset, length)`` slots in the LVAL
-        chain anchored at ``start_offset``, in stream order. Concatenating
-        the bytes at these slots reproduces the long-value byte stream.
+        out = bytearray()
+        seen: set[tuple[int, int]] = set()
+        cur_p, cur_s = page_num, slot
+        for _ in range(max_chunks):
+            if (cur_p, cur_s) in seen:
+                raise AccessError(
+                    f"LVAL chain cycle at ({cur_p}, {cur_s})"
+                )
+            seen.add((cur_p, cur_s))
+            row = self._lval_row_bytes(cur_p, cur_s)
+            if len(row) < 4:
+                raise AccessError(
+                    f"LVAL row ({cur_p}, {cur_s}) too short to hold chain prefix"
+                )
+            next_s = row[0]
+            next_p = int.from_bytes(row[1:4], "little")
+            out.extend(row[4:])
+            if next_p == 0 and next_s == 0:
+                return bytes(out)
+            if next_p >= self.page_count:
+                raise AccessError(
+                    f"LVAL chain references out-of-range page {next_p}"
+                )
+            cur_p, cur_s = next_p, next_s
+        raise AccessError(f"LVAL chain exceeded max_chunks={max_chunks}")
 
-        The first slot starts at ``start_offset`` and runs to the end of
-        its page. Each subsequent slot runs from
-        :meth:`_lval_continuation_offset` to the end of its page.
-        """
-        page_num = start_offset // ACE_PAGE_SIZE
-        page_end = (page_num + 1) * ACE_PAGE_SIZE
-        segs: list[tuple[int, int]] = [(start_offset, page_end - start_offset)]
-        next_page = self._lval_next_page(page_num)
-        while next_page:
-            start = self._lval_continuation_offset(next_page)
-            end = (next_page + 1) * ACE_PAGE_SIZE
-            segs.append((start, end - start))
-            next_page = self._lval_next_page(next_page)
-        return segs
+    def _iter_lval_pages(self) -> Iterator[int]:
+        for p in range(self.page_count):
+            base = p * ACE_PAGE_SIZE
+            if (
+                self._data[base] == 0x01
+                and bytes(self._data[base + 4 : base + 8]) == b"LVAL"
+            ):
+                yield p
 
-    def _find_ovba_signature_offsets(self) -> list[int]:
-        """
-        Return every file offset that plausibly begins an MS-OVBA stream:
-        a 0x01 signature byte followed by a 2-byte little-endian chunk
-        header whose top nibble is 0xB (signature bits = 0b011, flag = 1
-        for a compressed chunk).
-        """
-        data = self._data
-        out: list[int] = []
-        i = 0
-        while True:
-            j = data.find(b"\x01", i)
-            if j < 0 or j + 3 > len(data):
-                return out
-            i = j + 1
-            if (data[j + 2] & 0xF0) == 0xB0:
-                out.append(j)
+    def _iter_lval_rows(self) -> Iterator[tuple[int, int, bytes]]:
+        """Yield ``(page, slot, row_bytes)`` for every non-tombstone
+        slot on every LVAL page in the database, in page-then-slot
+        order."""
+        for page in self._iter_lval_pages():
+            slots = self._lval_slot_offsets(page)
+            for slot, raw in enumerate(slots):
+                if (raw & 0xF000) == 0xD000:
+                    continue
+                yield page, slot, self._lval_row_bytes(page, slot)
 
     def iter_vba_modules(self) -> Iterator["VBAModule"]:
         """
@@ -293,47 +340,119 @@ class AccessFile:
 
         Implementation strategy
         -----------------------
-        Each VBA module is stored as a single MS-OVBA compressed stream on
-        one or more chained LVAL pages (see module docstring). We scan the
-        file for plausible OVBA signature bytes, walk the LVAL chain at
-        each candidate, attempt MS-OVBA decompression, and accept any
-        result that begins with ``Attribute VB_Name = "..."`` (every Office
-        VBA module starts with this attribute line).
+        Each VBA module's source is stored as an MS-OVBA compressed stream
+        held in one LVAL row, possibly chained across multiple LVAL
+        chunks (see Phase 2 RE notes above).
 
-        This avoids any dependency on parsing the Access system catalog
-        (MSysObjects / MSysAccessStorage) -- a reasonable trade-off until
-        write support requires us to allocate / re-link LVAL chains.
+        We iterate every non-tombstone LVAL row in the database and try
+        TWO interpretations:
+
+        * **Standalone**: the entire row is an OVBA stream. Try to
+          decompress ``row[:]`` directly.
+        * **Chained**: the row's first 4 bytes are a
+          ``<u8 next_slot><u24 next_page>`` continuation prefix; walk
+          the chain accumulating ``row[4:]`` from each chunk, then
+          decompress.
+
+        Accept any result that decompresses to a stream starting with
+        ``Attribute VB_Name = "..."``. This avoids any dependency on
+        parsing the Access system catalog (MSysObjects /
+        MSysAccessStorage) -- a reasonable trade-off until write support
+        requires us to allocate / re-link LVAL chunks.
         """
-        for off in self._find_ovba_signature_offsets():
+        yielded: set[tuple[int, int]] = set()
+        for page, slot, row in self._iter_lval_rows():
+            for blob_kind, blob in self._candidate_blobs(page, slot, row):
+                try:
+                    raw = _ovba_decompress(
+                        blob, stream_name=f"accdb@({page},{slot}):{blob_kind}"
+                    )
+                except Exception:
+                    continue
+                if not raw.startswith(b"Attribute VB_Name = "):
+                    continue
+                if (page, slot) in yielded:
+                    continue
+                yielded.add((page, slot))
+                text = raw.decode("latin-1")
+                lines = text.split("\r\n")
+                body_start = 0
+                module_name = ""
+                for idx, ln in enumerate(lines):
+                    if ln.startswith("Attribute "):
+                        if ln.startswith('Attribute VB_Name = "'):
+                            module_name = ln.split('"', 2)[1]
+                    else:
+                        body_start = idx
+                        break
+                body = "\r\n".join(lines[body_start:])
+                yield VBAModule(
+                    name=module_name,
+                    start_offset=page * ACE_PAGE_SIZE,
+                    raw_blob_size=len(blob),
+                    decompressed_size=len(raw),
+                    attributes_text="\r\n".join(lines[:body_start]),
+                    source=body,
+                )
+                break  # don't double-yield from the alternative interpretation
+
+    def _candidate_blobs(
+        self, page: int, slot: int, row: bytes
+    ) -> Iterator[tuple[str, bytes]]:
+        """Yield ``(label, candidate_ovba_blob)`` for the row.
+
+        Two interpretations are tried:
+
+        * **Standalone**: scan the row for any OVBA signature (sig byte
+          ``0x01`` followed by a chunk header with signature bits
+          ``0b011``) and yield the suffix of the row from that offset.
+        * **Chained**: if the first 4 bytes of the row form a valid
+          ``(slot, page)`` continuation prefix pointing to another LVAL
+          row, walk the chain and then scan the assembled blob for OVBA
+          signatures the same way.
+        """
+        for off in self._scan_ovba_signatures(row):
+            yield f"standalone@({page},{slot})+{off}", row[off:]
+        if len(row) >= 4 and self._looks_like_chain_head(row):
             try:
-                blob = self._read_lval_chain(off)
-                raw = _ovba_decompress(blob, stream_name=f"accdb@0x{off:X}")
-            except Exception:
-                continue
-            if not raw.startswith(b"Attribute VB_Name = "):
-                continue
-            text = raw.decode("latin-1")
-            # Split off the leading Attribute VB_* preamble lines from the
-            # user-visible source body.
-            lines = text.split("\r\n")
-            body_start = 0
-            module_name = ""
-            for idx, ln in enumerate(lines):
-                if ln.startswith("Attribute "):
-                    if ln.startswith('Attribute VB_Name = "'):
-                        module_name = ln.split('"', 2)[1]
-                else:
-                    body_start = idx
-                    break
-            body = "\r\n".join(lines[body_start:])
-            yield VBAModule(
-                name=module_name,
-                start_offset=off,
-                raw_blob_size=len(blob),
-                decompressed_size=len(raw),
-                attributes_text="\r\n".join(lines[:body_start]),
-                source=body,
-            )
+                blob = self._walk_lval_chain(page, slot)
+            except AccessError:
+                return
+            for off in self._scan_ovba_signatures(blob):
+                yield f"chained@({page},{slot})+{off}", blob[off:]
+
+    def _looks_like_chain_head(self, row: bytes) -> bool:
+        """Heuristic: row[0:4] is a plausible (slot, u24 page) chain
+        prefix iff the page number is in range and is itself an LVAL
+        page."""
+        if len(row) < 4:
+            return False
+        next_p = int.from_bytes(row[1:4], "little")
+        if next_p == 0 or next_p >= self.page_count:
+            return False
+        base = next_p * ACE_PAGE_SIZE
+        return (
+            self._data[base] == 0x01
+            and bytes(self._data[base + 4 : base + 8]) == b"LVAL"
+        )
+
+    @staticmethod
+    def _scan_ovba_signatures(row: bytes) -> list[int]:
+        """Return every offset inside ``row`` that plausibly begins an
+        MS-OVBA stream (sig byte ``0x01`` + chunk header with signature
+        bits ``0b011``)."""
+        out: list[int] = []
+        i = 0
+        n = len(row)
+        while i + 3 <= n:
+            j = row.find(b"\x01", i)
+            if j < 0 or j + 3 > n:
+                break
+            hdr = int.from_bytes(row[j + 1 : j + 3], "little")
+            if ((hdr >> 12) & 0x7) == 0b011:
+                out.append(j)
+            i = j + 1
+        return out
 
     def vba_module_names(self) -> list[str]:
         """

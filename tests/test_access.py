@@ -297,3 +297,50 @@ def test_save_without_path_overwrites_in_place(tmp_path: Path) -> None:
     assert b"InPlaceSave_PATC" in staged.read_bytes()
 
 
+# ---------------------------------------------------------------------------
+# RE corpus regression: the reader must work on small databases that lay out
+# the VBA project across multiple separate LVAL rows rather than one big
+# chained long-value. See docs/access_pcode_re.md Phase 2.
+# ---------------------------------------------------------------------------
+
+_RE_CORPUS = FIXTURES / "re_corpus" / "samples"
+
+
+@pytest.mark.skipif(
+    not (_RE_CORPUS / "040__sub_msgbox_hello.accdb").exists(),
+    reason="RE corpus not generated; run tests/live_access_test/_corpus_generate.ps1",
+)
+def test_corpus_small_sample_module_discovery() -> None:
+    db = AccessFile(_RE_CORPUS / "040__sub_msgbox_hello.accdb")
+    assert db.vba_module_names() == ["M"]
+    src = db.read_vba_module("M")
+    assert 'MsgBox "hello"' in src
+    assert "Sub A()" in src
+    assert "End Sub" in src
+
+
+@pytest.mark.skipif(
+    not _RE_CORPUS.exists(),
+    reason="RE corpus not generated",
+)
+def test_corpus_module_names_match_filename_hints() -> None:
+    """Every sample whose filename encodes a module name must expose that
+    exact module name through the pure-Python reader."""
+    cases = {
+        "010__empty_StdModule_M.accdb": ["M"],
+        "011__empty_StdModule_AB.accdb": ["AB"],
+        "012__empty_StdModule_ABC.accdb": ["ABC"],
+        "013__empty_StdModule_Mod1.accdb": ["Mod1"],
+        "014__empty_StdModule_Module1.accdb": ["Module1"],
+        "015__empty_StdModule_LongName.accdb": ["ThisIsALongModuleName"],
+        "020__empty_ClassModule_C.accdb": ["C"],
+        "021__empty_ClassModule_Class1.accdb": ["Class1"],
+    }
+    for filename, expected in cases.items():
+        path = _RE_CORPUS / filename
+        if not path.exists():
+            continue
+        db = AccessFile(path)
+        assert db.vba_module_names() == expected, f"{filename}: {db.vba_module_names()}"
+
+

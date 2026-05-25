@@ -101,19 +101,40 @@ reassembly.
   page by the `ID="{` plaintext fingerprint, extracts the head-page
   payload slice, splits it into known section types and dumps it.
 
-### Phase 2 -- LVAL row format
+### Phase 2 -- LVAL row format (DONE 2026-05)
 
-Reverse-engineer the per-row layout on an LVAL page so that the full
-multi-page chain can be walked deterministically:
+Reverse-engineered the per-row layout so the multi-page chain can be
+walked deterministically and module discovery works on arbitrary
+.accdb files (verified on all 25 corpus samples + canonical fixture).
 
-* row offset/length encoding in the slot table at `page[14:]`,
-* row prefix (length, flags, owner-table backreference),
-* row trailing continuation `(page, slot)` pointer,
-* relationship between an LVAL row and the data-page row in
-  `MSysObjects`/system catalog that points to it.
+LVAL page layout (4 KiB pages):
 
-Deliverable: `access_re_chain.py` extended to reassemble the full
-multi-page payload for the project VBA record.
+* `[0]`        `page_type = 0x01`
+* `[4:8]`      `'LVAL'` tag
+* `[12:14]`    u16 LE slot count `N`
+* `[14:14+2N]` u16 LE slot table. Top nibble `0xD` = tombstone; else
+  the low 12 bits are the row's byte offset within the page.
+* Rows grow downward from `PAGE_SIZE`. A row ends at the smallest
+  higher non-tombstone slot offset, or `PAGE_SIZE` for the top row.
+
+Long-value chunk continuation prefix (present only on chained rows):
+
+* `row[0]`   u8 next_slot
+* `row[1:4]` u24 LE next_page
+* `row[4:]`  chunk payload
+* Terminator: `(next_slot, next_page) == (0, 0)`.
+
+A long-value that fits in one chunk is stored standalone -- the row IS
+the payload, with NO continuation prefix. Standalone vs chain-head is
+not encoded in the row itself; the working heuristic is "treat
+`row[1:4]` as a page number; if it's in range AND points to another
+LVAL page, walk it as a chain, otherwise treat as standalone."
+
+Implementation: `pyopenvba.access.AccessFile.iter_vba_modules` walks
+every non-tombstone LVAL row, scans for MS-OVBA stream signatures
+(`0x01` followed by a u16 LE chunk header with sig bits `0b011`),
+and accepts any candidate that decompresses to a stream beginning
+with `Attribute VB_Name = "..."`.
 
 ### Phase 3 -- symbol/catalog table
 

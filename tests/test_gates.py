@@ -203,7 +203,7 @@ class TestGate01_HostPackage:
         a structured ``VBAProjectError`` (not a bare ``KeyError`` from the
         underlying ZIP layer)."""
         from pyopenvba.exceptions import VBAProjectError
-        with pytest.raises(VBAProjectError, match="vbaProject.bin"):
+        with pytest.raises(VBAProjectError, match=r"vbaProject\.bin"):
             ExcelFile(live_empty_xlsm_path)
 
     def test_xlsb_round_trip_preserves_all_non_vba_entries(
@@ -639,7 +639,7 @@ class TestGate08_ProjectLk:
         raw = serialize_projectlk(records)
         parsed = parse_projectlk(raw)
         assert len(parsed) == len(records)
-        for orig, got in zip(records, parsed):
+        for orig, got in zip(records, parsed, strict=True):
             assert got.lic_key == orig.lic_key
             assert got.libid == orig.libid
             assert got.classid == orig.classid
@@ -657,7 +657,7 @@ class TestGate08_ProjectLk:
         # byte-for-byte equality is not (Office may pad differently).
         reparsed = parse_projectlk(serialize_projectlk(records))
         assert len(reparsed) == len(records)
-        for a, b in zip(records, reparsed):
+        for a, b in zip(records, reparsed, strict=True):
             assert a.lic_key == b.lic_key
             assert a.libid == b.libid
             assert a.classid == b.classid
@@ -821,9 +821,8 @@ class TestGate13_ModuleMutation:
             assert "'doc edit" in wb2.get_module("Sheet1")
 
     def test_replace_unknown_module_raises(self, live_xlsm_path: Path) -> None:
-        with ExcelFile(live_xlsm_path) as wb:
-            with pytest.raises(KeyError):
-                wb.set_module("DoesNotExist", "x")
+        with ExcelFile(live_xlsm_path) as wb, pytest.raises(KeyError):
+            wb.set_module("DoesNotExist", "x")
 
     def test_add_module(self, live_xlsm_path: Path) -> None:
         with ExcelFile(live_xlsm_path) as wb:
@@ -1423,7 +1422,8 @@ class TestGate21_MutationRoundTrip:
         the pre-fix buggy delete-then-readd flow) and performing any
         structural save (add / rename / delete) MUST scrub the duplicates."""
         from pyopenvba.cfb import CFB as _CFB
-        from pyopenvba.vba import compress as _compress, decompress as _decompress
+        from pyopenvba.vba import compress as _compress
+        from pyopenvba.vba import decompress as _decompress
 
         out = tmp_path / "preexisting_corruption.xlsm"
 
@@ -1465,7 +1465,7 @@ class TestGate21_MutationRoundTrip:
         buf = _io.BytesIO()
         with _zipfile.ZipFile(buf, "w") as zout:
             zout.writestr("xl/vbaProject.bin", forged_vba)
-            for _name, (data, info) in other.items():
+            for data, info in other.values():
                 zout.writestr(info, data)
         out.write_bytes(buf.getvalue())
 
@@ -1622,8 +1622,12 @@ class TestGate23_Fuzz:
 
     def test_fuzz_dir_stream_parser(self, live_vba_bin: bytes) -> None:
         """Bit-flipped dir streams must raise VBAProjectError, not crash."""
-        from pyopenvba.vba import decompress, _parse_dir_stream  # type: ignore[attr-defined]
         import random
+
+        from pyopenvba.vba import (
+            _parse_dir_stream,  # pyright: ignore[reportPrivateUsage]
+            decompress,
+        )
         cfb = CFB.from_bytes(live_vba_bin)
         raw = decompress(cfb.get_stream_in_storage("VBA", "dir"))
         rng = random.Random(0xBADF00D)
@@ -1639,8 +1643,9 @@ class TestGate23_Fuzz:
 
     def test_fuzz_project_stream_parser(self, live_vba_bin: bytes) -> None:
         """Bit-flipped PROJECT plain-text streams must not crash."""
-        from pyopenvba.vba import parse_project_stream
         import random
+
+        from pyopenvba.vba import parse_project_stream
         cfb = CFB.from_bytes(live_vba_bin)
         raw = cfb.get_stream("PROJECT")
         rng = random.Random(0xFEEDFACE)
@@ -1655,8 +1660,9 @@ class TestGate23_Fuzz:
                 pass
 
     def test_fuzz_projectwm_parser(self, live_vba_bin: bytes) -> None:
-        from pyopenvba.vba import parse_projectwm
         import random
+
+        from pyopenvba.vba import parse_projectwm
         cfb = CFB.from_bytes(live_vba_bin)
         try:
             raw = cfb.get_stream("PROJECTwm")
@@ -1687,10 +1693,10 @@ class TestGate23_Fuzz:
         exception types.  Any other escape is a fuzz regression.
         """
         from pyopenvba.vba import (
+            _parse_dir_stream,  # pyright: ignore[reportPrivateUsage]
             decompress,
             parse_project_stream,
             parse_projectwm,
-            _parse_dir_stream,  # type: ignore[attr-defined]
         )
 
         if target == "cfb":

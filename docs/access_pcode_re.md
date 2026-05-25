@@ -1,5 +1,13 @@
 # Access VBA p-code reverse-engineering
 
+> **Historical document.** This file predates the read-only pivot. It
+> still references write-path APIs (`AccessFile.replace_text`,
+> `AccessFile.save`, etc.) that no longer exist; the production class
+> is now `pyopenvba.access_read.AccessReader` and is read-only. The
+> reverse-engineering notes below remain useful for understanding the
+> on-disk format. See `docs/msaccess_lessons_learned.md` for why the
+> write path was removed.
+
 This document accretes findings from the multi-session effort to fully
 understand the `.accdb` VBA storage format so that pyOpenVBA can perform
 structural writes (add/rename/remove modules, change source) on Access

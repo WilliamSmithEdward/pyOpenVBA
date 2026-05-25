@@ -5,11 +5,13 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ## [Unreleased]
 
+## [3.0.0] - 2026-05-24
+
 ### Added
 
-- **`AccessFile`** (EXPERIMENTAL) -- pure-Python **read** support for
+- **`AccessReader`** (EXPERIMENTAL) -- pure-Python **read-only** support for
   Microsoft Access `.accdb` / `.mdb` (ACE / Jet 4) databases:
-  - `AccessFile(path)` parses the 4 KiB page-layout file header and
+  - `AccessReader(path)` parses the 4 KiB page-layout file header and
     validates the ACE / Jet signature.
   - `iter_vba_modules()` yields every embedded VBA module (`VBAModule`
     dataclass with `name`, `start_offset`, `attributes_text`, `source`).
@@ -23,9 +25,24 @@ All notable changes to pyOpenVBA are documented here. This project follows
     `CodeModule.Lines()` output byte-for-byte (verified on a 1000-line
     Module + 1000-line Class + 500-line Module live fixture against an
     Access COM oracle).
-  - Re-exported from `pyopenvba` as `AccessFile`.
-  - Write path (re-compress + re-allocate LVAL pages) is not yet
-    implemented.
+  - Re-exported from `pyopenvba` as `AccessReader`.
+  - Write path (re-compress + re-allocate LVAL pages) is not implemented;
+    Access support is read-only by design.
+
+### Changed
+
+- **BREAKING**: Renamed `pyopenvba.access` module to `pyopenvba.access_read`
+  and renamed the `AccessFile` class to `AccessReader` to make the
+  read-only access posture explicit.
+- Adopted strict static analysis: pyright `typeCheckingMode = "strict"`
+  and a curated ruff lint configuration (`E, F, W, B, UP, SIM, I, RUF,
+  PIE, C4, PERF, N, TC, RET, TRY`) now run clean across `src/` and
+  `tests/` with 0 errors.
+
+### Removed
+
+- Pruned ~1800 lines of dead Access write-path / probe code and the
+  associated tests that exercised never-public APIs.
 
 ## [2.0.1] - 2026-05-24
 

@@ -34,12 +34,12 @@ class TestExcelFileOpen:
     def test_unsupported_extension_raises(self, tmp_path: Path) -> None:
         p = tmp_path / "book.csv"
         p.write_bytes(b"a,b,c")
-        with pytest.raises(UnsupportedFormatError, match=".csv"):
+        with pytest.raises(UnsupportedFormatError, match=r"\.csv"):
             ExcelFile(p)
 
     def test_xlsm_without_vba_entry_raises(self, tmp_path: Path) -> None:
         path = _make_empty_zip_xlsm(tmp_path, include_vba=False)
-        with pytest.raises(VBAProjectError, match="vbaProject.bin"):
+        with pytest.raises(VBAProjectError, match=r"vbaProject\.bin"):
             ExcelFile(path)
 
     def test_context_manager(self, tmp_path: Path) -> None:
@@ -52,9 +52,8 @@ class TestExcelFileOpen:
         # so save() must fail at CFB parsing, not silently emit garbage.
         from pyopenvba.exceptions import CFBError
         path = _make_empty_zip_xlsm(tmp_path)
-        with ExcelFile(path) as wb:
-            with pytest.raises(CFBError):
-                wb.save(tmp_path / "out.xlsm")
+        with ExcelFile(path) as wb, pytest.raises(CFBError):
+            wb.save(tmp_path / "out.xlsm")
 
 
 class TestExcelFileCreateNew:

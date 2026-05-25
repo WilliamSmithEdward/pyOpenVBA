@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import struct
+
 import pytest
 
 from pyopenvba.cfb import CFB
@@ -290,8 +291,8 @@ class TestCFBStreamRemoval:
             cfb.remove_stream("nope")
 
     def test_drop_streams_in_storage_predicate(self) -> None:
-        from pathlib import Path
         import zipfile
+        from pathlib import Path
 
         live = Path(__file__).parent / "live_excel_testing" / "test_macro_workbook.xlsm"
         if not live.exists():

@@ -7,9 +7,8 @@ from pathlib import Path
 
 import pytest
 
-from pyopenvba.vba import compress, decompress, copy_token_help
 from pyopenvba.exceptions import VBAProjectError
-
+from pyopenvba.vba import compress, copy_token_help, decompress
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -128,7 +127,7 @@ class TestDecompress:
         # flag=0 but size field says 10 bytes (not 4096)
         bad_header = 0x3000 | 9   # flag=0, sig=0b011, size-1=9
         data = b"\x01" + struct.pack("<H", bad_header) + b"\x00" * 10
-        with pytest.raises(VBAProjectError, match="[Rr]aw chunk"):
+        with pytest.raises(VBAProjectError, match=r"[Rr]aw chunk"):
             decompress(data)
 
     def test_two_consecutive_literal_chunks(self) -> None:
@@ -462,7 +461,7 @@ class TestAttributeHeaderPreservation:
     def test_add_module_other_synthesizes_class_header(self, tmp_path: Path) -> None:
         """add_module(kind=other) synthesizes a standard class header when none is supplied."""
         from pyopenvba.excel import ExcelFile
-        from pyopenvba.vba import VBAModuleKind, CLASS_MODULE_CLSID
+        from pyopenvba.vba import CLASS_MODULE_CLSID, VBAModuleKind
 
         src_path = Path("tests/live_excel_testing/test_macro_workbook.xlsm")
         if not src_path.exists():
@@ -491,7 +490,7 @@ class TestAttributeHeaderPreservation:
     def test_add_module_other_honors_supplied_header(self, tmp_path: Path) -> None:
         """add_module(kind=other) uses a caller-supplied header as-is."""
         from pyopenvba.excel import ExcelFile
-        from pyopenvba.vba import VBAModuleKind, CLASS_MODULE_CLSID
+        from pyopenvba.vba import CLASS_MODULE_CLSID, VBAModuleKind
 
         src_path = Path("tests/live_excel_testing/test_macro_workbook.xlsm")
         if not src_path.exists():
@@ -592,7 +591,7 @@ def test_compress_byte_exact_against_access_sample_040():
     the invariant that gates Access UI acceptance of rewritten
     modules (Phase 5g).
     """
-    from pyopenvba.access import AccessFile
+    from pyopenvba.access_read import AccessReader
 
     sample = (
         Path(__file__).resolve().parent
@@ -603,7 +602,7 @@ def test_compress_byte_exact_against_access_sample_040():
     )
     if not sample.exists():
         pytest.skip(f"RE corpus sample missing: {sample}")
-    db = AccessFile(sample)
+    db = AccessReader(sample)
     for page, slot, row in db._iter_lval_rows():  # pyright: ignore[reportPrivateUsage]
         for off in db._scan_ovba_signatures(row):  # pyright: ignore[reportPrivateUsage]
             blob = bytes(row)[off:]

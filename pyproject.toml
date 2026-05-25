@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pyOpenVBA"
-version = "2.0.1"
+version = "3.0.0"
 description = "Read and write VBA macros inside Excel, Word, and PowerPoint files in pure Python, no dependencies."
 readme = "README.md"
 license = { text = "MIT" }
@@ -86,3 +86,37 @@ testpaths = ["tests"]
 include = ["src", "tests"]
 pythonVersion = "3.10"
 typeCheckingMode = "strict"
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "B", "UP", "SIM", "I", "RUF", "PIE", "C4", "PERF", "N", "TC", "RET", "TRY"]
+# Ignore rules that conflict with the project's strict-pyright typing posture,
+# intentional MS-spec naming, or stylistic preferences:
+#   B009    getattr(obj, "_private")  -- deliberate to bypass reportPrivateUsage in tests
+#   PIE807  default_factory=lambda: [] -- pyright strict cannot infer element type from bare `list`
+#   TRY003  raising vanilla exception messages is fine in this project
+#   E501    long lines are tolerated where they aid readability of binary specs
+#   N801/N802/N806  mixed-case names mirror MS-OVBA spec record/field names
+#   PERF203 try/except inside loops is required for per-row recovery in parsers
+#   PERF401 manual list builds are clearer than comprehensions in spec-driven code
+#   SIM105  contextlib.suppress is slower; explicit try/except is preferred
+#   TRY300  try-else is stylistic
+#   TC001/TC003  moving runtime-required imports into TYPE_CHECKING risks breakage
+ignore = [
+    "B009",
+    "PIE807",
+    "TRY003",
+    "E501",
+    "N801",
+    "N802",
+    "N806",
+    "PERF203",
+    "PERF401",
+    "SIM105",
+    "TRY300",
+    "TC001",
+    "TC003",
+]

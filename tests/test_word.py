@@ -8,8 +8,8 @@ from pathlib import Path
 
 import pytest
 
-from pyopenvba.word import WordFile
 from pyopenvba.exceptions import UnsupportedFormatError, VBAProjectError
+from pyopenvba.word import WordFile
 
 _VBA_ENTRY = "word/vbaProject.bin"
 
@@ -36,12 +36,12 @@ class TestWordFileOpen:
     def test_unsupported_extension_raises(self, tmp_path: Path) -> None:
         p = tmp_path / "doc.txt"
         p.write_bytes(b"hello")
-        with pytest.raises(UnsupportedFormatError, match=".txt"):
+        with pytest.raises(UnsupportedFormatError, match=r"\.txt"):
             WordFile(p)
 
     def test_docm_without_vba_entry_raises(self, tmp_path: Path) -> None:
         path = _make_empty_zip_docm(tmp_path, include_vba=False)
-        with pytest.raises(VBAProjectError, match="vbaProject.bin"):
+        with pytest.raises(VBAProjectError, match=r"vbaProject\.bin"):
             WordFile(path)
 
     def test_context_manager_docm(self, tmp_path: Path) -> None:
@@ -52,9 +52,8 @@ class TestWordFileOpen:
     def test_save_invalid_vba_bin_raises(self, tmp_path: Path) -> None:
         from pyopenvba.exceptions import CFBError
         path = _make_empty_zip_docm(tmp_path)
-        with WordFile(path) as doc:
-            with pytest.raises(CFBError):
-                doc.save(tmp_path / "out.docm")
+        with WordFile(path) as doc, pytest.raises(CFBError):
+            doc.save(tmp_path / "out.docm")
 
     def test_dotm_extension_accepted(self, tmp_path: Path) -> None:
         buf = io.BytesIO()
@@ -153,9 +152,8 @@ class TestWordFileLive:
         assert isinstance(src, str)
 
     def test_get_module_missing_raises(self) -> None:
-        with WordFile(_LIVE_DOCM) as doc:
-            with pytest.raises(KeyError):
-                doc.get_module("__nonexistent__")
+        with WordFile(_LIVE_DOCM) as doc, pytest.raises(KeyError):
+            doc.get_module("__nonexistent__")
 
     def test_set_module_marks_dirty(self) -> None:
         with WordFile(_LIVE_DOCM) as doc:
@@ -306,6 +304,7 @@ class TestPullPushWordHelpers:
 
     def test_push_word_helper(self, tmp_path: Path) -> None:
         import shutil
+
         from pyopenvba import pull_word, push_word
 
         src = tmp_path / "src"

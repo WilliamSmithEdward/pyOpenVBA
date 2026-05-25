@@ -8,8 +8,8 @@ from pathlib import Path
 
 import pytest
 
-from pyopenvba.powerpoint import PowerPointFile
 from pyopenvba.exceptions import UnsupportedFormatError, VBAProjectError
+from pyopenvba.powerpoint import PowerPointFile
 
 _VBA_ENTRY = "ppt/vbaProject.bin"
 
@@ -36,12 +36,12 @@ class TestPowerPointFileOpen:
     def test_unsupported_extension_raises(self, tmp_path: Path) -> None:
         p = tmp_path / "pres.txt"
         p.write_bytes(b"hello")
-        with pytest.raises(UnsupportedFormatError, match=".txt"):
+        with pytest.raises(UnsupportedFormatError, match=r"\.txt"):
             PowerPointFile(p)
 
     def test_pptm_without_vba_entry_raises(self, tmp_path: Path) -> None:
         path = _make_empty_zip_pptm(tmp_path, include_vba=False)
-        with pytest.raises(VBAProjectError, match="vbaProject.bin"):
+        with pytest.raises(VBAProjectError, match=r"vbaProject\.bin"):
             PowerPointFile(path)
 
     def test_context_manager_pptm(self, tmp_path: Path) -> None:
@@ -52,9 +52,8 @@ class TestPowerPointFileOpen:
     def test_save_invalid_vba_bin_raises(self, tmp_path: Path) -> None:
         from pyopenvba.exceptions import CFBError
         path = _make_empty_zip_pptm(tmp_path)
-        with PowerPointFile(path) as prs:
-            with pytest.raises(CFBError):
-                prs.save(tmp_path / "out.pptm")
+        with PowerPointFile(path) as prs, pytest.raises(CFBError):
+            prs.save(tmp_path / "out.pptm")
 
     def test_potm_extension_accepted(self, tmp_path: Path) -> None:
         buf = io.BytesIO()
@@ -144,9 +143,8 @@ class TestPowerPointFileLive:
         assert isinstance(src, str)
 
     def test_get_module_missing_raises(self) -> None:
-        with PowerPointFile(_LIVE_PPTM) as prs:
-            with pytest.raises(KeyError):
-                prs.get_module("__nonexistent__")
+        with PowerPointFile(_LIVE_PPTM) as prs, pytest.raises(KeyError):
+            prs.get_module("__nonexistent__")
 
     def test_set_module_marks_dirty(self) -> None:
         with PowerPointFile(_LIVE_PPTM) as prs:
@@ -267,6 +265,7 @@ class TestPullPushPptHelpers:
 
     def test_push_ppt_helper(self, tmp_path: Path) -> None:
         import shutil
+
         from pyopenvba import pull_ppt, push_ppt
 
         src = tmp_path / "src"

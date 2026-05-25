@@ -43,18 +43,18 @@ def _cmd_ls(args: argparse.Namespace) -> int:
 
 
 def _cmd_access_ls(args: argparse.Namespace) -> int:
-    from pyopenvba.access import AccessFile
+    from pyopenvba.access_read import AccessReader
 
-    db = AccessFile(args.database)
+    db = AccessReader(args.database)
     for m in db.iter_vba_modules():
         print(m.name)
     return 0
 
 
 def _cmd_access_pull(args: argparse.Namespace) -> int:
-    from pyopenvba.access import AccessFile
+    from pyopenvba.access_read import AccessReader
 
-    db = AccessFile(args.database)
+    db = AccessReader(args.database)
     args.dest.mkdir(parents=True, exist_ok=True)
     for m in db.iter_vba_modules():
         out = args.dest / f"{m.name}.bas"
@@ -64,9 +64,9 @@ def _cmd_access_pull(args: argparse.Namespace) -> int:
 
 
 def _cmd_access_disasm(args: argparse.Namespace) -> int:
-    from pyopenvba.access import AccessFile
+    from pyopenvba.access_read import AccessReader
 
-    db = AccessFile(args.database)
+    db = AccessReader(args.database)
     sources: dict[str, str] = {}
     if args.with_source:
         sources = {m.name: m.source for m in db.iter_vba_modules()}

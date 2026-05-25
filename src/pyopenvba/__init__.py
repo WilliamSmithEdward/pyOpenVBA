@@ -13,10 +13,12 @@ Supported formats
 Public API
 ----------
     from pyopenvba import (
-        ExcelFile, WordFile, PowerPointFile, AccessFile,
+        ExcelFile, WordFile, PowerPointFile, AccessReader,
         pull, push, pull_word, push_word, pull_ppt, push_ppt,
-        pull_access, push_access,
+        pull_access,
     )
+
+    # Access (.accdb) is READ-ONLY. See docs/msaccess_lessons_learned.md.
 
     # In-process module edit (Excel)
     with ExcelFile("workbook.xlsm") as wb:
@@ -46,29 +48,28 @@ Public API
     pull_ppt("presentation.pptm", "./vba_src") # extract modules (PowerPoint)
     push_ppt("./vba_src", "presentation.pptm")
 
-    pull_access("database.accdb", "./vba_src") # extract modules (Access)
-    push_access("./vba_src", "database.accdb")
+    pull_access("database.accdb", "./vba_src") # extract modules (Access, read-only)
 """
 
 from pathlib import Path
-from typing import Union
 
+from pyopenvba.access_read import AccessReader
 from pyopenvba.excel import ExcelFile
-from pyopenvba.word import WordFile
-from pyopenvba.powerpoint import PowerPointFile
-from pyopenvba.access import AccessFile
 from pyopenvba.exceptions import (
-    PyOpenVBAError,
     CFBError,
-    VBAProjectError,
+    PyOpenVBAError,
     UnsupportedFormatError,
+    VBAProjectError,
 )
-from pyopenvba.vba import VBAModuleKind, synthesize_class_header as synthesize_class_header
+from pyopenvba.powerpoint import PowerPointFile
+from pyopenvba.vba import VBAModuleKind
+from pyopenvba.vba import synthesize_class_header as synthesize_class_header
+from pyopenvba.word import WordFile
 
 
 def pull(
-    workbook: Union[str, Path],
-    dest_dir: Union[str, Path],
+    workbook: str | Path,
+    dest_dir: str | Path,
     *,
     encoding: str = "utf-8",
     overwrite: bool = True,
@@ -82,10 +83,10 @@ def pull(
 
 
 def push(
-    src_dir: Union[str, Path],
-    workbook: Union[str, Path],
+    src_dir: str | Path,
+    workbook: str | Path,
     *,
-    out: Union[str, Path, None] = None,
+    out: str | Path | None = None,
     encoding: str = "utf-8",
     strict: bool = False,
 ) -> list[str]:
@@ -101,8 +102,8 @@ def push(
 
 
 def pull_word(
-    document: Union[str, Path],
-    dest_dir: Union[str, Path],
+    document: str | Path,
+    dest_dir: str | Path,
     *,
     encoding: str = "utf-8",
     overwrite: bool = True,
@@ -116,10 +117,10 @@ def pull_word(
 
 
 def push_word(
-    src_dir: Union[str, Path],
-    document: Union[str, Path],
+    src_dir: str | Path,
+    document: str | Path,
     *,
-    out: Union[str, Path, None] = None,
+    out: str | Path | None = None,
     encoding: str = "utf-8",
     strict: bool = False,
 ) -> list[str]:
@@ -135,8 +136,8 @@ def push_word(
 
 
 def pull_ppt(
-    presentation: Union[str, Path],
-    dest_dir: Union[str, Path],
+    presentation: str | Path,
+    dest_dir: str | Path,
     *,
     encoding: str = "utf-8",
     overwrite: bool = True,
@@ -150,10 +151,10 @@ def pull_ppt(
 
 
 def push_ppt(
-    src_dir: Union[str, Path],
-    presentation: Union[str, Path],
+    src_dir: str | Path,
+    presentation: str | Path,
     *,
-    out: Union[str, Path, None] = None,
+    out: str | Path | None = None,
     encoding: str = "utf-8",
     strict: bool = False,
 ) -> list[str]:
@@ -169,8 +170,8 @@ def push_ppt(
 
 
 def pull_access(
-    database: Union[str, Path],
-    dest_dir: Union[str, Path],
+    database: str | Path,
+    dest_dir: str | Path,
     *,
     encoding: str = "utf-8",
     overwrite: bool = True,
@@ -180,52 +181,27 @@ def pull_access(
     ``dest_dir`` as ``.bas`` / ``.cls`` files. Returns the paths
     written. Mirrors :func:`pull` / :func:`pull_word` / :func:`pull_ppt`.
     """
-    db = AccessFile(database)
+    db = AccessReader(database)
     return db.pull_modules(dest_dir, encoding=encoding, overwrite=overwrite)
 
 
-def push_access(
-    src_dir: Union[str, Path],
-    database: Union[str, Path],
-    *,
-    out: Union[str, Path, None] = None,
-    encoding: str = "utf-8",
-    strict: bool = False,
-) -> list[str]:
-    """
-    Update VBA modules in an Access ``database`` (.accdb) from ``.bas`` /
-    ``.cls`` files in ``src_dir`` and save. Saves in place unless ``out``
-    is given. Returns the list of updated module names.
-
-    Note: writes mirror the OVBA cache (authoritative for pyOpenVBA's
-    own read path); the live Access VBA editor may still show the
-    previously-compiled source until Access recompiles. See
-    ``docs/architecture.md`` for the engine-level caveats.
-    """
-    db = AccessFile(database)
-    updated = db.push_modules(src_dir, encoding=encoding, strict=strict)
-    db.save(out)
-    return updated
-
-
 __all__ = [
-    "ExcelFile",
-    "WordFile",
-    "PowerPointFile",
-    "AccessFile",
-    "VBAModuleKind",
-    "PyOpenVBAError",
+    "AccessReader",
     "CFBError",
-    "VBAProjectError",
+    "ExcelFile",
+    "PowerPointFile",
+    "PyOpenVBAError",
     "UnsupportedFormatError",
+    "VBAModuleKind",
+    "VBAProjectError",
+    "WordFile",
     "pull",
-    "push",
-    "pull_word",
-    "push_word",
-    "pull_ppt",
-    "push_ppt",
     "pull_access",
-    "push_access",
+    "pull_ppt",
+    "pull_word",
+    "push",
+    "push_ppt",
+    "push_word",
 ]
 
 __version__ = "2.0.0"

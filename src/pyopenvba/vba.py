@@ -83,7 +83,7 @@ def decompress(data: bytes, *, stream_name: str = "<unknown>") -> bytes:
     CFB stream a malformed chunk came from.
     """
 
-    def _err(msg: str, offset: int) -> "VBAProjectError":
+    def _err(msg: str, offset: int) -> VBAProjectError:
         return VBAProjectError(
             f"{msg} [stream={stream_name!r}, offset={offset}]"
         )
@@ -349,7 +349,7 @@ class VBAReference:
     libid_secondary: str = ""   # twiddled / relative libid where applicable
 
 
-def _parse_dir_stream(raw: bytes) -> tuple["_DirInfo", list[_ModuleInfo]]:
+def _parse_dir_stream(raw: bytes) -> tuple[_DirInfo, list[_ModuleInfo]]:
     """
     Parse a decompressed dir stream.
 
@@ -628,7 +628,7 @@ class _DirInfo:
     # Used by the writer to splice in a freshly serialized modules block while
     # leaving the project-information + references prefix verbatim.
     modules_section_offset: int = -1
-    references: list["VBAReference"] = field(default_factory=lambda: [])
+    references: list[VBAReference] = field(default_factory=lambda: [])
 
 
 # ---------------------------------------------------------------------------
@@ -679,7 +679,7 @@ class VBAModule:
         self.attribute_header = header
         self.dirty = True
 
-    def disassemble(self, *, is_64bit: bool = True) -> "DisassembledModule":
+    def disassemble(self, *, is_64bit: bool = True) -> DisassembledModule:
         """Decode the compiled VBA7 p-code from this module's
         ``prefix_bytes`` (the binary PerformanceCache region containing
         the ``0xCAFE`` magic word).
@@ -712,7 +712,7 @@ class VBAProject:
     name: str = ""
     sys_kind: int = 0
     references: list[VBAReference] = field(default_factory=lambda: [])
-    protection: "ProjectProtection | None" = None
+    protection: ProjectProtection | None = None
     # Dir-stream PROJECTMODULES coupling fields.
     project_cookie: int = 0
     # Raw decompressed dir bytes captured at parse time, kept so that
@@ -903,7 +903,7 @@ class VBAProject:
     # Validation (Gate 19)
     # ------------------------------------------------------------------
 
-    def validate(self, cfb: "CFB | None" = None) -> list[str]:
+    def validate(self, cfb: CFB | None = None) -> list[str]:
         """
         Return a list of cross-structure inconsistency messages.
 
@@ -1165,8 +1165,8 @@ def serialize_project_stream(
     raw: bytes,
     rename_map: dict[str, str],
     *,
-    add_modules: "list[tuple[str, str]] | None" = None,
-    delete_names: "set[str] | None" = None,
+    add_modules: list[tuple[str, str]] | None = None,
+    delete_names: set[str] | None = None,
 ) -> bytes:
     """
     Rewrite a PROJECT stream's plain-text body to apply pending mutations.

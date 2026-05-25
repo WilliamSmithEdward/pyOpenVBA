@@ -33,17 +33,17 @@ Public API:
 """
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass, field
-from typing import Sequence
 
 __all__ = [
+    "OPCODES_VBA7",
+    "DisassembledModule",
     "PCodeInstruction",
     "PCodeLine",
     "PCodeProcedure",
-    "DisassembledModule",
     "disassemble_module_stream",
     "find_cafe_offset",
-    "OPCODES_VBA7",
 ]
 
 
@@ -453,11 +453,11 @@ class DisassembledModule:
     num_lines: int
     lines: tuple[PCodeLine, ...] = field(default_factory=tuple)
 
-    def iter_instructions(self) -> "list[PCodeInstruction]":
+    def iter_instructions(self) -> list[PCodeInstruction]:
         """Flatten every instruction across every line, in source order."""
         return [ins for line in self.lines for ins in line.instructions]
 
-    def iter_procedures(self) -> "list[PCodeProcedure]":
+    def iter_procedures(self) -> list[PCodeProcedure]:
         """Group instructions into procedures.
 
         A procedure starts with a ``FuncDefn`` / ``PropertyGet`` /
@@ -672,7 +672,7 @@ def disassemble_module_stream(
     """Decode the canonical VBA7 p-code embedded in a module stream.
 
     ``data`` should be the raw bytes of the module stream (the entire
-    LVAL row from :class:`pyopenvba.access.AccessVBAModuleStream`, or
+    LVAL row from :class:`pyopenvba.access_read.AccessVBAModuleStream`, or
     the equivalent OLE stream from a non-Access Office host). The
     function locates the ``0xCAFE`` magic word, parses the
     ``numLines`` field and the per-line record table, and decodes

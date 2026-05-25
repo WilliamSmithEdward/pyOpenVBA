@@ -19,7 +19,7 @@ from __future__ import annotations
 import shutil
 from pathlib import Path
 
-from pyopenvba.access import AccessFile
+from pyopenvba.access_read import AccessReader
 
 REPO = Path(__file__).resolve().parent.parent
 SRC = REPO / "tests" / "live_access_test" / "New Microsoft Access Database.accdb"
@@ -42,7 +42,7 @@ def main() -> None:
     shutil.copy(SRC, work)
     print(f"Working copy: {work}")
 
-    db = AccessFile(work)
+    db = AccessReader(work)
 
     _hr("1. Module catalog")
     names = db.vba_module_names()
@@ -60,7 +60,7 @@ def main() -> None:
     print(f"  modules           : {len(proj.modules)}")
     for m in proj.modules:
         kind = "Class" if m.is_class_module else "Std  "
-        flags = []
+        flags: list[str] = []
         if m.is_private:
             flags.append("Private")
         if m.is_read_only:

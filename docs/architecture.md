@@ -33,25 +33,21 @@ knows about the layer below it but not the layer above.
 |   - identical save() pipeline as ExcelFile             |
 |   - pull / push disk workflow                          |
 +--------------------------------------------------------+
-| access.py       AccessFile facade  (EXPERIMENTAL)      |
+| access_read.py  AccessReader facade  (READ-ONLY)         |
 |   - ACE / Jet 4 page reader (.accdb, .mdb)             |
 |   - MS-OVBA blob discovery via signature scan          |
 |   - LVAL page-chain walker                             |
 |   - read_vba_module(name) -> str (pure Python)         |
-|   - get_module / set_module / vba_modules (Excel API)  |
-|   - pull_modules / push_modules (Excel-symmetric)      |
-|   - replace_text(old, new) same-length plaintext patch |
-|   - replace_text_resize(old, new) reflow-aware patch   |
-|   - write_lval_row / lval_free_space LVAL primitives   |
-|   - rename_module / delete_module / add_module_catalog |
-|   - modify_module_cache / replace_module               |
+|   - get_module / vba_modules / iter_vba_modules        |
+|   - pull_modules / export_modules / export_module      |
 |   - read_vba_module_with_attributes (full preamble)    |
-|   - export_modules(dir) / import_module(path|source)   |
+|   - read_project_info / identifiers                    |
+|   - find_interned_strings / find_module_streams        |
+|   - iter_pcode_streams / read_module_pcode_stream      |
+|   - disassemble_module (via vba_pcode)                 |
 |   - iter_msys_objects / find_msys_module               |
 |       (MSysObjects system catalog reader)              |
-|   - rename_msys_object / delete_msys_object /          |
-|       add_msys_module_object (MSysObjects write path)  |
-|   - save([path]) -> persists in-memory edits           |
+|   - NO write APIs; see msaccess_lessons_learned.md     |
 +--------------------------------------------------------+
 | vba.py          VBA project layer                      |
 |   - MS-OVBA compression / decompression                |
@@ -183,160 +179,83 @@ If any of steps 3-10 fail, the on-disk file is **never modified** —
 all work is done on the in-memory CFB and the final bytes are written
 in one atomic-ish operation.
 
-### 3.3 Access write model (`AccessFile`)
+### 3.3 Access read-only model (`AccessReader`)
 
-`.accdb`/`.mdb` does **not** follow the OOXML/CFB write pipeline above
-because Access stores VBA source very differently from Excel/Word/PowerPoint:
+`.accdb`/`.mdb` files are exposed through a **read-only** facade.
+After an extensive reverse-engineering effort (chronicled in
+[docs/msaccess_lessons_learned.md](msaccess_lessons_learned.md))
+pyOpenVBA does not support writing back to Access databases. Use
+Access COM (`win32com.client.Dispatch("Access.Application")`) if you
+need to programmatically modify VBA inside a `.accdb`.
+
+The Access on-disk layout differs from Excel/Word/PowerPoint:
 
 * The MS-OVBA blob on the LVAL chain is a **passive cache**. Zero-filling
   the entire blob has no effect on what Access (or the VBA editor)
-  displays — verified end-to-end on a live fixture.
+  displays — verified end-to-end on a live fixture. This is what
+  pyOpenVBA reads.
 * The **authoritative** sources Access reads from are:
   * **Project metadata** — the MS-OVBA `dir` stream (Section 2.3.4.2)
     OVBA-compressed in a single LVAL row; located by content
     (decompressed prefix = `01 00 04 00 00 00`). Parsed by
-    `AccessFile.read_project_info()` -> `AccessVBAProject` (system kind,
+    `AccessReader.read_project_info()` -> `AccessVBAProject` (system kind,
     LCID, code page, project name, references, modules with class flag,
     private/read-only flags).
   * **Module bytecode** — the compiled VBA p-code. Lives in LVAL rows
-    whose payload starts with magic `72 55 40 00` ('rU@\0'). Each
-    database has 2-3 such rows; the **module-active** one is identified
-    deterministically by the 12-byte prefix
-    `72 55 40 00 00 00 00 00 00 00 40 00` (byte 10 = 0x40). Exposed via
-    `AccessFile.read_module_pcode_stream()` and `iter_pcode_streams()`.
-    Compiled p-code is **fully anonymised**: it contains opcodes and
-    slot references but no user-authored text. Procedure names,
-    module names, comments, and string literals all live in separate
-    catalog / symbol / plaintext rows and are referenced from the
-    bytecode by slot id only. Opcode field guide in progress; see
-    `docs/access_pcode_re.md` Phase 4.
+    whose payload starts with magic `72 55 40 00` ('rU@\0'). The
+    **module-active** one is identified deterministically by the
+    12-byte prefix `72 55 40 00 00 00 00 00 00 00 40 00`
+    (byte 10 = 0x40). Exposed via
+    `AccessReader.read_module_pcode_stream()` and `iter_pcode_streams()`.
+    Compiled p-code is **fully anonymised**: opcodes and slot
+    references with no user-authored text. The standard MS-OVBA
+    `0xCAFE` module stream coexists alongside `rU@` in a separate
+    LVAL row and is what `AccessReader.disassemble_module()` consumes
+    via the pure-Python `pyopenvba.vba_pcode` decoder.
   * **Identifier inventory** — every project-level identifier name
     (typelib refs, project name, module/proc/variable names, intrinsic
     call targets such as `MsgBox`) is enumerated in the
     `_VBA_PROJECT`-equivalent stream stored UNCOMPRESSED in the LVAL
-    row whose first 2 bytes are the `CC 61` Office magic. Each entry
-    on disk uses the record layout
-    `<u8 len><u8 type>[<6B descriptor>]<ASCII name><u16 id><10 00>`.
-    Exposed via `AccessFile.identifiers()` ->
-    `tuple[AccessVBAIdentifier, ...]`. Note: this is a project-wide
-    inventory only; the `name_id` operands in compiled p-code are
-    per-procedure reference-table slots (resolution pending).
+    row whose first 2 bytes are the `CC 61` Office magic. Exposed via
+    `AccessReader.identifiers() -> tuple[AccessVBAIdentifier, ...]`.
   * **Comment text** — stored verbatim in plaintext rows tagged
     `E3 00 00 00 <u16-LE length> <ASCII payload>` (apostrophe stripped).
   * **String literal text** — stored verbatim in rows tagged
-    `B9 00 <u16-LE length> <ASCII payload> <12-byte trailer>`.
+    `B9 00 <u16-LE length> <ASCII payload> <12-byte trailer>`,
+    exposed via `AccessReader.find_interned_strings()`.
 
-Consequently the only safe pure-Python write primitive today is
-`AccessFile.replace_text(old, new)`: a **same-length byte substitution**
-inside the plaintext rows. This is sufficient to patch comment bodies
-and string literal contents (verified through Access COM and the live
-VBA editor). Changing literal/comment lengths or modifying code structure
-(renaming subs, adding statements) is out of scope until the p-code
-tables are reverse-engineered.
+The **MSysObjects** system catalog is also surfaced read-only:
+`AccessReader.iter_msys_objects()`, `msys_objects()`,
+`iter_msys_modules()`, `find_msys_object(name, *, type_=None)`,
+`find_msys_module(name)`. Each row yields an `AccessSysObject`
+dataclass (id_, parent_id, type_, flags, name, page, slot). VBA code
+modules carry `type_ == MSYS_TYPE_MODULE` (-32761, 0x8007) and are
+parented to the `Modules` container row.
 
-For **length-changing** edits inside a single LVAL row,
-`AccessFile.replace_text_resize(old, new)` reflows the affected page's
-slot table in place: the row is grown/shrunk, neighbour rows shift
-within the page, and other pages are untouched. The underlying LVAL
-mutation primitives (`_lval_resize_row`, `_lval_write_row`,
-`_lval_tombstone_slot`, `_lval_append_row`) are also exposed publicly
-as `write_lval_row` and `lval_free_space` for callers that have
-located a specific row via `_iter_lval_rows`. Edits that would (a)
-straddle row boundaries, (b) overflow the page free space, or (c)
-require allocating a new LVAL page (chain growth) are rejected with
-`AccessError`.
+### Excel-symmetric VBA module read API
 
-Module **rename / delete / add / source-cache modify** are exposed
-as catalog-level operations:
-`AccessFile.rename_module(old, new)` rewrites MODULENAME +
-MODULENAMEUNICODE in the dir-stream and updates the `Attribute
-VB_Name` line inside the corresponding OVBA cache row.
-`AccessFile.delete_module(name)` excises the module's record block
-from the dir-stream, decrements PROJECTMODULES count, and tombstones
-every matching OVBA cache row (Access keeps redundant copies).
-`AccessFile.add_module_catalog_entry(name, *, is_class_module,
-is_private, is_read_only)` appends a new module record block before
-DIR-TERM. `AccessFile.modify_module_cache(name, new_source)` rewrites
-the OVBA cache row's decompressed payload (Attribute VB_Name line
-preserved). `AccessFile.replace_module(name, new_source)` is a
-convenience alias. `AccessFile.export_modules(dest_dir)` writes every
-module to `<name>.bas` / `<name>.cls` on disk (class modules detected
-via the dir-stream MODULETYPE record); `AccessFile.import_module(
-path_or_source, *, name=None, is_class_module=None, replace_existing
-=False)` adds a new module from a `.bas`/`.cls` file or raw source
-string, optionally overwriting an existing module's cache. The
-high-level mutation APIs (`rename_module`, `delete_module`,
-`add_module_catalog_entry`) automatically keep the MSysObjects
-system catalog in sync with the dir-stream catalog so the live
-Access Navigation Pane / VBA editor reflects the change. p-code
-table writes (required to make recompiled VBA visible without an
-Access-side recompile) remain documented as a future RE phase in
-`memories/repo/access-vba-storage.md`.
+`AccessReader` exposes the same ergonomic read surface as `ExcelFile` /
+`WordFile` / `PowerPointFile`: `get_module(name)`,
+`vba_modules() -> dict[str, str]`, `read_vba_module(name)`,
+`read_vba_module_with_attributes(name)`, `iter_vba_modules()`,
+`pull_modules(dest_dir)`, `export_module(name)`,
+`export_modules(dest_dir, *, include_attributes=False)`. The
+top-level helper `pyopenvba.pull_access(database, dest_dir)` mirrors
+`pull` / `pull_word` / `pull_ppt`. There is intentionally no
+`push_access` symbol.
 
-`AccessFile.iter_msys_objects()` (and the convenience helpers
-`msys_objects()`, `iter_msys_modules()`, `find_msys_object(name,
-*, type_=None)`, `find_msys_module(name)`) read the Jet/ACE
-**MSysObjects** system catalog: the master index of every persistent
-object inside a .accdb (tables, queries, forms, reports, scripts,
-modules, and the container hubs that group them). Each row is
-surfaced as an `AccessSysObject` dataclass (id_, parent_id, type_,
-flags, name, page, slot). VBA code modules carry `Type ==
-MSYS_TYPE_MODULE` (-32761, 0x8007) and have `parent_id` equal to
-the Id of the row named `Modules` (Type=3 container).
+### Why no write path
 
-The paired write path -- `AccessFile.rename_msys_object(old, new)`,
-`delete_msys_object(name)`, `add_msys_module_object(name)` --
-mutates MSysObjects DATA pages directly using the Jet row offset
-table (`0x8000` deleted flag, `0x4000` overflow flag, `0x1FFF`
-offset mask). Renames take a fast in-place path when the new UTF-16
-Name has the same byte length as the old one; longer/shorter names
-reflow the row in place, shifting other rows on the same page and
-updating their slot offsets. Adds allocate a fresh user-content Id
-(bit 31 set, max-existing + 1), copy date stamps from the current
-UTC time as OLE Dates, parent the row at the `Modules` container,
-and append onto the first MSysObjects DATA page with room.
-
-### Excel-symmetric VBA module API (Phase 5f)
-
-`AccessFile` exposes the same ergonomic surface as `ExcelFile` /
-`WordFile` / `PowerPointFile` for multiline source replacement:
-`get_module(name)`, `set_module(name, source)`, `vba_modules() ->
-dict[str, str]`, `pull_modules(dest_dir)`, `push_modules(src_dir,
-strict=False)`. Plus top-level `pyopenvba.pull_access(database,
-dest_dir)` / `push_access(src_dir, database)` that match
-`pull`/`push`/`pull_word`/`push_word`/`pull_ppt`/`push_ppt`.
-
-`set_module` accepts either a bare body (just executable code) or a
-full source that begins with `Attribute VB_*` / `VERSION ... CLASS`.
-In the bare-body case the existing module's attribute preamble is
-preserved verbatim -- so class modules keep their VB_PredeclaredId /
-VB_GlobalNameSpace / VB_Creatable / VB_Exposed / VB_TemplateDerived /
-VB_Customizable lines across edits. In the full-source case the
-caller's header is used verbatim; only the `Attribute VB_Name`
-line is force-rewritten to match the target module name. Line
-endings are normalised to CRLF on disk.
-
-These writes update the OVBA *cache* row (the passive plaintext
-mirror pyOpenVBA reads on the next open) and, as of Phase 5g, are
-byte-compatible with the Access VBE: opening the rewritten `.accdb`
-in Microsoft Access shows the new source cleanly without the "Error
-accessing file. Network connection may have been lost." rejection
-that earlier 5f builds triggered.
-
-Phase 5g resolution: Access byte-validates the OVBA blob (it appears
-to re-run its own compressor on the decompressed plaintext and compare
-the bytes). The previous `pyopenvba.vba.compress` implementation
-contained a literal-only fast-path for chunks <= 3640 bytes that
-emitted MS-OVBA-compliant but byte-different output. The fast-path
-has been removed; `_encode_token_chunk` always runs the greedy LZ
-encoder, which is byte-identical to Access's encoder on every corpus
-sample. The invariant is pinned by
-`tests/test_vba.py::test_compress_byte_exact_against_access_sample_040`
-and any future compressor change MUST keep that test green or Access
-UI compatibility will silently regress.
-
-The Python-side round-trip (`set_module` -> `save` -> reopen ->
-`get_module`) remains byte-exact.
+Access stores compiled VBA p-code (the `rU@` + `CAFE` rows) separately
+from the OVBA source cache. The compiled p-code is authoritative for
+the Access GUI; mutations to the source cache do not survive reload
+because Access never recompiles from the cache. We could not locate a
+recompile trigger. A production-quality writer would require a full
+VBA7 p-code assembler (instruction emission, identifier table
+re-indexing, jump fixup, MSysObjects long-value chunk reflow, ACE
+page allocator parity). That is out of scope. See
+[docs/msaccess_lessons_learned.md](msaccess_lessons_learned.md) for
+the empirical results matrix and the reasoning in full.
 
 ---
 
@@ -440,7 +359,7 @@ tests/
   test_powerpoint.py           PowerPointFile facade, end-to-end
   test_pull_push.py            Disk workflow
   test_gates.py                Per-roadmap-gate regression tests
-  test_access.py               AccessFile read path: page walk,
+  test_access.py               AccessReader read path: page walk,
                                LVAL chain walk, MS-OVBA blob decode,
                                byte-for-byte oracle parity (EXPERIMENTAL)
   fuzz_corpus/                 Persistent fuzz seeds (see test_gates.py Gate 23)

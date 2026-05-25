@@ -21,20 +21,21 @@ import io
 import warnings
 import zipfile
 from pathlib import Path
-from typing import Union
 
 from pyopenvba.cfb import CFB
 from pyopenvba.exceptions import UnsupportedFormatError, VBAProjectError
-from pyopenvba.vba import VBAProject, parse_vba_project, write_back_modules
-from pyopenvba.vba import VBAModuleKind
 from pyopenvba.vba import (
+    VBAModuleKind,
+    VBAProject,
     compress,
     detect_signature,
     invalidate_vba_project_cache,
+    parse_vba_project,
     rebuild_module_stream,
     serialize_dir_stream,
     serialize_project_stream,
     serialize_projectwm,
+    write_back_modules,
 )
 
 _ZIP_FORMATS = frozenset({".docm", ".dotm"})
@@ -56,7 +57,7 @@ class WordFile:
             ...
     """
 
-    def __init__(self, path: Union[str, Path]) -> None:
+    def __init__(self, path: str | Path) -> None:
         self._path = Path(path)
         self._suffix = self._path.suffix.lower()
         self._zip: zipfile.ZipFile | None = None
@@ -69,7 +70,7 @@ class WordFile:
     # ------------------------------------------------------------------
 
     @classmethod
-    def create_new(cls, path: Union[str, Path]) -> "WordFile":
+    def create_new(cls, path: str | Path) -> WordFile:
         """
         Create a new macro-enabled document (``.docm``) at ``path``
         containing an empty VBA project (``ThisDocument`` and a bare
@@ -92,7 +93,7 @@ class WordFile:
     # Context manager
     # ------------------------------------------------------------------
 
-    def __enter__(self) -> "WordFile":
+    def __enter__(self) -> WordFile:
         return self
 
     def __exit__(self, *_: object) -> None:
@@ -172,7 +173,7 @@ class WordFile:
 
     def pull_modules(
         self,
-        dest_dir: Union[str, Path],
+        dest_dir: str | Path,
         *,
         encoding: str = "utf-8",
         overwrite: bool = True,
@@ -205,7 +206,7 @@ class WordFile:
 
     def push_modules(
         self,
-        src_dir: Union[str, Path],
+        src_dir: str | Path,
         *,
         encoding: str = "utf-8",
         strict: bool = False,
@@ -257,7 +258,7 @@ class WordFile:
 
     def save(
         self,
-        dest: Union[str, Path, None] = None,
+        dest: str | Path | None = None,
         *,
         allow_protected: bool = False,
         allow_invalidate_signature: bool = False,

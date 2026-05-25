@@ -16,6 +16,8 @@ Supports:
 * Excel (`.xlsm`, `.xlsb`, `.xlam`, `.xls`)
 * PowerPoint (`.pptm`, `.potm`, `.ppt`)
 * Word (`.docm`, `.dotm`, `.doc`)
+* Access (`.accdb`) - **read-only**, see
+  [docs/msaccess_lessons_learned.md](docs/msaccess_lessons_learned.md)
 
 <a href="https://github.com/sponsors/WilliamSmithEdward"><img src="https://img.shields.io/badge/Sponsor-%E2%9D%A4-pink?style=for-the-badge" alt="Sponsor WilliamSmithEdward"></a>
 
@@ -289,6 +291,45 @@ modules, `.cls` for class modules and code-behind.
 | `.pptm`   | Macro-enabled presentation   |  yes |  yes  |    yes     |
 | `.potm`   | Macro-enabled template       |  yes |  yes  |    no      |
 | `.ppt`    | Legacy (PowerPoint 97-2003)  |  yes |  yes  |    no      |
+
+### Access (read-only)
+
+| Extension | What it is                   | Read | Write | create_new |
+|-----------|------------------------------|:----:|:-----:|:----------:|
+| `.accdb`  | Access database (ACE engine) |  yes |  no   |    no      |
+
+Access stores compiled VBA p-code (the `rU@` + `CAFE` rows in the LVAL
+catalog) separately from the OVBA source cache. The compiled p-code is
+authoritative for the Access GUI; mutations to the source cache do not
+survive reload because Access never recompiles from the cache. After
+extensive reverse-engineering experiments we concluded that a
+production-quality writer would require a complete VBA7 p-code
+assembler, which is out of scope. See
+[docs/msaccess_lessons_learned.md](docs/msaccess_lessons_learned.md)
+for the full chronicle.
+
+What `AccessReader` does support:
+
+- `AccessReader(path)` / `vba_module_names()` / `read_vba_module(name)`
+- `read_vba_module_with_attributes(name)`
+- `vba_modules()` (dict of name -> source)
+- `iter_vba_modules()` (rich `VBAModule` records)
+- `export_module()` / `export_modules()` / `pull_modules()` (write `.bas` / `.cls` to disk)
+- `read_project_info()`, `identifiers()`, `find_interned_strings()`,
+  `find_module_streams()`, `iter_pcode_streams()`, `disassemble_module()`
+- `iter_msys_objects()` / `msys_objects()` / `iter_msys_modules()` /
+  `find_msys_module()` (MSysObjects catalog inspection)
+- Top-level helper: `pyopenvba.pull_access(database, dest_dir)`
+
+```python
+from pyopenvba import AccessReader, pull_access
+
+with AccessReader("database.accdb") as db:
+    for name, source in db.vba_modules().items():
+        print(name, len(source))
+
+pull_access("database.accdb", "./vba_src")   # export every module to .bas / .cls
+```
 
 Every save is verified to reopen in the host application **without** the
 "we found a problem with some content" repair dialog.

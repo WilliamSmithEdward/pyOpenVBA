@@ -20,8 +20,10 @@ Sectors        : fixed-size blocks that follow the header
 from __future__ import annotations
 
 import struct
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import BinaryIO, Callable
+from typing import BinaryIO
+
 from pyopenvba.exceptions import CFBError
 
 # ---------------------------------------------------------------------------
@@ -95,13 +97,13 @@ class CFB:
     # ------------------------------------------------------------------
 
     @classmethod
-    def from_bytes(cls, data: bytes) -> "CFB":
+    def from_bytes(cls, data: bytes) -> CFB:
         cfb = cls(data)
         cfb._parse()
         return cfb
 
     @classmethod
-    def from_file(cls, fh: BinaryIO) -> "CFB":
+    def from_file(cls, fh: BinaryIO) -> CFB:
         return cls.from_bytes(fh.read())
 
     # ------------------------------------------------------------------
@@ -332,12 +334,11 @@ class CFB:
                 offset = sect * self.mini_sector_size
                 raw.extend(self._mini_stream[offset: offset + self.mini_sector_size])
             return bytes(raw[: entry.size])
-        else:
-            # Read from regular stream
-            raw = bytearray()
-            for sect in self._chain(entry.start_sector):
-                raw.extend(self._sector(sect))
-            return bytes(raw[: entry.size])
+        # Read from regular stream
+        raw = bytearray()
+        for sect in self._chain(entry.start_sector):
+            raw.extend(self._sector(sect))
+        return bytes(raw[: entry.size])
 
     # ------------------------------------------------------------------
     # Mutation API
@@ -534,7 +535,7 @@ class CFB:
         self._directory[parent_idx].child_id = self._rebuild_balanced_subtree(siblings)
 
     def drop_streams_in_storage(
-        self, storage: str, predicate: "Callable[[str], bool]"
+        self, storage: str, predicate: Callable[[str], bool]
     ) -> list[str]:
         """
         Remove every stream child of ``storage`` whose name satisfies ``predicate``.

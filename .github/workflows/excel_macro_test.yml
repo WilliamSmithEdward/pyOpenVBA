@@ -1,0 +1,67 @@
+name: Build Test
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'tests/fixtures/excel/**'
+      - 'scripts/build_excel_fixtures.py'
+      - 'scripts/run_excel_fixtures.py'
+      - '.github/workflows/excel_macro_test.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'tests/fixtures/excel/**'
+      - 'scripts/build_excel_fixtures.py'
+      - 'scripts/run_excel_fixtures.py'
+      - '.github/workflows/excel_macro_test.yml'
+
+jobs:
+  test:
+    name: Build and test Excel fixtures
+    runs-on: windows-latest
+    timeout-minutes: 15
+    env:
+      PYTHONPATH: src
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Build Excel fixtures
+        run: python scripts/build_excel_fixtures.py
+
+      - name: Setup VBA
+        uses: DecimalTurn/setup-vba@797e4a232699a98507cb4411d5bea3697427ad57 # v0.3.0
+        with:
+          office-apps: Excel
+
+      - name: Install pywin32
+        shell: pwsh
+        run: |
+          pip install pywin32
+          python -m Scripts.pywin32_postinstall -install
+
+      - name: Run Excel macros and verify output
+        timeout-minutes: 1
+        run: python scripts/run_excel_fixtures.py
+
+      - name: Take screenshot on failure
+        if: failure()
+        shell: pwsh
+        run: |
+          $screenshotDir = "${{ github.workspace }}/screenshots"
+          & "${{ github.workspace }}/scripts/take-screenshot-on-failure.ps1" -OutputPath "$screenshotDir/failure_screenshot.png"
+
+      - name: Upload failure screenshots
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: failure-screenshots
+          path: ./screenshots/
+          if-no-files-found: warn

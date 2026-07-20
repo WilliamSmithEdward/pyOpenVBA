@@ -47,6 +47,12 @@ def _run_fixture(xlsm: Path) -> bool:
         print(f"  [1.1] Setting display alerts and visibility...", flush=True)
         xl.DisplayAlerts = False
         xl.Visible = True  # Make visible for debugging screenshots
+        
+        print(f"  [1.2] Opening VBE window for error visibility...", flush=True)
+        try:
+            xl.VBE.MainWindow.Visible = True
+        except Exception as vbe_err:
+            print(f"      Warning: Could not open VBE window: {vbe_err}", flush=True)
 
         print(f"  [2] Opening workbook at {xlsm.absolute()}...", flush=True)
         wb = xl.Workbooks.Open(str(xlsm.absolute()))

@@ -1083,16 +1083,20 @@ class AccessReader:
         """
         out_dir = Path(dest_dir)
         out_dir.mkdir(parents=True, exist_ok=True)
+        # Classify and extract once: read_project_info() and
+        # vba_modules() each walk every LVAL row in the file, so the
+        # overwrite check and the write loop share one scan of each.
+        class_names: set[str] = set()
+        try:
+            class_names = {
+                m.name for m in self.read_project_info().modules
+                if m.is_class_module
+            }
+        except AccessError:
+            pass
+        modules = self.vba_modules()
         if not overwrite:
-            class_names: set[str] = set()
-            try:
-                class_names = {
-                    m.name for m in self.read_project_info().modules
-                    if m.is_class_module
-                }
-            except AccessError:
-                pass
-            for module_name in self.vba_modules():
+            for module_name in modules:
                 ext = ".cls" if module_name in class_names else ".bas"
                 target = out_dir / (module_name + ext)
                 if target.exists():
@@ -1100,20 +1104,9 @@ class AccessReader:
                         f"Refusing to overwrite {target} "
                         f"(overwrite=False)."
                     )
-        # Delegate the heavy lifting to export_modules but re-encode
-        # under the caller's chosen encoding (export_modules always
-        # uses latin-1 since that's what Access stores).
-        class_names_for_encode: set[str] = set()
-        try:
-            class_names_for_encode = {
-                m.name for m in self.read_project_info().modules
-                if m.is_class_module
-            }
-        except AccessError:
-            pass
         written: list[Path] = []
-        for module_name, body in self.vba_modules().items():
-            ext = ".cls" if module_name in class_names_for_encode else ".bas"
+        for module_name, body in modules.items():
+            ext = ".cls" if module_name in class_names else ".bas"
             target = out_dir / (module_name + ext)
             text = body.replace("\r\n", "\n").replace("\r", "\n")
             data = text.replace("\n", "\r\n").encode(encoding, errors="replace")

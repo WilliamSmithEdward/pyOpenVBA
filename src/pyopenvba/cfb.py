@@ -115,7 +115,15 @@ class CFB:
         return [e.name for e in self._directory if e.obj_type == _OBJTYPE_STREAM]
 
     def get_stream(self, name: str) -> bytes:
-        """Return the raw bytes of a stream by name (case-insensitive)."""
+        """Return the raw bytes of the first stream with a matching name
+        anywhere in the directory (case-insensitive, directory order).
+
+        Deliberately storage-agnostic: root-level project streams such as
+        ``PROJECT`` sit at the CFB root in ``vbaProject.bin`` but nested
+        inside ``_VBA_PROJECT_CUR`` in legacy ``.xls`` files, and this
+        lookup finds them in either layout.  Use
+        :meth:`get_stream_in_storage` when the parent storage matters.
+        """
         needle = name.casefold()
         for entry in self._directory:
             if entry.obj_type == _OBJTYPE_STREAM and entry.name.casefold() == needle:
@@ -339,8 +347,11 @@ class CFB:
 
     def write_stream(self, name: str, data: bytes) -> None:
         """
-        Replace the bytes of an existing top-level stream by name.
+        Replace the bytes of the first stream with a matching name
+        anywhere in the directory (case-insensitive, directory order).
 
+        Storage-agnostic on purpose, mirroring :meth:`get_stream`; use
+        :meth:`write_stream_in_storage` when the parent storage matters.
         The change is held in memory until :meth:`to_bytes` is called.
         """
         needle = name.casefold()

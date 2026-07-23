@@ -409,17 +409,21 @@ See [docs/roadmap.md](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/
 
 ```
 src/pyopenvba/
-  __init__.py     public API (ExcelFile, WordFile, PowerPointFile,
+  __init__.py     public API (ExcelFile, WordFile, PowerPointFile, AccessReader,
                               pull/push, pull_word/push_word, pull_ppt/push_ppt,
-                              VBAModuleKind, synthesize_class_header, exceptions)
-  excel.py        ExcelFile facade (ZIP / CFB dispatch, pull/push helpers)
-  word.py         WordFile facade
-  powerpoint.py   PowerPointFile facade
+                              pull_access, VBAModuleKind, synthesize_class_header,
+                              exceptions)
+  _host.py        VBAHostFile: shared open/edit/pull/push/save pipeline
+  excel.py        ExcelFile (thin VBAHostFile subclass + create_new template)
+  word.py         WordFile (thin VBAHostFile subclass + create_new template)
+  powerpoint.py   PowerPointFile (thin VBAHostFile subclass + create_new template)
+  access_read.py  AccessReader (read-only ACE/Jet page + LVAL reader)
   vba.py          VBA project parser + MS-OVBA codec
+  vba_pcode.py    VBA7 p-code disassembler
   cfb.py          MS-CFB (Compound File Binary) parser/writer
   exceptions.py   custom exception hierarchy
   _templates/     baked-in empty .xlsm/.xlsb/.docm/.pptm bytes for create_new()
-  __main__.py     `python -m pyopenvba {pull,push,ls}` CLI
+  __main__.py     `python -m pyopenvba {pull,push,ls,disasm,access-*}` CLI
 ```
 
 For deeper documentation:

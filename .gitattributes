@@ -1,0 +1,23 @@
+# Normalize text files to LF in the repository; working-tree endings
+# follow each contributor's core.autocrlf setting.
+* text=auto
+
+# PowerShell scripts check out with CRLF on every platform.
+*.ps1 text eol=crlf
+
+# Binary fixtures and documents: never normalize.
+*.xlsm binary
+*.xlsb binary
+*.xlam binary
+*.xls binary
+*.docm binary
+*.dotm binary
+*.doc binary
+*.pptm binary
+*.potm binary
+*.ppt binary
+*.accdb binary
+*.mdb binary
+*.laccdb binary
+*.pdf binary
+*.png binary

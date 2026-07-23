@@ -1,7 +1,7 @@
 # pyOpenVBA Roadmap
 
 This roadmap tracks pyOpenVBA's progress against the 26 hard gates defined in
-[`xlsm_feature_completeness_gates.md`](../xlsm_feature_completeness_gates.md).
+[`xlsm_feature_completeness_gates.md`](xlsm_feature_completeness_gates.md).
 Per-gate status keys:
 
 - **PASS** — implemented; gate tests in [`tests/test_gates.py`](../tests/test_gates.py) pass.

@@ -440,3 +440,62 @@ def _make_cfb_with_one_stream(name: str, data: bytes) -> bytes:
         difat_packed,
     )
     return header + b"".join(sectors)
+
+
+class TestStorageScopedLookup:
+    """get/write/list *_in_storage operate on the storage's own child
+    subtree only.  Previously they linear-scanned the whole directory,
+    so same-named streams in different storages could shadow each other
+    and root-level streams appeared to belong to every storage."""
+
+    @staticmethod
+    def _cfb_with_duplicate_stream_names() -> CFB:
+        import zipfile
+        from pathlib import Path
+
+        live = Path(__file__).parent / "live_excel_testing" / "test_macro_workbook.xlsm"
+        if not live.exists():
+            pytest.skip("live workbook fixture not available")
+        with zipfile.ZipFile(live) as zf:
+            raw = zf.read("xl/vbaProject.bin")
+        cfb = CFB.from_bytes(raw)
+        cfb.add_substorage("VBA", "StoreA")
+        cfb.add_substorage("VBA", "StoreB")
+        cfb.add_stream_to_storage("StoreA", "dup", b"content-a")
+        cfb.add_stream_to_storage("StoreB", "dup", b"content-b")
+        # Round-trip through the serializer so the test also covers the
+        # rebuilt directory tree, not just in-memory state.
+        return CFB.from_bytes(cfb.to_bytes())
+
+    def test_same_named_streams_resolve_per_storage(self) -> None:
+        cfb = self._cfb_with_duplicate_stream_names()
+        assert cfb.get_stream_in_storage("StoreA", "dup") == b"content-a"
+        assert cfb.get_stream_in_storage("StoreB", "dup") == b"content-b"
+
+    def test_write_targets_only_the_named_storage(self) -> None:
+        cfb = self._cfb_with_duplicate_stream_names()
+        cfb.write_stream_in_storage("StoreB", "dup", b"rewritten-b")
+        out = CFB.from_bytes(cfb.to_bytes())
+        assert out.get_stream_in_storage("StoreA", "dup") == b"content-a"
+        assert out.get_stream_in_storage("StoreB", "dup") == b"rewritten-b"
+
+    def test_list_returns_only_direct_children(self) -> None:
+        cfb = self._cfb_with_duplicate_stream_names()
+        assert cfb.list_streams_in_storage("StoreA") == ["dup"]
+
+    def test_root_level_streams_are_not_storage_children(self) -> None:
+        cfb = self._cfb_with_duplicate_stream_names()
+        # PROJECT and PROJECTwm are siblings of the VBA storage, not
+        # children of it.
+        vba_children = cfb.list_streams_in_storage("VBA")
+        assert "dir" in vba_children
+        assert "PROJECT" not in vba_children
+        assert "PROJECTwm" not in vba_children
+        with pytest.raises(KeyError):
+            cfb.get_stream_in_storage("StoreA", "PROJECT")
+        with pytest.raises(KeyError):
+            cfb.write_stream_in_storage("StoreA", "PROJECT", b"x")
+
+    def test_lookup_stays_case_insensitive(self) -> None:
+        cfb = self._cfb_with_duplicate_stream_names()
+        assert cfb.get_stream_in_storage("storea", "DUP") == b"content-a"

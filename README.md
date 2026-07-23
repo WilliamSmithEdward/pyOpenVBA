@@ -409,17 +409,21 @@ See [docs/roadmap.md](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/
 
 ```
 src/pyopenvba/
-  __init__.py     public API (ExcelFile, WordFile, PowerPointFile,
+  __init__.py     public API (ExcelFile, WordFile, PowerPointFile, AccessReader,
                               pull/push, pull_word/push_word, pull_ppt/push_ppt,
-                              VBAModuleKind, synthesize_class_header, exceptions)
-  excel.py        ExcelFile facade (ZIP / CFB dispatch, pull/push helpers)
-  word.py         WordFile facade
-  powerpoint.py   PowerPointFile facade
+                              pull_access, VBAModuleKind, synthesize_class_header,
+                              exceptions)
+  _host.py        VBAHostFile: shared open/edit/pull/push/save pipeline
+  excel.py        ExcelFile (thin VBAHostFile subclass + create_new template)
+  word.py         WordFile (thin VBAHostFile subclass + create_new template)
+  powerpoint.py   PowerPointFile (thin VBAHostFile subclass + create_new template)
+  access_read.py  AccessReader (read-only ACE/Jet page + LVAL reader)
   vba.py          VBA project parser + MS-OVBA codec
+  vba_pcode.py    VBA7 p-code disassembler
   cfb.py          MS-CFB (Compound File Binary) parser/writer
   exceptions.py   custom exception hierarchy
   _templates/     baked-in empty .xlsm/.xlsb/.docm/.pptm bytes for create_new()
-  __main__.py     `python -m pyopenvba {pull,push,ls}` CLI
+  __main__.py     `python -m pyopenvba {pull,push,ls,disasm,access-*}` CLI
 ```
 
 For deeper documentation:
@@ -445,6 +449,15 @@ pyright src tests
 pytest -p no:randomly
 ```
 
+On a Windows machine with desktop Excel installed you can additionally run
+the live compile-and-run gate (skipped by default and in CI). It builds a
+workbook with pyOpenVBA, runs its macro in real Excel under a popup-aware
+harness, and fails on any VBE dialog:
+
+```powershell
+$env:RUN_LIVE_EXCEL = "1"; pytest tests/test_live_excel_gate.py
+```
+
 CI runs the test matrix on Python 3.10 / 3.11 / 3.12 / 3.13 across
 Linux, plus 3.12 on Windows and macOS, on every push and pull request.
 Releases are published to PyPI automatically when a `v*.*.*` tag is
@@ -460,8 +473,8 @@ pushed.
 
 ## Support Open Source
 
-XLIDE is open-source software. If it saves you time or helps your team keep VBA
-workbooks maintainable, support helps keep the project moving.
+pyOpenVBA is open-source software. If it saves you time or helps your team keep
+VBA workbooks maintainable, support helps keep the project moving.
 
 - [GitHub Sponsors](https://github.com/sponsors/WilliamSmithEdward)
 - [PayPal](https://www.paypal.com/donate/?business=ML855BRLNR838&no_recurring=0&item_name=VBA+has+always+treated+me+well.+It+was+how+I+first+grew+professional+as+a+programmer%2C+I%27m+happy+to+show+it+some+love+%E2%9D%A4%EF%B8%8F&currency_code=USD)

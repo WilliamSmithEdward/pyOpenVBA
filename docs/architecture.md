@@ -18,20 +18,17 @@ knows about the layer below it but not the layer above.
 
 ```
 +--------------------------------------------------------+
-| excel.py        ExcelFile facade                       |
+| excel.py / word.py / powerpoint.py   host facades      |
+|   - thin subclasses of _host.VBAHostFile               |
+|   - per-host constants: container extensions,          |
+|     vbaProject.bin entry path, message wording         |
+|   - create_new() from a baked-in template              |
++--------------------------------------------------------+
+| _host.py        VBAHostFile shared implementation      |
 |   - ZIP / raw-CFB dispatch by extension                |
 |   - save() pipeline (safety gates, structural rewrites)|
 |   - pull / push disk workflow                          |
-+--------------------------------------------------------+
-| word.py         WordFile facade                        |
-|   - ZIP / raw-CFB dispatch by extension                |
-|   - identical save() pipeline as ExcelFile             |
-|   - pull / push disk workflow                          |
-+--------------------------------------------------------+
-| powerpoint.py   PowerPointFile facade                  |
-|   - ZIP / raw-CFB dispatch by extension                |
-|   - identical save() pipeline as ExcelFile             |
-|   - pull / push disk workflow                          |
+|   - class-source normalization at set_module / push    |
 +--------------------------------------------------------+
 | access_read.py  AccessReader facade  (READ-ONLY)         |
 |   - ACE / Jet 4 page reader (.accdb, .mdb)             |
@@ -87,8 +84,9 @@ Other files:
 - `cfb.py` is **completely VBA-agnostic** and could be lifted into a
   separate library. It knows nothing about MS-OVBA.
 - `vba.py` operates on a `CFB` instance but never opens files on disk.
-- `excel.py` is the only module that touches the filesystem, ZIP
-  containers, or workbook paths.
+- `_host.py` is the only module that touches the filesystem, ZIP
+  containers, or host file paths; the three facades only supply
+  constants and `create_new()` templates.
 - Cross-layer leaks are a code smell. Adding a `pathlib.Path` import to
   `vba.py` or `cfb.py` is a red flag.
 
@@ -407,9 +405,7 @@ files in the same commit:
 | New layer / module                           | This file (sections 1 and 2), README architecture box |
 | New roadmap gate or status change            | `docs/roadmap.md`                                 |
 | New mutation safety gate                     | This file section 4, README "Safety guards"       |
-| New supported file extension (Excel)         | `excel.py` dispatch, README table, this file section 5       |
-| New supported file extension (Word)          | `word.py` dispatch, README table, this file section 5        |
-| New supported file extension (PowerPoint)    | `powerpoint.py` dispatch, README table, this file section 5  |
+| New supported file extension                 | Facade `_zip_formats` / `_cfb_formats`, `__main__._HOST_BY_SUFFIX`, README table, this file section 5 |
 | New test file or fuzz target                 | This file section 8                               |
 | Spec/behavior change worth telling other implementers | `docs/ms-ovba-implementation-guide_v2.md` |
 

@@ -257,10 +257,38 @@ def _encode_token_chunk(chunk: bytes) -> bytes:
 
 
 def _encode_lz(chunk: bytes) -> bytes:
-    """Greedy LZ encoder for token-compressed chunks."""
+    """Greedy LZ encoder for token-compressed chunks.
+
+    Byte-for-byte equivalent to the naive full-window scan (each
+    position considers every earlier position, ascending, keeping the
+    first candidate with a strictly greater capped match length -- so
+    ties go to the FARTHEST candidate), but replaces the O(window) scan
+    with a 3-gram position index.  The reduction is sound because:
+
+    * a copy token requires a match length of at least 3, so any
+      winning candidate shares its first three bytes with the target
+      and appears in the index bucket for that 3-gram;
+    * candidates outside the bucket match at most 2 bytes and can
+      neither win nor influence the strict-improvement tie-break;
+    * within a 4096-byte chunk ``copy_token_help``'s offset range
+      always covers the whole chunk-so-far, so bucket entries never
+      expire and ascending bucket order equals ascending scan order.
+
+    The byte-exactness matters: Access validates the OVBA cache blob
+    against its own compressor's output (see ``_encode_token_chunk``),
+    and ``test_compress_byte_exact_against_access_sample_040`` plus the
+    naive-oracle equivalence tests pin this property.
+    """
     out = bytearray()
     pos = 0
     chunk_len = len(chunk)
+
+    # 3-gram index: int key (little-endian packed three bytes) -> list
+    # of positions in ascending order.  ``indexed_to`` marks how far the
+    # index has been populated; positions are added lazily as the
+    # encoder passes them, including positions inside copied regions.
+    index: dict[int, list[int]] = {}
+    indexed_to = 0
 
     while pos < chunk_len:
         flag_bits = 0
@@ -272,20 +300,35 @@ def _encode_lz(chunk: bytes) -> bytes:
 
             length_mask, offset_mask, bit_count = copy_token_help(pos, 0)
             max_length = length_mask + 3
-            max_offset = (offset_mask >> (16 - bit_count)) + 1
-            start = max(0, pos - max_offset)
 
             best_len = 0
             best_offset = 0
-            for candidate in range(start, pos):
-                match_len = 0
-                while (pos + match_len < chunk_len
-                       and chunk[candidate + match_len] == chunk[pos + match_len]
-                       and match_len < max_length):
-                    match_len += 1
-                if match_len > best_len:
-                    best_len = match_len
-                    best_offset = pos - candidate
+            if pos + 3 <= chunk_len:
+                while indexed_to < pos:
+                    if indexed_to + 3 <= chunk_len:
+                        key = (
+                            chunk[indexed_to]
+                            | chunk[indexed_to + 1] << 8
+                            | chunk[indexed_to + 2] << 16
+                        )
+                        index.setdefault(key, []).append(indexed_to)
+                    indexed_to += 1
+                limit = max_length
+                if chunk_len - pos < limit:
+                    limit = chunk_len - pos
+                target_key = chunk[pos] | chunk[pos + 1] << 8 | chunk[pos + 2] << 16
+                for candidate in index.get(target_key, ()):
+                    match_len = 3
+                    while (match_len < limit
+                           and chunk[candidate + match_len] == chunk[pos + match_len]):
+                        match_len += 1
+                    if match_len > best_len:
+                        best_len = match_len
+                        best_offset = pos - candidate
+                        if best_len >= limit:
+                            # No later candidate can strictly improve on
+                            # the cap; the naive scan would keep this one.
+                            break
 
             if best_len >= 3:
                 flag_bits |= (1 << bit)

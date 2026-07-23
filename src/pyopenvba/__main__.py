@@ -3,13 +3,16 @@ Command-line entry point.
 
 Usage::
 
-    python -m pyopenvba pull <workbook> <dest_dir>
-    python -m pyopenvba push <src_dir> <workbook> [--out <new_path>] [--strict]
-    python -m pyopenvba ls   <workbook>
+    python -m pyopenvba pull <office_file> <dest_dir>
+    python -m pyopenvba push <src_dir> <office_file> [--out <new_path>] [--strict]
+    python -m pyopenvba ls   <office_file>
     python -m pyopenvba access-ls    <accdb>
     python -m pyopenvba access-pull  <accdb> <dest_dir>
     python -m pyopenvba access-disasm <accdb> [--module <name>] [--with-source]
-    python -m pyopenvba disasm <workbook|doc|pptx> [--module <name>] [--with-source]
+    python -m pyopenvba disasm <office_file> [--module <name>] [--with-source]
+
+``<office_file>`` may be any supported Excel, Word, or PowerPoint file;
+the host is selected by extension (see ``_HOST_BY_SUFFIX``).
 """
 
 from __future__ import annotations
@@ -18,26 +21,51 @@ import argparse
 import sys
 from pathlib import Path
 
-from pyopenvba import ExcelFile, PowerPointFile, WordFile, pull, push
+from pyopenvba import ExcelFile, PowerPointFile, WordFile
+
+
+def _resolve_host(path: Path) -> type | None:
+    """Return the host file class for ``path`` by extension, or ``None``
+    (after printing an error) when the extension is unsupported."""
+    host_cls = _HOST_BY_SUFFIX.get(path.suffix.lower())
+    if host_cls is None:
+        print(
+            f"error: unsupported file type {path.suffix.lower()!r}; expected one of "
+            f"{sorted(_HOST_BY_SUFFIX)}",
+            file=sys.stderr,
+        )
+    return host_cls
 
 
 def _cmd_pull(args: argparse.Namespace) -> int:
-    written = pull(args.workbook, args.dest, overwrite=not args.no_overwrite)
+    host_cls = _resolve_host(args.workbook)
+    if host_cls is None:
+        return 2
+    with host_cls(args.workbook) as host:
+        written = host.pull_modules(args.dest, overwrite=not args.no_overwrite)
     for p in written:
         print(p)
     return 0
 
 
 def _cmd_push(args: argparse.Namespace) -> int:
-    updated = push(args.src, args.workbook, out=args.out, strict=args.strict)
+    host_cls = _resolve_host(args.workbook)
+    if host_cls is None:
+        return 2
+    with host_cls(args.workbook) as host:
+        updated = host.push_modules(args.src, strict=args.strict)
+        host.save(args.out)
     for name in updated:
         print(name)
     return 0
 
 
 def _cmd_ls(args: argparse.Namespace) -> int:
-    with ExcelFile(args.workbook) as wb:
-        for m in wb.vba_project().modules:
+    host_cls = _resolve_host(args.workbook)
+    if host_cls is None:
+        return 2
+    with host_cls(args.workbook) as host:
+        for m in host.vba_project().modules:
             print(f"{m.kind.name:8s}  {m.name}")
     return 0
 
@@ -55,10 +83,9 @@ def _cmd_access_pull(args: argparse.Namespace) -> int:
     from pyopenvba.access_read import AccessReader
 
     db = AccessReader(args.database)
-    args.dest.mkdir(parents=True, exist_ok=True)
-    for m in db.iter_vba_modules():
-        out = args.dest / f"{m.name}.bas"
-        out.write_text(m.source, encoding="utf-8")
+    # pull_modules classifies standard modules as .bas and class modules
+    # as .cls, matching the Excel/Word/PowerPoint pull commands.
+    for out in db.pull_modules(args.dest):
         print(out)
     return 0
 
@@ -90,16 +117,19 @@ def _cmd_access_disasm(args: argparse.Namespace) -> int:
     return 0
 
 
+# Every extension listed here is accepted by the mapped host class;
+# keep this in lockstep with each facade's _ZIP_FORMATS / _CFB_FORMATS.
 _HOST_BY_SUFFIX: dict[str, type] = {
     ".xlsm": ExcelFile,
     ".xlsb": ExcelFile,
-    ".xltm": ExcelFile,
     ".xlam": ExcelFile,
+    ".xls": ExcelFile,
     ".docm": WordFile,
     ".dotm": WordFile,
+    ".doc": WordFile,
     ".pptm": PowerPointFile,
     ".potm": PowerPointFile,
-    ".ppam": PowerPointFile,
+    ".ppt": PowerPointFile,
 }
 
 

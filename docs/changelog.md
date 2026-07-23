@@ -3,7 +3,7 @@
 All notable changes to pyOpenVBA are documented here. This project follows
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [3.1.0] - 2026-07-22
 
 ### Fixed
 
@@ -22,6 +22,53 @@ All notable changes to pyOpenVBA are documented here. This project follows
   stream raised "Compile error: Expected: end of statement" (both
   verified against live Excel, as is the fix).  Supersedes the 2.0.1
   guidance that callers must supply the `VB_Base` line themselves.
+- `pyopenvba.__version__` reported 2.0.0 while PyPI shipped 3.0.x.  A
+  new test pins it to the installed package metadata so the two sources
+  cannot drift again.
+- CFB `get_stream_in_storage` / `write_stream_in_storage` /
+  `list_streams_in_storage` now operate on the named storage's own
+  child subtree instead of linear-scanning the whole directory.  The
+  old scan could read or overwrite a same-named stream in a different
+  storage (two UserForms both carry `o` / `f` streams) and reported
+  root-level streams as members of every storage.  The host facades now
+  address `PROJECTwm` at the project root, where [MS-OVBA] 2.2.1 puts
+  it.  Byte output for well-formed files is unchanged (verified by
+  hashing a 25-case save matrix across all live fixtures).
+- `python -m pyopenvba pull / push / ls` now route Word and PowerPoint
+  files by extension instead of assuming Excel; legacy `.xls` / `.doc`
+  / `.ppt` are accepted everywhere the modern extensions are.  `disasm`
+  no longer advertises `.xltm` / `.ppam`, which no facade accepts.
+- `python -m pyopenvba access-pull` delegates to
+  `AccessReader.pull_modules`, so Access class modules export as
+  `.cls` (previously everything was written as `.bas`).
+- README support section named the wrong project; roadmap.md's link to
+  the feature-gate matrix pointed outside `docs/`.
+
+### Changed
+
+- `save()` emits pending module additions and deletions in sorted
+  order, making multi-add saves byte-deterministic across processes
+  (Python randomizes set iteration per process via string hashing).
+- `ExcelFile`, `WordFile`, and `PowerPointFile` are now thin subclasses
+  of a single shared implementation
+  (`pyopenvba._host.VBAHostFile`), removing three hand-synchronized
+  copies of the read/edit/pull/push/save pipeline (~900 duplicated
+  lines).  The public API is unchanged and the refactor was verified
+  byte-identical against the previous implementation on every live
+  fixture and save operation.
+
+### Added
+
+- **Live Excel compile-and-run gate** (`tests/test_live_excel_gate.py`
+  plus `tools/live_excel/`): builds a workbook with an export-form
+  class module, runs its macro in desktop Excel under a popup-aware
+  bounded harness (VBE modals are dismissed, captured, and reported
+  instead of deadlocking the run), and requires a clean run plus the
+  macro's sentinel output.  Opt-in via `RUN_LIVE_EXCEL=1` on Windows;
+  skipped in CI.  Issue #1 shipped because "opens without a repair
+  prompt" was the strongest live verification; this gate closes that
+  gap.
+- CI matrix now tests Python 3.14 (the classifiers already claimed it).
 
 ## [3.0.0] - 2026-05-24
 

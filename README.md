@@ -445,6 +445,15 @@ pyright src tests
 pytest -p no:randomly
 ```
 
+On a Windows machine with desktop Excel installed you can additionally run
+the live compile-and-run gate (skipped by default and in CI). It builds a
+workbook with pyOpenVBA, runs its macro in real Excel under a popup-aware
+harness, and fails on any VBE dialog:
+
+```powershell
+$env:RUN_LIVE_EXCEL = "1"; pytest tests/test_live_excel_gate.py
+```
+
 CI runs the test matrix on Python 3.10 / 3.11 / 3.12 / 3.13 across
 Linux, plus 3.12 on Windows and macOS, on every push and pull request.
 Releases are published to PyPI automatically when a `v*.*.*` tag is
@@ -460,8 +469,8 @@ pushed.
 
 ## Support Open Source
 
-XLIDE is open-source software. If it saves you time or helps your team keep VBA
-workbooks maintainable, support helps keep the project moving.
+pyOpenVBA is open-source software. If it saves you time or helps your team keep
+VBA workbooks maintainable, support helps keep the project moving.
 
 - [GitHub Sponsors](https://github.com/sponsors/WilliamSmithEdward)
 - [PayPal](https://www.paypal.com/donate/?business=ML855BRLNR838&no_recurring=0&item_name=VBA+has+always+treated+me+well.+It+was+how+I+first+grew+professional+as+a+programmer%2C+I%27m+happy+to+show+it+some+love+%E2%9D%A4%EF%B8%8F&currency_code=USD)

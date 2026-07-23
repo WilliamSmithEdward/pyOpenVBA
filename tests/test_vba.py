@@ -796,3 +796,97 @@ class TestAddModuleClassNormalization:
         module = project.add_module("Module1", src, kind=VBAModuleKind.standard)
         assert module.source == src
         assert CLASS_MODULE_CLSID not in module.source
+
+
+class TestEncodeLzOracleEquivalence:
+    """The optimized 3-gram-indexed LZ encoder must be byte-for-byte
+    equivalent to the naive full-window scan it replaced.  Access
+    byte-validates OVBA cache blobs against its own compressor, so any
+    output drift (including tie-break order) is a correctness bug, not
+    a quality regression."""
+
+    @staticmethod
+    def _naive_encode_lz(chunk: bytes) -> bytes:
+        """Reference implementation: the original O(window) scan."""
+        out = bytearray()
+        pos = 0
+        chunk_len = len(chunk)
+        while pos < chunk_len:
+            flag_bits = 0
+            tokens: list[bytes] = []
+            for bit in range(8):
+                if pos >= chunk_len:
+                    break
+                length_mask, offset_mask, bit_count = copy_token_help(pos, 0)
+                max_length = length_mask + 3
+                max_offset = (offset_mask >> (16 - bit_count)) + 1
+                start = max(0, pos - max_offset)
+                best_len = 0
+                best_offset = 0
+                for candidate in range(start, pos):
+                    match_len = 0
+                    while (pos + match_len < chunk_len
+                           and chunk[candidate + match_len] == chunk[pos + match_len]
+                           and match_len < max_length):
+                        match_len += 1
+                    if match_len > best_len:
+                        best_len = match_len
+                        best_offset = pos - candidate
+                if best_len >= 3:
+                    flag_bits |= (1 << bit)
+                    offset_bits = ((best_offset - 1) << (16 - bit_count)) & offset_mask
+                    length_bits = (best_len - 3) & length_mask
+                    tokens.append(struct.pack("<H", offset_bits | length_bits))
+                    pos += best_len
+                else:
+                    tokens.append(bytes([chunk[pos]]))
+                    pos += 1
+            out.append(flag_bits)
+            for tok in tokens:
+                out.extend(tok)
+        return bytes(out)
+
+    def _assert_equivalent(self, chunk: bytes) -> None:
+        from pyopenvba import vba as _vba
+
+        encode = getattr(_vba, "_encode_lz")
+        assert encode(chunk) == self._naive_encode_lz(chunk), (
+            f"encoder diverges from naive oracle for input of "
+            f"{len(chunk)} bytes"
+        )
+
+    def test_boundary_sizes(self) -> None:
+        for chunk in (b"", b"A", b"AB", b"ABC", b"ABCA", b"AAAA"):
+            self._assert_equivalent(chunk)
+
+    def test_random_bytes(self) -> None:
+        import random
+
+        rng = random.Random(20260722)
+        self._assert_equivalent(bytes(rng.randrange(256) for _ in range(4096)))
+        rng = random.Random(1)
+        self._assert_equivalent(bytes(rng.randrange(64) for _ in range(2048)))
+
+    def test_highly_repetitive(self) -> None:
+        self._assert_equivalent(b"A" * 512)
+        self._assert_equivalent(b"AB" * 256)
+        self._assert_equivalent(b"abc" * 170 + b"ab")
+        self._assert_equivalent(b"\x00" * 300 + b"\x00\x01" * 100)
+
+    def test_vba_like_text(self) -> None:
+        src = (
+            'Attribute VB_Name = "Module1"\r\n'
+            "Option Explicit\r\n\r\n"
+            + "".join(
+                f"Sub Proc{i}()\r\n"
+                f'    MsgBox "value {i}"\r\n'
+                "End Sub\r\n\r\n"
+                for i in range(30)
+            )
+        ).encode("cp1252")
+        self._assert_equivalent(src[:4096])
+
+    def test_repeating_grams_with_capped_matches(self) -> None:
+        # Many identical 3-grams whose matches hit the per-position
+        # length cap: exercises the early-exit tie-break path.
+        self._assert_equivalent(bytes(range(16)) * 128)

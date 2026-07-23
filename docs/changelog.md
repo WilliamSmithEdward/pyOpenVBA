@@ -46,6 +46,15 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Changed
 
+- The MS-OVBA compressor's LZ encoder uses a 3-gram position index
+  instead of re-scanning the whole window at every position: about 60x
+  faster on the 17 KB large-module fixture (0.44 s to 0.007 s) and
+  0.4 s on a 1 MB input.  Output is byte-for-byte unchanged -- Access
+  validates OVBA cache blobs against exact compressor output -- pinned
+  by new naive-oracle equivalence tests across random, repetitive, and
+  boundary inputs.
+- `AccessReader.pull_modules` walks the database's LVAL rows once
+  instead of four times per call.
 - `save()` emits pending module additions and deletions in sorted
   order, making multi-add saves byte-deterministic across processes
   (Python randomizes set iteration per process via string hashing).

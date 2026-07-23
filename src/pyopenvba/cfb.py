@@ -123,22 +123,20 @@ class CFB:
         raise KeyError(f"Stream not found: {name!r}")
 
     def get_stream_in_storage(self, storage: str, name: str) -> bytes:
-        """Return the raw bytes of a stream nested inside a named storage."""
-        needle_s = storage.casefold()
-        needle_n = name.casefold()
-        # Find the storage entry
-        storage_entry: DirEntry | None = None
-        for entry in self._directory:
-            if entry.obj_type == _OBJTYPE_STORAGE and entry.name.casefold() == needle_s:
-                storage_entry = entry
-                break
-        if storage_entry is None:
-            raise KeyError(f"Storage not found: {storage!r}")
-        # Walk children of that storage
-        for entry in self._directory:
-            if entry.obj_type == _OBJTYPE_STREAM and entry.name.casefold() == needle_n:
-                return self._read_stream(entry)
-        raise KeyError(f"Stream {name!r} not found in storage {storage!r}")
+        """Return the raw bytes of a stream that is a direct child of the
+        named storage.
+
+        Both lookups are case-insensitive.  Only the storage's own child
+        subtree is searched, so same-named streams in other storages (for
+        example the ``o`` / ``f`` streams of two UserForms) can never
+        shadow each other.  Raises ``KeyError`` if the storage or the
+        child stream does not exist.
+        """
+        parent_idx = self._find_storage_index(storage)
+        child_idx = self._find_child_stream_index(parent_idx, name)
+        if child_idx is None:
+            raise KeyError(f"Stream {name!r} not found in storage {storage!r}")
+        return self._read_stream(self._directory[child_idx])
 
     def list_storages(self) -> list[str]:
         """Return the names of all storage entries (excluding the root)."""
@@ -148,26 +146,21 @@ class CFB:
         ]
 
     def list_streams_in_storage(self, storage: str) -> list[str]:
-        """
-        Return the names of all streams whose case-folded parent storage matches
-        ``storage``.
+        """Return the names of the streams that are direct children of the
+        named storage (case-insensitive), in directory-entry order.
 
-        .. note::
-            The current scan is linear over the directory and does not walk the
-            red-black sibling tree.  For Excel-produced ``vbaProject.bin`` this
-            is sufficient because storage names are unique.
+        Raises ``KeyError`` if the storage does not exist.  Streams that
+        live in other storages, or at the root next to the storage, are
+        not included.
         """
-        needle = storage.casefold()
-        found_storage = False
-        for e in self._directory:
-            if e.obj_type == _OBJTYPE_STORAGE and e.name.casefold() == needle:
-                found_storage = True
-                break
-        if not found_storage:
-            raise KeyError(f"Storage not found: {storage!r}")
+        parent_idx = self._find_storage_index(storage)
+        children = sorted(
+            self._collect_subtree(self._directory[parent_idx].child_id)
+        )
         return [
-            e.name for e in self._directory
-            if e.obj_type == _OBJTYPE_STREAM
+            self._directory[i].name
+            for i in children
+            if self._directory[i].obj_type == _OBJTYPE_STREAM
         ]
 
     # ------------------------------------------------------------------
@@ -358,23 +351,19 @@ class CFB:
         raise KeyError(f"Stream not found: {name!r}")
 
     def write_stream_in_storage(self, storage: str, name: str, data: bytes) -> None:
-        """
-        Replace the bytes of an existing stream nested inside a storage.
+        """Replace the bytes of a stream that is a direct child of the
+        named storage (both lookups case-insensitive).
 
-        Currently scans the directory linearly; the first matching stream wins.
+        Only the storage's own child subtree is searched, mirroring
+        :meth:`get_stream_in_storage`.  The change is held in memory
+        until :meth:`to_bytes` is called.  Raises ``KeyError`` if the
+        storage or the child stream does not exist.
         """
-        needle_s = storage.casefold()
-        needle_n = name.casefold()
-        if not any(
-            e.obj_type == _OBJTYPE_STORAGE and e.name.casefold() == needle_s
-            for e in self._directory
-        ):
-            raise KeyError(f"Storage not found: {storage!r}")
-        for idx, entry in enumerate(self._directory):
-            if entry.obj_type == _OBJTYPE_STREAM and entry.name.casefold() == needle_n:
-                self._stream_overrides[idx] = bytes(data)
-                return
-        raise KeyError(f"Stream {name!r} not found in storage {storage!r}")
+        parent_idx = self._find_storage_index(storage)
+        child_idx = self._find_child_stream_index(parent_idx, name)
+        if child_idx is None:
+            raise KeyError(f"Stream {name!r} not found in storage {storage!r}")
+        self._stream_overrides[child_idx] = bytes(data)
 
     def add_stream_to_storage(self, storage: str, name: str, data: bytes) -> None:
         """

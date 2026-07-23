@@ -5,6 +5,24 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ## [Unreleased]
 
+### Fixed
+
+- **Class modules built from VBE-exported `.cls` sources now compile in
+  the host** (GitHub issue #1). `add_module(kind=VBAModuleKind.other)`,
+  `set_module`, and `push_modules` normalize class sources from
+  file-export form to stream form via the new
+  `pyopenvba.vba.normalize_class_source()`: a leading
+  `VERSION 1.0 CLASS` / `BEGIN` / `END` preamble is stripped, and
+  `Attribute VB_Base` is inserted after `VB_Name` when missing.  On
+  replacement of an existing module the prior header's `VB_Base` line is
+  preserved, so document-module host CLSIDs are never overwritten.
+  Previously a supplied header was written into the stream verbatim: a
+  missing `VB_Base` made Excel raise "Invalid procedure call or
+  argument" at the first `New` site, and a VERSION preamble in the
+  stream raised "Compile error: Expected: end of statement" (both
+  verified against live Excel, as is the fix).  Supersedes the 2.0.1
+  guidance that callers must supply the `VB_Base` line themselves.
+
 ## [3.0.0] - 2026-05-24
 
 ### Added

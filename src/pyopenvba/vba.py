@@ -769,6 +769,11 @@ class VBAProject:
         header is synthesized if one is not provided, matching the VBE UX
         where the user only types the executable body.
 
+        For ``kind=other`` the source is normalized from file-export form
+        to stream form first (``VERSION ... CLASS`` preamble stripped,
+        ``Attribute VB_Base`` ensured), so ``.cls`` files exported from
+        the VBE are accepted as-is.  See :func:`normalize_class_source`.
+
         Raises ``ValueError`` if a module with that name already exists.
         """
         needle = name.casefold()
@@ -776,9 +781,12 @@ class VBAProject:
             raise ValueError(f"Module already exists: {name!r}")
 
         # Normalize header: parse out any caller-supplied header, otherwise
-        # synthesize a minimal standard-module header.  Other (class/document)
-        # modules must be provided with a full header by the caller — we do
-        # not invent class metadata or host bindings.
+        # synthesize a minimal standard-module header.  Class (kind=other)
+        # sources are first converted from file-export form to stream form;
+        # a bare body passes through unchanged and falls into the
+        # synthesize_class_header branch below.
+        if kind == VBAModuleKind.other:
+            source = normalize_class_source(source)
         existing_header, _body = split_attribute_header(source)
         if existing_header:
             header = existing_header
@@ -1039,6 +1047,95 @@ def synthesize_class_header(name: str) -> str:
         'Attribute VB_TemplateDerived = False\r\n'
         'Attribute VB_Customizable = False\r\n'
     )
+
+
+def normalize_class_source(source: str, *, prior_header: str = "") -> str:
+    """Convert a class module source from file-export form to stream form.
+
+    The VBE writes two different textual forms of a class module.  The
+    on-disk export (``.cls`` file) begins with a ``VERSION 1.0 CLASS`` /
+    ``BEGIN`` ... ``END`` preamble and carries no ``Attribute VB_Base``
+    line.  The form stored inside the module stream is the opposite: no
+    VERSION preamble, and the attribute block includes ``VB_Base``.
+    Writing export-form text into the stream produces a workbook that
+    opens cleanly but fails to compile: a missing ``VB_Base`` raises
+    "Invalid procedure call or argument" at the first ``New`` site, and
+    a VERSION preamble is parsed as class body text and raises
+    "Compile error: Expected: end of statement" (both verified against
+    live Excel; see GitHub issue #1).
+
+    Normalization steps:
+
+    1. Strip a leading ``VERSION ... CLASS`` preamble if present.
+    2. Ensure the attribute header carries a ``VB_Base`` line: a
+       supplied one is kept untouched; otherwise the ``VB_Base`` line
+       from ``prior_header`` (the module's existing stream header --
+       this preserves host CLSIDs when a document module's source is
+       replaced) is copied in; otherwise the universal class CLSID is
+       inserted directly after ``Attribute VB_Name``.
+
+    Idempotent: stream-form input is returned unchanged.  The input's
+    line endings are preserved -- an inserted line copies the terminator
+    of its anchor line.  Sources whose header has no ``VB_Name`` anchor
+    (already invalid as a stream) are returned with only step 1 applied.
+    """
+    if not source:
+        return source
+
+    # Step 1: strip the export-only VERSION preamble.  Mirrors the
+    # detection in split_attribute_header so the two functions always
+    # agree on where a header begins.
+    stripped = source
+    if stripped.startswith("VERSION ") and " CLASS" in stripped[:64]:
+        end_idx = stripped.find("\r\nEND\r\n")
+        if end_idx != -1:
+            stripped = stripped[end_idx + len("\r\nEND\r\n"):]
+        else:
+            end_idx = stripped.find("\nEND\n")
+            if end_idx != -1:
+                stripped = stripped[end_idx + len("\nEND\n"):]
+
+    header, body = split_attribute_header(stripped)
+    if not header:
+        return stripped
+
+    header_lines = header.splitlines(keepends=True)
+    for line in header_lines:
+        if line.startswith("Attribute VB_Base"):
+            return stripped
+
+    # Step 2: no VB_Base in the supplied header.  Find the VB_Name
+    # anchor to insert after.
+    insert_at = -1
+    for i, line in enumerate(header_lines):
+        if line.startswith("Attribute VB_Name"):
+            insert_at = i + 1
+            break
+    if insert_at == -1:
+        return stripped
+
+    anchor = header_lines[insert_at - 1]
+    if anchor.endswith("\r\n"):
+        eol = "\r\n"
+    elif anchor.endswith("\n"):
+        eol = "\n"
+    else:
+        # Header ends without a newline; terminate the anchor so the
+        # inserted line starts on its own line.
+        eol = "\r\n"
+        header_lines[insert_at - 1] = anchor + eol
+
+    vb_base_line = ""
+    if prior_header:
+        for line in prior_header.splitlines():
+            if line.startswith("Attribute VB_Base"):
+                vb_base_line = line.rstrip("\r\n") + eol
+                break
+    if not vb_base_line:
+        vb_base_line = f'Attribute VB_Base = "{CLASS_MODULE_CLSID}"{eol}'
+
+    header_lines.insert(insert_at, vb_base_line)
+    return "".join(header_lines) + body
 
 
 def rebuild_module_stream(module: VBAModule, code_page: int) -> bytes:

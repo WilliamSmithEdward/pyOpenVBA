@@ -30,11 +30,13 @@ from pyopenvba.vba import (
     compress,
     detect_signature,
     invalidate_vba_project_cache,
+    normalize_class_source,
     parse_vba_project,
     rebuild_module_stream,
     serialize_dir_stream,
     serialize_project_stream,
     serialize_projectwm,
+    split_attribute_header,
     write_back_modules,
 )
 
@@ -145,13 +147,26 @@ class PowerPointFile:
         automatically re-prepended so host-bound modules keep their
         ``Attribute VB_*`` lines.
 
+        When the target is a class-kind module (``VBAModuleKind.other``),
+        a supplied full source is normalized from file-export form to
+        stream form first (``VERSION ... CLASS`` preamble stripped,
+        ``Attribute VB_Base`` preserved or restored), so ``.cls`` files
+        exported from the VBE are accepted as-is.
+
         Changes are not written to disk until :meth:`save` is called.
         """
-        from pyopenvba.vba import split_attribute_header
         project = self.vba_project()
         for m in project.modules:
             if m.name.casefold() == name.casefold():
                 supplied_header, _ = split_attribute_header(source)
+                if supplied_header and m.kind == VBAModuleKind.other:
+                    # Convert file-export form to stream form.  prior_header
+                    # keeps the module's existing VB_Base line (including
+                    # host CLSIDs on document modules, which share the
+                    # 0x0022 module kind with plain classes).
+                    prior = m.attribute_header or split_attribute_header(m.source)[0]
+                    source = normalize_class_source(source, prior_header=prior)
+                    supplied_header, _ = split_attribute_header(source)
                 if supplied_header:
                     m.source = source
                     m.attribute_header = supplied_header
@@ -250,8 +265,18 @@ class PowerPointFile:
                 continue
             raw = child.read_bytes().decode(encoding, errors="replace")
             text = raw.replace("\r\n", "\n").replace("\r", "\n").replace("\n", "\r\n")
+            new_header = ""
+            if module.kind == VBAModuleKind.other and split_attribute_header(text)[0]:
+                # Class-kind files may be VBE exports (file-export form);
+                # convert to stream form, preserving the module's existing
+                # VB_Base line via prior_header.
+                prior = module.attribute_header or split_attribute_header(module.source)[0]
+                text = normalize_class_source(text, prior_header=prior)
+                new_header = split_attribute_header(text)[0]
             if module.source != text:
                 module.source = text
+                if new_header:
+                    module.attribute_header = new_header
                 module.dirty = True
             updated.append(module.name)
         return updated

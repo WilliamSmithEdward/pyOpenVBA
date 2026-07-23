@@ -8,7 +8,17 @@ from pathlib import Path
 import pytest
 
 from pyopenvba.exceptions import VBAProjectError
-from pyopenvba.vba import compress, copy_token_help, decompress
+from pyopenvba.vba import (
+    CLASS_MODULE_CLSID,
+    VBAModuleKind,
+    VBAProject,
+    compress,
+    copy_token_help,
+    decompress,
+    normalize_class_source,
+    split_attribute_header,
+    synthesize_class_header,
+)
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -620,3 +630,169 @@ def test_compress_byte_exact_against_access_sample_040():
             )
             return
     pytest.skip("module M not located in sample 040")
+
+
+# ---------------------------------------------------------------------------
+# Class-source normalization (GitHub issue #1)
+# ---------------------------------------------------------------------------
+#
+# VBE-exported .cls files are in *file-export form*: a leading
+# ``VERSION 1.0 CLASS`` / ``BEGIN`` / ``END`` preamble and NO
+# ``Attribute VB_Base`` line.  Module streams need *stream form*: no
+# VERSION preamble, WITH VB_Base.  Both differences are independently
+# fatal in live Excel (missing VB_Base: "Invalid procedure call or
+# argument" at the first ``New`` site; VERSION preamble in the stream:
+# "Compile error: Expected: end of statement" on line 1 of the class).
+
+_VB_BASE_LINE = f'Attribute VB_Base = "{CLASS_MODULE_CLSID}"'
+
+# The reporter's fixture shape from issue #1: own attribute header,
+# no VB_Base, LF line endings.
+_ISSUE1_HEADERED_CLS_LF = (
+    'Attribute VB_Name = "Class1"\n'
+    "Attribute VB_GlobalNameSpace = False\n"
+    "Attribute VB_Creatable = False\n"
+    "Attribute VB_PredeclaredId = False\n"
+    "Attribute VB_Exposed = False\n"
+    "\n"
+    "Private mMessage As String\n"
+    "\n"
+    "Public Function Greet() As String\n"
+    '    Greet = "Class1.Greet: " & mMessage\n'
+    "End Function\n"
+)
+
+# A genuine VBE export: VERSION preamble + the same header, CRLF.
+_VBE_EXPORT_CLS_CRLF = (
+    "VERSION 1.0 CLASS\r\n"
+    "BEGIN\r\n"
+    "  MultiUse = -1  'True\r\n"
+    "END\r\n"
+    'Attribute VB_Name = "Class1"\r\n'
+    "Attribute VB_GlobalNameSpace = False\r\n"
+    "Attribute VB_Creatable = False\r\n"
+    "Attribute VB_PredeclaredId = False\r\n"
+    "Attribute VB_Exposed = False\r\n"
+    "\r\n"
+    "Private mMessage As String\r\n"
+)
+
+
+class TestNormalizeClassSource:
+    def test_inserts_vb_base_after_vb_name_preserving_lf(self) -> None:
+        out = normalize_class_source(_ISSUE1_HEADERED_CLS_LF)
+        lines = out.split("\n")
+        assert lines[0] == 'Attribute VB_Name = "Class1"'
+        assert lines[1] == _VB_BASE_LINE
+        assert "\r\n" not in out
+        # Body untouched.
+        assert out.endswith("End Function\n")
+
+    def test_strips_version_preamble_and_inserts_vb_base_crlf(self) -> None:
+        out = normalize_class_source(_VBE_EXPORT_CLS_CRLF)
+        assert not out.startswith("VERSION")
+        assert "MultiUse" not in out
+        lines = out.split("\r\n")
+        assert lines[0] == 'Attribute VB_Name = "Class1"'
+        assert lines[1] == _VB_BASE_LINE
+        assert out.endswith("Private mMessage As String\r\n")
+
+    def test_stream_form_input_is_unchanged(self) -> None:
+        stream_form = synthesize_class_header("Class1") + "\r\nPrivate x As Long\r\n"
+        assert normalize_class_source(stream_form) == stream_form
+
+    def test_idempotent(self) -> None:
+        once = normalize_class_source(_VBE_EXPORT_CLS_CRLF)
+        assert normalize_class_source(once) == once
+
+    def test_prior_header_vb_base_wins_over_universal_clsid(self) -> None:
+        host_base = 'Attribute VB_Base = "0{00020819-0000-0000-C000-000000000046}"'
+        prior = (
+            'Attribute VB_Name = "ThisWorkbook"\r\n'
+            f"{host_base}\r\n"
+            "Attribute VB_Exposed = True\r\n"
+        )
+        supplied = (
+            'Attribute VB_Name = "ThisWorkbook"\r\n'
+            "Attribute VB_Exposed = True\r\n"
+            "\r\n"
+            "Private Sub Workbook_Open()\r\nEnd Sub\r\n"
+        )
+        out = normalize_class_source(supplied, prior_header=prior)
+        assert host_base in out
+        assert CLASS_MODULE_CLSID not in out
+
+    def test_supplied_vb_base_is_kept(self) -> None:
+        custom = 'Attribute VB_Base = "0{DEADBEEF-0000-0000-C000-000000000046}"'
+        src = (
+            'Attribute VB_Name = "C"\r\n'
+            f"{custom}\r\n"
+            "\r\n"
+            "Private x As Long\r\n"
+        )
+        assert normalize_class_source(src) == src
+
+    def test_version_preamble_with_bare_body_yields_bare_body(self) -> None:
+        src = (
+            "VERSION 1.0 CLASS\r\n"
+            "BEGIN\r\n"
+            "  MultiUse = -1  'True\r\n"
+            "END\r\n"
+            "Private x As Long\r\n"
+        )
+        assert normalize_class_source(src) == "Private x As Long\r\n"
+
+    def test_header_without_vb_name_anchor_is_left_alone(self) -> None:
+        src = (
+            "Attribute VB_GlobalNameSpace = False\r\n"
+            "\r\n"
+            "Private x As Long\r\n"
+        )
+        assert normalize_class_source(src) == src
+
+    def test_empty_source(self) -> None:
+        assert normalize_class_source("") == ""
+
+
+class TestAddModuleClassNormalization:
+    def test_headered_cls_without_vb_base_is_normalized(self) -> None:
+        project = VBAProject()
+        module = project.add_module(
+            "Class1", _ISSUE1_HEADERED_CLS_LF, kind=VBAModuleKind.other
+        )
+        header, _ = split_attribute_header(module.source)
+        assert _VB_BASE_LINE in header
+        assert module.attribute_header == header
+
+    def test_vbe_export_form_is_normalized(self) -> None:
+        project = VBAProject()
+        module = project.add_module(
+            "Class1", _VBE_EXPORT_CLS_CRLF, kind=VBAModuleKind.other
+        )
+        assert not module.source.startswith("VERSION")
+        header, _ = split_attribute_header(module.source)
+        assert _VB_BASE_LINE in header
+
+    def test_version_preamble_with_bare_body_gets_synthesized_header(self) -> None:
+        src = (
+            "VERSION 1.0 CLASS\r\n"
+            "BEGIN\r\n"
+            "  MultiUse = -1  'True\r\n"
+            "END\r\n"
+            "Private x As Long\r\n"
+        )
+        project = VBAProject()
+        module = project.add_module("Class1", src, kind=VBAModuleKind.other)
+        assert module.attribute_header == synthesize_class_header("Class1")
+        assert module.source.endswith("Private x As Long\r\n")
+
+    def test_standard_module_with_header_is_untouched(self) -> None:
+        src = (
+            'Attribute VB_Name = "Module1"\r\n'
+            "\r\n"
+            "Sub Hello()\r\nEnd Sub\r\n"
+        )
+        project = VBAProject()
+        module = project.add_module("Module1", src, kind=VBAModuleKind.standard)
+        assert module.source == src
+        assert CLASS_MODULE_CLSID not in module.source

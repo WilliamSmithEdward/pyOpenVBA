@@ -10,6 +10,11 @@ import pytest
 
 from pyopenvba.excel import ExcelFile
 from pyopenvba.exceptions import UnsupportedFormatError, VBAProjectError
+from pyopenvba.vba import (
+    CLASS_MODULE_CLSID,
+    VBAModuleKind,
+    split_attribute_header,
+)
 
 _VBA_ENTRY = "xl/vbaProject.bin"
 
@@ -145,3 +150,108 @@ def test_vba_module_disassemble_returns_empty_when_no_prefix() -> None:
     assert disasm.cafe_offset == -1
     assert disasm.num_lines == 0
     assert disasm.lines == ()
+
+
+# ---------------------------------------------------------------------------
+# Class-source normalization at the facade entry points (GitHub issue #1)
+# ---------------------------------------------------------------------------
+
+_VB_BASE_LINE = f'Attribute VB_Base = "{CLASS_MODULE_CLSID}"'
+
+_EXPORT_FORM_CLS = (
+    "VERSION 1.0 CLASS\r\n"
+    "BEGIN\r\n"
+    "  MultiUse = -1  'True\r\n"
+    "END\r\n"
+    'Attribute VB_Name = "Class1"\r\n'
+    "Attribute VB_GlobalNameSpace = False\r\n"
+    "Attribute VB_Creatable = False\r\n"
+    "Attribute VB_PredeclaredId = False\r\n"
+    "Attribute VB_Exposed = False\r\n"
+    "\r\n"
+    "Private mMessage As String\r\n"
+    "\r\n"
+    "Public Function Greet() As String\r\n"
+    '    Greet = "Class1.Greet: " & mMessage\r\n'
+    "End Function\r\n"
+)
+
+
+def _new_workbook_with_class(path: Path) -> None:
+    """Create an .xlsm containing a correctly-formed Class1 and save it."""
+    with ExcelFile.create_new(path) as wb:
+        project = wb.vba_project()
+        project.add_module(
+            "Class1", "Private mMessage As String\r\n", kind=VBAModuleKind.other
+        )
+        wb.save()
+
+
+class TestClassSourceNormalization:
+    def test_set_module_normalizes_export_form_class(self, tmp_path: Path) -> None:
+        target = tmp_path / "book.xlsm"
+        _new_workbook_with_class(target)
+        with ExcelFile(target) as wb:
+            wb.set_module("Class1", _EXPORT_FORM_CLS)
+            wb.save()
+        with ExcelFile(target) as wb:
+            source = wb.get_module("Class1")
+        assert not source.startswith("VERSION")
+        header, _ = split_attribute_header(source)
+        assert _VB_BASE_LINE in header
+        assert source.endswith("End Function\r\n")
+
+    def test_set_module_preserves_document_module_host_clsid(
+        self, tmp_path: Path
+    ) -> None:
+        target = tmp_path / "book.xlsm"
+        with ExcelFile.create_new(target) as wb:
+            project = wb.vba_project()
+            prior_header = project.get_module("ThisWorkbook").attribute_header
+            prior_vb_base = next(
+                line
+                for line in prior_header.splitlines()
+                if line.startswith("Attribute VB_Base")
+            )
+            # A document module's host CLSID differs from the universal
+            # class CLSID; the assertion below relies on that.
+            assert CLASS_MODULE_CLSID not in prior_vb_base
+            # Full-source replacement whose header lacks VB_Base entirely.
+            supplied = (
+                'Attribute VB_Name = "ThisWorkbook"\r\n'
+                "\r\n"
+                "Private Sub Workbook_Open()\r\nEnd Sub\r\n"
+            )
+            wb.set_module("ThisWorkbook", supplied)
+            new_header = project.get_module("ThisWorkbook").attribute_header
+        assert prior_vb_base in new_header
+        assert CLASS_MODULE_CLSID not in new_header
+
+    def test_push_modules_normalizes_export_form_cls(self, tmp_path: Path) -> None:
+        target = tmp_path / "book.xlsm"
+        _new_workbook_with_class(target)
+        src_dir = tmp_path / "vba"
+        src_dir.mkdir()
+        (src_dir / "Class1.cls").write_bytes(_EXPORT_FORM_CLS.encode("utf-8"))
+        with ExcelFile(target) as wb:
+            updated = wb.push_modules(src_dir)
+            assert updated == ["Class1"]
+            module = wb.vba_project().get_module("Class1")
+            assert module.dirty
+            assert not module.source.startswith("VERSION")
+            assert _VB_BASE_LINE in module.attribute_header
+            wb.save()
+        # Pushing the same file again normalizes to the identical text and
+        # leaves the module clean.
+        with ExcelFile(target) as wb:
+            wb.push_modules(src_dir)
+            assert not wb.vba_project().get_module("Class1").dirty
+
+    def test_pull_then_push_round_trip_stays_clean(self, tmp_path: Path) -> None:
+        target = tmp_path / "book.xlsm"
+        _new_workbook_with_class(target)
+        pulled = tmp_path / "pulled"
+        with ExcelFile(target) as wb:
+            wb.pull_modules(pulled)
+            wb.push_modules(pulled)
+            assert not any(m.dirty for m in wb.vba_project().modules)

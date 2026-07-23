@@ -320,3 +320,38 @@ class TestPullPushWordHelpers:
 
         updated = push_word(src, out)
         assert isinstance(updated, list)
+
+
+class TestWordClassSourceNormalization:
+    """set_module on a class-kind target normalizes VBE export form
+    (GitHub issue #1); WordFile carries its own copy of set_module."""
+
+    def test_set_module_normalizes_export_form_class(self, tmp_path: Path) -> None:
+        from pyopenvba.vba import (
+            CLASS_MODULE_CLSID,
+            VBAModuleKind,
+            split_attribute_header,
+        )
+
+        export_form = (
+            "VERSION 1.0 CLASS\r\n"
+            "BEGIN\r\n"
+            "  MultiUse = -1  'True\r\n"
+            "END\r\n"
+            'Attribute VB_Name = "Class1"\r\n'
+            "Attribute VB_Exposed = False\r\n"
+            "\r\n"
+            "Private mMessage As String\r\n"
+        )
+        target = tmp_path / "doc.docm"
+        with WordFile.create_new(target) as doc:
+            doc.vba_project().add_module(
+                "Class1", "Private x As Long\r\n", kind=VBAModuleKind.other
+            )
+            doc.save()
+        with WordFile(target) as doc:
+            doc.set_module("Class1", export_form)
+            source = doc.get_module("Class1")
+        assert not source.startswith("VERSION")
+        header, _ = split_attribute_header(source)
+        assert f'Attribute VB_Base = "{CLASS_MODULE_CLSID}"' in header

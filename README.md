@@ -219,6 +219,12 @@ with ExcelFile("workbook.xlsm") as wb:
     wb.save("out.xlsm")
 ```
 
+Class sources are accepted in any form: a bare body (the header is
+synthesized), a `.cls` file exported straight from the VBE (the
+`VERSION ... CLASS` preamble is stripped and the required
+`Attribute VB_Base` line is added automatically), or a full
+stream-form source.
+
 ---
 
 ## Edit your macros as files on disk (recommended workflow)

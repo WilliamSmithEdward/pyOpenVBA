@@ -59,6 +59,3 @@ tests/live_access_test/re_corpus/
 # Stray local test logs and Access lock files
 _pytest.log
 *.laccdb
-
-# Local VBA build and setup scripts (not for version control)
-local/

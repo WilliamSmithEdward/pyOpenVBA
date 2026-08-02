@@ -3,7 +3,7 @@
 All notable changes to pyOpenVBA are documented here. This project follows
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [3.3.0] - 2026-08-01
 
 ### Added
 

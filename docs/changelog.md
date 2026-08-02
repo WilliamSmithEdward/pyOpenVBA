@@ -3,6 +3,21 @@
 All notable changes to pyOpenVBA are documented here. This project follows
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **Excel fixture CI on real Office** (#4, contributed by
+  @DecimalTurn): a Windows workflow that builds fixture workbooks with
+  the checked-out pyOpenVBA (no Office needed for the build), installs
+  Excel on the runner via the SHA-pinned `DecimalTurn/setup-vba`
+  action, runs each fixture's macro over COM, verifies its sentinel
+  output, and uploads a desktop screenshot on failure.  Path-filtered
+  to fixture and harness changes.  Complements the local
+  `RUN_LIVE_EXCEL` gate with per-PR live-Office coverage -- the
+  `with_class` fixture is a genuine VBE-export-form class module, so
+  the issue #1 bug class is now regression-tested on real Excel in CI.
+
 ## [3.2.0] - 2026-08-01
 
 ### Changed

@@ -3,6 +3,43 @@
 All notable changes to pyOpenVBA are documented here. This project follows
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.2.0] - 2026-08-01
+
+### Changed
+
+- **Decompression is 1.76x faster, byte-for-byte identical** (issue #5).
+  `decompress` now emits output with slice operations wherever the spec
+  allows -- non-overlapping copy tokens move as one slice, runs of
+  literal tokens within a flag byte extend once -- and recomputes the
+  copy-token masks only when the chunk-local output size crosses a
+  power of two.  Overlapping copies keep the spec's byte-at-a-time
+  semantics.  Measured 12.4 -> 21.8 MB/s across the 31 module and dir
+  streams in the live fixtures; new oracle-equivalence tests pin the
+  optimized decoder against the original per-byte implementation,
+  including identical error messages and offsets on malformed input.
+- **Module source loads lazily** (issue #5).  Decompressing module
+  source is 88-96% of the cost of opening a project, so
+  `parse_vba_project` now decompresses only the first chunk of each
+  module stream (enough for the `Attribute VB_*` header; for
+  single-chunk modules it already is the whole source) and defers the
+  rest until the first `VBAModule.source` access.  Stream lookup and
+  MODULEOFFSET bounds checks stay eager.  Opening the large-module
+  fixture for `module_names()` drops from 1.47 ms to 0.79 ms.  Two
+  visible consequences: a corrupt chunk past the first one raises
+  `VBAProjectError` at first access instead of at parse time, and
+  `VBAModule` is now a regular class rather than a dataclass -- the
+  constructor signature is unchanged, a new `source_loaded` property
+  reports materialization, but dataclass-generated field equality and
+  repr are gone (equality is identity).
+
+### Added
+
+- `decompress(..., max_bytes=N)` stops at the first chunk boundary at
+  or beyond N output bytes and returns the chunk-aligned prefix.  Copy
+  tokens never cross chunk boundaries (the decoder enforces it), so
+  the prefix is byte-identical to the same range of a full
+  decompression.
+
 ## [3.1.0] - 2026-07-22
 
 ### Fixed

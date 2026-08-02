@@ -19,6 +19,9 @@ on:
       - 'scripts/utils/**'
       - '.github/workflows/excel_macro_test.yml'
 
+permissions:
+  contents: read
+
 jobs:
   test:
     name: Build and test Excel fixtures

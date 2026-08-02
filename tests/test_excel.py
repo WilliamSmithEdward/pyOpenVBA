@@ -255,3 +255,26 @@ class TestClassSourceNormalization:
             wb.pull_modules(pulled)
             wb.push_modules(pulled)
             assert not any(m.dirty for m in wb.vba_project().modules)
+
+
+class TestCreateNewXlam:
+    """create_new(.xlam) decodes the baked add-in template; same module
+    set and edit flow as the .xlsm template."""
+
+    def test_create_edit_save_reopen_round_trip(self, tmp_path: Path) -> None:
+        target = tmp_path / "new_addin.xlam"
+        with ExcelFile.create_new(target) as wb:
+            names = wb.module_names()
+            assert {"ThisWorkbook", "Sheet1", "Module1"} <= set(names)
+            wb.set_module(
+                "Module1", 'Sub AddinHello()\r\n    MsgBox "xlam"\r\nEnd Sub\r\n'
+            )
+            wb.save()
+        with ExcelFile(target) as wb:
+            assert wb.validate() == []
+            assert "AddinHello" in wb.get_module("Module1")
+
+    def test_template_module1_is_bare(self, tmp_path: Path) -> None:
+        with ExcelFile.create_new(tmp_path / "a.xlam") as wb:
+            source = wb.get_module("Module1")
+        assert source.strip() == 'Attribute VB_Name = "Module1"'

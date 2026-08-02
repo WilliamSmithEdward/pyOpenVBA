@@ -17,6 +17,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
   `RUN_LIVE_EXCEL` gate with per-PR live-Office coverage -- the
   `with_class` fixture is a genuine VBE-export-form class module, so
   the issue #1 bug class is now regression-tested on real Excel in CI.
+- **`ExcelFile.create_new` supports `.xlam`** (Excel add-in), joining
+  `.xlsm` and `.xlsb`.  The baked-in template is captured from a
+  freshly Excel-authored add-in (`ThisWorkbook`, `Sheet1`, bare
+  `Module1`) via the new `scripts/bake_xlam_template.py`, following
+  the existing bake pattern.
 
 ## [3.2.0] - 2026-08-01
 

@@ -164,13 +164,18 @@ path controls the format:
 ```python
 from pyopenvba import ExcelFile, WordFile, PowerPointFile
 
-# Excel - macro-enabled workbook (.xlsm) or binary workbook (.xlsb)
+# Excel - macro-enabled workbook (.xlsm), binary workbook (.xlsb),
+# or add-in (.xlam)
 with ExcelFile.create_new("new_book.xlsm") as wb:
     wb.set_module("Module1", 'Sub Hello()\r\n    MsgBox "xlsm"\r\nEnd Sub\r\n')
     wb.save()
 
 with ExcelFile.create_new("new_book.xlsb") as wb:
     wb.set_module("Module1", 'Sub Hello()\r\n    MsgBox "xlsb"\r\nEnd Sub\r\n')
+    wb.save()
+
+with ExcelFile.create_new("new_addin.xlam") as wb:
+    wb.set_module("Module1", 'Sub Hello()\r\n    MsgBox "xlam"\r\nEnd Sub\r\n')
     wb.save()
 
 # Word - macro-enabled document (.docm)
@@ -293,7 +298,7 @@ modules, `.cls` for class modules and code-behind.
 |-----------|------------------------------|:----:|:-----:|:----------:|
 | `.xlsm`   | Macro-enabled workbook       |  yes |  yes  |    yes     |
 | `.xlsb`   | Binary workbook              |  yes |  yes  |    yes     |
-| `.xlam`   | Macro-enabled add-in         |  yes |  yes  |    no      |
+| `.xlam`   | Macro-enabled add-in         |  yes |  yes  |    yes     |
 | `.xls`    | Legacy (Excel 97-2003)       |  yes |  yes  |    no      |
 
 ### Word

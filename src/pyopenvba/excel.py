@@ -55,10 +55,11 @@ class ExcelFile(VBAHostFile):
         VBA project (``ThisWorkbook``, ``Sheet1``, and a bare ``Module1``)
         and return an open :class:`ExcelFile` for it.
 
-        Supported extensions: ``.xlsm`` (default) and ``.xlsb``.
+        Supported extensions: ``.xlsm`` (default), ``.xlsb``, and
+        ``.xlam`` (Excel add-in).
 
         The bytes are decoded from a baked-in template captured from a
-        freshly Excel-authored workbook, so the resulting file opens
+        freshly Excel-authored file, so the resulting file opens
         cleanly in Excel without any "found a problem" repair prompt.
 
         ``path`` is overwritten if it already exists.
@@ -68,6 +69,9 @@ class ExcelFile(VBAHostFile):
         if suffix == ".xlsb":
             from pyopenvba._templates import EMPTY_XLSB_BYTES
             template = EMPTY_XLSB_BYTES
+        elif suffix == ".xlam":
+            from pyopenvba._templates import EMPTY_XLAM_BYTES
+            template = EMPTY_XLAM_BYTES
         else:
             from pyopenvba._templates import EMPTY_XLSM_BYTES
             template = EMPTY_XLSM_BYTES

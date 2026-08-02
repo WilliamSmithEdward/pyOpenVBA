@@ -25,7 +25,7 @@ Critical implementation traps (guide section 31)
 from __future__ import annotations
 
 import struct
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import TYPE_CHECKING
@@ -58,7 +58,9 @@ def copy_token_help(decompressed_current: int, decompressed_chunk_start: int) ->
     return length_mask, offset_mask, bit_count
 
 
-def decompress(data: bytes, *, stream_name: str = "<unknown>") -> bytes:
+def decompress(
+    data: bytes, *, stream_name: str = "<unknown>", max_bytes: int | None = None
+) -> bytes:
     """
     Decompress a VBA stream using the MS-OVBA compression algorithm.
 
@@ -81,6 +83,36 @@ def decompress(data: bytes, *, stream_name: str = "<unknown>") -> bytes:
     ``stream_name`` is purely contextual: it is embedded in any
     :class:`VBAProjectError` raised here so callers can identify which
     CFB stream a malformed chunk came from.
+
+    ``max_bytes``, when given, stops decompression at the first chunk
+    boundary at or beyond that many output bytes and returns the
+    chunk-aligned prefix.  Copy tokens never reference across chunk
+    boundaries (this decoder enforces it), so the prefix is
+    byte-identical to the same range of a full decompression.  Useful
+    for reading a module's ``Attribute VB_*`` header without paying for
+    the whole stream.
+    """
+    out, _ = _decompress(data, stream_name=stream_name, max_bytes=max_bytes)
+    return out
+
+
+def _decompress(
+    data: bytes, *, stream_name: str, max_bytes: int | None
+) -> tuple[bytes, bool]:
+    """Core decoder behind :func:`decompress`.
+
+    Returns ``(decompressed, consumed_all)`` where ``consumed_all`` is
+    True when the entire compressed input was processed — i.e. the
+    returned bytes are the complete decompression, not a prefix.
+
+    Performance shape (measured; see issue #5): output is produced with
+    slice operations wherever the spec allows — non-overlapping copy
+    tokens move as one slice, runs of literal tokens within a flag byte
+    extend once — and the copy-token masks are recomputed only when the
+    chunk-local output size crosses a power of two, since
+    :func:`copy_token_help` depends on nothing else.  Overlapping
+    copies (offset < length) keep the spec's byte-at-a-time semantics,
+    which are load-bearing there.
     """
 
     def _err(msg: str, offset: int) -> VBAProjectError:
@@ -92,13 +124,17 @@ def decompress(data: bytes, *, stream_name: str = "<unknown>") -> bytes:
         raise _err("Invalid compressed stream: missing 0x01 signature byte.", 0)
 
     pos = 1
+    n = len(data)
     out = bytearray()
 
-    while pos < len(data):
-        if pos + 2 > len(data):
+    while pos < n:
+        if max_bytes is not None and len(out) >= max_bytes:
+            return bytes(out), False
+
+        if pos + 2 > n:
             raise _err("Truncated compressed stream: missing chunk header.", pos)
 
-        header = int(struct.unpack_from("<H", data, pos)[0])
+        header = data[pos] | data[pos + 1] << 8
         chunk_data_size = (header & 0x0FFF) + 1   # data bytes after the header
         chunk_signature = (header >> 12) & 0x7
         chunk_flag = (header >> 15) & 0x1
@@ -113,10 +149,10 @@ def decompress(data: bytes, *, stream_name: str = "<unknown>") -> bytes:
             )
 
         chunk_end = pos + chunk_data_size
-        if chunk_end > len(data):
+        if chunk_end > n:
             raise _err(
                 f"Truncated chunk: header announces {chunk_data_size} bytes "
-                f"but only {len(data) - pos} remain.",
+                f"but only {n - pos} remain.",
                 header_offset,
             )
         decompressed_chunk_start = len(out)
@@ -129,32 +165,42 @@ def decompress(data: bytes, *, stream_name: str = "<unknown>") -> bytes:
                     f"got {chunk_data_size}.",
                     header_offset,
                 )
-            if pos + 4096 > len(data):
+            if pos + 4096 > n:
                 raise _err("Truncated raw chunk.", pos)
             out.extend(data[pos: pos + 4096])
             pos += 4096
         else:
-            # Token-compressed chunk.
+            # Token-compressed chunk.  Masks depend only on the
+            # chunk-local output offset; recompute at power-of-two
+            # crossings instead of per token.
+            length_mask, offset_mask, bit_count = copy_token_help(
+                len(out), decompressed_chunk_start
+            )
+            next_threshold = (1 << bit_count) + 1
+
             while pos < chunk_end:
-                if pos >= len(data):
+                if pos >= n:
                     break
-                flag_byte = int(data[pos])
+                flag_byte = data[pos]
                 pos += 1
 
-                for bit in range(8):
-                    if pos >= chunk_end or pos >= len(data):
+                bit = 0
+                while bit < 8:
+                    if pos >= chunk_end or pos >= n:
                         break
 
                     if (flag_byte >> bit) & 1:
                         # Copy token — back-reference into already-decompressed output.
-                        if pos + 2 > len(data):
+                        if pos + 2 > n:
                             raise _err("Truncated copy token.", pos)
-                        token = int(struct.unpack_from("<H", data, pos)[0])
+                        token = data[pos] | data[pos + 1] << 8
                         pos += 2
 
-                        length_mask, offset_mask, bit_count = copy_token_help(
-                            len(out), decompressed_chunk_start
-                        )
+                        if len(out) - decompressed_chunk_start >= next_threshold:
+                            length_mask, offset_mask, bit_count = copy_token_help(
+                                len(out), decompressed_chunk_start
+                            )
+                            next_threshold = (1 << bit_count) + 1
                         length = (token & length_mask) + 3
                         offset = ((token & offset_mask) >> (16 - bit_count)) + 1
 
@@ -171,16 +217,29 @@ def decompress(data: bytes, *, stream_name: str = "<unknown>") -> bytes:
                                 pos - 2,
                             )
 
-                        # Byte-by-byte copy; overlap is intentional and required by spec.
-                        for _ in range(length):
-                            out.append(out[copy_src])
-                            copy_src += 1
+                        if offset >= length:
+                            # Source range is fully materialized: one slice.
+                            out += out[copy_src: copy_src + length]
+                        else:
+                            # Overlapping copy; byte-at-a-time is required
+                            # by spec semantics (the pattern repeats).
+                            for _ in range(length):
+                                out.append(out[copy_src])
+                                copy_src += 1
+                        bit += 1
                     else:
-                        # Literal token.
-                        out.append(int(data[pos]))
-                        pos += 1
+                        # Run of literal tokens: consecutive clear bits in
+                        # this flag byte copy verbatim as one slice.
+                        run_start = pos
+                        while (bit < 8
+                               and not ((flag_byte >> bit) & 1)
+                               and pos < chunk_end
+                               and pos < n):
+                            pos += 1
+                            bit += 1
+                        out += data[run_start:pos]
 
-    return bytes(out)
+    return bytes(out), True
 
 
 def compress(data: bytes) -> bytes:
@@ -678,35 +737,101 @@ class _DirInfo:
 # Public data model
 # ---------------------------------------------------------------------------
 
-@dataclass
 class VBAModule:
-    """A parsed VBA module with its source code."""
-    name: str
-    stream_name: str
-    source: str
-    kind: VBAModuleKind = VBAModuleKind.standard
-    text_offset: int = 0
-    is_read_only: bool = False
-    is_private: bool = False
-    # Dir-stream sub-records preserved for round-trip serialization.
-    name_unicode: str = ""
-    stream_name_unicode: str = ""
-    doc_string: str = ""
-    doc_string_unicode: str = ""
-    help_context: int = 0
-    cookie: int = 0
-    # Original bytes 0..text_offset of the module stream (performance cache
-    # / version-dependent prefix).  Preserved across write-back so that
-    # Office's cache invalidation logic operates the same way as it would
-    # for an untouched stream.
-    prefix_bytes: bytes = field(default=b"", repr=False)
-    # Whether the source has been edited and needs to be recompressed on save.
-    dirty: bool = field(default=False, repr=False)
-    # Cached attribute header captured at parse time so a body-only source
-    # replacement (the VBE-style edit surface) can re-prepend the required
-    # ``Attribute VB_*`` / ``VERSION ... CLASS`` block.  Re-derived on demand
-    # when missing via ``split_attribute_header(self.source)``.
-    attribute_header: str = field(default="", repr=False)
+    """A parsed VBA module with its source code.
+
+    ``source`` may be materialized lazily: modules produced by
+    :func:`parse_vba_project` defer the MS-OVBA decompression of their
+    stream until the first ``.source`` access (issue #5 — decompression
+    is 88-96% of the cost of opening a project, and callers that only
+    want names, kinds, or one module out of many should not pay for all
+    of it).  Constructing a module with an explicit ``source`` string is
+    fully eager and behaves exactly as before.  One consequence of
+    laziness: a corrupt chunk past the first one raises
+    :class:`VBAProjectError` at first access rather than at parse time.
+    """
+
+    def __init__(
+        self,
+        name: str,
+        stream_name: str,
+        source: str = "",
+        kind: VBAModuleKind = VBAModuleKind.standard,
+        text_offset: int = 0,
+        is_read_only: bool = False,
+        is_private: bool = False,
+        # Dir-stream sub-records preserved for round-trip serialization.
+        name_unicode: str = "",
+        stream_name_unicode: str = "",
+        doc_string: str = "",
+        doc_string_unicode: str = "",
+        help_context: int = 0,
+        cookie: int = 0,
+        # Original bytes 0..text_offset of the module stream (performance
+        # cache / version-dependent prefix).  Preserved across write-back
+        # so that Office's cache invalidation logic operates the same way
+        # as it would for an untouched stream.
+        prefix_bytes: bytes = b"",
+        # Whether the source has been edited and needs recompression on save.
+        dirty: bool = False,
+        # Cached attribute header captured at parse time so a body-only
+        # source replacement (the VBE-style edit surface) can re-prepend
+        # the required ``Attribute VB_*`` block.  Re-derived on demand when
+        # missing via ``split_attribute_header(self.source)``.
+        attribute_header: str = "",
+        source_loader: Callable[[], str] | None = None,
+    ) -> None:
+        self.name = name
+        self.stream_name = stream_name
+        self.kind = kind
+        self.text_offset = text_offset
+        self.is_read_only = is_read_only
+        self.is_private = is_private
+        self.name_unicode = name_unicode
+        self.stream_name_unicode = stream_name_unicode
+        self.doc_string = doc_string
+        self.doc_string_unicode = doc_string_unicode
+        self.help_context = help_context
+        self.cookie = cookie
+        self.prefix_bytes = prefix_bytes
+        self.dirty = dirty
+        self.attribute_header = attribute_header
+        if source_loader is not None:
+            self._source: str | None = None
+            self._source_loader: Callable[[], str] | None = source_loader
+        else:
+            self._source = source
+            self._source_loader = None
+
+    def __repr__(self) -> str:
+        return (
+            f"VBAModule(name={self.name!r}, stream_name={self.stream_name!r}, "
+            f"kind={self.kind!r}, text_offset={self.text_offset}, "
+            f"source_loaded={self._source is not None})"
+        )
+
+    @property
+    def source_loaded(self) -> bool:
+        """True once the source text is materialized in memory."""
+        return self._source is not None
+
+    @property
+    def source(self) -> str:
+        """The module's full source text (header plus body).
+
+        Materializes lazily on first access for parsed modules.
+        """
+        if self._source is None:
+            loader = self._source_loader
+            assert loader is not None, "lazy module lost its loader"
+            self._source = loader()
+            self._source_loader = None
+        return self._source
+
+    @source.setter
+    def source(self, value: str) -> None:
+        self._source = value
+        self._source_loader = None
 
     @property
     def body(self) -> str:
@@ -1470,12 +1595,31 @@ def _project_section_end(lines: list[str]) -> int:
 # Public factory
 # ---------------------------------------------------------------------------
 
+def _make_source_loader(
+    compressed: bytes, encoding: str, stream_name: str
+) -> Callable[[], str]:
+    """Build the deferred decompress-and-decode thunk for a lazy module."""
+    def _load() -> str:
+        return decompress(compressed, stream_name=stream_name).decode(
+            encoding, errors="replace"
+        )
+    return _load
+
+
 def parse_vba_project(cfb: CFB) -> VBAProject:
     """
-    Extract and decompress all VBA module sources from a parsed CFB.
+    Extract all VBA module metadata from a parsed CFB.
 
     The CFB must be the vbaProject.bin from an xlsm/xlsb, or the whole
     file for an xls workbook.
+
+    Module source text is loaded lazily: only the first compressed
+    chunk of each module stream is decompressed here (enough for the
+    ``Attribute VB_*`` header, and for single-chunk modules it is
+    already the whole source).  The remaining chunks decompress on the
+    first ``VBAModule.source`` access.  Stream lookup and MODULEOFFSET
+    bounds checks stay eager so structural corruption still surfaces at
+    parse time.
     """
     try:
         dir_compressed = cfb.get_stream_in_storage("VBA", "dir")
@@ -1510,17 +1654,47 @@ def parse_vba_project(cfb: CFB) -> VBAProject:
                 f"{len(stream_compressed)} for module {info.name!r}."
             )
 
-        compressed_source = stream_compressed[info.text_offset:]
-        source_bytes = decompress(
-            compressed_source, stream_name=f"VBA/{stream_name}"
+        compressed_source = bytes(stream_compressed[info.text_offset:])
+        ovba_name = f"VBA/{stream_name}"
+
+        # Decompress just the first chunk.  For single-chunk modules
+        # (decompressed size <= 4096) this is the complete source and
+        # the module is materialized eagerly with zero extra work.
+        prefix_raw, consumed_all = _decompress(
+            compressed_source, stream_name=ovba_name, max_bytes=1
         )
-        source = source_bytes.decode(encoding, errors="replace")
-        header, _ = split_attribute_header(source)
+        prefix_text = prefix_raw.decode(encoding, errors="replace")
+
+        source: str | None
+        loader: Callable[[], str] | None
+        if consumed_all:
+            source = prefix_text
+            header, _ = split_attribute_header(prefix_text)
+            loader = None
+        else:
+            header, body_prefix = split_attribute_header(prefix_text)
+            if header and body_prefix:
+                # Header fits inside the first chunk (the normal case);
+                # defer the rest of the stream.
+                source = None
+                loader = _make_source_loader(
+                    compressed_source, encoding, ovba_name
+                )
+            else:
+                # Either no attribute header at all, or the header runs
+                # to the chunk boundary and may be truncated.  Both are
+                # abnormal; fall back to eager full decompression so
+                # attribute_header is always derived from complete text.
+                source = decompress(
+                    compressed_source, stream_name=ovba_name
+                ).decode(encoding, errors="replace")
+                header, _ = split_attribute_header(source)
+                loader = None
 
         modules.append(VBAModule(
             name=info.name,
             stream_name=stream_name,
-            source=source,
+            source=source if source is not None else "",
             kind=info.module_kind,
             text_offset=info.text_offset,
             is_read_only=info.is_read_only,
@@ -1531,8 +1705,9 @@ def parse_vba_project(cfb: CFB) -> VBAProject:
             doc_string_unicode=info.doc_string_unicode,
             help_context=info.help_context,
             cookie=info.cookie,
-            prefix_bytes=stream_compressed[: info.text_offset],
+            prefix_bytes=bytes(stream_compressed[: info.text_offset]),
             attribute_header=header,
+            source_loader=loader,
         ))
 
     project = VBAProject(modules=modules, code_page=code_page)

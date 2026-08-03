@@ -43,6 +43,36 @@ jobs:
       - name: Run pytest
         run: pytest -p no:randomly -q
 
+  # Non-ASCII text through the real engine for every supported code page
+  # (the issue-#11 bug class): Thai, Japanese, Chinese (both), Korean,
+  # Cyrillic, Greek, Turkish, Hebrew, Arabic, Vietnamese, and friends,
+  # each a full write -> read -> list -> validate cycle on a workbook
+  # whose PROJECTCODEPAGE is that page.  Split out from the matrix above
+  # so a code-page regression names its own OS instead of hiding inside a
+  # general run, and mirrors the equivalent job in the xlide_vscode port.
+  languages:
+    name: Language matrix (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install package + dev tools
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+
+      - name: Run language matrix
+        run: pytest tests/test_language_matrix.py -p no:randomly -q
+
   build:
     name: build sdist + wheel
     runs-on: ubuntu-latest

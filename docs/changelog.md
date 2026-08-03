@@ -28,9 +28,18 @@ All notable changes to pyOpenVBA are documented here. This project follows
   each combining mark back into the base until the codec accepts the
   result, emitting the remaining marks as combining bytes.  Text the
   codec already encodes directly is returned byte-for-byte unchanged.
-- **GB18030 silently degraded to latin-1** (issue #12).  Code page 54936
-  is the only page VBA hosts write that Python does not spell `cp<N>`;
-  it now maps to the `gb18030` codec.
+- **Code pages resolved differently on Windows than on Linux/macOS.**
+  CPython falls through to the operating system's code-page registry on
+  Windows, so `cp10000`, `cp20866`, `cp21866`, `cp28592`, and `cp28595`
+  resolved there while raising `LookupError` elsewhere -- text in those
+  pages decoded correctly on one platform and became latin-1 mojibake
+  on another.  `_CODEPAGE_ALIASES` now maps 30 Windows code-page
+  identifiers (Macintosh, KOI8, the ISO-8859 family, ISO-2022, EUC, GB,
+  UTF-7, GB18030) to portable Python codec names and is consulted
+  first, so every platform resolves identically.  Found by the new
+  cross-OS CI job on its first run; two tests now assert portability
+  against the pure-Python codec registry so a regression fails on every
+  platform rather than only the affected one.
 - **Unresolvable code pages failed silently** (issue #12).  Falling back
   to latin-1 now emits a `UserWarning` instead of quietly producing
   mojibake that survives round-trip checks.

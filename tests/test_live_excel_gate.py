@@ -182,7 +182,7 @@ def test_cyrillic_module_name_compiles_and_runs_in_live_excel(
             "Sub RunGate()\r\n"
             "    Dim f As Integer\r\n"
             "    f = FreeFile\r\n"
-            '    Open ThisWorkbook.Path & "\cyrillic_sentinel.txt" '
+            '    Open ThisWorkbook.Path & "\\cyrillic_sentinel.txt" '
             "For Output As #f\r\n"
             "    Print #f, Привет()\r\n"
             "    Close #f\r\n"

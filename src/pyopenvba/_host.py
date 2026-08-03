@@ -431,6 +431,7 @@ class VBAHostFile:
                         rename_map,
                         add_modules=add_modules_for_project,
                         delete_names=delete_names,
+                        code_page=project.code_page,
                     )
                     cfb.write_stream("PROJECT", new_project)
                 # Rewrite PROJECTwm to enumerate the current module set in

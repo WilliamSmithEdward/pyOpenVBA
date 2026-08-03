@@ -24,7 +24,10 @@ Critical implementation traps (guide section 31)
 
 from __future__ import annotations
 
+import codecs
 import struct
+import unicodedata
+import warnings
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass, field
 from enum import Enum
@@ -451,6 +454,22 @@ class VBAReference:
     libid_secondary: str = ""   # twiddled / relative libid where applicable
 
 
+def _prefer_unicode(ansi: str, unicode_value: str) -> str:
+    """Return the authoritative value of an ANSI / UTF-16 dir record pair.
+
+    The UTF-16 partner record is lossless by construction, while the ANSI
+    record is limited to the project's code page.  When the two disagree
+    the ANSI side is the damaged one -- either its bytes were undecodable
+    (U+FFFD) or the writer had already substituted ``?`` for characters
+    outside the page -- so the Unicode record wins (GitHub issue #12).
+    Well-formed files carry identical values and are unaffected.
+    """
+    cleaned = unicode_value.rstrip("\x00")
+    if cleaned and cleaned != ansi:
+        return cleaned
+    return ansi
+
+
 def _parse_dir_stream(raw: bytes) -> tuple[_DirInfo, list[_ModuleInfo]]:
     """
     Parse a decompressed dir stream.
@@ -663,16 +682,28 @@ def _parse_dir_stream(raw: bytes) -> tuple[_DirInfo, list[_ModuleInfo]]:
             # Do not commit: REFERENCEORIGINAL is always followed by REFERENCECONTROL.
 
         # ------------- MODULE records -----------------------------
+        # Each MBCS record is followed by its UTF-16 partner.  When the
+        # MBCS decode was lossy -- the project's code page could not
+        # represent the name, or the file declares a page we could not
+        # resolve -- the Unicode record is the authoritative lossless
+        # value, so prefer it (GitHub issue #12).
         elif record_id == 0x0047 and current is not None: # MODULENAMEUNICODE
             current.name_unicode = data.decode("utf-16-le", errors="replace")
+            current.name = _prefer_unicode(current.name, current.name_unicode)
         elif record_id == 0x001A and current is not None: # MODULESTREAMNAME
             current.stream_name = data.decode(_enc(), errors="replace")
         elif record_id == 0x0032 and current is not None: # MODULESTREAMNAME unicode
             current.stream_name_unicode = data.decode("utf-16-le", errors="replace")
+            current.stream_name = _prefer_unicode(
+                current.stream_name, current.stream_name_unicode
+            )
         elif record_id == 0x001C and current is not None: # MODULEDOCSTRING (MBCS)
             current.doc_string = data.decode(_enc(), errors="replace")
         elif record_id == 0x0048 and current is not None: # MODULEDOCSTRINGUNICODE
             current.doc_string_unicode = data.decode("utf-16-le", errors="replace")
+            current.doc_string = _prefer_unicode(
+                current.doc_string, current.doc_string_unicode
+            )
         elif record_id == 0x0031 and current is not None: # MODULEOFFSET
             if len(data) >= 4:
                 current.text_offset = int(struct.unpack_from("<I", data, 0)[0])
@@ -1122,13 +1153,146 @@ class VBAProject:
 # Write-back helpers
 # ---------------------------------------------------------------------------
 
+# Windows code-page identifiers whose portable Python codec is not
+# spelled ``cp<N>``.
+#
+# These aliases are not merely a convenience: on Windows, CPython falls
+# through to the operating system's code-page registry, so ``cp28592``
+# and friends resolve there but raise LookupError on Linux and macOS.
+# Relying on the ``cp<N>`` spelling therefore makes a project's text
+# decode correctly on one platform and turn into latin-1 mojibake on
+# another -- a platform-dependent data bug (caught by the cross-OS
+# language-matrix CI job on its first run; see GitHub issue #13).
+# Consulting this table first keeps behavior identical everywhere.
+#
+# Pages VBA hosts write that Python does spell ``cp<N>`` portably (874,
+# 932, 936, 949, 950, 1250-1258, 1361, 65001) are deliberately absent.
+_CODEPAGE_ALIASES: dict[int, str] = {
+    # Macintosh
+    10000: "mac_roman",
+    10004: "mac_arabic",
+    10006: "mac_greek",
+    10007: "mac_cyrillic",
+    10010: "mac_romanian",
+    10029: "mac_latin2",
+    10079: "mac_iceland",
+    10081: "mac_turkish",
+    10082: "mac_croatian",
+    # KOI8
+    20866: "koi8_r",
+    21866: "koi8_u",
+    # ISO 8859
+    28591: "iso8859_1",
+    28592: "iso8859_2",
+    28593: "iso8859_3",
+    28594: "iso8859_4",
+    28595: "iso8859_5",
+    28596: "iso8859_6",
+    28597: "iso8859_7",
+    28598: "iso8859_8",
+    28599: "iso8859_9",
+    28603: "iso8859_13",
+    28605: "iso8859_15",
+    # ISO 2022 / EUC / GB / misc
+    50220: "iso2022_jp",
+    50225: "iso2022_kr",
+    51932: "euc_jp",
+    51936: "gb2312",
+    51949: "euc_kr",
+    52936: "hz",
+    54936: "gb18030",
+    65000: "utf_7",
+}
+
+
 def _encoding_for_codepage(code_page: int) -> str:
+    """Map a PROJECTCODEPAGE value to a Python codec name.
+
+    Falls back to ``latin-1`` for pages Python cannot resolve, warning
+    so the degradation is visible: silently decoding a foreign code page
+    as latin-1 produces mojibake that survives round-trip checks (see
+    GitHub issue #12).
+    """
+    alias = _CODEPAGE_ALIASES.get(code_page)
+    if alias is not None:
+        return alias
+    encoding = f"cp{code_page}"
     try:
-        encoding = f"cp{code_page}"
-        "".encode(encoding)
+        codecs.lookup(encoding)
     except LookupError:
-        encoding = "latin-1"
+        warnings.warn(
+            f"No Python codec for VBA code page {code_page}; falling back "
+            "to latin-1.  Text outside the Latin-1 range will be mojibake. "
+            "Please report this code page at "
+            "https://github.com/WilliamSmithEdward/pyOpenVBA/issues",
+            UserWarning,
+            stacklevel=3,
+        )
+        return "latin-1"
     return encoding
+
+
+def encode_mbcs(text: str, encoding: str) -> bytes:
+    """Encode ``text`` to an MBCS code page, salvaging composed characters.
+
+    Equivalent to ``text.encode(encoding, errors="replace")`` except for
+    characters the codec cannot represent directly but *can* represent as
+    a base character plus combining marks.  Python's charmap codecs do no
+    composition, so Vietnamese text destined for cp1258 loses every
+    stacked-diacritic character:
+
+        'Tiếng Việt'.encode('cp1258', errors='replace')
+        -> b'Ti?ng Vi?t'
+
+    cp1258 stores ``ệ`` as precomposed ``ê`` (0xEA) plus a combining
+    dot-below byte (0xF2), which is *not* the character's canonical
+    decomposition, so NFD alone does not help either.  For each
+    unmappable character this helper decomposes to NFD and tries folding
+    each combining mark back into the base in turn, keeping the first
+    combination the codec accepts and emitting the remaining marks as
+    combining bytes.  Decoding those bytes yields a canonically
+    equivalent (NFD-ish) string, so compare with NFC normalization.
+
+    Characters that remain unmappable become ``?``, matching
+    ``errors="replace"``.  Text that the codec already encodes directly
+    is returned byte-for-byte unchanged, so this never alters output for
+    projects that work today.
+    """
+    try:
+        return text.encode(encoding)
+    except UnicodeEncodeError:
+        pass
+    out = bytearray()
+    for ch in text:
+        try:
+            out += ch.encode(encoding)
+            continue
+        except UnicodeEncodeError:
+            pass
+        decomposed = unicodedata.normalize("NFD", ch)
+        if len(decomposed) > 1:
+            base, marks = decomposed[0], list(decomposed[1:])
+            folded: bytes | None = None
+            for i, mark in enumerate(marks):
+                combined = unicodedata.normalize("NFC", base + mark)
+                if len(combined) != 1:
+                    continue   # this mark does not compose with the base
+                rest = "".join(marks[:i] + marks[i + 1:])
+                try:
+                    folded = combined.encode(encoding) + rest.encode(encoding)
+                except UnicodeEncodeError:
+                    continue
+                break
+            if folded is not None:
+                out += folded
+                continue
+            try:
+                out += decomposed.encode(encoding)
+                continue
+            except UnicodeEncodeError:
+                pass
+        out += ch.encode(encoding, errors="replace")
+    return bytes(out)
 
 
 def split_attribute_header(source: str) -> tuple[str, str]:
@@ -1316,7 +1480,7 @@ def rebuild_module_stream(module: VBAModule, code_page: int) -> bytes:
     invalidation logic that Office performs on the prefix remains valid.
     """
     encoding = _encoding_for_codepage(code_page)
-    source_bytes = module.source.encode(encoding, errors="replace")
+    source_bytes = encode_mbcs(module.source, encoding)
     compressed = compress(source_bytes)
     return module.prefix_bytes + compressed
 
@@ -1368,11 +1532,11 @@ def serialize_dir_modules_section(project: VBAProject) -> bytes:
         name_u = m.name_unicode or m.name
         stream = m.stream_name or m.name
         stream_u = m.stream_name_unicode or stream
-        out += _pack_record(0x0019, name.encode(enc, errors="replace"))
+        out += _pack_record(0x0019, encode_mbcs(name, enc))
         out += _pack_record(0x0047, name_u.encode("utf-16-le"))
-        out += _pack_record(0x001A, stream.encode(enc, errors="replace"))
+        out += _pack_record(0x001A, encode_mbcs(stream, enc))
         out += _pack_record(0x0032, stream_u.encode("utf-16-le"))
-        out += _pack_record(0x001C, m.doc_string.encode(enc, errors="replace"))
+        out += _pack_record(0x001C, encode_mbcs(m.doc_string, enc))
         out += _pack_record(0x0048, m.doc_string_unicode.encode("utf-16-le"))
         out += _pack_record(0x0031, struct.pack("<I", m.text_offset))
         out += _pack_record(0x001E, struct.pack("<I", m.help_context))
@@ -1432,6 +1596,7 @@ def serialize_project_stream(
     *,
     add_modules: list[tuple[str, str]] | None = None,
     delete_names: set[str] | None = None,
+    code_page: int = 1252,
 ) -> bytes:
     """
     Rewrite a PROJECT stream's plain-text body to apply pending mutations.
@@ -1454,7 +1619,13 @@ def serialize_project_stream(
     ``[Host Extender Info]``) is preserved byte-for-byte except for the
     targeted substitutions.
 
-    Returns cp1252-encoded bytes with CRLF line endings.
+    ``code_page``:
+        PROJECTCODEPAGE of the owning project.  The PROJECT stream is
+        code-page ANSI per [MS-OVBA] 2.3.1, so its ``Module=`` /
+        ``Document=`` declarations carry module names in that page.
+        Defaults to 1252 for callers that have no project handy.
+
+    Returns code-page-encoded bytes with CRLF line endings.
     """
     add_modules = add_modules or []
     delete_names = delete_names or set()
@@ -1462,10 +1633,8 @@ def serialize_project_stream(
     # callers may invoke this to run the dedup/normalization pass on a
     # PROJECT stream that was previously corrupted by buggy writes (e.g.
     # duplicate ``Module=NAME`` lines from a delete-then-readd flow).
-    try:
-        text = raw.decode("cp1252", errors="replace")
-    except LookupError:
-        text = raw.decode("latin-1", errors="replace")
+    encoding = _encoding_for_codepage(code_page)
+    text = raw.decode(encoding, errors="replace")
 
     rename_ci: dict[str, str] = {k.casefold(): v for k, v in rename_map.items()}
     delete_ci: set[str] = {n.casefold() for n in delete_names}
@@ -1579,7 +1748,7 @@ def serialize_project_stream(
                 for name, _ in ws_new:
                     seen_workspace.add(name.casefold())
 
-    return ("\r\n".join(out_lines) + "\r\n").encode("cp1252", errors="replace")
+    return encode_mbcs("\r\n".join(out_lines) + "\r\n", encoding)
 
 
 def _project_section_end(lines: list[str]) -> int:
@@ -1725,7 +1894,7 @@ def parse_vba_project(cfb: CFB) -> VBAProject:
         project_stream_raw = None
     if project_stream_raw is not None:
         try:
-            ps = parse_project_stream(project_stream_raw)
+            ps = parse_project_stream(project_stream_raw, code_page=code_page)
             project.protection = ps.protection
         except VBAProjectError:
             pass
@@ -1767,17 +1936,16 @@ class ProjectStream:
     host_extender_info: list[str] = field(default_factory=lambda: [])
 
 
-def parse_project_stream(raw: bytes) -> ProjectStream:
+def parse_project_stream(raw: bytes, *, code_page: int = 1252) -> ProjectStream:
     """Parse the plain-text PROJECT stream.
 
-    The PROJECT stream is Windows-1252 encoded key=value text terminated
-    by CRLF.  Empty lines separate the project information block, the
-    ``[Host Extender Info]`` block, and the ``[Workspace]`` block.
+    The PROJECT stream is code-page ANSI key=value text terminated by
+    CRLF ([MS-OVBA] 2.3.1); pass the project's PROJECTCODEPAGE as
+    ``code_page`` so non-Latin module names decode correctly.  Empty
+    lines separate the project information block, the ``[Host Extender
+    Info]`` block, and the ``[Workspace]`` block.
     """
-    try:
-        text = raw.decode("cp1252", errors="replace")
-    except LookupError:
-        text = raw.decode("latin-1", errors="replace")
+    text = raw.decode(_encoding_for_codepage(code_page), errors="replace")
 
     out = ProjectStream()
     section = "project"  # "project" | "host_extender" | "workspace"
@@ -1846,8 +2014,14 @@ def parse_project_stream(raw: bytes) -> ProjectStream:
 # PROJECTwm stream parser ([MS-OVBA] 2.3.4.4)
 # ---------------------------------------------------------------------------
 
-def parse_projectwm(raw: bytes) -> list[tuple[str, str]]:
+def parse_projectwm(
+    raw: bytes, *, code_page: int = 1252
+) -> list[tuple[str, str]]:
     """Parse the PROJECTwm stream into (mbcs_name, unicode_name) pairs.
+
+    ``code_page`` selects the MBCS codec for the first name in each pair;
+    pass the project's PROJECTCODEPAGE so non-Latin names decode
+    correctly.
 
     Format:
         loop:
@@ -1876,10 +2050,9 @@ def parse_projectwm(raw: bytes) -> list[tuple[str, str]]:
             pos += 2
         unicode_name = raw[start:pos].decode("utf-16-le", errors="replace")
         pos += 2   # skip the u16=0 terminator
-        try:
-            mbcs_name = mbcs.decode("cp1252", errors="replace")
-        except LookupError:
-            mbcs_name = mbcs.decode("latin-1", errors="replace")
+        mbcs_name = mbcs.decode(
+            _encoding_for_codepage(code_page), errors="replace"
+        )
         out.append((mbcs_name, unicode_name))
     return out
 
@@ -1903,7 +2076,7 @@ def serialize_projectwm(
         if not mbcs:
             # An empty MBCS name would terminate the stream prematurely.
             continue
-        buf += mbcs.encode(enc, errors="replace")
+        buf += encode_mbcs(mbcs, enc)
         buf += b"\x00"
         buf += unicode_name.encode("utf-16-le", errors="replace")
         buf += b"\x00\x00"

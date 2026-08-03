@@ -282,3 +282,46 @@ def test_cp1258_vietnamese_is_the_regression_this_matrix_found() -> None:
     assert b"?" not in encode_mbcs(sample, "cp1258")
     # ệ is stored as precomposed ê (0xEA) plus combining dot-below (0xF2).
     assert encode_mbcs("ệ", "cp1258") == b"\xea\xf2"
+
+
+def test_every_matrix_code_page_resolves_portably() -> None:
+    """Guard against the platform-dependence trap.
+
+    On Windows, CPython falls through to the OS code-page registry, so
+    names like ``cp28592`` resolve there but raise LookupError on Linux
+    and macOS.  A page that relies on that fallback decodes correctly on
+    one platform and turns into latin-1 mojibake on another.  This test
+    fails on every platform (not just the affected one) by consulting
+    ``encodings.search_function``, the pure-Python registry that is
+    identical everywhere.
+
+    The cross-OS ``languages`` CI job caught exactly this on its first
+    run: cp10000, cp20866, cp21866, cp28592, and cp28595 passed on
+    Windows and failed on ubuntu.
+    """
+    import encodings
+
+    non_portable: list[str] = []
+    for code_page, label, _sample in LANGUAGE_MATRIX:
+        name = _encoding_for_codepage(code_page)
+        if encodings.search_function(name) is None:
+            non_portable.append(f"cp{code_page} ({label}) -> {name!r}")
+    assert not non_portable, (
+        "these code pages resolve only via a platform-specific codec "
+        "registry; add a portable alias to _CODEPAGE_ALIASES: "
+        + ", ".join(non_portable)
+    )
+
+
+def test_alias_table_entries_are_all_portable() -> None:
+    """Every alias must exist in the pure-Python codec registry."""
+    import encodings
+
+    from pyopenvba.vba import _CODEPAGE_ALIASES  # pyright: ignore[reportPrivateUsage]
+
+    broken = [
+        f"{cp} -> {name!r}"
+        for cp, name in _CODEPAGE_ALIASES.items()
+        if encodings.search_function(name) is None
+    ]
+    assert not broken, f"unresolvable codec aliases: {broken}"

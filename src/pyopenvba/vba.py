@@ -1153,11 +1153,55 @@ class VBAProject:
 # Write-back helpers
 # ---------------------------------------------------------------------------
 
-# Code pages whose Python codec is not spelled ``cp<N>``.  Every other
-# page VBA hosts write (874, 932, 936, 949, 950, 125x, 1361, 10000,
-# 20866, 21866, 2859x, 65001) resolves directly.
+# Windows code-page identifiers whose portable Python codec is not
+# spelled ``cp<N>``.
+#
+# These aliases are not merely a convenience: on Windows, CPython falls
+# through to the operating system's code-page registry, so ``cp28592``
+# and friends resolve there but raise LookupError on Linux and macOS.
+# Relying on the ``cp<N>`` spelling therefore makes a project's text
+# decode correctly on one platform and turn into latin-1 mojibake on
+# another -- a platform-dependent data bug (caught by the cross-OS
+# language-matrix CI job on its first run; see GitHub issue #13).
+# Consulting this table first keeps behavior identical everywhere.
+#
+# Pages VBA hosts write that Python does spell ``cp<N>`` portably (874,
+# 932, 936, 949, 950, 1250-1258, 1361, 65001) are deliberately absent.
 _CODEPAGE_ALIASES: dict[int, str] = {
-    54936: "gb18030",   # GB18030-2005; Python has no ``cp54936``
+    # Macintosh
+    10000: "mac_roman",
+    10004: "mac_arabic",
+    10006: "mac_greek",
+    10007: "mac_cyrillic",
+    10010: "mac_romanian",
+    10029: "mac_latin2",
+    10079: "mac_iceland",
+    10081: "mac_turkish",
+    10082: "mac_croatian",
+    # KOI8
+    20866: "koi8_r",
+    21866: "koi8_u",
+    # ISO 8859
+    28591: "iso8859_1",
+    28592: "iso8859_2",
+    28593: "iso8859_3",
+    28594: "iso8859_4",
+    28595: "iso8859_5",
+    28596: "iso8859_6",
+    28597: "iso8859_7",
+    28598: "iso8859_8",
+    28599: "iso8859_9",
+    28603: "iso8859_13",
+    28605: "iso8859_15",
+    # ISO 2022 / EUC / GB / misc
+    50220: "iso2022_jp",
+    50225: "iso2022_kr",
+    51932: "euc_jp",
+    51936: "gb2312",
+    51949: "euc_kr",
+    52936: "hz",
+    54936: "gb18030",
+    65000: "utf_7",
 }
 
 

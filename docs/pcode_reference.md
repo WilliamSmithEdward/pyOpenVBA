@@ -182,42 +182,44 @@ derivation is unknown; it presumably reserves operand space for
 built-in / predeclared slots. Treat it as calibrated, not proven
 universal.
 
-### 5.1 The secondary identifier space (OPEN)
+### 5.1 The built-in identifier table (second operand space)
 
-Not every name operand lives in the project table. Operands **below
-`0x20E`** reference a second space that section 5 does not cover, and
-the names they denote are *absent from the project table entirely*.
+Operands **below `0x20E`** address a different space: a fixed table of
+built-in names held by the **VBA runtime itself**, not stored in the
+file. `Left`, for instance, appears nowhere in either the module stream
+or `_VBA_PROJECT`, yet is called by operand `0x00DC`.
 
-Confirmed cases, each compiled by Excel and checked against its table:
+A user identifier that **collides with a built-in name reuses that
+built-in's operand** instead of gaining a project-table entry. Declaring
+all 26 single letters and checking which reached the project table
+isolates this exactly: every letter appears *except* `b` and `f`, which
+instead compile to the fixed operands `0x0018` and `0x00A4`. The same
+`0x00A4` is emitted for a user function named `F`, so matching is
+case-insensitive.
 
-| name | kind | operand | in project table? |
-|------|------|---------|-------------------|
-| `b` | local variable (`Dim a, b, c`) | `0x0018` | no |
-| `F` | user function (assigned and called) | `0x00A4` | no |
-| `s` | ByRef parameter | -- | no |
-| `Left` | VBA intrinsic | `0x00DC` | no |
+The table is **ordered alphabetically**, which makes it mappable by
+probing and verifiable: sorting confirmed entries by operand must
+reproduce alphabetical order.
 
-Meanwhile `a`, `c`, `x`, `r`, and `UCase` from the same modules *are* in
-the table and resolve correctly, so this is not a parser failure.
+| operand | name | operand | name |
+|---------|------|---------|------|
+| `0x0012` | `Array` | `0x00AC` | `Format` |
+| `0x0018` | `b` | `0x00DC` | `Left` |
+| `0x005A` | `Date` | `0x00FA` | `Mid` |
+| `0x007E` | `Dir` | `0x015C` | `String` |
+| `0x00A4` | `f` | | |
 
-Two further clues:
+Each entry was confirmed by compiling a probe with Excel and reading the
+operand back. The map is **partial** -- it covers what has been probed,
+not the whole runtime table -- and extends by probing further names;
+`BUILTIN_OPERANDS` in `pcode_names.py` carries it, with
+`builtin_table_is_ordered()` as a self-check on additions.
 
-- The table contains **decorated** forms for some intrinsics --
-  `_B_var_Left` and `_B_str_UCase` appear alongside the plain `UCase` --
-  suggesting the compiler distinguishes call forms.
-- The bytes immediately preceding the main table contain both the
-  operand value and the name (`... 18 00 ff 03 00 00 62`, where `0x62`
-  is `b` and `0x0018` is its operand): a differently-shaped record in a
-  region that precedes the table proper.
-
-Tested and **ruled out**: that these operands are declaration-table
-offsets (`DECL_BASE + operand` yields `0x0000` / `0xFFFF`), and that
-they index the project table from an alternative base.
-
-Practical impact: a decompiler resolves most names and should render the
-rest as a stable placeholder rather than guessing.
-
----
+**OPEN:** the table's full contents and its index origin (operands are
+`2 * index` into an alphabetical list, but the complete name list lives
+in the VBA runtime, not the file). Note also that names resolved this
+way lose their original casing, since the runtime table supplies the
+spelling.
 
 ## 6. Declaration operands (`func_` / `var_`)
 
@@ -425,6 +427,8 @@ compile error otherwise blocks on a modal dialog.
   calibrated.
 - The identifier **hash function** used by the module's bucket table --
   required before new identifiers can be written.
+- The full contents of the runtime built-in identifier table
+  (section 5.1); the mechanism is understood, the map is partial.
 - `rec_` indirect-table layout (user-defined types) and array / `New`
   declarators. Scalar declared types are solved (section 6.1).
 - Source-to-p-code compilation: lexer, parser, codegen, and the slot

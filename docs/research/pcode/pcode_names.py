@@ -20,6 +20,32 @@ from dataclasses import dataclass
 
 NAME_OPERAND_BASE = 0x20E   # operand = BASE + 2*index (empirically fixed)
 
+# Operands BELOW NAME_OPERAND_BASE address a second identifier space: a
+# fixed table of built-in names held by the VBA runtime, not stored in
+# the file at all. It is identical for every project and ordered
+# alphabetically (case-insensitively), so operands can be mapped by
+# probing and the result shipped as a lookup.
+#
+# A user identifier that collides with a built-in name reuses the
+# built-in's operand instead of gaining a project-table entry, which is
+# why e.g. `Dim b` and `Dim f` never appear in the project table.
+#
+# Partial map, each entry confirmed by compiling a probe with Excel and
+# reading back the operand. Extend by probing more names; the ordering
+# invariant (sorted by operand == sorted alphabetically) is a useful
+# self-check on any addition.
+BUILTIN_OPERANDS: dict[int, str] = {
+    0x0012: "Array",
+    0x0018: "b",
+    0x005A: "Date",
+    0x007E: "Dir",
+    0x00A4: "f",
+    0x00AC: "Format",
+    0x00DC: "Left",
+    0x00FA: "Mid",
+    0x015C: "String",
+}
+
 @dataclass(frozen=True)
 class Identifier:
     index: int
@@ -95,9 +121,22 @@ def parse_identifiers(vba_project_stream: bytes) -> list[Identifier]:
     return [Identifier(i, c[2], c[3], c[4], c[0]) for i, c in enumerate(best)]
 
 def resolve_name(operand: int, table: list[Identifier]) -> str | None:
-    """Map a p-code ``name`` operand to its identifier, or None."""
+    """Map a p-code ``name`` operand to its identifier, or None.
+
+    Operands at or above :data:`NAME_OPERAND_BASE` index the project
+    table; lower operands address the runtime's built-in table (see
+    :data:`BUILTIN_OPERANDS`).
+    """
+    if operand < NAME_OPERAND_BASE:
+        return BUILTIN_OPERANDS.get(operand)
     delta = operand - NAME_OPERAND_BASE
-    if delta < 0 or delta % 2:
+    if delta % 2:
         return None
     idx = delta // 2
     return table[idx].name if 0 <= idx < len(table) else None
+
+
+def builtin_table_is_ordered() -> bool:
+    """Self-check: the built-in map must stay alphabetically ordered."""
+    names = [BUILTIN_OPERANDS[k] for k in sorted(BUILTIN_OPERANDS)]
+    return names == sorted(names, key=str.lower)

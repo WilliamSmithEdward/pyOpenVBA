@@ -40,6 +40,7 @@ from accdb_write import (
     Perf,
     append_identifiers,
     drop_srp_cache,
+    find_counter_base,
     find_project_row,
     load_module,
     set_lval_payload,
@@ -217,14 +218,20 @@ def rewrite(src_db: Path, out_db: Path, statements: list[str],
                   + source[last + 1:])
     blob = "\r\n".join(new_source).encode("latin-1")
 
-    if len(recs) != perf.num_lines and not allow_resize:
-        raise SystemExit(
-            f"this rewrite changes the module from {perf.num_lines} to "
-            f"{len(recs)} lines. The pre-0xCAFE header carries per-procedure "
-            "line counters that we cannot yet locate in most modules, so the "
-            "result is a module Access rejects with 'Expected End Function' "
-            "the moment it recompiles. Keep the statement count the same, or "
-            "pass --allow-resize to write it anyway for research.")
+    # Changing the line count means rewriting the per-procedure counters,
+    # which is only safe once we know where they live. Without that, the
+    # module compiles as far as Access is concerned until it recompiles,
+    # then fails with "Expected End Function".
+    if len(recs) != perf.num_lines:
+        base = find_counter_base(bytes(info["row"]), perf.lines,
+                                 perf.num_lines, perf.cafe)
+        if base is None and not allow_resize:
+            raise SystemExit(
+                f"this rewrite changes the module from {perf.num_lines} to "
+                f"{len(recs)} lines, but its per-procedure line counters "
+                "could not be located, so they would keep stale values and "
+                "Access would reject the module on its next compile. Keep "
+                "the statement count the same, or pass --allow-resize.")
 
     new_row, new_modoff = perf.build(lines=lines, recs=recs, new_source=blob)
     data = bytearray(out_db.read_bytes())

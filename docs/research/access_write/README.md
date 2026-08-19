@@ -396,32 +396,58 @@ execution itself comes from the p-code.
 Only `/decompile` promotes source over p-code, by regenerating the p-code
 from it. Dropping `__SRP_` is not a recompile.
 
-### The remaining bug: changing the line count
+### Changing the line count: the per-procedure counters
 
-Growing or shrinking a module by even one line produces a module Access
-rejects the moment it recompiles:
+Growing or shrinking a module used to produce "Compile error: Expected
+End Function" the moment Access recompiled. The pre-0xCAFE header carries
+a pair of u16 counters per procedure at ``base + func_``, and the rule
+they hold was wrong.
+
+A controlled series settles it: the same module compiled by Access with
+one to six body lines, then two- and three-procedure variants and a class
+module. Exactly two header offsets move with the line count, and they
+move by one per line:
 
 ```
-Compile error: Expected End Function
+N body lines:  1  2  3  4  5  6
+@516 and @518: 3  4  5  6  7  8
 ```
 
-This is not about new identifiers. A rewrite that adds a line while
-introducing **no new names at all** fails identically, and one that keeps
-the count while renumbering everything succeeds. The pre-0xCAFE header
-carries per-procedure line counters, and `find_counter_base()` fails to
-locate them in most modules, so they keep their old values and Access
-runs off the end of the procedure. Diffing our header against Access's
-own build of the same source shows Access allocating 48 more bytes and
-writing 4 where we wrote 3.
+The value is **the number of source lines the procedure spans**: from its
+``FuncDefn`` up to the next procedure's, or to the end of the module for
+the last one, so a blank separator counts toward the procedure above it.
 
-`rewrite_module.py` now refuses a line-count change rather than emitting
-a module that only breaks later, with `--allow-resize` to override for
-research. Fixing it means understanding the counter base properly, which
-is the next piece of work.
+| module | procedures (FuncDefn line) | counters |
+|--------|---------------------------|----------|
+| one procedure, 6 body lines | 1, module ends at 9 | 8 |
+| two procedures | 1, 5, module ends at 9 | 4, 4 |
+| three procedures | 1, 5, 10, module ends at 15 | 4, 5, 5 |
 
-A warning about probes, since this cost real time: bare `Application.Eval`
-over COM **hangs** behind a modal VBA compile-error dialog. Use
-`pyvbaharness`, which reports `modal-blocked` instead of blocking.
+``EndFunc`` plays no part, which is what the old rule got wrong: a
+``Declare`` emits a ``FuncDefn`` with no matching ``EndFunc``, so pairing
+them drops its counter and shifts every later one. The base is 516 for a
+standard module and 612 for a class module.
+
+The new rule reproduces Access exactly in **97 of the 103 modules** in
+this repo that contain a procedure, up from 4. The six exceptions are
+fixtures whose p-code was deliberately left inconsistent with their
+source.
+
+With this and the ``__SRP_`` drop, arbitrary statement counts work:
+twelve generated statements -- ``Set``, ``CreateObject``, member calls
+with arguments, ``^`` and ``Select Case`` -- written into an empty
+procedure body return 145 from real Access.
+
+### Gate what runs, not just what parses
+
+Every other gate here is static, and both passed on databases Access
+refused to run. ``verify_execution.py`` closes that: it rewrites a
+procedure, drops the cache and asks Access for the answer, over a
+same-count body, a grown one and one built from nothing.
+
+A warning about probes, since this cost real time twice: bare
+``Application.Eval`` over COM **hangs** behind a modal VBA compile-error
+dialog. Use ``pyvbaharness``, which reports ``modal-blocked`` instead.
 
 ## Establishing p-code coverage
 

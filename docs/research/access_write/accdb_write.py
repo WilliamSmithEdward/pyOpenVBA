@@ -46,6 +46,12 @@ from pyopenvba.vba import decompress
 ACE_PAGE_SIZE = 4096
 STORAGE_PAGE_DEFAULT = 48
 
+# Two u16 fields in the module-stream header count the lines of the
+# procedure region. They track the line table's size, and Access refuses
+# to load a module whose copies are stale -- which is what made an early
+# attempt at changing the statement count fail. Both hold the same value.
+PROC_LINE_COUNT_OFFSETS = (516, 518)
+
 # MS-OVBA dir record MODULEOFFSET: <u16 id=0x0031><u32 size=4><u32 value>
 _MODULEOFFSET_HDR = bytes.fromhex("310004000000")
 
@@ -291,6 +297,17 @@ class Perf:
         new_modoff = len(out)
         out += source
         out[29:33] = end_pcode.to_bytes(4, "little")
+        # Keep the procedure line counters in step with the line table.
+        # They are relative-patched rather than recomputed: the absolute
+        # value counts one procedure's lines, so only the delta is known
+        # to be right for a module holding several.
+        delta = len(out_recs) - self.num_lines
+        if delta:
+            for off in PROC_LINE_COUNT_OFFSETS:
+                if off + 2 > self.cafe:
+                    continue
+                value = int.from_bytes(self.row[off:off + 2], "little")
+                out[off:off + 2] = (value + delta).to_bytes(2, "little")
         return bytes(out), new_modoff
 
 

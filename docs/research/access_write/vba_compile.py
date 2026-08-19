@@ -249,7 +249,18 @@ def compile_line(text, names):
 
 
 def name_table(path):
-    """Map lowercased identifier name -> p-code name operand."""
+    """Map lowercased identifier name -> p-code name operand.
+
+    Positional records are addressed as ``524 + 2*index`` and records
+    carrying their own slot as ``2*slot + 2``. Use each record's own
+    ``index`` rather than its position in the tuple: slotted records take
+    no position, so enumerating would shift every name after one.
+    """
     from pyopenvba.access_read import AccessReader
-    ids = AccessReader(path).identifiers()
-    return {x.name.lower(): 524 + 2 * i for i, x in enumerate(ids)}
+
+    table: dict[str, int] = {}
+    for record in AccessReader(path).identifiers():
+        operand = (2 * record.slot + 2 if record.slot is not None
+                   else 524 + 2 * record.index)
+        table[record.name.lower()] = operand
+    return table

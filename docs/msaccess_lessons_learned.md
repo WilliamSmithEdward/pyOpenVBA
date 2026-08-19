@@ -158,11 +158,21 @@ re-emits **33 of 33 statements byte-for-byte identically to Microsoft's
 own compiler**, and a module whose logic was rewritten entirely in Python
 computes the right answer in real Access.
 
-The remaining barrier is genuinely different from the old one: the
-pre-`0xCAFE` header carries a table of 24-byte slot records for locals and
-compiler temporaries, sized by Access at compile time, so the **statement
-count cannot change** yet. Adding statements, identifiers or procedures
-needs that table modelled. Code `docs/research/access_write/`.
+The statement count can change too. That looked blocked by a table of
+24-byte slot records in the pre-`0xCAFE` header, but the comparison behind
+that reading was confounded: holding variables and control flow constant
+while varying only the statement count leaves the header size and the slot
+table **identical**. Slot records track variables and control-flow blocks,
+not statements. The real constraint was two u16 fields at `+516`/`+518`
+holding the procedure's line count; patched by the line delta, a module
+regrown from 3 statements to 13 compiles and runs (the per-line frame-size
+hint turned out to be advisory).
+
+What remains is adding **new identifiers** -- which needs the
+`_VBA_PROJECT` symbol buckets -- and **new procedures**, which need the
+`FuncDefn` declaration tables. Generated code is otherwise unrestricted as
+long as it uses names the project already has and the module row still
+fits its 4 KB page. Code in `docs/research/access_write/`.
 
 ---
 

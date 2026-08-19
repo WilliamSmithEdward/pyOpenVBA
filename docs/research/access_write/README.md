@@ -37,8 +37,9 @@ fix up -- normally the hardest part of a code generator.
 | Access runs the canonical `0xCAFE` p-code, not the `rU@` execodes | Editing only the CAFE region changed `5+3` to `5+9`; Access returned 14 while every `rU@` row stayed stale |
 | Source alone is display-only | Source edited to `5 + 3 + 100` with p-code untouched still returned **8** |
 | A grown module row loads and runs | `5+3` -> `5+3+10` (+12 bytes) returned 18, `compile_project` OK |
-| Our p-code equals Microsoft's | 33 statements across 4 modules re-emitted byte-for-byte identically |
+| Our p-code equals Microsoft's | 70 statements across 8 modules re-emitted byte-for-byte identically |
 | Rewritten logic executes | `acc = 9 * 9`, `idx = acc + 19`, `Calc = acc * 2 + idx` returned **262** |
+| Statement count can change | A 3-statement template regrown to 13 statements (nested `Do While` + `If`/`ElseIf`/`Else`) returned **160**; shrunk to 2 returned **42** |
 
 The source/p-code test is the important negative: Access has **no
 load-time recompile-from-source trigger**. Excel treats a version mismatch
@@ -55,7 +56,8 @@ produces a module that displays one thing and does another.
   assignment, `If`/`ElseIf`/`Else`, `Do While`/`Loop`, `For`/`Next`.
 - `verify_compiler.py` -- gate: recompiles an Access-built module and
   requires byte-identical output. Non-zero exit on any difference.
-- `rewrite_module.py` -- rewrites a module's statements end to end.
+- `rewrite_module.py` -- replaces a procedure's body end to end, with a
+  free statement count (`--file program.vba` to read the body from a file).
 
 ```bash
 python docs/research/access_write/verify_compiler.py sample.accdb
@@ -84,9 +86,10 @@ operand 24) and `f` (slot 81, operand 164); the other 24 single letters
 are ordinary positional records. `AccessReader.identifiers()` exposes
 these with `slot` set and `index == -1`.
 
-Beware that VBA is case-insensitive when checking a name resolved: in a
-module `M` with function `G`, the variables `g` and `m` do not create
-identifiers at all -- they bind to the existing `G` and `M`.
+VBA is case-insensitive, so a name may resolve to something that already
+exists rather than creating an identifier: in a module `M` with function
+`G`, the variables `g` and `m` produce no new records at all -- they bind
+to `G` and `M`.
 
 Implicit (undeclared) variables need **no** declaration record -- `zz = 7`
 is just `LitDI2 7 | St(name)`. Only `Dim`-ed variables emit
@@ -100,18 +103,29 @@ offsets are 8-byte aligned and the p-code region ends with an 8-byte
 trailer, so
 `total = align8(last_offset + last_length) + 8`.
 
-## What still does not work
+## The statement-count barrier, and why it was not the slot table
 
-**Changing the statement count.** The pre-`0xCAFE` header carries a table
-of 24-byte slot records -- named locals plus anonymous compiler
-temporaries (`4004feff`) -- sized by Access when it compiles. A module with
-8 more statements had 64 more header bytes, entirely in that table, plus
-several count and pointer fields (a statement count at two offsets, and
-u32 pointers) that move with it. Generating those requires modelling VBA's
-temporary allocation and the frame-size hint at record `+6`, which depends
-on static type inference (an implicit Variant assignment scores 20 where
-the same statement on a `Long` scores 18). Until that is reproduced,
-statement counts must be preserved.
+An earlier reading of the pre-`0xCAFE` header concluded that the statement
+count was fixed by a table of 24-byte slot records (named locals plus
+anonymous compiler temporaries, `4004feff`), because a module with 8 more
+statements carried 64 more header bytes. That was a confounded comparison:
+the two modules also differed in variables and control flow.
+
+Holding those constant and varying only the statement count settles it.
+Five modules with one variable and 1..5 statements have an **identical**
+header size and an identical 2-record slot table; only 13 header bytes
+differ, of which the build timestamp, the `*\R...` per-compile cookie and
+the checksum account for most. Slot records track variables and
+control-flow blocks, not statements -- `x = 1` and
+`x = 1 + 2 * 3 + 4 * 5 + 6 * 7` both allocate two.
+
+What actually blocked it was two u16 fields at `+516` and `+518` holding
+the procedure's line count. They are patched by the line delta, and with
+that alone a module regrown from 3 to 13 statements compiles and runs.
+The frame-size hint at record `+6` turned out to be **advisory**: the
+13-statement module ran correctly with deliberately wrong values.
+
+## What still does not work
 
 **New identifiers.** Adding a name means extending the `_VBA_PROJECT`
 identifier table. The record format and its hash are solved

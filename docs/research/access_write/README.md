@@ -59,8 +59,10 @@ produces a module that displays one thing and does another.
 - `vba_compile.py` -- VBA to p-code compiler: full operator precedence,
   assignment, `If`/`ElseIf`/`Else`, `Do While`/`Loop`, `For`/`Next`.
 - `verify_compiler.py` -- gate: recompiles every module in an
-  Access-built project and requires byte-identical output. Non-zero exit
-  on any difference.
+  Access-built project and requires byte-identical output.
+- `verify_identity.py` -- gate: rebuilds every module *unchanged* and
+  requires the database back byte for byte. Every storage rule here was
+  found by this failing; run it before trusting a new one.
 - `rewrite_module.py` -- replaces a procedure's body end to end, with a
   free statement count (`--file program.vba` to read the body from a file).
 
@@ -193,6 +195,16 @@ row's `MSysAccessStorage` length like any other resize. `rewrite_module.py`
 does this automatically for every name a program introduces.
 
 ## What still does not work
+
+**Modules the layout model does not cover.** `rewrite_module.py` rebuilds
+the module unchanged first and refuses to write unless the result is
+byte-identical, so an unmodelled layout is a refusal rather than a
+corrupted database. One known case: a large comment-heavy module stores
+its comment text in a plaintext region *after* the p-code, with those line
+records (byte 2 = `0x09` rather than `0x08`) pointing into it instead of
+into the p-code. The p-code region then does not end where the model
+expects, and the 1 MB fixture's `Module1` and `Class1` are refused for
+exactly that reason.
 
 **New procedures.** `FuncDefn` carries a `func_` offset into the
 declaration tables, which is not yet decoded, so generated code lives

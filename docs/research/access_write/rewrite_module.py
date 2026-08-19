@@ -112,6 +112,28 @@ def _procedure_body(perf: Perf, source: list[str],
     raise SystemExit(f"procedure {procedure!r} not found; have {names}")
 
 
+def _require_reproducible(perf: Perf, info: dict) -> None:
+    """Refuse to write a module we cannot rebuild byte for byte.
+
+    Rebuilding with no changes exercises the whole layout model. If the
+    result differs from what is on disk, some part of this module is laid
+    out in a way the model does not cover, and writing it would corrupt
+    the database rather than fail. Large comment-heavy modules are one
+    known case: their line records point into a plaintext text region
+    instead of the p-code, so the p-code region is not where the model
+    expects it to end.
+
+    ``verify_identity.py`` runs the same check across a whole corpus.
+    """
+    rebuilt, modoff = perf.build()
+    if rebuilt[:perf.cafe] == info["row"][:perf.cafe] and modoff == info["modoff"]:
+        return
+    raise SystemExit(
+        f"module {info.get('name')!r} does not rebuild byte-for-byte, so its "
+        "layout is not fully modelled; refusing to write it. Run "
+        "verify_identity.py on this database for detail.")
+
+
 def _statement_record(text: str, code: bytes) -> bytearray:
     rec = bytearray(_EXEC_RECORD_PREFIX + b"\x00" * 8)
     rec[3] = len(text) - len(text.lstrip())
@@ -146,8 +168,10 @@ def rewrite(src_db: Path, out_db: Path, statements: list[str],
     info = load_module(out_db, module)
     perf = Perf(info["row"], info["modoff"])
     source = perf.source().decode("latin-1").split("\r\n")
-    # Resolve the target before touching anything, so a bad module or
-    # procedure name does not leave appended identifiers behind it.
+    # Check the layout is one we model before interpreting anything in
+    # it, then resolve the target -- both before touching the file, so a
+    # refusal leaves no appended identifiers behind.
+    _require_reproducible(perf, info)
     first, last = _procedure_body(perf, source, procedure)
     names = _add_missing_identifiers(out_db, statements)
 

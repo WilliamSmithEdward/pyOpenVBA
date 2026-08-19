@@ -489,16 +489,23 @@ def chain_members(data: bytearray, page: int, slot: int,
 
 def find_lval_descriptor(data: bytearray, page: int, slot: int,
                          current_length: int,
-                         storage_page: int = STORAGE_PAGE_DEFAULT
-                         ) -> tuple[int, int]:
+                         storage_page: int | None = None) -> tuple[int, int]:
     """Offset and flags of the descriptor for one long value.
 
-    Located by its exact ``<u32 length|flags><u8 slot><u24 page>`` bytes,
-    which is specific enough to be unambiguous.
+    Located by its exact ``<u32 length|flags><u8 slot><u24 page>`` bytes.
+    Eight bytes tying a length to a page and slot is specific enough to
+    search the whole file for, which avoids assuming where a database
+    keeps its catalog -- ``MSysAccessStorage`` sits on page 48 in a
+    freshly created database but need not in general. Pass
+    ``storage_page`` to restrict the search to one page.
     """
     pointer = bytes([slot]) + int(page).to_bytes(3, "little")
-    base = storage_page * ACE_PAGE_SIZE
-    window = bytes(data[base:base + ACE_PAGE_SIZE])
+    if storage_page is None:
+        start, stop = 0, len(data)
+    else:
+        start = storage_page * ACE_PAGE_SIZE
+        stop = start + ACE_PAGE_SIZE
+    window = bytes(data[start:stop])
     for flags in (LVAL_SINGLE_FLAG, 0):
         needle = (current_length | flags).to_bytes(4, "little") + pointer
         hits = []
@@ -507,7 +514,7 @@ def find_lval_descriptor(data: bytearray, page: int, slot: int,
             hits.append(i)
             i = window.find(needle, i + 1)
         if len(hits) == 1:
-            return base + hits[0], flags
+            return start + hits[0], flags
         if len(hits) > 1:
             raise ValueError(
                 f"long-value descriptor for page {page} slot {slot} "
@@ -537,7 +544,7 @@ def row_capacity(data: bytearray, page: int, slot: int) -> int:
 
 def write_chained_lval(data: bytearray, page: int, slot: int,
                        payload: bytes, current_length: int,
-                       storage_page: int = STORAGE_PAGE_DEFAULT) -> None:
+                       storage_page: int | None = None) -> None:
     """Rewrite a chained long value across the rows it already occupies.
 
     The chain keeps its shape -- same rows, same order -- and the payload
@@ -580,7 +587,7 @@ def write_chained_lval(data: bytearray, page: int, slot: int,
 
 def set_lval_payload(data: bytearray, page: int, slot: int, payload: bytes,
                      current_length: int,
-                     storage_page: int = STORAGE_PAGE_DEFAULT) -> None:
+                     storage_page: int | None = None) -> None:
     """Replace a long value's bytes, whichever shape it is stored in.
 
     Single-row values are written in place; chained ones are respread

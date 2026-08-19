@@ -23,9 +23,21 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from accdb_write import Perf, load_module
 from vba_compile import CompileError, compile_line, name_table
 
+from pyopenvba.access_read import AccessReader
+
 
 def check(path: Path) -> tuple[int, int, int]:
-    info = load_module(path)
+    """Check every module in the project, not just the first."""
+    modules = [s.name for s in AccessReader(path).find_module_streams()]
+    totals = [0, 0, 0]
+    for name in modules or [None]:
+        for index, value in enumerate(check_module(path, name)):
+            totals[index] += value
+    return totals[0], totals[1], totals[2]
+
+
+def check_module(path: Path, module: str | None) -> tuple[int, int, int]:
+    info = load_module(path, module)
     perf = Perf(info["row"], info["modoff"])
     names = name_table(path)
     # p-code line i corresponds to source line i+1: the Attribute header

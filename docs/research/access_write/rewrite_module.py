@@ -6,19 +6,23 @@
     python docs/research/access_write/rewrite_module.py \
         in.accdb out.accdb --file program.vba
 
-Every executable statement in the template's procedure is replaced by the
-statements given. The count is free: statements may be added or removed,
-and the compiled p-code, the line table, the source text and the header's
-procedure line counters are all rebuilt to match.
+    python docs/research/access_write/rewrite_module.py \
+        in.accdb out.accdb --module ModB --file program.vba
+
+The body of the module's first procedure -- everything between its
+``FuncDefn`` and ``EndFunc`` lines -- is replaced by the statements given.
+The count is free: statements may be added or removed, and the compiled
+p-code, the line table, the source text and the header's procedure line
+counters are all rebuilt to match. A procedure with no executable
+statements at all, empty or entirely comments, is handled too.
 
 Names the program introduces are appended to the project identifier table
 automatically, so generated code is not limited to names Access already
-created. One constraint remains, and it fails loudly rather than
-corrupting the database:
+created. ``--module`` picks the module in a project holding several.
 
-* **The module row must still fit its 4 KB page.** Growing past the free
-  space raises ``ValueError``; spilling onto a fresh page needs the LVAL
-  chain allocator, which is not implemented.
+What remains needs a page allocated, and fails loudly rather than
+corrupting the database: a single-row module may grow into its page's free
+space, and a chained one up to its chain's capacity, but no further.
 
 Dev-only research tool. Verify by running the macro in real Access; a
 database that merely reads back correctly proves nothing.
@@ -39,12 +43,43 @@ from accdb_write import (
     set_lval_payload,
     write_module,
 )
-from vba_compile import CompileError, compile_line, name_table, referenced_names
+from vba_compile import compile_line, name_table, referenced_names
 
 # Record byte 3 is the source indent; bytes 0-2 mark an executable
 # statement line. Byte 6 is a frame-size hint that Access recomputes, so
 # an approximation is enough -- it does not affect execution.
 _EXEC_RECORD_PREFIX = b"\x00\x81\x08\x00"
+
+
+# A procedure opens with FuncDefn and closes with EndFunc, each alone on
+# its line. Their opcodes are the low 10 bits of the line's first word.
+_FUNCDEFN, _ENDFUNC = 150, 105
+
+
+def _first_opcode(code: bytes | None) -> int | None:
+    if not code or len(code) < 2:
+        return None
+    return int.from_bytes(code[:2], "little") & 0x03FF
+
+
+def _procedure_body(perf: Perf) -> tuple[int, int]:
+    """Line indices bounding the first procedure's body, inclusive.
+
+    Anchoring on FuncDefn/EndFunc rather than on "the statements we can
+    recompile" means a procedure with no executable statements -- an empty
+    one, or a body that is all comments -- still has a findable body.
+    """
+    start = end = None
+    for index, code in enumerate(perf.lines):
+        opcode = _first_opcode(code)
+        if opcode == _FUNCDEFN and start is None:
+            start = index
+        elif opcode == _ENDFUNC and start is not None:
+            end = index
+            break
+    if start is None or end is None:
+        raise SystemExit("no procedure (FuncDefn .. EndFunc) found in module")
+    return start + 1, end - 1
 
 
 def _statement_record(text: str, code: bytes) -> bytearray:
@@ -83,20 +118,7 @@ def rewrite(src_db: Path, out_db: Path, statements: list[str],
     perf = Perf(info["row"], info["modoff"])
     source = perf.source().decode("latin-1").split("\r\n")
 
-    # Executable statements are the line-table entries our compiler can
-    # rebuild; the surrounding header, declarations and procedure lines
-    # are carried over untouched.
-    targets = []
-    for index in range(len(perf.recs)):
-        text = source[index + 1] if index + 1 < len(source) else ""
-        try:
-            if compile_line(text, names) is not None:
-                targets.append(index)
-        except CompileError:
-            continue
-    if not targets:
-        raise SystemExit(f"{src_db.name}: no executable statements found")
-    first, last = targets[0], targets[-1]
+    first, last = _procedure_body(perf)
 
     body, body_recs, body_src = [], [], []
     for text in statements:
@@ -118,9 +140,9 @@ def rewrite(src_db: Path, out_db: Path, statements: list[str],
     data = bytearray(out_db.read_bytes())
     write_module(data, info, new_row, new_modoff)
     out_db.write_bytes(bytes(data))
-    print(f"{out_db.name}: {len(targets)} -> {len(statements)} statements, "
-          f"{perf.num_lines} -> {len(recs)} lines, "
-          f"module row {len(info['row'])} -> {len(new_row)} bytes")
+    print(f"{out_db.name}: body {last - first + 1} -> {len(statements)} "
+          f"lines, module {perf.num_lines} -> {len(recs)} lines, "
+          f"row {len(info['row'])} -> {len(new_row)} bytes")
 
 
 if __name__ == "__main__":

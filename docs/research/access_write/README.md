@@ -57,8 +57,9 @@ produces a module that displays one thing and does another.
   `Perf`, which parses and rebuilds a module's `0xCAFE` region.
 - `vba_compile.py` -- VBA to p-code compiler: full operator precedence,
   assignment, `If`/`ElseIf`/`Else`, `Do While`/`Loop`, `For`/`Next`.
-- `verify_compiler.py` -- gate: recompiles an Access-built module and
-  requires byte-identical output. Non-zero exit on any difference.
+- `verify_compiler.py` -- gate: recompiles every module in an
+  Access-built project and requires byte-identical output. Non-zero exit
+  on any difference.
 - `rewrite_module.py` -- replaces a procedure's body end to end, with a
   free statement count (`--file program.vba` to read the body from a file).
 
@@ -191,6 +192,16 @@ reproducing Access's page allocator and its usage maps. Both limits raise
 Shortening a chain below the rows it occupies is also refused: releasing
 rows, and converting a chain back to a single-row value, are not
 implemented.
+
+**A procedure's body is bounded by its `FuncDefn` and `EndFunc` lines**,
+not by "the statements we can recompile" -- that way a procedure holding
+no executable statements, empty or entirely comments, still has a findable
+body.
+
+**Do not assume where the catalog lives.** `MSysAccessStorage` sits on
+page 48 in a freshly created database, but the 1 MB fixture in this repo
+keeps its long-value descriptors on page 168. Descriptors are found by
+searching for their exact 8 bytes instead.
 
 **Beware: running a database mutates it.** Opening an `.accdb` read-write
 in Access rewrites parts of the file -- in one case relocating the

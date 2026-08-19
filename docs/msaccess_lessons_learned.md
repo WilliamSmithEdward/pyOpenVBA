@@ -121,6 +121,49 @@ which any real source change needs -- still requires reproducing
 Access's LVAL page allocator and `MSysObjects` chunk-pointer mutation
 (section 5).
 
+### 3.2 Breakthrough (2026-08): executable pure-Python writes
+
+The barrier in 3.1 was stated as "size, not correctness". That was right
+about the symptom and wrong about the cause. Growing a row does not need
+Access's page allocator at all; it needs one field.
+
+Every VBA long-value is described by an `MSysAccessStorage` catalog row
+holding `<u16 length> 00 40 <slot><page>`, and Access trusts that length
+over the page slot table. Resizing a row while that length still reads the
+old value makes Access fault while loading the project -- which is exactly
+the "soft error on save" the phase-5 resize experiment hit. Updating it
+makes resizing work. **This field is the "internal index binding a module
+name to its compiled rows" that section 5 lists as never located.**
+
+Three further results follow from it:
+
+| Experiment | Result |
+|---|---|
+| Edit only the canonical `0xCAFE` p-code, leave every `rU@` row stale | Access returns the **new** value -- the CAFE region is what executes |
+| Edit only the source text, leave p-code alone | Access returns the **old** value -- source is display-only |
+| Grow a module row by 12 bytes and fix the catalog length | Runs correctly; `compile_project` succeeds |
+
+The second row settles a question 3.1 left open. There is no load-time
+recompile-from-source trigger, so writing source text alone yields a
+module that displays one thing and does another. Any Access writer must
+generate correct p-code.
+
+Generating it turned out to be tractable because **VBA p-code control flow
+is structured rather than jump-based**: `IfBlock`/`ElseBlock`/`EndIfBlock`,
+`DoWhile`/`Loop` and `For`/`NextVar` carry no branch offsets, so there are
+no jump targets to fix up. Implicit (undeclared) variables also need no
+declaration record. A compiler covering full operator precedence,
+assignment, `If`/`ElseIf`/`Else`, `Do While`/`Loop` and `For`/`Next` now
+re-emits **33 of 33 statements byte-for-byte identically to Microsoft's
+own compiler**, and a module whose logic was rewritten entirely in Python
+computes the right answer in real Access.
+
+The remaining barrier is genuinely different from the old one: the
+pre-`0xCAFE` header carries a table of 24-byte slot records for locals and
+compiler temporaries, sized by Access at compile time, so the **statement
+count cannot change** yet. Adding statements, identifiers or procedures
+needs that table modelled. Code `docs/research/access_write/`.
+
 ---
 
 ## 4. Why Access is different
@@ -185,6 +228,16 @@ Without all of these, any write that crosses a module-identity
 boundary (rename, delete, add, anything that grows the source by more
 than the cache row can absorb) will either be silently reverted or
 will corrupt the database.
+
+**Update (2026-08).** Two of these four are resolved, and one was
+misdiagnosed. The p-code assembler exists and matches Microsoft's output
+byte-for-byte on every statement tested (section 3.2). The "internal
+index" is the `MSysAccessStorage` length field, and updating it is what
+lets a row grow -- no page allocator is involved, because a resized row
+still fits its existing page; the allocator only matters once a row
+outgrows one. What remains is the compiled header's temporary-slot table,
+which fixes the statement count, and the `_VBA_PROJECT` symbol buckets,
+which fix the identifier set.
 
 ---
 

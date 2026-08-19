@@ -37,6 +37,16 @@ BINARY_OPS: dict[str, tuple[str, int]] = {
 }
 UNARY_OPS: dict[str, str] = {"Not": "Not ", "UMi": "-"}
 
+# The declaration keyword is carried in the Dim opcode's op_type, and
+# whether an entry is a constant in the VarDefn's op_type. That also
+# disambiguates a Const's value from an array's bounds, which otherwise
+# look identical (both are literals pushed before VarDefn).
+DIM_KEYWORDS: dict[int, str] = {
+    0x00: "Dim", 0x01: "Const", 0x08: "Public", 0x10: "Private",
+    0x20: "Static",
+}
+VARDEFN_CONST = 0x02
+
 # Literal opcodes whose value is carried in operands or payload.
 _LIT_INT = {"LitDI2", "LitHI2", "LitDI4", "LitHI4", "LitDI8", "LitHI8",
             "LitOI2", "LitOI4", "LitOI8"}
@@ -70,7 +80,7 @@ def decompile(module_stream: bytes, vba_project_stream: bytes,
 
     def dname(ins) -> str | None:
         for a, v in ins.operands:
-            if a in ("func_", "var_"):
+            if a in ("func_", "var_", "rec_"):
                 return resolve_decl(module_stream, v, dbase, ids)
         return None
 
@@ -88,6 +98,18 @@ def decompile(module_stream: bytes, vba_project_stream: bytes,
         for a, v in i.operands if a == "var_"
     )
     proc_kind: dict[int, str] = {}
+    # A Type opcode opens either a user-defined type or an Enum; only the
+    # closing opcode (EndType vs EndEnum) tells them apart.
+    rec_kind: dict[int, str] = {}
+    rec_pending: list[int] = []
+    for i in flat:
+        if i.mnemonic == "Type":
+            for a, v in i.operands:
+                if a == "rec_":
+                    rec_pending.append(v)
+        elif i.mnemonic in ("EndType", "EndEnum"):
+            if rec_pending:
+                rec_kind[rec_pending.pop(0)] = i.mnemonic
     pending: list[int] = []
     for i in flat:
         if i.mnemonic in ("FuncDefn", "FuncDefnSave"):
@@ -114,6 +136,9 @@ def decompile(module_stream: bytes, vba_project_stream: bytes,
         if not ins:
             continue
         f = _Frame()
+        decls: list[str] = []
+        dim_kw = ["Dim"]
+        dim_implicit = [False]
         stmt: str | None = None
         i = 0
         while i < len(ins):
@@ -145,12 +170,26 @@ def decompile(module_stream: bytes, vba_project_stream: bytes,
                 out.append("End Function"); indent = 1
             elif m == "EndProp":
                 out.append("End Property"); indent = 1
-            elif m == "Dim":
-                pass                       # handled by VarDefn below
+            elif m in ("Dim", "DimImplicit"):
+                dim_kw[0] = DIM_KEYWORDS.get(op.op_type, "Dim")
+                dim_implicit[0] = (m == "DimImplicit")
             elif m.startswith("VarDefn"):
                 vn = dname(op) or "<var>"
                 vt = dtype(op)
-                f.push(f"{vn} As {vt}" if vt else vn)
+                pending = list(f.stack); f.stack.clear()
+                if op.op_type == VARDEFN_CONST:
+                    text = f"{vn} As {vt}" if vt else vn
+                    if pending:
+                        text += f" = {pending[-1]}"
+                elif len(pending) == 2:
+                    text = f"{vn}({pending[0]} To {pending[1]})"
+                    if vt: text += f" As {vt}"
+                elif len(pending) == 1:
+                    text = f"{vn}({pending[0]})"
+                    if vt: text += f" As {vt}"
+                else:
+                    text = f"{vn} As {vt}" if vt else vn
+                decls.append(text)
             elif m == "Ld" or m == "LdLHS":
                 f.push(nm(op))
             elif m in _LIT_INT:
@@ -176,8 +215,14 @@ def decompile(module_stream: bytes, vba_project_stream: bytes,
             elif m in ("St", "SetOrSt"):
                 stmt = f"{nm(op)} = {f.pop()}"
             elif m == "SetStmt":
-                rhs = f.pop(); lhs = f.pop() if f.stack else "<?>"
-                stmt = f"Set {lhs} = {rhs}"
+                pass                     # marker; the Set opcode assigns
+            elif m == "Set":
+                stmt = f"Set {nm(op)} = {f.pop()}"
+            elif m == "MemSet":
+                obj = f.pop() if f.stack else "<?>"
+                stmt = f"Set {obj}.{nm(op)} = {f.pop()}"
+            elif m == "SetWith" or m == "MemSetWith":
+                stmt = f"Set .{nm(op)} = {f.pop()}"
             elif m in ("ArgsCall", "ArgsMemCall", "ArgsMemCallWith"):
                 argc = 0
                 for a, v in op.operands:
@@ -191,6 +236,64 @@ def decompile(module_stream: bytes, vba_project_stream: bytes,
                     stmt = f"{callee} {', '.join(args)}".rstrip() if args else callee
                 else:
                     f.push(call)
+            elif m in ("ArgsSt", "ArgsMemSt", "ArgsDictSt"):
+                argc = next((v for a, v in op.operands if a == "0x"), 0)
+                args = [f.pop() for _ in range(min(argc, len(f.stack)))][::-1]
+                value = f.pop()
+                target = nm(op)
+                if m == "ArgsMemSt" and f.stack:
+                    target = f"{f.pop()}.{target}"
+                stmt = f"{target}({', '.join(args)}) = {value}"
+            elif m == "MemSt":
+                obj = f.pop() if f.stack else "<?>"
+                stmt = f"{obj}.{nm(op)} = {f.pop()}"
+            elif m == "MemStWith":
+                stmt = f".{nm(op)} = {f.pop()}"
+            elif m == "MemLd":
+                f.push(f"{f.pop()}.{nm(op)}")
+            elif m == "MemLdWith":
+                f.push(f".{nm(op)}")
+            elif m in ("ArgsMemLdWith", "ArgsDictLdWith"):
+                argc = next((v for a, v in op.operands if a == "0x"), 0)
+                args = [f.pop() for _ in range(min(argc, len(f.stack)))][::-1]
+                f.push(f".{nm(op)}({', '.join(args)})")
+            elif m == "StartWithExpr":
+                pass
+            elif m == "With":
+                emit(f"With {f.pop()}", 0, 1)
+            elif m == "EndWith":
+                emit("End With", -1, 0)
+            elif m in ("Redim", "RedimAs", "NewRedim"):
+                argc = next((v for a, v in op.operands if a == "0x"), 0)
+                args = [f.pop() for _ in range(min(argc, len(f.stack)))][::-1]
+                if m != "NewRedim":
+                    stmt = f"ReDim {nm(op)}({', '.join(args)})"
+            elif m == "OnError":
+                tgt = nm(op)
+                stmt = "On Error Resume Next" if tgt in ("<?>",) else f"On Error GoTo {tgt}"
+            elif m == "Label":
+                emit(f"{nm(op)}:", -1, 1) if False else out.append(f"{nm(op)}:")
+            elif m == "Resume":
+                tgt = nm(op)
+                stmt = "Resume Next" if not tgt or tgt.startswith("var") else f"Resume {tgt}"
+            elif m == "GoTo":
+                stmt = f"GoTo {nm(op)}"
+            elif m == "GoSub":
+                stmt = f"GoSub {nm(op)}"
+            elif m == "Type":
+                ro = next((v for a, v in op.operands if a == "rec_"), None)
+                kw = "Enum" if rec_kind.get(ro) == "EndEnum" else "Type"
+                out.append(f"{kw} {dname(op) or '<name>'}"); indent = 1
+            elif m == "EndType":
+                out.append("End Type"); indent = 1
+            elif m == "EndEnum":
+                out.append("End Enum"); indent = 1
+            elif m == "Stop":
+                stmt = "Stop"
+            elif m == "DoEvents":
+                stmt = "DoEvents"
+            elif m == "Erase":
+                stmt = f"Erase {f.pop()}"
             elif m in ("ArgsLd", "ArgsMemLd", "IndexLd"):
                 argc = 0
                 for a, v in op.operands:
@@ -269,14 +372,16 @@ def decompile(module_stream: bytes, vba_project_stream: bytes,
                 stmt = f"' [unmapped {m}]"
             i += 1
 
-        if stmt is None and f.stack and not any(
-            x.mnemonic in ("Dim",) for x in ins
+        if stmt is None and f.stack and not decls and not any(
+            x.mnemonic in ("Dim", "DimImplicit") for x in ins
         ):
             leftover = " ".join(f.stack)
             if leftover.strip():
                 stmt = leftover
-        if any(x.mnemonic == "Dim" for x in ins):
-            stmt = "Dim " + ", ".join(f.stack) if f.stack else None
+        if decls:
+            # Type/Enum members carry no declaration keyword.
+            stmt = (", ".join(decls) if dim_implicit[0]
+                    else f"{dim_kw[0]} " + ", ".join(decls))
         if stmt:
             emit(stmt)
     return "\n".join(out)

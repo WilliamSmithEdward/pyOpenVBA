@@ -28,14 +28,50 @@ VARTYPE_NAMES: dict[int, str] = {
     14: "Decimal", 17: "Byte", 20: "LongLong",
 }
 
+# Flag bits carried alongside the VARTYPE in the declared-type byte.
+VARTYPE_MASK = 0x3F
+VARTYPE_FLAG_CONST = 0x40
+
 def resolve_type(module_stream: bytes, operand: int, base: int | None) -> str | None:
-    """Resolve a ``var_`` operand to its declared VBA type name."""
+    """Resolve a ``var_`` operand to its declared VBA type name.
+
+    The byte carries flags above the VARTYPE: ``0x40`` marks a constant
+    (``0x43`` is Const + Long, ``0x48`` Const + String). Arrays encode
+    differently -- both ``As Long`` and ``As String`` arrays leave
+    ``0x10`` in the low bits -- so their element type is not read here
+    (it lives in the ``type_`` indirect table).
+    """
     if base is None:
         return None
     p = base + operand + TYPE_FIELD_OFFSET
     if p >= len(module_stream):
         return None
-    return VARTYPE_NAMES.get(module_stream[p])
+    return VARTYPE_NAMES.get(module_stream[p] & VARTYPE_MASK)
+
+
+# The byte after the VARTYPE carries the parameter passing mode:
+# 0x00 = ByVal, 0x01 = ByRef (VBA's default). Explicit vs implicit
+# ByRef is not distinguished -- both compile to 0x01.
+BYREF_FLAG_OFFSET = TYPE_FIELD_OFFSET + 1
+
+def is_byval(module_stream: bytes, operand: int, base: int | None) -> bool:
+    """True when a parameter is passed ByVal."""
+    if base is None:
+        return False
+    p = base + operand + BYREF_FLAG_OFFSET
+    if p >= len(module_stream):
+        return False
+    return module_stream[p] == 0x00
+
+
+def is_const_type(module_stream: bytes, operand: int, base: int | None) -> bool:
+    """True when the declared-type byte carries the constant flag."""
+    if base is None:
+        return False
+    p = base + operand + TYPE_FIELD_OFFSET
+    if p >= len(module_stream):
+        return False
+    return bool(module_stream[p] & VARTYPE_FLAG_CONST)
 
 # Instructions whose name operand is the *callee/target* identifier.
 _CALLISH = {"ArgsCall","ArgsMemCall","ArgsMemCallWith","ArgsLd","ArgsMemLd"}
@@ -82,6 +118,11 @@ def find_decl_base(module_stream: bytes, table: list[Identifier],
                 score += 4 if u >= NAME_OPERAND_BASE else 3
             if not ok:
                 continue
+            for v in ops:                       # every declared variable
+                q = base + v
+                if q + 2 <= len(module_stream) and resolve_name(
+                        int.from_bytes(module_stream[q:q+2], "little"), table):
+                    score += 3
             for v in fops:                      # typed parameters
                 for k in range(16):
                     off = v + PROC_PARAM_OFFSET + k * PROC_PARAM_STRIDE
@@ -120,7 +161,7 @@ def find_decl_base(module_stream: bytes, table: list[Identifier],
 
 def resolve_decl(module_stream: bytes, operand: int, base: int | None,
                  table: list[Identifier]) -> str | None:
-    """Resolve a ``func_``/``var_`` declaration operand to its name."""
+    """Resolve a ``func_`` / ``var_`` / ``rec_`` declaration operand."""
     if base is None:
         return None
     p = base + operand
@@ -262,7 +303,8 @@ def read_signature(module_stream: bytes, func_operand: int,
         # a typeless entry means the parameter list has ended.
         if not pname or pname == name or ptype is None:
             break
-        params.append((pname, ptype))
+        prefix = "ByVal " if is_byval(module_stream, off, base) else ""
+        params.append((prefix + pname, ptype))
     ret = None
     if is_function and name:
         for off in range(func_operand, min(func_operand + 0x400, len(module_stream) - base), 2):

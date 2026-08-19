@@ -319,12 +319,78 @@ Function B(q1 As Double) As Boolean
 Property X(v As Long) As Long
 ```
 
-Not encoded in p-code, so unrecoverable by construction: `ByVal` /
-`ByRef`, `Optional` and default values, and `Private` / `Public`.
+`ByVal` **is** encoded, in the byte after the VARTYPE
+(``+15``): `0x00` = ByVal, `0x01` = ByRef. Verified 10/10 across mixed
+signatures. Explicit `ByRef` cannot be told from the implicit default,
+since both compile to `0x01`.
+
+Not recoverable: `Optional` and default values.
 
 **OPEN:** `Optional` parameters with defaults are not located by the
 `+0x58` stride, and `Property Get` / `Let` / `Set` are not yet
 distinguished from one another.
+
+### 6.3 Declaration flags
+
+The declaration keyword lives in the **`Dim` opcode's `op_type`**, and
+whether an entry is a constant in the **`VarDefn`'s `op_type`**:
+
+| `Dim` op_type | keyword | `VarDefn` op_type | meaning |
+|---|---|---|---|
+| `0x00` | `Dim` | `0x01` | variable |
+| `0x01` | `Const` | `0x02` | constant |
+| `0x08` | `Public` | | |
+| `0x10` | `Private` | | |
+| `0x20` | `Static` | | |
+
+This also disambiguates two cases that otherwise look identical, since
+both push literals before `VarDefn`: an array's bounds
+(`Dim a(1 To 5)`) and a constant's value (`Const K = 7`).
+
+The declared-type byte carries flags above the VARTYPE:
+
+- `0x40` marks a **constant** -- `0x43` is Const + Long, `0x48` is
+  Const + String.
+- Arrays encode differently: both `As Long` and `As String` arrays
+  leave `0x10` in the low bits, so the **element type is not in this
+  byte** (it lives in the `type_` indirect table -- **OPEN**).
+
+### 6.4 Types and enums
+
+`Type` opens both user-defined types and enums; only the closing
+opcode distinguishes them (`EndType` vs `EndEnum`). The name comes from
+the opcode's `rec_` operand, resolved exactly like `func_` / `var_`.
+Members are declared with `DimImplicit` + `VarDefn` and carry no
+keyword of their own:
+
+```vba
+Type T          Enum E
+    a As Long       E1 = 1
+    b As String     E2 = 2
+End Type        End Enum
+```
+
+**OPEN:** a variable declared *as* a UDT or enum (`Dim v As E`) has no
+VARTYPE for that type, so the annotation is not recovered.
+
+### 6.5 Statement opcodes
+
+The statement forms the decompiler renders, with the opcodes that carry
+them:
+
+| VBA | opcodes |
+|---|---|
+| `Set x = e` | `SetStmt` (marker), then `Set` / `MemSet` |
+| `a(i) = e` | `ArgsSt` (value pushed first, then indices) |
+| `o.m = e` / `.m = e` | `MemSt` / `MemStWith` |
+| `With o` ... `End With` | `StartWithExpr`, `With`, `EndWith` |
+| `ReDim a(n)` | `Redim` (with a `type_` operand) |
+| `On Error GoTo L` | `OnError` |
+| `L:` | `Label` |
+| `Resume Next` | `Resume` |
+| `Exit Sub` / `Exit For` / ... | `ExitSub`, `ExitFor`, `ExitDo`, `ExitFunc` |
+| `Erase a` | `Erase` |
+| `Option Explicit` | `Option` |
 
 ## 7. Assembler status (p-code writing)
 
@@ -444,17 +510,25 @@ End Sub
 ```
 
 Round-trip fidelity, measured over a corpus compiled by Excel and
-decompiled back: **11/11 exact**, normalising only for what p-code
-genuinely does not encode -- the optional `Call` keyword, `ByVal` /
-`ByRef`, `$` type suffixes, and the casing of names that resolve
-through the runtime built-in table.
+decompiled back: **19/20 exact**, 1 structural (an enum-typed variable
+loses its `As E` annotation), 0 wrong. Normalisation covers only what
+p-code genuinely does not encode -- the optional `Call` keyword, `$`
+type suffixes, and the casing of names that resolve through the runtime
+built-in table.
+
+Covered: expressions with precedence and parentheses; `If` / `ElseIf` /
+`Else`; `For` / `Next` with `Step`; `Do While` / `Loop`; `While` /
+`Wend`; `Select Case`; procedure signatures including `ByVal`,
+parameter types and return types; `Dim` / `Const` / `Public` /
+`Private` / `Static`; arrays and `ReDim`; `Set`; member access; `With`
+blocks; `On Error` / labels / `Resume`; `Type` and `Enum`.
 
 Across every committed Office fixture, **54/54 modules decompile with
 no unmapped opcodes**, including a 230-line real-world module whose
 comment wall reproduces exactly.
 
-Coverage note: arrays, `Const`, `With`, and UDTs are decoded as
-instructions but not yet re-rendered as source.
+Coverage note: array *element* types and UDT/enum-typed variables are
+the remaining annotation gaps (both need the `type_` indirect table).
 
 ---
 
@@ -488,11 +562,14 @@ compile error otherwise blocks on a modal dialog.
   required before new identifiers can be written.
 - The full contents of the runtime built-in identifier table
   (section 5.1); the mechanism is understood, the map is partial.
-- `rec_` indirect-table layout (user-defined types) and array / `New`
-  declarators. Scalar declared types are solved (section 6.1) and
-  procedure signatures in section 6.2.
-- `Optional` parameter slots and telling `Property Get` / `Let` / `Set`
-  apart (section 6.2).
+- The `type_` indirect table: array **element** types and variables
+  declared as a UDT or enum (sections 6.3, 6.4). Scalar types are solved
+  (6.1), as are signatures (6.2) and declaration flags (6.3).
+- `Optional` parameters with defaults are not located by the `+0x58`
+  stride.
+- `Property Get` / `Let` / `Set` are **not distinguished in p-code** --
+  all three compile to `FuncDefn` + `EndProp`. Recovering which is which
+  would need another source.
 - Source-to-p-code compilation: lexer, parser, codegen, and the slot
   allocation Office's compiler performs.
 

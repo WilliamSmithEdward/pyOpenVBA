@@ -157,68 +157,45 @@ references.
 
 ### 4.1 The identifier hash
 
-Each record carries a `u16` alongside the name. It is a **hash of the
-name**, and it matters out of proportion to its size: writing a *new*
-identifier means writing a correct one, so this is the gate between
-editing existing code and generating new code.
+Each record carries a `u16` alongside the name. It is the low word of the
+**OLE Automation name hash** -- `LHashValOfNameSysA` from `OLEAUT32.dll`,
+the same hash type libraries use for name lookup. VBE7's identifier
+intern routine calls it and keeps the low 16 bits; this was found by
+tracing the predefined-identifier setup in VBE7.DLL (the code that adds
+`Win16` / `Win32` / `Win64` / `Mac` / `VBA6` / `VBA7`) down to the call.
 
-Measured by compiling names through Excel and reading the field back
-(`docs/research/pcode/hash_probe.py`, 1,117 samples across lengths 1..30),
-the hash reproduces **every measured id exactly**:
+The algorithm, exact on 5,255 measured names (and every one of 14,878
+compact records reproduced byte-for-byte):
 
 ```
-h = SEED[len(name)]                        # 32-bit, per name length
+h = 0x0DEADBEE                          # fixed initial value
 for c in name:
-    h = (h * 37 + charval(c)) & 0xFFFFFFFF # 32-bit accumulator
-id = (signed32(h) % 65599) & 0xFFFF        # signed reduction, 16-bit field
+    h = (37 * h + LOOKUP[c]) & 0xFFFFFFFF
+id = (h % 65599) & 0xFFFF               # unsigned, low 16 bits
 ```
 
-`signed32(h)` reinterprets the 32-bit accumulator as a signed integer
-before the modulo, and `charval(c)` is the uppercased ASCII code of the
-character with two fixed folds, `W -> V` and `Y -> U`.
+`LOOKUP` is the case-folding table the API applies: lowercase folds to
+uppercase, digits and `_` map to themselves, and VBE7's specific
+per-syskind table additionally folds **`W` to `V` and `Y` to `U`** (every
+other letter is its plain uppercase code). Non-ASCII bytes pass through
+unchanged for the Windows syskind VBA uses. The full 32-bit return value
+is `((syskind | mask) << 16) | id`, but only the low word is stored.
 
-Every constant was read off measured data, not assumed:
+There is **no per-length seed** and no locale dependence in practice --
+the constant `0x0DEADBEE`, the multiplier 37, the modulus 65599
+(`2^16 + 63`) and the 16-bit field are the whole story. (Earlier
+revisions of this document modelled the hash as `37*h + charval` from a
+mythical per-length seed; that was an artifact of missing the
+`0x0DEADBEE` initialiser and using a signed rather than unsigned
+reduction. Both are corrected here. The pieces that survived -- the
+multiplier 37, the modulus 65599, the 16-bit field and the `W`/`Y` fold
+-- are exactly the pieces of `LHashValOfNameSysA`.)
 
-- **Multiplier 37.** Sweeping a character through each position of a
-  fixed name gives, per position, an exact arithmetic progression whose
-  step is `37^k mod 65599`: 1 at the last character, 37 at the next,
-  1369, 50653, and so on.
-- **Signed 32-bit accumulator.** Those per-position weights track
-  `37^k mod 65599` up to `k = 5` and then diverge -- starting at exactly
-  `k = 6`, where `37^6` first exceeds `2^31`. The divergence matches a
-  signed reduction (`37^6 mod 2^32`, taken as a negative int, mod 65599 =
-  14352 = the observed weight) to the bit, at every higher position. An
-  *unsigned* reduction predicts the wrong weight from `k = 6` on. This is
-  what makes long names diverge from a naive `*37 mod` hash.
-- **Character map.** Sweeping every identifier character at a fixed
-  position gives each its **uppercased ASCII code**: letters `A..Z`,
-  digits `0..9`, and `_` all contribute `ord(upper(c))` (`Win16` misses a
-  lowercase model by exactly `0x20` per digit, since digits have no
-  case). The two exceptions are `W`, which contributes `V`'s value, and
-  `Y`, which contributes `U`'s -- confirmed in the raw stream, not
-  through the parser (`qqqw` and `qqqv` both store `ff 99`). No
-  explanation for the `W`/`Y` fold yet.
-- **Modulus 65599** (`2^16 + 63`). Scanning every modulus from 65,500 to
-  66,600 puts a sharp maximum here.
-- **The `& 0xFFFF`.** The stored field is 16 bits, so a reduced value in
-  `[65536, 65598]` is truncated: one measured id computes to `0x10013`
-  and is stored `0x0013`.
-
-**The seed is per name length**, and this is the one part not reduced to
-a formula. `SEED[L]` is a genuine constant for each length -- one 32-bit
-value fits *every* name of that length (128 length-4 names, 91 length-5,
-and so on, all exact) -- but its single underlying value **cannot be
-recovered from the ids**: the reduction discards the seed's high bits, so
-thousands of distinct 32-bit seeds reproduce every id of a given length
-identically. `pcode_hash.py` therefore ships one measured representative
-per length for `L = 1..30`, each of which regenerates every id of its
-length; longer lengths extend the table by probing.
-
-**OPEN:** the seed's origin -- it is length-dependent and
-output-underdetermined, so pinning its true form needs the compiler
-binary rather than more output; the `W`/`Y` fold; and whether this same
-hash addresses the module's identifier bucket table, which is the other
-half an assembler must fill in to write a new identifier.
+Because the hash is a fixed function of the name, a new identifier record
+is now fully generatable: `pcode_hash.encode_identifier_record(name,
+type_byte)` emits the exact `<u8 len><u8 type><ASCII name><u16 hash><10
+00>` a compact record uses. Reference:
+ReactOS / Wine `dll/win32/oleaut32/hash.c`.
 
 ## 5. Name operand resolution (key finding)
 
@@ -752,6 +729,8 @@ Excel automation runs through `pyvbaharness`, which is hang-safe
 (bounded, popup-aware, hard process reaping) -- necessary because a
 compile error otherwise blocks on a modal dialog.
 
+The identifier hash was pinned differently -- by static analysis of VBE7.DLL rather than differential probing. Locating the intern routine's call to `LHashValOfNameSysA` turned a months-of-probing problem into a one-line answer, after differential fitting had produced only an approximate per-length model. When a value looks like a bespoke hash, check whether it is a documented OS API first.
+
 A note on method that cost real time: several findings looked settled
 after one probe and were wrong. `ByVal` / `ByRef` was first recorded as
 unencoded, `Property Get` / `Let` as indistinguishable, and the built-in
@@ -774,13 +753,12 @@ Still open:
 - Derivation of the `0x20E` name-operand base.
 - Location of `DECL_BASE` (a module-header field?), currently
   calibrated -- reliably, but by search rather than by reading a field.
-- The identifier hash's per-length seed (section 4.1): its mechanism is
-  solved and every measured id reproduces exactly, but the seed is
-  length-dependent and output-underdetermined, so its true origin needs
-  the compiler binary. The `W` / `Y` character fold is likewise
-  unexplained. Separately, whether this hash also addresses the module's
-  identifier bucket table is not yet established -- that table is the
-  other half an assembler must fill in to write a new identifier.
+- The identifier hash is fully solved (section 4.1): it is
+  `LHashValOfNameSysA`, a fixed global function, and both the hash and a
+  complete compact identifier record are now byte-generatable. The one
+  loose end is whether the same value also keys the module's in-memory
+  identifier bucket table (VBE7 builds that at load time from the stored
+  records, so it does not gate on-disk writing).
 - The full contents of the runtime built-in identifier table
   (section 5.1); the mechanism is understood, the map covers 20 entries.
   In particular, what the single-letter entries `b` and `f` name.

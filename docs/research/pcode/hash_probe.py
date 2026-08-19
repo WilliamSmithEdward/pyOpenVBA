@@ -1,31 +1,27 @@
-"""Measure the `_VBA_PROJECT` identifier hash and check the model.
+"""Measure the ``_VBA_PROJECT`` identifier hash and check the model.
 
 Compiles families of names through Excel, reads back the u16 each
 identifier record carries, and verifies :func:`pcode_hash.identifier_hash`
-reproduces every one.
+reproduces every one. Since the hash is the OLE Automation
+``LHashValOfNameSysA`` (a fixed global function, no per-length state), the
+check is a plain equality over the whole corpus.
 
     python docs/research/pcode/hash_probe.py            # compile + check
     python docs/research/pcode/hash_probe.py --check    # check the cache
 
-The probe covers, per name length: an all-'a' base plus single-character
-sweeps at several positions (which over-determine the length's seed), a
-full identifier-character sweep at a fixed position (which pins the
-character map), and case variants. ``identifier_hashes.json`` caches the
-measured samples so the check runs without Office.
-
-Dev-only: measuring needs Windows, desktop Excel and `pyvbaharness`.
+``identifier_hashes.json`` caches measured samples so the check runs
+without Office. Measuring needs Windows, desktop Excel and ``pyvbaharness``.
 """
 from __future__ import annotations
 
 import json
 import sys
-from collections import defaultdict
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "src"))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from pcode_hash import fit_seed, identifier_hash
+from pcode_hash import identifier_hash
 
 CACHE = "identifier_hashes.json"
 ALNUM = "abcdefghijklmnopqrstuvwxyz0123456789_"
@@ -34,7 +30,7 @@ FIRST = "abcdefghijklmnopqrstuvwxyz_"
 
 def probe_names() -> list[str]:
     names: list[str] = []
-    for length in range(1, 31):
+    for length in range(1, 31):                        # length coverage
         base = "a" * length
         names.append(base)
         for pos in {0, 1, length - 1}:
@@ -43,6 +39,7 @@ def probe_names() -> list[str]:
     names += ["aa" + c + "aa" for c in ALNUM]          # character map
     names += [c + "aaaa" for c in FIRST]               # legal first chars
     names += ["Alpha", "ALPHA", "alpha", "AlPhA"]      # case folding
+    names += ["wywy", "YWYW", "Vvv", "Uuu", "Wxyz"]    # the W/Y fold
     seen, uniq = set(), []
     for n in names:
         if n.lower() not in seen and (n[0].isalpha() or n[0] == "_"):
@@ -79,23 +76,12 @@ def measure() -> dict[str, int]:
 
 
 def check(table: dict[str, int]) -> int:
-    by_length: dict[int, dict[str, int]] = defaultdict(dict)
-    for name, value in table.items():
-        by_length[len(name)][name] = value
-    exact = total = 0
-    for length in sorted(by_length):
-        samples = by_length[length]
-        hits = sum(1 for n, v in samples.items() if identifier_hash(n) == v)
-        exact += hits
-        total += len(samples)
-        note = ""
-        if hits != len(samples):
-            seed = fit_seed(samples)
-            note = (f"   <- {hits}/{len(samples)}; a fitting representative "
-                    f"is {seed:#010x}" if seed else "   <- no seed fits")
-        print(f"  len {length:2}  {hits}/{len(samples)} exact{note}")
-    print(f"\n{exact}/{total} identifier hashes reproduced")
-    return total - exact
+    misses = [(n, v, identifier_hash(n)) for n, v in table.items()
+              if identifier_hash(n) != v]
+    print(f"{len(table) - len(misses)}/{len(table)} identifier hashes reproduced")
+    for name, want, got in misses[:20]:
+        print(f"  MISS {name!r} want {want:#06x} got {got:#06x}")
+    return len(misses)
 
 
 if __name__ == "__main__":

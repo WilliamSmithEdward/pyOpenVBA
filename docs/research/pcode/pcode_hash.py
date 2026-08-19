@@ -1,133 +1,92 @@
-"""The identifier hash stored in each `_VBA_PROJECT` record.
+"""The identifier hash stored in each ``_VBA_PROJECT`` record.
 
-Every identifier record carries a u16 alongside the name. It is a hash
-of the name, and it is the last piece standing between the assembler and
-writing *new* identifiers rather than editing existing ones.
+Every identifier record carries a u16 alongside the name. It is the low
+word of the **OLE Automation name hash**, ``LHashValOfNameSysA`` from
+``OLEAUT32.dll`` -- the same hash type libraries use for name lookup.
+VBE7 computes it when interning an identifier (its intern routine calls
+``LHashValOfNameSysA(syskind, lcid, name)`` and keeps the low 16 bits).
 
-The mechanism is fully reverse-engineered and reproduces **every** one
-of 1,117 measured ids exactly (see ``docs/pcode_reference.md`` section
-4.1 and ``hash_probe.py``):
+The algorithm, confirmed exact on 5,255 measured names with zero
+exceptions:
 
-    h = SEED_BY_LENGTH[len(name)]          # 32-bit, per name length
+    h = 0x0DEADBEE                       # fixed initial value
     for c in name:
-        h = (h * 37 + charval(c)) & 0xFFFFFFFF
-    id = (signed32(h) % 65599) & 0xFFFF
+        h = (37 * h + LOOKUP[c]) & 0xFFFFFFFF
+    id = (h % 65599) & 0xFFFF
 
-where ``signed32`` reinterprets the 32-bit accumulator as a signed
-integer before the modulo (so the reduction of a value >= 2**31 differs
-from the unsigned one -- this is what makes long names diverge from a
-naive ``* 37 mod`` hash), and ``charval`` is the uppercased ASCII code
-with two fixed folds, ``W -> V`` and ``Y -> U``.
+``LOOKUP`` is the case-folding table the API applies: uppercase ASCII,
+with digits and ``_`` mapping to themselves. VBE7's table additionally
+folds ``W`` -> ``V`` and ``Y`` -> ``U`` (a quirk of the specific
+per-syskind lookup table it loads); every other letter maps to its plain
+uppercase code. This is what earlier revisions of this module modelled as
+a mythical per-length "seed" -- there is no seed. The reduction is
+*unsigned* ``% 65599`` (65599 = 2**16 + 63), and only the low 16 bits are
+stored.
 
-Every constant here was read off measured data, not assumed:
-
-* multiplier 37: the per-position weight of a unit change in a character
-  is exactly ``37**k mod 65599`` for the low positions;
-* signed 32-bit accumulator: the weights start diverging from
-  ``37**k mod 65599`` at exactly ``k = 6``, where ``37**6`` first
-  exceeds ``2**31``, and the divergence matches the signed reduction to
-  the bit;
-* modulus 65599 (``2**16 + 63``): scanning every modulus from 65,500 to
-  66,600 puts a sharp maximum here;
-* the ``& 0xFFFF``: the field is 16 bits, so a reduced value in
-  ``[65536, 65598]`` is stored truncated (``0x10013 -> 0x0013``);
-* uppercase with ``W -> V`` / ``Y -> U``: the character sweep gives each
-  letter its uppercased ASCII contribution, with ``W`` taking ``V``'s
-  value and ``Y`` taking ``U``'s. Digits and ``_`` contribute their own
-  ASCII codes.
-
-**Open:** ``SEED_BY_LENGTH`` is a genuine per-length constant, but its
-single underlying value is *not recoverable from the ids alone* -- the
-reduction collapses the seed's high bits, so thousands of distinct
-32-bit seeds reproduce every id of a given length identically. The table
-below holds one measured representative per length (1..30), enough to
-generate a correct id for any identifier up to 30 characters; longer
-lengths extend it by probing (``hash_probe.py``).
+Reference: ReactOS / Wine ``dll/win32/oleaut32/hash.c``
+(``LHashValOfNameSysA``); MS ``oleauto.h``.
 """
 from __future__ import annotations
 
+INITIAL = 0x0DEADBEE
 MULTIPLIER = 37
 MODULUS = 65599            # 2**16 + 63
 FIELD_MASK = 0xFFFF
 _U32 = 0xFFFFFFFF
-_SIGN = 0x80000000
-_WRAP = 0x100000000
 
-# Two letters do not contribute their own code point: W hashes as V, Y as
-# U. Reproducible in the raw stream, not a parser artifact.
+# The case-folding lookup table, built to match the values VBE7 emits.
+# Letters fold to uppercase; W and Y fold one and four below their own
+# code (to V and U); digits, underscore and everything else map to
+# themselves. Non-ASCII bytes are passed through unchanged, which is
+# correct for the Windows (non-Mac) syskind VBA uses.
 _FOLD = {ord("W"): ord("V"), ord("Y"): ord("U")}
 
-# One measured 32-bit seed representative per name length. See module
-# docstring: the true single seed is output-underdetermined, so these are
-# representatives, each of which reproduces every id of its length.
-SEED_BY_LENGTH: dict[int, int] = {
-    1: 0x94C1BEEB, 2: 0x987F28BD, 3: 0xD986C65E, 4: 0xE4B4C7D2,
-    5: 0x5129AE63, 6: 0x12892FB7, 7: 0x8E6E83F7, 8: 0x5154F400,
-    9: 0x4A821752, 10: 0x214BA79D, 11: 0x7A58B56B, 12: 0x90E05AC2,
-    13: 0x838CDDF5, 14: 0x0C7A4325, 15: 0xC2B77358, 16: 0x8895F898,
-    17: 0xA7FBCDC4, 18: 0x9B7E2613, 19: 0xC027CDCB, 20: 0x1EF1F0F0,
-    21: 0x5B28485C, 22: 0x5736E9BF, 23: 0x9BA9ADC8, 24: 0xC8492D63,
-    25: 0x522C9E2D, 26: 0x6392245B, 27: 0x0D0630D2, 28: 0xCFC863BE,
-    29: 0x55FB0355, 30: 0x32843028,
-}
+
+def _build_lookup() -> list[int]:
+    table = list(range(256))
+    for code in range(ord("a"), ord("z") + 1):
+        table[code] = code - 0x20            # lowercase -> uppercase
+    for code, folded in _FOLD.items():       # W/Y quirk, upper and lower
+        table[code] = folded
+        table[code + 0x20] = folded
+    return table
 
 
-def charval(ch: str) -> int:
-    """The value a single character contributes: uppercased ASCII, folded."""
-    code = ord(ch.upper())
-    return _FOLD.get(code, code)
+LOOKUP = _build_lookup()
 
 
-def accumulate(name: str, seed: int) -> int:
-    """The raw 32-bit accumulator for ``name`` from ``seed``."""
-    h = seed & _U32
-    for ch in name:
-        h = (h * MULTIPLIER + charval(ch)) & _U32
-    return h
-
-
-def reduce_field(h: int) -> int:
-    """Reduce a 32-bit accumulator to the stored 16-bit id."""
-    signed = h - _WRAP if h & _SIGN else h
-    return (signed % MODULUS) & FIELD_MASK
-
-
-def identifier_hash(name: str) -> int | None:
+def identifier_hash(name: str) -> int:
     """The u16 an ``_VBA_PROJECT`` record carries for ``name``.
 
-    Returns None for a length with no measured seed representative,
-    rather than guessing.
+    Exact for any VBA identifier; there is no length restriction and no
+    fitting involved.
     """
-    seed = SEED_BY_LENGTH.get(len(name))
-    if seed is None:
-        return None
-    return reduce_field(accumulate(name, seed))
+    h = INITIAL
+    for ch in name:
+        h = (MULTIPLIER * h + LOOKUP[ord(ch) & 0xFF]) & _U32
+    return (h % MODULUS) & FIELD_MASK
 
 
-def fit_seed(samples: dict[str, int]) -> int | None:
-    """Recover a working seed representative for one name length.
+def name_hash_full(name: str, syskind: int = 3, mask: int = 0) -> int:
+    """The full 32-bit ``LHashValOfNameSysA`` return value.
 
-    ``samples`` maps names of a single length to their measured ids. The
-    reduction is not injective in the seed, so many seeds satisfy the
-    samples; this returns one that reproduces all of them, or None.
+    The high word is ``(syskind | mask) << 16``; VBA stores only the low
+    word (:func:`identifier_hash`). ``syskind`` defaults to ``SYS_WIN64``.
     """
-    lengths = {len(n) for n in samples}
-    if len(lengths) != 1:
-        raise ValueError("all samples must share a length")
-    length = lengths.pop()
-    if not samples:
-        return None
-    base, base_id = next(iter(samples.items()))
-    factor = pow(MULTIPLIER, length, _WRAP)
-    inverse = pow(factor, -1, _WRAP)
-    raw_base = accumulate(base, 0)
-    for target in (base_id, base_id + (FIELD_MASK + 1)):
-        for band in range(-40000, 40001):
-            seed = (inverse * ((target - raw_base) % _WRAP
-                               + MODULUS * band)) % _WRAP
-            if reduce_field(accumulate(base, seed)) != base_id:
-                continue
-            if all(reduce_field(accumulate(n, seed)) == v
-                   for n, v in samples.items()):
-                return seed
-    return None
+    return ((syskind | mask) << 16) | identifier_hash(name)
+
+
+def encode_identifier_record(name: str, type_byte: int) -> bytes:
+    """The exact ``_VBA_PROJECT`` bytes for a compact identifier record.
+
+    A compact record (references and ordinary user identifiers, type byte
+    below ``0x80``) is ``<u8 name-length><u8 type><ASCII name><u16 hash>``
+    followed by the ``0x0010`` trailer. Module records and records whose
+    type sets the ``0x80`` descriptor bit carry extra fields and are not
+    produced here.
+    """
+    if type_byte >= 0x80:
+        raise ValueError("descriptor/module records are not compact")
+    body = name.encode("latin-1")
+    return (bytes((len(body), type_byte)) + body
+            + identifier_hash(name).to_bytes(2, "little") + b"\x10\x00")

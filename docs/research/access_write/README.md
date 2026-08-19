@@ -527,59 +527,74 @@ Join(Array(1, 2), ",")    Access: ArgsLd(Join)[2]      ours: [4]
 Any `f(g())` was affected. The count is now returned rather than stashed.
 Another silent miscompile that only a differential probe would find.
 
-## What `Dim` needs, measured but not yet built
+## What `Dim` needs: the declaration record, mapped
 
-`Dim` is still refused, and a controlled series (`dim_probe.bas`, the
-same module with zero to three declarations, plus one per declared type)
-says why. The p-code half is trivial:
+`Dim` is still refused, but the structure behind it is now measured
+rather than guessed. `dim_probe.bas` builds the same module with zero to
+five declarations and one per declared type.
+
+The p-code half is trivial, and **identical for every type**:
 
 ```
 Dim aa As Long      5d00 f504 5800 0000     Dim | VarDefn~1(var_=88)
 ```
 
-and it is **identical for every declared type** -- `Long`, `String`,
-`Variant`, `Double`, `Boolean` and `Object` all emit those exact eight
-bytes. Everything that distinguishes them lives in the header.
+`Long`, `String`, `Variant`, `Double`, `Boolean` and `Object` all emit
+those exact eight bytes. Everything that distinguishes them is in the
+header.
 
-Each declaration costs exactly **24 bytes of pre-CAFE header**, and
-`var_` strides by 24 from a first value of 88. The records sit at
-`464 + var_`, and the first field is the declared type as a plain VARTYPE
-code:
+### The 24-byte record
 
-| type | code | | type | code |
-|------|------|-|------|------|
-| Long | 3 | | Object | 9 |
-| Double | 5 | | Boolean | 11 |
-| String | 8 | | Variant | 12 |
+Records live at `464 + var_`, with `var_` starting at 88 and striding by
+24. They form a linked list, and take one of two shapes depending on
+whether another declaration follows:
 
-The same numbering the `Coerce` op_types use, so there is one type table
-across the format, not two.
+```
+        +0    +2    +4    +6    +8    +10   +12   +14   +16   +18   +20  +22
+not last  TT  ffff  0000  0000  8460  next  ffff  ffff  frame ffff  ffff ffff
+last      TT  ffff  0000  0000  ffff  ffff  0000  0000  8302  owner ffff ffff
+```
 
-The records form a **linked list**: each holds the name operand of the
-next declaration, and the last one points at the procedure that owns
-them. Two record shapes appear depending on whether a next declaration
-exists, and that difference is not yet pinned down.
+* `TT` is the declared type as a plain VARTYPE code -- Long 3, Double 5,
+  String 8, Object 9, Boolean 11, Variant 12. The same numbering the
+  `Coerce` op_types use, so the format has one type table, not two.
+* `next` is the following declaration's name operand; `owner` on the last
+  record is the procedure's.
+* `frame` is the variable's frame offset, `-40` for the first and eight
+  less for each after it -- so every local occupies eight bytes whatever
+  its type. The last record has no frame field: that slot carries the
+  owner link instead.
 
-The real obstacle is not the record. Supporting `Dim` means **growing the
-pre-CAFE header**, which this write path has never done -- every rewrite
-so far preserves that region byte for byte and edits only what follows.
-Growing it moves three u32 size fields (at header offsets 9, 25 and 29)
-and changes the word at offset 41, which differs on every build.
+Adding a declaration therefore rewrites the previously-last record into
+the non-last shape, which is exactly what Access does -- `aa` gains its
+`-40` frame offset only once `bb` exists.
 
-That word is **not a checksum Access validates**. Overwriting each field
-with `deadbeef` in a compiled module, dropping the `__SRP_` cache and
-running it:
+### The header fields that move
 
-| field | result |
-|-------|--------|
-| offset 41 (the per-build word) | runs normally |
-| offset 9 | runs normally |
-| offset 25 | project breaks |
+Growing the declaration region moves a handful of fields. Measured across
+zero to five declarations:
 
-So only one size field has to be maintained, and the per-build word can
-be left alone. `Dim` is a bounded job rather than an open one: emit the
-eight bytes of p-code, insert 24 bytes at `464 + var_`, link the record
-into the chain, and keep offsets 25 and 29 consistent.
+| offset | size | per declaration |
+|--------|------|-----------------|
+| 488 | u32 | **+24, always** -- the declaration region's own size |
+| 492 | u32 | -8 -- frame size, signed and negative |
+| 516, 518 | u16 | +1 -- the line counters, because the module gained a line |
+| 9, 25, 444, 540 | u32 | +24 for the first four, then +16 |
+| 29 | u32 | +44, then +36 -- end of p-code, so it also absorbs the new line record |
+| 41 | u32 | changes every build; **not validated**, see above |
+
+That last row of +16 is the open question. The declaration region itself
+grows by exactly 24 every time -- field 488 says so without exception --
+so something else in the header lost eight bytes on the fifth variable.
+The likely culprit is the project identifier region, whose compact
+records pack differently from build to build; the same per-build
+variability that made the `_VBA_PROJECT` "symbol buckets" a dead end.
+
+So the remaining work is not the record, which is understood, but
+computing the header's new size from its regions instead of assuming a
+fixed step. Implementing before that is understood would be coding to a
+model known to be incomplete, which has been the expensive mistake every
+time this session.
 
 ## References added through the References menu
 

@@ -608,18 +608,27 @@ VARTYPE = {"integer": 2, "long": 3, "single": 4, "double": 5,
 # point, "rel" offsets are measured from it.
 _DECL_FIXUPS_ABS = ((9, 24), (25, 24), (444, 24), (488, 24), (540, 24),
                     (492, -8))
+# (316, -24) used to live here: it was the arena's free counter, now
+# handled properly by `_consume_arena`, which also copes with the pair
+# being dropped or reallocated.
 _DECL_FIXUPS_REL = ((32, 24), (156, 24), (220, 24), (228, 24), (256, 24),
-                    (260, 24), (296, -8), (316, -24), (392, 24), (446, 24))
+                    (260, 24), (296, -8), (392, 24), (446, 24))
 
-# Appending is exact while the module has at most three declarations, and
-# stops being exact at four. Measured across three independent name
-# series (aa/bb/cc..., pp/qq/zz..., and a set chosen to collide in one
-# bucket): every 1->2, 2->3 and 3->4 transition reproduces Access byte
-# for byte, and every 4->5 differs by the same eight bytes in a second
-# structure -- one holding Variant-typed records -- that reorganizes at
-# five entries and is not yet characterized. Refused rather than guessed,
-# on the same principle as `_require_reproducible`.
-MAX_MODELLED_DECLARATIONS = 3
+# Declaration records are carved out of an arena whose remaining space is
+# tracked by an optional ``ffffffff <free>`` pair after a marker. `free`
+# drops by 24 per declaration; when it can no longer cover one the pair is
+# removed, and a fresh arena appears the next time. Measured on modules of
+# one to nine declarations:
+#
+#   ndecl   1   2   3   4   5      6    7    8    9
+#   free   88  64  40  16  (none) 480  456  432  408
+#
+# so the header grows by 24 normally, by 16 when the pair is dropped, and
+# by 32 when a fresh arena is added.
+_ARENA_MARK = bytes.fromhex("0c00ffff20000000")
+_ARENA_NULL = bytes.fromhex("ffffffff")
+_ARENA_FRESH = 480
+_ARENA_EXHAUSTED = 248
 
 
 def declaration_count(header: bytes) -> int:
@@ -667,11 +676,6 @@ def add_declaration(header: bytes, name: str, vartype: int, name_operand: int,
     from pcode_hash import identifier_hash
 
     count = declaration_count(header)
-    if count > MAX_MODELLED_DECLARATIONS:
-        raise ValueError(
-            f"module already has {count} declarations; appending past "
-            f"{MAX_MODELLED_DECLARATIONS} does not reproduce Access "
-            "byte-for-byte, so it is refused rather than guessed")
     insert = DECL_BASE + DECL_FIRST_VAR + DECL_RECORD * count
     out = bytearray(header[:insert]) + bytearray(DECL_RECORD)         + bytearray(header[insert:])
     previous = insert - DECL_RECORD
@@ -717,13 +721,40 @@ def add_declaration(header: bytes, name: str, vartype: int, name_operand: int,
              displaced & 0xFFFF, (displaced >> 16) & 0xFFFF,
              (0xFFD8 - 8 * (count - 1)) & 0xFFFF,
              _U16_NULL, _U16_NULL, _U16_NULL])
+    arena = _consume_arena(out, insert + DECL_RECORD)
     for offset, delta in _DECL_FIXUPS_ABS:
-        _bump(out, offset, delta)
+        # The size fields count the whole header, so they follow the net
+        # change; the ones describing just the record region do not.
+        _bump(out, offset, delta + arena if offset in (9, 25, 444) else delta)
     for offset, delta in _DECL_FIXUPS_REL:
         _bump(out, insert + offset, delta)
     for offset in (516, 518):
         _bump(out, offset, line_delta, size=2)
     return bytes(out)
+
+
+def _consume_arena(out: bytearray, records_end: int) -> int:
+    """Charge one record to the declaration arena; return the size change.
+
+    A flag 36 bytes past the records says whether an arena is present:
+    :data:`_ARENA_EXHAUSTED` while there is none, zero once one exists.
+    """
+    flag = records_end + 36
+    mark = out.find(_ARENA_MARK)
+    if mark < 0:
+        return 0
+    tail = mark + len(_ARENA_MARK)
+    if out[tail:tail + 4] != _ARENA_NULL:
+        out[tail:tail] = _ARENA_NULL + _ARENA_FRESH.to_bytes(4, "little")
+        out[flag:flag + 4] = (0).to_bytes(4, "little")
+        return 8
+    free = int.from_bytes(out[tail + 4:tail + 8], "little")
+    if free >= DECL_RECORD:
+        out[tail + 4:tail + 8] = (free - DECL_RECORD).to_bytes(4, "little")
+        return 0
+    del out[tail:tail + 8]
+    out[flag:flag + 4] = _ARENA_EXHAUSTED.to_bytes(4, "little")
+    return -8
 
 
 # --- the __SRP_* compiled-code cache -----------------------------------

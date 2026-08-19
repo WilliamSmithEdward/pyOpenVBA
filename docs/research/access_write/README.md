@@ -597,15 +597,32 @@ That single rule explains every case, including the one that looked
 anomalous for hours: a module where a new variable collided with the
 procedure name, putting the procedure's offset into a variable's record.
 
-### What reproduces, and what does not
+### The arena
 
-Appending is **byte-identical to Access for every 1->2, 2->3 and 3->4
-transition**, measured across three independent name series including
-four-way collisions: 10 of 10. It stops being exact at four
-declarations, where a second structure holding Variant-typed records
-reorganizes in a way not yet characterized -- reproduced identically in
-all three series, so it is a real threshold rather than a quirk.
-`add_declaration` refuses past that point rather than guessing.
+Records are carved out of an arena whose remaining space is tracked by an
+optional `ffffffff <free>` pair after a marker, with a flag 36 bytes past
+the records saying whether an arena exists at all. Measured on modules of
+one to nine declarations:
+
+```
+ndecl    1    2    3    4    5       6     7     8     9
+free    88   64   40   16   (none)  480   456   432   408
+flag     0    0    0    0   248       0     0     0     0
+```
+
+`free` drops by 24 per declaration; when it can no longer cover one the
+pair is removed and the flag goes to 248; the next declaration allocates
+a fresh 480-byte arena and clears the flag again. So the header grows by
+24 normally, by 16 when the arena is exhausted, and by 32 when one is
+allocated -- which is exactly the "resize" that looked like an
+unmodelled reorganization.
+
+### What reproduces
+
+Appending is **byte-identical to Access on all 17 measured transitions**,
+one through nine declarations across four independent name series,
+including four-way hash collisions, a collision with the procedure name,
+arena exhaustion and arena reallocation. There is no declaration ceiling.
 
 The written declaration **runs, with its type honoured**: a synthesized
 `Dim bb As Long` makes `bb = 3.7` return 4, and the same code with
@@ -619,6 +636,9 @@ Two bugs worth recording, both found only by diffing:
 - One "pointer fixup" at a fixed offset was really **hash bucket 13**.
   Bumping it corrupted a live entry whenever a name happened to land
   there.
+- Another was really the **arena's free counter**. Once the arena was
+  modelled properly the fixed-offset version double-counted it, which is
+  why removing it from the list fixed thirteen transitions at once.
 
 ## Establishing p-code coverage
 

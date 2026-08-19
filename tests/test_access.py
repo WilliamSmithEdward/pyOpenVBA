@@ -50,7 +50,7 @@ requires_spanning = pytest.mark.skipif(
 )
 
 
-def test_create_new_writes_a_usable_blank_database(tmp_path) -> None:
+def test_create_new_writes_a_usable_blank_database(tmp_path: Path) -> None:
     """create_new() produces a database with a fillable VBA project."""
     target = tmp_path / "fresh.accdb"
     db = AccessReader.create_new(target)
@@ -65,7 +65,7 @@ def test_create_new_writes_a_usable_blank_database(tmp_path) -> None:
     assert db.disassemble_module("Module1").num_lines > 0
 
 
-def test_create_new_overwrites_an_existing_file(tmp_path) -> None:
+def test_create_new_overwrites_an_existing_file(tmp_path: Path) -> None:
     target = tmp_path / "fresh.accdb"
     target.write_bytes(b"not a database")
     AccessReader.create_new(target)

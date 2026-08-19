@@ -243,13 +243,43 @@ def find_dir_row(path) -> tuple[int, int, bytes, bytes]:
     raise ValueError(f"no dir stream found in {path}")
 
 
-def find_moduleoffset_pos(dir_stream: bytes) -> int:
-    """Byte position of the MODULEOFFSET *value* in a decompressed dir."""
+def module_name_positions(dir_stream: bytes) -> list[tuple[int, str]]:
+    """``(record_position, name)`` for each MODULENAME record."""
+    out: list[tuple[int, str]] = []
+    for match in re.finditer(rb"\x19\x00(....)", dir_stream, re.S):
+        size = int.from_bytes(match.group(1), "little")
+        if not 0 < size < 64:
+            continue
+        name = dir_stream[match.end():match.end() + size]
+        if len(name) == size and all(0x20 <= c < 0x7F for c in name):
+            out.append((match.start(), name.decode("latin-1")))
+    return out
+
+
+def find_moduleoffset_pos(dir_stream: bytes, module: str | None = None) -> int:
+    """Byte position of a module's MODULEOFFSET *value*.
+
+    A project holds one MODULEOFFSET per module. Each belongs to the
+    MODULENAME record that precedes it, which is how ``module`` selects
+    one; with ``module=None`` a single-module project is assumed.
+    """
     hits = [m.start() for m in re.finditer(re.escape(_MODULEOFFSET_HDR),
                                            dir_stream)]
-    if len(hits) != 1:
-        raise ValueError(f"expected 1 MODULEOFFSET record, found {len(hits)}")
-    return hits[0] + 6
+    if not hits:
+        raise ValueError("no MODULEOFFSET record in dir stream")
+    if module is None:
+        if len(hits) != 1:
+            names = [n for _, n in module_name_positions(dir_stream)]
+            raise ValueError(
+                f"{len(hits)} modules in this project ({', '.join(names)}); "
+                "pass module=<name> to choose one")
+        return hits[0] + 6
+    names = module_name_positions(dir_stream)
+    for start in hits:
+        owner = [n for pos, n in names if pos < start]
+        if owner and owner[-1].lower() == module.lower():
+            return start + 6
+    raise ValueError(f"module {module!r} has no MODULEOFFSET record")
 
 
 # --- the module stream's compiled p-code region ------------------------
@@ -374,12 +404,27 @@ class Perf:
         return bytes(out), new_modoff
 
 
-def load_module(path) -> dict:
-    """Collect everything needed to rewrite the first module in ``path``."""
+def load_module(path, module: str | None = None) -> dict:
+    """Collect everything needed to rewrite one module in ``path``.
+
+    ``module`` names the module to target; the default takes the only
+    one, and raises if the project holds several.
+    """
     reader = AccessReader(path)
-    stream = reader.find_module_streams()[0]
+    streams = reader.find_module_streams()
+    if not streams:
+        raise ValueError(f"{path}: no VBA module with compiled p-code")
+    if module is None:
+        stream = streams[0]
+    else:
+        matches = [s for s in streams if s.name.lower() == module.lower()]
+        if not matches:
+            raise ValueError(
+                f"module {module!r} not found; have "
+                f"{', '.join(s.name for s in streams)}")
+        stream = matches[0]
     dir_page, dir_slot, dir_dec, _ = find_dir_row(path)
-    pos = find_moduleoffset_pos(dir_dec)
+    pos = find_moduleoffset_pos(dir_dec, stream.name if module else module)
     return {"page": stream.page, "slot": stream.slot,
             "row": bytes(stream.raw), "dir_page": dir_page,
             "dir_slot": dir_slot, "dir_dec": dir_dec,

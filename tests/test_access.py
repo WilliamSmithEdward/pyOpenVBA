@@ -30,6 +30,45 @@ requires_live = pytest.mark.skipif(
     reason="live .accdb fixture not present",
 )
 
+# Two standard modules that Access happened to store on the same LVAL
+# page: ModA computes 2 * 3, ModB computes 5 + 1.
+TWO_MODULES = FIXTURES / "two_modules_one_page.accdb"
+
+requires_two_modules = pytest.mark.skipif(
+    not TWO_MODULES.exists(),
+    reason="two-module .accdb fixture not present",
+)
+
+
+@requires_two_modules
+def test_module_streams_are_found_per_module_not_per_page() -> None:
+    """Modules sharing an LVAL page each get their own carrier row."""
+    with AccessReader(TWO_MODULES) as db:
+        names = sorted(m.name for m in db.iter_vba_modules())
+        assert names == ["ModA", "ModB"]
+        streams = db.find_module_streams()
+        assert sorted(s.name for s in streams) == ["ModA", "ModB"]
+        # Same page, distinct rows -- the case that page-keyed lookup lost.
+        assert len({s.page for s in streams}) == 1
+        assert len({s.slot for s in streams}) == 2
+
+
+@requires_two_modules
+def test_disassemble_module_picks_the_named_module() -> None:
+    """Each module disassembles to its own p-code, not a page neighbour's."""
+    with AccessReader(TWO_MODULES) as db:
+        def literals(name: str) -> list[int]:
+            return [
+                value
+                for line in db.disassemble_module(name).lines
+                for instruction in line.instructions
+                if instruction.mnemonic == "LitDI2"
+                for _, value in instruction.operands
+            ]
+
+        assert literals("ModA") == [2, 3]
+        assert literals("ModB") == [5, 1]
+
 
 @requires_live
 def test_open_and_validate_header() -> None:

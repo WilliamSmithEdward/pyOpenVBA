@@ -41,6 +41,7 @@ fix up -- normally the hardest part of a code generator.
 | Rewritten logic executes | `acc = 9 * 9`, `idx = acc + 19`, `Calc = acc * 2 + idx` returned **262** |
 | Statement count can change | A 3-statement template regrown to 13 statements (nested `Do While` + `If`/`ElseIf`/`Else`) returned **160**; shrunk to 2 returned **42** |
 | New identifiers can be added | A 12-statement program using three variables Access never created (`cnt`, `tot`, `best`) returned **80** |
+| One module of several can be targeted | Rewriting only `ModB` of a two-module project returned **142**, with `ModA` unchanged at **6** |
 
 The source/p-code test is the important negative: Access has **no
 load-time recompile-from-source trigger**. Excel treats a version mismatch
@@ -67,6 +68,16 @@ python docs/research/access_write/verify_compiler.py sample.accdb
 ```bash
 python docs/research/access_write/rewrite_module.py in.accdb out.accdb "acc = 9 * 9" "idx = acc + 19" "Calc = acc * 2 + idx"
 ```
+
+```bash
+python docs/research/access_write/rewrite_module.py in.accdb out.accdb --module ModB --file program.vba
+```
+
+Access routinely stores several modules on one LVAL page, so a module is
+identified by the `Attribute VB_Name` its row decompresses to, never by
+its page. Getting that wrong is not a loud failure -- it silently returns
+a neighbouring module's p-code, which is what `AccessReader` used to do
+(fixed alongside this work).
 
 ## Format notes
 

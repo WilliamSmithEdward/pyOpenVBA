@@ -707,27 +707,51 @@ class AccessReader:
         VBA source attribute prefix" with "row contains a single
         ``0xCAFE`` word".
         """
+        carriers = self._module_carrier_rows()
         results: list[AccessVBAModuleStream] = []
-        seen: set[tuple[int, int]] = set()
         for module in self.iter_vba_modules():
-            page = module.start_offset // ACE_PAGE_SIZE
-            for p, slot, row in self._iter_lval_rows():
-                if p != page:
-                    continue
-                raw = bytes(row)
-                cafe = raw.find(b"\xfe\xca")
-                if cafe < 0:
-                    continue
-                if (p, slot) in seen:
-                    break
-                seen.add((p, slot))
-                results.append(
-                    AccessVBAModuleStream(
-                        page=p, slot=slot, raw=raw, cafe_offset=cafe
-                    )
+            found = carriers.get(module.name)
+            if found is None:
+                continue
+            page, slot, raw = found
+            cafe = raw.find(b"\xfe\xca")
+            if cafe < 0:
+                continue
+            results.append(
+                AccessVBAModuleStream(
+                    page=page, slot=slot, raw=raw, cafe_offset=cafe,
+                    name=module.name,
                 )
-                break
+            )
         return tuple(results)
+
+    def _module_carrier_rows(self) -> dict[str, tuple[int, int, bytes]]:
+        """Map module name to the LVAL row carrying its module stream.
+
+        :meth:`iter_vba_modules` records only the *page* a module was
+        found on, but Access routinely stores several modules on one
+        page, so a page does not identify a module's row. Re-scan the
+        rows and key them by the ``Attribute VB_Name`` each decompresses
+        to, which does.
+        """
+        out: dict[str, tuple[int, int, bytes]] = {}
+        for page, slot, row in self._iter_lval_rows():
+            for blob_kind, blob in self._candidate_blobs(page, slot, row):
+                try:
+                    raw = _ovba_decompress(
+                        blob, stream_name=f"accdb@({page},{slot}):{blob_kind}"
+                    )
+                except Exception:
+                    continue
+                if not raw.startswith(b"Attribute VB_Name = "):
+                    continue
+                header = raw.decode("latin-1").split("\r\n", 1)[0]
+                if '"' in header:
+                    out.setdefault(
+                        header.split('"', 2)[1], (page, slot, bytes(row))
+                    )
+                break
+        return out
 
     def identifiers(self) -> tuple[AccessVBAIdentifier, ...]:
         """Enumerate every project-level identifier name decoded from
@@ -791,26 +815,16 @@ class AccessReader:
                 (e.g. source-only module that has never been
                 executed).
         """
-        modules = list(self.iter_vba_modules())
-        streams = self.find_module_streams()
-        # iter_vba_modules() and find_module_streams() walk the
-        # database in the same page order, but find_module_streams
-        # only emits an entry when a CAFE region is present in the
-        # carrier row. Match by (page, slot) to be robust.
-        by_page: dict[int, AccessVBAModuleStream] = {
-            s.page: s for s in streams
-        }
-        for module in modules:
-            if module.name != name:
-                continue
-            stream = by_page.get(module.start_offset // ACE_PAGE_SIZE)
-            if stream is None:
-                raise AccessError(
-                    f"module {name!r} has no compiled p-code "
-                    "(no 0xCAFE region in carrier row)"
-                )
-            return disassemble_module_stream(
-                stream.raw, is_64bit=is_64bit
+        # Match by name: several modules can share one LVAL page, so a
+        # page-keyed lookup would silently return a neighbour's p-code.
+        by_name = {s.name: s for s in self.find_module_streams()}
+        stream = by_name.get(name)
+        if stream is not None:
+            return disassemble_module_stream(stream.raw, is_64bit=is_64bit)
+        if any(module.name == name for module in self.iter_vba_modules()):
+            raise AccessError(
+                f"module {name!r} has no compiled p-code "
+                "(no 0xCAFE region in carrier row)"
             )
         raise AccessError(f"module {name!r} not found in database")
 
@@ -827,16 +841,12 @@ class AccessReader:
         Args:
             is_64bit: See :meth:`disassemble_module`.
         """
-        out: dict[str, DisassembledModule] = {}
-        streams = {s.page: s for s in self.find_module_streams()}
-        for module in self.iter_vba_modules():
-            stream = streams.get(module.start_offset // ACE_PAGE_SIZE)
-            if stream is None:
-                continue
-            out[module.name] = disassemble_module_stream(
+        return {
+            stream.name: disassemble_module_stream(
                 stream.raw, is_64bit=is_64bit
             )
-        return out
+            for stream in self.find_module_streams()
+        }
 
     def iter_vba_modules(self) -> Iterator[VBAModule]:
         """
@@ -1541,18 +1551,21 @@ class AccessVBAModuleStream:
 
     Attributes:
         page: ACE 4 KiB page number containing the LVAL row.
-        slot: Slot index within ``page``.
+        slot: Slot index within ``page``. Several modules commonly share
+            a page, so ``page`` alone does not identify a module.
         raw: Entire row bytes; the module-stream-format region runs
             from offset 0 through the start of the OVBA compressed
             source.
         cafe_offset: In-row byte offset of the ``0xCAFE`` magic word
             that opens the p-code region.
+        name: Module name, from the row's ``Attribute VB_Name``.
     """
 
     page: int
     slot: int
     raw: bytes
     cafe_offset: int
+    name: str = ""
 
 
 @dataclass(frozen=True)

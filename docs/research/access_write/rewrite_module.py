@@ -77,10 +77,11 @@ def _add_missing_identifiers(out_db: Path, statements: list[str]) -> dict:
     return name_table(out_db)
 
 
-def rewrite(src_db: Path, out_db: Path, statements: list[str]) -> None:
+def rewrite(src_db: Path, out_db: Path, statements: list[str],
+            module: str | None = None) -> None:
     shutil.copy(src_db, out_db)
     names = _add_missing_identifiers(out_db, statements)
-    info = load_module(out_db)
+    info = load_module(out_db, module)
     perf = Perf(info["row"], info["modoff"])
     source = perf.source().decode("latin-1").split("\r\n")
 
@@ -127,9 +128,15 @@ def rewrite(src_db: Path, out_db: Path, statements: list[str]) -> None:
 if __name__ == "__main__":
     if len(sys.argv) < 4:
         raise SystemExit(__doc__)
-    if sys.argv[3] == "--file":
-        text = Path(sys.argv[4]).read_text().splitlines()
-        stmts = [ln for ln in text if ln.strip()]
+    argv = sys.argv[1:]
+    module = None
+    if "--module" in argv:
+        i = argv.index("--module")
+        module = argv[i + 1]
+        del argv[i:i + 2]
+    if argv[2] == "--file":
+        stmts = [ln for ln in Path(argv[3]).read_text().splitlines()
+                 if ln.strip()]
     else:
-        stmts = sys.argv[3:]
-    rewrite(Path(sys.argv[1]), Path(sys.argv[2]), stmts)
+        stmts = argv[2:]
+    rewrite(Path(argv[0]), Path(argv[1]), stmts, module)

@@ -374,6 +374,28 @@ that keeps the module's line count is verified end to end: a program of
 twelve generated statements is refused for the reason below, but a
 single-statement rewrite returns its new value from real Access.
 
+### And the p-code is what executes, so the compiler is not optional
+
+With the cache gone, does Access run our p-code or recompile from our
+source? Make the two disagree and ask. Both directions agree:
+
+| source | p-code | `__SRP_` | Access returns |
+|--------|--------|----------|----------------|
+| `Probe = 123` | `LitDI2(5)` | dropped | **5** |
+| `Probe = 5` | `LitDI2(777)` | dropped | **777** |
+
+The p-code wins every time. Writing source alone would change nothing,
+so the compiler is load-bearing rather than a nicety, and byte-exact
+agreement with Microsoft's own output is the property that matters.
+
+Source is for display and for structural validation. That is also what
+the line-count bug below is: Access parses the source against the
+header's line counters, and errors when they disagree, even though
+execution itself comes from the p-code.
+
+Only `/decompile` promotes source over p-code, by regenerating the p-code
+from it. Dropping `__SRP_` is not a recompile.
+
 ### The remaining bug: changing the line count
 
 Growing or shrinking a module by even one line produces a module Access

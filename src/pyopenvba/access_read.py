@@ -173,6 +173,27 @@ class AccessReader:
             print(db.page_count)
     """
 
+    @classmethod
+    def create_new(cls, path: str | Path) -> AccessReader:
+        """Create a blank ``.accdb`` at ``path`` and return a reader for it.
+
+        The bytes come from a template captured from a database Access
+        authored itself, so the result opens cleanly. It holds one
+        standard module, ``Module1``, containing an empty ``Main``
+        function -- a starting point that already has the VBA project,
+        module and procedure structure a database needs, none of which
+        can be synthesised from nothing.
+
+        Mirrors :meth:`pyopenvba.ExcelFile.create_new` and its Word and
+        PowerPoint counterparts. ``path`` is overwritten if it exists.
+        """
+        from pyopenvba._templates import EMPTY_ACCDB_BYTES
+
+        target = Path(path)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(EMPTY_ACCDB_BYTES)
+        return cls(target)
+
     def __init__(self, path: str | Path) -> None:
         self.path = Path(path)
         self._data: bytearray = bytearray(self.path.read_bytes())

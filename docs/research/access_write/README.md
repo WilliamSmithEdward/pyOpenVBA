@@ -46,6 +46,7 @@ fix up -- normally the hardest part of a code generator.
 | Any procedure, not just the first | Rewriting `F3` of four to `F3 = n * 10` returned **50** for `F3(5)`, with F1, F2 and F5 unchanged |
 | Generated code can carry comments | A commented loop summing odd numbers below 10 returned **25**; comment encoding matches Access on 2503 real comment lines |
 | A procedure body can be emptied | Clearing `F2` to a comment made it return **0** while F1, F3 and F5 kept their original behaviour |
+| A database can be made from nothing | `AccessReader.create_new()` writes an embedded template, and filling its `Main` with a generated loop returned **56** -- no COM anywhere in that path |
 
 The source/p-code test is the important negative: Access has **no
 load-time recompile-from-source trigger**. Excel treats a version mismatch
@@ -241,7 +242,11 @@ new one needs that structure modelled.
 
 Filling in a procedure a template already declares -- including an empty
 one -- covers much of the same ground today, since a VBA project has to
-exist before any of this applies.
+exist before any of this applies. `AccessReader.create_new()` supplies
+that starting point from bytes embedded in the library, the same way
+`ExcelFile.create_new()` does, so no Access install is needed to obtain
+one. `bake_access_template.py` regenerates the embedded copy; an
+`.accdb` is mostly empty pages and compresses to about 4% of its size.
 
 **Allocating pages.** A module already stored as a chain can be rewritten
 up to that chain's capacity (12216 bytes for a three-page chain), and a

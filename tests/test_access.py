@@ -50,6 +50,28 @@ requires_spanning = pytest.mark.skipif(
 )
 
 
+def test_create_new_writes_a_usable_blank_database(tmp_path) -> None:
+    """create_new() produces a database with a fillable VBA project."""
+    target = tmp_path / "fresh.accdb"
+    db = AccessReader.create_new(target)
+
+    assert target.stat().st_size % ACE_PAGE_SIZE == 0
+    assert [m.name for m in db.iter_vba_modules()] == ["Module1"]
+    # A procedure must already exist: neither a VBA project nor a
+    # procedure can be synthesised from nothing.
+    source = db.read_vba_module("Module1")
+    assert "Function Main()" in source
+    assert [s.name for s in db.find_module_streams()] == ["Module1"]
+    assert db.disassemble_module("Module1").num_lines > 0
+
+
+def test_create_new_overwrites_an_existing_file(tmp_path) -> None:
+    target = tmp_path / "fresh.accdb"
+    target.write_bytes(b"not a database")
+    AccessReader.create_new(target)
+    assert AccessReader(target).format == "ace"
+
+
 @requires_spanning
 def test_module_spanning_pages_yields_one_module() -> None:
     """A chained module is one module, not one per row it touches."""

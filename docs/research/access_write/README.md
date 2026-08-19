@@ -45,6 +45,7 @@ fix up -- normally the hardest part of a code generator.
 | Modules larger than a page can be rewritten | A 122-statement module chained across three LVAL pages, rewritten to 11116 bytes, returned **21660** |
 | Any procedure, not just the first | Rewriting `F3` of four to `F3 = n * 10` returned **50** for `F3(5)`, with F1, F2 and F5 unchanged |
 | Generated code can carry comments | A commented loop summing odd numbers below 10 returned **25**; comment encoding matches Access on 2503 real comment lines |
+| A procedure body can be emptied | Clearing `F2` to a comment made it return **0** while F1, F3 and F5 kept their original behaviour |
 
 The source/p-code test is the important negative: Access has **no
 load-time recompile-from-source trigger**. Excel treats a version mismatch
@@ -229,9 +230,18 @@ into the p-code. The p-code region then does not end where the model
 expects, and the 1 MB fixture's `Module1` and `Class1` are refused for
 exactly that reason.
 
-**New procedures.** `FuncDefn` carries a `func_` offset into the
-declaration tables, which is not yet decoded, so generated code lives
-inside a procedure the template already defines.
+**Creating a procedure from nothing.** Adding one grows the pre-`0xCAFE`
+header by 360 bytes spread over several structures at once: an 88-byte
+declaration record at the new procedure's `func_` offset (the second
+procedure's is 88, matching the stride seen in a four-procedure module),
+two more 24-byte slot records for its locals, and roughly 220 further
+bytes of counts and pointers that shift with them. Reading, rewriting,
+and emptying the procedures a module already has all work; synthesising a
+new one needs that structure modelled.
+
+Filling in a procedure a template already declares -- including an empty
+one -- covers much of the same ground today, since a VBA project has to
+exist before any of this applies.
 
 **Allocating pages.** A module already stored as a chain can be rewritten
 up to that chain's capacity (12216 bytes for a three-page chain), and a

@@ -564,9 +564,22 @@ The real obstacle is not the record. Supporting `Dim` means **growing the
 pre-CAFE header**, which this write path has never done -- every rewrite
 so far preserves that region byte for byte and edits only what follows.
 Growing it moves three u32 size fields (at header offsets 9, 25 and 29)
-and changes the word at offset 41, which differs on every build and is
-probably a checksum. Whether Access validates that word is the question
-that decides how much work this is.
+and changes the word at offset 41, which differs on every build.
+
+That word is **not a checksum Access validates**. Overwriting each field
+with `deadbeef` in a compiled module, dropping the `__SRP_` cache and
+running it:
+
+| field | result |
+|-------|--------|
+| offset 41 (the per-build word) | runs normally |
+| offset 9 | runs normally |
+| offset 25 | project breaks |
+
+So only one size field has to be maintained, and the per-build word can
+be left alone. `Dim` is a bounded job rather than an open one: emit the
+eight bytes of p-code, insert 24 bytes at `464 + var_`, link the record
+into the chain, and keep offsets 25 and 29 consistent.
 
 ## References added through the References menu
 

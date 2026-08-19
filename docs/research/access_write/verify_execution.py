@@ -16,7 +16,6 @@ is modal and blocks until the caller times out. The harness reports
 """
 from __future__ import annotations
 
-import subprocess
 import sys
 from pathlib import Path
 
@@ -56,17 +55,11 @@ SOURCE = (
 
 def build(scratch: Path, name: str, body: str) -> Path:
     """Compile a starting database with Access, so the p-code is real."""
+    from build_matrix import build as build_accdb
+
     bas = scratch / f"{name}.bas"
     bas.write_bytes(SOURCE.format(body=body).encode("latin-1"))
-    accdb = scratch / f"{name}.accdb"
-    accdb.unlink(missing_ok=True)
-    script = Path(__file__).with_name("build_matrix.ps1")
-    subprocess.run(
-        ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass",
-         "-File", str(script), "-Target", str(accdb).replace("/", "\\"),
-         "-Source", str(bas)],
-        check=True, capture_output=True, timeout=300)
-    return accdb
+    return build_accdb(scratch / f"{name}.accdb", bas)
 
 
 def evaluate(accdb: Path, expression: str = "Probe()") -> tuple[str, object]:

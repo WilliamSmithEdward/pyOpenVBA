@@ -62,6 +62,9 @@ OP = {"Xor": 2, "Or": 3, "And": 4, "Eq": 5, "Ne": 6, "Le": 7, "Ge": 8,
       "For": 146, "ForStep": 149, "IfBlock": 156, "LitDI2": 172,
       "LitDI4": 173, "LitNothing": 178, "LitR8": 183, "LitStr": 185,
       "LitVarSpecial": 186, "Loop": 188, "LoopUntil": 189, "LoopWhile": 190,
+      "ArgsMemCallWith": 67, "BoSImplicit": 71, "EndIf": 106,
+      "EndWith": 113, "Erase": 114, "If": 155, "Label": 163,
+      "OnError": 204, "Resume": 232, "With": 248, "StartWithExpr": 260,
       "FnAbs": 23, "FnLen": 27, "ArgsArray": 68, "Coerce": 88,
       "FnInStr": 132, "FnLBound": 138, "FnUBound": 145,
       "FnFix": 24, "FnInt": 25, "FnSgn": 26, "FnStrComp": 141,
@@ -472,6 +475,51 @@ def compile_line(text, names):
         return enc([_ins(OP["Wend"])])
     if low == "end select":
         return enc([_ins(OP["EndSelect"])])
+    if low == "end with":
+        return enc([_ins(OP["EndWith"])])
+    if low == "resume next":
+        # `Resume~1` with a null name operand, measured; plain `Resume`
+        # and `Resume <label>` are different shapes and stay unsupported.
+        return enc([_ins(OP["Resume"], (("name", 0),), op_type=1)])
+    if low.startswith("with "):
+        return enc([_ins(OP["StartWithExpr"]), *E(s[5:]), _ins(OP["With"])])
+    if low.startswith("erase "):
+        return enc([*E(s[6:]), _ins(OP["Erase"], (("0x", 1),))])
+
+    m = re.match(r"(?i)^on\s+error\s+goto\s+([A-Za-z_]\w*)$", s)
+    if m:
+        return enc([_ins(OP["OnError"], (("name", _res(names, m.group(1))),))])
+
+    # A line label is a bare name followed by a colon.
+    m = re.match(r"^([A-Za-z_]\w*):$", s)
+    if m:
+        return enc([_ins(OP["Label"], (("name", _res(names, m.group(1))),))])
+
+    # A one-line If wraps its consequent in the same p-code line.
+    m = re.match(r"(?i)^if\s+(.+?)\s+then\s+(.+)$", s)
+    if m:
+        inner = compile_line(m.group(2), names)
+        if inner is None:
+            raise CompileError(
+                f"not a statement after Then: {m.group(2)!r}")
+        return enc([*E(m.group(1)), _ins(OP["If"]),
+                    _ins(OP["BoSImplicit"])]) + inner + enc(
+                        [_ins(OP["EndIf"])])
+
+    # `.Member args` inside a With block: the object is implicit.
+    m = re.match(r"^\.([A-Za-z_]\w*)\s*(.*)$", s)
+    if m:
+        member, rest = m.group(1), m.group(2).strip()
+        if rest.startswith("(") and rest.endswith(")"):
+            rest = rest[1:-1].strip()
+        args, count = [], 0
+        if rest:
+            for piece in _split_args(rest):
+                args += E(piece)
+                count += 1
+        return enc([*args, _ins(OP["ArgsMemCallWith"],
+                                (("name", _res(names, member)), ("0x", count)),
+                                op_type=STATEMENT_CALL_OP_TYPE)])
     if low == "case else":
         return enc([_ins(OP["CaseElse"])])
     if low.startswith("select case "):
@@ -583,6 +631,7 @@ def compile_line(text, names):
 # lexes as a name is an identifier the program references.
 _KEYWORDS = frozenset([
     "if", "then", "else", "elseif", "end", "do", "while", "wend", "until",
+    "with", "erase", "on", "error", "goto", "resume",
     "loop", "for", "to", "next", "step", "exit", "not", "and", "or",
     "xor", "mod", "set", "select", "case", "is", "sub", "function",
     # The Variant constants compile to LitVarSpecial/LitNothing, so they

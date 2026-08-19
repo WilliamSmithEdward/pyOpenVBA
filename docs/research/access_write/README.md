@@ -649,9 +649,17 @@ declaration shifts every later one and every pointer into them must be
 fixed up. On top of that, a local-name **hash table** in region C resized
 on the fifth declaration -- the 8-byte shrink is `ffffffff10000000`, one
 empty bucket -- so the header's size is not a fixed multiple of the
-record count. Whether that table is validated is the next thing to test
-with the deadbeef method that cleared the offset-41 cookie; if it is not,
-the insertion can be approximate and still run.
+record count. Whether that table is validated was the next thing to test
+with the deadbeef method that cleared the offset-41 cookie -- and unlike
+the cookie, **it is**. Overwriting the empty-bucket markers (`ffffffff`)
+of a working three-declaration module with `0xde`, dropping the cache and
+running, crashes Access every time. So the buckets are read, not
+rebuilt on load, and faithful `Dim` needs the local-name hash table
+constructed correctly: the new name's bucket inserted, the table resized
+when load demands it, the `var_` offset table extended, and every
+internal pointer fixed up. That is the "symbol buckets" structure that
+was a dead end earlier, now confirmed load-bearing rather than scratch.
+This is the real frontier for declarations, not a quick win.
 
 ## References added through the References menu
 

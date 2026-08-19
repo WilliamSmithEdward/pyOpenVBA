@@ -1,70 +1,72 @@
 """Measure the `_VBA_PROJECT` identifier hash and check the model.
 
-Compiles two families of names through Excel and reads back the u16 each
-identifier record carries:
-
-* one base name per length plus a single-character bump at every
-  position, which exposes each position's weight;
-* a full a-z sweep through each position of a fixed name, which shows
-  whether the hash is linear in the character (it is, except for W and
-  Y).
+Compiles families of names through Excel, reads back the u16 each
+identifier record carries, and verifies :func:`pcode_hash.identifier_hash`
+reproduces every one.
 
     python docs/research/pcode/hash_probe.py            # compile + check
-    python docs/research/pcode/hash_probe.py --check    # check cached
+    python docs/research/pcode/hash_probe.py --check    # check the cache
 
-Dev-only: needs Windows, desktop Excel and `pyvbaharness`.
+The probe covers, per name length: an all-'a' base plus single-character
+sweeps at several positions (which over-determine the length's seed), a
+full identifier-character sweep at a fixed position (which pins the
+character map), and case variants. ``identifier_hashes.json`` caches the
+measured samples so the check runs without Office.
+
+Dev-only: measuring needs Windows, desktop Excel and `pyvbaharness`.
 """
 from __future__ import annotations
 
 import json
 import sys
+from collections import defaultdict
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "src"))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from batch import compile_many, hdr, scratch_dir
 from pcode_hash import fit_seed, identifier_hash
-from pcode_names import parse_identifiers
 
-from pyopenvba import ExcelFile
-from pyopenvba.cfb import CFB
-
-LETTERS = "abcdefghijklmnopqrstuvwxyz"
 CACHE = "identifier_hashes.json"
+ALNUM = "abcdefghijklmnopqrstuvwxyz0123456789_"
+FIRST = "abcdefghijklmnopqrstuvwxyz_"
 
 
 def probe_names() -> list[str]:
     names: list[str] = []
-    for length in range(1, 11):                 # positional weights
-        base = "q" * length
+    for length in range(1, 31):
+        base = "a" * length
         names.append(base)
-        for i in range(length):
-            names.append(base[:i] + "z" + base[i + 1:])
-    for pos in range(4):                        # linearity in the character
-        for ch in LETTERS:
-            names.append("qqqq"[:pos] + ch + "qqqq"[pos + 1:])
-    names += ["alpha", "Bravo", "charlie", "delta9", "foxtrot_1", "golf",
-              "hotel", "india", "juliet", "kilo", "lima"]
-    seen, unique = set(), []
-    for name in names:
-        if name.lower() not in seen:
-            seen.add(name.lower())
-            unique.append(name)
-    return unique
+        for pos in {0, 1, length - 1}:
+            for ch in "abcdefgh":
+                names.append(base[:pos] + ch + base[pos + 1:])
+    names += ["aa" + c + "aa" for c in ALNUM]          # character map
+    names += [c + "aaaa" for c in FIRST]               # legal first chars
+    names += ["Alpha", "ALPHA", "alpha", "AlPhA"]      # case folding
+    seen, uniq = set(), []
+    for n in names:
+        if n.lower() not in seen and (n[0].isalpha() or n[0] == "_"):
+            seen.add(n.lower())
+            uniq.append(n)
+    return uniq
 
 
 def _module(chunk: list[str]) -> str:
-    body = "Sub A()\r\n"
-    body += "".join(f"    Dim {n}\r\n" for n in chunk)
+    body = "Sub A()\r\n" + "".join(f"    Dim {n}\r\n" for n in chunk)
     body += "".join(f"    {n} = 1\r\n" for n in chunk)
     return body + "End Sub\r\n"
 
 
 def measure() -> dict[str, int]:
+    from batch import compile_many, hdr, scratch_dir
+    from pcode_names import parse_identifiers
+
+    from pyopenvba import ExcelFile
+    from pyopenvba.cfb import CFB
+
     names = probe_names()
-    chunks = {f"hash{i}": _module(names[i:i + 30])
-              for i in range(0, len(names), 30)}
+    chunks = {f"h{i}": _module(names[i:i + 28])
+              for i in range(0, len(names), 28)}
     compile_many({k: hdr(v) for k, v in chunks.items()})
     table: dict[str, int] = {}
     for tag in chunks:
@@ -77,19 +79,21 @@ def measure() -> dict[str, int]:
 
 
 def check(table: dict[str, int]) -> int:
-    by_length: dict[int, dict[str, int]] = {}
+    by_length: dict[int, dict[str, int]] = defaultdict(dict)
     for name, value in table.items():
-        by_length.setdefault(len(name), {})[name] = value
+        by_length[len(name)][name] = value
     exact = total = 0
     for length in sorted(by_length):
         samples = by_length[length]
-        seed = fit_seed(samples)
         hits = sum(1 for n, v in samples.items() if identifier_hash(n) == v)
         exact += hits
         total += len(samples)
-        flag = "" if hits == len(samples) else "   <- model drifts"
-        print(f"  len {length:2}  seed {seed:#07x}  "
-              f"{hits}/{len(samples)} exact{flag}")
+        note = ""
+        if hits != len(samples):
+            seed = fit_seed(samples)
+            note = (f"   <- {hits}/{len(samples)}; a fitting representative "
+                    f"is {seed:#010x}" if seed else "   <- no seed fits")
+        print(f"  len {length:2}  {hits}/{len(samples)} exact{note}")
     print(f"\n{exact}/{total} identifier hashes reproduced")
     return total - exact
 
@@ -100,5 +104,5 @@ if __name__ == "__main__":
         data = json.loads(cache.read_text())
     else:
         data = measure()
-        cache.write_text(json.dumps(data, indent=1, sort_keys=True))
-    raise SystemExit(1 if check(data) > 30 else 0)
+        cache.write_text(json.dumps(data, indent=0, sort_keys=True))
+    raise SystemExit(1 if check(data) else 0)

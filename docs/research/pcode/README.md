@@ -13,8 +13,8 @@ imported by `src/pyopenvba`.
 | `pcode_types.py` | Declared-type decoding: the `type_` indirect descriptors (arrays, fixed-length strings, UDTs, Enums, type-library classes) and the module's type-reference table. |
 | `pcode_decompile.py` | Declaration-table access: base calibration, name and type resolution, procedure signatures, annotated disassembly. |
 | `pcode_source.py` | Full source reconstruction: stack-machine expression rebuilding plus control-flow and indentation rendering. |
-| `pcode_hash.py` | The `_VBA_PROJECT` identifier hash: `h*37 + upper(c) mod 65599`, exact for names up to six characters. |
-| `hash_probe.py` | Measures that hash against Excel and checks the model; `identifier_hashes.json` caches 216 measured samples. |
+| `pcode_hash.py` | The `_VBA_PROJECT` identifier hash: signed 32-bit `h*37 + charval(c)`, reduced `mod 65599` into a 16-bit field. Reproduces all 1,117 measured ids. |
+| `hash_probe.py` | Measures that hash against Excel and checks the model; `identifier_hashes.json` caches 1,117 measured samples. |
 | `roundtrip.py` | Acceptance gate: compile a 37-entry corpus with Excel, decompile it, diff against the original source. |
 | `sweep.py` | Coverage check: decompile every module in every fixture on disk and report anything unmapped. |
 | `compile_oracle.py` | Dev-time oracle: pyOpenVBA writes source, Excel compiles and saves, pyOpenVBA reads the compiled p-code back. |

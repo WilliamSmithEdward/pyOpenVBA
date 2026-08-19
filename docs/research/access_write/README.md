@@ -44,6 +44,7 @@ fix up -- normally the hardest part of a code generator.
 | One module of several can be targeted | Rewriting only `ModB` of a two-module project returned **142**, with `ModA` unchanged at **6** |
 | Modules larger than a page can be rewritten | A 122-statement module chained across three LVAL pages, rewritten to 11116 bytes, returned **21660** |
 | Any procedure, not just the first | Rewriting `F3` of four to `F3 = n * 10` returned **50** for `F3(5)`, with F1, F2 and F5 unchanged |
+| Generated code can carry comments | A commented loop summing odd numbers below 10 returned **25**; comment encoding matches Access on 2503 real comment lines |
 
 The source/p-code test is the important negative: Access has **no
 load-time recompile-from-source trigger**. Excel treats a version mismatch
@@ -140,6 +141,28 @@ than shifting them by the module's line delta is what lets a procedure
 other than the first be rewritten. Rebuilding an unchanged module
 reproduces its pre-`0xCAFE` header byte for byte across 11 procedures in
 10 modules, which is the check that pins the rule down.
+
+A **comment line** is stored as text in the same region as the p-code and
+pointed at by a line record of kind `0x09` (code lines are `0x08`):
+
+```
+E3 00 <u16 indent> <u16 text length> <text>        padded to even length
+```
+
+The leading apostrophe is dropped, the indent is the source line's
+leading-space count, and the line record carries neither indent nor
+frame-size hint. This encoding reproduces all 2503 comment lines in the
+sample databases byte for byte.
+
+The p-code region's size is recorded twice: a **u16 in the 10-byte gap**,
+and the **u32 at offset 29** holding the region's end. The u16 overflows --
+a 65544-byte region stores as 8 -- so the u32 is the one to trust. That
+overflow is why two large modules first looked unmodelled.
+
+The leading `Attribute` block is **not one line**: a standard module
+carries only `VB_Name`, a class module carries five or more. Line-table
+index *i* corresponds to source line *i* only after skipping that block,
+which `Perf.source_lines()` does.
 
 A 12-byte line record is `<flags> <0x80|0x81> <0x08|0x09> <indent>`, then a
 u16 p-code length at `+4`, a u16 frame-size hint at `+6`, and a u32 p-code

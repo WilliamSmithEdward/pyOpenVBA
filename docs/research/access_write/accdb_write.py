@@ -326,8 +326,18 @@ class Perf:
         off += 12 * self.num_lines
         self.gap = bytearray(self.row[off:off + 10])
         self.pstart = off + 10
-        self.total = int.from_bytes(self.gap[6:8], "little")
-        self.end_pcode = self.pstart + self.total
+        # The u16 in the gap holds the p-code region's size, but it is
+        # only 16 bits wide and a large module overflows it -- a 65544
+        # byte region stores as 8. The u32 at offset 29 records the same
+        # region's end and does not overflow, so trust that and keep the
+        # u16 as the low half it is.
+        self.end_pcode = int.from_bytes(self.row[29:33], "little")
+        self.total = self.end_pcode - self.pstart
+        if self.total < 0 or (self.total & 0xFFFF) != int.from_bytes(
+                self.gap[6:8], "little"):
+            # Fall back if the two disagree in a way overflow cannot explain.
+            self.total = int.from_bytes(self.gap[6:8], "little")
+            self.end_pcode = self.pstart + self.total
         self.middle = self.row[self.end_pcode:self.modoff]
         self.src_comp = self.row[self.modoff:]
         self.lines: list[bytes | None] = []
@@ -349,6 +359,28 @@ class Perf:
 
     def source(self) -> bytes:
         return decompress(self.src_comp)
+
+    def source_lines(self) -> list[str]:
+        """Source split so index *i* lines up with line-table entry *i*.
+
+        The leading ``Attribute`` block is not represented in the line
+        table, and it is not one line: a standard module carries only
+        ``VB_Name`` while a class module carries five. Counting the block
+        instead of assuming its size is what keeps class modules aligned.
+        """
+        lines = self.source().decode("latin-1").split("\r\n")
+        start = 0
+        while start < len(lines) and lines[start].startswith("Attribute "):
+            start += 1
+        return lines[start:]
+
+    def attribute_lines(self) -> list[str]:
+        """The leading ``Attribute`` block, which has no line records."""
+        lines = self.source().decode("latin-1").split("\r\n")
+        start = 0
+        while start < len(lines) and lines[start].startswith("Attribute "):
+            start += 1
+        return lines[:start]
 
     def build(self, new_lines=None, new_source=None, lines=None,
               recs=None) -> tuple[bytes, int]:
@@ -378,7 +410,7 @@ class Perf:
         total = len(buf)
 
         gap = bytearray(self.gap)
-        gap[6:8] = total.to_bytes(2, "little")
+        gap[6:8] = (total & 0xFFFF).to_bytes(2, "little")
         source = (self.src_comp if new_source is None
                   else compress_literal_only(new_source))
 

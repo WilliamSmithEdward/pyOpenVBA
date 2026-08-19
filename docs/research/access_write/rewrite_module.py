@@ -44,12 +44,16 @@ from accdb_write import (
     set_lval_payload,
     write_module,
 )
-from vba_compile import compile_line, name_table, referenced_names
+from vba_compile import comment_record, compile_line, is_comment, name_table, referenced_names
 
 # Record byte 3 is the source indent; bytes 0-2 mark an executable
 # statement line. Byte 6 is a frame-size hint that Access recomputes, so
 # an approximation is enough -- it does not affect execution.
 _EXEC_RECORD_PREFIX = b"\x00\x81\x08\x00"
+
+# A comment line points at text rather than p-code: kind 0x09, with no
+# indent (its E3 record carries that) and no frame-size hint.
+_COMMENT_RECORD_PREFIX = b"\x00\x80\x09\x00"
 
 
 # A procedure opens with FuncDefn and closes with EndFunc, each alone on
@@ -77,7 +81,7 @@ def _procedures(perf: Perf, source: list[str]) -> list[tuple[str, int, int]]:
         if opcode == _FUNCDEFN:
             start = index
         elif opcode == _ENDFUNC and start is not None:
-            header = source[start + 1] if start + 1 < len(source) else ""
+            header = source[start] if start < len(source) else ""
             out.append((_procedure_name(header), start + 1, index - 1))
             start = None
     return out
@@ -135,10 +139,19 @@ def _require_reproducible(perf: Perf, info: dict) -> None:
 
 
 def _statement_record(text: str, code: bytes) -> bytearray:
+    if is_comment(text):
+        return bytearray(_COMMENT_RECORD_PREFIX + b"\x00" * 8)
     rec = bytearray(_EXEC_RECORD_PREFIX + b"\x00" * 8)
     rec[3] = len(text) - len(text.lstrip())
     rec[6:8] = (12 + 8 * max(1, len(code) // 4)).to_bytes(2, "little")
     return rec
+
+
+def _encode_line(text: str, names: dict) -> bytes | None:
+    """Encode one body line; a comment becomes a text record."""
+    if is_comment(text):
+        return comment_record(text)
+    return compile_line(text, names)
 
 
 def _add_missing_identifiers(out_db: Path, statements: list[str]) -> dict:
@@ -167,7 +180,7 @@ def rewrite(src_db: Path, out_db: Path, statements: list[str],
     shutil.copy(src_db, out_db)
     info = load_module(out_db, module)
     perf = Perf(info["row"], info["modoff"])
-    source = perf.source().decode("latin-1").split("\r\n")
+    attributes, source = perf.attribute_lines(), perf.source_lines()
     # Check the layout is one we model before interpreting anything in
     # it, then resolve the target -- both before touching the file, so a
     # refusal leaves no appended identifiers behind.
@@ -178,9 +191,9 @@ def rewrite(src_db: Path, out_db: Path, statements: list[str],
     body, body_recs, body_src = [], [], []
     for text in statements:
         stmt = text.rstrip()
-        code = compile_line(stmt, names)
+        code = _encode_line(stmt, names)
         if code is None:
-            raise SystemExit(f"not an executable statement: {stmt!r}")
+            raise SystemExit(f"not a statement or comment: {stmt!r}")
         body.append(code)
         body_recs.append(_statement_record(stmt, code))
         body_src.append(stmt)
@@ -188,7 +201,8 @@ def rewrite(src_db: Path, out_db: Path, statements: list[str],
     lines = perf.lines[:first] + body + perf.lines[last + 1:]
     recs = ([bytearray(r) for r in perf.recs[:first]] + body_recs
             + [bytearray(r) for r in perf.recs[last + 1:]])
-    new_source = source[:first + 1] + body_src + source[last + 2:]
+    new_source = (attributes + source[:first] + body_src
+                  + source[last + 1:])
     blob = "\r\n".join(new_source).encode("latin-1")
 
     new_row, new_modoff = perf.build(lines=lines, recs=recs, new_source=blob)

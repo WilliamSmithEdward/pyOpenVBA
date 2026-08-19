@@ -253,8 +253,41 @@ def compile_line(text, names):
 _KEYWORDS = frozenset(["if", "then", "else", "elseif", "end", "do", "while", "loop", "for", "to", "next", "step", "exit", "not", "and", "or", "xor", "mod"])
 
 
+# A comment line is stored as text in the same region as the p-code,
+# tagged E3 and pointed at by a line record of kind 0x09:
+#
+#     E3 00 <u16 indent> <u16 text length> <text>
+#
+# The leading apostrophe is dropped and everything after it kept
+# verbatim. The indent is the source line's leading-space count -- the
+# same value a code line carries in its line record's byte 3.
+_COMMENT_TAG = b"\xe3\x00"
+
+
+def comment_record(text: str, code_page: int = 1252) -> bytes:
+    """Encode one comment line for the module's text region."""
+    indent = len(text) - len(text.lstrip())
+    body = text.strip()
+    if body.startswith("'"):
+        body = body[1:]
+    encoded = body.encode(f"cp{code_page}", errors="replace")
+    record = (_COMMENT_TAG + indent.to_bytes(2, "little")
+              + len(encoded).to_bytes(2, "little") + encoded)
+    return record + b"\x00" * (len(record) & 1)      # padded to even length
+
+
+def is_comment(text: str) -> bool:
+    return text.strip().startswith("'")
+
+
 def referenced_names(text):
-    """Identifier-like tokens in one statement, minus VBA keywords."""
+    """Identifier-like tokens in one statement, minus VBA keywords.
+
+    A comment introduces no identifiers, and its free text does not lex,
+    so skip it rather than trying.
+    """
+    if is_comment(text):
+        return []
     out = []
     for kind, value in tokenize(text.strip()):
         if kind == "name" and value.lower() not in _KEYWORDS:

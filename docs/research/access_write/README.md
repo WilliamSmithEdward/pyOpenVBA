@@ -34,7 +34,7 @@ fix up -- normally the hardest part of a code generator.
 
 | Result | Evidence |
 |---|---|
-| Access runs the canonical `0xCAFE` p-code, not the `rU@` execodes | Editing only the CAFE region changed `5+3` to `5+9`; Access returned 14 while every `rU@` row stayed stale |
+| Access *sometimes* runs the canonical `0xCAFE` p-code | Editing only the CAFE region changed `5+3` to `5+9`; Access returned 14 while every `rU@` row stayed stale. **This does not generalise** -- see "Correction" below, where the execodes shadow the p-code instead |
 | Source alone is display-only | Source edited to `5 + 3 + 100` with p-code untouched still returned **8** |
 | A grown module row loads and runs | `5+3` -> `5+3+10` (+12 bytes) returned 18, `compile_project` OK |
 | Our p-code equals Microsoft's | 171 statements across 9 modules re-emitted byte-for-byte identically, including a 120-statement module |
@@ -332,3 +332,137 @@ slotted records described above were absorbed into the next entry's
 correct -- excluding those records is what keeps `524 + 2*index` valid --
 so the fix surfaces them without renumbering anything. Every p-code
 `Ld`/`St` operand across the sample databases now resolves to a name.
+
+## Correction: Access runs execodes, not the p-code we write
+
+An earlier note in this file said Access executes the canonical `0xCAFE`
+p-code, and this session repeated that a rewritten procedure "returns 42
+from real Access". **Neither generalises.** On every database tried here,
+a rewritten procedure kept running its *old* code. Measured 2026-08:
+
+| Level | Content | Role |
+|-------|---------|------|
+| `rU@` rows | a second compiled form, in its own `MSysAccessStorage` rows | **what Access actually executes** |
+| OVBA source | the compressed text at `MODULEOFFSET` | what a decompile rebuilds from |
+| `0xCAFE` p-code | the canonical stream this compiler targets | what the VBE and our tools read |
+
+Two probes are needed, because one alone cannot separate the levels.
+
+**Execodes beat the canonical p-code.** Rewrite a procedure so source and
+p-code both say 777 while the untouched execodes still encode 5. The
+file provably contains no other copy of the old code -- a byte search
+finds `LitDI2(777) St(Probe)` once and `LitDI2(5)` nowhere -- and Access
+still returns **5**. The VBE meanwhile displays `Probe = 777`.
+
+**Source beats the canonical p-code, once the execodes are gone.** Edit
+*only* the source text, leaving every p-code byte as Access compiled it,
+so the file says `Probe = 123` and executes `LitDI2(5) St(Probe)`:
+
+```
+before /decompile   Eval("Probe()") -> 5      (execodes, matching the p-code)
+after  /decompile   Eval("Probe()") -> 123    (rebuilt from source)
+```
+
+So a decompile rebuilds from **source**, not from the canonical p-code.
+Rewriting the p-code changes what the VBE displays and what every reader
+sees, and so far has never changed what runs.
+
+What this does *not* establish is a universal rule. The earlier `5+3` ->
+`5+9` result above was a real observation, and under the model here it
+should not have happened -- so Access must sometimes treat the execodes
+as invalid and fall back. The condition that decides this is not yet
+identified, and finding it is the open question.
+
+`DoCmd.RunCommand(126)` ("Compile And Save All Modules") does not help --
+Access reports success while continuing to return the stale value, so it
+evidently considers the project already compiled.
+The only lever found so far is launching `MSACCESS.EXE <db> /decompile`,
+which discards the execodes; Access then rebuilds from source and the
+written code runs. 156 of the 163 databases in this repo carry execode
+rows, so this is the normal case, not an edge case.
+
+Two consequences worth being blunt about:
+
+- **For execution, the source text is what matters**, plus something that
+  invalidates the execodes. The p-code compiler is not on that path.
+- **The p-code compiler is still worth having**, but for different
+  reasons than assumed: byte-exact agreement with Microsoft's compiler is
+  a strong correctness oracle, it keeps a rewritten module internally
+  consistent, and reading it is how the disassembler and decompiler work.
+
+What is still unknown: whether the execode rows can be invalidated from
+pure Python, which is what would make an Access-free write path execute.
+
+## Establishing p-code coverage
+
+"Does the compiler handle VBA?" is not answerable by inspection, and the
+opcode table does not answer it either -- that table is closed by
+construction (264 entries, 0..263, the last literally named `Illegal`),
+so a disassembler cannot meet an unknown opcode. Generation is the open
+problem.
+
+The instrument is `construct_matrix.bas`: one module exercising the
+constructs on purpose, compiled by Access itself via `build_matrix.ps1`,
+then diffed statement by statement with `verify_compiler.py`. Every
+statement either matches Microsoft byte for byte or is reported.
+
+It earned its keep immediately -- six defects on first run, three of them
+**silent miscompiles**, which are far worse than refusals because they
+emit valid p-code for the wrong program:
+
+| Source | Was emitted | Should be |
+|--------|-------------|-----------|
+| `r = a ^ b` | `Ld(a) St(r)` -- operand dropped | `Ld(a) Ld(b) Pwr St(r)` |
+| `arr(1) = 10` | `ArgsCall(arr)` -- an assignment compiled as a call | `LitDI2 LitDI2 ArgsSt(arr)[1]` |
+| `d.Add "k", 1` | object pushed first | arguments first, object last |
+| `x = d.Count` | `ArgsMemLd(Count)[0]` | `MemLd(Count)` |
+| `For i = 10 To 1 Step -1` | `Step` silently ignored | step expression then `ForStep` |
+| `v = 3.5` | crash | `LitR8` with the raw double |
+
+The member-call order bug had survived because every earlier probe called
+a **zero-argument** member (`DoCmd.Beep`), and with no arguments the two
+orders are byte-identical. A probe that cannot distinguish two hypotheses
+is not evidence for either.
+
+The grammar now refuses any statement it cannot fully consume, so an
+unparsed tail raises instead of quietly shrinking the program. After the
+fixes: **75 statements byte-identical to Access, 0 differing**, and the
+matrix module rebuilds byte-for-byte through `verify_identity.py`.
+
+Uncovered and refused, not approximated: `With`, `Dim`/`Const`/`ReDim`/
+`Erase`, `On Error`, line labels, single-line `If ... Then <statement>`,
+date literals, and built-ins living in the pre-populated slots below 261.
+
+## References added through the References menu
+
+They need no new p-code machinery, because **early and late binding
+compile identically**. `dEarly.Add "k", 1` on a `Scripting.Dictionary`
+and `dLate.Add "k", 1` on an `Object` differ by exactly one byte -- the
+operand naming the variable:
+
+```
+b90001006b00ac00010020003202424040020200   Dim dEarly As Scripting.Dictionary
+b90001006b00ac00010020003602424040020200   Dim dLate  As Object
+                          ^^^^
+```
+
+No DISPID, no vtable slot, no type-library token in the instruction
+stream: the member is an identifier slot and binding happens at run time.
+A referenced library's names -- `Scripting`, `Dictionary`, `Add`,
+`CompareMode`, the enum constant `TextCompare`, and `kernel32` from a
+`Declare` -- are ordinary entries in the project identifier table,
+indistinguishable from names the user wrote.
+
+The library shows up in exactly three other places:
+
+1. A `REFERENCED` record in the dir stream, which `AccessReader` already
+   parses: `*\G{420B2830-...}#1.0#0#C:\Windows\System32\scrrun.dll#Microsoft Scripting Runtime`.
+2. The declared type on a `Dim`, through the `type_` descriptor's typeref.
+3. `New Scripting.Dictionary`, which emits `New` with an **import index**
+   (`imp_=0`, `imp_=8` -- an 8-byte stride) rather than a name operand.
+   This is the only construct that reaches the type library from the
+   instruction stream.
+
+A `Declare PtrSafe Function ... Lib "kernel32"` is not special either: it
+is a `FuncDefn` like any other, and its call site is an ordinary
+`ArgsLd`, indistinguishable from a call to a local `Sub`.

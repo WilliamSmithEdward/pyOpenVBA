@@ -40,6 +40,45 @@ requires_two_modules = pytest.mark.skipif(
 )
 
 
+# One module too large for a 4 KiB page, so Access chained its stream
+# across several LVAL rows. BigCalc sums 2*i-1 for i in 1..120 = 14400.
+SPANNING = FIXTURES / "module_spanning_pages.accdb"
+
+requires_spanning = pytest.mark.skipif(
+    not SPANNING.exists(),
+    reason="page-spanning .accdb fixture not present",
+)
+
+
+@requires_spanning
+def test_module_spanning_pages_yields_one_module() -> None:
+    """A chained module is one module, not one per row it touches."""
+    with AccessReader(SPANNING) as db:
+        assert [m.name for m in db.iter_vba_modules()] == ["M"]
+        assert [s.name for s in db.find_module_streams()] == ["M"]
+
+
+@requires_spanning
+def test_module_spanning_pages_decodes_all_pcode() -> None:
+    """The stream is the assembled chain, not just its head row."""
+    with AccessReader(SPANNING) as db:
+        stream = db.find_module_streams()[0]
+        # The head row alone is one page; the real stream is far bigger.
+        assert len(stream.raw) > ACE_PAGE_SIZE
+        module = db.disassemble_module("M")
+        with_pcode = [ln for ln in module.lines if ln.instructions]
+        assert len(with_pcode) > 100
+        literals = [
+            value
+            for line in module.lines
+            for instruction in line.instructions
+            if instruction.mnemonic == "LitDI2"
+            for _, value in instruction.operands
+        ]
+        # The final statement is `tally = tally + 120 * 2 - 1`.
+        assert literals[-4:] == [1, 120, 2, 1]
+
+
 @requires_two_modules
 def test_module_streams_are_found_per_module_not_per_page() -> None:
     """Modules sharing an LVAL page each get their own carrier row."""

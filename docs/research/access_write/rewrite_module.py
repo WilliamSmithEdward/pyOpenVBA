@@ -134,9 +134,8 @@ if __name__ == "__main__":
         i = argv.index("--module")
         module = argv[i + 1]
         del argv[i:i + 2]
-    if argv[2] == "--file":
-        stmts = [ln for ln in Path(argv[3]).read_text().splitlines()
-                 if ln.strip()]
-    else:
-        stmts = argv[2:]
+    stmts = (
+        [ln for ln in Path(argv[3]).read_text().splitlines() if ln.strip()]
+        if argv[2] == "--file" else argv[2:]
+    )
     rewrite(Path(argv[0]), Path(argv[1]), stmts, module)

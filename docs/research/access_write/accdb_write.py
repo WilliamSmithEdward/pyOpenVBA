@@ -423,13 +423,18 @@ def load_module(path, module: str | None = None) -> dict:
                 f"module {module!r} not found; have "
                 f"{', '.join(s.name for s in streams)}")
         stream = matches[0]
+    # A module too large for one page is stored as a chain of rows, with
+    # `stream.raw` holding the assembled chain. Reading that is fine;
+    # writing it back is not, so record it and let write_module refuse.
+    head = bytes(reader._lval_row_bytes(stream.page, stream.slot))
+    chained = len(stream.raw) != len(head)
     dir_page, dir_slot, dir_dec, _ = find_dir_row(path)
     pos = find_moduleoffset_pos(dir_dec, stream.name if module else module)
     return {"page": stream.page, "slot": stream.slot,
             "row": bytes(stream.raw), "dir_page": dir_page,
             "dir_slot": dir_slot, "dir_dec": dir_dec,
             "modoff": int.from_bytes(dir_dec[pos:pos + 4], "little"),
-            "modoff_pos": pos}
+            "modoff_pos": pos, "chained": chained, "name": stream.name}
 
 
 def write_module(data: bytearray, info: dict, new_row: bytes,
@@ -440,6 +445,11 @@ def write_module(data: bytearray, info: dict, new_row: bytes,
     its catalog length, then the dir stream's MODULEOFFSET and *its*
     catalog length.
     """
+    if info.get("chained"):
+        raise ValueError(
+            f"module {info.get('name')!r} spans several LVAL rows; "
+            "rewriting a chained module needs the LVAL chain allocator, "
+            "which is not implemented")
     write_row(data, info["page"], info["slot"], new_row)
     set_storage_length(data, info["page"], info["slot"], len(new_row))
     dir_dec = bytearray(info["dir_dec"])

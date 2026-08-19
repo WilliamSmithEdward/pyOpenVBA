@@ -747,8 +747,18 @@ class AccessReader:
                     continue
                 header = raw.decode("latin-1").split("\r\n", 1)[0]
                 if '"' in header:
+                    # A module too large for one 4 KiB page is chained
+                    # across several rows. The stream is the assembled
+                    # chain; the head row on its own decodes to nothing
+                    # usable, because every line offset points past it.
+                    stream = bytes(row)
+                    if self._looks_like_chain_head(stream):
+                        try:
+                            stream = self._walk_lval_chain(page, slot)
+                        except AccessError:
+                            pass
                     out.setdefault(
-                        header.split('"', 2)[1], (page, slot, bytes(row))
+                        header.split('"', 2)[1], (page, slot, stream)
                     )
                 break
         return out
@@ -874,7 +884,7 @@ class AccessReader:
         MSysAccessStorage) -- a reasonable trade-off until write support
         requires us to allocate / re-link LVAL chunks.
         """
-        yielded: set[tuple[int, int]] = set()
+        yielded: set[str] = set()
         for page, slot, row in self._iter_lval_rows():
             for blob_kind, blob in self._candidate_blobs(page, slot, row):
                 try:
@@ -885,9 +895,6 @@ class AccessReader:
                     continue
                 if not raw.startswith(b"Attribute VB_Name = "):
                     continue
-                if (page, slot) in yielded:
-                    continue
-                yielded.add((page, slot))
                 text = raw.decode("latin-1")
                 lines = text.split("\r\n")
                 body_start = 0
@@ -899,6 +906,12 @@ class AccessReader:
                     else:
                         body_start = idx
                         break
+                # A chained module is reachable from more than one row --
+                # its head, and the row its compressed source starts in --
+                # so key on the name to yield each module exactly once.
+                if module_name in yielded:
+                    break
+                yielded.add(module_name)
                 body = "\r\n".join(lines[body_start:])
                 yield VBAModule(
                     name=module_name,
@@ -1553,9 +1566,10 @@ class AccessVBAModuleStream:
         page: ACE 4 KiB page number containing the LVAL row.
         slot: Slot index within ``page``. Several modules commonly share
             a page, so ``page`` alone does not identify a module.
-        raw: Entire row bytes; the module-stream-format region runs
-            from offset 0 through the start of the OVBA compressed
-            source.
+        raw: The module stream: the carrier row's bytes, or the
+            assembled chain when the module is too large for one page.
+            The module-stream-format region runs from offset 0 through
+            the start of the OVBA compressed source.
         cafe_offset: In-row byte offset of the ``0xCAFE`` magic word
             that opens the p-code region.
         name: Module name, from the row's ``Attribute VB_Name``.

@@ -37,7 +37,7 @@ fix up -- normally the hardest part of a code generator.
 | Access runs the canonical `0xCAFE` p-code, not the `rU@` execodes | Editing only the CAFE region changed `5+3` to `5+9`; Access returned 14 while every `rU@` row stayed stale |
 | Source alone is display-only | Source edited to `5 + 3 + 100` with p-code untouched still returned **8** |
 | A grown module row loads and runs | `5+3` -> `5+3+10` (+12 bytes) returned 18, `compile_project` OK |
-| Our p-code equals Microsoft's | 70 statements across 8 modules re-emitted byte-for-byte identically |
+| Our p-code equals Microsoft's | 171 statements across 9 modules re-emitted byte-for-byte identically, including a 120-statement module |
 | Rewritten logic executes | `acc = 9 * 9`, `idx = acc + 19`, `Calc = acc * 2 + idx` returned **262** |
 | Statement count can change | A 3-statement template regrown to 13 statements (nested `Do While` + `If`/`ElseIf`/`Else`) returned **160**; shrunk to 2 returned **42** |
 | New identifiers can be added | A 12-statement program using three variables Access never created (`cnt`, `tot`, `best`) returned **80** |
@@ -170,6 +170,13 @@ inside a procedure the template already defines.
 **Growing past one page.** The module row must still fit its 4 KB page;
 spilling needs the LVAL chain allocator. For a small template that ceiling
 is around 23 statements. It raises `ValueError` rather than corrupting.
+
+Access itself has no such limit: a module too large for a page is stored
+as a **chain** of LVAL rows, `<u8 next_slot><u24 next_page>` per chunk.
+Those are readable -- `AccessReader` assembles the chain, and the compiler
+gate covers a 120-statement chained module -- but rewriting one means
+splitting the result back across rows and re-linking them, so
+`rewrite_module.py` refuses with a clear message instead.
 
 **Beware: running a database mutates it.** Opening an `.accdb` read-write
 in Access rewrites parts of the file -- in one case relocating the

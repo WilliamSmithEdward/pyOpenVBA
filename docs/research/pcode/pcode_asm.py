@@ -6,16 +6,20 @@ round-tripping real compiled modules: disassemble -> re-encode each
 line -> assert identical to the original line bytes.
 """
 from __future__ import annotations
+
 import sys
-sys.path.insert(0, "F:/GitHub/pyOpenVBA/src")
-from pyopenvba.vba_pcode import OPCODES_VBA7, _translate_opcode
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "src"))
+from pyopenvba.vba_pcode import _translate_opcode
+
 
 # Inverse opcode map for 32-bit hosts (canonical -> raw). For 64-bit, identity.
 def _canonical_to_raw(opcode: int, is_64bit: bool) -> int:
     if is_64bit:
         return opcode
     # invert _translate_opcode by searching (small table, fine)
-    for raw in range(0, 300):
+    for raw in range(300):
         if _translate_opcode(raw, False) == opcode:
             return raw
     return opcode

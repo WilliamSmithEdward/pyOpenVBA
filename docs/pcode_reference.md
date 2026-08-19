@@ -203,23 +203,36 @@ reproduce alphabetical order.
 
 | operand | name | operand | name |
 |---------|------|---------|------|
-| `0x0012` | `Array` | `0x00AC` | `Format` |
-| `0x0018` | `b` | `0x00DC` | `Left` |
+| `0x0012` | `Array` | `0x00A4` | `f` |
+| `0x0018` | `b` | `0x00AC` | `Format` |
+| `0x0034` | `CDec` | `0x00B0` | `FreeFile` |
+| `0x003A` | `ChDir` | `0x00C8` | `Input` |
+| `0x004C` | `CurDir` | `0x00DC` | `Left` |
 | `0x005A` | `Date` | `0x00FA` | `Mid` |
-| `0x007E` | `Dir` | `0x015C` | `String` |
-| `0x00A4` | `f` | | |
+| `0x007E` | `Dir` | `0x00FE` | `MidB` |
+| `0x0084` | `DoEvents` | `0x0134` | `Randomize` |
+| `0x009A` | `Error` | `0x0140` | `RGB` |
+| | | `0x0146` | `Seek` |
+| | | `0x015C` | `String` |
+
+All twenty are strictly alphabetical by operand, which is the self-check
+`builtin_table_is_ordered()` enforces on additions.
+
+Most VBA library functions do **not** live here. Probing 141 built-ins
+one per source line showed the great majority -- `Abs`, `Chr`, `MsgBox`,
+`UCase`, `Now`, `Split`, and so on -- resolving through ordinary
+*project*-table operands, exactly like user names. What lands in the
+runtime space is a small set that VBA's parser treats specially, largely
+the names that double as statements or as file-I/O keywords.
 
 Each entry was confirmed by compiling a probe with Excel and reading the
 operand back. The map is **partial** -- it covers what has been probed,
 not the whole runtime table -- and extends by probing further names;
-`BUILTIN_OPERANDS` in `pcode_names.py` carries it, with
-`builtin_table_is_ordered()` as a self-check on additions.
+`BUILTIN_OPERANDS` in `pcode_names.py` carries it.
 
-**OPEN:** the table's full contents and its index origin (operands are
-`2 * index` into an alphabetical list, but the complete name list lives
-in the VBA runtime, not the file). Note also that names resolved this
-way lose their original casing, since the runtime table supplies the
-spelling.
+**OPEN:** the table's full contents and its index origin. Note also that
+names resolved this way lose their original casing, since the runtime
+table supplies the spelling.
 
 ## 6. Declaration operands (`func_` / `var_`)
 
@@ -241,20 +254,50 @@ Worked example (same module, `DECL_BASE = 450`):
 | `FuncDefn` | `func_00000088` | `0x0236` | `Helper` |
 | `VarDefn`  | `var_000000E0`  | `0x0238` | `gamma` |
 
-`DECL_BASE` varies per module: 450 for the standard modules tested, 546
-for document modules such as `Sheet1` / `ThisWorkbook`.
+`DECL_BASE` varies per module -- 450 is typical for a standard module,
+but a module declaring types moves it (496, 542, 588 all observed), and
+document modules such as `Sheet1` / `ThisWorkbook` sit at 546. No header
+field holding it has been located, so it is **calibrated** against two
+independent constraints: the type-reference table must validate at the
+implied position (section 6.3), and every `func_` / `var_` / `rec_`
+operand must land on a resolvable identifier, scored so procedure names
+and typed parameters outweigh incidental hits.
 
-### 6.1 Declared types
+Both constraints are needed. Name resolution alone settles on bases
+shifted by `0x2C` or `0x58` that still resolve *some* operands, and a
+module whose only declaration is an `Enum` has no `func_` or `var_`
+operand at all -- `rec_` has to count too, or calibration returns
+nothing.
 
-The declaration record also carries the variable's **declared type**, as
-a single byte at:
+### 6.1 The declaration record
 
-```
-DECL_BASE + var_operand + 14
-```
+Every declaration -- procedure, parameter, local, module-level variable,
+UDT member, `Type` / `Enum` -- is a record in the same table, introduced
+by a `u16` **tag** in the two bytes immediately before it. The fields
+that decode are:
 
-The value is a standard OLE Automation **VARTYPE** code, which makes the
-mapping self-evident and complete:
+| offset | size | meaning |
+|--------|------|---------|
+| `-0x02` | u16 | record tag; bit `0x20` = the source wrote an `As` clause |
+| `+0x00` | u16 | name operand (section 5). **Bit 0 is a flag**, set on object / class-typed declarations; mask it off before resolving |
+| `+0x06` | i16 | stack-frame offset (negative for locals, positive for parameters and UDT members) |
+| `+0x0E` | u8 | VARTYPE, or the low half of a descriptor offset |
+| `+0x0F` | u8 | flags: `0x01` ByRef, `0x10` the declaration is a UDT member |
+| `+0x10` | u16 | **discriminator**: `0xFFFF` = the type is the plain VARTYPE at `+0x0E`; anything else = `+0x0E` is a `u16` offset to a type descriptor |
+
+The bit-0 name flag is easy to miss and produced a real defect before it
+was found: `Dim c As Collection` stored `0x0233` where `c` is `0x0232`,
+so the name silently failed to resolve. Name operands are always even,
+which is what frees the bit.
+
+The frame offset is a useful cross-check on the type: a `Dim a(3) As
+Long` local sits at `-32`, matching a 64-bit `SAFEARRAY` header plus one
+`SAFEARRAYBOUND`; a two-dimensional array sits at `-40`, one bound more.
+
+### 6.2 Declared types: the plain form
+
+When the discriminator at `+0x10` is `0xFFFF`, the byte at `+0x0E` is a
+standard OLE Automation **VARTYPE**:
 
 | byte | VBA type | byte | VBA type |
 |------|----------|------|----------|
@@ -265,72 +308,123 @@ mapping self-evident and complete:
 | `0x06` | `Currency` (VT_CY) | `0x11` | `Byte` (VT_UI1) |
 | `0x07` | `Date` (VT_DATE) | `0x14` | `LongLong` (VT_I8) |
 
-Verified 12/12 against Excel-compiled modules, one per declared type.
+Bit `0x40` above the VARTYPE marks a **constant** (`0x43` = Const +
+Long, `0x48` = Const + String).
 
-**OPEN:** no module-header field was found holding `DECL_BASE`. It is
-currently *calibrated* -- the unique base at which every `func_` /
-`var_` operand in the module resolves to a valid identifier.
-Deterministic and reliable in practice, but a proper header field may
-exist.
+A declaration always carries a type even when the source wrote none:
+`Dim x` records `Variant`, and under a `DefLng L` statement `Dim Lx`
+records `Long`. Only the record tag's `0x20` bit says whether an `As`
+clause was actually written, so it is what decides whether the
+decompiler emits one.
 
----
+### 6.3 Declared types: the `type_` indirect table
 
-### 6.2 Procedure signatures
-
-A `FuncDefn` operand is an offset into the declaration table, and the
-procedure's whole signature is reachable from it:
+When the discriminator is **not** `0xFFFF`, `+0x0E` is a `u16`
+`DECL_BASE`-relative offset to a **type descriptor**, whose `u16` tag
+sits in the two bytes immediately before it. This is the mechanism
+behind arrays, fixed-length strings, and every named type.
 
 ```
-base + func_operand + 0x00              the procedure's own name entry
-base + func_operand + 0x58 + k * 0x20   parameter k (VARTYPE at +14)
+tag = kind | flags << 8
 ```
 
-The **return type** is a second entry repeating the procedure name with
-a VARTYPE set; its offset is not fixed, so it is found by scanning
-forward for that name with a type.
+| kind | body | meaning |
+|------|------|---------|
+| `0x1B` | `<u32 array_info><u32 element>` | array |
+| `0x1D` | `<u16 target><u32 0x25>` | named type reference |
+| `0x20` | `<u16 length><u32>` | `String * length` |
 
-`Sub` vs `Function` vs `Property` comes from the closing opcode --
-`EndSub`, `EndFunc`, `EndProp` -- paired with its `FuncDefn` in order.
+| flag | meaning |
+|------|---------|
+| `0x08` | dynamic array (`Dim a()`), no static bounds |
+| `0x10` | the declaration is a UDT member |
+| `0x40` | the reference names a module-local `Type` |
+| `0x60` | the reference names a module-local `Enum` |
+| none | on a `0x1D` tag, the type comes from a referenced type library (`Collection`, `Worksheet`) |
 
-Two traps worth recording, because both produced wrong output before
-being fixed:
+An array's `element` word is either a VARTYPE outright or, when its low
+byte is one of the three kinds, a **nested descriptor tag** whose body
+follows immediately -- which is how `Dim p(3) As Ea` records both
+"array" and "of enum `Ea`" (`1B 00 | <info> | 1D 60 | <index>`).
 
-- **Parameters and locals share the slot region.** A naive scan reads
-  `Dim`-declared locals as extra parameters (`Sub S()` became
-  `Sub S(r As Long)`). The `var_` operands of `VarDefn` mark exactly
-  which slots are locals; stop the parameter scan there.
-- **`DECL_BASE` must be calibrated on procedure names, not just on
-  "something resolves".** Since a `FuncDefn` operand points at its own
-  name, requiring every procedure name to land is a far stronger
-  constraint. Calibrating loosely settles on a base shifted by `0x2C`
-  that still resolves other operands. Scoring candidate bases by
-  resolved names *plus* typed parameters pins it: a `Sub B` whose name
-  collides with the built-in `b` (section 5.1) otherwise defeats a
-  strict project-table-only rule, and a base shifted by `0x58` can
-  satisfy the names alone by landing on the parameter slots. With
-  scoring, every standard module tested calibrates to **450**.
+The `0x1D` `target` is `8 * index` into the module's **type-reference
+table**, a run of 10-byte entries ending `26` bytes before `DECL_BASE`,
+preceded by a 6-byte header whose `u32` repeats the table's own byte
+length -- which makes the table self-describing and therefore a sharp
+validity test for a candidate `DECL_BASE`:
 
-Recovered signatures are exact for `Sub` / `Function` / `Property`,
-parameter names and types, and return types:
-
-```vba
-Sub A(p1 As Long, p2 As String)
-Function B(q1 As Double) As Boolean
-Property X(v As Long) As Long
+```
+<u16 tag><u16><u16 name_operand><u16><u16>
 ```
 
-`ByVal` **is** encoded, in the byte after the VARTYPE
-(``+15``): `0x00` = ByVal, `0x01` = ByRef. Verified 10/10 across mixed
-signatures. Explicit `ByRef` cannot be told from the implicit default,
-since both compile to `0x01`.
+Entry tags seen so far: `0x0448` / `0x0440` a module-local `Type`,
+`0x0048` a module-local `Enum`, `0x9428` / `0x9420` a type-library
+class. The `name_operand` resolves through the project identifier table
+like any other, so `Dim v As Alpha` recovers the literal name `Alpha`.
 
-Not recoverable: `Optional` and default values.
+The decisive evidence that `target` identifies the type, rather than
+merely correlating with it: compiling `Dim p As Alpha : Dim q As Bravo`
+and the same module with the two declarations **swapped** swaps the two
+target values, and declaring both variables as `Alpha` makes both
+targets equal.
 
-**OPEN:** `Optional` parameters with defaults are not located by the
-`+0x58` stride, and `Property Get` / `Let` / `Set` are not yet
-distinguished from one another.
+Verified across the whole fixture corpus: **834 modules, 5,287 p-code
+lines, zero undecoded type descriptors.**
 
-### 6.3 Declaration flags
+### 6.4 Procedure signatures
+
+A procedure record links to its own signature, so nothing has to be
+inferred from slot strides:
+
+| offset | size | meaning |
+|--------|------|---------|
+| `+0x2C` | -- | a type field of the same shape as a variable's (VARTYPE at `+14`, discriminator at `+16`): the **return type** |
+| `+0x36` | u32 | offset of the **first parameter**, `0xFFFFFFFF` when there are none |
+| `+0x51` | u8 | bit `0x02` = the procedure is effectively `Public` |
+
+and each parameter record adds:
+
+| offset | size | meaning |
+|--------|------|---------|
+| `+0x16` | u32 | offset of the **next parameter**, `0xFFFFFFFF` at the end |
+| `+0x1A` | u16 | low byte `0x04` = `ByVal`, `0x02` = an explicit `ByRef` keyword; high byte `0x02` = `Optional`, `0x04` = has a default value |
+
+The head-and-link pair is what separates parameters from locals: both
+live in the same slot region, and a fixed `+0x58 + k * 0x20` scan reads
+`Dim`-declared locals as extra parameters. It also handles the case that
+breaks a fixed stride outright -- a parameter with a default value has a
+**longer record**, so the following parameter is not one stride away.
+
+Default values are pushed onto the stack before the `FuncDefn` by a
+`ConstFuncExpr` marker; the parameters whose flags say they have one
+consume them in order.
+
+`Sub` / `Function` / `Property` comes from the closing opcode
+(`EndSub`, `EndFunc`, `EndProp`) paired with its `FuncDefn`; the
+`FuncDefn`'s own `op_type` refines it:
+
+| bit | meaning |
+|-----|---------|
+| `0x02` | the procedure returns a value (`Function`, `Property Get`) |
+| `0x04` | the source wrote an explicit `Public` keyword |
+
+So `Property Get` **is** distinguishable from `Property Let` / `Set`
+after all (an earlier revision of this document said otherwise): Get
+carries `0x02`, Let and Set do not. Let and Set remain
+indistinguishable from each other; an object-typed final parameter is
+the only available heuristic.
+
+Visibility takes both fields: `op_type & 0x04` renders `Public`,
+otherwise a clear `0x02` in the record byte at `+0x51` renders
+`Private`, otherwise no keyword. `Static Sub` compiles to p-code
+identical to a plain `Sub`; the distinction lives in record flags that
+are not yet decoded.
+
+`Friend`, and any signature containing `ParamArray`, are not encoded at
+all: the compiler stores the original line as a `Reparse` payload
+instead (section 6.6).
+
+### 6.5 Declaration flags
 
 The declaration keyword lives in the **`Dim` opcode's `op_type`**, and
 whether an entry is a constant in the **`VarDefn`'s `op_type`**:
@@ -345,35 +439,38 @@ whether an entry is a constant in the **`VarDefn`'s `op_type`**:
 
 This also disambiguates two cases that otherwise look identical, since
 both push literals before `VarDefn`: an array's bounds
-(`Dim a(1 To 5)`) and a constant's value (`Const K = 7`).
+(`Dim a(1 To 5)`) and a constant's value (`Const K = 7`). A third case
+joins them -- `Dim tag As String * 8` pushes its length the same way --
+and is told apart by the type descriptor, which already carries the
+length.
 
-The declared-type byte carries flags above the VARTYPE:
+### 6.6 Types, enums, and Reparse
 
-- `0x40` marks a **constant** -- `0x43` is Const + Long, `0x48` is
-  Const + String.
-- Arrays encode differently: both `As Long` and `As String` arrays
-  leave `0x10` in the low bits, so the **element type is not in this
-  byte** (it lives in the `type_` indirect table -- **OPEN**).
+`Type` opens both user-defined types and enums; the closing opcode
+distinguishes them (`EndType` vs `EndEnum`), and the opcode's `op_type`
+carries `0x02` for `Enum` plus `0x01` when a visibility keyword was
+written. Which keyword is in the record's `u16` at `+0x10`: `1` for
+`Public`, `0` for `Private`. The name comes from the `rec_` operand,
+resolved exactly like `func_` / `var_`.
 
-### 6.4 Types and enums
-
-`Type` opens both user-defined types and enums; only the closing
-opcode distinguishes them (`EndType` vs `EndEnum`). The name comes from
-the opcode's `rec_` operand, resolved exactly like `func_` / `var_`.
-Members are declared with `DimImplicit` + `VarDefn` and carry no
-keyword of their own:
+Members are declared with `DimImplicit` + `VarDefn`. An enum member
+written without a value (`e1` rather than `e1 = 1`) compiles to an
+argument-less `ArgsCall` on its own name.
 
 ```vba
 Type T          Enum E
     a As Long       E1 = 1
-    b As String     E2 = 2
+    b As String     E2
 End Type        End Enum
 ```
 
-**OPEN:** a variable declared *as* a UDT or enum (`Dim v As E`) has no
-VARTYPE for that type, so the annotation is not recovered.
+Constructs the p-code compiler does not encode are kept verbatim: the
+`Reparse` opcode carries the **original source line** as its payload.
+Observed for `Friend`, `ParamArray` signatures, `Tab(n)` and `Spc(n)`.
+It is a gift to a decompiler -- those lines reproduce exactly -- and a
+warning to an assembler, which must reproduce the text byte for byte.
 
-### 6.5 Statement opcodes
+### 6.7 Statement opcodes
 
 The statement forms the decompiler renders, with the opcodes that carry
 them:
@@ -383,22 +480,72 @@ them:
 | `Set x = e` | `SetStmt` (marker), then `Set` / `MemSet` |
 | `a(i) = e` | `ArgsSt` (value pushed first, then indices) |
 | `o.m = e` / `.m = e` | `MemSt` / `MemStWith` |
+| `x!key` | `DictLd` / `DictSt` and their `With` variants |
 | `With o` ... `End With` | `StartWithExpr`, `With`, `EndWith` |
 | `ReDim a(n)` | `Redim` (with a `type_` operand) |
-| `On Error GoTo L` | `OnError` |
-| `L:` | `Label` |
-| `Resume Next` | `Resume` |
+| `For Each v In c` | `StartForVariable`, `EndForVariable`, `ForEach` |
+| `New Class1` | `New` (its `imp_` operand indexes the type-reference table, `8 * index`) |
+| `Call X(a)` vs `X a` | `ArgsCall`; `op_type` bit `0x10` = written **without** the `Call` keyword |
+| `On Error GoTo L` | `OnError`; `op_type` `0x01` = `Resume Next`, `0x02` = `GoTo 0` |
+| `Resume` | `Resume`; `op_type` `0x08` = bare, `0x01` = `Next`, `0` = a label |
+| `L:` / `GoSub L` / `Return` | `Label`, `GoSub`, `Return` |
 | `Exit Sub` / `Exit For` / ... | `ExitSub`, `ExitFor`, `ExitDo`, `ExitFunc` |
 | `Erase a` | `Erase` |
-| `Option Explicit` | `Option` |
+| `Mid(s, 1, 2) = "x"` | `Mid` (value pushed first) |
+| `LSet` / `RSet` | `LSet`, `RSet` |
+| `Error 5` | `Error` |
+| `Stop` | `Stop` |
+| `x = 1: x = 2` | `BoS` between the statements (`BoSImplicit` inside a single-line `If`) |
+| `If c Then a Else b` | `If`, `Else`, `EndIf` (the block form uses `IfBlock` / `ElseBlock` / `EndIfBlock`) |
+| `#If` / `#Else` / `#End If` | `LbMark`, `LbIf`, `LbElse`, `LbEndIf` -- **both branches are compiled**, so the inactive one is still recoverable |
+| `' comment` | `QuoteRem`, whose `0x` operand is the column it starts at (`0` = the whole line, otherwise it trails a statement) |
+| `Rem comment` | `Rem` |
+| line continuation | `LineCont`, payload = the continuation columns |
+
+**File I/O** is a small language of its own:
+
+| VBA | opcodes |
+|---|---|
+| `Open p For Output As #f` | `Sharp`, `LitDefault`, `Open` (mode in the operand: 1 Input, 2 Output, 4 Append, 8 Binary, 16 Random) |
+| `Print #f, x` | `PrintChan`, then `PrintItemNL` / `PrintItemComma` / `PrintItemSemiColon` |
+| `Write #f, x` | `WriteChan`, then the same item opcodes |
+| `Input #f, x` | `Input`, `InputItem`, `InputDone` |
+| `Line Input #f, s` | `LineInput` |
+| `Close #f` / `Close` | `Close` / `CloseAll` |
+| `Name a As b` | `Name` |
+| `Debug.Print` / `Debug.Assert` | `Debug` + `PrintObj`, `Assert` |
+
+**Statements and options** carry their argument in `op_type`:
+
+| opcode | `op_type` | meaning |
+|--------|-----------|---------|
+| `Option` | `0x01` / `0x02` / `0x04` / `0x05` | `Option Base 1`, `Option Compare Text`, `Option Explicit`, `Option Private Module` |
+| `DefType` | a VARTYPE | `DefInt` / `DefLng` / ...; the two operands are a 64-bit bitmap of the letters covered, bit 0 = `A` |
+| `Coerce` | target type | `CInt` `0x02`, `CLng` `0x03`, `CSng` `0x04`, `CDbl` `0x05`, `CCur` `0x06`, `CDate` `0x07`, `CStr` `0x08`, `CBool` `0x0B`, `CLngLng` `0x0D`, `CByte` `0x11`, `CVar` `0x00` |
+| `CoerceVar` | -- | `CVErr` |
+| `LitVarSpecial` | `0` / `1` / `2` / `3` | `False`, `True`, `Null`, `Empty` |
+| `LitSmallI2` | the value | small integer literal, no operand |
+
+**Literals** encode their value across `u16` operand words, least
+significant first: `LitDI2` / `LitDI4` / `LitDI8` decimal, `LitHI*`
+`&H`, `LitOI*` `&O`, `LitR4` / `LitR8` IEEE floats, `LitCy` a currency
+scaled by 10,000, `LitDate` an OLE automation date (days since
+1899-12-30).
+
+A handful of functions compile to **dedicated opcodes** rather than a
+call, and must be rendered by name: `FnAbs`, `FnFix`, `FnInt`, `FnSgn`,
+`FnLen`, `FnLenB`, `FnInStr` / `FnInStr3` / `FnInStr4` (and the `B`
+variants), `FnStrComp` / `FnStrComp3`, `FnLBound` / `FnUBound` (whose
+`0x` operand is the dimension), `FnMid`, `FnCurDir`, `FnDir`,
+`FnError`, `FnFormat`, `FnFreeFile`, `FnStringVar`, `FnStringStr`.
 
 ## 7. Assembler status (p-code writing)
 
 Verified milestones, all **byte-exact against Office-compiled output**:
 
 1. **Instruction encoder** -- re-emit any decoded instruction to its
-   on-disk bytes. *278/278 instructions byte-exact across 19/20 Office
-   fixtures (Excel, Word, PowerPoint).*
+   on-disk bytes. *278/278 instructions byte-exact across the Office
+   fixture set (Excel, Word, PowerPoint).*
 2. **Full CAFE-region regeneration** -- rebuild the entire region from
    captured structure (record table, offsets, reserved / gap bytes, all
    bodies). *Exact on a 230-line / 20,960-byte module.*
@@ -420,58 +567,66 @@ a full source-to-p-code compiler (lexer, parser, codegen).
 
 ## 8. Decompiler status (p-code reading)
 
-Name resolution makes real decompilation possible. Given a module stream
-plus its `_VBA_PROJECT`, every `name`, `func_`, and `var_` operand
-resolves to a source identifier.
+Given a module stream plus its `_VBA_PROJECT`, every `name`, `func_`,
+`var_` and `rec_` operand resolves to a source identifier, every
+declared type resolves to a type name, and the stack machine replays
+into expressions. The measured results:
 
-Round-trip on an Excel-compiled module:
+- **Round-trip corpus: 35 of 37 entries reproduce the original source
+  character for character**, 0 failing. The other two are cases VBA
+  itself cannot round-trip (below).
+- **Coverage sweep: 834 modules, 5,287 p-code lines across every
+  fixture in the repository -- zero unmapped opcodes, zero undecoded
+  type descriptors**, two unresolved names (the same two cases).
 
-```
-; line   0: FuncDefn S
-; line   1: Dim | VarDefn alpha
-; line   3: LitDI2 0x1 | St alpha
-; line   5: LitStr "x" | ArgsCall MsgBox 0x1
-; line   6: ArgsCall Helper 0x0
-; line   7: EndSub
-```
+The corpus is `docs/research/pcode/roundtrip.py`; the sweep is
+`docs/research/pcode/sweep.py`. Both are runnable, and the round-trip
+prints a unified diff for anything that is not byte-identical rather
+than counting it as a pass.
 
-reconstructing to:
+What round-trips exactly: expressions with precedence and parentheses;
+`If` / `ElseIf` / `Else` and the single-line `If ... Then ... Else`;
+`For` / `Next` with `Step`; `For Each`; `Do While` / `Loop`; `While` /
+`Wend`; `Select Case`; procedure signatures including `Public` /
+`Private`, `ByVal` / `ByRef`, `Optional` with defaults, parameter types
+and return types; `Property Get` / `Let`; `Dim` / `Const` / `Public` /
+`Private` / `Static`; arrays, dynamic arrays and `ReDim`; fixed-length
+strings; `Type` and `Enum` including implicit member values; UDT-,
+enum- and class-typed variables; `Set` and `New`; member access and
+`With` blocks; `On Error` in all three forms, labels, `Resume`,
+`GoSub` / `Return`; file I/O (`Open`, `Print #`, `Write #`, `Input #`,
+`Line Input #`, `Close`); `Debug.Print` / `Debug.Assert`; `Mid` /
+`LSet` / `RSet` statements; conversions; `Option` statements;
+`DefType`; conditional compilation; comments in all three positions;
+colon-separated statements; and numeric literals in decimal, hex and
+octal.
 
-```vba
-Sub S()
-    Dim alpha
-    Dim beta
-    alpha = 1
-    beta = 2
-    MsgBox "x"
-    Helper
-End Sub
-```
+### 8.1 What p-code does not preserve
 
-With declared types resolved (section 6.1) the reconstruction is an
-**exact line-by-line match** against the original source:
+Three things are genuinely unrecoverable, and it is worth being precise
+about which, because they look like decoder gaps and are not:
 
-```vba
-Sub S()
-    Dim alpha As Long
-    Dim beta As Long
-    alpha = 1
-    beta = 2
-    MsgBox "x"
-    Helper
-End Sub
-Sub Helper()
-    Dim gamma As Long
-    gamma = 3
-End Sub
-```
+1. **Identifier casing, when two spellings collide.** VBA folds
+   identifiers case-insensitively into one project-table entry. A module
+   with `Sub S()` and `Dim s As String` keeps a single spelling for
+   both, and it is not always the one the declaration used. Likewise a
+   name that lands in the runtime operand table (section 5.1) takes that
+   table's spelling. These are the two `LOSSY` entries in the corpus.
+2. **`Property Let` vs `Property Set`.** Both are value-consuming
+   properties with the same `op_type`; only an object-typed final
+   parameter hints at `Set`.
+3. **`Declare`'s `Alias`.** A `Declare` compiles to a `FuncDefn` with no
+   closing opcode. Its `Lib` string is a normal project identifier and
+   so is recoverable, but the `Alias` string is not in the module stream
+   or `_VBA_PROJECT` -- it lives in the `__SRP_*` caches.
 
-The only difference from the input is the optional `Call` keyword
-(`Call Helper` vs `Helper`), which is syntactic sugar the compiler
-discards -- both forms emit identical p-code, so it is unrecoverable by
-construction rather than a gap in decoding.
+Two further things are lossy only in the sense that both source forms
+compile identically, so either is a correct decompilation: `Dim x` and
+`Dim x As Variant` differ only in the record tag's `As` bit (which *is*
+decoded), while `$` type suffixes and `Static Sub` versus a `Sub` whose
+locals are all `Static` are not distinguished at all.
 
-### 8.1 Expressions and control flow
+### 8.2 Expressions and control flow
 
 P-code is a **stack machine**, so expressions reconstruct by simulating
 it: `Ld b | Ld c | LitDI2 2 | Mul | Add | St a` pops back to
@@ -488,47 +643,16 @@ structure and indentation recoverable:
 | construct | opcodes |
 |---|---|
 | `If` / `ElseIf` / `Else` / `End If` | `IfBlock`, `ElseIfBlock`, `ElseBlock`, `EndIfBlock` |
+| `If c Then a Else b` (single line) | `If`, `Else`, `EndIf` |
 | `For` / `Next` | `StartForVariable`, `EndForVariable`, `For` / `ForStep`, `Next` / `NextVar` |
+| `For Each` / `Next` | `StartForVariable`, `EndForVariable`, `ForEach` |
 | `Do While` / `Loop` | `DoWhile`, `Loop` (also `DoUntil`, `LoopWhile`, `LoopUntil`) |
 | `While` / `Wend` | `While`, `Wend` |
 | `Select Case` | `SelectCase`, `CaseDone`, `CaseElse`, `EndSelect` |
 
-Verified against Excel-compiled modules, the reconstruction is
-**character-for-character identical** to the original source for
-conditionals, both loop forms, and `Select Case`:
-
-```vba
-Sub S()
-    Dim i As Long, t As Long
-    For i = 1 To 10
-        t = t + i
-    Next i
-    For i = 10 To 1 Step -2
-        t = t - 1
-    Next
-End Sub
-```
-
-Round-trip fidelity, measured over a corpus compiled by Excel and
-decompiled back: **19/20 exact**, 1 structural (an enum-typed variable
-loses its `As E` annotation), 0 wrong. Normalisation covers only what
-p-code genuinely does not encode -- the optional `Call` keyword, `$`
-type suffixes, and the casing of names that resolve through the runtime
-built-in table.
-
-Covered: expressions with precedence and parentheses; `If` / `ElseIf` /
-`Else`; `For` / `Next` with `Step`; `Do While` / `Loop`; `While` /
-`Wend`; `Select Case`; procedure signatures including `ByVal`,
-parameter types and return types; `Dim` / `Const` / `Public` /
-`Private` / `Static`; arrays and `ReDim`; `Set`; member access; `With`
-blocks; `On Error` / labels / `Resume`; `Type` and `Enum`.
-
-Across every committed Office fixture, **54/54 modules decompile with
-no unmapped opcodes**, including a 230-line real-world module whose
-comment wall reproduces exactly.
-
-Coverage note: array *element* types and UDT/enum-typed variables are
-the remaining annotation gaps (both need the `type_` indirect table).
+Source lines map one-to-one onto p-code lines, including blank ones, so
+layout is preserved by emitting an empty line for every p-code line with
+no instructions. Statements *within* a line are separated by `BoS`.
 
 ---
 
@@ -547,31 +671,56 @@ remains pure-Python, with no COM and no Office dependency:
    buckets, the content-hash string, and ultimately the operand
    mapping.
 
+3. **Round-trip gate** (`docs/research/pcode/roundtrip.py`). A corpus
+   of 37 sources, each compiled by Excel, read back, decompiled, and
+   compared to the original text character for character. Anything not
+   byte-identical prints a unified diff; the two entries VBA itself
+   cannot round-trip are listed explicitly rather than tolerated
+   silently.
+4. **Coverage sweep** (`docs/research/pcode/sweep.py`). Decompiles every
+   module in every fixture on disk and reports what the renderer could
+   not map -- opcodes, names, type descriptors. The round-trip proves
+   the decompiler reproduces known sources; the sweep proves it never
+   *silently* drops p-code from unknown ones.
+
 Excel automation runs through `pyvbaharness`, which is hang-safe
 (bounded, popup-aware, hard process reaping) -- necessary because a
 compile error otherwise blocks on a modal dialog.
+
+A note on method that cost real time: several findings looked settled
+after one probe and were wrong. `ByVal` / `ByRef` was first recorded as
+unencoded, `Property Get` / `Let` as indistinguishable, and the built-in
+operand table as containing `Beep` at `0x18`. Each fell to the same
+technique -- compile two modules differing in exactly one thing and diff
+the bytes -- which is worth reaching for before concluding that
+something is not encoded at all.
 
 ---
 
 ## 10. Open questions
 
+Solved since earlier revisions, and no longer open: the `type_` indirect
+table and the type-reference table (6.3), procedure signatures including
+`Optional` and defaults (6.4), `Property Get` vs `Let`/`Set`, explicit
+vs implicit `ByRef`, and `Dim x` vs `Dim x As Variant`.
+
+Still open:
+
 - Derivation of the `0x20E` name-operand base.
 - Location of `DECL_BASE` (a module-header field?), currently
-  calibrated.
+  calibrated -- reliably, but by search rather than by reading a field.
 - The identifier **hash function** used by the module's bucket table --
-  required before new identifiers can be written.
+  required before new identifiers can be written, and therefore the real
+  gate on writing new code rather than editing existing code.
 - The full contents of the runtime built-in identifier table
-  (section 5.1); the mechanism is understood, the map is partial.
-- The `type_` indirect table: array **element** types and variables
-  declared as a UDT or enum (sections 6.3, 6.4). Scalar types are solved
-  (6.1), as are signatures (6.2) and declaration flags (6.3).
-- `Optional` parameters with defaults are not located by the `+0x58`
-  stride.
-- `Property Get` / `Let` / `Set` are **not distinguished in p-code** --
-  all three compile to `FuncDefn` + `EndProp`. Recovering which is which
-  would need another source.
+  (section 5.1); the mechanism is understood, the map covers 20 entries.
+  In particular, what the single-letter entries `b` and `f` name.
+- `Static Sub` versus a `Sub` whose locals are all `Static`: the record
+  flags differ, the opcodes do not.
+- `Declare`'s `Alias` string, which lives in the `__SRP_*` caches.
 - Source-to-p-code compilation: lexer, parser, codegen, and the slot
-  allocation Office's compiler performs.
+  allocation Office's compiler performs -- including the frame offsets
+  and the record links that section 6 documents reading.
 
 ---
 

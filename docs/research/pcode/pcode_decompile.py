@@ -5,48 +5,74 @@ project identifier table, both of which are identical in layout across
 Excel, Word, PowerPoint, and Access.
 """
 from __future__ import annotations
+
 import sys
-sys.path.insert(0,"F:/GitHub/pyOpenVBA/src")
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "src"))
+from pcode_names import Identifier, parse_identifiers, resolve_name
+from pcode_types import (
+    DeclaredType,
+    TypeRefEntry,
+    find_type_table,
+    read_declared_type,
+)
+
 from pyopenvba.vba_pcode import disassemble_module_stream
-from pcode_names import parse_identifiers, resolve_name, Identifier
 
 # Procedure layout, relative to DECL_BASE + func_operand:
-#   +0x00              the procedure's own name entry
-#   +0x58 + k*0x20     parameter k (name entry; VARTYPE at +14 as usual)
-# The return-type entry repeats the procedure name with a type set; its
-# offset is not fixed, so it is located by scanning.
+#   +0x00   the procedure's own name entry
+#   +0x2C   a type field of the same shape a variable's is (VARTYPE at
+#           +14, discriminator at +16), holding the return type
+#   +0x36   u32 offset of the first parameter, 0xFFFFFFFF when there are
+#           none -- which is what separates parameters from locals, since
+#           both live in the same slot region
+# and, relative to a parameter's own record:
+#   +0x16   u32 offset of the next parameter, 0xFFFFFFFF at the end
+#   +0x1A   u16 passing mode and flags
+PROC_RETURN_FIELD = 0x2C
+PROC_PARAM_HEAD = 0x36
+PARAM_NEXT_OFFSET = 0x16
+PARAM_MODE_OFFSET = 0x1A
+NO_LINK = 0xFFFFFFFF
+
+# Passing mode (low byte of the mode word): 0x04 ByVal, 0x02 an explicit
+# ByRef keyword; neither means ByRef written without the keyword.
+PARAM_BYVAL = 0x04
+PARAM_BYREF_KEYWORD = 0x02
+# Flags (high byte): 0x02 Optional, 0x04 the parameter has a default.
+PARAM_OPTIONAL = 0x02
+PARAM_HAS_DEFAULT = 0x04
+
+# Retained for callers that still walk the slot region directly.
 PROC_PARAM_OFFSET = 0x58
 PROC_PARAM_STRIDE = 0x20
 
-# Declared-type byte lives at DECL_BASE + var_operand + TYPE_FIELD_OFFSET
-# and holds a standard OLE Automation VARTYPE code.
+# Declared types are decoded by pcode_types: a record either carries a
+# plain VARTYPE byte or points at an indirect type descriptor (arrays,
+# fixed-length strings, UDTs, Enums, type-library classes).
 TYPE_FIELD_OFFSET = 14
-VARTYPE_NAMES: dict[int, str] = {
-    0: "Empty", 1: "Null", 2: "Integer", 3: "Long", 4: "Single",
-    5: "Double", 6: "Currency", 7: "Date", 8: "String", 9: "Object",
-    10: "Error", 11: "Boolean", 12: "Variant", 13: "Unknown",
-    14: "Decimal", 17: "Byte", 20: "LongLong",
-}
-
-# Flag bits carried alongside the VARTYPE in the declared-type byte.
-VARTYPE_MASK = 0x3F
 VARTYPE_FLAG_CONST = 0x40
 
-def resolve_type(module_stream: bytes, operand: int, base: int | None) -> str | None:
+
+def describe_type(module_stream: bytes, operand: int, base: int | None,
+                  type_table: list[TypeRefEntry] | None = None,
+                  resolver=None) -> DeclaredType | None:
+    """Decode a declaration operand's full declared type."""
+    return read_declared_type(module_stream, base, operand, type_table, resolver)
+
+
+def resolve_type(module_stream: bytes, operand: int, base: int | None,
+                 type_table: list[TypeRefEntry] | None = None,
+                 resolver=None) -> str | None:
     """Resolve a ``var_`` operand to its declared VBA type name.
 
-    The byte carries flags above the VARTYPE: ``0x40`` marks a constant
-    (``0x43`` is Const + Long, ``0x48`` Const + String). Arrays encode
-    differently -- both ``As Long`` and ``As String`` arrays leave
-    ``0x10`` in the low bits -- so their element type is not read here
-    (it lives in the ``type_`` indirect table).
+    Without ``type_table``/``resolver`` only intrinsic types resolve;
+    supply both (see :func:`pcode_types.find_type_table`) to name
+    user-defined types, Enums and type-library classes as well.
     """
-    if base is None:
-        return None
-    p = base + operand + TYPE_FIELD_OFFSET
-    if p >= len(module_stream):
-        return None
-    return VARTYPE_NAMES.get(module_stream[p] & VARTYPE_MASK)
+    described = describe_type(module_stream, operand, base, type_table, resolver)
+    return described.render() if described else None
 
 
 # The byte after the VARTYPE carries the parameter passing mode:
@@ -80,84 +106,75 @@ def find_decl_base(module_stream: bytes, table: list[Identifier],
                    *, is_64bit: bool = True) -> int | None:
     """Derive the module's declaration-table base.
 
-    ``func_`` / ``var_`` operands are offsets from this base to a u16
-    that is itself a ``name`` operand. The base is not (yet) known to
-    live in a header field, so it is calibrated: the unique offset at
-    which every such operand resolves to a real identifier.
+    ``func_`` / ``var_`` / ``rec_`` operands are offsets from this base
+    to a u16 that is itself a ``name`` operand. No header field holding
+    the base has been located, so it is calibrated against two
+    independent constraints:
+
+    * the module's type-reference table sits a fixed distance before the
+      base and is self-describing (its header repeats its own byte
+      length), which rejects almost every wrong candidate outright;
+    * every declaration operand must land on a resolvable identifier,
+      scored so that procedure names and typed parameters -- the
+      strongest signals -- outweigh incidental hits.
+
+    Scoring rather than first-fit matters: a base shifted by one
+    parameter stride still resolves *some* operands, and a procedure
+    whose name collides with the runtime operand table resolves through
+    the secondary space, so a strict all-or-nothing rule picks wrong.
     """
+    from pcode_names import NAME_OPERAND_BASE
+
     dis = disassemble_module_stream(module_stream, is_64bit=is_64bit)
-    ops = [v for l in dis.lines for i in l.instructions for a, v in i.operands
-           if a in ("func_", "var_")]
-    # A FuncDefn's operand points directly at its own name entry, which
-    # is a far stronger constraint than "some offset resolves": prefer a
-    # base where every procedure name lands. Calibrating on var_ alone
-    # can settle on a shifted base that still resolves (off by 0x2C in
-    # observed single-procedure modules).
-    fops = [v for l in dis.lines for i in l.instructions for a, v in i.operands
-            if a == "func_"]
-    if fops:
-        # Score candidate bases instead of taking the first that fits.
-        # A procedure name may legitimately resolve through the built-in
-        # space (a Sub called B collides with built-in 'b'), so a strict
-        # project-table-only rule rejects the true base; conversely a
-        # shifted base can satisfy the names alone by landing on the
-        # parameter slots. Counting typed parameters as well
-        # disambiguates: only the true base makes both line up.
-        from pcode_names import NAME_OPERAND_BASE
-        best_base, best_score = None, -1
-        for base in range(0, min(len(module_stream), 4096)):
-            score = 0
-            ok = True
-            for v in fops:
-                q = base + v
-                if q + 2 > len(module_stream):
-                    ok = False; break
-                u = int.from_bytes(module_stream[q:q+2], "little")
-                if not resolve_name(u, table):
-                    ok = False; break
-                score += 4 if u >= NAME_OPERAND_BASE else 3
-            if not ok:
-                continue
-            for v in ops:                       # every declared variable
-                q = base + v
-                if q + 2 <= len(module_stream) and resolve_name(
-                        int.from_bytes(module_stream[q:q+2], "little"), table):
-                    score += 3
-            for v in fops:                      # typed parameters
-                for k in range(16):
-                    off = v + PROC_PARAM_OFFSET + k * PROC_PARAM_STRIDE
-                    q = base + off
-                    if q + 2 > len(module_stream):
-                        break
-                    if not resolve_name(
-                            int.from_bytes(module_stream[q:q+2], "little"), table):
-                        break
-                    if resolve_type(module_stream, off, base) is None:
-                        break
-                    score += 2
-            if score > best_score:
-                best_base, best_score = base, score
-        if best_base is not None:
-            return best_base
-    if not ops:
+    operands = [(a, v) for line in dis.lines for i in line.instructions
+                for a, v in i.operands if a in ("func_", "var_", "rec_")]
+    if not operands:
         return None
-    # Maximise resolutions rather than demanding all of them: an operand
-    # may reference the secondary identifier region (see pcode_reference
-    # section 5.1), which would otherwise veto an otherwise-correct base.
-    best_base, best_hits = None, 0
-    for base in range(0, min(len(module_stream), 4096)):
-        hits = 0
-        for v in ops:
-            p = base + v
-            if p + 2 > len(module_stream):
-                continue
-            if resolve_name(int.from_bytes(module_stream[p:p+2], "little"), table):
-                hits += 1
-        if hits > best_hits:
-            best_base, best_hits = base, hits
-            if hits == len(ops):
+    decls = [v for a, v in operands if a in ("func_", "rec_")]
+    variables = [v for a, v in operands if a == "var_"]
+
+    def name_at(base: int, offset: int) -> int | None:
+        p = base + offset
+        if p < 0 or p + 2 > len(module_stream):
+            return None
+        return int.from_bytes(module_stream[p:p + 2], "little") & DECL_NAME_MASK
+
+    best_base, best_score = None, 0
+    for base in range(min(len(module_stream), 4096)):
+        if not find_type_table(module_stream, base):
+            continue
+        score = 0
+        ok = True
+        for v in decls:                     # procedure / Type declarations
+            u = name_at(base, v)
+            if u is None or not resolve_name(u, table):
+                ok = False
                 break
+            score += 4 if u >= NAME_OPERAND_BASE else 3
+        if not ok:
+            continue
+        for v in variables:
+            u = name_at(base, v)
+            if u is not None and resolve_name(u, table):
+                score += 3
+        for v in (v for a, v in operands if a == "func_"):
+            for k in range(16):             # typed parameters
+                off = v + PROC_PARAM_OFFSET + k * PROC_PARAM_STRIDE
+                u = name_at(base, off)
+                if u is None or not resolve_name(u, table):
+                    break
+                if resolve_type(module_stream, off, base) is None:
+                    break
+                score += 2
+        if score > best_score:
+            best_base, best_score = base, score
     return best_base
+
+
+# The record's name field carries a flag in bit 0 (set on object /
+# class-typed declarations), so mask it before resolving. Name operands
+# are always even, which is what makes the bit free.
+DECL_NAME_MASK = ~0x01
 
 def resolve_decl(module_stream: bytes, operand: int, base: int | None,
                  table: list[Identifier]) -> str | None:
@@ -167,7 +184,8 @@ def resolve_decl(module_stream: bytes, operand: int, base: int | None,
     p = base + operand
     if p + 2 > len(module_stream):
         return None
-    return resolve_name(int.from_bytes(module_stream[p:p+2], "little"), table)
+    stored = int.from_bytes(module_stream[p:p+2], "little")
+    return resolve_name(stored & DECL_NAME_MASK, table)
 
 def annotate(module_stream: bytes, vba_project_stream: bytes,
              *, is_64bit: bool = True) -> str:
@@ -195,8 +213,10 @@ def annotate(module_stream: bytes, vba_project_stream: bytes,
                 else:
                     txt+=f" {a}{v:08X}"
             if ins.payload is not None:
-                try: txt+=' "'+ins.payload.decode("latin-1")+'"'
-                except Exception: txt+=f" <{ins.payload.hex()}>"
+                try:
+                    txt+=' "'+ins.payload.decode("latin-1")+'"'
+                except Exception:
+                    txt+=f" <{ins.payload.hex()}>"
             parts.append(txt)
         out.append(f"; line {line.line_no:3d}: "+" | ".join(parts))
     return "\n".join(out)
@@ -231,10 +251,14 @@ def reconstruct(module_stream: bytes, vba_project_stream: bytes,
             return "?"
         # Sub/Function declaration
         if mn[0] in ("FuncDefn","FuncDefnSave"):
-            src.append(f"Sub {declname(ins[0]) or '<proc>'}()"); continue
+            src.append(f"Sub {declname(ins[0]) or '<proc>'}()")
+            continue
         if mn[0] in ("EndSub",):
-            src.append("End Sub"); continue
-        if mn[0]=="EndFunction": src.append("End Function"); continue
+            src.append("End Sub")
+            continue
+        if mn[0]=="EndFunction":
+            src.append("End Function")
+            continue
         # Dim
         if mn[0]=="Dim":
             decls=[]
@@ -247,7 +271,8 @@ def reconstruct(module_stream: bytes, vba_project_stream: bytes,
                     if a=="var_":
                         vt=resolve_type(module_stream,v,dbase)
                 decls.append(f"{vn} As {vt}" if vt else vn)
-            src.append("    Dim "+(", ".join(decls) if decls else "<var>")); continue
+            src.append("    Dim "+(", ".join(decls) if decls else "<var>"))
+            continue
         # literal assignment:  Lit* ... St <name>
         if mn[-1] in ("St","SetStmt") and len(ins)>=2:
             lit=ins[0]
@@ -256,61 +281,90 @@ def reconstruct(module_stream: bytes, vba_project_stream: bytes,
                 val='"'+lit.payload.decode("latin-1")+'"'
             elif lit.operands:
                 val=str(lit.operands[0][1])
-            src.append(f"    {nm(ins[-1])} = {val}"); continue
+            src.append(f"    {nm(ins[-1])} = {val}")
+            continue
         # call statement: [args...] ArgsCall <name> <argc>
         if any(m in _CALLISH for m in mn):
             call=next(i for i in ins if i.mnemonic in _CALLISH)
             args=[]
             for i in ins:
-                if i is call: break
-                if i.payload is not None: args.append('"'+i.payload.decode("latin-1")+'"')
-                elif i.mnemonic.startswith("Lit") and i.operands: args.append(str(i.operands[0][1]))
-                elif i.mnemonic=="Ld": args.append(nm(i))
-            src.append(f"    {nm(call)}"+(" "+", ".join(args) if args else "")); continue
+                if i is call:
+                    break
+                if i.payload is not None:
+                    args.append('"'+i.payload.decode("latin-1")+'"')
+                elif i.mnemonic.startswith("Lit") and i.operands:
+                    args.append(str(i.operands[0][1]))
+                elif i.mnemonic=="Ld":
+                    args.append(nm(i))
+            src.append(f"    {nm(call)}"+(" "+", ".join(args) if args else ""))
+            continue
         src.append("    ' [unmapped] "+" | ".join(mn))
     return "\n".join(src)
 
 
+def read_param_mode(module_stream: bytes, operand: int,
+                    base: int | None) -> tuple[str, bool, bool]:
+    """Return ``(prefix, optional, has_default)`` for one parameter."""
+    if base is None:
+        return ("", False, False)
+    p = base + operand + PARAM_MODE_OFFSET
+    if p + 2 > len(module_stream):
+        return ("", False, False)
+    mode, flags = module_stream[p], module_stream[p + 1]
+    if mode & PARAM_BYVAL:
+        prefix = "ByVal "
+    elif mode & PARAM_BYREF_KEYWORD:
+        prefix = "ByRef "
+    else:
+        prefix = ""
+    return (prefix, bool(flags & PARAM_OPTIONAL),
+            bool(flags & PARAM_HAS_DEFAULT))
+
+
 def read_signature(module_stream: bytes, func_operand: int,
                    base: int | None, table, *, is_function: bool,
-                   local_offsets: frozenset[int] | None = None):
-    """Return ``(name, [(param, type), ...], return_type)`` for a procedure.
+                   local_offsets: frozenset[int] | None = None,
+                   type_table: list[TypeRefEntry] | None = None,
+                   defaults: list[str] | None = None):
+    """Return ``(name, [(param, type), ...], return_type)``.
 
-    The name sits at ``base + func_operand``; parameters follow at
-    ``+0x58`` in ``0x20`` strides. The return type is a second entry
-    repeating the procedure name with a VARTYPE set, located by scan.
-
-    Parameters and a procedure's *locals* share that slot region, so a
-    naive scan reads locals as extra parameters. ``local_offsets`` (the
-    ``var_`` operands of ``VarDefn``, i.e. everything the body declares
-    with ``Dim``) marks the slots to stop at.
+    The parameter list is a linked list starting at the procedure
+    record's ``PROC_PARAM_HEAD``, so locals sharing the slot region are
+    never mistaken for parameters. ``defaults`` carries the literals a
+    ``ConstFuncExpr`` pushed before the ``FuncDefn``, consumed in order
+    by the parameters whose record says they have one.
     """
-    locals_ = local_offsets or frozenset()
+    del local_offsets, is_function          # superseded by the record links
     if base is None:
         return (None, [], None)
+    resolver = (lambda op: resolve_name(op, table)) if table is not None else None
     name = resolve_decl(module_stream, func_operand, base, table)
+
+    def link(offset: int, field: int) -> int:
+        p = base + offset + field
+        if p + 4 > len(module_stream):
+            return NO_LINK
+        return int.from_bytes(module_stream[p:p + 4], "little")
+
+    pending = list(defaults or [])
     params: list[tuple[str, str | None]] = []
-    for k in range(64):
-        off = func_operand + PROC_PARAM_OFFSET + k * PROC_PARAM_STRIDE
-        p = base + off
-        if p + 2 > len(module_stream):
-            break
-        if off in locals_:
-            break                       # a Dim-declared local, not a parameter
+    seen: set[int] = set()
+    off = link(func_operand, PROC_PARAM_HEAD)
+    while off != NO_LINK and off not in seen and len(params) < 64:
+        seen.add(off)
         pname = resolve_decl(module_stream, off, base, table)
-        ptype = resolve_type(module_stream, off, base)
-        # Every parameter carries a declared type (Variant when implicit);
-        # a typeless entry means the parameter list has ended.
-        if not pname or pname == name or ptype is None:
+        ptype = resolve_type(module_stream, off, base, type_table, resolver)
+        if not pname:
             break
-        prefix = "ByVal " if is_byval(module_stream, off, base) else ""
-        params.append((prefix + pname, ptype))
-    ret = None
-    if is_function and name:
-        for off in range(func_operand, min(func_operand + 0x400, len(module_stream) - base), 2):
-            if resolve_decl(module_stream, off, base, table) == name:
-                t = resolve_type(module_stream, off, base)
-                if t:
-                    ret = t
-                    break
+        prefix, optional, has_default = read_param_mode(module_stream, off, base)
+        if optional:
+            prefix = "Optional " + prefix
+        suffix = ""
+        if has_default and pending:
+            suffix = f" = {pending.pop(0)}"
+        params.append((prefix + pname, (ptype + suffix) if ptype else None))
+        off = link(off, PARAM_NEXT_OFFSET)
+
+    ret = resolve_type(module_stream, func_operand + PROC_RETURN_FIELD,
+                       base, type_table, resolver)
     return (name, params, ret)

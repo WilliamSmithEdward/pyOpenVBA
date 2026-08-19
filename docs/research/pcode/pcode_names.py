@@ -16,6 +16,7 @@ so records are anchored on the trailing ``10 00`` marker rather than
 chained forward from a guessed start.
 """
 from __future__ import annotations
+
 from dataclasses import dataclass
 
 NAME_OPERAND_BASE = 0x20E   # operand = BASE + 2*index (empirically fixed)
@@ -37,12 +38,23 @@ NAME_OPERAND_BASE = 0x20E   # operand = BASE + 2*index (empirically fixed)
 BUILTIN_OPERANDS: dict[int, str] = {
     0x0012: "Array",
     0x0018: "b",
+    0x0034: "CDec",
+    0x003A: "ChDir",
+    0x004C: "CurDir",
     0x005A: "Date",
     0x007E: "Dir",
+    0x0084: "DoEvents",
+    0x009A: "Error",
     0x00A4: "f",
     0x00AC: "Format",
+    0x00B0: "FreeFile",
+    0x00C8: "Input",
     0x00DC: "Left",
     0x00FA: "Mid",
+    0x00FE: "MidB",
+    0x0134: "Randomize",
+    0x0140: "RGB",
+    0x0146: "Seek",
     0x015C: "String",
 }
 
@@ -111,13 +123,15 @@ def parse_identifiers(vba_project_stream: bytes) -> list[Identifier]:
     best: list[tuple] = []
     best_key = None
     for c in cands:
-        chain=[c]; cur=c
+        chain=[c]
+        cur=c
         while cur[1] in by_start:
             cur = by_start[cur[1]]
             chain.append(cur)
         key = (len(chain), c[5] == 0, c[0])
         if best_key is None or key > best_key:
-            best_key = key; best = chain
+            best_key = key
+            best = chain
     return [Identifier(i, c[2], c[3], c[4], c[0]) for i, c in enumerate(best)]
 
 def resolve_name(operand: int, table: list[Identifier]) -> str | None:

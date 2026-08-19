@@ -2,32 +2,37 @@
 
 Validated against Microsoft's own compiler: every statement below is
 re-emitted byte-for-byte identically to what Access produced for the same
-source. ``construct_matrix.bas`` is the corpus that decides what "below"
-means -- build it with ``build_matrix.ps1`` and check it with
-``verify_compiler.py``.
+source. ``construct_matrix.bas`` and ``builtins_probe.bas`` are the
+corpora that decide what "below" means -- build them with
+``build_matrix.py`` and check them with ``verify_compiler.py``.
 
-Covered: expressions with full VBA precedence including ``^``; integer,
-floating-point and string literals; ``True``/``False``/``Null``/
+Covered: expressions with full VBA precedence, including ``^`` and the
+``Paren`` marker Access records for explicit grouping; integer,
+floating-point, string and date literals; ``True``/``False``/``Null``/
 ``Empty``/``Nothing``; assignment to a variable, a member, an array
 element or an indexed member; ``Set``; calls in statement and expression
-position, on a name or a member; ``If``/``ElseIf``/``Else``;
-``Do While``/``Do Until``/``Loop``/``Loop While``/``Loop Until``;
-``While``/``Wend``; ``For``/``For ... Step``/``Next``; ``Exit`` in its
-four forms; and ``Select Case`` with plain, list, ``To`` and ``Is``
-clauses.
+position, on a name, a member, or implicitly inside ``With``;
+``If``/``ElseIf``/``Else`` in block and single-line form; ``Select Case``
+with plain, list, ``To`` and ``Is`` clauses; ``Do``/``Do While``/
+``Do Until``/``Loop``/``Loop While``/``Loop Until``; ``While``/``Wend``;
+``For``/``For ... Step``/``Next``; ``Exit`` in four forms; ``With``,
+``Erase``, ``On Error GoTo``, line labels, ``Resume Next``, and
+``Debug.Print``.
 
-Not covered, and refused rather than approximated: ``With``,
-``Dim``/``Const``/``ReDim``/``Erase``, ``On Error``, line labels,
-single-line ``If ... Then <statement>``, date literals, and calls to
-built-ins that live in the pre-populated slots below 261 rather than in
-the project identifier table.
+VBA's built-ins are reached four different ways and all four are handled;
+see ``BUILTIN_OPCODE`` and its neighbours.
+
+Not covered, and refused rather than approximated: ``Dim``, ``Const``,
+``ReDim``, user-defined ``Type``, and ``New`` -- every one of which needs
+a record in the pre-0xCAFE header that this code cannot yet grow.
 
 Refusal matters more than coverage here. A compiler that drops what it
-does not understand emits valid p-code for the wrong program; three such
-faults (a discarded ``^`` operand, an array assignment compiled as a
-call, and a member call with its arguments and object transposed) were
-found only by diffing against Access, so the grammar now fails on any
-input it cannot fully consume.
+does not understand emits valid p-code for the wrong program, and four
+such faults have turned up this way: a discarded ``^`` operand, an array
+assignment compiled as a call, a member call with its arguments and
+object transposed, and a nested call overwriting the outer argument
+count. None was visible without diffing against Access, so the grammar
+now fails on any input it cannot fully consume.
 
 Names resolve against the project identifier table:
 ``name_operand = 524 + 2*index`` (measured, ref.accdb 2026-08).
@@ -62,6 +67,9 @@ OP = {"Xor": 2, "Or": 3, "And": 4, "Eq": 5, "Ne": 6, "Le": 7, "Ge": 8,
       "For": 146, "ForStep": 149, "IfBlock": 156, "LitDI2": 172,
       "LitDI4": 173, "LitNothing": 178, "LitR8": 183, "LitStr": 185,
       "LitVarSpecial": 186, "Loop": 188, "LoopUntil": 189, "LoopWhile": 190,
+      "Paren": 29,
+      "Debug": 91, "Do": 95, "LitDate": 170, "PrintItemNL": 217,
+      "PrintObj": 220,
       "ArgsMemCallWith": 67, "BoSImplicit": 71, "EndIf": 106,
       "EndWith": 113, "Erase": 114, "If": 155, "Label": 163,
       "OnError": 204, "Resume": 232, "With": 248, "StartWithExpr": 260,
@@ -99,6 +107,12 @@ ARRAY_SLOT = 8
 # argument count, defaulting to 0 for the first dimension.
 BOUND_OPCODE = {"ubound": "FnUBound", "lbound": "FnLBound"}
 
+# Two names are pre-interned as ordinary *variables* rather than as
+# built-in functions, so a program using them resolves to a slot instead
+# of a project identifier. Probing 77 candidate short names found exactly
+# these two: every other single letter becomes a project identifier.
+RESERVED_SLOT = {"b": 11, "f": 81}
+
 # A few built-ins are values rather than calls and appear bare, loaded
 # straight from their slot: Access rewrites `Date()` to `Date` and emits
 # `Ld(slot 44)`. `Time` and `Now` are ordinary project identifiers.
@@ -129,9 +143,23 @@ class CompileError(Exception):
     pass
 
 
+def _date_serial(text: str) -> float:
+    """`#1/2/2003#` -> the VBA serial, days since 1899-12-30."""
+    import datetime
+
+    for pattern in ("%m/%d/%Y", "%Y-%m-%d", "%m/%d/%y"):
+        try:
+            when = datetime.datetime.strptime(text.strip(), pattern).date()
+        except ValueError:
+            continue
+        return float((when - datetime.date(1899, 12, 30)).days)
+    raise CompileError(f"unsupported date literal: #{text}#")
+
+
 # --- tokenizer ---------------------------------------------------------
 _TOK = re.compile(
     r"(?P<ws>\s+)"
+    r"|(?P<date>#[^#]+#)"
     r"|(?P<num>\d+(?:\.\d+)?)"
     r"|(?P<str>\"(?:[^\"]|\"\")*\")"
     r"|(?P<name>[A-Za-z_][A-Za-z0-9_]*)"
@@ -267,10 +295,13 @@ class Parser:
     def p_atom(self):
         k, v = self.take()
         if k == "op" and v == "(":
+            # Grouping parentheses are not free: Access records them with
+            # a Paren marker after the grouped expression, so `(a + b) * a`
+            # and `a + b * a` differ in more than precedence.
             e = self.expr()
             if not self.accept_op(")"):
                 raise CompileError("missing )")
-            return e
+            return [*e, _ins(OP["Paren"])]
         if k == "num":
             if "." in v:
                 # LitR8 carries the raw little-endian double as four words.
@@ -283,6 +314,11 @@ class Parser:
                 return [_ins(OP["LitDI2"], (("0x", n),))]
             return [_ins(OP["LitDI4"],
                          (("0x", n & 0xFFFF), ("0x", (n >> 16) & 0xFFFF)))]
+        if k == "date":
+            # A VBA date literal is a double: days since 1899-12-30.
+            raw = struct.pack("<d", _date_serial(v[1:-1]))
+            return [_ins(OP["LitDate"],
+                         tuple(("0x", w) for w in struct.unpack("<4H", raw)))]
         if k == "str":
             s = v[1:-1].replace('""', '"').encode("latin-1")
             return [_ins(OP["LitStr"], (), s)]
@@ -367,10 +403,13 @@ class Parser:
 
 
 def _res(names, n):
-    if n.lower() not in names:
-        raise CompileError("unknown identifier " + repr(n)
-                           + " (not in project identifier table)")
-    return names[n.lower()]
+    low = n.lower()
+    if low in names:
+        return names[low]
+    if low in RESERVED_SLOT:
+        return 2 * RESERVED_SLOT[low] + 2
+    raise CompileError("unknown identifier " + repr(n)
+                       + " (not in project identifier table)")
 
 
 # --- statement compiler ------------------------------------------------
@@ -471,6 +510,13 @@ def compile_line(text, names):
         return enc([_ins(OP["ExitSub"])])
     if low == "exit function":
         return enc([_ins(OP["ExitFunc"])])
+    if low == "do":
+        return enc([_ins(OP["Do"])])
+    if low.startswith("debug.print "):
+        # Debug.Print is special-cased by the compiler rather than being a
+        # member call: object, then the value, then the newline marker.
+        return enc([_ins(OP["Debug"]), _ins(OP["PrintObj"]),
+                    *E(s[12:]), _ins(OP["PrintItemNL"])])
     if low == "wend":
         return enc([_ins(OP["Wend"])])
     if low == "end select":

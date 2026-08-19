@@ -527,6 +527,29 @@ Join(Array(1, 2), ",")    Access: ArgsLd(Join)[2]      ours: [4]
 Any `f(g())` was affected. The count is now returned rather than stashed.
 Another silent miscompile that only a differential probe would find.
 
+## Where the compiler stands
+
+Measured across the three probe modules: **195 statements byte-identical
+to Access, 0 differing.** What is still refused, and why:
+
+| refused | count | blocked on |
+|---------|-------|-----------|
+| `Dim`, `Const`, `ReDim`, user-defined `Type` | 28 | growing the pre-CAFE header (below) |
+| procedure headers and footers, `Option` | 26 | creating a procedure, not a body statement |
+| `Declare` | 2 | same |
+| `Set x = New <Class>` | 2 | the import table `New` indexes into |
+
+So every remaining refusal in a *procedure body* is a declaration. The
+statement grammar itself is done for practical purposes.
+
+Two notes from getting there. Explicit parentheses are not free: Access
+records a `Paren` marker after the grouped expression, so `(a + b) * a`
+differs from `a + b * a` by more than precedence. And the corpus gate now
+separates lines whose **source is ahead of their p-code** from real
+differences -- pyOpenVBA's source-only write path leaves databases in
+that state, and counting them as code-generation defects made the total
+move every time the compiler learned a new statement.
+
 ## What `Dim` needs: the declaration record, mapped
 
 `Dim` is still refused, but the structure behind it is now measured

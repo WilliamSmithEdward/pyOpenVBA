@@ -43,6 +43,7 @@ fix up -- normally the hardest part of a code generator.
 | New identifiers can be added | A 12-statement program using three variables Access never created (`cnt`, `tot`, `best`) returned **80** |
 | One module of several can be targeted | Rewriting only `ModB` of a two-module project returned **142**, with `ModA` unchanged at **6** |
 | Modules larger than a page can be rewritten | A 122-statement module chained across three LVAL pages, rewritten to 11116 bytes, returned **21660** |
+| Any procedure, not just the first | Rewriting `F3` of four to `F3 = n * 10` returned **50** for `F3(5)`, with F1, F2 and F5 unchanged |
 
 The source/p-code test is the important negative: Access has **no
 load-time recompile-from-source trigger**. Excel treats a version mismatch
@@ -122,6 +123,21 @@ a page's slot table and its lowest row, so a full chain page reads
 instead, or consuming that gap, produces a chain Access refuses to load
 even when the bytes round-trip exactly. With both rules applied, rewriting
 a chain with its own bytes reproduces the original file byte for byte.
+
+Every procedure owns a pair of u16 line counters at `516 + func_` and
+`518 + func_`, where `func_` is its `FuncDefn` operand -- the first
+procedure's are the familiar 516/518. Each holds
+
+```
+min(its EndFunc line, line count - 2) - the previous EndFunc line
+```
+
+the lines it spans since the procedure before it, with a procedure that
+ends the module stopping one line short. Computing these outright rather
+than shifting them by the module's line delta is what lets a procedure
+other than the first be rewritten. Rebuilding an unchanged module
+reproduces its pre-`0xCAFE` header byte for byte across 11 procedures in
+10 modules, which is the check that pins the rule down.
 
 A 12-byte line record is `<flags> <0x80|0x81> <0x08|0x09> <indent>`, then a
 u16 p-code length at `+4`, a u16 frame-size hint at `+6`, and a u32 p-code

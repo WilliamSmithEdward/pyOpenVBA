@@ -18,7 +18,8 @@ statements at all, empty or entirely comments, is handled too.
 
 Names the program introduces are appended to the project identifier table
 automatically, so generated code is not limited to names Access already
-created. ``--module`` picks the module in a project holding several.
+created. ``--module`` picks the module in a project holding several, and
+``--proc`` the procedure within it.
 
 What remains needs a page allocated, and fails loudly rather than
 corrupting the database: a single-row module may grow into its page's free
@@ -62,24 +63,53 @@ def _first_opcode(code: bytes | None) -> int | None:
     return int.from_bytes(code[:2], "little") & 0x03FF
 
 
-def _procedure_body(perf: Perf) -> tuple[int, int]:
-    """Line indices bounding the first procedure's body, inclusive.
+def _procedures(perf: Perf, source: list[str]) -> list[tuple[str, int, int]]:
+    """``(name, first_body_line, last_body_line)`` for each procedure.
 
     Anchoring on FuncDefn/EndFunc rather than on "the statements we can
     recompile" means a procedure with no executable statements -- an empty
     one, or a body that is all comments -- still has a findable body.
     """
-    start = end = None
+    out: list[tuple[str, int, int]] = []
+    start = None
     for index, code in enumerate(perf.lines):
         opcode = _first_opcode(code)
-        if opcode == _FUNCDEFN and start is None:
+        if opcode == _FUNCDEFN:
             start = index
         elif opcode == _ENDFUNC and start is not None:
-            end = index
-            break
-    if start is None or end is None:
+            header = source[start + 1] if start + 1 < len(source) else ""
+            out.append((_procedure_name(header), start + 1, index - 1))
+            start = None
+    return out
+
+
+def _procedure_name(header: str) -> str:
+    """The name from a `Sub Foo(...)` / `Function Foo(...)` header line."""
+    words = header.replace("(", " ").split()
+    for index, word in enumerate(words):
+        if word.lower() in ("sub", "function", "property") and index + 1 < len(words):
+            return words[index + 1]
+    return ""
+
+
+def _procedure_body(perf: Perf, source: list[str],
+                    procedure: str | None) -> tuple[int, int]:
+    """Body bounds of the requested procedure, or of the only one."""
+    found = _procedures(perf, source)
+    if not found:
         raise SystemExit("no procedure (FuncDefn .. EndFunc) found in module")
-    return start + 1, end - 1
+    if procedure is None:
+        if len(found) > 1:
+            names = ", ".join(name or "?" for name, _, _ in found)
+            raise SystemExit(
+                f"module holds {len(found)} procedures ({names}); "
+                "pass --proc <name> to choose one")
+        return found[0][1], found[0][2]
+    for name, first, last in found:
+        if name.lower() == procedure.lower():
+            return first, last
+    names = ", ".join(name or "?" for name, _, _ in found)
+    raise SystemExit(f"procedure {procedure!r} not found; have {names}")
 
 
 def _statement_record(text: str, code: bytes) -> bytearray:
@@ -111,14 +141,15 @@ def _add_missing_identifiers(out_db: Path, statements: list[str]) -> dict:
 
 
 def rewrite(src_db: Path, out_db: Path, statements: list[str],
-            module: str | None = None) -> None:
+            module: str | None = None, procedure: str | None = None) -> None:
     shutil.copy(src_db, out_db)
-    names = _add_missing_identifiers(out_db, statements)
     info = load_module(out_db, module)
     perf = Perf(info["row"], info["modoff"])
     source = perf.source().decode("latin-1").split("\r\n")
-
-    first, last = _procedure_body(perf)
+    # Resolve the target before touching anything, so a bad module or
+    # procedure name does not leave appended identifiers behind it.
+    first, last = _procedure_body(perf, source, procedure)
+    names = _add_missing_identifiers(out_db, statements)
 
     body, body_recs, body_src = [], [], []
     for text in statements:
@@ -150,12 +181,18 @@ if __name__ == "__main__":
         raise SystemExit(__doc__)
     argv = sys.argv[1:]
     module = None
-    if "--module" in argv:
-        i = argv.index("--module")
-        module = argv[i + 1]
-        del argv[i:i + 2]
+    procedure = None
+    for flag in ("--module", "--proc"):
+        if flag in argv:
+            i = argv.index(flag)
+            value = argv[i + 1]
+            del argv[i:i + 2]
+            if flag == "--module":
+                module = value
+            else:
+                procedure = value
     stmts = (
         [ln for ln in Path(argv[3]).read_text().splitlines() if ln.strip()]
         if argv[2] == "--file" else argv[2:]
     )
-    rewrite(Path(argv[0]), Path(argv[1]), stmts, module)
+    rewrite(Path(argv[0]), Path(argv[1]), stmts, module, procedure)

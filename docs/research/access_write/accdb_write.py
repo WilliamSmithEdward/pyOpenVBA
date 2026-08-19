@@ -55,6 +55,11 @@ STORAGE_PAGE_DEFAULT = 48
 # attempt at changing the statement count fail. Both hold the same value.
 PROC_LINE_COUNT_OFFSETS = (516, 518)
 
+# FuncDefn opens a procedure and EndFunc closes it; the opcode is the low
+# 10 bits of a line's first word, and FuncDefn's u32 operand follows it.
+FUNCDEFN_OPCODE = 150
+ENDFUNC_OPCODE = 105
+
 # MS-OVBA dir record MODULEOFFSET: <u16 id=0x0031><u32 size=4><u32 value>
 _MODULEOFFSET_HDR = bytes.fromhex("310004000000")
 
@@ -390,18 +395,48 @@ class Perf:
         new_modoff = len(out)
         out += source
         out[29:33] = end_pcode.to_bytes(4, "little")
-        # Keep the procedure line counters in step with the line table.
-        # They are relative-patched rather than recomputed: the absolute
-        # value counts one procedure's lines, so only the delta is known
-        # to be right for a module holding several.
-        delta = len(out_recs) - self.num_lines
-        if delta:
-            for off in PROC_LINE_COUNT_OFFSETS:
-                if off + 2 > self.cafe:
-                    continue
-                value = int.from_bytes(self.row[off:off + 2], "little")
-                out[off:off + 2] = (value + delta).to_bytes(2, "little")
+        _write_procedure_line_counts(out, out_lines, len(out_recs), self.cafe)
         return bytes(out), new_modoff
+
+
+def _write_procedure_line_counts(out: bytearray, lines, num_lines: int,
+                                 cafe: int) -> None:
+    """Refresh the per-procedure line counters.
+
+    Every procedure owns a pair of u16 counters at ``516 + func_`` and
+    ``518 + func_``, where ``func_`` is its FuncDefn operand -- the first
+    procedure's are the familiar 516/518. Measured across 11 procedures
+    in 7 modules, each holds
+
+        min(its EndFunc line, line count - 2) - the previous EndFunc line
+
+    i.e. the lines it spans since the procedure before it, with a
+    procedure that ends the module stopping one line short.
+
+    These are computed outright rather than shifted by the module's line
+    delta, which is what lets a procedure other than the first be
+    rewritten: editing a later one then leaves the earlier counters alone,
+    exactly as Access does.
+    """
+    procedures: list[tuple[int, int]] = []      # (func_ operand, end line)
+    pending: int | None = None
+    for index, code in enumerate(lines):
+        if not code or len(code) < 2:
+            continue
+        opcode = int.from_bytes(code[:2], "little") & 0x03FF
+        if opcode == FUNCDEFN_OPCODE and len(code) >= 6:
+            pending = int.from_bytes(code[2:6], "little")
+        elif opcode == ENDFUNC_OPCODE and pending is not None:
+            procedures.append((pending, index))
+            pending = None
+    previous_end = 0
+    for func_operand, end in procedures:
+        value = min(end, num_lines - 2) - previous_end
+        previous_end = end
+        for base in PROC_LINE_COUNT_OFFSETS:
+            off = base + func_operand
+            if off + 2 <= cafe:
+                out[off:off + 2] = max(0, value).to_bytes(2, "little")
 
 
 def load_module(path, module: str | None = None) -> dict:

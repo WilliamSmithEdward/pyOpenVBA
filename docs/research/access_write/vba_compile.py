@@ -28,16 +28,24 @@ from pcode_asm import encode_instruction
 OP = {"Xor": 2, "Or": 3, "And": 4, "Eq": 5, "Ne": 6, "Le": 7, "Ge": 8,
       "Lt": 9, "Gt": 10, "Add": 11, "Sub": 12, "Mod": 13, "IDiv": 14,
       "Mul": 15, "Div": 16, "Concat": 17, "Not": 21, "UMi": 22, "Ld": 32,
-      "St": 39, "DoWhile": 98, "ElseBlock": 100, "ElseIfBlock": 101,
+      "ArgsLd": 36, "ArgsMemLd": 37, "ArgsCall": 65,
+      "ArgsMemCall": 66, "St": 39, "DoWhile": 98, "ElseBlock": 100, "ElseIfBlock": 101,
       "EndFunc": 105, "EndIfBlock": 107, "ExitDo": 120, "ExitFor": 121,
       "For": 146, "IfBlock": 156, "LitDI2": 172, "LitDI4": 173,
       "LitStr": 185, "Loop": 188, "NextVar": 203, "EndForVariable": 257,
       "StartForVariable": 258}
 
 
-def _ins(op, operands=(), payload=None):
-    return SimpleNamespace(raw_word=op, operands=tuple(operands),
-                           payload=payload)
+# An instruction word is the opcode in its low 10 bits and an op_type in
+# the rest. Statement calls -- the ones whose result is discarded -- carry
+# op_type 16, measured from `MsgBox "hi"` (0x4041) and `DoCmd.Beep`
+# (0x4042) against the plain 0x0041 / 0x0042 an expression call uses.
+STATEMENT_CALL_OP_TYPE = 16
+
+
+def _ins(op, operands=(), payload=None, op_type=0):
+    return SimpleNamespace(raw_word=op | (op_type << 10),
+                           operands=tuple(operands), payload=payload)
 
 
 class CompileError(Exception):
@@ -50,7 +58,7 @@ _TOK = re.compile(
     r"|(?P<num>\d+(?:\.\d+)?)"
     r"|(?P<str>\"(?:[^\"]|\"\")*\")"
     r"|(?P<name>[A-Za-z_][A-Za-z0-9_]*)"
-    r"|(?P<op><>|<=|>=|[-+*/\\^&=<>(),])"
+    r"|(?P<op><>|<=|>=|[-+*/\\^&=<>(),.])"
 )
 
 
@@ -183,16 +191,44 @@ class Parser:
             s = v[1:-1].replace('""', '"').encode("latin-1")
             return [_ins(OP["LitStr"], (), s)]
         if k == "name":
-            # `foo(y)` and `o.Value` need ArgsLd / ArgsMemLd, which this
-            # compiler does not emit. Reading the name alone would drop
-            # the call silently, so refuse instead.
             nxt_kind, nxt = self.peek()
-            if nxt_kind == "op" and nxt in ("(", "."):
-                raise CompileError(
-                    f"{v}{nxt}... is a call or member access, which this "
-                    "compiler does not support")
+            if nxt_kind == "op" and nxt == ".":
+                # obj.Member -- push the object, then read the member.
+                self.take()
+                member = self.take()
+                if member[0] != "name":
+                    raise CompileError("expected a member name after '.'")
+                args = self.arg_list()
+                return [_ins(OP["Ld"], (("name", _res(self.names, v)),)),
+                        *args,
+                        _ins(OP["ArgsMemLd"],
+                             (("name", _res(self.names, member[1])),
+                              ("0x", len(self.last_arg_count))))]
+            if nxt_kind == "op" and nxt == "(":
+                # Foo(a, b) -- push the arguments, then call by name.
+                args = self.arg_list()
+                return [*args, _ins(OP["ArgsLd"],
+                                    (("name", _res(self.names, v)),
+                                     ("0x", len(self.last_arg_count))))]
             return [_ins(OP["Ld"], (("name", _res(self.names, v)),))]
         raise CompileError("unexpected token " + repr(v))
+
+    def arg_list(self):
+        """Parse ``(a, b)`` if present; record how many arguments it held."""
+        self.last_arg_count = []
+        if not self.accept_op("("):
+            return []
+        out = []
+        if self.accept_op(")"):
+            return out
+        while True:
+            out += self.expr()
+            self.last_arg_count.append(1)
+            if self.accept_op(","):
+                continue
+            if self.accept_op(")"):
+                return out
+            raise CompileError("expected ',' or ')' in argument list")
 
 
 def _res(names, n):
@@ -252,6 +288,34 @@ def compile_line(text, names):
         target, rhs = m.groups()
         return enc([*P(rhs).expr(),
                     _ins(OP["St"], (("name", _res(names, target)),))])
+
+    # A statement call discards its result: `MsgBox "hi"`, `DoCmd.Beep`,
+    # `Helper 7`. Parentheses are optional in this form, so the arguments
+    # are whatever follows the name.
+    m = re.match(r"(?i)^([A-Za-z_]\w*)(?:\.([A-Za-z_]\w*))?\s*(.*)$", s)
+    if m:
+        obj, member, rest = m.groups()
+        rest = rest.strip()
+        if rest.startswith("(") and rest.endswith(")"):
+            rest = rest[1:-1].strip()
+        parser = P(rest) if rest else None
+        args, count = [], 0
+        if parser is not None:
+            while True:
+                args += parser.expr()
+                count += 1
+                if not parser.accept_op(","):
+                    break
+            if parser.peek()[0] is not None:
+                raise CompileError(f"unparsed input in statement: {s!r}")
+        if member:
+            return enc([_ins(OP["Ld"], (("name", _res(names, obj)),)), *args,
+                        _ins(OP["ArgsMemCall"],
+                             (("name", _res(names, member)), ("0x", count)),
+                             op_type=STATEMENT_CALL_OP_TYPE)])
+        return enc([*args, _ins(OP["ArgsCall"],
+                                (("name", _res(names, obj)), ("0x", count)),
+                                op_type=STATEMENT_CALL_OP_TYPE)])
 
     raise CompileError("unsupported statement: " + repr(s))
 

@@ -48,6 +48,7 @@ fix up -- normally the hardest part of a code generator.
 | A procedure body can be emptied | Clearing `F2` to a comment made it return **0** while F1, F3 and F5 kept their original behaviour |
 | A database can be made from nothing | `AccessReader.create_new()` writes an embedded template, and filling its `Main` with a generated loop returned **56** -- no COM anywhere in that path |
 | Comment-heavy multi-procedure modules rewrite | With 2, 10 and 60 comments per procedure, rewriting one returned **42** while its neighbour kept returning **2** |
+| Generated code can call procedures | `a = Twice(7)` / `b2 = Twice(a)` / `Main = a + b2` returned **42**; `MsgBox`, `DoCmd.Beep` and a user call all re-emit byte-identically |
 
 The source/p-code test is the important negative: Access has **no
 load-time recompile-from-source trigger**. Excel treats a version mismatch
@@ -63,9 +64,10 @@ produces a module that displays one thing and does another.
 - `vba_compile.py` -- VBA to p-code compiler covering a subset:
   expressions with full operator precedence, assignment,
   `If`/`ElseIf`/`Else`, `Do While`/`Loop`, `For`/`Next`, `Exit Do`/`For`,
-  and comments. Anything outside that -- calls with arguments, member
-  access, `Select Case`, `Dim`, `Set`, `With`, arrays, `On Error` -- is
-  refused rather than mis-emitted.
+  comments, and calls -- `Foo(a, b)` in an expression, `Foo a, b` as a
+  statement, and `obj.Member` in either. Anything outside that --
+  `Select Case`, `Dim`, `Set`, `With`, arrays, `On Error` -- is refused
+  rather than mis-emitted.
 - `verify_compiler.py` -- gate: recompiles every module in an
   Access-built project and requires byte-identical output.
 - `verify_identity.py` -- gate: rebuilds every module *unchanged* and
@@ -91,6 +93,31 @@ identified by the `Attribute VB_Name` its row decompresses to, never by
 its page. Getting that wrong is not a loud failure -- it silently returns
 a neighbouring module's p-code, which is what `AccessReader` used to do
 (fixed alongside this work).
+
+## How p-code reaches outside the module
+
+Four mechanisms, all visible in one module:
+
+| Source | p-code |
+|---|---|
+| `Len(s)`, `Abs(-3)` | `FnLen`, `FnAbs` -- a dedicated opcode per intrinsic, no operand |
+| `Left(s, 2)` | args, then `ArgsLd(name=220, argc)` -- a **built-in** name at a low slot |
+| `Helper(7)`, `MsgBox "hi"` | args, then `ArgsLd` / `ArgsCall` -- names living in the **project** table |
+| `DoCmd.Beep` | `Ld(DoCmd)`, args, then `ArgsMemCall(Beep, argc)` |
+| `Debug.Print s` | fully special-cased: `Debug`, `PrintObj`, value, `PrintItemNL` |
+
+The operand space is one flat table of slots addressed as `2*slot + 2`.
+Slots 0..260 are **pre-populated built-ins** -- `Left` is slot 109, and
+the `b` and `f` oddity above is simply slots 11 and 81. Project
+identifiers start at slot 261, which is why they read as
+`524 + 2*index`. So an external reference is either an intrinsic opcode,
+a built-in slot, or an ordinary project identifier record; a library name
+like `MsgBox` or `DoCmd` is just appended to the project table like any
+other name, which is why calling one needs no new machinery.
+
+A statement call -- one whose result is discarded -- carries **op_type 16**
+in the high bits of the instruction word: `MsgBox "hi"` emits `0x4041`
+where an expression call emits `0x0041`.
 
 ## Format notes
 

@@ -59,6 +59,10 @@ _COMMENT_RECORD_PREFIX = b"\x00\x80\x09\x00"
 # A procedure opens with FuncDefn and closes with EndFunc, each alone on
 # its line. Their opcodes are the low 10 bits of the line's first word.
 _FUNCDEFN, _ENDFUNC = 150, 105
+# `Dim` emits a declaration record in the pre-0xCAFE header that
+# this code cannot regenerate, so a body holding one cannot be
+# replaced without orphaning it.
+_DIM = 93
 
 
 def _first_opcode(code: bytes | None) -> int | None:
@@ -186,6 +190,12 @@ def rewrite(src_db: Path, out_db: Path, statements: list[str],
     # refusal leaves no appended identifiers behind.
     _require_reproducible(perf, info)
     first, last = _procedure_body(perf, source, procedure)
+    for index in range(first, last + 1):
+        if _first_opcode(perf.lines[index]) == _DIM:
+            raise SystemExit(
+                f"line {index} declares a variable ({source[index].strip()!r}); "
+                "replacing a body that contains Dim would orphan its "
+                "declaration record, which cannot be regenerated")
     names = _add_missing_identifiers(out_db, statements)
 
     body, body_recs, body_src = [], [], []

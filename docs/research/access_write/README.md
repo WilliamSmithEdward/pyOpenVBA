@@ -34,7 +34,7 @@ fix up -- normally the hardest part of a code generator.
 
 | Result | Evidence |
 |---|---|
-| Access *sometimes* runs the canonical `0xCAFE` p-code | Editing only the CAFE region changed `5+3` to `5+9`; Access returned 14 while every `rU@` row stayed stale. **This does not generalise** -- see "Correction" below, where the execodes shadow the p-code instead |
+| Access runs the canonical `0xCAFE` p-code, once its `__SRP_*` cache is dropped | Editing only the CAFE region changed `5+3` to `5+9` and Access returned 14. With the cache present it returns the stale value instead -- see the `__SRP_` section below |
 | Source alone is display-only | Source edited to `5 + 3 + 100` with p-code untouched still returned **8** |
 | A grown module row loads and runs | `5+3` -> `5+3+10` (+12 bytes) returned 18, `compile_project` OK |
 | Our p-code equals Microsoft's | 171 statements across 9 modules re-emitted byte-for-byte identically, including a 120-statement module |
@@ -333,65 +333,73 @@ correct -- excluding those records is what keeps `524 + 2*index` valid --
 so the fix surfaces them without renumbering anything. Every p-code
 `Ld`/`St` operand across the sample databases now resolves to a name.
 
-## Correction: Access runs execodes, not the p-code we write
+## The __SRP_ cache is what Access executes, and dropping it is the lever
 
-An earlier note in this file said Access executes the canonical `0xCAFE`
-p-code, and this session repeated that a rewritten procedure "returns 42
-from real Access". **Neither generalises.** On every database tried here,
-a rewritten procedure kept running its *old* code. Measured 2026-08:
+A rewritten procedure kept running its **old** code, on every database
+tried. The cause, and the fix, both turned out to be something the
+library already handles for Office.
 
-| Level | Content | Role |
-|-------|---------|------|
-| `rU@` rows | a second compiled form, in its own `MSysAccessStorage` rows | **what Access actually executes** |
-| OVBA source | the compressed text at `MODULEOFFSET` | what a decompile rebuilds from |
-| `0xCAFE` p-code | the canonical stream this compiler targets | what the VBE and our tools read |
+Access keeps a second compiled form of every module in storage rows named
+`__SRP_0`, `__SRP_1`, ... -- the same performance cache [MS-OVBA]
+describes as `__SRP_*` streams, and that `_host.py` already drops when
+writing Office files:
 
-Two probes are needed, because one alone cannot separate the levels.
-
-**Execodes beat the canonical p-code.** Rewrite a procedure so source and
-p-code both say 777 while the untouched execodes still encode 5. The
-file provably contains no other copy of the old code -- a byte search
-finds `LitDI2(777) St(Probe)` once and `LitDI2(5)` nowhere -- and Access
-still returns **5**. The VBE meanwhile displays `Probe = 777`.
-
-**Source beats the canonical p-code, once the execodes are gone.** Edit
-*only* the source text, leaving every p-code byte as Access compiled it,
-so the file says `Probe = 123` and executes `LitDI2(5) St(Probe)`:
-
-```
-before /decompile   Eval("Probe()") -> 5      (execodes, matching the p-code)
-after  /decompile   Eval("Probe()") -> 123    (rebuilt from source)
+```python
+cfb.drop_streams_in_storage("VBA", lambda n: n.startswith("__SRP_"))
 ```
 
-So a decompile rebuilds from **source**, not from the canonical p-code.
-Rewriting the p-code changes what the VBE displays and what every reader
-sees, and so far has never changed what runs.
+Access *executes* that cache. Rewrite a procedure so source and p-code
+both say 777 while the untouched cache still holds 5, and Access returns
+**5** while the VBE displays `Probe = 777`. A byte search finds the new
+p-code once and the old value nowhere. `DoCmd.RunCommand(126)` reports
+success and changes nothing.
 
-What this does *not* establish is a universal rule. The earlier `5+3` ->
-`5+9` result above was a real observation, and under the model here it
-should not have happened -- so Access must sometimes treat the execodes
-as invalid and fall back. The condition that decides this is not yet
-identified, and finding it is the open question.
+Drop the `__SRP_*` rows and Access returns **777**. 156 of the 163
+databases here carry them, so this is the normal case.
 
-`DoCmd.RunCommand(126)` ("Compile And Save All Modules") does not help --
-Access reports success while continuing to return the stale value, so it
-evidently considers the project already compiled.
-The only lever found so far is launching `MSACCESS.EXE <db> /decompile`,
-which discards the execodes; Access then rebuilds from source and the
-written code runs. 156 of the 163 databases in this repo carry execode
-rows, so this is the normal case, not an edge case.
+The rows are catalogued in `MSysAccessStorage`, and **the catalog row is
+what must go**. Deleting only the long-value rows leaves the catalog
+pointing at nothing, and Access rejects the entire project with "can't
+find the function" -- which is what made the first attempts look like the
+cache was load-bearing rather than stale. `drop_srp_cache()` marks the
+slot-table entry deleted, the way Access retires a row.
 
-Two consequences worth being blunt about:
+`MSACCESS.EXE <db> /decompile` does the same job from outside, and is
+what confirmed the diagnosis before the pure-Python route was found: it
+strips the `__SRP_` rows and 383 bytes of compiled state from the module
+header, leaving the p-code and source intact.
 
-- **For execution, the source text is what matters**, plus something that
-  invalidates the execodes. The p-code compiler is not on that path.
-- **The p-code compiler is still worth having**, but for different
-  reasons than assumed: byte-exact agreement with Microsoft's compiler is
-  a strong correctness oracle, it keeps a rewritten module internally
-  consistent, and reading it is how the disassembler and decompiler work.
+**So the write path executes, from pure Python, with no COM.** A rewrite
+that keeps the module's line count is verified end to end: a program of
+twelve generated statements is refused for the reason below, but a
+single-statement rewrite returns its new value from real Access.
 
-What is still unknown: whether the execode rows can be invalidated from
-pure Python, which is what would make an Access-free write path execute.
+### The remaining bug: changing the line count
+
+Growing or shrinking a module by even one line produces a module Access
+rejects the moment it recompiles:
+
+```
+Compile error: Expected End Function
+```
+
+This is not about new identifiers. A rewrite that adds a line while
+introducing **no new names at all** fails identically, and one that keeps
+the count while renumbering everything succeeds. The pre-0xCAFE header
+carries per-procedure line counters, and `find_counter_base()` fails to
+locate them in most modules, so they keep their old values and Access
+runs off the end of the procedure. Diffing our header against Access's
+own build of the same source shows Access allocating 48 more bytes and
+writing 4 where we wrote 3.
+
+`rewrite_module.py` now refuses a line-count change rather than emitting
+a module that only breaks later, with `--allow-resize` to override for
+research. Fixing it means understanding the counter base properly, which
+is the next piece of work.
+
+A warning about probes, since this cost real time: bare `Application.Eval`
+over COM **hangs** behind a modal VBA compile-error dialog. Use
+`pyvbaharness`, which reports `modal-blocked` instead of blocking.
 
 ## Establishing p-code coverage
 

@@ -39,6 +39,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from accdb_write import (
     Perf,
     append_identifiers,
+    drop_srp_cache,
     find_project_row,
     load_module,
     set_lval_payload,
@@ -180,7 +181,8 @@ def _add_missing_identifiers(out_db: Path, statements: list[str]) -> dict:
 
 
 def rewrite(src_db: Path, out_db: Path, statements: list[str],
-            module: str | None = None, procedure: str | None = None) -> None:
+            module: str | None = None, procedure: str | None = None,
+            allow_resize: bool = False) -> None:
     shutil.copy(src_db, out_db)
     info = load_module(out_db, module)
     perf = Perf(info["row"], info["modoff"])
@@ -215,13 +217,26 @@ def rewrite(src_db: Path, out_db: Path, statements: list[str],
                   + source[last + 1:])
     blob = "\r\n".join(new_source).encode("latin-1")
 
+    if len(recs) != perf.num_lines and not allow_resize:
+        raise SystemExit(
+            f"this rewrite changes the module from {perf.num_lines} to "
+            f"{len(recs)} lines. The pre-0xCAFE header carries per-procedure "
+            "line counters that we cannot yet locate in most modules, so the "
+            "result is a module Access rejects with 'Expected End Function' "
+            "the moment it recompiles. Keep the statement count the same, or "
+            "pass --allow-resize to write it anyway for research.")
+
     new_row, new_modoff = perf.build(lines=lines, recs=recs, new_source=blob)
     data = bytearray(out_db.read_bytes())
     write_module(data, info, new_row, new_modoff)
+    # Access executes its __SRP_* compiled cache, not what we just wrote.
+    # Dropping it is what makes the rewrite take effect.
+    dropped = drop_srp_cache(data)
     out_db.write_bytes(bytes(data))
     print(f"{out_db.name}: body {last - first + 1} -> {len(statements)} "
           f"lines, module {perf.num_lines} -> {len(recs)} lines, "
-          f"row {len(info['row'])} -> {len(new_row)} bytes")
+          f"row {len(info['row'])} -> {len(new_row)} bytes, "
+          f"{dropped} __SRP_ cache row(s) dropped")
 
 
 if __name__ == "__main__":
@@ -230,6 +245,9 @@ if __name__ == "__main__":
     argv = sys.argv[1:]
     module = None
     procedure = None
+    allow_resize = "--allow-resize" in argv
+    if allow_resize:
+        argv.remove("--allow-resize")
     for flag in ("--module", "--proc"):
         if flag in argv:
             i = argv.index(flag)
@@ -243,4 +261,5 @@ if __name__ == "__main__":
         [ln for ln in Path(argv[3]).read_text().splitlines() if ln.strip()]
         if argv[2] == "--file" else argv[2:]
     )
-    rewrite(Path(argv[0]), Path(argv[1]), stmts, module, procedure)
+    rewrite(Path(argv[0]), Path(argv[1]), stmts, module, procedure,
+            allow_resize)

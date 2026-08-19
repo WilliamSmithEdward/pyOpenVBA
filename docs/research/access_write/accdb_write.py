@@ -46,7 +46,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "docs"
                        / "research" / "pcode"))
 from pcode_hash import identifier_hash
 
-from pyopenvba.access_read import AccessReader
+from pyopenvba.access_read import PAGE_TYPE_DATA, AccessReader
 from pyopenvba.vba import compress, decompress
 
 ACE_PAGE_SIZE = 4096
@@ -564,6 +564,53 @@ def write_module(data: bytearray, info: dict, new_row: bytes,
     new_dir = compress(bytes(dir_dec))
     set_lval_payload(data, info["dir_page"], info["dir_slot"], new_dir,
                      len(info["dir_raw"]))
+
+
+# --- the __SRP_* compiled-code cache -----------------------------------
+# Access keeps a second, compiled form of every module in storage rows
+# named ``__SRP_0``, ``__SRP_1``, ... -- the same performance cache that
+# [MS-OVBA] describes as ``__SRP_*`` streams, and that ``_host.py``
+# already drops when writing Office files. Access *executes* that cache,
+# so a module rewritten in the canonical p-code keeps its old behaviour
+# until the cache is gone. Dropping these rows is what makes a written
+# module take effect; Access then recompiles from what we wrote.
+#
+# The rows are catalogued in ``MSysAccessStorage``. Deleting only the
+# long-value rows leaves the catalog pointing at nothing and Access
+# rejects the whole project ("can't find the function"), so the catalog
+# row is what must go.
+_SRP_NAME = "__SRP_".encode("utf-16-le")
+_ROW_DELETED = 0x8000
+
+
+def drop_srp_cache(data: bytearray) -> int:
+    """Delete every ``__SRP_*`` catalog row; return how many were dropped.
+
+    Marks the row's slot-table entry deleted, which is how Access itself
+    retires a row. The long-value rows the entries pointed at are left
+    alone: they become unreachable, and Access reclaims them on its next
+    compact.
+    """
+    dropped = 0
+    for base in range(0, len(data) - ACE_PAGE_SIZE + 1, ACE_PAGE_SIZE):
+        if data[base] != PAGE_TYPE_DATA:
+            continue
+        count = int.from_bytes(data[base + 12:base + 14], "little")
+        if not count or 14 + 2 * count > ACE_PAGE_SIZE:
+            continue
+        entries = [int.from_bytes(data[base + 14 + 2 * s:base + 16 + 2 * s],
+                                  "little") for s in range(count)]
+        starts = sorted({e & 0x0FFF for e in entries})
+        for slot, entry in enumerate(entries):
+            start = entry & 0x0FFF
+            after = [s for s in starts if s > start]
+            end = min(after) if after else ACE_PAGE_SIZE
+            if _SRP_NAME not in data[base + start:base + end]:
+                continue
+            data[base + 14 + 2 * slot:base + 16 + 2 * slot] = (
+                (entry | _ROW_DELETED) & 0xFFFF).to_bytes(2, "little")
+            dropped += 1
+    return dropped
 
 
 # --- LVAL long-value descriptors and chains ----------------------------

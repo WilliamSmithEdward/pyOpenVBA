@@ -70,6 +70,24 @@ python docs/research/access_write/rewrite_module.py in.accdb out.accdb "acc = 9 
 Identifier operands index the project identifier table as
 `operand = 524 + 2*index`.
 
+Most records are positional, but a few names bind to a pre-existing
+low-numbered slot and use a variant record that carries it explicitly:
+
+```
+00 00 <u16 slot> <u8 len> 80 <6B descriptor> <name>
+```
+
+It has no trailing id / `10 00` pair, and its operand is `2*slot + 2`
+rather than `524 + 2*index`. Such a record takes no position, so counting
+it would misname every identifier after it. Observed for `b` (slot 11,
+operand 24) and `f` (slot 81, operand 164); the other 24 single letters
+are ordinary positional records. `AccessReader.identifiers()` exposes
+these with `slot` set and `index == -1`.
+
+Beware that VBA is case-insensitive when checking a name resolved: in a
+module `M` with function `G`, the variables `g` and `m` do not create
+identifiers at all -- they bind to the existing `G` and `M`.
+
 Implicit (undeclared) variables need **no** declaration record -- `zz = 7`
 is just `LitDI2 7 | St(name)`. Only `Dim`-ed variables emit
 `Dim | VarDefn(var_=...)`. That is why arbitrary logic can be generated
@@ -105,7 +123,10 @@ already present in the project.
 **New procedures.** `FuncDefn` carries a `func_` offset into the
 declaration tables, which has the same unsolved shape as the slot table.
 
-One read-path gap turned up in passing: a single-character implicit
-variable (`b`) is missing from `AccessReader.identifiers()` while its
-`_B_var_b` companion is present, so the heuristic record walker drops it.
-Worth fixing separately.
+A read-path gap turned up in passing and is now fixed: the explicitly
+slotted records described above were absorbed into the next entry's
+`prefix` instead of being parsed, so `b` and `f` never appeared in
+`AccessReader.identifiers()`. The positional numbering was always
+correct -- excluding those records is what keeps `524 + 2*index` valid --
+so the fix surfaces them without renumbering anything. Every p-code
+`Ld`/`St` operand across the sample databases now resolves to a name.

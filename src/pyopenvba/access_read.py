@@ -1601,20 +1601,28 @@ class AccessVBAIdentifier:
     (e.g. ``0x80``, ``0xac``) introduce variable-length descriptor
     blocks that we currently surface verbatim via :attr:`prefix`.
 
-    Note: the ``name_id`` operands in compiled p-code do **NOT** index
-    this table directly; they are per-procedure reference-table slots
-    (see ``docs/access_pcode_re.md`` Phase 4f). This dataclass simply
-    exposes the canonical project-wide identifier inventory.
+    Most records are addressed by position: the ``name`` operand of a
+    compiled p-code ``Ld`` / ``St`` instruction is ``524 + 2*index``
+    (measured across Access-built databases, 2026-08). A few names bind
+    instead to a pre-existing low-numbered slot and are stored in a
+    variant record that carries that slot explicitly; those set
+    :attr:`slot`, are excluded from the positional numbering, and are
+    addressed as ``2*slot + 2``.
 
     Attributes:
-        index: 0-based position within the identifier table.
+        index: 0-based position within the identifier table, or ``-1``
+            for a record that carries its own :attr:`slot` and so takes
+            no position.
         type_byte: The single type byte preceding the name in the
             record.
         name: ASCII name, decoded from the on-disk byte payload.
-        id_low: 16-bit ID cookie that follows the name on disk.
+        id_low: 16-bit ID cookie that follows the name on disk. Zero
+            for slotted records, which have no such trailer.
         prefix: Any extra descriptor bytes seen before this record that
             could not be parsed as another ``<len><type><name>`` entry.
             Empty for fully canonical records.
+        slot: Explicit operand slot for records that carry one, else
+            ``None`` for the usual positional records.
     """
 
     index: int
@@ -1622,6 +1630,7 @@ class AccessVBAIdentifier:
     name: str
     id_low: int
     prefix: bytes
+    slot: int | None = None
 
 
 def _find_vba_project_row(rows: list[tuple[int, int, bytes]]) -> bytes | None:
@@ -1689,6 +1698,49 @@ def _parse_vba_project_identifiers(
         # End-of-table sentinel: 02 FF FF 01 01 ...
         if stream[pos] == 0x02 and stream[pos + 1] == 0xFF:
             break
+        # A few identifiers carry their own operand slot instead of
+        # being addressed by position:
+        #     00 00 <u16 slot> <u8 len> 80 <6B descriptor> <name>
+        # There is no trailing id / 0x10 0x00 pair, which is why the
+        # canonical walk below rejects the record. Such an entry must
+        # NOT advance ``index``: compiled p-code addresses positional
+        # records as ``524 + 2*index``, so counting one here would
+        # misname every identifier after it.
+        if (
+            stream[pos] == 0x00
+            and stream[pos + 1] == 0x00
+            and pos + 12 <= end
+            and stream[pos + 5] == 0x80
+            and stream[pos + 8:pos + 10] == b"\xff\x03"
+        ):
+            slot_len = stream[pos + 4]
+            slot_name_end = pos + 12 + slot_len
+            if (
+                0 < slot_len < 64
+                and slot_name_end <= end
+                and all(
+                    stream[i] >= 0x20 and stream[i] != 0x7F
+                    for i in range(pos + 12, slot_name_end)
+                )
+            ):
+                out.append(
+                    AccessVBAIdentifier(
+                        index=-1,
+                        type_byte=stream[pos + 5],
+                        name=stream[pos + 12:slot_name_end].decode(
+                            encoding_for_codepage(code_page),
+                            errors="replace",
+                        ),
+                        id_low=0,
+                        prefix=pending_prefix,
+                        slot=int.from_bytes(
+                            stream[pos + 2:pos + 4], "little"
+                        ),
+                    )
+                )
+                pending_prefix = b""
+                pos = slot_name_end
+                continue
         name_len = stream[pos]
         type_byte = stream[pos + 1]
         # Type bytes 0x80 (intrinsic special, e.g. _Evaluate) and

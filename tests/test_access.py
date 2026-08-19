@@ -266,3 +266,62 @@ def test_identifier_table_keeps_non_ascii_names(
 
     parsed = parse(stream, code_page)
     assert [i.name for i in parsed] == ["Access", *names]
+
+
+def _slotted_identifier_record(name: str, slot: int) -> bytes:
+    """An identifier record that carries its own operand slot.
+
+    Access emits this form for a few names that bind to a pre-existing
+    low-numbered slot instead of being appended positionally. Layout,
+    measured from Access-built databases::
+
+        00 00 <u16 slot> <u8 len> 80 10 00 ff 03 00 00 <name>
+
+    It has no trailing id/``10 00`` pair, which is what makes the
+    canonical record walker reject it.
+    """
+    body = name.encode("cp1252")
+    return (b"\x00\x00" + slot.to_bytes(2, "little") + bytes((len(body), 0x80))
+            + b"\x10\x00\xff\x03\x00\x00" + body)
+
+
+def test_identifier_table_parses_explicitly_slotted_record() -> None:
+    """A slotted record is surfaced, not swallowed into the next prefix."""
+    from pyopenvba import access_read as _access
+
+    parse = getattr(_access, "_parse_vba_project_identifiers")
+
+    stream = (b"\x02\x00\x06\x04Access"
+              + _slotted_identifier_record("b", 11)
+              + _identifier_record("VBA", 1252)
+              + b"\x02\xff\xff\x01\x01")
+
+    parsed = parse(stream, 1252)
+    assert [i.name for i in parsed] == ["Access", "b", "VBA"]
+    slotted = next(i for i in parsed if i.name == "b")
+    assert slotted.slot == 11
+    # It must not be absorbed as opaque bytes on the following record.
+    assert next(i for i in parsed if i.name == "VBA").prefix == b""
+
+
+def test_slotted_identifier_does_not_shift_positional_indices() -> None:
+    """Positional indices skip slotted records.
+
+    p-code addresses positional identifiers as ``524 + 2*index``, so
+    counting a slotted record would misname every identifier after it.
+    A slotted record carries its own operand (``2*slot + 2``) instead.
+    """
+    from pyopenvba import access_read as _access
+
+    parse = getattr(_access, "_parse_vba_project_identifiers")
+
+    stream = (b"\x02\x00\x06\x04Access"
+              + _slotted_identifier_record("b", 11)
+              + _identifier_record("VBA", 1252)
+              + _identifier_record("zz", 1252)
+              + b"\x02\xff\xff\x01\x01")
+
+    parsed = parse(stream, 1252)
+    positional = {i.name: i.index for i in parsed if i.slot is None}
+    assert positional == {"Access": 0, "VBA": 1, "zz": 2}
+    assert next(i for i in parsed if i.name == "b").index == -1

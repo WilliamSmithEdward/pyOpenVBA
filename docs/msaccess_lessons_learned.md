@@ -82,6 +82,45 @@ The pattern is consistent: as soon as Access's own state machine has
 to reconcile the cache with its compiled module table, our edits get
 discarded or the database is rejected.
 
+### 3.1 Follow-up (2026-08, p-code tooling + automated execution harness)
+
+The original matrix judged edits by opening the database in the Access
+GUI and looking. With the VBA7 p-code decoder/encoder now available and
+an automated harness -- build a module via COM (`RunCommand 126`,
+acCmdCompileAndSaveAllModules), edit bytes in Python, reopen and *run*
+the macro via `pyvbaharness.AccessSession`, and read a sentinel file the
+macro writes -- edits can be judged by what actually **executes**, not
+just what displays. Three results sharpen the picture:
+
+| Experiment                                   | Executes as edited? |
+|----------------------------------------------|---------------------|
+| Same-length interned-string (`B9`) edit      | YES                 |
+| Same-length p-code literal edit (`LitDI2`)   | YES                 |
+| `_VBA_PROJECT` version-cookie bump            | NO -- runner-error  |
+
+The first two are the important additions. Access executes p-code that
+references interned string-literal rows by index; a same-length edit to
+either the p-code stream or a `B9` literal row changes the value the
+compiled code produces. `5 + 3` re-encoded to `5 + 9` returns 14 from
+real Access; `"ORIGINALSTR"` overwritten with `"CHANGEDXSTR"` prints the
+new string. So a bounded but genuinely **executable** write already
+works, and this is the first validation of the p-code assembler (built
+and previously checked only against Excel) against Access's own runtime.
+
+The version-cookie result is the useful negative. Excel treats a
+`_VBA_PROJECT` version mismatch as "discard p-code, recompile from
+source"; Access does not. Bumping the cookie yields a runner-error, not
+a recompile. There is no load-time recompile-from-source trigger to
+exploit -- confirming, with a cleaner test than the p-code tombstones
+above, that arbitrary writing must produce correct p-code rather than
+lean on Access to regenerate it.
+
+The remaining barrier is unchanged and is about **size, not
+correctness**: every edit above is length-preserving. Growing a row --
+which any real source change needs -- still requires reproducing
+Access's LVAL page allocator and `MSysObjects` chunk-pointer mutation
+(section 5).
+
 ---
 
 ## 4. Why Access is different

@@ -129,9 +129,13 @@ instead, or consuming that gap, produces a chain Access refuses to load
 even when the bytes round-trip exactly. With both rules applied, rewriting
 a chain with its own bytes reproduces the original file byte for byte.
 
-Every procedure owns a pair of u16 line counters at `516 + func_` and
-`518 + func_`, where `func_` is its `FuncDefn` operand -- the first
-procedure's are the familiar 516/518. Each holds
+Every procedure owns a pair of u16 line counters at `base + func_`, where
+`func_` is its `FuncDefn` operand. The base is 516 for an ordinary
+standard module, but it is not universal -- a class module was measured
+at 612, with its first procedure's `func_` starting at 56 rather than 0 --
+so it is derived per module by finding the one offset at which every
+procedure's stored pair already matches what the layout implies. Each
+pair holds
 
 ```
 min(its EndFunc line, line count - 2) - the previous EndFunc line
@@ -255,9 +259,16 @@ a small template. Growing past either needs a *new* page, which means
 reproducing Access's page allocator and its usage maps. Both limits raise
 `ValueError` rather than corrupting.
 
-Shortening a chain below the rows it occupies is also refused: releasing
-rows, and converting a chain back to a single-row value, are not
-implemented.
+Shortening a chain below the rows it occupies is refused, and that
+refusal is deliberate rather than unimplemented. Leaving the surplus
+chunks carrying only their 4-byte link makes Access reject the project.
+Releasing them -- terminating the chain early and tombstoning the freed
+slots -- works for some modules and not others: shrinking a two-row chain
+in one standard module loaded and ran correctly, while the same operation
+on a class module, and on a four-row chain, did not. Something further
+tracks those rows, most likely the page usage maps. A write path that
+sometimes produces a database Access will not open is worse than one that
+declines, so it declines.
 
 **A procedure's body is bounded by its `FuncDefn` and `EndFunc` lines**,
 not by "the statements we can recompile" -- that way a procedure holding

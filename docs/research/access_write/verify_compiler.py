@@ -40,12 +40,13 @@ def check_module(path: Path, module: str | None) -> tuple[int, int, int]:
     info = load_module(path, module)
     perf = Perf(info["row"], info["modoff"])
     names = name_table(path)
-    # p-code line i corresponds to source line i+1: the Attribute header
-    # is not represented in the line table.
-    source = perf.source().decode("latin-1").split("\r\n")
+    # source_lines() drops the leading Attribute block, which the line
+    # table does not represent and which runs to five or more lines in a
+    # class module -- assuming one silently misreads every class module.
+    source = perf.source_lines()
     matched = differed = skipped = 0
     for index, _ in enumerate(perf.recs):
-        text = source[index + 1] if index + 1 < len(source) else ""
+        text = source[index] if index < len(source) else ""
         try:
             mine = compile_line(text, names)
         except CompileError:

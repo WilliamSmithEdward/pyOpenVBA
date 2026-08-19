@@ -356,6 +356,8 @@ class Perf:
                            int.from_bytes(rec[8:12], "little") + len(code))
         self.trailer = bytes(self.row[self.pstart + align8(last_end):
                                       self.end_pcode])
+        self.counter_base = find_counter_base(self.row, self.lines,
+                                              self.num_lines, self.cafe)
 
     def source(self) -> bytes:
         return decompress(self.src_comp)
@@ -427,12 +429,62 @@ class Perf:
         new_modoff = len(out)
         out += source
         out[29:33] = end_pcode.to_bytes(4, "little")
-        _write_procedure_line_counts(out, out_lines, len(out_recs), self.cafe)
+        _write_procedure_line_counts(out, out_lines, len(out_recs),
+                                     self.cafe, self.counter_base)
         return bytes(out), new_modoff
 
 
+def _procedure_line_counts(lines, num_lines: int) -> list[tuple[int, int]]:
+    """``(func_ operand, expected counter)`` for each procedure, in order."""
+    procedures: list[tuple[int, int]] = []
+    pending: int | None = None
+    for index, code in enumerate(lines):
+        if not code or len(code) < 2:
+            continue
+        opcode = int.from_bytes(code[:2], "little") & 0x03FF
+        if opcode == FUNCDEFN_OPCODE and len(code) >= 6:
+            pending = int.from_bytes(code[2:6], "little")
+        elif opcode == ENDFUNC_OPCODE and pending is not None:
+            procedures.append((pending, index))
+            pending = None
+    out: list[tuple[int, int]] = []
+    previous_end = 0
+    for func_operand, end in procedures:
+        out.append((func_operand, max(0, min(end, num_lines - 2) - previous_end)))
+        previous_end = end
+    return out
+
+
+def find_counter_base(row: bytes, lines, num_lines: int, cafe: int) -> int | None:
+    """Offset the per-procedure line counters are measured from.
+
+    Each procedure's pair sits at ``base + func_``. The base is 516 for
+    an ordinary standard module, but not universally -- a class module
+    was measured at 612, with its first procedure's ``func_`` starting at
+    56 rather than 0. Rather than collect constants, locate the base by
+    finding the one offset at which every procedure's stored pair already
+    equals the value the layout implies.
+    """
+    wanted = _procedure_line_counts(lines, num_lines)
+    if not wanted:
+        return None
+    candidates = []
+    for base in range(0, min(cafe, 4096) - 4, 2):
+        for func_operand, value in wanted:
+            off = base + func_operand
+            if off + 4 > cafe:
+                break
+            if int.from_bytes(row[off:off + 2], "little") != value:
+                break
+            if int.from_bytes(row[off + 2:off + 4], "little") != value:
+                break
+        else:
+            candidates.append(base)
+    return candidates[0] if len(candidates) == 1 else None
+
+
 def _write_procedure_line_counts(out: bytearray, lines, num_lines: int,
-                                 cafe: int) -> None:
+                                 cafe: int, base: int | None) -> None:
     """Refresh the per-procedure line counters.
 
     Every procedure owns a pair of u16 counters at ``516 + func_`` and
@@ -450,25 +502,13 @@ def _write_procedure_line_counts(out: bytearray, lines, num_lines: int,
     rewritten: editing a later one then leaves the earlier counters alone,
     exactly as Access does.
     """
-    procedures: list[tuple[int, int]] = []      # (func_ operand, end line)
-    pending: int | None = None
-    for index, code in enumerate(lines):
-        if not code or len(code) < 2:
-            continue
-        opcode = int.from_bytes(code[:2], "little") & 0x03FF
-        if opcode == FUNCDEFN_OPCODE and len(code) >= 6:
-            pending = int.from_bytes(code[2:6], "little")
-        elif opcode == ENDFUNC_OPCODE and pending is not None:
-            procedures.append((pending, index))
-            pending = None
-    previous_end = 0
-    for func_operand, end in procedures:
-        value = min(end, num_lines - 2) - previous_end
-        previous_end = end
-        for base in PROC_LINE_COUNT_OFFSETS:
-            off = base + func_operand
-            if off + 2 <= cafe:
-                out[off:off + 2] = max(0, value).to_bytes(2, "little")
+    if base is None:
+        return
+    for func_operand, value in _procedure_line_counts(lines, num_lines):
+        off = base + func_operand
+        if off + 4 <= cafe:
+            out[off:off + 2] = value.to_bytes(2, "little")
+            out[off + 2:off + 4] = value.to_bytes(2, "little")
 
 
 def load_module(path, module: str | None = None) -> dict:
@@ -609,6 +649,24 @@ def row_capacity(data: bytearray, page: int, slot: int) -> int:
     return (end - start) + max(0, free)
 
 
+def tombstone_row(data: bytearray, page: int, slot: int) -> None:
+    """Release one LVAL row, marking its slot free and zeroing its bytes.
+
+    The slot keeps its recorded offset and gains the 0xD000 flag, which is
+    how Access marks a dead row; the payload is zeroed so no stale bytes
+    can be read as part of a neighbouring row, and the page's free-space
+    counter is credited.
+    """
+    base = page * ACE_PAGE_SIZE
+    start, end = row_extent(data, base, slot)
+    data[base + start:base + end] = bytes(end - start)
+    off = base + 14 + 2 * slot
+    current = int.from_bytes(data[off:off + 2], "little")
+    data[off:off + 2] = (0xD000 | (current & 0x0FFF)).to_bytes(2, "little")
+    free = int.from_bytes(data[base + 2:base + 4], "little")
+    data[base + 2:base + 4] = (free + (end - start)).to_bytes(2, "little")
+
+
 def write_chained_lval(data: bytearray, page: int, slot: int,
                        payload: bytes, current_length: int,
                        storage_page: int | None = None) -> None:
@@ -633,23 +691,33 @@ def write_chained_lval(data: bytearray, page: int, slot: int,
         take = min(cap, left)
         shares.append(take)
         left -= take
-    used = sum(1 for share in shares if share) or 1
+    # A payload smaller than the chain would need fewer rows, and neither
+    # way of expressing that is reliable. Leaving the surplus chunks
+    # carrying only their 4-byte link makes Access refuse the project.
+    # Releasing them -- terminating the chain early and tombstoning the
+    # freed slots -- works for some modules and not others: shrinking a
+    # 2-row chain in one standard module loaded and ran, while the same
+    # operation on a class module and on a 4-row chain did not. Something
+    # further tracks those rows, most likely the page usage maps. Until
+    # that is understood, refuse rather than write a database that may or
+    # may not load.
+    used = max(1, sum(1 for share in shares if share))
     if used != len(members):
         raise ValueError(
             f"payload of {len(payload)} bytes needs {used} of the chain's "
-            f"{len(members)} rows; shortening a chain means releasing rows "
-            "and possibly converting it back to a single-row value, which "
-            "is not implemented")
+            f"{len(members)} rows; releasing the surplus is not reliable "
+            "yet, so shortening a chain below its row count is refused")
     pos = 0
-    for index, ((p, s), share) in enumerate(zip(members, shares, strict=True)):
+    for index, ((page_no, slot_no), share) in enumerate(
+            zip(members, shares, strict=True)):
         chunk = payload[pos:pos + share]
         pos += share
         if index + 1 < len(members):
-            nxt_slot, nxt_page = members[index + 1][1], members[index + 1][0]
+            nxt_page, nxt_slot = members[index + 1]
         else:
-            nxt_slot, nxt_page = 0, 0
+            nxt_page, nxt_slot = 0, 0
         prefix = bytes([nxt_slot]) + int(nxt_page).to_bytes(3, "little")
-        write_row(data, p, s, prefix + chunk)
+        write_row(data, page_no, slot_no, prefix + chunk)
 
 
 def set_lval_payload(data: bytearray, page: int, slot: int, payload: bytes,

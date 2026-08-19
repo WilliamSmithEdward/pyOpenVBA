@@ -24,10 +24,13 @@ missing any one of them is what defeated the earlier phase-5 attempts:
    source begins inside the module row, so it moves whenever the p-code
    before it changes size.
 
-The OVBA compressor here emits literal-only chunks. The repository's
-general :func:`pyopenvba.vba.compress` produces smaller output that our
-own decompressor accepts, but Access rejected it in testing; literal-only
-chunks carry no copy tokens and load correctly.
+Compression uses the repository's :func:`pyopenvba.vba.compress`. An
+earlier round of this work concluded Access rejected it and fell back to
+literal-only chunks, but that test was confounded by a stale catalog
+length; with the length correct, Access accepts it. It matters: on one
+module the real compressor produced 148 bytes where literal-only produced
+366, matching Access's own output exactly. ``compress_literal_only`` is
+kept for comparison.
 
 Dev-only research code: Windows, desktop Access and ``pyvbaharness`` are
 needed to verify anything it produces.
@@ -44,7 +47,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "docs"
 from pcode_hash import identifier_hash
 
 from pyopenvba.access_read import AccessReader
-from pyopenvba.vba import decompress
+from pyopenvba.vba import compress, decompress
 
 ACE_PAGE_SIZE = 4096
 STORAGE_PAGE_DEFAULT = 48
@@ -414,7 +417,7 @@ class Perf:
         gap = bytearray(self.gap)
         gap[6:8] = (total & 0xFFFF).to_bytes(2, "little")
         source = (self.src_comp if new_source is None
-                  else compress_literal_only(new_source))
+                  else compress(new_source))
 
         out = bytearray(self.row[:self.rec_start])
         out[self.cafe + 4:self.cafe + 6] = len(out_recs).to_bytes(2, "little")
@@ -558,7 +561,7 @@ def write_module(data: bytearray, info: dict, new_row: bytes,
     dir_dec = bytearray(info["dir_dec"])
     pos = info["modoff_pos"]
     dir_dec[pos:pos + 4] = new_modoff.to_bytes(4, "little")
-    new_dir = compress_literal_only(bytes(dir_dec))
+    new_dir = compress(bytes(dir_dec))
     set_lval_payload(data, info["dir_page"], info["dir_slot"], new_dir,
                      len(info["dir_raw"]))
 
@@ -691,33 +694,24 @@ def write_chained_lval(data: bytearray, page: int, slot: int,
         take = min(cap, left)
         shares.append(take)
         left -= take
-    # A payload smaller than the chain would need fewer rows, and neither
-    # way of expressing that is reliable. Leaving the surplus chunks
-    # carrying only their 4-byte link makes Access refuse the project.
-    # Releasing them -- terminating the chain early and tombstoning the
-    # freed slots -- works for some modules and not others: shrinking a
-    # 2-row chain in one standard module loaded and ran, while the same
-    # operation on a class module and on a 4-row chain did not. Something
-    # further tracks those rows, most likely the page usage maps. Until
-    # that is understood, refuse rather than write a database that may or
-    # may not load.
+    # A payload smaller than the chain needs fewer rows. Access will not
+    # load a chain whose trailing chunks carry only their 4-byte link, so
+    # the surplus rows are released instead: the chain terminates early
+    # and each freed slot is tombstoned.
     used = max(1, sum(1 for share in shares if share))
-    if used != len(members):
-        raise ValueError(
-            f"payload of {len(payload)} bytes needs {used} of the chain's "
-            f"{len(members)} rows; releasing the surplus is not reliable "
-            "yet, so shortening a chain below its row count is refused")
     pos = 0
-    for index, ((page_no, slot_no), share) in enumerate(
-            zip(members, shares, strict=True)):
-        chunk = payload[pos:pos + share]
-        pos += share
-        if index + 1 < len(members):
+    for index in range(used):
+        page_no, slot_no = members[index]
+        chunk = payload[pos:pos + shares[index]]
+        pos += shares[index]
+        if index + 1 < used:
             nxt_page, nxt_slot = members[index + 1]
         else:
             nxt_page, nxt_slot = 0, 0
         prefix = bytes([nxt_slot]) + int(nxt_page).to_bytes(3, "little")
         write_row(data, page_no, slot_no, prefix + chunk)
+    for page_no, slot_no in members[used:]:
+        tombstone_row(data, page_no, slot_no)
 
 
 def set_lval_payload(data: bytearray, page: int, slot: int, payload: bytes,

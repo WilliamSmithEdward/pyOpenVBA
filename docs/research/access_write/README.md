@@ -148,6 +148,14 @@ other than the first be rewritten. Rebuilding an unchanged module
 reproduces its pre-`0xCAFE` header byte for byte across 11 procedures in
 10 modules, which is the check that pins the rule down.
 
+Compression matters more than it looks. An early round of this work
+concluded Access rejected the repository's `compress()` and fell back to
+literal-only chunks; that test was confounded by a stale catalog length,
+and with the length correct Access accepts it. On one module the real
+compressor produced 148 bytes where literal-only produced 366 -- matching
+Access's own output exactly -- and on another 784 against 4913. The
+difference decides whether a rewritten module still fits its page.
+
 A **comment line** is stored as text in the same region as the p-code and
 pointed at by a line record of kind `0x09` (code lines are `0x08`):
 
@@ -259,16 +267,16 @@ a small template. Growing past either needs a *new* page, which means
 reproducing Access's page allocator and its usage maps. Both limits raise
 `ValueError` rather than corrupting.
 
-Shortening a chain below the rows it occupies is refused, and that
-refusal is deliberate rather than unimplemented. Leaving the surplus
-chunks carrying only their 4-byte link makes Access reject the project.
-Releasing them -- terminating the chain early and tombstoning the freed
-slots -- works for some modules and not others: shrinking a two-row chain
-in one standard module loaded and ran correctly, while the same operation
-on a class module, and on a four-row chain, did not. Something further
-tracks those rows, most likely the page usage maps. A write path that
-sometimes produces a database Access will not open is worse than one that
-declines, so it declines.
+Shortening a chain works by releasing the surplus rows: the chain
+terminates early and each freed slot is tombstoned. Leaving those chunks
+in place carrying only their 4-byte link does *not* work -- Access
+rejects the project -- so they have to go. Verified on a standard module,
+a class module, and a three-row chain shrinking to two.
+
+Access itself does something different when a chained module shrinks: it
+abandons the chain entirely and rewrites the value into freshly allocated
+storage as a single row. Reusing the rows already held avoids needing an
+allocator at all.
 
 **A procedure's body is bounded by its `FuncDefn` and `EndFunc` lines**,
 not by "the statements we can recompile" -- that way a procedure holding

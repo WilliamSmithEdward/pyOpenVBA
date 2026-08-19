@@ -171,6 +171,26 @@ def _flush(stmt: str | None, inline_if: dict | None,
         line_stmts.append(stmt)
 
 
+def _dimensions(values: list[str], implicit: set[int]) -> list[str]:
+    """Rebuild an array's dimension list from the literals it pushed.
+
+    ``implicit`` holds the stack depths at which an ``OptionBase`` was
+    seen; a value pushed at one of those depths is a bare upper bound
+    (``a(3)``), and any other pair of values is an explicit range
+    (``a(1 To 5)``).
+    """
+    dims: list[str] = []
+    i = 0
+    while i < len(values):
+        if i in implicit or i + 1 >= len(values):
+            dims.append(values[i])
+            i += 1
+        else:
+            dims.append(f"{values[i]} To {values[i + 1]}")
+            i += 2
+    return dims
+
+
 class _Frame:
     """One reconstructed statement's evaluation stack."""
 
@@ -309,6 +329,9 @@ def decompile(module_stream: bytes, vba_project_stream: bytes,
         # accumulated here and rejoined when the line ends.
         line_stmts: list[str] = []
         inline_if: dict | None = None
+        # Stack depths at which an OptionBase appeared: these mark the
+        # dimensions whose lower bound the source left implicit.
+        implicit_dims: list[int] = []
         i = 0
 
         while i < len(ins):
@@ -372,6 +395,8 @@ def decompile(module_stream: bytes, vba_project_stream: bytes,
                     vt = None
                 pending = list(f.stack)
                 f.stack.clear()
+                marks = set(implicit_dims)
+                implicit_dims.clear()
                 if info is not None and info.string_length is not None:
                     # The length was pushed as a literal; it is already
                     # part of the rendered type.
@@ -379,11 +404,8 @@ def decompile(module_stream: bytes, vba_project_stream: bytes,
                 shape = ""
                 if op.op_type == VARDEFN_CONST:
                     pass
-                elif len(pending) == 2:
-                    shape = f"({pending[0]} To {pending[1]})"
-                    pending = []
-                elif len(pending) == 1:
-                    shape = f"({pending[0]})"
+                elif pending:
+                    shape = "(" + ", ".join(_dimensions(pending, marks)) + ")"
                     pending = []
                 elif info is not None and info.array:
                     # Dynamic array: no bounds were pushed, but the
@@ -631,8 +653,13 @@ def decompile(module_stream: bytes, vba_project_stream: bytes,
             elif m == "EndWith":
                 emit("End With", -1, 0)
             elif m in ("Redim", "RedimAs", "NewRedim"):
-                argc = next((v for a, v in op.operands if a == "0x"), 0)
-                args = [f.pop() for _ in range(min(argc, len(f.stack)))][::-1]
+                # The operand counts dimensions, not pushed values: an
+                # explicit "1 To 9" pushes two literals for one dimension.
+                values = list(f.stack)
+                f.stack.clear()
+                marks = set(implicit_dims)
+                implicit_dims.clear()
+                args = _dimensions(values, marks)
                 if m != "NewRedim":
                     stmt = f"ReDim {nm(op)}({', '.join(args)})"
             elif m == "OnError":
@@ -777,7 +804,9 @@ def decompile(module_stream: bytes, vba_project_stream: bytes,
                 # statement separator: a source ":" or an If body
                 _flush(stmt, inline_if, line_stmts)
                 stmt = None
-            elif m in ("BoL", "EndContext", "Context", "OptionBase",
+            elif m == "OptionBase":
+                implicit_dims.append(len(f.stack))
+            elif m in ("BoL", "EndContext", "Context",
                        "DimImplicit", "NewRedim", "LineCont", "PSetDefault",
                        "ConstFuncExpr"):
                 pass

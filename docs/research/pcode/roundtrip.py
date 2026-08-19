@@ -406,6 +406,29 @@ CORPUS: dict[str, str] = {
         "    DoEvents\n"
         "End Sub\n"
     ),
+    "arraydims": (
+        "Sub S()\n"
+        "    Dim a(3, 4) As Long\n"
+        "    Dim b(2, 3, 4) As Long\n"
+        "    Dim c(1 To 5, 1 To 6) As Long\n"
+        "    Dim d(3, 1 To 5) As Long\n"
+        "    a(0, 0) = 1\n"
+        "    b(0, 0, 0) = 2\n"
+        "    c(1, 1) = 3\n"
+        "    d(0, 1) = 4\n"
+        "End Sub\n"
+    ),
+    "memberchain": (
+        "Sub S()\n"
+        "    Dim ws As Object\n"
+        "    Dim r, c, v\n"
+        "    v = ws.Cells(r, c).Value\n"
+        "    ws.Cells(r, c).Interior.Color = v\n"
+        "    With ws\n"
+        "        .Cells(r, c).Value = v\n"
+        "    End With\n"
+        "End Sub\n"
+    ),
 }
 
 # Entries VBA itself cannot round-trip. The compiler folds identifiers

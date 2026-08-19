@@ -533,6 +533,7 @@ them:
 | `Set x = e` | `SetStmt` (marker), then `Set` / `MemSet` |
 | `a(i) = e` | `ArgsSt` (value pushed first, then indices) |
 | `o.M(i)` / `o.M(i) = e` | `ArgsMemLd` / `ArgsMemSt`; **push order is value (if any), then arguments, then the object last** -- so unwind object, arguments, value. `ArgsDict*` are the `!` forms, `Args*With` drop the object |
+| `Dim a(3)` vs `Dim a(1 To 5)` | an **`OptionBase` precedes each dimension whose lower bound is implicit**. Without it two pushed literals are ambiguous -- one explicit range or two implicit-lower dimensions -- so `Dim a(3, 4)` and `Dim a(1 To 5)` are indistinguishable by literal count alone. `ReDim` uses the same markers; its `0x` operand counts dimensions, not literals |
 | `o.m = e` / `.m = e` | `MemSt` / `MemStWith` |
 | `x!key` | `DictLd` / `DictSt` and their `With` variants |
 | `With o` ... `End With` | `StartWithExpr`, `With`, `EndWith` |
@@ -626,14 +627,14 @@ Given a module stream plus its `_VBA_PROJECT`, every `name`, `func_`,
 declared type resolves to a type name, and the stack machine replays
 into expressions. The measured results:
 
-- **Round-trip corpus: 35 of 37 entries reproduce the original source
+- **Round-trip corpus: 37 of 39 entries reproduce the original source
   character for character**, 0 failing. The other two are cases VBA
   itself cannot round-trip (below).
 - **Coverage sweep: 834 modules, 5,287 p-code lines across every
   fixture in the repository -- zero unmapped opcodes, zero undecoded
   type descriptors**, two unresolved names (the same two cases).
 
-- **Semantic round-trip: 19 of 19 modules equivalent**, including an
+- **Semantic round-trip: 95 of 95 modules equivalent**, including an
   8,060-opcode real-world module. This is the strongest of the three,
   because it needs no original source: decompile a compiled module,
   recompile the result with Excel, and compare the opcode streams. If

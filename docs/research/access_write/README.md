@@ -60,8 +60,12 @@ produces a module that displays one thing and does another.
 - `accdb_write.py` -- storage layer: LVAL page reflow, the
   `MSysAccessStorage` length field, a literal-only MS-OVBA compressor, and
   `Perf`, which parses and rebuilds a module's `0xCAFE` region.
-- `vba_compile.py` -- VBA to p-code compiler: full operator precedence,
-  assignment, `If`/`ElseIf`/`Else`, `Do While`/`Loop`, `For`/`Next`.
+- `vba_compile.py` -- VBA to p-code compiler covering a subset:
+  expressions with full operator precedence, assignment,
+  `If`/`ElseIf`/`Else`, `Do While`/`Loop`, `For`/`Next`, `Exit Do`/`For`,
+  and comments. Anything outside that -- calls with arguments, member
+  access, `Select Case`, `Dim`, `Set`, `With`, arrays, `On Error` -- is
+  refused rather than mis-emitted.
 - `verify_compiler.py` -- gate: recompiles every module in an
   Access-built project and requires byte-identical output.
 - `verify_identity.py` -- gate: rebuilds every module *unchanged* and

@@ -183,6 +183,14 @@ class Parser:
             s = v[1:-1].replace('""', '"').encode("latin-1")
             return [_ins(OP["LitStr"], (), s)]
         if k == "name":
+            # `foo(y)` and `o.Value` need ArgsLd / ArgsMemLd, which this
+            # compiler does not emit. Reading the name alone would drop
+            # the call silently, so refuse instead.
+            nxt_kind, nxt = self.peek()
+            if nxt_kind == "op" and nxt in ("(", "."):
+                raise CompileError(
+                    f"{v}{nxt}... is a call or member access, which this "
+                    "compiler does not support")
             return [_ins(OP["Ld"], (("name", _res(self.names, v)),))]
         raise CompileError("unexpected token " + repr(v))
 

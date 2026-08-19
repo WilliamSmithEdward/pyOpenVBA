@@ -36,9 +36,8 @@ from accdb_write import (
     append_identifiers,
     find_project_row,
     load_module,
-    set_storage_length,
+    set_lval_payload,
     write_module,
-    write_row,
 )
 from vba_compile import CompileError, compile_line, name_table, referenced_names
 
@@ -70,8 +69,7 @@ def _add_missing_identifiers(out_db: Path, statements: list[str]) -> dict:
     page, slot, row = find_project_row(out_db)
     data = bytearray(out_db.read_bytes())
     new_row = append_identifiers(row, wanted)
-    write_row(data, page, slot, new_row)
-    set_storage_length(data, page, slot, len(new_row))
+    set_lval_payload(data, page, slot, new_row, len(row))
     out_db.write_bytes(bytes(data))
     print(f"added {len(wanted)} identifier(s): {', '.join(wanted)}")
     return name_table(out_db)

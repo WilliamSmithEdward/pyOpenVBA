@@ -42,6 +42,7 @@ fix up -- normally the hardest part of a code generator.
 | Statement count can change | A 3-statement template regrown to 13 statements (nested `Do While` + `If`/`ElseIf`/`Else`) returned **160**; shrunk to 2 returned **42** |
 | New identifiers can be added | A 12-statement program using three variables Access never created (`cnt`, `tot`, `best`) returned **80** |
 | One module of several can be targeted | Rewriting only `ModB` of a two-module project returned **142**, with `ModA` unchanged at **6** |
+| Modules larger than a page can be rewritten | A 122-statement module chained across three LVAL pages, rewritten to 11116 bytes, returned **21660** |
 
 The source/p-code test is the important negative: Access has **no
 load-time recompile-from-source trigger**. Excel treats a version mismatch
@@ -108,6 +109,19 @@ is just `LitDI2 7 | St(name)`. Only `Dim`-ed variables emit
 `Dim | VarDefn(var_=...)`. That is why arbitrary logic can be generated
 without touching the declaration tables.
 
+A long value is described in `MSysAccessStorage` by an 8-byte descriptor,
+`<u32 length | flags><u8 slot><u24 page>`. Flag `0x40000000` means the row
+*is* the payload; flags `0` mean it heads a chain whose rows each begin
+with `<u8 next_slot><u24 next_page>`, terminated by `(0, 0)`.
+
+Chains fill greedily -- each chunk to capacity, the last running short
+(measured 4072 / 4072 / 583) -- and Access keeps a **4-byte gap** between
+a page's slot table and its lowest row, so a full chain page reads
+`free=4` with the row starting at offset 20. Spreading a payload evenly
+instead, or consuming that gap, produces a chain Access refuses to load
+even when the bytes round-trip exactly. With both rules applied, rewriting
+a chain with its own bytes reproduces the original file byte for byte.
+
 A 12-byte line record is `<flags> <0x80|0x81> <0x08|0x09> <indent>`, then a
 u16 p-code length at `+4`, a u16 frame-size hint at `+6`, and a u32 p-code
 offset at `+8`. `indent` is the source line's leading-space count. Line
@@ -167,16 +181,16 @@ does this automatically for every name a program introduces.
 declaration tables, which is not yet decoded, so generated code lives
 inside a procedure the template already defines.
 
-**Growing past one page.** The module row must still fit its 4 KB page;
-spilling needs the LVAL chain allocator. For a small template that ceiling
-is around 23 statements. It raises `ValueError` rather than corrupting.
+**Allocating pages.** A module already stored as a chain can be rewritten
+up to that chain's capacity (12216 bytes for a three-page chain), and a
+single-row module up to its page's free space -- around 23 statements for
+a small template. Growing past either needs a *new* page, which means
+reproducing Access's page allocator and its usage maps. Both limits raise
+`ValueError` rather than corrupting.
 
-Access itself has no such limit: a module too large for a page is stored
-as a **chain** of LVAL rows, `<u8 next_slot><u24 next_page>` per chunk.
-Those are readable -- `AccessReader` assembles the chain, and the compiler
-gate covers a 120-statement chained module -- but rewriting one means
-splitting the result back across rows and re-linking them, so
-`rewrite_module.py` refuses with a clear message instead.
+Shortening a chain below the rows it occupies is also refused: releasing
+rows, and converting a chain back to a single-row value, are not
+implemented.
 
 **Beware: running a database mutates it.** Opening an `.accdb` read-write
 in Access rewrites parts of the file -- in one case relocating the

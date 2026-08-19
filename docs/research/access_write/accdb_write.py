@@ -428,13 +428,14 @@ def load_module(path, module: str | None = None) -> dict:
     # writing it back is not, so record it and let write_module refuse.
     head = bytes(reader._lval_row_bytes(stream.page, stream.slot))
     chained = len(stream.raw) != len(head)
-    dir_page, dir_slot, dir_dec, _ = find_dir_row(path)
+    dir_page, dir_slot, dir_dec, dir_raw = find_dir_row(path)
     pos = find_moduleoffset_pos(dir_dec, stream.name if module else module)
     return {"page": stream.page, "slot": stream.slot,
             "row": bytes(stream.raw), "dir_page": dir_page,
             "dir_slot": dir_slot, "dir_dec": dir_dec,
             "modoff": int.from_bytes(dir_dec[pos:pos + 4], "little"),
-            "modoff_pos": pos, "chained": chained, "name": stream.name}
+            "modoff_pos": pos, "chained": chained, "name": stream.name,
+            "dir_raw": dir_raw}
 
 
 def write_module(data: bytearray, info: dict, new_row: bytes,
@@ -445,16 +446,152 @@ def write_module(data: bytearray, info: dict, new_row: bytes,
     its catalog length, then the dir stream's MODULEOFFSET and *its*
     catalog length.
     """
-    if info.get("chained"):
-        raise ValueError(
-            f"module {info.get('name')!r} spans several LVAL rows; "
-            "rewriting a chained module needs the LVAL chain allocator, "
-            "which is not implemented")
-    write_row(data, info["page"], info["slot"], new_row)
-    set_storage_length(data, info["page"], info["slot"], len(new_row))
+    set_lval_payload(data, info["page"], info["slot"], new_row,
+                     len(info["row"]))
     dir_dec = bytearray(info["dir_dec"])
     pos = info["modoff_pos"]
     dir_dec[pos:pos + 4] = new_modoff.to_bytes(4, "little")
     new_dir = compress_literal_only(bytes(dir_dec))
-    write_row(data, info["dir_page"], info["dir_slot"], new_dir)
-    set_storage_length(data, info["dir_page"], info["dir_slot"], len(new_dir))
+    set_lval_payload(data, info["dir_page"], info["dir_slot"], new_dir,
+                     len(info["dir_raw"]))
+
+
+# --- LVAL long-value descriptors and chains ----------------------------
+#
+# A long value is described in MSysAccessStorage by an 8-byte descriptor:
+#
+#     <u32 length | flags> <u8 slot> <u24 page>
+#
+# with flags 0x40000000 meaning the pointed row *is* the payload, and
+# flags 0 meaning it is the head of a chain whose every row begins with a
+# 4-byte <u8 next_slot><u24 next_page> prefix, (0, 0) terminating it.
+LVAL_SINGLE_FLAG = 0x40000000
+
+
+def chain_members(data: bytearray, page: int, slot: int,
+                  limit: int = 4096) -> list[tuple[int, int]]:
+    """Every ``(page, slot)`` of a chained long value, head first."""
+    out: list[tuple[int, int]] = []
+    seen: set[tuple[int, int]] = set()
+    while (page, slot) not in seen and len(out) < limit:
+        seen.add((page, slot))
+        out.append((page, slot))
+        base = page * ACE_PAGE_SIZE
+        start, _ = row_extent(data, base, slot)
+        nxt_slot = data[base + start]
+        nxt_page = int.from_bytes(data[base + start + 1:base + start + 4],
+                                  "little")
+        if nxt_page == 0 and nxt_slot == 0:
+            return out
+        page, slot = nxt_page, nxt_slot
+    raise ValueError(f"malformed LVAL chain at page {page} slot {slot}")
+
+
+def find_lval_descriptor(data: bytearray, page: int, slot: int,
+                         current_length: int,
+                         storage_page: int = STORAGE_PAGE_DEFAULT
+                         ) -> tuple[int, int]:
+    """Offset and flags of the descriptor for one long value.
+
+    Located by its exact ``<u32 length|flags><u8 slot><u24 page>`` bytes,
+    which is specific enough to be unambiguous.
+    """
+    pointer = bytes([slot]) + int(page).to_bytes(3, "little")
+    base = storage_page * ACE_PAGE_SIZE
+    window = bytes(data[base:base + ACE_PAGE_SIZE])
+    for flags in (LVAL_SINGLE_FLAG, 0):
+        needle = (current_length | flags).to_bytes(4, "little") + pointer
+        hits = []
+        i = window.find(needle)
+        while i >= 0:
+            hits.append(i)
+            i = window.find(needle, i + 1)
+        if len(hits) == 1:
+            return base + hits[0], flags
+        if len(hits) > 1:
+            raise ValueError(
+                f"long-value descriptor for page {page} slot {slot} "
+                f"matched {len(hits)} times")
+    raise ValueError(
+        f"no long-value descriptor for page {page} slot {slot} "
+        f"with length {current_length}")
+
+
+# Access leaves a 4-byte gap between an LVAL page's slot table and its
+# lowest row: a full chain page reads free=4, with the row starting at
+# offset 20 rather than 16. Filling that gap is what made a byte-for-byte
+# chain rewrite fail to load, so treat it as reserved.
+LVAL_ROW_RESERVE = 4
+
+
+def row_capacity(data: bytearray, page: int, slot: int) -> int:
+    """Bytes this row could occupy: its extent plus the page's usable free
+    space, keeping :data:`LVAL_ROW_RESERVE` bytes untouched."""
+    base = page * ACE_PAGE_SIZE
+    start, end = row_extent(data, base, slot)
+    slots = slot_offsets(data, base)
+    live = [s & 0x0FFF for s in slots if (s & 0xF000) != 0xD000]
+    free = min(live) - (14 + 2 * len(slots)) - LVAL_ROW_RESERVE
+    return (end - start) + max(0, free)
+
+
+def write_chained_lval(data: bytearray, page: int, slot: int,
+                       payload: bytes, current_length: int,
+                       storage_page: int = STORAGE_PAGE_DEFAULT) -> None:
+    """Rewrite a chained long value across the rows it already occupies.
+
+    The chain keeps its shape -- same rows, same order -- and the payload
+    is spread over them in proportion to what each can hold, so no row is
+    left empty and no page has to be allocated. The descriptor length is
+    updated to match.
+    """
+    members = chain_members(data, page, slot)
+    caps = [row_capacity(data, p, s) - 4 for p, s in members]
+    if sum(caps) < len(payload):
+        raise ValueError(
+            f"chain of {len(members)} rows holds at most {sum(caps)} bytes; "
+            f"payload is {len(payload)}")
+    # Access fills each chunk to capacity and lets the last one run short
+    # (measured: 4072 / 4072 / 583). Match that rather than spreading the
+    # payload evenly, which produced a chain Access refused to load.
+    shares, left = [], len(payload)
+    for cap in caps:
+        take = min(cap, left)
+        shares.append(take)
+        left -= take
+    used = sum(1 for share in shares if share) or 1
+    if used != len(members):
+        raise ValueError(
+            f"payload of {len(payload)} bytes needs {used} of the chain's "
+            f"{len(members)} rows; shortening a chain means releasing rows "
+            "and possibly converting it back to a single-row value, which "
+            "is not implemented")
+    pos = 0
+    for index, ((p, s), share) in enumerate(zip(members, shares, strict=True)):
+        chunk = payload[pos:pos + share]
+        pos += share
+        if index + 1 < len(members):
+            nxt_slot, nxt_page = members[index + 1][1], members[index + 1][0]
+        else:
+            nxt_slot, nxt_page = 0, 0
+        prefix = bytes([nxt_slot]) + int(nxt_page).to_bytes(3, "little")
+        write_row(data, p, s, prefix + chunk)
+
+
+def set_lval_payload(data: bytearray, page: int, slot: int, payload: bytes,
+                     current_length: int,
+                     storage_page: int = STORAGE_PAGE_DEFAULT) -> None:
+    """Replace a long value's bytes, whichever shape it is stored in.
+
+    Single-row values are written in place; chained ones are respread
+    over the rows they already occupy. Either way the descriptor's length
+    is updated, which is what Access checks on load.
+    """
+    off, flags = find_lval_descriptor(data, page, slot, current_length,
+                                      storage_page)
+    if flags & LVAL_SINGLE_FLAG:
+        write_row(data, page, slot, payload)
+    else:
+        write_chained_lval(data, page, slot, payload, current_length,
+                           storage_page)
+    data[off:off + 4] = (len(payload) | flags).to_bytes(4, "little")

@@ -17,6 +17,16 @@ Two levels are checked per module:
   reproduces the database byte for byte.
 
 Non-zero exit on any difference. Dev-only research tool.
+
+A warning about fixtures, learned the hard way: build the VBA source you
+feed Access with ``open(path, "w", newline="")``. Python's text mode
+translates ``
+`` on Windows, so a source written with ``
+`` lands on
+disk as ``
+``. Access accepts it and produces a module with a blank
+line between every real one -- roughly twice the line records you meant --
+which looks exactly like a decoder bug in whatever you test next.
 """
 from __future__ import annotations
 

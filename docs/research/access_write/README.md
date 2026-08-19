@@ -47,6 +47,7 @@ fix up -- normally the hardest part of a code generator.
 | Generated code can carry comments | A commented loop summing odd numbers below 10 returned **25**; comment encoding matches Access on 2503 real comment lines |
 | A procedure body can be emptied | Clearing `F2` to a comment made it return **0** while F1, F3 and F5 kept their original behaviour |
 | A database can be made from nothing | `AccessReader.create_new()` writes an embedded template, and filling its `Main` with a generated loop returned **56** -- no COM anywhere in that path |
+| Comment-heavy multi-procedure modules rewrite | With 2, 10 and 60 comments per procedure, rewriting one returned **42** while its neighbour kept returning **2** |
 
 The source/p-code test is the important negative: Access has **no
 load-time recompile-from-source trigger**. Excel treats a version mismatch

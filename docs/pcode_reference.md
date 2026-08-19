@@ -155,6 +155,54 @@ references.
 
 ---
 
+### 4.1 The identifier hash
+
+Each record carries a `u16` alongside the name. It is a **hash of the
+name**, and it matters out of proportion to its size: writing a *new*
+identifier means writing a correct one, so this is the gate between
+editing existing code and generating new code.
+
+Measured by compiling names through Excel and reading the field back
+(`docs/research/pcode/hash_probe.py`, 216 samples), the hash is:
+
+```
+h = SEED[len(name)]
+for c in name.upper():
+    h = (h * 37 + FOLD.get(c, c)) % 65599
+id = h & 0xFFFF
+```
+
+with `FOLD = {"W": "V", "Y": "U"}`.
+
+Each part of that is measured, not assumed:
+
+- **Multiplier 37.** Sweeping every letter through each position of a
+  fixed name gives an exact arithmetic progression per position, with
+  step 1 at the last character, 37 at the next, and 1369 at the next --
+  `37^k`, read straight off the data.
+- **Uppercase.** Names containing digits missed by exactly `0x20` per
+  digit under a lowercase model: `Win16` by `32*37 + 32`, to the unit.
+  Digits have no case, so only an uppercase fold explains it.
+- **Modulus 65599** (`2^16 + 63`). Scanning every modulus from 65,500 to
+  66,600 puts a sharp maximum here -- 198 of 216 against 113 for a plain
+  `2^16` -- which also explains the `-63` drift that first showed up in
+  the positional weights.
+- **The `W` / `Y` fold.** Reproducible and confirmed in the raw stream
+  rather than through the parser: `qqqw` stores `ff 99` and so does
+  `qqqv`; `qqqy` stores `fe 99` and so does `qqqu`. Every other letter
+  behaves normally. No explanation for it yet.
+
+The model reproduces **every measured id for names of six characters or
+fewer**, and 198 of 216 overall. Longer names drift, and the drift
+depends on how far from the end an early character sits, so the
+reduction is close to right but not exact.
+
+**OPEN:** the exact reduction for long names, why the seed varies with
+name length (lengths 1 and 2 share one, the rest do not), and what makes
+`W` and `Y` special. Also open, and separate: whether this same hash
+addresses the module's identifier bucket table, which is what an
+assembler would have to fill in.
+
 ## 5. Name operand resolution (key finding)
 
 Compiled `name` operands do **not** carry the record's `id_value`.
@@ -709,9 +757,11 @@ Still open:
 - Derivation of the `0x20E` name-operand base.
 - Location of `DECL_BASE` (a module-header field?), currently
   calibrated -- reliably, but by search rather than by reading a field.
-- The identifier **hash function** used by the module's bucket table --
-  required before new identifiers can be written, and therefore the real
-  gate on writing new code rather than editing existing code.
+- The identifier hash's exact reduction for names over six characters,
+  its length-dependent seed, and the `W` / `Y` fold (section 4.1). The
+  short-name case is solved; whether the same hash addresses the
+  module's bucket table is not yet established, and that table is what
+  an assembler must fill in before it can write new identifiers.
 - The full contents of the runtime built-in identifier table
   (section 5.1); the mechanism is understood, the map covers 20 entries.
   In particular, what the single-letter entries `b` and `f` name.

@@ -550,6 +550,35 @@ differences -- pyOpenVBA's source-only write path leaves databases in
 that state, and counting them as code-generation defects made the total
 move every time the compiler learned a new statement.
 
+## Why `Dim` stays refused: the shortcut is a silent miscompile
+
+Two experiments settle whether `Dim` can be shipped cheaply, and both say
+no.
+
+**Source-only, variable implicit.** Compile `Dim x As Long` to an empty
+p-code line -- source keeps it for display, and every use of `x` is an
+implicit Variant. It runs: `Dim x As Long / x = 7 / Probe = x + 1`
+returns 8. But the declared type changes coercion, and dropping it is
+wrong, not merely lossy:
+
+```
+Dim x As Long : x = 3.7 : Probe = x
+   real Access (As Long):  4     (rounds to the declared type)
+   source-only (Variant):  3.7
+```
+
+That is precisely the silent-miscompile class every gate in this
+directory exists to stop, so the shortcut is rejected rather than shipped.
+
+**Real p-code, header left alone.** Emit the genuine
+`Dim | VarDefn(var_=88)` bytes but do not grow the header. Access
+crashes (`server threw an exception`): the `VarDefn` points at offset
+`464 + 88`, which in an ungrown header is unrelated data. The declaration
+record is not optional.
+
+So `Dim` needs the real record in a grown header, and stays refused until
+that exists -- refusing is the correct outcome, not a gap.
+
 ## What `Dim` needs: the declaration record, mapped
 
 `Dim` is still refused, but the structure behind it is now measured
@@ -614,10 +643,15 @@ records pack differently from build to build; the same per-build
 variability that made the `_VBA_PROJECT` "symbol buckets" a dead end.
 
 So the remaining work is not the record, which is understood, but
-computing the header's new size from its regions instead of assuming a
-fixed step. Implementing before that is understood would be coding to a
-model known to be incomplete, which has been the expensive mistake every
-time this session.
+inserting it: region C past the records holds a **table of `var_`
+offsets** (the u32s 88, 112, 136 appear there verbatim), so adding a
+declaration shifts every later one and every pointer into them must be
+fixed up. On top of that, a local-name **hash table** in region C resized
+on the fifth declaration -- the 8-byte shrink is `ffffffff10000000`, one
+empty bucket -- so the header's size is not a fixed multiple of the
+record count. Whether that table is validated is the next thing to test
+with the deadbeef method that cleared the offset-41 cookie; if it is not,
+the insertion can be approximate and still run.
 
 ## References added through the References menu
 

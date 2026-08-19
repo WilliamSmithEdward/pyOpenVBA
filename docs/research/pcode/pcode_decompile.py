@@ -10,6 +10,25 @@ sys.path.insert(0,"F:/GitHub/pyOpenVBA/src")
 from pyopenvba.vba_pcode import disassemble_module_stream
 from pcode_names import parse_identifiers, resolve_name, Identifier
 
+# Declared-type byte lives at DECL_BASE + var_operand + TYPE_FIELD_OFFSET
+# and holds a standard OLE Automation VARTYPE code.
+TYPE_FIELD_OFFSET = 14
+VARTYPE_NAMES: dict[int, str] = {
+    0: "Empty", 1: "Null", 2: "Integer", 3: "Long", 4: "Single",
+    5: "Double", 6: "Currency", 7: "Date", 8: "String", 9: "Object",
+    10: "Error", 11: "Boolean", 12: "Variant", 13: "Unknown",
+    14: "Decimal", 17: "Byte", 20: "LongLong",
+}
+
+def resolve_type(module_stream: bytes, operand: int, base: int | None) -> str | None:
+    """Resolve a ``var_`` operand to its declared VBA type name."""
+    if base is None:
+        return None
+    p = base + operand + TYPE_FIELD_OFFSET
+    if p >= len(module_stream):
+        return None
+    return VARTYPE_NAMES.get(module_stream[p])
+
 # Instructions whose name operand is the *callee/target* identifier.
 _CALLISH = {"ArgsCall","ArgsMemCall","ArgsMemCallWith","ArgsLd","ArgsMemLd"}
 
@@ -117,8 +136,17 @@ def reconstruct(module_stream: bytes, vba_project_stream: bytes,
         if mn[0]=="EndFunction": src.append("End Function"); continue
         # Dim
         if mn[0]=="Dim":
-            names=[declname(i) or "<var>" for i in ins if i.mnemonic.startswith("VarDefn")]
-            src.append("    Dim "+(", ".join(names) if names else "<var>")); continue
+            decls=[]
+            for i in ins:
+                if not i.mnemonic.startswith("VarDefn"):
+                    continue
+                vn=declname(i) or "<var>"
+                vt=None
+                for a,v in i.operands:
+                    if a=="var_":
+                        vt=resolve_type(module_stream,v,dbase)
+                decls.append(f"{vn} As {vt}" if vt else vn)
+            src.append("    Dim "+(", ".join(decls) if decls else "<var>")); continue
         # literal assignment:  Lit* ... St <name>
         if mn[-1] in ("St","SetStmt") and len(ins)>=2:
             lit=ins[0]

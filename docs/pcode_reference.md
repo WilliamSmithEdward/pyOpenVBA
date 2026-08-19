@@ -197,6 +197,29 @@ Worked example (same module, `DECL_BASE = 450`):
 `DECL_BASE` varies per module: 450 for the standard modules tested, 546
 for document modules such as `Sheet1` / `ThisWorkbook`.
 
+### 6.1 Declared types
+
+The declaration record also carries the variable's **declared type**, as
+a single byte at:
+
+```
+DECL_BASE + var_operand + 14
+```
+
+The value is a standard OLE Automation **VARTYPE** code, which makes the
+mapping self-evident and complete:
+
+| byte | VBA type | byte | VBA type |
+|------|----------|------|----------|
+| `0x02` | `Integer` (VT_I2) | `0x08` | `String` (VT_BSTR) |
+| `0x03` | `Long` (VT_I4) | `0x09` | `Object` (VT_DISPATCH) |
+| `0x04` | `Single` (VT_R4) | `0x0B` | `Boolean` (VT_BOOL) |
+| `0x05` | `Double` (VT_R8) | `0x0C` | `Variant` (VT_VARIANT) |
+| `0x06` | `Currency` (VT_CY) | `0x11` | `Byte` (VT_UI1) |
+| `0x07` | `Date` (VT_DATE) | `0x14` | `LongLong` (VT_I8) |
+
+Verified 12/12 against Excel-compiled modules, one per declared type.
+
 **OPEN:** no module-header field was found holding `DECL_BASE`. It is
 currently *calibrated* -- the unique base at which every `func_` /
 `var_` operand in the module resolves to a valid identifier.
@@ -261,10 +284,33 @@ Sub S()
 End Sub
 ```
 
-against an original of `Sub S()` / `Dim alpha As Long` / ... /
-`Call Helper`. Semantically identical; the gaps are declared **types**
-(`As Long`, held in the `type_` indirect table) and the optional `Call`
-keyword, which is syntactic sugar that compiles identically.
+With declared types resolved (section 6.1) the reconstruction is an
+**exact line-by-line match** against the original source:
+
+```vba
+Sub S()
+    Dim alpha As Long
+    Dim beta As Long
+    alpha = 1
+    beta = 2
+    MsgBox "x"
+    Helper
+End Sub
+Sub Helper()
+    Dim gamma As Long
+    gamma = 3
+End Sub
+```
+
+The only difference from the input is the optional `Call` keyword
+(`Call Helper` vs `Helper`), which is syntactic sugar the compiler
+discards -- both forms emit identical p-code, so it is unrecoverable by
+construction rather than a gap in decoding.
+
+Coverage note: this holds for the statement forms exercised here
+(procedure declarations, `Dim` with declared types, literal assignment,
+call statements). Control flow, expressions, and UDTs are decoded as
+instructions but not yet re-rendered as source.
 
 ---
 
@@ -296,7 +342,8 @@ compile error otherwise blocks on a modal dialog.
   calibrated.
 - The identifier **hash function** used by the module's bucket table --
   required before new identifiers can be written.
-- `type_` / `rec_` indirect-table layout (declared types, UDTs).
+- `rec_` indirect-table layout (user-defined types) and array / `New`
+  declarators. Scalar declared types are solved (section 6.1).
 - Source-to-p-code compilation: lexer, parser, codegen, and the slot
   allocation Office's compiler performs.
 

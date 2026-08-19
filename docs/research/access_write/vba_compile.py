@@ -62,6 +62,9 @@ OP = {"Xor": 2, "Or": 3, "And": 4, "Eq": 5, "Ne": 6, "Le": 7, "Ge": 8,
       "For": 146, "ForStep": 149, "IfBlock": 156, "LitDI2": 172,
       "LitDI4": 173, "LitNothing": 178, "LitR8": 183, "LitStr": 185,
       "LitVarSpecial": 186, "Loop": 188, "LoopUntil": 189, "LoopWhile": 190,
+      "FnAbs": 23, "FnLen": 27, "ArgsArray": 68, "Coerce": 88,
+      "FnInStr": 132, "FnLBound": 138, "FnUBound": 145,
+      "FnFix": 24, "FnInt": 25, "FnSgn": 26, "FnStrComp": 141,
       "NextVar": 203, "SelectCase": 237, "SetStmt": 240, "Wend": 246,
       "While": 247, "EndForVariable": 257, "StartForVariable": 258}
 
@@ -70,6 +73,37 @@ OP = {"Xor": 2, "Or": 3, "And": 4, "Eq": 5, "Ne": 6, "Le": 7, "Ge": 8,
 # differential gate caught only because a probe happened to use both.
 _WRONG = {n: v for n, v in OP.items() if OPCODES_VBA7[v][0] != n}
 assert not _WRONG, f"opcode numbers disagree with OPCODES_VBA7: {_WRONG}"
+
+# A VBA built-in is reached in one of three ways, and which one is not
+# guessable -- all three were read off a probe module that calls eighty of
+# them (`BI.bas`). Most simply become project identifiers, exactly like a
+# user-written name, and need nothing here.
+#
+# 1. A dedicated opcode, with the arguments already on the stack.
+BUILTIN_OPCODE = {"len": "FnLen", "abs": "FnAbs", "int": "FnInt",
+                  "fix": "FnFix", "sgn": "FnSgn", "instr": "FnInStr",
+                  "strcomp": "FnStrComp"}
+
+# 2. A pre-populated operand slot, called through the ordinary ArgsLd.
+#    The operand is the usual ``2*slot + 2``.
+BUILTIN_SLOT = {"left": 109, "mid": 124, "string": 173, "format": 85,
+                "curdir": 37, "freefile": 87}
+
+# 3. `Array(...)` has its own opcode but still names slot 8.
+ARRAY_SLOT = 8
+
+# `UBound`/`LBound` carry the dimension as an operand rather than an
+# argument count, defaulting to 0 for the first dimension.
+BOUND_OPCODE = {"ubound": "FnUBound", "lbound": "FnLBound"}
+
+# A few built-ins are values rather than calls and appear bare, loaded
+# straight from their slot: Access rewrites `Date()` to `Date` and emits
+# `Ld(slot 44)`. `Time` and `Now` are ordinary project identifiers.
+BUILTIN_VALUE_SLOT = {"date": 44}
+
+# The conversion functions share one opcode and differ only in op_type.
+COERCE = {"cvar": 0, "cint": 2, "clng": 3, "cdbl": 5, "cdate": 7,
+          "cstr": 8, "cbool": 11}
 
 # `LitVarSpecial` names a constant in its op_type: measured from
 # `v = True` (~1), `v = False` (~0), `v = Null` (~2) and `v = Empty` (~3).
@@ -263,7 +297,7 @@ class Parser:
                 if member[0] != "name":
                     raise CompileError("expected a member name after '.'")
                 had_parens = self.peek() == ("op", "(")
-                args = self.arg_list()
+                args, count = self.arg_list()
                 obj = _ins(OP["Ld"], (("name", _res(self.names, v)),))
                 if not had_parens:
                     return [obj, _ins(OP["MemLd"],
@@ -271,31 +305,61 @@ class Parser:
                 return [*args, obj,
                         _ins(OP["ArgsMemLd"],
                              (("name", _res(self.names, member[1])),
-                              ("0x", len(self.last_arg_count))))]
+                              ("0x", count)))]
             if nxt_kind == "op" and nxt == "(":
                 # Foo(a, b) -- push the arguments, then call by name.
-                args = self.arg_list()
+                args, count = self.arg_list()
+                low = v.lower()
+                if low in BUILTIN_OPCODE:
+                    return [*args, _ins(OP[BUILTIN_OPCODE[low]])]
+                if low in COERCE:
+                    return [*args, _ins(OP["Coerce"], op_type=COERCE[low])]
+                if low in BOUND_OPCODE:
+                    # A dimension is an operand, not a stack argument, so
+                    # only the array itself is pushed. Anything but the
+                    # first dimension is refused rather than mis-encoded.
+                    if count > 1:
+                        raise CompileError(
+                            f"{v}(array, dimension) is not supported; only "
+                            "the first dimension is understood")
+                    return [*args, _ins(OP[BOUND_OPCODE[low]], (("0x", 0),))]
+                if low == "array":
+                    return [*args, _ins(OP["ArgsArray"],
+                                        (("name", 2 * ARRAY_SLOT + 2),
+                                         ("0x", count)))]
+                if low in BUILTIN_SLOT:
+                    return [*args, _ins(OP["ArgsLd"],
+                                        (("name", 2 * BUILTIN_SLOT[low] + 2),
+                                         ("0x", count)))]
                 return [*args, _ins(OP["ArgsLd"],
                                     (("name", _res(self.names, v)),
-                                     ("0x", len(self.last_arg_count))))]
+                                     ("0x", count)))]
+            if v.lower() in BUILTIN_VALUE_SLOT:
+                return [_ins(OP["Ld"],
+                             (("name", 2 * BUILTIN_VALUE_SLOT[v.lower()] + 2),))]
             return [_ins(OP["Ld"], (("name", _res(self.names, v)),))]
         raise CompileError("unexpected token " + repr(v))
 
     def arg_list(self):
-        """Parse ``(a, b)`` if present; record how many arguments it held."""
-        self.last_arg_count = []
+        """Parse ``(a, b)`` if present, returning ``(code, count)``.
+
+        The count is returned rather than stashed on the parser: a nested
+        call such as ``DateAdd("d", 1, Now())`` parses its own argument
+        list while the outer one is still open, and shared state let the
+        inner count overwrite the outer.
+        """
         if not self.accept_op("("):
-            return []
-        out = []
+            return [], 0
+        out, count = [], 0
         if self.accept_op(")"):
-            return out
+            return out, 0
         while True:
             out += self.expr()
-            self.last_arg_count.append(1)
+            count += 1
             if self.accept_op(","):
                 continue
             if self.accept_op(")"):
-                return out
+                return out, count
             raise CompileError("expected ',' or ')' in argument list")
 
 

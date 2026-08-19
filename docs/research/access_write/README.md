@@ -489,6 +489,44 @@ Uncovered and refused, not approximated: `With`, `Dim`/`Const`/`ReDim`/
 `Erase`, `On Error`, line labels, single-line `If ... Then <statement>`,
 date literals, and built-ins living in the pre-populated slots below 261.
 
+## Calling VBA's built-ins
+
+`Left`, `Len` and `Abs` used to be refused as unknown identifiers. A probe
+module calling eighty built-ins (`builtins_probe.bas`) shows there are
+four mechanisms, and which one applies is not guessable from the name:
+
+| how it is reached | count | examples |
+|---|---|---|
+| an ordinary project identifier | 56 | `Trim`, `UCase`, `Chr`, `Now`, `Replace`, `IIf`, `Nz`, `DLookup` |
+| a dedicated opcode | 7 | `Len`→`FnLen`, `Abs`→`FnAbs`, `InStr`→`FnInStr`, `Int`, `Fix`, `Sgn`, `StrComp` |
+| a pre-populated slot, via `ArgsLd` | 6 | `Left`=109, `Mid`=124, `String`=173, `Format`=85, `CurDir`=37, `FreeFile`=87 |
+| its own opcode plus a slot | 1 | `Array(...)` -> `ArgsArray` naming slot 8 |
+
+The largest group needs nothing: those names already flow through
+`_add_missing_identifiers` exactly like a user-written one, which is why
+`MsgBox` worked long before any of this.
+
+Three further shapes fall out of the same probe. The conversion functions
+share opcode `Coerce` and differ only in op_type -- `CVar` 0, `CInt` 2,
+`CLng` 3, `CDbl` 5, `CDate` 7, `CStr` 8, `CBool` 11. `UBound`/`LBound`
+carry the dimension as an *operand*, not a stack argument. And `Date` is
+a value rather than a call: Access rewrites `Date()` to `Date` and emits
+`Ld` of slot 44.
+
+### A nested call was silently miscounting arguments
+
+The probe also caught a defect that had nothing to do with built-ins.
+`arg_list()` recorded its argument count on the parser, so an inner call
+overwrote the outer one:
+
+```
+DateAdd("d", 1, Now())    Access: ArgsLd(DateAdd)[3]   ours: [1]
+Join(Array(1, 2), ",")    Access: ArgsLd(Join)[2]      ours: [4]
+```
+
+Any `f(g())` was affected. The count is now returned rather than stashed.
+Another silent miscompile that only a differential probe would find.
+
 ## References added through the References menu
 
 They need no new p-code machinery, because **early and late binding

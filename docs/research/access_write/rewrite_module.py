@@ -37,8 +37,13 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from accdb_write import (
+    DECL_FIRST_VAR,
+    DECL_RECORD,
+    VARTYPE,
     Perf,
+    add_declaration,
     append_identifiers,
+    declaration_count,
     drop_srp_cache,
     find_counter_base,
     find_project_row,
@@ -46,7 +51,16 @@ from accdb_write import (
     set_lval_payload,
     write_module,
 )
-from vba_compile import comment_record, compile_line, is_comment, name_table, referenced_names
+from vba_compile import (
+    RESERVED_SLOT,
+    comment_record,
+    compile_line,
+    declaration_pcode,
+    is_comment,
+    is_declaration,
+    name_table,
+    referenced_names,
+)
 
 # Record byte 3 is the source indent; bytes 0-2 mark an executable
 # statement line. Byte 6 is a frame-size hint that Access recomputes, so
@@ -61,10 +75,6 @@ _COMMENT_RECORD_PREFIX = b"\x00\x80\x09\x00"
 # A procedure opens with FuncDefn and closes with EndFunc, each alone on
 # its line. Their opcodes are the low 10 bits of the line's first word.
 _FUNCDEFN, _ENDFUNC = 150, 105
-# `Dim` emits a declaration record in the pre-0xCAFE header that
-# this code cannot regenerate, so a body holding one cannot be
-# replaced without orphaning it.
-_DIM = 93
 
 
 def _first_opcode(code: bytes | None) -> int | None:
@@ -164,7 +174,9 @@ def _add_missing_identifiers(out_db: Path, statements: list[str]) -> dict:
     """Append project identifiers for any name the program introduces."""
     names = name_table(out_db)
     wanted: list[str] = []
-    seen = {k.lower() for k in names}
+    # A name VBA pre-interns resolves to its slot, so adding a project
+    # identifier for it would shadow the binding Access expects.
+    seen = {k.lower() for k in names} | set(RESERVED_SLOT)
     for text in statements:
         for token in referenced_names(text):
             if token.lower() not in seen:
@@ -181,6 +193,30 @@ def _add_missing_identifiers(out_db: Path, statements: list[str]) -> dict:
     return name_table(out_db)
 
 
+def _plan_declarations(header, source, statements):
+    """Work out which declarations already exist and which are new.
+
+    A record can be appended but not removed or reordered, so the new body
+    must declare the module's existing variables first, in order, before
+    any it adds.
+    """
+    existing = [d for line in source if (d := is_declaration(line))]
+    wanted = [d for line in statements if (d := is_declaration(line))]
+    count = declaration_count(header)
+    if len(existing) != count:
+        raise SystemExit(
+            f"the module's source shows {len(existing)} declaration(s) but "
+            f"its header holds {count}; the mapping is ambiguous, so this "
+            "module cannot have declarations rewritten")
+    names = [name for name, _ in existing]
+    if [name for name, _ in wanted[:len(names)]] != names:
+        raise SystemExit(
+            f"the new body must keep the existing declarations {names} "
+            "first and in order; removing or reordering one would orphan "
+            "its record, which cannot yet be released")
+    return names, wanted[len(names):]
+
+
 def rewrite(src_db: Path, out_db: Path, statements: list[str],
             module: str | None = None, procedure: str | None = None,
             allow_resize: bool = False) -> None:
@@ -193,18 +229,40 @@ def rewrite(src_db: Path, out_db: Path, statements: list[str],
     # refusal leaves no appended identifiers behind.
     _require_reproducible(perf, info)
     first, last = _procedure_body(perf, source, procedure)
-    for index in range(first, last + 1):
-        if _first_opcode(perf.lines[index]) == _DIM:
-            raise SystemExit(
-                f"line {index} declares a variable ({source[index].strip()!r}); "
-                "replacing a body that contains Dim would orphan its "
-                "declaration record, which cannot be regenerated")
-    names = _add_missing_identifiers(out_db, statements)
+    header = bytes(info["row"])[:perf.cafe]
+    _kept, added = _plan_declarations(header, source, statements)
+    names = _add_missing_identifiers(
+        out_db, statements + [f"{name} = 0" for name, _ in added])
 
+    # Grow the header once per new declaration, before anything reads it.
+    for name, typename in added:
+        vartype = VARTYPE.get(typename.lower())
+        if vartype is None:
+            raise SystemExit(f"unsupported declared type: {typename!r}")
+        header = add_declaration(header, name, vartype, names[name.lower()],
+                                 line_delta=0)
+    if added:
+        # `info` keeps describing the row as it is on disk -- write_module
+        # finds its catalog descriptor by that length -- so the grown row
+        # is handed to Perf only.
+        grown = header + bytes(info["row"])[perf.cafe:]
+        perf = Perf(grown, info["modoff"] + len(header) - perf.cafe)
+        attributes, source = perf.attribute_lines(), perf.source_lines()
+        first, last = _procedure_body(perf, source, procedure)
+
+    # `var_` is the declaration's ordinal in the module, counted from the
+    # first: the kept ones keep the offsets they already had.
+    declared: list[str] = []
     body, body_recs, body_src = [], [], []
     for text in statements:
         stmt = text.rstrip()
-        code = _encode_line(stmt, names)
+        decl = is_declaration(stmt)
+        if decl:
+            code = declaration_pcode(
+                DECL_FIRST_VAR + DECL_RECORD * len(declared))
+            declared.append(decl[0])
+        else:
+            code = _encode_line(stmt, names)
         if code is None:
             raise SystemExit(f"not a statement or comment: {stmt!r}")
         body.append(code)

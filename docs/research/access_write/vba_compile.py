@@ -67,6 +67,7 @@ OP = {"Xor": 2, "Or": 3, "And": 4, "Eq": 5, "Ne": 6, "Le": 7, "Ge": 8,
       "For": 146, "ForStep": 149, "IfBlock": 156, "LitDI2": 172,
       "LitDI4": 173, "LitNothing": 178, "LitR8": 183, "LitStr": 185,
       "LitVarSpecial": 186, "Loop": 188, "LoopUntil": 189, "LoopWhile": 190,
+      "Dim": 93, "VarDefn": 245,
       "Paren": 29,
       "Debug": 91, "Do": 95, "LitDate": 170, "PrintItemNL": 217,
       "PrintObj": 220,
@@ -107,11 +108,20 @@ ARRAY_SLOT = 8
 # argument count, defaulting to 0 for the first dimension.
 BOUND_OPCODE = {"ubound": "FnUBound", "lbound": "FnLBound"}
 
-# Two names are pre-interned as ordinary *variables* rather than as
-# built-in functions, so a program using them resolves to a slot instead
-# of a project identifier. Probing 77 candidate short names found exactly
-# these two: every other single letter becomes a project identifier.
-RESERVED_SLOT = {"b": 11, "f": 81}
+# Some names are pre-interned in the slot table and resolve to a slot
+# rather than to a project identifier, even when used as an ordinary
+# variable. They are VBA's own vocabulary -- `Option Base`, the `Dir`
+# and `Name` functions, `Line Input`, `GoTo` -- which is why a procedure
+# innocently called `Go` binds to slot 92 while `Zebra` gets a project
+# identifier.
+#
+# Harvested by compiling probes that assign to ~180 candidate names and
+# reading back which landed below slot 261. That is a sample, not the
+# whole table: 261 slots exist and only these are mapped, so an unmapped
+# reserved name still resolves to a fresh project identifier, which is
+# wrong but detectable -- Access renumbers it on its next compile.
+RESERVED_SLOT = {"b": 11, "base": 12, "dir": 62, "f": 81, "go": 92,
+                 "line": 115, "name": 130, "text": 177}
 
 # A few built-ins are values rather than calls and appear bare, loaded
 # straight from their slot: Access rewrites `Date()` to `Date` and emits
@@ -410,6 +420,30 @@ def _res(names, n):
         return 2 * RESERVED_SLOT[low] + 2
     raise CompileError("unknown identifier " + repr(n)
                        + " (not in project identifier table)")
+
+
+# A declaration is eight bytes of p-code and a 24-byte header record.
+# The p-code half is the same whatever the type -- everything that
+# distinguishes a Long from a String lives in the record, which
+# `accdb_write.add_declaration` writes. `VarDefn` carries op_type 1 and a
+# u32 `var_`, the record's offset from the declaration base.
+DECLARATION = re.compile(
+    r"(?i)^dim\s+([A-Za-z_]\w*)\s*(?:as\s+([A-Za-z_]\w*))?$")
+
+
+def is_declaration(text):
+    """``(name, type)`` for a `Dim` line, or None. No type means Variant."""
+    m = DECLARATION.match(text.strip())
+    if not m:
+        return None
+    return m.group(1), (m.group(2) or "Variant")
+
+
+def declaration_pcode(var_):
+    """The p-code for one `Dim`, given its record's ``var_`` offset."""
+    return b"".join(encode_instruction(x) for x in
+                    (_ins(OP["Dim"]), _ins(OP["VarDefn"], (("var_", var_),),
+                                           op_type=1)))
 
 
 # --- statement compiler ------------------------------------------------
@@ -720,6 +754,10 @@ def referenced_names(text):
     so skip it rather than trying.
     """
     if is_comment(text):
+        return []
+    if is_declaration(text):
+        # `Dim x As Long` introduces `x`, which the caller adds itself;
+        # the type name and `Dim`/`As` are grammar, not identifiers.
         return []
     out = []
     for kind, value in tokenize(text.strip()):

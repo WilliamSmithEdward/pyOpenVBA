@@ -617,12 +617,43 @@ a fresh 480-byte arena and clears the flag again. So the header grows by
 allocated -- which is exactly the "resize" that looked like an
 unmodelled reorganization.
 
+### Procedures are in the same chain
+
+The linked list does not begin at the first variable: a procedure has a
+record of its own immediately before it, at `464 + 64`, in the same list
+and the same shape. Adding a module's *first* declaration therefore links
+the procedure's record to it, and inherits the owner from there -- which
+is why frame offsets run `-32` for the procedure and then `-40`, `-48`
+for the variables.
+
+Two consequences worth stating. There is always a previous record to
+convert, so no special case is needed for the first declaration. And that
+record must be **patched field by field, not rewritten** from the
+variable template: a procedure record uses fields a variable does not,
+and overwriting them corrupts it.
+
 ### What reproduces
 
-Appending is **byte-identical to Access on all 17 measured transitions**,
-one through nine declarations across four independent name series,
-including four-way hash collisions, a collision with the procedure name,
-arena exhaustion and arena reallocation. There is no declaration ceiling.
+
+
+Appending is **byte-identical to Access on 17 of 18 measured
+transitions**, zero through nine declarations across four independent
+name series, including four-way hash collisions, a collision with the
+procedure name, arena exhaustion and arena reallocation. There is no
+declaration ceiling. The one exception is a single u32 in the per-build
+scratch region whose value is arbitrary across modules (0, 1, 0xffff...),
+the same class as the cookie at offset 41 -- and the module runs.
+
+`Dim` is wired through `rewrite_module.py`, so it works from the command
+line like any other statement:
+
+```
+Dim aa As Long / Dim bb As Long / Dim cc As Double
+aa = 20 / bb = 22 / cc = 0.5 / Go = (aa + bb) * cc     -> 21
+```
+
+Existing declarations must be kept, in order, before any the rewrite
+adds: a record can be appended but not yet released.
 
 The written declaration **runs, with its type honoured**: a synthesized
 `Dim bb As Long` makes `bb = 3.7` return 4, and the same code with

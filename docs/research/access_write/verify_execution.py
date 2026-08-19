@@ -43,6 +43,12 @@ CASES: list[tuple[str, list[str], object]] = [
         "End Select",
         "Probe = n",
     ], 145),
+    # Declarations: the record, its hash bucket and the arena all have to
+    # be right, and the declared type has to actually bind -- `n` being a
+    # Long is what makes 3.7 come back as 4.
+    ("declares", ["Dim n As Long", "Dim r As Double",
+                  "n = 42", "r = 0.5", "Probe = n * r"], 21.0),
+    ("typed", ["Dim n As Long", "n = 3.7", "Probe = n"], 4),
 ]
 
 SOURCE = (

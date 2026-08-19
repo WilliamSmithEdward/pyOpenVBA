@@ -679,8 +679,11 @@ def add_declaration(header: bytes, name: str, vartype: int, name_operand: int,
     insert = DECL_BASE + DECL_FIRST_VAR + DECL_RECORD * count
     out = bytearray(header[:insert]) + bytearray(DECL_RECORD)         + bytearray(header[insert:])
     previous = insert - DECL_RECORD
-    owner = (int.from_bytes(header[previous + 18:previous + 20], "little")
-             if count else 0)
+    # The chain does not start at the first variable: the procedure has a
+    # record of its own immediately before it, in the same linked list and
+    # the same shape. So there is always a previous record to convert, and
+    # the owner is always inherited from it.
+    owner = int.from_bytes(header[previous + 18:previous + 20], "little")
     out[insert:insert + DECL_RECORD] = _decl_words(
         [vartype, _U16_NULL, 0, 0, _U16_NULL, _U16_NULL, 0, 0,
          _DECL_OWNER_TAG, owner, _U16_NULL, _U16_NULL])
@@ -710,17 +713,22 @@ def add_declaration(header: bytes, name: str, vartype: int, name_operand: int,
     displaced = int.from_bytes(out[slot:slot + 4], "little")
     out[slot:slot + 4] = (DECL_FIRST_VAR + DECL_RECORD * count).to_bytes(
         4, "little")
-    if count:
-        # The record before it stops being last, gains a frame offset, and
-        # takes custody of whatever this name displaced from its bucket --
-        # its own offset when a variable lost the bucket, the procedure's
-        # when a procedure did, and the null marker when it was empty.
-        kept = int.from_bytes(header[previous:previous + 2], "little")
-        out[previous:previous + DECL_RECORD] = _decl_words(
-            [kept, _U16_NULL, 0, 0, _DECL_NEXT_TAG, name_operand,
-             displaced & 0xFFFF, (displaced >> 16) & 0xFFFF,
-             (0xFFD8 - 8 * (count - 1)) & 0xFFFF,
-             _U16_NULL, _U16_NULL, _U16_NULL])
+    # The record before it stops being last, gains a frame offset, and
+    # takes custody of whatever this name displaced from its bucket -- its
+    # own offset when a variable lost the bucket, the procedure's when a
+    # procedure did, and the null marker when it was empty. Frame offsets
+    # run -32 for the procedure's own record, then -40, -48 and so on, so
+    # every local occupies eight bytes whatever its type.
+    # Patch only the fields that change. The previous record may be a
+    # procedure's rather than a variable's, and rewriting it wholesale
+    # from the variable template clobbers fields only procedures use.
+    for index, value in ((4, _DECL_NEXT_TAG), (5, name_operand),
+                         (6, displaced & 0xFFFF),
+                         (7, (displaced >> 16) & 0xFFFF),
+                         (8, (0xFFE0 - 8 * count) & 0xFFFF),
+                         (9, _U16_NULL)):
+        at = previous + 2 * index
+        out[at:at + 2] = (value & 0xFFFF).to_bytes(2, "little")
     arena = _consume_arena(out, insert + DECL_RECORD)
     for offset, delta in _DECL_FIXUPS_ABS:
         # The size fields count the whole header, so they follow the net

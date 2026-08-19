@@ -140,6 +140,16 @@ Because descriptor size varies, records parse most reliably when
 **anchored on the `10 00` trailer** rather than chained forward from a
 guessed start.
 
+Two traps, both hit in practice:
+
+- The 6-byte-descriptor variant can fabricate a record a few bytes
+  *before* the real table, producing an equal-length chain that starts
+  mid-record (symptom: a leading `cel` or `xcel` instead of `Excel`).
+- The fix is to validate the type byte: every observed `type_byte` is a
+  **multiple of 4 and at most `0xAC`**. That rejects ASCII bytes posing
+  as types (e.g. `0x45` `E`). With this check the first record is the
+  host name -- `Excel`, `Word`, `PowerPoint` -- on 10/10 fixtures.
+
 The table is ordered, and that ordinal position is what p-code
 references.
 
@@ -171,6 +181,41 @@ identifiers, compiled by Excel:
 derivation is unknown; it presumably reserves operand space for
 built-in / predeclared slots. Treat it as calibrated, not proven
 universal.
+
+### 5.1 The secondary identifier space (OPEN)
+
+Not every name operand lives in the project table. Operands **below
+`0x20E`** reference a second space that section 5 does not cover, and
+the names they denote are *absent from the project table entirely*.
+
+Confirmed cases, each compiled by Excel and checked against its table:
+
+| name | kind | operand | in project table? |
+|------|------|---------|-------------------|
+| `b` | local variable (`Dim a, b, c`) | `0x0018` | no |
+| `F` | user function (assigned and called) | `0x00A4` | no |
+| `s` | ByRef parameter | -- | no |
+| `Left` | VBA intrinsic | `0x00DC` | no |
+
+Meanwhile `a`, `c`, `x`, `r`, and `UCase` from the same modules *are* in
+the table and resolve correctly, so this is not a parser failure.
+
+Two further clues:
+
+- The table contains **decorated** forms for some intrinsics --
+  `_B_var_Left` and `_B_str_UCase` appear alongside the plain `UCase` --
+  suggesting the compiler distinguishes call forms.
+- The bytes immediately preceding the main table contain both the
+  operand value and the name (`... 18 00 ff 03 00 00 62`, where `0x62`
+  is `b` and `0x0018` is its operand): a differently-shaped record in a
+  region that precedes the table proper.
+
+Tested and **ruled out**: that these operands are declaration-table
+offsets (`DECL_BASE + operand` yields `0x0000` / `0xFFFF`), and that
+they index the project table from an alternative base.
+
+Practical impact: a decompiler resolves most names and should render the
+rest as a stable placeholder rather than guessing.
 
 ---
 
@@ -307,10 +352,48 @@ The only difference from the input is the optional `Call` keyword
 discards -- both forms emit identical p-code, so it is unrecoverable by
 construction rather than a gap in decoding.
 
-Coverage note: this holds for the statement forms exercised here
-(procedure declarations, `Dim` with declared types, literal assignment,
-call statements). Control flow, expressions, and UDTs are decoded as
-instructions but not yet re-rendered as source.
+### 8.1 Expressions and control flow
+
+P-code is a **stack machine**, so expressions reconstruct by simulating
+it: `Ld b | Ld c | LitDI2 2 | Mul | Add | St a` pops back to
+`a = b + c * 2`, with precedence and parentheses (`Paren`) preserved.
+
+Binary operators map directly: `Add` `+`, `Sub` `-`, `Mul` `*`, `Div`
+`/`, `IDiv`, `Mod`, `Pwr` `^`, `Concat` `&`, `Eq` `=`, `Ne` `<>`,
+`Lt` / `Gt` / `Le` / `Ge`, `Is`, `Like`, and
+`And` / `Or` / `Xor` / `Eqv` / `Imp`. Unary: `Not`, `UMi` (negation).
+
+Control flow is explicit in the opcode stream, which makes block
+structure and indentation recoverable:
+
+| construct | opcodes |
+|---|---|
+| `If` / `ElseIf` / `Else` / `End If` | `IfBlock`, `ElseIfBlock`, `ElseBlock`, `EndIfBlock` |
+| `For` / `Next` | `StartForVariable`, `EndForVariable`, `For` / `ForStep`, `Next` / `NextVar` |
+| `Do While` / `Loop` | `DoWhile`, `Loop` (also `DoUntil`, `LoopWhile`, `LoopUntil`) |
+| `While` / `Wend` | `While`, `Wend` |
+| `Select Case` | `SelectCase`, `CaseDone`, `CaseElse`, `EndSelect` |
+
+Verified against Excel-compiled modules, the reconstruction is
+**character-for-character identical** to the original source for
+conditionals, both loop forms, and `Select Case`:
+
+```vba
+Sub S()
+    Dim i As Long, t As Long
+    For i = 1 To 10
+        t = t + i
+    Next i
+    For i = 10 To 1 Step -2
+        t = t - 1
+    Next
+End Sub
+```
+
+Coverage note: procedure *signatures* render as `Sub Name()` without
+parameter lists or return types, and arrays, `Const`, `With`, and UDTs
+are not yet re-rendered. Names in the secondary space (section 5.1)
+appear as placeholders.
 
 ---
 

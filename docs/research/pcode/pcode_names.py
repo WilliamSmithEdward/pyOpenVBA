@@ -31,16 +31,28 @@ class Identifier:
 def _printable(b: bytes) -> bool:
     return all(0x20 <= c < 0x7F for c in b)
 
+def _plausible_type(tb: int) -> bool:
+    """Every observed record type is a multiple of 4, at most 0xAC.
+
+    Without this check a byte that happens to be ASCII (e.g. 0x45 'E')
+    can pose as a type and produce a false record one byte before the
+    real table, yielding a chain of equal length that starts
+    mid-record (symptom: a leading 'xcel' / 'cel' instead of 'Excel').
+    """
+    return tb % 4 == 0 and tb <= 0xAC
+
 def parse_identifiers(vba_project_stream: bytes) -> list[Identifier]:
     """Parse the ordered identifier table from a ``_VBA_PROJECT`` stream."""
     s = vba_project_stream
     n = len(s)
-    cands: list[tuple[int,int,str,int,int]] = []  # (start, end, name, id, type)
+    cands: list[tuple[int,int,str,int,int,int]] = []  # (start,end,name,id,type,desc)
     for p in range(n - 6):
         ln = s[p]
         if not (0 < ln < 64):
             continue
         tb = s[p+1]
+        if not _plausible_type(tb):
+            continue
         for desc in (0, 6):           # some types carry a 6-byte descriptor
             ns = p + 2 + desc
             ne = ns + ln
@@ -53,20 +65,33 @@ def parse_identifiers(vba_project_stream: bytes) -> list[Identifier]:
             if not _printable(nm):
                 continue
             cands.append((p, end, nm.decode("ascii"),
-                          int.from_bytes(s[ne:ne+2],"little"), tb))
-            break
+                          int.from_bytes(s[ne:ne+2],"little"), tb, desc))
     if not cands:
         return []
-    # Longest run of records that chain end->start, scanning greedily.
-    by_start = {c[0]: c for c in cands}
+    # Longest run of records that chain end->start.
+    #
+    # Tie-break matters: the 6-byte-descriptor variant can produce a
+    # false record that coincidentally aligns a few bytes before the
+    # real table start and yields a chain of equal length beginning
+    # mid-record (observed: a bogus leading 'cel' instead of 'Excel').
+    # Among equal-length chains prefer the one whose first record
+    # needs no descriptor, then the latest start -- the real table
+    # begins at a plain record.
+    by_start: dict[int, tuple] = {}
+    for c in cands:
+        # index by start; prefer the descriptor-free interpretation
+        if c[0] not in by_start or c[5] < by_start[c[0]][5]:
+            by_start[c[0]] = c
     best: list[tuple] = []
+    best_key = None
     for c in cands:
         chain=[c]; cur=c
         while cur[1] in by_start:
             cur = by_start[cur[1]]
             chain.append(cur)
-        if len(chain) > len(best):
-            best = chain
+        key = (len(chain), c[5] == 0, c[0])
+        if best_key is None or key > best_key:
+            best_key = key; best = chain
     return [Identifier(i, c[2], c[3], c[4], c[0]) for i, c in enumerate(best)]
 
 def resolve_name(operand: int, table: list[Identifier]) -> str | None:

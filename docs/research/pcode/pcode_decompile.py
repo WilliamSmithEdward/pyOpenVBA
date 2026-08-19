@@ -46,17 +46,23 @@ def find_decl_base(module_stream: bytes, table: list[Identifier],
            if a in ("func_", "var_")]
     if not ops:
         return None
+    # Maximise resolutions rather than demanding all of them: an operand
+    # may reference the secondary identifier region (see pcode_reference
+    # section 5.1), which would otherwise veto an otherwise-correct base.
+    best_base, best_hits = None, 0
     for base in range(0, min(len(module_stream), 4096)):
-        good = True
+        hits = 0
         for v in ops:
             p = base + v
             if p + 2 > len(module_stream):
-                good = False; break
-            if not resolve_name(int.from_bytes(module_stream[p:p+2], "little"), table):
-                good = False; break
-        if good:
-            return base
-    return None
+                continue
+            if resolve_name(int.from_bytes(module_stream[p:p+2], "little"), table):
+                hits += 1
+        if hits > best_hits:
+            best_base, best_hits = base, hits
+            if hits == len(ops):
+                break
+    return best_base
 
 def resolve_decl(module_stream: bytes, operand: int, base: int | None,
                  table: list[Identifier]) -> str | None:

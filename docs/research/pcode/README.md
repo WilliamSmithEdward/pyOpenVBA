@@ -12,6 +12,7 @@ imported by `src/pyopenvba`.
 | `pcode_names.py` | `_VBA_PROJECT` identifier-table parser and name-operand resolution (`0x20E + 2*index`). Host-agnostic. |
 | `pcode_decompile.py` | Annotated disassembly and best-effort source reconstruction, including `func_` / `var_` declaration-name resolution. |
 | `compile_oracle.py` | Dev-time oracle: pyOpenVBA writes source, Excel compiles and saves, pyOpenVBA reads the compiled p-code back. |
+| `pcode_source.py` | Full source reconstruction: stack-machine expression rebuilding plus control-flow and indentation rendering. |
 | `batch.py` | Compiles many source variants through one Excel session, for differential analysis. |
 
 The two oracle modules drive Excel through `pyvbaharness` and are

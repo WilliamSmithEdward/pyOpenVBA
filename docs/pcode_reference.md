@@ -275,6 +275,57 @@ exist.
 
 ---
 
+### 6.2 Procedure signatures
+
+A `FuncDefn` operand is an offset into the declaration table, and the
+procedure's whole signature is reachable from it:
+
+```
+base + func_operand + 0x00              the procedure's own name entry
+base + func_operand + 0x58 + k * 0x20   parameter k (VARTYPE at +14)
+```
+
+The **return type** is a second entry repeating the procedure name with
+a VARTYPE set; its offset is not fixed, so it is found by scanning
+forward for that name with a type.
+
+`Sub` vs `Function` vs `Property` comes from the closing opcode --
+`EndSub`, `EndFunc`, `EndProp` -- paired with its `FuncDefn` in order.
+
+Two traps worth recording, because both produced wrong output before
+being fixed:
+
+- **Parameters and locals share the slot region.** A naive scan reads
+  `Dim`-declared locals as extra parameters (`Sub S()` became
+  `Sub S(r As Long)`). The `var_` operands of `VarDefn` mark exactly
+  which slots are locals; stop the parameter scan there.
+- **`DECL_BASE` must be calibrated on procedure names, not just on
+  "something resolves".** Since a `FuncDefn` operand points at its own
+  name, requiring every procedure name to land is a far stronger
+  constraint. Calibrating loosely settles on a base shifted by `0x2C`
+  that still resolves other operands. Scoring candidate bases by
+  resolved names *plus* typed parameters pins it: a `Sub B` whose name
+  collides with the built-in `b` (section 5.1) otherwise defeats a
+  strict project-table-only rule, and a base shifted by `0x58` can
+  satisfy the names alone by landing on the parameter slots. With
+  scoring, every standard module tested calibrates to **450**.
+
+Recovered signatures are exact for `Sub` / `Function` / `Property`,
+parameter names and types, and return types:
+
+```vba
+Sub A(p1 As Long, p2 As String)
+Function B(q1 As Double) As Boolean
+Property X(v As Long) As Long
+```
+
+Not encoded in p-code, so unrecoverable by construction: `ByVal` /
+`ByRef`, `Optional` and default values, and `Private` / `Public`.
+
+**OPEN:** `Optional` parameters with defaults are not located by the
+`+0x58` stride, and `Property Get` / `Let` / `Set` are not yet
+distinguished from one another.
+
 ## 7. Assembler status (p-code writing)
 
 Verified milestones, all **byte-exact against Office-compiled output**:
@@ -392,10 +443,18 @@ Sub S()
 End Sub
 ```
 
-Coverage note: procedure *signatures* render as `Sub Name()` without
-parameter lists or return types, and arrays, `Const`, `With`, and UDTs
-are not yet re-rendered. Names in the secondary space (section 5.1)
-appear as placeholders.
+Round-trip fidelity, measured over a corpus compiled by Excel and
+decompiled back: **11/11 exact**, normalising only for what p-code
+genuinely does not encode -- the optional `Call` keyword, `ByVal` /
+`ByRef`, `$` type suffixes, and the casing of names that resolve
+through the runtime built-in table.
+
+Across every committed Office fixture, **54/54 modules decompile with
+no unmapped opcodes**, including a 230-line real-world module whose
+comment wall reproduces exactly.
+
+Coverage note: arrays, `Const`, `With`, and UDTs are decoded as
+instructions but not yet re-rendered as source.
 
 ---
 
@@ -430,7 +489,10 @@ compile error otherwise blocks on a modal dialog.
 - The full contents of the runtime built-in identifier table
   (section 5.1); the mechanism is understood, the map is partial.
 - `rec_` indirect-table layout (user-defined types) and array / `New`
-  declarators. Scalar declared types are solved (section 6.1).
+  declarators. Scalar declared types are solved (section 6.1) and
+  procedure signatures in section 6.2.
+- `Optional` parameter slots and telling `Property Get` / `Let` / `Set`
+  apart (section 6.2).
 - Source-to-p-code compilation: lexer, parser, codegen, and the slot
   allocation Office's compiler performs.
 

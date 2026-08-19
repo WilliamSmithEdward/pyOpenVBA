@@ -17,7 +17,9 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "src"))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from pcode_decompile import find_decl_base, resolve_decl, resolve_type  # noqa: E402
+from pcode_decompile import (  # noqa: E402
+    find_decl_base, read_signature, resolve_decl, resolve_type,
+)
 from pcode_names import parse_identifiers, resolve_name  # noqa: E402
 from pyopenvba.vba_pcode import disassemble_module_stream  # noqa: E402
 
@@ -78,6 +80,24 @@ def decompile(module_stream: bytes, vba_project_stream: bytes,
                 return resolve_type(module_stream, v, dbase)
         return None
 
+    # Pair each FuncDefn with the End* that closes it, so Sub /
+    # Function / Property and the return type can be rendered.
+    flat = [i for l in dis.lines for i in l.instructions]
+    local_offsets = frozenset(
+        v for i in flat if i.mnemonic.startswith("VarDefn")
+        for a, v in i.operands if a == "var_"
+    )
+    proc_kind: dict[int, str] = {}
+    pending: list[int] = []
+    for i in flat:
+        if i.mnemonic in ("FuncDefn", "FuncDefnSave"):
+            for a, v in i.operands:
+                if a == "func_":
+                    pending.append(v)
+        elif i.mnemonic in ("EndSub", "EndFunc", "EndFunction", "EndProp"):
+            if pending:
+                proc_kind[pending.pop(0)] = i.mnemonic
+
     out: list[str] = []
     in_case = [False]
     indent = 1
@@ -101,7 +121,23 @@ def decompile(module_stream: bytes, vba_project_stream: bytes,
             m = op.mnemonic
 
             if m in ("FuncDefn", "FuncDefnSave"):
-                out.append(f"Sub {dname(op) or '<proc>'}()")
+                fo = next((v for a, v in op.operands if a == "func_"), None)
+                end = proc_kind.get(fo, "EndSub") if fo is not None else "EndSub"
+                kw = {"EndProp": "Property", "EndFunc": "Function",
+                      "EndFunction": "Function"}.get(end, "Sub")
+                if fo is not None:
+                    pname, params, ret = read_signature(
+                        module_stream, fo, dbase, ids,
+                        is_function=(kw != "Sub"),
+                        local_offsets=local_offsets)
+                else:
+                    pname, params, ret = None, [], None
+                arglist = ", ".join(
+                    f"{a} As {b}" if b else a for a, b in params)
+                sig = f"{kw} {pname or dname(op) or '<proc>'}({arglist})"
+                if ret and kw != "Sub":
+                    sig += f" As {ret}"
+                out.append(sig)
                 indent = 1
             elif m == "EndSub":
                 out.append("End Sub"); indent = 1

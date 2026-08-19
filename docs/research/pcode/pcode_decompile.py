@@ -10,6 +10,14 @@ sys.path.insert(0,"F:/GitHub/pyOpenVBA/src")
 from pyopenvba.vba_pcode import disassemble_module_stream
 from pcode_names import parse_identifiers, resolve_name, Identifier
 
+# Procedure layout, relative to DECL_BASE + func_operand:
+#   +0x00              the procedure's own name entry
+#   +0x58 + k*0x20     parameter k (name entry; VARTYPE at +14 as usual)
+# The return-type entry repeats the procedure name with a type set; its
+# offset is not fixed, so it is located by scanning.
+PROC_PARAM_OFFSET = 0x58
+PROC_PARAM_STRIDE = 0x20
+
 # Declared-type byte lives at DECL_BASE + var_operand + TYPE_FIELD_OFFSET
 # and holds a standard OLE Automation VARTYPE code.
 TYPE_FIELD_OFFSET = 14
@@ -44,6 +52,52 @@ def find_decl_base(module_stream: bytes, table: list[Identifier],
     dis = disassemble_module_stream(module_stream, is_64bit=is_64bit)
     ops = [v for l in dis.lines for i in l.instructions for a, v in i.operands
            if a in ("func_", "var_")]
+    # A FuncDefn's operand points directly at its own name entry, which
+    # is a far stronger constraint than "some offset resolves": prefer a
+    # base where every procedure name lands. Calibrating on var_ alone
+    # can settle on a shifted base that still resolves (off by 0x2C in
+    # observed single-procedure modules).
+    fops = [v for l in dis.lines for i in l.instructions for a, v in i.operands
+            if a == "func_"]
+    if fops:
+        # Score candidate bases instead of taking the first that fits.
+        # A procedure name may legitimately resolve through the built-in
+        # space (a Sub called B collides with built-in 'b'), so a strict
+        # project-table-only rule rejects the true base; conversely a
+        # shifted base can satisfy the names alone by landing on the
+        # parameter slots. Counting typed parameters as well
+        # disambiguates: only the true base makes both line up.
+        from pcode_names import NAME_OPERAND_BASE
+        best_base, best_score = None, -1
+        for base in range(0, min(len(module_stream), 4096)):
+            score = 0
+            ok = True
+            for v in fops:
+                q = base + v
+                if q + 2 > len(module_stream):
+                    ok = False; break
+                u = int.from_bytes(module_stream[q:q+2], "little")
+                if not resolve_name(u, table):
+                    ok = False; break
+                score += 4 if u >= NAME_OPERAND_BASE else 3
+            if not ok:
+                continue
+            for v in fops:                      # typed parameters
+                for k in range(16):
+                    off = v + PROC_PARAM_OFFSET + k * PROC_PARAM_STRIDE
+                    q = base + off
+                    if q + 2 > len(module_stream):
+                        break
+                    if not resolve_name(
+                            int.from_bytes(module_stream[q:q+2], "little"), table):
+                        break
+                    if resolve_type(module_stream, off, base) is None:
+                        break
+                    score += 2
+            if score > best_score:
+                best_base, best_score = base, score
+        if best_base is not None:
+            return best_base
     if not ops:
         return None
     # Maximise resolutions rather than demanding all of them: an operand
@@ -174,3 +228,47 @@ def reconstruct(module_stream: bytes, vba_project_stream: bytes,
             src.append(f"    {nm(call)}"+(" "+", ".join(args) if args else "")); continue
         src.append("    ' [unmapped] "+" | ".join(mn))
     return "\n".join(src)
+
+
+def read_signature(module_stream: bytes, func_operand: int,
+                   base: int | None, table, *, is_function: bool,
+                   local_offsets: frozenset[int] | None = None):
+    """Return ``(name, [(param, type), ...], return_type)`` for a procedure.
+
+    The name sits at ``base + func_operand``; parameters follow at
+    ``+0x58`` in ``0x20`` strides. The return type is a second entry
+    repeating the procedure name with a VARTYPE set, located by scan.
+
+    Parameters and a procedure's *locals* share that slot region, so a
+    naive scan reads locals as extra parameters. ``local_offsets`` (the
+    ``var_`` operands of ``VarDefn``, i.e. everything the body declares
+    with ``Dim``) marks the slots to stop at.
+    """
+    locals_ = local_offsets or frozenset()
+    if base is None:
+        return (None, [], None)
+    name = resolve_decl(module_stream, func_operand, base, table)
+    params: list[tuple[str, str | None]] = []
+    for k in range(64):
+        off = func_operand + PROC_PARAM_OFFSET + k * PROC_PARAM_STRIDE
+        p = base + off
+        if p + 2 > len(module_stream):
+            break
+        if off in locals_:
+            break                       # a Dim-declared local, not a parameter
+        pname = resolve_decl(module_stream, off, base, table)
+        ptype = resolve_type(module_stream, off, base)
+        # Every parameter carries a declared type (Variant when implicit);
+        # a typeless entry means the parameter list has ended.
+        if not pname or pname == name or ptype is None:
+            break
+        params.append((pname, ptype))
+    ret = None
+    if is_function and name:
+        for off in range(func_operand, min(func_operand + 0x400, len(module_stream) - base), 2):
+            if resolve_decl(module_stream, off, base, table) == name:
+                t = resolve_type(module_stream, off, base)
+                if t:
+                    ret = t
+                    break
+    return (name, params, ret)

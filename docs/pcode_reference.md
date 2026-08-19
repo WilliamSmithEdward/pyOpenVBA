@@ -532,6 +532,7 @@ them:
 |---|---|
 | `Set x = e` | `SetStmt` (marker), then `Set` / `MemSet` |
 | `a(i) = e` | `ArgsSt` (value pushed first, then indices) |
+| `o.M(i)` / `o.M(i) = e` | `ArgsMemLd` / `ArgsMemSt`; **push order is value (if any), then arguments, then the object last** -- so unwind object, arguments, value. `ArgsDict*` are the `!` forms, `Args*With` drop the object |
 | `o.m = e` / `.m = e` | `MemSt` / `MemStWith` |
 | `x!key` | `DictLd` / `DictSt` and their `With` variants |
 | `With o` ... `End With` | `StartWithExpr`, `With`, `EndWith` |
@@ -632,10 +633,33 @@ into expressions. The measured results:
   fixture in the repository -- zero unmapped opcodes, zero undecoded
   type descriptors**, two unresolved names (the same two cases).
 
-The corpus is `docs/research/pcode/roundtrip.py`; the sweep is
-`docs/research/pcode/sweep.py`. Both are runnable, and the round-trip
-prints a unified diff for anything that is not byte-identical rather
-than counting it as a pass.
+- **Semantic round-trip: 19 of 19 modules equivalent**, including an
+  8,060-opcode real-world module. This is the strongest of the three,
+  because it needs no original source: decompile a compiled module,
+  recompile the result with Excel, and compare the opcode streams. If
+  they agree, the reconstruction *means* the same thing, whatever the
+  original text looked like.
+
+The corpus is `docs/research/pcode/roundtrip.py`, the sweep is
+`docs/research/pcode/sweep.py`, and the semantic gate is
+`docs/research/pcode/semantic_roundtrip.py`. All three are runnable, and
+the round-trip prints a unified diff for anything that is not
+byte-identical rather than counting it as a pass.
+
+The semantic gate earned its place immediately by catching a defect the
+text round-trip structurally could not: every `ArgsMem*` / `ArgsDict*`
+opcode pushes its **object last**, above the arguments, with the assigned
+value pushed first. The decompiler popped arguments before the object, so
+`ws.Cells(r, c).Interior.Color = HelperValue(idx)` came back as
+`Cells(c, ws).Interior.Color = r` -- the object consumed as an argument
+and the value expression dropped. Nothing in a source-first corpus
+exercises that, because the bug only appears in code the corpus did not
+write. Operand order is now measured, not assumed (section 6.7).
+
+Line boundaries are deliberately excluded from the comparison: `Case 0:
+x = f()` and the same statements on separate lines compile to identical
+opcodes, so a pure reflow is reported as equivalent rather than as a
+failure.
 
 What round-trips exactly: expressions with precedence and parentheses;
 `If` / `ElseIf` / `Else` and the single-line `If ... Then ... Else`;

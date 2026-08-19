@@ -458,12 +458,15 @@ def decompile(module_stream: bytes, vba_project_stream: bytes,
                 for a, v in op.operands:
                     if a == "0x":
                         argc = v
+                # The object is pushed last, so it comes off before the
+                # arguments; a With-relative call has no object at all.
+                owner = (f.pop() if m == "ArgsMemCall" and f.stack else None)
                 args = [f.pop() for _ in range(min(argc, len(f.stack)))][::-1]
                 callee = nm(op)
                 if m == "ArgsMemCallWith":
                     callee = "." + callee
-                elif m == "ArgsMemCall" and f.stack:
-                    callee = f"{f.pop()}.{callee}"
+                elif owner is not None:
+                    callee = f"{owner}.{callee}"
                 call = f"{callee}({', '.join(args)})" if args else callee
                 # statement position if nothing consumes it
                 if i == len(ins) - 1:
@@ -476,11 +479,15 @@ def decompile(module_stream: bytes, vba_project_stream: bytes,
                     f.push(call)
             elif m in ("ArgsSt", "ArgsMemSt", "ArgsDictSt"):
                 argc = next((v for a, v in op.operands if a == "0x"), 0)
+                # Push order is value, arguments, object -- so unwind it
+                # in reverse: object, arguments, then the value.
+                owner = (f.pop() if m != "ArgsSt" and f.stack else None)
                 args = [f.pop() for _ in range(min(argc, len(f.stack)))][::-1]
                 value = f.pop()
                 target = nm(op)
-                if m == "ArgsMemSt" and f.stack:
-                    target = f"{f.pop()}.{target}"
+                if owner is not None:
+                    joiner = "!" if m == "ArgsDictSt" else "."
+                    target = f"{owner}{joiner}{target}"
                 stmt = f"{target}({', '.join(args)}) = {value}"
             elif m == "MemSt":
                 obj = f.pop() if f.stack else "<?>"
@@ -495,6 +502,16 @@ def decompile(module_stream: bytes, vba_project_stream: bytes,
                 argc = next((v for a, v in op.operands if a == "0x"), 0)
                 args = [f.pop() for _ in range(min(argc, len(f.stack)))][::-1]
                 stmt = f".{nm(op)}({', '.join(args)}) = {f.pop()}"
+            elif m in ("ArgsSet", "ArgsMemSet", "ArgsDictSet"):
+                argc = next((v for a, v in op.operands if a == "0x"), 0)
+                owner = (f.pop() if m != "ArgsSet" and f.stack else None)
+                args = [f.pop() for _ in range(min(argc, len(f.stack)))][::-1]
+                value = f.pop()
+                target = nm(op)
+                if owner is not None:
+                    joiner = "!" if m == "ArgsDictSet" else "."
+                    target = f"{owner}{joiner}{target}"
+                stmt = f"Set {target}({', '.join(args)}) = {value}"
             elif m in ("ArgsMemSetWith", "ArgsDictSetWith"):
                 argc = next((v for a, v in op.operands if a == "0x"), 0)
                 args = [f.pop() for _ in range(min(argc, len(f.stack)))][::-1]
@@ -649,13 +666,20 @@ def decompile(module_stream: bytes, vba_project_stream: bytes,
                 stmt = "DoEvents"
             elif m == "Erase":
                 stmt = f"Erase {f.pop()}"
-            elif m in ("ArgsLd", "ArgsMemLd", "IndexLd"):
+            elif m in ("ArgsLd", "ArgsMemLd", "ArgsDictLd", "IndexLd"):
                 argc = 0
                 for a, v in op.operands:
                     if a == "0x":
                         argc = v
+                # A member load carries its object on top of the stack,
+                # above the arguments; a plain call has none.
+                owner = (f.pop() if m in ("ArgsMemLd", "ArgsDictLd")
+                         and f.stack else None)
                 args = [f.pop() for _ in range(min(argc, len(f.stack)))][::-1]
                 base = nm(op) if m != "IndexLd" else f.pop()
+                if owner is not None:
+                    joiner = "!" if m == "ArgsDictLd" else "."
+                    base = f"{owner}{joiner}{base}"
                 f.push(f"{base}({', '.join(args)})")
             elif m == "StartForVariable":
                 pass

@@ -16,6 +16,7 @@ imported by `src/pyopenvba`.
 | `pcode_hash.py` | The `_VBA_PROJECT` identifier hash = OLE `LHashValOfNameSysA` (`h=0x0DEADBEE`, `37*h+LOOKUP[b]`, `% 65599 & 0xFFFF`) with the real 384-byte `Lookup_16` table, plus a byte-exact compact-record encoder. Exact on 6,825 ASCII and 20 accented names. |
 | `hash_probe.py` | Measures that hash against Excel and checks the model; `identifier_hashes.json` caches measured samples. |
 | `roundtrip.py` | Acceptance gate: compile a 37-entry corpus with Excel, decompile it, diff against the original source. |
+| `semantic_roundtrip.py` | Stronger gate for modules whose source is unknown: decompile, recompile with Excel, compare the opcode streams. 19/19 equivalent, including an 8,060-opcode real-world module. |
 | `sweep.py` | Coverage check: decompile every module in every fixture on disk and report anything unmapped. |
 | `compile_oracle.py` | Dev-time oracle: pyOpenVBA writes source, Excel compiles and saves, pyOpenVBA reads the compiled p-code back. |
 | `batch.py` | Compiles many source variants through one Excel session, for differential analysis. |

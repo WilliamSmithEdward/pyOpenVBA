@@ -45,6 +45,7 @@ def sweep(paths: list[Path]) -> int:
     lines = 0
     unmapped: dict[str, int] = {}
     unnamed = 0
+    no_table = 0
     untyped: dict[str, int] = {}
     for path in files:
         host = HOSTS[path.suffix.lower()]
@@ -59,6 +60,11 @@ def sweep(paths: list[Path]) -> int:
                         continue
                     modules += 1
                     identifiers = parse_identifiers(table)
+                    if not identifiers:
+                        # The project's identifier table was blanked (pyOpenVBA
+                        # zeroes _VBA_PROJECT on a mutating save), so names
+                        # cannot resolve. That is expected, not a decoding gap.
+                        no_table += 1
                     disassembly = disassemble_module_stream(stream, is_64bit=True)
                     lines += disassembly.num_lines
                     for source_line in disassembly.lines:
@@ -71,7 +77,8 @@ def sweep(paths: list[Path]) -> int:
                         if "[unmapped" in row:
                             key = row.split("[unmapped", 1)[1].strip(" ]")
                             unmapped[key] = unmapped.get(key, 0) + 1
-                        if "<var>" in row or "<proc>" in row or "<name>" in row:
+                        if ("<var>" in row or "<proc>" in row
+                                or "<name>" in row) and identifiers:
                             unnamed += 1
                     base = find_decl_base(stream, identifiers)
                     if base is None:
@@ -92,7 +99,8 @@ def sweep(paths: list[Path]) -> int:
             print(f"  skip {path.name}: {type(error).__name__}: {error}")
     print(f"{len(files)} files, {modules} modules, {lines} p-code lines")
     print(f"unmapped opcodes/mnemonics: {unmapped or 'none'}")
-    print(f"unresolved declaration names: {unnamed}")
+    print(f"unresolved declaration names: {unnamed}"
+          f"   ({no_table} modules had no identifier table to resolve against)")
     # typeref[n] entries are expected here: the sweep passes a null name
     # resolver, so only structural failures matter.
     structural = {k: v for k, v in untyped.items() if not k.startswith("typeref")}

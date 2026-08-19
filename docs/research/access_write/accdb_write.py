@@ -570,6 +570,162 @@ def write_module(data: bytearray, info: dict, new_row: bytes,
                      len(info["dir_raw"]))
 
 
+# --- declarations: Dim and its header record ---------------------------
+# `Dim x As Long` is eight bytes of p-code -- `Dim | VarDefn(var_)`, the
+# same eight whatever the type -- plus a 24-byte record in the pre-0xCAFE
+# header that carries everything else. Without the record Access crashes;
+# with the wrong type it silently miscompiles, so both halves are needed.
+#
+# Records live at ``DECL_BASE + var_``, with ``var_`` starting at 88 and
+# striding by 24, and form a linked list. Two shapes, by whether another
+# declaration follows:
+#
+#   not last  TT ffff 0000 0000 8460 next ffff ffff frame ffff ffff ffff
+#   last      TT ffff 0000 0000 ffff ffff 0000 0000 8302 owner ffff ffff
+#
+# `TT` is the VARTYPE code, `next` the following declaration's name
+# operand, `owner` the module's, and `frame` the variable's frame offset
+# (-40 for the first, eight less each time, so every local takes eight
+# bytes whatever its type). The last record has no frame field: that slot
+# carries the owner link instead.
+DECL_BASE = 464
+DECL_FIRST_VAR = 88
+DECL_RECORD = 24
+DECL_TABLE_GAP = 48
+DECL_BUCKETS = 16
+_DECL_NEXT_TAG = 0x8460
+_DECL_OWNER_TAG = 0x8302
+_U16_NULL = 0xFFFF
+_U32_NULL = 0xFFFFFFFF
+
+# VBA's VARTYPE codes, the same numbering the Coerce op_types use.
+VARTYPE = {"integer": 2, "long": 3, "single": 4, "double": 5,
+           "currency": 6, "date": 7, "string": 8, "object": 9,
+           "boolean": 11, "variant": 12, "byte": 17}
+
+# Fields to correct after inserting a record. Measured identical across
+# S1->T2, T2->T3 and the D-series: "abs" offsets sit before the insertion
+# point, "rel" offsets are measured from it.
+_DECL_FIXUPS_ABS = ((9, 24), (25, 24), (444, 24), (488, 24), (540, 24),
+                    (492, -8))
+_DECL_FIXUPS_REL = ((32, 24), (156, 24), (220, 24), (228, 24), (256, 24),
+                    (260, 24), (296, -8), (316, -24), (392, 24), (446, 24))
+
+# Appending is exact while the module has at most three declarations, and
+# stops being exact at four. Measured across three independent name
+# series (aa/bb/cc..., pp/qq/zz..., and a set chosen to collide in one
+# bucket): every 1->2, 2->3 and 3->4 transition reproduces Access byte
+# for byte, and every 4->5 differs by the same eight bytes in a second
+# structure -- one holding Variant-typed records -- that reorganizes at
+# five entries and is not yet characterized. Refused rather than guessed,
+# on the same principle as `_require_reproducible`.
+MAX_MODELLED_DECLARATIONS = 3
+
+
+def declaration_count(header: bytes) -> int:
+    """How many declarations the module already has."""
+    count = 0
+    while True:
+        off = DECL_BASE + DECL_FIRST_VAR + DECL_RECORD * count
+        if off + DECL_RECORD > len(header):
+            return count
+        tag = int.from_bytes(header[off + 16:off + 18], "little")
+        following = int.from_bytes(header[off + 8:off + 10], "little")
+        if tag == _DECL_OWNER_TAG:
+            return count + 1
+        if following != _DECL_NEXT_TAG:
+            return count
+        count += 1
+
+
+def _decl_words(fields) -> bytes:
+    return b"".join(int(f & 0xFFFF).to_bytes(2, "little") for f in fields)
+
+
+def _bump(out: bytearray, offset: int, delta: int, size: int = 4) -> None:
+    """Add ``delta``, leaving an all-ones null sentinel alone.
+
+    All-ones means "no value", not a number: incrementing it turns a null
+    pointer into offset 23, and Access crashes on the result.
+    """
+    null = _U16_NULL if size == 2 else _U32_NULL
+    value = int.from_bytes(out[offset:offset + size], "little")
+    if value == null:
+        return
+    out[offset:offset + size] = ((value + delta) & null).to_bytes(size, "little")
+
+
+def add_declaration(header: bytes, name: str, vartype: int, name_operand: int,
+                    *, line_delta: int = 1) -> bytes:
+    """Append one declaration to a module header.
+
+    ``name_operand`` is the new variable's entry in the project identifier
+    table, which must already exist. Returns the grown header; the caller
+    shifts ``MODULEOFFSET`` by :data:`DECL_RECORD` to match.
+    """
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "pcode"))
+    from pcode_hash import identifier_hash
+
+    count = declaration_count(header)
+    if count > MAX_MODELLED_DECLARATIONS:
+        raise ValueError(
+            f"module already has {count} declarations; appending past "
+            f"{MAX_MODELLED_DECLARATIONS} does not reproduce Access "
+            "byte-for-byte, so it is refused rather than guessed")
+    insert = DECL_BASE + DECL_FIRST_VAR + DECL_RECORD * count
+    out = bytearray(header[:insert]) + bytearray(DECL_RECORD)         + bytearray(header[insert:])
+    previous = insert - DECL_RECORD
+    owner = (int.from_bytes(header[previous + 18:previous + 20], "little")
+             if count else 0)
+    out[insert:insert + DECL_RECORD] = _decl_words(
+        [vartype, _U16_NULL, 0, 0, _U16_NULL, _U16_NULL, 0, 0,
+         _DECL_OWNER_TAG, owner, _U16_NULL, _U16_NULL])
+    # The name's bucket in the local-name hash table, which is the same
+    # OLE LHashValOfNameSysA the project identifier table uses. The table
+    # holds procedures as well as variables, so a new name can displace
+    # one either way.
+    table = (DECL_BASE + DECL_FIRST_VAR + DECL_RECORD * (count + 1)
+             + DECL_TABLE_GAP)
+    # A bucket holding a *procedure* record moves with the insertion; one
+    # holding a variable does not, because var_ offsets are fixed. Tell
+    # them apart by whether the value is one of the existing var_ slots.
+    variables = {DECL_FIRST_VAR + DECL_RECORD * k for k in range(count + 1)}
+    for bucket in range(DECL_BUCKETS):
+        cell = table + 4 * bucket
+        value = int.from_bytes(out[cell:cell + 4], "little")
+        if value != _U32_NULL and value not in variables:
+            out[cell:cell + 4] = (value + DECL_RECORD).to_bytes(4, "little")
+    # Records carrying a displaced *procedure* offset move with it too.
+    for k in range(count):
+        field = DECL_BASE + DECL_FIRST_VAR + DECL_RECORD * k + 12
+        value = int.from_bytes(out[field:field + 4], "little")
+        if value not in (_U32_NULL, 0) and value not in variables:
+            out[field:field + 4] = (value + DECL_RECORD).to_bytes(4, "little")
+    slot = table + 4 * (identifier_hash(name) % DECL_BUCKETS)
+    # Read the bucket in the *shifted* header, before overwriting it.
+    displaced = int.from_bytes(out[slot:slot + 4], "little")
+    out[slot:slot + 4] = (DECL_FIRST_VAR + DECL_RECORD * count).to_bytes(
+        4, "little")
+    if count:
+        # The record before it stops being last, gains a frame offset, and
+        # takes custody of whatever this name displaced from its bucket --
+        # its own offset when a variable lost the bucket, the procedure's
+        # when a procedure did, and the null marker when it was empty.
+        kept = int.from_bytes(header[previous:previous + 2], "little")
+        out[previous:previous + DECL_RECORD] = _decl_words(
+            [kept, _U16_NULL, 0, 0, _DECL_NEXT_TAG, name_operand,
+             displaced & 0xFFFF, (displaced >> 16) & 0xFFFF,
+             (0xFFD8 - 8 * (count - 1)) & 0xFFFF,
+             _U16_NULL, _U16_NULL, _U16_NULL])
+    for offset, delta in _DECL_FIXUPS_ABS:
+        _bump(out, offset, delta)
+    for offset, delta in _DECL_FIXUPS_REL:
+        _bump(out, insert + offset, delta)
+    for offset in (516, 518):
+        _bump(out, offset, line_delta, size=2)
+    return bytes(out)
+
+
 # --- the __SRP_* compiled-code cache -----------------------------------
 # Access keeps a second, compiled form of every module in storage rows
 # named ``__SRP_0``, ``__SRP_1``, ... -- the same performance cache that

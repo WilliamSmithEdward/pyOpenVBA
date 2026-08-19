@@ -550,6 +550,177 @@ differences -- pyOpenVBA's source-only write path leaves databases in
 that state, and counting them as code-generation defects made the total
 move every time the compiler learned a new statement.
 
+## `Dim`: the local-name hash table, solved
+
+`Dim x As Long` is eight bytes of p-code -- `Dim | VarDefn(var_)`, the
+same eight whatever the type -- plus a 24-byte record in the pre-0xCAFE
+header carrying everything else. Two experiments ruled out every cheap
+route before the real one was found:
+
+- **Source-only** (compile the `Dim` away, let the variable be an
+  implicit Variant) runs, but silently miscompiles:
+  `Dim x As Long : x = 3.7 : Probe = x` returns **4** in real Access and
+  **3.7** source-only.
+- **Real p-code, no header record** crashes Access outright: `var_` then
+  points at unrelated bytes.
+
+### The table
+
+Records live at `464 + var_`, `var_` starting at 88 and striding by 24,
+and form a linked list; the type is a plain VARTYPE code in the first
+field. Past the records sits a **16-bucket hash table**, 4 bytes per
+bucket, at `464 + 88 + 24*ndecl + 48`. And the index is not a new
+mystery:
+
+```
+bucket = identifier_hash(name) % 16
+```
+
+the *same* OLE `LHashValOfNameSysA` the project identifier table uses,
+already solved in `pcode_hash.py`. Verified on 9 modules across two name
+series, D5 included.
+
+The table holds **procedures as well as variables** -- in a module whose
+function is `Go`, bucket 7 is `Go`'s record offset, and it shifts by 24
+each time a declaration is inserted ahead of it, while variable entries
+(`var_` values) stay put.
+
+### Collisions
+
+A new name takes the bucket, and **the record immediately before it takes
+custody of whatever was displaced** -- the previous variable's own
+offset, the procedure's offset when a procedure lost the bucket, or the
+null marker when the bucket was empty. `collision_probe.bas` forces four
+names into one bucket to pin this down.
+
+That single rule explains every case, including the one that looked
+anomalous for hours: a module where a new variable collided with the
+procedure name, putting the procedure's offset into a variable's record.
+
+### What reproduces, and what does not
+
+Appending is **byte-identical to Access for every 1->2, 2->3 and 3->4
+transition**, measured across three independent name series including
+four-way collisions: 10 of 10. It stops being exact at four
+declarations, where a second structure holding Variant-typed records
+reorganizes in a way not yet characterized -- reproduced identically in
+all three series, so it is a real threshold rather than a quirk.
+`add_declaration` refuses past that point rather than guessing.
+
+The written declaration **runs, with its type honoured**: a synthesized
+`Dim bb As Long` makes `bb = 3.7` return 4, and the same code with
+VARTYPE Double returns 3.7 -- matching Access exactly, and passing the
+test that killed the source-only shortcut.
+
+Two bugs worth recording, both found only by diffing:
+
+- All-ones is a **null sentinel**, not a number. Incrementing it during
+  pointer fixup turned a null into offset 23 and Access crashed.
+- One "pointer fixup" at a fixed offset was really **hash bucket 13**.
+  Bumping it corrupted a live entry whenever a name happened to land
+  there.
+
+## Establishing p-code coverage
+
+"Does the compiler handle VBA?" is not answerable by inspection, and the
+opcode table does not answer it either -- that table is closed by
+construction (264 entries, 0..263, the last literally named `Illegal`),
+so a disassembler cannot meet an unknown opcode. Generation is the open
+problem.
+
+The instrument is `construct_matrix.bas`: one module exercising the
+constructs on purpose, compiled by Access itself via `build_matrix.ps1`,
+then diffed statement by statement with `verify_compiler.py`. Every
+statement either matches Microsoft byte for byte or is reported.
+
+It earned its keep immediately -- six defects on first run, three of them
+**silent miscompiles**, which are far worse than refusals because they
+emit valid p-code for the wrong program:
+
+| Source | Was emitted | Should be |
+|--------|-------------|-----------|
+| `r = a ^ b` | `Ld(a) St(r)` -- operand dropped | `Ld(a) Ld(b) Pwr St(r)` |
+| `arr(1) = 10` | `ArgsCall(arr)` -- an assignment compiled as a call | `LitDI2 LitDI2 ArgsSt(arr)[1]` |
+| `d.Add "k", 1` | object pushed first | arguments first, object last |
+| `x = d.Count` | `ArgsMemLd(Count)[0]` | `MemLd(Count)` |
+| `For i = 10 To 1 Step -1` | `Step` silently ignored | step expression then `ForStep` |
+| `v = 3.5` | crash | `LitR8` with the raw double |
+
+The member-call order bug had survived because every earlier probe called
+a **zero-argument** member (`DoCmd.Beep`), and with no arguments the two
+orders are byte-identical. A probe that cannot distinguish two hypotheses
+is not evidence for either.
+
+The grammar now refuses any statement it cannot fully consume, so an
+unparsed tail raises instead of quietly shrinking the program. After the
+fixes: **75 statements byte-identical to Access, 0 differing**, and the
+matrix module rebuilds byte-for-byte through `verify_identity.py`.
+
+Uncovered and refused, not approximated: `With`, `Dim`/`Const`/`ReDim`/
+`Erase`, `On Error`, line labels, single-line `If ... Then <statement>`,
+date literals, and built-ins living in the pre-populated slots below 261.
+
+## Calling VBA's built-ins
+
+`Left`, `Len` and `Abs` used to be refused as unknown identifiers. A probe
+module calling eighty built-ins (`builtins_probe.bas`) shows there are
+four mechanisms, and which one applies is not guessable from the name:
+
+| how it is reached | count | examples |
+|---|---|---|
+| an ordinary project identifier | 56 | `Trim`, `UCase`, `Chr`, `Now`, `Replace`, `IIf`, `Nz`, `DLookup` |
+| a dedicated opcode | 7 | `Len`→`FnLen`, `Abs`→`FnAbs`, `InStr`→`FnInStr`, `Int`, `Fix`, `Sgn`, `StrComp` |
+| a pre-populated slot, via `ArgsLd` | 6 | `Left`=109, `Mid`=124, `String`=173, `Format`=85, `CurDir`=37, `FreeFile`=87 |
+| its own opcode plus a slot | 1 | `Array(...)` -> `ArgsArray` naming slot 8 |
+
+The largest group needs nothing: those names already flow through
+`_add_missing_identifiers` exactly like a user-written one, which is why
+`MsgBox` worked long before any of this.
+
+Three further shapes fall out of the same probe. The conversion functions
+share opcode `Coerce` and differ only in op_type -- `CVar` 0, `CInt` 2,
+`CLng` 3, `CDbl` 5, `CDate` 7, `CStr` 8, `CBool` 11. `UBound`/`LBound`
+carry the dimension as an *operand*, not a stack argument. And `Date` is
+a value rather than a call: Access rewrites `Date()` to `Date` and emits
+`Ld` of slot 44.
+
+### A nested call was silently miscounting arguments
+
+The probe also caught a defect that had nothing to do with built-ins.
+`arg_list()` recorded its argument count on the parser, so an inner call
+overwrote the outer one:
+
+```
+DateAdd("d", 1, Now())    Access: ArgsLd(DateAdd)[3]   ours: [1]
+Join(Array(1, 2), ",")    Access: ArgsLd(Join)[2]      ours: [4]
+```
+
+Any `f(g())` was affected. The count is now returned rather than stashed.
+Another silent miscompile that only a differential probe would find.
+
+## Where the compiler stands
+
+Measured across the three probe modules: **195 statements byte-identical
+to Access, 0 differing.** What is still refused, and why:
+
+| refused | count | blocked on |
+|---------|-------|-----------|
+| `Dim`, `Const`, `ReDim`, user-defined `Type` | 28 | growing the pre-CAFE header (below) |
+| procedure headers and footers, `Option` | 26 | creating a procedure, not a body statement |
+| `Declare` | 2 | same |
+| `Set x = New <Class>` | 2 | the import table `New` indexes into |
+
+So every remaining refusal in a *procedure body* is a declaration. The
+statement grammar itself is done for practical purposes.
+
+Two notes from getting there. Explicit parentheses are not free: Access
+records a `Paren` marker after the grouped expression, so `(a + b) * a`
+differs from `a + b * a` by more than precedence. And the corpus gate now
+separates lines whose **source is ahead of their p-code** from real
+differences -- pyOpenVBA's source-only write path leaves databases in
+that state, and counting them as code-generation defects made the total
+move every time the compiler learned a new statement.
+
 ## Why `Dim` stays refused: the shortcut is a silent miscompile
 
 Two experiments settle whether `Dim` can be shipped cheaply, and both say

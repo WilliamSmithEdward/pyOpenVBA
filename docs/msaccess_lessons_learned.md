@@ -168,11 +168,21 @@ holding the procedure's line count; patched by the line delta, a module
 regrown from 3 statements to 13 compiles and runs (the per-line frame-size
 hint turned out to be advisory).
 
-What remains is adding **new identifiers** -- which needs the
-`_VBA_PROJECT` symbol buckets -- and **new procedures**, which need the
-`FuncDefn` declaration tables. Generated code is otherwise unrestricted as
-long as it uses names the project already has and the module row still
-fits its 4 KB page. Code in `docs/research/access_write/`.
+New **identifiers** can be added too. That looked blocked by
+Access-generated "symbol buckets" in the `_VBA_PROJECT` row, but building
+the same source twice changes those bytes as well, so they are per-build
+scratch state with nothing to reproduce. What Access validates is a pair
+of u16 counters just before the identifier table (record count at
+`table_start - 10`, slot count at `-12`); appending a record without
+bumping both makes Access hang on load. With them corrected, a name
+appended before the table sentinel resolves normally at `524 + 2*index`,
+using the already-solved `LHashValOfNameSysA` hash.
+
+What remains is **new procedures**, which need the `FuncDefn` declaration
+tables, and growing a module past its 4 KB page, which needs the LVAL
+chain allocator. Generated code is otherwise unrestricted: arbitrary
+statements, arbitrary control flow, and its own variables. Code in
+`docs/research/access_write/`.
 
 ---
 

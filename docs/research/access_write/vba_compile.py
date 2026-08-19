@@ -248,6 +248,20 @@ def compile_line(text, names):
     raise CompileError("unsupported statement: " + repr(s))
 
 
+# Words the statement grammar consumes itself; everything else that
+# lexes as a name is an identifier the program references.
+_KEYWORDS = frozenset(["if", "then", "else", "elseif", "end", "do", "while", "loop", "for", "to", "next", "step", "exit", "not", "and", "or", "xor", "mod"])
+
+
+def referenced_names(text):
+    """Identifier-like tokens in one statement, minus VBA keywords."""
+    out = []
+    for kind, value in tokenize(text.strip()):
+        if kind == "name" and value.lower() not in _KEYWORDS:
+            out.append(value)
+    return out
+
+
 def name_table(path):
     """Map lowercased identifier name -> p-code name operand.
 

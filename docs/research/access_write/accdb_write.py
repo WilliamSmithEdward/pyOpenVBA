@@ -39,6 +39,9 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "docs"
+                       / "research" / "pcode"))
+from pcode_hash import identifier_hash
 
 from pyopenvba.access_read import AccessReader
 from pyopenvba.vba import decompress
@@ -54,6 +57,16 @@ PROC_LINE_COUNT_OFFSETS = (516, 518)
 
 # MS-OVBA dir record MODULEOFFSET: <u16 id=0x0031><u32 size=4><u32 value>
 _MODULEOFFSET_HDR = bytes.fromhex("310004000000")
+
+# The project identifier table lives in the CC 61 _VBA_PROJECT row. It
+# opens with the 'Access' reference record and closes with this sentinel.
+# Immediately BEFORE the table sit two u16 counters that Access validates:
+# the number of identifier records, and the highest slot in use. Appending
+# a record without bumping both makes Access hang while loading.
+_TABLE_HEADS = (b"\x02\x00\x06\x0cAccess", b"\x02\x00\x06\x04Access")
+_TABLE_SENTINEL = b"\x02\xff\xff\x01\x01"
+_COUNT_BACKOFF = 10          # u16 identifier count, at table_start - 10
+_SLOT_COUNT_BACKOFF = 12     # u16 slot count,       at table_start - 12
 
 
 # --- MS-OVBA compression, literal-only ---------------------------------
@@ -165,6 +178,56 @@ def set_storage_length(data: bytearray, lval_page: int, lval_slot: int,
     old = int.from_bytes(data[pos - 2:pos], "little")
     data[pos - 2:pos] = new_length.to_bytes(2, "little")
     return old
+
+
+def find_project_row(path) -> tuple[int, int, bytes]:
+    """Locate the ``CC 61`` _VBA_PROJECT row: ``(page, slot, bytes)``."""
+    for page, slot, row in AccessReader(path)._iter_lval_rows():
+        if bytes(row).startswith(b"\xcc\x61"):
+            return page, slot, bytes(row)
+    raise ValueError(f"no _VBA_PROJECT row found in {path}")
+
+
+def append_identifiers(row: bytes, names, code_page: int = 1252) -> bytes:
+    """Append identifier records to the project table in ``row``.
+
+    Each record is ``<u8 len><u8 type=0><name><u16 hash><0x10 0x00>``,
+    where the hash is the OLE ``LHashValOfNameSysA`` value that Access
+    itself stores (see ``docs/research/pcode/pcode_hash.py``). The two
+    u16 counters ahead of the table are bumped to match; Access hangs on
+    load if they disagree with the records.
+
+    Appending keeps every existing record's position, so p-code operands
+    already in the module (``524 + 2*index``) stay valid. A new name
+    takes the next index.
+    """
+    start = -1
+    for head in _TABLE_HEADS:
+        start = row.find(head)
+        if start >= 0:
+            break
+    if start < 0:
+        raise ValueError("identifier table not found in _VBA_PROJECT row")
+    sentinel = row.find(_TABLE_SENTINEL, start)
+    if sentinel < 0:
+        raise ValueError("identifier table sentinel not found")
+
+    encoding = f"cp{code_page}"
+    records = bytearray()
+    for name in names:
+        body = name.encode(encoding)
+        if not 0 < len(body) < 64:
+            raise ValueError(f"identifier {name!r} has an unusable length")
+        records += bytes((len(body), 0x00)) + body
+        records += identifier_hash(name, code_page=encoding).to_bytes(2, "little")
+        records += b"\x10\x00"
+
+    out = bytearray(row[:sentinel] + bytes(records) + row[sentinel:])
+    for backoff in (_COUNT_BACKOFF, _SLOT_COUNT_BACKOFF):
+        off = start - backoff
+        value = int.from_bytes(out[off:off + 2], "little")
+        out[off:off + 2] = (value + len(names)).to_bytes(2, "little")
+    return bytes(out)
 
 
 def find_dir_row(path) -> tuple[int, int, bytes, bytes]:

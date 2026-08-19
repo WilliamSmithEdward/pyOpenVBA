@@ -40,6 +40,7 @@ fix up -- normally the hardest part of a code generator.
 | Our p-code equals Microsoft's | 70 statements across 8 modules re-emitted byte-for-byte identically |
 | Rewritten logic executes | `acc = 9 * 9`, `idx = acc + 19`, `Calc = acc * 2 + idx` returned **262** |
 | Statement count can change | A 3-statement template regrown to 13 statements (nested `Do While` + `If`/`ElseIf`/`Else`) returned **160**; shrunk to 2 returned **42** |
+| New identifiers can be added | A 12-statement program using three variables Access never created (`cnt`, `tot`, `best`) returned **80** |
 
 The source/p-code test is the important negative: Access has **no
 load-time recompile-from-source trigger**. Excel treats a version mismatch
@@ -125,17 +126,44 @@ that alone a module regrown from 3 to 13 statements compiles and runs.
 The frame-size hint at record `+6` turned out to be **advisory**: the
 13-statement module ran correctly with deliberately wrong values.
 
+## Adding identifiers, and the symbol buckets that were not buckets
+
+Adding a name looked blocked by "Access-generated symbol buckets" in the
+`_VBA_PROJECT` row that change wholesale between builds. They do change --
+but building the *same source twice* changes them too, along with 62 other
+bytes, so they are per-build scratch state and carry nothing that has to be
+reproduced. An earlier attempt to fit a `hash % N` bucket model to them was
+fitting noise: it matched two samples and failed on every independent one.
+
+What Access does validate is a pair of u16 counters sitting immediately
+*before* the identifier table -- the record count at `table_start - 10` and
+the slot count at `table_start - 12`. Appending a record without bumping
+both makes Access hang on load. With them corrected, a name appended
+before the `02 FF FF 01 01` sentinel is picked up normally, and its p-code
+operand follows the usual `524 + 2*index`.
+
+So adding an identifier is: append
+`<u8 len><u8 type=0><name><u16 hash><10 00>`, where the hash is the OLE
+`LHashValOfNameSysA` value already solved in
+`docs/research/pcode/pcode_hash.py` (verified against Access: `zz` ->
+`0x6031`, `_B_var_zz` -> `0xf4d9`); bump both counters; then update the
+row's `MSysAccessStorage` length like any other resize. `rewrite_module.py`
+does this automatically for every name a program introduces.
+
 ## What still does not work
 
-**New identifiers.** Adding a name means extending the `_VBA_PROJECT`
-identifier table. The record format and its hash are solved
-(`docs/research/pcode/pcode_hash.py`, `LHashValOfNameSysA`), but the row
-also holds Access-generated symbol buckets that change wholesale between
-builds and are not yet understood. So generated code can only use names
-already present in the project.
-
 **New procedures.** `FuncDefn` carries a `func_` offset into the
-declaration tables, which has the same unsolved shape as the slot table.
+declaration tables, which is not yet decoded, so generated code lives
+inside a procedure the template already defines.
+
+**Growing past one page.** The module row must still fit its 4 KB page;
+spilling needs the LVAL chain allocator. For a small template that ceiling
+is around 23 statements. It raises `ValueError` rather than corrupting.
+
+**Beware: running a database mutates it.** Opening an `.accdb` read-write
+in Access rewrites parts of the file -- in one case relocating the
+`_VBA_PROJECT` row so it could no longer be found. Keep templates
+pristine and always work on copies.
 
 A read-path gap turned up in passing and is now fixed: the explicitly
 slotted records described above were absorbed into the next entry's

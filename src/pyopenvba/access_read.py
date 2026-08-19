@@ -59,7 +59,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from pyopenvba.exceptions import PyOpenVBAError, UnsupportedFormatError
-from pyopenvba.vba import VBAReference
+from pyopenvba.vba import VBAReference, encoding_for_codepage
 from pyopenvba.vba import decompress as _ovba_decompress
 from pyopenvba.vba_pcode import (
     DisassembledModule,
@@ -215,16 +215,21 @@ class AccessReader:
         """Return the first-byte page-type tag of the given page."""
         return self._data[page_num * ACE_PAGE_SIZE]
 
-    def iter_source_rows(self) -> Iterator[SourceRow]:
+    def iter_source_rows(self, code_page: int = 1252) -> Iterator[SourceRow]:
         """
         Yield every VBA source-line row found anywhere in the database, in
         file-offset order.
 
         Each row carries a row-type marker (currently only the comment
         marker has been observed and decoded), a 16-bit text length, and an
-        ASCII payload. The leading "' " of stored comment lines is *not*
+        MBCS payload. The leading "' " of stored comment lines is *not*
         included in ``text`` -- callers should prepend it when reconstructing
         the line as it would appear in the VBA editor.
+
+        ``code_page`` is the project's ``PROJECTCODEPAGE`` (see
+        :meth:`read_project_info`); it is recorded on each row so the text
+        decodes correctly. It defaults to 1252, which is right for
+        Western-European projects and harmless for pure-ASCII source.
 
         This is a low-level utility that scans the whole file by marker. A
         higher-level method that maps a specific module name to its row range
@@ -246,10 +251,14 @@ class AccessReader:
             if length == 0 or length > 8000 or end > n:
                 continue
             payload = bytes(data[j + 6 : end])
-            # Reject obviously non-source payloads (must be printable ASCII
-            # plus tabs / CR / LF).
+            # Reject obviously non-source payloads. Source text is stored
+            # MBCS-encoded in the project's code page, so bytes above 0x7E
+            # are legitimate (accented Latin, Cyrillic, CJK); only C0/C1
+            # controls other than tab, CR and LF disqualify a payload.
             if any(
-                not (0x09 <= b <= 0x7E or b in (0x0A, 0x0D)) for b in payload
+                b < 0x09 or 0x0E <= b <= 0x1F or b == 0x7F
+                or (0x0A < b < 0x0D)
+                for b in payload
             ):
                 continue
             yield SourceRow(
@@ -257,6 +266,7 @@ class AccessReader:
                 row_type="comment",
                 length=length,
                 text=payload,
+                code_page=code_page,
             )
 
     def __enter__(self) -> AccessReader:
@@ -749,7 +759,11 @@ class AccessReader:
         stream = _find_vba_project_row(rows)
         if stream is None:
             return ()
-        return _parse_vba_project_identifiers(stream)
+        try:
+            code_page = self.read_project_info().code_page
+        except AccessError:
+            code_page = 1252
+        return _parse_vba_project_identifiers(stream, code_page)
 
     def disassemble_module(
         self, name: str, *, is_64bit: bool = True
@@ -1403,12 +1417,18 @@ class SourceRow:
     row_type: str   # "comment" -- only kind decoded so far
     length: int
     text: bytes
+    code_page: int = 1252
 
     def to_source_line(self) -> str:
-        """Reconstruct the source line as it would appear in the VBA editor."""
-        if self.row_type == "comment":
-            return "'" + self.text.decode("ascii")
-        return self.text.decode("ascii")
+        """Reconstruct the source line as it would appear in the VBA editor.
+
+        ``text`` is raw MBCS bytes in the project's code page, so it is
+        decoded with that page rather than ASCII; decoding as ASCII raised
+        ``UnicodeDecodeError`` on any accented or non-Latin comment.
+        """
+        encoding = encoding_for_codepage(self.code_page)
+        text = self.text.decode(encoding, errors="replace")
+        return "'" + text if self.row_type == "comment" else text
 
 
 @dataclass(frozen=True)
@@ -1616,6 +1636,7 @@ def _find_vba_project_row(rows: list[tuple[int, int, bytes]]) -> bytes | None:
 
 def _parse_vba_project_identifiers(
     stream: bytes,
+    code_page: int = 1252,
 ) -> tuple[AccessVBAIdentifier, ...]:
     """Parse the identifier list from a ``CC 61``-magic Access
     ``_VBA_PROJECT`` stream.
@@ -1688,12 +1709,12 @@ def _parse_vba_project_identifiers(
             and stream[record_end - 2] == 0x10
             and stream[record_end - 1] == 0x00
             and all(
-                0x20 <= stream[i] < 0x7F or stream[i] == 0x5F
+                stream[i] >= 0x20 and stream[i] != 0x7F
                 for i in range(name_start, name_end)
             )
         ):
             name = stream[name_start:name_end].decode(
-                "ascii", errors="replace"
+                encoding_for_codepage(code_page), errors="replace"
             )
             id_low = int.from_bytes(
                 stream[name_end:name_end + 2], "little"

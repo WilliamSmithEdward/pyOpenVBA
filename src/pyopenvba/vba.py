@@ -1205,7 +1205,7 @@ _CODEPAGE_ALIASES: dict[int, str] = {
 }
 
 
-def _encoding_for_codepage(code_page: int) -> str:
+def encoding_for_codepage(code_page: int) -> str:
     """Map a PROJECTCODEPAGE value to a Python codec name.
 
     Falls back to ``latin-1`` for pages Python cannot resolve, warning
@@ -1468,6 +1468,12 @@ def normalize_class_source(source: str, *, prior_header: str = "") -> str:
 
     header_lines.insert(insert_at, vb_base_line)
     return "".join(header_lines) + body
+
+
+# Internal alias: this helper predates being needed outside this
+# module (access_read decodes Access identifiers and source text with
+# it), so the public name is the canonical one.
+_encoding_for_codepage = encoding_for_codepage
 
 
 def rebuild_module_stream(module: VBAModule, code_page: int) -> bytes:

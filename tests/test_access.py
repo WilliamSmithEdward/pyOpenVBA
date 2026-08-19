@@ -193,3 +193,76 @@ def test_read_vba_module_unknown_name_raises() -> None:
     with AccessReader(ACCDB) as db, pytest.raises(AccessError):
         db.read_vba_module("DoesNotExist_zzzzz")
 
+
+
+# ---------------------------------------------------------------------------
+# Non-ASCII source text and identifiers
+#
+# Access stores VBA source lines and identifier names MBCS-encoded in the
+# project's code page, not as ASCII. Decoding them as ASCII raised
+# UnicodeDecodeError on any accented or non-Latin text, and the byte
+# filters that guard both scanners rejected every byte above 0x7E, so such
+# rows and identifiers were silently dropped before they could be decoded.
+# These tests pin the code-page behaviour; they need no fixture database.
+# ---------------------------------------------------------------------------
+
+@pytest.mark.parametrize(
+    ("code_page", "text"),
+    [
+        (1252, "Betr\u00e4ge pr\u00fcfen"),      # German, Latin-1
+        (1252, "caf\u00e9 na\u00efve"),          # French accents
+        (1251, "\u041f\u0440\u0438\u0432\u0435\u0442"),   # Cyrillic
+        (1253, "\u0393\u03b5\u03b9\u03b1"),      # Greek
+        (1252, "plain ascii comment"),           # unchanged behaviour
+    ],
+)
+def test_source_row_decodes_with_project_code_page(
+    code_page: int, text: str
+) -> None:
+    """A comment row round-trips through its code page, apostrophe restored."""
+    from pyopenvba.access_read import SourceRow
+
+    raw = text.encode(f"cp{code_page}")
+    row = SourceRow(
+        offset=0, row_type="comment", length=len(raw), text=raw,
+        code_page=code_page,
+    )
+    assert row.to_source_line() == "'" + text
+
+
+def test_source_row_code_page_defaults_to_1252() -> None:
+    """Constructing without a code page keeps the pre-existing signature."""
+    from pyopenvba.access_read import SourceRow
+
+    row = SourceRow(0, "comment", 5, b"hello")
+    assert row.code_page == 1252
+    assert row.to_source_line() == "'hello"
+
+
+def _identifier_record(name: str, code_page: int, type_byte: int = 0x04) -> bytes:
+    body = name.encode(f"cp{code_page}")
+    return bytes((len(body), type_byte)) + body + b"\x00\x00\x10\x00"
+
+
+@pytest.mark.parametrize(
+    ("code_page", "names"),
+    [
+        (1252, ["Modul", "Betr\u00e4ge", "Wert"]),
+        (1251, ["Modul", "\u041c\u043e\u0434\u0443\u043b\u044c"]),
+    ],
+)
+def test_identifier_table_keeps_non_ascii_names(
+    code_page: int, names: list[str]
+) -> None:
+    """Identifiers outside ASCII survive the scan and decode correctly."""
+    from pyopenvba import access_read as _access
+
+    parse = getattr(_access, "_parse_vba_project_identifiers")
+
+    stream = b"\x02\x00\x06\x04Access"
+    for name in names:
+        stream += _identifier_record(name, code_page)
+    stream += b"\x02\xff\xff\x01\x01"
+
+    parsed = parse(stream, code_page)
+    assert [i.name for i in parsed] == ["Access", *names]

@@ -161,41 +161,52 @@ Each record carries a `u16` alongside the name. It is the low word of the
 **OLE Automation name hash** -- `LHashValOfNameSysA` from `OLEAUT32.dll`,
 the same hash type libraries use for name lookup. VBE7's identifier
 intern routine calls it and keeps the low 16 bits; this was found by
-tracing the predefined-identifier setup in VBE7.DLL (the code that adds
+tracing VBE7.DLL from the predefined-identifier setup (the code that adds
 `Win16` / `Win32` / `Win64` / `Mac` / `VBA6` / `VBA7`) down to the call.
 
-The algorithm, exact on 5,255 measured names (and every one of 14,878
-compact records reproduced byte-for-byte):
-
 ```
-h = 0x0DEADBEE                          # fixed initial value
-for c in name:
-    h = (37 * h + LOOKUP[c]) & 0xFFFFFFFF
-id = (h % 65599) & 0xFFFF               # unsigned, low 16 bits
+h = 0x0DEADBEE
+for b in name_bytes:                     # code-page bytes, not characters
+    h = (37 * h + LOOKUP[b]) & 0xFFFFFFFF
+id = (h % 65599) & 0xFFFF                # unsigned, low 16 bits
 ```
 
-`LOOKUP` is the case-folding table the API applies: lowercase folds to
-uppercase, digits and `_` map to themselves, and VBE7's specific
-per-syskind table additionally folds **`W` to `V` and `Y` to `U`** (every
-other letter is its plain uppercase code). Non-ASCII bytes pass through
-unchanged for the Windows syskind VBA uses. The full 32-bit return value
-is `((syskind | mask) << 16) | id`, but only the low word is stored.
+Two things about this are easy to get wrong, and both were wrong in an
+earlier revision of this document:
 
-There is **no per-length seed** and no locale dependence in practice --
-the constant `0x0DEADBEE`, the multiplier 37, the modulus 65599
-(`2^16 + 63`) and the 16-bit field are the whole story. (Earlier
-revisions of this document modelled the hash as `37*h + charval` from a
-mythical per-length seed; that was an artifact of missing the
+- **The hash runs over code-page bytes, not characters.** Identifiers are
+  stored MBCS-encoded, and each byte indexes the table.
+- **`LOOKUP` is a real 384-byte table, not "uppercase ASCII".** Its ASCII
+  half folds case and -- a genuine quirk -- maps `W` to `V` and `Y` to
+  `U`. Its upper half folds accented Latin-1 onto base letters, so
+  `0xC0`-`0xC5` (`A` with any accent) all hash as `A`. Treating high
+  bytes as identity gets 4/20 accented identifiers right; the real table
+  gets 20/20.
+
+Which table applies is **fixed**, which is what makes this reliable.
+`LHashValOfNameSysA` selects by `PRIMARYLANGID(lcid)`, and [MS-OVBA]
+requires `PROJECTLCID` to be `0x00000409` (English US) -- confirmed in
+every fixture on disk -- so the selection always lands on the `default`
+branch, `Lookup_16`. VBA uses that one table whatever the project's code
+page or the author's language. `syskind` matters only for Mac, where
+`SYS_MAC` sets a mask shifting high bytes into the table's third section.
+
+Verified exact on **6,825 ASCII names and 20 accented names**, with every
+one of **14,878 compact records reproduced byte for byte**. That makes a
+new identifier record fully generatable:
+`pcode_hash.encode_identifier_record(name, type_byte, code_page=...)`
+emits the exact `<u8 len><u8 type><name bytes><u16 hash><10 00>`.
+
+(An earlier revision modelled this as `37*h + charval` from a per-length
+"seed". There is no seed -- that was an artifact of missing the
 `0x0DEADBEE` initialiser and using a signed rather than unsigned
-reduction. Both are corrected here. The pieces that survived -- the
-multiplier 37, the modulus 65599, the 16-bit field and the `W`/`Y` fold
--- are exactly the pieces of `LHashValOfNameSysA`.)
+reduction. The pieces that model did recover -- multiplier 37, modulus
+65599, the 16-bit field, the `W`/`Y` fold -- are exactly the pieces of
+`LHashValOfNameSysA`.)
 
-Because the hash is a fixed function of the name, a new identifier record
-is now fully generatable: `pcode_hash.encode_identifier_record(name,
-type_byte)` emits the exact `<u8 len><u8 type><ASCII name><u16 hash><10
-00>` a compact record uses. Reference:
-ReactOS / Wine `dll/win32/oleaut32/hash.c`.
+Reference: ReactOS / Wine `dll/win32/oleaut32/hash.c`. Note that
+ReactOS's `Lookup_64` (Japanese) is missing its first 13 entries
+upstream; `Lookup_16`, the only table VBA reaches, is intact.
 
 ## 5. Name operand resolution (key finding)
 

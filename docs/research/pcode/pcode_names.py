@@ -67,7 +67,15 @@ class Identifier:
     record_offset: int
 
 def _printable(b: bytes) -> bool:
-    return all(0x20 <= c < 0x7F for c in b)
+    """True for bytes that could spell an identifier.
+
+    Identifiers are stored MBCS-encoded in the project code page, so a
+    name may legitimately contain bytes above 0x7F (accented Latin,
+    Cyrillic, CJK). Restricting this to ASCII silently drops those
+    records -- which hid every non-ASCII identifier until the hash work
+    surfaced it. Only C0 controls and DEL are rejected.
+    """
+    return all(c >= 0x20 and c != 0x7F for c in b)
 
 def _plausible_type(tb: int) -> bool:
     """Every observed record type is a multiple of 4, at most 0xAC.
@@ -79,8 +87,14 @@ def _plausible_type(tb: int) -> bool:
     """
     return tb % 4 == 0 and tb <= 0xAC
 
-def parse_identifiers(vba_project_stream: bytes) -> list[Identifier]:
-    """Parse the ordered identifier table from a ``_VBA_PROJECT`` stream."""
+def parse_identifiers(vba_project_stream: bytes,
+                      code_page: str = "cp1252") -> list[Identifier]:
+    """Parse the ordered identifier table from a ``_VBA_PROJECT`` stream.
+
+    Names are stored MBCS-encoded in the project's code page (its
+    ``PROJECTCODEPAGE`` record), so pass that code page to read
+    identifiers outside ASCII correctly.
+    """
     s = vba_project_stream
     n = len(s)
     cands: list[tuple[int,int,str,int,int,int]] = []  # (start,end,name,id,type,desc)
@@ -102,7 +116,7 @@ def parse_identifiers(vba_project_stream: bytes) -> list[Identifier]:
             nm = s[ns:ne]
             if not _printable(nm):
                 continue
-            cands.append((p, end, nm.decode("ascii"),
+            cands.append((p, end, nm.decode(code_page, errors="replace"),
                           int.from_bytes(s[ne:ne+2],"little"), tb, desc))
     if not cands:
         return []

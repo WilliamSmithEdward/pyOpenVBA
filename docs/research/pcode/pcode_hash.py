@@ -3,28 +3,37 @@
 Every identifier record carries a u16 alongside the name. It is the low
 word of the **OLE Automation name hash**, ``LHashValOfNameSysA`` from
 ``OLEAUT32.dll`` -- the same hash type libraries use for name lookup.
-VBE7 computes it when interning an identifier (its intern routine calls
-``LHashValOfNameSysA(syskind, lcid, name)`` and keeps the low 16 bits).
+VBE7 computes it when interning an identifier: its intern routine calls
+``LHashValOfNameSysA(syskind, lcid, name)`` and keeps the low 16 bits.
+(Found by tracing VBE7.DLL from the predefined-identifier setup -- the
+code registering ``Win16`` / ``Win32`` / ``Win64`` / ``Mac`` / ``VBA6`` /
+``VBA7`` -- down to the indirect call.)
 
-The algorithm, confirmed exact on 5,255 measured names with zero
-exceptions:
+    h = 0x0DEADBEE
+    for b in name_bytes:
+        h = (37 * h + LOOKUP[b]) & 0xFFFFFFFF
+    id = (h mod 65599) & 0xFFFF
 
-    h = 0x0DEADBEE                       # fixed initial value
-    for c in name:
-        h = (37 * h + LOOKUP[c]) & 0xFFFFFFFF
-    id = (h % 65599) & 0xFFFF
+Two details matter for correctness and are easy to get wrong:
 
-``LOOKUP`` is the case-folding table the API applies: uppercase ASCII,
-with digits and ``_`` mapping to themselves. VBE7's table additionally
-folds ``W`` -> ``V`` and ``Y`` -> ``U`` (a quirk of the specific
-per-syskind lookup table it loads); every other letter maps to its plain
-uppercase code. This is what earlier revisions of this module modelled as
-a mythical per-length "seed" -- there is no seed. The reduction is
-*unsigned* ``% 65599`` (65599 = 2**16 + 63), and only the low 16 bits are
-stored.
+* **The hash is over code-page bytes, not characters.** Identifiers are
+  stored MBCS-encoded and each *byte* indexes the lookup table.
+* **``LOOKUP`` is a real 384-byte table, not "uppercase ASCII".** Its
+  ASCII half folds case and -- a genuine quirk of this table -- maps
+  ``W`` to ``V`` and ``Y`` to ``U``. Its upper half folds accented
+  Latin-1 letters onto their base letters (``0xC0``-``0xC5`` all hash as
+  ``A``), so ``cafe`` with an acute e does *not* hash as its raw bytes.
+  Both halves are verified against Excel-compiled output.
 
-Reference: ReactOS / Wine ``dll/win32/oleaut32/hash.c``
-(``LHashValOfNameSysA``); MS ``oleauto.h``.
+Which table applies is fixed. ``LHashValOfNameSysA`` selects by
+``PRIMARYLANGID(lcid)``, and [MS-OVBA] requires ``PROJECTLCID`` to be
+``0x00000409`` (English US), which takes the ``default`` branch --
+``Lookup_16``. So **VBA always uses this one table**, whatever the
+project's code page or the author's language. ``syskind`` matters only
+for Mac: ``SYS_MAC`` sets the mask that shifts high bytes into the
+table's third section.
+
+Reference: ReactOS / Wine ``dll/win32/oleaut32/hash.c``.
 """
 from __future__ import annotations
 
@@ -34,59 +43,91 @@ MODULUS = 65599            # 2**16 + 63
 FIELD_MASK = 0xFFFF
 _U32 = 0xFFFFFFFF
 
-# The case-folding lookup table, built to match the values VBE7 emits.
-# Letters fold to uppercase; W and Y fold one and four below their own
-# code (to V and U); digits, underscore and everything else map to
-# themselves. Non-ASCII bytes are passed through unchanged, which is
-# correct for the Windows (non-Mac) syskind VBA uses.
-_FOLD = {ord("W"): ord("V"), ord("Y"): ord("U")}
+# Lookup_16 from oleaut32: the table LHashValOfNameSysA uses for English,
+# and therefore for every VBA project. Three 128-byte sections: ASCII,
+# Windows high bytes, Mac high bytes.
+LOOKUP: tuple[int, ...] = (
+    0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B,
+    0x0C, 0x0D, 0x0E, 0x0F, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
+    0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F, 0x20, 0x21, 0x22, 0x23,
+    0x24, 0x25, 0x26, 0x27, 0x28, 0x29, 0x2A, 0x2B, 0x2C, 0x2D, 0x2E, 0x00,
+    0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3A, 0x3B,
+    0x3C, 0x3D, 0x3E, 0x3F, 0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47,
+    0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F, 0x50, 0x51, 0x52, 0x53,
+    0x54, 0x55, 0x56, 0x56, 0x58, 0x55, 0x5A, 0x5B, 0x5C, 0x5D, 0x5E, 0x5F,
+    0x60, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4A, 0x4B,
+    0x4C, 0x4D, 0x4E, 0x4F, 0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x56,
+    0x58, 0x55, 0x5A, 0x7B, 0x7C, 0x7D, 0x7E, 0x7F, 0x7F, 0x7F, 0x82, 0x46,
+    0x84, 0x85, 0x86, 0x87, 0x7F, 0x89, 0x53, 0x8B, 0x8C, 0x7F, 0x7F, 0x7F,
+    0x7F, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x96, 0x98, 0x99, 0x53, 0x9B,
+    0x8C, 0x7F, 0x7F, 0x55, 0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7,
+    0xA8, 0xA9, 0x41, 0xAB, 0xAC, 0x96, 0xAE, 0xAF, 0xB0, 0xB1, 0x32, 0x33,
+    0xB4, 0xB5, 0xB6, 0xB7, 0xB8, 0x31, 0x4F, 0xBB, 0xBC, 0xBD, 0xBE, 0xBF,
+    0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x43, 0x45, 0x45, 0x45, 0x45,
+    0x49, 0x49, 0x49, 0x49, 0x44, 0x4E, 0x4F, 0x4F, 0x4F, 0x4F, 0x4F, 0xD7,
+    0x4F, 0x55, 0x55, 0x55, 0x55, 0x55, 0xDE, 0xDF, 0x41, 0x41, 0x41, 0x41,
+    0x41, 0x41, 0x41, 0x43, 0x45, 0x45, 0x45, 0x45, 0x49, 0x49, 0x49, 0x49,
+    0x44, 0x4E, 0x4F, 0x4F, 0x4F, 0x4F, 0x4F, 0xF7, 0x4F, 0x55, 0x55, 0x55,
+    0x55, 0x55, 0xDE, 0x55, 0x41, 0x41, 0x43, 0x45, 0x4E, 0x4F, 0x55, 0x41,
+    0x41, 0x41, 0x41, 0x41, 0x41, 0x43, 0x45, 0x45, 0x45, 0x45, 0x49, 0x49,
+    0x49, 0x49, 0x4E, 0x4F, 0x4F, 0x4F, 0x4F, 0x4F, 0x55, 0x55, 0x55, 0x55,
+    0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8, 0xA9, 0xAA, 0xAB,
+    0xAC, 0xAD, 0x41, 0x4F, 0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7,
+    0xB8, 0xB9, 0xBA, 0x41, 0x4F, 0xBD, 0x41, 0x4F, 0xC0, 0xC1, 0xC2, 0xC3,
+    0x46, 0xC5, 0xC6, 0xC7, 0xC8, 0xC9, 0xCA, 0x41, 0x41, 0x4F, 0xCE, 0xCE,
+    0xD0, 0xD0, 0xD2, 0xD3, 0xD4, 0xD5, 0xD6, 0xD7, 0x55, 0x55, 0xDA, 0xDB,
+    0xDC, 0xDD, 0x3F, 0x3F, 0xE0, 0xE1, 0xE2, 0xE3, 0xE4, 0x41, 0x45, 0x41,
+    0x45, 0x45, 0x49, 0x49, 0x49, 0x49, 0x4F, 0x4F, 0x3F, 0x4F, 0x55, 0x55,
+    0x55, 0x49, 0x7F, 0xF7, 0x7F, 0xF9, 0xFA, 0xFB, 0x3F, 0xFD, 0xFE, 0x7F,
+)
+assert len(LOOKUP) == 128 * 3
 
 
-def _build_lookup() -> list[int]:
-    table = list(range(256))
-    for code in range(ord("a"), ord("z") + 1):
-        table[code] = code - 0x20            # lowercase -> uppercase
-    for code, folded in _FOLD.items():       # W/Y quirk, upper and lower
-        table[code] = folded
-        table[code + 0x20] = folded
-    return table
-
-
-LOOKUP = _build_lookup()
-
-
-def identifier_hash(name: str) -> int:
-    """The u16 an ``_VBA_PROJECT`` record carries for ``name``.
-
-    Exact for any VBA identifier; there is no length restriction and no
-    fitting involved.
-    """
+def hash_bytes(data: bytes, *, mac: bool = False) -> int:
+    """The u16 hash of an identifier's raw code-page bytes."""
     h = INITIAL
-    for ch in name:
-        h = (MULTIPLIER * h + LOOKUP[ord(ch) & 0xFF]) & _U32
+    for b in data:
+        index = b + 0x80 if (b > 0x7F and mac) else b
+        h = (MULTIPLIER * h + LOOKUP[index]) & _U32
     return (h % MODULUS) & FIELD_MASK
 
 
-def name_hash_full(name: str, syskind: int = 3, mask: int = 0) -> int:
-    """The full 32-bit ``LHashValOfNameSysA`` return value.
+def identifier_hash(name: str, *, code_page: str = "cp1252",
+                    mac: bool = False) -> int:
+    """The u16 an ``_VBA_PROJECT`` record carries for ``name``.
 
-    The high word is ``(syskind | mask) << 16``; VBA stores only the low
-    word (:func:`identifier_hash`). ``syskind`` defaults to ``SYS_WIN64``.
+    ``code_page`` is the project's code page (its ``PROJECTCODEPAGE``
+    record); identifiers hash as encoded bytes, so it matters for any
+    name outside ASCII.
     """
-    return ((syskind | mask) << 16) | identifier_hash(name)
+    return hash_bytes(name.encode(code_page, errors="replace"), mac=mac)
 
 
-def encode_identifier_record(name: str, type_byte: int) -> bytes:
+def name_hash_full(name: str, syskind: int = 3, *,
+                   code_page: str = "cp1252") -> int:
+    """The full 32-bit ``LHashValOfNameSysA`` value.
+
+    The high word is ``(nOffset | nMask) << 16``, with ``nOffset`` 16 for
+    the English table and ``nMask`` 1 only for ``SYS_MAC``. VBA stores
+    only the low word (:func:`identifier_hash`).
+    """
+    mac = syskind == 0
+    return ((16 | (1 if mac else 0)) << 16) | identifier_hash(
+        name, code_page=code_page, mac=mac)
+
+
+def encode_identifier_record(name: str, type_byte: int, *,
+                             code_page: str = "cp1252") -> bytes:
     """The exact ``_VBA_PROJECT`` bytes for a compact identifier record.
 
-    A compact record (references and ordinary user identifiers, type byte
-    below ``0x80``) is ``<u8 name-length><u8 type><ASCII name><u16 hash>``
-    followed by the ``0x0010`` trailer. Module records and records whose
-    type sets the ``0x80`` descriptor bit carry extra fields and are not
-    produced here.
+    A compact record -- references and ordinary user identifiers, type
+    byte below ``0x80`` -- is ``<u8 name-length><u8 type><name bytes>``
+    followed by ``<u16 hash>`` and the ``0x0010`` trailer. Module records
+    and records whose type sets the ``0x80`` descriptor bit carry extra
+    fields and are not produced here.
     """
     if type_byte >= 0x80:
         raise ValueError("descriptor/module records are not compact")
-    body = name.encode("latin-1")
+    body = name.encode(code_page, errors="strict")
     return (bytes((len(body), type_byte)) + body
-            + identifier_hash(name).to_bytes(2, "little") + b"\x10\x00")
+            + hash_bytes(body).to_bytes(2, "little") + b"\x10\x00")

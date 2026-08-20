@@ -178,11 +178,15 @@ bumping both makes Access hang on load. With them corrected, a name
 appended before the table sentinel resolves normally at `524 + 2*index`,
 using the already-solved `LHashValOfNameSysA` hash.
 
-What remains is **new procedures**, which need the `FuncDefn` declaration
-tables, and growing a module past its 4 KB page, which needs the LVAL
-chain allocator. Generated code is otherwise unrestricted: arbitrary
-statements, arbitrary control flow, and its own variables. Code in
-`docs/research/access_write/`.
+What remains is larger than that summary once suggested, and the work is
+**parked as of 2026-08-19**: creating a procedure needs the `FuncDefn`
+declaration tables; module create, rename and delete need coordinated
+edits across six structures and do not work; `Const`, arrays, `Static`
+and fixed-length strings each reshape the module header differently and
+are refused; and growing a module past its 4 KB page needs the LVAL chain
+allocator. What does work is rewriting a procedure *body* -- arbitrary
+statements, arbitrary control flow, and `Dim` declarations added, removed
+or retyped. Code and the full status in `docs/research/access_write/`.
 
 ---
 

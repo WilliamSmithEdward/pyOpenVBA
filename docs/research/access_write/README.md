@@ -1,14 +1,48 @@
 # Writing executable VBA into Access, from pure Python
 
-Research code behind the 2026-08 Access write breakthrough. Everything
-here is dev-only and lives outside `src/`; `AccessReader` remains
-read-only.
+> **Status: parked, 2026-08-19. Not a supported feature and not on any
+> roadmap.** Nothing here is imported by `src/`, nothing here ships, and
+> `AccessReader` remains read-only. This directory is kept as a research
+> record: the measurements are reproducible and the dead ends are written
+> down so nobody has to rediscover them.
 
-The claim this directory supports: **an Access `.accdb` module's logic can
-be recompiled and rewritten entirely in pure Python, and real Access will
-compile and execute the result.** Verified by running the macro in desktop
-Access and reading the value it returns -- not by reading the file back,
-which proves nothing (see `docs/msaccess_lessons_learned.md`).
+Everything here is dev-only, needs Windows with desktop Access, and was
+verified by running the macro in Access and reading the value it returns
+-- never by reading the file back, which proves nothing (see
+`docs/msaccess_lessons_learned.md`).
+
+## What was established
+
+An `.accdb` module's **procedure bodies** can be recompiled and rewritten
+in pure Python, and real Access executes the result:
+
+* A VBA-to-p-code compiler whose output is **byte-identical to
+  Microsoft's** across the probe corpus, covering expressions, all the
+  control-flow forms, calls, literals, `With`, `On Error`, and `Dim`.
+* Arbitrary statement counts, including growing a body from empty.
+* `Dim` declarations added, removed and retyped, byte-exact against
+  Access in both directions across 18 transitions.
+* The reason writes appeared to do nothing: Access executes an `__SRP_*`
+  compiled cache, and dropping it is what makes a rewrite take effect.
+
+## What does not work, and is not close
+
+* **Module create, rename and delete.** Rename alone writes the name in
+  at least six places and still fails; see the section below. This is
+  where "full CRUD" would live, and it is the largest gap.
+* **`Const`, arrays, `Static`, fixed-length strings.** Each reshapes the
+  module header its own way; all measured, none implemented, all refused.
+* **`Set x = New <Class>`**, which needs the import table.
+* **Creating a procedure** from nothing.
+* **Page allocation**, so a module can only grow into space it already
+  has.
+
+## If this is ever picked up again
+
+Read "Auditing the guards" first. Six guards in this code were wrong in
+the same way -- narrow tests that passed by not looking -- and three of
+the fixes replaced a table this code maintained with a value read from
+the file being edited. That is the pattern worth carrying forward.
 
 ## Why the earlier attempts failed
 

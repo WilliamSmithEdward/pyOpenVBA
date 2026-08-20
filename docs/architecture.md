@@ -244,14 +244,17 @@ top-level helper `pyopenvba.pull_access(database, dest_dir)` mirrors
 
 ### Why no write path
 
-Access stores compiled VBA p-code (the `rU@` + `CAFE` rows) separately
-from the OVBA source cache. The compiled p-code is authoritative for
-the Access GUI; mutations to the source cache do not survive reload
-because Access never recompiles from the cache. We could not locate a
-recompile trigger. A production-quality writer would require a full
-VBA7 p-code assembler (instruction emission, identifier table
-re-indexing, jump fixup, MSysObjects long-value chunk reflow, ACE
-page allocator parity). That is out of scope. See
+Access stores compiled VBA p-code (the `CAFE` rows) separately from the
+OVBA source cache, and executes an `__SRP_*` compiled cache in
+preference to either, so mutations to the source alone do not change
+behaviour. Research later found the lever -- dropping those cache rows
+makes a rewritten module take effect -- and got as far as rewriting
+procedure bodies, including declarations, with output byte-identical to
+Microsoft's compiler. It did **not** get to creating, renaming or
+deleting a module, which is what a useful writer would need. That work
+is parked and unsupported; a production-quality writer would still
+require the `FuncDefn` declaration tables and ACE page allocator parity.
+See
 [docs/msaccess_lessons_learned.md](msaccess_lessons_learned.md) for
 the empirical results matrix and the reasoning in full.
 

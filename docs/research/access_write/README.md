@@ -449,6 +449,49 @@ A warning about probes, since this cost real time twice: bare
 ``Application.Eval`` over COM **hangs** behind a modal VBA compile-error
 dialog. Use ``pyvbaharness``, which reports ``modal-blocked`` instead.
 
+## Renaming a module: mapped, not working
+
+Access was asked to add, rename and delete a module so the effects could
+be diffed (`module_ops.ps1`). Rename is the smallest of the three and is
+where the work stopped, characterized but incomplete.
+
+A module's name is written in at least six places, and they are not
+interchangeable:
+
+| where | status |
+|-------|--------|
+| dir stream `MODULENAME` + `MODULENAMEUNICODE` | reproduced, 2 cookie bytes aside |
+| the module's own `Attribute VB_Name` | reproduced |
+| its `MSysObjects` row | **byte-exact** |
+| the `PROJECTwm` storage row | **byte-exact** |
+| the `DirData` storage row | **byte-exact** |
+| the MS-OVBA `PROJECT` stream (`Module=Alpha`, plain text) | reproduced |
+
+Three of those rows carry the name *inline*, followed by a table of u16
+offsets that all shift when the name's length changes -- the same shape
+in each, so one `rename_in_row` handles all three and matches Access byte
+for byte.
+
+Two findings worth keeping:
+
+**Rewriting every row that mentions the name corrupts the project.** Five
+rows contain it; Access deliberately leaves two holding the *old* name
+(the project identifier table, and one other), because a rename appends
+the new name rather than replacing it. A blanket search-and-replace
+produced "the Visual Basic for Applications project in the database is
+corrupt" -- the same shape of error as every over-broad rule in this
+directory.
+
+**Resizing a storage-catalog row corrupts it too.** Renaming `Alpha` to
+`Beta` in place fails; renaming to `Gamma`, the same length, does not.
+Access itself never resizes those rows -- it writes a new row and retires
+the old one, which is presumably why.
+
+Even with all six updated and no resizing, Access still shows the old
+name: its file carries the new name on two pages this rename does not
+touch. So at least one more location exists, and rename is **not
+working** -- `rename_probe.py` is the state of it, not a tool.
+
 ## Auditing the guards
 
 Every real defect in this directory lately has been a guard or table that

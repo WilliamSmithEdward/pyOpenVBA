@@ -46,7 +46,11 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "docs"
                        / "research" / "pcode"))
 from pcode_hash import identifier_hash
 
-from pyopenvba.access_read import PAGE_TYPE_DATA, AccessReader
+from pyopenvba.access_read import (
+    PAGE_TYPE_DATA,
+    AccessReader,
+    encoding_for_codepage,
+)
 from pyopenvba.vba import compress, decompress
 
 ACE_PAGE_SIZE = 4096
@@ -594,6 +598,75 @@ def write_module(data: bytearray, info: dict, new_row: bytes,
     new_dir = compress(bytes(dir_dec))
     set_lval_payload(data, info["dir_page"], info["dir_slot"], new_dir,
                      len(info["dir_raw"]))
+
+
+# --- renaming a module -------------------------------------------------
+# A module's name is written in five places, and Access needs them to
+# agree: the dir stream's MODULENAME and MODULENAMEUNICODE records, the
+# `Attribute VB_Name` line in the module's own source, its two
+# MSysAccessStorage catalog rows, and its MSysObjects row. The project
+# identifier table gains the new name and keeps the old, which is what
+# Access itself does.
+_DIR_MODULENAME = bytes.fromhex("1900")          # [MS-OVBA] 2.3.4.2.3.2.1
+_DIR_MODULENAMEUNICODE = bytes.fromhex("4700")   # [MS-OVBA] 2.3.4.2.3.2.2
+
+
+def rename_in_dir(dir_dec: bytes, old: str, new: str,
+                  code_page: int = 1252) -> bytes:
+    """Rewrite one module's name records in a decompressed dir stream."""
+    encoding = encoding_for_codepage(code_page)
+    out = bytearray(dir_dec)
+    for record, text in ((_DIR_MODULENAME, new.encode(encoding)),
+                         (_DIR_MODULENAMEUNICODE, new.encode("utf-16-le"))):
+        want = (old.encode(encoding) if record == _DIR_MODULENAME
+                else old.encode("utf-16-le"))
+        header = record + len(want).to_bytes(4, "little") + want
+        at = out.find(header)
+        if at < 0:
+            raise ValueError(
+                f"no {record.hex()} record for module {old!r} in dir stream")
+        out[at:at + len(header)] = (
+            record + len(text).to_bytes(4, "little") + text)
+    return bytes(out)
+
+
+def rename_in_row(row: bytes, old: str, new: str,
+                  code_page: int = 1252) -> bytes:
+    """Rewrite a module name stored inline in a table row.
+
+    Three rows carry the name this way -- the module's `MSysObjects` row
+    and the `MSysAccessStorage` rows for `PROJECTwm` and `DirData` -- and
+    all three share a shape: the name inline, sometimes in both MBCS and
+    UTF-16, followed by a table of u16 offsets into the row. Changing the
+    name's length moves everything after it, so every offset past the
+    name shifts by the same delta and the ones before it stay.
+
+    Measured by diffing Access's own rename of `Alpha` to `Beta`: the
+    MSysObjects offsets went 44,42 -> 42,40 with 32,11 unchanged, and
+    PROJECTwm's 80 -> 77 with 48 and below unchanged.
+    """
+    encoding = encoding_for_codepage(code_page)
+    forms = [(old.encode(encoding) + bytes(1), new.encode(encoding) + bytes(1)),
+             (old.encode("utf-16-le"), new.encode("utf-16-le"))]
+    first = min((row.find(a) for a, _ in forms if row.find(a) >= 0),
+                default=-1)
+    if first < 0:
+        raise ValueError(f"module name {old!r} not found in row")
+    out = bytearray(row)
+    last_end = 0
+    for want, text in forms:
+        at = out.find(want)
+        if at >= 0:
+            out[at:at + len(want)] = text
+            last_end = max(last_end, at + len(text))
+    delta = len(out) - len(row)
+    # The offset table follows the last name. Starting any earlier walks
+    # into the name itself and rewrites it as if it were offsets.
+    for off in range(last_end, len(out) - 1, 2):
+        value = int.from_bytes(out[off:off + 2], "little")
+        if value > first:
+            out[off:off + 2] = ((value + delta) & 0xFFFF).to_bytes(2, "little")
+    return bytes(out)
 
 
 # --- declarations: Dim and its header record ---------------------------

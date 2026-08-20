@@ -4,7 +4,8 @@ Every storage rule in :mod:`accdb_write` was found by this check failing.
 Rebuilding an unmodified module exercises the whole write path -- the
 perfcache layout, the per-procedure line counters, the LVAL row or chain,
 the long-value descriptor -- and the only correct result is a file
-identical to the one we started with. A rule that is merely close enough
+identical to the one we started with, byte for byte across the whole row
+-- not merely the header. A rule that is merely close enough
 to load shows up here as a diff.
 
     python docs/research/access_write/verify_identity.py <db.accdb> [...]
@@ -21,9 +22,12 @@ Non-zero exit on any difference. Dev-only research tool.
 A warning about fixtures, learned the hard way: build the VBA source you
 feed Access with ``open(path, "w", newline="")``. Python's text mode
 translates ``
-`` on Windows, so a source written with ``
+`` on Windows, so a source written with ``
+
 `` lands on
-disk as ``
+disk as ``
+
+
 ``. Access accepts it and produces a module with a blank
 line between every real one -- roughly twice the line records you meant --
 which looks exactly like a decoder bug in whatever you test next.
@@ -63,14 +67,20 @@ def check(path: Path) -> tuple[int, int]:
             perf = Perf(info["row"], info["modoff"])
 
             rebuilt, modoff = perf.build()
-            if rebuilt[:perf.cafe] != info["row"][:perf.cafe]:
+            original_row = bytes(info["row"])
+            if rebuilt != original_row:
                 differing = [
-                    i for i in range(perf.cafe)
-                    if rebuilt[i] != info["row"][i]
+                    i for i in range(min(len(rebuilt), len(original_row)))
+                    if rebuilt[i] != original_row[i]
                 ]
                 failures += 1
-                print(f"  HEADER  {path.name}:{name} differs at "
-                      f"{differing[:8]}{' ...' if len(differing) > 8 else ''}")
+                where = ("header" if differing and differing[0] < perf.cafe
+                         else "p-code" if differing
+                         else "length")
+                print(f"  ROW     {path.name}:{name} differs in {where} "
+                      f"at {differing[:8]}"
+                      f"{' ...' if len(differing) > 8 else ''}"
+                      f" (len {len(rebuilt)} vs {len(original_row)})")
                 continue
             if modoff != info["modoff"]:
                 failures += 1
@@ -80,8 +90,11 @@ def check(path: Path) -> tuple[int, int]:
 
             data = bytearray(work.read_bytes())
             try:
+                # Write back what `build` produced, not what was read.
+                # Writing the original row made this check trivially true
+                # and tested only `set_lval_payload`.
                 set_lval_payload(data, info["page"], info["slot"],
-                                 info["row"], len(info["row"]))
+                                 rebuilt, len(info["row"]))
             except Exception as error:
                 failures += 1
                 print(f"  WRITE   {path.name}:{name}: "

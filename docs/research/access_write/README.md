@@ -449,6 +449,44 @@ A warning about probes, since this cost real time twice: bare
 ``Application.Eval`` over COM **hangs** behind a modal VBA compile-error
 dialog. Use ``pyvbaharness``, which reports ``modal-blocked`` instead.
 
+## Auditing the guards
+
+Every real defect in this directory lately has been a guard or table that
+looked complete, so the guards themselves were audited. Three were wrong.
+
+**`find_counter_base` could pick a base that does not exist.** It scanned
+every even offset for one where the predicted counters already matched,
+and returned it if exactly one did. On six modules whose p-code is
+inconsistent with their source the rule predicts nonsense -- 1005 lines
+for a four-line procedure -- and the scan found a single offset, 596,
+where the nonsense happened to match. It would then have written counters
+into arbitrary header bytes with full confidence. It now tries only the
+two measured bases, 516 and 612, and refuses otherwise; a predicted count
+larger than the module's line count is rejected outright.
+
+**`verify_identity` was checking the header and calling it the row.** It
+compared `rebuilt[:cafe]` and then did a "no-op rewrite" that wrote back
+the *original* row rather than the rebuilt one -- so the file comparison
+was trivially true and tested only `set_lval_payload`. Both halves are
+fixed, and the gate now compares the whole row.
+
+That exposed the third: **a no-op rebuild was not byte-identical on a
+single module in the repository.** Access does not zero the padding
+between p-code lines, and `build` did:
+
+```
+original  d01c ffff780000009604...      rebuilt  d01c 000000000000 9604...
+```
+
+Harmless at run time -- every module written this way executes -- but it
+meant a gate reporting "modules rebuild identically" had never compared
+the p-code region at all. Preserving the original padding takes the
+corpus from **0 to 127 of 142 modules rebuilding byte for byte**, and
+`_require_reproducible` now checks the whole row too.
+
+The pattern is worth naming: each of these passed by not looking, and
+each was found by asking the guard to prove what its name claimed.
+
 ## Establishing p-code coverage
 
 "Does the compiler handle VBA?" is not answerable by inspection, and the

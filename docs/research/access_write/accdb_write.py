@@ -58,6 +58,11 @@ STORAGE_PAGE_DEFAULT = 48
 # attempt at changing the statement count fail. Both hold the same value.
 PROC_LINE_COUNT_OFFSETS = (516, 518)
 
+# The bases the per-procedure line counters are measured from: 516 for a
+# standard module, 612 for a class module. Measured, not searched -- see
+# `find_counter_base`.
+KNOWN_COUNTER_BASES = (516, 612)
+
 # FuncDefn opens a procedure and EndFunc closes it; the opcode is the low
 # 10 bits of a line's first word, and FuncDefn's u32 operand follows it.
 FUNCDEFN_OPCODE = 150
@@ -406,11 +411,22 @@ class Perf:
             if code is None:
                 continue
             offset = align8(len(buf))
-            buf += bytes(offset - len(buf))
+            # Access does not zero the padding between p-code lines; it
+            # leaves whatever was there. Copy the original bytes so an
+            # unchanged module rebuilds byte for byte, and fall back to
+            # zeros once the buffer has grown past what we have.
+            pad = offset - len(buf)
+            if pad:
+                kept = self.row[self.pstart + len(buf):self.pstart + offset]
+                buf += kept if len(kept) == pad else bytes(pad)
             out_recs[index][8:12] = offset.to_bytes(4, "little")
             out_recs[index][4:6] = len(code).to_bytes(2, "little")
             buf += code
-        buf += bytes(align8(len(buf)) - len(buf))
+        aligned = align8(len(buf))
+        if aligned != len(buf):
+            kept = self.row[self.pstart + len(buf):self.pstart + aligned]
+            buf += (kept if len(kept) == aligned - len(buf)
+                    else bytes(aligned - len(buf)))
         buf += self.trailer
         total = len(buf)
 
@@ -469,18 +485,24 @@ def _procedure_line_counts(lines, num_lines: int) -> list[tuple[int, int]]:
 def find_counter_base(row: bytes, lines, num_lines: int, cafe: int) -> int | None:
     """Offset the per-procedure line counters are measured from.
 
-    Each procedure's pair sits at ``base + func_``. The base is 516 for
-    an ordinary standard module, but not universally -- a class module
-    was measured at 612, with its first procedure's ``func_`` starting at
-    56 rather than 0. Rather than collect constants, locate the base by
-    finding the one offset at which every procedure's stored pair already
-    equals the value the layout implies.
+    Each procedure's pair sits at ``base + func_``. The base is 516 for an
+    ordinary standard module and 612 for a class module, whose first
+    procedure's ``func_`` starts at 56 rather than 0.
+
+    Only those two are tried. An earlier version scanned every even offset
+    for one that matched, which sounds more general and is not: on six
+    modules whose p-code is inconsistent with their source, the line-count
+    rule predicts nonsense (1005 lines for a four-line procedure), and the
+    scan found a single offset -- 596 -- where the nonsense happened to
+    match. It would then have written counters into arbitrary header
+    bytes with full confidence. Matching against known bases turns that
+    into a refusal, which is the right answer.
     """
     wanted = _procedure_line_counts(lines, num_lines)
-    if not wanted:
+    if not wanted or any(value > num_lines for _, value in wanted):
+        # A procedure cannot span more lines than the module has.
         return None
-    candidates = []
-    for base in range(0, min(cafe, 4096) - 4, 2):
+    for base in KNOWN_COUNTER_BASES:
         for func_operand, value in wanted:
             off = base + func_operand
             if off + 4 > cafe:
@@ -490,8 +512,8 @@ def find_counter_base(row: bytes, lines, num_lines: int, cafe: int) -> int | Non
             if int.from_bytes(row[off + 2:off + 4], "little") != value:
                 break
         else:
-            candidates.append(base)
-    return candidates[0] if len(candidates) == 1 else None
+            return base
+    return None
 
 
 def _write_procedure_line_counts(out: bytearray, lines, num_lines: int,

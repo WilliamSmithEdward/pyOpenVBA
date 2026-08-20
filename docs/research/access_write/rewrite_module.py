@@ -145,10 +145,15 @@ def _require_reproducible(perf: Perf, info: dict) -> None:
     instead of the p-code, so the p-code region is not where the model
     expects it to end.
 
+    The comparison covers the **whole row**, not just the header. It used
+    to stop at the 0xCAFE marker, which passed on every module in the
+    repository while the p-code region rebuilt differently -- Access does
+    not zero the padding between p-code lines, and this code did.
+
     ``verify_identity.py`` runs the same check across a whole corpus.
     """
     rebuilt, modoff = perf.build()
-    if rebuilt[:perf.cafe] == info["row"][:perf.cafe] and modoff == info["modoff"]:
+    if rebuilt == bytes(info["row"]) and modoff == info["modoff"]:
         return
     raise SystemExit(
         f"module {info.get('name')!r} does not rebuild byte-for-byte, so its "

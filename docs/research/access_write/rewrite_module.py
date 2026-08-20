@@ -57,6 +57,7 @@ from vba_compile import (
     comment_record,
     compile_line,
     declaration_pcode,
+    declares_storage,
     is_comment,
     is_declaration,
     name_table,
@@ -202,6 +203,18 @@ def _plan_declarations(header, source, statements):
     beyond it is released, newest first, and whatever the new body has
     beyond it is appended.
     """
+    # Refuse any declaration form the record model does not cover, in
+    # either the old body or the new. They are not merely unsupported:
+    # `is_declaration` does not see them, so they would be counted as
+    # zero, and the next record would land on top of their descriptor.
+    for where, lines in (("module", source), ("new body", statements)):
+        for line in lines:
+            if declares_storage(line) and not is_declaration(line):
+                raise SystemExit(
+                    f"the {where} contains {line.strip()!r}; arrays, fixed "
+                    "strings, Static and Const reshape the header in ways "
+                    "this code does not model, and rewriting around one "
+                    "would corrupt it")
     existing = [d for line in source if (d := is_declaration(line))]
     wanted = [d for line in statements if (d := is_declaration(line))]
     count = declaration_count(header)

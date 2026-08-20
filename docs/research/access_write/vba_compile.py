@@ -430,13 +430,36 @@ def _res(names, n):
 DECLARATION = re.compile(
     r"(?i)^dim\s+([A-Za-z_]\w*)\s*(?:as\s+([A-Za-z_]\w*))?$")
 
+# Anything that reserves storage. Only the plain scalar `Dim` above is
+# modelled; the rest reshape the header in their own way and are listed
+# here so they can be *detected* and refused rather than silently
+# miscounted. An array or fixed string carries a descriptor after its
+# record, `Static` shifts the whole region, and `Const` sets 0x40 in the
+# record's type field -- all measured, none implemented.
+DECLARES_STORAGE = re.compile(
+    r"(?i)^(?:public\s+|private\s+)?(dim|static|const|redim)\b")
+
 
 def is_declaration(text):
-    """``(name, type)`` for a `Dim` line, or None. No type means Variant."""
+    """``(name, type)`` for a modelled `Dim` line, or None.
+
+    Only ``Dim x`` and ``Dim x As <scalar>`` qualify. No type means
+    Variant.
+    """
     m = DECLARATION.match(text.strip())
     if not m:
         return None
     return m.group(1), (m.group(2) or "Variant")
+
+
+def declares_storage(text):
+    """True for any line that reserves storage, modelled or not.
+
+    Used to refuse a rewrite whose module contains a declaration form the
+    record model does not cover: miscounting those puts a new record on
+    top of an array descriptor, and Access crashes on the result.
+    """
+    return bool(DECLARES_STORAGE.match(text.strip()))
 
 
 def declaration_pcode(var_):

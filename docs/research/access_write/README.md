@@ -652,6 +652,34 @@ Dim aa As Long / Dim bb As Long / Dim cc As Double
 aa = 20 / bb = 22 / cc = 0.5 / Go = (aa + bb) * cc     -> 21
 ```
 
+### The other declaration forms, and a corruption path closed
+
+`Dim x As Long` is the only form modelled. The others were probed
+(`array_probe.bas`), and each reshapes the header its own way:
+
+| form | p-code | header |
+|------|--------|--------|
+| `Const K As Long = 10` | `Dim~1`, the value, `VarDefn~2` | record type gains bit `0x40` |
+| `Static s As Long` | `Dim~32`, `VarDefn~1` | region shifts by 8 |
+| `Dim a(1 To 5) As Long` | bounds pushed, then `VarDefn~1` | +40 bytes of array descriptor |
+| `Dim s As String * 8` | length pushed, then `VarDefn~1` | +8 bytes |
+| `ReDim a(1 To 3)` | `Redim(name)` with two operands | none, it is a statement |
+
+Measuring them mattered for a reason beyond completeness. `Dim arr(1 To
+5) As Long` does not match the scalar pattern, so `is_declaration`
+returned None and the count guard compared 0 against 0 and passed. A
+rewrite whose new body simply omitted that line then appended a record
+**on top of the array's descriptor**, and the tool reported success:
+
+```
+K2_clob.accdb: body 3 -> 3 lines, ... 4 __SRP_ cache row(s) dropped
+Access: the server threw an exception
+```
+
+Silent corruption, produced by the guard being narrower than the thing it
+guarded. `declares_storage` now matches every form that reserves storage,
+modelled or not, and a module containing one is refused outright.
+
 ### Releasing a record
 
 `remove_declaration` is the inverse, and the same probe corpus tests it

@@ -484,8 +484,30 @@ the p-code region at all. Preserving the original padding takes the
 corpus from **0 to 127 of 142 modules rebuilding byte for byte**, and
 `_require_reproducible` now checks the whole row too.
 
+**`RESERVED_SLOT` was load-bearing and only 18 of 261 slots deep.** A
+name VBA pre-interns resolves to a slot, not a project identifier.
+Interning one anyway turns out to be harmless for a *variable* -- a
+module using `Text` as a local runs either way -- but fatal when the name
+is the **procedure's**, because that is the binding the function result
+uses:
+
+```
+Go interned as a project identifier   ->  Access refuses to compile
+Go resolved to slot 92                ->  42
+```
+
+Completing a 261-entry table by guessing candidate names is not a
+strategy. Instead the operand is now **read out of the module**: a
+`Function` assigns to its own name, and that `St` already carries
+whatever operand Access chose. Removing `go` from the table entirely and
+re-running gives 42, so correctness no longer depends on the table being
+complete. The harvest was extended anyway (CDec, RGB, StrComp, and the
+call-form names) because it still improves fidelity.
+
 The pattern is worth naming: each of these passed by not looking, and
-each was found by asking the guard to prove what its name claimed.
+each was found by asking the guard to prove what its name claimed. The
+fix that generalises is not a longer table but a value read from the file
+being edited.
 
 ## Establishing p-code coverage
 

@@ -177,13 +177,21 @@ def _encode_line(text: str, names: dict) -> bytes | None:
     return compile_line(text, names)
 
 
-def _add_missing_identifiers(out_db: Path, statements: list[str]) -> dict:
+def _own_name(perf, source, procedure):
+    """The procedure's own name, when the module shows how to address it."""
+    operand = _procedure_operand(perf, source, procedure)
+    return {procedure.lower(): operand} if operand is not None else {}
+
+
+def _add_missing_identifiers(out_db: Path, statements: list[str],
+                             skip: dict | None = None) -> dict:
     """Append project identifiers for any name the program introduces."""
     names = name_table(out_db)
+    names.update(skip or {})
     wanted: list[str] = []
     # A name VBA pre-interns resolves to its slot, so adding a project
     # identifier for it would shadow the binding Access expects.
-    seen = {k.lower() for k in names} | set(RESERVED_SLOT)
+    seen = {k.lower() for k in names} | set(RESERVED_SLOT) | set(skip or {})
     for text in statements:
         for token in referenced_names(text):
             if token.lower() not in seen:
@@ -197,7 +205,32 @@ def _add_missing_identifiers(out_db: Path, statements: list[str]) -> dict:
     set_lval_payload(data, page, slot, new_row, len(row))
     out_db.write_bytes(bytes(data))
     print(f"added {len(wanted)} identifier(s): {', '.join(wanted)}")
-    return name_table(out_db)
+    refreshed = name_table(out_db)
+    refreshed.update(skip or {})
+    return refreshed
+
+
+def _procedure_operand(perf, source, procedure):
+    """The operand Access uses for a procedure's own name, if it shows.
+
+    A `Function` assigns to its own name, and that `St` carries the
+    operand -- which for a name VBA pre-interns is a slot rather than a
+    project identifier. Reading it from the module is exact, and does not
+    depend on `RESERVED_SLOT` happening to list the name: only 18 of the
+    261 slots are mapped, and interning a procedure name that should have
+    resolved to one produces a module Access refuses to compile.
+    """
+    if not procedure:
+        return None
+    for index, code in enumerate(perf.lines):
+        text = (source[index] if index < len(source) else "").strip()
+        if not code or len(code) < 4:
+            continue
+        if not text.lower().startswith(f"{procedure.lower()} ="):
+            continue
+        if int.from_bytes(code[-4:-2], "little") & 0x03FF == 39:   # St
+            return int.from_bytes(code[-2:], "little")
+    return None
 
 
 def _plan_declarations(header, source, statements):
@@ -250,7 +283,8 @@ def rewrite(src_db: Path, out_db: Path, statements: list[str],
     header = bytes(info["row"])[:perf.cafe]
     dropped, added = _plan_declarations(header, source, statements)
     names = _add_missing_identifiers(
-        out_db, statements + [f"{name} = 0" for name, _ in added])
+        out_db, statements + [f"{name} = 0" for name, _ in added],
+        skip=_own_name(perf, source, procedure))
 
     # Release then append, both at the end of the chain, before anything
     # reads the header.

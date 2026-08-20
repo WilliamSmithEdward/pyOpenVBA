@@ -120,8 +120,11 @@ BOUND_OPCODE = {"ubound": "FnUBound", "lbound": "FnLBound"}
 # whole table: 261 slots exist and only these are mapped, so an unmapped
 # reserved name still resolves to a fresh project identifier, which is
 # wrong but detectable -- Access renumbers it on its next compile.
-RESERVED_SLOT = {"b": 11, "base": 12, "dir": 62, "f": 81, "go": 92,
-                 "line": 115, "name": 130, "text": 177}
+RESERVED_SLOT = {"b": 11, "base": 12, "cdec": 25, "curdir": 37,
+                 "date": 44, "dir": 62, "f": 81, "format": 85,
+                 "freefile": 87, "go": 92, "left": 109, "line": 115,
+                 "mid": 124, "name": 130, "rgb": 159, "strcomp": 172,
+                 "string": 173, "text": 177}
 
 # A few built-ins are values rather than calls and appear bare, loaded
 # straight from their slot: Access rewrites `Date()` to `Date` and emits

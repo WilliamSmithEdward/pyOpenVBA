@@ -261,9 +261,18 @@ def _plan_declarations(header, source, statements):
             f"the module's source shows {len(existing)} declaration(s) but "
             f"its header holds {count}; the mapping is ambiguous, so this "
             "module cannot have declarations rewritten")
+    # Match on name *and* declared type. Comparing names alone let a
+    # retype through untouched: rewriting `Dim aa As Long` to
+    # `Dim aa As Double` kept the Long record, so `aa = 3.7` still came
+    # back as 4 while the source said Double. A changed type is handled
+    # as a release followed by an append, which already works.
     shared = 0
-    while (shared < min(len(existing), len(wanted))
-           and existing[shared][0].lower() == wanted[shared][0].lower()):
+    while shared < min(len(existing), len(wanted)):
+        old_name, old_type = existing[shared]
+        new_name, new_type = wanted[shared]
+        if (old_name.lower(), old_type.lower()) != (new_name.lower(),
+                                                    new_type.lower()):
+            break
         shared += 1
     return existing[shared:][::-1], wanted[shared:]
 
@@ -274,7 +283,21 @@ def rewrite(src_db: Path, out_db: Path, statements: list[str],
     shutil.copy(src_db, out_db)
     info = load_module(out_db, module)
     perf = Perf(info["row"], info["modoff"])
-    attributes, source = perf.attribute_lines(), perf.source_lines()
+    try:
+        attributes, source = perf.attribute_lines(), perf.source_lines()
+    except Exception as error:
+        # MODULEOFFSET does not always land on the compressed source in a
+        # module assembled from a chain of rows. Shrinking such a module
+        # back to one row does work -- the spanning-pages fixture rewrites
+        # and runs -- but where the source cannot even be read, refuse
+        # plainly instead of failing somewhere deeper with a decompression
+        # error.
+        raise SystemExit(
+            f"module {info['name']!r} does not parse: its compressed source "
+            f"could not be read at MODULEOFFSET {info['modoff']} "
+            f"({type(error).__name__}). Modules assembled from a chain of "
+            "rows are not reliably addressable this way, so it is refused."
+        ) from error
     # Check the layout is one we model before interpreting anything in
     # it, then resolve the target -- both before touching the file, so a
     # refusal leaves no appended identifiers behind.

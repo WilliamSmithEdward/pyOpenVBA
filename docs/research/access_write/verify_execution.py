@@ -49,6 +49,11 @@ CASES: list[tuple[str, list[str], object]] = [
     ("declares", ["Dim n As Long", "Dim r As Double",
                   "n = 42", "r = 0.5", "Probe = n * r"], 21.0),
     ("typed", ["Dim n As Long", "n = 3.7", "Probe = n"], 4),
+    # Retyping: the base declares n As Long, this makes it Double.
+    # Matching declarations on name alone kept the Long record and
+    # 3.7 came back as 4 while the source said Double.
+    ("retypes", ["Dim n As Double", "n = 3.7", "Probe = n"], 3.7,
+     "    Dim n As Long\r\n    n = 1\r\n    Probe = n\r\n"),
     # Releasing records: the base declares three, this keeps one.
     ("releases", ["Dim n As Long", "n = 40", "Probe = n + 2"], 42,
      "    Dim n As Long\r\n    Dim r As Double\r\n"

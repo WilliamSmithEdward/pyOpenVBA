@@ -504,10 +504,26 @@ re-running gives 42, so correctness no longer depends on the table being
 complete. The harvest was extended anyway (CDec, RGB, StrComp, and the
 call-form names) because it still improves fidelity.
 
+**`_plan_declarations` matched on names and ignored types.** Rewriting
+`Dim aa As Long` to `Dim aa As Double` kept the Long record, so
+`aa = 3.7` came back as **4** while the source plainly said Double --
+source and behaviour disagreeing with nothing to warn you. The prefix now
+compares name *and* type, and a changed type becomes a release followed
+by an append, which already worked.
+
+**The chained-row guard did not exist.** `load_module` set an
+`info["chained"]` flag and a comment said `write_module` would refuse on
+it; nothing ever read it. Writing a chained module turns out to work when
+the result fits one row -- the spanning-pages fixture rewrites and runs
+-- so the comment was wrong rather than the code. What does fail is a
+chain whose MODULEOFFSET does not address the assembled bytes, which used
+to surface as an unhandled decompression error; it is now a plain
+refusal.
+
 The pattern is worth naming: each of these passed by not looking, and
-each was found by asking the guard to prove what its name claimed. The
-fix that generalises is not a longer table but a value read from the file
-being edited.
+each was found by asking the guard to prove what its name claimed. Three
+of the six fixes replaced a table this code maintains with a value read
+from the file being edited, which is the shape that generalises.
 
 ## Establishing p-code coverage
 

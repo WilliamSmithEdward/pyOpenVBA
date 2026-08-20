@@ -560,8 +560,12 @@ def load_module(path, module: str | None = None) -> dict:
                 f"{', '.join(s.name for s in streams)}")
         stream = matches[0]
     # A module too large for one page is stored as a chain of rows, with
-    # `stream.raw` holding the assembled chain. Reading that is fine;
-    # writing it back is not, so record it and let write_module refuse.
+    # `stream.raw` holding the assembled chain. Writing one back does
+    # work when the result fits a single row -- the spanning-pages
+    # fixture rewrites and runs -- so this is recorded for callers to
+    # report rather than used to refuse. What actually fails is a chain
+    # whose MODULEOFFSET does not address the assembled bytes, and
+    # `rewrite_module` refuses that when the source will not decompress.
     head = bytes(reader._lval_row_bytes(stream.page, stream.slot))
     chained = len(stream.raw) != len(head)
     dir_page, dir_slot, dir_dec, dir_raw = find_dir_row(path)

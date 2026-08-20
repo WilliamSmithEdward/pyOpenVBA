@@ -652,8 +652,27 @@ Dim aa As Long / Dim bb As Long / Dim cc As Double
 aa = 20 / bb = 22 / cc = 0.5 / Go = (aa + bb) * cc     -> 21
 ```
 
-Existing declarations must be kept, in order, before any the rewrite
-adds: a record can be appended but not yet released.
+### Releasing a record
+
+`remove_declaration` is the inverse, and the same probe corpus tests it
+by running every transition backwards. It restores the displaced entry
+from the previous record's custody field, closes that record again, and
+returns 24 bytes to the arena -- re-creating the free pair when the
+arena had been exhausted.
+
+**Both directions reproduce Access byte for byte on all 18 pairs.**
+
+One trap: the record patch has to happen *after* the pointer fixups. One
+of the absolute fixups lands at offset 540, which is inside the procedure
+record, so patching first and fixing up second turned a zero into -24 and
+crashed Access. The same ordering applies to both operations -- the third
+time this session a "fixed offset" turned out to be a field with meaning.
+
+The new body and the old must agree on a prefix: whatever the old body
+has beyond it is released, newest first, and whatever the new body has
+beyond it is appended. Reordering, or removing from the middle, would
+renumber every later `var_` and the p-code referring to them, so it is
+refused.
 
 The written declaration **runs, with its type honoured**: a synthesized
 `Dim bb As Long` makes `bb = 3.7` return 4, and the same code with

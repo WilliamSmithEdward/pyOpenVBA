@@ -48,6 +48,7 @@ from accdb_write import (
     find_counter_base,
     find_project_row,
     load_module,
+    remove_declaration,
     set_lval_payload,
     write_module,
 )
@@ -194,11 +195,12 @@ def _add_missing_identifiers(out_db: Path, statements: list[str]) -> dict:
 
 
 def _plan_declarations(header, source, statements):
-    """Work out which declarations already exist and which are new.
+    """Work out which declarations to release and which to append.
 
-    A record can be appended but not removed or reordered, so the new body
-    must declare the module's existing variables first, in order, before
-    any it adds.
+    Records are appended and released at the end of the chain, so the new
+    body and the old one must agree on a prefix; whatever the old body has
+    beyond it is released, newest first, and whatever the new body has
+    beyond it is appended.
     """
     existing = [d for line in source if (d := is_declaration(line))]
     wanted = [d for line in statements if (d := is_declaration(line))]
@@ -208,13 +210,11 @@ def _plan_declarations(header, source, statements):
             f"the module's source shows {len(existing)} declaration(s) but "
             f"its header holds {count}; the mapping is ambiguous, so this "
             "module cannot have declarations rewritten")
-    names = [name for name, _ in existing]
-    if [name for name, _ in wanted[:len(names)]] != names:
-        raise SystemExit(
-            f"the new body must keep the existing declarations {names} "
-            "first and in order; removing or reordering one would orphan "
-            "its record, which cannot yet be released")
-    return names, wanted[len(names):]
+    shared = 0
+    while (shared < min(len(existing), len(wanted))
+           and existing[shared][0].lower() == wanted[shared][0].lower()):
+        shared += 1
+    return existing[shared:][::-1], wanted[shared:]
 
 
 def rewrite(src_db: Path, out_db: Path, statements: list[str],
@@ -230,18 +230,21 @@ def rewrite(src_db: Path, out_db: Path, statements: list[str],
     _require_reproducible(perf, info)
     first, last = _procedure_body(perf, source, procedure)
     header = bytes(info["row"])[:perf.cafe]
-    _kept, added = _plan_declarations(header, source, statements)
+    dropped, added = _plan_declarations(header, source, statements)
     names = _add_missing_identifiers(
         out_db, statements + [f"{name} = 0" for name, _ in added])
 
-    # Grow the header once per new declaration, before anything reads it.
+    # Release then append, both at the end of the chain, before anything
+    # reads the header.
+    for name, _typename in dropped:
+        header = remove_declaration(header, name, line_delta=0)
     for name, typename in added:
         vartype = VARTYPE.get(typename.lower())
         if vartype is None:
             raise SystemExit(f"unsupported declared type: {typename!r}")
         header = add_declaration(header, name, vartype, names[name.lower()],
                                  line_delta=0)
-    if added:
+    if added or dropped:
         # `info` keeps describing the row as it is on disk -- write_module
         # finds its catalog descriptor by that length -- so the grown row
         # is handed to Perf only.

@@ -629,6 +629,7 @@ _ARENA_MARK = bytes.fromhex("0c00ffff20000000")
 _ARENA_NULL = bytes.fromhex("ffffffff")
 _ARENA_FRESH = 480
 _ARENA_EXHAUSTED = 248
+_ARENA_RESIDUAL = 16
 
 
 def declaration_count(header: bytes) -> int:
@@ -713,22 +714,6 @@ def add_declaration(header: bytes, name: str, vartype: int, name_operand: int,
     displaced = int.from_bytes(out[slot:slot + 4], "little")
     out[slot:slot + 4] = (DECL_FIRST_VAR + DECL_RECORD * count).to_bytes(
         4, "little")
-    # The record before it stops being last, gains a frame offset, and
-    # takes custody of whatever this name displaced from its bucket -- its
-    # own offset when a variable lost the bucket, the procedure's when a
-    # procedure did, and the null marker when it was empty. Frame offsets
-    # run -32 for the procedure's own record, then -40, -48 and so on, so
-    # every local occupies eight bytes whatever its type.
-    # Patch only the fields that change. The previous record may be a
-    # procedure's rather than a variable's, and rewriting it wholesale
-    # from the variable template clobbers fields only procedures use.
-    for index, value in ((4, _DECL_NEXT_TAG), (5, name_operand),
-                         (6, displaced & 0xFFFF),
-                         (7, (displaced >> 16) & 0xFFFF),
-                         (8, (0xFFE0 - 8 * count) & 0xFFFF),
-                         (9, _U16_NULL)):
-        at = previous + 2 * index
-        out[at:at + 2] = (value & 0xFFFF).to_bytes(2, "little")
     arena = _consume_arena(out, insert + DECL_RECORD)
     for offset, delta in _DECL_FIXUPS_ABS:
         # The size fields count the whole header, so they follow the net
@@ -738,7 +723,121 @@ def add_declaration(header: bytes, name: str, vartype: int, name_operand: int,
         _bump(out, insert + offset, delta)
     for offset in (516, 518):
         _bump(out, offset, line_delta, size=2)
+    # The record before it stops being last, gains a frame offset, and
+    # takes custody of whatever this name displaced from its bucket -- its
+    # own offset when a variable lost the bucket, the procedure's when a
+    # procedure did, and the null marker when it was empty. Frame offsets
+    # run -32 for the procedure's own record, then -40, -48 and so on, so
+    # every local occupies eight bytes whatever its type.
+    #
+    # Done last, because one of the absolute fixups lands on this record
+    # when the module has no declarations yet and the record is the
+    # procedure's own.
+    _link_record(out, previous, name_operand, displaced,
+                 (0xFFE0 - 8 * count) & 0xFFFF)
     return bytes(out)
+
+
+def _link_record(out: bytearray, at: int, next_operand: int, displaced: int,
+                 frame: int) -> None:
+    """Point the record at ``at`` to the one that now follows it.
+
+    Only the fields that change are touched: the record may be a
+    procedure's rather than a variable's, and rewriting it wholesale from
+    the variable template clobbers fields only procedures use.
+    """
+    for index, value in ((4, _DECL_NEXT_TAG), (5, next_operand),
+                         (6, displaced & 0xFFFF),
+                         (7, (displaced >> 16) & 0xFFFF),
+                         (8, frame), (9, _U16_NULL)):
+        off = at + 2 * index
+        out[off:off + 2] = (value & 0xFFFF).to_bytes(2, "little")
+
+
+def _close_record(out: bytearray, at: int, owner: int) -> None:
+    """Make the record at ``at`` the last one in the chain again."""
+    for index, value in ((4, _U16_NULL), (5, _U16_NULL), (6, 0), (7, 0),
+                         (8, _DECL_OWNER_TAG), (9, owner)):
+        off = at + 2 * index
+        out[off:off + 2] = (value & 0xFFFF).to_bytes(2, "little")
+
+
+def remove_declaration(header: bytes, name: str, *,
+                       line_delta: int = -1) -> bytes:
+    """Release the module's last declaration; the inverse of adding one.
+
+    Only the last can go: releasing an earlier one would renumber every
+    ``var_`` after it, and the p-code referring to them with it. ``name``
+    is the declaration being dropped, needed to find its hash bucket.
+    """
+    count = declaration_count(header)
+    if not count:
+        raise ValueError("module has no declarations to remove")
+    last = DECL_BASE + DECL_FIRST_VAR + DECL_RECORD * (count - 1)
+    previous = last - DECL_RECORD
+    owner = int.from_bytes(header[last + 18:last + 20], "little")
+    # Whatever this name displaced when it took its bucket was parked in
+    # the previous record; putting it back is what makes the two
+    # operations inverses.
+    displaced = int.from_bytes(header[previous + 12:previous + 16], "little")
+    out = bytearray(header)
+    table = DECL_BASE + DECL_FIRST_VAR + DECL_RECORD * count + DECL_TABLE_GAP
+    slot = table + 4 * (identifier_hash(name) % DECL_BUCKETS)
+    out[slot:slot + 4] = (displaced or _U32_NULL).to_bytes(4, "little")
+    # The record before it becomes the last again.
+    for index, value in ((4, _U16_NULL), (5, _U16_NULL), (6, 0), (7, 0),
+                         (8, _DECL_OWNER_TAG), (9, owner)):
+        at = previous + 2 * index
+        out[at:at + 2] = (value & 0xFFFF).to_bytes(2, "little")
+    del out[last:last + DECL_RECORD]
+    variables = {DECL_FIRST_VAR + DECL_RECORD * k for k in range(count)}
+    new_table = table - DECL_RECORD
+    for bucket in range(DECL_BUCKETS):
+        cell = new_table + 4 * bucket
+        value = int.from_bytes(out[cell:cell + 4], "little")
+        if value != _U32_NULL and value not in variables:
+            out[cell:cell + 4] = (value - DECL_RECORD).to_bytes(4, "little")
+    for k in range(count - 1):
+        field = DECL_BASE + DECL_FIRST_VAR + DECL_RECORD * k + 12
+        value = int.from_bytes(out[field:field + 4], "little")
+        if value not in (_U32_NULL, 0) and value not in variables:
+            out[field:field + 4] = (value - DECL_RECORD).to_bytes(4, "little")
+    arena = _release_arena(out, last)
+    for offset, delta in _DECL_FIXUPS_ABS:
+        _bump(out, offset,
+              -delta + arena if offset in (9, 25, 444) else -delta)
+    for offset, delta in _DECL_FIXUPS_REL:
+        # These are applied after the delete, so a field that adding put
+        # at `insert + offset` now sits one record earlier.
+        _bump(out, previous + offset, -delta)
+    for offset in (516, 518):
+        _bump(out, offset, line_delta, size=2)
+    # The record before it becomes the last again -- after the fixups, for
+    # the same reason as in `add_declaration`.
+    _close_record(out, previous, owner)
+    return bytes(out)
+
+
+def _release_arena(out: bytearray, records_end: int) -> int:
+    """Return one record's worth of space to the arena."""
+    flag = records_end + 36
+    mark = out.find(_ARENA_MARK)
+    if mark < 0:
+        return 0
+    tail = mark + len(_ARENA_MARK)
+    if out[tail:tail + 4] != _ARENA_NULL:
+        # The arena was exhausted; adding the record back re-creates the
+        # pair with whatever was left when it went.
+        out[tail:tail] = _ARENA_NULL + _ARENA_RESIDUAL.to_bytes(4, "little")
+        out[flag:flag + 4] = (0).to_bytes(4, "little")
+        return 8
+    free = int.from_bytes(out[tail + 4:tail + 8], "little")
+    if free + DECL_RECORD < _ARENA_FRESH + DECL_RECORD:
+        out[tail + 4:tail + 8] = (free + DECL_RECORD).to_bytes(4, "little")
+        return 0
+    del out[tail:tail + 8]
+    out[flag:flag + 4] = _ARENA_EXHAUSTED.to_bytes(4, "little")
+    return -8
 
 
 def _consume_arena(out: bytearray, records_end: int) -> int:

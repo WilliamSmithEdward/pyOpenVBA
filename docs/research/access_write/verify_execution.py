@@ -49,6 +49,10 @@ CASES: list[tuple[str, list[str], object]] = [
     ("declares", ["Dim n As Long", "Dim r As Double",
                   "n = 42", "r = 0.5", "Probe = n * r"], 21.0),
     ("typed", ["Dim n As Long", "n = 3.7", "Probe = n"], 4),
+    # Releasing records: the base declares three, this keeps one.
+    ("releases", ["Dim n As Long", "n = 40", "Probe = n + 2"], 42,
+     "    Dim n As Long\r\n    Dim r As Double\r\n"
+     "    Dim s As String\r\n    n = 1\r\n    Probe = n\r\n"),
 ]
 
 SOURCE = (
@@ -91,8 +95,16 @@ def main(argv: list[str]) -> int:
     starting = build(scratch, "exec_base", "    Probe = 0\r\n")
     empty = build(scratch, "exec_empty", "")
     failures = 0
-    for name, statements, expected in CASES:
-        source = empty if name == "from-empty" else starting
+    for case in CASES:
+        name, statements, expected = case[:3]
+        if len(case) > 3:
+            # A case can bring its own starting body, which is how
+            # releasing a declaration gets something to release.
+            source = build(scratch, f"exec_{name}_base", case[3])
+        elif name == "from-empty":
+            source = empty
+        else:
+            source = starting
         out = scratch / f"exec_{name}.accdb"
         out.unlink(missing_ok=True)
         try:

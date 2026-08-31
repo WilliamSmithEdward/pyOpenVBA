@@ -3,45 +3,64 @@
 All notable changes to pyOpenVBA are documented here. This project follows
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [3.5.0] - 2026-08-31
 
 ### Added
 
-- **Reading and editing a UserForm's design surface** (issue #15).  A
-  form's controls, their nesting, and their named properties are now
-  readable and writable with no Office installed: `ExcelFile.forms()` /
-  `WordFile.forms()` / `PowerPointFile.forms()`, and
-  `python -m pyopenvba forms <file>`.  Containers recurse -- a `Frame`'s
-  children and a `MultiPage`'s Pages live in storages of their own, and
-  MSForms sites an unnamed `TabStrip` beside the pages.
-  `control.set_property()`, `form.add_control()` and
-  `form.remove_control()` write; geometry is in points.  MSForms stores a
-  property only when it differs from the control's default, so
-  `properties()` is the set the developer chose -- which a live COM read
-  cannot distinguish from inherited and default values.  Writing is
-  lossless: an unedited form saves back byte for byte.  Verified against
-  live Excel, which is where three defects surfaced that no structural
-  check could catch: an added control colliding with the last control's
-  id (`NextAvailableID` is the highest handed out, not the next free), a
-  MorphData record omitting reserved mask bit 31 ([MS-OFORMS] 2.2.5.2),
-  and a designer edit leaving the `_VBA_PROJECT` performance cache stale.
-  Refuses with `FormParseError` rather than returning a partly guessed
-  control list.  `add_form()` composes a whole form from nothing --
-  designer storage and code-behind module together, declared `BaseClass=`
-  in the PROJECT stream, and works the same in every host: a form composed
-  into a blank `.xlsm`, `.docm` or `.pptm` comes back the same way, and
-  the PowerPoint case is checked against live PowerPoint.  Containers are
-  created and deleted with their storages,
-  including `MultiPage`, which arrives with the two pages Excel gives it;
-  `add_page()` and `remove_page()` move a page's site, its storage, its
-  entry in each of the MultiPage's five TabStrip arrays and its place in
-  the page bookkeeping together.
+- **UserForm designs are now read and written, not just preserved**
+  (issue #15).  A form's *code* was always a module like any other; its
+  *design* -- which controls exist, how they nest, and what their
+  properties are -- lived in streams the library carried verbatim.  It is
+  now a first-class surface, with no Office installed:
+
+  ```python
+  with pyopenvba.ExcelFile("book.xlsm") as wb:
+      form = wb.add_form("Wizard", caption="Setup", width=300, height=200)
+      form.add_control("Frame", "Shipping", left=12, top=40, width=200, height=80)
+      form.add_control("OptionButton", "Ground", container="Shipping")
+      form.add_control("MultiPage", "Tabs", left=12, top=140, width=280)
+      form.add_page("Tabs", name="Review")
+      form.control("Ground").set_property("Caption", "Ground shipping")
+      wb.save()
+  ```
+
+  `host.forms()` reads the tree; `host.add_form()` composes one from
+  nothing; `form.add_control()` / `remove_control()` / `add_page()` /
+  `remove_page()` and `control.set_property()` edit it.  Containers
+  recurse -- a `Frame`'s children and a `MultiPage`'s pages live in
+  storages of their own -- and each is created and deleted with its
+  storage.  Geometry is in points.  `python -m pyopenvba forms <file>`
+  prints the tree; `--mask` gives the raw property bits instead.
+
+- **Only what the developer set.**  MSForms stores a property just when it
+  differs from that control's default, so `control.properties()` is the
+  set the author chose -- which a live COM read cannot distinguish from
+  inherited and default values.  That is the reason this belongs in a
+  file-level library.
+
+- **Writing is lossless.**  An unedited form saves back byte for byte:
+  alignment padding, raw string bytes, pictures and any tail the property
+  tables do not model are all replayed as read.  Bytes inside a record
+  that the tables cannot explain are refused rather than dropped, and a
+  form whose streams do not reconcile raises `FormParseError` rather than
+  returning a partly guessed control list.
+
+- **Verified against live Excel and live PowerPoint**, which is where four
+  defects surfaced that no structural check could catch: an added control
+  colliding with the last one's id (`NextAvailableID` is the highest
+  handed out, not the next free), a MorphData record omitting reserved
+  mask bit 31 ([MS-OFORMS] 2.2.5.2), a container written with a leaf's
+  site, and a designer edit leaving the `_VBA_PROJECT` cache stale.
+
 - **Path-addressed CFB navigation and editing**: `CFB.list_storages_at`,
   `list_streams_at`, `get_stream_at`, `write_stream_at`, `add_stream_at`,
   `add_substorage_at` (which can set a storage's CLSID), and
   `remove_storage_at` (recursive).  Nested designer storages repeat
   names -- every container owns an `f` -- so a name-based lookup finds
   whichever comes first in directory order.
+
+- `VBAForm`, `FormControl`, `Size` and `FormParseError` are exported from
+  the package root.
 
 ### Fixed
 

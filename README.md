@@ -356,20 +356,6 @@ with pyopenvba.ExcelFile("book.xlsm") as wb:
     wb.save()
 ```
 
-And a form can be built from nothing -- `add_form` creates the designer
-storage and the code-behind module together, because a storage without a
-module is not a component the host will show:
-
-```python
-with pyopenvba.ExcelFile("book.xlsm") as wb:
-    form = wb.add_form("Wizard", caption="Setup", width=300, height=200)
-    form.add_control("Label", "Prompt", left=12, top=12, width=200)
-    form.add_control("TextBox", "Answer", left=12, top=40, width=200)
-    form.add_control("CommandButton", "Ok", left=12, top=80)
-    wb.set_module("Wizard", "Private Sub Ok_Click()\r\n    Me.Hide\r\nEnd Sub\r\n")
-    wb.save()
-```
-
 Geometry is in points, the unit the designer shows. `set_property(name,
 None)` clears a property, which is how a control goes back to inheriting
 the default.

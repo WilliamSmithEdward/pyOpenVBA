@@ -41,8 +41,9 @@ from pyopenvba.vba import (
 # File extensions used by the VBE export/import workflow.
 # - Standard procedural modules -> .bas
 # - Everything else (class, document/sheet/workbook, designer/form) -> .cls
-# We do not write .frm/.frx layout bytes; UserForm layout is preserved
-# inside the CFB and never round-trips through disk.
+# We do not write .frm/.frx layout bytes: a form's design stays in the CFB
+# and never round-trips through disk.  It is not opaque, though -- see
+# forms.py, which reads and writes it in place.
 _BAS_EXT = ".bas"
 _CLS_EXT = ".cls"
 _SOURCE_EXTS = frozenset({_BAS_EXT, _CLS_EXT})

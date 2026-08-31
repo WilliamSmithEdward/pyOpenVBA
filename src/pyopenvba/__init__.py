@@ -62,7 +62,7 @@ from pyopenvba.exceptions import (
     UnsupportedFormatError,
     VBAProjectError,
 )
-from pyopenvba.forms import FormControl, VBAForm
+from pyopenvba.forms import FormControl, Size, VBAForm
 from pyopenvba.powerpoint import PowerPointFile
 from pyopenvba.vba import VBAModuleKind
 from pyopenvba.vba import synthesize_class_header as synthesize_class_header
@@ -195,6 +195,7 @@ __all__ = [
     "FormParseError",
     "PowerPointFile",
     "PyOpenVBAError",
+    "Size",
     "UnsupportedFormatError",
     "VBAForm",
     "VBAModuleKind",
@@ -209,4 +210,4 @@ __all__ = [
     "push_word",
 ]
 
-__version__ = "3.4.0"
+__version__ = "3.5.0"

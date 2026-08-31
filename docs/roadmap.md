@@ -27,15 +27,16 @@ pyOpenVBA today is best described as:
   into the workbook.
 - No-op round-trip preservation of every non-VBA ZIP entry.
 - No-op round-trip preservation of every module's performance-cache prefix.
-- Reading **and editing** a UserForm's design surface: the control tree,
-  its nesting, each control's named properties, and adding or removing
-  controls (`ExcelFile.forms()`, `python -m pyopenvba forms`).
+- **Creating and editing a UserForm's design surface**: the control
+  tree, its nesting, each control's named properties, adding and
+  removing controls, Frames, MultiPages and their pages, and composing
+  a whole form from nothing (`host.add_form()`, `host.forms()`,
+  `form.add_control()`, `form.add_page()`, `control.set_property()`,
+  `python -m pyopenvba forms`).  Writing is lossless: an unedited form
+  saves back byte for byte.
 - Pure Python 3.10+, zero runtime dependencies.
 
 ### Unsupported (today)
-- Creating a UserForm and editing its design: properties, controls,
-  Frames, MultiPages and their pages (`ExcelFile.add_form()`,
-  `form.add_control()`, `form.add_page()`, `control.set_property()`).
 - ActiveX license editing (PROJECTlk). ActiveX controls are deprecated; license bytes are round-tripped verbatim.
 - Project password / protection editing (parsing-only; save refuses to mutate protected projects unless `allow_protected=True`).
 - Digital signature re-signing (out of scope; stale signature streams are dropped on mutating save with a `UserWarning`).
@@ -61,7 +62,7 @@ pyOpenVBA today is best described as:
 | 11 | dir Module Records | PASS | Module name (MBCS + Unicode), stream name (MBCS + Unicode), offset, type, read-only, private, doc-string (MBCS + Unicode), help-context, cookie all decoded. `serialize_dir_modules_section()` re-emits the full block. |
 | 12 | Module Stream | PASS | Source decompressed from `MODULEOFFSET`; replacement preserves cache prefix; reparse yields identical source. |
 | 13 | Module Mutation | PASS | Replace, add, rename, and delete all persist end-to-end (CFB stream create/rename/remove + dir rewrite + PROJECT rewrite). |
-| 14 | Designer / UserForm | PASS | UserForm sub-storage and all four designer child streams (`f`, `o`, `\x01CompObj`, `\x03VBFrame`) survive a no-op save byte-for-byte on the live xlsm fixture (`test_designer_storage_preserved`). Generic sub-storage round-trip is also covered (`test_synthetic_substorage_round_trips_through_cfb`). |
+| 14 | Designer / UserForm | PASS | The designer streams are read, edited and written ([`forms.py`](../src/pyopenvba/forms.py)): control tree, nesting, named properties, control/container/page add and remove, and composing a form from nothing. Lossless is the gate -- an unedited form serializes to the bytes it was read from across every fixture, and a no-op save leaves all four designer child streams byte-for-byte identical. Verified against live Excel and live PowerPoint (`test_live_forms_gate.py`, `test_live_powerpoint_forms_gate.py`, opt-in). |
 | 15 | Content Hash / Integrity | OUT OF SCOPE | `compute_v3_content_hash()` provides a stable SHA-1 digest over normalized module sources for internal use. The Office-compatible V3 / agile content hash (host-specific tokenization that matches Excel's signature payload) is intentionally out of scope; reaching parity would require Excel-side reference vectors and only matters for re-signing (also out of scope, see Gate 17). |
 | 16 | Protection / Encryption / Password | PASS | `ProjectProtection` exposes raw obfuscated CMG/DPB/GC plus `has_password`. A real password-protected fixture (`workbook_with_password_protected_vba_modules.xlsm`) is parsed end-to-end. `ExcelFile.save()` refuses to mutate a protected project unless `allow_protected=True`; with the opt-in, the password material is preserved verbatim. Password decryption / re-encryption is intentionally out of scope. |
 | 17 | Digital Signature | OUT OF SCOPE | `detect_signature()` identifies legacy / agile / V3 signature streams. `ExcelFile.save()` drops stale signature streams when the project is mutated and emits a `UserWarning` (silenced with `allow_invalidate_signature=True`). Re-signing modified projects with PKCS#7 / VBA digital signatures is intentionally out of scope. |

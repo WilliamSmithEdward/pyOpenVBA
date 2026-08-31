@@ -492,9 +492,11 @@ tests/
 - **No silent corruption.** Any code path that could leave a workbook
   inconsistent must either succeed completely or raise. Partial state
   is never written to disk.
-- **Preserve what you don't understand.** Bytes that the library does
-  not interpret (designer sub-storages, PROJECTlk in v1, signature
-  payloads on no-op saves) are round-tripped verbatim.
+- **Preserve what you don't understand.** Bytes the library does not
+  interpret (PROJECTlk, signature payloads on no-op saves) are
+  round-tripped verbatim -- and so are the parts of a structure it *does*
+  interpret but cannot explain: a control record's alignment padding, an
+  unmodelled tail, a CompObj blob.
 - **Drop perf caches on mutation.** `_VBA_PROJECT` body is zeroed,
   `__SRP_*` streams are removed. Office regenerates both.
 - **ASCII only in user-facing strings.** Warnings, error messages,

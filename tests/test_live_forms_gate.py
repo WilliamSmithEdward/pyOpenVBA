@@ -189,3 +189,49 @@ def _designer_values(path: Path, checks: list[tuple[str, object]]) -> bool:
             session.close()
         except Exception:
             pass
+
+
+@pytest.mark.skipif(not _NESTED.exists(), reason="nested form fixture not present")
+class TestExcelBindsContainersWeCreate:
+    """A container's storage is bound by its CLSID and by the CompObj
+    naming what fm20 should treat it as.  Get either wrong and the
+    container loads without erroring and simply does not appear, which is
+    a failure only a live host can show."""
+
+    def test_a_new_frame_appears_and_holds_controls(self, tmp_path: Path) -> None:
+        out = tmp_path / "frame.xlsm"
+        shutil.copyfile(_NESTED, out)
+        with ExcelFile(out) as workbook:
+            form = workbook.forms()[0]
+            form.add_control("Frame", "NewFrame", left=12, top=250,
+                             width=180, height=70)
+            form.add_control("CommandButton", "Inside", container="NewFrame",
+                             left=6, top=12)
+            workbook.save()
+        assert _designer_values(
+            out,
+            [
+                ('TypeName(Controls("NewFrame"))', "Frame"),
+                ('Controls("NewFrame").Caption', "NewFrame"),
+                ('Controls("NewFrame").Controls.Count', 1),
+                ('Controls("Inside").Parent.Name', "NewFrame"),
+                ("Controls.Count", 12),
+            ],
+        )
+
+    def test_removing_a_frame_takes_its_children_and_leaves_the_rest(
+        self, tmp_path: Path
+    ) -> None:
+        out = tmp_path / "framegone.xlsm"
+        shutil.copyfile(_NESTED, out)
+        with ExcelFile(out) as workbook:
+            workbook.forms()[0].remove_control("GroupBox")
+            workbook.save()
+        assert _designer_values(
+            out,
+            [
+                ("Controls.Count", 6),
+                ('Controls("CloseButton").Caption', "Close"),
+                ('Controls("Pages").Pages.Count', 2),
+            ],
+        )

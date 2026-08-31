@@ -375,6 +375,10 @@ found by Excel refusing the result:
 - **A designer edit must invalidate the `_VBA_PROJECT` performance cache.**
   Adding or removing a control changes the form class's members, and with
   a stale cache Office loads a member list the form no longer matches.
+- **A container's storage is bound by its CLSID and its `\x01CompObj`**,
+  which names the kind fm20 should treat it as. Get either wrong and the
+  container loads without erroring and simply does not appear, so both are
+  reproduced verbatim from an Excel-authored fixture.
 
 Nesting is resolved by matching a child storage's numeric suffix against
 a site id, not by rebuilding the storage name from the id: the file says

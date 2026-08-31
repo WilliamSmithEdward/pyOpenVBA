@@ -243,6 +243,9 @@ class VBAForm:
     controls: tuple[FormControl, ...] = ()
     _levels: list[_Level] = field(default_factory=lambda: [], repr=False)
     _encoding: str = field(default="cp1252", repr=False)
+    _removed_storages: list[tuple[list[str], str]] = field(
+        default_factory=lambda: [], repr=False
+    )
 
     @property
     def properties_set(self) -> int:
@@ -313,10 +316,15 @@ class VBAForm:
         """
         if not self._levels:
             raise FormParseError(f"form {self.name!r} has no parsed record")
-        if kind in ("Frame", "MultiPage", "Page", "Form"):
+        if kind in ("MultiPage", "Page", "Form"):
+            # A Page is also a tab: its caption, tip, tag and accelerator
+            # live in the parent MultiPage's TabStrip arrays, and its order
+            # in the `x` bookkeeping.  Four structures have to move
+            # together, so this refuses rather than write three of them.
             raise FormParseError(
-                f"cannot add a {kind}: a container needs a storage of its own, "
-                "which this does not create"
+                f"cannot add a {kind}: a page is also a tab of its MultiPage, "
+                "and its TabStrip arrays and page bookkeeping are not "
+                "written here"
             )
         cache_index = _CACHE_INDEX_BY_KIND.get(kind)
         if cache_index is None:
@@ -343,8 +351,9 @@ class VBAForm:
         if root.has("ShapeCookie"):
             root.set_value("ShapeCookie", root.values.get("ShapeCookie", 0) + 1)
 
-        record = _new_record(kind, cache_index, name)
-        _adopt_font(record, level)
+        default_w, default_h = _DEFAULT_SIZE_PT.get(kind, _DEFAULT_SIZE_FALLBACK)
+        size_w = points_to_himetric(default_w if width is None else width)
+        size_h = points_to_himetric(default_h if height is None else height)
         site = _new_site(
             name,
             site_id,
@@ -353,13 +362,27 @@ class VBAForm:
             points_to_himetric(left),
             points_to_himetric(top),
             self._encoding,
+            container=kind == "Frame",
         )
-        if width is not None or height is not None:
-            default_w, default_h = _DEFAULT_SIZE_PT.get(kind, _DEFAULT_SIZE_FALLBACK)
-            record.set_size(
-                points_to_himetric(default_w if width is None else width),
-                points_to_himetric(default_h if height is None else height),
+        if kind == "Frame":
+            # A Frame holds no slice of `o`; its own record heads the `f`
+            # of a storage created for it.
+            child = _Level(
+                path=[*level.path, _storage_name(site_id)],
+                f_raw=b"",
+                o_raw=b"",
+                stream=_new_container_stream(kind, name, size_w, size_h),
+                controls=[],
+                created=True,
+                clsid=_FRAME_CLSID,
+                compobj=_FRAME_COMPOBJ,
             )
+            self._levels.append(child)
+            record = child.stream.record
+        else:
+            record = _new_record(kind, cache_index, name)
+            _adopt_font(record, level)
+            record.set_size(size_w, size_h)
         level.stream.sites.append(site)
         level.stream.sites_structurally_changed = True
         control = FormControl(
@@ -386,17 +409,37 @@ class VBAForm:
             for index, control in enumerate(level.controls):
                 if control.name != name:
                     continue
-                if control.children or control.clsid_cache_index in _CONTAINER_CLASSES:
+                if control.clsid_cache_index in (7, 57):
+                    # Same reason a Page cannot be added: removing one moves
+                    # its MultiPage's TabStrip arrays and page bookkeeping
+                    # as well as its storage.
                     raise FormParseError(
-                        f"cannot remove {name!r}: it is a container, and its "
-                        "storage would be left behind"
+                        f"cannot remove {name!r}: a page is also a tab of its "
+                        "MultiPage, and its TabStrip arrays and page "
+                        "bookkeeping are not written here"
                     )
+                child = self._child_level(level, control.id)
+                if child is not None:
+                    # Its storage goes too, with everything under it: the
+                    # next read refuses a form whose child storage no site
+                    # claims, which is what makes this mandatory.
+                    self._drop_subtree(child)
                 del level.controls[index]
                 del level.stream.sites[index]
                 level.stream.sites_structurally_changed = True
                 self._reindex()
                 return
         raise KeyError(f"no control named {name!r} on form {self.name!r}")
+
+    def _drop_subtree(self, level: _Level) -> None:
+        """Forget a container's level, and every level beneath it."""
+        depth = len(level.path)
+        for other in [
+            other for other in self._levels if other.path[:depth] == level.path
+        ]:
+            self._levels.remove(other)
+        if not level.created:
+            self._removed_storages.append((level.path[:-1], level.path[-1]))
 
     def _level_for(self, container: str | None) -> _Level:
         """The level a new control belongs to: the form, or a container."""
@@ -444,6 +487,23 @@ class VBAForm:
         was written, which the host uses to decide that the save mutates.
         """
         changed = False
+        for parent, name in self._removed_storages:
+            cfb.remove_storage_at(parent, name)
+            changed = True
+        self._removed_storages.clear()
+        for level in self._levels:
+            if not level.created:
+                continue
+            # A container's storage is bound by its CLSID and by the
+            # CompObj naming what fm20 should treat it as; either one
+            # wrong and the container loads without erroring and simply
+            # does not appear.
+            cfb.add_substorage_at(level.path[:-1], level.path[-1], level.clsid)
+            cfb.add_stream_at(level.path, "f", b"")
+            cfb.add_stream_at(level.path, "o", b"")
+            cfb.add_stream_at(level.path, _COMPOBJ_STREAM, level.compobj)
+            level.created = False
+            changed = True
         for level in self._levels:
             f_bytes, o_bytes = level.serialize(self._encoding)
             if o_bytes != level.o_raw:
@@ -647,6 +707,11 @@ class _Level:
     o_raw: bytes
     stream: _FormStream
     controls: list[FormControl]
+    created: bool = False
+    """Set on a level whose storage does not exist yet, so write_back
+    creates it before writing its streams."""
+    clsid: bytes = b""
+    compobj: bytes = b""
 
     @property
     def record(self) -> ParsedRecord:
@@ -1004,6 +1069,14 @@ def himetric_to_points(himetric: int) -> float:
 # be found, and without the position bit it lands at the origin.
 _NEW_SITE_MASK = (1 << 0) | (1 << 2) | (1 << 5) | (1 << 6) | (1 << 7) | (1 << 8)
 
+# A container's site instead carries BitFlags and no ObjectStreamSize.
+_NEW_CONTAINER_SITE_MASK = (
+    (1 << 0) | (1 << 2) | (1 << 4) | (1 << 6) | (1 << 7) | (1 << 8)
+)
+# Visible and enabled, as Excel writes for a Frame -- taken from the
+# fixture's own containers rather than assembled from flag names.
+_CONTAINER_SITE_BITFLAGS = 262179
+
 # Default sizes in points, as the VBE uses when you drop a control.
 _DEFAULT_SIZE_PT: dict[str, tuple[float, float]] = {
     "CommandButton": (72, 24),
@@ -1130,10 +1203,16 @@ def _adopt_font(record: ParsedRecord, level: _Level) -> None:
 
 
 def _new_site(name: str, site_id: int, cache_index: int, tab_index: int,
-              left: int, top: int, encoding: str) -> _Site:
-    site = _Site(mask=_NEW_SITE_MASK)
+              left: int, top: int, encoding: str, *,
+              container: bool = False) -> _Site:
+    # A container's site carries BitFlags and no ObjectStreamSize: its
+    # record is the `f` of its own storage, not a slice of the parent's `o`.
+    site = _Site(mask=_NEW_CONTAINER_SITE_MASK if container else _NEW_SITE_MASK)
     site.values["ID"] = site_id
-    site.values["ObjectStreamSize"] = 0
+    if container:
+        site.values["BitFlags"] = _CONTAINER_SITE_BITFLAGS
+    else:
+        site.values["ObjectStreamSize"] = 0
     site.values["TabIndex"] = tab_index
     site.values["ClsidCacheIndex"] = cache_index
     site.position = (left, top)
@@ -1144,6 +1223,73 @@ def _new_site(name: str, site_id: int, cache_index: int, tab_index: int,
         | (0x80000000 if compressed else 0)
     )
     return site
+
+
+
+# ---------------------------------------------------------------------------
+# Container storages
+# ---------------------------------------------------------------------------
+#
+# A container control keeps its own record and its children in a storage of
+# its own, named for its site id.  The storage is bound by its CLSID and by
+# the CompObj naming the kind fm20 should treat it as; get either wrong and
+# the container loads without erroring and simply does not appear.  Both are
+# reproduced verbatim from an Excel-authored fixture.
+
+_FRAME_CLSID = bytes.fromhex("2020186e60f4ce119bcd00aa00608e01")
+_PAGE_CLSID = bytes.fromhex("f0692ac6dc16ce119e9800aa00574a4f")
+
+_FRAME_COMPOBJ = bytes.fromhex(
+    "0100feff030a0000ffffffff2020186e60f4ce119bcd00aa00608e01"
+    "1a0000004d6963726f736f667420466f726d7320322e30204672616d"
+    "650010000000456d626564646564204f626a656374000e000000466f"
+    "726d732e4672616d652e3100f439b271000000000000000000000000"
+)
+_PAGE_COMPOBJ = bytes.fromhex(
+    "0100feff030a0000fffffffff0692ac6dc16ce119e9800aa00574a4f"
+    "190000004d6963726f736f667420466f726d7320322e3020466f726d"
+    "0010000000456d626564646564204f626a656374000d000000466f72"
+    "6d732e466f726d2e3100f439b271000000000000000000000000"
+)
+
+_COMPOBJ_STREAM = "\x01CompObj"
+
+# The mask bits an empty container's own FormControl sets.  Measured from
+# the fixture's Frames and Pages: a page authored without BooleanProperties,
+# DrawBuffer and LogicalSize was silently not bound.
+_CONTAINER_BOOLEAN_PROPERTIES = 0x00008004  # enabled, class table not saved
+_CONTAINER_DRAW_BUFFER = 32000
+
+
+def _new_container_stream(
+    kind: str, caption: str | None, width: int, height: int
+) -> _FormStream:
+    """The minimal FormControl an Excel-authored Frame or Page carries."""
+    record = ParsedRecord(FORM_SPEC, 0)
+    record.set_value("NextAvailableID", 1)
+    record.set_value("BooleanProperties", _CONTAINER_BOOLEAN_PROPERTIES)
+    record.set_value("DrawBuffer", _CONTAINER_DRAW_BUFFER)
+    record.sizes["DisplayedSize"] = Size(width, height)
+    record.mask |= 1 << 10
+    record.sizes["LogicalSize"] = Size(0, 0)
+    record.mask |= 1 << 11
+    if kind == "Frame" and caption is not None:
+        record.set_string("Caption", caption)
+    return _FormStream(
+        record=record,
+        sites=[],
+        class_table_present=False,
+        sites_structurally_changed=True,
+    )
+
+
+def _storage_name(site_id: int) -> str:
+    """The ``iNN`` name a container site's storage takes.
+
+    Zero-padded to two digits, which is what MSForms writes; reading
+    matches on the number instead, so only writing depends on this.
+    """
+    return f"i{site_id:02d}"
 
 def _storage_id(storage: str) -> int | None:
     """The site id a container storage name carries, or ``None``.

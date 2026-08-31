@@ -559,3 +559,76 @@ class TestCFBPathNavigation:
         assert cfb.get_stream_at(["frmnested", "I06"], "F") == cfb.get_stream_at(
             ["FrmNested", "i06"], "f"
         )
+
+
+class TestCFBPathEditing:
+    """Creating a UserForm container means creating a storage with the
+    right CLSID; removing one means removing it and everything under it,
+    because a child storage no site claims makes the next read refuse."""
+
+    @staticmethod
+    def _nested_cfb() -> CFB:
+        import zipfile
+        from pathlib import Path
+
+        live = Path(__file__).parent / "live_excel_testing" / "nested_form.xlsm"
+        if not live.exists():
+            pytest.skip("nested form fixture not available")
+        with zipfile.ZipFile(live) as zf:
+            return CFB.from_bytes(zf.read("xl/vbaProject.bin"))
+
+    _FRAME_CLSID = bytes.fromhex("2020186e60f4ce119bcd00aa00608e01")
+
+    @staticmethod
+    def _clsid_of(raw: bytes, name: str) -> bytes:
+        """Find a directory entry in serialized bytes and read its CLSID.
+
+        Read from the output rather than the model, so this checks what
+        actually lands on disk.  Entries are 128 bytes and sector-aligned,
+        with a UTF-16LE name at offset 0 and the CLSID at 80.
+        """
+        needle = name.encode("utf-16-le") + b"\x00\x00"
+        for offset in range(0, len(raw) - 128, 128):
+            entry = raw[offset:offset + 128]
+            if entry[:len(needle)] == needle and entry[64] == len(needle):
+                return entry[80:96]
+        raise AssertionError(f"no directory entry named {name!r}")
+
+    def test_a_new_storage_keeps_its_clsid_through_a_round_trip(self) -> None:
+        cfb = self._nested_cfb()
+        cfb.add_substorage_at(["FrmNested"], "i99", self._FRAME_CLSID)
+        cfb.add_stream_at(["FrmNested", "i99"], "f", b"payload")
+        raw = cfb.to_bytes()
+        out = CFB.from_bytes(raw)
+        assert "i99" in out.list_storages_at(["FrmNested"])
+        assert out.get_stream_at(["FrmNested", "i99"], "f") == b"payload"
+        assert self._clsid_of(raw, "i99") == self._FRAME_CLSID
+
+    def test_removing_a_storage_takes_its_subtree(self) -> None:
+        cfb = self._nested_cfb()
+        # i06 is the MultiPage: it owns i08 and i09.
+        cfb.remove_storage_at(["FrmNested"], "i06")
+        out = CFB.from_bytes(cfb.to_bytes())
+        assert out.list_storages_at(["FrmNested"]) == ["i02"]
+        # The sibling that was not removed is still intact.
+        assert len(out.get_stream_at(["FrmNested", "i02"], "f")) == 208
+
+    def test_a_duplicate_storage_name_is_refused(self) -> None:
+        cfb = self._nested_cfb()
+        with pytest.raises(ValueError, match="already exists"):
+            cfb.add_substorage_at(["FrmNested"], "i02")
+
+    def test_a_duplicate_stream_name_is_refused(self) -> None:
+        cfb = self._nested_cfb()
+        with pytest.raises(ValueError, match="already exists"):
+            cfb.add_stream_at(["FrmNested"], "f", b"")
+
+    def test_removing_something_that_is_not_there_raises(self) -> None:
+        cfb = self._nested_cfb()
+        with pytest.raises(KeyError, match="i99"):
+            cfb.remove_storage_at(["FrmNested"], "i99")
+
+    def test_a_clsid_of_the_wrong_length_is_refused(self) -> None:
+        cfb = self._nested_cfb()
+        with pytest.raises(ValueError, match="16 bytes"):
+            cfb.add_substorage_at(["FrmNested"], "i99", b"\x00" * 8)

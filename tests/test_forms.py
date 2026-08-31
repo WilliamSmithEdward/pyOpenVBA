@@ -694,18 +694,87 @@ class TestAddAndRemoveControls:
         with pytest.raises(FormParseError, match="unknown control kind"):
             form.add_control("Sparkline", "Added")
 
-    def test_adding_a_container_is_refused(self) -> None:
-        """A Frame needs a storage of its own, which this does not create."""
+    def test_adding_a_page_is_refused(self) -> None:
+        """A page is also a tab: its caption, tip, tag and accelerator live
+        in the MultiPage's TabStrip arrays and its order in the `x`
+        bookkeeping, so three of four structures would be left behind."""
         form = read_form(_project_cfb(_NESTED), "FrmNested")
-        with pytest.raises(FormParseError, match="needs a storage of its own"):
-            form.add_control("Frame", "Added")
+        for kind in ("Page", "MultiPage"):
+            with pytest.raises(FormParseError, match="also a tab of its MultiPage"):
+                form.add_control(kind, "Added")
 
-    def test_removing_a_container_is_refused(self) -> None:
-        """Its storage would be orphaned, and the next read refuses the
-        form rather than quietly losing its children."""
+    def test_removing_a_page_is_refused(self) -> None:
         form = read_form(_project_cfb(_NESTED), "FrmNested")
-        with pytest.raises(FormParseError, match="storage would be left behind"):
-            form.remove_control("GroupBox")
+        with pytest.raises(FormParseError, match="also a tab of its MultiPage"):
+            form.remove_control("Page1")
+
+
+@pytest.mark.skipif(not _NESTED.exists(), reason="fixture not present")
+class TestFrameStorages:
+    """A Frame owns a storage of its own, bound by the storage's CLSID and
+    by a CompObj naming what fm20 should treat it as.  Creating one means
+    creating that storage; removing one means removing it and everything
+    under it, because the next read refuses a form whose child storage no
+    site claims."""
+
+    def test_a_new_frame_gets_its_own_storage(self, tmp_path: Path) -> None:
+        out = tmp_path / "frame.xlsm"
+        shutil.copyfile(_NESTED, out)
+        with ExcelFile(out) as workbook:
+            added = workbook.forms()[0].add_control(
+                "Frame", "NewFrame", left=12, top=250, width=180, height=70
+            )
+            site_id = added.id
+            workbook.save()
+        cfb = _project_cfb(out)
+        storage = f"i{site_id:02d}"
+        assert storage in cfb.list_storages_at(["FrmNested"])
+        assert set(cfb.list_streams_at(["FrmNested", storage])) >= {
+            "f", "o", "\x01CompObj",
+        }
+
+    def test_a_new_frame_reads_back_as_an_empty_container(
+        self, tmp_path: Path
+    ) -> None:
+        out = tmp_path / "frameread.xlsm"
+        shutil.copyfile(_NESTED, out)
+        with ExcelFile(out) as workbook:
+            workbook.forms()[0].add_control("Frame", "NewFrame")
+            workbook.save()
+        with ExcelFile(out) as workbook:
+            frame = workbook.forms()[0].control("NewFrame")
+        assert frame.kind == "MSForms.Frame"
+        assert frame.children == ()
+        assert frame.object_stream_size == 0
+        assert frame.get("Caption") == "NewFrame"
+
+    def test_controls_can_be_added_into_a_new_frame(self, tmp_path: Path) -> None:
+        out = tmp_path / "framechild.xlsm"
+        shutil.copyfile(_NESTED, out)
+        with ExcelFile(out) as workbook:
+            form = workbook.forms()[0]
+            form.add_control("Frame", "NewFrame", left=12, top=250)
+            form.add_control("CommandButton", "Inside", container="NewFrame")
+            workbook.save()
+        with ExcelFile(out) as workbook:
+            frame = workbook.forms()[0].control("NewFrame")
+        assert [c.name for c in frame.children] == ["Inside"]
+
+    def test_removing_a_frame_takes_its_storage_and_children(
+        self, tmp_path: Path
+    ) -> None:
+        out = tmp_path / "framegone.xlsm"
+        shutil.copyfile(_NESTED, out)
+        with ExcelFile(out) as workbook:
+            workbook.forms()[0].remove_control("GroupBox")
+            workbook.save()
+        cfb = _project_cfb(out)
+        assert cfb.list_storages_at(["FrmNested"]) == ["i06"]
+        with ExcelFile(out) as workbook:
+            names = [c.name for c in workbook.forms()[0].walk()]
+        assert "GroupBox" not in names
+        assert "OptOne" not in names          # its children went with it
+        assert "PageOneCheck" in names        # the MultiPage did not
 
     def test_removing_something_that_is_not_there_raises(self) -> None:
         form = read_form(_project_cfb(_NESTED), "FrmNested")

@@ -26,10 +26,14 @@ All notable changes to pyOpenVBA are documented here. This project follows
   MorphData record omitting reserved mask bit 31 ([MS-OFORMS] 2.2.5.2),
   and a designer edit leaving the `_VBA_PROJECT` performance cache stale.
   Refuses with `FormParseError` rather than returning a partly guessed
-  control list.  Adding or removing a container (`Frame`, `MultiPage`,
-  `Page`) is not supported: each needs a storage of its own.
-- **Path-addressed CFB navigation**: `CFB.list_storages_at`,
-  `list_streams_at`, `get_stream_at`.  Nested designer storages repeat
+  control list.  Frames are created and deleted with their storages;
+  adding or removing a page (`MultiPage`, `Page`) is not supported,
+  because a page is also a tab of its MultiPage and its TabStrip arrays
+  and page bookkeeping would have to move with it.
+- **Path-addressed CFB navigation and editing**: `CFB.list_storages_at`,
+  `list_streams_at`, `get_stream_at`, `write_stream_at`, `add_stream_at`,
+  `add_substorage_at` (which can set a storage's CLSID), and
+  `remove_storage_at` (recursive).  Nested designer storages repeat
   names -- every container owns an `f` -- so a name-based lookup finds
   whichever comes first in directory order.
 

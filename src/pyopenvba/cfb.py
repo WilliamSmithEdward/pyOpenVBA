@@ -420,6 +420,127 @@ class CFB:
             raise KeyError(f"Stream {name!r} not found in storage {storage!r}")
         self._stream_overrides[child_idx] = bytes(data)
 
+    def add_stream_at(self, path: Sequence[str], name: str, data: bytes) -> None:
+        """Create a stream inside the storage at ``path``, seeded with ``data``.
+
+        The path form of :meth:`add_stream_to_storage`, for storages whose
+        name repeats -- a UserForm's containers all own an ``f``.
+        """
+        if not name:
+            raise ValueError("stream name must be non-empty")
+        parent_idx = self._resolve_path(path)
+        if self._find_child_stream_index(parent_idx, name) is not None:
+            joined = "/".join(path)
+            raise ValueError(f"Stream {name!r} already exists in {joined!r}")
+        self._attach_child(parent_idx, self._claim_slot(name, _OBJTYPE_STREAM))
+        self._stream_overrides[self._find_child_stream_index(parent_idx, name) or 0] = (
+            bytes(data)
+        )
+
+    def add_substorage_at(
+        self, path: Sequence[str], name: str, clsid: bytes = b""
+    ) -> None:
+        """Create a storage inside the storage at ``path``.
+
+        ``clsid`` is the 16-byte class id the entry carries.  It is not
+        decoration: a UserForm container's storage is bound by its CLSID,
+        and one written without it is silently not bound.
+        """
+        if not name:
+            raise ValueError("storage name must be non-empty")
+        if clsid and len(clsid) != 16:
+            raise ValueError(f"CLSID must be 16 bytes, got {len(clsid)}")
+        parent_idx = self._resolve_path(path)
+        needle = name.casefold()
+        for child_idx in self._collect_subtree(self._directory[parent_idx].child_id):
+            sibling = self._directory[child_idx]
+            if (
+                sibling.obj_type == _OBJTYPE_STORAGE
+                and sibling.name.casefold() == needle
+            ):
+                joined = "/".join(path)
+                raise ValueError(f"Storage {name!r} already exists under {joined!r}")
+        target_idx = self._claim_slot(name, _OBJTYPE_STORAGE)
+        if clsid:
+            entry = self._directory[target_idx]
+            raw = bytearray(self._synth_dir_entry_bytes(entry))
+            raw[80:96] = clsid
+            entry.raw = bytes(raw)
+        self._attach_child(parent_idx, target_idx)
+
+    def remove_storage_at(self, path: Sequence[str], name: str) -> None:
+        """Delete a storage inside ``path``, and everything under it.
+
+        Recursive on purpose: a UserForm container's storage holds its
+        children's storages, and leaving one behind orphans a whole
+        subtree that the next read would refuse.
+        """
+        parent_idx = self._resolve_path(path)
+        needle = name.casefold()
+        target_idx = None
+        for child_idx in self._collect_subtree(self._directory[parent_idx].child_id):
+            entry = self._directory[child_idx]
+            if entry.obj_type == _OBJTYPE_STORAGE and entry.name.casefold() == needle:
+                target_idx = child_idx
+                break
+        if target_idx is None:
+            joined = "/".join(path)
+            raise KeyError(f"Storage {name!r} not found under {joined!r}")
+
+        def clear(idx: int) -> None:
+            entry = self._directory[idx]
+            if entry.obj_type == _OBJTYPE_STORAGE:
+                for grandchild in self._collect_subtree(entry.child_id):
+                    clear(grandchild)
+            self._stream_overrides.pop(idx, None)
+            entry.name = ""
+            entry.obj_type = _OBJTYPE_EMPTY
+            entry.child_id = _NOSTREAM
+            entry.left_sibling_id = _NOSTREAM
+            entry.right_sibling_id = _NOSTREAM
+            entry.start_sector = _FREESECT
+            entry.size = 0
+            entry.raw = b""
+
+        siblings = [
+            i
+            for i in self._collect_subtree(self._directory[parent_idx].child_id)
+            if i != target_idx
+        ]
+        clear(target_idx)
+        self._directory[parent_idx].child_id = self._rebuild_balanced_subtree(siblings)
+
+    def _claim_slot(self, name: str, obj_type: int) -> int:
+        """Recycle an empty directory slot, or append a fresh entry."""
+        for idx, entry in enumerate(self._directory):
+            if entry.obj_type == _OBJTYPE_EMPTY:
+                entry.name = name
+                entry.obj_type = obj_type
+                entry.child_id = _NOSTREAM
+                entry.left_sibling_id = _NOSTREAM
+                entry.right_sibling_id = _NOSTREAM
+                entry.start_sector = _ENDOFCHAIN
+                entry.size = 0
+                entry.raw = b""
+                return idx
+        self._directory.append(DirEntry(
+            name=name,
+            obj_type=obj_type,
+            child_id=_NOSTREAM,
+            left_sibling_id=_NOSTREAM,
+            right_sibling_id=_NOSTREAM,
+            start_sector=_ENDOFCHAIN,
+            size=0,
+            raw=b"",
+        ))
+        return len(self._directory) - 1
+
+    def _attach_child(self, parent_idx: int, child_idx: int) -> None:
+        """Splice a new entry into a storage's child subtree and rebalance."""
+        siblings = self._collect_subtree(self._directory[parent_idx].child_id)
+        siblings.append(child_idx)
+        self._directory[parent_idx].child_id = self._rebuild_balanced_subtree(siblings)
+
     def add_stream_to_storage(self, storage: str, name: str, data: bytes) -> None:
         """
         Create a new stream as a child of ``storage`` and seed it with ``data``.

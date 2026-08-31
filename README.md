@@ -290,7 +290,7 @@ modules, `.cls` for class modules and code-behind.
 
 ---
 
-## Reading and editing a UserForm's design
+## Creating and editing a UserForm's design
 
 A form's *code* is a module like any other. Its *design* -- which controls
 exist, how they nest, and what their properties are -- lives in separate
@@ -341,6 +341,34 @@ form.remove_page("Page2", multipage="Wizard")
 
 Page names are scoped to their MultiPage rather than to the form, which is
 why `remove_page` takes an optional `multipage` to disambiguate.
+
+And a form can be built from nothing -- `add_form` creates the designer
+storage and the code-behind module together, because a storage without a
+module is not a component the host will show:
+
+```python
+with pyopenvba.ExcelFile("book.xlsm") as wb:
+    form = wb.add_form("Wizard", caption="Setup", width=300, height=200)
+    form.add_control("Label", "Prompt", left=12, top=12, width=200)
+    form.add_control("TextBox", "Answer", left=12, top=40, width=200)
+    form.add_control("CommandButton", "Ok", left=12, top=80)
+    wb.set_module("Wizard", "Private Sub Ok_Click()\r\n    Me.Hide\r\nEnd Sub\r\n")
+    wb.save()
+```
+
+And a form can be built from nothing -- `add_form` creates the designer
+storage and the code-behind module together, because a storage without a
+module is not a component the host will show:
+
+```python
+with pyopenvba.ExcelFile("book.xlsm") as wb:
+    form = wb.add_form("Wizard", caption="Setup", width=300, height=200)
+    form.add_control("Label", "Prompt", left=12, top=12, width=200)
+    form.add_control("TextBox", "Answer", left=12, top=40, width=200)
+    form.add_control("CommandButton", "Ok", left=12, top=80)
+    wb.set_module("Wizard", "Private Sub Ok_Click()\r\n    Me.Hide\r\nEnd Sub\r\n")
+    wb.save()
+```
 
 Geometry is in points, the unit the designer shows. `set_property(name,
 None)` clears a property, which is how a control goes back to inheriting
@@ -496,12 +524,9 @@ wb.save(allow_invalidate_signature=True)
 
 ## What's out of scope
 
-This library is intentionally focused on **module source code**. The
+A project's code and its UserForm designs are read and written. The
 following are preserved byte-for-byte but not interpreted:
 
-- Composing a UserForm from nothing. An existing form's design reads and
-  writes in full -- see
-  [Reading and editing a UserForm's design](#reading-and-editing-a-userforms-design).
 - VBA project password decryption / re-encryption.
 - Re-signing digitally signed projects.
 - ActiveX license editing.

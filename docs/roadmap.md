@@ -33,9 +33,9 @@ pyOpenVBA today is best described as:
 - Pure Python 3.10+, zero runtime dependencies.
 
 ### Unsupported (today)
-- Composing a UserForm from nothing.  Every part of an *existing* form's
-  design is supported: properties, controls, Frames, MultiPages and their
-  pages.
+- Creating a UserForm and editing its design: properties, controls,
+  Frames, MultiPages and their pages (`ExcelFile.add_form()`,
+  `form.add_control()`, `form.add_page()`, `control.set_property()`).
 - ActiveX license editing (PROJECTlk). ActiveX controls are deprecated; license bytes are round-tripped verbatim.
 - Project password / protection editing (parsing-only; save refuses to mutate protected projects unless `allow_protected=True`).
 - Digital signature re-signing (out of scope; stale signature streams are dropped on mutating save with a `UserWarning`).
@@ -83,8 +83,8 @@ _No open near-term items: all in-scope gates are PASS. See the "Out of scope" se
 - Re-signing modified projects with arbitrary PKCS#7 / VBA digital signatures (Gate 17).
 - Office-compatible V3 / agile content-hash recomputation (Gate 15) — only meaningful as a prerequisite for re-signing.
 - Breaking, removing, or bypassing project protection passwords.
-- Composing a UserForm from nothing.  Editing an existing form's design is
-  supported in full.
+- Editing the design of a form whose streams this cannot parse: it raises
+  rather than guessing, which is deliberate.
 - Editing ActiveX licenses beyond preserving `PROJECTlk` verbatim.
 - BIFF8 record-level editing of legacy `.xls` workbooks (only the embedded
   CFB / VBA project is supported; the workbook stream is treated as opaque).

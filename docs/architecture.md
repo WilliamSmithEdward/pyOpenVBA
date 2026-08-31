@@ -387,6 +387,19 @@ found by Excel refusing the result:
   two levels down on one of its pages. A new id is recorded on every
   ancestor up to the form.
 
+Composing a form from nothing needs one more thing the format does not
+announce: the **empty class-table count word**. With `BooleanProperties`
+defaulted, `DONTSAVECLASSTABLE` is 0 and fm20 reads a count before
+`CountOfSites`; omit the word and the low bytes of `CountOfSites` are read
+*as* the count. An empty form survives that by luck -- both are zero -- and
+the form's first control makes the misread count 1, so fm20 parses garbage
+as class info and refuses the whole form.
+
+A form is also two things at once: a designer storage and a code-behind
+module, declared `BaseClass=` (not `Class=`) in the PROJECT stream. A
+storage without a module is not a component the host shows; a module
+without a storage is an ordinary class.
+
 A page is four structures at once, and `_oforms_pages.py` moves them
 together: a site and a storage of its own; an entry in each of the
 MultiPage's five parallel TabStrip arrays (`Items`, `TipStrings`,

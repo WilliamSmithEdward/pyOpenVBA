@@ -42,6 +42,7 @@ only the affected control's record and patches that site's
 from __future__ import annotations
 
 import struct
+import uuid
 from collections.abc import Sequence
 from copy import deepcopy
 from dataclasses import dataclass, field
@@ -1659,6 +1660,149 @@ def _storage_id(storage: str) -> int | None:
     if storage[:1].casefold() == "i" and digits.isdigit():
         return int(digits)
     return None
+
+
+# ---------------------------------------------------------------------------
+# Composing a form from nothing
+# ---------------------------------------------------------------------------
+
+# The Forms 2.0 CompObj a top-level form's storage carries, and the class
+# id its VBFrame block names.  Both verbatim from an Excel-authored form.
+FORMS20_COMPOBJ = bytes.fromhex(
+    "0100feff030a0000ffffffff00000000000000000000000000000000"
+    "190000004d6963726f736f667420466f726d7320322e3020466f726d"
+    "0010000000456d626564646564204f626a6563740000000000f439b271"
+    "000000000000000000000000"
+)
+USERFORM_CLSID = "{C62A69F0-16DC-11CE-9E98-00AA00574A4F}"
+
+# What Excel sizes a new form: 228 x 150.8 points, in HIMETRIC.
+_DEFAULT_FORM_SIZE = (8043, 5318)
+
+# Twips per point, for the VBFrame block's client box.
+_TWIPS_PER_POINT = 20
+
+_NEW_FORM_DRAW_BUFFER = 32000
+
+
+def _guid() -> str:
+    """A fresh GUID in the shape VB_Base uses."""
+    return "{" + str(uuid.uuid4()).upper() + "}"
+
+
+def compose_new_form(
+    name: str,
+    caption: str,
+    width: int,
+    height: int,
+    encoding: str,
+) -> tuple[bytes, bytes, bytes, bytes, str]:
+    """Build the four streams and the module header of an empty form.
+
+    Returns ``(f, o, vbframe, compobj, attribute_header)``.  The ``o``
+    stream is empty and must still exist: the format requires it, and the
+    reader's own sum-of-sizes check reads it.
+    """
+    record = ParsedRecord(FORM_SPEC, 0)
+    record.set_value("DrawBuffer", _NEW_FORM_DRAW_BUFFER)
+    record.set_string("Caption", caption)
+    record.sizes["DisplayedSize"] = Size(width, height)
+    record.mask |= 1 << 10
+    record.sizes["LogicalSize"] = Size(0, 0)
+    record.mask |= 1 << 11
+    stream = _FormStream(
+        record=record,
+        sites=[],
+        # The empty class-table COUNT WORD has to be here.  With
+        # BooleanProperties defaulted, DONTSAVECLASSTABLE is 0 and fm20
+        # reads a count before CountOfSites; omit it and the low bytes of
+        # CountOfSites are read AS the count.  An empty form survives that
+        # by luck (both are zero), and the form's first control then makes
+        # the misread count 1, so fm20 parses garbage as class info and
+        # refuses the whole form.  Excel-authored forms all carry it.
+        class_table_present=True,
+        class_table_raw=b"\x00\x00",
+        sites_structurally_changed=True,
+    )
+    vbframe = "\r\n".join(
+        [
+            "VERSION 5.00",
+            f"Begin {USERFORM_CLSID} {name} ",
+            f'   Caption         =   "{caption}"',
+            f"   ClientHeight    =   {_twips(height)}",
+            "   ClientLeft      =   120",
+            "   ClientTop       =   465",
+            f"   ClientWidth     =   {_twips(width)}",
+            "   StartUpPosition =   1  'CenterOwner",
+            "End",
+            "",
+        ]
+    )
+    header = "\r\n".join(
+        [
+            f'Attribute VB_Name = "{name}"',
+            # A designer's VB_Base carries two fresh GUIDs where a plain
+            # class carries the one class CLSID, and a form has a default
+            # instance, so PredeclaredId is True.
+            f'Attribute VB_Base = "0{_guid()}{_guid()}"',
+            "Attribute VB_GlobalNameSpace = False",
+            "Attribute VB_Creatable = False",
+            "Attribute VB_PredeclaredId = True",
+            "Attribute VB_Exposed = False",
+            "Attribute VB_TemplateDerived = False",
+            "Attribute VB_Customizable = False",
+            "",
+        ]
+    )
+    return (
+        stream.serialize(encoding),
+        b"",
+        vbframe.encode(encoding, "replace"),
+        FORMS20_COMPOBJ,
+        header,
+    )
+
+
+def _twips(himetric: int) -> int:
+    return round(himetric_to_points(himetric) * _TWIPS_PER_POINT)
+
+
+def create_form(
+    cfb: CFB,
+    name: str,
+    *,
+    caption: str | None = None,
+    width: float | None = None,
+    height: float | None = None,
+    code_page: int = 1252,
+) -> str:
+    """Create an empty form's storage in a project's CFB.
+
+    Returns the attribute header the caller must give the form's
+    code-behind module; the form is not a form until that module exists
+    too, and declaring it is the host's job.
+    """
+    from pyopenvba.vba import encoding_for_codepage
+
+    if name in form_names(cfb):
+        raise FormParseError(f"the project already has a form named {name!r}")
+    encoding = encoding_for_codepage(code_page)
+    default_w, default_h = _DEFAULT_FORM_SIZE
+    f_bytes, o_bytes, vbframe, compobj, header = compose_new_form(
+        name,
+        caption if caption is not None else name,
+        default_w if width is None else points_to_himetric(width),
+        default_h if height is None else points_to_himetric(height),
+        encoding,
+    )
+    # A top-level form's storage carries no CLSID -- unlike its containers,
+    # which are bound by theirs.
+    cfb.add_substorage_at((), name)
+    cfb.add_stream_at([name], "f", f_bytes)
+    cfb.add_stream_at([name], "o", o_bytes)
+    cfb.add_stream_at([name], _COMPOBJ_STREAM, compobj)
+    cfb.add_stream_at([name], _VBFRAME_STREAM, vbframe)
+    return header
 
 
 # ---------------------------------------------------------------------------

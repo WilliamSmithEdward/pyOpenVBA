@@ -26,7 +26,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
   MorphData record omitting reserved mask bit 31 ([MS-OFORMS] 2.2.5.2),
   and a designer edit leaving the `_VBA_PROJECT` performance cache stale.
   Refuses with `FormParseError` rather than returning a partly guessed
-  control list.  Containers are created and deleted with their storages,
+  control list.  `add_form()` composes a whole form from nothing --
+  designer storage and code-behind module together, declared `BaseClass=`
+  in the PROJECT stream.  Containers are created and deleted with their
+  storages,
   including `MultiPage`, which arrives with the two pages Excel gives it;
   `add_page()` and `remove_page()` move a page's site, its storage, its
   entry in each of the MultiPage's five TabStrip arrays and its place in

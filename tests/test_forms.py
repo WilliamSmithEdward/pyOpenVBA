@@ -1011,3 +1011,118 @@ class TestMultiPageFromScratch:
         with ExcelFile(out) as workbook:
             ids = [c.id for c in workbook.forms()[0].walk()]
         assert len(ids) == len(set(ids))
+
+
+@pytest.mark.skipif(not _NESTED.exists(), reason="fixture not present")
+class TestCreatingAForm:
+    """A form is a designer storage *and* a code-behind module.  A storage
+    without a module is not a component the host will show; a module
+    without a storage is a class."""
+
+    def test_a_new_form_gets_a_storage_and_a_module(self, tmp_path: Path) -> None:
+        out = tmp_path / "newform.xlsm"
+        shutil.copyfile(_NESTED, out)
+        with ExcelFile(out) as workbook:
+            workbook.add_form("Brand", caption="Brand new")
+            workbook.save()
+        cfb = _project_cfb(out)
+        assert "Brand" in cfb.list_storages_at()
+        assert set(cfb.list_streams_at(["Brand"])) == {
+            "f", "o", "\x01CompObj", "\x03VBFrame",
+        }
+        with ExcelFile(out) as workbook:
+            assert "Brand" in workbook.module_names()
+            assert [f.name for f in workbook.forms() if f.name == "Brand"]
+
+    def test_a_new_form_is_declared_baseclass(self, tmp_path: Path) -> None:
+        """A designer is declared BaseClass in the PROJECT stream; Class
+        would make the host treat it as an ordinary class module."""
+        out = tmp_path / "declared.xlsm"
+        shutil.copyfile(_NESTED, out)
+        with ExcelFile(out) as workbook:
+            workbook.add_form("Brand")
+            workbook.save()
+        project = _project_cfb(out).get_stream("PROJECT").decode("cp1252")
+        # Line-wise: "BaseClass=Brand" contains "Class=Brand" as a
+        # substring, so a plain `in` check passes either way.
+        declarations = [line.strip() for line in project.splitlines()]
+        assert "BaseClass=Brand" in declarations
+        assert "Class=Brand" not in declarations
+
+    def test_a_new_forms_header_marks_it_a_designer(self, tmp_path: Path) -> None:
+        """Two fresh GUIDs in VB_Base where a plain class carries the one
+        class CLSID, and a form has a default instance."""
+        out = tmp_path / "header.xlsm"
+        shutil.copyfile(_NESTED, out)
+        with ExcelFile(out) as workbook:
+            workbook.add_form("Brand")
+            workbook.save()
+        with ExcelFile(out) as workbook:
+            source = workbook.get_module("Brand")
+        assert "Attribute VB_PredeclaredId = True" in source
+        assert source.count("}{") == 1        # two GUIDs, run together
+
+    def test_a_new_form_carries_the_empty_class_table_word(
+        self, tmp_path: Path
+    ) -> None:
+        """With BooleanProperties defaulted, fm20 reads a class-table count
+        before CountOfSites.  Omit the word and the low bytes of
+        CountOfSites are read as the count -- survivable while the form is
+        empty, fatal as soon as it has a control."""
+        out = tmp_path / "classtable.xlsm"
+        shutil.copyfile(_NESTED, out)
+        with ExcelFile(out) as workbook:
+            workbook.add_form("Brand")
+            workbook.save()
+        raw = _project_cfb(out).get_stream_at(["Brand"], "f")
+        # Header, then the FormControl block, then the count word and the
+        # two zero counts that close an empty form's site data.
+        assert raw.endswith(b"\x00\x00" + b"\x00" * 8)
+
+    def test_controls_can_be_added_to_a_new_form(self, tmp_path: Path) -> None:
+        out = tmp_path / "populated.xlsm"
+        shutil.copyfile(_NESTED, out)
+        with ExcelFile(out) as workbook:
+            form = workbook.add_form("Wizard", caption="Setup", width=300, height=200)
+            form.add_control("Label", "Prompt", left=12, top=12)
+            form.add_control("CommandButton", "Ok", left=12, top=80)
+            workbook.save()
+        with ExcelFile(out) as workbook:
+            form = next(f for f in workbook.forms() if f.name == "Wizard")
+        assert [c.name for c in form.controls] == ["Prompt", "Ok"]
+        assert form.get("Caption") == "Setup"
+
+    def test_containers_can_be_added_to_a_new_form(self, tmp_path: Path) -> None:
+        out = tmp_path / "deep.xlsm"
+        shutil.copyfile(_NESTED, out)
+        with ExcelFile(out) as workbook:
+            form = workbook.add_form("Deep")
+            form.add_control("Frame", "Group", left=12, top=12)
+            form.add_control("OptionButton", "First", container="Group")
+            form.add_control("MultiPage", "Tabs", left=12, top=120)
+            form.add_page("Tabs", name="Third")
+            workbook.save()
+        with ExcelFile(out) as workbook:
+            form = next(f for f in workbook.forms() if f.name == "Deep")
+        assert [c.name for c in form.control("Group").children] == ["First"]
+        assert [c.name for c in form.control("Tabs").children] == [
+            "", "Page1", "Page2", "Third",
+        ]
+
+    def test_the_existing_forms_are_untouched(self, tmp_path: Path) -> None:
+        out = tmp_path / "sidebyside.xlsm"
+        shutil.copyfile(_NESTED, out)
+        before = read_form(_project_cfb(_NESTED), "FrmNested")
+        with ExcelFile(out) as workbook:
+            workbook.add_form("Brand")
+            workbook.save()
+        after = read_form(_project_cfb(out), "FrmNested")
+        assert [c.name for c in after.walk()] == [c.name for c in before.walk()]
+
+    def test_a_duplicate_form_name_is_refused(self, tmp_path: Path) -> None:
+        out = tmp_path / "dupe.xlsm"
+        shutil.copyfile(_NESTED, out)
+        with ExcelFile(out) as workbook, pytest.raises(
+            FormParseError, match="already has a form named"
+        ):
+            workbook.add_form("FrmNested")

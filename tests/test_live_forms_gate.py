@@ -299,3 +299,103 @@ class TestExcelBindsPagesWeCreate:
                 ('Controls("Pages").Pages.Count', 2),
             ],
         )
+
+
+@pytest.mark.skipif(not _NESTED.exists(), reason="nested form fixture not present")
+class TestExcelLoadsFormsWeCompose:
+    """A form composed from nothing is the strongest case for this gate:
+    nothing about it came from bytes Excel wrote, so every structure has
+    to be right at once for the component to exist at all."""
+
+    @staticmethod
+    def _component(path: Path, checks: list[tuple[str, object]]) -> bool:
+        harness = pytest.importorskip("pyvbaharness")
+
+        session = harness.ExcelSession()
+        try:
+            session.open_document(str(path.resolve()), read_only=False, timeout=120.0)
+            wrong: list[str] = []
+            for expression, expected in checks:
+                got = session.eval(
+                    expression.replace(
+                        "VBC", "ActiveWorkbook.VBProject.VBComponents", 1
+                    ),
+                    timeout=_TIMEOUT,
+                )
+                if got != expected:
+                    wrong.append(f"{expression}: expected {expected!r}, got {got!r}")
+            assert not wrong, "; ".join(wrong)
+            return True
+        finally:
+            try:
+                session.close()
+            except Exception:
+                pass
+
+    def test_an_empty_form_becomes_a_component(self, tmp_path: Path) -> None:
+        out = tmp_path / "brand.xlsm"
+        shutil.copyfile(_NESTED, out)
+        with ExcelFile(out) as workbook:
+            workbook.add_form("Brand", caption="Brand new")
+            workbook.save()
+        assert self._component(
+            out,
+            [
+                ('VBC("Brand").Name', "Brand"),
+                ('VBC("Brand").Type', 3),          # vbext_ct_MSForm
+                ('VBC("Brand").Designer.Caption', "Brand new"),
+                ('VBC("Brand").Designer.Controls.Count', 0),
+                ('VBC("FrmNested").Designer.Controls.Count', 10),
+            ],
+        )
+
+    def test_a_composed_form_carries_controls_and_code(
+        self, tmp_path: Path
+    ) -> None:
+        out = tmp_path / "wizard.xlsm"
+        shutil.copyfile(_NESTED, out)
+        with ExcelFile(out) as workbook:
+            form = workbook.add_form(
+                "Wizard", caption="Setup wizard", width=300, height=200
+            )
+            form.add_control("Label", "Prompt", left=12, top=12, width=200)
+            form.add_control("TextBox", "Answer", left=12, top=40, width=200)
+            form.add_control("CommandButton", "Ok", left=12, top=80)
+            workbook.set_module(
+                "Wizard", "Private Sub Ok_Click()\r\n    Me.Hide\r\nEnd Sub\r\n"
+            )
+            workbook.save()
+        assert self._component(
+            out,
+            [
+                ('VBC("Wizard").Type', 3),
+                ('VBC("Wizard").Designer.Caption', "Setup wizard"),
+                ('VBC("Wizard").Designer.Controls.Count', 3),
+                ('TypeName(VBC("Wizard").Designer.Controls("Answer"))', "TextBox"),
+                ('VBC("Wizard").CodeModule.CountOfLines > 0', True),
+            ],
+        )
+
+    def test_a_composed_form_carries_containers(self, tmp_path: Path) -> None:
+        out = tmp_path / "deep.xlsm"
+        shutil.copyfile(_NESTED, out)
+        with ExcelFile(out) as workbook:
+            form = workbook.add_form("Deep", caption="Deep form")
+            form.add_control("Frame", "Group", left=12, top=12, width=200, height=90)
+            form.add_control("OptionButton", "First", container="Group",
+                             left=6, top=12)
+            form.add_control("MultiPage", "Tabs", left=12, top=120,
+                             width=200, height=90)
+            form.add_page("Tabs", name="Third")
+            form.add_control("Label", "OnThird", container="Third", left=6, top=6)
+            workbook.save()
+        assert self._component(
+            out,
+            [
+                # Group, First, Tabs, OnThird -- pages are not controls.
+                ('VBC("Deep").Designer.Controls.Count', 4),
+                ('VBC("Deep").Designer.Controls("First").Parent.Name', "Group"),
+                ('VBC("Deep").Designer.Controls("Tabs").Pages.Count', 3),
+                ('VBC("Deep").Designer.Controls("OnThird").Parent.Name', "Third"),
+            ],
+        )

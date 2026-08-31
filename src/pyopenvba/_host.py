@@ -21,7 +21,7 @@ from typing import ClassVar, TypeVar
 
 from pyopenvba.cfb import CFB
 from pyopenvba.exceptions import UnsupportedFormatError, VBAProjectError
-from pyopenvba.forms import VBAForm, read_forms
+from pyopenvba.forms import VBAForm, create_form, form_names, read_forms
 from pyopenvba.vba import (
     VBAModuleKind,
     VBAProject,
@@ -138,6 +138,40 @@ class VBAHostFile:
                 self._get_cfb(), code_page=self.vba_project().code_page
             )
         return self._forms
+
+    def add_form(
+        self,
+        name: str,
+        *,
+        caption: str | None = None,
+        width: float | None = None,
+        height: float | None = None,
+    ) -> VBAForm:
+        """Add an empty UserForm to the project.
+
+        Creates the designer storage and the code-behind module together:
+        a storage without a module is not a component the host will show,
+        and a module without a storage is a class rather than a form.
+        Geometry is in points; the defaults are the size Excel gives a new
+        form.
+
+        The form is returned ready to edit -- ``add_control`` and friends
+        work on it straight away -- and lands on disk at :meth:`save`.
+        """
+        project = self.vba_project()
+        cfb = self._get_cfb()
+        header = create_form(
+            cfb,
+            name,
+            caption=caption,
+            width=width,
+            height=height,
+            code_page=project.code_page,
+        )
+        project.add_module(name, header, kind=VBAModuleKind.other)
+        # The cache was read before this form existed.
+        self._forms = None
+        return next(f for f in self.forms() if f.name == name)
 
     def module_names(self) -> list[str]:
         """Return the list of VBA module names."""
@@ -438,9 +472,16 @@ class VBAHostFile:
                     # Stream already exists (e.g. add-then-save called twice).
                     cfb.write_stream_in_storage("VBA", name, seed)
                 module.dirty = False
-                decl_key = (
-                    "Module" if module.kind == VBAModuleKind.standard else "Class"
-                )
+                if module.kind == VBAModuleKind.standard:
+                    decl_key = "Module"
+                elif module.name in form_names(cfb):
+                    # A designer is declared BaseClass, not Class.  The
+                    # test is structural -- its name is also a storage
+                    # beside VBA/ -- which is the same one forms.py uses
+                    # to find forms at all.
+                    decl_key = "BaseClass"
+                else:
+                    decl_key = "Class"
                 add_modules_for_project.append((module.name, decl_key))
 
             # 3. Delete streams the user removed in-memory.

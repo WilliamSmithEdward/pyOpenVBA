@@ -320,7 +320,7 @@ with pyopenvba.ExcelFile("book.xlsm") as wb:
     wb.save()
 ```
 
-Containers work too. A `Frame` gets a storage of its own, and removing one
+Containers work too. Each gets a storage of its own, and removing one
 takes its children with it:
 
 ```python
@@ -328,6 +328,19 @@ form.add_control("Frame", "Shipping", left=12, top=160, width=200, height=80)
 form.add_control("OptionButton", "Ground", container="Shipping")
 form.remove_control("OldFrame")     # and everything inside it
 ```
+
+A `MultiPage` arrives with the two pages Excel gives it, and pages are
+added and removed through it, because a page is also a *tab*:
+
+```python
+form.add_control("MultiPage", "Wizard", left=12, top=40, width=300, height=200)
+form.add_page("Wizard", name="Review", caption="Review && confirm")
+form.add_control("Label", "Summary", container="Review")
+form.remove_page("Page2", multipage="Wizard")
+```
+
+Page names are scoped to their MultiPage rather than to the form, which is
+why `remove_page` takes an optional `multipage` to disambiguate.
 
 Geometry is in points, the unit the designer shows. `set_property(name,
 None)` clears a property, which is how a control goes back to inheriting
@@ -486,11 +499,8 @@ wb.save(allow_invalidate_signature=True)
 This library is intentionally focused on **module source code**. The
 following are preserved byte-for-byte but not interpreted:
 
-- Adding or removing a UserForm **page** (`MultiPage`, `Page`). A page is
-  also a tab of its MultiPage, so its caption, tip, tag and accelerator
-  live in that TabStrip's arrays and its order in the page bookkeeping;
-  four structures have to move together. Everything else about a form's
-  design reads and writes -- see
+- Composing a UserForm from nothing. An existing form's design reads and
+  writes in full -- see
   [Reading and editing a UserForm's design](#reading-and-editing-a-userforms-design).
 - VBA project password decryption / re-encryption.
 - Re-signing digitally signed projects.

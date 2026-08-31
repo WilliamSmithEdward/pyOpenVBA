@@ -235,3 +235,67 @@ class TestExcelBindsContainersWeCreate:
                 ('Controls("Pages").Pages.Count', 2),
             ],
         )
+
+
+@pytest.mark.skipif(not _NESTED.exists(), reason="nested form fixture not present")
+class TestExcelBindsPagesWeCreate:
+    """A page is a container, a tab and an entry in the page bookkeeping.
+    Writing three of the four leaves a form that still passes every
+    structural check here and that Excel then refuses to load."""
+
+    def test_a_new_page_appears_on_its_multipage(self, tmp_path: Path) -> None:
+        out = tmp_path / "addpage.xlsm"
+        shutil.copyfile(_NESTED, out)
+        with ExcelFile(out) as workbook:
+            workbook.forms()[0].add_page("Pages", name="Extra", caption="Extra tab")
+            workbook.save()
+        assert _designer_values(
+            out,
+            [
+                ('Controls("Pages").Pages.Count', 3),
+                ('Controls("Pages").Pages(2).Name', "Extra"),
+                ('Controls("Pages").Pages(2).Caption', "Extra tab"),
+                ('Controls("Pages").Pages(0).Name', "Page1"),
+            ],
+        )
+
+    def test_a_removed_page_takes_its_tab_and_its_controls(
+        self, tmp_path: Path
+    ) -> None:
+        out = tmp_path / "rmpage.xlsm"
+        shutil.copyfile(_NESTED, out)
+        with ExcelFile(out) as workbook:
+            workbook.forms()[0].remove_page("Page2")
+            workbook.save()
+        assert _designer_values(
+            out,
+            [
+                ('Controls("Pages").Pages.Count', 1),
+                ('Controls("Pages").Pages(0).Name', "Page1"),
+                ('TypeName(Controls("PageOneCheck"))', "CheckBox"),
+                ("Controls.Count", 9),
+            ],
+        )
+
+    def test_a_multipage_built_from_nothing_loads(self, tmp_path: Path) -> None:
+        out = tmp_path / "newmp.xlsm"
+        shutil.copyfile(_NESTED, out)
+        with ExcelFile(out) as workbook:
+            form = workbook.forms()[0]
+            form.add_control("MultiPage", "Fresh", left=12, top=250,
+                             width=200, height=90)
+            form.add_page("Fresh", name="Third", caption="Third tab")
+            form.add_control("Label", "OnThird", container="Third", left=6, top=6)
+            workbook.save()
+        assert _designer_values(
+            out,
+            [
+                ('TypeName(Controls("Fresh"))', "MultiPage"),
+                ('Controls("Fresh").Pages.Count', 3),
+                ('Controls("Fresh").Pages(0).Name', "Page1"),
+                ('Controls("Fresh").Pages(2).Caption', "Third tab"),
+                ('Controls("OnThird").Parent.Name', "Third"),
+                # The MultiPage the fixture already had is untouched.
+                ('Controls("Pages").Pages.Count', 2),
+            ],
+        )

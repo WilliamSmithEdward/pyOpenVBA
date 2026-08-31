@@ -694,18 +694,16 @@ class TestAddAndRemoveControls:
         with pytest.raises(FormParseError, match="unknown control kind"):
             form.add_control("Sparkline", "Added")
 
-    def test_adding_a_page_is_refused(self) -> None:
-        """A page is also a tab: its caption, tip, tag and accelerator live
-        in the MultiPage's TabStrip arrays and its order in the `x`
-        bookkeeping, so three of four structures would be left behind."""
+    def test_a_page_is_added_through_its_multipage(self) -> None:
+        """A page belongs to a MultiPage, not to a surface: it is also a
+        tab, so the tab arrays and page bookkeeping go with it."""
         form = read_form(_project_cfb(_NESTED), "FrmNested")
-        for kind in ("Page", "MultiPage"):
-            with pytest.raises(FormParseError, match="also a tab of its MultiPage"):
-                form.add_control(kind, "Added")
+        with pytest.raises(FormParseError, match="use add_page"):
+            form.add_control("Page", "Added")
 
-    def test_removing_a_page_is_refused(self) -> None:
+    def test_a_page_is_removed_through_remove_page(self) -> None:
         form = read_form(_project_cfb(_NESTED), "FrmNested")
-        with pytest.raises(FormParseError, match="also a tab of its MultiPage"):
+        with pytest.raises(FormParseError, match="use remove_page"):
             form.remove_control("Page1")
 
 
@@ -785,3 +783,231 @@ class TestFrameStorages:
         form = read_form(_project_cfb(_NESTED), "FrmNested")
         with pytest.raises(KeyError):
             form.add_control("Label", "Added", container="NoSuchFrame")
+
+
+@pytest.mark.skipif(not _NESTED.exists(), reason="fixture not present")
+class TestPages:
+    """A page is a container control *and* a tab, so adding or removing
+    one moves four structures at once: its site, its storage, an entry in
+    each of five TabStrip arrays, and the ``x`` page bookkeeping."""
+
+    def test_a_new_page_appears_on_its_multipage(self, tmp_path: Path) -> None:
+        out = tmp_path / "addpage.xlsm"
+        shutil.copyfile(_NESTED, out)
+        with ExcelFile(out) as workbook:
+            workbook.forms()[0].add_page("Pages")
+            workbook.save()
+        with ExcelFile(out) as workbook:
+            pages = workbook.forms()[0].control("Pages")
+        # The hidden TabStrip stays first; the pages follow it.
+        assert [c.name for c in pages.children] == ["", "Page1", "Page2", "Page3"]
+
+    def test_a_new_page_gets_its_own_storage(self, tmp_path: Path) -> None:
+        out = tmp_path / "pagestorage.xlsm"
+        shutil.copyfile(_NESTED, out)
+        with ExcelFile(out) as workbook:
+            page = workbook.forms()[0].add_page("Pages", name="Extra")
+            page_id = page.id
+            workbook.save()
+        cfb = _project_cfb(out)
+        assert f"i{page_id:02d}" in cfb.list_storages_at(["FrmNested", "i06"])
+
+    def test_the_tab_arrays_stay_the_same_length(self, tmp_path: Path) -> None:
+        """The five arrays and the flag tail carry one element per tab;
+        letting them drift is exactly what a partial edit would do."""
+        from pyopenvba._oforms_pages import (
+            parse_page_bookkeeping,
+            parse_string_array,
+        )
+
+        # Named here rather than imported: pinning them in the test is what
+        # catches an array quietly dropping out of the set that has to move.
+        tab_arrays = ("Items", "TipStrings", "TabNames", "Tags", "Accelerators")
+        out = tmp_path / "arrays.xlsm"
+        shutil.copyfile(_NESTED, out)
+        with ExcelFile(out) as workbook:
+            workbook.forms()[0].add_page("Pages", name="Extra")
+            workbook.save()
+        cfb = _project_cfb(out)
+        record = read_form(cfb, "FrmNested").control("Pages").children[0].record
+        assert record is not None
+        lengths = {
+            name: len(parse_string_array(record.arrays[name], "cp1252"))
+            for name in tab_arrays
+        }
+        assert set(lengths.values()) == {3}
+        assert record.values["TabData"] == 3
+        assert len(record.tail_raw) == 3 * 4
+        book = parse_page_bookkeeping(cfb.get_stream_at(["FrmNested", "i06"], "x"))
+        assert len(book.page_ids) == 3
+        # One more PageProperties record than there are pages, the first
+        # ignored ([MS-OFORMS] 2.1.2.3).
+        assert len(book.page_props) == 4
+
+    def test_a_page_can_be_given_a_name_and_a_caption(self, tmp_path: Path) -> None:
+        out = tmp_path / "named.xlsm"
+        shutil.copyfile(_NESTED, out)
+        with ExcelFile(out) as workbook:
+            workbook.forms()[0].add_page("Pages", name="Summary", caption="Totals")
+            workbook.save()
+        with ExcelFile(out) as workbook:
+            pages = workbook.forms()[0].control("Pages")
+        assert "Summary" in [c.name for c in pages.children]
+
+    def test_controls_can_be_added_onto_a_new_page(self, tmp_path: Path) -> None:
+        out = tmp_path / "onpage.xlsm"
+        shutil.copyfile(_NESTED, out)
+        with ExcelFile(out) as workbook:
+            form = workbook.forms()[0]
+            form.add_page("Pages", name="Extra")
+            form.add_control("Label", "OnExtra", container="Extra")
+            workbook.save()
+        with ExcelFile(out) as workbook:
+            extra = workbook.forms()[0].control("Extra")
+        assert [c.name for c in extra.children] == ["OnExtra"]
+
+    def test_removing_a_page_takes_its_tab_and_its_storage(
+        self, tmp_path: Path
+    ) -> None:
+        out = tmp_path / "rmpage.xlsm"
+        shutil.copyfile(_NESTED, out)
+        with ExcelFile(out) as workbook:
+            workbook.forms()[0].remove_page("Page2")
+            workbook.save()
+        cfb = _project_cfb(out)
+        assert cfb.list_storages_at(["FrmNested", "i06"]) == ["i08"]
+        form = read_form(cfb, "FrmNested")
+        pages = form.control("Pages")
+        assert [c.name for c in pages.children] == ["", "Page1"]
+        record = pages.children[0].record
+        assert record is not None
+        assert record.values["TabData"] == 1
+        # The page's own control went with it; the other page's did not.
+        names = [c.name for c in form.walk()]
+        assert "PageTwoButton" not in names
+        assert "PageOneCheck" in names
+
+    def test_page_names_are_scoped_to_their_multipage(
+        self, tmp_path: Path
+    ) -> None:
+        """Excel gives a second MultiPage its own Page1 and Page2 while the
+        first still has them; pages are not in Designer.Controls at all."""
+        out = tmp_path / "scoped.xlsm"
+        shutil.copyfile(_NESTED, out)
+        with ExcelFile(out) as workbook:
+            form = workbook.forms()[0]
+            form.add_control("MultiPage", "Second", left=12, top=250)
+            workbook.save()
+        with ExcelFile(out) as workbook:
+            form = workbook.forms()[0]
+            assert [c.name for c in form.control("Second").children] == [
+                "", "Page1", "Page2",
+            ]
+            assert [c.name for c in form.control("Pages").children] == [
+                "", "Page1", "Page2",
+            ]
+
+    def test_a_duplicate_page_name_on_one_multipage_is_refused(self) -> None:
+        form = read_form(_project_cfb(_NESTED), "FrmNested")
+        with pytest.raises(FormParseError, match="already has a page named"):
+            form.add_page("Pages", name="Page1")
+
+    def test_adding_a_page_to_something_that_is_not_a_multipage(self) -> None:
+        form = read_form(_project_cfb(_NESTED), "FrmNested")
+        with pytest.raises(FormParseError, match="not a MultiPage"):
+            form.add_page("GroupBox")
+
+    def test_removing_something_that_is_not_a_page(self) -> None:
+        form = read_form(_project_cfb(_NESTED), "FrmNested")
+        with pytest.raises(FormParseError, match="not a page"):
+            form.remove_page("CloseButton")
+
+
+@pytest.mark.skipif(not _NESTED.exists(), reason="fixture not present")
+class TestMultiPageFromScratch:
+    """A MultiPage is not one structure but five: a container storage, a
+    hidden TabStrip that owns the tab arrays, one storage per page, the
+    ``x`` bookkeeping, and a trailing record after its sites."""
+
+    def test_a_new_multipage_comes_with_two_pages(self, tmp_path: Path) -> None:
+        out = tmp_path / "newmp.xlsm"
+        shutil.copyfile(_NESTED, out)
+        with ExcelFile(out) as workbook:
+            workbook.forms()[0].add_control(
+                "MultiPage", "Fresh", left=12, top=250, width=200, height=90
+            )
+            workbook.save()
+        with ExcelFile(out) as workbook:
+            fresh = workbook.forms()[0].control("Fresh")
+        assert fresh.kind == "MSForms.MultiPage"
+        assert [(c.name, c.kind) for c in fresh.children] == [
+            ("", "MSForms.TabStrip"),
+            ("Page1", "MSForms.Form"),
+            ("Page2", "MSForms.Form"),
+        ]
+
+    def test_a_new_multipage_gets_every_stream_it_needs(
+        self, tmp_path: Path
+    ) -> None:
+        out = tmp_path / "mpstreams.xlsm"
+        shutil.copyfile(_NESTED, out)
+        with ExcelFile(out) as workbook:
+            fresh = workbook.forms()[0].add_control("MultiPage", "Fresh")
+            storage = f"i{fresh.id:02d}"
+            workbook.save()
+        cfb = _project_cfb(out)
+        where = ["FrmNested", storage]
+        assert set(cfb.list_streams_at(where)) >= {"f", "o", "x", "\x01CompObj"}
+        # One storage per page.
+        assert len(cfb.list_storages_at(where)) == 2
+
+    def test_a_new_multipage_carries_its_trailing_record(
+        self, tmp_path: Path
+    ) -> None:
+        """A MultiPage's `f` does not end at its sites; without the
+        trailer the reader's own CountOfBytes check would reject it."""
+        import struct
+
+        out = tmp_path / "mptrailer.xlsm"
+        shutil.copyfile(_NESTED, out)
+        with ExcelFile(out) as workbook:
+            fresh = workbook.forms()[0].add_control("MultiPage", "Fresh")
+            storage = f"i{fresh.id:02d}"
+            workbook.save()
+        raw = _project_cfb(out).get_stream_at(["FrmNested", storage], "f")
+        # The trailer is a version-stamped, length-prefixed record that
+        # closes the stream exactly -- checked here on the bytes, since
+        # that is what the reader keys off.
+        trailer = raw[-16:]
+        assert (trailer[0], trailer[1]) == (0x00, 0x02)
+        assert 4 + struct.unpack_from("<H", trailer, 2)[0] == len(trailer)
+
+    def test_pages_can_be_added_to_a_new_multipage(self, tmp_path: Path) -> None:
+        out = tmp_path / "mpgrow.xlsm"
+        shutil.copyfile(_NESTED, out)
+        with ExcelFile(out) as workbook:
+            form = workbook.forms()[0]
+            form.add_control("MultiPage", "Fresh", left=12, top=250)
+            form.add_page("Fresh", name="Third")
+            form.add_control("Label", "OnThird", container="Third")
+            workbook.save()
+        with ExcelFile(out) as workbook:
+            form = workbook.forms()[0]
+            assert [c.name for c in form.control("Fresh").children] == [
+                "", "Page1", "Page2", "Third",
+            ]
+            assert [c.name for c in form.control("Third").children] == ["OnThird"]
+
+    def test_every_id_stays_unique_across_a_multipage_build(
+        self, tmp_path: Path
+    ) -> None:
+        """Five sites are allocated in one call, and an id that repeats is
+        what makes MSForms refuse the form."""
+        out = tmp_path / "mpids.xlsm"
+        shutil.copyfile(_NESTED, out)
+        with ExcelFile(out) as workbook:
+            workbook.forms()[0].add_control("MultiPage", "Fresh")
+            workbook.save()
+        with ExcelFile(out) as workbook:
+            ids = [c.id for c in workbook.forms()[0].walk()]
+        assert len(ids) == len(set(ids))

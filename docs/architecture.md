@@ -379,6 +379,23 @@ found by Excel refusing the result:
   which names the kind fm20 should treat it as. Get either wrong and the
   container loads without erroring and simply does not appear, so both are
   reproduced verbatim from an Excel-authored fixture.
+- **A container's site is not a leaf's.** It carries `BitFlags` and no
+  `ObjectStreamSize`, because its record is the `f` of its own storage
+  rather than a slice of the parent's `o`.
+- **`NextAvailableID` is per container, and it is the highest id anywhere
+  beneath it** -- the fixture's MultiPage carries 11, which is a control
+  two levels down on one of its pages. A new id is recorded on every
+  ancestor up to the form.
+
+A page is four structures at once, and `_oforms_pages.py` moves them
+together: a site and a storage of its own; an entry in each of the
+MultiPage's five parallel TabStrip arrays (`Items`, `TipStrings`,
+`TabNames`, `Tags`, `Accelerators`) with one flag word per tab after
+them; `TabData` and `TabsAllocated`; and its position in the `x` stream,
+which holds one more `PageProperties` record than there are pages (the
+first ignored) followed by the page site ids. Page names are scoped to
+their MultiPage, not to the form -- Excel gives a second MultiPage its own
+`Page1` and `Page2` -- and pages never appear in `Designer.Controls`.
 
 Nesting is resolved by matching a child storage's numeric suffix against
 a site id, not by rebuilding the storage name from the id: the file says

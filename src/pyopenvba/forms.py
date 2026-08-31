@@ -46,6 +46,17 @@ from collections.abc import Sequence
 from copy import deepcopy
 from dataclasses import dataclass, field
 
+from pyopenvba._oforms_pages import (
+    EMPTY_PAGE_PROPERTIES,
+    NEW_TAB_FLAGS,
+    TAB_HEADROOM,
+    PageBookkeeping,
+    new_tab_string,
+    parse_page_bookkeeping,
+    parse_string_array,
+    serialize_page_bookkeeping,
+    serialize_string_array,
+)
 from pyopenvba._oforms_records import (
     FORM_SPEC,
     SPECS_BY_CACHE_INDEX,
@@ -316,15 +327,11 @@ class VBAForm:
         """
         if not self._levels:
             raise FormParseError(f"form {self.name!r} has no parsed record")
-        if kind in ("MultiPage", "Page", "Form"):
-            # A Page is also a tab: its caption, tip, tag and accelerator
-            # live in the parent MultiPage's TabStrip arrays, and its order
-            # in the `x` bookkeeping.  Four structures have to move
-            # together, so this refuses rather than write three of them.
+        if kind in ("Page", "Form"):
+            # A page belongs to a MultiPage, not to a surface; add_page
+            # writes the tab and the bookkeeping that come with it.
             raise FormParseError(
-                f"cannot add a {kind}: a page is also a tab of its MultiPage, "
-                "and its TabStrip arrays and page bookkeeping are not "
-                "written here"
+                f"cannot add a {kind} here: use add_page(multipage) instead"
             )
         cache_index = _CACHE_INDEX_BY_KIND.get(kind)
         if cache_index is None:
@@ -336,20 +343,12 @@ class VBAForm:
             raise FormParseError(f"the form already has a control named {name!r}")
 
         level = self._level_for(container)
-        root = self._levels[0].record
         # NextAvailableID is the highest id already handed out, not the
         # next free one: measured against Excel, whose own Controls.Add on
         # a form whose highest id was 13 produced a control with id 14 and
         # left the field at 14. Using the field as-is collides with the
         # last control, and MSForms then refuses to load the form.
-        site_id = max(
-            root.values.get("NextAvailableID", 0),
-            max((c.id for c in self.walk()), default=0),
-        ) + 1
-        root.set_value("NextAvailableID", site_id)
-        # ShapeCookie tracks the same allocation; Excel bumps it too.
-        if root.has("ShapeCookie"):
-            root.set_value("ShapeCookie", root.values.get("ShapeCookie", 0) + 1)
+        site_id = self._next_id(level)
 
         default_w, default_h = _DEFAULT_SIZE_PT.get(kind, _DEFAULT_SIZE_FALLBACK)
         size_w = points_to_himetric(default_w if width is None else width)
@@ -361,12 +360,12 @@ class VBAForm:
             len(level.sites),
             points_to_himetric(left),
             points_to_himetric(top),
-            self._encoding,
-            container=kind == "Frame",
+            encoding=self._encoding,
+            container=kind in ("Frame", "MultiPage"),
         )
-        if kind == "Frame":
-            # A Frame holds no slice of `o`; its own record heads the `f`
-            # of a storage created for it.
+        if kind in ("Frame", "MultiPage"):
+            # A container holds no slice of `o`; its own record heads the
+            # `f` of a storage created for it.
             child = _Level(
                 path=[*level.path, _storage_name(site_id)],
                 f_raw=b"",
@@ -374,9 +373,14 @@ class VBAForm:
                 stream=_new_container_stream(kind, name, size_w, size_h),
                 controls=[],
                 created=True,
-                clsid=_FRAME_CLSID,
-                compobj=_FRAME_COMPOBJ,
+                clsid=_FRAME_CLSID if kind == "Frame" else _MULTIPAGE_CLSID,
+                compobj=(
+                    _FRAME_COMPOBJ if kind == "Frame" else _MULTIPAGE_COMPOBJ
+                ),
             )
+            if kind == "MultiPage":
+                child.x_raw = b""
+                child.pages = PageBookkeeping()
             self._levels.append(child)
             record = child.stream.record
         else:
@@ -396,7 +400,41 @@ class VBAForm:
         )
         level.controls.append(control)
         self._reindex()
+        if kind == "MultiPage":
+            self._seed_multipage(name, site_id)
         return control
+
+    def _seed_multipage(self, name: str, site_id: int) -> None:
+        """Give a new MultiPage its TabStrip and the two pages Excel adds."""
+        level = next(
+            lvl for lvl in self._levels if _storage_id(lvl.path[-1]) == site_id
+        )
+        tabstrip_id = self._next_id()
+        site = _new_site("", tabstrip_id, 18, 0, 0, 0, encoding=self._encoding)
+        # The TabStrip has no name of its own; MSForms sites it unnamed.
+        site.mask &= ~(1 << 0)
+        site.values.pop("NameData", None)
+        site.strings.pop("Name", None)
+        level.stream.sites.append(site)
+        level.stream.sites_structurally_changed = True
+        level.controls.append(
+            FormControl(
+                name="",
+                kind="MSForms.TabStrip",
+                id=tabstrip_id,
+                clsid_cache_index=18,
+                tab_index=0,
+                object_stream_size=0,
+                record=_new_tabstrip_record(),
+            )
+        )
+        # The bookkeeping names the TabStrip's site id, not the MultiPage's.
+        assert level.pages is not None
+        level.pages.identifier = tabstrip_id
+        level.pages.page_props.append(EMPTY_PAGE_PROPERTIES)
+        self._reindex()
+        self.add_page(name, name="Page1")
+        self.add_page(name, name="Page2")
 
     def remove_control(self, name: str) -> None:
         """Remove a control by name.
@@ -409,14 +447,12 @@ class VBAForm:
             for index, control in enumerate(level.controls):
                 if control.name != name:
                     continue
-                if control.clsid_cache_index in (7, 57):
-                    # Same reason a Page cannot be added: removing one moves
-                    # its MultiPage's TabStrip arrays and page bookkeeping
-                    # as well as its storage.
+                if control.clsid_cache_index == 7:
+                    # A page is also a tab of its MultiPage; remove_page
+                    # takes the tab and the bookkeeping with it.
                     raise FormParseError(
-                        f"cannot remove {name!r}: a page is also a tab of its "
-                        "MultiPage, and its TabStrip arrays and page "
-                        "bookkeeping are not written here"
+                        f"cannot remove the page {name!r} here: "
+                        "use remove_page(name) instead"
                     )
                 child = self._child_level(level, control.id)
                 if child is not None:
@@ -430,6 +466,220 @@ class VBAForm:
                 self._reindex()
                 return
         raise KeyError(f"no control named {name!r} on form {self.name!r}")
+
+    def add_page(
+        self, multipage: str, name: str | None = None, caption: str | None = None
+    ) -> FormControl:
+        """Add a page to a MultiPage already on the form.
+
+        A page is a container control *and* a tab, so this writes both:
+        a site and a storage of its own, and an entry in each of the
+        MultiPage's five TabStrip arrays plus its page bookkeeping.
+        """
+        parent, control = self._find(multipage)
+        if control.clsid_cache_index != 57:
+            raise FormParseError(f"{multipage!r} is a {control.kind}, not a MultiPage")
+        level = self._child_level(parent, control.id)
+        if level is None:
+            raise FormParseError(f"{multipage!r} has no storage of its own")
+        tabs = self._tabstrip(level)
+        book = self._bookkeeping(level)
+
+        page_id = self._next_id(level)
+        name = name or f"Page{len(book.page_ids) + 1}"
+        # Page names are scoped to their MultiPage, not to the form: Excel
+        # gives a second MultiPage its own Page1 and Page2 while the first
+        # still has them, and pages do not appear in Designer.Controls at
+        # all.  So this checks the siblings, not the whole tree.
+        if any(c.name.casefold() == name.casefold() for c in level.controls):
+            raise FormParseError(
+                f"{multipage!r} already has a page named {name!r}"
+            )
+
+        site = _new_site(
+            name, page_id, 7, len(level.sites), *_DEFAULT_PAGE_ORIGIN,
+            encoding=self._encoding, container=True,
+        )
+        # Only the selected page carries the active flag, and that is the
+        # first one; every page added after it is inactive.
+        if book.page_ids:
+            site.values["BitFlags"] = _INACTIVE_PAGE_BITFLAGS
+        level.stream.sites.append(site)
+        level.stream.sites_structurally_changed = True
+
+        child = _Level(
+            path=[*level.path, _storage_name(page_id)],
+            f_raw=b"",
+            o_raw=b"",
+            stream=_new_container_stream("Page", None, *_DEFAULT_PAGE_SIZE),
+            controls=[],
+            created=True,
+            clsid=_PAGE_CLSID,
+            compobj=_PAGE_COMPOBJ,
+        )
+        self._levels.append(child)
+
+        self._set_tabs(
+            tabs,
+            {
+                "Items": caption or name,
+                "TabNames": _next_tab_name(tabs),
+                "TipStrings": "",
+                "Tags": "",
+                "Accelerators": "",
+            },
+            add=True,
+        )
+        book.add(page_id)
+
+        page = FormControl(
+            name=name,
+            kind="MSForms.Form",
+            id=page_id,
+            clsid_cache_index=7,
+            tab_index=site.tab_index,
+            object_stream_size=0,
+            record=child.stream.record,
+        )
+        level.controls.append(page)
+        self._reindex()
+        return page
+
+    def remove_page(self, name: str, multipage: str | None = None) -> None:
+        """Remove one page from its MultiPage, tab and storage included.
+
+        Page names are unique within a MultiPage rather than across the
+        form, so ``multipage`` names which one when two of them share a
+        page name.
+        """
+        if multipage is None:
+            level, control = self._find(name)
+        else:
+            parent, owner = self._find(multipage)
+            owned = self._child_level(parent, owner.id)
+            if owned is None:
+                raise FormParseError(f"{multipage!r} has no storage of its own")
+            level = owned
+            control = next(
+                (c for c in level.controls if c.name == name),
+                None,
+            ) or _missing_page(name, multipage)
+        if control.clsid_cache_index != 7:
+            raise FormParseError(f"{name!r} is a {control.kind}, not a page")
+        index = level.controls.index(control)
+        tabs = self._tabstrip(level)
+        book = self._bookkeeping(level)
+        # The TabStrip is the MultiPage's own first site, so a page's tab
+        # sits one earlier in the arrays than its site does in the list.
+        self._set_tabs(tabs, {}, add=False, at=index - 1)
+        book.remove(control.id)
+
+        child = self._child_level(level, control.id)
+        if child is not None:
+            self._drop_subtree(child)
+        del level.controls[index]
+        del level.stream.sites[index]
+        level.stream.sites_structurally_changed = True
+        self._reindex()
+
+    def _find(self, name: str) -> tuple[_Level, FormControl]:
+        """The level and control for a name, at any depth."""
+        for level in self._levels:
+            for control in level.controls:
+                if control.name == name:
+                    return level, control
+        raise KeyError(f"no control named {name!r} on form {self.name!r}")
+
+    def _next_id(self, level: _Level | None = None) -> int:
+        """Allocate a site id, and tell every container that contains it.
+
+        A container's own ``NextAvailableID`` is the highest id anywhere
+        beneath it, not just among its direct children -- the fixture's
+        MultiPage carries 11, which is a control two levels down on one of
+        its pages.  So the id is recorded on every ancestor up to the form.
+        """
+        root = self._levels[0]
+        site_id = max(
+            root.record.values.get("NextAvailableID", 0),
+            max((c.id for c in self.walk()), default=0),
+        ) + 1
+        target = level or root
+        for ancestor in self._levels:
+            if target.path[:len(ancestor.path)] == ancestor.path:
+                ancestor.record.set_value("NextAvailableID", site_id)
+                if ancestor.record.has("ShapeCookie"):
+                    ancestor.record.set_value(
+                        "ShapeCookie",
+                        ancestor.record.values.get("ShapeCookie", 0) + 1,
+                    )
+        return site_id
+
+    @staticmethod
+    def _tabstrip(level: _Level) -> ParsedRecord:
+        """A MultiPage's hidden TabStrip, which owns the tab arrays."""
+        for control in level.controls:
+            if control.clsid_cache_index == 18 and control.record is not None:
+                return control.record
+        raise FormParseError(
+            f"{'/'.join(level.path)}: the MultiPage has no TabStrip record"
+        )
+
+    def _bookkeeping(self, level: _Level) -> PageBookkeeping:
+        if level.pages is None:
+            if not level.x_raw:
+                raise FormParseError(
+                    f"{'/'.join(level.path)}: the MultiPage has no 'x' stream"
+                )
+            level.pages = parse_page_bookkeeping(level.x_raw)
+        return level.pages
+
+    def _set_tabs(
+        self,
+        tabs: ParsedRecord,
+        added: dict[str, str],
+        *,
+        add: bool,
+        at: int = -1,
+    ) -> None:
+        """Add or remove one entry across every TabStrip array at once.
+
+        The five arrays and the flag tail all carry one element per tab;
+        letting them drift apart is what a partial edit would do.
+        """
+        count = 0
+        for name, size_field in _TAB_ARRAYS:
+            entries = parse_string_array(tabs.arrays.get(name, b""), self._encoding)
+            if add:
+                entries.append(new_tab_string(added[name]))
+            else:
+                if not -len(entries) <= at < len(entries):
+                    raise FormParseError(f"no tab at index {at} in {name}")
+                del entries[at]
+            blob = serialize_string_array(entries, self._encoding)
+            tabs.arrays[name] = blob
+            tabs.set_value(size_field, len(blob))
+            if count and len(entries) != count:
+                # The five arrays carry one element per tab; if they were
+                # not the same length going in, this edit would silently
+                # leave them further apart.
+                raise FormParseError(
+                    f"TabStrip arrays disagree: {name} has {len(entries)} "
+                    f"entries where the previous array had {count}"
+                )
+            count = len(entries)
+        flags = [
+            int.from_bytes(tabs.tail_raw[i:i + 4], "little")
+            for i in range(0, len(tabs.tail_raw), 4)
+        ]
+        if add:
+            flags.append(NEW_TAB_FLAGS)
+        elif flags:
+            del flags[at]
+        tabs.tail_raw = b"".join(f.to_bytes(4, "little") for f in flags)
+        tabs.set_value("TabData", count)
+        # Capacity runs ahead of the count and Excel never shrinks it.
+        allocated = max(tabs.values.get("TabsAllocated", 0), count + TAB_HEADROOM)
+        tabs.set_value("TabsAllocated", allocated)
 
     def _drop_subtree(self, level: _Level) -> None:
         """Forget a container's level, and every level beneath it."""
@@ -502,6 +752,9 @@ class VBAForm:
             cfb.add_stream_at(level.path, "f", b"")
             cfb.add_stream_at(level.path, "o", b"")
             cfb.add_stream_at(level.path, _COMPOBJ_STREAM, level.compobj)
+            if level.pages is not None:
+                # A MultiPage also owns the page bookkeeping.
+                cfb.add_stream_at(level.path, "x", b"")
             level.created = False
             changed = True
         for level in self._levels:
@@ -514,6 +767,12 @@ class VBAForm:
                 cfb.write_stream_at(level.path, "f", f_bytes)
                 level.f_raw = f_bytes
                 changed = True
+            if level.pages is not None:
+                x_bytes = serialize_page_bookkeeping(level.pages)
+                if x_bytes != level.x_raw:
+                    cfb.write_stream_at(level.path, "x", x_bytes)
+                    level.x_raw = x_bytes
+                    changed = True
         return changed
 
 
@@ -712,6 +971,10 @@ class _Level:
     creates it before writing its streams."""
     clsid: bytes = b""
     compobj: bytes = b""
+    x_raw: bytes = b""
+    """A MultiPage's page bookkeeping, verbatim as read."""
+    pages: PageBookkeeping | None = None
+    """The same bookkeeping parsed, once a page edit needs it."""
 
     @property
     def record(self) -> ParsedRecord:
@@ -1076,6 +1339,34 @@ _NEW_CONTAINER_SITE_MASK = (
 # Visible and enabled, as Excel writes for a Frame -- taken from the
 # fixture's own containers rather than assembled from flag names.
 _CONTAINER_SITE_BITFLAGS = 262179
+# A page that is not the selected one, which is the only way a new page's
+# BitFlags differ from the first page's.
+_INACTIVE_PAGE_BITFLAGS = 262177
+
+# The TabStrip's parallel arrays, each with the DataBlock field holding
+# its size.  They stay the same length as each other and as the tab count.
+_TAB_ARRAYS: tuple[tuple[str, str], ...] = (
+    ("Items", "ItemsSize"),
+    ("TipStrings", "TipStringsSize"),
+    ("TabNames", "NamesSize"),
+    ("Tags", "TagsSize"),
+    ("Accelerators", "AcceleratorsSize"),
+)
+
+
+def _next_tab_name(tabs: ParsedRecord) -> str:
+    """The internal tab name Excel would use next: Tab3, Tab4, Tab5...
+
+    A counter that continues past the highest existing suffix rather than
+    tracking the page count, which is what the fixture's Tab3/Tab4 on a
+    two-page MultiPage shows.
+    """
+    highest = 0
+    for entry in parse_string_array(tabs.arrays.get("TabNames", b""), "latin-1"):
+        digits = entry.text[3:]
+        if entry.text[:3].casefold() == "tab" and digits.isdigit():
+            highest = max(highest, int(digits))
+    return f"Tab{highest + 1}"
 
 # Default sizes in points, as the VBE uses when you drop a control.
 _DEFAULT_SIZE_PT: dict[str, tuple[float, float]] = {
@@ -1203,7 +1494,7 @@ def _adopt_font(record: ParsedRecord, level: _Level) -> None:
 
 
 def _new_site(name: str, site_id: int, cache_index: int, tab_index: int,
-              left: int, top: int, encoding: str, *,
+              left: int, top: int, *, encoding: str,
               container: bool = False) -> _Site:
     # A container's site carries BitFlags and no ObjectStreamSize: its
     # record is the `f` of its own storage, not a slice of the parent's `o`.
@@ -1238,6 +1529,7 @@ def _new_site(name: str, site_id: int, cache_index: int, tab_index: int,
 
 _FRAME_CLSID = bytes.fromhex("2020186e60f4ce119bcd00aa00608e01")
 _PAGE_CLSID = bytes.fromhex("f0692ac6dc16ce119e9800aa00574a4f")
+_MULTIPAGE_CLSID = bytes.fromhex("7013e3467a3fce11bed600aa00611080")
 
 _FRAME_COMPOBJ = bytes.fromhex(
     "0100feff030a0000ffffffff2020186e60f4ce119bcd00aa00608e01"
@@ -1252,22 +1544,56 @@ _PAGE_COMPOBJ = bytes.fromhex(
     "6d732e466f726d2e3100f439b271000000000000000000000000"
 )
 
+_MULTIPAGE_COMPOBJ = bytes.fromhex(
+    "0100feff030a0000ffffffff7013e3467a3fce11bed600aa00611080"
+    "190000004d6963726f736f667420466f726d7320322e3020466f726d"
+    "0010000000456d626564646564204f626a6563740012000000466f72"
+    "6d732e4d756c7469506167652e3100f439b271000000000000000000000000"
+)
+
 _COMPOBJ_STREAM = "\x01CompObj"
+
+# A MultiPage's `f` ends with a MultiPage record after its sites.  Excel
+# writes the same 16 bytes for every one this has seen, and their two
+# payload words have no meaning this can state, so they are reproduced
+# verbatim rather than invented.
+_MULTIPAGE_TRAILER = bytes.fromhex("0002 0c00 19000000 fc8f0000 ff010000")
+
+# BooleanProperties as Excel writes them: 0x8004 for a Frame or a Page,
+# 0xC004 for a MultiPage.
+_FRAME_BOOLEAN_PROPERTIES = 0x00008004
+_MULTIPAGE_BOOLEAN_PROPERTIES = 0x0000C004
+
+# A page's own client area, as Excel sizes the two it creates with a
+# MultiPage.  HIMETRIC.
+_DEFAULT_PAGE_SIZE = (5080, 3810)
+# Where Excel sites a page inside its MultiPage's client area.  HIMETRIC.
+_DEFAULT_PAGE_ORIGIN = (53, 556)
+
+# The mask bit a fresh TabStrip carries that the record table does not
+# name.  Excel sets it on every TabStrip this has seen; the table stops at
+# the fields it can name, so this is set explicitly rather than silently
+# folded into one of them.
+_TABSTRIP_UNNAMED_BIT = 19
 
 # The mask bits an empty container's own FormControl sets.  Measured from
 # the fixture's Frames and Pages: a page authored without BooleanProperties,
 # DrawBuffer and LogicalSize was silently not bound.
-_CONTAINER_BOOLEAN_PROPERTIES = 0x00008004  # enabled, class table not saved
 _CONTAINER_DRAW_BUFFER = 32000
 
 
 def _new_container_stream(
     kind: str, caption: str | None, width: int, height: int
 ) -> _FormStream:
-    """The minimal FormControl an Excel-authored Frame or Page carries."""
+    """The minimal FormControl an Excel-authored container carries."""
     record = ParsedRecord(FORM_SPEC, 0)
     record.set_value("NextAvailableID", 1)
-    record.set_value("BooleanProperties", _CONTAINER_BOOLEAN_PROPERTIES)
+    record.set_value(
+        "BooleanProperties",
+        _MULTIPAGE_BOOLEAN_PROPERTIES
+        if kind == "MultiPage"
+        else _FRAME_BOOLEAN_PROPERTIES,
+    )
     record.set_value("DrawBuffer", _CONTAINER_DRAW_BUFFER)
     record.sizes["DisplayedSize"] = Size(width, height)
     record.mask |= 1 << 10
@@ -1280,7 +1606,34 @@ def _new_container_stream(
         sites=[],
         class_table_present=False,
         sites_structurally_changed=True,
+        trailing_raw=_MULTIPAGE_TRAILER if kind == "MultiPage" else b"",
     )
+
+
+def _new_tabstrip_record() -> ParsedRecord:
+    """The TabStrip a MultiPage owns, with no tabs yet.
+
+    Not a control the caller ever names: MSForms sites it ahead of the
+    pages and it holds the whole of the MultiPage's `o`, so a MultiPage
+    without one is not a MultiPage.
+    """
+    record = ParsedRecord(SPECS_BY_CACHE_INDEX[18], 0)
+    record.mask |= 1 << _TABSTRIP_UNNAMED_BIT
+    record.set_value("ListIndex", 0)
+    record.set_size(*_DEFAULT_PAGE_SIZE)
+    for _, size_field in _TAB_ARRAYS:
+        record.set_value(size_field, 0)
+    record.set_value("TabsAllocated", TAB_HEADROOM)
+    record.set_value("TabData", 0)
+    for name, _ in _TAB_ARRAYS:
+        record.arrays[name] = b""
+    text_props = ParsedRecord(TEXT_PROPS_SPEC, 0)
+    text_props.set_string("FontName", "Tahoma")
+    text_props.set_value("FontHeight", 165)
+    text_props.set_value("FontCharSet", 0)
+    text_props.set_value("FontPitchAndFamily", 2)
+    record.text_props = text_props
+    return record
 
 
 def _storage_name(site_id: int) -> str:
@@ -1290,6 +1643,11 @@ def _storage_name(site_id: int) -> str:
     matches on the number instead, so only writing depends on this.
     """
     return f"i{site_id:02d}"
+
+def _missing_page(name: str, multipage: str) -> FormControl:
+    """Raise for a page a MultiPage does not have; typed to satisfy `or`."""
+    raise KeyError(f"{multipage!r} has no page named {name!r}")
+
 
 def _storage_id(storage: str) -> int | None:
     """The site id a container storage name carries, or ``None``.
@@ -1387,12 +1745,17 @@ def _read_level(
         if storage[:1].casefold() == "i" and digits.isdigit():
             substorages[int(digits)] = storage
 
+    try:
+        x_stream = cfb.get_stream_at(path, "x")
+    except KeyError:
+        x_stream = b""
     level = _Level(
         path=list(path),
         f_raw=f_stream,
         o_raw=o_stream,
         stream=stream,
         controls=[],
+        x_raw=x_stream,
     )
     levels.append(level)
 

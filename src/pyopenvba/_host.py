@@ -21,6 +21,7 @@ from typing import ClassVar, TypeVar
 
 from pyopenvba.cfb import CFB
 from pyopenvba.exceptions import UnsupportedFormatError, VBAProjectError
+from pyopenvba.forms import VBAForm, read_forms
 from pyopenvba.vba import (
     VBAModuleKind,
     VBAProject,
@@ -119,6 +120,16 @@ class VBAHostFile:
     def vba_modules(self) -> dict[str, str]:
         """Return a mapping of module name -> source code."""
         return {m.name: m.source for m in self.vba_project().modules}
+
+    def forms(self) -> list[VBAForm]:
+        """Return the UserForm designer surfaces: controls and their nesting.
+
+        The code-behind of a form is a module like any other; this is the
+        *design* beside it, which no module source carries.  Raises
+        :class:`~pyopenvba.exceptions.FormParseError` if a form's designer
+        streams do not reconcile.
+        """
+        return read_forms(self._get_cfb(), code_page=self.vba_project().code_page)
 
     def module_names(self) -> list[str]:
         """Return the list of VBA module names."""

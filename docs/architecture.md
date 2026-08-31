@@ -325,6 +325,45 @@ project has ever been created), `ExcelFile` raises a structured
 
 ---
 
+## 5a. UserForm designer streams
+
+A form's design lives beside the VBA storage, not inside it: a root
+storage named for the form, holding `f` (the sites: which controls, in
+what order), `o` (each control's own property record), and the
+`VBFrame` text. Containers nest into storages of their own, named
+for the site id -- a `Frame`'s children in `i02`, a `MultiPage`'s Pages
+in `i08` / `i09` under its own `i06`.
+
+`forms.py` reads that tree. It never guesses: every structure is counted
+or length-prefixed, so a misread collapses rather than yielding a
+plausible control list, and it raises `FormParseError` instead. Three
+checks have to agree -- `CountOfBytes` runs exactly to the end of `f`,
+the per-site `ObjectStreamSize` values sum to exactly `len(o)`, and every
+child storage is claimed by a site.
+
+Three details cost the most and none are obvious from a first reading of
+[MS-OFORMS]:
+
+- a site's `cbSite` counts from the **mask**, so the next site begins at
+  `start + 4 + cbSite`;
+- mask **bit 8 carries no fixed field**; reading two bytes for it puts
+  every name two characters late;
+- a `MultiPage`'s `f` carries a trailing MultiPage record after the
+  FormControl, so the sites do not close the stream exactly there. It is
+  version-stamped and length-prefixed, so the reader checks for it rather
+  than merely tolerating a remainder.
+
+Nesting is resolved by matching a child storage's numeric suffix against
+a site id, not by rebuilding the storage name from the id: the file says
+which storages exist, and the padding of that name is only observed.
+
+Reading `f` and `o` needs path-addressed CFB navigation
+(`list_storages_at` / `get_stream_at`), because names repeat -- every
+container owns an `f` -- and a name-based lookup finds whichever comes
+first in directory order.
+
+---
+
 ## 6. Encoding conventions
 
 - The VBA `PROJECTCODEPAGE` value (typically `1252`) drives every

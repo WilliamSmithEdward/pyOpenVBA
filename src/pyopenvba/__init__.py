@@ -57,10 +57,12 @@ from pyopenvba.access_read import AccessReader
 from pyopenvba.excel import ExcelFile
 from pyopenvba.exceptions import (
     CFBError,
+    FormParseError,
     PyOpenVBAError,
     UnsupportedFormatError,
     VBAProjectError,
 )
+from pyopenvba.forms import FormControl, VBAForm
 from pyopenvba.powerpoint import PowerPointFile
 from pyopenvba.vba import VBAModuleKind
 from pyopenvba.vba import synthesize_class_header as synthesize_class_header
@@ -189,9 +191,12 @@ __all__ = [
     "AccessReader",
     "CFBError",
     "ExcelFile",
+    "FormControl",
+    "FormParseError",
     "PowerPointFile",
     "PyOpenVBAError",
     "UnsupportedFormatError",
+    "VBAForm",
     "VBAModuleKind",
     "VBAProjectError",
     "WordFile",

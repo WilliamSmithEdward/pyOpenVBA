@@ -3,6 +3,44 @@
 All notable changes to pyOpenVBA are documented here. This project follows
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **Reading a UserForm's design surface** (issue #15).  A form's controls,
+  their nesting, and each control's property mask are now readable with no
+  Office installed: `ExcelFile.forms()` / `WordFile.forms()` /
+  `PowerPointFile.forms()`, and `python -m pyopenvba forms <file>`.
+  Containers recurse -- a `Frame`'s children and a `MultiPage`'s Pages
+  live in storages of their own, and MSForms sites an unnamed `TabStrip`
+  beside the pages.  `properties_set` is the raw `PropMask`: MSForms
+  writes a property only when it differs from the control's default, so
+  the mask is the set the developer chose, which a live COM read cannot
+  distinguish from inherited and default values.  Verified against live
+  Excel: every control Excel reports is found with the same type, and
+  setting one property flips exactly one bit.  Bits are not yet named per
+  class, so compare masks between files rather than reading a bit as a
+  value.  Refuses with `FormParseError` rather than returning a partly
+  guessed control list.
+- **Path-addressed CFB navigation**: `CFB.list_storages_at`,
+  `list_streams_at`, `get_stream_at`.  Nested designer storages repeat
+  names -- every container owns an `f` -- so a name-based lookup finds
+  whichever comes first in directory order.
+
+### Fixed
+
+- **`.ppt` was advertised but could not be read** (issue #17).
+  `PowerPointFile` listed `.ppt` and failed on every real one with
+  "No 'dir' stream found", which reads like file corruption and is not.
+  Unlike `.doc` and `.xls`, a binary presentation's CFB root carries no
+  VBA storage: the project is a whole CFB, zlib-deflated, inside an
+  `ExOleObjStg` record of the `PowerPoint Document` stream, reached
+  through the persist chain.  Both directions now work; the write path
+  splices the record back in and shifts every absolute offset past it.
+  Verified against live PowerPoint, each check run first against an
+  untouched control: a rewritten presentation opens with its slides,
+  titles and body text intact, and an edited macro returns the new value.
+
 ## [3.4.0] - 2026-08-03
 
 ### Fixed

@@ -70,6 +70,35 @@ def _cmd_ls(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_forms(args: argparse.Namespace) -> int:
+    """Print a form's control tree: a manifest diffable without Office."""
+    from pyopenvba.forms import FormControl
+
+    host_cls = _resolve_host(args.workbook)
+    if host_cls is None:
+        return 2
+
+    def show(control: FormControl, depth: int) -> None:
+        mask = f"{control.properties_set:#0{2 + control.property_mask_width * 2}x}"
+        print(
+            f"{'  ' * depth}{control.name or '(unnamed)':<20} "
+            f"{control.kind:<22} id={control.id:<4} set={mask}"
+        )
+        for child in control.children:
+            show(child, depth + 1)
+
+    with host_cls(args.workbook) as host:
+        forms = host.forms()
+        if not forms:
+            print("no UserForms in this project")
+            return 0
+        for form in forms:
+            print(f"{form.name}  ({len(form.walk())} controls)")
+            for control in form.controls:
+                show(control, 1)
+    return 0
+
+
 def _cmd_access_ls(args: argparse.Namespace) -> int:
     from pyopenvba.access_read import AccessReader
 
@@ -185,6 +214,16 @@ def main(argv: list[str] | None = None) -> int:
     p_ls = sub.add_parser("ls", help="List VBA modules in a workbook.")
     p_ls.add_argument("workbook", type=Path)
     p_ls.set_defaults(func=_cmd_ls)
+
+    p_forms = sub.add_parser(
+        "forms",
+        help=(
+            "List each UserForm's control tree, with the property mask "
+            "the developer's own edits set."
+        ),
+    )
+    p_forms.add_argument("workbook", type=Path)
+    p_forms.set_defaults(func=_cmd_forms)
 
     p_als = sub.add_parser(
         "access-ls",

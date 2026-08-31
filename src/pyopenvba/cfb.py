@@ -20,7 +20,7 @@ Sectors        : fixed-size blocks that follow the header
 from __future__ import annotations
 
 import struct
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from typing import BinaryIO
 
@@ -144,6 +144,38 @@ class CFB:
         child_idx = self._find_child_stream_index(parent_idx, name)
         if child_idx is None:
             raise KeyError(f"Stream {name!r} not found in storage {storage!r}")
+        return self._read_stream(self._directory[child_idx])
+
+    def list_storages_at(self, path: Sequence[str] = ()) -> list[str]:
+        """Return the storages directly inside the storage at ``path``.
+
+        ``path`` is a sequence of storage names from the root, so nested
+        storages that share a name -- a UserForm's ``i06`` and another
+        form's ``i06`` -- stay distinct.  An empty path means the root.
+        """
+        parent_idx = self._resolve_path(path)
+        return [
+            self._directory[i].name
+            for i in sorted(self._collect_subtree(self._directory[parent_idx].child_id))
+            if self._directory[i].obj_type == _OBJTYPE_STORAGE
+        ]
+
+    def list_streams_at(self, path: Sequence[str] = ()) -> list[str]:
+        """Return the streams directly inside the storage at ``path``."""
+        parent_idx = self._resolve_path(path)
+        return [
+            self._directory[i].name
+            for i in sorted(self._collect_subtree(self._directory[parent_idx].child_id))
+            if self._directory[i].obj_type == _OBJTYPE_STREAM
+        ]
+
+    def get_stream_at(self, path: Sequence[str], name: str) -> bytes:
+        """Return a stream that is a direct child of the storage at ``path``."""
+        parent_idx = self._resolve_path(path)
+        child_idx = self._find_child_stream_index(parent_idx, name)
+        if child_idx is None:
+            joined = "/".join(path)
+            raise KeyError(f"Stream {name!r} not found in storage {joined!r}")
         return self._read_stream(self._directory[child_idx])
 
     def list_storages(self) -> list[str]:
@@ -557,6 +589,30 @@ class CFB:
     # ------------------------------------------------------------------
     # Directory tree helpers
     # ------------------------------------------------------------------
+
+    def _resolve_path(self, path: Sequence[str]) -> int:
+        """Resolve a root-relative sequence of storage names to its index.
+
+        Each step searches only the previous storage's own children, which
+        is what keeps two forms' identically named substorages apart.
+        """
+        idx = 0  # the root entry
+        for step in path:
+            needle = step.casefold()
+            found = None
+            for child_idx in self._collect_subtree(self._directory[idx].child_id):
+                entry = self._directory[child_idx]
+                if (
+                    entry.obj_type == _OBJTYPE_STORAGE
+                    and entry.name.casefold() == needle
+                ):
+                    found = child_idx
+                    break
+            if found is None:
+                joined = "/".join(path)
+                raise KeyError(f"Storage not found: {joined!r} (at {step!r})")
+            idx = found
+        return idx
 
     def _find_storage_index(self, storage: str) -> int:
         needle = storage.casefold()

@@ -499,3 +499,63 @@ class TestStorageScopedLookup:
     def test_lookup_stays_case_insensitive(self) -> None:
         cfb = self._cfb_with_duplicate_stream_names()
         assert cfb.get_stream_in_storage("storea", "DUP") == b"content-a"
+
+
+# ---------------------------------------------------------------------------
+# Path-addressed navigation
+# ---------------------------------------------------------------------------
+
+class TestCFBPathNavigation:
+    """A UserForm's nested storages repeat names -- two forms each own an
+    ``i06`` holding an ``f`` -- so navigating by name alone finds the
+    wrong one.  These walk from the root instead."""
+
+    @staticmethod
+    def _nested_cfb() -> CFB:
+        import zipfile
+        from pathlib import Path
+
+        live = Path(__file__).parent / "live_excel_testing" / "nested_form.xlsm"
+        if not live.exists():
+            pytest.skip("nested form fixture not available")
+        with zipfile.ZipFile(live) as zf:
+            return CFB.from_bytes(zf.read("xl/vbaProject.bin"))
+
+    def test_empty_path_lists_the_root(self) -> None:
+        cfb = self._nested_cfb()
+        assert set(cfb.list_storages_at()) == {"VBA", "FrmNested"}
+        assert "PROJECT" in cfb.list_streams_at()
+
+    def test_walks_into_nested_storages(self) -> None:
+        cfb = self._nested_cfb()
+        assert cfb.list_storages_at(["FrmNested"]) == ["i02", "i06"]
+        assert cfb.list_storages_at(["FrmNested", "i06"]) == ["i08", "i09"]
+
+    def test_same_named_streams_at_different_depths_stay_distinct(self) -> None:
+        cfb = self._nested_cfb()
+        outer = cfb.get_stream_at(["FrmNested"], "f")
+        page = cfb.get_stream_at(["FrmNested", "i06", "i08"], "f")
+        assert outer != page
+        assert len(outer) > len(page)
+
+    def test_a_step_that_is_not_a_child_raises(self) -> None:
+        """``i08`` exists, but not directly under the form."""
+        cfb = self._nested_cfb()
+        with pytest.raises(KeyError, match="i08"):
+            cfb.list_streams_at(["FrmNested", "i08"])
+
+    def test_missing_stream_names_the_path(self) -> None:
+        cfb = self._nested_cfb()
+        with pytest.raises(KeyError, match="FrmNested/i06"):
+            cfb.get_stream_at(["FrmNested", "i06"], "nosuchstream")
+
+    def test_a_storage_is_not_returned_as_a_stream(self) -> None:
+        cfb = self._nested_cfb()
+        assert "i06" not in cfb.list_streams_at(["FrmNested"])
+        assert "f" not in cfb.list_storages_at(["FrmNested"])
+
+    def test_lookup_is_case_insensitive(self) -> None:
+        cfb = self._nested_cfb()
+        assert cfb.get_stream_at(["frmnested", "I06"], "F") == cfb.get_stream_at(
+            ["FrmNested", "i06"], "f"
+        )

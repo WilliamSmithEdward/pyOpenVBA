@@ -104,3 +104,51 @@ class TestAccessPull:
         # Classification comes from the dir-stream catalog: standard
         # modules as .bas, class modules as .cls.
         assert all(name.endswith((".bas", ".cls")) for name in written)
+
+
+class TestForms:
+    _NESTED = Path(__file__).parent / "live_excel_testing" / "nested_form.xlsm"
+    _LEGACY_PPT = (
+        Path(__file__).parent / "live_powerpoint_testing" / "legacy_macros.ppt"
+    )
+
+    @pytest.mark.skipif(not _NESTED.exists(), reason="nested form fixture not present")
+    def test_forms_prints_the_control_tree(
+        self, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        assert main(["forms", str(self._NESTED)]) == 0
+        out = capsys.readouterr().out
+        assert "FrmNested" in out
+        assert "MSForms.MultiPage" in out
+        # Nesting shows as indentation, so a child must be further in
+        # than the container that holds it.
+        lines = {ln.strip().split()[0]: len(ln) - len(ln.lstrip()) for ln in
+                 out.splitlines() if ln.strip()}
+        assert lines["OptOne"] > lines["GroupBox"]
+        assert lines["PageOneCheck"] > lines["Page1"]
+
+    @pytest.mark.skipif(not _NESTED.exists(), reason="nested form fixture not present")
+    def test_forms_reports_the_property_mask(
+        self, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        assert main(["forms", str(self._NESTED)]) == 0
+        out = capsys.readouterr().out
+        # MorphData controls carry the wider mask, and the printed width
+        # is what tells a reader which bit index they are looking at.
+        assert "set=0x0000000080000101" in out   # InnerText, 8 bytes
+        assert "set=0x00000028" in out           # TopLabel, 4 bytes
+
+    @pytest.mark.skipif(
+        not _LEGACY_PPT.exists(), reason="legacy .ppt fixture not present"
+    )
+    def test_forms_says_so_when_a_project_has_none(
+        self, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        assert main(["forms", str(self._LEGACY_PPT)]) == 0
+        assert "no UserForms" in capsys.readouterr().out
+
+    def test_forms_rejects_an_unsupported_suffix(
+        self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        assert main(["forms", str(tmp_path / "notes.txt")]) == 2
+        assert "unsupported file type" in capsys.readouterr().err

@@ -15,3 +15,12 @@ class VBAProjectError(PyOpenVBAError):
 
 class UnsupportedFormatError(PyOpenVBAError):
     """Raised for file formats that pyOpenVBA cannot handle."""
+
+
+class FormParseError(PyOpenVBAError):
+    """Raised when a UserForm's designer streams do not reconcile.
+
+    Deliberately an error rather than a partial control list: a misread
+    site array yields plausible-looking controls, and wrong knowledge is
+    worse than none.
+    """

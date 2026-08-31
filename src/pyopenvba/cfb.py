@@ -178,6 +178,18 @@ class CFB:
             raise KeyError(f"Stream {name!r} not found in storage {joined!r}")
         return self._read_stream(self._directory[child_idx])
 
+    def write_stream_at(self, path: Sequence[str], name: str, data: bytes) -> None:
+        """Replace a stream that is a direct child of the storage at ``path``.
+
+        The change is held in memory until :meth:`to_bytes`.
+        """
+        parent_idx = self._resolve_path(path)
+        child_idx = self._find_child_stream_index(parent_idx, name)
+        if child_idx is None:
+            joined = "/".join(path)
+            raise KeyError(f"Stream {name!r} not found in storage {joined!r}")
+        self._stream_overrides[child_idx] = bytes(data)
+
     def list_storages(self) -> list[str]:
         """Return the names of all storage entries (excluding the root)."""
         return [

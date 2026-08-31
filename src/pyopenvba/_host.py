@@ -80,6 +80,7 @@ class VBAHostFile:
         self._cfb: CFB | None = None
         self._project: VBAProject | None = None
         self._container_raw: bytes = b""
+        self._forms: list[VBAForm] | None = None
         self._open()
 
     # ------------------------------------------------------------------
@@ -128,8 +129,15 @@ class VBAHostFile:
         *design* beside it, which no module source carries.  Raises
         :class:`~pyopenvba.exceptions.FormParseError` if a form's designer
         streams do not reconcile.
+
+        The result is cached, so property edits made on it are the ones
+        :meth:`save` writes back.
         """
-        return read_forms(self._get_cfb(), code_page=self.vba_project().code_page)
+        if self._forms is None:
+            self._forms = read_forms(
+                self._get_cfb(), code_page=self.vba_project().code_page
+            )
+        return self._forms
 
     def module_names(self) -> list[str]:
         """Return the list of VBA module names."""
@@ -479,6 +487,13 @@ class VBAHostFile:
             #    module set or source).
             if mutating:
                 invalidate_vba_project_cache(cfb)
+        # Designer edits live beside the VBA storage, so they are written
+        # whether or not any module changed.  write_back() touches only the
+        # streams whose bytes actually differ, so an unedited form is a
+        # no-op here and the CFB stays byte-identical.
+        for form in self._forms or ():
+            form.write_back(cfb)
+
         # [MS-OVBA] writers MUST NOT emit performance-cache (__SRP_*) streams.
         try:
             cfb.drop_streams_in_storage("VBA", lambda n: n.startswith("__SRP_"))

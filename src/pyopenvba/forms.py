@@ -2,9 +2,9 @@
 UserForm designer streams: the control tree a form's code-behind does not carry.
 
 pyOpenVBA reads and writes a project's *code*.  A UserForm's *design* --
-which controls exist, how they nest, and which of their properties the
-developer actually set -- lives in a separate storage inside the same
-CFB, named for the form and sitting beside ``VBA/``::
+which controls exist, how they nest, and what each one's properties are --
+lives in a separate storage inside the same CFB, named for the form and
+sitting beside ``VBA/``::
 
     /VBA/EntryForm            the code-behind (handled by vba.py)
     /EntryForm/f              the sites: which controls, in what order
@@ -13,13 +13,14 @@ CFB, named for the form and sitting beside ``VBA/``::
     /EntryForm/i06/{f,o}      a Frame: its children live in their own storage
     /EntryForm/i06/i08/{f,o}  a Page inside a MultiPage
 
-This module reads that tree ([MS-OFORMS]).  It does not name individual
-properties -- that needs a per-class bit-to-name table this does not yet
-have -- but it does expose each control's raw property mask, which is the
-one thing a live host cannot tell you: MSForms writes a property into a
-control's record only when it differs from that control's default, so the
-mask is the set the developer chose.  A sited control read over COM
-reports inherited, default and chosen values indistinguishably.
+This module reads that tree and writes it back ([MS-OFORMS]).  Property
+names come from :mod:`pyopenvba._oforms_records`, which carries one table
+per control class.
+
+MSForms stores a property only when it differs from that control's
+default, so the set of stored properties is the set the developer chose.
+That is not something a live host can tell you: a sited control reports
+inherited, default and chosen values indistinguishably.
 
 Conservative by construction.  Every structure here is length-prefixed or
 counted, so a misreading collapses immediately rather than yielding a
@@ -30,6 +31,12 @@ instead of guessing.  Four independent checks have to agree:
 2. ``CountOfBytes`` runs exactly to the end of the ``f`` stream,
 3. the per-site ``ObjectStreamSize`` values sum to exactly ``len(o)``,
 4. every child storage is claimed by a site that can contain one.
+
+Writing is lossless: an unedited form serializes to the bytes it was read
+from, which is the gate the fixtures pin.  Editing a property rewrites
+only the affected control's record and patches that site's
+``ObjectStreamSize`` in place -- a fixed-width field, so no length in the
+``f`` stream moves.
 """
 
 from __future__ import annotations
@@ -38,6 +45,14 @@ import struct
 from collections.abc import Sequence
 from dataclasses import dataclass, field
 
+from pyopenvba._oforms_records import (
+    FORM_SPEC,
+    SPECS_BY_CACHE_INDEX,
+    ParsedRecord,
+    Size,
+    parse_record,
+    serialize_record,
+)
 from pyopenvba.cfb import CFB
 from pyopenvba.exceptions import FormParseError
 
@@ -76,10 +91,6 @@ MORPH_DISPLAY_STYLES: dict[int, str] = {
     7: "MSForms.ComboBox",
 }
 
-# Controls persisted as a MorphDataControl ([MS-OFORMS] 2.2.6), whose
-# PropMask is 8 bytes wide.  Every other control record carries 4.
-_MORPH_CLASSES = frozenset({15, 23, 24, 25, 26, 27, 28})
-
 # A ClsidCacheIndex at or above this is an index into the form's class
 # table, naming an ActiveX control whose class this cannot resolve.
 _CLASS_TABLE_BASE = 0x8000
@@ -105,8 +116,26 @@ _GUID_TEXTPROPS = 0xAFC20920
 
 _VBFRAME_STREAM = "\x03VBFrame"
 
+# Site DataBlock field widths, in mask-bit order.  Bit 8 carries no fixed
+# field: reading two bytes for it puts every name two characters late.
+_SITE_FIELDS: tuple[tuple[int, str, int], ...] = (
+    (0, "NameData", 4),
+    (1, "TagData", 4),
+    (2, "ID", 4),
+    (3, "HelpContextID", 4),
+    (4, "BitFlags", 4),
+    (5, "ObjectStreamSize", 4),
+    (6, "TabIndex", 2),
+    (7, "ClsidCacheIndex", 2),
+    (9, "GroupID", 2),
+    (11, "ControlTipTextData", 4),
+    (12, "RuntimeLicKeyData", 4),
+    (13, "ControlSourceData", 4),
+    (14, "RowSourceData", 4),
+)
 
-@dataclass(frozen=True)
+
+@dataclass
 class FormControl:
     """One control on a form, as the designer streams describe it."""
 
@@ -121,33 +150,105 @@ class FormControl:
     object_stream_size: int
     """Bytes this control occupies in its parent's ``o`` stream; zero for
     a container, whose own record is the ``f`` of its child storage."""
-    properties_set: int
-    """Raw PropMask: the properties the developer set, as a bit set.
-
-    Bit meanings are per control class and this module does not name them
-    yet.  Compare two files' masks to see what differs; do not read a bit
-    as a value.
-    """
-    property_mask_width: int
-    """4 or 8 bytes.  MorphData controls carry the wider mask, so a bit
-    index is only meaningful together with this."""
+    record: ParsedRecord | None
+    """The parsed property record, or ``None`` for a control whose class
+    has no table here."""
     children: tuple[FormControl, ...] = ()
 
     @property
     def is_container(self) -> bool:
         return bool(self.children) or self.clsid_cache_index in _CONTAINER_CLASSES
 
+    @property
+    def properties_set(self) -> int:
+        """Raw PropMask: the properties the developer set, as a bit set."""
+        return 0 if self.record is None else self.record.mask
 
-@dataclass(frozen=True)
+    @property
+    def property_mask_width(self) -> int:
+        """4 or 8 bytes.  MorphData controls carry the wider mask, so a
+        bit index is only meaningful together with this."""
+        return 8 if self.record is not None and self.record.spec.mask64 else 4
+
+    def properties(self) -> dict[str, object]:
+        """Every property this control stores, by name."""
+        return {} if self.record is None else self.record.properties()
+
+    def get(self, name: str) -> object:
+        """One stored property, or ``None`` when the control does not set it."""
+        return self.properties().get(name)
+
+    def set_property(self, name: str, value: object) -> None:
+        """Set or clear one property.  ``None`` clears it.
+
+        A string goes to the string table, an integer to the DataBlock,
+        and a :class:`~pyopenvba._oforms_records.Size` to the size field.
+        Clearing removes the mask bit, which is how the control goes back
+        to inheriting the default.
+        """
+        if self.record is None:
+            raise FormParseError(
+                f"{self.name!r} is a {self.kind} and has no property table here"
+            )
+        _set_on_record(self.record, name, value, self.name)
+
+
+def _set_on_record(
+    record: ParsedRecord, name: str, value: object, owner: str
+) -> None:
+    """Route a property edit to the right table by the value's type."""
+    if isinstance(value, Size):
+        record.set_size(value.width, value.height)
+    elif isinstance(value, str):
+        record.set_string(name, value)
+    elif value is None:
+        if any(f.name == name and f.kind == "str" for f in record.spec.extra):
+            record.set_string(name, None)
+        else:
+            record.set_value(name, None)
+    elif isinstance(value, bool):
+        record.set_value(name, int(value))
+    elif isinstance(value, int):
+        record.set_value(name, value)
+    else:
+        raise FormParseError(
+            f"{owner}: cannot store {type(value).__name__} in property {name!r}"
+        )
+
+
+@dataclass
 class VBAForm:
     """A UserForm's designer surface."""
 
     name: str
     designer_source: str
     """The ``\\x03VBFrame`` text, the same block a VBE export writes."""
-    properties_set: int
-    """The form's own PropMask, read the same way as a control's."""
-    controls: tuple[FormControl, ...] = field(default=())
+    controls: tuple[FormControl, ...] = ()
+    _levels: list[_Level] = field(default_factory=lambda: [], repr=False)
+    _encoding: str = field(default="cp1252", repr=False)
+
+    @property
+    def properties_set(self) -> int:
+        """The form's own PropMask, read the same way as a control's."""
+        return self._levels[0].record.mask if self._levels else 0
+
+    def properties(self) -> dict[str, object]:
+        """The form's own stored properties."""
+        return self._levels[0].record.properties() if self._levels else {}
+
+    def get(self, name: str) -> object:
+        """One of the form's own properties, or ``None`` if it sets none."""
+        return self.properties().get(name)
+
+    def set_property(self, name: str, value: object) -> None:
+        """Set or clear one of the form's own properties (Caption, Zoom...).
+
+        The form's record heads its ``f`` stream rather than sitting in
+        ``o``, but it is edited exactly like a control's.
+        """
+        if not self._levels:
+            raise FormParseError(f"form {self.name!r} has no parsed record")
+        _set_on_record(self._levels[0].record, name, value, self.name)
 
     def walk(self) -> list[FormControl]:
         """Every control, depth-first, containers before their children."""
@@ -160,6 +261,96 @@ class VBAForm:
 
         visit(self.controls)
         return out
+
+    def control(self, name: str) -> FormControl:
+        """One control by name, at any depth.  MSForms keeps names unique."""
+        for control in self.walk():
+            if control.name == name:
+                return control
+        raise KeyError(f"no control named {name!r} on form {self.name!r}")
+
+    def write_back(self, cfb: CFB) -> None:
+        """Write every edited record back into the project's CFB.
+
+        Only the streams whose bytes actually changed are written, so an
+        unedited form leaves the CFB untouched.
+        """
+        for level in self._levels:
+            f_bytes, o_bytes = level.serialize(self._encoding)
+            if o_bytes != level.o_raw:
+                cfb.write_stream_at(level.path, "o", o_bytes)
+                level.o_raw = o_bytes
+            if f_bytes != level.f_raw:
+                cfb.write_stream_at(level.path, "f", f_bytes)
+                level.f_raw = f_bytes
+
+
+@dataclass
+class _Site:
+    """One entry of a container's site array."""
+
+    name: str
+    id: int
+    clsid_cache_index: int
+    tab_index: int | None
+    object_stream_size: int
+    osz_offset: int
+    """Byte offset of ObjectStreamSize inside the ``f`` stream, so a
+    changed record length can be patched without moving anything."""
+
+
+@dataclass
+class _Level:
+    """One container's streams: the form itself, a Frame, or a Page."""
+
+    path: list[str]
+    f_raw: bytes
+    o_raw: bytes
+    record: ParsedRecord
+    form_block_len: int
+    """Bytes the FormControl record occupies at the head of ``f``; editing
+    the container's own properties can resize it, shifting everything
+    after."""
+    sites: list[_Site]
+    controls: list[FormControl]
+
+    def serialize(self, encoding: str) -> tuple[bytes, bytes]:
+        """Rebuild this level's ``f`` and ``o``."""
+        # The container's own record heads `f`; a resize shifts the rest,
+        # which is safe because nothing inside `f` is an absolute offset --
+        # cbForm is a length and cbSites is a length. Only the offsets this
+        # module tracks itself have to move.
+        rebuilt = serialize_record(self.record, encoding)
+        delta = len(rebuilt) - self.form_block_len
+        f_bytes = bytearray(
+            rebuilt + self.f_raw[self.form_block_len:]
+        )
+        if delta:
+            self.form_block_len = len(rebuilt)
+            for site in self.sites:
+                if site.osz_offset >= 0:
+                    site.osz_offset += delta
+
+        chunks: list[bytes] = []
+        for site, control in zip(self.sites, self.controls, strict=True):
+            if control.record is None or control.children:
+                # A container keeps its own record in its child storage's
+                # `f`, and holds no slice of `o`.
+                continue
+            record = serialize_record(control.record, encoding)
+            chunks.append(record)
+            if len(record) != site.object_stream_size:
+                # ObjectStreamSize is a fixed-width DataBlock field, so
+                # only its value changes; no length in `f` moves.
+                if site.osz_offset < 0:
+                    raise FormParseError(
+                        f"{'/'.join(self.path)}: {control.name!r} grew but its "
+                        "site stores no ObjectStreamSize to update"
+                    )
+                struct.pack_into("<I", f_bytes, site.osz_offset, len(record))
+                site.object_stream_size = len(record)
+                control.object_stream_size = len(record)
+        return bytes(f_bytes), b"".join(chunks)
 
 
 # ---------------------------------------------------------------------------
@@ -216,15 +407,6 @@ class _Reader:
 # The `f` stream
 # ---------------------------------------------------------------------------
 
-@dataclass(frozen=True)
-class _Site:
-    name: str
-    id: int
-    clsid_cache_index: int
-    tab_index: int | None
-    object_stream_size: int
-
-
 def _skip_picture(reader: _Reader) -> None:
     reader.skip(16)  # GUID
     reader.u32()     # Preamble
@@ -259,62 +441,38 @@ def _read_site(reader: _Reader, encoding: str) -> _Site:
     cb_site = reader.u16()
     mask = reader.u32()
 
-    def read4() -> int:
-        reader.align(start, 4)
-        return reader.u32()
-
-    def read2() -> int:
-        reader.align(start, 2)
-        return reader.u16()
-
-    name_cb = 0
-    name_compressed = False
-    site_id = 0
-    tab_index: int | None = None
-    clsid_cache_index = 0
-    object_stream_size = 0
-    if mask & (1 << 0):
-        packed = read4()
-        name_cb = packed & 0x7FFFFFFF
-        name_compressed = bool(packed & 0x80000000)
-    if mask & (1 << 1):
-        read4()  # TagData
-    if mask & (1 << 2):
-        site_id = read4()
-    if mask & (1 << 3):
-        read4()  # HelpContextID
-    if mask & (1 << 4):
-        read4()  # BitFlags
-    if mask & (1 << 5):
-        object_stream_size = read4()
-    if mask & (1 << 6):
-        tab_index = read2()
-    if mask & (1 << 7):
-        clsid_cache_index = read2()
-    # Bit 8 carries no fixed field.  Reading two bytes for it puts every
-    # name two characters late, which is the tell if you ever see one.
-    if mask & (1 << 9):
-        read2()  # GroupID
-    if mask & (1 << 11):
-        read4()  # ControlTipTextData
-    if mask & (1 << 12):
-        read4()  # RuntimeLicKeyData
-    if mask & (1 << 13):
-        read4()  # ControlSourceData
-    if mask & (1 << 14):
-        read4()  # RowSourceData
+    values: dict[str, int] = {}
+    osz_offset = -1
+    for bit, name, size in _SITE_FIELDS:
+        if not mask & (1 << bit):
+            continue
+        reader.align(start, size)
+        if name == "ObjectStreamSize":
+            osz_offset = reader.pos
+        values[name] = reader.u32() if size == 4 else reader.u16()
     reader.align(start, 4)
 
     # SiteExtraDataBlock opens with the name.  It is not padded before the
     # first string: aligning here shifts every name.
     name = ""
+    packed = values.get("NameData", 0)
+    name_cb = packed & 0x7FFFFFFF
     if name_cb:
         raw = reader.take(name_cb)
-        name = raw.decode(encoding if name_compressed else "utf-16-le", "replace")
+        name = raw.decode(
+            encoding if packed & 0x80000000 else "utf-16-le", "replace"
+        )
     # The rest of the extra block is jumped, not walked: cbSite says where
     # the next site starts.
     reader.pos = start + 4 + cb_site
-    return _Site(name, site_id, clsid_cache_index, tab_index, object_stream_size)
+    return _Site(
+        name=name,
+        id=values.get("ID", 0),
+        clsid_cache_index=values.get("ClsidCacheIndex", 0),
+        tab_index=values.get("TabIndex"),
+        object_stream_size=values.get("ObjectStreamSize", 0),
+        osz_offset=osz_offset,
+    )
 
 
 def _is_trailing_record(data: bytes, offset: int) -> bool:
@@ -337,8 +495,8 @@ def _try_site_data(
     """Read FormSiteData, or ``None`` when this layout is not the real one.
 
     Whether the class-table count is stored depends on a flag inside the
-    DataBlock this reader deliberately does not walk, so both layouts are
-    tried and the one whose counts prove out wins.
+    DataBlock, so both layouts are tried and the one whose counts prove
+    out wins.
     """
     try:
         reader = _Reader(data)
@@ -378,8 +536,10 @@ def _try_site_data(
         return None
 
 
-def _read_container(data: bytes, encoding: str) -> tuple[int, list[_Site]]:
-    """Parse a FormControl stream into its own PropMask and its sites.
+def _read_container(
+    data: bytes, encoding: str
+) -> tuple[ParsedRecord, list[_Site], int]:
+    """Parse a FormControl stream into its own record and its sites.
 
     Used for the form itself and for every container control, whose child
     storage carries a FormControl of its own.
@@ -391,7 +551,8 @@ def _read_container(data: bytes, encoding: str) -> tuple[int, list[_Site]]:
             f"not a FormControl stream (version {version[1]}.{version[0]})"
         )
     cb_form = reader.u16()
-    mask = reader.u32()
+    mask = int(struct.unpack_from("<I", data, 4)[0])
+    record = parse_record(data, FORM_SPEC, encoding, end=4 + cb_form)
     # The PropMask is counted inside cbForm; skip the rest of the block.
     reader.pos = 4 + cb_form
     # FormStreamData: variable-length blobs sit between the form's own data
@@ -407,47 +568,14 @@ def _read_container(data: bytes, encoding: str) -> tuple[int, list[_Site]]:
         sites = _try_site_data(data, reader.pos, encoding, False)
     if sites is None:
         raise FormParseError("FormSiteData did not reconcile")
-    return mask, sites
+    return record, sites, 4 + cb_form
 
 
 # ---------------------------------------------------------------------------
-# The `o` stream
+# Typing a control
 # ---------------------------------------------------------------------------
 
-def _record_mask(record: bytes, clsid_cache_index: int) -> tuple[int, int]:
-    """The PropMask of one control record, with the width it was read at."""
-    width = 8 if clsid_cache_index in _MORPH_CLASSES else 4
-    if len(record) < 4 + width:
-        raise FormParseError("control record is too short to hold its PropMask")
-    version = (record[0], record[1])
-    if version != _CONTROL_RECORD_VERSION:
-        raise FormParseError(
-            f"unsupported control record version {version[1]}.{version[0]}"
-        )
-    fmt = "<Q" if width == 8 else "<I"
-    return int(struct.unpack_from(fmt, record, 4)[0]), width
-
-
-def _morph_kind(record: bytes) -> str:
-    """Type a generic MorphData from the DisplayStyle in its own record."""
-    reader = _Reader(record)
-    reader.skip(4)  # version and cb
-    mask = reader.u32()
-    reader.u32()    # the MorphData PropMask is 8 bytes; DisplayStyle is low
-    for bit in (0, 1, 2, 3):  # VariousPropertyBits, BackColor, ForeColor, MaxLength
-        if mask & (1 << bit):
-            reader.u32()
-    if mask & (1 << 4):
-        reader.u8()  # BorderStyle
-    if mask & (1 << 5):
-        reader.u8()  # ScrollBars
-    if not mask & (1 << 6):
-        # Not stored means the file-format default, which is Text.
-        return MORPH_DISPLAY_STYLES[1]
-    return MORPH_DISPLAY_STYLES.get(reader.u8(), _UNKNOWN_CONTROL)
-
-
-def _kind_of(site: _Site, record: bytes) -> str:
+def _kind_of(site: _Site, record: ParsedRecord | None) -> str:
     if site.clsid_cache_index >= _CLASS_TABLE_BASE:
         return _ACTIVEX_CONTROL
     named = CONTROL_CLASSES.get(site.clsid_cache_index)
@@ -455,11 +583,11 @@ def _kind_of(site: _Site, record: bytes) -> str:
         # An index this table does not know is a structure this reader
         # does not fully understand; the honest claim is the base surface.
         return _UNKNOWN_CONTROL
-    if site.clsid_cache_index == 15:
-        try:
-            return _morph_kind(record)
-        except FormParseError:
-            return _UNKNOWN_CONTROL
+    if site.clsid_cache_index == 15 and record is not None:
+        # A generic MorphData says what it is through DisplayStyle; not
+        # stored means the file-format default, which is Text.
+        style = record.values.get("DisplayStyle", 1)
+        return MORPH_DISPLAY_STYLES.get(style, _UNKNOWN_CONTROL)
     return named
 
 
@@ -496,12 +624,14 @@ def read_form(cfb: CFB, name: str, *, code_page: int = 1252) -> VBAForm:
         raw_designer = cfb.get_stream_at([name], _VBFRAME_STREAM)
     except KeyError:
         raw_designer = b""
-    mask, controls = _read_level(cfb, [name], encoding)
+    levels: list[_Level] = []
+    controls = _read_level(cfb, [name], encoding, levels)
     return VBAForm(
         name=name,
         designer_source=raw_designer.decode(encoding, "replace"),
-        properties_set=mask,
         controls=controls,
+        _levels=levels,
+        _encoding=encoding,
     )
 
 
@@ -511,8 +641,8 @@ def read_forms(cfb: CFB, *, code_page: int = 1252) -> list[VBAForm]:
 
 
 def _read_level(
-    cfb: CFB, path: list[str], encoding: str
-) -> tuple[int, tuple[FormControl, ...]]:
+    cfb: CFB, path: list[str], encoding: str, levels: list[_Level]
+) -> tuple[FormControl, ...]:
     """Parse one container's ``f``/``o`` pair and recurse into its children."""
     where = "/".join(path)
     try:
@@ -524,7 +654,7 @@ def _read_level(
     except KeyError:
         o_stream = b""
 
-    mask, sites = _read_container(f_stream, encoding)
+    form_record, sites, form_block_len = _read_container(f_stream, encoding)
 
     total = sum(site.object_stream_size for site in sites)
     if total != len(o_stream):
@@ -544,38 +674,52 @@ def _read_level(
         if storage[:1].casefold() == "i" and digits.isdigit():
             substorages[int(digits)] = storage
 
-    controls: list[FormControl] = []
+    level = _Level(
+        path=list(path),
+        f_raw=f_stream,
+        o_raw=o_stream,
+        record=form_record,
+        form_block_len=form_block_len,
+        sites=sites,
+        controls=[],
+    )
+    levels.append(level)
+
     offset = 0
     for site in sites:
-        record = o_stream[offset:offset + site.object_stream_size]
+        slice_bytes = o_stream[offset:offset + site.object_stream_size]
         offset += site.object_stream_size
         storage = substorages.pop(site.id, None)
         if storage is not None:
-            child_mask, children = _read_level(cfb, [*path, storage], encoding)
-            control_mask, width = child_mask, 4
+            children = _read_level(cfb, [*path, storage], encoding, levels)
+            # The child level parsed the container's own record; find it by
+            # path, since recursion appends grandchildren after it.
+            record = next(
+                lvl.record for lvl in levels if lvl.path == [*path, storage]
+            )
         else:
             children = ()
-            if record:
-                control_mask, width = _record_mask(record, site.clsid_cache_index)
-            else:
-                control_mask, width = 0, 4
-        controls.append(
-            FormControl(
-                name=site.name,
-                kind=_kind_of(site, record),
-                id=site.id,
-                clsid_cache_index=site.clsid_cache_index,
-                tab_index=site.tab_index,
-                object_stream_size=site.object_stream_size,
-                properties_set=control_mask,
-                property_mask_width=width,
-                children=children,
+            spec = SPECS_BY_CACHE_INDEX.get(site.clsid_cache_index)
+            record = (
+                parse_record(slice_bytes, spec, encoding)
+                if spec is not None and slice_bytes
+                else None
             )
+        control = FormControl(
+            name=site.name,
+            kind=_kind_of(site, record),
+            id=site.id,
+            clsid_cache_index=site.clsid_cache_index,
+            tab_index=site.tab_index,
+            object_stream_size=site.object_stream_size,
+            record=record,
+            children=children,
         )
+        level.controls.append(control)
     if substorages:
         # A child storage no site claims means the sites were misread, or
         # this is a layout the reader does not understand.  Either way the
         # control list would be incomplete.
         orphans = ", ".join(sorted(substorages.values()))
         raise FormParseError(f"{where}: child storages claimed by no site: {orphans}")
-    return mask, tuple(controls)
+    return tuple(level.controls)

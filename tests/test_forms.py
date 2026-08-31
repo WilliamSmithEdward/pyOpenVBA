@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+import shutil
 import zipfile
 from pathlib import Path
 
 import pytest
 
+from pyopenvba._oforms_records import Size
 from pyopenvba.cfb import CFB
 from pyopenvba.excel import ExcelFile
 from pyopenvba.exceptions import FormParseError
@@ -309,3 +311,238 @@ class TestSiteAlignment:
         frame = _by_name(list(read_form(rebuilt, "FrmNested").controls), "GroupBox")
         assert [c.name for c in frame.children] == ["Hello"]
         assert frame.children[0].kind == "MSForms.CommandButton"
+
+
+# ---------------------------------------------------------------------------
+# Named properties
+# ---------------------------------------------------------------------------
+
+@pytest.mark.skipif(not _NESTED.exists(), reason="fixture not present")
+class TestNamedProperties:
+    """The mask says *which* properties a control sets; the per-class
+    tables in ``_oforms_records`` say which ones those are."""
+
+    def test_a_button_reports_its_caption(self, nested: VBAForm) -> None:
+        assert nested.control("CloseButton").get("Caption") == "Close"
+
+    def test_a_label_reports_its_caption_and_size(self, nested: VBAForm) -> None:
+        label = nested.control("TopLabel")
+        assert label.get("Caption") == "Top level"
+        assert label.get("Size") == Size(width=2540, height=635)
+
+    def test_font_properties_come_from_the_nested_textprops(
+        self, nested: VBAForm
+    ) -> None:
+        """A control's font is its own record's TextProps, so it is
+        namespaced rather than merged into the control's own fields."""
+        assert nested.control("TopLabel").get("Font.FontName") == "Tahoma"
+
+    def test_a_morphdata_reports_the_style_that_types_it(
+        self, nested: VBAForm
+    ) -> None:
+        # fmDisplayStyle 5 is OptionButton, which is also how a generic
+        # MorphData site gets typed.
+        assert nested.control("OptOne").get("DisplayStyle") == 5
+        assert nested.control("OptOne").get("GroupName") == "Choice"
+
+    def test_a_container_reports_its_own_record(self, nested: VBAForm) -> None:
+        """A Frame keeps its properties in its child storage's ``f``, not
+        in a slice of the parent's ``o``."""
+        frame = nested.control("GroupBox")
+        assert frame.object_stream_size == 0
+        assert frame.get("Caption") == "A frame"
+
+    def test_the_form_reports_its_own_properties(self, nested: VBAForm) -> None:
+        assert nested.get("Caption") == "Nested Fixture"
+
+    def test_property_names_agree_with_the_mask(self, nested: VBAForm) -> None:
+        """Every named property must correspond to a set bit, so the two
+        views of the same record cannot drift apart."""
+        for control in nested.walk():
+            if control.record is None:
+                continue
+            for name in control.properties():
+                stem = name.split(".", 1)[0] if name.startswith("Font.") else name
+                if name.startswith("Font."):
+                    continue
+                assert control.record.has(stem), f"{control.name}.{name}"
+
+
+# ---------------------------------------------------------------------------
+# Writing
+# ---------------------------------------------------------------------------
+
+@pytest.mark.skipif(not _NESTED.exists(), reason="fixture not present")
+class TestFormWriteBack:
+    """Editing a property rewrites that control's record and patches its
+    site's ObjectStreamSize.  Everything the tables do not model is
+    replayed verbatim, so an unedited form must not move a byte."""
+
+    @staticmethod
+    def _designer_streams(path: Path) -> dict[str, bytes]:
+        cfb = _project_cfb(path)
+        out: dict[str, bytes] = {}
+
+        def walk(where: list[str]) -> None:
+            for name in cfb.list_streams_at(where):
+                out["/".join([*where, name])] = cfb.get_stream_at(where, name)
+            for storage in cfb.list_storages_at(where):
+                walk([*where, storage])
+
+        walk(["FrmNested"])
+        return out
+
+    def test_a_save_with_no_form_edits_moves_no_byte(self, tmp_path: Path) -> None:
+        out = tmp_path / "noop.xlsm"
+        shutil.copyfile(_NESTED, out)
+        with ExcelFile(out) as workbook:
+            workbook.forms()          # parse them, change nothing
+            workbook.save()
+        assert self._designer_streams(out) == self._designer_streams(_NESTED)
+
+    def test_a_longer_caption_round_trips(self, tmp_path: Path) -> None:
+        out = tmp_path / "longer.xlsm"
+        shutil.copyfile(_NESTED, out)
+        with ExcelFile(out) as workbook:
+            workbook.forms()[0].control("CloseButton").set_property(
+                "Caption", "Dismiss this form"
+            )
+            workbook.save()
+        with ExcelFile(out) as workbook:
+            assert workbook.forms()[0].control("CloseButton").get("Caption") == (
+                "Dismiss this form"
+            )
+
+    def test_a_shorter_caption_round_trips(self, tmp_path: Path) -> None:
+        out = tmp_path / "shorter.xlsm"
+        shutil.copyfile(_NESTED, out)
+        with ExcelFile(out) as workbook:
+            workbook.forms()[0].control("TopLabel").set_property("Caption", "Hi")
+            workbook.save()
+        with ExcelFile(out) as workbook:
+            assert workbook.forms()[0].control("TopLabel").get("Caption") == "Hi"
+
+    def test_a_resized_record_updates_its_site(self, tmp_path: Path) -> None:
+        """ObjectStreamSize is what keeps `o` sliceable; if it were not
+        updated the next control's record would be read from the wrong
+        offset and the whole level would stop reconciling."""
+        out = tmp_path / "resized.xlsm"
+        shutil.copyfile(_NESTED, out)
+        with ExcelFile(out) as workbook:
+            control = workbook.forms()[0].control("CloseButton")
+            before = control.object_stream_size
+            control.set_property("Caption", "A considerably longer caption")
+            workbook.save()
+            assert control.object_stream_size > before
+        with ExcelFile(out) as workbook:
+            # Reopening re-runs the sum-of-sizes check against len(o).
+            assert workbook.forms()[0].control("CloseButton").object_stream_size > (
+                before
+            )
+
+    def test_a_new_property_appears_in_the_mask(self, tmp_path: Path) -> None:
+        out = tmp_path / "newprop.xlsm"
+        shutil.copyfile(_NESTED, out)
+        with ExcelFile(out) as workbook:
+            label = workbook.forms()[0].control("TopLabel")
+            assert "ForeColor" not in label.properties()
+            before = label.properties_set
+            label.set_property("ForeColor", 0x0000FF)
+            assert label.properties_set != before
+            workbook.save()
+        with ExcelFile(out) as workbook:
+            assert workbook.forms()[0].control("TopLabel").get("ForeColor") == 0x0000FF
+
+    def test_clearing_a_property_removes_it(self, tmp_path: Path) -> None:
+        out = tmp_path / "cleared.xlsm"
+        shutil.copyfile(_NESTED, out)
+        with ExcelFile(out) as workbook:
+            control = workbook.forms()[0].control("CloseButton")
+            control.set_property("Caption", None)
+            workbook.save()
+        with ExcelFile(out) as workbook:
+            assert "Caption" not in workbook.forms()[0].control(
+                "CloseButton"
+            ).properties()
+
+    def test_editing_a_control_inside_a_frame(self, tmp_path: Path) -> None:
+        out = tmp_path / "inframe.xlsm"
+        shutil.copyfile(_NESTED, out)
+        with ExcelFile(out) as workbook:
+            workbook.forms()[0].control("OptOne").set_property("Caption", "Ground")
+            workbook.save()
+        with ExcelFile(out) as workbook:
+            assert workbook.forms()[0].control("OptOne").get("Caption") == "Ground"
+
+    def test_editing_a_control_on_a_multipage_page(self, tmp_path: Path) -> None:
+        out = tmp_path / "onpage.xlsm"
+        shutil.copyfile(_NESTED, out)
+        with ExcelFile(out) as workbook:
+            workbook.forms()[0].control("PageTwoButton").set_property(
+                "Caption", "Second"
+            )
+            workbook.save()
+        with ExcelFile(out) as workbook:
+            assert workbook.forms()[0].control("PageTwoButton").get("Caption") == (
+                "Second"
+            )
+
+    def test_editing_a_containers_own_record(self, tmp_path: Path) -> None:
+        """The Frame's record heads its child storage's `f`, ahead of its
+        children's sites, so resizing it shifts them."""
+        out = tmp_path / "container.xlsm"
+        shutil.copyfile(_NESTED, out)
+        with ExcelFile(out) as workbook:
+            workbook.forms()[0].control("GroupBox").set_property(
+                "Caption", "Shipping options for this order"
+            )
+            workbook.save()
+        with ExcelFile(out) as workbook:
+            form = workbook.forms()[0]
+            assert form.control("GroupBox").get("Caption") == (
+                "Shipping options for this order"
+            )
+            # Its children must still be readable at their new offsets.
+            assert [c.name for c in form.control("GroupBox").children] == [
+                "OptOne", "OptTwo", "InnerText",
+            ]
+
+    def test_editing_the_forms_own_caption(self, tmp_path: Path) -> None:
+        out = tmp_path / "formcap.xlsm"
+        shutil.copyfile(_NESTED, out)
+        with ExcelFile(out) as workbook:
+            workbook.forms()[0].set_property("Caption", "Renamed")
+            workbook.save()
+        with ExcelFile(out) as workbook:
+            form = workbook.forms()[0]
+            assert form.get("Caption") == "Renamed"
+            assert len(form.walk()) == 13
+
+    def test_the_code_behind_survives_a_design_edit(self, tmp_path: Path) -> None:
+        out = tmp_path / "codebehind.xlsm"
+        shutil.copyfile(_NESTED, out)
+        with ExcelFile(out) as workbook:
+            before = workbook.get_module("FrmNested")
+            workbook.forms()[0].control("CloseButton").set_property("Caption", "X")
+            workbook.save()
+        with ExcelFile(out) as workbook:
+            assert workbook.get_module("FrmNested") == before
+
+    def test_a_caption_too_long_for_the_format_is_refused(
+        self, tmp_path: Path
+    ) -> None:
+        """cb is a u16; letting it wrap would write a record the reader
+        then overruns, so this has to fail before any byte lands."""
+        out = tmp_path / "toolong.xlsm"
+        shutil.copyfile(_NESTED, out)
+        with ExcelFile(out) as workbook:
+            workbook.forms()[0].control("CloseButton").set_property(
+                "Caption", "x" * 70_000
+            )
+            with pytest.raises(FormParseError, match="caps a record at 65535"):
+                workbook.save()
+
+    def test_setting_an_unknown_property_is_refused(self) -> None:
+        form = read_form(_project_cfb(_NESTED), "FrmNested")
+        with pytest.raises(FormParseError, match="no numeric field"):
+            form.control("CloseButton").set_property("NoSuchProperty", 1)

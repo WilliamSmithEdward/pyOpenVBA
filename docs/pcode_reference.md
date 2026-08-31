@@ -23,7 +23,8 @@ Word, PowerPoint, and Access all embed the same structures; only the
 | Word `.docm` / `.dotm` | same, inside `word/vbaProject.bin` |
 | PowerPoint `.pptm` / `.potm` | same, inside `ppt/vbaProject.bin` |
 | Access `.accdb` | LVAL rows in the ACE page store (no CFB) |
-| Legacy `.xls` / `.doc` / `.ppt` | the whole file is the CFB |
+| Legacy `.xls` / `.doc` | the whole file is the CFB |
+| Legacy `.ppt` | a deflated CFB inside the `PowerPoint Document` stream |
 
 The project-wide identifier table (section 4) likewise uses the same
 `CC 61` layout in all hosts. Consequently a p-code reader/writer is

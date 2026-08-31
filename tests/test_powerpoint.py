@@ -316,3 +316,198 @@ class TestPowerPointClassSourceNormalization:
         assert not source.startswith("VERSION")
         header, _ = split_attribute_header(source)
         assert f'Attribute VB_Base = "{CLASS_MODULE_CLSID}"' in header
+
+
+# ---------------------------------------------------------------------------
+# Legacy binary container (.ppt)
+# ---------------------------------------------------------------------------
+
+_LIVE_PPT = Path(__file__).parent / "live_powerpoint_testing" / "legacy_macros.ppt"
+
+
+@pytest.mark.skipif(not _LIVE_PPT.exists(), reason="legacy .ppt fixture not present")
+class TestPowerPointLegacyContainer:
+    """A .ppt keeps its VBA project inside the 'PowerPoint Document'
+    stream rather than at the CFB root (GitHub issue #17), so these
+    exercise the persist-chain lookup and the write-back splice."""
+
+    def test_opens_and_lists_modules(self) -> None:
+        with PowerPointFile(_LIVE_PPT) as prs:
+            assert "Fixture" in prs.module_names()
+
+    def test_reads_module_source(self) -> None:
+        with PowerPointFile(_LIVE_PPT) as prs:
+            source = prs.get_module("Fixture")
+        assert "Answer = 42" in source
+
+    def test_vba_project_bytes_is_the_embedded_cfb(self) -> None:
+        """Not the whole presentation: the project is a CFB of its own."""
+        with PowerPointFile(_LIVE_PPT) as prs:
+            raw = prs.vba_project_bytes()
+        assert raw[:8] == b"\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1"
+        assert len(raw) < _LIVE_PPT.stat().st_size
+
+    def test_validate_reports_no_issues(self) -> None:
+        with PowerPointFile(_LIVE_PPT) as prs:
+            assert prs.validate() == []
+
+    def test_roundtrip_source_edit(self, tmp_path: Path) -> None:
+        out = tmp_path / "legacy_out.ppt"
+        with PowerPointFile(_LIVE_PPT) as prs:
+            prs.set_module(
+                "Fixture", prs.get_module("Fixture").replace("42", "4242")
+            )
+            prs.save(out)
+        with PowerPointFile(out) as prs:
+            assert "Answer = 4242" in prs.get_module("Fixture")
+
+    @staticmethod
+    def _resized(source: str) -> str:
+        """An edit big enough to change the record's compressed size.
+
+        Appending a line or two does not: the project's CFB is quantized
+        to 512-byte sectors and the deflate lands on the same length, so
+        a small edit leaves every offset where it was and proves nothing
+        about the splice.
+        """
+        return source + "\r\n' " + "padding " * 900 + "\r\n"
+
+    def test_save_preserves_the_presentation_container(self, tmp_path: Path) -> None:
+        """The splice must leave the non-VBA streams alone -- writing the
+        project's CFB over the whole file would lose the slides."""
+        from pyopenvba.cfb import CFB
+
+        out = tmp_path / "legacy_container.ppt"
+        with PowerPointFile(_LIVE_PPT) as prs:
+            prs.set_module("Fixture", self._resized(prs.get_module("Fixture")))
+            prs.save(out)
+        before = CFB.from_bytes(_LIVE_PPT.read_bytes())
+        after = CFB.from_bytes(out.read_bytes())
+        assert sorted(after.list_streams()) == sorted(before.list_streams())
+        assert after.get_stream("\x05SummaryInformation") == before.get_stream(
+            "\x05SummaryInformation"
+        )
+
+    def test_save_keeps_the_persist_chain_resolvable(self, tmp_path: Path) -> None:
+        """The rewritten record shifts every absolute offset after it; if
+        the chain still names the project, the shifting was right."""
+        from pyopenvba import _ppt_container as container
+        from pyopenvba.cfb import CFB
+
+        out = tmp_path / "legacy_persist.ppt"
+        with PowerPointFile(_LIVE_PPT) as prs:
+            prs.set_module("Fixture", self._resized(prs.get_module("Fixture")))
+            prs.save(out)
+
+        original = CFB.from_bytes(_LIVE_PPT.read_bytes())
+        outer = CFB.from_bytes(out.read_bytes())
+        doc = outer.get_stream("PowerPoint Document")
+
+        # Guard the guard: with no size change nothing has to move, and
+        # every assertion below would hold against a broken splice.
+        assert len(doc) != len(original.get_stream("PowerPoint Document"))
+
+        current_edit = container.current_edit_offset(
+            outer.get_stream("Current User")
+        )
+        assert current_edit is not None
+        # The CurrentUserAtom sits after the project record, so it must
+        # have moved with it.
+        assert current_edit != container.current_edit_offset(
+            original.get_stream("Current User")
+        )
+        offsets = container.walk_persist_chain(doc, current_edit)
+        assert offsets, "the user-edit chain resolved no persist entries"
+        # Every persist offset must still land on a parseable record.
+        assert all(container.read_header(doc, o) is not None for o in offsets.values())
+        # And the top-level walk must consume the stream exactly: a wrong
+        # record length desynchronizes it long before the end.
+        records = container.top_level_records(doc)
+        assert records[-1].end == len(doc)
+
+    def test_pull_ppt_writes_the_module(self, tmp_path: Path) -> None:
+        from pyopenvba import pull_ppt
+
+        written = pull_ppt(_LIVE_PPT, tmp_path)
+        assert any(Path(p).stem == "Fixture" for p in written)
+
+
+class TestPowerPointLegacyContainerErrors:
+    def test_presentation_without_vba_raises_project_error(
+        self, tmp_path: Path
+    ) -> None:
+        """A macro-free .ppt must say so, not report a missing 'dir'."""
+        from pyopenvba.cfb import CFB
+
+        source = _LIVE_PPT if _LIVE_PPT.exists() else None
+        if source is None:
+            pytest.skip("legacy .ppt fixture not present")
+        outer = CFB.from_bytes(source.read_bytes())
+        # Blank the document stream: no records, so no ExOleObjStg.
+        outer.write_stream("PowerPoint Document", b"\x00" * 64)
+        path = tmp_path / "no_macros.ppt"
+        path.write_bytes(outer.to_bytes())
+        with pytest.raises(VBAProjectError, match="no VBA project"):
+            PowerPointFile(path)
+
+
+@pytest.mark.skipif(not _LIVE_PPT.exists(), reason="legacy .ppt fixture not present")
+class TestPowerPointLegacyOffsetShift:
+    """PowerPoint writes the VBA record last, so no real file has persist
+    offsets pointing past it.  The shift is still load-bearing for files
+    another writer produced, so it is exercised synthetically."""
+
+    @staticmethod
+    def _synthetic(project: bytes) -> tuple[bytes, int]:
+        """A document stream: the project record first, then a persist
+        directory naming an offset before it and one after it."""
+        import struct
+        import zlib
+
+        deflated = zlib.compress(project, 6)
+        body = struct.pack("<I", len(project)) + deflated
+        record = struct.pack("<HHI", 0x10, 0x1011, len(body)) + body
+        after = len(record) + 8  # inside the directory record, so > start
+        entries = struct.pack("<I", (2 << 20) | 0) + struct.pack("<II", 0, after)
+        directory = struct.pack("<HHI", 0, 0x1772, len(entries)) + entries
+        edit = struct.pack("<HHI", 0, 0x0FF5, 24) + struct.pack(
+            "<IIIIII", 0, 0, 0, len(record), 0, 0
+        )
+        return record + directory + edit, after
+
+    def test_offsets_after_the_record_shift_by_the_delta(
+        self, tmp_path: Path
+    ) -> None:
+        import struct
+
+        from pyopenvba import _ppt_container as container
+        from pyopenvba.cfb import CFB
+
+        with PowerPointFile(_LIVE_PPT) as prs:
+            project = prs.vba_project_bytes()
+
+        doc, after = self._synthetic(project)
+        outer = CFB.from_bytes(_LIVE_PPT.read_bytes())
+        outer.write_stream("PowerPoint Document", doc)
+        path = tmp_path / "synthetic.ppt"
+        path.write_bytes(outer.to_bytes())
+
+        outer = CFB.from_bytes(path.read_bytes())
+        record, storage = container.locate(outer)
+        assert record.start == 0
+        before_len = record.end - record.start
+
+        # Rewriting with a longer project moves everything after it.
+        container.replace_vba_storage(outer, storage + b"\x00" * 4096)
+        updated = outer.get_stream("PowerPoint Document")
+        record_after, _ = container.locate(outer)
+        delta = (record_after.end - record_after.start) - before_len
+
+        directory = next(
+            r for r in container.top_level_records(updated) if r.rec_type == 0x1772
+        )
+        # The run header, then the two offsets it names.
+        stayed = struct.unpack_from("<I", updated, directory.start + 12)[0]
+        moved = struct.unpack_from("<I", updated, directory.start + 16)[0]
+        assert stayed == 0, "an offset at the record's own start must not move"
+        assert moved == after + delta

@@ -299,7 +299,7 @@ removes signatures.
 | Extension        | Container              | VBA entry path         |
 |------------------|------------------------|------------------------|
 | `.pptm`, `.potm` | ZIP (OOXML)            | `ppt/vbaProject.bin`   |
-| `.ppt`           | raw CFB (PPT 97)       | (whole file is CFB)    |
+| `.ppt`           | CFB (PPT 97)           | embedded in `PowerPoint Document` |
 | anything else    | n/a                    | `UnsupportedFormatError` |
 
 For the ZIP case, the VBA project is at the fixed path
@@ -307,8 +307,17 @@ For the ZIP case, the VBA project is at the fixed path
 every other ZIP entry is preserved byte-for-byte including its
 compression method, external attributes, create system, and timestamp.
 
-For `.xls`, the entire file *is* the CFB; `cfb.to_bytes()` is written
-straight to the output path.
+For `.xls` and `.doc`, the entire file *is* the CFB; `cfb.to_bytes()`
+is written straight to the output path.
+
+`.ppt` is the exception among the legacy containers. Its root holds no
+VBA storage at all: the project is a whole CFB, zlib-deflated, inside an
+`ExOleObjStg` record of the `PowerPoint Document` stream, found through
+the persist chain (`Current User` -> `UserEditAtom` -> `PersistDirectoryAtom`).
+`_ppt_container.py` extracts it on open and splices it back on save,
+shifting every absolute offset past the resized record. The two hooks
+`VBAHostFile._vba_cfb_bytes` / `._container_bytes` are the seam; they are
+identities for every other format.
 
 If a `.xlsm` exists but does not contain `xl/vbaProject.bin` (no VBA
 project has ever been created), `ExcelFile` raises a structured

@@ -55,11 +55,15 @@ class VBAHostFile:
     Subclasses define the container parameters:
 
     - ``_zip_formats``: extensions stored as OOXML ZIP containers.
-    - ``_cfb_formats``: legacy extensions where the whole file is a CFB.
+    - ``_cfb_formats``: legacy extensions stored as a CFB container.
     - ``_vba_entry``: ZIP entry path of ``vbaProject.bin``.
     - ``_host_noun``: "workbook" / "document" / "presentation", used in
       user-facing messages.
     - ``_no_vba_hint``: sentence appended when the ZIP has no VBA entry.
+
+    For ``.doc`` and ``.xls`` the legacy container *is* the VBA project's
+    CFB, so the two extraction hooks below are identities.  ``.ppt``
+    embeds the project deeper and overrides them.
     """
 
     _zip_formats: ClassVar[frozenset[str]]
@@ -74,6 +78,7 @@ class VBAHostFile:
         self._zip: zipfile.ZipFile | None = None
         self._cfb: CFB | None = None
         self._project: VBAProject | None = None
+        self._container_raw: bytes = b""
         self._open()
 
     # ------------------------------------------------------------------
@@ -103,10 +108,11 @@ class VBAHostFile:
         return self._project
 
     def vba_project_bytes(self) -> bytes:
-        """Return the raw bytes of the ``vbaProject.bin`` ZIP entry (or
-        the whole CFB file for the legacy formats)."""
+        """Return the raw bytes of the VBA project CFB: the
+        ``vbaProject.bin`` ZIP entry, or the project extracted from a
+        legacy container."""
         if self._suffix in self._cfb_formats:
-            return self._path.read_bytes()
+            return self._vba_cfb_bytes(self._path.read_bytes())
         assert self._zip is not None
         return self._zip.read(self._vba_entry)
 
@@ -471,7 +477,7 @@ class VBAHostFile:
         out_path = Path(dest) if dest is not None else self._path
 
         if self._suffix in self._cfb_formats:
-            out_path.write_bytes(new_cfb_bytes)
+            out_path.write_bytes(self._container_bytes(new_cfb_bytes))
             return
 
         if self._zip is None:
@@ -525,9 +531,25 @@ class VBAHostFile:
                 + self._no_vba_hint
             )
 
+    def _vba_cfb_bytes(self, container: bytes) -> bytes:
+        """Extract the VBA project CFB from a legacy container's bytes.
+
+        The default is the identity: for ``.doc`` and ``.xls`` the file
+        itself is the project's CFB.
+        """
+        return container
+
+    def _container_bytes(self, vba_cfb: bytes) -> bytes:
+        """Rebuild the legacy container around a modified project CFB.
+
+        The inverse of :meth:`_vba_cfb_bytes`, and the identity for the
+        formats whose container is the project.
+        """
+        return vba_cfb
+
     def _open_cfb_direct(self) -> None:
-        raw = self._path.read_bytes()
-        self._cfb = CFB.from_bytes(raw)
+        self._container_raw = self._path.read_bytes()
+        self._cfb = CFB.from_bytes(self._vba_cfb_bytes(self._container_raw))
 
     def _get_cfb(self) -> CFB:
         if self._cfb is not None:

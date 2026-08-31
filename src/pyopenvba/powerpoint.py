@@ -4,7 +4,9 @@ PowerPoint file handler.
 Supports:
   - .pptm  (OOXML macro-enabled presentation -- ZIP containing ppt/vbaProject.bin)
   - .potm  (OOXML macro-enabled template -- ZIP containing ppt/vbaProject.bin)
-  - .ppt   (Legacy PowerPoint -- the entire file is a CFB)
+  - .ppt   (Legacy PowerPoint -- a CFB whose 'PowerPoint Document' stream
+            embeds the VBA project as a deflated CFB; see
+            :mod:`pyopenvba._ppt_container`)
 
 Usage
 -----
@@ -23,6 +25,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from pyopenvba._host import VBAHostFile
+from pyopenvba.cfb import CFB
 
 _ZIP_FORMATS = frozenset({".pptm", ".potm"})
 _CFB_FORMATS = frozenset({".ppt"})
@@ -47,6 +50,24 @@ class PowerPointFile(VBAHostFile):
         "Make sure the presentation has a VBA project "
         "(save as .pptm in PowerPoint)."
     )
+
+    # ------------------------------------------------------------------
+    # Legacy container: the VBA project is embedded, not at the root
+    # ------------------------------------------------------------------
+
+    def _vba_cfb_bytes(self, container: bytes) -> bytes:
+        """Inflate the VBA project CFB out of a binary presentation."""
+        from pyopenvba._ppt_container import extract_vba_storage
+
+        return extract_vba_storage(CFB.from_bytes(container))
+
+    def _container_bytes(self, vba_cfb: bytes) -> bytes:
+        """Splice a modified project back into the binary presentation."""
+        from pyopenvba._ppt_container import replace_vba_storage
+
+        outer = CFB.from_bytes(self._container_raw)
+        replace_vba_storage(outer, vba_cfb)
+        return outer.to_bytes()
 
     @classmethod
     def create_new(cls, path: str | Path) -> PowerPointFile:

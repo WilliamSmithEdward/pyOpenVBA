@@ -6,6 +6,7 @@ Usage::
     python -m pyopenvba pull <office_file> <dest_dir>
     python -m pyopenvba push <src_dir> <office_file> [--out <new_path>] [--strict]
     python -m pyopenvba ls   <office_file>
+    python -m pyopenvba forms <office_file> [--mask]
     python -m pyopenvba access-ls    <accdb>
     python -m pyopenvba access-pull  <accdb> <dest_dir>
     python -m pyopenvba access-disasm <accdb> [--module <name>] [--with-source]
@@ -79,11 +80,18 @@ def _cmd_forms(args: argparse.Namespace) -> int:
         return 2
 
     def show(control: FormControl, depth: int) -> None:
-        mask = f"{control.properties_set:#0{2 + control.property_mask_width * 2}x}"
-        print(
-            f"{'  ' * depth}{control.name or '(unnamed)':<20} "
-            f"{control.kind:<22} id={control.id:<4} set={mask}"
-        )
+        pad = "  " * depth
+        head = f"{pad}{control.name or '(unnamed)':<20} {control.kind:<22}"
+        if args.mask:
+            width = control.property_mask_width * 2
+            print(
+                f"{head} id={control.id:<4} "
+                f"set={control.properties_set:#0{2 + width}x}"
+            )
+        else:
+            print(f"{head} id={control.id}")
+            for name, value in control.properties().items():
+                print(f"{pad}    {name} = {value!r}")
         for child in control.children:
             show(child, depth + 1)
 
@@ -94,6 +102,9 @@ def _cmd_forms(args: argparse.Namespace) -> int:
             return 0
         for form in forms:
             print(f"{form.name}  ({len(form.walk())} controls)")
+            if not args.mask:
+                for name, value in form.properties().items():
+                    print(f"    {name} = {value!r}")
             for control in form.controls:
                 show(control, 1)
     return 0
@@ -218,11 +229,16 @@ def main(argv: list[str] | None = None) -> int:
     p_forms = sub.add_parser(
         "forms",
         help=(
-            "List each UserForm's control tree, with the property mask "
-            "the developer's own edits set."
+            "List each UserForm's control tree, with the properties the "
+            "developer actually set."
         ),
     )
     p_forms.add_argument("workbook", type=Path)
+    p_forms.add_argument(
+        "--mask",
+        action="store_true",
+        help="Show each control's raw property mask instead of named values.",
+    )
     p_forms.set_defaults(func=_cmd_forms)
 
     p_als = sub.add_parser(

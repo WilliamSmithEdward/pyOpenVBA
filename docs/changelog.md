@@ -7,21 +7,27 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
-- **Reading a UserForm's design surface** (issue #15).  A form's controls,
-  their nesting, and each control's property mask are now readable with no
-  Office installed: `ExcelFile.forms()` / `WordFile.forms()` /
-  `PowerPointFile.forms()`, and `python -m pyopenvba forms <file>`.
-  Containers recurse -- a `Frame`'s children and a `MultiPage`'s Pages
-  live in storages of their own, and MSForms sites an unnamed `TabStrip`
-  beside the pages.  `properties_set` is the raw `PropMask`: MSForms
-  writes a property only when it differs from the control's default, so
-  the mask is the set the developer chose, which a live COM read cannot
-  distinguish from inherited and default values.  Verified against live
-  Excel: every control Excel reports is found with the same type, and
-  setting one property flips exactly one bit.  Bits are not yet named per
-  class, so compare masks between files rather than reading a bit as a
-  value.  Refuses with `FormParseError` rather than returning a partly
-  guessed control list.
+- **Reading and editing a UserForm's design surface** (issue #15).  A
+  form's controls, their nesting, and their named properties are now
+  readable and writable with no Office installed: `ExcelFile.forms()` /
+  `WordFile.forms()` / `PowerPointFile.forms()`, and
+  `python -m pyopenvba forms <file>`.  Containers recurse -- a `Frame`'s
+  children and a `MultiPage`'s Pages live in storages of their own, and
+  MSForms sites an unnamed `TabStrip` beside the pages.
+  `control.set_property()`, `form.add_control()` and
+  `form.remove_control()` write; geometry is in points.  MSForms stores a
+  property only when it differs from the control's default, so
+  `properties()` is the set the developer chose -- which a live COM read
+  cannot distinguish from inherited and default values.  Writing is
+  lossless: an unedited form saves back byte for byte.  Verified against
+  live Excel, which is where three defects surfaced that no structural
+  check could catch: an added control colliding with the last control's
+  id (`NextAvailableID` is the highest handed out, not the next free), a
+  MorphData record omitting reserved mask bit 31 ([MS-OFORMS] 2.2.5.2),
+  and a designer edit leaving the `_VBA_PROJECT` performance cache stale.
+  Refuses with `FormParseError` rather than returning a partly guessed
+  control list.  Adding or removing a container (`Frame`, `MultiPage`,
+  `Page`) is not supported: each needs a storage of its own.
 - **Path-addressed CFB navigation**: `CFB.list_storages_at`,
   `list_streams_at`, `get_stream_at`.  Nested designer storages repeat
   names -- every container owns an `f` -- so a name-based lookup finds
@@ -29,6 +35,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- **A UserForm edit left the VBA performance cache stale.**  Only module
+  changes counted as mutating, so a designer-only save kept a
+  `_VBA_PROJECT` cache describing the form's old members and Office
+  refused to load the form.  A designer edit now invalidates it too.
 - **`.ppt` was advertised but could not be read** (issue #17).
   `PowerPointFile` listed `.ppt` and failed on every real one with
   "No 'dir' stream found", which reads like file corruption and is not.

@@ -333,9 +333,25 @@ class VBAHostFile:
           ``allow_invalidate_signature=True`` to silence the warning.
         - If the save would emit any change, the ``_VBA_PROJECT``
           performance cache body is zeroed (header preserved) so Office
-          regenerates the cache on next open ([MS-OVBA] 2.3.4.1).
+          regenerates the cache on next open ([MS-OVBA] 2.3.4.1).  An edit
+          to a UserForm's design counts: adding or removing a control
+          changes the form class's members.
         """
         cfb = self._get_cfb()
+
+        # Designer edits land first, and count as a mutation: adding or
+        # removing a control changes the form class's members, so leaving
+        # the _VBA_PROJECT performance cache in place makes Office load a
+        # member list that no longer matches the form.  Measured -- with
+        # the cache left alone, Excel refuses the edited form outright.
+        # write_back only sets in-memory overrides, so a gate below can
+        # still refuse the save without anything having been written.
+        forms_dirty = False
+        for form in self._forms or ():
+            # Not any(...): that short-circuits, and every form has to be
+            # written, not just the first dirty one.
+            forms_dirty |= form.write_back(cfb)
+
         if self._project is not None:
             project = self._project
             # Snapshot pending mutations.  Logical name == stream name in
@@ -346,7 +362,11 @@ class VBAHostFile:
             delete_names = set(project.pending_deletes)
             has_source_edits = any(m.dirty for m in project.modules)
             mutating = bool(
-                rename_map or add_names or delete_names or has_source_edits
+                rename_map
+                or add_names
+                or delete_names
+                or has_source_edits
+                or forms_dirty
             )
 
             # Safety gate 1: refuse to mutate a password-protected project
@@ -487,12 +507,10 @@ class VBAHostFile:
             #    module set or source).
             if mutating:
                 invalidate_vba_project_cache(cfb)
-        # Designer edits live beside the VBA storage, so they are written
-        # whether or not any module changed.  write_back() touches only the
-        # streams whose bytes actually differ, so an unedited form is a
-        # no-op here and the CFB stays byte-identical.
-        for form in self._forms or ():
-            form.write_back(cfb)
+        if forms_dirty and self._project is None:
+            # A designer-only edit on a host whose modules were never
+            # parsed still has to invalidate the cache.
+            invalidate_vba_project_cache(cfb)
 
         # [MS-OVBA] writers MUST NOT emit performance-cache (__SRP_*) streams.
         try:

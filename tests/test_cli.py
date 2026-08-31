@@ -116,22 +116,34 @@ class TestForms:
     def test_forms_prints_the_control_tree(
         self, capsys: pytest.CaptureFixture[str]
     ) -> None:
-        assert main(["forms", str(self._NESTED)]) == 0
+        assert main(["forms", "--mask", str(self._NESTED)]) == 0
         out = capsys.readouterr().out
         assert "FrmNested" in out
         assert "MSForms.MultiPage" in out
         # Nesting shows as indentation, so a child must be further in
         # than the container that holds it.
-        lines = {ln.strip().split()[0]: len(ln) - len(ln.lstrip()) for ln in
-                 out.splitlines() if ln.strip()}
-        assert lines["OptOne"] > lines["GroupBox"]
-        assert lines["PageOneCheck"] > lines["Page1"]
+        indent = {
+            ln.strip().split()[0]: len(ln) - len(ln.lstrip())
+            for ln in out.splitlines()
+            if ln.strip() and "MSForms." in ln
+        }
+        assert indent["OptOne"] > indent["GroupBox"]
+        assert indent["PageOneCheck"] > indent["Page1"]
 
     @pytest.mark.skipif(not _NESTED.exists(), reason="nested form fixture not present")
-    def test_forms_reports_the_property_mask(
+    def test_forms_names_the_properties(
         self, capsys: pytest.CaptureFixture[str]
     ) -> None:
         assert main(["forms", str(self._NESTED)]) == 0
+        out = capsys.readouterr().out
+        assert "Caption = 'Close'" in out
+        assert "Font.FontName = 'Tahoma'" in out
+
+    @pytest.mark.skipif(not _NESTED.exists(), reason="nested form fixture not present")
+    def test_forms_mask_flag_reports_the_raw_mask(
+        self, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        assert main(["forms", "--mask", str(self._NESTED)]) == 0
         out = capsys.readouterr().out
         # MorphData controls carry the wider mask, and the printed width
         # is what tells a reader which bit index they are looking at.

@@ -334,14 +334,22 @@ what order), `o` (each control's own property record), and the
 for the site id -- a `Frame`'s children in `i02`, a `MultiPage`'s Pages
 in `i08` / `i09` under its own `i06`.
 
-`forms.py` reads that tree. It never guesses: every structure is counted
-or length-prefixed, so a misread collapses rather than yielding a
-plausible control list, and it raises `FormParseError` instead. Three
-checks have to agree -- `CountOfBytes` runs exactly to the end of `f`,
-the per-site `ObjectStreamSize` values sum to exactly `len(o)`, and every
-child storage is claimed by a site.
+`forms.py` reads that tree and writes it back; `_oforms_records.py`
+carries one property table per control class. It never guesses: every
+structure is counted or length-prefixed, so a misread collapses rather
+than yielding a plausible control list, and it raises `FormParseError`
+instead. Three checks have to agree -- `CountOfBytes` runs exactly to the
+end of `f`, the per-site `ObjectStreamSize` values sum to exactly
+`len(o)`, and every child storage is claimed by a site.
 
-Three details cost the most and none are obvious from a first reading of
+Writing is lossless first: alignment padding is captured and replayed
+(the spec leaves those bytes undefined), string bytes are kept raw beside
+their decoded text, pictures stay opaque runs, and any tail the tables do
+not model is preserved. Bytes inside a record's `cb` that the tables
+cannot explain are refused rather than dropped. The gate is that an
+unedited form serializes to the bytes it was read from.
+
+Four details cost the most and none are obvious from a first reading of
 [MS-OFORMS]:
 
 - a site's `cbSite` counts from the **mask**, so the next site begins at
@@ -351,7 +359,22 @@ Three details cost the most and none are obvious from a first reading of
 - a `MultiPage`'s `f` carries a trailing MultiPage record after the
   FormControl, so the sites do not close the stream exactly there. It is
   version-stamped and length-prefixed, so the reader checks for it rather
-  than merely tolerating a remainder.
+  than merely tolerating a remainder;
+- bit 8 selects no DataBlock field but does select an `fmPosition` in the
+  ExtraDataBlock, between the Name/Tag strings and the rest.
+
+Three things a *written* form needs that reading never reveals, each
+found by Excel refusing the result:
+
+- **`NextAvailableID` is the highest id already handed out**, not the next
+  free one. A new control takes `NextAvailableID + 1`; using the field
+  as-is repeats the last control's id and MSForms refuses the form.
+- **MorphData's mask bit 31 is reserved and MUST be 1**
+  ([MS-OFORMS] 2.2.5.2). Setting it is the single change that makes a new
+  `TextBox` or `OptionButton` load.
+- **A designer edit must invalidate the `_VBA_PROJECT` performance cache.**
+  Adding or removing a control changes the form class's members, and with
+  a stale cache Office loads a member list the form no longer matches.
 
 Nesting is resolved by matching a child storage's numeric suffix against
 a site id, not by rebuilding the storage name from the id: the file says

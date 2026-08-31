@@ -27,18 +27,16 @@ pyOpenVBA today is best described as:
   into the workbook.
 - No-op round-trip preservation of every non-VBA ZIP entry.
 - No-op round-trip preservation of every module's performance-cache prefix.
-- Reading a UserForm's design surface: the control tree, its nesting, and
-  each control's property mask (`ExcelFile.forms()`, `python -m pyopenvba
-  forms`).  Read-only.
+- Reading **and editing** a UserForm's design surface: the control tree,
+  its nesting, each control's named properties, and adding or removing
+  controls (`ExcelFile.forms()`, `python -m pyopenvba forms`).
 - Pure Python 3.10+, zero runtime dependencies.
 
 ### Unsupported (today)
-- Writing a UserForm's design surface.  The designer streams are read
-  ([`forms.py`](../src/pyopenvba/forms.py)) but only ever written back
-  verbatim as they were read.
-- Naming the bits of a control's property mask.  The mask says *which*
-  properties the developer set, which is enough to diff two files; saying
-  *which property* each bit is needs a per-class table this does not have.
+- Adding or removing a UserForm **container** (`Frame`, `MultiPage`,
+  `Page`).  Each needs a storage of its own, with the right CompObj for
+  the kind fm20 should bind it as; properties and ordinary controls are
+  fully supported.
 - ActiveX license editing (PROJECTlk). ActiveX controls are deprecated; license bytes are round-tripped verbatim.
 - Project password / protection editing (parsing-only; save refuses to mutate protected projects unless `allow_protected=True`).
 - Digital signature re-signing (out of scope; stale signature streams are dropped on mutating save with a `UserWarning`).
@@ -86,9 +84,8 @@ _No open near-term items: all in-scope gates are PASS. See the "Out of scope" se
 - Re-signing modified projects with arbitrary PKCS#7 / VBA digital signatures (Gate 17).
 - Office-compatible V3 / agile content-hash recomputation (Gate 15) — only meaningful as a prerequisite for re-signing.
 - Breaking, removing, or bypassing project protection passwords.
-- Editing UserForm layout (controls, positions, properties). The design
-  is readable; the layout bytes will continue to be round-tripped
-  verbatim on write.
+- Composing a UserForm from nothing, or adding container controls to one.
+  Editing an existing form's design is supported.
 - Editing ActiveX licenses beyond preserving `PROJECTlk` verbatim.
 - BIFF8 record-level editing of legacy `.xls` workbooks (only the embedded
   CFB / VBA project is supported; the workbook stream is treated as opaque).

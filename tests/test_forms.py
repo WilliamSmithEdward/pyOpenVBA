@@ -16,6 +16,7 @@ from pyopenvba.forms import (
     FormControl,
     VBAForm,
     form_names,
+    himetric_to_points,
     read_form,
     read_forms,
 )
@@ -546,3 +547,172 @@ class TestFormWriteBack:
         form = read_form(_project_cfb(_NESTED), "FrmNested")
         with pytest.raises(FormParseError, match="no numeric field"):
             form.control("CloseButton").set_property("NoSuchProperty", 1)
+
+
+# ---------------------------------------------------------------------------
+# Adding and removing controls
+# ---------------------------------------------------------------------------
+
+@pytest.mark.skipif(not _NESTED.exists(), reason="fixture not present")
+class TestAddAndRemoveControls:
+    """Structural edits rebuild the site array, so the counts, the depths
+    block and the id allocation all have to come out right at once."""
+
+    def test_added_control_survives_a_round_trip(self, tmp_path: Path) -> None:
+        out = tmp_path / "added.xlsm"
+        shutil.copyfile(_NESTED, out)
+        with ExcelFile(out) as workbook:
+            workbook.forms()[0].add_control(
+                "CommandButton", "Added", left=12, top=250, width=90, height=24
+            )
+            workbook.save()
+        with ExcelFile(out) as workbook:
+            control = workbook.forms()[0].control("Added")
+        assert control.kind == "MSForms.CommandButton"
+        assert control.get("Caption") == "Added"
+
+    def test_a_new_id_never_collides_with_an_existing_one(
+        self, tmp_path: Path
+    ) -> None:
+        """NextAvailableID is the highest id already handed out, not the
+        next free one.  Using it as-is repeats the last control's id, and
+        MSForms then refuses the whole form."""
+        out = tmp_path / "ids.xlsm"
+        shutil.copyfile(_NESTED, out)
+        with ExcelFile(out) as workbook:
+            form = workbook.forms()[0]
+            highest = max(c.id for c in form.walk())
+            added = form.add_control("Label", "Added")
+            assert added.id > highest
+            workbook.save()
+        with ExcelFile(out) as workbook:
+            ids = [c.id for c in workbook.forms()[0].walk()]
+            assert len(ids) == len(set(ids))
+
+    def test_a_morphdata_control_sets_the_reserved_bit(
+        self, tmp_path: Path
+    ) -> None:
+        """[MS-OFORMS] 2.2.5.2 makes MorphData's mask bit 31 reserved and
+        MUST be 1.  Measured: without it Excel refuses the form, and
+        setting it is the single change that makes the control load."""
+        out = tmp_path / "morph.xlsm"
+        shutil.copyfile(_NESTED, out)
+        with ExcelFile(out) as workbook:
+            control = workbook.forms()[0].add_control("OptionButton", "Added")
+            assert control.properties_set & (1 << 31)
+            workbook.save()
+        with ExcelFile(out) as workbook:
+            reread = workbook.forms()[0].control("Added")
+        assert reread.properties_set & (1 << 31)
+        assert reread.kind == "MSForms.OptionButton"
+        # A two-state control also carries the Value Excel gives it.
+        assert reread.get("Value") == "0"
+
+    def test_added_control_goes_into_a_container(self, tmp_path: Path) -> None:
+        out = tmp_path / "incontainer.xlsm"
+        shutil.copyfile(_NESTED, out)
+        with ExcelFile(out) as workbook:
+            workbook.forms()[0].add_control(
+                "OptionButton", "Added", container="GroupBox"
+            )
+            workbook.save()
+        with ExcelFile(out) as workbook:
+            frame = workbook.forms()[0].control("GroupBox")
+        assert [c.name for c in frame.children] == [
+            "OptOne", "OptTwo", "InnerText", "Added",
+        ]
+
+    def test_geometry_is_given_in_points(self, tmp_path: Path) -> None:
+        out = tmp_path / "geometry.xlsm"
+        shutil.copyfile(_NESTED, out)
+        with ExcelFile(out) as workbook:
+            workbook.forms()[0].add_control(
+                "Label", "Added", left=12, top=250, width=90, height=24
+            )
+            workbook.save()
+        with ExcelFile(out) as workbook:
+            size = workbook.forms()[0].control("Added").get("Size")
+        assert isinstance(size, Size)
+        assert round(himetric_to_points(size.width)) == 90
+        assert round(himetric_to_points(size.height)) == 24
+
+    def test_removing_a_control_drops_its_site_and_its_record(
+        self, tmp_path: Path
+    ) -> None:
+        out = tmp_path / "removed.xlsm"
+        shutil.copyfile(_NESTED, out)
+        with ExcelFile(out) as workbook:
+            form = workbook.forms()[0]
+            before = len(form.walk())
+            form.remove_control("Picker")
+            workbook.save()
+        with ExcelFile(out) as workbook:
+            form = workbook.forms()[0]
+            names = [c.name for c in form.walk()]
+        assert "Picker" not in names
+        assert len(names) == before - 1
+
+    def test_add_then_remove_leaves_the_rest_alone(self, tmp_path: Path) -> None:
+        out = tmp_path / "both.xlsm"
+        shutil.copyfile(_NESTED, out)
+        with ExcelFile(out) as workbook:
+            form = workbook.forms()[0]
+            form.add_control("TextBox", "Added", left=12, top=250)
+            form.remove_control("Picker")
+            workbook.save()
+        with ExcelFile(out) as workbook:
+            form = workbook.forms()[0]
+            assert form.control("CloseButton").get("Caption") == "Close"
+            assert [c.name for c in form.control("GroupBox").children] == [
+                "OptOne", "OptTwo", "InnerText",
+            ]
+            assert form.control("Added").kind == "MSForms.TextBox"
+
+    def test_a_designer_edit_invalidates_the_performance_cache(
+        self, tmp_path: Path
+    ) -> None:
+        """Adding a control changes the form class's members, so leaving
+        the cache in place makes Office load a member list that no longer
+        matches -- measured: Excel refuses the form outright."""
+        out = tmp_path / "cache.xlsm"
+        shutil.copyfile(_NESTED, out)
+        with ExcelFile(out) as workbook:
+            workbook.forms()[0].add_control("Label", "Added")
+            workbook.save()
+        cfb = _project_cfb(out)
+        cache = cfb.get_stream_in_storage("VBA", "_VBA_PROJECT")
+        # The 5-byte header is kept; the body is zeroed ([MS-OVBA] 2.3.4.1).
+        assert set(cache[5:]) == {0}
+
+    def test_a_duplicate_name_is_refused(self) -> None:
+        form = read_form(_project_cfb(_NESTED), "FrmNested")
+        with pytest.raises(FormParseError, match="already has a control named"):
+            form.add_control("Label", "CloseButton")
+
+    def test_an_unknown_kind_is_refused(self) -> None:
+        form = read_form(_project_cfb(_NESTED), "FrmNested")
+        with pytest.raises(FormParseError, match="unknown control kind"):
+            form.add_control("Sparkline", "Added")
+
+    def test_adding_a_container_is_refused(self) -> None:
+        """A Frame needs a storage of its own, which this does not create."""
+        form = read_form(_project_cfb(_NESTED), "FrmNested")
+        with pytest.raises(FormParseError, match="needs a storage of its own"):
+            form.add_control("Frame", "Added")
+
+    def test_removing_a_container_is_refused(self) -> None:
+        """Its storage would be orphaned, and the next read refuses the
+        form rather than quietly losing its children."""
+        form = read_form(_project_cfb(_NESTED), "FrmNested")
+        with pytest.raises(FormParseError, match="storage would be left behind"):
+            form.remove_control("GroupBox")
+
+    def test_removing_something_that_is_not_there_raises(self) -> None:
+        form = read_form(_project_cfb(_NESTED), "FrmNested")
+        with pytest.raises(KeyError):
+            form.remove_control("NoSuchControl")
+
+    def test_adding_into_a_container_that_is_not_there_raises(self) -> None:
+        form = read_form(_project_cfb(_NESTED), "FrmNested")
+        with pytest.raises(KeyError):
+            form.add_control("Label", "Added", container="NoSuchFrame")

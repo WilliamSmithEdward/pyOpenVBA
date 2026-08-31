@@ -290,12 +290,12 @@ modules, `.cls` for class modules and code-behind.
 
 ---
 
-## Reading a UserForm's design
+## Reading and editing a UserForm's design
 
 A form's *code* is a module like any other. Its *design* -- which controls
-exist, how they nest, and which properties the developer actually set --
-lives in separate streams that no module source carries. `forms()` reads
-them, with no Office installed:
+exist, how they nest, and what their properties are -- lives in separate
+streams that no module source carries. `forms()` reads them, with no
+Office installed:
 
 ```python
 import pyopenvba
@@ -305,8 +305,24 @@ with pyopenvba.ExcelFile("book.xlsm") as wb:
         print(form.name, len(form.walk()), "controls")
         for control in form.walk():
             print(f"  {control.name:<16} {control.kind:<22} "
-                  f"set={control.properties_set:#x}")
+                  f"{control.properties()}")
 ```
+
+And edits them:
+
+```python
+with pyopenvba.ExcelFile("book.xlsm") as wb:
+    form = wb.forms()[0]
+    form.control("OkButton").set_property("Caption", "Save")
+    form.control("NameBox").set_property("MaxLength", 40)
+    form.add_control("Label", "Hint", left=12, top=120, width=200)
+    form.remove_control("OldCheckbox")
+    wb.save()
+```
+
+Geometry is in points, the unit the designer shows. `set_property(name,
+None)` clears a property, which is how a control goes back to inheriting
+the default.
 
 Or from the command line:
 
@@ -330,24 +346,25 @@ storages of their own, and MSForms sites an unnamed `TabStrip` beside the
 pages. `walk()` flattens the tree depth-first; `form.controls` gives just
 the top level.
 
-### What `properties_set` is for
+### Only what the developer set
 
 MSForms writes a property into a control's record **only when it differs
-from that control's default**, so the mask is the set of properties the
-developer chose. That is not something a live host can tell you: a sited
-control reports inherited, default, and chosen values indistinguishably.
-Setting one property on one control flips exactly one bit and leaves
-every other control's mask alone, which makes two files directly
-diffable.
+from that control's default**, so `properties()` returns the set the
+developer chose -- not every property the control has. That is not
+something a live host can tell you: a sited control reports inherited,
+default, and chosen values indistinguishably.
 
-The bits are per control class and this release does not name them, so
-compare masks between files rather than reading a bit as a value. Read a
-bit index together with `property_mask_width`: MorphData controls
-(`TextBox`, `ListBox`, `ComboBox`, `CheckBox`, `OptionButton`,
-`ToggleButton`) carry an 8-byte mask and everything else carries 4.
+`properties_set` is the same information as a raw bit mask, if you want to
+diff two files without comparing names. Read a bit index together with
+`property_mask_width`: MorphData controls (`TextBox`, `ListBox`,
+`ComboBox`, `CheckBox`, `OptionButton`, `ToggleButton`) carry an 8-byte
+mask and everything else carries 4.
 
-If a form's streams do not reconcile, this raises `FormParseError` rather
-than returning a partly-guessed control list.
+Writing is lossless. An unedited form saves back byte for byte, because
+alignment padding, string bytes, pictures, and anything the property
+tables do not model are all replayed as they were read. If a form's
+streams do not reconcile, this raises `FormParseError` rather than
+returning a partly-guessed control list.
 
 ---
 
@@ -460,10 +477,10 @@ wb.save(allow_invalidate_signature=True)
 This library is intentionally focused on **module source code**. The
 following are preserved byte-for-byte but not interpreted:
 
-- **Writing** a UserForm's design surface. Reading it works -- see
-  [Reading a UserForm's design](#reading-a-userforms-design) -- and so
-  does editing a form's code-behind, but the designer streams are only
-  ever written back byte-for-byte as they were read.
+- Adding or removing a UserForm **container** (`Frame`, `MultiPage`,
+  `Page`). Each needs a storage of its own; properties and ordinary
+  controls read and write fine -- see
+  [Reading and editing a UserForm's design](#reading-and-editing-a-userforms-design).
 - VBA project password decryption / re-encryption.
 - Re-signing digitally signed projects.
 - ActiveX license editing.

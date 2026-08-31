@@ -28,8 +28,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
   Refuses with `FormParseError` rather than returning a partly guessed
   control list.  `add_form()` composes a whole form from nothing --
   designer storage and code-behind module together, declared `BaseClass=`
-  in the PROJECT stream.  Containers are created and deleted with their
-  storages,
+  in the PROJECT stream, and works the same in every host: a form composed
+  into a blank `.xlsm`, `.docm` or `.pptm` comes back the same way, and
+  the PowerPoint case is checked against live PowerPoint.  Containers are
+  created and deleted with their storages,
   including `MultiPage`, which arrives with the two pages Excel gives it;
   `add_page()` and `remove_page()` move a page's site, its storage, its
   entry in each of the MultiPage's five TabStrip arrays and its place in

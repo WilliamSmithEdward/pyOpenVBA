@@ -8,6 +8,7 @@ from pathlib import Path
 
 import pytest
 
+from pyopenvba._host import VBAHostFile
 from pyopenvba._oforms_records import Size
 from pyopenvba.cfb import CFB
 from pyopenvba.excel import ExcelFile
@@ -21,6 +22,7 @@ from pyopenvba.forms import (
     read_forms,
 )
 from pyopenvba.powerpoint import PowerPointFile
+from pyopenvba.word import WordFile
 
 _HERE = Path(__file__).parent
 _NESTED = _HERE / "live_excel_testing" / "nested_form.xlsm"
@@ -1126,3 +1128,47 @@ class TestCreatingAForm:
             FormParseError, match="already has a form named"
         ):
             workbook.add_form("FrmNested")
+
+
+class TestFormsAcrossHosts:
+    """The designer streams are the same in whichever ``vbaProject.bin``
+    the container holds, so a form composed into a blank file of each host
+    has to come back the same way."""
+
+    @staticmethod
+    def _check(opened: VBAHostFile) -> None:
+        form = next(f for f in opened.forms() if f.name == "Fresh")
+        assert form.get("Caption") == "From scratch"
+        assert [c.name for c in form.walk()] == ["Hello", "Go"]
+        # The code-behind is a module like any other.
+        assert "Fresh" in opened.module_names()
+
+    @staticmethod
+    def _compose(opened: VBAHostFile) -> None:
+        form = opened.add_form("Fresh", caption="From scratch")
+        form.add_control("Label", "Hello", left=12, top=12, width=200)
+        form.add_control("CommandButton", "Go", left=12, top=48)
+
+    def test_into_a_blank_workbook(self, tmp_path: Path) -> None:
+        target = tmp_path / "blank.xlsm"
+        with ExcelFile.create_new(target) as workbook:
+            self._compose(workbook)
+            workbook.save()
+        with ExcelFile(target) as workbook:
+            self._check(workbook)
+
+    def test_into_a_blank_document(self, tmp_path: Path) -> None:
+        target = tmp_path / "blank.docm"
+        with WordFile.create_new(target) as document:
+            self._compose(document)
+            document.save()
+        with WordFile(target) as document:
+            self._check(document)
+
+    def test_into_a_blank_presentation(self, tmp_path: Path) -> None:
+        target = tmp_path / "blank.pptm"
+        with PowerPointFile.create_new(target) as presentation:
+            self._compose(presentation)
+            presentation.save()
+        with PowerPointFile(target) as presentation:
+            self._check(presentation)

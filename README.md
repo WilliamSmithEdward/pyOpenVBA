@@ -37,16 +37,22 @@ The write path is the whole point of the library:
   declaration, `PROJECTwm` name map, and `Attribute VB_Name` are all
   updated in lockstep).
 - **Delete** a module cleanly.
+- **Design** UserForms, not just their code-behind: read a form's control
+  tree and its properties, edit them, add and remove controls, Frames,
+  MultiPages and pages, or compose a whole form from nothing.
 - **Save** the file and have it reopen in the host application with no
   repair dialog. Every supported format is verified against live Office.
-- **Create** new `.xlsm`, `.xlsb`, `.docm`, or `.pptm` files on the
-  fly, and inject VBA code into them.
+- **Create** new `.xlsm`, `.xlsb`, `.xlam`, `.docm`, or `.pptm` files on
+  the fly, and inject VBA code into them.
 
 That makes it a good fit for:
 
 - **Version-controlling your VBA** in git like normal source code, then
   pushing edits back without ever opening Office.
-- **Diffing** two workbooks or documents to see what changed in a module.
+- **Diffing** two workbooks or documents to see what changed in a module --
+  or in a form's design, down to which properties an author actually set.
+- **Building UserForms programmatically**, on a machine with no Office at
+  all.
 - **Generating or updating macros from a script** without scripting
   Office through COM automation.
 - **Reading and writing macros on a server** (Linux / CI) where Office
@@ -525,21 +531,29 @@ See [docs/roadmap.md](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/
 
 ```
 src/pyopenvba/
-  __init__.py     public API (ExcelFile, WordFile, PowerPointFile, AccessReader,
-                              pull/push, pull_word/push_word, pull_ppt/push_ppt,
-                              pull_access, VBAModuleKind, synthesize_class_header,
-                              exceptions)
-  _host.py        VBAHostFile: shared open/edit/pull/push/save pipeline
-  excel.py        ExcelFile (thin VBAHostFile subclass + create_new template)
-  word.py         WordFile (thin VBAHostFile subclass + create_new template)
-  powerpoint.py   PowerPointFile (thin VBAHostFile subclass + create_new template)
-  access_read.py  AccessReader (read-only ACE/Jet page + LVAL reader)
-  vba.py          VBA project parser + MS-OVBA codec
-  vba_pcode.py    VBA7 p-code disassembler
-  cfb.py          MS-CFB (Compound File Binary) parser/writer
-  exceptions.py   custom exception hierarchy
-  _templates/     baked-in empty .xlsm/.xlsb/.docm/.pptm bytes for create_new()
-  __main__.py     `python -m pyopenvba {pull,push,ls,disasm,access-*}` CLI
+  __init__.py        public API (ExcelFile, WordFile, PowerPointFile,
+                                 AccessReader, VBAForm, FormControl, Size,
+                                 pull/push, pull_word/push_word,
+                                 pull_ppt/push_ppt, pull_access,
+                                 VBAModuleKind, synthesize_class_header,
+                                 exceptions)
+  _host.py           VBAHostFile: shared open/edit/pull/push/save pipeline
+  excel.py           ExcelFile (thin VBAHostFile subclass + create_new template)
+  word.py            WordFile (thin VBAHostFile subclass + create_new template)
+  powerpoint.py      PowerPointFile (thin subclass; .ppt overrides the two
+                     container hooks)
+  access_read.py     AccessReader (read-only ACE/Jet page + LVAL reader)
+  vba.py             VBA project parser + MS-OVBA codec
+  vba_pcode.py       VBA7 p-code disassembler
+  cfb.py             MS-CFB (Compound File Binary) parser/writer
+  forms.py           UserForm designer streams: control tree, read and write
+  _oforms_records.py [MS-OFORMS] property table, one per control class
+  _oforms_pages.py   a MultiPage's tabs and page bookkeeping
+  _ppt_container.py  the VBA project a binary .ppt hides in its document stream
+  exceptions.py      custom exception hierarchy
+  _templates/        baked-in empty .xlsm/.xlsb/.xlam/.docm/.pptm/.accdb bytes
+                     for create_new()
+  __main__.py        `python -m pyopenvba {pull,push,ls,forms,disasm,access-*}`
 ```
 
 For deeper documentation:

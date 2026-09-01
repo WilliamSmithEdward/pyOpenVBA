@@ -3,6 +3,21 @@
 All notable changes to pyOpenVBA are documented here. This project follows
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.5.1] - 2026-08-31
+
+### Changed
+
+- The README now introduces the form designer where a reader starts.
+  3.5.0 documented it in full, but the "Why use this?" pitch and the
+  "good fit for" list still described module operations only, and the
+  architecture map predated `forms.py`, `_oforms_records.py`,
+  `_oforms_pages.py` and `_ppt_container.py`, the `forms` CLI command,
+  and the `.xlam` and `.accdb` templates.  PyPI renders a project page
+  from the README in the released sdist, so correcting it there takes a
+  release.
+
+The library itself is unchanged: 3.5.0 and 3.5.1 are the same code.
+
 ## [3.5.0] - 2026-08-31
 
 ### Added

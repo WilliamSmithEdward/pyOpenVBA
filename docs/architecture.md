@@ -52,7 +52,9 @@ knows about the layer below it but not the layer above.
 |   - _tdef: table definitions (columns, indexes, maps)  |
 |   - _rows: row splitting + every column type's codec   |
 |   - _lval: Memo / OLE long values                      |
-|   - database: AccessDatabase / Table facade            |
+|   - _index: B-tree pages, key codec both ways          |
+|   - _collation: text sort keys (generated table)       |
+|   - database: AccessDatabase / Table / Index facade    |
 |   - plan and format facts: docs/access_engine.md       |
 +--------------------------------------------------------+
 | vba.py          VBA project layer                      |

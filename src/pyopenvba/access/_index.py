@@ -44,6 +44,7 @@ time, by pairing leaf entries with the rows they point at.
 
 from __future__ import annotations
 
+import datetime as _dt
 import struct
 import uuid
 from collections.abc import Iterator, Sequence
@@ -372,6 +373,102 @@ def decode_key(key: bytes, columns: Sequence[tuple[ColumnDef, bool]]) -> list[ob
     if pos != len(key):
         raise AccessError(f"{len(key) - pos} unexplained bytes after the last key column")
     return values
+
+
+def encode_key(values: Sequence[object], columns: Sequence[tuple[ColumnDef, bool]]) -> bytes:
+    """The exact bytes the engine would store for these column values --
+    the inverse of :func:`decode_key`.  Text goes through the collation
+    table; Boolean columns are never null (``None`` counts as False)."""
+    if len(values) != len(columns):
+        raise AccessError(f"{len(values)} values for {len(columns)} key columns")
+    out = bytearray()
+    for value, (column, ascending) in zip(values, columns):
+        if value is None and column.type_code != TYPE_BOOLEAN:
+            out.append(FLAG_NULL_ASCENDING if ascending else FLAG_NULL_DESCENDING)
+            continue
+        out.append(FLAG_ASCENDING if ascending else FLAG_DESCENDING)
+        encoded = _encode_value(column, value)
+        out += encoded if ascending else _invert(encoded)
+    return bytes(out)
+
+
+def _to_sign_flipped(value: int, size: int) -> bytes:
+    low, high = -(1 << (8 * size - 1)), (1 << (8 * size - 1)) - 1
+    if not low <= value <= high:
+        raise AccessError(f"{value} does not fit a {size}-byte key")
+    return ((value ^ (1 << (8 * size - 1))) & ((1 << (8 * size)) - 1)).to_bytes(size, "big")
+
+
+def _float_key(raw: bytes) -> bytes:
+    """Sign bit set -> flip it; sign bit clear (negative) -> invert all."""
+    if raw[0] & 0x80:
+        return _invert(raw)
+    return bytes((raw[0] | 0x80,)) + raw[1:]
+
+
+def _binary_key(data: bytes) -> bytes:
+    out = bytearray()
+    if not data:
+        raise AccessError("an empty binary value has no key")
+    for start in range(0, len(data), BINARY_CHUNK):
+        chunk = data[start : start + BINARY_CHUNK]
+        out += chunk.ljust(BINARY_CHUNK, b"\x00")
+        out.append(BINARY_MORE if start + BINARY_CHUNK < len(data) else len(chunk))
+    return bytes(out)
+
+
+def _encode_value(column: ColumnDef, value: object) -> bytes:
+    from pyopenvba.access._collation import encode_text_key
+
+    code = column.type_code
+    if code == TYPE_BOOLEAN:
+        return b"\x00" if value else b"\xff"
+    if code == TYPE_BYTE:
+        if not isinstance(value, int) or not 0 <= value <= 255:
+            raise AccessError(f"column {column.name!r}: {value!r} is not a Byte")
+        return bytes((value,))
+    if code in (TYPE_INT, TYPE_LONG, TYPE_BIGINT, TYPE_COMPLEX):
+        if not isinstance(value, int):
+            raise AccessError(f"column {column.name!r}: {value!r} is not an integer")
+        return _to_sign_flipped(value, FIXED_KEY_SIZES[code])
+    if code == TYPE_MONEY:
+        if not isinstance(value, (int, Decimal)):
+            raise AccessError(f"column {column.name!r}: {value!r} is not Currency")
+        return _to_sign_flipped(int(Decimal(value).scaleb(4)), 8)
+    if code == TYPE_FLOAT:
+        if not isinstance(value, (int, float)):
+            raise AccessError(f"column {column.name!r}: {value!r} is not a Single")
+        return _float_key(struct.pack(">f", float(value)))
+    if code == TYPE_DOUBLE:
+        if not isinstance(value, (int, float)):
+            raise AccessError(f"column {column.name!r}: {value!r} is not a Double")
+        return _float_key(struct.pack(">d", float(value)))
+    if code == TYPE_DATETIME:
+        from pyopenvba.access._rows import encode_datetime
+
+        if not isinstance(value, _dt.datetime):
+            raise AccessError(f"column {column.name!r}: {value!r} is not a datetime")
+        days = struct.unpack("<d", encode_datetime(value))[0]
+        return _float_key(struct.pack(">d", days))
+    if code == TYPE_NUMERIC:
+        if not isinstance(value, (int, Decimal)):
+            raise AccessError(f"column {column.name!r}: {value!r} is not a Decimal")
+        scaled = int(Decimal(value).scaleb(column.scale))
+        magnitude = abs(scaled).to_bytes(16, "big")
+        return b"\xff" + magnitude if scaled >= 0 else b"\x00" + _invert(magnitude)
+    if code == TYPE_GUID:
+        if not isinstance(value, uuid.UUID):
+            raise AccessError(f"column {column.name!r}: {value!r} is not a UUID")
+        return _binary_key(value.bytes)
+    if code == TYPE_BINARY:
+        if not isinstance(value, (bytes, bytearray)):
+            raise AccessError(f"column {column.name!r}: {value!r} is not bytes")
+        return _binary_key(bytes(value))
+    if code == TYPE_TEXT:
+        if not isinstance(value, str):
+            raise AccessError(f"column {column.name!r}: {value!r} is not text")
+        return encode_text_key(value)
+    raise AccessError(f"column {column.name!r}: type {column.type_name} is not indexable")
 
 
 def _decode_fixed(column: ColumnDef, raw: bytes) -> object:

@@ -27,6 +27,7 @@ from pathlib import Path
 import pytest
 
 from pyopenvba.access import AccessDatabase
+from pyopenvba.access_read import AccessError
 
 pytestmark = pytest.mark.skipif(
     os.environ.get("RUN_LIVE_ACCESS") != "1" or sys.platform != "win32",
@@ -161,6 +162,50 @@ def _check_indexes(db: AccessDatabase) -> None:
                 assert (last.key, last.page, last.row) == (entry.key, entry.page, entry.row)
     assert table.index("IX_UniqueBig").unique and table.index("IX_UniqueBig").ignores_nulls
     assert table.index("IX_BigDesc").columns[0][1] is False
+
+    # And the inverse: the row's own values, run through the key codec,
+    # must produce exactly the bytes the engine stored -- text included.
+    from pyopenvba.access._index import encode_key, leaf_entries
+
+    for index in table.indexes:
+        for entry in leaf_entries(db.store, index.real.root_page):
+            row = rows[(entry.page, entry.row)]
+            values = [row[c.name] for c, _ in index.columns]
+            assert encode_key(values, index.columns) == entry.key, (index.name, values)
+
+
+def test_every_code_point_keys_as_the_engine_keys_it(tmp_path: Path) -> None:
+    """One indexed row per BMP code point plus composition samples, as the
+    generator uses; the encoder must match all of them except keys past the
+    engine's 509-byte cap, which it refuses."""
+    from pyopenvba.access._collation import MAX_KEY_LENGTH, encode_text_key
+    from pyopenvba.access._index import leaf_entries
+    from pyopenvba.access._rows import split_row
+
+    target = tmp_path / "chars.accdb"
+    shutil.copy(TEMPLATE, target)
+    assert oracle("-Command", "build-collation", "-Path", str(target)) == "ok"
+    db = AccessDatabase(target)
+    table = db.table("Chars")
+    index = table.index("IX_Ch")
+    checked = capped = 0
+    wrong: list[str] = []
+    for entry in leaf_entries(db.store, index.real.root_page):
+        raw = table.fetch_row(entry.page, entry.row)
+        assert raw is not None
+        text = table.decode(split_row(table.definition, raw))["Ch"]
+        assert isinstance(text, str)
+        expected = entry.key[1:]
+        if len(expected) >= MAX_KEY_LENGTH:
+            capped += 1
+            with pytest.raises(AccessError):
+                encode_text_key(text)
+            continue
+        checked += 1
+        if encode_text_key(text) != expected:
+            wrong.append(f"{text!r}: engine {expected.hex()} encoder {encode_text_key(text).hex()}")
+    assert checked > 63000 and capped >= 1
+    assert not wrong, f"{len(wrong)} keys differ:\n" + "\n".join(wrong[:10])
 
 
 def test_every_column_type_reads_back_as_the_engine_shows_it(tmp_path: Path) -> None:

@@ -23,6 +23,14 @@ All notable changes to pyOpenVBA are documented here. This project follows
   the rows in that order). Verified against seventeen ACE-written
   indexes covering every indexable column type, descending order,
   two-column keys and unique ignore-nulls, entry for entry.
+- **Text collation reproduced.** The sort keys the engine writes for
+  text -- case-blind primaries, diacritic weights, kana marks, recorded
+  ignorables -- are generated from the engine's own output for every
+  BMP code point (`scripts/generate_access_collation.py`) and
+  re-encoded exactly, 63 632 of 63 632 strings. With that,
+  `encode_key` produces the stored bytes for any index key from Python
+  values, the inverse of the decoder, checked against every entry of
+  seventeen live indexes.
 
 ## [3.5.1] - 2026-08-31
 

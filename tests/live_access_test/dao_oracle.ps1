@@ -155,7 +155,7 @@ function Build-AllTypes($db, [int]$rowCount) {
 # turned into a collation table.  Characters the engine refuses are
 # skipped; their code points are listed in the Skipped table.
 function Build-Collation($db) {
-    Invoke-Sql $db "CREATE TABLE Chars (Id AUTOINCREMENT PRIMARY KEY, Ch TEXT(10))" $dbFailOnError
+    Invoke-Sql $db "CREATE TABLE Chars (Id AUTOINCREMENT PRIMARY KEY, Ch TEXT(255))" $dbFailOnError
     Invoke-Sql $db "CREATE INDEX IX_Ch ON Chars (Ch)" $dbFailOnError
     Invoke-Sql $db "CREATE TABLE Skipped (Cp LONG)" $dbFailOnError
     $rs = $db.OpenRecordset("Chars", $dbOpenTable)
@@ -182,6 +182,10 @@ function Build-Collation($db) {
     $kanaA = [string][char]0x3042
     $cjk = [string][char]0x65E5
     $nbsp = [string][char]0xA0
+    $ffi = [string][char]0xFB03          # ffi ligature, a three-byte primary
+    $kanaSmallA = [string][char]0x3041
+    $kanaGa = [string][char]0x304C       # voiced: a diacritic weight plus the kana suffix
+    $kanaLong = [string][char]0x30FC
     $samples = @("aA", "Aa", "ab", "AB", "aa", "AA", "a a", "a  a", "a-a", "a_a", "a.a", "a'a", "ab-", "a-b-", "a--b",
                  "abc", "ABC", "aBc", "a1", "A1", "1a", "-a", "a-", "--", "---", " a", "a ", "  ", "-", "'",
                  "ee", "Ee", "eE", "EE", "eAb", "Eab", "ss", "SS", "ll", "LL", "ch", "CH", "I", "i",
@@ -189,8 +193,24 @@ function Build-Collation($db) {
                  ("e" + $grave), ("e" + $grave + "a"), $sz, ($sz + "a"), ("a" + $sz), ($sz + "-"), ("s-"), ("ss-"),
                  $cyrP, $cyrp, ($cyrP + "a"), ("a" + $cyrP), ($cyrP + $cyrp),
                  $kanaA, ($kanaA + "a"), ("a" + $kanaA), ($kanaA + $kanaA), $cjk, ($cjk + "a"), ("a" + $cjk),
-                 $nbsp, ("a" + $nbsp + "a"), ($e + "-"), ("-" + $e), ($e + "-" + $e))
+                 $nbsp, ("a" + $nbsp + "a"), ($e + "-"), ("-" + $e), ($e + "-" + $e),
+                 ($cyrP + $E), ($E + $cyrP), ($cyrP + $cyrP + $E), ($cyrP + "-"), ($cyrP + $cyrP + "-"), ($cjk + "-"),
+                 ($ffi + "-"), ($ffi + $E), ($kanaSmallA + $kanaA), ($kanaA + $kanaSmallA), ("a" + $kanaSmallA), ($kanaSmallA + "a"),
+                 ($kanaGa + $kanaSmallA), ($kanaGa), ($kanaLong + $kanaA), ($E + $kanaA), ($kanaA + $E), ($kanaA + "-"), ("-" + $kanaA),
+                 ($sz + $E), ("aa" + $E), ("a -"), ("- a"), ("a  "), ("a" * 255), (("b" * 100) + $E), (("b" * 254) + $E), ("c" * 254), ("c" * 255),
+                 ($e + $grave), ("a" + $grave + $grave), ("A" + $E + $e), ($E + " " + $E))
     foreach ($s in $samples) {
+        $rs.AddNew()
+        $rs.Fields.Item("Ch").Value = $s
+        $rs.Update()
+    }
+    # Element-count probes: each entry is a comma-separated list of code
+    # points; a trailing hyphen's position code reveals how many
+    # collation elements the characters before it produced.
+    $probes = @("0xC6,0x2d", "0xDE,0x2d", "0xDF,0x2d", "0xE6,0x2d", "0xFE,0x2d", "0x132,0x2d", "0x133,0x2d", "0x152,0x2d", "0x153,0x2d", "0x1C4,0x2d", "0x1C5,0x2d", "0x1C6,0x2d", "0x1C7,0x2d", "0x1C8,0x2d", "0x1C9,0x2d", "0x1CA,0x2d", "0x1CB,0x2d", "0x1CC,0x2d", "0x1E2,0x2d", "0x1E3,0x2d", "0x1F1,0x2d", "0x1F2,0x2d", "0x1F3,0x2d", "0x1FC,0x2d", "0x1FD,0x2d", "0x5F0,0x2d", "0x5F1,0x2d", "0x5F2,0x2d", "0xFB00,0x2d", "0xFB01,0x2d", "0xFB02,0x2d", "0xFB03,0x2d", "0xFB04,0x2d", "0xFB05,0x2d", "0xFB06,0x2d", "0x3041,0x3041", "0x3042,0x3042,0x3041", "0x61,0x61,0x3041", "0x3041,0x3042,0x3041", "0x3041,0x2d", "0x3042,0x3042,0x3042,0x3041", "0x61,0x300", "0x65,0x301", "0x41,0x300", "0x6f,0x308", "0x75,0x308,0x2d", "0x61,0x301,0x300", "0x3099", "0x304b,0x3099", "0x30ab,0x309a")
+    foreach ($probe in $probes) {
+        $s = ""
+        foreach ($cp in $probe.Split(",")) { $s += [string][char][int]$cp }
         $rs.AddNew()
         $rs.Fields.Item("Ch").Value = $s
         $rs.Update()

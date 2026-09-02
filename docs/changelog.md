@@ -71,9 +71,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
   KEY` does: the index on the referencing columns, the paired logical
   entries on both tables (`.rB`, `.rC`, ... on the referenced side), the
   MSysRelationships rows, the type-8 catalog object with its permission
-  rows, and both tables' stamps; `db.relationships()` reads them back.
-  Byte-identical to the engine for two relationships on one parent (live
-  gate). CREATE TABLE's catalog row now carries DateCreate as its first
+  rows, and both tables' stamps; `db.relationships()` reads them back and
+  `db.drop_relationship(name)` removes one as `DROP CONSTRAINT` does,
+  leaving the shrunken definitions' old bytes in place as the engine
+  does. Byte-identical to the engine for two relationships on one parent
+  and the drop of the first (live gate). CREATE TABLE's catalog row now carries DateCreate as its first
   DateUpdate, as the engine's does, which the stale bytes under the slot
   table revealed.
 - A freed long-value chain's pages are reusable at once within the

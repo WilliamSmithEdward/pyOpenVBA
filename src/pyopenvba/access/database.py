@@ -27,6 +27,7 @@ from pyopenvba.access._lval import (
 )
 from pyopenvba.access._pages import (
     PAGE_DATA,
+    PAGE_SIZE,
     DatabaseHeader,
     PageStore,
     encode_row_pointer,
@@ -66,6 +67,7 @@ from pyopenvba.access._rows import (
 )
 from pyopenvba.access._tdef import (
     INDEX_IGNORE_NULLS,
+    INDEX_KIND_FOREIGN,
     OFFSET_INDEX_HEADERS,
     OFFSET_NEXT_AUTONUMBER,
     OFFSET_ROW_COUNT,
@@ -767,7 +769,7 @@ class AccessDatabase:
         target.write_bytes(self.to_bytes())
         return target
 
-    def _write_definition(self, stream: bytes, first: int, old_chain: Sequence[int]) -> list[int]:
+    def _write_definition(self, stream: bytes, first: int, old_chain: Sequence[int], *, keep_tail: bool = False) -> list[int]:
         """Lay a definition stream over ``first`` and a continuation chain.
         As the engine does on every rewrite, the continuation pages are
         allocated afresh in ascending order, chained in reverse, and only
@@ -776,7 +778,15 @@ class AccessDatabase:
         store = self.store
         fresh = [allocate_page(store) for _ in range(definition_page_count(len(stream)) - 1)]
         chain = fresh[::-1]
-        for page, image in zip([first, *chain], definition_pages(stream, chain), strict=True):
+        images = definition_pages(stream, chain)
+        if keep_tail:
+            # A rewritten definition is written up to its new length plus the
+            # eight reserved bytes, zeroed; when it shrank, the dropped
+            # entries' bytes beyond that stay on the first page (measured on
+            # DROP CONSTRAINT).  A new table's page is filled fresh.
+            kept_from = min(len(stream) + 8, PAGE_SIZE)
+            images[0] = images[0][:kept_from] + store.read(first)[kept_from:]
+        for page, image in zip([first, *chain], images, strict=True):
             store.write(page, image)
         for page in old_chain:
             release_page(store, page)
@@ -981,7 +991,7 @@ class AccessDatabase:
         d.logical_indexes.append(logical)
         d.real_index_count += 1
         d.logical_index_count += 1
-        self._write_definition(serialize_definition(d), d.page, d.pages[1:])
+        self._write_definition(serialize_definition(d), d.page, d.pages[1:], keep_tail=True)
         add_to_map(store, umap_ref, root)
         self._definitions.pop(d.page, None)
         table = self.table(table_name)
@@ -1114,7 +1124,7 @@ class AccessDatabase:
         )
         cd.real_index_count += 1
         cd.logical_index_count += 1
-        self._write_definition(serialize_definition(cd), cd.page, cd.pages[1:])
+        self._write_definition(serialize_definition(cd), cd.page, cd.pages[1:], keep_tail=True)
         add_to_map(store, umap_ref, root)
         self._definitions.pop(cd.page, None)
         child = self.table(table)
@@ -1140,7 +1150,7 @@ class AccessDatabase:
             )
         )
         pd.logical_index_count += 1
-        self._write_definition(serialize_definition(pd), pd.page, pd.pages[1:])
+        self._write_definition(serialize_definition(pd), pd.page, pd.pages[1:], keep_tail=True)
         self._definitions.pop(pd.page, None)
 
         # The relationship rows, the catalog object, its permissions, the stamps.
@@ -1176,6 +1186,99 @@ class AccessDatabase:
                     break
         self._catalog = None
         return Relationship(name, table, columns, referenced_table, referenced_columns, attributes)
+
+    def drop_relationship(
+        self,
+        name: str,
+        *,
+        table_updated: object | None = None,
+        referenced_updated: object | None = None,
+    ) -> None:
+        """Remove a relationship as ``ALTER TABLE ... DROP CONSTRAINT`` does:
+        the foreign-key index's map bits are cleared, its map row killed and
+        its pages released untouched, the logical entries on both sides go
+        (the others keep their numbers), the MSysRelationships rows, the
+        catalog object and its permission rows are deleted, and both
+        tables' DateUpdate is stamped."""
+        import datetime as _dt
+
+        rel = next((r for r in self.relationships() if r.name.lower() == name.lower()), None)
+        if rel is None:
+            raise AccessError(f"no relationship named {name!r}")
+        child = self.table(rel.table)
+        parent = self.table(rel.referenced_table)
+        cd, pd = child.definition, parent.definition
+        fk_position = next((i for i, li in enumerate(cd.logical_indexes) if li.kind == INDEX_KIND_FOREIGN and li.name.lower() == rel.name.lower()), None)
+        if fk_position is None:
+            raise AccessError(f"table {rel.table!r} has no foreign-key index named {rel.name!r}")
+        fk = cd.logical_indexes[fk_position]
+        back_position = next(
+            (
+                i for i, li in enumerate(pd.logical_indexes)
+                if li.kind == INDEX_KIND_FOREIGN and li.relationship_table_page == cd.page and li.relationship_index == fk.number
+            ),
+            None,
+        )
+        if back_position is None:
+            raise AccessError(f"table {rel.referenced_table!r} carries no entry for relationship {rel.name!r}")
+        now = _dt.datetime.now().replace(microsecond=0)
+        child_when = table_updated if isinstance(table_updated, (_dt.datetime, float)) else now
+        parent_when = referenced_updated if isinstance(referenced_updated, (_dt.datetime, float)) else child_when
+        store = self.store
+
+        # The foreign-key index goes: map bits cleared, map row killed,
+        # pages released untouched; the definition loses the real index and
+        # its logical entry, later real indexes shifting down by one.
+        real = cd.real_indexes[fk.real_index]
+        umap = read_usage_map_ref(store, real.usage_map_ref)
+        released = list(umap.pages())
+        for page_number in released:
+            set_usage_bit(store, umap, page_number, False)
+        map_page = DataPage(store.read(real.usage_map_ref >> 8))
+        map_page.remove_row(real.usage_map_ref & 0xFF)
+        store.write(real.usage_map_ref >> 8, map_page.to_bytes())
+        del cd.real_indexes[fk.real_index]
+        del cd.logical_indexes[fk_position]
+        for li in cd.logical_indexes:
+            if li.real_index > fk.real_index:
+                li.real_index -= 1
+                struct.pack_into("<I", raw := bytearray(li.raw), 8, li.real_index)
+                li.raw = bytes(raw)
+        cd.real_index_count -= 1
+        cd.logical_index_count -= 1
+        self._write_definition(serialize_definition(cd), cd.page, cd.pages[1:], keep_tail=True)
+        for page_number in released:
+            if page_number < store.page_count:
+                release_page(store, page_number)
+        self._definitions.pop(cd.page, None)
+
+        del pd.logical_indexes[back_position]
+        pd.logical_index_count -= 1
+        self._write_definition(serialize_definition(pd), pd.page, pd.pages[1:], keep_tail=True)
+        self._definitions.pop(pd.page, None)
+
+        relationships = self.table("MSysRelationships")
+        for rid, row in list(relationships.rows_with_ids()):
+            if str(row["szRelationship"]).lower() == rel.name.lower():
+                relationships.delete_row(rid)
+        objects = self.table("MSysObjects")
+        object_id: int | None = None
+        for rid, row in list(objects.rows_with_ids()):
+            if row["Type"] == OBJECT_RELATIONSHIP and str(row["Name"]).lower() == rel.name.lower():
+                object_id = _as_int(row["Id"])
+                objects.delete_row(rid)
+                break
+        if object_id is not None:
+            aces = self.table("MSysACEs")
+            for rid, row in list(aces.rows_with_ids()):
+                if row["ObjectId"] == object_id:
+                    aces.delete_row(rid)
+        for definition_page, stamp in ((cd.page, child_when), (pd.page, parent_when)):
+            for rid, row in objects.rows_with_ids():
+                if row["Id"] == definition_page and row["Type"] == OBJECT_TABLE:
+                    objects.update_row(rid, {"DateUpdate": stamp})
+                    break
+        self._catalog = None
 
     def _next_object_id(self) -> int:
         """The id the engine gives the next Access-layer object: one past the

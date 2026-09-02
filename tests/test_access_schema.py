@@ -489,6 +489,24 @@ def test_create_relationship_writes_both_sides_and_the_catalog() -> None:
     with pytest.raises(AccessError):
         db.create_relationship("FK_Bad", "Child", ("Nope",), "Parent", ("Id",))
 
+    # Dropping the first: its index and both logical entries go, ``.rC``
+    # keeps its number, the catalog object and its permissions vanish.
+    fk_root = db.table("Child").definition.real_indexes[1].root_page
+    db.drop_relationship("FK_Child_Parent")
+    assert [r.name for r in db.relationships()][-1:] == ["FK_Child2_Parent"]
+    cd, pd = db.table("Child").definition, db.table("Parent").definition
+    assert [li.name for li in cd.logical_indexes] == ["PK"] and len(cd.real_indexes) == 1
+    assert [(li.name, li.number) for li in pd.logical_indexes] == [(".rC", 2), ("PK", 0)]
+    assert not [e for e in db.catalog() if e.name == "FK_Child_Parent"]
+    assert not [r for r in db.table("MSysACEs").rows() if r["ObjectId"] == entry.id]
+    assert fk_root in set(read_usage_map(db.store, GLOBAL_USAGE_MAP_PAGE, GLOBAL_USAGE_MAP_ROW).pages())
+    tail = db.store.read(pd.page)[pd.definition_length :]
+    assert tail[:8] == bytes(8) and tail[8:24] != bytes(16)  # eight reserved bytes zeroed, the old tail beyond stays
+    with pytest.raises(AccessError):
+        db.drop_relationship("FK_Child_Parent")
+    check_indexes(db.table("Child"))
+    check_indexes(db.table("MSysObjects"))
+
 
 def test_bad_specs_are_refused() -> None:
     db = AccessDatabase(TEMPLATE)

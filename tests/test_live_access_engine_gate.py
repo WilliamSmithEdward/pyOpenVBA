@@ -722,6 +722,10 @@ def test_relationships_match_the_engine_byte_for_byte(tmp_path: Path) -> None:
         )
         db = same_then_reopen(f"constraint on {child}", db)
     assert [r.name for r in db.relationships()][-2:] == ["FK_Child_Parent", "FK_Child2_Parent"]
+    engine_runs("ALTER TABLE Child DROP CONSTRAINT FK_Child_Parent")
+    db.drop_relationship("FK_Child_Parent", table_updated=stamps("Child")["updated"], referenced_updated=stamps("Parent")["updated"])
+    db = same_then_reopen("constraint dropped", db)
+    assert [r.name for r in db.relationships()][-1:] == ["FK_Child2_Parent"]
     for name in ("Parent", "Child", "Child2", "MSysRelationships", "MSysObjects", "MSysACEs"):
         check_indexes(db.table(name))
 

@@ -244,6 +244,15 @@ the engine finds the same rows it does today.
   with three MSysACEs rows whose ACMs are 0xF00FE, 0xFFFFF, 0xFFFFF on
   the three default SIDs in order. Both tables' DateUpdate is stamped,
   at slightly different instants.
+* **Dropping a relationship** (`DROP CONSTRAINT`) clears the foreign-key
+  index's map bits, kills its map row and releases its pages untouched,
+  removes the logical entry on each side (the remaining entries keep
+  their numbers: `.rC` stays `.rC`), deletes the MSysRelationships rows,
+  the catalog object and its three permission rows, and stamps both
+  tables' DateUpdate. A rewritten definition is written up to its new
+  length plus the eight reserved bytes the free word counts, zeroed; when
+  it shrinks, the dropped entries' bytes beyond that stay readable. A new
+  table's definition page is filled fresh.
 * **Catalog rows are written twice**: CREATE TABLE inserts the row with
   DateUpdate equal to DateCreate and then updates it with the owner and
   the final DateUpdate; the first version's bytes stay below the slot
@@ -387,6 +396,6 @@ the engine finds the same rows it does today.
 | 3b | large files: usage maps growing past 512 pages | done for inline maps (growth and re-base as the engine does); the reference form is read but not yet written |
 | 5 | write schema: create/drop table, create index, catalog rows | done: `create_table`, `create_index`, `drop_table`; byte-identical to the engine's CREATE TABLE, CREATE INDEX and DROP TABLE on every page but page 0; the engine inserts into, reads and compacts a table pyOpenVBA created; definitions over one page (up to the 255-column limit) are chained and rewritten as the engine does, byte-identical. Not yet: a second map page, navigation-pane rows (the Access layer adds those itself) |
 | 6 | VBA project through the writer: module create/rename/delete | |
-| 7 | queries (`MSysQueries` to SQL and back), relationships, properties | relationships done: `create_relationship` / `relationships()`, byte-identical to the engine's ADD CONSTRAINT ... FOREIGN KEY for a first and a second relationship on one parent (live gate). Not yet: dropping a relationship, queries, properties |
+| 7 | queries (`MSysQueries` to SQL and back), relationships, properties | relationships done: `create_relationship` / `drop_relationship` / `relationships()`, byte-identical to the engine's ADD CONSTRAINT ... FOREIGN KEY for a first and a second relationship on one parent and to DROP CONSTRAINT (live gate). Not yet: queries, properties |
 | 8 | forms, reports, macros: the binary object formats nobody has published | |
 | 9 | SQL executor over the engine | |

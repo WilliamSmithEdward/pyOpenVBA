@@ -746,6 +746,12 @@ def test_relationships_match_the_engine_byte_for_byte(tmp_path: Path) -> None:
     db.rename_table("Parent", "Parents", updated=stamps("Parents")["updated"])
     db = same_then_reopen("table renamed", db)
     assert db.relationships()[-1].referenced_table == "Parents"
+    # Renaming the foreign-key column follows into the relationship row.
+    script.write_text("ParentId" + chr(10) + "PId" + chr(10), encoding="ascii")
+    assert oracle("-Command", "rename-column", "-Path", str(theirs), "-Table", "Child2", "-SqlFile", str(script)) == "ok"
+    db.table("Child2").rename_column("ParentId", "PId", updated=stamps("Child2")["updated"])
+    db = same_then_reopen("column renamed", db)
+    assert db.relationships()[-1].columns == ("PId",)
     for name in ("Parents", "Child", "Child2", "MSysRelationships", "MSysObjects", "MSysACEs"):
         check_indexes(db.table(name))
 
@@ -780,6 +786,14 @@ def test_properties_match_the_engine_byte_for_byte(tmp_path: Path) -> None:
     ours, engine = db.to_bytes(), theirs.read_bytes()
     assert not (d := _differing_pages(ours, engine)), f"properties: pages differ from the engine's: {_describe_pages(ours, engine, d)}"
     assert table.column_properties("Name") == {"Caption": "Name shown", "Description": "Field described by DAO"}
+    # Renaming the column carries its property block along.
+    db = AccessDatabase(db.to_bytes())
+    script.write_text("Name" + chr(10) + "FullName" + chr(10), encoding="ascii")
+    assert oracle("-Command", "rename-column", "-Path", str(theirs), "-Table", "Parent", "-SqlFile", str(script)) == "ok"
+    db.table("Parent").rename_column("Name", "FullName", updated=_catalog_entry(theirs, "Parent").date_update_serial)
+    ours, engine = db.to_bytes(), theirs.read_bytes()
+    assert not (d := _differing_pages(ours, engine)), f"column renamed: pages differ from the engine's: {_describe_pages(ours, engine, d)}"
+    assert db.table("Parent").column_properties("FullName") == {"Caption": "Name shown", "Description": "Field described by DAO"}
 
 
 def test_saved_queries_match_the_engine_byte_for_byte(tmp_path: Path) -> None:

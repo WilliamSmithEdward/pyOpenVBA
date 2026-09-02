@@ -251,6 +251,12 @@ the engine finds the same rows it does today.
   place CREATE INDEX takes its map row: before the index's root page and
   the definition's rewrite. `_new_map_rows` places later rows on the
   first of the table's map pages with room.
+* **Renaming a column** (a Field's Name set through DAO) changes the name
+  in the definition and nothing else in it (the header bytes are
+  identical), rewrites the catalog row's property blob with the column's
+  block renamed, changes every MSysRelationships row naming the column,
+  and stamps the catalog row; indexes refer to columns by number and are
+  untouched.
 * **Renaming a table** (a TableDef's Name set through DAO) changes the
   catalog row's Name and DateUpdate and every MSysRelationships row that
   names the table as its object or referenced object; the definition,

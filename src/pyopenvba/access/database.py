@@ -676,6 +676,44 @@ class Table:
         self._stamp_catalog(updated if isinstance(updated, (_dt.datetime, float)) else _dt.datetime.now().replace(microsecond=0))
         self._db._definitions.pop(d.page, None)  # pyright: ignore[reportPrivateUsage]
 
+    def rename_column(self, name: str, new_name: str, *, updated: object | None = None) -> None:
+        """Rename a column as setting a Field's Name through DAO does: the
+        name in the definition changes (the header does not), the column's
+        property block in the catalog row's blob follows, every relationship
+        row naming the column follows, and the catalog row's DateUpdate is
+        stamped.  Indexes refer to columns by number and are untouched."""
+        import datetime as _dt
+
+        d = self.definition
+        column = d.column(name)
+        if not new_name or len(new_name) > 64:
+            raise AccessError("a column name is 1 to 64 characters")
+        if new_name.lower() != column.name.lower() and any(c.name.lower() == new_name.lower() for c in d.columns):
+            raise AccessError(f"table {self.name!r} already has a column named {new_name!r}")
+        when = updated if isinstance(updated, (_dt.datetime, float)) else _dt.datetime.now().replace(microsecond=0)
+        old_name = column.name
+        column.name = new_name
+        self._db._write_definition(serialize_definition(d), d.page, d.pages[1:], keep_tail=True)  # pyright: ignore[reportPrivateUsage]
+        relationships = self._db.table("MSysRelationships")
+        for rid, row in list(relationships.rows_with_ids()):
+            changes: dict[str, object] = {}
+            if str(row["szObject"]).lower() == self.name.lower() and str(row["szColumn"]).lower() == old_name.lower():
+                changes["szColumn"] = new_name
+            if str(row["szReferencedObject"]).lower() == self.name.lower() and str(row["szReferencedColumn"]).lower() == old_name.lower():
+                changes["szReferencedColumn"] = new_name
+            if changes:
+                relationships.update_row(rid, changes)
+        blob = self.property_blob()
+        catalog_changes: dict[str, object] = {"DateUpdate": when}
+        if old_name in blob.column_properties:
+            blob.column_properties = {new_name if key == old_name else key: value for key, value in blob.column_properties.items()}
+            blob.block_order = [(kind, new_name if kind == BLOCK_COLUMN and target == old_name else target) for kind, target in blob.block_order]
+            catalog_changes["LvProp"] = serialize_property_blob(blob)
+        rid, _row = self._catalog_row()
+        self._db.table("MSysObjects").update_row(rid, catalog_changes)
+        self._db._catalog = None  # pyright: ignore[reportPrivateUsage]
+        self._db._definitions.pop(d.page, None)  # pyright: ignore[reportPrivateUsage]
+
     def _stamp_catalog(self, when: object) -> None:
         rid, _row = self._catalog_row()
         self._db.table("MSysObjects").update_row(rid, {"DateUpdate": when})

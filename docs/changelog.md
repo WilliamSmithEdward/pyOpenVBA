@@ -88,6 +88,9 @@ All notable changes to pyOpenVBA are documented here. This project follows
   continuation pages in a batch once five are waiting.
 - `db.rename_table(name, new_name)` renames a table as DAO does: the
   catalog row and every relationship row naming it (live gate).
+  `table.rename_column(name, new_name)` renames a column the same way:
+  the definition's name, the column's property block, the relationship
+  rows naming it, the catalog stamp (live gate).
 - **Columns can be added and dropped.** `table.add_column(ColumnSpec(...))`
   and `table.drop_column(name)` do what `ALTER TABLE ... ADD COLUMN` and
   `DROP COLUMN` do, byte for byte in the live gate: the definition

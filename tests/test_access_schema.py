@@ -618,6 +618,34 @@ def test_map_rows_spill_onto_a_second_map_page() -> None:
     assert len(again.table("Many").indexes) == 32 and [r["C01"] for r in again.table("Many").rows()] == [1]
 
 
+def test_rename_column_follows_properties_and_relationships() -> None:
+    db = AccessDatabase(TEMPLATE)
+    key = [IndexSpec("PK", ("Id",), primary=True)]
+    parent = db.create_table("Parent", [ColumnSpec("Id", "Long", autonumber=True), ColumnSpec("Name", "Text", size=50)], key, created=WHEN)
+    db.create_table("Child", [ColumnSpec("Id", "Long", autonumber=True), ColumnSpec("ParentId", "Long")], key, created=WHEN)
+    parent.set_properties({"Caption": "Name shown"}, column="Name")
+    parent.insert_row({"Name": "Ada"})
+    db.create_relationship("FK_Child_Parent", "Child", ("ParentId",), "Parent", ("Id",), created=WHEN)
+    header = db.table("Parent").definition.column("Name").raw
+    db.table("Parent").rename_column("Name", "FullName", updated=WHEN)
+    d = db.table("Parent").definition
+    assert [c.name for c in d.columns_by_number()] == ["Id", "FullName"] and d.column("FullName").raw == header
+    assert db.table("Parent").column_properties("FullName") == {"Caption": "Name shown"} and db.table("Parent").property_blob().column_properties.keys() == {"FullName"}
+    assert [r["FullName"] for r in db.table("Parent").rows()] == ["Ada"]
+    db.table("Child").rename_column("ParentId", "PId", updated=WHEN)
+    assert db.relationships()[-1].columns == ("PId",) and db.relationships()[-1].referenced_columns == ("Id",)
+    db.table("Parent").rename_column("Id", "Key", updated=WHEN)
+    assert db.relationships()[-1].referenced_columns == ("Key",) and db.table("Parent").primary_key is not None
+    with pytest.raises(AccessError):
+        db.table("Parent").rename_column("FullName", "Key")
+    with pytest.raises(AccessError):
+        db.table("Parent").rename_column("Nope", "X")
+    check_indexes(db.table("Parent"))
+    check_indexes(db.table("MSysObjects"))
+    again = AccessDatabase(db.to_bytes())
+    assert again.table("Parent").column_names == ["Key", "FullName"] and again.table("Child").column_names == ["Id", "PId"]
+
+
 def test_bad_specs_are_refused() -> None:
     db = AccessDatabase(TEMPLATE)
     with pytest.raises(AccessError):

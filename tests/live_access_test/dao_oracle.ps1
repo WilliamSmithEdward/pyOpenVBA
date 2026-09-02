@@ -347,6 +347,12 @@ try {
             $db.TableDefs.Item($Table).Name = $newName
             [Console]::Out.Write("ok")
         }
+        "rename-column" {
+            # -Table is the table; -SqlFile holds two lines: old name, new name.
+            $names = [System.IO.File]::ReadAllLines($SqlFile)
+            $db.TableDefs.Item($Table).Fields.Item($names[0].Trim()).Name = $names[1].Trim()
+            [Console]::Out.Write("ok")
+        }
         "build-simple" {
             # A small table for byte-level comparison of single edits.
             Invoke-Sql $db "CREATE TABLE Simple (Id AUTOINCREMENT PRIMARY KEY, N LONG, T TEXT(50))" $dbFailOnError

@@ -171,6 +171,10 @@ class PageStore:
         #: a released page out again only after the database is reopened,
         #: so within a session the allocator skips these.
         self.released: set[int] = set()
+        #: Per long-value column (keyed by its free-space map reference),
+        #: the LVAL page most recently written this session: the engine
+        #: tries it first for the next single-row value.
+        self.lval_cursor: dict[int, int] = {}
 
     @property
     def page_count(self) -> int:

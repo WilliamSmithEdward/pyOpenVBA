@@ -27,7 +27,7 @@ from pathlib import Path
 
 import pytest
 
-from pyopenvba.access import AccessDatabase, CatalogEntry, Table
+from pyopenvba.access import AccessDatabase, CatalogEntry, RowId, Table
 from pyopenvba.access_read import AccessError
 from test_access_write import check_indexes
 
@@ -562,6 +562,78 @@ def test_deletes_retire_and_truncate_releases_pages_as_the_engine_does(tmp_path:
     delete_where(db.table("U"), lambda i: i > 8)
     db = same_then_reopen("U's first page emptied", db)
     for name in ("R", "S", "U", "V"):
+        check_indexes(db.table(name))
+
+
+def test_long_value_placement_matches_the_engine_byte_for_byte(tmp_path: Path) -> None:
+    """Where single-row long values land: the page last written when it
+    has room, else the first listed page, else a fresh one; pages stay
+    listed while more than 256 bytes are free; an update stores the new
+    value before freeing the old; a delete re-lists its page.  One DAO
+    session per step, byte for byte."""
+    from pyopenvba.access import ColumnSpec, IndexSpec
+
+    theirs = tmp_path / "theirs.accdb"
+    shutil.copy(TEMPLATE, theirs)
+    script = tmp_path / "step.sql"
+
+    def engine_runs(*statements: str) -> None:
+        script.write_text(chr(10).join(statements) + chr(10), encoding="ascii")
+        assert oracle("-Command", "sql-file", "-Path", str(theirs), "-SqlFile", str(script)) == "ok"
+
+    def same_then_reopen(step: str, db: AccessDatabase) -> AccessDatabase:
+        ours, engine = db.to_bytes(), theirs.read_bytes()
+        assert not (d := _differing_pages(ours, engine)), f"{step}: pages differ from the engine's: {_describe_pages(ours, engine, d)}"
+        return AccessDatabase(ours)
+
+    def stamps(name: str) -> dict[str, object]:
+        entry = _catalog_entry(theirs, name)
+        return {"created": entry.date_create_serial, "updated": entry.date_update_serial}
+
+    def by_id(table: Table, wanted: int) -> RowId:
+        return next(rid for rid, row in table.rows_with_ids() if row["Id"] == wanted)
+
+    memo = [ColumnSpec("Id", "Long", autonumber=True), ColumnSpec("M", "Memo", compressed=False)]
+    key = [IndexSpec("PK", ("Id",), primary=True)]
+    db = AccessDatabase(TEMPLATE)
+
+    # One session: two 3000-byte values on two pages, then two 900-byte ones.
+    values = ["a" * 1500, "b" * 1500, "c" * 450, "d" * 450]
+    engine_runs("CREATE TABLE L3 (Id AUTOINCREMENT CONSTRAINT PK PRIMARY KEY, M MEMO)", *(f"INSERT INTO L3 (M) VALUES ('{v}')" for v in values))
+    l3 = db.create_table("L3", memo, key, **stamps("L3"))
+    for v in values:
+        l3.insert_row({"M": v})
+    db = same_then_reopen("cursor placement", db)
+
+    # Pages left with 256 and 258 bytes free, by two values each.
+    for free in (256, 258):
+        second = "b" * ((2778 - free) // 2)
+        engine_runs(f"CREATE TABLE F{free} (Id AUTOINCREMENT CONSTRAINT PK PRIMARY KEY, M MEMO)", f"INSERT INTO F{free} (M) VALUES ('{'a' * 650}')", f"INSERT INTO F{free} (M) VALUES ('{second}')")
+        table = db.create_table(f"F{free}", memo, key, **stamps(f"F{free}"))
+        table.insert_row({"M": "a" * 650})
+        table.insert_row({"M": second})
+        db = same_then_reopen(f"listing threshold at {free}", db)
+
+    # Six 1300-byte values, a delete, an insert into the hole, an update
+    # of a value on the other page, and an insert that fits nowhere.
+    engine_runs("CREATE TABLE L (Id AUTOINCREMENT CONSTRAINT PK PRIMARY KEY, M MEMO)", *(f"INSERT INTO L (M) VALUES ('{chr(97 + i) * 650}')" for i in range(6)))
+    l_table = db.create_table("L", memo, key, **stamps("L"))
+    for i in range(6):
+        l_table.insert_row({"M": chr(97 + i) * 650})
+    db = same_then_reopen("L built", db)
+    engine_runs("DELETE FROM L WHERE Id = 2")
+    db.table("L").delete_row(by_id(db.table("L"), 2))
+    db = same_then_reopen("L delete", db)
+    engine_runs("INSERT INTO L (M) VALUES ('" + "n" * 250 + "')")
+    db.table("L").insert_row({"M": "n" * 250})
+    db = same_then_reopen("L insert into the hole", db)
+    engine_runs("UPDATE L SET M = '" + "u" * 400 + "' WHERE Id = 4")
+    db.table("L").update_row(by_id(db.table("L"), 4), {"M": "u" * 400})
+    db = same_then_reopen("L update", db)
+    engine_runs("INSERT INTO L (M) VALUES ('" + "p" * 1400 + "')")
+    db.table("L").insert_row({"M": "p" * 1400})
+    db = same_then_reopen("L oversized insert", db)
+    for name in ("L3", "F256", "F258", "L"):
         check_indexes(db.table(name))
 
 

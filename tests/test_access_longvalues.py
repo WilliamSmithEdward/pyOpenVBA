@@ -29,6 +29,7 @@ from pyopenvba.access_read import AccessError
 from test_access_write import check_indexes
 
 LARGE = Path(__file__).parent / "live_access_test" / "New Microsoft Access Database.accdb"
+TEMPLATE = Path(__file__).parents[1] / "src" / "pyopenvba" / "_templates" / "blank_files" / "blank_database.accdb"
 
 
 def _lv_ref(table: Table, rid: RowId, column: str) -> LongValueRef:
@@ -37,6 +38,104 @@ def _lv_ref(table: Table, rid: RowId, column: str) -> LongValueRef:
     value = split_row(table.definition, raw).values[table.definition.column(column).number]
     assert value is not None
     return decode_long_value_ref(value)
+
+
+def _memo_table(db: AccessDatabase, name: str) -> Table:
+    from pyopenvba.access import ColumnSpec, IndexSpec
+
+    return db.create_table(name, [ColumnSpec("Id", "Long", autonumber=True), ColumnSpec("M", "Memo", compressed=False)], [IndexSpec("PK", ("Id",), primary=True)])
+
+
+def _placement(table: Table) -> dict[int, tuple[int, int, int]]:
+    d = table.definition
+    out: dict[int, tuple[int, int, int]] = {}
+    for _page, _slot, raw in table.raw_rows():
+        parts = split_row(d, raw)
+        lv = parts.values[d.column("M").number]
+        assert isinstance(lv, bytes)
+        ref = decode_long_value_ref(lv)
+        out[int(table.decode(parts)["Id"])] = (ref.page, ref.row, ref.length)  # pyright: ignore[reportArgumentType]
+    return out
+
+
+def _lv_maps(table: Table) -> tuple[list[int], list[int], dict[int, int]]:
+    db = table.database
+    owned, fsp = table.definition.column_usage_maps[table.definition.column("M").number]
+    pages = list(read_usage_map_ref(db.store, owned).pages())
+    return pages, list(read_usage_map_ref(db.store, fsp).pages()), {p: int.from_bytes(db.store.read(p)[2:4], "little") for p in pages}
+
+
+def test_single_row_values_follow_the_engines_cursor_then_the_free_space_map() -> None:
+    """DAO in one session: two 3000-byte values took pages A and B; a
+    900-byte value went to B (the page last written), the next one, B
+    now full, to A; both pages ended at 178 free and unlisted."""
+    db = AccessDatabase(TEMPLATE)
+    table = _memo_table(db, "L3")
+    for text in ("a" * 1500, "b" * 1500, "c" * 450, "d" * 450):
+        table.insert_row({"M": text})
+    where = _placement(table)
+    a, b = where[1][0], where[2][0]
+    assert a < b and where[3] == (b, 1, 900) and where[4] == (a, 1, 900)
+    pages, listed, free = _lv_maps(table)
+    assert pages == [a, b] and listed == [] and free == {a: 178, b: 178}
+
+
+def test_lval_pages_stay_listed_above_256_bytes_free() -> None:
+    db = AccessDatabase(TEMPLATE)
+    for free, expect_listed in ((256, False), (258, True)):
+        table = _memo_table(db, f"F{free}")
+        table.insert_row({"M": "a" * 650})
+        table.insert_row({"M": "b" * ((2778 - free) // 2)})
+        pages, listed, actual = _lv_maps(table)
+        assert actual == {pages[0]: free} and bool(listed) is expect_listed
+
+
+def test_updates_store_the_new_value_before_freeing_and_deletes_relist() -> None:
+    """DAO: six 1300-byte values on two pages (176 free each, unlisted);
+    deleting one re-lists its page at 1476; a 500-byte insert fills the
+    hole; updating a value on the other page puts the new value on the
+    listed page and frees the old, which lists its page; a 2800-byte
+    value fits nowhere and takes a fresh page.  Each step was its own
+    session, so the cursor is cleared between them."""
+    db = AccessDatabase(TEMPLATE)
+    table = _memo_table(db, "L")
+    for i in range(6):
+        table.insert_row({"M": chr(97 + i) * 650})
+    ids = {row["Id"]: rid for rid, row in table.rows_with_ids()}
+    p1, p2 = _lv_maps(table)[0]
+    assert _lv_maps(table)[1] == [] and _lv_maps(table)[2] == {p1: 176, p2: 176}
+
+    def new_session() -> Table:
+        return AccessDatabase(db.to_bytes()).table("L")
+
+    table = new_session(); table.delete_row(ids[2])
+    assert _lv_maps(table)[1] == [p1] and _lv_maps(table)[2][p1] == 1476
+    db = table.database
+    table = new_session(); table.insert_row({"M": "n" * 250})
+    assert _placement(table)[7] == (p1, 3, 500) and _lv_maps(table)[2][p1] == 974
+    db = table.database
+    table = new_session(); table.update_row({row["Id"]: rid for rid, row in table.rows_with_ids()}[4], {"M": "u" * 400})
+    assert _placement(table)[4] == (p1, 4, 800)
+    assert _lv_maps(table)[1] == [p2] and _lv_maps(table)[2] == {p1: 172, p2: 1476}
+    db = table.database
+    table = new_session(); table.insert_row({"M": "p" * 1400})
+    pages, listed, free = _lv_maps(table)
+    assert len(pages) == 3 and _placement(table)[8] == (pages[2], 0, 2800) and listed == [p2, pages[2]] and free[pages[2]] == 1280
+    check_indexes(table)
+
+
+def test_an_update_never_lands_in_the_hole_it_opens() -> None:
+    """DAO: values 1-3 on page A (176 free), 4-5 on page B; updating value
+    1 to 1000 bytes put it on B, then freed A, which lists again."""
+    db = AccessDatabase(TEMPLATE)
+    table = _memo_table(db, "L2")
+    for i in range(5):
+        table.insert_row({"M": chr(97 + i) * 650})
+    a, b = _lv_maps(table)[0]
+    table = AccessDatabase(db.to_bytes()).table("L2")
+    table.update_row({row["Id"]: rid for rid, row in table.rows_with_ids()}[1], {"M": "u" * 500})
+    assert _placement(table)[1] == (b, 2, 1000)
+    assert _lv_maps(table)[1] == [a, b] and _lv_maps(table)[2] == {a: 1476, b: 476}
 
 
 def test_memo_bytes_follow_the_engine() -> None:

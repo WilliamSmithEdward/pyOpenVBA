@@ -47,7 +47,7 @@ from pyopenvba.access._rows import LongValueRef, encode_text
 LVAL_INLINE_MAX = 64
 LVAL_SINGLE_MAX = 3816
 LVAL_CHUNK_PAYLOAD = 4072
-LVAL_PAGE_MIN_FREE = 64
+LVAL_PAGE_MIN_FREE = 257  # listed in the free-space map while free space exceeds 256 bytes
 OFFSET_LVAL_STAMP = 0x08
 
 
@@ -147,6 +147,7 @@ def write_long_value(store: PageStore, maps: tuple[int, int], data: bytes, stamp
         lval = DataPage(store.read(page))
         slot = lval.add_row(data)
         store.write(page, lval.to_bytes())
+        store.lval_cursor[free_ref] = page
         if lval.free_space < LVAL_PAGE_MIN_FREE:
             remove_from_map(store, free_ref, page)
         return _definition(len(data), LongValueRef.KIND_SINGLE_PAGE, slot, page, 0)
@@ -167,9 +168,17 @@ def write_long_value(store: PageStore, maps: tuple[int, int], data: bytes, stamp
 
 def _single_row_page(store: PageStore, maps: tuple[int, int], length: int) -> int:
     """An LVAL page of this column with room for a row of ``length``
-    bytes: the first such page in the free-space map, else a fresh page
-    registered with both maps."""
+    bytes, chosen as the engine chooses: the page this session last wrote
+    a value to when it still has room, else the first page in the
+    free-space map that has, else a fresh page registered with both
+    maps.  (Measured: with page A holding 1080 free and the last write on
+    page B, a 900-byte value went to B; the next one, B full, went to A.)"""
     owned_ref, free_ref = maps
+    cursor = store.lval_cursor.get(free_ref)
+    if cursor is not None and cursor < store.page_count:
+        raw = store.read(cursor)
+        if is_lval_page(raw) and DataPage(raw).fits(length):
+            return cursor
     for candidate in read_usage_map_ref(store, free_ref).pages():
         if candidate >= store.page_count:
             continue
@@ -195,6 +204,12 @@ def free_long_value(store: PageStore, maps: tuple[int, int], ref: LongValueRef) 
     if ref.kind == LongValueRef.KIND_SINGLE_PAGE:
         lval = DataPage(store.read(ref.page))
         lval.remove_row(ref.row)
+        if lval.live_rows and lval.free_space >= LVAL_PAGE_MIN_FREE:
+            # Room came back: the page is listed again (measured: a page
+            # at 176 free was unlisted, at 1476 after a delete listed).
+            store.write(ref.page, lval.to_bytes())
+            add_to_map(store, free_ref, ref.page)
+            return
         if lval.live_rows == 0:
             # An LVAL page that lost its last value is retired: type 0x09,
             # released, and out of both of the column's maps (measured on
@@ -204,6 +219,8 @@ def free_long_value(store: PageStore, maps: tuple[int, int], ref: LongValueRef) 
             release_page(store, ref.page)
             remove_from_map(store, owned_ref, ref.page)
             remove_from_map(store, free_ref, ref.page)
+            if store.lval_cursor.get(free_ref) == ref.page:
+                del store.lval_cursor[free_ref]
             return
         store.write(ref.page, lval.to_bytes())
         return

@@ -552,11 +552,13 @@ class Table:
                 raise AccessError(f"table {self.name!r} has no column {name!r}")
             new_values[matched[0].name] = value
             given[matched[0].name] = value
-        # Untouched columns keep their stored bytes; changed long values
-        # give back their old storage and are stored afresh.
+        # Untouched columns keep their stored bytes.  A changed long value
+        # is stored first and its old storage given back afterwards, the
+        # engine's order (measured: the new value went to another page
+        # although the old one's page would have had room once freed).
         self._check_unique(new_values, exclude=row_id)
-        self._free_long_values(parts, only=set(given))
         encoded, booleans = self._encode_values(given, keep_raw=parts)
+        self._free_long_values(parts, only=set(given))
         row = encode_row(d, encoded, booleans)
         for i, real, columns in self._real_indexes():
             old_key = self._key(real, columns, old_values)

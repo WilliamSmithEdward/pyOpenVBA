@@ -730,6 +730,38 @@ def test_relationships_match_the_engine_byte_for_byte(tmp_path: Path) -> None:
         check_indexes(db.table(name))
 
 
+def test_properties_match_the_engine_byte_for_byte(tmp_path: Path) -> None:
+    """DAO appends a table Description, then a field Caption and Description;
+    three set_properties calls must leave identical pages (each append is
+    one rewrite of the LvProp value)."""
+    from pyopenvba.access import ColumnSpec, IndexSpec
+
+    theirs = tmp_path / "theirs.accdb"
+    shutil.copy(TEMPLATE, theirs)
+    script = tmp_path / "step.sql"
+    script.write_text("CREATE TABLE Parent (Id AUTOINCREMENT CONSTRAINT PK PRIMARY KEY, Name TEXT(50))" + chr(10), encoding="ascii")
+    assert oracle("-Command", "sql-file", "-Path", str(theirs), "-SqlFile", str(script)) == "ok"
+    entry = _catalog_entry(theirs, "Parent")
+    db = AccessDatabase(TEMPLATE)
+    db.create_table(
+        "Parent",
+        [ColumnSpec("Id", "Long", autonumber=True), ColumnSpec("Name", "Text", size=50, compressed=False)],
+        [IndexSpec("PK", ("Id",), primary=True)],
+        created=entry.date_create_serial,
+        updated=entry.date_update_serial,
+    )
+    assert not _differing_pages(db.to_bytes(), theirs.read_bytes())
+    db = AccessDatabase(db.to_bytes())
+    assert oracle("-Command", "set-props", "-Path", str(theirs), "-Table", "Parent") == "ok"
+    table = db.table("Parent")
+    table.set_properties({"Description": "Table described by DAO"})
+    table.set_properties({"Caption": "Name shown"}, column="Name")
+    table.set_properties({"Description": "Field described by DAO"}, column="Name")
+    ours, engine = db.to_bytes(), theirs.read_bytes()
+    assert not (d := _differing_pages(ours, engine)), f"properties: pages differ from the engine's: {_describe_pages(ours, engine, d)}"
+    assert table.column_properties("Name") == {"Caption": "Name shown", "Description": "Field described by DAO"}
+
+
 def test_growth_past_512_pages_matches_the_engine_byte_for_byte(tmp_path: Path) -> None:
     """450 memo rows carry the file from 121 to about 570 pages.  The global
     usage map, the table's maps and the column's maps all have to grow

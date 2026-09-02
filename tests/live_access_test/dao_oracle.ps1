@@ -318,6 +318,19 @@ try {
             $rs.Close()
             [Console]::Out.Write("ok")
         }
+        "set-props" {
+            # Table and field properties through DAO: a table Description,
+            # a field Caption and Description on the table named by -Table.
+            $td = $db.TableDefs.Item($Table)
+            $prop = $td.CreateProperty("Description", 10, "Table described by DAO")   # 10 = dbText
+            $td.Properties.Append($prop)
+            $fld = $td.Fields.Item(1)
+            $cap = $fld.CreateProperty("Caption", 10, "Name shown")
+            $fld.Properties.Append($cap)
+            $desc = $fld.CreateProperty("Description", 10, "Field described by DAO")
+            $fld.Properties.Append($desc)
+            [Console]::Out.Write("ok")
+        }
         "build-simple" {
             # A small table for byte-level comparison of single edits.
             Invoke-Sql $db "CREATE TABLE Simple (Id AUTOINCREMENT PRIMARY KEY, N LONG, T TEXT(50))" $dbFailOnError

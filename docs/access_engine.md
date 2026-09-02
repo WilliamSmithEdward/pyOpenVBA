@@ -244,6 +244,22 @@ the engine finds the same rows it does today.
   with three MSysACEs rows whose ACMs are 0xF00FE, 0xFFFFF, 0xFFFFF on
   the three default SIDs in order. Both tables' DateUpdate is stamped,
   at slightly different instants.
+* **Properties** live in the catalog row's `LvProp` long value as an
+  `MR2` blob, measured on a blob DAO wrote (table Description, field
+  Caption and Description) and confirmed on all 17 Access-authored blobs
+  in the fixtures, which serialize back byte for byte. After the
+  signature come blocks of `u32 length, u16 kind, body`: kind 0x80 is
+  the name table (`u16 byte length` + UTF-16 per name), kind 0x00 the
+  object's own properties, kind 0x01 one column's. A property block
+  starts with `u16 name-part length` (6 when unnamed), `u16 0`, `u16
+  name byte length` and the UTF-16 column name, then records of `u16
+  length, u8 flags, u8 DAO type, u16 name index, u16 value length,
+  value`. Values follow the DAO type (text as uncompressed UTF-16; Access
+  writes ColumnWidth and ColumnOrder with four bytes under type 3, so
+  integers decode by width). Each `Properties.Append` rewrites the whole
+  blob: the new value is stored first and the old one freed, and the
+  row's stamps are not touched. Names are indexed in first-use order and
+  blocks keep their order across rewrites.
 * **Dropping a relationship** (`DROP CONSTRAINT`) clears the foreign-key
   index's map bits, kills its map row and releases its pages untouched,
   removes the logical entry on each side (the remaining entries keep
@@ -396,6 +412,6 @@ the engine finds the same rows it does today.
 | 3b | large files: usage maps growing past 512 pages | done for inline maps (growth and re-base as the engine does); the reference form is read but not yet written |
 | 5 | write schema: create/drop table, create index, catalog rows | done: `create_table`, `create_index`, `drop_table`; byte-identical to the engine's CREATE TABLE, CREATE INDEX and DROP TABLE on every page but page 0; the engine inserts into, reads and compacts a table pyOpenVBA created; definitions over one page (up to the 255-column limit) are chained and rewritten as the engine does, byte-identical. Not yet: a second map page, navigation-pane rows (the Access layer adds those itself) |
 | 6 | VBA project through the writer: module create/rename/delete | |
-| 7 | queries (`MSysQueries` to SQL and back), relationships, properties | relationships done: `create_relationship` / `drop_relationship` / `relationships()`, byte-identical to the engine's ADD CONSTRAINT ... FOREIGN KEY for a first and a second relationship on one parent and to DROP CONSTRAINT (live gate). Not yet: queries, properties |
+| 7 | queries (`MSysQueries` to SQL and back), relationships, properties | relationships done: `create_relationship` / `drop_relationship` / `relationships()`, byte-identical to the engine's ADD CONSTRAINT ... FOREIGN KEY for a first and a second relationship on one parent and to DROP CONSTRAINT (live gate). Properties done: `table.properties()`, `column_properties()`, `set_properties()`, `db.database_properties()`; DAO's three property appends reproduced byte for byte (live gate). Not yet: queries |
 | 8 | forms, reports, macros: the binary object formats nobody has published | |
 | 9 | SQL executor over the engine | |

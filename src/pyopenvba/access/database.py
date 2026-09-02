@@ -55,6 +55,16 @@ from pyopenvba.access._schema import (
     serialize_definition,
     usage_map_page,
 )
+from pyopenvba.access._props import (
+    BLOCK_COLUMN,
+    BLOCK_OBJECT,
+    PropertyBlob,
+    PropertyValue,
+    dao_type_for,
+    encode_property_value,
+    parse_property_blob,
+    serialize_property_blob,
+)
 from pyopenvba.access._rows import (
     LongValueRef,
     RawRow,
@@ -569,6 +579,61 @@ class Table:
         d.row_count = 0
         db.patch_definition(d, OFFSET_ROW_COUNT, struct.pack("<I", d.row_count))
 
+    # -- properties ------------------------------------------------------------
+
+    def property_blob(self) -> PropertyBlob:
+        """The table's ``MR2`` property blob from its catalog row, parsed;
+        empty when the row carries none."""
+        _rid, row = self._catalog_row()
+        lv = row.get("LvProp")
+        return parse_property_blob(lv) if isinstance(lv, bytes) and lv else PropertyBlob()
+
+    def properties(self) -> dict[str, object]:
+        """The table's own properties (Description, Orientation, ...) decoded."""
+        return self.property_blob().decoded()
+
+    def column_properties(self, column: str) -> dict[str, object]:
+        """One column's properties (Caption, Format, DecimalPlaces, ...) decoded."""
+        name = self.definition.column(column).name
+        return self.property_blob().decoded_column(name)
+
+    def set_properties(self, values: Mapping[str, object], *, column: str | None = None) -> None:
+        """Add or replace properties on the table, or on ``column``, the way
+        DAO's ``Properties.Append`` does: the blob is rebuilt with the new
+        records appended in the order given (an existing property keeps its
+        type, flags and place), stored as the catalog row's LvProp, and the
+        row's stamps are left alone.  A value may be a
+        :class:`~pyopenvba.access._props.PropertyValue` to control the DAO
+        type and flags; otherwise the type follows the Python value."""
+        blob = self.property_blob()
+        if column is None:
+            records = blob.object_properties
+            if (BLOCK_OBJECT, "") not in blob.block_order:
+                blob.block_order.append((BLOCK_OBJECT, ""))
+        else:
+            name = self.definition.column(column).name
+            records = blob.column_properties.setdefault(name, {})
+            if (BLOCK_COLUMN, name) not in blob.block_order:
+                blob.block_order.append((BLOCK_COLUMN, name))
+        for prop, value in values.items():
+            if isinstance(value, PropertyValue):
+                records[prop] = value
+                continue
+            existing = records.get(prop)
+            dao_type = existing.type if existing is not None else dao_type_for(value)
+            flags = existing.flags if existing is not None else 0
+            records[prop] = PropertyValue(dao_type, flags, encode_property_value(dao_type, value))
+        rid, _row = self._catalog_row()
+        self._db.table("MSysObjects").update_row(rid, {"LvProp": serialize_property_blob(blob)})
+        self._db._catalog = None  # pyright: ignore[reportPrivateUsage]
+
+    def _catalog_row(self) -> tuple[RowId, dict[str, object]]:
+        objects = self._db.table("MSysObjects")
+        for rid, row in objects.rows_with_ids():
+            if row["Id"] == self.definition.page and row["Type"] in (OBJECT_TABLE, OBJECT_LINKED_TABLE):
+                return rid, row
+        raise AccessError(f"table {self.name!r} has no catalog row")
+
     def update_row(self, row_id: RowId, changes: Mapping[str, object]) -> None:
         """Change the given columns of one row; the rest keep their values.
         A row that no longer fits its page moves to another page behind an
@@ -1023,6 +1088,14 @@ class AccessDatabase:
         self._catalog = None
         self._definitions.pop(d.page, None)
         return self.table(table_name).index(spec.name)
+
+    def database_properties(self) -> dict[str, object]:
+        """The database's own settings, from the MSysDb row's property blob."""
+        for row in self.table("MSysObjects").rows():
+            if row["Name"] == "MSysDb":
+                lv = row.get("LvProp")
+                return parse_property_blob(lv).decoded() if isinstance(lv, bytes) and lv else {}
+        return {}
 
     def relationships(self) -> list[Relationship]:
         """Every relationship in MSysRelationships, columns in pair order."""

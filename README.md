@@ -195,8 +195,10 @@ with AccessDatabase("orders.accdb") as db:
 Every column type is covered (Boolean through BigInt, Decimal, GUID,
 Memo and OLE), indexes are maintained on every write, relationships
 are created with `db.create_relationship(...)` and read with
-`db.relationships()`, and files grow past their first 512 pages the way
-the engine grows them. What it does not do yet is listed in
+`db.relationships()`, table and column properties (Description,
+Caption, Format, ...) are read and set through `table.properties()` and
+`table.set_properties(...)`, and files grow past their first 512 pages
+the way the engine grows them. What it does not do yet is listed in
 [docs/access_engine.md](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/docs/access_engine.md),
 along with every format rule and how it was measured.
 

@@ -78,6 +78,13 @@ All notable changes to pyOpenVBA are documented here. This project follows
   and the drop of the first (live gate). CREATE TABLE's catalog row now carries DateCreate as its first
   DateUpdate, as the engine's does, which the stale bytes under the slot
   table revealed.
+- **Properties.** `table.properties()`, `table.column_properties(name)`
+  and `db.database_properties()` decode the `MR2` blob in a catalog row's
+  LvProp (Description, Caption, Format, ColumnWidth, the database's own
+  settings, ...); `table.set_properties({...}, column=...)` rewrites it
+  the way DAO's `Properties.Append` does, one call per append, byte for
+  byte in the live gate. All 17 Access-authored blobs in the fixtures
+  serialize back identically.
 - A freed long-value chain's pages are reusable at once within the
   session when the chain predates the session, unlike pages a DROP TABLE
   releases or pages the session itself allocated (measured with DAO).

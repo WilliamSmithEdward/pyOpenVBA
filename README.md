@@ -545,8 +545,8 @@ src/pyopenvba/
   access_read.py     AccessReader (read-only ACE/Jet page + LVAL reader)
   access/            the Jet 4 / ACE storage engine, in progress: reads
                      every table, index and long value; inserts, updates
-                     and deletes rows the way the engine does
-                     (docs/access_engine.md)
+                     and deletes rows and creates and drops tables and
+                     indexes the way the engine does (docs/access_engine.md)
   vba.py             VBA project parser + MS-OVBA codec
   vba_pcode.py       VBA7 p-code disassembler
   cfb.py             MS-CFB (Compound File Binary) parser/writer

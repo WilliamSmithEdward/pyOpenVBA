@@ -33,6 +33,7 @@ subpackage, one private module per layer of the file:
 | `_datapage` | in-place editing of a data page's slots and rows |
 | `_alloc` | page allocation from the global usage map, usage-map bit writes |
 | `_btree` | index insert and delete, page compression and splits |
+| `_schema` | table definitions written from specs or re-serialized, map pages, index roots |
 | `_catalog` (next) | `MSysObjects` and the other system tables as typed objects |
 | `database` | `AccessDatabase` and `Table`, the public facade |
 
@@ -205,6 +206,39 @@ the engine finds the same rows it does today.
   keep pointing at the home slot. When it shrinks enough it comes home and
   the copy is tombstoned; deleting it tombstones both slots.
 
+* **Creating and dropping tables**, measured by diffing `CREATE TABLE`,
+  `CREATE INDEX` and `DROP TABLE` page by page. A new table takes its
+  definition page and one data-shaped page (owner 0) holding its usage
+  maps as 69-byte inline rows: owned pages, free-space pages, one per
+  index, two per Memo/OLE column. Each index gets an empty leaf as root.
+  In the definition, real indexes keep creation order while the logical
+  list and its names are stored sorted by name (each logical entry
+  naming its own index number); the free-space word is `4096 - length -
+  8`; the per-table tag at 0x0C and in every column header is the
+  database's (0x659 everywhere seen); a real index definition begins
+  `83 07 00 00`, a logical one carries `04 04` before its kind byte; a
+  Boolean column is "fixed" of length 1 but takes no row space, a GUID is
+  variable-length, a fixed Binary keeps its declared width. The catalog
+  gets an MSysObjects row (Id = definition page, parent the Tables
+  container, Type 1, uncompressed name) written in two steps -- inserted
+  without an owner, then updated with one -- and three MSysACEs rows. The
+  pages are taken in the order definition, map page, whatever the catalog
+  rows need, index roots. `CREATE INDEX` appends the real index, re-sorts
+  the logical list, appends a map row, allocates a root and re-stamps the
+  table's DateUpdate. Dropping releases the owned pages and kills the
+  owned-map row first, then clears every index and long-value map, then
+  kills the remaining map rows in order, marks the definition page type 8
+  and releases every page; that order is what decides which stale bytes
+  the dead map rows keep.
+* **Two rules found on the way.** An update stays in place when its
+  growth fits the page's free space and otherwise moves the row behind a
+  pointer (a two-byte growth stays with three bytes free and moves with
+  one); a page a row moved off leaves the free-space map. An insert tests
+  a page for the row's bytes alone: when the slot entry then does not fit,
+  the home slot still goes on that page as a pointer and the row itself on
+  a new page, and the first page leaves the free-space map -- which is why
+  a catalog row's home can be a pointer from the moment it is created.
+
 ## Alternatives considered
 
 * **Drive Access through COM at runtime.** Breaks the library's one hard
@@ -233,7 +267,7 @@ the engine finds the same rows it does today.
 | 2 | indexes: walk B-trees, decode entries, sort keys for every type | done for reading. Every index on every fixture and on the live 1500-row table checks out, and `encode_key` rebuilds all 25 500 of its entries from the row values, text included |
 | 3 | write rows: insert/update/delete, free-space and owned-page maps, LVAL allocation, counters | done: every column type including Memo/OLE of every storage kind, overflow rows, unique-index enforcement, page allocation and all counters; the engine reads the result, keeps working on it and compacts it; single edits and memo inserts byte-identical to the engine's |
 | 4 | write indexes: key encoding from the engine-generated collation table, B-tree insert and split | done: entries inserted and removed, pages compressed when full and split, root pinned; single edits byte-identical to the engine |
-| 5 | write schema: create/drop table, catalog rows, permissions, navigation pane rows | |
+| 5 | write schema: create/drop table, create index, catalog rows | done: `create_table`, `create_index`, `drop_table`; byte-identical to the engine's CREATE TABLE, CREATE INDEX and DROP TABLE on every page but page 0; the engine inserts into, reads and compacts a table pyOpenVBA created. Not yet: definitions longer than one page, a second map page, navigation-pane rows (the Access layer adds those itself) |
 | 6 | VBA project through the writer: module create/rename/delete | |
 | 7 | queries (`MSysQueries` to SQL and back), relationships, properties | |
 | 8 | forms, reports, macros: the binary object formats nobody has published | |

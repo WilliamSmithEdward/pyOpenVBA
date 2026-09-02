@@ -6,6 +6,7 @@ pages and usage maps, table definitions, row and value codecs, long
 values.
 """
 
-from pyopenvba.access.database import AccessDatabase, CatalogEntry, Table
+from pyopenvba.access._schema import ColumnSpec, IndexSpec
+from pyopenvba.access.database import AccessDatabase, CatalogEntry, Index, RowId, Table
 
-__all__ = ["AccessDatabase", "CatalogEntry", "Table"]
+__all__ = ["AccessDatabase", "CatalogEntry", "ColumnSpec", "Index", "IndexSpec", "RowId", "Table"]

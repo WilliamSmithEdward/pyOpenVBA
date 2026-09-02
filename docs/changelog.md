@@ -48,6 +48,16 @@ All notable changes to pyOpenVBA are documented here. This project follows
   when it fits. A duplicate key in a unique index is refused. All of it
   read back by the engine live; single-page and chained memo inserts
   byte-identical to its own.
+- **Tables can be created and dropped.** `db.create_table(name,
+  columns, indexes)` with `ColumnSpec` / `IndexSpec` (every column type,
+  AutoNumber, primary key, unique, descending and multi-column indexes),
+  `db.create_index(table, spec)` and `db.drop_table(name)` write the
+  definition page, the usage-map page, the index roots and the catalog
+  rows exactly as the engine does: pyOpenVBA's CREATE TABLE, CREATE
+  INDEX and DROP TABLE leave every page but page 0 identical to the
+  engine's own, and the engine inserts into, reads and compacts a table
+  pyOpenVBA created. `pyopenvba.access` exports `AccessDatabase`,
+  `Table`, `Index`, `RowId`, `ColumnSpec`, `IndexSpec`.
 
 ## [3.5.1] - 2026-08-31
 

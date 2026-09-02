@@ -286,6 +286,19 @@ try {
             Invoke-Sql $db "DELETE FROM Simple WHERE Id = $Rows" $dbFailOnError
             [Console]::Out.Write("ok")
         }
+        "create-keyed" {
+            # Named constraint so the primary key's index name is not random.
+            Invoke-Sql $db "CREATE TABLE Simple (Id AUTOINCREMENT CONSTRAINT PrimaryKey PRIMARY KEY, N LONG, T TEXT(50))" $dbFailOnError
+            [Console]::Out.Write("ok")
+        }
+        "index-simple" {
+            Invoke-Sql $db "CREATE INDEX IX_N ON Simple (N)" $dbFailOnError
+            [Console]::Out.Write("ok")
+        }
+        "drop-simple" {
+            Invoke-Sql $db "DROP TABLE Simple" $dbFailOnError
+            [Console]::Out.Write("ok")
+        }
         "build-memos" {
             Invoke-Sql $db "CREATE TABLE Memos (Id AUTOINCREMENT PRIMARY KEY, T TEXT(50), M LONGTEXT, O IMAGE)" $dbFailOnError
             for ($i = 1; $i -le 3; $i++) { Invoke-Sql $db "INSERT INTO Memos (T) VALUES ('row $i')" $dbFailOnError }

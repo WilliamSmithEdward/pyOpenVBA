@@ -56,6 +56,8 @@ knows about the layer below it but not the layer above.
 |   - _collation: text sort keys (generated table)       |
 |   - _datapage / _alloc / _btree: row, page and index   |
 |       writes the way the engine performs them          |
+|   - _schema: definitions, map pages, roots for         |
+|       create_table / create_index / drop_table         |
 |   - database: AccessDatabase / Table / Index facade,   |
 |       insert_row / update_row / delete_row / save      |
 |   - plan and format facts: docs/access_engine.md       |

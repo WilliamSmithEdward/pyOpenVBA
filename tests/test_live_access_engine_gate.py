@@ -117,11 +117,12 @@ def _diff(expected: str, mine: list[str]) -> list[str]:
     return out
 
 
-def _check_indexes(db: AccessDatabase) -> None:
-    """Every index the oracle created -- one per indexable column type,
-    a descending one, a two-column one, a unique ignore-nulls one -- must
-    decode to the row values it points at, in key order, with the node
-    pages naming their children's last keys."""
+def _check_indexes(db: AccessDatabase, oracle_built: bool = True) -> None:
+    """Every index of AllTypes must decode to the row values it points at,
+    in key order, with the node pages naming their children's last keys.
+    ``oracle_built`` also expects the oracle's index set -- one per
+    indexable column type, a descending one, a two-column one, a unique
+    ignore-nulls one."""
     from pyopenvba.access._index import TextKey, node_pages, parse_index_page
     from pyopenvba.access._rows import split_row
 
@@ -130,7 +131,8 @@ def _check_indexes(db: AccessDatabase) -> None:
     for page, slot, data in table.raw_rows():
         rows[(page, slot)] = table.decode(split_row(table.definition, data))
     names = {i.name for i in table.indexes}
-    assert {"IX_Txt", "IX_BigDesc", "IX_FlagTiny", "IX_UniqueBig", "IX_Frac", "IX_Uid", "IX_Bin"} <= names
+    if oracle_built:
+        assert {"IX_Txt", "IX_BigDesc", "IX_FlagTiny", "IX_UniqueBig", "IX_Frac", "IX_Uid", "IX_Bin"} <= names
     for index in table.indexes:
         expected = len(rows)
         if index.ignores_nulls:
@@ -160,8 +162,9 @@ def _check_indexes(db: AccessDatabase) -> None:
                 assert entry.child is not None
                 last = parse_index_page(db.store, entry.child).entries[-1]
                 assert (last.key, last.page, last.row) == (entry.key, entry.page, entry.row)
-    assert table.index("IX_UniqueBig").unique and table.index("IX_UniqueBig").ignores_nulls
-    assert table.index("IX_BigDesc").columns[0][1] is False
+    if oracle_built:
+        assert table.index("IX_UniqueBig").unique and table.index("IX_UniqueBig").ignores_nulls
+        assert table.index("IX_BigDesc").columns[0][1] is False
 
     # And the inverse: the row's own values, run through the key codec,
     # must produce exactly the bytes the engine stored -- text included.
@@ -300,6 +303,86 @@ def test_engine_reads_long_values_and_moved_rows_pyopenvba_wrote(tmp_path: Path)
     assert "Id=2\tN=20\tT=this row grew and had to move elsewhere" in dumped
     assert _diff(dumped, _engine_dump(AccessDatabase(simple), "Simple")) == []
     assert oracle("-Command", "compact", "-Path", str(simple)) == "ok"
+
+
+def test_engine_uses_a_table_pyopenvba_created(tmp_path: Path) -> None:
+    """A table of every column type created from nothing by pyOpenVBA: the
+    engine inserts into it, reads it back, and compacts the file."""
+    from pyopenvba.access import ColumnSpec, IndexSpec
+
+    target = tmp_path / "created.accdb"
+    shutil.copy(TEMPLATE, target)
+    db = AccessDatabase(target)
+    table = db.create_table(
+        "AllTypes",
+        [
+            ColumnSpec("Id", "Long", autonumber=True), ColumnSpec("Flag", "Boolean"), ColumnSpec("Tiny", "Byte"),
+            ColumnSpec("Small", "Integer"), ColumnSpec("Big", "Long"), ColumnSpec("Cash", "Currency"),
+            ColumnSpec("Sgl", "Single"), ColumnSpec("Dbl", "Double"), ColumnSpec("Stamp", "DateTime"),
+            ColumnSpec("Bin", "Binary", size=50), ColumnSpec("Txt", "Text", size=100, compressed=False),
+            ColumnSpec("Blob", "OLE"), ColumnSpec("Story", "Memo", compressed=False), ColumnSpec("Uid", "GUID"),
+            ColumnSpec("Frac", "Decimal", size=(18, 4)), ColumnSpec("Huge", "BigInt"),
+        ],
+        [IndexSpec("PrimaryKey", ("Id",), primary=True), IndexSpec("IX_Txt", ("Txt",)), IndexSpec("IX_FlagTiny", ("Flag", ("Tiny", False)))],
+    )
+    table.insert_row({"Flag": True, "Tiny": 3, "Txt": "made by pyopenvba", "Story": "m" * 5000, "Blob": bytes(range(100))})
+    db.save()
+    # The engine adds rows of its own through SQL and reads the whole table.
+    assert oracle("-Command", "insert-alltypes-more", "-Path", str(target), "-Rows", "25") == "ok"
+    dumped = json.loads(oracle("-Command", "dump", "-Path", str(target), "-Table", "AllTypes"))
+    assert isinstance(dumped, str)
+    lines = dumped.split("\n")
+    assert len(lines) == 26
+    assert lines[0].startswith("Id=1\tFlag=True\tTiny=3\t") and "Txt=made by pyopenvba" in lines[0]
+    assert "Story=" + "m" * 5000 in lines[0] and "Blob=" + bytes(range(100)).hex() in lines[0]
+    assert _diff(dumped, _engine_dump(AccessDatabase(target), "AllTypes")) == []
+    assert oracle("-Command", "compact", "-Path", str(target)) == "ok"
+    compacted = AccessDatabase(Path(str(target) + ".compact.accdb"))
+    assert compacted.table("AllTypes").row_count == 26
+    _check_indexes(compacted, oracle_built=False)
+
+
+def test_create_and_drop_table_match_the_engine_byte_for_byte(tmp_path: Path) -> None:
+    """CREATE TABLE with a named primary key plus CREATE INDEX, then DROP
+    TABLE, by the engine and by pyOpenVBA on copies of the blank database.
+    Only page 0 and the two catalog timestamps may differ."""
+    from pyopenvba.access import ColumnSpec, IndexSpec
+
+    def differing(ours: bytes, engine: bytes) -> list[int]:
+        assert len(ours) == len(engine)
+        return [
+            n for n in range(1, len(ours) // 4096)
+            if ours[n * 4096 : (n + 1) * 4096] != engine[n * 4096 : (n + 1) * 4096]
+        ]
+
+    theirs = tmp_path / "theirs.accdb"
+    shutil.copy(TEMPLATE, theirs)
+    assert oracle("-Command", "create-keyed", "-Path", str(theirs)) == "ok"
+    entry = next(e for e in AccessDatabase(theirs).catalog() if e.name == "Simple")
+    assert isinstance(entry.date_create, dt.datetime)
+    db = AccessDatabase(TEMPLATE)
+    db.create_table(
+        "Simple",
+        [ColumnSpec("Id", "Long", autonumber=True), ColumnSpec("N", "Long"), ColumnSpec("T", "Text", size=50, compressed=False)],
+        [IndexSpec("PrimaryKey", ("Id",), primary=True)],
+        created=entry.date_create,
+    )
+    assert not (d := differing(db.to_bytes(), theirs.read_bytes())), f"create: pages differ from the engine's: {d}"
+
+    # CREATE INDEX: the engine also re-stamps the catalog row, which moves
+    # it when its page cannot hold a fresh copy.
+    assert oracle("-Command", "index-simple", "-Path", str(theirs)) == "ok"
+    entry = next(e for e in AccessDatabase(theirs).catalog() if e.name == "Simple")
+    assert isinstance(entry.date_update, dt.datetime)
+    db.create_index("Simple", IndexSpec("IX_N", ("N",)), updated=entry.date_update)
+    assert not (d := differing(db.to_bytes(), theirs.read_bytes())), f"index: pages differ from the engine's: {d}"
+
+    # DROP TABLE, exact to the byte: the engine's order of releasing maps
+    # and killing rows decides which stale bytes remain, and that order is
+    # reproduced.
+    assert oracle("-Command", "drop-simple", "-Path", str(theirs)) == "ok"
+    db.drop_table("Simple")
+    assert not (d := differing(db.to_bytes(), theirs.read_bytes())), f"drop: pages differ from the engine's: {d}"
 
 
 def test_memo_inserts_match_the_engine_byte_for_byte(tmp_path: Path) -> None:

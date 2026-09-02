@@ -608,7 +608,10 @@ class Table:
             db.store.write(row_id.page, home.to_bytes())
             target = DataPage(db.store.read(target_page))
             target.remove_row(target_slot, overflow_target=True)
-            db.store.write(target_page, target.to_bytes())
+            # Unlike a delete, a row coming home retires the copy's page
+            # when that empties it (measured: type 0x09, released, out of
+            # the maps).
+            self._row_removed(target_page, target)
             return
         target = DataPage(db.store.read(target_page))
         t_start, t_end = target.span(target_slot)

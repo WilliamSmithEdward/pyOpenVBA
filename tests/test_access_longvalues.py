@@ -249,6 +249,34 @@ def test_unique_index_rejects_a_duplicate_key() -> None:
     assert table.row_count == 3
 
 
+def test_a_row_coming_home_retires_the_copy_page_it_empties() -> None:
+    """DAO: a row grown past its page's room moved alone to a fresh page;
+    shrunk again it came home and that page was retired (type 0x09,
+    released, out of both maps), while a delete would have left it."""
+    from pyopenvba.access import ColumnSpec, IndexSpec
+    from pyopenvba.access._pages import PAGE_RETIRED, read_usage_map
+
+    db = AccessDatabase(TEMPLATE)
+    table = db.create_table("W", [ColumnSpec("Id", "Long", autonumber=True), ColumnSpec("T", "Text", size=255, compressed=False)], [IndexSpec("PK", ("Id",), primary=True)])
+    first = table.insert_row({"T": "a" * 30})
+    for i in range(7):
+        table.insert_row({"T": chr(98 + i) * 255})
+    home = table.data_pages()
+    assert len(home) == 1
+    table.update_row(first, {"T": "z" * 255})
+    moved = table._moved_to(first)  # pyright: ignore[reportPrivateUsage]
+    assert moved is not None and moved[0] != home[0]
+    copy_page = moved[0]
+    table.update_row(first, {"T": "home again"})
+    assert table._moved_to(first) is None  # pyright: ignore[reportPrivateUsage]
+    assert db.store.read(copy_page)[0] == PAGE_RETIRED
+    assert copy_page in set(read_usage_map(db.store, GLOBAL_USAGE_MAP_PAGE, GLOBAL_USAGE_MAP_ROW).pages())
+    d = table.definition
+    assert list(read_usage_map_ref(db.store, d.owned_pages_ref).pages()) == home
+    assert list(read_usage_map_ref(db.store, d.free_space_pages_ref).pages()) == []
+    check_indexes(table)
+
+
 def test_row_that_outgrows_its_page_moves_and_comes_back(tmp_path: Path) -> None:
     db = AccessDatabase(LARGE)
     table = db.table("Table1")

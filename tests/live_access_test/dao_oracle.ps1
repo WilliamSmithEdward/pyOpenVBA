@@ -19,7 +19,8 @@ param(
     [Parameter(Mandatory = $true)][string]$Path,
     [int]$Rows = 120,
     [string]$Table = "",
-    [string]$SqlFile = ""
+    [string]$SqlFile = "",
+    [switch]$Transaction
 )
 
 $ErrorActionPreference = "Stop"
@@ -272,9 +273,49 @@ try {
         }
         "sql-file" {
             # One statement per line, run in order; blank lines skipped.
+            # -Transaction wraps them in one DAO transaction.
+            if ($Transaction) { $engine.BeginTrans() }
             foreach ($line in [System.IO.File]::ReadAllLines($SqlFile)) {
                 if ($line.Trim().Length -gt 0) { Invoke-Sql $db $line $dbFailOnError }
             }
+            if ($Transaction) { $engine.CommitTrans() }
+            [Console]::Out.Write("ok")
+        }
+        "chunk-probe" {
+            # Long values written through a recordset with AppendChunk, the
+            # way a stream writer would, to see whether placement differs
+            # from the SQL path.  L7 mirrors the l6.sql probe; G1 grows one
+            # value in two pieces.
+            Invoke-Sql $db "CREATE TABLE L7 (Id AUTOINCREMENT CONSTRAINT PK PRIMARY KEY, M MEMO)" $dbFailOnError
+            $rs = $db.OpenRecordset("L7", $dbOpenTable)
+            foreach ($piece in @(("a", 650), ("b", 650), ("c", 1500), ("d", 450), ("e", 1500))) {
+                $rs.AddNew()
+                $rs.Fields.Item("M").AppendChunk(([string]$piece[0]) * $piece[1])
+                $rs.Update()
+            }
+            $rs.Index = "PK"
+            $rs.Seek("=", 1)
+            $rs.Delete()
+            foreach ($piece in @(("f", 450), ("g", 600))) {
+                $rs.AddNew()
+                $rs.Fields.Item("M").AppendChunk(([string]$piece[0]) * $piece[1])
+                $rs.Update()
+            }
+            $rs.Close()
+            Invoke-Sql $db "CREATE TABLE G1 (Id AUTOINCREMENT CONSTRAINT PK PRIMARY KEY, M MEMO)" $dbFailOnError
+            $rs = $db.OpenRecordset("G1", $dbOpenTable)
+            $rs.AddNew()
+            $rs.Fields.Item("M").AppendChunk("h" * 1500)
+            $rs.Update()
+            $rs.AddNew()
+            $rs.Fields.Item("M").AppendChunk("i" * 200)
+            $rs.Update()
+            $rs.Index = "PK"
+            $rs.Seek("=", 2)
+            $rs.Edit()
+            $rs.Fields.Item("M").AppendChunk("j" * 400)
+            $rs.Update()
+            $rs.Close()
             [Console]::Out.Write("ok")
         }
         "build-simple" {

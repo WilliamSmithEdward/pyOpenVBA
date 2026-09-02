@@ -256,7 +256,9 @@ the engine finds the same rows it does today.
   filtered delete that happens to remove every row keeps the distinct
   count: deletes never lower it.) Two things a delete leaves alone: the
   page that held a moved row's copy is only written back (emptied, it
-  stays type 0x01, owned and unreleased), and a home page that held only
+  stays type 0x01, owned and unreleased) -- though when the row comes
+  home through an update, the emptied copy page is retired -- and a
+  home page that held only
   the 4-byte pointer is not re-listed, while a home page that lost a
   15-byte row is. That is also what DROP TABLE's deletion of the
   table's catalog rows shows, so there is no separate catalog path.

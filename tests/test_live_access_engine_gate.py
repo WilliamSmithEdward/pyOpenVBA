@@ -368,6 +368,23 @@ def _describe_pages(ours: bytes, engine: bytes, pages: list[int]) -> str:
     return "; ".join(lines)
 
 
+def _mask_lval_stamps(blob: bytearray, chain_lengths: tuple[int, ...]) -> None:
+    """Zero the per-session stamp the engine puts at offset 8 of every LVAL
+    page and in the 12-byte definition of a chained value of each given
+    length -- the one thing about a chain that is not reproducible."""
+    for n in range(1, len(blob) // 4096):
+        start = n * 4096
+        page = blob[start : start + 4096]
+        if page[0] == 1 and bytes(page[4:8]) == b"LVAL":
+            blob[start + 8 : start + 12] = b"\0\0\0\0"
+        for length in chain_lengths:
+            marker = length.to_bytes(3, "little") + b"\x00"  # length, kind chained
+            pos = page.find(marker)
+            while pos >= 0:
+                blob[start + pos + 8 : start + pos + 12] = b"\0\0\0\0"
+                pos = page.find(marker, pos + 1)
+
+
 def _catalog_entry(path: Path, name: str) -> CatalogEntry:
     return next(e for e in AccessDatabase(path).catalog() if e.name == name)
 
@@ -569,8 +586,10 @@ def test_long_value_placement_matches_the_engine_byte_for_byte(tmp_path: Path) -
     """Where single-row long values land: the page last written when it
     has room, else the first listed page, else a fresh one; pages stay
     listed while more than 256 bytes are free; an update stores the new
-    value before freeing the old; a delete re-lists its page.  One DAO
-    session per step, byte for byte."""
+    value before freeing the old; a delete re-lists its page; a freed
+    chain's pages come back only when the chain predates the session.
+    One DAO session per step, byte for byte but for the chains' per-session
+    stamps."""
     from pyopenvba.access import ColumnSpec, IndexSpec
 
     theirs = tmp_path / "theirs.accdb"
@@ -582,9 +601,11 @@ def test_long_value_placement_matches_the_engine_byte_for_byte(tmp_path: Path) -
         assert oracle("-Command", "sql-file", "-Path", str(theirs), "-SqlFile", str(script)) == "ok"
 
     def same_then_reopen(step: str, db: AccessDatabase) -> AccessDatabase:
-        ours, engine = db.to_bytes(), theirs.read_bytes()
-        assert not (d := _differing_pages(ours, engine)), f"{step}: pages differ from the engine's: {_describe_pages(ours, engine, d)}"
-        return AccessDatabase(ours)
+        ours, engine = bytearray(db.to_bytes()), bytearray(theirs.read_bytes())
+        _mask_lval_stamps(ours, (10000,))
+        _mask_lval_stamps(engine, (10000,))
+        assert not (d := _differing_pages(bytes(ours), bytes(engine))), f"{step}: pages differ from the engine's: {_describe_pages(bytes(ours), bytes(engine), d)}"
+        return AccessDatabase(db.to_bytes())
 
     def stamps(name: str) -> dict[str, object]:
         entry = _catalog_entry(theirs, name)
@@ -633,7 +654,25 @@ def test_long_value_placement_matches_the_engine_byte_for_byte(tmp_path: Path) -
     engine_runs("INSERT INTO L (M) VALUES ('" + "p" * 1400 + "')")
     db.table("L").insert_row({"M": "p" * 1400})
     db = same_then_reopen("L oversized insert", db)
-    for name in ("L3", "F256", "F258", "L"):
+
+    # A 10 KB chain created and freed in one session gets fresh pages for
+    # its replacement; one created in an earlier session gives its pages
+    # back to the replacement in order.
+    ten_k, ten_m = "k" * 5000, "m" * 5000
+    engine_runs("CREATE TABLE K1 (Id AUTOINCREMENT CONSTRAINT PK PRIMARY KEY, M MEMO)", f"INSERT INTO K1 (M) VALUES ('{ten_k}')", "DELETE FROM K1 WHERE Id = 1", f"INSERT INTO K1 (M) VALUES ('{ten_m}')")
+    k1 = db.create_table("K1", memo, key, **stamps("K1"))
+    k1.delete_row(k1.insert_row({"M": ten_k}))
+    k1.insert_row({"M": ten_m})
+    db = same_then_reopen("K1 same-session chain", db)
+    engine_runs("CREATE TABLE K2 (Id AUTOINCREMENT CONSTRAINT PK PRIMARY KEY, M MEMO)", f"INSERT INTO K2 (M) VALUES ('{ten_k}')")
+    db.create_table("K2", memo, key, **stamps("K2")).insert_row({"M": ten_k})
+    db = same_then_reopen("K2 built", db)
+    engine_runs("DELETE FROM K2 WHERE Id = 1", f"INSERT INTO K2 (M) VALUES ('{ten_m}')")
+    k2 = db.table("K2")
+    k2.delete_row(by_id(k2, 1))
+    k2.insert_row({"M": ten_m})
+    db = same_then_reopen("K2 older chain reused", db)
+    for name in ("L3", "F256", "F258", "L", "K1", "K2"):
         check_indexes(db.table(name))
 
 

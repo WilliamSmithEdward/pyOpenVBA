@@ -141,15 +141,24 @@ def allocate_page(store: PageStore) -> int:
     while store.page_count <= page:
         store.append()
     set_usage_bit(store, free, page, False)
+    store.allocated.add(page)
     return page
 
 
-def release_page(store: PageStore, page: int) -> None:
-    """Return ``page`` to the global free map; it stays out of this
-    session's allocations."""
+def release_page(store: PageStore, page: int, *, quarantine: bool = True) -> None:
+    """Return ``page`` to the global free map.  Pages given back by DROP
+    TABLE, a definition rewrite, truncation or the retirement of an emptied
+    page stay out of this session's allocations (``quarantine``), and so
+    does any page allocated in this session, whatever frees it.  The pages
+    of a freed long-value chain that existed when the database was opened
+    are handed out again at once (measured: the next 10 KB value, and a
+    new table's pages, took them in order)."""
     free = read_usage_map(store, GLOBAL_USAGE_MAP_PAGE, GLOBAL_USAGE_MAP_ROW)
     set_usage_bit(store, free, page, True)
-    store.released.add(page)
+    if quarantine or page in store.allocated:
+        store.released.add(page)
+    else:
+        store.released.discard(page)
 
 
 def add_to_map(store: PageStore, reference: int, page: int) -> None:

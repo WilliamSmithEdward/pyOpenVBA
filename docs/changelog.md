@@ -65,6 +65,9 @@ All notable changes to pyOpenVBA are documented here. This project follows
   fresh chain and releases the old pages; DROP TABLE marks only the
   first page. Tables of up to 255 columns with long names now round-trip
   byte for byte against the engine (live gate).
+- A freed long-value chain's pages are reusable at once within the
+  session when the chain predates the session, unlike pages a DROP TABLE
+  releases or pages the session itself allocated (measured with DAO).
 - Single-row long values are placed as the engine places them: the page
   last written this session when it has room, else the first listed page
   with room, else a fresh page; LVAL pages stay listed while more than

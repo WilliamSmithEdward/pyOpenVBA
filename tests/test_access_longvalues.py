@@ -277,6 +277,34 @@ def test_a_row_coming_home_retires_the_copy_page_it_empties() -> None:
     check_indexes(table)
 
 
+def test_a_freed_chains_pages_are_reused_only_when_older_than_the_session() -> None:
+    """DAO: a 10 KB value's three chain pages, deleted in a later session,
+    were taken again in order by the next 10 KB value; a chain created and
+    freed within one session got fresh pages."""
+
+    def chain_pages(table: Table) -> list[int]:
+        d = table.definition
+        return list(read_usage_map_ref(table.database.store, d.column_usage_maps[d.column("M").number][0]).pages())
+
+    db = AccessDatabase(TEMPLATE)
+    table = _memo_table(db, "K")
+    first = table.insert_row({"M": "k" * 5000})
+    pages = chain_pages(table)
+    assert len(pages) == 3
+    table.delete_row(first)
+    table.insert_row({"M": "m" * 5000})
+    assert set(chain_pages(table)).isdisjoint(pages)  # same session: fresh pages
+
+    db = AccessDatabase(TEMPLATE)
+    table = _memo_table(db, "K")
+    table.insert_row({"M": "k" * 5000})
+    pages = chain_pages(table)
+    later = AccessDatabase(db.to_bytes()).table("K")
+    later.delete_row(next(rid for rid, _ in later.rows_with_ids()))
+    later.insert_row({"M": "m" * 5000})
+    assert chain_pages(later) == pages  # a later session: the same pages, in order
+
+
 def test_row_that_outgrows_its_page_moves_and_comes_back(tmp_path: Path) -> None:
     db = AccessDatabase(LARGE)
     table = db.table("Table1")

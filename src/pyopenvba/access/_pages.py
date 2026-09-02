@@ -171,6 +171,9 @@ class PageStore:
         #: a released page out again only after the database is reopened,
         #: so within a session the allocator skips these.
         self.released: set[int] = set()
+        #: Pages allocated while this store has been open.  Released again,
+        #: they stay out of the session's allocations whatever released them.
+        self.allocated: set[int] = set()
         #: Per long-value column (keyed by its free-space map reference),
         #: the LVAL page most recently written this session: the engine
         #: tries it first for the next single-row value.

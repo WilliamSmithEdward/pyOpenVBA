@@ -279,7 +279,17 @@ the engine finds the same rows it does today.
   a definition rewrite or a freed long value, are not handed out again
   until the database is reopened. An `AccessDatabase` instance is a
   session: `PageStore.released` holds what it has released, the
-  allocator skips those, and a new instance starts clean.
+  allocator skips those, and a new instance starts clean. A transaction
+  changes nothing here (DROP and CREATE inside one transaction still
+  took fresh pages). Pages retired by a filtered delete and pages an
+  unfiltered DELETE releases are quarantined the same way (the rows
+  inserted next in the session took fresh pages). The pages of a freed
+  long-value chain are the exception, provided the chain existed when
+  the database was opened: deleted and rewritten, a 10 KB value took its
+  three pages back in the same order, and a new table took them for its
+  definition and maps; a chain created and freed within one session got
+  fresh pages like everything else. `PageStore.allocated` records the
+  session's own allocations for that distinction.
 * **Creating and dropping tables**, measured by diffing `CREATE TABLE`,
   `CREATE INDEX` and `DROP TABLE` page by page. A new table takes its
   definition page and one data-shaped page (owner 0) holding its usage

@@ -140,7 +140,12 @@ class DataPage:
         self.raw[lowest + delta : boundary + delta] = block
         for slot, entry in enumerate(self.slots):
             offset = entry & ROW_OFFSET_MASK
-            if offset < boundary:
+            # A dead slot is a zero-length row; one sitting exactly at the
+            # boundary belongs to the block below and moves with it
+            # (measured: six rows deleted through an index all ended up
+            # recording the same boundary).
+            dead_at_boundary = (entry & DEAD_SLOT) == DEAD_SLOT and offset == boundary
+            if offset < boundary or dead_at_boundary:
                 self._set_slot(slot, (entry & ~ROW_OFFSET_MASK) | (offset + delta))
 
     @property

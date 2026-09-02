@@ -67,7 +67,7 @@ from pyopenvba.access._props import (
     parse_property_blob,
     serialize_property_blob,
 )
-from pyopenvba.access._queries import QUERY_SELECT, QueryRow, SavedQuery, rows_from_sql
+from pyopenvba.access._queries import QueryRow, SavedQuery, rows_from_sql
 from pyopenvba.access._rows import (
     LongValueRef,
     RawRow,
@@ -115,8 +115,6 @@ RELATION_UPDATE_CASCADE = 0x100
 RELATION_DELETE_CASCADE = 0x1000
 # The three permission rows the engine gives a relationship object.
 RELATIONSHIP_ACMS = (0xF00FE, 0xFFFFF, 0xFFFFF)
-# MSysObjects.Flags on a saved action query (delete, update, append, make-table).
-QUERY_ACTION_FLAG = 0x20
 
 # MSysObjects.Flags bits Access sets on its own objects.
 FLAG_SYSTEM = 0x80000000
@@ -1129,12 +1127,24 @@ class AccessDatabase:
                 return saved
         raise AccessError(f"no query named {name!r}")
 
-    def create_query(self, name: str, sql: str, *, created: object | None = None, updated: object | None = None) -> SavedQuery:
+    def create_query(
+        self,
+        name: str,
+        sql: str,
+        *,
+        created: object | None = None,
+        updated: object | None = None,
+        owner_updated: object | None = None,
+    ) -> SavedQuery:
         """Save a query as DAO's ``CreateQueryDef`` does: the MSysQueries
         rows for ``sql`` (see :mod:`pyopenvba.access._queries` for the
         subset covered), a catalog object of type 5 under the Tables
         container carrying the two properties DAO gives every query, three
-        permission rows, and a Flags value of 32 for an action query."""
+        permission rows, and DAO's query type in Flags (0 for a select).
+        DAO stamps the row three times: ``created`` on the insert,
+        ``owner_updated`` when it sets the owner (that version's bytes
+        outlive the final one on the page) and ``updated`` with the last
+        write; each defaults to the previous."""
         import datetime as _dt
 
         if any(e.name.lower() == name.lower() for e in self.catalog()):
@@ -1142,7 +1152,8 @@ class AccessDatabase:
         rows = rows_from_sql(sql)
         now = _dt.datetime.now().replace(microsecond=0)
         when = created if isinstance(created, (_dt.datetime, float)) else now
-        when_updated = updated if isinstance(updated, (_dt.datetime, float)) else when
+        when_owner = owner_updated if isinstance(owner_updated, (_dt.datetime, float)) else when
+        when_updated = updated if isinstance(updated, (_dt.datetime, float)) else when_owner
         object_id = self._next_object_id()
         saved = SavedQuery(name, rows)
         objects = self.table("MSysObjects")
@@ -1157,19 +1168,20 @@ class AccessDatabase:
                 "DateUpdate": when,
             }
         )
-        objects.update_row(catalog_row, {"Owner": self._default_owner(), "DateUpdate": when_updated})
+        objects.update_row(catalog_row, {"Owner": self._default_owner(), "DateUpdate": when_owner})
         # DAO appends the two properties one at a time: the first blob is
         # short enough to sit inline in the row, the second moves it to a
         # long-value page, and the row's earlier, longer version leaves
-        # its bytes above the final one -- with Flags still 0, so an action
-        # query's flag arrives with the last write.
+        # its bytes above the final one -- carrying the owner step's stamp
+        # and Flags 0, so the final DateUpdate and an action query's type
+        # arrive with the last write.
         blob = PropertyBlob(block_order=[(BLOCK_OBJECT, "")])
         blob.object_properties["ODBCTimeout"] = PropertyValue(DB_INTEGER, 1, struct.pack("<h", 60))
         objects.update_row(catalog_row, {"LvProp": serialize_property_blob(blob)})
         blob.object_properties["MaxRecords"] = PropertyValue(DB_LONG, 1, struct.pack("<i", 0))
-        final: dict[str, object] = {"LvProp": serialize_property_blob(blob)}
-        if saved.type != QUERY_SELECT:
-            final["Flags"] = QUERY_ACTION_FLAG
+        final: dict[str, object] = {"LvProp": serialize_property_blob(blob), "DateUpdate": when_updated}
+        if saved.catalog_flags:
+            final["Flags"] = saved.catalog_flags
         objects.update_row(catalog_row, final)
         aces = self.table("MSysACEs")
         for ace in self._default_aces():
@@ -1189,6 +1201,31 @@ class AccessDatabase:
             )
         self._catalog = None
         return saved
+
+    def drop_query(self, name: str) -> None:
+        """Remove a saved query as ``QueryDefs.Delete`` does: its MSysQueries
+        rows, its catalog row (freeing the property blob) and its three
+        permission rows."""
+        saved = self.query(name)
+        entry = next(e for e in self.catalog() if e.type == OBJECT_QUERY and e.name == saved.name)
+        queries = self.table("MSysQueries")
+        # The rows go in the order of the (ObjectId, Attribute, Order) index
+        # the engine finds them through, which decides the bytes the page
+        # keeps after compaction.
+        by_index = queries.index("ObjectIdAttribute")
+        doomed = [RowId(page, row) for key, page, row in by_index.entries() if key[0] == entry.id]
+        for rid in doomed:
+            queries.delete_row(rid)
+        objects = self.table("MSysObjects")
+        for rid, row in list(objects.rows_with_ids()):
+            if row["Id"] == entry.id and row["Type"] == OBJECT_QUERY:
+                objects.delete_row(rid)
+                break
+        aces = self.table("MSysACEs")
+        for rid, row in list(aces.rows_with_ids()):
+            if row["ObjectId"] == entry.id:
+                aces.delete_row(rid)
+        self._catalog = None
 
     def relationships(self) -> list[Relationship]:
         """Every relationship in MSysRelationships, columns in pair order."""

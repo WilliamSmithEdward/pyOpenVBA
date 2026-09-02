@@ -82,10 +82,12 @@ All notable changes to pyOpenVBA are documented here. This project follows
   MSysQueries into `SavedQuery` objects whose `.sql` spells the Jet SQL
   back in DAO's own layout; `db.create_query(name, sql)` saves a SELECT
   (DISTINCT, DISTINCTROW, TOP, aliases, INNER/LEFT/RIGHT JOIN, WHERE,
-  GROUP BY, HAVING, ORDER BY), PARAMETERS or DELETE query as
-  `CreateQueryDef` does: the rows, the type-5 catalog object with its
-  properties and permissions. Four query shapes byte-identical to DAO in
-  the live gate.
+  GROUP BY, HAVING, ORDER BY), PARAMETERS, DELETE, UPDATE, INSERT INTO
+  ... SELECT, SELECT ... INTO or UNION query as `CreateQueryDef` does:
+  the rows, the type-5 catalog object with its properties, permissions
+  and DAO's query type in Flags; `db.drop_query(name)` removes one as
+  `QueryDefs.Delete` does. Eight query shapes and a deletion
+  byte-identical to DAO in the live gate.
 - **Properties.** `table.properties()`, `table.column_properties(name)`
   and `db.database_properties()` decode the `MR2` blob in a catalog row's
   LvProp (Description, Caption, Format, ColumnWidth, the database's own

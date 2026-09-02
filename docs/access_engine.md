@@ -252,7 +252,10 @@ the engine finds the same rows it does today.
   DAO's ODBCTimeout (Integer 60) and MaxRecords (Long 0), appended one at
   a time so the first blob sits inline in the row before the second
   moves it to a long-value page; an action query's flag comes with that
-  last write. Its definition is a set of MSysQueries rows (`ObjectId,
+  last write, and so does the final DateUpdate. The row is stamped three
+  times in all: at the insert, when the owner is set (that version's
+  bytes outlive the final one) and with the last write, which is why
+  `create_query` takes `created`, `owner_updated` and `updated`. Its definition is a set of MSysQueries rows (`ObjectId,
   Attribute, Order, Name1, Name2, Expression, Flag`), `Order` a four-byte
   big-endian sequence per attribute, inserted in this order: attribute 0
   (Flag 0), 255 (the end marker), 1 (the type: 5 delete, 4 update, 3
@@ -264,8 +267,24 @@ the engine finds the same rows it does today.
   (Flag 0), 10 HAVING, 11 per ORDER BY expression (Name1 `d` for DESC),
   and last 3 when the select flags are not 0 (0x01 `*`, 0x02 DISTINCT,
   0x04 DISTINCTROW, 0x10 TOP with the count in Name1). Expressions are
-  stored as written. `_queries.py` turns that subset of Jet SQL into
-  rows and back.
+  stored as written. Action queries measured too: UPDATE puts the type
+  row (Flag 4) and the table before one attribute-6 row per SET item
+  (Name2 the column, Expression the value); INSERT INTO ... SELECT puts
+  the type row (Flag 3, Name1 the target table) first, then attribute-6
+  rows with the target column in Name2 and the source expression, then
+  the source tables; SELECT ... INTO puts the type row (Flag 2, Name1 the
+  new table) after the columns; a UNION stores each member SELECT
+  verbatim (the first keeping its trailing space) as attribute-5 rows
+  named `X7YZ_____1`, `X7YZ_____2`, ... around a type row of 9, with a
+  flags row of 3. The catalog Flags is DAO's QueryDefTypeEnum: 32 delete,
+  48 update, 64 append, 80 make-table, 128 union. `QueryDefs.Delete`
+  removes the rows, the catalog object (freeing its blob) and the three
+  permission rows, deleting the rows in the order of the (ObjectId,
+  Attribute, Order) index; that order showed in the page's compaction
+  residue, and the dead slots it left, all recording one boundary,
+  showed that a dead slot sitting exactly at a later compaction boundary
+  moves with the block below it. `_queries.py` turns that subset of Jet
+  SQL into rows and back.
 * **Properties** live in the catalog row's `LvProp` long value as an
   `MR2` blob, measured on a blob DAO wrote (table Description, field
   Caption and Description) and confirmed on all 17 Access-authored blobs
@@ -434,6 +453,6 @@ the engine finds the same rows it does today.
 | 3b | large files: usage maps growing past 512 pages | done for inline maps (growth and re-base as the engine does); the reference form is read but not yet written |
 | 5 | write schema: create/drop table, create index, catalog rows | done: `create_table`, `create_index`, `drop_table`; byte-identical to the engine's CREATE TABLE, CREATE INDEX and DROP TABLE on every page but page 0; the engine inserts into, reads and compacts a table pyOpenVBA created; definitions over one page (up to the 255-column limit) are chained and rewritten as the engine does, byte-identical. Not yet: a second map page, navigation-pane rows (the Access layer adds those itself) |
 | 6 | VBA project through the writer: module create/rename/delete | |
-| 7 | queries (`MSysQueries` to SQL and back), relationships, properties | relationships done: `create_relationship` / `drop_relationship` / `relationships()`, byte-identical to the engine's ADD CONSTRAINT ... FOREIGN KEY for a first and a second relationship on one parent and to DROP CONSTRAINT (live gate). Properties done: `table.properties()`, `column_properties()`, `set_properties()`, `db.database_properties()`; DAO's three property appends reproduced byte for byte (live gate). Queries done for the SELECT / PARAMETERS / DELETE subset: `db.queries()`, `db.query()`, `db.create_query(name, sql)`; four CreateQueryDef calls reproduced byte for byte (live gate). Not yet: UPDATE / APPEND / MAKE TABLE / crosstab / UNION / pass-through queries, dropping a query, subqueries in the parser |
+| 7 | queries (`MSysQueries` to SQL and back), relationships, properties | relationships done: `create_relationship` / `drop_relationship` / `relationships()`, byte-identical to the engine's ADD CONSTRAINT ... FOREIGN KEY for a first and a second relationship on one parent and to DROP CONSTRAINT (live gate). Properties done: `table.properties()`, `column_properties()`, `set_properties()`, `db.database_properties()`; DAO's three property appends reproduced byte for byte (live gate). Queries done for SELECT, PARAMETERS, DELETE, UPDATE, INSERT INTO ... SELECT, SELECT ... INTO and UNION: `db.queries()`, `db.query()`, `db.create_query(name, sql)`, `db.drop_query(name)`; eight CreateQueryDef calls and a QueryDefs.Delete reproduced byte for byte (live gate). Not yet: crosstab and pass-through queries, subqueries in the parser |
 | 8 | forms, reports, macros: the binary object formats nobody has published | |
 | 9 | SQL executor over the engine | |

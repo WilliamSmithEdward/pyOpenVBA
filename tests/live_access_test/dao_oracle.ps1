@@ -337,6 +337,10 @@ try {
             $qd = $db.CreateQueryDef($Table, $sql)
             [Console]::Out.Write("ok")
         }
+        "delete-query" {
+            $db.QueryDefs.Delete($Table)
+            [Console]::Out.Write("ok")
+        }
         "build-simple" {
             # A small table for byte-level comparison of single edits.
             Invoke-Sql $db "CREATE TABLE Simple (Id AUTOINCREMENT PRIMARY KEY, N LONG, T TEXT(50))" $dbFailOnError

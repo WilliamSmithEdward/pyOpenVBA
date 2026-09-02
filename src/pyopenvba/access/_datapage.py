@@ -107,8 +107,9 @@ class DataPage:
             raise AccessError(f"free space {value} is impossible")
         struct.pack_into("<H", self.raw, OFFSET_PAGE_FREE_SPACE, value)
 
-    def add_row(self, row: bytes) -> int:
-        """Append a slot for ``row`` and return the slot number."""
+    def add_row(self, row: bytes, flags: int = 0) -> int:
+        """Append a slot for ``row`` and return the slot number.  ``flags``
+        is 0x8000 for a row moved here from another page."""
         if not self.fits(len(row)):
             raise AccessError(
                 f"row of {len(row)} bytes does not fit; {self.free_space} bytes free"
@@ -119,9 +120,14 @@ class DataPage:
             raise AccessError("row would overlap the slot table")
         self.raw[start : start + len(row)] = row
         struct.pack_into("<H", self.raw, OFFSET_PAGE_ROW_COUNT, slot + 1)
-        self._set_slot(slot, start)
+        self._set_slot(slot, flags | start)
         self._set_free_space(self.free_space - len(row) - 2)
         return slot
+
+    def set_flags(self, slot: int, flags: int) -> None:
+        """Replace the flag bits of a slot, keeping its offset."""
+        entry = self.slots[slot]
+        self._set_slot(slot, flags | (entry & ROW_OFFSET_MASK))
 
     def _shift_below(self, boundary: int, delta: int) -> None:
         """Move every row that starts below ``boundary`` by ``delta`` bytes
@@ -136,22 +142,29 @@ class DataPage:
             if offset < boundary:
                 self._set_slot(slot, (entry & ~ROW_OFFSET_MASK) | (offset + delta))
 
-    def remove_row(self, slot: int) -> None:
+    def remove_row(self, slot: int, *, overflow_target: bool = False) -> None:
         """Delete a row the way the engine does: close the hole and leave a
-        dead slot at the boundary."""
+        dead slot at the boundary.  Works for a plain row, an overflow
+        pointer, and -- with ``overflow_target`` -- the moved row a pointer
+        refers to, whose 0x8000 flag is not a deletion."""
         entry = self.slots[slot]
-        if entry & ROW_DELETED:
+        if entry & ROW_DELETED and not overflow_target:
             raise AccessError(f"slot {slot} is already dead")
+        if overflow_target and (entry & DEAD_SLOT) != ROW_DELETED:
+            raise AccessError(f"slot {slot} is not a moved row")
         start, end = self.span(slot)
         length = end - start
         self._shift_below(start, length)
         self._set_slot(slot, DEAD_SLOT | end)
         self._set_free_space(self.free_space + length)
 
-    def replace_row(self, slot: int, row: bytes) -> None:
+    def replace_row(self, slot: int, row: bytes, *, flags: int | None = None) -> None:
+        """Overwrite a slot's row (a plain row, a pointer, or a moved row),
+        shifting the rows below by the size change.  ``flags`` replaces
+        the slot's flag bits when given."""
         entry = self.slots[slot]
-        if entry & DEAD_SLOT:
-            raise AccessError(f"slot {slot} does not hold a plain row")
+        if (entry & DEAD_SLOT) == DEAD_SLOT:
+            raise AccessError(f"slot {slot} is dead")
         start, end = self.span(slot)
         delta = len(row) - (end - start)
         if delta > self.free_space:
@@ -161,7 +174,8 @@ class DataPage:
         if delta:
             self._shift_below(start, -delta)
             start -= delta
-            self._set_slot(slot, start)
+        new_flags = (entry & ~ROW_OFFSET_MASK) if flags is None else flags
+        self._set_slot(slot, new_flags | start)
         self.raw[start : start + len(row)] = row
         self._set_free_space(self.free_space - delta)
 

@@ -19,11 +19,17 @@ from pyopenvba.access._alloc import add_to_map, allocate_page, remove_from_map
 from pyopenvba.access._btree import BTree
 from pyopenvba.access._datapage import DataPage
 from pyopenvba.access._index import decode_key, encode_key, leaf_entries
-from pyopenvba.access._lval import read_long_value
+from pyopenvba.access._lval import (
+    free_long_value,
+    memo_bytes,
+    read_long_value,
+    write_long_value,
+)
 from pyopenvba.access._pages import (
     PAGE_DATA,
     DatabaseHeader,
     PageStore,
+    encode_row_pointer,
     page_owner,
     read_usage_map_ref,
     row_bytes,
@@ -35,6 +41,7 @@ from pyopenvba.access._pages import (
 from pyopenvba.access._rows import (
     LongValueRef,
     RawRow,
+    decode_long_value_ref,
     decode_scalar,
     decode_text,
     encode_row,
@@ -293,9 +300,9 @@ class Table:
     def _encode_values(
         self, values: dict[str, object], keep_raw: RawRow | None = None
     ) -> tuple[dict[int, bytes | None], set[int]]:
-        """Encode Python values per column number.  ``keep_raw`` is the
-        row's existing bytes: long-value columns not being changed keep
-        theirs, since those are not rewritten yet."""
+        """Encode Python values per column number and store any long
+        values.  ``keep_raw`` is the row's existing bytes: long-value
+        columns not named in ``values`` keep theirs."""
         d = self.definition
         known = {c.name.lower(): c for c in d.columns}
         for name in values:
@@ -322,9 +329,8 @@ class Table:
                 if value is None:
                     encoded[column.number] = None
                     continue
-                raise AccessError(
-                    f"column {column.name!r}: writing Memo/OLE values is not supported yet"
-                )
+                encoded[column.number] = self._store_long_value(column, value)
+                continue
             if value is None:
                 encoded[column.number] = None
                 continue
@@ -332,6 +338,50 @@ class Table:
                 column, value, compress_text=column.compressed_unicode or compress_system
             )
         return encoded, booleans
+
+    def _long_value_maps(self, column: ColumnDef) -> tuple[int, int]:
+        maps = self.definition.column_usage_maps.get(column.number)
+        if maps is None:
+            raise AccessError(f"column {column.name!r} has no long-value usage maps")
+        return maps
+
+    def _store_long_value(self, column: ColumnDef, value: object) -> bytes:
+        if column.type_code == TYPE_MEMO:
+            if not isinstance(value, str):
+                raise AccessError(f"column {column.name!r}: {value!r} is not text")
+            data = memo_bytes(value)
+        else:
+            if not isinstance(value, (bytes, bytearray)):
+                raise AccessError(f"column {column.name!r}: {value!r} is not bytes")
+            data = bytes(value)
+        if not data:
+            raise AccessError(f"column {column.name!r}: an empty long value is stored as null; pass None")
+        return write_long_value(self._db.store, self._long_value_maps(column), data, self._db.lval_stamp)
+
+    def _free_long_values(self, parts: RawRow, only: set[str] | None = None) -> None:
+        for column in self.definition.columns:
+            if not column.is_long_value or (only is not None and column.name not in only):
+                continue
+            raw = parts.values.get(column.number)
+            if raw is None:
+                continue
+            free_long_value(self._db.store, self._long_value_maps(column), decode_long_value_ref(raw))
+
+    def _check_unique(self, values: dict[str, object], exclude: RowId | None) -> None:
+        """Refuse a key another row already holds in a unique index; nulls
+        count as equal unless the index ignores them, as in the engine."""
+        for _i, real, columns in self._real_indexes():
+            if not real.unique:
+                continue
+            key = self._key(real, columns, values)
+            if key is None:
+                continue
+            for entry in leaf_entries(self._db.store, real.root_page):
+                if entry.key == key and (exclude is None or (entry.page, entry.row) != (exclude.page, exclude.slot)):
+                    names = ", ".join(c.name for c, _ in columns)
+                    raise AccessError(f"table {self.name!r}: duplicate value in unique index ({names})")
+                if entry.key > key:
+                    break
 
     def insert_row(self, values: dict[str, object]) -> RowId:
         """Add a row.  AutoNumber columns are assigned; every other column
@@ -344,6 +394,7 @@ class Table:
                 values[column.name] = d.next_autonumber + 1
                 d.next_autonumber += 1
                 db.patch_definition(d, OFFSET_NEXT_AUTONUMBER, struct.pack("<I", d.next_autonumber & 0xFFFFFFFF))
+        self._check_unique({c.name: values.get(c.name) for c in d.columns}, exclude=None)
         encoded, booleans = self._encode_values(values)
         row = encode_row(d, encoded, booleans)
         page_number = self._page_with_room(len(row))
@@ -367,20 +418,36 @@ class Table:
         db.patch_definition(d, OFFSET_ROW_COUNT, struct.pack("<I", d.row_count))
         return RowId(page_number, slot)
 
+    def _moved_to(self, row_id: RowId) -> tuple[int, int] | None:
+        """Where a row lives when its home slot is an overflow pointer."""
+        raw_page = self._db.store.read(row_id.page)
+        entry = row_slots(raw_page)[row_id.slot]
+        if not entry & ROW_OVERFLOW or entry & ROW_DELETED:
+            return None
+        pointer = row_bytes(raw_page, row_id.slot)
+        if pointer is None:
+            return None
+        target_row, target_page = row_pointer(pointer)
+        return target_page, target_row
+
     def delete_row(self, row_id: RowId) -> None:
         db = self._db
         d = self.definition
         data = self.fetch_row(row_id.page, row_id.slot)
         if data is None:
             raise AccessError(f"row ({row_id.page}, {row_id.slot}) is not live")
-        entry = row_slots(db.store.read(row_id.page))[row_id.slot]
-        if entry & ROW_OVERFLOW:
-            raise AccessError("deleting a row that moved to an overflow page is not supported yet")
-        values = self.decode(split_row(d, data))
+        parts = split_row(d, data)
+        values = self.decode(parts)
         for i, real, columns in self._real_indexes():
             key = self._key(real, columns, values)
             if key is not None:
                 self._btree(i, real).delete(key, row_id.page, row_id.slot)
+        self._free_long_values(parts)
+        moved = self._moved_to(row_id)
+        if moved is not None:
+            target = DataPage(db.store.read(moved[0]))
+            target.remove_row(moved[1], overflow_target=True)
+            db.store.write(moved[0], target.to_bytes())
         page = DataPage(db.store.read(row_id.page))
         page.remove_row(row_id.slot)
         db.store.write(row_id.page, page.to_bytes())
@@ -388,36 +455,34 @@ class Table:
         db.patch_definition(d, OFFSET_ROW_COUNT, struct.pack("<I", d.row_count))
 
     def update_row(self, row_id: RowId, changes: dict[str, object]) -> None:
-        """Change the given columns of one row; the rest keep their values."""
+        """Change the given columns of one row; the rest keep their values.
+        A row that no longer fits its page moves to another page behind an
+        overflow pointer, and moves back when it fits again, as the engine
+        does."""
         db = self._db
         d = self.definition
         data = self.fetch_row(row_id.page, row_id.slot)
         if data is None:
             raise AccessError(f"row ({row_id.page}, {row_id.slot}) is not live")
-        entry = row_slots(db.store.read(row_id.page))[row_id.slot]
-        if entry & ROW_OVERFLOW:
-            raise AccessError("updating a row that moved to an overflow page is not supported yet")
         parts = split_row(d, data)
         old_values = self.decode(parts)
         new_values = dict(old_values)
-        changed: dict[str, object] = {}
+        changed: set[str] = set()
         for name, value in changes.items():
             matched = [c for c in d.columns if c.name.lower() == name.lower()]
             if not matched:
                 raise AccessError(f"table {self.name!r} has no column {name!r}")
             new_values[matched[0].name] = value
-            changed[matched[0].name] = value
-        # Unchanged long values keep their stored bytes; everything else is
-        # re-encoded from the decoded values.
+            changed.add(matched[0].name)
+        # Unchanged long values keep their stored bytes; changed ones give
+        # back their old storage and are stored afresh.
+        self._check_unique(new_values, exclude=row_id)
         for column in d.columns:
             if column.is_long_value and column.name not in changed:
                 new_values.pop(column.name, None)
+        self._free_long_values(parts, only=changed)
         encoded, booleans = self._encode_values(new_values, keep_raw=parts)
         row = encode_row(d, encoded, booleans)
-        page = DataPage(db.store.read(row_id.page))
-        start, end = page.span(row_id.slot)
-        if len(row) - (end - start) > page.free_space:
-            raise AccessError("the updated row no longer fits its page; overflow rows are not written yet")
         for i, real, columns in self._real_indexes():
             old_key = self._key(real, columns, old_values)
             new_key = self._key(real, columns, new_values)
@@ -431,9 +496,52 @@ class Table:
                 db.patch_definition(
                     d, OFFSET_INDEX_HEADERS + i * SIZE_REAL_INDEX_HEADER + 4, struct.pack("<I", real.entry_count)
                 )
-        page = DataPage(db.store.read(row_id.page))
-        page.replace_row(row_id.slot, row)
-        db.store.write(row_id.page, page.to_bytes())
+        self._place_row(row_id, row)
+
+    def _place_row(self, row_id: RowId, row: bytes) -> None:
+        """Store a row's new bytes: in its home slot when they fit, else on
+        another page behind an overflow pointer."""
+        db = self._db
+        home = DataPage(db.store.read(row_id.page))
+        moved = self._moved_to(row_id)
+        start, end = home.span(row_id.slot)
+        if moved is None:
+            if len(row) - (end - start) <= home.free_space:
+                home.replace_row(row_id.slot, row)
+                db.store.write(row_id.page, home.to_bytes())
+                return
+            target_page = self._page_with_room(len(row), exclude=row_id.page)
+            target = DataPage(db.store.read(target_page))
+            target_slot = target.add_row(row, flags=ROW_DELETED)
+            db.store.write(target_page, target.to_bytes())
+            home = DataPage(db.store.read(row_id.page))
+            home.replace_row(row_id.slot, encode_row_pointer(target_page, target_slot), flags=ROW_OVERFLOW)
+            db.store.write(row_id.page, home.to_bytes())
+            return
+        target_page, target_slot = moved
+        if len(row) - (end - start) <= home.free_space:
+            # It fits at home again: bring it back and drop the copy.
+            home.replace_row(row_id.slot, row, flags=0)
+            db.store.write(row_id.page, home.to_bytes())
+            target = DataPage(db.store.read(target_page))
+            target.remove_row(target_slot, overflow_target=True)
+            db.store.write(target_page, target.to_bytes())
+            return
+        target = DataPage(db.store.read(target_page))
+        t_start, t_end = target.span(target_slot)
+        if len(row) - (t_end - t_start) <= target.free_space:
+            target.replace_row(target_slot, row)
+            db.store.write(target_page, target.to_bytes())
+            return
+        target.remove_row(target_slot, overflow_target=True)
+        db.store.write(target_page, target.to_bytes())
+        new_page = self._page_with_room(len(row), exclude=row_id.page)
+        landing = DataPage(db.store.read(new_page))
+        new_slot = landing.add_row(row, flags=ROW_DELETED)
+        db.store.write(new_page, landing.to_bytes())
+        home = DataPage(db.store.read(row_id.page))
+        home.replace_row(row_id.slot, encode_row_pointer(new_page, new_slot), flags=ROW_OVERFLOW)
+        db.store.write(row_id.page, home.to_bytes())
 
     def _key(self, real: RealIndex, columns: list[tuple[ColumnDef, bool]], values: dict[str, object]) -> bytes | None:
         key_values = [values.get(c.name) for c, _ in columns]
@@ -451,15 +559,17 @@ class Table:
 
         return BTree(store, real.root_page, self.definition.page, allocate)
 
-    def _page_with_room(self, row_length: int) -> int:
+    def _page_with_room(self, row_length: int, exclude: int | None = None) -> int:
         """A data page that can take the row, the way the engine picks one:
         the free-space map's pages in order, dropping any that cannot hold
         it, else a fresh page registered with both maps."""
         db = self._db
         d = self.definition
+        if row_length + 2 > DataPage.new(d.page).free_space:
+            raise AccessError(f"a row of {row_length} bytes cannot fit a page")
         free_map = read_usage_map_ref(db.store, d.free_space_pages_ref)
         for candidate in free_map.pages():
-            if candidate >= db.store.page_count:
+            if candidate >= db.store.page_count or candidate == exclude:
                 continue
             raw = db.store.read(candidate)
             if raw[0] != PAGE_DATA or page_owner(raw) != d.page:
@@ -488,6 +598,9 @@ class AccessDatabase:
         self.header = DatabaseHeader.from_page(self.store.read(0))
         self._catalog: list[CatalogEntry] | None = None
         self._definitions: dict[int, TableDefinition] = {}
+        # The engine stamps a chained long value's definition and its first
+        # page with one value per session; any value works if both match.
+        self.lval_stamp = 0x00500000 | (self.store.page_count & 0xFFFF)
 
     def __enter__(self) -> AccessDatabase:
         return self

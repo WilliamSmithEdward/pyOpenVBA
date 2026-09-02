@@ -40,8 +40,14 @@ All notable changes to pyOpenVBA are documented here. This project follows
   maps. `AccessDatabase.save()` writes the file. Verified live: the ACE
   engine reads back every row pyOpenVBA wrote across all scalar column
   types, keeps working with the table, and compacts the database; a
-  single insert and delete are byte-identical to the engine's own. Not
-  yet written: Memo/OLE values and rows that outgrow their page.
+  single insert and delete are byte-identical to the engine's own.
+- **Memo and OLE values are written** in the storage kind the engine
+  would choose -- inline, one row on a shared long-value page, or a
+  chain of pages -- and freed when replaced or deleted; a row that
+  outgrows its page moves behind an overflow pointer and comes back
+  when it fits. A duplicate key in a unique index is refused. All of it
+  read back by the engine live; single-page and chained memo inserts
+  byte-identical to its own.
 
 ## [3.5.1] - 2026-08-31
 

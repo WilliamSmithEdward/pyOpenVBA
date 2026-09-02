@@ -286,6 +286,17 @@ try {
             Invoke-Sql $db "DELETE FROM Simple WHERE Id = $Rows" $dbFailOnError
             [Console]::Out.Write("ok")
         }
+        "build-memos" {
+            Invoke-Sql $db "CREATE TABLE Memos (Id AUTOINCREMENT PRIMARY KEY, T TEXT(50), M LONGTEXT, O IMAGE)" $dbFailOnError
+            for ($i = 1; $i -le 3; $i++) { Invoke-Sql $db "INSERT INTO Memos (T) VALUES ('row $i')" $dbFailOnError }
+            [Console]::Out.Write("ok")
+        }
+        "insert-memo" {
+            # -Rows is the memo length in characters.
+            $text = New-Object string ([char]97, $Rows)
+            Invoke-Sql $db "INSERT INTO Memos (T, M) VALUES ('memo $Rows', '$text')" $dbFailOnError
+            [Console]::Out.Write("ok")
+        }
         "insert-alltypes-more" {
             # Rows the engine adds after pyOpenVBA wrote: proof it can still
             # work with the structures.

@@ -245,6 +245,100 @@ def test_engine_reads_rows_pyopenvba_wrote(tmp_path: Path) -> None:
     _check_indexes(compacted)
 
 
+def test_engine_reads_long_values_and_moved_rows_pyopenvba_wrote(tmp_path: Path) -> None:
+    """Memo and OLE values of every storage kind, and a row that outgrew
+    its page, written by pyOpenVBA and read back by the engine."""
+    target = tmp_path / "memos.accdb"
+    shutil.copy(TEMPLATE, target)
+    assert oracle("-Command", "build-memos", "-Path", str(target)) == "ok"
+    db = AccessDatabase(target)
+    table = db.table("Memos")
+    memos: dict[str, tuple[str | None, bytes | None]] = {
+        "inline": ("short and sweet", bytes(range(50))),
+        "inline unicode": ("Привет 日本 мир", None),
+        "single": ("s" * 1200 + " end", bytes(range(256)) * 8),
+        "chained": ("c" * 6000 + " end", bytes(range(256)) * 30),
+        "chained long": ("L" * 30000 + " end", None),
+        "nulls": (None, None),
+    }
+    for label, (memo, blob) in memos.items():
+        table.insert_row({"T": label, "M": memo, "O": blob})
+    ids = {str(r["T"]): rid for rid, r in table.rows_with_ids()}
+    table.update_row(ids["single"], {"M": "replaced with a chained value " * 400})
+    table.update_row(ids["chained"], {"M": "now inline"})
+    table.delete_row(ids["chained long"])
+    db.save()
+
+    expected = json.loads(oracle("-Command", "dump", "-Path", str(target), "-Table", "Memos"))
+    assert isinstance(expected, str)
+    mine = _engine_dump(AccessDatabase(target), "Memos")
+    mismatches = _diff(expected, mine)
+    assert not mismatches, f"{len(mismatches)} rows differ\n" + "\n".join(m[:400] for m in mismatches[:3])
+    lines = {line.split("\t")[1]: line for line in expected.split("\n")}
+    assert lines["T=inline"].split("\t")[2] == "M=short and sweet"
+    assert lines["T=inline unicode"].split("\t")[2] == "M=" + "Привет 日本 мир"
+    assert lines["T=single"].split("\t")[2] == "M=" + "replaced with a chained value " * 400
+    assert lines["T=chained"].split("\t")[2] == "M=now inline"
+    assert lines["T=chained"].split("\t")[3] == "O=" + (bytes(range(256)) * 30).hex()
+    assert "T=chained long" not in lines
+    assert lines["T=nulls"].split("\t")[2:] == ["M=<null>", "O=<null>"]
+
+    # A row grown past its page's free space, then the engine's view of it.
+    simple = tmp_path / "grown.accdb"
+    shutil.copy(TEMPLATE, simple)
+    assert oracle("-Command", "build-simple", "-Path", str(simple)) == "ok"
+    db = AccessDatabase(simple)
+    table = db.table("Simple")
+    home = table.data_pages()[0]
+    while table.insert_row({"N": 1, "T": "filler " * 6}).page == home:
+        pass
+    rid = next(rid for rid, r in table.rows_with_ids() if r["Id"] == 2)
+    table.update_row(rid, {"T": "this row grew and had to move elsewhere"})
+    db.save()
+    dumped = json.loads(oracle("-Command", "dump", "-Path", str(simple), "-Table", "Simple"))
+    assert isinstance(dumped, str)
+    assert "Id=2\tN=20\tT=this row grew and had to move elsewhere" in dumped
+    assert _diff(dumped, _engine_dump(AccessDatabase(simple), "Simple")) == []
+    assert oracle("-Command", "compact", "-Path", str(simple)) == "ok"
+
+
+def test_memo_inserts_match_the_engine_byte_for_byte(tmp_path: Path) -> None:
+    """A single-page and a chained memo written by pyOpenVBA against the
+    engine's own, page for page.  The chained value carries a per-session
+    stamp in its definition and on its first page, which is masked."""
+    for chars in (200, 3000):
+        base = tmp_path / f"memo{chars}.accdb"
+        shutil.copy(TEMPLATE, base)
+        assert oracle("-Command", "build-memos", "-Path", str(base)) == "ok"
+        theirs = tmp_path / f"theirs{chars}.accdb"
+        shutil.copy(base, theirs)
+        assert oracle("-Command", "insert-memo", "-Path", str(theirs), "-Rows", str(chars)) == "ok"
+        db = AccessDatabase(base)
+        db.table("Memos").insert_row({"T": f"memo {chars}", "M": "a" * chars})
+        ours = bytearray(db.to_bytes())
+        engine = bytearray(theirs.read_bytes())
+        assert len(ours) == len(engine)
+        if chars == 3000:
+            # Mask the stamp: 4 bytes in the row's definition and 4 at
+            # offset 8 of the first LVAL page.
+            for blob in (ours, engine):
+                for n in range(1, len(blob) // 4096):
+                    page = blob[n * 4096 : (n + 1) * 4096]
+                    if page[0] == 1 and bytes(page[4:8]) == b"LVAL":
+                        blob[n * 4096 + 8 : n * 4096 + 12] = b"\0\0\0\0"
+                for n in range(1, len(blob) // 4096):
+                    page = blob[n * 4096 : (n + 1) * 4096]
+                    marker = b"\x70\x17\x00\x00"  # length 6000, kind chained
+                    pos = page.find(marker)
+                    if pos >= 0:
+                        blob[n * 4096 + pos + 8 : n * 4096 + pos + 12] = b"\0\0\0\0"
+        different = [
+            n for n in range(1, len(ours) // 4096)
+            if ours[n * 4096 : (n + 1) * 4096] != engine[n * 4096 : (n + 1) * 4096]
+        ]
+        assert not different, f"{chars}-char memo: pages differ from the engine's: {different}"
+
+
 def test_single_insert_matches_the_engine_byte_for_byte(tmp_path: Path) -> None:
     """The same row inserted by the engine and by pyOpenVBA into copies of
     one database must leave identical pages -- page 0 aside, where the

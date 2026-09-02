@@ -102,7 +102,7 @@ def test_data_page_layout_matches_the_engine() -> None:
 # --- inserting, updating, deleting ---------------------------------------------------
 
 
-def _check_indexes(table: Table) -> None:
+def check_indexes(table: Table) -> None:
     db = table.database
     rows: dict[tuple[int, int], dict[str, object]] = {}
     for page, slot, data in table.raw_rows():
@@ -158,7 +158,7 @@ def test_insert_assigns_autonumber_and_indexes_the_row(tmp_path: Path) -> None:
     assert len(rows) == 4 and table.row_count == 4
     assert rows[-1] == {"ID": 4, "Field1": "written by pyOpenVBA"}
     assert table.definition.next_autonumber == 4
-    _check_indexes(table)
+    check_indexes(table)
     # The text went in compressed, as the column asks.
     raw = table.fetch_row(row_id.page, row_id.slot)
     assert raw is not None and b"\xff\xfewritten" in raw
@@ -177,7 +177,7 @@ def test_update_and_delete(tmp_path: Path) -> None:
     rows = {r["ID"]: r["Field1"] for r in table.rows()}
     assert rows == {1: "TEST1", 2: "second, edited"}
     assert table.row_count == 2
-    _check_indexes(table)
+    check_indexes(table)
     # The deleted row's slot is dead at its boundary, engine style.
     page = DataPage(again.store.read(ids[3].page))
     assert page.slots[ids[3].slot] & 0xC000 == 0xC000
@@ -214,7 +214,7 @@ def test_many_inserts_allocate_pages_and_split_indexes(tmp_path: Path) -> None:
     root = parse_index_page(again.store, pk.real.root_page)
     assert not root.is_leaf, "1503 nine-byte entries need more than one leaf"
     assert [r["ID"] for r in pk.rows()] == list(range(1, 1504))
-    _check_indexes(table)
+    check_indexes(table)
     # Every data page is either in the free-space map or full enough to be out of it.
     from pyopenvba.access._pages import read_usage_map_ref
 
@@ -244,16 +244,13 @@ def test_random_order_keys_split_in_the_middle(tmp_path: Path) -> None:
         assert isinstance(r["ID"], int)
         ids.append(r["ID"])
     assert ids == sorted(ids) and len(ids) == 1203
-    _check_indexes(table)
+    check_indexes(table)
 
 
 def test_writes_refuse_what_is_not_supported_yet() -> None:
     db = AccessDatabase(LARGE)
     with pytest.raises(AccessError):
         db.table("Table1").insert_row({"NoSuchColumn": 1})
-    objects = db.table("MSysObjects")
-    with pytest.raises(AccessError):
-        objects.insert_row({"Name": "x", "LvProp": b"long value"})
     with pytest.raises(AccessError):
         db.table("Table1").delete_row(RowId(page=db.table("Table1").data_pages()[0], slot=99))
     assert struct.calcsize("<I") == 4

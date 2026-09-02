@@ -183,6 +183,28 @@ the engine finds the same rows it does today.
   and a single delete written by pyOpenVBA are byte-identical to the
   engine's own on every page but page 0.
 
+* **Long values** (Memo and OLE), measured by inserting values of every
+  size through the engine. Up to 64 bytes of value live inline behind the
+  12-byte definition (kind `0x80`); up to 3816 bytes go as one row on an
+  LVAL page shared by the column's values (kind `0x40`, the page chosen
+  from the column's free-space map, a fresh page otherwise); anything
+  longer is a chain (kind `0x00`) of 4072-byte payloads, each behind a
+  4-byte next pointer, one chunk per fresh page. Memo text is compressed
+  inline when that is shorter (a one-character memo is not) and stored
+  uncompressed outside the row, whatever the column's compression flag.
+  A chained value's definition ends in a 4-byte stamp that also sits at
+  offset 8 of its first page; the engine uses one stamp per session and
+  the file reads fine with any stamp as long as the two match. Clearing
+  or deleting a chained value releases its pages to the global map and
+  drops them from the column's owned map, content left in place; a
+  single-page value is tombstoned on its LVAL page.
+* **Overflow rows.** When an updated row no longer fits its page, the
+  engine writes it as a row on a page from the table's free-space map
+  with slot flag `0x8000`, and replaces the row at home with a 4-byte
+  pointer (row byte, three-byte page) under flag `0x4000`; index entries
+  keep pointing at the home slot. When it shrinks enough it comes home and
+  the copy is tombstoned; deleting it tombstones both slots.
+
 ## Alternatives considered
 
 * **Drive Access through COM at runtime.** Breaks the library's one hard
@@ -209,7 +231,7 @@ the engine finds the same rows it does today.
 |---|---|---|
 | 1 | pages, header, usage maps, definitions, rows, long values, catalog | reading. Every table in every authored fixture decodes; the live gate matches ACE field for field on all 16 column types, null rows, chained 5000-character memos and a 151-column definition spanning two pages |
 | 2 | indexes: walk B-trees, decode entries, sort keys for every type | done for reading. Every index on every fixture and on the live 1500-row table checks out, and `encode_key` rebuilds all 25 500 of its entries from the row values, text included |
-| 3 | write rows: insert/update/delete, free-space and owned-page maps, LVAL allocation, counters | insert, update and delete work for every scalar type, with page allocation and all counters; the engine reads the result, keeps working on it and compacts it. Not yet: Memo/OLE values, rows that outgrow their page (overflow) |
+| 3 | write rows: insert/update/delete, free-space and owned-page maps, LVAL allocation, counters | done: every column type including Memo/OLE of every storage kind, overflow rows, unique-index enforcement, page allocation and all counters; the engine reads the result, keeps working on it and compacts it; single edits and memo inserts byte-identical to the engine's |
 | 4 | write indexes: key encoding from the engine-generated collation table, B-tree insert and split | done: entries inserted and removed, pages compressed when full and split, root pinned; single edits byte-identical to the engine |
 | 5 | write schema: create/drop table, catalog rows, permissions, navigation pane rows | |
 | 6 | VBA project through the writer: module create/rename/delete | |

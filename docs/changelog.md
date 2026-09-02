@@ -58,6 +58,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
   engine's own, and the engine inserts into, reads and compacts a table
   pyOpenVBA created. `pyopenvba.access` exports `AccessDatabase`,
   `Table`, `Index`, `RowId`, `ColumnSpec`, `IndexSpec`.
+- `AccessDatabase.create_new(path)` writes a blank database from the
+  embedded Access-authored template; `AccessDatabase`, `ColumnSpec` and
+  `IndexSpec` are exported from the package root, and the README has a
+  section on writing Access tables without Office.
 - **Files grow past 512 pages** the way the engine grows them: inline
   usage maps enlarge their bitmaps in 8-byte steps, an empty map is
   re-based to its first page, and the global map is extended a step at

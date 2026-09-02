@@ -14,11 +14,14 @@ Public API
 ----------
     from pyopenvba import (
         ExcelFile, WordFile, PowerPointFile, AccessReader,
+        AccessDatabase, ColumnSpec, IndexSpec,
         pull, push, pull_word, push_word, pull_ppt, push_ppt,
         pull_access,
     )
 
-    # Access (.accdb) is READ-ONLY. See docs/msaccess_lessons_learned.md.
+    # Access VBA is READ-ONLY (docs/msaccess_lessons_learned.md); tables,
+    # indexes and rows are read and written by AccessDatabase, a pure
+    # Python Jet 4 / ACE storage engine (docs/access_engine.md).
 
     # In-process module edit (Excel)
     with ExcelFile("workbook.xlsm") as wb:
@@ -53,6 +56,7 @@ Public API
 
 from pathlib import Path
 
+from pyopenvba.access import AccessDatabase, ColumnSpec, IndexSpec
 from pyopenvba.access_read import AccessReader
 from pyopenvba.excel import ExcelFile
 from pyopenvba.exceptions import (
@@ -188,11 +192,14 @@ def pull_access(
 
 
 __all__ = [
+    "AccessDatabase",
     "AccessReader",
     "CFBError",
+    "ColumnSpec",
     "ExcelFile",
     "FormControl",
     "FormParseError",
+    "IndexSpec",
     "PowerPointFile",
     "PyOpenVBAError",
     "Size",

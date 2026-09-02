@@ -191,6 +191,33 @@ def test_create_index_on_a_populated_table(tmp_path: Path) -> None:
         db.create_index("Idx", IndexSpec("IX_N", ("N",)))
 
 
+def test_create_new_gives_a_database_the_engine_would_recognize(tmp_path: Path) -> None:
+    import pyopenvba
+
+    path = tmp_path / "fresh" / "new.accdb"
+    with pyopenvba.AccessDatabase.create_new(path) as db:
+        assert db.header.version == 2 and db.table_names() == []
+        table = db.create_table("T", [pyopenvba.ColumnSpec("Id", "Long", autonumber=True), pyopenvba.ColumnSpec("N", "Text")], [pyopenvba.IndexSpec("PK", ("Id",), primary=True)])
+        table.insert_row({"N": "one"})
+        db.save()
+    again = AccessDatabase(path)
+    assert [r["N"] for r in again.table("T").rows()] == ["one"]
+    assert path.read_bytes()[4:20] == b"Standard ACE DB\x00"
+
+
+def test_currency_rounds_half_even_to_four_places(tmp_path: Path) -> None:
+    db = AccessDatabase(TEMPLATE)
+    table = db.create_table("Money", [ColumnSpec("Id", "Long", autonumber=True), ColumnSpec("Cash", "Currency")], created=WHEN)
+    for value in (19.99, 0.00005, 0.00015, Decimal("1.23456"), 7, Decimal("-922337203685477.5807")):
+        table.insert_row({"Cash": value})
+    assert [r["Cash"] for r in table.rows()] == [
+        Decimal("19.99"), Decimal("0"), Decimal("0.0002"), Decimal("1.2346"), Decimal("7"), Decimal("-922337203685477.5807"),
+    ]
+    for bad in (float("nan"), Decimal("Infinity"), 10**15, "1.00"):
+        with pytest.raises(AccessError):
+            table.insert_row({"Cash": bad})
+
+
 def test_bad_specs_are_refused() -> None:
     db = AccessDatabase(TEMPLATE)
     with pytest.raises(AccessError):

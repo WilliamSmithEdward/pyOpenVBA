@@ -625,6 +625,20 @@ class AccessDatabase:
     def __exit__(self, *_exc: object) -> None:
         return None
 
+    @classmethod
+    def create_new(cls, path: str | Path) -> AccessDatabase:
+        """Write a blank ``.accdb`` at ``path`` and open it.  The bytes are
+        a template Access authored itself (the same one
+        :meth:`pyopenvba.AccessReader.create_new` uses, holding one empty
+        module), so the engine and Access open the result as their own.
+        ``path`` is overwritten if it exists."""
+        from pyopenvba._templates import EMPTY_ACCDB_BYTES
+
+        target = Path(path)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(EMPTY_ACCDB_BYTES)
+        return cls(target)
+
     # -- persistence -------------------------------------------------------------
 
     def to_bytes(self) -> bytes:

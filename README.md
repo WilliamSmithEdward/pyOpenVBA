@@ -156,8 +156,48 @@ with AccessReader("database.accdb") as db:
 ```
 
 Excel, Word, and PowerPoint share the same read/write API:
-`module_names()`, `get_module()`, `set_module()`, `save()`. Access is
+`module_names()`, `get_module()`, `set_module()`, `save()`. Access VBA is
 currently read-only and exposes `vba_modules()` and `get_module()`.
+
+### Access tables, no Office required
+
+`AccessDatabase` is a pure-Python implementation of the Jet 4 / ACE
+storage engine: it reads and writes the database itself, not just its
+VBA. Every edit reproduces what the engine writes, page for page.
+
+```python
+import datetime as dt
+from pyopenvba import AccessDatabase, ColumnSpec, IndexSpec
+
+with AccessDatabase.create_new("orders.accdb") as db:
+    orders = db.create_table(
+        "Orders",
+        [
+            ColumnSpec("Id", "Long", autonumber=True),
+            ColumnSpec("Customer", "Text", size=80),
+            ColumnSpec("Placed", "DateTime"),
+            ColumnSpec("Total", "Currency"),
+            ColumnSpec("Notes", "Memo"),
+        ],
+        [IndexSpec("PrimaryKey", ("Id",), primary=True), IndexSpec("ByCustomer", ("Customer",))],
+    )
+    orders.insert_row({"Customer": "Ada", "Placed": dt.datetime(2026, 9, 2, 9, 30), "Total": 19.99})
+    row_id, row = next(orders.rows_with_ids())
+    orders.update_row(row_id, {"Notes": "first order"})
+    db.save()
+
+with AccessDatabase("orders.accdb") as db:
+    print(db.table_names())                       # ['Orders']
+    for row in db.table("Orders").index("ByCustomer").rows():
+        print(row["Customer"], row["Total"], row["Notes"])
+```
+
+Every column type is covered (Boolean through BigInt, Decimal, GUID,
+Memo and OLE), indexes are maintained on every write, and files grow
+past their first 512 pages the way the engine grows them. What it does
+not do yet is listed in
+[docs/access_engine.md](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/docs/access_engine.md),
+along with every format rule and how it was measured.
 
 ---
 
@@ -437,13 +477,14 @@ returning a partly-guessed control list.
 | `.potm`   | Macro-enabled template       |  yes |  yes  |    no      |
 | `.ppt`    | Legacy (PowerPoint 97-2003)  |  yes |  yes  |    no      |
 
-### Access (read-only)
+### Access
 
 | Extension | What it is                   | Read | Write | create_new |
 |-----------|------------------------------|:----:|:-----:|:----------:|
-| `.accdb`  | Access database (ACE engine) |  yes |  no   |    no      |
+| `.accdb`  | Access database (ACE engine) | tables, indexes, VBA | tables, indexes, rows (`AccessDatabase`); VBA no | yes |
+| `.mdb`    | Access database (Jet 4)      | tables, indexes, VBA | tables, indexes, rows | no |
 
-Access stores compiled VBA p-code (the `rU@` + `CAFE` rows in the LVAL
+The VBA side stays read-only. Access stores compiled VBA p-code (the `rU@` + `CAFE` rows in the LVAL
 catalog) separately from the OVBA source cache. The compiled p-code is
 authoritative for the Access GUI; mutations to the source cache do not
 survive reload because Access never recompiles from the cache. After

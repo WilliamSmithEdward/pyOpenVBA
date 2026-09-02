@@ -23,7 +23,7 @@ import datetime as _dt
 import struct
 import uuid
 from dataclasses import dataclass
-from decimal import Decimal
+from decimal import ROUND_HALF_EVEN, Decimal
 
 from pyopenvba.access_read import AccessError
 from pyopenvba.access._tdef import (
@@ -252,9 +252,17 @@ def encode_scalar(column: ColumnDef, value: object, *, compress_text: bool) -> b
             raise AccessError(f"column {name!r}: {value!r} is not a BigInt")
         return struct.pack("<q", value)
     if code == TYPE_MONEY:
-        if not isinstance(value, (int, Decimal)):
+        # Currency is a scaled 64-bit integer with four decimals.  A float
+        # goes through its shortest repr and rounds half-even, which is
+        # what CCur does to a Double.
+        if isinstance(value, float):
+            value = Decimal(repr(value))
+        if not isinstance(value, (int, Decimal)) or (isinstance(value, Decimal) and not value.is_finite()):
             raise AccessError(f"column {name!r}: {value!r} is not Currency")
-        return struct.pack("<q", int(Decimal(value).scaleb(4)))
+        scaled = int(Decimal(value).quantize(Decimal("0.0001"), rounding=ROUND_HALF_EVEN).scaleb(4))
+        if not -(1 << 63) <= scaled < 1 << 63:
+            raise AccessError(f"column {name!r}: {value!r} is out of range for Currency")
+        return struct.pack("<q", scaled)
     if code == TYPE_FLOAT:
         if not isinstance(value, (int, float)):
             raise AccessError(f"column {name!r}: {value!r} is not a Single")

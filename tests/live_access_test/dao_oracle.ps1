@@ -341,6 +341,12 @@ try {
             $db.QueryDefs.Delete($Table)
             [Console]::Out.Write("ok")
         }
+        "rename-table" {
+            # -Table is the table, -SqlFile holds the new name.
+            $newName = [System.IO.File]::ReadAllText($SqlFile).Trim()
+            $db.TableDefs.Item($Table).Name = $newName
+            [Console]::Out.Write("ok")
+        }
         "build-simple" {
             # A small table for byte-level comparison of single edits.
             Invoke-Sql $db "CREATE TABLE Simple (Id AUTOINCREMENT PRIMARY KEY, N LONG, T TEXT(50))" $dbFailOnError

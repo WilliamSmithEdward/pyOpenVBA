@@ -244,6 +244,13 @@ the engine finds the same rows it does today.
   with three MSysACEs rows whose ACMs are 0xF00FE, 0xFFFFF, 0xFFFFF on
   the three default SIDs in order. Both tables' DateUpdate is stamped,
   at slightly different instants.
+* **Renaming a table** (a TableDef's Name set through DAO) changes the
+  catalog row's Name and DateUpdate and every MSysRelationships row that
+  names the table as its object or referenced object; the definition,
+  which does not carry the name, is untouched. The rename also showed
+  that an index's distinct-key count grows on inserts only: an update
+  that moves a row to a new key, distinct or not, leaves the count
+  alone, just as deletes do.
 * **ALTER TABLE**, measured with ADD COLUMN (Long, then Text(30), then a
   Long again after a drop) and DROP COLUMN (the Long, then the original
   Text) on a table holding ten rows. An added column takes the next

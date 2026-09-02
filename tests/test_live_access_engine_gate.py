@@ -740,7 +740,13 @@ def test_relationships_match_the_engine_byte_for_byte(tmp_path: Path) -> None:
     db.drop_relationship("FK_Child_Parent", table_updated=stamps("Child")["updated"], referenced_updated=stamps("Parent")["updated"])
     db = same_then_reopen("constraint dropped", db)
     assert [r.name for r in db.relationships()][-1:] == ["FK_Child2_Parent"]
-    for name in ("Parent", "Child", "Child2", "MSysRelationships", "MSysObjects", "MSysACEs"):
+    # Renaming the referenced table follows into the relationship rows.
+    script.write_text("Parents" + chr(10), encoding="ascii")
+    assert oracle("-Command", "rename-table", "-Path", str(theirs), "-Table", "Parent", "-SqlFile", str(script)) == "ok"
+    db.rename_table("Parent", "Parents", updated=stamps("Parents")["updated"])
+    db = same_then_reopen("table renamed", db)
+    assert db.relationships()[-1].referenced_table == "Parents"
+    for name in ("Parents", "Child", "Child2", "MSysRelationships", "MSysObjects", "MSysACEs"):
         check_indexes(db.table(name))
 
 

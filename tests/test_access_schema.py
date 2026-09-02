@@ -550,6 +550,31 @@ def test_columns_are_added_and_dropped_as_alter_table_does() -> None:
     assert serialize_definition(saved.table("W").definition) == serialize_definition(db.table("W").definition)
 
 
+def test_rename_table_follows_the_catalog_and_the_relationships() -> None:
+    db = AccessDatabase(TEMPLATE)
+    key = [IndexSpec("PK", ("Id",), primary=True)]
+    db.create_table("Parent", [ColumnSpec("Id", "Long", autonumber=True), ColumnSpec("Name", "Text", size=50)], key, created=WHEN)
+    child = db.create_table("Child", [ColumnSpec("Id", "Long", autonumber=True), ColumnSpec("ParentId", "Long")], key, created=WHEN)
+    child.insert_row({"ParentId": 1})
+    db.create_relationship("FK_Child_Parent", "Child", ("ParentId",), "Parent", ("Id",), created=WHEN)
+    page = db.table("Parent").definition.page
+    db.rename_table("Parent", "Parents", updated=WHEN)
+    assert "Parents" in db.table_names() and "Parent" not in db.table_names()
+    assert db.table("Parents").definition.page == page
+    assert db.relationships()[-1].referenced_table == "Parents" and db.relationships()[-1].table == "Child"
+    db.rename_table("Child", "Children", updated=WHEN)
+    assert db.relationships()[-1].table == "Children"
+    assert [r["ParentId"] for r in db.table("Children").rows()] == [1]
+    with pytest.raises(AccessError):
+        db.rename_table("Children", "Parents")
+    with pytest.raises(AccessError):
+        db.rename_table("Nope", "X")
+    check_indexes(db.table("MSysObjects"))
+    check_indexes(db.table("MSysRelationships"))
+    again = AccessDatabase(db.to_bytes())
+    assert sorted(t for t in again.table_names() if not t.startswith("MSys")) == ["Children", "Parents"]
+
+
 def test_bad_specs_are_refused() -> None:
     db = AccessDatabase(TEMPLATE)
     with pytest.raises(AccessError):

@@ -719,7 +719,6 @@ class Table:
         A row that no longer fits its page moves to another page behind an
         overflow pointer, and moves back when it fits again, as the engine
         does."""
-        db = self._db
         d = self.definition
         data = self.fetch_row(row_id.page, row_id.slot)
         if data is None:
@@ -750,11 +749,11 @@ class Table:
             tree = self._btree(i, real)
             if old_key is not None:
                 tree.delete(old_key, row_id.page, row_id.slot)
-            if new_key is not None and tree.insert(new_key, row_id.page, row_id.slot):
-                real.entry_count += 1
-                db.patch_definition(
-                    d, OFFSET_INDEX_HEADERS + i * SIZE_REAL_INDEX_HEADER + 4, struct.pack("<I", real.entry_count)
-                )
+            if new_key is not None:
+                # The distinct-key count grows on inserts only: an update
+                # that moves a row to a new key leaves it alone (measured on
+                # a table rename through the catalog's name index).
+                tree.insert(new_key, row_id.page, row_id.slot)
         self._place_row(row_id, row)
 
     def _place_row(self, row_id: RowId, row: bytes) -> None:
@@ -1302,6 +1301,35 @@ class AccessDatabase:
         for rid, row in list(aces.rows_with_ids()):
             if row["ObjectId"] == entry.id:
                 aces.delete_row(rid)
+        self._catalog = None
+
+    def rename_table(self, name: str, new_name: str, *, updated: object | None = None) -> None:
+        """Rename a table as setting a TableDef's Name does: the catalog
+        row's Name and DateUpdate change, and every MSysRelationships row
+        naming the table as its object or referenced object follows.  The
+        definition is not touched (it does not carry the name)."""
+        import datetime as _dt
+
+        table = self.table(name)
+        if new_name.lower() != name.lower() and any(e.name.lower() == new_name.lower() for e in self.catalog()):
+            raise AccessError(f"an object named {new_name!r} already exists")
+        if not new_name or len(new_name) > 64:
+            raise AccessError("a table name is 1 to 64 characters")
+        when = updated if isinstance(updated, (_dt.datetime, float)) else _dt.datetime.now().replace(microsecond=0)
+        relationships = self.table("MSysRelationships")
+        for rid, row in list(relationships.rows_with_ids()):
+            changes: dict[str, object] = {}
+            if str(row["szObject"]).lower() == name.lower():
+                changes["szObject"] = new_name
+            if str(row["szReferencedObject"]).lower() == name.lower():
+                changes["szReferencedObject"] = new_name
+            if changes:
+                relationships.update_row(rid, changes)
+        objects = self.table("MSysObjects")
+        for rid, row in objects.rows_with_ids():
+            if row["Id"] == table.definition.page and row["Type"] in (OBJECT_TABLE, OBJECT_LINKED_TABLE):
+                objects.update_row(rid, {"Name": new_name, "DateUpdate": when})
+                break
         self._catalog = None
 
     def relationships(self) -> list[Relationship]:

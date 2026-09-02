@@ -78,6 +78,8 @@ All notable changes to pyOpenVBA are documented here. This project follows
   and the drop of the first (live gate). CREATE TABLE's catalog row now carries DateCreate as its first
   DateUpdate, as the engine's does, which the stale bytes under the slot
   table revealed.
+- `db.rename_table(name, new_name)` renames a table as DAO does: the
+  catalog row and every relationship row naming it (live gate).
 - **Columns can be added and dropped.** `table.add_column(ColumnSpec(...))`
   and `table.drop_column(name)` do what `ALTER TABLE ... ADD COLUMN` and
   `DROP COLUMN` do, byte for byte in the live gate: the definition

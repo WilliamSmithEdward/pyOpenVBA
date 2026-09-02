@@ -189,12 +189,22 @@ def free_long_value(store: PageStore, maps: tuple[int, int], ref: LongValueRef) 
     for a single-page value, every page for a chain (released to the
     global map and dropped from the column's owned map, content left in
     place, as the engine does)."""
-    owned_ref, _free_ref = maps
+    owned_ref, free_ref = maps
     if ref.kind == LongValueRef.KIND_INLINE:
         return
     if ref.kind == LongValueRef.KIND_SINGLE_PAGE:
         lval = DataPage(store.read(ref.page))
         lval.remove_row(ref.row)
+        if lval.live_rows == 0:
+            # An LVAL page that lost its last value is retired: type 0x09,
+            # released, and out of both of the column's maps (measured on
+            # a column's only LVAL page as well as one of several).
+            lval.retire()
+            store.write(ref.page, lval.to_bytes())
+            release_page(store, ref.page)
+            remove_from_map(store, owned_ref, ref.page)
+            remove_from_map(store, free_ref, ref.page)
+            return
         store.write(ref.page, lval.to_bytes())
         return
     if ref.kind == LongValueRef.KIND_CHAINED:

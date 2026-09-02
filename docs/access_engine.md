@@ -225,6 +225,23 @@ the engine finds the same rows it does today.
   DateUpdate is stamped when the definition is complete, so on a
   150-column table it runs a couple of milliseconds after DateCreate;
   `create_table(created=, updated=)` takes both.
+* **Emptied pages are retired, truncation releases them untouched**,
+  measured with DAO deletes on tables of 24 500-byte rows over four
+  pages with three single-row Memo values. A filtered `DELETE` that
+  takes the last row off a data page or an LVAL page retires it: type
+  byte 0x09, every slot 0xD000 (dead, at the page end), free word
+  `4096 - 14 - 2 * slots`, rows and owner left in place, the page
+  released to the global map and dropped from the table's (or the
+  column's) owned and free-space maps. The table's first data page is
+  never retired, even emptied; an LVAL page always is, a column's only
+  one included. A page that lost rows but keeps some rejoins the
+  free-space map. `DELETE FROM t` with no filter takes another path:
+  every data, long-value and non-root index page is released with its
+  bytes untouched, the maps are emptied to all-zero rows, each index
+  root becomes an empty leaf with a distinct count of 0, and the
+  AutoNumber counter stays; `Table.truncate()` does the same. (A
+  filtered delete that happens to remove every row keeps the distinct
+  count: deletes never lower it.)
 * **Stamps carry more than a millisecond**, seen in 14 of 112 catalog
   timestamps the engine wrote: their doubles sit one bit away from any
   millisecond value, and no arithmetic tried (nearest, ceiling, floor,

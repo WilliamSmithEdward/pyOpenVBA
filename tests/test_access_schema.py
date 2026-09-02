@@ -14,8 +14,8 @@ from pathlib import Path
 
 import pytest
 
-from pyopenvba.access import AccessDatabase, ColumnSpec, IndexSpec
-from pyopenvba.access._pages import GLOBAL_USAGE_MAP_PAGE, GLOBAL_USAGE_MAP_ROW, read_usage_map
+from pyopenvba.access import AccessDatabase, ColumnSpec, IndexSpec, Table
+from pyopenvba.access._pages import GLOBAL_USAGE_MAP_PAGE, GLOBAL_USAGE_MAP_ROW, read_usage_map, read_usage_map_ref
 from pyopenvba.access._tdef import parse_table_definition
 from pyopenvba.access_read import AccessError
 from test_access_write import check_indexes
@@ -363,6 +363,75 @@ def test_a_stamp_that_no_datetime_can_carry_survives_updates_and_indexing() -> N
     assert [k[0] for k, _p, _r in table.index("IX_When").entries()] == [decode_datetime(struct.pack("<d", serial))]
     table.delete_row(row_id)
     assert list(table.index("IX_When").entries()) == []
+
+
+def _filled_table(db: AccessDatabase, name: str, rows: int, memo_at: tuple[int, ...] = ()) -> Table:
+    """A table whose 500-byte rows span several pages, with single-row
+    long values for the rows named in ``memo_at``."""
+    table = db.create_table(
+        name,
+        [ColumnSpec("Id", "Long", autonumber=True), ColumnSpec("T", "Text", size=255, compressed=False), ColumnSpec("M", "Memo", compressed=False)],
+        [IndexSpec("PK", ("Id",), primary=True)],
+        created=WHEN,
+    )
+    for i in range(1, rows + 1):
+        table.insert_row({"T": f"t{i:02d}" * 80, "M": (f"m{i:02d}" * 500) if i in memo_at else "short"})
+    return table
+
+
+def test_an_emptied_page_is_retired_unless_it_is_the_first() -> None:
+    from pyopenvba.access._pages import PAGE_RETIRED, row_slots
+
+    db = AccessDatabase(TEMPLATE)
+    table = _filled_table(db, "R", 24, memo_at=(3, 10, 20))
+    pages = list(table.data_pages())
+    assert len(pages) == 4, pages
+    first, second, third, last = pages
+    ids = {row["Id"]: rid for rid, row in table.rows_with_ids()}
+    for i in range(13, 25):
+        table.delete_row(ids[i])
+    raw = db.store.read(third)
+    assert raw[0] == PAGE_RETIRED and set(row_slots(raw)) == {0xD000}
+    assert int.from_bytes(raw[2:4], "little") == 4096 - 14 - 2 * len(row_slots(raw))
+    assert db.store.read(last)[0] == PAGE_RETIRED
+    free = set(read_usage_map(db.store, GLOBAL_USAGE_MAP_PAGE, GLOBAL_USAGE_MAP_ROW).pages())
+    assert {third, last} <= free and second not in free
+    d = table.definition
+    assert list(read_usage_map_ref(db.store, d.owned_pages_ref).pages()) == [first, second]
+    assert list(read_usage_map_ref(db.store, d.free_space_pages_ref).pages()) == [second]  # it lost rows, so it rejoined
+    # The memo of row 20 sat alone on its LVAL page, which is retired too.
+    lv_owned, _lv_free = d.column_usage_maps[d.column("M").number]
+    assert len(list(read_usage_map_ref(db.store, lv_owned).pages())) == 2
+    # Emptying the first page keeps it.
+    for i in range(1, 8):
+        table.delete_row(ids[i])
+    assert db.store.read(first)[0] == 0x01 and first not in set(read_usage_map(db.store, GLOBAL_USAGE_MAP_PAGE, GLOBAL_USAGE_MAP_ROW).pages())
+    assert list(read_usage_map_ref(db.store, d.owned_pages_ref).pages()) == [first, second]
+    check_indexes(table)
+
+
+def test_truncate_releases_pages_untouched_and_resets_indexes() -> None:
+    db = AccessDatabase(TEMPLATE)
+    table = _filled_table(db, "R", 24, memo_at=(3, 10, 20))
+    d = table.definition
+    pages = list(table.data_pages())
+    lv_pages = list(read_usage_map_ref(db.store, d.column_usage_maps[d.column("M").number][0]).pages())
+    images = {p: db.store.read(p) for p in pages + lv_pages}
+    table.truncate()
+    assert table.row_count == 0 and list(table.rows()) == [] and d.next_autonumber == 24
+    for p, image in images.items():
+        assert db.store.read(p) == image  # rows left in place
+    free = set(read_usage_map(db.store, GLOBAL_USAGE_MAP_PAGE, GLOBAL_USAGE_MAP_ROW).pages())
+    assert set(images) <= free
+    assert list(read_usage_map_ref(db.store, d.owned_pages_ref).pages()) == []
+    for owned, fsp in d.column_usage_maps.values():
+        assert list(read_usage_map_ref(db.store, owned).pages()) == [] and list(read_usage_map_ref(db.store, fsp).pages()) == []
+    root = db.store.read(d.real_indexes[0].root_page)
+    assert int.from_bytes(root[2:4], "little") == 0x0E20 and d.real_indexes[0].entry_count == 0
+    assert list(table.index("PK").entries()) == []
+    table.insert_row({"T": "again", "M": "x"})
+    assert [r["Id"] for r in table.rows()] == [25]
+    check_indexes(table)
 
 
 def test_bad_specs_are_refused() -> None:

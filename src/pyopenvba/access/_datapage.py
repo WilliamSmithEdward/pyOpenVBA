@@ -20,6 +20,7 @@ import struct
 
 from pyopenvba.access_read import AccessError
 from pyopenvba.access._pages import (
+    PAGE_RETIRED,
     OFFSET_PAGE_FREE_SPACE,
     OFFSET_PAGE_OWNER,
     OFFSET_PAGE_ROW_COUNT,
@@ -141,6 +142,20 @@ class DataPage:
             offset = entry & ROW_OFFSET_MASK
             if offset < boundary:
                 self._set_slot(slot, (entry & ~ROW_OFFSET_MASK) | (offset + delta))
+
+    @property
+    def live_rows(self) -> int:
+        """Slots that still hold a row (a moved row counts; a dead slot does not)."""
+        return sum(1 for entry in self.slots if (entry & DEAD_SLOT) != DEAD_SLOT)
+
+    def retire(self) -> None:
+        """What the engine does to a page whose last row went: type 0x09,
+        every slot dead at the page end (0xD000), the free word counting
+        only the header and slot table, rows and owner left in place."""
+        self.raw[0] = PAGE_RETIRED
+        for slot in range(self.slot_count):
+            self._set_slot(slot, DEAD_SLOT | PAGE_SIZE)
+        self._set_free_space(INITIAL_FREE_SPACE - 2 * self.slot_count)
 
     def remove_row(self, slot: int, *, overflow_target: bool = False) -> None:
         """Delete a row the way the engine does: close the hole and leave a

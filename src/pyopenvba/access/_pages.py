@@ -25,6 +25,7 @@ PAGE_SIZE = 4096
 PAGE_DB_DEF = 0x00
 PAGE_DATA = 0x01
 PAGE_TDEF = 0x02
+PAGE_RETIRED = 0x09  # a data-shaped page emptied of rows and given back
 PAGE_INDEX_NODE = 0x03
 PAGE_INDEX_LEAF = 0x04
 PAGE_USAGE_BITMAP = 0x05

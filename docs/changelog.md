@@ -65,6 +65,12 @@ All notable changes to pyOpenVBA are documented here. This project follows
   fresh chain and releases the old pages; DROP TABLE marks only the
   first page. Tables of up to 255 columns with long names now round-trip
   byte for byte against the engine (live gate).
+- Deleting the last row of a data or LVAL page retires the page as the
+  engine does (type 0x09, slots 0xD000, released, out of the maps; a
+  table's first data page stays), pages that lost rows rejoin the
+  free-space map, and `Table.truncate()` mirrors an unfiltered `DELETE
+  FROM`: pages released untouched, maps emptied, indexes reset. All
+  byte-exact against DAO in the live gate.
 - Pages released in a session (dropped tables, rewritten definitions,
   freed long values) are not reallocated until the database is reopened,
   as the engine does; an `AccessDatabase` instance is the session.

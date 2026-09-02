@@ -22,12 +22,14 @@ import subprocess
 import sys
 import uuid
 from decimal import Decimal
+from collections.abc import Callable
 from pathlib import Path
 
 import pytest
 
-from pyopenvba.access import AccessDatabase, CatalogEntry
+from pyopenvba.access import AccessDatabase, CatalogEntry, Table
 from pyopenvba.access_read import AccessError
+from test_access_write import check_indexes
 
 pytestmark = pytest.mark.skipif(
     os.environ.get("RUN_LIVE_ACCESS") != "1" or sys.platform != "win32",
@@ -469,6 +471,96 @@ def test_definitions_over_one_page_match_the_engine_byte_for_byte(tmp_path: Path
     from test_access_write import check_indexes
 
     for name in ("Wide", "Four", "Three"):
+        check_indexes(db.table(name))
+
+
+def test_deletes_retire_and_truncate_releases_pages_as_the_engine_does(tmp_path: Path) -> None:
+    """Filtered deletes retire each page they empty (type 0x09, released,
+    out of the maps) except a table's first data page, and rejoin pages
+    that lost rows to the free-space map; DELETE FROM without a filter
+    releases every page untouched and resets the index.  Byte for byte
+    against DAO on the same sequence of tables.  Every oracle call is its
+    own DAO session, so the database is reopened between steps: pages a
+    session released come back into use only in the next one."""
+    from pyopenvba.access import ColumnSpec, IndexSpec
+
+    theirs = tmp_path / "theirs.accdb"
+    shutil.copy(TEMPLATE, theirs)
+    script = tmp_path / "step.sql"
+
+    def engine_runs(*statements: str) -> None:
+        script.write_text(chr(10).join(statements) + chr(10), encoding="ascii")
+        assert oracle("-Command", "sql-file", "-Path", str(theirs), "-SqlFile", str(script)) == "ok"
+
+    def same_then_reopen(step: str, db: AccessDatabase) -> AccessDatabase:
+        ours, engine = db.to_bytes(), theirs.read_bytes()
+        assert not (d := _differing_pages(ours, engine)), f"{step}: pages differ from the engine's: {_describe_pages(ours, engine, d)}"
+        return AccessDatabase(ours)
+
+    def stamps(name: str) -> dict[str, object]:
+        entry = _catalog_entry(theirs, name)
+        return {"created": entry.date_create_serial, "updated": entry.date_update_serial}
+
+    def delete_where(table: Table, keep: Callable[[int], bool]) -> None:
+        for row_id, row in list(table.rows_with_ids()):
+            if not keep(int(row["Id"])):  # pyright: ignore[reportArgumentType]
+                table.delete_row(row_id)
+
+    db = AccessDatabase(TEMPLATE)
+    key = [IndexSpec("PK", ("Id",), primary=True)]
+    text_memo = [ColumnSpec("Id", "Long", autonumber=True), ColumnSpec("T", "Text", size=255, compressed=False), ColumnSpec("M", "Memo", compressed=False)]
+
+    # R: four data pages and three single-row long values.
+    memo = {i: f"m{i:02d}" * 500 for i in (3, 10, 20)}
+    engine_runs(
+        "CREATE TABLE R (Id AUTOINCREMENT CONSTRAINT PK PRIMARY KEY, T TEXT(255), M MEMO)",
+        *(f"INSERT INTO R (T, M) VALUES ('{f'{chr(116)}{i:02d}' * 80}', '{memo.get(i, 'short')}')" for i in range(1, 25)),
+    )
+    r = db.create_table("R", text_memo, key, **stamps("R"))
+    for i in range(1, 25):
+        r.insert_row({"T": f"t{i:02d}" * 80, "M": memo.get(i, "short")})
+    db = same_then_reopen("R built", db)
+    engine_runs("DELETE FROM R WHERE Id > 12")
+    delete_where(db.table("R"), lambda i: i <= 12)
+    db = same_then_reopen("R filtered delete", db)
+    engine_runs("DELETE FROM R")
+    db.table("R").truncate()
+    db = same_then_reopen("R truncated", db)
+
+    # S: a table whose only page is emptied by a filtered delete stays.
+    engine_runs("CREATE TABLE S (Id AUTOINCREMENT CONSTRAINT PK PRIMARY KEY, N LONG)", *(f"INSERT INTO S (N) VALUES ({n})" for n in (1, 2, 3)))
+    s_table = db.create_table("S", [ColumnSpec("Id", "Long", autonumber=True), ColumnSpec("N", "Long")], key, **stamps("S"))
+    for n in (1, 2, 3):
+        s_table.insert_row({"N": n})
+    db = same_then_reopen("S built", db)
+    engine_runs("DELETE FROM S WHERE Id > 0")
+    delete_where(db.table("S"), lambda i: False)
+    db = same_then_reopen("S emptied by filter", db)
+
+    # U: the first data page emptied while the second keeps rows; V: a
+    # column's only LVAL page emptied.
+    engine_runs(
+        "CREATE TABLE U (Id AUTOINCREMENT CONSTRAINT PK PRIMARY KEY, T TEXT(255))",
+        *(f"INSERT INTO U (T) VALUES ('{f'{chr(117)}{i:02d}' * 80}')" for i in range(1, 11)),
+        "CREATE TABLE V (Id AUTOINCREMENT CONSTRAINT PK PRIMARY KEY, M MEMO)",
+        "INSERT INTO V (M) VALUES ('" + "v" * 1500 + "')",
+        "INSERT INTO V (M) VALUES ('tiny')",
+    )
+    u = db.create_table("U", [ColumnSpec("Id", "Long", autonumber=True), ColumnSpec("T", "Text", size=255, compressed=False)], key, **stamps("U"))
+    for i in range(1, 11):
+        u.insert_row({"T": f"u{i:02d}" * 80})
+    v = db.create_table("V", [ColumnSpec("Id", "Long", autonumber=True), ColumnSpec("M", "Memo", compressed=False)], key, **stamps("V"))
+    v.insert_row({"M": "v" * 1500})
+    v.insert_row({"M": "tiny"})
+    db = same_then_reopen("U and V built", db)
+    engine_runs("DELETE FROM U WHERE Id <= 7", "DELETE FROM V WHERE Id = 1")
+    delete_where(db.table("U"), lambda i: i > 7)
+    delete_where(db.table("V"), lambda i: i != 1)
+    db = same_then_reopen("U partly and V's long value deleted", db)
+    engine_runs("DELETE FROM U WHERE Id <= 8")
+    delete_where(db.table("U"), lambda i: i > 8)
+    db = same_then_reopen("U's first page emptied", db)
+    for name in ("R", "S", "U", "V"):
         check_indexes(db.table(name))
 
 

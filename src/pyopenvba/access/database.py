@@ -18,7 +18,7 @@ from pyopenvba.access_read import AccessError
 from pyopenvba.access._alloc import add_to_map, allocate_page, release_page, remove_from_map, set_usage_bit
 from pyopenvba.access._btree import BTree
 from pyopenvba.access._datapage import DataPage
-from pyopenvba.access._index import decode_key, encode_key, leaf_entries
+from pyopenvba.access._index import decode_key, encode_key, leaf_entries, OFFSET_ENTRIES
 from pyopenvba.access._lval import (
     free_long_value,
     memo_bytes,
@@ -465,11 +465,59 @@ class Table:
         if moved is not None:
             target = DataPage(db.store.read(moved[0]))
             target.remove_row(moved[1], overflow_target=True)
-            db.store.write(moved[0], target.to_bytes())
+            self._row_removed(moved[0], target)
         page = DataPage(db.store.read(row_id.page))
         page.remove_row(row_id.slot)
-        db.store.write(row_id.page, page.to_bytes())
+        self._row_removed(row_id.page, page)
         d.row_count -= 1
+        db.patch_definition(d, OFFSET_ROW_COUNT, struct.pack("<I", d.row_count))
+
+    def _row_removed(self, page_number: int, page: DataPage) -> None:
+        """Write back a page that just lost a row, the way the engine
+        settles it: a page with rows left rejoins the free-space map; an
+        emptied page is retired (type 0x09, released, out of both maps),
+        unless it is the table's first data page, which stays."""
+        db = self._db
+        d = self.definition
+        if page.live_rows == 0 and page_number != min(read_usage_map_ref(db.store, d.owned_pages_ref).pages(), default=page_number):
+            page.retire()
+            db.store.write(page_number, page.to_bytes())
+            release_page(db.store, page_number)
+            remove_from_map(db.store, d.owned_pages_ref, page_number)
+            remove_from_map(db.store, d.free_space_pages_ref, page_number)
+            return
+        db.store.write(page_number, page.to_bytes())
+        add_to_map(db.store, d.free_space_pages_ref, page_number)
+
+    def truncate(self) -> None:
+        """Delete every row the way ``DELETE FROM t`` without a filter does:
+        the data and long-value pages are released untouched, the table's
+        and columns' usage maps are emptied, each index is reset to an
+        empty root with a distinct count of 0, and the AutoNumber counter
+        keeps its place."""
+        db = self._db
+        store = db.store
+        d = self.definition
+        for page_number in read_usage_map_ref(store, d.owned_pages_ref).pages():
+            release_page(store, page_number)
+            remove_from_map(store, d.owned_pages_ref, page_number)
+            remove_from_map(store, d.free_space_pages_ref, page_number)
+        for owned_ref, free_ref in d.column_usage_maps.values():
+            for page_number in read_usage_map_ref(store, owned_ref).pages():
+                release_page(store, page_number)
+                remove_from_map(store, owned_ref, page_number)
+                remove_from_map(store, free_ref, page_number)
+        for i, real in enumerate(d.real_indexes):
+            for page_number in read_usage_map_ref(store, real.usage_map_ref).pages():
+                if page_number != real.root_page:
+                    release_page(store, page_number)
+                    remove_from_map(store, real.usage_map_ref, page_number)
+            # The root is reset in place: header and mask as an empty leaf,
+            # the old entries' bytes left where they were.
+            store.write(real.root_page, empty_index_root(d.page)[:OFFSET_ENTRIES] + store.read(real.root_page)[OFFSET_ENTRIES:])
+            real.entry_count = 0
+            db.patch_definition(d, OFFSET_INDEX_HEADERS + i * SIZE_REAL_INDEX_HEADER + 4, struct.pack("<I", 0))
+        d.row_count = 0
         db.patch_definition(d, OFFSET_ROW_COUNT, struct.pack("<I", d.row_count))
 
     def update_row(self, row_id: RowId, changes: Mapping[str, object]) -> None:
@@ -546,7 +594,7 @@ class Table:
             db.store.write(row_id.page, home.to_bytes())
             target = DataPage(db.store.read(target_page))
             target.remove_row(target_slot, overflow_target=True)
-            db.store.write(target_page, target.to_bytes())
+            self._row_removed(target_page, target)
             return
         target = DataPage(db.store.read(target_page))
         t_start, t_end = target.span(target_slot)
@@ -555,8 +603,11 @@ class Table:
             db.store.write(target_page, target.to_bytes())
             return
         target.remove_row(target_slot, overflow_target=True)
-        db.store.write(target_page, target.to_bytes())
-        remove_from_map(db.store, self.definition.free_space_pages_ref, target_page)
+        if target.live_rows == 0:
+            self._row_removed(target_page, target)
+        else:
+            db.store.write(target_page, target.to_bytes())
+            remove_from_map(db.store, self.definition.free_space_pages_ref, target_page)
         new_page = self._page_with_room(len(row), exclude=row_id.page)
         landing = DataPage(db.store.read(new_page))
         new_slot = landing.add_row(row, flags=ROW_DELETED)

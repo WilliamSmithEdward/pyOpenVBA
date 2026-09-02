@@ -91,13 +91,48 @@ the engine finds the same rows it does today.
   four unused bytes. Kind `0x80` inline after the definition, `0x40` one
   LVAL row of exactly that length, `0x00` a chain whose rows each start
   with a 4-byte next pointer, `(0, 0)` last.
-* **Index leaf pages.** Owner at 4, prev/next/tail at 12/16/20, a 453-byte
-  entry mask at 27 over entry data from 480; a leaf entry is the encoded
-  key columns followed by a three-byte big-endian page and a one-byte
-  row. Longs are stored big-endian with the sign bit flipped behind a
-  `0x7F` flag byte; text uses a collation table (observed: a = A = 0x4A,
-  c 0x4D, D 0x4F, e 0x51, g 0x55, P 0x66, s 0x6B, t 0x6D) that will be
-  generated from Access rather than transcribed.
+* **Index pages** (type 3 node, type 4 leaf). Free bytes at 2, owner at
+  4, prev/next/tail at 12/16/20, a u16 prefix length at 0x18, a 453-byte
+  bit mask at 27 over the entry area from 480. A set mask bit marks the
+  END of an entry, the first starting at 0; every entry after the first
+  is stored without its first `prefix length` bytes, which equal the
+  first entry's. An entry is the encoded key, then the row's home slot
+  (three-byte big-endian page, one-byte row), then on node pages the
+  big-endian child page; a node entry carries the last key of its child,
+  and the tail pointer names the child holding everything greater. Index
+  entries point at a row's home slot, which survives the row being moved
+  to an overflow page. The 12-byte index header's u32 at +4 is the
+  engine's distinct-key count, null counting as one key. Checked: every
+  index of an ACE-written 1500-row table -- one per column type, one
+  descending, one two-column, one unique ignore-nulls -- decodes to the
+  row values it points at, in order, with every node entry equal to its
+  child's last entry.
+* **Key encoding.** Per column a flag byte: `0x7F` value ascending,
+  `0x80` value descending, `0x00` null ascending, `0xFF` null descending.
+  A descending value is the ascending bytes inverted. Ascending, all
+  big-endian: Boolean `0x00` True / `0xFF` False (True sorts first, as
+  -1 does); Byte as is; Integer, Long, BigInt and Currency (scaled by
+  10 000) with the sign bit flipped; Single, Double and DateTime as IEEE
+  bits with the sign bit flipped when positive and every bit inverted
+  when negative; Decimal `0xFF` + 16-byte magnitude when positive, `0x00`
+  + inverted magnitude when negative; Binary in eight-byte chunks each
+  followed by `0x09` while more follow and by the count of real bytes in
+  the last; GUID as its 16 bytes in textual order through the binary
+  scheme; Text as collation bytes, `0x01`, up to four `0x01`-separated
+  extra-weight sections with trailing empty ones omitted, `0x00`.
+* **Text collation** (sort order 1033 version 0, "General" as Jet 4 and
+  Access 2007 write it). Measured from one indexed row per BMP code
+  point: case is not stored at all (a and A are one key, so a unique
+  index treats them as duplicates); 19 585 code points have no primary
+  weight, 1 004 one byte, 42 891 two, and six have three or four;
+  trailing spaces are dropped and inner spaces weigh `0x07`; `ß` expands
+  to `ss`. Section 1 holds one diacritic weight per character with `0x02`
+  as the placeholder for characters without one, trailing placeholders
+  trimmed. Section 4 holds ignorable characters (hyphen, apostrophe,
+  controls) as `80 <7 + 4 * n> 06 <code>` where n is the number of
+  primary bytes before the character. Section 3 carries `ff 02 80 ff 80`
+  for kana. The table itself is being generated from these
+  measurements, not transcribed from anywhere.
 
 ## Alternatives considered
 
@@ -124,7 +159,7 @@ the engine finds the same rows it does today.
 | # | phase | status |
 |---|---|---|
 | 1 | pages, header, usage maps, definitions, rows, long values, catalog | reading. Every table in every authored fixture decodes; the live gate matches ACE field for field on all 16 column types, null rows, chained 5000-character memos and a 151-column definition spanning two pages |
-| 2 | indexes: walk B-trees, decode entries, sort keys for every type | next |
+| 2 | indexes: walk B-trees, decode entries, sort keys for every type | reading. Every index on every fixture and on the live 1500-row table checks out; text keys are exposed as collation bytes until the collation table lands |
 | 3 | write rows: insert/update/delete, free-space and owned-page maps, LVAL allocation, counters | |
 | 4 | write indexes: key encoding from an Access-generated collation table, B-tree insert and split | |
 | 5 | write schema: create/drop table, catalog rows, permissions, navigation pane rows | |

@@ -116,6 +116,53 @@ def _diff(expected: str, mine: list[str]) -> list[str]:
     return out
 
 
+def _check_indexes(db: AccessDatabase) -> None:
+    """Every index the oracle created -- one per indexable column type,
+    a descending one, a two-column one, a unique ignore-nulls one -- must
+    decode to the row values it points at, in key order, with the node
+    pages naming their children's last keys."""
+    from pyopenvba.access._index import TextKey, node_pages, parse_index_page
+    from pyopenvba.access._rows import split_row
+
+    table = db.table("AllTypes")
+    rows: dict[tuple[int, int], dict[str, object]] = {}
+    for page, slot, data in table.raw_rows():
+        rows[(page, slot)] = table.decode(split_row(table.definition, data))
+    names = {i.name for i in table.indexes}
+    assert {"IX_Txt", "IX_BigDesc", "IX_FlagTiny", "IX_UniqueBig", "IX_Frac", "IX_Uid", "IX_Bin"} <= names
+    for index in table.indexes:
+        expected = len(rows)
+        if index.ignores_nulls:
+            expected -= sum(
+                1 for r in rows.values() if all(r[c.name] is None for c, _ in index.columns)
+            )
+        count = 0
+        previous: list[object] | None = None
+        for values, page, row in index.entries():
+            count += 1
+            actual = rows[(page, row)]
+            for (column, _asc), value in zip(index.columns, values):
+                if value is None:
+                    assert actual[column.name] is None, (index.name, column.name)
+                elif isinstance(value, TextKey):
+                    assert isinstance(actual[column.name], str)
+                elif isinstance(value, float):
+                    assert isinstance(actual[column.name], float)
+                    assert abs(value - float(str(actual[column.name]))) < 1e-9
+                else:
+                    assert value == actual[column.name], (index.name, column.name, value)
+            previous = values
+        assert previous is not None
+        assert count == expected, (index.name, count, expected)
+        for node in node_pages(db.store, index.real.root_page):
+            for entry in node.entries:
+                assert entry.child is not None
+                last = parse_index_page(db.store, entry.child).entries[-1]
+                assert (last.key, last.page, last.row) == (entry.key, entry.page, entry.row)
+    assert table.index("IX_UniqueBig").unique and table.index("IX_UniqueBig").ignores_nulls
+    assert table.index("IX_BigDesc").columns[0][1] is False
+
+
 def test_every_column_type_reads_back_as_the_engine_shows_it(tmp_path: Path) -> None:
     target = tmp_path / "alltypes.accdb"
     shutil.copy(TEMPLATE, target)
@@ -133,6 +180,8 @@ def test_every_column_type_reads_back_as_the_engine_shows_it(tmp_path: Path) -> 
     ]
     mismatches = _diff(expected, _engine_dump(db, "AllTypes"))
     assert not mismatches, f"{len(mismatches)} rows differ\n" + "\n".join(mismatches[:5])
+
+    _check_indexes(db)
 
     # The wide table's definition spans pages.
     wide = db.table("Wide")

@@ -1,4 +1,4 @@
-# Ground truth for the storage engine: the ACE engine itself, driven through
+﻿# Ground truth for the storage engine: the ACE engine itself, driven through
 # DAO (ACEDAO.DLL) with no Access window, no VBA and no dialogs.
 #
 #   dao_oracle.ps1 -Command build-alltypes -Path db.accdb -Rows 120
@@ -122,7 +122,7 @@ function Build-AllTypes($db, [int]$rowCount) {
         $story = (New-Object string ([char](65 + ($i % 26)), $storyLength)) + " end $i"
         if ($i % 4 -eq 0) { $story = $story + " " + $cjk2 }
         $uid = "{" + $i.ToString("X8") + "-1234-5678-9ABC-DEF012345678}"
-        $frac = ([double]$i / 16).ToString("0.####", $inv)
+        $frac = ([double]$i / 16 * $sign5).ToString("0.####", $inv)
         $huge = ([int64]$i * 10000000000 * $sign3).ToString($inv)
         Invoke-Sql $db ("INSERT INTO AllTypes (Flag, Tiny, Small, Big, Cash, Sgl, Dbl, Stamp, Txt, Story, Uid, Frac, Huge) VALUES (" +
             "$flag, $tiny, $small, $big, $cash, $sgl, $dbl, $stamp, " + (Sql-Text $txt) + ", " + (Sql-Text $story) + ", " +
@@ -138,6 +138,62 @@ function Build-AllTypes($db, [int]$rowCount) {
             $rs.Update()
         }
         $rs.MoveNext()
+    }
+    $rs.Close()
+    # One index per indexable column, so every key encoding is on disk,
+    # plus a descending, a two-column and a unique one.
+    foreach ($col in @("Flag", "Tiny", "Small", "Big", "Cash", "Sgl", "Dbl", "Stamp", "Bin", "Uid", "Frac", "Huge")) {
+        Invoke-Sql $db "CREATE INDEX IX_$col ON AllTypes ($col)" $dbFailOnError
+    }
+    Invoke-Sql $db "CREATE INDEX IX_BigDesc ON AllTypes (Big DESC)" $dbFailOnError
+    Invoke-Sql $db "CREATE INDEX IX_FlagTiny ON AllTypes (Flag, Tiny DESC)" $dbFailOnError
+    Invoke-Sql $db "CREATE UNIQUE INDEX IX_UniqueBig ON AllTypes (Big) WITH IGNORE NULL" $dbFailOnError
+}
+
+# One row per BMP code point (surrogates aside) plus a few short strings,
+# indexed, so the text sort keys the engine writes can be read back and
+# turned into a collation table.  Characters the engine refuses are
+# skipped; their code points are listed in the Skipped table.
+function Build-Collation($db) {
+    Invoke-Sql $db "CREATE TABLE Chars (Id AUTOINCREMENT PRIMARY KEY, Ch TEXT(10))" $dbFailOnError
+    Invoke-Sql $db "CREATE INDEX IX_Ch ON Chars (Ch)" $dbFailOnError
+    Invoke-Sql $db "CREATE TABLE Skipped (Cp LONG)" $dbFailOnError
+    $rs = $db.OpenRecordset("Chars", $dbOpenTable)
+    for ($cp = 1; $cp -le 0xFFFF; $cp++) {
+        if ($cp -ge 0xD800 -and $cp -le 0xDFFF) { continue }
+        try {
+            $rs.AddNew()
+            $rs.Fields.Item("Ch").Value = [string][char]$cp
+            $rs.Update()
+        } catch {
+            try { $rs.CancelUpdate() } catch {}
+            Invoke-Sql $db "INSERT INTO Skipped (Cp) VALUES ($cp)" $dbFailOnError
+        }
+    }
+    # Composition rules: how extra weights and ignorable characters
+    # combine and count positions.  Built from code points so this file
+    # stays ASCII.
+    $e = [string][char]0xE9      # e acute
+    $E = [string][char]0xC9
+    $sz = [string][char]0xDF     # sharp s, expands to ss
+    $grave = [string][char]0x300 # combining grave
+    $cyrP = [string][char]0x41F
+    $cyrp = [string][char]0x43F
+    $kanaA = [string][char]0x3042
+    $cjk = [string][char]0x65E5
+    $nbsp = [string][char]0xA0
+    $samples = @("aA", "Aa", "ab", "AB", "aa", "AA", "a a", "a  a", "a-a", "a_a", "a.a", "a'a", "ab-", "a-b-", "a--b",
+                 "abc", "ABC", "aBc", "a1", "A1", "1a", "-a", "a-", "--", "---", " a", "a ", "  ", "-", "'",
+                 "ee", "Ee", "eE", "EE", "eAb", "Eab", "ss", "SS", "ll", "LL", "ch", "CH", "I", "i",
+                 $e, $E, ($e + "a"), ("a" + $e), ($e + $e), ("a" + $e + "a"), ($e + "a" + $e), ("ab" + $e), ($e + "ab"),
+                 ("e" + $grave), ("e" + $grave + "a"), $sz, ($sz + "a"), ("a" + $sz), ($sz + "-"), ("s-"), ("ss-"),
+                 $cyrP, $cyrp, ($cyrP + "a"), ("a" + $cyrP), ($cyrP + $cyrp),
+                 $kanaA, ($kanaA + "a"), ("a" + $kanaA), ($kanaA + $kanaA), $cjk, ($cjk + "a"), ("a" + $cjk),
+                 $nbsp, ("a" + $nbsp + "a"), ($e + "-"), ("-" + $e), ($e + "-" + $e))
+    foreach ($s in $samples) {
+        $rs.AddNew()
+        $rs.Fields.Item("Ch").Value = $s
+        $rs.Update()
     }
     $rs.Close()
 }
@@ -182,6 +238,10 @@ try {
         "build-alltypes" {
             Build-AllTypes $db $Rows
             Build-Wide $db
+            [Console]::Out.Write("ok")
+        }
+        "build-collation" {
+            Build-Collation $db
             [Console]::Out.Write("ok")
         }
         "dump" {

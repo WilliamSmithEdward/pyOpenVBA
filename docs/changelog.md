@@ -17,6 +17,12 @@ All notable changes to pyOpenVBA are documented here. This project follows
   from PowerShell as a test-time oracle) field for field, and against
   every Access-authored fixture table for table. The plan and the format
   facts established so far are in `docs/access_engine.md`.
+- **Indexes read.** `table.indexes`, `table.index(name)` and
+  `table.primary_key` expose each B-tree; `index.entries()` walks the
+  leaves in key order and decodes every key type (`index.rows()` yields
+  the rows in that order). Verified against seventeen ACE-written
+  indexes covering every indexable column type, descending order,
+  two-column keys and unique ignore-nulls, entry for entry.
 
 ## [3.5.1] - 2026-08-31
 

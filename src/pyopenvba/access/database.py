@@ -32,9 +32,13 @@ from pyopenvba.access._rows import (
     decode_text,
     split_row,
 )
+from pyopenvba.access._index import decode_key, leaf_entries
 from pyopenvba.access._tdef import (
+    INDEX_IGNORE_NULLS,
     TYPE_MEMO,
     ColumnDef,
+    LogicalIndex,
+    RealIndex,
     TableDefinition,
     parse_table_definition,
 )
@@ -80,13 +84,83 @@ class CatalogEntry:
         return self.type in (OBJECT_TABLE, OBJECT_LINKED_TABLE)
 
 
+class Index:
+    """A named index: its key columns and the B-tree that orders the rows."""
+
+    def __init__(self, table: Table, logical: LogicalIndex, real: RealIndex) -> None:
+        self.table = table
+        self.logical = logical
+        self.real = real
+        self.name = logical.name
+        self.columns: list[tuple[ColumnDef, bool]] = [
+            (table.definition.column_by_number(c.number), c.ascending) for c in real.columns
+        ]
+
+    @property
+    def column_names(self) -> list[str]:
+        return [c.name for c, _ in self.columns]
+
+    @property
+    def unique(self) -> bool:
+        return self.real.unique
+
+    @property
+    def is_primary_key(self) -> bool:
+        return self.logical.is_primary_key
+
+    @property
+    def ignores_nulls(self) -> bool:
+        return bool(self.real.flags & INDEX_IGNORE_NULLS)
+
+    @property
+    def distinct_count(self) -> int:
+        """The engine's own count of distinct keys, null counting as one."""
+        return self.real.entry_count
+
+    def entries(self) -> Iterator[tuple[list[object], int, int]]:
+        """``(key values, page, row)`` for every leaf entry in key order.
+        Text columns come back as :class:`~pyopenvba.access._index.TextKey`."""
+        store = self.table.database.store
+        for entry in leaf_entries(store, self.real.root_page):
+            yield decode_key(entry.key, self.columns), entry.page, entry.row
+
+    def rows(self) -> Iterator[dict[str, object]]:
+        """The table's rows in this index's order."""
+        for _key, page, row in self.entries():
+            data = self.table.fetch_row(page, row)
+            if data is None:
+                raise AccessError(
+                    f"index {self.name!r} points at dead row ({page}, {row})"
+                )
+            yield self.table.decode(split_row(self.table.definition, data))
+
+
 class Table:
     """A table: its definition plus the rows on its owned pages."""
 
     def __init__(self, database: AccessDatabase, definition: TableDefinition, name: str) -> None:
+        self.database = database
         self._db = database
         self.definition = definition
         self.name = name
+
+    @property
+    def indexes(self) -> list[Index]:
+        d = self.definition
+        return [Index(self, li, d.real_indexes[li.real_index]) for li in d.logical_indexes]
+
+    def index(self, name: str) -> Index:
+        for index in self.indexes:
+            if index.name.lower() == name.lower():
+                return index
+        raise AccessError(f"table {self.name!r} has no index named {name!r}")
+
+    @property
+    def primary_key(self) -> Index | None:
+        for index in self.indexes:
+            if index.is_primary_key:
+                return index
+        return None
 
     @property
     def columns(self) -> list[ColumnDef]:
@@ -114,31 +188,37 @@ class Table:
                 out.append(page)
         return out
 
+    def fetch_row(self, page: int, slot: int) -> bytes | None:
+        """The bytes of the row whose home is ``(page, slot)``, following an
+        overflow pointer to where the row now lives; ``None`` if the slot
+        is dead.  Index entries name rows by their home slot, which does
+        not change when a grown row is moved."""
+        store = self._db.store
+        raw_page = store.read(page)
+        entry = row_slots(raw_page)[slot]
+        data = row_bytes(raw_page, slot)
+        if data is None:
+            return None
+        if entry & ROW_OVERFLOW:
+            target_row, target_page = row_pointer(data)
+            target = row_bytes(store.read(target_page), target_row, overflow_target=True)
+            if target is None:
+                raise AccessError(f"overflow row ({page}, {slot}) points at nothing")
+            return target
+        return data
+
     def raw_rows(self) -> Iterator[tuple[int, int, bytes]]:
-        """``(page, slot, row_bytes)`` for every live row, overflow rows
-        followed to where they live."""
+        """``(page, slot, row_bytes)`` for every live row, keyed by the row's
+        home slot, with overflow rows followed to where they live."""
         store = self._db.store
         for page in self.data_pages():
-            raw_page = store.read(page)
-            slots = row_slots(raw_page)
+            slots = row_slots(store.read(page))
             for slot, entry in enumerate(slots):
                 if entry & ROW_DELETED:
                     continue
-                data = row_bytes(raw_page, slot)
-                if data is None:
-                    continue
-                if entry & ROW_OVERFLOW:
-                    target_row, target_page = row_pointer(data)
-                    target = row_bytes(
-                        store.read(target_page), target_row, overflow_target=True
-                    )
-                    if target is None:
-                        raise AccessError(
-                            f"overflow row ({page}, {slot}) points at nothing"
-                        )
-                    yield target_page, target_row, target
-                    continue
-                yield page, slot, data
+                data = self.fetch_row(page, slot)
+                if data is not None:
+                    yield page, slot, data
 
     def rows(self) -> Iterator[dict[str, object]]:
         for _page, _slot, data in self.raw_rows():

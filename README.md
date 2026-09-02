@@ -193,7 +193,8 @@ with AccessDatabase("orders.accdb") as db:
 ```
 
 Every column type is covered (Boolean through BigInt, Decimal, GUID,
-Memo and OLE), indexes are maintained on every write, relationships
+Memo and OLE), columns can be added and dropped on a table that already
+holds rows, indexes are maintained on every write, relationships
 are created with `db.create_relationship(...)` and read with
 `db.relationships()`, table and column properties (Description,
 Caption, Format, ...) are read and set through `table.properties()` and

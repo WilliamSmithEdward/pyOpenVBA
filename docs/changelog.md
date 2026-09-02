@@ -78,6 +78,15 @@ All notable changes to pyOpenVBA are documented here. This project follows
   and the drop of the first (live gate). CREATE TABLE's catalog row now carries DateCreate as its first
   DateUpdate, as the engine's does, which the stale bytes under the slot
   table revealed.
+- **Columns can be added and dropped.** `table.add_column(ColumnSpec(...))`
+  and `table.drop_column(name)` do what `ALTER TABLE ... ADD COLUMN` and
+  `DROP COLUMN` do, byte for byte in the live gate: the definition
+  rewritten, rows left as they are (old rows read the new column as
+  null), the catalog row stamped. Memo and OLE columns and indexed
+  columns are refused for now. Found on the way: a definition rewrite
+  after inserts in the same session wrote back the indexes' distinct-key
+  counts as they were when the definition was read; the live counts now
+  go in.
 - **Saved queries.** `db.queries()` and `db.query(name)` read
   MSysQueries into `SavedQuery` objects whose `.sql` spells the Jet SQL
   back in DAO's own layout; `db.create_query(name, sql)` saves a SELECT

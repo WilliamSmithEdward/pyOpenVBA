@@ -394,7 +394,12 @@ def serialize_definition(definition: TableDefinition) -> bytes:
     for byte, and parsing gives the object back."""
     columns = definition.columns
     body = bytearray()
-    body += b"".join(r.header_raw for r in definition.real_indexes)
+    for real in definition.real_indexes:
+        # The header's distinct-key count moves with every insert; the raw
+        # bytes were read before those, so the live value goes in.
+        header = bytearray(real.header_raw)
+        struct.pack_into("<I", header, 4, real.entry_count)
+        body += header
     body += b"".join(c.raw for c in columns)
     body += b"".join(_name(c.name) for c in columns)
     body += b"".join(r.raw for r in definition.real_indexes)

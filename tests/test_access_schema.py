@@ -508,6 +508,48 @@ def test_create_relationship_writes_both_sides_and_the_catalog() -> None:
     check_indexes(db.table("MSysObjects"))
 
 
+def test_columns_are_added_and_dropped_as_alter_table_does() -> None:
+    """Measured on ALTER TABLE: an added column takes the next number, a
+    fixed one the offset past the highest fixed column, a variable one the
+    next variable index; a dropped column leaves numbers, offsets and the
+    maximum column count alone; rows are never rewritten."""
+    db = AccessDatabase(TEMPLATE)
+    table = db.create_table("W", [ColumnSpec("Id", "Long", autonumber=True), ColumnSpec("N", "Long"), ColumnSpec("T", "Text", size=40)], [IndexSpec("PK", ("Id",), primary=True)], created=WHEN)
+    for i in range(1, 11):
+        table.insert_row({"N": i, "T": f"row {i}"})
+    extra = table.add_column(ColumnSpec("Extra", "Long"), updated=WHEN)
+    assert (extra.number, extra.fixed_offset, extra.is_fixed) == (3, 8, True)
+    d = db.table("W").definition
+    assert d.max_columns == 4 and d.var_column_count == 1 and [c.name for c in d.columns_by_number()] == ["Id", "N", "T", "Extra"]
+    remark = db.table("W").add_column(ColumnSpec("Remark", "Text", size=30), updated=WHEN)
+    assert (remark.number, remark.var_index, remark.is_fixed) == (4, 1, False)
+    assert db.table("W").definition.var_column_count == 2
+    db.table("W").drop_column("Extra", updated=WHEN)
+    d = db.table("W").definition
+    assert [(c.name, c.number) for c in d.columns_by_number()] == [("Id", 0), ("N", 1), ("T", 2), ("Remark", 4)] and d.max_columns == 5
+    again = db.table("W").add_column(ColumnSpec("Again", "Long"), updated=WHEN)
+    assert (again.number, again.fixed_offset) == (5, 8)  # the dropped column's slot is reused
+    db.table("W").drop_column("T", updated=WHEN)
+    d = db.table("W").definition
+    assert d.var_column_count == 2 and d.column("Remark").var_index == 1 and d.max_columns == 6
+    rows = list(db.table("W").rows())
+    assert [r["N"] for r in rows] == list(range(1, 11)) and rows[0] == {"Id": 1, "N": 1, "Remark": None, "Again": None}
+    db.table("W").insert_row({"N": 11, "Remark": "new", "Again": 7})
+    assert list(db.table("W").rows())[-1] == {"Id": 11, "N": 11, "Remark": "new", "Again": 7}
+    check_indexes(db.table("W"))
+    with pytest.raises(AccessError):
+        db.table("W").drop_column("Id")  # indexed
+    with pytest.raises(AccessError):
+        db.table("W").add_column(ColumnSpec("N", "Long"))
+    with pytest.raises(AccessError):
+        db.table("W").add_column(ColumnSpec("Serial", "Long", autonumber=True))
+    from pyopenvba.access._schema import serialize_definition
+
+    saved = AccessDatabase(db.to_bytes())
+    assert saved.table("W").column_names == ["Id", "N", "Remark", "Again"]
+    assert serialize_definition(saved.table("W").definition) == serialize_definition(db.table("W").definition)
+
+
 def test_bad_specs_are_refused() -> None:
     db = AccessDatabase(TEMPLATE)
     with pytest.raises(AccessError):

@@ -244,6 +244,19 @@ the engine finds the same rows it does today.
   with three MSysACEs rows whose ACMs are 0xF00FE, 0xFFFFF, 0xFFFFF on
   the three default SIDs in order. Both tables' DateUpdate is stamped,
   at slightly different instants.
+* **ALTER TABLE**, measured with ADD COLUMN (Long, then Text(30), then a
+  Long again after a drop) and DROP COLUMN (the Long, then the original
+  Text) on a table holding ten rows. An added column takes the next
+  column number (the definition's maximum column count, which only ever
+  grows), a fixed column the offset just past the highest fixed column
+  present (a dropped column's slot is reused), a variable column the next
+  variable index; its header and name are appended and the definition
+  rewritten. A dropped column's header and name leave; the other columns
+  keep their numbers, offsets and variable indexes, the variable count
+  and the maximum column count stay. Rows are never rewritten: a row
+  written before the change keeps its old column count and reads back
+  with the new column null. Only the definition page and the catalog
+  row's DateUpdate change.
 * **Saved queries**, measured with DAO's `CreateQueryDef` on a plain
   select, a joined DISTINCT TOP GROUP BY HAVING ORDER BY DESC query, a
   parameter query and a DELETE. A query is a catalog object of type 5
@@ -451,7 +464,7 @@ the engine finds the same rows it does today.
 | 3 | write rows: insert/update/delete, free-space and owned-page maps, LVAL allocation, counters | done: every column type including Memo/OLE of every storage kind, overflow rows, unique-index enforcement, page allocation and all counters; the engine reads the result, keeps working on it and compacts it; single edits and memo inserts byte-identical to the engine's |
 | 4 | write indexes: key encoding from the engine-generated collation table, B-tree insert and split | done: entries inserted and removed, pages compressed when full and split, root pinned; single edits byte-identical to the engine |
 | 3b | large files: usage maps growing past 512 pages | done for inline maps (growth and re-base as the engine does); the reference form is read but not yet written |
-| 5 | write schema: create/drop table, create index, catalog rows | done: `create_table`, `create_index`, `drop_table`; byte-identical to the engine's CREATE TABLE, CREATE INDEX and DROP TABLE on every page but page 0; the engine inserts into, reads and compacts a table pyOpenVBA created; definitions over one page (up to the 255-column limit) are chained and rewritten as the engine does, byte-identical. Not yet: a second map page, navigation-pane rows (the Access layer adds those itself) |
+| 5 | write schema: create/drop table, create index, catalog rows | done: `create_table`, `create_index`, `drop_table`; byte-identical to the engine's CREATE TABLE, CREATE INDEX and DROP TABLE on every page but page 0; the engine inserts into, reads and compacts a table pyOpenVBA created; definitions over one page (up to the 255-column limit) are chained and rewritten as the engine does, byte-identical; `add_column` / `drop_column` match ALTER TABLE ADD COLUMN / DROP COLUMN byte for byte (live gate). Not yet: a second map page, adding or dropping Memo/OLE columns, renaming or retyping columns, renaming tables, navigation-pane rows (the Access layer adds those itself) |
 | 6 | VBA project through the writer: module create/rename/delete | |
 | 7 | queries (`MSysQueries` to SQL and back), relationships, properties | relationships done: `create_relationship` / `drop_relationship` / `relationships()`, byte-identical to the engine's ADD CONSTRAINT ... FOREIGN KEY for a first and a second relationship on one parent and to DROP CONSTRAINT (live gate). Properties done: `table.properties()`, `column_properties()`, `set_properties()`, `db.database_properties()`; DAO's three property appends reproduced byte for byte (live gate). Queries done for SELECT, PARAMETERS, DELETE, UPDATE, INSERT INTO ... SELECT, SELECT ... INTO and UNION: `db.queries()`, `db.query()`, `db.create_query(name, sql)`, `db.drop_query(name)`; eight CreateQueryDef calls and a QueryDefs.Delete reproduced byte for byte (live gate). Not yet: crosstab and pass-through queries, subqueries in the parser |
 | 8 | forms, reports, macros: the binary object formats nobody has published | |

@@ -41,11 +41,13 @@ from pyopenvba.access._pages import (
 )
 from pyopenvba.access._schema import (
     DEFAULT_ACM,
+    FIXED_SIZES,
     USAGE_MAP_ROW,
     ColumnSpec,
     DefinitionLayout,
     IndexSpec,
     build_definition,
+    column_header,
     definition_page_count,
     definition_pages,
     empty_index_root,
@@ -85,6 +87,7 @@ from pyopenvba.access._tdef import (
     OFFSET_NEXT_AUTONUMBER,
     OFFSET_ROW_COUNT,
     SIZE_REAL_INDEX_HEADER,
+    TYPE_BINARY,
     TYPE_BOOLEAN,
     TYPE_DATETIME,
     TYPE_MEMO,
@@ -93,6 +96,7 @@ from pyopenvba.access._tdef import (
     LogicalIndex,
     RealIndex,
     TableDefinition,
+    parse_column_header,
     parse_table_definition,
 )
 
@@ -581,6 +585,79 @@ class Table:
             db.patch_definition(d, OFFSET_INDEX_HEADERS + i * SIZE_REAL_INDEX_HEADER + 4, struct.pack("<I", 0))
         d.row_count = 0
         db.patch_definition(d, OFFSET_ROW_COUNT, struct.pack("<I", d.row_count))
+
+    # -- columns ---------------------------------------------------------------
+
+    def add_column(self, spec: ColumnSpec, *, updated: object | None = None) -> ColumnDef:
+        """Add a column as ``ALTER TABLE ... ADD COLUMN`` does: a header and
+        name appended to the definition with the next column number, a
+        fixed column placed just past the highest fixed column, a variable
+        one given the next variable index; the rows are left as they are
+        (they read back with the new column null), and the catalog row's
+        DateUpdate is stamped."""
+        import datetime as _dt
+
+        d = self.definition
+        if spec.autonumber:
+            raise AccessError("an AutoNumber column cannot be added to an existing table")
+        if any(c.name.lower() == spec.name.lower() for c in d.columns):
+            raise AccessError(f"table {self.name!r} already has a column named {spec.name!r}")
+        code = spec.type_code
+        is_fixed = code == TYPE_BOOLEAN or code in FIXED_SIZES or code == TYPE_BINARY
+        number = d.max_columns
+        if is_fixed:
+            fixed_end = max((c.fixed_offset + c.length for c in d.columns if c.is_fixed and c.type_code != TYPE_BOOLEAN), default=0)
+            # ALTER TABLE writes the current variable-column count into a
+            # fixed column's variable-index field (CREATE TABLE writes 0).
+            header = column_header(spec, number, d.var_column_count, 0 if code == TYPE_BOOLEAN else fixed_end, d.tag)
+        else:
+            header = column_header(spec, number, d.var_column_count, 0, d.tag)
+        column = parse_column_header(header, spec.name)
+        if column.is_long_value:
+            raise AccessError("adding a Memo or OLE column is not written yet (its usage maps are unmeasured)")
+        d.columns.append(column)
+        d.max_columns += 1
+        if not is_fixed:
+            d.var_column_count += 1
+        # Header bytes 9..10 hold the column's position among the columns
+        # present; an add recomputes them for every column, a drop leaves
+        # them alone.
+        for position, existing in enumerate(d.columns):
+            raw = bytearray(existing.raw)
+            struct.pack_into("<H", raw, 9, position)
+            existing.raw = bytes(raw)
+        self._db._write_definition(serialize_definition(d), d.page, d.pages[1:], keep_tail=True)  # pyright: ignore[reportPrivateUsage]
+        self._stamp_catalog(updated if isinstance(updated, (_dt.datetime, float)) else _dt.datetime.now().replace(microsecond=0))
+        self._db._definitions.pop(d.page, None)  # pyright: ignore[reportPrivateUsage]
+        return column
+
+    def drop_column(self, name: str, *, updated: object | None = None) -> None:
+        """Drop a column as ``ALTER TABLE ... DROP COLUMN`` does: its header
+        and name leave the definition while the other columns keep their
+        numbers, offsets and variable indexes and the maximum column count
+        stays; rows are not rewritten; the catalog row's DateUpdate is
+        stamped.  A column an index uses, a Memo or OLE column, or the
+        last column is refused."""
+        import datetime as _dt
+
+        d = self.definition
+        column = d.column(name)
+        if column.is_long_value:
+            raise AccessError("dropping a Memo or OLE column is not written yet (its usage maps are unmeasured)")
+        if len(d.columns) == 1:
+            raise AccessError("a table keeps at least one column")
+        for real in d.real_indexes:
+            if any(c.number == column.number for c in real.columns):
+                raise AccessError(f"column {column.name!r} is used by an index; drop the index first")
+        d.columns.remove(column)
+        self._db._write_definition(serialize_definition(d), d.page, d.pages[1:], keep_tail=True)  # pyright: ignore[reportPrivateUsage]
+        self._stamp_catalog(updated if isinstance(updated, (_dt.datetime, float)) else _dt.datetime.now().replace(microsecond=0))
+        self._db._definitions.pop(d.page, None)  # pyright: ignore[reportPrivateUsage]
+
+    def _stamp_catalog(self, when: object) -> None:
+        rid, _row = self._catalog_row()
+        self._db.table("MSysObjects").update_row(rid, {"DateUpdate": when})
+        self._db._catalog = None  # pyright: ignore[reportPrivateUsage]
 
     # -- properties ------------------------------------------------------------
 

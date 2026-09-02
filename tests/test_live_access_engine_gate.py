@@ -834,6 +834,56 @@ def test_saved_queries_match_the_engine_byte_for_byte(tmp_path: Path) -> None:
         check_indexes(db.table(name))
 
 
+def test_alter_table_matches_the_engine_byte_for_byte(tmp_path: Path) -> None:
+    """ADD COLUMN (fixed, variable, and fixed again after a drop) and DROP
+    COLUMN (fixed and variable) on a table with rows, each its own DAO
+    session, byte for byte."""
+    from pyopenvba.access import ColumnSpec, IndexSpec
+
+    theirs = tmp_path / "theirs.accdb"
+    shutil.copy(TEMPLATE, theirs)
+    script = tmp_path / "step.sql"
+
+    def engine_runs(*statements: str) -> None:
+        script.write_text(chr(10).join(statements) + chr(10), encoding="ascii")
+        assert oracle("-Command", "sql-file", "-Path", str(theirs), "-SqlFile", str(script)) == "ok"
+
+    def same_then_reopen(step: str, db: AccessDatabase) -> AccessDatabase:
+        ours, engine = db.to_bytes(), theirs.read_bytes()
+        assert not (d := _differing_pages(ours, engine)), f"{step}: pages differ from the engine's: {_describe_pages(ours, engine, d)}"
+        return AccessDatabase(ours)
+
+    def updated() -> object:
+        return _catalog_entry(theirs, "W").date_update_serial
+
+    engine_runs("CREATE TABLE W (Id AUTOINCREMENT CONSTRAINT PK PRIMARY KEY, N LONG, T TEXT(40))", *(f"INSERT INTO W (N, T) VALUES ({i}, 'row {i}')" for i in range(1, 11)))
+    entry = _catalog_entry(theirs, "W")
+    db = AccessDatabase(TEMPLATE)
+    table = db.create_table(
+        "W",
+        [ColumnSpec("Id", "Long", autonumber=True), ColumnSpec("N", "Long"), ColumnSpec("T", "Text", size=40, compressed=False)],
+        [IndexSpec("PK", ("Id",), primary=True)],
+        created=entry.date_create_serial,
+        updated=entry.date_update_serial,
+    )
+    for i in range(1, 11):
+        table.insert_row({"N": i, "T": f"row {i}"})
+    db = same_then_reopen("built", db)
+    steps: list[tuple[str, Callable[[Table], object]]] = [
+        ("ALTER TABLE W ADD COLUMN Extra LONG", lambda t: t.add_column(ColumnSpec("Extra", "Long"), updated=updated())),
+        ("ALTER TABLE W ADD COLUMN Remark TEXT(30)", lambda t: t.add_column(ColumnSpec("Remark", "Text", size=30, compressed=False), updated=updated())),
+        ("ALTER TABLE W DROP COLUMN Extra", lambda t: t.drop_column("Extra", updated=updated())),
+        ("ALTER TABLE W ADD COLUMN Again LONG", lambda t: t.add_column(ColumnSpec("Again", "Long"), updated=updated())),
+        ("ALTER TABLE W DROP COLUMN T", lambda t: t.drop_column("T", updated=updated())),
+    ]
+    for statement, ours in steps:
+        engine_runs(statement)
+        ours(db.table("W"))
+        db = same_then_reopen(statement, db)
+    assert db.table("W").column_names == ["Id", "N", "Remark", "Again"]
+    check_indexes(db.table("W"))
+
+
 def test_growth_past_512_pages_matches_the_engine_byte_for_byte(tmp_path: Path) -> None:
     """450 memo rows carry the file from 121 to about 570 pages.  The global
     usage map, the table's maps and the column's maps all have to grow

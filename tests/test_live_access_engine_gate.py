@@ -895,6 +895,32 @@ def test_alter_table_matches_the_engine_byte_for_byte(tmp_path: Path) -> None:
     check_indexes(db.table("W"))
 
 
+def test_a_second_map_page_matches_the_engine_byte_for_byte(tmp_path: Path) -> None:
+    """A table whose 58 usage-map rows overflow its map page: 32 indexes
+    and 12 Memo columns, created in one DAO session, byte for byte."""
+    from pyopenvba.access import ColumnSpec, IndexSpec
+
+    theirs = tmp_path / "theirs.accdb"
+    shutil.copy(TEMPLATE, theirs)
+    script = tmp_path / "step.sql"
+    ddl = "CREATE TABLE Many (Id AUTOINCREMENT CONSTRAINT PK PRIMARY KEY, " + ", ".join(f"C{i:02d} LONG" for i in range(1, 33)) + ", " + ", ".join(f"M{i:02d} MEMO" for i in range(1, 13)) + ")"
+    statements = [ddl] + [f"CREATE INDEX IX{i:02d} ON Many (C{i:02d})" for i in range(1, 32)]
+    script.write_text(chr(10).join(statements) + chr(10), encoding="ascii")
+    assert oracle("-Command", "sql-file", "-Path", str(theirs), "-SqlFile", str(script)) == "ok"
+    entry = _catalog_entry(theirs, "Many")
+    db = AccessDatabase(TEMPLATE)
+    columns = [ColumnSpec("Id", "Long", autonumber=True), *(ColumnSpec(f"C{i:02d}", "Long") for i in range(1, 33)), *(ColumnSpec(f"M{i:02d}", "Memo", compressed=False) for i in range(1, 13))]
+    db.create_table("Many", columns, [IndexSpec("PK", ("Id",), primary=True)], created=entry.date_create_serial, updated=entry.date_create_serial)
+    for i in range(1, 32):
+        db.create_index("Many", IndexSpec(f"IX{i:02d}", (f"C{i:02d}",)), updated=entry.date_create_serial)
+    # The last CREATE INDEX stamps the row; earlier stamps are overwritten.
+    rid = next(rid for rid, row in db.table("MSysObjects").rows_with_ids() if row["Name"] == "Many")
+    db.table("MSysObjects").update_row(rid, {"DateUpdate": entry.date_update_serial})
+    ours, engine = db.to_bytes(), theirs.read_bytes()
+    assert not (d := _differing_pages(ours, engine)), f"second map page: pages differ from the engine's: {_describe_pages(ours, engine, d)}"
+    check_indexes(db.table("Many"))
+
+
 def test_growth_past_512_pages_matches_the_engine_byte_for_byte(tmp_path: Path) -> None:
     """450 memo rows carry the file from 121 to about 570 pages.  The global
     usage map, the table's maps and the column's maps all have to grow

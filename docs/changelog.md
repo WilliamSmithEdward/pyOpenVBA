@@ -78,6 +78,14 @@ All notable changes to pyOpenVBA are documented here. This project follows
   and the drop of the first (live gate). CREATE TABLE's catalog row now carries DateCreate as its first
   DateUpdate, as the engine's does, which the stale bytes under the slot
   table revealed.
+- **A second usage-map page.** When a table's map page is full (57
+  rows), the next index or Memo column gets its map row on a fresh map
+  page, as the engine does; a table with 32 indexes and 12 Memo columns
+  is byte-identical to the engine's (live gate). The same run pinned down
+  when the engine reuses pages it released earlier in a session:
+  dropped, truncated or retired pages never, a freed value chain's pages
+  at once when they predate the session, and a definition rewrite's old
+  continuation pages in a batch once five are waiting.
 - `db.rename_table(name, new_name)` renames a table as DAO does: the
   catalog row and every relationship row naming it (live gate).
 - **Columns can be added and dropped.** `table.add_column(ColumnSpec(...))`

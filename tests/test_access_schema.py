@@ -597,6 +597,27 @@ def test_rename_table_follows_the_catalog_and_the_relationships() -> None:
     assert sorted(t for t in again.table_names() if not t.startswith("MSys")) == ["Children", "Parents"]
 
 
+def test_map_rows_spill_onto_a_second_map_page() -> None:
+    """Measured: a table's 58th usage-map row (32 indexes, 12 Memo columns)
+    went to row 0 of a fresh map page, allocated just before the index root."""
+    db = AccessDatabase(TEMPLATE)
+    columns = [ColumnSpec("Id", "Long", autonumber=True), *(ColumnSpec(f"C{i:02d}", "Long") for i in range(1, 33)), *(ColumnSpec(f"M{i:02d}", "Memo", compressed=False) for i in range(1, 13))]
+    table = db.create_table("Many", columns, [IndexSpec("PK", ("Id",), primary=True)], created=WHEN)
+    first_map = table.definition.owned_pages_ref >> 8
+    for i in range(1, 32):
+        db.create_index("Many", IndexSpec(f"IX{i:02d}", (f"C{i:02d}",)), updated=WHEN)
+    d = db.table("Many").definition
+    refs = [r.usage_map_ref for r in d.real_indexes]
+    assert all(ref >> 8 == first_map for ref in refs[:-1]) and refs[-1] >> 8 != first_map and refs[-1] & 0xFF == 0
+    spill = db.store.read(refs[-1] >> 8)
+    assert spill[0] == 0x01 and spill[4:8] == bytes(4) and int.from_bytes(spill[12:14], "little") == 1
+    assert len(d.real_indexes) == 32 and len(d.pages) == 2
+    db.table("Many").insert_row({"C01": 1, "M01": "x" * 100})
+    check_indexes(db.table("Many"))
+    again = AccessDatabase(db.to_bytes())
+    assert len(again.table("Many").indexes) == 32 and [r["C01"] for r in again.table("Many").rows()] == [1]
+
+
 def test_bad_specs_are_refused() -> None:
     db = AccessDatabase(TEMPLATE)
     with pytest.raises(AccessError):

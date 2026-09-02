@@ -617,15 +617,8 @@ class Table:
             # A Memo or OLE column brings two usage-map rows (owned and
             # free-space pages of its values) on the table's map page and a
             # map pair in the definition.
-            store = self._db.store
-            map_page = d.owned_pages_ref >> 8
-            maps = DataPage(store.read(map_page))
-            if not maps.fits(2 * len(USAGE_MAP_ROW)):
-                raise AccessError("the table's usage-map page is full; a second map page is not written yet")
-            owned_row = maps.add_row(USAGE_MAP_ROW)
-            free_row = maps.add_row(USAGE_MAP_ROW)
-            store.write(map_page, maps.to_bytes())
-            d.column_usage_maps[number] = ((map_page << 8) | owned_row, (map_page << 8) | free_row)
+            owned_ref, free_ref = self._db._new_map_rows(d, 2)  # pyright: ignore[reportPrivateUsage]
+            d.column_usage_maps[number] = (owned_ref, free_ref)
         d.columns.append(column)
         d.max_columns += 1
         if not is_fixed:
@@ -962,7 +955,7 @@ class AccessDatabase:
         for page, image in zip([first, *chain], images, strict=True):
             store.write(page, image)
         for page in old_chain:
-            release_page(store, page)
+            release_page(store, page, kind="rewrite")
         return chain
 
     def patch_definition(self, definition: TableDefinition, offset: int, data: bytes) -> None:
@@ -1150,15 +1143,9 @@ class AccessDatabase:
         if spec.primary and d.primary_key() is not None:
             raise AccessError(f"table {table_name!r} already has a primary key")
         store = self.store
-        map_page = d.owned_pages_ref >> 8
-        maps = DataPage(store.read(map_page))
-        if not maps.fits(len(USAGE_MAP_ROW)):
-            raise AccessError("the table's usage-map page is full; a second map page is not written yet")
-        umap_row = maps.add_row(USAGE_MAP_ROW)
-        store.write(map_page, maps.to_bytes())
+        umap_ref = self._new_map_rows(d, 1)[0]
         root = allocate_page(store)
         store.write(root, empty_index_root(d.page))
-        umap_ref = (map_page << 8) | umap_row
         real, logical = new_index_parts(spec, d, len(d.real_indexes), umap_ref, root)
         d.real_indexes.append(real)
         d.logical_indexes.append(logical)
@@ -1441,15 +1428,9 @@ class AccessDatabase:
         parent_logical_number = len(pd.logical_indexes)
 
         # The foreign-key index on the referencing table, built like CREATE INDEX.
-        map_page = cd.owned_pages_ref >> 8
-        maps = DataPage(store.read(map_page))
-        if not maps.fits(len(USAGE_MAP_ROW)):
-            raise AccessError("the table's usage-map page is full; a second map page is not written yet")
-        umap_row = maps.add_row(USAGE_MAP_ROW)
-        store.write(map_page, maps.to_bytes())
+        umap_ref = self._new_map_rows(cd, 1)[0]
         root = allocate_page(store)
         store.write(root, empty_index_root(cd.page))
-        umap_ref = (map_page << 8) | umap_row
         real, _plain = new_index_parts(IndexSpec(name, columns), cd, len(cd.real_indexes), umap_ref, root)
         cd.real_indexes.append(real)
         cd.logical_indexes.append(
@@ -1616,6 +1597,33 @@ class AccessDatabase:
                     objects.update_row(rid, {"DateUpdate": stamp})
                     break
         self._catalog = None
+
+    def _new_map_rows(self, definition: TableDefinition, count: int) -> list[int]:
+        """References to ``count`` fresh 69-byte usage-map rows for a table:
+        on the first of its map pages with room (the page its own maps live
+        on, then any page a later map spilled onto), else on a new map page
+        the engine allocates the moment the current one is full (measured
+        with a 58th map row: it went to row 0 of a fresh page)."""
+        store = self.store
+        candidates: list[int] = []
+        refs = [definition.owned_pages_ref, definition.free_space_pages_ref]
+        refs += [r.usage_map_ref for r in definition.real_indexes]
+        for owned, free in definition.column_usage_maps.values():
+            refs += [owned, free]
+        for ref in refs:
+            if ref >> 8 not in candidates:
+                candidates.append(ref >> 8)
+        out: list[int] = []
+        while len(out) < count:
+            page_number = next((p for p in candidates if DataPage(store.read(p)).fits(len(USAGE_MAP_ROW))), None)
+            if page_number is None:
+                page_number = allocate_page(store)
+                store.write(page_number, usage_map_page(0))
+                candidates.append(page_number)
+            maps = DataPage(store.read(page_number))
+            out.append((page_number << 8) | maps.add_row(USAGE_MAP_ROW))
+            store.write(page_number, maps.to_bytes())
+        return out
 
     def _next_object_id(self) -> int:
         """The id the engine gives the next Access-layer object: one past the

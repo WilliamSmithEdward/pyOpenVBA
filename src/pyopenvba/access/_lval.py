@@ -226,7 +226,7 @@ def free_long_value(store: PageStore, maps: tuple[int, int], ref: LongValueRef) 
         return
     if ref.kind == LongValueRef.KIND_CHAINED:
         for page, _row, _chunk in _chain(store, ref):
-            release_page(store, page, quarantine=False)
+            release_page(store, page, kind="value")
             remove_from_map(store, owned_ref, page)
         return
     raise AccessError(f"unknown long-value kind {ref.kind:#04x}")

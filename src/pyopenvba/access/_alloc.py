@@ -130,13 +130,14 @@ def allocate_page(store: PageStore) -> int:
     no usable free page it is extended by one 8-byte step, the 64 new
     pages counting as free, which is how the engine grows it."""
     free = read_usage_map(store, GLOBAL_USAGE_MAP_PAGE, GLOBAL_USAGE_MAP_ROW)
-    candidates = [p for p in free.pages() if p not in store.released]
+    held = store.released | set(store.pending)
+    candidates = [p for p in free.pages() if p not in held]
     if not candidates:
         if free.kind != USAGE_MAP_INLINE:
             raise AccessError("the global usage map lists no free page and is not inline; not supported yet")
         free.bitmap.extend(b"\xff" * INLINE_BITMAP_STEP)
         _rewrite_inline_row(store, free)
-        candidates = [p for p in free.pages() if p not in store.released]
+        candidates = [p for p in free.pages() if p not in held]
     page = candidates[0]
     while store.page_count <= page:
         store.append()
@@ -145,20 +146,36 @@ def allocate_page(store: PageStore) -> int:
     return page
 
 
-def release_page(store: PageStore, page: int, *, quarantine: bool = True) -> None:
-    """Return ``page`` to the global free map.  Pages given back by DROP
-    TABLE, a definition rewrite, truncation or the retirement of an emptied
-    page stay out of this session's allocations (``quarantine``), and so
-    does any page allocated in this session, whatever frees it.  The pages
-    of a freed long-value chain that existed when the database was opened
-    are handed out again at once (measured: the next 10 KB value, and a
-    new table's pages, took them in order)."""
+PENDING_FLUSH = 5
+
+
+def release_page(store: PageStore, page: int, *, kind: str = "object") -> None:
+    """Return ``page`` to the global free map.  When the session may take it
+    again depends on what gave it back (all measured with DAO):
+
+    * ``"object"`` -- DROP TABLE, truncation, the retirement of an emptied
+      page, a dropped index or column: never in this session, however
+      many pile up (seven tables dropped and recreated in one session all
+      took fresh pages).
+    * ``"value"`` -- a freed long-value chain: at once when the page
+      predates the session (the next 10 KB value, and a new table's
+      pages, took them in order), else it waits like a rewrite's page.
+    * ``"rewrite"`` -- the continuation page a definition rewrite replaced:
+      it waits with the other pending pages, and they all come back into
+      use once five are waiting (a run of CREATE INDEX statements reused
+      its released continuation pages in a batch, lowest first).
+    """
     free = read_usage_map(store, GLOBAL_USAGE_MAP_PAGE, GLOBAL_USAGE_MAP_ROW)
     set_usage_bit(store, free, page, True)
-    if quarantine or page in store.allocated:
+    if kind == "object":
         store.released.add(page)
-    else:
+        return
+    if kind == "value" and page not in store.allocated:
         store.released.discard(page)
+        return
+    store.pending.append(page)
+    if len(store.pending) >= PENDING_FLUSH:
+        store.pending.clear()
 
 
 def add_to_map(store: PageStore, reference: int, page: int) -> None:

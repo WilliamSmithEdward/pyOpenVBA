@@ -244,6 +244,13 @@ the engine finds the same rows it does today.
   with three MSysACEs rows whose ACMs are 0xF00FE, 0xFFFFF, 0xFFFFF on
   the three default SIDs in order. Both tables' DateUpdate is stamped,
   at slightly different instants.
+* **A second usage-map page**, measured with a table of 32 indexes and 12
+  Memo columns (58 map rows). The map page holds 57 rows of 69 bytes;
+  the 58th went to row 0 of a fresh map page (a data page with owner 0,
+  like the first) allocated the moment the current one was full, in the
+  place CREATE INDEX takes its map row: before the index's root page and
+  the definition's rewrite. `_new_map_rows` places later rows on the
+  first of the table's map pages with room.
 * **Renaming a table** (a TableDef's Name set through DAO) changes the
   catalog row's Name and DateUpdate and every MSysRelationships row that
   names the table as its object or referenced object; the definition,
@@ -394,15 +401,21 @@ the engine finds the same rows it does today.
   session: `PageStore.released` holds what it has released, the
   allocator skips those, and a new instance starts clean. A transaction
   changes nothing here (DROP and CREATE inside one transaction still
-  took fresh pages). Pages retired by a filtered delete and pages an
+  took fresh pages, and so did seven tables dropped and recreated one
+  after another). Pages retired by a filtered delete and pages an
   unfiltered DELETE releases are quarantined the same way (the rows
-  inserted next in the session took fresh pages). The pages of a freed
-  long-value chain are the exception, provided the chain existed when
-  the database was opened: deleted and rewritten, a 10 KB value took its
-  three pages back in the same order, and a new table took them for its
-  definition and maps; a chain created and freed within one session got
-  fresh pages like everything else. `PageStore.allocated` records the
-  session's own allocations for that distinction.
+  inserted next in the session took fresh pages). Two other kinds of
+  release behave differently. The pages of a freed long-value chain come
+  back at once when the chain existed before the database was opened
+  (deleted and rewritten, a 10 KB value took its three pages back in
+  order, and a new table took them for its definition and maps); a chain
+  created within the session waits. The continuation page a definition
+  rewrite replaces waits too, and the waiting pages come back into use
+  together once five have piled up: over 31 CREATE INDEX statements the
+  engine reused its released continuation pages for later roots, a map
+  page and a continuation in one batch, lowest first, and kept growing
+  the file before that. `PageStore.released`, `pending` and `allocated`
+  carry the three distinctions.
 * **Creating and dropping tables**, measured by diffing `CREATE TABLE`,
   `CREATE INDEX` and `DROP TABLE` page by page. A new table takes its
   definition page and one data-shaped page (owner 0) holding its usage

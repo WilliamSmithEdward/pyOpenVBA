@@ -241,7 +241,11 @@ the engine finds the same rows it does today.
   root becomes an empty leaf with a distinct count of 0, and the
   AutoNumber counter stays; `Table.truncate()` does the same. (A
   filtered delete that happens to remove every row keeps the distinct
-  count: deletes never lower it.)
+  count: deletes never lower it.) The engine's own catalog maintenance
+  takes neither path: when DROP TABLE deletes the table's MSysObjects
+  and MSysACEs rows, an emptied overflow page stays type 0x01, owned and
+  unreleased, and no page rejoins a free-space map -- `delete_row(...,
+  settle_pages=False)` is that behaviour.
 * **Stamps carry more than a millisecond**, seen in 14 of 112 catalog
   timestamps the engine wrote: their doubles sit one bit away from any
   millisecond value, and no arithmetic tried (nearest, ceiling, floor,

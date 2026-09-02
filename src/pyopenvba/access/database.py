@@ -448,7 +448,12 @@ class Table:
         target_row, target_page = row_pointer(pointer)
         return target_page, target_row
 
-    def delete_row(self, row_id: RowId) -> None:
+    def delete_row(self, row_id: RowId, *, settle_pages: bool = True) -> None:
+        """Delete one row and its index entries and long values.  With
+        ``settle_pages`` the pages it leaves are settled as a DELETE
+        statement settles them (see :meth:`_row_removed`); the engine's own
+        catalog maintenance -- DROP TABLE deleting the table's catalog
+        rows -- leaves them as they are, so that path passes ``False``."""
         db = self._db
         d = self.definition
         data = self.fetch_row(row_id.page, row_id.slot)
@@ -465,20 +470,24 @@ class Table:
         if moved is not None:
             target = DataPage(db.store.read(moved[0]))
             target.remove_row(moved[1], overflow_target=True)
-            self._row_removed(moved[0], target)
+            self._row_removed(moved[0], target, settle=settle_pages)
         page = DataPage(db.store.read(row_id.page))
         page.remove_row(row_id.slot)
-        self._row_removed(row_id.page, page)
+        self._row_removed(row_id.page, page, settle=settle_pages)
         d.row_count -= 1
         db.patch_definition(d, OFFSET_ROW_COUNT, struct.pack("<I", d.row_count))
 
-    def _row_removed(self, page_number: int, page: DataPage) -> None:
+    def _row_removed(self, page_number: int, page: DataPage, *, settle: bool = True) -> None:
         """Write back a page that just lost a row, the way the engine
         settles it: a page with rows left rejoins the free-space map; an
         emptied page is retired (type 0x09, released, out of both maps),
-        unless it is the table's first data page, which stays."""
+        unless it is the table's first data page, which stays.  Without
+        ``settle`` the page is written back and nothing else moves."""
         db = self._db
         d = self.definition
+        if not settle:
+            db.store.write(page_number, page.to_bytes())
+            return
         if page.live_rows == 0 and page_number != min(read_usage_map_ref(db.store, d.owned_pages_ref).pages(), default=page_number):
             page.retire()
             db.store.write(page_number, page.to_bytes())
@@ -1019,12 +1028,12 @@ class AccessDatabase:
         objects = self.table("MSysObjects")
         for rid, row in objects.rows_with_ids():
             if row["Id"] == d.page and row["Type"] == OBJECT_TABLE:
-                objects.delete_row(rid)
+                objects.delete_row(rid, settle_pages=False)
                 break
         aces = self.table("MSysACEs")
         for rid, row in list(aces.rows_with_ids()):
             if row["ObjectId"] == d.page:
-                aces.delete_row(rid)
+                aces.delete_row(rid, settle_pages=False)
         self._catalog = None
         self._definitions.pop(d.page, None)
 

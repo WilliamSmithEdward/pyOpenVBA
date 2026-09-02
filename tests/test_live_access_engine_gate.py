@@ -762,6 +762,49 @@ def test_properties_match_the_engine_byte_for_byte(tmp_path: Path) -> None:
     assert table.column_properties("Name") == {"Caption": "Name shown", "Description": "Field described by DAO"}
 
 
+def test_saved_queries_match_the_engine_byte_for_byte(tmp_path: Path) -> None:
+    """Four CreateQueryDef calls -- a plain select, a joined DISTINCT TOP
+    GROUP BY HAVING ORDER BY DESC query, a parameter query and a DELETE --
+    each its own DAO session, byte for byte."""
+    from pyopenvba.access import ColumnSpec, IndexSpec
+
+    theirs = tmp_path / "theirs.accdb"
+    shutil.copy(TEMPLATE, theirs)
+    script = tmp_path / "step.sql"
+    script.write_text(
+        "CREATE TABLE Parent (Id AUTOINCREMENT CONSTRAINT PK PRIMARY KEY, Name TEXT(50))" + chr(10)
+        + "CREATE TABLE Child (Id AUTOINCREMENT CONSTRAINT PK PRIMARY KEY, ParentId LONG, Remark TEXT(50))" + chr(10),
+        encoding="ascii",
+    )
+    assert oracle("-Command", "sql-file", "-Path", str(theirs), "-SqlFile", str(script)) == "ok"
+    key = [IndexSpec("PK", ("Id",), primary=True)]
+    db = AccessDatabase(TEMPLATE)
+    for name, columns in (
+        ("Parent", [ColumnSpec("Id", "Long", autonumber=True), ColumnSpec("Name", "Text", size=50, compressed=False)]),
+        ("Child", [ColumnSpec("Id", "Long", autonumber=True), ColumnSpec("ParentId", "Long"), ColumnSpec("Remark", "Text", size=50, compressed=False)]),
+    ):
+        entry = _catalog_entry(theirs, name)
+        db.create_table(name, columns, key, created=entry.date_create_serial, updated=entry.date_update_serial)
+    assert not _differing_pages(db.to_bytes(), theirs.read_bytes())
+    statements = {
+        "ParentsAbove1": "SELECT Parent.Id, Parent.Name FROM Parent WHERE Parent.Id > 1 ORDER BY Parent.Name",
+        "Q2": "SELECT DISTINCT TOP 5 Child.Id, Child.ParentId AS P FROM Child INNER JOIN Parent ON Child.ParentId = Parent.Id WHERE Child.Id > 2 GROUP BY Child.Id, Child.ParentId HAVING Count(*) > 0 ORDER BY Child.Id DESC",
+        "Q3": "PARAMETERS [Which] Long; SELECT * FROM Parent WHERE Id = [Which]",
+        "Q4": "DELETE FROM Child WHERE Id < 0",
+    }
+    for name, sql in statements.items():
+        script.write_text(sql + chr(10), encoding="ascii")
+        assert oracle("-Command", "create-query", "-Path", str(theirs), "-Table", name, "-SqlFile", str(script)) == "ok"
+        db = AccessDatabase(db.to_bytes())
+        entry = _catalog_entry(theirs, name)
+        db.create_query(name, sql, created=entry.date_create_serial, updated=entry.date_update_serial)
+        ours, engine = db.to_bytes(), theirs.read_bytes()
+        assert not (d := _differing_pages(ours, engine)), f"{name}: pages differ from the engine's: {_describe_pages(ours, engine, d)}"
+        assert db.query(name).sql == sql
+    for name in ("MSysObjects", "MSysQueries", "MSysACEs"):
+        check_indexes(db.table(name))
+
+
 def test_growth_past_512_pages_matches_the_engine_byte_for_byte(tmp_path: Path) -> None:
     """450 memo rows carry the file from 121 to about 570 pages.  The global
     usage map, the table's maps and the column's maps all have to grow

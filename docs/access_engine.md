@@ -244,6 +244,28 @@ the engine finds the same rows it does today.
   with three MSysACEs rows whose ACMs are 0xF00FE, 0xFFFFF, 0xFFFFF on
   the three default SIDs in order. Both tables' DateUpdate is stamped,
   at slightly different instants.
+* **Saved queries**, measured with DAO's `CreateQueryDef` on a plain
+  select, a joined DISTINCT TOP GROUP BY HAVING ORDER BY DESC query, a
+  parameter query and a DELETE. A query is a catalog object of type 5
+  under the Tables container (Flags 0x20 for an action query), owner as
+  usual, three table-style permission rows, and a property blob holding
+  DAO's ODBCTimeout (Integer 60) and MaxRecords (Long 0), appended one at
+  a time so the first blob sits inline in the row before the second
+  moves it to a long-value page; an action query's flag comes with that
+  last write. Its definition is a set of MSysQueries rows (`ObjectId,
+  Attribute, Order, Name1, Name2, Expression, Flag`), `Order` a four-byte
+  big-endian sequence per attribute, inserted in this order: attribute 0
+  (Flag 0), 255 (the end marker), 1 (the type: 5 delete, 4 update, 3
+  append, 2 make-table; absent for a select), 2 per PARAMETERS entry
+  (Name1 the name, Flag the DAO type), 6 per output column (Expression,
+  Name1 the alias, Flag 0), 7 per join (Name1/Name2 the tables,
+  Expression the condition, Flag 1 inner 2 left 3 right), 5 per source
+  table (Name1, Name2 the alias), 8 WHERE, 9 per GROUP BY expression
+  (Flag 0), 10 HAVING, 11 per ORDER BY expression (Name1 `d` for DESC),
+  and last 3 when the select flags are not 0 (0x01 `*`, 0x02 DISTINCT,
+  0x04 DISTINCTROW, 0x10 TOP with the count in Name1). Expressions are
+  stored as written. `_queries.py` turns that subset of Jet SQL into
+  rows and back.
 * **Properties** live in the catalog row's `LvProp` long value as an
   `MR2` blob, measured on a blob DAO wrote (table Description, field
   Caption and Description) and confirmed on all 17 Access-authored blobs
@@ -412,6 +434,6 @@ the engine finds the same rows it does today.
 | 3b | large files: usage maps growing past 512 pages | done for inline maps (growth and re-base as the engine does); the reference form is read but not yet written |
 | 5 | write schema: create/drop table, create index, catalog rows | done: `create_table`, `create_index`, `drop_table`; byte-identical to the engine's CREATE TABLE, CREATE INDEX and DROP TABLE on every page but page 0; the engine inserts into, reads and compacts a table pyOpenVBA created; definitions over one page (up to the 255-column limit) are chained and rewritten as the engine does, byte-identical. Not yet: a second map page, navigation-pane rows (the Access layer adds those itself) |
 | 6 | VBA project through the writer: module create/rename/delete | |
-| 7 | queries (`MSysQueries` to SQL and back), relationships, properties | relationships done: `create_relationship` / `drop_relationship` / `relationships()`, byte-identical to the engine's ADD CONSTRAINT ... FOREIGN KEY for a first and a second relationship on one parent and to DROP CONSTRAINT (live gate). Properties done: `table.properties()`, `column_properties()`, `set_properties()`, `db.database_properties()`; DAO's three property appends reproduced byte for byte (live gate). Not yet: queries |
+| 7 | queries (`MSysQueries` to SQL and back), relationships, properties | relationships done: `create_relationship` / `drop_relationship` / `relationships()`, byte-identical to the engine's ADD CONSTRAINT ... FOREIGN KEY for a first and a second relationship on one parent and to DROP CONSTRAINT (live gate). Properties done: `table.properties()`, `column_properties()`, `set_properties()`, `db.database_properties()`; DAO's three property appends reproduced byte for byte (live gate). Queries done for the SELECT / PARAMETERS / DELETE subset: `db.queries()`, `db.query()`, `db.create_query(name, sql)`; four CreateQueryDef calls reproduced byte for byte (live gate). Not yet: UPDATE / APPEND / MAKE TABLE / crosstab / UNION / pass-through queries, dropping a query, subqueries in the parser |
 | 8 | forms, reports, macros: the binary object formats nobody has published | |
 | 9 | SQL executor over the engine | |

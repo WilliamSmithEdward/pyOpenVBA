@@ -331,6 +331,12 @@ try {
             $fld.Properties.Append($desc)
             [Console]::Out.Write("ok")
         }
+        "create-query" {
+            # A saved query through DAO: -Table names it, -SqlFile holds its SQL.
+            $sql = [System.IO.File]::ReadAllText($SqlFile).Trim()
+            $qd = $db.CreateQueryDef($Table, $sql)
+            [Console]::Out.Write("ok")
+        }
         "build-simple" {
             # A small table for byte-level comparison of single edits.
             Invoke-Sql $db "CREATE TABLE Simple (Id AUTOINCREMENT PRIMARY KEY, N LONG, T TEXT(50))" $dbFailOnError

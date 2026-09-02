@@ -614,7 +614,18 @@ class Table:
             header = column_header(spec, number, d.var_column_count, 0, d.tag)
         column = parse_column_header(header, spec.name)
         if column.is_long_value:
-            raise AccessError("adding a Memo or OLE column is not written yet (its usage maps are unmeasured)")
+            # A Memo or OLE column brings two usage-map rows (owned and
+            # free-space pages of its values) on the table's map page and a
+            # map pair in the definition.
+            store = self._db.store
+            map_page = d.owned_pages_ref >> 8
+            maps = DataPage(store.read(map_page))
+            if not maps.fits(2 * len(USAGE_MAP_ROW)):
+                raise AccessError("the table's usage-map page is full; a second map page is not written yet")
+            owned_row = maps.add_row(USAGE_MAP_ROW)
+            free_row = maps.add_row(USAGE_MAP_ROW)
+            store.write(map_page, maps.to_bytes())
+            d.column_usage_maps[number] = ((map_page << 8) | owned_row, (map_page << 8) | free_row)
         d.columns.append(column)
         d.max_columns += 1
         if not is_fixed:
@@ -636,19 +647,37 @@ class Table:
         and name leave the definition while the other columns keep their
         numbers, offsets and variable indexes and the maximum column count
         stays; rows are not rewritten; the catalog row's DateUpdate is
-        stamped.  A column an index uses, a Memo or OLE column, or the
-        last column is refused."""
+        stamped.  A Memo or OLE column also gives back its long-value
+        pages and its two map rows.  A column an index uses, or the last
+        column, is refused."""
         import datetime as _dt
 
         d = self.definition
         column = d.column(name)
-        if column.is_long_value:
-            raise AccessError("dropping a Memo or OLE column is not written yet (its usage maps are unmeasured)")
         if len(d.columns) == 1:
             raise AccessError("a table keeps at least one column")
         for real in d.real_indexes:
             if any(c.number == column.number for c in real.columns):
                 raise AccessError(f"column {column.name!r} is used by an index; drop the index first")
+        if column.is_long_value and column.number in d.column_usage_maps:
+            # The column's long-value pages go back untouched and its two
+            # map rows are killed, as when a table is dropped.
+            store = self._db.store
+            owned_ref, free_ref = d.column_usage_maps.pop(column.number)
+            released: list[int] = []
+            for ref in (owned_ref, free_ref):
+                umap = read_usage_map_ref(store, ref)
+                for page_number in umap.pages():
+                    if ref == owned_ref:
+                        released.append(page_number)
+                    set_usage_bit(store, umap, page_number, False)
+            for ref in (owned_ref, free_ref):
+                maps = DataPage(store.read(ref >> 8))
+                maps.remove_row(ref & 0xFF)
+                store.write(ref >> 8, maps.to_bytes())
+            for page_number in released:
+                if page_number < store.page_count:
+                    release_page(store, page_number)
         d.columns.remove(column)
         self._db._write_definition(serialize_definition(d), d.page, d.pages[1:], keep_tail=True)  # pyright: ignore[reportPrivateUsage]
         self._stamp_catalog(updated if isinstance(updated, (_dt.datetime, float)) else _dt.datetime.now().replace(microsecond=0))

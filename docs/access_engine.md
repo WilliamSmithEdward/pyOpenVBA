@@ -263,7 +263,11 @@ the engine finds the same rows it does today.
   and the maximum column count stay. Rows are never rewritten: a row
   written before the change keeps its old column count and reads back
   with the new column null. Only the definition page and the catalog
-  row's DateUpdate change.
+  row's DateUpdate change. A Memo or OLE column added this way also gets
+  two 69-byte usage-map rows on the table's map page and a map pair in
+  the definition; dropped, its map bits are cleared, its pages released
+  untouched and its two map rows killed, the pair leaving the definition,
+  while the rows keep their stale value references.
 * **Saved queries**, measured with DAO's `CreateQueryDef` on a plain
   select, a joined DISTINCT TOP GROUP BY HAVING ORDER BY DESC query, a
   parameter query and a DELETE. A query is a catalog object of type 5
@@ -471,7 +475,7 @@ the engine finds the same rows it does today.
 | 3 | write rows: insert/update/delete, free-space and owned-page maps, LVAL allocation, counters | done: every column type including Memo/OLE of every storage kind, overflow rows, unique-index enforcement, page allocation and all counters; the engine reads the result, keeps working on it and compacts it; single edits and memo inserts byte-identical to the engine's |
 | 4 | write indexes: key encoding from the engine-generated collation table, B-tree insert and split | done: entries inserted and removed, pages compressed when full and split, root pinned; single edits byte-identical to the engine |
 | 3b | large files: usage maps growing past 512 pages | done for inline maps (growth and re-base as the engine does); the reference form is read but not yet written |
-| 5 | write schema: create/drop table, create index, catalog rows | done: `create_table`, `create_index`, `drop_table`; byte-identical to the engine's CREATE TABLE, CREATE INDEX and DROP TABLE on every page but page 0; the engine inserts into, reads and compacts a table pyOpenVBA created; definitions over one page (up to the 255-column limit) are chained and rewritten as the engine does, byte-identical; `add_column` / `drop_column` match ALTER TABLE ADD COLUMN / DROP COLUMN byte for byte (live gate). Not yet: a second map page, adding or dropping Memo/OLE columns, renaming or retyping columns, renaming tables, navigation-pane rows (the Access layer adds those itself) |
+| 5 | write schema: create/drop table, create index, catalog rows | done: `create_table`, `create_index`, `drop_table`; byte-identical to the engine's CREATE TABLE, CREATE INDEX and DROP TABLE on every page but page 0; the engine inserts into, reads and compacts a table pyOpenVBA created; definitions over one page (up to the 255-column limit) are chained and rewritten as the engine does, byte-identical; `add_column` / `drop_column` match ALTER TABLE ADD COLUMN / DROP COLUMN byte for byte (live gate). `rename_table` matches a DAO rename. Not yet: a second map page, renaming or retyping columns, navigation-pane rows (the Access layer adds those itself) |
 | 6 | VBA project through the writer: module create/rename/delete | |
 | 7 | queries (`MSysQueries` to SQL and back), relationships, properties | relationships done: `create_relationship` / `drop_relationship` / `relationships()`, byte-identical to the engine's ADD CONSTRAINT ... FOREIGN KEY for a first and a second relationship on one parent and to DROP CONSTRAINT (live gate). Properties done: `table.properties()`, `column_properties()`, `set_properties()`, `db.database_properties()`; DAO's three property appends reproduced byte for byte (live gate). Queries done for SELECT, PARAMETERS, DELETE, UPDATE, INSERT INTO ... SELECT, SELECT ... INTO and UNION: `db.queries()`, `db.query()`, `db.create_query(name, sql)`, `db.drop_query(name)`; eight CreateQueryDef calls and a QueryDefs.Delete reproduced byte for byte (live gate). Not yet: crosstab and pass-through queries, subqueries in the parser |
 | 8 | forms, reports, macros: the binary object formats nobody has published | |

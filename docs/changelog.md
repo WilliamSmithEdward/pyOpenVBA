@@ -84,8 +84,9 @@ All notable changes to pyOpenVBA are documented here. This project follows
   and `table.drop_column(name)` do what `ALTER TABLE ... ADD COLUMN` and
   `DROP COLUMN` do, byte for byte in the live gate: the definition
   rewritten, rows left as they are (old rows read the new column as
-  null), the catalog row stamped. Memo and OLE columns and indexed
-  columns are refused for now. Found on the way: a definition rewrite
+  null), the catalog row stamped. Memo and OLE columns bring or give back
+  their usage maps and pages; indexed columns are refused. Found on the
+  way: a definition rewrite
   after inserts in the same session wrote back the indexes' distinct-key
   counts as they were when the definition was read; the live counts now
   go in.

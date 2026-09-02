@@ -549,6 +549,28 @@ def test_columns_are_added_and_dropped_as_alter_table_does() -> None:
     assert saved.table("W").column_names == ["Id", "N", "Remark", "Again"]
     assert serialize_definition(saved.table("W").definition) == serialize_definition(db.table("W").definition)
 
+    # A Memo column brings two map rows and a map pair, and gives its
+    # long-value pages back untouched when dropped.
+    table = db.table("W")
+    map_page = table.definition.owned_pages_ref >> 8
+    slots_before = len(read_usage_map_ref(db.store, table.definition.owned_pages_ref).pages()), db.store.read(map_page)[12:14]
+    notes = table.add_column(ColumnSpec("Notes", "Memo"), updated=WHEN)
+    d = db.table("W").definition
+    assert notes.number == 6 and notes.var_index == 2 and d.var_column_count == 3 and 6 in d.column_usage_maps
+    assert db.store.read(map_page)[12:14] == (int.from_bytes(slots_before[1], "little") + 2).to_bytes(2, "little")
+    db.table("W").insert_row({"N": 99, "Notes": "n" * 3000})
+    owned_ref = db.table("W").definition.column_usage_maps[6][0]
+    lv_pages = list(read_usage_map_ref(db.store, owned_ref).pages())
+    assert len(lv_pages) == 2
+    db.table("W").drop_column("Notes", updated=WHEN)
+    d = db.table("W").definition
+    assert 6 not in d.column_usage_maps and d.var_column_count == 3 and d.max_columns == 7
+    assert [c.name for c in d.columns_by_number()] == ["Id", "N", "Remark", "Again"]
+    free = set(read_usage_map(db.store, GLOBAL_USAGE_MAP_PAGE, GLOBAL_USAGE_MAP_ROW).pages())
+    assert set(lv_pages) <= free and all(db.store.read(p)[0] == 0x01 for p in lv_pages)
+    assert [r["N"] for r in db.table("W").rows()][-1] == 99 and db.table("W").row_count == 12
+    check_indexes(db.table("W"))
+
 
 def test_rename_table_follows_the_catalog_and_the_relationships() -> None:
     db = AccessDatabase(TEMPLATE)

@@ -855,9 +855,11 @@ def test_alter_table_matches_the_engine_byte_for_byte(tmp_path: Path) -> None:
         assert oracle("-Command", "sql-file", "-Path", str(theirs), "-SqlFile", str(script)) == "ok"
 
     def same_then_reopen(step: str, db: AccessDatabase) -> AccessDatabase:
-        ours, engine = db.to_bytes(), theirs.read_bytes()
-        assert not (d := _differing_pages(ours, engine)), f"{step}: pages differ from the engine's: {_describe_pages(ours, engine, d)}"
-        return AccessDatabase(ours)
+        ours, engine = bytearray(db.to_bytes()), bytearray(theirs.read_bytes())
+        _mask_lval_stamps(ours, (6000,))  # the memo chain's per-session stamp
+        _mask_lval_stamps(engine, (6000,))
+        assert not (d := _differing_pages(bytes(ours), bytes(engine))), f"{step}: pages differ from the engine's: {_describe_pages(bytes(ours), bytes(engine), d)}"
+        return AccessDatabase(db.to_bytes())
 
     def updated() -> object:
         return _catalog_entry(theirs, "W").date_update_serial
@@ -881,12 +883,15 @@ def test_alter_table_matches_the_engine_byte_for_byte(tmp_path: Path) -> None:
         ("ALTER TABLE W DROP COLUMN Extra", lambda t: t.drop_column("Extra", updated=updated())),
         ("ALTER TABLE W ADD COLUMN Again LONG", lambda t: t.add_column(ColumnSpec("Again", "Long"), updated=updated())),
         ("ALTER TABLE W DROP COLUMN T", lambda t: t.drop_column("T", updated=updated())),
+        ("ALTER TABLE W ADD COLUMN Notes MEMO", lambda t: t.add_column(ColumnSpec("Notes", "Memo", compressed=False), updated=updated())),
+        ("INSERT INTO W (N, Notes) VALUES (99, '" + "n" * 3000 + "')", lambda t: t.insert_row({"N": 99, "Notes": "n" * 3000})),
+        ("ALTER TABLE W DROP COLUMN Notes", lambda t: t.drop_column("Notes", updated=updated())),
     ]
     for statement, ours in steps:
         engine_runs(statement)
         ours(db.table("W"))
-        db = same_then_reopen(statement, db)
-    assert db.table("W").column_names == ["Id", "N", "Remark", "Again"]
+        db = same_then_reopen(statement[:40], db)
+    assert db.table("W").column_names == ["Id", "N", "Remark", "Again"] and db.table("W").row_count == 11
     check_indexes(db.table("W"))
 
 

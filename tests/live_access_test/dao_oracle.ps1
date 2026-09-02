@@ -304,6 +304,15 @@ try {
             for ($i = 1; $i -le 3; $i++) { Invoke-Sql $db "INSERT INTO Memos (T) VALUES ('row $i')" $dbFailOnError }
             [Console]::Out.Write("ok")
         }
+        "grow-memos" {
+            # -Rows memos of 1600 characters: each takes a long-value page of
+            # its own, so a few hundred carry the file past 512 pages.
+            $text = New-Object string ([char]97, 1600)
+            for ($i = 1; $i -le $Rows; $i++) {
+                Invoke-Sql $db "INSERT INTO Memos (T, M) VALUES ('m$i', '$text')" $dbFailOnError
+            }
+            [Console]::Out.Write("ok")
+        }
         "insert-memo" {
             # -Rows is the memo length in characters.
             $text = New-Object string ([char]97, $Rows)

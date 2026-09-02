@@ -29,23 +29,51 @@ from pyopenvba.access._pages import (
 )
 
 
+INLINE_BITMAP_STEP = 8
+
+
+def _rewrite_inline_row(store: PageStore, umap: UsageMap) -> None:
+    """Write an inline map's row back, resizing the row when the bitmap
+    grew (the other rows on the page shift, as for any row)."""
+    from pyopenvba.access._datapage import DataPage
+
+    row = bytes((USAGE_MAP_INLINE,)) + struct.pack("<I", umap.start_page) + bytes(umap.bitmap)
+    page = DataPage(store.read(umap.page))
+    page.replace_row(umap.row, row)
+    store.write(umap.page, page.to_bytes())
+
+
+def _reach(umap: UsageMap, page: int) -> None:
+    """Make an inline map able to hold ``page``, the way the engine does:
+    an empty map is re-based to the page's 8-aligned start; a map with
+    pages grows its bitmap in 8-byte steps to the least size covering the
+    page."""
+    if page < umap.start_page or (page - umap.start_page) // 8 >= len(umap.bitmap):
+        if not any(umap.bitmap):
+            umap.start_page = page & ~7
+            return
+        if page < umap.start_page:
+            raise AccessError(
+                f"page {page} lies below the start ({umap.start_page}) of the usage map at "
+                f"({umap.page}, {umap.row}); the engine's answer to that has not been measured"
+            )
+        needed_bytes = (page - umap.start_page) // 8 + 1
+        rounded = -(-needed_bytes // INLINE_BITMAP_STEP) * INLINE_BITMAP_STEP
+        umap.bitmap.extend(bytes(rounded - len(umap.bitmap)))
+
+
 def set_usage_bit(store: PageStore, umap: UsageMap, page: int, present: bool) -> None:
     """Set or clear ``page`` in the map and write the change through."""
     if umap.kind == USAGE_MAP_INLINE:
+        if present:
+            _reach(umap, page)
         index = page - umap.start_page
         if index < 0 or index // 8 >= len(umap.bitmap):
-            raise AccessError(
-                f"page {page} is outside the inline usage map at ({umap.page}, {umap.row}), "
-                f"which covers {umap.start_page}..{umap.start_page + 8 * len(umap.bitmap) - 1}"
-            )
+            if not present:
+                return  # clearing a page the map cannot hold changes nothing
+            raise AccessError(f"page {page} is outside the usage map at ({umap.page}, {umap.row})")
         _flip(umap.bitmap, index, present)
-        raw_page = bytearray(store.read(umap.page))
-        slots = row_slots(bytes(raw_page))
-        start, end = row_span(slots, umap.row)
-        if end - start != 5 + len(umap.bitmap):
-            raise AccessError(f"usage map row ({umap.page}, {umap.row}) changed size")
-        raw_page[start + 5 : end] = umap.bitmap
-        store.write(umap.page, bytes(raw_page))
+        _rewrite_inline_row(store, umap)
         return
     if umap.kind == USAGE_MAP_REFERENCE:
         chunk, within = divmod(page, PAGES_PER_BITMAP_PAGE)
@@ -96,13 +124,17 @@ def _new_bitmap_page(store: PageStore) -> int:
 
 def allocate_page(store: PageStore) -> int:
     """Take the lowest free page from the global map, growing the file if
-    that page lies past its end, and mark it used."""
+    that page lies past its end, and mark it used.  When the map lists no
+    free page it is extended by one 8-byte step, the 64 new pages counting
+    as free, which is how the engine grows it."""
     free = read_usage_map(store, GLOBAL_USAGE_MAP_PAGE, GLOBAL_USAGE_MAP_ROW)
     candidates = free.pages()
     if not candidates:
-        raise AccessError(
-            "the global usage map lists no free page; growing the map itself is not supported yet"
-        )
+        if free.kind != USAGE_MAP_INLINE:
+            raise AccessError("the global usage map lists no free page and is not inline; not supported yet")
+        free.bitmap.extend(b"\xff" * INLINE_BITMAP_STEP)
+        _rewrite_inline_row(store, free)
+        candidates = free.pages()
     page = candidates[0]
     while store.page_count <= page:
         store.append()

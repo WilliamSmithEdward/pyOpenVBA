@@ -409,22 +409,8 @@ class Table:
         row = encode_row(d, encoded, booleans)
         page_number = self._page_with_room(len(row))
         page = DataPage(db.store.read(page_number))
-        if page.fits(len(row)):
-            slot = page.add_row(row)
-            db.store.write(page_number, page.to_bytes())
-        else:
-            # The engine tests room for the row's bytes alone; when the slot
-            # entry then does not fit, the home slot still goes on this page
-            # as a pointer and the row itself on a page with room, and this
-            # page leaves the free-space map.
-            target_page = self._page_with_room(len(row), exclude=page_number)
-            target = DataPage(db.store.read(target_page))
-            target_slot = target.add_row(row, flags=ROW_DELETED)
-            db.store.write(target_page, target.to_bytes())
-            page = DataPage(db.store.read(page_number))
-            slot = page.add_row(encode_row_pointer(target_page, target_slot), flags=ROW_OVERFLOW)
-            db.store.write(page_number, page.to_bytes())
-            remove_from_map(db.store, d.free_space_pages_ref, page_number)
+        slot = page.add_row(row)
+        db.store.write(page_number, page.to_bytes())
         full_values = self.decode(split_row(d, row))
         for i, real, columns in self._real_indexes():
             key = self._key(real, columns, full_values)
@@ -605,8 +591,7 @@ class Table:
             raw = db.store.read(candidate)
             if raw[0] != PAGE_DATA or page_owner(raw) != d.page:
                 continue
-            # The engine's test is for the row's bytes, not the slot entry.
-            if DataPage(raw).free_space >= row_length:
+            if DataPage(raw).fits(row_length):
                 return candidate
             remove_from_map(db.store, d.free_space_pages_ref, candidate)
         page = allocate_page(db.store)

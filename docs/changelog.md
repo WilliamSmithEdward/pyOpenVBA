@@ -58,6 +58,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
   engine's own, and the engine inserts into, reads and compacts a table
   pyOpenVBA created. `pyopenvba.access` exports `AccessDatabase`,
   `Table`, `Index`, `RowId`, `ColumnSpec`, `IndexSpec`.
+- **Files grow past 512 pages** the way the engine grows them: inline
+  usage maps enlarge their bitmaps in 8-byte steps, an empty map is
+  re-based to its first page, and the global map is extended a step at
+  a time. Growing a database from 121 to 573 pages leaves every page but
+  page 0 identical to the engine's own.
 
 ## [3.5.1] - 2026-08-31
 

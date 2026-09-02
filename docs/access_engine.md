@@ -233,11 +233,22 @@ the engine finds the same rows it does today.
 * **Two rules found on the way.** An update stays in place when its
   growth fits the page's free space and otherwise moves the row behind a
   pointer (a two-byte growth stays with three bytes free and moves with
-  one); a page a row moved off leaves the free-space map. An insert tests
-  a page for the row's bytes alone: when the slot entry then does not fit,
-  the home slot still goes on that page as a pointer and the row itself on
-  a new page, and the first page leaves the free-space map -- which is why
-  a catalog row's home can be a pointer from the moment it is created.
+  one); a page a row moved off leaves the free-space map. An insert needs
+  room for the row and its slot entry, else the next page -- a catalog
+  row whose home is a pointer from the moment it is created got that way
+  from the two-step write above, not from an insert rule (a first reading
+  of the bytes said otherwise; the growth comparison below corrected it).
+* **Growing past 512 pages.** An inline usage map covers 8 pages per
+  bitmap byte from its start page. When a page beyond its reach is
+  added, a map that holds pages grows its bitmap in 8-byte steps to the
+  least size covering the page (573 pages: the global map's row goes from
+  69 to 77 bytes; 1708 pages: 221), and an empty map is re-based to the
+  page's 8-aligned start instead (a table whose only data page is 542
+  gets start 536). The global map is extended one step at a time when it
+  lists no free page, the 64 new pages counting as free. The reference
+  form of a map has not yet been seen written by the engine below 1708
+  pages. Checked: 450 memo rows carrying a database from 121 to 573 pages
+  leave every page but page 0 identical to the engine's own.
 
 ## Alternatives considered
 
@@ -267,6 +278,7 @@ the engine finds the same rows it does today.
 | 2 | indexes: walk B-trees, decode entries, sort keys for every type | done for reading. Every index on every fixture and on the live 1500-row table checks out, and `encode_key` rebuilds all 25 500 of its entries from the row values, text included |
 | 3 | write rows: insert/update/delete, free-space and owned-page maps, LVAL allocation, counters | done: every column type including Memo/OLE of every storage kind, overflow rows, unique-index enforcement, page allocation and all counters; the engine reads the result, keeps working on it and compacts it; single edits and memo inserts byte-identical to the engine's |
 | 4 | write indexes: key encoding from the engine-generated collation table, B-tree insert and split | done: entries inserted and removed, pages compressed when full and split, root pinned; single edits byte-identical to the engine |
+| 3b | large files: usage maps growing past 512 pages | done for inline maps (growth and re-base as the engine does); the reference form is read but not yet written |
 | 5 | write schema: create/drop table, create index, catalog rows | done: `create_table`, `create_index`, `drop_table`; byte-identical to the engine's CREATE TABLE, CREATE INDEX and DROP TABLE on every page but page 0; the engine inserts into, reads and compacts a table pyOpenVBA created. Not yet: definitions longer than one page, a second map page, navigation-pane rows (the Access layer adds those itself) |
 | 6 | VBA project through the writer: module create/rename/delete | |
 | 7 | queries (`MSysQueries` to SQL and back), relationships, properties | |

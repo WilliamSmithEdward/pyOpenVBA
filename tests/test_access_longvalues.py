@@ -114,6 +114,34 @@ def test_long_value_kinds_and_freeing(tmp_path: Path) -> None:
     assert "k chained" not in rows
 
 
+def test_usage_maps_grow_past_512_pages(tmp_path: Path) -> None:
+    """Inline usage maps cover 512 pages at first; the engine enlarges the
+    bitmap in 8-byte steps and re-bases an empty map to its first page.
+    Measured: 573 pages give the global map a 72-byte bitmap, a table
+    holding only page 542 a start page of 536."""
+    from pyopenvba.access import ColumnSpec, IndexSpec
+    from pyopenvba.access._pages import row_bytes
+
+    template = Path(__file__).parents[1] / "src" / "pyopenvba" / "_templates" / "blank_files" / "blank_database.accdb"
+    db = AccessDatabase(template)
+    table = db.create_table("Memos", [ColumnSpec("Id", "Long", autonumber=True), ColumnSpec("T", "Text", size=50), ColumnSpec("M", "Memo")], [IndexSpec("PK", ("Id",), primary=True)])
+    for i in range(450):
+        table.insert_row({"T": f"m{i}", "M": "a" * 1600})
+    assert db.store.page_count > 512
+    global_row = row_bytes(db.store.read(GLOBAL_USAGE_MAP_PAGE), GLOBAL_USAGE_MAP_ROW)
+    assert global_row is not None and len(global_row) == 5 + 8 * (-(-db.store.page_count // 64))
+    free = read_usage_map(db.store, GLOBAL_USAGE_MAP_PAGE, GLOBAL_USAGE_MAP_ROW)
+    assert not [p for p in free.pages() if p < db.store.page_count]
+    d = table.definition
+    owned = read_usage_map_ref(db.store, d.column_usage_maps[d.column("M").number][0])
+    assert max(owned.pages()) > 512 and len(owned.pages()) == 450
+    db.save(tmp_path / "grown.accdb")
+    again = AccessDatabase(tmp_path / "grown.accdb")
+    rows = list(again.table("Memos").rows())
+    assert len(rows) == 450 and all(r["M"] == "a" * 1600 for r in rows)
+    check_indexes(again.table("Memos"))
+
+
 def test_unique_index_rejects_a_duplicate_key() -> None:
     db = AccessDatabase(LARGE)
     table = db.table("Table1")

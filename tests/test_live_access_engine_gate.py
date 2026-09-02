@@ -385,6 +385,37 @@ def test_create_and_drop_table_match_the_engine_byte_for_byte(tmp_path: Path) ->
     assert not (d := differing(db.to_bytes(), theirs.read_bytes())), f"drop: pages differ from the engine's: {d}"
 
 
+def test_growth_past_512_pages_matches_the_engine_byte_for_byte(tmp_path: Path) -> None:
+    """450 memo rows carry the file from 121 to about 570 pages.  The global
+    usage map, the table's maps and the column's maps all have to grow
+    their inline bitmaps and re-base, exactly as the engine does."""
+    theirs = tmp_path / "grown_theirs.accdb"
+    shutil.copy(TEMPLATE, theirs)
+    assert oracle("-Command", "build-memos", "-Path", str(theirs)) == "ok"
+    ours_path = tmp_path / "grown_ours.accdb"
+    shutil.copy(theirs, ours_path)
+    assert oracle("-Command", "grow-memos", "-Path", str(theirs), "-Rows", "450") == "ok"
+
+    db = AccessDatabase(ours_path)
+    table = db.table("Memos")
+    for i in range(1, 451):
+        table.insert_row({"T": f"m{i}", "M": "a" * 1600})
+    db.save()
+    ours = db.to_bytes()
+    engine = theirs.read_bytes()
+    assert len(ours) == len(engine), (len(ours) // 4096, len(engine) // 4096)
+    assert len(ours) // 4096 > 512
+    different = [
+        n for n in range(1, len(ours) // 4096)
+        if ours[n * 4096 : (n + 1) * 4096] != engine[n * 4096 : (n + 1) * 4096]
+    ]
+    assert not different, f"pages differ from the engine's: {different[:20]}"
+    # The engine keeps working with the grown file.
+    assert oracle("-Command", "grow-memos", "-Path", str(ours_path), "-Rows", "20") == "ok"
+    assert oracle("-Command", "compact", "-Path", str(ours_path)) == "ok"
+    assert AccessDatabase(Path(str(ours_path) + ".compact.accdb")).table("Memos").row_count == 3 + 450 + 20
+
+
 def test_memo_inserts_match_the_engine_byte_for_byte(tmp_path: Path) -> None:
     """A single-page and a chained memo written by pyOpenVBA against the
     engine's own, page for page.  The chained value carries a per-session

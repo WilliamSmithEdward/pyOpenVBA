@@ -65,6 +65,17 @@ All notable changes to pyOpenVBA are documented here. This project follows
   fresh chain and releases the old pages; DROP TABLE marks only the
   first page. Tables of up to 255 columns with long names now round-trip
   byte for byte against the engine (live gate).
+- **Relationships.** `db.create_relationship(name, table, columns,
+  referenced_table, referenced_columns, cascade_updates=, cascade_deletes=)`
+  writes a foreign key the way `ALTER TABLE ... ADD CONSTRAINT ... FOREIGN
+  KEY` does: the index on the referencing columns, the paired logical
+  entries on both tables (`.rB`, `.rC`, ... on the referenced side), the
+  MSysRelationships rows, the type-8 catalog object with its permission
+  rows, and both tables' stamps; `db.relationships()` reads them back.
+  Byte-identical to the engine for two relationships on one parent (live
+  gate). CREATE TABLE's catalog row now carries DateCreate as its first
+  DateUpdate, as the engine's does, which the stale bytes under the slot
+  table revealed.
 - A freed long-value chain's pages are reusable at once within the
   session when the chain predates the session, unlike pages a DROP TABLE
   releases or pages the session itself allocated (measured with DAO).

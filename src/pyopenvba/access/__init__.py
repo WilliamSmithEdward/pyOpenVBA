@@ -7,6 +7,6 @@ values.
 """
 
 from pyopenvba.access._schema import ColumnSpec, IndexSpec
-from pyopenvba.access.database import AccessDatabase, CatalogEntry, Index, RowId, Table
+from pyopenvba.access.database import AccessDatabase, CatalogEntry, Index, Relationship, RowId, Table
 
-__all__ = ["AccessDatabase", "CatalogEntry", "ColumnSpec", "Index", "IndexSpec", "RowId", "Table"]
+__all__ = ["AccessDatabase", "CatalogEntry", "ColumnSpec", "Index", "IndexSpec", "Relationship", "RowId", "Table"]

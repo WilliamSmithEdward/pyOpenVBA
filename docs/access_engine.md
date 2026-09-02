@@ -225,6 +225,29 @@ the engine finds the same rows it does today.
   DateUpdate is stamped when the definition is complete, so on a
   150-column table it runs a couple of milliseconds after DateCreate;
   `create_table(created=, updated=)` takes both.
+* **Relationships**, measured by diffing `ALTER TABLE ... ADD CONSTRAINT
+  ... FOREIGN KEY ... REFERENCES` twice against one parent. The
+  referencing table gets a non-unique index named after the constraint
+  (flags 0x80, an empty root, a map row, entries for existing rows) and a
+  logical entry of kind 2 whose byte 12 is 2, bytes 13..16 the parent's
+  new logical index number, bytes 17..20 the parent's definition page,
+  bytes 21 and 22 the cascade-update and cascade-delete flags (normal
+  indexes carry `04 04` there). The referenced table gets a logical entry
+  named `.r` plus the letter at that index number (`.rB` for its second
+  logical index, `.rC` for the third) sharing the unique index the key
+  refers to, byte 12 = 1, pointing back at the child's page and logical
+  number. MSysRelationships gets one row per column pair (`grbit` is
+  DAO's RelationAttributeEnum: 0x100 cascade updates, 0x1000 cascade
+  deletes, 2 not enforced). The relationship is also a catalog object:
+  an MSysObjects row of type 8 under the Relationships container, id one
+  past the highest negative id, owner as usual, DateCreate = DateUpdate,
+  with three MSysACEs rows whose ACMs are 0xF00FE, 0xFFFFF, 0xFFFFF on
+  the three default SIDs in order. Both tables' DateUpdate is stamped,
+  at slightly different instants.
+* **Catalog rows are written twice**: CREATE TABLE inserts the row with
+  DateUpdate equal to DateCreate and then updates it with the owner and
+  the final DateUpdate; the first version's bytes stay below the slot
+  table when the row moves, which is how the order shows.
 * **Where a single-row long value lands**, measured with DAO on Memo
   columns in one session and across sessions. The engine first tries the
   LVAL page it last wrote a value to in this session; if the value does
@@ -364,6 +387,6 @@ the engine finds the same rows it does today.
 | 3b | large files: usage maps growing past 512 pages | done for inline maps (growth and re-base as the engine does); the reference form is read but not yet written |
 | 5 | write schema: create/drop table, create index, catalog rows | done: `create_table`, `create_index`, `drop_table`; byte-identical to the engine's CREATE TABLE, CREATE INDEX and DROP TABLE on every page but page 0; the engine inserts into, reads and compacts a table pyOpenVBA created; definitions over one page (up to the 255-column limit) are chained and rewritten as the engine does, byte-identical. Not yet: a second map page, navigation-pane rows (the Access layer adds those itself) |
 | 6 | VBA project through the writer: module create/rename/delete | |
-| 7 | queries (`MSysQueries` to SQL and back), relationships, properties | |
+| 7 | queries (`MSysQueries` to SQL and back), relationships, properties | relationships done: `create_relationship` / `relationships()`, byte-identical to the engine's ADD CONSTRAINT ... FOREIGN KEY for a first and a second relationship on one parent (live gate). Not yet: dropping a relationship, queries, properties |
 | 8 | forms, reports, macros: the binary object formats nobody has published | |
 | 9 | SQL executor over the engine | |

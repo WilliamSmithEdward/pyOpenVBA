@@ -48,6 +48,7 @@ from pyopenvba.access._schema import (
     definition_page_count,
     definition_pages,
     empty_index_root,
+    foreign_key_logical,
     mark_definition_freed,
     new_index_parts,
     serialize_definition,
@@ -92,6 +93,14 @@ OBJECT_REPORT = -32764
 OBJECT_MACRO = -32766
 OBJECT_MODULE = -32761
 
+# MSysRelationships.grbit, DAO's RelationAttributeEnum.
+RELATION_UNIQUE = 0x1
+RELATION_DONT_ENFORCE = 0x2
+RELATION_UPDATE_CASCADE = 0x100
+RELATION_DELETE_CASCADE = 0x1000
+# The three permission rows the engine gives a relationship object.
+RELATIONSHIP_ACMS = (0xF00FE, 0xFFFFF, 0xFFFFF)
+
 # MSysObjects.Flags bits Access sets on its own objects.
 FLAG_SYSTEM = 0x80000000
 FLAG_HIDDEN = 0x00000008
@@ -123,6 +132,32 @@ class CatalogEntry:
     @property
     def is_table(self) -> bool:
         return self.type in (OBJECT_TABLE, OBJECT_LINKED_TABLE)
+
+
+@dataclass(frozen=True)
+class Relationship:
+    """A relationship as MSysRelationships describes it: the referencing
+    table's columns against the referenced table's, plus DAO's attribute
+    bits (cascades, enforcement, one-to-one)."""
+
+    name: str
+    table: str
+    columns: tuple[str, ...]
+    referenced_table: str
+    referenced_columns: tuple[str, ...]
+    attributes: int
+
+    @property
+    def cascade_updates(self) -> bool:
+        return bool(self.attributes & RELATION_UPDATE_CASCADE)
+
+    @property
+    def cascade_deletes(self) -> bool:
+        return bool(self.attributes & RELATION_DELETE_CASCADE)
+
+    @property
+    def enforced(self) -> bool:
+        return not self.attributes & RELATION_DONT_ENFORCE
 
 
 @dataclass(frozen=True)
@@ -813,10 +848,7 @@ class AccessDatabase:
     # -- schema --------------------------------------------------------------------
 
     def _tables_container(self) -> CatalogEntry:
-        for entry in self.catalog():
-            if entry.type == 3 and entry.name == "Tables":
-                return entry
-        raise AccessError("the catalog has no Tables container")
+        return self._container("Tables")
 
     def _default_owner(self) -> bytes:
         owners = [e.owner for e in self.table_entries(include_system=True) if e.owner]
@@ -891,10 +923,13 @@ class AccessDatabase:
                 "Type": OBJECT_TABLE,
                 "Flags": 0,
                 "DateCreate": when,
-                "DateUpdate": when_updated,
+                "DateUpdate": when,
             }
         )
-        objects.update_row(catalog_row, {"Owner": self._default_owner()})
+        # The owner arrives with the second step, and so does the final
+        # DateUpdate: the first version of the row, whose bytes stay below
+        # the slot table after the move, carries DateCreate twice.
+        objects.update_row(catalog_row, {"Owner": self._default_owner(), "DateUpdate": when_updated})
         aces = self.table("MSysACEs")
         for ace in self._default_aces():
             aces.insert_row(dict(ace, ObjectId=definition_page))
@@ -978,6 +1013,181 @@ class AccessDatabase:
         self._catalog = None
         self._definitions.pop(d.page, None)
         return self.table(table_name).index(spec.name)
+
+    def relationships(self) -> list[Relationship]:
+        """Every relationship in MSysRelationships, columns in pair order."""
+        groups: dict[str, list[dict[str, object]]] = {}
+        for row in self.table("MSysRelationships").rows():
+            groups.setdefault(str(row["szRelationship"]), []).append(row)
+        out: list[Relationship] = []
+        for name, rows in groups.items():
+            rows.sort(key=lambda r: _as_int(r["icolumn"]))
+            first = rows[0]
+            out.append(
+                Relationship(
+                    name=name,
+                    table=str(first["szObject"]),
+                    columns=tuple(str(r["szColumn"]) for r in rows),
+                    referenced_table=str(first["szReferencedObject"]),
+                    referenced_columns=tuple(str(r["szReferencedColumn"]) for r in rows),
+                    attributes=_as_int(first["grbit"]),
+                )
+            )
+        return out
+
+    def create_relationship(
+        self,
+        name: str,
+        table: str,
+        columns: Sequence[str],
+        referenced_table: str,
+        referenced_columns: Sequence[str],
+        *,
+        cascade_updates: bool = False,
+        cascade_deletes: bool = False,
+        created: object | None = None,
+        table_updated: object | None = None,
+        referenced_updated: object | None = None,
+    ) -> Relationship:
+        """Relate ``table`` to ``referenced_table`` as ``ALTER TABLE ... ADD
+        CONSTRAINT ... FOREIGN KEY`` does: a non-unique index named after
+        the relationship on the referencing columns, a foreign-key logical
+        entry on each side pointing at the other's definition page and
+        logical index number (the referenced side's is named ``.r`` plus a
+        letter from its index number and shares the unique index the
+        foreign key refers to), one MSysRelationships row per column pair,
+        a catalog object of type 8 with its three permission rows, and a
+        new DateUpdate on both tables.  The three stamps default to now;
+        pass datetimes or stored serials."""
+        import datetime as _dt
+
+        columns = tuple(columns)
+        referenced_columns = tuple(referenced_columns)
+        if not columns or len(columns) != len(referenced_columns):
+            raise AccessError("a relationship pairs one or more columns with as many referenced columns")
+        if any(r.name.lower() == name.lower() for r in self.relationships()):
+            raise AccessError(f"a relationship named {name!r} already exists")
+        if any(e.name.lower() == name.lower() for e in self.catalog()):
+            raise AccessError(f"an object named {name!r} already exists")
+        child = self.table(table)
+        parent = self.table(referenced_table)
+        cd, pd = child.definition, parent.definition
+        for col in columns:
+            if not any(c.name.lower() == col.lower() for c in cd.columns):
+                raise AccessError(f"table {table!r} has no column {col!r}")
+        wanted = [pd.column(c).number for c in referenced_columns]
+        parent_real = next(
+            (i for i, real in enumerate(pd.real_indexes) if real.unique and [c.number for c in real.columns] == wanted),
+            None,
+        )
+        if parent_real is None:
+            raise AccessError(f"table {referenced_table!r} has no unique index on {', '.join(referenced_columns)}")
+        if any(li.name.lower() == name.lower() for li in cd.logical_indexes):
+            raise AccessError(f"table {table!r} already has an index named {name!r}")
+        attributes = (RELATION_UPDATE_CASCADE if cascade_updates else 0) | (RELATION_DELETE_CASCADE if cascade_deletes else 0)
+        now = _dt.datetime.now().replace(microsecond=0)
+        when = created if isinstance(created, (_dt.datetime, float)) else now
+        child_when = table_updated if isinstance(table_updated, (_dt.datetime, float)) else when
+        parent_when = referenced_updated if isinstance(referenced_updated, (_dt.datetime, float)) else when
+        store = self.store
+        child_logical_number = len(cd.logical_indexes)
+        parent_logical_number = len(pd.logical_indexes)
+
+        # The foreign-key index on the referencing table, built like CREATE INDEX.
+        map_page = cd.owned_pages_ref >> 8
+        maps = DataPage(store.read(map_page))
+        if not maps.fits(len(USAGE_MAP_ROW)):
+            raise AccessError("the table's usage-map page is full; a second map page is not written yet")
+        umap_row = maps.add_row(USAGE_MAP_ROW)
+        store.write(map_page, maps.to_bytes())
+        root = allocate_page(store)
+        store.write(root, empty_index_root(cd.page))
+        umap_ref = (map_page << 8) | umap_row
+        real, _plain = new_index_parts(IndexSpec(name, columns), cd, len(cd.real_indexes), umap_ref, root)
+        cd.real_indexes.append(real)
+        cd.logical_indexes.append(
+            foreign_key_logical(
+                cd.tag, name, child_logical_number, len(cd.real_indexes) - 1,
+                referencing=True, other_logical=parent_logical_number, other_page=pd.page,
+                cascade_updates=cascade_updates, cascade_deletes=cascade_deletes,
+            )
+        )
+        cd.real_index_count += 1
+        cd.logical_index_count += 1
+        self._write_definition(serialize_definition(cd), cd.page, cd.pages[1:])
+        add_to_map(store, umap_ref, root)
+        self._definitions.pop(cd.page, None)
+        child = self.table(table)
+        position = len(child.definition.real_indexes) - 1
+        real = child.definition.real_indexes[position]
+        key_columns = [(child.definition.column_by_number(c.number), c.ascending) for c in real.columns]
+        tree = child._btree(position, real)  # pyright: ignore[reportPrivateUsage]
+        distinct = 0
+        for row_id, values in child.rows_with_ids():
+            key = child._key(real, key_columns, values)  # pyright: ignore[reportPrivateUsage]
+            if key is not None and tree.insert(key, row_id.page, row_id.slot):
+                distinct += 1
+        if distinct:
+            real.entry_count = distinct
+            self.patch_definition(child.definition, OFFSET_INDEX_HEADERS + position * SIZE_REAL_INDEX_HEADER + 4, struct.pack("<I", distinct))
+
+        # The referenced side: a ``.r<letter>`` entry sharing the unique index.
+        pd.logical_indexes.append(
+            foreign_key_logical(
+                pd.tag, ".r" + chr(0x41 + parent_logical_number), parent_logical_number, parent_real,
+                referencing=False, other_logical=child_logical_number, other_page=cd.page,
+                cascade_updates=cascade_updates, cascade_deletes=cascade_deletes,
+            )
+        )
+        pd.logical_index_count += 1
+        self._write_definition(serialize_definition(pd), pd.page, pd.pages[1:])
+        self._definitions.pop(pd.page, None)
+
+        # The relationship rows, the catalog object, its permissions, the stamps.
+        relationships = self.table("MSysRelationships")
+        for i, (col, ref) in enumerate(zip(columns, referenced_columns, strict=True)):
+            relationships.insert_row(
+                {
+                    "szRelationship": name, "grbit": attributes, "ccolumn": len(columns), "icolumn": i,
+                    "szObject": table, "szColumn": col, "szReferencedObject": referenced_table, "szReferencedColumn": ref,
+                }
+            )
+        objects = self.table("MSysObjects")
+        object_id = self._next_object_id()
+        catalog_row = objects.insert_row(
+            {
+                "Id": object_id,
+                "ParentId": self._container("Relationships").id,
+                "Name": name,
+                "Type": OBJECT_RELATIONSHIP,
+                "Flags": 0,
+                "DateCreate": when,
+                "DateUpdate": when,
+            }
+        )
+        objects.update_row(catalog_row, {"Owner": self._default_owner()})
+        aces = self.table("MSysACEs")
+        for ace, acm in zip(self._default_aces(), RELATIONSHIP_ACMS, strict=True):
+            aces.insert_row({"SID": ace["SID"], "ACM": acm, "FInheritable": False, "ObjectId": object_id})
+        for definition_page, stamp in ((cd.page, child_when), (pd.page, parent_when)):
+            for rid, row in objects.rows_with_ids():
+                if row["Id"] == definition_page and row["Type"] == OBJECT_TABLE:
+                    objects.update_row(rid, {"DateUpdate": stamp})
+                    break
+        self._catalog = None
+        return Relationship(name, table, columns, referenced_table, referenced_columns, attributes)
+
+    def _next_object_id(self) -> int:
+        """The id the engine gives the next Access-layer object: one past the
+        highest of the negative ids in the catalog."""
+        ids = [e.id for e in self.catalog() if e.id < 0]
+        return max(ids) + 1 if ids else -0x80000000
+
+    def _container(self, name: str) -> CatalogEntry:
+        for entry in self.catalog():
+            if entry.type == 3 and entry.name == name:
+                return entry
+        raise AccessError(f"the catalog has no {name} container")
 
     def drop_table(self, name: str) -> None:
         """Remove a table and give back everything it held, in the engine's

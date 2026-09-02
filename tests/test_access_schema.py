@@ -434,6 +434,62 @@ def test_truncate_releases_pages_untouched_and_resets_indexes() -> None:
     check_indexes(table)
 
 
+def test_create_relationship_writes_both_sides_and_the_catalog() -> None:
+    """A foreign key as ALTER TABLE ADD CONSTRAINT writes it: a non-unique
+    index named after the relationship on the child, a kind-2 logical
+    entry on each side naming the other's definition page and logical
+    number, ``.rB`` then ``.rC`` on the parent, one MSysRelationships row
+    per column pair, a type-8 catalog object with three permission rows."""
+    from pyopenvba.access import Relationship
+    from pyopenvba.access._schema import RELATIONSHIP_REFERENCED, RELATIONSHIP_REFERENCING
+    from pyopenvba.access.database import OBJECT_RELATIONSHIP, RELATIONSHIP_ACMS
+
+    db = AccessDatabase(TEMPLATE)
+    key = [IndexSpec("PK", ("Id",), primary=True)]
+    db.create_table("Parent", [ColumnSpec("Id", "Long", autonumber=True), ColumnSpec("Name", "Text", size=50)], key, created=WHEN)
+    child = db.create_table("Child", [ColumnSpec("Id", "Long", autonumber=True), ColumnSpec("ParentId", "Long")], key, created=WHEN)
+    for i in range(5):
+        child.insert_row({"ParentId": i % 2})
+    before = len(db.relationships())
+    rel = db.create_relationship("FK_Child_Parent", "Child", ("ParentId",), "Parent", ("Id",), created=WHEN)
+    assert rel == Relationship("FK_Child_Parent", "Child", ("ParentId",), "Parent", ("Id",), 0)
+    assert db.relationships()[-1] == rel and len(db.relationships()) == before + 1
+    assert not rel.cascade_updates and not rel.cascade_deletes and rel.enforced
+
+    cd, pd = db.table("Child").definition, db.table("Parent").definition
+    fk = cd.logical_indexes[0]
+    assert [li.name for li in cd.logical_indexes] == ["FK_Child_Parent", "PK"]
+    assert fk.kind == 2 and fk.relationship_kind == RELATIONSHIP_REFERENCING and fk.relationship_table_page == pd.page and fk.relationship_index == 1
+    assert cd.real_indexes[fk.real_index].flags == 0x80 and cd.real_indexes[fk.real_index].entry_count == 2  # two distinct ParentId values
+    back = pd.logical_indexes[0]
+    assert [li.name for li in pd.logical_indexes] == [".rB", "PK"]
+    assert back.kind == 2 and back.relationship_kind == RELATIONSHIP_REFERENCED and back.relationship_table_page == cd.page and back.relationship_index == 1
+    assert back.real_index == 0 and not back.cascade_updates and not back.cascade_deletes
+    entry = next(e for e in db.catalog() if e.name == "FK_Child_Parent")
+    assert entry.type == OBJECT_RELATIONSHIP and entry.id < 0 and entry.parent_id == db._container("Relationships").id  # pyright: ignore[reportPrivateUsage]
+    aces = sorted(int(r["ACM"]) for r in db.table("MSysACEs").rows() if r["ObjectId"] == entry.id)  # pyright: ignore[reportArgumentType]
+    assert aces == sorted(RELATIONSHIP_ACMS)
+    check_indexes(db.table("Child"))
+    check_indexes(db.table("MSysRelationships"))
+    check_indexes(db.table("MSysObjects"))
+
+    # A second child gets ``.rC`` on the parent, with cascades recorded on both sides.
+    db.create_table("Child2", [ColumnSpec("Id", "Long", autonumber=True), ColumnSpec("ParentId", "Long")], key, created=WHEN)
+    rel2 = db.create_relationship("FK_Child2_Parent", "Child2", ("ParentId",), "Parent", ("Id",), cascade_updates=True, cascade_deletes=True, created=WHEN)
+    assert rel2.attributes == 0x1100 and rel2.cascade_updates and rel2.cascade_deletes
+    pd = db.table("Parent").definition
+    assert [li.name for li in pd.logical_indexes] == [".rB", ".rC", "PK"]
+    assert pd.logical_indexes[1].cascade_updates and pd.logical_indexes[1].cascade_deletes and pd.logical_indexes[1].relationship_index == 1
+    assert db.table("Child2").definition.logical_indexes[0].relationship_index == 2
+
+    with pytest.raises(AccessError):
+        db.create_relationship("FK_Child_Parent", "Child", ("ParentId",), "Parent", ("Id",))
+    with pytest.raises(AccessError):
+        db.create_relationship("FK_Bad", "Child", ("ParentId",), "Parent", ("Name",))  # no unique index on Name
+    with pytest.raises(AccessError):
+        db.create_relationship("FK_Bad", "Child", ("Nope",), "Parent", ("Id",))
+
+
 def test_bad_specs_are_refused() -> None:
     db = AccessDatabase(TEMPLATE)
     with pytest.raises(AccessError):

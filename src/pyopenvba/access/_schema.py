@@ -52,6 +52,7 @@ from pyopenvba.access._tdef import (
     COLUMN_NULLABLE,
     INDEX_ALWAYS_SET,
     INDEX_IGNORE_NULLS,
+    INDEX_KIND_FOREIGN,
     INDEX_KIND_NORMAL,
     INDEX_KIND_PRIMARY,
     INDEX_REQUIRED,
@@ -489,6 +490,52 @@ def new_index_parts(
         cascade_deletes=bool(LOGICAL_INDEX_FLAGS[1]),
         kind=logical[23],
         raw=bytes(logical),
+    )
+
+
+RELATIONSHIP_REFERENCED = 0x01  # this table's index is the one referred to
+RELATIONSHIP_REFERENCING = 0x02  # this table's index is the foreign key
+
+
+def foreign_key_logical(
+    tag: int,
+    name: str,
+    number: int,
+    real_index: int,
+    *,
+    referencing: bool,
+    other_logical: int,
+    other_page: int,
+    cascade_updates: bool,
+    cascade_deletes: bool,
+) -> LogicalIndex:
+    """The 28-byte logical index entry a relationship adds to a table: the
+    foreign key on the referencing side, a ``.r<letter>`` entry sharing the
+    referenced unique index on the other.  Bytes 13..20 name the other
+    table's logical index number and definition page, bytes 21 and 22
+    carry the cascade flags (normal indexes hold ``04 04`` there), byte 23
+    is the kind, 2."""
+    raw = bytearray(SIZE_LOGICAL_INDEX)
+    struct.pack_into("<I", raw, 0, tag)
+    struct.pack_into("<I", raw, 4, number)
+    struct.pack_into("<I", raw, 8, real_index)
+    raw[12] = RELATIONSHIP_REFERENCING if referencing else RELATIONSHIP_REFERENCED
+    struct.pack_into("<I", raw, 13, other_logical)
+    struct.pack_into("<I", raw, 17, other_page)
+    raw[21] = 1 if cascade_updates else 0
+    raw[22] = 1 if cascade_deletes else 0
+    raw[23] = INDEX_KIND_FOREIGN
+    return LogicalIndex(
+        name=name,
+        number=number,
+        real_index=real_index,
+        relationship_kind=raw[12],
+        relationship_index=other_logical,
+        relationship_table_page=other_page,
+        cascade_updates=cascade_updates,
+        cascade_deletes=cascade_deletes,
+        kind=INDEX_KIND_FOREIGN,
+        raw=bytes(raw),
     )
 
 

@@ -676,6 +676,56 @@ def test_long_value_placement_matches_the_engine_byte_for_byte(tmp_path: Path) -
         check_indexes(db.table(name))
 
 
+def test_relationships_match_the_engine_byte_for_byte(tmp_path: Path) -> None:
+    """Two tables, then ALTER TABLE ADD CONSTRAINT ... FOREIGN KEY twice
+    (a second child), each step its own DAO session, byte for byte."""
+    from pyopenvba.access import ColumnSpec, IndexSpec
+
+    theirs = tmp_path / "theirs.accdb"
+    shutil.copy(TEMPLATE, theirs)
+    script = tmp_path / "step.sql"
+
+    def engine_runs(*statements: str) -> None:
+        script.write_text(chr(10).join(statements) + chr(10), encoding="ascii")
+        assert oracle("-Command", "sql-file", "-Path", str(theirs), "-SqlFile", str(script)) == "ok"
+
+    def same_then_reopen(step: str, db: AccessDatabase) -> AccessDatabase:
+        ours, engine = db.to_bytes(), theirs.read_bytes()
+        assert not (d := _differing_pages(ours, engine)), f"{step}: pages differ from the engine's: {_describe_pages(ours, engine, d)}"
+        return AccessDatabase(ours)
+
+    def stamps(name: str) -> dict[str, object]:
+        entry = _catalog_entry(theirs, name)
+        return {"created": entry.date_create_serial, "updated": entry.date_update_serial}
+
+    key = [IndexSpec("PK", ("Id",), primary=True)]
+    db = AccessDatabase(TEMPLATE)
+    engine_runs(
+        "CREATE TABLE Parent (Id AUTOINCREMENT CONSTRAINT PK PRIMARY KEY, Name TEXT(50))",
+        "CREATE TABLE Child (Id AUTOINCREMENT CONSTRAINT PK PRIMARY KEY, ParentId LONG, Remark TEXT(50))",
+    )
+    db.create_table("Parent", [ColumnSpec("Id", "Long", autonumber=True), ColumnSpec("Name", "Text", size=50, compressed=False)], key, **stamps("Parent"))
+    db.create_table("Child", [ColumnSpec("Id", "Long", autonumber=True), ColumnSpec("ParentId", "Long"), ColumnSpec("Remark", "Text", size=50, compressed=False)], key, **stamps("Child"))
+    db = same_then_reopen("two tables", db)
+    for child in ("Child", "Child2"):
+        if child == "Child2":
+            engine_runs("CREATE TABLE Child2 (Id AUTOINCREMENT CONSTRAINT PK PRIMARY KEY, ParentId LONG)")
+            db.create_table("Child2", [ColumnSpec("Id", "Long", autonumber=True), ColumnSpec("ParentId", "Long")], key, **stamps("Child2"))
+            db = same_then_reopen("second child", db)
+        name = f"FK_{child}_Parent"
+        engine_runs(f"ALTER TABLE {child} ADD CONSTRAINT {name} FOREIGN KEY (ParentId) REFERENCES Parent (Id)")
+        db.create_relationship(
+            name, child, ("ParentId",), "Parent", ("Id",),
+            created=_catalog_entry(theirs, name).date_create_serial,
+            table_updated=stamps(child)["updated"],
+            referenced_updated=stamps("Parent")["updated"],
+        )
+        db = same_then_reopen(f"constraint on {child}", db)
+    assert [r.name for r in db.relationships()][-2:] == ["FK_Child_Parent", "FK_Child2_Parent"]
+    for name in ("Parent", "Child", "Child2", "MSysRelationships", "MSysObjects", "MSysACEs"):
+        check_indexes(db.table(name))
+
+
 def test_growth_past_512_pages_matches_the_engine_byte_for_byte(tmp_path: Path) -> None:
     """450 memo rows carry the file from 121 to about 570 pages.  The global
     usage map, the table's maps and the column's maps all have to grow

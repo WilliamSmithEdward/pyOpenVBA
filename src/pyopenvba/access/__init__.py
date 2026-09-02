@@ -1,0 +1,11 @@
+"""The Jet 4 / ACE storage engine behind ``.accdb`` and ``.mdb`` files.
+
+Pure Python, no Office required.  ``AccessDatabase`` opens a database and
+reads its tables; the private modules beneath it own one layer each:
+pages and usage maps, table definitions, row and value codecs, long
+values.
+"""
+
+from pyopenvba.access.database import AccessDatabase, CatalogEntry, Table
+
+__all__ = ["AccessDatabase", "CatalogEntry", "Table"]

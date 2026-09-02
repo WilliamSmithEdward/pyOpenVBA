@@ -3,6 +3,21 @@
 All notable changes to pyOpenVBA are documented here. This project follows
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **A Jet 4 / ACE storage engine, read layer** (`pyopenvba.access`,
+  in progress; not yet exported from the package root).
+  `AccessDatabase(path)` opens an `.accdb` or Jet 4 `.mdb`, lists the
+  catalog and reads any table's rows as Python values: every column type
+  including Currency, Decimal, GUID, BigInt, Memo and OLE long values,
+  Unicode-compressed text, overflow rows and definitions that span pages.
+  Checked against the ACE engine itself (`RUN_LIVE_ACCESS=1`, DAO driven
+  from PowerShell as a test-time oracle) field for field, and against
+  every Access-authored fixture table for table. The plan and the format
+  facts established so far are in `docs/access_engine.md`.
+
 ## [3.5.1] - 2026-08-31
 
 ### Changed

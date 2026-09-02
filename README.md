@@ -543,6 +543,8 @@ src/pyopenvba/
   powerpoint.py      PowerPointFile (thin subclass; .ppt overrides the two
                      container hooks)
   access_read.py     AccessReader (read-only ACE/Jet page + LVAL reader)
+  access/            the Jet 4 / ACE storage engine, in progress: pages,
+                     definitions, rows, long values (docs/access_engine.md)
   vba.py             VBA project parser + MS-OVBA codec
   vba_pcode.py       VBA7 p-code disassembler
   cfb.py             MS-CFB (Compound File Binary) parser/writer

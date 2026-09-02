@@ -46,6 +46,15 @@ knows about the layer below it but not the layer above.
 |       (MSysObjects system catalog reader)              |
 |   - NO write APIs; see msaccess_lessons_learned.md     |
 +--------------------------------------------------------+
+| access/         Jet 4 / ACE storage engine (IN PROGRESS)|
+|   - _pages: page array, masked page 0, row slots,      |
+|       usage maps                                       |
+|   - _tdef: table definitions (columns, indexes, maps)  |
+|   - _rows: row splitting + every column type's codec   |
+|   - _lval: Memo / OLE long values                      |
+|   - database: AccessDatabase / Table facade            |
+|   - plan and format facts: docs/access_engine.md       |
++--------------------------------------------------------+
 | vba.py          VBA project layer                      |
 |   - MS-OVBA compression / decompression                |
 |   - dir / PROJECT / PROJECTwm / PROJECTlk parsers      |
@@ -468,6 +477,14 @@ tests/
   test_access.py               AccessReader read path: page walk,
                                LVAL chain walk, MS-OVBA blob decode,
                                byte-for-byte oracle parity (EXPERIMENTAL)
+  test_access_engine.py        Storage engine read layer against the
+                               Access-authored fixtures
+  test_live_access_engine_gate.py
+                               Opt-in (RUN_LIVE_ACCESS=1): the ACE engine,
+                               driven through DAO by
+                               live_access_test/dao_oracle.ps1, builds every
+                               column type; the engine must read it back
+                               field for field
   fuzz_corpus/                 Persistent fuzz seeds (see test_gates.py Gate 23)
   live_excel_testing/          Real fixture workbooks (Excel)
   live_word_testing/           Real fixture documents (Word)

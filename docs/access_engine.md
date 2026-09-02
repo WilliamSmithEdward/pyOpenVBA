@@ -241,11 +241,12 @@ the engine finds the same rows it does today.
   root becomes an empty leaf with a distinct count of 0, and the
   AutoNumber counter stays; `Table.truncate()` does the same. (A
   filtered delete that happens to remove every row keeps the distinct
-  count: deletes never lower it.) The engine's own catalog maintenance
-  takes neither path: when DROP TABLE deletes the table's MSysObjects
-  and MSysACEs rows, an emptied overflow page stays type 0x01, owned and
-  unreleased, and no page rejoins a free-space map -- `delete_row(...,
-  settle_pages=False)` is that behaviour.
+  count: deletes never lower it.) Two things a delete leaves alone: the
+  page that held a moved row's copy is only written back (emptied, it
+  stays type 0x01, owned and unreleased), and a home page that held only
+  the 4-byte pointer is not re-listed, while a home page that lost a
+  15-byte row is. That is also what DROP TABLE's deletion of the
+  table's catalog rows shows, so there is no separate catalog path.
 * **Stamps carry more than a millisecond**, seen in 14 of 112 catalog
   timestamps the engine wrote: their doubles sit one bit away from any
   millisecond value, and no arithmetic tried (nearest, ceiling, floor,

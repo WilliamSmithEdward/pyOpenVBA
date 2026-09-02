@@ -382,23 +382,24 @@ def test_create_and_drop_table_match_the_engine_byte_for_byte(tmp_path: Path) ->
     theirs = tmp_path / "theirs.accdb"
     shutil.copy(TEMPLATE, theirs)
     assert oracle("-Command", "create-keyed", "-Path", str(theirs)) == "ok"
-    entry = next(e for e in AccessDatabase(theirs).catalog() if e.name == "Simple")
+    entry = _catalog_entry(theirs, "Simple")
     assert isinstance(entry.date_create, dt.datetime)
     db = AccessDatabase(TEMPLATE)
     db.create_table(
         "Simple",
         [ColumnSpec("Id", "Long", autonumber=True), ColumnSpec("N", "Long"), ColumnSpec("T", "Text", size=50, compressed=False)],
         [IndexSpec("PrimaryKey", ("Id",), primary=True)],
-        created=entry.date_create,
+        created=entry.date_create_serial,
+        updated=entry.date_update_serial,
     )
     assert not (d := differing(db.to_bytes(), theirs.read_bytes())), f"create: pages differ from the engine's: {d}"
 
     # CREATE INDEX: the engine also re-stamps the catalog row, which moves
     # it when its page cannot hold a fresh copy.
     assert oracle("-Command", "index-simple", "-Path", str(theirs)) == "ok"
-    entry = next(e for e in AccessDatabase(theirs).catalog() if e.name == "Simple")
+    entry = _catalog_entry(theirs, "Simple")
     assert isinstance(entry.date_update, dt.datetime)
-    db.create_index("Simple", IndexSpec("IX_N", ("N",)), updated=entry.date_update)
+    db.create_index("Simple", IndexSpec("IX_N", ("N",)), updated=entry.date_update_serial)
     assert not (d := differing(db.to_bytes(), theirs.read_bytes())), f"index: pages differ from the engine's: {d}"
 
     # DROP TABLE, exact to the byte: the engine's order of releasing maps

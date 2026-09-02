@@ -448,12 +448,9 @@ class Table:
         target_row, target_page = row_pointer(pointer)
         return target_page, target_row
 
-    def delete_row(self, row_id: RowId, *, settle_pages: bool = True) -> None:
-        """Delete one row and its index entries and long values.  With
-        ``settle_pages`` the pages it leaves are settled as a DELETE
-        statement settles them (see :meth:`_row_removed`); the engine's own
-        catalog maintenance -- DROP TABLE deleting the table's catalog
-        rows -- leaves them as they are, so that path passes ``False``."""
+    def delete_row(self, row_id: RowId) -> None:
+        """Delete one row with its index entries and long values, settling
+        the pages it leaves as the engine does (see :meth:`_row_removed`)."""
         db = self._db
         d = self.definition
         data = self.fetch_row(row_id.page, row_id.slot)
@@ -468,12 +465,17 @@ class Table:
         self._free_long_values(parts)
         moved = self._moved_to(row_id)
         if moved is not None:
+            # The page that held the overflow copy is only written back: the
+            # engine neither retires it when it empties nor re-lists it.
             target = DataPage(db.store.read(moved[0]))
             target.remove_row(moved[1], overflow_target=True)
-            self._row_removed(moved[0], target, settle=settle_pages)
+            db.store.write(moved[0], target.to_bytes())
         page = DataPage(db.store.read(row_id.page))
         page.remove_row(row_id.slot)
-        self._row_removed(row_id.page, page, settle=settle_pages)
+        # A home slot that held only the 4-byte pointer to a moved row is
+        # written back without re-listing the page (measured: the engine
+        # re-lists after a 15-byte row goes, not after a pointer).
+        self._row_removed(row_id.page, page, settle=moved is None)
         d.row_count -= 1
         db.patch_definition(d, OFFSET_ROW_COUNT, struct.pack("<I", d.row_count))
 
@@ -482,7 +484,8 @@ class Table:
         settles it: a page with rows left rejoins the free-space map; an
         emptied page is retired (type 0x09, released, out of both maps),
         unless it is the table's first data page, which stays.  Without
-        ``settle`` the page is written back and nothing else moves."""
+        ``settle`` (the row was only a pointer) the page is written back
+        and nothing else moves."""
         db = self._db
         d = self.definition
         if not settle:
@@ -603,7 +606,7 @@ class Table:
             db.store.write(row_id.page, home.to_bytes())
             target = DataPage(db.store.read(target_page))
             target.remove_row(target_slot, overflow_target=True)
-            self._row_removed(target_page, target)
+            db.store.write(target_page, target.to_bytes())
             return
         target = DataPage(db.store.read(target_page))
         t_start, t_end = target.span(target_slot)
@@ -612,11 +615,8 @@ class Table:
             db.store.write(target_page, target.to_bytes())
             return
         target.remove_row(target_slot, overflow_target=True)
-        if target.live_rows == 0:
-            self._row_removed(target_page, target)
-        else:
-            db.store.write(target_page, target.to_bytes())
-            remove_from_map(db.store, self.definition.free_space_pages_ref, target_page)
+        db.store.write(target_page, target.to_bytes())
+        remove_from_map(db.store, self.definition.free_space_pages_ref, target_page)
         new_page = self._page_with_room(len(row), exclude=row_id.page)
         landing = DataPage(db.store.read(new_page))
         new_slot = landing.add_row(row, flags=ROW_DELETED)
@@ -1028,12 +1028,12 @@ class AccessDatabase:
         objects = self.table("MSysObjects")
         for rid, row in objects.rows_with_ids():
             if row["Id"] == d.page and row["Type"] == OBJECT_TABLE:
-                objects.delete_row(rid, settle_pages=False)
+                objects.delete_row(rid)
                 break
         aces = self.table("MSysACEs")
         for rid, row in list(aces.rows_with_ids()):
             if row["ObjectId"] == d.page:
-                aces.delete_row(rid, settle_pages=False)
+                aces.delete_row(rid)
         self._catalog = None
         self._definitions.pop(d.page, None)
 

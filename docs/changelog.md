@@ -31,6 +31,17 @@ All notable changes to pyOpenVBA are documented here. This project follows
   `encode_key` produces the stored bytes for any index key from Python
   values, the inverse of the decoder, checked against every entry of
   seventeen live indexes.
+- **Rows can be written.** `table.insert_row(values)`,
+  `table.update_row(row_id, changes)` and `table.delete_row(row_id)`
+  edit a table the way the engine does: rows laid down and compacted on
+  the data page, AutoNumber and row counters maintained, every index
+  updated with pages compressed when full and split when needed, new
+  pages taken from the global usage map and registered with the table's
+  maps. `AccessDatabase.save()` writes the file. Verified live: the ACE
+  engine reads back every row pyOpenVBA wrote across all scalar column
+  types, keeps working with the table, and compacts the database; a
+  single insert and delete are byte-identical to the engine's own. Not
+  yet written: Memo/OLE values and rows that outgrow their page.
 
 ## [3.5.1] - 2026-08-31
 

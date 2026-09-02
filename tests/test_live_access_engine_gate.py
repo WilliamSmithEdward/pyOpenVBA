@@ -174,6 +174,116 @@ def _check_indexes(db: AccessDatabase) -> None:
             assert encode_key(values, index.columns) == entry.key, (index.name, values)
 
 
+def test_engine_reads_rows_pyopenvba_wrote(tmp_path: Path) -> None:
+    """pyOpenVBA inserts, updates and deletes rows of every scalar type in
+    a table the engine built; the engine must then read exactly what we
+    meant, keep working with the table (its own inserts afterwards), and
+    compact the file without complaint."""
+    import datetime as dt
+    import uuid
+    from decimal import Decimal
+
+    target = tmp_path / "written.accdb"
+    shutil.copy(TEMPLATE, target)
+    assert oracle("-Command", "build-alltypes", "-Path", str(target), "-Rows", "40") == "ok"
+
+    db = AccessDatabase(target)
+    table = db.table("AllTypes")
+    inserted: list[dict[str, object]] = []
+    for i in range(1, 61):
+        row: dict[str, object] = {
+            "Flag": i % 2 == 0,
+            "Tiny": i % 256,
+            "Small": -i * 100,
+            "Big": i * 100003,
+            "Cash": Decimal(i) / 8,
+            "Sgl": i / 4,
+            "Dbl": i * 1.5 + 0.25,
+            "Stamp": dt.datetime(2000 + i % 20, 1 + i % 12, 1 + i % 28, i % 24, i % 60, (i * 7) % 60),
+            "Bin": bytes((k * 7 + i) % 256 for k in range(1 + i % 50)),
+            "Txt": f"pyopenvba {i} Привет 日本" if i % 3 else f"ascii {i}",
+            "Uid": uuid.UUID(f"{i:08x}-abcd-ef01-2345-6789abcdef01"),
+            "Frac": Decimal(i) / 16 * (-1 if i % 5 == 0 else 1),
+            "Huge": i * 10_000_000_000,
+        }
+        if i % 7 == 0:
+            row = {"Flag": False}
+        row_id = table.insert_row(row)
+        inserted.append(dict(row, Id=table.definition.next_autonumber, _rid=row_id))
+    # Edit five and delete five of the engine's own rows.
+    engine_rows = {r["Id"]: rid for rid, r in table.rows_with_ids() if isinstance(r["Id"], int) and r["Id"] <= 40}
+    for k in (3, 8, 13, 18, 23):
+        table.update_row(engine_rows[k], {"Txt": f"edited {k}", "Big": -k, "Stamp": dt.datetime(1999, 12, 31, 23, 59, k)})
+    for k in (5, 10, 15, 20, 25):
+        table.delete_row(engine_rows[k])
+    db.save()
+
+    expected = json.loads(oracle("-Command", "dump", "-Path", str(target), "-Table", "AllTypes"))
+    assert isinstance(expected, str)
+    mine = _engine_dump(AccessDatabase(target), "AllTypes")
+    mismatches = _diff(expected, mine)
+    assert not mismatches, f"{len(mismatches)} rows differ\n" + "\n".join(mismatches[:5])
+    lines = {line.split("\t")[0]: line for line in expected.split("\n")}
+    assert len(lines) == 40 - 5 + 60
+    for row in inserted:
+        cells = dict(cell.split("=", 1) for cell in lines[f"Id={row['Id']}"].split("\t"))
+        for name, value in row.items():
+            if name in ("Id", "_rid"):
+                continue
+            if name == "Bin" and isinstance(value, bytes):
+                value = value.ljust(50, b"\x00")  # fixed BINARY(50) comes back padded
+            assert cells[name] == _format(value), (row["Id"], name, cells[name], value)
+    assert "Txt=edited 3" in lines["Id=3"] and "Big=-3" in lines["Id=3"]
+    assert "Id=5" not in lines
+    # The engine keeps working with what we wrote.
+    assert oracle("-Command", "insert-alltypes-more", "-Path", str(target), "-Rows", "10") == "ok"
+    after = json.loads(oracle("-Command", "dump", "-Path", str(target), "-Table", "AllTypes"))
+    assert isinstance(after, str) and len(after.split("\n")) == 105
+    assert oracle("-Command", "compact", "-Path", str(target)) == "ok"
+    compacted = AccessDatabase(Path(str(target) + ".compact.accdb"))
+    assert compacted.table("AllTypes").row_count == 105
+    _check_indexes(compacted)
+
+
+def test_single_insert_matches_the_engine_byte_for_byte(tmp_path: Path) -> None:
+    """The same row inserted by the engine and by pyOpenVBA into copies of
+    one database must leave identical pages -- page 0 aside, where the
+    engine bumps a counter that is left alone."""
+    base = tmp_path / "base.accdb"
+    shutil.copy(TEMPLATE, base)
+    assert oracle("-Command", "build-simple", "-Path", str(base)) == "ok"
+    theirs = tmp_path / "theirs.accdb"
+    shutil.copy(base, theirs)
+    assert oracle("-Command", "insert-simple", "-Path", str(theirs), "-Rows", "60") == "ok"
+
+    db = AccessDatabase(base)
+    db.table("Simple").insert_row({"N": 60, "T": "inserted 60"})
+    ours = db.to_bytes()
+    engine = theirs.read_bytes()
+    assert len(ours) == len(engine)
+    different = [
+        n for n in range(1, len(ours) // 4096)
+        if ours[n * 4096 : (n + 1) * 4096] != engine[n * 4096 : (n + 1) * 4096]
+    ]
+    assert not different, f"pages differ from the engine's: {different}"
+
+    # And a delete.
+    theirs2 = tmp_path / "theirs2.accdb"
+    shutil.copy(base, theirs2)
+    assert oracle("-Command", "delete-simple", "-Path", str(theirs2), "-Rows", "3") == "ok"
+    db = AccessDatabase(base)
+    table = db.table("Simple")
+    rid = next(rid for rid, r in table.rows_with_ids() if r["Id"] == 3)
+    table.delete_row(rid)
+    ours = db.to_bytes()
+    engine = theirs2.read_bytes()
+    different = [
+        n for n in range(1, len(ours) // 4096)
+        if ours[n * 4096 : (n + 1) * 4096] != engine[n * 4096 : (n + 1) * 4096]
+    ]
+    assert not different, f"pages differ from the engine's after a delete: {different}"
+
+
 def test_every_code_point_keys_as_the_engine_keys_it(tmp_path: Path) -> None:
     """One indexed row per BMP code point plus composition samples, as the
     generator uses; the encoder must match all of them except keys past the

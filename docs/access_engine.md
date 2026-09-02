@@ -30,6 +30,9 @@ subpackage, one private module per layer of the file:
 | `_lval` | Memo/OLE long values: inline, single row, chained |
 | `_index` | B-tree pages, entry masks, the key codec both ways |
 | `_collation` | text sort keys; `_collation_general_legacy` is its generated table |
+| `_datapage` | in-place editing of a data page's slots and rows |
+| `_alloc` | page allocation from the global usage map, usage-map bit writes |
+| `_btree` | index insert and delete, page compression and splits |
 | `_catalog` (next) | `MSysObjects` and the other system tables as typed objects |
 | `database` | `AccessDatabase` and `Table`, the public facade |
 
@@ -146,6 +149,40 @@ the engine finds the same rows it does today.
   510 key bytes and cuts longer keys without a clean end, so the encoder
   refuses those instead of guessing.
 
+* **Writing rows** (measured by having the engine perform single
+  inserts, updates and deletes on a small table and diffing every page).
+  Rows lie contiguously below the slot table in slot order; free space at
+  2 is exactly `4096 - 14 - 2 * slots - bytes below the lowest row`.
+  Deleting shifts the rows below the hole up, leaves the slot flagged
+  `0xC000` at the boundary it now sits on, and does not clear the freed
+  bytes; replacing a row shifts the rows below it by the size change;
+  inserting appends a slot below the lowest row. The definition's row
+  count at 0x10 tracks live rows; 0x14 holds the last AutoNumber handed
+  out; an index header's u32 at +4 grows only when a new distinct key
+  arrives and never shrinks. A null fixed-length field is left holding
+  whatever the engine's buffer had (one attachment row carries stale
+  text); pyOpenVBA writes zeros, which the null mask makes equivalent.
+  When no page in the free-space map can take a row the engine drops
+  that page from the map and takes the lowest free page of the global map,
+  growing the file to reach it, then registers the page with both of the
+  table's maps. Text is compressed only when the column's byte 16 says so
+  (Access sets it, SQL DDL does not unless `WITH COMPRESSION`), except in
+  the engine's own catalog tables where it always is. A fixed-size Binary
+  column stores its full width, zero-padded. Page 0 carries a counter at
+  0xE02 the engine bumps per SQL statement; it is left alone.
+* **Growing indexes.** An entry is inserted in full-byte order (key then
+  row pointer) into the leaf found by descending the node separators. A
+  page keeps its prefix length until an entry no longer fits; then it is
+  compressed with the full common prefix; then it splits. A leaf that
+  fills while entries are appended stays full and the next leaf starts
+  with the new entry (602 then 298 for 900 sequential Longs); a middle
+  insert splits in half (457 and 443 for 900 random ones). The root page
+  number is fixed: a splitting root becomes a node with one separator, a
+  tail child and level 1 at 0x1A, both children fresh pages. Deleting an
+  entry rewrites the leaf compactly over its old bytes. A single insert
+  and a single delete written by pyOpenVBA are byte-identical to the
+  engine's own on every page but page 0.
+
 ## Alternatives considered
 
 * **Drive Access through COM at runtime.** Breaks the library's one hard
@@ -172,8 +209,8 @@ the engine finds the same rows it does today.
 |---|---|---|
 | 1 | pages, header, usage maps, definitions, rows, long values, catalog | reading. Every table in every authored fixture decodes; the live gate matches ACE field for field on all 16 column types, null rows, chained 5000-character memos and a 151-column definition spanning two pages |
 | 2 | indexes: walk B-trees, decode entries, sort keys for every type | done for reading. Every index on every fixture and on the live 1500-row table checks out, and `encode_key` rebuilds all 25 500 of its entries from the row values, text included |
-| 3 | write rows: insert/update/delete, free-space and owned-page maps, LVAL allocation, counters | |
-| 4 | write indexes: key encoding from an Access-generated collation table, B-tree insert and split | |
+| 3 | write rows: insert/update/delete, free-space and owned-page maps, LVAL allocation, counters | insert, update and delete work for every scalar type, with page allocation and all counters; the engine reads the result, keeps working on it and compacts it. Not yet: Memo/OLE values, rows that outgrow their page (overflow) |
+| 4 | write indexes: key encoding from the engine-generated collation table, B-tree insert and split | done: entries inserted and removed, pages compressed when full and split, root pinned; single edits byte-identical to the engine |
 | 5 | write schema: create/drop table, catalog rows, permissions, navigation pane rows | |
 | 6 | VBA project through the writer: module create/rename/delete | |
 | 7 | queries (`MSysQueries` to SQL and back), relationships, properties | |

@@ -133,10 +133,13 @@ TYPE_NAMES = {
 COLUMN_FIXED = 0x01
 COLUMN_NULLABLE = 0x02
 COLUMN_AUTONUMBER = 0x04
-COLUMN_REPLICATION_ID = 0x10
+# Set on every column of the engine's own catalog tables; meaning unknown.
+COLUMN_SYSTEM_UNKNOWN = 0x10
 COLUMN_AUTONUMBER_GUID = 0x40
 COLUMN_HYPERLINK = 0x80
-# Byte 16.
+# Byte 16: Unicode compression for Text and Memo.  Access sets it on the
+# columns it creates; SQL DDL leaves it clear unless WITH COMPRESSION is
+# given.  The engine compresses its own catalog's text regardless.
 COLUMN_COMPRESSED_UNICODE = 0x01
 
 # Real index flags.
@@ -183,6 +186,10 @@ class ColumnDef:
     @property
     def auto_number(self) -> bool:
         return bool(self.flags & COLUMN_AUTONUMBER)
+
+    @property
+    def compressed_unicode(self) -> bool:
+        return bool(self.misc_flags & COLUMN_COMPRESSED_UNICODE)
 
     @property
     def precision(self) -> int:

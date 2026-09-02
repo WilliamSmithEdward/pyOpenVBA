@@ -228,6 +228,127 @@ def decode_long_value_ref(raw: bytes) -> LongValueRef:
     return LongValueRef(length, kind, inline, row, page)
 
 
+def encode_scalar(column: ColumnDef, value: object, *, compress_text: bool) -> bytes:
+    """Encode a present, non-long-value column.  Boolean yields no bytes
+    (it lives in the null mask)."""
+    code = column.type_code
+    name = column.name
+    if code == TYPE_BOOLEAN:
+        return b""
+    if code == TYPE_BYTE:
+        if not isinstance(value, int) or not 0 <= value <= 255:
+            raise AccessError(f"column {name!r}: {value!r} is not a Byte")
+        return bytes((value,))
+    if code == TYPE_INT:
+        if not isinstance(value, int) or not -32768 <= value <= 32767:
+            raise AccessError(f"column {name!r}: {value!r} is not an Integer")
+        return struct.pack("<h", value)
+    if code in (TYPE_LONG, TYPE_COMPLEX):
+        if not isinstance(value, int) or not -(1 << 31) <= value < 1 << 31:
+            raise AccessError(f"column {name!r}: {value!r} is not a Long")
+        return struct.pack("<i", value)
+    if code == TYPE_BIGINT:
+        if not isinstance(value, int) or not -(1 << 63) <= value < 1 << 63:
+            raise AccessError(f"column {name!r}: {value!r} is not a BigInt")
+        return struct.pack("<q", value)
+    if code == TYPE_MONEY:
+        if not isinstance(value, (int, Decimal)):
+            raise AccessError(f"column {name!r}: {value!r} is not Currency")
+        return struct.pack("<q", int(Decimal(value).scaleb(4)))
+    if code == TYPE_FLOAT:
+        if not isinstance(value, (int, float)):
+            raise AccessError(f"column {name!r}: {value!r} is not a Single")
+        return struct.pack("<f", float(value))
+    if code == TYPE_DOUBLE:
+        if not isinstance(value, (int, float)):
+            raise AccessError(f"column {name!r}: {value!r} is not a Double")
+        return struct.pack("<d", float(value))
+    if code == TYPE_DATETIME:
+        if not isinstance(value, _dt.datetime):
+            raise AccessError(f"column {name!r}: {value!r} is not a datetime")
+        return encode_datetime(value)
+    if code == TYPE_BINARY:
+        if not isinstance(value, (bytes, bytearray)):
+            raise AccessError(f"column {name!r}: {value!r} is not bytes")
+        if len(value) > column.length:
+            raise AccessError(f"column {name!r}: {len(value)} bytes exceed its size {column.length}")
+        if column.is_fixed:
+            # A fixed-size Binary column always holds its full width; the
+            # engine pads with zeros and hands the padded value back.
+            return bytes(value).ljust(column.length, b"\x00")
+        return bytes(value)
+    if code == TYPE_TEXT:
+        if not isinstance(value, str):
+            raise AccessError(f"column {name!r}: {value!r} is not text")
+        if 2 * len(value) > column.length:
+            raise AccessError(f"column {name!r}: {len(value)} characters exceed its size {column.length // 2}")
+        return encode_text(value) if compress_text else value.encode("utf-16-le")
+    if code == TYPE_GUID:
+        if not isinstance(value, uuid.UUID):
+            raise AccessError(f"column {name!r}: {value!r} is not a UUID")
+        return value.bytes_le
+    if code == TYPE_NUMERIC:
+        if not isinstance(value, (int, Decimal)):
+            raise AccessError(f"column {name!r}: {value!r} is not a Decimal")
+        return encode_numeric(Decimal(value), column.scale)
+    if code in (TYPE_OLE, TYPE_MEMO):
+        if not isinstance(value, (bytes, bytearray)):
+            raise AccessError(f"column {name!r}: a long value must be passed encoded")
+        return bytes(value)
+    raise AccessError(f"column {name!r}: cannot encode type {column.type_name}")
+
+
+def encode_row(definition: TableDefinition, values: dict[int, bytes | None], present_booleans: set[int]) -> bytes:
+    """Assemble a row from per-column encoded bytes (``None`` for null),
+    keyed by column number.  ``present_booleans`` names the Boolean
+    columns that are True."""
+    columns = definition.columns_by_number()
+    column_count = max((c.number for c in columns), default=-1) + 1
+    fixed = [c for c in columns if c.is_fixed]
+    fixed_size = max((c.fixed_offset + c.length for c in fixed), default=0)
+    fixed_block = bytearray(fixed_size)
+    variable: dict[int, bytes] = {}
+    null_mask = bytearray((column_count + 7) // 8)
+
+    def mark(number: int) -> None:
+        null_mask[number // 8] |= 1 << (number % 8)
+
+    for column in columns:
+        if column.type_code == TYPE_BOOLEAN:
+            if column.number in present_booleans:
+                mark(column.number)
+            continue
+        value = values.get(column.number)
+        if value is None:
+            continue
+        mark(column.number)
+        if column.is_fixed:
+            if len(value) != column.length:
+                raise AccessError(
+                    f"column {column.name!r}: {len(value)} bytes for a {column.length}-byte fixed column"
+                )
+            fixed_block[column.fixed_offset : column.fixed_offset + column.length] = value
+        else:
+            variable[column.var_index] = value
+
+    row = bytearray(struct.pack("<H", column_count))
+    row += fixed_block
+    var_count = definition.var_column_count
+    if var_count:
+        offsets: list[int] = []
+        for var_index in range(var_count):
+            offsets.append(len(row))
+            row += variable.get(var_index, b"")
+        offsets.append(len(row))
+        if offsets[-1] > 0x1FFF:
+            raise AccessError("row is too long for its offset table")
+        for offset in reversed(offsets):
+            row += struct.pack("<H", offset)
+        row += struct.pack("<H", var_count)
+    row += null_mask
+    return bytes(row)
+
+
 def decode_scalar(column: ColumnDef, raw: bytes) -> object:
     """Decode a non-long-value column.  ``raw`` is the present value."""
     code = column.type_code

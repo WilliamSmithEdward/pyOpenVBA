@@ -252,12 +252,46 @@ function Dump-Table($db, [string]$name) {
 
 if ($Command -eq "build-alltypes") { Create-AllTypes $Path }
 $engine = New-Object -ComObject DAO.DBEngine.120
+if ($Command -eq "compact") {
+    # Compacting reads every structure and rebuilds the file; a database
+    # the engine cannot make sense of fails here.
+    $target = $Path + ".compact.accdb"
+    if (Test-Path $target) { Remove-Item $target }
+    $engine.CompactDatabase($Path, $target)
+    [Console]::Out.Write("ok")
+    exit 0
+}
 $db = $engine.OpenDatabase($Path)
 try {
     switch ($Command) {
         "build-alltypes" {
             Build-AllTypes $db $Rows
             Build-Wide $db
+            [Console]::Out.Write("ok")
+        }
+        "build-simple" {
+            # A small table for byte-level comparison of single edits.
+            Invoke-Sql $db "CREATE TABLE Simple (Id AUTOINCREMENT PRIMARY KEY, N LONG, T TEXT(50))" $dbFailOnError
+            Invoke-Sql $db "CREATE INDEX IX_N ON Simple (N)" $dbFailOnError
+            for ($i = 1; $i -le 5; $i++) {
+                Invoke-Sql $db "INSERT INTO Simple (N, T) VALUES ($($i * 10), 'row $i')" $dbFailOnError
+            }
+            [Console]::Out.Write("ok")
+        }
+        "insert-simple" {
+            Invoke-Sql $db "INSERT INTO Simple (N, T) VALUES ($Rows, 'inserted $Rows')" $dbFailOnError
+            [Console]::Out.Write("ok")
+        }
+        "delete-simple" {
+            Invoke-Sql $db "DELETE FROM Simple WHERE Id = $Rows" $dbFailOnError
+            [Console]::Out.Write("ok")
+        }
+        "insert-alltypes-more" {
+            # Rows the engine adds after pyOpenVBA wrote: proof it can still
+            # work with the structures.
+            for ($i = 1; $i -le $Rows; $i++) {
+                Invoke-Sql $db "INSERT INTO AllTypes (Flag, Tiny, Txt) VALUES (TRUE, $i, 'engine after pyopenvba $i')" $dbFailOnError
+            }
             [Console]::Out.Write("ok")
         }
         "build-collation" {

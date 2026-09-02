@@ -58,6 +58,23 @@ All notable changes to pyOpenVBA are documented here. This project follows
   engine's own, and the engine inserts into, reads and compacts a table
   pyOpenVBA created. `pyopenvba.access` exports `AccessDatabase`,
   `Table`, `Index`, `RowId`, `ColumnSpec`, `IndexSpec`.
+- **Table definitions longer than one page** are written the way the
+  engine writes them: `ceil(length / 4088)` pages, continuation pages
+  allocated after the index roots and chained in reverse, the free word
+  `4088 * pages - length` on the last page; CREATE INDEX rewrites onto a
+  fresh chain and releases the old pages; DROP TABLE marks only the
+  first page. Tables of up to 255 columns with long names now round-trip
+  byte for byte against the engine (live gate).
+- Pages released in a session (dropped tables, rewritten definitions,
+  freed long values) are not reallocated until the database is reopened,
+  as the engine does; an `AccessDatabase` instance is the session.
+- `CatalogEntry.date_create_serial` / `date_update_serial` carry the
+  stored stamps as doubles, and DateTime columns, `create_table` and
+  `create_index` accept such serials, so a stamp copied from another
+  database lands bit for bit (a datetime cannot carry the last bit).
+  `update_row` keeps the stored bytes of every column it does not touch,
+  and index keys are built from the stored serial rather than a decoded
+  datetime.
 - `AccessDatabase.create_new(path)` writes a blank database from the
   embedded Access-authored template; `AccessDatabase`, `ColumnSpec` and
   `IndexSpec` are exported from the package root, and the README has a

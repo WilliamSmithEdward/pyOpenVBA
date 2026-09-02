@@ -45,6 +45,8 @@ from pyopenvba.access._schema import (
     DefinitionLayout,
     IndexSpec,
     build_definition,
+    definition_page_count,
+    definition_pages,
     empty_index_root,
     mark_definition_freed,
     new_index_parts,
@@ -68,6 +70,7 @@ from pyopenvba.access._tdef import (
     OFFSET_ROW_COUNT,
     SIZE_REAL_INDEX_HEADER,
     TYPE_BOOLEAN,
+    TYPE_DATETIME,
     TYPE_MEMO,
     TYPE_OLE,
     ColumnDef,
@@ -108,6 +111,10 @@ class CatalogEntry:
     date_update: object
     page: int
     row: int
+    #: The two stamps as the stored serials (days since 1899-12-30); a
+    #: datetime cannot carry the last bit of the double, these can.
+    date_create_serial: float | None = None
+    date_update_serial: float | None = None
 
     @property
     def is_system(self) -> bool:
@@ -314,8 +321,9 @@ class Table:
         self, values: Mapping[str, object], keep_raw: RawRow | None = None
     ) -> tuple[dict[int, bytes | None], set[int]]:
         """Encode Python values per column number and store any long
-        values.  ``keep_raw`` is the row's existing bytes: long-value
-        columns not named in ``values`` keep theirs."""
+        values.  ``keep_raw`` is the row's existing bytes: columns not
+        named in ``values`` keep theirs exactly (a stamp re-encoded from
+        its datetime could lose its last bit)."""
         d = self.definition
         known = {c.name.lower(): c for c in d.columns}
         for name in values:
@@ -331,13 +339,13 @@ class Table:
                     if key.lower() == column.name.lower():
                         value = candidate
             if column.type_code == TYPE_BOOLEAN:
-                if value:
+                if (keep_raw.present.get(column.number) if keep_raw is not None and not given else value):
                     booleans.add(column.number)
                 continue
+            if keep_raw is not None and not given:
+                encoded[column.number] = keep_raw.values.get(column.number)
+                continue
             if column.is_long_value:
-                if keep_raw is not None and not given:
-                    encoded[column.number] = keep_raw.values.get(column.number)
-                    continue
                 if value is None:
                     encoded[column.number] = None
                     continue
@@ -411,7 +419,7 @@ class Table:
         page = DataPage(db.store.read(page_number))
         slot = page.add_row(row)
         db.store.write(page_number, page.to_bytes())
-        full_values = self.decode(split_row(d, row))
+        full_values = self._exact_values(split_row(d, row))
         for i, real, columns in self._real_indexes():
             key = self._key(real, columns, full_values)
             if key is None:
@@ -447,7 +455,7 @@ class Table:
         if data is None:
             raise AccessError(f"row ({row_id.page}, {row_id.slot}) is not live")
         parts = split_row(d, data)
-        values = self.decode(parts)
+        values = self._exact_values(parts)
         for i, real, columns in self._real_indexes():
             key = self._key(real, columns, values)
             if key is not None:
@@ -475,23 +483,20 @@ class Table:
         if data is None:
             raise AccessError(f"row ({row_id.page}, {row_id.slot}) is not live")
         parts = split_row(d, data)
-        old_values = self.decode(parts)
+        old_values = self._exact_values(parts)
         new_values = dict(old_values)
-        changed: set[str] = set()
+        given: dict[str, object] = {}
         for name, value in changes.items():
             matched = [c for c in d.columns if c.name.lower() == name.lower()]
             if not matched:
                 raise AccessError(f"table {self.name!r} has no column {name!r}")
             new_values[matched[0].name] = value
-            changed.add(matched[0].name)
-        # Unchanged long values keep their stored bytes; changed ones give
-        # back their old storage and are stored afresh.
+            given[matched[0].name] = value
+        # Untouched columns keep their stored bytes; changed long values
+        # give back their old storage and are stored afresh.
         self._check_unique(new_values, exclude=row_id)
-        for column in d.columns:
-            if column.is_long_value and column.name not in changed:
-                new_values.pop(column.name, None)
-        self._free_long_values(parts, only=changed)
-        encoded, booleans = self._encode_values(new_values, keep_raw=parts)
+        self._free_long_values(parts, only=set(given))
+        encoded, booleans = self._encode_values(given, keep_raw=parts)
         row = encode_row(d, encoded, booleans)
         for i, real, columns in self._real_indexes():
             old_key = self._key(real, columns, old_values)
@@ -559,6 +564,17 @@ class Table:
         home = DataPage(db.store.read(row_id.page))
         home.replace_row(row_id.slot, encode_row_pointer(new_page, new_slot), flags=ROW_OVERFLOW)
         db.store.write(row_id.page, home.to_bytes())
+
+    def _exact_values(self, parts: RawRow) -> dict[str, object]:
+        """The row's values for key building and re-encoding: decoded, except
+        that a DateTime is its stored serial (a datetime can lose the last
+        bit of the double, and the index key must match the row)."""
+        values = self.decode(parts)
+        for column in self.columns:
+            raw = parts.values.get(column.number)
+            if column.type_code == TYPE_DATETIME and isinstance(raw, bytes) and len(raw) == 8:
+                values[column.name] = struct.unpack("<d", raw)[0]
+        return values
 
     def _key(self, real: RealIndex, columns: list[tuple[ColumnDef, bool]], values: Mapping[str, object]) -> bytes | None:
         key_values = [values.get(c.name) for c, _ in columns]
@@ -651,6 +667,21 @@ class AccessDatabase:
         target.write_bytes(self.to_bytes())
         return target
 
+    def _write_definition(self, stream: bytes, first: int, old_chain: Sequence[int]) -> list[int]:
+        """Lay a definition stream over ``first`` and a continuation chain.
+        As the engine does on every rewrite, the continuation pages are
+        allocated afresh in ascending order, chained in reverse, and only
+        then are the pages of ``old_chain`` released (their bytes kept).
+        Returns the chain written."""
+        store = self.store
+        fresh = [allocate_page(store) for _ in range(definition_page_count(len(stream)) - 1)]
+        chain = fresh[::-1]
+        for page, image in zip([first, *chain], definition_pages(stream, chain), strict=True):
+            store.write(page, image)
+        for page in old_chain:
+            release_page(store, page)
+        return chain
+
     def patch_definition(self, definition: TableDefinition, offset: int, data: bytes) -> None:
         """Overwrite bytes of a table definition's header, which always
         lies on its first page."""
@@ -672,8 +703,10 @@ class AccessDatabase:
             table = Table(self, self.definition(MSYS_OBJECTS_PAGE), "MSysObjects")
             entries: list[CatalogEntry] = []
             for page, slot, data in table.raw_rows():
-                values = table.decode(split_row(table.definition, data))
+                parts = split_row(table.definition, data)
+                values = table.decode(parts)
                 owner = values.get("Owner")
+                serials = [_stamp_serial(parts, table.definition.column(c).number) for c in ("DateCreate", "DateUpdate")]
                 entries.append(
                     CatalogEntry(
                         id=_as_int(values["Id"]),
@@ -686,6 +719,8 @@ class AccessDatabase:
                         date_update=values.get("DateUpdate"),
                         page=page,
                         row=slot,
+                        date_create_serial=serials[0],
+                        date_update_serial=serials[1],
                     )
                 )
             self._catalog = entries
@@ -750,9 +785,15 @@ class AccessDatabase:
         indexes: Sequence[IndexSpec] | None = None,
         *,
         created: object | None = None,
+        updated: object | None = None,
     ) -> Table:
         """Create a table the way the engine does: a definition page, a page
-        of usage maps, an empty root per index, and the catalog rows."""
+        of usage maps, an empty root per index, and the catalog rows.
+        ``created`` and ``updated`` are the catalog row's two timestamps
+        (now, and the creation time, by default), as datetimes or as the
+        stored serials; the engine stamps DateUpdate when the definition
+        is complete, so on a large table it runs a little after
+        DateCreate."""
         import datetime as _dt
 
         specs = list(columns)
@@ -764,21 +805,15 @@ class AccessDatabase:
         long_columns = [n for n, c in enumerate(specs) if c.type_code in (TYPE_MEMO, TYPE_OLE)]
 
         # Pages are taken in the engine's order: the definition, the
-        # usage-map page, whatever the catalog rows need, then index roots.
+        # usage-map page, whatever the catalog rows need, index roots, then
+        # the definition's continuation pages if it runs past one page.
         definition_page = allocate_page(store)
         map_page = allocate_page(store)
         map_rows = 2 + len(index_specs) + 2 * len(long_columns)
         store.write(map_page, usage_map_page(map_rows))
-        # The definition page must parse as a table before the catalog can
-        # point at it; a placeholder is written first and replaced below.
-        placeholder_layout = DefinitionLayout(
-            page=definition_page, tag=tag, owned_ref=(map_page << 8), free_ref=(map_page << 8) | 1,
-            index_umap_refs=[], index_roots=[],
-            column_map_refs=_long_value_map_refs(specs, map_page, len(index_specs)),
-        )
-        store.write(definition_page, build_definition(specs, [], placeholder_layout))
 
-        when = created if isinstance(created, _dt.datetime) else _dt.datetime.now().replace(microsecond=0)
+        when = created if isinstance(created, (_dt.datetime, float)) else _dt.datetime.now().replace(microsecond=0)
+        when_updated = updated if isinstance(updated, (_dt.datetime, float)) else when
         objects = self.table("MSysObjects")
         # The engine writes the catalog row in two steps -- first without an
         # owner, then updating it with one -- which decides whether the row
@@ -791,7 +826,7 @@ class AccessDatabase:
                 "Type": OBJECT_TABLE,
                 "Flags": 0,
                 "DateCreate": when,
-                "DateUpdate": when,
+                "DateUpdate": when_updated,
             }
         )
         objects.update_row(catalog_row, {"Owner": self._default_owner()})
@@ -811,7 +846,7 @@ class AccessDatabase:
             index_roots=roots,
         )
         layout.column_map_refs = _long_value_map_refs(specs, map_page, len(index_specs))
-        store.write(definition_page, build_definition(specs, index_specs, layout))
+        self._write_definition(build_definition(specs, index_specs, layout), definition_page, [])
         for i, root in enumerate(roots):
             add_to_map(store, layout.index_umap_refs[i], root)
         self._catalog = None
@@ -846,7 +881,7 @@ class AccessDatabase:
         d.logical_indexes.append(logical)
         d.real_index_count += 1
         d.logical_index_count += 1
-        store.write(d.page, serialize_definition(d))
+        self._write_definition(serialize_definition(d), d.page, d.pages[1:])
         add_to_map(store, umap_ref, root)
         self._definitions.pop(d.page, None)
         table = self.table(table_name)
@@ -869,7 +904,7 @@ class AccessDatabase:
             self.patch_definition(
                 table.definition, OFFSET_INDEX_HEADERS + position * SIZE_REAL_INDEX_HEADER + 4, struct.pack("<I", distinct)
             )
-        when = updated if isinstance(updated, _dt.datetime) else _dt.datetime.now().replace(microsecond=0)
+        when = updated if isinstance(updated, (_dt.datetime, float)) else _dt.datetime.now().replace(microsecond=0)
         objects = self.table("MSysObjects")
         for rid, row in objects.rows_with_ids():
             if row["Id"] == d.page and row["Type"] == OBJECT_TABLE:
@@ -923,9 +958,10 @@ class AccessDatabase:
         for map_page in map_pages:
             if all(entry & 0xC000 == 0xC000 for entry in DataPage(store.read(map_page)).slots):
                 released.add(map_page)
-        for page_number in d.pages:
-            store.write(page_number, mark_definition_freed(store.read(page_number)))
-            released.add(page_number)
+        # Only the first definition page is marked freed; continuation
+        # pages keep their bytes and just go back to the free map.
+        store.write(d.page, mark_definition_freed(store.read(d.page)))
+        released.update(d.pages)
         for page_number in sorted(p for p in released if p < store.page_count):
             release_page(store, page_number)
 
@@ -940,6 +976,12 @@ class AccessDatabase:
                 aces.delete_row(rid)
         self._catalog = None
         self._definitions.pop(d.page, None)
+
+
+def _stamp_serial(parts: RawRow, column_number: int) -> float | None:
+    """A DateTime column's stored double, untouched by datetime rounding."""
+    raw = parts.values.get(column_number)
+    return struct.unpack("<d", raw)[0] if isinstance(raw, bytes) and len(raw) == 8 else None
 
 
 def _long_value_map_refs(specs: Sequence[ColumnSpec], map_page: int, index_count: int) -> dict[int, tuple[int, int]]:

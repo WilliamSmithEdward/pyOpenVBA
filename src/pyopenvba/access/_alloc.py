@@ -124,17 +124,19 @@ def _new_bitmap_page(store: PageStore) -> int:
 
 def allocate_page(store: PageStore) -> int:
     """Take the lowest free page from the global map, growing the file if
-    that page lies past its end, and mark it used.  When the map lists no
-    free page it is extended by one 8-byte step, the 64 new pages counting
-    as free, which is how the engine grows it."""
+    that page lies past its end, and mark it used.  Pages released during
+    this session (``store.released``) are passed over, as the engine
+    passes them over until the database is reopened.  When the map lists
+    no usable free page it is extended by one 8-byte step, the 64 new
+    pages counting as free, which is how the engine grows it."""
     free = read_usage_map(store, GLOBAL_USAGE_MAP_PAGE, GLOBAL_USAGE_MAP_ROW)
-    candidates = free.pages()
+    candidates = [p for p in free.pages() if p not in store.released]
     if not candidates:
         if free.kind != USAGE_MAP_INLINE:
             raise AccessError("the global usage map lists no free page and is not inline; not supported yet")
         free.bitmap.extend(b"\xff" * INLINE_BITMAP_STEP)
         _rewrite_inline_row(store, free)
-        candidates = free.pages()
+        candidates = [p for p in free.pages() if p not in store.released]
     page = candidates[0]
     while store.page_count <= page:
         store.append()
@@ -143,8 +145,11 @@ def allocate_page(store: PageStore) -> int:
 
 
 def release_page(store: PageStore, page: int) -> None:
+    """Return ``page`` to the global free map; it stays out of this
+    session's allocations."""
     free = read_usage_map(store, GLOBAL_USAGE_MAP_PAGE, GLOBAL_USAGE_MAP_ROW)
     set_usage_bit(store, free, page, True)
+    store.released.add(page)
 
 
 def add_to_map(store: PageStore, reference: int, page: int) -> None:

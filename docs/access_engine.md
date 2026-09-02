@@ -206,6 +206,43 @@ the engine finds the same rows it does today.
   keep pointing at the home slot. When it shrinks enough it comes home and
   the copy is tombstoned; deleting it tombstones both slots.
 
+* **Definitions longer than one page**, measured with tables of 111 to
+  151 columns whose names were tuned to land the definition length on
+  4086 to 4100 bytes, then 8111, 10547 and 13244. The engine counts 4088
+  bytes (4096 minus an 8-byte reserve) per page, so a definition takes
+  `ceil(length / 4088)` pages: 4088 bytes fit one page and 4089 already
+  take two, the second holding nothing but its header. Physically the
+  first page holds the first 4096 bytes and each continuation the next
+  4088 after an 8-byte header (`02 01`, free word, next page, 0); the
+  free word is `4088 * pages - length` on the last page and 0 on every
+  other. Continuation pages are allocated last when a table is created
+  (after the index roots), in ascending order, and chained in reverse:
+  the first allocated page ends the chain. Every rewrite of a definition
+  (CREATE INDEX) allocates a fresh chain the same way and only then
+  releases the old continuation pages, bytes intact, even when the page
+  count does not change. DROP TABLE marks only the first page 0x08;
+  continuation pages just return to the free map. The catalog row's
+  DateUpdate is stamped when the definition is complete, so on a
+  150-column table it runs a couple of milliseconds after DateCreate;
+  `create_table(created=, updated=)` takes both.
+* **Stamps carry more than a millisecond**, seen in 14 of 112 catalog
+  timestamps the engine wrote: their doubles sit one bit away from any
+  millisecond value, and no arithmetic tried (nearest, ceiling, floor,
+  twenty operation orders) reproduces them from a datetime. A datetime
+  is stored as the nearest double; the stored serial is exposed
+  (`CatalogEntry.date_create_serial`) and accepted wherever a DateTime
+  goes, and an update keeps the bytes of every column it does not touch
+  rather than re-encoding decoded values, which is what made two catalog
+  rows differ by a bit.
+* **Released pages wait for the next session**, measured by dropping a
+  table and creating another in one DAO session (the new table took pages
+  past the end of the file while the dropped table's stayed free), then
+  creating one more in a fresh session (it took the dropped table's
+  pages, lowest first). Pages a session releases, whether by DROP TABLE,
+  a definition rewrite or a freed long value, are not handed out again
+  until the database is reopened. An `AccessDatabase` instance is a
+  session: `PageStore.released` holds what it has released, the
+  allocator skips those, and a new instance starts clean.
 * **Creating and dropping tables**, measured by diffing `CREATE TABLE`,
   `CREATE INDEX` and `DROP TABLE` page by page. A new table takes its
   definition page and one data-shaped page (owner 0) holding its usage
@@ -213,8 +250,7 @@ the engine finds the same rows it does today.
   index, two per Memo/OLE column. Each index gets an empty leaf as root.
   In the definition, real indexes keep creation order while the logical
   list and its names are stored sorted by name (each logical entry
-  naming its own index number); the free-space word is `4096 - length -
-  8`; the per-table tag at 0x0C and in every column header is the
+  naming its own index number); the per-table tag at 0x0C and in every column header is the
   database's (0x659 everywhere seen); a real index definition begins
   `83 07 00 00`, a logical one carries `04 04` before its kind byte; a
   Boolean column is "fixed" of length 1 but takes no row space, a GUID is
@@ -279,7 +315,7 @@ the engine finds the same rows it does today.
 | 3 | write rows: insert/update/delete, free-space and owned-page maps, LVAL allocation, counters | done: every column type including Memo/OLE of every storage kind, overflow rows, unique-index enforcement, page allocation and all counters; the engine reads the result, keeps working on it and compacts it; single edits and memo inserts byte-identical to the engine's |
 | 4 | write indexes: key encoding from the engine-generated collation table, B-tree insert and split | done: entries inserted and removed, pages compressed when full and split, root pinned; single edits byte-identical to the engine |
 | 3b | large files: usage maps growing past 512 pages | done for inline maps (growth and re-base as the engine does); the reference form is read but not yet written |
-| 5 | write schema: create/drop table, create index, catalog rows | done: `create_table`, `create_index`, `drop_table`; byte-identical to the engine's CREATE TABLE, CREATE INDEX and DROP TABLE on every page but page 0; the engine inserts into, reads and compacts a table pyOpenVBA created. Not yet: definitions longer than one page, a second map page, navigation-pane rows (the Access layer adds those itself) |
+| 5 | write schema: create/drop table, create index, catalog rows | done: `create_table`, `create_index`, `drop_table`; byte-identical to the engine's CREATE TABLE, CREATE INDEX and DROP TABLE on every page but page 0; the engine inserts into, reads and compacts a table pyOpenVBA created; definitions over one page (up to the 255-column limit) are chained and rewritten as the engine does, byte-identical. Not yet: a second map page, navigation-pane rows (the Access layer adds those itself) |
 | 6 | VBA project through the writer: module create/rename/delete | |
 | 7 | queries (`MSysQueries` to SQL and back), relationships, properties | |
 | 8 | forms, reports, macros: the binary object formats nobody has published | |

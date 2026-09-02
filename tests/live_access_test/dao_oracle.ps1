@@ -18,7 +18,8 @@ param(
     [Parameter(Mandatory = $true)][string]$Command,
     [Parameter(Mandatory = $true)][string]$Path,
     [int]$Rows = 120,
-    [string]$Table = ""
+    [string]$Table = "",
+    [string]$SqlFile = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -267,6 +268,13 @@ try {
         "build-alltypes" {
             Build-AllTypes $db $Rows
             Build-Wide $db
+            [Console]::Out.Write("ok")
+        }
+        "sql-file" {
+            # One statement per line, run in order; blank lines skipped.
+            foreach ($line in [System.IO.File]::ReadAllLines($SqlFile)) {
+                if ($line.Trim().Length -gt 0) { Invoke-Sql $db $line $dbFailOnError }
+            }
             [Console]::Out.Write("ok")
         }
         "build-simple" {

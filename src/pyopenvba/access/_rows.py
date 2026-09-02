@@ -272,6 +272,11 @@ def encode_scalar(column: ColumnDef, value: object, *, compress_text: bool) -> b
             raise AccessError(f"column {name!r}: {value!r} is not a Double")
         return struct.pack("<d", float(value))
     if code == TYPE_DATETIME:
+        # A float is taken as the stored serial itself (days since
+        # 1899-12-30, the time as a fraction), which is how a stamp read
+        # from another database is reproduced bit for bit.
+        if isinstance(value, float):
+            return struct.pack("<d", value)
         if not isinstance(value, _dt.datetime):
             raise AccessError(f"column {name!r}: {value!r} is not a datetime")
         return encode_datetime(value)

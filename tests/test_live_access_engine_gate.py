@@ -26,7 +26,7 @@ from pathlib import Path
 
 import pytest
 
-from pyopenvba.access import AccessDatabase
+from pyopenvba.access import AccessDatabase, CatalogEntry
 from pyopenvba.access_read import AccessError
 
 pytestmark = pytest.mark.skipif(
@@ -170,9 +170,12 @@ def _check_indexes(db: AccessDatabase, oracle_built: bool = True) -> None:
     # must produce exactly the bytes the engine stored -- text included.
     from pyopenvba.access._index import encode_key, leaf_entries
 
+    exact: dict[tuple[int, int], dict[str, object]] = {}
+    for page, slot, data in table.raw_rows():
+        exact[(page, slot)] = table._exact_values(split_row(table.definition, data))  # pyright: ignore[reportPrivateUsage]
     for index in table.indexes:
         for entry in leaf_entries(db.store, index.real.root_page):
-            row = rows[(entry.page, entry.row)]
+            row = exact[(entry.page, entry.row)]
             values = [row[c.name] for c, _ in index.columns]
             assert encode_key(values, index.columns) == entry.key, (index.name, values)
 
@@ -342,19 +345,38 @@ def test_engine_uses_a_table_pyopenvba_created(tmp_path: Path) -> None:
     _check_indexes(compacted, oracle_built=False)
 
 
+def _differing_pages(ours: bytes, engine: bytes) -> list[int]:
+    """Pages after page 0 (whose statement counter is not reproduced) that
+    differ between two databases of the same size."""
+    assert len(ours) == len(engine), (len(ours), len(engine))
+    return [
+        n for n in range(1, len(ours) // 4096)
+        if ours[n * 4096 : (n + 1) * 4096] != engine[n * 4096 : (n + 1) * 4096]
+    ]
+
+
+def _describe_pages(ours: bytes, engine: bytes, pages: list[int]) -> str:
+    """The first differing bytes of each listed page, for the assertion."""
+    lines: list[str] = []
+    for n in pages[:3]:
+        a, b = ours[n * 4096 : (n + 1) * 4096], engine[n * 4096 : (n + 1) * 4096]
+        offsets = [i for i in range(4096) if a[i] != b[i]]
+        lo = offsets[0]
+        lines.append(f"page {n} (type {b[0]:#04x}, owner {int.from_bytes(b[4:8], 'little')}): {len(offsets)} bytes from {lo}; ours {a[lo:lo + 16].hex(' ')} / engine {b[lo:lo + 16].hex(' ')}")
+    return "; ".join(lines)
+
+
+def _catalog_entry(path: Path, name: str) -> CatalogEntry:
+    return next(e for e in AccessDatabase(path).catalog() if e.name == name)
+
+
 def test_create_and_drop_table_match_the_engine_byte_for_byte(tmp_path: Path) -> None:
     """CREATE TABLE with a named primary key plus CREATE INDEX, then DROP
     TABLE, by the engine and by pyOpenVBA on copies of the blank database.
     Only page 0 and the two catalog timestamps may differ."""
     from pyopenvba.access import ColumnSpec, IndexSpec
 
-    def differing(ours: bytes, engine: bytes) -> list[int]:
-        assert len(ours) == len(engine)
-        return [
-            n for n in range(1, len(ours) // 4096)
-            if ours[n * 4096 : (n + 1) * 4096] != engine[n * 4096 : (n + 1) * 4096]
-        ]
-
+    differing = _differing_pages
     theirs = tmp_path / "theirs.accdb"
     shutil.copy(TEMPLATE, theirs)
     assert oracle("-Command", "create-keyed", "-Path", str(theirs)) == "ok"
@@ -383,6 +405,71 @@ def test_create_and_drop_table_match_the_engine_byte_for_byte(tmp_path: Path) ->
     assert oracle("-Command", "drop-simple", "-Path", str(theirs)) == "ok"
     db.drop_table("Simple")
     assert not (d := differing(db.to_bytes(), theirs.read_bytes())), f"drop: pages differ from the engine's: {d}"
+
+
+def test_definitions_over_one_page_match_the_engine_byte_for_byte(tmp_path: Path) -> None:
+    """Definitions that run past one page: a 150-column table (two pages)
+    with rows, a four-page and a three-page table, then CREATE INDEX on
+    both, which rewrites each definition onto a fresh continuation chain.
+    Every page but page 0 must match the engine's."""
+    from pyopenvba.access import ColumnSpec, IndexSpec
+
+    theirs = tmp_path / "theirs.accdb"
+    shutil.copy(TEMPLATE, theirs)
+    script = tmp_path / "step.sql"
+
+    def engine_runs(*statements: str) -> None:
+        script.write_text(chr(10).join(statements) + chr(10), encoding="ascii")
+        assert oracle("-Command", "sql-file", "-Path", str(theirs), "-SqlFile", str(script)) == "ok"
+
+    def same(step: str, db: AccessDatabase) -> None:
+        ours, engine = db.to_bytes(), theirs.read_bytes()
+        assert not (d := _differing_pages(ours, engine)), f"{step}: pages differ from the engine's: {_describe_pages(ours, engine, d)}"
+
+    def text_columns(names: list[str]) -> list[ColumnSpec]:
+        return [ColumnSpec("Id", "Long", autonumber=True), *(ColumnSpec(n, "Text", size=20, compressed=False) for n in names)]
+
+    def ddl(table: str, names: list[str]) -> str:
+        return f"CREATE TABLE {table} (Id AUTOINCREMENT CONSTRAINT PrimaryKey PRIMARY KEY, " + ", ".join(f"{n} TEXT(20)" for n in names) + ")"
+
+    def long_names(count: int) -> list[str]:
+        return [f"Column{k:03d}".ljust(30, "_") for k in range(1, count)]
+
+    def stamps(name: str) -> dict[str, object]:
+        entry = _catalog_entry(theirs, name)
+        return {"created": entry.date_create_serial, "updated": entry.date_update_serial}
+
+    key = [IndexSpec("PrimaryKey", ("Id",), primary=True)]
+    db = AccessDatabase(TEMPLATE)
+
+    wide_names = [f"Col{k:03d}" for k in range(1, 151)]
+    engine_runs(ddl("Wide", wide_names))
+    wide = db.create_table("Wide", text_columns(wide_names), key, **stamps("Wide"))
+    assert len(wide.definition.pages) == 2
+    same("wide table", db)
+
+    rows = [{n: f"r{r}c{k}" for k, n in enumerate(wide_names, start=1) if (k + r) % 4} for r in (1, 2, 3)]
+    engine_runs(*(f"INSERT INTO Wide ({', '.join(row)}) VALUES ({', '.join(repr(v) for v in row.values())})" for row in rows))
+    for row in rows:
+        wide.insert_row(row)
+    same("wide rows", db)
+
+    engine_runs(ddl("Four", long_names(151)), ddl("Three", long_names(92)))
+    four = db.create_table("Four", text_columns(long_names(151)), key, **stamps("Four"))
+    three = db.create_table("Three", text_columns(long_names(92)), key, **stamps("Three"))
+    assert len(four.definition.pages) == 4 and len(three.definition.pages) == 2
+    same("four- and two-page tables", db)
+
+    engine_runs("CREATE INDEX IX ON Four (Column001_____________________)", "CREATE INDEX IX ON Three (Column001_____________________)")
+    db.create_index("Four", IndexSpec("IX", ("Column001_____________________",)), updated=_catalog_entry(theirs, "Four").date_update)
+    db.create_index("Three", IndexSpec("IX", ("Column001_____________________",)), updated=_catalog_entry(theirs, "Three").date_update)
+    assert len(db.table("Three").definition.pages) == 3
+    same("indexes rewriting the definitions", db)
+
+    from test_access_write import check_indexes
+
+    for name in ("Wide", "Four", "Three"):
+        check_indexes(db.table(name))
 
 
 def test_growth_past_512_pages_matches_the_engine_byte_for_byte(tmp_path: Path) -> None:

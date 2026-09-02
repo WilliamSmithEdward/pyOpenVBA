@@ -9,7 +9,9 @@ Everything here reproduces what the engine wrote for ``CREATE TABLE``,
   (owner 0) holding its usage maps as 69-byte inline rows -- owned pages,
   free-space pages, one per index, then two per long-value column.
 * Each index gets an empty leaf as its root.
-* The definition's free-space word is ``4096 - length - 8``; the
+* A definition takes ``ceil(length / 4088)`` pages, chained through the
+  word at 0x04; the last page's free word is ``4088 * pages - length``
+  and every other page's is 0 (see :func:`definition_pages`).  The
   per-table tag at 0x0C and in every column header is the database's
   (0x659 in every file seen); a real index definition starts ``83 07 00
   00``; a logical one carries ``04 04`` before its kind byte.
@@ -23,6 +25,8 @@ Everything here reproduces what the engine wrote for ``CREATE TABLE``,
 """
 
 from __future__ import annotations
+
+from collections.abc import Sequence
 
 import struct
 from dataclasses import dataclass, field
@@ -120,6 +124,7 @@ LOGICAL_INDEX_FLAGS = bytes((0x04, 0x04))
 NO_RELATIONSHIP = 0xFFFFFFFF
 USAGE_MAP_ROW = bytes(69)
 DEFINITION_FREE_RESERVE = 8
+DEFINITION_PAGE_SHARE = PAGE_SIZE - DEFINITION_FREE_RESERVE  # the engine's per-page accounting unit
 FREED_TABLE_DEFINITION = 0x08
 DEFAULT_ACM = 0xFFEFF
 
@@ -240,7 +245,8 @@ def _name(text: str) -> bytes:
 
 
 def build_definition(columns: list[ColumnSpec], indexes: list[IndexSpec], layout: DefinitionLayout) -> bytes:
-    """The bytes of a table definition page for these columns and indexes."""
+    """The definition stream (header and body, not yet laid over pages; see
+    :func:`definition_pages`) for these columns and indexes."""
     if not columns:
         raise AccessError("a table needs at least one column")
     names_lower = [c.name.lower() for c in columns]
@@ -322,14 +328,10 @@ def build_definition(columns: list[ColumnSpec], indexes: list[IndexSpec], layout
             body += struct.pack("<HII", number, owned, free)
     body += b"\xff\xff"
 
-    length = OFFSET_INDEX_HEADERS + len(body)
-    if length > PAGE_SIZE:
-        raise AccessError("definitions longer than one page are not written yet")
-    raw = bytearray(PAGE_SIZE)
+    raw = bytearray(OFFSET_INDEX_HEADERS)
     raw[0] = PAGE_TDEF
     raw[1] = 0x01
-    struct.pack_into("<H", raw, 2, PAGE_SIZE - length - DEFINITION_FREE_RESERVE)
-    struct.pack_into("<I", raw, 8, length)
+    struct.pack_into("<I", raw, 8, OFFSET_INDEX_HEADERS + len(body))
     struct.pack_into("<I", raw, 0x0C, layout.tag)
     struct.pack_into("<i", raw, 0x18, 1)  # next complex-type AutoNumber
     raw[0x28] = TABLE_TYPE_USER
@@ -340,15 +342,55 @@ def build_definition(columns: list[ColumnSpec], indexes: list[IndexSpec], layout
     struct.pack_into("<I", raw, 0x33, len(indexes))
     struct.pack_into("<I", raw, 0x37, layout.owned_ref)
     struct.pack_into("<I", raw, 0x3B, layout.free_ref)
-    raw[OFFSET_INDEX_HEADERS:length] = body
-    return bytes(raw)
+    return bytes(raw) + bytes(body)
+
+
+def definition_page_count(length: int) -> int:
+    """How many pages a definition of ``length`` bytes takes.  The engine
+    counts ``PAGE_SIZE - 8`` bytes per page, so 4088 bytes fit one page and
+    4089 already take two, the second holding nothing but its header."""
+    return max(1, -(-length // DEFINITION_PAGE_SHARE))
+
+
+def definition_pages(stream: bytes, chain: Sequence[int]) -> list[bytes]:
+    """Lay a definition stream (header and body, as :func:`build_definition`
+    and :func:`serialize_definition` return it) over its pages.  ``chain``
+    names the continuation pages in chain order; the caller allocates them
+    in ascending order and chains them in reverse, as the engine does.
+
+    The first page physically holds the first 4096 bytes and every
+    continuation the next 4088 after its 8-byte header, while the free
+    words follow the engine's 4088-per-page accounting: 0 on every page
+    but the last, ``4088 * pages - length`` on the last."""
+    length = len(stream)
+    count = definition_page_count(length)
+    if len(chain) != count - 1:
+        raise AccessError(f"a {length}-byte definition needs {count - 1} continuation pages, {len(chain)} given")
+    images: list[bytes] = []
+    for index in range(count):
+        page = bytearray(PAGE_SIZE)
+        page[0] = PAGE_TDEF
+        page[1] = 0x01
+        free = DEFINITION_PAGE_SHARE * count - length if index == count - 1 else 0
+        struct.pack_into("<H", page, 2, free)
+        struct.pack_into("<I", page, 4, chain[index] if index < count - 1 else 0)
+        if index == 0:
+            chunk = stream[:PAGE_SIZE]
+            page[8 : len(chunk)] = chunk[8:]
+        else:
+            start = PAGE_SIZE + DEFINITION_PAGE_SHARE * (index - 1)
+            chunk = stream[start : start + DEFINITION_PAGE_SHARE]
+            page[8 : 8 + len(chunk)] = chunk
+        images.append(bytes(page))
+    return images
 
 
 def serialize_definition(definition: TableDefinition) -> bytes:
-    """A definition page rebuilt from a parsed definition: fixed header
+    """The definition stream rebuilt from a parsed definition: fixed header
     fields from the object, every column and index from its raw bytes,
-    logical indexes in name order.  Parsing the result gives the object
-    back; an unchanged definition reproduces its page byte for byte."""
+    logical indexes in name order.  Laid over the definition's pages with
+    :func:`definition_pages`, an unchanged definition reproduces them byte
+    for byte, and parsing gives the object back."""
     columns = definition.columns
     body = bytearray()
     body += b"".join(r.header_raw for r in definition.real_indexes)
@@ -361,14 +403,10 @@ def serialize_definition(definition: TableDefinition) -> bytes:
     for number, (owned, free) in definition.column_usage_maps.items():
         body += struct.pack("<HII", number, owned, free)
     body += b"\xff\xff"
-    length = OFFSET_INDEX_HEADERS + len(body)
-    if length > PAGE_SIZE:
-        raise AccessError("definitions longer than one page are not written yet")
-    raw = bytearray(PAGE_SIZE)
+    raw = bytearray(OFFSET_INDEX_HEADERS)
     raw[0] = PAGE_TDEF
     raw[1] = 0x01
-    struct.pack_into("<H", raw, 2, PAGE_SIZE - length - DEFINITION_FREE_RESERVE)
-    struct.pack_into("<I", raw, 8, length)
+    struct.pack_into("<I", raw, 8, OFFSET_INDEX_HEADERS + len(body))
     struct.pack_into("<I", raw, 0x0C, definition.tag)
     struct.pack_into("<I", raw, 0x10, definition.row_count)
     struct.pack_into("<I", raw, 0x14, definition.next_autonumber & 0xFFFFFFFF)
@@ -382,8 +420,7 @@ def serialize_definition(definition: TableDefinition) -> bytes:
     struct.pack_into("<I", raw, 0x33, len(definition.real_indexes))
     struct.pack_into("<I", raw, 0x37, definition.owned_pages_ref)
     struct.pack_into("<I", raw, 0x3B, definition.free_space_pages_ref)
-    raw[OFFSET_INDEX_HEADERS:length] = body
-    return bytes(raw)
+    return bytes(raw) + bytes(body)
 
 
 def new_index_parts(

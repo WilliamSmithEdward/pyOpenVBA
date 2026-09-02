@@ -446,9 +446,14 @@ def _encode_value(column: ColumnDef, value: object) -> bytes:
     if code == TYPE_DATETIME:
         from pyopenvba.access._rows import encode_datetime
 
-        if not isinstance(value, _dt.datetime):
+        # A float is the stored serial itself, as :func:`encode_scalar` takes
+        # it; keys for rows read back are built from the exact serial.
+        if isinstance(value, float):
+            days = value
+        elif isinstance(value, _dt.datetime):
+            days = struct.unpack("<d", encode_datetime(value))[0]
+        else:
             raise AccessError(f"column {column.name!r}: {value!r} is not a datetime")
-        days = struct.unpack("<d", encode_datetime(value))[0]
         return _float_key(struct.pack(">d", days))
     if code == TYPE_NUMERIC:
         if not isinstance(value, (int, Decimal)):

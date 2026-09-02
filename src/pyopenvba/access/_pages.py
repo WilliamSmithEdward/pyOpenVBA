@@ -166,6 +166,10 @@ class PageStore:
                 f"{PAGE_SIZE}-byte page size"
             )
         self._data = bytearray(data)
+        #: Pages released while this store has been open.  The engine hands
+        #: a released page out again only after the database is reopened,
+        #: so within a session the allocator skips these.
+        self.released: set[int] = set()
 
     @property
     def page_count(self) -> int:

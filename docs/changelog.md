@@ -7,6 +7,12 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- **More of the statement.** `TOP n PERCENT`, `ORDER BY <position>`, and
+  a comparison against `ALL`, `ANY` or `SOME` of a subquery. A column
+  name two sources share is now qualified in the output the way the
+  engine qualifies it, and a crosstab pivoting on a comparison names its
+  columns -1 and 0.
+
 - **The rest of the Jet expression functions.** Replace, Space, String,
   StrComp, StrReverse, Asc, Chr, Sgn, Sqr, Exp, Log, Fix, Val, Str, Hex,
   Oct, the CBool/CByte/CCur/CSng/CDate family, DateAdd, DateDiff,

@@ -4,8 +4,8 @@
 statements against :class:`~pyopenvba.access.database.AccessDatabase`
 tables, in pure Python.  SELECT covers a column list or ``*``, one table
 or INNER / LEFT / RIGHT JOINs, WHERE, GROUP BY with Count, Sum, Avg, Min
-and Max, First, Last, StDev, StDevP, Var and VarP, HAVING, ORDER BY,
-DISTINCT and TOP; expressions cover the comparison, logical, arithmetic
+and Max, First, Last, StDev, StDevP, Var and VarP, HAVING, ORDER BY (by
+name or by position), DISTINCT and TOP (a count or a percentage); expressions cover the comparison, logical, arithmetic
 and concatenation operators, LIKE with the engine's wildcards, IN,
 BETWEEN, IS NULL, ``[parameters]`` and the functions a Jet expression can
 name: text (Len, UCase, LCase, Trim, Left, Right, Mid, InStr, Replace,
@@ -286,12 +286,16 @@ AGGREGATES = {"COUNT", "SUM", "AVG", "MIN", "MAX", "FIRST", "LAST", "STDEV", "ST
 class SubQuery(Expr):
     """A SELECT inside an expression.  ``kind`` says how its rows are read:
     ``scalar`` takes the first column of the first row, ``exists`` asks
-    whether it returned any, and ``in`` looks for a value among them."""
+    whether it returned any, ``in`` looks for a value among them, and
+    ``quantified`` compares against every row (ALL) or against any one of
+    them (ANY, which SOME is another spelling of)."""
 
     sql: str
     kind: str = "scalar"
     operand: Expr | None = None
     negate: bool = False
+    comparison: str = "="
+    every: bool = False
 
     def eval(self, env: Env) -> object:
         if not isinstance(env, Environment):
@@ -300,6 +304,18 @@ class SubQuery(Expr):
         if self.kind == "exists":
             return bool(rows) != self.negate
         values = [next(iter(r.values()), None) for r in rows]
+        if self.kind == "quantified":
+            if self.operand is None:
+                raise AccessError("a quantified comparison needs a left side")
+            value = self.operand.eval(env)
+            if value is None:
+                return None
+            present = [v for v in values if v is not None]
+            if not present:
+                # ALL over nothing holds; ANY over nothing does not.
+                return self.every
+            tests = (_compare(self.comparison, value, v) for v in present)
+            return all(tests) if self.every else any(tests)
         if self.kind == "in":
             if self.operand is None:
                 raise AccessError("IN needs something to look for")
@@ -439,6 +455,13 @@ class Parser:
         token = self.peek("=", "<>", "<", ">", "<=", ">=")
         if token is not None:
             self.take()
+            quantifier = self.peek("ALL", "ANY", "SOME")
+            if quantifier is not None:
+                self.take()
+                if not self._at_subquery():
+                    raise AccessError(f"{quantifier.text.upper()} needs a subquery")
+                return SubQuery(self._subquery_text(), "quantified", operand=left, comparison=token.text,
+                                every=quantifier.text.upper() == "ALL")
             return Binary(token.text, left, self.concatenation())
         return left
 
@@ -1432,11 +1455,12 @@ def _crosstab(
     for key, group in groups.items():
         record: Row = {}
         for name, expr in zip(heading_names, heading_exprs, strict=True):
-            record[name] = (
+            heading = (
                 _evaluate_with_aggregates(expr, group, sources, parameters, env_for)
                 if _has_aggregate(expr)
                 else expr.eval(env_for(group[0]))
             )
+            record[name] = heading if isinstance(expr, ColumnRef) else _computed(heading)
         for column in columns:
             behind = cells.get((key, _hashable(column)), [])
             record[_column_name(column)] = (
@@ -1456,7 +1480,9 @@ def _crosstab(
             expr = Parser.parse(item)
             out.sort(
                 key=lambda record, expr=expr: _sort_key(
-                    record[expr.name] if isinstance(expr, ColumnRef) and expr.name in record else None
+                    _ordinal(expr, record)
+                    if _ordinal(expr, record) is not None
+                    else (record[expr.name] if isinstance(expr, ColumnRef) and expr.name in record else None)
                 ),
                 reverse=descending,
             )
@@ -1469,10 +1495,12 @@ def _same(a: object, b: object) -> bool:
 
 def _column_name(value: object) -> str:
     """What a pivot value is called as a column: its text, and ``<>`` for
-    Null, which is how the engine shows a crosstab's null heading."""
+    Null, which is how the engine shows a crosstab's null heading.  A
+    truth value is written the way the engine writes one, so pivoting on
+    a comparison gives columns named -1 and 0."""
     if value is None:
         return "<>"
-    return _text(value)
+    return _text(_computed(value))
 
 
 def _split_pivot(clause: str) -> tuple[str, list[object] | None]:
@@ -1622,6 +1650,7 @@ def _select(
             name = f"Expr{expr_counter}"
             expr_counter += 1
         outputs.append((name, expr, None))
+    _qualify_repeats(outputs, items)
     grouped = "GROUP BY" in by_word or any(o[1] is not None and _has_aggregate(o[1]) for o in outputs)
     groups: list[list[Row]]
     if grouped:
@@ -1679,8 +1708,28 @@ def _select(
                 unique.append(r)
         output = unique
     if top is not None:
-        output = output[: int(top)]
+        count, _, percent = top.partition(" ")
+        limit = -(-len(output) * int(count) // 100) if percent.strip().upper() == "PERCENT" else int(count)
+        output = output[:limit]
     return output
+
+
+def _qualify_repeats(outputs: list[tuple[str, Expr | None, str | None]], items: list[tuple[str, str | None]]) -> None:
+    """Two sources can hold the same column name.  The engine then names
+    every one of them for its table -- ``a.Id`` and ``b.Id`` -- and only
+    then, which is what this puts back into the output list."""
+    counts: dict[str, int] = {}
+    for name, _expr, star in outputs:
+        if star is None:
+            counts[name.lower()] = counts.get(name.lower(), 0) + 1
+    written = 0
+    for i, (name, expr, star) in enumerate(outputs):
+        if star is not None:
+            continue
+        alias = items[written][1] if written < len(items) else None
+        written += 1
+        if counts.get(name.lower(), 0) > 1 and alias is None and isinstance(expr, ColumnRef) and expr.qualifier:
+            outputs[i] = (f"{expr.qualifier}.{expr.name}", expr, star)
 
 
 def _order_key(
@@ -1692,11 +1741,24 @@ def _order_key(
     env_for: Callable[[Row], Environment],
 ) -> tuple[int, object]:
     out, base = pair
+    ordinal = _ordinal(expr, out)
+    if ordinal is not None:
+        return _sort_key(ordinal)
     if isinstance(expr, ColumnRef) and expr.qualifier is None and expr.name in out:
         return _sort_key(out[expr.name])
     if grouped:
         return _sort_key(_evaluate_with_aggregates(expr, [base], sources, parameters, env_for))
     return _sort_key(expr.eval(env_for(base)))
+
+
+def _ordinal(expr: Expr, row: Row) -> object | None:
+    """``ORDER BY 2`` names the second output column, not the number 2."""
+    if not isinstance(expr, Literal) or isinstance(expr.value, bool) or not isinstance(expr.value, int):
+        return None
+    names = list(row)
+    if not 1 <= expr.value <= len(names):
+        raise AccessError(f"ORDER BY {expr.value} names no column")
+    return row[names[expr.value - 1]]
 
 
 def _hashable(value: object) -> object:

@@ -12,6 +12,8 @@ from pyopenvba.access import AccessDatabase, ColumnSpec
 from pyopenvba.access._sql import Parser, like_match
 from pyopenvba.access_read import AccessError
 
+TEMPLATE = Path(__file__).parents[1] / "src" / "pyopenvba" / "_templates" / "blank_files" / "blank_database.accdb"
+
 
 def _shop(tmp_path: Path) -> AccessDatabase:
     db = AccessDatabase.create_new(tmp_path / "shop.accdb")
@@ -328,3 +330,55 @@ def test_a_transaction_undoes_everything_or_nothing(tmp_path: Path) -> None:
     with db.transaction():
         db.execute("INSERT INTO Customers (Name) VALUES ('Eve')")
     assert _names(db.execute("SELECT Name FROM Customers ORDER BY Id"))[-1] == "Eve"
+
+
+def _rows(count: int) -> AccessDatabase:
+    """A table of ``count`` numbered rows, for the statement shapes."""
+    db = AccessDatabase(TEMPLATE)
+    db.execute("CREATE TABLE T (N LONG, T TEXT(20))")
+    for i in range(1, count + 1):
+        db.execute(f"INSERT INTO T (N, T) VALUES ({i}, 'row {i}')")
+    return db
+
+
+def test_top_with_percent_takes_a_share_of_the_rows() -> None:
+    """``TOP n PERCENT`` keeps that share, rounded up (measured: one
+    percent of four rows is one)."""
+    db = _rows(6)
+    assert db.execute("SELECT TOP 50 PERCENT T.N FROM T ORDER BY T.N DESC") == [{"N": 6}, {"N": 5}, {"N": 4}]
+    assert db.execute("SELECT TOP 1 PERCENT T.N FROM T ORDER BY T.N DESC") == [{"N": 6}]
+
+
+def test_a_quantified_comparison_reads_every_row_or_any_of_them() -> None:
+    db = _rows(5)
+    assert db.execute("SELECT T.N FROM T WHERE T.N > ALL (SELECT N FROM T WHERE N <= 3) ORDER BY T.N") == [{"N": 4}, {"N": 5}]
+    assert db.execute("SELECT T.N FROM T WHERE T.N > ANY (SELECT N FROM T WHERE N <= 3) ORDER BY T.N") == [
+        {"N": 2},
+        {"N": 3},
+        {"N": 4},
+        {"N": 5},
+    ]
+    assert db.execute("SELECT T.N FROM T WHERE T.N < SOME (SELECT N FROM T WHERE N = 2)") == [{"N": 1}]
+    # ALL over nothing holds, ANY over nothing does not.
+    everything = db.execute("SELECT T.N FROM T WHERE T.N > ALL (SELECT N FROM T WHERE N > 99)")
+    assert isinstance(everything, list) and len(everything) == 5
+    assert db.execute("SELECT T.N FROM T WHERE T.N > ANY (SELECT N FROM T WHERE N > 99)") == []
+
+
+def test_order_by_a_number_names_that_column() -> None:
+    db = _rows(3)
+    assert db.execute("SELECT T.N, T.T FROM T ORDER BY 1 DESC") == [
+        {"N": 3, "T": "row 3"},
+        {"N": 2, "T": "row 2"},
+        {"N": 1, "T": "row 1"},
+    ]
+    with pytest.raises(AccessError, match="ORDER BY 7 names no column"):
+        db.execute("SELECT T.N FROM T ORDER BY 7")
+
+
+def test_a_name_two_sources_share_is_qualified() -> None:
+    db = _rows(2)
+    rows = db.execute("SELECT a.N, b.N FROM T AS a INNER JOIN T AS b ON a.N = b.N ORDER BY a.N")
+    assert rows == [{"a.N": 1, "b.N": 1}, {"a.N": 2, "b.N": 2}]
+    # One of them alone keeps the plain name.
+    assert db.execute("SELECT a.N FROM T AS a ORDER BY a.N") == [{"N": 1}, {"N": 2}]

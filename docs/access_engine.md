@@ -663,6 +663,16 @@ the engine finds the same rows it does today.
   Filling the first page until it dropped out of the map sent the next
   small value to the last page, so the pages are not segregated by size.
 
+* **Statement shapes, checked the same way.** `TOP n PERCENT` keeps that
+  share of the rows rounded up (one percent of four rows is one); `ORDER
+  BY 2` names the second output column; a comparison against `ALL`, `ANY`
+  or `SOME` of a subquery reads every row or any one of them, and over no
+  rows `ALL` holds where `ANY` does not; and when two sources hold the
+  same column name the engine names every one of them for its table,
+  `a.Id` and `b.Id`, where a single one keeps the plain name. One shape
+  the engine refuses that this executor takes: an output alias in `ORDER
+  BY`, which Jet reads as a parameter it has not been given.
+
 * **Jet has no Boolean of its own in an expression.** Every computed
   truth value comes back as -1 or 0 -- a comparison, `Not`, `And`, `Or`,
   `Is Null`, the literal `True`, `IsNumeric`, `CBool` -- and so does

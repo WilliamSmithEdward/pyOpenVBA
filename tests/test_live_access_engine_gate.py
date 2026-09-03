@@ -1183,8 +1183,19 @@ SQL_GATE_SELECTS = (
     "SELECT t.Flag, t.N FROM (SELECT Flag, Count(*) AS N FROM AllTypes GROUP BY Flag) AS t ORDER BY t.Flag",
     "SELECT Tiny FROM AllTypes WHERE Id <= 3 UNION SELECT Tiny FROM AllTypes WHERE Id <= 6 ORDER BY Tiny",
     "SELECT Tiny FROM AllTypes WHERE Id <= 3 UNION ALL SELECT Tiny FROM AllTypes WHERE Id <= 3",
+    # Shapes the whole statement takes.
+    "SELECT DISTINCTROW Txt FROM AllTypes WHERE Id <= 4 ORDER BY Txt",
+    "SELECT TOP 25 PERCENT Id, Big FROM AllTypes ORDER BY Big DESC, Id",
+    "SELECT Id FROM AllTypes WHERE Big > ALL (SELECT Big FROM AllTypes WHERE Id <= 5) ORDER BY Id",
+    "SELECT Id FROM AllTypes WHERE Big > ANY (SELECT Big FROM AllTypes WHERE Id <= 5) AND Id <= 10 ORDER BY Id",
+    "SELECT Id FROM AllTypes WHERE Big <= SOME (SELECT Big FROM AllTypes WHERE Id <= 3) AND Id <= 8 ORDER BY Id",
+    "SELECT Id, Tiny FROM AllTypes WHERE Id <= 5 ORDER BY 2 DESC, 1",
+    "SELECT a.Id, b.Id FROM AllTypes AS a INNER JOIN AllTypes AS b ON a.Id = b.Id WHERE a.Id <= 3 ORDER BY a.Id",
+    "SELECT Id, (Tiny > 10) AS Big10, Not (Tiny > 10) AS Small10 FROM AllTypes WHERE Id <= 4 ORDER BY Id",
+    "SELECT Max(Flag) AS A, Min(Flag) AS B, Sum(Flag) AS C, First(Flag) AS D FROM AllTypes",
     # Crosstabs, run rather than saved.
     "TRANSFORM Sum(Big) AS Total SELECT Flag FROM AllTypes GROUP BY Flag PIVOT Tiny Mod 3",
+    "TRANSFORM Count(*) AS N SELECT Flag FROM AllTypes WHERE Id <= 10 GROUP BY Flag PIVOT Tiny > 10",
     "TRANSFORM Count(*) AS N SELECT Flag, Count(Txt) AS Named FROM AllTypes WHERE Id <= 20 GROUP BY Flag ORDER BY Flag PIVOT Tiny Mod 4 IN (0, 1, 2, 3)",
 )
 

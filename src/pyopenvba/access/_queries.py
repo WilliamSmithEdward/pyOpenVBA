@@ -365,7 +365,9 @@ def select_list(body: str) -> tuple[int, str | None, list[tuple[str, str | None]
             if not match:
                 raise AccessError("TOP needs a count")
             flags |= FLAG_TOP
-            top = match.group(1)
+            # PERCENT is kept with the count, which is how the engine
+            # writes it back and what the executor reads.
+            top = match.group(1) + (" PERCENT" if match.group(2) else "")
             body = body[match.end():]
         else:
             break

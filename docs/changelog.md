@@ -7,6 +7,13 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- **Usage maps past their row.** A map whose bitmap can no longer grow
+  inside its page becomes the engine's reference form: a row of chunk
+  pointers, each naming a page holding one 32 736-page bitmap. The
+  global free map converts the same way and marks each new chunk's
+  unreached pages free. A 130 MB database of long values is now
+  byte-identical to the engine's, both maps converted.
+
 - **`with db.transaction():`** groups writes so they all land or none
   do; an exception puts the pages and the session's state back exactly
   as they were. The engine writes the same bytes either way, and a live
@@ -77,6 +84,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- An inline usage map now grows to cover two pages past the one being
+  added, rounded to four bytes, which is what the engine writes.
+  Rounding to eight was right only by accident on small files and gave
+  the wrong bitmap on every map above a few hundred bytes.
 - A BigInt column is no longer marked fixed: the engine keeps it among
   the variable columns, like a GUID, and a table created with one
   differed from the engine's by that flag.

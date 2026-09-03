@@ -1478,3 +1478,55 @@ def test_a_transaction_writes_what_the_engine_writes(tmp_path: Path) -> None:
     assert db.to_bytes() == before
     assert db.table_names() == ["T"] and db.table("T").row_count == 15
     check_indexes(db.table("T"))
+
+
+def test_a_usage_map_past_its_page_becomes_a_reference_map(tmp_path: Path) -> None:
+    """A hundred and thirty megabytes of long values, byte for byte.
+    Past about thirty thousand pages a column's owned-pages map can no
+    longer grow inside its row: the engine turns it into the reference
+    form -- a row of seventeen chunk pointers, each naming a page whose
+    bytes are one 32 736-page bitmap -- and this does the same, on the
+    same page, at the same row.  Only the per-session stamps of the
+    chained values differ, as always."""
+    from pyopenvba.access import ColumnSpec, IndexSpec
+    from pyopenvba.access._pages import GLOBAL_USAGE_MAP_PAGE, GLOBAL_USAGE_MAP_ROW, read_usage_map, read_usage_map_ref
+
+    rows, size = 130, 1024 * 1024
+    theirs = tmp_path / "theirs.accdb"
+    shutil.copy(TEMPLATE, theirs)
+    assert oracle("-Command", "fill-big", "-Path", str(theirs), "-Rows", str(rows), "-Size", str(size)) == "ok"
+    entry = _catalog_entry(theirs, "Bulk")
+
+    value = bytes(((k * 7 + 11) % 256) for k in range(size))
+    db = AccessDatabase(TEMPLATE)
+    table = db.create_table(
+        "Bulk",
+        [ColumnSpec("Id", "Long", autonumber=True), ColumnSpec("B", "OLE")],
+        [IndexSpec("PK", ("Id",), primary=True)],
+        created=entry.date_create_serial,
+        updated=entry.date_update_serial,
+    )
+    for _ in range(rows):
+        table.insert_row({"B": value})
+
+    ours, engine = bytearray(db.to_bytes()), bytearray(theirs.read_bytes())
+    assert len(ours) == len(engine), f"{len(ours) // 4096} pages against the engine's {len(engine) // 4096}"
+    _mask_lval_stamps(ours, (size,))
+    _mask_lval_stamps(engine, (size,))
+    differing = _differing_pages(bytes(ours), bytes(engine))
+    assert not differing, f"pages differ from the engine's: {_describe_pages(bytes(ours), bytes(engine), differing)}"
+
+    # The map that grew out of its row, in both files.
+    reopened = AccessDatabase(bytes(db.to_bytes()))
+    definition = reopened.table("Bulk").definition
+    owned = next(iter(definition.column_usage_maps.values()))[0]
+    umap = read_usage_map_ref(reopened.store, owned)
+    assert umap.kind == 1, "the column's owned-pages map should have become a reference map"
+    assert len([p for p in umap.reference_pages if p]) == 2  # past one bitmap page's reach
+    assert len(umap.pages()) == rows * (size // 4072 + 1)
+    # The global free map runs out of row too, and gains chunks of its own.
+    global_map = read_usage_map(reopened.store, GLOBAL_USAGE_MAP_PAGE, GLOBAL_USAGE_MAP_ROW)
+    assert global_map.kind == 1
+    assert [p for p in global_map.reference_pages if p]
+    assert reopened.table("Bulk").row_count == rows
+    assert len(next(reopened.table("Bulk").rows())["B"]) == size  # pyright: ignore[reportArgumentType]

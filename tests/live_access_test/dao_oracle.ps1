@@ -16,6 +16,7 @@
 # as the SAFEARRAY DAO expects.
 param(
     [Parameter(Mandatory = $true)][string]$Command,
+    [int]$Size = 1048576,
     [Parameter(Mandatory = $true)][string]$Path,
     [int]$Rows = 120,
     [string]$Table = "",
@@ -282,6 +283,36 @@ try {
                 if ($line.Trim().Length -gt 0) { Invoke-Sql $db $line $dbFailOnError }
             }
             if ($Transaction) { $engine.CommitTrans() }
+            [Console]::Out.Write("ok")
+        }
+        "fill-rows" {
+            # Many small rows through a recordset: the table's own pages
+            # multiply while its long values stay out of the way.
+            Invoke-Sql $db "CREATE TABLE Rows1 (Id AUTOINCREMENT CONSTRAINT PK PRIMARY KEY, T TEXT(200))" $dbFailOnError
+            $rs = $db.OpenRecordset("Rows1", $dbOpenTable)
+            $text = "x" * 190
+            for ($i = 1; $i -le $Rows; $i++) {
+                $rs.AddNew()
+                $rs.Fields.Item("T").Value = $text
+                $rs.Update()
+            }
+            $rs.Close()
+            [Console]::Out.Write("ok")
+        }
+        "fill-big" {
+            # Grow a database fast: -Rows rows of a long binary value, each
+            # -Size bytes, so a file reaches many thousands of pages without
+            # thousands of statements.
+            Invoke-Sql $db "CREATE TABLE Bulk (Id AUTOINCREMENT CONSTRAINT PK PRIMARY KEY, B LONGBINARY)" $dbFailOnError
+            $rs = $db.OpenRecordset("Bulk", $dbOpenTable)
+            $chunk = New-Object byte[] $Size
+            for ($k = 0; $k -lt $Size; $k++) { $chunk[$k] = [byte](($k * 7 + 11) % 256) }
+            for ($i = 1; $i -le $Rows; $i++) {
+                $rs.AddNew()
+                $rs.Fields.Item("B").AppendChunk($chunk)
+                $rs.Update()
+            }
+            $rs.Close()
             [Console]::Out.Write("ok")
         }
         "chunk-probe" {

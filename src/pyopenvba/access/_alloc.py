@@ -29,7 +29,12 @@ from pyopenvba.access._pages import (
 )
 
 
+#: The global map is extended a whole byte-step at a time, 64 pages.
 INLINE_BITMAP_STEP = 8
+#: A map's bitmap is sized up to a multiple of this to cover a new page
+#: (measured on maps the engine grew: 3756 bytes for 30 048 pages, which
+#: is a multiple of four and not of eight).
+INLINE_BITMAP_ROUND = 4
 
 
 def _rewrite_inline_row(store: PageStore, umap: UsageMap) -> None:
@@ -43,11 +48,15 @@ def _rewrite_inline_row(store: PageStore, umap: UsageMap) -> None:
     store.write(umap.page, page.to_bytes())
 
 
-def _reach(umap: UsageMap, page: int) -> None:
+def _reach(store: PageStore, umap: UsageMap, page: int) -> None:
     """Make an inline map able to hold ``page``, the way the engine does:
-    an empty map is re-based to the page's 8-aligned start; a map with
-    pages grows its bitmap in 8-byte steps to the least size covering the
-    page."""
+    an empty map is re-based to the page's 8-aligned start; a map that
+    holds pages grows to cover two pages past the one being added,
+    rounded up to four bytes.  The two spare pages are what a page just
+    taken from the end of the file leaves ahead of it, and they show:
+    taking page 542 grew a map to 72 bytes where covering 542 alone
+    wanted 68.  Thirty growths across five scenarios, from 68 bytes to
+    3756, agree on it."""
     if page < umap.start_page or (page - umap.start_page) // 8 >= len(umap.bitmap):
         if not any(umap.bitmap):
             umap.start_page = page & ~7
@@ -57,16 +66,20 @@ def _reach(umap: UsageMap, page: int) -> None:
                 f"page {page} lies below the start ({umap.start_page}) of the usage map at "
                 f"({umap.page}, {umap.row}); the engine's answer to that has not been measured"
             )
-        needed_bytes = (page - umap.start_page) // 8 + 1
-        rounded = -(-needed_bytes // INLINE_BITMAP_STEP) * INLINE_BITMAP_STEP
-        umap.bitmap.extend(bytes(rounded - len(umap.bitmap)))
+        needed_bytes = (page + 2 - umap.start_page) // 8 + 1
+        rounded = -(-needed_bytes // INLINE_BITMAP_ROUND) * INLINE_BITMAP_ROUND
+        umap.bitmap.extend(bytes(max(0, rounded - len(umap.bitmap))))
 
 
 def set_usage_bit(store: PageStore, umap: UsageMap, page: int, present: bool) -> None:
     """Set or clear ``page`` in the map and write the change through."""
     if umap.kind == USAGE_MAP_INLINE:
         if present:
-            _reach(umap, page)
+            _reach(store, umap, page)
+            if not _inline_row_fits(store, umap):
+                _to_reference(store, umap)
+                set_usage_bit(store, umap, page, True)
+                return
         index = page - umap.start_page
         if index < 0 or index // 8 >= len(umap.bitmap):
             if not present:
@@ -77,6 +90,10 @@ def set_usage_bit(store: PageStore, umap: UsageMap, page: int, present: bool) ->
         return
     if umap.kind == USAGE_MAP_REFERENCE:
         chunk, within = divmod(page, PAGES_PER_BITMAP_PAGE)
+        if chunk >= len(umap.reference_pages) and present:
+            raise AccessError(
+                f"page {page} is beyond the reference usage map at ({umap.page}, {umap.row})"
+            )
         if chunk >= len(umap.reference_pages):
             raise AccessError(
                 f"page {page} is beyond the reference usage map at ({umap.page}, {umap.row})"
@@ -102,6 +119,87 @@ def set_usage_bit(store: PageStore, umap: UsageMap, page: int, present: bool) ->
         _flip(umap.bitmap, page, present)
         return
     raise AccessError(f"usage map kind {umap.kind} cannot be edited")
+
+
+#: A reference map's row: the kind byte and seventeen chunk pointers,
+#: which reach further than a database is allowed to grow.
+REFERENCE_CHUNKS = 17
+REFERENCE_ROW_SIZE = 1 + 4 * REFERENCE_CHUNKS
+
+
+def _inline_row_fits(store: PageStore, umap: UsageMap) -> bool:
+    """Whether the inline row, at its current bitmap size, still fits the
+    page it lives on."""
+    from pyopenvba.access._datapage import DataPage
+
+    page = DataPage(store.read(umap.page))
+    start, end = page.span(umap.row)
+    return 5 + len(umap.bitmap) - (end - start) <= page.free_space
+
+
+def _to_reference(store: PageStore, umap: UsageMap, *, global_map: bool = False) -> None:
+    """Turn an inline map into the reference form: the pages it holds move
+    onto bitmap pages of their own and the row becomes a list of those
+    pages.  The engine does this when growing the inline bitmap would push
+    its row off the page (measured: a map row reached 3761 bytes and
+    converted at the step that would have needed 3797, where 3796 was
+    left)."""
+    from pyopenvba.access._datapage import DataPage
+
+    held = umap.pages()
+    umap.kind = USAGE_MAP_REFERENCE
+    umap.reference_pages = [0] * REFERENCE_CHUNKS
+    umap.bitmap = bytearray()
+    umap.start_page = 0
+    page = DataPage(store.read(umap.page))
+    page.replace_row(umap.row, bytes((USAGE_MAP_REFERENCE,)) + bytes(4 * REFERENCE_CHUNKS))
+    store.write(umap.page, page.to_bytes())
+    _refresh(store, umap)
+    if global_map:
+        # The global map lists free pages, so its first chunk takes over
+        # what was free and everything the file has not reached yet.
+        _global_chunk(store, umap)
+    for number in held:
+        set_usage_bit(store, umap, number, True)
+
+
+def _global_chunk(store: PageStore, umap: UsageMap) -> None:
+    """Give the global free map its next bitmap page and mark every page of
+    that chunk which the file has not reached as free.  The bitmap page is
+    the one just past the end of the file, which is where the engine put
+    both of the ones measured (32 000 and 32 736)."""
+    chunk = next((i for i, page in enumerate(umap.reference_pages) if not page), None)
+    if chunk is None:
+        raise AccessError("the global usage map has no room for another chunk")
+    bitmap_page = store.page_count
+    store.append()
+    raw = bytearray(PAGE_SIZE)
+    raw[0] = PAGE_USAGE_BITMAP
+    raw[1] = 0x01
+    base = chunk * PAGES_PER_BITMAP_PAGE
+    for page in range(max(store.page_count, base), base + PAGES_PER_BITMAP_PAGE):
+        index = page - base
+        raw[USAGE_BITMAP_PAGE_DATA + index // 8] |= 1 << (index % 8)
+    store.write(bitmap_page, bytes(raw))
+    _write_reference_slot(store, umap, chunk, bitmap_page)
+    _refresh(store, umap)
+
+
+def _refresh(store: PageStore, umap: UsageMap) -> None:
+    """Read the map back after its shape changed."""
+    fresh = read_usage_map(store, umap.page, umap.row)
+    umap.kind = fresh.kind
+    umap.start_page = fresh.start_page
+    umap.bitmap = fresh.bitmap
+    umap.reference_pages = fresh.reference_pages
+
+
+def _write_reference_slot(store: PageStore, umap: UsageMap, chunk: int, bitmap_page: int) -> None:
+    raw_page = bytearray(store.read(umap.page))
+    slots = row_slots(bytes(raw_page))
+    start, _end = row_span(slots, umap.row)
+    struct.pack_into("<I", raw_page, start + 1 + 4 * chunk, bitmap_page)
+    store.write(umap.page, bytes(raw_page))
 
 
 def _flip(bitmap: bytearray, index: int, present: bool) -> None:
@@ -133,10 +231,15 @@ def allocate_page(store: PageStore) -> int:
     held = store.released | set(store.pending)
     candidates = [p for p in free.pages() if p not in held]
     if not candidates:
-        if free.kind != USAGE_MAP_INLINE:
-            raise AccessError("the global usage map lists no free page and is not inline; not supported yet")
-        free.bitmap.extend(b"\xff" * INLINE_BITMAP_STEP)
-        _rewrite_inline_row(store, free)
+        if free.kind == USAGE_MAP_INLINE:
+            grown = UsageMap(free.page, free.row, free.kind, free.start_page, free.bitmap + b"\xff" * INLINE_BITMAP_STEP, [])
+            if _inline_row_fits(store, grown):
+                free.bitmap.extend(b"\xff" * INLINE_BITMAP_STEP)
+                _rewrite_inline_row(store, free)
+            else:
+                _to_reference(store, free, global_map=True)
+        else:
+            _global_chunk(store, free)
         candidates = [p for p in free.pages() if p not in held]
     page = candidates[0]
     while store.page_count <= page:

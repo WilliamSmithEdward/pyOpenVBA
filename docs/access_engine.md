@@ -479,15 +479,34 @@ the engine finds the same rows it does today.
   of the bytes said otherwise; the growth comparison below corrected it).
 * **Growing past 512 pages.** An inline usage map covers 8 pages per
   bitmap byte from its start page. When a page beyond its reach is
-  added, a map that holds pages grows its bitmap in 8-byte steps to the
-  least size covering the page (573 pages: the global map's row goes from
-  69 to 77 bytes; 1708 pages: 221), and an empty map is re-based to the
-  page's 8-aligned start instead (a table whose only data page is 542
-  gets start 536). The global map is extended one step at a time when it
-  lists no free page, the 64 new pages counting as free. The reference
-  form of a map has not yet been seen written by the engine below 1708
-  pages. Checked: 450 memo rows carrying a database from 121 to 573 pages
-  leave every page but page 0 identical to the engine's own.
+  added, a map that holds pages grows its bitmap to cover two pages past
+  the one being added, rounded up to four bytes -- the two spare pages
+  being what a page taken from the end of the file leaves ahead of it.
+  The rule shows where it differs from the obvious one: taking page 542
+  grew a map to 72 bytes where covering page 542 alone wanted 68, and a
+  map taking page 30 016 went to exactly 3756. Thirty growths across
+  five scenarios, from 68 bytes to 3756, agree. An empty map is re-based
+  to the page's 8-aligned start instead (a table whose only data page is
+  542 gets start 536). The global map is extended one 8-byte step at a
+  time when it lists no free page, the 64 new pages counting as free.
+  Checked: 450 memo rows carrying a database from 121 to 573 pages leave
+  every page but page 0 identical to the engine's own.
+* **The reference form of a usage map**, which the engine writes once a
+  map's row can no longer grow inside its page. The row becomes 69
+  bytes: a kind byte of 1 and seventeen four-byte chunk pointers, each
+  naming a page whose bytes from offset 4 are one 32 736-page bitmap
+  (type 5, second byte 1). Seventeen chunks reach further than a
+  database may grow, so the row never grows again. The conversion is
+  exactly what the fit demands: a map row reached 3761 bytes with 3796
+  of room, and the step that would have made it 3797 converted it
+  instead. The global free map converts the same way, and each chunk it
+  gains marks every page of that chunk the file has not reached as free
+  -- so a 33 000-page database lists the whole of the second chunk,
+  through page 65 471, as free. A bitmap page is taken from the end of
+  the file like any other page. Checked byte for byte on a 130 MB
+  database: 130 megabyte-sized long values, one column map converted
+  with two chunks and the global map with two of its own, every page
+  identical to the engine's but for the per-session stamps.
 * **Jet DDL type words**, one CREATE TABLE per word, read back from the
   engine's own definition. `INTEGER`, `INT` and `INTEGER4` are the
   four-byte Long here, the two-byte one being `SHORT`, `SMALLINT` or
@@ -624,7 +643,7 @@ the engine finds the same rows it does today.
 | 2 | indexes: walk B-trees, decode entries, sort keys for every type | done for reading. Every index on every fixture and on the live 1500-row table checks out, and `encode_key` rebuilds all 25 500 of its entries from the row values, text included |
 | 3 | write rows: insert/update/delete, free-space and owned-page maps, LVAL allocation, counters | done: every column type including Memo/OLE of every storage kind, overflow rows, unique-index enforcement, page allocation and all counters; the engine reads the result, keeps working on it and compacts it; single edits and memo inserts byte-identical to the engine's |
 | 4 | write indexes: key encoding from the engine-generated collation table, B-tree insert and split | done: entries inserted and removed, pages compressed when full and split, root pinned; single edits byte-identical to the engine |
-| 3b | large files: usage maps growing past 512 pages | done for inline maps (growth and re-base as the engine does); the reference form is read but not yet written |
+| 3b | large files: usage maps growing past 512 pages | done. Inline maps grow and re-base as the engine does, and a map whose row outgrows its page becomes the reference form, the global free map included; a 130 MB database with 130 long values is byte-identical to the engine's (live gate) |
 | 5 | write schema: create/drop table, create index, catalog rows | done: `create_table`, `create_index`, `drop_index`, `drop_table`; byte-identical to the engine's CREATE TABLE, CREATE INDEX and DROP TABLE on every page but page 0; the engine inserts into, reads and compacts a table pyOpenVBA created; definitions over one page (up to the 255-column limit) are chained and rewritten as the engine does, byte-identical; `add_column` / `drop_column` match ALTER TABLE ADD COLUMN / DROP COLUMN byte for byte (live gate). `rename_table`, `rename_column` and `alter_column` match DAO renames and ALTER COLUMN; a table's map rows spill onto a second map page as the engine's do. `drop_index` matches DROP INDEX byte for byte, as does an index built over four hundred rows whose B-tree spans four leaves. Not yet: navigation-pane rows (the Access layer adds those itself) |
 | 6 | VBA project through the writer: module create/rename/delete | |
 | 7 | queries (`MSysQueries` to SQL and back), relationships, properties | relationships done: `create_relationship` / `drop_relationship` / `relationships()`, byte-identical to the engine's ADD CONSTRAINT ... FOREIGN KEY for a first and a second relationship on one parent and to DROP CONSTRAINT (live gate). Properties done: `table.properties()`, `column_properties()`, `set_properties()`, `db.database_properties()`; DAO's three property appends reproduced byte for byte (live gate). Queries done for SELECT, PARAMETERS, DELETE, UPDATE, INSERT INTO ... SELECT, SELECT ... INTO, UNION and crosstabs (`TRANSFORM ... PIVOT`, with an `IN` list, TOP, a join or a parameter): `db.queries()`, `db.query()`, `db.create_query(name, sql)`, `db.drop_query(name)`; thirteen CreateQueryDef calls and a QueryDefs.Delete reproduced byte for byte (live gate). Pass-through queries are read; writing one means reproducing DAO's create-then-convert route. Not yet: writing pass-through queries, subqueries in the parser |

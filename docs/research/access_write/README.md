@@ -8,9 +8,10 @@
 >
 > Reopened because the storage engine in `pyopenvba.access` arrived after
 > it was parked. Module **rename and delete now work**, verified by
-> running the result in Access; **create** writes a module Access loads
-> and the VBE enumerates, but a project built that way will not take a
-> further component.
+> running the result in Access. **Create** writes a module Access loads,
+> the VBE enumerates and reads, and the project will take further
+> components; editing an existing module's code in such a project is what
+> still fails.
 
 Everything here is dev-only, needs Windows with desktop Access, and was
 verified by running the macro in Access and reading the value it returns
@@ -128,9 +129,9 @@ patching:
 - `module_rename.py` -- rename, all eight places, `__SRP_` drop included.
 - `module_delete.py` -- delete, every structure a module occupies.
 - `module_create.py` -- create, cloning an existing module's compiled
-  shape (`donor=` to take it from another database). Access loads the
-  result and the VBE enumerates the new module; adding a further
-  component to that project still fails.
+  shape (`donor=` to take it from another database, `skip=` to bisect the
+  pieces). Access loads the result, the VBE enumerates and extends it;
+  editing an existing module's code in such a project still fails.
 - `module_stream.py`, `project_streams.py`, `vba_project_table.py`,
   `vba_module_table.py`, `dir_records.py` -- one structure each.
 - `attribute_pages.py` -- says which table owns each page two databases
@@ -631,10 +632,12 @@ retires it (`Table.delete_row(rid, retire_empty=False)`).
 
 ### Create, as far as it goes
 
-`module_create.py` writes everything a new module needs, and **Access
-loads the result**: the VBE enumerates the new module with its type and
-line count, and `CurrentProject.AllModules` lists it. What still fails is
-adding a *further* component to that project.
+`module_create.py` writes everything a new module needs. Access opens the
+result, the VBE enumerates the new module with its type and line count,
+its source reads back, `CurrentProject.AllModules` lists it, the
+project's other modules still execute, and the VBE **will add further
+components to it**. What still fails is editing an existing module's code
+in a project built this way.
 
 What it writes:
 
@@ -649,37 +652,75 @@ What it writes:
 * entries in DirData, PROJECTwm and PROJECT
 * in `_VBA_PROJECT`: an identifier for the name, a flag in the per-module
   list, a 32-byte per-module record, a module entry appended after the
-  last, and the project's reserve advanced
+  last, the project's reserve advanced, and the module index grown by two
+  slots and rehashed
 * an `MSysObjects` row of type -32761 and a navigation-pane row
 
-Four of those were found by asking why Access called the project corrupt,
-and the last of them is what fixed it:
+**Ids come from the table's own AutoNumber, not from max + 1.** Every
+database Access wrote has `MSysAccessStorage`'s AutoNumber counter equal
+to its highest id. Inserting rows with explicit ids leaves the counter
+behind, and Access's own next insert then collides with a row that
+already exists -- which is what made a created project refuse a new
+component while reading and enumerating perfectly. Letting the counter
+assign the ids is the fix, and it is the single change that turned "will
+not take a component" into "will".
+
+Three structures found the same way, by asking why Access called the
+project corrupt:
 
 **The 32-byte per-module record.** Immediately before the identifier
 table's counters sits one record per module past the first,
 `ff ff ff ff 01 00 00 00 ff ff ff ff <u32 reserve> <16-byte GUID>`, then
 `80 00 00 00 00 00` and the counters. Growing one project from one module
 to five gave records 0x228, 0x278, 0x298, 0x2b8 -- each new one carrying
-the reserve of the module that was last before it, each GUID staying put
-once written. Without this record Access refuses the whole project; with
-it the VBE loads and names every module.
+the reserve of the module that was last before it.
 
 **The reserve rule.** A new module's reserve word is the value the
 project's trailer offers, and the trailer then advances by 0x20: 0x208,
-then 0x278, 0x298, 0x2b8, 0x2d8 as the project grew.
-
-**Its own cookie.** Every module carries a distinct 20-byte string,
-`<two characters><the project's own eight>`; two modules sharing one is
-not something Access writes.
+then 0x278, 0x298, 0x2b8, 0x2d8 as the project grew. Every module also
+carries its own 20-byte cookie, `<two characters><the project's own
+eight>`; two sharing one is not something Access writes.
 
 **The flag list.** Ahead of the module table sits `<u16 module count>
 <count u16 flags, each 1> <u16 n> <n four-byte records>`; adding a module
 bumps the count and inserts a flag.
 
-What is left is a table **past the identifier table's `02 ff ff 01 01`
-sentinel**: a u32 size that grew by 12, then a list of six-byte records
-`<u16 index> ff ff <u16 operand>`. Access rewrote it when it added a
-module and this does not, which is the next thing to model.
+### The module index
+
+The table past the identifier table's `02 ff ff 01 01` sentinel is a u32
+size and then a hash of six-byte slots, `<u16 key> <u16 value> <u16
+chain>`, an empty slot being all `ff`. Every module has an entry -- the
+first included -- whose key is its **name operand plus one** and whose
+value is its index in the module table, alongside six fixed entries a
+project always carries (0x0006, 0x0058, 0x020e, 0x021c, 0x021e, 0x0221).
+Placement is
+
+    slot = (key >> 1) % slots
+
+with linear probing, which fits all 44 entries of five projects of one to
+five modules with no exceptions. Since an operand is `2 * slot + 2`, that
+hash is the identifier's own slot number plus one. Access grows the table
+by two slots per module and rehashes it.
+
+A module's entry chains to the slot of the module before it and the first
+module's chains to itself; the entries that are not modules carry `ffff`.
+Rebuilding the table that way reproduces Access's own index **byte for
+byte** -- placement, keys, values and chains -- on the three-module
+project it made by adding to a two-module one.
+
+### What still fails, and what is known about it
+
+Editing an existing module's code in a created project fails, where the
+same edit succeeds on every project Access built. `module_create.py`
+takes a `skip` set so the pieces can be bisected, and the bisect says the
+`_VBA_PROJECT` edit is responsible: write everything else and leave that
+row alone, and the edit succeeds (the module then has no name in the VBE,
+since the VBE reads its list from the dir stream). Appending only the
+identifier is also fine -- that is what `module_rename.py` does, and
+renamed projects take edits happily. Every smaller subset of the
+`_VBA_PROJECT` work leaves the project inconsistent in some other way, so
+the bisect cannot narrow it further without a structure that has not been
+modelled yet.
 
 Two facts found on the way, both worth keeping:
 
@@ -695,11 +736,14 @@ the source-length field (`3fb0` against `3eb0`), so the first attempts at
 create were cloning a malformed stream. A module Access has just made
 rebuilds byte for byte, which is the check to run on any donor first.
 
-**Two traps when checking this by hand.** Opening a database in Access
-rewrites it, so a second measurement is measuring the repair -- always
-make a fresh copy per operation. And `VBComponents.Add` over a bare COM
-boundary fails with "Device I/O error" on a database Access itself built,
-so a failure there says nothing; drive it through `pyvbaharness` instead.
+**Three traps when checking this by hand.** Opening a database in Access
+rewrites it, so a second measurement is measuring the repair -- make a
+fresh copy per operation. `VBComponents.Add` over a bare COM boundary
+fails with "Device I/O error" on a database Access itself built, so a
+failure there says nothing. And splicing a structure out of another
+project rather than generating it makes Access discard the whole project
+and rebuild it empty, which reads as success from the outside: check with
+`peek_project.ps1` before believing it.
 
 ### The per-module entry in `_VBA_PROJECT`
 

@@ -236,6 +236,28 @@ writes are both checked against DAO running the same statements on the
 same database. `with db.transaction():` rolls everything back if the
 block raises.
 
+Attachments and multi-valued columns read and write too. Neither keeps
+its values in the row -- the row holds a Long, and the values live one
+per row in a flat table of their own:
+
+```python
+things = db.table("Things")
+for row in things.rows():
+    for file in things.attachments("Files", row["Files"]):
+        print(file.name, file.type, len(file.data))
+    print(things.multi_values("Tags", row["Tags"]))
+
+things.set_attachments("Files", row["Files"], [Attachment("notes.txt", b"hello")])
+things.set_multi_values("Tags", row["Tags"], ["red", "green"])
+```
+
+An inserted row is given its complex id automatically. One thing does not
+match Access byte for byte: it compresses attachments with a deflate that
+is not zlib's, so a compressed attachment written here inflates to the
+same file and packs differently. The eight types Access stores raw
+(`docx`, `gif`, `jpeg`, `jpg`, `png`, `pptx`, `xlsx`, `zip`) are
+byte-identical.
+
 Every column type is covered (Boolean through BigInt, Decimal, GUID,
 Memo and OLE), columns can be added, dropped and retyped on a table that
 already holds rows, indexes are created, dropped and maintained on every

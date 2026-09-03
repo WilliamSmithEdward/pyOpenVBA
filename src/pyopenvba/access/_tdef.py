@@ -13,7 +13,10 @@ equal the definition length the page declares):
     0x0C  u32  a per-table value repeated in every column header
     0x10  u32  row count
     0x14  u32  next AutoNumber value
-    0x18  i32  next complex-type AutoNumber value (ACE), -1 in Jet 4
+    0x18  i32  1 in ACE, -1 in Jet 4; the same on every table measured
+    0x1C  u32  the last complex-type id handed out, 0 on a table with
+               no complex column.  Every complex column in a row shares
+               one id, and it is not reused after a delete
     0x28  u8   table type: 0x53 engine system table, 0x4E any other
     0x29  u16  highest column number ever used
     0x2B  u16  variable-length column count
@@ -47,7 +50,8 @@ OFFSET_DEFINITION_LENGTH = 0x08
 OFFSET_TABLE_TAG = 0x0C
 OFFSET_ROW_COUNT = 0x10
 OFFSET_NEXT_AUTONUMBER = 0x14
-OFFSET_NEXT_COMPLEX_AUTONUMBER = 0x18
+OFFSET_COMPLEX_MARKER = 0x18
+OFFSET_LAST_COMPLEX_ID = 0x1C
 OFFSET_TABLE_TYPE = 0x28
 OFFSET_MAX_COLUMNS = 0x29
 OFFSET_VAR_COLUMN_COUNT = 0x2B
@@ -256,7 +260,8 @@ class TableDefinition:
     tag: int
     row_count: int
     next_autonumber: int
-    next_complex_autonumber: int
+    complex_marker: int
+    last_complex_id: int
     table_type: int
     max_columns: int
     var_column_count: int
@@ -463,9 +468,8 @@ def parse_table_definition(store: PageStore, page: int) -> TableDefinition:
         tag=u32(OFFSET_TABLE_TAG),
         row_count=u32(OFFSET_ROW_COUNT),
         next_autonumber=u32(OFFSET_NEXT_AUTONUMBER),
-        next_complex_autonumber=struct.unpack_from(
-            "<i", buf, OFFSET_NEXT_COMPLEX_AUTONUMBER
-        )[0],
+        complex_marker=struct.unpack_from("<i", buf, OFFSET_COMPLEX_MARKER)[0],
+        last_complex_id=u32(OFFSET_LAST_COMPLEX_ID),
         table_type=buf[OFFSET_TABLE_TYPE],
         max_columns=u16(OFFSET_MAX_COLUMNS),
         var_column_count=u16(OFFSET_VAR_COLUMN_COUNT),

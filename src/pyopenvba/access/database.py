@@ -19,6 +19,13 @@ from pathlib import Path
 
 from pyopenvba.access._alloc import add_to_map, allocate_page, release_page, remove_from_map, set_usage_bit
 from pyopenvba.access._btree import BTree
+from pyopenvba.access._complex import (
+    ATTACHMENT_TYPE,
+    Attachment,
+    ComplexColumn,
+    decode_file_data,
+    encode_file_data,
+)
 from pyopenvba.access._datapage import DataPage
 from pyopenvba.access._index import OFFSET_ENTRIES, decode_key, encode_key, leaf_entries
 from pyopenvba.access._lval import (
@@ -130,6 +137,7 @@ from pyopenvba.access._schema import (
     usage_map_page,
 )
 from pyopenvba.access._tdef import (
+    OFFSET_LAST_COMPLEX_ID,
     INDEX_IGNORE_NULLS,
     INDEX_KIND_FOREIGN,
     OFFSET_INDEX_HEADERS,
@@ -139,6 +147,7 @@ from pyopenvba.access._tdef import (
     TYPE_BIGINT,
     TYPE_BINARY,
     TYPE_BOOLEAN,
+    TYPE_COMPLEX,
     TYPE_DATETIME,
     TYPE_MEMO,
     TYPE_OLE,
@@ -341,6 +350,97 @@ class Table:
         self.definition = definition
         self.name = name
         self._rules: Rules | None = None
+
+    # --- attachment and multi-valued columns --------------------------------
+
+    def complex_columns(self) -> list[ComplexColumn]:
+        """The attachment and multi-valued columns on this table."""
+        return self._db.complex_columns(self.name)
+
+    def _complex(self, column: str, attachment: bool | None = None) -> ComplexColumn:
+        for found in self.complex_columns():
+            if found.column.lower() != column.lower():
+                continue
+            if attachment is not None and found.is_attachment is not attachment:
+                wanted = "attachments" if attachment else "scalar values"
+                raise AccessError(
+                    f"column {column!r} holds {found.kind} values, not {wanted}"
+                )
+            return found
+        raise AccessError(f"table {self.name!r} has no complex column named {column!r}")
+
+    def _elements(self, spec: ComplexColumn, key: int) -> list[dict[str, object]]:
+        """A complex value's rows, ordered as the engine orders them.
+
+        The flat table carries an index on `(<key column>, FileName)` --
+        `Value` for a scalar column -- and that is the order DAO walks, so
+        elements come back sorted by their name or value rather than by
+        when they were added.  The element's own id breaks ties.
+        """
+        flat = self._db.table(spec.flat_table)
+        scalar = "FileName" if spec.is_attachment else "Value"
+        rows = [row for row in flat.rows() if _as_int(row[spec.key_column]) == key]
+        return sorted(rows, key=lambda row: (str(row.get(scalar) or ""), _as_int(row[spec.id_column])))
+
+    def _replace_elements(self, spec: ComplexColumn, key: int) -> Table:
+        flat = self._db.table(spec.flat_table)
+        for row_id, row in list(flat.rows_with_ids()):
+            if _as_int(row[spec.key_column]) == key:
+                flat.delete_row(row_id)
+        return flat
+
+    def attachments(self, column: str, key: int) -> list[Attachment]:
+        """The files an attachment column holds for one row.
+
+        `key` is the value the row itself carries in that column -- an id
+        shared by every complex column in the row, not the row's own key.
+        """
+        out: list[Attachment] = []
+        for row in self._elements(self._complex(column, attachment=True), key):
+            blob = row.get("FileData")
+            extension, data = decode_file_data(blob) if isinstance(blob, bytes) else ("", b"")
+            flags = row.get("FileFlags")
+            stamp = row.get("FileTimeStamp")
+            out.append(
+                Attachment(
+                    name=str(row.get("FileName") or ""),
+                    data=data,
+                    type=str(row.get("FileType") or extension),
+                    flags=flags if isinstance(flags, int) else None,
+                    timestamp=stamp if isinstance(stamp, dt.datetime) else None,
+                )
+            )
+        return out
+
+    def multi_values(self, column: str, key: int) -> list[object]:
+        """The values a multi-valued column holds for one row."""
+        spec = self._complex(column, attachment=False)
+        return [row.get("Value") for row in self._elements(spec, key)]
+
+    def set_attachments(self, column: str, key: int, files: Sequence[Attachment]) -> None:
+        """Replace the files an attachment column holds for one row."""
+        spec = self._complex(column, attachment=True)
+        flat = self._replace_elements(spec, key)
+        for item in files:
+            flat.insert_row(
+                {
+                    spec.key_column: key,
+                    "FileData": encode_file_data(item.type, item.data),
+                    "FileFlags": item.flags,
+                    "FileName": item.name,
+                    "FileTimeStamp": item.timestamp,
+                    "FileType": item.type,
+                    "FileURL": None,
+                }
+            )
+
+    def set_multi_values(self, column: str, key: int, values: Sequence[object]) -> None:
+        """Replace the values a multi-valued column holds for one row."""
+        spec = self._complex(column, attachment=False)
+        flat = self._replace_elements(spec, key)
+        for value in values:
+            flat.insert_row({spec.key_column: key, "Value": value})
+
 
     def rules(self) -> Rules:
         """What this table's properties say about the rows it will take:
@@ -571,10 +671,23 @@ class Table:
         rules = self.rules()
         values = apply_defaults(rules, values) if rules.defaults else dict(values)
         for column in d.columns:
+            # A complex column is flagged AutoNumber too, but its id comes
+            # from the complex counter below, not from this one.
+            if column.type_code == TYPE_COMPLEX:
+                continue
             if column.auto_number and values.get(column.name) is None:
                 values[column.name] = d.next_autonumber + 1
                 d.next_autonumber += 1
                 db.patch_definition(d, OFFSET_NEXT_AUTONUMBER, struct.pack("<I", d.next_autonumber & 0xFFFFFFFF))
+        # Every complex column in a row shares one id, handed out from the
+        # counter at 0x1C.  A row with no elements still takes one, and an
+        # id is not reused after a delete.
+        complex_columns = [c for c in d.columns if c.type_code == TYPE_COMPLEX]
+        if complex_columns and all(values.get(c.name) is None for c in complex_columns):
+            d.last_complex_id += 1
+            for column in complex_columns:
+                values[column.name] = d.last_complex_id
+            db.patch_definition(d, OFFSET_LAST_COMPLEX_ID, struct.pack("<I", d.last_complex_id))
         if rules:
             check_rules(self.name, rules, {c.name: values.get(c.name) for c in d.columns})
         self._check_unique({c.name: values.get(c.name) for c in d.columns}, exclude=None)
@@ -1540,6 +1653,41 @@ class AccessDatabase:
         self._catalog = None
         self._definitions.pop(d.page, None)
         return self.table(table_name).index(spec.name)
+
+    def complex_columns(self, table: str | None = None) -> list[ComplexColumn]:
+        """Every attachment and multi-valued column, with the flat table
+        that holds its values.
+
+        A `Complex` column keeps nothing in the row but a Long; the values
+        live one per row in `f_<GUID>_<Column>`, joined on that Long.
+        `MSysComplexColumns` names the pairing.
+        """
+        names = {entry.id: entry.name for entry in self.catalog()}
+        out: list[ComplexColumn] = []
+        for row in self.table("MSysComplexColumns").rows():
+            parent = names.get(_as_int(row["ConceptualTableID"]))
+            flat = names.get(_as_int(row["FlatTableID"]))
+            if parent is None or flat is None:
+                continue
+            if table is not None and parent.lower() != table.lower():
+                continue
+            type_name = names.get(_as_int(row["ComplexTypeObjectID"]), "")
+            column = str(row["ColumnName"])
+            out.append(
+                ComplexColumn(
+                    table=parent,
+                    column=column,
+                    flat_table=flat,
+                    kind="attachment"
+                    if type_name == ATTACHMENT_TYPE
+                    else type_name.removeprefix("MSysComplexType_"),
+                    complex_id=_as_int(row["ComplexID"]),
+                    key_column="_" + column,
+                    id_column=f"{parent}_{column}",
+                )
+            )
+        return out
+
 
     def database_properties(self) -> dict[str, object]:
         """The database's own settings, from the MSysDb row's property blob."""

@@ -7,6 +7,35 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- **Attachments and multi-valued columns.** `db.complex_columns()` finds
+  them, `table.attachments(column, key)` and
+  `table.multi_values(column, key)` read them, and `set_attachments` /
+  `set_multi_values` write them. An inserted row is given its complex id
+  automatically. A live gate saves every attachment back out through DAO
+  and compares the bytes with what went in.
+
+  A `Complex` column keeps only a Long in the row -- an id shared by
+  every complex column in that row, handed out from a counter at 0x1C of
+  the table definition and never reused. The values live one per row in
+  `f_<GUID>_<Column>`, joined on that Long, and `MSysComplexColumns`
+  names the pairing. `FileData` is a container of its own: a flag and an
+  inflated size, then either a zlib stream or the bytes as they are, and
+  inside that a header carrying the file's extension.
+
+  Access decides whether to compress **by file type**, measured across 45
+  extensions: it leaves `docx`, `gif`, `jpeg`, `jpg`, `png`, `pptx`,
+  `xlsx` and `zip` alone and compresses everything else, including `7z`
+  and `mp4`. Those eight are written byte-identically; a compressed one
+  is not, because Access's deflate is not zlib's and no combination of
+  level, memLevel, strategy or window size reproduces a stream it wrote.
+
+  Two corrections to the table definition came out of this: the field at
+  0x18 is a constant (1 in ACE, -1 in Jet 4) and not a counter, and the
+  complex-id counter is the u32 at 0x1C. A complex column is flagged
+  AutoNumber like any other, so the row writer had been handing it a
+  value from the ordinary AutoNumber counter, which gave two columns in
+  one row two different ids.
+
 - **Access VBA is writable.** `AccessDatabase` gained `modules()`,
   `module(name)`, `create_module(name, code, kind="module"|"class")`,
   `set_module_source(name, code)`, `rename_module(old, new)` and

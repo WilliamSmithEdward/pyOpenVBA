@@ -456,7 +456,8 @@ def serialize_definition(definition: TableDefinition) -> bytes:
     struct.pack_into("<I", raw, 0x0C, definition.tag)
     struct.pack_into("<I", raw, 0x10, definition.row_count)
     struct.pack_into("<I", raw, 0x14, definition.next_autonumber & 0xFFFFFFFF)
-    struct.pack_into("<i", raw, 0x18, definition.next_complex_autonumber)
+    struct.pack_into("<i", raw, 0x18, definition.complex_marker)
+    struct.pack_into("<I", raw, 0x1C, definition.last_complex_id)
     raw[0x1C:0x28] = definition.header_raw[0x1C:0x28]
     raw[0x28] = definition.table_type
     struct.pack_into("<H", raw, 0x29, definition.max_columns)

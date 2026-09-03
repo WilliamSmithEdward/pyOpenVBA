@@ -51,6 +51,9 @@ QUOTE = chr(34)
 CRLF = chr(13) + chr(10)
 MODULE_TYPE = -32761
 NAV_MODULE_TYPE = 32775
+OBJECT_ID_STEP = 4
+#: The navigation-pane group Access files modules under.
+MODULE_GROUP = 8
 MODULES_STORAGE = 6
 VBA_STORAGE = 17
 MODULENAME = 0x0019
@@ -146,11 +149,27 @@ def add_to_folder_list(payload: bytes, folder: str) -> bytes:
     return payload + FOLDER_ENTRY + folder.encode("utf-16-le") + FOLDER_SUFFIX
 
 
-def next_folder(taken: set[str]) -> str:
-    """The character after the highest folder in use, which is how Access
-    numbered a third module `5` where the second was `4`."""
-    highest = max((ord(name) for name in taken if len(name) == 1), default=ord("0") - 1)
-    return chr(highest + 1)
+def next_folder(children: int, taken: set[str] = frozenset()) -> str:
+    """The name Access gives a new module's storage folder.
+
+    It is **computed from how many rows `Modules` already holds**, not
+    taken from the highest in use, and Access will not find a module in a
+    folder by any other name -- `AllModules(i).Name` then fails with
+    "refers to an object that is closed or doesn't exist" while the VBE
+    still lists and runs the module.
+
+        name = chr(0x30 + children - 1)
+
+    Measured: the blank template holds five rows under `Modules` and
+    Access's next folder is `4`; six gives `5`, seven `6`, eight `7`.
+    Deleting a module and adding one gave `5` back, so it counts rows
+    rather than keeping a counter.  Only `4` worked on the template --
+    `1`, `9` and `A` all failed -- so the name really is looked up.
+    """
+    name = chr(ord("0") + children - 1)
+    while name in taken:  # a folder freed from the middle is still taken
+        name = chr(ord(name) + 1)
+    return name
 
 
 def add_to_project(text: str, name: str, kind: str = "module") -> str:
@@ -226,10 +245,10 @@ def create(source: Path, target: Path, name: str, code: str = "Option Compare Da
     # not something Access ever writes.
     module_word = rng.randbytes(2)
 
-    folders = {
-        str(r["Name"]) for _rid, r in storage.rows_with_ids() if r["ParentId"] == MODULES_STORAGE and r["Type"] == 1
-    }
-    folder = next_folder(folders)
+    children = [r for _rid, r in storage.rows_with_ids() if r["ParentId"] == MODULES_STORAGE]
+    folder = next_folder(
+        len(children), {str(r["Name"]) for r in children if r["Type"] == 1}
+    )
     stamp = dt.datetime.now().replace(microsecond=0)
 
     # Ids come from the table's own AutoNumber rather than from max + 1:
@@ -280,12 +299,24 @@ def create(source: Path, target: Path, name: str, code: str = "Option Compare Da
     objects = db.table("MSysObjects")
     container = next(e.id for e in db.catalog() if e.name == "Modules" and e.type == 3)
     owner = next(e.owner for e in db.catalog() if e.type == MODULE_TYPE and e.owner)
-    object_id = max((e.id for e in db.catalog() if e.id < 0), default=-(2**31)) + 1
+    # Access hands out object ids four at a time: Module1 at -2147483640,
+    # then -2147483635, -2147483631, -2147483627, -2147483623 as a project
+    # grew, measured across five databases.  Taking max + 1 instead lands
+    # inside the range another object holds, and `AllModules` then fails
+    # with "refers to an object that is closed or doesn't exist".
+    object_id = max((e.id for e in db.catalog() if e.id < 0), default=-(2**31)) + OBJECT_ID_STEP
     objects.insert_row(
         {"Id": object_id, "ParentId": container, "Name": name, "Type": MODULE_TYPE, "Flags": 0,
          "Owner": owner, "DateCreate": stamp, "DateUpdate": stamp}
     )
     db.table("MSysNavPaneObjectIDs").insert_row({"Id": object_id, "Name": name, "Type": NAV_MODULE_TYPE})
+    # Access also files the object under a navigation-pane group.
+    groups = db.table("MSysNavPaneGroupToObjects")
+    peers = [r for _rid, r in groups.rows_with_ids() if r["GroupID"] == MODULE_GROUP]
+    groups.insert_row(
+        {"GroupID": MODULE_GROUP, "ObjectID": object_id, "Flags": 0, "Icon": 0,
+         "Position": max((r["Position"] for r in peers), default=-1) + 1}
+    )
     done.append(f"MSysObjects and the navigation pane (id {object_id})")
 
     done.append(f"dropped {drop_srp(db)} __SRP_ rows")

@@ -665,13 +665,40 @@ What it writes:
   `Modules`, a 13-byte `PropData` under it, and the module's stream under
   `VBA` with a row name of 28 random capitals
 * an entry in `Modules/PropData`, the list of those folders:
-  `05 09 02 <folder name, one UTF-16 character> "CB0"`, eleven bytes each.
-  The folder name is a single character and Access takes the one after
-  the highest in use -- `0`, then `4`, then `5`.
+  `05 09 02 <folder name, one UTF-16 character> "CB0"`, eleven bytes each
 * a dir block of eleven records and PROJECTMODULES up by one
 * entries in DirData, PROJECTwm and PROJECT
-* an `MSysObjects` row of type -32761 and a navigation-pane row
+* an `MSysObjects` row of type -32761, a `MSysNavPaneObjectIDs` row and a
+  `MSysNavPaneGroupToObjects` row in group 8
 * the `Version` word of `_VBA_PROJECT` set to a value VBA does not know
+
+It works on the shipped blank template too, which an earlier note had
+written off: its `_VBA_PROJECT` is a stub, and marking the stub stale is
+all it needed.
+
+### Two names that are computed, not chosen
+
+Both were found the same way -- a created module that the VBE listed and
+ran, while `CurrentProject.AllModules(i).Name` failed with "refers to an
+object that is closed or doesn't exist".
+
+**The storage folder's name.** It is a single character, and it comes
+from how many rows `Modules` already holds:
+
+    name = chr(0x30 + children - 1)
+
+The blank template holds five rows under `Modules` and Access's next
+folder is `4`; six gives `5`, seven `6`, eight `7`. Having Access delete
+a module and add one gave `5` back, so it counts rows rather than keeping
+a counter. Taking the character after the highest in use instead gives
+`1` on that template, and only `4` works there -- `1`, `9` and `A` all
+fail, so Access really does look the name up. That the old rule agreed
+with Access from the second module on is why this survived so long.
+
+**The object id.** Access hands out `MSysObjects` ids four at a time.
+`Module1` sits at -2147483640 and the modules added after it took
+-2147483635, -2147483631, -2147483627, -2147483623. Taking max + 1 lands
+inside the range another object holds.
 
 That last line is the whole trick, and it is why the list is short.
 

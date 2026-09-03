@@ -621,6 +621,48 @@ the engine finds the same rows it does today.
   writes the appended text where a Null-propagating reading writes
   nothing.
 
+* **A column's rules are properties, not header bits.** Required,
+  AllowZeroLength, DefaultValue, ValidationRule and ValidationText live
+  in the definition's property blob, on the column's block; a table's own
+  ValidationRule and ValidationText sit on the table's. `CREATE TABLE`
+  with `NOT NULL` leaves the column header byte for byte the header of a
+  nullable column and writes a Required property instead, one blob write
+  per column in column order, each stamping the catalog row's DateUpdate
+  (measured: a two-column NOT NULL table wrote the blob twice). These
+  five take the engine's own DAO type and a flags byte of 1 -- Required
+  and AllowZeroLength Boolean, DefaultValue and ValidationRule Memo,
+  ValidationText Text -- where a property a client appends (Caption,
+  Description) takes the client's type and no flags, and appending one
+  leaves the stamps alone. `NOT NULL` stores Required as `01` where
+  DAO's `Field.Required = True` stores `FF`; both read as True.
+  `Field.ValidationRule` leaves a trailing NUL in a column's rule, which
+  the table's rule does not have.
+* **What the engine does with those rules.** A DefaultValue fills any
+  column an INSERT does not name, through SQL as well as AddNew; its text
+  is a Jet expression with an optional leading `=`, and a name it cannot
+  resolve is its own text (`hello` defaults to the string, `a & b` to
+  `ab`, `1+1` to 2, `=Date()` to today). Required refuses a null,
+  omitted or explicit, on insert and on update: "You must enter a value
+  in the 'T.B' field." A ValidationRule is checked on both; a rule that
+  opens with an operator is about its own column, so `>0` reads as
+  `[A]>0`; it refuses a row only when it comes out False, so a null
+  passes; the message is the ValidationText when there is one, else
+  "One or more values are prohibited by the validation rule '>0' set for
+  'T.A'. Enter a value that the expression for this field can accept."
+  AllowZeroLength is stored and read but not enforced: an empty string
+  went into a text column with it off.
+* **Which LVAL page a value goes on.** The free-space map lists a page
+  while more than 256 bytes are free, so every listed page has room for
+  a value of 256 bytes or fewer and the engine takes the first of them.
+  A larger value needs the page checked and the engine checks one: the
+  last page the map lists. When that page cannot take the value it
+  starts another rather than looking further back. Measured on one file
+  with the first page holding 3827 free and the last 1676: values of 254
+  and 256 bytes shared the first, 258 and 1546 went to the last, and
+  1706 -- too big for the last -- went to a new page, never to the first.
+  Filling the first page until it dropped out of the map sent the next
+  small value to the last page, so the pages are not segregated by size.
+
 * **Jet 4 `.mdb` files** take the writers as `.accdb` files do: a table
   created in a database DAO made with `CreateDatabase(..., dbVersion40)`
   lands on the same pages, with the same definition, rows and index, and
@@ -662,7 +704,7 @@ the engine finds the same rows it does today.
 | 3 | write rows: insert/update/delete, free-space and owned-page maps, LVAL allocation, counters | done: every column type including Memo/OLE of every storage kind, overflow rows, unique-index enforcement, page allocation and all counters; the engine reads the result, keeps working on it and compacts it; single edits and memo inserts byte-identical to the engine's |
 | 4 | write indexes: key encoding from the engine-generated collation table, B-tree insert and split | done: entries inserted and removed, pages compressed when full and split, root pinned; single edits byte-identical to the engine |
 | 3b | large files: usage maps growing past 512 pages | done. Inline maps grow and re-base as the engine does, and a map whose row outgrows its page becomes the reference form, the global free map included; a 130 MB database with 130 long values is byte-identical to the engine's (live gate) |
-| 5 | write schema: create/drop table, create index, catalog rows | done: `create_table`, `create_index`, `drop_index`, `drop_table`; byte-identical to the engine's CREATE TABLE, CREATE INDEX and DROP TABLE on every page but page 0; the engine inserts into, reads and compacts a table pyOpenVBA created; definitions over one page (up to the 255-column limit) are chained and rewritten as the engine does, byte-identical; `add_column` / `drop_column` match ALTER TABLE ADD COLUMN / DROP COLUMN byte for byte (live gate). `rename_table`, `rename_column` and `alter_column` match DAO renames and ALTER COLUMN; a table's map rows spill onto a second map page as the engine's do. `drop_index` matches DROP INDEX byte for byte, as does an index built over four hundred rows whose B-tree spans four leaves. Not yet: navigation-pane rows (the Access layer adds those itself) |
+| 5 | write schema: create/drop table, create index, catalog rows | done: `create_table`, `create_index`, `drop_index`, `drop_table`; byte-identical to the engine's CREATE TABLE, CREATE INDEX and DROP TABLE on every page but page 0; the engine inserts into, reads and compacts a table pyOpenVBA created; definitions over one page (up to the 255-column limit) are chained and rewritten as the engine does, byte-identical; `add_column` / `drop_column` match ALTER TABLE ADD COLUMN / DROP COLUMN byte for byte (live gate). `rename_table`, `rename_column` and `alter_column` match DAO renames and ALTER COLUMN; a table's map rows spill onto a second map page as the engine's do. `drop_index` matches DROP INDEX byte for byte, as does an index built over four hundred rows whose B-tree spans four leaves. A column's Required, DefaultValue, ValidationRule and ValidationText are written as the engine writes them, `CREATE TABLE ... NOT NULL` included (live gate), and the writers apply and enforce them on every row. Not yet: navigation-pane rows (the Access layer adds those itself) |
 | 6 | VBA project through the writer: module create/rename/delete | |
 | 7 | queries (`MSysQueries` to SQL and back), relationships, properties | done. Relationships: `create_relationship` / `drop_relationship` / `relationships()`, byte-identical to the engine's ADD CONSTRAINT ... FOREIGN KEY for a first and a second relationship on one parent and to DROP CONSTRAINT (live gate). Properties done: `table.properties()`, `column_properties()`, `set_properties()`, `db.database_properties()`; DAO's three property appends reproduced byte for byte (live gate). Queries done for SELECT, PARAMETERS, DELETE, UPDATE, INSERT INTO ... SELECT, SELECT ... INTO, UNION and crosstabs (`TRANSFORM ... PIVOT`, with an `IN` list, TOP, a join or a parameter): `db.queries()`, `db.query()`, `db.create_query(name, sql)`, `db.drop_query(name)`; thirteen CreateQueryDef calls and a QueryDefs.Delete reproduced byte for byte (live gate). Pass-through queries are written too, by the create-then-convert route DAO takes. Subqueries save too: in a WHERE, as a value in the select list, and as a table of their own, where the engine puts the bracketed SELECT in the row's expression and only the alias in Name2 |
 | 8 | forms, reports, macros: the binary object formats nobody has published | |

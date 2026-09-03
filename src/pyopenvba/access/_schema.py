@@ -138,13 +138,41 @@ DEFAULT_ACM = 0xFFEFF
 @dataclass(frozen=True)
 class ColumnSpec:
     """A column to create.  ``size`` is characters for Text, bytes for
-    Binary, ``(precision, scale)`` for Decimal; ignored elsewhere."""
+    Binary, ``(precision, scale)`` for Decimal; ignored elsewhere.
+
+    The last five are not in the column header at all: the engine keeps
+    them as properties on the column, so they are written after the table
+    exists, one blob write per column, which is what the engine does for
+    ``CREATE TABLE ... NOT NULL`` (measured).  ``default`` and the two
+    validation fields hold Jet expressions as text; see
+    :mod:`pyopenvba.access._validate` for what they mean to a row."""
 
     name: str
     type: str
     size: int | tuple[int, int] | None = None
     autonumber: bool = False
     compressed: bool = True
+    required: bool = False
+    default: str | None = None
+    allow_zero_length: bool | None = None
+    validation_rule: str | None = None
+    validation_text: str | None = None
+
+    def properties(self) -> dict[str, object]:
+        """The column properties this spec asks for, in the order they are
+        written; empty when it asks for none."""
+        out: dict[str, object] = {}
+        if self.required:
+            out["Required"] = True
+        if self.allow_zero_length is not None:
+            out["AllowZeroLength"] = self.allow_zero_length
+        if self.default is not None:
+            out["DefaultValue"] = self.default
+        if self.validation_rule is not None:
+            out["ValidationRule"] = self.validation_rule
+        if self.validation_text is not None:
+            out["ValidationText"] = self.validation_text
+        return out
 
     @property
     def type_code(self) -> int:

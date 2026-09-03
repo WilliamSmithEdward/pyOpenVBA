@@ -169,6 +169,21 @@ def encode_property_value(dao_type: int, value: object) -> bytes:
     raise AccessError(f"property type {dao_type} takes bytes, not {value!r}")
 
 
+# The properties the engine keeps for itself.  DAO's TableDef and Field
+# expose each of these directly, and the engine writes them with its own
+# type and a flags byte of 1, where a property a client appends (Caption,
+# Description) takes the client's type and no flags.  Measured on the
+# same table: NOT NULL and Field.Required both wrote Required as Boolean
+# with flags 1, and DefaultValue and ValidationRule went in as Memo.
+ENGINE_PROPERTIES: dict[str, tuple[int, int]] = {
+    "Required": (DB_BOOLEAN, 1),
+    "AllowZeroLength": (DB_BOOLEAN, 1),
+    "DefaultValue": (DB_MEMO, 1),
+    "ValidationRule": (DB_MEMO, 1),
+    "ValidationText": (DB_TEXT, 1),
+}
+
+
 def dao_type_for(value: object) -> int:
     """The DAO type DAO itself picks for a Python value."""
     import datetime as _dt

@@ -214,8 +214,10 @@ write, relationships
 are created with `db.create_relationship(...)` and read with
 `db.relationships()`, table and column properties (Description,
 Caption, Format, ...) are read and set through `table.properties()` and
-`table.set_properties(...)`, saved queries -- select, action, union, crosstab and
-pass-through -- are read with `db.queries()`
+`table.set_properties(...)`, a column's own rules (Required,
+DefaultValue, ValidationRule) are written where the engine keeps them
+and applied to every row the writers take, saved queries -- select,
+action, union, crosstab and pass-through -- are read with `db.queries()`
 and written with `db.create_query(name, sql)`, and files grow to a
 hundred megabytes and past the point where a usage map outgrows its own
 row, the way the engine grows them. What it does not do yet is listed

@@ -48,6 +48,7 @@ LVAL_INLINE_MAX = 64
 LVAL_SINGLE_MAX = 3816
 LVAL_CHUNK_PAYLOAD = 4072
 LVAL_PAGE_MIN_FREE = 257  # listed in the free-space map while free space exceeds 256 bytes
+LVAL_SHARED_MAX = 256  # a value this size or smaller fits any page the map lists
 OFFSET_LVAL_STAMP = 0x08
 
 
@@ -168,24 +169,35 @@ def write_long_value(store: PageStore, maps: tuple[int, int], data: bytes, stamp
 
 def _single_row_page(store: PageStore, maps: tuple[int, int], length: int) -> int:
     """An LVAL page of this column with room for a row of ``length``
-    bytes, chosen as the engine chooses: the page this session last wrote
-    a value to when it still has room, else the first page in the
-    free-space map that has, else a fresh page registered with both
-    maps.  (Measured: with page A holding 1080 free and the last write on
-    page B, a 900-byte value went to B; the next one, B full, went to A.)"""
+    bytes, chosen as the engine chooses.
+
+    The free-space map lists a page while more than 256 bytes are free,
+    so any listed page has room for a value of 256 bytes or fewer and the
+    engine takes the first of them.  A larger value needs the page
+    checked, and the engine checks one: the last page the map lists,
+    which is the one it grew the column with.  When that page cannot take
+    the value it starts another rather than looking further back
+    (measured: with the last page holding 1676 free, a 258-byte value
+    shared it, a 1706-byte value went to a new page, and the first page,
+    3827 bytes free, took neither).
+
+    Within a session the page just written to comes first, which is what
+    keeps a run of values together (measured: with page A holding 1080
+    free and the last write on page B, a 900-byte value went to B; the
+    next one, B full, went to A)."""
     owned_ref, free_ref = maps
     cursor = store.lval_cursor.get(free_ref)
     if cursor is not None and cursor < store.page_count:
         raw = store.read(cursor)
         if is_lval_page(raw) and DataPage(raw).fits(length):
             return cursor
-    for candidate in read_usage_map_ref(store, free_ref).pages():
-        if candidate >= store.page_count:
-            continue
-        raw = store.read(candidate)
-        if not is_lval_page(raw):
-            continue
-        if DataPage(raw).fits(length):
+    listed = [
+        candidate
+        for candidate in read_usage_map_ref(store, free_ref).pages()
+        if candidate < store.page_count and is_lval_page(store.read(candidate))
+    ]
+    for candidate in listed if length <= LVAL_SHARED_MAX else listed[-1:]:
+        if DataPage(store.read(candidate)).fits(length):
             return candidate
     page = new_lval_page(store)
     add_to_map(store, owned_ref, page)

@@ -99,17 +99,26 @@ REFUSED_TYPES = {
 }
 AUTONUMBER_WORDS = {"counter", "autoincrement"}
 
+
 def is_ddl(text: str) -> bool:
     upper = text.upper()
     return any(upper.startswith(verb) for verb in ("CREATE ", "DROP ", "ALTER "))
 
 
-def execute_ddl(db: AccessDatabase, sql: str, *, created: object | None = None, updated: object | None = None, referenced_updated: object | None = None) -> int:
+def execute_ddl(
+    db: AccessDatabase,
+    sql: str,
+    *,
+    created: object | None = None,
+    updated: object | None = None,
+    referenced_updated: object | None = None,
+    owner_updated: object | None = None,
+) -> int:
     """Run one DDL statement and return 0, the row count DAO reports."""
     text = " ".join(sql.strip().rstrip(";").split())
     upper = text.upper()
     if upper.startswith("CREATE TABLE "):
-        _create_table(db, text[len("CREATE TABLE ") :], created, updated, referenced_updated)
+        _create_table(db, text[len("CREATE TABLE ") :], created, updated, referenced_updated, owner_updated)
     elif upper.startswith("CREATE "):
         _create_index(db, text, updated)
     elif upper.startswith("DROP TABLE "):
@@ -143,9 +152,12 @@ def _split_parenthesized(text: str) -> tuple[str, str]:
 
 def column_spec(text: str) -> tuple[ColumnSpec, list[tuple[str, str, list[str], tuple[str, list[str]] | None]]]:
     """One column definition: its spec and the constraints written on it.
-    ``NOT NULL`` is accepted and changes nothing, which is what the engine
-    does with it (measured: a NOT NULL column's header is byte for byte
-    the header of a nullable one)."""
+    ``NOT NULL`` leaves the column header alone -- byte for byte the
+    header of a nullable one -- and sets the column's Required property,
+    which is where the engine keeps it (measured).  ``DEFAULT <expr>``
+    sets DefaultValue the same way; the Jet parser itself refuses the
+    word, so that clause is this executor's own.  Both are checked when a
+    row is written; see :mod:`pyopenvba.access._validate`."""
     match = re.match(r"^\s*(\[[^\]]+\]|\w+)\s+(.*)$", text.strip(), re.DOTALL)
     if not match:
         raise AccessError(f"cannot read the column {text.strip()!r}")
@@ -170,6 +182,8 @@ def column_spec(text: str) -> tuple[ColumnSpec, list[tuple[str, str, list[str], 
             raise AccessError(f"column {name!r}: cannot read the size {size_text!r}") from exc
     if "WITH COMPRESSION" in tail or "WITH COMP" in tail:
         raise AccessError(f"column {name!r}: the Jet parser refuses WITH COMPRESSION")
+    rest_after_type = type_match.group(4) or ""
+    rest_after_type, default = _default_clause(rest_after_type)
     spec = ColumnSpec(
         name=name,
         type=TYPE_NAMES[code].lower(),
@@ -178,8 +192,28 @@ def column_spec(text: str) -> tuple[ColumnSpec, list[tuple[str, str, list[str], 
         # CREATE TABLE leaves Unicode compression off, where the Access
         # window turns it on: measured on the engine's own tables.
         compressed=False,
+        required=re.search(r"\bNOT\s+NULL\b", rest_after_type, re.IGNORECASE) is not None,
+        default=default,
     )
-    return spec, _column_constraints(name, type_match.group(4) or "")
+    return spec, _column_constraints(name, rest_after_type)
+
+
+def _default_clause(tail: str) -> tuple[str, str | None]:
+    """Split a ``DEFAULT <expr>`` clause off a column's tail.  The
+    expression runs to the next constraint word or the end."""
+    match = re.search(r"\bDEFAULT\s+", tail, re.IGNORECASE)
+    if not match:
+        return tail, None
+    rest = tail[match.end() :]
+    stop = len(rest)
+    for word in ("NOT NULL", "NULL", "CONSTRAINT", "PRIMARY KEY", "UNIQUE", "REFERENCES"):
+        found = re.search(r"\b" + word.replace(" ", r"\s+") + r"\b", rest, re.IGNORECASE)
+        if found and found.start() < stop:
+            stop = found.start()
+    expression = rest[:stop].strip()
+    if not expression:
+        raise AccessError("DEFAULT needs an expression")
+    return tail[: match.start()] + rest[stop:], expression
 
 
 def _column_constraints(column: str, tail: str) -> list[tuple[str, str, list[str], tuple[str, list[str]] | None]]:
@@ -249,7 +283,7 @@ def _references(rest: str) -> tuple[str, list[str]]:
     return _unquote(head), [_unquote(c) for c in split_top_level(inner, ",")]
 
 
-def _create_table(db: AccessDatabase, body: str, created: object | None, updated: object | None, referenced_updated: object | None = None) -> None:
+def _create_table(db: AccessDatabase, body: str, created: object | None, updated: object | None, referenced_updated: object | None = None, owner_updated: object | None = None) -> None:
     name, inner = _split_parenthesized(body)
     columns: list[ColumnSpec] = []
     indexes: list[IndexSpec] = []
@@ -270,7 +304,7 @@ def _create_table(db: AccessDatabase, body: str, created: object | None, updated
                 foreign.append((constraint, cols, parent[0], parent[1]))
             else:
                 indexes.append(IndexSpec(constraint, tuple(cols), unique=True, primary=kind == "primary"))
-    db.create_table(_unquote(name), columns, indexes, created=created, updated=updated)
+    db.create_table(_unquote(name), columns, indexes, created=created, updated=updated, owner_updated=owner_updated)
     for constraint, cols, parent, parent_columns in foreign:
         db.create_relationship(
             constraint, _unquote(name), tuple(cols), parent, tuple(parent_columns),

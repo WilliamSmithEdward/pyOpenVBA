@@ -365,6 +365,19 @@ try {
             $fld.Properties.Append($desc)
             [Console]::Out.Write("ok")
         }
+        "set-column-rules" {
+            # A column's DefaultValue, ValidationRule and ValidationText.
+            # These are the Field's own properties, so they are set, not
+            # appended: -Table names the table and -SqlFile holds one
+            # "Column<TAB>Property<TAB>value" line per property.
+            $td = $db.TableDefs.Item($Table)
+            foreach ($line in [System.IO.File]::ReadAllLines($SqlFile)) {
+                if ($line.Trim().Length -eq 0) { continue }
+                $parts = $line.Split("`t")
+                $td.Fields.Item($parts[0]).Properties.Item($parts[1]).Value = $parts[2]
+            }
+            [Console]::Out.Write("ok")
+        }
         "create-query" {
             # A saved query through DAO: -Table names it, -SqlFile holds its SQL.
             $sql = [System.IO.File]::ReadAllText($SqlFile).Trim()

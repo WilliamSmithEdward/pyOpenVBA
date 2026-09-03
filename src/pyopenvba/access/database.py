@@ -45,6 +45,7 @@ from pyopenvba.access._props import (
     DB_INTEGER,
     DB_LONG,
     DB_TEXT,
+    ENGINE_PROPERTIES,
     PropertyBlob,
     PropertyValue,
     dao_type_for,
@@ -109,6 +110,9 @@ from pyopenvba.access._tdef import (
     parse_column_header,
     parse_table_definition,
 )
+from pyopenvba.access._validate import Rules, apply_defaults
+from pyopenvba.access._validate import check as check_rules
+from pyopenvba.access._validate import read as read_rules
 from pyopenvba.access_read import AccessError
 
 MSYS_OBJECTS_PAGE = 2
@@ -263,6 +267,20 @@ class Table:
         self._db = database
         self.definition = definition
         self.name = name
+        self._rules: Rules | None = None
+
+    def rules(self) -> Rules:
+        """What this table's properties say about the rows it will take:
+        defaults, Required columns and validation rules (see
+        :mod:`pyopenvba.access._validate`).  Read once and kept; a system
+        table has none, which keeps every catalog write off the blob."""
+        if self._rules is None:
+            self._rules = (
+                Rules()
+                if self.definition.is_system or self.name.startswith("MSys")
+                else read_rules(self)
+            )
+        return self._rules
 
     # -- structure -------------------------------------------------------------
 
@@ -470,16 +488,22 @@ class Table:
                     break
 
     def insert_row(self, values: Mapping[str, object]) -> RowId:
-        """Add a row.  AutoNumber columns are assigned; every other column
-        not given is null.  Returns the row's home slot."""
+        """Add a row.  AutoNumber columns are assigned, a column with a
+        DefaultValue takes it when the row does not name it, and every
+        other column not given is null.  A row the table's own rules
+        refuse (see :meth:`rules`) is not written.  Returns the row's home
+        slot."""
         db = self._db
         d = self.definition
-        values = dict(values)
+        rules = self.rules()
+        values = apply_defaults(rules, values) if rules.defaults else dict(values)
         for column in d.columns:
             if column.auto_number and values.get(column.name) is None:
                 values[column.name] = d.next_autonumber + 1
                 d.next_autonumber += 1
                 db.patch_definition(d, OFFSET_NEXT_AUTONUMBER, struct.pack("<I", d.next_autonumber & 0xFFFFFFFF))
+        if rules:
+            check_rules(self.name, rules, {c.name: values.get(c.name) for c in d.columns})
         self._check_unique({c.name: values.get(c.name) for c in d.columns}, exclude=None)
         encoded, booleans = self._encode_values(values)
         row = encode_row(d, encoded, booleans)
@@ -667,6 +691,8 @@ class Table:
         self._db._write_definition(serialize_definition(d), d.page, d.pages[1:], keep_tail=True)  # pyright: ignore[reportPrivateUsage]
         self._stamp_catalog(updated if isinstance(updated, (_dt.datetime, float)) else _dt.datetime.now().replace(microsecond=0))
         self._db._definitions.pop(d.page, None)  # pyright: ignore[reportPrivateUsage]
+        _write_column_properties(self._db.table(self.name), [spec], updated)
+        self._rules = None
         return column
 
     def drop_column(self, name: str, *, updated: object | None = None) -> None:
@@ -832,14 +858,31 @@ class Table:
         name = self.definition.column(column).name
         return self.property_blob().decoded_column(name)
 
-    def set_properties(self, values: Mapping[str, object], *, column: str | None = None) -> None:
+    def set_properties(
+        self,
+        values: Mapping[str, object],
+        *,
+        column: str | None = None,
+        updated: object | None = None,
+    ) -> None:
         """Add or replace properties on the table, or on ``column``, the way
         DAO's ``Properties.Append`` does: the blob is rebuilt with the new
         records appended in the order given (an existing property keeps its
         type, flags and place), stored as the catalog row's LvProp, and the
         row's stamps are left alone.  A value may be a
         :class:`~pyopenvba.access._props.PropertyValue` to control the DAO
-        type and flags; otherwise the type follows the Python value."""
+        type and flags; otherwise the type follows the Python value, except
+        for the five the engine keeps for itself (Required,
+        AllowZeroLength, DefaultValue, ValidationRule, ValidationText),
+        which take the engine's own type and flags.  A column's
+        ValidationRule ends in the NUL DAO's setter leaves there.
+
+        Writing one of those five stamps the catalog row's DateUpdate with
+        ``updated`` (now by default), because it goes through the engine's
+        own field definition; appending a client property (Caption,
+        Description) leaves the stamps alone.  Both measured."""
+        import datetime as _dt
+
         blob = self.property_blob()
         if column is None:
             records = blob.object_properties
@@ -855,12 +898,25 @@ class Table:
                 records[prop] = value
                 continue
             existing = records.get(prop)
-            dao_type = existing.type if existing is not None else dao_type_for(value)
-            flags = existing.flags if existing is not None else 0
+            engine = ENGINE_PROPERTIES.get(prop)
+            if existing is not None:
+                dao_type, flags = existing.type, existing.flags
+            elif engine is not None:
+                dao_type, flags = engine
+            else:
+                dao_type, flags = dao_type_for(value), 0
+            if column is not None and prop == "ValidationRule" and isinstance(value, str) and not value.endswith(chr(0)):
+                value = value + chr(0)
             records[prop] = PropertyValue(dao_type, flags, encode_property_value(dao_type, value))
         rid, _row = self._catalog_row()
-        self._db.table("MSysObjects").update_row(rid, {"LvProp": serialize_property_blob(blob)})
+        changes: dict[str, object] = {"LvProp": serialize_property_blob(blob)}
+        if any(name in ENGINE_PROPERTIES for name in values):
+            changes["DateUpdate"] = (
+                updated if isinstance(updated, (_dt.datetime, float)) else _dt.datetime.now().replace(microsecond=0)
+            )
+        self._db.table("MSysObjects").update_row(rid, changes)
         self._db._catalog = None  # pyright: ignore[reportPrivateUsage]
+        self._rules = None
 
     def _catalog_row(self) -> tuple[RowId, dict[str, object]]:
         objects = self._db.table("MSysObjects")
@@ -892,6 +948,9 @@ class Table:
         # is stored first and its old storage given back afterwards, the
         # engine's order (measured: the new value went to another page
         # although the old one's page would have had room once freed).
+        rules = self.rules()
+        if rules:
+            check_rules(self.name, rules, new_values, columns=set(given))
         self._check_unique(new_values, exclude=row_id)
         encoded, booleans = self._encode_values(given, keep_raw=parts)
         self._free_long_values(parts, only=set(given))
@@ -1092,6 +1151,7 @@ class AccessDatabase:
         created: object | None = None,
         updated: object | None = None,
         referenced_updated: object | None = None,
+        owner_updated: object | None = None,
     ) -> list[dict[str, object]] | int:
         """Run one SQL statement.  SELECT returns its rows as dicts keyed by
         the output column names; INSERT, UPDATE and DELETE return the
@@ -1099,11 +1159,21 @@ class AccessDatabase:
         does.  ``parameters`` supplies ``[Name]`` references that are not
         columns, and ``created``/``updated`` the catalog timestamps a DDL
         statement stamps, with ``referenced_updated`` for the other table
-        of a FOREIGN KEY.  See :mod:`pyopenvba.access._sql` and
-        :mod:`pyopenvba.access._ddl` for the grammar."""
+        of a FOREIGN KEY and ``owner_updated`` for the middle write of a
+        CREATE TABLE whose columns carry properties.  See
+        :mod:`pyopenvba.access._sql` and :mod:`pyopenvba.access._ddl` for
+        the grammar."""
         from pyopenvba.access._sql import execute
 
-        return execute(self, sql, parameters, created=created, updated=updated, referenced_updated=referenced_updated)
+        return execute(
+            self,
+            sql,
+            parameters,
+            created=created,
+            updated=updated,
+            referenced_updated=referenced_updated,
+            owner_updated=owner_updated,
+        )
 
     # -- persistence -------------------------------------------------------------
 
@@ -1241,6 +1311,7 @@ class AccessDatabase:
         *,
         created: object | None = None,
         updated: object | None = None,
+        owner_updated: object | None = None,
     ) -> Table:
         """Create a table the way the engine does: a definition page, a page
         of usage maps, an empty root per index, and the catalog rows.
@@ -1248,7 +1319,10 @@ class AccessDatabase:
         (now, and the creation time, by default), as datetimes or as the
         stored serials; the engine stamps DateUpdate when the definition
         is complete, so on a large table it runs a little after
-        DateCreate."""
+        DateCreate.  ``owner_updated`` is the DateUpdate written with the
+        owner: the last one when no column asks for a property, an
+        intermediate one when a column does.  It defaults to
+        ``updated``."""
         import datetime as _dt
 
         specs = list(columns)
@@ -1269,6 +1343,7 @@ class AccessDatabase:
 
         when = created if isinstance(created, (_dt.datetime, float)) else _dt.datetime.now().replace(microsecond=0)
         when_updated = updated if isinstance(updated, (_dt.datetime, float)) else when
+        with_owner = owner_updated if isinstance(owner_updated, (_dt.datetime, float)) else when_updated
         objects = self.table("MSysObjects")
         # The engine writes the catalog row in two steps -- first without an
         # owner, then updating it with one -- which decides whether the row
@@ -1287,7 +1362,7 @@ class AccessDatabase:
         # The owner arrives with the second step, and so does the final
         # DateUpdate: the first version of the row, whose bytes stay below
         # the slot table after the move, carries DateCreate twice.
-        objects.update_row(catalog_row, {"Owner": self._default_owner(), "DateUpdate": when_updated})
+        objects.update_row(catalog_row, {"Owner": self._default_owner(), "DateUpdate": with_owner})
         if any(spec.type_code == TYPE_BIGINT for spec in specs):
             # A BigInt column is newer than the file format, so the engine
             # records the versions needed to read, write and design the
@@ -1317,7 +1392,9 @@ class AccessDatabase:
             add_to_map(store, layout.index_umap_refs[i], root)
         self._catalog = None
         self._definitions.pop(definition_page, None)
-        return self.table(name)
+        table = self.table(name)
+        _write_column_properties(table, columns, updated)
+        return table
 
     def create_index(self, table_name: str, spec: IndexSpec, *, updated: object | None = None) -> Index:
         """Add an index to an existing table as CREATE INDEX does: an empty
@@ -2015,6 +2092,18 @@ def _version_properties(count: int = len(VERSION_PROPERTIES)) -> PropertyBlob:
         blob.object_properties[name] = PropertyValue(type=DB_TEXT, flags=0, raw=BIGINT_MIN_VERSION.encode("utf-16-le"))
     blob.block_order.append((0, ""))
     return blob
+
+
+def _write_column_properties(table: Table, columns: Sequence[ColumnSpec], updated: object | None) -> None:
+    """Write the properties the specs ask for, one blob write per column in
+    column order, which is the engine's own order for a CREATE TABLE whose
+    columns are NOT NULL (measured).  Each write carries the stamp the
+    statement already put on the catalog row, so it lands where the
+    engine left it."""
+    for spec in columns:
+        properties = spec.properties()
+        if properties:
+            table.set_properties(properties, column=spec.name, updated=updated)
 
 
 def _passthrough_rows(connect: str, sql: str) -> list[QueryRow]:

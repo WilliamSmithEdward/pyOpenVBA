@@ -987,6 +987,7 @@ def execute(
     created: object | None = None,
     updated: object | None = None,
     referenced_updated: object | None = None,
+    owner_updated: object | None = None,
 ) -> list[Row] | int:
     """Run one statement.  SELECT returns its rows as dicts keyed by the
     output column names (aliases, column names, or ``Expr1000``...);
@@ -997,7 +998,7 @@ def execute(
     parameters = dict(parameters or {})
     text = sql.strip().rstrip(";").strip()
     if is_ddl(text):
-        return execute_ddl(db, text, created=created, updated=updated, referenced_updated=referenced_updated)
+        return execute_ddl(db, text, created=created, updated=updated, referenced_updated=referenced_updated, owner_updated=owner_updated)
     if text.upper().startswith("PARAMETERS "):
         _, _, text = text.partition(";")
         text = text.strip()

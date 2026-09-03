@@ -1585,8 +1585,9 @@ def test_the_engine_takes_a_database_pyopenvba_built_from_nothing(tmp_path: Path
     target = tmp_path / "built.accdb"
     db = AccessDatabase.create_new(target)
     db.execute(
-        "CREATE TABLE Customers (Id AUTOINCREMENT CONSTRAINT PK PRIMARY KEY, Name TEXT(50) CONSTRAINT UName UNIQUE,"
-        " City TEXT(30), Balance CURRENCY, Joined DATETIME, Active BIT, Notes MEMO)"
+        "CREATE TABLE Customers (Id AUTOINCREMENT CONSTRAINT PK PRIMARY KEY,"
+        " Name TEXT(50) NOT NULL CONSTRAINT UName UNIQUE, City TEXT(30), Balance CURRENCY,"
+        " Joined DATETIME, Active BIT, Notes MEMO, Tier TEXT(10) DEFAULT 'basic')"
     )
     db.execute(
         "CREATE TABLE Orders (Id AUTOINCREMENT CONSTRAINT PK2 PRIMARY KEY, CustomerId LONG, Amount DOUBLE,"
@@ -1633,6 +1634,87 @@ def test_the_engine_takes_a_database_pyopenvba_built_from_nothing(tmp_path: Path
     assert "FK_Orders_Customers" in [r.name for r in compacted.relationships()]
     assert sorted(q.name for q in compacted.queries()) == ["ByCity", "Londoners", "Purge", "Spend"]
     assert compacted.table("Customers").properties()["Description"] == "made without the engine"
-    assert compacted.table("Customers").column_properties("Name")["Caption"] == "Customer name"
+    assert compacted.table("Customers").column_properties("Name") == {"Required": True, "Caption": "Customer name"}
+    assert compacted.table("Customers").column_properties("Tier") == {"DefaultValue": "'basic'"}
+    assert {row["Tier"] for row in compacted.table("Customers").rows()} == {"basic"}
+
     for table in ("Customers", "Orders", "MSysObjects", "MSysQueries", "MSysACEs", "MSysRelationships"):
         check_indexes(compacted.table(table))
+
+
+def test_column_rules_match_the_engine_byte_for_byte(tmp_path: Path) -> None:
+    """A column's Required, DefaultValue and ValidationRule live in the
+    property blob, not in the column header, and the engine writes one
+    blob per column.  CREATE TABLE with NOT NULL columns, then three
+    properties appended, land on the engine's bytes; a row that leaves a
+    defaulted column out then reads back with the default the engine
+    would have put there, and the rows the engine refuses are refused."""
+    theirs = tmp_path / "theirs.accdb"
+    shutil.copy(TEMPLATE, theirs)
+    db = AccessDatabase(TEMPLATE)
+    script = tmp_path / "step.sql"
+
+    def same(step: str, db: AccessDatabase) -> AccessDatabase:
+        ours, engine = db.to_bytes(), theirs.read_bytes()
+        assert not (d := _differing_pages(ours, engine)), f"{step}: {_describe_pages(ours, engine, d)}"
+        return AccessDatabase(ours)
+
+    create = (
+        "CREATE TABLE Rules1 (Id AUTOINCREMENT CONSTRAINT PK PRIMARY KEY,"
+        " Amount LONG NOT NULL, Label TEXT(20) NOT NULL, City TEXT(30))"
+    )
+    script.write_text(create + chr(10), encoding="ascii")
+    assert oracle("-Command", "sql-file", "-Path", str(theirs), "-SqlFile", str(script)) == "ok"
+    entry = _catalog_entry(theirs, "Rules1")
+    created_serial, updated_serial = entry.date_create_serial, entry.date_update_serial
+    assert created_serial is not None and updated_serial is not None
+    db.execute(
+        create,
+        created=entry.date_create_serial,
+        updated=entry.date_update_serial,
+        # NOT NULL is written after the table exists, so the DateUpdate
+        # that went in with the owner is an intermediate one.
+        owner_updated=_stamp_on_page(theirs, "Rules1", created_serial, updated_serial),
+    )
+    db = same(create, db)
+    assert db.table("Rules1").column_properties("Amount") == {"Required": True}
+    assert db.table("Rules1").column_properties("City") == {}
+
+    rules = tmp_path / "rules.txt"
+    for column, name, value in (
+        ("City", "DefaultValue", "hello"),
+        ("Amount", "ValidationRule", ">0"),
+        ("Amount", "ValidationText", "must be positive"),
+    ):
+        rules.write_text(chr(9).join((column, name, value)) + chr(10), encoding="ascii")
+        assert oracle("-Command", "set-column-rules", "-Path", str(theirs), "-Table", "Rules1", "-SqlFile", str(rules)) == "ok"
+        db.table("Rules1").set_properties(
+            {name: value}, column=column, updated=_catalog_entry(theirs, "Rules1").date_update_serial
+        )
+        db = same(f"{column}.{name}", db)
+    assert db.table("Rules1").column_properties("Amount") == {
+        "Required": True,
+        "ValidationRule": ">0" + chr(0),
+        "ValidationText": "must be positive",
+    }
+
+    insert = "INSERT INTO Rules1 (Amount, Label) VALUES (5, 'five')"
+    script.write_text(insert + chr(10), encoding="ascii")
+    assert oracle("-Command", "sql-file", "-Path", str(theirs), "-SqlFile", str(script)) == "ok"
+    db.execute(insert)
+    db = same(insert, db)
+    assert [row["City"] for row in db.table("Rules1").rows()] == ["hello"]
+
+    for sql, why in (
+        ("INSERT INTO Rules1 (Amount) VALUES (6)", "a Required column left out"),
+        ("INSERT INTO Rules1 (Amount, Label) VALUES (Null, 'x')", "a Required column set to Null"),
+        ("INSERT INTO Rules1 (Amount, Label) VALUES (-1, 'x')", "a value against the rule"),
+        ("UPDATE Rules1 SET Amount = -2", "an update against the rule"),
+    ):
+        script.write_text(sql + chr(10), encoding="ascii")
+        with pytest.raises(AssertionError) as engine_said:
+            oracle("-Command", "sql-file", "-Path", str(theirs), "-SqlFile", str(script))
+        with pytest.raises(AccessError) as we_said:
+            db.execute(sql)
+        assert str(we_said.value) in str(engine_said.value), f"{why}: {we_said.value}"
+        assert not _differing_pages(db.to_bytes(), theirs.read_bytes()), f"{why}: a refused statement wrote something"

@@ -7,6 +7,25 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- **A column's own rules.** Required, DefaultValue, ValidationRule and
+  ValidationText are properties on the column, not bits in its header,
+  and the writers now put them there the way the engine does: one blob
+  write per column, the engine's DAO type and flags, and the catalog
+  stamp that goes with it. `CREATE TABLE ... NOT NULL` and
+  `DEFAULT <expr>` set them, and `ColumnSpec` carries them.
+
+- **The engine's rules applied to every row.** A column an INSERT does
+  not name takes its DefaultValue, evaluated as Jet evaluates it; a null
+  in a Required column and a value against a ValidationRule, the
+  column's or the table's, are refused with the engine's own message, on
+  insert and on update. A live gate has the engine reject the same four
+  statements.
+
+- **Which LVAL page a long value lands on**, measured: a value of 256
+  bytes or fewer goes on the first page the free-space map lists, a
+  larger one on the last, and when that page cannot take it, on a new
+  page rather than an earlier one.
+
 - **A gate for a database built without the engine at all**: every
   column type, keyed and unique indexes, a foreign key, long values,
   four saved queries and table and column properties, all written by

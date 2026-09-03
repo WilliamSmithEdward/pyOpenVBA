@@ -182,6 +182,19 @@ class PageStore:
         #: tries it first for the next single-row value.
         self.lval_cursor: dict[int, int] = {}
 
+    def snapshot(self) -> tuple[bytes, set[int], set[int], list[int], dict[int, int]]:
+        """Everything a rollback has to put back: the pages and the state
+        the session keeps about them."""
+        return (bytes(self._data), set(self.released), set(self.allocated), list(self.pending), dict(self.lval_cursor))
+
+    def restore(self, state: tuple[bytes, set[int], set[int], list[int], dict[int, int]]) -> None:
+        data, released, allocated, pending, cursor = state
+        self._data = bytearray(data)
+        self.released = released
+        self.allocated = allocated
+        self.pending = pending
+        self.lval_cursor = cursor
+
     @property
     def page_count(self) -> int:
         return len(self._data) // PAGE_SIZE

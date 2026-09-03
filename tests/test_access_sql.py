@@ -311,3 +311,20 @@ def test_jet_operators() -> None:
     # VBA's order: * binds tighter than Mod, which binds tighter than +.
     assert Parser.parse("1 + 7 Mod 3 * 2").eval(env) == 2
     assert Parser.parse("(1 + 7) Mod 3").eval(env) == 2
+
+
+def test_a_transaction_undoes_everything_or_nothing(tmp_path: Path) -> None:
+    db = _shop(tmp_path)
+    before = db.to_bytes()
+    with pytest.raises(RuntimeError), db.transaction():
+        db.execute("DELETE FROM Orders")
+        db.execute("INSERT INTO Customers (Name) VALUES ('Eve')")
+        db.execute("CREATE TABLE Extra (A LONG)")
+        raise RuntimeError("undo")
+    assert db.to_bytes() == before
+    assert db.table_names() == ["Customers", "Orders"]
+    assert db.table("Orders").row_count == 4
+    assert _names(db.execute("SELECT Name FROM Customers ORDER BY Id"))[-1] == "Dee"
+    with db.transaction():
+        db.execute("INSERT INTO Customers (Name) VALUES ('Eve')")
+    assert _names(db.execute("SELECT Name FROM Customers ORDER BY Id"))[-1] == "Eve"

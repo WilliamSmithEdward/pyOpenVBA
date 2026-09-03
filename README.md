@@ -202,7 +202,8 @@ GROUP BY and aggregates, HAVING, ORDER BY, DISTINCT, TOP, subqueries and
 UNION; INSERT, UPDATE and DELETE through the same row writers; and DDL --
 CREATE TABLE, CREATE INDEX, ALTER TABLE, DROP TABLE and DROP INDEX. Its answers and
 the bytes it writes are both checked against DAO running the same
-statements on the same database.
+statements on the same database. `with db.transaction():` rolls
+everything back if the block raises.
 
 Every column type is covered (Boolean through BigInt, Decimal, GUID,
 Memo and OLE), columns can be added and dropped on a table that already

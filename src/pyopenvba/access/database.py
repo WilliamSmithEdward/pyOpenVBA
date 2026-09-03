@@ -10,15 +10,15 @@ indexes and counters included.  ``save()`` writes the pages back.
 from __future__ import annotations
 
 import struct
-from collections.abc import Callable, Iterator, Mapping, Sequence
+from collections.abc import Callable, Generator, Iterator, Mapping, Sequence
+from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 
-from pyopenvba.access_read import AccessError
 from pyopenvba.access._alloc import add_to_map, allocate_page, release_page, remove_from_map, set_usage_bit
 from pyopenvba.access._btree import BTree
 from pyopenvba.access._datapage import DataPage
-from pyopenvba.access._index import decode_key, encode_key, leaf_entries, OFFSET_ENTRIES
+from pyopenvba.access._index import OFFSET_ENTRIES, decode_key, encode_key, leaf_entries
 from pyopenvba.access._lval import (
     free_long_value,
     memo_bytes,
@@ -28,6 +28,8 @@ from pyopenvba.access._lval import (
 from pyopenvba.access._pages import (
     PAGE_DATA,
     PAGE_SIZE,
+    ROW_DELETED,
+    ROW_OVERFLOW,
     DatabaseHeader,
     PageStore,
     encode_row_pointer,
@@ -36,26 +38,6 @@ from pyopenvba.access._pages import (
     row_bytes,
     row_pointer,
     row_slots,
-    ROW_DELETED,
-    ROW_OVERFLOW,
-)
-from pyopenvba.access._schema import (
-    DEFAULT_ACM,
-    FIXED_SIZES,
-    USAGE_MAP_ROW,
-    ColumnSpec,
-    DefinitionLayout,
-    IndexSpec,
-    build_definition,
-    column_header,
-    definition_page_count,
-    definition_pages,
-    empty_index_root,
-    foreign_key_logical,
-    mark_definition_freed,
-    new_index_parts,
-    serialize_definition,
-    usage_map_page,
 )
 from pyopenvba.access._props import (
     BLOCK_COLUMN,
@@ -81,6 +63,24 @@ from pyopenvba.access._rows import (
     encode_scalar,
     split_row,
 )
+from pyopenvba.access._schema import (
+    DEFAULT_ACM,
+    FIXED_SIZES,
+    USAGE_MAP_ROW,
+    ColumnSpec,
+    DefinitionLayout,
+    IndexSpec,
+    build_definition,
+    column_header,
+    definition_page_count,
+    definition_pages,
+    empty_index_root,
+    foreign_key_logical,
+    mark_definition_freed,
+    new_index_parts,
+    serialize_definition,
+    usage_map_page,
+)
 from pyopenvba.access._tdef import (
     INDEX_IGNORE_NULLS,
     INDEX_KIND_FOREIGN,
@@ -88,8 +88,8 @@ from pyopenvba.access._tdef import (
     OFFSET_NEXT_AUTONUMBER,
     OFFSET_ROW_COUNT,
     SIZE_REAL_INDEX_HEADER,
-    TYPE_BINARY,
     TYPE_BIGINT,
+    TYPE_BINARY,
     TYPE_BOOLEAN,
     TYPE_DATETIME,
     TYPE_MEMO,
@@ -101,6 +101,7 @@ from pyopenvba.access._tdef import (
     parse_column_header,
     parse_table_definition,
 )
+from pyopenvba.access_read import AccessError
 
 MSYS_OBJECTS_PAGE = 2
 
@@ -1051,6 +1052,27 @@ class AccessDatabase:
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes(EMPTY_ACCDB_BYTES)
         return cls(target)
+
+    # -- transactions ------------------------------------------------------------
+
+    @contextmanager
+    def transaction(self) -> Generator[AccessDatabase]:
+        """Group writes so they all land or none do.  Leaving the block
+        normally keeps them; an exception puts the database back exactly
+        as it was, pages and session state alike.  The engine writes the
+        same bytes either way -- a DAO transaction changes nothing about
+        where its pages land (measured) -- so this is a way of undoing
+        work, not a different way of writing it."""
+        state = self.store.snapshot()
+        try:
+            yield self
+        except BaseException:
+            # The pages go back, and everything read from them is thrown
+            # away: a definition object was edited in place on the way in.
+            self.store.restore(state)
+            self._catalog = None
+            self._definitions.clear()
+            raise
 
     # -- SQL ---------------------------------------------------------------------
 

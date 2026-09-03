@@ -7,6 +7,12 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- **`with db.transaction():`** groups writes so they all land or none
+  do; an exception puts the pages and the session's state back exactly
+  as they were. The engine writes the same bytes either way, and a live
+  gate checks that against DAO running the same statements inside
+  BeginTrans/CommitTrans.
+
 - **Crosstabs run, not just save.** `db.execute("TRANSFORM ... PIVOT
   ...")` returns the pivoted rows: one column per pivot value, `<>` for
   a Null heading, an `IN` list fixing the columns and their order, an

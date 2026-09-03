@@ -1436,3 +1436,45 @@ def test_ddl_through_execute_matches_the_engine_byte_for_byte(tmp_path: Path) ->
     db = same_then_reopen("INSERT after the DDL", db)
     for table in ("Parent", "Child"):
         check_indexes(db.table(table))
+
+
+def test_a_transaction_writes_what_the_engine_writes(tmp_path: Path) -> None:
+    """DAO wrapping its statements in BeginTrans/CommitTrans leaves the
+    same bytes as running them plainly, and so does ours: a transaction
+    is a way of undoing work, not a different way of writing it.  A
+    rolled-back block leaves the database exactly as it was."""
+    theirs = tmp_path / "theirs.accdb"
+    shutil.copy(TEMPLATE, theirs)
+    script = tmp_path / "step.sql"
+    statements = (
+        "CREATE TABLE T (Id AUTOINCREMENT CONSTRAINT PK PRIMARY KEY, N LONG, T TEXT(40))",
+        *(f"INSERT INTO T (N, T) VALUES ({i}, 'row {i}')" for i in range(1, 21)),
+        "UPDATE T SET N = N + 100 WHERE Id <= 5",
+        "DELETE FROM T WHERE Id > 15",
+    )
+    script.write_text(chr(10).join(statements) + chr(10), encoding="ascii")
+    assert oracle("-Command", "sql-file", "-Path", str(theirs), "-SqlFile", str(script), "-Transaction") == "ok"
+
+    db = AccessDatabase(TEMPLATE)
+    entry_stamps: dict[str, object] = {}
+    with db.transaction():
+        entry = _catalog_entry(theirs, "T")
+        entry_stamps = {"created": entry.date_create_serial, "updated": entry.date_update_serial}
+        for sql in statements:
+            db.execute(sql, **entry_stamps) if sql.startswith("CREATE") else db.execute(sql)  # pyright: ignore[reportArgumentType]
+    ours, engine = db.to_bytes(), theirs.read_bytes()
+    assert not (d := _differing_pages(ours, engine)), f"pages differ from the engine's: {_describe_pages(ours, engine, d)}"
+
+    # What a rollback undoes: the same statements, then put back.
+    before = db.to_bytes()
+    try:
+        with db.transaction():
+            db.execute("INSERT INTO T (N, T) VALUES (99, 'gone')")
+            db.execute("CREATE TABLE Gone (A LONG)")
+            db.execute("DELETE FROM T")
+            raise RuntimeError("roll it back")
+    except RuntimeError:
+        pass
+    assert db.to_bytes() == before
+    assert db.table_names() == ["T"] and db.table("T").row_count == 15
+    check_indexes(db.table("T"))

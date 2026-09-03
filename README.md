@@ -197,26 +197,29 @@ with AccessDatabase("orders.accdb") as db:
     db.save()
 ```
 
-`db.execute(sql)` runs Jet SQL in pure Python: SELECT with joins, WHERE,
-GROUP BY and aggregates, HAVING, ORDER BY, DISTINCT, TOP, subqueries and
-UNION; INSERT, UPDATE and DELETE through the same row writers; and DDL --
-CREATE TABLE, CREATE INDEX, ALTER TABLE, DROP TABLE and DROP INDEX. Its answers and
-the bytes it writes are both checked against DAO running the same
-statements on the same database. `with db.transaction():` rolls
-everything back if the block raises.
+`db.execute(sql)` runs Jet SQL in pure Python. SELECT covers joins,
+WHERE, GROUP BY with aggregates, HAVING, ORDER BY, DISTINCT, TOP,
+subqueries (`IN`, `EXISTS`, correlated, as a value or as a table), UNION
+and crosstabs. INSERT, UPDATE and DELETE go through the same row
+writers, and CREATE TABLE, CREATE INDEX, ALTER TABLE, DROP TABLE and
+DROP INDEX through the schema writers. Its answers and the bytes it
+writes are both checked against DAO running the same statements on the
+same database. `with db.transaction():` rolls everything back if the
+block raises.
 
 Every column type is covered (Boolean through BigInt, Decimal, GUID,
-Memo and OLE), columns can be added and dropped on a table that already
-holds rows, indexes are created, dropped and maintained on every
+Memo and OLE), columns can be added, dropped and retyped on a table that
+already holds rows, indexes are created, dropped and maintained on every
 write, relationships
 are created with `db.create_relationship(...)` and read with
 `db.relationships()`, table and column properties (Description,
 Caption, Format, ...) are read and set through `table.properties()` and
-`table.set_properties(...)`, saved queries are read with `db.queries()`
-and written with `db.create_query(name, sql)`, SQL runs with
-`db.execute(sql)`, and files grow past their first 512 pages the way
-the engine grows them. What it does not do yet
-is listed in
+`table.set_properties(...)`, saved queries -- select, action, union, crosstab and
+pass-through -- are read with `db.queries()`
+and written with `db.create_query(name, sql)`, and files grow to a
+hundred megabytes and past the point where a usage map outgrows its own
+row, the way the engine grows them. What it does not do yet is listed
+in
 [docs/access_engine.md](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/docs/access_engine.md),
 along with every format rule and how it was measured.
 

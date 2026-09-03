@@ -663,6 +663,28 @@ the engine finds the same rows it does today.
   Filling the first page until it dropped out of the map sent the next
   small value to the last page, so the pages are not segregated by size.
 
+* **Jet has no Boolean of its own in an expression.** Every computed
+  truth value comes back as -1 or 0 -- a comparison, `Not`, `And`, `Or`,
+  `Is Null`, the literal `True`, `IsNumeric`, `CBool` -- and so does
+  every aggregate, the Boolean column included: over True, False, True,
+  `Max` gave 0, `Min` and `First` -1 and `Sum` -2. A Boolean column
+  selected on its own is the exception: it keeps its type, and it sorts
+  True before False, which is -1 before 0.
+* **The expression functions**, each measured against DAO over four rows
+  holding a null, an empty string, a negative number, a leap day,
+  midnight and a second before it: the text, maths, conversion and date
+  functions listed in `_sql.py`, plus `Format` and `Partition` in
+  `_format.py`. Three of them are not what a reading of the
+  documentation would give: `DateDiff` counts boundaries crossed rather
+  than whole units (December to January is one month, 23:00 to 01:00 one
+  day), `Str` drops the leading zero of a value under one (` .125`), and
+  `Format` of Null is the empty string rather than Null. `Format`
+  covers the named formats (General/Long/Medium/Short Date and Time,
+  General Number, Currency, Fixed, Standard, Percent, Scientific,
+  Yes/No, True/False, On/Off), custom date patterns down to `q`, `y`,
+  `w` and `ww`, custom number patterns with `0`, `#`, thousands, `%` and
+  up to four `;` sections, and the `@`, `&`, `>` and `<` text patterns.
+
 * **A linked table is a catalog row and nothing else.** Type 6 under the
   Tables container, with the file in `Database`, the table's name over
   there in `ForeignName`, `Connect` holding whatever prefix is left once
@@ -725,4 +747,4 @@ the engine finds the same rows it does today.
 | 6 | VBA project through the writer: module create/rename/delete | |
 | 7 | queries (`MSysQueries` to SQL and back), relationships, properties | done. Relationships: `create_relationship` / `drop_relationship` / `relationships()`, byte-identical to the engine's ADD CONSTRAINT ... FOREIGN KEY for a first and a second relationship on one parent and to DROP CONSTRAINT (live gate). Properties done: `table.properties()`, `column_properties()`, `set_properties()`, `db.database_properties()`; DAO's three property appends reproduced byte for byte (live gate). Queries done for SELECT, PARAMETERS, DELETE, UPDATE, INSERT INTO ... SELECT, SELECT ... INTO, UNION and crosstabs (`TRANSFORM ... PIVOT`, with an `IN` list, TOP, a join or a parameter): `db.queries()`, `db.query()`, `db.create_query(name, sql)`, `db.drop_query(name)`; thirteen CreateQueryDef calls and a QueryDefs.Delete reproduced byte for byte (live gate). Pass-through queries are written too, by the create-then-convert route DAO takes. Subqueries save too: in a WHERE, as a value in the select list, and as a table of their own, where the engine puts the bracketed SELECT in the row's expression and only the alias in Name2 |
 | 8 | forms, reports, macros: the binary object formats nobody has published | |
-| 9 | SQL executor over the engine | done: `db.execute(sql)` runs Jet DDL (CREATE TABLE with named keys and inline or table constraints, CREATE [UNIQUE] INDEX, DROP TABLE, DROP INDEX, ALTER TABLE ADD / ALTER / DROP COLUMN and ADD / DROP CONSTRAINT), byte-identical to DAO's Execute on the same statements (live gate), and SELECT (column list or `*`, INNER / LEFT / RIGHT JOIN, WHERE, GROUP BY with Count / Sum / Avg / Min / Max, HAVING, ORDER BY, DISTINCT, TOP; comparison, logical, arithmetic and `&` operators, LIKE, IN, BETWEEN, IS NULL, `[parameters]`, the common string, numeric and date functions), INSERT ... VALUES, INSERT ... SELECT, UPDATE and DELETE through the row writers, coercing values to the column type. Eleven SELECT shapes answer exactly as DAO does on the same database and an UPDATE plus a DELETE write the same bytes DAO's Execute writes (live gate). Subqueries run too: `IN`, `NOT IN`, `EXISTS`, a scalar subquery in any expression, all of them correlated when they name the outer query, plus a bracketed SELECT or a saved query as a FROM source, and `UNION`/`UNION ALL` folded left to right. A crosstab runs as well as saves: `TRANSFORM ... PIVOT` groups by its row headings, makes one column per pivot value (`<>` for Null, an `IN` list fixing the columns and their order) and hands the rows back sorted by their headings, which is how the engine hands them back. The operators now include Jet's `Mod`, `\` and `^`, in VBA's order. `with db.transaction():` rolls back to the exact bytes on an exception, and a committed one leaves what DAO's BeginTrans/CommitTrans leaves (live gate) |
+| 9 | SQL executor over the engine | done: `db.execute(sql)` runs Jet DDL (CREATE TABLE with named keys and inline or table constraints, CREATE [UNIQUE] INDEX, DROP TABLE, DROP INDEX, ALTER TABLE ADD / ALTER / DROP COLUMN and ADD / DROP CONSTRAINT), byte-identical to DAO's Execute on the same statements (live gate), and SELECT (column list or `*`, INNER / LEFT / RIGHT JOIN, WHERE, GROUP BY with Count / Sum / Avg / Min / Max, HAVING, ORDER BY, DISTINCT, TOP; comparison, logical, arithmetic and `&` operators, LIKE, IN, BETWEEN, IS NULL, `[parameters]`, the common string, numeric and date functions), INSERT ... VALUES, INSERT ... SELECT, UPDATE and DELETE through the row writers, coercing values to the column type. Eleven SELECT shapes answer exactly as DAO does on the same database and an UPDATE plus a DELETE write the same bytes DAO's Execute writes (live gate). Subqueries run too: `IN`, `NOT IN`, `EXISTS`, a scalar subquery in any expression, all of them correlated when they name the outer query, plus a bracketed SELECT or a saved query as a FROM source, and `UNION`/`UNION ALL` folded left to right. A crosstab runs as well as saves: `TRANSFORM ... PIVOT` groups by its row headings, makes one column per pivot value (`<>` for Null, an `IN` list fixing the columns and their order) and hands the rows back sorted by their headings, which is how the engine hands them back. The operators now include Jet's `Mod`, `\` and `^`, in VBA's order, and the function list reaches every one a Jet expression can name (text, maths, conversion, dates, `Format`, `Partition`, `Switch`, `Choose`, the `Is` tests) plus the `First`, `Last`, `StDev`, `StDevP`, `Var` and `VarP` aggregates, each answering what DAO answers on the same rows (live gate). `with db.transaction():` rolls back to the exact bytes on an exception, and a committed one leaves what DAO's BeginTrans/CommitTrans leaves (live gate) |

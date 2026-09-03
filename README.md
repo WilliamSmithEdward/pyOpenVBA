@@ -200,7 +200,9 @@ with AccessDatabase("orders.accdb") as db:
 `db.execute(sql)` runs Jet SQL in pure Python. SELECT covers joins,
 WHERE, GROUP BY with aggregates, HAVING, ORDER BY, DISTINCT, TOP,
 subqueries (`IN`, `EXISTS`, correlated, as a value or as a table), UNION
-and crosstabs. INSERT, UPDATE and DELETE go through the same row
+and crosstabs, with the functions a Jet expression can name (text,
+maths, dates, conversions, `Format`, `Partition`, `Switch`, `Choose`).
+INSERT, UPDATE and DELETE go through the same row
 writers, and CREATE TABLE, CREATE INDEX, ALTER TABLE, DROP TABLE and
 DROP INDEX through the schema writers. Its answers and the bytes it
 writes are both checked against DAO running the same statements on the

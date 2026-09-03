@@ -4,13 +4,21 @@
 statements against :class:`~pyopenvba.access.database.AccessDatabase`
 tables, in pure Python.  SELECT covers a column list or ``*``, one table
 or INNER / LEFT / RIGHT JOINs, WHERE, GROUP BY with Count, Sum, Avg, Min
-and Max, HAVING, ORDER BY, DISTINCT and TOP; expressions cover the
-comparison, logical, arithmetic and concatenation operators, LIKE with
-the engine's wildcards, IN, BETWEEN, IS NULL, ``[parameters]`` and a set
-of common functions (Len, UCase, LCase, Trim, Left, Right, Mid, InStr,
-Abs, Int, Round, Nz, IIf, Year, Month, Day, Date, Now).  Three-valued
-logic follows the engine: a comparison against Null is Null, and a WHERE
-that comes out Null drops the row.
+and Max, First, Last, StDev, StDevP, Var and VarP, HAVING, ORDER BY,
+DISTINCT and TOP; expressions cover the comparison, logical, arithmetic
+and concatenation operators, LIKE with the engine's wildcards, IN,
+BETWEEN, IS NULL, ``[parameters]`` and the functions a Jet expression can
+name: text (Len, UCase, LCase, Trim, Left, Right, Mid, InStr, Replace,
+Space, String, StrComp, StrReverse, Asc, Chr), maths (Abs, Int, Fix,
+Round, Sgn, Sqr, Exp, Log), conversion (the C-family, Val, Str, Hex,
+Oct), dates (Now, Date, Time, DateAdd, DateDiff, DatePart, DateSerial,
+TimeSerial, Weekday, WeekdayName, MonthName, DateValue, TimeValue, Year
+through Second), the yes-or-no tests (IsNull, IsNumeric, IsDate) and
+IIf, Nz, Switch, Choose, Format and Partition.  Three-valued logic
+follows the engine: a comparison against Null is Null, and a WHERE that
+comes out Null drops the row.  A computed truth value comes back as -1
+or 0, as the engine hands one back; only a Boolean column read on its
+own keeps its type.
 
 The statement text is split with the same clause splitter the saved-query
 writer uses (:mod:`_queries`).  DML goes through the table writers, so a
@@ -28,6 +36,7 @@ from decimal import ROUND_HALF_EVEN, Decimal
 from typing import TYPE_CHECKING, Any
 
 from pyopenvba.access._ddl import execute_ddl, is_ddl
+from pyopenvba.access._format import format_value, partition
 from pyopenvba.access._queries import (
     parse_from,
     select_list,
@@ -270,7 +279,7 @@ class Call(Expr):
         return [c for a in self.args for c in a.columns()]
 
 
-AGGREGATES = {"COUNT", "SUM", "AVG", "MIN", "MAX", "FIRST", "LAST"}
+AGGREGATES = {"COUNT", "SUM", "AVG", "MIN", "MAX", "FIRST", "LAST", "STDEV", "STDEVP", "VAR", "VARP"}
 
 
 @dataclass(frozen=True)
@@ -492,7 +501,7 @@ class Parser:
             quote = token.text[0]
             return Literal(token.text[1:-1].replace(quote + quote, quote))
         if token.kind == "date":
-            return Literal(_parse_date_literal(token.text[1:-1]))
+            return Literal(parse_date_literal(token.text[1:-1]))
         if token.text == "(":
             if self.pos < len(self.tokens) and self.tokens[self.pos].text.upper() in ("SELECT", "PARAMETERS", "TRANSFORM"):
                 self.pos -= 1
@@ -534,6 +543,15 @@ class Parser:
 
 
 # --- values ----------------------------------------------------------------------
+
+
+def _computed(value: object) -> object:
+    """A value on its way out of an expression.  Jet has no Boolean of its
+    own: a comparison, a logical operator or a function that answers yes
+    or no gives back -1 or 0, where a Boolean column keeps its type
+    (measured -- every one of `N > 10`, `Not (...)`, `IsNull(T)` and the
+    literal `True` came out of the engine as -1 or 0)."""
+    return -1 if value is True else (0 if value is False else value)
 
 
 def _truthy(value: object) -> bool:
@@ -642,7 +660,7 @@ def like_match(value: str, pattern: str) -> bool:
     return re.fullmatch(regex, value, re.IGNORECASE | re.DOTALL) is not None
 
 
-def _parse_date_literal(text: str) -> _dt.datetime:
+def parse_date_literal(text: str) -> _dt.datetime:
     text = text.strip()
     for form in ("%m/%d/%Y %H:%M:%S", "%m/%d/%Y %H:%M", "%m/%d/%Y", "%Y-%m-%d %H:%M:%S", "%Y-%m-%d", "%H:%M:%S"):
         try:
@@ -653,6 +671,126 @@ def _parse_date_literal(text: str) -> _dt.datetime:
         except ValueError:
             continue
     raise AccessError(f"cannot read date #{text}#")
+
+
+WEEKDAY_NAMES = ("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday")
+MONTH_NAMES = (
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December",
+)
+
+
+def _as_date(value: object, name: str) -> _dt.datetime:
+    if isinstance(value, _dt.datetime):
+        return value
+    if isinstance(value, _dt.date):
+        return _dt.datetime.combine(value, _dt.time())
+    if isinstance(value, str):
+        return parse_date_literal(value)
+    if isinstance(value, (int, float, Decimal)):
+        return _from_serial(float(value))
+    raise AccessError(f"{name} needs a date, not {value!r}")
+
+
+def _from_serial(serial: float) -> _dt.datetime:
+    """A stored date: whole days from 1899-12-30, the fraction the time.
+    A negative serial counts the time forward from midnight all the same,
+    which is how the engine reads one."""
+    whole = int(serial) if serial >= 0 else -int(-serial)
+    day = _dt.datetime(1899, 12, 30) + _dt.timedelta(days=whole)
+    return day + _dt.timedelta(seconds=round(abs(serial - whole) * 86400))
+
+
+def _add_months(when: _dt.datetime, months: int) -> _dt.datetime:
+    """Jet keeps the day of the month, clamped to the target month's last
+    day (measured: adding a month to 31 January gives 29 February)."""
+    import calendar
+
+    total = when.month - 1 + months
+    year, month = when.year + total // 12, total % 12 + 1
+    day = min(when.day, calendar.monthrange(year, month)[1])
+    return when.replace(year=year, month=month, day=day)
+
+
+def _date_add(interval: str, count: int, when: _dt.datetime) -> _dt.datetime:
+    key = interval.lower()
+    if key == "yyyy":
+        return _add_months(when, 12 * count)
+    if key == "q":
+        return _add_months(when, 3 * count)
+    if key == "m":
+        return _add_months(when, count)
+    if key in ("d", "y", "w"):
+        return when + _dt.timedelta(days=count)
+    if key == "ww":
+        return when + _dt.timedelta(weeks=count)
+    if key == "h":
+        return when + _dt.timedelta(hours=count)
+    if key == "n":
+        return when + _dt.timedelta(minutes=count)
+    if key == "s":
+        return when + _dt.timedelta(seconds=count)
+    raise AccessError(f"DateAdd has no interval {interval!r}")
+
+
+def _date_diff(interval: str, first: _dt.datetime, second: _dt.datetime) -> int:
+    """Jet counts boundaries crossed, not whole units: a day from 23:00 to
+    01:00 is one day, and December to January is one month."""
+    key = interval.lower()
+    if key == "yyyy":
+        return second.year - first.year
+    if key == "q":
+        return (second.year * 4 + (second.month - 1) // 3) - (first.year * 4 + (first.month - 1) // 3)
+    if key == "m":
+        return (second.year * 12 + second.month) - (first.year * 12 + first.month)
+    if key in ("d", "y"):
+        return (second.date() - first.date()).days
+    if key == "w":
+        return (second.date() - first.date()).days // 7
+    if key == "ww":
+        return (_week_start(second) - _week_start(first)).days // 7
+    if key in ("h", "n", "s"):
+        # Boundaries again: the two dates are counted in whole hours,
+        # minutes or seconds from one fixed point and subtracted.
+        unit = {"h": 3600, "n": 60, "s": 1}[key]
+        return _units(second, unit) - _units(first, unit)
+    raise AccessError(f"DateDiff has no interval {interval!r}")
+
+
+def _units(when: _dt.datetime, seconds: int) -> int:
+    """How many whole units of ``seconds`` have passed at ``when``, from
+    the engine's own zero (1899-12-30), rounding down."""
+    return int((when - _dt.datetime(1899, 12, 30)).total_seconds() // seconds)
+
+
+def _week_start(when: _dt.datetime) -> _dt.date:
+    """The Sunday of this date's week, which is where Jet's weeks start."""
+    return when.date() - _dt.timedelta(days=(when.date().weekday() + 1) % 7)
+
+
+def _date_part(interval: str, when: _dt.datetime) -> int:
+    key = interval.lower()
+    if key == "yyyy":
+        return when.year
+    if key == "q":
+        return (when.month - 1) // 3 + 1
+    if key == "m":
+        return when.month
+    if key == "y":
+        return when.timetuple().tm_yday
+    if key == "d":
+        return when.day
+    if key == "w":
+        return (when.weekday() + 1) % 7 + 1
+    if key == "ww":
+        return (when.date() - _week_start(_dt.datetime(when.year, 1, 1))).days // 7 + 1
+    if key == "h":
+        return when.hour
+    if key == "n":
+        return when.minute
+    if key == "s":
+        return when.second
+    raise AccessError(f"DatePart has no interval {interval!r}")
 
 
 def _call(name: str, args: list[object]) -> object:
@@ -669,6 +807,31 @@ def _call(name: str, args: list[object]) -> object:
         return _dt.datetime.now().replace(microsecond=0)
     if upper == "DATE":
         return _dt.datetime.combine(_dt.date.today(), _dt.time())
+    if upper == "TIME":
+        now = _dt.datetime.now()
+        return _dt.datetime(1899, 12, 30, now.hour, now.minute, now.second)
+    if upper == "ISNULL":
+        return args[0] is None
+    if upper == "ISNUMERIC":
+        return _is_numeric(args[0])
+    if upper == "ISDATE":
+        return _is_date(args[0])
+    if upper == "FORMAT":
+        if not 1 <= len(args) <= 2:
+            raise AccessError("Format takes a value and a pattern")
+        return format_value(args[0], _text(args[1]) if len(args) > 1 else "")
+    if upper == "SWITCH":
+        # Pairs of condition and answer; the first true one wins and Null
+        # comes back when none does.
+        for i in range(0, len(args) - 1, 2):
+            if args[i] is not None and _truthy(args[i]):
+                return args[i + 1]
+        return None
+    if upper == "CHOOSE":
+        if args[0] is None:
+            return None
+        index = int(_number(args[0]))
+        return args[index] if 1 <= index < len(args) else None
     if any(a is None for a in args):
         return None
     if upper == "LEN":
@@ -717,7 +880,150 @@ def _call(name: str, args: list[object]) -> object:
         return round(float(_number(args[0])))
     if upper == "CDBL":
         return float(_number(args[0]))
+    if upper == "CSNG":
+        import struct as _struct
+
+        return _struct.unpack("<f", _struct.pack("<f", float(_number(args[0]))))[0]
+    if upper == "CBOOL":
+        return _truthy(args[0])
+    if upper == "CBYTE":
+        value = round(float(_number(args[0])))
+        if not 0 <= value <= 255:
+            raise AccessError("CByte takes 0 to 255")
+        return value
+    if upper == "CCUR":
+        return Decimal(str(float(_number(args[0])))).quantize(Decimal("0.0001"), rounding=ROUND_HALF_EVEN)
+    if upper == "CDATE":
+        return _as_date(args[0], "CDate")
+    if upper == "DATEVALUE":
+        return _dt.datetime.combine(_as_date(args[0], "DateValue").date(), _dt.time())
+    if upper == "TIMEVALUE":
+        when = _as_date(args[0], "TimeValue")
+        return _dt.datetime(1899, 12, 30, when.hour, when.minute, when.second)
+    if upper == "DATESERIAL":
+        year, month, day = (int(_number(a)) for a in args[:3])
+        return _add_months(_dt.datetime(year, 1, 1), month - 1) + _dt.timedelta(days=day - 1)
+    if upper == "TIMESERIAL":
+        hour, minute, second = (int(_number(a)) for a in args[:3])
+        return _dt.datetime(1899, 12, 30) + _dt.timedelta(hours=hour, minutes=minute, seconds=second)
+    if upper == "DATEADD":
+        return _date_add(_text(args[0]), int(_number(args[1])), _as_date(args[2], "DateAdd"))
+    if upper == "DATEDIFF":
+        return _date_diff(_text(args[0]), _as_date(args[1], "DateDiff"), _as_date(args[2], "DateDiff"))
+    if upper == "DATEPART":
+        return _date_part(_text(args[0]), _as_date(args[1], "DatePart"))
+    if upper == "WEEKDAY":
+        first = int(_number(args[1])) if len(args) > 1 else 1
+        return ((_as_date(args[0], "Weekday").weekday() + 1) % 7) - (first - 1) % 7 + 1
+    if upper == "WEEKDAYNAME":
+        index = int(_number(args[0]))
+        if not 1 <= index <= 7:
+            raise AccessError("WeekdayName takes 1 to 7")
+        return WEEKDAY_NAMES[index - 1]
+    if upper == "MONTHNAME":
+        index = int(_number(args[0]))
+        if not 1 <= index <= 12:
+            raise AccessError("MonthName takes 1 to 12")
+        return MONTH_NAMES[index - 1]
+    if upper == "REPLACE":
+        return _text(args[0]).replace(_text(args[1]), _text(args[2]))
+    if upper == "SPACE":
+        return " " * int(_number(args[0]))
+    if upper == "STRING":
+        fill = _text(args[1])
+        return (fill[:1] if fill else " ") * int(_number(args[0]))
+    if upper == "STRCOMP":
+        a, b = _text(args[0]).lower(), _text(args[1]).lower()
+        return (a > b) - (a < b)
+    if upper == "STRREVERSE":
+        return _text(args[0])[::-1]
+    if upper == "ASC":
+        text = _text(args[0])
+        if not text:
+            raise AccessError("Asc needs a character")
+        return ord(text[0])
+    if upper == "CHR":
+        return chr(int(_number(args[0])))
+    if upper == "SGN":
+        value = float(_number(args[0]))
+        return (value > 0) - (value < 0)
+    if upper == "SQR":
+        import math
+
+        return math.sqrt(float(_number(args[0])))
+    if upper == "EXP":
+        import math
+
+        return math.exp(float(_number(args[0])))
+    if upper == "LOG":
+        import math
+
+        return math.log(float(_number(args[0])))
+    if upper == "FIX":
+        value = float(_number(args[0]))
+        return int(value) if value >= 0 else -int(-value)
+    if upper == "VAL":
+        return _val(_text(args[0]))
+    if upper == "STR":
+        # A leading space stands in for the sign, and a value under one
+        # loses its leading zero, which is what VBA writes.
+        text = _text(_number(args[0]))
+        for zero, without in (("-0.", "-."), ("0.", ".")):
+            if text.startswith(zero):
+                text = without + text[len(zero) :]
+                break
+        return text if text.startswith("-") else " " + text
+    if upper == "HEX":
+        value = int(_number(args[0]))
+        return format(value & 0xFFFFFFFF if value < 0 else value, "X")
+    if upper == "OCT":
+        value = int(_number(args[0]))
+        return format(value & 0xFFFFFFFF if value < 0 else value, "o")
+    if upper == "PARTITION":
+        if len(args) != 4:
+            raise AccessError("Partition takes a number, a start, a stop and an interval")
+        return partition(float(_number(args[0])), *(int(_number(a)) for a in args[1:4]))
     raise AccessError(f"function {name} is not available")
+
+
+def _is_numeric(value: object) -> bool:
+    if isinstance(value, bool) or value is None:
+        return False
+    if isinstance(value, (int, float, Decimal)):
+        return True
+    if not isinstance(value, str):
+        return False
+    try:
+        float(value.strip())
+    except ValueError:
+        return False
+    return True
+
+
+def _is_date(value: object) -> bool:
+    if isinstance(value, (_dt.datetime, _dt.date)):
+        return True
+    if not isinstance(value, str):
+        return False
+    try:
+        parse_date_literal(value)
+    except AccessError:
+        return False
+    return True
+
+
+def _val(text: str) -> int | float:
+    """As much of the front of the text as reads as a number, ignoring
+    spaces, else 0."""
+    body = text.replace(" ", "")
+    best: int | float = 0
+    for end in range(len(body), 0, -1):
+        try:
+            best = float(body[:end])
+        except ValueError:
+            continue
+        return int(best) if best.is_integer() and "." not in body[:end] else best
+    return best
 
 
 # --- statements ------------------------------------------------------------------
@@ -850,8 +1156,11 @@ def _join(sources: list[Source], parameters: Mapping[str, object], outer: Enviro
 
 
 def _aggregate(name: str, values: list[object]) -> object:
+    """Every aggregate answers with a number where its values are truth
+    values, the Boolean column included: measured on a column of True,
+    False, True, Max was 0, Min and First -1 and Sum -2."""
     upper = name.upper()
-    present = [v for v in values if v is not None]
+    present = [_computed(v) for v in values if v is not None]
     if upper == "COUNT":
         return len(present)
     if not present:
@@ -876,6 +1185,14 @@ def _aggregate(name: str, values: list[object]) -> object:
         return present[0]
     if upper == "LAST":
         return present[-1]
+    if upper in ("STDEV", "STDEVP", "VAR", "VARP"):
+        numbers = [float(_number(v)) for v in present]
+        divisor = len(numbers) - 1 if upper in ("STDEV", "VAR") else len(numbers)
+        if divisor <= 0:
+            return None
+        mean = sum(numbers) / len(numbers)
+        variance = sum((n - mean) ** 2 for n in numbers) / divisor
+        return variance if upper.startswith("VAR") else variance**0.5
     raise AccessError(f"aggregate {name} is not available")
 
 
@@ -1329,10 +1646,15 @@ def _select(
                 first = group[0] if group else {}
                 for column in source.columns:
                     out[column] = first.get(f"{star.lower()}.{column.lower()}")
-            elif grouped:
-                out[name] = _evaluate_with_aggregates(expr, group, sources, parameters, env_for)  # pyright: ignore[reportArgumentType]
             else:
-                out[name] = expr.eval(env_for(group[0]))  # pyright: ignore[reportOptionalMemberAccess]
+                value = (
+                    _evaluate_with_aggregates(expr, group, sources, parameters, env_for)  # pyright: ignore[reportArgumentType]
+                    if grouped
+                    else expr.eval(env_for(group[0]))  # pyright: ignore[reportOptionalMemberAccess]
+                )
+                # A column read straight out keeps its type; anything
+                # computed comes back the way Jet writes a truth value.
+                out[name] = value if isinstance(expr, ColumnRef) else _computed(value)
         result.append((out, group[0] if group else {}))
     if "ORDER BY" in by_word:
         orderings: list[tuple[Expr, bool]] = []
@@ -1428,7 +1750,7 @@ def _coerce(column: ColumnDef, value: object) -> object:
     if code == TYPE_BOOLEAN:
         return value if isinstance(value, bool) else _number(value) != 0
     if code == TYPE_DATETIME and isinstance(value, str):
-        return _parse_date_literal(value)
+        return parse_date_literal(value)
     return value
 
 

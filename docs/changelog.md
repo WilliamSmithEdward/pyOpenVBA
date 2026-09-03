@@ -7,6 +7,20 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- **The rest of the Jet expression functions.** Replace, Space, String,
+  StrComp, StrReverse, Asc, Chr, Sgn, Sqr, Exp, Log, Fix, Val, Str, Hex,
+  Oct, the CBool/CByte/CCur/CSng/CDate family, DateAdd, DateDiff,
+  DatePart, DateSerial, TimeSerial, Weekday, WeekdayName, MonthName,
+  DateValue, TimeValue, Time, IsNull, IsNumeric, IsDate, Switch, Choose,
+  Format and Partition, with the First, Last, StDev, StDevP, Var and
+  VarP aggregates. A gate runs 131 expressions through DAO and through
+  the executor over the same four rows and compares them cell by cell.
+
+- **Truth values as Jet writes them.** A computed comparison, logical
+  operator or yes-or-no function now answers -1 or 0, and so does an
+  aggregate over a Boolean column, which is what the engine answers. A
+  Boolean column selected on its own still reads as a Boolean.
+
 - **Linked tables.** `db.links()` and `db.link(name)` read the tables a
   database only points at; `db.link_table(name, database, source,
   connect=...)` writes one and `db.drop_link(name)` forgets it, byte for

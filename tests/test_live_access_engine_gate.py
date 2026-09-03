@@ -1794,3 +1794,217 @@ def test_linked_tables_match_the_engine_byte_for_byte(tmp_path: Path) -> None:
     }
     dumped = json.loads(oracle("-Command", "dump", "-Path", str(built), "-Table", "Elsewhere"))
     assert [line for line in dumped.split(chr(10)) if line][0].startswith("Id=1")
+
+
+#: Every expression the function gate runs.  Each is measured against
+#: DAO on the same four rows, so the list doubles as the record of what
+#: the executor's functions are meant to answer.
+FUNCTION_GATE_EXPRESSIONS = (
+    "Replace(T, 'l', 'L')",
+    "Space(3) & 'x'",
+    "String(4, 'z')",
+    "StrComp('a', 'b')",
+    'StrReverse(T)',
+    "Asc('A')",
+    'Chr(66)',
+    'Sgn(N)',
+    'Sqr(X)',
+    'Exp(1)',
+    'Log(X + 1)',
+    'Fix(X)',
+    'Fix(-2.7)',
+    'Int(-2.7)',
+    "DateAdd('d', 5, D)",
+    "DateAdd('m', 1, D)",
+    "DateAdd('yyyy', -1, D)",
+    "DateDiff('d', #1/1/2024#, D)",
+    "DateDiff('m', #1/1/2020#, D)",
+    "DateDiff('yyyy', #1/1/2000#, D)",
+    "DatePart('q', D)",
+    "DatePart('ww', D)",
+    "DatePart('y', D)",
+    'DateSerial(2024, 2, 30)',
+    'TimeSerial(13, 5, 6)',
+    'Weekday(D)',
+    'WeekdayName(3)',
+    'MonthName(4)',
+    "CDate('2024-03-14')",
+    'DateValue(D)',
+    'TimeValue(D)',
+    "Switch(N > 10, 'big', N > 0, 'small', True, 'other')",
+    "Choose(2, 'a', 'b', 'c')",
+    'IsNull(T)',
+    'IsNumeric(T)',
+    'IsDate(D)',
+    'CBool(N)',
+    'CCur(X)',
+    'CSng(X)',
+    'CByte(5)',
+    "Val('12.5abc')",
+    'Str(N)',
+    'Hex(255)',
+    'Oct(8)',
+    'Left(T, 3) & Right(T, 2)',
+    "Format(D, 'yyyy-mm-dd')",
+    "Format(X, '0.00')",
+    'Partition(N, 0, 100, 10)',
+    'N > 10',
+    "T = 'abc'",
+    'Not (N > 10)',
+    '(N > 10) And (X > 1)',
+    "IIf(N > 10, 'y', 'n')",
+    'True',
+    'False',
+    'N > 10 Or N < 0',
+    'D Is Null',
+    'CBool(1)',
+    'Partition(N, 1, 50, 5)',
+    "Format(D, 'yyyy-mm-dd hh:nn:ss')",
+    "Format(D, 'mm/dd/yyyy')",
+    "Format(D, 'Short Date')",
+    "Format(D, 'Long Date')",
+    "Format(D, 'Medium Date')",
+    "Format(D, 'Short Time')",
+    "Format(D, 'Long Time')",
+    "Format(D, 'General Date')",
+    "Format(D, 'dddd')",
+    "Format(D, 'ddd')",
+    "Format(D, 'mmm')",
+    "Format(D, 'mmmm')",
+    "Format(X, '#,##0.00')",
+    "Format(X, '0')",
+    "Format(X, 'Fixed')",
+    "Format(X, 'Standard')",
+    "Format(X, 'Percent')",
+    "Format(M, 'Currency')",
+    "Format(N, '000')",
+    "Format(T, '>')",
+    "Format(T, '<')",
+    "Format(N, 'General Number')",
+    "Format(1234567.891, '#,##0.00')",
+    "Format(1234567.891, 'Standard')",
+    "Format(1234567.891, 'Currency')",
+    "Format(-1234.5, 'Standard')",
+    "Format(0.5, 'Percent')",
+    "Format(N, 'Yes/No')",
+    "Format(N, 'True/False')",
+    "Format(N, 'On/Off')",
+    "Format(D, 'Medium Time')",
+    "Format(D, 'h:nn AM/PM')",
+    "Format(D, 'd mmm yyyy')",
+    "Format(1234.5, 'Scientific')",
+    "Format(12, '#,##0')",
+    "Format(0.125, '0.0%')",
+    'Partition(N, 0, 10, 5)',
+    'Partition(120, 0, 100, 10)',
+    "Format(Null, '0.00')",
+    "Format(N, '0.00;(0.00)')",
+    "Format(-3, '0.00;(0.00)')",
+    "Format(D, 'q')",
+    "Format(D, 'w')",
+    "Format(D, 'y')",
+    "Format(D, 'hh:nn:ss AM/PM')",
+    "Format(D, '\\Q q')",
+    'Format(D, \'"on" mmmm d\')',
+    "Format(D, 'ww')",
+    "Format(-0.5, '0.00;(0.00);zero')",
+    "Format(0, '0.00;(0.00);zero')",
+    "Format(T, '@')",
+    "Replace('aaa', 'a', 'bb')",
+    'Mid(T, 2, 3)',
+    "InStr(3, T, 'l')",
+    'Round(2.5, 0)',
+    'Round(-2.5, 0)',
+    'Int(N / 2)',
+    'Fix(N / 2)',
+    'Val(T)',
+    'Str(X)',
+    'Weekday(D, 2)',
+    "DateDiff('h', #3/14/2024 01:00:00#, D)",
+    "DateDiff('n', #3/14/2024 15:00:00#, D)",
+    "DateDiff('s', #3/14/2024 15:09:00#, D)",
+    "DateDiff('ww', #1/1/2024#, D)",
+    "DateAdd('w', 3, D)",
+    "DateAdd('q', 2, D)",
+    "DatePart('w', D)",
+    "StrComp('B', 'a')",
+    'Sgn(-0.5)',
+    'Hex(-1)',
+    'Oct(-1)',
+)
+
+
+def test_expression_functions_answer_as_the_engine_does(tmp_path: Path) -> None:
+    """Every function the executor offers, over four rows chosen to reach
+    the corners: a null, an empty string, a negative number, a leap day,
+    midnight and a second before midnight.  The engine answers each one
+    through DAO and the two must agree cell for cell."""
+    theirs = tmp_path / "theirs.accdb"
+    shutil.copy(TEMPLATE, theirs)
+    script = tmp_path / "statement.sql"
+    script.write_text(
+        chr(10).join(
+            (
+                "CREATE TABLE Src (Id LONG, N LONG, X DOUBLE, T TEXT(40), D DATETIME, M CURRENCY)",
+                "INSERT INTO Src (Id, N, X, T, D, M) VALUES (1, 17, 2.5, ' Hello World ', #3/14/2024 15:09:26#, 12.34)",
+                "INSERT INTO Src (Id, N, X, T, D, M) VALUES (2, -4, 0.125, 'abc', #1/31/2020#, -5.5)",
+                "INSERT INTO Src (Id, N, X, T, D, M) VALUES (3, 0, 100, '', #12/31/1999 23:59:59#, 0)",
+                "INSERT INTO Src (Id, N, X, D, M) VALUES (4, 5, 1, #2/29/2024#, 1)",
+            )
+        )
+        + chr(10),
+        encoding="ascii",
+    )
+    assert oracle("-Command", "sql-file", "-Path", str(theirs), "-SqlFile", str(script)) == "ok"
+    db = AccessDatabase(theirs)
+    problems: list[str] = []
+    for start in range(0, len(FUNCTION_GATE_EXPRESSIONS), 12):
+        chunk = FUNCTION_GATE_EXPRESSIONS[start : start + 12]
+        select = "SELECT " + ", ".join(f"({e}) AS C{i}" for i, e in enumerate(chunk)) + " FROM Src ORDER BY Src.Id"
+        script.write_text(select, encoding="ascii")
+        expected = json.loads(oracle("-Command", "query-dump", "-Path", str(theirs), "-SqlFile", str(script)))
+        rows = db.execute(select)
+        assert isinstance(rows, list)
+        mine = [chr(9).join(f"{name}={_format(value)}" for name, value in row.items()) for row in rows]
+        for number, (want, got) in enumerate(zip(expected.split(chr(10)), mine), start=1):
+            engine_cells, our_cells = _cells(want), _cells(got)
+            for i, expression in enumerate(chunk):
+                if engine_cells.get(f"C{i}") != our_cells.get(f"C{i}"):
+                    problems.append(
+                        f"{expression} on row {number}: engine {engine_cells.get(f'C{i}')!r}, ours {our_cells.get(f'C{i}')!r}"
+                    )
+    assert not problems, chr(10).join(problems)
+
+
+def _cells(line: str) -> dict[str, str]:
+    return dict(cell.split("=", 1) for cell in line.split(chr(9)) if "=" in cell)
+
+
+def test_statistical_aggregates_answer_as_the_engine_does(tmp_path: Path) -> None:
+    """First, Last, StDev, StDevP, Var and VarP over the same four rows."""
+    theirs = tmp_path / "theirs.accdb"
+    shutil.copy(TEMPLATE, theirs)
+    script = tmp_path / "statement.sql"
+    script.write_text(
+        chr(10).join(
+            (
+                "CREATE TABLE Src (Id LONG, N LONG, X DOUBLE)",
+                "INSERT INTO Src (Id, N, X) VALUES (1, 17, 2.5)",
+                "INSERT INTO Src (Id, N, X) VALUES (2, -4, 0.125)",
+                "INSERT INTO Src (Id, N, X) VALUES (3, 0, 100)",
+                "INSERT INTO Src (Id, N, X) VALUES (4, 5, 1)",
+            )
+        )
+        + chr(10),
+        encoding="ascii",
+    )
+    assert oracle("-Command", "sql-file", "-Path", str(theirs), "-SqlFile", str(script)) == "ok"
+    sql = (
+        "SELECT First(N) AS A, Last(N) AS B, StDev(X) AS C, StDevP(X) AS D,"
+        " Var(X) AS E, VarP(X) AS F, Count(*) AS G FROM Src"
+    )
+    script.write_text(sql, encoding="ascii")
+    expected = json.loads(oracle("-Command", "query-dump", "-Path", str(theirs), "-SqlFile", str(script)))
+    rows = AccessDatabase(theirs).execute(sql)
+    assert isinstance(rows, list)
+    assert [chr(9).join(f"{n}={_format(v)}" for n, v in row.items()) for row in rows] == expected.split(chr(10))

@@ -138,6 +138,11 @@ RELATIONSHIP_ACMS = (0xF00FE, 0xFFFFF, 0xFFFFF)
 # MSysObjects.Flags bits Access sets on its own objects.
 FLAG_SYSTEM = 0x80000000
 FLAG_HIDDEN = 0x00000008
+# Every linked table carries this, whatever it is linked to; a source
+# that is not another Access file carries the second bit as well
+# (measured: a Jet link had 0x200000, a text link 0xA00000).
+FLAG_LINKED = 0x00200000
+FLAG_LINKED_FOREIGN = 0x00800000
 
 
 @dataclass(frozen=True)
@@ -158,6 +163,10 @@ class CatalogEntry:
     #: datetime cannot carry the last bit of the double, these can.
     date_create_serial: float | None = None
     date_update_serial: float | None = None
+    #: Where a linked table's rows really are; empty on a local object.
+    connect: str = ""
+    database: str = ""
+    foreign_name: str = ""
 
     @property
     def is_system(self) -> bool:
@@ -166,6 +175,30 @@ class CatalogEntry:
     @property
     def is_table(self) -> bool:
         return self.type in (OBJECT_TABLE, OBJECT_LINKED_TABLE)
+
+
+@dataclass(frozen=True)
+class LinkedTable:
+    """A table this database only points at: the catalog knows its name
+    and where its rows are, and nothing else about it is stored here.
+    Following the link means opening the other file, which is the
+    caller's decision -- the path comes out of the database, so it is not
+    one this library takes on its own."""
+
+    name: str
+    database: str
+    source: str
+    connect: str
+    id: int
+    flags: int
+    date_create: object
+    date_update: object
+
+    @property
+    def is_jet(self) -> bool:
+        """True when the rows are in another Access file, which is the
+        link with no connect string of its own."""
+        return not self.connect
 
 
 @dataclass(frozen=True)
@@ -540,9 +573,11 @@ class Table:
         target_row, target_page = row_pointer(pointer)
         return target_page, target_row
 
-    def delete_row(self, row_id: RowId) -> None:
+    def delete_row(self, row_id: RowId, *, retire_empty: bool = True) -> None:
         """Delete one row with its index entries and long values, settling
-        the pages it leaves as the engine does (see :meth:`_row_removed`)."""
+        the pages it leaves as the engine does (see :meth:`_row_removed`).
+        ``retire_empty=False`` leaves an emptied page alive and owned,
+        which is what the engine does when a catalog row goes."""
         db = self._db
         d = self.definition
         data = self.fetch_row(row_id.page, row_id.slot)
@@ -569,7 +604,7 @@ class Table:
         # A home slot that held only the 4-byte pointer to a moved row is
         # written back without re-listing the page (measured: the engine
         # re-lists after a 15-byte row goes, not after a pointer).
-        self._row_removed(row_id.page, page, settle=moved is None)
+        self._row_removed(row_id.page, page, settle=moved is None, retire=retire_empty)
         d.row_count -= 1
         db.patch_definition(d, OFFSET_ROW_COUNT, struct.pack("<I", d.row_count))
 
@@ -590,19 +625,20 @@ class Table:
             struct.pack("<II", real.row_count, real.entry_count),
         )
 
-    def _row_removed(self, page_number: int, page: DataPage, *, settle: bool = True) -> None:
+    def _row_removed(self, page_number: int, page: DataPage, *, settle: bool = True, retire: bool = True) -> None:
         """Write back a page that just lost a row, the way the engine
         settles it: a page with rows left rejoins the free-space map; an
         emptied page is retired (type 0x09, released, out of both maps),
         unless it is the table's first data page, which stays.  Without
         ``settle`` (the row was only a pointer) the page is written back
-        and nothing else moves."""
+        and nothing else moves; without ``retire`` an emptied page stays
+        alive and owned, as it does when a catalog row goes."""
         db = self._db
         d = self.definition
         if not settle:
             db.store.write(page_number, page.to_bytes())
             return
-        if page.live_rows == 0 and page_number != min(read_usage_map_ref(db.store, d.owned_pages_ref).pages(), default=page_number):
+        if retire and page.live_rows == 0 and page_number != min(read_usage_map_ref(db.store, d.owned_pages_ref).pages(), default=page_number):
             page.retire()
             db.store.write(page_number, page.to_bytes())
             release_page(db.store, page_number)
@@ -1249,6 +1285,9 @@ class AccessDatabase:
                         row=slot,
                         date_create_serial=serials[0],
                         date_update_serial=serials[1],
+                        connect=str(values.get("Connect") or ""),
+                        database=str(values.get("Database") or ""),
+                        foreign_name=str(values.get("ForeignName") or ""),
                     )
                 )
             self._catalog = entries
@@ -1587,6 +1626,113 @@ class AccessDatabase:
             write(row)
         self._catalog = None
         return saved
+
+    # -- linked tables -------------------------------------------------------------
+
+    def links(self) -> list[LinkedTable]:
+        """Every table this database only points at, in catalog order."""
+        return [
+            LinkedTable(
+                name=e.name,
+                database=e.database,
+                source=e.foreign_name,
+                connect=e.connect,
+                id=e.id,
+                flags=e.flags,
+                date_create=e.date_create,
+                date_update=e.date_update,
+            )
+            for e in self.catalog()
+            if e.type == OBJECT_LINKED_TABLE
+        ]
+
+    def link(self, name: str) -> LinkedTable:
+        for linked in self.links():
+            if linked.name.lower() == name.lower():
+                return linked
+        raise AccessError(f"no linked table named {name!r}")
+
+    def link_table(
+        self,
+        name: str,
+        database: str,
+        source: str,
+        *,
+        connect: str = "",
+        created: object | None = None,
+        updated: object | None = None,
+    ) -> LinkedTable:
+        """Point at a table in another file the way ``TableDefs.Append``
+        does with a Connect string: one catalog row of type 6 under the
+        Tables container, carrying the file in Database, the table's name
+        over there in ForeignName and the linked flag, plus the three
+        permission rows every object gets.  There is no definition page
+        and no data: nothing of the table itself is stored here.
+
+        A link to another Access file leaves ``connect`` empty, which is
+        what DAO stores for ``;DATABASE=<path>``; another source keeps its
+        prefix there (``Text;``, ``ODBC;...``) and its row carries the
+        second linked flag.  The catalog id is the
+        next one up from the lowest in use, as the engine allocates the
+        ids of objects that have no definition page."""
+        import datetime as _dt
+
+        if any(e.name.lower() == name.lower() for e in self.catalog()):
+            raise AccessError(f"an object named {name!r} already exists")
+        when = created if isinstance(created, (_dt.datetime, float)) else _dt.datetime.now().replace(microsecond=0)
+        when_updated = updated if isinstance(updated, (_dt.datetime, float)) else when
+        object_id = max((e.id for e in self.catalog() if e.id < 0), default=-(2**31)) + 1
+        objects = self.table("MSysObjects")
+        row = objects.insert_row(
+            {
+                "Id": object_id,
+                "ParentId": self._tables_container().id,
+                "Name": name,
+                "Type": OBJECT_LINKED_TABLE,
+                "Flags": FLAG_LINKED | (FLAG_LINKED_FOREIGN if connect else 0),
+                "DateCreate": when,
+                "DateUpdate": when,
+            }
+        )
+        # Where the rows really are arrives with the owner, on the second
+        # write, so the row takes its page before the long values take
+        # theirs (measured: the engine's row and its Database value went
+        # on to two freed pages in that order).  An empty connect string
+        # is stored as null, which is what a link to another Access file
+        # has.
+        objects.update_row(
+            row,
+            {
+                "Owner": self._default_owner(),
+                "DateUpdate": when_updated,
+                "Connect": connect or None,
+                "Database": database,
+                "ForeignName": source,
+            },
+        )
+        aces = self.table("MSysACEs")
+        for ace in self._default_aces():
+            aces.insert_row(dict(ace, ObjectId=object_id))
+        self._catalog = None
+        return self.link(name)
+
+    def drop_link(self, name: str) -> None:
+        """Forget a linked table: its catalog row and its three permission
+        rows.  The file it pointed at is not touched."""
+        linked = self.link(name)
+        objects = self.table("MSysObjects")
+        for rid, row in list(objects.rows_with_ids()):
+            if row["Id"] == linked.id and row["Type"] == OBJECT_LINKED_TABLE:
+                # The page the row was alone on stays alive and owned
+                # where a filtered DELETE would have retired it (measured
+                # against TableDefs.Delete).
+                objects.delete_row(rid, retire_empty=False)
+                break
+        aces = self.table("MSysACEs")
+        for rid, row in list(aces.rows_with_ids()):
+            if row["ObjectId"] == linked.id:
+                aces.delete_row(rid)
+        self._catalog = None
 
     def drop_query(self, name: str) -> None:
         """Remove a saved query as ``QueryDefs.Delete`` does: its MSysQueries

@@ -7,6 +7,14 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- **Linked tables.** `db.links()` and `db.link(name)` read the tables a
+  database only points at; `db.link_table(name, database, source,
+  connect=...)` writes one and `db.drop_link(name)` forgets it, byte for
+  byte as DAO's `TableDefs.Append` and `Delete` do, for a link to another
+  Access file and to a folder of text files. Following a link is left to
+  the caller: the path comes out of the database, so opening it is not
+  something the library does on its own.
+
 - **A column's own rules.** Required, DefaultValue, ValidationRule and
   ValidationText are properties on the column, not bits in its header,
   and the writers now put them there the way the engine does: one blob

@@ -365,6 +365,31 @@ try {
             $fld.Properties.Append($desc)
             [Console]::Out.Write("ok")
         }
+        "link-table" {
+            # A linked table through TableDefs.Append: -Table names it here,
+            # -SqlFile holds "prefix<TAB>path<TAB>source", where the prefix
+            # is ";" for another Access file and "Text;" for a folder of
+            # text files.
+            $parts = [System.IO.File]::ReadAllText($SqlFile).Trim().Split("`t")
+            $td = $db.CreateTableDef($Table)
+            $td.Connect = $parts[0] + "DATABASE=" + $parts[1]
+            $td.SourceTableName = $parts[2]
+            $db.TableDefs.Append($td)
+            [Console]::Out.Write("ok")
+        }
+        "unlink-table" {
+            $db.TableDefs.Delete($Table)
+            [Console]::Out.Write("ok")
+        }
+        "dump-links" {
+            $out = @()
+            foreach ($td in $db.TableDefs) {
+                if ($td.Connect -ne "") {
+                    $out += [pscustomobject]@{ Name = $td.Name; Connect = $td.Connect; Source = $td.SourceTableName }
+                }
+            }
+            [Console]::Out.Write(($out | ConvertTo-Json -Depth 3 -Compress))
+        }
         "set-column-rules" {
             # A column's DefaultValue, ValidationRule and ValidationText.
             # These are the Field's own properties, so they are set, not

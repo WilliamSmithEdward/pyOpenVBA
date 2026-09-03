@@ -212,7 +212,9 @@ Memo and OLE), columns can be added, dropped and retyped on a table that
 already holds rows, indexes are created, dropped and maintained on every
 write, relationships
 are created with `db.create_relationship(...)` and read with
-`db.relationships()`, table and column properties (Description,
+`db.relationships()`, the tables a database only points at are read with
+`db.links()` and written with `db.link_table(...)`, table and column
+properties (Description,
 Caption, Format, ...) are read and set through `table.properties()` and
 `table.set_properties(...)`, a column's own rules (Required,
 DefaultValue, ValidationRule) are written where the engine keeps them

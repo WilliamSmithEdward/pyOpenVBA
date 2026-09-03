@@ -1718,3 +1718,79 @@ def test_column_rules_match_the_engine_byte_for_byte(tmp_path: Path) -> None:
             db.execute(sql)
         assert str(we_said.value) in str(engine_said.value), f"{why}: {we_said.value}"
         assert not _differing_pages(db.to_bytes(), theirs.read_bytes()), f"{why}: a refused statement wrote something"
+
+
+def test_linked_tables_match_the_engine_byte_for_byte(tmp_path: Path) -> None:
+    """A linked table is one catalog row and three permission rows: no
+    definition page, no data.  Linking another Access file and a folder of
+    text files, and unlinking again, land on the engine's bytes, and the
+    engine reads through the link pyOpenVBA wrote."""
+    backend = tmp_path / "backend.accdb"
+    shutil.copy(TEMPLATE, backend)
+    script = tmp_path / "step.sql"
+    script.write_text(
+        chr(10).join(
+            (
+                "CREATE TABLE Orders (Id AUTOINCREMENT CONSTRAINT PK PRIMARY KEY, N LONG, T TEXT(40))",
+                "INSERT INTO Orders (N, T) VALUES (1, 'one')",
+                "INSERT INTO Orders (N, T) VALUES (2, 'two')",
+            )
+        )
+        + chr(10),
+        encoding="ascii",
+    )
+    assert oracle("-Command", "sql-file", "-Path", str(backend), "-SqlFile", str(script)) == "ok"
+    folder = tmp_path / "text"
+    folder.mkdir()
+    (folder / "rows.csv").write_text("Id,Label" + chr(10) + "1,one" + chr(10), encoding="ascii")
+
+    theirs = tmp_path / "theirs.accdb"
+    shutil.copy(TEMPLATE, theirs)
+    db = AccessDatabase(TEMPLATE)
+    request = tmp_path / "link.txt"
+
+    # DAO is given the whole prefix and keeps what is left of it once the
+    # leading ";" of a Jet link is gone, which is nothing.
+    for name, prefix, connect, source, target in (
+        ("LinkedOrders", ";", "", "Orders", backend),
+        ("LinkedText", "Text;", "Text;", "rows#csv", folder),
+    ):
+        request.write_text(chr(9).join((prefix, str(target), source)) + chr(10), encoding="ascii")
+        assert oracle("-Command", "link-table", "-Path", str(theirs), "-Table", name, "-SqlFile", str(request)) == "ok"
+        entry = _catalog_entry(theirs, name)
+        db = AccessDatabase(db.to_bytes())
+        db.link_table(
+            name,
+            str(target),
+            source,
+            connect=connect,
+            created=entry.date_create_serial,
+            updated=entry.date_update_serial,
+        )
+        ours, engine = db.to_bytes(), theirs.read_bytes()
+        assert not (d := _differing_pages(ours, engine)), f"{name}: {_describe_pages(ours, engine, d)}"
+
+    assert [(link.name, link.source, link.connect, link.is_jet) for link in db.links()] == [
+        ("LinkedOrders", "Orders", "", True),
+        ("LinkedText", "rows#csv", "Text;", False),
+    ]
+    assert db.link("LinkedOrders").database == str(backend)
+
+    assert oracle("-Command", "unlink-table", "-Path", str(theirs), "-Table", "LinkedOrders") == "ok"
+    db = AccessDatabase(db.to_bytes())
+    db.drop_link("LinkedOrders")
+    ours, engine = db.to_bytes(), theirs.read_bytes()
+    assert not (d := _differing_pages(ours, engine)), f"unlink: {_describe_pages(ours, engine, d)}"
+
+    # The engine follows a link pyOpenVBA wrote back to the rows.
+    built = tmp_path / "built.accdb"
+    fresh = AccessDatabase(TEMPLATE)
+    fresh.link_table("Elsewhere", str(backend), "Orders")
+    fresh.save(built)
+    assert json.loads(oracle("-Command", "dump-links", "-Path", str(built))) == {
+        "Name": "Elsewhere",
+        "Connect": ";DATABASE=" + str(backend),
+        "Source": "Orders",
+    }
+    dumped = json.loads(oracle("-Command", "dump", "-Path", str(built), "-Table", "Elsewhere"))
+    assert [line for line in dumped.split(chr(10)) if line][0].startswith("Id=1")

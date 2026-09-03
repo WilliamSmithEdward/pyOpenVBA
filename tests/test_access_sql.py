@@ -168,7 +168,7 @@ def test_unknown_and_ambiguous_columns_are_errors(tmp_path: Path) -> None:
         db.execute("SELECT Nope FROM Customers")
     with pytest.raises(AccessError, match="ambiguous"):
         db.execute("SELECT Id FROM Customers INNER JOIN Orders ON Customers.Id = Orders.CustomerId")
-    with pytest.raises(AccessError, match="no table named"):
+    with pytest.raises(AccessError, match="no table or query named"):
         db.execute("SELECT * FROM Nowhere")
     with pytest.raises(AccessError, match="unknown type"):
         db.execute("CREATE TABLE X (A NOSUCHTYPE)")
@@ -206,3 +206,59 @@ def test_parser_reads_operators_by_precedence() -> None:
     assert Parser.parse("-(3 - 5)").eval(env) == 2
     assert Parser.parse("#1/2/2024# > #1/1/2024#").eval(env) is True
     assert Parser.parse("'it''s'").eval(env) == "it's"
+
+
+def test_subqueries_in_a_where_clause(tmp_path: Path) -> None:
+    db = _shop(tmp_path)
+    assert _names(db.execute("SELECT Name FROM Customers WHERE Id IN (SELECT CustomerId FROM Orders) ORDER BY Name")) == ["Ada", "Bob"]
+    assert _names(db.execute("SELECT Name FROM Customers WHERE Id NOT IN (SELECT CustomerId FROM Orders) ORDER BY Name")) == ["Cy", "Dee"]
+    assert _names(db.execute("SELECT Name FROM Customers WHERE Balance = (SELECT Max(Balance) FROM Customers)")) == ["Ada"]
+    # Correlated, both ways round.
+    exists = "SELECT Name FROM Customers AS c WHERE EXISTS (SELECT 1 FROM Orders AS o WHERE o.CustomerId = c.Id) ORDER BY Name"
+    assert _names(db.execute(exists)) == ["Ada", "Bob"]
+    assert _names(db.execute(exists.replace("WHERE EXISTS", "WHERE NOT EXISTS"))) == ["Cy", "Dee"]
+
+
+def test_a_subquery_as_a_value_and_as_a_table(tmp_path: Path) -> None:
+    db = _shop(tmp_path)
+    rows = db.execute("SELECT Name, (SELECT Sum(Amount) FROM Orders AS o WHERE o.CustomerId = c.Id) AS Spent FROM Customers AS c ORDER BY Name")
+    assert rows == [
+        {"Name": "Ada", "Spent": 350.25},
+        {"Name": "Bob", "Spent": 5.0},
+        {"Name": "Cy", "Spent": None},
+        {"Name": "Dee", "Spent": None},
+    ]
+    derived = db.execute("SELECT t.City, t.N FROM (SELECT City, Count(*) AS N FROM Customers GROUP BY City) AS t WHERE t.N > 1")
+    assert derived == [{"City": "London", "N": 2}]
+    joined = db.execute(
+        "SELECT c.Name FROM Customers AS c INNER JOIN (SELECT CustomerId, Sum(Amount) AS S FROM Orders GROUP BY CustomerId) AS o "
+        "ON c.Id = o.CustomerId WHERE o.S > 100"
+    )
+    assert joined == [{"Name": "Ada"}]
+    with pytest.raises(AccessError, match="more than one row"):
+        db.execute("SELECT Name FROM Customers WHERE Id = (SELECT Id FROM Customers)")
+
+
+def test_a_saved_query_can_be_selected_from(tmp_path: Path) -> None:
+    db = _shop(tmp_path)
+    db.create_query("Londoners", "SELECT Customers.Name, Customers.Balance FROM Customers WHERE Customers.City = 'London'")
+    assert _names(db.execute("SELECT Name FROM Londoners ORDER BY Name")) == ["Ada", "Dee"]
+    assert db.execute("SELECT Count(*) AS N FROM Londoners") == [{"N": 2}]
+
+
+def test_union_keeps_or_drops_duplicates(tmp_path: Path) -> None:
+    db = _shop(tmp_path)
+    both = db.execute("SELECT City FROM Customers UNION SELECT Name FROM Customers ORDER BY City")
+    assert isinstance(both, list)
+    assert [r["City"] for r in both] == [None, "Ada", "Bob", "Cy", "Dee", "London", "Paris"]
+    everything = db.execute("SELECT City FROM Customers UNION ALL SELECT City FROM Customers")
+    assert isinstance(everything, list) and len(everything) == 8
+    assert db.execute("SELECT City FROM Customers WHERE Id = 1 UNION SELECT City FROM Customers WHERE Id = 4") == [{"City": "London"}]
+
+
+def test_dml_takes_a_subquery(tmp_path: Path) -> None:
+    db = _shop(tmp_path)
+    assert db.execute("UPDATE Customers SET City = 'Gone' WHERE Id NOT IN (SELECT CustomerId FROM Orders)") == 2
+    assert _names(db.execute("SELECT Name FROM Customers WHERE City = 'Gone' ORDER BY Name")) == ["Cy", "Dee"]
+    assert db.execute("DELETE FROM Orders WHERE CustomerId IN (SELECT Id FROM Customers WHERE Name = 'Bob')") == 1
+    assert db.execute("SELECT Count(*) AS N FROM Orders") == [{"N": 3}]

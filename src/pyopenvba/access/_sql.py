@@ -22,7 +22,7 @@ from __future__ import annotations
 
 import datetime as _dt
 import re
-from collections.abc import Callable, Iterator, Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from decimal import Decimal
 from typing import TYPE_CHECKING, Any
@@ -69,6 +69,8 @@ _TOKEN = re.compile(
 class Token:
     kind: str
     text: str
+    start: int = 0
+    end: int = 0
 
 
 def tokenize(text: str) -> list[Token]:
@@ -82,7 +84,7 @@ def tokenize(text: str) -> list[Token]:
         kind = match.lastgroup or ""
         if kind == "ws":
             continue
-        out.append(Token(kind, match.group(0)))
+        out.append(Token(kind, match.group(0), match.start(), match.end()))
     return out
 
 
@@ -254,16 +256,51 @@ class Call(Expr):
 AGGREGATES = {"COUNT", "SUM", "AVG", "MIN", "MAX", "FIRST", "LAST"}
 
 
+@dataclass(frozen=True)
+class SubQuery(Expr):
+    """A SELECT inside an expression.  ``kind`` says how its rows are read:
+    ``scalar`` takes the first column of the first row, ``exists`` asks
+    whether it returned any, and ``in`` looks for a value among them."""
+
+    sql: str
+    kind: str = "scalar"
+    operand: Expr | None = None
+    negate: bool = False
+
+    def eval(self, env: Env) -> object:
+        if not isinstance(env, Environment):
+            raise AccessError("a subquery needs a query to run inside")
+        rows = env.run(self.sql)
+        if self.kind == "exists":
+            return bool(rows) != self.negate
+        values = [next(iter(r.values()), None) for r in rows]
+        if self.kind == "in":
+            if self.operand is None:
+                raise AccessError("IN needs something to look for")
+            value = self.operand.eval(env)
+            if value is None:
+                return None
+            hit = any(_compare("=", value, v) for v in values if v is not None)
+            return not hit if self.negate else hit
+        if len(values) > 1:
+            raise AccessError("a subquery used as a value returned more than one row")
+        return values[0] if values else None
+
+    def columns(self) -> list[tuple[str | None, str]]:
+        return self.operand.columns() if self.operand is not None else []
+
+
 class Parser:
     """Precedence-climbing parser for Jet SQL expressions."""
 
-    def __init__(self, tokens: list[Token]) -> None:
+    def __init__(self, tokens: list[Token], text: str = "") -> None:
         self.tokens = tokens
+        self.text = text
         self.pos = 0
 
     @classmethod
     def parse(cls, text: str) -> Expr:
-        parser = cls(tokenize(text))
+        parser = cls(tokenize(text), text)
         expr = parser.expression()
         if parser.pos != len(parser.tokens):
             raise AccessError(f"unexpected {parser.tokens[parser.pos].text!r} in {text!r}")
@@ -305,8 +342,38 @@ class Parser:
     def negation(self) -> Expr:
         if self.peek("NOT"):
             self.take()
+            if self.peek("EXISTS"):
+                self.take()
+                return SubQuery(self._subquery_text(), "exists", negate=True)
             return Unary("NOT", self.negation())
+        if self.peek("EXISTS"):
+            self.take()
+            return SubQuery(self._subquery_text(), "exists")
         return self.comparison()
+
+    def _subquery_text(self) -> str:
+        """The text of a parenthesized SELECT starting at the next token."""
+        if not self.peek("("):
+            raise AccessError("expected ( before a subquery")
+        opening = self.take()
+        depth = 1
+        while self.pos < len(self.tokens):
+            token = self.tokens[self.pos]
+            self.pos += 1
+            if token.text == "(":
+                depth += 1
+            elif token.text == ")":
+                depth -= 1
+                if depth == 0:
+                    return self.text[opening.end : token.start].strip()
+        raise AccessError("a subquery is missing its closing bracket")
+
+    def _at_subquery(self) -> bool:
+        return (
+            self.peek("(") is not None
+            and self.pos + 1 < len(self.tokens)
+            and self.tokens[self.pos + 1].text.upper() in ("SELECT", "PARAMETERS", "TRANSFORM")
+        )
 
     def comparison(self) -> Expr:
         left = self.concatenation()
@@ -327,6 +394,8 @@ class Parser:
             return Unary("NOT", expr) if negate else expr
         if self.peek("IN"):
             self.take()
+            if self._at_subquery():
+                return SubQuery(self._subquery_text(), "in", operand=left, negate=negate)
             self.take("(")
             options: list[Expr] = [self.expression()]
             while self.peek(","):
@@ -387,6 +456,9 @@ class Parser:
         if token.kind == "date":
             return Literal(_parse_date_literal(token.text[1:-1]))
         if token.text == "(":
+            if self.pos < len(self.tokens) and self.tokens[self.pos].text.upper() in ("SELECT", "PARAMETERS", "TRANSFORM"):
+                self.pos -= 1
+                return SubQuery(self._subquery_text())
             inner = self.expression()
             self.take(")")
             return inner
@@ -607,60 +679,107 @@ def _call(name: str, args: list[object]) -> object:
 
 @dataclass
 class Source:
-    """A table in a FROM clause and how it is joined to the ones before it."""
+    """One thing a FROM clause names -- a table, a saved query or a
+    bracketed SELECT -- and how it is joined to the ones before it."""
 
-    table: Table
     alias: str
-    join: str | None = None  # None, INNER, LEFT, RIGHT
+    columns: list[str]
+    rows: list[Row]
+    table: Table | None = None
+    join: str | None = None  # None, INNER, LEFT, RIGHT, CROSS
     condition: Expr | None = None
 
+    def holds(self, name: str) -> bool:
+        return any(c.lower() == name.lower() for c in self.columns)
 
-def _rows_of(table: Table, alias: str) -> Iterator[Row]:
+
+def _table_source(table: Table, alias: str) -> Source:
+    rows: list[Row] = []
     for row_id, values in table.rows_with_ids():
-        out: Row = {}
-        for name, value in values.items():
-            out[f"{alias}.{name}".lower()] = value
+        out: Row = {f"{alias}.{name}".lower(): value for name, value in values.items()}
         out["__rowid__." + alias.lower()] = row_id
-        yield out
+        rows.append(out)
+    return Source(alias=alias, columns=[c.name for c in table.columns], rows=rows, table=table)
 
 
-def _environment(row: Row, sources: Sequence[Source], parameters: Mapping[str, object]) -> Env:
-    aliases = [s.alias.lower() for s in sources]
+def _rows_source(alias: str, columns: list[str], rows: list[Row]) -> Source:
+    return Source(
+        alias=alias,
+        columns=columns,
+        rows=[{f"{alias}.{name}".lower(): value for name, value in row.items()} for row in rows],
+    )
 
-    def lookup(name: str, qualifier: str | None) -> object:
+
+class Environment:
+    """What a column name means inside one row of one query, and how a
+    subquery in that query runs.  A subquery falls back to the query it
+    sits in, which is what makes a correlated one work."""
+
+    def __init__(
+        self,
+        row: Row,
+        sources: Sequence[Source],
+        parameters: Mapping[str, object],
+        runner: Callable[[str, Environment], list[Row]] | None = None,
+        outer: Environment | None = None,
+    ) -> None:
+        self.row = row
+        self.sources = sources
+        self.parameters = parameters
+        self.runner = runner or (outer.runner if outer is not None else None)
+        self.outer = outer
+        self.aliases = [s.alias.lower() for s in sources]
+
+    def run(self, sql: str) -> list[Row]:
+        if self.runner is None:
+            raise AccessError("a subquery needs a query to run inside")
+        return self.runner(sql, self)
+
+    def __call__(self, name: str, qualifier: str | None) -> object:
         key = name.lower()
         if qualifier is not None:
             q = qualifier.lower()
-            if q not in aliases:
-                raise AccessError(f"no table or alias {qualifier!r} in the query")
-            full = f"{q}.{key}"
-            if full in row:
-                return row[full]
-            source = sources[aliases.index(q)]
-            if any(c.name.lower() == key for c in source.table.columns):
-                return None
-            raise AccessError(f"no column {qualifier}.{name}")
-        hits = [f"{a}.{key}" for a in aliases if f"{a}.{key}" in row]
+            if q in self.aliases:
+                full = f"{q}.{key}"
+                if full in self.row:
+                    return self.row[full]
+                if self.sources[self.aliases.index(q)].holds(key):
+                    return None
+                raise AccessError(f"no column {qualifier}.{name}")
+            if self.outer is not None:
+                return self.outer(name, qualifier)
+            raise AccessError(f"no table or alias {qualifier!r} in the query")
+        hits = [f"{a}.{key}" for a in self.aliases if f"{a}.{key}" in self.row]
         if len(hits) > 1:
             raise AccessError(f"column {name!r} is ambiguous; qualify it")
         if hits:
-            return row[hits[0]]
-        for source in sources:
-            if any(c.name.lower() == key for c in source.table.columns):
+            return self.row[hits[0]]
+        for source in self.sources:
+            if source.holds(key):
                 return None  # a missing side of an outer join
-        for pname, pvalue in parameters.items():
+        for pname, pvalue in self.parameters.items():
             if pname.lower().strip("[]") == key:
                 return pvalue
+        if self.outer is not None:
+            return self.outer(name, None)
         raise AccessError(f"no column or parameter {name!r}")
 
-    return lookup
+
+def _environment(
+    row: Row,
+    sources: Sequence[Source],
+    parameters: Mapping[str, object],
+    outer: Environment | None = None,
+    runner: Callable[[str, Environment], list[Row]] | None = None,
+) -> Environment:
+    return Environment(row, sources, parameters, runner=runner, outer=outer)
 
 
-def _join(db: AccessDatabase, sources: list[Source], parameters: Mapping[str, object]) -> list[Row]:
-    rows: list[Row] = list(_rows_of(sources[0].table, sources[0].alias))
+def _join(sources: list[Source], parameters: Mapping[str, object], outer: Environment | None = None) -> list[Row]:
+    rows: list[Row] = list(sources[0].rows)
     for k in range(1, len(sources)):
         source = sources[k]
-        right_rows = list(_rows_of(source.table, source.alias))
+        right_rows = source.rows
         joined: list[Row] = []
         matched_right: set[int] = set()
         for left in rows:
@@ -668,7 +787,7 @@ def _join(db: AccessDatabase, sources: list[Source], parameters: Mapping[str, ob
             for index, right in enumerate(right_rows):
                 candidate = {**left, **right}
                 if source.condition is not None:
-                    verdict = source.condition.eval(_environment(candidate, sources[: k + 1], parameters))
+                    verdict = source.condition.eval(_environment(candidate, sources[: k + 1], parameters, outer))
                     if verdict is None or not _truthy(verdict):
                         continue
                 joined.append(candidate)
@@ -730,9 +849,18 @@ def _sort_key(value: object) -> tuple[int, object]:
     return (1, value)
 
 
-def _evaluate_with_aggregates(expr: Expr, group: list[Row], sources: Sequence[Source], parameters: Mapping[str, object]) -> object:
+def _evaluate_with_aggregates(
+    expr: Expr,
+    group: list[Row],
+    sources: Sequence[Source],
+    parameters: Mapping[str, object],
+    env_for: Callable[[Row], Environment] | None = None,
+) -> object:
     """Evaluate an expression over a group: aggregate calls collapse the
     group, everything else is read off its first row."""
+
+    def make(row: Row) -> Environment:
+        return env_for(row) if env_for is not None else _environment(row, sources, parameters)
 
     def rewrite(node: Expr) -> Expr:
         if isinstance(node, Call) and node.is_aggregate:
@@ -740,7 +868,7 @@ def _evaluate_with_aggregates(expr: Expr, group: list[Row], sources: Sequence[So
                 return Literal(len(group))
             if len(node.args) != 1:
                 raise AccessError(f"{node.name} takes one argument")
-            values = [node.args[0].eval(_environment(r, sources, parameters)) for r in group]
+            values = [node.args[0].eval(make(r)) for r in group]
             return Literal(_aggregate(node.name, values))
         if isinstance(node, Binary):
             return Binary(node.op, rewrite(node.left), rewrite(node.right))
@@ -754,8 +882,7 @@ def _evaluate_with_aggregates(expr: Expr, group: list[Row], sources: Sequence[So
             return Between(rewrite(node.operand), rewrite(node.low), rewrite(node.high), node.negate)
         return node
 
-    env = _environment(group[0] if group else {}, sources, parameters)
-    return rewrite(expr).eval(env)
+    return rewrite(expr).eval(make(group[0] if group else {}))
 
 
 def _has_aggregate(expr: Expr) -> bool:
@@ -772,13 +899,27 @@ def _has_aggregate(expr: Expr) -> bool:
     return False
 
 
-def _sources(db: AccessDatabase, from_clause: str) -> list[Source]:
+def _sources(db: AccessDatabase, from_clause: str, parameters: Mapping[str, object], outer: Environment | None = None) -> list[Source]:
     tables, joins = parse_from(from_clause)
     sources: list[Source] = []
     for t in tables:
-        name = (t.name1 or "").strip("[]")
+        name = (t.name1 or "").strip()
         alias = (t.name2 or name).strip("[]")
-        sources.append(Source(db.table(name), alias))
+        if name.startswith("("):
+            inner = name[1 : name.rfind(")")].strip()
+            rows = _run(db, inner, parameters, outer)
+            sources.append(_rows_source(alias, list(rows[0]) if rows else [], rows))
+            continue
+        name = name.strip("[]")
+        table = db.table(name) if any(n.lower() == name.lower() for n in db.table_names()) else None
+        if table is not None:
+            sources.append(_table_source(table, alias))
+            continue
+        saved = next((q for q in db.queries() if q.name.lower() == name.lower()), None)
+        if saved is None:
+            raise AccessError(f"no table or query named {name!r}")
+        rows = _run(db, saved.sql, parameters, outer)
+        sources.append(_rows_source(alias, list(rows[0]) if rows else [], rows))
     for j in joins:
         target = (j.name2 or "").strip("[]").lower()
         source = next((s for s in sources[1:] if s.alias.lower() == target), None)
@@ -814,6 +955,9 @@ def execute(
     if text.upper().startswith("PARAMETERS "):
         _, _, text = text.partition(";")
         text = text.strip()
+    members = union_members(text)
+    if members is not None:
+        return _union(db, members, parameters)
     clauses = split_clauses(text)
     verb = clauses[0][0]
     if verb == "SELECT":
@@ -827,16 +971,132 @@ def execute(
     raise AccessError(f"statement {verb} is not supported")
 
 
-def _select(db: AccessDatabase, clauses: list[tuple[str, str]], parameters: Mapping[str, object]) -> list[Row]:
+def _run(db: AccessDatabase, sql: str, parameters: Mapping[str, object], outer: Environment | None = None) -> list[Row]:
+    """Run a nested SELECT: a subquery, a derived table or a saved query."""
+    text = sql.strip().rstrip(";").strip()
+    if text.upper().startswith("PARAMETERS "):
+        _, _, text = text.partition(";")
+        text = text.strip()
+    members = union_members(text)
+    if members is not None:
+        return _union(db, members, parameters, outer)
+    return _select(db, split_clauses(text), parameters, outer)
+
+
+def union_members(text: str) -> list[tuple[str, str]] | None:
+    """A top-level union as ``(operator, member)`` pairs, the first
+    operator empty, or None when the statement is not a union."""
+    upper = text.upper()
+    parts: list[tuple[str, str]] = []
+    depth = 0
+    quote: str | None = None
+    start = 0
+    operator = ""
+    i = 0
+    while i < len(text):
+        ch = text[i]
+        if quote:
+            if ch == quote:
+                quote = None
+        elif ch in "'\"":
+            quote = ch
+        elif ch == "[":
+            quote = "]"
+        elif ch == "(":
+            depth += 1
+        elif ch == ")":
+            depth -= 1
+        elif (
+            depth == 0
+            and upper.startswith("UNION", i)
+            and (i == 0 or text[i - 1].isspace())
+            and (i + 5 == len(text) or not (text[i + 5].isalnum() or text[i + 5] == "_"))
+        ):
+            parts.append((operator, text[start:i].strip()))
+            rest = text[i + 5 :]
+            stripped = rest.lstrip()
+            keep_all = stripped[:3].upper() == "ALL" and (len(stripped) == 3 or not stripped[3].isalnum())
+            operator = "UNION ALL" if keep_all else "UNION"
+            i = i + 5 + (len(rest) - len(stripped)) + (3 if keep_all else 0)
+            start = i
+            continue
+        i += 1
+    if not parts:
+        return None
+    parts.append((operator, text[start:].strip()))
+    return parts
+
+
+def _union(db: AccessDatabase, members: list[tuple[str, str]], parameters: Mapping[str, object], outer: Environment | None = None) -> list[Row]:
+    """Run a union left to right, under the first member's column names.
+    ``UNION`` makes what it has so far distinct; ``UNION ALL`` keeps every
+    row.  A trailing ORDER BY belongs to the union, not its last member."""
+    out: list[Row] = []
+    names: list[str] = []
+    order: str | None = None
+    for index, (operator, member) in enumerate(members):
+        text = member
+        if index == len(members) - 1:
+            head, sep, tail = _split_trailing_order(text)
+            if sep:
+                text, order = head, tail
+        rows = _run(db, text, parameters, outer)
+        if index == 0 and rows:
+            names = list(rows[0])
+        for row in rows:
+            out.append(dict(zip(names, row.values(), strict=False)) if names else dict(row))
+        if operator == "UNION":
+            seen: set[tuple[object, ...]] = set()
+            distinct: list[Row] = []
+            for row in out:
+                key = tuple(_hashable(v) for v in row.values())
+                if key not in seen:
+                    seen.add(key)
+                    distinct.append(row)
+            out = distinct
+    if order is not None:
+        for item in reversed(split_top_level(order, ",")):
+            item = item.strip()
+            descending = item.upper().endswith(" DESC")
+            if descending or item.upper().endswith(" ASC"):
+                item = item.rsplit(" ", 1)[0].strip()
+            column = item.strip("[]")
+            out.sort(key=lambda row, column=column: _sort_key(row.get(column)), reverse=descending)
+    return out
+
+
+def _split_trailing_order(text: str) -> tuple[str, str, str]:
+    """A member and its trailing ORDER BY, which belongs to the union."""
+    clauses = split_clauses(text)
+    for word, body in clauses:
+        if word == "ORDER BY":
+            head = text[: text.upper().rindex("ORDER BY")].rstrip()
+            return head, "ORDER BY", body
+    return text, "", ""
+
+
+def _select(
+    db: AccessDatabase,
+    clauses: list[tuple[str, str]],
+    parameters: Mapping[str, object],
+    outer: Environment | None = None,
+) -> list[Row]:
     by_word = dict(clauses)
     if "FROM" not in by_word:
         raise AccessError("SELECT needs a FROM clause")
     flags, top, items = select_list(clauses[0][1])
-    sources = _sources(db, by_word["FROM"])
-    rows = _join(db, sources, parameters)
+    sources = _sources(db, by_word["FROM"], parameters, outer)
+
+    def runner(sql: str, env: Environment) -> list[Row]:
+        return _run(db, sql, parameters, env)
+
+    def env_for(row: Row) -> Environment:
+        return _environment(row, sources, parameters, outer, runner)
+
+    rows = _join(sources, parameters, outer)
     if "WHERE" in by_word:
         where = Parser.parse(by_word["WHERE"])
-        rows = [r for r in rows if (v := where.eval(_environment(r, sources, parameters))) is not None and _truthy(v)]
+        rows = [r for r in rows if (v := where.eval(env_for(r))) is not None and _truthy(v)]
     # Output columns.
     outputs: list[tuple[str, Expr | None, str | None]] = []  # (name, expr, star alias)
     expr_counter = 1000
@@ -863,13 +1123,13 @@ def _select(db: AccessDatabase, clauses: list[tuple[str, str]], parameters: Mapp
         keys = [Parser.parse(g.strip()) for g in split_top_level(by_word.get("GROUP BY", ""), ",")] if "GROUP BY" in by_word else []
         buckets: dict[tuple[object, ...], list[Row]] = {}
         for r in rows:
-            env = _environment(r, sources, parameters)
+            env = env_for(r)
             key = tuple(_hashable(k.eval(env)) for k in keys)
             buckets.setdefault(key, []).append(r)
         groups = list(buckets.values()) if buckets or keys else [rows]
         if "HAVING" in by_word:
             having = Parser.parse(by_word["HAVING"])
-            groups = [g for g in groups if (v := _evaluate_with_aggregates(having, g, sources, parameters)) is not None and _truthy(v)]
+            groups = [g for g in groups if (v := _evaluate_with_aggregates(having, g, sources, parameters, env_for)) is not None and _truthy(v)]
     else:
         groups = [[r] for r in rows]
     result: list[tuple[Row, Row]] = []
@@ -879,12 +1139,12 @@ def _select(db: AccessDatabase, clauses: list[tuple[str, str]], parameters: Mapp
             if star is not None:
                 source = next(s for s in sources if s.alias.lower() == star.lower())
                 first = group[0] if group else {}
-                for c in source.table.columns:
-                    out[c.name] = first.get(f"{star.lower()}.{c.name.lower()}")
+                for column in source.columns:
+                    out[column] = first.get(f"{star.lower()}.{column.lower()}")
             elif grouped:
-                out[name] = _evaluate_with_aggregates(expr, group, sources, parameters)  # pyright: ignore[reportArgumentType]
+                out[name] = _evaluate_with_aggregates(expr, group, sources, parameters, env_for)  # pyright: ignore[reportArgumentType]
             else:
-                out[name] = expr.eval(_environment(group[0], sources, parameters))  # pyright: ignore[reportOptionalMemberAccess]
+                out[name] = expr.eval(env_for(group[0]))  # pyright: ignore[reportOptionalMemberAccess]
         result.append((out, group[0] if group else {}))
     if "ORDER BY" in by_word:
         orderings: list[tuple[Expr, bool]] = []
@@ -897,7 +1157,7 @@ def _select(db: AccessDatabase, clauses: list[tuple[str, str]], parameters: Mapp
                 item = item[:-4].rstrip()
             orderings.append((Parser.parse(item), descending))
         for expr, descending in reversed(orderings):
-            result.sort(key=lambda pair, expr=expr: _order_key(pair, expr, grouped, sources, parameters), reverse=descending)
+            result.sort(key=lambda pair, expr=expr: _order_key(pair, expr, grouped, sources, parameters, env_for), reverse=descending)
     output = [pair[0] for pair in result]
     if flags & 0x02:
         seen: set[tuple[object, ...]] = set()
@@ -913,13 +1173,20 @@ def _select(db: AccessDatabase, clauses: list[tuple[str, str]], parameters: Mapp
     return output
 
 
-def _order_key(pair: tuple[Row, Row], expr: Expr, grouped: bool, sources: Sequence[Source], parameters: Mapping[str, object]) -> tuple[int, object]:
+def _order_key(
+    pair: tuple[Row, Row],
+    expr: Expr,
+    grouped: bool,
+    sources: Sequence[Source],
+    parameters: Mapping[str, object],
+    env_for: Callable[[Row], Environment],
+) -> tuple[int, object]:
     out, base = pair
     if isinstance(expr, ColumnRef) and expr.qualifier is None and expr.name in out:
         return _sort_key(out[expr.name])
     if grouped:
-        return _sort_key(_evaluate_with_aggregates(expr, [base], sources, parameters))
-    return _sort_key(expr.eval(_environment(base, sources, parameters)))
+        return _sort_key(_evaluate_with_aggregates(expr, [base], sources, parameters, env_for))
+    return _sort_key(expr.eval(env_for(base)))
 
 
 def _hashable(value: object) -> object:
@@ -942,7 +1209,8 @@ def _insert(db: AccessDatabase, clauses: list[tuple[str, str]], parameters: Mapp
         inner = values_clause.strip()
         if inner.startswith("("):
             inner = inner[1:].rsplit(")", 1)[0]
-        values = [Parser.parse(v.strip()).eval(_environment({}, [], parameters)) for v in split_top_level(inner, ",")]
+        env = _environment({}, [], parameters, None, lambda sql, e: _run(db, sql, parameters, e))
+        values = [Parser.parse(v.strip()).eval(env) for v in split_top_level(inner, ",")]
         table.insert_row(_assignments(table, columns, values))
         return 1
     if "SELECT" in by_word:
@@ -1010,9 +1278,9 @@ def _split_values(body: str) -> tuple[str, str | None]:
 
 def _update(db: AccessDatabase, clauses: list[tuple[str, str]], parameters: Mapping[str, object]) -> int:
     by_word = dict(clauses)
-    sources = _sources(db, clauses[0][1])
-    if len(sources) != 1:
-        raise AccessError("UPDATE over a join is not supported")
+    sources = _sources(db, clauses[0][1], parameters)
+    if len(sources) != 1 or sources[0].table is None:
+        raise AccessError("UPDATE writes to one table")
     table = sources[0].table
     assignments: list[tuple[str, Expr]] = []
     for item in split_top_level(by_word.get("SET", ""), ","):
@@ -1022,9 +1290,13 @@ def _update(db: AccessDatabase, clauses: list[tuple[str, str]], parameters: Mapp
             name = name.split(".", 1)[1].strip("[]")
         assignments.append((table.definition.column(name).name, Parser.parse(expression.strip())))
     where = Parser.parse(by_word["WHERE"]) if "WHERE" in by_word else None
+
+    def runner(sql: str, env: Environment) -> list[Row]:
+        return _run(db, sql, parameters, env)
+
     count = 0
-    for row in list(_rows_of(table, sources[0].alias)):
-        env = _environment(row, sources, parameters)
+    for row in list(sources[0].rows):
+        env = _environment(row, sources, parameters, None, runner)
         if where is not None:
             verdict = where.eval(env)
             if verdict is None or not _truthy(verdict):
@@ -1037,18 +1309,22 @@ def _update(db: AccessDatabase, clauses: list[tuple[str, str]], parameters: Mapp
 
 def _delete(db: AccessDatabase, clauses: list[tuple[str, str]], parameters: Mapping[str, object]) -> int:
     by_word = dict(clauses)
-    sources = _sources(db, by_word["FROM"])
-    if len(sources) != 1:
-        raise AccessError("DELETE over a join is not supported")
+    sources = _sources(db, by_word["FROM"], parameters)
+    if len(sources) != 1 or sources[0].table is None:
+        raise AccessError("DELETE takes rows out of one table")
     table = sources[0].table
     if "WHERE" not in by_word:
         count = table.row_count
         table.truncate()
         return count
     where = Parser.parse(by_word["WHERE"])
+
+    def runner(sql: str, env: Environment) -> list[Row]:
+        return _run(db, sql, parameters, env)
+
     doomed: list[RowId] = []
-    for row in _rows_of(table, sources[0].alias):
-        verdict = where.eval(_environment(row, sources, parameters))
+    for row in sources[0].rows:
+        verdict = where.eval(_environment(row, sources, parameters, None, runner))
         if verdict is not None and _truthy(verdict):
             doomed.append(row["__rowid__." + sources[0].alias.lower()])  # pyright: ignore[reportArgumentType]
     for row_id in doomed:

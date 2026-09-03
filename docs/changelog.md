@@ -7,6 +7,14 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- **Subqueries, unions and saved queries in `db.execute`.** `IN`,
+  `NOT IN`, `EXISTS`, `NOT EXISTS` and a scalar subquery work in any
+  expression, correlated when they name the outer query; a bracketed
+  SELECT or a saved query's name can stand where a table does in FROM;
+  and `UNION` / `UNION ALL` fold left to right with a trailing ORDER BY
+  over the result. Eight of these shapes answer exactly as DAO does on
+  the same database (live gate).
+
 - **DDL through `db.execute`.** CREATE TABLE (every Jet type word, named
   primary keys, inline and table constraints, foreign keys), CREATE
   [UNIQUE] INDEX with ASC/DESC columns and WITH IGNORE NULL, DROP TABLE,

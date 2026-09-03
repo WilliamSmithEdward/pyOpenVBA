@@ -1130,6 +1130,15 @@ SQL_GATE_SELECTS = (
     "SELECT Id, Year(Stamp) AS Y, Month(Stamp) AS M FROM AllTypes WHERE Stamp IS NOT NULL AND Flag = TRUE ORDER BY Id",
     "SELECT Tiny, Count(*) AS N FROM AllTypes GROUP BY Tiny HAVING Count(*) > 1 ORDER BY Tiny",
     "SELECT Id, Txt & '!' AS Cat, Txt + '!' AS Sum, Txt & Story AS Both FROM AllTypes WHERE Id IN (1, 7, 14) ORDER BY Id",
+    # Subqueries, derived tables and unions, which DAO runs too.
+    "SELECT Id FROM AllTypes WHERE Id IN (SELECT Id FROM AllTypes WHERE Tiny > 15) ORDER BY Id",
+    "SELECT Id FROM AllTypes WHERE Id NOT IN (SELECT Id FROM AllTypes WHERE Flag = TRUE) ORDER BY Id",
+    "SELECT a.Id FROM AllTypes AS a WHERE EXISTS (SELECT 1 FROM AllTypes AS b WHERE b.Tiny = a.Tiny AND b.Id <> a.Id) ORDER BY a.Id",
+    "SELECT a.Id, (SELECT Count(*) FROM AllTypes AS b WHERE b.Flag = a.Flag) AS Same FROM AllTypes AS a WHERE a.Id <= 5 ORDER BY a.Id",
+    "SELECT Id FROM AllTypes WHERE Big = (SELECT Max(Big) FROM AllTypes)",
+    "SELECT t.Flag, t.N FROM (SELECT Flag, Count(*) AS N FROM AllTypes GROUP BY Flag) AS t ORDER BY t.Flag",
+    "SELECT Tiny FROM AllTypes WHERE Id <= 3 UNION SELECT Tiny FROM AllTypes WHERE Id <= 6 ORDER BY Tiny",
+    "SELECT Tiny FROM AllTypes WHERE Id <= 3 UNION ALL SELECT Tiny FROM AllTypes WHERE Id <= 3",
 )
 
 

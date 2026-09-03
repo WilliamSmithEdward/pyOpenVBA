@@ -198,9 +198,9 @@ with AccessDatabase("orders.accdb") as db:
 ```
 
 `db.execute(sql)` runs Jet SQL in pure Python: SELECT with joins, WHERE,
-GROUP BY and aggregates, HAVING, ORDER BY, DISTINCT and TOP; INSERT,
-UPDATE and DELETE through the same row writers; and DDL -- CREATE TABLE,
-CREATE INDEX, ALTER TABLE, DROP TABLE and DROP INDEX. Its answers and
+GROUP BY and aggregates, HAVING, ORDER BY, DISTINCT, TOP, subqueries and
+UNION; INSERT, UPDATE and DELETE through the same row writers; and DDL --
+CREATE TABLE, CREATE INDEX, ALTER TABLE, DROP TABLE and DROP INDEX. Its answers and
 the bytes it writes are both checked against DAO running the same
 statements on the same database.
 

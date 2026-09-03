@@ -263,7 +263,11 @@ def build_definition(columns: list[ColumnSpec], indexes: list[IndexSpec], layout
         is_fixed = code == TYPE_BOOLEAN or code in FIXED_SIZES or code == TYPE_BINARY
         if is_fixed:
             offset = 0 if code == TYPE_BOOLEAN else fixed_offset
-            headers.append(column_header(spec, number, 0, offset, layout.tag))
+            # Bytes 7-8 count the variable columns declared before this one,
+            # which for a variable column is its own index (measured: a
+            # Currency column after two Text columns carries 2, and a fixed
+            # column added by ALTER TABLE carries the table's whole count).
+            headers.append(column_header(spec, number, var_index, offset, layout.tag))
             if code != TYPE_BOOLEAN:
                 fixed_offset += FIXED_SIZES.get(code, spec.size if isinstance(spec.size, int) else MAX_BINARY_BYTES)
         else:

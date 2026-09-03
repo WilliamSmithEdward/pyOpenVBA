@@ -808,7 +808,8 @@ def test_saved_queries_match_the_engine_byte_for_byte(tmp_path: Path) -> None:
     script = tmp_path / "step.sql"
     script.write_text(
         "CREATE TABLE Parent (Id AUTOINCREMENT CONSTRAINT PK PRIMARY KEY, Name TEXT(50))" + chr(10)
-        + "CREATE TABLE Child (Id AUTOINCREMENT CONSTRAINT PK PRIMARY KEY, ParentId LONG, Remark TEXT(50))" + chr(10),
+        + "CREATE TABLE Child (Id AUTOINCREMENT CONSTRAINT PK PRIMARY KEY, ParentId LONG, Remark TEXT(50))" + chr(10)
+        + "CREATE TABLE Sales (Id AUTOINCREMENT CONSTRAINT PK PRIMARY KEY, Region TEXT(20), Quarter TEXT(10), Amount CURRENCY)" + chr(10),
         encoding="ascii",
     )
     assert oracle("-Command", "sql-file", "-Path", str(theirs), "-SqlFile", str(script)) == "ok"
@@ -817,6 +818,7 @@ def test_saved_queries_match_the_engine_byte_for_byte(tmp_path: Path) -> None:
     for name, columns in (
         ("Parent", [ColumnSpec("Id", "Long", autonumber=True), ColumnSpec("Name", "Text", size=50, compressed=False)]),
         ("Child", [ColumnSpec("Id", "Long", autonumber=True), ColumnSpec("ParentId", "Long"), ColumnSpec("Remark", "Text", size=50, compressed=False)]),
+        ("Sales", [ColumnSpec("Id", "Long", autonumber=True), ColumnSpec("Region", "Text", size=20, compressed=False), ColumnSpec("Quarter", "Text", size=10, compressed=False), ColumnSpec("Amount", "Currency")]),
     ):
         entry = _catalog_entry(theirs, name)
         db.create_table(name, columns, key, created=entry.date_create_serial, updated=entry.date_update_serial)
@@ -830,6 +832,13 @@ def test_saved_queries_match_the_engine_byte_for_byte(tmp_path: Path) -> None:
         "Q6": "INSERT INTO Child ( ParentId, Remark ) SELECT Parent.Id, Parent.Name FROM Parent",
         "Q7": "SELECT Parent.Id, Parent.Name INTO Copied FROM Parent",
         "Q8": "SELECT Parent.Id FROM Parent UNION SELECT Child.Id FROM Child",
+        # Crosstabs: the value column, the row headings, and the pivot last,
+        # with and without an IN list, a TOP, a join and a parameter.
+        "X1": "TRANSFORM Sum(Amount) AS Total SELECT Region FROM Sales GROUP BY Region PIVOT Quarter",
+        "X2": "TRANSFORM Count(*) AS N SELECT Region, Sum(Amount) AS Tot FROM Sales WHERE Amount > 5 GROUP BY Region ORDER BY Region PIVOT Quarter IN ('Q1', 'Q2', 'Q3', 'Q4')",
+        "X3": "TRANSFORM Sum(Amount) SELECT TOP 5 Region FROM Sales GROUP BY Region PIVOT Quarter",
+        "X4": "TRANSFORM Sum(s.Amount) AS T SELECT c.Remark FROM Sales AS s INNER JOIN Child AS c ON s.Region = c.Remark GROUP BY c.Remark PIVOT s.Quarter",
+        "X5": "PARAMETERS [Low] Currency; TRANSFORM Sum(Amount) SELECT Region FROM Sales WHERE Amount > [Low] GROUP BY Region PIVOT Quarter",
     }
     for name, sql in statements.items():
         script.write_text(sql + chr(10), encoding="ascii")

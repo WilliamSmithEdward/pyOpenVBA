@@ -340,6 +340,15 @@ try {
             $qd = $db.CreateQueryDef($Table, $sql)
             [Console]::Out.Write("ok")
         }
+        "create-passthrough" {
+            # A pass-through query: -Table names it, -SqlFile holds the SQL
+            # sent to the server, and the connect string is a fixed stub.
+            $sql = [System.IO.File]::ReadAllText($SqlFile).Trim()
+            $qd = $db.CreateQueryDef($Table, $sql)
+            $qd.Connect = "ODBC;DSN=none"
+            $qd.ReturnsRecords = $true
+            [Console]::Out.Write("ok")
+        }
         "delete-query" {
             $db.QueryDefs.Delete($Table)
             [Console]::Out.Write("ok")

@@ -698,6 +698,26 @@ def test_bad_specs_are_refused() -> None:
         db.drop_table("MSysObjects")
 
 
+def test_a_fixed_column_counts_the_variable_ones_before_it() -> None:
+    db = AccessDatabase(TEMPLATE)
+    table = db.create_table(
+        "Mixed",
+        [
+            ColumnSpec("Id", "Long", autonumber=True),
+            ColumnSpec("Region", "Text", size=20),
+            ColumnSpec("Quarter", "Text", size=10),
+            ColumnSpec("Amount", "Currency"),
+            ColumnSpec("Note", "Memo"),
+            ColumnSpec("Flag", "Boolean"),
+        ],
+        created=WHEN,
+    )
+    # Bytes 7-8 of a column header count the variable columns declared
+    # before it, which for a variable column is its own index.
+    assert [struct.unpack_from("<H", c.raw, 7)[0] for c in table.definition.columns] == [0, 0, 1, 2, 2, 3]
+    assert [c.var_index for c in table.definition.columns if not c.is_fixed] == [0, 1, 2]
+
+
 def test_drop_index_gives_back_its_pages_and_leaves_the_rest_working(tmp_path: Path) -> None:
     db = AccessDatabase(TEMPLATE)
     table = db.create_table(

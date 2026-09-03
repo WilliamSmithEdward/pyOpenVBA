@@ -7,6 +7,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- **Crosstab saved queries.** `db.create_query(name, "TRANSFORM ... PIVOT
+  ...")` writes the rows DAO writes, byte for byte, with an `IN` list, a
+  TOP, a join or a parameter; `db.query(name).sql` gives the statement
+  back. HAVING is refused there, as the engine refuses it.
+
 - **`db.drop_index(table, name)`**, byte-identical to the engine's DROP
   INDEX: the index's pages released with their bytes untouched, its
   usage-map row deleted, its records taken out of the definition with
@@ -36,6 +41,12 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- A fixed column declared after a variable one now carries the count of
+  variable columns before it in its header, as the engine writes it. A
+  table whose Currency column followed two Text columns differed from
+  the engine's by that byte.
+- The SQL rebuilt from a saved query with a join now names the joined
+  table, not just its alias.
 - An index built over existing rows now matches the engine's B-tree.
   Entries are added in key order, a leaf keeps the prefix it was
   compressed with instead of shrinking it (so a key without that prefix

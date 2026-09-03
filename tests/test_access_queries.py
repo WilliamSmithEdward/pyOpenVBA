@@ -116,9 +116,48 @@ def test_sql_round_trips_through_the_rows(sql: str) -> None:
 
 
 def test_unsupported_statements_are_refused() -> None:
-    for sql in ("TRANSFORM Count(*) SELECT Id FROM Parent PIVOT Name", "SELECT Id", "Parent", "INSERT INTO Parent (Name) VALUES ('a')", "SELECT * FROM A INNER JOIN B"):
+    for sql in (
+        "SELECT Id",
+        "Parent",
+        "INSERT INTO Parent (Name) VALUES ('a')",
+        "SELECT * FROM A INNER JOIN B",
+        "TRANSFORM Count(*) SELECT Id FROM Parent GROUP BY Id",  # no PIVOT
+        "TRANSFORM Count(*) SELECT Id FROM Parent GROUP BY Id HAVING Count(*) > 1 PIVOT Name",  # the engine refuses it too
+    ):
         with pytest.raises(AccessError):
             rows_from_sql(sql)
+
+
+CROSSTABS = (
+    "TRANSFORM Sum(Amount) AS Total SELECT Region FROM Sales GROUP BY Region PIVOT Quarter",
+    "TRANSFORM Count(*) AS N SELECT Region, Sum(Amount) AS Tot FROM Sales WHERE Amount > 5 GROUP BY Region ORDER BY Region PIVOT Quarter IN ('Q1', 'Q2', 'Q3', 'Q4')",
+    "TRANSFORM Sum(Amount) SELECT TOP 5 Region FROM Sales GROUP BY Region PIVOT Quarter",
+    "TRANSFORM Sum(s.Amount) AS T SELECT r.Rep FROM Sales AS s INNER JOIN Reps AS r ON s.Region = r.Region GROUP BY r.Rep PIVOT s.Quarter",
+    "PARAMETERS [Low] Currency; TRANSFORM Sum(Amount) SELECT Region FROM Sales WHERE Amount > [Low] GROUP BY Region PIVOT Quarter",
+)
+
+
+@pytest.mark.parametrize("sql", CROSSTABS)
+def test_crosstab_rows_round_trip(sql: str) -> None:
+    rows = rows_from_sql(sql)
+    query = SavedQuery("X", rows)
+    assert query.type == 6 and query.catalog_flags == 16
+    assert query.sql == sql
+    assert rows_from_sql(query.sql) == rows
+
+
+def test_crosstab_rows_carry_the_engines_flags_and_order() -> None:
+    rows = rows_from_sql(CROSSTABS[1])
+    # The value column first with flag 0, the row headings with flag 2, the
+    # pivot last of all: its group row, then its column.
+    assert [(r.attribute, r.order, r.flag) for r in rows] == [
+        (0, 1, 0), (255, 1, None), (1, 1, 6),
+        (6, 1, 0), (6, 2, 2), (6, 3, 2),
+        (5, 1, None), (8, 1, None), (9, 1, 2), (11, 1, None),
+        (9, 2, 1), (6, 4, 1),
+    ]
+    assert [r.expression for r in rows if r.attribute == 9] == ["Region", "Quarter"]
+    assert [r.expression for r in rows if r.attribute == 6][-1] == "Quarter IN ('Q1', 'Q2', 'Q3', 'Q4')"
 
 
 def test_create_query_writes_the_catalog_object_and_rows() -> None:

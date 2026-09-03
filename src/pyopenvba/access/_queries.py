@@ -59,7 +59,12 @@ QUERY_CROSSTAB = 6
 QUERY_UNION = 9
 
 #: MSysObjects.Flags for each query type: DAO's QueryDefTypeEnum.
-CATALOG_FLAGS = {QUERY_SELECT: 0, QUERY_DELETE: 32, QUERY_UPDATE: 48, QUERY_APPEND: 64, QUERY_MAKE_TABLE: 80, QUERY_UNION: 128}
+CATALOG_FLAGS = {QUERY_SELECT: 0, QUERY_CROSSTAB: 16, QUERY_DELETE: 32, QUERY_UPDATE: 48, QUERY_APPEND: 64, QUERY_MAKE_TABLE: 80, QUERY_UNION: 128}
+
+#: A crosstab's column and group rows say what each one is for.
+CROSSTAB_VALUE = 0
+CROSSTAB_PIVOT = 1
+CROSSTAB_HEADING = 2
 
 FLAG_ALL_COLUMNS = 0x01
 FLAG_DISTINCT = 0x02
@@ -133,6 +138,10 @@ class SavedQuery:
         columns = self._rows(ATTR_COLUMN)
         typed = self._rows(ATTR_TYPE)
         target = typed[0].name1 if typed else None
+        if kind == QUERY_CROSSTAB:
+            value = next((c for c in columns if c.flag == CROSSTAB_VALUE), None)
+            if value is not None:
+                parts.append("TRANSFORM " + (value.expression or "") + (f" AS {value.name1}" if value.name1 else ""))
         if kind == QUERY_DELETE:
             parts.append("DELETE")
         elif kind == QUERY_UPDATE:
@@ -140,7 +149,7 @@ class SavedQuery:
             parts.append("SET " + ", ".join(f"{c.name2} = {c.expression}" for c in columns))
         elif kind == QUERY_APPEND:
             parts.append(f"INSERT INTO {target} ( " + ", ".join(c.name2 or "" for c in columns) + " )")
-        if kind in (QUERY_SELECT, QUERY_APPEND, QUERY_MAKE_TABLE):
+        if kind in (QUERY_SELECT, QUERY_APPEND, QUERY_MAKE_TABLE, QUERY_CROSSTAB):
             head = "SELECT"
             if self.flags & FLAG_DISTINCTROW:
                 head += " DISTINCTROW"
@@ -148,8 +157,9 @@ class SavedQuery:
                 head += " DISTINCT"
             if self.flags & FLAG_TOP:
                 head += " TOP " + (self._rows(ATTR_FLAGS)[0].name1 or "")
-            if columns:
-                head += " " + ", ".join((c.expression or "") + (f" AS {c.name1}" if c.name1 else "") for c in columns)
+            listed = [c for c in columns if kind != QUERY_CROSSTAB or c.flag == CROSSTAB_HEADING]
+            if listed:
+                head += " " + ", ".join((c.expression or "") + (f" AS {c.name1}" if c.name1 else "") for c in listed)
             else:
                 head += " *"
             if kind == QUERY_MAKE_TABLE:
@@ -159,18 +169,30 @@ class SavedQuery:
             joins = self._rows(ATTR_JOIN)
             tables = self.tables
             if joins:
-                joined = [tables[0][0] + (f" AS {tables[0][1]}" if tables[0][1] else "")]
+                joined = [_named(tables, tables[0][1] or tables[0][0])]
                 for j in joins:
-                    joined.append(f"{JOIN_WORDS.get(j.flag or JOIN_INNER, 'INNER JOIN')} {j.name2} ON {j.expression}")
+                    joined.append(f"{JOIN_WORDS.get(j.flag or JOIN_INNER, 'INNER JOIN')} {_named(tables, j.name2 or '')} ON {j.expression}")
                 parts.append("FROM " + " ".join(joined))
             elif tables:
                 parts.append("FROM " + ", ".join(t + (f" AS {alias}" if alias else "") for t, alias in tables))
         for attribute, word in ((ATTR_WHERE, "WHERE"), (ATTR_GROUP, "GROUP BY"), (ATTR_HAVING, "HAVING"), (ATTR_ORDER, "ORDER BY")):
-            rows = self._rows(attribute)
+            rows = [r for r in self._rows(attribute) if kind != QUERY_CROSSTAB or attribute != ATTR_GROUP or r.flag != CROSSTAB_PIVOT]
             if rows:
                 items = [(r.expression or "") + (" DESC" if attribute == ATTR_ORDER and r.name1 == "d" else "") for r in rows]
                 parts.append(f"{word} " + ", ".join(items))
+        if kind == QUERY_CROSSTAB:
+            pivot = next((c for c in columns if c.flag == CROSSTAB_PIVOT), None)
+            if pivot is not None:
+                parts.append("PIVOT " + (pivot.expression or ""))
         return " ".join(parts)
+
+
+def _named(tables: list[tuple[str, str | None]], reference: str) -> str:
+    """``Table AS alias`` for the table a join names by its alias."""
+    for name, alias in tables:
+        if (alias or name).lower() == reference.lower():
+            return name + (f" AS {alias}" if alias else "")
+    return reference
 
 
 def rows_from_sql(sql: str) -> list[QueryRow]:
@@ -192,7 +214,7 @@ def rows_from_sql(sql: str) -> list[QueryRow]:
                 raise AccessError(f"cannot read parameter {item.strip()!r}")
             parameters.append(QueryRow(ATTR_PARAMETER, i, name1=name.strip(), flag=dao_type))
         text = text.strip()
-    members = _split_top_level_words(text, "UNION")
+    members = split_top_level_words(text, "UNION")
     if len(members) > 1:
         if parameters:
             raise AccessError("PARAMETERS on a UNION query are not written")
@@ -204,6 +226,8 @@ def rows_from_sql(sql: str) -> list[QueryRow]:
         return rows
     clauses = split_clauses(text)
     verb = clauses[0][0]
+    if verb == "TRANSFORM":
+        return _crosstab_rows(rows, parameters, clauses)
     if verb == "UPDATE":
         rows.append(QueryRow(ATTR_TYPE, 1, flag=QUERY_UPDATE))
         rows.extend(parameters)
@@ -269,6 +293,47 @@ def rows_from_sql(sql: str) -> list[QueryRow]:
     return rows
 
 
+def _crosstab_rows(rows: list[QueryRow], parameters: list[QueryRow], clauses: list[tuple[str, str]]) -> list[QueryRow]:
+    """A crosstab's rows in DAO's insertion order: the parameters, the type
+    row, the value column and the row headings, the joins and tables, the
+    tail, and last of all the pivot -- its group row, then its column.  The
+    engine refuses HAVING on a crosstab, so this does too."""
+    if any(word == "HAVING" for word, _ in clauses):
+        raise AccessError("a crosstab query takes no HAVING clause")
+    pivot = next((b for w, b in clauses if w == "PIVOT"), None)
+    if pivot is None:
+        raise AccessError("a TRANSFORM query needs a PIVOT clause")
+    pivot = pivot.strip()
+    rows.extend(parameters)
+    rows.append(QueryRow(ATTR_TYPE, 1, flag=QUERY_CROSSTAB))
+    value, alias = _split_alias(clauses[0][1].strip())
+    rows.append(QueryRow(ATTR_COLUMN, 1, name1=alias, expression=value, flag=CROSSTAB_VALUE))
+    flags, top, expressions = select_list(_clause(clauses, "SELECT"))
+    column_order = 1
+    for expression, item_alias in expressions:
+        column_order += 1
+        rows.append(QueryRow(ATTR_COLUMN, column_order, name1=item_alias, expression=expression, flag=CROSSTAB_HEADING))
+    tables, joins = parse_from(_clause(clauses, "FROM"))
+    rows.extend(joins)
+    rows.extend(tables)
+    _append_tail(rows, clauses, group_flag=CROSSTAB_HEADING)
+    # The pivot goes on the end: its group row carries the expression alone,
+    # its column row the whole clause, IN list and all.
+    group_order = sum(1 for r in rows if r.attribute == ATTR_GROUP) + 1
+    rows.append(QueryRow(ATTR_GROUP, group_order, expression=_pivot_expression(pivot), flag=CROSSTAB_PIVOT))
+    rows.append(QueryRow(ATTR_COLUMN, column_order + 1, expression=pivot, flag=CROSSTAB_PIVOT))
+    if flags:
+        rows.append(QueryRow(ATTR_FLAGS, 1, name1=top, flag=flags))
+    return rows
+
+
+def _pivot_expression(pivot: str) -> str:
+    """A PIVOT clause without its ``IN (...)`` list."""
+    for item in split_top_level_words(pivot, "IN"):
+        return item.strip()
+    return pivot.strip()
+
+
 def select_list(body: str) -> tuple[int, str | None, list[tuple[str, str | None]]]:
     """Flags, TOP count and ``(expression, alias)`` pairs of a select list."""
     body = body.strip()
@@ -305,7 +370,7 @@ def _clause(clauses: list[tuple[str, str]], word: str) -> str:
     return body
 
 
-def _append_tail(rows: list[QueryRow], clauses: list[tuple[str, str]]) -> None:
+def _append_tail(rows: list[QueryRow], clauses: list[tuple[str, str]], group_flag: int = 0) -> None:
     for word, attribute in (("WHERE", ATTR_WHERE), ("GROUP BY", ATTR_GROUP), ("HAVING", ATTR_HAVING), ("ORDER BY", ATTR_ORDER)):
         body = next((b for w, b in clauses if w == word), None)
         if body is None:
@@ -320,12 +385,12 @@ def _append_tail(rows: list[QueryRow], clauses: list[tuple[str, str]]) -> None:
                         expression, direction = expression[:-5].rstrip(), "d"
                     elif upper.endswith(" ASC"):
                         expression = expression[:-4].rstrip()
-                rows.append(QueryRow(attribute, i, name1=direction, expression=expression, flag=0 if attribute == ATTR_GROUP else None))
+                rows.append(QueryRow(attribute, i, name1=direction, expression=expression, flag=group_flag if attribute == ATTR_GROUP else None))
         else:
             rows.append(QueryRow(attribute, 1, expression=body.strip()))
 
 
-_CLAUSE_WORDS = ("SELECT", "DELETE", "UPDATE", "INSERT INTO", "SET", "INTO", "FROM", "WHERE", "GROUP BY", "HAVING", "ORDER BY")
+_CLAUSE_WORDS = ("TRANSFORM", "SELECT", "DELETE", "UPDATE", "INSERT INTO", "SET", "INTO", "FROM", "WHERE", "GROUP BY", "HAVING", "ORDER BY", "PIVOT")
 
 
 def split_clauses(text: str) -> list[tuple[str, str]]:
@@ -389,7 +454,7 @@ def split_top_level(text: str, separator: str) -> list[str]:
     return [p for p in parts if p.strip()]
 
 
-def _split_top_level_words(text: str, word: str) -> list[str]:
+def split_top_level_words(text: str, word: str) -> list[str]:
     """Split at a top-level keyword, keeping each member's own spacing
     (DAO keeps the space before UNION on the member it ends)."""
     parts: list[str] = []

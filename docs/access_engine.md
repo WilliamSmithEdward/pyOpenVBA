@@ -488,6 +488,27 @@ the engine finds the same rows it does today.
   form of a map has not yet been seen written by the engine below 1708
   pages. Checked: 450 memo rows carrying a database from 121 to 573 pages
   leave every page but page 0 identical to the engine's own.
+* **Crosstab queries** (`TRANSFORM ... PIVOT`) are catalog Flags 16 with
+  a type row carrying 6. Their column rows say what each column is for:
+  flag 0 the value the TRANSFORM aggregates (its alias in Name1), flag 2
+  each row heading from the SELECT list, flag 1 the pivot. The GROUP BY
+  rows carry flag 2 and the engine adds the pivot to them with flag 1,
+  whether or not the SQL named it. DAO writes them in this order: the
+  parameters, the type row, the value column, the row headings, the
+  joins, the tables, WHERE, GROUP BY, ORDER BY, then last of all the
+  pivot -- its group row holding the expression alone and its column row
+  the whole clause, `IN` list included. A TOP still writes the flags row
+  at the very end. ACE refuses HAVING on a crosstab ("Syntax error in
+  TRANSFORM statement"), so `_queries.py` refuses it too. A pass-through
+  query is Flags 112 with a single type row: flag 8, Name1 the connect
+  string, Expression the SQL DAO formatted (CRLF between clauses and a
+  trailing semicolon); DAO reaches it by creating a select query and
+  converting it, which is why it is read but not yet written.
+* **A column header's bytes 7-8** count the variable columns declared
+  before that column: for a variable column that is its own index, and
+  for a fixed one it is how many came first (a Currency column after two
+  Text columns carries 2). ALTER TABLE's rule is the same one, since a
+  column added at the end follows every variable column the table has.
 * **DROP INDEX** gives back everything the index held and nothing else:
   every page in its usage map is released with its bytes untouched (no
   retirement mark, no zeroing), its map row is deleted from the table's
@@ -587,6 +608,6 @@ the engine finds the same rows it does today.
 | 3b | large files: usage maps growing past 512 pages | done for inline maps (growth and re-base as the engine does); the reference form is read but not yet written |
 | 5 | write schema: create/drop table, create index, catalog rows | done: `create_table`, `create_index`, `drop_index`, `drop_table`; byte-identical to the engine's CREATE TABLE, CREATE INDEX and DROP TABLE on every page but page 0; the engine inserts into, reads and compacts a table pyOpenVBA created; definitions over one page (up to the 255-column limit) are chained and rewritten as the engine does, byte-identical; `add_column` / `drop_column` match ALTER TABLE ADD COLUMN / DROP COLUMN byte for byte (live gate). `rename_table`, `rename_column` and `alter_column` match DAO renames and ALTER COLUMN; a table's map rows spill onto a second map page as the engine's do. `drop_index` matches DROP INDEX byte for byte, as does an index built over four hundred rows whose B-tree spans four leaves. Not yet: navigation-pane rows (the Access layer adds those itself) |
 | 6 | VBA project through the writer: module create/rename/delete | |
-| 7 | queries (`MSysQueries` to SQL and back), relationships, properties | relationships done: `create_relationship` / `drop_relationship` / `relationships()`, byte-identical to the engine's ADD CONSTRAINT ... FOREIGN KEY for a first and a second relationship on one parent and to DROP CONSTRAINT (live gate). Properties done: `table.properties()`, `column_properties()`, `set_properties()`, `db.database_properties()`; DAO's three property appends reproduced byte for byte (live gate). Queries done for SELECT, PARAMETERS, DELETE, UPDATE, INSERT INTO ... SELECT, SELECT ... INTO and UNION: `db.queries()`, `db.query()`, `db.create_query(name, sql)`, `db.drop_query(name)`; eight CreateQueryDef calls and a QueryDefs.Delete reproduced byte for byte (live gate). Not yet: crosstab and pass-through queries, subqueries in the parser |
+| 7 | queries (`MSysQueries` to SQL and back), relationships, properties | relationships done: `create_relationship` / `drop_relationship` / `relationships()`, byte-identical to the engine's ADD CONSTRAINT ... FOREIGN KEY for a first and a second relationship on one parent and to DROP CONSTRAINT (live gate). Properties done: `table.properties()`, `column_properties()`, `set_properties()`, `db.database_properties()`; DAO's three property appends reproduced byte for byte (live gate). Queries done for SELECT, PARAMETERS, DELETE, UPDATE, INSERT INTO ... SELECT, SELECT ... INTO, UNION and crosstabs (`TRANSFORM ... PIVOT`, with an `IN` list, TOP, a join or a parameter): `db.queries()`, `db.query()`, `db.create_query(name, sql)`, `db.drop_query(name)`; thirteen CreateQueryDef calls and a QueryDefs.Delete reproduced byte for byte (live gate). Pass-through queries are read; writing one means reproducing DAO's create-then-convert route. Not yet: writing pass-through queries, subqueries in the parser |
 | 8 | forms, reports, macros: the binary object formats nobody has published | |
 | 9 | SQL executor over the engine | in progress: `db.execute(sql)` runs SELECT (column list or `*`, INNER / LEFT / RIGHT JOIN, WHERE, GROUP BY with Count / Sum / Avg / Min / Max, HAVING, ORDER BY, DISTINCT, TOP; comparison, logical, arithmetic and `&` operators, LIKE, IN, BETWEEN, IS NULL, `[parameters]`, the common string, numeric and date functions), INSERT ... VALUES, INSERT ... SELECT, UPDATE and DELETE through the row writers, coercing values to the column type. Eleven SELECT shapes answer exactly as DAO does on the same database and an UPDATE plus a DELETE write the same bytes DAO's Execute writes (live gate). Not yet: subqueries, UNION at run time, crosstabs, DDL, transactions |

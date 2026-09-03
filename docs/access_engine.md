@@ -251,6 +251,27 @@ the engine finds the same rows it does today.
   place CREATE INDEX takes its map row: before the index's root page and
   the definition's rewrite. `_new_map_rows` places later rows on the
   first of the table's map pages with room.
+* **ALTER COLUMN**, measured by resizing a Text(40) to Text(80) and
+  retyping a Long to a Double on a table with ten rows. The engine adds a
+  new column under the next number with the old column's name, place in
+  the definition and position field (a fixed one placed past the highest
+  fixed column, its variable-index field holding the variable count as
+  with ADD COLUMN), re-encodes every row with the value copied or
+  converted into it while the old column's bytes stay in the row as a
+  phantom (its null-mask bit still set, its fixed slot or variable slot
+  still occupied), then drops the old header; the definition, same
+  length as before, is written once, the rows in place. How a row is
+  re-encoded depends on whether its variable-column count still matches
+  the definition's: when it does, the fixed block is copied byte for byte
+  from the old row (a never-written fixed slot can inherit old text
+  bytes) and the variable slots are carried by index, phantoms included;
+  when variable columns have come or gone since the row was written, the
+  engine keeps the old body verbatim, its variable table and count
+  included, writes any fixed value over its slot in that body, and
+  appends a fresh variable table with every slot empty behind it.
+  `encode_row(template=...)` reproduces both. Since a replacement column
+  keeps its place but not its number, `Table.columns` follows the
+  definition's order rather than column-number order.
 * **Renaming a column** (a Field's Name set through DAO) changes the name
   in the definition and nothing else in it (the header bytes are
   identical), rewrites the catalog row's property blob with the column's
@@ -494,7 +515,7 @@ the engine finds the same rows it does today.
 | 3 | write rows: insert/update/delete, free-space and owned-page maps, LVAL allocation, counters | done: every column type including Memo/OLE of every storage kind, overflow rows, unique-index enforcement, page allocation and all counters; the engine reads the result, keeps working on it and compacts it; single edits and memo inserts byte-identical to the engine's |
 | 4 | write indexes: key encoding from the engine-generated collation table, B-tree insert and split | done: entries inserted and removed, pages compressed when full and split, root pinned; single edits byte-identical to the engine |
 | 3b | large files: usage maps growing past 512 pages | done for inline maps (growth and re-base as the engine does); the reference form is read but not yet written |
-| 5 | write schema: create/drop table, create index, catalog rows | done: `create_table`, `create_index`, `drop_table`; byte-identical to the engine's CREATE TABLE, CREATE INDEX and DROP TABLE on every page but page 0; the engine inserts into, reads and compacts a table pyOpenVBA created; definitions over one page (up to the 255-column limit) are chained and rewritten as the engine does, byte-identical; `add_column` / `drop_column` match ALTER TABLE ADD COLUMN / DROP COLUMN byte for byte (live gate). `rename_table` and `rename_column` match DAO renames; a table's map rows spill onto a second map page as the engine's do. Not yet: retyping or resizing columns, navigation-pane rows (the Access layer adds those itself) |
+| 5 | write schema: create/drop table, create index, catalog rows | done: `create_table`, `create_index`, `drop_table`; byte-identical to the engine's CREATE TABLE, CREATE INDEX and DROP TABLE on every page but page 0; the engine inserts into, reads and compacts a table pyOpenVBA created; definitions over one page (up to the 255-column limit) are chained and rewritten as the engine does, byte-identical; `add_column` / `drop_column` match ALTER TABLE ADD COLUMN / DROP COLUMN byte for byte (live gate). `rename_table`, `rename_column` and `alter_column` match DAO renames and ALTER COLUMN; a table's map rows spill onto a second map page as the engine's do. Not yet: navigation-pane rows (the Access layer adds those itself) |
 | 6 | VBA project through the writer: module create/rename/delete | |
 | 7 | queries (`MSysQueries` to SQL and back), relationships, properties | relationships done: `create_relationship` / `drop_relationship` / `relationships()`, byte-identical to the engine's ADD CONSTRAINT ... FOREIGN KEY for a first and a second relationship on one parent and to DROP CONSTRAINT (live gate). Properties done: `table.properties()`, `column_properties()`, `set_properties()`, `db.database_properties()`; DAO's three property appends reproduced byte for byte (live gate). Queries done for SELECT, PARAMETERS, DELETE, UPDATE, INSERT INTO ... SELECT, SELECT ... INTO and UNION: `db.queries()`, `db.query()`, `db.create_query(name, sql)`, `db.drop_query(name)`; eight CreateQueryDef calls and a QueryDefs.Delete reproduced byte for byte (live gate). Not yet: crosstab and pass-through queries, subqueries in the parser |
 | 8 | forms, reports, macros: the binary object formats nobody has published | |

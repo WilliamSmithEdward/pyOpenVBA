@@ -91,6 +91,9 @@ All notable changes to pyOpenVBA are documented here. This project follows
   `table.rename_column(name, new_name)` renames a column the same way:
   the definition's name, the column's property block, the relationship
   rows naming it, the catalog stamp (live gate).
+  `table.alter_column(name, ColumnSpec(...))` retypes or resizes a column
+  as ALTER COLUMN does: a replacement column, every row re-encoded with
+  the value converted, the old header dropped (live gate).
 - **Columns can be added and dropped.** `table.add_column(ColumnSpec(...))`
   and `table.drop_column(name)` do what `ALTER TABLE ... ADD COLUMN` and
   `DROP COLUMN` do, byte for byte in the live gate: the definition

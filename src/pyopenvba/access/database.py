@@ -10,7 +10,7 @@ indexes and counters included.  ``save()`` writes the pages back.
 from __future__ import annotations
 
 import struct
-from collections.abc import Iterator, Mapping, Sequence
+from collections.abc import Callable, Iterator, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -257,7 +257,10 @@ class Table:
 
     @property
     def columns(self) -> list[ColumnDef]:
-        return self.definition.columns_by_number()
+        """The columns in the order the definition holds them, which is the
+        order Access shows: column numbers only, until ALTER COLUMN gives a
+        replacement column a new number in its predecessor's place."""
+        return list(self.definition.columns)
 
     @property
     def column_names(self) -> list[str]:
@@ -676,6 +679,67 @@ class Table:
         self._stamp_catalog(updated if isinstance(updated, (_dt.datetime, float)) else _dt.datetime.now().replace(microsecond=0))
         self._db._definitions.pop(d.page, None)  # pyright: ignore[reportPrivateUsage]
 
+    def alter_column(self, name: str, spec: ColumnSpec, *, updated: object | None = None) -> ColumnDef:
+        """Retype or resize a column as ``ALTER TABLE ... ALTER COLUMN`` does:
+        a new column with the new type takes the old one's name, place and
+        position field under the next column number; every row is
+        re-encoded with its value copied (or converted between numeric
+        types) into the new column while the old column's bytes stay in the
+        row as a phantom; the old header leaves the definition, which is
+        written once; the catalog row is stamped.  Indexed, Memo and OLE
+        columns are refused."""
+        import datetime as _dt
+
+        d = self.definition
+        old = d.column(name)
+        if spec.name.lower() != old.name.lower():
+            raise AccessError("alter_column keeps the column's name; use rename_column to change it")
+        if spec.autonumber or old.flags & 0x04:
+            raise AccessError("an AutoNumber column cannot be altered")
+        if old.is_long_value or spec.type_code in (TYPE_MEMO, TYPE_OLE):
+            raise AccessError("altering to or from a Memo or OLE column is not written yet")
+        for real in d.real_indexes:
+            if any(c.number == old.number for c in real.columns):
+                raise AccessError(f"column {old.name!r} is used by an index; drop the index first")
+        code = spec.type_code
+        is_fixed = code == TYPE_BOOLEAN or code in FIXED_SIZES or code == TYPE_BINARY
+        number = d.max_columns
+        fixed_end = max((c.fixed_offset + c.length for c in d.columns if c.is_fixed and c.type_code != TYPE_BOOLEAN), default=0)
+        header = bytearray(column_header(spec, number, d.var_column_count, 0 if not is_fixed or code == TYPE_BOOLEAN else fixed_end, d.tag))
+        header[9:11] = old.raw[9:11]  # the replacement keeps the old column's position
+        new = parse_column_header(bytes(header), old.name)
+        position = d.columns.index(old)
+        d.columns.insert(position + 1, new)
+        d.max_columns += 1
+        var_count_before = d.var_column_count
+        if not is_fixed:
+            d.var_column_count += 1
+
+        # Every row re-encoded under the definition holding both columns.
+        convert = _converter(old.type_code, new.type_code)
+        for page, slot, raw in list(self.raw_rows()):
+            parts = split_row(d, raw)
+            encoded: dict[int, bytes | None] = {c.number: parts.values.get(c.number) for c in d.columns if c.type_code != TYPE_BOOLEAN and c.number != new.number}
+            booleans = {c.number for c in d.columns if c.type_code == TYPE_BOOLEAN and parts.present.get(c.number)}
+            raw_value = parts.values.get(old.number)
+            value: object = decode_scalar(old, raw_value) if isinstance(raw_value, bytes) else None
+            if old.type_code == TYPE_BOOLEAN:
+                value = bool(parts.present.get(old.number))
+            if value is None:
+                encoded[new.number] = None
+            elif new.type_code == TYPE_BOOLEAN:
+                if convert(value):
+                    booleans.add(new.number)
+            else:
+                encoded[new.number] = encode_scalar(new, convert(value), compress_text=new.compressed_unicode)
+            self._place_row(RowId(page, slot), encode_row(d, encoded, booleans, template=parts, template_var_count=var_count_before))
+
+        d.columns.remove(old)
+        self._db._write_definition(serialize_definition(d), d.page, d.pages[1:], keep_tail=True)  # pyright: ignore[reportPrivateUsage]
+        self._stamp_catalog(updated if isinstance(updated, (_dt.datetime, float)) else _dt.datetime.now().replace(microsecond=0))
+        self._db._definitions.pop(d.page, None)  # pyright: ignore[reportPrivateUsage]
+        return new
+
     def rename_column(self, name: str, new_name: str, *, updated: object | None = None) -> None:
         """Rename a column as setting a Field's Name through DAO does: the
         name in the definition changes (the header does not), the column's
@@ -800,7 +864,7 @@ class Table:
         self._check_unique(new_values, exclude=row_id)
         encoded, booleans = self._encode_values(given, keep_raw=parts)
         self._free_long_values(parts, only=set(given))
-        row = encode_row(d, encoded, booleans)
+        row = encode_row(d, encoded, booleans, template=parts)
         for i, real, columns in self._real_indexes():
             old_key = self._key(real, columns, old_values)
             new_key = self._key(real, columns, new_values)
@@ -1737,6 +1801,31 @@ class AccessDatabase:
                 aces.delete_row(rid)
         self._catalog = None
         self._definitions.pop(d.page, None)
+
+
+def _converter(old_code: int, new_code: int) -> Callable[[object], object]:
+    """How a value moves between column types in ALTER COLUMN: unchanged
+    within a type family, numbers converted between integer and floating
+    kinds, everything else refused."""
+    from decimal import Decimal
+
+    integers = {TYPE_BOOLEAN, 0x02, 0x03, 0x04, 0x13}
+    floats = {0x06, 0x07}
+    if old_code == new_code:
+        return lambda value: value
+    if old_code in integers and new_code in integers:
+        return lambda value: int(value)  # pyright: ignore[reportArgumentType]
+    if old_code in integers and new_code in floats:
+        return lambda value: float(value)  # pyright: ignore[reportArgumentType]
+    if old_code in floats and new_code in integers:
+        return lambda value: round(float(value))  # pyright: ignore[reportArgumentType]
+    if old_code in floats and new_code in floats:
+        return lambda value: float(value)  # pyright: ignore[reportArgumentType]
+    if old_code in integers | floats and new_code == 0x05:
+        return lambda value: Decimal(str(value))
+    if old_code == 0x05 and new_code in floats:
+        return lambda value: float(value)  # pyright: ignore[reportArgumentType]
+    raise AccessError(f"converting column type {old_code:#04x} to {new_code:#04x} is not written")
 
 
 def _stamp_serial(parts: RawRow, column_number: int) -> float | None:

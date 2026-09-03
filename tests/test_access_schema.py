@@ -646,6 +646,42 @@ def test_rename_column_follows_properties_and_relationships() -> None:
     assert again.table("Parent").column_names == ["Key", "FullName"] and again.table("Child").column_names == ["Id", "PId"]
 
 
+def test_alter_column_retypes_and_resizes_as_the_engine_does() -> None:
+    """Measured: the new column takes the old one's place and position
+    under the next number, rows are re-encoded with the old column's bytes
+    left in as a phantom, the definition length does not change."""
+    db = AccessDatabase(TEMPLATE)
+    table = db.create_table("W", [ColumnSpec("Id", "Long", autonumber=True), ColumnSpec("N", "Long"), ColumnSpec("T", "Text", size=40, compressed=False)], [IndexSpec("PK", ("Id",), primary=True)], created=WHEN)
+    for i in range(1, 11):
+        table.insert_row({"N": i, "T": f"row {i}"})
+    length = table.definition.definition_length
+    first = next(iter(table.raw_rows()))[2]
+    resized = table.alter_column("T", ColumnSpec("T", "Text", size=80, compressed=False), updated=WHEN)
+    d = db.table("W").definition
+    assert (resized.number, resized.var_index, resized.length) == (3, 1, 160) and d.definition_length == length
+    assert [(c.name, c.number) for c in d.columns] == [("Id", 0), ("N", 1), ("T", 3)] and d.max_columns == 4 and d.var_column_count == 2
+    row = next(iter(db.table("W").raw_rows()))[2]
+    assert len(row) == len(first) + 12 and row[:2] == b"\x04\x00"  # column count 4, phantom text kept
+    retyped = db.table("W").alter_column("N", ColumnSpec("N", "Double"), updated=WHEN)
+    d = db.table("W").definition
+    assert (retyped.number, retyped.fixed_offset, retyped.type_name) == (4, 8, "Double")
+    assert [(c.name, c.number) for c in d.columns] == [("Id", 0), ("N", 4), ("T", 3)]  # the replacement keeps its place
+    assert int.from_bytes(d.column("N").raw[9:11], "little") == 1 and int.from_bytes(d.column("N").raw[7:9], "little") == 2
+    rows = list(db.table("W").rows())
+    assert rows[0] == {"Id": 1, "T": "row 1", "N": 1.0} and [r["N"] for r in rows] == [float(i) for i in range(1, 11)]
+    db.table("W").insert_row({"N": 2.5, "T": "x" * 60})
+    assert list(db.table("W").rows())[-1]["N"] == 2.5
+    check_indexes(db.table("W"))
+    with pytest.raises(AccessError):
+        db.table("W").alter_column("Id", ColumnSpec("Id", "Double"))  # indexed and AutoNumber
+    with pytest.raises(AccessError):
+        db.table("W").alter_column("T", ColumnSpec("Other", "Text", size=10))
+    with pytest.raises(AccessError):
+        db.table("W").alter_column("T", ColumnSpec("T", "Long"))
+    again = AccessDatabase(db.to_bytes())
+    assert [r["N"] for r in again.table("W").rows()][:3] == [1.0, 2.0, 3.0]
+
+
 def test_bad_specs_are_refused() -> None:
     db = AccessDatabase(TEMPLATE)
     with pytest.raises(AccessError):

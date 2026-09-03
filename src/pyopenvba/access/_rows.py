@@ -69,11 +69,16 @@ class LongValueRef:
 
 @dataclass
 class RawRow:
-    """A row split into per-column byte slices, before value decoding."""
+    """A row split into per-column byte slices, before value decoding.
+    ``raw`` and ``var_offsets`` keep the whole row so a re-encoding can
+    carry the bytes of columns the definition no longer has (a dropped
+    column's data stays in its rows as a phantom)."""
 
     column_count: int
     values: dict[int, bytes | None]
     present: dict[int, bool]
+    raw: bytes = b""
+    var_offsets: tuple[int, ...] = ()
 
 
 def split_row(definition: TableDefinition, row: bytes) -> RawRow:
@@ -130,7 +135,7 @@ def split_row(definition: TableDefinition, row: bytes) -> RawRow:
                 f"column {column.name!r} spans {start}..{end} in a {len(row)}-byte row"
             )
         values[number] = row[start:end]
-    return RawRow(row_columns, values, present)
+    return RawRow(row_columns, values, present, bytes(row), tuple(var_offsets))
 
 
 # --- text ------------------------------------------------------------------
@@ -311,10 +316,22 @@ def encode_scalar(column: ColumnDef, value: object, *, compress_text: bool) -> b
     raise AccessError(f"column {name!r}: cannot encode type {column.type_name}")
 
 
-def encode_row(definition: TableDefinition, values: dict[int, bytes | None], present_booleans: set[int]) -> bytes:
+def encode_row(
+    definition: TableDefinition,
+    values: dict[int, bytes | None],
+    present_booleans: set[int],
+    template: RawRow | None = None,
+    template_var_count: int | None = None,
+) -> bytes:
     """Assemble a row from per-column encoded bytes (``None`` for null),
     keyed by column number.  ``present_booleans`` names the Boolean
-    columns that are True."""
+    columns that are True.  ``template`` is the row's previous version:
+    bytes it holds for columns the definition no longer has -- fixed
+    slots, variable slots and null-mask bits -- are carried over, as the
+    engine carries them (measured on ALTER COLUMN after a DROP COLUMN).
+    ``template_var_count`` is the variable-column count the row is
+    expected to have been written with (the definition's, unless a
+    variable column was just added), which decides how it is carried."""
     columns = definition.columns_by_number()
     column_count = max((c.number for c in columns), default=-1) + 1
     fixed = [c for c in columns if c.is_fixed]
@@ -322,6 +339,37 @@ def encode_row(definition: TableDefinition, values: dict[int, bytes | None], pre
     fixed_block = bytearray(fixed_size)
     variable: dict[int, bytes] = {}
     null_mask = bytearray((column_count + 7) // 8)
+    known = {c.number for c in columns}
+    if template is not None and template.raw:
+        old_mask_length = (template.column_count + 7) // 8
+        old_var_count = max(len(template.var_offsets) - 1, 0)
+        expected = definition.var_column_count if template_var_count is None else template_var_count
+        if old_var_count == expected or not template.var_offsets:
+            # The old row's slots line up with the definition's: the fixed
+            # block is the old row's whole pre-variable region (never
+            # shorter than the definition's fixed size, junk from an earlier
+            # rewrite included), variable slots are carried by index.
+            old_fixed_length = (template.var_offsets[0] - 2) if template.var_offsets else len(template.raw) - 2 - old_mask_length
+            fixed_block = bytearray(max(fixed_size, old_fixed_length))
+            old_fixed = template.raw[2 : 2 + len(fixed_block)]
+            fixed_block[: len(old_fixed)] = old_fixed
+            taken = {c.var_index for c in columns if not c.is_fixed}
+            for var_index in range(old_var_count):
+                if var_index not in taken:
+                    variable[var_index] = template.raw[template.var_offsets[var_index] : template.var_offsets[var_index + 1]]
+        else:
+            # Variable columns came or went since the row was written: the
+            # engine keeps the old body verbatim, its variable table and
+            # count included, and appends a fresh table behind it
+            # (measured on ALTER COLUMN after ADD and DROP COLUMN).
+            body = bytearray(template.raw[2 : len(template.raw) - old_mask_length])
+            if len(body) < fixed_size:
+                body += bytes(fixed_size - len(body))
+            fixed_block = body
+        old_mask = template.raw[len(template.raw) - old_mask_length :]
+        for number in range(min(template.column_count, column_count)):
+            if number not in known and old_mask[number // 8] & (1 << (number % 8)):
+                null_mask[number // 8] |= 1 << (number % 8)
 
     def mark(number: int) -> None:
         null_mask[number // 8] |= 1 << (number % 8)

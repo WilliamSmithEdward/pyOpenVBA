@@ -900,6 +900,8 @@ def test_alter_table_matches_the_engine_byte_for_byte(tmp_path: Path) -> None:
         ("ALTER TABLE W ADD COLUMN Notes MEMO", lambda t: t.add_column(ColumnSpec("Notes", "Memo", compressed=False), updated=updated())),
         ("INSERT INTO W (N, Notes) VALUES (99, '" + "n" * 3000 + "')", lambda t: t.insert_row({"N": 99, "Notes": "n" * 3000})),
         ("ALTER TABLE W DROP COLUMN Notes", lambda t: t.drop_column("Notes", updated=updated())),
+        ("ALTER TABLE W ALTER COLUMN Remark TEXT(60)", lambda t: t.alter_column("Remark", ColumnSpec("Remark", "Text", size=60, compressed=False), updated=updated())),
+        ("ALTER TABLE W ALTER COLUMN N DOUBLE", lambda t: t.alter_column("N", ColumnSpec("N", "Double"), updated=updated())),
     ]
     for statement, ours in steps:
         engine_runs(statement)

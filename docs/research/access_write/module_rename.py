@@ -134,12 +134,19 @@ def rename(source: Path, target: Path, old: str, new: str, *, steps: set[str]) -
 
         done += rename_in_project_streams(db, old, new, {"dir"})
     if "project" in steps:
+        from module_create import invalidate_cache
         from vba_project_table import rename_in_vba_project
 
         storage = db.table(STORAGE)
         for rid, row in list(storage.rows_with_ids()):
             if row["Name"] == "_VBA_PROJECT" and isinstance(row.get("Lv"), bytes):
-                blob, note = rename_in_vba_project(row["Lv"], old, new)
+                try:
+                    blob, note = rename_in_vba_project(row["Lv"], old, new)
+                except LookupError:
+                    # A module this library created is not in the compiled
+                    # cache at all, so there is nothing to rename there;
+                    # mark the cache stale and VBA rebuilds it from source.
+                    blob, note = invalidate_cache(row["Lv"]), "_VBA_PROJECT marked stale"
                 storage.update_row(rid, {"Lv": blob})
                 done.append(note)
     if "srp" in steps:

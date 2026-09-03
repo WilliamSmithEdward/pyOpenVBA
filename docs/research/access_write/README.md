@@ -7,11 +7,10 @@
 > rediscover them.
 >
 > Reopened because the storage engine in `pyopenvba.access` arrived after
-> it was parked. Module **rename and delete now work**, verified by
-> running the result in Access. **Create** writes a module Access loads,
-> the VBE enumerates and reads, and the project will take further
-> components; editing an existing module's code in such a project is what
-> still fails.
+> it was parked. Module **create, rename and delete all work**, verified
+> by running the result in Access: a created module holding arbitrary
+> source is enumerated, read back, compiled and executed, and the rest of
+> the project still edits and runs.
 
 Everything here is dev-only, needs Windows with desktop Access, and was
 verified by running the macro in Access and reading the value it returns
@@ -32,16 +31,23 @@ in pure Python, and real Access executes the result:
 * The reason writes appeared to do nothing: Access executes an `__SRP_*`
   compiled cache, and dropping it is what makes a rewrite take effect.
 
-Module **rename** and **delete** work end to end, in pure Python, with no
-COM in the write path -- the eight places a name lives, and every
-structure a module occupies. See "Module rename, delete and create".
+Module **create, rename and delete** work end to end, in pure Python,
+with no COM in the write path -- the eight places a name lives, every
+structure a module occupies, and a new standard or class module carrying
+whatever source you give it. A module's source can also be replaced
+outright. See "Module rename, delete and create".
 
-## What does not work, and is not close
+## Two routes, and what bounds each
 
-* **Creating a procedure** in a module, which is what stops a created
-  module from being useful and stops `Dim`'s neighbours from working.
-  Module rename and delete now work; create writes a module Access opens
-  and lists but will not extend. See "Module rename, delete and create".
+There are two ways to put VBA into an `.accdb`, and they fail in
+different places.
+
+**Writing p-code** edits the compiled cache in place. Nothing recompiles,
+the file stays byte-comparable with Access's own, and the change takes
+effect on the next open. This is the route with the interesting limits:
+
+* **Creating a procedure** in a module. The per-procedure tables are
+  mapped but not generated.
 * **`Const`, arrays, `Static`, fixed-length strings.** Each reshapes the
   module header its own way; all measured, none implemented, all refused.
 * **`Set x = New <Class>`**, which needs the import table.
@@ -49,6 +55,17 @@ structure a module occupies. See "Module rename, delete and create".
   into space it already has. The storage engine allocates pages properly,
   so this is a matter of routing the rewriter through it rather than an
   open question.
+
+**Writing source** replaces a module's stream with its text and marks the
+compiled cache stale, so VBA compiles it on the next open. Every item on
+that list is reachable this way, and all of them were run in Access to
+check: a new procedure, `Const`, a module-level array, `Static`, a
+`String * 5`, a class module, and `Set w = New Widget` calling into it.
+What it costs is the recompile -- the cache no longer matches Access's
+byte for byte until VBA rewrites it, and the project's existing source
+has to compile, where a cache would have hidden a broken module.
+
+Neither route needs COM.
 
 ## If this is picked up again
 
@@ -128,10 +145,12 @@ patching:
 
 - `module_rename.py` -- rename, all eight places, `__SRP_` drop included.
 - `module_delete.py` -- delete, every structure a module occupies.
-- `module_create.py` -- create, cloning an existing module's compiled
-  shape (`donor=` to take it from another database, `skip=` to bisect the
-  pieces). Access loads the result, the VBE enumerates and extends it;
-  editing an existing module's code in such a project still fails.
+- `module_create.py` -- create, writing the module's source and
+  invalidating the compiled cache so VBA rebuilds it. Takes the code as a
+  string and `kind="class"` for a class module; needs no donor and no
+  p-code.
+- `module_stream.py` -- the module's own stream, and `set_source()` to
+  replace a module's text outright.
 - `module_stream.py`, `project_streams.py`, `vba_project_table.py`,
   `vba_module_table.py`, `dir_records.py` -- one structure each.
 - `attribute_pages.py` -- says which table owns each page two databases
@@ -630,14 +649,15 @@ One rule the storage engine learned here: deleting a **catalog** row
 leaves the page it was alone on alive and owned, where a filtered DELETE
 retires it (`Table.delete_row(rid, retire_empty=False)`).
 
-### Create, as far as it goes
+### Create
 
-`module_create.py` writes everything a new module needs. Access opens the
-result, the VBE enumerates the new module with its type and line count,
-its source reads back, `CurrentProject.AllModules` lists it, the
-project's other modules still execute, and the VBE **will add further
-components to it**. What still fails is editing an existing module's code
-in a project built this way.
+`module_create.py` adds a module holding whatever source you pass it.
+Access opens the result, the VBE enumerates it, `AllModules` lists it,
+its source reads back unchanged, **its procedures compile and run**, and
+the project's other modules still edit and execute. Verified live:
+creating `Zeta` with a `ZetaGo` function and calling it returns 4242;
+creating a second module into that output without Access ever opening it
+in between gives both, and both run.
 
 What it writes:
 
@@ -650,23 +670,79 @@ What it writes:
   the highest in use -- `0`, then `4`, then `5`.
 * a dir block of eleven records and PROJECTMODULES up by one
 * entries in DirData, PROJECTwm and PROJECT
-* in `_VBA_PROJECT`: an identifier for the name, a flag in the per-module
-  list, a 32-byte per-module record, a module entry appended after the
-  last, the project's reserve advanced, and the module index grown by two
-  slots and rehashed
 * an `MSysObjects` row of type -32761 and a navigation-pane row
+* the `Version` word of `_VBA_PROJECT` set to a value VBA does not know
+
+That last line is the whole trick, and it is why the list is short.
+
+### `_VBA_PROJECT` is a cache, so invalidate it instead of forging it
+
+`_VBA_PROJECT` opens `cc 61 <u16 Version> 00 <u16>` and the rest is
+[MS-OVBA]'s PerformanceCache: the compiled project. The `Version` says
+which build of VBA compiled it. Write a version the host does not
+recognise and VBA discards the whole cache and compiles the project from
+the source in the module streams -- the same thing Access's own
+`/decompile` does. One word, and every compiled structure becomes VBA's
+problem rather than ours.
+
+Two consequences, both large:
+
+**A new module needs no p-code.** Its stream is just the compressed
+source with the dir stream's MODULEOFFSET set to `0`, so create takes the
+module's code as a string and no longer clones a donor module's compiled
+shape. Earlier versions needed a procedure-free donor and could only make
+empty modules.
+
+**None of the compiled tables have to be written.** Creating with the
+`_VBA_PROJECT` edit skipped entirely and only the version bumped gives a
+project that passes every check. The identifier table, the module table,
+the per-module records, the flag list and both hash tables are all
+rebuilt.
+
+Rename and delete take the same route when the module they are given has
+no cache entry, which is the case for one this library created: they
+catch the lookup failure and mark the cache stale instead.
+
+The cost is a recompile on the next open, which is the price Access pays
+for `/decompile` too. It also means the project's existing source has to
+compile -- a cache hides a broken module until something forces a
+rebuild.
+
+### Why forging it was never going to work
+
+The tables were modelled first, and all but one of them fit. The one
+that does not is a 32-slot `u16` table sitting just before the module
+table, after a `6c bc` marker and a size word:
+
+```
+<u32 0x6cbcXXXX> <u16 size> <32 u16 slots, ff ff when empty>
+```
+
+The occupied slots hold module indices, one per module. It is
+load-bearing: blank it in a database Access itself wrote and editing a
+module fails, rotate it and Access hangs on a modal.
+
+It also cannot be computed. **Adding the same module to the same database
+twice, in two Access sessions, gives two different tables** -- slots
+`4:0 5:1 28:2` one run and `16:2 24:0 27:1` the next, with every
+per-module field in the file identical between them. Access rewrites
+every module's 20-byte cookie on save as well, so the same module moves
+between builds. It is a dump of runtime state, and no amount of reading
+the file recovers it.
+
+The pieces that *were* solved are still in the tree, and rename uses
+them: `vba_project_table.py` (identifier table, flag list, per-module
+records), `vba_module_table.py` (module entries and the reserve rule) and
+`vba_module_index.py` (the index past the sentinel, which reproduces
+Access byte for byte). What follows records them, because they are real
+and because the next person to open `_VBA_PROJECT` will want them.
 
 **Ids come from the table's own AutoNumber, not from max + 1.** Every
 database Access wrote has `MSysAccessStorage`'s AutoNumber counter equal
 to its highest id. Inserting rows with explicit ids leaves the counter
 behind, and Access's own next insert then collides with a row that
 already exists -- which is what made a created project refuse a new
-component while reading and enumerating perfectly. Letting the counter
-assign the ids is the fix, and it is the single change that turned "will
-not take a component" into "will".
-
-Three structures found the same way, by asking why Access called the
-project corrupt:
+component while reading and enumerating perfectly.
 
 **The 32-byte per-module record.** Immediately before the identifier
 table's counters sits one record per module past the first,
@@ -708,42 +784,39 @@ Rebuilding the table that way reproduces Access's own index **byte for
 byte** -- placement, keys, values and chains -- on the three-module
 project it made by adding to a two-module one.
 
-### What still fails, and what is known about it
+### Class modules
 
-Editing an existing module's code in a created project fails, where the
-same edit succeeds on every project Access built. `module_create.py`
-takes a `skip` set so the pieces can be bisected, and the bisect says the
-`_VBA_PROJECT` edit is responsible: write everything else and leave that
-row alone, and the edit succeeds (the module then has no name in the VBE,
-since the VBE reads its list from the dir stream). Appending only the
-identifier is also fine -- that is what `module_rename.py` does, and
-renamed projects take edits happily. Every smaller subset of the
-`_VBA_PROJECT` work leaves the project inconsistent in some other way, so
-the bisect cannot narrow it further without a structure that has not been
-modelled yet.
+A class differs from a standard module in three places, all measured off
+one the VBE added:
 
-Two facts found on the way, both worth keeping:
+* the dir stream's MODULETYPE record is `0x0022`, not `0x0021`
+* `PROJECT` lists it as `Class=Name` rather than `Module=Name`
+* its source carries seven more attributes, `VB_Base` first:
+  `Attribute VB_Base = "0{FCFB3D2A-A0FA-1068-A738-08002B3371B5}"`, then
+  `VB_GlobalNameSpace`, `VB_Creatable`, `VB_PredeclaredId`, `VB_Exposed`,
+  `VB_TemplateDerived` and `VB_Customizable`, all `False`
 
-**A cloned module brings its names with it.** Cloning a module whose code
-calls `ZetaGo` leaves the p-code naming an identifier the target project
-does not have. Access's own new module appends two identifiers, the
-module's name and its procedure's; a donor with no procedures needs only
-the one.
+`VB_Base` is the one that matters and the one a `.cls` exported from the
+VBE leaves out, which is the root of issue #1.
+
+### Traps when checking any of this by hand
+
+Opening a database in Access rewrites it, so a second measurement is
+measuring the repair -- make a fresh copy per operation.
+`VBComponents.Add` over a bare COM boundary fails with "Device I/O error"
+on a database Access itself built, so a failure there says nothing.
+Splicing a structure out of another project rather than generating it
+makes Access discard the whole project and rebuild it empty, which reads
+as success from the outside: check with `peek_project.ps1` before
+believing it. And `AccessReader.find_module_streams()` finds a module by
+its `0xCAFE` p-code magic, so it does not see a source-only module at
+all; the dir stream's MODULESTREAMNAME is the reliable way to name the
+row.
 
 **`Module1` in the shipped template does not round-trip.** Rebuilding it
 unchanged through `Perf.build` gives a row one byte shorter, differing at
-the source-length field (`3fb0` against `3eb0`), so the first attempts at
-create were cloning a malformed stream. A module Access has just made
-rebuilds byte for byte, which is the check to run on any donor first.
-
-**Three traps when checking this by hand.** Opening a database in Access
-rewrites it, so a second measurement is measuring the repair -- make a
-fresh copy per operation. `VBComponents.Add` over a bare COM boundary
-fails with "Device I/O error" on a database Access itself built, so a
-failure there says nothing. And splicing a structure out of another
-project rather than generating it makes Access discard the whole project
-and rebuild it empty, which reads as success from the outside: check with
-`peek_project.ps1` before believing it.
+the source-length field (`3fb0` against `3eb0`). That mattered when
+create cloned a donor's compiled stream; it no longer does.
 
 ### The per-module entry in `_VBA_PROJECT`
 

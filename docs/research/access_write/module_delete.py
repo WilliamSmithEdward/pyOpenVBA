@@ -25,12 +25,12 @@ for _where in (ROOT / "src", ROOT / "docs/research/access_write", ROOT / "docs/r
 
 from dir_records import records  # noqa: E402
 from pyopenvba.access import AccessDatabase  # noqa: E402
-from pyopenvba.access_read import AccessReader  # noqa: E402
 from pyopenvba.vba import compress, decompress  # noqa: E402
 from vba_module_table import remove_module  # noqa: E402
 from module_rename import _dir_data_entry, _project_wm_entry, drop_srp  # noqa: E402
 
 STORAGE = "MSysAccessStorage"
+VBA_STORAGE = 17
 MODULE_TYPE = -32761
 MODULENAME = 0x0019
 MODULEEND = 0x002B
@@ -93,19 +93,14 @@ def delete(source: Path, target: Path, name: str) -> list[str]:
     db = AccessDatabase(source)
     done: list[str] = []
 
-    stream = next(
-        (s for s in AccessReader(source).find_module_streams() if s.name.lower() == name.lower()), None
-    )
-    if stream is None:
-        raise LookupError(f"no module stream named {name!r}")
-    payload = bytes(stream.raw)
-
     storage = db.table(STORAGE)
     dir_stream = next(
         decompress(row["Lv"])
         for _rid, row in storage.rows_with_ids()
         if row["Name"] == "dir" and isinstance(row.get("Lv"), bytes)
     )
+    # Through the dir stream rather than by scanning for p-code, so a
+    # module this library created can be deleted as well.
     stream_name = stream_name_of(dir_stream, name)
     cookie = project_cookie(dir_stream)
 
@@ -113,7 +108,7 @@ def delete(source: Path, target: Path, name: str) -> list[str]:
         value = row.get("Lv")
         if not isinstance(value, bytes) or not value:
             continue
-        if value == payload:
+        if row["ParentId"] == VBA_STORAGE and row["Name"] == stream_name:
             storage.delete_row(rid, retire_empty=False)
             done.append("module stream row")
         elif row["Name"] == "dir":
@@ -131,8 +126,16 @@ def delete(source: Path, target: Path, name: str) -> list[str]:
             storage.update_row(rid, {"Lv": value.replace(_project_wm_entry(name), b"")})
             done.append("PROJECTwm")
         elif row["Name"] == "_VBA_PROJECT":
-            storage.update_row(rid, {"Lv": remove_module(value, cookie, stream_name, name)})
-            done.append("_VBA_PROJECT")
+            from module_create import invalidate_cache
+
+            try:
+                blob, note = remove_module(value, cookie, stream_name, name), "_VBA_PROJECT"
+            except LookupError:
+                # A module this library created has no entry in the
+                # compiled cache; mark it stale and VBA rebuilds it.
+                blob, note = invalidate_cache(value), "_VBA_PROJECT marked stale"
+            storage.update_row(rid, {"Lv": blob})
+            done.append(note)
         elif row["Name"] == "PROJECT":
             text = value.decode("latin-1")
             fixed = remove_from_project(text, name)

@@ -7,6 +7,12 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- **A gate for a database built without the engine at all**: every
+  column type, keyed and unique indexes, a foreign key, long values,
+  four saved queries and table and column properties, all written by
+  pyOpenVBA, then read back field for field by DAO and compacted by it,
+  which fails on any structure the engine cannot follow.
+
 - **Subqueries in saved queries.** A subquery in a WHERE, one used as a
   value, and a bracketed SELECT standing where a table does all save as
   the engine saves them; a derived table's text goes in its row's

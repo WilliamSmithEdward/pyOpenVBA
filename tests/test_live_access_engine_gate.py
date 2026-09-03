@@ -1574,3 +1574,65 @@ def test_a_usage_map_past_its_page_becomes_a_reference_map(tmp_path: Path) -> No
     assert [p for p in global_map.reference_pages if p]
     assert reopened.table("Bulk").row_count == rows
     assert len(next(reopened.table("Bulk").rows())["B"]) == size  # pyright: ignore[reportArgumentType]
+
+
+def test_the_engine_takes_a_database_pyopenvba_built_from_nothing(tmp_path: Path) -> None:
+    """Everything the writers can make, in one database built without the
+    engine: every column type, keyed and unique indexes, a relationship,
+    long values, saved queries of several shapes and table properties.
+    DAO then reads every table back field for field and compacts the
+    file, which fails outright on a structure the engine cannot follow."""
+    target = tmp_path / "built.accdb"
+    db = AccessDatabase.create_new(target)
+    db.execute(
+        "CREATE TABLE Customers (Id AUTOINCREMENT CONSTRAINT PK PRIMARY KEY, Name TEXT(50) CONSTRAINT UName UNIQUE,"
+        " City TEXT(30), Balance CURRENCY, Joined DATETIME, Active BIT, Notes MEMO)"
+    )
+    db.execute(
+        "CREATE TABLE Orders (Id AUTOINCREMENT CONSTRAINT PK2 PRIMARY KEY, CustomerId LONG, Amount DOUBLE,"
+        " Placed DATETIME, Ref GUID, Big BIGINT, Blob LONGBINARY, Small SHORT, Tiny BYTE, Ratio SINGLE, Bin BINARY(16))"
+    )
+    db.execute("CREATE INDEX IX_Customer ON Orders (CustomerId, Amount DESC)")
+    db.execute("ALTER TABLE Orders ADD CONSTRAINT FK_Orders_Customers FOREIGN KEY (CustomerId) REFERENCES Customers (Id)")
+    for i in range(1, 21):
+        db.execute(
+            f"INSERT INTO Customers (Name, City, Balance, Joined, Active, Notes) "
+            f"VALUES ('name {i}', '{'city' + str(i % 4)}', {i}.25, #3/{(i % 28) + 1}/2024#, {'TRUE' if i % 2 else 'FALSE'}, '{'n' * (i * 200)}')"
+        )
+    orders = db.table("Orders")
+    for i in range(1, 41):
+        orders.insert_row(
+            {
+                "CustomerId": (i % 20) + 1,
+                "Amount": i * 1.5,
+                "Placed": dt.datetime(2024, 1, (i % 28) + 1, 12, 0, 0),
+                "Ref": uuid.UUID(int=i),
+                "Big": i * 10_000_000_000,
+                "Blob": bytes((i % 256,)) * (i * 50),
+                "Small": i - 20,
+                "Tiny": i % 256,
+                "Ratio": i / 8,
+                "Bin": bytes(range(16)),
+            }
+        )
+    db.table("Customers").set_properties({"Description": "made without the engine"})
+    db.table("Customers").set_properties({"Caption": "Customer name"}, column="Name")
+    db.create_query("Londoners", "SELECT Customers.Name, Customers.Balance FROM Customers WHERE Customers.City = 'city1'")
+    db.create_query("Spend", "SELECT Orders.CustomerId, Sum(Orders.Amount) AS Total FROM Orders GROUP BY Orders.CustomerId")
+    db.create_query("Purge", "DELETE FROM Orders WHERE Orders.Amount < 0")
+    db.create_query("ByCity", "TRANSFORM Sum(Balance) AS Total SELECT City FROM Customers GROUP BY City PIVOT Active")
+    db.save()
+
+    for name in ("Customers", "Orders"):
+        expected = json.loads(oracle("-Command", "dump", "-Path", str(target), "-Table", name))
+        assert not (d := _diff(expected, _engine_dump(AccessDatabase(target), name))), f"{name}: {chr(10).join(d)}"
+    assert oracle("-Command", "compact", "-Path", str(target)) == "ok"
+    compacted = AccessDatabase(Path(str(target) + ".compact.accdb"))
+    assert compacted.table("Customers").row_count == 20
+    assert compacted.table("Orders").row_count == 40
+    assert "FK_Orders_Customers" in [r.name for r in compacted.relationships()]
+    assert sorted(q.name for q in compacted.queries()) == ["ByCity", "Londoners", "Purge", "Spend"]
+    assert compacted.table("Customers").properties()["Description"] == "made without the engine"
+    assert compacted.table("Customers").column_properties("Name")["Caption"] == "Customer name"
+    for table in ("Customers", "Orders", "MSysObjects", "MSysQueries", "MSysACEs", "MSysRelationships"):
+        check_indexes(compacted.table(table))

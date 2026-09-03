@@ -621,6 +621,18 @@ the engine finds the same rows it does today.
   writes the appended text where a Null-propagating reading writes
   nothing.
 
+* **Jet 4 `.mdb` files** take the writers as `.accdb` files do: a table
+  created in a database DAO made with `CreateDatabase(..., dbVersion40)`
+  lands on the same pages, with the same definition, rows and index, and
+  the engine reads it back. The one difference is the permission rows.
+  A new object inherits from its container, and a database whose
+  workgroup differs from the shipped template's has different SIDs and
+  access masks there: a DAO-made `.mdb` gave its new table two rows
+  where the template's container gives three. Reproducing that means
+  the workgroup security model, which stays out of scope. Jet 3 could
+  not be measured at all: this ACE runtime refuses to create one
+  ("could not find installable ISAM").
+
 ## Alternatives considered
 
 * **Drive Access through COM at runtime.** Breaks the library's one hard

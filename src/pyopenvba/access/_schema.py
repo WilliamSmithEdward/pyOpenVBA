@@ -105,6 +105,10 @@ TYPE_BY_NAME = {
     "numeric": TYPE_NUMERIC,
     "bigint": TYPE_BIGINT,
 }
+#: Types the engine stores in a row's fixed block, and their widths.  A
+#: GUID and a BigInt are eight and sixteen bytes wide but the engine keeps
+#: them among the variable columns (measured on tables it wrote), so they
+#: are not here.
 FIXED_SIZES = {
     TYPE_BYTE: 1,
     TYPE_INT: 2,
@@ -114,8 +118,9 @@ FIXED_SIZES = {
     TYPE_DOUBLE: 8,
     TYPE_DATETIME: 8,
     TYPE_NUMERIC: 17,
-    TYPE_BIGINT: 8,
 }
+#: What a value of each type occupies wherever it is stored.
+VALUE_SIZES = {**FIXED_SIZES, TYPE_BIGINT: 8, TYPE_GUID: 16}
 DEFAULT_TEXT_CHARS = 255
 MAX_TEXT_CHARS = 255
 MAX_BINARY_BYTES = 510
@@ -228,6 +233,9 @@ def column_header(spec: ColumnSpec, number: int, var_index: int, fixed_offset: i
             raw[16] = COLUMN_COMPRESSED_UNICODE
     elif code == TYPE_GUID:
         length = 16
+    elif code == TYPE_BIGINT:
+        # Eight bytes, but among the variable columns (measured).
+        length = 8
     elif code in LONG_VALUE_TYPES:
         length = 0
         if code == TYPE_MEMO and spec.compressed:

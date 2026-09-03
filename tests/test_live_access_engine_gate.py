@@ -1348,3 +1348,79 @@ def test_dropping_and_building_indexes_match_the_engine_byte_for_byte(tmp_path: 
     db = same_then_reopen("dropped and rebuilt in one session", db)
     assert sorted(i.name for i in db.table("Big").indexes) == ["IX_N2", "PK"]
     check_indexes(db.table("Big"))
+
+
+DDL_STEPS = (
+    ("Parent", "CREATE TABLE Parent (Id AUTOINCREMENT CONSTRAINT PK PRIMARY KEY, Name TEXT(50), Remark MEMO)"),
+    ("Child", "CREATE TABLE Child (Id AUTOINCREMENT CONSTRAINT PK PRIMARY KEY, ParentId LONG, Amount CURRENCY, Flag BIT)"),
+    ("Parent", "CREATE INDEX IX_Name ON Parent (Name)"),
+    ("Child", "CREATE UNIQUE INDEX IX_Amount ON Child (Amount) WITH IGNORE NULL"),
+    ("Child", "CREATE INDEX IX_Two ON Child (ParentId, Amount DESC)"),
+    ("Parent", "ALTER TABLE Parent ADD COLUMN City TEXT(30)"),
+    ("Parent", "ALTER TABLE Parent ADD COLUMN Score DOUBLE"),
+    ("Parent", "ALTER TABLE Parent ALTER COLUMN Score SINGLE"),
+    ("Parent", "ALTER TABLE Parent DROP COLUMN City"),
+    ("Child", "DROP INDEX IX_Two ON Child"),
+    ("Types", "CREATE TABLE Types (A BYTE, B SHORT, C INTEGER, D SINGLE, E DOUBLE, F CURRENCY, G DATETIME, H BIT, I GUID, J BIGINT, K MEMO, L LONGBINARY, M BINARY(20), N VARCHAR(40))"),
+    (None, "DROP TABLE Types"),
+)
+
+
+def test_ddl_through_execute_matches_the_engine_byte_for_byte(tmp_path: Path) -> None:
+    """Every DDL statement ``db.execute`` runs leaves the bytes DAO's
+    Execute leaves for the same statement: CREATE TABLE with a named
+    primary key and every column type, CREATE INDEX (plain, unique
+    ignore-nulls, two-column descending), ALTER TABLE ADD / ALTER / DROP
+    COLUMN, ADD and DROP CONSTRAINT, DROP INDEX and DROP TABLE.  Each
+    statement is its own DAO session, so the database is reopened between
+    them and the engine's own timestamps are handed to the writer."""
+    theirs = tmp_path / "theirs.accdb"
+    shutil.copy(TEMPLATE, theirs)
+    script = tmp_path / "step.sql"
+    db = AccessDatabase(TEMPLATE)
+
+    def engine_runs(sql: str) -> None:
+        script.write_text(sql + chr(10), encoding="ascii")
+        assert oracle("-Command", "sql-file", "-Path", str(theirs), "-SqlFile", str(script)) == "ok"
+
+    def same_then_reopen(step: str, db: AccessDatabase) -> AccessDatabase:
+        ours, engine = db.to_bytes(), theirs.read_bytes()
+        assert not (d := _differing_pages(ours, engine)), f"{step}: pages differ from the engine's: {_describe_pages(ours, engine, d)}"
+        return AccessDatabase(ours)
+
+    for name, sql in DDL_STEPS:
+        engine_runs(sql)
+        stamps: dict[str, object] = {}
+        if name is not None:
+            entry = _catalog_entry(theirs, name)
+            stamps = {"created": entry.date_create_serial, "updated": entry.date_update_serial}
+        assert db.execute(sql, **stamps) == 0  # pyright: ignore[reportArgumentType]
+        db = same_then_reopen(sql, db)
+
+    # A foreign key names two tables, and the engine stamps both.
+    engine_runs("ALTER TABLE Child ADD CONSTRAINT FK_Child_Parent FOREIGN KEY (ParentId) REFERENCES Parent (Id)")
+    child, parent = _catalog_entry(theirs, "Child"), _catalog_entry(theirs, "Parent")
+    db.execute(
+        "ALTER TABLE Child ADD CONSTRAINT FK_Child_Parent FOREIGN KEY (ParentId) REFERENCES Parent (Id)",
+        created=_catalog_entry(theirs, "FK_Child_Parent").date_create_serial,
+        updated=child.date_update_serial,
+        referenced_updated=parent.date_update_serial,
+    )
+    db = same_then_reopen("ADD CONSTRAINT", db)
+    assert [r.name for r in db.relationships()][-1] == "FK_Child_Parent"
+
+    engine_runs("ALTER TABLE Child DROP CONSTRAINT FK_Child_Parent")
+    child, parent = _catalog_entry(theirs, "Child"), _catalog_entry(theirs, "Parent")
+    db.execute(
+        "ALTER TABLE Child DROP CONSTRAINT FK_Child_Parent",
+        updated=child.date_update_serial,
+        referenced_updated=parent.date_update_serial,
+    )
+    db = same_then_reopen("DROP CONSTRAINT", db)
+
+    # The rows a SQL INSERT writes into what the SQL DDL built.
+    engine_runs("INSERT INTO Child (ParentId, Amount, Flag) VALUES (1, 9.99, TRUE)")
+    assert db.execute("INSERT INTO Child (ParentId, Amount, Flag) VALUES (1, 9.99, TRUE)") == 1
+    db = same_then_reopen("INSERT after the DDL", db)
+    for table in ("Parent", "Child"):
+        check_indexes(db.table(table))

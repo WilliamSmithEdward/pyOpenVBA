@@ -349,6 +349,24 @@ try {
             $qd.ReturnsRecords = $true
             [Console]::Out.Write("ok")
         }
+        "new-passthrough" {
+            # A pass-through built the way a user would: an empty QueryDef,
+            # then its Connect, then the SQL sent to the server.
+            $sql = [System.IO.File]::ReadAllText($SqlFile).Trim()
+            $qd = $db.CreateQueryDef($Table)
+            $qd.Connect = "ODBC;DSN=none"
+            $qd.SQL = $sql
+            [Console]::Out.Write("ok")
+        }
+        "make-passthrough" {
+            # Turn the saved query -Table into a pass-through, the way DAO
+            # does it: set Connect on the existing QueryDef, then its SQL.
+            $sql = [System.IO.File]::ReadAllText($SqlFile).Trim()
+            $qd = $db.QueryDefs.Item($Table)
+            $qd.Connect = "ODBC;DSN=none"
+            $qd.SQL = $sql
+            [Console]::Out.Write("ok")
+        }
         "delete-query" {
             $db.QueryDefs.Delete($Table)
             [Console]::Out.Write("ok")

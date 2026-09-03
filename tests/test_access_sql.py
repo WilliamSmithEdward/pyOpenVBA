@@ -170,8 +170,10 @@ def test_unknown_and_ambiguous_columns_are_errors(tmp_path: Path) -> None:
         db.execute("SELECT Id FROM Customers INNER JOIN Orders ON Customers.Id = Orders.CustomerId")
     with pytest.raises(AccessError, match="no table named"):
         db.execute("SELECT * FROM Nowhere")
+    with pytest.raises(AccessError, match="unknown type"):
+        db.execute("CREATE TABLE X (A NOSUCHTYPE)")
     with pytest.raises(AccessError, match="must start with"):
-        db.execute("CREATE TABLE X (A LONG)")
+        db.execute("SHOW TABLES")
 
 
 @pytest.mark.parametrize(

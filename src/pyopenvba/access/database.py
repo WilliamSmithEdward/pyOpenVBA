@@ -62,6 +62,7 @@ from pyopenvba.access._props import (
     BLOCK_OBJECT,
     DB_INTEGER,
     DB_LONG,
+    DB_TEXT,
     PropertyBlob,
     PropertyValue,
     dao_type_for,
@@ -88,6 +89,7 @@ from pyopenvba.access._tdef import (
     OFFSET_ROW_COUNT,
     SIZE_REAL_INDEX_HEADER,
     TYPE_BINARY,
+    TYPE_BIGINT,
     TYPE_BOOLEAN,
     TYPE_DATETIME,
     TYPE_MEMO,
@@ -1052,15 +1054,26 @@ class AccessDatabase:
 
     # -- SQL ---------------------------------------------------------------------
 
-    def execute(self, sql: str, parameters: Mapping[str, object] | None = None) -> list[dict[str, object]] | int:
+    def execute(
+        self,
+        sql: str,
+        parameters: Mapping[str, object] | None = None,
+        *,
+        created: object | None = None,
+        updated: object | None = None,
+        referenced_updated: object | None = None,
+    ) -> list[dict[str, object]] | int:
         """Run one SQL statement.  SELECT returns its rows as dicts keyed by
         the output column names; INSERT, UPDATE and DELETE return the
-        number of rows affected.  ``parameters`` supplies ``[Name]``
-        references that are not columns.  See :mod:`pyopenvba.access._sql`
-        for the supported grammar."""
+        number of rows affected; CREATE, DROP and ALTER return 0, as DAO
+        does.  ``parameters`` supplies ``[Name]`` references that are not
+        columns, and ``created``/``updated`` the catalog timestamps a DDL
+        statement stamps, with ``referenced_updated`` for the other table
+        of a FOREIGN KEY.  See :mod:`pyopenvba.access._sql` and
+        :mod:`pyopenvba.access._ddl` for the grammar."""
         from pyopenvba.access._sql import execute
 
-        return execute(self, sql, parameters)
+        return execute(self, sql, parameters, created=created, updated=updated, referenced_updated=referenced_updated)
 
     # -- persistence -------------------------------------------------------------
 
@@ -1245,6 +1258,14 @@ class AccessDatabase:
         # DateUpdate: the first version of the row, whose bytes stay below
         # the slot table after the move, carries DateCreate twice.
         objects.update_row(catalog_row, {"Owner": self._default_owner(), "DateUpdate": when_updated})
+        if any(spec.type_code == TYPE_BIGINT for spec in specs):
+            # A BigInt column is newer than the file format, so the engine
+            # records the versions needed to read, write and design the
+            # table (measured: only BigInt does this, of the types that can
+            # be created).  They arrive one at a time, each rewriting the
+            # whole blob, as every property append does.
+            for count in range(1, len(VERSION_PROPERTIES) + 1):
+                objects.update_row(catalog_row, {"LvProp": serialize_property_blob(_version_properties(count))})
         aces = self.table("MSysACEs")
         for ace in self._default_aces():
             aces.insert_row(dict(ace, ObjectId=definition_page))
@@ -1931,6 +1952,23 @@ def _converter(old_code: int, new_code: int) -> Callable[[object], object]:
     if old_code == 0x05 and new_code in floats:
         return lambda value: float(value)  # pyright: ignore[reportArgumentType]
     raise AccessError(f"converting column type {old_code:#04x} to {new_code:#04x} is not written")
+
+
+#: What the engine records as the least Access build that can handle a
+#: table holding a BigInt column.
+BIGINT_MIN_VERSION = "16.0.7124.1000"
+VERSION_PROPERTIES = ("FCMinReadVer", "FCMinWriteVer", "FCMinDesignVer")
+
+
+def _version_properties(count: int = len(VERSION_PROPERTIES)) -> PropertyBlob:
+    """The version properties a BigInt column brings with it, the first
+    ``count`` of them."""
+    blob = PropertyBlob()
+    for name in VERSION_PROPERTIES[:count]:
+        blob.names.append(name)
+        blob.object_properties[name] = PropertyValue(type=DB_TEXT, flags=0, raw=BIGINT_MIN_VERSION.encode("utf-16-le"))
+    blob.block_order.append((0, ""))
+    return blob
 
 
 def _stamp_serial(parts: RawRow, column_number: int) -> float | None:

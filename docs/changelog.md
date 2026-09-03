@@ -7,6 +7,18 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- **DDL through `db.execute`.** CREATE TABLE (every Jet type word, named
+  primary keys, inline and table constraints, foreign keys), CREATE
+  [UNIQUE] INDEX with ASC/DESC columns and WITH IGNORE NULL, DROP TABLE,
+  DROP INDEX, and ALTER TABLE ADD / ALTER / DROP COLUMN and ADD / DROP
+  CONSTRAINT. Fourteen statements leave the same bytes DAO's Execute
+  leaves for the same SQL (live gate). What the Jet parser refuses --
+  `CHAR`, `DECIMAL`, `NUMERIC`, `WITH COMPRESSION` -- is refused here
+  with the reason.
+- **A table with a BigInt column carries the engine's version
+  properties** (`FCMinReadVer`, `FCMinWriteVer`, `FCMinDesignVer`),
+  written one at a time as the engine writes them.
+
 - **Crosstab saved queries.** `db.create_query(name, "TRANSFORM ... PIVOT
   ...")` writes the rows DAO writes, byte for byte, with an `IN` list, a
   TOP, a join or a parameter; `db.query(name).sql` gives the statement
@@ -41,6 +53,12 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- A BigInt column is no longer marked fixed: the engine keeps it among
+  the variable columns, like a GUID, and a table created with one
+  differed from the engine's by that flag.
+- An index key over a Currency column now takes a float, rounding it to
+  four places exactly as the row writer does. Inserting a float into a
+  uniquely indexed Currency column raised instead.
 - A fixed column declared after a variable one now carries the count of
   variable columns before it in its header, as the engine writes it. A
   table whose Currency column followed two Text columns differed from

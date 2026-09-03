@@ -49,7 +49,7 @@ import struct
 import uuid
 from collections.abc import Iterator, Sequence
 from dataclasses import dataclass
-from decimal import Decimal
+from decimal import ROUND_HALF_EVEN, Decimal
 
 from pyopenvba.access_read import AccessError
 from pyopenvba.access._pages import (
@@ -432,9 +432,14 @@ def _encode_value(column: ColumnDef, value: object) -> bytes:
             raise AccessError(f"column {column.name!r}: {value!r} is not an integer")
         return _to_sign_flipped(value, FIXED_KEY_SIZES[code])
     if code == TYPE_MONEY:
+        # A float rounds to four places exactly as the row encoder rounds
+        # it, so a key and the value it points at agree.
+        if isinstance(value, float):
+            value = Decimal(repr(value))
         if not isinstance(value, (int, Decimal)):
             raise AccessError(f"column {column.name!r}: {value!r} is not Currency")
-        return _to_sign_flipped(int(Decimal(value).scaleb(4)), 8)
+        scaled = Decimal(value).quantize(Decimal("0.0001"), rounding=ROUND_HALF_EVEN)
+        return _to_sign_flipped(int(scaled.scaleb(4)), 8)
     if code == TYPE_FLOAT:
         if not isinstance(value, (int, float)):
             raise AccessError(f"column {column.name!r}: {value!r} is not a Single")

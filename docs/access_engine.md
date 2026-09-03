@@ -488,6 +488,25 @@ the engine finds the same rows it does today.
   form of a map has not yet been seen written by the engine below 1708
   pages. Checked: 450 memo rows carrying a database from 121 to 573 pages
   leave every page but page 0 identical to the engine's own.
+* **Jet DDL type words**, one CREATE TABLE per word, read back from the
+  engine's own definition. `INTEGER`, `INT` and `INTEGER4` are the
+  four-byte Long here, the two-byte one being `SHORT`, `SMALLINT` or
+  `INTEGER2` -- the reverse of what the names suggest. `CHAR` and
+  `CHARACTER` make a *fixed-width* Text column, which is the only Text
+  column the engine marks fixed. `NOT NULL` changes nothing in the
+  column header: a NOT NULL column's twenty-five bytes are a nullable
+  column's. `WITH COMPRESSION` is refused by the Jet parser, so a column
+  made through DDL never has Unicode compression, where a column made in
+  the Access window does. `DECIMAL` and `NUMERIC` are refused too: a
+  Decimal column reaches a file only through another provider. An
+  unnamed `PRIMARY KEY` or `UNIQUE` gets a random `Index_...` name, so
+  only a named `CONSTRAINT` can be reproduced.
+* **A BigInt column brings three properties.** A table holding one gets
+  `FCMinReadVer`, `FCMinWriteVer` and `FCMinDesignVer`, all Text
+  `16.0.7124.1000`, in its catalog row's `LvProp`; no other type that
+  can be created does this. They arrive one at a time, each rewriting
+  the whole blob, so a table with fourteen columns and one BigInt leaves
+  two dead long-value rows behind the live one.
 * **Crosstab queries** (`TRANSFORM ... PIVOT`) are catalog Flags 16 with
   a type row carrying 6. Their column rows say what each column is for:
   flag 0 the value the TRANSFORM aggregates (its alias in Name1), flag 2
@@ -610,4 +629,4 @@ the engine finds the same rows it does today.
 | 6 | VBA project through the writer: module create/rename/delete | |
 | 7 | queries (`MSysQueries` to SQL and back), relationships, properties | relationships done: `create_relationship` / `drop_relationship` / `relationships()`, byte-identical to the engine's ADD CONSTRAINT ... FOREIGN KEY for a first and a second relationship on one parent and to DROP CONSTRAINT (live gate). Properties done: `table.properties()`, `column_properties()`, `set_properties()`, `db.database_properties()`; DAO's three property appends reproduced byte for byte (live gate). Queries done for SELECT, PARAMETERS, DELETE, UPDATE, INSERT INTO ... SELECT, SELECT ... INTO, UNION and crosstabs (`TRANSFORM ... PIVOT`, with an `IN` list, TOP, a join or a parameter): `db.queries()`, `db.query()`, `db.create_query(name, sql)`, `db.drop_query(name)`; thirteen CreateQueryDef calls and a QueryDefs.Delete reproduced byte for byte (live gate). Pass-through queries are read; writing one means reproducing DAO's create-then-convert route. Not yet: writing pass-through queries, subqueries in the parser |
 | 8 | forms, reports, macros: the binary object formats nobody has published | |
-| 9 | SQL executor over the engine | in progress: `db.execute(sql)` runs SELECT (column list or `*`, INNER / LEFT / RIGHT JOIN, WHERE, GROUP BY with Count / Sum / Avg / Min / Max, HAVING, ORDER BY, DISTINCT, TOP; comparison, logical, arithmetic and `&` operators, LIKE, IN, BETWEEN, IS NULL, `[parameters]`, the common string, numeric and date functions), INSERT ... VALUES, INSERT ... SELECT, UPDATE and DELETE through the row writers, coercing values to the column type. Eleven SELECT shapes answer exactly as DAO does on the same database and an UPDATE plus a DELETE write the same bytes DAO's Execute writes (live gate). Not yet: subqueries, UNION at run time, crosstabs, DDL, transactions |
+| 9 | SQL executor over the engine | in progress: `db.execute(sql)` runs Jet DDL (CREATE TABLE with named keys and inline or table constraints, CREATE [UNIQUE] INDEX, DROP TABLE, DROP INDEX, ALTER TABLE ADD / ALTER / DROP COLUMN and ADD / DROP CONSTRAINT), byte-identical to DAO's Execute on the same statements (live gate), and SELECT (column list or `*`, INNER / LEFT / RIGHT JOIN, WHERE, GROUP BY with Count / Sum / Avg / Min / Max, HAVING, ORDER BY, DISTINCT, TOP; comparison, logical, arithmetic and `&` operators, LIKE, IN, BETWEEN, IS NULL, `[parameters]`, the common string, numeric and date functions), INSERT ... VALUES, INSERT ... SELECT, UPDATE and DELETE through the row writers, coercing values to the column type. Eleven SELECT shapes answer exactly as DAO does on the same database and an UPDATE plus a DELETE write the same bytes DAO's Execute writes (live gate). Not yet: subqueries, UNION at run time, crosstabs at run time, transactions |

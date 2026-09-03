@@ -27,6 +27,7 @@ from dataclasses import dataclass
 from decimal import Decimal
 from typing import TYPE_CHECKING, Any
 
+from pyopenvba.access._ddl import execute_ddl, is_ddl
 from pyopenvba.access._queries import parse_from, select_list, split_clauses, split_top_level
 from pyopenvba.access._tdef import (
     TYPE_BOOLEAN,
@@ -791,12 +792,25 @@ def _sources(db: AccessDatabase, from_clause: str) -> list[Source]:
     return sources
 
 
-def execute(db: AccessDatabase, sql: str, parameters: Mapping[str, object] | None = None) -> list[Row] | int:
+def execute(
+    db: AccessDatabase,
+    sql: str,
+    parameters: Mapping[str, object] | None = None,
+    *,
+    created: object | None = None,
+    updated: object | None = None,
+    referenced_updated: object | None = None,
+) -> list[Row] | int:
     """Run one statement.  SELECT returns its rows as dicts keyed by the
     output column names (aliases, column names, or ``Expr1000``...);
-    INSERT, UPDATE and DELETE return the number of rows affected."""
+    INSERT, UPDATE and DELETE return the number of rows affected, and DDL
+    returns 0 as DAO does.  ``created`` and ``updated`` are the catalog
+    timestamps a DDL statement stamps, for reproducing a database the
+    engine wrote."""
     parameters = dict(parameters or {})
     text = sql.strip().rstrip(";").strip()
+    if is_ddl(text):
+        return execute_ddl(db, text, created=created, updated=updated, referenced_updated=referenced_updated)
     if text.upper().startswith("PARAMETERS "):
         _, _, text = text.partition(";")
         text = text.strip()

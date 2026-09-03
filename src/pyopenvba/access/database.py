@@ -9,6 +9,8 @@ indexes and counters included.  ``save()`` writes the pages back.
 
 from __future__ import annotations
 
+import datetime as dt
+import random
 import struct
 from collections.abc import Callable, Generator, Iterator, Mapping, Sequence
 from contextlib import contextmanager
@@ -38,6 +40,43 @@ from pyopenvba.access._pages import (
     row_bytes,
     row_pointer,
     row_slots,
+)
+from pyopenvba.access._vba import (
+    CRLF as VBA_CRLF,
+    MODULETYPE,
+    NAV_MODULE_GROUP,
+    NAV_MODULE_TYPE,
+    OBJECT_ID_STEP,
+    PROP_DATA,
+    STORAGE_TABLE,
+    VBAModule,
+    add_to_dir,
+    add_to_dir_data,
+    add_to_folder_list,
+    add_to_project,
+    add_to_project_wm,
+    attribute_lines,
+    dir_block,
+    invalidate_cache,
+    module_blocks,
+    module_offset_at,
+    module_stream,
+    next_folder,
+    read_source,
+    remove_from_dir,
+    remove_from_dir_data,
+    remove_from_folder_list,
+    remove_from_project,
+    remove_from_project_wm,
+    rename_attribute,
+    rename_dir_data,
+    rename_in_dir,
+    rename_project,
+    rename_project_wm,
+    set_module_offset,
+    split_source,
+    stream_name_of,
+    stream_row_name,
 )
 from pyopenvba.access._props import (
     BLOCK_COLUMN,
@@ -114,6 +153,7 @@ from pyopenvba.access._validate import Rules, apply_defaults
 from pyopenvba.access._validate import check as check_rules
 from pyopenvba.access._validate import read as read_rules
 from pyopenvba.access_read import AccessError
+from pyopenvba.vba import compress, decompress
 
 MSYS_OBJECTS_PAGE = 2
 
@@ -2196,6 +2236,353 @@ class AccessDatabase:
                 aces.delete_row(rid)
         self._catalog = None
         self._definitions.pop(d.page, None)
+
+
+    # --- the VBA project ----------------------------------------------------
+    # A module lives in five storage streams and three catalog tables at
+    # once.  See `pyopenvba.access._vba` for why writing here marks the
+    # compiled cache stale rather than rebuilding it.
+
+    def _vba_storage_ids(self) -> tuple[int, int, int]:
+        """The ``Modules``, ``VBAProject`` and module-stream storage ids,
+        walked by name from the root rather than assumed."""
+        rows = [row for _rid, row in self.table(STORAGE_TABLE).rows_with_ids()]
+
+        def child(parent: int, name: str) -> int:
+            for row in rows:
+                if (
+                    _as_int(row["ParentId"]) == parent
+                    and str(row["Name"]) == name
+                    and _as_int(row["Type"]) == 1
+                    and _as_int(row["Id"]) != parent
+                ):
+                    return _as_int(row["Id"])
+            raise AccessError(f"MSysAccessStorage has no {name!r} folder")
+
+        root = next(
+            (_as_int(row["Id"]) for row in rows if str(row["Name"]) == "MSysAccessStorage_ROOT"),
+            None,
+        )
+        if root is None:
+            raise AccessError("this database has no VBA project")
+        project = child(child(root, "VBA"), "VBAProject")
+        return child(root, "Modules"), project, child(project, "VBA")
+
+    def _vba_row(self, name: str, parent: int | None = None) -> tuple[RowId, dict[str, object]]:
+        for rid, row in self.table(STORAGE_TABLE).rows_with_ids():
+            if str(row["Name"]) == name and (parent is None or _as_int(row["ParentId"]) == parent):
+                return rid, row
+        raise AccessError(f"MSysAccessStorage has no {name!r} row")
+
+    def _vba_dir(self) -> tuple[RowId, bytes]:
+        """The decompressed dir stream and the row it came from."""
+        rid, row = self._vba_row("dir")
+        payload = row.get("Lv")
+        if not isinstance(payload, bytes):
+            raise AccessError("the dir stream row holds no value")
+        return rid, decompress(payload)
+
+    def _module_stream_row(self, dir_stream: bytes, name: str) -> tuple[RowId, bytes, int]:
+        """A module's storage row, its bytes and its MODULEOFFSET."""
+        _modules, _project, streams = self._vba_storage_ids()
+        rid, row = self._vba_row(stream_name_of(dir_stream, name), streams)
+        payload = row.get("Lv")
+        if not isinstance(payload, bytes):
+            raise AccessError(f"the stream row for {name!r} holds no value")
+        at = module_offset_at(dir_stream, name)
+        return rid, payload, int.from_bytes(dir_stream[at : at + 4], "little")
+
+    def _invalidate_vba_cache(self) -> None:
+        storage = self.table(STORAGE_TABLE)
+        for rid, row in list(storage.rows_with_ids()):
+            payload = row.get("Lv")
+            if str(row["Name"]) == "_VBA_PROJECT" and isinstance(payload, bytes) and payload:
+                storage.update_row(rid, {"Lv": invalidate_cache(payload)})
+                return
+        raise AccessError("this database has no _VBA_PROJECT stream")
+
+    def _drop_srp(self) -> int:
+        """Retire the ``__SRP_*`` compiled cache rows, which is what Access
+        runs in preference to the canonical p-code."""
+        storage = self.table(STORAGE_TABLE)
+        doomed = [
+            rid for rid, row in storage.rows_with_ids() if str(row["Name"]).startswith("__SRP_")
+        ]
+        for rid in doomed:
+            storage.delete_row(rid, retire_empty=False)
+        return len(doomed)
+
+    def modules(self) -> list[VBAModule]:
+        """Every module in the database's VBA project, in dir-stream order.
+
+        ``source`` is the body without the leading ``Attribute`` block, so
+        it reads as the VBE shows it.
+        """
+        _dir_rid, dir_stream = self._vba_dir()
+        _modules, _project, streams = self._vba_storage_ids()
+        payloads = {
+            str(row["Name"]): row.get("Lv")
+            for _rid, row in self.table(STORAGE_TABLE).rows_with_ids()
+            if _as_int(row["ParentId"]) == streams
+        }
+        out: list[VBAModule] = []
+        for name, stream_name, kind in module_blocks(dir_stream):
+            payload = payloads.get(stream_name)
+            at = module_offset_at(dir_stream, name)
+            offset = int.from_bytes(dir_stream[at : at + 4], "little")
+            text = read_source(payload, offset) if isinstance(payload, bytes) else ""
+            _attributes, body = split_source(text)
+            out.append(VBAModule(name, kind, stream_name, VBA_CRLF.join(body)))
+        return out
+
+    def module(self, name: str) -> VBAModule:
+        """One module by name, case-insensitively as VBA compares names."""
+        for module in self.modules():
+            if module.name.lower() == name.lower():
+                return module
+        raise AccessError(f"the VBA project has no module named {name!r}")
+
+    def create_module(
+        self,
+        name: str,
+        code: str = "Option Compare Database",
+        *,
+        kind: str = "module",
+        updated: object | None = None,
+    ) -> VBAModule:
+        """Add a module holding ``code``.
+
+        ``kind`` is ``"module"`` for a standard module or ``"class"`` for a
+        class module, which carries seven more source attributes and a
+        different MODULETYPE.  The project is marked for recompilation, so
+        the code has to compile when Access next opens the database.
+        """
+        if kind not in MODULETYPE:
+            raise AccessError(f"kind must be 'module' or 'class', not {kind!r}")
+        if not name or len(name) > 64:
+            raise AccessError("a module name is 1 to 64 characters")
+        if any(module.name.lower() == name.lower() for module in self.modules()):
+            raise AccessError(f"a module named {name!r} already exists")
+
+        rng = random.Random()
+        storage = self.table(STORAGE_TABLE)
+        modules_id, project_id, streams_id = self._vba_storage_ids()
+        dir_rid, dir_stream = self._vba_dir()
+        rows = [row for _rid, row in storage.rows_with_ids()]
+        stream_name = stream_row_name(
+            rng, {str(r["Name"]) for r in rows if _as_int(r["ParentId"]) == streams_id}
+        )
+        # Every module carries its own MODULEEND2 word; two sharing one is
+        # not something Access writes.
+        cookie = rng.randbytes(2)
+        children = [r for r in rows if _as_int(r["ParentId"]) == modules_id]
+        folders = {str(r["Name"]) for r in children if _as_int(r["Type"]) == 1}
+        folder = next_folder(len(children) - len(folders), folders)
+        when = (
+            updated
+            if isinstance(updated, (dt.datetime, float))
+            else dt.datetime.now().replace(microsecond=0)
+        )
+
+        # Ids come from the table's own AutoNumber, not from max + 1: every
+        # database Access wrote has the counter equal to its highest id, and
+        # leaving it behind makes Access's own next insert collide.
+        folder_rid = storage.insert_row(
+            {"ParentId": modules_id, "Name": folder, "Type": 1, "DateCreate": when, "DateUpdate": when}
+        )
+        folder_id = next(_as_int(r["Id"]) for rid, r in storage.rows_with_ids() if rid == folder_rid)
+        storage.insert_row(
+            {"ParentId": folder_id, "Name": "PropData", "Type": 2, "Lv": PROP_DATA,
+             "DateCreate": when, "DateUpdate": when}
+        )
+        storage.insert_row(
+            {"ParentId": streams_id, "Name": stream_name, "Type": 2,
+             "Lv": module_stream(attribute_lines(name, kind), code),
+             "DateCreate": when, "DateUpdate": when}
+        )
+
+        for rid, row in list(storage.rows_with_ids()):
+            payload = row.get("Lv")
+            if not isinstance(payload, bytes) or not payload:
+                continue
+            row_name, parent = str(row["Name"]), _as_int(row["ParentId"])
+            if row_name == "_VBA_PROJECT":
+                storage.update_row(rid, {"Lv": invalidate_cache(payload)})
+            elif row_name == "\x03DirData" and parent == modules_id:
+                storage.update_row(rid, {"Lv": add_to_dir_data(payload, name)})
+            elif row_name == "PropData" and parent == modules_id:
+                storage.update_row(rid, {"Lv": add_to_folder_list(payload, folder)})
+            elif row_name == "PROJECTwm" and parent == project_id:
+                storage.update_row(rid, {"Lv": add_to_project_wm(payload, name)})
+            elif row_name == "PROJECT" and parent == project_id:
+                storage.update_row(
+                    rid,
+                    {"Lv": add_to_project(payload.decode("latin-1"), name, kind).encode("latin-1")},
+                )
+        storage.update_row(
+            dir_rid,
+            {"Lv": compress(add_to_dir(dir_stream, dir_block(name, stream_name, cookie, kind)))},
+        )
+
+        objects = self.table("MSysObjects")
+        container = next(e.id for e in self.catalog() if e.name == "Modules" and e.type == 3)
+        owner = next((e.owner for e in self.catalog() if e.type == OBJECT_MODULE and e.owner), None)
+        object_id = max((e.id for e in self.catalog() if e.id < 0), default=-(2**31)) + OBJECT_ID_STEP
+        objects.insert_row(
+            {"Id": object_id, "ParentId": container, "Name": name, "Type": OBJECT_MODULE,
+             "Flags": 0, "Owner": owner, "DateCreate": when, "DateUpdate": when}
+        )
+        self.table("MSysNavPaneObjectIDs").insert_row(
+            {"Id": object_id, "Name": name, "Type": NAV_MODULE_TYPE}
+        )
+        groups = self.table("MSysNavPaneGroupToObjects")
+        peers = [
+            r for _rid, r in groups.rows_with_ids() if _as_int(r["GroupID"]) == NAV_MODULE_GROUP
+        ]
+        groups.insert_row(
+            {"GroupID": NAV_MODULE_GROUP, "ObjectID": object_id, "Flags": 0, "Icon": 0,
+             "Position": max((_as_int(r["Position"]) for r in peers), default=-1) + 1}
+        )
+
+        self._drop_srp()
+        self._catalog = None
+        return self.module(name)
+
+    def set_module_source(self, name: str, code: str) -> None:
+        """Replace a module's body, keeping the attribute block it has.
+
+        The stream becomes the source alone and the project is marked for
+        recompilation, which is what makes the declaration forms a p-code
+        writer cannot emit -- ``Const``, arrays, ``Static``, fixed-length
+        strings, a whole new procedure -- reachable.
+        """
+        dir_rid, dir_stream = self._vba_dir()
+        rid, payload, offset = self._module_stream_row(dir_stream, name)
+        attributes, _body = split_source(read_source(payload, offset))
+        storage = self.table(STORAGE_TABLE)
+        storage.update_row(rid, {"Lv": module_stream(attributes, code)})
+        storage.update_row(dir_rid, {"Lv": compress(set_module_offset(dir_stream, name, 0))})
+        self._invalidate_vba_cache()
+        self._drop_srp()
+
+    def rename_module(self, name: str, new_name: str) -> None:
+        """Rename a module in all eight places its name lives."""
+        if not new_name or len(new_name) > 64:
+            raise AccessError("a module name is 1 to 64 characters")
+        module = self.module(name)
+        if new_name.lower() != name.lower() and any(
+            other.name.lower() == new_name.lower() for other in self.modules()
+        ):
+            raise AccessError(f"a module named {new_name!r} already exists")
+
+        storage = self.table(STORAGE_TABLE)
+        dir_rid, dir_stream = self._vba_dir()
+        rid, payload, offset = self._module_stream_row(dir_stream, module.name)
+        attributes, body = split_source(read_source(payload, offset))
+        renamed = rename_attribute(VBA_CRLF.join(attributes), module.name, new_name)
+        storage.update_row(
+            rid, {"Lv": module_stream(renamed.split(VBA_CRLF), VBA_CRLF.join(body))}
+        )
+        stream = set_module_offset(rename_in_dir(dir_stream, module.name, new_name), new_name, 0)
+        storage.update_row(dir_rid, {"Lv": compress(stream)})
+
+        modules_id, project_id, _streams = self._vba_storage_ids()
+        for row_rid, row in list(storage.rows_with_ids()):
+            value = row.get("Lv")
+            if not isinstance(value, bytes) or not value:
+                continue
+            row_name, parent = str(row["Name"]), _as_int(row["ParentId"])
+            if row_name == "_VBA_PROJECT":
+                storage.update_row(row_rid, {"Lv": invalidate_cache(value)})
+            elif row_name == "\x03DirData" and parent == modules_id:
+                storage.update_row(row_rid, {"Lv": rename_dir_data(value, module.name, new_name)})
+            elif row_name == "PROJECTwm" and parent == project_id:
+                storage.update_row(row_rid, {"Lv": rename_project_wm(value, module.name, new_name)})
+            elif row_name == "PROJECT" and parent == project_id:
+                text = value.decode("latin-1")
+                fixed = rename_project(text, module.name, new_name)
+                if fixed != text:
+                    storage.update_row(row_rid, {"Lv": fixed.encode("latin-1")})
+
+        objects = self.table("MSysObjects")
+        for row_rid, row in objects.rows_with_ids():
+            if row["Type"] == OBJECT_MODULE and str(row["Name"]) == module.name:
+                objects.update_row(row_rid, {"Name": new_name})
+                break
+        nav = self.table("MSysNavPaneObjectIDs")
+        for row_rid, row in nav.rows_with_ids():
+            if str(row["Name"]) == module.name:
+                nav.update_row(row_rid, {"Name": new_name})
+                break
+        self._drop_srp()
+        self._catalog = None
+
+    def delete_module(self, name: str) -> None:
+        """Remove a module and every structure it occupies."""
+        module = self.module(name)
+        index = [m.name for m in self.modules()].index(module.name)
+        storage = self.table(STORAGE_TABLE)
+        modules_id, project_id, streams_id = self._vba_storage_ids()
+
+        # A module's storage folder is linked to it by position, not by
+        # name: deleting the second of three modules, Access dropped the
+        # second folder and left the others named as they were.
+        folders = sorted(
+            (
+                (rid, row)
+                for rid, row in storage.rows_with_ids()
+                if _as_int(row["ParentId"]) == modules_id and _as_int(row["Type"]) == 1
+            ),
+            key=lambda pair: _as_int(pair[1]["Id"]),
+        )
+        folder_rid, folder_row = folders[index]
+        folder_name, folder_id = str(folder_row["Name"]), _as_int(folder_row["Id"])
+        doomed = [folder_rid] + [
+            rid for rid, row in storage.rows_with_ids() if _as_int(row["ParentId"]) == folder_id
+        ]
+
+        for rid, row in list(storage.rows_with_ids()):
+            value = row.get("Lv")
+            row_name, parent = str(row["Name"]), _as_int(row["ParentId"])
+            if rid in doomed or (parent == streams_id and row_name == module.stream_name):
+                storage.delete_row(rid, retire_empty=False)
+                continue
+            if not isinstance(value, bytes) or not value:
+                continue
+            if row_name == "dir":
+                storage.update_row(
+                    rid, {"Lv": compress(remove_from_dir(decompress(value), module.name))}
+                )
+            elif row_name == "_VBA_PROJECT":
+                storage.update_row(rid, {"Lv": invalidate_cache(value)})
+            elif row_name == "\x03DirData" and parent == modules_id:
+                storage.update_row(rid, {"Lv": remove_from_dir_data(value, module.name)})
+            elif row_name == "PropData" and parent == modules_id:
+                storage.update_row(rid, {"Lv": remove_from_folder_list(value, folder_name)})
+            elif row_name == "PROJECTwm" and parent == project_id:
+                storage.update_row(rid, {"Lv": remove_from_project_wm(value, module.name)})
+            elif row_name == "PROJECT" and parent == project_id:
+                text = value.decode("latin-1")
+                fixed = remove_from_project(text, module.name)
+                if fixed != text:
+                    storage.update_row(rid, {"Lv": fixed.encode("latin-1")})
+
+        objects = self.table("MSysObjects")
+        for rid, row in list(objects.rows_with_ids()):
+            if row["Type"] == OBJECT_MODULE and str(row["Name"]) == module.name:
+                object_id = _as_int(row["Id"])
+                objects.delete_row(rid, retire_empty=False)
+                nav = self.table("MSysNavPaneObjectIDs")
+                for nav_rid, nav_row in list(nav.rows_with_ids()):
+                    if _as_int(nav_row["Id"]) == object_id:
+                        nav.delete_row(nav_rid, retire_empty=False)
+                groups = self.table("MSysNavPaneGroupToObjects")
+                for group_rid, group_row in list(groups.rows_with_ids()):
+                    if _as_int(group_row["ObjectID"]) == object_id:
+                        groups.delete_row(group_rid, retire_empty=False)
+                break
+        self._drop_srp()
+        self._catalog = None
 
 
 def _converter(old_code: int, new_code: int) -> Callable[[object], object]:

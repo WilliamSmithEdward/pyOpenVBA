@@ -139,7 +139,7 @@ with PowerPointFile("presentation.pptm") as prs:
     prs.save()
 ```
 
-### Access (read-only)
+### Access
 
 ```python
 from pyopenvba import AccessReader
@@ -156,8 +156,9 @@ with AccessReader("database.accdb") as db:
 ```
 
 Excel, Word, and PowerPoint share the same read/write API:
-`module_names()`, `get_module()`, `set_module()`, `save()`. Access VBA is
-currently read-only and exposes `vba_modules()` and `get_module()`.
+`module_names()`, `get_module()`, `set_module()`, `save()`. Access reads
+through `AccessReader` and writes through `AccessDatabase`, which adds,
+renames, deletes and re-sources modules (see below).
 
 ### Access tables, no Office required
 
@@ -196,6 +197,32 @@ with AccessDatabase("orders.accdb") as db:
         print(row["Customer"], row["Spent"])
     db.save()
 ```
+
+```python
+from pyopenvba import AccessDatabase
+
+with AccessDatabase("app.accdb") as db:
+    for module in db.modules():
+        print(module.name, module.kind, len(module.source))
+
+    db.create_module("Helpers", '''Option Compare Database
+
+Public Function Restock(ByVal low As Long) As Long
+    Restock = low * 2
+End Function''')
+    db.create_module("Widget", "Option Compare Database", kind="class")
+    db.set_module_source("Module1", "Option Compare Database\n\nPublic Sub Go()\nEnd Sub")
+    db.rename_module("Helpers", "Stock")
+    db.delete_module("Widget")
+    db.save()
+```
+
+Writing VBA marks the project for recompilation, so Access rebuilds it
+from this source the next time it opens the file. Two consequences worth
+knowing: the code has to compile, and the compiled cache no longer
+matches what Access last wrote until Access rewrites it. Every one of
+these operations is checked by running the result in Access and comparing
+the value the code returns.
 
 `db.execute(sql)` runs Jet SQL in pure Python. SELECT covers joins,
 WHERE, GROUP BY with aggregates, HAVING, ORDER BY, DISTINCT, TOP,
@@ -511,18 +538,29 @@ returning a partly-guessed control list.
 
 | Extension | What it is                   | Read | Write | create_new |
 |-----------|------------------------------|:----:|:-----:|:----------:|
-| `.accdb`  | Access database (ACE engine) | tables, indexes, VBA | tables, indexes, rows (`AccessDatabase`); VBA no | yes |
-| `.mdb`    | Access database (Jet 4)      | tables, indexes, VBA | tables, indexes, rows | no |
+| `.accdb`  | Access database (ACE engine) | tables, indexes, VBA | tables, indexes, rows, VBA modules (`AccessDatabase`) | yes |
+| `.mdb`    | Access database (Jet 4)      | tables, indexes, VBA | tables, indexes, rows, VBA modules | no |
 
-The VBA side stays read-only. Access stores compiled VBA p-code (the `rU@` + `CAFE` rows in the LVAL
-catalog) separately from the OVBA source cache. The compiled p-code is
-authoritative for the Access GUI; mutations to the source cache do not
-survive reload because Access never recompiles from the cache. After
-extensive reverse-engineering experiments we concluded that a
-production-quality writer would require a complete VBA7 p-code
-assembler, which is out of scope. See
+Access keeps compiled VBA p-code separately from the source, and for a
+long time that looked like a wall: edit the source and Access ignores it,
+because it runs the compiled copy. The way through is not to write
+p-code but to invalidate it. `_VBA_PROJECT` is [MS-OVBA]'s
+PerformanceCache and its `Version` field names the build of VBA that
+compiled it; write a version the host does not recognise and VBA discards
+the cache and compiles the project from the module streams, which is what
+Access's own `/decompile` does. So `AccessDatabase` writes a module's
+source and marks the cache stale.
+
+What this does **not** cover: code behind forms and reports, the
+References collection, and password-protected projects.
 [docs/msaccess_lessons_learned.md](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/docs/msaccess_lessons_learned.md)
-for the full chronicle.
+has the chronicle of the dead ends, and
+[docs/research/access_write](https://github.com/WilliamSmithEdward/pyOpenVBA/tree/main/docs/research/access_write)
+the structures behind it.
+
+`AccessDatabase` covers the write side: `modules()`, `module(name)`,
+`create_module(name, code, kind=...)`, `set_module_source(name, code)`,
+`rename_module(old, new)` and `delete_module(name)`.
 
 What `AccessReader` does support:
 

@@ -7,6 +7,33 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- **Access VBA is writable.** `AccessDatabase` gained `modules()`,
+  `module(name)`, `create_module(name, code, kind="module"|"class")`,
+  `set_module_source(name, code)`, `rename_module(old, new)` and
+  `delete_module(name)`. Standard and class modules both, with whatever
+  source you give them.
+
+  The route is not a p-code writer. `_VBA_PROJECT` is [MS-OVBA]'s
+  PerformanceCache, and its `Version` field names the build of VBA that
+  compiled it; writing a version the host does not recognise makes VBA
+  discard the cache and compile the project from the module streams, the
+  same thing Access's `/decompile` does. A module's stream is therefore
+  the compressed source alone with MODULEOFFSET at zero, and none of the
+  compiled tables have to be generated -- one of which could not have
+  been, since the 32-slot table ahead of the module table is runtime
+  state and adding the same module to the same database twice gives two
+  different tables. The cost is a recompile on the next open: the code
+  has to compile, and the cache stops matching what Access wrote until
+  Access rewrites it.
+
+  Three of the rules are invisible from the file and were caught only by
+  asking Access: a module's storage folder is named from the rows its
+  container already holds and Access will not look under any other name,
+  `MSysObjects` ids step by four rather than one, and a delete has to
+  free the folder or the next create picks a name Access rejects. A live
+  gate (`RUN_LIVE_ACCESS_VBA=1`) runs the result in Access and compares
+  the value the code returns, class instantiation included.
+
 - **More of the statement.** `TOP n PERCENT`, `ORDER BY <position>`, and
   a comparison against `ALL`, `ANY` or `SOME` of a subquery. A column
   name two sources share is now qualified in the output the way the

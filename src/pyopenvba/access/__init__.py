@@ -9,6 +9,7 @@ values.
 from pyopenvba.access._schema import ColumnSpec, IndexSpec
 from pyopenvba.access._props import PropertyValue
 from pyopenvba.access._queries import QueryRow, SavedQuery
+from pyopenvba.access._vba import VBAModule
 from pyopenvba.access.database import AccessDatabase, CatalogEntry, Index, LinkedTable, Relationship, RowId, Table
 
-__all__ = ["AccessDatabase", "CatalogEntry", "ColumnSpec", "Index", "IndexSpec", "LinkedTable", "PropertyValue", "QueryRow", "Relationship", "RowId", "SavedQuery", "Table"]
+__all__ = ["AccessDatabase", "CatalogEntry", "ColumnSpec", "Index", "IndexSpec", "LinkedTable", "PropertyValue", "QueryRow", "Relationship", "RowId", "SavedQuery", "Table", "VBAModule"]

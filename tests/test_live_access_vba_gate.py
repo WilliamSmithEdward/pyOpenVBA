@@ -1,17 +1,14 @@
-"""Live Access gate for the VBA module write path (opt-in).
+"""Live Access gate for the VBA module writers (opt-in).
 
 Everything else about a written module can be checked from the file and
 still be wrong: the dir stream can list a module Access refuses to name,
 the storage rows can be complete and the folder still be called something
-Access will not look under.  Two defects were caught only here, and both
-had agreed with Access by accident on every fixture used before -- the
-storage folder's name and the `MSysObjects` id step.  So this gate asks
-Access itself, and asks for the strongest answer available: **run the
-code and compare the value it returns**.
-
-The operations under test live in ``docs/research/access_write``.  They
-are research, not shipped, and nothing in ``src/`` imports them; this
-gate exists so the finding they record cannot rot.
+Access will not look under.  Three defects were caught only here, and all
+three had agreed with Access by accident on every fixture used before --
+the storage folder's name, the `MSysObjects` id step, and a folder left
+behind by a delete.  So this gate asks Access itself, and asks for the
+strongest answer available: **run the code and compare the value it
+returns**.
 
 Opt-in: set ``RUN_LIVE_ACCESS_VBA=1`` on a Windows machine with desktop
 Access and ``pyvbaharness`` installed.  Skipped everywhere else,
@@ -26,16 +23,16 @@ import shutil
 import sys
 from collections.abc import Callable
 from pathlib import Path
-from typing import NamedTuple
 
 import pytest
+
+from pyopenvba.access import AccessDatabase
 
 pytestmark = pytest.mark.skipif(
     os.environ.get("RUN_LIVE_ACCESS_VBA") != "1" or sys.platform != "win32",
     reason="live Access VBA gate: set RUN_LIVE_ACCESS_VBA=1 on Windows with Access installed",
 )
 
-_RESEARCH = Path(__file__).parents[1] / "docs" / "research" / "access_write"
 _TEMPLATE = (
     Path(__file__).parents[1]
     / "src"
@@ -78,34 +75,6 @@ End Function
 """
 
 
-class Operations(NamedTuple):
-    """The research entry points, imported by path at run time."""
-
-    create: Callable[..., list[str]]
-    rename: Callable[..., list[str]]
-    delete: Callable[..., list[str]]
-    set_source: Callable[..., str]
-    rename_steps: frozenset[str]
-
-
-@pytest.fixture(scope="module")
-def operations() -> Operations:
-    if str(_RESEARCH) not in sys.path:
-        sys.path.insert(0, str(_RESEARCH))
-    pytest.importorskip("pyvbaharness")
-    create = pytest.importorskip("module_create")
-    rename = pytest.importorskip("module_rename")
-    delete = pytest.importorskip("module_delete")
-    stream = pytest.importorskip("module_stream")
-    return Operations(
-        create.create,
-        rename.rename,
-        delete.delete,
-        stream.set_source,
-        frozenset(rename.STEPS),
-    )
-
-
 def ask(path: Path, proc: str, *args: str) -> object:
     """Open the database in Access and run one probe against it."""
     harness = pytest.importorskip("pyvbaharness")
@@ -144,12 +113,19 @@ ADDER = (
 )
 
 
+def written(blank: Path, out: Path, build: Callable[[AccessDatabase], object]) -> Path:
+    """Apply `build` to the template and save it under `out`."""
+    database = AccessDatabase(blank)
+    build(database)
+    database.save(out)
+    return out
+
+
 class TestAccessRunsWhatWeCreate:
     def test_a_created_module_is_listed_and_its_code_runs(
-        self, blank: Path, tmp_path: Path, operations: Operations
+        self, blank: Path, tmp_path: Path
     ) -> None:
-        out = tmp_path / "created.accdb"
-        operations.create(blank, out, "Adder", ADDER)
+        out = written(blank, tmp_path / "created.accdb", lambda db: db.create_module("Adder", ADDER))
 
         assert modules(out) == {"Module1", "Adder"}
         assert ask(out, "CallProc", "AdderGo") == 4242
@@ -157,99 +133,107 @@ class TestAccessRunsWhatWeCreate:
         read_back = str(ask(out, "ReadLines", "Adder")).replace(chr(13) + chr(10), chr(10))
         assert read_back.strip() == ADDER.strip()
 
-    def test_two_creates_without_access_in_between(
-        self, blank: Path, tmp_path: Path, operations: Operations
-    ) -> None:
-        first, second = tmp_path / "one.accdb", tmp_path / "two.accdb"
-        operations.create(blank, first, "Adder", ADDER)
-        operations.create(
-            first,
-            second,
-            "Doubler",
-            "Public Function DoublerGo() As Variant\n    DoublerGo = 77\nEnd Function",
-        )
+    def test_two_creates_without_access_in_between(self, blank: Path, tmp_path: Path) -> None:
+        def build(db: AccessDatabase) -> None:
+            db.create_module("Adder", ADDER)
+            db.create_module(
+                "Doubler",
+                "Public Function DoublerGo() As Variant\n    DoublerGo = 77\nEnd Function",
+            )
 
-        assert modules(second) == {"Module1", "Adder", "Doubler"}
-        assert ask(second, "CallProc", "DoublerGo") == 77
+        out = written(blank, tmp_path / "two.accdb", build)
 
-    def test_a_created_class_can_be_instantiated(
-        self, blank: Path, tmp_path: Path, operations: Operations
-    ) -> None:
-        widget, driver = tmp_path / "widget.accdb", tmp_path / "driver.accdb"
-        operations.create(
-            blank,
-            widget,
-            "Widget",
-            "Option Compare Database\n"
-            "\n"
-            "Private spun As Long\n"
-            "\n"
-            "Public Function Spin() As Variant\n"
-            "    spun = spun + 5\n"
-            "    Spin = spun\n"
-            "End Function",
-            kind="class",
-        )
-        operations.create(
-            widget,
-            driver,
-            "Driver",
-            "Option Compare Database\n"
-            "\n"
-            "Public Function UseWidget() As Variant\n"
-            "    Dim w As Widget\n"
-            "    Set w = New Widget\n"
-            "    UseWidget = w.Spin() + w.Spin()\n"
-            "End Function",
-        )
+        assert modules(out) == {"Module1", "Adder", "Doubler"}
+        assert ask(out, "CallProc", "DoublerGo") == 77
 
-        assert ask(driver, "CallProc", "UseWidget") == 15
+    def test_a_created_class_can_be_instantiated(self, blank: Path, tmp_path: Path) -> None:
+        def build(db: AccessDatabase) -> None:
+            db.create_module(
+                "Widget",
+                "Option Compare Database\n"
+                "\n"
+                "Private spun As Long\n"
+                "\n"
+                "Public Function Spin() As Variant\n"
+                "    spun = spun + 5\n"
+                "    Spin = spun\n"
+                "End Function",
+                kind="class",
+            )
+            db.create_module(
+                "Driver",
+                "Option Compare Database\n"
+                "\n"
+                "Public Function UseWidget() As Variant\n"
+                "    Dim w As Widget\n"
+                "    Set w = New Widget\n"
+                "    UseWidget = w.Spin() + w.Spin()\n"
+                "End Function",
+            )
+
+        out = written(blank, tmp_path / "widget.accdb", build)
+
+        assert ask(out, "CallProc", "UseWidget") == 15
 
     def test_the_project_still_takes_an_edit_afterwards(
-        self, blank: Path, tmp_path: Path, operations: Operations
+        self, blank: Path, tmp_path: Path
     ) -> None:
         """A created project that Access will not let you edit is the
         failure this whole route exists to avoid."""
-        out = tmp_path / "edited.accdb"
-        operations.create(blank, out, "Adder", ADDER)
+        out = written(blank, tmp_path / "edited.accdb", lambda db: db.create_module("Adder", ADDER))
 
         assert int(str(ask(out, "AddProcedure", "Module1"))) > 0
 
 
 class TestRenameAndDelete:
-    def test_a_created_module_can_be_renamed(
-        self, blank: Path, tmp_path: Path, operations: Operations
-    ) -> None:
-        made, out = tmp_path / "made.accdb", tmp_path / "renamed.accdb"
-        operations.create(blank, made, "Adder", ADDER)
-        operations.rename(made, out, "Adder", "Summer", steps=set(operations.rename_steps))
+    def test_a_created_module_can_be_renamed(self, blank: Path, tmp_path: Path) -> None:
+        def build(db: AccessDatabase) -> None:
+            db.create_module("Adder", ADDER)
+            db.rename_module("Adder", "Summer")
+
+        out = written(blank, tmp_path / "renamed.accdb", build)
 
         assert modules(out) == {"Module1", "Summer"}
         assert ask(out, "CallProc", "AdderGo") == 4242
 
-    def test_a_created_module_can_be_deleted(
-        self, blank: Path, tmp_path: Path, operations: Operations
-    ) -> None:
-        made, out = tmp_path / "made.accdb", tmp_path / "deleted.accdb"
-        operations.create(blank, made, "Adder", ADDER)
-        operations.delete(made, out, "Adder")
+    def test_a_created_module_can_be_deleted(self, blank: Path, tmp_path: Path) -> None:
+        def build(db: AccessDatabase) -> None:
+            db.create_module("Adder", ADDER)
+            db.delete_module("Adder")
+
+        out = written(blank, tmp_path / "deleted.accdb", build)
 
         assert modules(out) == {"Module1"}
 
+    def test_a_module_created_after_a_delete_still_resolves(
+        self, blank: Path, tmp_path: Path
+    ) -> None:
+        """A delete that leaves the storage folder behind makes the next
+        create pick a name Access will not look under, and `AllModules`
+        then fails on it while the VBE still runs the code."""
+
+        def build(db: AccessDatabase) -> None:
+            db.create_module("First", ADDER)
+            db.create_module("Second", "Option Compare Database")
+            db.delete_module("First")
+            db.create_module(
+                "Third",
+                "Public Function ThirdGo() As Variant\n    ThirdGo = 33\nEnd Function",
+            )
+
+        out = written(blank, tmp_path / "recycled.accdb", build)
+
+        assert modules(out) == {"Module1", "Second", "Third"}
+        assert ask(out, "CallProc", "ThirdGo") == 33
+
 
 class TestReplacingSource:
-    def test_source_the_pcode_compiler_refuses_still_runs(
-        self, blank: Path, tmp_path: Path, operations: Operations
+    def test_source_a_pcode_writer_could_not_emit_still_runs(
+        self, blank: Path, tmp_path: Path
     ) -> None:
         """`Const`, a module-level array, `Static` and a fixed-length
-        string, none of which the p-code path can emit."""
-        from pyopenvba.access import AccessDatabase
-
-        out = tmp_path / "replaced.accdb"
-        db = AccessDatabase(blank)
-        operations.set_source(
-            db,
-            "Module1",
+        string, none of which a p-code writer can produce."""
+        code = (
             "Option Compare Database\n"
             "Option Explicit\n"
             "\n"
@@ -267,8 +251,10 @@ class TestReplacingSource:
             "        total = total + Cache(i)\n"
             "    Next i\n"
             '    Grown = total & "/" & calls & "/" & Trim(label)\n'
-            "End Function",
+            "End Function"
         )
-        db.save(out)
+        out = written(
+            blank, tmp_path / "replaced.accdb", lambda db: db.set_module_source("Module1", code)
+        )
 
         assert ask(out, "CallProc", "Grown") == "14/1/hi"

@@ -134,7 +134,7 @@ def rename(source: Path, target: Path, old: str, new: str, *, steps: set[str]) -
 
         done += rename_in_project_streams(db, old, new, {"dir"})
     if "project" in steps:
-        from module_create import invalidate_cache
+        from pyopenvba.access._vba import invalidate_cache
         from vba_project_table import rename_in_vba_project
 
         storage = db.table(STORAGE)

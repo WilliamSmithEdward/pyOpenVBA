@@ -1,16 +1,15 @@
 # Writing executable VBA into Access, from pure Python
 
-> **Status: research, reopened 2026-09-03. Not a supported feature and
-> not on any roadmap.** Nothing here is imported by `src/` and nothing
-> here ships. This directory is a research record: the measurements are
-> reproducible and the dead ends are written down so nobody has to
-> rediscover them.
+> **Status: partly shipped, 2026-09-03.** Module **create, rename,
+> delete and source replacement** now live in `pyopenvba.access._vba` and
+> `AccessDatabase`, gated by `tests/test_live_access_vba_gate.py`. What
+> stays here is the p-code side -- the compiler, the module rewriter, the
+> `_VBA_PROJECT` structures and the byte-exact rename that leaves the
+> compiled cache intact -- none of which is imported by `src/`.
 >
-> Reopened because the storage engine in `pyopenvba.access` arrived after
-> it was parked. Module **create, rename and delete all work**, verified
-> by running the result in Access: a created module holding arbitrary
-> source is enumerated, read back, compiled and executed, and the rest of
-> the project still edits and runs.
+> The rest is a research record: the measurements are reproducible and
+> the dead ends are written down so nobody has to rediscover them. Where
+> a section describes something that shipped, it says so.
 
 Everything here is dev-only, needs Windows with desktop Access, and was
 verified by running the macro in Access and reading the value it returns
@@ -145,12 +144,14 @@ patching:
 
 - `module_rename.py` -- rename, all eight places, `__SRP_` drop included.
 - `module_delete.py` -- delete, every structure a module occupies.
-- `module_create.py` -- create, writing the module's source and
-  invalidating the compiled cache so VBA rebuilds it. Takes the code as a
-  string and `kind="class"` for a class module; needs no donor and no
-  p-code.
-- `module_stream.py` -- the module's own stream, and `set_source()` to
-  replace a module's text outright.
+- `module_create.py`, `module_delete.py` -- command lines over
+  `AccessDatabase.create_module` / `delete_module`, which is where this
+  work ended up.
+- `module_rename.py`, `module_stream.py` -- the **byte-exact** rename,
+  which renames the identifier inside the compiled cache rather than
+  invalidating it, so the project needs no recompile. The shipped
+  `rename_module` takes the recompile route; this is the one thing here
+  the library does not do.
 - `module_stream.py`, `project_streams.py`, `vba_project_table.py`,
   `vba_module_table.py`, `dir_records.py` -- one structure each.
 - `attribute_pages.py` -- says which table owns each page two databases
@@ -676,33 +677,43 @@ It works on the shipped blank template too, which an earlier note had
 written off: its `_VBA_PROJECT` is a stub, and marking the stub stale is
 all it needed.
 
-### Two names that are computed, not chosen
+### Three allocations that are computed, not chosen
 
 Both were found the same way -- a created module that the VBE listed and
 ran, while `CurrentProject.AllModules(i).Name` failed with "refers to an
 object that is closed or doesn't exist".
 
-**The storage folder's name.** It is a single character, and it comes
-from how many rows `Modules` already holds:
+**The storage folder's name.** It is a single character, allocated
+lowest-free from a base of `chr(0x30 + <rows under the container that are
+not folders>)`. `Modules` holds four such rows -- `PropData`,
+`PropDataCopy`, `DirData` and `DirDataCopy` -- so its folders start at
+`4`, which is why the second module in a database gets `4` and never `1`.
+Only the computed name works: on the blank template `1`, `9` and `A` all
+fail while `4` succeeds.
 
-    name = chr(0x30 + children - 1)
+Two rules fit the first four measurements and only one fits all six. A
+count, `chr(0x30 + children - 1)`, works while folders stay contiguous.
+It breaks where Access deletes a *middle* module: with `{0, 5}` in use it
+predicts `5`, and Access reuses `4`. Deleting the *last* module and
+adding one gives its name back under either rule, which is why the count
+survived a round of checking.
 
-The blank template holds five rows under `Modules` and Access's next
-folder is `4`; six gives `5`, seven `6`, eight `7`. Having Access delete
-a module and add one gave `5` back, so it counts rows rather than keeping
-a counter. Taking the character after the highest in use instead gives
-`1` on that template, and only `4` works there -- `1`, `9` and `A` all
-fail, so Access really does look the name up. That the old rule agreed
-with Access from the second module on is why this survived so long.
+**Which folder belongs to which module: position.** The folder holds
+nothing but a fixed 13-byte `PropData`, so nothing in it names a module.
+Asking Access to delete the second of three modules dropped the second
+folder and left the others named as they were.
 
 **The object id.** Access hands out `MSysObjects` ids four at a time.
 `Module1` sits at -2147483640 and the modules added after it took
 -2147483635, -2147483631, -2147483627, -2147483623. Taking max + 1 lands
-inside the range another object holds.
+inside the range another object holds. A macro, by contrast, takes the
+next id: the step is what an object reserves, not a global stride.
 
 That last line is the whole trick, and it is why the list is short.
 
 ### `_VBA_PROJECT` is a cache, so invalidate it instead of forging it
+
+*This is what shipped; see `pyopenvba/access/_vba.py`.*
 
 `_VBA_PROJECT` opens `cc 61 <u16 Version> 00 <u16>` and the rest is
 [MS-OVBA]'s PerformanceCache: the compiled project. The `Version` says

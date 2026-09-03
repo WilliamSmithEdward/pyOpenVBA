@@ -7,6 +7,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- **Pass-through queries.** `db.create_query(name, sql, connect=...)`
+  saves one, byte for byte as DAO does, dead row and all; the SQL is
+  kept exactly as given because the server parses it, not Jet.
+  `query.connect` reads the connect string back.
+
 - **Usage maps past their row.** A map whose bitmap can no longer grow
   inside its page becomes the engine's reference form: a row of chunk
   pointers, each naming a page holding one 32 736-page bitmap. The

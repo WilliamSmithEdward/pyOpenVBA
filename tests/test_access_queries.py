@@ -198,3 +198,24 @@ def test_create_query_writes_the_catalog_object_and_rows() -> None:
         again.drop_query("Purge")
     for name in ("MSysObjects", "MSysQueries", "MSysACEs"):
         check_indexes(again.table(name))
+
+
+def test_a_pass_through_query_is_written_and_read_back() -> None:
+    db = AccessDatabase(TEMPLATE)
+    db.create_table("T", [ColumnSpec("Id", "Long", autonumber=True)], [IndexSpec("PK", ("Id",), primary=True)])
+    saved = db.create_query("Remote", "EXEC dbo.usp_report 2024", connect="ODBC;DSN=none")
+    assert saved.type == 8 and saved.catalog_flags == 112
+    assert [(r.attribute, r.flag, r.name1, r.expression) for r in saved.rows] == [
+        (0, 0, None, None),
+        (255, None, None, None),
+        (1, 8, "ODBC;DSN=none", "EXEC dbo.usp_report 2024"),
+    ]
+    again = db.query("Remote")
+    assert again.sql == "EXEC dbo.usp_report 2024"
+    assert again.connect == "ODBC;DSN=none"
+    assert db.query("Remote").catalog_flags == 112
+    # The SQL is kept as written: it is the server's, not Jet's.
+    other = db.create_query("Remote2", "SELECT * FROM [dbo].[Sales] WHERE x > 1", connect="ODBC;DSN=none")
+    assert other.sql == "SELECT * FROM [dbo].[Sales] WHERE x > 1"
+    assert db.query("Remote2").connect == "ODBC;DSN=none"
+    check_indexes(db.table("MSysQueries"))

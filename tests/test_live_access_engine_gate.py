@@ -400,6 +400,24 @@ def _stamp_between(blob: bytes, first: float, last: float) -> float:
     return last
 
 
+def _stamp_on_page(path: Path, name: str, first: float, last: float) -> float:
+    """The intermediate DateUpdate DAO left in the stale bytes of the row
+    for ``name``: the first stored double strictly between the two
+    catalog stamps on that row's own page."""
+    import struct
+
+    db = AccessDatabase(path)
+    objects = db.table("MSysObjects")
+    rid = next(rid for rid, row in objects.rows_with_ids() if row["Name"] == name)
+    page = db.store.read(rid.page)
+    lo, hi = min(first, last), max(first, last)
+    for offset in range(len(page) - 8):
+        value = struct.unpack_from("<d", page, offset)[0]
+        if lo < value < hi:
+            return value
+    return first
+
+
 def _catalog_entry(path: Path, name: str) -> CatalogEntry:
     return next(e for e in AccessDatabase(path).catalog() if e.name == name)
 
@@ -855,6 +873,27 @@ def test_saved_queries_match_the_engine_byte_for_byte(tmp_path: Path) -> None:
         ours, engine = db.to_bytes(), theirs.read_bytes()
         assert not (d := _differing_pages(ours, engine)), f"{name}: pages differ from the engine's: {_describe_pages(ours, engine, d)}"
         assert db.query(name).sql == sql
+    # A pass-through query: DAO makes an empty QueryDef, sets its Connect
+    # and then its SQL, which leaves a dead row where the first type row
+    # was.  create_query(connect=...) walks the same path.
+    script.write_text("EXEC dbo.usp_report 2024", encoding="ascii")
+    assert oracle("-Command", "new-passthrough", "-Path", str(theirs), "-Table", "PT", "-SqlFile", str(script)) == "ok"
+    db = AccessDatabase(db.to_bytes())
+    entry = _catalog_entry(theirs, "PT")
+    assert entry.date_create_serial is not None and entry.date_update_serial is not None
+    db.create_query(
+        "PT", "EXEC dbo.usp_report 2024",
+        connect="ODBC;DSN=none",
+        created=entry.date_create_serial,
+        owner_updated=_stamp_on_page(theirs, "PT", entry.date_create_serial, entry.date_update_serial),
+        updated=entry.date_update_serial,
+    )
+    ours, engine = db.to_bytes(), theirs.read_bytes()
+    assert not (d := _differing_pages(ours, engine)), f"pass-through: pages differ from the engine's: {_describe_pages(ours, engine, d)}"
+    saved = db.query("PT")
+    assert saved.type == 8 and saved.catalog_flags == 112
+    assert saved.sql == "EXEC dbo.usp_report 2024" and saved.connect == "ODBC;DSN=none"
+
     assert oracle("-Command", "delete-query", "-Path", str(theirs), "-Table", "Q3") == "ok"
     db = AccessDatabase(db.to_bytes())
     db.drop_query("Q3")

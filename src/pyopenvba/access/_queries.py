@@ -56,10 +56,11 @@ QUERY_APPEND = 3
 QUERY_UPDATE = 4
 QUERY_DELETE = 5
 QUERY_CROSSTAB = 6
+QUERY_PASSTHROUGH = 8
 QUERY_UNION = 9
 
 #: MSysObjects.Flags for each query type: DAO's QueryDefTypeEnum.
-CATALOG_FLAGS = {QUERY_SELECT: 0, QUERY_CROSSTAB: 16, QUERY_DELETE: 32, QUERY_UPDATE: 48, QUERY_APPEND: 64, QUERY_MAKE_TABLE: 80, QUERY_UNION: 128}
+CATALOG_FLAGS = {QUERY_SELECT: 0, QUERY_CROSSTAB: 16, QUERY_PASSTHROUGH: 112, QUERY_DELETE: 32, QUERY_UPDATE: 48, QUERY_APPEND: 64, QUERY_MAKE_TABLE: 80, QUERY_UNION: 128}
 
 #: A crosstab's column and group rows say what each one is for.
 CROSSTAB_VALUE = 0
@@ -126,9 +127,19 @@ class SavedQuery:
         return [(r.name1 or "", r.name2) for r in self._rows(ATTR_TABLE)]
 
     @property
+    def connect(self) -> str | None:
+        """The connect string of a pass-through query, else None."""
+        typed = self._rows(ATTR_TYPE)
+        return typed[0].name1 if typed and typed[0].flag == QUERY_PASSTHROUGH else None
+
+    @property
     def sql(self) -> str:
-        """The Jet SQL the rows spell, in DAO's own layout."""
+        """The Jet SQL the rows spell, in DAO's own layout.  A pass-through
+        query keeps whatever text was saved for the server."""
         kind = self.type
+        if kind == QUERY_PASSTHROUGH:
+            typed = self._rows(ATTR_TYPE)
+            return typed[0].expression or "" if typed else ""
         if kind == QUERY_UNION:
             return " UNION ".join((r.expression or "").rstrip() for r in self._rows(ATTR_TABLE))
         parts: list[str] = []

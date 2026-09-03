@@ -52,7 +52,15 @@ from pyopenvba.access._props import (
     parse_property_blob,
     serialize_property_blob,
 )
-from pyopenvba.access._queries import QueryRow, SavedQuery, rows_from_sql
+from pyopenvba.access._queries import (
+    ATTR_END,
+    ATTR_START,
+    ATTR_TYPE,
+    QUERY_PASSTHROUGH,
+    QueryRow,
+    SavedQuery,
+    rows_from_sql,
+)
 from pyopenvba.access._rows import (
     LongValueRef,
     RawRow,
@@ -1420,6 +1428,7 @@ class AccessDatabase:
         created: object | None = None,
         updated: object | None = None,
         owner_updated: object | None = None,
+        connect: str | None = None,
     ) -> SavedQuery:
         """Save a query as DAO's ``CreateQueryDef`` does: the MSysQueries
         rows for ``sql`` (see :mod:`pyopenvba.access._queries` for the
@@ -1429,12 +1438,19 @@ class AccessDatabase:
         DAO stamps the row three times: ``created`` on the insert,
         ``owner_updated`` when it sets the owner (that version's bytes
         outlive the final one on the page) and ``updated`` with the last
-        write; each defaults to the previous."""
+        write; each defaults to the previous.
+
+        ``connect`` makes it a pass-through query instead: ``sql`` is then
+        whatever the server should run, kept as written, and the rows are
+        the two a query always has plus one type row carrying the connect
+        string.  DAO gets there by making an empty query, setting Connect
+        and then SQL, which leaves a dead row behind; this does the
+        same."""
         import datetime as _dt
 
         if any(e.name.lower() == name.lower() for e in self.catalog()):
             raise AccessError(f"an object named {name!r} already exists")
-        rows = rows_from_sql(sql)
+        rows = _passthrough_rows(connect, sql) if connect is not None else rows_from_sql(sql)
         now = _dt.datetime.now().replace(microsecond=0)
         when = created if isinstance(created, (_dt.datetime, float)) else now
         when_owner = owner_updated if isinstance(owner_updated, (_dt.datetime, float)) else when
@@ -1472,8 +1488,9 @@ class AccessDatabase:
         for ace in self._default_aces():
             aces.insert_row(dict(ace, ObjectId=object_id))
         queries = self.table("MSysQueries")
-        for row in rows:
-            queries.insert_row(
+
+        def write(row: QueryRow) -> RowId:
+            return queries.insert_row(
                 {
                     "ObjectId": object_id,
                     "Attribute": row.attribute,
@@ -1484,6 +1501,13 @@ class AccessDatabase:
                     "Flag": row.flag,
                 }
             )
+
+        for row in rows:
+            if connect is not None and row.attribute == ATTR_TYPE:
+                # Setting Connect writes this row with no SQL in it; setting
+                # SQL then deletes that row and writes another.
+                queries.delete_row(write(QueryRow(row.attribute, row.order, name1=row.name1, flag=row.flag)))
+            write(row)
         self._catalog = None
         return saved
 
@@ -1991,6 +2015,17 @@ def _version_properties(count: int = len(VERSION_PROPERTIES)) -> PropertyBlob:
         blob.object_properties[name] = PropertyValue(type=DB_TEXT, flags=0, raw=BIGINT_MIN_VERSION.encode("utf-16-le"))
     blob.block_order.append((0, ""))
     return blob
+
+
+def _passthrough_rows(connect: str, sql: str) -> list[QueryRow]:
+    """The three rows a pass-through query has: the two every query has and
+    a type row of flag 8 holding the connect string and the SQL the server
+    is sent, stored exactly as given."""
+    return [
+        QueryRow(ATTR_START, 1, flag=0),
+        QueryRow(ATTR_END, 1),
+        QueryRow(ATTR_TYPE, 1, name1=connect, expression=sql, flag=QUERY_PASSTHROUGH),
+    ]
 
 
 def _stamp_serial(parts: RawRow, column_number: int) -> float | None:

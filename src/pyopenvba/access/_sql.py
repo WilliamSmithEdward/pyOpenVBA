@@ -24,11 +24,18 @@ import datetime as _dt
 import re
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
-from decimal import Decimal
+from decimal import ROUND_HALF_EVEN, Decimal
 from typing import TYPE_CHECKING, Any
 
 from pyopenvba.access._ddl import execute_ddl, is_ddl
-from pyopenvba.access._queries import parse_from, select_list, split_clauses, split_top_level
+from pyopenvba.access._queries import (
+    parse_from,
+    select_list,
+    split_alias,
+    split_clauses,
+    split_top_level,
+    split_top_level_words,
+)
 from pyopenvba.access._tdef import (
     TYPE_BOOLEAN,
     TYPE_BYTE,
@@ -59,7 +66,7 @@ _TOKEN = re.compile(
   | (?P<number>\d+\.\d*|\.\d+|\d+)
   | (?P<bracket>\[[^\]]+\])
   | (?P<name>[A-Za-z_][A-Za-z0-9_]*)
-  | (?P<op><>|<=|>=|=|<|>|\+|-|\*|/|&|\(|\)|,|\.)
+  | (?P<op><>|<=|>=|=|<|>|\+|-|\*|/|\\|\^|&|\(|\)|,|\.)
     """,
     re.VERBOSE,
 )
@@ -192,6 +199,16 @@ class Binary(Expr):
             if _number(b) == 0:
                 raise AccessError("division by zero")
             return float(_number(a)) / float(_number(b))
+        if op in ("\\", "MOD"):
+            # Both sides round to whole numbers first, and the division
+            # truncates toward zero, which is what VBA does.
+            x, y = _whole(a), _whole(b)
+            if y == 0:
+                raise AccessError("division by zero")
+            quotient = abs(x) // abs(y) * (1 if (x < 0) == (y < 0) else -1)
+            return quotient if op == "\\" else x - y * quotient
+        if op == "^":
+            return float(_number(a)) ** float(_number(b))
         raise AccessError(f"unknown operator {op}")
 
     def columns(self) -> list[tuple[str | None, str]]:
@@ -424,10 +441,24 @@ class Parser:
         return left
 
     def additive(self) -> Expr:
-        left = self.multiplicative()
+        left = self.modulo()
         while (token := self.peek("+", "-")) is not None:
             self.take()
-            left = Binary(token.text, left, self.multiplicative())
+            left = Binary(token.text, left, self.modulo())
+        return left
+
+    def modulo(self) -> Expr:
+        left = self.int_division()
+        while self.peek("MOD"):
+            self.take()
+            left = Binary("MOD", left, self.int_division())
+        return left
+
+    def int_division(self) -> Expr:
+        left = self.multiplicative()
+        while self.peek("\\"):
+            self.take()
+            left = Binary("\\", left, self.multiplicative())
         return left
 
     def multiplicative(self) -> Expr:
@@ -444,7 +475,14 @@ class Parser:
         if self.peek("+"):
             self.take()
             return self.unary()
-        return self.atom()
+        return self.power()
+
+    def power(self) -> Expr:
+        left = self.atom()
+        while self.peek("^"):
+            self.take()
+            left = Binary("^", left, self.unary())
+        return left
 
     def atom(self) -> Expr:
         token = self.take()
@@ -506,6 +544,14 @@ def _truthy(value: object) -> bool:
     if isinstance(value, str):
         return value != ""
     return value is not None
+
+
+def _whole(value: object) -> int:
+    """A value as the whole number VBA makes of it, halves to even."""
+    number = _number(value)
+    if isinstance(number, int):
+        return number
+    return int(Decimal(str(number)).quantize(Decimal(1), rounding=ROUND_HALF_EVEN))
 
 
 def _number(value: object) -> int | float | Decimal:
@@ -960,6 +1006,8 @@ def execute(
         return _union(db, members, parameters)
     clauses = split_clauses(text)
     verb = clauses[0][0]
+    if verb == "TRANSFORM":
+        return _crosstab(db, clauses, parameters)
     if verb == "SELECT":
         return _select(db, clauses, parameters)
     if verb == "INSERT INTO":
@@ -980,7 +1028,146 @@ def _run(db: AccessDatabase, sql: str, parameters: Mapping[str, object], outer: 
     members = union_members(text)
     if members is not None:
         return _union(db, members, parameters, outer)
-    return _select(db, split_clauses(text), parameters, outer)
+    clauses = split_clauses(text)
+    if clauses[0][0] == "TRANSFORM":
+        return _crosstab(db, clauses, parameters, outer)
+    return _select(db, clauses, parameters, outer)
+
+
+def _crosstab(
+    db: AccessDatabase,
+    clauses: list[tuple[str, str]],
+    parameters: Mapping[str, object],
+    outer: Environment | None = None,
+) -> list[Row]:
+    """Run ``TRANSFORM value SELECT headings ... PIVOT column [IN (...)]``:
+    the SELECT list gives one row per group, the pivot values give the
+    columns after them, and the TRANSFORM aggregate fills the cells.  A
+    cell with no rows behind it is Null, and an ``IN`` list fixes the
+    columns and their order (empty ones included)."""
+    by_word = dict(clauses)
+    pivot_clause = by_word.get("PIVOT", "").strip()
+    if not pivot_clause:
+        raise AccessError("a TRANSFORM query needs a PIVOT clause")
+    if "HAVING" in by_word:
+        raise AccessError("a crosstab query takes no HAVING clause")
+    value_text, _value_alias = split_alias(clauses[0][1].strip())
+    value = Parser.parse(value_text)
+    if not _has_aggregate(value):
+        raise AccessError("TRANSFORM needs an aggregate, such as Sum or Count")
+    pivot_text, in_list = _split_pivot(pivot_clause)
+    pivot = Parser.parse(pivot_text)
+
+    inner = [("SELECT", by_word.get("SELECT", "")), ("FROM", by_word.get("FROM", ""))]
+    if "WHERE" in by_word:
+        inner.append(("WHERE", by_word["WHERE"]))
+    sources = _sources(db, by_word.get("FROM", ""), parameters, outer)
+
+    def runner(sql: str, env: Environment) -> list[Row]:
+        return _run(db, sql, parameters, env)
+
+    def env_for(row: Row) -> Environment:
+        return _environment(row, sources, parameters, outer, runner)
+
+    rows = _join(sources, parameters, outer)
+    if "WHERE" in by_word:
+        where = Parser.parse(by_word["WHERE"])
+        rows = [r for r in rows if (v := where.eval(env_for(r))) is not None and _truthy(v)]
+
+    _flags, _top, headings = select_list(by_word.get("SELECT", ""))
+    heading_names: list[str] = []
+    heading_exprs: list[Expr] = []
+    counter = 1000
+    for expression, alias in headings:
+        expr = Parser.parse(expression)
+        heading_exprs.append(expr)
+        if alias:
+            heading_names.append(alias.strip("[]"))
+        elif isinstance(expr, ColumnRef):
+            heading_names.append(expr.name)
+        else:
+            heading_names.append(f"Expr{counter}")
+            counter += 1
+
+    # Rows group by the GROUP BY clause when there is one, else by the
+    # headings that are not aggregates; an aggregate heading is worked out
+    # over the group, like the transformed value itself.
+    if "GROUP BY" in by_word:
+        key_exprs = [Parser.parse(item.strip()) for item in split_top_level(by_word["GROUP BY"], ",")]
+    else:
+        key_exprs = [e for e in heading_exprs if not _has_aggregate(e)]
+    groups: dict[tuple[object, ...], list[Row]] = {}
+    columns: list[object] = list(in_list) if in_list is not None else []
+    cells: dict[tuple[tuple[object, ...], object], list[Row]] = {}
+    for row in rows:
+        env = env_for(row)
+        key = tuple(_hashable(e.eval(env)) for e in key_exprs)
+        groups.setdefault(key, []).append(row)
+        column = pivot.eval(env)
+        if in_list is None and not any(_same(column, c) for c in columns):
+            columns.append(column)
+        cells.setdefault((key, _hashable(column)), []).append(row)
+
+    if in_list is None:
+        columns.sort(key=_sort_key)
+    out: list[Row] = []
+    for key, group in groups.items():
+        record: Row = {}
+        for name, expr in zip(heading_names, heading_exprs, strict=True):
+            record[name] = (
+                _evaluate_with_aggregates(expr, group, sources, parameters, env_for)
+                if _has_aggregate(expr)
+                else expr.eval(env_for(group[0]))
+            )
+        for column in columns:
+            behind = cells.get((key, _hashable(column)), [])
+            record[_column_name(column)] = (
+                _evaluate_with_aggregates(value, behind, sources, parameters, env_for) if behind else None
+            )
+        out.append(record)
+    # Without an ORDER BY the engine hands back a crosstab's rows sorted by
+    # their headings (measured: True before False on a Boolean heading).
+    for name in reversed(heading_names):
+        out.sort(key=lambda record, name=name: _sort_key(record.get(name)))
+    if "ORDER BY" in by_word:
+        for item in reversed(split_top_level(by_word["ORDER BY"], ",")):
+            item = item.strip()
+            descending = item.upper().endswith(" DESC")
+            if descending or item.upper().endswith(" ASC"):
+                item = item.rsplit(" ", 1)[0].strip()
+            expr = Parser.parse(item)
+            out.sort(
+                key=lambda record, expr=expr: _sort_key(
+                    record[expr.name] if isinstance(expr, ColumnRef) and expr.name in record else None
+                ),
+                reverse=descending,
+            )
+    return out
+
+
+def _same(a: object, b: object) -> bool:
+    return _hashable(a) == _hashable(b)
+
+
+def _column_name(value: object) -> str:
+    """What a pivot value is called as a column: its text, and ``<>`` for
+    Null, which is how the engine shows a crosstab's null heading."""
+    if value is None:
+        return "<>"
+    return _text(value)
+
+
+def _split_pivot(clause: str) -> tuple[str, list[object] | None]:
+    """The pivot expression and the values an ``IN`` list fixes."""
+    parts = split_top_level_words(clause, "IN")
+    if len(parts) < 2:
+        return clause.strip(), None
+    head = parts[0].strip()
+    rest = "IN".join(parts[1:]).strip() if len(parts) > 2 else parts[1].strip()
+    inner = rest[rest.find("(") + 1 : rest.rfind(")")]
+    env = _environment({}, [], {})
+    return head, [Parser.parse(item.strip()).eval(env) for item in split_top_level(inner, ",")]
+
 
 
 def union_members(text: str) -> list[tuple[str, str]] | None:

@@ -7,6 +7,16 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- **Crosstabs run, not just save.** `db.execute("TRANSFORM ... PIVOT
+  ...")` returns the pivoted rows: one column per pivot value, `<>` for
+  a Null heading, an `IN` list fixing the columns and their order, an
+  aggregate allowed among the row headings, and the rows sorted by those
+  headings as the engine sorts them. Two of these answer exactly as DAO
+  does (live gate).
+- **Jet's `Mod`, `\` and `^` operators**, in VBA's order of
+  precedence, with both sides rounded half to even and the division
+  truncating toward zero.
+
 - **Subqueries, unions and saved queries in `db.execute`.** `IN`,
   `NOT IN`, `EXISTS`, `NOT EXISTS` and a scalar subquery work in any
   expression, correlated when they name the outer query; a bracketed

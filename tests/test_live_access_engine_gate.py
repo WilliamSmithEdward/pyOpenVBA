@@ -1139,6 +1139,9 @@ SQL_GATE_SELECTS = (
     "SELECT t.Flag, t.N FROM (SELECT Flag, Count(*) AS N FROM AllTypes GROUP BY Flag) AS t ORDER BY t.Flag",
     "SELECT Tiny FROM AllTypes WHERE Id <= 3 UNION SELECT Tiny FROM AllTypes WHERE Id <= 6 ORDER BY Tiny",
     "SELECT Tiny FROM AllTypes WHERE Id <= 3 UNION ALL SELECT Tiny FROM AllTypes WHERE Id <= 3",
+    # Crosstabs, run rather than saved.
+    "TRANSFORM Sum(Big) AS Total SELECT Flag FROM AllTypes GROUP BY Flag PIVOT Tiny Mod 3",
+    "TRANSFORM Count(*) AS N SELECT Flag, Count(Txt) AS Named FROM AllTypes WHERE Id <= 20 GROUP BY Flag ORDER BY Flag PIVOT Tiny Mod 4 IN (0, 1, 2, 3)",
 )
 
 

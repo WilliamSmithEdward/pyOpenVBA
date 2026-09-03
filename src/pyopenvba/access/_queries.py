@@ -306,7 +306,7 @@ def _crosstab_rows(rows: list[QueryRow], parameters: list[QueryRow], clauses: li
     pivot = pivot.strip()
     rows.extend(parameters)
     rows.append(QueryRow(ATTR_TYPE, 1, flag=QUERY_CROSSTAB))
-    value, alias = _split_alias(clauses[0][1].strip())
+    value, alias = split_alias(clauses[0][1].strip())
     rows.append(QueryRow(ATTR_COLUMN, 1, name1=alias, expression=value, flag=CROSSTAB_VALUE))
     flags, top, expressions = select_list(_clause(clauses, "SELECT"))
     column_order = 1
@@ -360,7 +360,7 @@ def select_list(body: str) -> tuple[int, str | None, list[tuple[str, str | None]
         return flags | FLAG_ALL_COLUMNS, top, []
     if not body:
         raise AccessError("the select list is empty")
-    return flags, top, [_split_alias(item.strip()) for item in split_top_level(body, ",")]
+    return flags, top, [split_alias(item.strip()) for item in split_top_level(body, ",")]
 
 
 def _clause(clauses: list[tuple[str, str]], word: str) -> str:
@@ -485,7 +485,7 @@ def split_top_level_words(text: str, word: str) -> list[str]:
     return parts
 
 
-def _split_alias(item: str) -> tuple[str, str | None]:
+def split_alias(item: str) -> tuple[str, str | None]:
     """``Table AS t``, ``Table t`` or plain ``Table``."""
     match = re.search(r"\s+AS\s+(\[[^\]]+\]|\w+)\s*$", item, re.IGNORECASE)
     if match:
@@ -503,13 +503,13 @@ def parse_from(clause: str) -> tuple[list[QueryRow], list[QueryRow]]:
     join_pattern = re.compile(r"\s+(INNER|LEFT|RIGHT)\s+JOIN\s+", re.IGNORECASE)
     for source in split_top_level(clause, ","):
         pieces = join_pattern.split(source.strip())
-        first, alias = _split_alias(pieces[0].strip())
+        first, alias = split_alias(pieces[0].strip())
         tables.append(QueryRow(ATTR_TABLE, len(tables) + 1, name1=first, name2=alias))
         left = alias or first
         for k in range(1, len(pieces), 2):
             kind = {"INNER": JOIN_INNER, "LEFT": JOIN_LEFT, "RIGHT": JOIN_RIGHT}[pieces[k].upper()]
             right_part, condition = _split_on(pieces[k + 1])
-            right, right_alias = _split_alias(right_part.strip())
+            right, right_alias = split_alias(right_part.strip())
             tables.append(QueryRow(ATTR_TABLE, len(tables) + 1, name1=right, name2=right_alias))
             joins.append(QueryRow(ATTR_JOIN, len(joins) + 1, name1=left, name2=right_alias or right, expression=condition.strip(), flag=kind))
             left = right_alias or right

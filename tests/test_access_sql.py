@@ -262,3 +262,52 @@ def test_dml_takes_a_subquery(tmp_path: Path) -> None:
     assert _names(db.execute("SELECT Name FROM Customers WHERE City = 'Gone' ORDER BY Name")) == ["Cy", "Dee"]
     assert db.execute("DELETE FROM Orders WHERE CustomerId IN (SELECT Id FROM Customers WHERE Name = 'Bob')") == 1
     assert db.execute("SELECT Count(*) AS N FROM Orders") == [{"N": 3}]
+
+
+def _sales(tmp_path: Path) -> AccessDatabase:
+    db = AccessDatabase.create_new(tmp_path / "sales.accdb")
+    db.execute("CREATE TABLE Sales (Id AUTOINCREMENT CONSTRAINT PK PRIMARY KEY, Region TEXT(20), Quarter TEXT(10), Amount CURRENCY)")
+    for region, quarter, amount in (("North", "Q1", 10), ("North", "Q2", 20), ("South", "Q1", 30), ("South", "Q1", 5), ("East", "Q3", 7)):
+        db.execute(f"INSERT INTO Sales (Region, Quarter, Amount) VALUES ('{region}', '{quarter}', {amount})")
+    return db
+
+
+def test_a_crosstab_pivots_its_rows(tmp_path: Path) -> None:
+    db = _sales(tmp_path)
+    rows = db.execute("TRANSFORM Sum(Amount) AS Total SELECT Region FROM Sales GROUP BY Region PIVOT Quarter")
+    assert rows == [
+        {"Region": "East", "Q1": None, "Q2": None, "Q3": Decimal("7.0000")},
+        {"Region": "North", "Q1": Decimal("10.0000"), "Q2": Decimal("20.0000"), "Q3": None},
+        {"Region": "South", "Q1": Decimal("35.0000"), "Q2": None, "Q3": None},
+    ]
+
+
+def test_a_crosstab_takes_an_in_list_and_an_aggregate_heading(tmp_path: Path) -> None:
+    db = _sales(tmp_path)
+    rows = db.execute(
+        "TRANSFORM Count(*) AS N SELECT Region, Sum(Amount) AS Total FROM Sales GROUP BY Region "
+        "ORDER BY Region DESC PIVOT Quarter IN ('Q1', 'Q2', 'Q4')"
+    )
+    assert rows == [
+        {"Region": "South", "Total": Decimal("35.0000"), "Q1": 2, "Q2": None, "Q4": None},
+        {"Region": "North", "Total": Decimal("30.0000"), "Q1": 1, "Q2": 1, "Q4": None},
+        {"Region": "East", "Total": Decimal("7.0000"), "Q1": None, "Q2": None, "Q4": None},
+    ]
+    with pytest.raises(AccessError, match="no HAVING"):
+        db.execute("TRANSFORM Sum(Amount) SELECT Region FROM Sales GROUP BY Region HAVING Sum(Amount) > 1 PIVOT Quarter")
+    with pytest.raises(AccessError, match="needs an aggregate"):
+        db.execute("TRANSFORM Amount SELECT Region FROM Sales GROUP BY Region PIVOT Quarter")
+
+
+def test_jet_operators() -> None:
+    def env(name: str, qualifier: str | None) -> object:
+        return None
+
+    assert Parser.parse("7 Mod 3").eval(env) == 1
+    assert Parser.parse("-7 Mod 3").eval(env) == -1
+    assert Parser.parse(r"7 \ 2").eval(env) == 3
+    assert Parser.parse(r"-7 \ 2").eval(env) == -3
+    assert Parser.parse("2 ^ 10").eval(env) == 1024.0
+    # VBA's order: * binds tighter than Mod, which binds tighter than +.
+    assert Parser.parse("1 + 7 Mod 3 * 2").eval(env) == 2
+    assert Parser.parse("(1 + 7) Mod 3").eval(env) == 2

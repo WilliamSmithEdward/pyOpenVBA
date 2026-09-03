@@ -28,6 +28,7 @@ from pathlib import Path
 import pytest
 
 from pyopenvba.access import AccessDatabase, CatalogEntry, RowId, Table
+from pyopenvba.access._index import leaf_pages
 from pyopenvba.access_read import AccessError
 from test_access_write import check_indexes
 
@@ -1267,3 +1268,74 @@ def test_indexes_built_over_rows_count_them_as_the_engine_does(tmp_path: Path) -
     assert counters(db, "Kids")[-1][0] == 4
     for name in ("Counted", "Kids"):
         check_indexes(db.table(name))
+
+
+def test_dropping_and_building_indexes_match_the_engine_byte_for_byte(tmp_path: Path) -> None:
+    """An index built over four hundred rows and then dropped, byte for
+    byte against DAO.  The build exercises a B-tree that outgrows one
+    page: the engine fills a leaf with uncompressed entries, compresses it
+    with their shared prefix when it overflows, and closes it as soon as a
+    key arrives without that prefix, so the leaves break where the prefix
+    changes rather than when the page is full.  DROP INDEX then releases
+    every page the index held with their bytes left alone, deletes its
+    usage-map row and rewrites the definition without its records."""
+    from test_access_write import check_indexes
+
+    from pyopenvba.access import ColumnSpec, IndexSpec
+
+    theirs = tmp_path / "theirs.accdb"
+    shutil.copy(TEMPLATE, theirs)
+    script = tmp_path / "step.sql"
+    rows = 400
+
+    def engine_runs(*statements: str) -> None:
+        script.write_text(chr(10).join(statements) + chr(10), encoding="ascii")
+        assert oracle("-Command", "sql-file", "-Path", str(theirs), "-SqlFile", str(script)) == "ok"
+
+    def same_then_reopen(step: str, db: AccessDatabase) -> AccessDatabase:
+        ours, engine = db.to_bytes(), theirs.read_bytes()
+        assert not (d := _differing_pages(ours, engine)), f"{step}: pages differ from the engine's: {_describe_pages(ours, engine, d)}"
+        return AccessDatabase(ours)
+
+    def updated(name: str) -> object:
+        return _catalog_entry(theirs, name).date_update_serial
+
+    engine_runs(
+        "CREATE TABLE Big (Id AUTOINCREMENT CONSTRAINT PK PRIMARY KEY, N LONG, T TEXT(60))",
+        *(f"INSERT INTO Big (N, T) VALUES ({i * 7 % 991}, 'value number {i} padded out')" for i in range(1, rows + 1)),
+    )
+    entry = _catalog_entry(theirs, "Big")
+    db = AccessDatabase(TEMPLATE)
+    big = db.create_table(
+        "Big",
+        [ColumnSpec("Id", "Long", autonumber=True), ColumnSpec("N", "Long"), ColumnSpec("T", "Text", size=60, compressed=False)],
+        [IndexSpec("PK", ("Id",), primary=True)],
+        created=entry.date_create_serial,
+        updated=entry.date_update_serial,
+    )
+    for i in range(1, rows + 1):
+        big.insert_row({"N": i * 7 % 991, "T": f"value number {i} padded out"})
+    db = same_then_reopen("four hundred rows", db)
+
+    engine_runs("CREATE INDEX IX_T ON Big (T)", "CREATE INDEX IX_N ON Big (N)")
+    when = updated("Big")
+    db.create_index("Big", IndexSpec("IX_T", ("T",)), updated=when)
+    db.create_index("Big", IndexSpec("IX_N", ("N",)), updated=when)
+    db = same_then_reopen("a four-leaf text index and a one-page one", db)
+    leaves = [len(page.entries) for page in leaf_pages(db.store, db.table("Big").definition.real_indexes[1].root_page)]
+    assert leaves == [111, 111, 111, 67], leaves
+
+    engine_runs("DROP INDEX IX_T ON Big")
+    db.drop_index("Big", "IX_T", updated=updated("Big"))
+    db = same_then_reopen("the four-leaf index dropped", db)
+    assert sorted(i.name for i in db.table("Big").indexes) == ["IX_N", "PK"]
+
+    # A page freed by a drop comes back only in a later session, so the
+    # index made right after it takes one freed earlier instead.
+    engine_runs("DROP INDEX IX_N ON Big", "CREATE INDEX IX_N2 ON Big (N)")
+    when = updated("Big")
+    db.drop_index("Big", "IX_N", updated=when)
+    db.create_index("Big", IndexSpec("IX_N2", ("N",)), updated=when)
+    db = same_then_reopen("dropped and rebuilt in one session", db)
+    assert sorted(i.name for i in db.table("Big").indexes) == ["IX_N2", "PK"]
+    check_indexes(db.table("Big"))

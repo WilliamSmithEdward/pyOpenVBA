@@ -7,6 +7,13 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- **`db.drop_index(table, name)`**, byte-identical to the engine's DROP
+  INDEX: the index's pages released with their bytes untouched, its
+  usage-map row deleted, its records taken out of the definition with
+  the indexes after it moved up, and the catalog row stamped. The
+  primary key and an index a relationship rests on are refused, as the
+  engine refuses them.
+
 - **SQL executor.** `AccessDatabase.execute(sql, parameters)` runs Jet
   SQL against the engine in pure Python: SELECT with a column list or
   `*`, INNER / LEFT / RIGHT JOINs, WHERE, GROUP BY with Count, Sum, Avg,
@@ -29,6 +36,12 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- An index built over existing rows now matches the engine's B-tree.
+  Entries are added in key order, a leaf keeps the prefix it was
+  compressed with instead of shrinking it (so a key without that prefix
+  starts the next leaf), and a splitting root hands its page image to
+  the left half. A four-leaf index over four hundred rows differed from
+  the engine's on every leaf before; it is byte-identical now.
 - `&` in a SQL expression now reads Null as an empty string, as Jet
   does, giving Null only when both sides are Null; `+` still propagates
   it. Appending text to a null Memo through UPDATE wrote nothing

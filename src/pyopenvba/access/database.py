@@ -1301,10 +1301,16 @@ class AccessDatabase:
         tree = table._btree(position, real)  # pyright: ignore[reportPrivateUsage]
         distinct = 0
         entries = 0
+        # The engine builds a new index in key order, so its leaves fill and
+        # split at the end rather than in the middle (measured: 111/111/111/67
+        # entries over 400 text keys, where row order gives 92/92/92/124).
+        keyed: list[tuple[bytes, RowId, dict[str, object]]] = []
         for row_id, values in table.rows_with_ids():
             key = table._key(real, columns, values)  # pyright: ignore[reportPrivateUsage]
-            if key is None:
-                continue
+            if key is not None:
+                keyed.append((key, row_id, dict(values)))
+        keyed.sort(key=lambda item: (item[0], item[1].page, item[1].slot))
+        for key, row_id, values in keyed:
             if real.unique:
                 table._check_unique(values, exclude=row_id)  # pyright: ignore[reportPrivateUsage]
             entries += 1
@@ -1784,6 +1790,59 @@ class AccessDatabase:
             if entry.type == 3 and entry.name == name:
                 return entry
         raise AccessError(f"the catalog has no {name} container")
+
+    def drop_index(self, table_name: str, name: str, *, updated: object | None = None) -> None:
+        """Remove an index as DROP INDEX does: every page it holds released
+        with its bytes left alone, its usage-map row deleted, the
+        definition rewritten without its three records (the indexes after
+        it move up and every logical index pointing past it follows), and
+        the catalog row's DateUpdate stamped.  The primary key and an
+        index a relationship rests on cannot be dropped, as the engine
+        refuses them."""
+        import datetime as _dt
+
+        table = self.table(table_name)
+        d = table.definition
+        logical = next((li for li in d.logical_indexes if li.name.lower() == name.lower()), None)
+        if logical is None:
+            raise AccessError(f"table {table_name!r} has no index named {name!r}")
+        if logical.is_primary_key:
+            raise AccessError(f"index {name!r} is the primary key of {table_name!r}")
+        if logical.relationship_kind:
+            raise AccessError(f"index {name!r} belongs to a relationship; drop that first")
+        position = logical.real_index
+        if any(li is not logical and li.real_index == position for li in d.logical_indexes):
+            raise AccessError(f"index {name!r} shares its B-tree with another index")
+        store = self.store
+        real = d.real_indexes[position]
+
+        umap = read_usage_map_ref(store, real.usage_map_ref)
+        pages = sorted(umap.pages())
+        for page_number in pages:
+            set_usage_bit(store, umap, page_number, False)
+        map_page = DataPage(store.read(real.usage_map_ref >> 8))
+        map_page.remove_row(real.usage_map_ref & 0xFF)
+        store.write(real.usage_map_ref >> 8, map_page.to_bytes())
+        for page_number in pages:
+            release_page(store, page_number)
+
+        d.real_indexes.pop(position)
+        d.logical_indexes.remove(logical)
+        d.real_index_count -= 1
+        d.logical_index_count -= 1
+        for other in d.logical_indexes:
+            if other.real_index > position:
+                # A logical index names its B-tree by position, so the ones
+                # after the hole move down with it; its own number stays,
+                # because relationships elsewhere point at that.
+                other.real_index -= 1
+                raw = bytearray(other.raw)
+                struct.pack_into("<I", raw, 8, other.real_index)
+                other.raw = bytes(raw)
+        self._write_definition(serialize_definition(d), d.page, d.pages[1:], keep_tail=True)
+        table._stamp_catalog(updated if isinstance(updated, (_dt.datetime, float)) else _dt.datetime.now().replace(microsecond=0))  # pyright: ignore[reportPrivateUsage]
+        self._catalog = None
+        self._definitions.pop(d.page, None)
 
     def drop_table(self, name: str) -> None:
         """Remove a table and give back everything it held, in the engine's

@@ -488,6 +488,36 @@ the engine finds the same rows it does today.
   form of a map has not yet been seen written by the engine below 1708
   pages. Checked: 450 memo rows carrying a database from 121 to 573 pages
   leave every page but page 0 identical to the engine's own.
+* **DROP INDEX** gives back everything the index held and nothing else:
+  every page in its usage map is released with its bytes untouched (no
+  retirement mark, no zeroing), its map row is deleted from the table's
+  map page, the definition is rewritten without its three records (the
+  12-byte header, the 52-byte index and the 28-byte logical entry plus
+  its name, 102 bytes in this measurement), and the catalog row's
+  DateUpdate is stamped. The real indexes after the hole move up, so
+  every logical index pointing past it has its B-tree position lowered
+  by one, while its own index number stays: relationships elsewhere name
+  that number. A map row is never reused -- the next index appends a
+  fresh row after the dead slot -- and a page freed by a drop comes back
+  only in a later session, the object rule again (dropping and creating
+  in one DAO session took a page freed by an earlier drop, not the one
+  just released).
+* **Building an index over rows.** The engine sorts the keys first, so a
+  leaf fills at its end rather than in the middle, and it fills with
+  *uncompressed* entries. When the next entry will not fit, the page is
+  compressed: the bytes its entries share become the page prefix at 0x18
+  and each entry after the first is stored without them, which on a
+  400-row text index freed 1650 of 3616 bytes. The compressed page then
+  keeps taking entries, but only ones carrying that prefix: the first
+  key without it closes the page and opens the next. So the leaves break
+  where the shared prefix changes, not where the page fills -- 111, 111,
+  111 and 67 entries for keys `value number 1..400`, the three closed
+  leaves each holding one leading digit with 1504 bytes still free, and
+  the last leaf left uncompressed (prefix 0) because it never
+  overflowed. A page's prefix is fixed once set. The bytes the
+  uncompressed fill left beyond the compressed entries stay on the page,
+  and when the root splits they travel with it: the left half is written
+  over the root's own page image, and the new node keeps that image too.
 * **Index row counters.** Each real index's 12-byte header carries two
   counts: the distinct keys at +4 (above) and, at +0, the rows the
   index holds. The second is written only when the index is built over
@@ -555,7 +585,7 @@ the engine finds the same rows it does today.
 | 3 | write rows: insert/update/delete, free-space and owned-page maps, LVAL allocation, counters | done: every column type including Memo/OLE of every storage kind, overflow rows, unique-index enforcement, page allocation and all counters; the engine reads the result, keeps working on it and compacts it; single edits and memo inserts byte-identical to the engine's |
 | 4 | write indexes: key encoding from the engine-generated collation table, B-tree insert and split | done: entries inserted and removed, pages compressed when full and split, root pinned; single edits byte-identical to the engine |
 | 3b | large files: usage maps growing past 512 pages | done for inline maps (growth and re-base as the engine does); the reference form is read but not yet written |
-| 5 | write schema: create/drop table, create index, catalog rows | done: `create_table`, `create_index`, `drop_table`; byte-identical to the engine's CREATE TABLE, CREATE INDEX and DROP TABLE on every page but page 0; the engine inserts into, reads and compacts a table pyOpenVBA created; definitions over one page (up to the 255-column limit) are chained and rewritten as the engine does, byte-identical; `add_column` / `drop_column` match ALTER TABLE ADD COLUMN / DROP COLUMN byte for byte (live gate). `rename_table`, `rename_column` and `alter_column` match DAO renames and ALTER COLUMN; a table's map rows spill onto a second map page as the engine's do. Not yet: navigation-pane rows (the Access layer adds those itself) |
+| 5 | write schema: create/drop table, create index, catalog rows | done: `create_table`, `create_index`, `drop_index`, `drop_table`; byte-identical to the engine's CREATE TABLE, CREATE INDEX and DROP TABLE on every page but page 0; the engine inserts into, reads and compacts a table pyOpenVBA created; definitions over one page (up to the 255-column limit) are chained and rewritten as the engine does, byte-identical; `add_column` / `drop_column` match ALTER TABLE ADD COLUMN / DROP COLUMN byte for byte (live gate). `rename_table`, `rename_column` and `alter_column` match DAO renames and ALTER COLUMN; a table's map rows spill onto a second map page as the engine's do. `drop_index` matches DROP INDEX byte for byte, as does an index built over four hundred rows whose B-tree spans four leaves. Not yet: navigation-pane rows (the Access layer adds those itself) |
 | 6 | VBA project through the writer: module create/rename/delete | |
 | 7 | queries (`MSysQueries` to SQL and back), relationships, properties | relationships done: `create_relationship` / `drop_relationship` / `relationships()`, byte-identical to the engine's ADD CONSTRAINT ... FOREIGN KEY for a first and a second relationship on one parent and to DROP CONSTRAINT (live gate). Properties done: `table.properties()`, `column_properties()`, `set_properties()`, `db.database_properties()`; DAO's three property appends reproduced byte for byte (live gate). Queries done for SELECT, PARAMETERS, DELETE, UPDATE, INSERT INTO ... SELECT, SELECT ... INTO and UNION: `db.queries()`, `db.query()`, `db.create_query(name, sql)`, `db.drop_query(name)`; eight CreateQueryDef calls and a QueryDefs.Delete reproduced byte for byte (live gate). Not yet: crosstab and pass-through queries, subqueries in the parser |
 | 8 | forms, reports, macros: the binary object formats nobody has published | |

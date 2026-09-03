@@ -696,3 +696,61 @@ def test_bad_specs_are_refused() -> None:
         db.create_table("X", [ColumnSpec("A", "Wibble")])
     with pytest.raises(AccessError):
         db.drop_table("MSysObjects")
+
+
+def test_drop_index_gives_back_its_pages_and_leaves_the_rest_working(tmp_path: Path) -> None:
+    db = AccessDatabase(TEMPLATE)
+    table = db.create_table(
+        "Idx",
+        [ColumnSpec("Id", "Long", autonumber=True), ColumnSpec("N", "Long"), ColumnSpec("T", "Text", size=30)],
+        [IndexSpec("PK", ("Id",), primary=True)],
+        created=WHEN,
+    )
+    for i in range(300):
+        table.insert_row({"N": (i * 7919) % 1000, "T": f"t{i % 10}"})
+    db.create_index("Idx", IndexSpec("IX_N", ("N",)), updated=WHEN)
+    db.create_index("Idx", IndexSpec("IX_T", ("T",)), updated=WHEN)
+    table = db.table("Idx")
+    held = set(read_usage_map_ref(db.store, table.definition.real_indexes[1].usage_map_ref).pages())
+    assert held
+
+    db.drop_index("Idx", "IX_N", updated=WHEN)
+    db.save(tmp_path / "idx.accdb")
+    again = AccessDatabase(tmp_path / "idx.accdb")
+    table = again.table("Idx")
+    assert [i.name for i in table.indexes] == ["IX_T", "PK"]
+    assert table.definition.real_index_count == 2
+    assert table.definition.logical_index_count == 2
+    # The remaining indexes still point at their own B-trees, and the ones
+    # after the hole moved down with it.
+    assert {i.name: i.real.root_page for i in table.indexes} == {"PK": table.index("PK").real.root_page, "IX_T": table.index("IX_T").real.root_page}
+    assert [li.real_index for li in sorted(table.definition.logical_indexes, key=lambda x: x.number)] == [0, 1]
+    check_indexes(table)
+    assert table.index("IX_T").distinct_count == 10
+    # The pages it held are free again, so a new index takes them back.
+    freed = held & set(read_usage_map(again.store, GLOBAL_USAGE_MAP_PAGE, GLOBAL_USAGE_MAP_ROW).pages())
+    assert freed == held, (held, freed)
+    again.create_index("Idx", IndexSpec("IX_N", ("N",)), updated=WHEN)
+    assert set(read_usage_map_ref(again.store, again.table("Idx").definition.real_indexes[2].usage_map_ref).pages()) <= held
+    check_indexes(again.table("Idx"))
+
+
+def test_drop_index_refuses_what_the_engine_refuses(tmp_path: Path) -> None:
+    db = AccessDatabase(TEMPLATE)
+    db.create_table(
+        "Ref",
+        [ColumnSpec("Id", "Long", autonumber=True), ColumnSpec("N", "Long")],
+        [IndexSpec("PK", ("Id",), primary=True), IndexSpec("IX_N", ("N",))],
+        created=WHEN,
+    )
+    db.create_table("Kid", [ColumnSpec("Id", "Long", autonumber=True), ColumnSpec("RefId", "Long")], [IndexSpec("PK", ("Id",), primary=True)], created=WHEN)
+    db.create_relationship("FK_Kid_Ref", "Kid", ("RefId",), "Ref", ("Id",), created=WHEN)
+    with pytest.raises(AccessError, match="primary key"):
+        db.drop_index("Ref", "PK")
+    with pytest.raises(AccessError, match="relationship"):
+        db.drop_index("Kid", "FK_Kid_Ref")
+    with pytest.raises(AccessError, match="no index named"):
+        db.drop_index("Ref", "IX_missing")
+    db.drop_index("Ref", "IX_N", updated=WHEN)
+    # The parent keeps the ``.r`` entry the relationship put on its key.
+    assert [i.name for i in db.table("Ref").indexes] == [".rC", "PK"]

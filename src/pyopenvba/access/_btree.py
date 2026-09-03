@@ -173,11 +173,12 @@ class BTree:
         next: int,
         tail: int,
         level: int,
+        base: bytes | None = None,
     ) -> None:
         self.store.write(
             number,
             serialize_index_page(
-                entries, is_leaf=is_leaf, owner=self.owner, prev=prev, next=next, tail=tail, level=level
+                entries, is_leaf=is_leaf, owner=self.owner, prev=prev, next=next, tail=tail, level=level, base=base
             ),
         )
 
@@ -251,9 +252,18 @@ class BTree:
         """Write the page at the end of ``path`` with ``entries``: as it is
         while they fit under its current prefix, compressed with the full
         common prefix once they do not (the engine compresses a page only
-        when it fills), and split when even that is not enough."""
+        when it fills), and split when even that is not enough or when an
+        entry does not carry the prefix the page already has."""
         step = path[-1]
-        if stored_size(entries, step.page.prefix_length) <= ENTRY_AREA:
+        prefix = step.page.prefix_length
+        if prefix and common_prefix([entry_bytes(e) for e in entries]) < prefix:
+            # A page's prefix is fixed once it has been compressed: an entry
+            # that does not start with those bytes belongs on another page
+            # (measured: the engine's leaves break exactly where the shared
+            # prefix changes, 111/111/111/67 over 400 text keys).
+            self._split(path, entries, appended)
+            return
+        if stored_size(entries, prefix) <= ENTRY_AREA:
             self._rewrite(step.page, entries)
         elif stored_size(entries) <= ENTRY_AREA:
             self._rewrite(step.page, entries, prefix=None)
@@ -347,20 +357,27 @@ class BTree:
         level = self._level(root.number)
         left_number = self.allocate()
         right_number = self.allocate()
+        # The left half takes over the root's page image, so whatever the
+        # root held beyond its entries travels with it and the new node
+        # keeps it too (measured: the engine's first leaf carries the
+        # uncompressed bytes the root was filled with before it was
+        # compressed, right to the end of its entry area).
+        image = self.store.read(root.number)
         if root.is_leaf:
-            self._write_page(left_number, left, is_leaf=True, prev=0, next=right_number, tail=0, level=0)
+            self._write_page(left_number, left, is_leaf=True, prev=0, next=right_number, tail=0, level=0, base=image)
             self._write_page(right_number, right, is_leaf=True, prev=left_number, next=0, tail=0, level=0)
             separator = IndexEntry(left[-1].key, left[-1].page, left[-1].row, left_number)
         else:
             left_tail = left[-1].child or 0
-            self._write_page(left_number, left[:-1], is_leaf=False, prev=0, next=0, tail=left_tail, level=level)
+            self._write_page(left_number, left[:-1], is_leaf=False, prev=0, next=0, tail=left_tail, level=level, base=image)
             self._write_page(right_number, right, is_leaf=False, prev=0, next=0, tail=root.tail, level=level)
             separator = IndexEntry(left[-1].key, left[-1].page, left[-1].row, left_number)
-        # The new root is written from scratch: one entry, no prefix.
+        # The new root is one entry with no prefix, written over what the
+        # page held as a leaf.
         self.store.write(
             root.number,
             serialize_index_page(
-                [separator], is_leaf=False, owner=self.owner, prev=0, next=0, tail=right_number, level=level + 1, prefix=0
+                [separator], is_leaf=False, owner=self.owner, prev=0, next=0, tail=right_number, level=level + 1, prefix=0, base=image
             ),
         )
 

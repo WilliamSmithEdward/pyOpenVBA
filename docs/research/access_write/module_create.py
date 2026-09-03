@@ -41,7 +41,7 @@ from pyopenvba.access_read import AccessReader  # noqa: E402
 from pyopenvba.vba import compress, decompress  # noqa: E402
 from module_rename import _dir_data_entry, _project_wm_entry, drop_srp  # noqa: E402
 from vba_module_table import add_module, entries, entry_bytes, next_reserve  # noqa: E402
-from vba_project_table import add_module_flag, append_identifier  # noqa: E402
+from vba_project_table import add_module_flag, add_module_record, append_identifier  # noqa: E402
 
 STORAGE = "MSysAccessStorage"
 MODULE_TYPE = -32761
@@ -167,12 +167,14 @@ def fresh_cookie(taken: set[bytes], template: bytes) -> bytes:
 
 
 def add_to_vba_project(
-    blob: bytes, cookie: bytes, stream_name: str, name: str, offset: int, module_cookie: bytes
+    blob: bytes, cookie: bytes, stream_name: str, name: str, offset: int, module_cookie: bytes,
+    guid: bytes = bytes(16)
 ) -> bytes:
     """Append an entry, giving it the reserve the project's trailer offers
     and a cookie no other module holds."""
     known = entries(blob, cookie)
     blob = add_module_flag(blob, len(known))
+    blob = add_module_record(blob, known[-1].reserve, guid)
     blob, operand = append_identifier(blob, name)
     entry = entry_bytes(
         stream_name,
@@ -265,7 +267,7 @@ def create(source: Path, target: Path, name: str, template: str = "Module1", see
         if r["Name"] == "_VBA_PROJECT" and "vba" not in skipped:
             storage.update_row(
                 rid,
-                {"Lv": add_to_vba_project(value, cookie, stream_name, name, offset, module_word)},
+                {"Lv": add_to_vba_project(value, cookie, stream_name, name, offset, module_word, rng.randbytes(16))},
             )
             done.append("_VBA_PROJECT")
         elif r["Name"] == "\x03DirData" and r["ParentId"] == MODULES_STORAGE and "dirdata" not in skipped:

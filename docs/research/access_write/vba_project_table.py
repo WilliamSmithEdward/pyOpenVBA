@@ -137,3 +137,26 @@ def add_module_flag(blob: bytes, modules: int) -> bytes:
     out[at : at + 2] = (modules + 1).to_bytes(2, "little")
     where = at + 2 + 2 * modules
     return bytes(out[:where] + bytearray(FLAG) + out[where:])
+
+
+# --- the per-module record ---------------------------------------------------
+# Immediately before the counters sits one 32-byte record per module past
+# the first:
+#
+#     ff ff ff ff 01 00 00 00 ff ff ff ff <u32 reserve> <16-byte GUID>
+#
+# then `80 00 00 00 00 00` and the counters. Measured on one project grown
+# from one module to five: the records were 0x228, then 0x278, 0x298,
+# 0x2b8 -- each new one carrying the reserve of the module that was last
+# before it, and each GUID staying put once written.
+RECORD_MARK = bytes.fromhex("ffffffff01000000ffffffff")
+RECORD_TAIL = 20  # the 80 00 00 00 00 00 header and the counters after it
+
+
+def add_module_record(blob: bytes, reserve: int, guid: bytes) -> bytes:
+    """Insert a module's record just before the counters."""
+    if len(guid) != 16:
+        raise ValueError("a module record carries a 16-byte GUID")
+    at = table_start(blob) - RECORD_TAIL
+    record = RECORD_MARK + reserve.to_bytes(4, "little") + guid
+    return blob[:at] + record + blob[at:]

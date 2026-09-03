@@ -8,8 +8,9 @@
 >
 > Reopened because the storage engine in `pyopenvba.access` arrived after
 > it was parked. Module **rename and delete now work**, verified by
-> running the result in Access; **create** writes a module Access opens
-> and lists but will not yet extend.
+> running the result in Access; **create** writes a module Access loads
+> and the VBE enumerates, but a project built that way will not take a
+> further component.
 
 Everything here is dev-only, needs Windows with desktop Access, and was
 verified by running the macro in Access and reading the value it returns
@@ -127,8 +128,9 @@ patching:
 - `module_rename.py` -- rename, all eight places, `__SRP_` drop included.
 - `module_delete.py` -- delete, every structure a module occupies.
 - `module_create.py` -- create, cloning an existing module's compiled
-  shape (`donor=` to take it from another database); Access lists the
-  result, the VBE calls the project corrupt.
+  shape (`donor=` to take it from another database). Access loads the
+  result and the VBE enumerates the new module; adding a further
+  component to that project still fails.
 - `module_stream.py`, `project_streams.py`, `vba_project_table.py`,
   `vba_module_table.py`, `dir_records.py` -- one structure each.
 - `attribute_pages.py` -- says which table owns each page two databases
@@ -143,6 +145,10 @@ patching:
 - `peek_project.ps1` -- opens a database read-only and reports what its
   VBA project looks like, for checking a write without letting the
   harness inject anything.
+- `exercise_module.ps1` -- puts a procedure into a named module and runs
+  it, reporting each step, so a created module can be exercised without
+  the harness injecting one of its own. It can hang on a modal dialog;
+  give it a timeout.
 
 ```bash
 python docs/research/access_write/verify_compiler.py sample.accdb
@@ -625,49 +631,75 @@ retires it (`Table.delete_row(rid, retire_empty=False)`).
 
 ### Create, as far as it goes
 
-`module_create.py` writes everything a new module needs, and every field
-it writes now matches what Access writes for the same operation:
+`module_create.py` writes everything a new module needs, and **Access
+loads the result**: the VBE enumerates the new module with its type and
+line count, and `CurrentProject.AllModules` lists it. What still fails is
+adding a *further* component to that project.
+
+What it writes:
 
 * three `MSysAccessStorage` rows -- a numbered storage folder under
   `Modules`, a 13-byte `PropData` under it, and the module's stream under
   `VBA` with a row name of 28 random capitals
-* an entry in `Modules/PropData`, which is a list of the folders:
+* an entry in `Modules/PropData`, the list of those folders:
   `05 09 02 <folder name, one UTF-16 character> "CB0"`, eleven bytes each.
   The folder name is a single character and Access takes the one after
   the highest in use -- `0`, then `4`, then `5`.
 * a dir block of eleven records and PROJECTMODULES up by one
 * entries in DirData, PROJECTwm and PROJECT
-* a `_VBA_PROJECT` module entry appended after the last, an identifier for
-  the name, a flag in the per-module list, and the project's reserve
-  advanced
+* in `_VBA_PROJECT`: an identifier for the name, a flag in the per-module
+  list, a 32-byte per-module record, a module entry appended after the
+  last, and the project's reserve advanced
 * an `MSysObjects` row of type -32761 and a navigation-pane row
 
-**Access opens the result and lists the new module through its own
-catalog, and the VBE refuses the project as corrupt.** What is known:
+Four of those were found by asking why Access called the project corrupt,
+and the last of them is what fixed it:
 
-* Leaving `_VBA_PROJECT` alone and writing everything else gives a
-  project the **VBE loads**, listing three modules with the third
-  nameless -- so the VBE takes its list from the dir stream, and the
-  `_VBA_PROJECT` entry is what it rejects.
-* Every field of that entry matches Access's for the same module: the
-  stream name is present in the storage rows and the dir stream, the
-  operand is the appended identifier's, the reserve is the one the
-  project's trailer offered, the trailer advanced by 0x20, the cookie is
-  unique, and the bytes that follow the entry are identical.
+**The 32-byte per-module record.** Immediately before the identifier
+table's counters sits one record per module past the first,
+`ff ff ff ff 01 00 00 00 ff ff ff ff <u32 reserve> <16-byte GUID>`, then
+`80 00 00 00 00 00` and the counters. Growing one project from one module
+to five gave records 0x228, 0x278, 0x298, 0x2b8 -- each new one carrying
+the reserve of the module that was last before it, each GUID staying put
+once written. Without this record Access refuses the whole project; with
+it the VBE loads and names every module.
+
+**The reserve rule.** A new module's reserve word is the value the
+project's trailer offers, and the trailer then advances by 0x20: 0x208,
+then 0x278, 0x298, 0x2b8, 0x2d8 as the project grew.
+
+**Its own cookie.** Every module carries a distinct 20-byte string,
+`<two characters><the project's own eight>`; two modules sharing one is
+not something Access writes.
+
+**The flag list.** Ahead of the module table sits `<u16 module count>
+<count u16 flags, each 1> <u16 n> <n four-byte records>`; adding a module
+bumps the count and inserts a flag.
+
+What is left is a table **past the identifier table's `02 ff ff 01 01`
+sentinel**: a u32 size that grew by 12, then a list of six-byte records
+`<u16 index> ff ff <u16 operand>`. Access rewrote it when it added a
+module and this does not, which is the next thing to model.
 
 Two facts found on the way, both worth keeping:
 
 **A cloned module brings its names with it.** Cloning a module whose code
 calls `ZetaGo` leaves the p-code naming an identifier the target project
-does not have, and Access calls that corrupt. Access's own new module
-appends two identifiers, the module's name and its procedure's. A donor
-with no procedures avoids the problem -- and does not fix this one.
+does not have. Access's own new module appends two identifiers, the
+module's name and its procedure's; a donor with no procedures needs only
+the one.
 
 **`Module1` in the shipped template does not round-trip.** Rebuilding it
 unchanged through `Perf.build` gives a row one byte shorter, differing at
 the source-length field (`3fb0` against `3eb0`), so the first attempts at
 create were cloning a malformed stream. A module Access has just made
 rebuilds byte for byte, which is the check to run on any donor first.
+
+**Two traps when checking this by hand.** Opening a database in Access
+rewrites it, so a second measurement is measuring the repair -- always
+make a fresh copy per operation. And `VBComponents.Add` over a bare COM
+boundary fails with "Device I/O error" on a database Access itself built,
+so a failure there says nothing; drive it through `pyvbaharness` instead.
 
 ### The per-module entry in `_VBA_PROJECT`
 

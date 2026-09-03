@@ -24,7 +24,9 @@ from __future__ import annotations
 import os
 import shutil
 import sys
+from collections.abc import Callable
 from pathlib import Path
+from typing import NamedTuple
 
 import pytest
 
@@ -76,31 +78,39 @@ End Function
 """
 
 
+class Operations(NamedTuple):
+    """The research entry points, imported by path at run time."""
+
+    create: Callable[..., list[str]]
+    rename: Callable[..., list[str]]
+    delete: Callable[..., list[str]]
+    set_source: Callable[..., str]
+    rename_steps: frozenset[str]
+
+
 @pytest.fixture(scope="module")
-def operations():
-    """The research modules, imported by path."""
+def operations() -> Operations:
     if str(_RESEARCH) not in sys.path:
         sys.path.insert(0, str(_RESEARCH))
     pytest.importorskip("pyvbaharness")
-    import module_create
-    import module_delete
-    import module_rename
-    import module_stream
-
-    return module_create, module_rename, module_delete, module_stream
-
-
-def modules(path: Path) -> set[str]:
-    """The names `CurrentProject.AllModules` reports.  Its order is not
-    the order modules were added, so only the set is asserted."""
-    return {name for name in str(ask(path, "AccessModules")).split(";") if name}
+    create = pytest.importorskip("module_create")
+    rename = pytest.importorskip("module_rename")
+    delete = pytest.importorskip("module_delete")
+    stream = pytest.importorskip("module_stream")
+    return Operations(
+        create.create,
+        rename.rename,
+        delete.delete,
+        stream.set_source,
+        frozenset(rename.STEPS),
+    )
 
 
 def ask(path: Path, proc: str, *args: str) -> object:
     """Open the database in Access and run one probe against it."""
-    from pyvbaharness import AccessSession
+    harness = pytest.importorskip("pyvbaharness")
 
-    with AccessSession() as access:
+    with harness.AccessSession() as access:
         access.open_document(path, read_only=False)
         result = access.run_vba(_PROBES, proc=proc, args=tuple(args), timeout=_TIMEOUT)
         assert result.outcome == "passed", (
@@ -109,10 +119,16 @@ def ask(path: Path, proc: str, *args: str) -> object:
         return result.value
 
 
+def modules(path: Path) -> set[str]:
+    """The names `CurrentProject.AllModules` reports.  Its order is not
+    the order modules were added, so only the set is asserted."""
+    return {name for name in str(ask(path, "AccessModules")).split(";") if name}
+
+
 @pytest.fixture
 def blank(tmp_path: Path) -> Path:
     """A fresh copy of the shipped template, which holds one module."""
-    if not _TEMPLATE.exists():  # pragma: no cover - template ships with the package
+    if not _TEMPLATE.exists():  # pragma: no cover - the template ships with the package
         pytest.skip("blank template not present")
     out = tmp_path / "blank.accdb"
     shutil.copyfile(_TEMPLATE, out)
@@ -129,10 +145,11 @@ ADDER = (
 
 
 class TestAccessRunsWhatWeCreate:
-    def test_a_created_module_is_listed_and_its_code_runs(self, blank, tmp_path, operations):
-        create = operations[0].create
+    def test_a_created_module_is_listed_and_its_code_runs(
+        self, blank: Path, tmp_path: Path, operations: Operations
+    ) -> None:
         out = tmp_path / "created.accdb"
-        create(blank, out, "Adder", ADDER)
+        operations.create(blank, out, "Adder", ADDER)
 
         assert modules(out) == {"Module1", "Adder"}
         assert ask(out, "CallProc", "AdderGo") == 4242
@@ -140,11 +157,12 @@ class TestAccessRunsWhatWeCreate:
         read_back = str(ask(out, "ReadLines", "Adder")).replace(chr(13) + chr(10), chr(10))
         assert read_back.strip() == ADDER.strip()
 
-    def test_two_creates_without_access_in_between(self, blank, tmp_path, operations):
-        create = operations[0].create
+    def test_two_creates_without_access_in_between(
+        self, blank: Path, tmp_path: Path, operations: Operations
+    ) -> None:
         first, second = tmp_path / "one.accdb", tmp_path / "two.accdb"
-        create(blank, first, "Adder", ADDER)
-        create(
+        operations.create(blank, first, "Adder", ADDER)
+        operations.create(
             first,
             second,
             "Doubler",
@@ -154,10 +172,11 @@ class TestAccessRunsWhatWeCreate:
         assert modules(second) == {"Module1", "Adder", "Doubler"}
         assert ask(second, "CallProc", "DoublerGo") == 77
 
-    def test_a_created_class_can_be_instantiated(self, blank, tmp_path, operations):
-        create = operations[0].create
+    def test_a_created_class_can_be_instantiated(
+        self, blank: Path, tmp_path: Path, operations: Operations
+    ) -> None:
         widget, driver = tmp_path / "widget.accdb", tmp_path / "driver.accdb"
-        create(
+        operations.create(
             blank,
             widget,
             "Widget",
@@ -171,7 +190,7 @@ class TestAccessRunsWhatWeCreate:
             "End Function",
             kind="class",
         )
-        create(
+        operations.create(
             widget,
             driver,
             "Driver",
@@ -186,45 +205,49 @@ class TestAccessRunsWhatWeCreate:
 
         assert ask(driver, "CallProc", "UseWidget") == 15
 
-    def test_the_project_still_takes_an_edit_afterwards(self, blank, tmp_path, operations):
+    def test_the_project_still_takes_an_edit_afterwards(
+        self, blank: Path, tmp_path: Path, operations: Operations
+    ) -> None:
         """A created project that Access will not let you edit is the
         failure this whole route exists to avoid."""
-        create = operations[0].create
         out = tmp_path / "edited.accdb"
-        create(blank, out, "Adder", ADDER)
+        operations.create(blank, out, "Adder", ADDER)
 
-        assert int(ask(out, "AddProcedure", "Module1")) > 0
+        assert int(str(ask(out, "AddProcedure", "Module1"))) > 0
 
 
 class TestRenameAndDelete:
-    def test_a_created_module_can_be_renamed(self, blank, tmp_path, operations):
-        create, rename = operations[0].create, operations[1].rename
+    def test_a_created_module_can_be_renamed(
+        self, blank: Path, tmp_path: Path, operations: Operations
+    ) -> None:
         made, out = tmp_path / "made.accdb", tmp_path / "renamed.accdb"
-        create(blank, made, "Adder", ADDER)
-        rename(made, out, "Adder", "Summer", steps=set(operations[1].STEPS))
+        operations.create(blank, made, "Adder", ADDER)
+        operations.rename(made, out, "Adder", "Summer", steps=set(operations.rename_steps))
 
         assert modules(out) == {"Module1", "Summer"}
         assert ask(out, "CallProc", "AdderGo") == 4242
 
-    def test_a_created_module_can_be_deleted(self, blank, tmp_path, operations):
-        create, delete = operations[0].create, operations[2].delete
+    def test_a_created_module_can_be_deleted(
+        self, blank: Path, tmp_path: Path, operations: Operations
+    ) -> None:
         made, out = tmp_path / "made.accdb", tmp_path / "deleted.accdb"
-        create(blank, made, "Adder", ADDER)
-        delete(made, out, "Adder")
+        operations.create(blank, made, "Adder", ADDER)
+        operations.delete(made, out, "Adder")
 
         assert modules(out) == {"Module1"}
 
 
 class TestReplacingSource:
-    def test_source_the_pcode_compiler_refuses_still_runs(self, blank, tmp_path, operations):
+    def test_source_the_pcode_compiler_refuses_still_runs(
+        self, blank: Path, tmp_path: Path, operations: Operations
+    ) -> None:
         """`Const`, a module-level array, `Static` and a fixed-length
         string, none of which the p-code path can emit."""
         from pyopenvba.access import AccessDatabase
 
-        set_source = operations[3].set_source
         out = tmp_path / "replaced.accdb"
         db = AccessDatabase(blank)
-        set_source(
+        operations.set_source(
             db,
             "Module1",
             "Option Compare Database\n"

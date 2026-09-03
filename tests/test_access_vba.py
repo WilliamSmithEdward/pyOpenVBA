@@ -17,6 +17,7 @@ from pathlib import Path
 import pytest
 
 from pyopenvba.access import AccessDatabase
+from pyopenvba.access._storage import dir_data_entries
 from pyopenvba.access._vba import (
     CLASS_BASE,
     MODULETYPE_CLASS,
@@ -203,6 +204,29 @@ def test_create_refuses_what_access_would(
 ) -> None:
     with pytest.raises(AccessError, match=message):
         db.create_module(name, "Option Compare Database", kind=kind)
+
+
+
+def test_dirdata_names_each_module_s_storage_folder(db: AccessDatabase) -> None:
+    """The four bytes an entry ends with are the folder the module's
+    stream lives in, not a terminator.  Access's own projects read
+    [(Module1, 0), (Alpha, 4), (Zeta, 5)], and after it deleted a middle
+    module and added one, [(Module1, 0), (Zeta, 5), (After, 4)]."""
+    db.create_module("One", "Option Compare Database")
+    db.create_module("Two", "Option Compare Database")
+    assert dir_data_entries(stream_named(db, "DirData")) == [
+        ("Module1", "0"),
+        ("One", "4"),
+        ("Two", "5"),
+    ]
+
+    db.delete_module("One")
+    db.create_module("Three", "Option Compare Database")
+    assert dir_data_entries(stream_named(db, "DirData")) == [
+        ("Module1", "0"),
+        ("Two", "5"),
+        ("Three", "4"),
+    ]
 
 
 # --- source -------------------------------------------------------------------

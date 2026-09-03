@@ -31,16 +31,34 @@ a module that does not.
 
 from __future__ import annotations
 
-import random
 import re
-import string
 from collections.abc import Iterator
 from dataclasses import dataclass
 
+from pyopenvba.access._storage import (
+    PROP_DATA,
+    STORAGE_TABLE,
+    add_to_dir_data,
+    dir_data_entries,
+    next_folder,
+    remove_from_dir_data,
+    rename_dir_data,
+    stream_row_name,
+)
 from pyopenvba.access_read import AccessError
 from pyopenvba.vba import compress, decompress
 
-STORAGE_TABLE = "MSysAccessStorage"
+__all__ = [
+    "PROP_DATA",
+    "STORAGE_TABLE",
+    "add_to_dir_data",
+    "dir_data_entries",
+    "next_folder",
+    "remove_from_dir_data",
+    "rename_dir_data",
+    "stream_row_name",
+]
+
 
 # --- the dir stream ----------------------------------------------------------
 #: The one record whose size field is not a size.
@@ -89,12 +107,9 @@ CLASS_ATTRIBUTES = (
 )
 
 # --- the storage rows a module occupies --------------------------------------
-#: Every module's storage folder holds this, unchanging, 13 bytes.
-PROP_DATA = bytes.fromhex("00000000020000000000000000")
 #: One folder's line in ``Modules/PropData``, before its name.
 FOLDER_ENTRY = bytes.fromhex("050902")
 FOLDER_SUFFIX = "CB0".encode("utf-16-le")
-STREAM_NAME_LENGTH = 28
 
 # --- the catalog -------------------------------------------------------------
 OBJECT_MODULE = -32761
@@ -311,36 +326,7 @@ def rename_attribute(text: str, old: str, new: str) -> str:
     return text.replace(want, "Attribute VB_Name = " + QUOTE + new + QUOTE)
 
 
-# --- DirData, PROJECTwm and PROJECT ------------------------------------------
-
-
-def dir_data_entry(name: str) -> bytes:
-    text = name.encode("utf-16-le")
-    return bytes((4, len(text) + 4)) + text
-
-
-def add_to_dir_data(payload: bytes, name: str) -> bytes:
-    tail = bytes((4, 0, 0, 0))
-    body = payload[: -len(tail)] + bytes(4) if payload.endswith(tail) else payload
-    return body + dir_data_entry(name) + tail
-
-
-def remove_from_dir_data(payload: bytes, name: str) -> bytes:
-    """Each entry is followed by four bytes that go with it: Access left
-    ``... Module1 00000000`` where the two-name row had read
-    ``... Module1 00000000 04 0e Alpha 04000000``."""
-    entry = dir_data_entry(name)
-    at = payload.find(entry)
-    if at < 0:
-        raise AccessError(f"DirData holds no entry for {name!r}")
-    return payload[:at] + payload[at + len(entry) + 4 :]
-
-
-def rename_dir_data(payload: bytes, old: str, new: str) -> bytes:
-    want = dir_data_entry(old)
-    if want not in payload:
-        raise AccessError(f"DirData holds no entry for {old!r}")
-    return payload.replace(want, dir_data_entry(new))
+# --- PROJECTwm and PROJECT --------------------------------------------------
 
 
 def project_wm_entry(name: str) -> bytes:
@@ -408,36 +394,3 @@ def add_to_folder_list(payload: bytes, folder: str) -> bytes:
 def remove_from_folder_list(payload: bytes, folder: str) -> bytes:
     entry = FOLDER_ENTRY + folder.encode("utf-16-le") + FOLDER_SUFFIX
     return payload.replace(entry, b"", 1)
-
-
-def next_folder(fixed_rows: int, taken: set[str]) -> str:
-    """The name Access gives a new module's storage folder.
-
-    It is computed, not chosen, and Access will not find a module in a
-    folder by any other name: ``AllModules(i).Name`` then fails while the
-    VBE still lists and runs the module.  Names are allocated from a base
-    of ``chr(0x30 + <rows under the container that are not folders>)``,
-    lowest free first.  ``Modules`` holds four such rows -- ``PropData``,
-    ``PropDataCopy``, ``\x03DirData`` and ``\x03DirDataCopy`` -- so its
-    folders start at ``4``, which is why the second module in a database
-    gets ``4`` and never ``1``.
-
-    Measured across six cases, Access's own allocation each time: the
-    blank template ({``0``}) gives ``4``, then ``5``, ``6``, ``7`` as the
-    project grows.  Deleting the last module and adding one gives its name
-    back; deleting a *middle* module ({``0``, ``5``}) and adding one
-    reuses ``4`` rather than continuing upward, which is what rules out
-    counting.
-    """
-    code = ord("0") + fixed_rows
-    while chr(code) in taken:
-        code += 1
-    return chr(code)
-
-
-def stream_row_name(rng: random.Random, taken: set[str]) -> str:
-    """A module's storage row name: 28 random capitals, unused."""
-    while True:
-        name = "".join(rng.choice(string.ascii_uppercase) for _ in range(STREAM_NAME_LENGTH))
-        if name not in taken:
-            return name

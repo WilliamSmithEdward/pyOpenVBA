@@ -2557,7 +2557,9 @@ class AccessDatabase:
             if row_name == "_VBA_PROJECT":
                 storage.update_row(rid, {"Lv": invalidate_cache(payload)})
             elif row_name == "\x03DirData" and parent == modules_id:
-                storage.update_row(rid, {"Lv": add_to_dir_data(payload, name)})
+                # The four bytes an entry ends with name the object's
+                # storage folder, not a terminator.
+                storage.update_row(rid, {"Lv": add_to_dir_data(payload, name, folder)})
             elif row_name == "PropData" and parent == modules_id:
                 storage.update_row(rid, {"Lv": add_to_folder_list(payload, folder)})
             elif row_name == "PROJECTwm" and parent == project_id:

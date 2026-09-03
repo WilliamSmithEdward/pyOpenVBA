@@ -134,16 +134,17 @@ class DataPage:
         """Move every row that starts below ``boundary`` by ``delta`` bytes
         (positive moves toward the page end) and fix its slot offset."""
         lowest = self.lowest_offset()
-        if lowest >= boundary:
-            return
-        block = bytes(self.raw[lowest:boundary])
-        self.raw[lowest + delta : boundary + delta] = block
+        if lowest < boundary:
+            block = bytes(self.raw[lowest:boundary])
+            self.raw[lowest + delta : boundary + delta] = block
         for slot, entry in enumerate(self.slots):
             offset = entry & ROW_OFFSET_MASK
             # A dead slot is a zero-length row; one sitting exactly at the
-            # boundary belongs to the block below and moves with it
-            # (measured: six rows deleted through an index all ended up
-            # recording the same boundary).
+            # boundary belongs to the block below and moves with it, even
+            # when that block is empty (measured: six rows deleted through
+            # an index all ended up recording the same boundary, and dead
+            # slots parked at the lowest row's start follow the data start
+            # when that row goes too).
             dead_at_boundary = (entry & DEAD_SLOT) == DEAD_SLOT and offset == boundary
             if offset < boundary or dead_at_boundary:
                 self._set_slot(slot, (entry & ~ROW_OFFSET_MASK) | (offset + delta))

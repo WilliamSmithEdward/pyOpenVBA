@@ -283,8 +283,8 @@ the engine finds the same rows it does today.
   names the table as its object or referenced object; the definition,
   which does not carry the name, is untouched. The rename also showed
   that an index's distinct-key count grows on inserts only: an update
-  that moves a row to a new key, distinct or not, leaves the count
-  alone, just as deletes do.
+  that moves a row to a new key, distinct or not, never raises it, and
+  the row counter below is what lowers it.
 * **ALTER TABLE**, measured with ADD COLUMN (Long, then Text(30), then a
   Long again after a drop) and DROP COLUMN (the Long, then the original
   Text) on a table holding ten rows. An added column takes the next
@@ -341,8 +341,11 @@ the engine finds the same rows it does today.
   Attribute, Order) index; that order showed in the page's compaction
   residue, and the dead slots it left, all recording one boundary,
   showed that a dead slot sitting exactly at a later compaction boundary
-  moves with the block below it. `_queries.py` turns that subset of Jet
-  SQL into rows and back.
+  moves with the block below it, even when that block is empty: dead
+  slots parked at the lowest row's start follow the data start when
+  that row goes too (a SQL DELETE over a page holding three overflow
+  copies showed the case). `_queries.py` turns that subset of Jet SQL
+  into rows and back.
 * **Properties** live in the catalog row's `LvProp` long value as an
   `MR2` blob, measured on a blob DAO wrote (table Description, field
   Caption and Description) and confirmed on all 17 Access-authored blobs
@@ -485,6 +488,43 @@ the engine finds the same rows it does today.
   form of a map has not yet been seen written by the engine below 1708
   pages. Checked: 450 memo rows carrying a database from 121 to 573 pages
   leave every page but page 0 identical to the engine's own.
+* **Index row counters.** Each real index's 12-byte header carries two
+  counts: the distinct keys at +4 (above) and, at +0, the rows the
+  index holds. The second is written only when the index is built over
+  existing rows -- CREATE INDEX or ADD CONSTRAINT on a populated table
+  records the rows that got an entry (nulls left out by a unique
+  ignore-nulls index) -- and an index that predates its rows keeps 0
+  for good: inserts never touch it, however many rows they add. What
+  lowers it is a row leaving the index: one off per deleted row, and
+  one off per row an UPDATE writes through it, meaning every index
+  whose columns appear in the SET list, even where the value does not
+  change (`SET M = M` dropped the counter all the same) and however
+  many statements it takes. A row whose key is null in an
+  ignore-nulls index costs nothing, the count stops at zero rather
+  than going negative, and the distinct count is capped at what is
+  left after each step; an unfiltered DELETE zeroes both. Measured
+  against DAO on a 30-row table with 17 indexes (an UPDATE of one
+  indexed column and a filtered DELETE left the three indexes over
+  that column at 0 and 0, the rest at 9 and 9) and on two six-row
+  tables, byte for byte.
+* **SQL over the engine.** `_sql.py` tokenizes and parses Jet SQL
+  expressions (precedence climbing; three-valued logic; LIKE with `*`,
+  `?`, `#` and character lists; `[parameters]`) and runs SELECT (joins
+  by nested loops, GROUP BY over evaluated keys, aggregates, HAVING,
+  ORDER BY with Null first, DISTINCT, TOP) and DML through the table
+  writers, coercing each written value to its column's type. Checked by
+  running the same statements through DAO on the same database: twelve
+  SELECT shapes give identical names and values (including Currency
+  arithmetic and Avg staying Currency, Boolean grouping True before
+  False, `Expr1000` names), and two UPDATEs (one in place, one growing
+  rows) plus a filtered DELETE leave every page identical; a SQL DELETE
+  deletes row by row like the recordset path, and `DELETE FROM t` alone
+  is the truncation path above. One Jet rule the operators do not share:
+  `&` reads Null as an empty string and gives Null only when both sides
+  are Null, while `+` propagates it (`Null & 'x'` is `'x'`, `Null + 'x'`
+  is Null), which is why an engine UPDATE appending text to a null Memo
+  writes the appended text where a Null-propagating reading writes
+  nothing.
 
 ## Alternatives considered
 
@@ -519,4 +559,4 @@ the engine finds the same rows it does today.
 | 6 | VBA project through the writer: module create/rename/delete | |
 | 7 | queries (`MSysQueries` to SQL and back), relationships, properties | relationships done: `create_relationship` / `drop_relationship` / `relationships()`, byte-identical to the engine's ADD CONSTRAINT ... FOREIGN KEY for a first and a second relationship on one parent and to DROP CONSTRAINT (live gate). Properties done: `table.properties()`, `column_properties()`, `set_properties()`, `db.database_properties()`; DAO's three property appends reproduced byte for byte (live gate). Queries done for SELECT, PARAMETERS, DELETE, UPDATE, INSERT INTO ... SELECT, SELECT ... INTO and UNION: `db.queries()`, `db.query()`, `db.create_query(name, sql)`, `db.drop_query(name)`; eight CreateQueryDef calls and a QueryDefs.Delete reproduced byte for byte (live gate). Not yet: crosstab and pass-through queries, subqueries in the parser |
 | 8 | forms, reports, macros: the binary object formats nobody has published | |
-| 9 | SQL executor over the engine | |
+| 9 | SQL executor over the engine | in progress: `db.execute(sql)` runs SELECT (column list or `*`, INNER / LEFT / RIGHT JOIN, WHERE, GROUP BY with Count / Sum / Avg / Min / Max, HAVING, ORDER BY, DISTINCT, TOP; comparison, logical, arithmetic and `&` operators, LIKE, IN, BETWEEN, IS NULL, `[parameters]`, the common string, numeric and date functions), INSERT ... VALUES, INSERT ... SELECT, UPDATE and DELETE through the row writers, coercing values to the column type. Eleven SELECT shapes answer exactly as DAO does on the same database and an UPDATE plus a DELETE write the same bytes DAO's Execute writes (live gate). Not yet: subqueries, UNION at run time, crosstabs, DDL, transactions |

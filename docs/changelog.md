@@ -7,6 +7,37 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- **SQL executor.** `AccessDatabase.execute(sql, parameters)` runs Jet
+  SQL against the engine in pure Python: SELECT with a column list or
+  `*`, INNER / LEFT / RIGHT JOINs, WHERE, GROUP BY with Count, Sum, Avg,
+  Min and Max, HAVING, ORDER BY, DISTINCT and TOP; the comparison,
+  logical, arithmetic and `&` operators, LIKE with the engine's
+  wildcards, IN, BETWEEN, IS NULL, `[parameters]` and the common string,
+  numeric and date functions; INSERT ... VALUES, INSERT ... SELECT,
+  UPDATE and DELETE through the row writers, with values coerced to the
+  column type as the engine coerces them. Three-valued logic follows the
+  engine. Eleven SELECT shapes answer exactly as DAO does on the same
+  database, name for name and value for value, and an UPDATE plus a
+  DELETE write the same bytes DAO's Execute writes (live gate).
+- **Index row counters.** An index built over existing rows records how
+  many rows it holds next to its distinct-key count. Every row that
+  leaves the index takes one off, whether deleted or written by an
+  UPDATE that names one of the index's columns, and the distinct count
+  is capped at what is left; a null key in an ignore-nulls index costs
+  nothing, the count stops at zero, and an unfiltered DELETE zeroes
+  both. Inserts leave the row counter alone, as the engine does.
+
+### Fixed
+
+- `&` in a SQL expression now reads Null as an empty string, as Jet
+  does, giving Null only when both sides are Null; `+` still propagates
+  it. Appending text to a null Memo through UPDATE wrote nothing
+  before, where the engine writes the appended text.
+- Dead slots parked at a page's lowest row now follow the data start
+  when that row is deleted too, as the engine's do; before, they kept
+  the old offset and a page that lost rows through an overflow copy
+  differed from the engine's by those slot entries.
+
 - **A Jet 4 / ACE storage engine, read layer** (`pyopenvba.access`,
   in progress; not yet exported from the package root).
   `AccessDatabase(path)` opens an `.accdb` or Jet 4 `.mdb`, lists the

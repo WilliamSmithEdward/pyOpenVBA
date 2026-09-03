@@ -190,7 +190,17 @@ with AccessDatabase("orders.accdb") as db:
     print(db.table_names())                       # ['Orders']
     for row in db.table("Orders").index("ByCustomer").rows():
         print(row["Customer"], row["Total"], row["Notes"])
+    db.execute("INSERT INTO Orders (Customer, Placed, Total) VALUES ('Bob', #9/3/2026#, 5)")
+    db.execute("UPDATE Orders SET Total = Total * 2 WHERE Customer LIKE 'A*'")
+    for row in db.execute("SELECT Customer, Sum(Total) AS Spent FROM Orders GROUP BY Customer ORDER BY Customer"):
+        print(row["Customer"], row["Spent"])
+    db.save()
 ```
+
+`db.execute(sql)` runs Jet SQL in pure Python: SELECT with joins, WHERE,
+GROUP BY and aggregates, HAVING, ORDER BY, DISTINCT and TOP, plus
+INSERT, UPDATE and DELETE through the same row writers. Its answers are
+checked against DAO running the same statements on the same database.
 
 Every column type is covered (Boolean through BigInt, Decimal, GUID,
 Memo and OLE), columns can be added and dropped on a table that already
@@ -199,8 +209,9 @@ are created with `db.create_relationship(...)` and read with
 `db.relationships()`, table and column properties (Description,
 Caption, Format, ...) are read and set through `table.properties()` and
 `table.set_properties(...)`, saved queries are read with `db.queries()`
-and written with `db.create_query(name, sql)`, and files grow past their
-first 512 pages the way the engine grows them. What it does not do yet
+and written with `db.create_query(name, sql)`, SQL runs with
+`db.execute(sql)`, and files grow past their first 512 pages the way
+the engine grows them. What it does not do yet
 is listed in
 [docs/access_engine.md](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/docs/access_engine.md),
 along with every format rule and how it was measured.

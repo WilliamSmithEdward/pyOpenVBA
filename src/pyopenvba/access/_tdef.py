@@ -216,7 +216,8 @@ class RealIndex:
     """A B-tree: the physical index one or more logical indexes share."""
 
     header_raw: bytes
-    entry_count: int
+    entry_count: int  # distinct keys, header +4
+    row_count: int  # rows the index counts, header +0; 0 unless built over rows
     columns: list[IndexColumn]
     usage_map_ref: int
     root_page: int
@@ -360,6 +361,7 @@ def parse_real_index(header_raw: bytes, raw: bytes) -> RealIndex:
     return RealIndex(
         header_raw=bytes(header_raw),
         entry_count=struct.unpack_from("<I", header_raw, 4)[0],
+        row_count=struct.unpack_from("<I", header_raw, 0)[0],
         columns=columns,
         usage_map_ref=struct.unpack_from("<I", raw, 34)[0],
         root_page=struct.unpack_from("<I", raw, 38)[0],

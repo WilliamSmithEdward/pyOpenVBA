@@ -185,7 +185,7 @@ def rows_from_sql(sql: str) -> list[QueryRow]:
     parameters: list[QueryRow] = []
     if text.upper().startswith("PARAMETERS "):
         head, _, text = text.partition(";")
-        for i, item in enumerate(_split_top_level(head[len("PARAMETERS "):], ","), start=1):
+        for i, item in enumerate(split_top_level(head[len("PARAMETERS "):], ","), start=1):
             name, _, kind = item.strip().rpartition(" ")
             dao_type = PARAMETER_TYPES.get(kind.strip().upper())
             if not name or dao_type is None:
@@ -202,19 +202,19 @@ def rows_from_sql(sql: str) -> list[QueryRow]:
                 rows.append(QueryRow(ATTR_TYPE, 1, flag=QUERY_UNION))
         rows.append(QueryRow(ATTR_FLAGS, 1, flag=UNION_FLAGS))
         return rows
-    clauses = _clauses(text)
+    clauses = split_clauses(text)
     verb = clauses[0][0]
     if verb == "UPDATE":
         rows.append(QueryRow(ATTR_TYPE, 1, flag=QUERY_UPDATE))
         rows.extend(parameters)
-        tables, joins = _parse_from(clauses[0][1])
+        tables, joins = parse_from(clauses[0][1])
         if joins:
             raise AccessError("UPDATE over a join is not written")
         rows.extend(tables)
         set_clause = next((b for w, b in clauses if w == "SET"), None)
         if set_clause is None:
             raise AccessError("UPDATE needs a SET clause")
-        for i, item in enumerate(_split_top_level(set_clause, ","), start=1):
+        for i, item in enumerate(split_top_level(set_clause, ","), start=1):
             column, _, expression = item.partition("=")
             rows.append(QueryRow(ATTR_COLUMN, i, name2=column.strip(), expression=expression.strip(), flag=0))
         _append_tail(rows, clauses)
@@ -226,7 +226,7 @@ def rows_from_sql(sql: str) -> list[QueryRow]:
         if body and body != "*":
             raise AccessError("DELETE takes no column list")
         from_clause = _clause(clauses, "FROM")
-        tables, joins = _parse_from(from_clause)
+        tables, joins = parse_from(from_clause)
         rows.extend(joins)
         rows.extend(tables)
         _append_tail(rows, clauses)
@@ -235,16 +235,16 @@ def rows_from_sql(sql: str) -> list[QueryRow]:
         target, _, column_list = clauses[0][1].partition("(")
         if not column_list:
             raise AccessError("INSERT INTO needs a column list and a SELECT")
-        targets = [c.strip() for c in _split_top_level(column_list.rsplit(")", 1)[0], ",")]
+        targets = [c.strip() for c in split_top_level(column_list.rsplit(")", 1)[0], ",")]
         select = _clause(clauses, "SELECT")
         rows.append(QueryRow(ATTR_TYPE, 1, name1=target.strip(), flag=QUERY_APPEND))
         rows.extend(parameters)
-        flags, top, expressions = _select_list(select)
+        flags, top, expressions = select_list(select)
         if len(expressions) != len(targets):
             raise AccessError("INSERT INTO lists a different number of columns and expressions")
         for i, ((expression, _alias), column) in enumerate(zip(expressions, targets, strict=True), start=1):
             rows.append(QueryRow(ATTR_COLUMN, i, name2=column, expression=expression, flag=0))
-        tables, joins = _parse_from(_clause(clauses, "FROM"))
+        tables, joins = parse_from(_clause(clauses, "FROM"))
         rows.extend(joins)
         rows.extend(tables)
         _append_tail(rows, clauses)
@@ -254,13 +254,13 @@ def rows_from_sql(sql: str) -> list[QueryRow]:
     if verb != "SELECT":
         raise AccessError(f"only SELECT, UPDATE, DELETE, INSERT INTO and UNION queries are written; got {verb}")
     rows.extend(parameters)
-    flags, top, expressions = _select_list(clauses[0][1])
+    flags, top, expressions = select_list(clauses[0][1])
     for i, (expression, alias) in enumerate(expressions, start=1):
         rows.append(QueryRow(ATTR_COLUMN, i, name1=alias, expression=expression, flag=0))
     into = next((b for w, b in clauses if w == "INTO"), None)
     if into is not None:
         rows.append(QueryRow(ATTR_TYPE, 1, name1=into.strip(), flag=QUERY_MAKE_TABLE))
-    tables, joins = _parse_from(_clause(clauses, "FROM"))
+    tables, joins = parse_from(_clause(clauses, "FROM"))
     rows.extend(joins)
     rows.extend(tables)
     _append_tail(rows, clauses)
@@ -269,7 +269,7 @@ def rows_from_sql(sql: str) -> list[QueryRow]:
     return rows
 
 
-def _select_list(body: str) -> tuple[int, str | None, list[tuple[str, str | None]]]:
+def select_list(body: str) -> tuple[int, str | None, list[tuple[str, str | None]]]:
     """Flags, TOP count and ``(expression, alias)`` pairs of a select list."""
     body = body.strip()
     flags = 0
@@ -295,7 +295,7 @@ def _select_list(body: str) -> tuple[int, str | None, list[tuple[str, str | None
         return flags | FLAG_ALL_COLUMNS, top, []
     if not body:
         raise AccessError("the select list is empty")
-    return flags, top, [_split_alias(item.strip()) for item in _split_top_level(body, ",")]
+    return flags, top, [_split_alias(item.strip()) for item in split_top_level(body, ",")]
 
 
 def _clause(clauses: list[tuple[str, str]], word: str) -> str:
@@ -311,7 +311,7 @@ def _append_tail(rows: list[QueryRow], clauses: list[tuple[str, str]]) -> None:
         if body is None:
             continue
         if attribute in (ATTR_GROUP, ATTR_ORDER):
-            for i, item in enumerate(_split_top_level(body, ","), start=1):
+            for i, item in enumerate(split_top_level(body, ","), start=1):
                 expression = item.strip()
                 direction: str | None = None
                 if attribute == ATTR_ORDER:
@@ -328,7 +328,7 @@ def _append_tail(rows: list[QueryRow], clauses: list[tuple[str, str]]) -> None:
 _CLAUSE_WORDS = ("SELECT", "DELETE", "UPDATE", "INSERT INTO", "SET", "INTO", "FROM", "WHERE", "GROUP BY", "HAVING", "ORDER BY")
 
 
-def _clauses(text: str) -> list[tuple[str, str]]:
+def split_clauses(text: str) -> list[tuple[str, str]]:
     """Split a statement at its top-level clause keywords."""
     positions: list[tuple[int, int, str]] = []
     depth = 0
@@ -365,7 +365,7 @@ def _clauses(text: str) -> list[tuple[str, str]]:
     return out
 
 
-def _split_top_level(text: str, separator: str) -> list[str]:
+def split_top_level(text: str, separator: str) -> list[str]:
     parts: list[str] = []
     depth = 0
     quote: str | None = None
@@ -421,18 +421,22 @@ def _split_top_level_words(text: str, word: str) -> list[str]:
 
 
 def _split_alias(item: str) -> tuple[str, str | None]:
+    """``Table AS t``, ``Table t`` or plain ``Table``."""
     match = re.search(r"\s+AS\s+(\[[^\]]+\]|\w+)\s*$", item, re.IGNORECASE)
     if match:
         return item[: match.start()].rstrip(), match.group(1)
+    match = re.fullmatch(r"(\[[^\]]+\]|[\w.]+)\s+(\[[^\]]+\]|\w+)", item.strip())
+    if match:
+        return match.group(1), match.group(2)
     return item, None
 
 
-def _parse_from(clause: str) -> tuple[list[QueryRow], list[QueryRow]]:
+def parse_from(clause: str) -> tuple[list[QueryRow], list[QueryRow]]:
     """Tables (attribute 5) and joins (attribute 7) of a FROM clause."""
     tables: list[QueryRow] = []
     joins: list[QueryRow] = []
     join_pattern = re.compile(r"\s+(INNER|LEFT|RIGHT)\s+JOIN\s+", re.IGNORECASE)
-    for source in _split_top_level(clause, ","):
+    for source in split_top_level(clause, ","):
         pieces = join_pattern.split(source.strip())
         first, alias = _split_alias(pieces[0].strip())
         tables.append(QueryRow(ATTR_TABLE, len(tables) + 1, name1=first, name2=alias))

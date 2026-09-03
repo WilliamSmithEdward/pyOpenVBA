@@ -395,10 +395,10 @@ def serialize_definition(definition: TableDefinition) -> bytes:
     columns = definition.columns
     body = bytearray()
     for real in definition.real_indexes:
-        # The header's distinct-key count moves with every insert; the raw
-        # bytes were read before those, so the live value goes in.
+        # The header's two counters move as rows come and go; the raw bytes
+        # were read before that, so the live values go in.
         header = bytearray(real.header_raw)
-        struct.pack_into("<I", header, 4, real.entry_count)
+        struct.pack_into("<II", header, 0, real.row_count, real.entry_count)
         body += header
     body += b"".join(c.raw for c in columns)
     body += b"".join(_name(c.name) for c in columns)
@@ -470,6 +470,7 @@ def new_index_parts(
     real = RealIndex(
         header_raw=bytes(SIZE_REAL_INDEX_HEADER),
         entry_count=0,
+        row_count=0,
         columns=index_columns,
         usage_map_ref=umap_ref,
         root_page=root_page,

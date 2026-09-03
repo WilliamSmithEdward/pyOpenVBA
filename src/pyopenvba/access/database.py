@@ -517,8 +517,10 @@ class Table:
         values = self._exact_values(parts)
         for i, real, columns in self._real_indexes():
             key = self._key(real, columns, values)
-            if key is not None:
-                self._btree(i, real).delete(key, row_id.page, row_id.slot)
+            if key is None:
+                continue
+            self._btree(i, real).delete(key, row_id.page, row_id.slot)
+            self._row_left_index(i, real)
         self._free_long_values(parts)
         moved = self._moved_to(row_id)
         if moved is not None:
@@ -535,6 +537,23 @@ class Table:
         self._row_removed(row_id.page, page, settle=moved is None)
         d.row_count -= 1
         db.patch_definition(d, OFFSET_ROW_COUNT, struct.pack("<I", d.row_count))
+
+    def _row_left_index(self, position: int, real: RealIndex) -> None:
+        """One row stopped being counted by an index: a delete, or an update
+        that wrote one of its columns.  An index built over existing rows
+        counts them in its header; each such row takes one off, the count
+        stops at zero, and the distinct-key count is capped at what is
+        left.  An index made before its rows counts none and never
+        changes (measured on a 30-row table and on two six-row ones)."""
+        if not real.row_count:
+            return
+        real.row_count -= 1
+        real.entry_count = min(real.entry_count, real.row_count)
+        self._db.patch_definition(
+            self.definition,
+            OFFSET_INDEX_HEADERS + position * SIZE_REAL_INDEX_HEADER,
+            struct.pack("<II", real.row_count, real.entry_count),
+        )
 
     def _row_removed(self, page_number: int, page: DataPage, *, settle: bool = True) -> None:
         """Write back a page that just lost a row, the way the engine
@@ -585,7 +604,8 @@ class Table:
             # the old entries' bytes left where they were.
             store.write(real.root_page, empty_index_root(d.page)[:OFFSET_ENTRIES] + store.read(real.root_page)[OFFSET_ENTRIES:])
             real.entry_count = 0
-            db.patch_definition(d, OFFSET_INDEX_HEADERS + i * SIZE_REAL_INDEX_HEADER + 4, struct.pack("<I", 0))
+            real.row_count = 0
+            db.patch_definition(d, OFFSET_INDEX_HEADERS + i * SIZE_REAL_INDEX_HEADER, struct.pack("<II", 0, 0))
         d.row_count = 0
         db.patch_definition(d, OFFSET_ROW_COUNT, struct.pack("<I", d.row_count))
 
@@ -868,6 +888,11 @@ class Table:
         for i, real, columns in self._real_indexes():
             old_key = self._key(real, columns, old_values)
             new_key = self._key(real, columns, new_values)
+            if old_key is not None and any(c.name in given for c, _ in columns):
+                # A row written through an index costs the index one of the
+                # rows it counts, even when the value does not change
+                # (measured: SET M = M dropped the counter all the same).
+                self._row_left_index(i, real)
             if old_key == new_key:
                 continue
             tree = self._btree(i, real)
@@ -1024,6 +1049,18 @@ class AccessDatabase:
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes(EMPTY_ACCDB_BYTES)
         return cls(target)
+
+    # -- SQL ---------------------------------------------------------------------
+
+    def execute(self, sql: str, parameters: Mapping[str, object] | None = None) -> list[dict[str, object]] | int:
+        """Run one SQL statement.  SELECT returns its rows as dicts keyed by
+        the output column names; INSERT, UPDATE and DELETE return the
+        number of rows affected.  ``parameters`` supplies ``[Name]``
+        references that are not columns.  See :mod:`pyopenvba.access._sql`
+        for the supported grammar."""
+        from pyopenvba.access._sql import execute
+
+        return execute(self, sql, parameters)
 
     # -- persistence -------------------------------------------------------------
 
@@ -1263,18 +1300,23 @@ class AccessDatabase:
         columns = [(table.definition.column_by_number(c.number), c.ascending) for c in real.columns]
         tree = table._btree(position, real)  # pyright: ignore[reportPrivateUsage]
         distinct = 0
+        entries = 0
         for row_id, values in table.rows_with_ids():
             key = table._key(real, columns, values)  # pyright: ignore[reportPrivateUsage]
             if key is None:
                 continue
             if real.unique:
                 table._check_unique(values, exclude=row_id)  # pyright: ignore[reportPrivateUsage]
+            entries += 1
             if tree.insert(key, row_id.page, row_id.slot):
                 distinct += 1
-        if distinct:
+        if entries:
+            # An index built over rows records how many it holds and how
+            # many distinct keys; deletes later take the first down.
+            real.row_count = entries
             real.entry_count = distinct
             self.patch_definition(
-                table.definition, OFFSET_INDEX_HEADERS + position * SIZE_REAL_INDEX_HEADER + 4, struct.pack("<I", distinct)
+                table.definition, OFFSET_INDEX_HEADERS + position * SIZE_REAL_INDEX_HEADER, struct.pack("<II", entries, distinct)
             )
         when = updated if isinstance(updated, (_dt.datetime, float)) else _dt.datetime.now().replace(microsecond=0)
         objects = self.table("MSysObjects")
@@ -1552,14 +1594,18 @@ class AccessDatabase:
         real = child.definition.real_indexes[position]
         key_columns = [(child.definition.column_by_number(c.number), c.ascending) for c in real.columns]
         tree = child._btree(position, real)  # pyright: ignore[reportPrivateUsage]
-        distinct = 0
+        distinct = entries = 0
         for row_id, values in child.rows_with_ids():
             key = child._key(real, key_columns, values)  # pyright: ignore[reportPrivateUsage]
-            if key is not None and tree.insert(key, row_id.page, row_id.slot):
+            if key is None:
+                continue
+            entries += 1
+            if tree.insert(key, row_id.page, row_id.slot):
                 distinct += 1
-        if distinct:
+        if entries:
+            real.row_count = entries
             real.entry_count = distinct
-            self.patch_definition(child.definition, OFFSET_INDEX_HEADERS + position * SIZE_REAL_INDEX_HEADER + 4, struct.pack("<I", distinct))
+            self.patch_definition(child.definition, OFFSET_INDEX_HEADERS + position * SIZE_REAL_INDEX_HEADER, struct.pack("<II", entries, distinct))
 
         # The referenced side: a ``.r<letter>`` entry sharing the unique index.
         pd.logical_indexes.append(

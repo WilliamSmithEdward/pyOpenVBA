@@ -237,7 +237,10 @@ function Build-Wide($db) {
 }
 
 function Dump-Table($db, [string]$name) {
-    $rs = $db.OpenRecordset("SELECT * FROM [$name] ORDER BY Id", $dbOpenSnapshot)
+    return Dump-Recordset ($db.OpenRecordset("SELECT * FROM [$name] ORDER BY Id", $dbOpenSnapshot))
+}
+
+function Dump-Recordset($rs) {
     $lines = New-Object System.Collections.Generic.List[string]
     while (-not $rs.EOF) {
         $cells = New-Object System.Collections.Generic.List[string]
@@ -418,6 +421,18 @@ try {
         "dump" {
             $text = Dump-Table $db $Table
             [Console]::Out.Write((ConvertTo-Json -InputObject $text -Compress))
+        }
+        "query-dump" {
+            # Run the SELECT in -SqlFile and dump its rows like "dump" does.
+            $sql = [System.IO.File]::ReadAllText($SqlFile)
+            $text = Dump-Recordset ($db.OpenRecordset($sql, $dbOpenSnapshot))
+            [Console]::Out.Write((ConvertTo-Json -InputObject $text -Compress))
+        }
+        "run-sql" {
+            # Execute the statement in -SqlFile and report the rows it affected.
+            $sql = [System.IO.File]::ReadAllText($SqlFile)
+            $db.Execute($sql, $dbFailOnError)
+            [Console]::Out.Write([string]$db.RecordsAffected)
         }
         default { throw "unknown command $Command" }
     }

@@ -1105,3 +1105,165 @@ def test_every_column_type_reads_back_as_the_engine_shows_it(tmp_path: Path) -> 
     assert len(wide.columns) == 151
     mismatches = _diff(expected_wide, _engine_dump(db, "Wide"))
     assert not mismatches, "\n".join(mismatches[:3])
+
+
+SQL_GATE_SELECTS = (
+    "SELECT Id, Flag, Tiny, Small, Big, Cash, Dbl, Txt FROM AllTypes WHERE Big > 0 AND Txt LIKE '*1*' ORDER BY Id",
+    "SELECT Id, Txt FROM AllTypes WHERE Txt IS NULL OR Small < 0 ORDER BY Id DESC",
+    "SELECT TOP 5 Id, Dbl FROM AllTypes ORDER BY Dbl DESC, Id",
+    "SELECT Flag, Count(*) AS N, Sum(Big) AS SumBig, Avg(Dbl) AS AvgDbl, Min(Cash) AS MinCash, Max(Stamp) AS LastStamp FROM AllTypes GROUP BY Flag ORDER BY Flag",
+    "SELECT DISTINCT Tiny FROM AllTypes ORDER BY Tiny",
+    "SELECT Id, Len(Txt) AS L, UCase(Left(Txt, 3)) AS U, IIf(Flag, 'on', 'off') AS F, IIf(Txt IS NULL, '-', Txt) AS N, Big * 2 + 1 AS Calc, Cash + 1 AS CashPlus FROM AllTypes ORDER BY Id",
+    "SELECT a.Id, b.Id AS Other, b.Txt FROM AllTypes AS a INNER JOIN AllTypes AS b ON a.Flag = b.Flag WHERE a.Id < b.Id AND a.Id <= 3 ORDER BY a.Id, b.Id",
+    "SELECT Count(*) AS N, Sum(Cash) AS Total, Avg(Cash) AS Mean, Count(Txt) AS Named FROM AllTypes WHERE Stamp > #1/1/2000#",
+    "SELECT Id FROM AllTypes WHERE Tiny BETWEEN 10 AND 200 AND Big NOT IN (1, 2, 3) ORDER BY Id",
+    "SELECT Id, Year(Stamp) AS Y, Month(Stamp) AS M FROM AllTypes WHERE Stamp IS NOT NULL AND Flag = TRUE ORDER BY Id",
+    "SELECT Tiny, Count(*) AS N FROM AllTypes GROUP BY Tiny HAVING Count(*) > 1 ORDER BY Tiny",
+    "SELECT Id, Txt & '!' AS Cat, Txt + '!' AS Sum, Txt & Story AS Both FROM AllTypes WHERE Id IN (1, 7, 14) ORDER BY Id",
+)
+
+
+def test_sql_executor_matches_the_engine(tmp_path: Path) -> None:
+    """``AccessDatabase.execute`` answers SELECTs as DAO does on the same
+    database (values and column names, row for row) and writes UPDATE and
+    DELETE results byte for byte as DAO's Execute does."""
+    theirs = tmp_path / "theirs.accdb"
+    shutil.copy(TEMPLATE, theirs)
+    assert oracle("-Command", "build-alltypes", "-Path", str(theirs), "-Rows", "30") == "ok"
+    script = tmp_path / "statement.sql"
+    db = AccessDatabase(theirs)
+    problems: list[str] = []
+    for sql in SQL_GATE_SELECTS:
+        script.write_text(sql, encoding="ascii")
+        expected = json.loads(oracle("-Command", "query-dump", "-Path", str(theirs), "-SqlFile", str(script)))
+        rows = db.execute(sql)
+        assert isinstance(rows, list)
+        mine = [chr(9).join(f"{name}={_format(value)}" for name, value in row.items()) for row in rows]
+        if not expected and not mine:
+            continue
+        for line in _diff(expected, mine):
+            problems.append(f"{sql}\n{line}")
+    assert not problems, chr(10).join(problems)
+
+    before = theirs.read_bytes()
+    statements = (
+        "UPDATE AllTypes SET Big = Big + 1, Txt = UCase(Txt) WHERE Id <= 10",
+        "UPDATE AllTypes SET Txt = Txt & ' and more' WHERE Id BETWEEN 11 AND 15",
+        "DELETE FROM AllTypes WHERE Small < 0 AND Id > 5",
+    )
+    script.write_text(chr(10).join(statements) + chr(10), encoding="ascii")
+    assert oracle("-Command", "sql-file", "-Path", str(theirs), "-SqlFile", str(script)) == "ok"
+    db = AccessDatabase(before)
+    assert [db.execute(sql) for sql in statements] == [10, 5, 21]
+    ours, engine = db.to_bytes(), theirs.read_bytes()
+    differing = _differing_pages(ours, engine)
+    assert not differing, f"UPDATE and DELETE pages differ from the engine's: {_describe_pages(ours, engine, differing)}"
+
+
+def test_indexes_built_over_rows_count_them_as_the_engine_does(tmp_path: Path) -> None:
+    """An index created over existing rows records how many rows it holds
+    (nulls left out when it ignores them) beside its distinct-key count;
+    a filtered delete takes one off per row and caps the distinct count
+    at what is left; a foreign-key index built over rows does the same.
+    Byte for byte against DAO's CREATE INDEX, ADD CONSTRAINT and a SQL
+    DELETE on the same tables."""
+    from pyopenvba.access import ColumnSpec, IndexSpec
+
+    theirs = tmp_path / "theirs.accdb"
+    shutil.copy(TEMPLATE, theirs)
+    script = tmp_path / "step.sql"
+
+    def engine_runs(*statements: str) -> None:
+        script.write_text(chr(10).join(statements) + chr(10), encoding="ascii")
+        assert oracle("-Command", "sql-file", "-Path", str(theirs), "-SqlFile", str(script)) == "ok"
+
+    def same_then_reopen(step: str, db: AccessDatabase) -> AccessDatabase:
+        ours, engine = db.to_bytes(), theirs.read_bytes()
+        assert not (d := _differing_pages(ours, engine)), f"{step}: pages differ from the engine's: {_describe_pages(ours, engine, d)}"
+        return AccessDatabase(ours)
+
+    def stamps(name: str) -> dict[str, object]:
+        entry = _catalog_entry(theirs, name)
+        return {"created": entry.date_create_serial, "updated": entry.date_update_serial}
+
+    def counters(db: AccessDatabase, table: str) -> list[tuple[int, int]]:
+        return [(real.row_count, real.entry_count) for real in db.table(table).definition.real_indexes]
+
+    key = [IndexSpec("PK", ("Id",), primary=True)]
+    rows = [(1, "a"), (1, "b"), (2, None), (None, "c"), (3, "d"), (None, "e")]
+    engine_runs(
+        "CREATE TABLE Counted (Id AUTOINCREMENT CONSTRAINT PK PRIMARY KEY, N LONG, T TEXT(50))",
+        *(f"INSERT INTO Counted (N, T) VALUES ({'NULL' if n is None else n}, {'NULL' if t is None else repr(t)})" for n, t in rows),
+    )
+    db = AccessDatabase(TEMPLATE)
+    counted = db.create_table("Counted", [ColumnSpec("Id", "Long", autonumber=True), ColumnSpec("N", "Long"), ColumnSpec("T", "Text", size=50, compressed=False)], key, **stamps("Counted"))
+    for n, t in rows:
+        counted.insert_row({"N": n, "T": t})
+    db = same_then_reopen("Counted built", db)
+
+    engine_runs("CREATE INDEX IX_N ON Counted (N)", "CREATE UNIQUE INDEX IX_T ON Counted (T) WITH IGNORE NULL")
+    updated = stamps("Counted")["updated"]
+    db.create_index("Counted", IndexSpec("IX_N", ("N",)), updated=updated)
+    db.create_index("Counted", IndexSpec("IX_T", ("T",), unique=True, ignore_nulls=True), updated=updated)
+    db = same_then_reopen("indexes over six rows", db)
+    # The primary key predates the rows and counts nothing; IX_N holds all
+    # six (two of them null, one distinct key); IX_T skips its null.
+    assert counters(db, "Counted") == [(0, 6), (6, 4), (5, 5)]
+
+    engine_runs("DELETE FROM Counted WHERE N = 1")
+    assert db.execute("DELETE FROM Counted WHERE N = 1") == 2
+    db = same_then_reopen("two rows deleted", db)
+    assert counters(db, "Counted") == [(0, 6), (4, 4), (3, 3)]
+
+    # An update that writes an indexed column costs that index one counted
+    # row, even when the value does not change; a row whose key is null in
+    # an ignore-nulls index costs it nothing.
+    engine_runs("UPDATE Counted SET N = N + 100 WHERE Id = 5")
+    assert db.execute("UPDATE Counted SET N = N + 100 WHERE Id = 5") == 1
+    db = same_then_reopen("indexed column updated", db)
+    assert counters(db, "Counted") == [(0, 6), (3, 3), (3, 3)]
+
+    engine_runs("UPDATE Counted SET T = T WHERE Id = 6")
+    assert db.execute("UPDATE Counted SET T = T WHERE Id = 6") == 1
+    db = same_then_reopen("indexed column rewritten with its own value", db)
+    assert counters(db, "Counted") == [(0, 6), (3, 3), (2, 2)]
+
+    engine_runs("UPDATE Counted SET T = 'zz' WHERE Id = 3")
+    assert db.execute("UPDATE Counted SET T = 'zz' WHERE Id = 3") == 1
+    db = same_then_reopen("null key given a value", db)
+    assert counters(db, "Counted") == [(0, 6), (3, 3), (2, 2)]
+
+    # A plain index counts its null-keyed rows, so writing or deleting one
+    # costs it a row like any other.
+    engine_runs("UPDATE Counted SET N = 7 WHERE Id = 4")
+    assert db.execute("UPDATE Counted SET N = 7 WHERE Id = 4") == 1
+    db = same_then_reopen("null key of a plain index written", db)
+    assert counters(db, "Counted") == [(0, 6), (2, 2), (2, 2)]
+
+    engine_runs("DELETE FROM Counted WHERE Id = 6")
+    assert db.execute("DELETE FROM Counted WHERE Id = 6") == 1
+    db = same_then_reopen("row with a null plain key deleted", db)
+    assert counters(db, "Counted") == [(0, 6), (1, 1), (1, 1)]
+
+    engine_runs(
+        "CREATE TABLE Kids (Id AUTOINCREMENT CONSTRAINT PK PRIMARY KEY, CountedId LONG)",
+        "INSERT INTO Kids (CountedId) VALUES (3)",
+        "INSERT INTO Kids (CountedId) VALUES (5)",
+        "INSERT INTO Kids (CountedId) VALUES (NULL)",
+        "INSERT INTO Kids (CountedId) VALUES (3)",
+    )
+    kids = db.create_table("Kids", [ColumnSpec("Id", "Long", autonumber=True), ColumnSpec("CountedId", "Long")], key, **stamps("Kids"))
+    for value in (3, 5, None, 3):
+        kids.insert_row({"CountedId": value})
+    db = same_then_reopen("Kids built", db)
+    engine_runs("ALTER TABLE Kids ADD CONSTRAINT FK_Kids_Counted FOREIGN KEY (CountedId) REFERENCES Counted (Id)")
+    db.create_relationship(
+        "FK_Kids_Counted", "Kids", ("CountedId",), "Counted", ("Id",),
+        created=_catalog_entry(theirs, "FK_Kids_Counted").date_create_serial,
+        table_updated=stamps("Kids")["updated"],
+        referenced_updated=stamps("Counted")["updated"],
+    )
+    db = same_then_reopen("constraint over four rows", db)
+    assert counters(db, "Kids")[-1][0] == 4
+    for name in ("Counted", "Kids"):
+        check_indexes(db.table(name))

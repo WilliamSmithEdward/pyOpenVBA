@@ -1,10 +1,15 @@
 # Writing executable VBA into Access, from pure Python
 
-> **Status: parked, 2026-08-19. Not a supported feature and not on any
-> roadmap.** Nothing here is imported by `src/`, nothing here ships, and
-> `AccessReader` remains read-only. This directory is kept as a research
-> record: the measurements are reproducible and the dead ends are written
-> down so nobody has to rediscover them.
+> **Status: research, reopened 2026-09-03. Not a supported feature and
+> not on any roadmap.** Nothing here is imported by `src/` and nothing
+> here ships. This directory is a research record: the measurements are
+> reproducible and the dead ends are written down so nobody has to
+> rediscover them.
+>
+> Reopened because the storage engine in `pyopenvba.access` arrived after
+> it was parked. Module **rename and delete now work**, verified by
+> running the result in Access; **create** writes a module Access opens
+> and lists but will not yet extend.
 
 Everything here is dev-only, needs Windows with desktop Access, and was
 verified by running the macro in Access and reading the value it returns
@@ -25,19 +30,25 @@ in pure Python, and real Access executes the result:
 * The reason writes appeared to do nothing: Access executes an `__SRP_*`
   compiled cache, and dropping it is what makes a rewrite take effect.
 
+Module **rename** and **delete** work end to end, in pure Python, with no
+COM in the write path -- the eight places a name lives, and every
+structure a module occupies. See "Module rename, delete and create".
+
 ## What does not work, and is not close
 
-* **Module create, rename and delete.** Rename alone writes the name in
-  at least six places and still fails; see the section below. This is
-  where "full CRUD" would live, and it is the largest gap.
+* **Creating a procedure** in a module, which is what stops a created
+  module from being useful and stops `Dim`'s neighbours from working.
+  Module rename and delete now work; create writes a module Access opens
+  and lists but will not extend. See "Module rename, delete and create".
 * **`Const`, arrays, `Static`, fixed-length strings.** Each reshapes the
   module header its own way; all measured, none implemented, all refused.
 * **`Set x = New <Class>`**, which needs the import table.
-* **Creating a procedure** from nothing.
-* **Page allocation**, so a module can only grow into space it already
-  has.
+* **Page allocation** for the module rewriter, so a module can only grow
+  into space it already has. The storage engine allocates pages properly,
+  so this is a matter of routing the rewriter through it rather than an
+  open question.
 
-## If this is ever picked up again
+## If this is picked up again
 
 Read "Auditing the guards" first. Six guards in this code were wrong in
 the same way -- narrow tests that passed by not looking -- and three of
@@ -109,6 +120,28 @@ produces a module that displays one thing and does another.
   found by this failing; run it before trusting a new one.
 - `rewrite_module.py` -- replaces a procedure's body end to end, with a
   free statement count (`--file program.vba` to read the body from a file).
+
+Module CRUD, all of it built on the storage engine rather than on byte
+patching:
+
+- `module_rename.py` -- rename, all eight places, `__SRP_` drop included.
+- `module_delete.py` -- delete, every structure a module occupies.
+- `module_create.py` -- create, cloning an existing module's compiled
+  shape; loads in Access, does not yet extend.
+- `module_stream.py`, `project_streams.py`, `vba_project_table.py`,
+  `vba_module_table.py`, `dir_records.py` -- one structure each.
+- `attribute_pages.py` -- says which table owns each page two databases
+  differ on and diffs its rows. This is the instrument that made the
+  rename map readable; a raw page diff of the same edit is sixty pages of
+  recompiled project.
+- `drive_access.py` -- drives Access through `pyvbaharness`, so a VBA
+  error comes back as data rather than as a modal dialog nobody can see.
+  Access refuses several `DoCmd` verbs over a bare COM boundary that it
+  accepts from inside its own VBA, which is why the operations are driven
+  this way rather than with `module_ops.ps1`.
+- `peek_project.ps1` -- opens a database read-only and reports what its
+  VBA project looks like, for checking a write without letting the
+  harness inject anything.
 
 ```bash
 python docs/research/access_write/verify_compiler.py sample.accdb
@@ -483,48 +516,157 @@ A warning about probes, since this cost real time twice: bare
 ``Application.Eval`` over COM **hangs** behind a modal VBA compile-error
 dialog. Use ``pyvbaharness``, which reports ``modal-blocked`` instead.
 
-## Renaming a module: mapped, not working
+## Module rename, delete and create
 
-Access was asked to add, rename and delete a module so the effects could
-be diffed (`module_ops.ps1`). Rename is the smallest of the three and is
-where the work stopped, characterized but incomplete.
+**Rename and delete work. Create loads but is not finished.** What
+unblocked them was not new p-code work: it was the storage engine in
+`pyopenvba.access`, which arrived after this directory was parked. Every
+place a module's name lives is an ordinary table row, so each edit is an
+`update_row` that resizes the row properly. The note below that said
+"resizing a storage-catalog row corrupts it" was a limit of patching
+bytes in place, not of the format.
 
-A module's name is written in at least six places, and they are not
-interchangeable:
+`attribute_pages.py` is what made the map: it names the table that owns
+each page two databases differ on and diffs the rows, so an Access
+operation reads as "MSysObjects row 26 Name changed" rather than as
+sixty pages of noise.
 
-| where | status |
-|-------|--------|
-| dir stream `MODULENAME` + `MODULENAMEUNICODE` | reproduced, 2 cookie bytes aside |
-| the module's own `Attribute VB_Name` | reproduced |
-| its `MSysObjects` row | **byte-exact** |
-| the `PROJECTwm` storage row | **byte-exact** |
-| the `DirData` storage row | **byte-exact** |
-| the MS-OVBA `PROJECT` stream (`Module=Alpha`, plain text) | reproduced |
+### Where a module's name lives
 
-Three of those rows carry the name *inline*, followed by a table of u16
-offsets that all shift when the name's length changes -- the same shape
-in each, so one `rename_in_row` handles all three and matches Access byte
-for byte.
+Eight places, and Access needs them to agree:
 
-Two findings worth keeping:
+| where | what changes |
+|-------|--------------|
+| its `MSysObjects` row | `Name` |
+| its `MSysNavPaneObjectIDs` row | `Name` |
+| `MSysAccessStorage` `\x03DirData` | `04 <len> <name UTF-16>`, len being the name's bytes plus four |
+| `MSysAccessStorage` `PROJECTwm` | `<name MBCS> 00 <name UTF-16> 00 00` |
+| `MSysAccessStorage` `PROJECT` | the `Module=<name>` line and the `[Workspace]` line |
+| the `dir` stream | MODULENAME and MODULENAMEUNICODE |
+| the module's own stream | `Attribute VB_Name` |
+| `_VBA_PROJECT` | an appended identifier, and the module's UTF-16 record |
 
-**Rewriting every row that mentions the name corrupts the project.** Five
-rows contain it; Access deliberately leaves two holding the *old* name
-(the project identifier table, and one other), because a rename appends
-the new name rather than replacing it. A blanket search-and-replace
-produced "the Visual Basic for Applications project in the database is
-corrupt" -- the same shape of error as every over-broad rule in this
-directory.
+The earlier attempt updated six of them and Access still showed the old
+name. The two it missed were `MSysNavPaneObjectIDs` and `_VBA_PROJECT`.
 
-**Resizing a storage-catalog row corrupts it too.** Renaming `Alpha` to
-`Beta` in place fails; renaming to `Gamma`, the same length, does not.
-Access itself never resizes those rows -- it writes a new row and retires
-the old one, which is presumably why.
+Three findings from asking Access rather than reading the file:
 
-Even with all six updated and no resizing, Access still shows the old
-name: its file carries the new name on two pages this rename does not
-touch. So at least one more location exists, and rename is **not
-working** -- `rename_probe.py` is the state of it, not a tool.
+**MSysObjects is not what Access displays.** Renaming the catalog row and
+the navigation-pane row alone leaves both the VBE and
+`CurrentProject.AllModules` showing the old name, and the code still
+runs. DirData, PROJECTwm and PROJECT decide `AllModules`; the VBE's name
+comes from `_VBA_PROJECT`.
+
+**Access repairs what it disagrees with.** A rename that reaches the dir
+stream and `Attribute VB_Name` but not `_VBA_PROJECT` is *reverted* the
+moment Access opens the database -- the file on disk says `Gamma` before
+the open and `Alpha` after it. Reading a file back after Access has
+touched it measures Access's repair, not the write.
+
+**A rename appends an identifier, it does not rewrite one.** VBA is
+case-insensitive and one identifier record serves every use of a name, so
+renaming the record in place would rename a variable that happens to
+share it. Access appends `<u8 len> <u8 4> <name> <u16 hash> 10 00` before
+the `02 ff ff 01 01` sentinel, bumps a slot counter at `start - 14` and a
+record counter at `start - 12`, and points the module's UTF-16 record at
+the new slot. The operand is **`2 * slot + 2`**, taking the slot counter's
+value from before the bump; the familiar `524 + 2*index` is the same rule
+for slot `261 + index`. The hash is the OLE `LHashValOfNameSysA` value
+`pcode_hash.py` already computes. Both edits come out byte-identical to
+Access's own rename.
+
+The table itself begins after a `00 00 00 00 02 00` anchor, which also
+occurs in unrelated data, so a candidate only counts when the record
+behind it reads as a named one.
+
+### What rename reproduces
+
+`module_rename.py` renames all eight places and drops the `__SRP_` cache.
+Checked against real Access on a project of three modules, one of which
+calls `Alpha.AlphaGo`:
+
+| check | result |
+|---|---|
+| the VBE and `AllModules` both show the new name | yes |
+| the renamed module's code still runs | `AlphaGo` returns 42 |
+| a caller naming the old module still runs | `CallIt` returns 42 |
+| the VBE can add a procedure to it and Access compiles and runs it | returns 999 |
+| a shorter name (`Zed`) and a much longer one | both work |
+
+`Application.Run "Module.Procedure"` fails on a renamed module -- and on
+an untouched one, and on a module Access itself renamed, so it is an
+Access limitation rather than a defect here. Controls are what settled
+it.
+
+### Delete
+
+`module_delete.py`, measured against `DoCmd.DeleteObject`:
+
+* the dir stream loses the module's whole block, MODULENAME through
+  MODULEEND, and PROJECTMODULES drops by one
+* DirData loses its entry **and the four bytes that follow it** -- leaving
+  those behind produced a file Access opened with an empty `AllModules`,
+  which is the shape of a list Access could not walk
+* PROJECTwm and PROJECT lose their entries
+* `_VBA_PROJECT` loses the module's entry from the table that follows the
+  project cookie, and that table's count drops by one, while the
+  identifier table keeps the name and its counters do not move
+* the module's stream row, its `MSysObjects` row and its
+  `MSysNavPaneObjectIDs` row all go
+
+DirData, PROJECTwm and the module table come out byte-identical to
+Access's own delete, `AllModules` matches it exactly, and the project
+still compiles and runs afterwards.
+
+One rule the storage engine learned here: deleting a **catalog** row
+leaves the page it was alone on alive and owned, where a filtered DELETE
+retires it (`Table.delete_row(rid, retire_empty=False)`).
+
+### Create, as far as it goes
+
+`module_create.py` writes everything a new module needs:
+
+* three `MSysAccessStorage` rows -- a numbered storage folder under
+  `Modules`, a 13-byte `PropData` under it, and the module's stream under
+  `VBA` with a row name of 28 random capitals
+* a dir block of eleven records and PROJECTMODULES up by one
+* entries in DirData, PROJECTwm and PROJECT
+* a `_VBA_PROJECT` module entry, its count up by one, and an identifier
+  for the name
+* an `MSysObjects` row of type -32761 and a navigation-pane row
+
+The compiled shape is **cloned** from a module that already exists,
+because synthesising a procedure table from nothing is still the open
+problem. Access opens the result and lists the new module in both the VBE
+and `AllModules`. What it will not yet do is let the VBE *add* a
+component to that project, so something in its writable state is still
+wrong. Three suspects, all named: the cloned stream's own internal
+identity, the 20-byte per-module cookie string in the module table (which
+Access varies by one character per module), and the per-module word that
+reads `0x0208` for the template's own module and `0x0278` for every
+module added after it.
+
+Creating from the *pristine* embedded template fails outright, while
+creating in a database Access has opened at least once works. The
+template's `_VBA_PROJECT` is a stub -- 20 identifier records against 200
+in a built project -- and Access rebuilds it on first open, so the stub
+is not a thing to edit.
+
+### The per-module entry in `_VBA_PROJECT`
+
+After the project cookie comes a module count and one entry each:
+
+```
+<u16 stream-name bytes> <stream name UTF-16>
+<u16 20> <10-character cookie UTF-16>
+ff ff <u16 name operand> <u16 name bytes> <name UTF-16>
+ff ff <u16 module cookie> 00*6 <u16> 00 00 00 <u32 module offset>
+```
+
+Entries are separated by `ff ff`; the first follows the count directly.
+The module cookie is the dir stream's MODULEEND2 for that module and the
+offset its MODULEOFFSET, so the two structures carry the same facts
+twice.
 
 ## Auditing the guards
 

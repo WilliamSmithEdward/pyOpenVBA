@@ -101,3 +101,39 @@ def rename_in_vba_project(blob: bytes, old: str, new: str) -> tuple[bytes, str]:
         operand.to_bytes(2, "little") + len(text).to_bytes(2, "little") + text
     )
     return bytes(out), f"_VBA_PROJECT (identifier appended, operand {was} -> {operand})"
+
+
+# --- the per-module flag list ------------------------------------------------
+# Ahead of the module table sits `<u16 module count> <count u16 flags, each
+# 1> <u16 n> <n records of four bytes whose first word ascends by two>`.
+# Adding a module bumps the count and inserts one more flag; leaving it
+# alone gives a project Access lists through its own catalog but the VBE
+# calls corrupt. Measured at the same offset in four projects, with the
+# count following the module table's own count exactly.
+FLAG = (1).to_bytes(2, "little")
+
+
+def flag_list(blob: bytes, modules: int, window: range = range(1000, 1400, 2)) -> int:
+    """Where the flag list's count sits."""
+    for at in window:
+        if int.from_bytes(blob[at : at + 2], "little") != modules:
+            continue
+        if any(blob[at + 2 + 2 * i : at + 4 + 2 * i] != FLAG for i in range(modules)):
+            continue
+        after = at + 2 + 2 * modules
+        count = int.from_bytes(blob[after : after + 2], "little")
+        if not 1 <= count <= 64:
+            continue
+        operands = [int.from_bytes(blob[after + 2 + 4 * i : after + 4 + 4 * i], "little") for i in range(count)]
+        if len(operands) > 1 and all(operands[i + 1] == operands[i] + 2 for i in range(len(operands) - 1)):
+            return at
+    raise LookupError("no per-module flag list in _VBA_PROJECT")
+
+
+def add_module_flag(blob: bytes, modules: int) -> bytes:
+    """Count one more module and give it its flag."""
+    at = flag_list(blob, modules)
+    out = bytearray(blob)
+    out[at : at + 2] = (modules + 1).to_bytes(2, "little")
+    where = at + 2 + 2 * modules
+    return bytes(out[:where] + bytearray(FLAG) + out[where:])

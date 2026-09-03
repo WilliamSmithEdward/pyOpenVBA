@@ -127,7 +127,8 @@ patching:
 - `module_rename.py` -- rename, all eight places, `__SRP_` drop included.
 - `module_delete.py` -- delete, every structure a module occupies.
 - `module_create.py` -- create, cloning an existing module's compiled
-  shape; loads in Access, does not yet extend.
+  shape (`donor=` to take it from another database); Access lists the
+  result, the VBE calls the project corrupt.
 - `module_stream.py`, `project_streams.py`, `vba_project_table.py`,
   `vba_module_table.py`, `dir_records.py` -- one structure each.
 - `attribute_pages.py` -- says which table owns each page two databases
@@ -624,33 +625,49 @@ retires it (`Table.delete_row(rid, retire_empty=False)`).
 
 ### Create, as far as it goes
 
-`module_create.py` writes everything a new module needs:
+`module_create.py` writes everything a new module needs, and every field
+it writes now matches what Access writes for the same operation:
 
 * three `MSysAccessStorage` rows -- a numbered storage folder under
   `Modules`, a 13-byte `PropData` under it, and the module's stream under
   `VBA` with a row name of 28 random capitals
+* an entry in `Modules/PropData`, which is a list of the folders:
+  `05 09 02 <folder name, one UTF-16 character> "CB0"`, eleven bytes each.
+  The folder name is a single character and Access takes the one after
+  the highest in use -- `0`, then `4`, then `5`.
 * a dir block of eleven records and PROJECTMODULES up by one
 * entries in DirData, PROJECTwm and PROJECT
-* a `_VBA_PROJECT` module entry, its count up by one, and an identifier
-  for the name
+* a `_VBA_PROJECT` module entry appended after the last, an identifier for
+  the name, a flag in the per-module list, and the project's reserve
+  advanced
 * an `MSysObjects` row of type -32761 and a navigation-pane row
 
-The compiled shape is **cloned** from a module that already exists,
-because synthesising a procedure table from nothing is still the open
-problem. Access opens the result and lists the new module in both the VBE
-and `AllModules`. What it will not yet do is let the VBE *add* a
-component to that project, so something in its writable state is still
-wrong. Three suspects, all named: the cloned stream's own internal
-identity, the 20-byte per-module cookie string in the module table (which
-Access varies by one character per module), and the per-module word that
-reads `0x0208` for the template's own module and `0x0278` for every
-module added after it.
+**Access opens the result and lists the new module through its own
+catalog, and the VBE refuses the project as corrupt.** What is known:
 
-Creating from the *pristine* embedded template fails outright, while
-creating in a database Access has opened at least once works. The
-template's `_VBA_PROJECT` is a stub -- 20 identifier records against 200
-in a built project -- and Access rebuilds it on first open, so the stub
-is not a thing to edit.
+* Leaving `_VBA_PROJECT` alone and writing everything else gives a
+  project the **VBE loads**, listing three modules with the third
+  nameless -- so the VBE takes its list from the dir stream, and the
+  `_VBA_PROJECT` entry is what it rejects.
+* Every field of that entry matches Access's for the same module: the
+  stream name is present in the storage rows and the dir stream, the
+  operand is the appended identifier's, the reserve is the one the
+  project's trailer offered, the trailer advanced by 0x20, the cookie is
+  unique, and the bytes that follow the entry are identical.
+
+Two facts found on the way, both worth keeping:
+
+**A cloned module brings its names with it.** Cloning a module whose code
+calls `ZetaGo` leaves the p-code naming an identifier the target project
+does not have, and Access calls that corrupt. Access's own new module
+appends two identifiers, the module's name and its procedure's. A donor
+with no procedures avoids the problem -- and does not fix this one.
+
+**`Module1` in the shipped template does not round-trip.** Rebuilding it
+unchanged through `Perf.build` gives a row one byte shorter, differing at
+the source-length field (`3fb0` against `3eb0`), so the first attempts at
+create were cloning a malformed stream. A module Access has just made
+rebuilds byte for byte, which is the check to run on any donor first.
 
 ### The per-module entry in `_VBA_PROJECT`
 

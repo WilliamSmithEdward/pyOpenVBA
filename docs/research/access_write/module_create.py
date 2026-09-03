@@ -40,8 +40,8 @@ from pyopenvba.access import AccessDatabase  # noqa: E402
 from pyopenvba.access_read import AccessReader  # noqa: E402
 from pyopenvba.vba import compress, decompress  # noqa: E402
 from module_rename import _dir_data_entry, _project_wm_entry, drop_srp  # noqa: E402
-from vba_module_table import module_count  # noqa: E402
-from vba_project_table import append_identifier  # noqa: E402
+from vba_module_table import add_module, entries, entry_bytes, next_reserve  # noqa: E402
+from vba_project_table import add_module_flag, append_identifier  # noqa: E402
 
 STORAGE = "MSysAccessStorage"
 MODULE_TYPE = -32761
@@ -55,6 +55,9 @@ MODULEOFFSET = 0x0031
 PROJECTMODULES = 0x000F
 TERMINATOR = 0x0010
 PROP_DATA = bytes.fromhex("00000000020000000000000000")
+#: One module's line in `Modules/PropData`, before its folder name.
+FOLDER_ENTRY = bytes.fromhex("050902")
+FOLDER_SUFFIX = "CB0".encode("utf-16-le")
 COOKIE_BYTES = 20
 
 
@@ -125,6 +128,18 @@ def add_to_project_wm(payload: bytes, name: str) -> bytes:
     return payload[:-2] + _project_wm_entry(name) + bytes(2)
 
 
+def add_to_folder_list(payload: bytes, folder: str) -> bytes:
+    """Append a folder to `Modules/PropData`."""
+    return payload + FOLDER_ENTRY + folder.encode("utf-16-le") + FOLDER_SUFFIX
+
+
+def next_folder(taken: set[str]) -> str:
+    """The character after the highest folder in use, which is how Access
+    numbered a third module `5` where the second was `4`."""
+    highest = max((ord(name) for name in taken if len(name) == 1), default=ord("0") - 1)
+    return chr(highest + 1)
+
+
 def add_to_project(text: str, name: str) -> str:
     eol = chr(13) + chr(10)
     lines = text.split(eol)
@@ -138,74 +153,59 @@ def add_to_project(text: str, name: str) -> str:
 # --- the module table in _VBA_PROJECT ---------------------------------------
 
 
-@dataclass
-class Entry:
-    start: int
-    end: int
-    cookie: bytes  # the 20-byte per-module string
-    tail: bytes  # ff ff and the 17 bytes that close an entry
-
-
-def read_entry(blob: bytes, stream_name: str, name: str) -> Entry:
-    stream_bytes = stream_name.encode("utf-16-le")
-    at = blob.find(stream_bytes)
-    if at < 0:
-        raise LookupError(f"_VBA_PROJECT has no entry for stream {stream_name!r}")
-    cookie_at = at + len(stream_bytes) + 2
-    text = name.encode("utf-16-le")
-    where = blob.find(text, cookie_at)
-    if where < 0:
-        raise LookupError(f"_VBA_PROJECT has no name record for {name!r}")
-    end = where + len(text) + 19
-    return Entry(at - 2, end, blob[cookie_at : cookie_at + COOKIE_BYTES], blob[where + len(text) : end])
+def fresh_cookie(taken: set[bytes], template: bytes) -> bytes:
+    """A module's 20-byte cookie is `<two characters><the project's own
+    eight>`, and every module in a project has its own leading pair
+    (measured: 08, 09 and 0@ against one suffix).  This keeps the
+    project's half and takes the first pair nobody has."""
+    suffix = template[4:]
+    for code in range(0x30, 0x7F):
+        candidate = ("0" + chr(code)).encode("utf-16-le") + suffix
+        if candidate not in taken:
+            return candidate
+    raise LookupError("no unused module cookie left")
 
 
 def add_to_vba_project(
-    blob: bytes, cookie: bytes, template: Entry, stream_name: str, name: str, offset: int, module_cookie: bytes
+    blob: bytes, cookie: bytes, stream_name: str, name: str, offset: int, module_cookie: bytes
 ) -> bytes:
-    """Append an entry built from the template's fixed parts."""
+    """Append an entry, giving it the reserve the project's trailer offers
+    and a cookie no other module holds."""
+    known = entries(blob, cookie)
+    blob = add_module_flag(blob, len(known))
     blob, operand = append_identifier(blob, name)
-    stream_text, text = stream_name.encode("utf-16-le"), name.encode("utf-16-le")
-    tail = bytearray(template.tail)
-    tail[2:4] = module_cookie
-    # The template's own module carries 0x0208 here; every module added
-    # after it carries 0x0278 (measured on a three-module project, where
-    # the second and third shared it).
-    tail[10:12] = (0x0278).to_bytes(2, "little")
-    tail[-4:] = offset.to_bytes(4, "little")
-    entry = (
-        len(stream_text).to_bytes(2, "little")
-        + stream_text
-        + COOKIE_BYTES.to_bytes(2, "little")
-        + template.cookie
-        + b"\xff\xff"
-        + operand.to_bytes(2, "little")
-        + len(text).to_bytes(2, "little")
-        + text
-        + bytes(tail)
+    entry = entry_bytes(
+        stream_name,
+        fresh_cookie({e.cookie for e in known}, known[0].cookie),
+        operand,
+        name,
+        module_cookie,
+        next_reserve(blob, cookie),
+        offset,
     )
-    at = template.end
-    out = bytearray(blob[:at] + b"\xff\xff" + entry + blob[at:])
-    where = module_count(bytes(out), cookie)
-    out[where : where + 2] = (int.from_bytes(out[where : where + 2], "little") + 1).to_bytes(2, "little")
-    return bytes(out)
+    return add_module(blob, cookie, entry)
 
 
 # --- the whole operation -----------------------------------------------------
 
 
-def create(source: Path, target: Path, name: str, template: str = "Module1", seed: int = 0, skip: str = "") -> list[str]:
+def create(source: Path, target: Path, name: str, template: str = "Module1", seed: int = 0,
+           skip: str = "", donor: Path | None = None) -> list[str]:
     skipped = set(skip.split(",")) if skip else set()
     db = AccessDatabase(source)
     done: list[str] = []
     rng = random.Random(seed)
     stream_name = stream_row_name(rng)
 
+    # The compiled shape may come from another database, so a project can
+    # be given a small empty module rather than a clone of whatever large
+    # one it happens to hold.
+    from_file = donor if donor is not None else source
     origin = next(
-        (s for s in AccessReader(source).find_module_streams() if s.name.lower() == template.lower()), None
+        (s for s in AccessReader(from_file).find_module_streams() if s.name.lower() == template.lower()), None
     )
     if origin is None:
-        raise LookupError(f"no module named {template!r} to clone")
+        raise LookupError(f"no module named {template!r} in {from_file} to clone")
 
     storage = db.table(STORAGE)
     dir_rid, dir_stream = next(
@@ -214,17 +214,18 @@ def create(source: Path, target: Path, name: str, template: str = "Module1", see
         if row["Name"] == "dir" and isinstance(row.get("Lv"), bytes)
     )
     cookie = project_cookie(dir_stream)
+    donor_dir = dir_stream if donor is None else _dir_stream_of(donor)
     # Every module carries its own MODULEEND2 word; two sharing one is
     # not something Access ever writes.
-    fresh_cookie = rng.randbytes(2)
-    template_stream = stream_name_of(dir_stream, template)
+    module_word = rng.randbytes(2)
+    template_stream = stream_name_of(donor_dir if donor is not None else dir_stream, template)
     template_offset = next(
         int.from_bytes(payload, "little")
         for _at, ident, _size, payload in records(dir_stream)
         if ident == MODULEOFFSET
     )
 
-    perf = Perf(bytes(origin.raw), _offset_of(dir_stream, template))
+    perf = Perf(bytes(origin.raw), _offset_of(donor_dir, template))
     body = "\r\n".join(
         [f'Attribute VB_Name = "{name}"'] + perf.source_lines()
     ).encode("latin-1")
@@ -235,7 +236,7 @@ def create(source: Path, target: Path, name: str, template: str = "Module1", see
     folders = {
         str(r["Name"]) for _rid, r in storage.rows_with_ids() if r["ParentId"] == MODULES_STORAGE and r["Type"] == 1
     }
-    folder = str(next(n for n in range(100) if str(n) not in folders))
+    folder = next_folder(folders)
     stamp = dt.datetime.now().replace(microsecond=0)
 
     if "rows" in skipped:
@@ -262,16 +263,17 @@ def create(source: Path, target: Path, name: str, template: str = "Module1", see
         if not isinstance(value, bytes) or not value:
             continue
         if r["Name"] == "_VBA_PROJECT" and "vba" not in skipped:
-            entry = read_entry(value, template_stream, template)
             storage.update_row(
                 rid,
-                {"Lv": add_to_vba_project(value, cookie, entry, stream_name, name, offset,
-                                          fresh_cookie)},
+                {"Lv": add_to_vba_project(value, cookie, stream_name, name, offset, module_word)},
             )
             done.append("_VBA_PROJECT")
-        elif r["Name"] == "\x03DirData" and _dir_data_entry(template) in value and "dirdata" not in skipped:
+        elif r["Name"] == "\x03DirData" and r["ParentId"] == MODULES_STORAGE and "dirdata" not in skipped:
             storage.update_row(rid, {"Lv": add_to_dir_data(value, name)})
             done.append("DirData")
+        elif r["Name"] == "PropData" and r["ParentId"] == MODULES_STORAGE:
+            storage.update_row(rid, {"Lv": add_to_folder_list(value, folder)})
+            done.append("Modules/PropData")
         elif r["Name"] == "PROJECTwm" and "wm" not in skipped:
             storage.update_row(rid, {"Lv": add_to_project_wm(value, name)})
             done.append("PROJECTwm")
@@ -282,7 +284,7 @@ def create(source: Path, target: Path, name: str, template: str = "Module1", see
     if "dir" not in skipped:
         storage.update_row(
             dir_rid,
-            {"Lv": compress(add_to_dir(dir_stream, dir_block(name, stream_name, offset, fresh_cookie)))},
+            {"Lv": compress(add_to_dir(dir_stream, dir_block(name, stream_name, offset, module_word)))},
         )
         done.append("dir")
 
@@ -305,6 +307,14 @@ def create(source: Path, target: Path, name: str, template: str = "Module1", see
     return done
 
 
+def _dir_stream_of(path: Path) -> bytes:
+    other = AccessDatabase(path)
+    for _rid, row in other.table(STORAGE).rows_with_ids():
+        if row["Name"] == "dir" and isinstance(row.get("Lv"), bytes):
+            return decompress(row["Lv"])
+    raise LookupError(f"{path} has no dir stream")
+
+
 def _offset_of(stream: bytes, name: str) -> int:
     want, seen = name.encode("latin-1"), False
     for _at, ident, _size, payload in records(stream):
@@ -316,4 +326,13 @@ def _offset_of(stream: bytes, name: str) -> int:
 
 
 if __name__ == "__main__":
-    print(create(Path(sys.argv[1]), Path(sys.argv[2]), sys.argv[3], *sys.argv[4:]))
+    where = sys.argv[7] if len(sys.argv) > 7 else None
+    print(
+        create(
+            Path(sys.argv[1]),
+            Path(sys.argv[2]),
+            sys.argv[3],
+            *sys.argv[4:7],
+            donor=Path(where) if where else None,
+        )
+    )

@@ -7,6 +7,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- **Subqueries in saved queries.** A subquery in a WHERE, one used as a
+  value, and a bracketed SELECT standing where a table does all save as
+  the engine saves them; a derived table's text goes in its row's
+  expression with only the alias naming it.
+
 - **Pass-through queries.** `db.create_query(name, sql, connect=...)`
   saves one, byte for byte as DAO does, dead row and all; the SQL is
   kept exactly as given because the server parses it, not Jet.

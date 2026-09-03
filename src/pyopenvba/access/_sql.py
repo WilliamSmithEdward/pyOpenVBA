@@ -949,7 +949,7 @@ def _sources(db: AccessDatabase, from_clause: str, parameters: Mapping[str, obje
     tables, joins = parse_from(from_clause)
     sources: list[Source] = []
     for t in tables:
-        name = (t.name1 or "").strip()
+        name = (t.name1 or (f"({t.expression})" if t.expression else "")).strip()
         alias = (t.name2 or name).strip("[]")
         if name.startswith("("):
             inner = name[1 : name.rfind(")")].strip()

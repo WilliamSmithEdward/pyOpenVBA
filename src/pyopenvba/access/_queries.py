@@ -124,7 +124,9 @@ class SavedQuery:
 
     @property
     def tables(self) -> list[tuple[str, str | None]]:
-        return [(r.name1 or "", r.name2) for r in self._rows(ATTR_TABLE)]
+        """Each FROM entry as ``(name, alias)``; a derived table's name is
+        its bracketed SELECT."""
+        return [(r.name1 if r.name1 else f"({r.expression})", r.name2) for r in self._rows(ATTR_TABLE)]
 
     @property
     def connect(self) -> str | None:
@@ -515,16 +517,25 @@ def parse_from(clause: str) -> tuple[list[QueryRow], list[QueryRow]]:
     for source in split_top_level(clause, ","):
         pieces = join_pattern.split(source.strip())
         first, alias = split_alias(pieces[0].strip())
-        tables.append(QueryRow(ATTR_TABLE, len(tables) + 1, name1=first, name2=alias))
+        tables.append(_table_row(len(tables) + 1, first, alias))
         left = alias or first
         for k in range(1, len(pieces), 2):
             kind = {"INNER": JOIN_INNER, "LEFT": JOIN_LEFT, "RIGHT": JOIN_RIGHT}[pieces[k].upper()]
             right_part, condition = _split_on(pieces[k + 1])
             right, right_alias = split_alias(right_part.strip())
-            tables.append(QueryRow(ATTR_TABLE, len(tables) + 1, name1=right, name2=right_alias))
+            tables.append(_table_row(len(tables) + 1, right, right_alias))
             joins.append(QueryRow(ATTR_JOIN, len(joins) + 1, name1=left, name2=right_alias or right, expression=condition.strip(), flag=kind))
             left = right_alias or right
     return tables, joins
+
+
+def _table_row(order: int, name: str, alias: str | None) -> QueryRow:
+    """A FROM entry: a table by name, or a bracketed SELECT whose text goes
+    in the expression with only the alias naming it, as the engine
+    stores it."""
+    if name.startswith("("):
+        return QueryRow(ATTR_TABLE, order, name2=alias, expression=name[1 : name.rfind(")")].strip())
+    return QueryRow(ATTR_TABLE, order, name1=name, name2=alias)
 
 
 def _split_on(text: str) -> tuple[str, str]:

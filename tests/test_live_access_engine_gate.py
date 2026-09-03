@@ -857,6 +857,11 @@ def test_saved_queries_match_the_engine_byte_for_byte(tmp_path: Path) -> None:
         "X3": "TRANSFORM Sum(Amount) SELECT TOP 5 Region FROM Sales GROUP BY Region PIVOT Quarter",
         "X4": "TRANSFORM Sum(s.Amount) AS T SELECT c.Remark FROM Sales AS s INNER JOIN Child AS c ON s.Region = c.Remark GROUP BY c.Remark PIVOT s.Quarter",
         "X5": "PARAMETERS [Low] Currency; TRANSFORM Sum(Amount) SELECT Region FROM Sales WHERE Amount > [Low] GROUP BY Region PIVOT Quarter",
+        # Subqueries: in a WHERE, as a value, and as a table of their own.
+        "S1": "SELECT Parent.Name FROM Parent WHERE Parent.Id IN (SELECT Child.ParentId FROM Child)",
+        "S2": "SELECT Parent.Name FROM Parent WHERE EXISTS (SELECT * FROM Child WHERE Child.ParentId = Parent.Id)",
+        "S3": "SELECT Parent.Name, (SELECT Count(*) FROM Child WHERE Child.ParentId = Parent.Id) AS N FROM Parent",
+        "S4": "SELECT t.ParentId FROM (SELECT Child.ParentId FROM Child) AS t",
     }
     for name, sql in statements.items():
         script.write_text(sql + chr(10), encoding="ascii")

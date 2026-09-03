@@ -219,3 +219,26 @@ def test_a_pass_through_query_is_written_and_read_back() -> None:
     assert other.sql == "SELECT * FROM [dbo].[Sales] WHERE x > 1"
     assert db.query("Remote2").connect == "ODBC;DSN=none"
     check_indexes(db.table("MSysQueries"))
+
+
+SUBQUERIES = (
+    "SELECT Parent.Name FROM Parent WHERE Parent.Id IN (SELECT Child.ParentId FROM Child)",
+    "SELECT Parent.Name FROM Parent WHERE EXISTS (SELECT * FROM Child WHERE Child.ParentId = Parent.Id)",
+    "SELECT Parent.Name, (SELECT Count(*) FROM Child WHERE Child.ParentId = Parent.Id) AS N FROM Parent",
+    "SELECT t.ParentId FROM (SELECT Child.ParentId FROM Child) AS t",
+    "SELECT a.X FROM One AS a INNER JOIN (SELECT Two.X FROM Two) AS b ON a.X = b.X",
+)
+
+
+@pytest.mark.parametrize("sql", SUBQUERIES)
+def test_subqueries_round_trip(sql: str) -> None:
+    assert SavedQuery("Q", rows_from_sql(sql)).sql == sql
+
+
+def test_a_derived_table_is_stored_as_the_engine_stores_it() -> None:
+    # Its text goes in the row's expression with only the alias naming it,
+    # where a plain table's name goes in Name1.
+    rows = [r for r in rows_from_sql(SUBQUERIES[3]) if r.attribute == 5]
+    assert [(r.name1, r.name2, r.expression) for r in rows] == [(None, "t", "SELECT Child.ParentId FROM Child")]
+    plain = [r for r in rows_from_sql(SUBQUERIES[0]) if r.attribute == 5]
+    assert [(r.name1, r.name2, r.expression) for r in plain] == [("Parent", None, None)]

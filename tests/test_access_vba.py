@@ -16,9 +16,10 @@ from pathlib import Path
 
 import pytest
 
-from pyopenvba.access import AccessDatabase
+from pyopenvba.access import AccessDatabase, ColumnSpec
 from pyopenvba.access._storage import dir_data_entries
 from pyopenvba.access._vba import (
+    CRLF,
     CLASS_BASE,
     MODULETYPE_CLASS,
     STALE_VERSION,
@@ -380,3 +381,63 @@ def test_adding_a_reference_marks_the_cache_stale(db: AccessDatabase) -> None:
 
     blob = stream_named(db, "_VBA_PROJECT")
     assert int.from_bytes(blob[2:4], "little") == STALE_VERSION
+
+
+# --- a password-protected project ---------------------------------------------
+
+
+def protect(db: AccessDatabase) -> None:
+    """Give the project a DPB long enough to read as password-bearing,
+    which is the same rule the other hosts use."""
+    storage = db.table("MSysAccessStorage")
+    for rid, row in list(storage.rows_with_ids()):
+        payload = row.get("Lv")
+        if str(row["Name"]) == "PROJECT" and isinstance(payload, bytes):
+            text = payload.decode("latin-1")
+            before = [line for line in text.split(CRLF) if line.startswith("DPB=")][0]
+            storage.update_row(
+                rid, {"Lv": text.replace(before, 'DPB="' + "AB" * 40 + '"').encode("latin-1")}
+            )
+            return
+    raise AssertionError("no PROJECT stream to protect")
+
+
+def test_an_ordinary_project_is_not_protected(db: AccessDatabase) -> None:
+    assert not db.vba_is_protected()
+
+
+def test_a_project_with_a_password_reads_as_protected(db: AccessDatabase) -> None:
+    protect(db)
+    assert db.vba_is_protected()
+
+
+def test_saving_a_vba_change_into_a_protected_project_is_refused(
+    db: AccessDatabase, tmp_path: Path
+) -> None:
+    protect(db)
+    db.create_module("Adder", ADDER)
+
+    with pytest.raises(AccessError, match="password-protected"):
+        db.save(tmp_path / "refused.accdb")
+
+
+def test_the_refusal_can_be_opted_out_of(db: AccessDatabase, tmp_path: Path) -> None:
+    """The protection bytes are kept, so the result still wants the
+    original password."""
+    protect(db)
+    db.create_module("Adder", ADDER)
+    out = tmp_path / "anyway.accdb"
+
+    db.save(out, allow_protected=True)
+
+    reopened = AccessDatabase(out)
+    assert reopened.vba_is_protected()
+    assert "Adder" in {module.name for module in reopened.modules()}
+
+
+def test_a_change_that_is_not_vba_saves_freely(db: AccessDatabase, tmp_path: Path) -> None:
+    """The guard is about the VBA project, not the database."""
+    protect(db)
+    db.create_table("Notes", [ColumnSpec("Id", "Long")])
+
+    db.save(tmp_path / "tables.accdb")  # no refusal

@@ -689,6 +689,11 @@ If the VBA project is password-protected, any mutation will raise
 wb.save(allow_protected=True)
 ```
 
+`AccessDatabase` does the same: `db.vba_is_protected()` says whether the
+project carries a password, and `db.save()` refuses a VBA change to a
+protected project without `allow_protected=True`. A change that is not to
+the VBA project saves as before.
+
 The library never tries to decrypt or change the password - it just
 preserves the existing protection bytes verbatim. The resulting file
 still requires the original password to open the VBE.

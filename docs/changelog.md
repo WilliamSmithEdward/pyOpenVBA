@@ -7,6 +7,13 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- **The password guard reaches Access.** `db.vba_is_protected()` reads
+  the `PROJECT` stream's `DPB` record, and `db.save()` refuses to write a
+  VBA change into a protected project unless it is told
+  `allow_protected=True` -- which is what the other hosts already do on
+  their own `save`. A change that is not to the VBA project saves as
+  before.
+
 - **The project's references.** `db.references()` reads the libraries a
   VBA project points at, `db.add_reference(name, guid, major, minor,
   path=, description=)` adds one and `db.drop_reference(name)` removes

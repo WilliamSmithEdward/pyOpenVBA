@@ -212,7 +212,7 @@ from pyopenvba.access._validate import Rules, apply_defaults
 from pyopenvba.access._validate import check as check_rules
 from pyopenvba.access._validate import read as read_rules
 from pyopenvba.access_read import AccessError
-from pyopenvba.vba import compress, decompress
+from pyopenvba.vba import compress, decompress, parse_project_stream
 
 MSYS_OBJECTS_PAGE = 2
 
@@ -1455,6 +1455,7 @@ class AccessDatabase:
         self.store = PageStore(data)
         self.header = DatabaseHeader.from_page(self.store.read(0))
         self._catalog: list[CatalogEntry] | None = None
+        self._vba_changed = False
         self._definitions: dict[int, TableDefinition] = {}
         # The engine stamps a chained long value's definition and its first
         # page with one value per session; any value works if both match.
@@ -1540,12 +1541,46 @@ class AccessDatabase:
     def to_bytes(self) -> bytes:
         return self.store.to_bytes()
 
-    def save(self, path: str | Path | None = None) -> Path:
+    def save(self, path: str | Path | None = None, *, allow_protected: bool = False) -> Path:
+        """Write the database out.
+
+        A VBA change made to a **password-protected** project is refused
+        here rather than written, which is what the other hosts do on
+        their own `save`.  Pass `allow_protected=True` to write it anyway:
+        the protection bytes are kept as they are, so the result still
+        wants the original password, and what was written may or may not
+        be what the project's owner intended.
+        """
+        if self._vba_changed and not allow_protected and self.vba_is_protected():
+            raise AccessError(
+                "this database's VBA project is password-protected; pass "
+                "allow_protected=True to save a change to it anyway"
+            )
         target = Path(path) if path is not None else self.path
         if target is None:
             raise AccessError("no path to save to; the database was opened from bytes")
         target.write_bytes(self.to_bytes())
         return target
+
+    def vba_is_protected(self) -> bool:
+        """Whether the VBA project carries a password.
+
+        Read from the `PROJECT` stream's `DPB` record, the same way the
+        other hosts read it.
+        """
+        try:
+            _modules, project_id, _streams = self._vba_storage_ids()
+        except AccessError:
+            return False
+        for _rid, row in self.table(STORAGE_TABLE).rows_with_ids():
+            payload = row.get("Lv")
+            if (
+                str(row["Name"]) == "PROJECT"
+                and _as_int(row["ParentId"]) == project_id
+                and isinstance(payload, bytes)
+            ):
+                return parse_project_stream(payload).protection.has_password
+        return False
 
     def _write_definition(self, stream: bytes, first: int, old_chain: Sequence[int], *, keep_tail: bool = False) -> list[int]:
         """Lay a definition stream over ``first`` and a continuation chain.
@@ -3276,6 +3311,7 @@ class AccessDatabase:
 
     def _invalidate_vba_cache(self) -> None:
         storage = self.table(STORAGE_TABLE)
+        self._vba_changed = True
         for rid, row in list(storage.rows_with_ids()):
             payload = row.get("Lv")
             if str(row["Name"]) == "_VBA_PROJECT" and isinstance(payload, bytes) and payload:
@@ -3287,6 +3323,7 @@ class AccessDatabase:
         """Retire the ``__SRP_*`` compiled cache rows, which is what Access
         runs in preference to the canonical p-code."""
         storage = self.table(STORAGE_TABLE)
+        self._vba_changed = True
         doomed = [
             rid for rid, row in storage.rows_with_ids() if str(row["Name"]).startswith("__SRP_")
         ]

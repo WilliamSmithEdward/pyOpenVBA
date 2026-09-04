@@ -860,10 +860,25 @@ class Table:
             # from the complex counter below, not from this one.
             if column.type_code == TYPE_COMPLEX:
                 continue
-            if column.auto_number and values.get(column.name) is None:
-                values[column.name] = d.next_autonumber + 1
-                d.next_autonumber += 1
-                db.patch_definition(d, OFFSET_NEXT_AUTONUMBER, struct.pack("<I", d.next_autonumber & 0xFFFFFFFF))
+            if not column.auto_number:
+                continue
+            given = values.get(column.name)
+            if given is None:
+                # The counter holds the last number handed out, so the
+                # next row takes the one after it.  It is a signed Long
+                # in the row even though the header keeps it unsigned.
+                nxt = (d.next_autonumber + 1) & 0xFFFFFFFF
+                values[column.name] = nxt - (1 << 32) if nxt >= 1 << 31 else nxt
+                d.next_autonumber = nxt
+            elif isinstance(given, int) and not isinstance(given, bool):
+                # A row that names its own AutoNumber keeps that number,
+                # and the counter follows it -- to the value written, not
+                # to the larger of the two (measured: 10 then 3 leaves 3,
+                # so the row after them is 4).
+                d.next_autonumber = given & 0xFFFFFFFF
+            else:
+                continue
+            db.patch_definition(d, OFFSET_NEXT_AUTONUMBER, struct.pack("<I", d.next_autonumber))
         # Every complex column in a row shares one id, handed out from the
         # counter at 0x1C.  A row with no elements still takes one, and an
         # id is not reused after a delete.

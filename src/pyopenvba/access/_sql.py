@@ -2055,7 +2055,10 @@ def _insert(db: AccessDatabase, clauses: list[tuple[str, str]], parameters: Mapp
     head, values_clause = _split_values(clauses[0][1])
     target, _, column_list = head.partition("(")
     table = db.table(target.strip().strip("[]"))
-    columns = [c.strip().strip("[]") for c in split_top_level(column_list.rsplit(")", 1)[0], ",")] if column_list else [c.name for c in table.columns if not c.auto_number]
+    # Without a column list the statement has to name every column the
+    # table has, the AutoNumber included; the engine counts them and
+    # refuses a list of any other length.
+    columns = [c.strip().strip("[]") for c in split_top_level(column_list.rsplit(")", 1)[0], ",")] if column_list else [c.name for c in table.columns]
     if values_clause is not None:
         inner = values_clause.strip()
         if inner.startswith("("):
@@ -2073,25 +2076,49 @@ def _insert(db: AccessDatabase, clauses: list[tuple[str, str]], parameters: Mapp
     raise AccessError("INSERT needs VALUES or SELECT")
 
 
+#: What each whole-number column can hold.  A Byte is the exception:
+#: the query processor stores the low byte of the number rather than
+#: refusing it, so 300 lands as 44 and -1 as 255 (measured).
+_INTEGER_RANGE = {TYPE_INT: (-32768, 32767), TYPE_LONG: (-(1 << 31), (1 << 31) - 1)}
+
+
 def _coerce(column: ColumnDef, value: object) -> object:
     """Convert an expression's value to what the column stores, as the
     engine does when a query writes a number into a text column or a
-    Currency into a Double."""
+    Currency into a Double.
+
+    This is the query processor's conversion, which is looser than the
+    one a recordset does: it truncates over-long text and wraps a Byte
+    where assigning the same value to a field would be refused."""
     if value is None:
         return None
     code = column.type_code
     if code in (TYPE_TEXT, TYPE_MEMO):
-        return value if isinstance(value, str) else _text(value)
+        text = value if isinstance(value, str) else _text(value)
+        limit = column.length // 2
+        # Text is cut to fit; a Memo has no size to cut it to.
+        return text[:limit] if code == TYPE_TEXT and len(text) > limit else text
     if code in (TYPE_DOUBLE, TYPE_FLOAT):
         return float(_number(value))
     if code in (TYPE_LONG, TYPE_INT, TYPE_BYTE):
-        return value if isinstance(value, int) and not isinstance(value, bool) else round(_number(value))  # pyright: ignore[reportArgumentType]
+        number = value if isinstance(value, int) and not isinstance(value, bool) else round(_number(value))  # pyright: ignore[reportArgumentType]
+        if code == TYPE_BYTE:
+            return number & 0xFF
+        low, high = _INTEGER_RANGE[code]
+        if not low <= number <= high:
+            kind = "an Integer" if code == TYPE_INT else "a Long"
+            raise AccessError(f"column {column.name!r}: {number!r} is not {kind}")
+        return number
     if code == TYPE_MONEY:
         return value if isinstance(value, (Decimal, float)) else Decimal(_number(value))  # pyright: ignore[reportArgumentType]
     if code == TYPE_BOOLEAN:
         return value if isinstance(value, bool) else _number(value) != 0
-    if code == TYPE_DATETIME and isinstance(value, str):
-        return parse_date_literal(value)
+    if code == TYPE_DATETIME:
+        if isinstance(value, str):
+            return parse_date_literal(value)
+        if isinstance(value, (int, float, Decimal)) and not isinstance(value, bool):
+            # A number in a Date column is the stored serial itself.
+            return _from_serial(float(value))
     return value
 
 
@@ -2101,6 +2128,11 @@ def _assignments(table: Table, columns: Sequence[str], values: Sequence[object])
     out: dict[str, object] = {}
     for name, value in zip(columns, values, strict=True):
         column = table.definition.column(name)
+        if column.auto_number and value is None:
+            raise AccessError(
+                f"column {column.name!r} is an AutoNumber, which takes no "
+                f"Null; leave it out of the statement to have one assigned"
+            )
         out[column.name] = _coerce(column, value)
     return out
 
@@ -2139,7 +2171,12 @@ def _update(db: AccessDatabase, clauses: list[tuple[str, str]], parameters: Mapp
         name = column.strip().strip("[]")
         if "." in name:
             name = name.split(".", 1)[1].strip("[]")
-        assignments.append((table.definition.column(name).name, Parser.parse(expression.strip())))
+        target = table.definition.column(name)
+        if target.auto_number:
+            raise AccessError(
+                f"column {target.name!r} is an AutoNumber, which no query updates"
+            )
+        assignments.append((target.name, Parser.parse(expression.strip())))
     where = Parser.parse(by_word["WHERE"]) if "WHERE" in by_word else None
 
     def runner(sql: str, env: Environment) -> list[Row]:

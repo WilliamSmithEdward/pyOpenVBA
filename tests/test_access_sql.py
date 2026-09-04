@@ -167,6 +167,83 @@ def test_values_are_coerced_to_the_column_type(tmp_path: Path) -> None:
     assert db.execute("SELECT CustomerId FROM Orders WHERE Id = 1") == [{"CustomerId": 3}]
 
 
+def test_a_value_list_with_no_column_list_names_every_column(tmp_path: Path) -> None:
+    """The engine counts the columns, AutoNumber included, and refuses a
+    list of any other length."""
+    db = AccessDatabase.create_new(tmp_path / "wide.accdb")
+    db.create_table("T", [ColumnSpec("Id", "long", autonumber=True), ColumnSpec("A", "long"), ColumnSpec("B", "text", 20)])
+    with pytest.raises(AccessError, match="different number of columns"):
+        db.execute("INSERT INTO T VALUES (7, 'seven')")
+    assert db.execute("INSERT INTO T VALUES (5, 7, 'seven')") == 1
+    assert db.execute("SELECT * FROM T") == [{"Id": 5, "A": 7, "B": "seven"}]
+
+
+def test_an_explicit_autonumber_is_kept_and_moves_the_counter(tmp_path: Path) -> None:
+    """The counter follows the number written, not the larger of the two:
+    10 then 3 leaves the next row at 4."""
+    db = AccessDatabase.create_new(tmp_path / "counter.accdb")
+    db.create_table("T", [ColumnSpec("Id", "long", autonumber=True), ColumnSpec("A", "long")])
+    db.execute("INSERT INTO T VALUES (10, 1)")
+    db.execute("INSERT INTO T VALUES (3, 2)")
+    db.execute("INSERT INTO T (A) VALUES (3)")
+    assert db.execute("SELECT Id, A FROM T ORDER BY A") == [{"Id": 10, "A": 1}, {"Id": 3, "A": 2}, {"Id": 4, "A": 3}]
+
+
+def test_an_autonumber_below_zero_counts_up_from_there(tmp_path: Path) -> None:
+    db = AccessDatabase.create_new(tmp_path / "negative.accdb")
+    db.create_table("T", [ColumnSpec("Id", "long", autonumber=True), ColumnSpec("A", "long")])
+    db.execute("INSERT INTO T VALUES (-5, 1)")
+    db.execute("INSERT INTO T (A) VALUES (2)")
+    assert db.execute("SELECT Id FROM T ORDER BY A") == [{"Id": -5}, {"Id": -4}]
+    assert db.table("T").definition.next_autonumber == 0xFFFFFFFC
+
+
+def test_an_autonumber_column_is_not_updateable_and_takes_no_null(tmp_path: Path) -> None:
+    db = AccessDatabase.create_new(tmp_path / "auto.accdb")
+    db.create_table("T", [ColumnSpec("Id", "long", autonumber=True), ColumnSpec("A", "long")])
+    db.execute("INSERT INTO T (A) VALUES (1)")
+    with pytest.raises(AccessError, match="AutoNumber, which no query updates"):
+        db.execute("UPDATE T SET Id = 77")
+    with pytest.raises(AccessError, match="AutoNumber, which takes no Null"):
+        db.execute("INSERT INTO T VALUES (NULL, 7)")
+    assert db.execute("SELECT Id, A FROM T") == [{"Id": 1, "A": 1}]
+
+
+def test_a_query_truncates_text_to_the_column_but_not_a_memo(tmp_path: Path) -> None:
+    """Assigning over-long text to a field is refused; a query cuts it to
+    fit, which is why the same value behaves differently by the door it
+    comes through."""
+    db = AccessDatabase.create_new(tmp_path / "text.accdb")
+    db.create_table("T", [ColumnSpec("Id", "long"), ColumnSpec("T", "text", 3), ColumnSpec("M", "memo")])
+    db.execute("INSERT INTO T VALUES (1, 'abcdef', String(300, 'x'))")
+    db.execute("INSERT INTO T VALUES (2, 'ab' & 'cdef', NULL)")
+    db.execute("UPDATE T SET T = T & T & T WHERE Id = 2")
+    rows = db.execute("SELECT Id, T, Len(M) AS N FROM T ORDER BY Id")
+    assert rows == [{"Id": 1, "T": "abc", "N": 300}, {"Id": 2, "T": "abc", "N": None}]
+    with pytest.raises(AccessError, match="exceed its size"):
+        db.table("T").insert_row({"Id": 3, "T": "abcdef"})
+
+
+def test_a_byte_takes_the_low_byte_and_the_others_overflow(tmp_path: Path) -> None:
+    db = AccessDatabase.create_new(tmp_path / "byte.accdb")
+    db.create_table("T", [ColumnSpec("Id", "long"), ColumnSpec("B", "byte"), ColumnSpec("S", "integer")])
+    db.execute("INSERT INTO T VALUES (1, 300, 1)")
+    db.execute("INSERT INTO T VALUES (2, -1, 2)")
+    db.execute("INSERT INTO T VALUES (3, 255.5, 3)")
+    assert db.execute("SELECT B FROM T ORDER BY Id") == [{"B": 44}, {"B": 255}, {"B": 0}]
+    with pytest.raises(AccessError, match="70000 is not an Integer"):
+        db.execute("INSERT INTO T VALUES (4, 1, 70000)")
+
+
+def test_a_number_written_to_a_date_column_is_its_serial(tmp_path: Path) -> None:
+    db = AccessDatabase.create_new(tmp_path / "date.accdb")
+    db.create_table("T", [ColumnSpec("Id", "long"), ColumnSpec("D", "datetime")])
+    db.execute("INSERT INTO T VALUES (1, 44000)")
+    assert db.execute("SELECT D FROM T") == [{"D": dt.datetime(2020, 6, 18)}]
+    with pytest.raises(AccessError, match="cannot read date"):
+        db.execute("INSERT INTO T VALUES (2, 'not a date')")
+
+
 def test_unknown_and_ambiguous_columns_are_errors(tmp_path: Path) -> None:
     db = _shop(tmp_path)
     with pytest.raises(AccessError, match="no column or parameter"):

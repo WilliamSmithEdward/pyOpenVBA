@@ -34,6 +34,14 @@ from pyopenvba.access._lval import (
     read_long_value,
     write_long_value,
 )
+from pyopenvba.access._macros import (
+    NAV_MACRO_TYPE,
+    OBJECT_MACRO,
+    Macro,
+    MacroAction,
+    build_macro,
+    parse_macro,
+)
 from pyopenvba.access._pages import (
     PAGE_DATA,
     PAGE_SIZE,
@@ -85,9 +93,16 @@ from pyopenvba.access._vba import (
     stream_name_of,
     stream_row_name,
 )
+from pyopenvba.access._storage import (
+    DIR_DATA,
+    TYPE_FOLDER,
+    TYPE_VALUE,
+    dir_data_entries,
+)
 from pyopenvba.access._props import (
     BLOCK_COLUMN,
     BLOCK_OBJECT,
+    DB_BOOLEAN,
     DB_INTEGER,
     DB_LONG,
     DB_TEXT,
@@ -173,7 +188,6 @@ OBJECT_LINKED_TABLE = 6
 OBJECT_RELATIONSHIP = 8
 OBJECT_FORM = -32768
 OBJECT_REPORT = -32764
-OBJECT_MACRO = -32766
 OBJECT_MODULE = -32761
 
 # MSysRelationships.grbit, DAO's RelationAttributeEnum.
@@ -1689,6 +1703,185 @@ class AccessDatabase:
         return out
 
 
+    # --- macros -------------------------------------------------------------
+    # A macro is a binary blob under `Scripts`, laid out the same way a
+    # module is under `Modules`; see `pyopenvba.access._macros`.
+
+    def _scripts_id(self) -> int:
+        rows = [row for _rid, row in self.table(STORAGE_TABLE).rows_with_ids()]
+        root = next(
+            (_as_int(r["Id"]) for r in rows if str(r["Name"]) == "MSysAccessStorage_ROOT"), None
+        )
+        if root is None:
+            raise AccessError("this database has no object storage")
+        for row in rows:
+            if (
+                _as_int(row["ParentId"]) == root
+                and str(row["Name"]) == "Scripts"
+                and _as_int(row["Type"]) == TYPE_FOLDER
+            ):
+                return _as_int(row["Id"])
+        raise AccessError("MSysAccessStorage has no 'Scripts' folder")
+
+    def _macro_blob(self, folder: str) -> tuple[RowId, bytes] | None:
+        scripts = self._scripts_id()
+        storage = self.table(STORAGE_TABLE)
+        folders = {
+            _as_int(r["Id"]): str(r["Name"])
+            for _rid, r in storage.rows_with_ids()
+            if _as_int(r["ParentId"]) == scripts and _as_int(r["Type"]) == TYPE_FOLDER
+        }
+        wanted = next((i for i, name in folders.items() if name == folder), None)
+        if wanted is None:
+            return None
+        for rid, row in storage.rows_with_ids():
+            payload = row.get("Lv")
+            if (
+                _as_int(row["ParentId"]) == wanted
+                and str(row["Name"]) == "Blob"
+                and isinstance(payload, bytes)
+            ):
+                return rid, payload
+        return None
+
+    def macros(self) -> list[Macro]:
+        """Every macro in the database, in the order `Scripts` lists them."""
+        scripts = self._scripts_id()
+        listing = next(
+            (
+                row.get("Lv")
+                for _rid, row in self.table(STORAGE_TABLE).rows_with_ids()
+                if _as_int(row["ParentId"]) == scripts and str(row["Name"]) == DIR_DATA
+            ),
+            None,
+        )
+        if not isinstance(listing, bytes):
+            return []
+        out: list[Macro] = []
+        for name, folder in dir_data_entries(listing):
+            found = self._macro_blob(folder)
+            out.append(Macro(name, parse_macro(found[1]) if found else ()))
+        return out
+
+    def macro(self, name: str) -> Macro:
+        for found in self.macros():
+            if found.name.lower() == name.lower():
+                return found
+        raise AccessError(f"this database has no macro named {name!r}")
+
+    def create_macro(
+        self,
+        name: str,
+        actions: Sequence[MacroAction],
+        *,
+        updated: object | None = None,
+    ) -> Macro:
+        """Add a macro that runs `actions`."""
+        if not name or len(name) > 64:
+            raise AccessError("a macro name is 1 to 64 characters")
+        if any(found.name.lower() == name.lower() for found in self.macros()):
+            raise AccessError(f"a macro named {name!r} already exists")
+        blob = build_macro(tuple(actions))
+
+        scripts = self._scripts_id()
+        storage = self.table(STORAGE_TABLE)
+        rows = [row for _rid, row in storage.rows_with_ids()]
+        children = [r for r in rows if _as_int(r["ParentId"]) == scripts]
+        folders = {str(r["Name"]) for r in children if _as_int(r["Type"]) == TYPE_FOLDER}
+        folder = next_folder(len(children) - len(folders), folders)
+        when = (
+            updated
+            if isinstance(updated, (dt.datetime, float))
+            else dt.datetime.now().replace(microsecond=0)
+        )
+
+        folder_rid = storage.insert_row(
+            {"ParentId": scripts, "Name": folder, "Type": TYPE_FOLDER,
+             "DateCreate": when, "DateUpdate": when}
+        )
+        folder_id = next(_as_int(r["Id"]) for rid, r in storage.rows_with_ids() if rid == folder_rid)
+        storage.insert_row(
+            {"ParentId": folder_id, "Name": "Blob", "Type": TYPE_VALUE, "Lv": blob,
+             "DateCreate": when, "DateUpdate": when}
+        )
+        listing = next(
+            (
+                (rid, row.get("Lv"))
+                for rid, row in storage.rows_with_ids()
+                if _as_int(row["ParentId"]) == scripts and str(row["Name"]) == DIR_DATA
+            ),
+            None,
+        )
+        if listing is None:
+            # A database's first macro brings the listing with it.
+            storage.insert_row(
+                {"ParentId": scripts, "Name": DIR_DATA, "Type": TYPE_VALUE,
+                 "Lv": add_to_dir_data(bytes(4), name, folder),
+                 "DateCreate": when, "DateUpdate": when}
+            )
+        else:
+            rid, payload = listing
+            storage.update_row(
+                rid,
+                {"Lv": add_to_dir_data(payload if isinstance(payload, bytes) else bytes(4), name, folder)},
+            )
+
+        objects = self.table("MSysObjects")
+        container = next(e.id for e in self.catalog() if e.name == "Scripts" and e.type == 3)
+        owner = next((e.owner for e in self.catalog() if e.owner), None)
+        # A macro's object id steps by one; a module's steps by four.
+        object_id = max((e.id for e in self.catalog() if e.id < 0), default=-(2**31)) + 1
+        objects.insert_row(
+            {"Id": object_id, "ParentId": container, "Name": name, "Type": OBJECT_MACRO,
+             "Flags": 0, "Owner": owner, "LvProp": _macro_properties(),
+             "DateCreate": when, "DateUpdate": when}
+        )
+        self.table("MSysNavPaneObjectIDs").insert_row(
+            {"Id": object_id, "Name": name, "Type": NAV_MACRO_TYPE}
+        )
+        self._catalog = None
+        return self.macro(name)
+
+    def delete_macro(self, name: str) -> None:
+        """Remove a macro and every structure it occupies."""
+        found = self.macro(name)
+        scripts = self._scripts_id()
+        storage = self.table(STORAGE_TABLE)
+        listing_rid, listing_payload = next(
+            (rid, payload)
+            for rid, row in storage.rows_with_ids()
+            if _as_int(row["ParentId"]) == scripts
+            and str(row["Name"]) == DIR_DATA
+            and isinstance(payload := row.get("Lv"), bytes)
+        )
+        folder = dict(dir_data_entries(listing_payload))[found.name]
+        folders = {
+            _as_int(r["Id"]): str(r["Name"])
+            for _rid, r in storage.rows_with_ids()
+            if _as_int(r["ParentId"]) == scripts and _as_int(r["Type"]) == TYPE_FOLDER
+        }
+        folder_id = next(i for i, folder_name in folders.items() if folder_name == folder)
+        doomed = {folder_id}
+        for rid, row in list(storage.rows_with_ids()):
+            if _as_int(row["Id"]) in doomed or _as_int(row["ParentId"]) in doomed:
+                storage.delete_row(rid, retire_empty=False)
+        storage.update_row(
+            listing_rid, {"Lv": remove_from_dir_data(listing_payload, found.name)}
+        )
+
+        objects = self.table("MSysObjects")
+        for rid, row in list(objects.rows_with_ids()):
+            if row["Type"] == OBJECT_MACRO and str(row["Name"]) == found.name:
+                object_id = _as_int(row["Id"])
+                objects.delete_row(rid, retire_empty=False)
+                nav = self.table("MSysNavPaneObjectIDs")
+                for nav_rid, nav_row in list(nav.rows_with_ids()):
+                    if _as_int(nav_row["Id"]) == object_id:
+                        nav.delete_row(nav_rid, retire_empty=False)
+                break
+        self._catalog = None
+
+
     def database_properties(self) -> dict[str, object]:
         """The database's own settings, from the MSysDb row's property blob."""
         for row in self.table("MSysObjects").rows():
@@ -2733,6 +2926,19 @@ class AccessDatabase:
                 break
         self._drop_srp()
         self._catalog = None
+
+
+def _macro_properties() -> bytes:
+    """The property blob a macro's catalog row carries: `PublishToWeb`,
+    true, which is what Access writes and nothing else."""
+    return serialize_property_blob(
+        PropertyBlob(
+            names=["PublishToWeb"],
+            object_properties={"PublishToWeb": PropertyValue(type=DB_BOOLEAN, flags=0, raw=b"\x01")},
+            column_properties={},
+            block_order=[(BLOCK_OBJECT, "")],
+        )
+    )
 
 
 def _converter(old_code: int, new_code: int) -> Callable[[object], object]:

@@ -7,6 +7,26 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- **Macros.** `db.macros()`, `db.macro(name)`, `db.create_macro(name,
+  actions)` and `db.delete_macro(name)`, with `MacroAction(name,
+  arguments)` for each step. A live gate creates a macro, has Access run
+  it with `DoCmd.RunMacro`, and reads back the value it set.
+
+  Access stores a macro as a binary blob, not as the XML its designer
+  shows: a 32-byte header, a length-prefixed `"33"`, then one record per
+  action carrying the action id, the row number, fourteen `u16` slots
+  holding byte offsets into a string area, and the strings themselves.
+  Arguments occupy slots from 4 upward and an empty one takes no slot,
+  so a gap in the middle reads back as an empty string. Every blob in
+  the fixture rebuilds byte for byte.
+
+  Twenty-four action ids, measured by loading one macro each through
+  `LoadFromText` and pairing storage folders with `MSysObjects` rows in
+  id order. A macro's object id steps by **one** where a module's steps
+  by four, and a macro gets no navigation-pane group row where a module
+  does -- so the step is what an object reserves for itself rather than
+  a global stride.
+
 - **Attachments and multi-valued columns.** `db.complex_columns()` finds
   them, `table.attachments(column, key)` and
   `table.multi_values(column, key)` read them, and `set_attachments` /

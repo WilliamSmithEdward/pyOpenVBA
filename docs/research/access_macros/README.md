@@ -1,8 +1,10 @@
 # Macros in an `.accdb`, decoded
 
-> **Status: research, 2026-09-03.** Reading is fully modelled; nothing
-> here ships yet. Every structure below was measured against macros
-> Access itself created through `Application.LoadFromText`.
+> **Status: shipped, 2026-09-03.** All of this is now in
+> `pyopenvba.access._macros` and the `macros()` / `create_macro()` /
+> `delete_macro()` methods on `AccessDatabase`. It stays here as the
+> record of how it was measured -- against macros Access itself created
+> through `Application.LoadFromText`.
 
 Access stores a macro as a small binary blob, not as the XML the modern
 macro designer shows. What a macro costs the file, measured by diffing a
@@ -119,9 +121,15 @@ import some file types outright -- `bas`, `accdb`, `cab`, `exe`, `iso`
 and `msi` for an attachment column -- so a probe over many extensions
 has to tolerate failures rather than stopping at the first.
 
+## The catalog row's properties
+
+A macro's `MSysObjects.LvProp` is an ordinary `MR2` property blob holding
+one property, `PublishToWeb`, true. The engine's own property writer
+reproduces it byte for byte, so nothing new was needed.
+
 ## What is left
 
-Writing. The blob is fully modelled and the plumbing is the same shape as
-a module's, which is already shipped in `pyopenvba.access._vba`; what has
-not been done is generating the `LvProp` property blob a macro's catalog
-row carries, and running a written macro in Access to prove it.
+Nothing for macros. Forms and reports are the part of phase 8 still
+unstarted, and they are a different problem: their designs are much
+larger blobs on the `MSysObjects` row itself rather than a handful of
+action records.

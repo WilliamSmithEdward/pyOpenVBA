@@ -236,6 +236,29 @@ writes are both checked against DAO running the same statements on the
 same database. `with db.transaction():` rolls everything back if the
 block raises.
 
+Macros read and write as well. Access keeps one as a binary blob of
+action records, not as the XML its designer shows:
+
+```python
+from pyopenvba import AccessDatabase
+from pyopenvba.access import MacroAction
+
+with AccessDatabase("app.accdb") as db:
+    for macro in db.macros():
+        print(macro.name, [(a.name, a.arguments) for a in macro.actions])
+
+    db.create_macro("Restock", [
+        MacroAction("SetTempVar", ("total", "6 * 7")),
+        MacroAction("Beep"),
+    ])
+    db.delete_macro("Old")
+    db.save()
+```
+
+Twenty-four actions are known by name. A macro written this way runs in
+Access: the gate creates one, runs it with `DoCmd.RunMacro` and reads the
+value it set.
+
 Attachments and multi-valued columns read and write too. Neither keeps
 its values in the row -- the row holds a Long, and the values live one
 per row in a flat table of their own:

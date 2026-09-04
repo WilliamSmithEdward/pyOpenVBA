@@ -14,11 +14,17 @@ All notable changes to pyOpenVBA are documented here. This project follows
   Access reads every one back exactly as written -- captions, fonts,
   colours, sizes, control sources, tips and tags among them.
 
+  `PROPERTY_CODES` grew from 40 names to 107 along the way. Codes whose
+  values are small integers every other property also uses cannot be
+  named by matching values, so those were named by differencing: build
+  the same form twice, identical but for one property, and see which
+  record moved.
+
   A record's id is its slot in that object type's own schema, so changing
   a property an object does not already carry means knowing the id Access
-  would have given it. `PROPERTY_SLOTS` holds 746 of those across 26
+  would have given it. `PROPERTY_SLOTS` holds 959 of those across 26
   object types, every one read off an object Access itself wrote; across
-  five databases every id, code and value type agreed, and so did every
+  seven databases every id, code and value type agreed, and so did every
   length except the strings', whose length is their text's. A property
   the object already carries keeps its record where it stands; a name
   that is not in the table is refused rather than written somewhere it
@@ -406,6 +412,14 @@ All notable changes to pyOpenVBA are documented here. This project follows
   both. Inserts leave the row counter alone, as the engine does.
 
 ### Fixed
+
+- **`TextAlign` was the wrong code.** It was recorded as 379, which is
+  really `IMESentenceMode`. Access writes 3 there on every new text box,
+  list box and combo box, so nothing looked wrong until someone set the
+  alignment and it did not change; `set_control_property(..., "TextAlign",
+  2)` was quietly setting the sentence mode instead. `TextAlign` is code
+  136, established by building the same form twice differing only in that
+  property. Access now reads back every alignment written.
 
 - **A caption written at another control's id.** A caption sits at record
   id 221 on a label and a command button, but 231 on a toggle button and

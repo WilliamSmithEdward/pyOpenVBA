@@ -139,6 +139,27 @@ Public Function ReadCaptions(ByVal name As String) As Variant
     ReadCaptions = out
 End Function
 
+Public Function ReadFlags(ByVal name As String) As Variant
+    Dim f As Object, out As String
+    DoCmd.OpenForm name, acDesign
+    Set f = Forms(name)
+    out = "Box.TextAlign=" & f("Box").TextAlign & ";"
+    out = out & "Box.Enabled=" & f("Box").Enabled & ";"
+    out = out & "Box.Visible=" & f("Box").Visible & ";"
+    out = out & "Box.TabStop=" & f("Box").TabStop & ";"
+    out = out & "Box.CanGrow=" & f("Box").CanGrow & ";"
+    out = out & "Box.FontItalic=" & f("Box").FontItalic & ";"
+    out = out & "Box.FontUnderline=" & f("Box").FontUnderline & ";"
+    out = out & "Box.ScrollBars=" & f("Box").ScrollBars & ";"
+    out = out & "Box.Locked=" & f("Box").Locked & ";"
+    out = out & "Box.IMESentenceMode=" & f("Box").IMESentenceMode & ";"
+    out = out & "Sign.TextAlign=" & f("Sign").TextAlign & ";"
+    out = out & "Go.Default=" & f("Go").Default & ";"
+    out = out & "Go.Cancel=" & f("Go").Cancel & ";"
+    DoCmd.Close acForm, name, acSaveNo
+    ReadFlags = out
+End Function
+
 Public Function CallFormCode(ByVal name As String, ByVal proc As String) As Variant
     DoCmd.OpenForm name, , , , , acHidden
     CallFormCode = CallByName(Forms(name), proc, VbMethod)
@@ -519,4 +540,60 @@ def test_a_caption_reaches_every_control_that_has_one(blank: Path, tmp_path: Pat
         "Button=button text",
         "Sign=label text",
         "First=page text",
+    ]
+
+
+def test_access_agrees_on_the_properties_differencing_named(
+    blank: Path, tmp_path: Path
+) -> None:
+    """A property whose values are small integers cannot be named by
+    matching values -- every other property uses 0, 1 and 2 as well -- so
+    these were named by building the same form twice, identical but for
+    one property, and seeing which record moved.
+
+    `TextAlign` is the one that makes the point: it was long taken to be
+    code 379, which is really `IMESentenceMode`, and since Access writes 3
+    there on every new text box nothing looked wrong until someone tried
+    to set the alignment and it did not change.
+    """
+
+    def build(db: AccessDatabase) -> None:
+        db.create_form("Flags")
+        db.add_control("Flags", "TextBox", "Box", top=240)
+        db.add_control("Flags", "Label", "Sign", top=700)
+        db.add_control("Flags", "CommandButton", "Go", top=1200)
+        for prop, value in (
+            ("TextAlign", 2),
+            ("Enabled", False),
+            ("Visible", False),
+            ("TabStop", False),
+            ("CanGrow", True),
+            ("FontItalic", True),
+            ("FontUnderline", True),
+            ("ScrollBars", 2),
+            ("Locked", True),
+            ("IMESentenceMode", 0),
+        ):
+            db.set_control_property("Flags", "Box", prop, value)
+        db.set_control_property("Flags", "Sign", "TextAlign", 3)
+        db.set_control_property("Flags", "Go", "Default", True)
+        db.set_control_property("Flags", "Go", "Cancel", True)
+
+    out = written(blank, tmp_path / "flags.accdb", build)
+
+    reported = [c for c in str(ask(out, "ReadFlags", "Flags")).split(";") if c]
+    assert reported == [
+        "Box.TextAlign=2",
+        "Box.Enabled=False",
+        "Box.Visible=False",
+        "Box.TabStop=False",
+        "Box.CanGrow=True",
+        "Box.FontItalic=True",
+        "Box.FontUnderline=True",
+        "Box.ScrollBars=2",
+        "Box.Locked=True",
+        "Box.IMESentenceMode=0",
+        "Sign.TextAlign=3",
+        "Go.Default=True",
+        "Go.Cancel=True",
     ]

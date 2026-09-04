@@ -1573,12 +1573,17 @@ def execute(
         return _crosstab(db, clauses, parameters)
     if verb == "SELECT":
         return _select(db, clauses, parameters)
+    # An action query is all or nothing: one that fails on its third row
+    # leaves the first two unwritten, which is what the engine does.
     if verb == "INSERT INTO":
-        return _insert(db, clauses, parameters)
+        with db.transaction():
+            return _insert(db, clauses, parameters)
     if verb == "UPDATE":
-        return _update(db, clauses, parameters)
+        with db.transaction():
+            return _update(db, clauses, parameters)
     if verb == "DELETE":
-        return _delete(db, clauses, parameters)
+        with db.transaction():
+            return _delete(db, clauses, parameters)
     raise AccessError(f"statement {verb} is not supported")
 
 

@@ -162,6 +162,20 @@ def _refuse_jet3(data: bytes) -> None:
         )
 
 
+@dataclass
+class _Journal:
+    """What one open journal has to be able to undo: the pages it has
+    seen written and how they looked first, where the file ended, and the
+    session's page bookkeeping."""
+
+    pages: dict[int, bytes | None]
+    page_count: int
+    released: set[int]
+    allocated: set[int]
+    pending: list[int]
+    lval_cursor: dict[int, int]
+
+
 class PageStore:
     """A database file held in memory as whole pages."""
 
@@ -191,6 +205,11 @@ class PageStore:
         #: the LVAL page most recently written this session: the engine
         #: tries it first for the next single-row value.
         self.lval_cursor: dict[int, int] = {}
+        #: One entry per open journal, innermost last.  Each holds the
+        #: pages that journal has seen written, as they were before the
+        #: first of those writes, the file's page count when it opened,
+        #: and the session state to put back.
+        self._journals: list[_Journal] = []
 
     def truncate(self, page_count: int) -> int:
         """Drop pages from the end of the file, and say how many went.
@@ -201,6 +220,9 @@ class PageStore:
         if page_count < 2 or page_count >= self.page_count:
             return 0
         dropped = self.page_count - page_count
+        if self._journals:
+            for page in range(page_count, self.page_count):
+                self._journal(page)
         del self._data[page_count * PAGE_SIZE :]
         self.released = {p for p in self.released if p < page_count}
         self.allocated = {p for p in self.allocated if p < page_count}
@@ -220,6 +242,58 @@ class PageStore:
         self.allocated.clear()
         self.pending.clear()
         self.lval_cursor.clear()
+
+    # -- undo ----------------------------------------------------------------
+
+    def begin(self) -> None:
+        """Start journalling, so :meth:`rollback` can put the pages back.
+
+        Journals nest; each one undoes only what happened inside it."""
+        self._journals.append(
+            _Journal(
+                {},
+                self.page_count,
+                set(self.released),
+                set(self.allocated),
+                list(self.pending),
+                dict(self.lval_cursor),
+            )
+        )
+
+    def commit(self) -> None:
+        """Keep what the innermost journal recorded.  Its pages fold into
+        the journal outside it, which still has to be able to undo them."""
+        done = self._journals.pop()
+        if self._journals:
+            outer = self._journals[-1]
+            for page, before in done.pages.items():
+                outer.pages.setdefault(page, before)
+
+    def rollback(self) -> None:
+        """Put back every page the innermost journal recorded, and the
+        session state it started with."""
+        done = self._journals.pop()
+        for page, before in done.pages.items():
+            if before is None:
+                continue
+            start = page * PAGE_SIZE
+            self._data[start : start + PAGE_SIZE] = before
+        if self.page_count > done.page_count:
+            del self._data[done.page_count * PAGE_SIZE :]
+        self.released = done.released
+        self.allocated = done.allocated
+        self.pending = done.pending
+        self.lval_cursor = done.lval_cursor
+
+    def _journal(self, page: int) -> None:
+        """Remember a page as it is now, if a journal has not already."""
+        for entry in self._journals:
+            if page not in entry.pages:
+                entry.pages[page] = (
+                    bytes(self._data[page * PAGE_SIZE : (page + 1) * PAGE_SIZE])
+                    if page < self.page_count
+                    else None
+                )
 
     def snapshot(self) -> tuple[bytes, set[int], set[int], list[int], dict[int, int]]:
         """Everything a rollback has to put back: the pages and the state
@@ -255,11 +329,15 @@ class PageStore:
             raise AccessError(
                 f"page {page} out of range (0..{self.page_count - 1})"
             )
+        if self._journals:
+            self._journal(page)
         start = page * PAGE_SIZE
         self._data[start : start + PAGE_SIZE] = content
 
     def append(self) -> int:
         """Grow the file by one zeroed page and return its number."""
+        if self._journals:
+            self._journal(self.page_count)
         self._data.extend(bytes(PAGE_SIZE))
         return self.page_count - 1
 

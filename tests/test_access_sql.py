@@ -244,6 +244,29 @@ def test_a_number_written_to_a_date_column_is_its_serial(tmp_path: Path) -> None
         db.execute("INSERT INTO T VALUES (2, 'not a date')")
 
 
+def test_an_action_query_that_fails_part_way_writes_nothing(tmp_path: Path) -> None:
+    db = AccessDatabase.create_new(tmp_path / "atomic.accdb")
+    db.create_table("Src", [ColumnSpec("Id", "long"), ColumnSpec("A", "long")])
+    db.create_table(
+        "Dst",
+        [ColumnSpec("Id", "long"), ColumnSpec("A", "long")],
+        [IndexSpec("PK", ("Id",), primary=True)],
+    )
+    db.execute("INSERT INTO Src VALUES (1, 1)")
+    db.execute("INSERT INTO Src VALUES (1, 2)")
+    with pytest.raises(AccessError):
+        db.execute("INSERT INTO Dst SELECT * FROM Src")
+    assert db.execute("SELECT Count(*) AS N FROM Dst") == [{"N": 0}]
+    db.table("Dst").set_properties({"ValidationRule": "<100"}, column="A")
+    db.execute("INSERT INTO Dst VALUES (1, 50)")
+    db.execute("INSERT INTO Dst VALUES (2, 50)")
+    with pytest.raises(AccessError):
+        db.execute("UPDATE Dst SET A = A + Id * 40")
+    assert db.execute("SELECT A FROM Dst ORDER BY Id") == [{"A": 50}, {"A": 50}]
+    # The bytes have to come back too, not just the rows.
+    assert AccessDatabase(db.to_bytes()).table("Dst").row_count == 2
+
+
 def test_unknown_and_ambiguous_columns_are_errors(tmp_path: Path) -> None:
     db = _shop(tmp_path)
     with pytest.raises(AccessError, match="no column or parameter"):

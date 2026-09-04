@@ -1523,17 +1523,23 @@ class AccessDatabase:
         as it was, pages and session state alike.  The engine writes the
         same bytes either way -- a DAO transaction changes nothing about
         where its pages land (measured) -- so this is a way of undoing
-        work, not a different way of writing it."""
-        state = self.store.snapshot()
+        work, not a different way of writing it.
+
+        Blocks nest, and only the pages a block writes are remembered, so
+        wrapping one statement costs what that statement touches rather
+        than a copy of the database."""
+        self.store.begin()
         try:
             yield self
         except BaseException:
             # The pages go back, and everything read from them is thrown
             # away: a definition object was edited in place on the way in.
-            self.store.restore(state)
+            self.store.rollback()
             self._catalog = None
             self._definitions.clear()
             raise
+        else:
+            self.store.commit()
 
     # -- SQL ---------------------------------------------------------------------
 

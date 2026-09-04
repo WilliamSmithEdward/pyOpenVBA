@@ -267,6 +267,71 @@ def test_an_action_query_that_fails_part_way_writes_nothing(tmp_path: Path) -> N
     assert AccessDatabase(db.to_bytes()).table("Dst").row_count == 2
 
 
+def _pair(tmp_path: Path) -> AccessDatabase:
+    """Two tables joined on Id, with one Id matched twice and one not at all."""
+    db = AccessDatabase.create_new(tmp_path / "pair.accdb")
+    db.create_table("L", [ColumnSpec("Id", "long"), ColumnSpec("A", "long")])
+    db.create_table("R", [ColumnSpec("Id", "long"), ColumnSpec("B", "long")])
+    for statement in (
+        "INSERT INTO L VALUES (1, 0)",
+        "INSERT INTO L VALUES (2, 0)",
+        "INSERT INTO L VALUES (3, 0)",
+        "INSERT INTO R VALUES (1, 111)",
+        "INSERT INTO R VALUES (2, 222)",
+        "INSERT INTO R VALUES (2, 333)",
+    ):
+        db.execute(statement)
+    return db
+
+
+def test_update_over_a_join_writes_both_tables_and_counts_join_rows(tmp_path: Path) -> None:
+    """Three join rows, so three affected; L.Id 2 is reached twice and
+    keeps the first join row's value, the way the engine leaves it."""
+    db = _pair(tmp_path)
+    assert db.execute("UPDATE L INNER JOIN R ON L.Id = R.Id SET L.A = R.B, R.B = 0") == 3
+    assert db.execute("SELECT A FROM L ORDER BY Id") == [{"A": 111}, {"A": 222}, {"A": 0}]
+    assert db.execute("SELECT Count(*) AS N FROM R WHERE B = 0") == [{"N": 3}]
+
+
+def test_update_over_a_left_join_reaches_the_unmatched_rows(tmp_path: Path) -> None:
+    db = _pair(tmp_path)
+    db.execute("UPDATE L SET A = 9")
+    assert db.execute("UPDATE L LEFT JOIN R ON L.Id = R.Id SET L.A = R.B WHERE L.Id <> 2") == 2
+    assert db.execute("SELECT A FROM L ORDER BY Id") == [{"A": 111}, {"A": 9}, {"A": None}]
+
+
+def test_update_names_its_columns_by_alias_or_by_the_table_that_holds_them(tmp_path: Path) -> None:
+    db = _pair(tmp_path)
+    assert db.execute("UPDATE L AS X INNER JOIN R AS Y ON X.Id = Y.Id SET [X].[A] = Y.B WHERE Y.B > 200") == 2
+    assert db.execute("UPDATE L INNER JOIN R ON L.Id = R.Id SET A = 5 WHERE R.B = 111") == 1
+    assert db.execute("SELECT A FROM L ORDER BY Id") == [{"A": 5}, {"A": 222}, {"A": 0}]
+    with pytest.raises(AccessError, match="ambiguous"):
+        db.execute("UPDATE L INNER JOIN R ON L.Id = R.Id SET Id = 7")
+    with pytest.raises(AccessError, match="not a table of the statement"):
+        db.execute("UPDATE L SET Q.A = 7")
+
+
+def test_a_set_clause_cannot_hold_a_subquery_but_a_where_clause_can(tmp_path: Path) -> None:
+    db = _pair(tmp_path)
+    with pytest.raises(AccessError, match="not updateable"):
+        db.execute("UPDATE L SET A = (SELECT Max(B) FROM R) WHERE Id = 1")
+    assert db.execute("UPDATE L SET A = DMax('B', 'R') WHERE Id IN (SELECT Id FROM R WHERE B > 300)") == 1
+    assert db.execute("SELECT A FROM L ORDER BY Id") == [{"A": 0}, {"A": 333}, {"A": 0}]
+
+
+def test_delete_over_a_join_names_the_table_and_refuses_a_double_match(tmp_path: Path) -> None:
+    db = _pair(tmp_path)
+    with pytest.raises(AccessError, match="name the table"):
+        db.execute("DELETE FROM L INNER JOIN R ON L.Id = R.Id")
+    with pytest.raises(AccessError, match="more than once"):
+        db.execute("DELETE L.* FROM L INNER JOIN R ON L.Id = R.Id")
+    assert db.table("L").row_count == 3
+    assert db.execute("DELETE L.* FROM L INNER JOIN R ON L.Id = R.Id WHERE R.B = 111") == 1
+    assert db.execute("DELETE R.* FROM L INNER JOIN R ON L.Id = R.Id") == 2
+    assert db.execute("SELECT Id FROM L ORDER BY Id") == [{"Id": 2}, {"Id": 3}]
+    assert db.execute("SELECT B FROM R") == [{"B": 111}]
+
+
 def test_unknown_and_ambiguous_columns_are_errors(tmp_path: Path) -> None:
     db = _shop(tmp_path)
     with pytest.raises(AccessError, match="no column or parameter"):

@@ -2164,62 +2164,160 @@ def _split_values(body: str) -> tuple[str, str | None]:
     return body, None
 
 
+def _has_subquery(expr: Expr) -> bool:
+    if isinstance(expr, SubQuery):
+        return True
+    if isinstance(expr, Call):
+        return any(_has_subquery(a) for a in expr.args)
+    if isinstance(expr, Binary):
+        return _has_subquery(expr.left) or _has_subquery(expr.right)
+    if isinstance(expr, Unary):
+        return _has_subquery(expr.operand)
+    if isinstance(expr, InList):
+        return _has_subquery(expr.operand) or any(_has_subquery(o) for o in expr.options)
+    if isinstance(expr, Between):
+        return any(_has_subquery(e) for e in (expr.operand, expr.low, expr.high))
+    return False
+
+
+def _write_target(sources: Sequence[Source], qualifier: str | None, column: str | None) -> Source:
+    """The table an UPDATE or DELETE writes to: the one an alias names,
+    or the one that holds the column when nothing qualifies it."""
+    tables = [s for s in sources if s.table is not None]
+    if qualifier is not None:
+        source = next((s for s in tables if s.alias.lower() == qualifier.lower()), None)
+        if source is None:
+            raise AccessError(f"{qualifier!r} is not a table of the statement")
+        return source
+    if column is None:
+        if len(sources) != 1 or not tables:
+            raise AccessError(
+                "DELETE over a join has to name the table to take rows from, "
+                "as DELETE T.* FROM T INNER JOIN ..."
+            )
+        return tables[0]
+    holders = [s for s in tables if s.holds(column)]
+    if not holders:
+        raise AccessError(f"no column named {column!r} in any table of the statement")
+    if len(holders) > 1:
+        raise AccessError(f"column {column!r} is ambiguous: it is in " + " and ".join(s.alias for s in holders))
+    return holders[0]
+
+
+def _split_qualified(name: str) -> tuple[str | None, str]:
+    """``T.A``, ``[T].[A]`` or ``[T.A]`` into its alias and column."""
+    name = name.strip()
+    if name.startswith("[") and name.endswith("]") and "].[" not in name:
+        return None, name[1:-1]
+    qualifier, dot, column = name.rpartition(".")
+    if not dot:
+        return None, column.strip("[]")
+    return qualifier.strip("[]"), column.strip("[]")
+
+
+def _row_id(row: Row, alias: str) -> RowId | None:
+    """The home slot of the row an alias contributed, when the join gave
+    it one -- the unmatched side of an outer join has none."""
+    from pyopenvba.access.database import RowId
+
+    value = row.get("__rowid__." + alias.lower())
+    return value if isinstance(value, RowId) else None
+
+
 def _update(db: AccessDatabase, clauses: list[tuple[str, str]], parameters: Mapping[str, object]) -> int:
+    """Write the SET clause into the tables the FROM part joins.  Every
+    joined row counts as affected, and every expression is read from the
+    row before anything is written, so ``SET A = B, B = A`` swaps.  A
+    table row the join reaches more than once is written once, from the
+    first join row (measured); a LEFT JOIN writes its unmatched rows too,
+    with Null for the side that is missing."""
     by_word = dict(clauses)
     sources = _sources(db, clauses[0][1], parameters)
-    if len(sources) != 1 or sources[0].table is None:
-        raise AccessError("UPDATE writes to one table")
-    table = sources[0].table
-    assignments: list[tuple[str, Expr]] = []
+    assignments: list[tuple[Source, str, Expr]] = []
     for item in split_top_level(by_word.get("SET", ""), ","):
         column, _, expression = item.partition("=")
-        name = column.strip().strip("[]")
-        if "." in name:
-            name = name.split(".", 1)[1].strip("[]")
-        target = table.definition.column(name)
+        qualifier, name = _split_qualified(column)
+        source = _write_target(sources, qualifier, name)
+        assert source.table is not None
+        target = source.table.definition.column(name)
         if target.auto_number:
             raise AccessError(
                 f"column {target.name!r} is an AutoNumber, which no query updates"
             )
-        assignments.append((target.name, Parser.parse(expression.strip())))
+        expr = Parser.parse(expression.strip())
+        if _has_subquery(expr):
+            # A subquery in a WHERE clause is fine; one in a SET clause
+            # makes the whole query not updateable.
+            raise AccessError(
+                "a SET clause cannot take its value from a subquery: the "
+                "engine treats such an UPDATE as not updateable"
+            )
+        assignments.append((source, target.name, expr))
     where = Parser.parse(by_word["WHERE"]) if "WHERE" in by_word else None
 
     def runner(sql: str, env: Environment) -> list[Row]:
         return _run(db, sql, parameters, env)
 
     count = 0
-    for row in list(sources[0].rows):
+    written: set[tuple[str, RowId]] = set()
+    for row in _join(sources, parameters, None):
         env = _environment(row, sources, parameters, None, runner)
         if where is not None:
             verdict = where.eval(env)
             if verdict is None or not _truthy(verdict):
                 continue
-        changes = _assignments(table, [name for name, _ in assignments], [expr.eval(env) for _, expr in assignments])
-        table.update_row(row["__rowid__." + sources[0].alias.lower()], changes)  # pyright: ignore[reportArgumentType]
+        values = [(source, name, expr.eval(env)) for source, name, expr in assignments]
         count += 1
+        for source in sources:
+            changes = {name: value for s, name, value in values if s is source}
+            if not changes or source.table is None:
+                continue
+            row_id = _row_id(row, source.alias)
+            if row_id is None or (source.alias.lower(), row_id) in written:
+                continue
+            written.add((source.alias.lower(), row_id))
+            source.table.update_row(row_id, _assignments(source.table, list(changes), list(changes.values())))
     return count
 
 
 def _delete(db: AccessDatabase, clauses: list[tuple[str, str]], parameters: Mapping[str, object]) -> int:
+    """Take rows out of one table of the FROM part.  Over a join the
+    statement has to say which, as ``DELETE T.* FROM T INNER JOIN ...``,
+    and a row the join reaches twice is an error rather than a second
+    delete (the engine says "Record is deleted" and undoes the lot)."""
     by_word = dict(clauses)
     sources = _sources(db, by_word["FROM"], parameters)
-    if len(sources) != 1 or sources[0].table is None:
-        raise AccessError("DELETE takes rows out of one table")
-    table = sources[0].table
-    if "WHERE" not in by_word:
+    head = clauses[0][1].strip()
+    if head.endswith(".*"):
+        head = head[:-2]
+    qualifier = head.strip().strip("[]") if head not in ("", "*") else None
+    target = _write_target(sources, qualifier, None)
+    table = target.table
+    assert table is not None
+    if "WHERE" not in by_word and len(sources) == 1:
         count = table.row_count
         table.truncate()
         return count
-    where = Parser.parse(by_word["WHERE"])
+    where = Parser.parse(by_word["WHERE"]) if "WHERE" in by_word else None
 
     def runner(sql: str, env: Environment) -> list[Row]:
         return _run(db, sql, parameters, env)
 
     doomed: list[RowId] = []
-    for row in sources[0].rows:
-        verdict = where.eval(_environment(row, sources, parameters, None, runner))
-        if verdict is not None and _truthy(verdict):
-            doomed.append(row["__rowid__." + sources[0].alias.lower()])  # pyright: ignore[reportArgumentType]
+    for row in _join(sources, parameters, None):
+        if where is not None:
+            verdict = where.eval(_environment(row, sources, parameters, None, runner))
+            if verdict is None or not _truthy(verdict):
+                continue
+        row_id = _row_id(row, target.alias)
+        if row_id is None:
+            continue
+        if row_id in doomed:
+            raise AccessError(
+                f"the join reaches a row of {target.alias!r} more than once, so it "
+                f"would be deleted twice; nothing was deleted"
+            )
+        doomed.append(row_id)
     for row_id in doomed:
-        table.delete_row(row_id)  # pyright: ignore[reportArgumentType]
+        table.delete_row(row_id)
     return len(doomed)

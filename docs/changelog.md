@@ -20,6 +20,15 @@ All notable changes to pyOpenVBA are documented here. This project follows
   combo box with `Table/Query` as its row source type, and anything that
   takes the focus with the next tab index.
 
+- **Twenty-nine more design property codes named**, taking the table from
+  40 to 69. Access's `SaveAsText` writes a design's properties with their
+  names, so pairing that against the blob names the codes -- but pair on
+  the *value*, not the position: the blob carries records the text does
+  not write, so a straight walk drifts and starts naming codes wrongly a
+  few records in. Both runs re-derived every code already named and
+  contradicted none, which is what makes the new names evidence rather
+  than a guess. `docs/research/access_designs/` carries the scripts.
+
 - **A control can hold controls.** `add_control(..., parent="Tabs")` puts
   a page on a tab control, which is written as a group of its own right
   after it. Reading a design is now a tree walk rather than a flat scan,

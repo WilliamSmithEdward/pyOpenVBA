@@ -627,6 +627,21 @@ def test_setting_code_twice_replaces_it(blank: AccessDatabase) -> None:
     assert len([m for m in blank.modules() if m.name == "Form_Behind"]) == 1
 
 
+def test_no_code_names_two_properties(blank: AccessDatabase) -> None:
+    """The table is read both ways -- name to code when writing, code to
+    name when reading a design -- so a repeated code would make one of
+    those a lie."""
+    codes = list(PROPERTY_CODES.values())
+    assert len(set(codes)) == len(codes)
+
+
+def test_every_slot_names_a_property_the_table_knows(blank: AccessDatabase) -> None:
+    for kind, slots in CONTROL_SLOTS.items():
+        for name, (_id, code, _type, _width) in slots.items():
+            assert name in PROPERTY_CODES, f"{kind}.{name} names no code"
+            assert PROPERTY_CODES[name] == code, f"{kind}.{name} disagrees with the table"
+
+
 def test_a_page_belongs_to_a_tab_control(blank: AccessDatabase) -> None:
     """A tab control holds its pages as a group of its own, written right
     after it, and the section's own count does not include them."""

@@ -7,6 +7,22 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- **Compaction.** `db.compact()` gives back the free pages at the end of
+  the file and says how many went. That is what a dropped table or a
+  large delete leaves behind, and it is the part of compaction that can
+  be done without moving a page: nothing moves and no object is
+  rewritten, so nothing can be lost. Free pages in the middle keep their
+  place, and the first two pages are never dropped.
+
+  A 954 KB database with a dropped 3000-row table came back at 300 KB
+  with its other table intact. The live gate has the engine itself read
+  a compacted file row for row and then run its own Compact and Repair
+  over it, which rebuilds every page it kept.
+
+  This is not Access's Compact and Repair, which also renumbers pages,
+  resets AutoNumber counters and drops deleted rows from the middle of a
+  table.
+
 - **The domain functions.** `DLookup`, `DCount`, `DSum`, `DAvg`, `DMin`,
   `DMax`, `DFirst`, `DLast`, `DStDev`, `DStDevP`, `DVar` and `DVarP` run
   in `db.execute(...)`. Each is a query over another table, so each runs

@@ -17,7 +17,16 @@ from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 
-from pyopenvba.access._alloc import add_to_map, allocate_page, release_page, remove_from_map, set_usage_bit
+from pyopenvba.access._alloc import (
+    GLOBAL_USAGE_MAP_PAGE,
+    GLOBAL_USAGE_MAP_ROW,
+    add_to_map,
+    allocate_page,
+    read_usage_map,
+    release_page,
+    remove_from_map,
+    set_usage_bit,
+)
 from pyopenvba.access._btree import BTree
 from pyopenvba.access._complex import (
     ATTACHMENT_COLUMNS,
@@ -69,6 +78,7 @@ from pyopenvba.access._macros import (
 )
 from pyopenvba.access._pages import (
     PAGE_DATA,
+    PAGE_USAGE_BITMAP,
     PAGE_SIZE,
     ROW_DELETED,
     ROW_OVERFLOW,
@@ -1537,6 +1547,35 @@ class AccessDatabase:
         )
 
     # -- persistence -------------------------------------------------------------
+
+    def compact(self) -> int:
+        """Give back the free pages at the end of the file, and say how
+        many went.
+
+        This is not Access's Compact and Repair, which rebuilds the whole
+        database and moves every page.  It reclaims the run of free pages
+        the file ends with, which is what a dropped table or a large
+        delete leaves behind, and touches nothing else: no page moves and
+        no object is rewritten, so nothing can be lost.  A file with free
+        pages only in the middle keeps its size.
+        """
+        store = self.store
+        free = read_usage_map(store, GLOBAL_USAGE_MAP_PAGE, GLOBAL_USAGE_MAP_ROW)
+        spare = set(free.pages())
+        keep = store.page_count
+        while keep > 2:
+            page = keep - 1
+            # A usage-bitmap page is what records the free ones, so it
+            # stays even when nothing points at it any more.
+            if page not in spare or store.page_type(page) == PAGE_USAGE_BITMAP:
+                break
+            keep -= 1
+        if keep >= store.page_count:
+            return 0
+        for page in range(keep, store.page_count):
+            set_usage_bit(store, free, page, False)
+        return store.truncate(keep)
+
 
     def to_bytes(self) -> bytes:
         return self.store.to_bytes()

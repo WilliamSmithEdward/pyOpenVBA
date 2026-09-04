@@ -182,6 +182,22 @@ class PageStore:
         #: tries it first for the next single-row value.
         self.lval_cursor: dict[int, int] = {}
 
+    def truncate(self, page_count: int) -> int:
+        """Drop pages from the end of the file, and say how many went.
+
+        Nothing checks here that they are free -- the caller does that --
+        and the first two pages are never dropped.
+        """
+        if page_count < 2 or page_count >= self.page_count:
+            return 0
+        dropped = self.page_count - page_count
+        del self._data[page_count * PAGE_SIZE :]
+        self.released = {p for p in self.released if p < page_count}
+        self.allocated = {p for p in self.allocated if p < page_count}
+        self.pending = [p for p in self.pending if p < page_count]
+        self.lval_cursor = {k: v for k, v in self.lval_cursor.items() if v < page_count}
+        return dropped
+
     def snapshot(self) -> tuple[bytes, set[int], set[int], list[int], dict[int, int]]:
         """Everything a rollback has to put back: the pages and the state
         the session keeps about them."""

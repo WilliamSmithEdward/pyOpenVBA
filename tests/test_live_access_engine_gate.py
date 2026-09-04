@@ -2019,3 +2019,42 @@ def test_statistical_aggregates_answer_as_the_engine_does(tmp_path: Path) -> Non
     rows = AccessDatabase(theirs).execute(sql)
     assert isinstance(rows, list)
     assert [chr(9).join(f"{n}={_format(v)}" for n, v in row.items()) for row in rows] == expected.split(chr(10))
+
+
+def test_the_engine_opens_a_database_we_compacted(tmp_path: Path) -> None:
+    """Compaction drops pages off the end of the file, so what matters is
+    whether the engine still reads what is left -- and can compact it
+    itself afterwards, which rebuilds every page it kept."""
+    from pyopenvba.access import ColumnSpec, IndexSpec
+
+    path = tmp_path / "compacted.accdb"
+    shutil.copy(TEMPLATE, path)
+    db = AccessDatabase(path)
+    keep = db.create_table(
+        "Keep",
+        [ColumnSpec("Id", "Long"), ColumnSpec("Note", "Text", size=60)],
+        [IndexSpec("PrimaryKey", ("Id",), primary=True)],
+    )
+    for number in range(20):
+        keep.insert_row({"Id": number, "Note": f"row {number}"})
+    temp = db.create_table("Temp", [ColumnSpec("Id", "Long"), ColumnSpec("Pad", "Text", size=200)])
+    for number in range(2000):
+        temp.insert_row({"Id": number, "Pad": "x" * 180})
+    db.save()
+    grown = path.stat().st_size
+
+    db = AccessDatabase(path)
+    db.drop_table("Temp")
+    assert db.compact() > 0
+    db.save()
+    assert path.stat().st_size < grown
+
+    dumped = json.loads(oracle("-Command", "dump", "-Path", str(path), "-Table", "Keep"))
+    assert isinstance(dumped, str)
+    assert len(dumped.split(chr(10))) == 20
+    assert dumped.split(chr(10))[0].startswith('Id=0' + chr(9) + 'Note=row 0')
+    assert _diff(dumped, _engine_dump(AccessDatabase(path), "Keep")) == []
+
+    # The engine's own compaction rebuilds the file; it must accept ours.
+    assert oracle("-Command", "compact", "-Path", str(path)) == "ok"
+    assert json.loads(oracle("-Command", "dump", "-Path", str(path), "-Table", "Keep")) == dumped

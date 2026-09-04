@@ -459,3 +459,40 @@ def test_a_column_two_sources_share_is_named_for_its_table(tmp_path: Path) -> No
     db.execute("INSERT INTO Notes (Id) VALUES (1)")
 
     assert names_of(db, "SELECT c.Id, n.Id FROM Customers AS c, Notes AS n") == ["c.Id", "n.Id"]
+
+
+@pytest.mark.parametrize(
+    "expression",
+    ["Balance / 0", "Id / 0", "Id \\ 0", "Id Mod 0", "1 / 0", "0 / 0"],
+)
+def test_dividing_by_zero_answers_null(tmp_path: Path, expression: str) -> None:
+    """A query that meets a zero goes on and answers Null for that row --
+    it does not stop -- which is what the engine does."""
+    rows = _shop(tmp_path).execute(f"SELECT Id, {expression} AS D FROM Customers ORDER BY Id")
+    assert isinstance(rows, list) and rows
+    assert all(row["D"] is None for row in rows)
+
+
+def test_a_zero_in_one_row_does_not_stop_the_query(tmp_path: Path) -> None:
+    db = _shop(tmp_path)
+    db.execute("CREATE TABLE Ratios (Id LONG CONSTRAINT PK PRIMARY KEY, Over LONG, Under LONG)")
+    for number, (over, under) in enumerate([(10, 2), (10, 0), (9, 3)], start=1):
+        db.execute(f"INSERT INTO Ratios (Id, Over, Under) VALUES ({number}, {over}, {under})")
+
+    rows = db.execute("SELECT Id, Over / Under AS R FROM Ratios ORDER BY Id")
+
+    assert isinstance(rows, list)
+    assert [row["R"] for row in rows] == [5.0, None, 3.0]
+
+
+@pytest.mark.parametrize(
+    ("expression", "message"),
+    [("Sqr(-1)", "not negative"), ("Log(0)", "above zero"), ("Log(-1)", "above zero")],
+)
+def test_a_maths_function_given_the_wrong_number_says_so(
+    tmp_path: Path, expression: str, message: str
+) -> None:
+    """The engine refuses these too; what matters here is that the refusal
+    is this package's own error and not the maths library's."""
+    with pytest.raises(AccessError, match=message):
+        _shop(tmp_path).execute(f"SELECT {expression} AS X FROM Customers")

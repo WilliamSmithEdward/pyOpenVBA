@@ -205,15 +205,18 @@ class Binary(Expr):
         if op == "*":
             return _arith(a, b, lambda x, y: x * y)
         if op == "/":
+            # Dividing by zero is Null here, not an error: a query that
+            # meets a zero in one row goes on and answers Null for it,
+            # which is what the engine does (measured against DAO).
             if _number(b) == 0:
-                raise AccessError("division by zero")
+                return None
             return float(_number(a)) / float(_number(b))
         if op in ("\\", "MOD"):
             # Both sides round to whole numbers first, and the division
             # truncates toward zero, which is what VBA does.
             x, y = _whole(a), _whole(b)
             if y == 0:
-                raise AccessError("division by zero")
+                return None
             quotient = abs(x) // abs(y) * (1 if (x < 0) == (y < 0) else -1)
             return quotient if op == "\\" else x - y * quotient
         if op == "^":
@@ -1035,7 +1038,10 @@ def _call(name: str, args: list[object]) -> object:
     if upper == "SQR":
         import math
 
-        return math.sqrt(float(_number(args[0])))
+        value = float(_number(args[0]))
+        if value < 0:
+            raise AccessError("Sqr needs a number that is not negative")
+        return math.sqrt(value)
     if upper == "EXP":
         import math
 
@@ -1043,7 +1049,10 @@ def _call(name: str, args: list[object]) -> object:
     if upper == "LOG":
         import math
 
-        return math.log(float(_number(args[0])))
+        value = float(_number(args[0]))
+        if value <= 0:
+            raise AccessError("Log needs a number above zero")
+        return math.log(value)
     if upper == "FIX":
         value = float(_number(args[0]))
         return int(value) if value >= 0 else -int(-value)

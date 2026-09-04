@@ -459,6 +459,16 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- **Dividing by zero stopped the query instead of answering Null.**
+  `SELECT Over / Under FROM t` raised as soon as one row held a zero,
+  where the engine answers Null for that row and carries on. The same
+  goes for `\` and `Mod`. Found by running forty SELECTs through both
+  the executor and DAO and comparing every name and value.
+
+- **`Sqr` and `Log` given the wrong number raised the maths library's
+  error**, not this package's. The engine refuses them too; the point is
+  that the refusal now reads as an `AccessError` like every other.
+
 - **A repeated column in a SELECT swallowed its twin.** Rows come back
   keyed by name, so `SELECT Id, Id, Total` collapsed the two `Id`
   columns into one and handed back a row a column short -- which is what

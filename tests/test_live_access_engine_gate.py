@@ -1162,6 +1162,10 @@ def test_every_column_type_reads_back_as_the_engine_shows_it(tmp_path: Path) -> 
 
 
 SQL_GATE_SELECTS = (
+    # Dividing by zero is Null, not an error, and the query goes on.
+    "SELECT Id, Dbl / 0 AS D, Big \\ 0 AS I, Big Mod 0 AS M FROM AllTypes WHERE Id <= 3 ORDER BY Id",
+    "SELECT Id, Cash / 0 AS C FROM AllTypes WHERE Id <= 3 ORDER BY Id",
+    "SELECT Id, Big / Tiny AS Q FROM AllTypes ORDER BY Id",
     # How an output column with no name of its own, or one whose name the
     # list holds twice, is named: Expr and 1000 plus where it sits, with
     # the last of a repeated name keeping the plain one.

@@ -270,16 +270,78 @@ class Call(Expr):
         return self.name.upper() in AGGREGATES
 
     def eval(self, env: Env) -> object:
+        upper = self.name.upper()
+        if upper in DOMAIN_FUNCTIONS:
+            return self._domain(env, upper)
         if self.is_aggregate:
             raise AccessError(f"{self.name} needs a GROUP BY or a whole-table aggregate context")
         values = [a.eval(env) for a in self.args]
         return _call(self.name, values)
+
+    def _domain(self, env: Env, upper: str) -> object:
+        """A domain function is a query over another table, so it runs as
+        one: `DLookup("Total", "Orders", "Id = 1")` is
+        `SELECT Total FROM Orders WHERE Id = 1`, and the aggregates wrap
+        the expression in the aggregate of the same name.
+
+        Its arguments are strings holding SQL, which is what lets a
+        criteria mention a column of the table the expression names.
+        """
+        if not 2 <= len(self.args) <= 3:
+            raise AccessError(f"{self.name} takes an expression, a domain and an optional criteria")
+        values = [a.eval(env) for a in self.args]
+        expression, domain = _text(values[0]), _text(values[1])
+        criteria = _text(values[2]) if len(values) > 2 and values[2] is not None else ""
+        if not expression or not domain:
+            return None
+        aggregate = DOMAIN_FUNCTIONS[upper]
+        select = expression if aggregate is None else f"{aggregate}({expression})"
+        sql = f"SELECT {select} FROM {_bracketed(domain)}"
+        if criteria.strip():
+            sql += f" WHERE {criteria}"
+        # `Env` is declared as the callable that resolves a column; the
+        # environment a running query passes also knows how to run SQL,
+        # which is what a domain function needs.
+        runner = getattr(env, "run", None)
+        if runner is None:
+            raise AccessError(f"{self.name} can only be used inside a query")
+        rows = runner(sql)
+        if not rows:
+            # A count over nothing is nothing counted; the rest are Null.
+            return 0 if upper == "DCOUNT" else None
+        first = rows[0]
+        return next(iter(first.values())) if first else None
 
     def columns(self) -> list[tuple[str | None, str]]:
         return [c for a in self.args for c in a.columns()]
 
 
 AGGREGATES = {"COUNT", "SUM", "AVG", "MIN", "MAX", "FIRST", "LAST", "STDEV", "STDEVP", "VAR", "VARP"}
+#: The domain functions, and the aggregate each wraps its expression in.
+#: `DLookup` wraps it in nothing and takes the first row it finds.
+DOMAIN_FUNCTIONS: dict[str, str | None] = {
+    "DLOOKUP": None,
+    "DCOUNT": "Count",
+    "DSUM": "Sum",
+    "DAVG": "Avg",
+    "DMIN": "Min",
+    "DMAX": "Max",
+    "DFIRST": "First",
+    "DLAST": "Last",
+    "DSTDEV": "StDev",
+    "DSTDEVP": "StDevP",
+    "DVAR": "Var",
+    "DVARP": "VarP",
+}
+
+
+def _bracketed(name: str) -> str:
+    """A domain is a table or query name, and Access takes it either
+    bracketed or bare."""
+    trimmed = name.strip()
+    if trimmed.startswith(("[", "(")) or " " not in trimmed:
+        return trimmed
+    return f"[{trimmed}]"
 
 
 @dataclass(frozen=True)

@@ -7,6 +7,17 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- **The domain functions.** `DLookup`, `DCount`, `DSum`, `DAvg`, `DMin`,
+  `DMax`, `DFirst`, `DLast`, `DStDev`, `DStDevP`, `DVar` and `DVarP` run
+  in `db.execute(...)`. Each is a query over another table, so each runs
+  as one: `DLookup("Total", "Orders", "Id = 1")` is
+  `SELECT Total FROM Orders WHERE Id = 1`. A criteria can name a column
+  of the row it is evaluated in, which is what makes them worth having.
+
+  These are Access's own rather than the database engine's, so DAO cannot
+  answer for them: the gate compares every one against Access's `Eval` on
+  the same database, and all seventeen agree.
+
 - **The password guard reaches Access.** `db.vba_is_protected()` reads
   the `PROJECT` stream's `DPB` record, and `db.save()` refuses to write a
   VBA change into a protected project unless it is told

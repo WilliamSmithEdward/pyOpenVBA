@@ -228,7 +228,9 @@ the value the code returns.
 WHERE, GROUP BY with aggregates, HAVING, ORDER BY, DISTINCT, TOP,
 subqueries (`IN`, `EXISTS`, correlated, as a value or as a table), UNION
 and crosstabs, with the functions a Jet expression can name (text,
-maths, dates, conversions, `Format`, `Partition`, `Switch`, `Choose`).
+maths, dates, conversions, `Format`, `Partition`, `Switch`, `Choose`) and
+the domain functions (`DLookup`, `DCount`, `DSum`, `DMin`, `DMax` and the
+rest), each of which runs as a query over the table it names.
 INSERT, UPDATE and DELETE go through the same row
 writers, and CREATE TABLE, CREATE INDEX, ALTER TABLE, DROP TABLE and
 DROP INDEX through the schema writers. Its answers and the bytes it

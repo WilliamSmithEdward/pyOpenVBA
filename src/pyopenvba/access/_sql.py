@@ -669,6 +669,23 @@ def _whole(value: object) -> int:
     return int(Decimal(str(number)).quantize(Decimal(1), rounding=ROUND_HALF_EVEN))
 
 
+def _round_half_even(value: float, places: int) -> float:
+    """Round the number as it reads, not as the machine holds it.
+
+    The engine rounds half to even -- 2.345 to two places is 2.34 and
+    2.355 is 2.36 -- and it does so on the decimal that was written, not
+    on the binary double nearest it.  The two disagree often: the double
+    for 2.345 sits just above the decimal and the double for 2.675 just
+    below, so rounding the double gives 2.35 and 2.67 where the engine
+    answers 2.34 and 2.68.
+    """
+    if value != value or value in (float("inf"), float("-inf")):
+        return value
+    quantum = Decimal(1).scaleb(-places)
+    rounded = Decimal(repr(value)).quantize(quantum, rounding=ROUND_HALF_EVEN)
+    return float(rounded)
+
+
 #: What a text comparison argument means: 0 compares by character code,
 #: anything else -- and the default in a query -- ignores case.
 COMPARE_BINARY = 0
@@ -719,8 +736,15 @@ def _number(value: object) -> int | float | Decimal:
     if isinstance(value, (int, float, Decimal)):
         return value
     if isinstance(value, str):
+        text = value.strip()
         try:
-            return float(value) if "." in value else int(value)
+            return int(text)
+        except ValueError:
+            pass
+        try:
+            # Reaches an exponent as well as a decimal point: the engine
+            # reads `1e3` as a thousand.
+            return float(text)
         except ValueError as exc:
             raise AccessError(f"{value!r} is not a number") from exc
     if isinstance(value, _dt.datetime):
@@ -1014,13 +1038,16 @@ def _call(name: str, args: list[object]) -> object:
         return math.floor(float(_number(args[0])))
     if upper == "ROUND":
         places = int(_number(args[1])) if len(args) > 1 else 0
-        return round(float(_number(args[0])), places)
+        return _round_half_even(float(_number(args[0])), places)
     if upper in ("YEAR", "MONTH", "DAY", "HOUR", "MINUTE", "SECOND"):
         when = args[0]
         if not isinstance(when, _dt.datetime):
             raise AccessError(f"{name} needs a date")
         return getattr(when, upper.lower())
     if upper == "CSTR":
+        # A Boolean converts to the number it is, not to its name.
+        if isinstance(args[0], bool):
+            return "-1" if args[0] else "0"
         return _text(args[0])
     if upper in ("CLNG", "CINT"):
         return round(float(_number(args[0])))

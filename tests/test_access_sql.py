@@ -552,3 +552,48 @@ def test_the_text_functions_honour_their_comparison_argument(
 def test_replace_starting_before_the_string_is_refused(tmp_path: Path) -> None:
     with pytest.raises(AccessError, match="starts at 1"):
         _shop(tmp_path).execute("SELECT Replace('abc', 'b', 'X', 0) AS A FROM Customers")
+
+
+@pytest.mark.parametrize(
+    ("expression", "expected"),
+    [
+        # Half goes to the even digit, and on the decimal as written --
+        # the double nearest 2.345 sits above it and the one nearest 2.675
+        # below, so rounding the double would answer 2.35 and 2.67.
+        ("Round(2.345, 2)", 2.34),
+        ("Round(2.355, 2)", 2.36),
+        ("Round(2.675, 2)", 2.68),
+        ("Round(-2.345, 2)", -2.34),
+        ("Round(1.005, 2)", 1.0),
+        ("Round(0.125, 2)", 0.12),
+        ("Round(0.135, 2)", 0.14),
+        ("Round(2.5)", 2.0),
+        ("Round(3.5)", 4.0),
+    ],
+)
+def test_round_goes_half_to_even_on_the_decimal_as_written(
+    tmp_path: Path, expression: str, expected: float
+) -> None:
+    rows = _shop(tmp_path).execute(f"SELECT {expression} AS A FROM Customers WHERE Id = 1")
+    assert isinstance(rows, list) and rows
+    assert rows[0]["A"] == expected
+
+
+@pytest.mark.parametrize(
+    ("expression", "expected"),
+    [
+        ("CDbl('1e3')", 1000.0),
+        ("CDbl('1E-2')", 0.01),
+        ("CLng('1e3')", 1000),
+        ("'1e3' + 1", 1001.0),
+        ("CStr(True)", "-1"),
+        ("CStr(False)", "0"),
+        ("CStr(1.5)", "1.5"),
+    ],
+)
+def test_numbers_written_as_text_read_the_way_the_engine_reads_them(
+    tmp_path: Path, expression: str, expected: object
+) -> None:
+    rows = _shop(tmp_path).execute(f"SELECT {expression} AS A FROM Customers WHERE Id = 1")
+    assert isinstance(rows, list) and rows
+    assert rows[0]["A"] == expected

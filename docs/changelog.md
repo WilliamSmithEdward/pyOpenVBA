@@ -459,6 +459,19 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- **`Round` rounded the double, not the number as written.** The engine
+  rounds half to even on the decimal that was typed, and the two
+  disagree often: the double nearest 2.345 sits just above it and the one
+  nearest 2.675 just below, so rounding the double answers 2.35 and 2.67
+  where the engine answers 2.34 and 2.68.
+
+- **A number written with an exponent would not read.** `CDbl('1e3')`
+  refused, because a string was only tried as a float when it held a
+  decimal point. It is a thousand.
+
+- **`CStr` of a Boolean gave its name.** `CStr(True)` is `-1` and
+  `CStr(False)` is `0`.
+
 - **`+` joined text to a number instead of adding it.** `'5' + 5`
   answered `'55'` where the engine answers `10`: text on one side and a
   number on the other is an addition, and text that will not read as a

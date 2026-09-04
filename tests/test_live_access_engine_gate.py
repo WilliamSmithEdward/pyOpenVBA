@@ -1162,6 +1162,11 @@ def test_every_column_type_reads_back_as_the_engine_shows_it(tmp_path: Path) -> 
 
 
 SQL_GATE_SELECTS = (
+    # Rounding goes half to even on the decimal as written, and a number
+    # written as text reads with its exponent.
+    "SELECT Round(2.345, 2) AS A, Round(2.355, 2) AS B, Round(2.675, 2) AS C, Round(-2.345, 2) AS D FROM AllTypes WHERE Id = 1",
+    "SELECT Round(Dbl, 2) AS R, Round(Dbl, 0) AS W FROM AllTypes ORDER BY Id",
+    "SELECT CDbl('1e3') AS A, CLng('1e3') AS B, CStr(True) AS C, CStr(False) AS D FROM AllTypes WHERE Id = 1",
     # Text on one side of + and a number on the other is an addition,
     # and the text functions ignore case unless told otherwise.
     "SELECT Id, Txt + '!' AS P, '5' + 5 AS N, 'a' + 5 AS X FROM AllTypes WHERE Id <= 3 ORDER BY Id",

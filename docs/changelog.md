@@ -459,6 +459,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- **A Boolean was written as its name, not as the number it is.**
+  `Flag & ''` answered `True` where the engine answers `-1`, and the same
+  went for `CStr`. `True + 1` is 0 and `-True` is 1.
+
 - **`Round` rounded the double, not the number as written.** The engine
   rounds half to even on the decimal that was typed, and the two
   disagree often: the double nearest 2.345 sits just above it and the one

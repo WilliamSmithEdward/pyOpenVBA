@@ -765,7 +765,9 @@ def _arith(a: object, b: object, fn: Callable[[Any, Any], Any]) -> object:
 
 def _text(value: object) -> str:
     if isinstance(value, bool):
-        return "True" if value else "False"
+        # A query writes a Boolean as the number it is: `True & ''` is
+        # `-1`, not `True`.
+        return "-1" if value else "0"
     if isinstance(value, float) and value.is_integer():
         return str(int(value))
     if isinstance(value, _dt.datetime):
@@ -1045,9 +1047,6 @@ def _call(name: str, args: list[object]) -> object:
             raise AccessError(f"{name} needs a date")
         return getattr(when, upper.lower())
     if upper == "CSTR":
-        # A Boolean converts to the number it is, not to its name.
-        if isinstance(args[0], bool):
-            return "-1" if args[0] else "0"
         return _text(args[0])
     if upper in ("CLNG", "CINT"):
         return round(float(_number(args[0])))

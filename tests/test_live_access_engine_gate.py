@@ -1162,6 +1162,11 @@ def test_every_column_type_reads_back_as_the_engine_shows_it(tmp_path: Path) -> 
 
 
 SQL_GATE_SELECTS = (
+    # A Boolean is written as the number it is.
+    "SELECT Id, Flag & '' AS F, True & '' AS T, CStr(Flag) AS C FROM AllTypes WHERE Id <= 3 ORDER BY Id",
+    # Grouping and ordering by an expression.
+    "SELECT Big Mod 2 AS Parity, Count(*) AS N FROM AllTypes GROUP BY Big Mod 2 ORDER BY Big Mod 2",
+    "SELECT Year(Stamp) AS Y, Count(*) AS N FROM AllTypes GROUP BY Year(Stamp) ORDER BY Year(Stamp)",
     # Rounding goes half to even on the decimal as written, and a number
     # written as text reads with its exponent.
     "SELECT Round(2.345, 2) AS A, Round(2.355, 2) AS B, Round(2.675, 2) AS C, Round(-2.345, 2) AS D FROM AllTypes WHERE Id = 1",

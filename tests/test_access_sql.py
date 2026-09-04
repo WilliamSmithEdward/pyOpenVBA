@@ -597,3 +597,47 @@ def test_numbers_written_as_text_read_the_way_the_engine_reads_them(
     rows = _shop(tmp_path).execute(f"SELECT {expression} AS A FROM Customers WHERE Id = 1")
     assert isinstance(rows, list) and rows
     assert rows[0]["A"] == expected
+
+
+@pytest.mark.parametrize(
+    ("expression", "expected"),
+    [
+        ("True & ''", "-1"),
+        ("False & ''", "0"),
+        ("CStr(True)", "-1"),
+        ("'x' & True", "x-1"),
+        ("True + 1", 0),
+        ("-True", 1),
+        ("Abs(True)", 1),
+    ],
+)
+def test_a_boolean_is_written_as_the_number_it_is(
+    tmp_path: Path, expression: str, expected: object
+) -> None:
+    """A query writes True as -1, not as its name."""
+    rows = _shop(tmp_path).execute(f"SELECT {expression} AS A FROM Customers WHERE Id = 1")
+    assert isinstance(rows, list) and rows
+    assert rows[0]["A"] == expected
+
+
+def test_ordering_by_an_alias_matches_ordering_by_what_it_names(tmp_path: Path) -> None:
+    """DAO will not take an alias there, so the engine cannot answer for
+    the alias form directly; what it can answer for is the expression,
+    and the two have to agree."""
+    db = _shop(tmp_path)
+    by_alias = db.execute("SELECT Id, Balance * 2 AS Doubled FROM Customers ORDER BY Doubled, Id")
+    by_expression = db.execute("SELECT Id, Balance * 2 AS Doubled FROM Customers ORDER BY Balance * 2, Id")
+
+    assert by_alias == by_expression
+
+
+def test_grouping_by_an_expression_orders_by_it_too(tmp_path: Path) -> None:
+    db = _shop(tmp_path)
+    by_alias = db.execute(
+        "SELECT Len(Name) AS L, Count(*) AS N FROM Customers GROUP BY Len(Name) ORDER BY L"
+    )
+    by_expression = db.execute(
+        "SELECT Len(Name) AS L, Count(*) AS N FROM Customers GROUP BY Len(Name) ORDER BY Len(Name)"
+    )
+
+    assert by_alias == by_expression

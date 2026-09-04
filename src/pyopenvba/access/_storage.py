@@ -25,26 +25,30 @@ ENTRY_TAG = 4
 ENTRY_TRAILER = 4
 
 
-def next_folder(fixed_rows: int, taken: set[str]) -> str:
+#: The character a container's folder names start from, measured per
+#: container.  `Modules` carries four streams of its own -- `PropData`,
+#: `PropDataCopy`, `\x03DirData` and `\x03DirDataCopy` -- and its folders
+#: start at `4`; `Forms`, `Reports` and `Scripts` start at `0`.
+FOLDER_BASE = {"Modules": 4, "Forms": 0, "Reports": 0, "Scripts": 0}
+
+
+def next_folder(container: str, taken: set[str]) -> str:
     """The name Access gives a new object's storage folder.
 
     It is computed, not chosen, and Access will not find an object in a
     folder by any other name: `AllModules(i).Name` fails on a module in
     the wrong one while the VBE still lists and runs it.  Names are
-    allocated from a base of `chr(0x30 + <rows in the container that are
-    not folders>)`, lowest free first.  `Modules` holds four such rows --
-    `PropData`, `PropDataCopy`, `\\x03DirData` and `\\x03DirDataCopy` --
-    so its folders start at `4`, which is why the second module in a
-    database gets `4` and never `1`.  `Scripts` starts empty, so a
-    database's first macro gets `0`.
+    allocated lowest-free from the container's own base.
 
-    Measured across six cases, Access's own allocation each time: the
-    blank template ({`0`}) gives `4`, then `5`, `6`, `7` as the project
-    grows.  Deleting the last module and adding one gives its name back;
-    deleting a *middle* module ({`0`, `5`}) and adding one reuses `4`
-    rather than continuing upward, which is what rules out counting.
+    Measured against Access's own allocation each time.  Under `Modules`:
+    the blank template ({`0`}) gives `4`, then `5`, `6`, `7` as the
+    project grows; deleting the last module and adding one gives its name
+    back, and deleting a *middle* module ({`0`, `5`}) and adding one
+    reuses `4` rather than continuing upward, which is what rules out
+    counting. Under `Forms` and `Scripts`, which start empty: `0`, then
+    `1`, `2`.
     """
-    code = ord("0") + fixed_rows
+    code = ord("0") + FOLDER_BASE.get(container, 0)
     while chr(code) in taken:
         code += 1
     return chr(code)

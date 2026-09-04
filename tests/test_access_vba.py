@@ -214,7 +214,7 @@ def test_dirdata_names_each_module_s_storage_folder(db: AccessDatabase) -> None:
     module and added one, [(Module1, 0), (Zeta, 5), (After, 4)]."""
     db.create_module("One", "Option Compare Database")
     db.create_module("Two", "Option Compare Database")
-    assert dir_data_entries(stream_named(db, "DirData")) == [
+    assert dir_data_entries(stream_named(db, "\x03DirData")) == [
         ("Module1", "0"),
         ("One", "4"),
         ("Two", "5"),
@@ -222,7 +222,7 @@ def test_dirdata_names_each_module_s_storage_folder(db: AccessDatabase) -> None:
 
     db.delete_module("One")
     db.create_module("Three", "Option Compare Database")
-    assert dir_data_entries(stream_named(db, "DirData")) == [
+    assert dir_data_entries(stream_named(db, "\x03DirData")) == [
         ("Module1", "0"),
         ("Two", "5"),
         ("Three", "4"),

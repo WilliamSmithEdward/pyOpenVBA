@@ -48,6 +48,16 @@ from pyopenvba.access._lval import (
     read_long_value,
     write_long_value,
 )
+from pyopenvba.access._designs import (
+    CATALOG_CONTAINERS,
+    CONTAINERS,
+    NAV_TYPES,
+    OBJECT_TYPES,
+    AccessDesign,
+    parse_design,
+    template,
+    with_guid,
+)
 from pyopenvba.access._macros import (
     NAV_MACRO_TYPE,
     OBJECT_MACRO,
@@ -1951,9 +1961,12 @@ class AccessDatabase:
         scripts = self._scripts_id()
         storage = self.table(STORAGE_TABLE)
         rows = [row for _rid, row in storage.rows_with_ids()]
-        children = [r for r in rows if _as_int(r["ParentId"]) == scripts]
-        folders = {str(r["Name"]) for r in children if _as_int(r["Type"]) == TYPE_FOLDER}
-        folder = next_folder(len(children) - len(folders), folders)
+        folders = {
+            str(r["Name"])
+            for r in rows
+            if _as_int(r["ParentId"]) == scripts and _as_int(r["Type"]) == TYPE_FOLDER
+        }
+        folder = next_folder("Scripts", folders)
         when = (
             updated
             if isinstance(updated, (dt.datetime, float))
@@ -2045,6 +2058,239 @@ class AccessDatabase:
                         nav.delete_row(nav_rid, retire_empty=False)
                 break
         self._catalog = None
+
+
+    # --- forms and reports --------------------------------------------------
+    # Both live under `MSysAccessStorage` the way a module does, with the
+    # design in a `Blob`; see `pyopenvba.access._designs`.
+
+    def _design_container(self, kind: str) -> int:
+        if kind not in CONTAINERS:
+            raise AccessError(f"kind must be 'form' or 'report', not {kind!r}")
+        rows = [row for _rid, row in self.table(STORAGE_TABLE).rows_with_ids()]
+        root = next(
+            (_as_int(r["Id"]) for r in rows if str(r["Name"]) == "MSysAccessStorage_ROOT"), None
+        )
+        if root is None:
+            raise AccessError("this database has no object storage")
+        for row in rows:
+            if (
+                _as_int(row["ParentId"]) == root
+                and str(row["Name"]) == CONTAINERS[kind]
+                and _as_int(row["Type"]) == TYPE_FOLDER
+            ):
+                return _as_int(row["Id"])
+        raise AccessError(f"MSysAccessStorage has no {CONTAINERS[kind]!r} folder")
+
+    def _design_blob(self, container: int, folder: str) -> bytes | None:
+        storage = self.table(STORAGE_TABLE)
+        wanted = next(
+            (
+                _as_int(r["Id"])
+                for _rid, r in storage.rows_with_ids()
+                if _as_int(r["ParentId"]) == container
+                and _as_int(r["Type"]) == TYPE_FOLDER
+                and str(r["Name"]) == folder
+            ),
+            None,
+        )
+        if wanted is None:
+            return None
+        for _rid, row in storage.rows_with_ids():
+            payload = row.get("Lv")
+            if (
+                _as_int(row["ParentId"]) == wanted
+                and str(row["Name"]) == "Blob"
+                and isinstance(payload, bytes)
+            ):
+                return payload
+        return None
+
+    def _designs(self, kind: str) -> list[AccessDesign]:
+        container = self._design_container(kind)
+        listing = next(
+            (
+                row.get("Lv")
+                for _rid, row in self.table(STORAGE_TABLE).rows_with_ids()
+                if _as_int(row["ParentId"]) == container and str(row["Name"]) == DIR_DATA
+            ),
+            None,
+        )
+        if not isinstance(listing, bytes):
+            return []
+        out: list[AccessDesign] = []
+        for name, folder in dir_data_entries(listing):
+            blob = self._design_blob(container, folder)
+            objects = parse_design(blob)[1] if blob else ()
+            out.append(AccessDesign(name, kind, objects))
+        return out
+
+    def forms(self) -> list[AccessDesign]:
+        """Every form, with its sections and controls."""
+        return self._designs("form")
+
+    def reports(self) -> list[AccessDesign]:
+        """Every report, with its sections and controls."""
+        return self._designs("report")
+
+    def form(self, name: str) -> AccessDesign:
+        return self._design("form", name)
+
+    def report(self, name: str) -> AccessDesign:
+        return self._design("report", name)
+
+    def _design(self, kind: str, name: str) -> AccessDesign:
+        for found in self._designs(kind):
+            if found.name.lower() == name.lower():
+                return found
+        raise AccessError(f"this database has no {kind} named {name!r}")
+
+    def create_form(self, name: str, *, updated: object | None = None) -> AccessDesign:
+        """Add an empty form."""
+        return self._create_design("form", name, updated=updated)
+
+    def create_report(self, name: str, *, updated: object | None = None) -> AccessDesign:
+        """Add an empty report, with its page header, detail and page
+        footer sections."""
+        return self._create_design("report", name, updated=updated)
+
+    def _create_design(self, kind: str, name: str, *, updated: object | None) -> AccessDesign:
+        """The design itself comes from a captured template -- an empty one
+        as Access writes it -- with a GUID of its own patched in, since the
+        catalog row repeats it and two objects sharing one is not something
+        Access writes."""
+        if not name or len(name) > 64:
+            raise AccessError(f"a {kind} name is 1 to 64 characters")
+        if any(found.name.lower() == name.lower() for found in self._designs(kind)):
+            raise AccessError(f"a {kind} named {name!r} already exists")
+
+        container = self._design_container(kind)
+        storage = self.table(STORAGE_TABLE)
+        rows = [row for _rid, row in storage.rows_with_ids()]
+        folders = {
+            str(r["Name"])
+            for r in rows
+            if _as_int(r["ParentId"]) == container and _as_int(r["Type"]) == TYPE_FOLDER
+        }
+        folder = next_folder(CONTAINERS[kind], folders)
+        when = (
+            updated
+            if isinstance(updated, (dt.datetime, float))
+            else dt.datetime.now().replace(microsecond=0)
+        )
+        guid = random.Random().randbytes(16)
+
+        folder_rid = storage.insert_row(
+            {"ParentId": container, "Name": folder, "Type": TYPE_FOLDER,
+             "DateCreate": when, "DateUpdate": when}
+        )
+        folder_id = next(_as_int(r["Id"]) for rid, r in storage.rows_with_ids() if rid == folder_rid)
+        for stream, payload in (
+            ("Blob", with_guid(template(kind, "blob"), guid)),
+            ("TypeInfo", template(kind, "typeinfo")),
+            ("BlobDelta", None),
+            ("PropData", template(kind, "propdata")),
+        ):
+            values: dict[str, object] = {
+                "ParentId": folder_id, "Name": stream, "Type": TYPE_VALUE,
+                "DateCreate": when, "DateUpdate": when,
+            }
+            if payload is not None:
+                values["Lv"] = payload
+            storage.insert_row(values)
+
+        adders: tuple[tuple[str, Callable[[bytes], bytes]], ...] = (
+            (DIR_DATA, lambda payload: add_to_dir_data(payload, name, folder)),
+            ("PropData", lambda payload: add_to_folder_list(payload, folder)),
+        )
+        for stream, add in adders:
+            found = next(
+                (
+                    (rid, row.get("Lv"))
+                    for rid, row in storage.rows_with_ids()
+                    if _as_int(row["ParentId"]) == container and str(row["Name"]) == stream
+                ),
+                None,
+            )
+            if found is None:
+                storage.insert_row(
+                    {"ParentId": container, "Name": stream, "Type": TYPE_VALUE,
+                     "Lv": add(bytes(4)), "DateCreate": when, "DateUpdate": when}
+                )
+            else:
+                rid, payload = found
+                storage.update_row(
+                    rid, {"Lv": add(payload if isinstance(payload, bytes) else bytes(4))}
+                )
+
+        objects = self.table("MSysObjects")
+        parent = next(e.id for e in self.catalog() if e.name == CATALOG_CONTAINERS[kind] and e.type == 3)
+        owner = next((e.owner for e in self.catalog() if e.owner), None)
+        object_id = max((e.id for e in self.catalog() if e.id < 0), default=-(2**31)) + 1
+        objects.insert_row(
+            {"Id": object_id, "ParentId": parent, "Name": name, "Type": OBJECT_TYPES[kind],
+             "Flags": 0, "Owner": owner, "LvProp": _design_properties(kind, guid),
+             "DateCreate": when, "DateUpdate": when}
+        )
+        self.table("MSysNavPaneObjectIDs").insert_row(
+            {"Id": object_id, "Name": name, "Type": NAV_TYPES[kind]}
+        )
+        self.forget_catalog()
+        return self._design(kind, name)
+
+    def delete_form(self, name: str) -> None:
+        """Remove a form and every structure it occupies."""
+        self._delete_design("form", name)
+
+    def delete_report(self, name: str) -> None:
+        """Remove a report and every structure it occupies."""
+        self._delete_design("report", name)
+
+    def _delete_design(self, kind: str, name: str) -> None:
+        found = self._design(kind, name)
+        container = self._design_container(kind)
+        storage = self.table(STORAGE_TABLE)
+        listing_rid, listing_payload = next(
+            (rid, payload)
+            for rid, row in storage.rows_with_ids()
+            if _as_int(row["ParentId"]) == container
+            and str(row["Name"]) == DIR_DATA
+            and isinstance(payload := row.get("Lv"), bytes)
+        )
+        folder = dict(dir_data_entries(listing_payload))[found.name]
+        folder_id = next(
+            _as_int(r["Id"])
+            for _rid, r in storage.rows_with_ids()
+            if _as_int(r["ParentId"]) == container
+            and _as_int(r["Type"]) == TYPE_FOLDER
+            and str(r["Name"]) == folder
+        )
+        for rid, row in list(storage.rows_with_ids()):
+            if _as_int(row["Id"]) == folder_id or _as_int(row["ParentId"]) == folder_id:
+                storage.delete_row(rid, retire_empty=False)
+        storage.update_row(
+            listing_rid, {"Lv": remove_from_dir_data(listing_payload, found.name)}
+        )
+        for rid, row in list(storage.rows_with_ids()):
+            payload = row.get("Lv")
+            if (
+                _as_int(row["ParentId"]) == container
+                and str(row["Name"]) == "PropData"
+                and isinstance(payload, bytes)
+            ):
+                storage.update_row(rid, {"Lv": remove_from_folder_list(payload, folder)})
+
+        objects = self.table("MSysObjects")
+        for rid, row in list(objects.rows_with_ids()):
+            if row["Type"] == OBJECT_TYPES[kind] and str(row["Name"]) == found.name:
+                object_id = _as_int(row["Id"])
+                objects.delete_row(rid, retire_empty=False)
+                nav = self.table("MSysNavPaneObjectIDs")
+                for nav_rid, nav_row in list(nav.rows_with_ids()):
+                    if _as_int(nav_row["Id"]) == object_id:
+                        nav.delete_row(nav_rid, retire_empty=False)
+                break
+        self.forget_catalog()
 
 
     def database_properties(self) -> dict[str, object]:
@@ -2881,9 +3127,12 @@ class AccessDatabase:
         # Every module carries its own MODULEEND2 word; two sharing one is
         # not something Access writes.
         cookie = rng.randbytes(2)
-        children = [r for r in rows if _as_int(r["ParentId"]) == modules_id]
-        folders = {str(r["Name"]) for r in children if _as_int(r["Type"]) == 1}
-        folder = next_folder(len(children) - len(folders), folders)
+        folders = {
+            str(r["Name"])
+            for r in rows
+            if _as_int(r["ParentId"]) == modules_id and _as_int(r["Type"]) == 1
+        }
+        folder = next_folder("Modules", folders)
         when = (
             updated
             if isinstance(updated, (dt.datetime, float))
@@ -3104,6 +3353,15 @@ def _macro_properties() -> bytes:
             block_order=[(BLOCK_OBJECT, "")],
         )
     )
+
+
+def _design_properties(kind: str, guid: bytes) -> bytes:
+    """A form's or report's catalog properties: the captured blob with a
+    GUID of its own, which the design blob repeats."""
+    blob = parse_property_blob(template(kind, "lvprop"))
+    existing = blob.object_properties["GUID"]
+    blob.object_properties["GUID"] = PropertyValue(type=existing.type, flags=existing.flags, raw=guid)
+    return serialize_property_blob(blob)
 
 
 def _converter(old_code: int, new_code: int) -> Callable[[object], object]:

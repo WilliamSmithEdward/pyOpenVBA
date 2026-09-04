@@ -7,6 +7,25 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- **Forms and reports.** `db.forms()`, `db.reports()`, `db.form(name)`,
+  `db.report(name)`, `db.create_form(name)`, `db.create_report(name)`,
+  `db.delete_form(name)` and `db.delete_report(name)`. A live gate opens
+  what this writes in Access's own designer, and a created form also
+  opens in form view.
+
+  A design is a stream of property records, `<u32 id><u16 code><u32
+  type><u32 width><u32 length><value>`, with the ids ascending inside one
+  object. Three ids are not properties but markers that open the next
+  object: `0xFE` a section, `0xFD` the next object at the same level, and
+  `0xFF` a control, which carries a second `u16` naming its type. Every
+  design measured -- an empty form, a form with a label and a text box,
+  and a report with its three sections -- rebuilds byte for byte.
+
+  What a record *means* is not answered here: a handful of codes are
+  named and the rest are handed back as they are. Creating cuts from a
+  captured empty design with a GUID of its own patched in, since the
+  catalog row repeats the one the design carries.
+
 - **Macros.** `db.macros()`, `db.macro(name)`, `db.create_macro(name,
   actions)` and `db.delete_macro(name)`, with `MacroAction(name,
   arguments)` for each step. A live gate creates a macro, has Access run

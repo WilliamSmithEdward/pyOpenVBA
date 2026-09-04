@@ -236,6 +236,28 @@ writes are both checked against DAO running the same statements on the
 same database. `with db.transaction():` rolls everything back if the
 block raises.
 
+Forms and reports read and write too. A design is a stream of property
+records, and this reads it as the tree of sections and controls it
+describes:
+
+```python
+with AccessDatabase("app.accdb") as db:
+    for form in db.forms():
+        print(form.name, [s.name for s in form.sections])
+        for control in form.controls:
+            print("   ", control.name, control.type_name)
+
+    db.create_form("Summary")
+    db.create_report("Monthly")
+    db.delete_form("Old")
+    db.save()
+```
+
+A created form or report opens in Access's own designer, which is what
+the gate checks. What it does not do yet is add controls: a design is
+read as records and written back byte for byte, but naming what each
+record means is a job on its own.
+
 Macros read and write as well. Access keeps one as a binary blob of
 action records, not as the XML its designer shows:
 

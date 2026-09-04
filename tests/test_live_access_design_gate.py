@@ -382,12 +382,15 @@ MEASURED = [
     "CustomControl",
     "Attachment",
     "WebBrowser",
+    "Chart",
+    "EdgeBrowser",
 ]
 #: Access does not call every control what pyOpenVBA calls it.
 ACCESS_NAMES = {
     "Subform": "SubForm",
     "Tab": "TabControl",
     "WebBrowser": "WebBrowserControl",
+    "EdgeBrowser": "Edge",
 }
 
 

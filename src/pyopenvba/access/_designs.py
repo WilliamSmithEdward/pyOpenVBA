@@ -81,6 +81,7 @@ CONTROL_TYPES = {
     126: "Attachment",
     128: "WebBrowser",
     129: "NavigationControl",
+    130: "NavigationButton",
     133: "Chart",
     134: "EdgeBrowser",
     152: "Detail",
@@ -297,6 +298,65 @@ PROPERTY_CODES = {
     "OverlapFlags": 159,
     "ForeColor": 204,
     "GUID": 376,
+    "Unidentified450": 450,
+    "Unidentified596": 596,
+    "Unidentified597": 597,
+    "Unidentified600": 600,
+    "Unidentified640": 640,
+    "Unidentified779": 779,
+    "Unidentified783": 783,
+    "Unidentified787": 787,
+    "Unidentified792": 792,
+    "Unidentified799": 799,
+    "Unidentified806": 806,
+    "Transparent": 46,
+    "TextFontCharSet": 193,
+    "HelpContextId": 219,
+    "PictureType": 341,
+    "HyperlinkAddress": 343,
+    "HyperlinkSubAddress": 347,
+    "LeftPadding": 455,
+    "TopPadding": 456,
+    "RightPadding": 457,
+    "BottomPadding": 458,
+    "GridlineStyleLeft": 459,
+    "GridlineStyleTop": 460,
+    "GridlineStyleRight": 461,
+    "GridlineStyleBottom": 462,
+    "GridlineWidthLeft": 464,
+    "GridlineWidthTop": 465,
+    "GridlineWidthRight": 466,
+    "GridlineWidthBottom": 467,
+    "CursorOnHover": 585,
+    "PictureCaptionArrangement": 594,
+    "Alignment": 595,
+    "ScrollTop": 604,
+    "ScrollLeft": 605,
+    "OnDocumentComplete": 609,
+    "OnNavigateError": 611,
+    "BackTint": 618,
+    "BackShade": 619,
+    "ForeShade": 625,
+    "Span": 646,
+    "UseTheme": 649,
+    "Shape": 650,
+    "Bevel": 651,
+    "HoverShade": 656,
+    "HoverForeShade": 664,
+    "PressedForeShade": 668,
+    "SoftEdges": 670,
+    "QuickStyleMask": 691,
+    "ChartType": 754,
+    "HasLegend": 755,
+    "HasTitle": 756,
+    "ChartTitle": 757,
+    "HasAxisTitles": 758,
+    "CategoryAxisTitle": 759,
+    "PrimaryValuesAxisTitle": 760,
+    "LegendPosition": 769,
+    "ChartTitleFontSize": 796,
+    "HasSubtitle": 803,
+    "ChartSubtitle": 804,
     "AutoRepeat": 5,
     "BoundColumn": 13,
     "CanGrow": 14,
@@ -368,10 +428,10 @@ PROPERTY_CODES = {
     "RowSourceType": 93,
     "TabIndex": 261,
     "Picture": 0,
-    "TopPadding": 700,
-    "BottomPadding": 701,
-    "LeftPadding": 702,
-    "RightPadding": 703,
+    "Unidentified700": 700,
+    "Unidentified701": 701,
+    "Unidentified702": 702,
+    "Unidentified703": 703,
     "AutoHeight": 476,
     "AlternateBackColor": 572,
     "LayoutCachedLeft": 587,
@@ -443,10 +503,10 @@ CONTROL_SLOTS: dict[str, dict[str, tuple[int, int, int, int]]] = {
         "LayoutCachedTop": (294, 588, 3, 4),
         "LayoutCachedWidth": (295, 589, 3, 4),
         "LayoutCachedHeight": (296, 590, 3, 4),
-        "BottomPadding": (356, 701, 4, 0),
-        "TopPadding": (357, 700, 4, 0),
-        "LeftPadding": (358, 702, 4, 0),
-        "RightPadding": (359, 703, 4, 0),
+        "Unidentified701": (356, 701, 4, 0),
+        "Unidentified700": (357, 700, 4, 0),
+        "Unidentified702": (358, 702, 4, 0),
+        "Unidentified703": (359, 703, 4, 0),
     },
     "ToggleButton": {
         "OverlapFlags": (49, 159, 2, 1),
@@ -463,10 +523,10 @@ CONTROL_SLOTS: dict[str, dict[str, tuple[int, int, int, int]]] = {
         "LayoutCachedTop": (295, 588, 3, 4),
         "LayoutCachedWidth": (296, 589, 3, 4),
         "LayoutCachedHeight": (297, 590, 3, 4),
-        "BottomPadding": (353, 701, 4, 0),
-        "TopPadding": (354, 700, 4, 0),
-        "LeftPadding": (355, 702, 4, 0),
-        "RightPadding": (356, 703, 4, 0),
+        "Unidentified701": (353, 701, 4, 0),
+        "Unidentified700": (354, 700, 4, 0),
+        "Unidentified702": (355, 702, 4, 0),
+        "Unidentified703": (356, 703, 4, 0),
     },
     "OptionButton": {
         "OverlapFlags": (50, 159, 2, 1),
@@ -670,10 +730,10 @@ CONTROL_SLOTS: dict[str, dict[str, tuple[int, int, int, int]]] = {
         "LayoutCachedTop": (284, 588, 3, 4),
         "LayoutCachedWidth": (285, 589, 3, 4),
         "LayoutCachedHeight": (286, 590, 3, 4),
-        "BottomPadding": (305, 701, 4, 0),
-        "TopPadding": (306, 700, 4, 0),
-        "LeftPadding": (307, 702, 4, 0),
-        "RightPadding": (308, 703, 4, 0),
+        "Unidentified701": (305, 701, 4, 0),
+        "Unidentified700": (306, 700, 4, 0),
+        "Unidentified702": (307, 702, 4, 0),
+        "Unidentified703": (308, 703, 4, 0),
     },
     "CustomControl": {
         "OverlapFlags": (54, 159, 2, 1),
@@ -722,6 +782,57 @@ CONTROL_SLOTS: dict[str, dict[str, tuple[int, int, int, int]]] = {
         "LayoutCachedWidth": (294, 589, 3, 4),
         "LayoutCachedHeight": (295, 590, 3, 4),
     },
+    # A chart carries no picture and no cached layout, and its records
+    # run past 750 into the axis and title colours.
+    "Chart": {
+        "Top": (96, 141, 3, 4),
+        "Left": (97, 54, 3, 4),
+        "Width": (98, 150, 3, 4),
+        "Height": (99, 44, 3, 4),
+        "Name": (221, 20, 10, 4),
+        "TopPadding": (265, 456, 3, 4),
+        "BottomPadding": (266, 458, 3, 4),
+        "HorizontalAnchor": (269, 479, 3, 4),
+        "OverlapFlags": (274, 159, 2, 1),
+        "GUID": (276, 376, 9, 0),
+        "Unidentified600": (279, 600, 3, 4),
+        "Unidentified450": (280, 450, 3, 4),
+        "Unidentified596": (283, 596, 3, 4),
+        "Unidentified597": (284, 597, 3, 4),
+        "TabIndex": (307, 261, 3, 4),
+        "Unidentified779": (360, 779, 4, 4),
+        "Unidentified783": (364, 783, 4, 4),
+        "Unidentified787": (368, 787, 4, 4),
+        "Unidentified792": (373, 792, 4, 4),
+        "ChartTitleFontSize": (377, 796, 3, 2),
+        "Unidentified799": (381, 799, 4, 4),
+        "Unidentified806": (388, 806, 4, 4),
+    },
+    # Code 450 appears twice at two ids, which is why the slots are keyed
+    # by code where no name is established rather than by name alone.
+    "EdgeBrowser": {
+        "OverlapFlags": (53, 159, 2, 1),
+        "Left": (96, 54, 3, 4),
+        "Top": (97, 141, 3, 4),
+        "Width": (98, 150, 3, 4),
+        "Height": (99, 44, 3, 4),
+        "TabIndex": (100, 261, 3, 4),
+        "Name": (220, 20, 10, 4),
+        "GUID": (233, 376, 9, 0),
+        "Unidentified450": (259, 450, 3, 4),
+        "TopPadding": (261, 456, 3, 4),
+        "BottomPadding": (263, 458, 3, 4),
+        "HorizontalAnchor": (273, 479, 3, 4),
+        "Picture": (284, 0, 3, 4),
+        "LayoutCachedLeft": (287, 587, 3, 4),
+        "LayoutCachedTop": (288, 588, 3, 4),
+        "LayoutCachedWidth": (289, 589, 3, 4),
+        "LayoutCachedHeight": (290, 590, 3, 4),
+        "Unidentified600": (301, 600, 3, 4),
+        "Unidentified596": (302, 596, 3, 4),
+        "Unidentified597": (303, 597, 3, 4),
+        "Unidentified450_2": (322, 450, 3, 4),
+    },
 }
 
 #: The design's own object, which has no control type of its own.
@@ -731,6 +842,19 @@ VARIABLE_VALUE_TYPES = (10, 11, 12)
 #: Both string types, which differ in what Access lets you put in them --
 #: 12 takes an expression -- and not in how the bytes are written.
 TEXT_VALUE_TYPES = (10, 12)
+
+def property_code(name: str) -> int | None:
+    """The code a slot key names.
+
+    A control can carry one code at two ids -- an Edge browser carries 450
+    twice -- so the second slot's key ends in `_2`.  Strip that and the
+    key names the same property.
+    """
+    if name in PROPERTY_CODES:
+        return PROPERTY_CODES[name]
+    base = name.rsplit("_", 1)[0]
+    return PROPERTY_CODES.get(base) if base != name else None
+
 
 #: Where each named property sits in each object type's schema, as
 #: `(id, code, value type, width, fixed length)`.
@@ -838,14 +962,29 @@ PROPERTY_SLOTS: dict[str, dict[str, tuple[int, int, int, int, int]]] = {
         "Height": (99, 44, 3, 4, 2),
         "Name": (221, 20, 10, 4, 0),
         "GridlineColor": (260, 463, 4, 4, 4),
+        "TopPadding": (265, 456, 3, 4, 4),
+        "BottomPadding": (266, 458, 3, 4, 4),
         "HorizontalAnchor": (269, 479, 3, 4, 4),
+        "RowSource": (271, 91, 12, 4, 0),
         "OverlapFlags": (274, 159, 2, 1, 1),
         "GUID": (276, 376, 9, 0, 16),
         "GridlineThemeColorIndex": (287, 626, 4, 0, 4),
         "GridlineShade": (289, 628, 6, 0, 4),
+        "ChartType": (293, 754, 3, 4, 4),
         "BackThemeColorIndex": (295, 617, 4, 0, 4),
+        "HasLegend": (298, 755, 1, 1, 1),
+        "HasTitle": (299, 756, 1, 1, 1),
+        "ChartTitle": (300, 757, 10, 4, 0),
+        "HasAxisTitles": (301, 758, 1, 1, 1),
+        "CategoryAxisTitle": (302, 759, 10, 4, 0),
+        "PrimaryValuesAxisTitle": (303, 760, 10, 4, 0),
+        "LinkChildFields": (304, 49, 10, 4, 0),
         "TabIndex": (307, 261, 3, 4, 4),
+        "LegendPosition": (346, 769, 3, 4, 4),
+        "ChartTitleFontSize": (377, 796, 3, 2, 2),
         "ThemeFontIndex": (379, 616, 4, 0, 4),
+        "HasSubtitle": (385, 803, 1, 1, 1),
+        "ChartSubtitle": (386, 804, 10, 4, 0),
     },
     "CheckBox": {
         "Visible": (0, 148, 1, 1, 0),
@@ -968,10 +1107,12 @@ PROPERTY_SLOTS: dict[str, dict[str, tuple[int, int, int, int, int]]] = {
         "BorderThemeColorIndex": (327, 620, 4, 0, 4),
         "BorderShade": (329, 622, 6, 0, 4),
         "ForeThemeColorIndex": (330, 623, 4, 0, 4),
+        "ForeShade": (332, 625, 6, 0, 4),
         "GridlineThemeColorIndex": (334, 626, 4, 0, 4),
         "GridlineShade": (336, 628, 6, 0, 4),
     },
     "CommandButton": {
+        "Transparent": (0, 46, 1, 1, 0),
         "AutoRepeat": (1, 5, 1, 1, 0),
         "Default": (2, 220, 1, 1, 0),
         "Cancel": (3, 221, 1, 1, 0),
@@ -982,8 +1123,10 @@ PROPERTY_SLOTS: dict[str, dict[str, tuple[int, int, int, int, int]]] = {
         "TabStop": (10, 262, 1, 1, 0),
         "DisplayWhen": (48, 149, 2, 1, 1),
         "OverlapFlags": (49, 159, 2, 1, 1),
+        "TextFontCharSet": (52, 193, 2, 1, 1),
         "TextFontFamily": (53, 243, 2, 1, 1),
         "ReadingOrder": (54, 367, 2, 1, 1),
+        "PictureType": (55, 341, 2, 1, 1),
         "Left": (96, 54, 3, 4, 2),
         "Top": (97, 141, 3, 4, 2),
         "Width": (98, 150, 3, 4, 2),
@@ -991,6 +1134,7 @@ PROPERTY_SLOTS: dict[str, dict[str, tuple[int, int, int, int, int]]] = {
         "FontSize": (103, 35, 3, 4, 2),
         "FontWeight": (104, 37, 3, 4, 2),
         "TabIndex": (105, 261, 3, 4, 2),
+        "HelpContextId": (156, 219, 4, 4, 4),
         "ForeColor": (157, 204, 4, 4, 4),
         "Name": (220, 20, 10, 4, 0),
         "Caption": (221, 17, 12, 4, 0),
@@ -1000,22 +1144,39 @@ PROPERTY_SLOTS: dict[str, dict[str, tuple[int, int, int, int, int]]] = {
         "Tag": (238, 266, 12, 4, 0),
         "ShortcutMenuBar": (240, 304, 10, 4, 0),
         "ControlTipText": (241, 317, 10, 4, 0),
+        "HyperlinkAddress": (243, 343, 12, 4, 0),
+        "HyperlinkSubAddress": (244, 347, 12, 4, 0),
         "GUID": (245, 376, 9, 0, 16),
+        "LeftPadding": (260, 455, 3, 4, 4),
+        "TopPadding": (261, 456, 3, 4, 4),
+        "RightPadding": (262, 457, 3, 4, 4),
+        "BottomPadding": (263, 458, 3, 4, 4),
+        "GridlineStyleTop": (265, 460, 2, 1, 1),
         "GridlineColor": (268, 463, 4, 4, 4),
+        "GridlineWidthTop": (270, 465, 2, 1, 1),
         "HorizontalAnchor": (273, 479, 3, 4, 4),
         "VerticalAnchor": (274, 478, 3, 4, 4),
         "Picture": (289, 0, 3, 4, 4),
+        "CursorOnHover": (292, 585, 3, 2, 2),
         "LayoutCachedLeft": (293, 587, 3, 4, 4),
         "LayoutCachedTop": (294, 588, 3, 4, 4),
         "LayoutCachedWidth": (295, 589, 3, 4, 4),
         "LayoutCachedHeight": (296, 590, 3, 4, 4),
+        "PictureCaptionArrangement": (297, 594, 2, 1, 1),
+        "Alignment": (298, 595, 2, 1, 1),
         "ForeThemeColorIndex": (304, 623, 4, 0, 4),
         "ForeTint": (305, 624, 6, 0, 4),
+        "ForeShade": (306, 625, 6, 0, 4),
         "GridlineThemeColorIndex": (311, 626, 4, 0, 4),
         "GridlineShade": (313, 628, 6, 0, 4),
+        "UseTheme": (314, 649, 1, 0, 1),
+        "Shape": (315, 650, 4, 0, 4),
+        "Bevel": (316, 651, 4, 0, 4),
         "Gradient": (318, 693, 4, 0, 4),
         "BackColor": (319, 28, 4, 4, 4),
         "BackThemeColorIndex": (320, 617, 4, 0, 4),
+        "BackTint": (321, 618, 6, 0, 4),
+        "BackShade": (322, 619, 6, 0, 4),
         "OldBorderStyle": (323, 329, 2, 1, 1),
         "BorderLineStyle": (324, 11, 2, 1, 1),
         "BorderWidth": (325, 10, 2, 1, 1),
@@ -1024,11 +1185,16 @@ PROPERTY_SLOTS: dict[str, dict[str, tuple[int, int, int, int, int]]] = {
         "BorderTint": (328, 621, 6, 0, 4),
         "ThemeFontIndex": (330, 616, 4, 0, 4),
         "HoverColor": (331, 653, 4, 4, 4),
+        "HoverShade": (334, 656, 6, 0, 4),
         "PressedColor": (335, 657, 4, 4, 4),
-        "BottomPadding": (356, 701, 4, 0, 4),
-        "TopPadding": (357, 700, 4, 0, 4),
-        "LeftPadding": (358, 702, 4, 0, 4),
-        "RightPadding": (359, 703, 4, 0, 4),
+        "HoverForeShade": (342, 664, 6, 0, 4),
+        "PressedForeShade": (346, 668, 6, 0, 4),
+        "SoftEdges": (349, 670, 4, 0, 4),
+        "QuickStyleMask": (351, 691, 4, 0, 4),
+        "Unidentified701": (356, 701, 4, 0, 4),
+        "Unidentified700": (357, 700, 4, 0, 4),
+        "Unidentified702": (358, 702, 4, 0, 4),
+        "Unidentified703": (359, 703, 4, 0, 4),
     },
     "CustomControl": {
         "OldBorderStyle": (52, 329, 2, 1, 1),
@@ -1073,6 +1239,8 @@ PROPERTY_SLOTS: dict[str, dict[str, tuple[int, int, int, int, int]]] = {
         "BorderColor": (157, 8, 4, 4, 4),
         "Name": (220, 20, 10, 4, 0),
         "GUID": (233, 376, 9, 0, 16),
+        "TopPadding": (261, 456, 3, 4, 4),
+        "BottomPadding": (263, 458, 3, 4, 4),
         "GridlineColor": (268, 463, 4, 4, 4),
         "HorizontalAnchor": (273, 479, 3, 4, 4),
         "Picture": (284, 0, 3, 4, 4),
@@ -1080,6 +1248,10 @@ PROPERTY_SLOTS: dict[str, dict[str, tuple[int, int, int, int, int]]] = {
         "LayoutCachedTop": (288, 588, 3, 4, 4),
         "LayoutCachedWidth": (289, 589, 3, 4, 4),
         "LayoutCachedHeight": (290, 590, 3, 4, 4),
+        "ScrollTop": (293, 604, 4, 4, 4),
+        "ScrollLeft": (294, 605, 4, 4, 4),
+        "OnDocumentComplete": (297, 609, 12, 4, 0),
+        "OnNavigateError": (299, 611, 12, 4, 0),
         "BackThemeColorIndex": (307, 617, 4, 0, 4),
         "BorderThemeColorIndex": (310, 620, 4, 0, 4),
         "BorderShade": (312, 622, 6, 0, 4),
@@ -1278,10 +1450,25 @@ PROPERTY_SLOTS: dict[str, dict[str, tuple[int, int, int, int, int]]] = {
         "Top": (97, 141, 3, 4, 2),
         "Width": (98, 150, 3, 4, 2),
         "Height": (99, 44, 3, 4, 2),
+        "BackColor": (156, 28, 4, 4, 4),
         "BorderColor": (157, 8, 4, 4, 4),
+        "HelpContextId": (158, 219, 4, 4, 4),
         "ForeColor": (159, 204, 4, 4, 4),
         "Name": (220, 20, 10, 4, 0),
+        "ShortcutMenuBar": (237, 304, 10, 4, 0),
         "GUID": (239, 376, 9, 0, 16),
+        "LeftPadding": (261, 455, 3, 4, 4),
+        "TopPadding": (262, 456, 3, 4, 4),
+        "RightPadding": (263, 457, 3, 4, 4),
+        "BottomPadding": (264, 458, 3, 4, 4),
+        "GridlineStyleLeft": (265, 459, 2, 1, 1),
+        "GridlineStyleTop": (266, 460, 2, 1, 1),
+        "GridlineStyleRight": (267, 461, 2, 1, 1),
+        "GridlineStyleBottom": (268, 462, 2, 1, 1),
+        "GridlineWidthLeft": (269, 464, 2, 1, 1),
+        "GridlineWidthTop": (270, 465, 2, 1, 1),
+        "GridlineWidthRight": (271, 466, 2, 1, 1),
+        "GridlineWidthBottom": (272, 467, 2, 1, 1),
         "HorizontalAnchor": (273, 479, 3, 4, 4),
         "Picture": (287, 0, 3, 4, 4),
         "LayoutCachedLeft": (290, 587, 3, 4, 4),
@@ -1289,7 +1476,12 @@ PROPERTY_SLOTS: dict[str, dict[str, tuple[int, int, int, int, int]]] = {
         "LayoutCachedWidth": (292, 589, 3, 4, 4),
         "LayoutCachedHeight": (293, 590, 3, 4, 4),
         "BackThemeColorIndex": (299, 617, 4, 0, 4),
+        "BackTint": (300, 618, 6, 0, 4),
+        "BackShade": (301, 619, 6, 0, 4),
         "BorderThemeColorIndex": (302, 620, 4, 0, 4),
+        "BorderTint": (303, 621, 6, 0, 4),
+        "BorderShade": (304, 622, 6, 0, 4),
+        "Span": (314, 646, 3, 4, 4),
         "GridlineColor": (336, 463, 4, 4, 4),
         "GridlineThemeColorIndex": (337, 626, 4, 0, 4),
         "GridlineShade": (339, 628, 6, 0, 4),
@@ -1330,6 +1522,7 @@ PROPERTY_SLOTS: dict[str, dict[str, tuple[int, int, int, int, int]]] = {
         "BorderThemeColorIndex": (301, 620, 4, 0, 4),
         "BorderShade": (303, 622, 6, 0, 4),
         "ForeThemeColorIndex": (304, 623, 4, 0, 4),
+        "ForeShade": (306, 625, 6, 0, 4),
         "GridlineThemeColorIndex": (309, 626, 4, 0, 4),
         "GridlineShade": (311, 628, 6, 0, 4),
     },
@@ -1439,10 +1632,10 @@ PROPERTY_SLOTS: dict[str, dict[str, tuple[int, int, int, int, int]]] = {
         "BorderShade": (294, 622, 6, 0, 4),
         "GridlineThemeColorIndex": (297, 626, 4, 0, 4),
         "GridlineShade": (299, 628, 6, 0, 4),
-        "BottomPadding": (305, 701, 4, 0, 4),
-        "TopPadding": (306, 700, 4, 0, 4),
-        "LeftPadding": (307, 702, 4, 0, 4),
-        "RightPadding": (308, 703, 4, 0, 4),
+        "Unidentified701": (305, 701, 4, 0, 4),
+        "Unidentified700": (306, 700, 4, 0, 4),
+        "Unidentified702": (307, 702, 4, 0, 4),
+        "Unidentified703": (308, 703, 4, 0, 4),
     },
     "PageBreak": {
         "OverlapFlags": (48, 159, 2, 1, 1),
@@ -1506,6 +1699,10 @@ PROPERTY_SLOTS: dict[str, dict[str, tuple[int, int, int, int, int]]] = {
         "StatusBarText": (224, 135, 10, 4, 0),
         "Tag": (227, 266, 12, 4, 0),
         "GUID": (229, 376, 9, 0, 16),
+        "LeftPadding": (260, 455, 3, 4, 4),
+        "TopPadding": (261, 456, 3, 4, 4),
+        "RightPadding": (262, 457, 3, 4, 4),
+        "BottomPadding": (263, 458, 3, 4, 4),
         "GridlineColor": (268, 463, 4, 4, 4),
         "HorizontalAnchor": (273, 479, 3, 4, 4),
         "VerticalAnchor": (274, 478, 3, 4, 4),
@@ -1553,8 +1750,11 @@ PROPERTY_SLOTS: dict[str, dict[str, tuple[int, int, int, int, int]]] = {
         "ThemeFontIndex": (295, 616, 4, 0, 4),
         "GridlineThemeColorIndex": (298, 626, 4, 0, 4),
         "GridlineShade": (300, 628, 6, 0, 4),
+        "UseTheme": (301, 649, 1, 0, 1),
+        "Shape": (302, 650, 4, 0, 4),
         "BackColor": (306, 28, 4, 4, 4),
         "BackThemeColorIndex": (307, 617, 4, 0, 4),
+        "BackShade": (309, 619, 6, 0, 4),
         "OldBorderStyle": (310, 329, 2, 1, 1),
         "BorderLineStyle": (311, 11, 2, 1, 1),
         "BorderColor": (313, 8, 4, 4, 4),
@@ -1626,6 +1826,8 @@ PROPERTY_SLOTS: dict[str, dict[str, tuple[int, int, int, int, int]]] = {
         "ShortcutMenuBar": (247, 304, 10, 4, 0),
         "ControlTipText": (248, 317, 10, 4, 0),
         "GUID": (250, 376, 9, 0, 16),
+        "TopPadding": (265, 456, 3, 4, 4),
+        "BottomPadding": (267, 458, 3, 4, 4),
         "GridlineColor": (272, 463, 4, 4, 4),
         "TextFormat": (277, 477, 2, 1, 1),
         "HorizontalAnchor": (278, 479, 3, 4, 4),
@@ -1678,6 +1880,10 @@ PROPERTY_SLOTS: dict[str, dict[str, tuple[int, int, int, int, int]]] = {
         "ShortcutMenuBar": (246, 304, 10, 4, 0),
         "ControlTipText": (247, 317, 10, 4, 0),
         "GUID": (249, 376, 9, 0, 16),
+        "LeftPadding": (260, 455, 3, 4, 4),
+        "TopPadding": (261, 456, 3, 4, 4),
+        "RightPadding": (262, 457, 3, 4, 4),
+        "BottomPadding": (263, 458, 3, 4, 4),
         "GridlineColor": (268, 463, 4, 4, 4),
         "HorizontalAnchor": (273, 479, 3, 4, 4),
         "VerticalAnchor": (274, 478, 3, 4, 4),
@@ -1690,8 +1896,12 @@ PROPERTY_SLOTS: dict[str, dict[str, tuple[int, int, int, int, int]]] = {
         "ForeTint": (304, 624, 6, 0, 4),
         "GridlineThemeColorIndex": (308, 626, 4, 0, 4),
         "GridlineShade": (310, 628, 6, 0, 4),
+        "UseTheme": (311, 649, 1, 0, 1),
+        "Shape": (312, 650, 4, 0, 4),
+        "Bevel": (313, 651, 4, 0, 4),
         "BackColor": (316, 28, 4, 4, 4),
         "BackThemeColorIndex": (317, 617, 4, 0, 4),
+        "BackTint": (318, 618, 6, 0, 4),
         "OldBorderStyle": (320, 329, 2, 1, 1),
         "BorderLineStyle": (321, 11, 2, 1, 1),
         "BorderWidth": (322, 10, 2, 1, 1),
@@ -1701,10 +1911,10 @@ PROPERTY_SLOTS: dict[str, dict[str, tuple[int, int, int, int, int]]] = {
         "ThemeFontIndex": (327, 616, 4, 0, 4),
         "HoverColor": (328, 653, 4, 4, 4),
         "PressedColor": (332, 657, 4, 4, 4),
-        "BottomPadding": (353, 701, 4, 0, 4),
-        "TopPadding": (354, 700, 4, 0, 4),
-        "LeftPadding": (355, 702, 4, 0, 4),
-        "RightPadding": (356, 703, 4, 0, 4),
+        "Unidentified701": (353, 701, 4, 0, 4),
+        "Unidentified700": (354, 700, 4, 0, 4),
+        "Unidentified702": (355, 702, 4, 0, 4),
+        "Unidentified703": (356, 703, 4, 0, 4),
     },
     "WebBrowser": {
         "Visible": (0, 148, 1, 1, 0),
@@ -1763,11 +1973,47 @@ DEFAULT_ROW_SOURCE_TYPE = "Table/Query"
 #: ImageData read back as -1, and on no other.
 NO_PICTURE = b"\xff\xff\xff\xff"
 #: What Access writes around a button it has just made, in twips.
-BUTTON_PADDING = {
-    "CommandButton": {"Top": 2, "Bottom": 2, "Left": 1, "Right": 1},
-    "ToggleButton": {"Top": 2, "Bottom": 2, "Left": 2, "Right": 2},
-    "Page": {"Top": 2, "Bottom": 2, "Left": 2, "Right": 2},
+#: Four records Access writes on a new command button, toggle button and
+#: page.  They were once taken for the control's padding -- which is codes
+#: 455 to 458 -- and what they really are is not established, so they are
+#: written exactly as Access writes them and named by their code.
+BUTTON_EXTRAS = {
+    "CommandButton": {700: 2, 701: 2, 702: 1, 703: 1},
+    "ToggleButton": {700: 2, 701: 2, 702: 2, 703: 2},
+    "Page": {700: 2, 701: 2, 702: 2, 703: 2},
 }
+#: What Access writes into a chart's and an Edge browser's own records.
+#: Some are not named -- differencing every property those controls expose
+#: left them unaccounted for -- and are written anyway, because a control
+#: missing records Access gives it is not the control Access made.
+#:
+#: Three are deliberately left out: 596, 597 and 600 put the control in a
+#: layout, which is where Access's designer drops a new one.  A control
+#: placed at an explicit position must not claim layout membership --
+#: with them written, Access stacks a chart under whatever else claims the
+#: same layout instead of leaving it where it was put.
+TYPE_EXTRAS: dict[str, dict[str, bytes]] = {
+    "Chart": {
+        "TopPadding": bytes(4),
+        "BottomPadding": bytes(4),
+        "Unidentified450": (2).to_bytes(4, "little"),
+        "ChartTitleFontSize": (14).to_bytes(2, "little"),
+        "Unidentified779": bytes.fromhex("7f7f7f00"),
+        "Unidentified783": bytes.fromhex("7f7f7f00"),
+        "Unidentified787": bytes.fromhex("7f7f7f00"),
+        "Unidentified792": bytes.fromhex("7f7f7f00"),
+        "Unidentified799": bytes.fromhex("7f7f7f00"),
+        "Unidentified806": bytes.fromhex("7f7f7f00"),
+    },
+    "EdgeBrowser": {
+        "Unidentified450": (2).to_bytes(4, "little"),
+        "TopPadding": bytes(4),
+        "BottomPadding": bytes(4),
+        "Unidentified450_2": (2).to_bytes(4, "little"),
+    },
+}
+#: The overlap flags Access writes, where they are not the usual 85.
+OVERLAP_FLAGS = {"Chart": 0x5D, "EdgeBrowser": 0x57, "BoundObjectFrame": 0x5D}
 #: A page belongs to a tab control and nowhere else, and a tab control is
 #: the only thing that holds one.
 PAGE_HOLDER = "Tab"
@@ -1791,12 +2037,11 @@ TABBABLE = (
     "WebBrowser",
 )
 
-#: Read but not written.  Each carries records this project cannot name,
-#: and a navigation control, chart or Edge browser repeats one code at two
-#: ids, which a table keyed by property name cannot express -- and one
-#: written without the data source that gives it its content would not be
-#: a working control anyway.
-READ_ONLY_TYPES = ("NavigationControl", "Chart", "EdgeBrowser")
+#: Read but not written.  A navigation control is not one control: one of
+#: its records names a sibling subform by name, and Access builds
+#: navigation buttons beside it, so writing the control alone would leave
+#: it pointing at a subform that is not there.
+READ_ONLY_TYPES = ("NavigationControl", "NavigationButton")
 #: What Access sets on a text box, list box or combo box it has just
 #: made.  It was long taken for the text alignment, which it is not.
 DEFAULT_IME_SENTENCE_MODE = 3
@@ -1832,15 +2077,15 @@ def control_object(
     if slots is None:
         if control_type in READ_ONLY_TYPES:
             raise AccessError(
-                f"a {control_type} is read but not written: it carries records "
-                f"this project cannot name, and one written without its data "
-                f"source would not work anyway"
+                f"a {control_type} is read but not written: it is part of a "
+                f"navigation control, which names a sibling subform and the "
+                f"buttons beside it, so one written alone would not work"
             )
         raise AccessError(
             f"a {control_type} cannot be written yet; known: {', '.join(sorted(CONTROL_SLOTS))}"
         )
     values: dict[str, bytes] = {
-        "OverlapFlags": bytes((DEFAULT_OVERLAP,)),
+        "OverlapFlags": bytes((OVERLAP_FLAGS.get(control_type, DEFAULT_OVERLAP),)),
         "IMESentenceMode": bytes((DEFAULT_IME_SENTENCE_MODE,)),
         "Left": left.to_bytes(2, "little"),
         "Top": top.to_bytes(2, "little"),
@@ -1860,8 +2105,9 @@ def control_object(
         values[key] = caption.encode("utf-16-le")
     if tab_index and control_type in TABBABLE:
         values["TabIndex"] = tab_index.to_bytes(2, "little")
-    for edge, twips in BUTTON_PADDING.get(control_type, {}).items():
-        values[f"{edge}Padding"] = twips.to_bytes(4, "little")
+    for code, number in BUTTON_EXTRAS.get(control_type, {}).items():
+        values[f"Unidentified{code}"] = number.to_bytes(4, "little")
+    values.update(TYPE_EXTRAS.get(control_type, {}))
     present = [(key, value) for key, value in values.items() if key in slots]
     records = tuple(
         _record(slots[key], value)

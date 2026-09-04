@@ -75,7 +75,7 @@ def main() -> None:
     for line in wobbly[:20]:
         print("  moved:", line)
 
-    out = Path(__file__).parent / "slots.txt"
+    out = SCRATCH / "slots.txt"
     with out.open("w", encoding="utf-8") as fh:
         for kind, props in sorted(steady.items()):
             fh.write(f'    "{kind}": {{\n')

@@ -25,6 +25,7 @@ from pyopenvba.access._designs import (
     TYPE_CODES as CONTROL_CODES,
     PROPERTY_CODES,
     PROPERTY_SLOTS,
+    property_code,
     build_design,
     parse_design,
     template,
@@ -443,6 +444,11 @@ def test_a_control_that_is_only_read_says_so(blank: AccessDatabase, kind: str) -
         "ObjectFrame",
         "Subform",
         "Tab",
+        "CustomControl",
+        "Attachment",
+        "WebBrowser",
+        "Chart",
+        "EdgeBrowser",
     ],
 )
 def test_every_measured_control_type_can_be_written(blank: AccessDatabase, kind: str) -> None:
@@ -651,8 +657,28 @@ def test_no_code_names_two_properties(blank: AccessDatabase) -> None:
 def test_every_slot_names_a_property_the_table_knows(blank: AccessDatabase) -> None:
     for kind, slots in CONTROL_SLOTS.items():
         for name, (_id, code, _type, _width) in slots.items():
-            assert name in PROPERTY_CODES, f"{kind}.{name} names no code"
-            assert PROPERTY_CODES[name] == code, f"{kind}.{name} disagrees with the table"
+            assert property_code(name) == code, f"{kind}.{name} disagrees with the table"
+
+
+def test_a_control_placed_by_hand_claims_no_layout(blank: AccessDatabase) -> None:
+    """Access writes 596, 597 and 600 on a chart or Edge browser because
+    its designer drops a new control into a layout.  A control given an
+    explicit position must not carry them: with them, Access stacks the
+    control under whatever else claims the same layout instead of leaving
+    it where it was put."""
+    blank.create_form("Modern")
+    design = blank.add_control("Modern", "Chart", "Graph", left=240, top=240, width=5000)
+
+    graph = next(o for o in design.objects if o.name == "Graph")
+    codes = {r.code for r in graph.records}
+    assert codes.isdisjoint({596, 597, 600})
+    assert PROPERTY_CODES["Left"] in codes and PROPERTY_CODES["Top"] in codes
+
+
+def test_a_navigation_control_says_why_it_is_only_read(blank: AccessDatabase) -> None:
+    blank.create_form("Built")
+    with pytest.raises(AccessError, match="navigation control"):
+        blank.add_control("Built", "NavigationControl", "Nav")
 
 
 def test_a_page_belongs_to_a_tab_control(blank: AccessDatabase) -> None:
@@ -832,8 +858,7 @@ def test_a_number_too_large_for_its_slot_is_refused(blank: AccessDatabase) -> No
 def test_every_slot_names_a_code_the_table_knows() -> None:
     for kind, slots in PROPERTY_SLOTS.items():
         for name, slot in slots.items():
-            assert name in PROPERTY_CODES, f"{kind}.{name} names no code"
-            assert PROPERTY_CODES[name] == slot[1], f"{kind}.{name} disagrees"
+            assert property_code(name) == slot[1], f"{kind}.{name} disagrees"
 
 
 def test_the_slots_a_new_control_gets_agree_with_the_schema() -> None:

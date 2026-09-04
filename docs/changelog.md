@@ -7,6 +7,26 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- **Charts and Edge browsers can be written**, and the reader knows two
+  more types (navigation buttons and the navigation control's own kind).
+  That takes the reader to 28 control types and the writer to 23. Naming
+  a record is not needed to write one: a slot whose code has no
+  established meaning is keyed by its code, which also expresses the one
+  case a name could not -- an Edge browser carries code 450 twice, at two
+  ids.
+
+  Three records Access writes on these are deliberately left out. 596,
+  597 and 600 put the control in a layout, which is where the designer
+  drops a new one; with them written, Access stacks a chart under
+  whatever else claims the same layout instead of leaving it where it was
+  put. Isolating that took building the same three-control form five ways
+  and comparing where Access reported each control.
+
+  A navigation control stays read-only for a reason that is not about
+  codes: it is not one control. One of its records names a sibling
+  subform by name, and Access builds navigation buttons beside it, so one
+  written alone would point at a subform that is not there.
+
 - **A design's properties can be changed.**
   `db.set_control_property(form, control, "FontSize", 18)` and
   `db.set_design_property(form, "Caption", "My window")` write one
@@ -413,6 +433,16 @@ All notable changes to pyOpenVBA are documented here. This project follows
   both. Inserts leave the row counter alone, as the engine does.
 
 ### Fixed
+
+- **The control paddings were another property's codes.** `TopPadding`,
+  `BottomPadding`, `LeftPadding` and `RightPadding` were recorded as 700
+  to 703 -- names invented from the fact that Access writes four related
+  values there on a new button. They are 455 to 458, established by
+  differencing, so `set_control_property(..., "TopPadding", 60)` was
+  writing something else. What 700 to 703 are is still unknown: every
+  property a command button exposes has been differenced without any of
+  them landing there, so they are now named by their code and written
+  exactly as Access writes them rather than under a guess.
 
 - **`TextAlign` was the wrong code.** It was recorded as 379, which is
   really `IMESentenceMode`. Access writes 3 there on every new text box,

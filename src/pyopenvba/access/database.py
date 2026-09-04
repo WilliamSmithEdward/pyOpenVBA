@@ -58,6 +58,7 @@ from pyopenvba.access._lval import (
     write_long_value,
 )
 from pyopenvba.access._designs import (
+    set_property,
     CATALOG_CONTAINERS,
     add_control,
     CONTAINERS,
@@ -2408,13 +2409,12 @@ class AccessDatabase:
     ) -> AccessDesign:
         """Put a control on a form or report.
 
-        `control_type` is one of the thirteen whose slots were read back
-        from a control Access itself made: Label, TextBox, CommandButton,
-        ToggleButton, OptionButton, CheckBox, OptionGroup, ListBox,
-        ComboBox, Rectangle, Line, Image and PageBreak.  A record's id is
-        its slot in the object's own schema and the schema differs by
-        control type, so a type whose slots have not been measured is
-        refused rather than guessed at.
+        `control_type` is one of the twenty-one whose slots were read
+        back from a control Access itself made.  A record's id is its slot
+        in the object's own schema and the schema differs by control type,
+        so a type whose slots have not been measured is refused rather
+        than guessed at, and so is one that carries records this project
+        cannot name -- a chart, a navigation control, an Edge browser.
 
         `caption` is the label's or button's text and the control source
         of anything that binds to data, and `section` says which band the
@@ -2423,6 +2423,30 @@ class AccessDatabase:
         that must have a parent.  Sizes are in twips, as Access keeps them; a
         page break takes only its top, which is all Access writes for one.
         """
+        return self._rewrite_design(
+            kind,
+            design,
+            lambda blob: add_control(
+                blob,
+                control_type,
+                name,
+                random.Random().randbytes(16),
+                section=section,
+                parent=parent,
+                left=left,
+                top=top,
+                width=width,
+                height=height,
+                caption=caption,
+            ),
+        )
+
+    def _rewrite_design(
+        self, kind: str, design: str, change: Callable[[bytes], bytes]
+    ) -> AccessDesign:
+        """Put `change` through the design's blob, which lives in one row
+        of the storage table under the design's own folder."""
+        self._require_jet4()
         found = self._design(kind, design)
         container = self._design_container(kind)
         listing = next(
@@ -2448,28 +2472,45 @@ class AccessDatabase:
                 and str(row["Name"]) == "Blob"
                 and isinstance(payload, bytes)
             ):
-                storage.update_row(
-                    rid,
-                    {
-                        "Lv": add_control(
-                            payload,
-                            control_type,
-                            name,
-                            random.Random().randbytes(16),
-                            section=section,
-                            parent=parent,
-                            left=left,
-                            top=top,
-                            width=width,
-                            height=height,
-                            caption=caption,
-                        )
-                    },
-                )
+                storage.update_row(rid, {"Lv": change(payload)})
                 break
         else:  # pragma: no cover - a design without its own blob
             raise AccessError(f"the {kind} {design!r} has no design blob")
         return self._design(kind, design)
+
+    def set_control_property(
+        self,
+        design: str,
+        control: str,
+        name: str,
+        value: object,
+        *,
+        kind: str = "form",
+    ) -> AccessDesign:
+        """Change one property of one control, or of one section.
+
+        `name` is the property's own name -- `Caption`, `FontSize`,
+        `BackColor` -- and what it may hold follows from how the design
+        stores it: text for a caption, a number for a colour or a size, a
+        `bool` for a flag.  A property the control already carries keeps
+        its record where it is; one it does not is written at the id its
+        control type's schema gives it.
+
+        Which properties a type has is `PROPERTY_SLOTS`, measured off
+        controls Access itself wrote; a name that is not among them is
+        refused rather than written somewhere it does not belong.
+        """
+        return self._rewrite_design(
+            kind, design, lambda blob: set_property(blob, control, name, value)
+        )
+
+    def set_design_property(
+        self, design: str, name: str, value: object, *, kind: str = "form"
+    ) -> AccessDesign:
+        """Change one property of the form or report itself."""
+        return self._rewrite_design(
+            kind, design, lambda blob: set_property(blob, None, name, value)
+        )
 
     #: What a form's or report's own module is called.
     DESIGN_MODULE_PREFIX = {"form": "Form_", "report": "Report_"}

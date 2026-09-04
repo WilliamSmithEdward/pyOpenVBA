@@ -7,6 +7,23 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- **A design's properties can be changed.**
+  `db.set_control_property(form, control, "FontSize", 18)` and
+  `db.set_design_property(form, "Caption", "My window")` write one
+  property of one control, section, or of the form or report itself.
+  Access reads every one back exactly as written -- captions, fonts,
+  colours, sizes, control sources, tips and tags among them.
+
+  A record's id is its slot in that object type's own schema, so changing
+  a property an object does not already carry means knowing the id Access
+  would have given it. `PROPERTY_SLOTS` holds 746 of those across 26
+  object types, every one read off an object Access itself wrote; across
+  five databases every id, code and value type agreed, and so did every
+  length except the strings', whose length is their text's. A property
+  the object already carries keeps its record where it stands; a name
+  that is not in the table is refused rather than written somewhere it
+  does not belong.
+
 - **Every control type pyOpenVBA can read, it can now write.**
   `add_control` wrote a Label or a TextBox; it now writes all eighteen --
   CommandButton, ToggleButton, OptionButton, CheckBox, OptionGroup,
@@ -389,6 +406,20 @@ All notable changes to pyOpenVBA are documented here. This project follows
   both. Inserts leave the row counter alone, as the engine does.
 
 ### Fixed
+
+- **A caption written at another control's id.** A caption sits at record
+  id 221 on a label and a command button, but 231 on a toggle button and
+  232 on a page -- and those two were copied from the command button
+  rather than measured, so `add_control(..., caption=...)` on either put
+  the text into whatever property those ids name instead. A subform was
+  given a `ControlSource` slot it has no such property for; what a
+  subform shows is its `SourceObject`. Access does not complain about a
+  record at the wrong id: it opens the form with the caption missing and
+  something else changed.
+
+  What caught it is a new check that the two tables describing the same
+  records -- what a new control is given, and where each property lives
+  -- agree wherever they overlap.
 
 - **A section holding three or more controls lost all but two.** The word
   an `0xFF` marker carries is the number of objects in the group it

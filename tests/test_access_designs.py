@@ -24,6 +24,7 @@ from pyopenvba.access._designs import (
     READ_ONLY_TYPES,
     TYPE_CODES as CONTROL_CODES,
     PROPERTY_CODES,
+    PROPERTY_SLOTS,
     build_design,
     parse_design,
     template,
@@ -719,3 +720,131 @@ def test_a_control_added_after_a_tab_does_not_join_its_pages(
     assert by_name["Tabs"].code == 2, "the section holds the tab and the label"
     assert by_name["Only"].marker == OPEN_SECTION, "the tab's one page"
     assert by_name["After"].marker == OPEN_SIBLING
+
+
+def test_a_property_the_control_already_has_is_replaced(blank: AccessDatabase) -> None:
+    blank.create_form("Styled")
+    blank.add_control("Styled", "Label", "Title", caption="before")
+
+    design = blank.set_control_property("Styled", "Title", "Caption", "after")
+
+    title = next(o for o in design.objects if o.name == "Title")
+    assert title.property_value(PROPERTY_CODES["Caption"]) == "after".encode("utf-16-le")
+    # One record, not two: the old one was replaced where it stood.
+    assert [r.code for r in title.records].count(PROPERTY_CODES["Caption"]) == 1
+
+
+def test_a_property_the_control_lacks_is_written_at_its_own_slot(
+    blank: AccessDatabase,
+) -> None:
+    """A record's id is its slot in that control type's schema, so a
+    property nothing has written yet still has one place it belongs."""
+    blank.create_form("Styled")
+    blank.add_control("Styled", "Label", "Title", caption="hello")
+
+    design = blank.set_control_property("Styled", "Title", "FontSize", 18)
+
+    title = next(o for o in design.objects if o.name == "Title")
+    assert title.property_value(PROPERTY_CODES["FontSize"]) == (18).to_bytes(2, "little")
+    ids = [r.id for r in title.records]
+    assert ids == sorted(ids), "records have to stay in id order"
+    assert PROPERTY_SLOTS["Label"]["FontSize"][0] in ids
+
+
+@pytest.mark.parametrize(
+    ("prop", "value", "expected"),
+    [
+        ("Caption", "hello", "hello".encode("utf-16-le")),
+        ("FontName", "Consolas", "Consolas".encode("utf-16-le")),
+        ("FontSize", 18, (18).to_bytes(2, "little")),
+        ("FontWeight", 700, (700).to_bytes(2, "little")),
+        ("ForeColor", 255, (255).to_bytes(4, "little")),
+        ("BackColor", 65535, (65535).to_bytes(4, "little")),
+        ("Left", 1440, (1440).to_bytes(2, "little")),
+    ],
+)
+def test_each_kind_of_value_is_written_the_way_its_slot_says(
+    blank: AccessDatabase, prop: str, value: object, expected: bytes
+) -> None:
+    blank.create_form("Styled")
+    blank.add_control("Styled", "Label", "Title", caption="x")
+
+    design = blank.set_control_property("Styled", "Title", prop, value)
+
+    title = next(o for o in design.objects if o.name == "Title")
+    assert title.property_value(PROPERTY_CODES[prop]) == expected
+
+
+def test_the_design_has_properties_of_its_own(blank: AccessDatabase) -> None:
+    blank.create_form("Styled")
+
+    design = blank.set_design_property("Styled", "Caption", "My window")
+
+    assert design.root.property_value(PROPERTY_CODES["Caption"]) == (
+        "My window".encode("utf-16-le")
+    )
+
+
+def test_a_section_takes_properties_too(blank: AccessDatabase) -> None:
+    blank.create_form("Styled")
+
+    design = blank.set_control_property("Styled", "Detail", "Height", 2880)
+
+    detail = next(o for o in design.objects if o.name == "Detail")
+    assert detail.property_value(PROPERTY_CODES["Height"]) == (2880).to_bytes(2, "little")
+
+
+def test_a_property_that_type_does_not_have_is_refused(blank: AccessDatabase) -> None:
+    """The table holds what was measured off controls Access wrote, so a
+    name that is not in it would be written at an id that means something
+    else -- which is worse than refusing."""
+    blank.create_form("Styled")
+    blank.add_control("Styled", "Label", "Title")
+
+    with pytest.raises(AccessError, match="has no 'ListRows' to set"):
+        blank.set_control_property("Styled", "Title", "ListRows", 9)
+
+
+def test_a_control_that_is_not_there_is_refused(blank: AccessDatabase) -> None:
+    blank.create_form("Styled")
+    with pytest.raises(AccessError, match="no object named 'Missing'"):
+        blank.set_control_property("Styled", "Missing", "Caption", "x")
+
+
+def test_the_wrong_kind_of_value_is_refused(blank: AccessDatabase) -> None:
+    blank.create_form("Styled")
+    blank.add_control("Styled", "Label", "Title")
+
+    with pytest.raises(AccessError, match="takes text"):
+        blank.set_control_property("Styled", "Title", "Caption", 7)
+    with pytest.raises(AccessError, match="takes a number"):
+        blank.set_control_property("Styled", "Title", "FontSize", "big")
+
+
+def test_a_number_too_large_for_its_slot_is_refused(blank: AccessDatabase) -> None:
+    blank.create_form("Styled")
+    blank.add_control("Styled", "Label", "Title")
+
+    with pytest.raises(AccessError, match="does not fit"):
+        blank.set_control_property("Styled", "Title", "FontSize", 70000)
+
+
+def test_every_slot_names_a_code_the_table_knows() -> None:
+    for kind, slots in PROPERTY_SLOTS.items():
+        for name, slot in slots.items():
+            assert name in PROPERTY_CODES, f"{kind}.{name} names no code"
+            assert PROPERTY_CODES[name] == slot[1], f"{kind}.{name} disagrees"
+
+
+def test_the_slots_a_new_control_gets_agree_with_the_schema() -> None:
+    """Two tables describe the same records -- what a new control is given
+    and where each property lives -- so an id in one that contradicts the
+    other would put a record in the wrong place."""
+    for kind, slots in CONTROL_SLOTS.items():
+        for name, (ident, code, value_type, _width) in slots.items():
+            schema = PROPERTY_SLOTS.get(kind, {}).get(name)
+            if schema is None:
+                continue
+            assert schema[0] == ident, f"{kind}.{name}: id {schema[0]} against {ident}"
+            assert schema[1] == code
+            assert schema[2] == value_type

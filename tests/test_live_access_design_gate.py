@@ -107,6 +107,38 @@ Public Function DescribeTree(ByVal name As String) As Variant
     DescribeTree = s
 End Function
 
+Public Function ReadProperties(ByVal name As String) As Variant
+    Dim f As Object, out As String
+    DoCmd.OpenForm name, acDesign
+    Set f = Forms(name)
+    out = "form.Caption=" & f.Caption & ";"
+    out = out & "Title.Caption=" & f("Title").Caption & ";"
+    out = out & "Title.FontSize=" & f("Title").FontSize & ";"
+    out = out & "Title.FontName=" & f("Title").FontName & ";"
+    out = out & "Title.FontWeight=" & f("Title").FontWeight & ";"
+    out = out & "Title.ForeColor=" & f("Title").ForeColor & ";"
+    out = out & "Title.BackColor=" & f("Title").BackColor & ";"
+    out = out & "Title.Left=" & f("Title").Left & ";"
+    out = out & "Box.ControlSource=" & f("Box").ControlSource & ";"
+    out = out & "Box.ControlTipText=" & f("Box").ControlTipText & ";"
+    out = out & "Box.Tag=" & f("Box").Tag & ";"
+    out = out & "Detail.Height=" & f.Section(0).Height & ";"
+    DoCmd.Close acForm, name, acSaveNo
+    ReadProperties = out
+End Function
+
+Public Function ReadCaptions(ByVal name As String) As Variant
+    Dim f As Object, out As String
+    DoCmd.OpenForm name, acDesign
+    Set f = Forms(name)
+    out = "Toggle=" & f("Toggle").Caption & ";"
+    out = out & "Button=" & f("Button").Caption & ";"
+    out = out & "Sign=" & f("Sign").Caption & ";"
+    out = out & "First=" & f("First").Caption & ";"
+    DoCmd.Close acForm, name, acSaveNo
+    ReadCaptions = out
+End Function
+
 Public Function CallFormCode(ByVal name As String, ByVal proc As String) As Variant
     DoCmd.OpenForm name, , , , , acHidden
     CallFormCode = CallByName(Forms(name), proc, VbMethod)
@@ -421,4 +453,70 @@ def test_access_puts_the_pages_we_write_on_the_tab_control(
         "First=Page/Tabs",
         "Second=Page/Tabs",
         "Go=CommandButton/Tabbed",
+    ]
+
+
+def test_access_reads_back_the_properties_we_set(blank: Path, tmp_path: Path) -> None:
+    """Setting a property means putting a record at the id that control
+    type's own schema gives it.  Access reading each one back is what says
+    the id was right; a record at the wrong id would still parse."""
+
+    def build(db: AccessDatabase) -> None:
+        db.create_form("Styled")
+        db.add_control("Styled", "Label", "Title", left=240, top=240, width=3000, height=400, caption="before")
+        db.add_control("Styled", "TextBox", "Box", left=240, top=800, width=3000, height=320)
+        db.set_design_property("Styled", "Caption", "My window")
+        db.set_control_property("Styled", "Title", "Caption", "after")
+        db.set_control_property("Styled", "Title", "FontSize", 18)
+        db.set_control_property("Styled", "Title", "FontName", "Consolas")
+        db.set_control_property("Styled", "Title", "FontWeight", 700)
+        db.set_control_property("Styled", "Title", "ForeColor", 255)
+        db.set_control_property("Styled", "Title", "BackColor", 65535)
+        db.set_control_property("Styled", "Title", "Left", 1440)
+        db.set_control_property("Styled", "Box", "ControlSource", "=2+2")
+        db.set_control_property("Styled", "Box", "ControlTipText", "hover me")
+        db.set_control_property("Styled", "Box", "Tag", "tagged")
+        db.set_control_property("Styled", "Detail", "Height", 2880)
+
+    out = written(blank, tmp_path / "styled.accdb", build)
+
+    reported = [c for c in str(ask(out, "ReadProperties", "Styled")).split(";") if c]
+    assert reported == [
+        "form.Caption=My window",
+        "Title.Caption=after",
+        "Title.FontSize=18",
+        "Title.FontName=Consolas",
+        "Title.FontWeight=700",
+        "Title.ForeColor=255",
+        "Title.BackColor=65535",
+        "Title.Left=1440",
+        "Box.ControlSource==2+2",
+        "Box.ControlTipText=hover me",
+        "Box.Tag=tagged",
+        "Detail.Height=2880",
+    ]
+
+
+def test_a_caption_reaches_every_control_that_has_one(blank: Path, tmp_path: Path) -> None:
+    """A caption sits at a different id on each type -- 221 on a label and
+    a command button, 231 on a toggle button, 232 on a page -- and Access
+    does not complain about one written at the wrong id, it just shows the
+    caption missing and some other property changed."""
+
+    def build(db: AccessDatabase) -> None:
+        db.create_form("Captions")
+        db.add_control("Captions", "Label", "Sign", top=240, caption="label text")
+        db.add_control("Captions", "CommandButton", "Button", top=700, caption="button text")
+        db.add_control("Captions", "ToggleButton", "Toggle", top=1200, caption="toggle text")
+        db.add_control("Captions", "Tab", "Tabs", top=1700, width=4000, height=1500)
+        db.add_control("Captions", "Page", "First", parent="Tabs", caption="page text")
+
+    out = written(blank, tmp_path / "captions.accdb", build)
+
+    reported = [c for c in str(ask(out, "ReadCaptions", "Captions")).split(";") if c]
+    assert reported == [
+        "Toggle=toggle text",
+        "Button=button text",
+        "Sign=label text",
+        "First=page text",
     ]

@@ -1529,6 +1529,98 @@ def test_ddl_through_execute_matches_the_engine_byte_for_byte(tmp_path: Path) ->
         check_indexes(db.table(table))
 
 
+WRITE_GATE_SETUP = (
+    "CREATE TABLE Ledger (Id AUTOINCREMENT, A LONG, B TEXT(3), Y BYTE, D DATETIME, T TEXT(10))",
+    "CREATE TABLE Other (Id LONG, B LONG)",
+    "INSERT INTO Ledger (A, B, Y, D, T) VALUES (10, 'ab', 1, #2020-01-01#, 'ten')",
+    "INSERT INTO Ledger (A, B, Y, D, T) VALUES (20, 'cd', 2, #2020-01-02#, 'twenty')",
+    "INSERT INTO Ledger (A, B, Y, D, T) VALUES (30, 'ef', 3, #2020-01-03#, 'thirty')",
+    "INSERT INTO Other VALUES (1, 111)",
+    "INSERT INTO Other VALUES (2, 222)",
+    "INSERT INTO Other VALUES (2, 333)",
+)
+
+#: (statement, what it exercises); a None answer means both sides refuse.
+WRITE_GATE_STEPS: tuple[tuple[str, int | None], ...] = (
+    # A value list with no column list names every column, AutoNumber
+    # included, and the counter follows an explicit value.
+    ("INSERT INTO Ledger VALUES (7, 40, 'gh', 4, #2020-01-04#, 'x')", 1),
+    ("INSERT INTO Ledger (A, T) VALUES (50, 'xy')", 1),
+    ("INSERT INTO Ledger VALUES (3, 60, 'ij', 5, #2020-01-05#, 'xyz')", 1),
+    ("INSERT INTO Ledger (A) VALUES (70)", 1),
+    # The query processor's conversions: text cut to size, a Byte's low
+    # byte, a number as a date serial.
+    ("INSERT INTO Ledger (A, B, Y, D) VALUES (80, 'abcdef', 300, 44000)", 1),
+    ("UPDATE Ledger SET B = B & B & B, Y = Y + 254 WHERE A = 10", 1),
+    # Over a join, both ways.
+    ("UPDATE Ledger INNER JOIN Other ON Ledger.Id = Other.Id SET Ledger.A = Other.B, Other.B = 0", 3),
+    ("DELETE Ledger.* FROM Ledger INNER JOIN Other ON Ledger.Id = Other.Id WHERE Other.Id = 1", 1),
+    # Refused by both, and nothing written on either side.
+    ("UPDATE Ledger SET Id = 99", None),
+    ("INSERT INTO Ledger (A, D) VALUES (90, 'not a date')", None),
+    ("DELETE Ledger.* FROM Ledger INNER JOIN Other ON Ledger.Id = Other.Id", None),
+    ("UPDATE Ledger SET A = (SELECT Max(B) FROM Other)", None),
+)
+
+#: Make-table queries, run last: a copied AutoNumber, every computed type,
+#: the header quirks a made table carries.  (A declared Decimal cannot be
+#: built through DAO, so the Decimal here is a literal.)
+WRITE_GATE_MADE: tuple[tuple[str, str], ...] = (
+    ("Made1", "SELECT Id, A, T, A * 2 AS W, T & '' AS X, 5.5 AS V, Len(T) AS N, D + 1 AS D2, Null AS Nothing, A > 20 AS F INTO Made1 FROM Ledger WHERE A >= 40"),
+    ("Made2", "SELECT 1 AS Id, Sum(A) AS S, Count(*) AS C, Max(T) AS M, Avg(A) AS AvgA, 1.25 * A AS Scaled INTO Made2 FROM Ledger GROUP BY A"),
+    ("Made3", "SELECT Ledger.Id, Other.B INTO Made3 FROM Ledger INNER JOIN Other ON Ledger.Id = Other.Id"),
+)
+
+
+def test_write_statements_match_the_engine_byte_for_byte(tmp_path: Path) -> None:
+    """Every kind of write statement the differential audit corrected, run
+    through DAO and through ``db.execute`` on identical copies: the files
+    match byte for byte after each one, a refused statement leaves both
+    untouched, and a made table carries the engine's own column headers
+    (variable-length computed columns, ordinals from one, the Decimal's
+    precision and scale leaking into what follows it)."""
+    theirs = tmp_path / "theirs.accdb"
+    shutil.copy(TEMPLATE, theirs)
+    script = tmp_path / "step.sql"
+
+    def engine_runs(sql: str) -> str | None:
+        script.write_text(sql + chr(10), encoding="utf-8")
+        try:
+            return oracle("-Command", "run-sql", "-Path", str(theirs), "-SqlFile", str(script))
+        except AssertionError:
+            return None
+
+    script.write_text(chr(10).join(WRITE_GATE_SETUP), encoding="utf-8")
+    assert oracle("-Command", "sql-file", "-Path", str(theirs), "-SqlFile", str(script)) == "ok"
+    db = AccessDatabase(theirs)
+
+    def same_then_reopen(step: str, db: AccessDatabase) -> AccessDatabase:
+        ours, engine = db.to_bytes(), theirs.read_bytes()
+        assert not (d := _differing_pages(ours, engine)), f"{step}: pages differ from the engine's: {_describe_pages(ours, engine, d)}"
+        return AccessDatabase(ours)
+
+    for sql, expected in WRITE_GATE_STEPS:
+        engine_said = engine_runs(sql)
+        if expected is None:
+            assert engine_said is None, f"the engine accepted {sql!r}"
+            with pytest.raises(AccessError):
+                db.execute(sql)
+        else:
+            assert engine_said == str(expected), f"{sql}: engine said {engine_said!r}"
+            assert db.execute(sql) == expected, sql
+        db = same_then_reopen(sql, db)
+
+    for name, sql in WRITE_GATE_MADE:
+        assert engine_runs(sql) is not None, sql
+        entry = _catalog_entry(theirs, name)
+        rows = db.execute(sql, created=entry.date_create_serial, updated=entry.date_update_serial)
+        assert isinstance(rows, int) and rows > 0, sql
+        db = same_then_reopen(sql, db)
+        # The pages already matched; this reads the rows back through both
+        # engines.  Sorted, since the two dumps break Id ties differently.
+        assert sorted(_engine_dump(db, name)) == sorted(json.loads(oracle("-Command", "dump", "-Path", str(theirs), "-Table", name)).splitlines())
+
+
 def test_a_transaction_writes_what_the_engine_writes(tmp_path: Path) -> None:
     """DAO wrapping its statements in BeginTrans/CommitTrans leaves the
     same bytes as running them plainly, and so does ours: a transaction

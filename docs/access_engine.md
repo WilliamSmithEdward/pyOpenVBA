@@ -712,6 +712,95 @@ the engine finds the same rows it does today.
   page the catalog row was alone on stays alive and owned, where a
   filtered delete would have retired it.
 
+* **What a query stores in a column** is looser than what a recordset
+  accepts, and the difference was measured statement by statement (the
+  same statement through `db.execute` and through DAO on identical
+  copies, both files then dumped through DAO and compared byte for
+  byte). Text is cut to the column's size where a recordset refuses it;
+  a Memo is never cut; the cut happens before a unique index looks at
+  the value. A Byte takes the low byte of the rounded number (300 lands
+  as 44, -1 as 255) while an Integer or a Long overflows. A number in a
+  Date column is the stored serial. A value list with no column list has
+  to name every column, AutoNumber included. An explicit AutoNumber is
+  kept and the counter follows it; a Null there is an error; no query
+  updates an AutoNumber column. A statement writing several explicit
+  AutoNumbers -- INSERT ... SELECT, SELECT ... INTO -- ends with the
+  counter at the largest of them, while the next statement writing a
+  smaller one lowers it to that.
+* **A Text value is compressed only when that makes it shorter.** One or
+  two Latin-1 characters go in as plain UTF-16, since the `FF FE` mark
+  would cost what the compression saves; three or more are compressed.
+  Measured through INSERT, UPDATE and SELECT INTO alike, and a general
+  rule of the row writer rather than of any statement.
+* **An action query lands whole or not at all, but its counters stay.**
+  An INSERT, UPDATE or DELETE that fails on its third row leaves the
+  first two unwritten. What the rollback does not undo is the definition
+  header: every row an INSERT attempted took the next AutoNumber before
+  its values were looked at -- a type error on a single row, a broken
+  rule or a duplicate key on the third of four rows, and a row naming
+  its own number all move the counter by one per row tried -- and the
+  row count keeps the rows written or deleted before the failing one. A
+  refused UPDATE, and an INSERT whose SELECT part fails, move neither.
+  The store keeps a journal of the pages a statement first writes, so
+  undoing costs what the statement touched rather than a copy of the
+  file, and the counters are written back after the rollback.
+* **UPDATE and DELETE run over a join.** `UPDATE a INNER JOIN b ON ...
+  SET a.x = b.y, b.z = 0` writes to both tables; a LEFT JOIN writes its
+  unmatched rows too, with Null from the missing side. A subquery in a
+  SET clause makes the query not updateable, where one in the WHERE
+  clause is fine. `DELETE t.* FROM t INNER JOIN u ...` takes rows out of
+  `t`, and over a join the statement has to name the table. Every join
+  row counts as affected and is applied in order: within a row every
+  expression reads the row before the row's writes, so a swap swaps, and
+  a later join row that reaches a table row an earlier one wrote reads
+  the new value -- so the last join row's write is what stays, and which
+  row that is depends on the join order below. A row a DELETE's join
+  reaches twice is an error, and nothing is deleted.
+* **The order a join produces its rows in**, which is what a SELECT with
+  no ORDER BY answers and what an UPDATE writes in. An inner join scans
+  the side with fewer rows and probes the other through a temporary
+  index, which hands back the rows sharing a key in the reverse of their
+  stored order; on a tie the second-listed side is scanned. Joins fold
+  left to right; the result so far counts as the smaller of its two
+  inputs and, on a tie with a table, is the side scanned. An outer join
+  scans its preserved side. A cross join loops the larger side outside
+  (the second-listed on a tie) and the smaller inside, both in stored
+  order. Thirty-one shapes measured -- two and three tables, ties,
+  duplicates on both sides, outer and cross joins, `(A INNER JOIN B ON
+  ...) INNER JOIN C ON ...` as Access writes it and the group on the
+  right -- all reproduce. GROUP BY and DISTINCT are done by sorting, so
+  the groups come out in key order: Null first, then ascending, text
+  case-blind, a group wearing the first value it met.
+* **SELECT ... INTO makes the table the engine makes.** A column read
+  straight out keeps its definition -- type, size, AutoNumber, Unicode
+  compression -- and none of the source's indexes or column properties.
+  An expression gets a type decided from the expression alone: the same
+  column comes out of a query over no rows. 157 expressions were
+  measured, one per made table, and every definition page matches byte
+  for byte: whole-number arithmetic is a Long, anything with a Single or
+  a `/` a Double, Currency stays Currency through `+ - *` even against a
+  Double, a Decimal keeps 28 digits and adds scales under `*`, a Date
+  plus a number is a Date and a Date less a Date a Double; `&` and every
+  text function give a Text(255) without compression; comparisons, the
+  logical operators, `Not`, `IIf`'s yes/no cousins, `Year`, `Asc`,
+  `Sgn`, `CInt`, `CBool`, `CByte` and the `Is` tests give an Integer;
+  `Sum` of whole numbers is a Double but of Currency stays Currency;
+  `Min`, `Max`, `First`, `Last` keep the type except that text widens to
+  255; `Count`, `Len`, `InStr`, `DateDiff`, `DatePart`, `CLng` are Long;
+  `Abs`, `Round`, `Sqr`, `Exp`, `Log`, `Val`, `CDbl`, `CSng` are Double;
+  `Int` keeps a whole number a Long and a Double a Double; a numeric
+  literal is a Long when whole and in range (`1E3` and `1.5E2` included)
+  and otherwise a Decimal scaled to its digits; `Null` is a Binary(510);
+  `IIf`, `Switch` and `Choose` widen their branches, text winning. Three
+  things the header carries that CREATE TABLE's does not: every
+  computed column but an Integer sits among the variable-length columns
+  (a computed Decimal is 13 bytes wide there, a declared one 17); bytes
+  9-10 of each header count the columns from one rather than from zero;
+  and every column after a Decimal -- copied or computed, fixed or not,
+  Memo and GUID included, Text alone excepted -- carries that Decimal's
+  precision and scale where its collation word would be, until the next
+  Decimal resets them. That last one looks like a stale buffer in the
+  engine and is reproduced as such.
 * **Jet 4 `.mdb` files** take the writers as `.accdb` files do: a table
   created in a database DAO made with `CreateDatabase(..., dbVersion40)`
   lands on the same pages, with the same definition, rows and index, and
@@ -790,5 +879,5 @@ formatted ones.
 | 3c | complex columns: attachments and multi-valued fields | done for reading and for writing values. `db.complex_columns()`, `table.attachments()`, `table.multi_values()`, `set_attachments()`, `set_multi_values()`; an inserted row takes its complex id from the counter at 0x1C. A live gate saves every attachment back out through DAO and compares the bytes. The row holds only a Long shared by every complex column in it; the values live one per row in `f_<GUID>_<Column>` joined on that Long, and `FileData` wraps the file in a flag, an inflated size and a header carrying its extension. Access compresses by file type -- eight extensions it leaves raw, measured across 45 -- and those eight are written byte-identically; a compressed one is not, because its deflate is not zlib's. **Creating** one works too: `table.add_complex_column(name, kind)` writes the flat table with its three indexes, the column, the unique index over it and the `MSysComplexColumns` row, and gives every row already there an id. A live gate builds a database, a table and both kinds of column from nothing and has the engine read the bytes back. Three of the rules were invisible until the engine refused the result: the flat table's two Long bookkeeping columns sit among the **variable** columns with no collation and no fixed bit, its catalog row carries `0x800A0000`, and the table that has the column carries `0x40000` -- without that last one DAO opens the child recordset and finds no fields in it |
 | 7 | queries (`MSysQueries` to SQL and back), relationships, properties | done. Relationships: `create_relationship` / `drop_relationship` / `relationships()`, byte-identical to the engine's ADD CONSTRAINT ... FOREIGN KEY for a first and a second relationship on one parent and to DROP CONSTRAINT (live gate). Properties done: `table.properties()`, `column_properties()`, `set_properties()`, `db.database_properties()`; DAO's three property appends reproduced byte for byte (live gate). Queries done for SELECT, PARAMETERS, DELETE, UPDATE, INSERT INTO ... SELECT, SELECT ... INTO, UNION and crosstabs (`TRANSFORM ... PIVOT`, with an `IN` list, TOP, a join or a parameter): `db.queries()`, `db.query()`, `db.create_query(name, sql)`, `db.drop_query(name)`; thirteen CreateQueryDef calls and a QueryDefs.Delete reproduced byte for byte (live gate). Pass-through queries are written too, by the create-then-convert route DAO takes. Subqueries save too: in a WHERE, as a value in the select list, and as a table of their own, where the engine puts the bracketed SELECT in the row's expression and only the alias in Name2 |
 | 8 | forms, reports, macros: the binary object formats nobody has published | **done for all three.** Macros: `db.macros()`, `create_macro()`, `delete_macro()`; a live gate creates one, has Access run it and reads back the value it set. A macro is a binary blob, not the XML its designer shows: a 32-byte header, a length-prefixed `"33"`, then one record per action with the action id, the row number, fourteen `u16` argument slots holding offsets into a string area, and the strings; arguments start at slot 4 and an empty one takes no slot. Every blob Access wrote rebuilds byte for byte and 24 action ids are measured. Forms and reports: `db.forms()`, `db.reports()`, `create_form()`, `create_report()`, `delete_form()`, `delete_report()`; a live gate opens what is written in Access's own designer and runs a created form. A design is a stream of property records `<u32 id><u16 code><u32 type><u32 width><u32 length><value>` with ascending ids, and three ids are markers that open the next object instead -- `0xFE` a section, `0xFD` the next at the same level, `0xFF` a control with its type in a second `u16`. Every design measured rebuilds byte for byte, and the tree of sections and controls reads out of it. `add_control()` puts any of the eighteen control types the reader knows on one and Access reads back every measurement it was given, with the right tab order and the padding it gives a button. Each type gets only the slots it has: a page break carries a top and nothing else, a tab control no left or top at all, an image no overlap flags, a combo box its GUID ahead of its name. A control can hold controls -- `parent=` puts a page on a tab control, written as a group of its own right after it -- so reading a design is a tree walk, since a section's count is of its own controls and not of everything beneath them. 155 property codes are named, worked out by exporting a design with `SaveAsText`, which writes the same properties with their names, and pairing the two on the value each holds rather than on position -- the blob carries records the text does not write, so a straight walk drifts. A code whose values are small integers every other property also uses is named instead by differencing -- the same form built twice, identical but for one property, and the record that moved is it, which is what showed that the code long taken for `TextAlign` is `IMESentenceMode`. Every method checks itself by re-deriving the codes already named; see `docs/research/access_designs/`. A control belongs to a section and its marker depends on how many that section holds -- one is a single child `0xFE`, two or more open a group `0xFF <count>` then `0xFD` each -- and Access refuses each encoding in the other's place. The word the `0xFF` carries is how many objects the group holds, the opener included: a form Access built with eleven controls carries `0xFF 11` twice, once over the prototypes and the detail section and once over the controls. Access does not refuse a wrong count, it shows only that many controls, which is why writing a constant 2 went unnoticed until a section held three. `set_design_code()` puts code behind one -- a document module belongs to its design, with no storage folder and no catalog row, and a `DocClass=` line in `PROJECT` where a class module gets `Class=`; without that Access loads the module and the form still does not answer to it. `set_control_property()` and `set_design_property()` change one property of a control, a section or the design itself, at the id that object type's own schema gives it: `PROPERTY_SLOTS` holds 1045 slots over 26 object types, all measured, and Access reads back every one written. The reader knows 28 control types and the writer 23. A slot whose code has no established meaning is keyed by its code, which also expresses a control that carries one code twice at two ids. What is not written is the navigation control and its buttons: one of its records names a sibling subform and Access builds the buttons beside it, so one written alone would point at a subform that is not there. What is left is the rest of the property codes and those three. A macro's, form's and report's object ids all step by one where a module's step by four |
-| 9 | SQL executor over the engine | done, with one measured gap in numeric types (below): `db.execute(sql)` runs Jet DDL (CREATE TABLE with named keys and inline or table constraints, CREATE [UNIQUE] INDEX, DROP TABLE, DROP INDEX, ALTER TABLE ADD / ALTER / DROP COLUMN and ADD / DROP CONSTRAINT), byte-identical to DAO's Execute on the same statements (live gate), and SELECT (column list or `*`, INNER / LEFT / RIGHT JOIN, WHERE, GROUP BY with Count / Sum / Avg / Min / Max, HAVING, ORDER BY, DISTINCT, TOP; comparison, logical, arithmetic and `&` operators, LIKE, IN, BETWEEN, IS NULL, `[parameters]`, the common string, numeric and date functions), INSERT ... VALUES, INSERT ... SELECT, UPDATE and DELETE through the row writers, coercing values to the column type. Eleven SELECT shapes answer exactly as DAO does on the same database and an UPDATE plus a DELETE write the same bytes DAO's Execute writes (live gate). Subqueries run too: `IN`, `NOT IN`, `EXISTS`, a scalar subquery in any expression, all of them correlated when they name the outer query, plus a bracketed SELECT or a saved query as a FROM source, and `UNION`/`UNION ALL` folded left to right. A crosstab runs as well as saves: `TRANSFORM ... PIVOT` groups by its row headings, makes one column per pivot value (`<>` for Null, an `IN` list fixing the columns and their order) and hands the rows back sorted by their headings, which is how the engine hands them back. The operators now include Jet's `Mod`, `\` and `^`, in VBA's order, and the function list reaches every one a Jet expression can name (text, maths, conversion, dates, `Format`, `Partition`, `Switch`, `Choose`, the `Is` tests) plus the `First`, `Last`, `StDev`, `StDevP`, `Var` and `VarP` aggregates, each answering what DAO answers on the same rows (live gate). The domain functions run too -- `DLookup`, `DCount`, `DSum`, `DAvg`, `DMin`, `DMax`, `DFirst`, `DLast`, `DStDev`, `DStDevP`, `DVar`, `DVarP` -- each as a query over the table it names, with a criteria that may name a column of the row it is evaluated in; they are Access's own rather than the engine's, so the gate compares all seventeen against Access's `Eval` instead of DAO. `with db.transaction():` rolls back to the exact bytes on an exception, and a committed one leaves what DAO's BeginTrans/CommitTrans leaves (live gate) |
+| 9 | SQL executor over the engine | done, with one measured gap in numeric types (below). The write statements were audited the way the SELECT shapes were -- the same statement through `db.execute` and through DAO on identical copies, the files compared byte for byte afterwards -- and a live gate now runs twelve of them plus three make-table queries that way; what it found is under the format facts above (what a query stores, the counters a rollback leaves, joins in UPDATE and DELETE, the order a join and a GROUP BY produce, SELECT ... INTO). `db.execute(sql)` runs Jet DDL (CREATE TABLE with named keys and inline or table constraints, CREATE [UNIQUE] INDEX, DROP TABLE, DROP INDEX, ALTER TABLE ADD / ALTER / DROP COLUMN and ADD / DROP CONSTRAINT), byte-identical to DAO's Execute on the same statements (live gate), and SELECT (column list or `*`, INNER / LEFT / RIGHT JOIN, WHERE, GROUP BY with Count / Sum / Avg / Min / Max, HAVING, ORDER BY, DISTINCT, TOP; comparison, logical, arithmetic and `&` operators, LIKE, IN, BETWEEN, IS NULL, `[parameters]`, the common string, numeric and date functions), INSERT ... VALUES, INSERT ... SELECT, UPDATE and DELETE through the row writers, coercing values to the column type. Eleven SELECT shapes answer exactly as DAO does on the same database and an UPDATE plus a DELETE write the same bytes DAO's Execute writes (live gate). Subqueries run too: `IN`, `NOT IN`, `EXISTS`, a scalar subquery in any expression, all of them correlated when they name the outer query, plus a bracketed SELECT or a saved query as a FROM source, and `UNION`/`UNION ALL` folded left to right. A crosstab runs as well as saves: `TRANSFORM ... PIVOT` groups by its row headings, makes one column per pivot value (`<>` for Null, an `IN` list fixing the columns and their order) and hands the rows back sorted by their headings, which is how the engine hands them back. The operators now include Jet's `Mod`, `\` and `^`, in VBA's order, and the function list reaches every one a Jet expression can name (text, maths, conversion, dates, `Format`, `Partition`, `Switch`, `Choose`, the `Is` tests) plus the `First`, `Last`, `StDev`, `StDevP`, `Var` and `VarP` aggregates, each answering what DAO answers on the same rows (live gate). The domain functions run too -- `DLookup`, `DCount`, `DSum`, `DAvg`, `DMin`, `DMax`, `DFirst`, `DLast`, `DStDev`, `DStDevP`, `DVar`, `DVarP` -- each as a query over the table it names, with a criteria that may name a column of the row it is evaluated in; they are Access's own rather than the engine's, so the gate compares all seventeen against Access's `Eval` instead of DAO. `with db.transaction():` rolls back to the exact bytes on an exception, and a committed one leaves what DAO's BeginTrans/CommitTrans leaves (live gate) |
 | 10 | compaction | done for the part that can be done without moving a page. `db.compact()` gives back the run of free pages the file ends with -- what a dropped table or a large delete leaves behind -- and returns how many went. It moves nothing and rewrites no object, so nothing can be lost, and free pages in the middle are left where they are. A live gate drops a 2000-row table, compacts, and has the engine read the file back row for row and then compact it itself. `compact(rebuild=True)` goes further: it writes each table's rows out again so they land on as few pages as they need, which is what reaches the free pages a large delete strands in the middle of the file (a 2000-row table cut to 200 went from 270 pages to 92). The rebuild is `rebuild_table`, built from drop and create -- writers the engine was measured against -- and it refuses a table it cannot carry across whole, comparing the rows before and after and putting the database back if they differ. Still not this: Access's Compact and Repair, which rebuilds the database, renumbers every page and resets each AutoNumber counter, where a rebuild here keeps the values and the counter as they were |

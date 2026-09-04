@@ -512,23 +512,119 @@ def split_alias(item: str) -> tuple[str, str | None]:
 
 
 def parse_from(clause: str) -> tuple[list[QueryRow], list[QueryRow]]:
-    """Tables (attribute 5) and joins (attribute 7) of a FROM clause."""
+    """Tables (attribute 5) and joins (attribute 7) of a FROM clause.
+
+    A join chain may be wrapped in parentheses, and a wrapped chain may
+    itself be one side of a join -- ``(A INNER JOIN B ON ...) INNER JOIN
+    C ON ...`` is how Access writes every query over three tables.  The
+    tables come out in the order they are named; a join names the last
+    table of its left side and the first of its right."""
     tables: list[QueryRow] = []
     joins: list[QueryRow] = []
-    join_pattern = re.compile(r"\s+(INNER|LEFT|RIGHT)\s+JOIN\s+", re.IGNORECASE)
     for source in split_top_level(clause, ","):
-        pieces = join_pattern.split(source.strip())
-        first, alias = split_alias(pieces[0].strip())
-        tables.append(_table_row(len(tables) + 1, first, alias))
-        left = alias or first
-        for k in range(1, len(pieces), 2):
-            kind = {"INNER": JOIN_INNER, "LEFT": JOIN_LEFT, "RIGHT": JOIN_RIGHT}[pieces[k].upper()]
-            right_part, condition = _split_on(pieces[k + 1])
-            right, right_alias = split_alias(right_part.strip())
-            tables.append(_table_row(len(tables) + 1, right, right_alias))
-            joins.append(QueryRow(ATTR_JOIN, len(joins) + 1, name1=left, name2=right_alias or right, expression=condition.strip(), flag=kind))
-            left = right_alias or right
+        _parse_join_chain(source.strip(), tables, joins)
     return tables, joins
+
+
+_JOIN_WORD = re.compile(r"\s+(INNER|LEFT|RIGHT)\s+JOIN\s+", re.IGNORECASE)
+_ON_WORD = re.compile(r"\s+ON\s+", re.IGNORECASE)
+
+
+def _parse_join_chain(text: str, tables: list[QueryRow], joins: list[QueryRow]) -> tuple[str, str]:
+    """One operand, or operands joined in a row; answers the names of the
+    first and last tables it added."""
+    operands, links = _split_joins(text)
+    first, last = _parse_operand(operands[0], tables, joins)
+    for (kind, condition), operand in zip(links, operands[1:], strict=True):
+        right_first, right_last = _parse_operand(operand, tables, joins)
+        joins.append(QueryRow(ATTR_JOIN, len(joins) + 1, name1=last, name2=right_first, expression=condition, flag=kind))
+        last = right_last
+    return first, last
+
+
+def _parse_operand(text: str, tables: list[QueryRow], joins: list[QueryRow]) -> tuple[str, str]:
+    text = text.strip()
+    if text.startswith("(") and _is_join_group(text):
+        return _parse_join_chain(text[1 : text.rfind(")")], tables, joins)
+    name, alias = split_alias(text)
+    tables.append(_table_row(len(tables) + 1, name, alias))
+    return alias or name, alias or name
+
+
+def _is_join_group(text: str) -> bool:
+    """A parenthesised join chain, as against a bracketed SELECT."""
+    inner = text[1 : text.rfind(")")].strip()
+    if inner.upper().startswith(("SELECT", "PARAMETERS", "TRANSFORM")):
+        return False
+    return any(_JOIN_WORD.search(piece) for piece in _top_level_pieces(inner))
+
+
+def _top_level_pieces(text: str) -> list[str]:
+    """The text outside any parentheses, in pieces, so that a keyword
+    inside a nested group or a subquery is not mistaken for one here."""
+    pieces: list[str] = []
+    depth = 0
+    start = 0
+    quote: str | None = None
+    for i, ch in enumerate(text):
+        if quote:
+            if ch == quote:
+                quote = None
+        elif ch in "'" + '"':
+            quote = ch
+        elif ch == "[":
+            quote = "]"
+        elif ch == "(":
+            if depth == 0:
+                pieces.append(text[start:i])
+            depth += 1
+        elif ch == ")":
+            depth -= 1
+            if depth == 0:
+                start = i + 1
+    if depth == 0:
+        pieces.append(text[start:])
+    return pieces
+
+
+def _split_joins(text: str) -> tuple[list[str], list[tuple[int, str]]]:
+    """Split ``x JOIN y ON c JOIN z ON d`` at its top-level JOIN words into
+    the operands and, for each join, its kind and ON condition."""
+    cuts: list[tuple[int, int, int]] = []  # (start, end, kind) of each JOIN word
+    depth = 0
+    quote: str | None = None
+    i = 0
+    while i < len(text):
+        ch = text[i]
+        if quote:
+            if ch == quote:
+                quote = None
+        elif ch in "'" + '"':
+            quote = ch
+        elif ch == "[":
+            quote = "]"
+        elif ch == "(":
+            depth += 1
+        elif ch == ")":
+            depth -= 1
+        elif depth == 0 and ch.isspace():
+            match = _JOIN_WORD.match(text, i)
+            if match:
+                kind = {"INNER": JOIN_INNER, "LEFT": JOIN_LEFT, "RIGHT": JOIN_RIGHT}[match.group(1).upper()]
+                cuts.append((match.start(), match.end(), kind))
+                i = match.end()
+                continue
+        i += 1
+    if not cuts:
+        return [text], []
+    operands = [text[: cuts[0][0]]]
+    links: list[tuple[int, str]] = []
+    for n, (_start, end, kind) in enumerate(cuts):
+        stop = cuts[n + 1][0] if n + 1 < len(cuts) else len(text)
+        operand, condition = _split_on(text[end:stop])
+        operands.append(operand)
+        links.append((kind, condition.strip()))
+    return operands, links
 
 
 def _table_row(order: int, name: str, alias: str | None) -> QueryRow:
@@ -541,8 +637,24 @@ def _table_row(order: int, name: str, alias: str | None) -> QueryRow:
 
 
 def _split_on(text: str) -> tuple[str, str]:
-    """A joined table and its ON condition."""
-    match = re.search(r"\s+ON\s+", text, re.IGNORECASE)
-    if not match:
-        raise AccessError(f"a JOIN needs an ON condition: {text.strip()!r}")
-    return text[: match.start()], text[match.end():]
+    """A joined table -- or a parenthesised join chain -- and its ON
+    condition, which is the first ON outside any parentheses."""
+    depth = 0
+    quote: str | None = None
+    for i, ch in enumerate(text):
+        if quote:
+            if ch == quote:
+                quote = None
+        elif ch in "'" + '"':
+            quote = ch
+        elif ch == "[":
+            quote = "]"
+        elif ch == "(":
+            depth += 1
+        elif ch == ")":
+            depth -= 1
+        elif depth == 0 and ch.isspace():
+            match = _ON_WORD.match(text, i)
+            if match:
+                return text[: match.start()], text[match.end() :]
+    raise AccessError(f"a JOIN needs an ON condition: {text.strip()!r}")

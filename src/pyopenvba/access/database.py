@@ -179,6 +179,7 @@ from pyopenvba.access._rows import (
     split_row,
 )
 from pyopenvba.access._schema import (
+    SORT_ORDER,
     DEFAULT_ACM,
     FIXED_SIZES,
     USAGE_MAP_ROW,
@@ -458,8 +459,8 @@ class Table:
         # Access keeps both among the variable columns, not in the fixed
         # block, even though a Long would normally sit there.
         specs += [
-            ColumnSpec(id_column, "Long", autonumber=True, variable=True),
-            ColumnSpec(key_column, "Long", variable=True),
+            ColumnSpec(id_column, "Long", autonumber=True, variable=True, collation=(0, 0)),
+            ColumnSpec(key_column, "Long", variable=True, collation=(0, 0)),
         ]
         misc[id_column], misc[key_column] = MISC_ELEMENT_ID, MISC_KEY
 
@@ -1606,6 +1607,11 @@ class AccessDatabase:
                     compressed=column.compressed_unicode,
                     variable=not column.is_fixed
                     and column.type_code in FIXED_LENGTH_TYPES,
+                    collation=None
+                    if column.type_code == TYPE_NUMERIC
+                    or (column.sort_order, column.sort_version) == (SORT_ORDER, 0)
+                    else (column.sort_order, column.sort_version),
+                    ordinal=column.header_ordinal if column.header_ordinal != column.number else None,
                     required=bool(own.get("Required")),
                     default=_as_text(own.get("DefaultValue")),
                     allow_zero_length=bool(zero) if zero is not None else None,

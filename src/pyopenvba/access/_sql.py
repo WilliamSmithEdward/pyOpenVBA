@@ -29,9 +29,10 @@ else the row path, page for page as the engine would.
 from __future__ import annotations
 
 import datetime as _dt
+import struct
 import re
 from collections.abc import Callable, Mapping, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from decimal import ROUND_HALF_EVEN, Decimal, localcontext
 from typing import TYPE_CHECKING, Any
 
@@ -45,7 +46,13 @@ from pyopenvba.access._queries import (
     split_top_level,
     split_top_level_words,
 )
+from pyopenvba.access._schema import ColumnSpec
 from pyopenvba.access._tdef import (
+    FIXED_LENGTH_TYPES,
+    OFFSET_NEXT_AUTONUMBER,
+    OFFSET_ROW_COUNT,
+    TYPE_COMPLEX,
+    TYPE_BINARY,
     TYPE_BOOLEAN,
     TYPE_BYTE,
     TYPE_DATETIME,
@@ -55,6 +62,7 @@ from pyopenvba.access._tdef import (
     TYPE_LONG,
     TYPE_MEMO,
     TYPE_MONEY,
+    TYPE_NUMERIC,
     TYPE_TEXT,
     ColumnDef,
 )
@@ -72,7 +80,7 @@ _TOKEN = re.compile(
     (?P<ws>\s+)
   | (?P<date>\#[^#]*\#)
   | (?P<string>'(?:[^']|'')*'|"(?:[^"]|"")*")
-  | (?P<number>\d+\.\d*|\.\d+|\d+)
+  | (?P<number>(?:\d+\.\d*|\.\d+|\d+)(?:[Ee][-+]?\d+)?)
   | (?P<bracket>\[[^\]]+\])
   | (?P<name>[A-Za-z_][A-Za-z0-9_]*)
   | (?P<op><>|<=|>=|=|<|>|\+|-|\*|/|\\|\^|&|\(|\)|,|\.)
@@ -406,6 +414,18 @@ class SubQuery(Expr):
         return self.operand.columns() if self.operand is not None else []
 
 
+def _number_literal(text: str) -> int | float:
+    """What a number in the SQL text stands for.  One that names a whole
+    number -- `1E3` and `1.5E2` included -- is an integer; the rest are
+    read as floating point, which is how the executor carries them."""
+    if "." not in text and "E" not in text.upper():
+        return int(text)
+    exact = Decimal(text)
+    if exact == exact.to_integral_value():
+        return int(exact)
+    return float(text)
+
+
 class Parser:
     """Precedence-climbing parser for Jet SQL expressions."""
 
@@ -593,7 +613,7 @@ class Parser:
     def atom(self) -> Expr:
         token = self.take()
         if token.kind == "number":
-            return Literal(float(token.text) if "." in token.text else int(token.text))
+            return Literal(_number_literal(token.text))
         if token.kind == "string":
             quote = token.text[0]
             return Literal(token.text[1:-1].replace(quote + quote, quote))
@@ -1315,30 +1335,56 @@ def _environment(
 
 
 def _join(sources: list[Source], parameters: Mapping[str, object], outer: Environment | None = None) -> list[Row]:
+    """The rows of the FROM clause, in the order the engine produces them.
+
+    The order matters: it is what a SELECT with no ORDER BY answers in,
+    and what an UPDATE over the join writes in.  Measured against the
+    engine (docs/access_engine.md): an inner join scans the side with
+    fewer rows and probes the other through a temporary index, which
+    hands back rows sharing a key in the reverse of their stored order;
+    on a tie the second-listed side is scanned.  Joins fold left to
+    right, the result so far counting as the smaller of its two inputs
+    and, on a tie with a table, being the side scanned.  An outer join
+    scans its preserved side.  A cross join loops the larger side
+    outside (the second-listed on a tie) and the smaller inside, both in
+    stored order."""
     rows: list[Row] = list(sources[0].rows)
+    estimate = len(rows)
+    folded = False
     for k in range(1, len(sources)):
         source = sources[k]
         right_rows = source.rows
+        scope = sources[: k + 1]
+
+        def matches(a: Row, b: Row) -> bool:
+            if source.condition is None:
+                return True
+            verdict = source.condition.eval(_environment({**a, **b}, scope, parameters, outer))
+            return verdict is not None and _truthy(verdict)
+
         joined: list[Row] = []
-        matched_right: set[int] = set()
-        for left in rows:
-            hit = False
-            for index, right in enumerate(right_rows):
-                candidate = {**left, **right}
-                if source.condition is not None:
-                    verdict = source.condition.eval(_environment(candidate, sources[: k + 1], parameters, outer))
-                    if verdict is None or not _truthy(verdict):
-                        continue
-                joined.append(candidate)
-                matched_right.add(index)
-                hit = True
-            if not hit and source.join == "LEFT":
-                joined.append(dict(left))
-        if source.join == "RIGHT":
-            for index, right in enumerate(right_rows):
-                if index not in matched_right:
+        if source.join == "CROSS":
+            outer_side, inner_side = (right_rows, rows) if len(right_rows) >= len(rows) else (rows, right_rows)
+            joined = [{**a, **b} for a in outer_side for b in inner_side]
+        elif source.join == "RIGHT" or (
+            source.join != "LEFT" and (len(right_rows) < estimate or (len(right_rows) == estimate and not folded))
+        ):
+            # Scan the right side, probe what came before it.
+            for right in right_rows:
+                hits = [{**left, **right} for left in reversed(rows) if matches(left, right)]
+                joined.extend(hits)
+                if not hits and source.join == "RIGHT":
                     joined.append(dict(right))
+        else:
+            # Scan what came before, probe the right side.
+            for left in rows:
+                hits = [{**left, **right} for right in reversed(right_rows) if matches(left, right)]
+                joined.extend(hits)
+                if not hits and source.join == "LEFT":
+                    joined.append(dict(left))
         rows = joined
+        estimate = len(rows) if source.join == "CROSS" else min(estimate, len(right_rows))
+        folded = True
     return rows
 
 
@@ -1572,18 +1618,27 @@ def execute(
     if verb == "TRANSFORM":
         return _crosstab(db, clauses, parameters)
     if verb == "SELECT":
+        if "INTO" in dict(clauses):
+            with db.transaction():
+                return _make_table(
+                    db, clauses, parameters, created=created, updated=updated, owner_updated=owner_updated
+                )
         return _select(db, clauses, parameters)
     # An action query is all or nothing: one that fails on its third row
     # leaves the first two unwritten, which is what the engine does.
-    if verb == "INSERT INTO":
-        with db.transaction():
-            return _insert(db, clauses, parameters)
+    if verb in ("INSERT INTO", "DELETE"):
+        progress = _Progress()
+        try:
+            with db.transaction():
+                if verb == "INSERT INTO":
+                    return _insert(db, clauses, parameters, progress)
+                return _delete(db, clauses, parameters, progress)
+        except AccessError:
+            progress.keep(db)
+            raise
     if verb == "UPDATE":
         with db.transaction():
             return _update(db, clauses, parameters)
-    if verb == "DELETE":
-        with db.transaction():
-            return _delete(db, clauses, parameters)
     raise AccessError(f"statement {verb} is not supported")
 
 
@@ -1857,37 +1912,23 @@ def _select(
     if "WHERE" in by_word:
         where = Parser.parse(by_word["WHERE"])
         rows = [r for r in rows if (v := where.eval(env_for(r))) is not None and _truthy(v)]
-    # Output columns.
-    outputs: list[tuple[str, Expr | None, str | None]] = []  # (name, expr, star alias)
-    _reject_duplicate_aliases(items)
-    if flags & 0x01 or not items:
-        for s in sources:
-            outputs.append((s.alias, None, s.alias))
-    for position, (expression, alias) in enumerate(items):
-        if expression.endswith("*"):
-            qualifier = expression[:-1].rstrip(".")
-            outputs.append((qualifier, None, qualifier or sources[0].alias))
-            continue
-        expr = Parser.parse(expression)
-        if alias:
-            name = alias.strip("[]")
-        elif isinstance(expr, ColumnRef):
-            name = expr.name
-        else:
-            name = _expr_name(position)
-        outputs.append((name, expr, None))
-    _qualify_repeats(outputs, items)
-    _number_repeats(outputs, items)
+    outputs = _outputs(flags, items, sources)
     grouped = "GROUP BY" in by_word or any(o[1] is not None and _has_aggregate(o[1]) for o in outputs)
     groups: list[list[Row]]
     if grouped:
         keys = [Parser.parse(g.strip()) for g in split_top_level(by_word.get("GROUP BY", ""), ",")] if "GROUP BY" in by_word else []
-        buckets: dict[tuple[object, ...], list[Row]] = {}
+        buckets: dict[tuple[object, ...], tuple[list[Row], tuple[object, ...]]] = {}
         for r in rows:
             env = env_for(r)
-            key = tuple(_hashable(k.eval(env)) for k in keys)
-            buckets.setdefault(key, []).append(r)
-        groups = list(buckets.values()) if buckets or keys else [rows]
+            values = tuple(k.eval(env) for k in keys)
+            key = tuple(_hashable(v) for v in values)
+            buckets.setdefault(key, ([], values))[0].append(r)
+        # The engine groups by sorting, so the groups come out in key
+        # order -- Null first, then ascending, text case-blind -- whatever
+        # order the rows came in; a group shows the first value it met
+        # (measured).
+        ordered = sorted(buckets.values(), key=lambda pair: tuple(_sort_key(v) for v in pair[1]))
+        groups = [pair[0] for pair in ordered] if buckets or keys else [rows]
         if "HAVING" in by_word:
             having = Parser.parse(by_word["HAVING"])
             groups = [g for g in groups if (v := _evaluate_with_aggregates(having, g, sources, parameters, env_for)) is not None and _truthy(v)]
@@ -1912,6 +1953,19 @@ def _select(
                 # computed comes back the way Jet writes a truth value.
                 out[name] = value if isinstance(expr, ColumnRef) else _computed(value)
         result.append((out, group[0] if group else {}))
+    if flags & 0x02:
+        # DISTINCT is done by sorting too: the rows that survive come out
+        # in the order of their values, first-seen row for each (measured),
+        # and an ORDER BY then sorts those.
+        seen: set[tuple[object, ...]] = set()
+        unique: list[tuple[Row, Row]] = []
+        for pair in result:
+            key = tuple(_hashable(v) for v in pair[0].values())
+            if key not in seen:
+                seen.add(key)
+                unique.append(pair)
+        unique.sort(key=lambda pair: tuple(_sort_key(v) for v in pair[0].values()))
+        result = unique
     if "ORDER BY" in by_word:
         orderings: list[tuple[Expr, bool]] = []
         for item in split_top_level(by_word["ORDER BY"], ","):
@@ -1925,20 +1979,42 @@ def _select(
         for expr, descending in reversed(orderings):
             result.sort(key=lambda pair, expr=expr: _order_key(pair, expr, grouped, sources, parameters, env_for), reverse=descending)
     output = [pair[0] for pair in result]
-    if flags & 0x02:
-        seen: set[tuple[object, ...]] = set()
-        unique: list[Row] = []
-        for r in output:
-            key = tuple(_hashable(v) for v in r.values())
-            if key not in seen:
-                seen.add(key)
-                unique.append(r)
-        output = unique
     if top is not None:
         count, _, percent = top.partition(" ")
         limit = -(-len(output) * int(count) // 100) if percent.strip().upper() == "PERCENT" else int(count)
         output = output[:limit]
     return output
+
+
+#: An output column: its name, its expression, and -- for a `t.*` --
+#: the alias whose every column it stands for instead.
+Output = tuple[str, "Expr | None", "str | None"]
+
+
+def _outputs(flags: int, items: list[tuple[str, str | None]], sources: Sequence[Source]) -> list[Output]:
+    """The select list as output columns, named as the engine names them:
+    the alias, the column, or ``Expr`` and the position."""
+    outputs: list[Output] = []
+    _reject_duplicate_aliases(items)
+    if flags & 0x01 or not items:
+        for s in sources:
+            outputs.append((s.alias, None, s.alias))
+    for position, (expression, alias) in enumerate(items):
+        if expression.endswith("*"):
+            qualifier = expression[:-1].rstrip(".")
+            outputs.append((qualifier, None, qualifier or sources[0].alias))
+            continue
+        expr = Parser.parse(expression)
+        if alias:
+            name = alias.strip("[]")
+        elif isinstance(expr, ColumnRef):
+            name = expr.name
+        else:
+            name = _expr_name(position)
+        outputs.append((name, expr, None))
+    _qualify_repeats(outputs, items)
+    _number_repeats(outputs, items)
+    return outputs
 
 
 #: What the engine calls an output column with no name of its own.
@@ -2055,7 +2131,439 @@ def _hashable(value: object) -> object:
     return value
 
 
-def _insert(db: AccessDatabase, clauses: list[tuple[str, str]], parameters: Mapping[str, object]) -> int:
+# --- SELECT ... INTO --------------------------------------------------------------
+
+#: The engine's Decimal, as a make-table query creates one from an
+#: expression: 28 digits, the scale the expression works out to.
+DECIMAL_PRECISION = 28
+
+#: Functions whose answer is text; the column is a Text(255).
+_TEXT_FUNCTIONS = frozenset(
+    "CSTR STR HEX OCT CHR SPACE STRING UCASE LCASE TRIM LTRIM RTRIM LEFT RIGHT MID "
+    "FORMAT REPLACE STRREVERSE WEEKDAYNAME MONTHNAME PARTITION".split()
+)
+#: Functions whose answer is a Long.
+_LONG_FUNCTIONS = frozenset("LEN INSTR DATEDIFF DATEPART CLNG".split())
+#: Functions whose answer is an Integer -- the yes/no ones included, since
+#: the engine has no Boolean outside a column.
+_INTEGER_FUNCTIONS = frozenset(
+    "ASC STRCOMP SGN CINT CBOOL CBYTE YEAR MONTH DAY HOUR MINUTE SECOND WEEKDAY "
+    "ISNULL ISNUMERIC ISDATE".split()
+)
+#: Functions whose answer is a Double, whatever they were given.
+_DOUBLE_FUNCTIONS = frozenset("ABS ROUND SQR EXP LOG VAL CDBL CSNG".split())
+#: Functions whose answer is a date.
+_DATE_FUNCTIONS = frozenset(
+    "CDATE DATEVALUE TIMEVALUE DATESERIAL TIMESERIAL DATEADD NOW DATE TIME".split()
+)
+
+
+def _computed_column(name: str, kind: str, size: int | tuple[int, int] | None = None) -> ColumnSpec:
+    """The column an expression becomes.  The engine keeps it among the
+    variable-length columns rather than in the fixed block a Long or a
+    Double would normally take -- every type but Integer, which stays
+    fixed (measured on every expression type) -- so the row layout of a
+    made table differs from the same columns declared by CREATE TABLE."""
+    return ColumnSpec(name, kind, size, variable=kind != "integer")
+
+
+def _text_column(name: str) -> ColumnSpec:
+    """The column an expression that answers text becomes: 255 characters,
+    without Unicode compression (measured)."""
+    return ColumnSpec(name, "text", 255, compressed=False, variable=True)
+
+
+def _decimal_column(name: str, scale: int) -> ColumnSpec:
+    return _computed_column(name, "decimal", (DECIMAL_PRECISION, scale))
+
+
+def _kind(spec: ColumnSpec) -> str:
+    return spec.type.lower()
+
+
+def _scale(spec: ColumnSpec) -> int:
+    return spec.size[1] if _kind(spec) == "decimal" and isinstance(spec.size, tuple) else 0
+
+
+def _promote(name: str, left: ColumnSpec, right: ColumnSpec, op: str) -> ColumnSpec:
+    """The column `left op right` makes, for the arithmetic operators.
+
+    Measured: the whole-number types come together as a Long; a Single
+    with anything is a Double; Currency with a Long or a Double stays
+    Currency; a Decimal keeps its digits, adding scales under `*` and
+    taking the wider under `+` and `-`; a Date plus a number is a Date and
+    a Date less a Date is a Double."""
+    kinds = {_kind(left), _kind(right)}
+    if kinds & {"text", "memo"}:
+        return _text_column(name)
+    if "datetime" in kinds:
+        return _computed_column(name, "double") if kinds == {"datetime"} else _computed_column(name, "datetime")
+    if "decimal" in kinds:
+        scales = (_scale(left), _scale(right))
+        return _decimal_column(name, sum(scales) if op == "*" else max(scales))
+    if "currency" in kinds:
+        return _computed_column(name, "currency")
+    if kinds & {"double", "single"}:
+        return _computed_column(name, "double")
+    return _computed_column(name, "long")
+
+
+def _widen(name: str, specs: Sequence[ColumnSpec]) -> ColumnSpec:
+    """One column for a set of alternatives -- the branches of IIf, the
+    answers of Switch -- with Null ignored, text winning, and the numbers
+    promoted as `+` promotes them (measured: IIf(b, L, D) is a Double,
+    IIf(b, 1, 'x') is Text)."""
+    live = [s for s in specs if _kind(s) != "binary"]
+    if not live:
+        return _computed_column(name, "binary", 510)
+    if any(_kind(s) in ("text", "memo") for s in live):
+        return _text_column(name)
+    spec = _computed_column(name, live[0].type, live[0].size)
+    for other in live[1:]:
+        spec = _promote(name, spec, other, "+")
+    return spec
+
+
+def _column_copy(name: str, table: Table, column: str) -> ColumnSpec:
+    """A column read straight out of a table keeps its definition: type,
+    size, AutoNumber and Unicode compression alike, though none of its
+    properties (measured: Required, DefaultValue and the validation
+    fields are all dropped)."""
+    definition = table.definition.column(column)
+    size: int | tuple[int, int] | None = None
+    if definition.type_code == TYPE_TEXT:
+        size = definition.length // 2
+    elif definition.type_code == TYPE_BINARY:
+        size = definition.length
+    elif definition.type_code == TYPE_NUMERIC:
+        size = (definition.precision, definition.scale)
+    return ColumnSpec(
+        name,
+        definition.type_name,
+        size,
+        autonumber=definition.auto_number,
+        compressed=definition.compressed_unicode,
+        variable=not definition.is_fixed and definition.type_code in FIXED_LENGTH_TYPES,
+    )
+
+
+def _value_column(name: str, value: object) -> ColumnSpec:
+    """A column for a value whose expression cannot be typed -- a column of
+    a derived table -- taken from the value itself."""
+    if isinstance(value, bool):
+        return _computed_column(name, "integer")
+    if isinstance(value, int):
+        return _computed_column(name, "long")
+    if isinstance(value, float):
+        return _computed_column(name, "double")
+    if isinstance(value, Decimal):
+        return _computed_column(name, "currency")
+    if isinstance(value, _dt.datetime):
+        return _computed_column(name, "datetime")
+    if isinstance(value, (bytes, bytearray)):
+        return _computed_column(name, "ole")
+    return _text_column(name)
+
+
+def _static_type(
+    name: str, expr: Expr, sources: Sequence[Source], db: AccessDatabase, parameters: Mapping[str, object]
+) -> ColumnSpec:
+    """The column a make-table query creates for an expression.  The
+    engine decides this from the expression alone -- the same column comes
+    out of a query over no rows -- so this walks the expression rather
+    than looking at values (measured over 120 expressions, in
+    ``docs/access_engine.md``)."""
+    if isinstance(expr, ColumnRef):
+        source = _column_source(expr, sources)
+        if source.table is not None:
+            return _column_copy(name, source.table, expr.name)
+        # A column of a saved query or a bracketed SELECT: type it from
+        # the first value it holds, the expression being out of reach.
+        key = f"{source.alias}.{expr.name}".lower()
+        value = next((r[key] for r in source.rows if r.get(key) is not None), None)
+        return _value_column(name, value)
+    if isinstance(expr, Literal):
+        value = expr.value
+        if value is None:
+            # A Null has no type; the engine gives it a Binary as wide as a
+            # Text(255) (measured).
+            return _computed_column(name, "binary", 510)
+        if isinstance(value, bool):
+            return _computed_column(name, "integer")
+        if isinstance(value, int):
+            return _computed_column(name, "long") if -(1 << 31) <= value < 1 << 31 else _decimal_column(name, 0)
+        if isinstance(value, float):
+            # A number with a fraction is a Decimal, scaled to the digits
+            # it was written with: `5.5` makes a Decimal(28, 1).
+            exponent = Decimal(repr(value)).normalize().as_tuple().exponent
+            return _decimal_column(name, -exponent if isinstance(exponent, int) and exponent < 0 else 0)
+        if isinstance(value, _dt.datetime):
+            return _computed_column(name, "datetime")
+        return _text_column(name)
+    if isinstance(expr, Unary):
+        if expr.op == "NOT":
+            return _computed_column(name, "integer")
+        return _promote(name, _static_type(name, expr.operand, sources, db, parameters), _computed_column(name, "long"), "-")
+    if isinstance(expr, Binary):
+        op = expr.op
+        if op in ("=", "<>", "<", ">", "<=", ">=", "LIKE", "IS", "IS NOT", "AND", "OR"):
+            return _computed_column(name, "integer")
+        if op == "&":
+            return _text_column(name)
+        if op in ("/", "^"):
+            return _computed_column(name, "double")
+        if op in ("\\", "MOD"):
+            return _computed_column(name, "long")
+        left = _static_type(name, expr.left, sources, db, parameters)
+        right = _static_type(name, expr.right, sources, db, parameters)
+        return _promote(name, left, right, op)
+    if isinstance(expr, (InList, Between)):
+        return _computed_column(name, "integer")
+    if isinstance(expr, SubQuery):
+        if expr.kind != "scalar":
+            return _computed_column(name, "integer")
+        return _subquery_type(name, expr.sql, sources, db, parameters)
+    if isinstance(expr, Call):
+        return _call_type(name, expr, sources, db, parameters)
+    raise AccessError(f"cannot work out the column type of {expr!r}")
+
+
+def _column_source(ref: ColumnRef, sources: Sequence[Source]) -> Source:
+    if ref.qualifier is not None:
+        source = next((s for s in sources if s.alias.lower() == ref.qualifier.lower()), None)
+        if source is None:
+            raise AccessError(f"{ref.qualifier!r} is not a table of the query")
+        return source
+    holders = [s for s in sources if s.holds(ref.name)]
+    if not holders:
+        raise AccessError(f"no column named {ref.name!r} in any table of the query")
+    return holders[0]
+
+
+def _subquery_type(
+    name: str, sql: str, sources: Sequence[Source], db: AccessDatabase, parameters: Mapping[str, object]
+) -> ColumnSpec:
+    """A scalar subquery is typed as its first output column would be."""
+    text = sql.strip().rstrip(";").strip()
+    clauses = split_clauses(text)
+    if clauses[0][0] != "SELECT" or "FROM" not in dict(clauses):
+        return _computed_column(name, "double")
+    flags, _top, items = select_list(clauses[0][1])
+    inner = _sources(db, dict(clauses)["FROM"], parameters)
+    outputs = _outputs(flags, items, list(inner) + list(sources))
+    if not outputs:
+        return _computed_column(name, "double")
+    first_name, first_expr, star = outputs[0]
+    if star is not None or first_expr is None:
+        source = next(s for s in inner if s.alias.lower() == (star or first_name).lower())
+        if source.table is None or not source.columns:
+            return _computed_column(name, "double")
+        spec = _column_copy(name, source.table, source.columns[0])
+    else:
+        spec = _static_type(name, first_expr, list(inner) + list(sources), db, parameters)
+    # The subquery's value is computed as far as the outer query knows:
+    # text comes back at the full width, and nothing stays fixed-length.
+    if _kind(spec) in ("text", "memo"):
+        return _text_column(name)
+    return _computed_column(name, spec.type, spec.size)
+
+
+def _call_type(
+    name: str, call: Call, sources: Sequence[Source], db: AccessDatabase, parameters: Mapping[str, object]
+) -> ColumnSpec:
+    upper = call.name.upper()
+
+    def arg(index: int) -> ColumnSpec:
+        return _static_type(name, call.args[index], sources, db, parameters)
+
+    if upper in AGGREGATES:
+        if upper == "COUNT":
+            return _computed_column(name, "long")
+        if upper in ("STDEV", "STDEVP", "VAR", "VARP"):
+            return _computed_column(name, "double")
+        operand = arg(0)
+        kind = _kind(operand)
+        if upper in ("SUM", "AVG"):
+            # A sum or average of whole numbers is a Double; Currency and
+            # Decimal keep their type (measured).
+            if kind not in ("currency", "decimal"):
+                return _computed_column(name, "double")
+        # Min, Max, First and Last answer in the column's own type, except
+        # that text comes back at the full 255 characters -- and like any
+        # computed column, none of them stays in the fixed block.
+        if kind in ("text", "memo"):
+            return _text_column(name)
+        return _computed_column(name, operand.type, operand.size)
+    if upper in DOMAIN_FUNCTIONS:
+        aggregate = DOMAIN_FUNCTIONS[upper]
+        if aggregate is None or aggregate in ("First", "Last"):
+            return _text_column(name)
+        return _computed_column(name, "long") if aggregate == "Count" else _computed_column(name, "double")
+    if upper in _TEXT_FUNCTIONS:
+        return _text_column(name)
+    if upper in _LONG_FUNCTIONS:
+        return _computed_column(name, "long")
+    if upper in _INTEGER_FUNCTIONS:
+        return _computed_column(name, "integer")
+    if upper in _DOUBLE_FUNCTIONS:
+        return _computed_column(name, "double")
+    if upper in _DATE_FUNCTIONS:
+        return _computed_column(name, "datetime")
+    if upper == "CCUR":
+        return _computed_column(name, "currency")
+    if upper in ("INT", "FIX"):
+        # Int keeps a whole-number type (as a Long) and leaves a Double a
+        # Double (measured).
+        return _promote(name, arg(0), _computed_column(name, "long"), "+")
+    if upper == "IIF":
+        return _widen(name, [arg(1), arg(2)]) if len(call.args) == 3 else _computed_column(name, "double")
+    if upper == "NZ":
+        return _widen(name, [arg(i) for i in range(len(call.args))])
+    if upper == "SWITCH":
+        return _widen(name, [arg(i) for i in range(1, len(call.args), 2)])
+    if upper == "CHOOSE":
+        return _widen(name, [arg(i) for i in range(1, len(call.args))])
+    return _computed_column(name, "double")
+
+
+def _made_headers(specs: Sequence[ColumnSpec]) -> list[ColumnSpec]:
+    """The two things a made table's column headers carry that CREATE
+    TABLE's do not (measured, byte for byte against the engine):
+
+    * bytes 9-10 count the columns from one rather than from zero;
+    * every column after a Decimal -- copied or computed, fixed or not,
+      Memo and GUID included, Text alone excepted -- carries that
+      Decimal's precision and scale where its collation would be, until
+      the next Decimal resets them.  A stale buffer in the engine, by the
+      look of it, and reproduced as such."""
+    out: list[ColumnSpec] = []
+    leak: tuple[int, int] | None = None
+    for position, spec in enumerate(specs):
+        collation = spec.collation
+        kind = _kind(spec)
+        if kind == "decimal":
+            leak = spec.size if isinstance(spec.size, tuple) else (18, 0)
+        elif leak is not None and kind != "text":
+            collation = leak
+        out.append(replace(spec, ordinal=position + 1, collation=collation))
+    return out
+
+
+def _make_table(
+    db: AccessDatabase,
+    clauses: list[tuple[str, str]],
+    parameters: Mapping[str, object],
+    *,
+    created: object | None = None,
+    updated: object | None = None,
+    owner_updated: object | None = None,
+) -> int:
+    """Run ``SELECT ... INTO NewTable FROM ...``: create the table the
+    query describes and fill it with the query's rows, answering how many.
+
+    The columns come from the select list -- a column read straight out
+    keeps its definition, an expression gets the type the engine gives
+    it -- and none of the source's indexes or column properties come
+    along (measured).  An existing name is an error.  The three stamps
+    are the new table's catalog timestamps, as for any DDL."""
+    by_word = dict(clauses)
+    target = by_word["INTO"].strip().strip("[]")
+    if any(n.lower() == target.lower() for n in db.table_names()):
+        raise AccessError(f"an object named {target!r} already exists")
+    if "FROM" not in by_word:
+        raise AccessError("SELECT needs a FROM clause")
+    flags, _top, items = select_list(clauses[0][1])
+    sources = _sources(db, by_word["FROM"], parameters)
+    specs: list[ColumnSpec] = []
+    for name, expr, star in _outputs(flags, items, sources):
+        if star is not None:
+            source = next(s for s in sources if s.alias.lower() == star.lower())
+            for column in source.columns:
+                if source.table is not None:
+                    specs.append(_column_copy(column, source.table, column))
+                else:
+                    key = f"{source.alias}.{column}".lower()
+                    value = next((r[key] for r in source.rows if r.get(key) is not None), None)
+                    specs.append(_value_column(column, value))
+            continue
+        assert expr is not None
+        specs.append(_static_type(name, expr, sources, db, parameters))
+    rows = _select(db, [c for c in clauses if c[0] != "INTO"], parameters)
+    table = db.create_table(
+        target, _made_headers(specs), created=created, updated=updated, owner_updated=owner_updated
+    )
+    for row in rows:
+        table.insert_row(_assignments(table, list(row), list(row.values())))
+    if rows:
+        _settle_autonumber(db, table, list(rows[0]), [list(row.values()) for row in rows])
+    return len(rows)
+
+def _settle_autonumber(db: AccessDatabase, table: Table, columns: Sequence[str], rows: Sequence[Sequence[object]]) -> None:
+    """Leave the AutoNumber counter where a statement that wrote its own
+    numbers leaves it: at the largest of them.  Row by row the counter
+    follows each value written, so 30 then 10 would leave 10; the engine
+    ends the statement at 30 (measured on INSERT ... SELECT and on a
+    made table), while a later statement writing 3 does lower it to 3."""
+    auto = [i for i, name in enumerate(columns) if table.definition.column(name).auto_number]
+    if not auto or len(rows) < 2:
+        return
+    given = [v for r in rows if isinstance(v := r[auto[0]], int) and not isinstance(v, bool)]
+    if not given:
+        return
+    top: int = max(given) & 0xFFFFFFFF
+    definition = table.definition
+    if definition.next_autonumber != top:
+        definition.next_autonumber = top
+        db.patch_definition(definition, OFFSET_NEXT_AUTONUMBER, struct.pack("<I", top))
+
+
+@dataclass
+class _Progress:
+    """How far an INSERT or DELETE got before it was refused, for what the
+    engine leaves in the table's definition header afterwards.
+
+    The rollback puts the rows back but not the header's counters
+    (measured): the AutoNumber counter keeps every number the statement's
+    rows reserved, and the row count keeps the rows written or deleted
+    before the failing one."""
+
+    table: str | None = None
+    #: The counter as the last attempted row left it, when the table has
+    #: an AutoNumber.
+    counter: int | None = None
+    #: Rows written (positive) or deleted (negative) before the failure.
+    rows: int = 0
+
+    def reserve(self, table: Table) -> None:
+        """Take the next AutoNumber for a row about to be written, as the
+        engine does before it looks at the row's values: a row that fails
+        still moves the counter by one, and one that names its own number
+        moves it by one when it fails and to that number when it lands."""
+        self.table = table.name
+        definition = table.definition
+        if any(c.auto_number and c.type_code != TYPE_COMPLEX for c in definition.columns):
+            self.counter = (definition.next_autonumber + 1) & 0xFFFFFFFF
+
+    def keep(self, db: AccessDatabase) -> None:
+        """Write the counters back after the rollback, from a definition
+        read fresh off the restored page."""
+        if self.table is None or (self.counter is None and not self.rows):
+            return
+        fresh = db.table(self.table).definition
+        if self.counter is not None:
+            fresh.next_autonumber = self.counter
+            db.patch_definition(fresh, OFFSET_NEXT_AUTONUMBER, struct.pack("<I", self.counter))
+        if self.rows:
+            fresh.row_count = (fresh.row_count + self.rows) & 0xFFFFFFFF
+            db.patch_definition(fresh, OFFSET_ROW_COUNT, struct.pack("<I", fresh.row_count))
+
+
+def _insert(
+    db: AccessDatabase,
+    clauses: list[tuple[str, str]],
+    parameters: Mapping[str, object],
+    progress: _Progress | None = None,
+) -> int:
     by_word = dict(clauses)
     head, values_clause = _split_values(clauses[0][1])
     target, _, column_list = head.partition("(")
@@ -2070,13 +2578,20 @@ def _insert(db: AccessDatabase, clauses: list[tuple[str, str]], parameters: Mapp
             inner = inner[1:].rsplit(")", 1)[0]
         env = _environment({}, [], parameters, None, lambda sql, e: _run(db, sql, parameters, e))
         values = [Parser.parse(v.strip()).eval(env) for v in split_top_level(inner, ",")]
+        if progress is not None:
+            progress.reserve(table)
         table.insert_row(_assignments(table, columns, values))
         return 1
     if "SELECT" in by_word:
         select_clauses = [(w, b) for w, b in clauses if w != "INSERT INTO"]
         rows = _select(db, select_clauses, parameters)
         for r in rows:
+            if progress is not None:
+                progress.reserve(table)
             table.insert_row(_assignments(table, columns, list(r.values())))
+            if progress is not None:
+                progress.rows += 1
+        _settle_autonumber(db, table, columns, [list(r.values()) for r in rows])
         return len(rows)
     raise AccessError("INSERT needs VALUES or SELECT")
 
@@ -2225,12 +2740,14 @@ def _row_id(row: Row, alias: str) -> RowId | None:
 
 
 def _update(db: AccessDatabase, clauses: list[tuple[str, str]], parameters: Mapping[str, object]) -> int:
-    """Write the SET clause into the tables the FROM part joins.  Every
-    joined row counts as affected, and every expression is read from the
-    row before anything is written, so ``SET A = B, B = A`` swaps.  A
-    table row the join reaches more than once is written once, from the
-    first join row (measured); a LEFT JOIN writes its unmatched rows too,
-    with Null for the side that is missing."""
+    """Write the SET clause into the tables the FROM part joins, one join
+    row at a time in the order :func:`_join` produces them.  Every join
+    row counts as affected.  Within a row every expression is read before
+    the row's writes, so ``SET A = B, B = A`` swaps; a later join row that
+    reaches a table row an earlier one wrote reads the new value, so the
+    last join row's write is what stays (measured -- which row that is
+    depends on the join order).  A LEFT JOIN writes its unmatched rows
+    too, with Null for the side that is missing."""
     by_word = dict(clauses)
     sources = _sources(db, clauses[0][1], parameters)
     assignments: list[tuple[Source, str, Expr]] = []
@@ -2259,8 +2776,14 @@ def _update(db: AccessDatabase, clauses: list[tuple[str, str]], parameters: Mapp
         return _run(db, sql, parameters, env)
 
     count = 0
-    written: set[tuple[str, RowId]] = set()
+    # What each table row holds now, once a join row has written it: a
+    # later join row that reaches the same table row reads these.
+    current: dict[tuple[str, RowId], dict[str, object]] = {}
     for row in _join(sources, parameters, None):
+        for source in sources:
+            row_id = _row_id(row, source.alias)
+            if row_id is not None and (source.alias.lower(), row_id) in current:
+                row = {**row, **current[(source.alias.lower(), row_id)]}
         env = _environment(row, sources, parameters, None, runner)
         if where is not None:
             verdict = where.eval(env)
@@ -2273,18 +2796,27 @@ def _update(db: AccessDatabase, clauses: list[tuple[str, str]], parameters: Mapp
             if not changes or source.table is None:
                 continue
             row_id = _row_id(row, source.alias)
-            if row_id is None or (source.alias.lower(), row_id) in written:
+            if row_id is None:
                 continue
-            written.add((source.alias.lower(), row_id))
-            source.table.update_row(row_id, _assignments(source.table, list(changes), list(changes.values())))
+            stored = _assignments(source.table, list(changes), list(changes.values()))
+            source.table.update_row(row_id, stored)
+            current.setdefault((source.alias.lower(), row_id), {}).update(
+                {f"{source.alias}.{name}".lower(): value for name, value in stored.items()}
+            )
     return count
 
 
-def _delete(db: AccessDatabase, clauses: list[tuple[str, str]], parameters: Mapping[str, object]) -> int:
+def _delete(
+    db: AccessDatabase,
+    clauses: list[tuple[str, str]],
+    parameters: Mapping[str, object],
+    progress: _Progress | None = None,
+) -> int:
     """Take rows out of one table of the FROM part.  Over a join the
     statement has to say which, as ``DELETE T.* FROM T INNER JOIN ...``,
     and a row the join reaches twice is an error rather than a second
-    delete (the engine says "Record is deleted" and undoes the lot)."""
+    delete: the engine says "Record is deleted" and undoes the lot, though
+    its row count keeps the rows it had taken out by then (measured)."""
     by_word = dict(clauses)
     sources = _sources(db, by_word["FROM"], parameters)
     head = clauses[0][1].strip()
@@ -2313,6 +2845,9 @@ def _delete(db: AccessDatabase, clauses: list[tuple[str, str]], parameters: Mapp
         if row_id is None:
             continue
         if row_id in doomed:
+            if progress is not None:
+                progress.table = table.name
+                progress.rows = -len(doomed)
             raise AccessError(
                 f"the join reaches a row of {target.alias!r} more than once, so it "
                 f"would be deleted twice; nothing was deleted"

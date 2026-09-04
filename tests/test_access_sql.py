@@ -9,7 +9,11 @@ from pathlib import Path
 import pytest
 
 from pyopenvba.access import AccessDatabase, ColumnSpec, IndexSpec
+from pyopenvba.access._pages import row_bytes
+from pyopenvba.access._queries import parse_from
+from pyopenvba.access._rows import split_row
 from pyopenvba.access._sql import Parser, like_match
+from pyopenvba.access._tdef import TYPE_BINARY, TYPE_NUMERIC, TYPE_TEXT
 from pyopenvba.access_read import AccessError
 
 TEMPLATE = Path(__file__).parents[1] / "src" / "pyopenvba" / "_templates" / "blank_files" / "blank_database.accdb"
@@ -263,8 +267,13 @@ def test_an_action_query_that_fails_part_way_writes_nothing(tmp_path: Path) -> N
     with pytest.raises(AccessError):
         db.execute("UPDATE Dst SET A = A + Id * 40")
     assert db.execute("SELECT A FROM Dst ORDER BY Id") == [{"A": 50}, {"A": 50}]
-    # The bytes have to come back too, not just the rows.
-    assert AccessDatabase(db.to_bytes()).table("Dst").row_count == 2
+    # The bytes come back too, not just the rows -- except the header's
+    # row count, which keeps the one row the refused INSERT had written
+    # before its second row failed (measured: the engine's rollback puts
+    # the rows back and leaves the counters).
+    reopened = AccessDatabase(db.to_bytes())
+    assert reopened.execute("SELECT Count(*) AS N FROM Dst") == [{"N": 2}]
+    assert reopened.table("Dst").row_count == 3
 
 
 def _pair(tmp_path: Path) -> AccessDatabase:
@@ -285,11 +294,13 @@ def _pair(tmp_path: Path) -> AccessDatabase:
 
 
 def test_update_over_a_join_writes_both_tables_and_counts_join_rows(tmp_path: Path) -> None:
-    """Three join rows, so three affected; L.Id 2 is reached twice and
-    keeps the first join row's value, the way the engine leaves it."""
+    """Three join rows, so three affected.  L.Id 2 is reached twice and
+    keeps the last join row's value; with three rows a side, the engine
+    scans R and probes L, so the join rows come in R's order and 333 is
+    the one that stays (measured)."""
     db = _pair(tmp_path)
     assert db.execute("UPDATE L INNER JOIN R ON L.Id = R.Id SET L.A = R.B, R.B = 0") == 3
-    assert db.execute("SELECT A FROM L ORDER BY Id") == [{"A": 111}, {"A": 222}, {"A": 0}]
+    assert db.execute("SELECT A FROM L ORDER BY Id") == [{"A": 111}, {"A": 333}, {"A": 0}]
     assert db.execute("SELECT Count(*) AS N FROM R WHERE B = 0") == [{"N": 3}]
 
 
@@ -304,7 +315,7 @@ def test_update_names_its_columns_by_alias_or_by_the_table_that_holds_them(tmp_p
     db = _pair(tmp_path)
     assert db.execute("UPDATE L AS X INNER JOIN R AS Y ON X.Id = Y.Id SET [X].[A] = Y.B WHERE Y.B > 200") == 2
     assert db.execute("UPDATE L INNER JOIN R ON L.Id = R.Id SET A = 5 WHERE R.B = 111") == 1
-    assert db.execute("SELECT A FROM L ORDER BY Id") == [{"A": 5}, {"A": 222}, {"A": 0}]
+    assert db.execute("SELECT A FROM L ORDER BY Id") == [{"A": 5}, {"A": 333}, {"A": 0}]
     with pytest.raises(AccessError, match="ambiguous"):
         db.execute("UPDATE L INNER JOIN R ON L.Id = R.Id SET Id = 7")
     with pytest.raises(AccessError, match="not a table of the statement"):
@@ -325,11 +336,255 @@ def test_delete_over_a_join_names_the_table_and_refuses_a_double_match(tmp_path:
         db.execute("DELETE FROM L INNER JOIN R ON L.Id = R.Id")
     with pytest.raises(AccessError, match="more than once"):
         db.execute("DELETE L.* FROM L INNER JOIN R ON L.Id = R.Id")
-    assert db.table("L").row_count == 3
+    # Nothing was deleted, but the header's row count keeps the two rows
+    # the engine had taken out before it reached L.Id 2 a second time.
+    assert db.execute("SELECT Count(*) AS N FROM L") == [{"N": 3}]
+    assert db.table("L").row_count == 1
     assert db.execute("DELETE L.* FROM L INNER JOIN R ON L.Id = R.Id WHERE R.B = 111") == 1
     assert db.execute("DELETE R.* FROM L INNER JOIN R ON L.Id = R.Id") == 2
     assert db.execute("SELECT Id FROM L ORDER BY Id") == [{"Id": 2}, {"Id": 3}]
     assert db.execute("SELECT B FROM R") == [{"B": 111}]
+
+
+def _types(db: AccessDatabase, table: str) -> list[tuple[str, str, object, bool]]:
+    """Each column as (name, type, size, fixed) the way the header says it."""
+    out: list[tuple[str, str, object, bool]] = []
+    for column in db.table(table).definition.columns:
+        size: object = None
+        if column.type_code == TYPE_TEXT:
+            size = column.length // 2
+        elif column.type_code == TYPE_NUMERIC:
+            size = (column.precision, column.scale)
+        elif column.type_code == TYPE_BINARY:
+            size = column.length
+        out.append((column.name, column.type_name, size, column.is_fixed))
+    return out
+
+
+def test_select_into_makes_the_table_the_engine_makes(tmp_path: Path) -> None:
+    """A column read straight out keeps its definition, AutoNumber and
+    all; an expression gets the type the engine gives it, and sits among
+    the variable-length columns unless it is an Integer.  Text from an
+    expression is 255 characters, a number with a fraction is a Decimal
+    scaled to its digits, and Null is a Binary as wide as a Text(255)."""
+    db = _shop(tmp_path)
+    assert db.execute(
+        "SELECT Id, Name, Balance * 2 AS Doubled, Name & City AS Joined, 5.5 AS Dec, "
+        "Len(Name) AS N, Active AND TRUE AS Flag, Joined + 1 AS Later, Null AS Nothing "
+        "INTO Made FROM Customers WHERE Id = 1"
+    ) == 1
+    assert _types(db, "Made") == [
+        ("Id", "Long", None, True),
+        ("Name", "Text", 50, False),
+        ("Doubled", "Currency", None, False),
+        ("Joined", "Text", 255, False),
+        ("Dec", "Decimal", (28, 1), False),
+        ("N", "Long", None, False),
+        ("Flag", "Integer", None, True),
+        ("Later", "DateTime", None, False),
+        ("Nothing", "Binary", 510, False),
+    ]
+    made = db.table("Made").definition
+    assert made.column("Id").auto_number and not made.column("Joined").compressed_unicode
+    # Bytes 9-10 of a made header count from one; every column after the
+    # Decimal but the Text carries its precision and scale (measured).
+    assert [c.header_ordinal for c in made.columns] == list(range(1, 10))
+    assert (made.column("N").sort_order, made.column("N").sort_version) == (28, 1)
+    assert (made.column("Later").sort_order, made.column("Later").sort_version) == (28, 1)
+    assert made.column("Doubled").sort_order == 1033
+    assert db.execute("SELECT Doubled, Dec, N, Flag, Nothing FROM Made") == [
+        {"Doubled": Decimal("21.0000"), "Dec": Decimal("5.5"), "N": 3, "Flag": -1, "Nothing": None}
+    ]
+    assert not db.table("Made").definition.logical_indexes
+
+
+def test_select_into_over_a_join_and_a_group_and_over_nothing(tmp_path: Path) -> None:
+    db = _shop(tmp_path)
+    assert db.execute(
+        "SELECT Customers.Name, Sum(Orders.Amount) AS Total, Count(*) AS N INTO Totals "
+        "FROM Customers INNER JOIN Orders ON Customers.Id = Orders.CustomerId GROUP BY Customers.Name"
+    ) == 2
+    assert _types(db, "Totals") == [("Name", "Text", 50, False), ("Total", "Double", None, False), ("N", "Long", None, False)]
+    assert db.execute("SELECT * FROM Totals ORDER BY Name") == [
+        {"Name": "Ada", "Total": 350.25, "N": 2},
+        {"Name": "Bob", "Total": 5.0, "N": 1},
+    ]
+    # No rows still makes the table, and an existing name is refused.
+    assert db.execute("SELECT Id, Name INTO Nobody FROM Customers WHERE Id = 999") == 0
+    assert db.table("Nobody").row_count == 0
+    with pytest.raises(AccessError, match="already exists"):
+        db.execute("SELECT * INTO Nobody FROM Customers")
+    assert db.execute("SELECT (SELECT Max(Amount) FROM Orders) AS M, (SELECT Name FROM Customers WHERE Id = 2) AS Who INTO Sub FROM Customers WHERE Id = 1") == 1
+    assert _types(db, "Sub") == [("M", "Double", None, False), ("Who", "Text", 255, False)]
+
+
+def test_a_number_written_with_an_exponent_reads(tmp_path: Path) -> None:
+    db = _shop(tmp_path)
+    assert db.execute("SELECT 1E3 AS A, 1.5E2 AS B, 1.5E-1 AS C, -1E3 AS D FROM Customers WHERE Id = 1") == [
+        {"A": 1000, "B": 150, "C": 0.15, "D": -1000}
+    ]
+    db.execute("SELECT 1E3 AS A, 1.5E-1 AS C, 1E10 AS Big INTO Exps FROM Customers WHERE Id = 1")
+    assert _types(db, "Exps") == [("A", "Long", None, False), ("C", "Decimal", (28, 2), False), ("Big", "Decimal", (28, 0), False)]
+
+
+def test_short_text_is_stored_without_compression(tmp_path: Path) -> None:
+    """The engine compresses a Text value only when that makes it shorter,
+    so one and two Latin-1 characters go in as plain UTF-16 (measured
+    through INSERT, UPDATE and SELECT INTO)."""
+    db = AccessDatabase.create_new(tmp_path / "short.accdb")
+    db.create_table("T", [ColumnSpec("Id", "long"), ColumnSpec("T", "text", 10, compressed=True)])
+    for value in ("x", "xy", "xyz", ""):
+        db.execute(f"INSERT INTO T VALUES ({len(value)}, '{value}')")
+    definition = db.table("T").definition
+    raw: dict[int, bytes | None] = {}
+    for row_id, values in db.table("T").rows_with_ids():
+        stored = row_bytes(db.store.read(row_id.page), row_id.slot)
+        assert stored is not None
+        raw[int(values["Id"])] = split_row(definition, stored).values.get(1)  # pyright: ignore[reportArgumentType]
+    assert raw[1] == "x".encode("utf-16-le")
+    assert raw[2] == "xy".encode("utf-16-le")
+    assert raw[3] == b"\xff\xfexyz"
+    assert db.execute("SELECT T FROM T WHERE Id > 0 ORDER BY Id") == [{"T": "x"}, {"T": "xy"}, {"T": "xyz"}]
+
+
+def _sized(tmp_path: Path, left: int, right: list[tuple[int, int]]) -> AccessDatabase:
+    """L with Ids 1..left, R with the given (Id, B) rows, in that order."""
+    db = AccessDatabase.create_new(tmp_path / f"sized{left}.accdb")
+    db.create_table("L", [ColumnSpec("Id", "long"), ColumnSpec("A", "long")])
+    db.create_table("R", [ColumnSpec("Id", "long"), ColumnSpec("B", "long")])
+    for i in range(1, left + 1):
+        db.execute(f"INSERT INTO L VALUES ({i}, 0)")
+    for i, b in right:
+        db.execute(f"INSERT INTO R VALUES ({i}, {b})")
+    return db
+
+
+def test_a_join_scans_the_smaller_side_and_probes_the_other_last_in_first_out(tmp_path: Path) -> None:
+    """Measured on the engine: with two rows against three, L is scanned
+    and R's two rows for Id 2 come back newest first; with three against
+    three the second-listed table is scanned and they come in stored
+    order.  What a SELECT with no ORDER BY answers depends on it, and so
+    does which join row's write an UPDATE keeps."""
+    rows = [(1, 111), (2, 222), (2, 333)]
+    two = _sized(tmp_path, 2, rows)
+    assert two.execute("SELECT L.Id, R.B FROM L INNER JOIN R ON L.Id = R.Id") == [
+        {"Id": 1, "B": 111}, {"Id": 2, "B": 333}, {"Id": 2, "B": 222}
+    ]
+    three = _sized(tmp_path, 3, rows)
+    assert three.execute("SELECT L.Id, R.B FROM L INNER JOIN R ON L.Id = R.Id") == [
+        {"Id": 1, "B": 111}, {"Id": 2, "B": 222}, {"Id": 2, "B": 333}
+    ]
+    assert three.execute("SELECT L.Id, R.B FROM R INNER JOIN L ON L.Id = R.Id") == [
+        {"Id": 1, "B": 111}, {"Id": 2, "B": 333}, {"Id": 2, "B": 222}
+    ]
+    # The last join row's write is the one that stays, so the two shapes
+    # leave different values behind.
+    assert two.execute("UPDATE L INNER JOIN R ON L.Id = R.Id SET L.A = R.B") == 3
+    assert two.execute("SELECT A FROM L WHERE Id = 2") == [{"A": 222}]
+    assert three.execute("UPDATE L INNER JOIN R ON L.Id = R.Id SET L.A = R.B") == 3
+    assert three.execute("SELECT A FROM L WHERE Id = 2") == [{"A": 333}]
+
+
+def test_a_later_join_row_reads_what_an_earlier_one_wrote(tmp_path: Path) -> None:
+    db = AccessDatabase.create_new(tmp_path / "revisit.accdb")
+    db.create_table("L", [ColumnSpec("Id", "long"), ColumnSpec("A", "long")])
+    db.create_table("R", [ColumnSpec("Id", "long"), ColumnSpec("B", "long")])
+    for statement in ("INSERT INTO L VALUES (1, 5)", "INSERT INTO L VALUES (1, 7)", "INSERT INTO R VALUES (1, 100)"):
+        db.execute(statement)
+    # R is scanned (one row), L probed newest first: 100 + 7, then 107 + 5.
+    assert db.execute("UPDATE L INNER JOIN R ON L.Id = R.Id SET R.B = R.B + L.A, L.A = R.B") == 2
+    assert db.execute("SELECT B FROM R") == [{"B": 112}]
+    assert db.execute("SELECT A FROM L ORDER BY Id, A") == [{"A": 100}, {"A": 107}]
+
+
+def test_joins_in_parentheses_read_as_access_writes_them(tmp_path: Path) -> None:
+    """Every query Access saves over three tables is
+    ``(A INNER JOIN B ON ...) INNER JOIN C ON ...``; the group can also be
+    the right side.  The rows come out in the engine's order either way."""
+    db = AccessDatabase.create_new(tmp_path / "three.accdb")
+    db.create_table("A", [ColumnSpec("Id", "long"), ColumnSpec("X", "long")])
+    db.create_table("B", [ColumnSpec("Id", "long"), ColumnSpec("Y", "long")])
+    db.create_table("C", [ColumnSpec("Id", "long"), ColumnSpec("Z", "long")])
+    for statement in ("INSERT INTO A VALUES (1, 1)", "INSERT INTO A VALUES (1, 2)", "INSERT INTO B VALUES (1, 10)",
+                      "INSERT INTO B VALUES (1, 20)", "INSERT INTO B VALUES (1, 30)", "INSERT INTO C VALUES (1, 100)", "INSERT INTO C VALUES (1, 200)"):
+        db.execute(statement)
+    left_deep = db.execute("SELECT A.X, B.Y, C.Z FROM (A INNER JOIN B ON A.Id = B.Id) INNER JOIN C ON A.Id = C.Id")
+    assert left_deep == [{"X": x, "Y": y, "Z": z} for x in (1, 2) for y in (30, 20, 10) for z in (200, 100)]
+    right_nested = db.execute("SELECT A.X, B.Y, C.Z FROM C INNER JOIN (A INNER JOIN B ON A.Id = B.Id) ON C.Id = A.Id")
+    assert right_nested == [{"X": x, "Y": y, "Z": z} for x in (1, 2) for z in (200, 100) for y in (30, 20, 10)]
+    tables, joins = parse_from("(A INNER JOIN B ON A.Id = B.Id) INNER JOIN C ON A.Id = C.Id")
+    assert [t.name1 for t in tables] == ["A", "B", "C"]
+    assert [(j.name1, j.name2, j.expression) for j in joins] == [("A", "B", "A.Id = B.Id"), ("B", "C", "A.Id = C.Id")]
+    assert db.execute("SELECT A.X, C.Z FROM A, C") == [{"X": 1, "Z": 100}, {"X": 2, "Z": 100}, {"X": 1, "Z": 200}, {"X": 2, "Z": 200}]
+
+
+def test_groups_and_distinct_rows_come_out_in_key_order(tmp_path: Path) -> None:
+    """The engine groups by sorting: Null first, then ascending, text
+    case-blind, and a group wears the first value it met (measured)."""
+    db = AccessDatabase.create_new(tmp_path / "groups.accdb")
+    db.create_table("T", [ColumnSpec("Id", "long"), ColumnSpec("A", "long"), ColumnSpec("N", "text", 10), ColumnSpec("B", "long")])
+    for statement in ("INSERT INTO T VALUES (1, 30, 'pear', 2)", "INSERT INTO T VALUES (2, 10, 'Apple', 1)", "INSERT INTO T VALUES (3, 20, 'fig', 2)",
+                      "INSERT INTO T VALUES (4, 10, 'apple', 1)", "INSERT INTO T VALUES (5, NULL, 'Fig', 2)", "INSERT INTO T VALUES (6, 20, NULL, 1)",
+                      "INSERT INTO T VALUES (7, -5, 'zed', 3)"):
+        db.execute(statement)
+    assert db.execute("SELECT A, Count(*) AS C FROM T GROUP BY A") == [
+        {"A": None, "C": 1}, {"A": -5, "C": 1}, {"A": 10, "C": 2}, {"A": 20, "C": 2}, {"A": 30, "C": 1}
+    ]
+    assert db.execute("SELECT N, Count(*) AS C FROM T GROUP BY N") == [
+        {"N": None, "C": 1}, {"N": "Apple", "C": 2}, {"N": "fig", "C": 2}, {"N": "pear", "C": 1}, {"N": "zed", "C": 1}
+    ]
+    assert db.execute("SELECT A, B, Count(*) AS C FROM T GROUP BY B, A") == [
+        {"A": 10, "B": 1, "C": 2}, {"A": 20, "B": 1, "C": 1}, {"A": None, "B": 2, "C": 1},
+        {"A": 20, "B": 2, "C": 1}, {"A": 30, "B": 2, "C": 1}, {"A": -5, "B": 3, "C": 1},
+    ]
+    assert db.execute("SELECT DISTINCT B, A FROM T") == [
+        {"B": 1, "A": 10}, {"B": 1, "A": 20}, {"B": 2, "A": None}, {"B": 2, "A": 20}, {"B": 2, "A": 30}, {"B": 3, "A": -5}
+    ]
+    assert db.execute("SELECT DISTINCT N FROM T ORDER BY N DESC") == [{"N": "zed"}, {"N": "pear"}, {"N": "fig"}, {"N": "Apple"}, {"N": None}]
+
+
+def test_a_refused_insert_keeps_the_numbers_it_reserved(tmp_path: Path) -> None:
+    """Every row an INSERT attempts takes the next AutoNumber before its
+    values are looked at, and the rows written before the failing one
+    stay counted in the header; the rollback puts the rows back and leaves
+    both (measured).  A refused UPDATE moves neither."""
+    db = AccessDatabase.create_new(tmp_path / "reserved.accdb")
+    db.create_table("T", [ColumnSpec("Id", "long", autonumber=True), ColumnSpec("A", "long"), ColumnSpec("D", "datetime")])
+    db.create_table("S", [ColumnSpec("A", "long")])
+    for statement in ("INSERT INTO T (A) VALUES (1)", "INSERT INTO T (A) VALUES (2)", "INSERT INTO S VALUES (10)",
+                      "INSERT INTO S VALUES (20)", "INSERT INTO S VALUES (500)", "INSERT INTO S VALUES (40)"):
+        db.execute(statement)
+    db.table("T").set_properties({"ValidationRule": "<100"}, column="A")
+    with pytest.raises(AccessError):
+        db.execute("INSERT INTO T (A, D) VALUES (9, 'not a date')")
+    assert db.table("T").definition.next_autonumber == 3
+    with pytest.raises(AccessError):
+        db.execute("INSERT INTO T (A) SELECT A FROM S")
+    assert db.table("T").definition.next_autonumber == 6
+    assert db.table("T").row_count == 4 and db.execute("SELECT Count(*) AS N FROM T") == [{"N": 2}]
+    with pytest.raises(AccessError):
+        db.execute("INSERT INTO T (Id, A) VALUES (50, 900)")
+    assert db.table("T").definition.next_autonumber == 7
+    with pytest.raises(AccessError):
+        db.execute("UPDATE T SET A = 900")
+    assert db.table("T").definition.next_autonumber == 7 and db.table("T").row_count == 4
+    assert db.execute("INSERT INTO T (A) VALUES (3)") == 1
+    assert db.execute("SELECT Id FROM T WHERE A = 3") == [{"Id": 8}]
+
+
+def test_a_statement_writing_its_own_autonumbers_ends_at_the_largest(tmp_path: Path) -> None:
+    db = AccessDatabase.create_new(tmp_path / "largest.accdb")
+    db.create_table("T", [ColumnSpec("Id", "long", autonumber=True), ColumnSpec("A", "long")])
+    db.create_table("S", [ColumnSpec("Id", "long"), ColumnSpec("A", "long")])
+    db.execute("INSERT INTO S VALUES (30, 1)")
+    db.execute("INSERT INTO S VALUES (10, 2)")
+    assert db.execute("INSERT INTO T SELECT Id, A FROM S") == 2
+    assert db.table("T").definition.next_autonumber == 30
+    db.execute("SELECT Id, A INTO M FROM S")
+    assert db.table("M").definition.next_autonumber == 0  # a copied Long is no AutoNumber
+    db.execute("SELECT Id, A INTO N FROM T")
+    assert db.table("N").definition.next_autonumber == 30
+    assert db.execute("INSERT INTO N (A) VALUES (9)") == 1 and db.execute("SELECT Max(Id) AS M FROM N") == [{"M": 31}]
 
 
 def test_unknown_and_ambiguous_columns_are_errors(tmp_path: Path) -> None:

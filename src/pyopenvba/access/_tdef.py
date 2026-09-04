@@ -167,6 +167,9 @@ class ColumnDef:
     type_code: int
     number: int
     var_index: int
+    #: Bytes 9-10 of the header: the column number again in a table
+    #: CREATE TABLE built, one more than it in a table a query made.
+    header_ordinal: int
     fixed_offset: int
     length: int
     flags: int
@@ -349,6 +352,7 @@ def parse_column_header(raw: bytes, name: str) -> ColumnDef:
         type_code=raw[0],
         number=u16(5),
         var_index=u16(7),
+        header_ordinal=u16(9),
         sort_order=u16(11),
         sort_version=u16(13),
         flags=raw[15],

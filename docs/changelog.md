@@ -5,34 +5,24 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ## [Unreleased]
 
-### Removed
-
-- **Jet 3 (Access 97) databases are refused again.** Reading them worked
-  and was gated against the engine, but the scope is now what the Access
-  application opens today, and Access has not opened an Access 97 file
-  since 2013. A 2 KiB page format is a second set of offsets through the
-  reader for a format nobody authors; `git log` has the implementation if
-  it is ever wanted back.
-
-  The plumbing that carried it went with it: the `Layout` record, the
-  page size and text encoding read from the file rather than fixed, and
-  the layout argument threaded through the page, row and definition
-  readers. One page format means one set of constants, in the modules
-  that own them, so there is no second source for an offset and no
-  parameter that can only take one value.
-
-### Known
-
-- **The SQL executor does not carry a column's numeric type through every
-  operator.** Currency and Decimal both decode to `Decimal`, and the
-  engine treats them differently. Where that changes a value -- `Avg` --
-  the column is now consulted and both match. What still differs is the
-  Python type of some arithmetic results, never the number:
-  `Decimal / 3` answers a `float` where the engine answers a Decimal of
-  28 digits, the same value to double precision. `docs/access_engine.md`
-  has the table.
-
 ### Added
+
+- **`SELECT ... INTO` makes a table.** The make-table query creates the
+  table the engine creates: a copied column keeps its definition, an
+  expression gets the type the engine's own inference gives it (157
+  expressions measured, every definition page byte-identical), the rows
+  follow, and the three quirks a made table's headers carry -- computed
+  columns variable-length, ordinals from one, a Decimal's precision and
+  scale leaking into the columns after it -- are written as the engine
+  writes them.
+- **`UPDATE` and `DELETE` run over a join**, writing to either table of
+  the join, applying every join row in the engine's order, and refusing
+  what the engine refuses: a subquery in a SET clause, a join DELETE that
+  does not name its table, a row a DELETE reaches twice.
+- **A FROM clause with joins in parentheses reads** -- `(A INNER JOIN B
+  ON ...) INNER JOIN C ON ...`, which is how Access writes every query
+  over three tables, and the group on the right side too.
+- **A numeric literal with an exponent** (`1E3`, `1.5E-1`) reads.
 
 - **A table's rows can be packed onto fewer pages.**
   `db.rebuild_table(name)` reads a table's rows out, drops the table,
@@ -486,294 +476,52 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
-- **Averaging a Decimal column lost digits.** `Avg` rounded every Decimal
-  result to four places, which is right for Currency and wrong for
-  Decimal: the engine keeps every digit the division gives, as many as
-  its 96-bit decimal carries. Both columns decode to `Decimal`, so the
-  rule now follows the column the average reads rather than the value.
+- **What a query stores in a column now matches the engine**, measured
+  statement by statement against DAO: over-long Text is cut to size
+  rather than refused (a Memo is not), a Byte takes the low byte of its
+  number, a number in a Date column is its serial, a value list with no
+  column list covers the AutoNumber too, an explicit AutoNumber moves the
+  counter and a Null there is an error, and no query updates an
+  AutoNumber.
+- **An action query is all or nothing.** An INSERT, UPDATE or DELETE that
+  fails part way leaves the rows as they were, through a page journal in
+  the store rather than a copy of the file. The AutoNumber counter and the
+  header's row count keep what the attempted rows took, which is what the
+  engine leaves too.
+- **Joins, GROUP BY and DISTINCT answer in the engine's order.** An inner
+  join scans the smaller side and probes the other newest-first, groups
+  and distinct rows come out sorted by their keys; an UPDATE over a join
+  keeps the last join row's write, and which row that is now follows.
+- **One- and two-character Text values are stored uncompressed**, as the
+  engine stores them; compression is applied only where it shortens the
+  value. Rows holding such values were one byte off the engine's.
 
-- **A Decimal column would not take a number written into a statement.**
-  `INSERT INTO t (d) VALUES (0.25)` refused, because the literal arrives
-  as a float and the encoder wanted a `Decimal`. It is taken as the
-  decimal that was written, not the binary value nearest it.
+### Removed
 
-- **A Boolean was written as its name, not as the number it is.**
-  `Flag & ''` answered `True` where the engine answers `-1`, and the same
-  went for `CStr`. `True + 1` is 0 and `-True` is 1.
+- **Jet 3 (Access 97) databases are refused again.** Reading them worked
+  and was gated against the engine, but the scope is now what the Access
+  application opens today, and Access has not opened an Access 97 file
+  since 2013. A 2 KiB page format is a second set of offsets through the
+  reader for a format nobody authors; `git log` has the implementation if
+  it is ever wanted back.
 
-- **`Round` rounded the double, not the number as written.** The engine
-  rounds half to even on the decimal that was typed, and the two
-  disagree often: the double nearest 2.345 sits just above it and the one
-  nearest 2.675 just below, so rounding the double answers 2.35 and 2.67
-  where the engine answers 2.34 and 2.68.
+  The plumbing that carried it went with it: the `Layout` record, the
+  page size and text encoding read from the file rather than fixed, and
+  the layout argument threaded through the page, row and definition
+  readers. One page format means one set of constants, in the modules
+  that own them, so there is no second source for an offset and no
+  parameter that can only take one value.
 
-- **A number written with an exponent would not read.** `CDbl('1e3')`
-  refused, because a string was only tried as a float when it held a
-  decimal point. It is a thousand.
+### Known
 
-- **`CStr` of a Boolean gave its name.** `CStr(True)` is `-1` and
-  `CStr(False)` is `0`.
-
-- **`+` joined text to a number instead of adding it.** `'5' + 5`
-  answered `'55'` where the engine answers `10`: text on one side and a
-  number on the other is an addition, and text that will not read as a
-  number makes the whole expression Null rather than an error. Two
-  strings still join, and `&` always joins.
-
-- **`Replace`, `InStr` and `StrComp` ignored their comparison
-  argument.** A query ignores case unless told not to, so
-  `Replace('abcABC', 'b', 'X')` is `aXcAXC`; ours was case-sensitive and
-  left the second half alone. `Replace` also ignored `start` and
-  `count`, and `start` does not merely say where to look -- the answer
-  begins there, so `Replace('abcabc', 'b', 'X', 3)` is `caXc`.
-
-- **Dividing by zero stopped the query instead of answering Null.**
-  `SELECT Over / Under FROM t` raised as soon as one row held a zero,
-  where the engine answers Null for that row and carries on. The same
-  goes for `\` and `Mod`. Found by running forty SELECTs through both
-  the executor and DAO and comparing every name and value.
-
-- **`Sqr` and `Log` given the wrong number raised the maths library's
-  error**, not this package's. The engine refuses them too; the point is
-  that the refusal now reads as an `AccessError` like every other.
-
-- **A repeated column in a SELECT swallowed its twin.** Rows come back
-  keyed by name, so `SELECT Id, Id, Total` collapsed the two `Id`
-  columns into one and handed back a row a column short -- which is what
-  made `INSERT INTO t (a, b, c) SELECT x, x, y FROM u` refuse to run,
-  though DAO accepts it. The engine keeps the last of a repeated name and
-  calls the ones before it `Expr` plus 1000 and the column's position:
-  `SELECT Id, Id` answers with `Expr1000` and `Id`, and
-  `SELECT Total, Total, Total` with `Expr1000`, `Expr1001` and `Total`.
-
-- **An unnamed output column was numbered by a counter, not its
-  position.** `SELECT Id, Id + 1` answered with `Expr1000` where the
-  engine says `Expr1001`. Two tests had the old numbers written into
-  them; DAO was asked about both shapes and neither agreed with what we
-  were doing.
-
-- **Two output columns could share a name.** `SELECT Id AS X, Name AS X`
-  quietly kept one; the engine refuses, and so does this now.
-
-- **The control paddings were another property's codes.** `TopPadding`,
-  `BottomPadding`, `LeftPadding` and `RightPadding` were recorded as 700
-  to 703 -- names invented from the fact that Access writes four related
-  values there on a new button. They are 455 to 458, established by
-  differencing, so `set_control_property(..., "TopPadding", 60)` was
-  writing something else. What 700 to 703 are is still unknown: every
-  property a command button exposes has been differenced without any of
-  them landing there, so they are now named by their code and written
-  exactly as Access writes them rather than under a guess.
-
-- **`TextAlign` was the wrong code.** It was recorded as 379, which is
-  really `IMESentenceMode`. Access writes 3 there on every new text box,
-  list box and combo box, so nothing looked wrong until someone set the
-  alignment and it did not change; `set_control_property(..., "TextAlign",
-  2)` was quietly setting the sentence mode instead. `TextAlign` is code
-  136, established by building the same form twice differing only in that
-  property. Access now reads back every alignment written.
-
-- **A caption written at another control's id.** A caption sits at record
-  id 221 on a label and a command button, but 231 on a toggle button and
-  232 on a page -- and those two were copied from the command button
-  rather than measured, so `add_control(..., caption=...)` on either put
-  the text into whatever property those ids name instead. A subform was
-  given a `ControlSource` slot it has no such property for; what a
-  subform shows is its `SourceObject`. Access does not complain about a
-  record at the wrong id: it opens the form with the caption missing and
-  something else changed.
-
-  What caught it is a new check that the two tables describing the same
-  records -- what a new control is given, and where each property lives
-  -- agree wherever they overlap.
-
-- **A section holding three or more controls lost all but two.** The word
-  an `0xFF` marker carries is the number of objects in the group it
-  opens, and it was written as a constant 2 -- right by coincidence for
-  the two-control case that was measured, wrong for every other. Access
-  does not refuse a design that gets it wrong: it opens the form and
-  shows only as many controls as the number claims, which is why nothing
-  caught it. A form Access built with eleven controls carries `0xFF 11`
-  twice, once over its prototypes and once over its controls, which is
-  what settled it.
-- An inline usage map now grows to cover two pages past the one being
-  added, rounded to four bytes, which is what the engine writes.
-  Rounding to eight was right only by accident on small files and gave
-  the wrong bitmap on every map above a few hundred bytes.
-- A BigInt column is no longer marked fixed: the engine keeps it among
-  the variable columns, like a GUID, and a table created with one
-  differed from the engine's by that flag.
-- An index key over a Currency column now takes a float, rounding it to
-  four places exactly as the row writer does. Inserting a float into a
-  uniquely indexed Currency column raised instead.
-- A fixed column declared after a variable one now carries the count of
-  variable columns before it in its header, as the engine writes it. A
-  table whose Currency column followed two Text columns differed from
-  the engine's by that byte.
-- The SQL rebuilt from a saved query with a join now names the joined
-  table, not just its alias.
-- An index built over existing rows now matches the engine's B-tree.
-  Entries are added in key order, a leaf keeps the prefix it was
-  compressed with instead of shrinking it (so a key without that prefix
-  starts the next leaf), and a splitting root hands its page image to
-  the left half. A four-leaf index over four hundred rows differed from
-  the engine's on every leaf before; it is byte-identical now.
-- `&` in a SQL expression now reads Null as an empty string, as Jet
-  does, giving Null only when both sides are Null; `+` still propagates
-  it. Appending text to a null Memo through UPDATE wrote nothing
-  before, where the engine writes the appended text.
-- Dead slots parked at a page's lowest row now follow the data start
-  when that row is deleted too, as the engine's do; before, they kept
-  the old offset and a page that lost rows through an overflow copy
-  differed from the engine's by those slot entries.
-
-- **A Jet 4 / ACE storage engine, read layer** (`pyopenvba.access`,
-  in progress; not yet exported from the package root).
-  `AccessDatabase(path)` opens an `.accdb` or Jet 4 `.mdb`, lists the
-  catalog and reads any table's rows as Python values: every column type
-  including Currency, Decimal, GUID, BigInt, Memo and OLE long values,
-  Unicode-compressed text, overflow rows and definitions that span pages.
-  Checked against the ACE engine itself (`RUN_LIVE_ACCESS=1`, DAO driven
-  from PowerShell as a test-time oracle) field for field, and against
-  every Access-authored fixture table for table. The plan and the format
-  facts established so far are in `docs/access_engine.md`.
-- **Indexes read.** `table.indexes`, `table.index(name)` and
-  `table.primary_key` expose each B-tree; `index.entries()` walks the
-  leaves in key order and decodes every key type (`index.rows()` yields
-  the rows in that order). Verified against seventeen ACE-written
-  indexes covering every indexable column type, descending order,
-  two-column keys and unique ignore-nulls, entry for entry.
-- **Text collation reproduced.** The sort keys the engine writes for
-  text -- case-blind primaries, diacritic weights, kana marks, recorded
-  ignorables -- are generated from the engine's own output for every
-  BMP code point (`scripts/generate_access_collation.py`) and
-  re-encoded exactly, 63 632 of 63 632 strings. With that,
-  `encode_key` produces the stored bytes for any index key from Python
-  values, the inverse of the decoder, checked against every entry of
-  seventeen live indexes.
-- **Rows can be written.** `table.insert_row(values)`,
-  `table.update_row(row_id, changes)` and `table.delete_row(row_id)`
-  edit a table the way the engine does: rows laid down and compacted on
-  the data page, AutoNumber and row counters maintained, every index
-  updated with pages compressed when full and split when needed, new
-  pages taken from the global usage map and registered with the table's
-  maps. `AccessDatabase.save()` writes the file. Verified live: the ACE
-  engine reads back every row pyOpenVBA wrote across all scalar column
-  types, keeps working with the table, and compacts the database; a
-  single insert and delete are byte-identical to the engine's own.
-- **Memo and OLE values are written** in the storage kind the engine
-  would choose -- inline, one row on a shared long-value page, or a
-  chain of pages -- and freed when replaced or deleted; a row that
-  outgrows its page moves behind an overflow pointer and comes back
-  when it fits. A duplicate key in a unique index is refused. All of it
-  read back by the engine live; single-page and chained memo inserts
-  byte-identical to its own.
-- **Tables can be created and dropped.** `db.create_table(name,
-  columns, indexes)` with `ColumnSpec` / `IndexSpec` (every column type,
-  AutoNumber, primary key, unique, descending and multi-column indexes),
-  `db.create_index(table, spec)` and `db.drop_table(name)` write the
-  definition page, the usage-map page, the index roots and the catalog
-  rows exactly as the engine does: pyOpenVBA's CREATE TABLE, CREATE
-  INDEX and DROP TABLE leave every page but page 0 identical to the
-  engine's own, and the engine inserts into, reads and compacts a table
-  pyOpenVBA created. `pyopenvba.access` exports `AccessDatabase`,
-  `Table`, `Index`, `RowId`, `ColumnSpec`, `IndexSpec`.
-- **Table definitions longer than one page** are written the way the
-  engine writes them: `ceil(length / 4088)` pages, continuation pages
-  allocated after the index roots and chained in reverse, the free word
-  `4088 * pages - length` on the last page; CREATE INDEX rewrites onto a
-  fresh chain and releases the old pages; DROP TABLE marks only the
-  first page. Tables of up to 255 columns with long names now round-trip
-  byte for byte against the engine (live gate).
-- **Relationships.** `db.create_relationship(name, table, columns,
-  referenced_table, referenced_columns, cascade_updates=, cascade_deletes=)`
-  writes a foreign key the way `ALTER TABLE ... ADD CONSTRAINT ... FOREIGN
-  KEY` does: the index on the referencing columns, the paired logical
-  entries on both tables (`.rB`, `.rC`, ... on the referenced side), the
-  MSysRelationships rows, the type-8 catalog object with its permission
-  rows, and both tables' stamps; `db.relationships()` reads them back and
-  `db.drop_relationship(name)` removes one as `DROP CONSTRAINT` does,
-  leaving the shrunken definitions' old bytes in place as the engine
-  does. Byte-identical to the engine for two relationships on one parent
-  and the drop of the first (live gate). CREATE TABLE's catalog row now carries DateCreate as its first
-  DateUpdate, as the engine's does, which the stale bytes under the slot
-  table revealed.
-- **A second usage-map page.** When a table's map page is full (57
-  rows), the next index or Memo column gets its map row on a fresh map
-  page, as the engine does; a table with 32 indexes and 12 Memo columns
-  is byte-identical to the engine's (live gate). The same run pinned down
-  when the engine reuses pages it released earlier in a session:
-  dropped, truncated or retired pages never, a freed value chain's pages
-  at once when they predate the session, and a definition rewrite's old
-  continuation pages in a batch once five are waiting.
-- `db.rename_table(name, new_name)` renames a table as DAO does: the
-  catalog row and every relationship row naming it (live gate).
-  `table.rename_column(name, new_name)` renames a column the same way:
-  the definition's name, the column's property block, the relationship
-  rows naming it, the catalog stamp (live gate).
-  `table.alter_column(name, ColumnSpec(...))` retypes or resizes a column
-  as ALTER COLUMN does: a replacement column, every row re-encoded with
-  the value converted, the old header dropped (live gate).
-- **Columns can be added and dropped.** `table.add_column(ColumnSpec(...))`
-  and `table.drop_column(name)` do what `ALTER TABLE ... ADD COLUMN` and
-  `DROP COLUMN` do, byte for byte in the live gate: the definition
-  rewritten, rows left as they are (old rows read the new column as
-  null), the catalog row stamped. Memo and OLE columns bring or give back
-  their usage maps and pages; indexed columns are refused. Found on the
-  way: a definition rewrite
-  after inserts in the same session wrote back the indexes' distinct-key
-  counts as they were when the definition was read; the live counts now
-  go in.
-- **Saved queries.** `db.queries()` and `db.query(name)` read
-  MSysQueries into `SavedQuery` objects whose `.sql` spells the Jet SQL
-  back in DAO's own layout; `db.create_query(name, sql)` saves a SELECT
-  (DISTINCT, DISTINCTROW, TOP, aliases, INNER/LEFT/RIGHT JOIN, WHERE,
-  GROUP BY, HAVING, ORDER BY), PARAMETERS, DELETE, UPDATE, INSERT INTO
-  ... SELECT, SELECT ... INTO or UNION query as `CreateQueryDef` does:
-  the rows, the type-5 catalog object with its properties, permissions
-  and DAO's query type in Flags; `db.drop_query(name)` removes one as
-  `QueryDefs.Delete` does. Eight query shapes and a deletion
-  byte-identical to DAO in the live gate.
-- **Properties.** `table.properties()`, `table.column_properties(name)`
-  and `db.database_properties()` decode the `MR2` blob in a catalog row's
-  LvProp (Description, Caption, Format, ColumnWidth, the database's own
-  settings, ...); `table.set_properties({...}, column=...)` rewrites it
-  the way DAO's `Properties.Append` does, one call per append, byte for
-  byte in the live gate. All 17 Access-authored blobs in the fixtures
-  serialize back identically.
-- A freed long-value chain's pages are reusable at once within the
-  session when the chain predates the session, unlike pages a DROP TABLE
-  releases or pages the session itself allocated (measured with DAO).
-- Single-row long values are placed as the engine places them: the page
-  last written this session when it has room, else the first listed page
-  with room, else a fresh page; LVAL pages stay listed while more than
-  256 bytes are free (was 64); an update stores the new value before
-  freeing the old; a delete re-lists its page. Byte-exact live gate.
-- Deleting the last row of a data or LVAL page retires the page as the
-  engine does (type 0x09, slots 0xD000, released, out of the maps; a
-  table's first data page stays), pages that lost rows rejoin the
-  free-space map, and `Table.truncate()` mirrors an unfiltered `DELETE
-  FROM`: pages released untouched, maps emptied, indexes reset. All
-  byte-exact against DAO in the live gate.
-- Pages released in a session (dropped tables, rewritten definitions,
-  freed long values) are not reallocated until the database is reopened,
-  as the engine does; an `AccessDatabase` instance is the session.
-- `CatalogEntry.date_create_serial` / `date_update_serial` carry the
-  stored stamps as doubles, and DateTime columns, `create_table` and
-  `create_index` accept such serials, so a stamp copied from another
-  database lands bit for bit (a datetime cannot carry the last bit).
-  `update_row` keeps the stored bytes of every column it does not touch,
-  and index keys are built from the stored serial rather than a decoded
-  datetime.
-- `AccessDatabase.create_new(path)` writes a blank database from the
-  embedded Access-authored template; `AccessDatabase`, `ColumnSpec` and
-  `IndexSpec` are exported from the package root, and the README has a
-  section on writing Access tables without Office.
-- **Files grow past 512 pages** the way the engine grows them: inline
-  usage maps enlarge their bitmaps in 8-byte steps, an empty map is
-  re-based to its first page, and the global map is extended a step at
-  a time. Growing a database from 121 to 573 pages leaves every page but
-  page 0 identical to the engine's own.
+- **The SQL executor does not carry a column's numeric type through every
+  operator.** Currency and Decimal both decode to `Decimal`, and the
+  engine treats them differently. Where that changes a value -- `Avg` --
+  the column is now consulted and both match. What still differs is the
+  Python type of some arithmetic results, never the number:
+  `Decimal / 3` answers a `float` where the engine answers a Decimal of
+  28 digits, the same value to double precision. `docs/access_engine.md`
+  has the table.
 
 ## [3.5.1] - 2026-08-31
 

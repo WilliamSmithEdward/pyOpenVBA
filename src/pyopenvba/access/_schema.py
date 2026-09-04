@@ -161,6 +161,15 @@ class ColumnSpec:
     #: type would normally sit in the fixed block.  A complex column's
     #: flat table stores its two Long bookkeeping columns this way.
     variable: bool = False
+    #: The two words at bytes 11-14 of the header, when not the usual
+    #: collation (1033, 0): a complex column's two Long bookkeeping
+    #: columns carry (0, 0), and in a table a query makes every column
+    #: after a Decimal carries that Decimal's (precision, scale).  A
+    #: Decimal's own precision and scale live there and ignore this.
+    collation: tuple[int, int] | None = None
+    #: What bytes 9-10 of the header hold, when not the column number:
+    #: a table made by a query numbers them from one there (measured).
+    ordinal: int | None = None
     required: bool = False
     default: str | None = None
     allow_zero_length: bool | None = None
@@ -226,6 +235,11 @@ class DefinitionLayout:
     column_map_refs: dict[int, tuple[int, int]] = field(default_factory=lambda: {})
 
 
+#: The width of a Decimal a make-table query computes: the 96-bit value
+#: and its sign, without the four bytes a declared one carries besides.
+COMPUTED_DECIMAL_BYTES = 13
+
+
 def column_header(spec: ColumnSpec, number: int, var_index: int, fixed_offset: int, tag: int) -> bytes:
     code = spec.type_code
     # A complex column is flagged AutoNumber too, but takes its id from
@@ -239,13 +253,15 @@ def column_header(spec: ColumnSpec, number: int, var_index: int, fixed_offset: i
     struct.pack_into("<I", raw, 1, tag)
     struct.pack_into("<H", raw, 5, number)
     struct.pack_into("<H", raw, 7, var_index)
-    struct.pack_into("<H", raw, 9, number)
+    struct.pack_into("<H", raw, 9, number if spec.ordinal is None else spec.ordinal)
     if code == TYPE_NUMERIC:
         precision, scale = (18, 0)
         if isinstance(spec.size, tuple):
             precision, scale = spec.size
         raw[11] = precision
         raw[12] = scale
+    elif spec.collation is not None:
+        struct.pack_into("<HH", raw, 11, *spec.collation)
     else:
         struct.pack_into("<H", raw, 11, SORT_ORDER)
     flags = COLUMN_NULLABLE
@@ -254,15 +270,19 @@ def column_header(spec: ColumnSpec, number: int, var_index: int, fixed_offset: i
         flags |= COLUMN_FIXED
         length = 1
     elif code in FIXED_SIZES:
-        # A column kept among the variable ones carries neither the fixed
-        # bit nor a collation: measured on a complex column's flat table,
-        # where the two Long bookkeeping columns read flags 2 and 6 with
-        # sort order 0, against 3 and 7 with 1033 for an ordinary Long.
+        # A column kept among the variable ones has no fixed bit.  On a
+        # complex column's flat table the two Long bookkeeping columns
+        # also carry no collation (flags 2 and 6 with sort order 0, against
+        # 3 and 7 with 1033 for an ordinary Long), which their spec says
+        # with ``collation=(0, 0)``; a variable Long a make-table query
+        # builds keeps its 1033 (measured).
         if not spec.variable:
             flags |= COLUMN_FIXED
-        else:
-            struct.pack_into("<H", raw, 11, 0)
         length = FIXED_SIZES[code]
+        if code == TYPE_NUMERIC and spec.variable:
+            # A declared Decimal is 17 bytes wide; one a query computes,
+            # kept among the variable columns, is 13 (measured).
+            length = COMPUTED_DECIMAL_BYTES
         if spec.autonumber:
             if code not in (TYPE_LONG, TYPE_COMPLEX):
                 raise AccessError(
@@ -270,7 +290,8 @@ def column_header(spec: ColumnSpec, number: int, var_index: int, fixed_offset: i
                 )
             flags |= COLUMN_AUTONUMBER
     elif code == TYPE_BINARY:
-        flags |= COLUMN_FIXED
+        if not spec.variable:
+            flags |= COLUMN_FIXED
         length = spec.size if isinstance(spec.size, int) else MAX_BINARY_BYTES
         if not 1 <= length <= MAX_BINARY_BYTES:
             raise AccessError(f"column {spec.name!r}: Binary size must be 1..{MAX_BINARY_BYTES}")

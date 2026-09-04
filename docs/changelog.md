@@ -476,6 +476,18 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- **A number keeps the engine's type through every operator.** `db.execute`
+  now answers an `int`, a `float` or a `Decimal` exactly where the engine
+  answers a Long, a Double or a Currency/Decimal: `5.5` and its arithmetic
+  are Decimals, `5.5 / 3` runs to 28 places, `Sum(Long)` and `Abs` are
+  Doubles, `Currency * Double` is a Double while `Currency + Double`
+  stays Currency, `Date + 1` is a Date (it was a float), a Large Number
+  takes everything into itself, and `IIf` widens its branches. Measured
+  through DAO's reported type of 135 expressions and the full
+  operator-by-type matrix; a live gate holds 185 of them and
+  `docs/access_engine.md` has the rules, including the two that look at
+  the shape of an operand rather than its value.
+
 - **What a query stores in a column now matches the engine**, measured
   statement by statement against DAO: over-long Text is cut to size
   rather than refused (a Memo is not), a Byte takes the low byte of its
@@ -511,17 +523,6 @@ All notable changes to pyOpenVBA are documented here. This project follows
   readers. One page format means one set of constants, in the modules
   that own them, so there is no second source for an offset and no
   parameter that can only take one value.
-
-### Known
-
-- **The SQL executor does not carry a column's numeric type through every
-  operator.** Currency and Decimal both decode to `Decimal`, and the
-  engine treats them differently. Where that changes a value -- `Avg` --
-  the column is now consulted and both match. What still differs is the
-  Python type of some arithmetic results, never the number:
-  `Decimal / 3` answers a `float` where the engine answers a Decimal of
-  28 digits, the same value to double precision. `docs/access_engine.md`
-  has the table.
 
 ## [3.5.1] - 2026-08-31
 

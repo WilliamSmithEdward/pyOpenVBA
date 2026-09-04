@@ -1273,6 +1273,112 @@ def test_sql_executor_matches_the_engine(tmp_path: Path) -> None:
     assert not differing, f"UPDATE and DELETE pages differ from the engine's: {_describe_pages(ours, engine, differing)}"
 
 
+#: What DAO reports for a value, folded to the kinds an expression can
+#: have: whole numbers (Long, Integer, Byte and a bare Boolean column),
+#: floating point (Double, Single), the two Decimals (Currency and
+#: Decimal both arrive as .NET Decimal), dates and text.
+_ENGINE_KINDS = {"Boolean": "whole", "Byte": "whole", "Int16": "whole", "Int32": "whole", "Int64": "whole",
+                 "Double": "float", "Single": "float", "Decimal": "decimal", "DateTime": "date", "String": "text"}
+
+#: Expressions over the AllTypes row with Id 1, and the aggregates over
+#: the table: the engine's kind and value must be ours.
+TYPE_GATE_EXPRESSIONS = (
+    "Big", "Dbl", "Cash", "Flag", "Tiny", "Small", "Sgl", "Stamp", "Frac", "Huge",
+    "Big * 2", "Big / 2", "Big / 3", "Big " + chr(92) + " 3", "Big Mod 7", "Big ^ 2", "-Big", "-Cash", "-Dbl", "-Stamp", "-Frac",
+    "5", "5.5", "-5.5", "1E3", "1.5E-1", "1E10", "3000000000", "5.5 + Big", "5.5 * 5.5", "5.5 / 3", "5.5 / 6.5", "5.5 + 2.25",
+    "5.5 * 0.25", "0.125 + 0.5", "2.50 + 2.5", "3000000000 + 4000000000", "12345678901234567890 + 1",
+    "Cash + 1", "Cash * Cash", "Cash / 2", "Cash * 1.5", "Cash + Dbl", "Cash * Dbl", "Cash + 5.5", "Cash - Cash", "Cash + 0.5 + 0.25", "Cash + 5.5 * 0.25",
+    "Big + Dbl", "Big + Cash", "Small + Small", "Tiny * Tiny", "Tiny + 1", "Flag + 1", "Sgl + 1", "Sgl * Sgl", "Big - Sgl", "Dbl + 5.5", "Dbl / 3",
+    "Stamp + 1", "Stamp - 1", "Stamp - Stamp", "Stamp * 2", "Stamp / 2", "1 + Stamp", "Stamp + 5.5", "Stamp + Cash",
+    "Frac + 1", "Frac + 5.5", "Frac + 1.2345", "Frac * 2", "Frac * 5.5", "Frac * 1.0001", "Frac * Frac", "Frac / 3", "Frac / 2.5", "Frac / Frac",
+    "Frac + Cash", "Frac * Cash", "Frac + Dbl", "Frac + Big", "Frac - Frac", "Frac + 12345678901234.5678",
+    "Huge + 1", "Huge * 2", "Huge + 1.5", "Huge / 2", "Cash + Huge", "Frac + Huge", "Huge + Dbl", "-Huge",
+    "Txt + 1", "Txt + Txt", "Txt & 1", "Cash & ''", "Frac & ''", "5.5 & ''", "(Cash * Cash) & ''", "Big & ''", "Dbl & ''",
+    "Abs(Big)", "Abs(Cash)", "Abs(Dbl)", "Abs(Frac)", "Int(Dbl)", "Int(Big)", "Int(Cash)", "Int(Frac)", "Int(Stamp)", "Fix(Dbl)", "Fix(Cash)",
+    "Round(Dbl, 1)", "Round(Big)", "Round(Cash, 1)", "Sqr(Dbl)", "Sgn(Big)", "Val('12')", "Val('1.5')", "CDbl(Big)", "CSng(Big)", "CCur(Big)",
+    "CLng(Dbl)", "CInt(Dbl)", "CByte(Tiny)", "CBool(Big)", "Len(Txt)", "Year(Stamp)", "IsNull(Big)", "Not Flag", "Big > 5", "True",
+    "IIf(Flag, 1, 2)", "IIf(Flag, Big, Dbl)", "IIf(Flag, Null, 1)", "IIf(Flag, Cash, Big)", "IIf(Flag, 5.5, 1)", "IIf(Flag, Stamp, 1)",
+    "IIf(Flag, Txt, 1)", "IIf(Flag, Frac, 1)", "IIf(Flag, Frac, Cash)", "IIf(Flag, Cash, 1.5)", "Switch(Big > 5, 1, True, 2)", "Choose(1, 5, 6)",
+    "(SELECT Max(Big) FROM AllTypes)", "(SELECT Cash FROM AllTypes WHERE Id = 1)",
+)
+TYPE_GATE_AGGREGATES = (
+    "Sum(Big)", "Sum(Cash)", "Sum(Dbl)", "Sum(Sgl)", "Sum(Tiny)", "Sum(Small)", "Sum(Frac)", "Sum(Huge)", "Count(*)",
+    "Avg(Big)", "Avg(Cash)", "Avg(Sgl)", "Avg(Frac)", "Avg(Huge)", "Avg(Cash + 0)", "Avg(Cash / 1)", "Avg(Cash + 0.5)", "Avg(Frac + 0)",
+    "Avg(Cash * 1.5)", "Avg(Cash * Dbl)", "Sum(Cash * 1.5)", "Max(Cash * 1.5)", "Sum(Cash + 0)", "Max(Cash + 0)",
+    "Min(Big)", "Max(Cash)", "Min(Sgl)", "Max(Dbl)", "Max(Tiny)", "Min(Small)", "Min(Frac)", "Max(Huge)", "First(Cash)", "Last(Big)",
+    "StDev(Big)", "Var(Cash)", "StDev(Frac)",
+)
+
+
+def _our_kind(value: object) -> str:
+    if isinstance(value, bool) or isinstance(value, int):
+        return "whole"
+    if isinstance(value, float):
+        return "float"
+    if isinstance(value, Decimal):
+        return "decimal"
+    if isinstance(value, dt.datetime):
+        return "date"
+    if isinstance(value, str):
+        return "text"
+    return type(value).__name__
+
+
+def _same_value(kind: str, engine: str, ours: object) -> bool:
+    if kind == "text":
+        return engine == ours
+    if kind == "date":
+        assert isinstance(ours, dt.datetime)
+        return engine == ours.strftime("%m/%d/%Y %H:%M:%S")
+    if kind == "decimal":
+        return Decimal(engine) == Decimal(str(ours))
+    if kind == "whole":
+        truth = {"True": -1, "False": 0}
+        left = truth.get(engine, None)
+        right = (-1 if ours else 0) if isinstance(ours, bool) else ours
+        return (left if left is not None else Decimal(engine)) == Decimal(str(right))
+    return abs(float(engine) - float(ours)) <= 1e-9 * max(1.0, abs(float(engine)))  # pyright: ignore[reportArgumentType]
+
+
+def test_expression_types_match_the_engine(tmp_path: Path) -> None:
+    """The type of a number through every operator, function and
+    aggregate is the engine's: a whole number where it answers a Long, a
+    float where it answers a Double, a Decimal where it answers Currency
+    or Decimal, and the same value.  DAO reports each field's type and
+    the .NET type of its value through the ``query-types`` oracle
+    command; the table of rules is in ``docs/access_engine.md``."""
+    theirs = tmp_path / "theirs.accdb"
+    shutil.copy(TEMPLATE, theirs)
+    assert oracle("-Command", "build-alltypes", "-Path", str(theirs), "-Rows", "3") == "ok"
+    script = tmp_path / "types.sql"
+    db = AccessDatabase(theirs)
+    problems: list[str] = []
+    for expressions, where in ((TYPE_GATE_EXPRESSIONS, " WHERE Id = 1"), (TYPE_GATE_AGGREGATES, "")):
+        names = [f"e{i}" for i in range(len(expressions))]
+        sql = "SELECT " + ", ".join(f"{e} AS [{n}]" for e, n in zip(expressions, names, strict=True)) + " FROM AllTypes" + where
+        script.write_text(sql, encoding="utf-8")
+        reported: dict[str, tuple[str, str]] = {}
+        for cell in oracle("-Command", "query-types", "-Path", str(theirs), "-SqlFile", str(script)).split(chr(9)):
+            name, _, body = cell.partition("=")
+            _dao_type, net_type, value = body.split("/", 2)
+            reported[name] = (net_type, value)
+        rows = db.execute(sql)
+        assert isinstance(rows, list) and len(rows) == 1, sql[:60]
+        for expression, name in zip(expressions, names, strict=True):
+            net_type, engine_value = reported[name]
+            ours = rows[0][name]
+            if net_type == "Null":
+                if ours is not None:
+                    problems.append(f"{expression}: engine Null, ours {ours!r}")
+                continue
+            kind = _ENGINE_KINDS.get(net_type, net_type)
+            if _our_kind(ours) != kind:
+                problems.append(f"{expression}: engine {net_type} {engine_value}, ours {type(ours).__name__} {ours!r}")
+            elif not _same_value(kind, engine_value, ours):
+                problems.append(f"{expression}: engine {engine_value}, ours {ours!r}")
+    assert not problems, chr(10).join(problems)
+
+
 def test_indexes_built_over_rows_count_them_as_the_engine_does(tmp_path: Path) -> None:
     """An index created over existing rows records how many rows it holds
     (nulls left out when it ignores them) beside its distinct-key count;

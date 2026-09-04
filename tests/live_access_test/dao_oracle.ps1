@@ -524,6 +524,28 @@ try {
             $text = Dump-Recordset ($db.OpenRecordset($sql, $dbOpenSnapshot))
             [Console]::Out.Write((ConvertTo-Json -InputObject $text -Compress))
         }
+        "query-types" {
+            # Run the SELECT in -SqlFile and report, for its first row,
+            # each field's DAO type number, the .NET type of the value and
+            # the value itself in round-trip form: what a type question
+            # needs, where query-dump's formatting would hide it.
+            $sql = [System.IO.File]::ReadAllText($SqlFile)
+            $rs = $db.OpenRecordset($sql, $dbOpenSnapshot)
+            $inv = [System.Globalization.CultureInfo]::InvariantCulture
+            $cells = New-Object System.Collections.Generic.List[string]
+            for ($f = 0; $f -lt $rs.Fields.Count; $f++) {
+                $field = $rs.Fields.Item($f)
+                $value = $field.Value
+                if ($rs.EOF -or $null -eq $value -or $value -is [System.DBNull]) {
+                    $cells.Add($field.Name + "=" + $field.Type + "/Null/")
+                } else {
+                    $text = if ($value -is [double] -or $value -is [single]) { $value.ToString("R", $inv) } else { $value.ToString($inv) }
+                    $cells.Add($field.Name + "=" + $field.Type + "/" + $value.GetType().Name + "/" + $text)
+                }
+            }
+            $rs.Close()
+            [Console]::Out.Write([string]::Join("`t", $cells))
+        }
         "run-sql" {
             # Execute the statement in -SqlFile and report the rows it affected.
             $sql = [System.IO.File]::ReadAllText($SqlFile)

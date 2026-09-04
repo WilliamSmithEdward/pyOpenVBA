@@ -33,7 +33,7 @@ import struct
 import re
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, replace
-from decimal import ROUND_HALF_EVEN, Decimal, localcontext
+from decimal import ROUND_FLOOR, ROUND_HALF_EVEN, Decimal, localcontext
 from typing import TYPE_CHECKING, Any
 
 from pyopenvba.access._ddl import execute_ddl, is_ddl
@@ -52,6 +52,7 @@ from pyopenvba.access._tdef import (
     OFFSET_NEXT_AUTONUMBER,
     OFFSET_ROW_COUNT,
     TYPE_COMPLEX,
+    TYPE_BIGINT,
     TYPE_BINARY,
     TYPE_BOOLEAN,
     TYPE_BYTE,
@@ -156,7 +157,7 @@ class Unary(Expr):
             return None if value is None else not _truthy(value)
         if value is None:
             return None
-        return -_number(value)
+        return _negate(value)
 
     def columns(self) -> list[tuple[str | None, str]]:
         return self.operand.columns()
@@ -209,25 +210,30 @@ class Binary(Expr):
                 return a + b
             if isinstance(a, str) or isinstance(b, str):
                 # Text on one side and a number on the other is an
-                # addition, not a join: `'5' + 5` is 10.  Text that will
-                # not read as a number makes the whole thing Null, which
-                # is what the engine answers -- it does not refuse.
+                # addition, not a join: `'5' + 5` is 10, a Double.  Text
+                # that will not read as a number makes the whole thing
+                # Null, which is what the engine answers -- it does not
+                # refuse.
                 try:
-                    return _arith(_number(a), _number(b), lambda x, y: x + y)
+                    return _arith(a, b, "+")
                 except AccessError:
                     return None
-            return _arith(a, b, lambda x, y: x + y)
-        if op == "-":
-            return _arith(a, b, lambda x, y: x - y)
-        if op == "*":
-            return _arith(a, b, lambda x, y: x * y)
-        if op == "/":
+        if op in ("+", "-"):
+            # A Currency added to an expression that holds a Decimal
+            # anywhere in it answers a Decimal, even where that
+            # expression's own value is a Double: `Cash + Dbl * 5.5` and
+            # `Cash + (0.125 + 0.5)` are Decimals where `Cash + Dbl` is
+            # Currency and `Cash + Abs(5.5)` too (measured).
+            if _kind(a) == "M" and _kind(b) == "F" and _holds_decimal(self.right):
+                return _decimal_result(op, a, _numeric_of(_decimal_operand(b)), _int_op(op, _decimal_operand(a), _decimal_operand(b)))
+            if _kind(b) == "M" and _kind(a) == "F" and _holds_decimal(self.left):
+                return _decimal_result(op, _numeric_of(_decimal_operand(a)), b, _int_op(op, _decimal_operand(a), _decimal_operand(b)))
+            return _arith(a, b, op)
+        if op in ("*", "/"):
             # Dividing by zero is Null here, not an error: a query that
             # meets a zero in one row goes on and answers Null for it,
             # which is what the engine does (measured against DAO).
-            if _number(b) == 0:
-                return None
-            return float(_number(a)) / float(_number(b))
+            return _arith(a, b, op)
         if op in ("\\", "MOD"):
             # Both sides round to whole numbers first, and the division
             # truncates toward zero, which is what VBA does.
@@ -315,6 +321,13 @@ class Call(Expr):
         if not expression or not domain:
             return None
         aggregate = DOMAIN_FUNCTIONS[upper]
+        if aggregate in ("StDev", "StDevP", "Var", "VarP"):
+            # Access computes these four itself, in Doubles: DVar over a
+            # Currency column is 166.666666666667 where the engine's own
+            # Var of the same column accumulates in Currency and answers
+            # 166.6667 (both measured).  CDbl puts the column on Access's
+            # path.
+            expression = f"CDbl({expression})"
         select = expression if aggregate is None else f"{aggregate}({expression})"
         sql = f"SELECT {select} FROM {_bracketed(domain)}"
         if criteria.strip():
@@ -414,16 +427,14 @@ class SubQuery(Expr):
         return self.operand.columns() if self.operand is not None else []
 
 
-def _number_literal(text: str) -> int | float:
-    """What a number in the SQL text stands for.  One that names a whole
-    number -- `1E3` and `1.5E2` included -- is an integer; the rest are
-    read as floating point, which is how the executor carries them."""
-    if "." not in text and "E" not in text.upper():
-        return int(text)
+def _number_literal(text: str) -> int | Numeric:
+    """What a number in the SQL text stands for: a Long when it is whole
+    and a Long holds it -- `1E3` and `1.5E2` included -- and otherwise a
+    Decimal scaled to the digits it was written with (measured)."""
     exact = Decimal(text)
-    if exact == exact.to_integral_value():
+    if exact == exact.to_integral_value() and -(1 << 31) <= exact < 1 << 31:
         return int(exact)
-    return float(text)
+    return Numeric.literal(text)
 
 
 class Parser:
@@ -776,14 +787,340 @@ def _number(value: object) -> int | float | Decimal:
     raise AccessError(f"{value!r} is not a number")
 
 
-def _arith(a: object, b: object, fn: Callable[[Any, Any], Any]) -> object:
-    x, y = _number(a), _number(b)
-    if isinstance(x, Decimal) or isinstance(y, Decimal):
-        return fn(Decimal(str(x)), Decimal(str(y)))
-    return fn(x, y)
+# --- the type a number carries through an expression -----------------------------
+#
+# The engine types every intermediate result, and the type decides what
+# comes out: `5.5 / 3` is a Decimal of 28 digits where `10 / 3` is a
+# Double, `C * 2` stays Currency where `C * 2.5` becomes a Double.  These
+# three tags let a value say what it is while an expression runs; they
+# come off again before the rows leave `execute`.
+
+
+class Currency(Decimal):
+    """A Currency value: four places, banker's rounding."""
+
+    __slots__ = ()
+
+    @classmethod
+    def of(cls, value: Decimal | int | float) -> Currency:
+        return cls(Decimal(str(value)).quantize(Decimal("0.0001"), rounding=ROUND_HALF_EVEN))
+
+
+class Numeric(Decimal):
+    """A Decimal value that knows the precision and scale it was declared
+    or written with.  Two of them combine into a Decimal only when they
+    share a scale; otherwise the engine answers a Double (measured over
+    22 pairs of columns and literals)."""
+
+    __slots__ = ("precision", "scale")
+
+    def __new__(cls, value: object, precision: int, scale: int) -> Numeric:
+        self = super().__new__(cls, str(value) if not isinstance(value, Decimal) else value)
+        self.precision = precision
+        self.scale = scale
+        return self
+
+    @classmethod
+    def literal(cls, text: str) -> Numeric:
+        """A number as written in SQL, its trailing zeros dropped (`2.50`
+        counts as `2.5`), with precision the digits it has and scale the
+        digits after the point."""
+        exact = Decimal(text).normalize()
+        _sign, digits, exponent = exact.as_tuple()
+        scale = -exponent if isinstance(exponent, int) and exponent < 0 else 0
+        return cls(exact, max(len(digits), 1), scale)
+
+
+class BigInt(int):
+    """A Large Number: whatever meets one in arithmetic comes out one,
+    rounded to a whole number (measured)."""
+
+    __slots__ = ()
+
+
+def _plain(value: object) -> object:
+    """A value as it leaves the executor: the tags off, the type kept."""
+    if isinstance(value, Currency):
+        return Decimal(value)
+    if isinstance(value, Numeric):
+        return Decimal(value)
+    if isinstance(value, BigInt):
+        return int(value)
+    return value
+
+
+def _kind(value: object) -> str:
+    """W whole (Long, Integer, Byte, Boolean), F Double or Single, M
+    Currency, X Decimal, B Large Number, D Date, T text, N Null."""
+    if value is None:
+        return "N"
+    if isinstance(value, bool):
+        return "W"
+    if isinstance(value, BigInt):
+        return "B"
+    if isinstance(value, int):
+        return "W"
+    if isinstance(value, float):
+        return "F"
+    if isinstance(value, Currency):
+        return "M"
+    if isinstance(value, Numeric):
+        return "X"
+    if isinstance(value, Decimal):
+        return "X"
+    if isinstance(value, _dt.datetime):
+        return "D"
+    if isinstance(value, str):
+        return "T"
+    return "F"
+
+
+def _numeric_of(value: object) -> Numeric:
+    """A Decimal that arrived untagged -- a parameter, a Python caller's
+    value -- typed from its own digits."""
+    if isinstance(value, Numeric):
+        return value
+    return Numeric.literal(str(value))
+
+
+def _decimal_operand(value: object) -> Decimal:
+    """A value on its way into Decimal arithmetic.  A Double -- a Date's
+    serial included -- brings fifteen significant digits, which is what
+    the engine converts it with (measured: a Date plus 5.5 has ten places
+    where the serial's double has eleven)."""
+    if isinstance(value, Decimal):
+        return Decimal(value)
+    if isinstance(value, (float, _dt.datetime)):
+        return Decimal(format(_serial(value), ".15g"))
+    return Decimal(str(_number(value)))
+
+
+def _serial(value: object) -> float:
+    return float(_number(value))
+
+
+def _arith_kind(op: str, a: object, b: object) -> str:
+    """The kind `a op b` makes, for the arithmetic operators.
+
+    Measured over every pair of Long, Integer, Byte, Boolean, Single,
+    Double, Currency, Decimal (column and literal), Date, numeric text
+    and Large Number: whole numbers stay whole; a Single or a Double makes
+    a Double, except that under `+` and `-` Currency wins over them; a
+    Currency against a whole number stays Currency, against a Double or a
+    Decimal under `*` becomes a Double; a Decimal against a whole number,
+    a Date or text stays Decimal, against a Double becomes a Double, and
+    against another Decimal stays Decimal only when the two share a scale
+    or a precision; a Date under `+` and `-` stays a Date (a Date less a
+    Date is a Double) and under `*` is a number; `/` is a Double unless a
+    Decimal is in it; a Large Number wins over everything."""
+    ka, kb = _kind(a), _kind(b)
+    if "B" in (ka, kb):
+        return "B"
+    if op == "/":
+        if "X" in (ka, kb):
+            other = kb if ka == "X" else ka
+            if other in ("F", "M"):
+                return "F"
+            if ka == "X" and kb == "X":
+                return _decimal_pair(a, b)
+            return "X"
+        return "F"
+    kinds = {ka, kb}
+    if ka == "X" and kb == "X":
+        return _decimal_pair(a, b)
+    if "X" in kinds:
+        other = kb if ka == "X" else ka
+        if other == "F":
+            return "F"
+        if other == "M":
+            return "X" if op in ("+", "-") else "F"
+        return "X"
+    if "D" in kinds:
+        if op in ("+", "-"):
+            return "F" if ka == "D" and kb == "D" and op == "-" else "D"
+        return "F"
+    if "M" in kinds:
+        other = kb if ka == "M" else ka
+        if other in ("W", "M"):
+            return "M"
+        if other == "T":
+            return "M" if op in ("+", "-") else "F"
+        return "M" if op in ("+", "-") else "F"
+    if "F" in kinds or "T" in kinds:
+        return "F"
+    return "W"
+
+
+def _decimal_pair(a: object, b: object) -> str:
+    return "X" if _numeric_of(a).scale == _numeric_of(b).scale else "F"
+
+
+def _holds_decimal(expr: Expr) -> bool:
+    """Whether a Decimal literal or column sits anywhere in the expression,
+    reached through arithmetic, unary minus, Int and Fix -- the functions
+    that keep it -- and not through Abs, CDbl, Round or the rest, which
+    launder it (measured).  This is what makes Currency `+` answer a
+    Decimal and what makes Avg accumulate as one."""
+    if isinstance(expr, Literal):
+        return isinstance(expr.value, Decimal)
+    if isinstance(expr, ColumnRef):
+        return getattr(expr, "_decimal_column", False)
+    if isinstance(expr, Unary):
+        return expr.op != "NOT" and _holds_decimal(expr.operand)
+    if isinstance(expr, Binary):
+        return expr.op in ("+", "-", "*", "/", "\\", "MOD") and (_holds_decimal(expr.left) or _holds_decimal(expr.right))
+    if isinstance(expr, Call):
+        return expr.name.upper() in ("INT", "FIX") and any(_holds_decimal(a) for a in expr.args)
+    return False
+
+
+def _decimal_result(op: str, a: object, b: object, value: Decimal) -> Numeric:
+    """The precision and scale a Decimal result carries on, for the next
+    operator to compare: `+` and `-` keep the wider scale, `*` adds the
+    scales, `/` keeps the digits the quotient has."""
+    x = _numeric_of(a) if _kind(a) == "X" else None
+    y = _numeric_of(b) if _kind(b) == "X" else None
+    sx, px = (x.scale, x.precision) if x else (0, 10)
+    sy, py = (y.scale, y.precision) if y else (0, 10)
+    if op == "*":
+        return Numeric(value, px + py + 1, sx + sy)
+    if op == "/":
+        exponent = value.as_tuple().exponent
+        return Numeric(value, DECIMAL_PRECISION, -exponent if isinstance(exponent, int) and exponent < 0 else 0)
+    return Numeric(value, max(px - sx, py - sy) + max(sx, sy) + 1, max(sx, sy))
+
+
+def _arith(a: object, b: object, op: str) -> object:
+    """`a op b` for `+`, `-`, `*` and `/`, in the type the engine gives it.
+    Dividing by zero is Null, not an error (measured)."""
+    kind = _arith_kind(op, a, b)
+    if kind == "D":
+        x, y = _serial(a), _serial(b)
+        return _from_serial(_float_op(op, x, y))
+    if kind == "F":
+        x, y = _serial(a), _serial(b)
+        if op == "/" and y == 0:
+            return None
+        return _float_op(op, x, y)
+    if kind == "W":
+        x, y = int(_number(a)), int(_number(b))
+        return _float_op(op, x, y) if op == "/" else _int_op(op, x, y)
+    dx, dy = _decimal_operand(a), _decimal_operand(b)
+    if op == "/" and dy == 0:
+        return None
+    if op == "/":
+        result = _divide_decimal(dx, dy) if kind == "X" else dx / dy
+    else:
+        result = _int_op(op, dx, dy)
+    if kind == "B":
+        if "M" in (_kind(a), _kind(b)):
+            # A Large Number against a Currency lands one above the floor
+            # -- 1e10 + 0.0001 and 1e10 + 0.5 both give 1e10 + 1, and an
+            # exact 1.25e9 gives 1.25e9 + 1 (measured, twelve cases); an
+            # artefact of the engine's Currency conversion, kept as it is.
+            return BigInt(int(result.to_integral_value(rounding=ROUND_FLOOR)) + 1)
+        return BigInt(int(result.to_integral_value(rounding=ROUND_HALF_EVEN)))
+    if kind == "M":
+        return Currency.of(result)
+    return _decimal_result(op, a, b, result)
+
+
+def _float_op(op: str, x: float, y: float) -> float:
+    if op == "+":
+        return x + y
+    if op == "-":
+        return x - y
+    if op == "*":
+        return x * y
+    return x / y
+
+
+def _int_op(op: str, x: Any, y: Any) -> Any:
+    if op == "+":
+        return x + y
+    if op == "-":
+        return x - y
+    return x * y
+
+
+def _negate(value: object) -> object:
+    """Unary minus keeps the type: a Date stays a Date, a Currency a
+    Currency (measured)."""
+    kind = _kind(value)
+    if kind == "D":
+        return _from_serial(-_serial(value))
+    if kind == "M":
+        return Currency.of(-Decimal(str(_number(value))))
+    if kind == "X":
+        x = _numeric_of(value)
+        return Numeric(-Decimal(x), x.precision, x.scale)
+    if kind == "B":
+        return BigInt(-int(_number(value)))
+    if kind == "W":
+        return -int(_number(value))
+    return -_serial(value)
+
+
+def _widen_value(chosen: object, candidates: Sequence[object]) -> object:
+    """What IIf, Switch and Choose answer: the chosen branch, converted to
+    the type the branches have in common -- text if any is text, a Double
+    if any is a Decimal, then a Date, a Currency, a Double, a whole number
+    (measured)."""
+    if chosen is None:
+        return None
+    kinds = {_kind(c) for c in candidates if c is not None}
+    if "T" in kinds:
+        return chosen if isinstance(chosen, str) else _text(chosen)
+    if "B" in kinds:
+        return BigInt(int(Decimal(str(_number(chosen))).to_integral_value(rounding=ROUND_HALF_EVEN)))
+    if "X" in kinds:
+        return _serial(chosen)
+    if "D" in kinds:
+        return chosen if isinstance(chosen, _dt.datetime) else _from_serial(_serial(chosen))
+    if "M" in kinds:
+        return Currency.of(Decimal(str(_number(chosen))))
+    if "F" in kinds:
+        return _serial(chosen)
+    return chosen
+
+
+def _as_engine_value(column: ColumnDef, value: object) -> object:
+    """A column's value tagged with its type, for the operators."""
+    if value is None:
+        return None
+    if column.type_code == TYPE_MONEY and isinstance(value, Decimal):
+        return Currency(value)
+    if column.type_code == TYPE_NUMERIC and isinstance(value, Decimal):
+        return Numeric(value, column.precision, column.scale)
+    if column.type_code == TYPE_BIGINT and isinstance(value, int) and not isinstance(value, bool):
+        return BigInt(value)
+    return value
+
+
+
+def _whole_part(value: object, *, toward_zero: bool) -> object:
+    """Int and Fix keep the type they are given -- a Long stays a Long, a
+    Double a Double, a Currency a Currency, a Date a Date -- while a
+    Decimal and text come back as a Double (measured)."""
+    kind = _kind(value)
+    number = _serial(value)
+    whole = float(int(number) if toward_zero or number >= 0 else -int(-number) - (1 if number != int(number) else 0))
+    if kind == "W":
+        return int(whole)
+    if kind == "B":
+        return BigInt(int(whole))
+    if kind == "M":
+        return Currency.of(Decimal(int(whole)))
+    if kind == "D":
+        return _from_serial(whole)
+    return whole
 
 
 def _text(value: object) -> str:
+    if isinstance(value, Currency) or isinstance(value, Numeric):
+        # A Currency or a Decimal prints without its trailing zeros.
+        text = format(Decimal(value).normalize(), "f")
+        return text if text != "-0" else "0"
     if isinstance(value, bool):
         # A query writes a Boolean as the number it is: `True & ''` is
         # `-1`, not `True`.
@@ -985,7 +1322,8 @@ def _call(name: str, args: list[object]) -> object:
     if upper == "IIF":
         if len(args) != 3:
             raise AccessError("IIf takes three arguments")
-        return args[1] if _truthy(args[0]) and args[0] is not None else args[2]
+        chosen = args[1] if _truthy(args[0]) and args[0] is not None else args[2]
+        return _widen_value(chosen, args[1:])
     if upper == "NZ":
         if not args:
             raise AccessError("Nz takes one or two arguments")
@@ -1012,13 +1350,13 @@ def _call(name: str, args: list[object]) -> object:
         # comes back when none does.
         for i in range(0, len(args) - 1, 2):
             if args[i] is not None and _truthy(args[i]):
-                return args[i + 1]
+                return _widen_value(args[i + 1], args[1::2])
         return None
     if upper == "CHOOSE":
         if args[0] is None:
             return None
         index = int(_number(args[0]))
-        return args[index] if 1 <= index < len(args) else None
+        return _widen_value(args[index], args[1:]) if 1 <= index < len(args) else None
     if any(a is None for a in args):
         return None
     if upper == "LEN":
@@ -1053,11 +1391,11 @@ def _call(name: str, args: list[object]) -> object:
         pin = needle.lower() if blind else needle
         return hay.find(pin, start - 1) + 1
     if upper == "ABS":
-        return abs(_number(args[0]))  # pyright: ignore[reportArgumentType]
+        # Abs answers a Double whatever it was given, a Currency included
+        # (measured).
+        return abs(_serial(args[0]))
     if upper == "INT":
-        import math
-
-        return math.floor(float(_number(args[0])))
+        return _whole_part(args[0], toward_zero=False)
     if upper == "ROUND":
         places = int(_number(args[1])) if len(args) > 1 else 0
         return _round_half_even(float(_number(args[0])), places)
@@ -1069,9 +1407,9 @@ def _call(name: str, args: list[object]) -> object:
     if upper == "CSTR":
         return _text(args[0])
     if upper in ("CLNG", "CINT"):
-        return round(float(_number(args[0])))
+        return int(_round_half_even(_serial(args[0]), 0))
     if upper == "CDBL":
-        return float(_number(args[0]))
+        return _serial(args[0])
     if upper == "CSNG":
         import struct as _struct
 
@@ -1084,7 +1422,7 @@ def _call(name: str, args: list[object]) -> object:
             raise AccessError("CByte takes 0 to 255")
         return value
     if upper == "CCUR":
-        return Decimal(str(float(_number(args[0])))).quantize(Decimal("0.0001"), rounding=ROUND_HALF_EVEN)
+        return Currency.of(Decimal(str(_number(args[0]))))
     if upper == "CDATE":
         return _as_date(args[0], "CDate")
     if upper == "DATEVALUE":
@@ -1167,10 +1505,9 @@ def _call(name: str, args: list[object]) -> object:
             raise AccessError("Log needs a number above zero")
         return math.log(value)
     if upper == "FIX":
-        value = float(_number(args[0]))
-        return int(value) if value >= 0 else -int(-value)
+        return _whole_part(args[0], toward_zero=True)
     if upper == "VAL":
-        return _val(_text(args[0]))
+        return float(_val(_text(args[0])))
     if upper == "STR":
         # A leading space stands in for the sign, and a value under one
         # loses its leading zero, which is what VBA writes.
@@ -1252,10 +1589,39 @@ class Source:
         return any(c.lower() == name.lower() for c in self.columns)
 
 
+def _mark_decimal_columns(expr: Expr, sources: Sequence[Source]) -> None:
+    """Note, on every column reference in the expression, whether it names
+    a Decimal column; `_holds_decimal` reads the note."""
+    for ref in _column_refs(expr):
+        holder = next((s for s in sources if s.table is not None and s.holds(ref.name) and (ref.qualifier is None or s.alias.lower() == ref.qualifier.lower())), None)
+        if holder is not None and holder.table is not None:
+            object.__setattr__(ref, "_decimal_column", holder.table.definition.column(ref.name).type_code == TYPE_NUMERIC)
+
+
+def _column_refs(expr: Expr) -> list[ColumnRef]:
+    if isinstance(expr, ColumnRef):
+        return [expr]
+    if isinstance(expr, Unary):
+        return _column_refs(expr.operand)
+    if isinstance(expr, Binary):
+        return _column_refs(expr.left) + _column_refs(expr.right)
+    if isinstance(expr, Call):
+        return [r for a in expr.args for r in _column_refs(a)]
+    if isinstance(expr, InList):
+        return _column_refs(expr.operand) + [r for o in expr.options for r in _column_refs(o)]
+    if isinstance(expr, Between):
+        return _column_refs(expr.operand) + _column_refs(expr.low) + _column_refs(expr.high)
+    return []
+
+
 def _table_source(table: Table, alias: str) -> Source:
     rows: list[Row] = []
+    columns = {c.name: c for c in table.columns}
     for row_id, values in table.rows_with_ids():
-        out: Row = {f"{alias}.{name}".lower(): value for name, value in values.items()}
+        out: Row = {
+            f"{alias}.{name}".lower(): _as_engine_value(columns[name], value) if name in columns else value
+            for name, value in values.items()
+        }
         out["__rowid__." + alias.lower()] = row_id
         rows.append(out)
     return Source(alias=alias, columns=[c.name for c in table.columns], rows=rows, table=table)
@@ -1394,7 +1760,7 @@ DECIMAL_DIGITS = 29
 DECIMAL_LIMIT = 2**96 - 1
 
 
-def _divide_decimal(total: Decimal, count: int) -> Decimal:
+def _divide_decimal(total: Decimal, count: int | Decimal) -> Decimal:
     """Divide as the engine divides a Decimal: to as many digits as its
     96-bit decimal holds.
 
@@ -1408,6 +1774,11 @@ def _divide_decimal(total: Decimal, count: int) -> Decimal:
     while _unscaled(quotient) > DECIMAL_LIMIT:
         _sign, _digits, exponent = quotient.as_tuple()
         quotient = quotient.quantize(Decimal(1).scaleb(int(exponent) + 1))
+    # The OLE Decimal carries at most 28 places (measured: 0.0625 / 3
+    # comes back with 28 of them where the 96 bits would take 29).
+    exponent = quotient.as_tuple().exponent
+    if isinstance(exponent, int) and exponent < -DECIMAL_PRECISION:
+        quotient = quotient.quantize(Decimal(1).scaleb(-DECIMAL_PRECISION), rounding=ROUND_HALF_EVEN)
     return quotient
 
 
@@ -1418,54 +1789,41 @@ def _unscaled(value: Decimal) -> int:
     return int("".join(str(d) for d in digits) or "0")
 
 
-def _money_column(expr: Expr, sources: Sequence[Source]) -> bool:
-    """Whether the expression is a plain read of a Currency column.
-
-    Currency and Decimal both arrive as `Decimal`, and the engine averages
-    them differently, so the value alone cannot say which it is -- only
-    the column it came from can.
-    """
-    if not isinstance(expr, ColumnRef):
-        return False
-    for source in sources:
-        if expr.qualifier and source.alias.lower() != expr.qualifier.lower():
-            continue
-        if source.table is None or not source.holds(expr.name):
-            continue
-        try:
-            return source.table.definition.column(expr.name).type_code == TYPE_MONEY
-        except AccessError:
-            return False
-    return False
-
-
-def _aggregate(name: str, values: list[object], money: bool = False) -> object:
+def _aggregate(name: str, values: list[object], decimal_average: bool = False) -> object:
     """Every aggregate answers with a number where its values are truth
     values, the Boolean column included: measured on a column of True,
-    False, True, Max was 0, Min and First -1 and Sum -2."""
+    False, True, Max was 0, Min and First -1 and Sum -2.
+
+    A sum or an average of whole numbers, Doubles, Dates or text is a
+    Double; over Currency it stays Currency, rounded to four places; over
+    a Decimal column it keeps the digits the arithmetic gives, 28 of them
+    for an average that does not come out even (measured)."""
     upper = name.upper()
     present = [_computed(v) for v in values if v is not None]
     if upper == "COUNT":
         return len(present)
     if not present:
         return None
-    if upper == "SUM":
-        total: object = present[0]
-        for v in present[1:]:
-            total = _arith(total, v, lambda x, y: x + y)
-        return total
-    if upper == "AVG":
-        total = present[0]
-        for v in present[1:]:
-            total = _arith(total, v, lambda x, y: x + y)
-        if isinstance(total, Decimal):
-            average = _divide_decimal(total, len(present))
-            # Averaging a Currency column rounds to the four places
-            # Currency holds; averaging a Decimal one keeps every digit
-            # the division gives, which is 28 of them.  Both arrive here
-            # as `Decimal`, so which it is comes from the column.
-            return average.quantize(Decimal("0.0001")) if money else average
-        return float(_number(total)) / len(present)
+    if upper in ("SUM", "AVG"):
+        kind = _kind(present[0])
+        if kind == "F" and upper == "AVG" and decimal_average:
+            # Avg of `Cash * 1.5` or `Dbl * 5.5` is a Decimal where the
+            # product itself, and its Sum and Max, are Doubles: the
+            # average is accumulated as a Decimal whenever the tree holds
+            # one (measured).
+            kind = "X"
+            present = [Numeric.literal(repr(_serial(v))) for v in present]
+        if kind == "M":
+            total = sum((Decimal(str(_number(v))) for v in present), Decimal(0))
+            return Currency.of(total / len(present) if upper == "AVG" else total)
+        if kind == "X":
+            total = sum((Decimal(str(_number(v))) for v in present), Decimal(0))
+            first = _numeric_of(present[0])
+            if upper == "AVG":
+                return _decimal_result("/", first, len(present), _divide_decimal(total, len(present)))
+            return Numeric(total, first.precision, first.scale)
+        total_f = sum(_serial(v) for v in present)
+        return total_f / len(present) if upper == "AVG" else total_f
     if upper == "MIN":
         return min(present, key=_sort_key)  # pyright: ignore[reportArgumentType]
     if upper == "MAX":
@@ -1475,12 +1833,21 @@ def _aggregate(name: str, values: list[object], money: bool = False) -> object:
     if upper == "LAST":
         return present[-1]
     if upper in ("STDEV", "STDEVP", "VAR", "VARP"):
-        numbers = [float(_number(v)) for v in present]
-        divisor = len(numbers) - 1 if upper in ("STDEV", "VAR") else len(numbers)
+        divisor = len(present) - 1 if upper in ("STDEV", "VAR") else len(present)
         if divisor <= 0:
             return None
-        mean = sum(numbers) / len(numbers)
-        variance = sum((n - mean) ** 2 for n in numbers) / divisor
+        if _kind(present[0]) == "M":
+            # Over Currency the squares are accumulated in Currency, four
+            # places each: Var of 0.125, 0.25 and 0.375 is 0.0156, not
+            # 0.015625 (measured).
+            money = [Decimal(str(_number(v))) for v in present]
+            mean_m = Currency.of(sum(money, Decimal(0)) / len(money))
+            squares = sum((Currency.of((m - mean_m) * (m - mean_m)) for m in money), Decimal(0))
+            variance = float(Currency.of(squares / divisor))
+        else:
+            numbers = [float(_number(v)) for v in present]
+            mean = sum(numbers) / len(numbers)
+            variance = sum((n - mean) ** 2 for n in numbers) / divisor
         return variance if upper.startswith("VAR") else variance**0.5
     raise AccessError(f"aggregate {name} is not available")
 
@@ -1522,7 +1889,7 @@ def _evaluate_with_aggregates(
                 raise AccessError(f"{node.name} takes one argument")
             values = [node.args[0].eval(make(r)) for r in group]
             return Literal(
-                _aggregate(node.name, values, money=_money_column(node.args[0], sources))
+                _aggregate(node.name, values, decimal_average=_holds_decimal(node.args[0]))
             )
         if isinstance(node, Binary):
             return Binary(node.op, rewrite(node.left), rewrite(node.right))
@@ -1612,18 +1979,18 @@ def execute(
         text = text.strip()
     members = union_members(text)
     if members is not None:
-        return _union(db, members, parameters)
+        return _untagged(_union(db, members, parameters))
     clauses = split_clauses(text)
     verb = clauses[0][0]
     if verb == "TRANSFORM":
-        return _crosstab(db, clauses, parameters)
+        return _untagged(_crosstab(db, clauses, parameters))
     if verb == "SELECT":
         if "INTO" in dict(clauses):
             with db.transaction():
                 return _make_table(
                     db, clauses, parameters, created=created, updated=updated, owner_updated=owner_updated
                 )
-        return _select(db, clauses, parameters)
+        return _untagged(_select(db, clauses, parameters))
     # An action query is all or nothing: one that fails on its third row
     # leaves the first two unwritten, which is what the engine does.
     if verb in ("INSERT INTO", "DELETE"):
@@ -1640,6 +2007,12 @@ def execute(
         with db.transaction():
             return _update(db, clauses, parameters)
     raise AccessError(f"statement {verb} is not supported")
+
+
+def _untagged(rows: list[Row]) -> list[Row]:
+    """Rows as a caller sees them: the type tags off, each value a plain
+    int, float, Decimal, datetime or str."""
+    return [{name: _plain(value) for name, value in row.items()} for row in rows]
 
 
 def _run(db: AccessDatabase, sql: str, parameters: Mapping[str, object], outer: Environment | None = None) -> list[Row]:
@@ -1911,8 +2284,12 @@ def _select(
     rows = _join(sources, parameters, outer)
     if "WHERE" in by_word:
         where = Parser.parse(by_word["WHERE"])
+        _mark_decimal_columns(where, sources)
         rows = [r for r in rows if (v := where.eval(env_for(r))) is not None and _truthy(v)]
     outputs = _outputs(flags, items, sources)
+    for _name, out_expr, _star in outputs:
+        if out_expr is not None:
+            _mark_decimal_columns(out_expr, sources)
     grouped = "GROUP BY" in by_word or any(o[1] is not None and _has_aggregate(o[1]) for o in outputs)
     groups: list[list[Row]]
     if grouped:
@@ -1931,6 +2308,7 @@ def _select(
         groups = [pair[0] for pair in ordered] if buckets or keys else [rows]
         if "HAVING" in by_word:
             having = Parser.parse(by_word["HAVING"])
+            _mark_decimal_columns(having, sources)
             groups = [g for g in groups if (v := _evaluate_with_aggregates(having, g, sources, parameters, env_for)) is not None and _truthy(v)]
     else:
         groups = [[r] for r in rows]
@@ -2177,12 +2555,16 @@ def _decimal_column(name: str, scale: int) -> ColumnSpec:
     return _computed_column(name, "decimal", (DECIMAL_PRECISION, scale))
 
 
-def _kind(spec: ColumnSpec) -> str:
+def _spec_kind(spec: ColumnSpec) -> str:
     return spec.type.lower()
 
 
 def _scale(spec: ColumnSpec) -> int:
-    return spec.size[1] if _kind(spec) == "decimal" and isinstance(spec.size, tuple) else 0
+    return spec.size[1] if _spec_kind(spec) == "decimal" and isinstance(spec.size, tuple) else 0
+
+
+def _precision(spec: ColumnSpec) -> int:
+    return spec.size[0] if _spec_kind(spec) == "decimal" and isinstance(spec.size, tuple) else 18
 
 
 def _promote(name: str, left: ColumnSpec, right: ColumnSpec, op: str) -> ColumnSpec:
@@ -2193,14 +2575,30 @@ def _promote(name: str, left: ColumnSpec, right: ColumnSpec, op: str) -> ColumnS
     Currency; a Decimal keeps its digits, adding scales under `*` and
     taking the wider under `+` and `-`; a Date plus a number is a Date and
     a Date less a Date is a Double."""
-    kinds = {_kind(left), _kind(right)}
+    kinds = {_spec_kind(left), _spec_kind(right)}
     if kinds & {"text", "memo"}:
         return _text_column(name)
     if "datetime" in kinds:
         return _computed_column(name, "double") if kinds == {"datetime"} else _computed_column(name, "datetime")
     if "decimal" in kinds:
-        scales = (_scale(left), _scale(right))
-        return _decimal_column(name, sum(scales) if op == "*" else max(scales))
+        # A Double against a Decimal is a Double; two Decimals of different
+        # scales are too.  Two Decimal columns keep the left one's declared
+        # shape, a literal carries 28 digits, and Currency against a
+        # Decimal is a Decimal of at least four places (measured).
+        if kinds & {"double", "single"}:
+            return _computed_column(name, "double")
+        if kinds == {"decimal"}:
+            if _scale(left) != _scale(right):
+                return _computed_column(name, "double")
+            if _precision(left) < DECIMAL_PRECISION and _precision(right) < DECIMAL_PRECISION:
+                return _computed_column(name, "decimal", (_precision(left), _scale(left)))
+            scales = (_scale(left), _scale(right))
+            return _decimal_column(name, sum(scales) if op == "*" else max(scales))
+        this = left if _spec_kind(left) == "decimal" else right
+        other = right if this is left else left
+        if _spec_kind(other) == "currency":
+            return _decimal_column(name, max(4, _scale(this)))
+        return _computed_column(name, "decimal", (_precision(this), _scale(this)))
     if "currency" in kinds:
         return _computed_column(name, "currency")
     if kinds & {"double", "single"}:
@@ -2213,11 +2611,16 @@ def _widen(name: str, specs: Sequence[ColumnSpec]) -> ColumnSpec:
     answers of Switch -- with Null ignored, text winning, and the numbers
     promoted as `+` promotes them (measured: IIf(b, L, D) is a Double,
     IIf(b, 1, 'x') is Text)."""
-    live = [s for s in specs if _kind(s) != "binary"]
+    live = [s for s in specs if _spec_kind(s) != "binary"]
     if not live:
         return _computed_column(name, "binary", 510)
-    if any(_kind(s) in ("text", "memo") for s in live):
+    kinds = {_spec_kind(s) for s in live}
+    if kinds & {"text", "memo"}:
         return _text_column(name)
+    if "decimal" in kinds:
+        # A Decimal among the branches makes the answer a Double, unlike
+        # the arithmetic operators (measured).
+        return _computed_column(name, "double")
     spec = _computed_column(name, live[0].type, live[0].size)
     for other in live[1:]:
         spec = _promote(name, spec, other, "+")
@@ -2292,11 +2695,13 @@ def _static_type(
             return _computed_column(name, "integer")
         if isinstance(value, int):
             return _computed_column(name, "long") if -(1 << 31) <= value < 1 << 31 else _decimal_column(name, 0)
+        if isinstance(value, Decimal):
+            # A number with a fraction, or one beyond a Long, is a Decimal
+            # scaled to the digits it was written with: `5.5` makes a
+            # Decimal(28, 1).
+            return _decimal_column(name, _numeric_of(value).scale)
         if isinstance(value, float):
-            # A number with a fraction is a Decimal, scaled to the digits
-            # it was written with: `5.5` makes a Decimal(28, 1).
-            exponent = Decimal(repr(value)).normalize().as_tuple().exponent
-            return _decimal_column(name, -exponent if isinstance(exponent, int) and exponent < 0 else 0)
+            return _computed_column(name, "double")
         if isinstance(value, _dt.datetime):
             return _computed_column(name, "datetime")
         return _text_column(name)
@@ -2310,12 +2715,25 @@ def _static_type(
             return _computed_column(name, "integer")
         if op == "&":
             return _text_column(name)
-        if op in ("/", "^"):
+        if op == "^":
             return _computed_column(name, "double")
         if op in ("\\", "MOD"):
             return _computed_column(name, "long")
         left = _static_type(name, expr.left, sources, db, parameters)
         right = _static_type(name, expr.right, sources, db, parameters)
+        if op == "/":
+            # A quotient is a Double unless a Decimal is in it and no Double
+            # or Currency; a Decimal column keeps its shape and a literal
+            # runs to 28 places (measured).
+            kinds = {_spec_kind(left), _spec_kind(right)}
+            if "decimal" not in kinds or kinds & {"double", "single", "currency"}:
+                return _computed_column(name, "double")
+            if kinds == {"decimal"} and _scale(left) != _scale(right):
+                return _computed_column(name, "double")
+            this = left if _spec_kind(left) == "decimal" else right
+            if _precision(this) < DECIMAL_PRECISION:
+                return _computed_column(name, "decimal", (_precision(this), _scale(this)))
+            return _decimal_column(name, DECIMAL_PRECISION)
         return _promote(name, left, right, op)
     if isinstance(expr, (InList, Between)):
         return _computed_column(name, "integer")
@@ -2363,7 +2781,7 @@ def _subquery_type(
         spec = _static_type(name, first_expr, list(inner) + list(sources), db, parameters)
     # The subquery's value is computed as far as the outer query knows:
     # text comes back at the full width, and nothing stays fixed-length.
-    if _kind(spec) in ("text", "memo"):
+    if _spec_kind(spec) in ("text", "memo"):
         return _text_column(name)
     return _computed_column(name, spec.type, spec.size)
 
@@ -2382,11 +2800,14 @@ def _call_type(
         if upper in ("STDEV", "STDEVP", "VAR", "VARP"):
             return _computed_column(name, "double")
         operand = arg(0)
-        kind = _kind(operand)
+        kind = _spec_kind(operand)
         if upper in ("SUM", "AVG"):
-            # A sum or average of whole numbers is a Double; Currency and
-            # Decimal keep their type (measured).
-            if kind not in ("currency", "decimal"):
+            # A sum or average of whole numbers is a Double; Currency keeps
+            # its type, and a Decimal comes back with 28 digits at its own
+            # scale (measured).
+            if kind == "decimal":
+                return _decimal_column(name, _scale(operand))
+            if kind != "currency":
                 return _computed_column(name, "double")
         # Min, Max, First and Last answer in the column's own type, except
         # that text comes back at the full 255 characters -- and like any
@@ -2413,8 +2834,11 @@ def _call_type(
         return _computed_column(name, "currency")
     if upper in ("INT", "FIX"):
         # Int keeps a whole-number type (as a Long) and leaves a Double a
-        # Double (measured).
-        return _promote(name, arg(0), _computed_column(name, "long"), "+")
+        # Double; a Decimal comes back a Double (measured).
+        operand = arg(0)
+        if _spec_kind(operand) == "decimal":
+            return _computed_column(name, "double")
+        return _promote(name, operand, _computed_column(name, "long"), "+")
     if upper == "IIF":
         return _widen(name, [arg(1), arg(2)]) if len(call.args) == 3 else _computed_column(name, "double")
     if upper == "NZ":
@@ -2440,7 +2864,7 @@ def _made_headers(specs: Sequence[ColumnSpec]) -> list[ColumnSpec]:
     leak: tuple[int, int] | None = None
     for position, spec in enumerate(specs):
         collation = spec.collation
-        kind = _kind(spec)
+        kind = _spec_kind(spec)
         if kind == "decimal":
             leak = spec.size if isinstance(spec.size, tuple) else (18, 0)
         elif leak is not None and kind != "text":
@@ -2599,7 +3023,7 @@ def _insert(
 #: What each whole-number column can hold.  A Byte is the exception:
 #: the query processor stores the low byte of the number rather than
 #: refusing it, so 300 lands as 44 and -1 as 255 (measured).
-_INTEGER_RANGE = {TYPE_INT: (-32768, 32767), TYPE_LONG: (-(1 << 31), (1 << 31) - 1)}
+_INTEGER_RANGE = {TYPE_INT: (-32768, 32767), TYPE_LONG: (-(1 << 31), (1 << 31) - 1), TYPE_BIGINT: (-(1 << 63), (1 << 63) - 1)}
 
 
 def _coerce(column: ColumnDef, value: object) -> object:
@@ -2620,13 +3044,13 @@ def _coerce(column: ColumnDef, value: object) -> object:
         return text[:limit] if code == TYPE_TEXT and len(text) > limit else text
     if code in (TYPE_DOUBLE, TYPE_FLOAT):
         return float(_number(value))
-    if code in (TYPE_LONG, TYPE_INT, TYPE_BYTE):
-        number = value if isinstance(value, int) and not isinstance(value, bool) else round(_number(value))  # pyright: ignore[reportArgumentType]
+    if code in (TYPE_LONG, TYPE_INT, TYPE_BYTE, TYPE_BIGINT):
+        number = int(value) if isinstance(value, int) and not isinstance(value, bool) else round(_number(value))  # pyright: ignore[reportArgumentType]
         if code == TYPE_BYTE:
             return number & 0xFF
         low, high = _INTEGER_RANGE[code]
         if not low <= number <= high:
-            kind = "an Integer" if code == TYPE_INT else "a Long"
+            kind = {TYPE_INT: "an Integer", TYPE_LONG: "a Long"}.get(code, "a Large Number")
             raise AccessError(f"column {column.name!r}: {number!r} is not {kind}")
         return number
     if code == TYPE_MONEY:
@@ -2762,6 +3186,7 @@ def _update(db: AccessDatabase, clauses: list[tuple[str, str]], parameters: Mapp
                 f"column {target.name!r} is an AutoNumber, which no query updates"
             )
         expr = Parser.parse(expression.strip())
+        _mark_decimal_columns(expr, sources)
         if _has_subquery(expr):
             # A subquery in a WHERE clause is fine; one in a SET clause
             # makes the whole query not updateable.

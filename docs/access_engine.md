@@ -813,32 +813,87 @@ the engine finds the same rows it does today.
 
 ## Numeric type through a SQL expression
 
-Currency and Decimal both decode to `Decimal`, so once a value is in hand
-nothing distinguishes them -- and the engine treats them differently.
-Where that changes a *value*, the column is consulted: `Avg` over a
-Currency column rounds to the four places Currency holds, and over a
-Decimal column keeps every digit the division gives, which is as many as
-the engine's 96-bit decimal carries. Both are measured and both match.
+The engine types every intermediate result, and the type decides what
+comes out: `10 / 3` is a Double, `5.5 / 3` a Decimal of 28 digits;
+`C * 2` stays Currency, `C * 2.5` is a Double. Every rule below was
+measured through DAO's reported field type and the .NET type of the
+value (the `query-types` oracle command), 135 expressions over one row
+of every numeric type plus the full operator-by-type matrix, and a live
+gate holds 185 of them. A value carries its type while an expression
+runs -- a Currency column's value is a `Currency`, a Decimal column's a
+`Numeric` that knows its precision and scale, a Large Number's a
+`BigInt`, a literal with a fraction or beyond a Long a `Numeric` scaled
+to its digits -- and the tags come off before the rows leave
+`execute`, so callers see plain `int`, `float` and `Decimal`, but which
+of the three is the engine's choice.
 
-What still differs is the Python *type* of some results, never the value:
+Operators, with W a whole number (Long, Integer, Byte, a Boolean), F a
+Double or Single, M Currency, X Decimal, D Date, T numeric text, B a
+Large Number:
 
-| expression | engine | this |
-|---|---|---|
-| `Money / 3` | Double | `float` -- agrees |
-| `Decimal / 3` | Decimal, 28-29 digits | `float`, the same number to double precision |
-| `Money * 1.5` | Double | `Decimal` of the same value |
-| `Decimal + Double` | Double | `Decimal` of the same value |
+| operator | result |
+|---|---|
+| `+` `-` `*` | W op W is W; anything with F is F, except that under `+` and `-` Currency wins over a Double (M + F is M, M * F is F); M against W or T is M; M against X is X under `+` and `-` and F under `*`; X against W, D or T is X, against F is F; X against X is X when the two scales agree and F otherwise; D with a number under `+` or `-` is D, D - D is F, D under `*` is F; T with W or F is F, T + T joins the text; B against anything is B |
+| `/` | F, unless a Decimal is in it and the other side is not F or M: then X, at up to 28 places (the OLE Decimal's limit) or exact when the quotient terminates |
+| `\` `Mod` | W (Long); Null when a Large Number does not fit |
+| `^` | F; Null for a negative base with a fractional exponent |
+| `&` | text |
+| unary `-` | keeps the type: -D is a Date, -M a Currency, -X a Decimal |
 
-Closing those means carrying each column's declared type through every
-operator rather than only into the aggregates, which is a larger change
-for no difference in what any expression answers. It is not done.
+A Currency result is rounded to four places, banker's. A Large Number
+result is rounded half to even -- except against a Currency, where it
+lands one above the floor (1e10 + 0.0001, 1e10 + 0.5 and an exact
+1.25e9 all come out one higher; measured twelve ways, an artefact of the
+engine's Currency conversion, kept as it is). A Double or a Date's serial
+entering Decimal arithmetic brings fifteen significant digits.
 
-One earlier note here was wrong and is worth recording: this section used
-to claim `Frac / 3` answered `0.0417` in the engine against `0.041667`
-here. That was the oracle's own `Format-Cell` printing a Decimal with
-`"0.0000"`, not the engine. Asking DAO for the raw value and its .NET
-type showed the engine returning 28 digits. Compare raw values, not
-formatted ones.
+Two rules look at the *shape* of an operand rather than its value.
+Currency `+` or `-` answers a Decimal whenever the other operand's
+expression holds a Decimal literal or column anywhere -- `Cash + Dbl *
+5.5` and `Cash + (0.125 + 0.5)` are Decimals although `Dbl * 5.5` and
+`0.125 + 0.5` are Doubles -- where `Cash + Dbl` is Currency; the
+Decimal-ness passes through arithmetic and `Int`, and is laundered by
+`Abs`, `CDbl` and `Round`. `Avg` accumulates as a Decimal under the same
+test (`Avg(Cash * 1.5)` is a Decimal where `Sum(Cash * 1.5)` and the
+product are Doubles).
+
+Functions: `Abs`, `Round`, `Sqr`, `Exp`, `Log`, `Val`, `CDbl` and `CSng`
+answer a Double whatever they were given, a Currency included; `Int` and
+`Fix` keep the type (a Long stays a Long, a Currency a Currency, a Date a
+Date) but turn a Decimal or text into a Double; `Sgn`, `CInt`, `CBool`,
+`CByte`, `Year` and the other date parts, `StrComp`, `Asc` and the `Is`
+tests answer an Integer; `Len`, `InStr`, `DateDiff`, `DatePart`, `CLng`
+a Long; `CCur` a Currency. `IIf`, `Switch` and `Choose` convert the
+chosen branch to what the branches have in common: text if any is text,
+a Double if any is a Decimal, then a Date, a Currency, a Double, a whole
+number.
+
+Aggregates: `Sum` and `Avg` of whole numbers, Doubles, Dates or text are
+Doubles; over Currency they stay Currency; over a Decimal column they
+keep the digits the arithmetic gives, 28 of them for an average that
+does not come out even. `Min`, `Max`, `First` and `Last` keep the
+type. `StDev`, `Var` and their population forms are Doubles, but over
+Currency the squares are accumulated in Currency (Var of 0.125, 0.25 and
+0.375 is 0.0156, not 0.015625). Access's own `DVar` and `DStDev` compute
+in Doubles instead, so the domain functions put the column through
+`CDbl` first; both are measured.
+
+A made table's column follows the same rules statically -- the type a
+subexpression has with no row to look at -- with the additions the
+make-table gate holds: a Decimal column's arithmetic keeps its declared
+precision and scale where a literal's carries 28 digits, a Double
+against a Decimal is a Double, two Decimals of different scales make a
+Double, and `Sum` or `Avg` of a Decimal column is a Decimal(28) at the
+column's scale. `Avg` over a mismatched pair of Decimal literals makes a
+Decimal(10, 0) column that the engine then cannot always fill; that one
+is left alone.
+
+One earlier note here was wrong and is worth recording: this section
+used to claim `Frac / 3` answered `0.0417` in the engine against
+`0.041667` here. That was the oracle's own `Format-Cell` printing a
+Decimal with `"0.0000"`, not the engine. Asking DAO for the raw value
+and its .NET type showed the engine returning 28 digits. Compare raw
+values, not formatted ones.
 
 
 ## Alternatives considered

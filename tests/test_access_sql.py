@@ -421,7 +421,7 @@ def test_select_into_over_a_join_and_a_group_and_over_nothing(tmp_path: Path) ->
 def test_a_number_written_with_an_exponent_reads(tmp_path: Path) -> None:
     db = _shop(tmp_path)
     assert db.execute("SELECT 1E3 AS A, 1.5E2 AS B, 1.5E-1 AS C, -1E3 AS D FROM Customers WHERE Id = 1") == [
-        {"A": 1000, "B": 150, "C": 0.15, "D": -1000}
+        {"A": 1000, "B": 150, "C": Decimal("0.15"), "D": -1000}
     ]
     db.execute("SELECT 1E3 AS A, 1.5E-1 AS C, 1E10 AS Big INTO Exps FROM Customers WHERE Id = 1")
     assert _types(db, "Exps") == [("A", "Long", None, False), ("C", "Decimal", (28, 2), False), ("Big", "Decimal", (28, 0), False)]
@@ -585,6 +585,130 @@ def test_a_statement_writing_its_own_autonumbers_ends_at_the_largest(tmp_path: P
     db.execute("SELECT Id, A INTO N FROM T")
     assert db.table("N").definition.next_autonumber == 30
     assert db.execute("INSERT INTO N (A) VALUES (9)") == 1 and db.execute("SELECT Max(Id) AS M FROM N") == [{"M": 31}]
+
+
+def _numbers(tmp_path: Path) -> AccessDatabase:
+    """One row of every numeric type: Long 10, Double 1.5, Currency 2.5,
+    Byte 3, Integer 4, Single 1.25, a Date, a Decimal(18,4) 0.0625 and a
+    Large Number 1e10."""
+    db = AccessDatabase.create_new(tmp_path / "numbers.accdb")
+    db.create_table(
+        "N",
+        [ColumnSpec("Id", "long"), ColumnSpec("L", "long"), ColumnSpec("D", "double"), ColumnSpec("C", "currency"),
+         ColumnSpec("Y", "byte"), ColumnSpec("S", "integer"), ColumnSpec("F", "single"), ColumnSpec("Dt", "datetime"),
+         ColumnSpec("X", "decimal", (18, 4)), ColumnSpec("H", "bigint"), ColumnSpec("T", "text", 10)],
+    )
+    db.execute("INSERT INTO N VALUES (1, 10, 1.5, 2.5, 3, 4, 1.25, #2020-01-02#, 0.0625, 10000000000, '7')")
+    return db
+
+
+def _one(db: AccessDatabase, expression: str) -> object:
+    rows = db.execute(f"SELECT {expression} AS V FROM N")
+    assert isinstance(rows, list)
+    return rows[0]["V"]
+
+
+def test_whole_double_and_currency_arithmetic_keep_the_engine_types(tmp_path: Path) -> None:
+    """Measured over every pair of types: whole numbers stay whole, a
+    Double or Single makes a Double, Currency stays Currency against a
+    whole number and under `+` against a Double, but `*` or `/` with a
+    Double is a Double, and `/` of whole numbers is a Double."""
+    db = _numbers(tmp_path)
+    assert _one(db, "L * 2") == 20 and isinstance(_one(db, "L * 2"), int)
+    assert _one(db, "S + Y") == 7 and isinstance(_one(db, "S + Y"), int)
+    assert _one(db, "L / 2") == 5.0 and isinstance(_one(db, "L / 2"), float)
+    assert _one(db, "L + D") == 11.5 and isinstance(_one(db, "L + D"), float)
+    assert _one(db, "F * F") == 1.5625 and isinstance(_one(db, "F * F"), float)
+    assert _one(db, "C + 1") == Decimal("3.5000") and isinstance(_one(db, "C + 1"), Decimal)
+    assert _one(db, "C * C") == Decimal("6.2500") and str(_one(db, "C * C")) == "6.2500"
+    assert _one(db, "C + D") == Decimal("4.0000") and isinstance(_one(db, "C + D"), Decimal)
+    assert _one(db, "C * D") == 3.75 and isinstance(_one(db, "C * D"), float)
+    assert _one(db, "C / 2") == 1.25 and isinstance(_one(db, "C / 2"), float)
+    assert _one(db, "T + 1") == 8.0 and isinstance(_one(db, "T + 1"), float)
+    assert _one(db, "-C") == Decimal("-2.5000") and _one(db, "-L") == -10
+
+
+def test_a_literal_with_a_fraction_is_a_decimal_and_two_decimals_need_one_scale(tmp_path: Path) -> None:
+    """`5.5` is a Decimal, `1E3` a Long and `3000000000` a Decimal; two
+    Decimals stay Decimal only when their scales agree, else a Double; a
+    Decimal against a whole number stays Decimal, against a Double becomes
+    one; a quotient of Decimals runs to 28 places (measured)."""
+    db = _numbers(tmp_path)
+    assert _one(db, "5.5") == Decimal("5.5") and isinstance(_one(db, "5.5"), Decimal)
+    assert _one(db, "1E3") == 1000 and isinstance(_one(db, "1E3"), int)
+    assert isinstance(_one(db, "3000000000"), Decimal) and isinstance(_one(db, "1.5E-1"), Decimal)
+    assert _one(db, "5.5 + 6.5") == Decimal("12.0") and isinstance(_one(db, "5.5 + 6.5"), Decimal)
+    assert _one(db, "5.5 + 2.25") == 7.75 and isinstance(_one(db, "5.5 + 2.25"), float)
+    assert _one(db, "2.50 + 2.5") == Decimal("5.0") and isinstance(_one(db, "2.50 + 2.5"), Decimal)
+    assert _one(db, "5.5 * 5.5") == Decimal("30.25")
+    assert _one(db, "5.5 + L") == Decimal("15.5") and isinstance(_one(db, "5.5 + L"), Decimal)
+    assert _one(db, "5.5 + D") == 7.0 and isinstance(_one(db, "5.5 + D"), float)
+    assert _one(db, "5.5 / 6.5") == Decimal("0.8461538461538461538461538462")
+    assert _one(db, "5.5 / 2") == Decimal("2.75")
+    assert _one(db, "X / 3") == Decimal("0.0208333333333333333333333333")
+    assert _one(db, "X + 1.2345") == Decimal("1.2970") and isinstance(_one(db, "X + 5.5"), float)
+    assert _one(db, "C + 5.5") == Decimal("8.0000") and isinstance(_one(db, "C * 1.5"), float)
+
+
+def test_currency_plus_a_decimal_bearing_expression_is_a_decimal(tmp_path: Path) -> None:
+    """A Currency added to an expression that holds a Decimal anywhere in it
+    answers a Decimal even where that expression's own value is a Double;
+    Abs, CDbl and Round launder the Decimal away, Int does not (measured)."""
+    db = _numbers(tmp_path)
+    assert isinstance(_one(db, "D * 5.5"), float)
+    assert _one(db, "C + D * 5.5") == Decimal("10.7500") and isinstance(_one(db, "C + D * 5.5"), Decimal)
+    assert _one(db, "C + (0.125 + 0.5)") == Decimal("3.1250")
+    assert _one(db, "C + Int(5.5)") == Decimal("7.5000")
+    assert _one(db, "C + Abs(5.5)") == Decimal("8.0000") and str(_one(db, "C + Abs(5.5)")) == "8.0000"
+    assert isinstance(_one(db, "L + (0.125 + 0.5)"), float)
+    assert isinstance(_one(db, "C * (0.125 + 0.5)"), float)
+
+
+def test_dates_and_large_numbers_through_the_operators(tmp_path: Path) -> None:
+    """A Date plus or less a number is a Date, a Date less a Date a Double,
+    a Date times anything a number; a Large Number takes everything into
+    itself, rounded half to even, except a Currency, which lands one above
+    the floor (measured, an artefact of the engine's)."""
+    db = _numbers(tmp_path)
+    assert _one(db, "Dt + 1") == dt.datetime(2020, 1, 3)
+    assert _one(db, "Dt - Dt") == 0.0 and isinstance(_one(db, "Dt - Dt"), float)
+    assert isinstance(_one(db, "Dt * 2"), float) and _one(db, "-Dt") == dt.datetime(1779, 12, 27)
+    assert _one(db, "Dt + 5.5") == Decimal("43837.5")
+    assert _one(db, "H + 1.5") == 10000000002 and _one(db, "H + 0.5") == 10000000000 and _one(db, "H + 2.5") == 10000000002
+    assert _one(db, "H + C") == 10000000003 and _one(db, "H - C") == 9999999998
+    assert isinstance(_one(db, "H + D"), int) and _one(db, "H / 4") == 2500000000
+
+
+def test_functions_and_aggregates_answer_in_the_engine_types(tmp_path: Path) -> None:
+    db = _numbers(tmp_path)
+    assert _one(db, "Abs(L)") == 10.0 and isinstance(_one(db, "Abs(L)"), float)
+    assert _one(db, "Abs(C)") == 2.5 and isinstance(_one(db, "Abs(C)"), float)
+    assert _one(db, "Int(L)") == 10 and isinstance(_one(db, "Int(L)"), int)
+    assert _one(db, "Int(D)") == 1.0 and isinstance(_one(db, "Int(D)"), float)
+    assert _one(db, "Int(C)") == Decimal("2.0000") and isinstance(_one(db, "Int(C)"), Decimal)
+    assert _one(db, "Int(Dt)") == dt.datetime(2020, 1, 2)
+    assert _one(db, "Round(L)") == 10.0 and isinstance(_one(db, "Round(L)"), float)
+    assert _one(db, "Val('12')") == 12.0 and isinstance(_one(db, "Val('12')"), float)
+    assert _one(db, "CCur(L)") == Decimal("10.0000") and _one(db, "CLng(D)") == 2
+    assert _one(db, "Sum(L)") == 10.0 and isinstance(_one(db, "Sum(L)"), float)
+    assert _one(db, "Sum(C)") == Decimal("2.5000") and isinstance(_one(db, "Sum(C)"), Decimal)
+    assert _one(db, "Sum(X)") == Decimal("0.0625") and _one(db, "Avg(X)") == Decimal("0.0625")
+    assert _one(db, "Avg(C * 1.5)") == Decimal("3.75") and isinstance(_one(db, "Sum(C * 1.5)"), float)
+    assert _one(db, "Max(C)") == Decimal("2.5000") and _one(db, "Min(L)") == 10
+    assert _one(db, "IIf(True, L, D)") == 10.0 and isinstance(_one(db, "IIf(True, L, D)"), float)
+    assert _one(db, "IIf(True, C, L)") == Decimal("2.5000")
+    assert _one(db, "IIf(True, 5.5, 1)") == 5.5 and isinstance(_one(db, "IIf(True, 5.5, 1)"), float)
+    assert _one(db, "IIf(True, L, 'x')") == "10"
+
+
+def test_a_variance_over_currency_is_accumulated_in_currency(tmp_path: Path) -> None:
+    db = AccessDatabase.create_new(tmp_path / "var.accdb")
+    db.create_table("V", [ColumnSpec("Id", "long"), ColumnSpec("C", "currency")])
+    for i, c in enumerate(("0.125", "0.25", "0.375"), start=1):
+        db.execute(f"INSERT INTO V VALUES ({i}, {c})")
+    assert db.execute("SELECT Var(C) AS A, VarP(C) AS B FROM V") == [{"A": 0.0156, "B": 0.0104}]
+    rows = db.execute("SELECT Var(C / 1) AS A FROM V")
+    assert rows == [{"A": 0.015625}]
 
 
 def test_unknown_and_ambiguous_columns_are_errors(tmp_path: Path) -> None:
@@ -1121,9 +1245,11 @@ def test_averaging_the_other_numbers_is_unchanged(tmp_path: Path) -> None:
     assert str(rows[0]["N"]) == "0.2500"
 
 
-def test_an_average_of_an_expression_is_not_treated_as_currency(tmp_path: Path) -> None:
-    """The rule follows the column, so anything but a plain read of one
-    keeps what the division gives."""
-    rows = money_table(tmp_path).execute("SELECT Avg(Money4 + 0) AS A FROM M")
-    assert isinstance(rows, list)
-    assert str(rows[0]["A"]) != "4115.6430"
+def test_an_average_follows_the_type_the_expression_has(tmp_path: Path) -> None:
+    """Currency plus a whole number is still Currency, so its average
+    rounds to four places; divided, it is a Double and keeps them all
+    (measured)."""
+    db = money_table(tmp_path)
+    assert db.execute("SELECT Avg(Money4 + 0) AS A FROM M") == [{"A": Decimal("4115.6430")}]
+    rows = db.execute("SELECT Avg(Money4 / 1) AS A FROM M")
+    assert isinstance(rows, list) and isinstance(rows[0]["A"], float)

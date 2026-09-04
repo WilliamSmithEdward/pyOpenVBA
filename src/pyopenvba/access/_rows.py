@@ -168,8 +168,7 @@ def decode_text(raw: bytes) -> str:
 
 
 def decode_column_text(column: ColumnDef, raw: bytes) -> str:
-    """Text as the column's own version stores it: UTF-16 (compressed or
-    not) in Jet 4, code page bytes in Jet 3."""
+    """Text as the column stores it: UTF-16, compressed or not."""
     return decode_text(raw)
 
 
@@ -306,7 +305,15 @@ def encode_scalar(column: ColumnDef, value: object, *, compress_text: bool) -> b
             raise AccessError(f"column {name!r}: {value!r} is not text")
         if 2 * len(value) > column.length:
             raise AccessError(f"column {name!r}: {len(value)} characters exceed its size {column.length // 2}")
-        return encode_text(value) if compress_text else value.encode("utf-16-le")
+        raw = value.encode("utf-16-le")
+        if not compress_text:
+            return raw
+        # The engine compresses a Text value only when that makes it
+        # shorter: one and two Latin-1 characters go in as plain UTF-16,
+        # since the FF FE mark would cost what the compression saves
+        # (measured through INSERT, UPDATE and SELECT INTO alike).
+        compressed = encode_text(value)
+        return compressed if len(compressed) < len(raw) else raw
     if code == TYPE_GUID:
         if not isinstance(value, uuid.UUID):
             raise AccessError(f"column {name!r}: {value!r} is not a UUID")

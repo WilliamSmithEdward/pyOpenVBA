@@ -2058,3 +2058,48 @@ def test_the_engine_opens_a_database_we_compacted(tmp_path: Path) -> None:
     # The engine's own compaction rebuilds the file; it must accept ours.
     assert oracle("-Command", "compact", "-Path", str(path)) == "ok"
     assert json.loads(oracle("-Command", "dump", "-Path", str(path), "-Table", "Keep")) == dumped
+
+
+def test_the_engine_reads_a_table_we_packed(tmp_path: Path) -> None:
+    """A rebuild drops the table and writes it again, so what matters is
+    whether the engine still finds every row -- long values included --
+    and whether it will compact the result itself."""
+    from pyopenvba.access import ColumnSpec, IndexSpec
+
+    path = tmp_path / "packed.accdb"
+    shutil.copy(TEMPLATE, path)
+    db = AccessDatabase(path)
+    table = db.create_table(
+        "Wide",
+        [
+            ColumnSpec("Id", "Long", autonumber=True),
+            ColumnSpec("L", "Long"),
+            ColumnSpec("T", "Text", size=60),
+            ColumnSpec("M", "Memo"),
+        ],
+        [IndexSpec("PrimaryKey", ("Id",), primary=True)],
+    )
+    for number in range(1500):
+        table.insert_row({"L": number, "T": f"row {number}", "M": "memo " * (number % 40 + 1)})
+    db.save()
+
+    db = AccessDatabase(path)
+    table = db.table("Wide")
+    for row_id, row in list(table.rows_with_ids()):
+        if int(str(row["L"])) % 10:
+            table.delete_row(row_id)
+    db.save()
+    swollen = path.stat().st_size
+
+    db = AccessDatabase(path)
+    wanted = _engine_dump(db, "Wide")
+    assert db.compact(rebuild=True) > 0
+    db.save()
+    # The blank template is a floor the file cannot go under, so what
+    # is compared is the shrink, not a fraction of the whole file.
+    assert swollen - path.stat().st_size > (swollen - TEMPLATE.stat().st_size) // 2
+
+    dumped = json.loads(oracle("-Command", "dump", "-Path", str(path), "-Table", "Wide"))
+    assert isinstance(dumped, str)
+    assert _diff(dumped, wanted) == []
+    assert oracle("-Command", "compact", "-Path", str(path)) == "ok"

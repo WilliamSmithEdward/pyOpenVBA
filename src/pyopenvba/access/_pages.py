@@ -222,6 +222,19 @@ class PageStore:
         self.lval_cursor = {k: v for k, v in self.lval_cursor.items() if v < page_count}
         return dropped
 
+    def reopen(self) -> None:
+        """Forget what this session has done with pages, as closing the
+        file and opening it again would.
+
+        The engine will not hand out a page a DROP TABLE freed until the
+        database has been reopened, and this store keeps that rule; a
+        rebuild that means to reuse those pages has to say so.
+        """
+        self.released.clear()
+        self.allocated.clear()
+        self.pending.clear()
+        self.lval_cursor.clear()
+
     @property
     def page_size(self) -> int:
         return self.layout.page_size

@@ -7,6 +7,31 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- **A table's rows can be packed onto fewer pages.**
+  `db.rebuild_table(name)` reads a table's rows out, drops the table,
+  makes it again from the same definition and writes the rows back, so
+  they land on as few pages as they need; `db.compact(rebuild=True)` does
+  that for every table it can and then reclaims the file's tail. A
+  2000-row table cut to 200 went from 270 pages to 92.
+
+  Deleting rows does not shrink a table -- not here and not in Access,
+  which is what Compact and Repair is for -- so until now a large delete
+  left the space stranded: free pages, but in the middle, where the
+  trailing-run reclaim could not reach them.
+
+  Both halves are writers the engine was measured against, so this adds
+  no new way to lay a table out. It refuses a table it cannot carry
+  across whole -- one with a complex column, a link, or a relationship
+  naming it -- and it compares the rows before and after, putting the
+  whole database back if they differ. A rebuild either round-trips or
+  changes nothing. The AutoNumber values and their counter are kept,
+  where Access's own compact resets the counter.
+
+  `db.table_specs(name)` is the piece that made it possible: the table
+  described as the `ColumnSpec` and `IndexSpec` list that would create it
+  again, with sizes in the units those take rather than the header's
+  bytes.
+
 - **Charts and Edge browsers can be written**, and the reader knows two
   more types (navigation buttons and the navigation control's own kind).
   That takes the reader to 28 control types and the writer to 23. Naming

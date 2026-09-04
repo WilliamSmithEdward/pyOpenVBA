@@ -18,7 +18,9 @@ from __future__ import annotations
 
 import struct
 
+from pyopenvba.access._layout import JET3
 from pyopenvba.access_read import AccessError
+from pyopenvba.exceptions import UnsupportedFormatError
 from pyopenvba.access._pages import (
     PAGE_RETIRED,
     OFFSET_PAGE_FREE_SPACE,
@@ -40,6 +42,13 @@ class DataPage:
     """A 4 KiB data page held as a mutable byte array."""
 
     def __init__(self, raw: bytes) -> None:
+        if len(raw) == JET3.page_size:
+            # Only the writers build a DataPage, so a 2 KiB page arriving
+            # here means a Jet 3 file is being written rather than read.
+            raise UnsupportedFormatError(
+                "Jet 3 (Access 97) databases are read-only: pyOpenVBA reads "
+                "them but writes only Jet 4 and ACE"
+            )
         if len(raw) != PAGE_SIZE:
             raise AccessError(f"a page is {PAGE_SIZE} bytes, got {len(raw)}")
         if raw[0] != PAGE_DATA:

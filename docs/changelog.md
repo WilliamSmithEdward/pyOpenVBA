@@ -7,6 +7,27 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- **Jet 3 (Access 97) databases read.** `AccessDatabase` opens a 2 KiB
+  page `.mdb` and reads its catalog, tables, rows and long values the
+  same way it reads an `.accdb`. Everything that moved between the two
+  versions lives in one `Layout` record, so there is a single parser, a
+  single row splitter and a single set of value decoders rather than a
+  second implementation: the page halves, a row counts its columns and
+  its variable-column offsets in bytes rather than words, text is stored
+  in the code page page 0 names rather than UTF-16, and the definition,
+  column, index and name headers all shrink and move.
+
+  Every offset was measured against files the Jet engine wrote, and the
+  parser checks that what it consumed equals the length the page
+  declares. The live gate has DAO 3.6 -- which still creates Access 97
+  files though Access dropped the format in 2013 -- build a database with
+  every Jet 3 column type, a 4000-character memo, code page text, a
+  deleted row and four hundred rows over many pages; pyOpenVBA reads the
+  same file with no COM involved and the two agree cell for cell.
+
+  Writing a Jet 3 file is refused rather than attempted, at the page
+  store itself, so nothing can put a Jet 4 shape into one.
+
 - **Compaction.** `db.compact()` gives back the free pages at the end of
   the file and says how many went. That is what a dropped table or a
   large delete leaves behind, and it is the part of compaction that can

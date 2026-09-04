@@ -1,4 +1,7 @@
-"""The Jet 4 / ACE storage engine behind ``.accdb`` and ``.mdb`` files.
+"""The Jet storage engine behind ``.accdb`` and ``.mdb`` files.
+
+Jet 4 and ACE are read and written; Jet 3 (Access 97, 2 KiB pages) is
+read only.
 
 Pure Python, no Office required.  ``AccessDatabase`` opens a database and
 reads its tables; the private modules beneath it own one layer each:

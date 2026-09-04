@@ -43,6 +43,7 @@ import struct
 from dataclasses import dataclass, field
 
 from pyopenvba.access_read import AccessError
+from pyopenvba.access._layout import JET4, Layout
 from pyopenvba.access._pages import PAGE_TDEF, PageStore
 
 OFFSET_NEXT_PAGE = 0x04
@@ -174,6 +175,10 @@ class ColumnDef:
     sort_order: int
     sort_version: int
     raw: bytes
+    #: Which version's offsets the header was read with, and -- for Jet 3,
+    #: whose text is not UTF-16 -- what to decode that text as.
+    layout: Layout = JET4
+    code_page: str = "cp1252"
 
     @property
     def is_fixed(self) -> bool:
@@ -276,6 +281,8 @@ class TableDefinition:
     definition_length: int
     pages: list[int] = field(default_factory=lambda: [])
     header_raw: bytes = b""
+    #: Which version's offsets this definition was read with.
+    layout: Layout = JET4
 
     @property
     def is_system(self) -> bool:
@@ -328,73 +335,97 @@ def read_definition_bytes(store: PageStore, page: int) -> tuple[bytes, list[int]
     return bytes(out), pages
 
 
-def _read_name(buf: bytes, pos: int) -> tuple[str, int]:
-    length = struct.unpack_from("<H", buf, pos)[0]
-    raw = buf[pos + 2 : pos + 2 + length]
+def _read_name(buf: bytes, pos: int, layout: Layout = JET4, code_page: str = "cp1252") -> tuple[str, int]:
+    """Jet 4 prefixes a name with a word and stores it as UTF-16; Jet 3
+    prefixes it with a byte and stores it in the database code page."""
+    width = layout.name_length_width
+    length = buf[pos] if width == 1 else struct.unpack_from("<H", buf, pos)[0]
+    raw = buf[pos + width : pos + width + length]
     if len(raw) != length:
         raise AccessError("name runs past the end of the definition")
-    return raw.decode("utf-16-le"), pos + 2 + length
+    text = raw.decode("utf-16-le") if layout.unicode_text else raw.decode(code_page)
+    return text, pos + width + length
 
 
-def parse_column_header(raw: bytes, name: str) -> ColumnDef:
-    if len(raw) != SIZE_COLUMN_HEADER:
-        raise AccessError(f"column header is {len(raw)} bytes, not {SIZE_COLUMN_HEADER}")
+def parse_column_header(
+    raw: bytes, name: str, layout: Layout = JET4, code_page: str = "cp1252"
+) -> ColumnDef:
+    size = layout.size_column_header
+    if len(raw) != size:
+        raise AccessError(f"column header is {len(raw)} bytes, not {size}")
+
+    def u16(off: int) -> int:
+        return struct.unpack_from("<H", raw, off)[0]
+
     return ColumnDef(
         name=name,
         type_code=raw[0],
-        number=struct.unpack_from("<H", raw, 5)[0],
-        var_index=struct.unpack_from("<H", raw, 7)[0],
-        sort_order=struct.unpack_from("<H", raw, 11)[0],
-        sort_version=struct.unpack_from("<H", raw, 13)[0],
-        flags=raw[15],
-        misc_flags=raw[16],
-        fixed_offset=struct.unpack_from("<H", raw, 21)[0],
-        length=struct.unpack_from("<H", raw, 23)[0],
+        number=u16(layout.column_number),
+        var_index=u16(layout.column_var_index),
+        sort_order=u16(layout.column_sort_order),
+        sort_version=u16(layout.column_sort_version),
+        flags=raw[layout.column_flags],
+        # Jet 3 has no Unicode compression to describe: its text is code
+        # page bytes, so the byte that carries the flag does not exist.
+        misc_flags=raw[layout.column_flags + 1] if layout.unicode_text else 0,
+        fixed_offset=u16(layout.column_fixed_offset),
+        length=u16(layout.column_length),
         raw=bytes(raw),
+        layout=layout,
+        code_page=code_page,
     )
 
 
-def parse_real_index(header_raw: bytes, raw: bytes) -> RealIndex:
-    if len(raw) != SIZE_REAL_INDEX:
-        raise AccessError(f"index definition is {len(raw)} bytes, not {SIZE_REAL_INDEX}")
+def parse_real_index(header_raw: bytes, raw: bytes, layout: Layout = JET4) -> RealIndex:
+    size = layout.size_real_index
+    if len(raw) != size:
+        raise AccessError(f"index definition is {len(raw)} bytes, not {size}")
+    base = layout.index_columns
     columns: list[IndexColumn] = []
     for i in range(MAX_INDEX_COLUMNS):
-        number = struct.unpack_from("<H", raw, 4 + 3 * i)[0]
+        number = struct.unpack_from("<H", raw, base + 3 * i)[0]
         if number == INDEX_COLUMN_UNUSED:
             continue
-        columns.append(IndexColumn(number, bool(raw[6 + 3 * i] & 0x01)))
+        columns.append(IndexColumn(number, bool(raw[base + 2 + 3 * i] & 0x01)))
+    root = layout.index_root_page
     return RealIndex(
         header_raw=bytes(header_raw),
-        entry_count=struct.unpack_from("<I", header_raw, 4)[0],
+        entry_count=struct.unpack_from("<I", header_raw, 4)[0] if layout.unicode_text else 0,
         row_count=struct.unpack_from("<I", header_raw, 0)[0],
         columns=columns,
-        usage_map_ref=struct.unpack_from("<I", raw, 34)[0],
-        root_page=struct.unpack_from("<I", raw, 38)[0],
-        unknown=struct.unpack_from("<I", raw, 42)[0],
-        flags=raw[46],
+        usage_map_ref=struct.unpack_from("<I", raw, layout.index_usage_map)[0],
+        root_page=struct.unpack_from("<I", raw, root)[0],
+        unknown=struct.unpack_from("<I", raw, root + 4)[0] if layout.unicode_text else 0,
+        flags=raw[root + 8] if layout.unicode_text else raw[root + 4],
         raw=bytes(raw),
     )
 
 
-def parse_logical_index(raw: bytes, name: str) -> LogicalIndex:
-    if len(raw) != SIZE_LOGICAL_INDEX:
-        raise AccessError(f"logical index is {len(raw)} bytes, not {SIZE_LOGICAL_INDEX}")
+def parse_logical_index(raw: bytes, name: str, layout: Layout = JET4) -> LogicalIndex:
+    size = layout.size_logical_index
+    if len(raw) != size:
+        raise AccessError(f"logical index is {len(raw)} bytes, not {size}")
+    # Jet 4 opens with a word Jet 3 does not have; every field after it
+    # sits four bytes later.
+    base = 4 if layout.unicode_text else 0
     return LogicalIndex(
         name=name,
-        number=struct.unpack_from("<I", raw, 4)[0],
-        real_index=struct.unpack_from("<I", raw, 8)[0],
-        relationship_kind=raw[12],
-        relationship_index=struct.unpack_from("<I", raw, 13)[0],
-        relationship_table_page=struct.unpack_from("<I", raw, 17)[0],
-        cascade_updates=bool(raw[21]),
-        cascade_deletes=bool(raw[22]),
-        kind=raw[23],
+        number=struct.unpack_from("<I", raw, base)[0],
+        real_index=struct.unpack_from("<I", raw, base + 4)[0],
+        relationship_kind=raw[base + 8],
+        relationship_index=struct.unpack_from("<I", raw, base + 9)[0],
+        relationship_table_page=struct.unpack_from("<I", raw, base + 13)[0],
+        cascade_updates=bool(raw[base + 17]),
+        cascade_deletes=bool(raw[base + 18]),
+        kind=raw[base + 19],
         raw=bytes(raw),
     )
 
 
 def parse_table_definition(store: PageStore, page: int) -> TableDefinition:
     buf, pages = read_definition_bytes(store, page)
+    layout = store.layout
+    code_page = store.code_page if not layout.unicode_text else "cp1252"
 
     def u16(off: int) -> int:
         return struct.unpack_from("<H", buf, off)[0]
@@ -403,46 +434,48 @@ def parse_table_definition(store: PageStore, page: int) -> TableDefinition:
         return struct.unpack_from("<I", buf, off)[0]
 
     definition_length = u32(OFFSET_DEFINITION_LENGTH)
-    column_count = u16(OFFSET_COLUMN_COUNT)
-    logical_count = u32(OFFSET_LOGICAL_INDEX_COUNT)
-    real_count = u32(OFFSET_REAL_INDEX_COUNT)
+    column_count = u16(layout.tdef_column_count)
+    logical_count = u32(layout.tdef_logical_index_count)
+    real_count = u32(layout.tdef_real_index_count)
     if definition_length > len(buf):
         raise AccessError(
             f"table definition at page {page} declares {definition_length} "
             f"bytes but only {len(buf)} were read"
         )
 
-    pos = OFFSET_INDEX_HEADERS
+    header_size = layout.size_real_index_header
+    column_size = layout.size_column_header
+    pos = layout.tdef_index_headers
     index_headers = [
-        buf[pos + i * SIZE_REAL_INDEX_HEADER : pos + (i + 1) * SIZE_REAL_INDEX_HEADER]
+        buf[pos + i * header_size : pos + (i + 1) * header_size]
         for i in range(real_count)
     ]
-    pos += real_count * SIZE_REAL_INDEX_HEADER
+    pos += real_count * header_size
 
     column_raws = [
-        buf[pos + i * SIZE_COLUMN_HEADER : pos + (i + 1) * SIZE_COLUMN_HEADER]
+        buf[pos + i * column_size : pos + (i + 1) * column_size]
         for i in range(column_count)
     ]
-    pos += column_count * SIZE_COLUMN_HEADER
+    pos += column_count * column_size
     columns: list[ColumnDef] = []
     for raw in column_raws:
-        name, pos = _read_name(buf, pos)
-        columns.append(parse_column_header(raw, name))
+        name, pos = _read_name(buf, pos, layout, code_page)
+        columns.append(parse_column_header(raw, name, layout, code_page))
 
     real_indexes: list[RealIndex] = []
     for i in range(real_count):
-        raw = buf[pos : pos + SIZE_REAL_INDEX]
-        pos += SIZE_REAL_INDEX
-        real_indexes.append(parse_real_index(index_headers[i], raw))
+        raw = buf[pos : pos + layout.size_real_index]
+        pos += layout.size_real_index
+        real_indexes.append(parse_real_index(index_headers[i], raw, layout))
 
     logical_raws: list[bytes] = []
     for _ in range(logical_count):
-        logical_raws.append(buf[pos : pos + SIZE_LOGICAL_INDEX])
-        pos += SIZE_LOGICAL_INDEX
+        logical_raws.append(buf[pos : pos + layout.size_logical_index])
+        pos += layout.size_logical_index
     logical_indexes: list[LogicalIndex] = []
     for raw in logical_raws:
-        name, pos = _read_name(buf, pos)
-        logical_indexes.append(parse_logical_index(raw, name))
+        name, pos = _read_name(buf, pos, layout, code_page)
+        logical_indexes.append(parse_logical_index(raw, name, layout))
 
     column_usage_maps: dict[int, tuple[int, int]] = {}
     while True:
@@ -465,24 +498,31 @@ def parse_table_definition(store: PageStore, page: int) -> TableDefinition:
 
     return TableDefinition(
         page=page,
-        tag=u32(OFFSET_TABLE_TAG),
-        row_count=u32(OFFSET_ROW_COUNT),
-        next_autonumber=u32(OFFSET_NEXT_AUTONUMBER),
-        complex_marker=struct.unpack_from("<i", buf, OFFSET_COMPLEX_MARKER)[0],
-        last_complex_id=u32(OFFSET_LAST_COMPLEX_ID),
-        table_type=buf[OFFSET_TABLE_TYPE],
-        max_columns=u16(OFFSET_MAX_COLUMNS),
-        var_column_count=u16(OFFSET_VAR_COLUMN_COUNT),
+        tag=u32(layout.tdef_tag) if layout.unicode_text else u16(layout.tdef_tag),
+        row_count=u32(layout.tdef_row_count),
+        next_autonumber=u32(layout.tdef_next_autonumber),
+        # Complex columns arrived with ACE; a Jet 3 definition has neither
+        # field, and the bytes at those offsets mean something else.
+        complex_marker=(
+            struct.unpack_from("<i", buf, OFFSET_COMPLEX_MARKER)[0]
+            if layout.unicode_text
+            else 0
+        ),
+        last_complex_id=u32(OFFSET_LAST_COMPLEX_ID) if layout.unicode_text else 0,
+        table_type=buf[layout.tdef_table_type],
+        max_columns=u16(layout.tdef_max_columns),
+        var_column_count=u16(layout.tdef_var_column_count),
         logical_index_count=logical_count,
         real_index_count=real_count,
-        owned_pages_ref=u32(OFFSET_OWNED_PAGES),
-        free_space_pages_ref=u32(OFFSET_FREE_SPACE_PAGES),
+        owned_pages_ref=u32(layout.tdef_owned_pages),
+        free_space_pages_ref=u32(layout.tdef_free_space_pages),
         columns=columns,
         real_indexes=real_indexes,
         logical_indexes=logical_indexes,
         column_usage_maps=column_usage_maps,
         definition_length=definition_length,
         pages=pages,
-        header_raw=bytes(buf[:OFFSET_INDEX_HEADERS]),
+        header_raw=bytes(buf[: layout.tdef_index_headers]),
+        layout=layout,
     )
 

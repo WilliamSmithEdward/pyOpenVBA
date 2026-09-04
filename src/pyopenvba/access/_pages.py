@@ -13,13 +13,15 @@ against Access itself.
 
 from __future__ import annotations
 
+import codecs
 import struct
 from dataclasses import dataclass
 
+from pyopenvba.access._layout import JET3, JET4, Layout
 from pyopenvba.access_read import AccessError
 from pyopenvba.exceptions import UnsupportedFormatError
 
-PAGE_SIZE = 4096
+PAGE_SIZE = JET4.page_size
 
 # Page type tags (first byte of every page except page 0, whose tag is 0).
 PAGE_DB_DEF = 0x00
@@ -117,6 +119,16 @@ class DatabaseHeader:
     password: bytes
 
     @property
+    def layout(self) -> Layout:
+        """Jet 3 pages are half the size and every count in them is a byte
+        rather than a word."""
+        return JET3 if self.version == VERSION_JET3 else JET4
+
+    @property
+    def is_jet3(self) -> bool:
+        return self.version == VERSION_JET3
+
+    @property
     def is_ace(self) -> bool:
         return self.version >= VERSION_ACE_2007
 
@@ -128,10 +140,6 @@ class DatabaseHeader:
                 f"not a Jet 4 / ACE database (signature {bytes(signature)!r})"
             )
         version = struct.unpack_from("<I", raw_page0, OFFSET_VERSION)[0]
-        if version == VERSION_JET3:
-            raise UnsupportedFormatError(
-                "Jet 3 (Access 97) databases use 2 KiB pages and are not supported"
-            )
         plain = toggle_definition_mask(raw_page0)
         creation = struct.unpack_from("<d", plain, OFFSET_CREATION_DATE)[0]
         # The password is XORed with the whole-day part of the creation
@@ -153,18 +161,34 @@ class DatabaseHeader:
         )
 
 
+def _looks_like_jet3(data: bytes) -> bool:
+    """Page 0 names the version before anything else can be read, and it
+    is not masked at that offset."""
+    if len(data) <= OFFSET_VERSION + 4:
+        return False
+    return struct.unpack_from("<I", data, OFFSET_VERSION)[0] == VERSION_JET3
+
+
 class PageStore:
     """A database file held in memory as whole pages."""
 
-    def __init__(self, data: bytes) -> None:
-        if len(data) < 2 * PAGE_SIZE:
+    #: How the file is laid out; every offset that moved between Jet 3 and
+    #: Jet 4 is read from here rather than from a module constant.
+    layout: Layout
+
+    def __init__(self, data: bytes, layout: Layout | None = None) -> None:
+        if layout is None:
+            layout = JET3 if _looks_like_jet3(data) else JET4
+        self.layout = layout
+        size = layout.page_size
+        if len(data) < 2 * size:
             raise AccessError(
                 f"file too small to be a database ({len(data)} bytes)"
             )
-        if len(data) % PAGE_SIZE:
+        if len(data) % size:
             raise AccessError(
                 f"file length {len(data)} is not a multiple of the "
-                f"{PAGE_SIZE}-byte page size"
+                f"{size}-byte page size"
             )
         self._data = bytearray(data)
         #: Pages released while this store has been open.  The engine hands
@@ -191,12 +215,33 @@ class PageStore:
         if page_count < 2 or page_count >= self.page_count:
             return 0
         dropped = self.page_count - page_count
-        del self._data[page_count * PAGE_SIZE :]
+        del self._data[page_count * self.page_size :]
         self.released = {p for p in self.released if p < page_count}
         self.allocated = {p for p in self.allocated if p < page_count}
         self.pending = [p for p in self.pending if p < page_count]
         self.lval_cursor = {k: v for k, v in self.lval_cursor.items() if v < page_count}
         return dropped
+
+    @property
+    def page_size(self) -> int:
+        return self.layout.page_size
+
+    @property
+    def code_page(self) -> str:
+        """What Jet 3 stores text and names in; page 0 names the number.
+        Jet 4 stores text as UTF-16 and never consults this."""
+        number = struct.unpack_from(
+            "<H", toggle_definition_mask(self.read(0)), OFFSET_CODE_PAGE
+        )[0]
+        try:
+            codecs.lookup(f"cp{number}")
+        except LookupError:
+            return "cp1252"
+        return f"cp{number}"
+
+    @property
+    def is_jet3(self) -> bool:
+        return self.layout.is_jet3
 
     def snapshot(self) -> tuple[bytes, set[int], set[int], list[int], dict[int, int]]:
         """Everything a rollback has to put back: the pages and the state
@@ -213,35 +258,45 @@ class PageStore:
 
     @property
     def page_count(self) -> int:
-        return len(self._data) // PAGE_SIZE
+        return len(self._data) // self.page_size
 
     def read(self, page: int) -> bytes:
         if not 0 <= page < self.page_count:
             raise AccessError(
                 f"page {page} out of range (0..{self.page_count - 1})"
             )
-        start = page * PAGE_SIZE
-        return bytes(self._data[start : start + PAGE_SIZE])
+        start = page * self.page_size
+        return bytes(self._data[start : start + self.page_size])
 
     def write(self, page: int, content: bytes) -> None:
-        if len(content) != PAGE_SIZE:
+        if self.layout.is_jet3:
+            # Reading a Jet 3 file is a matter of different offsets;
+            # writing one is a different engine.  Its rows count their
+            # columns in a byte, its text is code page bytes, and its
+            # index keys collate by other rules -- so a Jet 4 write into
+            # one would corrupt it rather than fail.
+            raise UnsupportedFormatError(
+                "Jet 3 (Access 97) databases are read-only: pyOpenVBA reads "
+                "them but writes only Jet 4 and ACE"
+            )
+        if len(content) != self.page_size:
             raise AccessError(
-                f"page content must be {PAGE_SIZE} bytes, got {len(content)}"
+                f"page content must be {self.page_size} bytes, got {len(content)}"
             )
         if not 0 <= page < self.page_count:
             raise AccessError(
                 f"page {page} out of range (0..{self.page_count - 1})"
             )
-        start = page * PAGE_SIZE
-        self._data[start : start + PAGE_SIZE] = content
+        start = page * self.page_size
+        self._data[start : start + self.page_size] = content
 
     def append(self) -> int:
         """Grow the file by one zeroed page and return its number."""
-        self._data.extend(bytes(PAGE_SIZE))
+        self._data.extend(bytes(self.page_size))
         return self.page_count - 1
 
     def page_type(self, page: int) -> int:
-        return self._data[page * PAGE_SIZE]
+        return self._data[page * self.page_size]
 
     def to_bytes(self) -> bytes:
         return bytes(self._data)
@@ -250,42 +305,44 @@ class PageStore:
 # --- rows on data-shaped pages ---------------------------------------------
 
 
-def row_slots(page: bytes) -> list[int]:
+def row_slots(page: bytes, layout: Layout = JET4) -> list[int]:
     """The raw u16 slot table of a data-shaped page (flags included)."""
-    count = struct.unpack_from("<H", page, OFFSET_PAGE_ROW_COUNT)[0]
-    if OFFSET_PAGE_ROW_TABLE + 2 * count > PAGE_SIZE:
+    count = struct.unpack_from("<H", page, layout.page_row_count)[0]
+    if layout.page_row_table + 2 * count > layout.page_size:
         raise AccessError(f"row count {count} does not fit on the page")
     return list(
-        struct.unpack_from(f"<{count}H", page, OFFSET_PAGE_ROW_TABLE)
+        struct.unpack_from(f"<{count}H", page, layout.page_row_table)
     )
 
 
-def row_span(slots: list[int], slot: int) -> tuple[int, int]:
+def row_span(slots: list[int], slot: int, layout: Layout = JET4) -> tuple[int, int]:
     """Byte range of a row: rows are laid down from the page end, so a row
     ends where the previous slot's row starts.  A deleted slot still
     bounds its neighbour."""
     if not 0 <= slot < len(slots):
         raise AccessError(f"slot {slot} out of range (0..{len(slots) - 1})")
     start = slots[slot] & ROW_OFFSET_MASK
-    end = PAGE_SIZE if slot == 0 else slots[slot - 1] & ROW_OFFSET_MASK
+    end = layout.page_size if slot == 0 else slots[slot - 1] & ROW_OFFSET_MASK
     if end < start:
         raise AccessError(f"slot {slot} spans {start}..{end}, which is inverted")
     return start, end
 
 
-def row_bytes(page: bytes, slot: int, *, overflow_target: bool = False) -> bytes | None:
+def row_bytes(
+    page: bytes, slot: int, *, overflow_target: bool = False, layout: Layout = JET4
+) -> bytes | None:
     """The bytes of one row, or ``None`` when the slot is dead.  An
     overflow slot returns its 4-byte pointer (any stale bytes after it are
     dropped); callers follow it with :func:`row_pointer` and read the
     target with ``overflow_target=True``, where the 0x8000 bit marks the
     moved row rather than a deletion."""
-    slots = row_slots(page)
+    slots = row_slots(page, layout)
     entry = slots[slot]
     if entry & ROW_DELETED and not overflow_target:
         return None
     if overflow_target and entry & ROW_OVERFLOW:
         raise AccessError(f"overflow target slot {slot} is itself flagged as overflow")
-    start, end = row_span(slots, slot)
+    start, end = row_span(slots, slot, layout)
     if entry & ROW_OVERFLOW:
         return page[start : start + 4]
     return page[start:end]
@@ -326,7 +383,13 @@ def is_lval_page(page: bytes) -> bool:
 USAGE_MAP_INLINE = 0
 USAGE_MAP_REFERENCE = 1
 USAGE_BITMAP_PAGE_DATA = 4
-PAGES_PER_BITMAP_PAGE = (PAGE_SIZE - USAGE_BITMAP_PAGE_DATA) * 8
+PAGES_PER_BITMAP_PAGE = (JET4.page_size - USAGE_BITMAP_PAGE_DATA) * 8
+
+
+def pages_per_bitmap_page(layout: Layout = JET4) -> int:
+    """How many pages one bitmap page can speak for; a Jet 3 page is half
+    the size, so it speaks for half as many."""
+    return (layout.page_size - USAGE_BITMAP_PAGE_DATA) * 8
 
 GLOBAL_USAGE_MAP_PAGE = 1
 GLOBAL_USAGE_MAP_ROW = 0
@@ -347,6 +410,7 @@ class UsageMap:
     start_page: int
     bitmap: bytearray
     reference_pages: list[int]
+    layout: Layout = JET4
 
     def pages(self) -> list[int]:
         out: list[int] = []
@@ -359,11 +423,10 @@ class UsageMap:
                         out.append(self.start_page + byte_index * 8 + bit)
             return out
         for chunk, _ in enumerate(self.reference_pages):
-            base = chunk * PAGES_PER_BITMAP_PAGE
-            chunk_bytes = self.bitmap[
-                chunk * (PAGE_SIZE - USAGE_BITMAP_PAGE_DATA) :
-                (chunk + 1) * (PAGE_SIZE - USAGE_BITMAP_PAGE_DATA)
-            ]
+            per_page = pages_per_bitmap_page(self.layout)
+            base = chunk * per_page
+            span = self.layout.page_size - USAGE_BITMAP_PAGE_DATA
+            chunk_bytes = self.bitmap[chunk * span : (chunk + 1) * span]
             for byte_index, byte in enumerate(chunk_bytes):
                 if not byte:
                     continue
@@ -385,7 +448,7 @@ class UsageMap:
 
 
 def read_usage_map(store: PageStore, page: int, row: int) -> UsageMap:
-    raw = row_bytes(store.read(page), row)
+    raw = row_bytes(store.read(page), row, layout=store.layout)
     if raw is None:
         raise AccessError(f"usage map row ({page}, {row}) is deleted")
     if not raw:
@@ -395,14 +458,14 @@ def read_usage_map(store: PageStore, page: int, row: int) -> UsageMap:
         if len(raw) < 5:
             raise AccessError(f"inline usage map ({page}, {row}) is truncated")
         start = struct.unpack_from("<I", raw, 1)[0]
-        return UsageMap(page, row, kind, start, bytearray(raw[5:]), [])
+        return UsageMap(page, row, kind, start, bytearray(raw[5:]), [], store.layout)
     if kind == USAGE_MAP_REFERENCE:
         count = (len(raw) - 1) // 4
         refs = list(struct.unpack_from(f"<{count}I", raw, 1))
         bitmap = bytearray()
         for ref in refs:
             if ref == 0:
-                bitmap.extend(bytes(PAGE_SIZE - USAGE_BITMAP_PAGE_DATA))
+                bitmap.extend(bytes(store.page_size - USAGE_BITMAP_PAGE_DATA))
                 continue
             chunk = store.read(ref)
             if chunk[0] != PAGE_USAGE_BITMAP:
@@ -411,7 +474,7 @@ def read_usage_map(store: PageStore, page: int, row: int) -> UsageMap:
                     f"which is type {chunk[0]:#04x}, not a usage bitmap"
                 )
             bitmap.extend(chunk[USAGE_BITMAP_PAGE_DATA:])
-        return UsageMap(page, row, kind, 0, bitmap, refs)
+        return UsageMap(page, row, kind, 0, bitmap, refs, store.layout)
     raise AccessError(f"usage map ({page}, {row}) has unknown kind {kind}")
 
 

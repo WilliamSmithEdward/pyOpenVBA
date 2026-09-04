@@ -82,24 +82,26 @@ class RawRow:
 
 
 def split_row(definition: TableDefinition, row: bytes) -> RawRow:
-    if len(row) < 2:
-        raise AccessError("row shorter than its column-count word")
-    row_columns = struct.unpack_from("<H", row, 0)[0]
+    width = definition.layout.count_width
+    code = "B" if width == 1 else "H"
+    if len(row) < width:
+        raise AccessError("row shorter than its column count")
+    row_columns = struct.unpack_from(f"<{code}", row, 0)[0]
     null_mask_length = (row_columns + 7) // 8
-    if len(row) < 2 + null_mask_length:
+    if len(row) < width + null_mask_length:
         raise AccessError("row shorter than its null mask")
     null_mask = row[len(row) - null_mask_length :]
     has_var = definition.var_column_count > 0
     var_offsets: list[int] = []
     if has_var:
-        count_pos = len(row) - null_mask_length - 2
-        if count_pos < 2:
+        count_pos = len(row) - null_mask_length - width
+        if count_pos < width:
             raise AccessError("row shorter than its variable-column count")
-        var_count = struct.unpack_from("<H", row, count_pos)[0]
-        table_pos = count_pos - 2 * (var_count + 1)
-        if table_pos < 2:
+        var_count = struct.unpack_from(f"<{code}", row, count_pos)[0]
+        table_pos = count_pos - width * (var_count + 1)
+        if table_pos < width:
             raise AccessError("row shorter than its variable-column offsets")
-        reversed_offsets = struct.unpack_from(f"<{var_count + 1}H", row, table_pos)
+        reversed_offsets = struct.unpack_from(f"<{var_count + 1}{code}", row, table_pos)
         # Memory order is [end, start(n-1), ..., start(0)].
         var_offsets = list(reversed(reversed_offsets))
     values: dict[int, bytes | None] = {}
@@ -120,7 +122,7 @@ def split_row(definition: TableDefinition, row: bytes) -> RawRow:
             values[number] = b""
             continue
         if column.is_fixed:
-            start = 2 + column.fixed_offset
+            start = width + column.fixed_offset
             values[number] = row[start : start + column.length]
             continue
         if column.var_index + 1 >= len(var_offsets):
@@ -130,7 +132,7 @@ def split_row(definition: TableDefinition, row: bytes) -> RawRow:
             )
         start = var_offsets[column.var_index]
         end = var_offsets[column.var_index + 1]
-        if not 2 <= start <= end <= len(row):
+        if not width <= start <= end <= len(row):
             raise AccessError(
                 f"column {column.name!r} spans {start}..{end} in a {len(row)}-byte row"
             )
@@ -165,6 +167,14 @@ def decode_text(raw: bytes) -> str:
             units += raw[i : i + 2]
             i += 2
     return units.decode("utf-16-le")
+
+
+def decode_column_text(column: ColumnDef, raw: bytes) -> str:
+    """Text as the column's own version stores it: UTF-16 (compressed or
+    not) in Jet 4, code page bytes in Jet 3."""
+    if not column.layout.unicode_text:
+        return raw.decode(column.code_page)
+    return decode_text(raw)
 
 
 def encode_text(text: str) -> bytes:
@@ -432,7 +442,7 @@ def decode_scalar(column: ColumnDef, raw: bytes) -> object:
     if code == TYPE_BINARY:
         return bytes(raw)
     if code == TYPE_TEXT:
-        return decode_text(raw)
+        return decode_column_text(column, raw)
     if code == TYPE_GUID:
         return uuid.UUID(bytes_le=bytes(raw))
     if code == TYPE_NUMERIC:

@@ -21,6 +21,7 @@ from pyopenvba.access._designs import (
     OPEN_CONTROL,
     OPEN_SECTION,
     OPEN_SIBLING,
+    TYPE_CODES as CONTROL_CODES,
     PROPERTY_CODES,
     build_design,
     parse_design,
@@ -401,11 +402,12 @@ def test_the_records_use_the_slots_access_uses(blank: AccessDatabase) -> None:
 
 
 def test_a_control_type_without_measured_slots_is_refused(blank: AccessDatabase) -> None:
-    """A subform's slots have not been read back from Access, so writing one
-    would be guesswork."""
+    """Access has controls whose slots have never been read back -- a web
+    browser, a chart, a navigation bar -- and those are refused rather
+    than guessed at."""
     blank.create_form("Built")
     with pytest.raises(AccessError, match="cannot be written yet"):
-        blank.add_control("Built", "Subform", "Inner")
+        blank.add_control("Built", "WebBrowser", "Browser")
 
 
 @pytest.mark.parametrize(
@@ -424,6 +426,10 @@ def test_a_control_type_without_measured_slots_is_refused(blank: AccessDatabase)
         "Line",
         "Image",
         "PageBreak",
+        "BoundObjectFrame",
+        "ObjectFrame",
+        "Subform",
+        "Tab",
     ],
 )
 def test_every_measured_control_type_can_be_written(blank: AccessDatabase, kind: str) -> None:
@@ -619,3 +625,70 @@ def test_setting_code_twice_replaces_it(blank: AccessDatabase) -> None:
     assert "Public Sub Two()" in module.source
     assert "Public Sub One()" not in module.source
     assert len([m for m in blank.modules() if m.name == "Form_Behind"]) == 1
+
+
+def test_a_page_belongs_to_a_tab_control(blank: AccessDatabase) -> None:
+    """A tab control holds its pages as a group of its own, written right
+    after it, and the section's own count does not include them."""
+    blank.create_form("Tabbed")
+    blank.add_control("Tabbed", "TextBox", "Box", top=240)
+    blank.add_control("Tabbed", "Tab", "Tabs", top=800, width=4000, height=2000)
+    blank.add_control("Tabbed", "Page", "First", parent="Tabs", caption="One")
+    blank.add_control("Tabbed", "Page", "Second", parent="Tabs", caption="Two")
+    design = blank.add_control("Tabbed", "CommandButton", "Go", top=3000)
+
+    placed = [(o.name, o.marker, o.code) for o in design.objects if o.marker is not None]
+    assert placed == [
+        ("Detail", OPEN_SECTION, CONTROL_CODES["Detail"]),
+        # Three controls on the section: the pages are not among them.
+        ("Box", OPEN_CONTROL, 3),
+        ("Tabs", OPEN_SIBLING, CONTROL_CODES["Tab"]),
+        ("First", OPEN_CONTROL, 2),
+        ("Second", OPEN_SIBLING, CONTROL_CODES["Page"]),
+        ("Go", OPEN_SIBLING, CONTROL_CODES["CommandButton"]),
+    ]
+
+
+def test_a_page_without_a_tab_is_refused(blank: AccessDatabase) -> None:
+    blank.create_form("Built")
+    with pytest.raises(AccessError, match="needs a parent Tab"):
+        blank.add_control("Built", "Page", "Loose")
+
+
+def test_only_a_page_takes_a_parent(blank: AccessDatabase) -> None:
+    blank.create_form("Built")
+    blank.add_control("Built", "Tab", "Tabs")
+    with pytest.raises(AccessError, match="needs a parent Tab"):
+        blank.add_control("Built", "Label", "Stuck", parent="Tabs")
+
+
+def test_a_parent_that_is_not_a_tab_is_refused(blank: AccessDatabase) -> None:
+    blank.create_form("Built")
+    blank.add_control("Built", "Label", "Plain")
+    with pytest.raises(AccessError, match="holds no Page"):
+        blank.add_control("Built", "Page", "Nope", parent="Plain")
+
+
+def test_a_parent_that_is_not_there_is_refused(blank: AccessDatabase) -> None:
+    blank.create_form("Built")
+    blank.add_control("Built", "Tab", "Tabs")
+    with pytest.raises(AccessError, match="no control named"):
+        blank.add_control("Built", "Page", "Nope", parent="Missing")
+
+
+def test_a_control_added_after_a_tab_does_not_join_its_pages(
+    blank: AccessDatabase,
+) -> None:
+    """The bug this guards against is silent: a control swallowed into the
+    tab's group would still parse, and Access would show it on a page."""
+    blank.create_form("Tabbed")
+    blank.add_control("Tabbed", "Tab", "Tabs", width=4000, height=2000)
+    blank.add_control("Tabbed", "Page", "Only", parent="Tabs")
+    design = blank.add_control("Tabbed", "Label", "After", top=3000)
+
+    names = [o.name for o in design.objects if o.marker is not None]
+    assert names == ["Detail", "Tabs", "Only", "After"]
+    by_name = {o.name: o for o in design.objects}
+    assert by_name["Tabs"].code == 2, "the section holds the tab and the label"
+    assert by_name["Only"].marker == OPEN_SECTION, "the tab's one page"
+    assert by_name["After"].marker == OPEN_SIBLING

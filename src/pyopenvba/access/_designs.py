@@ -524,6 +524,83 @@ CONTROL_SLOTS: dict[str, dict[str, tuple[int, int, int, int]]] = {
         "Name": (220, 20, 10, 4),
         "GUID": (223, 376, 9, 0),
     },
+    "BoundObjectFrame": {
+        "OverlapFlags": (53, 159, 2, 1),
+        "Left": (96, 54, 3, 4),
+        "Top": (97, 141, 3, 4),
+        "Width": (98, 150, 3, 4),
+        "Height": (99, 44, 3, 4),
+        "Name": (220, 20, 10, 4),
+        "ControlSource": (221, 27, 12, 4),
+        "GUID": (245, 376, 9, 0),
+        "Picture": (291, 0, 3, 4),
+        "LayoutCachedLeft": (294, 587, 3, 4),
+        "LayoutCachedTop": (295, 588, 3, 4),
+        "LayoutCachedWidth": (296, 589, 3, 4),
+        "LayoutCachedHeight": (297, 590, 3, 4),
+    },
+    "ObjectFrame": {
+        "OverlapFlags": (55, 159, 2, 1),
+        "Left": (97, 54, 3, 4),
+        "Top": (98, 141, 3, 4),
+        "Width": (99, 150, 3, 4),
+        "Height": (100, 44, 3, 4),
+        "TabIndex": (103, 261, 3, 4),
+        "Name": (220, 20, 10, 4),
+        "GUID": (245, 376, 9, 0),
+        "Picture": (285, 0, 3, 4),
+        "LayoutCachedLeft": (288, 587, 3, 4),
+        "LayoutCachedTop": (289, 588, 3, 4),
+        "LayoutCachedWidth": (290, 589, 3, 4),
+        "LayoutCachedHeight": (291, 590, 3, 4),
+    },
+    "Subform": {
+        "OverlapFlags": (51, 159, 2, 1),
+        "Left": (96, 54, 3, 4),
+        "Top": (97, 141, 3, 4),
+        "Width": (98, 150, 3, 4),
+        "Height": (99, 44, 3, 4),
+        "TabIndex": (100, 261, 3, 4),
+        "Name": (220, 20, 10, 4),
+        "ControlSource": (221, 27, 12, 4),
+        "GUID": (229, 376, 9, 0),
+        "Picture": (276, 0, 3, 4),
+        "LayoutCachedLeft": (279, 587, 3, 4),
+        "LayoutCachedTop": (280, 588, 3, 4),
+        "LayoutCachedWidth": (281, 589, 3, 4),
+        "LayoutCachedHeight": (282, 590, 3, 4),
+    },
+    # A tab control has no left or top of its own: Access positions it by
+    # its pages.
+    "Tab": {
+        "OverlapFlags": (49, 159, 2, 1),
+        "Width": (98, 150, 3, 4),
+        "Height": (99, 44, 3, 4),
+        "TabIndex": (102, 261, 3, 4),
+        "Name": (220, 20, 10, 4),
+        "GUID": (235, 376, 9, 0),
+        "Picture": (282, 0, 3, 4),
+        "LayoutCachedWidth": (288, 589, 3, 4),
+        "LayoutCachedHeight": (289, 590, 3, 4),
+    },
+    "Page": {
+        "OverlapFlags": (49, 159, 2, 1),
+        "Left": (96, 54, 3, 4),
+        "Top": (97, 141, 3, 4),
+        "Width": (98, 150, 3, 4),
+        "Height": (99, 44, 3, 4),
+        "Caption": (221, 17, 12, 4),
+        "Name": (220, 20, 10, 4),
+        "GUID": (234, 376, 9, 0),
+        "LayoutCachedLeft": (283, 587, 3, 4),
+        "LayoutCachedTop": (284, 588, 3, 4),
+        "LayoutCachedWidth": (285, 589, 3, 4),
+        "LayoutCachedHeight": (286, 590, 3, 4),
+        "BottomPadding": (305, 701, 4, 0),
+        "TopPadding": (306, 700, 4, 0),
+        "LeftPadding": (307, 702, 4, 0),
+        "RightPadding": (308, 703, 4, 0),
+    },
 }
 #: The value Access wrote for a control it had just made.
 DEFAULT_OVERLAP = 85
@@ -536,7 +613,12 @@ NO_PICTURE = b"\xff\xff\xff\xff"
 BUTTON_PADDING = {
     "CommandButton": {"Top": 2, "Bottom": 2, "Left": 1, "Right": 1},
     "ToggleButton": {"Top": 2, "Bottom": 2, "Left": 2, "Right": 2},
+    "Page": {"Top": 2, "Bottom": 2, "Left": 2, "Right": 2},
 }
+#: A page belongs to a tab control and nowhere else, and a tab control is
+#: the only thing that holds one.
+PAGE_HOLDER = "Tab"
+PAGE = "Page"
 #: Controls that take the focus, so a new one is given the next tab index.
 #: Access omits the record when the index is 0.
 TABBABLE = (
@@ -548,6 +630,9 @@ TABBABLE = (
     "OptionGroup",
     "ListBox",
     "ComboBox",
+    "ObjectFrame",
+    "Subform",
+    "Tab",
 )
 #: A text box carries this, and a control Access makes always has it.
 DEFAULT_TEXT_ALIGN = 3
@@ -640,6 +725,62 @@ def _placed(controls: tuple[DesignObject, ...]) -> tuple[DesignObject, ...]:
     return tuple(out)
 
 
+def _children_span(objects: tuple[DesignObject, ...], at: int, stop: int) -> int:
+    """How many objects directly follow `objects[at]` as its own children,
+    theirs included.
+
+    A marker says how its object was opened, so the run after a control
+    belongs to that control when it opens with `0xFE` (one child) or
+    `0xFF <count>` (that many), and belongs to the level above when it
+    opens with `0xFD`, which marks a sibling.
+    """
+    first = at + 1
+    if first >= stop:
+        return 0
+    marker = objects[first].marker
+    if marker == OPEN_SECTION:
+        count = 1
+    elif marker == OPEN_CONTROL:
+        code = objects[first].code
+        count = code if isinstance(code, int) and code > 0 else 1
+    else:
+        return 0
+    walked = first
+    for _ in range(count):
+        if walked >= stop:
+            break
+        walked += 1 + _children_span(objects, walked, stop)
+    return walked - first
+
+
+def _top_level(
+    objects: tuple[DesignObject, ...], start: int, stop: int
+) -> list[tuple[int, int]]:
+    """Each control directly inside the run, as `(index, children it owns)`.
+
+    The count a section's opening marker carries is of its own controls,
+    not of everything beneath them, so a tab control's pages are stepped
+    over rather than counted.
+    """
+    if start >= stop:
+        return []
+    marker = objects[start].marker
+    if marker == OPEN_CONTROL:
+        code = objects[start].code
+        count = code if isinstance(code, int) and code > 0 else 1
+    else:
+        count = 1
+    out: list[tuple[int, int]] = []
+    at = start
+    for _ in range(count):
+        if at >= stop:
+            break
+        owned = _children_span(objects, at, stop)
+        out.append((at, owned))
+        at += 1 + owned
+    return out
+
+
 def add_control(
     blob: bytes,
     control_type: str,
@@ -647,6 +788,7 @@ def add_control(
     guid: bytes,
     *,
     section: str = "Detail",
+    parent: str | None = None,
     left: int = 0,
     top: int = 0,
     width: int = 1440,
@@ -659,10 +801,18 @@ def add_control(
     before the section that follows.  Adding one rewrites the markers of
     the controls already there, since they depend on how many the section
     holds; see `_placed`.
+
+    `parent` names a control that holds controls of its own -- a tab
+    control holding pages -- and the new one joins that group rather than
+    the section's.
     """
     header, objects, trailer = parse_design(blob)
     if any(o.name == name for o in objects):
         raise AccessError(f"this design already has an object named {name!r}")
+    if (control_type == PAGE) != (parent is not None):
+        raise AccessError(
+            f"a {PAGE} needs a parent {PAGE_HOLDER} and nothing else takes one"
+        )
     at = next((i for i, o in enumerate(objects) if o.is_section and o.name == section), None)
     if at is None:
         raise AccessError(f"this design has no {section!r} section")
@@ -684,5 +834,46 @@ def add_control(
             if o.type is not None and CONTROL_TYPES.get(o.type) in TABBABLE
         ),
     )
-    placed = _placed((*objects[at + 1 : end], control))
-    return build_design(header, (*objects[: at + 1], *placed, *objects[end:]), trailer)
+    if parent is not None:
+        return _nested(header, objects, trailer, at + 1, end, parent, control)
+    owners = _top_level(objects, at + 1, end)
+    kept: list[DesignObject] = []
+    for index, owned in owners:
+        kept.append(objects[index])
+        kept.extend(objects[index + 1 : index + 1 + owned])
+    # The section's own controls are re-marked; whatever each of them
+    # holds rides along untouched.
+    placed = _placed(tuple(objects[index] for index, _ in owners) + (control,))
+    rebuilt: list[DesignObject] = []
+    for position, (index, owned) in enumerate(owners):
+        rebuilt.append(placed[position])
+        rebuilt.extend(objects[index + 1 : index + 1 + owned])
+    rebuilt.append(placed[-1])
+    return build_design(header, (*objects[: at + 1], *rebuilt, *objects[end:]), trailer)
+
+
+def _nested(
+    header: bytes,
+    objects: tuple[DesignObject, ...],
+    trailer: bytes,
+    start: int,
+    stop: int,
+    parent: str,
+    control: DesignObject,
+) -> bytes:
+    """The design with `control` added to what `parent` holds."""
+    owners = _top_level(objects, start, stop)
+    found = next((pair for pair in owners if objects[pair[0]].name == parent), None)
+    if found is None:
+        raise AccessError(f"this design has no control named {parent!r} in that section")
+    index, owned = found
+    holder = objects[index]
+    if holder.type is None or CONTROL_TYPES.get(holder.type) != PAGE_HOLDER:
+        raise AccessError(f"{parent!r} is not a {PAGE_HOLDER}, so it holds no {PAGE}")
+    children = _placed((*objects[index + 1 : index + 1 + owned], control))
+    rebuilt = (
+        *objects[: index + 1],
+        *children,
+        *objects[index + 1 + owned :],
+    )
+    return build_design(header, rebuilt, trailer)

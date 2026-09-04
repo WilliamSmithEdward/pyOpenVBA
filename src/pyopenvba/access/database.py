@@ -2399,6 +2399,7 @@ class AccessDatabase:
         *,
         kind: str = "form",
         section: str = "Detail",
+        parent: str | None = None,
         left: int = 0,
         top: int = 0,
         width: int = 1440,
@@ -2417,7 +2418,9 @@ class AccessDatabase:
 
         `caption` is the label's or button's text and the control source
         of anything that binds to data, and `section` says which band the
-        control belongs to.  Sizes are in twips, as Access keeps them; a
+        control belongs to.  `parent` names a control that holds controls
+        of its own: a tab control holds pages, and a page is the one type
+        that must have a parent.  Sizes are in twips, as Access keeps them; a
         page break takes only its top, which is all Access writes for one.
         """
         found = self._design(kind, design)
@@ -2454,6 +2457,7 @@ class AccessDatabase:
                             name,
                             random.Random().randbytes(16),
                             section=section,
+                            parent=parent,
                             left=left,
                             top=top,
                             width=width,

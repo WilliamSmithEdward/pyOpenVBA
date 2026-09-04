@@ -93,6 +93,20 @@ Public Function DescribeKinds(ByVal name As String) As Variant
     DescribeKinds = s
 End Function
 
+Public Function DescribeTree(ByVal name As String) As Variant
+    Dim c As Object, s As String, holder As String
+    DoCmd.OpenForm name, acDesign
+    For Each c In Forms(name).Controls
+        holder = "-"
+        On Error Resume Next
+        holder = c.Parent.Name
+        On Error GoTo 0
+        s = s & c.Name & "=" & TypeName(c) & "/" & holder & ";"
+    Next c
+    DoCmd.Close acForm, name, acSaveNo
+    DescribeTree = s
+End Function
+
 Public Function CallFormCode(ByVal name As String, ByVal proc As String) As Variant
     DoCmd.OpenForm name, , , , , acHidden
     CallFormCode = CallByName(Forms(name), proc, VbMethod)
@@ -308,15 +322,21 @@ MEASURED = [
     "Line",
     "Image",
     "PageBreak",
+    "BoundObjectFrame",
+    "ObjectFrame",
+    "Subform",
+    "Tab",
 ]
+#: Access does not call every control what pyOpenVBA calls it.
+ACCESS_NAMES = {"Subform": "SubForm", "Tab": "TabControl"}
 
 
 def test_access_opens_a_form_holding_one_of_every_control_we_can_write(
     blank: Path, tmp_path: Path
 ) -> None:
-    """Thirteen controls of thirteen types on one form.  Access reporting
-    each one back by name and type is what says the slots are right; a
-    design it will not accept shows a dialog instead."""
+    """One of every type we can write, on one form.  Access reporting each
+    one back by name and type is what says the slots are right; a design it
+    will not accept shows a dialog instead."""
 
     def build(db: AccessDatabase) -> None:
         db.create_form("Every")
@@ -335,7 +355,9 @@ def test_access_opens_a_form_holding_one_of_every_control_we_can_write(
 
     reported = [c for c in str(ask(out, "DescribeKinds", "Every")).split(";") if c]
     seen = {part.split(":")[0]: part.split(":")[1] for part in reported}
-    assert seen == {f"My{kind}": kind for kind in MEASURED}
+    assert seen == {
+        f"My{kind}": ACCESS_NAMES.get(kind, kind) for kind in MEASURED
+    }
 
 
 def test_access_agrees_with_the_tab_order_we_wrote(blank: Path, tmp_path: Path) -> None:
@@ -365,3 +387,31 @@ def test_a_page_break_we_write_keeps_its_place(blank: Path, tmp_path: Path) -> N
 
     reported = [c for c in str(ask(out, "DescribeKinds", "Broken")).split(";") if c]
     assert reported == ["Split:PageBreak:-:1440"]
+
+
+def test_access_puts_the_pages_we_write_on_the_tab_control(
+    blank: Path, tmp_path: Path
+) -> None:
+    """A page belongs to a tab control, written as a group of its own right
+    after it.  Access naming the tab as each page's parent, and the form as
+    the parent of the controls beside it, is what says the nesting is
+    right -- a page swallowed into the wrong group still parses."""
+
+    def build(db: AccessDatabase) -> None:
+        db.create_form("Tabbed")
+        db.add_control("Tabbed", "TextBox", "Box", top=240)
+        db.add_control("Tabbed", "Tab", "Tabs", top=800, width=4000, height=2000)
+        db.add_control("Tabbed", "Page", "First", parent="Tabs", caption="One")
+        db.add_control("Tabbed", "Page", "Second", parent="Tabs", caption="Two")
+        db.add_control("Tabbed", "CommandButton", "Go", top=3000)
+
+    out = written(blank, tmp_path / "tabbed.accdb", build)
+
+    reported = [c for c in str(ask(out, "DescribeTree", "Tabbed")).split(";") if c]
+    assert reported == [
+        "Box=TextBox/Tabbed",
+        "Tabs=TabControl/Tabbed",
+        "First=Page/Tabs",
+        "Second=Page/Tabs",
+        "Go=CommandButton/Tabbed",
+    ]

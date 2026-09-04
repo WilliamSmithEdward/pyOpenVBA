@@ -7,19 +7,30 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
-- **Eleven more control types on forms and reports.** `add_control` now
-  writes CommandButton, ToggleButton, OptionButton, CheckBox,
-  OptionGroup, ListBox, ComboBox, Rectangle, Line, Image and PageBreak
-  alongside Label and TextBox. Every slot's id, code, value type and
-  width was read back from a control Access itself made, and each type
-  gets only the slots it has: a page break carries a top and nothing
-  else, an image no overlap flags, a combo box its GUID ahead of its
+- **Every control type pyOpenVBA can read, it can now write.**
+  `add_control` wrote a Label or a TextBox; it now writes all eighteen --
+  CommandButton, ToggleButton, OptionButton, CheckBox, OptionGroup,
+  ListBox, ComboBox, Rectangle, Line, Image, PageBreak,
+  BoundObjectFrame, ObjectFrame, Subform, Tab and Page as well. Every
+  slot's id, code, value type and width was read back from a control
+  Access itself made, and each type gets only the slots it has: a page
+  break carries a top and nothing else, a tab control no left or top at
+  all, an image no overlap flags, a combo box its GUID ahead of its
   name. A button is written with the padding Access gives it, a list or
   combo box with `Table/Query` as its row source type, and anything that
   takes the focus with the next tab index.
 
-  The live gate puts one of each on a single form and has Access name
-  all thirteen back.
+- **A control can hold controls.** `add_control(..., parent="Tabs")` puts
+  a page on a tab control, which is written as a group of its own right
+  after it. Reading a design is now a tree walk rather than a flat scan,
+  since a section's count is of its own controls and not of everything
+  beneath them. A page must have a parent tab and nothing else may have
+  one, both of which are refused rather than written.
+
+  The live gate puts one of every writable type on a single form and has
+  Access name them all back, and builds a tab control with two pages
+  between a text box and a button -- Access reports the tab as each
+  page's parent and the form as the parent of the two beside it.
 
 - **Jet 3 (Access 97) databases read.** `AccessDatabase` opens a 2 KiB
   page `.mdb` and reads its catalog, tables, rows and long values the

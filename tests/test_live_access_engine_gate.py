@@ -1162,6 +1162,12 @@ def test_every_column_type_reads_back_as_the_engine_shows_it(tmp_path: Path) -> 
 
 
 SQL_GATE_SELECTS = (
+    # Text on one side of + and a number on the other is an addition,
+    # and the text functions ignore case unless told otherwise.
+    "SELECT Id, Txt + '!' AS P, '5' + 5 AS N, 'a' + 5 AS X FROM AllTypes WHERE Id <= 3 ORDER BY Id",
+    "SELECT Id, Replace(Txt, 'ROW', 'R') AS R, InStr(Txt, 'ROW') AS I FROM AllTypes ORDER BY Id",
+    "SELECT Id, Replace(Txt, 'row', 'R', 1, -1, 0) AS R FROM AllTypes ORDER BY Id",
+    "SELECT StrComp('a', 'A') AS A, StrComp('a', 'A', 0) AS B FROM AllTypes WHERE Id = 1",
     # Dividing by zero is Null, not an error, and the query goes on.
     "SELECT Id, Dbl / 0 AS D, Big \\ 0 AS I, Big Mod 0 AS M FROM AllTypes WHERE Id <= 3 ORDER BY Id",
     "SELECT Id, Cash / 0 AS C FROM AllTypes WHERE Id <= 3 ORDER BY Id",

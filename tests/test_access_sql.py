@@ -496,3 +496,59 @@ def test_a_maths_function_given_the_wrong_number_says_so(
     is this package's own error and not the maths library's."""
     with pytest.raises(AccessError, match=message):
         _shop(tmp_path).execute(f"SELECT {expression} AS X FROM Customers")
+
+
+@pytest.mark.parametrize(
+    ("expression", "expected"),
+    [
+        # Text on one side and a number on the other is an addition.
+        ("'5' + 5", 10),
+        ("5 + '5'", 10),
+        ("' 5 ' + 1", 6),
+        ("'5.5' + 1", 6.5),
+        # Text that will not read as a number makes the whole thing Null.
+        ("'a' + 5", None),
+        ("'' + 1", None),
+        # Two strings join, and `&` always joins.
+        ("'5' + '5'", "55"),
+        ("'a' + 'b'", "ab"),
+        ("'5' & 5", "55"),
+    ],
+)
+def test_plus_adds_a_number_written_as_text(
+    tmp_path: Path, expression: str, expected: object
+) -> None:
+    rows = _shop(tmp_path).execute(f"SELECT {expression} AS A FROM Customers WHERE Id = 1")
+    assert isinstance(rows, list) and rows
+    assert rows[0]["A"] == expected
+
+
+@pytest.mark.parametrize(
+    ("expression", "expected"),
+    [
+        # A query ignores case unless the comparison argument says not to.
+        ("Replace('abcABC', 'b', 'X')", "aXcAXC"),
+        ("Replace('abcABC', 'B', 'X')", "aXcAXC"),
+        ("Replace('abcABC', 'b', 'X', 1, -1, 1)", "aXcAXC"),
+        ("Replace('abcABC', 'b', 'X', 1, -1, 0)", "aXcABC"),
+        # `start` says where the answer begins, not just where to look.
+        ("Replace('abcabc', 'b', 'X', 3)", "caXc"),
+        ("Replace('abcabc', 'b', 'X', 1, 1)", "aXcabc"),
+        ("Replace('abc', 'z', 'X')", "abc"),
+        ("InStr('abcABC', 'B')", 2),
+        ("InStr(1, 'abcABC', 'B', 0)", 5),
+        ("StrComp('a', 'A')", 0),
+        ("StrComp('a', 'A', 0)", 1),
+    ],
+)
+def test_the_text_functions_honour_their_comparison_argument(
+    tmp_path: Path, expression: str, expected: object
+) -> None:
+    rows = _shop(tmp_path).execute(f"SELECT {expression} AS A FROM Customers WHERE Id = 1")
+    assert isinstance(rows, list) and rows
+    assert rows[0]["A"] == expected
+
+
+def test_replace_starting_before_the_string_is_refused(tmp_path: Path) -> None:
+    with pytest.raises(AccessError, match="starts at 1"):
+        _shop(tmp_path).execute("SELECT Replace('abc', 'b', 'X', 0) AS A FROM Customers")

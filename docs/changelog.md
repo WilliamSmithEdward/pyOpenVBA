@@ -459,6 +459,19 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- **`+` joined text to a number instead of adding it.** `'5' + 5`
+  answered `'55'` where the engine answers `10`: text on one side and a
+  number on the other is an addition, and text that will not read as a
+  number makes the whole expression Null rather than an error. Two
+  strings still join, and `&` always joins.
+
+- **`Replace`, `InStr` and `StrComp` ignored their comparison
+  argument.** A query ignores case unless told not to, so
+  `Replace('abcABC', 'b', 'X')` is `aXcAXC`; ours was case-sensitive and
+  left the second half alone. `Replace` also ignored `start` and
+  `count`, and `start` does not merely say where to look -- the answer
+  begins there, so `Replace('abcabc', 'b', 'X', 3)` is `caXc`.
+
 - **Dividing by zero stopped the query instead of answering Null.**
   `SELECT Over / Under FROM t` raised as soon as one row held a zero,
   where the engine answers Null for that row and carries on. The same

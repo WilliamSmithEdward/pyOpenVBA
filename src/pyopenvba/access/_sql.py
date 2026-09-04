@@ -197,8 +197,17 @@ class Binary(Expr):
         if op == "LIKE":
             return like_match(_text(a), _text(b))
         if op == "+":
+            if isinstance(a, str) and isinstance(b, str):
+                return a + b
             if isinstance(a, str) or isinstance(b, str):
-                return _text(a) + _text(b)
+                # Text on one side and a number on the other is an
+                # addition, not a join: `'5' + 5` is 10.  Text that will
+                # not read as a number makes the whole thing Null, which
+                # is what the engine answers -- it does not refuse.
+                try:
+                    return _arith(_number(a), _number(b), lambda x, y: x + y)
+                except AccessError:
+                    return None
             return _arith(a, b, lambda x, y: x + y)
         if op == "-":
             return _arith(a, b, lambda x, y: x - y)
@@ -660,6 +669,50 @@ def _whole(value: object) -> int:
     return int(Decimal(str(number)).quantize(Decimal(1), rounding=ROUND_HALF_EVEN))
 
 
+#: What a text comparison argument means: 0 compares by character code,
+#: anything else -- and the default in a query -- ignores case.
+COMPARE_BINARY = 0
+
+
+def _replace(
+    text: str, find: str, put: str, start: int, count: int, blind: bool
+) -> str:
+    """`Replace` as a query means it.
+
+    `start` does not just say where to look: the answer begins there, so
+    `Replace("abcabc", "b", "X", 3)` is `caXc` and not `abcaXc`.  `count`
+    caps how many go, and the search ignores case unless told otherwise.
+    """
+    if start < 1:
+        raise AccessError("Replace starts at 1 or later")
+    text = text[start - 1 :]
+    if not find or count == 0:
+        return text
+    if not blind:
+        return text.replace(find, put) if count < 0 else text.replace(find, put, count)
+    out: list[str] = []
+    hay, pin = text.lower(), find.lower()
+    at = done = 0
+    while count < 0 or done < count:
+        found = hay.find(pin, at)
+        if found < 0:
+            break
+        out.append(text[at:found])
+        out.append(put)
+        at = found + len(find)
+        done += 1
+    out.append(text[at:])
+    return "".join(out)
+
+
+def _case_blind(args: Sequence[object], at: int) -> bool:
+    """Whether a text function should ignore case, given where its
+    comparison argument sits."""
+    if len(args) <= at or args[at] is None:
+        return True
+    return int(_number(args[at])) != COMPARE_BINARY
+
+
 def _number(value: object) -> int | float | Decimal:
     if isinstance(value, bool):
         return -1 if value else 0
@@ -944,10 +997,15 @@ def _call(name: str, args: list[object]) -> object:
         start = int(_number(args[1])) - 1
         return text[start : start + int(_number(args[2]))] if len(args) > 2 else text[start:]
     if upper == "INSTR":
-        haystack, needle = (_text(args[0]), _text(args[1])) if len(args) == 2 else (_text(args[1]), _text(args[2]))
-        start = int(_number(args[0])) if len(args) > 2 else 1
-        found = haystack.lower().find(needle.lower(), start - 1)
-        return found + 1
+        wide = len(args) > 2
+        haystack, needle = (
+            (_text(args[1]), _text(args[2])) if wide else (_text(args[0]), _text(args[1]))
+        )
+        start = int(_number(args[0])) if wide else 1
+        blind = _case_blind(args, 3)
+        hay = haystack.lower() if blind else haystack
+        pin = needle.lower() if blind else needle
+        return hay.find(pin, start - 1) + 1
     if upper == "ABS":
         return abs(_number(args[0]))  # pyright: ignore[reportArgumentType]
     if upper == "INT":
@@ -1014,14 +1072,23 @@ def _call(name: str, args: list[object]) -> object:
             raise AccessError("MonthName takes 1 to 12")
         return MONTH_NAMES[index - 1]
     if upper == "REPLACE":
-        return _text(args[0]).replace(_text(args[1]), _text(args[2]))
+        return _replace(
+            _text(args[0]),
+            _text(args[1]),
+            _text(args[2]),
+            int(_number(args[3])) if len(args) > 3 and args[3] is not None else 1,
+            int(_number(args[4])) if len(args) > 4 and args[4] is not None else -1,
+            _case_blind(args, 5),
+        )
     if upper == "SPACE":
         return " " * int(_number(args[0]))
     if upper == "STRING":
         fill = _text(args[1])
         return (fill[:1] if fill else " ") * int(_number(args[0]))
     if upper == "STRCOMP":
-        a, b = _text(args[0]).lower(), _text(args[1]).lower()
+        a, b = _text(args[0]), _text(args[1])
+        if _case_blind(args, 2):
+            a, b = a.lower(), b.lower()
         return (a > b) - (a < b)
     if upper == "STRREVERSE":
         return _text(args[0])[::-1]

@@ -56,11 +56,12 @@ All notable changes to pyOpenVBA are documented here. This project follows
   (ActiveX) controls, attachment controls, the web browser, the
   navigation control, charts and the Edge browser. All six now parse and
   report their type; the first three are written as well, and Access
-  accepts each. The other three are read but not written: each carries
-  records this project cannot name, and a navigation control, chart and
-  Edge browser each repeat one code at two ids -- which a table keyed by
-  property name cannot express -- so writing one is refused with the
-  reason rather than attempted.
+  accepts each. The other three are read but not written: each
+  carries records this project cannot name -- 450, 456, 458, 600 among
+  them, and a dozen more on a chart -- and on the navigation control and
+  the Edge browser one of those, 450, appears twice at two ids, which a
+  table keyed by property name cannot express. Writing one is refused
+  with the reason rather than attempted.
 
   That takes the reader to 27 control types and the writer to 21. Two
   more codes Access accepts, 131 and 132, turn out to be alternate ways

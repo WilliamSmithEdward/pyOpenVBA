@@ -5,6 +5,17 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ## [Unreleased]
 
+### Known
+
+- **The SQL executor does not carry a column's numeric type through an
+  expression.** A Currency and a Decimal column both decode to `Decimal`,
+  and Jet treats them differently: a Decimal keeps its scale through
+  arithmetic (`Frac / 3` is `0.0417`, not `0.041667`) while a Currency
+  drops to a Double on `*` and `/`. Seven measured differences and what
+  closing it would take are written up in `docs/access_engine.md`.
+  Everything else in that audit agrees, including every plain column read
+  and `Sum`, `Avg`, `Min` and `Max` over both types.
+
 ### Added
 
 - **A table's rows can be packed onto fewer pages.**

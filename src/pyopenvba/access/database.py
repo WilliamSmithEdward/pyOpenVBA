@@ -50,6 +50,7 @@ from pyopenvba.access._lval import (
 )
 from pyopenvba.access._designs import (
     CATALOG_CONTAINERS,
+    add_control,
     CONTAINERS,
     NAV_TYPES,
     OBJECT_TYPES,
@@ -2237,6 +2238,76 @@ class AccessDatabase:
         )
         self.forget_catalog()
         return self._design(kind, name)
+
+    def add_control(
+        self,
+        design: str,
+        control_type: str,
+        name: str,
+        *,
+        kind: str = "form",
+        section: str = "Detail",
+        left: int = 0,
+        top: int = 0,
+        width: int = 1440,
+        height: int = 240,
+        caption: str | None = None,
+    ) -> AccessDesign:
+        """Put a control on a form or report.
+
+        `control_type` is `"Label"` or `"TextBox"`.  A record's id is its
+        slot in the object's own schema and the schema differs by control
+        type, so only the two whose slots were measured can be written;
+        `caption` is the label's text, or the text box's control source,
+        and `section` says which band it belongs to.  Sizes are in twips,
+        as Access keeps them.
+        """
+        found = self._design(kind, design)
+        container = self._design_container(kind)
+        listing = next(
+            payload
+            for _rid, row in self.table(STORAGE_TABLE).rows_with_ids()
+            if _as_int(row["ParentId"]) == container
+            and str(row["Name"]) == DIR_DATA
+            and isinstance(payload := row.get("Lv"), bytes)
+        )
+        folder = dict(dir_data_entries(listing))[found.name]
+        folder_id = next(
+            _as_int(r["Id"])
+            for _rid, r in self.table(STORAGE_TABLE).rows_with_ids()
+            if _as_int(r["ParentId"]) == container
+            and _as_int(r["Type"]) == TYPE_FOLDER
+            and str(r["Name"]) == folder
+        )
+        storage = self.table(STORAGE_TABLE)
+        for rid, row in list(storage.rows_with_ids()):
+            payload = row.get("Lv")
+            if (
+                _as_int(row["ParentId"]) == folder_id
+                and str(row["Name"]) == "Blob"
+                and isinstance(payload, bytes)
+            ):
+                storage.update_row(
+                    rid,
+                    {
+                        "Lv": add_control(
+                            payload,
+                            control_type,
+                            name,
+                            random.Random().randbytes(16),
+                            section=section,
+                            left=left,
+                            top=top,
+                            width=width,
+                            height=height,
+                            caption=caption,
+                        )
+                    },
+                )
+                break
+        else:  # pragma: no cover - a design without its own blob
+            raise AccessError(f"the {kind} {design!r} has no design blob")
+        return self._design(kind, design)
 
     def delete_form(self, name: str) -> None:
         """Remove a form and every structure it occupies."""

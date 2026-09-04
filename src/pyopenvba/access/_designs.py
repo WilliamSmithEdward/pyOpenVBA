@@ -81,14 +81,6 @@ CONTROL_TYPES = {
     155: "PageHeaderSection",
     156: "PageFooterSection",
 }
-#: The property codes worth naming.  A design carries hundreds; these are
-#: the ones read off a design Access wrote and confirmed against what it
-#: shows in the designer.
-PROPERTY_NAMES = {
-    20: "Name",
-    21: "Name",
-    160: "FontName",
-}
 #: Codes whose value is the object's name.
 NAME_CODES = (20, 21)
 
@@ -273,3 +265,207 @@ def with_guid(blob: bytes, guid: bytes) -> bytes:
         for obj in objects
     )
     return build_design(header, replaced, trailer)
+
+
+# --- naming the properties ----------------------------------------------------
+# `Application.SaveAsText acForm` writes the same design with its
+# properties **named** and in the same order, so walking the export and
+# the blob together names the codes.  These are the ones two exports
+# agreed on; a design carries hundreds more, and the rest are handed back
+# as they are.
+PROPERTY_CODES = {
+    "AddColon": 3,
+    "BorderColor": 8,
+    "BorderLineStyle": 11,
+    "Caption": 17,
+    "Name": 20,
+    "BackStyle": 29,
+    "FontName": 34,
+    "FontSize": 35,
+    "FontWeight": 37,
+    "Height": 44,
+    "LabelX": 52,
+    "Left": 54,
+    "Top": 141,
+    "Width": 150,
+    "OverlapFlags": 159,
+    "ForeColor": 204,
+    "GUID": 376,
+    "AutoHeight": 476,
+    "AlternateBackColor": 572,
+    "LayoutCachedLeft": 587,
+    "LayoutCachedTop": 588,
+    "LayoutCachedWidth": 589,
+    "LayoutCachedHeight": 590,
+    "ThemeFontIndex": 616,
+    "BackThemeColorIndex": 617,
+    "BorderThemeColorIndex": 620,
+    "BorderTint": 621,
+    "BorderShade": 622,
+    "ForeThemeColorIndex": 623,
+    "ForeTint": 624,
+    "GridlineThemeColorIndex": 626,
+    "GridlineShade": 628,
+}
+PROPERTY_NAMES = {code: name for name, code in PROPERTY_CODES.items()}
+#: `Name` also appears as 21 on some objects.
+PROPERTY_NAMES[21] = "Name"
+
+# --- adding a control ---------------------------------------------------------
+# A record's `id` is its slot in the object's own schema, and the schema
+# differs by control type: a Label keeps its GUID at 234 and a TextBox at
+# 250.  These are the slots measured on controls Access created, and they
+# are what a written control has to use.
+CONTROL_SLOTS: dict[str, dict[str, tuple[int, int, int, int]]] = {
+    # name -> (id, code, value type, width)
+    "Label": {
+        "OverlapFlags": (53, 159, 2, 1),
+        "Left": (96, 54, 3, 4),
+        "Top": (97, 141, 3, 4),
+        "Width": (98, 150, 3, 4),
+        "Height": (99, 44, 3, 4),
+        "Name": (220, 20, 10, 4),
+        "Caption": (221, 17, 12, 4),
+        "GUID": (234, 376, 9, 0),
+        "LayoutCachedLeft": (282, 587, 3, 4),
+        "LayoutCachedTop": (283, 588, 3, 4),
+        "LayoutCachedWidth": (284, 589, 3, 4),
+        "LayoutCachedHeight": (285, 590, 3, 4),
+    },
+    "TextBox": {
+        "OverlapFlags": (55, 159, 2, 1),
+        "TextAlign": (70, 379, 2, 1),
+        "Left": (96, 54, 3, 4),
+        "Top": (97, 141, 3, 4),
+        "Width": (98, 150, 3, 4),
+        "Height": (99, 44, 3, 4),
+        "Name": (220, 20, 10, 4),
+        "ControlSource": (221, 27, 12, 4),
+        "GUID": (250, 376, 9, 0),
+        "LayoutCachedLeft": (302, 587, 3, 4),
+        "LayoutCachedTop": (303, 588, 3, 4),
+        "LayoutCachedWidth": (304, 589, 3, 4),
+        "LayoutCachedHeight": (305, 590, 3, 4),
+    },
+}
+#: The value Access wrote for a control it had just made.
+DEFAULT_OVERLAP = 85
+#: A text box carries this, and a control Access makes always has it.
+DEFAULT_TEXT_ALIGN = 3
+#: The `u16` an `0xFF` marker carries when it opens a trailing group of
+#: controls, against 3 or 4 for the prototypes ahead of them.
+CONTROLS_GROUP = 2
+TYPE_CODES = {name: code for code, name in CONTROL_TYPES.items()}
+
+
+def _record(slot: tuple[int, int, int, int], value: bytes) -> DesignRecord:
+    ident, code, value_type, width = slot
+    return DesignRecord(ident, code, value_type, width, value)
+
+
+def control_object(
+    control_type: str,
+    name: str,
+    guid: bytes,
+    *,
+    left: int,
+    top: int,
+    width: int,
+    height: int,
+    caption: str | None,
+) -> DesignObject:
+    """One control, as the records Access writes for a new one."""
+    slots = CONTROL_SLOTS.get(control_type)
+    if slots is None:
+        raise AccessError(
+            f"a {control_type} cannot be written yet; known: {', '.join(sorted(CONTROL_SLOTS))}"
+        )
+    values: list[tuple[str, bytes]] = [
+        ("OverlapFlags", bytes((DEFAULT_OVERLAP,))),
+    ]
+    if control_type == "TextBox":
+        values.append(("TextAlign", bytes((DEFAULT_TEXT_ALIGN,))))
+    values += [
+        ("Left", left.to_bytes(2, "little")),
+        ("Top", top.to_bytes(2, "little")),
+        ("Width", width.to_bytes(2, "little")),
+        ("Height", height.to_bytes(2, "little")),
+        ("Name", name.encode("utf-16-le")),
+    ]
+    if caption is not None:
+        key = "Caption" if control_type == "Label" else "ControlSource"
+        values.append((key, caption.encode("utf-16-le")))
+    values += [
+        ("GUID", guid),
+        ("LayoutCachedLeft", left.to_bytes(4, "little")),
+        ("LayoutCachedTop", top.to_bytes(4, "little")),
+        ("LayoutCachedWidth", (left + width).to_bytes(4, "little")),
+        ("LayoutCachedHeight", (top + height).to_bytes(4, "little")),
+    ]
+    records = tuple(_record(slots[key], value) for key, value in values if key in slots)
+    return DesignObject(None, TYPE_CODES[control_type], None, records)
+
+
+def _placed(controls: tuple[DesignObject, ...]) -> tuple[DesignObject, ...]:
+    """The markers a section's controls carry, which depend on **how many
+    there are**.
+
+    One control is written as a single child, `0xFE <type>`.  Two or more
+    open a group: the first `0xFF <2> <type>` and the rest `0xFD <type>`.
+    Access writes it both ways -- a report whose page header holds one
+    control and whose detail holds two carries both in one design -- and
+    each is refused in the other's place.
+    """
+    out: list[DesignObject] = []
+    for position, control in enumerate(controls):
+        if len(controls) == 1:
+            marker, code = OPEN_SECTION, control.type
+        elif position == 0:
+            marker, code = OPEN_CONTROL, CONTROLS_GROUP
+        else:
+            marker, code = OPEN_SIBLING, control.type
+        out.append(DesignObject(marker, control.type, code, control.records))
+    return tuple(out)
+
+
+def add_control(
+    blob: bytes,
+    control_type: str,
+    name: str,
+    guid: bytes,
+    *,
+    section: str = "Detail",
+    left: int = 0,
+    top: int = 0,
+    width: int = 1440,
+    height: int = 240,
+    caption: str | None = None,
+) -> bytes:
+    """A design with one more control on it.
+
+    A control belongs to a section and is written immediately after it,
+    before the section that follows.  Adding one rewrites the markers of
+    the controls already there, since they depend on how many the section
+    holds; see `_placed`.
+    """
+    header, objects, trailer = parse_design(blob)
+    if any(o.name == name for o in objects):
+        raise AccessError(f"this design already has an object named {name!r}")
+    at = next((i for i, o in enumerate(objects) if o.is_section and o.name == section), None)
+    if at is None:
+        raise AccessError(f"this design has no {section!r} section")
+    end = at + 1
+    while end < len(objects) and not objects[end].is_section:
+        end += 1
+    control = control_object(
+        control_type,
+        name,
+        guid,
+        left=left,
+        top=top,
+        width=width,
+        height=height,
+        caption=caption,
+    )
+    placed = _placed((*objects[at + 1 : end], control))
+    return build_design(header, (*objects[: at + 1], *placed, *objects[end:]), trailer)

@@ -14,7 +14,9 @@ import pytest
 
 from pyopenvba.access import AccessDatabase
 from pyopenvba.access._designs import (
+    CONTROL_SLOTS,
     CONTROL_TYPES,
+    PROPERTY_CODES,
     NAV_TYPES,
     OBJECT_TYPES,
     OPEN_CONTROL,
@@ -299,3 +301,107 @@ def test_a_design_created_after_a_delete_reuses_the_folder(blank: AccessDatabase
     )
     assert isinstance(listing, bytes)
     assert dir_data_entries(listing) == [("Two", "1"), ("Three", "0")]
+
+
+# --- adding a control ---------------------------------------------------------
+
+
+def test_a_control_can_be_added_to_a_form(blank: AccessDatabase) -> None:
+    blank.create_form("Built")
+    design = blank.add_control(
+        "Built", "Label", "Title", left=240, top=240, width=2000, height=300, caption="Hello"
+    )
+
+    assert [(c.name, c.type_name) for c in design.controls] == [("Title", "Label")]
+    label = design.controls[0]
+    assert int.from_bytes(label.property_value(PROPERTY_CODES["Left"]) or b"", "little") == 240
+    assert int.from_bytes(label.property_value(PROPERTY_CODES["Top"]) or b"", "little") == 240
+    assert int.from_bytes(label.property_value(PROPERTY_CODES["Width"]) or b"", "little") == 2000
+    assert int.from_bytes(label.property_value(PROPERTY_CODES["Height"]) or b"", "little") == 300
+    caption = label.property_value(PROPERTY_CODES["Caption"])
+    assert caption is not None and caption.decode("utf-16-le") == "Hello"
+
+
+def test_the_markers_follow_how_many_controls_the_section_holds(
+    blank: AccessDatabase,
+) -> None:
+    """One control is a single child, `0xFE`.  Two or more open a group:
+    `0xFF` then `0xFD`.  Access writes both in one report -- a page header
+    holding one control and a detail band holding two -- and refuses each
+    in the other's place."""
+    blank.create_form("Built")
+    design = blank.add_control("Built", "Label", "One")
+    assert [c.marker for c in design.controls] == [0xFE]
+
+    design = blank.add_control("Built", "TextBox", "Two", caption="=1+1")
+    assert [c.marker for c in design.controls] == [0xFF, 0xFD]
+    assert [c.type_name for c in design.controls] == ["Label", "TextBox"]
+    # and the sections are still where they were
+    assert [s.name for s in design.sections] == ["Detail"]
+
+
+def test_a_control_can_go_in_a_named_section(blank: AccessDatabase) -> None:
+    blank.create_report("Sheet")
+    blank.add_control("Sheet", "Label", "Banner", kind="report", section="PageHeaderSection")
+    design = blank.add_control("Sheet", "Label", "Body", kind="report")
+
+    assert [(c.name, c.marker) for c in design.controls] == [("Banner", 0xFE), ("Body", 0xFE)]
+    # each sits inside its own section, in the order the sections come
+    order = [o.name for o in design.objects if o.name]
+    assert order.index("Banner") < order.index("Detail") < order.index("Body")
+
+
+def test_an_unknown_section_is_refused(blank: AccessDatabase) -> None:
+    blank.create_form("Built")
+    with pytest.raises(AccessError, match="no 'PageFooterSection' section"):
+        blank.add_control("Built", "Label", "One", section="PageFooterSection")
+
+
+def test_a_control_survives_a_save(blank: AccessDatabase, tmp_path: Path) -> None:
+    blank.create_form("Built")
+    blank.add_control("Built", "TextBox", "Box", left=100, top=200, caption="=2*21")
+    out = tmp_path / "written.accdb"
+    blank.save(out)
+
+    control = AccessDatabase(out).form("Built").controls[0]
+    assert control.name == "Box" and control.type_name == "TextBox"
+    source = control.property_value(27)  # ControlSource
+    assert source is not None and source.decode("utf-16-le") == "=2*21"
+
+
+def test_a_control_can_be_added_to_a_report(blank: AccessDatabase) -> None:
+    blank.create_report("Sheet")
+    design = blank.add_control("Sheet", "Label", "Heading", kind="report", caption="Monthly")
+
+    assert [(c.name, c.type_name) for c in design.controls] == [("Heading", "Label")]
+
+
+def test_the_records_use_the_slots_access_uses(blank: AccessDatabase) -> None:
+    """A record's id is its slot in the control type's own schema: a Label
+    keeps its GUID at 234 and a TextBox at 250."""
+    blank.create_form("Built")
+    blank.add_control("Built", "Label", "One", caption="x")
+    design = blank.add_control("Built", "TextBox", "Two")
+
+    label, box = design.controls
+    assert {r.id for r in label.records} >= {53, 96, 97, 98, 99, 220, 221, 234}
+    assert {r.id for r in box.records} >= {55, 70, 96, 97, 98, 99, 220, 250}
+    for control, kind in ((label, "Label"), (box, "TextBox")):
+        for record in control.records:
+            slot = CONTROL_SLOTS[kind]
+            match = [s for s in slot.values() if s[0] == record.id]
+            assert match, (kind, record.id)
+            assert (record.code, record.value_type, record.width) == match[0][1:]
+
+
+def test_a_control_type_without_measured_slots_is_refused(blank: AccessDatabase) -> None:
+    blank.create_form("Built")
+    with pytest.raises(AccessError, match="cannot be written yet"):
+        blank.add_control("Built", "ComboBox", "Picker")
+
+
+def test_a_name_already_on_the_design_is_refused(blank: AccessDatabase) -> None:
+    blank.create_form("Built")
+    blank.add_control("Built", "Label", "One")
+    with pytest.raises(AccessError, match="already has an object named"):
+        blank.add_control("Built", "Label", "One")

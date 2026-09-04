@@ -61,6 +61,22 @@ Public Function OpenReportDesign(ByVal name As String) As Variant
     DoCmd.Close acReport, name, acSaveNo
 End Function
 
+Public Function DescribeControls(ByVal name As String) As Variant
+    Dim c As Object, s As String
+    DoCmd.OpenForm name, acDesign
+    For Each c In Forms(name).Controls
+        s = s & c.Name & ":" & TypeName(c) & ":" & c.Left & "," & c.Top & "," & c.Width & "," & c.Height
+        If TypeName(c) = "Label" Then
+            s = s & ":" & c.Caption
+        ElseIf TypeName(c) = "TextBox" Then
+            s = s & ":" & c.ControlSource
+        End If
+        s = s & ";"
+    Next c
+    DoCmd.Close acForm, name, acSaveNo
+    DescribeControls = s
+End Function
+
 Public Function RunForm(ByVal name As String) As Variant
     DoCmd.OpenForm name
     RunForm = Forms(name).Name & "|" & Forms(name).CurrentView
@@ -164,3 +180,59 @@ def test_a_deleted_design_is_gone_from_access(blank: Path, tmp_path: Path) -> No
 
     assert {n for n in str(ask(out, "DesignNames")).split(";") if n} == {"F:Keep"}
     assert str(ask(out, "OpenFormDesign", "Keep")).startswith("Keep|")
+
+
+def test_access_reads_back_the_controls_we_add(blank: Path, tmp_path: Path) -> None:
+    """Name, type and every measurement, as Access reports them."""
+
+    def build(db: AccessDatabase) -> None:
+        db.create_form("Built")
+        db.add_control(
+            "Built", "Label", "Title", left=240, top=240, width=2000, height=300,
+            caption="Hello there",
+        )
+        db.add_control(
+            "Built", "TextBox", "Box", left=240, top=700, width=2400, height=320,
+            caption="=1+1",
+        )
+
+    out = written(blank, tmp_path / "controls.accdb", build)
+
+    reported = [c for c in str(ask(out, "DescribeControls", "Built")).split(";") if c]
+    assert reported == [
+        "Title:Label:240,240,2000,300:Hello there",
+        "Box:TextBox:240,700,2400,320:=1+1",
+    ]
+
+
+def test_controls_on_a_report_reach_access(blank: Path, tmp_path: Path) -> None:
+    """Three across two sections, which is what makes the markers matter:
+    the page header holds one and the detail band two, and Access refuses
+    either encoding in the other's place."""
+
+    def build(db: AccessDatabase) -> None:
+        db.create_report("Sheet")
+        db.add_control("Sheet", "Label", "Heading", kind="report", caption="Monthly", width=2000)
+        db.add_control("Sheet", "TextBox", "Total", kind="report", caption="=2*21", top=500)
+        db.add_control(
+            "Sheet", "Label", "PageTitle", kind="report", section="PageHeaderSection",
+            caption="Header band", width=2000,
+        )
+
+    out = written(blank, tmp_path / "report_control.accdb", build)
+
+    name, controls, _height = str(ask(out, "OpenReportDesign", "Sheet")).split("|")
+    assert name == "Sheet" and int(controls) == 3
+
+
+def test_one_control_on_a_form_reaches_access(blank: Path, tmp_path: Path) -> None:
+    """A lone control takes the other marker, so it needs its own check."""
+    out = written(
+        blank,
+        tmp_path / "one.accdb",
+        lambda db: (db.create_form("Solo"), db.add_control("Solo", "Label", "Only", caption="Hi")),
+    )
+
+    assert [c for c in str(ask(out, "DescribeControls", "Solo")).split(";") if c] == [
+        "Only:Label:0,0,1440,240:Hi"
+    ]

@@ -253,10 +253,20 @@ with AccessDatabase("app.accdb") as db:
     db.save()
 ```
 
-A created form or report opens in Access's own designer, which is what
-the gate checks. What it does not do yet is add controls: a design is
-read as records and written back byte for byte, but naming what each
-record means is a job on its own.
+Controls go on too:
+
+```python
+    db.add_control("Summary", "Label", "Title", left=240, top=240,
+                   width=2000, height=300, caption="Hello")
+    db.add_control("Summary", "TextBox", "Total", top=700, caption="=1+1")
+    db.add_control("Monthly", "Label", "Banner", kind="report",
+                   section="PageHeaderSection", caption="Header band")
+```
+
+A created form or report opens in Access's own designer, and Access reads
+back every measurement it was given. Labels and text boxes are the two
+control types that can be written: a record's id is its slot in the
+control type's own schema, and only those two schemas are measured.
 
 Macros read and write as well. Access keeps one as a binary blob of
 action records, not as the XML its designer shows:

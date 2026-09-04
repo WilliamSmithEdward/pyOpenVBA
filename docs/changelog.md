@@ -21,10 +21,21 @@ All notable changes to pyOpenVBA are documented here. This project follows
   design measured -- an empty form, a form with a label and a text box,
   and a report with its three sections -- rebuilds byte for byte.
 
-  What a record *means* is not answered here: a handful of codes are
-  named and the rest are handed back as they are. Creating cuts from a
-  captured empty design with a GUID of its own patched in, since the
-  catalog row repeats the one the design carries.
+  `db.add_control(design, type, name, ...)` puts a Label or a TextBox on
+  one, and Access reads back every measurement it was given. Thirty-three
+  property codes are named, worked out by exporting a design with
+  `SaveAsText` -- which writes the same records with their names, in the
+  same order -- and walking the two together.
+
+  A control belongs to a section and is written immediately after it, and
+  its marker depends on **how many controls that section holds**: one is
+  a single child, `0xFE`; two or more open a group, `0xFF` then `0xFD`.
+  Access writes both in one report -- a page header holding one control
+  and a detail band holding two -- and refuses each in the other's place,
+  with "saved in an invalid format" for one of them.
+
+  Creating cuts from a captured empty design with a GUID of its own
+  patched in, since the catalog row repeats the one the design carries.
 
 - **Macros.** `db.macros()`, `db.macro(name)`, `db.create_macro(name,
   actions)` and `db.delete_macro(name)`, with `MacroAction(name,

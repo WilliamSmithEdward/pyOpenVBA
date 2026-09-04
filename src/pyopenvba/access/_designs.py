@@ -424,10 +424,31 @@ PROPERTY_CODES = {
     "HoverColor": 653,
     "PressedColor": 657,
     "Gradient": 693,
+    # Named by differencing on a command button and a toggle button
+    # (docs/research/access_designs): the property that moved alone, or
+    # the one left once the colour it resets was set aside.
+    "Glow": 652,
+    "HoverThemeColorIndex": 654,
+    "HoverTint": 655,
+    "PressedThemeColorIndex": 658,
+    "PressedTint": 659,
+    "PressedShade": 660,
+    "HoverForeColor": 661,
+    "HoverForeThemeColorIndex": 662,
+    "HoverForeTint": 663,
+    "PressedForeColor": 665,
+    "PressedForeThemeColorIndex": 666,
+    "PressedForeTint": 667,
+    "Shadow": 669,
+    "QuickStyle": 690,
     "ControlSource": 27,
     "RowSourceType": 93,
     "TabIndex": 261,
     "Picture": 0,
+    # Not properties: a button or page without Glow or Shadow carries
+    # 2, 2, 1, 1 here, and setting either drops the four and writes the
+    # paddings instead (measured by differencing), so these are the
+    # insets Access keeps for an effect that is off.
     "Unidentified700": 700,
     "Unidentified701": 701,
     "Unidentified702": 702,

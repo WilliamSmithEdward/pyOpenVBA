@@ -87,3 +87,23 @@ sources -- from evidence into noise.
 Across the seven databases the shipped table came from, 959 slots agreed
 on id, code and value type, and none moved. Only the strings' lengths
 differ, which is their text's length, not the slot's.
+
+## Differencing on a button
+
+The same method run over a command button and a toggle button (30
+trials, `name_button_codes.py`; the trial list is
+the themed properties Access 2010 gave buttons) named fourteen more
+codes, taking the table to 180. Two moved alone: `HoverForeColor` is 661
+and `PressedForeColor` 665. Nine moved as a pair with the colour they
+reset -- setting `HoverThemeColorIndex` rewrites `HoverColor` too -- so
+the record that was not the colour is the property: 654, 655, 658, 659,
+660, 662, 663, 666, 667 are the hover and pressed theme index, tint and
+shade properties. `Glow` is 652 and `Shadow` 669: setting either moves
+nine records, the property itself, the four paddings, and 700-703.
+`QuickStyle` is 690 and moves seventeen.
+
+Codes 700-703 are not properties. A button or page without `Glow` or
+`Shadow` carries 2, 2, 1, 1 in them and no paddings; setting either
+effect drops the four and writes `LeftPadding` through `BottomPadding`
+instead. They are the insets Access keeps for an effect that is off, and
+nothing in VBA sets them, so they keep their code as their name.

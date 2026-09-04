@@ -7,6 +7,14 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- **Fourteen more form property codes are named** -- `Glow`, `Shadow`,
+  `QuickStyle`, `HoverForeColor`, `PressedForeColor` and the hover and
+  pressed theme index, tint and shade properties -- by differencing a
+  command button and a toggle button in Access, taking the table to 180.
+  The four codes still keyed by number, 700-703, turned out not to be
+  properties: they are the insets a button keeps for an effect that is
+  off, dropped in favour of the paddings when Glow or Shadow is set.
+
 - **`SELECT ... INTO` makes a table.** The make-table query creates the
   table the engine creates: a copied column keeps its definition, an
   expression gets the type the engine's own inference gives it (157

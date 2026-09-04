@@ -25,6 +25,7 @@ from typing import cast
 
 import pytest
 
+from pyopenvba.access._complex import encode_file_data
 from pyopenvba.access import AccessDatabase, Attachment, ColumnSpec, IndexSpec
 
 pytestmark = pytest.mark.skipif(
@@ -200,3 +201,49 @@ def test_dao_reads_a_table_and_columns_we_created(tmp_path: Path) -> None:
     assert reported[1].tags == ["alpha", "beta"]
     assert reported[2].files == [] and reported[2].tags == []
     assert reported[3].tags == ["gamma"]
+
+
+def test_compressed_attachments_match_the_engine_byte_for_byte(tmp_path: Path) -> None:
+    """DAO attaches five files -- text, CSV, a small file, repetitive text
+    and random bytes with runs -- and the FileData the engine stores for
+    each, compressed with its own deflate, is exactly what
+    ``encode_file_data`` produces: the same zlib header, blocks and
+    trailer.  The deflate is classic zlib's at level 5, memLevel 7 and a
+    32 KB window, carried in ``pyopenvba.access._deflate``."""
+    import random
+
+    random.seed(7)
+    payloads = {
+        "rep.txt": b"abcabcabcabc" * 400,
+        "prose.txt": ("The quick brown fox jumps over the lazy dog. " * 80).encode()
+        + "".join(random.choice("the engine writes rows on pages and pages on files ") for _ in range(4000)).encode(),
+        "small.txt": b"hello world",
+        "mixed.csv": b"".join(f"{i},{i * i},{random.random():.6f},name{i % 17}\r\n".encode() for i in range(3000)),
+        "bytes.bin": bytes(random.randrange(256) for _ in range(20000)) + b"\x00" * 5000 + bytes(range(256)) * 40,
+    }
+    target = tmp_path / "attach.accdb"
+    shutil.copy(HERE / "live_access_test" / "complex_columns.accdb", target)
+    listing = tmp_path / "files.txt"
+    lines: list[str] = []
+    for n, (name, data) in enumerate(payloads.items(), start=100):
+        (tmp_path / name).write_bytes(data)
+        lines.append(f"Files{chr(9)}{n}{chr(9)}{tmp_path / name}")
+    listing.write_text(chr(10).join(lines), encoding="utf-8")
+    done = subprocess.run(
+        ["powershell.exe", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(HERE / "live_access_test" / "dao_oracle.ps1"),
+         "-Command", "attach-files", "-Path", str(target), "-Table", "Things", "-SqlFile", str(listing)],
+        capture_output=True, text=True, timeout=_TIMEOUT,
+    )
+    assert done.returncode == 0 and done.stdout.strip() == "ok", f"DAO oracle failed: {done.stdout[-200:]} {done.stderr[-300:]}"
+    db = AccessDatabase(target)
+    column = next(c for c in db.complex_columns() if c.column == "Files")
+    stored = {str(row["FileName"]): row["FileData"] for row in db.table(column.flat_table).rows()}
+    problems: list[str] = []
+    for name, data in payloads.items():
+        engine = stored[name]
+        assert isinstance(engine, bytes)
+        ours = encode_file_data(name.rsplit(".", 1)[1], data)
+        if ours != engine:
+            first = next((i for i in range(min(len(ours), len(engine))) if ours[i] != engine[i]), min(len(ours), len(engine)))
+            problems.append(f"{name}: ours {len(ours)} bytes, engine {len(engine)}, first difference at {first}")
+    assert not problems, chr(10).join(problems)

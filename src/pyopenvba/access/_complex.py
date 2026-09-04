@@ -34,18 +34,23 @@ helps: a 72-byte PNG of nearly constant bytes is stored raw while a ZIP
 of the same size would be too.  `NEVER_COMPRESSED` is the set it left
 alone across 45 extensions.
 
-Writing a compressed attachment does not reproduce Access's own bytes.
-Its deflate is not zlib's -- no combination of level, memLevel, strategy
-or window size reproduces a stream it wrote -- so what this writes
-inflates to the same file and compresses differently.  Everything else
-about the value, the framing included, is byte for byte what Access
-writes, and an attachment of a type Access stores raw is byte-identical.
+A compressed attachment is byte for byte what Access writes.  Its
+deflate is classic zlib's at level 5, memLevel 7 and a 32 KB window --
+found by comparing eight streams it wrote against every parameter set of
+a classic zlib, one of the eight admitting exactly that one -- and since
+the zlib a Python is built with may be zlib-ng, whose streams differ,
+:mod:`pyopenvba.access._deflate` carries zlib's own algorithm.  An
+earlier version of this note said the deflate was not zlib's: that was
+zlib-ng's output being compared, and the header's "fast" level flag,
+which levels 2 to 5 share, hiding the match.
 """
 
 from __future__ import annotations
 
 import datetime as dt
 import zlib
+
+from pyopenvba.access._deflate import compress as compress_as_access
 from dataclasses import dataclass, field
 
 from pyopenvba.access_read import AccessError
@@ -143,7 +148,7 @@ def encode_file_data(extension: str, data: bytes) -> bytes:
     )
     if extension.lower() in NEVER_COMPRESSED:
         return FILE_DATA_STORED.to_bytes(4, "little") + len(body).to_bytes(4, "little") + body
-    packed = zlib.compress(body)
+    packed = compress_as_access(body)
     return FILE_DATA_DEFLATED.to_bytes(4, "little") + len(body).to_bytes(4, "little") + packed
 
 

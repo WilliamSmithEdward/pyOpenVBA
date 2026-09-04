@@ -307,8 +307,9 @@ All notable changes to pyOpenVBA are documented here. This project follows
   extensions: it leaves `docx`, `gif`, `jpeg`, `jpg`, `png`, `pptx`,
   `xlsx` and `zip` alone and compresses everything else, including `7z`
   and `mp4`. Those eight are written byte-identically; a compressed one
-  is not, because Access's deflate is not zlib's and no combination of
-  level, memLevel, strategy or window size reproduces a stream it wrote.
+  was not at the time -- see the fix above: the deflate is classic zlib's
+  at level 5 and memLevel 7, which the zlib-ng behind Python's `zlib`
+  cannot reproduce.
 
   Two corrections to the table definition came out of this: the field at
   0x18 is a constant (1 in ACE, -1 in Jet 4) and not a counter, and the
@@ -483,6 +484,16 @@ All notable changes to pyOpenVBA are documented here. This project follows
   both. Inserts leave the row counter alone, as the engine does.
 
 ### Fixed
+
+- **Compressed attachments are byte for byte what Access writes.** The
+  engine's deflate turned out to be classic zlib's at level 5, memLevel 7
+  and a 32 KB window -- one of eight engine-written streams admits exactly
+  that parameter set, and classic zlib reproduces all eight -- where the
+  earlier note that it "was not zlib's" came from comparing against the
+  zlib-ng that Python bundles. Since a Python's zlib may not be classic
+  zlib and exposes no memLevel, `pyopenvba.access._deflate` carries zlib's
+  own algorithm; a live gate attaches five files through DAO and finds
+  each stored container identical to ours.
 
 - **A number keeps the engine's type through every operator.** `db.execute`
   now answers an `int`, a `float` or a `Decimal` exactly where the engine

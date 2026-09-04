@@ -546,6 +546,27 @@ try {
             $rs.Close()
             [Console]::Out.Write([string]::Join("`t", $cells))
         }
+        "attach-files" {
+            # Attach files through DAO's LoadFromFile, so the engine stores
+            # them its own way (compressing by type).  -Table names the
+            # table; -SqlFile holds one "Column<TAB>Id<TAB>path" line per
+            # file, Id being the value of the table's Id column for a new
+            # row that gets one attachment.
+            foreach ($line in [System.IO.File]::ReadAllLines($SqlFile)) {
+                if ($line.Trim().Length -eq 0) { continue }
+                $parts = $line.Split("`t")
+                $rs = $db.OpenRecordset("SELECT * FROM [$Table]", $dbOpenDynaset)
+                $rs.AddNew()
+                $rs.Fields.Item("Id").Value = [int]$parts[1]
+                $child = $rs.Fields.Item($parts[0]).Value
+                $child.AddNew()
+                $child.Fields.Item("FileData").LoadFromFile($parts[2])
+                $child.Update()
+                $rs.Update()
+                $rs.Close()
+            }
+            [Console]::Out.Write("ok")
+        }
         "run-sql" {
             # Execute the statement in -SqlFile and report the rows it affected.
             $sql = [System.IO.File]::ReadAllText($SqlFile)

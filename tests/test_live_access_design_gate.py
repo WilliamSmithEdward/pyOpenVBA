@@ -77,6 +77,22 @@ Public Function DescribeControls(ByVal name As String) As Variant
     DescribeControls = s
 End Function
 
+Public Function DescribeKinds(ByVal name As String) As Variant
+    Dim c As Object, s As String, order As String, place As String
+    DoCmd.OpenForm name, acDesign
+    For Each c In Forms(name).Controls
+        order = "-"
+        place = "-"
+        On Error Resume Next
+        order = CStr(c.TabIndex)
+        place = CStr(c.Top)
+        On Error GoTo 0
+        s = s & c.Name & ":" & TypeName(c) & ":" & order & ":" & place & ";"
+    Next c
+    DoCmd.Close acForm, name, acSaveNo
+    DescribeKinds = s
+End Function
+
 Public Function CallFormCode(ByVal name As String, ByVal proc As String) As Variant
     DoCmd.OpenForm name, , , , , acHidden
     CallFormCode = CallByName(Forms(name), proc, VbMethod)
@@ -275,3 +291,77 @@ def test_code_behind_a_form_can_be_replaced_and_still_runs(blank: Path, tmp_path
     out = written(blank, tmp_path / "replaced.accdb", build)
 
     assert ask(out, "CallFormCode", "Behind", "Ping") == 77
+
+
+#: Every type whose slots were read back from a control Access made.
+MEASURED = [
+    "Label",
+    "TextBox",
+    "CommandButton",
+    "ToggleButton",
+    "OptionButton",
+    "CheckBox",
+    "OptionGroup",
+    "ListBox",
+    "ComboBox",
+    "Rectangle",
+    "Line",
+    "Image",
+    "PageBreak",
+]
+
+
+def test_access_opens_a_form_holding_one_of_every_control_we_can_write(
+    blank: Path, tmp_path: Path
+) -> None:
+    """Thirteen controls of thirteen types on one form.  Access reporting
+    each one back by name and type is what says the slots are right; a
+    design it will not accept shows a dialog instead."""
+
+    def build(db: AccessDatabase) -> None:
+        db.create_form("Every")
+        for i, kind in enumerate(MEASURED):
+            db.add_control(
+                "Every",
+                kind,
+                f"My{kind}",
+                left=240,
+                top=240 + i * 400,
+                width=1400,
+                height=300,
+            )
+
+    out = written(blank, tmp_path / "every.accdb", build)
+
+    reported = [c for c in str(ask(out, "DescribeKinds", "Every")).split(";") if c]
+    seen = {part.split(":")[0]: part.split(":")[1] for part in reported}
+    assert seen == {f"My{kind}": kind for kind in MEASURED}
+
+
+def test_access_agrees_with_the_tab_order_we_wrote(blank: Path, tmp_path: Path) -> None:
+    """A control that takes the focus is numbered in the order it was
+    added, and one that cannot is not numbered at all."""
+
+    def build(db: AccessDatabase) -> None:
+        db.create_form("Tabs")
+        for i, kind in enumerate(["TextBox", "Rectangle", "CommandButton", "ComboBox"]):
+            db.add_control("Tabs", kind, f"C{i}", left=240, top=240 + i * 400)
+
+    out = written(blank, tmp_path / "tabs.accdb", build)
+
+    reported = [c for c in str(ask(out, "DescribeKinds", "Tabs")).split(";") if c]
+    tabs = {part.split(":")[0]: part.split(":")[2] for part in reported}
+    assert tabs == {"C0": "0", "C1": "-", "C2": "1", "C3": "2"}
+
+
+def test_a_page_break_we_write_keeps_its_place(blank: Path, tmp_path: Path) -> None:
+    """A page break has a top and nothing else, so that is all we write."""
+
+    def build(db: AccessDatabase) -> None:
+        db.create_form("Broken")
+        db.add_control("Broken", "PageBreak", "Split", top=1440)
+
+    out = written(blank, tmp_path / "break.accdb", build)
+
+    reported = [c for c in str(ask(out, "DescribeKinds", "Broken")).split(";") if c]
+    assert reported == ["Split:PageBreak:-:1440"]

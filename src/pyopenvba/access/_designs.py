@@ -291,6 +291,14 @@ PROPERTY_CODES = {
     "OverlapFlags": 159,
     "ForeColor": 204,
     "GUID": 376,
+    "ControlSource": 27,
+    "RowSourceType": 93,
+    "TabIndex": 261,
+    "Picture": 0,
+    "TopPadding": 700,
+    "BottomPadding": 701,
+    "LeftPadding": 702,
+    "RightPadding": 703,
     "AutoHeight": 476,
     "AlternateBackColor": 572,
     "LayoutCachedLeft": 587,
@@ -347,14 +355,202 @@ CONTROL_SLOTS: dict[str, dict[str, tuple[int, int, int, int]]] = {
         "LayoutCachedWidth": (304, 589, 3, 4),
         "LayoutCachedHeight": (305, 590, 3, 4),
     },
+    "CommandButton": {
+        "OverlapFlags": (49, 159, 2, 1),
+        "Left": (96, 54, 3, 4),
+        "Top": (97, 141, 3, 4),
+        "Width": (98, 150, 3, 4),
+        "Height": (99, 44, 3, 4),
+        "TabIndex": (105, 261, 3, 4),
+        "Name": (220, 20, 10, 4),
+        "Caption": (221, 17, 12, 4),
+        "GUID": (245, 376, 9, 0),
+        "Picture": (289, 0, 3, 4),
+        "LayoutCachedLeft": (293, 587, 3, 4),
+        "LayoutCachedTop": (294, 588, 3, 4),
+        "LayoutCachedWidth": (295, 589, 3, 4),
+        "LayoutCachedHeight": (296, 590, 3, 4),
+        "BottomPadding": (356, 701, 4, 0),
+        "TopPadding": (357, 700, 4, 0),
+        "LeftPadding": (358, 702, 4, 0),
+        "RightPadding": (359, 703, 4, 0),
+    },
+    "ToggleButton": {
+        "OverlapFlags": (49, 159, 2, 1),
+        "Left": (96, 54, 3, 4),
+        "Top": (97, 141, 3, 4),
+        "Width": (98, 150, 3, 4),
+        "Height": (99, 44, 3, 4),
+        "TabIndex": (107, 261, 3, 4),
+        "Name": (220, 20, 10, 4),
+        "Caption": (221, 17, 12, 4),
+        "GUID": (249, 376, 9, 0),
+        "Picture": (291, 0, 3, 4),
+        "LayoutCachedLeft": (294, 587, 3, 4),
+        "LayoutCachedTop": (295, 588, 3, 4),
+        "LayoutCachedWidth": (296, 589, 3, 4),
+        "LayoutCachedHeight": (297, 590, 3, 4),
+        "BottomPadding": (353, 701, 4, 0),
+        "TopPadding": (354, 700, 4, 0),
+        "LeftPadding": (355, 702, 4, 0),
+        "RightPadding": (356, 703, 4, 0),
+    },
+    "OptionButton": {
+        "OverlapFlags": (50, 159, 2, 1),
+        "Left": (96, 54, 3, 4),
+        "Top": (97, 141, 3, 4),
+        "Width": (98, 150, 3, 4),
+        "Height": (99, 44, 3, 4),
+        "TabIndex": (105, 261, 3, 4),
+        "Name": (220, 20, 10, 4),
+        "ControlSource": (221, 27, 12, 4),
+        "GUID": (244, 376, 9, 0),
+        "Picture": (290, 0, 3, 4),
+        "LayoutCachedLeft": (293, 587, 3, 4),
+        "LayoutCachedTop": (294, 588, 3, 4),
+        "LayoutCachedWidth": (295, 589, 3, 4),
+        "LayoutCachedHeight": (296, 590, 3, 4),
+    },
+    "CheckBox": {
+        "OverlapFlags": (50, 159, 2, 1),
+        "Left": (96, 54, 3, 4),
+        "Top": (97, 141, 3, 4),
+        "Width": (98, 150, 3, 4),
+        "Height": (99, 44, 3, 4),
+        "TabIndex": (105, 261, 3, 4),
+        "Name": (220, 20, 10, 4),
+        "ControlSource": (221, 27, 12, 4),
+        "GUID": (244, 376, 9, 0),
+        "Picture": (290, 0, 3, 4),
+        "LayoutCachedLeft": (293, 587, 3, 4),
+        "LayoutCachedTop": (294, 588, 3, 4),
+        "LayoutCachedWidth": (295, 589, 3, 4),
+        "LayoutCachedHeight": (296, 590, 3, 4),
+    },
+    "OptionGroup": {
+        "OverlapFlags": (53, 159, 2, 1),
+        "Left": (96, 54, 3, 4),
+        "Top": (97, 141, 3, 4),
+        "Width": (98, 150, 3, 4),
+        "Height": (99, 44, 3, 4),
+        "TabIndex": (105, 261, 3, 4),
+        "Name": (220, 20, 10, 4),
+        "ControlSource": (221, 27, 12, 4),
+        "GUID": (244, 376, 9, 0),
+        "Picture": (286, 0, 3, 4),
+        "LayoutCachedLeft": (289, 587, 3, 4),
+        "LayoutCachedTop": (290, 588, 3, 4),
+        "LayoutCachedWidth": (291, 589, 3, 4),
+        "LayoutCachedHeight": (292, 590, 3, 4),
+    },
+    "ListBox": {
+        "OverlapFlags": (51, 159, 2, 1),
+        "TextAlign": (65, 379, 2, 1),
+        "Left": (97, 54, 3, 4),
+        "Top": (98, 141, 3, 4),
+        "Width": (99, 150, 3, 4),
+        "Height": (100, 44, 3, 4),
+        "TabIndex": (108, 261, 3, 4),
+        "Name": (220, 20, 10, 4),
+        "ControlSource": (221, 27, 12, 4),
+        "RowSourceType": (222, 93, 10, 4),
+        "GUID": (248, 376, 9, 0),
+        "Picture": (296, 0, 3, 4),
+        "LayoutCachedLeft": (300, 587, 3, 4),
+        "LayoutCachedTop": (301, 588, 3, 4),
+        "LayoutCachedWidth": (302, 589, 3, 4),
+        "LayoutCachedHeight": (303, 590, 3, 4),
+    },
+    "ComboBox": {
+        "OverlapFlags": (53, 159, 2, 1),
+        "TextAlign": (68, 379, 2, 1),
+        "Left": (99, 54, 3, 4),
+        "Top": (100, 141, 3, 4),
+        "Width": (101, 150, 3, 4),
+        "Height": (102, 44, 3, 4),
+        "TabIndex": (110, 261, 3, 4),
+        "GUID": (190, 376, 9, 0),
+        "Name": (220, 20, 10, 4),
+        "ControlSource": (221, 27, 12, 4),
+        "RowSourceType": (222, 93, 10, 4),
+        "Picture": (306, 0, 3, 4),
+        "LayoutCachedLeft": (310, 587, 3, 4),
+        "LayoutCachedTop": (311, 588, 3, 4),
+        "LayoutCachedWidth": (312, 589, 3, 4),
+        "LayoutCachedHeight": (313, 590, 3, 4),
+    },
+    "Rectangle": {
+        "OverlapFlags": (53, 159, 2, 1),
+        "Left": (96, 54, 3, 4),
+        "Top": (97, 141, 3, 4),
+        "Width": (98, 150, 3, 4),
+        "Height": (99, 44, 3, 4),
+        "Name": (220, 20, 10, 4),
+        "GUID": (228, 376, 9, 0),
+        "LayoutCachedLeft": (281, 587, 3, 4),
+        "LayoutCachedTop": (282, 588, 3, 4),
+        "LayoutCachedWidth": (283, 589, 3, 4),
+        "LayoutCachedHeight": (284, 590, 3, 4),
+    },
+    "Line": {
+        "OverlapFlags": (51, 159, 2, 1),
+        "Left": (96, 54, 3, 4),
+        "Top": (97, 141, 3, 4),
+        "Width": (98, 150, 3, 4),
+        "Height": (99, 44, 3, 4),
+        "Name": (220, 20, 10, 4),
+        "GUID": (223, 376, 9, 0),
+        "LayoutCachedLeft": (276, 587, 3, 4),
+        "LayoutCachedTop": (277, 588, 3, 4),
+        "LayoutCachedWidth": (278, 589, 3, 4),
+        "LayoutCachedHeight": (279, 590, 3, 4),
+    },
+    "Image": {
+        "Left": (96, 54, 3, 4),
+        "Top": (97, 141, 3, 4),
+        "Width": (98, 150, 3, 4),
+        "Height": (99, 44, 3, 4),
+        "Name": (220, 20, 10, 4),
+        "GUID": (235, 376, 9, 0),
+        "Picture": (282, 0, 3, 4),
+        "LayoutCachedLeft": (285, 587, 3, 4),
+        "LayoutCachedTop": (286, 588, 3, 4),
+        "LayoutCachedWidth": (287, 589, 3, 4),
+        "LayoutCachedHeight": (288, 590, 3, 4),
+    },
+    "PageBreak": {
+        "OverlapFlags": (48, 159, 2, 1),
+        "Top": (97, 141, 3, 4),
+        "Name": (220, 20, 10, 4),
+        "GUID": (223, 376, 9, 0),
+    },
 }
 #: The value Access wrote for a control it had just made.
 DEFAULT_OVERLAP = 85
+#: What a list or combo box lists, and what Access writes for a new one.
+DEFAULT_ROW_SOURCE_TYPE = "Table/Query"
+#: No picture.  Access writes this on every control whose PictureData and
+#: ImageData read back as -1, and on no other.
+NO_PICTURE = b"\xff\xff\xff\xff"
+#: What Access writes around a button it has just made, in twips.
+BUTTON_PADDING = {
+    "CommandButton": {"Top": 2, "Bottom": 2, "Left": 1, "Right": 1},
+    "ToggleButton": {"Top": 2, "Bottom": 2, "Left": 2, "Right": 2},
+}
+#: Controls that take the focus, so a new one is given the next tab index.
+#: Access omits the record when the index is 0.
+TABBABLE = (
+    "TextBox",
+    "CommandButton",
+    "ToggleButton",
+    "OptionButton",
+    "CheckBox",
+    "OptionGroup",
+    "ListBox",
+    "ComboBox",
+)
 #: A text box carries this, and a control Access makes always has it.
 DEFAULT_TEXT_ALIGN = 3
-#: The `u16` an `0xFF` marker carries when it opens a trailing group of
-#: controls, against 3 or 4 for the prototypes ahead of them.
-CONTROLS_GROUP = 2
 TYPE_CODES = {name: code for code, name in CONTROL_TYPES.items()}
 
 
@@ -373,36 +569,49 @@ def control_object(
     width: int,
     height: int,
     caption: str | None,
+    tab_index: int = 0,
 ) -> DesignObject:
-    """One control, as the records Access writes for a new one."""
+    """One control, as the records Access writes for a new one.
+
+    Every slot's id, code, value type and width was read back from a
+    control Access itself made, and a control gets only the slots its own
+    type has: a page break carries no width, an image no overlap flags, a
+    combo box its GUID ahead of its name.  The records go out in id order,
+    which is the order the reader expects.
+    """
     slots = CONTROL_SLOTS.get(control_type)
     if slots is None:
         raise AccessError(
             f"a {control_type} cannot be written yet; known: {', '.join(sorted(CONTROL_SLOTS))}"
         )
-    values: list[tuple[str, bytes]] = [
-        ("OverlapFlags", bytes((DEFAULT_OVERLAP,))),
-    ]
-    if control_type == "TextBox":
-        values.append(("TextAlign", bytes((DEFAULT_TEXT_ALIGN,))))
-    values += [
-        ("Left", left.to_bytes(2, "little")),
-        ("Top", top.to_bytes(2, "little")),
-        ("Width", width.to_bytes(2, "little")),
-        ("Height", height.to_bytes(2, "little")),
-        ("Name", name.encode("utf-16-le")),
-    ]
+    values: dict[str, bytes] = {
+        "OverlapFlags": bytes((DEFAULT_OVERLAP,)),
+        "TextAlign": bytes((DEFAULT_TEXT_ALIGN,)),
+        "Left": left.to_bytes(2, "little"),
+        "Top": top.to_bytes(2, "little"),
+        "Width": width.to_bytes(2, "little"),
+        "Height": height.to_bytes(2, "little"),
+        "Name": name.encode("utf-16-le"),
+        "RowSourceType": DEFAULT_ROW_SOURCE_TYPE.encode("utf-16-le"),
+        "GUID": guid,
+        "Picture": NO_PICTURE,
+        "LayoutCachedLeft": left.to_bytes(4, "little"),
+        "LayoutCachedTop": top.to_bytes(4, "little"),
+        "LayoutCachedWidth": (left + width).to_bytes(4, "little"),
+        "LayoutCachedHeight": (top + height).to_bytes(4, "little"),
+    }
     if caption is not None:
-        key = "Caption" if control_type == "Label" else "ControlSource"
-        values.append((key, caption.encode("utf-16-le")))
-    values += [
-        ("GUID", guid),
-        ("LayoutCachedLeft", left.to_bytes(4, "little")),
-        ("LayoutCachedTop", top.to_bytes(4, "little")),
-        ("LayoutCachedWidth", (left + width).to_bytes(4, "little")),
-        ("LayoutCachedHeight", (top + height).to_bytes(4, "little")),
-    ]
-    records = tuple(_record(slots[key], value) for key, value in values if key in slots)
+        key = "Caption" if "Caption" in slots else "ControlSource"
+        values[key] = caption.encode("utf-16-le")
+    if tab_index and control_type in TABBABLE:
+        values["TabIndex"] = tab_index.to_bytes(2, "little")
+    for edge, twips in BUTTON_PADDING.get(control_type, {}).items():
+        values[f"{edge}Padding"] = twips.to_bytes(4, "little")
+    present = [(key, value) for key, value in values.items() if key in slots]
+    records = tuple(
+        _record(slots[key], value)
+        for key, value in sorted(present, key=lambda kv: slots[kv[0]][0])
+    )
     return DesignObject(None, TYPE_CODES[control_type], None, records)
 
 
@@ -411,17 +620,20 @@ def _placed(controls: tuple[DesignObject, ...]) -> tuple[DesignObject, ...]:
     there are**.
 
     One control is written as a single child, `0xFE <type>`.  Two or more
-    open a group: the first `0xFF <2> <type>` and the rest `0xFD <type>`.
-    Access writes it both ways -- a report whose page header holds one
-    control and whose detail holds two carries both in one design -- and
-    each is refused in the other's place.
+    open a group: the first `0xFF <count> <type>` and the rest
+    `0xFD <type>`, where `count` is how many objects the group holds, the
+    opener included.  A form Access itself built with eleven controls
+    carries `0xFF 11` twice -- once over the eleven prototypes and the
+    detail section, once over the eleven controls -- which is what says
+    the word is a count.  Get it wrong and Access does not complain: it
+    opens the form and shows only as many controls as the number claims.
     """
     out: list[DesignObject] = []
     for position, control in enumerate(controls):
         if len(controls) == 1:
             marker, code = OPEN_SECTION, control.type
         elif position == 0:
-            marker, code = OPEN_CONTROL, CONTROLS_GROUP
+            marker, code = OPEN_CONTROL, len(controls)
         else:
             marker, code = OPEN_SIBLING, control.type
         out.append(DesignObject(marker, control.type, code, control.records))
@@ -466,6 +678,11 @@ def add_control(
         width=width,
         height=height,
         caption=caption,
+        tab_index=sum(
+            1
+            for o in objects
+            if o.type is not None and CONTROL_TYPES.get(o.type) in TABBABLE
+        ),
     )
     placed = _placed((*objects[at + 1 : end], control))
     return build_design(header, (*objects[: at + 1], *placed, *objects[end:]), trailer)

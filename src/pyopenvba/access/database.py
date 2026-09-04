@@ -2407,12 +2407,18 @@ class AccessDatabase:
     ) -> AccessDesign:
         """Put a control on a form or report.
 
-        `control_type` is `"Label"` or `"TextBox"`.  A record's id is its
-        slot in the object's own schema and the schema differs by control
-        type, so only the two whose slots were measured can be written;
-        `caption` is the label's text, or the text box's control source,
-        and `section` says which band it belongs to.  Sizes are in twips,
-        as Access keeps them.
+        `control_type` is one of the thirteen whose slots were read back
+        from a control Access itself made: Label, TextBox, CommandButton,
+        ToggleButton, OptionButton, CheckBox, OptionGroup, ListBox,
+        ComboBox, Rectangle, Line, Image and PageBreak.  A record's id is
+        its slot in the object's own schema and the schema differs by
+        control type, so a type whose slots have not been measured is
+        refused rather than guessed at.
+
+        `caption` is the label's or button's text and the control source
+        of anything that binds to data, and `section` says which band the
+        control belongs to.  Sizes are in twips, as Access keeps them; a
+        page break takes only its top, which is all Access writes for one.
         """
         found = self._design(kind, design)
         container = self._design_container(kind)

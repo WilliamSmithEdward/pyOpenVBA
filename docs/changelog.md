@@ -7,6 +7,20 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- **Eleven more control types on forms and reports.** `add_control` now
+  writes CommandButton, ToggleButton, OptionButton, CheckBox,
+  OptionGroup, ListBox, ComboBox, Rectangle, Line, Image and PageBreak
+  alongside Label and TextBox. Every slot's id, code, value type and
+  width was read back from a control Access itself made, and each type
+  gets only the slots it has: a page break carries a top and nothing
+  else, an image no overlap flags, a combo box its GUID ahead of its
+  name. A button is written with the padding Access gives it, a list or
+  combo box with `Table/Query` as its row source type, and anything that
+  takes the focus with the next tab index.
+
+  The live gate puts one of each on a single form and has Access name
+  all thirteen back.
+
 - **Jet 3 (Access 97) databases read.** `AccessDatabase` opens a 2 KiB
   page `.mdb` and reads its catalog, tables, rows and long values the
   same way it reads an `.accdb`. Everything that moved between the two
@@ -341,6 +355,15 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- **A section holding three or more controls lost all but two.** The word
+  an `0xFF` marker carries is the number of objects in the group it
+  opens, and it was written as a constant 2 -- right by coincidence for
+  the two-control case that was measured, wrong for every other. Access
+  does not refuse a design that gets it wrong: it opens the form and
+  shows only as many controls as the number claims, which is why nothing
+  caught it. A form Access built with eleven controls carries `0xFF 11`
+  twice, once over its prototypes and once over its controls, which is
+  what settled it.
 - An inline usage map now grows to cover two pages past the one being
   added, rounded to four bytes, which is what the engine writes.
   Rounding to eight was right only by accident on small files and gave

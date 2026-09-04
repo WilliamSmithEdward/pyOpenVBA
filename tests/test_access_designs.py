@@ -16,10 +16,12 @@ from pyopenvba.access import AccessDatabase
 from pyopenvba.access._designs import (
     CONTROL_SLOTS,
     CONTROL_TYPES,
-    PROPERTY_CODES,
     NAV_TYPES,
     OBJECT_TYPES,
     OPEN_CONTROL,
+    OPEN_SECTION,
+    OPEN_SIBLING,
+    PROPERTY_CODES,
     build_design,
     parse_design,
     template,
@@ -399,9 +401,95 @@ def test_the_records_use_the_slots_access_uses(blank: AccessDatabase) -> None:
 
 
 def test_a_control_type_without_measured_slots_is_refused(blank: AccessDatabase) -> None:
+    """A subform's slots have not been read back from Access, so writing one
+    would be guesswork."""
     blank.create_form("Built")
     with pytest.raises(AccessError, match="cannot be written yet"):
-        blank.add_control("Built", "ComboBox", "Picker")
+        blank.add_control("Built", "Subform", "Inner")
+
+
+@pytest.mark.parametrize(
+    "kind",
+    [
+        "Label",
+        "TextBox",
+        "CommandButton",
+        "ToggleButton",
+        "OptionButton",
+        "CheckBox",
+        "OptionGroup",
+        "ListBox",
+        "ComboBox",
+        "Rectangle",
+        "Line",
+        "Image",
+        "PageBreak",
+    ],
+)
+def test_every_measured_control_type_can_be_written(blank: AccessDatabase, kind: str) -> None:
+    blank.create_form("Built")
+    design = blank.add_control("Built", kind, f"My{kind}", left=240, top=480, width=1400, height=300)
+
+    control = next(o for o in design.objects if o.name == f"My{kind}")
+    assert control.type is not None and CONTROL_TYPES[control.type] == kind
+    ids = [r.id for r in control.records]
+    assert ids == sorted(ids), "records have to go out in id order"
+    assert {r.id for r in control.records} <= {s[0] for s in CONTROL_SLOTS[kind].values()}
+
+
+@pytest.mark.parametrize("count", [1, 2, 3, 5, 9])
+def test_the_group_marker_counts_the_controls_it_opens(
+    blank: AccessDatabase, count: int
+) -> None:
+    """A form Access built with eleven controls carries `0xFF 11`.  Ours
+    has to carry its own count: Access does not refuse a wrong one, it
+    opens the form and shows only that many controls.
+    """
+    blank.create_form("Built")
+    design = blank.form("Built")
+    for i in range(count):
+        design = blank.add_control("Built", "Label", f"C{i}", top=240 + i * 400)
+
+    controls = [o for o in design.objects if o.name and o.name.startswith("C")]
+    assert len(controls) == count
+    if count == 1:
+        assert controls[0].marker == OPEN_SECTION
+    else:
+        assert controls[0].marker == OPEN_CONTROL
+        assert controls[0].code == count, "the opener names how many follow it"
+        assert all(o.marker == OPEN_SIBLING for o in controls[1:])
+        assert [o.code for o in controls[1:]] == [o.type for o in controls[1:]]
+
+
+def test_a_page_break_carries_no_width(blank: AccessDatabase) -> None:
+    """Access writes a page break with only its top, so writing a width
+    would be inventing a slot it has no id for."""
+    blank.create_form("Built")
+    design = blank.add_control("Built", "PageBreak", "Break", top=1440, width=999)
+
+    control = next(o for o in design.objects if o.name == "Break")
+    codes = {r.code for r in control.records}
+    assert PROPERTY_CODES["Top"] in codes
+    assert PROPERTY_CODES["Width"] not in codes
+    assert PROPERTY_CODES["Height"] not in codes
+
+
+def test_the_tab_index_counts_the_controls_that_take_focus(blank: AccessDatabase) -> None:
+    """Access omits the record for the first one and numbers the rest; a
+    rectangle is not in the running."""
+    blank.create_form("Built")
+    blank.add_control("Built", "TextBox", "First")
+    blank.add_control("Built", "Rectangle", "Box")
+    design = blank.add_control("Built", "CommandButton", "Third")
+
+    def tab_of(name: str) -> int | None:
+        control = next(o for o in design.objects if o.name == name)
+        found = [r for r in control.records if r.code == PROPERTY_CODES["TabIndex"]]
+        return int.from_bytes(found[0].value, "little") if found else None
+
+    assert tab_of("First") is None
+    assert tab_of("Box") is None
+    assert tab_of("Third") == 1
 
 
 def test_a_name_already_on_the_design_is_refused(blank: AccessDatabase) -> None:

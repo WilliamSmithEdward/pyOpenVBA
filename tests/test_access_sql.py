@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-from pyopenvba.access import AccessDatabase, ColumnSpec
+from pyopenvba.access import AccessDatabase, ColumnSpec, IndexSpec
 from pyopenvba.access._sql import Parser, like_match
 from pyopenvba.access_read import AccessError
 
@@ -641,3 +641,69 @@ def test_grouping_by_an_expression_orders_by_it_too(tmp_path: Path) -> None:
     )
 
     assert by_alias == by_expression
+
+
+def money_table(tmp_path: Path) -> AccessDatabase:
+    """A Currency column and a Decimal one holding the same numbers, which
+    is what tells the two rules apart."""
+    db = AccessDatabase.create_new(tmp_path / "money.accdb")
+    db.create_table(
+        "M",
+        [
+            ColumnSpec("Id", "Long"),
+            ColumnSpec("Money4", "Currency"),
+            ColumnSpec("Fix4", "Decimal", size=(18, 4)),
+            ColumnSpec("Fix2", "Decimal", size=(18, 2)),
+            ColumnSpec("L", "Long"),
+        ],
+        [IndexSpec("PrimaryKey", ("Id",), primary=True)],
+    )
+    rows = [
+        ("0.25", "0.25", "0.25", 3),
+        ("1.0", "1.0", "1.0", 7),
+        ("12345.6789", "12345.6789", "12345.67", 2),
+    ]
+    for number, (money, four, two, whole) in enumerate(rows, start=1):
+        db.execute(
+            f"INSERT INTO M (Id, Money4, Fix4, Fix2, L) "
+            f"VALUES ({number}, {money}, {four}, {two}, {whole})"
+        )
+    return db
+
+
+def test_averaging_a_currency_column_rounds_to_the_places_it_holds(tmp_path: Path) -> None:
+    rows = money_table(tmp_path).execute("SELECT Avg(Money4) AS A FROM M")
+    assert isinstance(rows, list)
+    assert str(rows[0]["A"]) == "4115.6430"
+
+
+def test_averaging_a_decimal_column_keeps_what_the_division_gives(tmp_path: Path) -> None:
+    """Both columns hold the same numbers and arrive as `Decimal`, so only
+    the column says which rule applies.  The engine's decimal is 96 bits
+    wide and carries every digit that fits."""
+    rows = money_table(tmp_path).execute("SELECT Avg(Fix4) AS A FROM M")
+    assert isinstance(rows, list)
+    assert str(rows[0]["A"]) == "4115.6429666666666666666666667"
+
+
+def test_an_exact_average_keeps_only_the_places_it_needs(tmp_path: Path) -> None:
+    rows = money_table(tmp_path).execute("SELECT Avg(Fix2) AS A FROM M")
+    assert isinstance(rows, list)
+    assert str(rows[0]["A"]) == "4115.64"
+
+
+def test_averaging_the_other_numbers_is_unchanged(tmp_path: Path) -> None:
+    db = money_table(tmp_path)
+    rows = db.execute("SELECT Avg(L) AS A, Sum(Money4) AS S, Min(Fix4) AS N FROM M")
+    assert isinstance(rows, list)
+    assert rows[0]["A"] == 4.0
+    assert str(rows[0]["S"]) == "12346.9289"
+    assert str(rows[0]["N"]) == "0.2500"
+
+
+def test_an_average_of_an_expression_is_not_treated_as_currency(tmp_path: Path) -> None:
+    """The rule follows the column, so anything but a plain read of one
+    keeps what the division gives."""
+    rows = money_table(tmp_path).execute("SELECT Avg(Money4 + 0) AS A FROM M")
+    assert isinstance(rows, list)
+    assert str(rows[0]["A"]) != "4115.6430"

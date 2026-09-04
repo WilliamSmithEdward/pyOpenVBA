@@ -32,7 +32,7 @@ import datetime as _dt
 import re
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
-from decimal import ROUND_HALF_EVEN, Decimal
+from decimal import ROUND_HALF_EVEN, Decimal, localcontext
 from typing import TYPE_CHECKING, Any
 
 from pyopenvba.access._ddl import execute_ddl, is_ddl
@@ -1342,7 +1342,58 @@ def _join(sources: list[Source], parameters: Mapping[str, object], outer: Enviro
     return rows
 
 
-def _aggregate(name: str, values: list[object]) -> object:
+#: The engine's Decimal is 96 bits wide, so it carries as many digits as
+#: fit in that -- 29 where the value allows, not Python's default 28.
+DECIMAL_DIGITS = 29
+DECIMAL_LIMIT = 2**96 - 1
+
+
+def _divide_decimal(total: Decimal, count: int) -> Decimal:
+    """Divide as the engine divides a Decimal: to as many digits as its
+    96-bit decimal holds.
+
+    An exact quotient keeps the places it needs and no more, so
+    `12346.92 / 3` is `4115.64`; an inexact one runs to the width of the
+    number, so `12346.9289 / 3` is `4115.6429666666666666666666667`.
+    """
+    with localcontext() as context:
+        context.prec = DECIMAL_DIGITS
+        quotient = total / count
+    while _unscaled(quotient) > DECIMAL_LIMIT:
+        _sign, _digits, exponent = quotient.as_tuple()
+        quotient = quotient.quantize(Decimal(1).scaleb(int(exponent) + 1))
+    return quotient
+
+
+def _unscaled(value: Decimal) -> int:
+    """The digits of the number without its decimal point, which is what
+    has to fit the engine's 96 bits."""
+    _sign, digits, _exponent = value.as_tuple()
+    return int("".join(str(d) for d in digits) or "0")
+
+
+def _money_column(expr: Expr, sources: Sequence[Source]) -> bool:
+    """Whether the expression is a plain read of a Currency column.
+
+    Currency and Decimal both arrive as `Decimal`, and the engine averages
+    them differently, so the value alone cannot say which it is -- only
+    the column it came from can.
+    """
+    if not isinstance(expr, ColumnRef):
+        return False
+    for source in sources:
+        if expr.qualifier and source.alias.lower() != expr.qualifier.lower():
+            continue
+        if source.table is None or not source.holds(expr.name):
+            continue
+        try:
+            return source.table.definition.column(expr.name).type_code == TYPE_MONEY
+        except AccessError:
+            return False
+    return False
+
+
+def _aggregate(name: str, values: list[object], money: bool = False) -> object:
     """Every aggregate answers with a number where its values are truth
     values, the Boolean column included: measured on a column of True,
     False, True, Max was 0, Min and First -1 and Sum -2."""
@@ -1361,8 +1412,13 @@ def _aggregate(name: str, values: list[object]) -> object:
         total = present[0]
         for v in present[1:]:
             total = _arith(total, v, lambda x, y: x + y)
-        if isinstance(total, Decimal):  # Avg over Currency stays Currency
-            return (total / len(present)).quantize(Decimal("0.0001"))
+        if isinstance(total, Decimal):
+            average = _divide_decimal(total, len(present))
+            # Averaging a Currency column rounds to the four places
+            # Currency holds; averaging a Decimal one keeps every digit
+            # the division gives, which is 28 of them.  Both arrive here
+            # as `Decimal`, so which it is comes from the column.
+            return average.quantize(Decimal("0.0001")) if money else average
         return float(_number(total)) / len(present)
     if upper == "MIN":
         return min(present, key=_sort_key)  # pyright: ignore[reportArgumentType]
@@ -1419,7 +1475,9 @@ def _evaluate_with_aggregates(
             if len(node.args) != 1:
                 raise AccessError(f"{node.name} takes one argument")
             values = [node.args[0].eval(make(r)) for r in group]
-            return Literal(_aggregate(node.name, values))
+            return Literal(
+                _aggregate(node.name, values, money=_money_column(node.args[0], sources))
+            )
         if isinstance(node, Binary):
             return Binary(node.op, rewrite(node.left), rewrite(node.right))
         if isinstance(node, Unary):

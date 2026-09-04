@@ -724,36 +724,34 @@ the engine finds the same rows it does today.
   to create a Jet 3 file at all ("could not find installable ISAM"),
   so the oracle for that version is DAO 3.6 over Jet 4.0 instead.
 
-## What the SQL executor does not carry: numeric type through an expression
+## Numeric type through a SQL expression
 
-Arithmetic answers with the Python type the value decoded as, and the
-engine answers with the type Jet's rules give the *expression*. Both a
-Currency and a Decimal column decode to `Decimal`, so the executor cannot
-tell them apart once the value is in hand, and Jet treats them
-differently. Measured against DAO on a `CURRENCY` column and a
-`DECIMAL(18,4)` one holding the same numbers:
+Currency and Decimal both decode to `Decimal`, so once a value is in hand
+nothing distinguishes them -- and the engine treats them differently.
+Where that changes a *value*, the column is consulted: `Avg` over a
+Currency column rounds to the four places Currency holds, and over a
+Decimal column keeps every digit the division gives, which is as many as
+the engine's 96-bit decimal carries. Both are measured and both match.
+
+What still differs is the Python *type* of some results, never the value:
 
 | expression | engine | this |
 |---|---|---|
-| `Frac / 3` | `0.0417` (kept at the column's scale) | `0.041667` |
-| `Frac / 3 * 3` | `0.1250` | `0.125` |
-| `Sum(Frac) / 3` | `1.8542` | `1.854167` |
-| `Frac + 0.00005` | `0.1251` | `0.1250` |
-| `Cash / 3` | `0.083333` (a Double) | `0.083333` |
-| `Cash * 1.5` | `0.375` (a Double) | `0.3750` |
-| `Cash + 0.00005` | `0.2501` | `0.2500` |
+| `Money / 3` | Double | `float` -- agrees |
+| `Decimal / 3` | Decimal, 28-29 digits | `float`, the same number to double precision |
+| `Money * 1.5` | Double | `Decimal` of the same value |
+| `Decimal + Double` | Double | `Decimal` of the same value |
 
-So a Decimal keeps its scale through arithmetic while a Currency drops to
-a Double on `*` and `/` and keeps four places on `+`. Everything else
-measured agrees, including every plain column read, `Sum`, `Avg`, `Min`
-and `Max` over both, and `Frac * 1.5`.
+Closing those means carrying each column's declared type through every
+operator rather than only into the aggregates, which is a larger change
+for no difference in what any expression answers. It is not done.
 
-Closing it means carrying the column's declared type into expression
-evaluation rather than only its value, which is a design change to the
-evaluator and not a patch to one operator. One rule is also still
-unexplained: `Cash + 0.00005` rounds to `0.2501`, where the half-to-even
-that `Round` uses would give `0.2500`. That wants measuring before
-anything is written.
+One earlier note here was wrong and is worth recording: this section used
+to claim `Frac / 3` answered `0.0417` in the engine against `0.041667`
+here. That was the oracle's own `Format-Cell` printing a Decimal with
+`"0.0000"`, not the engine. Asking DAO for the raw value and its .NET
+type showed the engine returning 28 digits. Compare raw values, not
+formatted ones.
 
 
 ## Alternatives considered

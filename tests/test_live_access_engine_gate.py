@@ -1162,6 +1162,11 @@ def test_every_column_type_reads_back_as_the_engine_shows_it(tmp_path: Path) -> 
 
 
 SQL_GATE_SELECTS = (
+    # Averaging a Currency column rounds to the four places it holds;
+    # averaging a Decimal one keeps what the division gives.
+    "SELECT Avg(Cash) AS A, Sum(Cash) AS S FROM AllTypes",
+    "SELECT Avg(Frac) AS A, Sum(Frac) AS S FROM AllTypes",
+    "SELECT Flag, Avg(Cash) AS A, Avg(Frac) AS B FROM AllTypes GROUP BY Flag ORDER BY Flag",
     # A Boolean is written as the number it is.
     "SELECT Id, Flag & '' AS F, True & '' AS T, CStr(Flag) AS C FROM AllTypes WHERE Id <= 3 ORDER BY Id",
     # Grouping and ordering by an expression.

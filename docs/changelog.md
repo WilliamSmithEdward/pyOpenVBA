@@ -7,14 +7,14 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Known
 
-- **The SQL executor does not carry a column's numeric type through an
-  expression.** A Currency and a Decimal column both decode to `Decimal`,
-  and Jet treats them differently: a Decimal keeps its scale through
-  arithmetic (`Frac / 3` is `0.0417`, not `0.041667`) while a Currency
-  drops to a Double on `*` and `/`. Seven measured differences and what
-  closing it would take are written up in `docs/access_engine.md`.
-  Everything else in that audit agrees, including every plain column read
-  and `Sum`, `Avg`, `Min` and `Max` over both types.
+- **The SQL executor does not carry a column's numeric type through every
+  operator.** Currency and Decimal both decode to `Decimal`, and the
+  engine treats them differently. Where that changes a value -- `Avg` --
+  the column is now consulted and both match. What still differs is the
+  Python type of some arithmetic results, never the number:
+  `Decimal / 3` answers a `float` where the engine answers a Decimal of
+  28 digits, the same value to double precision. `docs/access_engine.md`
+  has the table.
 
 ### Added
 
@@ -469,6 +469,17 @@ All notable changes to pyOpenVBA are documented here. This project follows
   both. Inserts leave the row counter alone, as the engine does.
 
 ### Fixed
+
+- **Averaging a Decimal column lost digits.** `Avg` rounded every Decimal
+  result to four places, which is right for Currency and wrong for
+  Decimal: the engine keeps every digit the division gives, as many as
+  its 96-bit decimal carries. Both columns decode to `Decimal`, so the
+  rule now follows the column the average reads rather than the value.
+
+- **A Decimal column would not take a number written into a statement.**
+  `INSERT INTO t (d) VALUES (0.25)` refused, because the literal arrives
+  as a float and the encoder wanted a `Decimal`. It is taken as the
+  decimal that was written, not the binary value nearest it.
 
 - **A Boolean was written as its name, not as the number it is.**
   `Flag & ''` answered `True` where the engine answers `-1`, and the same

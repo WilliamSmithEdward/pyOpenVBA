@@ -316,6 +316,11 @@ def encode_scalar(column: ColumnDef, value: object, *, compress_text: bool) -> b
             raise AccessError(f"column {name!r}: {value!r} is not a UUID")
         return value.bytes_le
     if code == TYPE_NUMERIC:
+        if isinstance(value, float):
+            # A number written into the statement arrives as a float; take
+            # it as the decimal that was written rather than the binary
+            # value nearest it, which is what the engine stores.
+            value = Decimal(repr(value))
         if not isinstance(value, (int, Decimal)):
             raise AccessError(f"column {name!r}: {value!r} is not a Decimal")
         return encode_numeric(Decimal(value), column.scale)

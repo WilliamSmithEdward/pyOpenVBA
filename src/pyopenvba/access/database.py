@@ -227,7 +227,6 @@ from pyopenvba.access._validate import Rules, apply_defaults
 from pyopenvba.access._validate import check as check_rules
 from pyopenvba.access._validate import read as read_rules
 from pyopenvba.access_read import AccessError
-from pyopenvba.exceptions import UnsupportedFormatError
 from pyopenvba.vba import compress, decompress, parse_project_stream
 
 MSYS_OBJECTS_PAGE = 2
@@ -704,18 +703,16 @@ class Table:
         not change when a grown row is moved."""
         store = self._db.store
         raw_page = store.read(page)
-        slots = row_slots(raw_page, store.layout)
+        slots = row_slots(raw_page)
         if not 0 <= slot < len(slots):
             raise AccessError(f"page {page} has no slot {slot}")
         entry = slots[slot]
-        data = row_bytes(raw_page, slot, layout=store.layout)
+        data = row_bytes(raw_page, slot)
         if data is None:
             return None
         if entry & ROW_OVERFLOW:
             target_row, target_page = row_pointer(data)
-            target = row_bytes(
-                store.read(target_page), target_row, overflow_target=True, layout=store.layout
-            )
+            target = row_bytes(store.read(target_page), target_row, overflow_target=True)
             if target is None:
                 raise AccessError(f"overflow row ({page}, {slot}) points at nothing")
             return target
@@ -726,7 +723,7 @@ class Table:
         home slot, with overflow rows followed to where they live."""
         store = self._db.store
         for page in self.data_pages():
-            slots = row_slots(store.read(page), store.layout)
+            slots = row_slots(store.read(page))
             for slot, entry in enumerate(slots):
                 if entry & ROW_DELETED:
                     continue
@@ -906,10 +903,10 @@ class Table:
         """Where a row lives when its home slot is an overflow pointer."""
         store = self._db.store
         raw_page = store.read(row_id.page)
-        entry = row_slots(raw_page, store.layout)[row_id.slot]
+        entry = row_slots(raw_page)[row_id.slot]
         if not entry & ROW_OVERFLOW or entry & ROW_DELETED:
             return None
-        pointer = row_bytes(raw_page, row_id.slot, layout=store.layout)
+        pointer = row_bytes(raw_page, row_id.slot)
         if pointer is None:
             return None
         target_row, target_page = row_pointer(pointer)
@@ -1632,7 +1629,6 @@ class AccessDatabase:
         after, putting the whole database back if they differ.  A rebuild
         either round-trips or leaves nothing changed.
         """
-        self._require_jet4()
         table = self.table(name)
         definition = table.definition
         if any(c.type_code == TYPE_COMPLEX for c in definition.columns):
@@ -1891,17 +1887,6 @@ class AccessDatabase:
             for e in self.catalog()
             if e.type == OBJECT_TABLE and (include_system or not e.is_system)
         ]
-
-    def _require_jet4(self) -> None:
-        """Everything the Access layer keeps -- modules, macros, forms,
-        reports, references -- is written through tables Jet 3 does not
-        have, and its pages are half the size.  Say so plainly rather than
-        letting the write fail deeper down."""
-        if self.store.is_jet3:
-            raise UnsupportedFormatError(
-                "Jet 3 (Access 97) databases are read-only: pyOpenVBA reads "
-                "them but writes only Jet 4 and ACE"
-            )
 
     def table_names(self, include_system: bool = False) -> list[str]:
         return sorted(e.name for e in self.table_entries(include_system))
@@ -2207,7 +2192,6 @@ class AccessDatabase:
         version is written in hex the way Access writes it -- DAO 12.0 as
         `c.0`.
         """
-        self._require_jet4()
         if any(found.name.lower() == name.lower() for found in self.references()):
             raise AccessError(f"the project already references {name!r}")
         libid = make_libid(guid, major, minor, path, description, lcid)
@@ -2262,7 +2246,6 @@ class AccessDatabase:
         updated: object | None = None,
     ) -> Macro:
         """Add a macro that runs `actions`."""
-        self._require_jet4()
         if not name or len(name) > 64:
             raise AccessError("a macro name is 1 to 64 characters")
         if any(found.name.lower() == name.lower() for found in self.macros()):
@@ -2458,13 +2441,11 @@ class AccessDatabase:
 
     def create_form(self, name: str, *, updated: object | None = None) -> AccessDesign:
         """Add an empty form."""
-        self._require_jet4()
         return self._create_design("form", name, updated=updated)
 
     def create_report(self, name: str, *, updated: object | None = None) -> AccessDesign:
         """Add an empty report, with its page header, detail and page
         footer sections."""
-        self._require_jet4()
         return self._create_design("report", name, updated=updated)
 
     def _create_design(self, kind: str, name: str, *, updated: object | None) -> AccessDesign:
@@ -2605,7 +2586,6 @@ class AccessDatabase:
     ) -> AccessDesign:
         """Put `change` through the design's blob, which lives in one row
         of the storage table under the design's own folder."""
-        self._require_jet4()
         found = self._design(kind, design)
         container = self._design_container(kind)
         listing = next(
@@ -3646,7 +3626,6 @@ class AccessDatabase:
         different MODULETYPE.  The project is marked for recompilation, so
         the code has to compile when Access next opens the database.
         """
-        self._require_jet4()
         if kind not in MODULETYPE:
             raise AccessError(f"kind must be 'module' or 'class', not {kind!r}")
         if not name or len(name) > 64:
@@ -3751,7 +3730,6 @@ class AccessDatabase:
         writer cannot emit -- ``Const``, arrays, ``Static``, fixed-length
         strings, a whole new procedure -- reachable.
         """
-        self._require_jet4()
         dir_rid, dir_stream = self._vba_dir()
         rid, payload, offset = self._module_stream_row(dir_stream, name)
         attributes, _body = split_source(read_source(payload, offset))
@@ -3763,7 +3741,6 @@ class AccessDatabase:
 
     def rename_module(self, name: str, new_name: str) -> None:
         """Rename a module in all eight places its name lives."""
-        self._require_jet4()
         if not new_name or len(new_name) > 64:
             raise AccessError("a module name is 1 to 64 characters")
         module = self.module(name)
@@ -3816,7 +3793,6 @@ class AccessDatabase:
 
     def delete_module(self, name: str) -> None:
         """Remove a module and every structure it occupies."""
-        self._require_jet4()
         module = self.module(name)
         index = [m.name for m in self.modules()].index(module.name)
         storage = self.table(STORAGE_TABLE)

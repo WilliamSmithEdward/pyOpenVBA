@@ -14,6 +14,13 @@ All notable changes to pyOpenVBA are documented here. This project follows
   reader for a format nobody authors; `git log` has the implementation if
   it is ever wanted back.
 
+  The plumbing that carried it went with it: the `Layout` record, the
+  page size and text encoding read from the file rather than fixed, and
+  the layout argument threaded through the page, row and definition
+  readers. One page format means one set of constants, in the modules
+  that own them, so there is no second source for an offset and no
+  parameter that can only take one value.
+
 ### Known
 
 - **The SQL executor does not carry a column's numeric type through every

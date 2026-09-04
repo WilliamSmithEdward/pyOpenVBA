@@ -105,8 +105,8 @@ def set_usage_bit(store: PageStore, umap: UsageMap, page: int, present: bool) ->
             bitmap_page = _new_bitmap_page(store)
             umap.reference_pages[chunk] = bitmap_page
             raw_page = bytearray(store.read(umap.page))
-            slots = row_slots(bytes(raw_page), store.layout)
-            start, _end = row_span(slots, umap.row, store.layout)
+            slots = row_slots(bytes(raw_page))
+            start, _end = row_span(slots, umap.row)
             struct.pack_into("<I", raw_page, start + 1 + 4 * chunk, bitmap_page)
             store.write(umap.page, bytes(raw_page))
         raw_bitmap = bytearray(store.read(bitmap_page))
@@ -196,8 +196,8 @@ def _refresh(store: PageStore, umap: UsageMap) -> None:
 
 def _write_reference_slot(store: PageStore, umap: UsageMap, chunk: int, bitmap_page: int) -> None:
     raw_page = bytearray(store.read(umap.page))
-    slots = row_slots(bytes(raw_page), store.layout)
-    start, _end = row_span(slots, umap.row, store.layout)
+    slots = row_slots(bytes(raw_page))
+    start, _end = row_span(slots, umap.row)
     struct.pack_into("<I", raw_page, start + 1 + 4 * chunk, bitmap_page)
     store.write(umap.page, bytes(raw_page))
 

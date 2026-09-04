@@ -98,7 +98,7 @@ def _lval_row(store: PageStore, page: int, row: int) -> bytes:
     raw_page = store.read(page)
     if not is_lval_page(raw_page):
         raise AccessError(f"page {page} is not a long-value page")
-    data = row_bytes(raw_page, row, layout=store.layout)
+    data = row_bytes(raw_page, row)
     if data is None:
         raise AccessError(f"long value row ({page}, {row}) is deleted")
     return data

@@ -459,6 +459,24 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- **A repeated column in a SELECT swallowed its twin.** Rows come back
+  keyed by name, so `SELECT Id, Id, Total` collapsed the two `Id`
+  columns into one and handed back a row a column short -- which is what
+  made `INSERT INTO t (a, b, c) SELECT x, x, y FROM u` refuse to run,
+  though DAO accepts it. The engine keeps the last of a repeated name and
+  calls the ones before it `Expr` plus 1000 and the column's position:
+  `SELECT Id, Id` answers with `Expr1000` and `Id`, and
+  `SELECT Total, Total, Total` with `Expr1000`, `Expr1001` and `Total`.
+
+- **An unnamed output column was numbered by a counter, not its
+  position.** `SELECT Id, Id + 1` answered with `Expr1000` where the
+  engine says `Expr1001`. Two tests had the old numbers written into
+  them; DAO was asked about both shapes and neither agreed with what we
+  were doing.
+
+- **Two output columns could share a name.** `SELECT Id AS X, Name AS X`
+  quietly kept one; the engine refuses, and so does this now.
+
 - **The control paddings were another property's codes.** `TopPadding`,
   `BottomPadding`, `LeftPadding` and `RightPadding` were recorded as 700
   to 703 -- names invented from the fact that Access writes four related

@@ -1162,6 +1162,17 @@ def test_every_column_type_reads_back_as_the_engine_shows_it(tmp_path: Path) -> 
 
 
 SQL_GATE_SELECTS = (
+    # How an output column with no name of its own, or one whose name the
+    # list holds twice, is named: Expr and 1000 plus where it sits, with
+    # the last of a repeated name keeping the plain one.
+    "SELECT Id, Id FROM AllTypes ORDER BY Id",
+    "SELECT Id, Id, Id FROM AllTypes ORDER BY Id",
+    "SELECT Id, Txt, Id FROM AllTypes ORDER BY Id",
+    "SELECT Id, Id, Txt, Txt FROM AllTypes ORDER BY Id",
+    "SELECT Id + 1, Big * 2 FROM AllTypes ORDER BY Id",
+    "SELECT Id, Id + 1 FROM AllTypes ORDER BY Id",
+    "SELECT Id, Txt, Id + 1, Big * 2 FROM AllTypes ORDER BY Id",
+    "SELECT Id + 0 AS E, Id, Id FROM AllTypes ORDER BY Id",
     "SELECT Id, Flag, Tiny, Small, Big, Cash, Dbl, Txt FROM AllTypes WHERE Big > 0 AND Txt LIKE '*1*' ORDER BY Id",
     "SELECT Id, Txt FROM AllTypes WHERE Txt IS NULL OR Small < 0 ORDER BY Id DESC",
     "SELECT TOP 5 Id, Dbl FROM AllTypes ORDER BY Dbl DESC, Id",

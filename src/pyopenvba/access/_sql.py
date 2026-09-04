@@ -1694,11 +1694,11 @@ def _select(
         rows = [r for r in rows if (v := where.eval(env_for(r))) is not None and _truthy(v)]
     # Output columns.
     outputs: list[tuple[str, Expr | None, str | None]] = []  # (name, expr, star alias)
-    expr_counter = 1000
+    _reject_duplicate_aliases(items)
     if flags & 0x01 or not items:
         for s in sources:
             outputs.append((s.alias, None, s.alias))
-    for expression, alias in items:
+    for position, (expression, alias) in enumerate(items):
         if expression.endswith("*"):
             qualifier = expression[:-1].rstrip(".")
             outputs.append((qualifier, None, qualifier or sources[0].alias))
@@ -1709,10 +1709,10 @@ def _select(
         elif isinstance(expr, ColumnRef):
             name = expr.name
         else:
-            name = f"Expr{expr_counter}"
-            expr_counter += 1
+            name = _expr_name(position)
         outputs.append((name, expr, None))
     _qualify_repeats(outputs, items)
+    _number_repeats(outputs, items)
     grouped = "GROUP BY" in by_word or any(o[1] is not None and _has_aggregate(o[1]) for o in outputs)
     groups: list[list[Row]]
     if grouped:
@@ -1774,6 +1774,63 @@ def _select(
         limit = -(-len(output) * int(count) // 100) if percent.strip().upper() == "PERCENT" else int(count)
         output = output[:limit]
     return output
+
+
+#: What the engine calls an output column with no name of its own.
+EXPR_NAME_BASE = 1000
+
+
+def _expr_name(position: int) -> str:
+    """`Expr` and 1000 plus where the column sits in the select list.
+
+    It is the position, not a count of the ones before it that needed a
+    name: `SELECT Id, Id + 1` answers with `Id` and `Expr1001`.
+    """
+    return f"Expr{EXPR_NAME_BASE + position}"
+
+
+def _reject_duplicate_aliases(items: list[tuple[str, str | None]]) -> None:
+    """Two output columns cannot be given the same name, and the engine
+    says so rather than dropping one."""
+    seen: set[str] = set()
+    for _expression, alias in items:
+        if alias is None:
+            continue
+        key = alias.strip("[]").lower()
+        if key in seen:
+            raise AccessError(f"duplicate output alias {alias.strip('[]')!r}")
+        seen.add(key)
+
+
+def _number_repeats(
+    outputs: list[tuple[str, Expr | None, str | None]], items: list[tuple[str, str | None]]
+) -> None:
+    """A name the select list holds more than once is kept by its last
+    column only; the ones before it are named for their position.
+
+    `SELECT Id, Id` answers with `Expr1000` and `Id`, and
+    `SELECT Total, Total, Total` with `Expr1000`, `Expr1001` and `Total`
+    (measured against the engine).  Without this the columns collapse into
+    one and the row comes back a column short.
+    """
+    counts: dict[str, int] = {}
+    for name, _expr, star in outputs:
+        if star is None:
+            counts[name.lower()] = counts.get(name.lower(), 0) + 1
+    if all(n < 2 for n in counts.values()):
+        return
+    last: dict[str, int] = {}
+    for i, (name, _expr, star) in enumerate(outputs):
+        if star is None:
+            last[name.lower()] = i
+    written = 0
+    for i, (name, expr, star) in enumerate(outputs):
+        if star is not None:
+            continue
+        position = written
+        written += 1
+        if counts.get(name.lower(), 0) > 1 and last[name.lower()] != i:
+            outputs[i] = (_expr_name(position), expr, star)
 
 
 def _qualify_repeats(outputs: list[tuple[str, Expr | None, str | None]], items: list[tuple[str, str | None]]) -> None:

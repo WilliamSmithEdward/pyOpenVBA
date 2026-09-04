@@ -66,10 +66,13 @@ def test_select_star_returns_every_column_in_definition_order(tmp_path: Path) ->
 
 
 def test_where_compares_text_case_blind_and_orders_descending(tmp_path: Path) -> None:
+    """`Len(Name)` is the third column, so the engine calls it Expr1002:
+    the number is 1000 plus where the column sits, not a count of the
+    ones before it that needed a name."""
     rows = _shop(tmp_path).execute("SELECT Name, Balance * 2 AS Doubled, Len(Name) FROM Customers WHERE City = 'london' ORDER BY Name DESC")
     assert rows == [
-        {"Name": "Dee", "Doubled": None, "Expr1000": 3},
-        {"Name": "Ada", "Doubled": Decimal("21.0000"), "Expr1000": 3},
+        {"Name": "Dee", "Doubled": None, "Expr1002": 3},
+        {"Name": "Ada", "Doubled": Decimal("21.0000"), "Expr1002": 3},
     ]
 
 
@@ -100,7 +103,7 @@ def test_top_distinct_and_null_first_ordering(tmp_path: Path) -> None:
 def test_group_by_having_and_whole_table_aggregates(tmp_path: Path) -> None:
     db = _shop(tmp_path)
     rows = db.execute("SELECT City, Count(*) AS N, Sum(Balance) AS Total, Max(Joined) FROM Customers GROUP BY City HAVING Count(*) > 1 ORDER BY City")
-    assert rows == [{"City": "London", "N": 2, "Total": Decimal("10.5000"), "Expr1000": dt.datetime(2024, 3, 1)}]
+    assert rows == [{"City": "London", "N": 2, "Total": Decimal("10.5000"), "Expr1003": dt.datetime(2024, 3, 1)}]
     assert db.execute("SELECT Count(*), Avg(Amount), Min(Amount), Count(Note) FROM Orders") == [
         {"Expr1000": 4, "Expr1001": 89.0625, "Expr1002": 1.0, "Expr1003": 3}
     ]
@@ -382,3 +385,77 @@ def test_a_name_two_sources_share_is_qualified() -> None:
     assert rows == [{"a.N": 1, "b.N": 1}, {"a.N": 2, "b.N": 2}]
     # One of them alone keeps the plain name.
     assert db.execute("SELECT a.N FROM T AS a ORDER BY a.N") == [{"N": 1}, {"N": 2}]
+
+
+def names_of(db: AccessDatabase, sql: str) -> list[str]:
+    rows = db.execute(sql)
+    assert isinstance(rows, list) and rows
+    first = rows[0]
+    assert isinstance(first, dict)
+    return list(first)
+
+
+@pytest.mark.parametrize(
+    ("sql", "expected"),
+    [
+        # A column with no name of its own is named for where it sits.
+        ("SELECT Id + 1, Balance * 2 FROM Customers", ["Expr1000", "Expr1001"]),
+        ("SELECT Name, Id + 1 FROM Customers", ["Name", "Expr1001"]),
+        ("SELECT Name, City, Id + 1, Balance * 2 FROM Customers",
+         ["Name", "City", "Expr1002", "Expr1003"]),
+        # A name the list holds twice is kept by the last one only.
+        ("SELECT Id, Id FROM Customers", ["Expr1000", "Id"]),
+        ("SELECT Id, Id, Id FROM Customers", ["Expr1000", "Expr1001", "Id"]),
+        ("SELECT Id, Name, Id FROM Customers", ["Expr1000", "Name", "Id"]),
+        ("SELECT Id, Id, Name, Name FROM Customers",
+         ["Expr1000", "Id", "Expr1002", "Name"]),
+        ("SELECT Id + 0 AS E, Id, Id FROM Customers", ["E", "Expr1001", "Id"]),
+    ],
+)
+def test_output_columns_are_named_as_the_engine_names_them(
+    tmp_path: Path, sql: str, expected: list[str]
+) -> None:
+    assert names_of(_shop(tmp_path), sql) == expected
+
+
+def test_a_repeated_column_does_not_swallow_its_twin(tmp_path: Path) -> None:
+    """Rows come back keyed by name, so before this the two columns
+    collapsed into one and the row was a column short -- which is what
+    made `INSERT INTO t (a, b) SELECT x, x FROM u` refuse to run."""
+    rows = _shop(tmp_path).execute("SELECT Id, Id, Name FROM Customers ORDER BY Id")
+    assert isinstance(rows, list)
+    first = rows[0]
+    assert isinstance(first, dict)
+    assert len(first) == 3
+    assert first["Expr1000"] == first["Id"]
+
+
+def test_an_insert_from_a_select_can_repeat_a_column(tmp_path: Path) -> None:
+    db = _shop(tmp_path)
+    db.execute("CREATE TABLE Pairs (Id LONG CONSTRAINT PK PRIMARY KEY, Same LONG, Other LONG)")
+
+    customers = db.execute("SELECT Id FROM Customers")
+    assert isinstance(customers, list)
+
+    assert db.execute(
+        "INSERT INTO Pairs (Id, Same, Other) SELECT Id, Id, Id FROM Customers"
+    ) == len(customers)
+
+    rows = db.execute("SELECT * FROM Pairs ORDER BY Id")
+    assert isinstance(rows, list)
+    assert all(r["Id"] == r["Same"] == r["Other"] for r in rows)
+
+
+def test_two_output_columns_cannot_share_a_name(tmp_path: Path) -> None:
+    """The engine refuses rather than dropping one, and so does this."""
+    with pytest.raises(AccessError, match="duplicate output alias"):
+        _shop(tmp_path).execute("SELECT Id AS X, Name AS X FROM Customers")
+
+
+def test_a_column_two_sources_share_is_named_for_its_table(tmp_path: Path) -> None:
+    """Qualifying makes the two distinct, so neither is renumbered."""
+    db = _shop(tmp_path)
+    db.execute("CREATE TABLE Notes (Id LONG CONSTRAINT PK2 PRIMARY KEY)")
+    db.execute("INSERT INTO Notes (Id) VALUES (1)")
+
+    assert names_of(db, "SELECT c.Id, n.Id FROM Customers AS c, Notes AS n") == ["c.Id", "n.Id"]

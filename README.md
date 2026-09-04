@@ -274,7 +274,9 @@ things.set_attachments("Files", row["Files"], [Attachment("notes.txt", b"hello")
 things.set_multi_values("Tags", row["Tags"], ["red", "green"])
 ```
 
-An inserted row is given its complex id automatically. One thing does not
+`table.add_complex_column("Files", "attachment")` creates one, flat
+table and indexes and all, and gives every row already there an id. An
+inserted row is given its complex id automatically. One thing does not
 match Access byte for byte: it compresses attachments with a deflate that
 is not zlib's, so a compressed attachment written here inflates to the
 same file and packs differently. The eight types Access stores raw

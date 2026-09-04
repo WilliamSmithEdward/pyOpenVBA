@@ -145,3 +145,81 @@ def encode_file_data(extension: str, data: bytes) -> bytes:
         return FILE_DATA_STORED.to_bytes(4, "little") + len(body).to_bytes(4, "little") + body
     packed = zlib.compress(body)
     return FILE_DATA_DEFLATED.to_bytes(4, "little") + len(body).to_bytes(4, "little") + packed
+
+
+# --- creating a complex column ------------------------------------------------
+#: The catalog `Flags` a flat table carries.
+FLAT_TABLE_FLAGS = 0x800A0000
+#: Set on the catalog row of a table that **has** a complex column, and on
+#: no other: measured on every table of two databases, where only `Things`
+#: and `MSysResources` carry it.
+HAS_COMPLEX_COLUMN = 0x00040000
+#: `misc_flags` on the flat table's columns, which is how Access marks
+#: what each one is for.
+MISC_KEY = 8
+MISC_ELEMENT_ID = 4
+MISC_ATTACHMENT = 16
+MISC_SCALAR = 0
+#: Where the ComplexID sits in a column header -- the slot an ordinary
+#: column uses for its collation.
+HEADER_SORT_ORDER = 11
+HEADER_FLAGS = 15
+HEADER_MISC_FLAGS = 16
+#: An attachment's own columns, in the order Access numbers them.
+ATTACHMENT_COLUMNS: tuple[tuple[str, str, int | None], ...] = (
+    ("FileData", "OLE", None),
+    ("FileFlags", "Long", None),
+    ("FileName", "Text", 255),
+    ("FileTimeStamp", "DateTime", None),
+    ("FileType", "Text", 255),
+    ("FileURL", "Memo", None),
+)
+#: The index a flat table carries over its key and the element's scalar.
+SCALAR_INDEX = "IdxFKPrimaryScalar"
+#: Its primary key, over the element's own id.
+PRIMARY_INDEX = "MSysComplexPKIndex"
+#: What `MSysComplexColumns.ComplexTypeObjectID` points at.
+TYPE_TABLES = {
+    "attachment": "MSysComplexType_Attachment",
+    "Text": "MSysComplexType_Text",
+    "Long": "MSysComplexType_Long",
+    "Short": "MSysComplexType_Short",
+    "UnsignedByte": "MSysComplexType_UnsignedByte",
+    "IEEESingle": "MSysComplexType_IEEESingle",
+    "IEEEDouble": "MSysComplexType_IEEEDouble",
+    "GUID": "MSysComplexType_GUID",
+    "Decimal": "MSysComplexType_Decimal",
+}
+#: The column type each scalar kind stores its `Value` as.
+SCALAR_TYPES = {
+    "Text": ("Text", 255),
+    "Long": ("Long", None),
+    "Short": ("Integer", None),
+    "UnsignedByte": ("Byte", None),
+    "IEEESingle": ("Single", None),
+    "IEEEDouble": ("Double", None),
+    "GUID": ("GUID", None),
+    "Decimal": ("Decimal", None),
+}
+
+
+def flat_table_name(guid: str, column: str) -> str:
+    return f"f_{guid}_{column}"
+
+
+def index_name(column: str, guid: str) -> str:
+    return f"{column}_{guid}"
+
+
+def patch_column_header(raw: bytes, *, misc_flags: int | None = None,
+                        sort_order: int | None = None, flags: int | None = None) -> bytes:
+    """The three header fields a complex column needs that a `ColumnSpec`
+    does not carry."""
+    out = bytearray(raw)
+    if misc_flags is not None:
+        out[HEADER_MISC_FLAGS] = misc_flags
+    if flags is not None:
+        out[HEADER_FLAGS] = flags
+    if sort_order is not None:
+        out[HEADER_SORT_ORDER : HEADER_SORT_ORDER + 2] = sort_order.to_bytes(2, "little")
+    return bytes(out)

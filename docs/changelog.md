@@ -29,10 +29,21 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 - **Attachments and multi-valued columns.** `db.complex_columns()` finds
   them, `table.attachments(column, key)` and
-  `table.multi_values(column, key)` read them, and `set_attachments` /
-  `set_multi_values` write them. An inserted row is given its complex id
-  automatically. A live gate saves every attachment back out through DAO
-  and compares the bytes with what went in.
+  `table.multi_values(column, key)` read them, `set_attachments` /
+  `set_multi_values` write them, and
+  `table.add_complex_column(name, kind)` creates one. An inserted row is
+  given its complex id automatically. A live gate builds a database, a
+  table and both kinds of column from nothing and has the ACE engine read
+  the bytes back.
+
+  Creating one costs four things beyond the column itself, and three were
+  invisible until the engine refused the result. The flat table keeps its
+  two Long bookkeeping columns **among the variable columns**, where a
+  Long would normally sit in the fixed block, with no collation and no
+  fixed bit -- `ColumnSpec(..., variable=True)` now says so. Its catalog
+  row carries `Flags` `0x800A0000`. And the table that *has* the column
+  carries `0x40000`, which no other table does; without it DAO opens the
+  child recordset and finds no fields in it.
 
   A `Complex` column keeps only a Long in the row -- an id shared by
   every complex column in that row, handed out from a counter at 0x1C of

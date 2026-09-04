@@ -14,8 +14,10 @@ from pathlib import Path
 
 import pytest
 
-from pyopenvba.access import AccessDatabase, Attachment
+from pyopenvba.access import AccessDatabase, Attachment, ColumnSpec, IndexSpec
 from pyopenvba.access._complex import (
+    FLAT_TABLE_FLAGS,
+    HAS_COMPLEX_COLUMN,
     NEVER_COMPRESSED,
     decode_file_data,
     encode_file_data,
@@ -204,3 +206,135 @@ def test_an_attachment_takes_its_type_from_its_name() -> None:
     assert Attachment("report.PDF", b"").type == "pdf"
     assert Attachment("no_extension", b"").type == ""
     assert Attachment("given.txt", b"", type="dat").type == "dat"
+
+
+# --- creating a complex column ------------------------------------------------
+
+
+@pytest.fixture
+def fresh(tmp_path: Path) -> AccessDatabase:
+    """A database of our own making, with a table and two rows."""
+    db = AccessDatabase.create_new(tmp_path / "fresh.accdb")
+    notes = db.create_table(
+        "Notes",
+        [ColumnSpec("Id", "Long"), ColumnSpec("Title", "Text", size=60)],
+        [IndexSpec("PrimaryKey", ("Id",), primary=True)],
+    )
+    notes.insert_row({"Id": 1, "Title": "first"})
+    notes.insert_row({"Id": 2, "Title": "second"})
+    return db
+
+
+def test_an_attachment_column_can_be_created(fresh: AccessDatabase) -> None:
+    notes = fresh.table("Notes")
+    spec = notes.add_complex_column("Files", "attachment")
+
+    assert spec.is_attachment
+    assert spec.flat_table.startswith("f_") and spec.flat_table.endswith("_Files")
+    assert [c.column for c in notes.complex_columns()] == ["Files"]
+    # every row already here is given an id
+    assert [r["Files"] for r in notes.rows()] == [1, 2]
+    assert notes.definition.last_complex_id == 2
+
+
+def test_a_created_column_takes_values(fresh: AccessDatabase, tmp_path: Path) -> None:
+    notes = fresh.table("Notes")
+    notes.add_complex_column("Files", "attachment")
+    notes.add_complex_column("Tags", "Text")
+    notes.set_attachments("Files", 1, [Attachment("a.txt", b"first file")])
+    notes.set_multi_values("Tags", 1, ["alpha", "beta"])
+    out = tmp_path / "written.accdb"
+    fresh.save(out)
+
+    reopened = AccessDatabase(out).table("Notes")
+    assert [(a.name, a.data) for a in reopened.attachments("Files", 1)] == [("a.txt", b"first file")]
+    assert reopened.multi_values("Tags", 1) == ["alpha", "beta"]
+
+
+def test_a_second_complex_column_shares_each_row_s_id(fresh: AccessDatabase) -> None:
+    """The id belongs to the row, not the column: Access gives both
+    columns of a row the same one."""
+    notes = fresh.table("Notes")
+    notes.add_complex_column("Files", "attachment")
+    notes.add_complex_column("Tags", "Text")
+
+    for row in notes.rows():
+        assert row["Files"] == row["Tags"]
+    assert notes.definition.last_complex_id == 2
+
+    notes.insert_row({"Id": 3, "Title": "third"})
+    row = next(r for r in notes.rows() if r["Id"] == 3)
+    assert row["Files"] == row["Tags"] == 3
+
+
+def test_creating_marks_both_catalog_rows(fresh: AccessDatabase) -> None:
+    """`0x40000` on the table that has the column, and `0x800A0000` on the
+    flat table -- measured on every table of two databases, where only the
+    tables with a complex column carry the first."""
+    notes = fresh.table("Notes")
+    spec = notes.add_complex_column("Files", "attachment")
+
+    flags = {
+        str(r["Name"]): int(str(r["Flags"] or 0))
+        for _rid, r in fresh.table("MSysObjects").rows_with_ids()
+        if r["Type"] == 1
+    }
+    assert flags["Notes"] & HAS_COMPLEX_COLUMN
+    assert flags[spec.flat_table] & 0xFFFFFFFF == FLAT_TABLE_FLAGS
+
+
+def test_the_flat_table_is_shaped_the_way_access_shapes_one(fresh: AccessDatabase) -> None:
+    """Its two bookkeeping columns sit among the variable ones even though
+    a Long would normally be fixed, and carry misc flags of their own."""
+    notes = fresh.table("Notes")
+    spec = notes.add_complex_column("Files", "attachment")
+    flat = fresh.table(spec.flat_table)
+
+    columns = {c.name: c for c in flat.definition.columns}
+    assert [c.name for c in flat.definition.columns] == [
+        "FileData", "FileFlags", "FileName", "FileTimeStamp", "FileType", "FileURL",
+        "Notes_Files", "_Files",
+    ]
+    assert columns["_Files"].misc_flags == 8
+    assert columns["Notes_Files"].misc_flags == 4
+    for name in ("_Files", "Notes_Files"):
+        assert not columns[name].is_fixed, name
+        assert columns[name].sort_order == 0, name
+    assert {i.name for i in flat.indexes} == {"_Files", "IdxFKPrimaryScalar", "MSysComplexPKIndex"}
+
+
+def test_the_complex_id_reaches_the_column_header(fresh: AccessDatabase) -> None:
+    """It sits in the slot an ordinary column uses for its collation."""
+    notes = fresh.table("Notes")
+    first = notes.add_complex_column("Files", "attachment")
+    second = notes.add_complex_column("Tags", "Text")
+
+    headers = {c.name: c.sort_order for c in notes.definition.columns}
+    assert headers["Files"] == first.complex_id
+    assert headers["Tags"] == second.complex_id
+    assert first.complex_id != second.complex_id
+
+
+def test_a_multi_valued_column_of_each_scalar_kind(fresh: AccessDatabase) -> None:
+    notes = fresh.table("Notes")
+    notes.add_complex_column("Words", "Text")
+    notes.add_complex_column("Counts", "Long")
+
+    notes.set_multi_values("Words", 1, ["one", "two"])
+    notes.set_multi_values("Counts", 1, [10, 20])
+    assert notes.multi_values("Words", 1) == ["one", "two"]
+    assert notes.multi_values("Counts", 1) == [10, 20]
+
+
+@pytest.mark.parametrize(
+    ("name", "kind", "message"),
+    [
+        ("Title", "attachment", "already has a column"),
+        ("Fine", "nonsense", "kind must be one of"),
+    ],
+)
+def test_creating_refuses_what_it_should(
+    fresh: AccessDatabase, name: str, kind: str, message: str
+) -> None:
+    with pytest.raises(AccessError, match=message):
+        fresh.table("Notes").add_complex_column(name, kind)

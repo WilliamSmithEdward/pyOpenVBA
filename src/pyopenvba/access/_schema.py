@@ -68,6 +68,7 @@ from pyopenvba.access._tdef import (
     TYPE_BIGINT,
     TYPE_BINARY,
     TYPE_BOOLEAN,
+    TYPE_COMPLEX,
     TYPE_BYTE,
     TYPE_DATETIME,
     TYPE_DOUBLE,
@@ -104,6 +105,9 @@ TYPE_BY_NAME = {
     "decimal": TYPE_NUMERIC,
     "numeric": TYPE_NUMERIC,
     "bigint": TYPE_BIGINT,
+    # An attachment or multi-valued column: the row holds only a Long,
+    # and `pyopenvba.access._complex` explains where the values live.
+    "complex": TYPE_COMPLEX,
 }
 #: Types the engine stores in a row's fixed block, and their widths.  A
 #: GUID and a BigInt are eight and sixteen bytes wide but the engine keeps
@@ -118,6 +122,7 @@ FIXED_SIZES = {
     TYPE_DOUBLE: 8,
     TYPE_DATETIME: 8,
     TYPE_NUMERIC: 17,
+    TYPE_COMPLEX: 4,
 }
 #: What a value of each type occupies wherever it is stored.
 VALUE_SIZES = {**FIXED_SIZES, TYPE_BIGINT: 8, TYPE_GUID: 16}
@@ -152,6 +157,10 @@ class ColumnSpec:
     size: int | tuple[int, int] | None = None
     autonumber: bool = False
     compressed: bool = True
+    #: Keep this column among the variable-length ones even though its
+    #: type would normally sit in the fixed block.  A complex column's
+    #: flat table stores its two Long bookkeeping columns this way.
+    variable: bool = False
     required: bool = False
     default: str | None = None
     allow_zero_length: bool | None = None
@@ -219,8 +228,12 @@ class DefinitionLayout:
 
 def column_header(spec: ColumnSpec, number: int, var_index: int, fixed_offset: int, tag: int) -> bytes:
     code = spec.type_code
-    if spec.autonumber and code != TYPE_LONG:
-        raise AccessError(f"column {spec.name!r}: only a Long can be an AutoNumber")
+    # A complex column is flagged AutoNumber too, but takes its id from
+    # the complex counter at 0x1C rather than the ordinary one.
+    if spec.autonumber and code not in (TYPE_LONG, TYPE_COMPLEX):
+        raise AccessError(
+            f"column {spec.name!r}: only a Long or a complex column can be an AutoNumber"
+        )
     raw = bytearray(SIZE_COLUMN_HEADER)
     raw[0] = code
     struct.pack_into("<I", raw, 1, tag)
@@ -241,11 +254,20 @@ def column_header(spec: ColumnSpec, number: int, var_index: int, fixed_offset: i
         flags |= COLUMN_FIXED
         length = 1
     elif code in FIXED_SIZES:
-        flags |= COLUMN_FIXED
+        # A column kept among the variable ones carries neither the fixed
+        # bit nor a collation: measured on a complex column's flat table,
+        # where the two Long bookkeeping columns read flags 2 and 6 with
+        # sort order 0, against 3 and 7 with 1033 for an ordinary Long.
+        if not spec.variable:
+            flags |= COLUMN_FIXED
+        else:
+            struct.pack_into("<H", raw, 11, 0)
         length = FIXED_SIZES[code]
         if spec.autonumber:
-            if code != TYPE_LONG:
-                raise AccessError(f"column {spec.name!r}: only a Long can be an AutoNumber")
+            if code not in (TYPE_LONG, TYPE_COMPLEX):
+                raise AccessError(
+                    f"column {spec.name!r}: only a Long or a complex column can be an AutoNumber"
+                )
             flags |= COLUMN_AUTONUMBER
     elif code == TYPE_BINARY:
         flags |= COLUMN_FIXED
@@ -297,7 +319,7 @@ def build_definition(columns: list[ColumnSpec], indexes: list[IndexSpec], layout
     for number, spec in enumerate(columns):
         code = spec.type_code
         is_fixed = code == TYPE_BOOLEAN or code in FIXED_SIZES or code == TYPE_BINARY
-        if is_fixed:
+        if is_fixed and not spec.variable:
             offset = 0 if code == TYPE_BOOLEAN else fixed_offset
             # Bytes 7-8 count the variable columns declared before this one,
             # which for a variable column is its own index (measured: a

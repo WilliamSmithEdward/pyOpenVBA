@@ -25,7 +25,7 @@ from typing import cast
 
 import pytest
 
-from pyopenvba.access import AccessDatabase, Attachment
+from pyopenvba.access import AccessDatabase, Attachment, ColumnSpec, IndexSpec
 
 pytestmark = pytest.mark.skipif(
     os.environ.get("RUN_LIVE_ACCESS") != "1" or sys.platform != "win32",
@@ -164,3 +164,39 @@ def test_the_reader_agrees_with_dao_on_what_dao_wrote(
         ours = things.attachments("Files", int(str(row["Files"])))
         assert [(a.name, a.type, a.data) for a in ours] == reported[identifier].files
         assert things.multi_values("Tags", int(str(row["Tags"]))) == reported[identifier].tags
+
+
+def test_dao_reads_a_table_and_columns_we_created(tmp_path: Path) -> None:
+    """The whole thing from nothing: our own database, our own table, an
+    attachment column and a multi-valued one created by us, and the ACE
+    engine reading the bytes back."""
+    path = tmp_path / "created.accdb"
+    db = AccessDatabase.create_new(path)
+    notes = db.create_table(
+        "Notes",
+        [ColumnSpec("Id", "Long"), ColumnSpec("Title", "Text", size=60)],
+        [IndexSpec("PrimaryKey", ("Id",), primary=True)],
+    )
+    notes.insert_row({"Id": 1, "Title": "first"})
+    notes.insert_row({"Id": 2, "Title": "second"})
+    notes.add_complex_column("Files", "attachment")
+    notes.add_complex_column("Tags", "Text")
+    payload = bytes(range(256))
+    notes.set_attachments(
+        "Files", 1, [Attachment("a.txt", b"first file"), Attachment("b.png", payload)]
+    )
+    notes.set_multi_values("Tags", 1, ["alpha", "beta"])
+    notes.insert_row({"Id": 3, "Title": "third"})
+    third = next(r for r in notes.rows() if r["Id"] == 3)
+    notes.set_multi_values("Tags", int(str(third["Tags"])), ["gamma"])
+    db.save(path)
+
+    reported = through_dao(path, "Notes", "Files", "Tags")
+    assert set(reported) == {1, 2, 3}
+    assert reported[1].files == [
+        ("a.txt", "txt", b"first file"),
+        ("b.png", "png", payload),
+    ]
+    assert reported[1].tags == ["alpha", "beta"]
+    assert reported[2].files == [] and reported[2].tags == []
+    assert reported[3].tags == ["gamma"]

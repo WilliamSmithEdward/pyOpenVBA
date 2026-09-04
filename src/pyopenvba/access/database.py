@@ -20,11 +20,25 @@ from pathlib import Path
 from pyopenvba.access._alloc import add_to_map, allocate_page, release_page, remove_from_map, set_usage_bit
 from pyopenvba.access._btree import BTree
 from pyopenvba.access._complex import (
+    ATTACHMENT_COLUMNS,
     ATTACHMENT_TYPE,
+    FLAT_TABLE_FLAGS,
+    HAS_COMPLEX_COLUMN,
+    MISC_ATTACHMENT,
+    MISC_ELEMENT_ID,
+    MISC_KEY,
+    MISC_SCALAR,
+    PRIMARY_INDEX,
+    SCALAR_INDEX,
+    SCALAR_TYPES,
+    TYPE_TABLES,
     Attachment,
     ComplexColumn,
     decode_file_data,
     encode_file_data,
+    flat_table_name,
+    index_name,
+    patch_column_header,
 )
 from pyopenvba.access._datapage import DataPage
 from pyopenvba.access._index import OFFSET_ENTRIES, decode_key, encode_key, leaf_entries
@@ -153,6 +167,7 @@ from pyopenvba.access._schema import (
 )
 from pyopenvba.access._tdef import (
     OFFSET_LAST_COMPLEX_ID,
+    SIZE_COLUMN_HEADER,
     INDEX_IGNORE_NULLS,
     INDEX_KIND_FOREIGN,
     OFFSET_INDEX_HEADERS,
@@ -370,6 +385,125 @@ class Table:
     def complex_columns(self) -> list[ComplexColumn]:
         """The attachment and multi-valued columns on this table."""
         return self._db.complex_columns(self.name)
+
+    def add_complex_column(
+        self, name: str, kind: str = "attachment", *, updated: object | None = None
+    ) -> ComplexColumn:
+        """Add an attachment or multi-valued column.
+
+        `kind` is `"attachment"` or one of the scalar kinds Access offers
+        (`"Text"`, `"Long"`, ...).  Everything a complex column costs goes
+        in: the flat table that holds the values with its three indexes,
+        the column on this table, the unique index over it, the
+        `MSysComplexColumns` row that pairs them, and a complex id for
+        every row already here.
+        """
+        if kind not in TYPE_TABLES:
+            raise AccessError(f"kind must be one of {', '.join(sorted(TYPE_TABLES))}, not {kind!r}")
+        if any(c.name.lower() == name.lower() for c in self.definition.columns):
+            raise AccessError(f"table {self.name!r} already has a column named {name!r}")
+        db = self._db
+        type_table = next((e for e in db.catalog() if e.name == TYPE_TABLES[kind]), None)
+        if type_table is None:
+            raise AccessError(f"this database has no {TYPE_TABLES[kind]}, so it cannot hold one")
+
+        rng = random.Random()
+        guid = "".join(rng.choice("0123456789ABCDEF") for _ in range(32))
+        key_column, id_column = "_" + name, f"{self.name}_{name}"
+
+        # The flat table: the type's own columns, then the element id,
+        # then the key, which is the order Access numbers them.
+        if kind == "attachment":
+            specs = [ColumnSpec(c, t, size=s) for c, t, s in ATTACHMENT_COLUMNS]
+            scalar, misc = "FileName", {c: MISC_ATTACHMENT for c, _t, _s in ATTACHMENT_COLUMNS}
+        else:
+            value_type, value_size = SCALAR_TYPES[kind]
+            specs = [ColumnSpec("Value", value_type, size=value_size)]
+            scalar, misc = "Value", {"Value": MISC_SCALAR}
+        # Access keeps both among the variable columns, not in the fixed
+        # block, even though a Long would normally sit there.
+        specs += [
+            ColumnSpec(id_column, "Long", autonumber=True, variable=True),
+            ColumnSpec(key_column, "Long", variable=True),
+        ]
+        misc[id_column], misc[key_column] = MISC_ELEMENT_ID, MISC_KEY
+
+        flat = db.create_table(
+            flat_table_name(guid, name),
+            specs,
+            [
+                IndexSpec(key_column, (key_column,)),
+                IndexSpec(SCALAR_INDEX, (key_column, scalar), unique=True),
+                IndexSpec(PRIMARY_INDEX, (id_column,), primary=True),
+            ],
+            updated=updated,
+        )
+        for position, column in enumerate(flat.definition.columns):
+            db.patch_column_header(
+                flat.definition,
+                position,
+                patch_column_header(column.raw, misc_flags=misc[column.name]),
+            )
+        objects = db.table("MSysObjects")
+        for rid, row in objects.rows_with_ids():
+            if row["Id"] == flat.definition.page and row["Type"] == OBJECT_TABLE:
+                objects.update_row(rid, {"Flags": FLAT_TABLE_FLAGS - (1 << 32)})
+                break
+
+        existing = [c.name for c in self.definition.columns if c.type_code == TYPE_COMPLEX]
+        self.add_column(ColumnSpec(name, "Complex", autonumber=True), updated=updated)
+
+        # Every row already here needs an id, and it needs one before the
+        # unique index goes on: they would all be null, and nulls count as
+        # equal.  The id belongs to the row, not the column, so a second
+        # complex column takes the id the row already carries.
+        counter = self.definition.last_complex_id
+        for row_id, row in list(self.rows_with_ids()):
+            shared = next((row[c] for c in existing if isinstance(row.get(c), int)), None)
+            if shared is None:
+                counter += 1
+                shared = counter
+            self.update_row(row_id, {name: shared})
+        db.create_index(
+            self.name, IndexSpec(index_name(name, guid), (name,), unique=True), updated=updated
+        )
+
+        # The catalog row of a table that has a complex column carries a
+        # flag of its own, and no other table does.
+        for rid, row in objects.rows_with_ids():
+            if row["Id"] == self.definition.page and row["Type"] == OBJECT_TABLE:
+                objects.update_row(rid, {"Flags": _as_int(row["Flags"] or 0) | HAS_COMPLEX_COLUMN})
+                break
+
+        pairing = db.table("MSysComplexColumns")
+        rid = pairing.insert_row(
+            {
+                "ColumnName": name,
+                "ComplexTypeObjectID": type_table.id,
+                "ConceptualTableID": self.definition.page,
+                "FlatTableID": flat.definition.page,
+            }
+        )
+        complex_id = next(_as_int(r["ComplexID"]) for at, r in pairing.rows_with_ids() if at == rid)
+
+        # The ComplexID lives in the column header's collation slot.
+        self.definition = db.definition(self.definition.page)
+        position = next(
+            i for i, c in enumerate(self.definition.columns) if c.name.lower() == name.lower()
+        )
+        db.patch_column_header(
+            self.definition,
+            position,
+            patch_column_header(self.definition.columns[position].raw, sort_order=complex_id),
+        )
+        # Last, because creating the index rebuilt the definition and a
+        # rebuild writes the counter from the object it was handed.
+        self.definition = db.definition(self.definition.page)
+        self.definition.last_complex_id = counter
+        db.patch_definition(self.definition, OFFSET_LAST_COMPLEX_ID, struct.pack("<I", counter))
+        db.forget_catalog()
+        return next(c for c in self.complex_columns() if c.column.lower() == name.lower())
+
 
     def _complex(self, column: str, attachment: bool | None = None) -> ComplexColumn:
         for found in self.complex_columns():
@@ -860,7 +994,10 @@ class Table:
 
         d = self.definition
         if spec.autonumber:
-            raise AccessError("an AutoNumber column cannot be added to an existing table")
+            # A complex column is flagged AutoNumber but takes its id
+            # from the complex counter, and Access does let you add one.
+            if spec.type_code != TYPE_COMPLEX:
+                raise AccessError("an AutoNumber column cannot be added to an existing table")
         if any(c.name.lower() == spec.name.lower() for c in d.columns):
             raise AccessError(f"table {self.name!r} already has a column named {spec.name!r}")
         code = spec.type_code
@@ -1423,6 +1560,34 @@ class AccessDatabase:
         self.store.write(definition.page, bytes(raw))
 
     # -- catalog -----------------------------------------------------------------
+
+    def forget_catalog(self) -> None:
+        """Drop the cached catalog, so the next read picks up a change made
+        through a table's own writers."""
+        self._catalog = None
+
+    def patch_column_header(self, definition: TableDefinition, position: int, raw: bytes) -> None:
+        """Overwrite one column's 25-byte header.
+
+        `patch_definition` stops at the index headers; the column headers
+        follow them, in the order the definition lists the columns.  Only
+        a complex column needs this: three of its header fields have no
+        `ColumnSpec` to carry them.
+        """
+        if len(raw) != SIZE_COLUMN_HEADER:
+            raise AccessError(f"a column header is {SIZE_COLUMN_HEADER} bytes, not {len(raw)}")
+        start = (
+            OFFSET_INDEX_HEADERS
+            + len(definition.real_indexes) * SIZE_REAL_INDEX_HEADER
+            + position * SIZE_COLUMN_HEADER
+        )
+        if start + SIZE_COLUMN_HEADER > PAGE_SIZE:
+            raise AccessError("this table's column headers do not fit its first definition page")
+        page = bytearray(self.store.read(definition.page))
+        page[start : start + SIZE_COLUMN_HEADER] = raw
+        self.store.write(definition.page, bytes(page))
+        self._definitions.pop(definition.page, None)
+
 
     def definition(self, page: int) -> TableDefinition:
         if page not in self._definitions:

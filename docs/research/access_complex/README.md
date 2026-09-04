@@ -43,27 +43,36 @@ the middle of five rows and adding one gave 6.
 made the row writer hand two complex columns in one row two different
 ids until it learned to skip them.
 
-## What is not done
+## Creating one, and the three rules that were invisible
 
-**Creating** a complex column. The shape is measured and written down
-here; what is missing is the machinery to express it.
+Shipped as `table.add_complex_column(name, kind)`. The shape was easy to
+read off a database Access made; what took the measuring was why the
+engine refused the result even once the shape matched.
 
 * the parent column is type `0x12`, four bytes, flagged AutoNumber, and
-  its header's sort-order slot carries the **ComplexID** rather than a
-  collation (`Files` had 1, `Tags` 2, matching `MSysComplexColumns`)
+  its header's collation slot carries the **ComplexID** (`Files` had 1,
+  `Tags` 2, matching `MSysComplexColumns`)
 * it needs a unique index named `<Column>_<32 uppercase hex>`
-* the flat table is `f_<32 uppercase hex>_<Column>` -- a *different* GUID
-  from the index's -- with catalog `Flags` `0x80090000`, against
-  `0x40000` for an ordinary table
-* its columns are `_<Column>` (Long, misc flags 8), the type's own
-  columns (misc flags 16 for an attachment's six; 0 for a scalar's
-  `Value`), and `<Parent>_<Column>` (Long, AutoNumber, misc flags 4)
+* the flat table is `f_<32 uppercase hex>_<Column>`, a *different* GUID
+  from the index's
+* its columns are `_<Column>`, the type's own columns, and
+  `<Parent>_<Column>`, with misc flags 8, 16 (or 0 for a scalar) and 4
 * three indexes: `_<Column>` on the key, `IdxFKPrimaryScalar` unique on
   `(<key>, FileName)` or `(<key>, Value)`, and `MSysComplexPKIndex`
   unique and primary on `<Parent>_<Column>`
-* an `MSysComplexColumns` row naming all of it
 
-`create_table` already produces the right shape; `ColumnSpec` cannot yet
-express `misc_flags`, the ComplexID in the header, or the catalog flags,
-and the column numbering Access uses is not the order the columns are
-declared in.
+Three more, each found by giving the result to DAO and watching it fail:
+
+**The two Long bookkeeping columns sit among the variable columns.** A
+Long is normally fixed, and `create_table` put them there; Access does
+not. They carry no fixed bit and no collation -- flags 2 and 6 with sort
+order 0, against 3 and 7 with 1033 for an ordinary Long.
+
+**The flat table's catalog `Flags` are `0x800A0000`**, not the
+`0x80090000` a first reading of the same row suggested.
+
+**The table that has the column carries `0x40000`**, and no other table
+in a database does -- checked against every table of two of them, where
+only `Things` and `MSysResources` have it. Without it DAO opens the child
+recordset and finds no fields in it, which is a failure that says nothing
+about its cause.

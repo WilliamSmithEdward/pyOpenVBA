@@ -29,6 +29,21 @@ All notable changes to pyOpenVBA are documented here. This project follows
   contradicted none, which is what makes the new names evidence rather
   than a guess. `docs/research/access_designs/` carries the scripts.
 
+- **Six control types the reader did not recognise at all**: custom
+  (ActiveX) controls, attachment controls, the web browser, the
+  navigation control, charts and the Edge browser. All six now parse and
+  report their type; the first three are written as well, and Access
+  accepts each. The other three are read but not written: each carries
+  records this project cannot name, and a navigation control, chart and
+  Edge browser each repeat one code at two ids -- which a table keyed by
+  property name cannot express -- so writing one is refused with the
+  reason rather than attempted.
+
+  That takes the reader to 27 control types and the writer to 21. Two
+  more codes Access accepts, 131 and 132, turn out to be alternate ways
+  to ask for a subform and a text box: the file records them as 112 and
+  109.
+
 - **A control can hold controls.** `add_control(..., parent="Tabs")` puts
   a page on a tab control, which is written as a group of its own right
   after it. Reading a design is now a tree walk rather than a flat scan,

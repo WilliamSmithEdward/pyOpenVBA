@@ -21,6 +21,7 @@ from pyopenvba.access._designs import (
     OPEN_CONTROL,
     OPEN_SECTION,
     OPEN_SIBLING,
+    READ_ONLY_TYPES,
     TYPE_CODES as CONTROL_CODES,
     PROPERTY_CODES,
     build_design,
@@ -402,12 +403,23 @@ def test_the_records_use_the_slots_access_uses(blank: AccessDatabase) -> None:
 
 
 def test_a_control_type_without_measured_slots_is_refused(blank: AccessDatabase) -> None:
-    """Access has controls whose slots have never been read back -- a web
-    browser, a chart, a navigation bar -- and those are refused rather
-    than guessed at."""
+    """A name the reader does not know at all is refused rather than
+    guessed at."""
     blank.create_form("Built")
     with pytest.raises(AccessError, match="cannot be written yet"):
-        blank.add_control("Built", "WebBrowser", "Browser")
+        blank.add_control("Built", "PivotTable", "Pivot")
+
+
+@pytest.mark.parametrize("kind", READ_ONLY_TYPES)
+def test_a_control_that_is_only_read_says_so(blank: AccessDatabase, kind: str) -> None:
+    """A chart, a navigation control and an Edge browser parse and report
+    their type, but each carries records this project cannot name -- one
+    of them twice, at two ids -- so writing one is refused with the reason
+    rather than attempted."""
+    assert kind in CONTROL_TYPES.values()
+    blank.create_form("Built")
+    with pytest.raises(AccessError, match="read but not written"):
+        blank.add_control("Built", kind, "Nope")
 
 
 @pytest.mark.parametrize(

@@ -75,8 +75,14 @@ CONTROL_TYPES = {
     114: "ObjectFrame",
     118: "PageBreak",
     122: "ToggleButton",
+    119: "CustomControl",
     123: "Tab",
     124: "Page",
+    126: "Attachment",
+    128: "WebBrowser",
+    129: "NavigationControl",
+    133: "Chart",
+    134: "EdgeBrowser",
     152: "Detail",
     155: "PageHeaderSection",
     156: "PageFooterSection",
@@ -630,6 +636,53 @@ CONTROL_SLOTS: dict[str, dict[str, tuple[int, int, int, int]]] = {
         "LeftPadding": (307, 702, 4, 0),
         "RightPadding": (308, 703, 4, 0),
     },
+    "CustomControl": {
+        "OverlapFlags": (54, 159, 2, 1),
+        "Left": (96, 54, 3, 4),
+        "Top": (97, 141, 3, 4),
+        "Width": (98, 150, 3, 4),
+        "Height": (99, 44, 3, 4),
+        "TabIndex": (101, 261, 3, 4),
+        "Name": (220, 20, 10, 4),
+        "GUID": (240, 376, 9, 0),
+        "Picture": (284, 0, 3, 4),
+        "LayoutCachedLeft": (287, 587, 3, 4),
+        "LayoutCachedTop": (288, 588, 3, 4),
+        "LayoutCachedWidth": (289, 589, 3, 4),
+        "LayoutCachedHeight": (290, 590, 3, 4),
+    },
+    # An attachment control names its column through ControlSource, and
+    # Access writes its tab index after the GUID rather than before.
+    "Attachment": {
+        "Left": (96, 54, 3, 4),
+        "Top": (97, 141, 3, 4),
+        "Width": (98, 150, 3, 4),
+        "Height": (99, 44, 3, 4),
+        "Name": (220, 20, 10, 4),
+        "ControlSource": (221, 27, 12, 4),
+        "GUID": (243, 376, 9, 0),
+        "TabIndex": (307, 261, 3, 4),
+        "Picture": (308, 0, 3, 4),
+        "LayoutCachedLeft": (314, 587, 3, 4),
+        "LayoutCachedTop": (315, 588, 3, 4),
+        "LayoutCachedWidth": (316, 589, 3, 4),
+        "LayoutCachedHeight": (317, 590, 3, 4),
+    },
+    "WebBrowser": {
+        "OverlapFlags": (54, 159, 2, 1),
+        "Left": (96, 54, 3, 4),
+        "Top": (97, 141, 3, 4),
+        "Width": (98, 150, 3, 4),
+        "Height": (99, 44, 3, 4),
+        "TabIndex": (101, 261, 3, 4),
+        "Name": (220, 20, 10, 4),
+        "GUID": (239, 376, 9, 0),
+        "Picture": (289, 0, 3, 4),
+        "LayoutCachedLeft": (292, 587, 3, 4),
+        "LayoutCachedTop": (293, 588, 3, 4),
+        "LayoutCachedWidth": (294, 589, 3, 4),
+        "LayoutCachedHeight": (295, 590, 3, 4),
+    },
 }
 #: The value Access wrote for a control it had just made.
 DEFAULT_OVERLAP = 85
@@ -662,7 +715,17 @@ TABBABLE = (
     "ObjectFrame",
     "Subform",
     "Tab",
+    "CustomControl",
+    "Attachment",
+    "WebBrowser",
 )
+
+#: Read but not written.  Each carries records this project cannot name,
+#: and a navigation control, chart or Edge browser repeats one code at two
+#: ids, which a table keyed by property name cannot express -- and one
+#: written without the data source that gives it its content would not be
+#: a working control anyway.
+READ_ONLY_TYPES = ("NavigationControl", "Chart", "EdgeBrowser")
 #: A text box carries this, and a control Access makes always has it.
 DEFAULT_TEXT_ALIGN = 3
 TYPE_CODES = {name: code for code, name in CONTROL_TYPES.items()}
@@ -695,6 +758,12 @@ def control_object(
     """
     slots = CONTROL_SLOTS.get(control_type)
     if slots is None:
+        if control_type in READ_ONLY_TYPES:
+            raise AccessError(
+                f"a {control_type} is read but not written: it carries records "
+                f"this project cannot name, and one written without its data "
+                f"source would not work anyway"
+            )
         raise AccessError(
             f"a {control_type} cannot be written yet; known: {', '.join(sorted(CONTROL_SLOTS))}"
         )

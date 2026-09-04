@@ -326,9 +326,16 @@ MEASURED = [
     "ObjectFrame",
     "Subform",
     "Tab",
+    "CustomControl",
+    "Attachment",
+    "WebBrowser",
 ]
 #: Access does not call every control what pyOpenVBA calls it.
-ACCESS_NAMES = {"Subform": "SubForm", "Tab": "TabControl"}
+ACCESS_NAMES = {
+    "Subform": "SubForm",
+    "Tab": "TabControl",
+    "WebBrowser": "WebBrowserControl",
+}
 
 
 def test_access_opens_a_form_holding_one_of_every_control_we_can_write(

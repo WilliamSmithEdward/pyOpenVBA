@@ -263,6 +263,10 @@ Controls go on too:
                    section="PageHeaderSection", caption="Header band")
 ```
 
+Code goes behind them too, with `db.set_design_code(name, code)`, which
+creates the module if the design has none and replaces its source if it
+has one. Access runs it.
+
 A created form or report opens in Access's own designer, and Access reads
 back every measurement it was given. Labels and text boxes are the two
 control types that can be written: a record's id is its slot in the

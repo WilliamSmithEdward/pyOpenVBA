@@ -27,11 +27,15 @@ from pyopenvba.access._designs import (
 )
 from pyopenvba.access._props import parse_property_blob
 from pyopenvba.access._storage import dir_data_entries
+from pyopenvba.vba import decompress
 from pyopenvba.access_read import AccessError
 
 FIXTURES = Path(__file__).parent / "live_access_test"
 FORM = FIXTURES / "form_with_controls.accdb"
 REPORT = FIXTURES / "report.accdb"
+WITH_CODE = FIXTURES / "form_with_code.accdb"
+DIR_DATA = chr(3) + "DirData"
+NEWLINE = chr(10)
 TEMPLATE = (
     Path(__file__).parents[1]
     / "src"
@@ -405,3 +409,125 @@ def test_a_name_already_on_the_design_is_refused(blank: AccessDatabase) -> None:
     blank.add_control("Built", "Label", "One")
     with pytest.raises(AccessError, match="already has an object named"):
         blank.add_control("Built", "Label", "One")
+
+
+# --- code behind a form -------------------------------------------------------
+
+
+@pytest.fixture
+def coded(tmp_path: Path) -> AccessDatabase:
+    """A form Access gave a module of its own."""
+    return opened(WITH_CODE, tmp_path, "coded.accdb")
+
+
+def test_code_behind_a_form_reads_as_a_module(coded: AccessDatabase) -> None:
+    """Access keeps it as a class module named after the form, and the
+    ordinary module reader finds it."""
+    modules = {m.name: m for m in coded.modules()}
+
+    assert "Form_Coded" in modules
+    assert modules["Form_Coded"].kind == "class"
+    assert "Answer = 42" in modules["Form_Coded"].source
+
+
+def test_code_behind_a_form_can_be_replaced(coded: AccessDatabase, tmp_path: Path) -> None:
+    coded.set_module_source("Form_Coded", "Option Compare Database\n\nPublic Function Answer() As Variant\n    Answer = 4242\nEnd Function")
+    out = tmp_path / "written.accdb"
+    coded.save(out)
+
+    assert "Answer = 4242" in AccessDatabase(out).module("Form_Coded").source
+
+
+def test_a_form_module_is_not_an_object_under_modules(coded: AccessDatabase) -> None:
+    """It belongs to the form, so it has no storage folder of its own and
+    no catalog row -- only the dir stream, its own stream row, a
+    `PROJECTwm` entry, and a `DocClass=` line rather than a `Class=` one."""
+    modules_id = coded._vba_storage_ids()[0]  # pyright: ignore[reportPrivateUsage]
+    rows = [row for _rid, row in coded.table("MSysAccessStorage").rows_with_ids()]
+    listing = next(
+        r["Lv"] for r in rows if r["ParentId"] == modules_id and str(r["Name"]) == DIR_DATA
+    )
+    assert isinstance(listing, bytes)
+    assert [name for name, _folder in dir_data_entries(listing)] == ["Module1"]
+    assert [e.name for e in coded.catalog() if e.type == -32761] == ["Module1"]
+    project = next(r["Lv"] for r in rows if str(r["Name"]) == "PROJECT")
+    assert isinstance(project, bytes)
+    assert b"DocClass=Form_Coded/&H00000000" in project
+    assert b"Class=Form_Coded" not in project.replace(b"DocClass=Form_Coded", b"")
+    workspace = next(r["Lv"] for r in rows if str(r["Name"]) == "PROJECTwm")
+    assert isinstance(workspace, bytes)
+    assert b"Form_Coded" in workspace
+
+
+def test_code_can_be_put_behind_a_form_that_has_none(blank: AccessDatabase) -> None:
+    blank.create_form("Behind")
+    assert not [m for m in blank.modules() if m.name.startswith("Form_")]
+
+    module = blank.set_design_code(
+        "Behind", "Option Compare Database" + NEWLINE + "Public Sub Go()" + NEWLINE + "End Sub"
+    )
+
+    assert module.name == "Form_Behind" and module.kind == "class"
+    assert "Public Sub Go()" in module.source
+    # it is the design's, not the Modules container's
+    assert [e.name for e in blank.catalog() if e.type == -32761] == ["Module1"]
+
+
+def test_the_design_and_its_module_share_a_clsid(blank: AccessDatabase) -> None:
+    """`TypeInfo` carries it and the module's `VB_Base` repeats it; that
+    pairing is what makes the form answer to the module."""
+    import uuid
+
+    blank.create_form("Behind")
+    blank.set_design_code("Behind", "Option Compare Database")
+
+    container = blank._design_container("form")  # pyright: ignore[reportPrivateUsage]
+    rows = [row for _rid, row in blank.table("MSysAccessStorage").rows_with_ids()]
+    folder_id = next(
+        int(str(r["Id"])) for r in rows if r["ParentId"] == container and r["Type"] == 1
+    )
+    info = next(r["Lv"] for r in rows if r["ParentId"] == folder_id and str(r["Name"]) == "TypeInfo")
+    prop = next(r["Lv"] for r in rows if r["ParentId"] == folder_id and str(r["Name"]) == "PropData")
+    assert isinstance(info, bytes) and isinstance(prop, bytes)
+    clsid = str(uuid.UUID(bytes_le=info[16:32])).upper()
+    # `source` leaves the attribute block out, so the stream is what to read
+    stream = next(
+        r["Lv"]
+        for r in rows
+        if str(r["Name"]) == blank.module("Form_Behind").stream_name
+    )
+    assert isinstance(stream, bytes)
+    assert clsid in decompress(stream).decode("latin-1")
+    assert prop[9] == 1  # the byte that says the design has a module
+
+
+def test_a_project_line_marks_the_module_as_the_design_s(blank: AccessDatabase) -> None:
+    blank.create_form("Behind")
+    blank.set_design_code("Behind", "Option Compare Database")
+
+    project = next(
+        r["Lv"]
+        for _rid, r in blank.table("MSysAccessStorage").rows_with_ids()
+        if str(r["Name"]) == "PROJECT"
+    )
+    assert isinstance(project, bytes)
+    assert b"DocClass=Form_Behind/&H00000000" in project
+
+
+def test_code_behind_a_report_is_named_for_it(blank: AccessDatabase) -> None:
+    blank.create_report("Sheet")
+    module = blank.set_design_code("Sheet", "Option Compare Database", kind="report")
+
+    assert module.name == "Report_Sheet"
+
+
+def test_setting_code_twice_replaces_it(blank: AccessDatabase) -> None:
+    blank.create_form("Behind")
+    blank.set_design_code("Behind", "Option Compare Database" + NEWLINE + "Public Sub One()")
+    module = blank.set_design_code(
+        "Behind", "Option Compare Database" + NEWLINE + "Public Sub Two()"
+    )
+
+    assert "Public Sub Two()" in module.source
+    assert "Public Sub One()" not in module.source
+    assert len([m for m in blank.modules() if m.name == "Form_Behind"]) == 1

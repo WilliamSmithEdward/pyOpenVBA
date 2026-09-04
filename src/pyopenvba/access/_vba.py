@@ -394,3 +394,61 @@ def add_to_folder_list(payload: bytes, folder: str) -> bytes:
 def remove_from_folder_list(payload: bytes, folder: str) -> bytes:
     entry = FOLDER_ENTRY + folder.encode("utf-16-le") + FOLDER_SUFFIX
     return payload.replace(entry, b"", 1)
+
+
+# --- code behind a form or report ---------------------------------------------
+# A document module belongs to its design, not to `Modules`: it has no
+# storage folder, no `MSysObjects` row and no entry in the container's own
+# lists.  What it does have is a stream of its own, a dir block, a
+# `PROJECTwm` entry, and a `DocClass=` line in `PROJECT` -- and without
+# that last one Access loads the module but the form does not answer to
+# it, which is the whole difference between a class module and this.
+DOC_CLASS_SUFFIX = "/&H00000000"
+#: The window rectangle Access gives a document module.
+DOC_WORKSPACE = "0, 0, 0, 0, C"
+#: A document module's attributes: creatable and predeclared, where a
+#: plain class module is neither, and a `VB_Base` naming a CLSID the
+#: design's own `TypeInfo` repeats.
+DOCUMENT_ATTRIBUTES = (
+    ("VB_GlobalNameSpace", "False"),
+    ("VB_Creatable", "True"),
+    ("VB_PredeclaredId", "True"),
+    ("VB_Exposed", "False"),
+    ("VB_TemplateDerived", "False"),
+    ("VB_Customizable", "False"),
+)
+#: Where the design's `TypeInfo` keeps that CLSID, and where its folder's
+#: `PropData` records that it has a module at all.
+TYPE_INFO_CLSID = 16
+PROP_DATA_HAS_MODULE = 9
+
+
+def document_attributes(name: str, clsid: str) -> list[str]:
+    """The attributes the module behind a form or report opens with."""
+    return [
+        "Attribute VB_Name = " + QUOTE + name + QUOTE,
+        "Attribute VB_Base = " + QUOTE + "0{" + clsid + "}" + QUOTE,
+        *(f"Attribute {field} = {value}" for field, value in DOCUMENT_ATTRIBUTES),
+    ]
+
+
+def add_to_project_documents(text: str, name: str) -> str:
+    """A `DocClass=` line, and a window rectangle under `[Workspace]`."""
+    lines = text.split(CRLF)
+    last = max(
+        i
+        for i, line in enumerate(lines)
+        if line.startswith(("Module=", "Class=", "DocClass="))
+    )
+    lines.insert(last + 1, f"DocClass={name}{DOC_CLASS_SUFFIX}")
+    if any(line.strip() == "[Workspace]" for line in lines):
+        lines.insert(len(lines) - 1, f"{name}={DOC_WORKSPACE}")
+    return CRLF.join(lines)
+
+
+def remove_from_project_documents(text: str, name: str) -> str:
+    return CRLF.join(
+        line
+        for line in text.split(CRLF)
+        if line != f"DocClass={name}{DOC_CLASS_SUFFIX}" and line != f"{name}={DOC_WORKSPACE}"
+    )

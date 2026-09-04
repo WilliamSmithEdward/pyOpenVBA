@@ -77,6 +77,12 @@ Public Function DescribeControls(ByVal name As String) As Variant
     DescribeControls = s
 End Function
 
+Public Function CallFormCode(ByVal name As String, ByVal proc As String) As Variant
+    DoCmd.OpenForm name, , , , , acHidden
+    CallFormCode = CallByName(Forms(name), proc, VbMethod)
+    DoCmd.Close acForm, name, acSaveNo
+End Function
+
 Public Function RunForm(ByVal name As String) As Variant
     DoCmd.OpenForm name
     RunForm = Forms(name).Name & "|" & Forms(name).CurrentView
@@ -236,3 +242,36 @@ def test_one_control_on_a_form_reaches_access(blank: Path, tmp_path: Path) -> No
     assert [c for c in str(ask(out, "DescribeControls", "Solo")).split(";") if c] == [
         "Only:Label:0,0,1440,240:Hi"
     ]
+
+
+def test_access_runs_code_we_put_behind_a_form(blank: Path, tmp_path: Path) -> None:
+    """A module the design does not answer to loads all the same, so the
+    only check that means anything is calling it through the form."""
+
+    def build(db: AccessDatabase) -> None:
+        db.create_form("Behind")
+        db.set_design_code("Behind", "Option Compare Database\n\n"
+        "Public Function Ping() As Variant\n"
+        "    Ping = 7\n"
+        "End Function")
+
+    out = written(blank, tmp_path / "behind.accdb", build)
+
+    assert ask(out, "CallFormCode", "Behind", "Ping") == 7
+
+
+def test_code_behind_a_form_can_be_replaced_and_still_runs(blank: Path, tmp_path: Path) -> None:
+    def build(db: AccessDatabase) -> None:
+        db.create_form("Behind")
+        db.set_design_code("Behind", "Option Compare Database\n\n"
+        "Public Function Ping() As Variant\n"
+        "    Ping = 7\n"
+        "End Function")
+        db.set_design_code("Behind", "Option Compare Database\n\n"
+        "Public Function Ping() As Variant\n"
+        "    Ping = 77\n"
+        "End Function")
+
+    out = written(blank, tmp_path / "replaced.accdb", build)
+
+    assert ask(out, "CallFormCode", "Behind", "Ping") == 77

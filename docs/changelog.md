@@ -34,6 +34,15 @@ All notable changes to pyOpenVBA are documented here. This project follows
   and a detail band holding two -- and refuses each in the other's place,
   with "saved in an invalid format" for one of them.
 
+  `db.set_design_code(name, code)` puts code behind one, creating the
+  module when the design has none, and Access runs it. A document module
+  belongs to its design rather than to `Modules`: no storage folder, no
+  catalog row, and a `DocClass=` line in `PROJECT` where a class module
+  gets `Class=`. Without that line Access loads the module and the form
+  still does not answer to it. The design's `TypeInfo` and the module's
+  `VB_Base` share a CLSID, and a byte in the design folder's `PropData`
+  records that it has a module at all.
+
   Creating cuts from a captured empty design with a GUID of its own
   patched in, since the catalog row repeats the one the design carries.
 

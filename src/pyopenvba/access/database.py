@@ -83,6 +83,10 @@ from pyopenvba.access._pages import (
 )
 from pyopenvba.access._vba import (
     CRLF as VBA_CRLF,
+    PROP_DATA_HAS_MODULE,
+    TYPE_INFO_CLSID,
+    add_to_project_documents,
+    document_attributes,
     MODULETYPE,
     NAV_MODULE_GROUP,
     NAV_MODULE_TYPE,
@@ -2308,6 +2312,108 @@ class AccessDatabase:
         else:  # pragma: no cover - a design without its own blob
             raise AccessError(f"the {kind} {design!r} has no design blob")
         return self._design(kind, design)
+
+    #: What a form's or report's own module is called.
+    DESIGN_MODULE_PREFIX = {"form": "Form_", "report": "Report_"}
+
+    def set_design_code(self, design: str, code: str, *, kind: str = "form") -> VBAModule:
+        """Put code behind a form or report.
+
+        The module is named after the design -- `Form_Summary` for a form,
+        `Report_Monthly` for a report -- and is created if the design has
+        none.  It belongs to the design rather than to `Modules`, so it
+        gets no storage folder and no catalog row of its own; what makes
+        the design answer to it is a `DocClass=` line in `PROJECT` and a
+        CLSID shared between the design's `TypeInfo` and the module's
+        `VB_Base`.
+        """
+        found = self._design(kind, design)
+        name = self.DESIGN_MODULE_PREFIX[kind] + found.name
+        if any(module.name.lower() == name.lower() for module in self.modules()):
+            self.set_module_source(name, code)
+            return self.module(name)
+
+        import uuid as _uuid
+
+        clsid = _uuid.uuid4()
+        rng = random.Random()
+        storage = self.table(STORAGE_TABLE)
+        _modules, project_id, streams_id = self._vba_storage_ids()
+        dir_rid, dir_stream = self._vba_dir()
+        row_name = stream_row_name(
+            rng, {str(r["Name"]) for _rid, r in storage.rows_with_ids()}
+        )
+        when = dt.datetime.now().replace(microsecond=0)
+        storage.insert_row(
+            {
+                "ParentId": streams_id,
+                "Name": row_name,
+                "Type": TYPE_VALUE,
+                "Lv": module_stream(document_attributes(name, str(clsid).upper()), code),
+                "DateCreate": when,
+                "DateUpdate": when,
+            }
+        )
+        storage.update_row(
+            dir_rid,
+            {
+                "Lv": compress(
+                    add_to_dir(dir_stream, dir_block(name, row_name, rng.randbytes(2), "class"))
+                )
+            },
+        )
+        for rid, row in list(storage.rows_with_ids()):
+            payload = row.get("Lv")
+            if not isinstance(payload, bytes) or not payload:
+                continue
+            label, parent = str(row["Name"]), _as_int(row["ParentId"])
+            if label == "_VBA_PROJECT":
+                storage.update_row(rid, {"Lv": invalidate_cache(payload)})
+            elif label == "PROJECTwm" and parent == project_id:
+                storage.update_row(rid, {"Lv": add_to_project_wm(payload, name)})
+            elif label == "PROJECT" and parent == project_id:
+                storage.update_row(
+                    rid,
+                    {
+                        "Lv": add_to_project_documents(
+                            payload.decode("latin-1"), name
+                        ).encode("latin-1")
+                    },
+                )
+
+        # the design's own two: the CLSID it shares with the module, and
+        # the byte that says it has one
+        container = self._design_container(kind)
+        listing = next(
+            payload
+            for _rid, row in storage.rows_with_ids()
+            if _as_int(row["ParentId"]) == container
+            and str(row["Name"]) == DIR_DATA
+            and isinstance(payload := row.get("Lv"), bytes)
+        )
+        folder = dict(dir_data_entries(listing))[found.name]
+        folder_id = next(
+            _as_int(r["Id"])
+            for _rid, r in storage.rows_with_ids()
+            if _as_int(r["ParentId"]) == container
+            and _as_int(r["Type"]) == TYPE_FOLDER
+            and str(r["Name"]) == folder
+        )
+        for rid, row in list(storage.rows_with_ids()):
+            payload = row.get("Lv")
+            if _as_int(row["ParentId"]) != folder_id or not isinstance(payload, bytes):
+                continue
+            if str(row["Name"]) == "TypeInfo":
+                raw = bytearray(payload)
+                raw[TYPE_INFO_CLSID : TYPE_INFO_CLSID + 16] = clsid.bytes_le
+                storage.update_row(rid, {"Lv": bytes(raw)})
+            elif str(row["Name"]) == "PropData":
+                raw = bytearray(payload)
+                raw[PROP_DATA_HAS_MODULE] = 1
+                storage.update_row(rid, {"Lv": bytes(raw)})
+        self._drop_srp()
+        return self.module(name)
+
 
     def delete_form(self, name: str) -> None:
         """Remove a form and every structure it occupies."""

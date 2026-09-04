@@ -8,16 +8,18 @@ object that carries it agrees and nothing already named is contradicted.
 """
 
 import struct
+import pathlib
 import sys
 from collections import defaultdict
 from pathlib import Path
 
-sys.path.insert(0, "F:/GitHub/pyOpenVBA/src")
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[3] / "src"))
 
 from pyopenvba.access import AccessDatabase  # noqa: E402
 from pyopenvba.access._designs import PROPERTY_CODES  # noqa: E402
 
-HERE = Path(__file__).parent
+#: Where build_rich_form.py left the database and its text export.
+HERE = Path(".").resolve()
 NAME_CODE = 20
 
 

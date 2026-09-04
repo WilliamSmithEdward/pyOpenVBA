@@ -2,16 +2,23 @@
 that matching a record to a text line by value is unambiguous."""
 
 import shutil
+import pathlib
 import sys
 from pathlib import Path
 
-sys.path.insert(0, "F:/GitHub/pyOpenVBA/src")
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[3] / "src"))
 
 import pyvbaharness  # noqa: E402
 
-HERE = Path(__file__).parent
-TEMPLATE = Path(
-    "F:/GitHub/pyOpenVBA/src/pyopenvba/_templates/blank_files/blank_database.accdb"
+#: Where the database and its text export are written.
+HERE = Path(".").resolve()
+TEMPLATE = (
+    pathlib.Path(__file__).resolve().parents[3]
+    / "src"
+    / "pyopenvba"
+    / "_templates"
+    / "blank_files"
+    / "blank_database.accdb"
 )
 
 KINDS = [
@@ -140,13 +147,13 @@ End Function
 
 
 def main() -> None:
-    target = HERE / "rich2.accdb"
+    target = HERE / "rich.accdb"
     shutil.copy(TEMPLATE, target)
     source = VBA.format(
         codes=", ".join(str(code) for _, code in KINDS),
         names=", ".join(f'"{name}"' for name, _ in KINDS),
     )
-    text = HERE / "rich2.txt"
+    text = HERE / "rich.txt"
     with pyvbaharness.AccessSession() as access:
         access.open_document(target, read_only=False)
         built = access.run_vba(source, proc="BuildRich", timeout=600.0)

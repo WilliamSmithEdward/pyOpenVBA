@@ -1,16 +1,15 @@
 """Turn what Access wrote into a CONTROL_SLOTS table."""
 
+import pathlib
 import sys
 
-sys.path.insert(0, "F:/GitHub/pyOpenVBA/src")
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[3] / "src"))
 
 from pyopenvba.access import AccessDatabase  # noqa: E402
 from pyopenvba.access._designs import CONTROL_TYPES, PROPERTY_CODES  # noqa: E402
 
-BASE = (
-    "C:/Users/William/AppData/Local/Temp/claude/F--GitHub-pyOpenVBA/"
-    "01fc1bef-010d-4cbe-a6dc-14dbfb128b42/scratchpad/controls/"
-)
+#: Where the database Access built was left; pass another with argv[1].
+BASE = sys.argv[1] if len(sys.argv) > 1 else "."
 NAMES = {code: name for name, code in PROPERTY_CODES.items()}
 # Codes seen on the new controls that the property table does not name yet.
 EXTRA = {
@@ -32,7 +31,7 @@ def label(code: int) -> str:
 
 
 def main() -> None:
-    db = AccessDatabase(BASE + "rest.accdb")
+    db = AccessDatabase(pathlib.Path(BASE) / "rest.accdb")
     design = db.form("Form1")
     for obj in design.objects:
         if obj.type is None:

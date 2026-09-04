@@ -5,6 +5,15 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ## [Unreleased]
 
+### Removed
+
+- **Jet 3 (Access 97) databases are refused again.** Reading them worked
+  and was gated against the engine, but the scope is now what the Access
+  application opens today, and Access has not opened an Access 97 file
+  since 2013. A 2 KiB page format is a second set of offsets through the
+  reader for a format nobody authors; `git log` has the implementation if
+  it is ever wanted back.
+
 ### Known
 
 - **The SQL executor does not carry a column's numeric type through every

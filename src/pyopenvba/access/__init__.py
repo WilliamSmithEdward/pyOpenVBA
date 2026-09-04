@@ -1,7 +1,7 @@
 """The Jet storage engine behind ``.accdb`` and ``.mdb`` files.
 
-Jet 4 and ACE are read and written; Jet 3 (Access 97, 2 KiB pages) is
-read only.
+The scope is what the Access application opens today: Jet 4 and ACE.
+Jet 3 (Access 97, 2 KiB pages) is refused.
 
 Pure Python, no Office required.  ``AccessDatabase`` opens a database and
 reads its tables; the private modules beneath it own one layer each:

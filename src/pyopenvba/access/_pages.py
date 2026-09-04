@@ -17,7 +17,7 @@ import codecs
 import struct
 from dataclasses import dataclass
 
-from pyopenvba.access._layout import JET3, JET4, Layout
+from pyopenvba.access._layout import JET4, Layout
 from pyopenvba.access_read import AccessError
 from pyopenvba.exceptions import UnsupportedFormatError
 
@@ -119,16 +119,6 @@ class DatabaseHeader:
     password: bytes
 
     @property
-    def layout(self) -> Layout:
-        """Jet 3 pages are half the size and every count in them is a byte
-        rather than a word."""
-        return JET3 if self.version == VERSION_JET3 else JET4
-
-    @property
-    def is_jet3(self) -> bool:
-        return self.version == VERSION_JET3
-
-    @property
     def is_ace(self) -> bool:
         return self.version >= VERSION_ACE_2007
 
@@ -161,12 +151,17 @@ class DatabaseHeader:
         )
 
 
-def _looks_like_jet3(data: bytes) -> bool:
-    """Page 0 names the version before anything else can be read, and it
-    is not masked at that offset."""
+def _refuse_jet3(data: bytes) -> None:
+    """Access 97 files are out of scope: Access itself has not opened one
+    since 2013, and neither does this.  Page 0 names the version before
+    anything else can be read, and it is not masked at that offset."""
     if len(data) <= OFFSET_VERSION + 4:
-        return False
-    return struct.unpack_from("<I", data, OFFSET_VERSION)[0] == VERSION_JET3
+        return
+    if struct.unpack_from("<I", data, OFFSET_VERSION)[0] == VERSION_JET3:
+        raise UnsupportedFormatError(
+            "Jet 3 (Access 97) databases are not supported; Access itself "
+            "has not opened one since 2013"
+        )
 
 
 class PageStore:
@@ -177,10 +172,9 @@ class PageStore:
     layout: Layout
 
     def __init__(self, data: bytes, layout: Layout | None = None) -> None:
-        if layout is None:
-            layout = JET3 if _looks_like_jet3(data) else JET4
-        self.layout = layout
-        size = layout.page_size
+        _refuse_jet3(data)
+        self.layout = layout if layout is not None else JET4
+        size = self.layout.page_size
         if len(data) < 2 * size:
             raise AccessError(
                 f"file too small to be a database ({len(data)} bytes)"

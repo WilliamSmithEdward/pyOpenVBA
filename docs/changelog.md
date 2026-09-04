@@ -7,6 +7,19 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- **The project's references.** `db.references()` reads the libraries a
+  VBA project points at, `db.add_reference(name, guid, major, minor,
+  path=, description=)` adds one and `db.drop_reference(name)` removes
+  it. A live gate adds the Scripting Runtime, writes a module that uses
+  `Scripting.Dictionary`, and has Access compile and run it.
+
+  Access keeps them only in the dir stream, three records each --
+  `REFERENCEORIGINAL`, its Unicode twin, and `REFERENCEREGISTERED`
+  holding `*\G{GUID}#major.minor#lcid#path#description`. `PROJECT`
+  carries no `Reference=` line, and the two libraries every project has,
+  VBA itself and Access, are not in the file at all. The version is
+  written in **hex**: DAO 12.0 is stored as `c.0`.
+
 - **Forms and reports.** `db.forms()`, `db.reports()`, `db.form(name)`,
   `db.report(name)`, `db.create_form(name)`, `db.create_report(name)`,
   `db.delete_form(name)` and `db.delete_report(name)`. A live gate opens

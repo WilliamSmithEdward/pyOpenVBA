@@ -323,3 +323,60 @@ def test_delete_frees_the_folder_for_the_next_module(db: AccessDatabase) -> None
 def test_delete_refuses_an_unknown_module(db: AccessDatabase) -> None:
     with pytest.raises(AccessError, match="no module named"):
         db.delete_module("Nothing")
+
+
+# --- the project's references -------------------------------------------------
+
+
+def test_the_template_points_at_the_two_libraries_access_ships(db: AccessDatabase) -> None:
+    """VBA itself and Access are not in the file, so they are not here."""
+    assert [(r.name, r.version) for r in db.references()] == [("stdole", (2, 0)), ("DAO", (12, 0))]
+
+
+def test_a_libid_reads_out_in_its_parts(db: AccessDatabase) -> None:
+    """The version is written in hex, so DAO 12.0 is stored as `c.0`."""
+    dao = next(r for r in db.references() if r.name == "DAO")
+
+    assert dao.guid == "{4AC9E1DA-5BAD-4AC7-86E3-24F4CDCECA28}"
+    assert dao.version == (12, 0)
+    assert "c.0" in dao.libid
+    assert dao.path.lower().endswith(".dll")
+    assert "Access database engine" in dao.description
+
+
+def test_a_reference_can_be_added(db: AccessDatabase, tmp_path: Path) -> None:
+    made = db.add_reference(
+        "Scripting", "420B2830-E718-11CF-893D-00A0C9054228", 1, 0,
+        path="C:/Windows/System32/scrrun.dll", description="Microsoft Scripting Runtime",
+    )
+
+    assert made.name == "Scripting" and made.version == (1, 0)
+    assert made.guid == "{420B2830-E718-11CF-893D-00A0C9054228}"
+    out = tmp_path / "written.accdb"
+    db.save(out)
+    assert [r.name for r in AccessDatabase(out).references()] == ["stdole", "DAO", "Scripting"]
+
+
+def test_a_reference_can_be_dropped(db: AccessDatabase) -> None:
+    db.add_reference("Scripting", "420B2830-E718-11CF-893D-00A0C9054228", 1, 0)
+    db.drop_reference("Scripting")
+
+    assert [r.name for r in db.references()] == ["stdole", "DAO"]
+
+
+def test_a_reference_already_there_is_refused(db: AccessDatabase) -> None:
+    with pytest.raises(AccessError, match="already references"):
+        db.add_reference("DAO", "420B2830-E718-11CF-893D-00A0C9054228")
+
+
+def test_dropping_one_that_is_not_there_is_refused(db: AccessDatabase) -> None:
+    with pytest.raises(AccessError, match="no reference named"):
+        db.drop_reference("Nothing")
+
+
+def test_adding_a_reference_marks_the_cache_stale(db: AccessDatabase) -> None:
+    """VBA has to recompile before it will resolve the new names."""
+    db.add_reference("Scripting", "420B2830-E718-11CF-893D-00A0C9054228", 1, 0)
+
+    blob = stream_named(db, "_VBA_PROJECT")
+    assert int.from_bytes(blob[2:4], "little") == STALE_VERSION

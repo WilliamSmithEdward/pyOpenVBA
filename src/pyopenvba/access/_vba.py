@@ -452,3 +452,122 @@ def remove_from_project_documents(text: str, name: str) -> str:
         for line in text.split(CRLF)
         if line != f"DocClass={name}{DOC_CLASS_SUFFIX}" and line != f"{name}={DOC_WORKSPACE}"
     )
+
+
+# --- the project's references -------------------------------------------------
+# Three records each, in the dir stream ahead of PROJECTMODULES:
+#
+#     REFERENCEORIGINAL          the library's name, MBCS
+#     REFERENCEORIGINALUNICODE   the same in UTF-16
+#     REFERENCEREGISTERED        <u32 length> <libid> 00*6
+#
+# and the libid reads
+#
+#     *\G{GUID}#<major>.<minor>#<lcid>#<path>#<description>
+#
+# with the version in **hex**: DAO 12.0 is written `#c.0#`.  Access keeps
+# references nowhere else -- `PROJECT` carries no `Reference=` line -- and
+# the two every project has, VBA and Access itself, are not in the dir
+# stream at all.
+REFERENCEREGISTERED = 0x000D
+REFERENCEORIGINAL = 0x0016
+REFERENCEORIGINALUNICODE = 0x003E
+LIBID_PREFIX = "*" + chr(92) + "G"
+REFERENCE_TRAILER = bytes(6)
+
+
+@dataclass(frozen=True)
+class Reference:
+    """One library the project points at."""
+
+    name: str
+    libid: str
+
+    def _parts(self) -> list[str]:
+        return self.libid.split("#")
+
+    @property
+    def guid(self) -> str:
+        head = self._parts()[0]
+        return head[len(LIBID_PREFIX) :] if head.startswith(LIBID_PREFIX) else head
+
+    @property
+    def version(self) -> tuple[int, int]:
+        """The major and minor the libid names, which it writes in hex."""
+        parts = self._parts()
+        if len(parts) < 2 or "." not in parts[1]:
+            return (0, 0)
+        major, minor = parts[1].split(".", 1)
+        try:
+            return int(major, 16), int(minor, 16)
+        except ValueError:
+            return (0, 0)
+
+    @property
+    def path(self) -> str:
+        parts = self._parts()
+        return parts[3] if len(parts) > 3 else ""
+
+    @property
+    def description(self) -> str:
+        parts = self._parts()
+        return parts[4] if len(parts) > 4 else ""
+
+
+def make_libid(guid: str, major: int, minor: int, path: str, description: str, lcid: int = 0) -> str:
+    """The string a REFERENCEREGISTERED record holds."""
+    if not guid.startswith("{"):
+        guid = "{" + guid + "}"
+    return f"{LIBID_PREFIX}{guid}#{major:x}.{minor:x}#{lcid}#{path}#{description}"
+
+
+def references(dir_stream: bytes) -> list[Reference]:
+    """Every library the dir stream points at, in its order."""
+    out: list[Reference] = []
+    name = ""
+    for _at, ident, _size, payload in records(dir_stream):
+        if ident == REFERENCEORIGINAL:
+            name = payload.decode("latin-1")
+        elif ident == REFERENCEREGISTERED:
+            length = int.from_bytes(payload[:4], "little")
+            out.append(Reference(name, payload[4 : 4 + length].decode("latin-1")))
+    return out
+
+
+def reference_block(name: str, libid: str) -> bytes:
+    """The three records one reference contributes."""
+    text = libid.encode("latin-1")
+    return b"".join(
+        (
+            _record(REFERENCEORIGINAL, name.encode("latin-1")),
+            _record(REFERENCEORIGINALUNICODE, name.encode("utf-16-le")),
+            _record(
+                REFERENCEREGISTERED,
+                len(text).to_bytes(4, "little") + text + REFERENCE_TRAILER,
+            ),
+        )
+    )
+
+
+def add_reference(dir_stream: bytes, name: str, libid: str) -> bytes:
+    """Insert a reference ahead of the modules, where Access keeps them."""
+    at = next(
+        (offset for offset, ident, _size, _payload in records(dir_stream) if ident == PROJECTMODULES),
+        None,
+    )
+    if at is None:
+        raise AccessError("the dir stream has no PROJECTMODULES record")
+    return dir_stream[:at] + reference_block(name, libid) + dir_stream[at:]
+
+
+def remove_reference(dir_stream: bytes, name: str) -> bytes:
+    """Drop a reference's three records."""
+    want, start, end = name.encode("latin-1"), None, None
+    for at, ident, size, payload in records(dir_stream):
+        if ident == REFERENCEORIGINAL and payload == want:
+            start = at
+        elif start is not None and ident == REFERENCEREGISTERED and end is None:
+            end = at + 6 + size
+    if start is None or end is None:
+        raise AccessError(f"the project has no reference named {name!r}")
+    return dir_stream[:start] + dir_stream[end:]

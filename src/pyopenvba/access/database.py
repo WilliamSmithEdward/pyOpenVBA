@@ -83,6 +83,11 @@ from pyopenvba.access._pages import (
 )
 from pyopenvba.access._vba import (
     CRLF as VBA_CRLF,
+    Reference,
+    add_reference,
+    make_libid,
+    references,
+    remove_reference,
     PROP_DATA_HAS_MODULE,
     TYPE_INFO_CLSID,
     add_to_project_documents,
@@ -1923,6 +1928,54 @@ class AccessDatabase:
             ):
                 return rid, payload
         return None
+
+    # --- the project's references -------------------------------------------
+
+    def references(self) -> list[Reference]:
+        """Every library the VBA project points at.
+
+        The two a project always has -- VBA itself and Access -- are not
+        in the file, so they are not here either.
+        """
+        return references(self._vba_dir()[1])
+
+    def add_reference(
+        self,
+        name: str,
+        guid: str,
+        major: int = 1,
+        minor: int = 0,
+        *,
+        path: str = "",
+        description: str = "",
+        lcid: int = 0,
+    ) -> Reference:
+        """Point the project at a type library.
+
+        `guid` is the library's, with or without its braces, and the
+        version is written in hex the way Access writes it -- DAO 12.0 as
+        `c.0`.
+        """
+        if any(found.name.lower() == name.lower() for found in self.references()):
+            raise AccessError(f"the project already references {name!r}")
+        libid = make_libid(guid, major, minor, path, description, lcid)
+        rid, dir_stream = self._vba_dir()
+        self.table(STORAGE_TABLE).update_row(
+            rid, {"Lv": compress(add_reference(dir_stream, name, libid))}
+        )
+        self._invalidate_vba_cache()
+        self._drop_srp()
+        return next(found for found in self.references() if found.name == name)
+
+    def drop_reference(self, name: str) -> None:
+        """Stop pointing at a library."""
+        rid, dir_stream = self._vba_dir()
+        self.table(STORAGE_TABLE).update_row(
+            rid, {"Lv": compress(remove_reference(dir_stream, name))}
+        )
+        self._invalidate_vba_cache()
+        self._drop_srp()
+
 
     def macros(self) -> list[Macro]:
         """Every macro in the database, in the order `Scripts` lists them."""

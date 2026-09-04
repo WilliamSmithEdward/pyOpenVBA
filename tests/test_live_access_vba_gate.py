@@ -65,6 +65,14 @@ Public Function ReadLines(ByVal moduleName As String) As Variant
     ReadLines = c.CodeModule.Lines(1, c.CodeModule.CountOfLines)
 End Function
 
+Public Function ReferenceNames() As Variant
+    Dim r As Object, s As String
+    For Each r In Application.VBE.ActiveVBProject.References
+        s = s & r.Name & ";"
+    Next r
+    ReferenceNames = s
+End Function
+
 Public Function AddProcedure(ByVal moduleName As String) As Variant
     Dim c As Object
     Set c = Application.VBE.ActiveVBProject.VBComponents(moduleName)
@@ -258,3 +266,36 @@ class TestReplacingSource:
         )
 
         assert ask(out, "CallProc", "Grown") == "14/1/hi"
+
+
+class TestReferences:
+    def test_a_reference_we_add_is_one_access_uses(
+        self, blank: Path, tmp_path: Path
+    ) -> None:
+        """Listing it proves Access read it; compiling code against it
+        proves Access resolved it."""
+        out = tmp_path / "referenced.accdb"
+        database = AccessDatabase(blank)
+        database.add_reference(
+            "Scripting",
+            "420B2830-E718-11CF-893D-00A0C9054228",
+            1,
+            0,
+            path="C:/Windows/System32/scrrun.dll",
+            description="Microsoft Scripting Runtime",
+        )
+        database.create_module(
+            "UsesIt",
+            "Option Compare Database\n\n"
+            "Public Function Counted() As Variant\n"
+            "    Dim d As Scripting.Dictionary\n"
+            "    Set d = New Scripting.Dictionary\n"
+            "    d.Add \"a\", 1\n"
+            "    d.Add \"b\", 2\n"
+            "    Counted = d.Count\n"
+            "End Function",
+        )
+        database.save(out)
+
+        assert "Scripting" in str(ask(out, "ReferenceNames")).split(";")
+        assert ask(out, "CallProc", "Counted") == 2

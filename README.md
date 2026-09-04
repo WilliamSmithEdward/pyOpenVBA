@@ -263,6 +263,9 @@ Controls go on too:
                    section="PageHeaderSection", caption="Header band")
 ```
 
+`db.references()`, `db.add_reference(...)` and `db.drop_reference(...)`
+manage the libraries the VBA project points at.
+
 Code goes behind them too, with `db.set_design_code(name, code)`, which
 creates the module if the design has none and replaces its source if it
 has one. Access runs it.

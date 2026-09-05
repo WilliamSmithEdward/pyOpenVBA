@@ -129,7 +129,7 @@ from pyopenvba import AccessDatabase
 with AccessDatabase("database.accdb") as db:
     print(db.module_names())        # ['Module1', 'Form_Orders']
     source = db.get_module("Module1")
-    db.set_module("Module1", "Option Compare Database\r\n\r\nPublic Sub Hello()\r\n    MsgBox \"hi\"\r\nEnd Sub")
+    db.set_module("Module1", "Option Compare Database\r\n\r\nPublic Sub Hello()\r\nMsgBox \"hi\"\r\nEnd Sub")
     db.save()
 ```
 

@@ -46,7 +46,7 @@ from pyopenvba.access._storage import (
     stream_row_name,
 )
 from pyopenvba.access_read import AccessError
-from pyopenvba.vba import compress, decompress
+from pyopenvba.vba import compress, decompress, encode_mbcs, encoding_for_codepage
 
 __all__ = [
     "PROP_DATA",
@@ -63,6 +63,7 @@ __all__ = [
 # --- the dir stream ----------------------------------------------------------
 #: The one record whose size field is not a size.
 PROJECTVERSION = 0x0009
+PROJECTCODEPAGE = 0x0003
 PROJECTMODULES = 0x000F
 TERMINATOR = 0x0010
 MODULENAME = 0x0019
@@ -154,16 +155,43 @@ def records(stream: bytes) -> Iterator[tuple[int, int, int, bytes]]:
         at += 6 + size
 
 
+def code_page(dir_stream: bytes) -> int:
+    """The PROJECTCODEPAGE the dir stream declares.
+
+    Falls back to 1252 for a stream that carries no such record, which is
+    what the reader does ([MS-OVBA] 2.3.4.2.1.4 makes the record
+    mandatory, so this is a damaged-file path rather than a real one).
+    """
+    for _at, ident, size, payload in records(dir_stream):
+        if ident == PROJECTCODEPAGE and size >= 2:
+            return int.from_bytes(payload[:2], "little")
+    return 1252
+
+
+def encoding_of(dir_stream: bytes) -> str:
+    """The Python codec for whatever code page the project declares.
+
+    Every ANSI string in the dir stream, the module streams and PROJECTwm
+    is in this encoding, not latin-1.  The two agree on 0x00-0x7F and
+    0xA0-0xFF and disagree on 0x80-0x9F, which is where cp1252 keeps the
+    em dash, the curly quotes, the ellipsis and the euro sign, so reading
+    a Western project as latin-1 is byte-lossless but silently wrong the
+    moment the text is displayed or re-encoded (GitHub issue #18).
+    """
+    return encoding_for_codepage(code_page(dir_stream))
+
+
 def module_blocks(dir_stream: bytes) -> list[tuple[str, str, str]]:
     """``(name, stream row name, kind)`` for every module the dir stream
     lists, in the order it lists them."""
     out: list[tuple[str, str, str]] = []
+    encoding = encoding_of(dir_stream)
     name = stream_name = None
     for _at, ident, _size, payload in records(dir_stream):
         if ident == MODULENAME:
-            name, stream_name = payload.decode("latin-1"), None
+            name, stream_name = payload.decode(encoding, errors="replace"), None
         elif ident == MODULESTREAMNAME:
-            stream_name = payload.decode("latin-1")
+            stream_name = payload.decode(encoding, errors="replace")
         elif ident in KIND_OF_TYPE and name is not None and stream_name is not None:
             out.append((name, stream_name, KIND_OF_TYPE[ident]))
             name = stream_name = None
@@ -185,7 +213,7 @@ def stream_name_of(dir_stream: bytes, name: str) -> str:
 
 def module_offset_at(dir_stream: bytes, name: str) -> int:
     """Where a module's MODULEOFFSET payload starts."""
-    want, seen = name.encode("latin-1"), False
+    want, seen = encode_mbcs(name, encoding_of(dir_stream)), False
     for at, ident, _size, payload in records(dir_stream):
         if ident == MODULENAME:
             seen = payload == want
@@ -198,13 +226,18 @@ def _record(ident: int, payload: bytes) -> bytes:
     return ident.to_bytes(2, "little") + len(payload).to_bytes(4, "little") + payload
 
 
-def dir_block(name: str, stream_name: str, cookie: bytes, kind: str) -> bytes:
-    """The eleven records a module contributes to the dir stream."""
+def dir_block(name: str, stream_name: str, cookie: bytes, kind: str, encoding: str) -> bytes:
+    """The eleven records a module contributes to the dir stream.
+
+    ``encoding`` is the project's, from :func:`encoding_of`.  A character
+    the code page cannot hold folds to ``?`` in the ANSI record and stays
+    exact in the Unicode one beside it, which is what the VBE writes.
+    """
     return b"".join(
         (
-            _record(MODULENAME, name.encode("latin-1")),
+            _record(MODULENAME, encode_mbcs(name, encoding)),
             _record(MODULENAMEUNICODE, name.encode("utf-16-le")),
-            _record(MODULESTREAMNAME, stream_name.encode("latin-1")),
+            _record(MODULESTREAMNAME, encode_mbcs(stream_name, encoding)),
             _record(MODULESTREAMNAMEUNICODE, stream_name.encode("utf-16-le")),
             _record(MODULEDOCSTRING, b""),
             _record(MODULEDOCSTRINGUNICODE, b""),
@@ -240,7 +273,7 @@ def add_to_dir(stream: bytes, block: bytes) -> bytes:
 
 def remove_from_dir(stream: bytes, name: str) -> bytes:
     """Drop a module's block and take one off the module count."""
-    want = name.encode("latin-1")
+    want = encode_mbcs(name, encoding_of(stream))
     start = end = None
     for at, ident, _size, payload in records(stream):
         if ident == MODULENAME:
@@ -258,8 +291,11 @@ def remove_from_dir(stream: bytes, name: str) -> bytes:
 def rename_in_dir(stream: bytes, old: str, new: str) -> bytes:
     """Rewrite a module's two name records."""
     out = bytearray(stream)
-    for ident, encoding in ((MODULENAME, "latin-1"), (MODULENAMEUNICODE, "utf-16-le")):
-        want, text = old.encode(encoding), new.encode(encoding)
+    ansi = encoding_of(stream)
+    for ident, want, text in (
+        (MODULENAME, encode_mbcs(old, ansi), encode_mbcs(new, ansi)),
+        (MODULENAMEUNICODE, old.encode("utf-16-le"), new.encode("utf-16-le")),
+    ):
         header = _record(ident, want)
         at = out.find(header)
         if at < 0:
@@ -308,15 +344,20 @@ def split_source(text: str) -> tuple[list[str], list[str]]:
     return lines[:at], lines[at:]
 
 
-def module_stream(attributes: list[str], code: str) -> bytes:
-    """A source-only module stream: the attributes, the body, compressed."""
+def module_stream(attributes: list[str], code: str, encoding: str) -> bytes:
+    """A source-only module stream: the attributes, the body, compressed.
+
+    ``encoding`` is the project's, from :func:`encoding_of`.  Source is
+    stored in the code page, so an em dash in a Western project is one
+    byte here and not the three UTF-8 would take.
+    """
     body = code.replace(CRLF, chr(10)).replace(chr(13), chr(10)).split(chr(10))
-    return compress(CRLF.join(attributes + body).encode("latin-1"))
+    return compress(encode_mbcs(CRLF.join(attributes + body), encoding))
 
 
-def read_source(stream: bytes, offset: int) -> str:
+def read_source(stream: bytes, offset: int, encoding: str) -> str:
     """A module's source, from MODULEOFFSET on."""
-    return decompress(stream[offset:]).decode("latin-1")
+    return decompress(stream[offset:]).decode(encoding, errors="replace")
 
 
 def rename_attribute(text: str, old: str, new: str) -> str:
@@ -329,26 +370,26 @@ def rename_attribute(text: str, old: str, new: str) -> str:
 # --- PROJECTwm and PROJECT --------------------------------------------------
 
 
-def project_wm_entry(name: str) -> bytes:
-    return name.encode("latin-1") + bytes(1) + name.encode("utf-16-le") + bytes(2)
+def project_wm_entry(name: str, encoding: str) -> bytes:
+    return encode_mbcs(name, encoding) + bytes(1) + name.encode("utf-16-le") + bytes(2)
 
 
-def add_to_project_wm(payload: bytes, name: str) -> bytes:
-    return payload[:-2] + project_wm_entry(name) + bytes(2)
+def add_to_project_wm(payload: bytes, name: str, encoding: str) -> bytes:
+    return payload[:-2] + project_wm_entry(name, encoding) + bytes(2)
 
 
-def remove_from_project_wm(payload: bytes, name: str) -> bytes:
-    want = project_wm_entry(name)
+def remove_from_project_wm(payload: bytes, name: str, encoding: str) -> bytes:
+    want = project_wm_entry(name, encoding)
     if want not in payload:
         raise AccessError(f"PROJECTwm holds no entry for {name!r}")
     return payload.replace(want, b"")
 
 
-def rename_project_wm(payload: bytes, old: str, new: str) -> bytes:
-    want = project_wm_entry(old)
+def rename_project_wm(payload: bytes, old: str, new: str, encoding: str) -> bytes:
+    want = project_wm_entry(old, encoding)
     if want not in payload:
         raise AccessError(f"PROJECTwm holds no entry for {old!r}")
-    return payload.replace(want, project_wm_entry(new))
+    return payload.replace(want, project_wm_entry(new, encoding))
 
 
 def add_to_project(text: str, name: str, kind: str) -> str:
@@ -524,22 +565,23 @@ def make_libid(guid: str, major: int, minor: int, path: str, description: str, l
 def references(dir_stream: bytes) -> list[Reference]:
     """Every library the dir stream points at, in its order."""
     out: list[Reference] = []
+    encoding = encoding_of(dir_stream)
     name = ""
     for _at, ident, _size, payload in records(dir_stream):
         if ident == REFERENCEORIGINAL:
-            name = payload.decode("latin-1")
+            name = payload.decode(encoding, errors="replace")
         elif ident == REFERENCEREGISTERED:
             length = int.from_bytes(payload[:4], "little")
-            out.append(Reference(name, payload[4 : 4 + length].decode("latin-1")))
+            out.append(Reference(name, payload[4 : 4 + length].decode(encoding, errors="replace")))
     return out
 
 
-def reference_block(name: str, libid: str) -> bytes:
+def reference_block(name: str, libid: str, encoding: str) -> bytes:
     """The three records one reference contributes."""
-    text = libid.encode("latin-1")
+    text = encode_mbcs(libid, encoding)
     return b"".join(
         (
-            _record(REFERENCEORIGINAL, name.encode("latin-1")),
+            _record(REFERENCEORIGINAL, encode_mbcs(name, encoding)),
             _record(REFERENCEORIGINALUNICODE, name.encode("utf-16-le")),
             _record(
                 REFERENCEREGISTERED,
@@ -557,12 +599,13 @@ def add_reference(dir_stream: bytes, name: str, libid: str) -> bytes:
     )
     if at is None:
         raise AccessError("the dir stream has no PROJECTMODULES record")
-    return dir_stream[:at] + reference_block(name, libid) + dir_stream[at:]
+    block = reference_block(name, libid, encoding_of(dir_stream))
+    return dir_stream[:at] + block + dir_stream[at:]
 
 
 def remove_reference(dir_stream: bytes, name: str) -> bytes:
     """Drop a reference's three records."""
-    want, start, end = name.encode("latin-1"), None, None
+    want, start, end = encode_mbcs(name, encoding_of(dir_stream)), None, None
     for at, ident, size, payload in records(dir_stream):
         if ident == REFERENCEORIGINAL and payload == want:
             start = at

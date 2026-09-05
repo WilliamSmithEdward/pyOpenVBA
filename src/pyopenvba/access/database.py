@@ -112,6 +112,7 @@ from pyopenvba.access._vba import (
     TYPE_INFO_CLSID,
     add_to_project_documents,
     document_attributes,
+    encoding_of,
     MODULETYPE,
     NAV_MODULE_GROUP,
     NAV_MODULE_TYPE,
@@ -237,7 +238,7 @@ from pyopenvba.access._validate import Rules, apply_defaults
 from pyopenvba.access._validate import check as check_rules
 from pyopenvba.access._validate import read as read_rules
 from pyopenvba.access_read import AccessError
-from pyopenvba.vba import VBAModuleKind, compress, decompress, parse_project_stream
+from pyopenvba.vba import VBAModuleKind, compress, decompress, encode_mbcs, parse_project_stream
 
 MSYS_OBJECTS_PAGE = 2
 
@@ -2908,6 +2909,7 @@ class AccessDatabase:
         storage = self.table(STORAGE_TABLE)
         _modules, project_id, streams_id = self._vba_storage_ids()
         dir_rid, dir_stream = self._vba_dir()
+        encoding = encoding_of(dir_stream)
         row_name = stream_row_name(
             rng, {str(r["Name"]) for _rid, r in storage.rows_with_ids()}
         )
@@ -2917,7 +2919,7 @@ class AccessDatabase:
                 "ParentId": streams_id,
                 "Name": row_name,
                 "Type": TYPE_VALUE,
-                "Lv": module_stream(document_attributes(name, str(clsid).upper()), code),
+                "Lv": module_stream(document_attributes(name, str(clsid).upper()), code, encoding),
                 "DateCreate": when,
                 "DateUpdate": when,
             }
@@ -2926,7 +2928,7 @@ class AccessDatabase:
             dir_rid,
             {
                 "Lv": compress(
-                    add_to_dir(dir_stream, dir_block(name, row_name, rng.randbytes(2), "class"))
+                    add_to_dir(dir_stream, dir_block(name, row_name, rng.randbytes(2), "class", encoding))
                 )
             },
         )
@@ -2938,14 +2940,17 @@ class AccessDatabase:
             if label == "_VBA_PROJECT":
                 storage.update_row(rid, {"Lv": invalidate_cache(payload)})
             elif label == "PROJECTwm" and parent == project_id:
-                storage.update_row(rid, {"Lv": add_to_project_wm(payload, name)})
+                storage.update_row(rid, {"Lv": add_to_project_wm(payload, name, encoding)})
             elif label == "PROJECT" and parent == project_id:
                 storage.update_row(
                     rid,
                     {
-                        "Lv": add_to_project_documents(
-                            payload.decode("latin-1"), name
-                        ).encode("latin-1")
+                        "Lv": encode_mbcs(
+                            add_to_project_documents(
+                                payload.decode(encoding, errors="replace"), name
+                            ),
+                            encoding,
+                        )
                     },
                 )
 
@@ -3886,6 +3891,7 @@ class AccessDatabase:
         it reads as the VBE shows it.
         """
         _dir_rid, dir_stream = self._vba_dir()
+        encoding = encoding_of(dir_stream)
         _modules, _project, streams = self._vba_storage_ids()
         payloads = {
             str(row["Name"]): row.get("Lv")
@@ -3897,7 +3903,7 @@ class AccessDatabase:
             payload = payloads.get(stream_name)
             at = module_offset_at(dir_stream, name)
             offset = int.from_bytes(dir_stream[at : at + 4], "little")
-            text = read_source(payload, offset) if isinstance(payload, bytes) else ""
+            text = read_source(payload, offset, encoding) if isinstance(payload, bytes) else ""
             _attributes, body = split_source(text)
             out.append(VBAModule(name, kind, stream_name, VBA_CRLF.join(body)))
         return out
@@ -3981,6 +3987,7 @@ class AccessDatabase:
         storage = self.table(STORAGE_TABLE)
         modules_id, project_id, streams_id = self._vba_storage_ids()
         dir_rid, dir_stream = self._vba_dir()
+        encoding = encoding_of(dir_stream)
         rows = [row for _rid, row in storage.rows_with_ids()]
         stream_name = stream_row_name(
             rng, {str(r["Name"]) for r in rows if _as_int(r["ParentId"]) == streams_id}
@@ -4013,7 +4020,7 @@ class AccessDatabase:
         )
         storage.insert_row(
             {"ParentId": streams_id, "Name": stream_name, "Type": 2,
-             "Lv": module_stream(attribute_lines(name, kind), code),
+             "Lv": module_stream(attribute_lines(name, kind), code, encoding),
              "DateCreate": when, "DateUpdate": when}
         )
 
@@ -4031,15 +4038,22 @@ class AccessDatabase:
             elif row_name == "PropData" and parent == modules_id:
                 storage.update_row(rid, {"Lv": add_to_folder_list(payload, folder)})
             elif row_name == "PROJECTwm" and parent == project_id:
-                storage.update_row(rid, {"Lv": add_to_project_wm(payload, name)})
+                storage.update_row(rid, {"Lv": add_to_project_wm(payload, name, encoding)})
             elif row_name == "PROJECT" and parent == project_id:
                 storage.update_row(
                     rid,
-                    {"Lv": add_to_project(payload.decode("latin-1"), name, kind).encode("latin-1")},
+                    {
+                        "Lv": encode_mbcs(
+                            add_to_project(
+                                payload.decode(encoding, errors="replace"), name, kind
+                            ),
+                            encoding,
+                        )
+                    },
                 )
         storage.update_row(
             dir_rid,
-            {"Lv": compress(add_to_dir(dir_stream, dir_block(name, stream_name, cookie, kind)))},
+            {"Lv": compress(add_to_dir(dir_stream, dir_block(name, stream_name, cookie, kind, encoding)))},
         )
 
         objects = self.table("MSysObjects")
@@ -4075,10 +4089,11 @@ class AccessDatabase:
         strings, a whole new procedure -- reachable.
         """
         dir_rid, dir_stream = self._vba_dir()
+        encoding = encoding_of(dir_stream)
         rid, payload, offset = self._module_stream_row(dir_stream, name)
-        attributes, _body = split_source(read_source(payload, offset))
+        attributes, _body = split_source(read_source(payload, offset, encoding))
         storage = self.table(STORAGE_TABLE)
-        storage.update_row(rid, {"Lv": module_stream(attributes, code)})
+        storage.update_row(rid, {"Lv": module_stream(attributes, code, encoding)})
         storage.update_row(dir_rid, {"Lv": compress(set_module_offset(dir_stream, name, 0))})
         self._invalidate_vba_cache()
         self._drop_srp()
@@ -4095,11 +4110,12 @@ class AccessDatabase:
 
         storage = self.table(STORAGE_TABLE)
         dir_rid, dir_stream = self._vba_dir()
+        encoding = encoding_of(dir_stream)
         rid, payload, offset = self._module_stream_row(dir_stream, module.name)
-        attributes, body = split_source(read_source(payload, offset))
+        attributes, body = split_source(read_source(payload, offset, encoding))
         renamed = rename_attribute(VBA_CRLF.join(attributes), module.name, new_name)
         storage.update_row(
-            rid, {"Lv": module_stream(renamed.split(VBA_CRLF), VBA_CRLF.join(body))}
+            rid, {"Lv": module_stream(renamed.split(VBA_CRLF), VBA_CRLF.join(body), encoding)}
         )
         stream = set_module_offset(rename_in_dir(dir_stream, module.name, new_name), new_name, 0)
         storage.update_row(dir_rid, {"Lv": compress(stream)})
@@ -4115,12 +4131,14 @@ class AccessDatabase:
             elif row_name == "\x03DirData" and parent == modules_id:
                 storage.update_row(row_rid, {"Lv": rename_dir_data(value, module.name, new_name)})
             elif row_name == "PROJECTwm" and parent == project_id:
-                storage.update_row(row_rid, {"Lv": rename_project_wm(value, module.name, new_name)})
+                storage.update_row(
+                    row_rid, {"Lv": rename_project_wm(value, module.name, new_name, encoding)}
+                )
             elif row_name == "PROJECT" and parent == project_id:
-                text = value.decode("latin-1")
+                text = value.decode(encoding, errors="replace")
                 fixed = rename_project(text, module.name, new_name)
                 if fixed != text:
-                    storage.update_row(row_rid, {"Lv": fixed.encode("latin-1")})
+                    storage.update_row(row_rid, {"Lv": encode_mbcs(fixed, encoding)})
 
         objects = self.table("MSysObjects")
         for row_rid, row in objects.rows_with_ids():
@@ -4139,6 +4157,7 @@ class AccessDatabase:
         """Remove a module and every structure it occupies."""
         module = self.module(name)
         index = [m.name for m in self.modules()].index(module.name)
+        encoding = encoding_of(self._vba_dir()[1])
         storage = self.table(STORAGE_TABLE)
         modules_id, project_id, streams_id = self._vba_storage_ids()
 
@@ -4178,12 +4197,12 @@ class AccessDatabase:
             elif row_name == "PropData" and parent == modules_id:
                 storage.update_row(rid, {"Lv": remove_from_folder_list(value, folder_name)})
             elif row_name == "PROJECTwm" and parent == project_id:
-                storage.update_row(rid, {"Lv": remove_from_project_wm(value, module.name)})
+                storage.update_row(rid, {"Lv": remove_from_project_wm(value, module.name, encoding)})
             elif row_name == "PROJECT" and parent == project_id:
-                text = value.decode("latin-1")
+                text = value.decode(encoding, errors="replace")
                 fixed = remove_from_project(text, module.name)
                 if fixed != text:
-                    storage.update_row(rid, {"Lv": fixed.encode("latin-1")})
+                    storage.update_row(rid, {"Lv": encode_mbcs(fixed, encoding)})
 
         objects = self.table("MSysObjects")
         for rid, row in list(objects.rows_with_ids()):

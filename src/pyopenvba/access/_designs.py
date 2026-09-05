@@ -2772,7 +2772,22 @@ class TypeInfoMember(NamedTuple):
 
 
 def type_info_entries(stream: bytes) -> tuple[TypeInfoEntry, ...]:
-    """The members a TypeInfo stream lists, in the order it lists them."""
+    """The members a TypeInfo stream lists, in the order it lists them.
+
+    Names here are cp1252, and that is measured rather than assumed
+    (GitHub issue #18 raised it as a possible second instance of the
+    VBA-side latin-1 bug; it is not one).  Access named a control with an
+    em dash and wrote ``Em\\x97Dash`` -- one byte, which cp1252 gives
+    U+2014 and latin-1 cannot represent at all.  Patching the project's
+    PROJECTCODEPAGE to 1251 and repeating changed nothing, so this stream
+    does not follow the VBA code page and must not be threaded with it.
+
+    Access also drops a member whose name the page cannot hold rather
+    than substituting it: a control named in Cyrillic got no entry here
+    at all, while the design blob kept its name in UTF-16.  The writer
+    below substitutes instead, which differs only for names cp1252
+    cannot express.
+    """
     if stream[:4] != TYPE_INFO_MAGIC or len(stream) < TYPE_INFO_ENTRIES_AT:
         raise AccessError("this is not a TypeInfo stream")
     (count,) = struct.unpack_from("<I", stream, 12)

@@ -24,6 +24,7 @@ text is canonically equivalent but not identical.  See
 from __future__ import annotations
 
 import io
+import shutil
 import struct
 import unicodedata
 import zipfile
@@ -32,6 +33,9 @@ from pathlib import Path
 import pytest
 
 from pyopenvba import ExcelFile
+from pyopenvba.access import AccessDatabase
+from pyopenvba.access._vba import STORAGE_TABLE, encoding_of
+from pyopenvba.access_read import AccessReader
 from pyopenvba.cfb import CFB
 from pyopenvba.vba import (
     VBAModuleKind,
@@ -42,6 +46,14 @@ from pyopenvba.vba import (
 )
 
 _VBA_ENTRY = "xl/vbaProject.bin"
+_ACCESS_TEMPLATE = (
+    Path(__file__).parents[1]
+    / "src"
+    / "pyopenvba"
+    / "_templates"
+    / "blank_files"
+    / "blank_database.accdb"
+)
 
 # (code page, language label, native sample text)
 LANGUAGE_MATRIX: list[tuple[int, str, str]] = [
@@ -261,6 +273,156 @@ def test_unencodable_characters_degrade_only_in_the_ansi_records(
     prefix = b"\x0f\x00\x02\x00\x00\x00\x01\x00\x13\x00\x02\x00\x00\x00\x00\x00"
     _info, modules = parse_dir_stream(prefix + block)
     assert any(m.name == "Тест" for m in modules)
+
+
+# --- Access ------------------------------------------------------------------
+# The same sweep against the Jet/ACE write path.  Access keeps its VBA in
+# MSysAccessStorage rows rather than a CFB file, and that writer read no
+# PROJECTCODEPAGE at all until issue #18: every ANSI string went through
+# latin-1, so writing a module died outright on anything latin-1 cannot
+# hold, and cp1252's 0x80-0x9F punctuation came back as the wrong
+# characters.  These run in the same CI job as the Excel sweep above.
+
+
+def _database_with_code_page(tmp_path: Path, code_page: int) -> Path:
+    """A copy of the shipped Access template declaring ``code_page``.
+
+    Same trick as :func:`_workbook_with_code_page`: patch the one dir
+    record rather than carry a binary fixture per language.
+    """
+    target = tmp_path / f"cp{code_page}.accdb"
+    shutil.copyfile(_ACCESS_TEMPLATE, target)
+
+    db = AccessDatabase(target)
+    rid, dir_stream = db._vba_dir()  # pyright: ignore[reportPrivateUsage]
+    db.table(STORAGE_TABLE).update_row(
+        rid, {"Lv": compress(_patch_dir_code_page(dir_stream, code_page))}
+    )
+    db.save()
+
+    assert AccessReader(target).read_project_info().code_page == code_page
+    return target
+
+
+def _access_encoding(path: Path) -> str:
+    db = AccessDatabase(path)
+    return encoding_of(db._vba_dir()[1])  # pyright: ignore[reportPrivateUsage]
+
+
+@pytest.mark.parametrize(("code_page", "label", "sample"), LANGUAGE_MATRIX, ids=_IDS)
+def test_access_module_source_survives_full_database_cycle(
+    tmp_path: Path, code_page: int, label: str, sample: str
+) -> None:
+    """Write a module carrying the sample, save, reopen, read it back."""
+    database = _database_with_code_page(tmp_path, code_page)
+    source = (
+        f"' {sample}\r\n"
+        "Public Sub Probe()\r\n"
+        f'    Dim s As String: s = "{sample}"\r\n'
+        "End Sub\r\n"
+    )
+
+    db = AccessDatabase(database)
+    db.set_module_source("Module1", source)
+    db.save()
+
+    back = AccessDatabase(database).module("Module1").source
+    assert _nfc(sample) in _nfc(back), (
+        f"{label} (cp{code_page}) source did not survive the round trip"
+    )
+    assert "?" not in back.replace("Probe()", ""), (
+        f"{label} (cp{code_page}) source was substituted on write"
+    )
+
+
+@pytest.mark.parametrize(("code_page", "label", "name"), NAME_MATRIX, ids=_NAME_IDS)
+def test_access_native_module_names_survive_add_and_rename(
+    tmp_path: Path, code_page: int, label: str, name: str
+) -> None:
+    """A native-language module name has to reach the dir stream as real
+    code-page bytes, not as a row of '?'."""
+    database = _database_with_code_page(tmp_path, code_page)
+    encoding = _access_encoding(database)
+
+    db = AccessDatabase(database)
+    db.create_module(name, "Option Compare Database")
+    db.save()
+
+    db = AccessDatabase(database)
+    assert name in [module.name for module in db.modules()], f"{label}: name lost on add"
+    dir_stream = db._vba_dir()[1]  # pyright: ignore[reportPrivateUsage]
+    assert encode_mbcs(name, encoding) in dir_stream, (
+        f"{label}: the dir stream lacks the cp{code_page} name bytes"
+    )
+    assert b"?" * len(name) not in dir_stream, f"{label}: the name was substituted to '?'"
+
+    renamed = name + "2"
+    db.rename_module(name, renamed)
+    db.save()
+
+    db = AccessDatabase(database)
+    names = [module.name for module in db.modules()]
+    assert renamed in names, f"{label}: name lost on rename"
+    assert name not in names
+    assert encode_mbcs(renamed, encoding) in db._vba_dir()[1]  # pyright: ignore[reportPrivateUsage]
+
+    db.delete_module(renamed)
+    db.save()
+    assert renamed not in [module.name for module in AccessDatabase(database).modules()]
+
+
+def test_access_cp1252_punctuation_is_the_regression_this_found(tmp_path: Path) -> None:
+    """The half of issue #18 that reaches ordinary English projects.
+
+    latin-1 and cp1252 agree everywhere except 0x80-0x9F, which is where
+    the em dash, the curly quotes, the ellipsis and the euro sign live.
+    Encoding as latin-1 raised outright; the danger if it had not is that
+    reading is byte-lossless either way, so an untouched round trip hides
+    the damage until something re-encodes the text.
+    """
+    database = _database_with_code_page(tmp_path, 1252)
+    sample = "em dash — quotes “q” ellipsis … euro €"
+    source = f"' {sample}\r\nPublic Sub Probe()\r\nEnd Sub\r\n"
+
+    db = AccessDatabase(database)
+    db.set_module_source("Module1", source)
+    db.save()
+
+    back = AccessDatabase(database).module("Module1").source
+    assert sample in back
+    assert "?" not in back
+
+    # And the bytes on disk are the single cp1252 ones, not UTF-8 or latin-1's
+    # C1 controls: 0x97 em dash, 0x93/0x94 quotes, 0x85 ellipsis, 0x80 euro.
+    db = AccessDatabase(database)
+    rid, _dir_stream = db._vba_dir()  # pyright: ignore[reportPrivateUsage]
+    del rid
+    stream_name = db.module("Module1").stream_name
+    row = next(
+        row
+        for _rid, row in db.table(STORAGE_TABLE).rows_with_ids()
+        if str(row["Name"]) == stream_name
+    )
+    raw = row["Lv"]
+    assert isinstance(raw, bytes)
+    assert b"\x97" in decompress(raw)
+
+
+def test_access_writes_nothing_when_the_page_cannot_hold_the_text(tmp_path: Path) -> None:
+    """A code page that genuinely cannot hold a character folds it to '?',
+    which is what the VBE does.  Cyrillic in a cp1252 project degrades;
+    the same text in a cp1251 project does not."""
+    western = _database_with_code_page(tmp_path, 1252)
+    cyrillic = _database_with_code_page(tmp_path, 1251)
+    source = "' Проверка\r\nPublic Sub Probe()\r\nEnd Sub\r\n"
+
+    for database in (western, cyrillic):
+        db = AccessDatabase(database)
+        db.set_module_source("Module1", source)
+        db.save()
+
+    assert "?" in AccessDatabase(western).module("Module1").source
+    assert "Проверка" in AccessDatabase(cyrillic).module("Module1").source
 
 
 def test_unknown_code_page_warns_instead_of_silently_mojibaking() -> None:

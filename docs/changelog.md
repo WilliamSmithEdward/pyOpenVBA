@@ -7,6 +7,54 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 Nothing yet.
 
+## [5.1.2] - 2026-09-05
+
+### Fixed
+
+- **The Access VBA writer read no PROJECTCODEPAGE** ([#18]). It encoded
+  and decoded every ANSI string as latin-1: module source, the dir
+  stream's name and stream-name records, the PROJECTwm entries, the
+  PROJECT stream, and reference names and libids. Two consequences, and
+  the first reaches ordinary English projects. Writing a module died
+  outright on anything latin-1 cannot hold, so an em dash, a curly
+  quote, an ellipsis or a euro sign in a comment raised
+  `UnicodeEncodeError`; latin-1 and cp1252 differ over exactly the
+  0x80-0x9F band those live in. And every non-1252 project was read
+  through the wrong page, which is invisible on a round trip because
+  latin-1 is a byte-identity codec and only shows once the text is
+  displayed or re-encoded.
+
+  The writer now resolves the project's declared code page the way the
+  readers already did, through `encoding_for_codepage`, and encodes with
+  `encode_mbcs`, so a character the page genuinely cannot hold folds to
+  `?` in the ANSI record while the UTF-16 record beside it stays exact.
+  That is what the VBE writes. A live gate has Access read an em dash, a
+  curly quote, an ellipsis and a euro sign back out of a module written
+  here.
+
+### Added
+
+- **The Access write path joins the language-matrix CI job.** The same
+  per-code-page sweep the Excel writer has had since [#13] now runs
+  against a database whose PROJECTCODEPAGE is each of the twenty-one
+  pages, covering module source, native module names through add,
+  rename and delete, and the cp1252 punctuation band on its own.
+
+### Documentation
+
+- **TypeInfo member names in `_designs.py` are cp1252, measured.** The
+  issue raised the hardcode there as a possible second instance. It is
+  not one: Access named a control with an em dash and wrote one byte,
+  `0x97`, which cp1252 gives U+2014 and latin-1 cannot represent at all,
+  and patching the project's PROJECTCODEPAGE to 1251 changed nothing.
+  That stream does not follow the VBA code page and must not be threaded
+  with it. Access also drops a member whose name the page cannot hold
+  rather than substituting it, which the writer here does not; it
+  differs only for names cp1252 cannot express.
+
+[#18]: https://github.com/WilliamSmithEdward/pyOpenVBA/issues/18
+[#13]: https://github.com/WilliamSmithEdward/pyOpenVBA/issues/13
+
 ## [5.1.1] - 2026-09-05
 
 ### Changed

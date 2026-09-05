@@ -299,3 +299,30 @@ class TestReferences:
 
         assert "Scripting" in str(ask(out, "ReferenceNames")).split(";")
         assert ask(out, "CallProc", "Counted") == 2
+
+
+def test_code_page_punctuation_reaches_access_intact(blank: Path, tmp_path: Path) -> None:
+    """The half of GitHub issue #18 that reaches ordinary English projects.
+
+    The writer encoded every ANSI string as latin-1 and read no
+    PROJECTCODEPAGE, so a module carrying an em dash, a curly quote, an
+    ellipsis or a euro sign could not be written at all.  latin-1 and
+    cp1252 differ exactly over 0x80-0x9F, which is where those live.
+    Access reading the characters back is what says the bytes are the
+    code page's and not latin-1's.
+    """
+    sample = "em dash — quotes “q” ellipsis … euro €"
+    out = tmp_path / "punctuation.accdb"
+    database = AccessDatabase(blank)
+    database.create_module(
+        "Punctuation",
+        "Option Compare Database\n\n"
+        f"' {sample}\n"
+        "Public Function Punctuated() As Variant\n"
+        f'    Punctuated = "{sample}"\n'
+        "End Function",
+    )
+    database.save(out)
+
+    assert ask(out, "CallProc", "Punctuated") == sample
+    assert sample in str(ask(out, "ReadLines", "Punctuation"))

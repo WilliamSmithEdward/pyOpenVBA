@@ -46,10 +46,12 @@ jobs:
   # Non-ASCII text through the real engine for every supported code page
   # (the issue-#11 bug class): Thai, Japanese, Chinese (both), Korean,
   # Cyrillic, Greek, Turkish, Hebrew, Arabic, Vietnamese, and friends,
-  # each a full write -> read -> list -> validate cycle on a workbook
-  # whose PROJECTCODEPAGE is that page.  Split out from the matrix above
-  # so a code-page regression names its own OS instead of hiding inside a
-  # general run, and mirrors the equivalent job in the xlide_vscode port.
+  # each a full write -> read -> list -> validate cycle on a file whose
+  # PROJECTCODEPAGE is that page.  Both write paths are swept: the Excel
+  # one through a workbook, and the Access one through a database, which
+  # read no code page at all until issue #18.  Split out from the matrix
+  # above so a code-page regression names its own OS instead of hiding
+  # inside a general run, and mirrors the job in the xlide_vscode port.
   languages:
     name: Language matrix (${{ matrix.os }})
     runs-on: ${{ matrix.os }}

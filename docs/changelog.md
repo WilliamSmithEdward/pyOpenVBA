@@ -13,8 +13,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
   and links in the order of the catalog's Name index, rows in primary-key
   order, indexes built over them, AutoNumber counters reset to the largest
   value present, permission rows and property blobs written in a last
-  pass, relationships re-created. Under a frozen engine clock three
-  compactions match the engine's output on every page but page 0. The
+  pass, relationships re-created. Jet 4 `.mdb` files take their own
+  skeleton. Under a frozen engine clock five compactions -- tables with
+  deletes, keys and memos; counters and queries; attachments; forms,
+  reports, macros, modules, a link and seven query shapes; a Jet 4 file
+  -- match the engine's output on every page but page 0. The
   result keeps the source's creation date, because the engine keys its
   encoding of owner and permission SIDs to that date (a 30-bit fold of
   five of its bytes feeds a generator that stayed unknown), so those
@@ -505,6 +508,8 @@ All notable changes to pyOpenVBA are documented here. This project follows
   as the engine's does; a table may now be related to itself; the
   relationship rows go before the index root.
 - Rewriting a definition no longer resets its complex-id counter.
+- A new object's owner is taken from MSysDb rather than the commonest
+  owner among the tables, which in a fresh `.mdb` was the engine's own.
 - Access's own MSysNameMap and MSysAccessXML, whose OLE column has no
   free-space map, can be written to and copied.
 - **Compressed attachments are byte for byte what Access writes.** The

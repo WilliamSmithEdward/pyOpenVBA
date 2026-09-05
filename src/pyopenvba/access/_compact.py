@@ -63,9 +63,12 @@ if TYPE_CHECKING:
     from pyopenvba.access.database import AccessDatabase, CatalogEntry, RowId, Table
 
 #: The bare database the engine copies into: ``CreateDatabase`` with the
-#: 36 permission rows it writes last taken back out (their data page,
-#: their index root, the counters and the map bits), as measured.
-SKELETON = Path(__file__).resolve().parents[1] / "_templates" / "blank_files" / "engine_skeleton.accdb"
+#: permission rows it writes last taken back out (their data page, their
+#: index root, the counters and the map bits), as measured -- one for the
+#: ACE format and one for Jet 4.
+_TEMPLATES = Path(__file__).resolve().parents[1] / "_templates" / "blank_files"
+SKELETON = _TEMPLATES / "engine_skeleton.accdb"
+SKELETON_JET4 = _TEMPLATES / "engine_skeleton.mdb"
 
 #: MSysObjects.Type of the object kinds a catalog row can hold.
 _TYPE_TABLE = 1
@@ -102,13 +105,13 @@ def compact_and_repair(
     (the engine reads its clock once per stamp); it defaults to now."""
     from pyopenvba.access.database import AccessDatabase as _Database
 
-    skeleton = _Database(SKELETON.read_bytes())
-    same = (source.header.version, source.header.code_page, source.header.sort_order, source.header.sort_version)
-    wanted = (skeleton.header.version, skeleton.header.code_page, skeleton.header.sort_order, skeleton.header.sort_version)
+    skeleton = _Database((SKELETON if source.header.is_ace else SKELETON_JET4).read_bytes())
+    same = (source.header.code_page, source.header.sort_order, source.header.sort_version)
+    wanted = (skeleton.header.code_page, skeleton.header.sort_order, skeleton.header.sort_version)
     if same != wanted:
         raise AccessError(
             f"compaction is measured for the General sort order and code page 1252 only; "
-            f"this database has version {same[0]}, code page {same[1]}, sort order {same[2]}/{same[3]}"
+            f"this database has code page {same[0]} and sort order {same[1]}/{same[2]}"
         )
     # The header page is carried across whole: sort order, password and
     # the creation date the SID encoding is keyed to.
@@ -422,6 +425,8 @@ class _Compaction:
     # -- phase 3: complex columns -----------------------------------------
 
     def copy_complex_columns(self) -> None:
+        if not any(e.name == "MSysComplexColumns" for e in self.dest.catalog()):
+            return  # a Jet 4 file has no complex columns
         complex_columns = self.dest.table("MSysComplexColumns")
         for row in self.source.table("MSysComplexColumns").rows():
             values = {k: v for k, v in row.items() if v is not None}
@@ -494,6 +499,7 @@ class _Compaction:
                 table_updated=table_stamp,
                 referenced_updated=referenced_stamp,
                 permissions=self.src.aces.get(entry.id),
+                owner=_owner_bytes(self.src.rows[entry.id].get("Owner")),
             )
             self.ids[entry.id] = next(e.id for e in self.dest.catalog() if e.type == _TYPE_RELATIONSHIP and e.name == entry.name)
 
@@ -508,6 +514,10 @@ def _serial(when: object) -> float:
         delta = when - _dt.datetime(1899, 12, 30)
         return delta.days + delta.seconds / 86400 + delta.microseconds / 86400e6
     raise AccessError(f"{when!r} is not a datetime")
+
+
+def _owner_bytes(value: object) -> bytes | None:
+    return value if isinstance(value, bytes) else None
 
 
 def _signed(value: int) -> int:

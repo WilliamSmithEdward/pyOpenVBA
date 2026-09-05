@@ -311,6 +311,10 @@ def test_the_skeleton_is_the_bare_engine_database() -> None:
     names = {e.name for e in skeleton.catalog()}
     assert {"Tables", "Databases", "Relationships", "MSysDb", "MSysObjects", "MSysACEs", "MSysQueries", "MSysRelationships", "MSysComplexColumns"} <= names
     assert len(skeleton.catalog()) == 18
+    from pyopenvba.access._compact import SKELETON_JET4
+
+    jet4 = AccessDatabase(SKELETON_JET4.read_bytes())
+    assert (jet4.store.page_count, jet4.table("MSysACEs").row_count, len(jet4.catalog())) == (18, 0, 8)
 
 
 def test_compact_and_repair_carries_every_object_and_row(related_db: AccessDatabase, tmp_path: Path) -> None:

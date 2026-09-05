@@ -258,6 +258,13 @@ function Dump-Recordset($rs) {
 
 if ($Command -eq "build-alltypes") { Create-AllTypes $Path }
 $engine = New-Object -ComObject DAO.DBEngine.120
+if ($Command -eq "create-blank-mdb") {
+    # The same bare database in the Jet 4 format.  dbVersion40 = 64.
+    if (Test-Path $Path) { Remove-Item $Path }
+    $null = $engine.CreateDatabase($Path, ";LANGID=0x0409;CP=1252;COUNTRY=0", 64)
+    [Console]::Out.Write("ok")
+    exit 0
+}
 if ($Command -eq "create-blank") {
     # A bare engine database: what CompactDatabase starts its destination
     # from, before any object is copied in.  dbVersion120 = 128.

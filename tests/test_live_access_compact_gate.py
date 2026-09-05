@@ -225,3 +225,155 @@ def test_attachments_and_multi_valued_columns_compact_as_the_engine_compacts_the
     source = tmp_path / "source.accdb"
     shutil.copy(ATTACHMENTS, source)
     assert_compaction_matches(source, tmp_path)
+
+
+def test_a_jet4_database_compacts_as_the_engine_compacts_it(tmp_path: Path) -> None:
+    """The same copy in the Jet 4 format, from the bare database the engine
+    makes with ``CreateDatabase(..., dbVersion40)``: two AutoNumber tables
+    with a foreign key, a memo column, keyed and heap tables, deletes and a
+    saved query.  The skeleton is the Jet 4 one; the recipe is the same."""
+    source = tmp_path / "source.mdb"
+    oracle("-Command", "create-blank-mdb", "-Path", str(source))
+    setup = [
+        "CREATE TABLE A (Id AUTOINCREMENT CONSTRAINT PKA PRIMARY KEY, Name TEXT(40), Notes MEMO, Amount CURRENCY)",
+        "CREATE INDEX IxName ON A (Name)",
+        "CREATE TABLE B (Id AUTOINCREMENT CONSTRAINT PKB PRIMARY KEY, AId LONG, Tag TEXT(20))",
+        "CREATE TABLE Zeta (Id LONG CONSTRAINT PKZ PRIMARY KEY, V TEXT(10))",
+        "CREATE TABLE alpha (Id LONG, V TEXT(10))",
+    ]
+    setup += [f"INSERT INTO Zeta VALUES ({i}, '{v}')" for i, v in ((5, "five"), (3, "three"), (9, "nine"), (1, "one"))]
+    setup += [f"INSERT INTO alpha VALUES ({i}, '{v}')" for i, v in ((5, "five"), (3, "three"), (9, "nine"), (1, "one"))]
+    setup += [f"INSERT INTO A (Name, Notes, Amount) VALUES ('name {i}', '{'memo text ' * (i % 40)}', {i}.25)" for i in range(1, 121)]
+    setup += [f"INSERT INTO B (AId, Tag) VALUES ({i}, 'tag{i}')" for i in range(1, 41)]
+    _run(source, setup, tmp_path)
+    query = tmp_path / "query.sql"
+    query.write_text("SELECT A.Id, A.Name, B.Tag FROM A INNER JOIN B ON A.Id = B.AId", encoding="utf-8")
+    oracle("-Command", "create-query", "-Path", str(source), "-Table", "QJoin", "-SqlFile", str(query))
+    for statement in (
+        "DELETE FROM B WHERE Id > 20 OR AId Mod 3 = 0",
+        "ALTER TABLE B ADD CONSTRAINT FK_B_A FOREIGN KEY (AId) REFERENCES A (Id)",
+        "DELETE FROM A WHERE Id Mod 3 = 0",
+    ):
+        query.write_text(statement, encoding="utf-8")
+        oracle("-Command", "run-sql", "-Path", str(source), "-SqlFile", str(query))
+    assert_compaction_matches(source, tmp_path)
+
+
+def test_access_objects_links_and_every_query_shape_compact_as_the_engine_compacts_them(tmp_path: Path) -> None:
+    """A database Access itself has written to: two forms, a report, a
+    macro and a module besides the template's, a linked table, a
+    self-referencing relationship, a two-column cascading one, a foreign
+    key riding an existing index, a Decimal and a BigInt column, table
+    and column properties, a text key, an AutoNumber heap with explicit
+    ids, and seven queries (select, group, parameter, union, action,
+    crosstab and pass-through).  Needs desktop Access: set
+    ``RUN_LIVE_ACCESS_VBA=1``."""
+    if os.environ.get("RUN_LIVE_ACCESS_VBA") != "1":
+        pytest.skip("needs desktop Access: set RUN_LIVE_ACCESS_VBA=1")
+    harness = pytest.importorskip("pyvbaharness")
+    from decimal import Decimal
+
+    from pyopenvba.access import ColumnSpec
+
+    source = tmp_path / "source.accdb"
+    shutil.copy(TEMPLATE, source)
+    setup = [
+        "CREATE TABLE Types1 (Id AUTOINCREMENT CONSTRAINT PK1 PRIMARY KEY, B BYTE, S SHORT, L LONG, Sg SINGLE, D DOUBLE, C CURRENCY, Dt DATETIME, Yn YESNO, T TEXT(50), M MEMO, O LONGBINARY, G GUID, Bn BINARY(10))",
+        "INSERT INTO Types1 (B, S, L, Sg, D, C, Dt, Yn, T, M) VALUES (1, 2, 3, 1.5, 2.25, 3.75, #2020-01-02 03:04:05#, TRUE, 'one', 'memo one')",
+        "INSERT INTO Types1 (B, S, L, Sg, D, C, Dt, Yn, T, M) VALUES (200, -2, 30000, -1.5, 1E10, -3.75, #1999-12-31#, FALSE, 'two', NULL)",
+        "INSERT INTO Types1 (L, T) VALUES (7, 'three')",
+        "CREATE TABLE Multi (K1 LONG, K2 TEXT(10), V DOUBLE, CONSTRAINT PKM PRIMARY KEY (K1, K2))",
+        "CREATE INDEX IxVDesc ON Multi (V DESC)",
+        "CREATE UNIQUE INDEX IxK2 ON Multi (K2) WITH IGNORE NULL",
+        "INSERT INTO Multi VALUES (2, 'b', 1.5)",
+        "INSERT INTO Multi VALUES (1, 'z', 2.5)",
+        "INSERT INTO Multi VALUES (1, 'a', 3.5)",
+        "INSERT INTO Multi VALUES (3, 'c', NULL)",
+        "CREATE TABLE Self (Id LONG CONSTRAINT PKS PRIMARY KEY, ParentId LONG, Label TEXT(10))",
+        "INSERT INTO Self VALUES (1, NULL, 'root')",
+        "INSERT INTO Self VALUES (2, 1, 'child')",
+        "INSERT INTO Self VALUES (3, 1, 'child2')",
+        "ALTER TABLE Self ADD CONSTRAINT FK_Self FOREIGN KEY (ParentId) REFERENCES Self (Id)",
+        "CREATE TABLE Kid (Id LONG CONSTRAINT PKK PRIMARY KEY, K1 LONG, K2 TEXT(10), Remark TEXT(10))",
+        "INSERT INTO Kid VALUES (1, 2, 'b', 'x')",
+        "INSERT INTO Kid VALUES (2, 1, 'a', 'y')",
+        "CREATE TABLE Shared (Id LONG CONSTRAINT PKSh PRIMARY KEY, SelfId LONG)",
+        "CREATE INDEX IxSelfId ON Shared (SelfId)",
+        "INSERT INTO Shared VALUES (1, 2)",
+        "INSERT INTO Shared VALUES (2, 2)",
+        "ALTER TABLE Shared ADD CONSTRAINT FK_Shared_Self FOREIGN KEY (SelfId) REFERENCES Self (Id)",
+        "CREATE TABLE Described (Id LONG, Name TEXT(30) NOT NULL, Remark TEXT(30))",
+        "INSERT INTO Described VALUES (1, 'n', 'x')",
+        "CREATE TABLE TextKey (Code TEXT(5) CONSTRAINT PKT PRIMARY KEY, V LONG)",
+        "INSERT INTO TextKey VALUES ('m', 1)",
+        "INSERT INTO TextKey VALUES ('a', 2)",
+        "INSERT INTO TextKey VALUES ('Z', 3)",
+        "INSERT INTO TextKey VALUES ('b', 4)",
+        "CREATE TABLE HeapAuto (Id AUTOINCREMENT, V TEXT(5))",
+        "INSERT INTO HeapAuto (Id, V) VALUES (5, 'e')",
+        "INSERT INTO HeapAuto (Id, V) VALUES (3, 'c')",
+        "INSERT INTO HeapAuto (Id, V) VALUES (9, 'i')",
+        "INSERT INTO HeapAuto (Id, V) VALUES (1, 'a')",
+    ]
+    _run(source, setup, tmp_path)
+    # A Decimal and a BigInt column, which DAO's DDL cannot declare, and a
+    # cascading two-column relationship, which its DDL will not accept.
+    db = AccessDatabase(source)
+    dec = db.create_table("Dec", [ColumnSpec("Id", "Long"), ColumnSpec("Dc", "Decimal", size=(18, 4)), ColumnSpec("Bi", "BigInt")])
+    dec.insert_row({"Id": 1, "Dc": Decimal("12.3456"), "Bi": 2**40})
+    db.create_relationship("FK_Kid_Multi", "Kid", ("K1", "K2"), "Multi", ("K1", "K2"), cascade_updates=True, cascade_deletes=True)
+    db.save()
+    oracle("-Command", "set-props", "-Path", str(source), "-Table", "Described")
+    other = tmp_path / "other.accdb"
+    shutil.copy(TEMPLATE, other)
+    _run(other, ["CREATE TABLE Remote (Id LONG CONSTRAINT PKR PRIMARY KEY, Name TEXT(20))", "INSERT INTO Remote VALUES (1, 'far')"], tmp_path)
+    link = tmp_path / "link.txt"
+    link.write_text(";" + chr(9) + str(other) + chr(9) + "Remote", encoding="utf-8")
+    oracle("-Command", "link-table", "-Path", str(source), "-Table", "LinkedRemote", "-SqlFile", str(link))
+    query = tmp_path / "query.sql"
+    queries = {
+        "QWhere": "SELECT Types1.Id, Types1.T FROM Types1 WHERE Types1.L > 5 ORDER BY Types1.T DESC",
+        "QGroup": "SELECT Multi.K1, Sum(Multi.V) AS Total FROM Multi GROUP BY Multi.K1 HAVING Sum(Multi.V) > 0",
+        "QParam": "PARAMETERS pMin Long; SELECT * FROM Types1 WHERE Types1.L >= pMin",
+        "QUnion": "SELECT Id FROM Self UNION SELECT Id FROM Kid",
+        "QUpdate": "UPDATE Types1 SET Types1.L = 0 WHERE Types1.Id = 1",
+        "QCross": "TRANSFORM Sum(Multi.V) AS S SELECT Multi.K1 FROM Multi GROUP BY Multi.K1 PIVOT Multi.K2",
+    }
+    for name, sql in queries.items():
+        query.write_text(sql, encoding="utf-8")
+        oracle("-Command", "create-query", "-Path", str(source), "-Table", name, "-SqlFile", str(query))
+    query.write_text("SELECT 1 AS One", encoding="utf-8")
+    oracle("-Command", "create-passthrough", "-Path", str(source), "-Table", "QPass", "-SqlFile", str(query))
+    module_text = tmp_path / "amod.txt"
+    module_text.write_text("Option Compare Database" + chr(10) + "Option Explicit" + chr(10) + chr(10) + "Public Sub Hi()" + chr(10) + "    Debug.Print 1" + chr(10) + "End Sub" + chr(10), encoding="utf-8")
+    macro_text = tmp_path / "mac1.txt"
+    macro_text.write_text("Version =196611" + chr(10) + "ColumnsShown =0" + chr(10) + "Begin" + chr(10) + '    Action ="Beep"' + chr(10) + "End" + chr(10), encoding="utf-8")
+    with harness.AccessSession() as access:
+        access.open_document(source, read_only=False)
+        result = access.run_vba(_BUILD_OBJECTS, proc="Build", args=(str(module_text), str(macro_text)), timeout=300.0)
+        assert result.outcome == "passed" and result.value == "ok", f"Access could not build the objects: {result.outcome} {result.value}"
+    assert_compaction_matches(source, tmp_path)
+
+
+_BUILD_OBJECTS = """
+Public Function Build(ByVal modPath As String, ByVal macPath As String) As String
+    Dim f As Object, r As Object, c As Object, n As String
+    Set f = CreateForm()
+    Set c = CreateControl(f.Name, 109, 0, "", "", 500, 500, 2000, 300)
+    c.Name = "txtA"
+    n = f.Name
+    DoCmd.Close acForm, n, acSaveYes
+    DoCmd.Rename "Zform", acForm, n
+    Set f = CreateForm()
+    n = f.Name
+    DoCmd.Close acForm, n, acSaveYes
+    DoCmd.Rename "Aform", acForm, n
+    Set r = CreateReport()
+    n = r.Name
+    DoCmd.Close acReport, n, acSaveYes
+    DoCmd.Rename "Rpt1", acReport, n
+    Application.LoadFromText acModule, "AMod", modPath
+    Application.LoadFromText acMacro, "Mac1", macPath
+    Build = "ok"
+End Function
+"""

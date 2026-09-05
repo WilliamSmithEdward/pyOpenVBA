@@ -1971,6 +1971,12 @@ class AccessDatabase:
         return self._container("Tables")
 
     def _default_owner(self) -> bytes:
+        """The owner a new object gets: the one on MSysDb, which is the user
+        the file was made by (the engine's own tables carry another), else
+        the commonest among the tables."""
+        for entry in self.catalog():
+            if entry.name == "MSysDb" and entry.owner:
+                return entry.owner
         owners = [e.owner for e in self.table_entries(include_system=True) if e.owner]
         if not owners:
             raise AccessError("no table row to take an owner SID from")
@@ -3254,6 +3260,7 @@ class AccessDatabase:
         table_updated: object | None = None,
         referenced_updated: object | None = None,
         permissions: Sequence[Mapping[str, object]] | None = None,
+        owner: bytes | None = None,
     ) -> Relationship:
         """Relate ``table`` to ``referenced_table`` as ``ALTER TABLE ... ADD
         CONSTRAINT ... FOREIGN KEY`` does: a non-unique index named after
@@ -3396,7 +3403,7 @@ class AccessDatabase:
                 "DateUpdate": when_updated,
             }
         )
-        objects.update_row(catalog_row, {"Owner": self._default_owner()})
+        objects.update_row(catalog_row, {"Owner": self._default_owner() if owner is None else owner})
         aces = self.table("MSysACEs")
         if permissions is not None:
             for ace in permissions:

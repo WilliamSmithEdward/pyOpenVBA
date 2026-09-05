@@ -189,6 +189,60 @@ its page. Getting that wrong is not a loud failure -- it silently returns
 a neighbouring module's p-code, which is what `AccessReader` used to do
 (fixed alongside this work).
 
+## How Access saves a module, as the engine sees it
+
+`module_add_replay.py` rebuilds a database Access added a module to from
+the database before, using only the engine writers and the payloads the
+after file holds. On the measured pair, a database with two modules that
+Access gave a third, every page comes out the engine's. The order it
+found, which is what the pages of `MSysAccessStorage` and its long-value
+pages show:
+
+1. The storages on the way to the module (`Modules`, `VBA`, `VBAProject`,
+   its `VBA`) are re-stamped; `DirData` under `Modules` is rewritten in
+   place; a stream that will be rewritten (`__SRP_0`, `__SRP_1`) is
+   re-stamped now and gets its bytes later.
+2. The replaced rows (`AcessVBAData`, `_VBA_PROJECT`, `dir`, `PROJECTwm`
+   and `PROJECT`) go, but their long values stay where they are until
+   the end. A temporary row takes
+   the next id and goes away again. The new rows follow in id order, an
+   inline value with its row, a long value held back.
+3. The new streams' bytes: the module and `__SRP` streams by id, then
+   `dir`, then `_VBA_PROJECT`. The old values still hold their pages, so
+   `dir` opens a fresh page where our earlier replays put it on the page
+   with room; that was the placement no allocator rule could explain.
+4. `__SRP_0` and `__SRP_1` are rewritten, then `PROJECT` is written.
+5. The replaced rows' long values are given back, in id order.
+6. A row named `PropDataCopy` under the module's new storage folder is
+   inserted and deleted; it was the last row on its page, so its bytes
+   stay below the live rows with a dead slot at the top.
+7. The catalog: the module's row and its owner, `MSysDb`'s property blob
+   rewritten nine times (each rewrite leaves a dead slot on the blob's
+   long-value page), the module's three permission rows, the navigation
+   pane categories re-saved and `MSysNavPaneObjectIDs` truncated and
+   refilled.
+
+Three engine facts came out of it and moved into the library: a large
+single-row long value goes to the highest-numbered page the column's
+free-space map lists, not to the page the last value went to (a DAO
+session confirmed it: with page B full, a 300-byte value went to A; a
+delete listed B again, and a 400-byte value that fitted both went to B);
+a deleted row's bytes stay on the page, the last row's below the live
+rows; and a DAO transaction frees a deleted long value at once -- the
+held values above are Access's own doing, not the engine's. The one
+thing the library does not do is what Access does here: write compiled
+`__SRP_` and `_VBA_PROJECT` streams, which are VBA's runtime caches and
+come out different on every save. `create_module` takes the recompile
+route instead.
+
+The blank template's pair is not reproduced yet. There Access also
+rewrites the 66 KB module blob, and the new chain takes the file's free
+pages before the old chain's pages, so the old rows' pages come back only
+when the free pages run out; the database property blob, alone on its
+page, moves to a fresh page on each rewrite and leaves the old one
+retired. Both follow from the held values above, but the point at which
+Access lets them go is not measured.
+
 ## How p-code reaches outside the module
 
 Four mechanisms, all visible in one module:

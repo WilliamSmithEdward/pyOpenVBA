@@ -379,18 +379,20 @@ the engine finds the same rows it does today.
   the final DateUpdate; the first version's bytes stay below the slot
   table when the row moves, which is how the order shows.
 * **Where a single-row long value lands**, measured with DAO on Memo
-  columns in one session and across sessions. The engine first tries the
-  LVAL page it last wrote a value to in this session; if the value does
-  not fit there it takes the first page in the column's free-space map
-  that has room; failing that it allocates a fresh page. (Page A held
-  1080 bytes free and the last write had gone to page B: a 900-byte value
-  went to B, and the next one, B full, to A.) A page is listed in the
-  free-space map while more than 256 bytes are free: left with 256 it is
-  unlisted, with 258 listed. An update stores the new value first and
-  frees the old one afterwards, so the new value never lands in the
-  hole it is about to open; a delete that leaves the page above the
-  threshold lists it again. `PageStore.lval_cursor` holds the per-column
-  cursor for the session.
+  columns in one session and across sessions. A value of 256 bytes or
+  fewer takes the first page the column's free-space map lists, which
+  always has room for it. A larger value takes the highest-numbered page
+  the map lists if that page has room, and otherwise a fresh page: the
+  engine looks at no other listed page. (Page A held 1080 bytes free and
+  the last write had gone to page B: a 900-byte value went to B, and the
+  next one, B full and so unlisted, to A. The map's order decides, not
+  the last write: with B full, a 300-byte value went to A; a delete on B
+  listed it again, and a 400-byte value that fitted both went to B.) A
+  page is listed in the free-space map while more than 256 bytes are
+  free: left with 256 it is unlisted, with 258 listed. An update stores
+  the new value first and frees the old one afterwards, so the new value
+  never lands in the hole it is about to open; a delete that leaves the
+  page above the threshold lists it again.
 * **Emptied pages are retired, truncation releases them untouched**,
   measured with DAO deletes on tables of 24 500-byte rows over four
   pages with three single-row Memo values. A filtered `DELETE` that

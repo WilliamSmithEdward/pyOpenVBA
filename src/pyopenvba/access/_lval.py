@@ -148,11 +148,6 @@ def write_long_value(store: PageStore, maps: tuple[int, int], data: bytes, stamp
         lval = DataPage(store.read(page))
         slot = lval.add_row(data)
         store.write(page, lval.to_bytes())
-        if len(data) > LVAL_SHARED_MAX:
-            # Only a large value moves the column's cursor: a small one
-            # takes the first listed page and leaves the run alone
-            # (measured on a compaction's 200 memos of wrapping sizes).
-            store.lval_cursor[free_ref] = page
         if lval.free_space < LVAL_PAGE_MIN_FREE and free_ref:
             remove_from_map(store, free_ref, page)
         return _definition(len(data), LongValueRef.KIND_SINGLE_PAGE, slot, page, 0)
@@ -177,27 +172,20 @@ def _single_row_page(store: PageStore, maps: tuple[int, int], length: int) -> in
 
     The free-space map lists a page while more than 256 bytes are free,
     so any listed page has room for a value of 256 bytes or fewer and the
-    engine takes the first of them.  A larger value needs the page
-    checked, and the engine checks one: the last page the map lists,
-    which is the one it grew the column with.  When that page cannot take
-    the value it starts another rather than looking further back
-    (measured: with the last page holding 1676 free, a 258-byte value
-    shared it, a 1706-byte value went to a new page, and the first page,
-    3827 bytes free, took neither).
-
-    For a larger value the page the last large value went to comes first,
-    which is what keeps a run of values together (measured: with page A
-    holding 1080 free and the last write on page B, a 900-byte value
-    went to B; the next one, B full, went to A).  A small value never
-    looks there: it takes the first listed page (measured on a
-    compaction, where an 80-byte memo went back to the first page while
-    the run continued on the third)."""
+    engine takes the first of them (measured on a compaction, where an
+    80-byte memo went back to the first page while the run continued on
+    the third).  A larger value needs the page checked, and the engine
+    checks one: the highest-numbered page the map lists, usually the one
+    it grew the column with.  When that page cannot take the value it
+    starts another rather than looking further back (measured: with the
+    last page holding 1676 free, a 258-byte value shared it, a 1706-byte
+    value went to a new page, and the first page, 3827 bytes free, took
+    neither).  It is the map's order that counts, not the last write: a
+    page that came back into the map above the one written last took the
+    next large value (measured: pages A and B, B full and unlisted, a
+    300-byte value went to A; a delete relisted B, and a 400-byte value
+    that fitted both went to B)."""
     owned_ref, free_ref = maps
-    cursor = store.lval_cursor.get(free_ref)
-    if length > LVAL_SHARED_MAX and cursor is not None and cursor < store.page_count:
-        raw = store.read(cursor)
-        if is_lval_page(raw) and DataPage(raw).fits(length):
-            return cursor
     # A column the engine gave no free-space map (Access's own MSysNameMap
     # and MSysAccessXML) has no listed pages to look through.
     listed = [
@@ -243,8 +231,6 @@ def free_long_value(store: PageStore, maps: tuple[int, int], ref: LongValueRef) 
             remove_from_map(store, owned_ref, ref.page)
             if free_ref:
                 remove_from_map(store, free_ref, ref.page)
-            if store.lval_cursor.get(free_ref) == ref.page:
-                del store.lval_cursor[free_ref]
             return
         store.write(ref.page, lval.to_bytes())
         return

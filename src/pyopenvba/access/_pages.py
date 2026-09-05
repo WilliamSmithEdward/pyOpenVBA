@@ -199,7 +199,6 @@ class _Journal:
     released: set[int]
     allocated: set[int]
     pending: list[int]
-    lval_cursor: dict[int, int]
     growth: FileGrowth | None
 
 
@@ -228,10 +227,6 @@ class PageStore:
         #: this session had allocated: they come back into use together once
         #: five are waiting (measured on CREATE INDEX runs).
         self.pending: list[int] = []
-        #: Per long-value column (keyed by its free-space map reference),
-        #: the LVAL page most recently written this session: the engine
-        #: tries it first for the next single-row value.
-        self.lval_cursor: dict[int, int] = {}
         #: Set while this store is the destination of a Compact and
         #: Repair: the file then grows and reuses pages as the engine's
         #: destination does (see :class:`FileGrowth`); otherwise a page a
@@ -259,7 +254,6 @@ class PageStore:
         self.released = {p for p in self.released if p < page_count}
         self.allocated = {p for p in self.allocated if p < page_count}
         self.pending = [p for p in self.pending if p < page_count]
-        self.lval_cursor = {k: v for k, v in self.lval_cursor.items() if v < page_count}
         return dropped
 
     def reopen(self) -> None:
@@ -273,7 +267,6 @@ class PageStore:
         self.released.clear()
         self.allocated.clear()
         self.pending.clear()
-        self.lval_cursor.clear()
 
     # -- undo ----------------------------------------------------------------
 
@@ -288,7 +281,6 @@ class PageStore:
                 set(self.released),
                 set(self.allocated),
                 list(self.pending),
-                dict(self.lval_cursor),
                 replace(self.growth) if self.growth is not None else None,
             )
         )
@@ -316,7 +308,6 @@ class PageStore:
         self.released = done.released
         self.allocated = done.allocated
         self.pending = done.pending
-        self.lval_cursor = done.lval_cursor
         self.growth = done.growth
 
     def _journal(self, page: int) -> None:
@@ -329,19 +320,18 @@ class PageStore:
                     else None
                 )
 
-    def snapshot(self) -> tuple[bytes, set[int], set[int], list[int], dict[int, int], FileGrowth | None]:
+    def snapshot(self) -> tuple[bytes, set[int], set[int], list[int], FileGrowth | None]:
         """Everything a rollback has to put back: the pages and the state
         the session keeps about them."""
         growth = replace(self.growth) if self.growth is not None else None
-        return (bytes(self._data), set(self.released), set(self.allocated), list(self.pending), dict(self.lval_cursor), growth)
+        return (bytes(self._data), set(self.released), set(self.allocated), list(self.pending), growth)
 
-    def restore(self, state: tuple[bytes, set[int], set[int], list[int], dict[int, int], FileGrowth | None]) -> None:
-        data, released, allocated, pending, cursor, growth = state
+    def restore(self, state: tuple[bytes, set[int], set[int], list[int], FileGrowth | None]) -> None:
+        data, released, allocated, pending, growth = state
         self._data = bytearray(data)
         self.released = released
         self.allocated = allocated
         self.pending = pending
-        self.lval_cursor = cursor
         self.growth = growth
 
     @property

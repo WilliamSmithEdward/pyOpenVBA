@@ -509,6 +509,15 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- **A large long value lands on the highest-numbered listed page.** The
+  engine takes the highest page the column's free-space map lists when
+  it has room, and otherwise a fresh page; it does not go back to the
+  page the last value went to. The two coincide until a delete lists an
+  older page again, which is what Access's own module save does, and the
+  library kept a per-column cursor for the wrong rule. Measured with DAO
+  and held by the long-value placement gate; the page store's
+  `lval_cursor` is gone.
+
 - A long value of 256 bytes or fewer now takes the first listed page of
   its column rather than the page the last value went to, which is where
   the engine puts it (measured on a compaction's 200 memos).

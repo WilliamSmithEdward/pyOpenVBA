@@ -616,10 +616,11 @@ def test_deletes_retire_and_truncate_releases_pages_as_the_engine_does(tmp_path:
 
 
 def test_long_value_placement_matches_the_engine_byte_for_byte(tmp_path: Path) -> None:
-    """Where single-row long values land: the page last written when it
-    has room, else the first listed page, else a fresh one; pages stay
-    listed while more than 256 bytes are free; an update stores the new
-    value before freeing the old; a delete re-lists its page; a freed
+    """Where single-row long values land: a small value on the first listed
+    page, a large one on the highest-numbered listed page when it has room
+    and else on a fresh one -- the map's order, not the last write; pages
+    stay listed while more than 256 bytes are free; an update stores the
+    new value before freeing the old; a delete re-lists its page; a freed
     chain's pages come back only when the chain predates the session.
     One DAO session per step, byte for byte but for the chains' per-session
     stamps."""
@@ -705,7 +706,23 @@ def test_long_value_placement_matches_the_engine_byte_for_byte(tmp_path: Path) -
     k2.delete_row(by_id(k2, 1))
     k2.insert_row({"M": ten_m})
     db = same_then_reopen("K2 older chain reused", db)
-    for name in ("L3", "F256", "F258", "L", "K1", "K2"):
+
+    # The highest-numbered listed page takes a large value, not the page
+    # written last: with B full and unlisted a 300-byte value goes to A; a
+    # delete lists B again, and a 400-byte value that fits both goes to B.
+    sizes = ((1, 550), (2, 550), (3, 550), (4, 650), (5, 650), (6, 650))
+    engine_runs("CREATE TABLE HB (Id AUTOINCREMENT CONSTRAINT PK PRIMARY KEY, M MEMO)", *(f"INSERT INTO HB (M) VALUES ('{chr(96 + i) * size}')" for i, size in sizes))
+    hb = db.create_table("HB", memo, key, **stamps("HB"))
+    for i, size in sizes:
+        hb.insert_row({"M": chr(96 + i) * size})
+    db = same_then_reopen("HB built", db)
+    engine_runs("INSERT INTO HB (M) VALUES ('" + "g" * 150 + "')", "DELETE FROM HB WHERE Id = 4", "INSERT INTO HB (M) VALUES ('" + "h" * 200 + "')")
+    hb = db.table("HB")
+    hb.insert_row({"M": "g" * 150})
+    hb.delete_row(by_id(hb, 4))
+    hb.insert_row({"M": "h" * 200})
+    db = same_then_reopen("HB highest listed page", db)
+    for name in ("L3", "F256", "F258", "L", "K1", "K2", "HB"):
         check_indexes(db.table(name))
 
 

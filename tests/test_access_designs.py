@@ -1,8 +1,10 @@
 """Forms and reports: the design blob, and what one costs the file.
 
-The fixtures are a form Access made with a label and a text box, and a
-report with its three sections.  The live gate opens what this writes in
-Access's own designer.
+The fixtures are a form Access made with a label and a text box, a
+report with its three sections, and a database in which Access built a
+form and a report holding one of every control and every section, plus
+copies of the form it then edited.  The live gate opens what this writes
+in Access's own designer.
 """
 
 from __future__ import annotations
@@ -27,11 +29,18 @@ from pyopenvba.access._designs import (
     PROPERTY_SLOTS,
     property_code,
     build_design,
+    pack_type_info,
     parse_design,
+    prototype_records,
     template,
+    type_info,
+    type_info_entries,
+    type_info_members,
     with_guid,
 )
 from pyopenvba.access._props import parse_property_blob
+
+PROPERTY_CODES_BY_NUMBER = {code: name for name, code in PROPERTY_CODES.items()}
 from pyopenvba.access._storage import dir_data_entries
 from pyopenvba.vba import decompress
 from pyopenvba.access_read import AccessError
@@ -40,6 +49,7 @@ FIXTURES = Path(__file__).parent / "live_access_test"
 FORM = FIXTURES / "form_with_controls.accdb"
 REPORT = FIXTURES / "report.accdb"
 WITH_CODE = FIXTURES / "form_with_code.accdb"
+EVERY = FIXTURES / "designs_every.accdb"
 DIR_DATA = chr(3) + "DirData"
 NEWLINE = chr(10)
 TEMPLATE = (
@@ -71,6 +81,11 @@ def report_database(tmp_path: Path) -> AccessDatabase:
 @pytest.fixture
 def blank(tmp_path: Path) -> AccessDatabase:
     return opened(TEMPLATE, tmp_path, "blank.accdb")
+
+
+@pytest.fixture
+def every_database(tmp_path: Path) -> AccessDatabase:
+    return opened(EVERY, tmp_path, "every.accdb")
 
 
 def design_blobs(db: AccessDatabase, kind: str) -> list[bytes]:
@@ -691,9 +706,10 @@ def test_a_page_belongs_to_a_tab_control(blank: AccessDatabase) -> None:
     blank.add_control("Tabbed", "Page", "Second", parent="Tabs", caption="Two")
     design = blank.add_control("Tabbed", "CommandButton", "Go", top=3000)
 
-    placed = [(o.name, o.marker, o.code) for o in design.objects if o.marker is not None]
+    placed = [(o.name, o.marker, o.code) for o in design.objects if o.marker is not None and o.name]
     assert placed == [
-        ("Detail", OPEN_SECTION, CONTROL_CODES["Detail"]),
+        # A sibling of the three control-defaults objects ahead of it.
+        ("Detail", OPEN_SIBLING, CONTROL_CODES["Detail"]),
         # Three controls on the section: the pages are not among them.
         ("Box", OPEN_CONTROL, 3),
         ("Tabs", OPEN_SIBLING, CONTROL_CODES["Tab"]),
@@ -740,7 +756,7 @@ def test_a_control_added_after_a_tab_does_not_join_its_pages(
     blank.add_control("Tabbed", "Page", "Only", parent="Tabs")
     design = blank.add_control("Tabbed", "Label", "After", top=3000)
 
-    names = [o.name for o in design.objects if o.marker is not None]
+    names = [o.name for o in design.objects if o.marker is not None and o.name]
     assert names == ["Detail", "Tabs", "Only", "After"]
     by_name = {o.name: o for o in design.objects}
     assert by_name["Tabs"].code == 2, "the section holds the tab and the label"
@@ -873,3 +889,328 @@ def test_the_slots_a_new_control_gets_agree_with_the_schema() -> None:
             assert schema[0] == ident, f"{kind}.{name}: id {schema[0]} against {ident}"
             assert schema[1] == code
             assert schema[2] == value_type
+
+
+# --- the TypeInfo stream and the row source kind ------------------------------
+
+
+def type_info_stream(db: AccessDatabase, kind: str, name: str) -> bytes:
+    """The TypeInfo stream beside the design called `name`."""
+    container = db._design_container(kind)  # pyright: ignore[reportPrivateUsage]
+    rows = [row for _rid, row in db.table("MSysAccessStorage").rows_with_ids()]
+    listing = next(
+        row["Lv"] for row in rows if row["ParentId"] == container and str(row["Name"]) == DIR_DATA
+    )
+    assert isinstance(listing, bytes)
+    folder = dict(dir_data_entries(listing))[name]
+    folder_id = next(
+        int(str(row["Id"]))
+        for row in rows
+        if row["ParentId"] == container and row["Type"] == 1 and str(row["Name"]) == folder
+    )
+    stream = next(
+        row["Lv"] for row in rows if row["ParentId"] == folder_id and str(row["Name"]) == "TypeInfo"
+    )
+    assert isinstance(stream, bytes)
+    return stream
+
+
+def listed(db: AccessDatabase, kind: str, name: str) -> list[tuple[str, int]]:
+    return [(e.name, e.ordinal) for e in type_info_entries(type_info_stream(db, kind, name))]
+
+
+#: The designs Access built into the fixture: a form and a report with one
+#: of every control, a form and a report with every section, a report with
+#: two group levels, a form of controls held by other controls, and three
+#: copies of the first form that Access then edited.
+EVERY_DESIGNS = (
+    ("form", "Every"),
+    ("form", "Hdr"),
+    ("form", "Nest"),
+    ("form", "EveryDel"),
+    ("form", "EveryRen"),
+    ("form", "EveryAdd"),
+    ("report", "EveryR"),
+    ("report", "RHdr"),
+    ("report", "TwoGroups"),
+)
+
+
+def test_type_info_lists_what_access_lists_with_the_ids_access_gives(
+    form_database: AccessDatabase, report_database: AccessDatabase, every_database: AccessDatabase
+) -> None:
+    """For every design Access wrote: carrying its stream through the design
+    changes nothing, and each member's id comes out as Access wrote it --
+    sections per kind, controls per kind, a label attached to a control or
+    a button inside an option group by its own class, an ActiveX control
+    with its 36-byte tail."""
+    designs = [
+        (form_database, "form", form_database.forms()[0].name),
+        (report_database, "report", report_database.reports()[0].name),
+        *((every_database, kind, name) for kind, name in EVERY_DESIGNS),
+    ]
+    checked = 0
+    for db, kind, name in designs:
+        design = db.form(name) if kind == "form" else db.report(name)
+        engine = type_info_stream(db, kind, name)
+        assert type_info(kind, design.objects, engine) == engine, name
+        members = {member.name: member for member in type_info_members(kind, design.objects)}
+        entries = type_info_entries(engine)
+        assert {entry.name for entry in entries} == set(members), name
+        for entry in entries:
+            member = members[entry.name]
+            assert (entry.ident, entry.tail) == (member.ident, member.tail), (name, entry)
+            checked += 1
+    assert checked > 150
+
+
+def test_type_info_is_carried_forward_the_way_access_carries_it(
+    every_database: AccessDatabase,
+) -> None:
+    """Three copies of one form, each edited in Access: controls deleted,
+    controls renamed, controls added.  From the stream the copies started
+    with, the same edits here give the streams Access wrote: a removed
+    member drops out and the rest keep their ordinals, a renamed one moves
+    to the end with its ordinal, a new one takes the ordinal after the
+    highest present."""
+    db = every_database
+    after_add = type_info_entries(type_info_stream(db, "form", "EveryAdd"))
+    before = pack_type_info(
+        "form", bytes(16), [e for e in after_add if e.name not in ("New1", "New2")]
+    )
+
+    deleted = type_info(
+        "form", db.form("EveryDel").objects, before
+    )
+    assert type_info_entries(deleted) == type_info_entries(type_info_stream(db, "form", "EveryDel"))
+    assert [e.name for e in type_info_entries(deleted)][:6] == ["Lbl", "Rect", "Ln", "Img", "Chk", "Grp"]
+    assert [e.ordinal for e in type_info_entries(deleted)][:6] == [0, 1, 2, 3, 6, 7]
+
+    renamed = type_info(
+        "form", db.form("EveryRen").objects, before, renamed={"Rect": "Rect2", "Txt": "Txt2"}
+    )
+    assert type_info_entries(renamed) == type_info_entries(type_info_stream(db, "form", "EveryRen"))
+    assert [(e.name, e.ordinal) for e in type_info_entries(renamed)][-2:] == [("Rect2", 1), ("Txt2", 12)]
+
+    added = type_info("form", db.form("EveryAdd").objects, before)
+    assert type_info_entries(added) == after_add
+    assert [(e.name, e.ordinal) for e in after_add][-2:] == [("New1", 34), ("New2", 35)]
+
+
+def test_type_info_follows_the_controls_added_removed_and_renamed(blank: AccessDatabase) -> None:
+    form = blank.add_form("Members")
+    form.add_control("TextBox", "Qty", top=240)
+    form.add_control("CommandButton", "Go", top=700)
+    entries = type_info_entries(type_info_stream(blank, "form", "Members"))
+    assert [(e.name, e.ordinal, e.ident) for e in entries] == [
+        ("Detail", 0, 0x1898),
+        ("Qty", 1, 0x126D),
+        ("Go", 2, 0x0B68),
+    ]
+
+    form.remove_control("Qty")
+    assert listed(blank, "form", "Members") == [("Detail", 0), ("Go", 2)]
+
+    form.add_control("ListBox", "Lines", top=1200)
+    assert listed(blank, "form", "Members") == [("Detail", 0), ("Go", 2), ("Lines", 3)]
+
+    form.control("Go").set_property("Name", "Run")
+    assert listed(blank, "form", "Members") == [("Detail", 0), ("Lines", 3), ("Run", 2)]
+    assert [c.name for c in form.controls] == ["Run", "Lines"]
+
+
+def test_type_info_on_a_report_uses_the_report_ids(blank: AccessDatabase) -> None:
+    report = blank.add_report("Sheet")
+    report.add_control("TextBox", "Amount", top=240)
+    report.add_control("Label", "Banner", section="PageHeaderSection", caption="Banner")
+    entries = type_info_entries(type_info_stream(blank, "report", "Sheet"))
+    assert [(e.name, e.ordinal, e.ident) for e in entries] == [
+        ("Detail", 0, 0x1998),
+        ("PageHeaderSection", 1, 0x1F9B),
+        ("PageFooterSection", 2, 0x1F9C),
+        ("Amount", 3, 0x1B6D),
+        ("Banner", 4, 0x1B64),
+    ]
+
+
+def test_every_section_type_reads_as_a_section(every_database: AccessDatabase) -> None:
+    form = every_database.form("Hdr")
+    assert [s.name for s in form.sections] == [
+        "FormHeader",
+        "PageHeaderSection",
+        "Detail",
+        "PageFooterSection",
+        "FormFooter",
+    ]
+    assert [s.kind for s in form.sections] == [
+        "HeaderSection",
+        "PageHeaderSection",
+        "Detail",
+        "PageFooterSection",
+        "FooterSection",
+    ]
+    assert [c.name for c in form.controls] == [
+        "InHeader",
+        "InPageHeader",
+        "InDetail",
+        "InPageFooter",
+        "InFooter",
+    ]
+    report = every_database.report("RHdr")
+    assert [s.name for s in report.sections] == [
+        "ReportHeader",
+        "PageHeaderSection",
+        "GroupHeader0",
+        "Detail",
+        "GroupFooter1",
+        "PageFooterSection",
+        "ReportFooter",
+    ]
+    assert len(report.controls) == 7
+    two = every_database.report("TwoGroups")
+    assert [s.kind for s in two.sections].count("GroupHeaderSection") == 2
+
+
+def test_a_type_without_a_measured_id_is_refused(every_database: AccessDatabase) -> None:
+    """The navigation control and its button have ids on a form and are not
+    allowed on a report, where nothing was measured for them."""
+    form = every_database.form("Every")
+    assert type_info_members("form", form.objects)
+    with pytest.raises(AccessError, match="no TypeInfo id has been measured"):
+        type_info_members("report", form.objects)
+
+
+# --- control defaults ---------------------------------------------------------
+
+
+def top_level(blob: bytes) -> list[tuple[int | None, int | None, int | None, str | None]]:
+    """(marker, type, code, name) of the objects directly under the design:
+    the control-defaults objects, then the sections."""
+    _header, objects, _trailer = parse_design(blob)
+    return [(o.marker, o.type, o.code, o.name) for o in objects[1:] if not o.name or o.is_section]
+
+
+def test_the_first_control_of_a_type_brings_its_defaults_object(blank: AccessDatabase) -> None:
+    """Access keeps one nameless object per control type ahead of the
+    sections, in type order, and marks that run as one group; a bare
+    template has none and its Detail stands alone."""
+    assert top_level(template("form", "blob")) == [(OPEN_SECTION, 152, 152, "Detail")]
+
+    form = blank.add_form("Defaults")
+    form.add_control("TextBox", "B", top=240)
+    blob = design_blobs(blank, "form")[0]
+    assert top_level(blob) == [(OPEN_CONTROL, 109, 2, None), (OPEN_SIBLING, 152, 152, "Detail")]
+
+    form.add_control("Label", "A", top=700, caption="A")
+    form.add_control("TextBox", "C", top=1100)
+    form.add_control("Tab", "T", top=1500, width=3000, height=1200)
+    form.add_control("Page", "P", parent="T")
+    blob = design_blobs(blank, "form")[0]
+    assert top_level(blob) == [
+        (OPEN_CONTROL, 100, 5, None),
+        (OPEN_SIBLING, 109, 109, None),
+        (OPEN_SIBLING, 123, 123, None),
+        (OPEN_SIBLING, 124, 124, None),
+        (OPEN_SIBLING, 152, 152, "Detail"),
+    ]
+    _header, objects, _trailer = parse_design(blob)
+    defaults = [o for o in objects[1:] if not o.name and not o.is_section]
+    assert [len(o.records) for o in defaults] == [len(prototype_records("form", o.type or 0)) for o in defaults]
+    assert all(o.records == prototype_records("form", o.type or 0) for o in defaults)
+
+    form.remove_control("C")
+    form.remove_control("B")
+    assert [t for _m, t, _c, _n in top_level(design_blobs(blank, "form")[0])] == [100, 109, 123, 124, 152]
+
+
+def test_a_report_has_its_own_defaults_and_marks_its_sections_with_them(blank: AccessDatabase) -> None:
+    report = blank.add_report("Sheet")
+    report.add_control("TextBox", "Amount", top=240)
+    report.add_control("Label", "Banner", section="PageHeaderSection", caption="B")
+    blob = design_blobs(blank, "report")[0]
+    assert top_level(blob) == [
+        (OPEN_CONTROL, 100, 5, None),
+        (OPEN_SIBLING, 109, 109, None),
+        (OPEN_SIBLING, 155, 155, "PageHeaderSection"),
+        (OPEN_SIBLING, 152, 152, "Detail"),
+        (OPEN_SIBLING, 156, 156, "PageFooterSection"),
+    ]
+    assert prototype_records("report", 109) != prototype_records("form", 109)
+    assert prototype_records("report", 100) == prototype_records("form", 100)
+
+
+def test_the_defaults_are_the_ones_access_wrote(every_database: AccessDatabase) -> None:
+    """Every form Access built carries the objects the template holds, for
+    exactly the types it uses."""
+    checked = 0
+    for blob in design_blobs(every_database, "form"):
+        _header, objects, _trailer = parse_design(blob)
+        defaults = {o.type: o.records for o in objects[1:] if not o.name and not o.is_section}
+        used = {o.type for o in objects[1:] if o.name and not o.is_section}
+        # a page break is the one control type without a defaults object
+        assert set(defaults) >= used - {118}
+        assert all(records == prototype_records("form", t or 0) for t, records in defaults.items())
+        checked += len(defaults)
+    assert checked > 100
+
+
+def test_a_type_without_captured_defaults_is_refused() -> None:
+    with pytest.raises(AccessError, match="no control defaults were captured"):
+        prototype_records("report", 128)
+
+
+def test_a_colour_or_font_brings_the_records_access_writes_beside_it(blank: AccessDatabase) -> None:
+    """Set in Access, a colour comes with its theme index at -1, a font
+    with the theme font index at -1 and its family byte, and a command
+    button's fill with the gradient off; a type without the companion's
+    slot takes the property alone.  Measured one property at a time."""
+    form = blank.add_form("Styled")
+    form.add_control("Label", "Title", top=240, caption="x")
+    form.add_control("CommandButton", "Go", top=700, width=1800, height=480, caption="Go")
+    form.add_control("Line", "Rule", top=1300, width=3000, height=0)
+
+    title = form.control("Title")
+    title.set_property("FontName", "Consolas")
+    title.set_property("ForeColor", 255)
+    title.set_property("BackColor", 65535)
+    named = {PROPERTY_CODES_BY_NUMBER.get(r.code, r.code): r.value for r in form.control("Title").object.records}
+    assert named["ThemeFontIndex"] == bytes([255, 255, 255, 255])
+    assert named["TextFontFamily"] == bytes([0x31])
+    assert named["ForeThemeColorIndex"] == bytes([255, 255, 255, 255])
+    assert named["BackThemeColorIndex"] == bytes([255, 255, 255, 255])
+    assert "Gradient" not in named
+
+    button = form.control("Go")
+    button.set_property("UseTheme", False)
+    for colour, value in (("Back", 0x79_4E_1F), ("Fore", 0xFFFFFF), ("Hover", 0xB6_75_2E), ("Pressed", 0x54_36_15), ("HoverFore", 0xFFFFFF), ("PressedFore", 0xFFFFFF), ("Border", 0x79_4E_1F)):
+        button.set_property(f"{colour}Color", value)
+    ids = {r.id: r for r in form.control("Go").object.records}
+    assert {304, 314, 318, 319, 320, 326, 327, 331, 332, 335, 336, 339, 340, 343, 344} <= set(ids)
+    assert ids[314].value == bytes([0]) and ids[318].value == bytes(4)
+    assert ids[319].value == bytes([0x1F, 0x4E, 0x79, 0]) and ids[320].value == bytes([255, 255, 255, 255])
+    assert ids[332].value == bytes([255, 255, 255, 255]) and ids[344].value == bytes([255, 255, 255, 255])
+
+    rule = form.control("Rule")
+    rule.set_property("BorderColor", 255)
+    codes = {PROPERTY_CODES_BY_NUMBER.get(r.code, r.code) for r in form.control("Rule").object.records}
+    assert "BorderThemeColorIndex" in codes and "BackThemeColorIndex" not in codes
+
+
+def test_the_row_source_type_writes_its_companion_kind(blank: AccessDatabase) -> None:
+    """The text is what the property sheet shows; Access acts on a one-byte
+    record beside it: 1 for a value list, 10 for a field list, none for a
+    table or query."""
+    form = blank.add_form("Lists")
+    box = form.add_control("ListBox", "Lines", top=240, height=900)
+
+    def kind_record() -> bytes | None:
+        return form.control("Lines").property_value(92)
+
+    assert kind_record() is None
+    box.set_property("RowSourceType", "Value List")
+    assert kind_record() == b"\x01" and form.control("Lines").get("RowSourceType") == "Value List"
+    box.set_property("RowSourceType", "Field List")
+    assert kind_record() == b"\x0a"
+    box.set_property("RowSourceType", "Table/Query")
+    assert kind_record() is None
+

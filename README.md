@@ -338,9 +338,16 @@ with AccessDatabase("app.accdb") as db:
     db.save()
 ```
 
-Twenty-three control types can be written, including a tab control and
-its pages (`form.add_control("Page", "First", parent="Tabs")`); a
-navigation control is read but not written. Each control gets only the
+[examples/access_form_demo.py](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/examples/access_form_demo.py)
+builds a working order calculator this way: a form whose buttons call a
+standard module and keep their running total in a class module, laid out
+and coloured through `set_property` (fonts, fills, borders, hover
+colours, a currency format) and opened with the database through
+`db.set_database_properties({"StartUpForm": "Calculator"})`, with the
+database it produces beside it. Twenty-three control types can be
+written, including a tab control and its pages
+(`form.add_control("Page", "First", parent="Tabs")`); a navigation
+control is read but not written. Each control gets only the
 properties Access's own designs give its type, and `set_property` refuses
 a name the type does not have. A live gate opens every written design in
 Access's designer and reads back each control, measurement, caption and

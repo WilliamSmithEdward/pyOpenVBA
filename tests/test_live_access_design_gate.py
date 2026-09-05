@@ -93,6 +93,19 @@ Public Function DescribeKinds(ByVal name As String) As Variant
     DescribeKinds = s
 End Function
 
+Public Function DriveCalculator() As Variant
+    Dim total As Currency
+    DoCmd.OpenForm "Calculator"
+    With Forms("Calculator")
+        .Qty = 6
+        .Price = 10
+        .Express = True
+        total = .AddCurrent()
+        DriveCalculator = total & "|" & .TotalLabel.Caption & "|" & .Lines.ListCount & "|" & Pricing.DiscountRate(12)
+    End With
+    DoCmd.Close acForm, "Calculator", acSaveNo
+End Function
+
 Public Function DescribeTree(ByVal name As String) As Variant
     Dim c As Object, s As String, holder As String
     DoCmd.OpenForm name, acDesign
@@ -633,4 +646,44 @@ def test_access_sees_a_page_gone_from_its_tab_control(blank: Path, tmp_path: Pat
 
     reported = [c for c in str(ask(out, "DescribeTree", "Fewer2")).split(";") if c]
     assert reported == ["Tabs=TabControl/Fewer2", "First=Page/Tabs", "Third=Page/Tabs"]
+
+
+def test_the_demo_form_drives_its_modules_in_access(blank: Path, tmp_path: Path) -> None:
+    """examples/access_form_demo.py: a form whose code calls a standard
+    module and keeps state in a class module.  Access opens the form, the
+    driver sets six units at 10 with express delivery, and the total is
+    6 * 10 less the 5% discount plus 4.50, with one line listed."""
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location("access_form_demo", Path(__file__).parents[1] / "examples" / "access_form_demo.py")
+    assert spec is not None and spec.loader is not None
+    demo = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(demo)
+    out = tmp_path / "demo.accdb"
+    getattr(demo, "build")(out)
+
+    total, caption, listed, discount = str(ask(out, "DriveCalculator")).split("|")
+    assert float(total) == 61.5
+    assert caption.startswith("Total: ") and "1 lines" in caption
+    assert listed == "1"
+    assert float(discount) == 0.1
+
+
+def test_access_takes_an_edit_to_a_form_it_built_itself(tmp_path: Path) -> None:
+    """The form Access built with one of every control, a label attached to
+    a text box and buttons inside an option group: remove a button, add a
+    text box, and Access opens it and lists what is there."""
+    out = tmp_path / "every_edited.accdb"
+    shutil.copyfile(Path(__file__).parent / "live_access_test" / "designs_every.accdb", out)
+    db = AccessDatabase(out)
+    form = db.form("Every")
+    form.remove_control("Cmd")
+    form.add_control("TextBox", "Extra", top=12000)
+    db.save()
+
+    reported = [c for c in str(ask(out, "DescribeKinds", "Every")).split(";") if c]
+    names = [part.split(":")[0] for part in reported]
+    assert "Cmd" not in names
+    assert "Extra" in names and "GrpOptA" in names and "TxtLabel" in names
+    assert len(names) == 33
 

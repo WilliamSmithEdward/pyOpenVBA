@@ -62,6 +62,7 @@ from pyopenvba.access._designs import (
     CATALOG_CONTAINERS,
     add_control,
     remove_control,
+    type_info,
     CONTAINERS,
     NAV_TYPES,
     OBJECT_TYPES,
@@ -2771,6 +2772,7 @@ class AccessDatabase:
                     width=width,
                     height=height,
                     caption=caption,
+                    kind=kind,
                 ),
             ),
         )
@@ -2819,7 +2821,35 @@ class AccessDatabase:
                 break
         else:  # pragma: no cover - a design without its own blob
             raise AccessError(f"the {kind} {design!r} has no design blob")
-        return self._design(kind, design)
+        # The TypeInfo stream lists the design's sections and controls as
+        # the members of the form's class, and follows every change to them
+        # (measured on forms Access built: Me.<control> compiles and the
+        # control's events bind only for a name it lists).  A change that
+        # keeps every object where it was and alters a name is a rename,
+        # which Access carries differently from a removal and an addition.
+        rewritten = self._design(kind, design)
+        renamed: dict[str, str] = {}
+        if len(found.objects) == len(rewritten.objects) and all(
+            (old.marker, old.type) == (new.marker, new.type)
+            for old, new in zip(found.objects, rewritten.objects)
+        ):
+            renamed = {
+                old.name: new.name
+                for old, new in zip(found.objects, rewritten.objects)
+                if old.name and new.name and old.name != new.name
+            }
+        for rid, row in list(storage.rows_with_ids()):
+            payload = row.get("Lv")
+            if (
+                _as_int(row["ParentId"]) == folder_id
+                and str(row["Name"]) == "TypeInfo"
+                and isinstance(payload, bytes)
+            ):
+                fresh = type_info(kind, rewritten.objects, payload, renamed=renamed)
+                if fresh != payload:
+                    storage.update_row(rid, {"Lv": fresh})
+                break
+        return rewritten
 
     def set_control_property(
         self,
@@ -3015,6 +3045,38 @@ class AccessDatabase:
                 lv = row.get("LvProp")
                 return parse_property_blob(lv).decoded() if isinstance(lv, bytes) and lv else {}
         return {}
+
+    def set_database_properties(self, values: Mapping[str, object]) -> None:
+        """Add or replace the database's own settings -- ``StartUpForm``,
+        ``AppTitle``, ``StartUpShowDBWindow`` and the rest of what the
+        Access options dialog keeps -- the way DAO's ``Properties.Append``
+        on the database does: a new property's name joins the end of the
+        blob's name list and its record the end of the object block (an
+        existing one keeps its type, flags and place), and the MSysDb row's
+        stamps are left alone.  A value may be a
+        :class:`~pyopenvba.access._props.PropertyValue` to fix the DAO type
+        and flags; otherwise the type follows the Python value.  Measured
+        against DAO appending ``StartUpForm`` to a database written here:
+        the blob comes out byte for byte the same."""
+        objects = self.table("MSysObjects")
+        for rid, row in objects.rows_with_ids():
+            if row["Name"] != "MSysDb":
+                continue
+            lv = row.get("LvProp")
+            blob = parse_property_blob(lv) if isinstance(lv, bytes) and lv else PropertyBlob()
+            if (BLOCK_OBJECT, "") not in blob.block_order:
+                blob.block_order.append((BLOCK_OBJECT, ""))
+            records = blob.object_properties
+            for prop, value in values.items():
+                if isinstance(value, PropertyValue):
+                    records[prop] = value
+                    continue
+                existing = records.get(prop)
+                dao_type, flags = (existing.type, existing.flags) if existing is not None else (dao_type_for(value), 0)
+                records[prop] = PropertyValue(dao_type, flags, encode_property_value(dao_type, value))
+            objects.update_row(rid, {"LvProp": serialize_property_blob(blob)})
+            return
+        raise AccessError("this database has no MSysDb row to hold its properties")
 
     def queries(self) -> list[SavedQuery]:
         """Every saved query: its catalog name and MSysQueries rows."""

@@ -108,3 +108,23 @@ def test_an_empty_blob_serializes_to_just_the_names_block() -> None:
     assert serialize_property_blob(PropertyBlob()) == b"MR2\0" + (6).to_bytes(4, "little") + b"\x80\x00"
     with pytest.raises(AccessError):
         parse_property_blob(b"KKD\0")
+
+
+def test_a_database_property_appends_as_dao_appends_it(tmp_path: Path) -> None:
+    """DAO's Properties.Append on a database written here put StartUpForm
+    at the end of the name list and the object block and left the MSysDb
+    row's stamps alone; the same property set here gives the same blob."""
+    from pyopenvba.access import AccessDatabase
+
+    db = AccessDatabase.create_new(tmp_path / "startup.accdb")
+    before = next(row for row in db.table("MSysObjects").rows() if row["Name"] == "MSysDb")
+    db.set_database_properties({"StartUpForm": "Calculator"})
+    after = next(row for row in db.table("MSysObjects").rows() if row["Name"] == "MSysDb")
+    assert after["LvProp"] == (Path(__file__).parent / "fixtures" / "msysdb_startupform.bin").read_bytes()
+    assert after["DateUpdate"] == before["DateUpdate"]
+    assert db.database_properties()["StartUpForm"] == "Calculator"
+
+    db.set_database_properties({"StartUpForm": "Other", "AppTitle": "Orders"})
+    assert db.database_properties()["StartUpForm"] == "Other"
+    assert db.database_properties()["AppTitle"] == "Orders"
+

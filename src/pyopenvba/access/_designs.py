@@ -32,8 +32,10 @@ answer it: a record's `code` is the property and a handful are named in
 from __future__ import annotations
 
 import struct
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import NamedTuple
 
 from pyopenvba.access_read import AccessError
 
@@ -79,15 +81,25 @@ CONTROL_TYPES = {
     123: "Tab",
     124: "Page",
     126: "Attachment",
+    127: "EmptyCell",
     128: "WebBrowser",
     129: "NavigationControl",
     130: "NavigationButton",
     133: "Chart",
     134: "EdgeBrowser",
     152: "Detail",
+    153: "HeaderSection",
+    154: "FooterSection",
     155: "PageHeaderSection",
     156: "PageFooterSection",
+    157: "GroupHeaderSection",
+    158: "GroupFooterSection",
 }
+#: The types above that are sections: a form's header and footer, a
+#: report's header, footer and group levels, and the page sections and
+#: detail both have.  A section is named by its own record (FormHeader
+#: on a form, ReportHeader on a report, GroupHeader0 and up).
+SECTION_TYPES = frozenset(range(152, 159))
 #: Codes whose value is the object's name.
 NAME_CODES = (20, 21)
 
@@ -149,7 +161,7 @@ class DesignObject:
 
     @property
     def is_section(self) -> bool:
-        return self.type_name in ("Detail", "PageHeaderSection", "PageFooterSection")
+        return self.type in SECTION_TYPES
 
     def property_value(self, code: int) -> bytes | None:
         for record in self.records:
@@ -1206,8 +1218,14 @@ PROPERTY_SLOTS: dict[str, dict[str, tuple[int, int, int, int, int]]] = {
         "BorderTint": (328, 621, 6, 0, 4),
         "ThemeFontIndex": (330, 616, 4, 0, 4),
         "HoverColor": (331, 653, 4, 4, 4),
+        "HoverThemeColorIndex": (332, 654, 4, 0, 4),
         "HoverShade": (334, 656, 6, 0, 4),
         "PressedColor": (335, 657, 4, 4, 4),
+        "PressedThemeColorIndex": (336, 658, 4, 0, 4),
+        "HoverForeColor": (339, 661, 4, 4, 4),
+        "HoverForeThemeColorIndex": (340, 662, 4, 0, 4),
+        "PressedForeColor": (343, 665, 4, 4, 4),
+        "PressedForeThemeColorIndex": (344, 666, 4, 0, 4),
         "HoverForeShade": (342, 664, 6, 0, 4),
         "PressedForeShade": (346, 668, 6, 0, 4),
         "SoftEdges": (349, 670, 4, 0, 4),
@@ -2145,6 +2163,55 @@ def control_object(
     return DesignObject(None, TYPE_CODES[control_type], None, records)
 
 
+#: Ahead of its sections a design carries one nameless object per control
+#: type it holds: the type's defaults on this design (the property sheet's
+#: "Set Control Defaults"), written when the first control of the type is
+#: added and never taken away.  Access reads a control's themed properties
+#: against them; without the object it ignores a button's UseTheme, colour
+#: indexes and gradient and drops them on its next save (measured).  They
+#: are constant for a type across every design Access built from the blank
+#: template, and differ between a form and a report, so each kind's set is
+#: captured from the every-control fixture.
+_PROTOTYPES: dict[str, dict[int, tuple[DesignRecord, ...]]] = {}
+#: A page break has no defaults object: the every-control form and report
+#: each hold one and carry none for it.
+DEFAULTS_FREE = frozenset({118})
+
+
+def prototype_records(kind: str, type_code: int) -> tuple[DesignRecord, ...]:
+    """The records of the control-defaults object for `type_code` on a
+    design of `kind`; refused for a type the fixture did not hold."""
+    if kind not in _PROTOTYPES:
+        _header, objects, _trailer = parse_design(template(kind, "prototypes"))
+        _PROTOTYPES[kind] = {o.type: o.records for o in objects[1:] if o.type is not None}
+    try:
+        return _PROTOTYPES[kind][type_code]
+    except KeyError:
+        name = CONTROL_TYPES.get(type_code, type_code)
+        raise AccessError(f"no control defaults were captured for a {name} on a {kind}") from None
+
+
+def with_prototype(
+    objects: tuple[DesignObject, ...], kind: str, type_code: int
+) -> tuple[DesignObject, ...]:
+    """The design with the control-defaults object for `type_code` in
+    place: inserted in type order among the ones there, the run of
+    top-level objects (defaults, then sections) re-marked as one group."""
+    first_section = next((i for i, o in enumerate(objects) if o.is_section), len(objects))
+    ahead = list(objects[1:first_section])
+    if type_code in DEFAULTS_FREE or any(o.type == type_code for o in ahead):
+        return objects
+    fresh = DesignObject(None, type_code, None, prototype_records(kind, type_code))
+    at = next((i for i, o in enumerate(ahead) if (o.type or 0) > type_code), len(ahead))
+    ahead.insert(at, fresh)
+    sections = [(i, o) for i, o in enumerate(objects) if o.is_section]
+    top = _placed((*ahead, *(o for _i, o in sections)))
+    rest = list(objects[first_section:])
+    for position, (index, _o) in enumerate(sections):
+        rest[index - first_section] = top[len(ahead) + position]
+    return (objects[0], *top[: len(ahead)], *rest)
+
+
 def _placed(controls: tuple[DesignObject, ...]) -> tuple[DesignObject, ...]:
     """The markers a section's controls carry, which depend on **how many
     there are**.
@@ -2203,6 +2270,65 @@ def encode_property(slot: tuple[int, int, int, int, int], value: object) -> byte
         raise AccessError(f"{number} does not fit the property's {width} bytes") from exc
 
 
+#: Setting one of these in Access writes a second record beside it: the
+#: theme index at -1, so the colour or font written is the one used rather
+#: than the theme's.  Measured one property at a time on a label, text
+#: box, list box, combo box, check box, rectangle, line, toggle button and
+#: command button; a control type without the companion's slot (a check box
+#: has no fill) takes only the property itself.
+COMPANIONS: dict[str, tuple[tuple[str, object], ...]] = {
+    "FontName": (("ThemeFontIndex", -1),),
+    "ForeColor": (("ForeThemeColorIndex", -1),),
+    "BackColor": (("BackThemeColorIndex", -1),),
+    "BorderColor": (("BorderThemeColorIndex", -1),),
+    "GridlineColor": (("GridlineThemeColorIndex", -1),),
+    "HoverColor": (("HoverThemeColorIndex", -1),),
+    "PressedColor": (("PressedThemeColorIndex", -1),),
+    "HoverForeColor": (("HoverForeThemeColorIndex", -1),),
+    "PressedForeColor": (("PressedForeThemeColorIndex", -1),),
+}
+#: A command button's fill also turns its gradient off (measured; a toggle
+#: button's does not).
+BUTTON_FILL_COMPANIONS: tuple[tuple[str, object], ...] = (("Gradient", 0),)
+#: With a font's name Access writes the font's pitch-and-family byte, read
+#: from the installed font; these are the values it wrote for the fonts
+#: below (measured on 24 fonts), and a font not listed gets its name alone.
+FONT_FAMILIES: dict[str, int] = {
+    "Book Antiqua": 18,
+    "Cambria": 18,
+    "Comic Sans MS": 66,
+    "Consolas": 49,
+    "Courier New": 49,
+    "Garamond": 18,
+    "Georgia": 18,
+    "Lucida Console": 49,
+    "Palatino Linotype": 18,
+    "Symbol": 18,
+    "Times New Roman": 18,
+    "Wingdings": 2,
+}
+#: For these Access wrote no family byte at all (theirs is the default a
+#: variable-pitch sans face takes): Segoe UI, Segoe UI Semibold, Calibri,
+#: Arial, Tahoma, Verdana, Trebuchet MS, Century Gothic, Candara, Corbel,
+#: Franklin Gothic Medium and Impact.
+
+
+def _companions(kind: str | None, name: str, value: object) -> tuple[tuple[str, object], ...]:
+    out = list(COMPANIONS.get(name, ()))
+    if name == "BackColor" and kind == "CommandButton":
+        out.extend(BUTTON_FILL_COMPANIONS)
+    if name == "FontName" and isinstance(value, str) and value in FONT_FAMILIES:
+        out.append(("TextFontFamily", FONT_FAMILIES[value]))
+    return tuple(out)
+
+
+#: Beside the ``RowSourceType`` text, a list or combo box carries the kind
+#: as a byte at this slot when it is not the default table or query.
+ROW_SOURCE_KIND_CODE = 92
+ROW_SOURCE_KIND_SLOT = (48, ROW_SOURCE_KIND_CODE, 2, 1)
+ROW_SOURCE_KINDS = {"Value List": 1, "Field List": 10}
+
+
 def set_property(blob: bytes, target: str | None, name: str, value: object) -> bytes:
     """A design with one property of one of its objects changed.
 
@@ -2241,6 +2367,29 @@ def set_property(blob: bytes, target: str | None, name: str, value: object) -> b
         replaced = DesignRecord(existing.id, code, existing.value_type, existing.width, raw)
     else:
         replaced = DesignRecord(ident, code, value_type, width, raw)
+    if name == "RowSourceType":
+        # The text is what the property sheet shows; what Access acts on is
+        # a one-byte companion record: 1 for a value list, 10 for a field
+        # list, none for a table or query (measured on list and combo
+        # boxes Access built with each).
+        kept = [r for r in kept if r.code != ROW_SOURCE_KIND_CODE]
+        companion = ROW_SOURCE_KINDS.get(str(value))
+        if companion is not None:
+            kept.append(_record(ROW_SOURCE_KIND_SLOT, bytes((companion,))))
+    # A colour or font brings the records Access writes beside it, each at
+    # the id the object already uses for it or the schema's id otherwise.
+    for extra_name, setting in _companions(kind, name, value):
+        extra_slot = slots.get(extra_name)
+        if extra_slot is None:
+            continue
+        kept = [r for r in kept if r.code != extra_slot[1]]
+        found = next((r for r in obj.records if r.code == extra_slot[1]), None)
+        extra_raw = encode_property(extra_slot, setting)
+        kept.append(
+            DesignRecord(found.id, extra_slot[1], found.value_type, found.width, extra_raw)
+            if found is not None
+            else DesignRecord(extra_slot[0], extra_slot[1], extra_slot[2], extra_slot[3], extra_raw)
+        )
     records = tuple(sorted((*kept, replaced), key=lambda r: r.id))
     rebuilt = (*objects[:at], DesignObject(obj.marker, obj.type, obj.code, records), *objects[at + 1 :])
     return build_design(header, rebuilt, trailer)
@@ -2315,6 +2464,7 @@ def add_control(
     width: int = 1440,
     height: int = 240,
     caption: str | None = None,
+    kind: str = "form",
 ) -> bytes:
     """A design with one more control on it.
 
@@ -2326,6 +2476,9 @@ def add_control(
     `parent` names a control that holds controls of its own -- a tab
     control holding pages -- and the new one joins that group rather than
     the section's.
+
+    The first control of a type also brings the type's control-defaults
+    object ahead of the sections, as it does in Access (`with_prototype`).
     """
     header, objects, trailer = parse_design(blob)
     if any(o.name == name for o in objects):
@@ -2352,9 +2505,16 @@ def add_control(
         tab_index=sum(
             1
             for o in objects
-            if o.type is not None and CONTROL_TYPES.get(o.type) in TABBABLE
+            if o.name and o.type is not None and CONTROL_TYPES.get(o.type) in TABBABLE
         ),
     )
+    # The first control of a type brings the type's control-defaults object
+    # ahead of the sections, which moves the sections along.
+    objects = with_prototype(objects, kind, TYPE_CODES[control_type])
+    at = next(i for i, o in enumerate(objects) if o.is_section and o.name == section)
+    end = at + 1
+    while end < len(objects) and not objects[end].is_section:
+        end += 1
     if parent is not None:
         return _nested(header, objects, trailer, at + 1, end, parent, control)
     owners = _top_level(objects, at + 1, end)
@@ -2480,4 +2640,266 @@ def remove_control(blob: bytes, name: str) -> bytes:
     if removed_tab is not None and tab_code is not None:
         result = [_closed_up(obj, removed_tab, tab_code) for obj in result]
     return build_design(header, tuple(result), trailer)
+
+#: The ``TypeInfo`` stream beside a design lists its sections and controls
+#: as the members VBA sees on the form's class: ``Me.Qty`` compiles, and
+#: ``Qty_Click`` binds, only for a name listed here.  After the magic come
+#: a kind word, -1, the entry count and the design's CLSID; each entry is
+#: then ``<u32 type id><u32 ordinal><name in the code page>00 00``.
+#:
+#: Access keeps the stream rather than rebuilding it (measured by editing
+#: forms in Access and reading the stream back): a new member is appended
+#: with the ordinal above the highest present, a removed one drops out
+#: while the others keep their ordinals, and a renamed one moves to the
+#: end with its ordinal.  Only a copy made with CopyObject is built afresh,
+#: controls first in design order and the sections after them.
+TYPE_INFO_MAGIC = bytes.fromhex("f7eacdac")
+TYPE_INFO_KIND = {"form": 0x96, "report": 0x197}
+TYPE_INFO_CLSID_AT = 16
+TYPE_INFO_ENTRIES_AT = 32
+#: A type id's low byte is the object's type code and its high byte the
+#: index Access gives the member's class, read off a form and a report
+#: holding one of every section and every control.
+TYPE_INFO_SECTIONS = {
+    "form": {
+        "Detail": 0x1898,
+        "HeaderSection": 0x1899,
+        "FooterSection": 0x189A,
+        "PageHeaderSection": 0x189B,
+        "PageFooterSection": 0x189C,
+    },
+    "report": {
+        "Detail": 0x1998,
+        "HeaderSection": 0x1999,
+        "FooterSection": 0x199A,
+        "PageHeaderSection": 0x1F9B,
+        "PageFooterSection": 0x1F9C,
+        "GroupHeaderSection": 0x199D,
+        "GroupFooterSection": 0x199E,
+    },
+}
+#: A form's controls, standing on a section or on a page.
+TYPE_INFO_IDS = {
+    "Label": 0x0D64,
+    "Rectangle": 0x0E65,
+    "Line": 0x1666,
+    "Image": 0x0F67,
+    "CommandButton": 0x0B68,
+    "OptionButton": 0x0869,
+    "CheckBox": 0x066A,
+    "OptionGroup": 0x116B,
+    "BoundObjectFrame": 0x026C,
+    "TextBox": 0x126D,
+    "ListBox": 0x106E,
+    "ComboBox": 0x136F,
+    "Subform": 0x1470,
+    "ObjectFrame": 0x0372,
+    "PageBreak": 0x1776,
+    "CustomControl": 0x0477,
+    "ToggleButton": 0x0A7A,
+    "Tab": 0x207B,
+    "Page": 0x217C,
+    "Attachment": 0x227E,
+    "EmptyCell": 0x247F,
+    "WebBrowser": 0x2580,
+    "NavigationControl": 0x2681,
+    "NavigationButton": 0x2782,
+    "Chart": 0x2885,
+    "EdgeBrowser": 0x2986,
+}
+#: The same controls held by another control -- a label attached to the
+#: control it describes, a button inside an option group -- belong to a
+#: class of their own.  A page holds controls without changing them.
+TYPE_INFO_HELD_IDS = {
+    "Label": 0x0C64,
+    "OptionButton": 0x0769,
+    "CheckBox": 0x056A,
+    "ToggleButton": 0x097A,
+}
+#: On a report every control measured shares one class index, whatever
+#: holds it, except an ActiveX control.
+TYPE_INFO_REPORT_IDS = {
+    name: 0x1B00 | code
+    for code, name in CONTROL_TYPES.items()
+    if name
+    in (
+        "Label",
+        "Rectangle",
+        "Line",
+        "Image",
+        "CommandButton",
+        "OptionButton",
+        "CheckBox",
+        "OptionGroup",
+        "BoundObjectFrame",
+        "TextBox",
+        "ListBox",
+        "ComboBox",
+        "Subform",
+        "ObjectFrame",
+        "PageBreak",
+        "ToggleButton",
+        "Tab",
+        "Page",
+        "Attachment",
+        "Chart",
+        "EdgeBrowser",
+    )
+}
+#: An ActiveX control's entry carries 36 more bytes on either kind; an
+#: empty control, which is all that is written here, carries zeros.
+ACTIVEX_CONTROL = "CustomControl"
+ACTIVEX_CODE = next(code for code, name in CONTROL_TYPES.items() if name == ACTIVEX_CONTROL)
+TYPE_INFO_REPORT_IDS[ACTIVEX_CONTROL] = TYPE_INFO_IDS[ACTIVEX_CONTROL]
+TYPE_INFO_ACTIVEX_TAIL = bytes(36)
+
+
+class TypeInfoEntry(NamedTuple):
+    """One member a TypeInfo stream lists."""
+
+    ident: int
+    ordinal: int
+    name: str
+    tail: bytes = b""
+
+
+class TypeInfoMember(NamedTuple):
+    """A member a design has, with the type id Access gives it."""
+
+    name: str
+    ident: int
+    tail: bytes = b""
+
+
+def type_info_entries(stream: bytes) -> tuple[TypeInfoEntry, ...]:
+    """The members a TypeInfo stream lists, in the order it lists them."""
+    if stream[:4] != TYPE_INFO_MAGIC or len(stream) < TYPE_INFO_ENTRIES_AT:
+        raise AccessError("this is not a TypeInfo stream")
+    (count,) = struct.unpack_from("<I", stream, 12)
+    out: list[TypeInfoEntry] = []
+    at = TYPE_INFO_ENTRIES_AT
+    for _ in range(count):
+        if at + 8 > len(stream):
+            raise AccessError("this TypeInfo stream ends inside an entry")
+        ident, ordinal = struct.unpack_from("<II", stream, at)
+        end = stream.find(bytes(2), at + 8)
+        if end < 0:
+            raise AccessError("this TypeInfo stream ends inside a name")
+        name = stream[at + 8 : end].decode("cp1252")
+        at = end + 2
+        tail = b""
+        if ident & 0xFF == ACTIVEX_CODE:
+            tail = stream[at : at + len(TYPE_INFO_ACTIVEX_TAIL)]
+            at += len(tail)
+        out.append(TypeInfoEntry(ident, ordinal, name, tail))
+    return tuple(out)
+
+
+def _holders(objects: tuple[DesignObject, ...]) -> dict[int, int]:
+    """What holds each control -- its section, or the control it sits
+    inside -- as indexes into `objects`."""
+    holders: dict[int, int] = {}
+
+    def walk(start: int, stop: int, holder: int) -> None:
+        for index, owned in _top_level(objects, start, stop):
+            holders[index] = holder
+            walk(index + 1, index + 1 + owned, index)
+
+    at = 1
+    while at < len(objects):
+        if objects[at].is_section:
+            end = at + 1
+            while end < len(objects) and not objects[end].is_section:
+                end += 1
+            walk(at + 1, end, at)
+            at = end
+        else:
+            at += 1
+    return holders
+
+
+def type_info_members(kind: str, objects: tuple[DesignObject, ...]) -> tuple[TypeInfoMember, ...]:
+    """The members a design has -- its sections, then its named controls,
+    each in design order -- with the type id Access gives each one.  A type
+    whose id has not been measured on that kind of design is refused
+    rather than guessed."""
+    if kind not in TYPE_INFO_KIND:
+        raise AccessError(f"kind must be 'form' or 'report', not {kind!r}")
+    holders = _holders(objects)
+    sections: list[TypeInfoMember] = []
+    controls: list[TypeInfoMember] = []
+    for index, obj in enumerate(objects):
+        name = obj.name
+        if index == 0 or not name:
+            continue
+        type_name = obj.type_name or ""
+        if obj.is_section:
+            ident = TYPE_INFO_SECTIONS[kind].get(type_name)
+        elif kind == "report":
+            ident = TYPE_INFO_REPORT_IDS.get(type_name)
+        else:
+            holder = holders.get(index)
+            held = (
+                holder is not None
+                and not objects[holder].is_section
+                and objects[holder].type_name != PAGE
+            )
+            ident = (TYPE_INFO_HELD_IDS.get(type_name) if held else None) or TYPE_INFO_IDS.get(
+                type_name
+            )
+        if ident is None:
+            raise AccessError(
+                f"no TypeInfo id has been measured for a {type_name or obj.type} on a {kind}"
+            )
+        tail = TYPE_INFO_ACTIVEX_TAIL if type_name == ACTIVEX_CONTROL else b""
+        (sections if obj.is_section else controls).append(TypeInfoMember(name, ident, tail))
+    return (*sections, *controls)
+
+
+def type_info(
+    kind: str,
+    objects: tuple[DesignObject, ...],
+    existing: bytes,
+    *,
+    renamed: Mapping[str, str] | None = None,
+) -> bytes:
+    """The TypeInfo stream after the design changed, carried forward the
+    way Access carries it: members the design no longer has drop out, the
+    ones `renamed` maps (old name to new) move to the end keeping their
+    ordinals, and new members are appended with the ordinals that follow
+    the highest present."""
+    entries = type_info_entries(existing)
+    members = type_info_members(kind, objects)
+    wanted = {member.name for member in members}
+    renames = dict(renamed or {})
+    kept = [e for e in entries if e.name in wanted and e.name not in renames]
+    moved = [
+        e._replace(name=renames[e.name])
+        for e in entries
+        if e.name in renames and renames[e.name] in wanted
+    ]
+    present = {e.name for e in (*kept, *moved)}
+    ordinal = max((e.ordinal for e in (*kept, *moved)), default=-1) + 1
+    added: list[TypeInfoEntry] = []
+    for member in members:
+        if member.name not in present:
+            added.append(TypeInfoEntry(member.ident, ordinal, member.name, member.tail))
+            ordinal += 1
+    clsid = existing[TYPE_INFO_CLSID_AT : TYPE_INFO_CLSID_AT + GUID_LENGTH]
+    return pack_type_info(kind, clsid, (*kept, *moved, *added))
+
+
+def pack_type_info(kind: str, clsid: bytes, entries: Sequence[TypeInfoEntry]) -> bytes:
+    """A TypeInfo stream listing `entries` in that order."""
+    if kind not in TYPE_INFO_KIND:
+        raise AccessError(f"kind must be 'form' or 'report', not {kind!r}")
+    if len(clsid) != GUID_LENGTH:
+        raise AccessError(f"a TypeInfo CLSID is {GUID_LENGTH} bytes")
+    out = bytearray(TYPE_INFO_MAGIC)
+    out += struct.pack("<IiI", TYPE_INFO_KIND[kind], -1, len(entries))
+    out += clsid
+    for entry in entries:
+        out += struct.pack("<II", entry.ident, entry.ordinal)
+        out += entry.name.encode("cp1252", errors="replace") + bytes(2) + entry.tail
+    return bytes(out)
 

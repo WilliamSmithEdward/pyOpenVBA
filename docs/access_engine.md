@@ -887,6 +887,100 @@ the engine finds the same rows it does today.
   run continued on the third). And Access's own MSysNameMap and
   MSysAccessXML give their OLE column an owned-pages map and no
   free-space map; a table copied from them comes out the same way.
+* **A design's `TypeInfo` stream is its member list.** Beside every form
+  and report `MSysAccessStorage` keeps a `TypeInfo` stream: a 4-byte
+  magic, a kind word (0x96 for a form, 0x197 for a report), -1, a count,
+  the design's CLSID, then one entry per section and control: a 4-byte
+  type id, a 4-byte ordinal, the name in the database's code page and two
+  zero bytes. The type id's low byte is the object's type code and its
+  high byte the index Access gives the member's class, which depends on
+  the kind of design and on what holds the control. On a form each type
+  has its own index (Label 0x0D64, TextBox 0x126D, CommandButton 0x0B68,
+  ListBox 0x106E, Tab 0x207B, Page 0x217C, Chart 0x2885, and so on for
+  26 types), and a label attached to the control it describes or a
+  button inside an option group belongs to a class of its own (Label
+  0x0C64, OptionButton 0x0769, CheckBox 0x056A, ToggleButton 0x097A),
+  while a page holds controls without changing them. On a report every
+  control shares the index 0x1B (TextBox 0x1B6D, Chart 0x1B85). An
+  ActiveX control is 0x0477 on both and its entry carries 36 more bytes,
+  zeros for an empty control. Sections follow the same pattern with the
+  kind's own index (a form's Detail 0x1898, header 0x1899, footer 0x189A,
+  page header and footer 0x189B and 0x189C; a report's 0x1998, 0x1999,
+  0x199A, group header and footer 0x199D and 0x199E, and page header and
+  footer 0x1F9B and 0x1F9C). All of it was read off a form and a report
+  Access built with one of every control and every section
+  (`tests/live_access_test/designs_every.accdb`). This list is what VBA
+  sees as the form class's members: `Me.Qty` compiles and `Qty_Click`
+  binds only for a name it holds, which is why a form written with a
+  template `TypeInfo` compiled its code with "Method or data member not
+  found" and never fired a button.
+* **Access keeps the `TypeInfo` stream rather than rebuilding it.** The
+  order of the entries is the order the members were created in, with a
+  quirk for the pages a new tab control brings along, which precede it,
+  so no rule of the design alone reproduces it. Edits carry the stream
+  forward: a new member is appended with the ordinal above the highest
+  present, a removed one drops out while the others keep their ordinals
+  (a deleted ordinal is never reused), and a renamed one moves to the
+  end keeping its ordinal. Measured by deleting, renaming and adding
+  controls on copies of the every-control form in Access; the three
+  edited copies sit in the fixture beside the original, and the same
+  edits made here give the same streams. A copy made with `CopyObject`
+  is the one case Access builds the stream afresh, and two copies of one
+  form came out in two different orders (Detail first, or Detail last),
+  so the carried-forward form is the one to reproduce. A design written
+  here starts from the template's stream and grows the same way.
+* **A design carries one control-defaults object per control type it
+  holds.** Ahead of the sections Access writes a nameless object for each
+  type of control on the design (the property sheet's "Set Control
+  Defaults"): a command button's has 32 records, the theme-derived
+  defaults for its font, fill, border, hover and pressed colours, the
+  shape and the gradient. The first control of a type brings the object,
+  in type order among the others, and deleting the last control of the
+  type leaves it in place. The run of top-level objects -- defaults, then
+  sections -- is one group, `0xFF <count>` on the first and `0xFD` on the
+  rest, `0xFE` when a bare template has only its Detail. Access reads a
+  control's themed properties against these defaults: a button written
+  without the object rendered as a default themed button and Access
+  dropped its `UseTheme`, colour indexes and gradient on the next save,
+  while the same records under the object took effect and survived. The
+  objects are the same for a type on every design Access built from the
+  blank template, and differ between a form and a report (a text box's
+  do, a label's do not), so both kinds' sets are captured from the
+  every-control fixture (`_templates/designs/form.prototypes` and
+  `report.prototypes`) and written the first time a type is used.
+* **A colour or a font set in Access brings a record beside it.** Each
+  colour comes with its theme index at -1 (`BackColor` with
+  `BackThemeColorIndex`, and the same for the fore, border, gridline,
+  hover, pressed, hover-text and pressed-text colours), a command button's
+  fill also turns its `Gradient` to 0, and a font name comes with
+  `ThemeFontIndex` -1 and, for a face whose pitch and family are not the
+  default sans, the `TextFontFamily` byte (18 for Times New Roman and the
+  other roman faces, 49 for Consolas and the other fixed-pitch ones, 66 for
+  Comic Sans MS, 2 for Wingdings; nothing for Segoe UI, Calibri, Arial and
+  the rest of 24 fonts measured). Measured one property at a time on a
+  label, text box, list box, combo box, check box, rectangle, line, toggle
+  button and command button; `set_property` writes the same companions, so
+  a colour set here shows, where before the defaults object's theme index
+  overrode it. The six hover and pressed slots joined the button's schema.
+* **`UseTheme` off is the Windows button.** A command button with
+  `UseTheme` False is drawn by Windows and ignores its fill and hover
+  colours (white face, grey border, the system hover blue) -- Access's own
+  button set that way renders the same as one written here. Colours take
+  effect with the theme left on and the index at -1, which is what the
+  property sheet does.
+* **The database's own settings append like a table's.** DAO's
+  `Properties.Append` on the database adds the name to the end of the
+  MSysDb blob's name list and the record to the end of its object block,
+  and leaves the row's stamps alone; `set_database_properties` writes the
+  same bytes (`StartUpForm`, measured against DAO on a database written
+  here: the blob identical, the file identical on every page but 0).
+* **A list box's row source kind is a byte beside the text.**
+  `RowSourceType` is stored as the text the property sheet shows, and
+  Access acts on a one-byte companion record (id 48, code 92): 1 for a
+  value list, 10 for a field list, absent for a table or query. Measured
+  on list and combo boxes Access built with each setting; setting the
+  text alone left `AddItem` refusing with "RowSourceType must be set to
+  Value List".
 * **A wide table's churn.** A table whose definition runs past one page
   is built column by column. From the column that takes it past one
   page, the engine writes each intermediate definition twice -- the new

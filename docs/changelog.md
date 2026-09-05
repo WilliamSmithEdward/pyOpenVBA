@@ -5,6 +5,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ## [Unreleased]
 
+Nothing yet.
+
+## [4.0.0] - 2026-09-05
+
 ### Added
 
 - **Access has the same API as the other hosts.** `AccessDatabase` gains
@@ -522,6 +526,46 @@ All notable changes to pyOpenVBA are documented here. This project follows
   both. Inserts leave the row counter alone, as the engine does.
 
 ### Fixed
+
+- **Code behind a written form sees its controls, and their events fire.**
+  Access lists a design's sections and controls in a `TypeInfo` stream
+  beside it, and VBA takes that list as the form class's members. A form
+  written here carried the empty template's list, so `Me.<control>` failed
+  to compile and a button's click never bound. The stream is now carried
+  forward on every change the way Access carries it: a new member is
+  appended with the next ordinal, a removed one drops out and the rest
+  keep their ordinals, a renamed one moves to the end with its ordinal.
+  Each member's type id was read off a form and a report Access built
+  with one of every control and every section
+  (`tests/live_access_test/designs_every.accdb`): a report's controls
+  share one class index, a label attached to a control or a button inside
+  an option group has a class of its own, an ActiveX control's entry
+  carries 36 more bytes, and a form's header, footer, page and group
+  sections are read as sections. Three copies of that form edited in
+  Access sit in the fixture, and the same edits made here give the same
+  streams.
+- **`RowSourceType` takes effect.** The text is only what the property
+  sheet shows; Access acts on a one-byte companion record, written now
+  with the text (a value list, a field list, or none for a table or query).
+- **A written control brings its type's control-defaults object.** Access
+  keeps one nameless object per control type ahead of a design's
+  sections, the type's theme-derived defaults, and reads a control's
+  themed properties against it: a button written without it ignored its
+  `UseTheme`, colours and gradient and came out as a default themed
+  button. The first control of a type now writes the object Access
+  writes (captured per type for forms and for reports), the run of
+  top-level objects is marked as the group it is, and a button's six
+  hover and pressed slots are in its schema.
+- **A colour or font set on a control takes effect.** With the defaults
+  object in place, Access reads the theme index ahead of the colour, so
+  `set_property("ForeColor", ...)` now writes the -1 index Access writes
+  beside it (and `Gradient` 0 with a button's fill, `ThemeFontIndex` -1
+  and the pitch-and-family byte with a font name), measured one property
+  at a time on nine control types.
+- **`set_database_properties()`** sets the database's own options --
+  `StartUpForm` to open a form with the file, `AppTitle` and the rest --
+  writing the MSysDb property blob byte for byte as DAO's
+  `Properties.Append` does.
 
 - **A second text box gets its tab index.** The text box Access made for
   the slot table was the first on its form and so carried no `TabIndex`;

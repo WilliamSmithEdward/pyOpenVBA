@@ -192,7 +192,8 @@ class AccessControl:
         """Change one property, at the slot the control type's schema
         gives it."""
         self._form._set_control_property(self.name, name, value)  # pyright: ignore[reportPrivateUsage]
-        self._object = self._form.control(self.name).object
+        renamed = str(value) if name == "Name" else self.name
+        self._object = self._form.control(renamed).object
 
     def __repr__(self) -> str:
         return f"AccessControl({self.name!r}, {self.kind!r})"

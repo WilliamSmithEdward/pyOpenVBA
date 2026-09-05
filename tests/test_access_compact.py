@@ -1,8 +1,11 @@
-"""Giving back the free pages a file ends with.
+"""Compaction: giving back the free pages a file ends with, and Compact and
+Repair proper.
 
-This is not Access's Compact and Repair, which rebuilds the database and
-moves every page.  It reclaims the run of free pages at the end, which is
-what a dropped table or a large delete leaves behind, and moves nothing.
+`compact()` reclaims the run of free pages at the end, which is what a
+dropped table or a large delete leaves behind, and moves nothing.
+`compact_and_repair()` rebuilds the database into a fresh engine skeleton
+the way DAO's CompactDatabase does; the live gate holds it to the engine's
+bytes, these tests to what it must carry across.
 """
 
 from __future__ import annotations
@@ -255,3 +258,102 @@ def test_compacting_with_rebuild_leaves_a_refused_table_alone(tmp_path: Path) ->
     assert sorted(db.table_names()) == ["Child", "Parent", "Wide"]
     assert len(list(db.table("Wide").rows())) == 200
     assert "ParentChild" in [r.name for r in db.relationships()]
+
+
+# -- Compact and Repair --------------------------------------------------------
+
+
+def related(path: Path) -> AccessDatabase:
+    """A database with what a compaction has to carry across: an AutoNumber
+    table with a memo column and deleted rows, a keyed table written out
+    of key order, a heap AutoNumber table with explicit ids, a saved
+    query and a relationship."""
+    db = AccessDatabase.create_new(path)
+    orders = db.create_table(
+        "Orders",
+        [ColumnSpec("Id", "Long", autonumber=True), ColumnSpec("Name", "Text", size=30), ColumnSpec("Notes", "Memo")],
+        [IndexSpec("PrimaryKey", ("Id",), primary=True), IndexSpec("ByName", ("Name",))],
+    )
+    for number in range(1, 41):
+        orders.insert_row({"Name": f"order {number}", "Notes": "memo " * (number % 30) or None})
+    for row_id, row in list(orders.rows_with_ids()):
+        if int(str(row["Id"])) % 3 == 0 or int(str(row["Id"])) > 35:
+            orders.delete_row(row_id)
+    lines = db.create_table(
+        "Lines",
+        [ColumnSpec("Id", "Long"), ColumnSpec("OrderId", "Long"), ColumnSpec("Qty", "Long")],
+        [IndexSpec("PrimaryKey", ("Id",), primary=True)],
+    )
+    for ident, order in ((5, 1), (3, 2), (9, 4), (1, 5)):
+        lines.insert_row({"Id": ident, "OrderId": order, "Qty": ident * 2})
+    heap = db.create_table("Heap", [ColumnSpec("Id", "Long", autonumber=True), ColumnSpec("V", "Text", size=5)])
+    for ident in (5, 3, 9, 1):
+        heap.insert_row({"Id": ident, "V": str(ident)})
+    db.create_query("QOrders", "SELECT Orders.Id, Orders.Name FROM Orders")
+    db.create_relationship("FK_Lines_Orders", "Lines", ("OrderId",), "Orders", ("Id",))
+    db.save(path)
+    return AccessDatabase(path)
+
+
+@pytest.fixture
+def related_db(tmp_path: Path) -> AccessDatabase:
+    return related(tmp_path / "related.accdb")
+
+
+def test_the_skeleton_is_the_bare_engine_database() -> None:
+    """What the copy starts from: DAO's CreateDatabase output with its
+    permission rows taken back out."""
+    from pyopenvba.access._compact import SKELETON
+
+    skeleton = AccessDatabase(SKELETON.read_bytes())
+    assert skeleton.store.page_count == 41
+    assert skeleton.table("MSysACEs").row_count == 0
+    names = {e.name for e in skeleton.catalog()}
+    assert {"Tables", "Databases", "Relationships", "MSysDb", "MSysObjects", "MSysACEs", "MSysQueries", "MSysRelationships", "MSysComplexColumns"} <= names
+    assert len(skeleton.catalog()) == 18
+
+
+def test_compact_and_repair_carries_every_object_and_row(related_db: AccessDatabase, tmp_path: Path) -> None:
+    before = {name: sorted(related_db.table(name).rows(), key=lambda r: int(str(r["Id"]))) for name in ("Orders", "Lines", "Heap")}
+    compacted = related_db.compact_and_repair()
+    assert compacted.store.page_count < related_db.store.page_count
+    assert set(compacted.table_names()) == set(related_db.table_names())
+    assert [q.name for q in compacted.queries()] == ["QOrders"]
+    # Relationships come back in Name order, whatever order they were made in.
+    assert [r.name for r in compacted.relationships()] == sorted((r.name for r in related_db.relationships()), key=str.lower)
+    for name, rows in before.items():
+        assert sorted(compacted.table(name).rows(), key=lambda r: int(str(r["Id"]))) == rows
+    # A keyed table's rows come out in key order; a heap keeps its order.
+    assert [r["Id"] for r in compacted.table("Lines").rows()] == [1, 3, 5, 9]
+    assert [r["Id"] for r in compacted.table("Heap").rows()] == [5, 3, 9, 1]
+    # The catalog and permission rows all come across, and the file reopens.
+    assert len(compacted.catalog()) == len(related_db.catalog())
+    assert compacted.table("MSysACEs").row_count == related_db.table("MSysACEs").row_count
+    out = tmp_path / "compacted.accdb"
+    compacted.save(out)
+    assert AccessDatabase(out).table("Orders").row_count == related_db.table("Orders").row_count
+
+
+def test_compact_and_repair_resets_each_autonumber_to_the_largest_value_present(related_db: AccessDatabase) -> None:
+    assert related_db.table("Orders").definition.next_autonumber == 40
+    compacted = related_db.compact_and_repair()
+    assert compacted.table("Orders").definition.next_autonumber == 35
+    assert compacted.table("Heap").definition.next_autonumber == 9
+    # And the next row takes the number after it.
+    compacted.table("Orders").insert_row({"Name": "next"})
+    assert max(int(str(r["Id"])) for r in compacted.table("Orders").rows()) == 36
+
+
+def test_compact_and_repair_leaves_the_source_alone(related_db: AccessDatabase) -> None:
+    image = related_db.to_bytes()
+    related_db.compact_and_repair()
+    assert related_db.to_bytes() == image
+
+
+def test_compact_and_repair_keeps_the_creation_date_and_the_owners(related_db: AccessDatabase) -> None:
+    """The engine keys the SID encoding to the creation date; keeping the
+    date keeps every owner and permission SID as it was."""
+    compacted = related_db.compact_and_repair()
+    assert compacted.header.creation_date == related_db.header.creation_date
+    owners = {e.name: e.owner for e in related_db.catalog()}
+    assert {e.name: e.owner for e in compacted.catalog()} == owners

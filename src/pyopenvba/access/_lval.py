@@ -148,8 +148,12 @@ def write_long_value(store: PageStore, maps: tuple[int, int], data: bytes, stamp
         lval = DataPage(store.read(page))
         slot = lval.add_row(data)
         store.write(page, lval.to_bytes())
-        store.lval_cursor[free_ref] = page
-        if lval.free_space < LVAL_PAGE_MIN_FREE:
+        if len(data) > LVAL_SHARED_MAX:
+            # Only a large value moves the column's cursor: a small one
+            # takes the first listed page and leaves the run alone
+            # (measured on a compaction's 200 memos of wrapping sizes).
+            store.lval_cursor[free_ref] = page
+        if lval.free_space < LVAL_PAGE_MIN_FREE and free_ref:
             remove_from_map(store, free_ref, page)
         return _definition(len(data), LongValueRef.KIND_SINGLE_PAGE, slot, page, 0)
     # A chain: one fresh page per chunk, linked front to back, so the
@@ -181,19 +185,24 @@ def _single_row_page(store: PageStore, maps: tuple[int, int], length: int) -> in
     shared it, a 1706-byte value went to a new page, and the first page,
     3827 bytes free, took neither).
 
-    Within a session the page just written to comes first, which is what
-    keeps a run of values together (measured: with page A holding 1080
-    free and the last write on page B, a 900-byte value went to B; the
-    next one, B full, went to A)."""
+    For a larger value the page the last large value went to comes first,
+    which is what keeps a run of values together (measured: with page A
+    holding 1080 free and the last write on page B, a 900-byte value
+    went to B; the next one, B full, went to A).  A small value never
+    looks there: it takes the first listed page (measured on a
+    compaction, where an 80-byte memo went back to the first page while
+    the run continued on the third)."""
     owned_ref, free_ref = maps
     cursor = store.lval_cursor.get(free_ref)
-    if cursor is not None and cursor < store.page_count:
+    if length > LVAL_SHARED_MAX and cursor is not None and cursor < store.page_count:
         raw = store.read(cursor)
         if is_lval_page(raw) and DataPage(raw).fits(length):
             return cursor
+    # A column the engine gave no free-space map (Access's own MSysNameMap
+    # and MSysAccessXML) has no listed pages to look through.
     listed = [
         candidate
-        for candidate in read_usage_map_ref(store, free_ref).pages()
+        for candidate in (read_usage_map_ref(store, free_ref).pages() if free_ref else [])
         if candidate < store.page_count and is_lval_page(store.read(candidate))
     ]
     for candidate in listed if length <= LVAL_SHARED_MAX else listed[-1:]:
@@ -201,7 +210,8 @@ def _single_row_page(store: PageStore, maps: tuple[int, int], length: int) -> in
             return candidate
     page = new_lval_page(store)
     add_to_map(store, owned_ref, page)
-    add_to_map(store, free_ref, page)
+    if free_ref:
+        add_to_map(store, free_ref, page)
     return page
 
 
@@ -220,7 +230,8 @@ def free_long_value(store: PageStore, maps: tuple[int, int], ref: LongValueRef) 
             # Room came back: the page is listed again (measured: a page
             # at 176 free was unlisted, at 1476 after a delete listed).
             store.write(ref.page, lval.to_bytes())
-            add_to_map(store, free_ref, ref.page)
+            if free_ref:
+                add_to_map(store, free_ref, ref.page)
             return
         if lval.live_rows == 0:
             # An LVAL page that lost its last value is retired: type 0x09,
@@ -230,7 +241,8 @@ def free_long_value(store: PageStore, maps: tuple[int, int], ref: LongValueRef) 
             store.write(ref.page, lval.to_bytes())
             release_page(store, ref.page)
             remove_from_map(store, owned_ref, ref.page)
-            remove_from_map(store, free_ref, ref.page)
+            if free_ref:
+                remove_from_map(store, free_ref, ref.page)
             if store.lval_cursor.get(free_ref) == ref.page:
                 del store.lval_cursor[free_ref]
             return

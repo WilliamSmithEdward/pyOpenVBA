@@ -12,7 +12,7 @@ from __future__ import annotations
 import datetime as dt
 import random
 import struct
-from collections.abc import Callable, Generator, Iterator, Mapping, Sequence
+from collections.abc import Callable, Collection, Generator, Iterator, Mapping, Sequence
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
@@ -915,6 +915,22 @@ class Table:
         db.patch_definition(d, OFFSET_ROW_COUNT, struct.pack("<I", d.row_count))
         return RowId(page_number, slot)
 
+    def _append_encoded(self, encoded: dict[int, bytes | None], booleans: set[int]) -> RowId:
+        """Write a row already encoded per column number -- a row copied
+        from another table by Compact and Repair -- to the page the engine
+        would pick, maintaining no index (the copy builds them afterwards)
+        and counting the row."""
+        db = self._db
+        d = self.definition
+        row = encode_row(d, encoded, booleans)
+        page_number = self._page_with_room(len(row))
+        page = DataPage(db.store.read(page_number))
+        slot = page.add_row(row)
+        db.store.write(page_number, page.to_bytes())
+        d.row_count += 1
+        db.patch_definition(d, OFFSET_ROW_COUNT, struct.pack("<I", d.row_count))
+        return RowId(page_number, slot)
+
     def _moved_to(self, row_id: RowId) -> tuple[int, int] | None:
         """Where a row lives when its home slot is an overflow pointer."""
         store = self._db.store
@@ -1729,9 +1745,9 @@ class AccessDatabase:
         refusals apply, and which leaves a table it will not touch alone.
         A 3000-row table cut to 300 came back from 229 pages to 93.
 
-        This is still not Access's Compact and Repair: that renumbers
-        every page, and resets each AutoNumber to one past its largest
-        value where a rebuild here keeps the counter as it was.
+        Access's Compact and Repair -- a new file built from a bare engine
+        skeleton, every page renumbered, every AutoNumber counter reset to
+        the largest value present -- is :meth:`compact_and_repair`.
         """
         if rebuild:
             for name in self.table_names():
@@ -1758,6 +1774,28 @@ class AccessDatabase:
             set_usage_bit(store, free, page, False)
         return store.truncate(keep)
 
+
+    def compact_and_repair(self, *, clock: Callable[[], float] | None = None, lval_stamp: int | None = None) -> AccessDatabase:
+        """Compact and Repair, as DAO's ``CompactDatabase`` does it: a new
+        database built from a bare engine skeleton with every object
+        copied in, which is what makes the result compact -- pages are
+        numbered by the copy, rows sit on as few pages as they need, an
+        AutoNumber counter comes out at the largest value present, and
+        nothing dead comes across.  The copy's phases and what was
+        measured are in :mod:`pyopenvba.access._compact`.
+
+        Returns the new database; ``save(path)`` writes it out.  This
+        database is left as it is.  ``clock`` supplies the stamp the
+        relationship pass puts on each table it touches (now by default;
+        the engine reads its clock once per stamp).  The result keeps this
+        database's creation date, because the engine keys its encoding of
+        owner and permission SIDs to that date; the engine itself stamps
+        the compaction time and re-encodes them under it.  ``lval_stamp``
+        is the per-session value the engine writes on chained long values
+        (any value works; see ``lval_stamp`` on the database)."""
+        from pyopenvba.access._compact import compact_and_repair as _compact_and_repair
+
+        return _compact_and_repair(self, clock=clock, lval_stamp=lval_stamp)
 
     def to_bytes(self) -> bytes:
         return self.store.to_bytes()
@@ -2049,6 +2087,64 @@ class AccessDatabase:
         table = self.table(name)
         _write_column_properties(table, columns, updated)
         return table
+
+    def _create_table_shell(
+        self,
+        name: str,
+        columns: Sequence[ColumnSpec],
+        *,
+        flags: int,
+        created: object,
+        updated: object,
+        owned_only: Collection[str] = (),
+    ) -> Table:
+        """A table as Compact and Repair creates one before copying its rows:
+        the definition page, the usage-map page, the catalog row without
+        an owner (the copy's last pass writes that), the version properties
+        a BigInt column asks for, and the definition with no index.  No
+        column property is written here, not even Required: the whole
+        property blob arrives in the last pass (measured on a compaction
+        whose catalog page had room for one more row only because the
+        engine had written nothing yet).  Indexes come later, over the
+        rows, and so do the permission rows."""
+        specs = list(columns)
+        if any(e.name.lower() == name.lower() for e in self.catalog()):
+            raise AccessError(f"an object named {name!r} already exists")
+        store = self.store
+        tag = self.definition(MSYS_OBJECTS_PAGE).tag
+        lowered = {n.lower() for n in owned_only}
+        map_rows = 2 + sum(1 if c.name.lower() in lowered else 2 for c in specs if c.type_code in (TYPE_MEMO, TYPE_OLE))
+        definition_page = allocate_page(store)
+        map_page = allocate_page(store)
+        store.write(map_page, usage_map_page(map_rows))
+        objects = self.table("MSysObjects")
+        catalog_row = objects.insert_row(
+            {
+                "Id": definition_page,
+                "ParentId": self._tables_container().id,
+                "Name": name,
+                "Type": OBJECT_TABLE,
+                "Flags": flags,
+                "DateCreate": created,
+                "DateUpdate": updated,
+            }
+        )
+        if any(spec.type_code == TYPE_BIGINT for spec in specs):
+            for count in range(1, len(VERSION_PROPERTIES) + 1):
+                objects.update_row(catalog_row, {"LvProp": serialize_property_blob(_version_properties(count))})
+        layout = DefinitionLayout(
+            page=definition_page,
+            tag=tag,
+            owned_ref=(map_page << 8) | 0,
+            free_ref=(map_page << 8) | 1,
+            index_umap_refs=[],
+            index_roots=[],
+        )
+        layout.column_map_refs = _long_value_map_refs(specs, map_page, 0, owned_only)
+        self._write_definition(build_definition(specs, [], layout), definition_page, [])
+        self._catalog = None
+        self._definitions.pop(definition_page, None)
+        return self.table(name)
 
     def create_index(self, table_name: str, spec: IndexSpec, *, updated: object | None = None) -> Index:
         """Add an index to an existing table as CREATE INDEX does: an empty
@@ -3154,8 +3250,10 @@ class AccessDatabase:
         cascade_updates: bool = False,
         cascade_deletes: bool = False,
         created: object | None = None,
+        updated: object | None = None,
         table_updated: object | None = None,
         referenced_updated: object | None = None,
+        permissions: Sequence[Mapping[str, object]] | None = None,
     ) -> Relationship:
         """Relate ``table`` to ``referenced_table`` as ``ALTER TABLE ... ADD
         CONSTRAINT ... FOREIGN KEY`` does: a non-unique index named after
@@ -3178,8 +3276,10 @@ class AccessDatabase:
         if any(e.name.lower() == name.lower() for e in self.catalog()):
             raise AccessError(f"an object named {name!r} already exists")
         child = self.table(table)
-        parent = self.table(referenced_table)
-        cd, pd = child.definition, parent.definition
+        same_table = table.lower() == referenced_table.lower()
+        parent = child if same_table else self.table(referenced_table)
+        cd = child.definition
+        pd = cd if same_table else parent.definition
         for col in columns:
             if not any(c.name.lower() == col.lower() for c in cd.columns):
                 raise AccessError(f"table {table!r} has no column {col!r}")
@@ -3195,49 +3295,82 @@ class AccessDatabase:
         attributes = (RELATION_UPDATE_CASCADE if cascade_updates else 0) | (RELATION_DELETE_CASCADE if cascade_deletes else 0)
         now = _dt.datetime.now().replace(microsecond=0)
         when = created if isinstance(created, (_dt.datetime, float)) else now
+        when_updated = updated if isinstance(updated, (_dt.datetime, float)) else when
         child_when = table_updated if isinstance(table_updated, (_dt.datetime, float)) else when
         parent_when = referenced_updated if isinstance(referenced_updated, (_dt.datetime, float)) else when
         store = self.store
         child_logical_number = len(cd.logical_indexes)
-        parent_logical_number = len(pd.logical_indexes)
+        # A relationship of a table with itself puts the referenced side's
+        # entry after the foreign key's.
+        parent_logical_number = len(pd.logical_indexes) + (1 if same_table else 0)
 
-        # The foreign-key index on the referencing table, built like CREATE INDEX.
-        umap_ref = self._new_map_rows(cd, 1)[0]
-        root = allocate_page(store)
-        store.write(root, empty_index_root(cd.page))
-        real, _plain = new_index_parts(IndexSpec(name, columns), cd, len(cd.real_indexes), umap_ref, root)
-        cd.real_indexes.append(real)
+        # The relationship rows go first: the engine takes their data page
+        # before the index root when both are new (measured on a
+        # compaction, where MSysRelationships starts empty).
+        relationships = self.table("MSysRelationships")
+        for i, (col, ref) in enumerate(zip(columns, referenced_columns, strict=True)):
+            relationships.insert_row(
+                {
+                    "szRelationship": name, "grbit": attributes, "ccolumn": len(columns), "icolumn": i,
+                    "szObject": table, "szColumn": col, "szReferencedObject": referenced_table, "szReferencedColumn": ref,
+                }
+            )
+
+        # The foreign-key index on the referencing table, built like CREATE
+        # INDEX -- unless an index over the same columns is already there,
+        # which the foreign key then shares (measured: Access's own
+        # MSysNavPaneGroups relationship rides its GroupCategoryID index).
+        wanted_child = [cd.column(c).number for c in columns]
+        shared = next(
+            (i for i, existing in enumerate(cd.real_indexes) if [c.number for c in existing.columns] == wanted_child and all(c.ascending for c in existing.columns)),
+            None,
+        )
+        umap_ref = root = 0
+        if shared is None:
+            umap_ref = self._new_map_rows(cd, 1)[0]
+            root = allocate_page(store)
+            store.write(root, empty_index_root(cd.page))
+            real, _plain = new_index_parts(IndexSpec(name, columns), cd, len(cd.real_indexes), umap_ref, root)
+            cd.real_indexes.append(real)
+            cd.real_index_count += 1
+            real_position = len(cd.real_indexes) - 1
+        else:
+            real_position = shared
         cd.logical_indexes.append(
             foreign_key_logical(
-                cd.tag, name, child_logical_number, len(cd.real_indexes) - 1,
+                cd.tag, name, child_logical_number, real_position,
                 referencing=True, other_logical=parent_logical_number, other_page=pd.page,
                 cascade_updates=cascade_updates, cascade_deletes=cascade_deletes,
             )
         )
-        cd.real_index_count += 1
         cd.logical_index_count += 1
         self._write_definition(serialize_definition(cd), cd.page, cd.pages[1:], keep_tail=True)
-        add_to_map(store, umap_ref, root)
+        if shared is None:
+            add_to_map(store, umap_ref, root)
         self._definitions.pop(cd.page, None)
-        child = self.table(table)
-        position = len(child.definition.real_indexes) - 1
-        real = child.definition.real_indexes[position]
-        key_columns = [(child.definition.column_by_number(c.number), c.ascending) for c in real.columns]
-        tree = child._btree(position, real)  # pyright: ignore[reportPrivateUsage]
-        distinct = entries = 0
-        for row_id, values in child.rows_with_ids():
-            key = child._key(real, key_columns, values)  # pyright: ignore[reportPrivateUsage]
-            if key is None:
-                continue
-            entries += 1
-            if tree.insert(key, row_id.page, row_id.slot):
-                distinct += 1
-        if entries:
-            real.row_count = entries
-            real.entry_count = distinct
-            self.patch_definition(child.definition, OFFSET_INDEX_HEADERS + position * SIZE_REAL_INDEX_HEADER, struct.pack("<II", entries, distinct))
+        if shared is None:
+            child = self.table(table)
+            position = len(child.definition.real_indexes) - 1
+            real = child.definition.real_indexes[position]
+            key_columns = [(child.definition.column_by_number(c.number), c.ascending) for c in real.columns]
+            tree = child._btree(position, real)  # pyright: ignore[reportPrivateUsage]
+            distinct = entries = 0
+            for row_id, values in child.rows_with_ids():
+                key = child._key(real, key_columns, values)  # pyright: ignore[reportPrivateUsage]
+                if key is None:
+                    continue
+                entries += 1
+                if tree.insert(key, row_id.page, row_id.slot):
+                    distinct += 1
+            if entries:
+                real.row_count = entries
+                real.entry_count = distinct
+                self.patch_definition(child.definition, OFFSET_INDEX_HEADERS + position * SIZE_REAL_INDEX_HEADER, struct.pack("<II", entries, distinct))
 
         # The referenced side: a ``.r<letter>`` entry sharing the unique index.
+        if same_table:
+            # The definition as it stands after the index build, counts included.
+            pd = self.table(table).definition
         pd.logical_indexes.append(
             foreign_key_logical(
                 pd.tag, ".r" + chr(0x41 + parent_logical_number), parent_logical_number, parent_real,
@@ -3249,15 +3382,7 @@ class AccessDatabase:
         self._write_definition(serialize_definition(pd), pd.page, pd.pages[1:], keep_tail=True)
         self._definitions.pop(pd.page, None)
 
-        # The relationship rows, the catalog object, its permissions, the stamps.
-        relationships = self.table("MSysRelationships")
-        for i, (col, ref) in enumerate(zip(columns, referenced_columns, strict=True)):
-            relationships.insert_row(
-                {
-                    "szRelationship": name, "grbit": attributes, "ccolumn": len(columns), "icolumn": i,
-                    "szObject": table, "szColumn": col, "szReferencedObject": referenced_table, "szReferencedColumn": ref,
-                }
-            )
+        # The catalog object, its permissions, the stamps.
         objects = self.table("MSysObjects")
         object_id = self._next_object_id()
         catalog_row = objects.insert_row(
@@ -3268,13 +3393,17 @@ class AccessDatabase:
                 "Type": OBJECT_RELATIONSHIP,
                 "Flags": 0,
                 "DateCreate": when,
-                "DateUpdate": when,
+                "DateUpdate": when_updated,
             }
         )
         objects.update_row(catalog_row, {"Owner": self._default_owner()})
         aces = self.table("MSysACEs")
-        for ace, acm in zip(self._default_aces(), RELATIONSHIP_ACMS, strict=True):
-            aces.insert_row({"SID": ace["SID"], "ACM": acm, "FInheritable": False, "ObjectId": object_id})
+        if permissions is not None:
+            for ace in permissions:
+                aces.insert_row({"SID": ace["SID"], "ACM": ace["ACM"], "FInheritable": ace["FInheritable"], "ObjectId": object_id})
+        else:
+            for ace, acm in zip(self._default_aces(), RELATIONSHIP_ACMS, strict=True):
+                aces.insert_row({"SID": ace["SID"], "ACM": acm, "FInheritable": False, "ObjectId": object_id})
         for definition_page, stamp in ((cd.page, child_when), (pd.page, parent_when)):
             for rid, row in objects.rows_with_ids():
                 if row["Id"] == definition_page and row["Type"] == OBJECT_TABLE:
@@ -3979,15 +4108,25 @@ def _stamp_serial(parts: RawRow, column_number: int) -> float | None:
     return struct.unpack("<d", raw)[0] if isinstance(raw, bytes) and len(raw) == 8 else None
 
 
-def _long_value_map_refs(specs: Sequence[ColumnSpec], map_page: int, index_count: int) -> dict[int, tuple[int, int]]:
+def _long_value_map_refs(
+    specs: Sequence[ColumnSpec], map_page: int, index_count: int, owned_only: Collection[str] = ()
+) -> dict[int, tuple[int, int]]:
     """Usage-map references for a table's Memo/OLE columns: two rows each on
-    the table's map page, after the owned, free-space and index rows."""
+    the table's map page, after the owned, free-space and index rows.  A
+    column named in ``owned_only`` gets the owned-pages row and no
+    free-space map, which is how Access's own MSysNameMap and MSysAccessXML
+    come, and how a compaction copies them."""
     refs: dict[int, tuple[int, int]] = {}
     next_row = 2 + index_count
+    lowered = {name.lower() for name in owned_only}
     for number, spec in enumerate(specs):
         if spec.type_code in (TYPE_MEMO, TYPE_OLE):
-            refs[number] = ((map_page << 8) | next_row, (map_page << 8) | (next_row + 1))
-            next_row += 2
+            if spec.name.lower() in lowered:
+                refs[number] = ((map_page << 8) | next_row, 0)
+                next_row += 1
+            else:
+                refs[number] = ((map_page << 8) | next_row, (map_page << 8) | (next_row + 1))
+                next_row += 2
     return refs
 
 

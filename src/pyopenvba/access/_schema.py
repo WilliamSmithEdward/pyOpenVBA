@@ -407,8 +407,8 @@ def build_definition(columns: list[ColumnSpec], indexes: list[IndexSpec], layout
     for number, spec in enumerate(columns):
         if spec.type_code in LONG_VALUE_TYPES:
             owned, free = layout.column_map_refs.get(number, (0, 0))
-            if not owned or not free:
-                raise AccessError(f"column {spec.name!r} needs two usage maps")
+            if not owned:
+                raise AccessError(f"column {spec.name!r} needs a usage map")
             body += struct.pack("<HII", number, owned, free)
     body += b"\xff\xff"
 
@@ -501,7 +501,7 @@ def serialize_definition(definition: TableDefinition) -> bytes:
     struct.pack_into("<I", raw, 0x14, definition.next_autonumber & 0xFFFFFFFF)
     struct.pack_into("<i", raw, 0x18, definition.complex_marker)
     struct.pack_into("<I", raw, 0x1C, definition.last_complex_id)
-    raw[0x1C:0x28] = definition.header_raw[0x1C:0x28]
+    raw[0x20:0x28] = definition.header_raw[0x20:0x28]
     raw[0x28] = definition.table_type
     struct.pack_into("<H", raw, 0x29, definition.max_columns)
     struct.pack_into("<H", raw, 0x2B, definition.var_column_count)

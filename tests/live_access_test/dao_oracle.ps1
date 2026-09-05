@@ -258,6 +258,14 @@ function Dump-Recordset($rs) {
 
 if ($Command -eq "build-alltypes") { Create-AllTypes $Path }
 $engine = New-Object -ComObject DAO.DBEngine.120
+if ($Command -eq "create-blank") {
+    # A bare engine database: what CompactDatabase starts its destination
+    # from, before any object is copied in.  dbVersion120 = 128.
+    if (Test-Path $Path) { Remove-Item $Path }
+    $null = $engine.CreateDatabase($Path, ";LANGID=0x0409;CP=1252;COUNTRY=0", 128)
+    [Console]::Out.Write("ok")
+    exit 0
+}
 if ($Command -eq "compact") {
     # Compacting reads every structure and rebuilds the file; a database
     # the engine cannot make sense of fails here.

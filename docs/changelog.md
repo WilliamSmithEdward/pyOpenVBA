@@ -7,6 +7,19 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- **Compact and Repair.** `db.compact_and_repair()` builds a new database
+  the way DAO's `CompactDatabase` does: a bare engine skeleton with every
+  object copied in -- containers, forms and modules, then tables, queries
+  and links in the order of the catalog's Name index, rows in primary-key
+  order, indexes built over them, AutoNumber counters reset to the largest
+  value present, permission rows and property blobs written in a last
+  pass, relationships re-created. Under a frozen engine clock three
+  compactions match the engine's output on every page but page 0. The
+  result keeps the source's creation date, because the engine keys its
+  encoding of owner and permission SIDs to that date (a 30-bit fold of
+  five of its bytes feeds a generator that stayed unknown), so those
+  bytes copy across unchanged.
+
 - **Fourteen more form property codes are named** -- `Glow`, `Shadow`,
   `QuickStyle`, `HoverForeColor`, `PressedForeColor` and the hover and
   pressed theme index, tint and shade properties -- by differencing a
@@ -485,6 +498,15 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- A long value of 256 bytes or fewer now takes the first listed page of
+  its column rather than the page the last value went to, which is where
+  the engine puts it (measured on a compaction's 200 memos).
+- A relationship on a column that already has an index shares that index,
+  as the engine's does; a table may now be related to itself; the
+  relationship rows go before the index root.
+- Rewriting a definition no longer resets its complex-id counter.
+- Access's own MSysNameMap and MSysAccessXML, whose OLE column has no
+  free-space map, can be written to and copied.
 - **Compressed attachments are byte for byte what Access writes.** The
   engine's deflate turned out to be classic zlib's at level 5, memLevel 7
   and a 32 KB window -- one of eight engine-written streams admits exactly

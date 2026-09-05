@@ -9,6 +9,7 @@ Usage::
     python -m pyopenvba forms <office_file> [--mask]
     python -m pyopenvba access-ls    <accdb>
     python -m pyopenvba access-pull  <accdb> <dest_dir>
+    python -m pyopenvba access-push  <src_dir> <accdb> [--out <new_path>] [--strict]
     python -m pyopenvba access-disasm <accdb> [--module <name>] [--with-source]
     python -m pyopenvba disasm <office_file> [--module <name>] [--with-source]
 
@@ -127,6 +128,17 @@ def _cmd_access_pull(args: argparse.Namespace) -> int:
     # as .cls, matching the Excel/Word/PowerPoint pull commands.
     for out in db.pull_modules(args.dest):
         print(out)
+    return 0
+
+
+def _cmd_access_push(args: argparse.Namespace) -> int:
+    from pyopenvba.access import AccessDatabase
+
+    with AccessDatabase(args.database) as db:
+        updated = db.push_modules(args.src, strict=args.strict)
+        db.save(args.out)
+    for name in updated:
+        print(name)
     return 0
 
 
@@ -255,6 +267,16 @@ def main(argv: list[str] | None = None) -> int:
     p_apl.add_argument("database", type=Path)
     p_apl.add_argument("dest", type=Path)
     p_apl.set_defaults(func=_cmd_access_pull)
+
+    p_aps = sub.add_parser(
+        "access-push",
+        help="Import VBA modules from a directory into an Access database and save.",
+    )
+    p_aps.add_argument("src", type=Path)
+    p_aps.add_argument("database", type=Path)
+    p_aps.add_argument("--out", type=Path, default=None, help="Save to this path instead of in place.")
+    p_aps.add_argument("--strict", action="store_true", help="Fail on a file that matches no module.")
+    p_aps.set_defaults(func=_cmd_access_push)
 
     p_ad = sub.add_parser(
         "access-disasm",

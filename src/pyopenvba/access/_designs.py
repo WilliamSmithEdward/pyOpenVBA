@@ -2105,6 +2105,14 @@ def control_object(
         raise AccessError(
             f"a {control_type} cannot be written yet; known: {', '.join(sorted(CONTROL_SLOTS))}"
         )
+    # The control Access made for the measurement was the first that
+    # takes the focus, so it carried no TabIndex; every later one does,
+    # at the slot Access's own designs give it (measured: three text
+    # boxes written without it came back from Access tabbed 1, 2, 0).
+    slots = dict(slots)
+    measured = PROPERTY_SLOTS.get(control_type, {})
+    if "TabIndex" in measured:
+        slots.setdefault("TabIndex", measured["TabIndex"][:4])
     values: dict[str, bytes] = {
         "OverlapFlags": bytes((OVERLAP_FLAGS.get(control_type, DEFAULT_OVERLAP),)),
         "IMESentenceMode": bytes((DEFAULT_IME_SENTENCE_MODE,)),
@@ -2390,3 +2398,86 @@ def _nested(
         *objects[index + 1 + owned :],
     )
     return build_design(header, rebuilt, trailer)
+
+
+def _tab_index_of(obj: DesignObject, tab_code: int | None) -> int | None:
+    """Where a control sits in the tab order, or `None` for one that never
+    takes the focus.  A control with no record sits at 0, which is how
+    Access writes the first one."""
+    if obj.type is None or CONTROL_TYPES.get(obj.type) not in TABBABLE or tab_code is None:
+        return None
+    raw = obj.property_value(tab_code)
+    return int.from_bytes(raw, "little") if raw else 0
+
+
+def _closed_up(obj: DesignObject, removed: int, tab_code: int) -> DesignObject:
+    """`obj` with its tab index one lower when it followed the removed
+    control; a control that lands on 0 loses the record, as Access writes
+    the first control without one."""
+    raw = obj.property_value(tab_code)
+    if obj.type is None or not raw:
+        return obj
+    index = int.from_bytes(raw, "little")
+    if index <= removed:
+        return obj
+    records = tuple(
+        DesignRecord(r.id, r.code, r.value_type, r.width, (index - 1).to_bytes(len(r.value), "little"))
+        if r.code == tab_code else r
+        for r in obj.records
+        if not (r.code == tab_code and index - 1 == 0)
+    )
+    return DesignObject(obj.marker, obj.type, obj.code, records)
+
+
+def remove_control(blob: bytes, name: str) -> bytes:
+    """A design with the named control taken off, and whatever it holds.
+
+    The controls left at that level are re-marked, since their markers say
+    how many there are (see `_placed`), and the tab order closes up behind
+    a control that took the focus, as it does when Access deletes one in
+    its designer.  A page's own controls are not written here, so a
+    control below a page is refused rather than guessed at.
+    """
+    header, objects, trailer = parse_design(blob)
+    tab_code = property_code("TabIndex")
+    result: list[DesignObject] | None = None
+    removed_tab: int | None = None
+    at = 1
+    while at < len(objects) and result is None:
+        if not objects[at].is_section:
+            at += 1
+            continue
+        end = at + 1
+        while end < len(objects) and not objects[end].is_section:
+            end += 1
+        owners = _top_level(objects, at + 1, end)
+        hit = next((pair for pair in owners if objects[pair[0]].name == name), None)
+        if hit is not None:
+            index, _owned = hit
+            removed_tab = _tab_index_of(objects[index], tab_code)
+            rest = [pair for pair in owners if pair[0] != index]
+            placed = _placed(tuple(objects[i] for i, _ in rest))
+            rebuilt: list[DesignObject] = []
+            for position, (i, kept) in enumerate(rest):
+                rebuilt.append(placed[position])
+                rebuilt.extend(objects[i + 1 : i + 1 + kept])
+            result = [*objects[: at + 1], *rebuilt, *objects[end:]]
+            break
+        for index, owned in owners:
+            children = objects[index + 1 : index + 1 + owned]
+            child = next((k for k, obj in enumerate(children) if obj.name == name), None)
+            if child is None:
+                continue
+            if _children_span(objects, index + 1 + child, index + 1 + owned):
+                raise AccessError(f"{name!r} holds controls of its own; take those off first")
+            removed_tab = _tab_index_of(children[child], tab_code)
+            kept_children = _placed(tuple(obj for k, obj in enumerate(children) if k != child))
+            result = [*objects[: index + 1], *kept_children, *objects[index + 1 + owned :]]
+            break
+        at = end
+    if result is None:
+        raise AccessError(f"this design has no control named {name!r}")
+    if removed_tab is not None and tab_code is not None:
+        result = [_closed_up(obj, removed_tab, tab_code) for obj in result]
+    return build_design(header, tuple(result), trailer)
+

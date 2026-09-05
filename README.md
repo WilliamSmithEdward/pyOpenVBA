@@ -6,67 +6,57 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/LICENSE.md)
 [![Downloads](https://static.pepy.tech/badge/pyOpenVBA/month)](https://pepy.tech/project/pyOpenVBA)
 
-**Read and write VBA macros inside Office 365 files, in pure Python.**
+**Read and write VBA macros inside Office files, in pure Python.**
 
-No external dependencies. No Office install required. Works on Windows,
-macOS, and Linux. Python 3.10 or newer.
+No dependencies beyond the standard library. No Office install needed.
+Works on Windows, macOS and Linux. Python 3.10 or newer.
 
-Supports:
+Four hosts, one API:
 
 * Excel (`.xlsm`, `.xlsb`, `.xlam`, `.xls`)
-* PowerPoint (`.pptm`, `.potm`, `.ppt`)
 * Word (`.docm`, `.dotm`, `.doc`)
-* Access (`.accdb`) - **read-only**
+* PowerPoint (`.pptm`, `.potm`, `.ppt`)
+* Access (`.accdb`, `.mdb`)
 
 ---
 
 ## Why use this?
 
-Several excellent Python tools already exist for **reading** VBA out of
-Office files (oletools, olefile, and friends), and they remain a strong
-choice for forensics, malware analysis, and audit use-cases. pyOpenVBA
-focuses on the next step: safely **writing** changes back so the file
-still opens cleanly in the host application.
+Good Python tools exist for reading VBA out of Office files (oletools,
+olefile and friends), and they remain the right choice for forensics,
+malware analysis and audits. pyOpenVBA covers the next step: writing
+changes back so the file still opens cleanly in the host application.
 
-The write path is the whole point of the library:
+The write path is the point of the library:
 
 - **Modify** a module's source in place.
-- **Add** a new standard module, class module, or document/UserForm
-  code-behind.
-- **Rename** any module (the CFB stream, `dir` record, `PROJECT`
-  declaration, `PROJECTwm` name map, and `Attribute VB_Name` are all
-  updated in lockstep).
+- **Add** a standard module, a class module, or code behind a form.
+- **Rename** a module everywhere its name lives, in one step.
 - **Delete** a module cleanly.
-- **Design** UserForms, not just their code-behind: read a form's control
-  tree and its properties, edit them, add and remove controls, Frames,
-  MultiPages and pages, or compose a whole form from nothing.
-- **Save** the file and have it reopen in the host application with no
-  repair dialog. Every supported format is verified against live Office.
-- **Create** new `.xlsm`, `.xlsb`, `.xlam`, `.docm`, or `.pptm` files on
-  the fly, and inject VBA code into them.
+- **Design** forms as well as their code: read a form's controls and
+  properties, edit them, add and remove controls, or build a form from
+  nothing.
+- **Create** a new `.xlsm`, `.xlsb`, `.xlam`, `.docm`, `.pptm` or
+  `.accdb` file and put code in it.
+- **Save**, and have the file reopen in the host with no repair dialog.
+
+Every format is verified against live Office: the saved file reopens
+without a repair prompt, and the code in it runs. Access edits are held
+to a stricter bar. Each write is compared byte for byte with the same
+edit made by Access or its database engine.
 
 That makes it a good fit for:
 
-- **Version-controlling your VBA** in git like normal source code, then
-  pushing edits back without ever opening Office.
-- **Diffing** two workbooks or documents to see what changed in a module --
-  or in a form's design, down to which properties an author actually set.
-- **Building UserForms programmatically**, on a machine with no Office at
-  all.
-- **Generating or updating macros from a script** without scripting
-  Office through COM automation.
-- **Reading and writing macros on a server** (Linux / CI) where Office
-  is not installed.
-- **Agentic AI Integration** - allow your AI agent easy access to
-  both push and pull VBA code in your Office files.
+- Version-controlling VBA in git like any other source, then pushing
+  edits back without opening Office.
+- Diffing two files to see what changed in a module or a form's design.
+- Building forms and macros from a script on a machine without Office.
+- Reading and writing macros on a server or in CI.
+- Letting an AI agent read and change the code in your Office files.
 
-pyOpenVBA is a complete read-and-write library, so it covers the full
-lifecycle of a VBA project in one place: extract, edit, version, write
-back, and verify.
+---
 
 ## Installation
-
-From PyPI:
 
 ```bash
 pip install pyOpenVBA
@@ -74,14 +64,14 @@ pip install pyOpenVBA
 
 Requires Python 3.10 or newer. There are no other dependencies.
 
-After install, the CLI is available either as a module or as a script:
+After installing, the CLI is available as a module or as a script:
 
 ```bash
 python -m pyopenvba --help
 pyopenvba --help
 ```
 
-From source (for development):
+From source, for development:
 
 ```bash
 git clone https://github.com/WilliamSmithEdward/pyOpenVBA
@@ -93,24 +83,20 @@ pip install -e ".[dev]"
 
 ## 30-second tour
 
+The four host classes share the same module API: `module_names()`,
+`get_module()`, `set_module()`, `save()`.
+
 ### Excel
 
 ```python
 from pyopenvba import ExcelFile
 
 with ExcelFile("workbook.xlsm") as wb:
-    # 1. List all VBA modules in the workbook.
-    print(wb.module_names())
-    # ['ThisWorkbook', 'Sheet1', 'Module1']
-
-    # 2. Read a module's source as a string.
+    print(wb.module_names())        # ['ThisWorkbook', 'Sheet1', 'Module1']
     source = wb.get_module("Module1")
-    print(source)
-
-    # 3. Edit a module and save the workbook.
     wb.set_module("Module1", 'Sub Hello()\r\n    MsgBox "hi"\r\nEnd Sub\r\n')
-    wb.save()                       # overwrites the original file
-    # wb.save("edited.xlsm")        # ...or save to a new file
+    wb.save()                       # in place
+    # wb.save("edited.xlsm")        # or to a new file
 ```
 
 ### Word
@@ -119,9 +105,7 @@ with ExcelFile("workbook.xlsm") as wb:
 from pyopenvba import WordFile
 
 with WordFile("document.docm") as doc:
-    print(doc.module_names())
-    # ['ThisDocument', 'Module1']
-
+    print(doc.module_names())       # ['ThisDocument', 'Module1']
     doc.set_module("Module1", 'Sub Hello()\r\n    MsgBox "hi"\r\nEnd Sub\r\n')
     doc.save()
 ```
@@ -132,9 +116,7 @@ with WordFile("document.docm") as doc:
 from pyopenvba import PowerPointFile
 
 with PowerPointFile("presentation.pptm") as prs:
-    print(prs.module_names())
-    # ['Module1']
-
+    print(prs.module_names())       # ['Module1']
     prs.set_module("Module1", 'Sub Hello()\r\n    MsgBox "hi"\r\nEnd Sub\r\n')
     prs.save()
 ```
@@ -142,351 +124,137 @@ with PowerPointFile("presentation.pptm") as prs:
 ### Access
 
 ```python
-from pyopenvba import AccessReader
+from pyopenvba import AccessDatabase
 
-with AccessReader("database.accdb") as db:
-    # 1. List all VBA modules in the database.
-    modules = db.vba_modules()
-    print(list(modules))
-    # ['Module1', 'Form_Form1']
-
-    # 2. Read a module's source as a string.
+with AccessDatabase("database.accdb") as db:
+    print(db.module_names())        # ['Module1', 'Form_Orders']
     source = db.get_module("Module1")
-    print(source)
-```
-
-Excel, Word, and PowerPoint share the same read/write API:
-`module_names()`, `get_module()`, `set_module()`, `save()`. Access reads
-through `AccessReader` and writes through `AccessDatabase`, which adds,
-renames, deletes and re-sources modules (see below).
-
-### Access tables, no Office required
-
-`AccessDatabase` is a pure-Python implementation of the Jet 4 / ACE
-storage engine: it reads and writes the database itself, not just its
-VBA. Every edit reproduces what the engine writes, page for page.
-
-```python
-import datetime as dt
-from pyopenvba import AccessDatabase, ColumnSpec, IndexSpec
-
-with AccessDatabase.create_new("orders.accdb") as db:
-    orders = db.create_table(
-        "Orders",
-        [
-            ColumnSpec("Id", "Long", autonumber=True),
-            ColumnSpec("Customer", "Text", size=80),
-            ColumnSpec("Placed", "DateTime"),
-            ColumnSpec("Total", "Currency"),
-            ColumnSpec("Notes", "Memo"),
-        ],
-        [IndexSpec("PrimaryKey", ("Id",), primary=True), IndexSpec("ByCustomer", ("Customer",))],
-    )
-    orders.insert_row({"Customer": "Ada", "Placed": dt.datetime(2026, 9, 2, 9, 30), "Total": 19.99})
-    row_id, row = next(orders.rows_with_ids())
-    orders.update_row(row_id, {"Notes": "first order"})
-    db.save()
-
-with AccessDatabase("orders.accdb") as db:
-    print(db.table_names())                       # ['Orders']
-    for row in db.table("Orders").index("ByCustomer").rows():
-        print(row["Customer"], row["Total"], row["Notes"])
-    db.execute("INSERT INTO Orders (Customer, Placed, Total) VALUES ('Bob', #9/3/2026#, 5)")
-    db.execute("UPDATE Orders SET Total = Total * 2 WHERE Customer LIKE 'A*'")
-    for row in db.execute("SELECT Customer, Sum(Total) AS Spent FROM Orders GROUP BY Customer ORDER BY Customer"):
-        print(row["Customer"], row["Spent"])
+    db.set_module("Module1", "Option Compare Database\r\n\r\nPublic Sub Hello()\r\n    MsgBox \"hi\"\r\nEnd Sub")
     db.save()
 ```
 
-```python
-from pyopenvba import AccessDatabase
-
-with AccessDatabase("app.accdb") as db:
-    for module in db.modules():
-        print(module.name, module.kind, len(module.source))
-
-    db.create_module("Helpers", '''Option Compare Database
-
-Public Function Restock(ByVal low As Long) As Long
-    Restock = low * 2
-End Function''')
-    db.create_module("Widget", "Option Compare Database", kind="class")
-    db.set_module_source("Module1", "Option Compare Database\n\nPublic Sub Go()\nEnd Sub")
-    db.rename_module("Helpers", "Stock")
-    db.delete_module("Widget")
-    db.save()
-```
-
-Writing VBA marks the project for recompilation, so Access rebuilds it
-from this source the next time it opens the file. Two consequences worth
-knowing: the code has to compile, and the compiled cache no longer
-matches what Access last wrote until Access rewrites it. Every one of
-these operations is checked by running the result in Access and comparing
-the value the code returns.
-
-`db.execute(sql)` runs Jet SQL in pure Python. SELECT covers joins,
-WHERE, GROUP BY with aggregates, HAVING, ORDER BY, DISTINCT, TOP,
-subqueries (`IN`, `EXISTS`, correlated, as a value or as a table), UNION
-and crosstabs, with the functions a Jet expression can name (text,
-maths, dates, conversions, `Format`, `Partition`, `Switch`, `Choose`) and
-the domain functions (`DLookup`, `DCount`, `DSum`, `DMin`, `DMax` and the
-rest), each of which runs as a query over the table it names.
-INSERT, UPDATE and DELETE go through the same row
-writers, and CREATE TABLE, CREATE INDEX, ALTER TABLE, DROP TABLE and
-DROP INDEX through the schema writers. Its answers and the bytes it
-writes are both checked against DAO running the same statements on the
-same database. `with db.transaction():` rolls everything back if the
-block raises.
-
-Forms and reports read and write too. A design is a stream of property
-records, and this reads it as the tree of sections and controls it
-describes:
-
-```python
-with AccessDatabase("app.accdb") as db:
-    for form in db.forms():
-        print(form.name, [s.name for s in form.sections])
-        for control in form.controls:
-            print("   ", control.name, control.type_name)
-
-    db.create_form("Summary")
-    db.create_report("Monthly")
-    db.delete_form("Old")
-    db.save()
-```
-
-Controls go on too:
-
-```python
-    db.add_control("Summary", "Label", "Title", left=240, top=240,
-                   width=2000, height=300, caption="Hello")
-    db.add_control("Summary", "TextBox", "Total", top=700, caption="=1+1")
-    db.add_control("Monthly", "Label", "Banner", kind="report",
-                   section="PageHeaderSection", caption="Header band")
-```
-
-`db.references()`, `db.add_reference(...)` and `db.drop_reference(...)`
-manage the libraries the VBA project points at.
-
-Code goes behind them too, with `db.set_design_code(name, code)`, which
-creates the module if the design has none and replaces its source if it
-has one. Access runs it.
-
-A created form or report opens in Access's own designer, and Access reads
-back every measurement it was given. Labels and text boxes are the two
-control types that can be written: a record's id is its slot in the
-control type's own schema, and only those two schemas are measured.
-
-Macros read and write as well. Access keeps one as a binary blob of
-action records, not as the XML its designer shows:
-
-```python
-from pyopenvba import AccessDatabase
-from pyopenvba.access import MacroAction
-
-with AccessDatabase("app.accdb") as db:
-    for macro in db.macros():
-        print(macro.name, [(a.name, a.arguments) for a in macro.actions])
-
-    db.create_macro("Restock", [
-        MacroAction("SetTempVar", ("total", "6 * 7")),
-        MacroAction("Beep"),
-    ])
-    db.delete_macro("Old")
-    db.save()
-```
-
-Twenty-four actions are known by name. A macro written this way runs in
-Access: the gate creates one, runs it with `DoCmd.RunMacro` and reads the
-value it set.
-
-Attachments and multi-valued columns read and write too. Neither keeps
-its values in the row -- the row holds a Long, and the values live one
-per row in a flat table of their own:
-
-```python
-things = db.table("Things")
-for row in things.rows():
-    for file in things.attachments("Files", row["Files"]):
-        print(file.name, file.type, len(file.data))
-    print(things.multi_values("Tags", row["Tags"]))
-
-things.set_attachments("Files", row["Files"], [Attachment("notes.txt", b"hello")])
-things.set_multi_values("Tags", row["Tags"], ["red", "green"])
-```
-
-`table.add_complex_column("Files", "attachment")` creates one, flat
-table and indexes and all, and gives every row already there an id. An
-inserted row is given its complex id automatically. One thing does not
-match Access byte for byte: it compresses attachments with a deflate that
-is not zlib's, so a compressed attachment written here inflates to the
-same file and packs differently. The eight types Access stores raw
-(`docx`, `gif`, `jpeg`, `jpg`, `png`, `pptx`, `xlsx`, `zip`) are
-byte-identical.
-
-Every column type is covered (Boolean through BigInt, Decimal, GUID,
-Memo and OLE), columns can be added, dropped and retyped on a table that
-already holds rows, indexes are created, dropped and maintained on every
-write, relationships
-are created with `db.create_relationship(...)` and read with
-`db.relationships()`, the tables a database only points at are read with
-`db.links()` and written with `db.link_table(...)`, table and column
-properties (Description,
-Caption, Format, ...) are read and set through `table.properties()` and
-`table.set_properties(...)`, a column's own rules (Required,
-DefaultValue, ValidationRule) are written where the engine keeps them
-and applied to every row the writers take, saved queries -- select,
-action, union, crosstab and pass-through -- are read with `db.queries()`
-and written with `db.create_query(name, sql)`, and files grow to a
-hundred megabytes and past the point where a usage map outgrows its own
-row, the way the engine grows them. What it does not do yet is listed
-in
-[docs/access_engine.md](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/docs/access_engine.md),
-along with every format rule and how it was measured.
+Access keeps a compiled copy of the project beside the source and runs
+that copy. Writing source through pyOpenVBA marks the project for
+recompilation, so Access rebuilds it from the new source the next time it
+opens the file. The code has to compile, and Access takes a moment on
+that first open. Every one of these operations is checked by running the
+result in Access and comparing the value the code returns.
 
 ---
 
-## Create a brand-new file from scratch
+## Create a new file
 
-Need a fresh macro-enabled file without launching Office? Use
-`create_new()` on any of the three file classes. The extension in the
-path controls the format:
+`create_new()` builds a fresh macro-enabled file from a template Office
+authored itself, so it opens with no repair prompt. The extension picks
+the format:
 
 ```python
-from pyopenvba import ExcelFile, WordFile, PowerPointFile
+from pyopenvba import AccessDatabase, ExcelFile, PowerPointFile, WordFile
 
-# Excel - macro-enabled workbook (.xlsm), binary workbook (.xlsb),
-# or add-in (.xlam)
-with ExcelFile.create_new("new_book.xlsm") as wb:
+with ExcelFile.create_new("new_book.xlsm") as wb:        # also .xlsb, .xlam
     wb.set_module("Module1", 'Sub Hello()\r\n    MsgBox "xlsm"\r\nEnd Sub\r\n')
     wb.save()
 
-with ExcelFile.create_new("new_book.xlsb") as wb:
-    wb.set_module("Module1", 'Sub Hello()\r\n    MsgBox "xlsb"\r\nEnd Sub\r\n')
-    wb.save()
-
-with ExcelFile.create_new("new_addin.xlam") as wb:
-    wb.set_module("Module1", 'Sub Hello()\r\n    MsgBox "xlam"\r\nEnd Sub\r\n')
-    wb.save()
-
-# Word - macro-enabled document (.docm)
 with WordFile.create_new("new_doc.docm") as doc:
     doc.set_module("Module1", 'Sub Hello()\r\n    MsgBox "docm"\r\nEnd Sub\r\n')
     doc.save()
 
-# PowerPoint - macro-enabled presentation (.pptm)
 with PowerPointFile.create_new("new_prs.pptm") as prs:
     prs.set_module("Module1", 'Sub Hello()\r\n    MsgBox "pptm"\r\nEnd Sub\r\n')
     prs.save()
-```
 
-Each new file is built from a baked-in template captured from a
-freshly Office-authored file, so it opens cleanly with no repair prompt.
+with AccessDatabase.create_new("new_db.accdb") as db:
+    db.set_module("Module1", "Option Compare Database\r\n\r\nPublic Sub Hello()\r\nEnd Sub")
+    db.save()
+```
 
 ---
 
-## Add, rename, or delete a module
+## Add, rename or delete a module
 
-The same `vba_project()` API works for all three hosts:
+`vba_project()` gives the project, and the same three calls work on every
+host:
 
 ```python
 from pyopenvba import ExcelFile, VBAModuleKind
 
 with ExcelFile("workbook.xlsm") as wb:
     project = wb.vba_project()
-
-    # Add a standard module
-    project.add_module(
-        "NewModule",
-        'Sub Hi()\r\n    MsgBox "hi"\r\nEnd Sub\r\n',
-        kind=VBAModuleKind.standard,
-    )
-
-    # Add a class module (header is synthesized automatically)
-    project.add_module(
-        "MyClass",
-        "Option Explicit\r\n",
-        kind=VBAModuleKind.other,
-    )
-
+    project.add_module("NewModule", 'Sub Hi()\r\n    MsgBox "hi"\r\nEnd Sub\r\n')
+    project.add_module("MyClass", "Option Explicit\r\n", kind=VBAModuleKind.other)
     project.rename_module("OldName", "NewName")
     project.delete_module("Obsolete")
-
     wb.save("out.xlsm")
 ```
 
-Class sources are accepted in any form: a bare body (the header is
-synthesized), a `.cls` file exported straight from the VBE (the
-`VERSION ... CLASS` preamble is stripped and the required
-`Attribute VB_Base` line is added automatically), or a full
-stream-form source.
+```python
+from pyopenvba import AccessDatabase, VBAModuleKind
+
+with AccessDatabase("database.accdb") as db:
+    project = db.vba_project()
+    project.add_module("Helpers", "Option Compare Database\r\n\r\nPublic Function Twice(n As Long) As Long\r\n    Twice = n * 2\r\nEnd Function")
+    project.add_module("Widget", "Option Compare Database", kind=VBAModuleKind.other)
+    project.rename_module("Helpers", "Tools")
+    project.delete_module("Widget")
+    db.save()
+```
+
+A class source is accepted in any form: a bare body (the header is
+synthesized), a `.cls` file exported from the VBE (the `VERSION ... CLASS`
+preamble is stripped and the `Attribute VB_Base` line restored), or a
+full stream-form source. `db.references()`, `db.add_reference(...)` and
+`db.drop_reference(...)` manage the libraries an Access project points
+at.
 
 ---
 
-## Edit your macros as files on disk (recommended workflow)
+## Edit your macros as files on disk
 
-This is the easiest way to manage VBA in a git repo. Export every
-module to a folder, edit the files in any text editor, then push the
-changes back.
-
-### Excel
-
-From the command line:
+The easiest way to keep VBA in a git repo: export every module to a
+folder, edit the files in any editor, push the changes back.
 
 ```bash
-# Pull every module out of the workbook into ./vba/
-python -m pyopenvba pull workbook.xlsm ./vba
+python -m pyopenvba pull workbook.xlsm ./vba     # every module to ./vba/*.bas and *.cls
+python -m pyopenvba push ./vba workbook.xlsm     # edits back into the workbook
+python -m pyopenvba ls workbook.xlsm             # list modules without extracting
 
-# ...edit ./vba/Module1.bas in your editor of choice...
-
-# Push your edits back into the workbook
-python -m pyopenvba push ./vba workbook.xlsm
-
-# List modules without extracting
-python -m pyopenvba ls workbook.xlsm
+python -m pyopenvba access-pull database.accdb ./vba
+python -m pyopenvba access-push ./vba database.accdb
+python -m pyopenvba access-ls database.accdb
 ```
 
-From Python:
+The same from Python, one pair per host:
 
 ```python
-from pyopenvba import pull, push
+from pyopenvba import pull, push, pull_word, push_word, pull_ppt, push_ppt, pull_access, push_access
 
 pull("workbook.xlsm", "./vba")
-push("./vba", "workbook.xlsm")                    # in place
-push("./vba", "workbook.xlsm", out="edited.xlsm") # to a new file
-```
-
-### Word
-
-```python
-from pyopenvba import pull_word, push_word
+push("./vba", "workbook.xlsm", out="edited.xlsm")   # omit out= to save in place
 
 pull_word("document.docm", "./vba")
 push_word("./vba", "document.docm")
-push_word("./vba", "document.docm", out="edited.docm")
-```
-
-### PowerPoint
-
-```python
-from pyopenvba import pull_ppt, push_ppt
 
 pull_ppt("presentation.pptm", "./vba")
 push_ppt("./vba", "presentation.pptm")
-push_ppt("./vba", "presentation.pptm", out="edited.pptm")
+
+pull_access("database.accdb", "./vba")
+push_access("./vba", "database.accdb")
 ```
 
 Module files use the extensions VBA already uses: `.bas` for standard
-modules, `.cls` for class modules and code-behind.
+modules, `.cls` for class modules and code-behind. `push` replaces the
+source of every module that has a file of its name; a file that matches
+no module is skipped, or refused with `strict=True`.
 
 ---
 
-## Creating and editing a UserForm's design
+## Forms
 
-A form's *code* is a module like any other. Its *design* -- which controls
-exist, how they nest, and what their properties are -- lives in separate
-streams that no module source carries. `forms()` reads them, with no
-Office installed:
+A form's code is a module like any other. Its design, which controls
+exist, how they nest and what their properties are, lives beside it and
+is read and written with the same calls on every host.
+
+### UserForms in Excel, Word and PowerPoint
 
 ```python
 import pyopenvba
@@ -495,14 +263,8 @@ with pyopenvba.ExcelFile("book.xlsm") as wb:
     for form in wb.forms():
         print(form.name, len(form.walk()), "controls")
         for control in form.walk():
-            print(f"  {control.name:<16} {control.kind:<22} "
-                  f"{control.properties()}")
-```
+            print(f"  {control.name:<16} {control.kind:<22} {control.properties()}")
 
-And edits them:
-
-```python
-with pyopenvba.ExcelFile("book.xlsm") as wb:
     form = wb.forms()[0]
     form.control("OkButton").set_property("Caption", "Save")
     form.control("NameBox").set_property("MaxLength", 40)
@@ -511,31 +273,20 @@ with pyopenvba.ExcelFile("book.xlsm") as wb:
     wb.save()
 ```
 
-Containers work too. Each gets a storage of its own, and removing one
-takes its children with it:
+Containers work too. A `Frame` gets a storage of its own and removing it
+takes its children; a `MultiPage` arrives with the two pages Excel gives
+it, and pages are added and removed through it:
 
 ```python
 form.add_control("Frame", "Shipping", left=12, top=160, width=200, height=80)
 form.add_control("OptionButton", "Ground", container="Shipping")
-form.remove_control("OldFrame")     # and everything inside it
-```
-
-A `MultiPage` arrives with the two pages Excel gives it, and pages are
-added and removed through it, because a page is also a *tab*:
-
-```python
 form.add_control("MultiPage", "Wizard", left=12, top=40, width=300, height=200)
 form.add_page("Wizard", name="Review", caption="Review && confirm")
-form.add_control("Label", "Summary", container="Review")
 form.remove_page("Page2", multipage="Wizard")
 ```
 
-Page names are scoped to their MultiPage rather than to the form, which is
-why `remove_page` takes an optional `multipage` to disambiguate.
-
-And a form can be built from nothing -- `add_form` creates the designer
-storage and the code-behind module together, because a storage without a
-module is not a component the host will show:
+A form can be built from nothing. `add_form` creates the designer storage
+and the code-behind module together:
 
 ```python
 with pyopenvba.ExcelFile("book.xlsm") as wb:
@@ -548,50 +299,52 @@ with pyopenvba.ExcelFile("book.xlsm") as wb:
 ```
 
 Geometry is in points, the unit the designer shows. `set_property(name,
-None)` clears a property, which is how a control goes back to inheriting
-the default.
+None)` clears a property, so the control goes back to its default.
+MSForms stores a property only when it differs from the control's
+default, so `properties()` returns what the developer set, which no live
+host can tell you. Writing is lossless: an unedited form saves back byte
+for byte.
 
-Or from the command line:
+The command line shows the tree:
 
 ```bash
 python -m pyopenvba forms book.xlsm
 ```
 
+### Forms and reports in Access
+
+Access forms and reports read and edit through the same surface. Sizes
+are in twips, the unit Access keeps, and a report takes `kind="report"`:
+
+```python
+from pyopenvba import AccessDatabase
+
+with AccessDatabase("app.accdb") as db:
+    for form in db.forms():
+        print(form.name, [s.name for s in form.sections])
+        for control in form.walk():
+            print("  ", control.name, control.kind, control.properties().get("Caption"))
+
+    form = db.add_form("Summary", caption="Totals", width=8000, height=3000)
+    form.add_control("Label", "Title", left=240, top=240, width=2000, height=300, caption="Hello")
+    form.add_control("TextBox", "Total", top=700, caption="=1+1")
+    form.control("Title").set_property("FontSize", 14)
+    form.remove_control("Total")
+    form.set_code("Option Compare Database\r\n\r\nPrivate Sub Form_Load()\r\n    Me.Caption = \"Loaded\"\r\nEnd Sub")
+
+    report = db.add_report("Monthly")
+    report.add_control("Label", "Banner", section="PageHeaderSection", caption="Header band")
+    db.delete_form("Old")
+    db.save()
 ```
-FrmNested  (13 controls)
-  TopLabel             MSForms.Label          id=1    set=0x00000028
-  GroupBox             MSForms.Frame          id=2    set=0x0c0a0c48
-    OptOne               MSForms.OptionButton   id=3    set=0x0000000180c00146
-  Pages                MSForms.MultiPage      id=6    set=0x0c000c48
-    (unnamed)            MSForms.TabStrip       id=7    set=0x00fa8031
-    Page1                MSForms.Form           id=8    set=0x0c000c48
-      PageOneCheck         MSForms.CheckBox       id=10   set=0x0000000080c00146
-```
 
-Containers nest: a `Frame`'s children and a `MultiPage`'s `Page`s live in
-storages of their own, and MSForms sites an unnamed `TabStrip` beside the
-pages. `walk()` flattens the tree depth-first; `form.controls` gives just
-the top level.
-
-### Only what the developer set
-
-MSForms writes a property into a control's record **only when it differs
-from that control's default**, so `properties()` returns the set the
-developer chose -- not every property the control has. That is not
-something a live host can tell you: a sited control reports inherited,
-default, and chosen values indistinguishably.
-
-`properties_set` is the same information as a raw bit mask, if you want to
-diff two files without comparing names. Read a bit index together with
-`property_mask_width`: MorphData controls (`TextBox`, `ListBox`,
-`ComboBox`, `CheckBox`, `OptionButton`, `ToggleButton`) carry an 8-byte
-mask and everything else carries 4.
-
-Writing is lossless. An unedited form saves back byte for byte, because
-alignment padding, string bytes, pictures, and anything the property
-tables do not model are all replayed as they were read. If a form's
-streams do not reconcile, this raises `FormParseError` rather than
-returning a partly-guessed control list.
+Twenty-three control types can be written, including a tab control and
+its pages (`form.add_control("Page", "First", parent="Tabs")`); a
+navigation control is read but not written. Each control gets only the
+properties Access's own designs give its type, and `set_property` refuses
+a name the type does not have. A live gate opens every written design in
+Access's designer and reads back each control, measurement, caption and
+tab index.
 
 ---
 
@@ -626,54 +379,23 @@ returning a partly-guessed control list.
 
 | Extension | What it is                   | Read | Write | create_new |
 |-----------|------------------------------|:----:|:-----:|:----------:|
-| `.accdb`  | Access database (ACE engine) | tables, indexes, VBA | tables, indexes, rows, VBA modules (`AccessDatabase`) | yes |
-| `.mdb`    | Access database (Jet 4)      | tables, indexes, VBA | tables, indexes, rows, VBA modules | no |
+| `.accdb`  | Access database (ACE)        |  yes |  yes  |    yes     |
+| `.mdb`    | Access database (Jet 4)      |  yes |  yes  |    no      |
 
-Access keeps compiled VBA p-code separately from the source, and for a
-long time that looked like a wall: edit the source and Access ignores it,
-because it runs the compiled copy. The way through is not to write
-p-code but to invalidate it. `_VBA_PROJECT` is [MS-OVBA]'s
-PerformanceCache and its `Version` field names the build of VBA that
-compiled it; write a version the host does not recognise and VBA discards
-the cache and compiles the project from the module streams, which is what
-Access's own `/decompile` does. So `AccessDatabase` writes a module's
-source and marks the cache stale.
+An Access file keeps its VBA project inside the database itself, in the
+system tables Access uses for its own objects, so writing a module means
+writing rows, long values and index entries the way the database engine
+does. `AccessDatabase` does that with a pure-Python implementation of the
+Jet 4 / ACE storage engine, documented rule by rule with how each was
+measured in
+[docs/access_engine.md](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/docs/access_engine.md).
+Two things follow. A written module has no compiled copy until Access
+recompiles the project on its next open, which Access does on its own.
+And `AccessReader`, the older read-only class, is still there for
+inspecting a database: `vba_modules()`, `read_project_info()`,
+`identifiers()`, `disassemble_module()` and the `MSysObjects` catalog.
 
-What this does **not** cover: code behind forms and reports, the
-References collection, and password-protected projects.
-[docs/msaccess_lessons_learned.md](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/docs/msaccess_lessons_learned.md)
-has the chronicle of the dead ends, and
-[docs/research/access_write](https://github.com/WilliamSmithEdward/pyOpenVBA/tree/main/docs/research/access_write)
-the structures behind it.
-
-`AccessDatabase` covers the write side: `modules()`, `module(name)`,
-`create_module(name, code, kind=...)`, `set_module_source(name, code)`,
-`rename_module(old, new)` and `delete_module(name)`.
-
-What `AccessReader` does support:
-
-- `AccessReader(path)` / `vba_module_names()` / `read_vba_module(name)`
-- `read_vba_module_with_attributes(name)`
-- `vba_modules()` (dict of name -> source)
-- `iter_vba_modules()` (rich `VBAModule` records)
-- `export_module()` / `export_modules()` / `pull_modules()` (write `.bas` / `.cls` to disk)
-- `read_project_info()`, `identifiers()`, `find_interned_strings()`,
-  `find_module_streams()`, `iter_pcode_streams()`, `disassemble_module()`
-- `iter_msys_objects()` / `msys_objects()` / `iter_msys_modules()` /
-  `find_msys_module()` (MSysObjects catalog inspection)
-- Top-level helper: `pyopenvba.pull_access(database, dest_dir)`
-
-```python
-from pyopenvba import AccessReader, pull_access
-
-with AccessReader("database.accdb") as db:
-    for name, source in db.vba_modules().items():
-        print(name, len(source))
-
-pull_access("database.accdb", "./vba_src")   # export every module to .bas / .cls
-```
-
-Every save is verified to reopen in the host application **without** the
+Every save is verified to reopen in the host application without the
 "we found a problem with some content" repair dialog.
 
 ---
@@ -684,8 +406,8 @@ Every save is verified to reopen in the host application **without** the
 
 ### Password-protected projects
 
-If the VBA project is password-protected, any mutation will raise
-`VBAProjectError` unless you explicitly opt in:
+A mutation to a password-protected project raises `VBAProjectError`
+unless you opt in:
 
 ```python
 wb.save(allow_protected=True)
@@ -693,39 +415,34 @@ wb.save(allow_protected=True)
 
 `AccessDatabase` does the same: `db.vba_is_protected()` says whether the
 project carries a password, and `db.save()` refuses a VBA change to a
-protected project without `allow_protected=True`. A change that is not to
-the VBA project saves as before.
+protected project without `allow_protected=True`. The library never
+decrypts or changes the password; the protection bytes are preserved and
+the file still asks for the original password in the VBE.
 
-The library never tries to decrypt or change the password - it just
-preserves the existing protection bytes verbatim. The resulting file
-still requires the original password to open the VBE.
+### Digitally signed projects
 
-### Digitally-signed projects
-
-A digital signature is invalidated by *any* change to the macros. On
-mutation, the library drops the stale signature streams and emits a
-`UserWarning` so you know trust has been removed:
+Any change to the macros invalidates a digital signature. On mutation the
+library drops the stale signature streams and emits a `UserWarning`:
 
 ```python
 import warnings
 warnings.filterwarnings("error", category=UserWarning)   # treat as fatal
 
-# ...or silence the warning if you accept the consequence:
-wb.save(allow_invalidate_signature=True)
+wb.save(allow_invalidate_signature=True)                 # or accept it
 ```
 
 ---
 
-## What's out of scope
+## Out of scope
 
-A project's code and its UserForm designs are read and written. The
-following are preserved byte-for-byte but not interpreted:
+Preserved byte for byte but not interpreted:
 
-- VBA project password decryption / re-encryption.
+- VBA project password decryption or re-encryption.
 - Re-signing digitally signed projects.
 - ActiveX license editing.
 
-See [docs/roadmap.md](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/docs/roadmap.md) for the full feature matrix.
+[docs/roadmap.md](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/docs/roadmap.md)
+has the feature matrix.
 
 ---
 
@@ -733,51 +450,44 @@ See [docs/roadmap.md](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/
 
 ```
 src/pyopenvba/
-  __init__.py        public API (ExcelFile, WordFile, PowerPointFile,
-                                 AccessReader, VBAForm, FormControl, Size,
-                                 pull/push, pull_word/push_word,
-                                 pull_ppt/push_ppt, pull_access,
-                                 VBAModuleKind, synthesize_class_header,
-                                 exceptions)
+  __init__.py        public API: ExcelFile, WordFile, PowerPointFile,
+                     AccessDatabase, AccessReader, VBAForm, FormControl,
+                     pull/push for each host, VBAModuleKind, exceptions
   _host.py           VBAHostFile: shared open/edit/pull/push/save pipeline
-  excel.py           ExcelFile (thin VBAHostFile subclass + create_new template)
-  word.py            WordFile (thin VBAHostFile subclass + create_new template)
-  powerpoint.py      PowerPointFile (thin subclass; .ppt overrides the two
-                     container hooks)
-  access_read.py     AccessReader (read-only ACE/Jet page + LVAL reader)
-  access/            the Jet 4 / ACE storage engine, in progress: reads
-                     every table, index and long value; inserts, updates
-                     and deletes rows and creates and drops tables and
-                     indexes the way the engine does (docs/access_engine.md)
-  vba.py             VBA project parser + MS-OVBA codec
+  excel.py           ExcelFile (VBAHostFile subclass, create_new template)
+  word.py            WordFile
+  powerpoint.py      PowerPointFile (.ppt overrides the container hooks)
+  access/            AccessDatabase: the VBA project, forms and reports,
+                     and the Jet 4 / ACE storage engine they live in
+  access_read.py     AccessReader: the older read-only inspector
+  vba.py             VBA project parser and MS-OVBA codec
   vba_pcode.py       VBA7 p-code disassembler
   cfb.py             MS-CFB (Compound File Binary) parser/writer
   forms.py           UserForm designer streams: control tree, read and write
   _oforms_records.py [MS-OFORMS] property table, one per control class
   _oforms_pages.py   a MultiPage's tabs and page bookkeeping
   _ppt_container.py  the VBA project a binary .ppt hides in its document stream
-  exceptions.py      custom exception hierarchy
-  _templates/        baked-in empty .xlsm/.xlsb/.xlam/.docm/.pptm/.accdb bytes
-                     for create_new()
-  __main__.py        `python -m pyopenvba {pull,push,ls,forms,disasm,access-*}`
+  exceptions.py      exception hierarchy
+  _templates/        empty .xlsm/.xlsb/.xlam/.docm/.pptm/.accdb bytes for create_new()
+  __main__.py        python -m pyopenvba {pull,push,ls,forms,disasm,access-ls,access-pull,access-push,access-disasm}
 ```
 
-For deeper documentation:
+For more:
 
-- [docs/architecture.md](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/docs/architecture.md) - internal module layout.
-- [docs/ms-ovba-implementation-guide_v2.md](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/docs/ms-ovba-implementation-guide_v2.md) -
-  language-agnostic guide for re-implementing MS-OVBA in another language.
-- [docs/roadmap.md](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/docs/roadmap.md) - per-feature implementation status.
+- [docs/architecture.md](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/docs/architecture.md): internal layout and conventions.
+- [docs/access_engine.md](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/docs/access_engine.md): the Access file format as measured, and what the engine reproduces.
+- [docs/ms-ovba-implementation-guide_v2.md](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/docs/ms-ovba-implementation-guide_v2.md): a language-agnostic guide to re-implementing MS-OVBA.
+- [docs/roadmap.md](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/docs/roadmap.md): per-feature status.
 
 ---
 
 ## Contributing
 
-Bug reports, weird files that break the library, and PRs are all
-welcome. Please include the file (or a minimal redacted version) when
-filing a parsing bug.
+Bug reports, files that break the library, and pull requests are welcome.
+Please include the file, or a minimal redacted version, when filing a
+parsing bug.
 
-Run the full local check (same as CI):
+Run the same checks as CI:
 
 ```bash
 pip install -e ".[dev]"
@@ -785,19 +495,20 @@ pyright src tests
 pytest -p no:randomly
 ```
 
-On a Windows machine with desktop Excel installed you can additionally run
-the live compile-and-run gate (skipped by default and in CI). It builds a
-workbook with pyOpenVBA, runs its macro in real Excel under a popup-aware
-harness, and fails on any VBE dialog:
+On Windows with desktop Office installed you can also run the live gates,
+which are skipped by default and in CI. Each builds a file with pyOpenVBA
+and has the real application open it, run its code, or perform the same
+edit for a byte-for-byte comparison:
 
 ```powershell
 $env:RUN_LIVE_EXCEL = "1"; pytest tests/test_live_excel_gate.py
+$env:RUN_LIVE_ACCESS = "1"; pytest tests/test_live_access_engine_gate.py
+$env:RUN_LIVE_ACCESS_VBA = "1"; pytest tests/test_live_access_design_gate.py
 ```
 
-CI runs the test matrix on Python 3.10 / 3.11 / 3.12 / 3.13 across
-Linux, plus 3.12 on Windows and macOS, on every push and pull request.
-Releases are published to PyPI automatically when a `v*.*.*` tag is
-pushed.
+CI runs the test matrix on Python 3.10 through 3.14 on Linux, plus 3.12
+on Windows and macOS, on every push and pull request. Releases go to
+PyPI when a `v*.*.*` tag is pushed.
 
 ---
 
@@ -807,10 +518,10 @@ pushed.
 
 ---
 
-## Support Open Source
+## Support open source
 
-pyOpenVBA is open-source software. If it saves you time or helps your team keep
-VBA workbooks maintainable, support helps keep the project moving.
+If pyOpenVBA saves you time or helps your team keep VBA maintainable,
+support keeps the project moving.
 
 - [GitHub Sponsors](https://github.com/sponsors/WilliamSmithEdward)
 - [PayPal](https://www.paypal.com/donate/?business=ML855BRLNR838&no_recurring=0&item_name=VBA+has+always+treated+me+well.+It+was+how+I+first+grew+professional+as+a+programmer%2C+I%27m+happy+to+show+it+some+love+%E2%9D%A4%EF%B8%8F&currency_code=USD)

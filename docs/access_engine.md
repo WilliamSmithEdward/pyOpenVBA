@@ -1,7 +1,8 @@
 # The Access engine
 
-**Status: in progress, started 2026-09-01.** Read layer shipping first;
-each later phase lands only when live Access agrees with it.
+**Status: shipped.** Started 2026-09-01; every phase in the table at the
+end is done, and each landed only when live Access, or its database
+engine through DAO, agreed with it byte for byte.
 
 ## Context
 

@@ -61,6 +61,7 @@ from pyopenvba.access._designs import (
     set_property,
     CATALOG_CONTAINERS,
     add_control,
+    remove_control,
     CONTAINERS,
     NAV_TYPES,
     OBJECT_TYPES,
@@ -69,6 +70,13 @@ from pyopenvba.access._designs import (
     template,
     with_guid,
 )
+from pyopenvba.access._facade import (
+    AccessForm,
+    AccessVBAProject,
+    module_kind,
+)
+from pyopenvba.access._facade import pull_modules as _pull_modules
+from pyopenvba.access._facade import push_modules as _push_modules
 from pyopenvba.access._macros import (
     NAV_MACRO_TYPE,
     OBJECT_MACRO,
@@ -228,7 +236,7 @@ from pyopenvba.access._validate import Rules, apply_defaults
 from pyopenvba.access._validate import check as check_rules
 from pyopenvba.access._validate import read as read_rules
 from pyopenvba.access_read import AccessError
-from pyopenvba.vba import compress, decompress, parse_project_stream
+from pyopenvba.vba import VBAModuleKind, compress, decompress, parse_project_stream
 
 MSYS_OBJECTS_PAGE = 2
 
@@ -2565,19 +2573,56 @@ class AccessDatabase:
             out.append(AccessDesign(name, kind, objects))
         return out
 
-    def forms(self) -> list[AccessDesign]:
-        """Every form, with its sections and controls."""
-        return self._designs("form")
+    def forms(self) -> list[AccessForm]:
+        """Every form, with its sections and controls, ready to edit the
+        way a host's ``forms()`` are."""
+        return [AccessForm(self, design) for design in self._designs("form")]
 
-    def reports(self) -> list[AccessDesign]:
+    def reports(self) -> list[AccessForm]:
         """Every report, with its sections and controls."""
-        return self._designs("report")
+        return [AccessForm(self, design) for design in self._designs("report")]
 
-    def form(self, name: str) -> AccessDesign:
-        return self._design("form", name)
+    def form(self, name: str) -> AccessForm:
+        return AccessForm(self, self._design("form", name))
 
-    def report(self, name: str) -> AccessDesign:
-        return self._design("report", name)
+    def report(self, name: str) -> AccessForm:
+        return AccessForm(self, self._design("report", name))
+
+    def add_form(
+        self,
+        name: str,
+        *,
+        caption: str | None = None,
+        width: int | None = None,
+        height: int | None = None,
+    ) -> AccessForm:
+        """Add an empty form, as a host's ``add_form`` does, ready for
+        ``add_control``.  ``width`` is the form's, ``height`` the Detail
+        section's, both in twips, as Access keeps them."""
+        return self._add_design("form", name, caption=caption, width=width, height=height)
+
+    def add_report(
+        self,
+        name: str,
+        *,
+        caption: str | None = None,
+        width: int | None = None,
+        height: int | None = None,
+    ) -> AccessForm:
+        """Add an empty report the same way."""
+        return self._add_design("report", name, caption=caption, width=width, height=height)
+
+    def _add_design(
+        self, kind: str, name: str, *, caption: str | None, width: int | None, height: int | None
+    ) -> AccessForm:
+        self._create_design(kind, name, updated=None)
+        if caption is not None:
+            self.set_design_property(name, "Caption", caption, kind=kind)
+        if width is not None:
+            self.set_design_property(name, "Width", width, kind=kind)
+        if height is not None:
+            self.set_control_property(name, "Detail", "Height", height, kind=kind)
+        return AccessForm(self, self._design(kind, name))
 
     def _design(self, kind: str, name: str) -> AccessDesign:
         for found in self._designs(kind):
@@ -2585,14 +2630,14 @@ class AccessDatabase:
                 return found
         raise AccessError(f"this database has no {kind} named {name!r}")
 
-    def create_form(self, name: str, *, updated: object | None = None) -> AccessDesign:
+    def create_form(self, name: str, *, updated: object | None = None) -> AccessForm:
         """Add an empty form."""
-        return self._create_design("form", name, updated=updated)
+        return AccessForm(self, self._create_design("form", name, updated=updated))
 
-    def create_report(self, name: str, *, updated: object | None = None) -> AccessDesign:
+    def create_report(self, name: str, *, updated: object | None = None) -> AccessForm:
         """Add an empty report, with its page header, detail and page
         footer sections."""
-        return self._create_design("report", name, updated=updated)
+        return AccessForm(self, self._create_design("report", name, updated=updated))
 
     def _create_design(self, kind: str, name: str, *, updated: object | None) -> AccessDesign:
         """The design itself comes from a captured template -- an empty one
@@ -2692,7 +2737,7 @@ class AccessDatabase:
         width: int = 1440,
         height: int = 240,
         caption: str | None = None,
-    ) -> AccessDesign:
+    ) -> AccessForm:
         """Put a control on a form or report.
 
         `control_type` is one of the twenty-one whose slots were read
@@ -2709,23 +2754,36 @@ class AccessDatabase:
         that must have a parent.  Sizes are in twips, as Access keeps them; a
         page break takes only its top, which is all Access writes for one.
         """
-        return self._rewrite_design(
-            kind,
-            design,
-            lambda blob: add_control(
-                blob,
-                control_type,
-                name,
-                random.Random().randbytes(16),
-                section=section,
-                parent=parent,
-                left=left,
-                top=top,
-                width=width,
-                height=height,
-                caption=caption,
+        return AccessForm(
+            self,
+            self._rewrite_design(
+                kind,
+                design,
+                lambda blob: add_control(
+                    blob,
+                    control_type,
+                    name,
+                    random.Random().randbytes(16),
+                    section=section,
+                    parent=parent,
+                    left=left,
+                    top=top,
+                    width=width,
+                    height=height,
+                    caption=caption,
+                ),
             ),
         )
+
+    def remove_control(self, design: str, control: str, *, kind: str = "form") -> AccessForm:
+        """Take a control off a form or report, with anything it holds.
+
+        The controls left in its section are re-marked and the tab order
+        closes up behind one that took the focus, as Access does when a
+        control is deleted in its designer (a live gate has Access read
+        back the controls and tab indexes that remain).
+        """
+        return AccessForm(self, self._rewrite_design(kind, design, lambda blob: remove_control(blob, control)))
 
     def _rewrite_design(
         self, kind: str, design: str, change: Callable[[bytes], bytes]
@@ -2771,7 +2829,7 @@ class AccessDatabase:
         value: object,
         *,
         kind: str = "form",
-    ) -> AccessDesign:
+    ) -> AccessForm:
         """Change one property of one control, or of one section.
 
         `name` is the property's own name -- `Caption`, `FontSize`,
@@ -2785,17 +2843,13 @@ class AccessDatabase:
         controls Access itself wrote; a name that is not among them is
         refused rather than written somewhere it does not belong.
         """
-        return self._rewrite_design(
-            kind, design, lambda blob: set_property(blob, control, name, value)
-        )
+        return AccessForm(self, self._rewrite_design(kind, design, lambda blob: set_property(blob, control, name, value)))
 
     def set_design_property(
         self, design: str, name: str, value: object, *, kind: str = "form"
-    ) -> AccessDesign:
+    ) -> AccessForm:
         """Change one property of the form or report itself."""
-        return self._rewrite_design(
-            kind, design, lambda blob: set_property(blob, None, name, value)
-        )
+        return AccessForm(self, self._rewrite_design(kind, design, lambda blob: set_property(blob, None, name, value)))
 
     #: What a form's or report's own module is called.
     DESIGN_MODULE_PREFIX = {"form": "Form_", "report": "Report_"}
@@ -3792,6 +3846,52 @@ class AccessDatabase:
             if module.name.lower() == name.lower():
                 return module
         raise AccessError(f"the VBA project has no module named {name!r}")
+
+    # -- the surface the other hosts have ----------------------------------
+
+    def module_names(self) -> list[str]:
+        """The modules' names, in dir-stream order."""
+        return [module.name for module in self.modules()]
+
+    def get_module(self, name: str) -> str:
+        """A module's source, as the VBE shows it."""
+        return self.module(name).source
+
+    def set_module(self, name: str, source: str) -> None:
+        """Replace a module's source; the module has to exist.  The same
+        as :meth:`set_module_source`, under the name the other hosts use."""
+        self.set_module_source(name, source)
+
+    def add_module(
+        self,
+        name: str,
+        source: str = "Option Compare Database",
+        *,
+        kind: VBAModuleKind | str = VBAModuleKind.standard,
+    ) -> VBAModule:
+        """Add a module, taking ``kind`` as the other hosts do:
+        ``VBAModuleKind.standard`` or ``VBAModuleKind.other`` for a class
+        (``"module"`` and ``"class"`` are accepted too)."""
+        return self.create_module(name, source, kind=module_kind(kind))
+
+    def vba_project(self) -> AccessVBAProject:
+        """The VBA project with the shape a host's ``vba_project()`` has:
+        ``modules``, ``references``, ``add_module``, ``rename_module`` and
+        ``delete_module``, each acting on the database at once."""
+        return AccessVBAProject(self)
+
+    def pull_modules(self, dest_dir: str | Path, *, encoding: str = "utf-8", overwrite: bool = True) -> list[Path]:
+        """Export every module to ``dest_dir`` as ``.bas`` (standard) and
+        ``.cls`` (class) files, as the other hosts do.  Returns the paths
+        written."""
+        return _pull_modules(self, dest_dir, encoding=encoding, overwrite=overwrite)
+
+    def push_modules(self, src_dir: str | Path, *, encoding: str = "utf-8", strict: bool = False) -> list[str]:
+        """Replace each module's source from the file of its name in
+        ``src_dir``; a file matching no module is skipped, or refused with
+        ``strict``.  Nothing reaches disk until :meth:`save`.  Returns the
+        names updated."""
+        return _push_modules(self, src_dir, encoding=encoding, strict=strict)
 
     def create_module(
         self,

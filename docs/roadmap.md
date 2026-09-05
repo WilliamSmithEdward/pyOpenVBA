@@ -4,25 +4,33 @@ This roadmap tracks pyOpenVBA's progress against the 26 hard gates defined in
 [`xlsm_feature_completeness_gates.md`](xlsm_feature_completeness_gates.md).
 Per-gate status keys:
 
-- **PASS** — implemented; gate tests in [`tests/test_gates.py`](../tests/test_gates.py) pass.
-- **PARTIAL** — minimum bar met; secondary assertions are `xfail`.
-- **TODO** — not implemented; gate tests are `xfail(strict=True)`.
-- **VERBATIM** — bytes are preserved through round-trip but not interpreted.
-- **OUT OF SCOPE** — explicitly excluded from current development; tests are `skip` with a reason.
+- **PASS**: implemented; gate tests in [`tests/test_gates.py`](../tests/test_gates.py) pass.
+- **PARTIAL**: minimum bar met; secondary assertions are `xfail`.
+- **TODO**: not implemented; gate tests are `xfail(strict=True)`.
+- **VERBATIM**: bytes are preserved through round-trip but not interpreted.
+- **OUT OF SCOPE**: explicitly excluded from current development; tests are `skip` with a reason.
 
 ## Current scope declaration
 
-pyOpenVBA today is best described as:
-
-> **"MS-OVBA round-tripper with module source reader/writer (.xlsm focus)."**
+pyOpenVBA reads and writes the VBA project of Excel, Word, PowerPoint and
+Access files, and the design of their forms, with the same API on each
+host. The gates below are the MS-OVBA gates the Excel work was built
+against; the Access host is tracked phase by phase in
+[`access_engine.md`](access_engine.md), whose table ends with what is
+done and what is not.
 
 ### Supported
 - `.xlsm`, `.xlsb`, `.xlam` (OOXML ZIP containers with `xl/vbaProject.bin`).
-- `.xls` (legacy BIFF8 — vbaProject.bin is the entire file).
+- `.docm`, `.dotm`, `.doc` and `.pptm`, `.potm`, `.ppt` through the same
+  host pipeline.
+- `.accdb` and `.mdb`: modules read and written, added, renamed and
+  deleted; forms and reports read and edited; the same `pull` / `push`
+  workflow (`pull_access`, `push_access`, `access-pull`, `access-push`).
+- `.xls` (legacy BIFF8; vbaProject.bin is the entire file).
 - Read all VBA module sources (standard, class, document, designer code-behind).
 - Replace source of any existing module.
 - **Disk-based push/pull** (`pyopenvba.pull` / `pyopenvba.push`, and
-  `python -m pyopenvba {pull,push,ls}`) — export modules to `.bas` / `.cls`
+  `python -m pyopenvba {pull,push,ls}`): export modules to `.bas` / `.cls`
   files for use with any text editor / version control, then push edits back
   into the workbook.
 - No-op round-trip preservation of every non-VBA ZIP entry.
@@ -82,7 +90,7 @@ _No open near-term items: all in-scope gates are PASS. See the "Out of scope" se
 ## Out of scope (no current plans)
 
 - Re-signing modified projects with arbitrary PKCS#7 / VBA digital signatures (Gate 17).
-- Office-compatible V3 / agile content-hash recomputation (Gate 15) — only meaningful as a prerequisite for re-signing.
+- Office-compatible V3 / agile content-hash recomputation (Gate 15), only meaningful as a prerequisite for re-signing.
 - Breaking, removing, or bypassing project protection passwords.
 - Editing the design of a form whose streams this cannot parse: it raises
   rather than guessing, which is deliberate.

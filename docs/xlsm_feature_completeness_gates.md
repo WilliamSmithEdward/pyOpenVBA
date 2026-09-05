@@ -15,7 +15,7 @@ Do not call the implementation "feature complete" unless all HARD gates pass.
 
 ---
 
-## GATE 0 — Scope Declaration Gate
+## GATE 0: Scope Declaration Gate
 
 HARD PASS requires:
 
@@ -35,7 +35,7 @@ Failure condition:
 
 ---
 
-## GATE 1 — Host Package Gate
+## GATE 1: Host Package Gate
 
 For `.xlsm` support, HARD PASS requires:
 
@@ -52,7 +52,7 @@ Failure condition:
 
 ---
 
-## GATE 2 — OLE/CFB Container Gate
+## GATE 2: OLE/CFB Container Gate
 
 HARD PASS requires:
 
@@ -80,7 +80,7 @@ Failure condition:
 
 ---
 
-## GATE 3 — Binary Parsing Discipline Gate
+## GATE 3: Binary Parsing Discipline Gate
 
 HARD PASS requires:
 
@@ -98,7 +98,7 @@ Failure condition:
 
 ---
 
-## GATE 4 — Compression/Decompression Gate
+## GATE 4: Compression/Decompression Gate
 
 HARD PASS requires:
 
@@ -126,7 +126,7 @@ Failure condition:
 
 ---
 
-## GATE 5 — `_VBA_PROJECT` / Performance Cache Gate
+## GATE 5: `_VBA_PROJECT` / Performance Cache Gate
 
 HARD PASS requires:
 
@@ -143,7 +143,7 @@ Failure condition:
 
 ---
 
-## GATE 6 — `PROJECT` Stream Gate
+## GATE 6: `PROJECT` Stream Gate
 
 HARD PASS requires:
 
@@ -176,7 +176,7 @@ Failure condition:
 
 ---
 
-## GATE 7 — `PROJECTwm` Name Mapping Gate
+## GATE 7: `PROJECTwm` Name Mapping Gate
 
 HARD PASS requires:
 
@@ -193,7 +193,7 @@ Failure condition:
 
 ---
 
-## GATE 8 — `PROJECTlk` / ActiveX License Gate
+## GATE 8: `PROJECTlk` / ActiveX License Gate
 
 HARD PASS requires:
 
@@ -209,7 +209,7 @@ Failure condition:
 
 ---
 
-## GATE 9 — `dir` Stream Project Information Gate
+## GATE 9: `dir` Stream Project Information Gate
 
 HARD PASS requires parsing and writing every required project-information record, including:
 
@@ -240,7 +240,7 @@ Failure condition:
 
 ---
 
-## GATE 10 — `dir` Stream Reference Gate
+## GATE 10: `dir` Stream Reference Gate
 
 HARD PASS requires parsing and writing all reference record types:
 
@@ -266,7 +266,7 @@ Failure condition:
 
 ---
 
-## GATE 11 — `dir` Stream Module Record Gate
+## GATE 11: `dir` Stream Module Record Gate
 
 HARD PASS requires parsing and writing every module record field:
 
@@ -299,7 +299,7 @@ Failure condition:
 
 ---
 
-## GATE 12 — Module Stream Gate
+## GATE 12: Module Stream Gate
 
 HARD PASS requires:
 
@@ -321,7 +321,7 @@ Failure condition:
 
 ---
 
-## GATE 13 — Module Mutation Gate
+## GATE 13: Module Mutation Gate
 
 HARD PASS requires valid operations for:
 
@@ -353,7 +353,7 @@ Failure condition:
 
 ---
 
-## GATE 14 — Designer / UserForm Gate
+## GATE 14: Designer / UserForm Gate
 
 HARD PASS requires:
 
@@ -371,7 +371,7 @@ Failure condition:
 
 ---
 
-## GATE 15 — Content Hash / Integrity Gate
+## GATE 15: Content Hash / Integrity Gate
 
 HARD PASS requires:
 
@@ -389,7 +389,7 @@ Failure condition:
 
 ---
 
-## GATE 16 — Protection / Encryption / Password Gate
+## GATE 16: Protection / Encryption / Password Gate
 
 HARD PASS requires:
 
@@ -410,7 +410,7 @@ Failure condition:
 
 ---
 
-## GATE 17 — Digital Signature Gate
+## GATE 17: Digital Signature Gate
 
 HARD PASS requires:
 
@@ -428,7 +428,7 @@ Failure condition:
 
 ---
 
-## GATE 18 — Encoding Gate
+## GATE 18: Encoding Gate
 
 HARD PASS requires:
 
@@ -447,7 +447,7 @@ Failure condition:
 
 ---
 
-## GATE 19 — Cross-Structure Consistency Gate
+## GATE 19: Cross-Structure Consistency Gate
 
 HARD PASS requires validation that all of these agree:
 
@@ -468,7 +468,7 @@ Failure condition:
 
 ---
 
-## GATE 20 — Round-Trip Preservation Gate
+## GATE 20: Round-Trip Preservation Gate
 
 HARD PASS requires a no-op round trip:
 
@@ -493,7 +493,7 @@ Failure condition:
 
 ---
 
-## GATE 21 — Mutation Round-Trip Gate
+## GATE 21: Mutation Round-Trip Gate
 
 HARD PASS requires mutation tests for:
 
@@ -521,7 +521,7 @@ Failure condition:
 
 ---
 
-## GATE 22 — Corpus Gate
+## GATE 22: Corpus Gate
 
 HARD PASS requires a test corpus containing at least:
 
@@ -550,7 +550,7 @@ Failure condition:
 
 ---
 
-## GATE 23 — Fuzz / Malformed Input Gate
+## GATE 23: Fuzz / Malformed Input Gate
 
 HARD PASS requires:
 
@@ -573,7 +573,7 @@ Failure condition:
 
 ---
 
-## GATE 24 — API Contract Gate
+## GATE 24: API Contract Gate
 
 HARD PASS requires the public API to separate these operations:
 
@@ -598,7 +598,7 @@ Failure condition:
 
 ---
 
-## GATE 25 — Documentation Gate
+## GATE 25: Documentation Gate
 
 HARD PASS requires documentation stating:
 

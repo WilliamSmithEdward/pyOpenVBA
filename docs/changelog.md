@@ -7,6 +7,20 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- **Access has the same API as the other hosts.** `AccessDatabase` gains
+  `module_names()`, `get_module()`, `set_module()`, `add_module()` (taking
+  `VBAModuleKind`), `vba_project()` with `add_module` / `rename_module` /
+  `delete_module`, and `pull_modules()` / `push_modules()`; the top level
+  gains `push_access()` beside `pull_access()`, and the command line
+  `access-push` beside `access-pull`. Forms and reports come back from
+  `forms()`, `reports()`, `form()` and `add_form()` / `add_report()` as
+  `AccessForm` objects with `walk()`, `control()`, `properties()`,
+  `set_property()`, `add_control()`, `remove_control()` and `set_code()`,
+  the calls a UserForm takes; a control is an `AccessControl` with the
+  same `properties()` / `set_property()`. Removing a control re-marks the
+  ones left in its section and closes the tab order up behind it; the
+  live gate has Access read back what remains.
+
 - **Compact and Repair.** `db.compact_and_repair()` builds a new database
   the way DAO's `CompactDatabase` does: a bare engine skeleton with every
   object copied in -- containers, forms and modules, then tables, queries
@@ -508,6 +522,12 @@ All notable changes to pyOpenVBA are documented here. This project follows
   both. Inserts leave the row counter alone, as the engine does.
 
 ### Fixed
+
+- **A second text box gets its tab index.** The text box Access made for
+  the slot table was the first on its form and so carried no `TabIndex`;
+  every later focusable control does, and the writer now gives one to a
+  text box as it already did to every other type (measured: three text
+  boxes written without it came back from Access tabbed 1, 2, 0).
 
 - **A large long value lands on the highest-numbered listed page.** The
   engine takes the highest page the column's free-space map lists when

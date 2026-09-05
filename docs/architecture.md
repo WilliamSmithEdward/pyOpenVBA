@@ -13,8 +13,8 @@ porting this to another language), see
 
 ## 1. Layering
 
-pyOpenVBA is organized in three strictly-layered modules. Each layer
-knows about the layer below it but not the layer above.
+pyOpenVBA is organized in strictly layered modules. Each layer knows
+about the layer below it but not the layer above.
 
 ```
 +--------------------------------------------------------+
@@ -30,37 +30,29 @@ knows about the layer below it but not the layer above.
 |   - pull / push disk workflow                          |
 |   - class-source normalization at set_module / push    |
 +--------------------------------------------------------+
-| access_read.py  AccessReader facade  (READ-ONLY)         |
-|   - ACE / Jet 4 page reader (.accdb, .mdb)             |
-|   - MS-OVBA blob discovery via signature scan          |
-|   - LVAL page-chain walker                             |
-|   - read_vba_module(name) -> str (pure Python)         |
-|   - get_module / vba_modules / iter_vba_modules        |
-|   - pull_modules / export_modules / export_module      |
-|   - read_vba_module_with_attributes (full preamble)    |
-|   - read_project_info / identifiers                    |
-|   - find_interned_strings / find_module_streams        |
-|   - iter_pcode_streams / read_module_pcode_stream      |
-|   - disassemble_module (via vba_pcode)                 |
-|   - iter_msys_objects / find_msys_module               |
-|       (MSysObjects system catalog reader)              |
-|   - NO write APIs; see msaccess_lessons_learned.md     |
+| access/         AccessDatabase: the Access host          |
+|   - database: the facade -- modules, vba_project(),    |
+|       forms(), add_form(), tables, save                |
+|   - _facade: the host-shaped surface (AccessVBAProject,|
+|       AccessForm, AccessControl, pull/push of modules) |
+|   - _vba, _storage: the VBA project as rows of         |
+|       MSysAccessStorage (dir, PROJECT, module streams) |
+|   - _designs, _macros: forms, reports and macros       |
+|   - _pages, _alloc, _datapage, _btree, _index, _lval,  |
+|       _rows, _tdef, _schema, _collation: the Jet 4 /   |
+|       ACE storage engine the project lives in, read    |
+|       and written as the engine writes it              |
+|   - _sql, _ddl, _format, _validate, _queries, _props,  |
+|       _complex, _deflate, _compact: the rest of the    |
+|       database, for tests and tooling                  |
+|   - format facts and how each was measured:            |
+|       docs/access_engine.md                             |
 +--------------------------------------------------------+
-| access/         Jet 4 / ACE storage engine (IN PROGRESS)|
-|   - _pages: page array, masked page 0, row slots,      |
-|       usage maps                                       |
-|   - _tdef: table definitions (columns, indexes, maps)  |
-|   - _rows: row splitting + every column type's codec   |
-|   - _lval: Memo / OLE long values                      |
-|   - _index: B-tree pages, key codec both ways          |
-|   - _collation: text sort keys (generated table)       |
-|   - _datapage / _alloc / _btree: row, page and index   |
-|       writes the way the engine performs them          |
-|   - _schema: definitions, map pages, roots for         |
-|       create_table / create_index / drop_table         |
-|   - database: AccessDatabase / Table / Index facade,   |
-|       insert_row / update_row / delete_row / save      |
-|   - plan and format facts: docs/access_engine.md       |
+| access_read.py  AccessReader: the older read-only       |
+|                 inspector, kept for its API             |
+|   - signature scan for the MS-OVBA blobs in a database |
+|   - module source, project info, identifiers,          |
+|     p-code streams, MSysObjects catalog, pull_modules  |
 +--------------------------------------------------------+
 | vba.py          VBA project layer                      |
 |   - MS-OVBA compression / decompression                |
@@ -82,14 +74,14 @@ knows about the layer below it but not the layer above.
 
 Other files:
 
-- `exceptions.py` — exception hierarchy shared by all layers.
-- `__init__.py` — public re-exports (`ExcelFile`, `pull`, `push`,
-  `VBAModuleKind`, exceptions).
-- `__main__.py` — `python -m pyopenvba
-  {pull,push,ls,access-ls,access-pull,access-disasm,disasm}` CLI.
+- `exceptions.py`: exception hierarchy shared by all layers.
+- `__init__.py`: public re-exports (`ExcelFile`, `AccessDatabase`, `pull`,
+  `push`, `pull_access`, `push_access`, `VBAModuleKind`, exceptions).
+- `__main__.py`: `python -m pyopenvba
+  {pull,push,ls,forms,access-ls,access-pull,access-push,access-disasm,disasm}`.
   `disasm` / `access-disasm` accept `--with-source` to interleave
   the original VBA source with the decoded p-code.
-- `_templates/__init__.py` — generated module embedding a
+- `_templates/__init__.py`: generated module embedding a
   zlib-compressed base85 blob of a freshly Excel-authored empty `.xlsm`,
   consumed by `ExcelFile.create_new()`. Regenerated from
   `tests/live_excel_testing/freshly_touched.xlsm` by
@@ -132,7 +124,7 @@ change without notice.
 Internal-but-useful symbols (importable from `pyopenvba.vba` for
 advanced users):
 
-- `compress`, `decompress` — MS-OVBA codec.
+- `compress`, `decompress`: MS-OVBA codec.
 - `parse_vba_project`, `parse_project_stream`, `parse_projectwm`,
   `parse_projectlk`.
 - `serialize_dir_stream`, `serialize_project_stream`,
@@ -189,90 +181,47 @@ a fixed order:
 12. Write outer container               (replace single ZIP entry, or raw CFB)
 ```
 
-If any of steps 3-10 fail, the on-disk file is **never modified** —
+If any of steps 3-10 fail, the on-disk file is **never modified**;
 all work is done on the in-memory CFB and the final bytes are written
 in one atomic-ish operation.
 
-### 3.3 Access read-only model (`AccessReader`)
+### 3.3 Access (`AccessDatabase` and `AccessReader`)
 
-`.accdb`/`.mdb` files are exposed through a **read-only** facade.
-After an extensive reverse-engineering effort (chronicled in
-[docs/msaccess_lessons_learned.md](msaccess_lessons_learned.md))
-pyOpenVBA does not support writing back to Access databases. Use
-Access COM (`win32com.client.Dispatch("Access.Application")`) if you
-need to programmatically modify VBA inside a `.accdb`.
+An Access database keeps its VBA project inside the file, as rows of the
+system table `MSysAccessStorage`: the MS-OVBA `dir`, `PROJECT` and
+`PROJECTwm` streams and one stream per module, each a long value, plus the
+compiled caches VBA keeps beside them (`_VBA_PROJECT`, `__SRP_*`).
+Writing a module therefore means writing rows, long values and index
+entries the way the database engine does, which is what `AccessDatabase`
+is: a pure-Python implementation of the Jet 4 / ACE storage engine with
+the VBA project, forms, reports and macros built on it. Every rule it
+follows and how it was measured is in
+[docs/access_engine.md](access_engine.md).
 
-The Access on-disk layout differs from Excel/Word/PowerPoint:
+`AccessDatabase` exposes the same surface as the other hosts:
+`module_names()`, `get_module()`, `set_module()`, `vba_project()` with
+`add_module` / `rename_module` / `delete_module`, `pull_modules()` /
+`push_modules()`, `forms()` and `add_form()` with `add_control` /
+`remove_control` / `set_property` on the result, `save()`, `create_new()`.
+The shape lives in `access/_facade.py`; the writers it calls live in
+`access/database.py` and the modules under it.
 
-* The MS-OVBA blob on the LVAL chain is a **passive cache**. Zero-filling
-  the entire blob has no effect on what Access (or the VBA editor)
-  displays — verified end-to-end on a live fixture. This is what
-  pyOpenVBA reads.
-* The **authoritative** sources Access reads from are:
-  * **Project metadata** — the MS-OVBA `dir` stream (Section 2.3.4.2)
-    OVBA-compressed in a single LVAL row; located by content
-    (decompressed prefix = `01 00 04 00 00 00`). Parsed by
-    `AccessReader.read_project_info()` -> `AccessVBAProject` (system kind,
-    LCID, code page, project name, references, modules with class flag,
-    private/read-only flags).
-  * **Module bytecode** — the compiled VBA p-code. Lives in LVAL rows
-    whose payload starts with magic `72 55 40 00` ('rU@\0'). The
-    **module-active** one is identified deterministically by the
-    12-byte prefix `72 55 40 00 00 00 00 00 00 00 40 00`
-    (byte 10 = 0x40). Exposed via
-    `AccessReader.read_module_pcode_stream()` and `iter_pcode_streams()`.
-    Compiled p-code is **fully anonymised**: opcodes and slot
-    references with no user-authored text. The standard MS-OVBA
-    `0xCAFE` module stream coexists alongside `rU@` in a separate
-    LVAL row and is what `AccessReader.disassemble_module()` consumes
-    via the pure-Python `pyopenvba.vba_pcode` decoder.
-  * **Identifier inventory** — every project-level identifier name
-    (typelib refs, project name, module/proc/variable names, intrinsic
-    call targets such as `MsgBox`) is enumerated in the
-    `_VBA_PROJECT`-equivalent stream stored UNCOMPRESSED in the LVAL
-    row whose first 2 bytes are the `CC 61` Office magic. Exposed via
-    `AccessReader.identifiers() -> tuple[AccessVBAIdentifier, ...]`.
-  * **Comment text** — stored verbatim in plaintext rows tagged
-    `E3 00 00 00 <u16-LE length> <ASCII payload>` (apostrophe stripped).
-  * **String literal text** — stored verbatim in rows tagged
-    `B9 00 <u16-LE length> <ASCII payload> <12-byte trailer>`,
-    exposed via `AccessReader.find_interned_strings()`.
+**How a write reaches Access.** Access runs the compiled copy of a
+project, not its source, so a changed module stream alone changes nothing.
+`_VBA_PROJECT` is [MS-OVBA]'s PerformanceCache and its `Version` field
+names the build of VBA that compiled it; `AccessDatabase` writes a version
+Access does not recognise and drops the `__SRP_*` caches, and VBA rebuilds
+the project from the module streams on the next open, as Access's own
+`/decompile` does. The code has to compile; a live gate has Access run
+what was written and compares the value the code returns.
 
-The **MSysObjects** system catalog is also surfaced read-only:
-`AccessReader.iter_msys_objects()`, `msys_objects()`,
-`iter_msys_modules()`, `find_msys_object(name, *, type_=None)`,
-`find_msys_module(name)`. Each row yields an `AccessSysObject`
-dataclass (id_, parent_id, type_, flags, name, page, slot). VBA code
-modules carry `type_ == MSYS_TYPE_MODULE` (-32761, 0x8007) and are
-parented to the `Modules` container row.
-
-### Excel-symmetric VBA module read API
-
-`AccessReader` exposes the same ergonomic read surface as `ExcelFile` /
-`WordFile` / `PowerPointFile`: `get_module(name)`,
-`vba_modules() -> dict[str, str]`, `read_vba_module(name)`,
-`read_vba_module_with_attributes(name)`, `iter_vba_modules()`,
-`pull_modules(dest_dir)`, `export_module(name)`,
-`export_modules(dest_dir, *, include_attributes=False)`. The
-top-level helper `pyopenvba.pull_access(database, dest_dir)` mirrors
-`pull` / `pull_word` / `pull_ppt`. There is intentionally no
-`push_access` symbol.
-
-### Why no write path
-
-Access stores compiled VBA p-code (the `CAFE` rows) separately from the
-OVBA source cache, and executes an `__SRP_*` compiled cache in
-preference to either, so mutations to the source alone do not change
-behaviour. Research later found the lever -- dropping those cache rows
-makes a rewritten module take effect -- and got as far as rewriting
-procedure bodies, including declarations, with output byte-identical to
-Microsoft's compiler. It did **not** get to creating, renaming or
-deleting a module, which is what a useful writer would need. That work
-is parked and unsupported; a production-quality writer would still
-require the `FuncDefn` declaration tables and ACE page allocator parity.
-See
-[docs/msaccess_lessons_learned.md](msaccess_lessons_learned.md) for
-the empirical results matrix and the reasoning in full.
+`AccessReader` predates the engine: a page scanner that finds the MS-OVBA
+blobs by signature and decodes `MSysObjects` on its own. It keeps its
+read API (`get_module`, `vba_modules`, `read_project_info`, `identifiers`,
+`disassemble_module`, the catalog readers, `pull_modules`) and
+`pull_access` still uses it; it writes nothing. The chronicle of the
+attempts that came before the engine is
+[docs/msaccess_lessons_learned.md](msaccess_lessons_learned.md).
 
 ---
 
@@ -337,7 +286,7 @@ identities for every other format.
 
 If a `.xlsm` exists but does not contain `xl/vbaProject.bin` (no VBA
 project has ever been created), `ExcelFile` raises a structured
-`VBAProjectError` with the workbook path — it is **not** a corruption.
+`VBAProjectError` with the workbook path; it is **not** a corruption.
 
 ---
 

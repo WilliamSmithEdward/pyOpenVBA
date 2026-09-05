@@ -576,9 +576,9 @@ unconditionally on save. Office will regenerate them on next open.
 These three keys in the `PROJECT` stream carry the obfuscated
 project-password material:
 
-- `CMG` — Crypted Message Group, encrypted password hash + flags.
-- `DPB` — Data Protection Block, encrypted password.
-- `GC`  — Group Code (visibility flag).
+- `CMG`: Crypted Message Group, encrypted password hash + flags.
+- `DPB`: Data Protection Block, encrypted password.
+- `GC`: Group Code (visibility flag).
 
 You can **detect** a protected project by parsing `DPB`: if its
 decoded payload's first protection-state byte is non-zero, the project
@@ -591,7 +591,7 @@ ethically and legally questionable; treat it as out of scope.
 **Save safety gate:** if the project is password-protected AND the save
 would emit any change, **refuse the save** unless the caller passes an
 explicit opt-in flag (e.g. `allow_protected=True`). With the opt-in,
-preserve the password material verbatim — the workbook will still
+preserve the password material verbatim; the workbook will still
 require the original password to unlock the project, and the protection
 state is preserved.
 

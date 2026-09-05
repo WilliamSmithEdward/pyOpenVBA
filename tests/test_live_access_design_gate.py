@@ -600,3 +600,37 @@ def test_access_agrees_on_the_properties_differencing_named(
         "Go.Default=True",
         "Go.Cancel=True",
     ]
+
+
+def test_access_agrees_with_what_is_left_after_a_control_is_removed(blank: Path, tmp_path: Path) -> None:
+    """Taking the middle of three text boxes off closes the tab order up
+    behind it, and Access reads back the two that remain at 0 and 1."""
+
+    def build(db: AccessDatabase) -> None:
+        form = db.add_form("Fewer")
+        for i in range(3):
+            form.add_control("TextBox", f"T{i}", left=240, top=240 + i * 400)
+        form.add_control("Label", "Note", left=240, top=2000, caption="kept")
+        form.remove_control("T1")
+
+    out = written(blank, tmp_path / "fewer.accdb", build)
+
+    reported = [c for c in str(ask(out, "DescribeKinds", "Fewer")).split(";") if c]
+    assert [part.split(":")[0] for part in reported] == ["T0", "T2", "Note"]
+    tabs = {part.split(":")[0]: part.split(":")[2] for part in reported}
+    assert tabs == {"T0": "0", "T2": "1", "Note": "-"}
+
+
+def test_access_sees_a_page_gone_from_its_tab_control(blank: Path, tmp_path: Path) -> None:
+    def build(db: AccessDatabase) -> None:
+        form = db.add_form("Fewer2", caption="Two pages left")
+        form.add_control("Tab", "Tabs", top=800, width=4000, height=2000)
+        for name in ("First", "Second", "Third"):
+            form.add_control("Page", name, parent="Tabs", caption=name)
+        form.remove_control("Second")
+
+    out = written(blank, tmp_path / "fewer2.accdb", build)
+
+    reported = [c for c in str(ask(out, "DescribeTree", "Fewer2")).split(";") if c]
+    assert reported == ["Tabs=TabControl/Fewer2", "First=Page/Tabs", "Third=Page/Tabs"]
+

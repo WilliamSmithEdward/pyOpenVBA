@@ -1,8 +1,18 @@
 # MS Access VBA: Lessons Learned
 
+**Historical.** This chronicle ends, in August 2026, with a read-only
+`AccessReader` and the conclusion that a pure-Python writer was out of
+reach. That conclusion no longer stands: since September 2026
+`AccessDatabase` writes Access databases, VBA included, through a
+pure-Python implementation of the storage engine, and the module
+operations this document could not reach (create, rename, delete) are
+done and checked in live Access. See [access_engine.md](access_engine.md)
+for the engine and the top-level README for the API. The account below
+is kept for what it found along the way.
+
 This document chronicles pyOpenVBA's attempt to extend its
 read-and-write VBA support from Excel, Word, and PowerPoint to
-Access `.accdb` databases, and the reasons we ultimately shipped only
+Access `.accdb` databases, and the reasons it shipped, at the time, only
 a read-only `AccessReader` API.
 
 The work spanned multiple reverse-engineering phases (referred to as
@@ -265,7 +275,7 @@ which fix the identifier set.
 
 ---
 
-## 6. Final decision
+## 6. Final decision (superseded, see the note at the top)
 
 `AccessReader` ships as a **read-only** class. The library cleanly
 extracts every VBA module, attribute block, identifier list, and

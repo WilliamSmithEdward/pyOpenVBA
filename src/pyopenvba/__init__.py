@@ -9,19 +9,21 @@ Supported formats
   Excel:      .xlsm, .xlsb, .xlam (ZIP/OOXML), .xls (raw CFB/BIFF8)
   Word:       .docm, .dotm (ZIP/OOXML), .doc (raw CFB)
   PowerPoint: .pptm, .potm (ZIP/OOXML), .ppt (raw CFB)
+  Access:     .accdb, .mdb (the Jet 4 / ACE database file)
 
 Public API
 ----------
     from pyopenvba import (
-        ExcelFile, WordFile, PowerPointFile, AccessReader,
-        AccessDatabase, ColumnSpec, IndexSpec,
+        ExcelFile, WordFile, PowerPointFile, AccessDatabase, AccessReader,
         pull, push, pull_word, push_word, pull_ppt, push_ppt,
-        pull_access,
+        pull_access, push_access,
     )
 
-    # Access VBA is READ-ONLY (docs/msaccess_lessons_learned.md); tables,
-    # indexes and rows are read and written by AccessDatabase, a pure
-    # Python Jet 4 / ACE storage engine (docs/access_engine.md).
+    # In-process module edit (Access)
+    with AccessDatabase("database.accdb") as db:
+        print(db.module_names())
+        db.set_module("Module1", new_src)
+        db.save("database_modified.accdb")
 
     # In-process module edit (Excel)
     with ExcelFile("workbook.xlsm") as wb:
@@ -51,7 +53,8 @@ Public API
     pull_ppt("presentation.pptm", "./vba_src") # extract modules (PowerPoint)
     push_ppt("./vba_src", "presentation.pptm")
 
-    pull_access("database.accdb", "./vba_src") # extract modules (Access, read-only)
+    pull_access("database.accdb", "./vba_src") # extract modules (Access)
+    push_access("./vba_src", "database.accdb")
 """
 
 from pathlib import Path
@@ -191,6 +194,25 @@ def pull_access(
     return db.pull_modules(dest_dir, encoding=encoding, overwrite=overwrite)
 
 
+def push_access(
+    src_dir: str | Path,
+    database: str | Path,
+    *,
+    out: str | Path | None = None,
+    encoding: str = "utf-8",
+    strict: bool = False,
+) -> list[str]:
+    """
+    Update VBA modules in an Access ``database`` from ``.bas`` / ``.cls``
+    files in ``src_dir`` and save. Saves in place unless ``out`` is given.
+    Returns the list of updated module names. Mirrors :func:`push`.
+    """
+    with AccessDatabase(database) as db:
+        updated = db.push_modules(src_dir, encoding=encoding, strict=strict)
+        db.save(out)
+    return updated
+
+
 __all__ = [
     "AccessDatabase",
     "AccessReader",
@@ -213,6 +235,7 @@ __all__ = [
     "pull_ppt",
     "pull_word",
     "push",
+    "push_access",
     "push_ppt",
     "push_word",
 ]

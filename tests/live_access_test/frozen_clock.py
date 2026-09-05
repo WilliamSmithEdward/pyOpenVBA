@@ -26,12 +26,17 @@ import os
 import struct
 import sys
 from pathlib import Path
+from typing import Any
 
 if __name__ == "__main__" and str(Path(__file__).resolve().parents[2] / "src") not in sys.path:
     sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
 
 from pyopenvba.access._pages import OFFSET_CREATION_DATE, toggle_definition_mask  # noqa: E402
 
+#: ``ctypes`` seen as untyped: its Windows-only names (``WinDLL``,
+#: ``WINFUNCTYPE``, ``get_last_error``) are not in the stubs off Windows,
+#: and this tool is type-checked everywhere the tests are.
+_windows: Any = ctypes
 PAGE_READWRITE = 0x04
 EPOCH = dt.datetime(1601, 1, 1)
 ZERO_DAY = dt.datetime(1899, 12, 30)
@@ -75,7 +80,7 @@ def freeze(instant: dt.datetime) -> dict[str, list[str]]:
     import win32api  # pyright: ignore[reportMissingModuleSource]
     import win32process  # pyright: ignore[reportMissingModuleSource]
 
-    k32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    k32 = _windows.WinDLL("kernel32", use_last_error=True)
     k32.VirtualProtect.argtypes = [ctypes.c_void_p, ctypes.c_size_t, wt.DWORD, ctypes.POINTER(wt.DWORD)]
     ticks = int(round((instant - EPOCH).total_seconds() * 10_000_000))
 
@@ -93,7 +98,7 @@ def freeze(instant: dt.datetime) -> dict[str, list[str]]:
             systemtime.wHour, systemtime.wMinute, systemtime.wSecond = instant.hour, instant.minute, instant.second
             systemtime.wMilliseconds = instant.microsecond // 1000
 
-    prototype = ctypes.WINFUNCTYPE(None, ctypes.c_void_p)
+    prototype = _windows.WINFUNCTYPE(None, ctypes.c_void_p)
     hooks = {
         b"GetSystemTimeAsFileTime": prototype(as_filetime),
         b"GetSystemTimePreciseAsFileTime": prototype(as_filetime),
@@ -129,7 +134,7 @@ def freeze(instant: dt.datetime) -> dict[str, list[str]]:
                         slot = base + first_thunk + 8 * index
                         old = wt.DWORD()
                         if not k32.VirtualProtect(ctypes.c_void_p(slot), 8, PAGE_READWRITE, ctypes.byref(old)):
-                            raise OSError(ctypes.get_last_error())
+                            raise OSError(_windows.get_last_error())
                         ctypes.c_uint64.from_address(slot).value = addresses[function]
                         k32.VirtualProtect(ctypes.c_void_p(slot), 8, old.value, ctypes.byref(old))
                         done.append(f"{dll}!{function.decode()}")

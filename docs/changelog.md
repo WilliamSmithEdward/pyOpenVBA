@@ -5,7 +5,17 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ## [Unreleased]
 
-Nothing yet.
+### Added
+
+- **`examples/power_query_steps.py`**, a second Power Query example built
+  around a query's Applied Steps. It writes a sales pipeline whose main
+  query has eleven steps, and keeps those steps in a list with `#PREV`
+  standing for the step before, so inserting or removing one is a list
+  operation and the references rewire themselves. Both the built workbook
+  and an edited copy refresh in Excel.
+- `quote_name()` and `unquote_name()` are public, so code that generates M
+  can spell a name the way M spells it without reaching into a private
+  module.
 
 ## [5.0.0] - 2026-09-05
 

@@ -423,11 +423,18 @@ Each query becomes one `.m` file, beside a `queries.json` manifest that
 carries what a file name cannot: the real name, the description and the
 group. A query called `Sales/EU` survives the round trip.
 
-[examples/power_query_demo.py](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/examples/power_query_demo.py)
-builds a workbook of twelve queries in four groups, six of them loaded
-onto a sheet, reading JSON from four public APIs (PokeAPI, USGS,
-Frankfurter, Hacker News) in five different shapes. Every query in it was
-refreshed in Excel before it was committed.
+Two examples ship with the library, and every query in both was refreshed
+in Excel before it was committed:
+
+- [power_query_demo.py](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/examples/power_query_demo.py)
+  builds twelve queries in four groups, six of them loaded onto a sheet,
+  reading JSON from four public APIs (PokeAPI, USGS, Frankfurter, Hacker
+  News) in five different shapes.
+- [power_query_steps.py](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/examples/power_query_steps.py)
+  builds a sales pipeline whose main query has eleven applied steps. It
+  keeps the steps in a list and writes `#PREV` where a step means the one
+  before it, so inserting or removing a step is a list operation and the
+  references rewire themselves.
 
 What the format is, and how each rule was measured, is in
 [docs/power_query.md](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/docs/power_query.md).

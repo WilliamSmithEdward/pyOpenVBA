@@ -22,7 +22,7 @@ from pyopenvba.powerquery._files import pull_queries, push_queries
 from pyopenvba.powerquery._mashup import Mashup
 from pyopenvba.powerquery._metadata import Entry, Item, Metadata, QueryGroup
 from pyopenvba.powerquery._package import Package
-from pyopenvba.powerquery._section import Section
+from pyopenvba.powerquery._section import Section, quote_name, unquote_name
 from pyopenvba.powerquery.workbook import (
     LOAD_CONNECTION_ONLY,
     LOAD_PIVOT_TABLE,
@@ -44,6 +44,8 @@ __all__ = [
     "PowerQueryWorkbook",
     "QueryGroup",
     "Section",
+    "quote_name",
+    "unquote_name",
     "pull_queries",
     "push_queries",
 ]

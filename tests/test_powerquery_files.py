@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import shutil
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -137,15 +138,7 @@ def test_the_command_line_can_push_to_a_new_file(workbook: Path, tmp_path: Path)
 def test_the_demo_builds_the_workbook_it_describes(tmp_path: Path) -> None:
     """examples/power_query_demo.py is part of the documentation, so it
     has to keep working."""
-    import importlib.util
-
-    spec = importlib.util.spec_from_file_location(
-        "power_query_demo", Path(__file__).parents[1] / "examples" / "power_query_demo.py"
-    )
-    assert spec is not None and spec.loader is not None
-    demo = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(demo)
-
+    demo = load_example("power_query_demo")
     out = demo.build(tmp_path / "demo.xlsx")
     book = PowerQueryWorkbook(out)
     assert [group.name for group in book.groups()] == ["Parameters", "Functions", "Web", "Workbook"]
@@ -158,3 +151,65 @@ def test_the_demo_builds_the_workbook_it_describes(tmp_path: Path) -> None:
     assert loaded == ["Pokedex", "PokemonStats", "Earthquakes", "Rates", "RateHistory", "OrderSummary"]
     assert all(query.description for query in book.queries())
     assert "pokeapi.co" in book.query("GetFromPokeApi").formula
+
+
+def load_example(name: str) -> Any:
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location(
+        name, Path(__file__).parents[1] / "examples" / f"{name}.py"
+    )
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def test_the_steps_example_builds_the_pipeline_it_describes(tmp_path: Path) -> None:
+    demo = load_example("power_query_steps")
+    out = demo.build(tmp_path / "steps.xlsx")
+    book = PowerQueryWorkbook(out)
+    assert [group.name for group in book.groups()] == ["Sources", "Reports"]
+    assert book.query_names() == ["Orders", "Products", "OrderLines", "ProductTotals", "MonthlySales"]
+    assert book.query("OrderLines").steps == [
+        "Source",
+        "Merged Products",
+        "Expanded Product",
+        "Added Gross",
+        "Added Discount",
+        "Added Net",
+        "Removed Price",
+        "Filtered Rows",
+        "Sorted Rows",
+        "Added Line Number",
+        "Reordered Columns",
+    ]
+    assert "#PREV" not in book.section_text(), "the placeholder is resolved before it is written"
+    assert '#"Added Net"' in book.query("OrderLines").formula
+
+
+def test_the_steps_example_rewires_the_chain_when_a_step_moves(tmp_path: Path) -> None:
+    """Inserting a step and removing another leaves every reference right,
+    because each step asks for whatever came before it."""
+    demo = load_example("power_query_steps")
+    out = demo.build(tmp_path / "steps.xlsx")
+    steps = demo.add_margin(out)
+    assert steps.index("Added Margin") == steps.index("Added Net") + 1
+    assert "Removed Price" not in steps
+    formula = PowerQueryWorkbook(out).query("OrderLines").formula
+    assert '#"Added Margin"' in formula, "the step after the new one picks it up"
+    assert '#"Removed Price"' not in formula
+    assert '"Margin"' in formula
+    assert [item.path.split("/")[-1] for item in PowerQueryWorkbook(out).metadata.steps_of("OrderLines")] == [
+        name.replace(" ", "%20") for name in steps
+    ]
+
+
+def test_the_steps_example_refuses_a_step_that_is_not_there(tmp_path: Path) -> None:
+    demo = load_example("power_query_steps")
+    with pytest.raises(ValueError, match="no step called"):
+        demo.without(demo.ORDER_LINES, "Nothing")
+    with pytest.raises(ValueError, match="no step before it"):
+        demo.let([("Source", "#PREV")])
+    with pytest.raises(ValueError, match="at least one step"):
+        demo.let([])

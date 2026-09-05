@@ -286,6 +286,26 @@ def test_excel_opens_the_example_workbook(excel: Any, tmp_path: Path) -> None:
     assert {"Pokedex", "PokemonStats", "Earthquakes", "Rates", "GetFromPokeApi"} <= set(listed)
 
 
+def test_excel_evaluates_the_eleven_step_example(excel: Any, tmp_path: Path) -> None:
+    """``examples/power_query_steps.py`` joins two sources, prices and
+    discounts the lines, then groups the result two ways.  Nothing in it
+    touches the network, so the numbers can be checked."""
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location(
+        "power_query_steps", Path(__file__).parents[1] / "examples" / "power_query_steps.py"
+    )
+    assert spec is not None and spec.loader is not None
+    demo = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(demo)
+    out = demo.build(tmp_path / "steps.xlsx")
+
+    rows = ask(excel, "RefreshTables", str(out))
+    assert "OrderLines@A1:I11" in rows
+    assert "Line,Date,Sku,Product,Category,Qty,Gross,Discount,Net,;" in rows
+    assert "Supplies,Kit,2,17,697.5,;" in rows
+
+
 def test_a_query_with_an_awkward_name_evaluates(excel: Any, tmp_path: Path) -> None:
     path = edited(tmp_path, "three_queries.xlsx", "awkward.xlsx")
     book = PowerQueryWorkbook(path)

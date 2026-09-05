@@ -14,7 +14,7 @@ against Access itself.
 from __future__ import annotations
 
 import struct
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 from pyopenvba.access_read import AccessError
 from pyopenvba.exceptions import UnsupportedFormatError
@@ -163,6 +163,32 @@ def _refuse_jet3(data: bytes) -> None:
 
 
 @dataclass
+class FileGrowth:
+    """How the destination of a Compact and Repair grows, and when the
+    pages its rewrites gave back come into use again (measured on the
+    stale continuation pages a wide table leaves behind, over 30
+    compactions).
+
+    The engine sizes the file ahead of what it has written: 64 pages to
+    begin with in the ACE format, 32 in Jet 4.  An allocation that would
+    pass that size makes it look at the pages waiting to be reused.  If at
+    least 24 pages have been taken since it last did so, every waiting
+    page comes back into use at once and the allocation takes the lowest;
+    otherwise the file grows -- by 8 pages while pages are waiting, by 64
+    when none are -- and the allocation takes a fresh page.  Nothing comes
+    back into use any other way, so a run of definition rewrites cycles
+    through a fixed set of pages between growths.
+    """
+
+    #: The size the file has been grown to, in pages.
+    physical: int = 64
+    #: Pages taken since the waiting pages last came back into use.  The
+    #: bare file's own pages count, the permission page it took back
+    #: included: 42 in the ACE format.
+    since_release: int = 42
+
+
+@dataclass
 class _Journal:
     """What one open journal has to be able to undo: the pages it has
     seen written and how they looked first, where the file ended, and the
@@ -174,6 +200,7 @@ class _Journal:
     allocated: set[int]
     pending: list[int]
     lval_cursor: dict[int, int]
+    growth: FileGrowth | None
 
 
 class PageStore:
@@ -205,6 +232,11 @@ class PageStore:
         #: the LVAL page most recently written this session: the engine
         #: tries it first for the next single-row value.
         self.lval_cursor: dict[int, int] = {}
+        #: Set while this store is the destination of a Compact and
+        #: Repair: the file then grows and reuses pages as the engine's
+        #: destination does (see :class:`FileGrowth`); otherwise a page a
+        #: rewrite gave back waits with the others until five are waiting.
+        self.growth: FileGrowth | None = None
         #: One entry per open journal, innermost last.  Each holds the
         #: pages that journal has seen written, as they were before the
         #: first of those writes, the file's page count when it opened,
@@ -257,6 +289,7 @@ class PageStore:
                 set(self.allocated),
                 list(self.pending),
                 dict(self.lval_cursor),
+                replace(self.growth) if self.growth is not None else None,
             )
         )
 
@@ -284,6 +317,7 @@ class PageStore:
         self.allocated = done.allocated
         self.pending = done.pending
         self.lval_cursor = done.lval_cursor
+        self.growth = done.growth
 
     def _journal(self, page: int) -> None:
         """Remember a page as it is now, if a journal has not already."""
@@ -295,18 +329,20 @@ class PageStore:
                     else None
                 )
 
-    def snapshot(self) -> tuple[bytes, set[int], set[int], list[int], dict[int, int]]:
+    def snapshot(self) -> tuple[bytes, set[int], set[int], list[int], dict[int, int], FileGrowth | None]:
         """Everything a rollback has to put back: the pages and the state
         the session keeps about them."""
-        return (bytes(self._data), set(self.released), set(self.allocated), list(self.pending), dict(self.lval_cursor))
+        growth = replace(self.growth) if self.growth is not None else None
+        return (bytes(self._data), set(self.released), set(self.allocated), list(self.pending), dict(self.lval_cursor), growth)
 
-    def restore(self, state: tuple[bytes, set[int], set[int], list[int], dict[int, int]]) -> None:
-        data, released, allocated, pending, cursor = state
+    def restore(self, state: tuple[bytes, set[int], set[int], list[int], dict[int, int], FileGrowth | None]) -> None:
+        data, released, allocated, pending, cursor, growth = state
         self._data = bytearray(data)
         self.released = released
         self.allocated = allocated
         self.pending = pending
         self.lval_cursor = cursor
+        self.growth = growth
 
     @property
     def page_count(self) -> int:

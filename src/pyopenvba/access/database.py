@@ -2147,7 +2147,24 @@ class AccessDatabase:
             index_roots=[],
         )
         layout.column_map_refs = _long_value_map_refs(specs, map_page, 0, owned_only)
-        self._write_definition(build_definition(specs, [], layout), definition_page, [])
+        whole = build_definition(specs, [], layout)
+        if definition_page_count(len(whole)) == 1:
+            self._write_definition(whole, definition_page, [])
+        else:
+            # The engine adds the columns one at a time and writes the
+            # definition twice for each -- the new column first at the
+            # front of the lists, then in its place -- so from the column
+            # that takes it past one page, every version lands on fresh
+            # continuation pages and gives the last ones back.  The pages
+            # left behind, and where later pages go, follow from that
+            # (measured on tables of 115 to 200 columns).
+            chain: list[int] = []
+            for count in range(1, len(specs) + 1):
+                ordered = build_definition(specs[:count], [], layout)
+                if definition_page_count(len(ordered)) == 1:
+                    continue
+                chain = self._write_definition(build_definition(specs[:count], [], layout, newest_first=True), definition_page, chain)
+                chain = self._write_definition(ordered, definition_page, chain)
         self._catalog = None
         self._definitions.pop(definition_page, None)
         return self.table(name)
@@ -3311,9 +3328,32 @@ class AccessDatabase:
         # entry after the foreign key's.
         parent_logical_number = len(pd.logical_indexes) + (1 if same_table else 0)
 
-        # The relationship rows go first: the engine takes their data page
-        # before the index root when both are new (measured on a
-        # compaction, where MSysRelationships starts empty).
+        # The catalog object and its permissions come first, then the
+        # relationship rows, then the index: when each needs a new page the
+        # engine takes the catalog's before the relationship rows' and that
+        # before the index root (measured on compactions, where
+        # MSysRelationships starts empty and a full catalog page had to grow).
+        objects = self.table("MSysObjects")
+        object_id = self._next_object_id()
+        catalog_row = objects.insert_row(
+            {
+                "Id": object_id,
+                "ParentId": self._container("Relationships").id,
+                "Name": name,
+                "Type": OBJECT_RELATIONSHIP,
+                "Flags": 0,
+                "DateCreate": when,
+                "DateUpdate": when_updated,
+            }
+        )
+        objects.update_row(catalog_row, {"Owner": self._default_owner() if owner is None else owner})
+        aces = self.table("MSysACEs")
+        if permissions is not None:
+            for ace in permissions:
+                aces.insert_row({"SID": ace["SID"], "ACM": ace["ACM"], "FInheritable": ace["FInheritable"], "ObjectId": object_id})
+        else:
+            for ace, acm in zip(self._default_aces(), RELATIONSHIP_ACMS, strict=True):
+                aces.insert_row({"SID": ace["SID"], "ACM": acm, "FInheritable": False, "ObjectId": object_id})
         relationships = self.table("MSysRelationships")
         for i, (col, ref) in enumerate(zip(columns, referenced_columns, strict=True)):
             relationships.insert_row(
@@ -3389,28 +3429,7 @@ class AccessDatabase:
         self._write_definition(serialize_definition(pd), pd.page, pd.pages[1:], keep_tail=True)
         self._definitions.pop(pd.page, None)
 
-        # The catalog object, its permissions, the stamps.
-        objects = self.table("MSysObjects")
-        object_id = self._next_object_id()
-        catalog_row = objects.insert_row(
-            {
-                "Id": object_id,
-                "ParentId": self._container("Relationships").id,
-                "Name": name,
-                "Type": OBJECT_RELATIONSHIP,
-                "Flags": 0,
-                "DateCreate": when,
-                "DateUpdate": when_updated,
-            }
-        )
-        objects.update_row(catalog_row, {"Owner": self._default_owner() if owner is None else owner})
-        aces = self.table("MSysACEs")
-        if permissions is not None:
-            for ace in permissions:
-                aces.insert_row({"SID": ace["SID"], "ACM": ace["ACM"], "FInheritable": ace["FInheritable"], "ObjectId": object_id})
-        else:
-            for ace, acm in zip(self._default_aces(), RELATIONSHIP_ACMS, strict=True):
-                aces.insert_row({"SID": ace["SID"], "ACM": acm, "FInheritable": False, "ObjectId": object_id})
+        # Both tables' stamps.
         for definition_page, stamp in ((cd.page, child_when), (pd.page, parent_when)):
             for rid, row in objects.rows_with_ids():
                 if row["Id"] == definition_page and row["Type"] == OBJECT_TABLE:

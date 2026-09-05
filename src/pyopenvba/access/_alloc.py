@@ -220,13 +220,45 @@ def _new_bitmap_page(store: PageStore) -> int:
     return page
 
 
+#: A compaction's destination looks at its waiting pages only when an
+#: allocation would pass the size the file has been grown to, and lets
+#: them back into use only when this many pages have been taken since
+#: the last time; otherwise it grows by the small step while pages are
+#: waiting and by the large one when none are (see ``FileGrowth``).
+RELEASE_AFTER = 24
+GROWTH_WHILE_WAITING = 8
+GROWTH_STEP = 64
+
+
+def _admit(store: PageStore, free: UsageMap, page: int) -> int:
+    """The page a compaction's destination hands out for ``page``, the
+    lowest free page: the same page while it lies within the file's
+    grown size, else a waiting page let back into use, else the page
+    itself after the file grows."""
+    growth = store.growth
+    if growth is None:
+        return page
+    if page >= growth.physical:
+        if growth.since_release >= RELEASE_AFTER:
+            growth.since_release = 0
+            if store.pending:
+                store.pending.clear()
+                page = min(p for p in free.pages() if p not in store.released)
+        if page >= growth.physical:
+            growth.physical += GROWTH_WHILE_WAITING if store.pending else GROWTH_STEP
+    growth.since_release += 1
+    return page
+
+
 def allocate_page(store: PageStore) -> int:
     """Take the lowest free page from the global map, growing the file if
     that page lies past its end, and mark it used.  Pages released during
     this session (``store.released``) are passed over, as the engine
     passes them over until the database is reopened.  When the map lists
     no usable free page it is extended by one 8-byte step, the 64 new
-    pages counting as free, which is how the engine grows it."""
+    pages counting as free, which is how the engine grows it.  A
+    compaction's destination (``store.growth`` set) also holds back the
+    pages its rewrites gave back until the file's growth lets them go."""
     free = read_usage_map(store, GLOBAL_USAGE_MAP_PAGE, GLOBAL_USAGE_MAP_ROW)
     held = store.released | set(store.pending)
     candidates = [p for p in free.pages() if p not in held]
@@ -241,7 +273,7 @@ def allocate_page(store: PageStore) -> int:
         else:
             _global_chunk(store, free)
         candidates = [p for p in free.pages() if p not in held]
-    page = candidates[0]
+    page = _admit(store, free, candidates[0])
     while store.page_count <= page:
         store.append()
     set_usage_bit(store, free, page, False)
@@ -267,6 +299,10 @@ def release_page(store: PageStore, page: int, *, kind: str = "object") -> None:
       it waits with the other pending pages, and they all come back into
       use once five are waiting (a run of CREATE INDEX statements reused
       its released continuation pages in a batch, lowest first).
+
+    The destination of a compaction (``store.growth`` set) keeps its
+    waiting pages until the file's growth lets them go; see
+    :func:`allocate_page`.
     """
     free = read_usage_map(store, GLOBAL_USAGE_MAP_PAGE, GLOBAL_USAGE_MAP_ROW)
     set_usage_bit(store, free, page, True)
@@ -277,7 +313,7 @@ def release_page(store: PageStore, page: int, *, kind: str = "object") -> None:
         store.released.discard(page)
         return
     store.pending.append(page)
-    if len(store.pending) >= PENDING_FLUSH:
+    if store.growth is None and len(store.pending) >= PENDING_FLUSH:
         store.pending.clear()
 
 

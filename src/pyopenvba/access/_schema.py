@@ -324,9 +324,19 @@ def _name(text: str) -> bytes:
     return struct.pack("<H", len(data)) + data
 
 
-def build_definition(columns: list[ColumnSpec], indexes: list[IndexSpec], layout: DefinitionLayout) -> bytes:
+def build_definition(
+    columns: list[ColumnSpec], indexes: list[IndexSpec], layout: DefinitionLayout, *, newest_first: bool = False
+) -> bytes:
     """The definition stream (header and body, not yet laid over pages; see
-    :func:`definition_pages`) for these columns and indexes."""
+    :func:`definition_pages`) for these columns and indexes.
+
+    ``newest_first`` gives the intermediate form the engine writes while
+    it adds the last column: that column's header, name and long-value
+    map entry lead their lists, everything else as it stands, before a
+    second write puts the column in its place (measured on the stale
+    continuation pages a compaction leaves behind a wide table: each
+    carries the names one place along from the write after it, and the
+    headers likewise when they run onto it)."""
     if not columns:
         raise AccessError("a table needs at least one column")
     names_lower = [c.name.lower() for c in columns]
@@ -397,14 +407,18 @@ def build_definition(columns: list[ColumnSpec], indexes: list[IndexSpec], layout
     if sum(1 for s in indexes if s.primary) > 1:
         raise AccessError("a table has at most one primary key")
 
+    listed = list(range(len(columns)))
+    if newest_first and len(listed) > 1:
+        listed = [listed[-1], *listed[:-1]]
     body = bytearray()
     body += bytes(SIZE_REAL_INDEX_HEADER) * len(indexes)
-    body += b"".join(headers)
-    body += b"".join(_name(c.name) for c in columns)
+    body += b"".join(headers[i] for i in listed)
+    body += b"".join(_name(columns[i].name) for i in listed)
     body += b"".join(real_defs)
     body += b"".join(logical_defs[i] for i in logical_order)
     body += b"".join(_name(indexes[i].name) for i in logical_order)
-    for number, spec in enumerate(columns):
+    for number in listed:
+        spec = columns[number]
         if spec.type_code in LONG_VALUE_TYPES:
             owned, free = layout.column_map_refs.get(number, (0, 0))
             if not owned:

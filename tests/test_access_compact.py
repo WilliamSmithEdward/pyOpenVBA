@@ -361,3 +361,103 @@ def test_compact_and_repair_keeps_the_creation_date_and_the_owners(related_db: A
     assert compacted.header.creation_date == related_db.header.creation_date
     owners = {e.name: e.owner for e in related_db.catalog()}
     assert {e.name: e.owner for e in compacted.catalog()} == owners
+
+
+# -- a wide table's stale definition pages -------------------------------------
+#
+# The engine builds a table whose definition runs past one page column by
+# column, two writes per column onto fresh continuation pages, and lets the
+# pages it gives back come into use again only as the destination file
+# grows (64 pages ahead, then 8 or 64 at a time, the waiting pages returning
+# once 24 pages have been taken since they last did).  These layouts are the
+# engine's, read off DAO's compactions of the same tables; the labels are
+# page:kind, a definition page's kind being the column count its bytes hold.
+
+
+#: The template Access starts a database from; ``create_new`` uses a
+#: smaller one, and the engine's layouts below were read off compactions
+#: of databases made from this one.
+_TEMPLATE = Path(__file__).resolve().parents[1] / "src" / "pyopenvba" / "_templates" / "blank_files" / "blank_database.accdb"
+
+
+def _wide_columns(count: int, memo: bool = False) -> list[ColumnSpec]:
+    columns = [ColumnSpec("Id", "Long")]
+    if memo:
+        columns.append(ColumnSpec("M", "Memo"))
+    return columns + [ColumnSpec(f"C{i:03}", "Text", size=20) for i in range(1, count + 1)]
+
+
+def _layout(db: AccessDatabase, table: str) -> str:
+    """Every page from the table's definition page on: ``T`` its first
+    page, ``M`` a usage-map page, ``cN`` a definition page holding N
+    columns (``L`` when live), ``D<owner>`` a data page, ``I<owner>`` an
+    index page, ``LV`` a long-value page."""
+    import struct
+
+    store = db.store
+    definition = db.table(table).definition
+    out: list[str] = []
+    for page in range(definition.page, store.page_count):
+        raw = store.read(page)
+        kind = raw[0]
+        if kind == 2:
+            if page == definition.page:
+                out.append(f"{page}:T")
+            else:
+                columns = (2 * (PAGE_SIZE - 8) - struct.unpack_from("<H", raw, 2)[0] - 96) / 35
+                out.append(f"{page}:c{columns:.0f}{'L' if page in definition.pages else ''}")
+        elif kind == 1:
+            owner = struct.unpack_from("<I", raw, 4)[0]
+            out.append(f"{page}:{'LV' if raw[4:8] == b'LVAL' else 'M' if owner == 0 else 'D' + str(owner)}")
+        else:
+            out.append(f"{page}:I{struct.unpack_from('<I', raw, 4)[0]}")
+    return " ".join(out)
+
+
+def test_a_wide_table_leaves_the_stale_definition_pages_the_engine_leaves() -> None:
+    """131 columns: the definition runs past one page from the 116th, and
+    the copy cycles through 17 continuation pages, the release coming
+    when the file reaches 128 pages."""
+    db = AccessDatabase(_TEMPLATE.read_bytes())
+    db.create_table("Wide", _wide_columns(130))
+
+    compacted = db.compact_and_repair()
+
+    assert _layout(compacted, "Wide") == (
+        "109:T 110:M 111:c123 112:c124 113:c124 114:c125 115:c125 116:c126 117:c126 118:c127 119:c127 "
+        "120:c128 121:c128 122:c129 123:c129 124:c130 125:c130 126:c130L 127:c123 128:D18 129:D3 130:LV 131:D3 132:D5"
+    )
+
+
+def test_a_keyed_wide_table_with_rows_is_rewritten_after_the_rows_and_twice_for_the_index() -> None:
+    """161 columns, a primary key and two rows: the data page comes before
+    the write after the rows, the index root before the two writes with
+    the index, and the pages given back come round three times at 136."""
+    db = AccessDatabase(_TEMPLATE.read_bytes())
+    table = db.create_table("Wide", _wide_columns(160), [IndexSpec("PK", ("Id",), primary=True)])
+    table.insert_row({"Id": 1, "C001": "one"})
+    table.insert_row({"Id": 2, "C001": "two"})
+
+    compacted = db.compact_and_repair()
+
+    assert _layout(compacted, "Wide") == (
+        "109:T 110:M 111:c159 112:c160 113:c160 114:D109 115:c160 116:I109 117:c163 118:c163L 119:D18 120:D3 121:LV 122:D3 123:D5 "
+        "124:c154 125:c154 126:c155 127:c155 128:c156 129:c156 130:c157 131:c157 132:c158 133:c158 134:c147 135:c159"
+    )
+
+
+def test_two_wide_tables_grow_the_file_by_the_engine_s_steps() -> None:
+    """A wide table copied first cycles within 16 pages and grows the file
+    from 64 to 72; the system tables then take those pages back, grow it
+    to 136, and the second wide table's pages come back at 136 and 144."""
+    db = AccessDatabase(_TEMPLATE.read_bytes())
+    db.create_table("Bide", _wide_columns(160))
+    db.create_table("Wide", _wide_columns(160))
+
+    compacted = db.compact_and_repair()
+
+    assert compacted.table("Bide").definition.pages == [41, 58]
+    assert _layout(compacted, "Wide") == (
+        "112:T 113:M 114:c155 115:c155 116:c156 117:c156 118:c157 119:c157 120:c158 121:c158 122:c159 123:c159 124:c160 125:c160 126:c160L "
+        "127:D18 128:D3 129:LV 130:D3 131:D2 132:D5 133:c150 134:c150 135:c151 136:c151 137:c152 138:c152 139:c153 140:c153 141:c154 142:c154 143:c140"
+    )

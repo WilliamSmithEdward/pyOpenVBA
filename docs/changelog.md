@@ -21,7 +21,15 @@ All notable changes to pyOpenVBA are documented here. This project follows
   result keeps the source's creation date, because the engine keys its
   encoding of owner and permission SIDs to that date (a 30-bit fold of
   five of its bytes feeds a generator that stayed unknown), so those
-  bytes copy across unchanged.
+  bytes copy across unchanged. A table whose definition runs past one
+  page is built column by column as the engine builds it, two writes
+  per column onto fresh continuation pages, and the destination grows
+  and lets rewritten pages back into use by the engine's rule (64 pages
+  ahead, then 8 or 64 at a time, the waiting pages returning once 24
+  pages have been taken since they last did), so the stale pages behind
+  a wide table and every page after them land where the engine puts
+  them: a sixth compaction, two 161-column tables with a memo, a key and
+  rows, matches the engine page for page.
 
 - **Fourteen more form property codes are named** -- `Glow`, `Shadow`,
   `QuickStyle`, `HoverForeColor`, `PressedForeColor` and the hover and

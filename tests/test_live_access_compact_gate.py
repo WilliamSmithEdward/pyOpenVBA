@@ -355,6 +355,26 @@ def test_access_objects_links_and_every_query_shape_compact_as_the_engine_compac
     assert_compaction_matches(source, tmp_path)
 
 
+def test_wide_tables_compact_as_the_engine_compacts_them(tmp_path: Path) -> None:
+    """Two tables whose definitions run past one page: one copied before
+    the system tables (its pages come round within 16 and the file grows
+    from 64 to 72), one copied last with a memo column, a primary key and
+    rows (rewritten after the rows and twice for the index, its pages
+    coming back at 136 and 144).  Every stale continuation page the
+    churn leaves behind has to hold the engine's bytes."""
+    source = tmp_path / "source.accdb"
+    shutil.copy(TEMPLATE, source)
+    wide = ", ".join(f"C{i:03} TEXT(20)" for i in range(1, 161))
+    setup = [
+        f"CREATE TABLE AWide (Id LONG, {wide})",
+        f"CREATE TABLE ZWide (Id LONG CONSTRAINT PKZ PRIMARY KEY, M MEMO, {wide})",
+        "INSERT INTO ZWide (Id, M, C001) VALUES (2, 'second memo', 'two')",
+        "INSERT INTO ZWide (Id, M, C001) VALUES (1, 'first memo', 'one')",
+    ]
+    _run(source, setup, tmp_path)
+    assert_compaction_matches(source, tmp_path)
+
+
 _BUILD_OBJECTS = """
 Public Function Build(ByVal modPath As String, ByVal macPath As String) As String
     Dim f As Object, r As Object, c As Object, n As String

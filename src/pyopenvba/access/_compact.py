@@ -49,10 +49,14 @@ from typing import TYPE_CHECKING
 
 from pyopenvba.access._index import encode_key
 from pyopenvba.access._lval import read_long_value, write_long_value
+from pyopenvba.access._pages import PAGE_SIZE, FileGrowth
 from pyopenvba.access._rows import LongValueRef, decode_long_value_ref, split_row
 from pyopenvba.access._tdef import (
+    OFFSET_INDEX_HEADERS,
     OFFSET_LAST_COMPLEX_ID,
     OFFSET_NEXT_AUTONUMBER,
+    SIZE_COLUMN_HEADER,
+    SIZE_REAL_INDEX_HEADER,
     TYPE_BOOLEAN,
     TYPE_COMPLEX,
     ColumnDef,
@@ -117,6 +121,14 @@ def compact_and_repair(
     # the creation date the SID encoding is keyed to.
     skeleton.store.write(0, source.store.read(0))
     skeleton.header = source.header
+    # The destination grows, and lets rewritten pages back into use, the
+    # way the engine's does: sized 64 pages ahead in the ACE format and 32
+    # in Jet 4 (measured on wide tables in bare databases of each), the
+    # bare file's own pages and the permission page it took back counting
+    # as taken.
+    skeleton.store.growth = FileGrowth(
+        physical=64 if source.header.is_ace else 32, since_release=skeleton.store.page_count + 1
+    )
     if lval_stamp is not None:
         skeleton.lval_stamp = lval_stamp
     run = _Compaction(source, skeleton, clock)
@@ -307,6 +319,12 @@ class _Compaction:
         self._patch_headers(source_table, table)
         self._copy_rows(source_table, table)
         self._set_counters(source_table, table)
+        # A definition that runs past one page is written out once more
+        # after the rows, and once more after each index is added, each
+        # time onto a fresh continuation page (measured: the pages left
+        # behind a wide table hold the version before the index twice and
+        # the version with it twice).
+        self._rewrite_if_long(table)
         creation = stamp
         for spec in indexes:
             # Each index stamps the row with the compaction time again; when
@@ -316,25 +334,42 @@ class _Compaction:
             # leave it at the creation stamp).
             stamp = math.nextafter(creation, math.inf) if stamp == creation else creation
             self.dest.create_index(entry.name, spec, updated=stamp)
+            self._rewrite_if_long(self.dest.table(entry.name))
         self._patch_index_tails(source_table, self.dest.table(entry.name))
+
+    def _rewrite_if_long(self, table: Table) -> None:
+        from pyopenvba.access._schema import serialize_definition
+
+        d = table.definition
+        if len(d.pages) > 1:
+            self.dest._write_definition(serialize_definition(d), d.page, d.pages[1:], keep_tail=True)  # pyright: ignore[reportPrivateUsage]
+            self.dest._definitions.pop(d.page, None)  # pyright: ignore[reportPrivateUsage]
 
     def _patch_headers(self, source_table: Table, table: Table) -> None:
         """Header bits a spec cannot ask for -- the misc flags a complex
-        column's bookkeeping carries -- are copied from the source, and
-        the definition rewritten in place when any differ."""
+        column's bookkeeping carries -- are copied from the source.  The
+        engine's build carries them from the start, so they are patched
+        where they lie rather than by a rewrite, which on a definition
+        past one page would take a page the engine does not take."""
         from pyopenvba.access._complex import patch_column_header
         from pyopenvba.access._schema import serialize_definition
 
         d = table.definition
         by_name = {c.name.lower(): c for c in source_table.definition.columns}
-        changed = False
-        for column in d.columns:
+        patched: list[int] = []
+        for position, column in enumerate(d.columns):
             original = by_name[column.name.lower()]
             if original.misc_flags != column.misc_flags:
                 column.raw = patch_column_header(column.raw, misc_flags=original.misc_flags)
                 column.misc_flags = original.misc_flags
-                changed = True
-        if changed:
+                patched.append(position)
+        if not patched:
+            return
+        headers_end = OFFSET_INDEX_HEADERS + len(d.real_indexes) * SIZE_REAL_INDEX_HEADER + len(d.columns) * SIZE_COLUMN_HEADER
+        if headers_end <= PAGE_SIZE:
+            for position in patched:
+                self.dest.patch_column_header(d, position, d.columns[position].raw)
+        else:
             self.dest._write_definition(serialize_definition(d), d.page, d.pages[1:], keep_tail=True)  # pyright: ignore[reportPrivateUsage]
             self.dest._definitions.pop(d.page, None)  # pyright: ignore[reportPrivateUsage]
 

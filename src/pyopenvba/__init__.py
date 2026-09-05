@@ -11,6 +11,9 @@ Supported formats
   PowerPoint: .pptm, .potm (ZIP/OOXML), .ppt (raw CFB)
   Access:     .accdb, .mdb (the Jet 4 / ACE database file)
 
+Power Query (Get and Transform) is read and written in the same Excel
+packages, through ``PowerQueryWorkbook``.
+
 Public API
 ----------
     from pyopenvba import (
@@ -43,6 +46,12 @@ Public API
         prs.set_module("Module1", new_src)
         prs.save("presentation_modified.pptm")
 
+    # Power Query, in any Excel package
+    with PowerQueryWorkbook("orders.xlsx") as book:
+        print(book.query_names())
+        book.query("Orders").formula = "let Source = 1 in Source"
+        book.save()
+
     # Disk-based workflow (.bas / .cls files)
     pull("workbook.xlsm", "./vba_src")         # extract modules (Excel)
     push("./vba_src", "workbook.xlsm")         # write edits back in place
@@ -65,12 +74,16 @@ from pyopenvba.excel import ExcelFile
 from pyopenvba.exceptions import (
     CFBError,
     FormParseError,
+    PowerQueryError,
     PyOpenVBAError,
     UnsupportedFormatError,
     VBAProjectError,
 )
 from pyopenvba.forms import FormControl, Size, VBAForm
 from pyopenvba.powerpoint import PowerPointFile
+from pyopenvba.powerquery import PowerQuery, PowerQueryWorkbook, QueryGroup
+from pyopenvba.powerquery import pull_queries as _pull_queries
+from pyopenvba.powerquery import push_queries as _push_queries
 from pyopenvba.vba import VBAModuleKind
 from pyopenvba.vba import synthesize_class_header as synthesize_class_header
 from pyopenvba.word import WordFile
@@ -223,7 +236,11 @@ __all__ = [
     "FormParseError",
     "IndexSpec",
     "PowerPointFile",
+    "PowerQuery",
+    "PowerQueryError",
+    "PowerQueryWorkbook",
     "PyOpenVBAError",
+    "QueryGroup",
     "Size",
     "UnsupportedFormatError",
     "VBAForm",
@@ -232,12 +249,45 @@ __all__ = [
     "WordFile",
     "pull",
     "pull_access",
+    "pull_power_query",
     "pull_ppt",
     "pull_word",
     "push",
     "push_access",
+    "push_power_query",
     "push_ppt",
     "push_word",
 ]
 
-__version__ = "4.0.0"
+
+def pull_power_query(
+    workbook: str | Path,
+    dest_dir: str | Path,
+    *,
+    encoding: str = "utf-8",
+    overwrite: bool = True,
+) -> list[Path]:
+    """
+    Export every Power Query from ``workbook`` into ``dest_dir`` as ``.m``
+    files, beside a manifest that carries the names and descriptions a
+    file name cannot. Returns the paths written.
+    """
+    return _pull_queries(workbook, dest_dir, encoding=encoding, overwrite=overwrite)
+
+
+def push_power_query(
+    src_dir: str | Path,
+    workbook: str | Path,
+    *,
+    out: str | Path | None = None,
+    encoding: str = "utf-8",
+    remove_missing: bool = False,
+) -> list[str]:
+    """
+    Update the Power Queries in ``workbook`` from the ``.m`` files in
+    ``src_dir`` and save. Saves in place unless ``out`` is given. Returns
+    the names touched.
+    """
+    return _push_queries(src_dir, workbook, out=out, encoding=encoding, remove_missing=remove_missing)
+
+__version__ = "5.0.0"

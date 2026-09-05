@@ -12,6 +12,9 @@ Usage::
     python -m pyopenvba access-push  <src_dir> <accdb> [--out <new_path>] [--strict]
     python -m pyopenvba access-disasm <accdb> [--module <name>] [--with-source]
     python -m pyopenvba disasm <office_file> [--module <name>] [--with-source]
+    python -m pyopenvba pq-ls   <workbook>
+    python -m pyopenvba pq-pull <workbook> <dest_dir>
+    python -m pyopenvba pq-push <src_dir> <workbook> [--out <new_path>] [--remove-missing]
 
 ``<office_file>`` may be any supported Excel, Word, or PowerPoint file;
 the host is selected by extension (see ``_HOST_BY_SUFFIX``).
@@ -23,7 +26,8 @@ import argparse
 import sys
 from pathlib import Path
 
-from pyopenvba import ExcelFile, PowerPointFile, WordFile
+from pyopenvba import ExcelFile, PowerPointFile, PowerQueryWorkbook, WordFile
+from pyopenvba.powerquery import pull_queries, push_queries
 
 
 def _resolve_host(path: Path) -> type | None:
@@ -216,6 +220,29 @@ def _cmd_disasm(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_pq_ls(args: argparse.Namespace) -> int:
+    book = PowerQueryWorkbook(args.workbook)
+    groups = {str(group.id): group.name for group in book.groups()}
+    for query in book.queries():
+        group = query.group
+        where = f"  [{groups.get(str(group.id), group.name)}]" if group else ""
+        steps = f"  {len(query.steps)} steps" if query.steps else ""
+        print(f"{query.name}	{query.load_target}{steps}{where}")
+    return 0
+
+
+def _cmd_pq_pull(args: argparse.Namespace) -> int:
+    for path in pull_queries(args.workbook, args.dest, overwrite=not args.no_overwrite):
+        print(path)
+    return 0
+
+
+def _cmd_pq_push(args: argparse.Namespace) -> int:
+    for name in push_queries(args.src, args.workbook, out=args.out, remove_missing=args.remove_missing):
+        print(name)
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="pyopenvba")
     sub = parser.add_subparsers(dest="cmd", required=True)
@@ -314,6 +341,27 @@ def main(argv: list[str] | None = None) -> int:
         help="Interleave original VBA source lines with the p-code.",
     )
     p_d.set_defaults(func=_cmd_disasm)
+
+    p_pq_ls = sub.add_parser("pq-ls", help="List the Power Queries in a workbook.")
+    p_pq_ls.add_argument("workbook", type=Path)
+    p_pq_ls.set_defaults(func=_cmd_pq_ls)
+
+    p_pq_pull = sub.add_parser("pq-pull", help="Export Power Queries to a directory as .m files.")
+    p_pq_pull.add_argument("workbook", type=Path)
+    p_pq_pull.add_argument("dest", type=Path)
+    p_pq_pull.add_argument("--no-overwrite", action="store_true")
+    p_pq_pull.set_defaults(func=_cmd_pq_pull)
+
+    p_pq_push = sub.add_parser("pq-push", help="Import Power Queries from a directory of .m files and save.")
+    p_pq_push.add_argument("src", type=Path)
+    p_pq_push.add_argument("workbook", type=Path)
+    p_pq_push.add_argument("--out", type=Path, default=None)
+    p_pq_push.add_argument(
+        "--remove-missing",
+        action="store_true",
+        help="Also delete queries the directory does not hold.",
+    )
+    p_pq_push.set_defaults(func=_cmd_pq_push)
 
     args = parser.parse_args(argv)
     return int(args.func(args))

@@ -9,7 +9,7 @@ from pathlib import Path
 
 from pyopenvba.access import AccessDatabase
 from pyopenvba.access._complex import decode_file_data, encode_file_data
-from pyopenvba.access._deflate import compress
+from pyopenvba._deflate import compress
 
 FIXTURE = Path(__file__).parent / "live_access_test" / "complex_columns.accdb"
 

@@ -1,6 +1,6 @@
-"""Classic zlib's deflate, in Python, for the bytes Access writes.
+"""Classic zlib's deflate, in Python, for the bytes Office writes.
 
-Access compresses an attachment with zlib at level 5, memLevel 7 and a
+Two formats here need it.  Access compresses an attachment with zlib at level 5, memLevel 7 and a
 32 KB window (measured: over eight files from 25 bytes to 85 KB, one of
 them admitting exactly one parameter set, classic zlib 1.3.2 reproduces
 the engine's stream byte for byte -- header, blocks and trailer).  The
@@ -11,6 +11,11 @@ chain and niceness limits, the 8191-symbol block, and ``trees.c``'s
 Huffman construction with its tie-breaking and depth overflow handling.
 Anything that changed here would change the bytes, so the structure of
 the C is kept where it decides the output.
+
+Excel writes the parts of a Power Query package as raw deflate at level
+6 -- .NET's ``CompressionLevel.Optimal`` -- which :func:`raw_compress`
+reproduces; a 73 KB section document and 32 smaller parts pin the level
+to 6 alone.
 """
 
 from __future__ import annotations
@@ -665,3 +670,12 @@ def compress(data: bytes, level: int = 5, wbits: int = 15, memlevel: int = 7) ->
     flg += 31 - ((cmf * 256 + flg) % 31)
     body = _Deflater(level, wbits, memlevel).deflate(data)
     return bytes((cmf, flg)) + body + (zlib.adler32(data) & 0xFFFFFFFF).to_bytes(4, "big")
+
+
+def raw_compress(data: bytes, level: int = 6, memlevel: int = 8) -> bytes:
+    """The deflate blocks alone, without zlib's header or its trailer.
+
+    This is what a ZIP entry carries.  The defaults are what Excel uses
+    for the parts of a Power Query package.
+    """
+    return compress(data, level=level, wbits=15, memlevel=memlevel)[2:-4]

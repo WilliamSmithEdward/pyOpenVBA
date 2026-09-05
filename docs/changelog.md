@@ -7,6 +7,63 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 Nothing yet.
 
+## [5.0.0] - 2026-09-05
+
+### Added
+
+- **Power Query, read and written in pure Python.** A workbook keeps its
+  Get and Transform queries in one custom XML part: an OPC package
+  holding an M section document, a metadata document beside it and a
+  permission list, all base64 inside a `DataMashup` element.
+  `PowerQueryWorkbook` opens any Excel package -- `.xlsx` included, which
+  has no VBA project at all -- and reads, edits, adds, renames, groups
+  and removes the queries in it.
+
+  - `queries()`, `query(name)`, `query_names()`, and per query the
+    formula, description, steps, load target, group and every metadata
+    entry Excel recorded.
+  - `add_query()`, `remove_query()`, `rename_query()` (which rewrites the
+    queries that name the old one, through the M tokenizer, so a match
+    inside a text literal or a record's field name is left alone),
+    `set_section_text()` for the whole document at once.
+  - `add_group()` / `remove_group()` and `move_to_group()` for the
+    folders in the Queries pane.
+  - `load_to_sheet()` and `unload()`, which write and remove the
+    connection, query table, table and sheet reference that actually put
+    a query's result on a worksheet.
+  - `PowerQueryWorkbook.create_new()` builds a workbook from nothing.
+  - `pull_power_query()` / `push_power_query()` and `pq-ls`, `pq-pull`,
+    `pq-push` on the command line: one `.m` file per query beside a
+    manifest carrying the names a file name cannot hold.
+
+  The writer aims at Excel's own bytes rather than at something Excel
+  will accept. A workbook read and written unchanged is identical to the
+  byte; a package rebuilt from its parts reproduces Excel's ZIP exactly,
+  down to the raw deflate at level 6 and the growth-hint extra field; and
+  the metadata section, the entry encodings and the query-group blob are
+  byte-identical to what Microsoft's own packaging assemblies produce for
+  the same input. Twelve live gates have Excel open what was written and
+  evaluate it, and
+  [docs/power_query.md](power_query.md) records how every rule was
+  measured, including the three that a specification would not tell you:
+  a query is a metadata item with at least one entry, the permission list
+  and the metadata content package are both load-bearing, and the
+  permission bindings are not.
+
+- **`examples/power_query_demo.py`** builds a workbook of twelve queries
+  in four groups, six of them loaded onto a sheet, reading JSON from four
+  public APIs in five shapes: a list of records, one request per row, a
+  list of bare numbers, GeoJSON features, a record whose field names are
+  data, and a record of records. Every query in it was refreshed in Excel
+  before it was committed.
+
+### Changed
+
+- The deflate port moved from `pyopenvba.access._deflate` to
+  `pyopenvba._deflate`, where both the Access attachment codec and the
+  Power Query package writer use it, and gained `raw_compress()` for the
+  headerless stream a ZIP entry carries.
+
 ## [4.0.0] - 2026-09-05
 
 ### Added

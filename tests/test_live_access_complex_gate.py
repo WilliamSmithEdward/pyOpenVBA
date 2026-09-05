@@ -209,7 +209,7 @@ def test_compressed_attachments_match_the_engine_byte_for_byte(tmp_path: Path) -
     each, compressed with its own deflate, is exactly what
     ``encode_file_data`` produces: the same zlib header, blocks and
     trailer.  The deflate is classic zlib's at level 5, memLevel 7 and a
-    32 KB window, carried in ``pyopenvba.access._deflate``."""
+    32 KB window, carried in ``pyopenvba._deflate``."""
     import random
 
     random.seed(7)

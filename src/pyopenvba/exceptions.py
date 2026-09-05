@@ -24,3 +24,12 @@ class FormParseError(PyOpenVBAError):
     site array yields plausible-looking controls, and wrong knowledge is
     worse than none.
     """
+
+class PowerQueryError(PyOpenVBAError):
+    """Raised when a workbook's Power Query package cannot be read or written.
+
+    The DataMashup blob is a container of containers -- an OPC package, an
+    M section document and a metadata document -- and a malformed one is
+    refused rather than half-read: a query list built from a broken
+    package would look ordinary and be wrong.
+    """

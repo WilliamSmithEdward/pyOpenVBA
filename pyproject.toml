@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pyOpenVBA"
-version = "4.0.0"
-description = "Read and write VBA macros inside Excel, Word, PowerPoint and Access files in pure Python, no dependencies."
+version = "5.0.0"
+description = "Read and write VBA macros and Excel Power Query in pure Python, no dependencies."
 readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.10"
@@ -14,6 +14,10 @@ authors = [
 ]
 keywords = [
     "vba",
+    "power-query",
+    "powerquery",
+    "m-language",
+    "datamashup",
     "excel",
     "word",
     "powerpoint",
@@ -78,6 +82,7 @@ include = [
     "LICENSE.md",
     "pyproject.toml",
     "docs/architecture.md",
+    "docs/power_query.md",
     "docs/roadmap.md",
     "docs/ms-ovba-implementation-guide_v2.md",
 ]

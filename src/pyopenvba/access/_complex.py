@@ -39,7 +39,7 @@ deflate is classic zlib's at level 5, memLevel 7 and a 32 KB window --
 found by comparing eight streams it wrote against every parameter set of
 a classic zlib, one of the eight admitting exactly that one -- and since
 the zlib a Python is built with may be zlib-ng, whose streams differ,
-:mod:`pyopenvba.access._deflate` carries zlib's own algorithm.  An
+:mod:`pyopenvba._deflate` carries zlib's own algorithm.  An
 earlier version of this note said the deflate was not zlib's: that was
 zlib-ng's output being compared, and the header's "fast" level flag,
 which levels 2 to 5 share, hiding the match.
@@ -50,7 +50,7 @@ from __future__ import annotations
 import datetime as dt
 import zlib
 
-from pyopenvba.access._deflate import compress as compress_as_access
+from pyopenvba._deflate import compress as compress_as_access
 from dataclasses import dataclass, field
 
 from pyopenvba.access_read import AccessError

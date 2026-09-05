@@ -6,17 +6,29 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/LICENSE.md)
 [![Downloads](https://static.pepy.tech/badge/pyOpenVBA/month)](https://pepy.tech/project/pyOpenVBA)
 
-**Read and write VBA macros inside Office files, in pure Python.**
+**Read and write the code inside Office files, in pure Python: VBA macros
+in four hosts, and Power Query in Excel.**
 
 No dependencies beyond the standard library. No Office install needed.
 Works on Windows, macOS and Linux. Python 3.10 or newer.
 
-Four hosts, one API:
+VBA, four hosts and one API:
 
 * Excel (`.xlsm`, `.xlsb`, `.xlam`, `.xls`)
 * Word (`.docm`, `.dotm`, `.doc`)
 * PowerPoint (`.pptm`, `.potm`, `.ppt`)
 * Access (`.accdb`, `.mdb`)
+
+Power Query, in any Excel package (`.xlsx` included):
+
+```python
+from pyopenvba import PowerQueryWorkbook
+
+with PowerQueryWorkbook("orders.xlsx") as book:
+    print(book.query_names())
+    book.query("Orders").formula = "let Source = Excel.CurrentWorkbook() in Source"
+    book.save()
+```
 
 ---
 
@@ -36,22 +48,27 @@ The write path is the point of the library:
 - **Design** forms as well as their code: read a form's controls and
   properties, edit them, add and remove controls, or build a form from
   nothing.
-- **Create** a new `.xlsm`, `.xlsb`, `.xlam`, `.docm`, `.pptm` or
-  `.accdb` file and put code in it.
+- **Query** as well as code: read, edit, add, group and load Power
+  Queries, or write a whole workbook of them from nothing.
+- **Create** a new `.xlsx`, `.xlsm`, `.xlsb`, `.xlam`, `.docm`, `.pptm`
+  or `.accdb` file and put code in it.
 - **Save**, and have the file reopen in the host with no repair dialog.
 
 Every format is verified against live Office: the saved file reopens
-without a repair prompt, and the code in it runs. Access edits are held
-to a stricter bar. Each write is compared byte for byte with the same
-edit made by Access or its database engine.
+without a repair prompt, and the code in it runs. Two parts are held to a
+stricter bar. Access edits are compared byte for byte with the same edit
+made by Access or its database engine, and the Power Query writer is
+compared with Microsoft's own packaging assemblies.
 
 That makes it a good fit for:
 
-- Version-controlling VBA in git like any other source, then pushing
-  edits back without opening Office.
-- Diffing two files to see what changed in a module or a form's design.
-- Building forms and macros from a script on a machine without Office.
-- Reading and writing macros on a server or in CI.
+- Version-controlling VBA and M in git like any other source, then
+  pushing edits back without opening Office.
+- Diffing two files to see what changed in a module, a form's design or a
+  query.
+- Building forms, macros and queries from a script on a machine without
+  Office.
+- Reading and writing Office code on a server or in CI.
 - Letting an AI agent read and change the code in your Office files.
 
 ---
@@ -99,24 +116,18 @@ with ExcelFile("workbook.xlsm") as wb:
     # wb.save("edited.xlsm")        # or to a new file
 ```
 
-### Word
+### Word and PowerPoint
+
+The same three calls, on the class for the host:
 
 ```python
-from pyopenvba import WordFile
+from pyopenvba import PowerPointFile, WordFile
 
 with WordFile("document.docm") as doc:
-    print(doc.module_names())       # ['ThisDocument', 'Module1']
     doc.set_module("Module1", 'Sub Hello()\r\n    MsgBox "hi"\r\nEnd Sub\r\n')
     doc.save()
-```
-
-### PowerPoint
-
-```python
-from pyopenvba import PowerPointFile
 
 with PowerPointFile("presentation.pptm") as prs:
-    print(prs.module_names())       # ['Module1']
     prs.set_module("Module1", 'Sub Hello()\r\n    MsgBox "hi"\r\nEnd Sub\r\n')
     prs.save()
 ```
@@ -159,6 +170,17 @@ with PowerPointFile.create_new("new_prs.pptm") as prs:
 with AccessDatabase.create_new("new_db.accdb") as db:
     db.set_module("Module1", "Option Compare Database\r\n\r\nPublic Sub Hello()\r\nEnd Sub")
     db.save()
+```
+
+A workbook with no macros in it comes from `PowerQueryWorkbook`, which
+adds the Power Query package the first time a query is written:
+
+```python
+from pyopenvba import PowerQueryWorkbook
+
+with PowerQueryWorkbook.create_new("new_book.xlsx") as book:
+    book.add_query("Numbers", "let Source = {1..10} in Source")
+    book.save()
 ```
 
 ---
@@ -348,16 +370,84 @@ tab index.
 
 ---
 
+## Power Query
+
+Excel keeps its Get and Transform queries in one custom XML part of the
+workbook: an M section document, a metadata document beside it, and a
+permission list, all inside a base64 blob. `PowerQueryWorkbook` reads
+that, edits it and writes it back, for any Excel package including plain
+`.xlsx`.
+
+```python
+from pyopenvba import PowerQueryWorkbook
+
+with PowerQueryWorkbook("orders.xlsx") as book:
+    for query in book.queries():
+        print(query.name, query.load_target, query.steps)
+
+    book.query("Orders").formula = 'let\r\n    Source = Csv.Document(File.Contents("o.csv"))\r\nin\r\n    Source'
+    book.query("Orders").description = "Every order, straight from the export."
+    book.add_query("Totals", "let Source = Table.RowCount(Orders) in Source")
+    book.rename_query("Orders", "Order Lines")     # rewrites the queries that name it
+    book.remove_query("Scratch")
+    book.save()
+```
+
+Groups are the folders in the Queries pane, and a query can be loaded
+onto a sheet or taken back off it:
+
+```python
+with PowerQueryWorkbook.create_new("report.xlsx") as book:
+    staging = book.add_group("Staging")
+    book.add_query("Raw", "let Source = 1 in Source", group=staging)
+    book.add_query("Report", "let Source = Raw in Source")
+    book.load_to_sheet("Report", ["Value"], cell="A1")
+    book.save()
+```
+
+`load_to_sheet` writes the connection, the query table, the table and the
+sheet's reference to it, because the metadata alone does not make Excel
+load anything. The column names are yours to give: knowing them means
+running the query, and Excel settles them against the real result on its
+first refresh. `unload()` takes every piece back out.
+
+Queries go to disk and back like modules do:
+
+```bash
+python -m pyopenvba pq-ls   workbook.xlsx        # name, where it loads, its group
+python -m pyopenvba pq-pull workbook.xlsx ./queries
+python -m pyopenvba pq-push ./queries workbook.xlsx
+```
+
+Each query becomes one `.m` file, beside a `queries.json` manifest that
+carries what a file name cannot: the real name, the description and the
+group. A query called `Sales/EU` survives the round trip.
+
+[examples/power_query_demo.py](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/examples/power_query_demo.py)
+builds a workbook of twelve queries in four groups, six of them loaded
+onto a sheet, reading JSON from four public APIs (PokeAPI, USGS,
+Frankfurter, Hacker News) in five different shapes. Every query in it was
+refreshed in Excel before it was committed.
+
+What the format is, and how each rule was measured, is in
+[docs/power_query.md](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/docs/power_query.md).
+
+---
+
 ## Supported formats
 
 ### Excel
 
-| Extension | What it is                   | Read | Write | create_new |
-|-----------|------------------------------|:----:|:-----:|:----------:|
-| `.xlsm`   | Macro-enabled workbook       |  yes |  yes  |    yes     |
-| `.xlsb`   | Binary workbook              |  yes |  yes  |    yes     |
-| `.xlam`   | Macro-enabled add-in         |  yes |  yes  |    yes     |
-| `.xls`    | Legacy (Excel 97-2003)       |  yes |  yes  |    no      |
+| Extension | What it is                   | VBA | Power Query | create_new |
+|-----------|------------------------------|:---:|:-----------:|:----------:|
+| `.xlsx`   | Workbook                     |  -  |     yes     |    yes     |
+| `.xlsm`   | Macro-enabled workbook       | yes |     yes     |    yes     |
+| `.xlsb`   | Binary workbook              | yes |     yes     |    yes     |
+| `.xlam`   | Macro-enabled add-in         | yes |     yes     |    yes     |
+| `.xls`    | Legacy (Excel 97-2003)       | yes |      -      |    no      |
+
+A `.xlsx` file has no VBA project by design, and Power Query lives
+outside the project, so it is read and written in every package above.
 
 ### Word
 
@@ -460,6 +550,9 @@ src/pyopenvba/
   access/            AccessDatabase: the VBA project, forms and reports,
                      and the Jet 4 / ACE storage engine they live in
   access_read.py     AccessReader: the older read-only inspector
+  powerquery/        PowerQueryWorkbook: the DataMashup blob, the M section
+                     document, the metadata beside it, and worksheet loads
+  _deflate.py        classic zlib's deflate, for the bytes Office writes
   vba.py             VBA project parser and MS-OVBA codec
   vba_pcode.py       VBA7 p-code disassembler
   cfb.py             MS-CFB (Compound File Binary) parser/writer
@@ -468,14 +561,15 @@ src/pyopenvba/
   _oforms_pages.py   a MultiPage's tabs and page bookkeeping
   _ppt_container.py  the VBA project a binary .ppt hides in its document stream
   exceptions.py      exception hierarchy
-  _templates/        empty .xlsm/.xlsb/.xlam/.docm/.pptm/.accdb bytes for create_new()
-  __main__.py        python -m pyopenvba {pull,push,ls,forms,disasm,access-ls,access-pull,access-push,access-disasm}
+  _templates/        empty .xlsx/.xlsm/.xlsb/.xlam/.docm/.pptm/.accdb bytes for create_new()
+  __main__.py        python -m pyopenvba {pull,push,ls,forms,disasm,access-*,pq-ls,pq-pull,pq-push}
 ```
 
 For more:
 
 - [docs/architecture.md](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/docs/architecture.md): internal layout and conventions.
 - [docs/access_engine.md](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/docs/access_engine.md): the Access file format as measured, and what the engine reproduces.
+- [docs/power_query.md](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/docs/power_query.md): how Excel stores Power Query, and how each rule was measured.
 - [docs/ms-ovba-implementation-guide_v2.md](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/docs/ms-ovba-implementation-guide_v2.md): a language-agnostic guide to re-implementing MS-OVBA.
 - [docs/roadmap.md](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/docs/roadmap.md): per-feature status.
 
@@ -504,6 +598,7 @@ edit for a byte-for-byte comparison:
 $env:RUN_LIVE_EXCEL = "1"; pytest tests/test_live_excel_gate.py
 $env:RUN_LIVE_ACCESS = "1"; pytest tests/test_live_access_engine_gate.py
 $env:RUN_LIVE_ACCESS_VBA = "1"; pytest tests/test_live_access_design_gate.py
+$env:RUN_LIVE_POWER_QUERY = "1"; pytest tests/test_live_powerquery_gate.py
 ```
 
 CI runs the test matrix on Python 3.10 through 3.14 on Linux, plus 3.12

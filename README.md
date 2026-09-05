@@ -133,13 +133,6 @@ with AccessDatabase("database.accdb") as db:
     db.save()
 ```
 
-Access keeps a compiled copy of the project beside the source and runs
-that copy. Writing source through pyOpenVBA marks the project for
-recompilation, so Access rebuilds it from the new source the next time it
-opens the file. The code has to compile, and Access takes a moment on
-that first open. Every one of these operations is checked by running the
-result in Access and comparing the value the code returns.
-
 ---
 
 ## Create a new file

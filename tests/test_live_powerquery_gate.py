@@ -55,6 +55,30 @@ Failed:
     Application.DisplayAlerts = True
 End Function
 
+Public Function ReadRefresh(ByVal path As String) As Variant
+    Dim wb As Workbook, c As WorkbookConnection, lo As ListObject, out As String
+    On Error GoTo Failed
+    Application.DisplayAlerts = False
+    Set wb = Workbooks.Open(path, UpdateLinks:=0)
+    Set c = wb.Connections(1)
+    Set lo = wb.Worksheets(1).ListObjects(1)
+    out = "background=" & c.OLEDBConnection.BackgroundQuery
+    out = out & " interval=" & c.OLEDBConnection.RefreshPeriod
+    out = out & " onopen=" & c.OLEDBConnection.RefreshOnFileOpen
+    out = out & " savedata=" & lo.QueryTable.SaveData
+    out = out & " refreshall=" & c.RefreshWithRefreshAll
+    out = out & " enabled=" & lo.QueryTable.EnableRefresh
+    wb.Close SaveChanges:=False
+    Application.DisplayAlerts = True
+    ReadRefresh = "ok:" & out
+    Exit Function
+Failed:
+    ReadRefresh = "ERR " & Err.Number & " " & Err.Description
+    On Error Resume Next
+    wb.Close SaveChanges:=False
+    Application.DisplayAlerts = True
+End Function
+
 Public Function RefreshTables(ByVal path As String) As Variant
     Dim wb As Workbook, ws As Worksheet, lo As ListObject, out As String, r As Long, c As Long
     On Error GoTo Failed
@@ -304,6 +328,43 @@ def test_excel_evaluates_the_eleven_step_example(excel: Any, tmp_path: Path) -> 
     assert "OrderLines@A1:I11" in rows
     assert "Line,Date,Sku,Product,Category,Qty,Gross,Discount,Net,;" in rows
     assert "Supplies,Kit,2,17,697.5,;" in rows
+
+
+def test_excel_reads_back_the_refresh_control_we_wrote(excel: Any, tmp_path: Path) -> None:
+    """The settings behind Excel's Refresh control dialog.  Setting them
+    from Python and reading them through Excel's own object model is what
+    says each one was written where Excel looks for it."""
+    path = edited(tmp_path, "loaded_to_sheet.xlsx", "refresh.xlsx")
+    book = PowerQueryWorkbook(path)
+    settings = book.query("Loaded").refresh
+    settings.background = False
+    settings.interval_minutes = 45
+    settings.on_open = True
+    settings.keep_data = False
+    settings.in_refresh_all = False
+    settings.enabled = False
+    book.save()
+
+    assert ask(excel, "ReadRefresh", str(path)) == (
+        "background=False interval=45 onopen=True savedata=False refreshall=False enabled=False"
+    )
+
+
+def test_excel_reads_back_refresh_control_turned_the_other_way(excel: Any, tmp_path: Path) -> None:
+    path = edited(tmp_path, "loaded_to_sheet.xlsx", "refresh_on.xlsx")
+    book = PowerQueryWorkbook(path)
+    settings = book.query("Loaded").refresh
+    settings.background = True
+    settings.interval_minutes = None
+    settings.on_open = False
+    settings.keep_data = True
+    settings.in_refresh_all = True
+    settings.enabled = True
+    book.save()
+
+    assert ask(excel, "ReadRefresh", str(path)) == (
+        "background=True interval=0 onopen=False savedata=True refreshall=True enabled=True"
+    )
 
 
 def test_a_query_with_an_awkward_name_evaluates(excel: Any, tmp_path: Path) -> None:

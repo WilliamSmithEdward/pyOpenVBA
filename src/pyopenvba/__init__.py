@@ -81,7 +81,7 @@ from pyopenvba.exceptions import (
 )
 from pyopenvba.forms import FormControl, Size, VBAForm
 from pyopenvba.powerpoint import PowerPointFile
-from pyopenvba.powerquery import PowerQuery, PowerQueryWorkbook, QueryGroup
+from pyopenvba.powerquery import PowerQuery, PowerQueryWorkbook, QueryGroup, RefreshSettings
 from pyopenvba.powerquery import pull_queries as _pull_queries
 from pyopenvba.powerquery import push_queries as _push_queries
 from pyopenvba.vba import VBAModuleKind
@@ -241,6 +241,7 @@ __all__ = [
     "PowerQueryWorkbook",
     "PyOpenVBAError",
     "QueryGroup",
+    "RefreshSettings",
     "Size",
     "UnsupportedFormatError",
     "VBAForm",
@@ -290,4 +291,4 @@ def push_power_query(
     """
     return _push_queries(src_dir, workbook, out=out, encoding=encoding, remove_missing=remove_missing)
 
-__version__ = "5.0.0"
+__version__ = "5.1.0"

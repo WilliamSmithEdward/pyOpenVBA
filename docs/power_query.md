@@ -221,6 +221,38 @@ wrong: **a connections part holding no connections is one Excel refuses**,
 so removing the last connection removes the part, its content type and
 its relationship as well.
 
+### Refresh control
+
+The boxes in Excel's Connection Properties dialog belong to that
+connection too, and to the query table beside it. Where each one is
+written was measured by toggling it through Excel's object model and
+diffing the file:
+
+| Dialog | Written as |
+| --- | --- |
+| Enable background refresh | `connection/@background`, mirrored as `queryTable/@backgroundRefresh="0"` when off |
+| Refresh every N minutes | `connection/@interval` |
+| Refresh data when opening the file | `connection/@refreshOnLoad`, mirrored on the query table |
+| Remove data before saving | `queryTable/@removeDataOnSave`, with `connection/@saveData` dropped |
+| Refresh this connection on Refresh All | `x15:connection/@excludeFromRefreshAll` inside the connection's `extLst`, under the extension uri `{DE250136-89BD-433C-8126-D09CA5730AF9}` |
+| Enable refresh | `queryTable/@disableRefresh` |
+
+Every one of them is absent by default and absent means off, so turning a
+setting off is written by taking the attribute away. Two of them are not
+where the dialog's wording suggests. The one about removing data reads
+from the query table, not from the connection's `saveData`, which is why
+setting `saveData` alone left Excel still reporting that data would be
+kept. And staying out of Refresh All is stored the other way round, as an
+exclusion.
+
+`query.refresh` gives these as `background`, `interval_minutes`,
+`on_open`, `keep_data`, `in_refresh_all` and `enabled`. The live gate
+sets all six from Python and has Excel's object model read them back.
+
+**"Enable Fast Data Load" is not covered.** Excel's object model does not
+expose it, so there was no way to watch Excel write it, and the rest of
+this file exists because nothing here is written on a guess.
+
 ---
 
 ## What Excel refuses

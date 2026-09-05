@@ -5,7 +5,29 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ## [Unreleased]
 
+Nothing yet.
+
+## [5.1.0] - 2026-09-05
+
 ### Added
+
+- **Refresh control on a loaded query.** `query.refresh` gives the
+  settings behind Excel's Connection Properties dialog: `background`,
+  `interval_minutes`, `on_open`, `keep_data`, `in_refresh_all` and
+  `enabled`. None of them live in the Power Query package; they sit on
+  the workbook connection the query loads through, and two are mirrored
+  onto the query table. Where each is written was measured by toggling it
+  in Excel and diffing the file, and two are not where the wording
+  suggests: removing data before saving reads from
+  `queryTable/@removeDataOnSave`, and staying out of Refresh All is
+  stored as an exclusion in a connection extension. The live gate sets all
+  six from Python and has Excel's object model read them back.
+
+  "Enable Fast Data Load" is deliberately absent. Excel's object model
+  does not expose it, so there was no way to watch Excel write it.
+
+- **`examples/power_query_refresh.py`** gives three loaded queries three
+  refresh profiles, and prints what each one will do.
 
 - **`examples/power_query_steps.py`**, a second Power Query example built
   around a query's Applied Steps. It writes a sales pipeline whose main

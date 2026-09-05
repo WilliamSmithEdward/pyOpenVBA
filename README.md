@@ -411,6 +411,23 @@ load anything. The column names are yours to give: knowing them means
 running the query, and Excel settles them against the real result on its
 first refresh. `unload()` takes every piece back out.
 
+A loaded query also carries the settings behind Excel's Connection
+Properties dialog:
+
+```python
+settings = book.query("Report").refresh
+settings.on_open = True             # refresh when the workbook opens
+settings.interval_minutes = 60      # and every hour after that
+settings.background = False         # in the foreground, so a macro can wait
+settings.keep_data = False          # save the query, not its rows
+settings.in_refresh_all = False     # leave it out of Refresh All
+settings.enabled = True             # or False to stop it refreshing at all
+```
+
+"Enable Fast Data Load" is missing from that list on purpose. Excel's
+object model does not expose it, so where Excel writes it could not be
+measured, and nothing here is written on a guess.
+
 Queries go to disk and back like modules do:
 
 ```bash
@@ -435,6 +452,10 @@ in Excel before it was committed:
   keeps the steps in a list and writes `#PREV` where a step means the one
   before it, so inserting or removing a step is a list operation and the
   references rewire themselves.
+- [power_query_refresh.py](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/examples/power_query_refresh.py)
+  gives three loaded queries three refresh profiles: one that refreshes on
+  open, one on an hourly timer in the foreground, and one kept out of
+  Refresh All that saves no rows.
 
 What the format is, and how each rule was measured, is in
 [docs/power_query.md](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/docs/power_query.md).

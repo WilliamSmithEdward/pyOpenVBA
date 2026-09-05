@@ -34,6 +34,7 @@ from pyopenvba.powerquery import _metadata as meta
 from pyopenvba.powerquery._mashup import DEFAULT_PERMISSIONS, Mashup
 from pyopenvba.powerquery._metadata import Entry, Item, Metadata, QueryGroup
 from pyopenvba.powerquery._opc import OpcFile
+from pyopenvba.powerquery._refresh import RefreshSettings
 from pyopenvba.powerquery._package import SECTION_PART, new_package
 from pyopenvba.powerquery._section import Section, is_function_expression, new_section
 from pyopenvba.powerquery._sheets import load_to_sheet as _load_to_sheet
@@ -237,6 +238,16 @@ class PowerQuery:
     def unload(self) -> bool:
         """Take the query's table off its sheet and leave it a connection."""
         return self._book.unload(self._name)
+
+    @property
+    def refresh(self) -> RefreshSettings:
+        """The refresh control for this query's connection.
+
+        Excel's Connection Properties dialog writes these on the
+        connection a loaded query goes through, so a query that loads
+        nowhere has none.
+        """
+        return RefreshSettings(self._book._opc, self._name)  # pyright: ignore[reportPrivateUsage]
 
     def move_to_group(self, group: QueryGroup | None) -> None:
         """Put the query in a group, or take it out of the one it is in."""

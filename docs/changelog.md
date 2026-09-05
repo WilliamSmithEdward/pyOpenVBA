@@ -7,6 +7,43 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 Nothing yet.
 
+## [5.1.1] - 2026-09-05
+
+### Changed
+
+- **`examples/power_query_refresh.py`** no longer demonstrates a state
+  Excel's dialog cannot build. Its third query removed its data before
+  saving without also refreshing on open, which Excel draws as a ticked
+  box greyed out beneath an unticked one. That query now does both, and
+  is called `Transient` rather than `Manual`, since its rows are fetched
+  when the workbook opens and dropped again when it is saved.
+
+### Added
+
+- **What that pairing actually is**, in `docs/power_query.md`. The
+  dialog's wiring is not a rule about the file. Excel's object model sets
+  `QueryTable.SaveData = False` with refresh-on-open off and raises
+  nothing; Excel writes the same shape itself when refresh-on-open is
+  ticked, remove-data is ticked, and refresh-on-open is then unticked;
+  and Excel resaves a workbook pyOpenVBA wrote that way with the
+  attribute intact. So `keep_data = False` on its own stays legal, and
+  the only cost is a query whose table opens empty until someone
+  refreshes it.
+- `test_excel_keeps_remove_data_without_refresh_on_open` in the live
+  gate, which holds that measurement, and a test that the shipped example
+  writes nothing the dialog cannot reach.
+- Live coverage for `examples/power_query_refresh.py`. All three of its
+  queries now have to refresh in Excel, and Excel's object model has to
+  report the profiles the example's own printed table claims. The other
+  two Power Query examples already had this.
+
+### Fixed
+
+- The 5.0.0 entry's link to `docs/power_query.md` was relative, which
+  resolves from inside the repository but not from the GitHub release
+  page the entry was published to. It is an absolute URL now, in the
+  changelog and in the published release notes.
+
 ## [5.1.0] - 2026-09-05
 
 ### Added
@@ -76,11 +113,11 @@ Nothing yet.
   byte-identical to what Microsoft's own packaging assemblies produce for
   the same input. Twelve live gates have Excel open what was written and
   evaluate it, and
-  [docs/power_query.md](power_query.md) records how every rule was
-  measured, including the three that a specification would not tell you:
-  a query is a metadata item with at least one entry, the permission list
-  and the metadata content package are both load-bearing, and the
-  permission bindings are not.
+  [docs/power_query.md](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/docs/power_query.md)
+  records how every rule was measured, including the three that a
+  specification would not tell you: a query is a metadata item with at
+  least one entry, the permission list and the metadata content package
+  are both load-bearing, and the permission bindings are not.
 
 - **`examples/power_query_demo.py`** builds a workbook of twelve queries
   in four groups, six of them loaded onto a sheet, reading JSON from four

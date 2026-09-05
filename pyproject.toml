@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pyOpenVBA"
-version = "5.1.0"
+version = "5.1.1"
 description = "Read and write VBA macros and Excel Power Query in pure Python, no dependencies."
 readme = "README.md"
 license = { text = "MIT" }

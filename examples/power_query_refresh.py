@@ -13,8 +13,15 @@ The workbook this writes gives three queries three refresh profiles:
   the file, so the numbers are there before anything runs.
 * **Hourly** refreshes every sixty minutes, in the foreground, so a
   refresh finishes before the next line of a macro runs.
-* **Manual** stays out of Refresh All and saves no data, which suits a
-  query that is slow or expensive to run.
+* **Transient** keeps no rows in the file at all. It fetches them when
+  the workbook opens and drops them again on save, and it stays out of
+  Refresh All because it has already refreshed itself.
+
+Excel greys "Remove data from the external data range before saving the
+workbook" out until "Refresh data when opening the file" is ticked,
+which is why Transient sets both. Setting `keep_data` alone is legal and
+Excel keeps it, but the dialog then shows a ticked box greyed out under
+an unticked one.
 
 Open the file, right-click a query in Queries & Connections, choose
 Properties, and the boxes match the table this prints.
@@ -37,7 +44,7 @@ in
 def build(path: str | Path) -> Path:
     """Write the workbook at `path` and return the path."""
     with PowerQueryWorkbook.create_new(path) as book:
-        for name, cell in (("Snapshot", "A1"), ("Hourly", "D1"), ("Manual", "G1")):
+        for name, cell in (("Snapshot", "A1"), ("Hourly", "D1"), ("Transient", "G1")):
             book.add_query(name, ROWS)
             book.load_to_sheet(name, ["Region", "Units"], cell=cell)
 
@@ -51,10 +58,12 @@ def build(path: str | Path) -> Path:
         hourly.interval_minutes = 60
         hourly.background = False
 
-        # Left out of Refresh All, and no rows kept in the file.
-        manual = book.query("Manual").refresh
-        manual.in_refresh_all = False
-        manual.keep_data = False
+        # Fetched on open and dropped again on save, so the file holds no
+        # rows.  It refreshes itself, so it stays out of Refresh All.
+        transient = book.query("Transient").refresh
+        transient.on_open = True
+        transient.keep_data = False
+        transient.in_refresh_all = False
 
         return book.save()
 

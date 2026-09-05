@@ -79,6 +79,32 @@ Failed:
     Application.DisplayAlerts = True
 End Function
 
+Public Function ReadEachRefresh(ByVal path As String) As Variant
+    Dim wb As Workbook, ws As Worksheet, lo As ListObject, c As WorkbookConnection, out As String
+    On Error GoTo Failed
+    Application.DisplayAlerts = False
+    Set wb = Workbooks.Open(path, UpdateLinks:=0)
+    For Each ws In wb.Worksheets
+        For Each lo In ws.ListObjects
+            Set c = lo.QueryTable.WorkbookConnection
+            out = out & c.Name & ": onopen=" & c.OLEDBConnection.RefreshOnFileOpen
+            out = out & " interval=" & c.OLEDBConnection.RefreshPeriod
+            out = out & " background=" & c.OLEDBConnection.BackgroundQuery
+            out = out & " savedata=" & lo.QueryTable.SaveData
+            out = out & " refreshall=" & c.RefreshWithRefreshAll & "|"
+        Next lo
+    Next ws
+    wb.Close SaveChanges:=False
+    Application.DisplayAlerts = True
+    ReadEachRefresh = "ok:" & out
+    Exit Function
+Failed:
+    ReadEachRefresh = "ERR " & Err.Number & " " & Err.Description
+    On Error Resume Next
+    wb.Close SaveChanges:=False
+    Application.DisplayAlerts = True
+End Function
+
 Public Function RefreshTables(ByVal path As String) As Variant
     Dim wb As Workbook, ws As Worksheet, lo As ListObject, out As String, r As Long, c As Long
     On Error GoTo Failed
@@ -330,6 +356,31 @@ def test_excel_evaluates_the_eleven_step_example(excel: Any, tmp_path: Path) -> 
     assert "Supplies,Kit,2,17,697.5,;" in rows
 
 
+def test_excel_agrees_with_the_refresh_example(excel: Any, tmp_path: Path) -> None:
+    """``examples/power_query_refresh.py`` claims three profiles in a
+    table it prints.  All three queries have to refresh, and Excel's own
+    object model has to report the boxes the table says."""
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location(
+        "power_query_refresh", Path(__file__).parents[1] / "examples" / "power_query_refresh.py"
+    )
+    assert spec is not None and spec.loader is not None
+    demo = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(demo)
+    out = demo.build(tmp_path / "refresh_example.xlsx")
+
+    rows = ask(excel, "RefreshTables", str(out))
+    for name, cells in (("Snapshot", "A1:B3"), ("Hourly", "D1:E3"), ("Transient", "G1:H3")):
+        assert f"{name}@{cells}=Region,Units,;North,120,;South,98,;" in rows
+
+    assert ask(excel, "ReadEachRefresh", str(out)).strip("|").split("|") == [
+        "Query - Snapshot: onopen=True interval=0 background=True savedata=True refreshall=True",
+        "Query - Hourly: onopen=False interval=60 background=False savedata=True refreshall=True",
+        "Query - Transient: onopen=True interval=0 background=True savedata=False refreshall=False",
+    ]
+
+
 def test_excel_reads_back_the_refresh_control_we_wrote(excel: Any, tmp_path: Path) -> None:
     """The settings behind Excel's Refresh control dialog.  Setting them
     from Python and reading them through Excel's own object model is what
@@ -364,6 +415,24 @@ def test_excel_reads_back_refresh_control_turned_the_other_way(excel: Any, tmp_p
 
     assert ask(excel, "ReadRefresh", str(path)) == (
         "background=True interval=0 onopen=False savedata=True refreshall=True enabled=True"
+    )
+
+
+def test_excel_keeps_remove_data_without_refresh_on_open(excel: Any, tmp_path: Path) -> None:
+    """Excel's dialog greys the remove-data box out until refresh-on-open
+    is ticked, so the pair looks like one only Excel's UI can reach.  It
+    is not a rule about the file.  Excel's own object model sets
+    ``SaveData = False`` with refresh-on-open off without complaint, and
+    Excel writes the same shape itself when refresh-on-open is ticked,
+    remove-data ticked, then refresh-on-open unticked again.  Here Excel
+    reads back what pyOpenVBA wrote in one step."""
+    path = edited(tmp_path, "loaded_to_sheet.xlsx", "remove_only.xlsx")
+    book = PowerQueryWorkbook(path)
+    book.query("Loaded").refresh.keep_data = False
+    book.save()
+
+    assert ask(excel, "ReadRefresh", str(path)) == (
+        "background=True interval=0 onopen=False savedata=False refreshall=True enabled=True"
     )
 
 

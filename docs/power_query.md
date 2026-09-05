@@ -245,6 +245,28 @@ setting `saveData` alone left Excel still reporting that data would be
 kept. And staying out of Refresh All is stored the other way round, as an
 exclusion.
 
+**The dialog's own wiring is not a rule about the file.** Excel greys
+"Remove data ... before saving the workbook" out until "Refresh data when
+opening the file" is ticked, which makes `removeDataOnSave` without
+`refreshOnLoad` look like a state only a writer outside Excel could
+produce. It is not. Three measurements say so:
+
+* Excel's object model sets `QueryTable.SaveData = False` with
+  refresh-on-open off and raises nothing, reading the property back as
+  `False`.
+* Excel writes the pair itself. Tick refresh-on-open, tick remove-data,
+  then untick refresh-on-open, and Excel saves `removeDataOnSave="1"`
+  with no `refreshOnLoad` on either part.
+* Excel opens a workbook pyOpenVBA wrote that way, reports the setting
+  correctly, and saves it back with the attribute intact.
+
+So `keep_data = False` on its own is a state Excel keeps. The dialog
+renders it as a ticked box greyed out beneath an unticked one, because
+unticking the parent disables the child without clearing it. The
+practical effect is a query whose rows are dropped on save and never
+fetched again on their own, so the table opens empty until someone
+refreshes it.
+
 `query.refresh` gives these as `background`, `interval_minutes`,
 `on_open`, `keep_data`, `in_refresh_all` and `enabled`. The live gate
 sets all six from Python and has Excel's object model read them back.

@@ -440,8 +440,8 @@ Each query becomes one `.m` file, beside a `queries.json` manifest that
 carries what a file name cannot: the real name, the description and the
 group. A query called `Sales/EU` survives the round trip.
 
-Two examples ship with the library, and every query in both was refreshed
-in Excel before it was committed:
+Three examples ship with the library, and every query in each was
+refreshed in Excel before it was committed:
 
 - [power_query_demo.py](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/examples/power_query_demo.py)
   builds twelve queries in four groups, six of them loaded onto a sheet,
@@ -454,8 +454,8 @@ in Excel before it was committed:
   references rewire themselves.
 - [power_query_refresh.py](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/examples/power_query_refresh.py)
   gives three loaded queries three refresh profiles: one that refreshes on
-  open, one on an hourly timer in the foreground, and one kept out of
-  Refresh All that saves no rows.
+  open and keeps its rows, one on an hourly timer in the foreground, and
+  one that keeps no rows in the file at all.
 
 What the format is, and how each rule was measured, is in
 [docs/power_query.md](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/docs/power_query.md).

@@ -199,11 +199,33 @@ def test_the_refresh_example_builds_what_it_describes(tmp_path: Path) -> None:
 
     out = demo.build(tmp_path / "refresh.xlsx")
     book = PowerQueryWorkbook(out)
-    assert book.query_names() == ["Snapshot", "Hourly", "Manual"]
+    assert book.query_names() == ["Snapshot", "Hourly", "Transient"]
     assert book.query("Snapshot").refresh.on_open is True
     assert book.query("Hourly").refresh.interval_minutes == 60
     assert book.query("Hourly").refresh.background is False
-    assert book.query("Manual").refresh.in_refresh_all is False
-    assert book.query("Manual").refresh.keep_data is False
+    assert book.query("Transient").refresh.in_refresh_all is False
+    assert book.query("Transient").refresh.keep_data is False
     assert len(demo.report(out)) == 3
     assert re.search(r"Hourly\s+on open: False\s+every 60 min", demo.report(out)[1])
+
+
+def test_the_example_only_shows_states_the_dialog_can_build(tmp_path: Path) -> None:
+    """Excel greys the remove-data box out until refresh-on-open is
+    ticked.  Writing the pair the other way round is legal, and
+    ``test_excel_keeps_remove_data_without_refresh_on_open`` in the live
+    gate proves Excel keeps it, but the example should not put a reader in
+    front of a ticked box greyed out under an unticked one."""
+    import importlib.util
+    from typing import Any
+
+    spec = importlib.util.spec_from_file_location(
+        "power_query_refresh", Path(__file__).parents[1] / "examples" / "power_query_refresh.py"
+    )
+    assert spec is not None and spec.loader is not None
+    demo: Any = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(demo)
+
+    book = PowerQueryWorkbook(demo.build(tmp_path / "reachable.xlsx"))
+    for query in book.queries():
+        settings = query.refresh
+        assert settings.keep_data or settings.on_open, f"{query.name} cannot be built in the dialog"

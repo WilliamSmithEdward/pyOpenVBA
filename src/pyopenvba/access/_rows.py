@@ -23,7 +23,7 @@ import datetime as _dt
 import struct
 import uuid
 from dataclasses import dataclass
-from decimal import ROUND_HALF_EVEN, Decimal
+from decimal import ROUND_HALF_EVEN, Decimal, localcontext
 
 from pyopenvba.access_read import AccessError
 from pyopenvba.access._tdef import (
@@ -203,6 +203,33 @@ def encode_datetime(value: _dt.datetime) -> bytes:
     return struct.pack("<d", number)
 
 
+#: A Decimal column is a 16-byte magnitude, so a value carries up to 39
+#: digits, while Python's default arithmetic context rounds at 28.  Every
+#: Decimal conversion here and in the index key codec runs at this
+#: precision instead: scaling ``2**96 - 1`` through the default context
+#: returns it five too high, which puts a key out of step with the row it
+#: points at (GitHub issue #20).
+DECIMAL_PREC = 64
+
+
+def scaled_decimal(value: Decimal | int, scale: int) -> Decimal:
+    """``value`` shifted by ``10 ** scale``, with no context rounding."""
+    with localcontext() as ctx:
+        ctx.prec = DECIMAL_PREC
+        return Decimal(value).scaleb(scale)
+
+
+def scaled_int(value: Decimal, scale: int) -> int:
+    """``value`` shifted by ``10 ** scale`` and rounded to an integer.
+
+    Half-even, as Access rounds, and at a precision no Decimal a column
+    can hold will overflow.
+    """
+    with localcontext() as ctx:
+        ctx.prec = DECIMAL_PREC
+        return int(Decimal(value).scaleb(scale).to_integral_value())
+
+
 def decode_numeric(raw: bytes, scale: int) -> Decimal:
     if len(raw) != 17:
         raise AccessError(f"Decimal value is {len(raw)} bytes, not 17")
@@ -211,12 +238,12 @@ def decode_numeric(raw: bytes, scale: int) -> Decimal:
     magnitude = 0
     for word in words:
         magnitude = (magnitude << 32) | word
-    value = Decimal(magnitude).scaleb(-scale)
+    value = scaled_decimal(magnitude, -scale)
     return -value if negative else value
 
 
 def encode_numeric(value: Decimal, scale: int) -> bytes:
-    scaled = int((value.copy_abs() * (Decimal(10) ** scale)).to_integral_value())
+    scaled = scaled_int(value.copy_abs(), scale)
     if scaled >= 1 << 128:
         raise AccessError("Decimal value does not fit 16 bytes")
     words = [(scaled >> shift) & 0xFFFFFFFF for shift in (96, 64, 32, 0)]

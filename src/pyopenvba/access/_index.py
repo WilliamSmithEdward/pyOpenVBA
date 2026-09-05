@@ -58,7 +58,7 @@ from pyopenvba.access._pages import (
     PAGE_SIZE,
     PageStore,
 )
-from pyopenvba.access._rows import decode_datetime
+from pyopenvba.access._rows import decode_datetime, scaled_decimal, scaled_int
 from pyopenvba.access._tdef import (
     TYPE_BIGINT,
     TYPE_BINARY,
@@ -463,7 +463,10 @@ def _encode_value(column: ColumnDef, value: object) -> bytes:
     if code == TYPE_NUMERIC:
         if not isinstance(value, (int, Decimal)):
             raise AccessError(f"column {column.name!r}: {value!r} is not a Decimal")
-        scaled = int(Decimal(value).scaleb(column.scale))
+        # Through ``scaled_int``, so the key rounds a fractional value the
+        # way the row encoder does and carries a 29-digit one without the
+        # default context rounding it (GitHub issue #20).
+        scaled = scaled_int(Decimal(value), column.scale)
         magnitude = abs(scaled).to_bytes(16, "big")
         return b"\xff" + magnitude if scaled >= 0 else b"\x00" + _invert(magnitude)
     if code == TYPE_GUID:
@@ -510,5 +513,5 @@ def _decode_fixed(column: ColumnDef, raw: bytes) -> object:
             value = -Decimal(int.from_bytes(_invert(magnitude), "big"))
         else:
             raise AccessError(f"column {column.name!r}: Decimal key sign byte {sign:#04x}")
-        return value.scaleb(-column.scale)
+        return scaled_decimal(value, -column.scale)
     raise AccessError(f"column {column.name!r}: no fixed key codec for {column.type_name}")

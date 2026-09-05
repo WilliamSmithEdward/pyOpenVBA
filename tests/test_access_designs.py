@@ -587,6 +587,49 @@ def test_a_form_module_is_not_an_object_under_modules(coded: AccessDatabase) -> 
     assert b"Form_Coded" in workspace
 
 
+def test_a_module_after_a_form_module_still_deletes(
+    coded: AccessDatabase, tmp_path: Path
+) -> None:
+    """`delete_module` used to take the storage folder by position among
+    `modules()` (GitHub issue #19).
+
+    That list is dir-stream order and counts the module behind a form,
+    which has no folder under `Modules`, so the two lists are different
+    lengths.  Here they are three and two, and the module added last sat
+    one place past the end.
+    """
+    added = tmp_path / "added.accdb"
+    coded.create_module("MNewbie", "Option Compare Database")
+    coded.save(added)
+
+    again = AccessDatabase(added)
+    assert [m.name for m in again.modules()] == ["Module1", "Form_Coded", "MNewbie"]
+    again.delete_module("MNewbie")
+    out = tmp_path / "deleted.accdb"
+    again.save(out)
+
+    after = AccessDatabase(out)
+    assert [m.name for m in after.modules()] == ["Module1", "Form_Coded"]
+    # Module1 keeps the folder it had; the deletion took MNewbie's.
+    modules_id = after._vba_storage_ids()[0]  # pyright: ignore[reportPrivateUsage]
+    rows = [row for _rid, row in after.table("MSysAccessStorage").rows_with_ids()]
+    listing = next(
+        r["Lv"] for r in rows if r["ParentId"] == modules_id and str(r["Name"]) == DIR_DATA
+    )
+    assert isinstance(listing, bytes)
+    assert dict(dir_data_entries(listing)) == {"Module1": "0"}
+
+
+def test_deleting_the_code_behind_a_form_is_refused(coded: AccessDatabase) -> None:
+    """It has no folder of its own, so there is nothing for
+    `delete_module` to remove and the old positional lookup would have
+    taken the next module's folder instead."""
+    with pytest.raises(AccessError, match="code behind a form or report"):
+        coded.delete_module("Form_Coded")
+
+    assert "Form_Coded" in [m.name for m in coded.modules()]
+
+
 def test_code_can_be_put_behind_a_form_that_has_none(blank: AccessDatabase) -> None:
     blank.create_form("Behind")
     assert not [m for m in blank.modules() if m.name.startswith("Form_")]

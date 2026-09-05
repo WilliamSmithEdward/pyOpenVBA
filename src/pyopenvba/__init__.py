@@ -291,4 +291,4 @@ def push_power_query(
     """
     return _push_queries(src_dir, workbook, out=out, encoding=encoding, remove_missing=remove_missing)
 
-__version__ = "5.1.2"
+__version__ = "5.1.3"

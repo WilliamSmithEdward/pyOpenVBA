@@ -4156,24 +4156,41 @@ class AccessDatabase:
     def delete_module(self, name: str) -> None:
         """Remove a module and every structure it occupies."""
         module = self.module(name)
-        index = [m.name for m in self.modules()].index(module.name)
         encoding = encoding_of(self._vba_dir()[1])
         storage = self.table(STORAGE_TABLE)
         modules_id, project_id, streams_id = self._vba_storage_ids()
 
-        # A module's storage folder is linked to it by position, not by
-        # name: deleting the second of three modules, Access dropped the
-        # second folder and left the others named as they were.
-        folders = sorted(
+        # The container's own DirData names each module's storage folder,
+        # the way `_delete_design` reads it.  This used to take the folder
+        # by position among `modules()`, which is dir-stream order and
+        # includes the module behind a form or report.  Those have no
+        # folder here at all, so the two lists were different lengths and
+        # every module after a document one sat a place high: deleting one
+        # took another's folder, or ran off the end (GitHub issue #19).
+        listing = next(
             (
-                (rid, row)
-                for rid, row in storage.rows_with_ids()
-                if _as_int(row["ParentId"]) == modules_id and _as_int(row["Type"]) == 1
+                payload
+                for _rid, row in storage.rows_with_ids()
+                if _as_int(row["ParentId"]) == modules_id
+                and str(row["Name"]) == DIR_DATA
+                and isinstance(payload := row.get("Lv"), bytes)
             ),
-            key=lambda pair: _as_int(pair[1]["Id"]),
+            None,
         )
-        folder_rid, folder_row = folders[index]
-        folder_name, folder_id = str(folder_row["Name"]), _as_int(folder_row["Id"])
+        entries = dict(dir_data_entries(listing)) if listing is not None else {}
+        if module.name not in entries:
+            raise AccessError(
+                f"{module.name!r} is the code behind a form or report, which has no "
+                "storage folder of its own; delete the design instead"
+            )
+        folder_name = entries[module.name]
+        folder_rid, folder_id = next(
+            (rid, _as_int(row["Id"]))
+            for rid, row in storage.rows_with_ids()
+            if _as_int(row["ParentId"]) == modules_id
+            and _as_int(row["Type"]) == TYPE_FOLDER
+            and str(row["Name"]) == folder_name
+        )
         doomed = [folder_rid] + [
             rid for rid, row in storage.rows_with_ids() if _as_int(row["ParentId"]) == folder_id
         ]

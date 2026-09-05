@@ -7,6 +7,35 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 Nothing yet.
 
+## [5.1.3] - 2026-09-05
+
+### Fixed
+
+- **`delete_module` took a module's storage folder by position** ([#19]).
+  The position came from `modules()`, which is dir-stream order and
+  includes the module behind a form or report. Those have no folder under
+  `Modules`, so the two lists were different lengths and every module
+  after a document one sat a place high. Deleting the last module of a
+  project that has a coded form raised `IndexError`, and the same
+  arithmetic quietly took another module's folder in the cases that did
+  not run off the end. The folder now comes from the container's own
+  `DirData`, which names it, the way `_delete_design` already read it.
+  Asked to delete the code behind a form, `delete_module` now says so
+  instead of taking the next module's folder.
+
+- **Decimal keys and values rounded at 29 digits** ([#20]). Both codecs
+  scaled through Python's default arithmetic context, which rounds at 28,
+  while the column is a 16-byte magnitude. `2**96 - 1` came back five too
+  high, so a key stopped naming the row it pointed at, and an index entry
+  that does not match its row sorts wrong and never matches on lookup.
+  The row and index codecs now share `scaled_decimal` and `scaled_int`,
+  which run at a precision no value a column can hold will overflow. The
+  index also rounds a fractional value the way the row encoder does,
+  rather than truncating, so the two agree on the same input.
+
+[#19]: https://github.com/WilliamSmithEdward/pyOpenVBA/issues/19
+[#20]: https://github.com/WilliamSmithEdward/pyOpenVBA/issues/20
+
 ## [5.1.2] - 2026-09-05
 
 ### Fixed

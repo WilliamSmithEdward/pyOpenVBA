@@ -10,6 +10,8 @@ of its child.
 
 from __future__ import annotations
 
+import decimal
+import shutil
 from pathlib import Path
 
 import pytest
@@ -18,12 +20,13 @@ from pyopenvba.access import AccessDatabase
 from pyopenvba.access._index import (
     TextKey,
     decode_key,
+    encode_key,
     leaf_entries,
     node_pages,
     parse_index_page,
 )
-from pyopenvba.access._rows import split_row
-from pyopenvba.access._tdef import ColumnDef
+from pyopenvba.access._rows import decode_numeric, encode_numeric, split_row
+from pyopenvba.access._tdef import TYPE_NUMERIC, ColumnDef
 
 FIXTURES = Path(__file__).parent / "live_access_test"
 TEMPLATES = Path(__file__).parents[1] / "src" / "pyopenvba" / "_templates" / "blank_files"
@@ -156,3 +159,72 @@ def test_overflow_row_is_reachable_through_its_index() -> None:
     table = db.table("MSysObjects")
     names = {r["Name"] for r in table.index("ParentIdName").rows()}
     assert "Table2" in names
+
+
+# --- Decimal keys and the arithmetic context ---------------------------------
+# A Decimal column is a 16-byte magnitude, so a value carries up to 39
+# digits, while Python's default arithmetic context rounds at 28.  Both
+# codecs scaled through that context, so the top of the range moved and
+# the key stopped naming the row it pointed at (GitHub issue #20).
+
+#: 2**96 - 1, the largest magnitude the storage holds, and 29 digits.
+DECIMAL_MAX = decimal.Decimal("79228162514264337593543950335")
+
+
+def test_the_default_context_is_the_one_that_rounds() -> None:
+    """The premise, pinned: this is why the codecs cannot use bare
+    arithmetic.  If Python's default precision ever changes, the fix
+    below stops being load-bearing and this says so."""
+    assert decimal.getcontext().prec == 28
+    assert int(DECIMAL_MAX.scaleb(0)) != int(DECIMAL_MAX)
+    assert int(DECIMAL_MAX.scaleb(0)) == int(DECIMAL_MAX) + 5
+
+
+def test_the_row_codec_carries_the_whole_range() -> None:
+    for value in (DECIMAL_MAX, -DECIMAL_MAX, decimal.Decimal(0)):
+        assert decode_numeric(encode_numeric(value, 0), 0) == value
+
+
+def test_a_scaled_decimal_keeps_every_digit() -> None:
+    value = decimal.Decimal("1234567890123456789012345.6789")
+    assert decode_numeric(encode_numeric(value, 4), 4) == value
+
+
+def _decimal_table(tmp_path: Path) -> Path:
+    """A one-row table whose Decimal column holds the largest magnitude
+    the storage carries, with an index over it."""
+    from pyopenvba.access import ColumnSpec, IndexSpec
+
+    out = tmp_path / "decimal.accdb"
+    shutil.copyfile(TEMPLATES / "blank_database.accdb", out)
+    database = AccessDatabase(out)
+    database.create_table(
+        "D", [ColumnSpec("Id", "Long"), ColumnSpec("V", "Decimal", size=(29, 0))]
+    )
+    database.create_index("D", IndexSpec("ixV", ("V",)))
+    database.table("D").insert_row({"Id": 1, "V": DECIMAL_MAX})
+    database.save()
+    return out
+
+
+def test_the_index_key_carries_the_whole_range(tmp_path: Path) -> None:
+    """The key is the magnitude big-endian behind a sign byte, so a value
+    the context rounded shows up in the bytes themselves."""
+    table = AccessDatabase(_decimal_table(tmp_path)).table("D")
+    column = next(c for c in table.definition.columns if c.name == "V")
+    assert column.type_code == TYPE_NUMERIC
+
+    key = encode_key([DECIMAL_MAX], [(column, True)])
+    assert key == bytes([0x7F, 0xFF]) + (2**96 - 1).to_bytes(16, "big")
+    assert decode_key(key, [(column, True)]) == [DECIMAL_MAX]
+
+
+def test_a_decimal_row_and_its_index_entry_agree(tmp_path: Path) -> None:
+    """End to end, which is what the bug actually broke: an index entry
+    that does not match the row it points at sorts wrong and never
+    matches on lookup."""
+    table = AccessDatabase(_decimal_table(tmp_path)).table("D")
+
+    assert list(table.rows())[0]["V"] == DECIMAL_MAX
+    assert [key for key, _page, _row in table.index("ixV").entries()] == [[DECIMAL_MAX]]
+    assert [row["V"] for row in table.index("ixV").rows()] == [DECIMAL_MAX]

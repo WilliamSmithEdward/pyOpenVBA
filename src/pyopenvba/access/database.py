@@ -2641,6 +2641,43 @@ class AccessDatabase:
         footer sections."""
         return AccessForm(self, self._create_design("report", name, updated=updated))
 
+    def _list_in_container(
+        self, container: int, name: str, folder: str, when: dt.datetime | float
+    ) -> None:
+        """Name an object in its container's listing and claim its folder
+        in the container's folder list, creating either stream when the
+        container has none yet.
+
+        A container that has never held an object carries neither, so a
+        module added to a project with none went unlisted, and Access
+        showed nothing under `AllModules` for a module its VBE still
+        listed (GitHub issue #21).
+        """
+        storage = self.table(STORAGE_TABLE)
+        adders: tuple[tuple[str, Callable[[bytes], bytes]], ...] = (
+            (DIR_DATA, lambda payload: add_to_dir_data(payload, name, folder)),
+            ("PropData", lambda payload: add_to_folder_list(payload, folder)),
+        )
+        for stream, add in adders:
+            found = next(
+                (
+                    (rid, row.get("Lv"))
+                    for rid, row in storage.rows_with_ids()
+                    if _as_int(row["ParentId"]) == container and str(row["Name"]) == stream
+                ),
+                None,
+            )
+            if found is None:
+                storage.insert_row(
+                    {"ParentId": container, "Name": stream, "Type": TYPE_VALUE,
+                     "Lv": add(bytes(4)), "DateCreate": when, "DateUpdate": when}
+                )
+            else:
+                rid, payload = found
+                storage.update_row(
+                    rid, {"Lv": add(payload if isinstance(payload, bytes) else bytes(4))}
+                )
+
     def _create_design(self, kind: str, name: str, *, updated: object | None) -> AccessDesign:
         """The design itself comes from a captured template -- an empty one
         as Access writes it -- with a GUID of its own patched in, since the
@@ -2686,29 +2723,7 @@ class AccessDatabase:
                 values["Lv"] = payload
             storage.insert_row(values)
 
-        adders: tuple[tuple[str, Callable[[bytes], bytes]], ...] = (
-            (DIR_DATA, lambda payload: add_to_dir_data(payload, name, folder)),
-            ("PropData", lambda payload: add_to_folder_list(payload, folder)),
-        )
-        for stream, add in adders:
-            found = next(
-                (
-                    (rid, row.get("Lv"))
-                    for rid, row in storage.rows_with_ids()
-                    if _as_int(row["ParentId"]) == container and str(row["Name"]) == stream
-                ),
-                None,
-            )
-            if found is None:
-                storage.insert_row(
-                    {"ParentId": container, "Name": stream, "Type": TYPE_VALUE,
-                     "Lv": add(bytes(4)), "DateCreate": when, "DateUpdate": when}
-                )
-            else:
-                rid, payload = found
-                storage.update_row(
-                    rid, {"Lv": add(payload if isinstance(payload, bytes) else bytes(4))}
-                )
+        self._list_in_container(container, name, folder, when)
 
         objects = self.table("MSysObjects")
         parent = next(e.id for e in self.catalog() if e.name == CATALOG_CONTAINERS[kind] and e.type == 3)
@@ -2988,6 +3003,99 @@ class AccessDatabase:
         return self.module(name)
 
 
+    def _delete_module_streams(self, module: VBAModule) -> None:
+        """Take a module out of the VBA project alone: its stream row, its
+        dir block, its PROJECTwm entry, and whichever line of PROJECT
+        names it.
+
+        The Modules container is deliberately untouched, because the code
+        behind a form or report is listed in neither container: the
+        project carries `Form_Calculator` while the Forms listing carries
+        `Calculator`.
+        """
+        storage = self.table(STORAGE_TABLE)
+        encoding = encoding_of(self._vba_dir()[1])
+        _modules, project_id, streams_id = self._vba_storage_ids()
+        for rid, row in list(storage.rows_with_ids()):
+            value = row.get("Lv")
+            row_name, parent = str(row["Name"]), _as_int(row["ParentId"])
+            if parent == streams_id and row_name == module.stream_name:
+                storage.delete_row(rid, retire_empty=False)
+                continue
+            if not isinstance(value, bytes) or not value:
+                continue
+            if row_name == "dir":
+                storage.update_row(
+                    rid, {"Lv": compress(remove_from_dir(decompress(value), module.name))}
+                )
+            elif row_name == "_VBA_PROJECT":
+                storage.update_row(rid, {"Lv": invalidate_cache(value)})
+            elif row_name == "PROJECTwm" and parent == project_id:
+                storage.update_row(rid, {"Lv": remove_from_project_wm(value, module.name, encoding)})
+            elif row_name == "PROJECT" and parent == project_id:
+                text = value.decode(encoding, errors="replace")
+                fixed = remove_from_project(text, module.name)
+                if fixed != text:
+                    storage.update_row(rid, {"Lv": encode_mbcs(fixed, encoding)})
+        self._drop_srp()
+
+    def _design_module(self, kind: str, name: str) -> VBAModule | None:
+        """The module behind a design, if Access ever opened a code window
+        for it.  A design that has none simply has no such module."""
+        wanted = self.DESIGN_MODULE_PREFIX[kind] + name
+        return next(
+            (module for module in self.modules() if module.name.lower() == wanted.lower()),
+            None,
+        )
+
+    def rename_form(self, name: str, new_name: str) -> None:
+        """Rename a form everywhere its name lives."""
+        self._rename_design("form", name, new_name)
+
+    def rename_report(self, name: str, new_name: str) -> None:
+        """Rename a report everywhere its name lives."""
+        self._rename_design("report", name, new_name)
+
+    def _rename_design(self, kind: str, name: str, new_name: str) -> None:
+        """A design's name lives in four places: its container's listing,
+        its catalog row, its navigation-pane row, and the module behind
+        it, which Access binds by name as `Form_<name>` or
+        `Report_<name>`.
+
+        A design Access has never opened a code window for has no module,
+        and then there are three.  The module is the part with the sharp
+        edge: `PROJECT` names it only as a `DocClass=` line, and leaving
+        that naming a module the project no longer has makes Access report
+        the whole project as corrupt on the first VBE reference (GitHub
+        issue #21).
+        """
+        if not new_name or len(new_name) > 64:
+            raise AccessError(f"a {kind} name is 1 to 64 characters")
+        found = self._design(kind, name)
+        if new_name.lower() != found.name.lower() and any(
+            other.name.lower() == new_name.lower() for other in self._designs(kind)
+        ):
+            raise AccessError(f"a {kind} named {new_name!r} already exists")
+
+        module = self._design_module(kind, found.name)
+        if module is not None:
+            self._rename_module_streams(module, self.DESIGN_MODULE_PREFIX[kind] + new_name)
+
+        container = self._design_container(kind)
+        storage = self.table(STORAGE_TABLE)
+        for rid, row in list(storage.rows_with_ids()):
+            value = row.get("Lv")
+            if (
+                isinstance(value, bytes)
+                and value
+                and str(row["Name"]) == DIR_DATA
+                and _as_int(row["ParentId"]) == container
+            ):
+                storage.update_row(rid, {"Lv": rename_dir_data(value, found.name, new_name)})
+        self._rename_catalog_rows(found.name, new_name, OBJECT_TYPES[kind])
+        self.forget_catalog()
+        self._drop_srp()
+
     def delete_form(self, name: str) -> None:
         """Remove a form and every structure it occupies."""
         self._delete_design("form", name)
@@ -2998,6 +3106,13 @@ class AccessDatabase:
 
     def _delete_design(self, kind: str, name: str) -> None:
         found = self._design(kind, name)
+        # The module behind it goes too, or the project is left naming a
+        # DocClass whose design is gone, which Access reads as corrupt
+        # (GitHub issue #21).  It has to go first, while the design is
+        # still there to name it.
+        module = self._design_module(kind, found.name)
+        if module is not None:
+            self._delete_module_streams(module)
         container = self._design_container(kind)
         storage = self.table(STORAGE_TABLE)
         listing_rid, listing_payload = next(
@@ -4031,12 +4146,6 @@ class AccessDatabase:
             row_name, parent = str(row["Name"]), _as_int(row["ParentId"])
             if row_name == "_VBA_PROJECT":
                 storage.update_row(rid, {"Lv": invalidate_cache(payload)})
-            elif row_name == "\x03DirData" and parent == modules_id:
-                # The four bytes an entry ends with name the object's
-                # storage folder, not a terminator.
-                storage.update_row(rid, {"Lv": add_to_dir_data(payload, name, folder)})
-            elif row_name == "PropData" and parent == modules_id:
-                storage.update_row(rid, {"Lv": add_to_folder_list(payload, folder)})
             elif row_name == "PROJECTwm" and parent == project_id:
                 storage.update_row(rid, {"Lv": add_to_project_wm(payload, name, encoding)})
             elif row_name == "PROJECT" and parent == project_id:
@@ -4051,6 +4160,9 @@ class AccessDatabase:
                         )
                     },
                 )
+        # The four bytes an entry ends with name the object's storage
+        # folder, not a terminator.
+        self._list_in_container(modules_id, name, folder, when)
         storage.update_row(
             dir_rid,
             {"Lv": compress(add_to_dir(dir_stream, dir_block(name, stream_name, cookie, kind, encoding)))},
@@ -4098,16 +4210,16 @@ class AccessDatabase:
         self._invalidate_vba_cache()
         self._drop_srp()
 
-    def rename_module(self, name: str, new_name: str) -> None:
-        """Rename a module in all eight places its name lives."""
-        if not new_name or len(new_name) > 64:
-            raise AccessError("a module name is 1 to 64 characters")
-        module = self.module(name)
-        if new_name.lower() != name.lower() and any(
-            other.name.lower() == new_name.lower() for other in self.modules()
-        ):
-            raise AccessError(f"a module named {new_name!r} already exists")
+    def _rename_module_streams(self, module: VBAModule, new_name: str) -> None:
+        """Rename a module wherever the VBA project itself names it: the
+        two dir records, the module's own `Attribute VB_Name`, PROJECT and
+        PROJECTwm.
 
+        The Modules listing is deliberately left alone here, because the
+        code behind a form or report appears in neither container listing:
+        the project carries `Form_Calculator` while the Forms listing
+        carries `Calculator`.
+        """
         storage = self.table(STORAGE_TABLE)
         dir_rid, dir_stream = self._vba_dir()
         encoding = encoding_of(dir_stream)
@@ -4120,7 +4232,7 @@ class AccessDatabase:
         stream = set_module_offset(rename_in_dir(dir_stream, module.name, new_name), new_name, 0)
         storage.update_row(dir_rid, {"Lv": compress(stream)})
 
-        modules_id, project_id, _streams = self._vba_storage_ids()
+        _modules, project_id, _streams = self._vba_storage_ids()
         for row_rid, row in list(storage.rows_with_ids()):
             value = row.get("Lv")
             if not isinstance(value, bytes) or not value:
@@ -4128,8 +4240,6 @@ class AccessDatabase:
             row_name, parent = str(row["Name"]), _as_int(row["ParentId"])
             if row_name == "_VBA_PROJECT":
                 storage.update_row(row_rid, {"Lv": invalidate_cache(value)})
-            elif row_name == "\x03DirData" and parent == modules_id:
-                storage.update_row(row_rid, {"Lv": rename_dir_data(value, module.name, new_name)})
             elif row_name == "PROJECTwm" and parent == project_id:
                 storage.update_row(
                     row_rid, {"Lv": rename_project_wm(value, module.name, new_name, encoding)}
@@ -4140,16 +4250,42 @@ class AccessDatabase:
                 if fixed != text:
                     storage.update_row(row_rid, {"Lv": encode_mbcs(fixed, encoding)})
 
+    def _rename_catalog_rows(self, old: str, new: str, object_type: int) -> None:
+        """The object's catalog row and its navigation-pane row."""
         objects = self.table("MSysObjects")
         for row_rid, row in objects.rows_with_ids():
-            if row["Type"] == OBJECT_MODULE and str(row["Name"]) == module.name:
-                objects.update_row(row_rid, {"Name": new_name})
+            if row["Type"] == object_type and str(row["Name"]) == old:
+                objects.update_row(row_rid, {"Name": new})
                 break
         nav = self.table("MSysNavPaneObjectIDs")
         for row_rid, row in nav.rows_with_ids():
-            if str(row["Name"]) == module.name:
-                nav.update_row(row_rid, {"Name": new_name})
+            if str(row["Name"]) == old:
+                nav.update_row(row_rid, {"Name": new})
                 break
+
+    def rename_module(self, name: str, new_name: str) -> None:
+        """Rename a module in all eight places its name lives."""
+        if not new_name or len(new_name) > 64:
+            raise AccessError("a module name is 1 to 64 characters")
+        module = self.module(name)
+        if new_name.lower() != name.lower() and any(
+            other.name.lower() == new_name.lower() for other in self.modules()
+        ):
+            raise AccessError(f"a module named {new_name!r} already exists")
+
+        self._rename_module_streams(module, new_name)
+        storage = self.table(STORAGE_TABLE)
+        modules_id = self._vba_storage_ids()[0]
+        for row_rid, row in list(storage.rows_with_ids()):
+            value = row.get("Lv")
+            if (
+                isinstance(value, bytes)
+                and value
+                and str(row["Name"]) == DIR_DATA
+                and _as_int(row["ParentId"]) == modules_id
+            ):
+                storage.update_row(row_rid, {"Lv": rename_dir_data(value, module.name, new_name)})
+        self._rename_catalog_rows(module.name, new_name, OBJECT_MODULE)
         self._drop_srp()
         self._catalog = None
 

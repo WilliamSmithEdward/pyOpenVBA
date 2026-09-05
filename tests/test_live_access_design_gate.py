@@ -184,6 +184,23 @@ Public Function RunForm(ByVal name As String) As Variant
     RunForm = Forms(name).Name & "|" & Forms(name).CurrentView
     DoCmd.Close acForm, name, acSaveNo
 End Function
+
+Public Function ProjectThroughTheVbe() As Variant
+    Dim c As Object, s As String
+    For Each c In Application.VBE.ActiveVBProject.VBComponents
+        s = s & c.Name & ":" & c.Type & ";"
+    Next c
+    ProjectThroughTheVbe = s
+End Function
+
+Public Function DesignAndItsCode(ByVal name As String, ByVal moduleName As String) As Variant
+    Dim c As Object, s As String
+    DoCmd.OpenForm name, acDesign
+    s = Forms(name).Name & "|"
+    DoCmd.Close acForm, name, acSaveNo
+    Set c = Application.VBE.ActiveVBProject.VBComponents(moduleName)
+    DesignAndItsCode = s & c.CodeModule.Lines(1, c.CodeModule.CountOfLines)
+End Function
 """
 
 
@@ -687,3 +704,46 @@ def test_access_takes_an_edit_to_a_form_it_built_itself(tmp_path: Path) -> None:
     assert "Extra" in names and "GrpOptA" in names and "TxtLabel" in names
     assert len(names) == 33
 
+
+
+_CODED = Path(__file__).parent / "live_access_test" / "form_with_code.accdb"
+
+
+def test_access_takes_a_renamed_form_and_its_code(tmp_path: Path) -> None:
+    """A design's name lives in four places, and `PROJECT` names the module
+    behind it only as a `DocClass=` line.
+
+    Leaving that line stale is the failure worth a live gate: Access opens
+    the database and shows the form, then reports the whole project as
+    corrupt on the first VBE reference (GitHub issue #21).  So the probe
+    opens the design and then reads its code through the VBE.
+    """
+    out = tmp_path / "renamed.accdb"
+    shutil.copyfile(_CODED, out)
+    database = AccessDatabase(out)
+    database.rename_form("Coded", "Invoice")
+    database.save()
+
+    assert str(ask(out, "DesignNames")) == "F:Invoice;"
+    opened, code = str(ask(out, "DesignAndItsCode", "Invoice", "Form_Invoice")).split("|", 1)
+    assert opened == "Invoice"
+    assert "Answer = 42" in code
+
+    listed = [entry for entry in str(ask(out, "ProjectThroughTheVbe")).split(";") if entry]
+    assert "Form_Invoice:100" in listed
+    assert not [entry for entry in listed if entry.startswith("Form_Coded:")]
+
+
+def test_access_takes_a_deleted_form_whose_code_went_with_it(tmp_path: Path) -> None:
+    """Deleting the design used to leave its module, so `PROJECT` named a
+    `DocClass` whose form was gone.  The VBE is where that shows."""
+    out = tmp_path / "deleted.accdb"
+    shutil.copyfile(_CODED, out)
+    database = AccessDatabase(out)
+    database.delete_form("Coded")
+    database.save()
+
+    assert str(ask(out, "DesignNames")) == ""
+    listed = [entry for entry in str(ask(out, "ProjectThroughTheVbe")).split(";") if entry]
+    assert "Module1:1" in listed
+    assert not [entry for entry in listed if entry.startswith("Form_")]

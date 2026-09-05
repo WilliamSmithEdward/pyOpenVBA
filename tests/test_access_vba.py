@@ -20,12 +20,16 @@ from pyopenvba.access import AccessDatabase, ColumnSpec
 from pyopenvba.access._storage import dir_data_entries
 from pyopenvba.access._vba import (
     CRLF,
+    CRLF as VBA_CRLF,
     CLASS_BASE,
     MODULETYPE_CLASS,
     STALE_VERSION,
+    add_to_project,
     module_blocks,
     module_offset_at,
     records,
+    remove_from_project,
+    rename_project,
 )
 from pyopenvba.access_read import AccessError, AccessReader
 from pyopenvba.vba import decompress
@@ -441,3 +445,90 @@ def test_a_change_that_is_not_vba_saves_freely(db: AccessDatabase, tmp_path: Pat
     db.create_table("Notes", [ColumnSpec("Id", "Long")])
 
     db.save(tmp_path / "tables.accdb")  # no refusal
+
+
+# --- the PROJECT stream's module block ----------------------------------------
+# Every module is named on one line: `Module=`, `Class=`, or, for the code
+# behind a form or report, `DocClass=<name>/<flags>`.  The editors reached
+# the first two and left DocClass stale (GitHub issue #21).
+
+_PROJECT = VBA_CRLF.join(
+    [
+        'ID="{X}"',
+        "Module=Module1",
+        "Class=Basket",
+        "DocClass=Form_Calculator/&H00000000",
+        'Name="Database"',
+        "",
+        "[Workspace]",
+        "Module1=38, 38, 1786, 1030, ",
+        "Form_Calculator=0, 0, 0, 0, C",
+        "",
+    ]
+)
+
+
+def test_renaming_reaches_a_document_module() -> None:
+    renamed = rename_project(_PROJECT, "Form_Calculator", "Form_Invoice").split(VBA_CRLF)
+
+    assert "DocClass=Form_Invoice/&H00000000" in renamed
+    assert "Form_Invoice=0, 0, 0, 0, C" in renamed
+    assert not [line for line in renamed if "Form_Calculator" in line]
+
+
+def test_renaming_a_class_does_not_catch_a_document_module() -> None:
+    """`^Class=` and `DocClass=` share a suffix, so the anchor is what
+    keeps them apart."""
+    renamed = rename_project(_PROJECT, "Basket", "Bag").split(VBA_CRLF)
+
+    assert "Class=Bag" in renamed
+    assert "DocClass=Form_Calculator/&H00000000" in renamed
+
+
+def test_removing_a_module_drops_its_document_line() -> None:
+    left = remove_from_project(_PROJECT, "Form_Calculator").split(VBA_CRLF)
+
+    assert not [line for line in left if "Form_Calculator" in line]
+    assert "Module=Module1" in left and "Class=Basket" in left
+
+
+def test_a_project_with_no_module_block_still_takes_one() -> None:
+    """Delete a project's last module and there is no line to sit after.
+    Access opens the block right below the ID line."""
+    empty = VBA_CRLF.join(['ID="{X}"', 'Name="Database"', "", "[Workspace]", ""])
+
+    lines = add_to_project(empty, "Fresh", "module").split(VBA_CRLF)
+
+    assert lines[:2] == ['ID="{X}"', "Module=Fresh"]
+    assert "Fresh=38, 38, 1786, 1030, " in lines
+
+
+def test_a_module_added_back_to_an_emptied_project_is_whole(
+    db: AccessDatabase, tmp_path: Path
+) -> None:
+    """Deleting the only module empties the container's listing and the
+    PROJECT block, and adding one back has to rebuild both."""
+    db.delete_module("Module1")
+    emptied = tmp_path / "emptied.accdb"
+    db.save(emptied)
+
+    again = AccessDatabase(emptied)
+    assert again.modules() == []
+    again.create_module("Fresh", "Option Compare Database")
+    out = tmp_path / "refilled.accdb"
+    again.save(out)
+
+    after = AccessDatabase(out)
+    assert [m.name for m in after.modules()] == ["Fresh"]
+    assert "Fresh" in [e.name for e in after.catalog() if e.type == -32761]
+    modules_id = after._vba_storage_ids()[0]  # pyright: ignore[reportPrivateUsage]
+    listing = next(
+        row["Lv"]
+        for _rid, row in after.table("MSysAccessStorage").rows_with_ids()
+        if row["ParentId"] == modules_id and str(row["Name"]) == chr(3) + "DirData"
+    )
+    assert isinstance(listing, bytes)
+    assert [name for name, _folder in dir_data_entries(listing)] == ["Fresh"]
+    # and it deletes again, which needs that listing entry
+    after.delete_module("Fresh")
+    assert after.modules() == []

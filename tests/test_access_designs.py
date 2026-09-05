@@ -1257,3 +1257,128 @@ def test_the_row_source_type_writes_its_companion_kind(blank: AccessDatabase) ->
     box.set_property("RowSourceType", "Table/Query")
     assert kind_record() is None
 
+
+
+# --- renaming and deleting a design ------------------------------------------
+# A design's name lives in four places: the container's listing, the
+# catalog row, the navigation-pane row, and the module behind it, which
+# Access binds by name.  PROJECT names that module only as a `DocClass=`
+# line, and a stale one makes Access report the whole project as corrupt
+# (GitHub issue #21).
+
+
+def project_lines(database: AccessDatabase) -> list[str]:
+    raw = next(
+        row["Lv"]
+        for _rid, row in database.table("MSysAccessStorage").rows_with_ids()
+        if str(row["Name"]) == "PROJECT"
+    )
+    assert isinstance(raw, bytes)
+    return raw.decode("cp1252").split(chr(13) + chr(10))
+
+
+def test_renaming_a_form_carries_its_module(coded: AccessDatabase, tmp_path: Path) -> None:
+    coded.rename_form("Coded", "Invoice")
+    out = tmp_path / "renamed.accdb"
+    coded.save(out)
+
+    after = AccessDatabase(out)
+    assert [form.name for form in after.forms()] == ["Invoice"]
+    assert [m.name for m in after.modules()] == ["Module1", "Form_Invoice"]
+    assert "Answer = 42" in after.module("Form_Invoice").source
+    assert "DocClass=Form_Invoice/&H00000000" in project_lines(after)
+    assert not [line for line in project_lines(after) if "Form_Coded" in line]
+
+
+def test_renaming_a_form_reaches_the_catalog_and_the_nav_pane(
+    coded: AccessDatabase, tmp_path: Path
+) -> None:
+    coded.rename_form("Coded", "Invoice")
+    out = tmp_path / "catalog.accdb"
+    coded.save(out)
+
+    after = AccessDatabase(out)
+    assert "Invoice" in [e.name for e in after.catalog() if e.type == -32768]
+    assert "Coded" not in [e.name for e in after.catalog() if e.type == -32768]
+    nav = [str(row["Name"]) for row in after.table("MSysNavPaneObjectIDs").rows()]
+    assert "Invoice" in nav and "Coded" not in nav
+    container = after._design_container("form")  # pyright: ignore[reportPrivateUsage]
+    listing = next(
+        row["Lv"]
+        for _rid, row in after.table("MSysAccessStorage").rows_with_ids()
+        if row["ParentId"] == container and str(row["Name"]) == DIR_DATA
+    )
+    assert isinstance(listing, bytes)
+    assert [name for name, _folder in dir_data_entries(listing)] == ["Invoice"]
+
+
+def test_renaming_a_form_that_has_no_code(blank: AccessDatabase, tmp_path: Path) -> None:
+    """A design Access never opened a code window for has three places,
+    not four, and the rename must not go looking for a module."""
+    blank.create_form("Plain")
+    blank.rename_form("Plain", "Renamed")
+    out = tmp_path / "plain.accdb"
+    blank.save(out)
+
+    after = AccessDatabase(out)
+    assert [form.name for form in after.forms()] == ["Renamed"]
+    assert not [m for m in after.modules() if m.name.startswith("Form_")]
+
+
+def test_renaming_a_report_works_the_same_way(blank: AccessDatabase, tmp_path: Path) -> None:
+    blank.create_report("Monthly")
+    blank.set_design_code(
+        "Monthly", "Option Compare Database" + NEWLINE + "Public Sub Go()" + NEWLINE + "End Sub",
+        kind="report",
+    )
+    blank.rename_report("Monthly", "Quarterly")
+    out = tmp_path / "report.accdb"
+    blank.save(out)
+
+    after = AccessDatabase(out)
+    assert [report.name for report in after.reports()] == ["Quarterly"]
+    assert "Report_Quarterly" in [m.name for m in after.modules()]
+    assert "DocClass=Report_Quarterly/&H00000000" in project_lines(after)
+
+
+def test_renaming_a_design_refuses_a_name_already_taken(blank: AccessDatabase) -> None:
+    blank.create_form("One")
+    blank.create_form("Two")
+    with pytest.raises(AccessError, match="already exists"):
+        blank.rename_form("One", "Two")
+
+
+def test_deleting_a_form_takes_its_module_with_it(
+    coded: AccessDatabase, tmp_path: Path
+) -> None:
+    """The module used to survive the design, leaving PROJECT naming a
+    DocClass whose form was gone."""
+    coded.delete_form("Coded")
+    out = tmp_path / "deleted.accdb"
+    coded.save(out)
+
+    after = AccessDatabase(out)
+    assert after.forms() == []
+    assert [m.name for m in after.modules()] == ["Module1"]
+    assert not [line for line in project_lines(after) if "Form_Coded" in line]
+    workspace = next(
+        row["Lv"]
+        for _rid, row in after.table("MSysAccessStorage").rows_with_ids()
+        if str(row["Name"]) == "PROJECTwm"
+    )
+    assert isinstance(workspace, bytes)
+    assert b"Form_Coded" not in workspace
+
+
+def test_deleting_a_form_without_code_leaves_the_project_alone(
+    blank: AccessDatabase, tmp_path: Path
+) -> None:
+    blank.create_form("Plain")
+    before = project_lines(blank)
+    blank.delete_form("Plain")
+    out = tmp_path / "nocode.accdb"
+    blank.save(out)
+
+    after = AccessDatabase(out)
+    assert after.forms() == []
+    assert project_lines(after) == before

@@ -349,9 +349,14 @@ with AccessDatabase("app.accdb") as db:
 
     report = db.add_report("Monthly")
     report.add_control("Label", "Banner", section="PageHeaderSection", caption="Header band")
+    db.rename_form("Draft", "Invoice")
     db.delete_form("Old")
     db.save()
 ```
+
+Renaming and deleting reach the code behind a design as well as the
+design itself. A form's module is bound to it by name, so `Form_Draft`
+becomes `Form_Invoice` and a deleted form takes its module with it.
 
 [examples/access_form_demo.py](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/examples/access_form_demo.py)
 builds a working order calculator this way: a form whose buttons call a

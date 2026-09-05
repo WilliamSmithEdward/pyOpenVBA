@@ -7,6 +7,48 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 Nothing yet.
 
+## [5.2.0] - 2026-09-05
+
+### Added
+
+- **`rename_form()` and `rename_report()`** ([#21]). A design's name lives
+  in four places: its container's listing, its catalog row, its
+  navigation-pane row, and the module behind it, which Access binds by
+  name as `Form_<name>` or `Report_<name>`. A design Access has never
+  opened a code window for has no module, and then there are three. The
+  live gate renames a form that has code, opens the design in Access, and
+  reads the code back through the VBE.
+
+### Fixed
+
+- **A stale `DocClass=` line made Access call the whole project corrupt**
+  ([#21]). `PROJECT` names the module behind a form or report only as
+  `DocClass=<name>/<flags>`, never as `Module=` or `Class=`. The renamer
+  reached the first two and the workspace line and left `DocClass` alone,
+  so a rename produced a project naming a module it no longer had. Access
+  opened the database and showed the form, then reported the project as
+  corrupt on the first VBE reference. The remover had the same gap, so a
+  `DocClass=` line survived a delete. Both handle it now, carrying the
+  flag word after the slash through untouched.
+
+- **`delete_form()` and `delete_report()` left the module behind.** The
+  design went and its code stayed, listed in the VBE for a form that no
+  longer existed, and `delete_module` would not take it either because a
+  design's module has no storage folder. Deleting a design now removes
+  its module first, while the design is still there to name it.
+
+- **The first module in a project with none went unlisted.** Module
+  creation only updated the container's listing when the container
+  already had one, where design and macro creation create it. It also
+  needed an existing `Module=` or `Class=` line to insert after, so
+  adding a module back after deleting a project's last one raised
+  `ValueError` out of the PROJECT editor. Both containers now go through
+  one helper, and the first line of an empty module block opens below
+  `ID=`, where Access puts it. Found by the xlide_vscode port, which hit
+  it first on a blank template with no modules at all.
+
+[#21]: https://github.com/WilliamSmithEdward/pyOpenVBA/issues/21
+
 ## [5.1.3] - 2026-09-05
 
 ### Fixed

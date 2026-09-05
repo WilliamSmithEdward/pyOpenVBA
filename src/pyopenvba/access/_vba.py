@@ -368,6 +368,12 @@ def rename_attribute(text: str, old: str, new: str) -> str:
 
 
 # --- PROJECTwm and PROJECT --------------------------------------------------
+#: How PROJECT names the module behind a form or report: the keyword, the
+#: module's name, a slash, and a flag word Access owns.  A design's module
+#: is listed this way and never as ``Module=`` or ``Class=``.
+DOC_CLASS = "DocClass"
+#: The three keywords that open the module block.
+MODULE_KEYWORDS = ("Module=", "Class=", DOC_CLASS + "=")
 
 
 def project_wm_entry(name: str, encoding: str) -> bytes:
@@ -395,34 +401,56 @@ def rename_project_wm(payload: bytes, old: str, new: str, encoding: str) -> byte
 def add_to_project(text: str, name: str, kind: str) -> str:
     """Access lists a standard module as ``Module=`` and a class as
     ``Class=``, both in the same block, and gives each a window rectangle
-    under ``[Workspace]``."""
+    under ``[Workspace]``.
+
+    The block can be empty -- delete a project's last module and there is
+    no line to sit after -- and Access opens it right below the ``ID=``
+    line, which is where the first one goes.
+    """
     lines = text.split(CRLF)
-    last = max(i for i, line in enumerate(lines) if line.startswith(("Module=", "Class=")))
-    lines.insert(last + 1, ("Class=" if kind == "class" else "Module=") + name)
+    entry = ("Class=" if kind == "class" else "Module=") + name
+    listed = [i for i, line in enumerate(lines) if line.startswith(MODULE_KEYWORDS)]
+    if listed:
+        lines.insert(max(listed) + 1, entry)
+    else:
+        opener = next((i for i, line in enumerate(lines) if line.startswith("ID=")), -1)
+        lines.insert(opener + 1, entry)
     if any(line.strip() == "[Workspace]" for line in lines):
         lines.insert(len(lines) - 1, f"{name}=38, 38, 1786, 1030, ")
     return CRLF.join(lines)
 
 
 def remove_from_project(text: str, name: str) -> str:
+    """Every line naming a module: its ``Module=``, ``Class=`` or
+    ``DocClass=`` line, and its ``[Workspace]`` rectangle."""
     lines = [
         line
         for line in text.split(CRLF)
         if line not in (f"Module={name}", f"Class={name}")
+        and not line.startswith(f"{DOC_CLASS}={name}/")
         and not re.match(re.escape(name) + "=", line)
     ]
     return CRLF.join(lines)
 
 
 def rename_project(text: str, old: str, new: str) -> str:
-    """The ``Module=``/``Class=`` line and the ``[Workspace]`` line.  The
-    stream's lines end CR LF, so the end anchor has to allow the CR."""
+    """The ``Module=``, ``Class=`` or ``DocClass=`` line and the
+    ``[Workspace]`` line.  The stream's lines end CR LF, so the end anchor
+    has to allow the CR.
+
+    A design's module is listed only as ``DocClass=<name>/<flags>``, never
+    as ``Module=`` or ``Class=``.  Renaming without reaching it leaves a
+    DocClass naming a module the project no longer has, which Access
+    reports as a corrupt project on the first VBE reference (GitHub issue
+    #21).  The flag word after the slash is Access's, so the match stops
+    at it and it is carried through.
+    """
+    quoted = re.escape(old)
     tail = "(?=" + chr(92) + "r?$)"
     for keyword in ("Module", "Class"):
-        text = re.sub(
-            "(?m)^" + keyword + "=" + re.escape(old) + tail, keyword + "=" + new, text
-        )
-    return re.sub("(?m)^" + re.escape(old) + "=", new + "=", text)
+        text = re.sub("(?m)^" + keyword + "=" + quoted + tail, keyword + "=" + new, text)
+    text = re.sub("(?m)^" + DOC_CLASS + "=" + quoted + "(?=/)", DOC_CLASS + "=" + new, text)
+    return re.sub("(?m)^" + quoted + "=", new + "=", text)
 
 
 # --- the folder list ---------------------------------------------------------
@@ -476,22 +504,24 @@ def document_attributes(name: str, clsid: str) -> list[str]:
 def add_to_project_documents(text: str, name: str) -> str:
     """A `DocClass=` line, and a window rectangle under `[Workspace]`."""
     lines = text.split(CRLF)
-    last = max(
-        i
-        for i, line in enumerate(lines)
-        if line.startswith(("Module=", "Class=", "DocClass="))
-    )
-    lines.insert(last + 1, f"DocClass={name}{DOC_CLASS_SUFFIX}")
+    last = max(i for i, line in enumerate(lines) if line.startswith(MODULE_KEYWORDS))
+    lines.insert(last + 1, f"{DOC_CLASS}={name}{DOC_CLASS_SUFFIX}")
     if any(line.strip() == "[Workspace]" for line in lines):
         lines.insert(len(lines) - 1, f"{name}={DOC_WORKSPACE}")
     return CRLF.join(lines)
 
 
 def remove_from_project_documents(text: str, name: str) -> str:
+    """A document module's ``DocClass=`` line and its workspace rectangle.
+
+    Matched on the prefix, because the flag word after the slash and the
+    rectangle are Access's and a database it has edited need not carry the
+    ones written here.
+    """
     return CRLF.join(
         line
         for line in text.split(CRLF)
-        if line != f"DocClass={name}{DOC_CLASS_SUFFIX}" and line != f"{name}={DOC_WORKSPACE}"
+        if not line.startswith(f"{DOC_CLASS}={name}/") and not line.startswith(f"{name}=")
     )
 
 

@@ -19,7 +19,7 @@ VBA, four hosts and one API:
 * PowerPoint (`.pptm`, `.potm`, `.ppt`)
 * Access (`.accdb`, `.mdb`)
 
-Power Query, in any Excel package (`.xlsx` included):
+Power Query, in any Excel package:
 
 ```python
 from pyopenvba import PowerQueryWorkbook

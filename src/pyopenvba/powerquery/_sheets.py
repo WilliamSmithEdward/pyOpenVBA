@@ -169,13 +169,15 @@ def drop_content_type(package: OpcFile, part: str) -> None:
     )
 
 
-def sheet_part(package: OpcFile, sheet: str | int) -> tuple[str, str]:
-    """The worksheet part for a sheet name or one-based position, and the
-    name of the sheet."""
-    workbook = package.read(_WORKBOOK).decode("utf-8")
-    rels = package.read(_WORKBOOK_RELS).decode("utf-8")
-    targets = _relationship_targets(rels)
-    sheets: list[tuple[str, str]] = []
+def sheet_entries(workbook: str) -> list[tuple[str, str]]:
+    """``(name, relationship id)`` for each sheet, in the order the
+    workbook lists them.
+
+    The order is load-bearing: a ``definedName`` names the sheet it is
+    local to by its position here, so the list is the one place that
+    settles both which part a sheet is and what index it has.
+    """
+    out: list[tuple[str, str]] = []
     for element in re.findall(r"<sheet\b[^>]*>", workbook):
         attributes = _attributes(element)
         # The relationship attribute carries a namespace prefix, and which
@@ -184,7 +186,27 @@ def sheet_part(package: OpcFile, sheet: str | int) -> tuple[str, str]:
             (value for key, value in attributes.items() if key.endswith(":id")), None
         )
         if "name" in attributes and identifier:
-            sheets.append((attributes["name"], identifier))
+            out.append((attributes["name"], identifier))
+    return out
+
+
+def sheet_index(package: OpcFile, name: str) -> int:
+    """A sheet's zero-based position among the workbook's sheets."""
+    sheets = sheet_entries(package.read(_WORKBOOK).decode("utf-8"))
+    for index, (found, _identifier) in enumerate(sheets):
+        if found == name:
+            return index
+    known = ", ".join(pair[0] for pair in sheets)
+    raise PowerQueryError(f"this workbook has no sheet named {name!r}; it has: {known}")
+
+
+def sheet_part(package: OpcFile, sheet: str | int) -> tuple[str, str]:
+    """The worksheet part for a sheet name or one-based position, and the
+    name of the sheet."""
+    workbook = package.read(_WORKBOOK).decode("utf-8")
+    rels = package.read(_WORKBOOK_RELS).decode("utf-8")
+    targets = _relationship_targets(rels)
+    sheets = sheet_entries(workbook)
     if not sheets:
         raise PowerQueryError("this workbook lists no worksheets")
     if isinstance(sheet, int):
@@ -432,13 +454,22 @@ def _widen_dimension(sheet: str, reference: str) -> str:
 
 
 def _add_defined_name(package: OpcFile, sheet_name: str, number: int, reference: str) -> None:
+    """The hidden name Excel gives an external data range.
+
+    ``localSheetId`` is the zero-based position of the sheet the name
+    belongs to among the workbook's sheets, so it has to be looked up
+    rather than assumed.  Writing a constant 0 was right only while the
+    table landed on the first sheet, and named a different sheet than the
+    reference did for any other, which Excel will not open.
+    """
+    local = sheet_index(package, sheet_name)
     raw = package.read(_WORKBOOK).decode("utf-8")
     first, last = reference.split(":")
     absolute = f"${column_letter(CellRef.parse(first).column)}${CellRef.parse(first).row}"
     absolute += f":${column_letter(CellRef.parse(last).column)}${CellRef.parse(last).row}"
     quoted = f"'{sheet_name}'" if re.search(r"[^A-Za-z0-9_]", sheet_name) else sheet_name
     defined = (
-        f'<definedName name="ExternalData_{number}" localSheetId="0" hidden="1">'
+        f'<definedName name="ExternalData_{number}" localSheetId="{local}" hidden="1">'
         f"{quoted}!{absolute}</definedName>"
     )
     empty = re.search(r"<definedNames\s*/>", raw)

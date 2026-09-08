@@ -221,6 +221,13 @@ wrong: **a connections part holding no connections is one Excel refuses**,
 so removing the last connection removes the part, its content type and
 its relationship as well.
 
+The hidden name has a rule of its own. **`localSheetId` is the zero-based
+position of the sheet the name belongs to** among the workbook's sheets,
+not a constant, and it has to agree with the sheet the reference names.
+Written as 0 it was right only while the table landed on the first sheet;
+anywhere else Excel refuses to open the workbook, which is invisible in a
+one-sheet file and so went unnoticed.
+
 ### Refresh control
 
 The boxes in Excel's Connection Properties dialog belong to that

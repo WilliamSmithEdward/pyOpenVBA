@@ -7,6 +7,22 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 Nothing yet.
 
+## [5.2.2] - 2026-09-08
+
+### Fixed
+
+- **Loading onto any sheet but the first made the workbook unopenable.**
+  The hidden `ExternalData_N` name was written with a constant
+  `localSheetId="0"`, and that attribute is the zero-based position of
+  the sheet the name belongs to. Loading to the second sheet wrote a name
+  claiming the first while its reference named the second, and Excel
+  refused the file outright. It is looked up now, from the same list of
+  sheets that settles which part a sheet is.
+
+  A one-sheet workbook cannot show this, which is why every fixture here
+  missed it. The live gate loads onto each of three sheets and has Excel
+  open and refresh all three.
+
 ## [5.2.1] - 2026-09-08
 
 ### Fixed

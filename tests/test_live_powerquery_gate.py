@@ -499,3 +499,30 @@ def test_excel_takes_a_query_loaded_into_an_openpyxl_workbook(
 
     assert ask(excel, "ListQueries", str(path)).strip("|").split("|") == ["Loaded"]
     assert "Loaded@C1:C3=N,;1,;2,;" in ask(excel, "RefreshTables", str(path))
+
+
+@pytest.mark.parametrize("position", [1, 2, 3])
+def test_excel_takes_a_query_loaded_onto_any_sheet(
+    excel: Any, tmp_path: Path, position: int
+) -> None:
+    """`localSheetId` is the zero-based position of the sheet a defined
+    name belongs to.  Written as a constant it was right only for the
+    first sheet, and named a different sheet than the reference did for
+    any other, which Excel would not open at all.
+    """
+    openpyxl = pytest.importorskip("openpyxl")
+
+    path = tmp_path / f"sheet{position}.xlsx"
+    made = openpyxl.Workbook()
+    made["Sheet"]["A1"] = "first"
+    made.create_sheet("Second")["A1"] = "second"
+    made.create_sheet("Third")["A1"] = "third"
+    made.save(path)
+
+    book = PowerQueryWorkbook(path)
+    book.add_query("Loaded", 'let\r\n    Source = #table({"N"}, {{1},{2}})\r\nin\r\n    Source')
+    book.load_to_sheet("Loaded", ["N"], sheet=position, cell="C1")
+    book.save()
+
+    assert ask(excel, "ListQueries", str(path)).strip("|").split("|") == ["Loaded"]
+    assert "Loaded@C1:C3=N,;1,;2,;" in ask(excel, "RefreshTables", str(path))

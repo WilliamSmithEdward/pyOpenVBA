@@ -9,6 +9,7 @@ part itself, which Excel refuses when it holds no connections.
 
 from __future__ import annotations
 
+import re
 import shutil
 from pathlib import Path
 from xml.etree import ElementTree
@@ -356,3 +357,70 @@ def test_openpyxl_itself_if_it_is_installed(tmp_path: Path) -> None:
     assert package.read("xl/workbook.xml").decode("utf-8").count("<definedNames") == 1
     assert b"xmlns:r=" in package.read("xl/worksheets/sheet1.xml")
     assert PowerQueryWorkbook(out).query_names() == ["Loaded"]
+
+
+# --- loading onto a sheet other than the first --------------------------------
+# `localSheetId` on a defined name is the zero-based position of the
+# sheet the name belongs to.  Writing a constant 0 was right only while
+# the table landed on the first sheet; anywhere else the name claimed one
+# sheet while its reference named another, and Excel would not open the
+# workbook.
+
+
+def many_sheets(tmp_path: Path, count: int = 3) -> Path:
+    openpyxl = pytest.importorskip("openpyxl")
+
+    out = tmp_path / "sheets.xlsx"
+    made = openpyxl.Workbook()
+    made["Sheet"]["A1"] = "first"
+    for index in range(2, count + 1):
+        made.create_sheet(f"Sheet{index}")["A1"] = f"sheet {index}"
+    made.save(out)
+    return out
+
+
+def defined_names(book: PowerQueryWorkbook) -> list[str]:
+    workbook = book._opc.read("xl/workbook.xml").decode("utf-8")  # pyright: ignore[reportPrivateUsage]
+    return re.findall(r"<definedName\b[^>]*>[^<]*</definedName>", workbook)
+
+
+@pytest.mark.parametrize("position", [1, 2, 3])
+def test_the_defined_name_names_the_sheet_the_table_is_on(
+    tmp_path: Path, position: int
+) -> None:
+    book = PowerQueryWorkbook(many_sheets(tmp_path))
+    book.add_query("Loaded", "let\r\n    Source = 1\r\nin\r\n    Source")
+    book.load_to_sheet("Loaded", ["N"], sheet=position, cell="C1")
+
+    name = defined_names(book)[0]
+    assert f'localSheetId="{position - 1}"' in name
+    sheet = "Sheet" if position == 1 else f"Sheet{position}"
+    assert f"{sheet}!$C$1" in name
+
+
+def test_two_sheets_get_two_names_each_pointing_at_its_own(tmp_path: Path) -> None:
+    book = PowerQueryWorkbook(many_sheets(tmp_path))
+    for name, position in (("First", 1), ("Third", 3)):
+        book.add_query(name, "let\r\n    Source = 1\r\nin\r\n    Source")
+        book.load_to_sheet(name, ["N"], sheet=position, cell="C1")
+
+    written = defined_names(book)
+    assert len(written) == 2
+    assert [re.search(r'localSheetId="(\d+)"', entry).group(1) for entry in written] == ["2", "0"]  # pyright: ignore[reportOptionalMemberAccess]
+
+
+def test_unloading_from_a_later_sheet_takes_its_name_too(tmp_path: Path) -> None:
+    """The removal matches on the name rather than the sheet id, so it has
+    to work wherever the table landed."""
+    path = many_sheets(tmp_path)
+    book = PowerQueryWorkbook(path)
+    book.add_query("Loaded", "let\r\n    Source = 1\r\nin\r\n    Source")
+    book.load_to_sheet("Loaded", ["N"], sheet=3, cell="C1")
+    book.save()
+
+    again = PowerQueryWorkbook(path)
+    assert again.query("Loaded").unload() is True
+    again.save()
+
+    assert defined_names(PowerQueryWorkbook(path)) == []
+    assert not [n for n in PowerQueryWorkbook(path)._opc.names() if "tables/" in n]  # pyright: ignore[reportPrivateUsage]

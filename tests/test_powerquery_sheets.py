@@ -230,3 +230,129 @@ def test_a_loaded_workbook_still_saves_and_reopens(book: PowerQueryWorkbook, tmp
     again = PowerQueryWorkbook(out)
     assert again.query("Loadable").load_target == LOAD_TABLE
     assert OpcFile.parse(out.read_bytes()).has("xl/tables/table1.xml")
+
+
+# --- workbooks another writer produced ----------------------------------------
+# Excel is not the only thing that writes an .xlsx, and the parts it
+# writes are one legal spelling among several.  Each shape below is what
+# openpyxl produces, and each defeated an assumption here.
+
+
+def foreign(tmp_path: Path) -> Path:
+    """A minimal workbook spelled the way openpyxl spells one: the
+    relationship id written last, the target absolute, an empty
+    `definedNames` closed on itself, and no `r:` prefix declared on the
+    worksheet, which has no table to need one."""
+    out = tmp_path / "foreign.xlsx"
+    package = OpcFile()
+    package.write(
+        "[Content_Types].xml",
+        b'<?xml version="1.0"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
+        b'<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
+        b'<Default Extension="xml" ContentType="application/xml"/>'
+        b'<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>'
+        b'<Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>'
+        b"</Types>",
+    )
+    package.write(
+        "_rels/.rels",
+        b'<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+        b'<Relationship Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument"'
+        b' Target="xl/workbook.xml" Id="rId1"/></Relationships>',
+    )
+    package.write(
+        "xl/workbook.xml",
+        b'<?xml version="1.0"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"'
+        b' xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'
+        b'<sheets><sheet name="Sheet" sheetId="1" state="visible" r:id="rId1" /></sheets>'
+        b"<definedNames /><calcPr calcId=\"124519\" /></workbook>",
+    )
+    package.write(
+        "xl/_rels/workbook.xml.rels",
+        b'<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+        b'<Relationship Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet"'
+        b' Target="/xl/worksheets/sheet1.xml" Id="rId1"/></Relationships>',
+    )
+    package.write(
+        "xl/worksheets/sheet1.xml",
+        b'<?xml version="1.0"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
+        b'<dimension ref="A1:A1"/><sheetData><row r="1">'
+        b'<c r="A1" t="inlineStr"><is><t>hi</t></is></c></row></sheetData></worksheet>',
+    )
+    out.write_bytes(package.serialize())
+    return out
+
+
+def test_a_relationship_is_found_whatever_order_it_is_written_in(tmp_path: Path) -> None:
+    """openpyxl closes a relationship with its id where Excel opens with
+    it, and XML gives attribute order no meaning.  Matching in a fixed
+    order found nothing, and the sheet looked as though it had no part."""
+    book = PowerQueryWorkbook(foreign(tmp_path))
+    book.add_query("Loaded", 'let\r\n    Source = 1\r\nin\r\n    Source')
+
+    book.load_to_sheet("Loaded", ["N"], cell="C1")
+
+    assert book._opc.has("xl/tables/table1.xml")  # pyright: ignore[reportPrivateUsage]
+
+
+def test_the_worksheet_gets_the_prefix_its_table_reference_needs(tmp_path: Path) -> None:
+    """A worksheet with no table has no use for the `r:` prefix, so
+    openpyxl does not declare it.  Adding a `tablePart` that uses it left
+    the part not well formed, and Excel would not open the workbook."""
+    book = PowerQueryWorkbook(foreign(tmp_path))
+    book.add_query("Loaded", 'let\r\n    Source = 1\r\nin\r\n    Source')
+    book.load_to_sheet("Loaded", ["N"], cell="C1")
+
+    sheet = book._opc.read("xl/worksheets/sheet1.xml")  # pyright: ignore[reportPrivateUsage]
+    assert b"xmlns:r=" in sheet
+    ElementTree.fromstring(sheet)
+
+
+def test_an_empty_defined_names_element_is_filled_not_doubled(tmp_path: Path) -> None:
+    """`<definedNames />` is the same element as `<definedNames></...>`.
+    Appending a second block beside it puts two in the workbook, which
+    Excel refuses."""
+    book = PowerQueryWorkbook(foreign(tmp_path))
+    book.add_query("Loaded", 'let\r\n    Source = 1\r\nin\r\n    Source')
+    book.load_to_sheet("Loaded", ["N"], cell="C1")
+
+    workbook = book._opc.read("xl/workbook.xml").decode("utf-8")  # pyright: ignore[reportPrivateUsage]
+    assert workbook.count("<definedNames") == 1
+    assert "ExternalData_1" in workbook
+    ElementTree.fromstring(workbook)
+
+
+def test_a_foreign_workbook_round_trips_through_load_and_unload(tmp_path: Path) -> None:
+    path = foreign(tmp_path)
+    book = PowerQueryWorkbook(path)
+    book.add_query("Loaded", 'let\r\n    Source = 1\r\nin\r\n    Source')
+    book.load_to_sheet("Loaded", ["N"], cell="C1")
+    book.save()
+
+    again = PowerQueryWorkbook(path)
+    assert again.query("Loaded").unload() is True
+    again.save()
+    assert not [n for n in PowerQueryWorkbook(path)._opc.names() if "tables/" in n]  # pyright: ignore[reportPrivateUsage]
+
+
+def test_openpyxl_itself_if_it_is_installed(tmp_path: Path) -> None:
+    """The same path against the real writer, so the shapes above stay
+    the ones openpyxl actually produces."""
+    openpyxl = pytest.importorskip("openpyxl")
+
+    out = tmp_path / "openpyxl.xlsx"
+    made = openpyxl.Workbook()
+    made["Sheet"]["A1"] = "hi"
+    made.save(out)
+
+    book = PowerQueryWorkbook(out)
+    book.add_query("Loaded", 'let\r\n    Source = 1\r\nin\r\n    Source')
+    book.load_to_sheet("Loaded", ["N"], cell="C1")
+    book.save()
+
+    package = OpcFile.parse(out.read_bytes())
+    for part in ("xl/workbook.xml", "xl/worksheets/sheet1.xml"):
+        ElementTree.fromstring(package.read(part))
+    assert package.read("xl/workbook.xml").decode("utf-8").count("<definedNames") == 1
+    assert b"xmlns:r=" in package.read("xl/worksheets/sheet1.xml")
+    assert PowerQueryWorkbook(out).query_names() == ["Loaded"]

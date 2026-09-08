@@ -29,6 +29,9 @@ _STORED = 0
 _FLAGS = 0x0006
 _MADE_BY = 45
 _NEEDED = 20
+#: Where Excel's file recovery parks the parts it threw out.  Not a legal
+#: OPC part name, and Excel will not open a package holding one.
+_RESERVED = "[trash]/"
 
 
 @dataclass
@@ -173,6 +176,28 @@ class OpcFile:
         if len(kept) != len(self.entries):
             self.entries = kept
             self.source = None
+
+    def drop_reserved(self) -> list[str]:
+        """Take out entries whose names are not part names, and say which.
+
+        Excel's own file recovery leaves `[trash]/NNNN.dat` beside the
+        real parts.  An OPC part name is built of segments that cannot
+        open with a bracket, and Excel holds itself to that when reading:
+        a workbook that opens cleanly stops opening at all once such an
+        entry is added, which is measured both ways in
+        `tests/test_powerquery_opc.py`.
+
+        Nothing in the document depends on them.  They carry no content
+        type and no relationship points at them, so a package is repaired
+        by dropping them rather than damaged.
+        """
+        doomed = [entry.name for entry in self.entries if entry.name.startswith(_RESERVED)]
+        if doomed:
+            self.entries = [
+                entry for entry in self.entries if not entry.name.startswith(_RESERVED)
+            ]
+            self.source = None
+        return doomed
 
     def serialize(self) -> bytes:
         if self.source is not None:

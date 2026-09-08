@@ -7,6 +7,41 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 Nothing yet.
 
+## [5.2.1] - 2026-09-08
+
+### Fixed
+
+- **Loading a query onto a sheet failed on a workbook another tool
+  wrote.** Three assumptions here came from reading only Excel's output,
+  and each broke on openpyxl's, which is as legal. Relationships were
+  matched with the id written first, where openpyxl writes it last, so a
+  sheet looked as though it had no part behind it and the load was
+  refused. `<definedNames />` written closed got a second block appended
+  beside it rather than being filled, leaving two in the workbook. And a
+  `tablePart` was added using the `r:` prefix on worksheets that never
+  declared it, because a worksheet with no table has no use for one,
+  which left the part not well formed. Excel now opens and refreshes a
+  query loaded into a workbook openpyxl wrote.
+
+  Saving through openpyxl still discards the Power Query package, since
+  it rebuilds the file from the parts it models and drops the rest. That
+  is not ours to fix, and `docs/power_query.md` now says so.
+
+- **`[trash]` parts are dropped instead of carried forward.** Excel's
+  file recovery leaves the parts it threw out under `[trash]/NNNN.dat`.
+  An OPC part name cannot open a segment with a bracket, and Excel will
+  not open a package holding one: the same workbook opens before the
+  entry is added and raises after. The container preserves entries as
+  they arrive, which handed back a file that stayed broken, so `save()`
+  now takes them out and warns. Nothing depends on them: no content type
+  declares them and no relationship points at them.
+
+### Internal
+
+- `openpyxl` joins the dev extras, so the interop tests run against the
+  real writer rather than only against a copy of its output. The runtime
+  still has no dependencies.
+
 ## [5.2.0] - 2026-09-05
 
 ### Added

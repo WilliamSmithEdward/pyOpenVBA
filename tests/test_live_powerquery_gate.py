@@ -443,3 +443,59 @@ def test_a_query_with_an_awkward_name_evaluates(excel: Any, tmp_path: Path) -> N
     book.save()
     assert "Grand Total €" in ask(excel, "ListQueries", str(path))
     assert ask(excel, "Evaluate", str(path), "Grand Total €") == "Grand Total €,;42,;"
+
+
+def test_excel_opens_a_workbook_we_repaired(excel: Any, tmp_path: Path) -> None:
+    """Excel's file recovery leaves the parts it threw out under
+    `[trash]`, and Excel will not open a package that holds one.
+
+    Both directions are checked here, because dropping them is only worth
+    doing if the entry is what Excel objects to: the same workbook with
+    the entry left in fails to open, and with it taken out opens and
+    refreshes.
+    """
+    import warnings
+    import zipfile
+
+    def recovered(name: str) -> Path:
+        out = tmp_path / name
+        with zipfile.ZipFile(FIXTURES / "loaded_to_sheet.xlsx") as src, zipfile.ZipFile(
+            out, "w", zipfile.ZIP_DEFLATED
+        ) as package:
+            for info in src.infolist():
+                package.writestr(info, src.read(info.filename))
+            package.writestr("[trash]/0000.dat", bytes(64))
+        return out
+
+    broken = recovered("still_broken.xlsx")
+    with pytest.raises(AssertionError):
+        ask(excel, "ListQueries", str(broken))
+
+    repaired = recovered("repaired.xlsx")
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", UserWarning)
+        PowerQueryWorkbook(repaired).save()
+    assert ask(excel, "ListQueries", str(repaired)).strip("|").split("|") == ["Loaded"]
+    assert "Loaded@A1:B3" in ask(excel, "RefreshTables", str(repaired))
+
+
+def test_excel_takes_a_query_loaded_into_an_openpyxl_workbook(
+    excel: Any, tmp_path: Path
+) -> None:
+    """openpyxl writes the same parts a different legal way, and three
+    assumptions here broke on it.  Excel opening and refreshing the result
+    is what says the parts written into one are right."""
+    openpyxl = pytest.importorskip("openpyxl")
+
+    path = tmp_path / "openpyxl.xlsx"
+    made = openpyxl.Workbook()
+    made["Sheet"]["A1"] = "hi"
+    made.save(path)
+
+    book = PowerQueryWorkbook(path)
+    book.add_query("Loaded", 'let\r\n    Source = #table({"N"}, {{1},{2}})\r\nin\r\n    Source')
+    book.load_to_sheet("Loaded", ["N"], cell="C1")
+    book.save()
+
+    assert ask(excel, "ListQueries", str(path)).strip("|").split("|") == ["Loaded"]
+    assert "Loaded@C1:C3=N,;1,;2,;" in ask(excel, "RefreshTables", str(path))

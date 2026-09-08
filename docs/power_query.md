@@ -277,6 +277,47 @@ this file exists because nothing here is written on a guess.
 
 ---
 
+## Workbooks another tool wrote
+
+Excel is not the only writer of `.xlsx`, and the parts it produces are
+one legal spelling among several. Three assumptions here came from
+reading only Excel's output, and each one broke on openpyxl's:
+
+* **Attribute order carries no meaning.** Excel opens a relationship with
+  `Id`, openpyxl closes with it. Matching in a fixed order found nothing,
+  so a sheet looked as though it had no part behind it and loading to it
+  failed outright.
+* **An empty element may be written closed.** `<definedNames />` is the
+  same element as `<definedNames></definedNames>`. Appending a second
+  block beside it left two in the workbook, which Excel refuses.
+* **A namespace prefix is declared where it is used.** Excel puts
+  `xmlns:r` on every worksheet; openpyxl puts it on a worksheet that
+  needs one, and a sheet with no table does not. Adding a `tablePart`
+  that used the prefix made the part not well formed.
+
+Loading a query onto a sheet of a workbook openpyxl wrote works, and
+Excel opens and refreshes the result.
+
+**The other direction does not, and cannot be fixed here.** openpyxl
+rebuilds the package from the parts it models and drops the rest, custom
+XML included, so saving a workbook through it removes the Power Query
+package and the queries with it. Nothing signals this: the file opens and
+simply has no queries. Put pyOpenVBA last in the pipeline, or carry the
+queries across with `pull_queries()` and `push_queries()`.
+
+## `[trash]` parts
+
+Excel's own file recovery leaves the parts it threw out under
+`[trash]/NNNN.dat`, beside the real ones. An OPC part name cannot open a
+segment with a bracket, and Excel holds itself to that when reading: the
+same workbook opens before such an entry is added and fails to open at
+all after, measured both ways.
+
+The container preserves every entry as it arrived, which would hand back
+a file that stays broken, so `save()` drops these and warns. Nothing in
+the document depends on them: they carry no content type and no
+relationship points at them.
+
 ## What Excel refuses
 
 * A query name containing a dot. `Queries.Add` rejects it with

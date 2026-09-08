@@ -102,6 +102,38 @@ def _relationships(package: OpcFile, part: str) -> str:
     )
 
 
+def _attributes(element: str) -> dict[str, str]:
+    """The attributes of one element, in whatever order they were written.
+
+    XML gives attribute order no meaning, and writers differ: Excel opens
+    a relationship with ``Id``, openpyxl closes with it.  Matching them in
+    a fixed order silently found nothing in the second case, which left a
+    sheet looking as though it had no part behind it.
+    """
+    return dict(re.findall(r'([\w.:-]+)\s*=\s*"([^"]*)"', element))
+
+
+def _relationship_targets(rels: str) -> dict[str, str]:
+    """``{relationship id: target}`` for one ``.rels`` part."""
+    out: dict[str, str] = {}
+    for element in re.findall(r"<Relationship\b[^>]*>", rels):
+        attributes = _attributes(element)
+        identifier, target = attributes.get("Id"), attributes.get("Target")
+        if identifier and target is not None:
+            out[identifier] = target
+    return out
+
+
+def _relationship_for(rels: str, target: str) -> str | None:
+    """The id pointing at ``target``, comparing the part it names rather
+    than the spelling: a target may be relative or absolute."""
+    wanted = target.lstrip("/").removeprefix("../")
+    for identifier, found in _relationship_targets(rels).items():
+        if found.lstrip("/").removeprefix("../") == wanted:
+            return identifier
+    return None
+
+
 def add_relationship(package: OpcFile, part: str, kind: str, target: str) -> str:
     raw = _relationships(package, part)
     identifier = _next_relationship(raw)
@@ -142,8 +174,17 @@ def sheet_part(package: OpcFile, sheet: str | int) -> tuple[str, str]:
     name of the sheet."""
     workbook = package.read(_WORKBOOK).decode("utf-8")
     rels = package.read(_WORKBOOK_RELS).decode("utf-8")
-    targets = dict(re.findall(r'<Relationship Id="([^"]+)"[^>]*Target="([^"]+)"', rels))
-    sheets = re.findall(r'<sheet\b[^>]*name="([^"]*)"[^>]*r:id="([^"]+)"', workbook)
+    targets = _relationship_targets(rels)
+    sheets: list[tuple[str, str]] = []
+    for element in re.findall(r"<sheet\b[^>]*>", workbook):
+        attributes = _attributes(element)
+        # The relationship attribute carries a namespace prefix, and which
+        # prefix is the writer's to choose.
+        identifier = next(
+            (value for key, value in attributes.items() if key.endswith(":id")), None
+        )
+        if "name" in attributes and identifier:
+            sheets.append((attributes["name"], identifier))
     if not sheets:
         raise PowerQueryError("this workbook lists no worksheets")
     if isinstance(sheet, int):
@@ -306,6 +347,7 @@ def _add_table_to_sheet(
         for index, column in enumerate(columns)
     )
     raw = _write_header(raw, header, start, len(columns))
+    raw = _declare_relationship_namespace(raw)
     if "<tableParts" in raw:
         raw = re.sub(
             r'<tableParts count="(\d+)">',
@@ -319,6 +361,28 @@ def _add_table_to_sheet(
         )
     raw = _widen_dimension(raw, reference)
     package.write(part, raw.encode("utf-8"))
+
+
+#: The namespace a `<tablePart r:id=...>` reference lives in.
+_RELATIONSHIPS_NS = "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
+
+
+def _declare_relationship_namespace(sheet: str) -> str:
+    """Make sure the worksheet element declares the `r:` prefix.
+
+    Excel always writes it on the root element, so the reference added
+    below resolved.  openpyxl writes the prefix only where it uses one,
+    and a worksheet with no table has no use for it, which left the
+    `r:id` added here pointing at a prefix nothing declared.  That is not
+    well-formed XML, and Excel would not open the workbook at all.
+    """
+    opening = re.search(r"<worksheet\b[^>]*>", sheet)
+    if opening is None or 'xmlns:r=' in opening.group(0):
+        return sheet
+    fixed = opening.group(0).replace(
+        "<worksheet", f'<worksheet xmlns:r="{_RELATIONSHIPS_NS}"', 1
+    )
+    return sheet.replace(opening.group(0), fixed, 1)
 
 
 def _write_header(sheet: str, cells: str, start: CellRef, width: int) -> str:
@@ -377,8 +441,14 @@ def _add_defined_name(package: OpcFile, sheet_name: str, number: int, reference:
         f'<definedName name="ExternalData_{number}" localSheetId="0" hidden="1">'
         f"{quoted}!{absolute}</definedName>"
     )
+    empty = re.search(r"<definedNames\s*/>", raw)
     if "<definedNames>" in raw:
         raw = raw.replace("<definedNames>", "<definedNames>" + defined)
+    elif empty is not None:
+        # An empty element written closed, which openpyxl does and Excel
+        # does not.  Appending a second block beside it puts two in the
+        # workbook, and Excel refuses that outright.
+        raw = raw.replace(empty.group(0), f"<definedNames>{defined}</definedNames>", 1)
     elif "<calcPr" in raw:
         raw = raw.replace("<calcPr", f"<definedNames>{defined}</definedNames><calcPr", 1)
     else:
@@ -407,16 +477,14 @@ def unload_from_sheet(package: OpcFile, query: str) -> bool:
         if not package.has(rels_part):
             continue
         rels = package.read(rels_part).decode("utf-8")
-        found = re.search(
-            rf'<Relationship Id="([^"]+)"[^>]*Target="\.\./tables/table{number}\.xml"[^>]*/>', rels
-        )
-        if found is None:
+        identifier = _relationship_for(rels, f"../tables/table{number}.xml")
+        if identifier is None:
             continue
         drop_relationship(package, rels_part, f"../tables/table{number}.xml")
         if "<Relationship " not in package.read(rels_part).decode("utf-8"):
             package.remove(rels_part)
         sheet = package.read(part).decode("utf-8")
-        sheet = re.sub(rf'<tablePart r:id="{found.group(1)}"\s*/>', "", sheet)
+        sheet = re.sub(rf'<tablePart\b[^>]*:id="{re.escape(identifier)}"[^>]*/>', "", sheet)
         sheet = re.sub(
             r'<tableParts count="(\d+)">',
             lambda match: f'<tableParts count="{max(int(match.group(1)) - 1, 0)}">',

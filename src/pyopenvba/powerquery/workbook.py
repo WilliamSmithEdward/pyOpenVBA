@@ -25,6 +25,7 @@ from __future__ import annotations
 import base64
 import re
 import uuid
+import warnings
 from pathlib import Path
 from typing import ClassVar
 from xml.etree import ElementTree
@@ -564,6 +565,20 @@ class PowerQueryWorkbook:
 
     def save(self, path: str | Path | None = None) -> Path:
         out = Path(path) if path is not None else self.path
+        # A workbook Excel has recovered carries the parts it threw out
+        # under `[trash]`, and Excel will not open a package holding one.
+        # Preserving those faithfully would hand back a file that stays
+        # broken, so they go, and the caller is told.
+        dropped = self._opc.drop_reserved()
+        if dropped:
+            warnings.warn(
+                "dropped "
+                + ", ".join(repr(name) for name in dropped)
+                + ": Excel's file recovery leaves those behind and will not "
+                "open a workbook that carries them",
+                UserWarning,
+                stacklevel=2,
+            )
         raw = self.to_bytes()
         out.write_bytes(raw)
         if path is None:

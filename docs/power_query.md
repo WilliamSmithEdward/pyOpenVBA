@@ -221,12 +221,24 @@ wrong: **a connections part holding no connections is one Excel refuses**,
 so removing the last connection removes the part, its content type and
 its relationship as well.
 
-The hidden name has a rule of its own. **`localSheetId` is the zero-based
-position of the sheet the name belongs to** among the workbook's sheets,
-not a constant, and it has to agree with the sheet the reference names.
-Written as 0 it was right only while the table landed on the first sheet;
-anywhere else Excel refuses to open the workbook, which is invisible in a
-one-sheet file and so went unnoticed.
+The hidden name has three rules of its own, and each was learned the
+hard way:
+
+* **`localSheetId` is the zero-based position of the sheet the name
+  belongs to** among the workbook's sheets, not a constant, and it has to
+  agree with the sheet the reference names. Written as 0 it was right
+  only while the table landed on the first sheet; anywhere else Excel
+  refuses to open the workbook, which a one-sheet file cannot show.
+* **A sheet name inside a reference is quoted unless it is a plain
+  identifier**, and an apostrophe within it is doubled: `It's` is spelled
+  `'It''s'`. A single apostrophe closes the quoting early and the
+  reference names something else. A name opening with a digit is quoted
+  too, since unquoted it reads as part of a cell reference.
+* **A sheet name is stored XML-escaped**, so `A & B` sits in the file as
+  `A &amp; B`. Reading the stored form as if it were the name meant that
+  asking for the sheet by the name it actually has found nothing.
+  Attribute values are decoded on the way in and escaped again on the way
+  out.
 
 ### Refresh control
 

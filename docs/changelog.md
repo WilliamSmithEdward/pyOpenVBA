@@ -7,6 +7,35 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 Nothing yet.
 
+## [5.2.3] - 2026-09-08
+
+Three defects found by hunting the same seam the last few reports came
+from: the sheet writer reading its own output back, or Excel's, and
+assuming everything else looks the same.
+
+### Fixed
+
+- **A sheet could not be picked by a name holding `&`, `<`, `>` or `"`.**
+  Those are stored escaped, so a sheet named `A & B` sits in the file as
+  `A &amp; B`. Attribute values were read as stored and compared against
+  the name a caller passed, so the lookup failed and reported the escaped
+  spelling back in the error. Values are decoded on the way in and
+  escaped again on the way out.
+
+- **An apostrophe in a sheet name was not doubled in the defined name.**
+  A reference spells `It's` as `'It''s'`; a single apostrophe closes the
+  quoting early, so the name pointed at something else. Names opening
+  with a digit are quoted now as well, since unquoted they read as part
+  of a cell reference. Excel accepts all of them and reports the
+  references back exactly.
+
+- **The sheet's declared extent was never widened on a foreign sheet.**
+  The element was matched by its exact spelling, so a writer that puts a
+  space before the closing slash, as openpyxl does, kept the extent it
+  started with and the part said the sheet ended before the table began.
+
+Nothing here changes what is written for a workbook Excel authored.
+
 ## [5.2.2] - 2026-09-08
 
 ### Fixed

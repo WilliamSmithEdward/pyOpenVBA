@@ -501,6 +501,33 @@ def test_excel_takes_a_query_loaded_into_an_openpyxl_workbook(
     assert "Loaded@C1:C3=N,;1,;2,;" in ask(excel, "RefreshTables", str(path))
 
 
+@pytest.mark.parametrize("name", ["A & B", "It's", "Q1 Sales", "2024"])
+def test_excel_takes_a_sheet_whose_name_needs_quoting(
+    excel: Any, tmp_path: Path, name: str
+) -> None:
+    """A sheet name is stored XML-escaped and spelled again inside a
+    formula reference, where an apostrophe doubles and anything but a
+    plain identifier is quoted.  Both spellings have to be right for
+    Excel to take the workbook, and picking the sheet by the name it
+    actually has is what a caller does.
+    """
+    openpyxl = pytest.importorskip("openpyxl")
+
+    path = tmp_path / "quoted.xlsx"
+    made = openpyxl.Workbook()
+    made["Sheet"].title = name
+    made[name]["A20"] = "marker"
+    made.save(path)
+
+    book = PowerQueryWorkbook(path)
+    book.add_query("Loaded", 'let\r\n    Source = #table({"N"}, {{1},{2}})\r\nin\r\n    Source')
+    book.load_to_sheet("Loaded", ["N"], sheet=name, cell="C1")
+    book.save()
+
+    assert ask(excel, "ListQueries", str(path)).strip("|").split("|") == ["Loaded"]
+    assert "Loaded@C1:C3=N,;1,;2,;" in ask(excel, "RefreshTables", str(path))
+
+
 @pytest.mark.parametrize("position", [1, 2, 3])
 def test_excel_takes_a_query_loaded_onto_any_sheet(
     excel: Any, tmp_path: Path, position: int

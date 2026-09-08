@@ -20,7 +20,14 @@ from pyopenvba.exceptions import PowerQueryError
 from pyopenvba.powerquery import _metadata as meta
 from pyopenvba.powerquery import LOAD_CONNECTION_ONLY, LOAD_TABLE, PowerQueryWorkbook
 from pyopenvba.powerquery._opc import OpcFile
-from pyopenvba.powerquery._sheets import CellRef, column_letter, column_number
+from pyopenvba.powerquery._sheets import (
+    CellRef,
+    _attributes,  # pyright: ignore[reportPrivateUsage]
+    _widen_dimension,  # pyright: ignore[reportPrivateUsage]
+    column_letter,
+    column_number,
+    quote_sheet,
+)
 
 FIXTURES = Path(__file__).parent / "fixtures" / "power_query"
 
@@ -424,3 +431,99 @@ def test_unloading_from_a_later_sheet_takes_its_name_too(tmp_path: Path) -> None
 
     assert defined_names(PowerQueryWorkbook(path)) == []
     assert not [n for n in PowerQueryWorkbook(path)._opc.names() if "tables/" in n]  # pyright: ignore[reportPrivateUsage]
+
+
+# --- names that need quoting, and extents that need widening ------------------
+
+
+@pytest.mark.parametrize(
+    ("name", "spelled"),
+    [
+        ("Plain", "Plain"),
+        ("Q1 Sales", "'Q1 Sales'"),
+        ("It's", "'It''s'"),
+        ("2024", "'2024'"),
+        ("A & B", "'A & B'"),
+        ("_private", "_private"),
+    ],
+)
+def test_a_sheet_name_is_spelled_the_way_a_reference_spells_it(
+    name: str, spelled: str
+) -> None:
+    """An apostrophe inside a quoted name is doubled, or it closes the
+    quoting early and the reference names something else.  A name opening
+    with a digit is quoted too, since unquoted it reads as part of a cell
+    reference."""
+    assert quote_sheet(name) == spelled
+
+
+@pytest.mark.parametrize(
+    ("stored", "means"),
+    [
+        ("A &amp; B", "A & B"),
+        ("A&lt;B", "A<B"),
+        ("say &quot;hi&quot;", 'say "hi"'),
+        ("it&apos;s", "it's"),
+        ("&#65;&#x42;", "AB"),
+        ("plain", "plain"),
+        ("&unknown; stays", "&unknown; stays"),
+    ],
+)
+def test_an_attribute_reads_as_the_characters_it_stands_for(
+    stored: str, means: str
+) -> None:
+    assert _attributes(f'<x a="{stored}"/>')["a"] == means
+
+
+@pytest.mark.parametrize("name", ["A & B", "A<B", 'say "hi"', "It's"])
+def test_a_sheet_can_be_picked_by_the_name_it_actually_has(
+    tmp_path: Path, name: str
+) -> None:
+    """The workbook stores the name escaped.  Reading the stored form as
+    if it were the name meant asking for the sheet by its real name found
+    nothing at all."""
+    openpyxl = pytest.importorskip("openpyxl")
+
+    out = tmp_path / "named.xlsx"
+    made = openpyxl.Workbook()
+    made["Sheet"].title = name
+    made[name]["A20"] = "marker"
+    made.save(out)
+
+    book = PowerQueryWorkbook(out)
+    book.add_query("Loaded", "let\r\n    Source = 1\r\nin\r\n    Source")
+    book.load_to_sheet("Loaded", ["N"], sheet=name, cell="C1")
+
+    workbook = book._opc.read("xl/workbook.xml").decode("utf-8")  # pyright: ignore[reportPrivateUsage]
+    ElementTree.fromstring(workbook)
+    reference = ElementTree.fromstring(workbook).findall(".//{*}definedName")[0].text or ""
+    assert reference.startswith(quote_sheet(name) + "!")
+
+
+def test_the_declared_extent_grows_to_cover_the_table(tmp_path: Path) -> None:
+    """The element was matched by its exact spelling, so a writer that
+    puts a space before the closing slash kept the extent it started
+    with, saying the sheet ended before the table begins."""
+    openpyxl = pytest.importorskip("openpyxl")
+
+    out = tmp_path / "extent.xlsx"
+    made = openpyxl.Workbook()
+    made["Sheet"]["A1"] = "only"
+    made.save(out)
+    assert b'<dimension ref="A1:A1" />' in OpcFile.parse(out.read_bytes()).read(
+        "xl/worksheets/sheet1.xml"
+    )
+
+    book = PowerQueryWorkbook(out)
+    book.add_query("Loaded", "let\r\n    Source = 1\r\nin\r\n    Source")
+    book.load_to_sheet("Loaded", ["N"], cell="J5")
+
+    sheet = book._opc.read("xl/worksheets/sheet1.xml").decode("utf-8")  # pyright: ignore[reportPrivateUsage]
+    extent = re.search(r'<dimension\b[^>]*ref="([^"]*)"', sheet)
+    assert extent is not None and extent.group(1) == "A1:J6"
+
+
+def test_widening_leaves_the_other_attributes_alone() -> None:
+    sheet = '<worksheet><dimension ref="A1:B2" x="1" /><sheetData/></worksheet>'
+    assert 'x="1"' in _widen_dimension(sheet, "C3:D4")
+    assert 'ref="A1:D4"' in _widen_dimension(sheet, "C3:D4")

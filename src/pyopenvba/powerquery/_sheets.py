@@ -84,6 +84,28 @@ def _escape(value: str) -> str:
     )
 
 
+_ENTITIES = {"amp": "&", "lt": "<", "gt": ">", "quot": '"', "apos": "'"}
+
+
+def _unescape(value: str) -> str:
+    """The characters an XML attribute's stored text stands for.
+
+    A sheet named ``A & B`` is stored as ``A &amp; B``, and reading the
+    stored form as if it were the name meant that asking for the sheet by
+    the name it actually has found nothing.
+    """
+
+    def replace(match: re.Match[str]) -> str:
+        body = match.group(1)
+        if body[:2] in {"#x", "#X"}:
+            return chr(int(body[2:], 16))
+        if body.startswith("#"):
+            return chr(int(body[1:]))
+        return _ENTITIES.get(body, match.group(0))
+
+    return re.sub(r"&(#[0-9]+|#[xX][0-9a-fA-F]+|[A-Za-z]+);", replace, value)
+
+
 def _next_relationship(rels: str) -> str:
     used = {int(number) for number in re.findall(r'Id="rId(\d+)"', rels)}
     index = 1
@@ -109,8 +131,15 @@ def _attributes(element: str) -> dict[str, str]:
     a relationship with ``Id``, openpyxl closes with it.  Matching them in
     a fixed order silently found nothing in the second case, which left a
     sheet looking as though it had no part behind it.
+
+    Values come back as the characters they stand for, not as stored, so
+    a caller comparing one against a name a user typed compares like with
+    like.
     """
-    return dict(re.findall(r'([\w.:-]+)\s*=\s*"([^"]*)"', element))
+    return {
+        key: _unescape(value)
+        for key, value in re.findall(r'([\w.:-]+)\s*=\s*"([^"]*)"', element)
+    }
 
 
 def _relationship_targets(rels: str) -> dict[str, str]:
@@ -441,16 +470,42 @@ def _write_header(sheet: str, cells: str, start: CellRef, width: int) -> str:
 
 
 def _widen_dimension(sheet: str, reference: str) -> str:
-    match = re.search(r'<dimension ref="([^"]*)"/>', sheet)
+    """Grow the sheet's declared extent to cover the range just written.
+
+    The element is matched by name rather than by its exact spelling: it
+    may carry other attributes, and a writer is free to put a space
+    before the closing slash, which openpyxl does.  Insisting on Excel's
+    spelling left the extent saying the sheet ended where it did before
+    the table was written.
+    """
+    match = re.search(r"<dimension\b[^>]*/>", sheet)
     if match is None:
         return sheet
+    current = _attributes(match.group(0)).get("ref")
+    if current is None:
+        return sheet
     wanted = [CellRef.parse(part) for part in reference.split(":")]
-    have = [CellRef.parse(part) for part in match.group(1).split(":")]
+    have = [CellRef.parse(part) for part in current.split(":")]
     if len(have) == 1:
         have = [have[0], have[0]]
     first = CellRef(min(have[0].column, wanted[0].column), min(have[0].row, wanted[0].row))
     last = CellRef(max(have[1].column, wanted[1].column), max(have[1].row, wanted[1].row))
-    return sheet.replace(match.group(0), f'<dimension ref="{first}:{last}"/>')
+    widened = match.group(0).replace(f'ref="{current}"', f'ref="{first}:{last}"', 1)
+    return sheet.replace(match.group(0), widened, 1)
+
+
+def quote_sheet(name: str) -> str:
+    """A sheet's name as a formula reference spells it.
+
+    Anything but a plain identifier is wrapped in apostrophes, and an
+    apostrophe inside the name is doubled, because a single one would
+    close the quoting early and leave a reference to something else.  A
+    name opening with a digit is quoted too: unquoted it reads as part of
+    a cell reference.
+    """
+    if re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", name):
+        return name
+    return "'" + name.replace("'", "''") + "'"
 
 
 def _add_defined_name(package: OpcFile, sheet_name: str, number: int, reference: str) -> None:
@@ -467,10 +522,9 @@ def _add_defined_name(package: OpcFile, sheet_name: str, number: int, reference:
     first, last = reference.split(":")
     absolute = f"${column_letter(CellRef.parse(first).column)}${CellRef.parse(first).row}"
     absolute += f":${column_letter(CellRef.parse(last).column)}${CellRef.parse(last).row}"
-    quoted = f"'{sheet_name}'" if re.search(r"[^A-Za-z0-9_]", sheet_name) else sheet_name
     defined = (
         f'<definedName name="ExternalData_{number}" localSheetId="{local}" hidden="1">'
-        f"{quoted}!{absolute}</definedName>"
+        f"{_escape(quote_sheet(sheet_name))}!{absolute}</definedName>"
     )
     empty = re.search(r"<definedNames\s*/>", raw)
     if "<definedNames>" in raw:

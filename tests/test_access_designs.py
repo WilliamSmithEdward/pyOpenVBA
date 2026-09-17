@@ -27,15 +27,19 @@ from pyopenvba.access._designs import (
     TYPE_CODES as CONTROL_CODES,
     PROPERTY_CODES,
     PROPERTY_SLOTS,
+    TYPE_INFO_CLSID_AT,
     property_code,
     build_design,
+    code_page_holds,
     pack_type_info,
     parse_design,
     prototype_records,
     template,
     type_info,
+    type_info_code_page,
     type_info_entries,
     type_info_members,
+    vba_identifier,
     with_guid,
 )
 from pyopenvba.access._props import parse_property_blob
@@ -1382,3 +1386,248 @@ def test_deleting_a_form_without_code_leaves_the_project_alone(
     after = AccessDatabase(out)
     assert after.forms() == []
     assert project_lines(after) == before
+
+
+# --- two names to an entry, and names a code page cannot hold -----------------
+# A TypeInfo entry holds the identifier VBA compiles against, a NUL, the
+# name the designer shows, a NUL, with the second left empty where the two
+# are the same.  Reading it as one name walked into the next entry's type
+# id (GitHub issue #22).  A name the page cannot hold is no member at all,
+# where the writer used to substitute a '?' for each character (#23).
+
+CONTROL_NAMES = FIXTURES / "control_names.accdb"
+CODE_PAGE_NAMES = FIXTURES / "code_page_names.accdb"
+
+
+@pytest.fixture
+def control_names(tmp_path: Path) -> AccessDatabase:
+    """A form Access built whose controls are named as a wizard names
+    them, plus an ActiveX control and a renamed header."""
+    return opened(CONTROL_NAMES, tmp_path, "names.accdb")
+
+
+@pytest.fixture
+def code_page_names(tmp_path: Path) -> AccessDatabase:
+    """A form Access built with names across and outside cp1252,
+    including one in Cyrillic that Access left out of the member list."""
+    return opened(CODE_PAGE_NAMES, tmp_path, "pages.accdb")
+
+
+@pytest.mark.parametrize(
+    ("name", "identifier"),
+    [
+        ("Plain", "Plain"),
+        ("Order Date", "Order_Date"),
+        ("Qty-1", "Qty_1"),
+        ("Tax (VAT)", "Tax__VAT_"),
+        ("2ndBox", "Ctl2ndBox"),
+        ("_under", "Ctl_under"),
+        ("Web View", "Web_View"),
+        ("Top Part", "Top_Part"),
+        ("Café", "Café"),
+        ("Имя", "Имя"),
+    ],
+)
+def test_the_identifier_vba_compiles_against(name: str, identifier: str) -> None:
+    """Every ASCII character that is not a letter, a digit or an
+    underscore becomes one, and a result opening with a digit or an
+    underscore takes `Ctl` in front.  A character outside ASCII is kept."""
+    assert vba_identifier(name) == identifier
+
+
+@pytest.mark.parametrize(
+    ("text", "encoding", "held"),
+    [
+        ("Plain", "cp1252", True),
+        ("Café", "cp1252", True),
+        ("Em—Dash", "cp1252", True),
+        ("€uro", "cp1252", True),
+        ("Имя", "cp1252", False),
+        ("Caféи", "cp1252", False),
+        ("Ābc", "cp1252", False),
+        ("Ωhm", "cp1252", False),
+        ("Имя", "cp1251", True),
+        ("€uro", "cp1251", True),
+    ],
+)
+def test_whether_a_page_holds_a_name(text: str, encoding: str, held: bool) -> None:
+    """No best fit counts: a name with a '?' in it names something else,
+    and Access leaves such a control out rather than listing it."""
+    assert code_page_holds(text, encoding) is held
+
+
+def test_an_entry_holds_both_of_its_names(control_names: AccessDatabase) -> None:
+    stream = type_info_stream(control_names, "form", "Names")
+    entries = {entry.name: entry for entry in type_info_entries(stream)}
+
+    assert entries["Order Date"].identifier == "Order_Date"
+    assert entries["Qty-1"].identifier == "Qty_1"
+    assert entries["2ndBox"].identifier == "Ctl2ndBox"
+    assert entries["Top Part"].identifier == "Top_Part"
+    # A name that is already an identifier stores the second name empty.
+    assert entries["Plain"].identifier == "Plain"
+    assert entries["Plain"].stored == b"Plain\x00\x00"
+    # An ActiveX control's tail follows both names, not one.
+    assert len(entries["Web View"].tail) == 36
+
+
+def test_every_stream_access_wrote_rebuilds_byte_for_byte(
+    control_names: AccessDatabase, code_page_names: AccessDatabase
+) -> None:
+    for database, count in ((control_names, 2), (code_page_names, 1)):
+        seen = 0
+        for kind in ("form", "report"):
+            designs = database.forms() if kind == "form" else database.reports()
+            for design in designs:
+                stream = type_info_stream(database, kind, design.name)
+                entries = type_info_entries(stream)
+                clsid = stream[TYPE_INFO_CLSID_AT : TYPE_INFO_CLSID_AT + 16]
+                assert pack_type_info(kind, clsid, entries) == stream, design.name
+                assert type_info(kind, design.objects, stream) == stream, design.name
+                seen += 1
+        assert seen == count
+
+
+def test_adding_a_control_keeps_every_name_reachable(
+    control_names: AccessDatabase, tmp_path: Path
+) -> None:
+    """The stream could not be read at all before, so the edit failed
+    outright; where it did not, the members were rewritten under names
+    `Me.` cannot reach."""
+    control_names.add_control("Names", "TextBox", "Added")
+    out = tmp_path / "added.accdb"
+    control_names.save(out)
+
+    after = AccessDatabase(out)
+    entries = type_info_entries(type_info_stream(after, "form", "Names"))
+    assert [entry.name for entry in entries][-1:] == ["Added"]
+    assert entries[-1].ordinal == 9
+    for entry in entries:
+        assert entry.identifier == vba_identifier(entry.name)
+    assert {"Order Date", "Qty-1", "2ndBox", "Tax (VAT)", "Web View"} <= {
+        entry.name for entry in entries
+    }
+
+
+def test_renaming_gives_the_member_the_new_identifier(
+    control_names: AccessDatabase,
+) -> None:
+    control_names.set_control_property("Names", "Order Date", "Name", "Ship Date")
+
+    entries = {
+        entry.name: entry
+        for entry in type_info_entries(type_info_stream(control_names, "form", "Names"))
+    }
+    assert "Order Date" not in entries
+    assert entries["Ship Date"].identifier == "Ship_Date"
+    assert entries["Ship Date"].ordinal == 1
+
+
+def test_two_names_that_are_one_identifier_are_refused(
+    control_names: AccessDatabase,
+) -> None:
+    """VBA knows a member by its identifier alone, so `Order Date` beside
+    `Order_Date` is one name to the code behind the form.  Access refuses
+    the second as already in use."""
+    with pytest.raises(AccessError, match="already in use"):
+        control_names.add_control("Names", "TextBox", "Order_Date")
+
+
+def test_an_identifier_this_module_once_damaged_is_put_right(
+    control_names: AccessDatabase,
+) -> None:
+    """A stored identifier that is not an identifier can only have come
+    from the old writer, so the next edit rebuilds it from the design's
+    name."""
+    stream = type_info_stream(control_names, "form", "Names")
+    entries = type_info_entries(stream)
+    damaged = pack_type_info(
+        "form",
+        stream[TYPE_INFO_CLSID_AT : TYPE_INFO_CLSID_AT + 16],
+        [
+            entry._replace(identifier=entry.name, stored=b"")
+            if entry.name == "Order Date"
+            else entry
+            for entry in entries
+        ],
+    )
+    assert type_info_entries(damaged)[1].identifier == "Order Date"
+
+    repaired = type_info("form", control_names.form("Names").objects, damaged)
+
+    assert type_info_entries(repaired)[1].identifier == "Order_Date"
+
+
+def test_a_name_the_page_cannot_hold_is_no_member(
+    code_page_names: AccessDatabase,
+) -> None:
+    """Access gives such a control no entry and no ordinal, though the
+    design keeps its name in UTF-16."""
+    form = code_page_names.form("Names")
+    assert "Имя" in [control.name for control in form.controls]
+
+    entries = type_info_entries(type_info_stream(code_page_names, "form", "Names"))
+
+    assert "Имя" not in [entry.name for entry in entries]
+    assert [entry.name for entry in entries] == [
+        "Detail",
+        "Café",
+        "Em—Dash",
+        "€uro",
+        "Naïve — x",
+        "Plain",
+    ]
+
+
+def test_an_edit_adds_no_member_for_a_name_the_page_cannot_hold(
+    code_page_names: AccessDatabase, tmp_path: Path
+) -> None:
+    """Every edit used to append a `???`, and a second edit gave the
+    form's class two members of that name."""
+    before = type_info_entries(type_info_stream(code_page_names, "form", "Names"))
+    code_page_names.set_control_property("Names", "Plain", "Width", 2000)
+    code_page_names.set_control_property("Names", "Plain", "Height", 300)
+    out = tmp_path / "edited.accdb"
+    code_page_names.save(out)
+
+    after = type_info_entries(type_info_stream(AccessDatabase(out), "form", "Names"))
+
+    assert [(e.name, e.ordinal) for e in after] == [(e.name, e.ordinal) for e in before]
+    assert not [entry for entry in after if "?" in entry.name]
+
+
+def test_renaming_out_of_the_page_drops_the_member(
+    code_page_names: AccessDatabase,
+) -> None:
+    code_page_names.set_control_property("Names", "Plain", "Name", "Имя2")
+
+    names = [
+        entry.name
+        for entry in type_info_entries(type_info_stream(code_page_names, "form", "Names"))
+    ]
+    assert "Plain" not in names and "Имя2" not in names
+
+
+def test_renaming_into_the_page_appends_the_member(
+    code_page_names: AccessDatabase,
+) -> None:
+    """Access gives it the ordinal above the highest present."""
+    code_page_names.set_control_property("Names", "Имя", "Name", "WasCyrillic")
+
+    entries = type_info_entries(type_info_stream(code_page_names, "form", "Names"))
+    assert entries[-1].name == "WasCyrillic"
+    assert entries[-1].ordinal == 6
+    assert entries[-1].identifier == "WasCyrillic"
+
+
+def test_the_page_the_stream_is_read_in(code_page_names: AccessDatabase) -> None:
+    """The project's page is tried first and the stream's own bytes
+    overrule it.  This one is cp1252, and reading it as cp1251 would
+    match none of the design's names that carry a high byte."""
+    stream = type_info_stream(code_page_names, "form", "Names")
+    names = [obj.name for obj in code_page_names.form("Names").objects[1:] if obj.name]
+
+    assert type_info_code_page(stream, names, "cp1252") == "cp1252"
+    assert type_info_code_page(stream, names, "cp1251") == "cp1252"
+    # With nothing to go on, the project's page stands.
+    assert type_info_code_page(stream, [], "cp1251") == "cp1251"

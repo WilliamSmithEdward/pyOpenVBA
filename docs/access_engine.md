@@ -891,8 +891,17 @@ the engine finds the same rows it does today.
   and report `MSysAccessStorage` keeps a `TypeInfo` stream: a 4-byte
   magic, a kind word (0x96 for a form, 0x197 for a report), -1, a count,
   the design's CLSID, then one entry per section and control: a 4-byte
-  type id, a 4-byte ordinal, the name in the database's code page and two
-  zero bytes. The type id's low byte is the object's type code and its
+  type id, a 4-byte ordinal, and **two** names in the code page, each
+  followed by a zero byte. The first is the identifier VBA compiles
+  against, the second the name the designer shows, and the second is
+  empty where the two are the same, which is why a plain name reads as
+  `Plain 00 00`. A control is rarely named as VBA would name it: the form
+  wizard names one after its field, so `Order Date` is ordinary and code
+  reaches it as `Me.Order_Date`. Every ASCII character that is not a
+  letter, a digit or an underscore becomes an underscore, one for one,
+  and a result opening with a digit or an underscore takes `Ctl` in
+  front, so `Tax (VAT)` is `Tax__VAT_` and `2ndBox` is `Ctl2ndBox`. The
+  type id's low byte is the object's type code and its
   high byte the index Access gives the member's class, which depends on
   the kind of design and on what holds the control. On a form each type
   has its own index (Label 0x0D64, TextBox 0x126D, CommandButton 0x0B68,
@@ -914,6 +923,22 @@ the engine finds the same rows it does today.
   binds only for a name it holds, which is why a form written with a
   template `TypeInfo` compiled its code with "Method or data member not
   found" and never fired a button.
+* **A name the code page cannot hold is no member at all.** Measured on a
+  machine whose ANSI page is 1252: a control named in Cyrillic gets no
+  entry and no ordinal, though the design keeps its name in UTF-16, and
+  code cannot reach it through `Me`. No best fit is tried, so an A-macron,
+  a fullwidth A and a Greek omega are left out rather than listed as `A`,
+  `A` and `O`, and one character out of the page loses the whole name.
+  Renaming a listed control out of the page drops its entry; renaming one
+  into the page appends it at the ordinal above the highest left. Which
+  page is the machine's, not the file's: a database created with the
+  Cyrillic collation wrote cp1252 bytes, and so did one whose
+  PROJECTCODEPAGE had been patched to 1251, because VBA went on reading
+  that project as cp1252 and Access wrote 1252 back over the patch on its
+  next save. That patch is why an earlier note here called the stream
+  fixed at cp1252; the experiment never tested what it appeared to.
+  PROJECTCODEPAGE is the page tried first, being the page of the machine
+  that last saved the project, and the stream's own bytes overrule it.
 * **Access keeps the `TypeInfo` stream rather than rebuilding it.** The
   order of the entries is the order the members were created in, with a
   quirk for the pages a new tab control brings along, which precede it,

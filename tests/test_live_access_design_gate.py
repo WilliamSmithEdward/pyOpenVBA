@@ -21,6 +21,7 @@ from pathlib import Path
 import pytest
 
 from pyopenvba.access import AccessDatabase
+from pyopenvba.access._designs import vba_identifier
 
 pytestmark = pytest.mark.skipif(
     os.environ.get("RUN_LIVE_ACCESS_VBA") != "1" or sys.platform != "win32",
@@ -747,3 +748,60 @@ def test_access_takes_a_deleted_form_whose_code_went_with_it(tmp_path: Path) -> 
     listed = [entry for entry in str(ask(out, "ProjectThroughTheVbe")).split(";") if entry]
     assert "Module1:1" in listed
     assert not [entry for entry in listed if entry.startswith("Form_")]
+
+
+_CONTROL_NAMES = Path(__file__).parent / "live_access_test" / "control_names.accdb"
+_CODE_PAGE_NAMES = Path(__file__).parent / "live_access_test" / "code_page_names.accdb"
+
+
+def compiles(path: Path) -> str:
+    """Hand the database to Access and compile its VBA project.
+
+    The damage this guards against is invisible in the file: the form
+    opens and the code behind it stops compiling, because a member
+    listed under a name `Me.` cannot reach is no member at all.
+    """
+    harness = pytest.importorskip("pyvbaharness")
+    with harness.AccessSession() as access:
+        access.open_document(path, read_only=False)
+        report = access.compile_project(watch_seconds=30.0)
+        return f"{report.outcome} {report.message}".strip()
+
+
+def test_access_compiles_code_reaching_every_control_after_an_edit(tmp_path: Path) -> None:
+    """A control is rarely named as VBA names it, and the member list
+    holds both spellings.  Reading it as one name rewrote `Order Date` as
+    exactly that, which `Me.` cannot reach (GitHub issue #22)."""
+    out = tmp_path / "names.accdb"
+    shutil.copyfile(_CONTROL_NAMES, out)
+    database = AccessDatabase(out)
+    reached = [vba_identifier(c.name) for c in database.form("Names").controls]
+    database.set_design_code(
+        "Names",
+        "\r\n".join(
+            ["Option Compare Database", "Option Explicit", "", "Public Sub Touch()"]
+            + [f"    Debug.Print Me.{name}.Name" for name in reached]
+            + ["End Sub"]
+        ),
+    )
+    database.add_control("Names", "TextBox", "Added")
+    database.save()
+
+    assert reached[:3] == ["Order_Date", "Qty_1", "Ctl2ndBox"]
+    assert compiles(out) == "accepted"
+    assert str(ask(out, "OpenFormDesign", "Names")).startswith("Names|7|")
+
+
+def test_access_compiles_a_form_with_a_name_its_page_cannot_hold(tmp_path: Path) -> None:
+    """The Cyrillic control is in the design and not in the member list.
+    Every edit used to append a `???` member, and a second edit gave the
+    class two of them (GitHub issue #23)."""
+    out = tmp_path / "pages.accdb"
+    shutil.copyfile(_CODE_PAGE_NAMES, out)
+    database = AccessDatabase(out)
+    database.set_control_property("Names", "Plain", "Width", 2000)
+    database.set_control_property("Names", "Plain", "Height", 300)
+    database.save()
+
+    assert compiles(out) == "accepted"
+    assert str(ask(out, "DescribeControls", "Names")).count(";") == 6

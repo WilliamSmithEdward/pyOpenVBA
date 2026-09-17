@@ -31,8 +31,10 @@ answer it: a record's `code` is the property and a handful are named in
 
 from __future__ import annotations
 
+import re
 import struct
-from collections.abc import Mapping, Sequence
+import unicodedata
+from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import NamedTuple
@@ -2645,7 +2647,9 @@ def remove_control(blob: bytes, name: str) -> bytes:
 #: as the members VBA sees on the form's class: ``Me.Qty`` compiles, and
 #: ``Qty_Click`` binds, only for a name listed here.  After the magic come
 #: a kind word, -1, the entry count and the design's CLSID; each entry is
-#: then ``<u32 type id><u32 ordinal><name in the code page>00 00``.
+#: then ``<u32 type id><u32 ordinal><identifier>00<the design's name>00``,
+#: with the design's name left empty where the two are the same.  An
+#: ActiveX control's 36-byte tail follows both.
 #:
 #: Access keeps the stream rather than rebuilding it (measured by editing
 #: forms in Access and reading the stream back): a new member is appended
@@ -2752,15 +2756,66 @@ ACTIVEX_CONTROL = "CustomControl"
 ACTIVEX_CODE = next(code for code, name in CONTROL_TYPES.items() if name == ACTIVEX_CONTROL)
 TYPE_INFO_REPORT_IDS[ACTIVEX_CONTROL] = TYPE_INFO_IDS[ACTIVEX_CONTROL]
 TYPE_INFO_ACTIVEX_TAIL = bytes(36)
+#: The page a TypeInfo stream is read in when the project's own does not
+#: fit its bytes.  Western Access writes this one, and every stream
+#: measured here is in it.
+_FALLBACK_TYPE_INFO_ENCODING = "cp1252"
+
+
+def vba_identifier(name: str) -> str:
+    """The name VBA compiles against for a design object called `name`.
+
+    A control is rarely named as VBA would name it: the form wizard names
+    one after its field, so `Order Date` is ordinary and `Me.Order_Date`
+    is how code reaches it.  Every ASCII character that is not a letter,
+    a digit or an underscore becomes an underscore, one for one, and a
+    result opening with a digit or an underscore takes `Ctl` in front.  A
+    character outside ASCII is kept.  Measured over every pair in the
+    fixture's streams: `Tax (VAT)` is `Tax__VAT_`, `2ndBox` is
+    `Ctl2ndBox`, `_under` is `Ctl_under`.
+    """
+    converted = re.sub(r"[^A-Za-z0-9_-￿]", "_", name)
+    return "Ctl" + converted if re.match(r"[0-9_]", converted) else converted
+
+
+def code_page_holds(text: str, encoding: str) -> bool:
+    """Whether `encoding` holds every character of `text` exactly.
+
+    A name with a `?` in it names something else, so no best fit counts.
+    That is how Access decides it: on a cp1252 machine a control named
+    with an A-macron, a fullwidth A or a Greek omega is left out of its
+    form's member list rather than listed as `A`, `A` or `O`.
+    """
+    try:
+        round_tripped = text.encode(encoding).decode(encoding)
+    except (UnicodeEncodeError, UnicodeDecodeError):
+        return False
+    # cp1258 stores a toned vowel as a base byte and a combining mark.
+    return unicodedata.normalize("NFC", round_tripped) == unicodedata.normalize("NFC", text)
 
 
 class TypeInfoEntry(NamedTuple):
-    """One member a TypeInfo stream lists."""
+    """One member a TypeInfo stream lists.
+
+    `name` is the name the design gives the object and the designer
+    shows; `identifier` is the name VBA compiles against, which is `name`
+    itself wherever that is already an identifier.  `stored` is the two
+    names exactly as the stream held them, NULs included, so an entry
+    carried forward writes back the bytes it was read from rather than
+    going through a code page twice.  A copy under another name, from a
+    rename or a repair, carries no stored bytes and is encoded afresh.
+    """
 
     ident: int
     ordinal: int
     name: str
     tail: bytes = b""
+    identifier: str = ""
+    stored: bytes = b""
+
+    def named(self, name: str) -> "TypeInfoEntry":
+        """The same member under a new name, encoded afresh."""
+        return self._replace(name=name, identifier=vba_identifier(name), stored=b"")
 
 
 class TypeInfoMember(NamedTuple):
@@ -2770,23 +2825,23 @@ class TypeInfoMember(NamedTuple):
     ident: int
     tail: bytes = b""
 
+    @property
+    def identifier(self) -> str:
+        return vba_identifier(self.name)
 
-def type_info_entries(stream: bytes) -> tuple[TypeInfoEntry, ...]:
+
+def type_info_entries(stream: bytes, encoding: str = "cp1252") -> tuple[TypeInfoEntry, ...]:
     """The members a TypeInfo stream lists, in the order it lists them.
 
-    Names here are cp1252, and that is measured rather than assumed
-    (GitHub issue #18 raised it as a possible second instance of the
-    VBA-side latin-1 bug; it is not one).  Access named a control with an
-    em dash and wrote ``Em\\x97Dash`` -- one byte, which cp1252 gives
-    U+2014 and latin-1 cannot represent at all.  Patching the project's
-    PROJECTCODEPAGE to 1251 and repeating changed nothing, so this stream
-    does not follow the VBA code page and must not be threaded with it.
+    An entry holds **two** names: the identifier, a NUL, the design's
+    name, a NUL, with the design's name left empty where the two are the
+    same.  That is why a plain name reads as ``Plain 00 00``, and why
+    reading to the first double NUL walked into the next entry's type id
+    for any name that is not already an identifier (GitHub issue #22).
+    An ActiveX control's 36-byte tail follows both names.
 
-    Access also drops a member whose name the page cannot hold rather
-    than substituting it: a control named in Cyrillic got no entry here
-    at all, while the design blob kept its name in UTF-16.  The writer
-    below substitutes instead, which differs only for names cp1252
-    cannot express.
+    The names are bytes in a code page, and `encoding` is the page to
+    read them in; `type_info_code_page` picks it.
     """
     if stream[:4] != TYPE_INFO_MAGIC or len(stream) < TYPE_INFO_ENTRIES_AT:
         raise AccessError("this is not a TypeInfo stream")
@@ -2797,17 +2852,59 @@ def type_info_entries(stream: bytes) -> tuple[TypeInfoEntry, ...]:
         if at + 8 > len(stream):
             raise AccessError("this TypeInfo stream ends inside an entry")
         ident, ordinal = struct.unpack_from("<II", stream, at)
-        end = stream.find(bytes(2), at + 8)
-        if end < 0:
+        first = stream.find(b"\x00", at + 8)
+        second = stream.find(b"\x00", first + 1) if first >= 0 else -1
+        if first < 0 or second < 0:
             raise AccessError("this TypeInfo stream ends inside a name")
-        name = stream[at + 8 : end].decode("cp1252")
-        at = end + 2
+        identifier = stream[at + 8 : first].decode(encoding, errors="replace")
+        shown = stream[first + 1 : second].decode(encoding, errors="replace")
+        stored = stream[at + 8 : second + 1]
+        at = second + 1
         tail = b""
         if ident & 0xFF == ACTIVEX_CODE:
             tail = stream[at : at + len(TYPE_INFO_ACTIVEX_TAIL)]
             at += len(tail)
-        out.append(TypeInfoEntry(ident, ordinal, name, tail))
+        out.append(
+            TypeInfoEntry(ident, ordinal, shown or identifier, tail, identifier, stored)
+        )
     return tuple(out)
+
+
+def type_info_code_page(
+    stream: bytes, design_names: Iterable[str], project_encoding: str
+) -> str:
+    """The page a stream's names are in, given the names its design has.
+
+    The project's page is tried first, because PROJECTCODEPAGE is the
+    page of the machine that last saved the project, and this stream is
+    written in the page of the machine Access ran on.  The stream's own
+    bytes overrule it: only an entry carrying a byte at or above 0x80
+    says anything, and the fallback wins only where it matches more of
+    the design's names.
+
+    An earlier note here claimed the stream is fixed at cp1252 because
+    patching PROJECTCODEPAGE to 1251 changed nothing.  That experiment
+    was void: VBA went on reading the project as cp1252 and Access wrote
+    1252 back over the patch on its next save, so it never tested what it
+    appeared to (GitHub issue #23).
+    """
+    if project_encoding == _FALLBACK_TYPE_INFO_ENCODING:
+        return project_encoding
+    names = set(design_names)
+
+    def fits(encoding: str) -> int:
+        try:
+            entries = type_info_entries(stream, encoding)
+        except AccessError:
+            return -1
+        return sum(
+            1
+            for entry in entries
+            if any(byte >= 0x80 for byte in entry.stored) and entry.name in names
+        )
+
+    fallback = _FALLBACK_TYPE_INFO_ENCODING
+    return fallback if fits(fallback) > fits(project_encoding) else project_encoding
 
 
 def _holders(objects: tuple[DesignObject, ...]) -> dict[int, int]:
@@ -2871,41 +2968,100 @@ def type_info_members(kind: str, objects: tuple[DesignObject, ...]) -> tuple[Typ
     return (*sections, *controls)
 
 
+def _carried(entry: TypeInfoEntry) -> TypeInfoEntry:
+    """An entry as it is carried forward, repaired if it has to be.
+
+    The identifier Access stored is kept as it is.  One that is not an
+    identifier at all is not Access's: this module once read an entry as
+    a single name and rewrote a member called `Order Date` as exactly
+    that, which `Me.` cannot reach.  That one is rebuilt from the design's
+    name, and loses its stored bytes so it is written afresh.
+    """
+    if entry.identifier and vba_identifier(entry.identifier) == entry.identifier:
+        return entry
+    return entry._replace(identifier=vba_identifier(entry.name), stored=b"")
+
+
+def _refuse_shared_identifiers(entries: Sequence[TypeInfoEntry]) -> None:
+    """VBA knows a member by its identifier alone, so two sharing one are
+    a single name to the code behind the design.  Access refuses the
+    second control name as already in use, and so does this."""
+    seen: dict[str, str] = {}
+    for entry in entries:
+        key = entry.identifier.lower()
+        other = seen.get(key)
+        if other is not None:
+            raise AccessError(
+                f"{entry.name!r} and {other!r} would both be {entry.identifier!r} to VBA, "
+                "which knows a member by that name alone; Access refuses the second name "
+                "as already in use"
+            )
+        seen[key] = entry.name
+
+
 def type_info(
     kind: str,
     objects: tuple[DesignObject, ...],
     existing: bytes,
     *,
     renamed: Mapping[str, str] | None = None,
+    encoding: str = "cp1252",
 ) -> bytes:
     """The TypeInfo stream after the design changed, carried forward the
     way Access carries it: members the design no longer has drop out, the
     ones `renamed` maps (old name to new) move to the end keeping their
     ordinals, and new members are appended with the ordinals that follow
-    the highest present."""
-    entries = type_info_entries(existing)
+    the highest present.
+
+    `encoding` is the project's code page, tried first and overruled by
+    the stream's own bytes.  A member whose name that page cannot hold is
+    left out, as Access leaves it out, and takes no ordinal at all.
+    """
     members = type_info_members(kind, objects)
     wanted = {member.name for member in members}
     renames = dict(renamed or {})
-    kept = [e for e in entries if e.name in wanted and e.name not in renames]
+    page = type_info_code_page(existing, wanted | set(renames), encoding)
+    entries = type_info_entries(existing, page)
+    kept = [_carried(e) for e in entries if e.name in wanted and e.name not in renames]
     moved = [
-        e._replace(name=renames[e.name])
+        e.named(renames[e.name])
         for e in entries
         if e.name in renames and renames[e.name] in wanted
     ]
+    moved = [e for e in moved if code_page_holds(e.name, page)]
     present = {e.name for e in (*kept, *moved)}
     ordinal = max((e.ordinal for e in (*kept, *moved)), default=-1) + 1
     added: list[TypeInfoEntry] = []
     for member in members:
-        if member.name not in present:
-            added.append(TypeInfoEntry(member.ident, ordinal, member.name, member.tail))
-            ordinal += 1
+        if member.name in present or not code_page_holds(member.name, page):
+            continue
+        added.append(
+            TypeInfoEntry(
+                member.ident, ordinal, member.name, member.tail, member.identifier
+            )
+        )
+        ordinal += 1
+    following = (*kept, *moved, *added)
+    _refuse_shared_identifiers(following)
     clsid = existing[TYPE_INFO_CLSID_AT : TYPE_INFO_CLSID_AT + GUID_LENGTH]
-    return pack_type_info(kind, clsid, (*kept, *moved, *added))
+    return pack_type_info(kind, clsid, following, encoding=page)
 
 
-def pack_type_info(kind: str, clsid: bytes, entries: Sequence[TypeInfoEntry]) -> bytes:
-    """A TypeInfo stream listing `entries` in that order."""
+def pack_type_info(
+    kind: str,
+    clsid: bytes,
+    entries: Sequence[TypeInfoEntry],
+    *,
+    encoding: str = "cp1252",
+) -> bytes:
+    """A TypeInfo stream listing `entries` in that order.
+
+    An entry that came from a stream writes back the bytes it was read
+    from: a page can spell one character more than one way, so decoding
+    and encoding again is not always what was there.  One built here is
+    encoded as the identifier, a NUL, the design's name, a NUL, with the
+    design's name left out where the two are the same.
+    """
     if kind not in TYPE_INFO_KIND:
         raise AccessError(f"kind must be 'form' or 'report', not {kind!r}")
     if len(clsid) != GUID_LENGTH:
@@ -2915,6 +3071,14 @@ def pack_type_info(kind: str, clsid: bytes, entries: Sequence[TypeInfoEntry]) ->
     out += clsid
     for entry in entries:
         out += struct.pack("<II", entry.ident, entry.ordinal)
-        out += entry.name.encode("cp1252", errors="replace") + bytes(2) + entry.tail
+        if entry.stored:
+            out += entry.stored
+        else:
+            identifier = entry.identifier or vba_identifier(entry.name)
+            out += identifier.encode(encoding) + bytes(1)
+            if entry.name != identifier:
+                out += entry.name.encode(encoding)
+            out += bytes(1)
+        out += entry.tail
     return bytes(out)
 

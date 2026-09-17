@@ -7,6 +7,58 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 Nothing yet.
 
+## [5.2.4] - 2026-09-17
+
+Two defects in the member list beside a form or report, the stream that
+decides what `Me.` can reach. Both were reported with the measurements
+and the fixtures that pin them.
+
+### Fixed
+
+- **An entry holds two names, and the reader took one** ([#22]). It stores
+  the identifier VBA compiles against, a NUL, the name the designer shows,
+  a NUL, leaving the second empty where the two are the same. A control is
+  rarely named as VBA would name it: the wizard names one after its field,
+  so `Order Date` is ordinary and code reaches it as `Me.Order_Date`.
+  Reading to the first double NUL walked into the next entry's type id, so
+  every later entry was misaligned. A form with an ActiveX control failed
+  the edit outright; one without was rewritten with `Order Date` as the
+  member, which no code can reach, and `Me.Order_Date` stopped compiling
+  after any edit made here. Both names are read and written now, and an
+  entry carried forward writes back the bytes it was read from. An
+  identifier that is not one can only have come from the old writer, so
+  the next edit rebuilds it from the design's name.
+
+- **A name the code page cannot hold got a `???` member** ([#23]). Access
+  writes no entry at all for one, and takes no ordinal for it. Every edit
+  to a form with a control named in Cyrillic appended a `???`, and a
+  second edit gave the form's class two members of that name. Such a name
+  is left out now, on add and on rename alike, and no best fit is
+  accepted: a name with a `?` in it names something else.
+
+  Two members that are one identifier to VBA are refused, as Access
+  refuses the second control name as already in use.
+
+  The page is no longer hardcoded. PROJECTCODEPAGE is tried first, being
+  the page of the machine that last saved the project, and the stream's
+  own bytes overrule it. An earlier note claimed the stream is fixed at
+  cp1252 because patching PROJECTCODEPAGE to 1251 changed nothing. That
+  experiment was void: VBA went on reading the project as cp1252 and
+  Access wrote 1252 back over the patch on its next save.
+
+- **A refused edit left the design written and the member list stale.**
+  `_rewrite_design` wrote the design blob before building the member
+  list, so a refusal from the list left the database holding a design its
+  class does not describe. Everything is computed before anything is
+  written.
+
+Every `TypeInfo` stream in the fixtures still rebuilds byte for byte, and
+the live gate compiles a project whose code reaches each control by the
+identifier Access gives it.
+
+[#22]: https://github.com/WilliamSmithEdward/pyOpenVBA/issues/22
+[#23]: https://github.com/WilliamSmithEdward/pyOpenVBA/issues/23
+
 ## [5.2.3] - 2026-09-08
 
 Three defects found by hunting the same seam the last few reports came

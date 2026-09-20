@@ -91,6 +91,36 @@ class SheetGrid:
         before = sum(self.row_heights.get(one, self.default_row) for one in range(row))
         return before + points(offset)
 
+    def column_at(self, across: float) -> tuple[int, int]:
+        """Which column a point falls in, and how far into it, in EMU.
+
+        Excel will not read an offset larger than the cell it is in: it
+        clamps one to the column's width and puts the shape somewhere
+        else.  An anchor this library writes is worked out here so that
+        never happens.
+        """
+        column, seen = 0, 0.0
+        while True:
+            width = self.column_widths.get(column, self.default_column)
+            if seen + width > across or width <= 0:
+                return column, emu(max(across - seen, 0.0))
+            seen += width
+            column += 1
+            if column > 16383:
+                return column, 0
+
+    def row_at(self, down: float) -> tuple[int, int]:
+        """Which row a point falls in, and how far into it, in EMU."""
+        row, seen = 0, 0.0
+        while True:
+            height = self.row_heights.get(row, self.default_row)
+            if seen + height > down or height <= 0:
+                return row, emu(max(down - seen, 0.0))
+            seen += height
+            row += 1
+            if row > 1048575:
+                return row, 0
+
 
 def grid_of(sheet_xml: str) -> SheetGrid:
     """The grid a sheet's own XML describes."""
@@ -324,13 +354,15 @@ def with_control_macro(sheet_xml: str, shape_id: int, macro: str) -> str:
     return sheet_xml
 
 
-def new_anchor(shape: Shape, *, column: int = 0, row: int = 0) -> str:
+def new_anchor(shape: Shape, grid: SheetGrid | None = None) -> str:
     """The markup for a shape this library is adding.
 
-    Written the way Excel writes a new one: a twoCellAnchor holding the
-    absolute transform as well as the cells, because Excel reads the
-    transform and rewrites the anchor from it when it opens the file.
+    A twoCellAnchor holding the absolute transform as well as the
+    cells.  The cells are what Excel reads: it clamps an offset to the
+    cell that holds it, so the corner each one lands in is worked out
+    from the sheet's own columns and rows.
     """
+    grid = grid or SheetGrid()
     line = shape.kind == "line"
     body = "" if line else dml.text_body(shape.text, "xdr:txBody")
     macro = f' macro="{escape(shape.macro)}"' if shape.macro else ' macro=""'
@@ -355,11 +387,19 @@ def new_anchor(shape: Shape, *, column: int = 0, row: int = 0) -> str:
     )
     return (
         "<xdr:twoCellAnchor>"
-        f"<xdr:from><xdr:col>{column}</xdr:col><xdr:colOff>{emu(shape.left)}</xdr:colOff>"
-        f"<xdr:row>{row}</xdr:row><xdr:rowOff>{emu(shape.top)}</xdr:rowOff></xdr:from>"
-        f"<xdr:to><xdr:col>{column}</xdr:col><xdr:colOff>{emu(shape.left + shape.width)}</xdr:colOff>"
-        f"<xdr:row>{row}</xdr:row><xdr:rowOff>{emu(shape.top + shape.height)}</xdr:rowOff></xdr:to>"
+        f"{_corner_markup('from', grid, shape.left, shape.top)}"
+        f"{_corner_markup('to', grid, shape.left + shape.width, shape.top + shape.height)}"
         f"{inner}<xdr:clientData/></xdr:twoCellAnchor>"
+    )
+
+
+def _corner_markup(which: str, grid: SheetGrid, across: float, down: float) -> str:
+    """One corner of an anchor, as the cell it lands in."""
+    column, column_offset = grid.column_at(across)
+    row, row_offset = grid.row_at(down)
+    return (
+        f"<xdr:{which}><xdr:col>{column}</xdr:col><xdr:colOff>{column_offset}</xdr:colOff>"
+        f"<xdr:row>{row}</xdr:row><xdr:rowOff>{row_offset}</xdr:rowOff></xdr:{which}>"
     )
 
 
@@ -374,7 +414,7 @@ _STYLE = (
 )
 
 
-def written(shapes: list[Shape], original: str) -> str:
+def written(shapes: list[Shape], original: str, grid: SheetGrid | None = None) -> str:
     """A drawing part holding these shapes.
 
     A shape that came from the file and was not changed is written back
@@ -388,13 +428,13 @@ def written(shapes: list[Shape], original: str) -> str:
         assert body is not None
     head = original.find(">", body[0]) + 1
     tail = original.rfind("</xdr:wsDr>")
-    return original[:head] + "".join(_markup_for(one) for one in shapes) + original[tail:]
+    return original[:head] + "".join(_markup_for(one, grid) for one in shapes) + original[tail:]
 
 
-def _markup_for(shape: Shape) -> str:
+def _markup_for(shape: Shape, grid: SheetGrid | None = None) -> str:
     """One shape's markup: its own if nothing about it changed."""
     if not shape.source:
-        return new_anchor(shape)
+        return new_anchor(shape, grid)
     was = _shape_of_source(shape)
     markup = shape.source
     if was is None:
@@ -407,7 +447,7 @@ def _markup_for(shape: Shape) -> str:
         was.width,
         was.height,
     ):
-        markup = _moved(markup, shape, was)
+        markup = _moved(markup, shape, was, grid)
     if shape.kind != "formControl":
         if shape.macro != was.macro:
             markup = _MACRO.sub(f'macro="{escape(shape.macro)}"', markup, count=1)
@@ -422,41 +462,24 @@ def _shape_of_source(shape: Shape) -> Shape | None:
     return read[0] if read else None
 
 
-def _moved(markup: str, shape: Shape, was: Shape) -> str:
+def _moved(markup: str, shape: Shape, was: Shape, grid: SheetGrid | None = None) -> str:
     """The same markup with the shape somewhere else.
 
     The anchor moves with the transform: Excel reads the anchor when it
-    opens the file, so leaving it behind would put the shape back.
+    opens the file, so leaving it behind would put the shape back where
+    it was.  Both corners are worked out from the grid, because an
+    offset that runs past its own cell is clamped rather than carried.
     """
+    del was
     out = dml.with_transform(markup, shape)
     span = dml.element_span(out, "xdr:from")
     finish = dml.element_span(out, "xdr:to")
     if span is None or finish is None:
         return out
-    across = shape.left - was.left
-    down = shape.top - was.top
-    start = _shifted(out[span[0] : span[1]], across, down)
-    end = _shifted(out[finish[0] : finish[1]], across + (shape.width - was.width), down + (shape.height - was.height))
+    grid = grid or SheetGrid()
+    start = _corner_markup("from", grid, shape.left, shape.top)
+    end = _corner_markup("to", grid, shape.left + shape.width, shape.top + shape.height)
     return out[: span[0]] + start + out[span[1] : finish[0]] + end + out[finish[1] :]
-
-
-def _shifted(corner: str, across: float, down: float) -> str:
-    """One corner of an anchor, moved by so many points.
-
-    The column and row stay as they are and the offset takes the whole
-    move; Excel puts the shape where the offsets say and tidies the
-    anchor itself the next time it saves.
-    """
-    column_offset = _COLOFF.search(corner)
-    row_offset = _ROWOFF.search(corner)
-    out = corner
-    if column_offset is not None:
-        moved = int(column_offset.group(1)) + emu(across)
-        out = out.replace(column_offset.group(0), f"<xdr:colOff>{moved}</xdr:colOff>", 1)
-    if row_offset is not None:
-        moved = int(row_offset.group(1)) + emu(down)
-        out = out.replace(row_offset.group(0), f"<xdr:rowOff>{moved}</xdr:rowOff>", 1)
-    return out
 
 
 def geometry_for(mso_type: int) -> str:

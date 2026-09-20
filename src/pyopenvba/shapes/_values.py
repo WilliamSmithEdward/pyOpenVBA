@@ -123,6 +123,9 @@ class Shape:
     control: ControlInfo | None = None
     #: A group's members, in the order the file holds them.
     children: list[Shape] = field(default_factory=lambda: [])
+    #: Which AutoShape it is, as Shape.AutoShapeType answers.  A text
+    #: box answers 1 as well, which is what Excel does.
+    auto_shape_type: int = 1
     #: Word only: whether the shape sits in the text or floats beside it.
     placement: str = ""
     #: Where the shape's markup was, so an untouched one is written

@@ -133,6 +133,46 @@ Range("A1").Value = 1: Range("A2").Value = "x" ;; Application.WorksheetFunction.
 ;; TypeName(Application.WorksheetFunction.Sum(1, 2))
 ;; Application.WorksheetFunction.Trim("  a   b  ")
 
+# --- shapes ---
+;; ActiveSheet.Shapes.Count
+;; TypeName(ActiveSheet.Shapes)
+;; ActiveSheet.Shapes.AddShape(1, 10, 20, 100, 50).Name
+;; ActiveSheet.Shapes.AddShape(5, 10, 20, 100, 50).Name
+;; ActiveSheet.Shapes.AddShape(9, 10, 20, 100, 50).Name
+;; ActiveSheet.Shapes.AddTextbox(1, 10, 20, 100, 50).Name
+;; ActiveSheet.Shapes.AddLine(10, 20, 100, 50).Name
+;; ActiveSheet.Shapes.AddFormControl(0, 10, 20, 100, 50).Name
+ActiveSheet.Shapes.AddShape 1, 10, 20, 100, 50 ;; ActiveSheet.Shapes.AddShape(1, 0, 0, 10, 10).Name
+ActiveSheet.Shapes.AddShape 1, 10, 20, 100, 50 ;; ActiveSheet.Shapes.Count
+ActiveSheet.Shapes.AddShape 1, 10, 20, 100, 50 ;; TypeName(ActiveSheet.Shapes(1))
+ActiveSheet.Shapes.AddShape 1, 10, 20, 100, 50 ;; ActiveSheet.Shapes(1).Type
+ActiveSheet.Shapes.AddTextbox 1, 10, 20, 100, 50 ;; ActiveSheet.Shapes(1).Type
+ActiveSheet.Shapes.AddLine 10, 20, 100, 50 ;; ActiveSheet.Shapes(1).Type
+ActiveSheet.Shapes.AddFormControl 0, 10, 20, 100, 50 ;; ActiveSheet.Shapes(1).Type
+ActiveSheet.Shapes.AddShape 1, 10, 20, 100, 50 ;; ActiveSheet.Shapes(1).Left
+ActiveSheet.Shapes.AddShape 1, 10, 20, 100, 50 ;; ActiveSheet.Shapes(1).Top
+ActiveSheet.Shapes.AddShape 1, 10, 20, 100, 50 ;; ActiveSheet.Shapes(1).Width
+ActiveSheet.Shapes.AddShape 1, 10, 20, 100, 50 ;; ActiveSheet.Shapes(1).Height
+ActiveSheet.Shapes.AddShape 1, 10, 20, 100, 50 ;; ActiveSheet.Shapes(1).OnAction
+ActiveSheet.Shapes.AddShape 1, 10, 20, 100, 50 ;; ActiveSheet.Shapes(1).TopLeftCell.Address
+ActiveSheet.Shapes.AddShape 1, 10, 20, 100, 50 ;; ActiveSheet.Shapes(1).BottomRightCell.Address
+ActiveSheet.Shapes.AddShape 1, 10, 20, 100, 50 ;; ActiveSheet.Shapes(1).ZOrderPosition
+ActiveSheet.Shapes.AddShape(1, 10, 20, 100, 50).Name = "Box" ;; ActiveSheet.Shapes("Box").Left
+ActiveSheet.Shapes.AddShape(1, 10, 20, 100, 50).OnAction = "Go" ;; ActiveSheet.Shapes(1).OnAction
+ActiveSheet.Shapes.AddShape(1, 10, 20, 100, 50).TextFrame.Characters.Text = "Hi" ;; ActiveSheet.Shapes(1).TextFrame.Characters.Text
+ActiveSheet.Shapes.AddShape(1, 10, 20, 100, 50).Left = 40 ;; ActiveSheet.Shapes(1).Left
+ActiveSheet.Shapes.AddShape 1, 10, 20, 100, 50: ActiveSheet.Shapes(1).Delete ;; ActiveSheet.Shapes.Count
+ActiveSheet.Shapes.AddShape 1, 10, 20, 100, 50 ;; ActiveSheet.Shapes("NoSuchShape").Name
+ActiveSheet.Shapes.AddShape 1, 10, 20, 100, 50 ;; ActiveSheet.Shapes(2).Name
+ActiveSheet.Shapes.AddShape 1, 10, 20, 100, 50 ;; ActiveSheet.Shapes.Range(1).Count
+ActiveSheet.Shapes.AddShape 1, 10, 20, 100, 50 ;; ActiveSheet.DrawingObjects.Count
+ActiveSheet.Shapes.AddShape 1, 10, 20, 100, 50 ;; ActiveSheet.Shapes(1).Visible
+ActiveSheet.Shapes.AddShape 1, 10, 20, 100, 50 ;; ActiveSheet.Shapes(1).Placement
+ActiveSheet.Shapes.AddShape 1, 10, 20, 100, 50 ;; ActiveSheet.Shapes(1).AutoShapeType
+ActiveSheet.Shapes.AddTextbox 1, 10, 20, 100, 50 ;; ActiveSheet.Shapes(1).AutoShapeType
+;; ActiveSheet.Shapes.AddShape(1, 10.4, 20.6, 100, 50).Left
+ActiveSheet.Shapes.AddShape 1, 10, 20, 100, 50 ;; ActiveSheet.Shapes(1).Name
+
 # --- errors the model has to raise with the same number ---
 Range("A1").Offset(-1, 0).Address
 Range("zz").Address

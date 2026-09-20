@@ -21,6 +21,7 @@ from typing import TYPE_CHECKING, Any
 from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, parse_reference
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.formula._parse import shift_text
+from pyopenvba.shapes._values import Shape as ShapeState
 from pyopenvba.interpreter._objects import VBACollection, VBAObject, member, method, setter
 from pyopenvba.interpreter._values import (
     EMPTY,
@@ -667,10 +668,52 @@ class Worksheet(ExcelObject):
         #: False until a cell changes.  A sheet nobody wrote to is
         #: carried through a save exactly as it arrived.
         self.dirty = False
+        #: The shapes on the sheet, in the order the drawing holds them.
+        self.shapes_: list[ShapeState] = []
+        #: The drawing part they came from, and its markup, so one that
+        #: nobody touched is written back exactly as it arrived.
+        self.drawing_part = ""
+        self.drawing_xml = ""
+        self.drawing_dirty = False
 
     def touched(self) -> None:
         self.dirty = True
         self.book.saved = False
+
+    def drawing_changed(self) -> None:
+        """A shape was added, moved, renamed or deleted."""
+        self.drawing_dirty = True
+        self.book.saved = False
+
+    def column_width_points(self, column: int) -> float:
+        """How wide a column is in points, which a shape's cell needs."""
+        from pyopenvba.shapes._xlsx import DEFAULT_COLUMN_POINTS, characters_to_points
+
+        width = self.column_widths.get(column)
+        return characters_to_points(width) if width is not None else DEFAULT_COLUMN_POINTS
+
+    def row_height_points(self, row: int) -> float:
+        """How tall a row is in points."""
+        from pyopenvba.shapes._xlsx import DEFAULT_ROW_POINTS
+
+        return self.row_heights.get(row, DEFAULT_ROW_POINTS)
+
+    def drawing_grid(self) -> Any:
+        """The sheet's columns and rows, as the drawing layer wants them.
+
+        The model counts columns and rows from one and keeps a column's
+        width in characters; a drawing counts from zero and works in
+        points.
+        """
+        from pyopenvba.shapes._xlsx import SheetGrid, characters_to_points
+
+        return SheetGrid(
+            column_widths={
+                column - 1: characters_to_points(width)
+                for column, width in self.column_widths.items()
+            },
+            row_heights={row - 1: height for row, height in self.row_heights.items()},
+        )
 
     def cell_changed(self, row: int, column: int) -> None:
         """One cell's contents changed: tell the calculator what to redo."""
@@ -756,6 +799,18 @@ class Worksheet(ExcelObject):
             return parse_reference(text, sheet=self.name)
         except ValueError:
             raise error(1004, f"{text!r} is not a reference this sheet knows") from None
+
+    @member
+    def Shapes(self, Index: object = MISSING) -> object:
+        from pyopenvba.apps.excel._shapes import Shapes as ShapesCollection
+
+        shapes = ShapesCollection(self)
+        return shapes if Index is MISSING else shapes.vba_get("Item", [Index])
+
+    @member
+    def DrawingObjects(self, Index: object = MISSING) -> object:
+        """The older name for the same shapes."""
+        return self.Shapes(Index)
 
     @member
     def Cells(self, RowIndex: object = MISSING, ColumnIndex: object = MISSING) -> object:

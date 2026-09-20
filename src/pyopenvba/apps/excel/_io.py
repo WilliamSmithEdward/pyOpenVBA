@@ -102,7 +102,9 @@ def load_workbook(application: Application, path: Path) -> Workbook:
         sheet = book.add_sheet(name)
         sheet.part_name = part
         if part and package.has(part):
-            _read_sheet(sheet, package.read(part).decode("utf-8", errors="replace"), strings, styles)
+            sheet_xml = package.read(part).decode("utf-8", errors="replace")
+            _read_sheet(sheet, sheet_xml, strings, styles)
+            _read_shapes(sheet, package, sheet_xml)
     _read_names(book, workbook_xml)
     _read_queries(book, path)
     book.saved = True
@@ -304,6 +306,180 @@ def _area_of(reference: str) -> tuple[int, int, int, int]:
     return area.top, area.left, area.bottom, area.right
 
 
+def _read_shapes(sheet: Worksheet, package: OpcFile, sheet_xml: str) -> None:
+    """The sheet's drawing, read into the model.
+
+    A sheet points at its drawing through a relationship; the shapes
+    are in that part, and a form control's own settings are in the
+    ``ctrlProps`` part the sheet points at separately.
+    """
+    from pyopenvba.shapes._xlsx import grid_of, read_controls, read_drawing
+
+    part = _sheet_relationship(package, sheet.part_name, "drawing")
+    if not part or not package.has(part):
+        return
+    sheet.drawing_part = part
+    sheet.drawing_xml = package.read(part).decode("utf-8", errors="replace")
+    sheet.shapes_ = read_drawing(sheet.drawing_xml, grid_of(sheet_xml))
+    controls = read_controls(sheet_xml, _control_parts(package, sheet.part_name))
+    for shape in sheet.shapes_:
+        found = controls.get(shape.shape_id)
+        if found is not None:
+            shape.control = found
+            # Excel reports a control's macro workbook-qualified, and
+            # writes it as [0]!Name; the model carries the plain name.
+            shape.macro = found.macro_text.rpartition("!")[2]
+    sheet.drawing_dirty = False
+
+
+def _sheet_relationship(package: OpcFile, sheet_part: str, kind: str) -> str:
+    """The part a sheet's relationship of this kind points at.
+
+    Matched on the relationship's type rather than its target, because
+    xl/drawings holds the VML for the form controls as well, and its
+    name starts with the same word.
+    """
+    for _, (relationship_kind, target) in _sheet_relationships(package, sheet_part).items():
+        if relationship_kind == kind:
+            return _resolved(target)
+    return ""
+
+
+def _sheet_relationships(package: OpcFile, sheet_part: str) -> dict[str, tuple[str, str]]:
+    """Each relationship on a sheet, as ``id -> (kind, target)``.
+
+    The kind is the last word of the type URI: drawing, vmlDrawing,
+    ctrlProp, table, and so on.
+    """
+    if not sheet_part:
+        return {}
+    folder, _, name = sheet_part.rpartition("/")
+    rels = f"{folder}/_rels/{name}.rels"
+    if not package.has(rels):
+        return {}
+    text = package.read(rels).decode("utf-8", errors="replace")
+    out: dict[str, tuple[str, str]] = {}
+    for element in re.findall(r"<Relationship\b[^>]*/>", text):
+        fields = _attributes(element)
+        if "Id" in fields and "Target" in fields:
+            out[fields["Id"]] = (fields.get("Type", "").rpartition("/")[2], fields["Target"])
+    return out
+
+
+def _resolved(target: str) -> str:
+    """A relationship target as a part name in the package."""
+    if target.startswith("/"):
+        return target[1:]
+    part = f"xl/worksheets/{target}"
+    while "/../" in part:
+        head, _, tail = part.rpartition("/../")
+        part = head.rpartition("/")[0] + "/" + tail
+    return part.replace("./", "")
+
+
+def _control_parts(package: OpcFile, sheet_part: str) -> dict[str, str]:
+    """Each control's own part, by the relationship the sheet names."""
+    out: dict[str, str] = {}
+    for relationship, (kind, target) in _sheet_relationships(package, sheet_part).items():
+        if kind != "ctrlProp":
+            continue
+        part = _resolved(target)
+        if package.has(part):
+            out[relationship] = package.read(part).decode("utf-8", errors="replace")
+    return out
+
+
+def _write_shapes(book: Workbook, package: OpcFile) -> None:
+    """Write back the drawing of every sheet whose shapes changed."""
+    from pyopenvba.shapes._xlsx import EMPTY_DRAWING, written
+
+    for sheet in book.sheets_:
+        if not sheet.drawing_dirty:
+            continue
+        part = sheet.drawing_part or _new_drawing(book, package, sheet)
+        if not part:
+            continue
+        original = sheet.drawing_xml or EMPTY_DRAWING
+        package.write(part, written(sheet.shapes_, original, sheet.drawing_grid()).encode("utf-8"))
+        sheet.drawing_part = part
+        sheet.drawing_xml = package.read(part).decode("utf-8", errors="replace")
+        sheet.drawing_dirty = False
+
+
+def _new_drawing(book: Workbook, package: OpcFile, sheet: Worksheet) -> str:
+    """A drawing part for a sheet that had none, wired to the sheet.
+
+    Three things make a drawing part real to Excel: the part itself,
+    the content type that says what it is, and the sheet's own
+    ``<drawing>`` element naming the relationship to it.
+    """
+    from pyopenvba.shapes._xlsx import EMPTY_DRAWING
+
+    if not sheet.part_name:
+        return ""
+    taken = {
+        name for name in package.names() if name.startswith("xl/drawings/drawing")
+    }
+    number = 1
+    while f"xl/drawings/drawing{number}.xml" in taken:
+        number += 1
+    part = f"xl/drawings/drawing{number}.xml"
+    package.write(part, EMPTY_DRAWING.encode("utf-8"))
+    add_content_type(
+        package,
+        part,
+        "application/vnd.openxmlformats-officedocument.drawing+xml",
+    )
+    relationship = _add_sheet_relationship(
+        package,
+        sheet.part_name,
+        f"../drawings/drawing{number}.xml",
+        "http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing",
+    )
+    _name_the_drawing(package, sheet, relationship)
+    return part
+
+
+def _add_sheet_relationship(package: OpcFile, sheet_part: str, target: str, kind: str) -> str:
+    """One more relationship on a sheet, and the id it was given."""
+    folder, _, name = sheet_part.rpartition("/")
+    rels = f"{folder}/_rels/{name}.rels"
+    if package.has(rels):
+        text = package.read(rels).decode("utf-8", errors="replace")
+    else:
+        text = (
+            '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\r\n'
+            '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+            "</Relationships>"
+        )
+    used = {
+        fields.get("Id", "")
+        for fields in map(_attributes, re.findall(r"<Relationship\b[^>]*/>", text))
+    }
+    number = 1
+    while f"rId{number}" in used:
+        number += 1
+    identifier = f"rId{number}"
+    element = f'<Relationship Id="{identifier}" Type="{kind}" Target="{target}"/>'
+    package.write(rels, text.replace("</Relationships>", element + "</Relationships>").encode("utf-8"))
+    return identifier
+
+
+def _name_the_drawing(package: OpcFile, sheet: Worksheet, relationship: str) -> None:
+    """Put the ``<drawing>`` element in the sheet, where Excel keeps it.
+
+    It goes at the end of the sheet, after everything else Excel writes;
+    a sheet that already names a drawing is left alone.
+    """
+    text = package.read(sheet.part_name).decode("utf-8", errors="replace")
+    if "<drawing " in text:
+        return
+    element = f'<drawing r:id="{relationship}"/>'
+    if "</worksheet>" not in text:
+        return
+    package.write(sheet.part_name, text.replace("</worksheet>", element + "</worksheet>").encode("utf-8"))
+
+
 def _read_queries(book: Workbook, path: Path) -> None:
     from pyopenvba.apps.excel._model import QueryEntry
 
@@ -351,6 +527,7 @@ def save_workbook(book: Workbook, target: Path) -> None:
     if book.names_.changed:
         _write_names(book, package)
     _resize_loaded_tables(book, package)
+    _write_shapes(book, package)
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_bytes(package.serialize())
 

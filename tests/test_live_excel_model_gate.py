@@ -208,6 +208,75 @@ def test_an_edited_workbook_still_opens_with_its_query(tmp_path: Path) -> None:
         assert str(result.value) == "99|1|1"
 
 
+#: The shapes a macro makes here, which Excel then has to report back
+#: the same way.
+SHAPES = """
+Sub Draw()
+    Dim sh As Object
+    Set sh = ActiveSheet.Shapes.AddShape(1, 10, 20, 100, 50)
+    sh.Name = "Rect"
+    sh.TextFrame.Characters.Text = "Hello"
+    sh.OnAction = "Clicked"
+    Set sh = ActiveSheet.Shapes.AddShape(9, 150, 30, 60, 60)
+    sh.Name = "Oval"
+    Set sh = ActiveSheet.Shapes.AddTextbox(1, 10, 120, 120, 40)
+    sh.Name = "Box"
+    sh.TextFrame.Characters.Text = "Two" & Chr(10) & "lines"
+End Sub
+
+Public Sub Clicked()
+End Sub
+"""
+
+
+def test_excel_opens_the_shapes_this_wrote(tmp_path: Path) -> None:
+    """Shapes made by a macro here, read back by Excel from the file.
+
+    The offline tests prove the drawing markup is what we meant; only
+    Excel can say whether it opens the workbook and sees the same
+    shapes in the same places, with the macro still on the first one.
+    """
+    harness = pytest.importorskip("pyvbaharness")
+
+    app = ExcelApplication()
+    app.add_workbook()
+    app.add_module(SHAPES, name="Module1")
+    app.run("Draw")
+    ours = [
+        str(app.evaluate(f"CStr(ActiveSheet.Shapes({number}).{what})"))
+        for number in (1, 2, 3)
+        for what in ("Name", "Type", "Left", "Top", "Width", "Height", "OnAction")
+    ]
+    text = str(app.evaluate('ActiveSheet.Shapes("Box").TextFrame.Characters.Text'))
+    ours.append(text.replace(chr(10), "/"))
+
+    out = tmp_path / "shapes.xlsm"
+    app.save(out)
+
+    reader = (
+        "Public Function Report() As String\n"
+        "    Dim out As String, i As Long, what As Variant, one As Variant\n"
+        '    what = Array("Name", "Type", "Left", "Top", "Width", "Height", "OnAction")\n'
+        "    For i = 1 To 3\n"
+        "        For Each one In what\n"
+        "            out = out & CStr(CallByName(ActiveSheet.Shapes(i), CStr(one), VbGet)) & vbLf\n"
+        "        Next one\n"
+        "    Next i\n"
+        '    Dim body As String\n'
+        '    body = ActiveSheet.Shapes("Box").TextFrame.Characters.Text\n'
+        '    out = out & Replace(Replace(body, vbCr, "/"), vbLf, "/") & vbLf\n'
+        "    Report = out\n"
+        "End Function\n"
+    )
+    with harness.ExcelSession() as excel:
+        excel.open_document(out)
+        result = excel.run_vba(reader, "Report", timeout=120.0)
+        assert result.ok, f"{result.outcome}: {result.message}"
+        theirs = str(result.value).rstrip("\n").split("\n")
+
+    assert [one.replace("\r", "") for one in theirs] == ours
+
+
 #: A query that does enough to be worth comparing: a group, a sort, a
 #: derived column and a rounding, all of which the M tests measure one
 #: at a time.

@@ -94,21 +94,20 @@ done and what is not.
 The MS-OVBA gates are all PASS. What is open belongs to the newer
 interpreter work, tracked in [`vba_runtime.md`](vba_runtime.md):
 
-1. Word, PowerPoint and Access object models, each with its own measured
-   probe file, following the shape `apps/excel` set.
+1. An Access object model with its own measured probe file, following
+   the shape `apps/excel`, `apps/word` and `apps/powerpoint` set.
 2. More of the M library, which is 224 of the 859 names `#shared`
    reports. The gaps are named rather than answered wrongly, so what to
    add next is whatever a real query asks for.
-3. Shapes on every surface: adding, reading, changing and deleting them
-   in Word, PowerPoint and Excel, and attaching or detaching the VBA
-   procedure a shape runs (`Shape.OnAction`, and the equivalent on a
-   PowerPoint action setting). The file-level work is a prerequisite:
-   a shape lives in the drawing part, not in the VBA project.
-4. `WithEvents` and the document-module event handlers, so a
+3. `WithEvents` and the document-module event handlers, so a
    `Worksheet_Change` fires when a macro writes a cell.
-5. Array formulas that spill, which the calculation engine stops short
+4. Array formulas that spill, which the calculation engine stops short
    of: an array result shows its first element, as it did before
    dynamic arrays.
+5. The shapes this reads but does not make: a group, a picture and a
+   chart. All three are read, and their members and parts are reachable;
+   `ShapeRange.Group` and `AddPicture` report themselves rather than
+   writing a part they cannot yet write.
 
 ## Out of scope (no current plans)
 

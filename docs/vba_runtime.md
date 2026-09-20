@@ -4,6 +4,10 @@ pyOpenVBA reads and writes the VBA in an Office file.  This part runs
 it: a VBA interpreter, and an object model with real state behind it, so
 a macro can be executed and its effect inspected without Office.
 
+Three hosts: `ExcelApplication`, `WordApplication` and
+`PowerPointApplication`, each with its own object model and its own
+measured probe file.
+
 ```python
 from pyopenvba.apps.excel import ExcelApplication
 
@@ -21,6 +25,26 @@ app.add_workbook()
 app.add_module('Sub Main()\n    Range("A1").Value = 42\nEnd Sub\n', name="Module1")
 app.run("Main")
 app.sheet(1).value("A1")        # 42
+```
+
+Word and PowerPoint work the same way:
+
+```python
+from pyopenvba.apps.word import WordApplication
+
+app = WordApplication.open("report.docm")
+app.run("Relabel")
+print(app.describe())
+app.save("report_out.docm")
+```
+
+```python
+from pyopenvba.apps.powerpoint import PowerPointApplication
+
+app = PowerPointApplication.open("deck.pptm")
+app.run("Rebuild")
+app.slide(1).shapes()            # what is on the first slide
+app.save("deck_out.pptm")
 ```
 
 ## The three ways it can fail
@@ -133,10 +157,42 @@ replayed by `tests/test_mlang_semantics.py`.  That sweep settled these:
   why `#shared` is asked for the list of names rather than assuming the
   library is symmetric.
 
-`tests/test_live_excel_model_gate.py` asks the two questions only Excel
-can answer, behind `RUN_LIVE_EXCEL=1`: that the same macro leaves the
-same cells behind on both sides, and that a workbook written here opens
-in Excel with everything the model does not describe still in it.
+Word and PowerPoint were measured the same way, into
+`tests/fixtures/word_model` and `tests/fixtures/powerpoint_model`, with
+`python scripts/measure_vba_semantics.py word` and `powerpoint`.  Their
+answers are not each other's, which is the reason for measuring each:
+
+- A missing shape raises -2147024809 in Excel and Word, and
+  -2147188160 in PowerPoint.  Neither is 1004.
+- Word places a shape from the page and reports it against the column
+  and the paragraph, so `AddShape(1, 10, 20, 100, 50)` comes back with
+  a Left of -62 and a Top of -52 against the default inch margins.
+- Word's names for its own shapes are not Excel's: a rounded rectangle
+  is "Rectangle: Rounded Corners" and a text box is "Text Box", and the
+  number comes from a counter that does not go back down when shapes
+  are deleted.
+- `Document.Shapes` is listed by z-order, which rises as shapes are
+  added; the runs in the file hold the newest first.
+- A Word range reads with its paragraph mark, an in-line shape is one
+  Chr(1) in the text, and a floating one is no character at all.
+- Assigning `Content.Text` takes the shapes with it.  Asked of Word, a
+  document with five floating shapes and one in-line had none of either
+  afterwards.
+- PowerPoint's slide is 960 by 540 points, its `Presentation.Saved` is
+  a Long where Word's `Document.Saved` is a Boolean, and
+  `ActionSettings(1).Action` stays at ppActionRunMacro once set even
+  before a macro is named.
+
+The shapes themselves were measured by having each application build
+one of every kind it can hold and say what it then reported about each:
+`python scripts/measure_shapes.py all`, kept in
+`tests/fixtures/shapes`.
+
+Three live gates ask what only Office can answer, behind
+`RUN_LIVE_EXCEL=1`, `RUN_LIVE_WORD=1` and `RUN_LIVE_POWERPOINT=1`: that
+the same macro leaves the same state behind on both sides, that a file
+written here opens with everything the model does not describe still in
+it, and that shapes drawn here are the shapes Office reads back.
 
 ## What is implemented
 
@@ -163,9 +219,32 @@ queue the caller primed, so a macro that would have stopped for a prompt
 runs to the end and the prompt is visible afterwards.
 
 **Excel.** Application, Workbooks, Workbook, Sheets, Worksheet, Range
-with multiple areas, Font, Interior, Names, Queries, and a short list of
-worksheet functions.  Cells hold values, formulas, number formats and a
-little formatting.
+with multiple areas, Font, Interior, Names, Queries, Shapes, and a
+short list of worksheet functions.  Cells hold values, formulas, number
+formats and a little formatting.
+
+**Word.** Application, Documents, Document, Range, Paragraphs,
+Paragraph, Shapes, InlineShapes, Shape, WrapFormat, TextFrame and
+TextRange.  The text is read and can be assigned; a document whose
+text nobody assigned and whose shapes nobody moved is written back byte
+for byte, so styles, headers and numbering survive a shape edit.
+
+**PowerPoint.** Application, Presentations, Presentation, PageSetup,
+Slides, Slide, Shapes, Shape, GroupItems, TextFrame, TextRange,
+ActionSettings and ActionSetting, with `ActiveWindow.View.Slide` to
+reach the slide in view.
+
+**Shapes, on all three.** Adding, reading, moving, resizing, renaming,
+retyping and deleting: `AddShape`, `AddTextbox`, `AddLine`, and
+`AddFormControl` in Excel.  The macro a click runs is `Shape.OnAction`
+in Excel and `ActionSettings(ppMouseClick).Run` in PowerPoint; Word has
+no such thing, and says so rather than pretending.
+
+An Excel form control is four parts of the workbook at once -- the
+hidden shape in the drawing, the sheet's own record of it, a part
+saying which control it is, and the VML Excel draws it from -- and its
+macro lives in two of them.  Making one and wiring it up writes all
+four, which is what lets a button a macro created open as a button.
 
 **Formulas are calculated.** `pyopenvba.formula` parses and evaluates
 them; the workbook keeps track of which cells are stale and what feeds
@@ -200,11 +279,14 @@ app.refresh_query("Summary")      # rows, headers first
 app.save("sales_out.xlsx")
 ```
 
-**Files.** A workbook is read from `.xlsx`, `.xlsm` or `.xlam`, and
-written back with only what changed rewritten: a sheet nobody touched
-keeps its bytes, and an unchanged workbook saves byte for byte.  A
-workbook made from nothing is written from the template captured from a
-freshly Excel-authored file.
+**Files.** A workbook is read from `.xlsx`, `.xlsm` or `.xlam`, a
+document from `.docx`, `.docm` or `.dotm`, and a presentation from
+`.pptx`, `.pptm` or `.potm`, each written back with only what changed
+rewritten: a sheet, a slide or a body nobody touched keeps its bytes,
+and an unchanged file saves byte for byte.  A workbook made from
+nothing is written from the template captured from a freshly
+Excel-authored file; Word and PowerPoint have no such template yet, so
+a document or a presentation is edited rather than created.
 
 ## What is not
 
@@ -225,7 +307,17 @@ freshly Excel-authored file.
   all report themselves unsupported rather than reaching the real
   machine.
 - **`.xlsb` cells.** The binary sheet part is not read; its VBA project
-  is readable through `ExcelFile` as before.
+  is readable through `ExcelFile` as before.  The same goes for the
+  legacy `.doc`, `.ppt` and `.xls`, whose text and shapes live in
+  binary streams this does not read.
+- **No document or presentation from nothing.** Word and PowerPoint
+  open a real file and edit it; only Excel has a template to write one
+  from.
+- **Grouping is not done here.** A group in a file is read, and its
+  members are reachable through `GroupItems`, but `ShapeRange.Group`
+  reports itself rather than making one.
+- **A picture or a chart is read, not made.** `AddPicture` says so;
+  the media and the chart parts a new one needs are not written.
 - A type-suffixed name is the same variable as the name without it, so
   the implicit-typing trick where `a%` and `a$` are two variables is not
   modelled.
@@ -249,6 +341,14 @@ freshly Excel-authored file.
 | `formula/_functions.py` | The worksheet functions |
 | `apps/excel/_io.py` | Reading and writing the workbook file |
 | `apps/excel/_bridge.py` | What a project sees when Excel is the host |
+| `apps/excel/_shapes.py` | A sheet's shapes, as a macro reaches them |
+| `apps/word/` | Word's object model, its bridge and its file |
+| `apps/powerpoint/` | PowerPoint's, the same three |
+| `shapes/_values.py` | What a shape is, in all three hosts' words |
+| `shapes/_drawingml.py` | The DrawingML the three of them share |
+| `shapes/_xlsx.py` | A worksheet's drawing layer and its controls |
+| `shapes/_pptx.py` | A slide's shape tree |
+| `shapes/_docx.py` | A document's drawings, floating and in line |
 | `apps/excel/_refresh.py` | A query evaluated and landed on a sheet |
 | `mlang/_parse.py` | The M grammar |
 | `mlang/_eval.py` | Evaluating M, lazily |
@@ -257,8 +357,9 @@ freshly Excel-authored file.
 
 ## What comes next
 
-Word, PowerPoint and Access get the same shape: an object model under
-`apps/`, a bridge, and a measured probe file per host.  Shapes across
-all three hosts, with the VBA procedure a shape runs, are on the same
-list, and so are the document-module events, so that writing a cell
-from a macro fires `Worksheet_Change`.
+Access gets the same shape as the other three: an object model under
+`apps/`, a bridge, and a measured probe file.  The document-module
+events are the other open piece, so that writing a cell from a macro
+fires `Worksheet_Change`, and after that the parts of each host's model
+that no probe has reached yet -- Word's tables and headers,
+PowerPoint's slide masters, Excel's pivot tables.

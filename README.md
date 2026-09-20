@@ -531,6 +531,44 @@ Queries can name each other, `Excel.CurrentWorkbook()` reads the
 workbook's own tables and named ranges, and a source this cannot reach
 without a network or a driver reports itself rather than guessing.
 
+Word and PowerPoint run their macros too, each with its own object
+model:
+
+```python
+from pyopenvba.apps.word import WordApplication
+from pyopenvba.apps.powerpoint import PowerPointApplication
+
+doc = WordApplication.open("report.docm")
+doc.run("Relabel")
+doc.save("report_out.docm")
+
+deck = PowerPointApplication.open("deck.pptm")
+deck.run("Rebuild")
+deck.slide(1).shapes()            # what is on the first slide
+deck.save("deck_out.pptm")
+```
+
+Shapes are read and written on all three surfaces: adding, moving,
+resizing, renaming, retyping and deleting, with the macro a click runs
+attached or removed. In Excel that is `Shape.OnAction`, form-control
+buttons included; in PowerPoint it is
+`ActionSettings(ppMouseClick).Run`; Word has no macro on a shape and
+says so rather than pretending.
+
+```python
+app.add_module('''
+Sub Draw()
+    Dim sh As Object
+    Set sh = ActiveSheet.Shapes.AddFormControl(0, 100, 50, 90, 30)
+    sh.Name = "Go"
+    sh.OnAction = "Refresh"
+    sh.TextFrame.Characters.Text = "Refresh"
+End Sub
+''', name="Module1")
+app.run("Draw")
+app.save("with_button.xlsm")      # Excel opens it as a button
+```
+
 Every answer the interpreter and the calculation engine give was
 measured in live Excel rather than assumed, and a workbook nobody
 changed saves back byte for byte. What is implemented, what is not, and

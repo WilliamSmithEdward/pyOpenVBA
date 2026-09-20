@@ -7,6 +7,71 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 Nothing yet.
 
+## [6.0.0] - 2026-09-20
+
+VBA runs. Not read, not analysed: executed, against an Office
+application that lives in memory, with the file written back out
+afterwards.
+
+```python
+from pyopenvba.apps.excel import ExcelApplication
+
+app = ExcelApplication.open("report.xlsm")
+app.run("BuildReport")
+print(app.describe())
+app.save("report_out.xlsm")
+```
+
+### Added
+
+- **A VBA interpreter.** Every statement form, the runtime library, and
+  three separate failures: `VBACompileError` for VBA that does not
+  compile, `VBARuntimeError` carrying the number `Err` would hold, and
+  `VBAUnsupportedError` for real VBA this does not implement, which
+  `On Error` deliberately cannot trap. An unknown member is told apart
+  by the type library rather than guessed: `Worksheet.PivotTables` is
+  unsupported, `Worksheet.Pivottabel` is VBA's own error 438.
+
+- **Excel, Word and PowerPoint object models**, each with real state
+  behind it, each measured against its own application. Cells, ranges,
+  names, queries, sheets; a document's text, paragraphs and ranges; a
+  presentation's slides. `ExcelApplication`, `WordApplication` and
+  `PowerPointApplication` open a file, run a macro and write it back.
+
+- **A calculation engine.** A macro can write a formula and read the
+  answer. Calculation is on demand, writing a cell spoils whatever
+  reads it, and about a hundred worksheet functions are implemented;
+  anything else Excel has says so by name rather than answering
+  `#NAME?`.
+
+- **A Power Query evaluator.** `WorkbookQuery.Refresh` works out the
+  query's M and lands its rows on the sheet it loads to, with the table
+  and its queryTable following. Queries can name each other and
+  `Excel.CurrentWorkbook()` reads the workbook's own tables. Nothing
+  reaches off the machine: the connectors report themselves.
+
+- **Shapes on all three surfaces.** Adding, reading, moving, resizing,
+  renaming, retyping and deleting, with the macro a click runs attached
+  or removed -- `Shape.OnAction` in Excel, form-control buttons
+  included, and `ActionSettings(ppMouseClick).Run` in PowerPoint. Word
+  has no macro on a shape and says so. An Excel form control is written
+  as its four parts, so a button a macro made opens as a button.
+
+Every answer was measured in the application itself rather than
+reasoned about: 246 VBA expressions, 223 formulas, 160 Excel object
+model probes, 46 PowerPoint, 43 Word, 259 Power Query expressions and a
+shape fixture per host, all committed so the tests need no Office.
+Seven live gates behind `RUN_LIVE_EXCEL`, `RUN_LIVE_WORD` and
+`RUN_LIVE_POWERPOINT` ask what only Office can answer.
+
+### Changed
+
+- `WorkbookQuery.Refresh` evaluates the query instead of reporting
+  itself unsupported.
+- A date is written out rather than handed to `strftime`, whose way of
+  asking for a number without its leading zero is Windows-only. The
+  Access SQL writer had the same defect and the same fix.
+
 ## [5.2.4] - 2026-09-17
 
 Two defects in the member list beside a form or report, the stream that

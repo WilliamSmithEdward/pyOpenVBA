@@ -670,6 +670,11 @@ class Worksheet(ExcelObject):
         self.dirty = False
         #: The shapes on the sheet, in the order the drawing holds them.
         self.shapes_: list[ShapeState] = []
+        #: How many shapes have been added here, which is where the next
+        #: one's number comes from.  It does not go back down when one
+        #: is deleted, and it belongs to the sheet rather than to the
+        #: workbook: both measured in live Excel.
+        self.shape_count = 0
         #: The drawing part they came from, and its markup, so one that
         #: nobody touched is written back exactly as it arrived.
         self.drawing_part = ""

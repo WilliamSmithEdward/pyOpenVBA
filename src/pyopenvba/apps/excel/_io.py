@@ -322,6 +322,9 @@ def _read_shapes(sheet: Worksheet, package: OpcFile, sheet_xml: str) -> None:
     sheet.drawing_part = part
     sheet.drawing_xml = package.read(part).decode("utf-8", errors="replace")
     sheet.shapes_ = read_drawing(sheet.drawing_xml, grid_of(sheet_xml))
+    # The counter a new shape's name comes from carries on from what is
+    # already there rather than starting again at one.
+    sheet.shape_count = len(sheet.shapes_)
     parts = _control_parts(package, sheet.part_name)
     controls = read_controls(sheet_xml, parts)
     for shape in sheet.shapes_:

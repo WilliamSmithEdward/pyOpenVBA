@@ -53,6 +53,9 @@ def load_presentation(application: Application, path: Path) -> Presentation:
         slide.slide_xml = package.read(part).decode("utf-8", errors="replace")
         slide.layout_xml = _layout_of(package, part)
         slide.shapes_ = read_slide(slide.slide_xml, slide.layout_xml)
+        # The counter a new shape's name comes from carries on from what
+        # is already on the slide.
+        slide.shape_count = len(slide.shapes_)
         slide.dirty = False
     presentation.saved = -1
     return presentation

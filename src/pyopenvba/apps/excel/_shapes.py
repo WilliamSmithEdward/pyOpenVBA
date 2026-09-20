@@ -27,31 +27,16 @@ from pyopenvba.interpreter._values import (
     to_number,
     to_text,
 )
-from pyopenvba.shapes._values import PRESET_GEOMETRY, Shape
+from pyopenvba.shapes._values import PRESET_GEOMETRY, SHAPE_NAMES, Shape
 from pyopenvba.shapes._xlsx import FIRST_CONTROL_ID
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Worksheet
 
 #: What Excel calls a new shape, by the msoShapeType it was asked for.
-#: Measured: AddShape(1) is "Rectangle 1", AddShape(5) is "Rounded
-#: Rectangle 1", AddShape(9) is "Oval 1".
-AUTO_SHAPE_NAMES: dict[int, str] = {
-    1: "Rectangle",
-    2: "Parallelogram",
-    3: "Trapezoid",
-    4: "Diamond",
-    5: "Rounded Rectangle",
-    6: "Octagon",
-    7: "Isosceles Triangle",
-    8: "Right Triangle",
-    9: "Oval",
-    10: "Hexagon",
-    11: "Cross",
-    12: "5-Point Star",
-    16: "Can",
-    17: "Cube",
-}
+#: Measured in live Excel by scripts/measure_shape_types.py, which is
+#: also where PowerPoint's identical list comes from.
+AUTO_SHAPE_NAMES = SHAPE_NAMES
 
 #: What Excel calls a new one of each other kind.
 KIND_NAMES: dict[str, str] = {
@@ -228,16 +213,16 @@ class Shapes(VBACollection):
         return shape
 
     def _free_name(self, stem: str) -> str:
-        """The name Excel would give the next shape of this kind.
+        """The name Excel would give the next shape.
 
-        Excel counts within the kind and within the sheet, so a second
-        rectangle is "Rectangle 2" even when an oval was added between.
+        One counter per sheet, over every kind: a rectangle and then an
+        oval are "Rectangle 1" and "Oval 2".  It does not go back down
+        when shapes are deleted -- delete both of those and the next
+        rectangle is "Rectangle 3" -- and a new sheet starts again at
+        one.  Measured in live Excel, and the same in all three hosts.
         """
-        taken = {one.name for one in self.sheet.shapes_}
-        number = 1
-        while f"{stem} {number}" in taken:
-            number += 1
-        return f"{stem} {number}"
+        self.sheet.shape_count += 1
+        return f"{stem} {self.sheet.shape_count}"
 
     def _free_id(self) -> int:
         return max((one.shape_id for one in self.sheet.shapes_), default=1) + 1

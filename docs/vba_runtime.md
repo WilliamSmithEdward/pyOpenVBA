@@ -168,9 +168,18 @@ answers are not each other's, which is the reason for measuring each:
   and the paragraph, so `AddShape(1, 10, 20, 100, 50)` comes back with
   a Left of -62 and a Top of -52 against the default inch margins.
 - Word's names for its own shapes are not Excel's: a rounded rectangle
-  is "Rectangle: Rounded Corners" and a text box is "Text Box", and the
-  number comes from a counter that does not go back down when shapes
-  are deleted.
+  is "Rectangle: Rounded Corners", a can is a "Cylinder" and a text box
+  is "Text Box".  PowerPoint's are Excel's, every one of them.
+- A new shape's number comes from one counter per sheet, slide or
+  document, over every kind.  A rectangle and then an oval are
+  "Rectangle 1" and "Oval 2"; delete both and the next rectangle is
+  "Rectangle 3"; a new sheet or slide starts again at one.  The same
+  rule in all three hosts.
+- The preset geometry behind an msoShapeType is not guessable from its
+  name, and several presets belong to a shape other than the one they
+  sound like: 11 is `plus`, 12 is `pentagon`, and `star5` is 92.  The
+  whole table was read out of files Office saved, by
+  `python scripts/measure_shape_types.py`.
 - `Document.Shapes` is listed by z-order, which rises as shapes are
   added; the runs in the file hold the newest first.
 - A Word range reads with its paragraph mark, an in-line shape is one

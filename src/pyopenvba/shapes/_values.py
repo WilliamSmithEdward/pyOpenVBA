@@ -55,24 +55,77 @@ MSO_TYPE: dict[str, int] = {
     "table": 19,
 }
 
-#: The preset geometry behind the msoShapeType a macro asks for.  Only
-#: the ones this can write are here; reading carries whatever the file
-#: holds, named or not.
+#: The preset geometry behind the msoShapeType a macro asks for.
+#:
+#: Measured rather than reasoned about, by `scripts/measure_shape_types.py`:
+#: it adds one of each in live Office and reads the `a:prstGeom` back out
+#: of the file.  The two names are not related, and several of the
+#: presets belong to a different shape than their name suggests -- 11 is
+#: `plus` and not `cross`, 12 is `pentagon` and not `star5`, and `star5`
+#: is 92.  Only the ones this can write are here; reading carries
+#: whatever the file holds, named or not.
 PRESET_GEOMETRY: dict[int, str] = {
     1: "rect",  # msoShapeRectangle
-    5: "roundRect",  # msoShapeRoundedRectangle
-    9: "ellipse",  # msoShapeOval
     2: "parallelogram",
     3: "trapezoid",
     4: "diamond",
+    5: "roundRect",  # msoShapeRoundedRectangle
     6: "octagon",
-    7: "triangle",
+    7: "triangle",  # msoShapeIsoscelesTriangle
     8: "rtTriangle",
+    9: "ellipse",  # msoShapeOval
     10: "hexagon",
-    11: "cross",
-    12: "star5",
-    16: "can",
-    17: "cube",
+    11: "plus",  # msoShapeCross
+    12: "pentagon",  # msoShapeRegularPentagon
+    13: "can",
+    14: "cube",
+    15: "bevel",
+    16: "foldedCorner",
+    17: "smileyFace",
+    18: "donut",
+    19: "noSmoking",
+    20: "blockArc",
+    92: "star5",  # msoShape5pointStar
+}
+
+#: What Excel and PowerPoint call a new shape of each type.  The two
+#: agree on every one of them; Word does not, so it has its own table.
+SHAPE_NAMES: dict[int, str] = {
+    1: "Rectangle",
+    2: "Parallelogram",
+    3: "Trapezoid",
+    4: "Diamond",
+    5: "Rounded Rectangle",
+    6: "Octagon",
+    7: "Isosceles Triangle",
+    8: "Right Triangle",
+    9: "Oval",
+    10: "Hexagon",
+    11: "Cross",
+    12: "Regular Pentagon",
+    13: "Can",
+    14: "Cube",
+    15: "Bevel",
+    16: "Folded Corner",
+    17: "Smiley Face",
+    18: "Donut",
+    19: '"No" Symbol',
+    20: "Block Arc",
+    92: "5-Point Star",
+}
+
+#: Word's own names for the same shapes.  It renamed several of them
+#: and leaves the rest alone.
+WORD_SHAPE_NAMES: dict[int, str] = {
+    **SHAPE_NAMES,
+    5: "Rectangle: Rounded Corners",
+    12: "Pentagon",
+    13: "Cylinder",
+    15: "Rectangle: Beveled",
+    16: "Rectangle: Folded Corner",
+    18: "Circle: Hollow",
+    19: '"Not Allowed" Symbol',
+    92: "Star: 5 Points",
 }
 
 

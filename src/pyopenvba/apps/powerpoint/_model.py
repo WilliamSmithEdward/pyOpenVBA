@@ -28,29 +28,16 @@ from pyopenvba.interpreter._values import (
     to_number,
     to_text,
 )
-from pyopenvba.shapes._values import PRESET_GEOMETRY, Shape
+from pyopenvba.shapes._values import PRESET_GEOMETRY, SHAPE_NAMES, Shape
 
 #: PowerPoint raises this for a shape that is not there, by name or by
 #: number.  Measured: it is not Excel's number and not 1004.
 ERR_NO_SUCH_SHAPE = -2147188160
 
 #: What PowerPoint calls a new shape, by the msoShapeType asked for.
-AUTO_SHAPE_NAMES: dict[int, str] = {
-    1: "Rectangle",
-    2: "Parallelogram",
-    3: "Trapezoid",
-    4: "Diamond",
-    5: "Rounded Rectangle",
-    6: "Octagon",
-    7: "Isosceles Triangle",
-    8: "Right Triangle",
-    9: "Oval",
-    10: "Hexagon",
-    11: "Cross",
-    12: "5-Point Star",
-    16: "Can",
-    17: "Cube",
-}
+#: Measured in live PowerPoint, which names every one of them exactly
+#: as Excel does; Word is the one that differs.
+AUTO_SHAPE_NAMES = SHAPE_NAMES
 
 #: A 16:9 slide, which is what PowerPoint makes now: 960 by 540 points.
 DEFAULT_SLIDE_WIDTH = 960.0
@@ -374,6 +361,10 @@ class Slide(PowerPointObject):
         self.layout = layout
         self.slide_name = f"Slide{number or len(presentation.slides_) + 1}"
         self.shapes_: list[Shape] = []
+        #: How many shapes have been added here, which is where the next
+        #: one's number comes from.  Per slide, and it does not go back
+        #: down when one is deleted.
+        self.shape_count = 0
         #: The part this slide came from and its markup, so a slide
         #: nobody touched is written back exactly as it arrived.
         self.part_name = ""
@@ -555,11 +546,14 @@ class Shapes(VBACollection, PowerPointObject):
         return shape
 
     def _free_name(self, stem: str) -> str:
-        taken = {one.name for one in self.slide.shapes_}
-        number = 1
-        while f"{stem} {number}" in taken:
-            number += 1
-        return f"{stem} {number}"
+        """The name PowerPoint would give the next shape.
+
+        One counter per slide, over every kind, which does not go back
+        down when shapes are deleted; a new slide starts again at one.
+        Measured, and the same rule as Excel's and Word's.
+        """
+        self.slide.shape_count += 1
+        return f"{stem} {self.slide.shape_count}"
 
 
 class ShapeObject(PowerPointObject):

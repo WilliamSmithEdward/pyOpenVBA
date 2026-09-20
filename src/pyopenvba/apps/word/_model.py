@@ -30,30 +30,16 @@ from pyopenvba.interpreter._values import (
     to_text,
 )
 from pyopenvba.shapes._docx_text import DEFAULT_MARGIN_POINTS
-from pyopenvba.shapes._values import PRESET_GEOMETRY, Shape
+from pyopenvba.shapes._values import PRESET_GEOMETRY, WORD_SHAPE_NAMES, Shape
 
 #: Word raises this for a shape that is not there, by name or number.
 ERR_NO_SUCH_SHAPE = -2147024809
 
 #: What Word calls a new shape, by the msoShapeType asked for.  Word's
 #: own names, which are not Excel's: a rounded rectangle is "Rectangle:
-#: Rounded Corners" and a text box is "Text Box", with the space.
-AUTO_SHAPE_NAMES: dict[int, str] = {
-    1: "Rectangle",
-    2: "Parallelogram",
-    3: "Trapezoid",
-    4: "Diamond",
-    5: "Rectangle: Rounded Corners",
-    6: "Octagon",
-    7: "Isosceles Triangle",
-    8: "Right Triangle",
-    9: "Oval",
-    10: "Hexagon",
-    11: "Cross",
-    12: "Star: 5 Points",
-    16: "Can",
-    17: "Cube",
-}
+#: Rounded Corners", a can is a "Cylinder", and a text box is "Text
+#: Box", with the space.  Measured by scripts/measure_shape_types.py.
+AUTO_SHAPE_NAMES = WORD_SHAPE_NAMES
 
 #: wdRelativeHorizontalPositionColumn and its vertical twin, which is
 #: what a shape added by a macro is placed against.

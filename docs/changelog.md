@@ -59,8 +59,9 @@ app.save("report_out.xlsm")
 
 Every answer was measured in the application itself rather than
 reasoned about: 245 VBA expressions, 223 formulas, 160 Excel object
-model probes, 46 PowerPoint, 43 Word, 269 Power Query expressions and a
-shape fixture per host, all committed so the tests need no Office.
+model probes, 46 PowerPoint, 43 Word, 269 Power Query expressions, one
+of every shape type in all three hosts, and a shape fixture per host,
+all committed so the tests need no Office.
 Seven live gates behind `RUN_LIVE_EXCEL`, `RUN_LIVE_WORD` and
 `RUN_LIVE_POWERPOINT` ask what only Office can answer.
 

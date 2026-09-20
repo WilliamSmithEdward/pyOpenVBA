@@ -135,6 +135,11 @@ class Shape:
     #: Where the shape's markup was, so an untouched one is written
     #: back exactly as it came in.
     source: str = ""
+    #: Where in the part that markup started.
+    source_at: int = 0
+    #: Word only: the anchor's relativeHeight, which is the order Word
+    #: reports its floating shapes in.  It rises as shapes are added.
+    z_order: int = 0
 
     @property
     def mso_type(self) -> int:

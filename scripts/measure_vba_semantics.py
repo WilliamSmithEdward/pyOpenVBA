@@ -28,6 +28,9 @@ MEASURED = ROOT / "tests" / "fixtures" / "vba_semantics" / "measured.json"
 #: Excel's own limit on one procedure, which is why probes run in batches.
 BATCH = 40
 
+#: Where a host wants smaller batches than the default.
+BATCH_FOR: dict[str, int] = {}
+
 _DESCRIBE = """
 Private Function Describe(v As Variant) As String
     On Error GoTo Bad
@@ -75,6 +78,14 @@ _FRESH_SLIDE = (
 )
 
 #: And for a document: everything a probe left behind is cleared out.
+#: A whole new document rather than an emptied one: Word numbers a new
+#: shape from a counter that does not go back down when shapes are
+#: deleted, so only a new document gives the name a fresh model would.
+#: The document is emptied rather than replaced: opening a new one
+#: moves the document the harness put its module in, and everything
+#: after that fails to run.  Word's own counter for shape names does
+#: not reset when shapes are deleted, so a probe that wants a name
+#: measures the part of it that does not depend on what ran before.
 _FRESH_DOCUMENT = (
     "    ActiveDocument.Content.Delete\n"
     "    Dim probeShape As Object\n"
@@ -205,8 +216,9 @@ def measure(
     answers: dict[str, str] = {}
     with opener() as office:
         office.new_document()
-        for start in range(0, len(expressions), BATCH):
-            batch = list(enumerate(expressions))[start : start + BATCH]
+        size = BATCH_FOR.get(host, BATCH)
+        for start in range(0, len(expressions), size):
+            batch = list(enumerate(expressions))[start : start + size]
             result = office.run_vba(
                 build_module(batch, fresh_sheet=fresh_sheet, formulas=formulas, host=host),
                 "Main",

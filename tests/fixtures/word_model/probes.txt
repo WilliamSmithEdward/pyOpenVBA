@@ -1,0 +1,65 @@
+# One probe per line: VBA statements, then ``;;``, then the expression
+# whose answer is recorded.  Each probe gets a document cleared of
+# everything the probe before it left.
+#
+# Measured in live Word by ``python scripts/measure_vba_semantics.py
+# word`` and replayed against the in-memory model by
+# tests/test_word_model.py.
+
+# --- the application and what it holds ---
+;; TypeName(Application)
+;; Application.Name
+;; TypeName(ActiveDocument)
+;; TypeName(ActiveDocument.Shapes)
+;; TypeName(ActiveDocument.InlineShapes)
+;; ActiveDocument.Shapes.Count
+;; ActiveDocument.InlineShapes.Count
+;; TypeName(ActiveDocument.Content)
+;; ActiveDocument.Saved
+
+# --- text ---
+ActiveDocument.Content.Text = "Hello" ;; ActiveDocument.Content.Text
+ActiveDocument.Content.Text = "Hello" ;; Len(ActiveDocument.Content.Text)
+ActiveDocument.Content.Text = "One" & vbCr & "Two" ;; ActiveDocument.Paragraphs.Count
+ActiveDocument.Content.Text = "One" & vbCr & "Two" ;; ActiveDocument.Paragraphs(1).Range.Text
+ActiveDocument.Content.Text = "Hello" ;; ActiveDocument.Range(0, 2).Text
+ActiveDocument.Content.Text = "Hello" ;; ActiveDocument.Content.Start
+ActiveDocument.Content.Text = "Hello" ;; ActiveDocument.Content.End
+
+# --- shapes ---
+# Word reports Left and Top against the column and the paragraph, and
+# AddShape places from the page, so the numbers here come back shifted
+# by the margins.
+#
+# A shape's name is its kind and a number, and the number comes from a
+# counter Word keeps per document that does not go back down when a
+# shape is deleted.  These probes ask for the part of the name that
+# does not depend on what ran before: the kind, and the step between
+# two names made one after the other.
+;; Left(ActiveDocument.Shapes.AddShape(1, 10, 20, 100, 50).Name, 9)
+;; Left(ActiveDocument.Shapes.AddShape(5, 10, 20, 100, 50).Name, 26)
+;; Left(ActiveDocument.Shapes.AddShape(9, 10, 20, 100, 50).Name, 4)
+;; Left(ActiveDocument.Shapes.AddTextbox(1, 10, 20, 100, 50).Name, 8)
+;; Left(ActiveDocument.Shapes.AddLine(10, 20, 100, 50).Name, 19)
+Dim n1 As String, n2 As String: n1 = ActiveDocument.Shapes.AddShape(1, 0, 0, 10, 10).Name: n2 = ActiveDocument.Shapes.AddShape(1, 0, 0, 10, 10).Name ;; CLng(Mid(n2, 11)) - CLng(Mid(n1, 11))
+ActiveDocument.Shapes.AddShape 1, 10, 20, 100, 50 ;; ActiveDocument.Shapes.Count
+ActiveDocument.Shapes.AddShape 1, 10, 20, 100, 50 ;; TypeName(ActiveDocument.Shapes(1))
+ActiveDocument.Shapes.AddShape 1, 10, 20, 100, 50 ;; ActiveDocument.Shapes(1).Type
+ActiveDocument.Shapes.AddTextbox 1, 10, 20, 100, 50 ;; ActiveDocument.Shapes(1).Type
+ActiveDocument.Shapes.AddLine 10, 20, 100, 50 ;; ActiveDocument.Shapes(1).Type
+ActiveDocument.Shapes.AddShape 1, 10, 20, 100, 50 ;; ActiveDocument.Shapes(1).Left
+ActiveDocument.Shapes.AddShape 1, 10, 20, 100, 50 ;; ActiveDocument.Shapes(1).Top
+ActiveDocument.Shapes.AddShape 1, 10, 20, 100, 50 ;; ActiveDocument.Shapes(1).Width
+ActiveDocument.Shapes.AddShape 1, 10, 20, 100, 50 ;; ActiveDocument.Shapes(1).Height
+ActiveDocument.Shapes.AddShape 1, 10, 20, 100, 50 ;; ActiveDocument.Shapes(1).ZOrderPosition
+ActiveDocument.Shapes.AddShape 1, 10, 20, 100, 50 ;; ActiveDocument.Shapes(1).AutoShapeType
+ActiveDocument.Shapes.AddShape 1, 10, 20, 100, 50 ;; ActiveDocument.Shapes(1).RelativeHorizontalPosition
+ActiveDocument.Shapes.AddShape 1, 10, 20, 100, 50 ;; ActiveDocument.Shapes(1).RelativeVerticalPosition
+ActiveDocument.Shapes.AddShape(1, 10, 20, 100, 50).Name = "Box" ;; ActiveDocument.Shapes("Box").Left
+ActiveDocument.Shapes.AddShape(1, 10, 20, 100, 50).TextFrame.TextRange.Text = "Hi" ;; ActiveDocument.Shapes(1).TextFrame.TextRange.Text
+ActiveDocument.Shapes.AddShape(1, 10, 20, 100, 50).Left = 40 ;; ActiveDocument.Shapes(1).Left
+ActiveDocument.Shapes.AddShape 1, 10, 20, 100, 50: ActiveDocument.Shapes(1).Delete ;; ActiveDocument.Shapes.Count
+ActiveDocument.Shapes.AddShape 1, 10, 20, 100, 50 ;; ActiveDocument.Shapes("NoSuchShape").Name
+ActiveDocument.Shapes.AddShape 1, 10, 20, 100, 50 ;; ActiveDocument.Shapes(2).Name
+ActiveDocument.Shapes.AddShape 1, 10, 20, 100, 50 ;; TypeName(ActiveDocument.Shapes(1).TextFrame)
+ActiveDocument.Shapes.AddShape 1, 10, 20, 100, 50 ;; ActiveDocument.Shapes(1).WrapFormat.Type

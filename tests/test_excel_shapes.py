@@ -161,6 +161,19 @@ def test_a_form_controls_macro_reaches_both_parts_that_hold_it(tmp_path: Path) -
     assert again.evaluate('Worksheets(1).Shapes("Check1").OnAction') == "Clicked"
 
 
+def test_a_form_controls_macro_can_be_taken_off_again(tmp_path: Path) -> None:
+    """Unlinking has to reach both parts as well, or the click still runs."""
+    app = opened(tmp_path)
+    macro(app, '    Worksheets(1).Shapes("Button1").OnAction = ""')
+    out = tmp_path / "unwired.xlsm"
+    app.save(out)
+
+    package = zipfile.ZipFile(out)
+    assert "macro=" not in package.read("xl/worksheets/sheet1.xml").decode("utf-8")
+    assert "<x:FmlaMacro>" not in package.read("xl/drawings/vmlDrawing1.vml").decode("utf-8")
+    assert ExcelApplication.open(out).evaluate('Worksheets(1).Shapes("Button1").OnAction') == ""
+
+
 def test_a_form_control_can_be_made_from_nothing(tmp_path: Path) -> None:
     """Four parts make a control: drawing, sheet record, part, VML."""
     app = ExcelApplication()

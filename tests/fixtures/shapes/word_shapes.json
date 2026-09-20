@@ -1,0 +1,66 @@
+{
+  "host": "word",
+  "file": "word_shapes.docm",
+  "shapes": [
+    {
+      "name": "Rect",
+      "type": "1",
+      "left": "-32",
+      "top": "-12",
+      "width": "120",
+      "height": "50",
+      "placement": "anchored",
+      "text": "Hello\\n"
+    },
+    {
+      "name": "Oval",
+      "type": "1",
+      "left": "128",
+      "top": "-12",
+      "width": "70",
+      "height": "70",
+      "placement": "anchored",
+      "text": "\\n"
+    },
+    {
+      "name": "Box",
+      "type": "17",
+      "left": "-32",
+      "top": "78",
+      "width": "140",
+      "height": "40",
+      "placement": "anchored",
+      "text": "Two\\nlines\\n"
+    },
+    {
+      "name": "Line1",
+      "type": "9",
+      "left": "-32",
+      "top": "158",
+      "width": "180",
+      "height": "30",
+      "placement": "anchored",
+      "text": ""
+    },
+    {
+      "name": "Plain1",
+      "type": "1",
+      "left": "228",
+      "top": "-12",
+      "width": "40",
+      "height": "40",
+      "placement": "anchored",
+      "text": "\\n"
+    },
+    {
+      "name": "inline1",
+      "type": "6",
+      "left": "",
+      "top": "",
+      "width": "-1",
+      "height": "1.5",
+      "placement": "inline",
+      "text": ""
+    }
+  ]
+}

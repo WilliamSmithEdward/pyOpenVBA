@@ -1,0 +1,76 @@
+{
+  "host": "powerpoint",
+  "file": "powerpoint_shapes.pptm",
+  "shapes": [
+    {
+      "name": "Title 1",
+      "type": "14",
+      "left": "120",
+      "top": "88.38",
+      "width": "720",
+      "height": "188",
+      "macro": "",
+      "text": ""
+    },
+    {
+      "name": "Subtitle 2",
+      "type": "14",
+      "left": "120",
+      "top": "283.63",
+      "width": "720",
+      "height": "130.37",
+      "macro": "",
+      "text": ""
+    },
+    {
+      "name": "Rect",
+      "type": "1",
+      "left": "20",
+      "top": "30",
+      "width": "120",
+      "height": "60",
+      "macro": "Clicked",
+      "text": "Hello"
+    },
+    {
+      "name": "Oval",
+      "type": "1",
+      "left": "200",
+      "top": "30",
+      "width": "80",
+      "height": "80",
+      "macro": "",
+      "text": ""
+    },
+    {
+      "name": "Box",
+      "type": "17",
+      "left": "20",
+      "top": "120",
+      "width": "160",
+      "height": "50.89",
+      "macro": "",
+      "text": "Two\\nlines"
+    },
+    {
+      "name": "Line1",
+      "type": "9",
+      "left": "20",
+      "top": "200",
+      "width": "180",
+      "height": "40",
+      "macro": "",
+      "text": ""
+    },
+    {
+      "name": "Group1",
+      "type": "6",
+      "left": "320",
+      "top": "30",
+      "width": "40",
+      "height": "90",
+      "macro": "",
+      "text": ""
+    }
+  ]
+}

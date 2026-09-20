@@ -750,6 +750,14 @@ PyPI when a `v*.*.*` tag is pushed.
 
 ---
 
+## Built with this
+
+[xlide-mcp](https://github.com/WilliamSmithEdward/xlide_mcp)
+is an MCP server built on this. It gives an AI agent the VBA, the
+UserForms and the Power Query inside an Office file, so a model can read
+a macro, rewrite it and save it back without anyone exporting modules by
+hand. Every container this library opens is one that server can reach.
+
 ## License
 
 [MIT](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/LICENSE.md).

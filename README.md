@@ -569,10 +569,10 @@ app.run("Draw")
 app.save("with_button.xlsm")      # Excel opens it as a button
 ```
 
-Every answer the interpreter and the calculation engine give was
-measured in live Excel rather than assumed, and a workbook nobody
-changed saves back byte for byte. What is implemented, what is not, and
-how it was measured is in
+Every answer the interpreter, the calculation engine and the three
+object models give was measured in the application itself rather than
+assumed, and a file nobody changed saves back byte for byte. What is
+implemented, what is not, and how it was measured is in
 [docs/vba_runtime.md](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/docs/vba_runtime.md).
 
 ---

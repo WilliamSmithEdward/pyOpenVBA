@@ -1,0 +1,61 @@
+# One probe per line: VBA statements, then ``;;``, then the expression
+# whose answer is recorded.  Each probe gets a freshly added blank
+# slide, so nothing leaks from the probe before it.
+#
+# Measured in live PowerPoint by ``python scripts/measure_vba_semantics.py
+# powerpoint`` and replayed against the in-memory model by
+# tests/test_powerpoint_model.py.
+
+# --- the application and what it holds ---
+;; TypeName(Application)
+;; Application.Name
+;; TypeName(ActivePresentation)
+;; TypeName(ActivePresentation.Slides)
+;; TypeName(ActivePresentation.Slides(1))
+;; ActivePresentation.Slides.Count > 0
+;; ActivePresentation.Slides(1).SlideIndex
+;; TypeName(ActivePresentation.PageSetup)
+;; ActivePresentation.PageSetup.SlideWidth
+;; ActivePresentation.PageSetup.SlideHeight
+;; ActivePresentation.Saved
+
+# --- slides ---
+;; ActiveWindow.View.Slide.SlideIndex
+ActivePresentation.Slides.Add ActivePresentation.Slides.Count + 1, 12 ;; ActivePresentation.Slides(ActivePresentation.Slides.Count).Layout
+ActivePresentation.Slides.Add ActivePresentation.Slides.Count + 1, 12 ;; ActivePresentation.Slides(ActivePresentation.Slides.Count).Shapes.Count
+;; ActivePresentation.Slides(1).Name
+;; TypeName(ActivePresentation.Slides(1).Shapes)
+
+# --- shapes on a slide ---
+;; ActiveWindow.View.Slide.Shapes.Count
+;; ActiveWindow.View.Slide.Shapes.AddShape(1, 10, 20, 100, 50).Name
+;; ActiveWindow.View.Slide.Shapes.AddShape(5, 10, 20, 100, 50).Name
+;; ActiveWindow.View.Slide.Shapes.AddShape(9, 10, 20, 100, 50).Name
+;; ActiveWindow.View.Slide.Shapes.AddTextbox(1, 10, 20, 100, 50).Name
+;; ActiveWindow.View.Slide.Shapes.AddLine(10, 20, 100, 50).Name
+ActiveWindow.View.Slide.Shapes.AddShape 1, 10, 20, 100, 50 ;; ActiveWindow.View.Slide.Shapes.AddShape(1, 0, 0, 10, 10).Name
+ActiveWindow.View.Slide.Shapes.AddShape 1, 10, 20, 100, 50 ;; ActiveWindow.View.Slide.Shapes.Count
+ActiveWindow.View.Slide.Shapes.AddShape 1, 10, 20, 100, 50 ;; TypeName(ActiveWindow.View.Slide.Shapes(1))
+ActiveWindow.View.Slide.Shapes.AddShape 1, 10, 20, 100, 50 ;; ActiveWindow.View.Slide.Shapes(1).Type
+ActiveWindow.View.Slide.Shapes.AddTextbox 1, 10, 20, 100, 50 ;; ActiveWindow.View.Slide.Shapes(1).Type
+ActiveWindow.View.Slide.Shapes.AddLine 10, 20, 100, 50 ;; ActiveWindow.View.Slide.Shapes(1).Type
+ActiveWindow.View.Slide.Shapes.AddShape 1, 10, 20, 100, 50 ;; ActiveWindow.View.Slide.Shapes(1).Left
+ActiveWindow.View.Slide.Shapes.AddShape 1, 10, 20, 100, 50 ;; ActiveWindow.View.Slide.Shapes(1).Top
+ActiveWindow.View.Slide.Shapes.AddShape 1, 10, 20, 100, 50 ;; ActiveWindow.View.Slide.Shapes(1).Width
+ActiveWindow.View.Slide.Shapes.AddShape 1, 10, 20, 100, 50 ;; ActiveWindow.View.Slide.Shapes(1).Height
+ActiveWindow.View.Slide.Shapes.AddShape 1, 10, 20, 100, 50 ;; ActiveWindow.View.Slide.Shapes(1).ZOrderPosition
+ActiveWindow.View.Slide.Shapes.AddShape 1, 10, 20, 100, 50 ;; ActiveWindow.View.Slide.Shapes(1).AutoShapeType
+ActiveWindow.View.Slide.Shapes.AddShape(1, 10, 20, 100, 50).Name = "Box" ;; ActiveWindow.View.Slide.Shapes("Box").Left
+ActiveWindow.View.Slide.Shapes.AddShape(1, 10, 20, 100, 50).TextFrame.TextRange.Text = "Hi" ;; ActiveWindow.View.Slide.Shapes(1).TextFrame.TextRange.Text
+ActiveWindow.View.Slide.Shapes.AddShape(1, 10, 20, 100, 50).Left = 40 ;; ActiveWindow.View.Slide.Shapes(1).Left
+ActiveWindow.View.Slide.Shapes.AddShape 1, 10, 20, 100, 50: ActiveWindow.View.Slide.Shapes(1).Delete ;; ActiveWindow.View.Slide.Shapes.Count
+ActiveWindow.View.Slide.Shapes.AddShape 1, 10, 20, 100, 50 ;; ActiveWindow.View.Slide.Shapes("NoSuchShape").Name
+ActiveWindow.View.Slide.Shapes.AddShape 1, 10, 20, 100, 50 ;; ActiveWindow.View.Slide.Shapes(2).Name
+ActiveWindow.View.Slide.Shapes.AddShape 1, 10, 20, 100, 50 ;; ActiveWindow.View.Slide.Shapes(1).HasTextFrame
+
+# --- the macro a click runs ---
+ActiveWindow.View.Slide.Shapes.AddShape 1, 10, 20, 100, 50 ;; ActiveWindow.View.Slide.Shapes(1).ActionSettings(1).Action
+ActiveWindow.View.Slide.Shapes.AddShape 1, 10, 20, 100, 50 ;; ActiveWindow.View.Slide.Shapes(1).ActionSettings(1).Run
+ActiveWindow.View.Slide.Shapes.AddShape(1, 10, 20, 100, 50).ActionSettings(1).Run = "Go" ;; ActiveWindow.View.Slide.Shapes(1).ActionSettings(1).Run
+ActiveWindow.View.Slide.Shapes.AddShape(1, 10, 20, 100, 50).ActionSettings(1).Action = 8 ;; ActiveWindow.View.Slide.Shapes(1).ActionSettings(1).Action
+;; TypeName(ActiveWindow.View.Slide.Shapes.AddShape(1, 10, 20, 100, 50).ActionSettings(1))

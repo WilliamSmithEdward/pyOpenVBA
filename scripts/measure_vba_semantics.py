@@ -65,14 +65,41 @@ _FRESH_SHEET = (
     "    probeSheet.Activate\n"
 )
 
+#: The same for a slide: each probe gets one nobody has drawn on.  Layout
+#: 12 is ppLayoutBlank, so nothing is on it but what the probe adds.
+_FRESH_SLIDE = (
+    "    Dim probeSlide As Object\n"
+    "    Set probeSlide = ActivePresentation.Slides.Add("
+    "ActivePresentation.Slides.Count + 1, 12)\n"
+    "    probeSlide.Select\n"
+)
 
-def _probe_function(index: int, line: str, *, fresh_sheet: bool = False) -> str:
+#: And for a document: everything a probe left behind is cleared out.
+_FRESH_DOCUMENT = (
+    "    ActiveDocument.Content.Delete\n"
+    "    Dim probeShape As Object\n"
+    "    For Each probeShape In ActiveDocument.Shapes\n"
+    "        probeShape.Delete\n"
+    "    Next probeShape\n"
+)
+
+#: What each host's probes get before the probe itself runs.
+PREAMBLE = {
+    "excel": _FRESH_SHEET,
+    "powerpoint": _FRESH_SLIDE,
+    "word": _FRESH_DOCUMENT,
+}
+
+
+def _probe_function(
+    index: int, line: str, *, fresh_sheet: bool = False, host: str = "excel"
+) -> str:
     setup, expression = split_probe(line)
     return (
         f"Private Function P{index}() As String\n"
         f"    On Error GoTo Bad\n"
         f"    Dim v As Variant\n"
-        + (_FRESH_SHEET if fresh_sheet else "")
+        + (PREAMBLE.get(host, _FRESH_SHEET) if fresh_sheet else "")
         + (f"    {setup}\n" if setup else "")
         + f"    v = ({expression})\n"
         f"    P{index} = Describe(v)\n"
@@ -113,7 +140,11 @@ def _formula_function(index: int, line: str) -> str:
 
 
 def build_module(
-    expressions: list[tuple[int, str]], *, fresh_sheet: bool = False, formulas: bool = False
+    expressions: list[tuple[int, str]],
+    *,
+    fresh_sheet: bool = False,
+    formulas: bool = False,
+    host: str = "excel",
 ) -> str:
     """A module whose Main returns one line per probe."""
     body = ["Public Function Main() As String", "    Dim out As String"]
@@ -126,7 +157,8 @@ def build_module(
         parts.extend(_formula_function(index, expression) for index, expression in expressions)
     else:
         parts.extend(
-            _probe_function(index, expression, fresh_sheet=fresh_sheet) for index, expression in expressions
+            _probe_function(index, expression, fresh_sheet=fresh_sheet, host=host)
+            for index, expression in expressions
         )
     return "\n".join(parts)
 
@@ -147,22 +179,38 @@ def read_probes(path: Path = PROBES) -> list[str]:
     return out
 
 
-def measure(probes: Path, measured: Path, *, fresh_sheet: bool, formulas: bool = False) -> int:
+def measure(
+    probes: Path,
+    measured: Path,
+    *,
+    fresh_sheet: bool,
+    formulas: bool = False,
+    host: str = "excel",
+) -> int:
     try:
-        from pyvbaharness import ExcelSession
+        import pyvbaharness
     except ImportError:
-        print("pyvbaharness is not installed; this script needs it and live Excel")
+        print("pyvbaharness is not installed; this script needs it and live Office")
         return 2
+
+    session_for = {
+        "excel": "ExcelSession",
+        "powerpoint": "PowerPointSession",
+        "word": "WordSession",
+    }[host]
+    opener = getattr(pyvbaharness, session_for)
 
     expressions = read_probes(probes)
     print(f"{len(expressions)} probes")
     answers: dict[str, str] = {}
-    with ExcelSession() as excel:
-        excel.new_document()
+    with opener() as office:
+        office.new_document()
         for start in range(0, len(expressions), BATCH):
             batch = list(enumerate(expressions))[start : start + BATCH]
-            result = excel.run_vba(
-                build_module(batch, fresh_sheet=fresh_sheet, formulas=formulas), "Main", timeout=180.0
+            result = office.run_vba(
+                build_module(batch, fresh_sheet=fresh_sheet, formulas=formulas, host=host),
+                "Main",
+                timeout=180.0,
             )
             if result.ok:
                 _collect(result.value, expressions, answers)
@@ -171,8 +219,10 @@ def measure(probes: Path, measured: Path, *, fresh_sheet: bool, formulas: bool =
                 # so fall back to one at a time and record which it was.
                 print(f"  batch at {start} blocked ({result.outcome}); running singly")
                 for one in batch:
-                    single = excel.run_vba(
-                        build_module([one], fresh_sheet=fresh_sheet, formulas=formulas),
+                    single = office.run_vba(
+                        build_module(
+                            [one], fresh_sheet=fresh_sheet, formulas=formulas, host=host
+                        ),
                         "Main",
                         timeout=60.0,
                     )
@@ -200,6 +250,11 @@ def main() -> int:
     if which == "excel":
         folder = ROOT / "tests" / "fixtures" / "excel_model"
         return measure(folder / "probes.txt", folder / "measured.json", fresh_sheet=True)
+    if which in ("powerpoint", "word"):
+        folder = ROOT / "tests" / "fixtures" / f"{which}_model"
+        return measure(
+            folder / "probes.txt", folder / "measured.json", fresh_sheet=True, host=which
+        )
     if which == "formula":
         folder = ROOT / "tests" / "fixtures" / "formula"
         return measure(

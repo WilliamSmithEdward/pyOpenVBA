@@ -126,6 +126,10 @@ class Shape:
     #: Which AutoShape it is, as Shape.AutoShapeType answers.  A text
     #: box answers 1 as well, which is what Excel does.
     auto_shape_type: int = 1
+    #: PowerPoint only: what a click does, as ActionSetting.Action
+    #: answers it.  Held apart from the macro's name because
+    #: PowerPoint remembers ppActionRunMacro with no macro named yet.
+    action: int = 0
     #: Word only: whether the shape sits in the text or floats beside it.
     placement: str = ""
     #: Where the shape's markup was, so an untouched one is written

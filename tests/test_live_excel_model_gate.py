@@ -112,6 +112,71 @@ def test_a_workbook_this_wrote_opens_in_excel(tmp_path: Path) -> None:
         assert str(result.value) == "Item|50|$A$1:$D$6"
 
 
+#: A workbook of formulas, built here and recalculated by Excel.
+FORMULAS = """
+Sub Build()
+    Dim r As Long
+    For r = 1 To 5
+        Cells(r, 1).Value = r
+        Cells(r, 2).Value = r * 1.5
+    Next r
+    Range("C1:C5").Formula = "=A1*B1"
+    Range("E1").Formula = "=SUM(C1:C5)"
+    Range("E2").Formula = "=ROUND(AVERAGE(B1:B5),2)"
+    Range("E3").Formula = "=IF(E1>20,""over"",""under"")"
+    Range("E4").Formula = "=COUNTIF(A1:A5,"">2"")"
+    Range("E5").Formula = "=VLOOKUP(3,A1:C5,3,FALSE)"
+    Range("E6").Formula = "=TEXT(E1,""#,##0.00"")"
+    Range("E7").Formula = "=A1&""-""&B1"
+    Range("E8").Formula = "=IFERROR(1/0,""caught"")"
+    Range("E9").Formula = "=MOD(-7,3)"
+    Range("E10").Formula = "=INDEX(C1:C5,MATCH(4,A1:A5,0))"
+End Sub
+"""
+
+#: Where the answers are read from, on both sides.
+ANSWERS = [f"E{number}" for number in range(1, 11)] + ["C1", "C5"]
+
+
+def test_excel_agrees_with_what_the_engine_calculated(tmp_path: Path) -> None:
+    """The same formulas, worked out here and by Excel, in a file it opened.
+
+    This is the check the offline probes cannot make: that the
+    calculated values survive the save, that Excel accepts the file, and
+    that recalculating there lands on the same numbers.
+    """
+    harness = pytest.importorskip("pyvbaharness")
+
+    app = ExcelApplication()
+    app.add_workbook()
+    app.add_module(FORMULAS, name="Module1")
+    app.run("Build")
+    ours = [str(app.evaluate(f'CStr(Range("{where}").Value)')) for where in ANSWERS]
+
+    out = tmp_path / "formulas.xlsx"
+    app.save(out)
+
+    reader = (
+        "Public Function Report() As String\n"
+        "    Application.CalculateFull\n"
+        "    Dim out As String, i As Long\n"
+        "    Dim cells As Variant\n"
+        f"    cells = Array({', '.join(repr(where).replace(chr(39), chr(34)) for where in ANSWERS)})\n"
+        "    For i = LBound(cells) To UBound(cells)\n"
+        '        out = out & CStr(ActiveSheet.Range(cells(i)).Value) & "|"\n'
+        "    Next i\n"
+        "    Report = out\n"
+        "End Function\n"
+    )
+    with harness.ExcelSession() as excel:
+        excel.open_document(out)
+        result = excel.run_vba(reader, "Report", timeout=120.0)
+        assert result.ok, f"{result.outcome}: {result.message}"
+        theirs = str(result.value).rstrip("|").split("|")
+
+    assert theirs == ours
+
+
 def test_an_edited_workbook_still_opens_with_its_query(tmp_path: Path) -> None:
     """A Power Query workbook edited here keeps what Excel needs.
 

@@ -204,9 +204,9 @@ def _cell_value(cell_xml: str, kind: str, strings: list[str], number_format: str
     if kind == "b":
         return text.strip() not in ("0", "")
     if kind == "e":
-        from pyopenvba.interpreter._values import VBAErrorValue
+        from pyopenvba.formula._values import ERRORS, ExcelError
 
-        return VBAErrorValue(2015)
+        return ERRORS.get(text, ExcelError(text or "#VALUE!"))
     if kind == "d":
         from pyopenvba.interpreter._values import parse_date_text
 
@@ -216,7 +216,7 @@ def _cell_value(cell_xml: str, kind: str, strings: list[str], number_format: str
         number = float(text)
     except ValueError:
         return text
-    if _is_date_format(number_format):
+    if is_date_format(number_format):
         return VBADate(number)
     if number.is_integer() and abs(number) <= 2147483647:
         whole = int(number)
@@ -224,7 +224,7 @@ def _cell_value(cell_xml: str, kind: str, strings: list[str], number_format: str
     return number
 
 
-def _is_date_format(code: str) -> bool:
+def is_date_format(code: str) -> bool:
     """Whether a number format makes its cell a Date rather than a number."""
     if code in ("General", "", "@"):
         return False
@@ -469,19 +469,43 @@ def _without_removed_cells(row_xml: str, row: int, sheet: Worksheet) -> str:
 def _cell_xml(reference: str, cell: Cell, style: str) -> str:
     attributes = f' s="{style}"' if style else ""
     if cell.formula:
-        body = f"<f>{_escape(cell.formula[1:])}</f>"
-        if not cell.stale and cell.value is not EMPTY:
-            body += _value_body(cell.value)[1]
-        return f'<c r="{reference}"{attributes}>{body}</c>'
+        # A formula cell carries its last value in a <v>, never as an
+        # inline string: a formula whose answer is text is t="str".
+        kind, body = _formula_value(cell)
+        return f'<c r="{reference}"{attributes}{kind}><f>{_escape(cell.formula[1:])}</f>{body}</c>'
     kind, body = _value_body(cell.value)
     if not body:
         return f'<c r="{reference}"{attributes}/>'
     return f'<c r="{reference}"{attributes}{kind}>{body}</c>'
 
 
+def _formula_value(cell: Cell) -> tuple[str, str]:
+    """The type and the ``<v>`` a formula cell carries beside its formula."""
+    from pyopenvba.formula._values import ExcelError
+
+    if cell.stale or cell.value is EMPTY:
+        return "", ""
+    value = cell.value
+    if isinstance(value, ExcelError):
+        return ' t="e"', f"<v>{_escape(value.name)}</v>"
+    if isinstance(value, bool):
+        return ' t="b"', f"<v>{1 if value else 0}</v>"
+    if isinstance(value, str):
+        return ' t="str"', f"<v>{_escape(value)}</v>"
+    if isinstance(value, VBADate):
+        return "", f"<v>{_number_text(value.serial)}</v>"
+    if isinstance(value, (int, float)):
+        return "", f"<v>{_number_text(value)}</v>"
+    return ' t="str"', f"<v>{_escape(to_text(value))}</v>"
+
+
 def _value_body(value: object) -> tuple[str, str]:
+    from pyopenvba.formula._values import ExcelError
+
     if value is EMPTY:
         return "", ""
+    if isinstance(value, ExcelError):
+        return ' t="e"', f"<v>{_escape(value.name)}</v>"
     if isinstance(value, bool):
         return ' t="b"', f"<v>{1 if value else 0}</v>"
     if isinstance(value, VBADate):

@@ -500,9 +500,27 @@ number `Err` would hold, and `VBAUnsupportedError` for real VBA that
 pyOpenVBA does not implement. The third is never trappable by
 `On Error`: a gap here must not be swallowed and reported as a result.
 
-Every answer the interpreter gives was measured in live Excel rather
-than assumed, and a workbook nobody changed saves back byte for byte.
-What is implemented, what is not, and how it was measured is in
+Formulas are calculated, not just carried: write one from a macro and
+read the answer back.
+
+```python
+app.add_module('''
+Sub Total()
+    Range("A1:A3").Value = 10
+    Range("B1").Formula = "=SUM(A1:A3)"
+End Sub
+''', name="Module1")
+app.run("Total")
+app.sheet(1).value("B1")          # 30.0
+```
+
+About a hundred worksheet functions are implemented; anything else
+Excel has says so by name rather than quietly answering `#NAME?`.
+
+Every answer the interpreter and the calculation engine give was
+measured in live Excel rather than assumed, and a workbook nobody
+changed saves back byte for byte. What is implemented, what is not, and
+how it was measured is in
 [docs/vba_runtime.md](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/docs/vba_runtime.md).
 
 ---

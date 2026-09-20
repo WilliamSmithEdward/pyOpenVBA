@@ -78,6 +78,23 @@ would have got wrong:
 - `Right("abc", 5)` is `"abc"`, `Hex(-1)` is `FFFF` for an Integer, and
   `Round(-0.5)` prints `-0`.
 
+The calculation engine was settled the same way, in
+`tests/fixtures/formula/probes.txt`: each formula was written into a
+cell in live Excel and what the cell showed was recorded.  That sweep
+is what settled these:
+
+- `2^3^2` is 64, because `^` chains to the left, and `-2^2` is 4,
+  because a minus sign binds tighter than the power.
+- `0.1+0.2=0.3` is TRUE: a comparison is settled on the fifteen
+  significant digits a cell would show, not on the bits.
+- ROUND rounds half away from zero and MOD takes the sign of its
+  divisor, neither of which matches the VBA function of the same name.
+- A range contributes only its numbers to SUM while a literal converts,
+  so `SUM(A1,"2")` is three and a range holding "2" adds nothing; COUNT
+  walks past an error that SUM would stop at.
+- `=A1` on an empty cell is 0, and `DATE(...)` brings a date format
+  with it while `EOMONTH(...)` leaves the serial number showing.
+
 The same method covers the Excel object model:
 `tests/fixtures/excel_model/probes.txt` and `tests/test_excel_model.py`,
 measured with `python scripts/measure_vba_semantics.py excel`.  That
@@ -127,6 +144,24 @@ with multiple areas, Font, Interior, Names, Queries, and a short list of
 worksheet functions.  Cells hold values, formulas, number formats and a
 little formatting.
 
+**Formulas are calculated.** `pyopenvba.formula` parses and evaluates
+them; the workbook keeps track of which cells are stale and what feeds
+what.  Calculation is on demand: reading a stale cell works it out, and
+working it out works out whatever it reads, so nothing is ordered up
+front and INDIRECT is no harder than a plain reference.  Writing a cell
+spoils whatever reads it, a volatile function is recomputed every time,
+a formula written to a block or copied has its relative references
+moved, a circular reference leaves a zero and is recorded, and manual
+calculation mode keeps the old value until something calls Calculate,
+which is what Excel shows until F9.
+
+About a hundred worksheet functions are implemented, chosen by what
+macros actually call: the aggregations and their -IF and -IFS forms, the
+lookups, the text and date families, the information tests, and the
+logical functions.  Anything else Excel has says so by name rather than
+answering `#NAME?`, which is reserved for a function Excel has not got
+either.
+
 **Files.** A workbook is read from `.xlsx`, `.xlsm` or `.xlam`, and
 written back with only what changed rewritten: a sheet nobody touched
 keeps its bytes, and an unchanged workbook saves byte for byte.  A
@@ -135,10 +170,10 @@ freshly Excel-authored file.
 
 ## What is not
 
-- **Formulas are not calculated.** A formula loaded from a file has the
-  value Excel last computed, which is what the file carries.  A formula
-  written during a run has no value, and reading that cell says so
-  rather than answering Empty.
+- **Array formulas do not spill.** An array result lands in the one cell
+  that holds the formula and shows its first element, which is what
+  Excel did before dynamic arrays.  Implicit intersection is applied to
+  a multi-cell reference beside an operator, as Excel's `@` does.
 - **Power Query is not evaluated.** A query's M is read and written;
   `Refresh` reports that evaluating it is not implemented.
 - **No events.** `WithEvents` sinks are not connected and `RaiseEvent`
@@ -167,6 +202,10 @@ freshly Excel-authored file.
 | `interpreter/_runtime.py` | The interpreter itself |
 | `interpreter/_inventory.py` | Which members the real classes have |
 | `apps/excel/_model.py` | Excel's object model |
+| `apps/excel/_calc.py` | Which cells are stale, and what they come to |
+| `formula/_parse.py` | The formula grammar |
+| `formula/_engine.py` | Evaluating one formula against a grid |
+| `formula/_functions.py` | The worksheet functions |
 | `apps/excel/_io.py` | Reading and writing the workbook file |
 | `apps/excel/_bridge.py` | What a project sees when Excel is the host |
 
@@ -176,4 +215,5 @@ Word, PowerPoint and Access get the same shape: an object model under
 `apps/`, a bridge, and a measured probe file per host.  Evaluating
 Power Query's M, so that a refresh actually lands data on a sheet, is
 the other direction; the query objects and the load-to plumbing are
-already here for it to write into.
+already here for it to write into.  Shapes across all three hosts, with
+the VBA procedure a shape runs, are on the same list.

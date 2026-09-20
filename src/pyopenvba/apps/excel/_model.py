@@ -4,12 +4,10 @@ The objects a macro touches -- Application, Workbook, Worksheet, Range
 and the few that hang off them -- holding real state that VBA mutates
 and that can be written back out to a file.
 
-What is deliberately not here is a calculation engine.  A formula is
-stored as text and its value is whatever Excel last computed, which is
-what the file carries; a formula written during a run has no value
-until something computes it, and reading that cell's Value says so
-rather than answering Empty.  Silence there would turn a missing
-feature into a wrong number.
+A cell holds a value, a formula, a number format and a little
+formatting.  Reading a cell whose formula has not been worked out
+calculates it first, through :mod:`pyopenvba.apps.excel._calc`, so a
+macro that writes a formula and reads the answer gets one.
 """
 
 from __future__ import annotations
@@ -20,15 +18,9 @@ from decimal import Decimal
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-from pyopenvba._a1 import (
-    MAX_COLUMNS,
-    MAX_ROWS,
-    Area,
-    column_letter,
-    parse_reference,
-    quote_sheet,
-)
+from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, parse_reference
 from pyopenvba.exceptions import VBAUnsupportedError
+from pyopenvba.formula._parse import shift_text
 from pyopenvba.interpreter._objects import VBACollection, VBAObject, member, method, setter
 from pyopenvba.interpreter._values import (
     EMPTY,
@@ -309,7 +301,9 @@ class Application(ExcelObject):
 
     @method
     def Calculate(self) -> object:
-        raise VBAUnsupportedError("Application.Calculate needs a formula engine, which pyOpenVBA has not got")
+        for book in self.workbooks_.books:
+            book.calculator.calculate_all()
+        return EMPTY
 
     @method
     def Quit(self) -> object:
@@ -433,10 +427,20 @@ class Workbook(ExcelObject):
         self.sheets_: list[Worksheet] = []
         self.names_ = Names(self)
         self.queries_ = Queries(self)
-        self.active_book_index = 0
+        self.active_sheet_index = 0
         #: The package this was loaded from, kept so a save can put back
         #: every part pyOpenVBA does not model.
         self.package: Any = None
+        self._calculator: Any = None
+
+    @property
+    def calculator(self) -> Any:
+        """The workbook's formulas, and what each one comes to."""
+        if self._calculator is None:
+            from pyopenvba.apps.excel._calc import Calculator
+
+            self._calculator = Calculator(self)
+        return self._calculator
 
     # -- identity
 
@@ -537,7 +541,8 @@ class Workbook(ExcelObject):
 
     @method
     def Calculate(self) -> object:
-        raise VBAUnsupportedError("Workbook.Calculate needs a formula engine, which pyOpenVBA has not got")
+        self.calculator.calculate_all()
+        return EMPTY
 
     # -- Python side
 
@@ -545,10 +550,10 @@ class Workbook(ExcelObject):
     def active_sheet(self) -> Worksheet | None:
         if not self.sheets_:
             return None
-        return self.sheets_[min(self.active_book_index, len(self.sheets_) - 1)]
+        return self.sheets_[min(self.active_sheet_index, len(self.sheets_) - 1)]
 
     def activate_sheet(self, sheet: Worksheet) -> None:
-        self.active_book_index = self.sheets_.index(sheet)
+        self.active_sheet_index = self.sheets_.index(sheet)
 
     def add_sheet(self, name: str = "", *, at: int | None = None) -> Worksheet:
         """A new worksheet, named the way Excel names one when asked."""
@@ -654,6 +659,22 @@ class Worksheet(ExcelObject):
     def touched(self) -> None:
         self.dirty = True
         self.book.saved = False
+
+    def cell_changed(self, row: int, column: int) -> None:
+        """One cell's contents changed: tell the calculator what to redo."""
+        self.touched()
+        calculator = self.book.calculator
+        cell = self.cells_.get((row, column))
+        if cell is not None:
+            calculator.remember(self.name, row, column, cell)
+        else:
+            calculator.compiled.pop((self.name.lower(), row, column), None)
+        calculator.wrote(self.name, row, column)
+
+    def shape_changed(self) -> None:
+        """Rows or columns moved, so every formula has to be read again."""
+        self.touched()
+        self.book.calculator.rebuild()
 
     # -- identity
 
@@ -785,7 +806,8 @@ class Worksheet(ExcelObject):
 
     @method
     def Calculate(self) -> object:
-        raise VBAUnsupportedError("Worksheet.Calculate needs a formula engine, which pyOpenVBA has not got")
+        self.book.calculator.calculate_all()
+        return EMPTY
 
     # -- Python side
 
@@ -842,6 +864,10 @@ def _cell_text(cell: Cell | None) -> str:
 
 
 def _short_value(value: object) -> str:
+    from pyopenvba.formula._values import ExcelError
+
+    if isinstance(value, ExcelError):
+        return value.name
     if value is EMPTY:
         return ""
     if isinstance(value, str):
@@ -928,6 +954,9 @@ class Range(ExcelObject):
         cell = self.sheet.cell(self.first.top, self.first.left)
         if cell is None:
             return ""
+        # Reading what a cell shows calculates it first, as looking at
+        # one in Excel does.
+        self._read(self.first.top, self.first.left)
         return _display_text(cell)
 
     @member
@@ -947,8 +976,20 @@ class Range(ExcelObject):
 
     @setter("Formula")
     def _set_formula(self, value: object) -> None:
-        text = to_text(value)
+        """A formula written to a block moves with each cell.
+
+        Excel anchors what was written at the top left and shifts every
+        reference that is not held by a dollar sign, which is why
+        Range("D2:D6").Formula = "=B2*C2" leaves =B6*C6 in D6.
+        """
+        written = to_text(value)
+        anchor = self.first
         for row, column in self.writable_positions():
+            text = (
+                shift_text(written, row - anchor.top, column - anchor.left)
+                if written.startswith("=")
+                else written
+            )
             cell = self.sheet.cell(row, column, create=True)
             assert cell is not None
             if text.startswith("="):
@@ -959,7 +1000,7 @@ class Range(ExcelObject):
                 cell.formula = ""
                 cell.stale = False
                 cell.value = _from_text(text)
-        self.sheet.touched()
+            self.sheet.cell_changed(row, column)
 
     @member
     def FormulaR1C1(self) -> object:
@@ -1171,7 +1212,7 @@ class Range(ExcelObject):
     def Clear(self) -> object:
         for row, column in self.writable_positions():
             self.sheet.cells_.pop((row, column), None)
-        self.sheet.touched()
+            self.sheet.cell_changed(row, column)
         return EMPTY
 
     @method
@@ -1182,6 +1223,7 @@ class Range(ExcelObject):
                 cell.value = EMPTY
                 cell.formula = ""
                 cell.stale = False
+                self.sheet.cell_changed(row, column)
         self.sheet.touched()
         return EMPTY
 
@@ -1201,7 +1243,7 @@ class Range(ExcelObject):
             else:
                 moved[(row, column)] = cell
         self.sheet.cells_ = moved
-        self.sheet.touched()
+        self.sheet.shape_changed()
         return EMPTY
 
     @method
@@ -1217,7 +1259,7 @@ class Range(ExcelObject):
             else:
                 moved[(row, column)] = cell
         self.sheet.cells_ = moved
-        self.sheet.touched()
+        self.sheet.shape_changed()
         return EMPTY
 
     @method
@@ -1238,8 +1280,14 @@ class Range(ExcelObject):
                     )
                     continue
                 copy = Cell(**{field_.name: getattr(source, field_.name) for field_ in _CELL_FIELDS})
+                if copy.formula:
+                    # A copied formula moves with the cell, the same way
+                    # one written to a block does.
+                    copy.formula = shift_text(copy.formula, target.top - area.top, target.left - area.left)
+                    copy.stale = True
+                    copy.value = EMPTY
                 Destination.sheet.cells_[(target.top + row - area.top, target.left + column - area.left)] = copy
-        Destination.sheet.touched()
+        Destination.sheet.shape_changed()
         return True
 
     @method
@@ -1299,11 +1347,10 @@ class Range(ExcelObject):
         cell = self.sheet.cell(row, column)
         if cell is None:
             return EMPTY
-        if cell.stale:
-            raise VBAUnsupportedError(
-                f"{quote_sheet(self.sheet.name)}!{column_letter(column)}{row} holds the formula "
-                f"{cell.formula} and pyOpenVBA does not calculate formulas, so it has no value"
-            )
+        if cell.formula:
+            from pyopenvba.apps.excel._calc import as_vba
+
+            return as_vba(self.sheet.book.calculator.value_of(self.sheet.name, row, column), cell)
         return cell.value
 
     def writable_positions(self) -> list[tuple[int, int]]:
@@ -1336,7 +1383,7 @@ class Range(ExcelObject):
             cell.value = stored
             cell.formula = ""
             cell.stale = False
-        self.sheet.touched()
+            self.sheet.cell_changed(row, column)
 
     def _write_array(self, array: VBAArray) -> None:
         area = self.first
@@ -1368,10 +1415,12 @@ class Range(ExcelObject):
             cell.formula = value
             cell.stale = True
             cell.value = EMPTY
+            self.sheet.cell_changed(row, column)
             return
         cell.value = as_cell_value(value)
         cell.formula = ""
         cell.stale = False
+        self.sheet.cell_changed(row, column)
 
     def describe(self, indent: str = "") -> str:
         return f"{indent}Range {self.vba_get('Address')} on {self.sheet.name!r}"
@@ -1755,9 +1804,14 @@ class WorksheetFunction(ExcelObject):
     def vba_get(self, name: str, args: Any = (), named: Any = None) -> object:
         spec = self.vba_member(name)
         if spec is None:
-            raise VBAUnsupportedError(
-                f"WorksheetFunction.{name} is not one of the functions pyOpenVBA implements"
-            )
+            from pyopenvba.formula._inventory import excel_has_function
+
+            if excel_has_function(name):
+                raise VBAUnsupportedError(
+                    f"WorksheetFunction.{name} is a real Excel function that pyOpenVBA "
+                    f"does not implement"
+                )
+            raise error(438, f"WorksheetFunction has no member named {name}")
         return super().vba_get(name, args, named)
 
     @method
@@ -1863,10 +1917,18 @@ def _same(left: object, right: object) -> bool:
 
 def _display_text(cell: Cell) -> str:
     """What the cell shows, which is its value through its number format."""
+    from pyopenvba.formula._values import ExcelError, number_text
+
     if cell.stale:
         return ""
+    if isinstance(cell.value, ExcelError):
+        return cell.value.name
     if cell.number_format in ("General", "") or cell.value is EMPTY:
-        return "" if cell.value is EMPTY else to_text(cell.value)
+        if cell.value is EMPTY:
+            return ""
+        if isinstance(cell.value, float):
+            return number_text(cell.value)
+        return to_text(cell.value)
     from pyopenvba.access._format import format_value
 
     value = cell.value.to_datetime() if isinstance(cell.value, VBADate) else cell.value

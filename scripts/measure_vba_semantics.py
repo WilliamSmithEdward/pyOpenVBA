@@ -83,7 +83,38 @@ def _probe_function(index: int, line: str, *, fresh_sheet: bool = False) -> str:
     )
 
 
-def build_module(expressions: list[tuple[int, str]], *, fresh_sheet: bool = False) -> str:
+#: Where a formula probe's own formula is written, clear of the cells a
+#: setup writes into.
+FORMULA_CELL = "H1"
+
+
+def _formula_function(index: int, line: str) -> str:
+    """A probe that puts a formula in a cell and reports what it shows."""
+    setup, formula = split_probe(line)
+    quoted = formula.replace('"', '""')
+    return (
+        f"Private Function P{index}() As String\n"
+        f"    On Error GoTo Bad\n"
+        f"    Dim v As Variant\n"
+        + _FRESH_SHEET
+        + (f"    {setup}\n" if setup else "")
+        + f'    Range("{FORMULA_CELL}").Formula = "{quoted}"\n'
+        f'    v = Range("{FORMULA_CELL}").Value\n'
+        f"    If IsError(v) Then\n"
+        f'        P{index} = "Error|" & Range("{FORMULA_CELL}").Text\n'
+        f"    Else\n"
+        f"        P{index} = Describe(v)\n"
+        f"    End If\n"
+        f"    Exit Function\n"
+        f"Bad:\n"
+        f'    P{index} = "!" & Err.Number\n'
+        f"End Function\n"
+    )
+
+
+def build_module(
+    expressions: list[tuple[int, str]], *, fresh_sheet: bool = False, formulas: bool = False
+) -> str:
     """A module whose Main returns one line per probe."""
     body = ["Public Function Main() As String", "    Dim out As String"]
     for index, _ in expressions:
@@ -91,9 +122,12 @@ def build_module(expressions: list[tuple[int, str]], *, fresh_sheet: bool = Fals
     body.append("    Main = out")
     body.append("End Function")
     parts = ["\n".join(body), _DESCRIBE]
-    parts.extend(
-        _probe_function(index, expression, fresh_sheet=fresh_sheet) for index, expression in expressions
-    )
+    if formulas:
+        parts.extend(_formula_function(index, expression) for index, expression in expressions)
+    else:
+        parts.extend(
+            _probe_function(index, expression, fresh_sheet=fresh_sheet) for index, expression in expressions
+        )
     return "\n".join(parts)
 
 
@@ -113,7 +147,7 @@ def read_probes(path: Path = PROBES) -> list[str]:
     return out
 
 
-def measure(probes: Path, measured: Path, *, fresh_sheet: bool) -> int:
+def measure(probes: Path, measured: Path, *, fresh_sheet: bool, formulas: bool = False) -> int:
     try:
         from pyvbaharness import ExcelSession
     except ImportError:
@@ -127,7 +161,9 @@ def measure(probes: Path, measured: Path, *, fresh_sheet: bool) -> int:
         excel.new_document()
         for start in range(0, len(expressions), BATCH):
             batch = list(enumerate(expressions))[start : start + BATCH]
-            result = excel.run_vba(build_module(batch, fresh_sheet=fresh_sheet), "Main", timeout=180.0)
+            result = excel.run_vba(
+                build_module(batch, fresh_sheet=fresh_sheet, formulas=formulas), "Main", timeout=180.0
+            )
             if result.ok:
                 _collect(result.value, expressions, answers)
             else:
@@ -135,7 +171,11 @@ def measure(probes: Path, measured: Path, *, fresh_sheet: bool) -> int:
                 # so fall back to one at a time and record which it was.
                 print(f"  batch at {start} blocked ({result.outcome}); running singly")
                 for one in batch:
-                    single = excel.run_vba(build_module([one], fresh_sheet=fresh_sheet), "Main", timeout=60.0)
+                    single = excel.run_vba(
+                        build_module([one], fresh_sheet=fresh_sheet, formulas=formulas),
+                        "Main",
+                        timeout=60.0,
+                    )
                     if single.ok:
                         _collect(single.value, expressions, answers)
                     else:
@@ -160,6 +200,11 @@ def main() -> int:
     if which == "excel":
         folder = ROOT / "tests" / "fixtures" / "excel_model"
         return measure(folder / "probes.txt", folder / "measured.json", fresh_sheet=True)
+    if which == "formula":
+        folder = ROOT / "tests" / "fixtures" / "formula"
+        return measure(
+            folder / "probes.txt", folder / "measured.json", fresh_sheet=True, formulas=True
+        )
     return measure(PROBES, MEASURED, fresh_sheet=False)
 
 

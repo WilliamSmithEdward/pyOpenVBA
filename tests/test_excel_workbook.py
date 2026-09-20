@@ -115,17 +115,34 @@ def test_a_formula_written_by_a_macro_is_kept_as_text() -> None:
     assert app.sheet(1).formula("A2") == "=A1+1"
 
 
-def test_reading_an_uncalculated_formula_says_so_rather_than_answering_empty() -> None:
+def test_a_formula_written_by_a_macro_is_calculated_when_it_is_read() -> None:
     app = fresh()
-    with pytest.raises(VBAUnsupportedError) as raised:
-        macro(app, '    Range("A1").Formula = "=1+1"\n    Debug.Print Range("A1").Value')
-    assert "does not calculate formulas" in str(raised.value)
+    macro(app, '    Range("A1").Value = 2\n    Range("A2").Formula = "=A1*3"')
+    assert app.sheet(1).value("A2") == 6.0
 
 
-def test_calculate_is_unsupported_rather_than_a_silent_no_op() -> None:
+def test_a_change_upstream_reaches_the_formula_that_reads_it() -> None:
     app = fresh()
-    with pytest.raises(VBAUnsupportedError):
-        macro(app, "    Application.Calculate")
+    macro(app, '    Range("A1").Value = 2\n    Range("A2").Formula = "=A1*3"')
+    assert app.sheet(1).value("A2") == 6.0
+    macro(app, '    Range("A1").Value = 5', name="Again")
+    assert app.sheet(1).value("A2") == 15.0
+
+
+def test_manual_calculation_keeps_the_value_until_calculate_is_called() -> None:
+    """Manual mode is what Excel does until F9: the old value stands."""
+    app = fresh()
+    macro(
+        app,
+        '    Range("A1").Value = 2\n'
+        '    Range("A2").Formula = "=A1*3"\n'
+        '    Debug.Print Range("A2").Value\n'
+        "    Application.Calculation = xlCalculationManual\n"
+        '    Range("A1").Value = 100',
+    )
+    assert app.sheet(1).value("A2") == 6.0
+    macro(app, "    Application.Calculate", name="Recalc")
+    assert app.sheet(1).value("A2") == 300.0
 
 
 # --- unknown members are answered honestly ------------------------------------------------

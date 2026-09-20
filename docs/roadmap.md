@@ -98,10 +98,16 @@ interpreter work, tracked in [`vba_runtime.md`](vba_runtime.md):
    probe file, following the shape `apps/excel` set.
 2. Evaluating Power Query's M, so `WorkbookQuery.Refresh` lands data on
    a sheet instead of reporting itself unsupported.
-3. A formula engine, so a formula written during a run has a value
-   rather than an honest refusal.
+3. Shapes on every surface: adding, reading, changing and deleting them
+   in Word, PowerPoint and Excel, and attaching or detaching the VBA
+   procedure a shape runs (`Shape.OnAction`, and the equivalent on a
+   PowerPoint action setting). The file-level work is a prerequisite:
+   a shape lives in the drawing part, not in the VBA project.
 4. `WithEvents` and the document-module event handlers, so a
    `Worksheet_Change` fires when a macro writes a cell.
+5. Array formulas that spill, which the calculation engine stops short
+   of: an array result shows its first element, as it did before
+   dynamic arrays.
 
 ## Out of scope (no current plans)
 

@@ -1,0 +1,253 @@
+# One formula per line, optionally after setup statements and ``;;``.
+# Each probe gets a freshly added worksheet; its formula is written to
+# H1 and what that cell shows is recorded.  Setups write into A1:F10.
+#
+# Measured in live Excel by ``python scripts/measure_vba_semantics.py
+# formula`` and replayed against the engine by tests/test_formula.py.
+
+# --- operators and what they do to the types ---
+=1+2
+=1+2*3
+=(1+2)*3
+=2^3
+=2^3^2
+=-2^2
+=2^-1
+=10/4
+=10/0
+=5-"2"
+="5"+1
+="a"+1
+=1&2
+=1.5&"x"
+=TRUE&"x"
+="a"&""
+=50%
+=50%+1
+=2^3%
+=-3%
+=1=1
+=1="1"
+=1<"1"
+="a"="A"
+="a"<"b"
+="b"<"a"
+=TRUE>"z"
+=TRUE=1
+=TRUE+TRUE
+=1<>2
+="">""
+=1/3
+=(1/3)*3
+=0.1+0.2
+=0.1+0.2=0.3
+=1E+15
+=1E+16
+=1/3*3=1
+
+# --- an empty cell ---
+;; =A1
+;; =A1+1
+;; =A1&"x"
+;; =A1=0
+;; =A1=""
+;; =ISBLANK(A1)
+;; =COUNT(A1)
+;; =COUNTA(A1)
+;; =SUM(A1:A3)
+;; =AVERAGE(A1:A3)
+Range("A1").Value = 0 ;; =ISBLANK(A1)
+
+# --- what a range contributes, and what a literal does ---
+Range("A1").Value = 1: Range("A2").Value = "2" ;; =SUM(A1:A2)
+Range("A1").Value = 1: Range("A2").Value = TRUE ;; =SUM(A1:A2)
+Range("A1").Value = 1 ;; =SUM(A1,"2")
+Range("A1").Value = 1 ;; =SUM(A1,TRUE)
+Range("A1").Value = 1 ;; =SUM(A1,"x")
+Range("A1").Value = 1: Range("A2").Value = "2" ;; =COUNT(A1:A2)
+Range("A1").Value = 1: Range("A2").Value = "2" ;; =COUNTA(A1:A2)
+Range("A1:A3").Value = 2 ;; =PRODUCT(A1:A3)
+Range("A1").Value = 3: Range("A2").Value = 1: Range("A3").Value = 2 ;; =MAX(A1:A3)
+Range("A1").Value = 3: Range("A2").Value = 1: Range("A3").Value = 2 ;; =MIN(A1:A3)&"/"&MEDIAN(A1:A3)
+Range("A1").Value = 3: Range("A2").Value = 1: Range("A3").Value = 2 ;; =LARGE(A1:A3,2)&"/"&SMALL(A1:A3,2)
+Range("A1:A2").Value = 1 ;; =AVERAGE(A1:A2)
+;; =AVERAGE(A1:A2)
+Range("A1").Value = 1: Range("A2").Value = 3 ;; =STDEV(A1:A2)&"/"&STDEVP(A1:A2)
+Range("A1").Value = 1: Range("B1").Value = 2: Range("A2").Value = 3: Range("B2").Value = 4 ;; =SUMPRODUCT(A1:A2,B1:B2)
+
+# --- rounding, which is not VBA's ---
+=ROUND(2.5,0)
+=ROUND(-2.5,0)
+=ROUND(0.5,0)
+=ROUND(1.5,0)
+=ROUND(2.675,2)
+=ROUND(1234.5678,-2)
+=ROUNDUP(1.1,0)
+=ROUNDDOWN(1.9,0)
+=ROUNDUP(-1.1,0)
+=ROUNDDOWN(-1.9,0)
+=INT(-1.5)
+=INT(1.5)
+=TRUNC(-1.9)
+=MOD(7,3)
+=MOD(-7,3)
+=MOD(7,-3)
+=MOD(7,0)
+=MROUND(7,3)
+=CEILING(7,3)
+=FLOOR(7,3)
+=ABS(-3)
+=SIGN(-3)
+=SQRT(9)
+=SQRT(-1)
+=POWER(2,10)
+=EXP(1)
+=LN(1)
+=LOG(8,2)
+=LOG10(100)
+=PI()
+
+# --- the criteria functions ---
+Range("A1").Value = 1: Range("A2").Value = 5: Range("A3").Value = 10 ;; =COUNTIF(A1:A3,">4")
+Range("A1").Value = 1: Range("A2").Value = 5: Range("A3").Value = 10 ;; =SUMIF(A1:A3,">4")
+Range("A1").Value = "a": Range("A2").Value = "b": Range("B1").Value = 1: Range("B2").Value = 2 ;; =SUMIF(A1:A2,"a",B1:B2)
+Range("A1").Value = "a": Range("A2").Value = "A" ;; =COUNTIF(A1:A2,"a")
+Range("A1").Value = "apple": Range("A2").Value = "apricot" ;; =COUNTIF(A1:A2,"ap*")
+Range("A1").Value = "apple": Range("A2").Value = "apricot" ;; =COUNTIF(A1:A2,"a?p*")
+Range("A1").Value = "a": Range("A2").Value = "b" ;; =COUNTIF(A1:A2,"<>a")
+Range("A1").Value = 1: Range("A2").Value = 2: Range("B1").Value = "x": Range("B2").Value = "y" ;; =SUMIFS(A1:A2,B1:B2,"y")
+Range("A1").Value = 1: Range("A2").Value = 2: Range("B1").Value = "x": Range("B2").Value = "x" ;; =COUNTIFS(A1:A2,">0",B1:B2,"x")
+Range("A1").Value = 1: Range("A2").Value = 3 ;; =AVERAGEIF(A1:A2,">2")
+Range("A1").Value = 1 ;; =COUNTIF(A1:A3,"")
+Range("A1").Value = 1 ;; =COUNTBLANK(A1:A3)
+
+# --- lookups ---
+Range("A1").Value = "a": Range("B1").Value = 1: Range("A2").Value = "b": Range("B2").Value = 2 ;; =VLOOKUP("b",A1:B2,2,FALSE)
+Range("A1").Value = "a": Range("B1").Value = 1: Range("A2").Value = "b": Range("B2").Value = 2 ;; =VLOOKUP("B",A1:B2,2,FALSE)
+Range("A1").Value = "a": Range("B1").Value = 1 ;; =VLOOKUP("z",A1:B2,2,FALSE)
+Range("A1").Value = 1: Range("B1").Value = "x": Range("A2").Value = 5: Range("B2").Value = "y" ;; =VLOOKUP(3,A1:B2,2)
+Range("A1").Value = 1: Range("B1").Value = "x": Range("A2").Value = 5: Range("B2").Value = "y" ;; =VLOOKUP(3,A1:B2,2,TRUE)
+Range("A1").Value = "a": Range("A2").Value = "b" ;; =MATCH("b",A1:A2,0)
+Range("A1").Value = 1: Range("A2").Value = 5 ;; =MATCH(3,A1:A2)
+Range("A1").Value = 1: Range("A2").Value = 5 ;; =MATCH(3,A1:A2,0)
+Range("A1").Value = "a": Range("B1").Value = "b" ;; =HLOOKUP("b",A1:B1,1,FALSE)
+Range("A1:B2").Value = 7 ;; =INDEX(A1:B2,2,2)
+Range("A1").Value = 1: Range("A2").Value = 2 ;; =INDEX(A1:A2,2)
+Range("A1").Value = 1: Range("A2").Value = 2 ;; =INDEX(A1:A2,3)
+Range("A1").Value = 1: Range("A2").Value = 2 ;; =SUM(INDEX(A1:A2,0))
+=CHOOSE(2,"a","b","c")
+=CHOOSE(0,"a")
+;; =ROW()
+;; =COLUMN()
+;; =ROWS(A1:A5)&"/"&COLUMNS(A1:C1)
+Range("A1").Value = 9 ;; =OFFSET(A1,0,0)
+Range("B2").Value = 9 ;; =OFFSET(A1,1,1)
+Range("A1:A3").Value = 2 ;; =SUM(OFFSET(A1,0,0,3,1))
+Range("A1").Value = 5 ;; =INDIRECT("A1")
+Range("A1").Value = 5 ;; =INDIRECT("A"&1)
+=INDIRECT("nonsense")
+
+# --- logic ---
+=IF(TRUE,"y","n")
+=IF(FALSE,"y","n")
+=IF(FALSE,"y")
+=IF(1,"y","n")
+=IF("x","y","n")
+=IF(TRUE,,"n")
+=AND(TRUE,1)
+=AND(TRUE,0)
+=OR(FALSE,0)
+=NOT(0)
+=XOR(TRUE,TRUE,TRUE)
+;; =AND(A1:A2)
+=IFERROR(1/0,"caught")
+=IFERROR(1,"caught")
+=IFNA(NA(),"gone")
+=IFNA(1/0,"gone")
+=ISERROR(1/0)
+=ISERR(NA())
+=ISNA(NA())
+=ERROR.TYPE(1/0)
+=NA()
+=IFS(FALSE,1,TRUE,2)
+=SWITCH(2,1,"a",2,"b","z")
+
+# --- text ---
+=LEN("abc")
+=LEN(123)
+=LEFT("abc",2)
+=LEFT("abc")
+=RIGHT("abc",5)
+=MID("abcdef",3,2)
+=MID("abc",5,2)
+=TRIM("  a   b  ")
+=UPPER("aB")&LOWER("aB")&PROPER("hello world")
+=CONCATENATE("a","b")
+=CONCAT("a","b")
+=TEXTJOIN("-",TRUE,"a","","b")
+=TEXTJOIN("-",FALSE,"a","","b")
+=SUBSTITUTE("aaa","a","b")
+=SUBSTITUTE("aaa","a","b",2)
+=REPLACE("abcdef",2,3,"X")
+=FIND("b","abc")
+=FIND("B","abc")
+=SEARCH("B","abc")
+=SEARCH("b*","abc")
+=FIND("z","abc")
+=REPT("ab",3)
+=EXACT("a","A")
+=CHAR(65)&CODE("A")
+=VALUE("1.5")
+=VALUE("x")
+=VALUE("50%")
+=TEXT(1234.5,"#,##0.00")
+=TEXT(0.5,"0%")
+=TEXT(44000,"yyyy-mm-dd")
+=T("a")&"|"&T(1)
+=N("a")&"|"&N(TRUE)
+=TYPE("a")&TYPE(1)&TYPE(TRUE)
+
+# --- dates ---
+=DATE(2021,3,4)
+=DATE(2021,13,1)
+=DATE(2021,1,0)
+=YEAR(44259)
+=MONTH(44259)&"/"&DAY(44259)
+=WEEKDAY(44259)
+=WEEKDAY(44259,2)
+=EOMONTH(44259,0)
+=EDATE(44259,1)
+=DAYS(44259,44258)
+=TIME(12,30,0)
+=HOUR(0.5)&":"&MINUTE(0.5)&":"&SECOND(0.5)
+=DATEVALUE("2021-03-04")
+=DATE(2021,3,4)-DATE(2021,3,1)
+
+# --- errors travelling ---
+=1/0+1
+=SUM(1/0,1)
+Range("A1").Formula = "=1/0" ;; =SUM(A1,1)
+Range("A1").Formula = "=1/0" ;; =COUNT(A1)
+Range("A1").Formula = "=1/0" ;; =ISERROR(A1)
+=#N/A
+=#REF!
+=1+#VALUE!
+=NONSENSEFUNCTION(1)
+=UNKNOWNNAME
+=SUM(Sheet999!A1)
+
+# --- arrays ---
+=SUM({1,2,3})
+=SUM({1,2;3,4})
+={1,2}+{10,20}
+=INDEX({1,2;3,4},2,1)
+=SUMPRODUCT({1,2},{3,4})
+Range("A1").Value = 1: Range("A2").Value = 2 ;; =SUM(A1:A2*2)
+Range("A1").Value = 1: Range("A2").Value = 2 ;; =SUMPRODUCT(A1:A2,{10;20})
+=TRANSPOSE({1,2})
+
+# --- how a formula moves when it is written to a block ---
+Range("A1").Value = 1: Range("A2").Value = 2: Range("B1:B2").Formula = "=A1*10" ;; =B2
+Range("A1").Value = 1: Range("A2").Value = 2: Range("B1:B2").Formula = "=$A$1*10" ;; =B2
+Range("A1").Value = 1: Range("B1").Value = 2: Range("A2:B2").Formula = "=A1*10" ;; =B2
+Range("A1").Value = 5: Range("B1").Formula = "=A1": Range("B1").Copy Range("C2") ;; =FORMULATEXT(C2)

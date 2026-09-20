@@ -88,6 +88,7 @@ include = [
     "docs/architecture.md",
     "docs/power_query.md",
     "docs/roadmap.md",
+    "docs/vba_runtime.md",
     "docs/ms-ovba-implementation-guide_v2.md",
 ]
 

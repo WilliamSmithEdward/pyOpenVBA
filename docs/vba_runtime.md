@@ -137,7 +137,7 @@ sweep is what settled these:
 Power Query is measured by the same method, through the engine that
 ships with Excel: `scripts/measure_m.py` builds a workbook whose query
 evaluates every expression in `tests/fixtures/mlang/probes.txt`,
-refreshes it, and records what came back, 25 to a refresh.  All 259 are
+refreshes it, and records what came back, 25 to a refresh.  All 269 are
 replayed by `tests/test_mlang_semantics.py`.  That sweep settled these:
 
 - `Number.Round(2.5)` is 2 and `Number.Round(3.5)` is 4: M rounds half

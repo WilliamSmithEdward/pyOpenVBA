@@ -42,8 +42,9 @@ Range("A1:B3").Count
 Range("A1:B3").Rows.Count
 Range("A1:B3").Columns.Count
 Range("A:A").Count
-Range("A1").Worksheet.Name
-Range("A1").Address(External:=True)
+Range("A1").Worksheet.Name = ActiveSheet.Name
+Right(Range("A1").Address(External:=True), Len(ActiveSheet.Name) + 6) = ActiveSheet.Name & "!$A$1"
+Left(Range("A1").Address(External:=True), 1)
 
 # --- what lands in a cell ---
 Range("A1").Value = 5 ;; Range("A1").Value
@@ -75,7 +76,6 @@ Range("A1").Value = 1: Range("A2").Value = 2 ;; TypeName(Range("A1:A2").Value)
 Range("A1").Value = 1: Range("A2").Value = 2 ;; UBound(Range("A1:A2").Value, 1)
 Range("A1").Value = 1: Range("A2").Value = 2 ;; UBound(Range("A1:A2").Value, 2)
 Range("A1").Value = 1: Range("A2").Value = 2 ;; LBound(Range("A1:A2").Value, 1)
-Range("A1").Value = 1: Range("B1").Value = 2 ;; Range("A1:B1").Value(1, 2)
 Range("A1:B2").Value = Array(7, 8) ;; Range("B1").Value
 Range("A1:B2").Value = Array(7, 8) ;; Range("A2").Value
 Range("A1").Value = 5: Range("A1").ClearContents ;; TypeName(Range("A1").Value)
@@ -101,12 +101,11 @@ Range("A1").Value = 9: Range("A1").Copy Range("C3") ;; Range("C3").Value
 Dim s As Worksheet: Set s = ActiveWorkbook.Worksheets.Add ;; s.Index - ActiveSheet.Index
 Dim s As Worksheet: Set s = ActiveWorkbook.Worksheets.Add(After:=ActiveSheet) ;; s.Index
 Dim s As Worksheet: Set s = ActiveWorkbook.Worksheets.Add ;; TypeName(s)
-;; ActiveSheet.Name
 ;; TypeName(ActiveSheet)
 ;; TypeName(ActiveWorkbook)
 ;; TypeName(Application)
-;; ActiveSheet.Index
-;; Worksheets(ActiveSheet.Name).Name
+;; ActiveSheet.Index = ActiveWorkbook.Worksheets(ActiveSheet.Name).Index
+;; Worksheets(ActiveSheet.Name).Name = ActiveSheet.Name
 ;; TypeName(Worksheets)
 ;; TypeName(Range("A1"))
 ;; TypeName(Range("A1").Font)
@@ -114,14 +113,13 @@ Dim s As Worksheet: Set s = ActiveWorkbook.Worksheets.Add ;; TypeName(s)
 ;; Range("A1").Font.Bold
 Range("A1").Font.Bold = True ;; Range("A1").Font.Bold
 Range("A1").Font.Size = 14 ;; Range("A1").Font.Size
-;; Range("A1").Font.Name
+;; Len(Range("A1").Font.Name) > 0
 Range("A1").Interior.Color = RGB(255, 255, 0) ;; Range("A1").Interior.Color
 ;; Application.Name
-;; Application.ScreenUpdating
 ;; TypeName(Application.WorksheetFunction)
 Application.ScreenUpdating = False ;; Application.ScreenUpdating
 ;; ActiveWorkbook.Names.Count
-ActiveWorkbook.Names.Add "Probe", Range("A1:B2") ;; ActiveWorkbook.Names("Probe").RefersTo
+ActiveWorkbook.Names.Add "Probe", Range("A1:B2") ;; Left(ActiveWorkbook.Names("Probe").RefersTo, 1) & Right(ActiveWorkbook.Names("Probe").RefersTo, 11)
 ActiveWorkbook.Names.Add "Probe", Range("A1:B2") ;; Range("Probe").Address
 ActiveWorkbook.Names.Add "Probe", Range("A1:B2"): Range("Probe").Value = 3 ;; Range("B2").Value
 

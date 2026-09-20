@@ -81,16 +81,30 @@ class Area:
     def whole_rows(self) -> bool:
         return self.left == 1 and self.right == MAX_COLUMNS
 
-    def address(self, *, absolute: bool = True, with_sheet: bool = False) -> str:
-        """The reference as Excel's Address property spells it."""
-        mark = "$" if absolute else ""
+    def address(
+        self,
+        *,
+        absolute: bool | None = None,
+        rows_fixed: bool = True,
+        columns_fixed: bool = True,
+        with_sheet: bool = False,
+    ) -> str:
+        """The reference as Excel's Address property spells it.
+
+        The two dollar signs are independent: Address(False, True) gives
+        ``$A1``, with the column fixed and the row free.
+        """
+        if absolute is not None:
+            rows_fixed = columns_fixed = absolute
+        row_mark = "$" if rows_fixed else ""
+        column_mark = "$" if columns_fixed else ""
         if self.whole_columns and not self.whole_rows:
-            body = f"{mark}{column_letter(self.left)}:{mark}{column_letter(self.right)}"
+            body = f"{column_mark}{column_letter(self.left)}:{column_mark}{column_letter(self.right)}"
         elif self.whole_rows and not self.whole_columns:
-            body = f"{mark}{self.top}:{mark}{self.bottom}"
+            body = f"{row_mark}{self.top}:{row_mark}{self.bottom}"
         else:
-            first = f"{mark}{column_letter(self.left)}{mark}{self.top}"
-            last = f"{mark}{column_letter(self.right)}{mark}{self.bottom}"
+            first = f"{column_mark}{column_letter(self.left)}{row_mark}{self.top}"
+            last = f"{column_mark}{column_letter(self.right)}{row_mark}{self.bottom}"
             body = first if (self.top, self.left) == (self.bottom, self.right) else f"{first}:{last}"
         if with_sheet and self.sheet:
             return f"{quote_sheet(self.sheet)}!{body}"
@@ -125,10 +139,9 @@ def parse_area(text: str, *, sheet: str = "") -> Area:
     if not last:
         top, left = start
         if top is None or left is None:
-            top = 1 if top is None else top
-            left = 1 if left is None else left
-            return Area(top, left, MAX_ROWS if _COLUMN.match(first) else top,
-                        MAX_COLUMNS if _ROW.match(first) else left, named or sheet)
+            # A column or a row on its own is not a reference: Excel
+            # refuses Range("ZZ") and wants Range("ZZ:ZZ").
+            raise ValueError(f"{text!r} names a whole column or row, which needs a colon")
         return Area(top, left, top, left, named or sheet)
     stop = _corner(last)
     tops = [value for value in (start[0], stop[0]) if value is not None]

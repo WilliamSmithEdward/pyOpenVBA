@@ -16,6 +16,7 @@ from __future__ import annotations
 
 from collections.abc import Iterator
 from dataclasses import dataclass
+from decimal import Decimal
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -735,7 +736,9 @@ class Worksheet(ExcelObject):
         if Index is MISSING:
             return Range(self, [Area(1, 1, MAX_ROWS, MAX_COLUMNS, self.name)])
         if isinstance(Index, str):
-            return Range(self, parse_reference(Index, sheet=self.name))
+            # Rows("3") is the whole row, the way Rows("3:5") is.
+            wanted = Index if ":" in Index else f"{Index}:{Index}"
+            return Range(self, parse_reference(wanted, sheet=self.name))
         row = int(to_integer(Index, "Long"))
         return Range(self, [Area(row, 1, row, MAX_COLUMNS, self.name)])
 
@@ -744,7 +747,9 @@ class Worksheet(ExcelObject):
         if Index is MISSING:
             return Range(self, [Area(1, 1, MAX_ROWS, MAX_COLUMNS, self.name)])
         if isinstance(Index, str):
-            return Range(self, parse_reference(Index, sheet=self.name))
+            # Columns("C") is the whole column, the way Columns("C:D") is.
+            wanted = Index if ":" in Index else f"{Index}:{Index}"
+            return Range(self, parse_reference(wanted, sheet=self.name))
         column = int(to_integer(Index, "Long"))
         return Range(self, [Area(1, column, MAX_ROWS, column, self.name)])
 
@@ -985,9 +990,14 @@ class Range(ExcelObject):
         External: object = MISSING,
         RelativeTo: object = MISSING,
     ) -> object:
-        absolute = True if RowAbsolute is MISSING else to_bool(RowAbsolute)
+        rows_fixed = True if RowAbsolute is MISSING else to_bool(RowAbsolute)
+        columns_fixed = True if ColumnAbsolute is MISSING else to_bool(ColumnAbsolute)
         external = External is not MISSING and to_bool(External)
-        return ",".join(area.address(absolute=absolute, with_sheet=external) for area in self.areas)
+        book = f"[{self.sheet.book.name}]" if external else ""
+        return ",".join(
+            book + area.address(rows_fixed=rows_fixed, columns_fixed=columns_fixed, with_sheet=external)
+            for area in self.areas
+        )
 
     @member
     def Row(self) -> object:
@@ -1248,18 +1258,21 @@ class Range(ExcelObject):
             found = self.sheet.cell(at_row, at_column)
             return found is not None and not found.is_blank()
 
-        here = occupied(row, column)
-        while True:
-            next_row, next_column = row + down, column + across
-            if not 1 <= next_row <= MAX_ROWS or not 1 <= next_column <= MAX_COLUMNS:
-                break
-            if here and not occupied(next_row, next_column):
-                break
-            row, column = next_row, next_column
-            if not here and occupied(row, column):
-                break
-            if (down and row in (1, MAX_ROWS)) or (across and column in (1, MAX_COLUMNS)):
-                break
+        def inside(at_row: int, at_column: int) -> bool:
+            return 1 <= at_row <= MAX_ROWS and 1 <= at_column <= MAX_COLUMNS
+
+        # The neighbour decides which of the two journeys this is: along
+        # a run of filled cells to its last one, or across a gap to the
+        # next filled cell, or to the edge of the sheet if there is none.
+        step_row, step_column = row + down, column + across
+        if inside(step_row, step_column) and occupied(step_row, step_column):
+            while inside(row + down, column + across) and occupied(row + down, column + across):
+                row, column = row + down, column + across
+        else:
+            while inside(row + down, column + across):
+                row, column = row + down, column + across
+                if occupied(row, column):
+                    break
         return Range(self.sheet, [Area(row, column, row, column, self.first.sheet)])
 
     @method
@@ -1316,10 +1329,11 @@ class Range(ExcelObject):
         if isinstance(value, str) and value.startswith("="):
             self._set_formula(value)
             return
+        stored = as_cell_value(value)
         for row, column in self.writable_positions():
             cell = self.sheet.cell(row, column, create=True)
             assert cell is not None
-            cell.value = value
+            cell.value = stored
             cell.formula = ""
             cell.stale = False
         self.sheet.touched()
@@ -1327,16 +1341,15 @@ class Range(ExcelObject):
     def _write_array(self, array: VBAArray) -> None:
         area = self.first
         if array.dimensions == 1:
-            lower = array.bounds[0][0]
-            for offset, item in enumerate(array.elements()):
-                row = area.top
+            # A flat array is one row, laid across and repeated down
+            # every row of the range, which is what Excel does with it.
+            items = array.elements()
+            for offset, item in enumerate(items):
                 column = area.left + offset
-                if area.rows > 1 and area.columns == 1:
-                    row, column = area.top + offset, area.left
-                if row > area.bottom or column > area.right:
+                if column > area.right:
                     break
-                self._put(row, column, item)
-            del lower
+                for row in range(area.top, area.bottom + 1):
+                    self._put(row, column, item)
         else:
             rows, columns = array.bounds[0], array.bounds[1]
             for row_index in range(rows[0], rows[1] + 1):
@@ -1356,7 +1369,7 @@ class Range(ExcelObject):
             cell.stale = True
             cell.value = EMPTY
             return
-        cell.value = value
+        cell.value = as_cell_value(value)
         cell.formula = ""
         cell.stale = False
 
@@ -1499,8 +1512,9 @@ class Interior(ExcelObject):
 
     @member
     def Color(self) -> object:
+        # Excel hands a colour back as a Double, not as a Long.
         cell = self.target.sheet.cell(self.target.first.top, self.target.first.left)
-        return VBAInt(cell.interior_color if cell and cell.interior_color is not None else 16777215, "Long")
+        return float(cell.interior_color if cell and cell.interior_color is not None else 16777215)
 
     @setter("Color")
     def _set_color(self, value: object) -> None:
@@ -1563,7 +1577,7 @@ class Names(VBACollection, ExcelObject):
         if isinstance(index, str):
             found = self.find(index)
             if found is None:
-                raise error(ERR_SUBSCRIPT_OUT_OF_RANGE, f"there is no name called {index}")
+                raise error(1004, f"there is no name called {index}")
             return found
         return super().vba_lookup(index, items)
 
@@ -1579,8 +1593,10 @@ class Names(VBACollection, ExcelObject):
             raise error(449)
         wanted = to_text(Name)
         refers = RefersTo
+        # A name refers to a sheet, not to a workbook: RefersTo reads
+        # =Sheet1!$A$1:$B$2, with no [Book1] in front of it.
         text = (
-            f"={refers.vba_get('Address', [True, True, MISSING, True])}"
+            "=" + refers.first.address(with_sheet=True)
             if isinstance(refers, Range)
             else to_text(refers)
         )
@@ -1767,11 +1783,12 @@ class WorksheetFunction(ExcelObject):
 
     @method
     def Count(self, *args: object) -> object:
-        return VBAInt(len(list(_numbers(args))), "Long")
+        # A worksheet function hands back a Double even when counting.
+        return float(len(list(_numbers(args))))
 
     @method
     def CountA(self, *args: object) -> object:
-        return VBAInt(sum(1 for one in _flatten(args) if one is not EMPTY and one != ""), "Long")
+        return float(sum(1 for one in _flatten(args) if one is not EMPTY and one != ""))
 
     @method
     def Trim(self, Arg1: object = MISSING) -> object:
@@ -1862,17 +1879,31 @@ def _formula_text(value: object) -> str:
     return to_text(value)
 
 
+def as_cell_value(value: object) -> object:
+    """A value as a cell holds it.
+
+    A cell keeps every number as a Double, whatever width the macro
+    computed it in, and reads a string the way it reads typing: "5"
+    becomes the number, "1/2/2020" becomes a date, and "" leaves the
+    cell empty.  Both measured against Excel.
+    """
+    if isinstance(value, bool) or isinstance(value, VBADate):
+        return value
+    if isinstance(value, (int, float, Decimal)):
+        return float(value)
+    if isinstance(value, str):
+        return _from_text(value)
+    return value
+
+
 def _from_text(text: str) -> object:
     """A string written into a cell, read as Excel reads typing."""
     from pyopenvba.interpreter._values import parse_date_text
 
     stripped = text.strip()
     if not stripped:
-        return ""
+        return EMPTY
     try:
-        if stripped.lstrip("+-").isdigit():
-            whole = int(stripped)
-            return VBAInt(whole, "Long") if abs(whole) > 32767 else VBAInt(whole, "Integer")
         return float(stripped)
     except ValueError:
         pass

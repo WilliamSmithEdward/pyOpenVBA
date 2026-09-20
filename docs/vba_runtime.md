@@ -80,7 +80,23 @@ would have got wrong:
 
 The same method covers the Excel object model:
 `tests/fixtures/excel_model/probes.txt` and `tests/test_excel_model.py`,
-measured with `python scripts/measure_vba_semantics.py excel`.
+measured with `python scripts/measure_vba_semantics.py excel`.  That
+sweep is what settled these:
+
+- A cell keeps every number as a Double, and reads a string the way it
+  reads typing: `"5"` becomes the number, `"1/2/2020"` becomes a Date,
+  and `""` leaves the cell Empty.
+- `Range("A1:B2").Value = Array(7, 8)` puts 7 in A2 as well as A1: a
+  flat array is one row, repeated down.
+- `End` looks at the neighbour, so `End(xlDown)` from a lone A1 is
+  A1048576 rather than A1.
+- `Range("ZZ")` is error 1004, because a column on its own needs the
+  colon.
+
+`tests/test_live_excel_model_gate.py` asks the two questions only Excel
+can answer, behind `RUN_LIVE_EXCEL=1`: that the same macro leaves the
+same cells behind on both sides, and that a workbook written here opens
+in Excel with everything the model does not describe still in it.
 
 ## What is implemented
 

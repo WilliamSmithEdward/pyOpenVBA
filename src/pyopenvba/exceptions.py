@@ -25,6 +25,63 @@ class FormParseError(PyOpenVBAError):
     worse than none.
     """
 
+class VBAError(PyOpenVBAError):
+    """Base for the three ways evaluating VBA can fail.
+
+    They are kept apart because they mean different things to whoever is
+    reading the output.  A compile error is wrong VBA, a run-time error
+    is VBA that the host refused, and an unsupported error is a gap in
+    pyOpenVBA.  Collapsing the third into either of the others would
+    report our own limit as the caller's mistake.
+    """
+
+    def __init__(self, message: str, *, where: str = "") -> None:
+        super().__init__(f"{where}: {message}" if where else message)
+        self.message = message
+        self.where = where
+
+
+class VBACompileError(VBAError):
+    """Raised for source VBA itself would refuse to compile.
+
+    The VBA IDE reports these before anything runs, and so does this: a
+    module is parsed whole when it is loaded, not statement by statement
+    as execution reaches it.
+    """
+
+
+class VBARuntimeError(VBAError):
+    """Raised for an error VBA would raise while running.
+
+    Carries the same number and description the ``Err`` object would, and
+    is the only one of the three that ``On Error`` can trap.
+    """
+
+    def __init__(
+        self,
+        number: int,
+        description: str,
+        *,
+        source: str = "",
+        where: str = "",
+    ) -> None:
+        super().__init__(f"run-time error {number}: {description}", where=where)
+        self.number = number
+        self.description = description
+        self.source = source
+
+
+class VBAUnsupportedError(VBAError):
+    """Raised for VBA this understands but does not implement.
+
+    A statement, function or object member that real VBA would have run
+    and pyOpenVBA cannot.  Deliberately not trappable by ``On Error``:
+    swallowing it would let a script carry on over a step that never
+    happened and report a result computed from a state that never
+    existed.
+    """
+
+
 class PowerQueryError(PyOpenVBAError):
     """Raised when a workbook's Power Query package cannot be read or written.
 

@@ -1,0 +1,143 @@
+# One probe per line: VBA statements, then ``;;``, then the expression
+# whose answer is recorded.  Each probe gets a freshly added worksheet,
+# so the grid starts empty and nothing leaks from the probe before it.
+#
+# Measured in live Excel by ``python scripts/measure_vba_semantics.py
+# excel`` and replayed against the in-memory model by
+# tests/test_excel_model.py.
+
+# --- addresses ---
+Range("A1").Address
+Range("a1").Address
+Range("A1:B2").Address
+Range("B2:A1").Address
+Range("$A$1").Address
+Range("A1").Address(False, False)
+Range("A1:B2").Address(False, True)
+Cells(3, 4).Address
+Rows(3).Address
+Columns(2).Address
+Columns("C").Address
+Range("A:B").Address
+Range("2:4").Address
+Range("A1").Offset(1, 2).Address
+Range("A1:B2").Offset(1, 1).Address
+Range("B2").Offset(-1, -1).Address
+Range("A1").Resize(3, 2).Address
+Range("A1:C3").Resize(1, 1).Address
+Range("B2").EntireRow.Address
+Range("B2").EntireColumn.Address
+Range("A1", "C3").Address
+Range("A1:B2").Cells(2, 2).Address
+Range("B2:D4").Cells(1).Address
+Range("B2:D4").Cells(4).Address
+Range("A1:B3").Rows(2).Address
+Range("A1:C1").Columns(3).Address
+Application.Union(Range("A1"), Range("C3")).Address
+Application.Union(Range("A1"), Range("C3")).Areas.Count
+Application.Intersect(Range("A1:C3"), Range("B2:D4")).Address
+Range("A1:B2").Row
+Range("B3:D5").Column
+Range("A1:B3").Count
+Range("A1:B3").Rows.Count
+Range("A1:B3").Columns.Count
+Range("A:A").Count
+Range("A1").Worksheet.Name
+Range("A1").Address(External:=True)
+
+# --- what lands in a cell ---
+Range("A1").Value = 5 ;; Range("A1").Value
+Range("A1").Value = 5 ;; TypeName(Range("A1").Value)
+Range("A1").Value = 5.5 ;; TypeName(Range("A1").Value)
+Range("A1").Value = "5" ;; TypeName(Range("A1").Value)
+Range("A1").Value = "5" ;; Range("A1").Value
+Range("A1").Value = "abc" ;; TypeName(Range("A1").Value)
+Range("A1").Value = True ;; TypeName(Range("A1").Value)
+Range("A1").Value = #1/2/2020# ;; TypeName(Range("A1").Value)
+Range("A1").Value = #1/2/2020# ;; CDbl(Range("A1").Value)
+Range("A1").Value = "1/2/2020" ;; TypeName(Range("A1").Value)
+Range("A1").Value = Empty ;; TypeName(Range("A1").Value)
+Range("A1").Value = "" ;; TypeName(Range("A1").Value)
+Range("A1").Value = "" ;; IsEmpty(Range("A1").Value)
+;; TypeName(Range("Z99").Value)
+;; IsEmpty(Range("Z99").Value)
+;; Range("Z99").Value = 0
+Range("A1").Value = 5 ;; Range("A1").Formula
+Range("A1").Value = 5 ;; TypeName(Range("A1").Formula)
+Range("A1").Value = "abc" ;; Range("A1").Formula
+Range("A1").Value = 5 ;; Range("A1").Text
+Range("A1").Value = 1234.5: Range("A1").NumberFormat = "#,##0.00" ;; Range("A1").Text
+Range("A1").Value = 0.5: Range("A1").NumberFormat = "0%" ;; Range("A1").Text
+Range("A1").Value = 5 ;; Range("A1").NumberFormat
+Range("A1:B2").Value = 3 ;; Range("B2").Value
+Range("A1:A3").Value = 1 ;; Application.WorksheetFunction.Sum(Range("A1:A3"))
+Range("A1").Value = 1: Range("A2").Value = 2 ;; TypeName(Range("A1:A2").Value)
+Range("A1").Value = 1: Range("A2").Value = 2 ;; UBound(Range("A1:A2").Value, 1)
+Range("A1").Value = 1: Range("A2").Value = 2 ;; UBound(Range("A1:A2").Value, 2)
+Range("A1").Value = 1: Range("A2").Value = 2 ;; LBound(Range("A1:A2").Value, 1)
+Range("A1").Value = 1: Range("B1").Value = 2 ;; Range("A1:B1").Value(1, 2)
+Range("A1:B2").Value = Array(7, 8) ;; Range("B1").Value
+Range("A1:B2").Value = Array(7, 8) ;; Range("A2").Value
+Range("A1").Value = 5: Range("A1").ClearContents ;; TypeName(Range("A1").Value)
+Range("A1").Value = 5: Range("A1").Clear ;; TypeName(Range("A1").Value)
+
+# --- the grid ---
+Range("A1").Value = 1 ;; ActiveSheet.UsedRange.Address
+Range("C3").Value = 1 ;; ActiveSheet.UsedRange.Address
+Range("A1").Value = 1: Range("C3").Value = 2 ;; ActiveSheet.UsedRange.Address
+;; ActiveSheet.UsedRange.Address
+Range("A1").Value = 1: Range("A2").Value = 2 ;; Range("A1").End(xlDown).Address
+Range("A1").Value = 1 ;; Range("A1").End(xlDown).Address
+Range("A1").Value = 1: Range("A5").Value = 2 ;; Range("A1").End(xlDown).Address
+Range("A1").Value = 1: Range("A5").Value = 2 ;; Range("A5").End(xlUp).Address
+Range("A1").Value = 1: Range("C1").Value = 2 ;; Range("A1").End(xlToRight).Address
+;; Range("A1").End(xlDown).Address
+;; Range("D4").End(xlUp).Address
+Range("A1:A3").Value = 1: Range("A2").Delete ;; Range("A2").Value
+Range("A1:A3").Value = 1: Range("A1").Insert ;; TypeName(Range("A1").Value)
+Range("A1").Value = 9: Range("A1").Copy Range("C3") ;; Range("C3").Value
+
+# --- the book and its sheets ---
+Dim s As Worksheet: Set s = ActiveWorkbook.Worksheets.Add ;; s.Index - ActiveSheet.Index
+Dim s As Worksheet: Set s = ActiveWorkbook.Worksheets.Add(After:=ActiveSheet) ;; s.Index
+Dim s As Worksheet: Set s = ActiveWorkbook.Worksheets.Add ;; TypeName(s)
+;; ActiveSheet.Name
+;; TypeName(ActiveSheet)
+;; TypeName(ActiveWorkbook)
+;; TypeName(Application)
+;; ActiveSheet.Index
+;; Worksheets(ActiveSheet.Name).Name
+;; TypeName(Worksheets)
+;; TypeName(Range("A1"))
+;; TypeName(Range("A1").Font)
+;; TypeName(Range("A1").Interior)
+;; Range("A1").Font.Bold
+Range("A1").Font.Bold = True ;; Range("A1").Font.Bold
+Range("A1").Font.Size = 14 ;; Range("A1").Font.Size
+;; Range("A1").Font.Name
+Range("A1").Interior.Color = RGB(255, 255, 0) ;; Range("A1").Interior.Color
+;; Application.Name
+;; Application.ScreenUpdating
+;; TypeName(Application.WorksheetFunction)
+Application.ScreenUpdating = False ;; Application.ScreenUpdating
+;; ActiveWorkbook.Names.Count
+ActiveWorkbook.Names.Add "Probe", Range("A1:B2") ;; ActiveWorkbook.Names("Probe").RefersTo
+ActiveWorkbook.Names.Add "Probe", Range("A1:B2") ;; Range("Probe").Address
+ActiveWorkbook.Names.Add "Probe", Range("A1:B2"): Range("Probe").Value = 3 ;; Range("B2").Value
+
+# --- worksheet functions ---
+Range("A1:A3").Value = 2 ;; Application.WorksheetFunction.Sum(Range("A1:A3"))
+Range("A1:A3").Value = 2 ;; Application.WorksheetFunction.Average(Range("A1:A3"))
+Range("A1").Value = 1: Range("A2").Value = 5 ;; Application.WorksheetFunction.Max(Range("A1:A2"))
+Range("A1").Value = 1: Range("A2").Value = "x" ;; Application.WorksheetFunction.Count(Range("A1:A2"))
+Range("A1").Value = 1: Range("A2").Value = "x" ;; Application.WorksheetFunction.CountA(Range("A1:A2"))
+;; Application.WorksheetFunction.Sum(1, 2, 3)
+;; TypeName(Application.WorksheetFunction.Sum(1, 2))
+;; Application.WorksheetFunction.Trim("  a   b  ")
+
+# --- errors the model has to raise with the same number ---
+Range("A1").Offset(-1, 0).Address
+Range("zz").Address
+Worksheets("NoSuchSheet").Name
+Range("A1").Resize(0, 1).Address
+ActiveWorkbook.Names("NoSuchName").RefersTo

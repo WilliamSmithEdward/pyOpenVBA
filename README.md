@@ -467,6 +467,46 @@ What the format is, and how each rule was measured, is in
 
 ---
 
+## Running the macros
+
+Reading and writing VBA is one thing; this runs it. `ExcelApplication`
+is an Excel instance in memory, with a VBA interpreter attached: load a
+workbook, execute a macro, look at what it did, write the file back.
+
+```python
+from pyopenvba.apps.excel import ExcelApplication
+
+app = ExcelApplication.open("report.xlsm")   # sheets, names, queries, macros
+app.run("BuildReport")
+print(app.describe())                        # a readable dump of the grid
+app.save("report_out.xlsm")
+```
+
+State can also be made up from nothing, with no file at all:
+
+```python
+app = ExcelApplication()
+app.add_workbook()
+app.add_module('Sub Main()\n    Range("A1").Value = 42\nEnd Sub\n', name="Module1")
+app.run("Main")
+app.sheet(1).value("A1")          # 42
+app.evaluate('Range("A1").Value * 2')   # 84
+```
+
+Failures are three separate exceptions, because they mean different
+things: `VBACompileError` for VBA that does not compile,
+`VBARuntimeError` for an error VBA itself would raise, carrying the
+number `Err` would hold, and `VBAUnsupportedError` for real VBA that
+pyOpenVBA does not implement. The third is never trappable by
+`On Error`: a gap here must not be swallowed and reported as a result.
+
+Every answer the interpreter gives was measured in live Excel rather
+than assumed, and a workbook nobody changed saves back byte for byte.
+What is implemented, what is not, and how it was measured is in
+[docs/vba_runtime.md](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/docs/vba_runtime.md).
+
+---
+
 ## Supported formats
 
 ### Excel

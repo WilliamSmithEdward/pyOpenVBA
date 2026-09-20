@@ -20,6 +20,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
+from pyopenvba._xml import attributes as xml_attributes
 from pyopenvba.exceptions import PowerQueryError
 from pyopenvba.powerquery._opc import OpcFile
 
@@ -84,28 +85,6 @@ def _escape(value: str) -> str:
     )
 
 
-_ENTITIES = {"amp": "&", "lt": "<", "gt": ">", "quot": '"', "apos": "'"}
-
-
-def _unescape(value: str) -> str:
-    """The characters an XML attribute's stored text stands for.
-
-    A sheet named ``A & B`` is stored as ``A &amp; B``, and reading the
-    stored form as if it were the name meant that asking for the sheet by
-    the name it actually has found nothing.
-    """
-
-    def replace(match: re.Match[str]) -> str:
-        body = match.group(1)
-        if body[:2] in {"#x", "#X"}:
-            return chr(int(body[2:], 16))
-        if body.startswith("#"):
-            return chr(int(body[1:]))
-        return _ENTITIES.get(body, match.group(0))
-
-    return re.sub(r"&(#[0-9]+|#[xX][0-9a-fA-F]+|[A-Za-z]+);", replace, value)
-
-
 def _next_relationship(rels: str) -> str:
     used = {int(number) for number in re.findall(r'Id="rId(\d+)"', rels)}
     index = 1
@@ -125,21 +104,8 @@ def _relationships(package: OpcFile, part: str) -> str:
 
 
 def _attributes(element: str) -> dict[str, str]:
-    """The attributes of one element, in whatever order they were written.
-
-    XML gives attribute order no meaning, and writers differ: Excel opens
-    a relationship with ``Id``, openpyxl closes with it.  Matching them in
-    a fixed order silently found nothing in the second case, which left a
-    sheet looking as though it had no part behind it.
-
-    Values come back as the characters they stand for, not as stored, so
-    a caller comparing one against a name a user typed compares like with
-    like.
-    """
-    return {
-        key: _unescape(value)
-        for key, value in re.findall(r'([\w.:-]+)\s*=\s*"([^"]*)"', element)
-    }
+    """The attributes of one element, shared with the workbook writer."""
+    return xml_attributes(element)
 
 
 def _relationship_targets(rels: str) -> dict[str, str]:

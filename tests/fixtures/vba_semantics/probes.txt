@@ -1,0 +1,273 @@
+# One VBA expression per line.  Each is evaluated in real Excel by
+# scripts/measure_vba_semantics.py and the answer is recorded in
+# measured.json, which tests/test_vba_semantics.py holds the interpreter
+# to.  Lines starting with # are comments.
+#
+# The point of the list is the places an interpreter guesses wrong:
+# integer width and overflow, how a number becomes a string, what Null
+# and Empty do to each operator, and which error number comes out.
+
+# --- literals and the widths they carry ---
+TypeName(1)
+TypeName(40000)
+TypeName(1&)
+TypeName(1%)
+TypeName(1!)
+TypeName(1#)
+TypeName(1@)
+TypeName(1.5)
+TypeName("a")
+TypeName(True)
+TypeName(Empty)
+TypeName(Null)
+TypeName(#1/1/2020#)
+TypeName(CDec(1))
+TypeName(CByte(1))
+TypeName(Array(1, 2))
+&H10
+&H8000
+&HFFFF
+&HFFFFFFFF
+&O17
+1000000000 + 1000000000
+
+# --- arithmetic and its overflow ---
+30000 + 30000
+30000& + 30000
+7 / 2
+7 \ 2
+-7 \ 2
+7.6 \ 2
+7 Mod 3
+-7 Mod 3
+7.6 Mod 3
+2 ^ 10
+2 ^ 0.5
+-2 ^ 2
+CInt(1.5)
+CInt(2.5)
+CInt(-2.5)
+CInt(0.5)
+CLng(2.5)
+Int(-1.5)
+Fix(-1.5)
+Int(1.5)
+Round(0.5)
+Round(1.5)
+Round(2.5)
+Round(2.675, 2)
+Round(-0.5)
+Abs(-3)
+Sgn(-3)
+1 / 0
+CInt(40000)
+CByte(-1)
+0.1 + 0.2
+1 / 3
+CStr(1 / 3)
+CStr(0.1 + 0.2)
+CStr(1000000000000000)
+CStr(10000000000000000)
+CStr(0.0001)
+CStr(0.00001)
+CStr(0.000001)
+CStr(123456789.123456)
+CStr(1.5E+300)
+CStr(-0.5)
+CStr(CSng(1 / 3))
+CSng(1 / 3)
+CCur(1 / 3)
+CDec(1) / 3
+
+# --- strings ---
+"10" + 5
+"10" & 5
+"a" + 5
+1 & 2
+Left("abc", 5)
+Left("abc", 0)
+Right("abc", 5)
+Mid("abcdef", 3)
+Mid("abcdef", 3, 2)
+Mid("abc", 5)
+Len("abc")
+Len(Empty)
+# Len of a numeric literal does not compile in VBA at all, so the byte
+# widths are measured through variables, which is the only way to see
+# that Len is a size in bytes for anything that is not a string.
+Dim n As Long: n = 12345 ;; Len(n)
+Dim i As Integer: i = 1 ;; Len(i)
+Dim d As Double: d = 1 ;; Len(d)
+Dim b As Byte: b = 1 ;; Len(b)
+Dim c As Currency: c = 1 ;; Len(c)
+Dim t As Date: t = Now ;; Len(t)
+Dim q As Variant: q = 12345 ;; Len(q)
+Dim y As Boolean ;; Len(y)
+InStr("abcabc", "b")
+InStr(3, "abcabc", "b")
+InStr("abcabc", "z")
+InStr("abc", "")
+InStrRev("abcabc", "b")
+Replace("aaa", "a", "b")
+Replace("aaa", "a", "b", 2)
+Replace("aaa", "a", "b", 1, 2)
+Replace("AAA", "a", "b", 1, -1, 1)
+UCase("aBc")
+Trim("  a  ")
+String(3, "x")
+String(3, 65)
+Space(3) & "|"
+StrReverse("abc")
+StrComp("a", "B")
+StrComp("a", "B", 1)
+Asc("A")
+Chr(65)
+Chr(200)
+AscW("A")
+UBound(Split("a,b,c", ","))
+UBound(Split("", ","))
+Join(Array("a", "b"), "-")
+"abc" Like "a*"
+"abc" Like "a?c"
+"a1c" Like "a#c"
+"abc" Like "[a-c]bc"
+"ABC" Like "abc"
+
+# --- Null, Empty and the comparisons ---
+Empty + 1
+Empty & "a"
+Empty = 0
+Empty = ""
+Empty > 0
+IsEmpty(Empty)
+Null + 1
+Null & "a"
+Null & Null
+IsNull(Null + 1)
+IsNull(Null = Null)
+Null = Null
+IsNull(Null And True)
+Null And False
+Null Or True
+True And Null
+1 < "1"
+"a" < "B"
+"A" < "a"
+True + True
+-True
+True * 5
+Not 5
+5 And 3
+5 Or 3
+5 Xor 3
+True Imp False
+CBool(2)
+CBool("True")
+IsNumeric("1.5")
+IsNumeric("1,5")
+IsNumeric(" 12 ")
+IsNumeric("&H10")
+IsDate("2/29/2024")
+IsDate("2/30/2024")
+Val("12abc")
+Val("1.5e2x")
+Val(" 1 2 ")
+Val("&H10")
+Str(12)
+Str(-12)
+Hex(255)
+Hex(-1)
+Oct(8)
+
+# --- dates ---
+CDbl(#1/1/2020#)
+CStr(#1/1/2020#)
+CStr(#1/1/2020 3:04:05 PM#)
+CStr(#3:04:05 PM#)
+CDbl(#12/30/1899#)
+CDbl(#12/29/1899#)
+Year(#2/29/2024#)
+Month(#2/29/2024#)
+Day(#2/29/2024#)
+Weekday(#1/1/2020#)
+Weekday(#1/1/2020#, 2)
+WeekdayName(1)
+MonthName(2, True)
+DateSerial(2020, 13, 1)
+DateSerial(2020, 1, 32)
+DateSerial(2020, 3, 0)
+DateAdd("m", 1, #1/31/2020#)
+DateAdd("d", -1, #1/1/2020#)
+DateAdd("yyyy", 1, #2/29/2020#)
+DateDiff("d", #1/1/2020#, #3/1/2020#)
+DateDiff("m", #1/31/2020#, #2/1/2020#)
+DateDiff("yyyy", #12/31/2019#, #1/1/2020#)
+DatePart("q", #5/1/2020#)
+DateValue(#1/1/2020 3:00:00 PM#)
+CDate("1/1/2020")
+CDate(43831)
+CDate("not a date")
+TimeSerial(25, 0, 0)
+
+# --- Format ---
+Format(1234.5, "#,##0.00")
+Format(0.5, "0%")
+Format(#1/2/2020#, "yyyy-mm-dd")
+Format(#1/2/2020#, "dddd")
+Format(5, "00000")
+Format(-5, "#,##0;(#,##0)")
+Format(0.125, "0.00")
+Format(0.135, "0.00")
+Format("abc", ">")
+FormatNumber(1234.5)
+FormatPercent(0.5, 0)
+FormatCurrency(1234.5)
+FormatDateTime(#1/2/2020#, 2)
+
+# --- where a Double stops printing in full and starts using an exponent ---
+CStr(100000000000000#)
+CStr(999999999999999#)
+CStr(1000000000000000#)
+CStr(1234567890123456#)
+CStr(-1000000000000000#)
+CStr(1.5E+15)
+CStr(1E+20)
+CStr(0.0001)
+CStr(0.000012345)
+CStr(0.0000001)
+CStr(0.00000001)
+CStr(0.0000000001)
+CStr(1E-20)
+CStr(1.5E-7)
+CStr(CSng(0.0000001))
+CStr(CSng(100000000))
+CStr(CSng(1E+15))
+CStr(1E-11)
+CStr(1E-12)
+CStr(1E-13)
+CStr(1E-14)
+CStr(1E-15)
+CStr(1E-16)
+CStr(1E-17)
+CStr(1.23456789012345E-11)
+CStr(1.23456789012345E-15)
+CStr(CSng(1E-8))
+CStr(CSng(1E-10))
+CStr(CSng(1E-38))
+CStr(CSng(12345678))
+CStr(CSng(1234567))
+CStr(1E+15 - 1)
+CStr(9999999999999998#)
+
+# --- errors the interpreter has to raise with the same number ---
+Left("a", -1)
+Mid("a", 0)
+Space(-1)
+Chr(-99999)
+Sqr(-1)
+Log(0)
+Array(1, 2)(5)
+CDate("x")
+"a" * 2
+Asc("")
+StrReverse(Null)

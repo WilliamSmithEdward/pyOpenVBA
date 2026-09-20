@@ -42,6 +42,12 @@ done and what is not.
   `form.add_control()`, `form.add_page()`, `control.set_property()`,
   `python -m pyopenvba forms`).  Writing is lossless: an unedited form
   saves back byte for byte.
+- **Running the VBA**: a VBA interpreter and an in-memory Excel object
+  model (`pyopenvba.apps.excel.ExcelApplication`), so a macro can be
+  executed against a workbook loaded from a file or made up from
+  nothing, and the result written back out. Every expression answer is
+  measured against live Excel; see
+  [`vba_runtime.md`](vba_runtime.md).
 - Pure Python 3.10+, zero runtime dependencies.
 
 ### Unsupported (today)
@@ -85,7 +91,17 @@ done and what is not.
 
 ## Near-term roadmap (in priority order)
 
-_No open near-term items: all in-scope gates are PASS. See the "Out of scope" section below for explicitly deferred work._
+The MS-OVBA gates are all PASS. What is open belongs to the newer
+interpreter work, tracked in [`vba_runtime.md`](vba_runtime.md):
+
+1. Word, PowerPoint and Access object models, each with its own measured
+   probe file, following the shape `apps/excel` set.
+2. Evaluating Power Query's M, so `WorkbookQuery.Refresh` lands data on
+   a sheet instead of reporting itself unsupported.
+3. A formula engine, so a formula written during a run has a value
+   rather than an honest refusal.
+4. `WithEvents` and the document-module event handlers, so a
+   `Worksheet_Change` fires when a macro writes a cell.
 
 ## Out of scope (no current plans)
 

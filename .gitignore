@@ -36,6 +36,9 @@ Thumbs.db
 tests/fixtures/*.xlsm
 tests/fixtures/*.xls
 
+# Workbooks the measuring scripts build to ask live Office a question
+tests/fixtures/mlang/_scratch/
+
 # Manually-generated Excel verification set (rebuilt by
 # scripts/build_excel_verification_set.py)
 tests/live_excel_testing/_excel_verify/

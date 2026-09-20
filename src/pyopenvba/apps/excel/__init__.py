@@ -172,6 +172,21 @@ class ExcelApplication:
         frame = _bare_frame(self.interpreter)
         return _plain(self.interpreter.evaluate(parsed, frame))
 
+    def refresh_query(self, name: str) -> list[list[object]]:
+        """Evaluate one query and give back its rows, headers first.
+
+        The rows also land on the sheet the query loads to, when it has
+        one, which is what the workbook keeps and what a save writes.
+        """
+        from pyopenvba.apps.excel._refresh import refresh
+
+        table = refresh(self.workbook, name)
+        return [list(table.columns), *[list(row) for row in table.rows]]
+
+    def refresh_all(self) -> None:
+        """Evaluate every query in the workbook, as RefreshAll does."""
+        self.workbook.vba_get("RefreshAll")
+
     def freeze_clock(self, when: _dt.datetime) -> None:
         """Pin Now, Date and Time, so two runs can be compared."""
         self.interpreter.freeze(when)

@@ -96,8 +96,9 @@ interpreter work, tracked in [`vba_runtime.md`](vba_runtime.md):
 
 1. Word, PowerPoint and Access object models, each with its own measured
    probe file, following the shape `apps/excel` set.
-2. Evaluating Power Query's M, so `WorkbookQuery.Refresh` lands data on
-   a sheet instead of reporting itself unsupported.
+2. More of the M library, which is 224 of the 859 names `#shared`
+   reports. The gaps are named rather than answered wrongly, so what to
+   add next is whatever a real query asks for.
 3. Shapes on every surface: adding, reading, changing and deleting them
    in Word, PowerPoint and Excel, and attaching or detaching the VBA
    procedure a shape runs (`Shape.OnAction`, and the equivalent on a

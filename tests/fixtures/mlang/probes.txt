@@ -1,0 +1,290 @@
+// One M expression per line.  Each is evaluated by live Excel's own
+// Power Query engine through scripts/measure_m.py, and what it answered
+// is recorded in measured.json.
+//
+// The probes are the places an M evaluator guesses wrong: what null does
+// to each operator, what a comparison between two types answers, which
+// functions ignore nulls, and which errors come out by name.
+
+// --- operators ---
+1 + 2 * 3
+(1 + 2) * 3
+10 / 4
+10 / 0
+0 / 0
+-10 / 0
+2 - 3
+"a" & "b"
+{1, 2} & {3}
+[a = 1] & [b = 2]
+[a = 1] & [a = 2]
+1 = 1
+1 = 1.0
+"a" = "A"
+1 < 2
+"a" < "b"
+true and false
+true or false
+not true
+null + 1
+null & "a"
+null = null
+null = 1
+null < 1
+1 <> null
+null ?? 5
+5 ?? 1
+if null = null then "y" else "n"
+
+// --- conversion ---
+Number.From("12")
+Number.From("1.5")
+Number.From("x")
+Number.From(true)
+Number.From(null)
+Text.From(12)
+Text.From(1.5)
+Text.From(true)
+Text.From(null)
+Logical.From("true")
+Date.From("2021-03-04")
+Number.Round(2.5)
+Number.Round(3.5)
+Number.Round(-2.5)
+Number.Round(2.345, 2)
+Number.RoundDown(1.9)
+Number.RoundUp(1.1)
+Number.Mod(-7, 3)
+Number.Mod(7, -3)
+Number.IntegerDivide(-7, 3)
+Number.Abs(-3)
+
+// --- text ---
+Text.Length("abc")
+Text.Length(null)
+Text.Upper("aB")
+Text.Start("abc", 5)
+Text.End("abc", 5)
+Text.Middle("abcdef", 2, 3)
+Text.Contains("abc", "B")
+Text.Replace("aaa", "a", "b")
+Text.Split("a,b,c", ",")
+Text.Combine({"a", "b"}, "-")
+Text.Combine({"a", null, "b"}, "-")
+Text.Trim("  a  ")
+Text.PadStart("7", 3, "0")
+Text.Repeat("ab", 2)
+Text.PositionOf("abcabc", "b")
+Text.From(#date(2021, 3, 4))
+
+// --- lists ---
+{1, 2, 3}
+{1..3}
+List.Sum({1, 2, 3})
+List.Sum({1, null, 3})
+List.Sum({})
+List.Average({1, 2})
+List.Count({1, null})
+List.NonNullCount({1, null})
+List.Max({1, 5, 3})
+List.Max({})
+List.Min({"a", "b"})
+List.First({1, 2})
+List.Last({})
+List.FirstN({1, 2, 3}, 2)
+List.Skip({1, 2, 3}, 1)
+List.Distinct({1, 1, 2})
+List.Contains({1, 2}, 2)
+List.PositionOf({1, 2}, 2)
+List.PositionOf({1, 2}, 9)
+List.Transform({1, 2}, each _ * 10)
+List.Select({1, 2, 3}, each _ > 1)
+List.Sort({3, 1, 2})
+List.Sort({3, 1, 2}, Order.Descending)
+List.Reverse({1, 2})
+List.Combine({{1}, {2, 3}})
+List.Numbers(1, 3)
+List.Accumulate({1, 2, 3}, 0, (s, c) => s + c)
+List.RemoveNulls({1, null, 2})
+List.IsEmpty({})
+List.Zip({{1, 2}, {3, 4}})
+
+// --- records ---
+[a = 1, b = 2]
+[a = 1, b = a + 1]
+[a = 1][a]
+[a = 1][b]?
+Record.FieldNames([a = 1, b = 2])
+Record.FieldValues([a = 1, b = 2])
+Record.RemoveFields([a = 1, b = 2], {"a"})
+Record.SelectFields([a = 1, b = 2], {"b"})
+Record.HasFields([a = 1], {"a"})
+Record.AddField([a = 1], "b", 2)
+Record.Combine({[a = 1], [b = 2]})
+Record.FromList({1, 2}, {"a", "b"})
+
+// --- tables ---
+#table({"A", "B"}, {{1, 2}, {3, 4}})
+#table({"A"}, {})
+Table.RowCount(#table({"A"}, {{1}, {2}}))
+Table.ColumnNames(#table({"A", "B"}, {}))
+Table.Column(#table({"A"}, {{1}, {2}}), "A")
+Table.SelectRows(#table({"A"}, {{1}, {2}, {3}}), each [A] > 1)
+Table.SelectRows(#table({"A"}, {{1}, {null}}), each [A] > 0)
+Table.AddColumn(#table({"A"}, {{1}, {2}}), "D", each [A] * 2)
+Table.AddIndexColumn(#table({"A"}, {{9}, {8}}), "I")
+Table.AddIndexColumn(#table({"A"}, {{9}, {8}}), "I", 1)
+Table.RemoveColumns(#table({"A", "B"}, {{1, 2}}), {"A"})
+Table.SelectColumns(#table({"A", "B"}, {{1, 2}}), {"B"})
+Table.RenameColumns(#table({"A"}, {{1}}), {{"A", "X"}})
+Table.ReorderColumns(#table({"A", "B"}, {{1, 2}}), {"B", "A"})
+Table.Sort(#table({"A"}, {{3}, {1}, {2}}), {{"A", Order.Ascending}})
+Table.Sort(#table({"A"}, {{3}, {1}, {2}}), {{"A", Order.Descending}})
+Table.Distinct(#table({"A"}, {{1}, {1}, {2}}))
+Table.FirstN(#table({"A"}, {{1}, {2}, {3}}), 2)
+Table.Skip(#table({"A"}, {{1}, {2}}), 1)
+Table.PromoteHeaders(#table({"C1", "C2"}, {{"A", "B"}, {1, 2}}))
+Table.TransformColumnTypes(#table({"A"}, {{"12"}}), {{"A", Int64.Type}})
+Table.TransformColumnTypes(#table({"A"}, {{"x"}}), {{"A", Int64.Type}})
+Table.TransformColumns(#table({"A"}, {{2}}), {{"A", each _ * 5}})
+Table.Group(#table({"K", "V"}, {{"a", 1}, {"a", 2}, {"b", 5}}), {"K"}, {{"T", each List.Sum([V])}})
+Table.Combine({#table({"A"}, {{1}}), #table({"A"}, {{2}})})
+Table.Combine({#table({"A"}, {{1}}), #table({"B"}, {{2}})})
+Table.ToRows(#table({"A", "B"}, {{1, 2}}))
+Table.ToColumns(#table({"A", "B"}, {{1, 2}}))
+Table.ToRecords(#table({"A"}, {{1}}))
+Table.FromRows({{1, 2}}, {"A", "B"})
+Table.FromColumns({{1, 2}, {3, 4}}, {"A", "B"})
+Table.FromRecords({[A = 1], [A = 2]})
+Table.IsEmpty(#table({"A"}, {}))
+Table.ReplaceValue(#table({"A"}, {{"ab"}}), "a", "X", Replacer.ReplaceText, {"A"})
+Table.NestedJoin(#table({"K"}, {{1}, {2}}), {"K"}, #table({"K", "V"}, {{1, "x"}}), {"K"}, "N", JoinKind.LeftOuter)
+Table.ExpandTableColumn(Table.NestedJoin(#table({"K"}, {{1}, {2}}), {"K"}, #table({"K", "V"}, {{1, "x"}}), {"K"}, "N", JoinKind.LeftOuter), "N", {"V"})
+Table.Join(#table({"K"}, {{1}, {2}}), {"K"}, #table({"K", "V"}, {{1, "x"}}), {"K"}, JoinKind.Inner)
+#table({"A"}, {{1}}){0}
+#table({"A"}, {{1}}){0}[A]
+#table({"A"}, {{1}, {2}}){[A = 2]}
+
+// --- functions and control flow ---
+let f = (x) => x * 2 in f(21)
+let f = (x, optional y) => x + (y ?? 0) in f(1)
+let f = (x) => x + 1 in f("a")
+each 1
+if 1 > 2 then "y" else "n"
+try 1/0
+try error "boom"
+try error "boom" otherwise "caught"
+try 1 otherwise 2
+let x = 1, y = x + 1 in y
+let y = x + 1, x = 1 in y
+let a = b, b = a in a
+NoSuchName
+Table.NoSuchFunction(1)
+
+// --- dates ---
+#date(2021, 3, 4)
+#date(2021, 13, 1)
+#time(12, 30, 0)
+#datetime(2021, 3, 4, 12, 30, 0)
+#duration(1, 2, 0, 0)
+Date.Year(#date(2021, 3, 4))
+Date.Month(#date(2021, 3, 4))
+Date.Day(#date(2021, 3, 4))
+Date.DayOfWeek(#date(2021, 3, 4))
+Date.AddDays(#date(2021, 3, 4), 1)
+Date.AddMonths(#date(2021, 1, 31), 1)
+Date.EndOfMonth(#date(2021, 2, 4))
+Date.StartOfMonth(#date(2021, 2, 4))
+#date(2021, 3, 5) - #date(2021, 3, 4)
+#date(2021, 3, 4) < #date(2021, 3, 5)
+
+// --- sources that do not leave the machine ---
+Csv.Document("a,b#(lf)1,2")
+Table.PromoteHeaders(Csv.Document("a,b#(lf)1,2"))
+Csv.Document("a;b#(lf)1;2", [Delimiter = ";"])
+Json.Document("{""x"": 1}")
+Json.Document("[1, 2]")
+Lines.FromBinary(#binary("a#(lf)b"))
+Text.FromBinary(#binary("abc"))
+Text.FromBinary(#binary("YWJj"))
+Lines.FromBinary(#binary("YQpi"))
+Binary.ToText(#binary("YWJj"))
+
+// --- ranges, durations and the decimals a round hands back ---
+{3..1}
+List.Sum({1..5})
+Text.Select("a1b2", {"0".."9"})
+Number.Round(1, 2)
+Number.Round(2.345, 2) + 0
+Text.From(Number.Round(2.345, 2))
+Number.Round(-0.5)
+Number.Round(2.5, 0, RoundingMode.AwayFromZero)
+#duration(0, 0, 0, 90)
+#duration(0, 1, 0, 0) + #duration(0, 2, 0, 0)
+#date(2021, 3, 4) + #duration(1, 0, 0, 0)
+#date(2021, 3, 4) + #duration(0, 12, 0, 0)
+#datetime(2021, 3, 4, 12, 0, 0) - #duration(0, 12, 0, 0)
+#datetime(2021, 3, 5, 0, 0, 0) - #datetime(2021, 3, 4, 12, 0, 0)
+Duration.TotalHours(#duration(1, 0, 0, 0))
+Duration.Days(#duration(1, 2, 0, 0))
+Date.From(44000)
+DateTime.From(44000.5)
+Time.From("12:30")
+Date.ToText(#date(2021, 3, 4), "yyyy-MM-dd")
+Number.ToText(1234.5, "#,##0.00")
+Int64.From(2.5)
+Int64.From(3.5)
+Number.Sqrt(-1)
+Number.Power(2, 0.5)
+Character.FromNumber(65)
+Character.ToNumber("A")
+Text.Format("a#{0}b", {1})
+Text.BetweenDelimiters("a[b]c", "[", "]")
+Uri.EscapeDataString("a b")
+
+// --- what a real query reaches for ---
+List.Generate(() => 1, each _ < 3, each _ + 1)
+List.Median({1, 2, 3, 4})
+List.StandardDeviation({1, 2, 3})
+Table.FillDown(#table({"A"}, {{1}, {null}}), {"A"})
+Table.FillUp(#table({"A"}, {{null}, {2}}), {"A"})
+Table.ReverseRows(#table({"A"}, {{1}, {2}}))
+Table.RemoveRows(#table({"A"}, {{1}, {2}, {3}}), 1, 1)
+Table.Max(#table({"A"}, {{1}, {5}}), "A")
+Table.Repeat(#table({"A"}, {{1}}), 2)
+Table.Buffer(#table({"A"}, {{1}}))
+Table.Pivot(#table({"K", "N", "V"}, {{"a", "x", 1}, {"a", "y", 2}}), {"x", "y"}, "N", "V")
+Table.UnpivotOtherColumns(#table({"K", "A", "B"}, {{"k", 1, 2}}), {"K"}, "N", "V")
+Table.Unpivot(#table({"K", "A", "B"}, {{"k", 1, 2}}), {"A", "B"}, "N", "V")
+Table.SplitColumn(#table({"A"}, {{"x,y"}}), "A", Splitter.SplitTextByDelimiter(","), {"A1", "A2"})
+Table.ExpandRecordColumn(Table.AddColumn(#table({"A"}, {{1}}), "R", each [B = 2]), "R", {"B"})
+Record.TransformFields([a = 1], {{"a", each _ * 2}})
+Table.TransformColumnNames(#table({"a b"}, {{1}}), Text.Upper)
+
+// --- the other side of each of those ---
+Table.Min(#table({"A"}, {{1}, {5}}), "A")
+Table.Max(#table({"A"}, {}), "A")
+Duration.Hours(#duration(1, 2, 3, 4))
+Duration.Minutes(#duration(1, 2, 3, 4))
+Duration.Seconds(#duration(1, 2, 3, 4))
+Duration.TotalDays(#duration(1, 12, 0, 0))
+Duration.TotalMinutes(#duration(0, 1, 0, 0))
+Duration.TotalSeconds(#duration(0, 0, 1, 30))
+Duration.From(1.5)
+Duration.ToText(#duration(0, 1, 2, 3))
+#duration(1, 0, 0, 0) - #duration(0, 1, 0, 0)
+#duration(0, 1, 0, 0) * 3
+Uri.UnescapeDataString("a%20b")
+Binary.ToText(#binary("YWJj"), BinaryEncoding.Hex)
+Number.Round(2.5, 0, RoundingMode.ToEven)
+Number.Round(1.25, 1, RoundingMode.AwayFromZero)
+Int64.From("12")
+List.Generate(() => 1, each _ < 4, each _ + 1, each _ * 10)
+Table.Pivot(#table({"K", "N", "V"}, {{"a", "x", 1}, {"a", "x", 2}}), {"x"}, "N", "V", List.Sum)
+Record.TransformFields([a = 1, b = 2], {{"a", each _ * 2}, {"b", Text.From}})
+Text.BetweenDelimiters("a[b]c[d]e", "[", "]", 1)
+Character.ToNumber("AB")
+{"a".."e"}
+Table.FillDown(#table({"A"}, {{null}, {1}}), {"A"})
+List.StandardDeviation({1})
+List.Median({})

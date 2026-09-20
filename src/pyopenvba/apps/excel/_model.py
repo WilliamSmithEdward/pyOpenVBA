@@ -432,6 +432,8 @@ class Workbook(ExcelObject):
         #: every part pyOpenVBA does not model.
         self.package: Any = None
         self._calculator: Any = None
+        #: Where each query's rows go, read from the package on demand.
+        self._load_targets: Any = None
 
     @property
     def calculator(self) -> Any:
@@ -541,6 +543,16 @@ class Workbook(ExcelObject):
 
     @method
     def Calculate(self) -> object:
+        self.calculator.calculate_all()
+        return EMPTY
+
+    @method
+    def RefreshAll(self) -> object:
+        """Evaluate every query and land each one on its sheet."""
+        from pyopenvba.apps.excel._refresh import refresh
+
+        for entry in list(self.queries_.entries):
+            refresh(self, entry.name)
         self.calculator.calculate_all()
         return EMPTY
 
@@ -1776,9 +1788,11 @@ class WorkbookQuery(ExcelObject):
 
     @method
     def Refresh(self) -> object:
-        raise VBAUnsupportedError(
-            f"refreshing {self.entry.name!r} means evaluating its M, which pyOpenVBA does not do yet"
-        )
+        """Evaluate the query's M and put what it answers on its sheet."""
+        from pyopenvba.apps.excel._refresh import refresh
+
+        refresh(self.book, self.entry.name)
+        return EMPTY
 
     @method
     def Delete(self) -> object:

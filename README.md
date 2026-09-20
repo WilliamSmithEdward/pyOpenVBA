@@ -517,6 +517,20 @@ app.sheet(1).value("B1")          # 30.0
 About a hundred worksheet functions are implemented; anything else
 Excel has says so by name rather than quietly answering `#NAME?`.
 
+Power Query is evaluated too. Refreshing a query works out its M and
+writes the rows to the sheet it loads to, so the table, its queryTable
+and the saved file all follow:
+
+```python
+app = ExcelApplication.open("sales.xlsx")
+app.refresh_query("Summary")      # the rows, headers first
+app.save("sales_out.xlsx")
+```
+
+Queries can name each other, `Excel.CurrentWorkbook()` reads the
+workbook's own tables and named ranges, and a source this cannot reach
+without a network or a driver reports itself rather than guessing.
+
 Every answer the interpreter and the calculation engine give was
 measured in live Excel rather than assumed, and a workbook nobody
 changed saves back byte for byte. What is implemented, what is not, and

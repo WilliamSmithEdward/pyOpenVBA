@@ -29,6 +29,7 @@ from pyopenvba.powerquery._sheets import add_content_type, sheet_entries
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Application, Cell, Workbook, Worksheet
+    from pyopenvba.apps.excel._refresh import LoadTarget
 
 _ROW = re.compile(r"<row\b[^>]*?(?:/>|>.*?</row>)", re.DOTALL)
 _CELL = re.compile(r"<c\b[^>]*?(?:/>|>.*?</c>)", re.DOTALL)
@@ -246,6 +247,63 @@ def _read_names(book: Workbook, workbook_xml: str) -> None:
         )
 
 
+_TABLE_PART = re.compile(r"<table\b[^>]*/?>")
+
+
+def read_load_targets(package: OpcFile, book: Workbook) -> dict[str, LoadTarget]:
+    """Where each query's rows sit, read from the tables in the package.
+
+    Excel names the table it makes for a query after the query, so the
+    table's name is what ties the two together; its ``ref`` is the block
+    the rows fill, headers included.
+    """
+    from pyopenvba.apps.excel._refresh import LoadTarget as Target
+
+    out: dict[str, LoadTarget] = {}
+    wanted = {entry.name.lower(): entry.name for entry in book.queries_.entries}
+    for sheet in book.sheets_:
+        if not sheet.part_name:
+            continue
+        rels = f"{sheet.part_name.rsplit('/', 1)[0]}/_rels/{sheet.part_name.rsplit('/', 1)[1]}.rels"
+        if not package.has(rels):
+            continue
+        text = package.read(rels).decode("utf-8", errors="replace")
+        for element in re.findall(r"<Relationship\b[^>]*/>", text):
+            attributes = _attributes(element)
+            target = attributes.get("Target", "")
+            if "table" not in target.lower():
+                continue
+            part = target[1:] if target.startswith("/") else f"xl/{target.lstrip('./')}"
+            part = part.replace("xl/../", "xl/").replace("/worksheets/../", "/")
+            if not package.has(part):
+                continue
+            table_xml = package.read(part).decode("utf-8", errors="replace")
+            found = _TABLE_PART.search(table_xml)
+            if found is None:
+                continue
+            fields = _tag_attributes(found.group(0))
+            name = fields.get("displayName") or fields.get("name", "")
+            reference = fields.get("ref", "")
+            if not name or not reference:
+                continue
+            key = wanted.get(name.lower()) or wanted.get(name.replace("_", " ").lower())
+            if key is None:
+                continue
+            try:
+                area = Area(*_area_of(reference), sheet.name)
+            except ValueError:
+                continue
+            out[key] = Target(sheet.name, area, part, name)
+    return out
+
+
+def _area_of(reference: str) -> tuple[int, int, int, int]:
+    from pyopenvba._a1 import parse_area
+
+    area = parse_area(reference)
+    return area.top, area.left, area.bottom, area.right
+
+
 def _read_queries(book: Workbook, path: Path) -> None:
     from pyopenvba.apps.excel._model import QueryEntry
 
@@ -292,6 +350,7 @@ def save_workbook(book: Workbook, target: Path) -> None:
         package.write(sheet.part_name, _patched_sheet(sheet, original, package).encode("utf-8"))
     if book.names_.changed:
         _write_names(book, package)
+    _resize_loaded_tables(book, package)
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_bytes(package.serialize())
 
@@ -356,6 +415,109 @@ def _match_sheets_to_package(book: Workbook, package: OpcFile) -> None:
                 "application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml",
             )
     _rename_sheets_in_workbook(book, package, existing)
+
+
+def _resize_loaded_tables(book: Workbook, package: OpcFile) -> None:
+    """Follow a refreshed query's rows with its table and its name.
+
+    A refresh that brings back more rows than last time leaves the
+    table saying it ends where it used to, and Excel then shows a table
+    that stops short of its own data.
+    """
+    targets = getattr(book, "_load_targets", None)
+    if not targets:
+        return
+    for name, target in targets.items():
+        if not target.table_part or not package.has(target.table_part):
+            continue
+        reference = target.area.address(absolute=False)
+        text = package.read(target.table_part).decode("utf-8", errors="replace")
+        patched = re.sub(r'(<table\b[^>]*?\bref=")[^"]*(")', rf"\1{reference}\2", text, count=1)
+        patched = re.sub(
+            r'(<autoFilter\b[^>]*?\bref=")[^"]*(")', rf"\1{reference}\2", patched, count=1
+        )
+        patched = _follow_columns(package, target, patched)
+        if patched != text:
+            package.write(target.table_part, patched.encode("utf-8"))
+        _follow_defined_name(book, package, name, target)
+
+
+def _follow_columns(package: OpcFile, target: LoadTarget, text: str) -> str:
+    """The table's own column list, brought in line with the headers.
+
+    A refresh that brings back different columns leaves the table
+    listing the old ones, and Excel then shows headers that do not
+    match the cells under them.
+    """
+    headers = target.headers
+    if not headers:
+        return text
+    columns = "".join(
+        f'<tableColumn id="{index + 1}" uniqueName="{index + 1}" name="{_escape(name)}"'
+        f' queryTableFieldId="{index + 1}"/>'
+        for index, name in enumerate(headers)
+    )
+    patched = re.sub(
+        r"<tableColumns\b[^>]*>.*?</tableColumns>",
+        f'<tableColumns count="{len(headers)}">{columns}</tableColumns>',
+        text,
+        count=1,
+        flags=re.DOTALL,
+    )
+    _follow_query_table(package, target, headers)
+    return patched
+
+
+def _follow_query_table(package: OpcFile, target: LoadTarget, headers: list[str]) -> None:
+    """The query table beside it lists the same fields."""
+    part = target.table_part
+    rels = f"{part.rsplit('/', 1)[0]}/_rels/{part.rsplit('/', 1)[1]}.rels"
+    if not part or not package.has(rels):
+        return
+    text = package.read(rels).decode("utf-8", errors="replace")
+    for element in re.findall(r"<Relationship\b[^>]*/>", text):
+        found = _attributes(element).get("Target", "")
+        if "querytable" not in found.lower():
+            continue
+        query_part = found[1:] if found.startswith("/") else f"xl/{found.lstrip('./')}"
+        query_part = query_part.replace("xl/../", "xl/").replace("/tables/../", "/")
+        if not package.has(query_part):
+            continue
+        body = package.read(query_part).decode("utf-8", errors="replace")
+        fields = "".join(
+            f'<queryTableField id="{index + 1}" name="{_escape(name)}" tableColumnId="{index + 1}"/>'
+            for index, name in enumerate(headers)
+        )
+        package.write(
+            query_part,
+            re.sub(
+                r"<queryTableFields\b[^>]*>.*?</queryTableFields>",
+                f'<queryTableFields count="{len(headers)}">{fields}</queryTableFields>',
+                body,
+                count=1,
+                flags=re.DOTALL,
+            ).encode("utf-8"),
+        )
+
+
+def _follow_defined_name(book: Workbook, package: OpcFile, name: str, target: LoadTarget) -> None:
+    """The hidden ExternalData name moves with the table it stands for."""
+    from pyopenvba._a1 import quote_sheet
+
+    area = target.area
+    wanted = f"{quote_sheet(area.sheet)}!{area.address()}"
+    changed = False
+    for entry in book.names_.entries:
+        if not entry.name.startswith("ExternalData_"):
+            continue
+        if entry.refers_to.lstrip("=").split("!")[0].strip("'") != area.sheet:
+            continue
+        if entry.refers_to.lstrip("=") != wanted:
+            entry.refers_to = f"={wanted}"
+            changed = True
+    if changed:
+        book.names_.changed = True
+        _write_names(book, package)
 
 
 def _rename_sheets_in_workbook(book: Workbook, package: OpcFile, existing: list[tuple[str, str]]) -> None:

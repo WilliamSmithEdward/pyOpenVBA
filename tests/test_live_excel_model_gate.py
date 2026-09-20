@@ -206,3 +206,69 @@ def test_an_edited_workbook_still_opens_with_its_query(tmp_path: Path) -> None:
         )
         assert result.ok, f"{result.outcome}: {result.message}"
         assert str(result.value) == "99|1|1"
+
+
+#: A query that does enough to be worth comparing: a group, a sort, a
+#: derived column and a rounding, all of which the M tests measure one
+#: at a time.
+QUERY = """let
+    Source = #table({"Region", "Amount"}, {{"West", 10}, {"East", 20}, {"West", 5}}),
+    Grouped = Table.Group(Source, {"Region"}, {{"Total", each List.Sum([Amount])}}),
+    Sorted = Table.Sort(Grouped, {{"Region", Order.Ascending}}),
+    Final = Table.AddColumn(Sorted, "Share", each Number.Round([Total] / 35, 3))
+in
+    Final"""
+
+#: The block the query fills, headers included.
+LANDED = ("A1", "B1", "C1", "A2", "B2", "C2", "A3", "B3", "C3")
+
+
+def test_the_refresh_lands_what_power_query_lands(tmp_path: Path) -> None:
+    """The same query, refreshed here and by Excel, fills the same cells.
+
+    The probe file holds the evaluator to Power Query expression by
+    expression.  This is the other half: that a whole query, loaded to a
+    sheet, puts the same values in the same places as the engine does.
+    """
+    harness = pytest.importorskip("pyvbaharness")
+
+    from pyopenvba import PowerQueryWorkbook
+    from pyopenvba.excel import ExcelFile
+
+    seed = tmp_path / "seed.xlsm"
+    source = tmp_path / "query.xlsm"
+    ExcelFile.create_new(seed)
+    book = PowerQueryWorkbook(seed)
+    book.add_query("Summary", QUERY)
+    book.load_to_sheet("Summary", ["Region", "Total", "Share"])
+    book.save(source)
+
+    app = ExcelApplication.open(source)
+    app.refresh_query("Summary")
+    ours = [str(app.evaluate(f'CStr(Worksheets(1).Range("{where}").Value)')) for where in LANDED]
+
+    reader = (
+        "Public Function Report() As String\n"
+        "    Dim c As WorkbookConnection\n"
+        "    For Each c In ActiveWorkbook.Connections\n"
+        "        On Error Resume Next\n"
+        "        c.OLEDBConnection.BackgroundQuery = False\n"
+        "        On Error GoTo 0\n"
+        "    Next c\n"
+        "    ActiveWorkbook.RefreshAll\n"
+        "    Application.CalculateUntilAsyncQueriesDone\n"
+        "    Dim out As String, i As Long, cells As Variant\n"
+        f"    cells = Array({', '.join(chr(34) + where + chr(34) for where in LANDED)})\n"
+        "    For i = LBound(cells) To UBound(cells)\n"
+        '        out = out & CStr(Worksheets(1).Range(cells(i)).Value) & "|"\n'
+        "    Next i\n"
+        "    Report = out\n"
+        "End Function\n"
+    )
+    with harness.ExcelSession() as excel:
+        excel.open_document(source)
+        result = excel.run_vba(reader, "Report", timeout=300.0)
+        assert result.ok, f"{result.outcome}: {result.message}"
+        theirs = str(result.value).rstrip("|").split("|")
+
+    assert ours == theirs

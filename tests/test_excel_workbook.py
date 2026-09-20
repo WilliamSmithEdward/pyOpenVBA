@@ -184,11 +184,11 @@ def test_opening_a_workbook_reads_its_names_and_queries() -> None:
     assert [entry.name for entry in book.queries_.entries] == ["Loaded"]
 
 
-def test_a_query_refresh_is_unsupported_and_names_the_query() -> None:
+def test_a_query_refresh_evaluates_its_m() -> None:
+    """Refresh runs the query rather than reporting itself unsupported."""
     app = ExcelApplication.open(LOADED)
-    with pytest.raises(VBAUnsupportedError) as raised:
-        macro(app, '    ActiveWorkbook.Queries("Loaded").Refresh')
-    assert "Loaded" in str(raised.value)
+    macro(app, '    ActiveWorkbook.Queries("Loaded").Refresh')
+    assert app.sheet(1).rows() == [["A", "B"], [1, "x"], [2, "y"]]
 
 
 def test_a_query_formula_can_be_read_through_vba() -> None:

@@ -110,6 +110,29 @@ sweep is what settled these:
 - `Range("ZZ")` is error 1004, because a column on its own needs the
   colon.
 
+Power Query is measured by the same method, through the engine that
+ships with Excel: `scripts/measure_m.py` builds a workbook whose query
+evaluates every expression in `tests/fixtures/mlang/probes.txt`,
+refreshes it, and records what came back, 25 to a refresh.  All 259 are
+replayed by `tests/test_mlang_semantics.py`.  That sweep settled these:
+
+- `Number.Round(2.5)` is 2 and `Number.Round(3.5)` is 4: M rounds half
+  to even, where Excel's own ROUND rounds away from zero.  It writes
+  the answer as `2.0`, keeping the decimal places the number arrived
+  with, so `Number.Round(2.345, 2)` writes `2.340`.
+- `#date(2021, 3, 4) + #duration(0, 12, 0, 0)` is still a date, not a
+  datetime: the day the moment lands on.
+- A duration writes its day count only when it has one, so three hours
+  is `03:00:00` and a day and two hours is `1.02:00:00`.
+- `10/0` is `∞`, `0/0` is NaN and `Number.Sqrt(-1)` is NaN, none of
+  which is an error.
+- A row whose test comes out null is dropped by `Table.SelectRows`, the
+  same as a row that tested false.
+- `{"0".."9"}` is the ten digits: a range can be over characters.
+- M has `Uri.EscapeDataString` and no `Uri.UnescapeDataString`, which is
+  why `#shared` is asked for the list of names rather than assuming the
+  library is symmetric.
+
 `tests/test_live_excel_model_gate.py` asks the two questions only Excel
 can answer, behind `RUN_LIVE_EXCEL=1`: that the same macro leaves the
 same cells behind on both sides, and that a workbook written here opens
@@ -162,6 +185,21 @@ logical functions.  Anything else Excel has says so by name rather than
 answering `#NAME?`, which is reserved for a function Excel has not got
 either.
 
+**Power Query is evaluated.** `pyopenvba.mlang` is an M evaluator, so
+`WorkbookQuery.Refresh` works out the query's rows and writes them to
+the sheet it loads to; the table and its queryTable follow, and a save
+writes what the refresh produced. Bindings are lazy as M's are, one
+query can name another, and `Excel.CurrentWorkbook()` reads the tables
+and named ranges of the workbook being refreshed. A source that cannot
+be reached from a library with no network and no drivers -- a database,
+a web service, a folder somewhere else -- says so by name.
+
+```python
+app = ExcelApplication.open("sales.xlsx")
+app.refresh_query("Summary")      # rows, headers first
+app.save("sales_out.xlsx")
+```
+
 **Files.** A workbook is read from `.xlsx`, `.xlsm` or `.xlam`, and
 written back with only what changed rewritten: a sheet nobody touched
 keeps its bytes, and an unchanged workbook saves byte for byte.  A
@@ -174,8 +212,11 @@ freshly Excel-authored file.
   that holds the formula and shows its first element, which is what
   Excel did before dynamic arrays.  Implicit intersection is applied to
   a multi-cell reference beside an operator, as Excel's `@` does.
-- **Power Query is not evaluated.** A query's M is read and written;
-  `Refresh` reports that evaluating it is not implemented.
+- **Power Query reaches nothing off the machine.** The language is
+  evaluated and a local source is read, but `Sql.Database`, `Web.Contents`,
+  `OData.Feed` and the rest of the connectors report themselves rather
+  than opening a connection. 224 of M's 859 library names are
+  implemented; the others are named as gaps, not answered wrongly.
 - **No events.** `WithEvents` sinks are not connected and `RaiseEvent`
   says so.  A `Worksheet_Change` handler will not fire when a macro
   writes a cell.
@@ -208,12 +249,16 @@ freshly Excel-authored file.
 | `formula/_functions.py` | The worksheet functions |
 | `apps/excel/_io.py` | Reading and writing the workbook file |
 | `apps/excel/_bridge.py` | What a project sees when Excel is the host |
+| `apps/excel/_refresh.py` | A query evaluated and landed on a sheet |
+| `mlang/_parse.py` | The M grammar |
+| `mlang/_eval.py` | Evaluating M, lazily |
+| `mlang/_library.py` | The M library |
+| `mlang/_inventory.py` | Which names Power Query has, from `#shared` |
 
 ## What comes next
 
 Word, PowerPoint and Access get the same shape: an object model under
-`apps/`, a bridge, and a measured probe file per host.  Evaluating
-Power Query's M, so that a refresh actually lands data on a sheet, is
-the other direction; the query objects and the load-to plumbing are
-already here for it to write into.  Shapes across all three hosts, with
-the VBA procedure a shape runs, are on the same list.
+`apps/`, a bridge, and a measured probe file per host.  Shapes across
+all three hosts, with the VBA procedure a shape runs, are on the same
+list, and so are the document-module events, so that writing a cell
+from a macro fires `Worksheet_Change`.

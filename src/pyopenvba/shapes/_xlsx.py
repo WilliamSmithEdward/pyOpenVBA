@@ -47,6 +47,7 @@ _CONTROL_HEAD = re.compile(r"<control\b([^>]*?)/?>")
 _CONTROL_PR = re.compile(r"<controlPr\b([^>]*?)/?>")
 _FORM_CONTROL_PR = re.compile(r"<formControlPr\b([^>]*?)/?>")
 _ATTRIBUTE = re.compile(r'([\w:.-]+)="([^"]*)"')
+_FMLA_MACRO = re.compile(r"<x:FmlaMacro>.*?</x:FmlaMacro>", re.DOTALL)
 _COL = re.compile(r"<xdr:col>(\d+)</xdr:col>")
 _COLOFF = re.compile(r"<xdr:colOff>(-?\d+)</xdr:colOff>")
 _ROW = re.compile(r"<xdr:row>(\d+)</xdr:row>")
@@ -354,6 +355,253 @@ def with_control_macro(sheet_xml: str, shape_id: int, macro: str) -> str:
     return sheet_xml
 
 
+#: What a form control's shape id starts at.  Excel numbers controls
+#: from 1025, apart from the drawing shapes, which start at 2.
+FIRST_CONTROL_ID = 1025
+
+#: The VML a sheet needs before it can hold a control at all: the id
+#: map and the shape type every button is drawn from.
+EMPTY_VML = (
+    '<xml xmlns:v="urn:schemas-microsoft-com:vml"\r\n'
+    ' xmlns:o="urn:schemas-microsoft-com:office:office"\r\n'
+    ' xmlns:x="urn:schemas-microsoft-com:office:excel">\r\n'
+    ' <o:shapelayout v:ext="edit">\r\n'
+    '  <o:idmap v:ext="edit" data="1"/>\r\n'
+    ' </o:shapelayout><v:shapetype id="_x0000_t201" coordsize="21600,21600" o:spt="201"\r\n'
+    '  path="m,l,21600r21600,l21600,xe">\r\n'
+    '  <v:stroke joinstyle="miter"/>\r\n'
+    '  <v:path shadowok="f" o:extrusionok="f" strokeok="f" fillok="f" o:connecttype="rect"/>\r\n'
+    '  <o:lock v:ext="edit" shapetype="t"/>\r\n'
+    " </v:shapetype></xml>\r\n"
+)
+
+#: What each control this can make is called in its own part, and what
+#: ClientData says it is.
+CONTROL_KINDS: dict[str, str] = {
+    "Button": "Button",
+    "CheckBox": "Checkbox",
+    "Check Box": "Checkbox",
+    "DropDown": "Drop",
+    "Drop Down": "Drop",
+    "ListBox": "List",
+    "OptionButton": "Radio",
+    "GroupBox": "GBox",
+    "Label": "Label",
+    "ScrollBar": "Scroll",
+    "Spinner": "Spin",
+}
+
+
+def control_drawing(shape: Shape, grid: SheetGrid | None = None) -> str:
+    """The drawing half of a form control, as Excel writes it.
+
+    Wrapped in an ``mc:AlternateContent`` so a reader without the 2010
+    drawing extensions still finds something, with the shape hidden and
+    its transform empty: where the control is comes from the anchor.
+    """
+    grid = grid or SheetGrid()
+    return (
+        '<mc:AlternateContent xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006">'
+        '<mc:Choice xmlns:a14="http://schemas.microsoft.com/office/drawing/2010/main" Requires="a14">'
+        '<xdr:twoCellAnchor editAs="oneCell">'
+        f"{_corner_markup('from', grid, shape.left, shape.top)}"
+        f"{_corner_markup('to', grid, shape.left + shape.width, shape.top + shape.height)}"
+        '<xdr:sp macro="" textlink="">'
+        "<xdr:nvSpPr>"
+        f'<xdr:cNvPr id="{shape.shape_id}" name="{escape(shape.name)}" hidden="1">'
+        "<a:extLst>"
+        '<a:ext uri="{63B3BB69-23CF-44E3-9099-C40C66FF867C}">'
+        f'<a14:compatExt spid="_x0000_s{shape.shape_id}"/>'
+        "</a:ext>"
+        "</a:extLst>"
+        "</xdr:cNvPr>"
+        "<xdr:cNvSpPr/>"
+        "</xdr:nvSpPr>"
+        '<xdr:spPr bwMode="auto">'
+        '<a:xfrm><a:off x="0" y="0"/><a:ext cx="0" cy="0"/></a:xfrm>'
+        '<a:prstGeom prst="rect"><a:avLst/></a:prstGeom>'
+        '<a:noFill/><a:ln w="9525"><a:miter lim="800000"/><a:headEnd/><a:tailEnd/></a:ln>'
+        "</xdr:spPr>"
+        "</xdr:sp>"
+        '<xdr:clientData fPrintsWithSheet="0"/>'
+        "</xdr:twoCellAnchor>"
+        "</mc:Choice>"
+        "<mc:Fallback/>"
+        "</mc:AlternateContent>"
+    )
+
+
+def control_entry(shape: Shape, relationship: str, grid: SheetGrid | None = None) -> str:
+    """The sheet's own record of a control: what it is and what it runs."""
+    grid = grid or SheetGrid()
+    macro = f' macro="{escape(shape.macro and f"[0]!{shape.macro}")}"' if shape.macro else ""
+    return (
+        '<mc:AlternateContent xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006">'
+        '<mc:Choice Requires="x14">'
+        f'<control shapeId="{shape.shape_id}" r:id="{relationship}" name="{escape(shape.name)}">'
+        f'<controlPr defaultSize="0" autoFill="0" autoPict="0"{macro}>'
+        '<anchor moveWithCells="1">'
+        f"{_corner_markup('from', grid, shape.left, shape.top).replace('xdr:from', 'from')}"
+        f"{_corner_markup('to', grid, shape.left + shape.width, shape.top + shape.height).replace('xdr:to', 'to')}"
+        "</anchor>"
+        "</controlPr>"
+        "</control>"
+        "</mc:Choice>"
+        "</mc:AlternateContent>"
+    )
+
+
+def control_properties(shape: Shape) -> str:
+    """A control's own part: which control it is and what it is wired to."""
+    control = shape.control
+    kind = CONTROL_KINDS.get(control.kind if control else "Button", "Button")
+    linked = f' fmlaLink="{escape(control.linked_cell)}"' if control and control.linked_cell else ""
+    listed = f' fmlaRange="{escape(control.list_range)}"' if control and control.list_range else ""
+    extra = ' dropStyle="combo" dropLines="8"' if kind == "Drop" else ""
+    return (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\r\n'
+        '<formControlPr xmlns="http://schemas.microsoft.com/office/spreadsheetml/2009/9/main"'
+        f' objectType="{kind}"{linked}{listed}{extra} lockText="1"/>'
+    )
+
+
+def control_anchor(shape: Shape, grid: SheetGrid | None = None) -> str:
+    """The eight numbers a control's VML places it by.
+
+    Column, offset, row, offset for each corner, and the offsets are in
+    half-points: the fixture's button sits 12 points into its column
+    and says 24, and 6 points into the next and says 12.  Taken from a
+    file Excel wrote, where all four numbers come out exact.
+    """
+    grid = grid or SheetGrid()
+    left_column, left_offset = grid.column_at(shape.left)
+    top_row, top_offset = grid.row_at(shape.top)
+    right_column, right_offset = grid.column_at(shape.left + shape.width)
+    bottom_row, bottom_offset = grid.row_at(shape.top + shape.height)
+    numbers = (
+        left_column,
+        _half_points(left_offset),
+        top_row,
+        _half_points(top_offset),
+        right_column,
+        _half_points(right_offset),
+        bottom_row,
+        _half_points(bottom_offset),
+    )
+    return ", ".join(str(one) for one in numbers)
+
+
+def _half_points(offset: int) -> int:
+    """An EMU offset as the half-points a VML anchor counts in."""
+    return int(round(points(offset) * 2))
+
+
+def control_vml(shape: Shape, grid: SheetGrid | None = None) -> str:
+    """The VML Excel actually draws a control from."""
+    control = shape.control
+    kind = CONTROL_KINDS.get(control.kind if control else "Button", "Button")
+    macro = f"<x:FmlaMacro>[0]!{escape(shape.macro)}</x:FmlaMacro>" if shape.macro else ""
+    linked = (
+        f"<x:FmlaLink>{escape(control.linked_cell)}</x:FmlaLink>"
+        if control and control.linked_cell
+        else ""
+    )
+    listed = (
+        f"<x:FmlaRange>{escape(control.list_range)}</x:FmlaRange>"
+        if control and control.list_range
+        else ""
+    )
+    text = (
+        f"<v:textbox style='mso-direction-alt:auto' o:singleclick='f'>"
+        f"<div style='text-align:center'>{escape(shape.text)}</div></v:textbox>"
+        if shape.text
+        else ""
+    )
+    return (
+        f'<v:shape id="{_vml_id(shape.name)}" o:spid="_x0000_s{shape.shape_id}"'
+        ' type="#_x0000_t201"'
+        f" style='position:absolute;margin-left:{shape.left:g}pt;margin-top:{shape.top:g}pt;"
+        f"width:{shape.width:g}pt;height:{shape.height:g}pt;z-index:1;mso-wrap-style:tight'"
+        ' o:button="t" fillcolor="buttonFace [67]" o:insetmode="auto">'
+        '<v:fill color2="buttonFace [67]" o:detectmouseclick="t"/>'
+        '<o:lock v:ext="edit" rotation="t"/>'
+        f"{text}"
+        f'<x:ClientData ObjectType="{kind}">'
+        f"<x:Anchor>{control_anchor(shape, grid)}</x:Anchor>"
+        "<x:PrintObject>False</x:PrintObject>"
+        "<x:AutoFill>False</x:AutoFill>"
+        f"{macro}{linked}{listed}"
+        "<x:TextHAlign>Center</x:TextHAlign>"
+        "<x:TextVAlign>Center</x:TextVAlign>"
+        "</x:ClientData>"
+        "</v:shape>"
+    )
+
+
+def _vml_id(name: str) -> str:
+    """A shape's name as a VML id, which cannot hold a space."""
+    cleaned = re.sub(r"[^A-Za-z0-9_.-]", "", name)
+    return cleaned if cleaned and not cleaned[0].isdigit() else f"_{cleaned}"
+
+
+def with_vml_shape(vml: str, markup: str) -> str:
+    """The VML with one more shape in it."""
+    tail = vml.rfind("</xml>")
+    if tail < 0:
+        return vml + markup
+    return vml[:tail] + markup + vml[tail:]
+
+
+def with_vml_macro(vml: str, shape_id: int, macro: str) -> str:
+    """The VML with one control's macro set or cleared.
+
+    A form control keeps its macro in three places at once: the sheet's
+    controlPr, the VML shape's ``x:FmlaMacro``, and nothing in the
+    drawing at all.  Excel reads the VML, so a change that misses it is
+    a change that does not happen.
+    """
+    spid = f"_x0000_s{shape_id}"
+    span = _vml_shape_span(vml, spid)
+    if span is None:
+        return vml
+    markup = vml[span[0] : span[1]]
+    if _FMLA_MACRO.search(markup):
+        changed = (
+            _FMLA_MACRO.sub(f"<x:FmlaMacro>{escape(macro)}</x:FmlaMacro>", markup, count=1)
+            if macro
+            else _FMLA_MACRO.sub("", markup, count=1)
+        )
+    elif macro:
+        changed = markup.replace(
+            "<x:ClientData",
+            "<x:ClientData",
+            1,
+        )
+        head = changed.find(">", changed.find("<x:ClientData"))
+        if head < 0:
+            return vml
+        changed = (
+            changed[: head + 1]
+            + f"<x:FmlaMacro>{escape(macro)}</x:FmlaMacro>"
+            + changed[head + 1 :]
+        )
+    else:
+        changed = markup
+    return vml[: span[0]] + changed + vml[span[1] :]
+
+
+def _vml_shape_span(vml: str, spid: str) -> tuple[int, int] | None:
+    """Where one VML shape is, found by the id Excel gave it."""
+    at = 0
+    while True:
+        span = dml.element_span(vml, "v:shape", at)
+        if span is None:
+            return None
+        at = span[1]
+        if f'o:spid="{spid}"' in vml[span[0] : span[1]]:
+            return span
+
+
 def new_anchor(shape: Shape, grid: SheetGrid | None = None) -> str:
     """The markup for a shape this library is adding.
 
@@ -434,6 +682,8 @@ def written(shapes: list[Shape], original: str, grid: SheetGrid | None = None) -
 def _markup_for(shape: Shape, grid: SheetGrid | None = None) -> str:
     """One shape's markup: its own if nothing about it changed."""
     if not shape.source:
+        if shape.kind == "formControl":
+            return control_drawing(shape, grid)
         return new_anchor(shape, grid)
     was = _shape_of_source(shape)
     markup = shape.source

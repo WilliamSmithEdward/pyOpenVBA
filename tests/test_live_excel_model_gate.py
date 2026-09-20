@@ -277,6 +277,54 @@ def test_excel_opens_the_shapes_this_wrote(tmp_path: Path) -> None:
     assert [one.replace("\r", "") for one in theirs] == ours
 
 
+#: A form control, which is four parts of a workbook at once.
+CONTROL = """
+Sub Draw()
+    Dim sh As Object
+    Set sh = ActiveSheet.Shapes.AddFormControl(0, 100, 50, 90, 30)
+    sh.Name = "Go"
+    sh.OnAction = "Clicked"
+    sh.TextFrame.Characters.Text = "Press me"
+End Sub
+
+Public Sub Clicked()
+End Sub
+"""
+
+
+def test_excel_opens_a_form_control_this_made(tmp_path: Path) -> None:
+    """A button built from nothing, and Excel agrees it is one.
+
+    A control is the drawing, the sheet's own record of it, a part
+    saying what kind it is and the VML Excel draws it from.  Any of
+    them wrong and Excel refuses the file rather than saying why, so
+    this gate is the only way to know.
+    """
+    harness = pytest.importorskip("pyvbaharness")
+
+    app = ExcelApplication()
+    app.add_workbook()
+    app.add_module(CONTROL, name="Module1")
+    app.run("Draw")
+    out = tmp_path / "control.xlsm"
+    app.save(out)
+
+    reader = (
+        "Public Function Report() As String\n"
+        "    Dim sh As Object\n"
+        "    Set sh = ActiveSheet.Shapes(1)\n"
+        '    Report = sh.Name & "|" & CStr(sh.Type) & "|" & sh.OnAction & "|" & _\n'
+        '        CStr(sh.Left) & "|" & CStr(sh.Width) & "|" & sh.TextFrame.Characters.Text & _\n'
+        '        "|" & CStr(sh.FormControlType)\n'
+        "End Function\n"
+    )
+    with harness.ExcelSession() as excel:
+        excel.open_document(out)
+        result = excel.run_vba(reader, "Report", timeout=120.0)
+        assert result.ok, f"{result.outcome}: {result.message}"
+        assert str(result.value) == "Go|8|control.xlsm!Clicked|100|90|Press me|0"
+
+
 #: A query that does enough to be worth comparing: a group, a sort, a
 #: derived column and a rounding, all of which the M tests measure one
 #: at a time.

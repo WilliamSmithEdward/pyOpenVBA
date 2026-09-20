@@ -139,6 +139,63 @@ def test_the_macro_a_shape_runs_can_be_changed(tmp_path: Path) -> None:
     assert again.evaluate('Worksheets(1).Shapes("Oval").OnAction') == "Clicked"
 
 
+def test_a_form_controls_macro_reaches_both_parts_that_hold_it(tmp_path: Path) -> None:
+    """A control's macro is in the sheet and in the VML, never the drawing."""
+    app = opened(tmp_path)
+    macro(
+        app,
+        '    Worksheets(1).Shapes("Button1").OnAction = "Other"\n'
+        '    Worksheets(1).Shapes("Check1").OnAction = "Clicked"',
+    )
+    out = tmp_path / "wired.xlsm"
+    app.save(out)
+
+    package = zipfile.ZipFile(out)
+    sheet = package.read("xl/worksheets/sheet1.xml").decode("utf-8")
+    vml = package.read("xl/drawings/vmlDrawing1.vml").decode("utf-8")
+    assert 'macro="[0]!Other"' in sheet
+    assert "<x:FmlaMacro>[0]!Other</x:FmlaMacro>" in vml
+
+    again = ExcelApplication.open(out)
+    assert again.evaluate('Worksheets(1).Shapes("Button1").OnAction') == "Other"
+    assert again.evaluate('Worksheets(1).Shapes("Check1").OnAction') == "Clicked"
+
+
+def test_a_form_control_can_be_made_from_nothing(tmp_path: Path) -> None:
+    """Four parts make a control: drawing, sheet record, part, VML."""
+    app = ExcelApplication()
+    app.add_workbook()
+    macro(
+        app,
+        "    Dim sh As Object\n"
+        "    Set sh = ActiveSheet.Shapes.AddFormControl(0, 100, 50, 90, 30)\n"
+        '    sh.Name = "Go"\n'
+        '    sh.OnAction = "Clicked"\n'
+        '    sh.TextFrame.Characters.Text = "Press me"',
+    )
+    out = tmp_path / "control.xlsm"
+    app.save(out)
+
+    package = zipfile.ZipFile(out)
+    names = package.namelist()
+    assert "xl/ctrlProps/ctrlProp1.xml" in names
+    assert "xl/drawings/vmlDrawing1.vml" in names
+    sheet = package.read("xl/worksheets/sheet1.xml").decode("utf-8")
+    assert '<control shapeId="1025"' in sheet
+    assert "<legacyDrawing " in sheet
+    rels = package.read("xl/worksheets/_rels/sheet1.xml.rels").decode("utf-8")
+    assert "relationships/ctrlProp" in rels
+    types = package.read("[Content_Types].xml").decode("utf-8")
+    # Defaults come before Overrides, or the package is not one.
+    assert types.index('Extension="vml"') < types.index("<Override")
+
+    again = ExcelApplication.open(out)
+    assert again.evaluate("ActiveSheet.Shapes.Count") == 1
+    assert again.evaluate("ActiveSheet.Shapes(1).Type") == 8
+    assert again.evaluate("ActiveSheet.Shapes(1).OnAction") == "Clicked"
+    assert again.evaluate("ActiveSheet.Shapes(1).Left") == 100
+
+
 def test_a_workbook_made_from_nothing_can_hold_a_shape(tmp_path: Path) -> None:
     """A sheet with no drawing part gets one, wired up as Excel wires it."""
     app = ExcelApplication()

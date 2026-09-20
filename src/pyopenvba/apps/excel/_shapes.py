@@ -28,6 +28,7 @@ from pyopenvba.interpreter._values import (
     to_text,
 )
 from pyopenvba.shapes._values import PRESET_GEOMETRY, Shape
+from pyopenvba.shapes._xlsx import FIRST_CONTROL_ID
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Worksheet
@@ -178,6 +179,15 @@ class Shapes(VBACollection):
             box=(Left, Top, Width, Height),
         )
         shape.control = ControlInfo(kind=FORM_CONTROLS.get(wanted, "Button").replace(" ", ""))
+        # A control is numbered from 1025, apart from the drawing
+        # shapes, which start at 2.  The VML names it by that number
+        # too, and Excel will not open a file where the two disagree.
+        others = [
+            one.shape_id
+            for one in self.sheet.shapes_
+            if one.kind == "formControl" and one is not shape
+        ]
+        shape.shape_id = max(others, default=FIRST_CONTROL_ID - 1) + 1
         return ShapeObject(self.sheet, shape)
 
     @method

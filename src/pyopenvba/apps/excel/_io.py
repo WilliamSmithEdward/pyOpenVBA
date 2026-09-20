@@ -30,6 +30,7 @@ from pyopenvba.powerquery._sheets import add_content_type, sheet_entries
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Application, Cell, Workbook, Worksheet
     from pyopenvba.apps.excel._refresh import LoadTarget
+    from pyopenvba.shapes._values import Shape as ShapeState
 
 _ROW = re.compile(r"<row\b[^>]*?(?:/>|>.*?</row>)", re.DOTALL)
 _CELL = re.compile(r"<c\b[^>]*?(?:/>|>.*?</c>)", re.DOTALL)
@@ -321,11 +322,15 @@ def _read_shapes(sheet: Worksheet, package: OpcFile, sheet_xml: str) -> None:
     sheet.drawing_part = part
     sheet.drawing_xml = package.read(part).decode("utf-8", errors="replace")
     sheet.shapes_ = read_drawing(sheet.drawing_xml, grid_of(sheet_xml))
-    controls = read_controls(sheet_xml, _control_parts(package, sheet.part_name))
+    parts = _control_parts(package, sheet.part_name)
+    controls = read_controls(sheet_xml, parts)
     for shape in sheet.shapes_:
         found = controls.get(shape.shape_id)
         if found is not None:
             shape.control = found
+            # Which part it came from, so a save changes that control
+            # rather than adding another one beside it.
+            found.part_name = _part_for(package, sheet.part_name, found.relationship)
             # Excel reports a control's macro workbook-qualified, and
             # writes it as [0]!Name; the model carries the plain name.
             shape.macro = found.macro_text.rpartition("!")[2]
@@ -377,6 +382,12 @@ def _resolved(target: str) -> str:
     return part.replace("./", "")
 
 
+def _part_for(package: OpcFile, sheet_part: str, relationship: str) -> str:
+    """The part one of a sheet's relationships names."""
+    found = _sheet_relationships(package, sheet_part).get(relationship)
+    return _resolved(found[1]) if found else ""
+
+
 def _control_parts(package: OpcFile, sheet_part: str) -> dict[str, str]:
     """Each control's own part, by the relationship the sheet names."""
     out: dict[str, str] = {}
@@ -403,7 +414,198 @@ def _write_shapes(book: Workbook, package: OpcFile) -> None:
         package.write(part, written(sheet.shapes_, original, sheet.drawing_grid()).encode("utf-8"))
         sheet.drawing_part = part
         sheet.drawing_xml = package.read(part).decode("utf-8", errors="replace")
+        _write_new_controls(package, sheet)
+        _write_control_macros(package, sheet)
         sheet.drawing_dirty = False
+
+
+def _write_new_controls(package: OpcFile, sheet: Worksheet) -> None:
+    """Make real controls of the form controls a macro added.
+
+    A form control is four things at once: the hidden shape in the
+    drawing, the sheet's own ``<control>`` record, a part of its own
+    saying what kind it is, and the VML Excel actually draws.  Miss any
+    of them and Excel either loses the control or asks to repair the
+    file.
+    """
+    from pyopenvba.shapes._xlsx import EMPTY_VML, control_entry, control_vml, with_vml_shape
+
+    fresh = [
+        one
+        for one in sheet.shapes_
+        if one.kind == "formControl" and one.control is not None and not one.control.part_name
+    ]
+    if not fresh or not sheet.part_name or not package.has(sheet.part_name):
+        return
+    sheet_xml = package.read(sheet.part_name).decode("utf-8", errors="replace")
+    vml_part = _sheet_relationship(package, sheet.part_name, "vmlDrawing")
+    if not vml_part:
+        vml_part = _new_vml(package, sheet)
+        sheet_xml = package.read(sheet.part_name).decode("utf-8", errors="replace")
+    vml = package.read(vml_part).decode("utf-8", errors="replace") if package.has(vml_part) else EMPTY_VML
+    grid = sheet.drawing_grid()
+    entries: list[str] = []
+    for shape in fresh:
+        part = _new_control_part(package, shape)
+        relationship = _add_sheet_relationship(
+            package,
+            sheet.part_name,
+            f"../ctrlProps/{part.rsplit('/', 1)[1]}",
+            # The type Excel writes, read out of a file it saved.  A
+            # control whose r:id resolves to nothing makes a workbook
+            # Excel will not open at all.
+            "http://schemas.openxmlformats.org/officeDocument/2006/relationships/ctrlProp",
+        )
+        if shape.control is not None:
+            shape.control.part_name = part
+            shape.control.relationship = relationship
+        entries.append(control_entry(shape, relationship, grid))
+        vml = with_vml_shape(vml, control_vml(shape, grid))
+    package.write(vml_part, vml.encode("utf-8"))
+    package.write(sheet.part_name, _with_controls(sheet_xml, entries).encode("utf-8"))
+
+
+def _new_control_part(package: OpcFile, shape: ShapeState) -> str:
+    """A control's own part, written where Excel keeps them."""
+    from pyopenvba.shapes._xlsx import control_properties
+
+    taken = {name for name in package.names() if name.startswith("xl/ctrlProps/ctrlProp")}
+    number = 1
+    while f"xl/ctrlProps/ctrlProp{number}.xml" in taken:
+        number += 1
+    part = f"xl/ctrlProps/ctrlProp{number}.xml"
+    package.write(part, control_properties(shape).encode("utf-8"))
+    add_content_type(package, part, "application/vnd.ms-excel.controlproperties+xml")
+    return part
+
+
+def _new_vml(package: OpcFile, sheet: Worksheet) -> str:
+    """The VML part a sheet needs before it can hold a control."""
+    from pyopenvba.shapes._xlsx import EMPTY_VML
+
+    taken = {name for name in package.names() if name.startswith("xl/drawings/vmlDrawing")}
+    number = 1
+    while f"xl/drawings/vmlDrawing{number}.vml" in taken:
+        number += 1
+    part = f"xl/drawings/vmlDrawing{number}.vml"
+    package.write(part, EMPTY_VML.encode("utf-8"))
+    _add_default_content_type(package, "vml", "application/vnd.openxmlformats-officedocument.vmlDrawing")
+    relationship = _add_sheet_relationship(
+        package,
+        sheet.part_name,
+        f"../drawings/vmlDrawing{number}.vml",
+        "http://schemas.openxmlformats.org/officeDocument/2006/relationships/vmlDrawing",
+    )
+    text = package.read(sheet.part_name).decode("utf-8", errors="replace")
+    if "<legacyDrawing " not in text:
+        element = f'<legacyDrawing r:id="{relationship}"/>'
+        # After the drawing, which is where Excel puts it.
+        if "<drawing " in text:
+            at = text.find("/>", text.find("<drawing ")) + 2
+            text = text[:at] + element + text[at:]
+        else:
+            text = text.replace("</worksheet>", element + "</worksheet>")
+        package.write(sheet.part_name, text.encode("utf-8"))
+    return part
+
+
+def _add_default_content_type(package: OpcFile, extension: str, content_type: str) -> None:
+    """One more Default in [Content_Types], if it is not there already.
+
+    It goes with the other Defaults, before the first Override: the
+    package schema wants them in that order, and Excel refuses to open
+    a workbook whose content types are out of it.
+    """
+    raw = package.read("[Content_Types].xml").decode("utf-8")
+    if f'Extension="{extension}"' in raw:
+        return
+    element = f'<Default Extension="{extension}" ContentType="{content_type}"/>'
+    at = raw.rfind("/>", 0, raw.find("<Override"))
+    if at < 0:
+        at = raw.find(">", raw.find("<Types"))
+    package.write("[Content_Types].xml", (raw[: at + 2] + element + raw[at + 2 :]).encode("utf-8"))
+
+
+#: What a control's markup needs declared on the worksheet element: the
+#: drawing prefix its anchor uses, and the 2009 prefix the
+#: AlternateContent requires.  A sheet Excel wrote with controls has
+#: both; one written from the template has neither, and leaving them
+#: out makes a file Excel will not open.
+_CONTROL_NAMESPACES = {
+    "xdr": "http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing",
+    "x14": "http://schemas.microsoft.com/office/spreadsheetml/2009/9/main",
+}
+
+
+def _with_namespaces(sheet_xml: str, wanted: dict[str, str]) -> str:
+    """The sheet with these prefixes declared, if they are not already."""
+    found = re.search(r"<worksheet\b[^>]*>", sheet_xml)
+    if found is None:
+        return sheet_xml
+    element = found.group(0)
+    additions = "".join(
+        f' xmlns:{prefix}="{uri}"'
+        for prefix, uri in wanted.items()
+        if f"xmlns:{prefix}=" not in element
+    )
+    if not additions:
+        return sheet_xml
+    changed = element[:-1].rstrip() + additions + ">"
+    return sheet_xml[: found.start()] + changed + sheet_xml[found.end() :]
+
+
+def _with_controls(sheet_xml: str, entries: list[str]) -> str:
+    """The sheet carrying these control records, where Excel keeps them."""
+    if not entries:
+        return sheet_xml
+    sheet_xml = _with_namespaces(sheet_xml, _CONTROL_NAMESPACES)
+    body = "".join(entries)
+    marker = "<controls>"
+    at = sheet_xml.find(marker)
+    if at >= 0:
+        head = at + len(marker)
+        return sheet_xml[:head] + body + sheet_xml[head:]
+    block = (
+        '<mc:AlternateContent xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006">'
+        '<mc:Choice Requires="x14">'
+        f"<controls>{body}</controls>"
+        "</mc:Choice>"
+        "</mc:AlternateContent>"
+    )
+    return sheet_xml.replace("</worksheet>", block + "</worksheet>")
+
+
+def _write_control_macros(package: OpcFile, sheet: Worksheet) -> None:
+    """Follow a form control's macro into the two parts that hold it.
+
+    A control's macro is not in the drawing at all: the sheet's own
+    ``controlPr`` carries it, and so does the ``x:FmlaMacro`` of the
+    VML shape Excel reads.  Written as Excel writes it, ``[0]!Name``
+    for a procedure in this workbook.
+    """
+    from pyopenvba.shapes._xlsx import control_macro, with_control_macro, with_vml_macro
+
+    controls = [one for one in sheet.shapes_ if one.kind == "formControl"]
+    if not controls or not sheet.part_name or not package.has(sheet.part_name):
+        return
+    sheet_xml = package.read(sheet.part_name).decode("utf-8", errors="replace")
+    vml_part = _sheet_relationship(package, sheet.part_name, "vmlDrawing")
+    vml = package.read(vml_part).decode("utf-8", errors="replace") if vml_part else ""
+    changed_sheet = False
+    changed_vml = False
+    for shape in controls:
+        wanted = f"[0]!{shape.macro}" if shape.macro else ""
+        if control_macro(sheet_xml, shape.shape_id) == wanted:
+            continue
+        sheet_xml = with_control_macro(sheet_xml, shape.shape_id, wanted)
+        changed_sheet = True
+        if vml:
+            vml = with_vml_macro(vml, shape.shape_id, wanted)
+            changed_vml = True
+    if changed_sheet:
+        package.write(sheet.part_name, sheet_xml.encode("utf-8"))
+    if changed_vml:
+        package.write(vml_part, vml.encode("utf-8"))
 
 
 def _new_drawing(book: Workbook, package: OpcFile, sheet: Worksheet) -> str:

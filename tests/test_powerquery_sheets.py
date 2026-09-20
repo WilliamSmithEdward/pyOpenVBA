@@ -510,9 +510,17 @@ def test_the_declared_extent_grows_to_cover_the_table(tmp_path: Path) -> None:
     made = openpyxl.Workbook()
     made["Sheet"]["A1"] = "only"
     made.save(out)
-    assert b'<dimension ref="A1:A1" />' in OpcFile.parse(out.read_bytes()).read(
-        "xl/worksheets/sheet1.xml"
+    # The spacing is written in here rather than taken from openpyxl,
+    # which spells it without the space in 3.1.5 and with it in earlier
+    # releases.  The spelling is the point of the test, so it cannot be
+    # left to whichever version happens to be installed.
+    package = OpcFile.parse(out.read_bytes())
+    spaced = package.read("xl/worksheets/sheet1.xml").replace(
+        b'<dimension ref="A1:A1"/>', b'<dimension ref="A1:A1" />'
     )
+    assert b'<dimension ref="A1:A1" />' in spaced
+    package.write("xl/worksheets/sheet1.xml", spaced)
+    out.write_bytes(package.serialize())
 
     book = PowerQueryWorkbook(out)
     book.add_query("Loaded", "let\r\n    Source = 1\r\nin\r\n    Source")

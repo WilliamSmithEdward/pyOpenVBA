@@ -258,6 +258,16 @@
   "{\"a\"..\"e\"}": "list|5|a,b,c,d,e",
   "Table.FillDown(#table({\"A\"}, {{null}, {1}}), {\"A\"})": "table|2x1|A|;1",
   "List.StandardDeviation({1})": "number|0",
-  "List.Median({})": "null|null"
+  "List.Median({})": "null|null",
+  "Text.From(#date(2021, 12, 25))": "text|12/25/2021",
+  "Text.From(#datetime(2021, 3, 4, 13, 5, 6))": "text|3/4/2021 1:05:06 PM",
+  "Text.From(#datetime(2021, 3, 4, 0, 0, 0))": "text|3/4/2021 12:00:00 AM",
+  "Text.From(#time(9, 5, 0))": "text|9:05 AM",
+  "Text.From(#time(0, 30, 0))": "text|12:30 AM",
+  "Text.From(#duration(0, 1, 0, 0))": "text|01:00:00",
+  "Text.From(#duration(1, 2, 3, 4))": "text|1.02:03:04",
+  "Date.ToText(#date(2021, 3, 4))": "text|3/4/2021",
+  "DateTime.ToText(#datetime(2021, 3, 4, 13, 5, 6))": "text|3/4/2021 1:05:06 PM",
+  "Time.ToText(#time(13, 5, 6))": "text|1:05 PM"
  }
 }

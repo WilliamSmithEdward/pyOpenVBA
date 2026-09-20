@@ -266,23 +266,31 @@ def m_text_from(value: object, *rest: object) -> object:
     if isinstance(value, bool):
         return "true" if value else "false"
     if isinstance(value, _dt.datetime):
-        return value.strftime("%#m/%#d/%Y %#I:%M:%S %p")
+        return f"{_day_text(value)} {_clock_text(value.time(), seconds=True)}"
     if isinstance(value, _dt.date):
-        return value.strftime("%#m/%#d/%Y")
+        return _day_text(value)
     if isinstance(value, _dt.time):
-        return value.strftime("%#I:%M %p")
+        return _clock_text(value, seconds=False)
     if isinstance(value, Duration):
-        return _duration_text(value)
+        return duration_text(value)
     return as_text(value)
 
 
-def _duration_text(value: Duration) -> str:
-    """A duration as M writes one: days, then hours, minutes, seconds."""
-    total = round(value.total_seconds)
-    days, rest = divmod(int(total), 86400)
-    hours, rest = divmod(rest, 3600)
-    minutes, seconds = divmod(rest, 60)
-    return f"{days}.{hours:02d}:{minutes:02d}:{seconds:02d}"
+def _day_text(value: _dt.date) -> str:
+    """A date as M writes one: 3/4/2021, with no leading zeros.
+
+    Spelled out rather than handed to strftime, whose way of asking for
+    a number without its leading zero is Windows-only: %#m prints 03 on
+    Linux and the literal #m on macOS.
+    """
+    return f"{value.month}/{value.day}/{value.year}"
+
+
+def _clock_text(value: _dt.time, *, seconds: bool) -> str:
+    """A time as M writes one: 12:30 PM, with the seconds on a datetime."""
+    hour = value.hour % 12 or 12
+    rest = f":{value.second:02d}" if seconds else ""
+    return f"{hour}:{value.minute:02d}{rest} {'AM' if value.hour < 12 else 'PM'}"
 
 
 @m("Number.ToText", 1, 3)
@@ -467,10 +475,41 @@ def m_date_to_text(value: object, *rest: object) -> object:
     pattern = _optional(rest, 0)
     when = _as_date(value)
     if pattern is None:
-        return when.isoformat()
+        return _day_text(when)
     from pyopenvba.access._format import format_value
 
     return format_value(_dt.datetime(when.year, when.month, when.day), as_text(pattern))
+
+
+@m("DateTime.ToText", 1, 3)
+def m_datetime_to_text(value: object, *rest: object) -> object:
+    if value is None:
+        return None
+    pattern = _optional(rest, 0)
+    when = m_datetime_from(value)
+    if not isinstance(when, _dt.datetime):
+        raise MError("Expression.Error", f"We cannot read a {type_name(value)} as a datetime.")
+    if pattern is None:
+        return f"{_day_text(when)} {_clock_text(when.time(), seconds=True)}"
+    from pyopenvba.access._format import format_value
+
+    return format_value(when, as_text(pattern))
+
+
+@m("Time.ToText", 1, 3)
+def m_time_to_text(value: object, *rest: object) -> object:
+    """A time with no format is written without its seconds."""
+    if value is None:
+        return None
+    pattern = _optional(rest, 0)
+    when = m_time_from(value)
+    if not isinstance(when, _dt.time):
+        raise MError("Expression.Error", f"We cannot read a {type_name(value)} as a time.")
+    if pattern is None:
+        return _clock_text(when, seconds=False)
+    from pyopenvba.access._format import format_value
+
+    return format_value(_dt.datetime(1899, 12, 30, when.hour, when.minute, when.second), as_text(pattern))
 
 
 def _days_in_month(year: int, month: int) -> int:

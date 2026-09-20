@@ -288,3 +288,16 @@ Character.ToNumber("AB")
 Table.FillDown(#table({"A"}, {{null}, {1}}), {"A"})
 List.StandardDeviation({1})
 List.Median({})
+
+// --- every Text.From of a moment, which is written out rather than
+// --- handed to a formatter whose padding flags differ per platform ---
+Text.From(#date(2021, 12, 25))
+Text.From(#datetime(2021, 3, 4, 13, 5, 6))
+Text.From(#datetime(2021, 3, 4, 0, 0, 0))
+Text.From(#time(9, 5, 0))
+Text.From(#time(0, 30, 0))
+Text.From(#duration(0, 1, 0, 0))
+Text.From(#duration(1, 2, 3, 4))
+Date.ToText(#date(2021, 3, 4))
+DateTime.ToText(#datetime(2021, 3, 4, 13, 5, 6))
+Time.ToText(#time(13, 5, 6))

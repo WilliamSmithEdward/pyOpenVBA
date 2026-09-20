@@ -1128,7 +1128,10 @@ def _text(value: object) -> str:
     if isinstance(value, float) and value.is_integer():
         return str(int(value))
     if isinstance(value, _dt.datetime):
-        return value.strftime("%#m/%#d/%Y %H:%M:%S") if value.time() != _dt.time() else value.strftime("%#m/%#d/%Y")
+        # Spelled out rather than handed to strftime: its way of asking
+        # for a number without its leading zero, %#m, is Windows-only.
+        day = f"{value.month}/{value.day}/{value.year}"
+        return f"{day} {value:%H:%M:%S}" if value.time() != _dt.time() else day
     return str(value)
 
 

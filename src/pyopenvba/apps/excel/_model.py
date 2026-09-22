@@ -4,16 +4,19 @@ The objects a macro touches -- Application, Workbook, Worksheet, Range
 and the few that hang off them -- holding real state that VBA mutates
 and that can be written back out to a file.
 
-A cell holds a value, a formula, a number format and a little
-formatting.  Reading a cell whose formula has not been worked out
-calculates it first, through :mod:`pyopenvba.apps.excel._calc`, so a
-macro that writes a formula and reads the answer gets one.
+A cell holds a value, a formula and its format, a
+:class:`~pyopenvba.apps.excel._styles.Style`.  Reading a cell whose
+formula has not been worked out calculates it first, through
+:mod:`pyopenvba.apps.excel._calc`, so a macro that writes a formula and
+reads the answer gets one.  What a macro reads and sets on a format --
+Font, Interior, Borders, alignment -- lives in
+:mod:`pyopenvba.apps.excel._formats`.
 """
 
 from __future__ import annotations
 
 from collections.abc import Iterator
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from decimal import Decimal
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -46,6 +49,7 @@ from pyopenvba.interpreter._values import (
 )
 
 if TYPE_CHECKING:
+    from pyopenvba.apps.excel._styles import Style, Stylesheet
     from pyopenvba.interpreter._runtime import Interpreter
 
 _LIBRARY = "excel"
@@ -80,26 +84,19 @@ class Cell:
 
     value: object = EMPTY
     formula: str = ""
-    number_format: str = "General"
     #: True when the formula was written here and nothing has computed it.
     stale: bool = False
-    font_bold: bool = False
-    font_italic: bool = False
-    font_name: str = "Calibri"
-    font_size: float = 11.0
-    font_color: int = 0
-    interior_color: int | None = None
-    horizontal_alignment: int = -4131
+    #: The cell's format.  None is the workbook's default, its first xf.
+    style: Style | None = None
+    #: The xf the cell was read with, which a save keeps while the format is unchanged.
+    xf: int = -1
+
+    @property
+    def number_format(self) -> str:
+        return self.style.number_format if self.style is not None else "General"
 
     def is_blank(self) -> bool:
-        return (
-            self.value is EMPTY
-            and not self.formula
-            and self.number_format == "General"
-            and not self.font_bold
-            and not self.font_italic
-            and self.interior_color is None
-        )
+        return self.value is EMPTY and not self.formula and self.style is None
 
 
 # --- Application ------------------------------------------------------------------------
@@ -472,6 +469,7 @@ class Workbook(ExcelObject):
         self._calculator: Any = None
         #: Where each query's rows go, read from the package on demand.
         self._load_targets: Any = None
+        self._stylesheet: Stylesheet | None = None
 
     @property
     def calculator(self) -> Any:
@@ -481,6 +479,15 @@ class Workbook(ExcelObject):
 
             self._calculator = Calculator(self)
         return self._calculator
+
+    @property
+    def stylesheet(self) -> Stylesheet:
+        """The workbook's cell formats: its own, or those of the template a new workbook starts from."""
+        if self._stylesheet is None:
+            from pyopenvba.apps.excel._io import read_stylesheet
+
+            self._stylesheet = read_stylesheet(self.package)
+        return self._stylesheet
 
     # -- identity
 
@@ -957,6 +964,30 @@ class Worksheet(ExcelObject):
             self.cells_[(row, column)] = found
         return found
 
+    def style_at(self, row: int, column: int) -> Style:
+        """The format a cell shows, which is the workbook's default until someone sets one."""
+        found = self.cells_.get((row, column))
+        if found is not None and found.style is not None:
+            return found.style
+        return self.book.stylesheet.default
+
+    def restyle(self, row: int, column: int, style: Style) -> None:
+        """Give a cell a new format; the default one leaves it unformatted."""
+        found = self.cells_.get((row, column))
+        unformatted = style == self.book.stylesheet.default
+        if found is None:
+            if unformatted:
+                return
+            found = self.cell(row, column, create=True)
+            assert found is not None
+        found.style, found.xf = (None if unformatted else style), -1
+        if found.is_blank():
+            del self.cells_[(row, column)]
+        self.touched()
+
+    def set_number_format(self, row: int, column: int, code: str) -> None:
+        self.restyle(row, column, replace(self.style_at(row, column), number_format=code))
+
     def used_bounds(self) -> tuple[int, int, int, int] | None:
         live = [(row, column) for (row, column), cell in self.cells_.items() if not cell.is_blank()]
         for area in self.merged_areas:
@@ -1230,16 +1261,15 @@ class Range(ExcelObject):
 
     @member
     def NumberFormat(self) -> object:
-        cell = self.sheet.cell(self.first.top, self.first.left)
-        return cell.number_format if cell is not None else "General"
+        from pyopenvba.apps.excel._formats import styles_of, uniform
+
+        return uniform(style.number_format for style in styles_of(self))
 
     @setter("NumberFormat")
     def _set_number_format(self, value: object) -> None:
         text = to_text(value)
         for row, column in self.writable_positions():
-            cell = self.sheet.cell(row, column, create=True)
-            assert cell is not None
-            cell.number_format = text
+            self.sheet.set_number_format(row, column, text)
         self.sheet.touched()
 
     # -- geometry
@@ -1376,24 +1406,127 @@ class Range(ExcelObject):
 
     @member
     def Font(self) -> object:
+        from pyopenvba.apps.excel._formats import Font
+
         return Font(self)
 
     @member
     def Interior(self) -> object:
+        from pyopenvba.apps.excel._formats import Interior
+
         return Interior(self)
 
     @member
+    def Borders(self, Index: object = MISSING) -> object:
+        from pyopenvba.apps.excel._formats import Borders
+
+        borders = Borders(self)
+        return borders if Index is MISSING else borders.vba_get("Item", [Index])
+
+    @method
+    def BorderAround(self, LineStyle: object = MISSING, Weight: object = MISSING, ColorIndex: object = MISSING,
+                     Color: object = MISSING, ThemeColor: object = MISSING) -> object:
+        from pyopenvba.apps.excel._formats import border_around
+
+        border_around(self, LineStyle, Weight, ColorIndex, Color, ThemeColor)
+        return EMPTY
+
+    @method
+    def ClearFormats(self) -> object:
+        from pyopenvba.apps.excel._formats import clear_formats
+
+        clear_formats(self)
+        return EMPTY
+
+    def _format(self, what: str) -> object:
+        from pyopenvba.apps.excel._formats import read_alignment
+
+        return read_alignment(self, what)
+
+    def _set_format(self, what: str, value: object) -> None:
+        from pyopenvba.apps.excel._formats import write_alignment
+
+        write_alignment(self, what, value)
+
+    @member
     def HorizontalAlignment(self) -> object:
-        cell = self.sheet.cell(self.first.top, self.first.left)
-        return VBAInt(cell.horizontal_alignment if cell is not None else -4131, "Long")
+        return self._format("HorizontalAlignment")
 
     @setter("HorizontalAlignment")
     def _set_horizontal_alignment(self, value: object) -> None:
-        wanted = int(to_integer(value, "Long"))
-        for row, column in self.writable_positions():
-            cell = self.sheet.cell(row, column, create=True)
-            assert cell is not None
-            cell.horizontal_alignment = wanted
+        self._set_format("HorizontalAlignment", value)
+
+    @member
+    def VerticalAlignment(self) -> object:
+        return self._format("VerticalAlignment")
+
+    @setter("VerticalAlignment")
+    def _set_vertical_alignment(self, value: object) -> None:
+        self._set_format("VerticalAlignment", value)
+
+    @member
+    def WrapText(self) -> object:
+        return self._format("WrapText")
+
+    @setter("WrapText")
+    def _set_wrap_text(self, value: object) -> None:
+        self._set_format("WrapText", value)
+
+    @member
+    def ShrinkToFit(self) -> object:
+        return self._format("ShrinkToFit")
+
+    @setter("ShrinkToFit")
+    def _set_shrink_to_fit(self, value: object) -> None:
+        self._set_format("ShrinkToFit", value)
+
+    @member
+    def IndentLevel(self) -> object:
+        return self._format("IndentLevel")
+
+    @setter("IndentLevel")
+    def _set_indent_level(self, value: object) -> None:
+        self._set_format("IndentLevel", value)
+
+    @member
+    def AddIndent(self) -> object:
+        return self._format("AddIndent")
+
+    @setter("AddIndent")
+    def _set_add_indent(self, value: object) -> None:
+        self._set_format("AddIndent", value)
+
+    @member
+    def Orientation(self) -> object:
+        return self._format("Orientation")
+
+    @setter("Orientation")
+    def _set_orientation(self, value: object) -> None:
+        self._set_format("Orientation", value)
+
+    @member
+    def ReadingOrder(self) -> object:
+        return self._format("ReadingOrder")
+
+    @setter("ReadingOrder")
+    def _set_reading_order(self, value: object) -> None:
+        self._set_format("ReadingOrder", value)
+
+    @member
+    def Locked(self) -> object:
+        return self._format("Locked")
+
+    @setter("Locked")
+    def _set_locked(self, value: object) -> None:
+        self._set_format("Locked", value)
+
+    @member
+    def FormulaHidden(self) -> object:
+        return self._format("FormulaHidden")
+
+    @setter("FormulaHidden")
+    def _set_formula_hidden(self, value: object) -> None:
+        self._set_format("FormulaHidden", value)
 
     @member
     def ColumnWidth(self) -> object:
@@ -1659,14 +1792,15 @@ class Range(ExcelObject):
         return cell.value
 
     def writable_positions(self) -> list[tuple[int, int]]:
-        """Which cells a write touches, refusing to fill a whole column."""
+        """Which cells a write touches.
+
+        Excel fills a whole column, or formats it through the column's own
+        format; the model does neither yet, so the write reports itself.
+        """
         out: list[tuple[int, int]] = []
         for area in self.areas:
             if area.rows * area.columns > 1048576:
-                raise error(
-                    ERR_APPLICATION_DEFINED,
-                    "writing to a whole row or column at once is not something pyOpenVBA does",
-                )
+                raise VBAUnsupportedError("writing to or formatting more than 1,048,576 cells at once is not implemented")
             for row in range(area.top, area.bottom + 1):
                 for column in range(area.left, area.right + 1):
                     out.append((row, column))
@@ -1788,119 +1922,6 @@ class ColumnsOf(VBACollection, ExcelObject):
     @member
     def Count(self) -> object:
         return VBAInt(self.target.first.columns, "Long")
-
-
-# --- formatting -------------------------------------------------------------------------------
-
-
-class Font(ExcelObject):
-    """A range's font.  Reading answers for the first cell, writing sets all."""
-
-    vba_type_name = "Font"
-
-    def __init__(self, target: Range) -> None:
-        self.target = target
-
-    def _first(self) -> Cell:
-        return self.target.sheet.cell(self.target.first.top, self.target.first.left) or Cell()
-
-    def _each(self) -> Iterator[Cell]:
-        for row, column in self.target.writable_positions():
-            cell = self.target.sheet.cell(row, column, create=True)
-            assert cell is not None
-            yield cell
-
-    @member
-    def Bold(self) -> object:
-        return self._first().font_bold
-
-    @setter("Bold")
-    def _set_bold(self, value: object) -> None:
-        for cell in self._each():
-            cell.font_bold = to_bool(value)
-        self.target.sheet.touched()
-
-    @member
-    def Italic(self) -> object:
-        return self._first().font_italic
-
-    @setter("Italic")
-    def _set_italic(self, value: object) -> None:
-        for cell in self._each():
-            cell.font_italic = to_bool(value)
-
-    @member
-    def Name(self) -> object:
-        return self._first().font_name
-
-    @setter("Name")
-    def _set_name(self, value: object) -> None:
-        for cell in self._each():
-            cell.font_name = to_text(value)
-
-    @member
-    def Size(self) -> object:
-        return self._first().font_size
-
-    @setter("Size")
-    def _set_size(self, value: object) -> None:
-        for cell in self._each():
-            cell.font_size = float(to_number(value))
-
-    @member
-    def Color(self) -> object:
-        return VBAInt(self._first().font_color, "Long")
-
-    @setter("Color")
-    def _set_color(self, value: object) -> None:
-        for cell in self._each():
-            cell.font_color = int(to_integer(value, "Long"))
-
-    @member
-    def Parent(self) -> object:
-        return self.target
-
-
-class Interior(ExcelObject):
-    """A range's fill."""
-
-    vba_type_name = "Interior"
-
-    def __init__(self, target: Range) -> None:
-        self.target = target
-
-    @member
-    def Color(self) -> object:
-        # Excel hands a colour back as a Double, not as a Long.
-        cell = self.target.sheet.cell(self.target.first.top, self.target.first.left)
-        return float(cell.interior_color if cell and cell.interior_color is not None else 16777215)
-
-    @setter("Color")
-    def _set_color(self, value: object) -> None:
-        wanted = int(to_integer(value, "Long"))
-        for row, column in self.target.writable_positions():
-            cell = self.target.sheet.cell(row, column, create=True)
-            assert cell is not None
-            cell.interior_color = wanted
-
-    @member
-    def ColorIndex(self) -> object:
-        cell = self.target.sheet.cell(self.target.first.top, self.target.first.left)
-        return VBAInt(-4142 if cell is None or cell.interior_color is None else 0, "Long")
-
-    @setter("ColorIndex")
-    def _set_color_index(self, value: object) -> None:
-        if int(to_integer(value, "Long")) == -4142:  # xlColorIndexNone
-            for row, column in self.target.writable_positions():
-                cell = self.target.sheet.cell(row, column)
-                if cell is not None:
-                    cell.interior_color = None
-            return
-        raise VBAUnsupportedError("Interior.ColorIndex takes a palette pyOpenVBA does not model; set Color instead")
-
-    @member
-    def Parent(self) -> object:
-        return self.target
 
 
 # --- names -------------------------------------------------------------------------------------

@@ -228,9 +228,10 @@ queue the caller primed, so a macro that would have stopped for a prompt
 runs to the end and the prompt is visible afterwards.
 
 **Excel.** Application, Workbooks, Workbook, Sheets, Worksheet, Range
-with multiple areas, Font, Interior, Names, Queries, Shapes, and a
-short list of worksheet functions.  Cells hold values, formulas, number
-formats and a little formatting.
+with multiple areas, Font, Interior, Borders, Names, Queries, Shapes,
+and a short list of worksheet functions.  Cells hold values, formulas
+and their whole format: number format, font, fill, borders, alignment
+and protection.
 
 **Word.** Application, Documents, Document, Range, Paragraphs,
 Paragraph, Shapes, InlineShapes, Shape, WrapFormat, TextFrame and
@@ -368,8 +369,8 @@ source before writing, so overlapping copies preserve the original values.
 Blank source cells clear destination cells. When both destination dimensions
 are exact source multiples, Excel's repeated-block behavior applies; otherwise
 the source-sized block is written at the destination's top-left cell. Relative
-formula references shift for each block. Cross-sheet copies, number formats
-and bold font persistence are covered. Merged cells, multiple areas and
+formula references shift for each block. Cross-sheet copies and cell
+formats are covered. Merged cells, multiple areas and
 destinations larger than 1,048,576 cells remain unsupported. Clipboard/paste
 and full formatting parity remain incomplete.
 
@@ -381,6 +382,46 @@ shifting its formula references. Clearing only part of a merged region raises
 1004; clearing the whole region removes its merge, while `ClearContents`
 retains it. Multi-area merges, complex across merges and full merge-formatting
 parity remain incomplete.
+
+**Cell formats.** `Font`, `Interior`, `Borders`, the alignment and
+protection properties, `NumberFormat` and `ClearFormats` read and write a
+cell's format the way Excel does; 161 probes of live Excel pin the
+answers (`tests/fixtures/range_format.json`). A workbook's `styles.xml`
+is read into one format per cell, so a file Excel formatted reads back
+exactly as Excel reads it, and a save appends only the entries the file
+lacks, spelled as Excel spells them: for the same edits the stylesheet
+comes out byte for byte as Excel's, except that Excel writes a red font
+first whenever one is used.
+
+* A property read over several cells answers the shared value or Null.
+  Colours compare as colours, and a mixed `Interior.Color` or
+  `Borders.Color` answers 0 rather than Null.
+* A theme colour is tinted in Windows' integer HLS space, 240 steps,
+  with the tint kept as n/32767, so `TintAndShade = 0.4` reads back
+  0.399975585192419 and the colour is the same after a reopen.
+  `ColorIndex` is the palette entry nearest by summed channel distance;
+  a tinted palette colour still answers its own entry. A tint on an
+  automatic font colour lasts until the workbook is saved, which has
+  nowhere to keep it.
+* A border between two cells is stored on one of them. Reading an edge
+  takes the cell's own side and then its neighbour's facing side, and a
+  range's edge answers for its first cell along it; a property of the
+  whole `Borders` collection looks at every cell. Setting an edge copies
+  in whatever the cell showed from its neighbours and clears the
+  neighbour's copy. An inside border is written on both cells, and one
+  that only one of them stored comes out in the automatic colour, which
+  the file writes `auto="1"`.
+* `LineStyle` and `Weight` pair into the thirteen line styles the file
+  has; a style keeps the current weight when the pair exists and takes
+  its own default otherwise.
+* Setting `IndentLevel` turns general, centred and filled text
+  left-aligned, and choosing an alignment that cannot be indented drops
+  the indent. `ClearFormats` unmerges.
+
+Row and column formats, `Range.Style` and the `Styles` collection,
+conditional formats, and formatting whole rows or columns at once are not
+implemented yet; the operation checklist, `docs/excel_checklist.csv`,
+records each member's status.
 
 **Formulas are calculated.** `pyopenvba.formula` parses and evaluates
 them; the workbook keeps track of which cells are stale and what feeds
@@ -482,6 +523,8 @@ a document or a presentation is edited rather than created.
 | `apps/excel/_bridge.py` | What a project sees when Excel is the host |
 | `apps/excel/_shapes.py` | A sheet's shapes, as a macro reaches them |
 | `apps/excel/_shape_api.py` | Python shape operations on that same state; exposed through `SheetView` |
+| `apps/excel/_styles.py` | The stylesheet read into cell formats, colours, and the entries a save adds |
+| `apps/excel/_formats.py` | Font, Interior, Borders, alignment and protection, as a macro reads and sets them |
 | `apps/word/` | Word's object model, its bridge and its file |
 | `apps/powerpoint/` | PowerPoint's, the same three |
 | `shapes/_values.py` | What a shape is, in all three hosts' words |

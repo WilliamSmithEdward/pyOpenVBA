@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import posixpath
 import re
+from functools import lru_cache
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -31,6 +32,7 @@ from pyopenvba.powerquery._sheets import add_content_type, add_relationship, she
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Application, Cell, Workbook, Worksheet
     from pyopenvba.apps.excel._refresh import LoadTarget
+    from pyopenvba.apps.excel._styles import Stylesheet
     from pyopenvba.shapes._values import Shape as ShapeState
 
 _ROW = re.compile(r"<row\b[^>]*?(?:/>|>.*?</row>)", re.DOTALL)
@@ -42,36 +44,6 @@ _INLINE = re.compile(r"<is>(.*?)</is>", re.DOTALL)
 _TEXT = re.compile(r"<t[^>]*>(.*?)</t>", re.DOTALL)
 _SHARED_ITEM = re.compile(r"<si>(.*?)</si>", re.DOTALL)
 _DEFINED_NAME = re.compile(r"<definedName\b([^>]*)>(.*?)</definedName>", re.DOTALL)
-_NUM_FMT = re.compile(r"<numFmt\b([^>]*)/>")
-_CELL_XFS = re.compile(r"(<cellXfs\b[^>]*count=\")(\d+)(\"[^>]*>)(.*?)(</cellXfs>)", re.DOTALL)
-_XF = re.compile(r"<xf\b[^>]*?(?:/>|>.*?</xf>)", re.DOTALL)
-
-#: The number formats Excel builds in that mean a date or a time.
-_BUILTIN_DATE_FORMATS = frozenset({14, 15, 16, 17, 18, 19, 20, 21, 22, 45, 46, 47})
-
-_BUILTIN_FORMAT_CODES: dict[int, str] = {
-    0: "General",
-    1: "0",
-    2: "0.00",
-    3: "#,##0",
-    4: "#,##0.00",
-    9: "0%",
-    10: "0.00%",
-    11: "0.00E+00",
-    14: "m/d/yyyy",
-    15: "d-mmm-yy",
-    16: "d-mmm",
-    17: "mmm-yy",
-    18: "h:mm AM/PM",
-    19: "h:mm:ss AM/PM",
-    20: "h:mm",
-    21: "h:mm:ss",
-    22: "m/d/yyyy h:mm",
-    45: "mm:ss",
-    46: "[h]:mm:ss",
-    47: "mmss.0",
-    49: "@",
-}
 
 
 class WorkbookFileError(PyOpenVBAError):
@@ -98,15 +70,14 @@ def load_workbook(application: Application, path: Path) -> Workbook:
     workbook_xml = package.read("xl/workbook.xml").decode("utf-8", errors="replace")
     relationships = _relationship_map(package)
     strings = _shared_strings(package)
-    styles = _style_formats(package)
-    bold_styles = _style_bolds(package)
+    stylesheet = book.stylesheet
     for name, relationship_id in sheet_entries(workbook_xml):
         part = relationships.get(relationship_id, "")
         sheet = book.add_sheet(name)
         sheet.part_name = part
         if part and package.has(part):
             sheet_xml = package.read(part).decode("utf-8", errors="replace")
-            _read_sheet(sheet, sheet_xml, strings, styles, bold_styles)
+            _read_sheet(sheet, sheet_xml, strings, stylesheet)
             _read_shapes(sheet, package, sheet_xml)
     _read_names(book, workbook_xml)
     _read_queries(book, path)
@@ -136,33 +107,30 @@ def _shared_strings(package: OpcFile) -> list[str]:
     return ["".join(_unescape(piece) for piece in _TEXT.findall(item)) for item in _SHARED_ITEM.findall(text)]
 
 
-def _style_formats(package: OpcFile) -> list[str]:
-    """The number format of every cell style, by style index."""
-    if not package.has("xl/styles.xml"):
-        return []
-    text = package.read("xl/styles.xml").decode("utf-8", errors="replace")
-    custom: dict[int, str] = {}
-    for element in _NUM_FMT.findall(text):
-        attributes = _attributes(f"<numFmt {element}/>")
-        try:
-            custom[int(attributes.get("numFmtId", "0"))] = _unescape(attributes.get("formatCode", ""))
-        except ValueError:
-            continue
-    match = _CELL_XFS.search(text)
-    if not match:
-        return []
-    out: list[str] = []
-    for element in _XF.findall(match.group(4)):
-        attributes = _attributes(element)
-        try:
-            identifier = int(attributes.get("numFmtId", "0"))
-        except ValueError:
-            identifier = 0
-        out.append(custom.get(identifier, _BUILTIN_FORMAT_CODES.get(identifier, "General")))
-    return out
+@lru_cache(maxsize=1)
+def _template_style_parts() -> tuple[str, str]:
+    from pyopenvba._templates import EMPTY_XLSM_BYTES
+
+    template = OpcFile.parse(EMPTY_XLSM_BYTES)
+    return (template.read("xl/styles.xml").decode("utf-8"), template.read("xl/theme/theme1.xml").decode("utf-8"))
 
 
-def _read_sheet(sheet: Worksheet, xml: str, strings: list[str], styles: list[str], bold_styles: list[bool]) -> None:
+def read_stylesheet(package: OpcFile | None) -> Stylesheet:
+    """A workbook's stylesheet and theme; a workbook made here has the template's."""
+    from pyopenvba.apps.excel._styles import Stylesheet
+
+    if package is None:
+        return Stylesheet(*_template_style_parts())
+    styles = package.read("xl/styles.xml").decode("utf-8", errors="replace") if package.has("xl/styles.xml") else ""
+    theme = ""
+    for part in package.names():
+        if re.fullmatch(r"xl/theme/theme\d+\.xml", part):
+            theme = package.read(part).decode("utf-8", errors="replace")
+            break
+    return Stylesheet(styles or _template_style_parts()[0], theme)
+
+
+def _read_sheet(sheet: Worksheet, xml: str, strings: list[str], stylesheet: Stylesheet) -> None:
     from pyopenvba.apps.excel._model import Cell
 
     for tag in re.findall(r"<mergeCell\b[^>]*/>", xml):
@@ -180,22 +148,22 @@ def _read_sheet(sheet: Worksheet, xml: str, strings: list[str], styles: list[str
                 continue
             column, row = _split_reference(reference)
             kind = attributes.get("t", "")
-            style = attributes.get("s", "")
-            number_format = "General"
-            style_index = int(style) if style.isdigit() else 0
-            bold = bold_styles[style_index] if style_index < len(bold_styles) else False
-            if style.isdigit() and int(style) < len(styles):
-                number_format = styles[int(style)]
+            written = attributes.get("s", "")
+            xf = int(written) if written.isdigit() else 0
+            style = stylesheet.style(xf) if xf else None
             formula = ""
             formula_match = _FORMULA.search(cell_xml)
             if formula_match is not None:
                 body = (formula_match.group(2) or "").strip()
                 formula = f"={_unescape(body)}" if body else ""
-            value = _cell_value(cell_xml, kind, strings, number_format)
-            if value is EMPTY and not formula and number_format == "General" and not bold:
+            value = _cell_value(cell_xml, kind, strings, (style or stylesheet.default).number_format)
+            if value is EMPTY and not formula and style is None:
                 continue
-            cell = Cell(value=value, formula=formula, number_format=number_format, font_bold=bold,
-                        stale=bool(formula) and value is EMPTY)
+            if style is None and stylesheet.default.number_format != "General":
+                # A cell on the default format still has to read that format.
+                style = stylesheet.default
+            cell = Cell(value=value, formula=formula, stale=bool(formula) and value is EMPTY, style=style,
+                        xf=xf if style is not None else -1)
             sheet.cells_[(row, column)] = cell
 
 
@@ -851,6 +819,7 @@ def save_workbook(book: Workbook, target: Path) -> None:
         _write_names(book, package)
     _resize_loaded_tables(book, package)
     _write_shapes(book, package)
+    _write_styles(book, package)
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_bytes(package.serialize())
 
@@ -1179,8 +1148,7 @@ def _with_cell(
         if _tag_attributes(candidate).get("r", "") == reference:
             existing = candidate
             break
-    style = _tag_attributes(existing).get("s", "") if existing else ""
-    style = _style_for(cell, style, package)
+    style = _style_for(cell, sheet.book.stylesheet)
     written = _cell_xml(reference, cell, style)
     if existing is not None:
         return row_xml.replace(existing, written, 1)
@@ -1285,127 +1253,24 @@ def _number_text(value: float) -> str:
     return repr(float(value))
 
 
-def _style_for(cell: Cell, existing: str, package: OpcFile) -> str:
-    """The style index a cell needs for its number format and bold state."""
-    wanted = cell.number_format
-    base = existing if wanted in ("General", "") else _ensure_style(package, wanted)
-    return _ensure_bold_style(package, base, cell.font_bold)
-
-
-_FONTS = re.compile(r"<fonts\b[^>]*>.*?</fonts>", re.DOTALL)
-_FONT = re.compile(r"<font\b[^>]*?(?:/>|>.*?</font>)", re.DOTALL)
-_BOLD = re.compile(r"<b\b[^>]*?(?:/>|>.*?</b>)", re.DOTALL)
-
-
-def _font_bold(font: str) -> bool:
-    match = _BOLD.search(font)
-    return match is not None and _tag_attributes(match.group()).get("val", "1").lower() not in ("0", "false")
-
-
-def _style_bolds(package: OpcFile) -> list[bool]:
+def _write_styles(book: Workbook, package: OpcFile) -> None:
+    """Add the formats the sheets now use to the stylesheet part, leaving every entry it had alone."""
+    stylesheet = book.stylesheet
+    if not stylesheet.dirty:
+        return
     if not package.has("xl/styles.xml"):
-        return []
-    text = package.read("xl/styles.xml").decode("utf-8")
-    fonts, xfs = _FONTS.search(text), _CELL_XFS.search(text)
-    if fonts is None or xfs is None:
-        return []
-    states = [_font_bold(font) for font in _FONT.findall(fonts.group())]
-    return [states[index] if index < len(states) else False
-            for xf in _XF.findall(xfs.group(4))
-            for index in [int(_tag_attributes(xf).get("fontId", "0"))]]
+        raise WorkbookFileError("the workbook has no styles part to add the new cell formats to")
+    package.write("xl/styles.xml", stylesheet.written().encode("utf-8"))
+    stylesheet.saved()
 
 
-def _ensure_bold_style(package: OpcFile, base: str, bold: bool) -> str:
-    if not package.has("xl/styles.xml"):
-        return base
-    text = package.read("xl/styles.xml").decode("utf-8")
-    fonts_match, xfs_match = _FONTS.search(text), _CELL_XFS.search(text)
-    if fonts_match is None or xfs_match is None:
-        return base
-    fonts = _FONT.findall(fonts_match.group())
-    xfs = _XF.findall(xfs_match.group(4))
-    xf = xfs[int(base or "0")]
-    font = fonts[int(_tag_attributes(xf).get("fontId", "0"))]
-    if _font_bold(font) == bold:
-        return base
-    font = _BOLD.sub("", font)
-    if bold:
-        if font.endswith("/>"):
-            font = font[:-2] + "></font>"
-        font = font.replace("</font>", "<b/></font>")
-    if font not in fonts:
-        fonts.append(font)
-        block = fonts_match.group().replace("</fonts>", font + "</fonts>")
-        block = re.sub(r'count="\d+"', f'count="{len(fonts)}"', block, count=1)
-        text = text[:fonts_match.start()] + block + text[fonts_match.end():]
-    font_id = fonts.index(font)
-    if "fontId" in _tag_attributes(xf):
-        xf = re.sub(r'fontId="\d+"', f'fontId="{font_id}"', xf, count=1)
-    else:
-        xf = xf.replace("<xf", f'<xf fontId="{font_id}"', 1)
-    xf = re.sub(r'\sapplyFont="[^"]*"', "", xf, count=1)
-    xf = xf.replace("<xf ", '<xf applyFont="1" ', 1)
-    if xf not in xfs:
-        xfs.append(xf)
-        match = _CELL_XFS.search(text)
-        assert match is not None
-        block = match.group(1) + str(len(xfs)) + match.group(3) + match.group(4) + xf + match.group(5)
-        text = text[:match.start()] + block + text[match.end():]
-    package.write("xl/styles.xml", text.encode("utf-8"))
-    return str(xfs.index(xf))
-
-
-def _ensure_style(package: OpcFile, code: str) -> str:
-    """A cellXfs index whose number format is ``code``, adding one if needed."""
-    if not package.has("xl/styles.xml"):
+def _style_for(cell: Cell, stylesheet: Stylesheet) -> str:
+    """The xf a cell is written with: the one it was read with while its format is unchanged."""
+    if cell.style is None:
         return ""
-    text = package.read("xl/styles.xml").decode("utf-8", errors="replace")
-    formats = _style_formats(package)
-    for index, found in enumerate(formats):
-        if found == code:
-            return str(index)
-    identifier = 0
-    for builtin, builtin_code in _BUILTIN_FORMAT_CODES.items():
-        if builtin_code == code:
-            identifier = builtin
-            break
-    if not identifier:
-        used = [
-            int(_attributes(f"<numFmt {one}/>").get("numFmtId", "0"))
-            for one in _NUM_FMT.findall(text)
-        ]
-        identifier = max([163, *used]) + 1
-        entry = f'<numFmt numFmtId="{identifier}" formatCode="{_escape(code)}"/>'
-        if "<numFmts" in text:
-            text = re.sub(
-                r'(<numFmts\b[^>]*count=")(\d+)(")',
-                lambda match: f"{match.group(1)}{int(match.group(2)) + 1}{match.group(3)}",
-                text,
-                count=1,
-            )
-            text = text.replace("</numFmts>", f"{entry}</numFmts>", 1)
-        else:
-            text = re.sub(
-                r"(<styleSheet\b[^>]*>)",
-                rf'\1<numFmts count="1">{entry}</numFmts>',
-                text,
-                count=1,
-            )
-    match = _CELL_XFS.search(text)
-    if not match:
-        return ""
-    count = int(match.group(2))
-    rebuilt = (
-        match.group(1)
-        + str(count + 1)
-        + match.group(3)
-        + match.group(4)
-        + f'<xf numFmtId="{identifier}" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>'
-        + match.group(5)
-    )
-    text = text[: match.start()] + rebuilt + text[match.end() :]
-    package.write("xl/styles.xml", text.encode("utf-8"))
-    return str(count)
+    if 0 <= cell.xf < len(stylesheet.styles) and stylesheet.style(cell.xf) == cell.style:
+        return str(cell.xf)
+    return str(stylesheet.index_of(cell.style))
 
 
 def _with_dimension(xml: str, sheet: Worksheet) -> str:

@@ -196,7 +196,7 @@ class Calculator:
 
             wanted = result_format(compiled.node)
             if wanted:
-                cell.number_format = wanted
+                owner.set_number_format(row, column, wanted)
         return value
 
     def _computed(self, compiled: Compiled, sheet: str, row: int, column: int) -> object:

@@ -1341,3 +1341,32 @@ End Function'''
         assert result.ok, result.message
         expected = "Sheet1|Sheet1 (2)|8|='Sheet1 (2)'!$A$1" if cross_book else "Other|Sheet1|8|=Sheet1!$A$1"
         assert result.value == expected
+
+
+def test_excel_reads_model_authored_formats(tmp_path: Path) -> None:
+    """Every formatting case the model writes reads back in Excel as Excel's own file of it does."""
+    import json
+
+    harness = pytest.importorskip("pyvbaharness")
+    fixture = json.loads((Path(__file__).parent / "fixtures" / "format" / "formats_answers.json").read_text())
+    cases: list[str] = fixture["cases"]
+    app = ExcelApplication()
+    app.add_workbook()
+    lines = ["Public Sub Build()", "Dim c As Object"]
+    for row, name in enumerate(cases, start=1):
+        lines += [f'Set c = ActiveSheet.Range("A{row}")', f'ActiveSheet.Range("B{row}").Value = "{name}"']
+        lines += [line.strip() for line in str(fixture["setups"][name]).splitlines()]
+    app.add_module("\n".join([*lines, "End Sub"]) + "\n", name="Builder")
+    app.run("Build")
+    path = tmp_path / "model_formats.xlsx"
+    app.save(path)
+    reader = (fixture["describe"] + "Public Function Report() As String\nDim row As Long\n"
+              f"For row = 1 To {len(cases)}\n"
+              'Report = Report & Describe(ActiveSheet.Cells(row, 1)) & "|"\nNext row\nEnd Function\n')
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+        excel.open_document(path)
+        result = excel.run_vba(reader, "Report", timeout=240.0)
+        assert result.ok, result.message
+    reads: list[str] = fixture["reads"]
+    for name, described in zip(cases, str(result.value).split("|")[:-1], strict=True):
+        assert dict(zip(reads, described.split(";")[:-1], strict=True)) == fixture["answers"][name], name

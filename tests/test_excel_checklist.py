@@ -14,7 +14,7 @@ from pathlib import Path
 
 import pytest
 
-from pyopenvba.apps.excel import _model, _shapes
+from pyopenvba.apps.excel import _formats, _model, _shapes
 from pyopenvba.interpreter._inventory_data import MEMBERS
 from pyopenvba.interpreter._objects import MemberSpec, VBAObject
 
@@ -36,7 +36,7 @@ def _registered(cls: type[VBAObject]) -> dict[str, MemberSpec]:
 
 def _classes() -> dict[str, type[VBAObject]]:
     found: dict[str, type[VBAObject]] = {}
-    for module in (_model, _shapes):
+    for module in (_model, _shapes, _formats):
         for cls in vars(module).values():
             if not inspect.isclass(cls) or cls.__module__ != module.__name__:
                 continue

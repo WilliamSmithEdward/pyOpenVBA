@@ -7,6 +7,26 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Cell formats as Excel keeps them. A workbook's stylesheet is read into
+  one format per cell: font, fill, borders, alignment, protection and
+  number format. `Font` gains `Underline`, `Strikethrough`,
+  `Superscript`, `Subscript`, `FontStyle`, `ColorIndex`, `ThemeColor`
+  and `TintAndShade`; `Interior` gains `Pattern`, the pattern colours,
+  `ThemeColor` and `TintAndShade`; `Range` gains `Borders`,
+  `BorderAround`, `ClearFormats`, `VerticalAlignment`, `WrapText`,
+  `IndentLevel`, `Orientation`, `ShrinkToFit`, `AddIndent`,
+  `ReadingOrder`, `Locked` and `FormulaHidden`. 161 probes of live Excel
+  pin the answers, including Null for a mixed range, the palette and
+  tint arithmetic, and where a border between two cells is stored. An
+  Excel-formatted workbook reads back value for value, a live gate opens
+  the model's own formatted workbook in Excel, and for the same edits the
+  saved stylesheet is Excel's byte for byte except for the position of a
+  red font.
+- `docs/excel_checklist.csv`: a status for every member of every Excel
+  class the model implements, with its signature from the type library,
+  the fixtures that are its evidence and the gaps a registration visibly
+  has. `scripts/build_excel_checklist.py` regenerates it, and
+  `tests/test_excel_checklist.py` keeps it in step with the registry.
 - VBA `Worksheet.Move Before:=...` / `After:=...`, with same-book reordering,
   cross-book transfer, and new-workbook moves; Python `SheetView.move` delegates
   to the same model implementation. Cross-book moves invalidate held VBA objects
@@ -174,11 +194,18 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- A new workbook's cells read Excel's defaults: `Font.Name` is the
+  workbook's own font (Aptos Narrow in a current Excel, where Calibri was
+  assumed), `HorizontalAlignment` is `xlGeneral` rather than `xlLeft`, and
+  `Font.Color` answers a Double. `NumberFormat` over cells that differ
+  answers Null.
 - Excel classes whose members the type library keeps on an interface,
   Range on IRange and Font on IFont among them, are found there. A member
   Excel lacks raises error 438 and one it has reports itself unsupported;
   before, a typo on Range read as unimplemented, and Font was checked
   against Word's Font.
+- Writing to or formatting more than 1,048,576 cells at once reports
+  itself unsupported instead of raising error 1004, since Excel does it.
 - Multi-selection controls now read Excel's lowercase `seltype` attribute
   and `multiSel` indexes; scalar `Value` reads raise error 1004 in VBA.
 

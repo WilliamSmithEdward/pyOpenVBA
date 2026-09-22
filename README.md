@@ -679,9 +679,9 @@ become `#REF!`. Partial-cell reference updates and full formatting/metadata
 movement remain incomplete; sheets with merges or shapes are explicitly unsupported.
 
 `Range.Copy Destination:=...` handles overlapping copies, blank source cells,
-repeated destination blocks and relative formula shifts. Number formats and
-bold font state survive save/reopen. Merged-cell and multi-area copies, large
-destinations and full formatting parity remain incomplete.
+repeated destination blocks and relative formula shifts, and copies each
+cell's format. Merged-cell and multi-area copies, large destinations and
+clipboard pastes remain incomplete.
 
 `Range.Merge`, `UnMerge`, `MergeCells` and single-cell `MergeArea` support
 merged-region editing and save/reopen. Ordinary overlapping merges expand
@@ -689,6 +689,16 @@ to include the existing regions; `Across=True` merges each row separately.
 Excel's first nonempty value or formula is retained, and partial clears raise
 error 1004. Multi-area merges, across merges over existing multi-row regions,
 and full merge-formatting parity remain outside the measured support.
+
+Cell formats read and write the way Excel does: `Font`, `Interior`,
+`Borders`, `BorderAround`, the alignment and protection properties,
+`NumberFormat` and `ClearFormats`. A read over several cells answers Null
+when they differ, theme colours take their tints the way Excel computes
+them, and a border between two cells is stored and read the way Excel
+shares it. A workbook Excel formatted reads back exactly as Excel reads
+it, and a save adds only the stylesheet entries the file lacks, spelled
+as Excel spells them. Row and column formats, named cell styles and
+conditional formats are not implemented yet.
 
 `shapes()` and `shape(name)` return detached snapshots, including each
 control's linked cell, list range and value. Use `update_shape` to make

@@ -249,11 +249,11 @@ def _put(sheet: Worksheet, row: int, column: int, value: object) -> None:
     elif isinstance(value, _dt.datetime):
         cell.value = VBADate.from_datetime(value)
         if cell.number_format in ("General", ""):
-            cell.number_format = "m/d/yyyy h:mm"
+            sheet.set_number_format(row, column, "m/d/yyyy h:mm")
     elif isinstance(value, _dt.date):
         cell.value = VBADate.from_datetime(value)
         if cell.number_format in ("General", ""):
-            cell.number_format = "m/d/yyyy"
+            sheet.set_number_format(row, column, "m/d/yyyy")
     elif isinstance(value, Duration):
         cell.value = value.total_seconds / 86400.0
     elif isinstance(value, (Table, Record, list)):

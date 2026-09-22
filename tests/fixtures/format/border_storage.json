@@ -1,0 +1,517 @@
+{
+ "cases": [
+  {
+   "name": "bottom",
+   "setup": "Range(\"B2\").Borders(xlEdgeBottom).LineStyle = xlContinuous",
+   "cells": {
+    "B2": {
+     "reads": "-4142:2,-4142:2,-4142:2,-4142:2,1:2,-4142:2,",
+     "stored": "<border><left/><right/><top/><bottom style=\"thin\"><color indexed=\"64\"/></bottom><diagonal/></border>"
+    },
+    "B3": {
+     "reads": "-4142:2,-4142:2,-4142:2,1:2,-4142:2,-4142:2,",
+     "stored": "<border><left/><right/><top/><bottom/><diagonal/></border>"
+    }
+   }
+  },
+  {
+   "name": "top",
+   "setup": "Range(\"D2\").Borders(xlEdgeTop).LineStyle = xlContinuous",
+   "cells": {
+    "D1": {
+     "reads": "-4142:2,-4142:2,-4142:2,-4142:2,1:2,-4142:2,",
+     "stored": "<border><left/><right/><top/><bottom/><diagonal/></border>"
+    },
+    "D2": {
+     "reads": "-4142:2,-4142:2,-4142:2,1:2,-4142:2,-4142:2,",
+     "stored": "<border><left/><right/><top style=\"thin\"><color indexed=\"64\"/></top><bottom/><diagonal/></border>"
+    }
+   }
+  },
+  {
+   "name": "right",
+   "setup": "Range(\"F2\").Borders(xlEdgeRight).LineStyle = xlContinuous",
+   "cells": {
+    "F2": {
+     "reads": "-4142:2,-4142:2,-4142:2,-4142:2,-4142:2,1:2,",
+     "stored": "<border><left/><right style=\"thin\"><color indexed=\"64\"/></right><top/><bottom/><diagonal/></border>"
+    },
+    "G2": {
+     "reads": "-4142:2,-4142:2,1:2,-4142:2,-4142:2,-4142:2,",
+     "stored": "<border><left/><right/><top/><bottom/><diagonal/></border>"
+    }
+   }
+  },
+  {
+   "name": "left",
+   "setup": "Range(\"J2\").Borders(xlEdgeLeft).LineStyle = xlContinuous",
+   "cells": {
+    "I2": {
+     "reads": "-4142:2,-4142:2,-4142:2,-4142:2,-4142:2,1:2,",
+     "stored": "<border><left/><right/><top/><bottom/><diagonal/></border>"
+    },
+    "J2": {
+     "reads": "-4142:2,-4142:2,1:2,-4142:2,-4142:2,-4142:2,",
+     "stored": "<border><left style=\"thin\"><color indexed=\"64\"/></left><right/><top/><bottom/><diagonal/></border>"
+    }
+   }
+  },
+  {
+   "name": "range_top",
+   "setup": "Range(\"B5:C6\").Borders(xlEdgeTop).LineStyle = xlContinuous",
+   "cells": {
+    "B4": {
+     "reads": "-4142:2,-4142:2,-4142:2,-4142:2,1:2,-4142:2,",
+     "stored": "<border><left/><right/><top/><bottom/><diagonal/></border>"
+    },
+    "C4": {
+     "reads": "-4142:2,-4142:2,-4142:2,-4142:2,1:2,-4142:2,",
+     "stored": "<border><left/><right/><top/><bottom/><diagonal/></border>"
+    },
+    "B5": {
+     "reads": "-4142:2,-4142:2,-4142:2,1:2,-4142:2,-4142:2,",
+     "stored": "<border><left/><right/><top style=\"thin\"><color indexed=\"64\"/></top><bottom/><diagonal/></border>"
+    },
+    "C5": {
+     "reads": "-4142:2,-4142:2,-4142:2,1:2,-4142:2,-4142:2,",
+     "stored": "<border><left/><right/><top style=\"thin\"><color indexed=\"64\"/></top><bottom/><diagonal/></border>"
+    },
+    "B6": {
+     "reads": "-4142:2,-4142:2,-4142:2,-4142:2,-4142:2,-4142:2,",
+     "stored": "<border><left/><right/><top/><bottom/><diagonal/></border>"
+    }
+   }
+  },
+  {
+   "name": "range_bottom",
+   "setup": "Range(\"E5:F6\").Borders(xlEdgeBottom).LineStyle = xlContinuous",
+   "cells": {
+    "E6": {
+     "reads": "-4142:2,-4142:2,-4142:2,-4142:2,1:2,-4142:2,",
+     "stored": "<border><left/><right/><top/><bottom style=\"thin\"><color indexed=\"64\"/></bottom><diagonal/></border>"
+    },
+    "F6": {
+     "reads": "-4142:2,-4142:2,-4142:2,-4142:2,1:2,-4142:2,",
+     "stored": "<border><left/><right/><top/><bottom style=\"thin\"><color indexed=\"64\"/></bottom><diagonal/></border>"
+    },
+    "E7": {
+     "reads": "-4142:2,-4142:2,-4142:2,1:2,-4142:2,-4142:2,",
+     "stored": "<border><left/><right/><top/><bottom/><diagonal/></border>"
+    },
+    "F7": {
+     "reads": "-4142:2,-4142:2,-4142:2,1:2,-4142:2,-4142:2,",
+     "stored": "<border><left/><right/><top/><bottom/><diagonal/></border>"
+    }
+   }
+  },
+  {
+   "name": "inside_horizontal",
+   "setup": "Range(\"B9:C10\").Borders(xlInsideHorizontal).LineStyle = xlContinuous",
+   "cells": {
+    "B9": {
+     "reads": "-4142:2,-4142:2,-4142:2,-4142:2,1:2,-4142:2,",
+     "stored": "<border><left/><right/><top/><bottom style=\"thin\"><color indexed=\"64\"/></bottom><diagonal/></border>"
+    },
+    "C9": {
+     "reads": "-4142:2,-4142:2,-4142:2,-4142:2,1:2,-4142:2,",
+     "stored": "<border><left/><right/><top/><bottom style=\"thin\"><color indexed=\"64\"/></bottom><diagonal/></border>"
+    },
+    "B10": {
+     "reads": "-4142:2,-4142:2,-4142:2,1:2,-4142:2,-4142:2,",
+     "stored": "<border><left/><right/><top style=\"thin\"><color indexed=\"64\"/></top><bottom/><diagonal/></border>"
+    },
+    "C10": {
+     "reads": "-4142:2,-4142:2,-4142:2,1:2,-4142:2,-4142:2,",
+     "stored": "<border><left/><right/><top style=\"thin\"><color indexed=\"64\"/></top><bottom/><diagonal/></border>"
+    }
+   }
+  },
+  {
+   "name": "inside_vertical",
+   "setup": "Range(\"E9:F10\").Borders(xlInsideVertical).LineStyle = xlContinuous",
+   "cells": {
+    "E9": {
+     "reads": "-4142:2,-4142:2,-4142:2,-4142:2,-4142:2,1:2,",
+     "stored": "<border><left/><right style=\"thin\"><color indexed=\"64\"/></right><top/><bottom/><diagonal/></border>"
+    },
+    "F9": {
+     "reads": "-4142:2,-4142:2,1:2,-4142:2,-4142:2,-4142:2,",
+     "stored": "<border><left style=\"thin\"><color indexed=\"64\"/></left><right/><top/><bottom/><diagonal/></border>"
+    },
+    "E10": {
+     "reads": "-4142:2,-4142:2,-4142:2,-4142:2,-4142:2,1:2,",
+     "stored": "<border><left/><right style=\"thin\"><color indexed=\"64\"/></right><top/><bottom/><diagonal/></border>"
+    },
+    "F10": {
+     "reads": "-4142:2,-4142:2,1:2,-4142:2,-4142:2,-4142:2,",
+     "stored": "<border><left style=\"thin\"><color indexed=\"64\"/></left><right/><top/><bottom/><diagonal/></border>"
+    }
+   }
+  },
+  {
+   "name": "all",
+   "setup": "Range(\"H9:I10\").Borders.LineStyle = xlContinuous",
+   "cells": {
+    "H9": {
+     "reads": "-4142:2,-4142:2,1:2,1:2,1:2,1:2,",
+     "stored": "<border><left style=\"thin\"><color indexed=\"64\"/></left><right style=\"thin\"><color indexed=\"64\"/></right><top style=\"thin\"><color indexed=\"64\"/></top><bottom style=\"thin\"><color indexed=\"64\"/></bottom><diagonal/></border>"
+    },
+    "I9": {
+     "reads": "-4142:2,-4142:2,1:2,1:2,1:2,1:2,",
+     "stored": "<border><left style=\"thin\"><color indexed=\"64\"/></left><right style=\"thin\"><color indexed=\"64\"/></right><top style=\"thin\"><color indexed=\"64\"/></top><bottom style=\"thin\"><color indexed=\"64\"/></bottom><diagonal/></border>"
+    },
+    "H10": {
+     "reads": "-4142:2,-4142:2,1:2,1:2,1:2,1:2,",
+     "stored": "<border><left style=\"thin\"><color indexed=\"64\"/></left><right style=\"thin\"><color indexed=\"64\"/></right><top style=\"thin\"><color indexed=\"64\"/></top><bottom style=\"thin\"><color indexed=\"64\"/></bottom><diagonal/></border>"
+    },
+    "I10": {
+     "reads": "-4142:2,-4142:2,1:2,1:2,1:2,1:2,",
+     "stored": "<border><left style=\"thin\"><color indexed=\"64\"/></left><right style=\"thin\"><color indexed=\"64\"/></right><top style=\"thin\"><color indexed=\"64\"/></top><bottom style=\"thin\"><color indexed=\"64\"/></bottom><diagonal/></border>"
+    },
+    "H11": {
+     "reads": "-4142:2,-4142:2,-4142:2,1:2,-4142:2,-4142:2,",
+     "stored": "<border><left/><right/><top/><bottom/><diagonal/></border>"
+    },
+    "J9": {
+     "reads": "-4142:2,-4142:2,1:2,-4142:2,-4142:2,-4142:2,",
+     "stored": "<border><left/><right/><top/><bottom/><diagonal/></border>"
+    }
+   }
+  },
+  {
+   "name": "around",
+   "setup": "Range(\"B13:C14\").BorderAround xlContinuous, xlMedium",
+   "cells": {
+    "B12": {
+     "reads": "-4142:2,-4142:2,-4142:2,-4142:2,1:-4138,-4142:2,",
+     "stored": "<border><left/><right/><top/><bottom/><diagonal/></border>"
+    },
+    "B13": {
+     "reads": "-4142:2,-4142:2,1:-4138,1:-4138,-4142:2,-4142:2,",
+     "stored": "<border><left style=\"medium\"><color indexed=\"64\"/></left><right/><top style=\"medium\"><color indexed=\"64\"/></top><bottom/><diagonal/></border>"
+    },
+    "C13": {
+     "reads": "-4142:2,-4142:2,-4142:2,1:-4138,-4142:2,1:-4138,",
+     "stored": "<border><left/><right style=\"medium\"><color indexed=\"64\"/></right><top style=\"medium\"><color indexed=\"64\"/></top><bottom/><diagonal/></border>"
+    },
+    "B14": {
+     "reads": "-4142:2,-4142:2,1:-4138,-4142:2,1:-4138,-4142:2,",
+     "stored": "<border><left style=\"medium\"><color indexed=\"64\"/></left><right/><top/><bottom style=\"medium\"><color indexed=\"64\"/></bottom><diagonal/></border>"
+    },
+    "C14": {
+     "reads": "-4142:2,-4142:2,-4142:2,-4142:2,1:-4138,1:-4138,",
+     "stored": "<border><left/><right style=\"medium\"><color indexed=\"64\"/></right><top/><bottom style=\"medium\"><color indexed=\"64\"/></bottom><diagonal/></border>"
+    },
+    "B15": {
+     "reads": "-4142:2,-4142:2,-4142:2,1:-4138,-4142:2,-4142:2,",
+     "stored": "<border><left/><right/><top/><bottom/><diagonal/></border>"
+    },
+    "D13": {
+     "reads": "-4142:2,-4142:2,1:-4138,-4142:2,-4142:2,-4142:2,",
+     "stored": "<border><left/><right/><top/><bottom/><diagonal/></border>"
+    },
+    "A13": {
+     "reads": "-4142:2,-4142:2,-4142:2,-4142:2,-4142:2,1:-4138,",
+     "stored": "<border><left/><right/><top/><bottom/><diagonal/></border>"
+    }
+   }
+  },
+  {
+   "name": "conflict_bottom_then_top",
+   "setup": "Range(\"B17\").Borders(xlEdgeBottom).LineStyle = xlContinuous\nRange(\"B18\").Borders(xlEdgeTop).Weight = xlThick",
+   "cells": {
+    "B17": {
+     "reads": "-4142:2,-4142:2,-4142:2,-4142:2,1:4,-4142:2,",
+     "stored": "<border><left/><right/><top/><bottom/><diagonal/></border>"
+    },
+    "B18": {
+     "reads": "-4142:2,-4142:2,-4142:2,1:4,-4142:2,-4142:2,",
+     "stored": "<border><left/><right/><top style=\"thick\"><color indexed=\"64\"/></top><bottom/><diagonal/></border>"
+    }
+   }
+  },
+  {
+   "name": "conflict_top_then_bottom",
+   "setup": "Range(\"D18\").Borders(xlEdgeTop).Weight = xlThick\nRange(\"D17\").Borders(xlEdgeBottom).LineStyle = xlDash",
+   "cells": {
+    "D17": {
+     "reads": "-4142:2,-4142:2,-4142:2,-4142:2,-4115:2,-4142:2,",
+     "stored": "<border><left/><right/><top/><bottom style=\"dashed\"><color indexed=\"64\"/></bottom><diagonal/></border>"
+    },
+    "D18": {
+     "reads": "-4142:2,-4142:2,-4142:2,-4115:2,-4142:2,-4142:2,",
+     "stored": "<border><left/><right/><top/><bottom/><diagonal/></border>"
+    }
+   }
+  },
+  {
+   "name": "conflict_right_then_left",
+   "setup": "Range(\"F17\").Borders(xlEdgeRight).LineStyle = xlContinuous\nRange(\"G17\").Borders(xlEdgeLeft).LineStyle = xlDouble",
+   "cells": {
+    "F17": {
+     "reads": "-4142:2,-4142:2,-4142:2,-4142:2,-4142:2,-4119:4,",
+     "stored": "<border><left/><right/><top/><bottom/><diagonal/></border>"
+    },
+    "G17": {
+     "reads": "-4142:2,-4142:2,-4119:4,-4142:2,-4142:2,-4142:2,",
+     "stored": "<border><left style=\"double\"><color indexed=\"64\"/></left><right/><top/><bottom/><diagonal/></border>"
+    }
+   }
+  },
+  {
+   "name": "clear_from_below",
+   "setup": "Range(\"B21\").Borders(xlEdgeBottom).LineStyle = xlContinuous\nRange(\"B22\").Borders(xlEdgeTop).LineStyle = xlNone",
+   "cells": {
+    "B21": {
+     "reads": "-4142:2,-4142:2,-4142:2,-4142:2,-4142:2,-4142:2,",
+     "stored": "<border><left/><right/><top/><bottom/><diagonal/></border>"
+    },
+    "B22": {
+     "reads": "-4142:2,-4142:2,-4142:2,-4142:2,-4142:2,-4142:2,",
+     "stored": "<border><left/><right/><top/><bottom/><diagonal/></border>"
+    }
+   }
+  },
+  {
+   "name": "clear_from_above",
+   "setup": "Range(\"D22\").Borders(xlEdgeTop).LineStyle = xlContinuous\nRange(\"D21\").Borders(xlEdgeBottom).LineStyle = xlNone",
+   "cells": {
+    "D21": {
+     "reads": "-4142:2,-4142:2,-4142:2,-4142:2,-4142:2,-4142:2,",
+     "stored": "<border><left/><right/><top/><bottom/><diagonal/></border>"
+    },
+    "D22": {
+     "reads": "-4142:2,-4142:2,-4142:2,-4142:2,-4142:2,-4142:2,",
+     "stored": "<border><left/><right/><top/><bottom/><diagonal/></border>"
+    }
+   }
+  },
+  {
+   "name": "clear_own",
+   "setup": "Range(\"F21\").Borders(xlEdgeBottom).LineStyle = xlContinuous\nRange(\"F21\").Borders(xlEdgeBottom).LineStyle = xlNone",
+   "cells": {
+    "F21": {
+     "reads": "-4142:2,-4142:2,-4142:2,-4142:2,-4142:2,-4142:2,",
+     "stored": "<border><left/><right/><top/><bottom/><diagonal/></border>"
+    },
+    "F22": {
+     "reads": "-4142:2,-4142:2,-4142:2,-4142:2,-4142:2,-4142:2,",
+     "stored": "<border><left/><right/><top/><bottom/><diagonal/></border>"
+    }
+   }
+  },
+  {
+   "name": "neighbour_font_change",
+   "setup": "Range(\"B25\").Borders(xlEdgeBottom).LineStyle = xlContinuous\nRange(\"B26\").Font.Bold = True",
+   "cells": {
+    "B25": {
+     "reads": "-4142:2,-4142:2,-4142:2,-4142:2,1:2,-4142:2,",
+     "stored": "<border><left/><right/><top/><bottom style=\"thin\"><color indexed=\"64\"/></bottom><diagonal/></border>"
+    },
+    "B26": {
+     "reads": "-4142:2,-4142:2,-4142:2,1:2,-4142:2,-4142:2,",
+     "stored": "<border><left/><right/><top/><bottom/><diagonal/></border>"
+    }
+   }
+  },
+  {
+   "name": "neighbour_border_change",
+   "setup": "Range(\"D25\").Borders(xlEdgeBottom).LineStyle = xlContinuous\nRange(\"D26\").Borders(xlEdgeLeft).LineStyle = xlContinuous",
+   "cells": {
+    "D25": {
+     "reads": "-4142:2,-4142:2,-4142:2,-4142:2,1:2,-4142:2,",
+     "stored": "<border><left/><right/><top/><bottom style=\"thin\"><color indexed=\"64\"/></bottom><diagonal/></border>"
+    },
+    "D26": {
+     "reads": "-4142:2,-4142:2,1:2,1:2,-4142:2,-4142:2,",
+     "stored": "<border><left style=\"thin\"><color indexed=\"64\"/></left><right/><top style=\"thin\"><color indexed=\"64\"/></top><bottom/><diagonal/></border>"
+    }
+   }
+  },
+  {
+   "name": "neighbour_left_change",
+   "setup": "Range(\"F25\").Borders(xlEdgeRight).LineStyle = xlContinuous\nRange(\"G25\").Borders(xlEdgeTop).LineStyle = xlContinuous",
+   "cells": {
+    "F25": {
+     "reads": "-4142:2,-4142:2,-4142:2,-4142:2,-4142:2,1:2,",
+     "stored": "<border><left/><right style=\"thin\"><color indexed=\"64\"/></right><top/><bottom/><diagonal/></border>"
+    },
+    "G25": {
+     "reads": "-4142:2,-4142:2,1:2,1:2,-4142:2,-4142:2,",
+     "stored": "<border><left style=\"thin\"><color indexed=\"64\"/></left><right/><top style=\"thin\"><color indexed=\"64\"/></top><bottom/><diagonal/></border>"
+    }
+   }
+  },
+  {
+   "name": "neighbour_above_change",
+   "setup": "Range(\"I26\").Borders(xlEdgeTop).LineStyle = xlContinuous\nRange(\"I25\").Borders(xlEdgeLeft).LineStyle = xlContinuous",
+   "cells": {
+    "I25": {
+     "reads": "-4142:2,-4142:2,1:2,-4142:2,1:2,-4142:2,",
+     "stored": "<border><left style=\"thin\"><color indexed=\"64\"/></left><right/><top/><bottom style=\"thin\"><color indexed=\"64\"/></bottom><diagonal/></border>"
+    },
+    "I26": {
+     "reads": "-4142:2,-4142:2,-4142:2,1:2,-4142:2,-4142:2,",
+     "stored": "<border><left/><right/><top style=\"thin\"><color indexed=\"64\"/></top><bottom/><diagonal/></border>"
+    }
+   }
+  },
+  {
+   "name": "clear_formats_neighbour",
+   "setup": "Range(\"B29\").Borders(xlEdgeBottom).LineStyle = xlContinuous\nRange(\"B29\").ClearFormats",
+   "cells": {
+    "B29": {
+     "reads": "-4142:2,-4142:2,-4142:2,-4142:2,-4142:2,-4142:2,",
+     "stored": "<border><left/><right/><top/><bottom/><diagonal/></border>"
+    },
+    "B30": {
+     "reads": "-4142:2,-4142:2,-4142:2,-4142:2,-4142:2,-4142:2,",
+     "stored": "<border><left/><right/><top/><bottom/><diagonal/></border>"
+    }
+   }
+  },
+  {
+   "name": "clear_formats_owner_below",
+   "setup": "Range(\"D30\").Borders(xlEdgeTop).LineStyle = xlContinuous\nRange(\"D29\").ClearFormats",
+   "cells": {
+    "D29": {
+     "reads": "-4142:2,-4142:2,-4142:2,-4142:2,1:2,-4142:2,",
+     "stored": "<border><left/><right/><top/><bottom/><diagonal/></border>"
+    },
+    "D30": {
+     "reads": "-4142:2,-4142:2,-4142:2,1:2,-4142:2,-4142:2,",
+     "stored": "<border><left/><right/><top style=\"thin\"><color indexed=\"64\"/></top><bottom/><diagonal/></border>"
+    }
+   }
+  },
+  {
+   "name": "range_inside_existing",
+   "setup": "Range(\"B33\").Borders(xlEdgeBottom).LineStyle = xlDouble\nRange(\"B33:B34\").Borders(xlInsideHorizontal).LineStyle = xlContinuous",
+   "cells": {
+    "B33": {
+     "reads": "-4142:2,-4142:2,-4142:2,-4142:2,1:4,-4142:2,",
+     "stored": "<border><left/><right/><top/><bottom style=\"thick\"><color auto=\"1\"/></bottom><diagonal/></border>"
+    },
+    "B34": {
+     "reads": "-4142:2,-4142:2,-4142:2,1:4,-4142:2,-4142:2,",
+     "stored": "<border><left/><right/><top style=\"thick\"><color auto=\"1\"/></top><bottom/><diagonal/></border>"
+    }
+   }
+  },
+  {
+   "name": "diagonal_neighbours",
+   "setup": "Range(\"D33\").Borders(xlDiagonalDown).LineStyle = xlContinuous",
+   "cells": {
+    "D33": {
+     "reads": "1:2,-4142:2,-4142:2,-4142:2,-4142:2,-4142:2,",
+     "stored": "<border diagonalDown=\"1\"><left/><right/><top/><bottom/><diagonal style=\"thin\"><color indexed=\"64\"/></diagonal></border>"
+    },
+    "E33": {
+     "reads": "-4142:2,-4142:2,-4142:2,-4142:2,-4142:2,-4142:2,",
+     "stored": "<border><left/><right/><top/><bottom/><diagonal/></border>"
+    },
+    "D34": {
+     "reads": "-4142:2,-4142:2,-4142:2,-4142:2,-4142:2,-4142:2,",
+     "stored": "<border><left/><right/><top/><bottom/><diagonal/></border>"
+    }
+   }
+  }
+ ],
+ "patterns": [
+  {
+   "pattern": -4142,
+   "reads": "-4142",
+   "stored": "<fill><patternFill patternType=\"none\"/></fill>"
+  },
+  {
+   "pattern": 1,
+   "reads": "1",
+   "stored": "<fill><patternFill patternType=\"solid\"><fgColor indexed=\"65\"/><bgColor indexed=\"64\"/></patternFill></fill>"
+  },
+  {
+   "pattern": -4126,
+   "reads": "-4126",
+   "stored": "<fill><patternFill patternType=\"darkGray\"/></fill>"
+  },
+  {
+   "pattern": -4125,
+   "reads": "-4125",
+   "stored": "<fill><patternFill patternType=\"mediumGray\"/></fill>"
+  },
+  {
+   "pattern": -4124,
+   "reads": "-4124",
+   "stored": "<fill><patternFill patternType=\"lightGray\"/></fill>"
+  },
+  {
+   "pattern": 17,
+   "reads": "17",
+   "stored": "<fill><patternFill patternType=\"gray125\"/></fill>"
+  },
+  {
+   "pattern": 18,
+   "reads": "18",
+   "stored": "<fill><patternFill patternType=\"gray0625\"/></fill>"
+  },
+  {
+   "pattern": -4128,
+   "reads": "-4128",
+   "stored": "<fill><patternFill patternType=\"darkHorizontal\"/></fill>"
+  },
+  {
+   "pattern": -4166,
+   "reads": "-4166",
+   "stored": "<fill><patternFill patternType=\"darkVertical\"/></fill>"
+  },
+  {
+   "pattern": -4121,
+   "reads": "-4121",
+   "stored": "<fill><patternFill patternType=\"darkDown\"/></fill>"
+  },
+  {
+   "pattern": -4162,
+   "reads": "-4162",
+   "stored": "<fill><patternFill patternType=\"darkUp\"/></fill>"
+  },
+  {
+   "pattern": 9,
+   "reads": "9",
+   "stored": "<fill><patternFill patternType=\"darkGrid\"/></fill>"
+  },
+  {
+   "pattern": 10,
+   "reads": "10",
+   "stored": "<fill><patternFill patternType=\"darkTrellis\"/></fill>"
+  },
+  {
+   "pattern": 11,
+   "reads": "11",
+   "stored": "<fill><patternFill patternType=\"lightHorizontal\"/></fill>"
+  },
+  {
+   "pattern": 12,
+   "reads": "12",
+   "stored": "<fill><patternFill patternType=\"lightVertical\"/></fill>"
+  },
+  {
+   "pattern": 13,
+   "reads": "13",
+   "stored": "<fill><patternFill patternType=\"lightDown\"/></fill>"
+  },
+  {
+   "pattern": 14,
+   "reads": "14",
+   "stored": "<fill><patternFill patternType=\"lightUp\"/></fill>"
+  },
+  {
+   "pattern": 15,
+   "reads": "15",
+   "stored": "<fill><patternFill patternType=\"lightGrid\"/></fill>"
+  },
+  {
+   "pattern": 16,
+   "reads": "16",
+   "stored": "<fill><patternFill patternType=\"lightTrellis\"/></fill>"
+  }
+ ]
+}

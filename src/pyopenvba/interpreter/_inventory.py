@@ -16,22 +16,32 @@ from __future__ import annotations
 from pyopenvba.interpreter._inventory_data import MEMBERS
 
 
-def _key(type_name: str, library: str) -> str:
-    return f"{library.lower()}:{type_name.lower()}" if library else type_name.lower()
+def _keys(type_name: str, library: str) -> list[str]:
+    """Where a type's members sit: under the class, or under its I- or _-named interface.
+
+    Excel's Border, for one, carries its members on IBorder, and the
+    coclass itself has none.
+    """
+    name = type_name.lower()
+    if not library:
+        return [name]
+    prefix = library.lower()
+    return [f"{prefix}:{name}", f"{prefix}:i{name}", f"{prefix}:_{name}"]
 
 
 def type_known(type_name: str, library: str = "") -> bool:
     """Whether the inventory covers this type at all."""
-    if _key(type_name, library) in MEMBERS:
+    if any(key in MEMBERS for key in _keys(type_name, library)):
         return True
     return any(key.endswith(f":{type_name.lower()}") for key in MEMBERS)
 
 
 def members_of(type_name: str, library: str = "") -> frozenset[str]:
     """Every member name the real type has, lowercased."""
-    direct = MEMBERS.get(_key(type_name, library))
-    if direct is not None:
-        return direct
+    for key in _keys(type_name, library):
+        direct = MEMBERS.get(key)
+        if direct is not None:
+            return direct
     suffix = f":{type_name.lower()}"
     for key in MEMBERS:
         if key.endswith(suffix):

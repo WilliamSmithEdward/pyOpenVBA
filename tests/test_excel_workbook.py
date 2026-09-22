@@ -162,6 +162,19 @@ def test_a_member_excel_has_not_got_either_is_error_438() -> None:
     assert raised.value.number == 438
 
 
+def test_a_class_whose_members_sit_on_its_interface_still_tells_a_gap_from_a_typo() -> None:
+    """Range keeps its members on IRange, and Font on IFont rather than on Word's Font."""
+    app = fresh()
+    with pytest.raises(VBAUnsupportedError) as gap:
+        macro(app, '    Range("A1").AutoFilter', name="Gap")
+    assert "AutoFilter" in str(gap.value)
+    with pytest.raises(VBARuntimeError) as typo:
+        macro(app, '    Range("A1").AutoFiltr', name="Typo")
+    assert typo.value.number == 438
+    with pytest.raises(VBAUnsupportedError):
+        macro(app, '    x = Range("A1").Font.ThemeFont', name="ExcelOnly")
+
+
 def test_a_worksheet_function_this_lacks_says_which_one() -> None:
     app = fresh()
     with pytest.raises(VBAUnsupportedError) as raised:

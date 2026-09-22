@@ -174,6 +174,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- Excel classes whose members the type library keeps on an interface,
+  Range on IRange and Font on IFont among them, are found there. A member
+  Excel lacks raises error 438 and one it has reports itself unsupported;
+  before, a typo on Range read as unimplemented, and Font was checked
+  against Word's Font.
 - Multi-selection controls now read Excel's lowercase `seltype` attribute
   and `multiSel` indexes; scalar `Value` reads raise error 1004 in VBA.
 

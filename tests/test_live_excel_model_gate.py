@@ -313,7 +313,7 @@ def test_excel_opens_a_form_control_this_made(tmp_path: Path) -> None:
         "Public Function Report() As String\n"
         "    Dim sh As Object\n"
         "    Set sh = ActiveSheet.Shapes(1)\n"
-        '    Report = sh.Name & "|" & CStr(sh.Type) & "|" & sh.OnAction & "|" & _\n'
+        '    Report = ActiveSheet.StandardHeight & "#" & sh.Name & "|" & CStr(sh.Type) & "|" & sh.OnAction & "|" & _\n'
         '        CStr(sh.Left) & "|" & CStr(sh.Width) & "|" & sh.TextFrame.Characters.Text & _\n'
         '        "|" & CStr(sh.FormControlType)\n'
         "End Function\n"
@@ -322,7 +322,9 @@ def test_excel_opens_a_form_control_this_made(tmp_path: Path) -> None:
         excel.open_document(out)
         result = excel.run_vba(reader, "Report", timeout=120.0)
         assert result.ok, f"{result.outcome}: {result.message}"
-        assert str(result.value) == "Go|8|control.xlsm!Clicked|100|90|Press me|0"
+    standard, answer = str(result.value).split("#", 1)
+    left, width = _on_display(standard, 100, 90)
+    assert answer == f"Go|8|control.xlsm!Clicked|{left}|{width}|Press me|0"
 
 
 #: A query that does enough to be worth comparing: a group, a sort, a
@@ -407,7 +409,7 @@ def test_excel_opens_public_python_shape_edits(tmp_path: Path) -> None:
         "Public Function Report() As String\n"
         "    Dim sh As Object\n"
         '    Set sh = ActiveSheet.Shapes("Run")\n'
-        '    Report = CStr(ActiveSheet.Shapes.Count) & "|" & sh.Name & "|" & _\n'
+        '    Report = ActiveSheet.StandardHeight & "#" & CStr(ActiveSheet.Shapes.Count) & "|" & sh.Name & "|" & _\n'
         '        CStr(sh.Left) & "|" & CStr(sh.Top) & "|" & CStr(sh.Width) & "|" & _\n'
         '        CStr(sh.Height) & "|" & Replace(Replace(sh.TextFrame.Characters.Text, vbCr, ""), vbLf, "/") & "|" & _\n'
         '        sh.OnAction & "|" & ActiveSheet.Shapes("New").TextFrame.Characters.Text & "|" & _\n'
@@ -418,7 +420,30 @@ def test_excel_opens_public_python_shape_edits(tmp_path: Path) -> None:
         excel.open_document(out)
         result = excel.run_vba(reader, "Report", timeout=120.0)
         assert result.ok, f"{result.outcome}: {result.message}"
-        assert str(result.value) == "9|Run|40|60|110|35|Changed/Caption||New button|8"
+    standard, answer = str(result.value).split("#", 1)
+    left, width = _on_display(standard, 40, 110)
+    top, height = _on_display(standard, 60, 35)
+    assert answer == f"9|Run|{left}|{top}|{width}|{height}|Changed/Caption||New button|8"
+
+
+def _on_display(standard_height: str, start: float, size: float) -> tuple[str, str]:
+    """Where Excel puts a shape's edges once it loads them from the anchor, as CStr spells them.
+
+    Excel rounds each edge to a whole pixel of its display: 0.75pt at
+    96 DPI, where a standard row is 15pt, and 0.5pt at 144 DPI, where it
+    is 14.5pt. So a button written at 40pt reads 39.75 on the first and
+    40 on the second.
+    """
+    pixel = {"15": 0.75, "14.5": 0.5}.get(standard_height)
+    if pixel is None:
+        pytest.skip(f"no pixel grid measured for a display whose standard row is {standard_height}pt")
+    first = round(start / pixel) * pixel
+    last = round((start + size) / pixel) * pixel
+
+    def spelled(value: float) -> str:
+        return f"{value:.15g}"
+
+    return spelled(first), spelled(last - first)
 
 
 def test_excel_opens_after_last_public_button_is_deleted(tmp_path: Path) -> None:
@@ -1370,6 +1395,7 @@ def test_excel_reads_model_authored_formats(tmp_path: Path) -> None:
     reads: list[str] = fixture["reads"]
     for name, described in zip(cases, str(result.value).split("|")[:-1], strict=True):
         assert dict(zip(reads, described.split(";")[:-1], strict=True)) == fixture["answers"][name], name
+
 
 def test_excel_reads_model_authored_sizes(tmp_path: Path) -> None:
     """Every row and column sizing case the model saves reads in Excel as Excel's own file of it does.

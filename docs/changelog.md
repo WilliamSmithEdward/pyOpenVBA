@@ -5,7 +5,17 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ## [Unreleased]
 
-Nothing yet.
+### Added
+
+- Shared `references()`, `add_reference()` and `remove_reference()` APIs
+  across Excel, Word, PowerPoint and Access, with Office presets and custom
+  registered libraries. GUID-based adds are idempotent; removing an absent
+  reference returns false. Access's strict `drop_reference()` remains.
+  Whole control/project reference groups are preserved or removed intact;
+  MSForms removal is refused while UserForms exist. Reference-only edits
+  honor save protection/signature rules and invalidate compiled caches.
+  Native Excel, Word and PowerPoint gates check references before VBA
+  injection, compile early-bound declarations, and verify removal.
 
 ## [6.0.0] - 2026-09-20
 

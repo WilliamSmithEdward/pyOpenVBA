@@ -103,6 +103,29 @@ pip install -e ".[dev]"
 The four host classes share the same module API: `module_names()`,
 `get_module()`, `set_module()`, `save()`.
 
+They also share `references()`, `add_reference()` and `remove_reference()`.
+These edit the VBA project's library references, as in Tools > References:
+
+```python
+with ExcelFile("workbook.xlsm") as wb:
+    wb.add_reference("Word")  # Excel, Word, PowerPoint and Access presets
+    wb.add_reference("Scripting", "420B2830-E718-11CF-893D-00A0C9054228",
+                     path="C:/Windows/System32/scrrun.dll")
+    for reference in wb.references():
+        print(reference.name, reference.guid, reference.version)
+    wb.remove_reference("Word")  # also accepts a GUID; returns whether removed
+    wb.save()
+```
+
+Adding an existing GUID or removing an absent reference is a no-op.
+The existing Access `drop_reference()` spelling remains available and raises
+if the reference is absent. VBA and the file's own host library are implicit;
+they are not listed or added. MSForms cannot be removed while UserForms exist.
+Removing a library does not rewrite code that names its types. Library paths
+are resolution hints; adding a reference does not install the library or add
+its implementation to the headless runtime. Use these methods to persist edits,
+rather than mutating `VBAProject.references` directly.
+
 ### Excel
 
 ```python

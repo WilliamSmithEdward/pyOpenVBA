@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import ClassVar, TypeVar
 
 from pyopenvba.cfb import CFB
+from pyopenvba._references import ReferenceManager, module_offset, reference_spans
 from pyopenvba.exceptions import UnsupportedFormatError, VBAProjectError
 from pyopenvba.forms import VBAForm, create_form, form_names, read_forms
 from pyopenvba.vba import (
@@ -51,7 +52,7 @@ _SOURCE_EXTS = frozenset({_BAS_EXT, _CLS_EXT})
 _HostT = TypeVar("_HostT", bound="VBAHostFile")
 
 
-class VBAHostFile:
+class VBAHostFile(ReferenceManager):
     """Open an Office file and provide access to its VBA project.
 
     Subclasses define the container parameters:
@@ -118,6 +119,24 @@ class VBAHostFile:
             return self._vba_cfb_bytes(self._path.read_bytes())
         assert self._zip is not None
         return self._zip.read(self._vba_entry)
+
+    def _reference_data(self) -> tuple[bytes, int]:
+        project = self.vba_project()
+        return project.dir_raw, project.code_page
+
+    def _write_reference_data(self, raw: bytes) -> None:
+        offset = module_offset(raw)
+        references = [span.reference for span in reference_spans(raw)]
+        project = self.vba_project()
+        project.dir_raw, project.dir_modules_offset = raw, offset
+        project.references = references
+        project.dir_references_dirty = True
+
+    def _reference_host(self) -> str:
+        return {"workbook": "excel", "document": "word", "presentation": "powerpoint"}[self._host_noun]
+
+    def _reference_forms(self) -> list[str]:
+        return form_names(self._get_cfb())
 
     def vba_modules(self) -> dict[str, str]:
         """Return a mapping of module name -> source code."""
@@ -402,6 +421,7 @@ class VBAHostFile:
                 or delete_names
                 or has_source_edits
                 or forms_dirty
+                or project.dir_references_dirty
             )
 
             # Safety gate 1: refuse to mutate a password-protected project
@@ -541,6 +561,13 @@ class VBAHostFile:
                         serialize_projectwm(wm_pairs, code_page=project.code_page),
                     )
                 project.dir_structure_dirty = False
+                project.dir_raw = new_dir_raw
+
+            # Reference-only writes preserve every module metadata byte, but
+            # still invalidate compiled state and honor the save safety gates.
+            if project.dir_references_dirty:
+                cfb.write_stream_in_storage("VBA", "dir", compress(project.dir_raw))
+                project.dir_references_dirty = False
 
             # 6. Invalidate the _VBA_PROJECT performance cache so Office
             #    regenerates it on next open ([MS-OVBA] 2.3.4.1 -- the

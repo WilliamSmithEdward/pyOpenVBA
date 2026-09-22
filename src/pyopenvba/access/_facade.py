@@ -23,10 +23,10 @@ from pyopenvba.access._designs import (
 )
 from pyopenvba.access._vba import VBAModule
 from pyopenvba.access_read import AccessError
-from pyopenvba.vba import VBAModuleKind
+from pyopenvba.vba import VBAModuleKind, VBAReference
 
 if TYPE_CHECKING:
-    from pyopenvba.access.database import AccessDatabase, Reference
+    from pyopenvba.access.database import AccessDatabase
 
 #: How the host-style module kinds map onto the database's own.
 MODULE_KINDS: dict[object, str] = {
@@ -83,7 +83,7 @@ class AccessVBAProject:
         return [module.name for module in self._db.modules()]
 
     @property
-    def references(self) -> list[Reference]:
+    def references(self) -> list[VBAReference]:
         return self._db.references()
 
     def add_module(

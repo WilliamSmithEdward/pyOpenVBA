@@ -72,7 +72,7 @@ done and what is not.
 | 7 | PROJECTwm | PASS | `parse_projectwm()` + `serialize_projectwm()` round-trip the live fixture byte-for-byte; `ExcelFile.save()` rebuilds `PROJECTwm` whenever the module set changes (add / rename / delete). |
 | 8 | PROJECTlk | PASS | `parse_projectlk()` + `serialize_projectlk()` round-trip `LicenseInfoRecord`s; `ExcelFile.save()` preserves PROJECTlk bytes verbatim until ActiveX license editing is required. |
 | 9 | dir Project Information | PASS | All PROJECTINFORMATION records decoded: code page, name, SysKind, LCID(invoke), DocString, HelpFile, HelpContext, LibFlags, Version, Constants, CompatVersion. |
-| 10 | dir References | PASS | REFERENCENAME / REFERENCEREGISTERED / REFERENCEPROJECT / REFERENCECONTROL / REFERENCEORIGINAL records exposed as `VBAReference` entries on `VBAProject.references`. |
+| 10 | dir References | PASS | Reference records are exposed as `VBAReference` entries. All four file facades share library listing/addition/removal, Office presets and custom registered references; removals preserve adjacent project/control groups. Reference-only saves invalidate compiled state and pass native Excel/Word/PowerPoint gates. |
 | 11 | dir Module Records | PASS | Module name (MBCS + Unicode), stream name (MBCS + Unicode), offset, type, read-only, private, doc-string (MBCS + Unicode), help-context, cookie all decoded. `serialize_dir_modules_section()` re-emits the full block. |
 | 12 | Module Stream | PASS | Source decompressed from `MODULEOFFSET`; replacement preserves cache prefix; reparse yields identical source. |
 | 13 | Module Mutation | PASS | Replace, add, rename, and delete all persist end-to-end (CFB stream create/rename/remove + dir rewrite + PROJECT rewrite). |

@@ -74,6 +74,10 @@ about the layer below it but not the layer above.
 
 Other files:
 
+- `_references.py`: shared library-reference API and record-span editing for
+  all four file facades. Excel/Word/PowerPoint store the edited dir stream
+  on the cached project; Access updates its storage row. Reference-only
+  edits participate in each host's normal save and cache-invalidation path.
 - `exceptions.py`: exception hierarchy shared by all layers.
 - `__init__.py`: public re-exports (`ExcelFile`, `AccessDatabase`, `pull`,
   `push`, `pull_access`, `push_access`, `VBAModuleKind`, exceptions).

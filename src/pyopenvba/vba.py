@@ -453,6 +453,30 @@ class VBAReference:
     libid: str = ""             # primary libid (registry path / file path)
     libid_secondary: str = ""   # twiddled / relative libid where applicable
 
+    @property
+    def guid(self) -> str:
+        head = self.libid.split("#", 1)[0]
+        return head[3:] if head.startswith("*\\G") else ""
+
+    @property
+    def version(self) -> tuple[int, int]:
+        parts = self.libid.split("#")
+        try:
+            major, minor = parts[1].split(".", 1)
+            return int(major, 16), int(minor, 16)
+        except (IndexError, ValueError):
+            return (0, 0)
+
+    @property
+    def path(self) -> str:
+        parts = self.libid.split("#")
+        return parts[3] if len(parts) > 3 else ""
+
+    @property
+    def description(self) -> str:
+        parts = self.libid.split("#")
+        return parts[4] if len(parts) > 4 else ""
+
 
 def _prefer_unicode(ansi: str, unicode_value: str) -> str:
     """Return the authoritative value of an ANSI / UTF-16 dir record pair.
@@ -931,6 +955,7 @@ class VBAProject:
     pending_deletes: set[str] = field(default_factory=lambda: set(), repr=False)
     # Set whenever the module list's identity changes (add/rename/delete).
     dir_structure_dirty: bool = field(default=False, repr=False)
+    dir_references_dirty: bool = field(default=False, repr=False)
 
     def get_module(self, name: str) -> VBAModule:
         needle = name.casefold()

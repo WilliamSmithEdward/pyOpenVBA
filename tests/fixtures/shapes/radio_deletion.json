@@ -1,0 +1,128 @@
+[
+  {
+    "boxed": false,
+    "selected": 1,
+    "deleted": 1,
+    "body": "Range(\"H1\").ClearContents\nFor i = 1 To 3\nSet sh = ActiveSheet.Shapes.AddFormControl(7, 10, i * 25, 90, 20)\nsh.Name = \"Radio\" & CStr(i)\nNext i\nActiveSheet.Shapes(\"Radio1\").ControlFormat.LinkedCell = \"$H$1\"\nActiveSheet.Shapes(\"Radio1\").ControlFormat.Value = 1\nActiveSheet.Shapes(\"Radio1\").Delete\nReport = CStr(Range(\"H1\").Value) & \"|\"\nFor Each sh In ActiveSheet.Shapes\nIf Left(sh.Name, 5) = \"Radio\" Then\nReport = Report & sh.Name & \":\" & CStr(sh.ControlFormat.Value) & \":\" & sh.ControlFormat.LinkedCell & \";\"\nEnd If\nNext sh\n",
+    "reported": "1|Radio2:-4146:;Radio3:-4146:;"
+  },
+  {
+    "boxed": false,
+    "selected": 1,
+    "deleted": 2,
+    "body": "Range(\"H1\").ClearContents\nFor i = 1 To 3\nSet sh = ActiveSheet.Shapes.AddFormControl(7, 10, i * 25, 90, 20)\nsh.Name = \"Radio\" & CStr(i)\nNext i\nActiveSheet.Shapes(\"Radio1\").ControlFormat.LinkedCell = \"$H$1\"\nActiveSheet.Shapes(\"Radio1\").ControlFormat.Value = 1\nActiveSheet.Shapes(\"Radio2\").Delete\nReport = CStr(Range(\"H1\").Value) & \"|\"\nFor Each sh In ActiveSheet.Shapes\nIf Left(sh.Name, 5) = \"Radio\" Then\nReport = Report & sh.Name & \":\" & CStr(sh.ControlFormat.Value) & \":\" & sh.ControlFormat.LinkedCell & \";\"\nEnd If\nNext sh\n",
+    "reported": "1|Radio1:1:$H$1;Radio3:-4146:$H$1;"
+  },
+  {
+    "boxed": false,
+    "selected": 1,
+    "deleted": 3,
+    "body": "Range(\"H1\").ClearContents\nFor i = 1 To 3\nSet sh = ActiveSheet.Shapes.AddFormControl(7, 10, i * 25, 90, 20)\nsh.Name = \"Radio\" & CStr(i)\nNext i\nActiveSheet.Shapes(\"Radio1\").ControlFormat.LinkedCell = \"$H$1\"\nActiveSheet.Shapes(\"Radio1\").ControlFormat.Value = 1\nActiveSheet.Shapes(\"Radio3\").Delete\nReport = CStr(Range(\"H1\").Value) & \"|\"\nFor Each sh In ActiveSheet.Shapes\nIf Left(sh.Name, 5) = \"Radio\" Then\nReport = Report & sh.Name & \":\" & CStr(sh.ControlFormat.Value) & \":\" & sh.ControlFormat.LinkedCell & \";\"\nEnd If\nNext sh\n",
+    "reported": "1|Radio1:1:$H$1;Radio2:-4146:$H$1;"
+  },
+  {
+    "boxed": false,
+    "selected": 2,
+    "deleted": 1,
+    "body": "Range(\"H1\").ClearContents\nFor i = 1 To 3\nSet sh = ActiveSheet.Shapes.AddFormControl(7, 10, i * 25, 90, 20)\nsh.Name = \"Radio\" & CStr(i)\nNext i\nActiveSheet.Shapes(\"Radio1\").ControlFormat.LinkedCell = \"$H$1\"\nActiveSheet.Shapes(\"Radio2\").ControlFormat.Value = 1\nActiveSheet.Shapes(\"Radio1\").Delete\nReport = CStr(Range(\"H1\").Value) & \"|\"\nFor Each sh In ActiveSheet.Shapes\nIf Left(sh.Name, 5) = \"Radio\" Then\nReport = Report & sh.Name & \":\" & CStr(sh.ControlFormat.Value) & \":\" & sh.ControlFormat.LinkedCell & \";\"\nEnd If\nNext sh\n",
+    "reported": "2|Radio2:1:;Radio3:-4146:;"
+  },
+  {
+    "boxed": false,
+    "selected": 2,
+    "deleted": 2,
+    "body": "Range(\"H1\").ClearContents\nFor i = 1 To 3\nSet sh = ActiveSheet.Shapes.AddFormControl(7, 10, i * 25, 90, 20)\nsh.Name = \"Radio\" & CStr(i)\nNext i\nActiveSheet.Shapes(\"Radio1\").ControlFormat.LinkedCell = \"$H$1\"\nActiveSheet.Shapes(\"Radio2\").ControlFormat.Value = 1\nActiveSheet.Shapes(\"Radio2\").Delete\nReport = CStr(Range(\"H1\").Value) & \"|\"\nFor Each sh In ActiveSheet.Shapes\nIf Left(sh.Name, 5) = \"Radio\" Then\nReport = Report & sh.Name & \":\" & CStr(sh.ControlFormat.Value) & \":\" & sh.ControlFormat.LinkedCell & \";\"\nEnd If\nNext sh\n",
+    "reported": "2|Radio1:-4146:$H$1;Radio3:-4146:$H$1;"
+  },
+  {
+    "boxed": false,
+    "selected": 2,
+    "deleted": 3,
+    "body": "Range(\"H1\").ClearContents\nFor i = 1 To 3\nSet sh = ActiveSheet.Shapes.AddFormControl(7, 10, i * 25, 90, 20)\nsh.Name = \"Radio\" & CStr(i)\nNext i\nActiveSheet.Shapes(\"Radio1\").ControlFormat.LinkedCell = \"$H$1\"\nActiveSheet.Shapes(\"Radio2\").ControlFormat.Value = 1\nActiveSheet.Shapes(\"Radio3\").Delete\nReport = CStr(Range(\"H1\").Value) & \"|\"\nFor Each sh In ActiveSheet.Shapes\nIf Left(sh.Name, 5) = \"Radio\" Then\nReport = Report & sh.Name & \":\" & CStr(sh.ControlFormat.Value) & \":\" & sh.ControlFormat.LinkedCell & \";\"\nEnd If\nNext sh\n",
+    "reported": "2|Radio1:-4146:$H$1;Radio2:1:$H$1;"
+  },
+  {
+    "boxed": false,
+    "selected": 3,
+    "deleted": 1,
+    "body": "Range(\"H1\").ClearContents\nFor i = 1 To 3\nSet sh = ActiveSheet.Shapes.AddFormControl(7, 10, i * 25, 90, 20)\nsh.Name = \"Radio\" & CStr(i)\nNext i\nActiveSheet.Shapes(\"Radio1\").ControlFormat.LinkedCell = \"$H$1\"\nActiveSheet.Shapes(\"Radio3\").ControlFormat.Value = 1\nActiveSheet.Shapes(\"Radio1\").Delete\nReport = CStr(Range(\"H1\").Value) & \"|\"\nFor Each sh In ActiveSheet.Shapes\nIf Left(sh.Name, 5) = \"Radio\" Then\nReport = Report & sh.Name & \":\" & CStr(sh.ControlFormat.Value) & \":\" & sh.ControlFormat.LinkedCell & \";\"\nEnd If\nNext sh\n",
+    "reported": "3|Radio2:-4146:;Radio3:1:;"
+  },
+  {
+    "boxed": false,
+    "selected": 3,
+    "deleted": 2,
+    "body": "Range(\"H1\").ClearContents\nFor i = 1 To 3\nSet sh = ActiveSheet.Shapes.AddFormControl(7, 10, i * 25, 90, 20)\nsh.Name = \"Radio\" & CStr(i)\nNext i\nActiveSheet.Shapes(\"Radio1\").ControlFormat.LinkedCell = \"$H$1\"\nActiveSheet.Shapes(\"Radio3\").ControlFormat.Value = 1\nActiveSheet.Shapes(\"Radio2\").Delete\nReport = CStr(Range(\"H1\").Value) & \"|\"\nFor Each sh In ActiveSheet.Shapes\nIf Left(sh.Name, 5) = \"Radio\" Then\nReport = Report & sh.Name & \":\" & CStr(sh.ControlFormat.Value) & \":\" & sh.ControlFormat.LinkedCell & \";\"\nEnd If\nNext sh\n",
+    "reported": "3|Radio1:-4146:$H$1;Radio3:1:$H$1;"
+  },
+  {
+    "boxed": false,
+    "selected": 3,
+    "deleted": 3,
+    "body": "Range(\"H1\").ClearContents\nFor i = 1 To 3\nSet sh = ActiveSheet.Shapes.AddFormControl(7, 10, i * 25, 90, 20)\nsh.Name = \"Radio\" & CStr(i)\nNext i\nActiveSheet.Shapes(\"Radio1\").ControlFormat.LinkedCell = \"$H$1\"\nActiveSheet.Shapes(\"Radio3\").ControlFormat.Value = 1\nActiveSheet.Shapes(\"Radio3\").Delete\nReport = CStr(Range(\"H1\").Value) & \"|\"\nFor Each sh In ActiveSheet.Shapes\nIf Left(sh.Name, 5) = \"Radio\" Then\nReport = Report & sh.Name & \":\" & CStr(sh.ControlFormat.Value) & \":\" & sh.ControlFormat.LinkedCell & \";\"\nEnd If\nNext sh\n",
+    "reported": "3|Radio1:-4146:$H$1;Radio2:-4146:$H$1;"
+  },
+  {
+    "boxed": true,
+    "selected": 1,
+    "deleted": 1,
+    "body": "Range(\"H1\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nFor i = 1 To 3\nSet sh = ActiveSheet.Shapes.AddFormControl(7, 10, i * 25, 90, 20)\nsh.Name = \"Radio\" & CStr(i)\nNext i\nActiveSheet.Shapes(\"Radio1\").ControlFormat.LinkedCell = \"$H$1\"\nActiveSheet.Shapes(\"Radio1\").ControlFormat.Value = 1\nActiveSheet.Shapes(\"Radio1\").Delete\nReport = CStr(Range(\"H1\").Value) & \"|\"\nFor Each sh In ActiveSheet.Shapes\nIf Left(sh.Name, 5) = \"Radio\" Then\nReport = Report & sh.Name & \":\" & CStr(sh.ControlFormat.Value) & \":\" & sh.ControlFormat.LinkedCell & \";\"\nEnd If\nNext sh\n",
+    "reported": "1|Radio2:-4146:$H$1;Radio3:-4146:$H$1;"
+  },
+  {
+    "boxed": true,
+    "selected": 1,
+    "deleted": 2,
+    "body": "Range(\"H1\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nFor i = 1 To 3\nSet sh = ActiveSheet.Shapes.AddFormControl(7, 10, i * 25, 90, 20)\nsh.Name = \"Radio\" & CStr(i)\nNext i\nActiveSheet.Shapes(\"Radio1\").ControlFormat.LinkedCell = \"$H$1\"\nActiveSheet.Shapes(\"Radio1\").ControlFormat.Value = 1\nActiveSheet.Shapes(\"Radio2\").Delete\nReport = CStr(Range(\"H1\").Value) & \"|\"\nFor Each sh In ActiveSheet.Shapes\nIf Left(sh.Name, 5) = \"Radio\" Then\nReport = Report & sh.Name & \":\" & CStr(sh.ControlFormat.Value) & \":\" & sh.ControlFormat.LinkedCell & \";\"\nEnd If\nNext sh\n",
+    "reported": "1|Radio1:1:$H$1;Radio3:-4146:$H$1;"
+  },
+  {
+    "boxed": true,
+    "selected": 1,
+    "deleted": 3,
+    "body": "Range(\"H1\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nFor i = 1 To 3\nSet sh = ActiveSheet.Shapes.AddFormControl(7, 10, i * 25, 90, 20)\nsh.Name = \"Radio\" & CStr(i)\nNext i\nActiveSheet.Shapes(\"Radio1\").ControlFormat.LinkedCell = \"$H$1\"\nActiveSheet.Shapes(\"Radio1\").ControlFormat.Value = 1\nActiveSheet.Shapes(\"Radio3\").Delete\nReport = CStr(Range(\"H1\").Value) & \"|\"\nFor Each sh In ActiveSheet.Shapes\nIf Left(sh.Name, 5) = \"Radio\" Then\nReport = Report & sh.Name & \":\" & CStr(sh.ControlFormat.Value) & \":\" & sh.ControlFormat.LinkedCell & \";\"\nEnd If\nNext sh\n",
+    "reported": "1|Radio1:1:$H$1;Radio2:-4146:$H$1;"
+  },
+  {
+    "boxed": true,
+    "selected": 2,
+    "deleted": 1,
+    "body": "Range(\"H1\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nFor i = 1 To 3\nSet sh = ActiveSheet.Shapes.AddFormControl(7, 10, i * 25, 90, 20)\nsh.Name = \"Radio\" & CStr(i)\nNext i\nActiveSheet.Shapes(\"Radio1\").ControlFormat.LinkedCell = \"$H$1\"\nActiveSheet.Shapes(\"Radio2\").ControlFormat.Value = 1\nActiveSheet.Shapes(\"Radio1\").Delete\nReport = CStr(Range(\"H1\").Value) & \"|\"\nFor Each sh In ActiveSheet.Shapes\nIf Left(sh.Name, 5) = \"Radio\" Then\nReport = Report & sh.Name & \":\" & CStr(sh.ControlFormat.Value) & \":\" & sh.ControlFormat.LinkedCell & \";\"\nEnd If\nNext sh\n",
+    "reported": "2|Radio2:1:$H$1;Radio3:-4146:$H$1;"
+  },
+  {
+    "boxed": true,
+    "selected": 2,
+    "deleted": 2,
+    "body": "Range(\"H1\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nFor i = 1 To 3\nSet sh = ActiveSheet.Shapes.AddFormControl(7, 10, i * 25, 90, 20)\nsh.Name = \"Radio\" & CStr(i)\nNext i\nActiveSheet.Shapes(\"Radio1\").ControlFormat.LinkedCell = \"$H$1\"\nActiveSheet.Shapes(\"Radio2\").ControlFormat.Value = 1\nActiveSheet.Shapes(\"Radio2\").Delete\nReport = CStr(Range(\"H1\").Value) & \"|\"\nFor Each sh In ActiveSheet.Shapes\nIf Left(sh.Name, 5) = \"Radio\" Then\nReport = Report & sh.Name & \":\" & CStr(sh.ControlFormat.Value) & \":\" & sh.ControlFormat.LinkedCell & \";\"\nEnd If\nNext sh\n",
+    "reported": "2|Radio1:-4146:$H$1;Radio3:-4146:$H$1;"
+  },
+  {
+    "boxed": true,
+    "selected": 2,
+    "deleted": 3,
+    "body": "Range(\"H1\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nFor i = 1 To 3\nSet sh = ActiveSheet.Shapes.AddFormControl(7, 10, i * 25, 90, 20)\nsh.Name = \"Radio\" & CStr(i)\nNext i\nActiveSheet.Shapes(\"Radio1\").ControlFormat.LinkedCell = \"$H$1\"\nActiveSheet.Shapes(\"Radio2\").ControlFormat.Value = 1\nActiveSheet.Shapes(\"Radio3\").Delete\nReport = CStr(Range(\"H1\").Value) & \"|\"\nFor Each sh In ActiveSheet.Shapes\nIf Left(sh.Name, 5) = \"Radio\" Then\nReport = Report & sh.Name & \":\" & CStr(sh.ControlFormat.Value) & \":\" & sh.ControlFormat.LinkedCell & \";\"\nEnd If\nNext sh\n",
+    "reported": "2|Radio1:-4146:$H$1;Radio2:1:$H$1;"
+  },
+  {
+    "boxed": true,
+    "selected": 3,
+    "deleted": 1,
+    "body": "Range(\"H1\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nFor i = 1 To 3\nSet sh = ActiveSheet.Shapes.AddFormControl(7, 10, i * 25, 90, 20)\nsh.Name = \"Radio\" & CStr(i)\nNext i\nActiveSheet.Shapes(\"Radio1\").ControlFormat.LinkedCell = \"$H$1\"\nActiveSheet.Shapes(\"Radio3\").ControlFormat.Value = 1\nActiveSheet.Shapes(\"Radio1\").Delete\nReport = CStr(Range(\"H1\").Value) & \"|\"\nFor Each sh In ActiveSheet.Shapes\nIf Left(sh.Name, 5) = \"Radio\" Then\nReport = Report & sh.Name & \":\" & CStr(sh.ControlFormat.Value) & \":\" & sh.ControlFormat.LinkedCell & \";\"\nEnd If\nNext sh\n",
+    "reported": "3|Radio2:-4146:$H$1;Radio3:1:$H$1;"
+  },
+  {
+    "boxed": true,
+    "selected": 3,
+    "deleted": 2,
+    "body": "Range(\"H1\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nFor i = 1 To 3\nSet sh = ActiveSheet.Shapes.AddFormControl(7, 10, i * 25, 90, 20)\nsh.Name = \"Radio\" & CStr(i)\nNext i\nActiveSheet.Shapes(\"Radio1\").ControlFormat.LinkedCell = \"$H$1\"\nActiveSheet.Shapes(\"Radio3\").ControlFormat.Value = 1\nActiveSheet.Shapes(\"Radio2\").Delete\nReport = CStr(Range(\"H1\").Value) & \"|\"\nFor Each sh In ActiveSheet.Shapes\nIf Left(sh.Name, 5) = \"Radio\" Then\nReport = Report & sh.Name & \":\" & CStr(sh.ControlFormat.Value) & \":\" & sh.ControlFormat.LinkedCell & \";\"\nEnd If\nNext sh\n",
+    "reported": "3|Radio1:-4146:$H$1;Radio3:1:$H$1;"
+  },
+  {
+    "boxed": true,
+    "selected": 3,
+    "deleted": 3,
+    "body": "Range(\"H1\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nFor i = 1 To 3\nSet sh = ActiveSheet.Shapes.AddFormControl(7, 10, i * 25, 90, 20)\nsh.Name = \"Radio\" & CStr(i)\nNext i\nActiveSheet.Shapes(\"Radio1\").ControlFormat.LinkedCell = \"$H$1\"\nActiveSheet.Shapes(\"Radio3\").ControlFormat.Value = 1\nActiveSheet.Shapes(\"Radio3\").Delete\nReport = CStr(Range(\"H1\").Value) & \"|\"\nFor Each sh In ActiveSheet.Shapes\nIf Left(sh.Name, 5) = \"Radio\" Then\nReport = Report & sh.Name & \":\" & CStr(sh.ControlFormat.Value) & \":\" & sh.ControlFormat.LinkedCell & \";\"\nEnd If\nNext sh\n",
+    "reported": "3|Radio1:-4146:$H$1;Radio2:-4146:$H$1;"
+  }
+]

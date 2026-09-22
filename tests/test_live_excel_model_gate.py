@@ -389,3 +389,658 @@ def test_the_refresh_lands_what_power_query_lands(tmp_path: Path) -> None:
         theirs = str(result.value).rstrip("|").split("|")
 
     assert ours == theirs
+
+
+def test_excel_opens_public_python_shape_edits(tmp_path: Path) -> None:
+    """Creation, edits and control removal through Python agree with live Excel."""
+    harness = pytest.importorskip("pyvbaharness")
+    source = Path(__file__).parent / "fixtures" / "shapes" / "excel_shapes.xlsm"
+    app = ExcelApplication.open(source, with_vba=False)
+    sheet = app.sheet(1)
+    sheet.update_shape("Button1", new_name="Run", left=40, top=60, width=110, height=35,
+                       text="Changed\nCaption", macro="")
+    sheet.remove_shape("Drop1")
+    sheet.add_button(name="New", left=300, top=220, text="New button", macro="Clicked")
+    out = tmp_path / "python_shapes.xlsm"
+    app.save(out)
+    reader = (
+        "Public Function Report() As String\n"
+        "    Dim sh As Object\n"
+        '    Set sh = ActiveSheet.Shapes("Run")\n'
+        '    Report = CStr(ActiveSheet.Shapes.Count) & "|" & sh.Name & "|" & _\n'
+        '        CStr(sh.Left) & "|" & CStr(sh.Top) & "|" & CStr(sh.Width) & "|" & _\n'
+        '        CStr(sh.Height) & "|" & Replace(Replace(sh.TextFrame.Characters.Text, vbCr, ""), vbLf, "/") & "|" & _\n'
+        '        sh.OnAction & "|" & ActiveSheet.Shapes("New").TextFrame.Characters.Text & "|" & _\n'
+        '        CStr(ActiveSheet.Shapes("Check1").Type)\n'
+        "End Function\n"
+    )
+    with harness.ExcelSession() as excel:
+        excel.open_document(out)
+        result = excel.run_vba(reader, "Report", timeout=120.0)
+        assert result.ok, f"{result.outcome}: {result.message}"
+        assert str(result.value) == "9|Run|40|60|110|35|Changed/Caption||New button|8"
+
+
+def test_excel_opens_after_last_public_button_is_deleted(tmp_path: Path) -> None:
+    harness = pytest.importorskip("pyvbaharness")
+    app = ExcelApplication()
+    app.add_workbook()
+    sheet = app.sheet(1)
+    sheet.add_button(name="Gone", text="Delete me")
+    out = tmp_path / "deleted_button.xlsm"
+    app.save(out)
+    sheet.remove_shape("Gone")
+    app.save(out)
+    with harness.ExcelSession() as excel:
+        excel.open_document(out)
+        result = excel.run_vba(
+            "Public Function Report() As String\n"
+            "    Report = CStr(ActiveSheet.Shapes.Count)\nEnd Function\n",
+            "Report", timeout=120.0,
+        )
+        assert result.ok, f"{result.outcome}: {result.message}"
+        assert str(result.value) == "0"
+
+
+def test_excel_vba_default_shape_name_can_duplicate_a_manual_name() -> None:
+    harness = pytest.importorskip("pyvbaharness")
+    app = ExcelApplication()
+    app.add_workbook()
+    source = (
+        "Public Function Report() As String\n"
+        '    ActiveSheet.Shapes.AddShape(1, 0, 0, 100, 50).Name = "Rectangle 2"\n'
+        "    Report = ActiveSheet.Shapes.AddShape(1, 0, 0, 100, 50).Name\n"
+        "End Function\n"
+    )
+    app.add_module(source, name="NameProbe")
+    ours = app.run("Report")
+    with harness.ExcelSession() as excel:
+        excel.new_document()
+        result = excel.run_vba(
+            source, "Report", timeout=120.0,
+        )
+        assert result.ok, f"{result.outcome}: {result.message}"
+        assert str(result.value) == ours
+
+
+@pytest.mark.parametrize("clear", [False, True])
+def test_excel_reads_python_control_bindings(tmp_path: Path, clear: bool) -> None:
+    harness = pytest.importorskip("pyvbaharness")
+    source = Path(__file__).parent / "fixtures" / "shapes" / "excel_shapes.xlsm"
+    app = ExcelApplication.open(source, with_vba=False)
+    sheet = app.sheet(1)
+    sheet.update_control("Check1", linked_cell="" if clear else "$K$2")
+    sheet.update_control("Drop1", linked_cell="" if clear else "$K$3",
+                         list_range="" if clear else "$J$2:$J$3")
+    out = tmp_path / "bindings.xlsm"
+    app.save(out)
+    with harness.ExcelSession() as excel:
+        excel.open_document(out)
+        result = excel.run_vba(
+            'Public Function Report() As String\n'
+            'Report = ActiveSheet.Shapes("Check1").ControlFormat.LinkedCell & "|" & _\n'
+            'ActiveSheet.Shapes("Drop1").ControlFormat.LinkedCell & "|" & _\n'
+            'ActiveSheet.Shapes("Drop1").ControlFormat.ListFillRange\nEnd Function\n',
+            "Report", timeout=120.0,
+        )
+        assert result.ok, f"{result.outcome}: {result.message}"
+        assert str(result.value) == ("||" if clear else "$K$2|$K$3|$J$2:$J$3")
+
+
+@pytest.mark.parametrize("value", [-4146, 1, 2])
+def test_excel_reads_python_checkbox_values(tmp_path: Path, value: int) -> None:
+    harness = pytest.importorskip("pyvbaharness")
+    source = Path(__file__).parent / "fixtures" / "shapes" / "excel_shapes.xlsm"
+    app = ExcelApplication.open(source, with_vba=False)
+    sheet = app.sheet(1)
+    sheet.set_control_value("Check1", 1)
+    sheet.set_control_value("Check1", value)
+    out = tmp_path / "checkbox.xlsm"
+    app.save(out)
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+        excel.open_document(out)
+        result = excel.run_vba(
+            'Public Function Report() As String\n'
+            'Report = CStr(ActiveSheet.Shapes("Check1").ControlFormat.Value) & "|" & _\n'
+            'CStr(Range("H1").Value)\nEnd Function\n', "Report", timeout=120.0,
+        )
+        assert result.ok, f"{result.outcome}: {result.message}"
+        expected = "Error 2042" if value == 2 else str(value == 1)
+        assert str(result.value) == f"{value}|{expected}"
+
+
+def test_excel_reads_checkbox_created_by_headless_vba(tmp_path: Path) -> None:
+    harness = pytest.importorskip("pyvbaharness")
+    app = ExcelApplication()
+    app.add_workbook()
+    app.add_module('''Public Sub Build()
+Dim sh As Object
+Set sh = ActiveSheet.Shapes.AddFormControl(1, 0, 0, 90, 20)
+sh.Name = "Created"
+sh.ControlFormat.LinkedCell = "$H$1"
+sh.ControlFormat.Value = 2
+End Sub''', name="Builder")
+    app.run("Build")
+    out = tmp_path / "created_checkbox.xlsm"
+    app.save(out)
+    with harness.ExcelSession() as excel:
+        excel.open_document(out)
+        result = excel.run_vba(
+            'Public Function Report() As String\n'
+            'Report = CStr(ActiveSheet.Shapes("Created").FormControlType) & "|" & _\n'
+            'CStr(ActiveSheet.Shapes("Created").ControlFormat.Value) & "|" & _\n'
+            'CStr(Range("H1").Value)\nEnd Function\n', "Report", timeout=120.0,
+        )
+        assert result.ok, f"{result.outcome}: {result.message}"
+        assert str(result.value) == "1|2|Error 2042"
+
+
+@pytest.mark.parametrize("kind", [2, 6])
+def test_excel_reads_headless_list_selection(tmp_path: Path, kind: int) -> None:
+    harness = pytest.importorskip("pyvbaharness")
+    app = ExcelApplication()
+    app.add_workbook()
+    app.add_module(f'''Public Sub Build()
+Dim sh As Object
+Range("J1").Value = "a"
+Range("J2").Value = "b"
+Range("J3").Value = "c"
+Set sh = ActiveSheet.Shapes.AddFormControl({kind}, 0, 0, 90, 60)
+sh.Name = "Choices"
+sh.ControlFormat.ListFillRange = "$J$1:$J$3"
+sh.ControlFormat.LinkedCell = "$H$1"
+sh.ControlFormat.Value = 2
+End Sub''', name="Builder")
+    app.run("Build")
+    out = tmp_path / "choices.xlsm"
+    app.save(out)
+    # Reopen and edit, to exercise existing-part persistence too.
+    app = ExcelApplication.open(out, with_vba=False)
+    app.sheet(1).set_control_value("Choices", 3)
+    app.save(out)
+    with harness.ExcelSession() as excel:
+        excel.open_document(out)
+        result = excel.run_vba(
+            'Public Function Report() As String\n'
+            'Report = CStr(ActiveSheet.Shapes("Choices").FormControlType) & "|" & _\n'
+            'CStr(ActiveSheet.Shapes("Choices").ControlFormat.Value) & "|" & _\n'
+            'CStr(ActiveSheet.Shapes("Choices").ControlFormat.ListCount) & "|" & _\n'
+            'CStr(Range("H1").Value)\nEnd Function\n', "Report", timeout=120.0,
+        )
+        assert result.ok, f"{result.outcome}: {result.message}"
+        assert str(result.value) == f"{kind}|3|3|3"
+
+
+@pytest.mark.parametrize("mode", [1, 2, 3])
+def test_excel_reads_inline_items_and_multi_selection(tmp_path: Path, mode: int) -> None:
+    harness = pytest.importorskip("pyvbaharness")
+    app = ExcelApplication()
+    app.add_workbook()
+    app.add_module('''Public Sub Build()
+Dim sh As Object
+Set sh = ActiveSheet.Shapes.AddFormControl(6, 0, 0, 90, 60)
+sh.Name = "Choices"
+End Sub''', name="Builder")
+    app.run("Build")
+    sheet = app.sheet(1)
+    for text in ("one", "two & three", "four"):
+        sheet.add_control_item("Choices", text)
+    sheet.set_control_selection_mode("Choices", mode)
+    if mode == 1:
+        sheet.set_control_value("Choices", 2)
+    else:
+        sheet.set_control_selection("Choices", [1, 3])
+    out = tmp_path / "inline.xlsm"
+    app.save(out)
+    app = ExcelApplication.open(out, with_vba=False)
+    app.sheet(1).update_control_item("Choices", 2, "two & edited")
+    app.save(out)
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+        excel.open_document(out)
+        result = excel.run_vba(
+            'Public Function Report() As String\nDim sh As Object\n'
+            'Set sh = ActiveSheet.Shapes("Choices")\n'
+            'Report = CStr(sh.ControlFormat.MultiSelect) & "|" & sh.ControlFormat.List(2) & "|" & _\n'
+            'CStr(sh.DrawingObject.Selected(1)) & "|" & CStr(sh.DrawingObject.Selected(2)) & "|" & _\n'
+            'CStr(sh.DrawingObject.Selected(3))\nEnd Function\n', "Report", timeout=120.0,
+        )
+        assert result.ok, f"{result.outcome}: {result.message}"
+        flags = "False|True|False" if mode == 1 else "True|False|True"
+        native_mode = {1: -4142, 2: -4154, 3: 3}[mode]
+        assert str(result.value) == f"{native_mode}|two & edited|{flags}"
+
+
+@pytest.mark.parametrize("operation", ["replace", "append", "clear", "remove"])
+def test_excel_reads_range_backed_list_edits(tmp_path: Path, operation: str) -> None:
+    harness = pytest.importorskip("pyvbaharness")
+    source = Path(__file__).parent / "fixtures" / "shapes" / "excel_shapes.xlsm"
+    app = ExcelApplication.open(source, with_vba=False)
+    sheet = app.sheet(1)
+    sheet.update_control("Drop1", linked_cell="$H$2")
+    sheet.set_control_value("Drop1", 2)
+    if operation == "replace":
+        app.add_module('''Public Sub ReplaceList()
+ActiveSheet.Shapes("Drop1").ControlFormat.List = Array("x", "y")
+End Sub''', name="Replacement")
+        app.run("ReplaceList")
+    elif operation == "append":
+        sheet.add_control_item("Drop1", "x")
+    elif operation == "clear":
+        sheet.clear_control_items("Drop1")
+    else:
+        with pytest.raises(ValueError):
+            sheet.remove_control_item("Drop1", 2)
+    out = tmp_path / "range_edit.xlsm"
+    app.save(out)
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+        excel.open_document(out)
+        result = excel.run_vba(
+            'Public Function Report() As String\nDim cf As Object, i As Long\n'
+            'Set cf = ActiveSheet.Shapes("Drop1").ControlFormat\n'
+            'Report = cf.ListFillRange & "|" & CStr(cf.Value) & "|" & CStr(Range("H2").Value) & "|"\n'
+            'For i = 1 To cf.ListCount\nReport = Report & cf.List(i) & ";"\nNext i\n'
+            'Report = Report & "|" & Range("J1").Value & ";" & Range("J2").Value\nEnd Function\n',
+            "Report", timeout=120.0,
+        )
+        assert result.ok, f"{result.outcome}: {result.message}"
+        expected = {"replace": "|0|0|x;y;|a;b", "append": "|0|0|x;|a;b",
+                    "clear": "|0|0||a;b", "remove": "$J$1:$J$3|2|2|a;b;;|a;b"}
+        assert str(result.value) == expected[operation]
+
+
+def test_excel_opens_issue25_control_types_and_defaults(tmp_path: Path) -> None:
+    harness = pytest.importorskip("pyvbaharness")
+    app = ExcelApplication()
+    app.add_workbook()
+    app.add_module('''Public Sub Build()
+ActiveSheet.Shapes.AddFormControl(7, 0, 0, 90, 30).Name = "Radio"
+ActiveSheet.Shapes.AddFormControl(9, 0, 40, 90, 30).Name = "Spin"
+ActiveSheet.Shapes.AddFormControl(8, 0, 80, 90, 30).Name = "Scroll"
+ActiveSheet.Shapes.AddFormControl(4, 0, 120, 90, 30).Name = "Group"
+End Sub''', name="Builder")
+    app.run("Build")
+    out = tmp_path / "issue25.xlsm"
+    app.save(out)
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+        excel.open_document(out)
+        result = excel.run_vba('''Public Function Report() As String
+Dim s As Object
+Set s = ActiveSheet.Shapes
+s("Spin").ControlFormat.Value = 7
+s("Scroll").ControlFormat.Value = 25
+Report = CStr(s("Radio").FormControlType) & "|" & CStr(s("Radio").ControlFormat.Value) & "|" & _
+CStr(s("Spin").FormControlType) & "|" & CStr(s("Spin").ControlFormat.Max) & "|" & CStr(s("Spin").ControlFormat.Value) & "|" & _
+CStr(s("Scroll").FormControlType) & "|" & CStr(s("Scroll").ControlFormat.Max) & "|" & CStr(s("Scroll").ControlFormat.Value) & "|" & _
+CStr(s("Group").FormControlType)
+End Function''', "Report", timeout=120.0)
+        assert result.ok, f"{result.outcome}: {result.message}"
+        assert str(result.value) == "7|-4146|9|30000|7|8|100|25|4"
+
+
+def test_excel_reads_numeric_control_edits(tmp_path: Path) -> None:
+    harness = pytest.importorskip("pyvbaharness")
+    app = ExcelApplication.open(Path(__file__).parent / "fixtures/shapes/all_controls.xlsm", with_vba=False)
+    app.add_module('''Public Sub Edit()
+Dim sh As Object
+For Each sh In ActiveSheet.Shapes
+If sh.Name = "Step" Or sh.Name = "Slide" Then
+sh.ControlFormat.Min = 5
+sh.ControlFormat.Max = 45
+sh.ControlFormat.SmallChange = 2
+sh.ControlFormat.Value = 13
+End If
+Next sh
+End Sub''', name="Editor")
+    app.run("Edit")
+    out = tmp_path / "numeric_edits.xlsm"
+    app.save(out)
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+        excel.open_document(out)
+        result = excel.run_vba('''Public Function Report() As String
+Dim sh As Object, cf As Object
+For Each sh In ActiveSheet.Shapes
+If sh.Name = "Step" Or sh.Name = "Slide" Then
+Set cf = sh.ControlFormat
+Report = Report & CStr(cf.Value) & "|" & CStr(cf.Min) & "|" & CStr(cf.Max) & "|" & CStr(cf.SmallChange) & ";"
+End If
+Next sh
+End Function''', "Report", timeout=120.0)
+        assert result.ok, f"{result.outcome}: {result.message}"
+        assert str(result.value) == "13|5|45|2;13|5|45|2;"
+
+
+def test_excel_reads_public_control_creation_and_rebinding(tmp_path: Path) -> None:
+    harness = pytest.importorskip("pyvbaharness")
+    app = ExcelApplication()
+    app.add_workbook()
+    sheet = app.sheet(1)
+    kinds = [0, 1, 2, 4, 5, 6, 7, 8, 9]
+    for kind in kinds:
+        sheet.add_form_control(kind, name=f"Control{kind}", top=kind * 40, text=f"Caption {kind}")
+    sheet.set_control_items("Control6", ["a", "b", "c"])
+    sheet.set_control_selection_mode("Control6", 2)
+    sheet.set_control_selection("Control6", [1, 3])
+    sheet.set_control_selection_mode("Control6", 3)
+    sheet.set_value("J1", "x")
+    sheet.set_value("J2", "y")
+    sheet.update_control("Control6", list_range="$J$1:$J$2")
+    path = tmp_path / "public_controls.xlsm"
+    app.save(path)
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+        excel.open_document(path)
+        result = excel.run_vba('''Public Function Report() As String
+Dim sh As Object
+For Each sh In ActiveSheet.Shapes
+Report = Report & sh.Name & ":" & CStr(sh.FormControlType) & ";"
+Next sh
+Set sh = ActiveSheet.Shapes("Control6")
+Report = Report & "|" & CStr(sh.ControlFormat.MultiSelect) & "|" & sh.ControlFormat.ListFillRange & "|" & _
+CStr(sh.ControlFormat.ListCount) & "|" & CStr(sh.DrawingObject.Selected(1)) & "|" & CStr(sh.DrawingObject.Selected(2))
+End Function''', "Report", timeout=120.0)
+        assert result.ok, f"{result.outcome}: {result.message}"
+        expected = "".join(f"Control{kind}:{kind};" for kind in kinds) + "|3|$J$1:$J$2|2|True|False"
+        assert str(result.value) == expected
+
+
+@pytest.mark.parametrize("layout,reverse", [("overlap", False), ("overlap", True),
+                                           ("nested", False), ("nested", True)])
+def test_excel_reads_overlapping_radio_groups(tmp_path: Path, layout: str, reverse: bool) -> None:
+    import json
+
+    harness = pytest.importorskip("pyvbaharness")
+    records = json.loads((Path(__file__).parent / "fixtures/shapes/radio_overlap.json").read_text())
+    record = next(r for r in records if r["layout"] == layout and r["reverse"] == reverse and r["operation"] == "select")
+    app = ExcelApplication()
+    app.add_workbook()
+    app.add_module('Public Function Report() As String\nDim sh As Object, box1 As Object, box2 As Object\n'
+                   + record["body"] + 'End Function\n', name="Builder")
+    assert app.run("Report") == record["reported"]
+    path = tmp_path / "overlapping.xlsm"
+    app.save(path)
+    app = ExcelApplication.open(path, with_vba=False)
+    inspect = '''Public Function Inspect() As String
+Dim sh As Object
+Inspect = CStr(Range("H1").Value) & ":" & CStr(Range("H2").Value) & ":" & CStr(Range("H3").Value) & "|"
+For Each sh In ActiveSheet.Shapes
+If Left(sh.Name, 5) = "Radio" Then
+Inspect = Inspect & sh.Name & ":" & CStr(sh.ControlFormat.Value) & ":" & sh.ControlFormat.LinkedCell & ";"
+End If
+Next sh
+End Function'''
+    app.add_module(inspect, name="Inspector")
+    assert app.run("Inspect") == record["reported"]
+    app.sheet(1).set_control_value("Radio2", 0)
+    app.sheet(1).set_control_value("Radio2", 1)
+    expected = app.run("Inspect")
+    app.save(path)
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+        excel.open_document(path)
+        result = excel.run_vba(inspect, "Inspect", timeout=120.0)
+        assert result.ok, f"{result.outcome}: {result.message}"
+        assert str(result.value) == expected
+
+
+def test_excel_reads_headless_radio_groups(tmp_path: Path) -> None:
+    harness = pytest.importorskip("pyvbaharness")
+    app = ExcelApplication()
+    app.add_workbook()
+    sheet = app.sheet(1)
+    sheet.add_form_control(4, width=150, height=100)
+    sheet.add_form_control(7, name="First", left=10, top=10, width=90, height=20)
+    sheet.add_form_control(7, name="Second", left=10, top=40, width=90, height=20)
+    sheet.add_form_control(7, name="Outside", left=200, top=10, width=90, height=20)
+    sheet.update_control("Second", linked_cell="$H$1")
+    sheet.set_control_value("Second", 1)
+    sheet.set_control_value("Outside", 1)
+    path = tmp_path / "radio_groups.xlsm"
+    app.save(path)
+    # Exercise both newly generated and existing supporting control parts.
+    app = ExcelApplication.open(path, with_vba=False)
+    app.sheet(1).set_control_value("First", 1)
+    app.save(path)
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+        excel.open_document(path)
+        result = excel.run_vba('''Public Function Report() As String
+Dim a As Object, b As Object, c As Object
+Set a = ActiveSheet.Shapes("First").ControlFormat
+Set b = ActiveSheet.Shapes("Second").ControlFormat
+Set c = ActiveSheet.Shapes("Outside").ControlFormat
+Report = CStr(a.Value) & "|" & CStr(b.Value) & "|" & CStr(c.Value) & "|" & CStr(Range("H1").Value) & "|" & b.LinkedCell
+b.Value = 1
+Report = Report & "|" & CStr(a.Value) & "|" & CStr(b.Value) & "|" & CStr(c.Value) & "|" & CStr(Range("H1").Value)
+End Function''', "Report", timeout=120.0)
+        assert result.ok, f"{result.outcome}: {result.message}"
+        assert str(result.value) == "1|-4146|1|1|$H$1|-4146|1|1|2"
+
+
+@pytest.mark.parametrize("operation", ["add", "delete"])
+def test_excel_reads_regrouped_radios(tmp_path: Path, operation: str) -> None:
+    import json
+
+    harness = pytest.importorskip("pyvbaharness")
+    records = json.loads((Path(__file__).parent / "fixtures/shapes/radio_regrouping.json").read_text())
+    record = next(r for r in records if r["operation"] == operation and r["chosen"] == 2 and r["outside"])
+    app = ExcelApplication()
+    app.add_workbook()
+    app.add_module('Public Function Report() As String\nDim a As Object, b As Object, c As Object, box As Object\n'
+                   + record["body"] + 'End Function\n', name="Builder")
+    assert app.run("Report") == record["reported"]
+    path = tmp_path / "regrouped.xlsm"
+    app.save(path)
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+        excel.open_document(path)
+        result = excel.run_vba('''Public Function Inspect() As String
+Dim a As Object, b As Object, c As Object
+Set a = ActiveSheet.Shapes("First").ControlFormat
+Set b = ActiveSheet.Shapes("Second").ControlFormat
+Set c = ActiveSheet.Shapes("Third").ControlFormat
+Inspect = CStr(a.Value) & ":" & a.LinkedCell & ";" & CStr(b.Value) & ":" & b.LinkedCell & ";" & _
+CStr(c.Value) & ":" & c.LinkedCell & ";" & CStr(Range("H1").Value) & ":" & CStr(Range("H2").Value)
+End Function''', "Inspect", timeout=120.0)
+        assert result.ok, f"{result.outcome}: {result.message}"
+        assert str(result.value) == record["reported"].split("|")[-1]
+
+
+@pytest.mark.parametrize("local", [False, True])
+def test_excel_reads_named_control_bindings(tmp_path: Path, local: bool) -> None:
+    harness = pytest.importorskip("pyvbaharness")
+    app = ExcelApplication()
+    app.add_workbook()
+    local_name = 'ActiveWorkbook.Names.Add "Sheet1!Target", "=Sheet1!$H$2"\n' if local else ""
+    app.add_module('Public Sub Build()\n'
+                   'ActiveWorkbook.Names.Add "Target", "=Sheet1!$H$1"\n'
+                   'ActiveWorkbook.Names.Add "Choices", "=Sheet1!$J$1:$J$3"\n'
+                   + local_name + 'End Sub\n', name="Builder")
+    app.run("Build")
+    sheet = app.sheet(1)
+    for row, value in enumerate(["a", "b", "c"], 1):
+        sheet.set_value(f"J{row}", value)
+    sheet.add_form_control(6, name="Picker")
+    sheet.update_control("Picker", linked_cell="=target", list_range="choices")
+    sheet.set_control_value("Picker", 2)
+    path = tmp_path / "named_controls.xlsm"
+    app.save(path)
+    app = ExcelApplication.open(path, with_vba=False)
+    app.sheet(1).set_control_value("Picker", 3)
+    app.save(path)
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+        excel.open_document(path)
+        result = excel.run_vba('''Public Function Inspect() As String
+Dim cf As Object
+Set cf = ActiveSheet.Shapes("Picker").ControlFormat
+Inspect = cf.LinkedCell & "|" & cf.ListFillRange & "|" & CStr(cf.Value) & "|" & CStr(cf.ListCount) & "|" & _
+CStr(Range("H1").Value) & "|" & CStr(Range("H2").Value) & "|" & cf.List(2)
+End Function''', "Inspect", timeout=120.0)
+        assert result.ok, f"{result.outcome}: {result.message}"
+        assert str(result.value) == ("Target|Choices|3|3||3|b" if local else "Target|Choices|3|3|3||b")
+
+
+@pytest.mark.parametrize("layout", ["identical", "nested", "outer", "partial"])
+def test_excel_reads_late_overlapping_boxes(tmp_path: Path, layout: str) -> None:
+    import json
+
+    harness = pytest.importorskip("pyvbaharness")
+    records = json.loads((Path(__file__).parent / "fixtures/shapes/radio_late_boxes.json").read_text())
+    record = next(r for r in records if r["layout"] == layout and r["links"] == "inside" and r["chosen"] == 1)
+    app = ExcelApplication()
+    app.add_workbook()
+    app.add_module('Public Function Report() As String\nDim a As Object, b As Object, c As Object\n'
+                   + record["body"] + 'End Function\n', name="Builder")
+    assert app.run("Report") == record["reported"]
+    path = tmp_path / "late_boxes.xlsm"
+    app.save(path)
+    inspect = '''Public Function Inspect() As String
+Dim a As Object, b As Object, c As Object
+Set a = ActiveSheet.Shapes("First").ControlFormat
+Set b = ActiveSheet.Shapes("Second").ControlFormat
+Set c = ActiveSheet.Shapes("Third").ControlFormat
+Inspect = CStr(a.Value) & ":" & a.LinkedCell & ";" & CStr(b.Value) & ":" & b.LinkedCell & ";" & _
+CStr(c.Value) & ":" & c.LinkedCell & ";" & CStr(Range("H1").Value) & ":" & CStr(Range("H2").Value)
+End Function'''
+    reopened = ExcelApplication.open(path, with_vba=False)
+    reopened.add_module(inspect, name="Inspector")
+    assert reopened.run("Inspect") == record["reported"].split("|")[-1]
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+        excel.open_document(path)
+        result = excel.run_vba(inspect, "Inspect", timeout=120.0)
+        assert result.ok, f"{result.outcome}: {result.message}"
+        assert str(result.value) == record["reported"].split("|")[-1]
+
+
+@pytest.mark.parametrize("operation", ["select", "delete_first_box"])
+def test_excel_reads_interleaved_radio_groups(tmp_path: Path, operation: str) -> None:
+    import json
+
+    harness = pytest.importorskip("pyvbaharness")
+    records = json.loads((Path(__file__).parent / "fixtures/shapes/radio_interleaving.json").read_text())
+    record = next(r for r in records if r["boxes"] == 2 and r["order"] == "ABCABC" and r["operation"] == operation)
+    app = ExcelApplication()
+    app.add_workbook()
+    app.add_module('Public Function Report() As String\nDim sh As Object, box1 As Object, box2 As Object\n'
+                   + record["body"] + 'End Function\n', name="Builder")
+    assert app.run("Report") == record["reported"]
+    path = tmp_path / "interleaved.xlsm"
+    app.save(path)
+    app = ExcelApplication.open(path, with_vba=False)
+    inspect = '''Public Function Inspect() As String
+Dim sh As Object
+Inspect = CStr(Range("H1").Value) & ":" & CStr(Range("H2").Value) & "|"
+For Each sh In ActiveSheet.Shapes
+If Left(sh.Name, 5) = "Radio" Then
+Inspect = Inspect & sh.Name & ":" & CStr(sh.ControlFormat.Value) & ":" & sh.ControlFormat.LinkedCell & ";"
+End If
+Next sh
+End Function'''
+    app.add_module(inspect, name="Inspector")
+    assert app.run("Inspect") == record["reported"]
+    app.sheet(1).set_control_value("Radio4", 1)
+    expected = app.run("Inspect")
+    app.save(path)
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+        excel.open_document(path)
+        result = excel.run_vba(inspect, "Inspect", timeout=120.0)
+        assert result.ok, f"{result.outcome}: {result.message}"
+        assert str(result.value) == expected
+
+
+@pytest.mark.parametrize("formula", ["OFFSET(Sheet1!$J$1,0,0,Sheet1!$K$1,1)",
+                                    'INDIRECT(Sheet1!$K$2)'])
+def test_excel_reads_dynamic_named_controls(tmp_path: Path, formula: str) -> None:
+    harness = pytest.importorskip("pyvbaharness")
+    app = ExcelApplication()
+    app.add_workbook()
+    app.add_module(f'''Public Sub Build()
+ActiveWorkbook.Names.Add "Dynamic", "={formula}"
+ActiveWorkbook.Names.Add "Target", "=OFFSET(Sheet1!$H$1,1,0)"
+End Sub''', name="Builder")
+    app.run("Build")
+    sheet = app.sheet(1)
+    sheet.set_value("J1", "a")
+    sheet.set_value("J2", "b")
+    sheet.set_value("J3", "c")
+    sheet.set_value("K1", 3)
+    sheet.set_value("K2", "Sheet1!$J$1:$J$3")
+    sheet.add_form_control(6, name="Picker")
+    sheet.update_control("Picker", list_range="Dynamic", linked_cell="Target")
+    sheet.set_control_value("Picker", 3)
+    path = tmp_path / "dynamic_names.xlsm"
+    app.save(path)
+    app = ExcelApplication.open(path, with_vba=False)
+    sheet = app.sheet(1)
+    sheet.set_value("K1", 2)
+    sheet.set_value("K2", "Sheet1!$J$1:$J$2")
+    sheet.set_control_value("Picker", 1)
+    sheet.set_control_value("Picker", 2)
+    assert sheet.control_items("Picker") == ["a", "b"]
+    assert sheet.value("H2") == 2
+    app.save(path)
+    inspect = '''Public Function Inspect() As String
+Dim cf As Object
+Set cf = ActiveSheet.Shapes("Picker").ControlFormat
+Inspect = cf.ListFillRange & "|" & cf.LinkedCell & "|" & CStr(cf.ListCount) & "|" & CStr(cf.Value) & "|" & CStr(Range("H2").Value)
+Range("K1").Value = 3
+Range("K2").Value = "Sheet1!$J$1:$J$3"
+cf.Value = 3
+Inspect = Inspect & "|" & CStr(cf.ListCount) & "|" & cf.List(3) & "|" & CStr(Range("H2").Value)
+End Function'''
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+        excel.open_document(path)
+        result = excel.run_vba(inspect, "Inspect", timeout=120.0)
+        assert result.ok, f"{result.outcome}: {result.message}"
+        assert str(result.value) == "Dynamic|Target|2|2|2|3|c|3"
+
+
+@pytest.mark.parametrize("reference", ["index", "choose", "if", "indirect_r1c1"])
+def test_excel_reads_branching_named_controls(tmp_path: Path, reference: str) -> None:
+    harness = pytest.importorskip("pyvbaharness")
+    app = ExcelApplication()
+    app.add_workbook()
+    sources = {
+        "index": "INDEX(Sheet1!$J$1:$K$3,0,Sheet1!$M$1)",
+        "choose": "CHOOSE(Sheet1!$M$1,Sheet1!$J$1:$J$3,Sheet1!$K$1:$K$3)",
+        "if": "IF(Sheet1!$M$1=1,Sheet1!$J$1:$J$3,Sheet1!$K$1:$K$3)",
+        "indirect_r1c1": 'INDIRECT(""Sheet1!R1C""&(9+Sheet1!$M$1)&"":R3C""&(9+Sheet1!$M$1),FALSE)',
+    }
+    targets = {
+        "index": "INDEX(Sheet1!$H$1:$H$2,Sheet1!$M$2)",
+        "choose": "CHOOSE(Sheet1!$M$2,Sheet1!$H$1,Sheet1!$H$2)",
+        "if": "IF(Sheet1!$M$2=1,Sheet1!$H$1,Sheet1!$H$2)",
+        "indirect_r1c1": 'INDIRECT(""Sheet1!R""&Sheet1!$M$2&""C8"",FALSE)',
+    }
+    app.add_module(f'''Public Sub Build()
+ActiveWorkbook.Names.Add "Choices", "={sources[reference]}"
+ActiveWorkbook.Names.Add "Target", "={targets[reference]}"
+End Sub''', name="Builder")
+    app.run("Build")
+    sheet = app.sheet(1)
+    for address, value in {"J1": "a", "J2": "b", "J3": "c", "K1": "x", "K2": "y", "K3": "z",
+                           "M1": 1, "M2": 1}.items():
+        sheet.set_value(address, value)
+    sheet.add_form_control(6, name="Picker")
+    sheet.update_control("Picker", list_range="Choices", linked_cell="Target")
+    sheet.set_control_value("Picker", 3)
+    path = tmp_path / "branching_names.xlsm"
+    app.save(path)
+    app = ExcelApplication.open(path, with_vba=False)
+    sheet = app.sheet(1)
+    sheet.set_value("M1", 2)
+    sheet.set_value("M2", 2)
+    sheet.set_control_value("Picker", 2)
+    assert sheet.control_items("Picker") == ["x", "y", "z"]
+    assert sheet.value("H1") == 3
+    assert sheet.value("H2") == 2
+    app.save(path)
+    inspect = '''Public Function Inspect() As String
+Dim cf As Object
+Set cf = ActiveSheet.Shapes("Picker").ControlFormat
+Inspect = cf.ListFillRange & "|" & cf.LinkedCell & "|" & cf.List(2) & "|" & CStr(cf.Value) & "|" & CStr(Range("H2").Value)
+Range("M1").Value = 1
+Range("M2").Value = 1
+cf.Value = 1
+Inspect = Inspect & "|" & cf.List(2) & "|" & CStr(Range("H1").Value)
+End Function'''
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+        excel.open_document(path)
+        result = excel.run_vba(inspect, "Inspect", timeout=120.0)
+        assert result.ok, f"{result.outcome}: {result.message}"
+        assert str(result.value) == "Choices|Target|y|2|2|b|1"

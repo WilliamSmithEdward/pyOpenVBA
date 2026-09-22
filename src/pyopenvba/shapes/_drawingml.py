@@ -162,7 +162,7 @@ def with_name(markup: str, name: str) -> str:
     attributes = found.group(1)
     if _NAME.search(attributes) is None:
         return markup
-    changed = _NAME.sub(f'name="{escape(name)}"', attributes, count=1)
+    changed = _NAME.sub(lambda _: f'name="{escape(name)}"', attributes, count=1)
     return markup[: found.start(1)] + changed + markup[found.end(1) :]
 
 

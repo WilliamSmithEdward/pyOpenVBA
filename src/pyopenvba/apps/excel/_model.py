@@ -730,6 +730,10 @@ class Worksheet(ExcelObject):
         else:
             calculator.compiled.pop((self.name.lower(), row, column), None)
         calculator.wrote(self.name, row, column)
+        if cell is None or not cell.formula:
+            from pyopenvba.apps.excel._controls import cell_changed
+
+            cell_changed(self, row, column, cell.value if cell is not None else EMPTY)
 
     def shape_changed(self) -> None:
         """Rows or columns moved, so every formula has to be read again."""
@@ -1423,6 +1427,11 @@ class Range(ExcelObject):
             from pyopenvba.apps.excel._calc import as_vba
 
             return as_vba(self.sheet.book.calculator.value_of(self.sheet.name, row, column), cell)
+        from pyopenvba.formula._values import ExcelError
+        if isinstance(cell.value, ExcelError):
+            from pyopenvba.apps.excel._calc import as_vba
+
+            return as_vba(cell.value)
         return cell.value
 
     def writable_positions(self) -> list[tuple[int, int]]:
@@ -2039,6 +2048,8 @@ def _from_text(text: str) -> object:
     stripped = text.strip()
     if not stripped:
         return EMPTY
+    if stripped.upper() in {"TRUE", "FALSE"}:
+        return stripped.upper() == "TRUE"
     try:
         return float(stripped)
     except ValueError:

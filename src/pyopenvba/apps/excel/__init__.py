@@ -39,6 +39,7 @@ from pyopenvba.apps.excel._model import (
 )
 from pyopenvba.interpreter._runtime import Interpreter, ModuleRuntime
 from pyopenvba.interpreter._values import EMPTY, MISSING, to_text
+from pyopenvba.shapes import Shape
 
 __all__ = [
     "Application",
@@ -76,6 +77,193 @@ class SheetView:
         target = self.sheet.vba_get("Range", [reference])
         assert isinstance(target, Range)
         return to_text(target.vba_get("Formula"))
+
+    def shapes(self) -> list[Shape]:
+        """Shape snapshots in drawing order, including control details.
+
+        Use ``update_shape`` to edit. Mutating a snapshot does not change
+        the workbook, including its nested controls and group members.
+        """
+        from pyopenvba.apps.excel._shape_api import snapshot
+        from pyopenvba.apps.excel._controls import refresh
+
+        for item in self.sheet.shapes_:
+            refresh(self.sheet, item)
+        return [snapshot(item) for item in self.sheet.shapes_]
+
+    def shape(self, name: str) -> Shape:
+        """A snapshot by case-insensitive name; raise KeyError if absent."""
+        from pyopenvba.apps.excel._shape_api import lookup, snapshot
+        from pyopenvba.apps.excel._controls import refresh
+
+        item = lookup(self.sheet, name)
+        refresh(self.sheet, item)
+        return snapshot(item)
+
+    def add_shape(
+        self, shape_type: int = 1, *, name: str | None = None,
+        left: float = 0, top: float = 0, width: float = 100, height: float = 50,
+        text: str = "", macro: str = "",
+    ) -> Shape:
+        """Add a measured msoAutoShapeType (1 is a rectangle), in points."""
+        from pyopenvba.apps.excel._shape_api import add
+
+        return add(self.sheet, "shape", shape_type, name=name, left=left, top=top,
+                   width=width, height=height, text=text, macro=macro)
+
+    def add_textbox(
+        self, *, name: str | None = None, left: float = 0, top: float = 0,
+        width: float = 100, height: float = 50, text: str = "", macro: str = "",
+    ) -> Shape:
+        """Add a horizontal text box, with coordinates and size in points."""
+        from pyopenvba.apps.excel._shape_api import add
+
+        return add(self.sheet, "textBox", 1, name=name, left=left, top=top,
+                   width=width, height=height, text=text, macro=macro)
+
+    def add_button(
+        self, *, name: str | None = None, left: float = 0, top: float = 0,
+        width: float = 100, height: float = 30, text: str = "", macro: str = "",
+    ) -> Shape:
+        """Add a Forms button and its drawing, worksheet, properties and VML records."""
+        from pyopenvba.apps.excel._shape_api import add
+
+        return add(self.sheet, "formControl", 0, name=name, left=left, top=top,
+                   width=width, height=height, text=text, macro=macro)
+
+    def add_form_control(
+        self, control_type: int, *, name: str | None = None,
+        left: float = 0, top: float = 0, width: float = 100, height: float = 30,
+        text: str = "", macro: str = "",
+    ) -> Shape:
+        """Add a Forms control using Excel's xlFormControl number.
+
+        Supported types: button (0), checkbox (1), dropdown (2), group
+        box (4), label (5), list box (6), option button (7), scroll bar
+        (8), spinner (9). Coordinates and dimensions are in points.
+        """
+        from pyopenvba.apps.excel._shape_api import add
+
+        return add(self.sheet, "formControl", control_type, name=name, left=left, top=top,
+                   width=width, height=height, text=text, macro=macro)
+
+    def update_shape(
+        self, name: str, *, new_name: str | None = None,
+        left: float | None = None, top: float | None = None,
+        width: float | None = None, height: float | None = None,
+        text: str | None = None, macro: str | None = None,
+    ) -> Shape:
+        """Edit a shape. None leaves a field alone; an empty string clears text or macro.
+
+        Positions and sizes are finite, nonnegative points. Names must
+        be nonempty and unique on the sheet. Validation precedes changes.
+        """
+        from pyopenvba.apps.excel._shape_api import update
+
+        return update(self.sheet, name, new_name=new_name, left=left, top=top,
+                      width=width, height=height, text=text, macro=macro)
+
+    def update_control(
+        self, name: str, *, linked_cell: str | None = None, list_range: str | None = None,
+    ) -> Shape:
+        """Edit saved A1 or named control bindings; an empty string disconnects it.
+
+        None preserves the current setting. References must address this
+        workbook. This changes the binding without writing a cell value.
+        Supported control values and cell edits subsequently synchronize through
+        ``set_control_value`` or VBA's ``ControlFormat.Value``.
+        """
+        from pyopenvba.apps.excel._shape_api import update_control
+
+        return update_control(self.sheet, name, linked_cell=linked_cell, list_range=list_range)
+
+    def set_control_value(self, name: str, value: int) -> Shape:
+        """Set a checkbox/radio state, list index, or spinner/scroll-bar value.
+
+        Checkboxes accept off (-4146 or 0), on (1), or mixed (2).
+        Radios accept off or on; selecting one clears its group peers
+        and writes the selected one-based index to the group's linked cell.
+        Dropdowns/list boxes accept zero or a one-based index within the
+        A1 source range or inline list. Changed single-selection values
+        update the linked cell. For a multi/extended list, this replaces
+        its selected indexes with one index (or clears them with zero)
+        without writing the linked cell.
+        """
+        from pyopenvba.apps.excel._controls import set_value
+        from pyopenvba.apps.excel._shape_api import lookup, snapshot
+
+        item = lookup(self.sheet, name)
+        set_value(self.sheet, item, value)
+        return snapshot(item)
+
+    def remove_shape(self, name: str) -> None:
+        """Remove a shape by name, including a form control's supporting records."""
+        from pyopenvba.apps.excel._shape_api import remove
+
+        remove(self.sheet, name)
+
+    def control_items(self, name: str) -> list[str]:
+        """Return detached list items from an inline list or its A1 source."""
+        from pyopenvba.apps.excel._controls import items
+        from pyopenvba.apps.excel._shape_api import lookup
+
+        return items(self.sheet, lookup(self.sheet, name))
+
+    def add_control_item(self, name: str, text: str, index: int = 0) -> None:
+        """Insert at a one-based index; zero or beyond the end appends.
+
+        A range-backed list is disconnected and replaced by this one item,
+        matching Excel. Its source cells are not edited.
+        """
+        self._edit_control_items(name, "add", index, text)
+
+    def set_control_items(self, name: str, entries: list[str]) -> None:
+        """Replace a list with validated strings, disconnecting an A1 source.
+
+        Resets selection. Converting a range-backed control can write zero
+        to its linked cell; source cells remain untouched. An empty list
+        clears the control. Validation occurs before any change.
+        """
+        from pyopenvba.apps.excel._controls import replace_items
+        from pyopenvba.apps.excel._shape_api import lookup
+
+        replace_items(self.sheet, lookup(self.sheet, name), entries)
+
+    def update_control_item(self, name: str, index: int, text: str) -> None:
+        """Replace at a positive index, or append beyond the end, as Excel does.
+
+        A range-backed list is disconnected and replaced by this one item.
+        """
+        self._edit_control_items(name, "set", index, text)
+
+    def remove_control_item(self, name: str, index: int, count: int = 1) -> None:
+        """Remove inline items without writing the linked cell; reject range sources."""
+        self._edit_control_items(name, "remove", index, count=count)
+
+    def clear_control_items(self, name: str) -> None:
+        """Clear items and selection; disconnect a range source and reset its linked index."""
+        self._edit_control_items(name, "clear")
+
+    def _edit_control_items(self, name: str, operation: str, index: int = 0,
+                            text: str = "", count: int = 1) -> None:
+        from pyopenvba.apps.excel._controls import edit_items
+        from pyopenvba.apps.excel._shape_api import lookup
+
+        edit_items(self.sheet, lookup(self.sheet, name), operation, index, text, count)
+
+    def set_control_selection_mode(self, name: str, mode: int) -> None:
+        """Set list-box mode: -4142 (or 1) single, -4154 (or 2) multi, 3 extended."""
+        from pyopenvba.apps.excel._controls import set_mode
+        from pyopenvba.apps.excel._shape_api import lookup
+
+        set_mode(self.sheet, lookup(self.sheet, name), mode)
+
+    def set_control_selection(self, name: str, indices: list[int]) -> None:
+        """Replace a multi/extended list-box selection with one-based indexes."""
+        from pyopenvba.apps.excel._controls import set_selection
+        from pyopenvba.apps.excel._shape_api import lookup
+
+        set_selection(self.sheet, lookup(self.sheet, name), indices)
 
     def rows(self) -> list[list[object]]:
         """Everything on the sheet, row by row, as Python values."""

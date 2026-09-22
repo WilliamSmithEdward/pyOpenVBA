@@ -104,11 +104,36 @@ Other files:
 
 ---
 
+### 1.2 Application runtime and shape editing
+
+The runtime adds `interpreter/`, `formula/`, `mlang/` and `apps/` above
+the file-format layers. Each application has an in-memory object model,
+a bridge into VBA and its own `_io.py` for file persistence. The earlier
+`_host.py` filesystem rule applies to the VBA file facades, not to these
+application I/O modules.
+
+Excel's `SheetView` exposes Python shape operations through
+`apps/excel/_shape_api.py`, using the same state as the VBA shape model
+in `_shapes.py`. Reading returns detached `Shape` snapshots; mutations
+go through the named operations so validation and dirty tracking run.
+The drawing primitives remain internal. `_io.py` coordinates edits
+across the drawing, worksheet controls, control-property parts and VML,
+and deletes a supporting part only after its last relationship is gone.
+
 ## 2. Public API surface
 
 Everything in `__all__` of [`src/pyopenvba/__init__.py`](../src/pyopenvba/__init__.py)
-is supported and version-stable. Everything else is internal and may
-change without notice.
+is supported and version-stable. The documented exports of
+`pyopenvba.apps.excel`, `apps.word`, `apps.powerpoint`, `shapes`,
+`formula` and `mlang` are also public. Underscore-prefixed modules are
+internal and may change without notice.
+
+`ExcelApplication.sheet()` returns a public `SheetView`. Its shape API
+is `shapes`, `shape`, `add_shape`, `add_textbox`, `add_button`,
+`update_shape` and `remove_shape`. Snapshot mutation is detached;
+`update_shape` validates all fields before changing workbook state.
+The API's initial creation/editing scope is documented in the README;
+unimplemented shape kinds raise `VBAUnsupportedError`.
 
 | Public name           | Defined in   | Purpose                              |
 |-----------------------|--------------|--------------------------------------|

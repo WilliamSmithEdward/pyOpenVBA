@@ -1,0 +1,17 @@
+[
+  {
+    "properties": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<formControlPr xmlns=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/main\" objectType=\"CheckBox\" lockText=\"1\" noThreeD=\"1\"/>",
+    "assigned": -4146,
+    "reported": "-4146"
+  },
+  {
+    "properties": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<formControlPr xmlns=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/main\" objectType=\"CheckBox\" checked=\"Checked\" lockText=\"1\" noThreeD=\"1\"/>",
+    "assigned": 1,
+    "reported": "1"
+  },
+  {
+    "properties": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<formControlPr xmlns=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/main\" objectType=\"CheckBox\" checked=\"Mixed\" lockText=\"1\" noThreeD=\"1\"/>",
+    "assigned": 2,
+    "reported": "2"
+  }
+]

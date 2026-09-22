@@ -1,0 +1,122 @@
+[
+  {
+    "name": "plain",
+    "body": "Range(\"H1:H2\").ClearContents\nRange(\"J1\").Value = \"a\"\nRange(\"J2\").Value = \"b\"\nRange(\"J3\").Value = \"c\"\nActiveWorkbook.Names.Add \"Target\", \"=Sheet1!$H$1\"\nActiveWorkbook.Names.Add \"Choices\", \"=Sheet1!$J$1:$J$3\"\nSet sh = ActiveSheet.Shapes.AddFormControl(6, 0, 0, 90, 60)\nsh.ControlFormat.ListFillRange = \"$J$1:$J$3\"\nOn Error Resume Next\nsh.ControlFormat.LinkedCell = \"Target\"\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & sh.ControlFormat.LinkedCell & \"|\" & sh.ControlFormat.ListFillRange & \"|\" & _\nCStr(sh.ControlFormat.Value) & \"|\" & CStr(sh.ControlFormat.ListCount) & \"|\" & _\nCStr(Range(\"H1\").Value) & \"|\" & CStr(Range(\"H2\").Value) & \"|\" & _\nCStr(Range(\"J1\").Value) & \":\" & CStr(Range(\"J2\").Value) & \":\" & CStr(Range(\"J3\").Value)\n",
+    "reported": "0|Target|$J$1:$J$3|0|3|||a:b:c"
+  },
+  {
+    "name": "equals",
+    "body": "Range(\"H1:H2\").ClearContents\nRange(\"J1\").Value = \"a\"\nRange(\"J2\").Value = \"b\"\nRange(\"J3\").Value = \"c\"\nActiveWorkbook.Names.Add \"Target\", \"=Sheet1!$H$1\"\nActiveWorkbook.Names.Add \"Choices\", \"=Sheet1!$J$1:$J$3\"\nSet sh = ActiveSheet.Shapes.AddFormControl(6, 0, 0, 90, 60)\nsh.ControlFormat.ListFillRange = \"$J$1:$J$3\"\nOn Error Resume Next\nsh.ControlFormat.LinkedCell = \"=Target\"\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & sh.ControlFormat.LinkedCell & \"|\" & sh.ControlFormat.ListFillRange & \"|\" & _\nCStr(sh.ControlFormat.Value) & \"|\" & CStr(sh.ControlFormat.ListCount) & \"|\" & _\nCStr(Range(\"H1\").Value) & \"|\" & CStr(Range(\"H2\").Value) & \"|\" & _\nCStr(Range(\"J1\").Value) & \":\" & CStr(Range(\"J2\").Value) & \":\" & CStr(Range(\"J3\").Value)\n",
+    "reported": "0|Target|$J$1:$J$3|0|3|||a:b:c"
+  },
+  {
+    "name": "case",
+    "body": "Range(\"H1:H2\").ClearContents\nRange(\"J1\").Value = \"a\"\nRange(\"J2\").Value = \"b\"\nRange(\"J3\").Value = \"c\"\nActiveWorkbook.Names.Add \"Target\", \"=Sheet1!$H$1\"\nActiveWorkbook.Names.Add \"Choices\", \"=Sheet1!$J$1:$J$3\"\nSet sh = ActiveSheet.Shapes.AddFormControl(6, 0, 0, 90, 60)\nsh.ControlFormat.ListFillRange = \"$J$1:$J$3\"\nOn Error Resume Next\nsh.ControlFormat.LinkedCell = \"target\"\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & sh.ControlFormat.LinkedCell & \"|\" & sh.ControlFormat.ListFillRange & \"|\" & _\nCStr(sh.ControlFormat.Value) & \"|\" & CStr(sh.ControlFormat.ListCount) & \"|\" & _\nCStr(Range(\"H1\").Value) & \"|\" & CStr(Range(\"H2\").Value) & \"|\" & _\nCStr(Range(\"J1\").Value) & \":\" & CStr(Range(\"J2\").Value) & \":\" & CStr(Range(\"J3\").Value)\n",
+    "reported": "0|Target|$J$1:$J$3|0|3|||a:b:c"
+  },
+  {
+    "name": "missing",
+    "body": "Range(\"H1:H2\").ClearContents\nRange(\"J1\").Value = \"a\"\nRange(\"J2\").Value = \"b\"\nRange(\"J3\").Value = \"c\"\nActiveWorkbook.Names.Add \"Target\", \"=Sheet1!$H$1\"\nActiveWorkbook.Names.Add \"Choices\", \"=Sheet1!$J$1:$J$3\"\nSet sh = ActiveSheet.Shapes.AddFormControl(6, 0, 0, 90, 60)\nsh.ControlFormat.ListFillRange = \"$J$1:$J$3\"\nOn Error Resume Next\nsh.ControlFormat.LinkedCell = \"MissingName\"\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & sh.ControlFormat.LinkedCell & \"|\" & sh.ControlFormat.ListFillRange & \"|\" & _\nCStr(sh.ControlFormat.Value) & \"|\" & CStr(sh.ControlFormat.ListCount) & \"|\" & _\nCStr(Range(\"H1\").Value) & \"|\" & CStr(Range(\"H2\").Value) & \"|\" & _\nCStr(Range(\"J1\").Value) & \":\" & CStr(Range(\"J2\").Value) & \":\" & CStr(Range(\"J3\").Value)\n",
+    "reported": "0|MissingName|$J$1:$J$3|0|3|||a:b:c"
+  },
+  {
+    "name": "multi_cell",
+    "body": "Range(\"H1:H2\").ClearContents\nRange(\"J1\").Value = \"a\"\nRange(\"J2\").Value = \"b\"\nRange(\"J3\").Value = \"c\"\nActiveWorkbook.Names.Add \"Target\", \"=Sheet1!$H$1\"\nActiveWorkbook.Names.Add \"Choices\", \"=Sheet1!$J$1:$J$3\"\nSet sh = ActiveSheet.Shapes.AddFormControl(6, 0, 0, 90, 60)\nsh.ControlFormat.ListFillRange = \"$J$1:$J$3\"\nOn Error Resume Next\nsh.ControlFormat.LinkedCell = \"Choices\"\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & sh.ControlFormat.LinkedCell & \"|\" & sh.ControlFormat.ListFillRange & \"|\" & _\nCStr(sh.ControlFormat.Value) & \"|\" & CStr(sh.ControlFormat.ListCount) & \"|\" & _\nCStr(Range(\"H1\").Value) & \"|\" & CStr(Range(\"H2\").Value) & \"|\" & _\nCStr(Range(\"J1\").Value) & \":\" & CStr(Range(\"J2\").Value) & \":\" & CStr(Range(\"J3\").Value)\n",
+    "reported": "0|Choices|$J$1:$J$3|0|3|||0:b:c"
+  },
+  {
+    "name": "list_name",
+    "body": "Range(\"H1:H2\").ClearContents\nRange(\"J1\").Value = \"a\"\nRange(\"J2\").Value = \"b\"\nRange(\"J3\").Value = \"c\"\nActiveWorkbook.Names.Add \"Target\", \"=Sheet1!$H$1\"\nActiveWorkbook.Names.Add \"Choices\", \"=Sheet1!$J$1:$J$3\"\nSet sh = ActiveSheet.Shapes.AddFormControl(6, 0, 0, 90, 60)\nsh.ControlFormat.ListFillRange = \"$J$1:$J$3\"\nOn Error Resume Next\nsh.ControlFormat.ListFillRange = \"Choices\"\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & sh.ControlFormat.LinkedCell & \"|\" & sh.ControlFormat.ListFillRange & \"|\" & _\nCStr(sh.ControlFormat.Value) & \"|\" & CStr(sh.ControlFormat.ListCount) & \"|\" & _\nCStr(Range(\"H1\").Value) & \"|\" & CStr(Range(\"H2\").Value) & \"|\" & _\nCStr(Range(\"J1\").Value) & \":\" & CStr(Range(\"J2\").Value) & \":\" & CStr(Range(\"J3\").Value)\n",
+    "reported": "0||Choices|0|3|||a:b:c"
+  },
+  {
+    "name": "list_equals",
+    "body": "Range(\"H1:H2\").ClearContents\nRange(\"J1\").Value = \"a\"\nRange(\"J2\").Value = \"b\"\nRange(\"J3\").Value = \"c\"\nActiveWorkbook.Names.Add \"Target\", \"=Sheet1!$H$1\"\nActiveWorkbook.Names.Add \"Choices\", \"=Sheet1!$J$1:$J$3\"\nSet sh = ActiveSheet.Shapes.AddFormControl(6, 0, 0, 90, 60)\nsh.ControlFormat.ListFillRange = \"$J$1:$J$3\"\nOn Error Resume Next\nsh.ControlFormat.ListFillRange = \"=Choices\"\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & sh.ControlFormat.LinkedCell & \"|\" & sh.ControlFormat.ListFillRange & \"|\" & _\nCStr(sh.ControlFormat.Value) & \"|\" & CStr(sh.ControlFormat.ListCount) & \"|\" & _\nCStr(Range(\"H1\").Value) & \"|\" & CStr(Range(\"H2\").Value) & \"|\" & _\nCStr(Range(\"J1\").Value) & \":\" & CStr(Range(\"J2\").Value) & \":\" & CStr(Range(\"J3\").Value)\n",
+    "reported": "0||Choices|0|3|||a:b:c"
+  },
+  {
+    "name": "list_missing",
+    "body": "Range(\"H1:H2\").ClearContents\nRange(\"J1\").Value = \"a\"\nRange(\"J2\").Value = \"b\"\nRange(\"J3\").Value = \"c\"\nActiveWorkbook.Names.Add \"Target\", \"=Sheet1!$H$1\"\nActiveWorkbook.Names.Add \"Choices\", \"=Sheet1!$J$1:$J$3\"\nSet sh = ActiveSheet.Shapes.AddFormControl(6, 0, 0, 90, 60)\nsh.ControlFormat.ListFillRange = \"$J$1:$J$3\"\nOn Error Resume Next\nsh.ControlFormat.ListFillRange = \"MissingName\"\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & sh.ControlFormat.LinkedCell & \"|\" & sh.ControlFormat.ListFillRange & \"|\" & _\nCStr(sh.ControlFormat.Value) & \"|\" & CStr(sh.ControlFormat.ListCount) & \"|\" & _\nCStr(Range(\"H1\").Value) & \"|\" & CStr(Range(\"H2\").Value) & \"|\" & _\nCStr(Range(\"J1\").Value) & \":\" & CStr(Range(\"J2\").Value) & \":\" & CStr(Range(\"J3\").Value)\n",
+    "reported": "0||MissingName|0|0|||a:b:c"
+  },
+  {
+    "name": "list_cell",
+    "body": "Range(\"H1:H2\").ClearContents\nRange(\"J1\").Value = \"a\"\nRange(\"J2\").Value = \"b\"\nRange(\"J3\").Value = \"c\"\nActiveWorkbook.Names.Add \"Target\", \"=Sheet1!$H$1\"\nActiveWorkbook.Names.Add \"Choices\", \"=Sheet1!$J$1:$J$3\"\nSet sh = ActiveSheet.Shapes.AddFormControl(6, 0, 0, 90, 60)\nsh.ControlFormat.ListFillRange = \"$J$1:$J$3\"\nOn Error Resume Next\nsh.ControlFormat.ListFillRange = \"Target\"\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & sh.ControlFormat.LinkedCell & \"|\" & sh.ControlFormat.ListFillRange & \"|\" & _\nCStr(sh.ControlFormat.Value) & \"|\" & CStr(sh.ControlFormat.ListCount) & \"|\" & _\nCStr(Range(\"H1\").Value) & \"|\" & CStr(Range(\"H2\").Value) & \"|\" & _\nCStr(Range(\"J1\").Value) & \":\" & CStr(Range(\"J2\").Value) & \":\" & CStr(Range(\"J3\").Value)\n",
+    "reported": "0||Target|0|1|||a:b:c"
+  },
+  {
+    "name": "value_write",
+    "body": "Range(\"H1:H2\").ClearContents\nRange(\"J1\").Value = \"a\"\nRange(\"J2\").Value = \"b\"\nRange(\"J3\").Value = \"c\"\nActiveWorkbook.Names.Add \"Target\", \"=Sheet1!$H$1\"\nActiveWorkbook.Names.Add \"Choices\", \"=Sheet1!$J$1:$J$3\"\nSet sh = ActiveSheet.Shapes.AddFormControl(6, 0, 0, 90, 60)\nsh.ControlFormat.ListFillRange = \"$J$1:$J$3\"\nOn Error Resume Next\nsh.ControlFormat.LinkedCell = \"Target\"\nsh.ControlFormat.Value = 2\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & sh.ControlFormat.LinkedCell & \"|\" & sh.ControlFormat.ListFillRange & \"|\" & _\nCStr(sh.ControlFormat.Value) & \"|\" & CStr(sh.ControlFormat.ListCount) & \"|\" & _\nCStr(Range(\"H1\").Value) & \"|\" & CStr(Range(\"H2\").Value) & \"|\" & _\nCStr(Range(\"J1\").Value) & \":\" & CStr(Range(\"J2\").Value) & \":\" & CStr(Range(\"J3\").Value)\n",
+    "reported": "0|Target|$J$1:$J$3|2|3|2||a:b:c"
+  },
+  {
+    "name": "cell_write",
+    "body": "Range(\"H1:H2\").ClearContents\nRange(\"J1\").Value = \"a\"\nRange(\"J2\").Value = \"b\"\nRange(\"J3\").Value = \"c\"\nActiveWorkbook.Names.Add \"Target\", \"=Sheet1!$H$1\"\nActiveWorkbook.Names.Add \"Choices\", \"=Sheet1!$J$1:$J$3\"\nSet sh = ActiveSheet.Shapes.AddFormControl(6, 0, 0, 90, 60)\nsh.ControlFormat.ListFillRange = \"$J$1:$J$3\"\nOn Error Resume Next\nsh.ControlFormat.LinkedCell = \"Target\"\nRange(\"H1\").Value = 2\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & sh.ControlFormat.LinkedCell & \"|\" & sh.ControlFormat.ListFillRange & \"|\" & _\nCStr(sh.ControlFormat.Value) & \"|\" & CStr(sh.ControlFormat.ListCount) & \"|\" & _\nCStr(Range(\"H1\").Value) & \"|\" & CStr(Range(\"H2\").Value) & \"|\" & _\nCStr(Range(\"J1\").Value) & \":\" & CStr(Range(\"J2\").Value) & \":\" & CStr(Range(\"J3\").Value)\n",
+    "reported": "0|Target|$J$1:$J$3|2|3|2||a:b:c"
+  },
+  {
+    "name": "retarget",
+    "body": "Range(\"H1:H2\").ClearContents\nRange(\"J1\").Value = \"a\"\nRange(\"J2\").Value = \"b\"\nRange(\"J3\").Value = \"c\"\nActiveWorkbook.Names.Add \"Target\", \"=Sheet1!$H$1\"\nActiveWorkbook.Names.Add \"Choices\", \"=Sheet1!$J$1:$J$3\"\nSet sh = ActiveSheet.Shapes.AddFormControl(6, 0, 0, 90, 60)\nsh.ControlFormat.ListFillRange = \"$J$1:$J$3\"\nOn Error Resume Next\nsh.ControlFormat.LinkedCell = \"Target\"\nActiveWorkbook.Names(\"Target\").RefersTo = \"=Sheet1!$H$2\"\nsh.ControlFormat.Value = 2\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & sh.ControlFormat.LinkedCell & \"|\" & sh.ControlFormat.ListFillRange & \"|\" & _\nCStr(sh.ControlFormat.Value) & \"|\" & CStr(sh.ControlFormat.ListCount) & \"|\" & _\nCStr(Range(\"H1\").Value) & \"|\" & CStr(Range(\"H2\").Value) & \"|\" & _\nCStr(Range(\"J1\").Value) & \":\" & CStr(Range(\"J2\").Value) & \":\" & CStr(Range(\"J3\").Value)\n",
+    "reported": "0|Target|$J$1:$J$3|2|3||2|a:b:c"
+  },
+  {
+    "name": "missing_write",
+    "body": "Range(\"H1:H2\").ClearContents\nRange(\"J1\").Value = \"a\"\nRange(\"J2\").Value = \"b\"\nRange(\"J3\").Value = \"c\"\nActiveWorkbook.Names.Add \"Target\", \"=Sheet1!$H$1\"\nActiveWorkbook.Names.Add \"Choices\", \"=Sheet1!$J$1:$J$3\"\nSet sh = ActiveSheet.Shapes.AddFormControl(6, 0, 0, 90, 60)\nsh.ControlFormat.ListFillRange = \"$J$1:$J$3\"\nOn Error Resume Next\nsh.ControlFormat.LinkedCell = \"MissingName\"\nsh.ControlFormat.Value = 2\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & sh.ControlFormat.LinkedCell & \"|\" & sh.ControlFormat.ListFillRange & \"|\" & _\nCStr(sh.ControlFormat.Value) & \"|\" & CStr(sh.ControlFormat.ListCount) & \"|\" & _\nCStr(Range(\"H1\").Value) & \"|\" & CStr(Range(\"H2\").Value) & \"|\" & _\nCStr(Range(\"J1\").Value) & \":\" & CStr(Range(\"J2\").Value) & \":\" & CStr(Range(\"J3\").Value)\n",
+    "reported": "0|MissingName|$J$1:$J$3|2|3|||a:b:c"
+  },
+  {
+    "name": "multi_write",
+    "body": "Range(\"H1:H2\").ClearContents\nRange(\"J1\").Value = \"a\"\nRange(\"J2\").Value = \"b\"\nRange(\"J3\").Value = \"c\"\nActiveWorkbook.Names.Add \"Target\", \"=Sheet1!$H$1\"\nActiveWorkbook.Names.Add \"Choices\", \"=Sheet1!$J$1:$J$3\"\nSet sh = ActiveSheet.Shapes.AddFormControl(6, 0, 0, 90, 60)\nsh.ControlFormat.ListFillRange = \"$J$1:$J$3\"\nOn Error Resume Next\nsh.ControlFormat.LinkedCell = \"Choices\"\nsh.ControlFormat.Value = 2\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & sh.ControlFormat.LinkedCell & \"|\" & sh.ControlFormat.ListFillRange & \"|\" & _\nCStr(sh.ControlFormat.Value) & \"|\" & CStr(sh.ControlFormat.ListCount) & \"|\" & _\nCStr(Range(\"H1\").Value) & \"|\" & CStr(Range(\"H2\").Value) & \"|\" & _\nCStr(Range(\"J1\").Value) & \":\" & CStr(Range(\"J2\").Value) & \":\" & CStr(Range(\"J3\").Value)\n",
+    "reported": "0|Choices|$J$1:$J$3|2|3|||2:b:c"
+  },
+  {
+    "name": "list_case",
+    "body": "Range(\"H1:H2\").ClearContents\nRange(\"J1\").Value = \"a\"\nRange(\"J2\").Value = \"b\"\nRange(\"J3\").Value = \"c\"\nActiveWorkbook.Names.Add \"Target\", \"=Sheet1!$H$1\"\nActiveWorkbook.Names.Add \"Choices\", \"=Sheet1!$J$1:$J$3\"\nSet sh = ActiveSheet.Shapes.AddFormControl(6, 0, 0, 90, 60)\nsh.ControlFormat.ListFillRange = \"$J$1:$J$3\"\nOn Error Resume Next\nsh.ControlFormat.ListFillRange = \"choices\"\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & sh.ControlFormat.LinkedCell & \"|\" & sh.ControlFormat.ListFillRange & \"|\" & _\nCStr(sh.ControlFormat.Value) & \"|\" & CStr(sh.ControlFormat.ListCount) & \"|\" & _\nCStr(Range(\"H1\").Value) & \"|\" & CStr(Range(\"H2\").Value) & \"|\" & _\nCStr(Range(\"J1\").Value) & \":\" & CStr(Range(\"J2\").Value) & \":\" & CStr(Range(\"J3\").Value)\n",
+    "reported": "0||Choices|0|3|||a:b:c"
+  },
+  {
+    "name": "list_retarget",
+    "body": "Range(\"H1:H2\").ClearContents\nRange(\"J1\").Value = \"a\"\nRange(\"J2\").Value = \"b\"\nRange(\"J3\").Value = \"c\"\nActiveWorkbook.Names.Add \"Target\", \"=Sheet1!$H$1\"\nActiveWorkbook.Names.Add \"Choices\", \"=Sheet1!$J$1:$J$3\"\nSet sh = ActiveSheet.Shapes.AddFormControl(6, 0, 0, 90, 60)\nsh.ControlFormat.ListFillRange = \"$J$1:$J$3\"\nOn Error Resume Next\nsh.ControlFormat.ListFillRange = \"Choices\"\nActiveWorkbook.Names(\"Choices\").RefersTo = \"=Sheet1!$J$1:$J$2\"\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & sh.ControlFormat.LinkedCell & \"|\" & sh.ControlFormat.ListFillRange & \"|\" & _\nCStr(sh.ControlFormat.Value) & \"|\" & CStr(sh.ControlFormat.ListCount) & \"|\" & _\nCStr(Range(\"H1\").Value) & \"|\" & CStr(Range(\"H2\").Value) & \"|\" & _\nCStr(Range(\"J1\").Value) & \":\" & CStr(Range(\"J2\").Value) & \":\" & CStr(Range(\"J3\").Value)\n",
+    "reported": "0||Choices|0|2|||a:b:c"
+  },
+  {
+    "name": "list_delete",
+    "body": "Range(\"H1:H2\").ClearContents\nRange(\"J1\").Value = \"a\"\nRange(\"J2\").Value = \"b\"\nRange(\"J3\").Value = \"c\"\nActiveWorkbook.Names.Add \"Target\", \"=Sheet1!$H$1\"\nActiveWorkbook.Names.Add \"Choices\", \"=Sheet1!$J$1:$J$3\"\nSet sh = ActiveSheet.Shapes.AddFormControl(6, 0, 0, 90, 60)\nsh.ControlFormat.ListFillRange = \"$J$1:$J$3\"\nOn Error Resume Next\nsh.ControlFormat.ListFillRange = \"Choices\"\nActiveWorkbook.Names(\"Choices\").Delete\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & sh.ControlFormat.LinkedCell & \"|\" & sh.ControlFormat.ListFillRange & \"|\" & _\nCStr(sh.ControlFormat.Value) & \"|\" & CStr(sh.ControlFormat.ListCount) & \"|\" & _\nCStr(Range(\"H1\").Value) & \"|\" & CStr(Range(\"H2\").Value) & \"|\" & _\nCStr(Range(\"J1\").Value) & \":\" & CStr(Range(\"J2\").Value) & \":\" & CStr(Range(\"J3\").Value)\n",
+    "reported": "0||Choices|0|0|||a:b:c"
+  },
+  {
+    "name": "link_delete",
+    "body": "Range(\"H1:H2\").ClearContents\nRange(\"J1\").Value = \"a\"\nRange(\"J2\").Value = \"b\"\nRange(\"J3\").Value = \"c\"\nActiveWorkbook.Names.Add \"Target\", \"=Sheet1!$H$1\"\nActiveWorkbook.Names.Add \"Choices\", \"=Sheet1!$J$1:$J$3\"\nSet sh = ActiveSheet.Shapes.AddFormControl(6, 0, 0, 90, 60)\nsh.ControlFormat.ListFillRange = \"$J$1:$J$3\"\nOn Error Resume Next\nsh.ControlFormat.LinkedCell = \"Target\"\nActiveWorkbook.Names(\"Target\").Delete\nsh.ControlFormat.Value = 2\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & sh.ControlFormat.LinkedCell & \"|\" & sh.ControlFormat.ListFillRange & \"|\" & _\nCStr(sh.ControlFormat.Value) & \"|\" & CStr(sh.ControlFormat.ListCount) & \"|\" & _\nCStr(Range(\"H1\").Value) & \"|\" & CStr(Range(\"H2\").Value) & \"|\" & _\nCStr(Range(\"J1\").Value) & \":\" & CStr(Range(\"J2\").Value) & \":\" & CStr(Range(\"J3\").Value)\n",
+    "reported": "0|Target|$J$1:$J$3|2|3|||a:b:c"
+  },
+  {
+    "name": "alias",
+    "body": "Range(\"H1:H2\").ClearContents\nRange(\"J1\").Value = \"a\"\nRange(\"J2\").Value = \"b\"\nRange(\"J3\").Value = \"c\"\nActiveWorkbook.Names.Add \"Target\", \"=Sheet1!$H$1\"\nActiveWorkbook.Names.Add \"Choices\", \"=Sheet1!$J$1:$J$3\"\nSet sh = ActiveSheet.Shapes.AddFormControl(6, 0, 0, 90, 60)\nsh.ControlFormat.ListFillRange = \"$J$1:$J$3\"\nOn Error Resume Next\nActiveWorkbook.Names.Add \"Alias\", \"=Target\"\nsh.ControlFormat.LinkedCell = \"Alias\"\nsh.ControlFormat.Value = 2\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & sh.ControlFormat.LinkedCell & \"|\" & sh.ControlFormat.ListFillRange & \"|\" & _\nCStr(sh.ControlFormat.Value) & \"|\" & CStr(sh.ControlFormat.ListCount) & \"|\" & _\nCStr(Range(\"H1\").Value) & \"|\" & CStr(Range(\"H2\").Value) & \"|\" & _\nCStr(Range(\"J1\").Value) & \":\" & CStr(Range(\"J2\").Value) & \":\" & CStr(Range(\"J3\").Value)\n",
+    "reported": "0|Alias|$J$1:$J$3|2|3|2||a:b:c"
+  },
+  {
+    "name": "local",
+    "body": "Range(\"H1:H2\").ClearContents\nRange(\"J1\").Value = \"a\"\nRange(\"J2\").Value = \"b\"\nRange(\"J3\").Value = \"c\"\nActiveWorkbook.Names.Add \"Target\", \"=Sheet1!$H$1\"\nActiveWorkbook.Names.Add \"Choices\", \"=Sheet1!$J$1:$J$3\"\nSet sh = ActiveSheet.Shapes.AddFormControl(6, 0, 0, 90, 60)\nsh.ControlFormat.ListFillRange = \"$J$1:$J$3\"\nOn Error Resume Next\nActiveWorkbook.Names.Add \"Sheet1!LocalTarget\", \"=Sheet1!$H$2\"\nsh.ControlFormat.LinkedCell = \"LocalTarget\"\nsh.ControlFormat.Value = 2\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & sh.ControlFormat.LinkedCell & \"|\" & sh.ControlFormat.ListFillRange & \"|\" & _\nCStr(sh.ControlFormat.Value) & \"|\" & CStr(sh.ControlFormat.ListCount) & \"|\" & _\nCStr(Range(\"H1\").Value) & \"|\" & CStr(Range(\"H2\").Value) & \"|\" & _\nCStr(Range(\"J1\").Value) & \":\" & CStr(Range(\"J2\").Value) & \":\" & CStr(Range(\"J3\").Value)\n",
+    "reported": "0|LocalTarget|$J$1:$J$3|2|3||2|a:b:c"
+  },
+  {
+    "name": "qualified_local",
+    "body": "Range(\"H1:H2\").ClearContents\nRange(\"J1\").Value = \"a\"\nRange(\"J2\").Value = \"b\"\nRange(\"J3\").Value = \"c\"\nActiveWorkbook.Names.Add \"Target\", \"=Sheet1!$H$1\"\nActiveWorkbook.Names.Add \"Choices\", \"=Sheet1!$J$1:$J$3\"\nSet sh = ActiveSheet.Shapes.AddFormControl(6, 0, 0, 90, 60)\nsh.ControlFormat.ListFillRange = \"$J$1:$J$3\"\nOn Error Resume Next\nActiveWorkbook.Names.Add \"Sheet1!LocalTarget\", \"=Sheet1!$H$2\"\nsh.ControlFormat.LinkedCell = \"Sheet1!LocalTarget\"\nsh.ControlFormat.Value = 2\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & sh.ControlFormat.LinkedCell & \"|\" & sh.ControlFormat.ListFillRange & \"|\" & _\nCStr(sh.ControlFormat.Value) & \"|\" & CStr(sh.ControlFormat.ListCount) & \"|\" & _\nCStr(Range(\"H1\").Value) & \"|\" & CStr(Range(\"H2\").Value) & \"|\" & _\nCStr(Range(\"J1\").Value) & \":\" & CStr(Range(\"J2\").Value) & \":\" & CStr(Range(\"J3\").Value)\n",
+    "reported": "0|Sheet1!LocalTarget|$J$1:$J$3|2|3||2|a:b:c"
+  },
+  {
+    "name": "local_shadows",
+    "body": "Range(\"H1:H2\").ClearContents\nRange(\"J1\").Value = \"a\"\nRange(\"J2\").Value = \"b\"\nRange(\"J3\").Value = \"c\"\nActiveWorkbook.Names.Add \"Target\", \"=Sheet1!$H$1\"\nActiveWorkbook.Names.Add \"Choices\", \"=Sheet1!$J$1:$J$3\"\nSet sh = ActiveSheet.Shapes.AddFormControl(6, 0, 0, 90, 60)\nsh.ControlFormat.ListFillRange = \"$J$1:$J$3\"\nOn Error Resume Next\nActiveWorkbook.Names.Add \"Sheet1!Target\", \"=Sheet1!$H$2\"\nsh.ControlFormat.LinkedCell = \"Target\"\nsh.ControlFormat.Value = 2\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & sh.ControlFormat.LinkedCell & \"|\" & sh.ControlFormat.ListFillRange & \"|\" & _\nCStr(sh.ControlFormat.Value) & \"|\" & CStr(sh.ControlFormat.ListCount) & \"|\" & _\nCStr(Range(\"H1\").Value) & \"|\" & CStr(Range(\"H2\").Value) & \"|\" & _\nCStr(Range(\"J1\").Value) & \":\" & CStr(Range(\"J2\").Value) & \":\" & CStr(Range(\"J3\").Value)\n",
+    "reported": "0|Target|$J$1:$J$3|2|3||2|a:b:c"
+  },
+  {
+    "name": "list_shrink_selected",
+    "body": "Range(\"H1:H2\").ClearContents\nRange(\"J1\").Value = \"a\"\nRange(\"J2\").Value = \"b\"\nRange(\"J3\").Value = \"c\"\nActiveWorkbook.Names.Add \"Target\", \"=Sheet1!$H$1\"\nActiveWorkbook.Names.Add \"Choices\", \"=Sheet1!$J$1:$J$3\"\nSet sh = ActiveSheet.Shapes.AddFormControl(6, 0, 0, 90, 60)\nsh.ControlFormat.ListFillRange = \"$J$1:$J$3\"\nOn Error Resume Next\nsh.ControlFormat.ListFillRange = \"Choices\"\nsh.ControlFormat.Value = 3\nActiveWorkbook.Names(\"Choices\").RefersTo = \"=Sheet1!$J$1:$J$2\"\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & sh.ControlFormat.LinkedCell & \"|\" & sh.ControlFormat.ListFillRange & \"|\" & _\nCStr(sh.ControlFormat.Value) & \"|\" & CStr(sh.ControlFormat.ListCount) & \"|\" & _\nCStr(Range(\"H1\").Value) & \"|\" & CStr(Range(\"H2\").Value) & \"|\" & _\nCStr(Range(\"J1\").Value) & \":\" & CStr(Range(\"J2\").Value) & \":\" & CStr(Range(\"J3\").Value)\n",
+    "reported": "0||Choices|2|2|||a:b:c"
+  },
+  {
+    "name": "list_delete_selected",
+    "body": "Range(\"H1:H2\").ClearContents\nRange(\"J1\").Value = \"a\"\nRange(\"J2\").Value = \"b\"\nRange(\"J3\").Value = \"c\"\nActiveWorkbook.Names.Add \"Target\", \"=Sheet1!$H$1\"\nActiveWorkbook.Names.Add \"Choices\", \"=Sheet1!$J$1:$J$3\"\nSet sh = ActiveSheet.Shapes.AddFormControl(6, 0, 0, 90, 60)\nsh.ControlFormat.ListFillRange = \"$J$1:$J$3\"\nOn Error Resume Next\nsh.ControlFormat.ListFillRange = \"Choices\"\nsh.ControlFormat.Value = 2\nActiveWorkbook.Names(\"Choices\").Delete\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & sh.ControlFormat.LinkedCell & \"|\" & sh.ControlFormat.ListFillRange & \"|\" & _\nCStr(sh.ControlFormat.Value) & \"|\" & CStr(sh.ControlFormat.ListCount) & \"|\" & _\nCStr(Range(\"H1\").Value) & \"|\" & CStr(Range(\"H2\").Value) & \"|\" & _\nCStr(Range(\"J1\").Value) & \":\" & CStr(Range(\"J2\").Value) & \":\" & CStr(Range(\"J3\").Value)\n",
+    "reported": "0||Choices|0|0|||a:b:c"
+  }
+]

@@ -1,0 +1,93 @@
+{
+  "Caption": {
+    "linked_cell": "",
+    "list_range": "",
+    "macro": "",
+    "type": 8,
+    "value": ""
+  },
+  "First": {
+    "linked_cell": "$D$10",
+    "list_range": "",
+    "macro": "",
+    "type": 8,
+    "value": 1
+  },
+  "Go": {
+    "linked_cell": "",
+    "list_range": "",
+    "macro": "controls.xlsm!Clicked",
+    "type": 8,
+    "value": ""
+  },
+  "Many": {
+    "linked_cell": "$D$9",
+    "list_range": "$A$1:$A$3",
+    "macro": "",
+    "type": 8,
+    "value": 0
+  },
+  "Part": {
+    "linked_cell": "",
+    "list_range": "",
+    "macro": "",
+    "type": 8,
+    "value": 2
+  },
+  "Pick": {
+    "linked_cell": "$D$8",
+    "list_range": "$A$1:$A$3",
+    "macro": "",
+    "type": 8,
+    "value": 2
+  },
+  "Plain": {
+    "linked_cell": "",
+    "list_range": "",
+    "macro": "",
+    "type": 1,
+    "value": ""
+  },
+  "Second": {
+    "linked_cell": "$D$10",
+    "list_range": "",
+    "macro": "",
+    "type": 8,
+    "value": -4146
+  },
+  "Set": {
+    "linked_cell": "",
+    "list_range": "",
+    "macro": "",
+    "type": 8,
+    "value": ""
+  },
+  "Slide": {
+    "linked_cell": "$D$12",
+    "list_range": "",
+    "macro": "",
+    "type": 8,
+    "value": 25
+  },
+  "Step": {
+    "linked_cell": "$D$11",
+    "list_range": "",
+    "macro": "",
+    "type": 8,
+    "value": 7
+  },
+  "Tick": {
+    "linked_cell": "$D$6",
+    "list_range": "",
+    "macro": "",
+    "type": 8,
+    "value": 1
+  },
+  "Untick": {
+    "linked_cell": "$D$7",
+    "list_range": "",
+    "macro": "",
+    "type": 8,
+    "value": -4146
+  }
+}

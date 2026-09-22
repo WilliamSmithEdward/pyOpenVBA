@@ -1,0 +1,170 @@
+[
+  {
+    "mode": 2,
+    "name": "link_empty",
+    "body": "Range(\"H1:H2\").ClearContents\nRange(\"J1\").Value = \"x\"\nRange(\"J2\").Value = \"y\"\nSet sh = ActiveSheet.Shapes.AddFormControl(6, 0, 0, 90, 60)\nsh.ControlFormat.List = Array(\"a\", \"b\", \"c\")\nsh.ControlFormat.LinkedCell = \"$H$1\"\nsh.ControlFormat.MultiSelect = 2\nsh.DrawingObject.Selected(1) = True\nsh.DrawingObject.Selected(3) = True\nOn Error Resume Next\nsh.ControlFormat.LinkedCell = \"$H$2\"\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & sh.ControlFormat.LinkedCell & \"|\" & sh.ControlFormat.ListFillRange & \"|\" & _\nCStr(Range(\"H1\").Value) & \"|\" & CStr(Range(\"H2\").Value) & \"|\" & CStr(sh.ControlFormat.MultiSelect) & \"|\"\nFor i = 1 To sh.ControlFormat.ListCount\nReport = Report & sh.ControlFormat.List(i) & \":\" & CStr(sh.DrawingObject.Selected(i)) & \";\"\nNext i\n",
+    "reported": "0|$H$2||||-4154|a:True;b:False;c:True;"
+  },
+  {
+    "mode": 2,
+    "name": "link_numeric",
+    "body": "Range(\"H1:H2\").ClearContents\nRange(\"J1\").Value = \"x\"\nRange(\"J2\").Value = \"y\"\nSet sh = ActiveSheet.Shapes.AddFormControl(6, 0, 0, 90, 60)\nsh.ControlFormat.List = Array(\"a\", \"b\", \"c\")\nsh.ControlFormat.LinkedCell = \"$H$1\"\nsh.ControlFormat.MultiSelect = 2\nsh.DrawingObject.Selected(1) = True\nsh.DrawingObject.Selected(3) = True\nOn Error Resume Next\nRange(\"H2\").Value = 2\nsh.ControlFormat.LinkedCell = \"$H$2\"\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & sh.ControlFormat.LinkedCell & \"|\" & sh.ControlFormat.ListFillRange & \"|\" & _\nCStr(Range(\"H1\").Value) & \"|\" & CStr(Range(\"H2\").Value) & \"|\" & CStr(sh.ControlFormat.MultiSelect) & \"|\"\nFor i = 1 To sh.ControlFormat.ListCount\nReport = Report & sh.ControlFormat.List(i) & \":\" & CStr(sh.DrawingObject.Selected(i)) & \";\"\nNext i\n",
+    "reported": "0|$H$2|||0|-4154|a:True;b:False;c:True;"
+  },
+  {
+    "mode": 2,
+    "name": "link_text",
+    "body": "Range(\"H1:H2\").ClearContents\nRange(\"J1\").Value = \"x\"\nRange(\"J2\").Value = \"y\"\nSet sh = ActiveSheet.Shapes.AddFormControl(6, 0, 0, 90, 60)\nsh.ControlFormat.List = Array(\"a\", \"b\", \"c\")\nsh.ControlFormat.LinkedCell = \"$H$1\"\nsh.ControlFormat.MultiSelect = 2\nsh.DrawingObject.Selected(1) = True\nsh.DrawingObject.Selected(3) = True\nOn Error Resume Next\nRange(\"H2\").Value = \"text\"\nsh.ControlFormat.LinkedCell = \"$H$2\"\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & sh.ControlFormat.LinkedCell & \"|\" & sh.ControlFormat.ListFillRange & \"|\" & _\nCStr(Range(\"H1\").Value) & \"|\" & CStr(Range(\"H2\").Value) & \"|\" & CStr(sh.ControlFormat.MultiSelect) & \"|\"\nFor i = 1 To sh.ControlFormat.ListCount\nReport = Report & sh.ControlFormat.List(i) & \":\" & CStr(sh.DrawingObject.Selected(i)) & \";\"\nNext i\n",
+    "reported": "0|$H$2|||0|-4154|a:True;b:False;c:True;"
+  },
+  {
+    "mode": 2,
+    "name": "unlink",
+    "body": "Range(\"H1:H2\").ClearContents\nRange(\"J1\").Value = \"x\"\nRange(\"J2\").Value = \"y\"\nSet sh = ActiveSheet.Shapes.AddFormControl(6, 0, 0, 90, 60)\nsh.ControlFormat.List = Array(\"a\", \"b\", \"c\")\nsh.ControlFormat.LinkedCell = \"$H$1\"\nsh.ControlFormat.MultiSelect = 2\nsh.DrawingObject.Selected(1) = True\nsh.DrawingObject.Selected(3) = True\nOn Error Resume Next\nsh.ControlFormat.LinkedCell = \"\"\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & sh.ControlFormat.LinkedCell & \"|\" & sh.ControlFormat.ListFillRange & \"|\" & _\nCStr(Range(\"H1\").Value) & \"|\" & CStr(Range(\"H2\").Value) & \"|\" & CStr(sh.ControlFormat.MultiSelect) & \"|\"\nFor i = 1 To sh.ControlFormat.ListCount\nReport = Report & sh.ControlFormat.List(i) & \":\" & CStr(sh.DrawingObject.Selected(i)) & \";\"\nNext i\n",
+    "reported": "0|||||-4154|a:True;b:False;c:True;"
+  },
+  {
+    "mode": 2,
+    "name": "cell_write",
+    "body": "Range(\"H1:H2\").ClearContents\nRange(\"J1\").Value = \"x\"\nRange(\"J2\").Value = \"y\"\nSet sh = ActiveSheet.Shapes.AddFormControl(6, 0, 0, 90, 60)\nsh.ControlFormat.List = Array(\"a\", \"b\", \"c\")\nsh.ControlFormat.LinkedCell = \"$H$1\"\nsh.ControlFormat.MultiSelect = 2\nsh.DrawingObject.Selected(1) = True\nsh.DrawingObject.Selected(3) = True\nOn Error Resume Next\nRange(\"H1\").Value = 2\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & sh.ControlFormat.LinkedCell & \"|\" & sh.ControlFormat.ListFillRange & \"|\" & _\nCStr(Range(\"H1\").Value) & \"|\" & CStr(Range(\"H2\").Value) & \"|\" & CStr(sh.ControlFormat.MultiSelect) & \"|\"\nFor i = 1 To sh.ControlFormat.ListCount\nReport = Report & sh.ControlFormat.List(i) & \":\" & CStr(sh.DrawingObject.Selected(i)) & \";\"\nNext i\n",
+    "reported": "0|$H$1||2||-4154|a:True;b:False;c:True;"
+  },
+  {
+    "mode": 2,
+    "name": "source",
+    "body": "Range(\"H1:H2\").ClearContents\nRange(\"J1\").Value = \"x\"\nRange(\"J2\").Value = \"y\"\nSet sh = ActiveSheet.Shapes.AddFormControl(6, 0, 0, 90, 60)\nsh.ControlFormat.List = Array(\"a\", \"b\", \"c\")\nsh.ControlFormat.LinkedCell = \"$H$1\"\nsh.ControlFormat.MultiSelect = 2\nsh.DrawingObject.Selected(1) = True\nsh.DrawingObject.Selected(3) = True\nOn Error Resume Next\nsh.ControlFormat.ListFillRange = \"$J$1:$J$2\"\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & sh.ControlFormat.LinkedCell & \"|\" & sh.ControlFormat.ListFillRange & \"|\" & _\nCStr(Range(\"H1\").Value) & \"|\" & CStr(Range(\"H2\").Value) & \"|\" & CStr(sh.ControlFormat.MultiSelect) & \"|\"\nFor i = 1 To sh.ControlFormat.ListCount\nReport = Report & sh.ControlFormat.List(i) & \":\" & CStr(sh.DrawingObject.Selected(i)) & \";\"\nNext i\n",
+    "reported": "0|$H$1|$J$1:$J$2|||-4154|x:True;y:False;"
+  },
+  {
+    "mode": 2,
+    "name": "source_short",
+    "body": "Range(\"H1:H2\").ClearContents\nRange(\"J1\").Value = \"x\"\nRange(\"J2\").Value = \"y\"\nSet sh = ActiveSheet.Shapes.AddFormControl(6, 0, 0, 90, 60)\nsh.ControlFormat.List = Array(\"a\", \"b\", \"c\")\nsh.ControlFormat.LinkedCell = \"$H$1\"\nsh.ControlFormat.MultiSelect = 2\nsh.DrawingObject.Selected(1) = True\nsh.DrawingObject.Selected(3) = True\nOn Error Resume Next\nsh.ControlFormat.ListFillRange = \"$J$1\"\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & sh.ControlFormat.LinkedCell & \"|\" & sh.ControlFormat.ListFillRange & \"|\" & _\nCStr(Range(\"H1\").Value) & \"|\" & CStr(Range(\"H2\").Value) & \"|\" & CStr(sh.ControlFormat.MultiSelect) & \"|\"\nFor i = 1 To sh.ControlFormat.ListCount\nReport = Report & sh.ControlFormat.List(i) & \":\" & CStr(sh.DrawingObject.Selected(i)) & \";\"\nNext i\n",
+    "reported": "0|$H$1|$J$1|||-4154|x:True;"
+  },
+  {
+    "mode": 2,
+    "name": "source_empty",
+    "body": "Range(\"H1:H2\").ClearContents\nRange(\"J1\").Value = \"x\"\nRange(\"J2\").Value = \"y\"\nSet sh = ActiveSheet.Shapes.AddFormControl(6, 0, 0, 90, 60)\nsh.ControlFormat.List = Array(\"a\", \"b\", \"c\")\nsh.ControlFormat.LinkedCell = \"$H$1\"\nsh.ControlFormat.MultiSelect = 2\nsh.DrawingObject.Selected(1) = True\nsh.DrawingObject.Selected(3) = True\nOn Error Resume Next\nsh.ControlFormat.ListFillRange = \"\"\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & sh.ControlFormat.LinkedCell & \"|\" & sh.ControlFormat.ListFillRange & \"|\" & _\nCStr(Range(\"H1\").Value) & \"|\" & CStr(Range(\"H2\").Value) & \"|\" & CStr(sh.ControlFormat.MultiSelect) & \"|\"\nFor i = 1 To sh.ControlFormat.ListCount\nReport = Report & sh.ControlFormat.List(i) & \":\" & CStr(sh.DrawingObject.Selected(i)) & \";\"\nNext i\n",
+    "reported": "0|$H$1||||-4154|a:True;b:False;c:True;"
+  },
+  {
+    "mode": 2,
+    "name": "same_mode",
+    "body": "Range(\"H1:H2\").ClearContents\nRange(\"J1\").Value = \"x\"\nRange(\"J2\").Value = \"y\"\nSet sh = ActiveSheet.Shapes.AddFormControl(6, 0, 0, 90, 60)\nsh.ControlFormat.List = Array(\"a\", \"b\", \"c\")\nsh.ControlFormat.LinkedCell = \"$H$1\"\nsh.ControlFormat.MultiSelect = 2\nsh.DrawingObject.Selected(1) = True\nsh.DrawingObject.Selected(3) = True\nOn Error Resume Next\nsh.ControlFormat.MultiSelect = 2\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & sh.ControlFormat.LinkedCell & \"|\" & sh.ControlFormat.ListFillRange & \"|\" & _\nCStr(Range(\"H1\").Value) & \"|\" & CStr(Range(\"H2\").Value) & \"|\" & CStr(sh.ControlFormat.MultiSelect) & \"|\"\nFor i = 1 To sh.ControlFormat.ListCount\nReport = Report & sh.ControlFormat.List(i) & \":\" & CStr(sh.DrawingObject.Selected(i)) & \";\"\nNext i\n",
+    "reported": "0|$H$1||||-4154|a:True;b:False;c:True;"
+  },
+  {
+    "mode": 2,
+    "name": "other_mode",
+    "body": "Range(\"H1:H2\").ClearContents\nRange(\"J1\").Value = \"x\"\nRange(\"J2\").Value = \"y\"\nSet sh = ActiveSheet.Shapes.AddFormControl(6, 0, 0, 90, 60)\nsh.ControlFormat.List = Array(\"a\", \"b\", \"c\")\nsh.ControlFormat.LinkedCell = \"$H$1\"\nsh.ControlFormat.MultiSelect = 2\nsh.DrawingObject.Selected(1) = True\nsh.DrawingObject.Selected(3) = True\nOn Error Resume Next\nsh.ControlFormat.MultiSelect = 3\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & sh.ControlFormat.LinkedCell & \"|\" & sh.ControlFormat.ListFillRange & \"|\" & _\nCStr(Range(\"H1\").Value) & \"|\" & CStr(Range(\"H2\").Value) & \"|\" & CStr(sh.ControlFormat.MultiSelect) & \"|\"\nFor i = 1 To sh.ControlFormat.ListCount\nReport = Report & sh.ControlFormat.List(i) & \":\" & CStr(sh.DrawingObject.Selected(i)) & \";\"\nNext i\n",
+    "reported": "0|$H$1||||3|a:True;b:False;c:True;"
+  },
+  {
+    "mode": 2,
+    "name": "single_mode",
+    "body": "Range(\"H1:H2\").ClearContents\nRange(\"J1\").Value = \"x\"\nRange(\"J2\").Value = \"y\"\nSet sh = ActiveSheet.Shapes.AddFormControl(6, 0, 0, 90, 60)\nsh.ControlFormat.List = Array(\"a\", \"b\", \"c\")\nsh.ControlFormat.LinkedCell = \"$H$1\"\nsh.ControlFormat.MultiSelect = 2\nsh.DrawingObject.Selected(1) = True\nsh.DrawingObject.Selected(3) = True\nOn Error Resume Next\nsh.ControlFormat.MultiSelect = 1\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & sh.ControlFormat.LinkedCell & \"|\" & sh.ControlFormat.ListFillRange & \"|\" & _\nCStr(Range(\"H1\").Value) & \"|\" & CStr(Range(\"H2\").Value) & \"|\" & CStr(sh.ControlFormat.MultiSelect) & \"|\"\nFor i = 1 To sh.ControlFormat.ListCount\nReport = Report & sh.ControlFormat.List(i) & \":\" & CStr(sh.DrawingObject.Selected(i)) & \";\"\nNext i\n",
+    "reported": "0|$H$1||||-4142|a:False;b:False;c:False;"
+  },
+  {
+    "mode": 2,
+    "name": "source_expand",
+    "body": "Range(\"H1:H2\").ClearContents\nRange(\"J1\").Value = \"x\"\nRange(\"J2\").Value = \"y\"\nSet sh = ActiveSheet.Shapes.AddFormControl(6, 0, 0, 90, 60)\nsh.ControlFormat.List = Array(\"a\", \"b\", \"c\")\nsh.ControlFormat.LinkedCell = \"$H$1\"\nsh.ControlFormat.MultiSelect = 2\nsh.DrawingObject.Selected(1) = True\nsh.DrawingObject.Selected(3) = True\nOn Error Resume Next\nsh.ControlFormat.ListFillRange = \"$J$1\"\nsh.ControlFormat.ListFillRange = \"$J$1:$J$3\"\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & sh.ControlFormat.LinkedCell & \"|\" & sh.ControlFormat.ListFillRange & \"|\" & _\nCStr(Range(\"H1\").Value) & \"|\" & CStr(Range(\"H2\").Value) & \"|\" & CStr(sh.ControlFormat.MultiSelect) & \"|\"\nFor i = 1 To sh.ControlFormat.ListCount\nReport = Report & sh.ControlFormat.List(i) & \":\" & CStr(sh.DrawingObject.Selected(i)) & \";\"\nNext i\n",
+    "reported": "0|$H$1|$J$1:$J$3|||-4154|x:True;y:False;:False;"
+  },
+  {
+    "mode": 2,
+    "name": "source_clear",
+    "body": "Range(\"H1:H2\").ClearContents\nRange(\"J1\").Value = \"x\"\nRange(\"J2\").Value = \"y\"\nSet sh = ActiveSheet.Shapes.AddFormControl(6, 0, 0, 90, 60)\nsh.ControlFormat.List = Array(\"a\", \"b\", \"c\")\nsh.ControlFormat.LinkedCell = \"$H$1\"\nsh.ControlFormat.MultiSelect = 2\nsh.DrawingObject.Selected(1) = True\nsh.DrawingObject.Selected(3) = True\nOn Error Resume Next\nsh.ControlFormat.ListFillRange = \"$J$1:$J$2\"\nsh.ControlFormat.ListFillRange = \"\"\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & sh.ControlFormat.LinkedCell & \"|\" & sh.ControlFormat.ListFillRange & \"|\" & _\nCStr(Range(\"H1\").Value) & \"|\" & CStr(Range(\"H2\").Value) & \"|\" & CStr(sh.ControlFormat.MultiSelect) & \"|\"\nFor i = 1 To sh.ControlFormat.ListCount\nReport = Report & sh.ControlFormat.List(i) & \":\" & CStr(sh.DrawingObject.Selected(i)) & \";\"\nNext i\n",
+    "reported": "0|$H$1||||-4154|"
+  },
+  {
+    "mode": 2,
+    "name": "scalar_rebind",
+    "body": "Range(\"H1:H2\").ClearContents\nRange(\"J1\").Value = \"x\"\nRange(\"J2\").Value = \"y\"\nSet sh = ActiveSheet.Shapes.AddFormControl(6, 0, 0, 90, 60)\nsh.ControlFormat.List = Array(\"a\", \"b\", \"c\")\nsh.ControlFormat.LinkedCell = \"$H$1\"\nsh.ControlFormat.MultiSelect = 2\nsh.DrawingObject.Selected(1) = True\nsh.DrawingObject.Selected(3) = True\nOn Error Resume Next\nsh.ControlFormat.MultiSelect = 1\nsh.ControlFormat.Value = 2\nsh.ControlFormat.MultiSelect = 2\nRange(\"H2\").Value = 9\nsh.ControlFormat.LinkedCell = \"$H$2\"\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & sh.ControlFormat.LinkedCell & \"|\" & sh.ControlFormat.ListFillRange & \"|\" & _\nCStr(Range(\"H1\").Value) & \"|\" & CStr(Range(\"H2\").Value) & \"|\" & CStr(sh.ControlFormat.MultiSelect) & \"|\"\nFor i = 1 To sh.ControlFormat.ListCount\nReport = Report & sh.ControlFormat.List(i) & \":\" & CStr(sh.DrawingObject.Selected(i)) & \";\"\nNext i\n",
+    "reported": "0|$H$2||2|2|-4154|a:False;b:False;c:False;"
+  },
+  {
+    "mode": 3,
+    "name": "link_empty",
+    "body": "Range(\"H1:H2\").ClearContents\nRange(\"J1\").Value = \"x\"\nRange(\"J2\").Value = \"y\"\nSet sh = ActiveSheet.Shapes.AddFormControl(6, 0, 0, 90, 60)\nsh.ControlFormat.List = Array(\"a\", \"b\", \"c\")\nsh.ControlFormat.LinkedCell = \"$H$1\"\nsh.ControlFormat.MultiSelect = 3\nsh.DrawingObject.Selected(1) = True\nsh.DrawingObject.Selected(3) = True\nOn Error Resume Next\nsh.ControlFormat.LinkedCell = \"$H$2\"\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & sh.ControlFormat.LinkedCell & \"|\" & sh.ControlFormat.ListFillRange & \"|\" & _\nCStr(Range(\"H1\").Value) & \"|\" & CStr(Range(\"H2\").Value) & \"|\" & CStr(sh.ControlFormat.MultiSelect) & \"|\"\nFor i = 1 To sh.ControlFormat.ListCount\nReport = Report & sh.ControlFormat.List(i) & \":\" & CStr(sh.DrawingObject.Selected(i)) & \";\"\nNext i\n",
+    "reported": "0|$H$2||||3|a:True;b:False;c:True;"
+  },
+  {
+    "mode": 3,
+    "name": "link_numeric",
+    "body": "Range(\"H1:H2\").ClearContents\nRange(\"J1\").Value = \"x\"\nRange(\"J2\").Value = \"y\"\nSet sh = ActiveSheet.Shapes.AddFormControl(6, 0, 0, 90, 60)\nsh.ControlFormat.List = Array(\"a\", \"b\", \"c\")\nsh.ControlFormat.LinkedCell = \"$H$1\"\nsh.ControlFormat.MultiSelect = 3\nsh.DrawingObject.Selected(1) = True\nsh.DrawingObject.Selected(3) = True\nOn Error Resume Next\nRange(\"H2\").Value = 2\nsh.ControlFormat.LinkedCell = \"$H$2\"\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & sh.ControlFormat.LinkedCell & \"|\" & sh.ControlFormat.ListFillRange & \"|\" & _\nCStr(Range(\"H1\").Value) & \"|\" & CStr(Range(\"H2\").Value) & \"|\" & CStr(sh.ControlFormat.MultiSelect) & \"|\"\nFor i = 1 To sh.ControlFormat.ListCount\nReport = Report & sh.ControlFormat.List(i) & \":\" & CStr(sh.DrawingObject.Selected(i)) & \";\"\nNext i\n",
+    "reported": "0|$H$2|||0|3|a:True;b:False;c:True;"
+  },
+  {
+    "mode": 3,
+    "name": "link_text",
+    "body": "Range(\"H1:H2\").ClearContents\nRange(\"J1\").Value = \"x\"\nRange(\"J2\").Value = \"y\"\nSet sh = ActiveSheet.Shapes.AddFormControl(6, 0, 0, 90, 60)\nsh.ControlFormat.List = Array(\"a\", \"b\", \"c\")\nsh.ControlFormat.LinkedCell = \"$H$1\"\nsh.ControlFormat.MultiSelect = 3\nsh.DrawingObject.Selected(1) = True\nsh.DrawingObject.Selected(3) = True\nOn Error Resume Next\nRange(\"H2\").Value = \"text\"\nsh.ControlFormat.LinkedCell = \"$H$2\"\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & sh.ControlFormat.LinkedCell & \"|\" & sh.ControlFormat.ListFillRange & \"|\" & _\nCStr(Range(\"H1\").Value) & \"|\" & CStr(Range(\"H2\").Value) & \"|\" & CStr(sh.ControlFormat.MultiSelect) & \"|\"\nFor i = 1 To sh.ControlFormat.ListCount\nReport = Report & sh.ControlFormat.List(i) & \":\" & CStr(sh.DrawingObject.Selected(i)) & \";\"\nNext i\n",
+    "reported": "0|$H$2|||0|3|a:True;b:False;c:True;"
+  },
+  {
+    "mode": 3,
+    "name": "unlink",
+    "body": "Range(\"H1:H2\").ClearContents\nRange(\"J1\").Value = \"x\"\nRange(\"J2\").Value = \"y\"\nSet sh = ActiveSheet.Shapes.AddFormControl(6, 0, 0, 90, 60)\nsh.ControlFormat.List = Array(\"a\", \"b\", \"c\")\nsh.ControlFormat.LinkedCell = \"$H$1\"\nsh.ControlFormat.MultiSelect = 3\nsh.DrawingObject.Selected(1) = True\nsh.DrawingObject.Selected(3) = True\nOn Error Resume Next\nsh.ControlFormat.LinkedCell = \"\"\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & sh.ControlFormat.LinkedCell & \"|\" & sh.ControlFormat.ListFillRange & \"|\" & _\nCStr(Range(\"H1\").Value) & \"|\" & CStr(Range(\"H2\").Value) & \"|\" & CStr(sh.ControlFormat.MultiSelect) & \"|\"\nFor i = 1 To sh.ControlFormat.ListCount\nReport = Report & sh.ControlFormat.List(i) & \":\" & CStr(sh.DrawingObject.Selected(i)) & \";\"\nNext i\n",
+    "reported": "0|||||3|a:True;b:False;c:True;"
+  },
+  {
+    "mode": 3,
+    "name": "cell_write",
+    "body": "Range(\"H1:H2\").ClearContents\nRange(\"J1\").Value = \"x\"\nRange(\"J2\").Value = \"y\"\nSet sh = ActiveSheet.Shapes.AddFormControl(6, 0, 0, 90, 60)\nsh.ControlFormat.List = Array(\"a\", \"b\", \"c\")\nsh.ControlFormat.LinkedCell = \"$H$1\"\nsh.ControlFormat.MultiSelect = 3\nsh.DrawingObject.Selected(1) = True\nsh.DrawingObject.Selected(3) = True\nOn Error Resume Next\nRange(\"H1\").Value = 2\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & sh.ControlFormat.LinkedCell & \"|\" & sh.ControlFormat.ListFillRange & \"|\" & _\nCStr(Range(\"H1\").Value) & \"|\" & CStr(Range(\"H2\").Value) & \"|\" & CStr(sh.ControlFormat.MultiSelect) & \"|\"\nFor i = 1 To sh.ControlFormat.ListCount\nReport = Report & sh.ControlFormat.List(i) & \":\" & CStr(sh.DrawingObject.Selected(i)) & \";\"\nNext i\n",
+    "reported": "0|$H$1||2||3|a:True;b:False;c:True;"
+  },
+  {
+    "mode": 3,
+    "name": "source",
+    "body": "Range(\"H1:H2\").ClearContents\nRange(\"J1\").Value = \"x\"\nRange(\"J2\").Value = \"y\"\nSet sh = ActiveSheet.Shapes.AddFormControl(6, 0, 0, 90, 60)\nsh.ControlFormat.List = Array(\"a\", \"b\", \"c\")\nsh.ControlFormat.LinkedCell = \"$H$1\"\nsh.ControlFormat.MultiSelect = 3\nsh.DrawingObject.Selected(1) = True\nsh.DrawingObject.Selected(3) = True\nOn Error Resume Next\nsh.ControlFormat.ListFillRange = \"$J$1:$J$2\"\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & sh.ControlFormat.LinkedCell & \"|\" & sh.ControlFormat.ListFillRange & \"|\" & _\nCStr(Range(\"H1\").Value) & \"|\" & CStr(Range(\"H2\").Value) & \"|\" & CStr(sh.ControlFormat.MultiSelect) & \"|\"\nFor i = 1 To sh.ControlFormat.ListCount\nReport = Report & sh.ControlFormat.List(i) & \":\" & CStr(sh.DrawingObject.Selected(i)) & \";\"\nNext i\n",
+    "reported": "0|$H$1|$J$1:$J$2|||3|x:True;y:False;"
+  },
+  {
+    "mode": 3,
+    "name": "source_short",
+    "body": "Range(\"H1:H2\").ClearContents\nRange(\"J1\").Value = \"x\"\nRange(\"J2\").Value = \"y\"\nSet sh = ActiveSheet.Shapes.AddFormControl(6, 0, 0, 90, 60)\nsh.ControlFormat.List = Array(\"a\", \"b\", \"c\")\nsh.ControlFormat.LinkedCell = \"$H$1\"\nsh.ControlFormat.MultiSelect = 3\nsh.DrawingObject.Selected(1) = True\nsh.DrawingObject.Selected(3) = True\nOn Error Resume Next\nsh.ControlFormat.ListFillRange = \"$J$1\"\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & sh.ControlFormat.LinkedCell & \"|\" & sh.ControlFormat.ListFillRange & \"|\" & _\nCStr(Range(\"H1\").Value) & \"|\" & CStr(Range(\"H2\").Value) & \"|\" & CStr(sh.ControlFormat.MultiSelect) & \"|\"\nFor i = 1 To sh.ControlFormat.ListCount\nReport = Report & sh.ControlFormat.List(i) & \":\" & CStr(sh.DrawingObject.Selected(i)) & \";\"\nNext i\n",
+    "reported": "0|$H$1|$J$1|||3|x:True;"
+  },
+  {
+    "mode": 3,
+    "name": "source_empty",
+    "body": "Range(\"H1:H2\").ClearContents\nRange(\"J1\").Value = \"x\"\nRange(\"J2\").Value = \"y\"\nSet sh = ActiveSheet.Shapes.AddFormControl(6, 0, 0, 90, 60)\nsh.ControlFormat.List = Array(\"a\", \"b\", \"c\")\nsh.ControlFormat.LinkedCell = \"$H$1\"\nsh.ControlFormat.MultiSelect = 3\nsh.DrawingObject.Selected(1) = True\nsh.DrawingObject.Selected(3) = True\nOn Error Resume Next\nsh.ControlFormat.ListFillRange = \"\"\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & sh.ControlFormat.LinkedCell & \"|\" & sh.ControlFormat.ListFillRange & \"|\" & _\nCStr(Range(\"H1\").Value) & \"|\" & CStr(Range(\"H2\").Value) & \"|\" & CStr(sh.ControlFormat.MultiSelect) & \"|\"\nFor i = 1 To sh.ControlFormat.ListCount\nReport = Report & sh.ControlFormat.List(i) & \":\" & CStr(sh.DrawingObject.Selected(i)) & \";\"\nNext i\n",
+    "reported": "0|$H$1||||3|a:True;b:False;c:True;"
+  },
+  {
+    "mode": 3,
+    "name": "same_mode",
+    "body": "Range(\"H1:H2\").ClearContents\nRange(\"J1\").Value = \"x\"\nRange(\"J2\").Value = \"y\"\nSet sh = ActiveSheet.Shapes.AddFormControl(6, 0, 0, 90, 60)\nsh.ControlFormat.List = Array(\"a\", \"b\", \"c\")\nsh.ControlFormat.LinkedCell = \"$H$1\"\nsh.ControlFormat.MultiSelect = 3\nsh.DrawingObject.Selected(1) = True\nsh.DrawingObject.Selected(3) = True\nOn Error Resume Next\nsh.ControlFormat.MultiSelect = 3\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & sh.ControlFormat.LinkedCell & \"|\" & sh.ControlFormat.ListFillRange & \"|\" & _\nCStr(Range(\"H1\").Value) & \"|\" & CStr(Range(\"H2\").Value) & \"|\" & CStr(sh.ControlFormat.MultiSelect) & \"|\"\nFor i = 1 To sh.ControlFormat.ListCount\nReport = Report & sh.ControlFormat.List(i) & \":\" & CStr(sh.DrawingObject.Selected(i)) & \";\"\nNext i\n",
+    "reported": "0|$H$1||||3|a:True;b:False;c:True;"
+  },
+  {
+    "mode": 3,
+    "name": "other_mode",
+    "body": "Range(\"H1:H2\").ClearContents\nRange(\"J1\").Value = \"x\"\nRange(\"J2\").Value = \"y\"\nSet sh = ActiveSheet.Shapes.AddFormControl(6, 0, 0, 90, 60)\nsh.ControlFormat.List = Array(\"a\", \"b\", \"c\")\nsh.ControlFormat.LinkedCell = \"$H$1\"\nsh.ControlFormat.MultiSelect = 3\nsh.DrawingObject.Selected(1) = True\nsh.DrawingObject.Selected(3) = True\nOn Error Resume Next\nsh.ControlFormat.MultiSelect = 2\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & sh.ControlFormat.LinkedCell & \"|\" & sh.ControlFormat.ListFillRange & \"|\" & _\nCStr(Range(\"H1\").Value) & \"|\" & CStr(Range(\"H2\").Value) & \"|\" & CStr(sh.ControlFormat.MultiSelect) & \"|\"\nFor i = 1 To sh.ControlFormat.ListCount\nReport = Report & sh.ControlFormat.List(i) & \":\" & CStr(sh.DrawingObject.Selected(i)) & \";\"\nNext i\n",
+    "reported": "0|$H$1||||-4154|a:True;b:False;c:True;"
+  },
+  {
+    "mode": 3,
+    "name": "single_mode",
+    "body": "Range(\"H1:H2\").ClearContents\nRange(\"J1\").Value = \"x\"\nRange(\"J2\").Value = \"y\"\nSet sh = ActiveSheet.Shapes.AddFormControl(6, 0, 0, 90, 60)\nsh.ControlFormat.List = Array(\"a\", \"b\", \"c\")\nsh.ControlFormat.LinkedCell = \"$H$1\"\nsh.ControlFormat.MultiSelect = 3\nsh.DrawingObject.Selected(1) = True\nsh.DrawingObject.Selected(3) = True\nOn Error Resume Next\nsh.ControlFormat.MultiSelect = 1\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & sh.ControlFormat.LinkedCell & \"|\" & sh.ControlFormat.ListFillRange & \"|\" & _\nCStr(Range(\"H1\").Value) & \"|\" & CStr(Range(\"H2\").Value) & \"|\" & CStr(sh.ControlFormat.MultiSelect) & \"|\"\nFor i = 1 To sh.ControlFormat.ListCount\nReport = Report & sh.ControlFormat.List(i) & \":\" & CStr(sh.DrawingObject.Selected(i)) & \";\"\nNext i\n",
+    "reported": "0|$H$1||||-4142|a:False;b:False;c:False;"
+  },
+  {
+    "mode": 3,
+    "name": "source_expand",
+    "body": "Range(\"H1:H2\").ClearContents\nRange(\"J1\").Value = \"x\"\nRange(\"J2\").Value = \"y\"\nSet sh = ActiveSheet.Shapes.AddFormControl(6, 0, 0, 90, 60)\nsh.ControlFormat.List = Array(\"a\", \"b\", \"c\")\nsh.ControlFormat.LinkedCell = \"$H$1\"\nsh.ControlFormat.MultiSelect = 3\nsh.DrawingObject.Selected(1) = True\nsh.DrawingObject.Selected(3) = True\nOn Error Resume Next\nsh.ControlFormat.ListFillRange = \"$J$1\"\nsh.ControlFormat.ListFillRange = \"$J$1:$J$3\"\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & sh.ControlFormat.LinkedCell & \"|\" & sh.ControlFormat.ListFillRange & \"|\" & _\nCStr(Range(\"H1\").Value) & \"|\" & CStr(Range(\"H2\").Value) & \"|\" & CStr(sh.ControlFormat.MultiSelect) & \"|\"\nFor i = 1 To sh.ControlFormat.ListCount\nReport = Report & sh.ControlFormat.List(i) & \":\" & CStr(sh.DrawingObject.Selected(i)) & \";\"\nNext i\n",
+    "reported": "0|$H$1|$J$1:$J$3|||3|x:True;y:False;:False;"
+  },
+  {
+    "mode": 3,
+    "name": "source_clear",
+    "body": "Range(\"H1:H2\").ClearContents\nRange(\"J1\").Value = \"x\"\nRange(\"J2\").Value = \"y\"\nSet sh = ActiveSheet.Shapes.AddFormControl(6, 0, 0, 90, 60)\nsh.ControlFormat.List = Array(\"a\", \"b\", \"c\")\nsh.ControlFormat.LinkedCell = \"$H$1\"\nsh.ControlFormat.MultiSelect = 3\nsh.DrawingObject.Selected(1) = True\nsh.DrawingObject.Selected(3) = True\nOn Error Resume Next\nsh.ControlFormat.ListFillRange = \"$J$1:$J$2\"\nsh.ControlFormat.ListFillRange = \"\"\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & sh.ControlFormat.LinkedCell & \"|\" & sh.ControlFormat.ListFillRange & \"|\" & _\nCStr(Range(\"H1\").Value) & \"|\" & CStr(Range(\"H2\").Value) & \"|\" & CStr(sh.ControlFormat.MultiSelect) & \"|\"\nFor i = 1 To sh.ControlFormat.ListCount\nReport = Report & sh.ControlFormat.List(i) & \":\" & CStr(sh.DrawingObject.Selected(i)) & \";\"\nNext i\n",
+    "reported": "0|$H$1||||3|"
+  },
+  {
+    "mode": 3,
+    "name": "scalar_rebind",
+    "body": "Range(\"H1:H2\").ClearContents\nRange(\"J1\").Value = \"x\"\nRange(\"J2\").Value = \"y\"\nSet sh = ActiveSheet.Shapes.AddFormControl(6, 0, 0, 90, 60)\nsh.ControlFormat.List = Array(\"a\", \"b\", \"c\")\nsh.ControlFormat.LinkedCell = \"$H$1\"\nsh.ControlFormat.MultiSelect = 3\nsh.DrawingObject.Selected(1) = True\nsh.DrawingObject.Selected(3) = True\nOn Error Resume Next\nsh.ControlFormat.MultiSelect = 1\nsh.ControlFormat.Value = 2\nsh.ControlFormat.MultiSelect = 3\nRange(\"H2\").Value = 9\nsh.ControlFormat.LinkedCell = \"$H$2\"\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & sh.ControlFormat.LinkedCell & \"|\" & sh.ControlFormat.ListFillRange & \"|\" & _\nCStr(Range(\"H1\").Value) & \"|\" & CStr(Range(\"H2\").Value) & \"|\" & CStr(sh.ControlFormat.MultiSelect) & \"|\"\nFor i = 1 To sh.ControlFormat.ListCount\nReport = Report & sh.ControlFormat.List(i) & \":\" & CStr(sh.DrawingObject.Selected(i)) & \";\"\nNext i\n",
+    "reported": "0|$H$2||2|2|3|a:False;b:False;c:False;"
+  }
+]

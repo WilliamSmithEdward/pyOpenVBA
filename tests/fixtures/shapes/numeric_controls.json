@@ -1,0 +1,314 @@
+[
+  {
+    "kind": 8,
+    "name": "defaults",
+    "body": "Range(\"H1\").ClearContents\nSet sh = ActiveSheet.Shapes.AddFormControl(8, 0, 0, 90, 30)\nsh.ControlFormat.LinkedCell = \"$H$1\"\nOn Error Resume Next\n\nn = Err.Number\nErr.Clear\np = CStr(sh.ControlFormat.LargeChange)\nIf Err.Number <> 0 Then p = \"error\" & CStr(Err.Number)\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & CStr(sh.ControlFormat.Value) & \"|\" & _\nCStr(sh.ControlFormat.Min) & \"|\" & CStr(sh.ControlFormat.Max) & \"|\" & _\nCStr(sh.ControlFormat.SmallChange) & \"|\" & p & \"|\" & _\nCStr(Range(\"H1\").Value)\n",
+    "reported": "0|0|0|100|1|10|"
+  },
+  {
+    "kind": 8,
+    "name": "min_negative",
+    "body": "Range(\"H1\").ClearContents\nSet sh = ActiveSheet.Shapes.AddFormControl(8, 0, 0, 90, 30)\nsh.ControlFormat.LinkedCell = \"$H$1\"\nOn Error Resume Next\nsh.ControlFormat.Min = -1\nn = Err.Number\nErr.Clear\np = CStr(sh.ControlFormat.LargeChange)\nIf Err.Number <> 0 Then p = \"error\" & CStr(Err.Number)\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & CStr(sh.ControlFormat.Value) & \"|\" & _\nCStr(sh.ControlFormat.Min) & \"|\" & CStr(sh.ControlFormat.Max) & \"|\" & _\nCStr(sh.ControlFormat.SmallChange) & \"|\" & p & \"|\" & _\nCStr(Range(\"H1\").Value)\n",
+    "reported": "1004|0|0|100|1|10|"
+  },
+  {
+    "kind": 8,
+    "name": "min_above_max",
+    "body": "Range(\"H1\").ClearContents\nSet sh = ActiveSheet.Shapes.AddFormControl(8, 0, 0, 90, 30)\nsh.ControlFormat.LinkedCell = \"$H$1\"\nOn Error Resume Next\nsh.ControlFormat.Min = 30001\nn = Err.Number\nErr.Clear\np = CStr(sh.ControlFormat.LargeChange)\nIf Err.Number <> 0 Then p = \"error\" & CStr(Err.Number)\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & CStr(sh.ControlFormat.Value) & \"|\" & _\nCStr(sh.ControlFormat.Min) & \"|\" & CStr(sh.ControlFormat.Max) & \"|\" & _\nCStr(sh.ControlFormat.SmallChange) & \"|\" & p & \"|\" & _\nCStr(Range(\"H1\").Value)\n",
+    "reported": "1004|0|0|100|1|10|"
+  },
+  {
+    "kind": 8,
+    "name": "max_negative",
+    "body": "Range(\"H1\").ClearContents\nSet sh = ActiveSheet.Shapes.AddFormControl(8, 0, 0, 90, 30)\nsh.ControlFormat.LinkedCell = \"$H$1\"\nOn Error Resume Next\nsh.ControlFormat.Max = -1\nn = Err.Number\nErr.Clear\np = CStr(sh.ControlFormat.LargeChange)\nIf Err.Number <> 0 Then p = \"error\" & CStr(Err.Number)\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & CStr(sh.ControlFormat.Value) & \"|\" & _\nCStr(sh.ControlFormat.Min) & \"|\" & CStr(sh.ControlFormat.Max) & \"|\" & _\nCStr(sh.ControlFormat.SmallChange) & \"|\" & p & \"|\" & _\nCStr(Range(\"H1\").Value)\n",
+    "reported": "1004|0|0|100|1|10|"
+  },
+  {
+    "kind": 8,
+    "name": "max_above_limit",
+    "body": "Range(\"H1\").ClearContents\nSet sh = ActiveSheet.Shapes.AddFormControl(8, 0, 0, 90, 30)\nsh.ControlFormat.LinkedCell = \"$H$1\"\nOn Error Resume Next\nsh.ControlFormat.Max = 30001\nn = Err.Number\nErr.Clear\np = CStr(sh.ControlFormat.LargeChange)\nIf Err.Number <> 0 Then p = \"error\" & CStr(Err.Number)\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & CStr(sh.ControlFormat.Value) & \"|\" & _\nCStr(sh.ControlFormat.Min) & \"|\" & CStr(sh.ControlFormat.Max) & \"|\" & _\nCStr(sh.ControlFormat.SmallChange) & \"|\" & p & \"|\" & _\nCStr(Range(\"H1\").Value)\n",
+    "reported": "1004|0|0|100|1|10|"
+  },
+  {
+    "kind": 8,
+    "name": "max_below_min",
+    "body": "Range(\"H1\").ClearContents\nSet sh = ActiveSheet.Shapes.AddFormControl(8, 0, 0, 90, 30)\nsh.ControlFormat.LinkedCell = \"$H$1\"\nOn Error Resume Next\nsh.ControlFormat.Min = 10\nsh.ControlFormat.Max = 5\nn = Err.Number\nErr.Clear\np = CStr(sh.ControlFormat.LargeChange)\nIf Err.Number <> 0 Then p = \"error\" & CStr(Err.Number)\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & CStr(sh.ControlFormat.Value) & \"|\" & _\nCStr(sh.ControlFormat.Min) & \"|\" & CStr(sh.ControlFormat.Max) & \"|\" & _\nCStr(sh.ControlFormat.SmallChange) & \"|\" & p & \"|\" & _\nCStr(Range(\"H1\").Value)\n",
+    "reported": "0|5|10|5|1|10|10"
+  },
+  {
+    "kind": 8,
+    "name": "min_above_max_valid",
+    "body": "Range(\"H1\").ClearContents\nSet sh = ActiveSheet.Shapes.AddFormControl(8, 0, 0, 90, 30)\nsh.ControlFormat.LinkedCell = \"$H$1\"\nOn Error Resume Next\nsh.ControlFormat.Max = 5\nsh.ControlFormat.Min = 10\nn = Err.Number\nErr.Clear\np = CStr(sh.ControlFormat.LargeChange)\nIf Err.Number <> 0 Then p = \"error\" & CStr(Err.Number)\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & CStr(sh.ControlFormat.Value) & \"|\" & _\nCStr(sh.ControlFormat.Min) & \"|\" & CStr(sh.ControlFormat.Max) & \"|\" & _\nCStr(sh.ControlFormat.SmallChange) & \"|\" & p & \"|\" & _\nCStr(Range(\"H1\").Value)\n",
+    "reported": "0|5|10|5|1|10|10"
+  },
+  {
+    "kind": 8,
+    "name": "small_zero",
+    "body": "Range(\"H1\").ClearContents\nSet sh = ActiveSheet.Shapes.AddFormControl(8, 0, 0, 90, 30)\nsh.ControlFormat.LinkedCell = \"$H$1\"\nOn Error Resume Next\nsh.ControlFormat.SmallChange = 0\nn = Err.Number\nErr.Clear\np = CStr(sh.ControlFormat.LargeChange)\nIf Err.Number <> 0 Then p = \"error\" & CStr(Err.Number)\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & CStr(sh.ControlFormat.Value) & \"|\" & _\nCStr(sh.ControlFormat.Min) & \"|\" & CStr(sh.ControlFormat.Max) & \"|\" & _\nCStr(sh.ControlFormat.SmallChange) & \"|\" & p & \"|\" & _\nCStr(Range(\"H1\").Value)\n",
+    "reported": "0|0|0|100|0|10|0"
+  },
+  {
+    "kind": 8,
+    "name": "small_negative",
+    "body": "Range(\"H1\").ClearContents\nSet sh = ActiveSheet.Shapes.AddFormControl(8, 0, 0, 90, 30)\nsh.ControlFormat.LinkedCell = \"$H$1\"\nOn Error Resume Next\nsh.ControlFormat.SmallChange = -1\nn = Err.Number\nErr.Clear\np = CStr(sh.ControlFormat.LargeChange)\nIf Err.Number <> 0 Then p = \"error\" & CStr(Err.Number)\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & CStr(sh.ControlFormat.Value) & \"|\" & _\nCStr(sh.ControlFormat.Min) & \"|\" & CStr(sh.ControlFormat.Max) & \"|\" & _\nCStr(sh.ControlFormat.SmallChange) & \"|\" & p & \"|\" & _\nCStr(Range(\"H1\").Value)\n",
+    "reported": "1004|0|0|100|1|10|"
+  },
+  {
+    "kind": 8,
+    "name": "small_large",
+    "body": "Range(\"H1\").ClearContents\nSet sh = ActiveSheet.Shapes.AddFormControl(8, 0, 0, 90, 30)\nsh.ControlFormat.LinkedCell = \"$H$1\"\nOn Error Resume Next\nsh.ControlFormat.SmallChange = 30001\nn = Err.Number\nErr.Clear\np = CStr(sh.ControlFormat.LargeChange)\nIf Err.Number <> 0 Then p = \"error\" & CStr(Err.Number)\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & CStr(sh.ControlFormat.Value) & \"|\" & _\nCStr(sh.ControlFormat.Min) & \"|\" & CStr(sh.ControlFormat.Max) & \"|\" & _\nCStr(sh.ControlFormat.SmallChange) & \"|\" & p & \"|\" & _\nCStr(Range(\"H1\").Value)\n",
+    "reported": "1004|0|0|100|1|10|"
+  },
+  {
+    "kind": 8,
+    "name": "large_zero",
+    "body": "Range(\"H1\").ClearContents\nSet sh = ActiveSheet.Shapes.AddFormControl(8, 0, 0, 90, 30)\nsh.ControlFormat.LinkedCell = \"$H$1\"\nOn Error Resume Next\nsh.ControlFormat.LargeChange = 0\nn = Err.Number\nErr.Clear\np = CStr(sh.ControlFormat.LargeChange)\nIf Err.Number <> 0 Then p = \"error\" & CStr(Err.Number)\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & CStr(sh.ControlFormat.Value) & \"|\" & _\nCStr(sh.ControlFormat.Min) & \"|\" & CStr(sh.ControlFormat.Max) & \"|\" & _\nCStr(sh.ControlFormat.SmallChange) & \"|\" & p & \"|\" & _\nCStr(Range(\"H1\").Value)\n",
+    "reported": "0|0|0|100|1|0|0"
+  },
+  {
+    "kind": 8,
+    "name": "large_negative",
+    "body": "Range(\"H1\").ClearContents\nSet sh = ActiveSheet.Shapes.AddFormControl(8, 0, 0, 90, 30)\nsh.ControlFormat.LinkedCell = \"$H$1\"\nOn Error Resume Next\nsh.ControlFormat.LargeChange = -1\nn = Err.Number\nErr.Clear\np = CStr(sh.ControlFormat.LargeChange)\nIf Err.Number <> 0 Then p = \"error\" & CStr(Err.Number)\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & CStr(sh.ControlFormat.Value) & \"|\" & _\nCStr(sh.ControlFormat.Min) & \"|\" & CStr(sh.ControlFormat.Max) & \"|\" & _\nCStr(sh.ControlFormat.SmallChange) & \"|\" & p & \"|\" & _\nCStr(Range(\"H1\").Value)\n",
+    "reported": "1004|0|0|100|1|10|"
+  },
+  {
+    "kind": 8,
+    "name": "large_large",
+    "body": "Range(\"H1\").ClearContents\nSet sh = ActiveSheet.Shapes.AddFormControl(8, 0, 0, 90, 30)\nsh.ControlFormat.LinkedCell = \"$H$1\"\nOn Error Resume Next\nsh.ControlFormat.LargeChange = 30001\nn = Err.Number\nErr.Clear\np = CStr(sh.ControlFormat.LargeChange)\nIf Err.Number <> 0 Then p = \"error\" & CStr(Err.Number)\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & CStr(sh.ControlFormat.Value) & \"|\" & _\nCStr(sh.ControlFormat.Min) & \"|\" & CStr(sh.ControlFormat.Max) & \"|\" & _\nCStr(sh.ControlFormat.SmallChange) & \"|\" & p & \"|\" & _\nCStr(Range(\"H1\").Value)\n",
+    "reported": "1004|0|0|100|1|10|"
+  },
+  {
+    "kind": 8,
+    "name": "min_cell_error",
+    "body": "Range(\"H1\").ClearContents\nSet sh = ActiveSheet.Shapes.AddFormControl(8, 0, 0, 90, 30)\nsh.ControlFormat.LinkedCell = \"$H$1\"\nOn Error Resume Next\nsh.ControlFormat.Min = 10\nRange(\"H1\").Value = CVErr(2042)\nn = Err.Number\nErr.Clear\np = CStr(sh.ControlFormat.LargeChange)\nIf Err.Number <> 0 Then p = \"error\" & CStr(Err.Number)\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & CStr(sh.ControlFormat.Value) & \"|\" & _\nCStr(sh.ControlFormat.Min) & \"|\" & CStr(sh.ControlFormat.Max) & \"|\" & _\nCStr(sh.ControlFormat.SmallChange) & \"|\" & p & \"|\" & _\nCStr(Range(\"H1\").Value)\n",
+    "reported": "0|10|10|100|1|10|Error 2042"
+  },
+  {
+    "kind": 8,
+    "name": "value",
+    "body": "Range(\"H1\").ClearContents\nSet sh = ActiveSheet.Shapes.AddFormControl(8, 0, 0, 90, 30)\nsh.ControlFormat.LinkedCell = \"$H$1\"\nOn Error Resume Next\nsh.ControlFormat.Value = 7\nn = Err.Number\nErr.Clear\np = CStr(sh.ControlFormat.LargeChange)\nIf Err.Number <> 0 Then p = \"error\" & CStr(Err.Number)\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & CStr(sh.ControlFormat.Value) & \"|\" & _\nCStr(sh.ControlFormat.Min) & \"|\" & CStr(sh.ControlFormat.Max) & \"|\" & _\nCStr(sh.ControlFormat.SmallChange) & \"|\" & p & \"|\" & _\nCStr(Range(\"H1\").Value)\n",
+    "reported": "0|7|0|100|1|10|7"
+  },
+  {
+    "kind": 8,
+    "name": "negative",
+    "body": "Range(\"H1\").ClearContents\nSet sh = ActiveSheet.Shapes.AddFormControl(8, 0, 0, 90, 30)\nsh.ControlFormat.LinkedCell = \"$H$1\"\nOn Error Resume Next\nsh.ControlFormat.Value = -1\nn = Err.Number\nErr.Clear\np = CStr(sh.ControlFormat.LargeChange)\nIf Err.Number <> 0 Then p = \"error\" & CStr(Err.Number)\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & CStr(sh.ControlFormat.Value) & \"|\" & _\nCStr(sh.ControlFormat.Min) & \"|\" & CStr(sh.ControlFormat.Max) & \"|\" & _\nCStr(sh.ControlFormat.SmallChange) & \"|\" & p & \"|\" & _\nCStr(Range(\"H1\").Value)\n",
+    "reported": "1004|0|0|100|1|10|"
+  },
+  {
+    "kind": 8,
+    "name": "too_large",
+    "body": "Range(\"H1\").ClearContents\nSet sh = ActiveSheet.Shapes.AddFormControl(8, 0, 0, 90, 30)\nsh.ControlFormat.LinkedCell = \"$H$1\"\nOn Error Resume Next\nsh.ControlFormat.Value = 30001\nn = Err.Number\nErr.Clear\np = CStr(sh.ControlFormat.LargeChange)\nIf Err.Number <> 0 Then p = \"error\" & CStr(Err.Number)\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & CStr(sh.ControlFormat.Value) & \"|\" & _\nCStr(sh.ControlFormat.Min) & \"|\" & CStr(sh.ControlFormat.Max) & \"|\" & _\nCStr(sh.ControlFormat.SmallChange) & \"|\" & p & \"|\" & _\nCStr(Range(\"H1\").Value)\n",
+    "reported": "1004|0|0|100|1|10|"
+  },
+  {
+    "kind": 8,
+    "name": "cell_value",
+    "body": "Range(\"H1\").ClearContents\nSet sh = ActiveSheet.Shapes.AddFormControl(8, 0, 0, 90, 30)\nsh.ControlFormat.LinkedCell = \"$H$1\"\nOn Error Resume Next\nRange(\"H1\").Value = 7\nn = Err.Number\nErr.Clear\np = CStr(sh.ControlFormat.LargeChange)\nIf Err.Number <> 0 Then p = \"error\" & CStr(Err.Number)\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & CStr(sh.ControlFormat.Value) & \"|\" & _\nCStr(sh.ControlFormat.Min) & \"|\" & CStr(sh.ControlFormat.Max) & \"|\" & _\nCStr(sh.ControlFormat.SmallChange) & \"|\" & p & \"|\" & _\nCStr(Range(\"H1\").Value)\n",
+    "reported": "0|7|0|100|1|10|7"
+  },
+  {
+    "kind": 8,
+    "name": "cell_negative",
+    "body": "Range(\"H1\").ClearContents\nSet sh = ActiveSheet.Shapes.AddFormControl(8, 0, 0, 90, 30)\nsh.ControlFormat.LinkedCell = \"$H$1\"\nOn Error Resume Next\nRange(\"H1\").Value = -1\nn = Err.Number\nErr.Clear\np = CStr(sh.ControlFormat.LargeChange)\nIf Err.Number <> 0 Then p = \"error\" & CStr(Err.Number)\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & CStr(sh.ControlFormat.Value) & \"|\" & _\nCStr(sh.ControlFormat.Min) & \"|\" & CStr(sh.ControlFormat.Max) & \"|\" & _\nCStr(sh.ControlFormat.SmallChange) & \"|\" & p & \"|\" & _\nCStr(Range(\"H1\").Value)\n",
+    "reported": "0|0|0|100|1|10|-1"
+  },
+  {
+    "kind": 8,
+    "name": "cell_large",
+    "body": "Range(\"H1\").ClearContents\nSet sh = ActiveSheet.Shapes.AddFormControl(8, 0, 0, 90, 30)\nsh.ControlFormat.LinkedCell = \"$H$1\"\nOn Error Resume Next\nRange(\"H1\").Value = 30001\nn = Err.Number\nErr.Clear\np = CStr(sh.ControlFormat.LargeChange)\nIf Err.Number <> 0 Then p = \"error\" & CStr(Err.Number)\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & CStr(sh.ControlFormat.Value) & \"|\" & _\nCStr(sh.ControlFormat.Min) & \"|\" & CStr(sh.ControlFormat.Max) & \"|\" & _\nCStr(sh.ControlFormat.SmallChange) & \"|\" & p & \"|\" & _\nCStr(Range(\"H1\").Value)\n",
+    "reported": "0|100|0|100|1|10|30001"
+  },
+  {
+    "kind": 8,
+    "name": "cell_text",
+    "body": "Range(\"H1\").ClearContents\nSet sh = ActiveSheet.Shapes.AddFormControl(8, 0, 0, 90, 30)\nsh.ControlFormat.LinkedCell = \"$H$1\"\nOn Error Resume Next\nsh.ControlFormat.Value = 7\nRange(\"H1\").Value = \"text\"\nn = Err.Number\nErr.Clear\np = CStr(sh.ControlFormat.LargeChange)\nIf Err.Number <> 0 Then p = \"error\" & CStr(Err.Number)\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & CStr(sh.ControlFormat.Value) & \"|\" & _\nCStr(sh.ControlFormat.Min) & \"|\" & CStr(sh.ControlFormat.Max) & \"|\" & _\nCStr(sh.ControlFormat.SmallChange) & \"|\" & p & \"|\" & _\nCStr(Range(\"H1\").Value)\n",
+    "reported": "0|7|0|100|1|10|text"
+  },
+  {
+    "kind": 8,
+    "name": "cell_error",
+    "body": "Range(\"H1\").ClearContents\nSet sh = ActiveSheet.Shapes.AddFormControl(8, 0, 0, 90, 30)\nsh.ControlFormat.LinkedCell = \"$H$1\"\nOn Error Resume Next\nsh.ControlFormat.Value = 7\nRange(\"H1\").Value = CVErr(2042)\nn = Err.Number\nErr.Clear\np = CStr(sh.ControlFormat.LargeChange)\nIf Err.Number <> 0 Then p = \"error\" & CStr(Err.Number)\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & CStr(sh.ControlFormat.Value) & \"|\" & _\nCStr(sh.ControlFormat.Min) & \"|\" & CStr(sh.ControlFormat.Max) & \"|\" & _\nCStr(sh.ControlFormat.SmallChange) & \"|\" & p & \"|\" & _\nCStr(Range(\"H1\").Value)\n",
+    "reported": "0|0|0|100|1|10|Error 2042"
+  },
+  {
+    "kind": 8,
+    "name": "cell_clear",
+    "body": "Range(\"H1\").ClearContents\nSet sh = ActiveSheet.Shapes.AddFormControl(8, 0, 0, 90, 30)\nsh.ControlFormat.LinkedCell = \"$H$1\"\nOn Error Resume Next\nsh.ControlFormat.Value = 7\nRange(\"H1\").ClearContents\nn = Err.Number\nErr.Clear\np = CStr(sh.ControlFormat.LargeChange)\nIf Err.Number <> 0 Then p = \"error\" & CStr(Err.Number)\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & CStr(sh.ControlFormat.Value) & \"|\" & _\nCStr(sh.ControlFormat.Min) & \"|\" & CStr(sh.ControlFormat.Max) & \"|\" & _\nCStr(sh.ControlFormat.SmallChange) & \"|\" & p & \"|\" & _\nCStr(Range(\"H1\").Value)\n",
+    "reported": "0|0|0|100|1|10|"
+  },
+  {
+    "kind": 8,
+    "name": "minimum",
+    "body": "Range(\"H1\").ClearContents\nSet sh = ActiveSheet.Shapes.AddFormControl(8, 0, 0, 90, 30)\nsh.ControlFormat.LinkedCell = \"$H$1\"\nOn Error Resume Next\nsh.ControlFormat.Min = 10\nn = Err.Number\nErr.Clear\np = CStr(sh.ControlFormat.LargeChange)\nIf Err.Number <> 0 Then p = \"error\" & CStr(Err.Number)\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & CStr(sh.ControlFormat.Value) & \"|\" & _\nCStr(sh.ControlFormat.Min) & \"|\" & CStr(sh.ControlFormat.Max) & \"|\" & _\nCStr(sh.ControlFormat.SmallChange) & \"|\" & p & \"|\" & _\nCStr(Range(\"H1\").Value)\n",
+    "reported": "0|10|10|100|1|10|10"
+  },
+  {
+    "kind": 8,
+    "name": "maximum",
+    "body": "Range(\"H1\").ClearContents\nSet sh = ActiveSheet.Shapes.AddFormControl(8, 0, 0, 90, 30)\nsh.ControlFormat.LinkedCell = \"$H$1\"\nOn Error Resume Next\nsh.ControlFormat.Value = 7\nsh.ControlFormat.Max = 5\nn = Err.Number\nErr.Clear\np = CStr(sh.ControlFormat.LargeChange)\nIf Err.Number <> 0 Then p = \"error\" & CStr(Err.Number)\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & CStr(sh.ControlFormat.Value) & \"|\" & _\nCStr(sh.ControlFormat.Min) & \"|\" & CStr(sh.ControlFormat.Max) & \"|\" & _\nCStr(sh.ControlFormat.SmallChange) & \"|\" & p & \"|\" & _\nCStr(Range(\"H1\").Value)\n",
+    "reported": "0|5|0|5|1|10|5"
+  },
+  {
+    "kind": 8,
+    "name": "rebind",
+    "body": "Range(\"H1\").ClearContents\nSet sh = ActiveSheet.Shapes.AddFormControl(8, 0, 0, 90, 30)\nsh.ControlFormat.LinkedCell = \"$H$1\"\nOn Error Resume Next\nsh.ControlFormat.LinkedCell = \"\"\nRange(\"H1\").Value = 7\nsh.ControlFormat.LinkedCell = \"$H$1\"\nn = Err.Number\nErr.Clear\np = CStr(sh.ControlFormat.LargeChange)\nIf Err.Number <> 0 Then p = \"error\" & CStr(Err.Number)\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & CStr(sh.ControlFormat.Value) & \"|\" & _\nCStr(sh.ControlFormat.Min) & \"|\" & CStr(sh.ControlFormat.Max) & \"|\" & _\nCStr(sh.ControlFormat.SmallChange) & \"|\" & p & \"|\" & _\nCStr(Range(\"H1\").Value)\n",
+    "reported": "0|0|0|100|1|10|0"
+  },
+  {
+    "kind": 9,
+    "name": "defaults",
+    "body": "Range(\"H1\").ClearContents\nSet sh = ActiveSheet.Shapes.AddFormControl(9, 0, 0, 90, 30)\nsh.ControlFormat.LinkedCell = \"$H$1\"\nOn Error Resume Next\n\nn = Err.Number\nErr.Clear\np = CStr(sh.ControlFormat.LargeChange)\nIf Err.Number <> 0 Then p = \"error\" & CStr(Err.Number)\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & CStr(sh.ControlFormat.Value) & \"|\" & _\nCStr(sh.ControlFormat.Min) & \"|\" & CStr(sh.ControlFormat.Max) & \"|\" & _\nCStr(sh.ControlFormat.SmallChange) & \"|\" & p & \"|\" & _\nCStr(Range(\"H1\").Value)\n",
+    "reported": "0|0|0|30000|1|error438|"
+  },
+  {
+    "kind": 9,
+    "name": "min_negative",
+    "body": "Range(\"H1\").ClearContents\nSet sh = ActiveSheet.Shapes.AddFormControl(9, 0, 0, 90, 30)\nsh.ControlFormat.LinkedCell = \"$H$1\"\nOn Error Resume Next\nsh.ControlFormat.Min = -1\nn = Err.Number\nErr.Clear\np = CStr(sh.ControlFormat.LargeChange)\nIf Err.Number <> 0 Then p = \"error\" & CStr(Err.Number)\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & CStr(sh.ControlFormat.Value) & \"|\" & _\nCStr(sh.ControlFormat.Min) & \"|\" & CStr(sh.ControlFormat.Max) & \"|\" & _\nCStr(sh.ControlFormat.SmallChange) & \"|\" & p & \"|\" & _\nCStr(Range(\"H1\").Value)\n",
+    "reported": "1004|0|0|30000|1|error438|"
+  },
+  {
+    "kind": 9,
+    "name": "min_above_max",
+    "body": "Range(\"H1\").ClearContents\nSet sh = ActiveSheet.Shapes.AddFormControl(9, 0, 0, 90, 30)\nsh.ControlFormat.LinkedCell = \"$H$1\"\nOn Error Resume Next\nsh.ControlFormat.Min = 30001\nn = Err.Number\nErr.Clear\np = CStr(sh.ControlFormat.LargeChange)\nIf Err.Number <> 0 Then p = \"error\" & CStr(Err.Number)\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & CStr(sh.ControlFormat.Value) & \"|\" & _\nCStr(sh.ControlFormat.Min) & \"|\" & CStr(sh.ControlFormat.Max) & \"|\" & _\nCStr(sh.ControlFormat.SmallChange) & \"|\" & p & \"|\" & _\nCStr(Range(\"H1\").Value)\n",
+    "reported": "1004|0|0|30000|1|error438|"
+  },
+  {
+    "kind": 9,
+    "name": "max_negative",
+    "body": "Range(\"H1\").ClearContents\nSet sh = ActiveSheet.Shapes.AddFormControl(9, 0, 0, 90, 30)\nsh.ControlFormat.LinkedCell = \"$H$1\"\nOn Error Resume Next\nsh.ControlFormat.Max = -1\nn = Err.Number\nErr.Clear\np = CStr(sh.ControlFormat.LargeChange)\nIf Err.Number <> 0 Then p = \"error\" & CStr(Err.Number)\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & CStr(sh.ControlFormat.Value) & \"|\" & _\nCStr(sh.ControlFormat.Min) & \"|\" & CStr(sh.ControlFormat.Max) & \"|\" & _\nCStr(sh.ControlFormat.SmallChange) & \"|\" & p & \"|\" & _\nCStr(Range(\"H1\").Value)\n",
+    "reported": "1004|0|0|30000|1|error438|"
+  },
+  {
+    "kind": 9,
+    "name": "max_above_limit",
+    "body": "Range(\"H1\").ClearContents\nSet sh = ActiveSheet.Shapes.AddFormControl(9, 0, 0, 90, 30)\nsh.ControlFormat.LinkedCell = \"$H$1\"\nOn Error Resume Next\nsh.ControlFormat.Max = 30001\nn = Err.Number\nErr.Clear\np = CStr(sh.ControlFormat.LargeChange)\nIf Err.Number <> 0 Then p = \"error\" & CStr(Err.Number)\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & CStr(sh.ControlFormat.Value) & \"|\" & _\nCStr(sh.ControlFormat.Min) & \"|\" & CStr(sh.ControlFormat.Max) & \"|\" & _\nCStr(sh.ControlFormat.SmallChange) & \"|\" & p & \"|\" & _\nCStr(Range(\"H1\").Value)\n",
+    "reported": "1004|0|0|30000|1|error438|"
+  },
+  {
+    "kind": 9,
+    "name": "max_below_min",
+    "body": "Range(\"H1\").ClearContents\nSet sh = ActiveSheet.Shapes.AddFormControl(9, 0, 0, 90, 30)\nsh.ControlFormat.LinkedCell = \"$H$1\"\nOn Error Resume Next\nsh.ControlFormat.Min = 10\nsh.ControlFormat.Max = 5\nn = Err.Number\nErr.Clear\np = CStr(sh.ControlFormat.LargeChange)\nIf Err.Number <> 0 Then p = \"error\" & CStr(Err.Number)\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & CStr(sh.ControlFormat.Value) & \"|\" & _\nCStr(sh.ControlFormat.Min) & \"|\" & CStr(sh.ControlFormat.Max) & \"|\" & _\nCStr(sh.ControlFormat.SmallChange) & \"|\" & p & \"|\" & _\nCStr(Range(\"H1\").Value)\n",
+    "reported": "0|5|10|5|1|error438|10"
+  },
+  {
+    "kind": 9,
+    "name": "min_above_max_valid",
+    "body": "Range(\"H1\").ClearContents\nSet sh = ActiveSheet.Shapes.AddFormControl(9, 0, 0, 90, 30)\nsh.ControlFormat.LinkedCell = \"$H$1\"\nOn Error Resume Next\nsh.ControlFormat.Max = 5\nsh.ControlFormat.Min = 10\nn = Err.Number\nErr.Clear\np = CStr(sh.ControlFormat.LargeChange)\nIf Err.Number <> 0 Then p = \"error\" & CStr(Err.Number)\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & CStr(sh.ControlFormat.Value) & \"|\" & _\nCStr(sh.ControlFormat.Min) & \"|\" & CStr(sh.ControlFormat.Max) & \"|\" & _\nCStr(sh.ControlFormat.SmallChange) & \"|\" & p & \"|\" & _\nCStr(Range(\"H1\").Value)\n",
+    "reported": "0|5|10|5|1|error438|10"
+  },
+  {
+    "kind": 9,
+    "name": "small_zero",
+    "body": "Range(\"H1\").ClearContents\nSet sh = ActiveSheet.Shapes.AddFormControl(9, 0, 0, 90, 30)\nsh.ControlFormat.LinkedCell = \"$H$1\"\nOn Error Resume Next\nsh.ControlFormat.SmallChange = 0\nn = Err.Number\nErr.Clear\np = CStr(sh.ControlFormat.LargeChange)\nIf Err.Number <> 0 Then p = \"error\" & CStr(Err.Number)\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & CStr(sh.ControlFormat.Value) & \"|\" & _\nCStr(sh.ControlFormat.Min) & \"|\" & CStr(sh.ControlFormat.Max) & \"|\" & _\nCStr(sh.ControlFormat.SmallChange) & \"|\" & p & \"|\" & _\nCStr(Range(\"H1\").Value)\n",
+    "reported": "0|0|0|30000|0|error438|0"
+  },
+  {
+    "kind": 9,
+    "name": "small_negative",
+    "body": "Range(\"H1\").ClearContents\nSet sh = ActiveSheet.Shapes.AddFormControl(9, 0, 0, 90, 30)\nsh.ControlFormat.LinkedCell = \"$H$1\"\nOn Error Resume Next\nsh.ControlFormat.SmallChange = -1\nn = Err.Number\nErr.Clear\np = CStr(sh.ControlFormat.LargeChange)\nIf Err.Number <> 0 Then p = \"error\" & CStr(Err.Number)\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & CStr(sh.ControlFormat.Value) & \"|\" & _\nCStr(sh.ControlFormat.Min) & \"|\" & CStr(sh.ControlFormat.Max) & \"|\" & _\nCStr(sh.ControlFormat.SmallChange) & \"|\" & p & \"|\" & _\nCStr(Range(\"H1\").Value)\n",
+    "reported": "1004|0|0|30000|1|error438|"
+  },
+  {
+    "kind": 9,
+    "name": "small_large",
+    "body": "Range(\"H1\").ClearContents\nSet sh = ActiveSheet.Shapes.AddFormControl(9, 0, 0, 90, 30)\nsh.ControlFormat.LinkedCell = \"$H$1\"\nOn Error Resume Next\nsh.ControlFormat.SmallChange = 30001\nn = Err.Number\nErr.Clear\np = CStr(sh.ControlFormat.LargeChange)\nIf Err.Number <> 0 Then p = \"error\" & CStr(Err.Number)\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & CStr(sh.ControlFormat.Value) & \"|\" & _\nCStr(sh.ControlFormat.Min) & \"|\" & CStr(sh.ControlFormat.Max) & \"|\" & _\nCStr(sh.ControlFormat.SmallChange) & \"|\" & p & \"|\" & _\nCStr(Range(\"H1\").Value)\n",
+    "reported": "1004|0|0|30000|1|error438|"
+  },
+  {
+    "kind": 9,
+    "name": "large_zero",
+    "body": "Range(\"H1\").ClearContents\nSet sh = ActiveSheet.Shapes.AddFormControl(9, 0, 0, 90, 30)\nsh.ControlFormat.LinkedCell = \"$H$1\"\nOn Error Resume Next\nsh.ControlFormat.LargeChange = 0\nn = Err.Number\nErr.Clear\np = CStr(sh.ControlFormat.LargeChange)\nIf Err.Number <> 0 Then p = \"error\" & CStr(Err.Number)\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & CStr(sh.ControlFormat.Value) & \"|\" & _\nCStr(sh.ControlFormat.Min) & \"|\" & CStr(sh.ControlFormat.Max) & \"|\" & _\nCStr(sh.ControlFormat.SmallChange) & \"|\" & p & \"|\" & _\nCStr(Range(\"H1\").Value)\n",
+    "reported": "438|0|0|30000|1|error438|"
+  },
+  {
+    "kind": 9,
+    "name": "large_negative",
+    "body": "Range(\"H1\").ClearContents\nSet sh = ActiveSheet.Shapes.AddFormControl(9, 0, 0, 90, 30)\nsh.ControlFormat.LinkedCell = \"$H$1\"\nOn Error Resume Next\nsh.ControlFormat.LargeChange = -1\nn = Err.Number\nErr.Clear\np = CStr(sh.ControlFormat.LargeChange)\nIf Err.Number <> 0 Then p = \"error\" & CStr(Err.Number)\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & CStr(sh.ControlFormat.Value) & \"|\" & _\nCStr(sh.ControlFormat.Min) & \"|\" & CStr(sh.ControlFormat.Max) & \"|\" & _\nCStr(sh.ControlFormat.SmallChange) & \"|\" & p & \"|\" & _\nCStr(Range(\"H1\").Value)\n",
+    "reported": "438|0|0|30000|1|error438|"
+  },
+  {
+    "kind": 9,
+    "name": "large_large",
+    "body": "Range(\"H1\").ClearContents\nSet sh = ActiveSheet.Shapes.AddFormControl(9, 0, 0, 90, 30)\nsh.ControlFormat.LinkedCell = \"$H$1\"\nOn Error Resume Next\nsh.ControlFormat.LargeChange = 30001\nn = Err.Number\nErr.Clear\np = CStr(sh.ControlFormat.LargeChange)\nIf Err.Number <> 0 Then p = \"error\" & CStr(Err.Number)\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & CStr(sh.ControlFormat.Value) & \"|\" & _\nCStr(sh.ControlFormat.Min) & \"|\" & CStr(sh.ControlFormat.Max) & \"|\" & _\nCStr(sh.ControlFormat.SmallChange) & \"|\" & p & \"|\" & _\nCStr(Range(\"H1\").Value)\n",
+    "reported": "438|0|0|30000|1|error438|"
+  },
+  {
+    "kind": 9,
+    "name": "min_cell_error",
+    "body": "Range(\"H1\").ClearContents\nSet sh = ActiveSheet.Shapes.AddFormControl(9, 0, 0, 90, 30)\nsh.ControlFormat.LinkedCell = \"$H$1\"\nOn Error Resume Next\nsh.ControlFormat.Min = 10\nRange(\"H1\").Value = CVErr(2042)\nn = Err.Number\nErr.Clear\np = CStr(sh.ControlFormat.LargeChange)\nIf Err.Number <> 0 Then p = \"error\" & CStr(Err.Number)\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & CStr(sh.ControlFormat.Value) & \"|\" & _\nCStr(sh.ControlFormat.Min) & \"|\" & CStr(sh.ControlFormat.Max) & \"|\" & _\nCStr(sh.ControlFormat.SmallChange) & \"|\" & p & \"|\" & _\nCStr(Range(\"H1\").Value)\n",
+    "reported": "0|10|10|30000|1|error438|Error 2042"
+  },
+  {
+    "kind": 9,
+    "name": "value",
+    "body": "Range(\"H1\").ClearContents\nSet sh = ActiveSheet.Shapes.AddFormControl(9, 0, 0, 90, 30)\nsh.ControlFormat.LinkedCell = \"$H$1\"\nOn Error Resume Next\nsh.ControlFormat.Value = 7\nn = Err.Number\nErr.Clear\np = CStr(sh.ControlFormat.LargeChange)\nIf Err.Number <> 0 Then p = \"error\" & CStr(Err.Number)\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & CStr(sh.ControlFormat.Value) & \"|\" & _\nCStr(sh.ControlFormat.Min) & \"|\" & CStr(sh.ControlFormat.Max) & \"|\" & _\nCStr(sh.ControlFormat.SmallChange) & \"|\" & p & \"|\" & _\nCStr(Range(\"H1\").Value)\n",
+    "reported": "0|7|0|30000|1|error438|7"
+  },
+  {
+    "kind": 9,
+    "name": "negative",
+    "body": "Range(\"H1\").ClearContents\nSet sh = ActiveSheet.Shapes.AddFormControl(9, 0, 0, 90, 30)\nsh.ControlFormat.LinkedCell = \"$H$1\"\nOn Error Resume Next\nsh.ControlFormat.Value = -1\nn = Err.Number\nErr.Clear\np = CStr(sh.ControlFormat.LargeChange)\nIf Err.Number <> 0 Then p = \"error\" & CStr(Err.Number)\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & CStr(sh.ControlFormat.Value) & \"|\" & _\nCStr(sh.ControlFormat.Min) & \"|\" & CStr(sh.ControlFormat.Max) & \"|\" & _\nCStr(sh.ControlFormat.SmallChange) & \"|\" & p & \"|\" & _\nCStr(Range(\"H1\").Value)\n",
+    "reported": "1004|0|0|30000|1|error438|"
+  },
+  {
+    "kind": 9,
+    "name": "too_large",
+    "body": "Range(\"H1\").ClearContents\nSet sh = ActiveSheet.Shapes.AddFormControl(9, 0, 0, 90, 30)\nsh.ControlFormat.LinkedCell = \"$H$1\"\nOn Error Resume Next\nsh.ControlFormat.Value = 30001\nn = Err.Number\nErr.Clear\np = CStr(sh.ControlFormat.LargeChange)\nIf Err.Number <> 0 Then p = \"error\" & CStr(Err.Number)\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & CStr(sh.ControlFormat.Value) & \"|\" & _\nCStr(sh.ControlFormat.Min) & \"|\" & CStr(sh.ControlFormat.Max) & \"|\" & _\nCStr(sh.ControlFormat.SmallChange) & \"|\" & p & \"|\" & _\nCStr(Range(\"H1\").Value)\n",
+    "reported": "1004|0|0|30000|1|error438|"
+  },
+  {
+    "kind": 9,
+    "name": "cell_value",
+    "body": "Range(\"H1\").ClearContents\nSet sh = ActiveSheet.Shapes.AddFormControl(9, 0, 0, 90, 30)\nsh.ControlFormat.LinkedCell = \"$H$1\"\nOn Error Resume Next\nRange(\"H1\").Value = 7\nn = Err.Number\nErr.Clear\np = CStr(sh.ControlFormat.LargeChange)\nIf Err.Number <> 0 Then p = \"error\" & CStr(Err.Number)\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & CStr(sh.ControlFormat.Value) & \"|\" & _\nCStr(sh.ControlFormat.Min) & \"|\" & CStr(sh.ControlFormat.Max) & \"|\" & _\nCStr(sh.ControlFormat.SmallChange) & \"|\" & p & \"|\" & _\nCStr(Range(\"H1\").Value)\n",
+    "reported": "0|7|0|30000|1|error438|7"
+  },
+  {
+    "kind": 9,
+    "name": "cell_negative",
+    "body": "Range(\"H1\").ClearContents\nSet sh = ActiveSheet.Shapes.AddFormControl(9, 0, 0, 90, 30)\nsh.ControlFormat.LinkedCell = \"$H$1\"\nOn Error Resume Next\nRange(\"H1\").Value = -1\nn = Err.Number\nErr.Clear\np = CStr(sh.ControlFormat.LargeChange)\nIf Err.Number <> 0 Then p = \"error\" & CStr(Err.Number)\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & CStr(sh.ControlFormat.Value) & \"|\" & _\nCStr(sh.ControlFormat.Min) & \"|\" & CStr(sh.ControlFormat.Max) & \"|\" & _\nCStr(sh.ControlFormat.SmallChange) & \"|\" & p & \"|\" & _\nCStr(Range(\"H1\").Value)\n",
+    "reported": "0|0|0|30000|1|error438|-1"
+  },
+  {
+    "kind": 9,
+    "name": "cell_large",
+    "body": "Range(\"H1\").ClearContents\nSet sh = ActiveSheet.Shapes.AddFormControl(9, 0, 0, 90, 30)\nsh.ControlFormat.LinkedCell = \"$H$1\"\nOn Error Resume Next\nRange(\"H1\").Value = 30001\nn = Err.Number\nErr.Clear\np = CStr(sh.ControlFormat.LargeChange)\nIf Err.Number <> 0 Then p = \"error\" & CStr(Err.Number)\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & CStr(sh.ControlFormat.Value) & \"|\" & _\nCStr(sh.ControlFormat.Min) & \"|\" & CStr(sh.ControlFormat.Max) & \"|\" & _\nCStr(sh.ControlFormat.SmallChange) & \"|\" & p & \"|\" & _\nCStr(Range(\"H1\").Value)\n",
+    "reported": "0|30000|0|30000|1|error438|30001"
+  },
+  {
+    "kind": 9,
+    "name": "cell_text",
+    "body": "Range(\"H1\").ClearContents\nSet sh = ActiveSheet.Shapes.AddFormControl(9, 0, 0, 90, 30)\nsh.ControlFormat.LinkedCell = \"$H$1\"\nOn Error Resume Next\nsh.ControlFormat.Value = 7\nRange(\"H1\").Value = \"text\"\nn = Err.Number\nErr.Clear\np = CStr(sh.ControlFormat.LargeChange)\nIf Err.Number <> 0 Then p = \"error\" & CStr(Err.Number)\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & CStr(sh.ControlFormat.Value) & \"|\" & _\nCStr(sh.ControlFormat.Min) & \"|\" & CStr(sh.ControlFormat.Max) & \"|\" & _\nCStr(sh.ControlFormat.SmallChange) & \"|\" & p & \"|\" & _\nCStr(Range(\"H1\").Value)\n",
+    "reported": "0|7|0|30000|1|error438|text"
+  },
+  {
+    "kind": 9,
+    "name": "cell_error",
+    "body": "Range(\"H1\").ClearContents\nSet sh = ActiveSheet.Shapes.AddFormControl(9, 0, 0, 90, 30)\nsh.ControlFormat.LinkedCell = \"$H$1\"\nOn Error Resume Next\nsh.ControlFormat.Value = 7\nRange(\"H1\").Value = CVErr(2042)\nn = Err.Number\nErr.Clear\np = CStr(sh.ControlFormat.LargeChange)\nIf Err.Number <> 0 Then p = \"error\" & CStr(Err.Number)\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & CStr(sh.ControlFormat.Value) & \"|\" & _\nCStr(sh.ControlFormat.Min) & \"|\" & CStr(sh.ControlFormat.Max) & \"|\" & _\nCStr(sh.ControlFormat.SmallChange) & \"|\" & p & \"|\" & _\nCStr(Range(\"H1\").Value)\n",
+    "reported": "0|0|0|30000|1|error438|Error 2042"
+  },
+  {
+    "kind": 9,
+    "name": "cell_clear",
+    "body": "Range(\"H1\").ClearContents\nSet sh = ActiveSheet.Shapes.AddFormControl(9, 0, 0, 90, 30)\nsh.ControlFormat.LinkedCell = \"$H$1\"\nOn Error Resume Next\nsh.ControlFormat.Value = 7\nRange(\"H1\").ClearContents\nn = Err.Number\nErr.Clear\np = CStr(sh.ControlFormat.LargeChange)\nIf Err.Number <> 0 Then p = \"error\" & CStr(Err.Number)\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & CStr(sh.ControlFormat.Value) & \"|\" & _\nCStr(sh.ControlFormat.Min) & \"|\" & CStr(sh.ControlFormat.Max) & \"|\" & _\nCStr(sh.ControlFormat.SmallChange) & \"|\" & p & \"|\" & _\nCStr(Range(\"H1\").Value)\n",
+    "reported": "0|0|0|30000|1|error438|"
+  },
+  {
+    "kind": 9,
+    "name": "minimum",
+    "body": "Range(\"H1\").ClearContents\nSet sh = ActiveSheet.Shapes.AddFormControl(9, 0, 0, 90, 30)\nsh.ControlFormat.LinkedCell = \"$H$1\"\nOn Error Resume Next\nsh.ControlFormat.Min = 10\nn = Err.Number\nErr.Clear\np = CStr(sh.ControlFormat.LargeChange)\nIf Err.Number <> 0 Then p = \"error\" & CStr(Err.Number)\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & CStr(sh.ControlFormat.Value) & \"|\" & _\nCStr(sh.ControlFormat.Min) & \"|\" & CStr(sh.ControlFormat.Max) & \"|\" & _\nCStr(sh.ControlFormat.SmallChange) & \"|\" & p & \"|\" & _\nCStr(Range(\"H1\").Value)\n",
+    "reported": "0|10|10|30000|1|error438|10"
+  },
+  {
+    "kind": 9,
+    "name": "maximum",
+    "body": "Range(\"H1\").ClearContents\nSet sh = ActiveSheet.Shapes.AddFormControl(9, 0, 0, 90, 30)\nsh.ControlFormat.LinkedCell = \"$H$1\"\nOn Error Resume Next\nsh.ControlFormat.Value = 7\nsh.ControlFormat.Max = 5\nn = Err.Number\nErr.Clear\np = CStr(sh.ControlFormat.LargeChange)\nIf Err.Number <> 0 Then p = \"error\" & CStr(Err.Number)\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & CStr(sh.ControlFormat.Value) & \"|\" & _\nCStr(sh.ControlFormat.Min) & \"|\" & CStr(sh.ControlFormat.Max) & \"|\" & _\nCStr(sh.ControlFormat.SmallChange) & \"|\" & p & \"|\" & _\nCStr(Range(\"H1\").Value)\n",
+    "reported": "0|5|0|5|1|error438|5"
+  },
+  {
+    "kind": 9,
+    "name": "rebind",
+    "body": "Range(\"H1\").ClearContents\nSet sh = ActiveSheet.Shapes.AddFormControl(9, 0, 0, 90, 30)\nsh.ControlFormat.LinkedCell = \"$H$1\"\nOn Error Resume Next\nsh.ControlFormat.LinkedCell = \"\"\nRange(\"H1\").Value = 7\nsh.ControlFormat.LinkedCell = \"$H$1\"\nn = Err.Number\nErr.Clear\np = CStr(sh.ControlFormat.LargeChange)\nIf Err.Number <> 0 Then p = \"error\" & CStr(Err.Number)\nOn Error GoTo 0\nReport = CStr(n) & \"|\" & CStr(sh.ControlFormat.Value) & \"|\" & _\nCStr(sh.ControlFormat.Min) & \"|\" & CStr(sh.ControlFormat.Max) & \"|\" & _\nCStr(sh.ControlFormat.SmallChange) & \"|\" & p & \"|\" & _\nCStr(Range(\"H1\").Value)\n",
+    "reported": "0|0|0|30000|1|error438|0"
+  }
+]

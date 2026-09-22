@@ -187,6 +187,10 @@ class Calculator:
             self._working.discard(key)
         cell.value = value
         cell.stale = False
+        from pyopenvba.apps.excel._controls import cell_changed
+
+        owner = next(one for one in self.book.sheets_ if one.name.lower() == sheet.lower())
+        cell_changed(owner, row, column, value)
         if cell.number_format in ("General", ""):
             from pyopenvba.formula._functions import result_format
 

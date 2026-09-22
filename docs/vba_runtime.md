@@ -254,6 +254,26 @@ hidden shape in the drawing, the sheet's own record of it, a part
 saying which control it is, and the VML Excel draws it from -- and its
 macro lives in two of them.  Making one and wiring it up writes all
 four, which is what lets a button a macro created open as a button.
+Python callers can create the nine supported Forms control types through
+`SheetView.add_form_control`. Multi/extended lists support changing their
+source and linked cell, preserving valid selected indexes; switching
+between those two modes preserves selection, while returning to single
+selection clears it. Radio groups support exclusive selection, shared
+linked cells and interleaved membership across non-overlapping boxes.
+Adding or removing boxes regroups the radios. Moving radios retains their
+membership during editing; reopening reconstructs it from box geometry.
+Overlapping/nested boxes support radio creation, box deletion and late
+additions, including measured shared-link retention and transfer.
+Control links and list sources also resolve workbook and worksheet-local
+names, aliases and changed targets. Missing names remain saved without a
+target. `CHOOSE`, `IF`, single-area `INDEX`, `OFFSET` and `INDIRECT` names resolve dynamic
+sources and linked targets. Other reference formulas, multi-area `INDEX`,
+relative R1C1 `INDIRECT`, cyclic aliases
+and external links are not supported. Local names retain their worksheet
+scope when saved.
+`INDIRECT` accepts A1 and absolute R1C1 addresses.
+Conditional reference names evaluate only the selected branch; selected
+scalar values and errors provide no control source or linked destination.
 
 **Formulas are calculated.** `pyopenvba.formula` parses and evaluates
 them; the workbook keeps track of which cells are stale and what feeds
@@ -351,6 +371,7 @@ a document or a presentation is edited rather than created.
 | `apps/excel/_io.py` | Reading and writing the workbook file |
 | `apps/excel/_bridge.py` | What a project sees when Excel is the host |
 | `apps/excel/_shapes.py` | A sheet's shapes, as a macro reaches them |
+| `apps/excel/_shape_api.py` | Python shape operations on that same state; exposed through `SheetView` |
 | `apps/word/` | Word's object model, its bridge and its file |
 | `apps/powerpoint/` | PowerPoint's, the same three |
 | `shapes/_values.py` | What a shape is, in all three hosts' words |

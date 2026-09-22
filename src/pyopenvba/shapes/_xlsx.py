@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
+from html.parser import HTMLParser
 
 from pyopenvba._xml import escape, unescape
 from pyopenvba.shapes import _drawingml as dml
@@ -128,7 +129,7 @@ def grid_of(sheet_xml: str) -> SheetGrid:
     grid = SheetGrid()
     head = re.search(r"<sheetFormatPr\b([^>]*?)/?>", sheet_xml)
     if head is not None:
-        fields = dict(_ATTRIBUTE.findall(head.group(1)))
+        fields = {key: unescape(value) for key, value in _ATTRIBUTE.findall(head.group(1))}
         grid.default_row = _number(fields.get("defaultRowHeight"), DEFAULT_ROW_POINTS)
         width = fields.get("defaultColWidth")
         if width:
@@ -218,10 +219,11 @@ def _shape_of(
     if kind == "shape" and _TXBOX.search(markup):
         kind = "textBox"
     macro = _MACRO.search(markup)
+    geometry = dml.geometry(markup)
     shape = Shape(
         name=name,
         kind=kind,
-        geometry=dml.geometry(markup),
+        geometry=geometry,
         left=left,
         top=top,
         width=width,
@@ -230,6 +232,7 @@ def _shape_of(
         macro=unescape(macro.group(1)) if macro else "",
         shape_id=shape_id,
         source=anchor,
+        auto_shape_type=next((number for number, preset in PRESET_GEOMETRY.items() if preset == geometry), 1),
     )
     if kind == "group":
         shape.children = _members(markup, grid)
@@ -301,16 +304,31 @@ def read_controls(sheet_xml: str, parts: dict[str, str]) -> dict[int, ControlInf
         control = ControlInfo(relationship=relationship)
         properties = _CONTROL_PR.search(markup)
         if properties is not None:
-            control.macro_text = dict(_ATTRIBUTE.findall(properties.group(1))).get("macro", "")
+            control.macro_text = unescape(dict(_ATTRIBUTE.findall(properties.group(1))).get("macro", ""))
         part = parts.get(relationship, "")
         if part:
             settings = _FORM_CONTROL_PR.search(part)
             if settings is not None:
-                values = dict(_ATTRIBUTE.findall(settings.group(1)))
+                values = {key: unescape(value) for key, value in _ATTRIBUTE.findall(settings.group(1))}
                 control.kind = values.get("objectType", "control")
+                control.first_button = values.get("firstButton", "0") == "1"
                 control.linked_cell = values.get("fmlaLink", "")
                 control.list_range = values.get("fmlaRange", "")
                 control.value = int(_number(values.get("val"), 0))
+                control.selection_mode = values.get("seltype", values.get("selType", "single")).lower()
+                control.selected_indices = [int(one) for one in re.findall(r"\d+", values.get("multiSel", ""))]
+                control.items = [unescape(dict(_ATTRIBUTE.findall(one)).get("val", ""))
+                                 for one in re.findall(r"<item\b([^>]*)/>", part)]
+                if control.kind in {"Drop", "List"}:
+                    control.value = int(_number(values.get("sel"), 0))
+                if control.kind in {"CheckBox", "Radio"}:
+                    control.value = {"Checked": 1, "Mixed": 2}.get(values.get("checked", ""), -4146)
+                if control.kind in {"Spin", "Scroll"}:
+                    control.minimum = int(_number(values.get("min"), 0))
+                    control.maximum = int(_number(values.get("max"), 0))
+                    control.increment = int(_number(values.get("inc"), 1))
+                    control.page_change = int(_number(values.get("page"), 10))
+                    control.drop_width = int(_number(values.get("dx"), 31))
         out[shape_id] = control
     return out
 
@@ -329,7 +347,7 @@ def control_macro(sheet_xml: str, shape_id: int) -> str:
         properties = _CONTROL_PR.search(markup)
         if properties is None:
             return ""
-        return dict(_ATTRIBUTE.findall(properties.group(1))).get("macro", "")
+        return unescape(dict(_ATTRIBUTE.findall(properties.group(1))).get("macro", ""))
     return ""
 
 
@@ -345,7 +363,7 @@ def with_control_macro(sheet_xml: str, shape_id: int, macro: str) -> str:
             return sheet_xml
         attributes = properties.group(1)
         if 'macro="' in attributes:
-            changed = re.sub(r'\smacro="[^"]*"', f' macro="{escape(macro)}"' if macro else "", attributes)
+            changed = re.sub(r'\smacro="[^"]*"', lambda _: f' macro="{escape(macro)}"' if macro else "", attributes)
         elif macro:
             changed = attributes + f' macro="{escape(macro)}"'
         else:
@@ -378,6 +396,12 @@ EMPTY_VML = (
 #: What each control this can make is called in its own part, and what
 #: ClientData says it is.
 CONTROL_KINDS: dict[str, str] = {
+    "Radio": "Radio",
+    "Spin": "Spin",
+    "Scroll": "Scroll",
+    "GBox": "GBox",
+    "Drop": "Drop",
+    "List": "List",
     "Button": "Button",
     "CheckBox": "Checkbox",
     "Check Box": "Checkbox",
@@ -455,14 +479,23 @@ def control_properties(shape: Shape) -> str:
     """A control's own part: which control it is and what it is wired to."""
     control = shape.control
     kind = CONTROL_KINDS.get(control.kind if control else "Button", "Button")
+    if kind == "Checkbox":
+        kind = "CheckBox"
     linked = f' fmlaLink="{escape(control.linked_cell)}"' if control and control.linked_cell else ""
     listed = f' fmlaRange="{escape(control.list_range)}"' if control and control.list_range else ""
     extra = ' dropStyle="combo" dropLines="8"' if kind == "Drop" else ""
-    return (
+    if kind in {"CheckBox", "Radio"} and control:
+        checked = {1: "Checked", 2: "Mixed"}.get(control.value, "")
+        if checked:
+            extra += f' checked="{checked}"'
+    if kind in {"Drop", "List"} and control:
+        extra += f' sel="{control.value}" val="0"'
+    xml = (
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\r\n'
         '<formControlPr xmlns="http://schemas.microsoft.com/office/spreadsheetml/2009/9/main"'
         f' objectType="{kind}"{linked}{listed}{extra} lockText="1"/>'
     )
+    return with_control_bindings(xml, control) if control else xml
 
 
 def control_anchor(shape: Shape, grid: SheetGrid | None = None) -> str:
@@ -499,7 +532,25 @@ def _half_points(offset: int) -> int:
 def control_vml(shape: Shape, grid: SheetGrid | None = None) -> str:
     """The VML Excel actually draws a control from."""
     control = shape.control
+    checked = ""
     kind = CONTROL_KINDS.get(control.kind if control else "Button", "Button")
+    if control and kind in {"Checkbox", "Radio"}:
+        state = {1: 1, 2: 2}.get(control.value, 0)
+        checked = f"<x:Checked>{state}</x:Checked>"
+        if kind == "Radio" and control.first_button:
+            checked += "<x:FirstButton/>"
+    if control and control.kind in {"Drop", "List"}:
+        mode = {"single": "Single", "multi": "Multi", "extended": "Extend"}[control.selection_mode]
+        checked = f"<x:Val>0</x:Val><x:Sel>{control.value}</x:Sel><x:SelType>{mode}</x:SelType>"
+        if control.selection_mode != "single":
+            checked += f"<x:MultiSel>{','.join(str(one) for one in control.selected_indices)}</x:MultiSel>"
+        checked += "".join(f"<x:ListItem>{escape(one)}</x:ListItem>" for one in control.items)
+    if control and kind in {"Spin", "Scroll"}:
+        checked += "".join(f"<x:{tag}>{value}</x:{tag}>" for tag, value in (
+            ("Val", control.value), ("Min", control.minimum),
+            ("Max", control.maximum if control.maximum is not None else (30000 if kind == "Spin" else 100)),
+            ("Inc", control.increment), ("Page", control.page_change), ("Dx", control.drop_width),
+        ))
     macro = f"<x:FmlaMacro>[0]!{escape(shape.macro)}</x:FmlaMacro>" if shape.macro else ""
     linked = (
         f"<x:FmlaLink>{escape(control.linked_cell)}</x:FmlaLink>"
@@ -513,7 +564,7 @@ def control_vml(shape: Shape, grid: SheetGrid | None = None) -> str:
     )
     text = (
         f"<v:textbox style='mso-direction-alt:auto' o:singleclick='f'>"
-        f"<div style='text-align:center'>{escape(shape.text)}</div></v:textbox>"
+        f"<div style='text-align:center'>{'<br/>'.join(escape(line) for line in shape.text.split(chr(10)))}</div></v:textbox>"
         if shape.text
         else ""
     )
@@ -530,7 +581,7 @@ def control_vml(shape: Shape, grid: SheetGrid | None = None) -> str:
         f"<x:Anchor>{control_anchor(shape, grid)}</x:Anchor>"
         "<x:PrintObject>False</x:PrintObject>"
         "<x:AutoFill>False</x:AutoFill>"
-        f"{macro}{linked}{listed}"
+        f"{macro}{linked}{listed}{checked}"
         "<x:TextHAlign>Center</x:TextHAlign>"
         "<x:TextVAlign>Center</x:TextVAlign>"
         "</x:ClientData>"
@@ -567,7 +618,7 @@ def with_vml_macro(vml: str, shape_id: int, macro: str) -> str:
     markup = vml[span[0] : span[1]]
     if _FMLA_MACRO.search(markup):
         changed = (
-            _FMLA_MACRO.sub(f"<x:FmlaMacro>{escape(macro)}</x:FmlaMacro>", markup, count=1)
+            _FMLA_MACRO.sub(lambda _: f"<x:FmlaMacro>{escape(macro)}</x:FmlaMacro>", markup, count=1)
             if macro
             else _FMLA_MACRO.sub("", markup, count=1)
         )
@@ -600,6 +651,213 @@ def _vml_shape_span(vml: str, spid: str) -> tuple[int, int] | None:
         at = span[1]
         if f'o:spid="{spid}"' in vml[span[0] : span[1]]:
             return span
+
+
+class _Caption(HTMLParser):
+    """Read the rendered text in a VML textbox, including line breaks."""
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.pieces: list[str] = []
+
+    def handle_data(self, data: str) -> None:
+        self.pieces.append(re.sub(r"\s+", " ", data))
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        if tag == "br":
+            self.pieces.append("\n")
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag == "div":
+            self.pieces.append("\n")
+
+
+def control_text(vml: str, shape_id: int) -> str:
+    span = _vml_shape_span(vml, f"_x0000_s{shape_id}")
+    if span is None:
+        return ""
+    markup = vml[span[0]:span[1]]
+    box = dml.element_span(markup, "v:textbox")
+    if box is None:
+        return ""
+    reader = _Caption()
+    reader.feed(markup[box[0]:box[1]])
+    reader.close()
+    return "\n".join(line.strip() for line in "".join(reader.pieces).splitlines()).strip()
+
+
+def without_control(sheet_xml: str, shape_id: int) -> str:
+    """Remove a sheet control and its otherwise empty compatibility wrappers."""
+    def remove(match: re.Match[str]) -> str:
+        head = _CONTROL_HEAD.search(match.group(0))
+        fields = dict(_ATTRIBUTE.findall(head.group(1))) if head else {}
+        return "" if fields.get("shapeId") == str(shape_id) else match.group(0)
+
+    out = _CONTROL.sub(remove, sheet_xml)
+    # Controls can be inside nested Choice blocks. Prune only empty
+    # wrappers, keeping sibling controls and their markup unchanged.
+    for _ in range(3):
+        out = re.sub(r"<controls\b[^>]*>\s*</controls>", "", out)
+        out = re.sub(
+            r"<mc:AlternateContent\b[^>]*>\s*<mc:Choice\b[^>]*>\s*</mc:Choice>"
+            r"\s*(?:<mc:Fallback\s*/>\s*)?</mc:AlternateContent>", "", out,
+        )
+    return out
+
+
+def without_vml_control(vml: str, shape_id: int) -> str:
+    span = _vml_shape_span(vml, f"_x0000_s{shape_id}")
+    return vml[:span[0]] + vml[span[1]:] if span else vml
+
+
+def with_control_shape(sheet_xml: str, shape: Shape, grid: SheetGrid) -> str:
+    """Patch one control's name and anchor without replacing its other settings."""
+    def change(match: re.Match[str]) -> str:
+        markup = match.group(0)
+        head = _CONTROL_HEAD.search(markup)
+        if head is None or dict(_ATTRIBUTE.findall(head.group(1))).get("shapeId") != str(shape.shape_id):
+            return markup
+        markup = _attribute_on_tag(markup, "control", "name", shape.name)
+        for tag, x, y in (
+            ("from", shape.left, shape.top), ("to", shape.left + shape.width, shape.top + shape.height),
+        ):
+            span = dml.element_span(markup, tag)
+            if span:
+                corner = _corner_markup(tag, grid, x, y).replace(f"xdr:{tag}", tag)
+                markup = markup[:span[0]] + corner + markup[span[1]:]
+        return markup
+
+    return _CONTROL.sub(change, sheet_xml)
+
+
+def _attribute_on_tag(markup: str, tag: str, name: str, value: str | None) -> str:
+    found = re.search(rf"<{re.escape(tag)}(?=[\s/>])[^>]*>", markup)
+    if found is None:
+        return markup
+    head = found.group(0)
+    attribute = re.compile(rf"\b{re.escape(name)}=([\"'])(.*?)\1", re.DOTALL)
+    replacement = f'{name}="{escape(value)}"' if value is not None else ""
+    if value is None:
+        head = attribute.sub("", head, count=1)
+    elif attribute.search(head):
+        head = attribute.sub(lambda _: replacement, head, count=1)
+    else:
+        at = len(head) - (2 if head.endswith("/>") else 1)
+        head = head[:at] + " " + replacement + head[at:]
+    return markup[:found.start()] + head + markup[found.end():]
+
+
+def with_vml_control(vml: str, shape: Shape, before: Shape, grid: SheetGrid) -> str:
+    """Patch a control's visible shape, preserving its style and other properties."""
+    span = _vml_shape_span(vml, f"_x0000_s{shape.shape_id}")
+    if span is None:
+        return vml
+    markup = vml[span[0]:span[1]]
+    if shape.name != before.name:
+        markup = _attribute_on_tag(markup, "v:shape", "id", _vml_id(shape.name))
+    if (shape.left, shape.top, shape.width, shape.height) != (before.left, before.top, before.width, before.height):
+        style = re.search(r"\bstyle=([\"'])(.*?)\1", markup, re.DOTALL)
+        if style:
+            body = style.group(2)
+            for key, value in (("margin-left", shape.left), ("margin-top", shape.top),
+                               ("width", shape.width), ("height", shape.height)):
+                pattern = re.compile(rf"(?<![\w-]){key}\s*:[^;]+")
+                entry = f"{key}:{value:g}pt"
+                body = pattern.sub(lambda _: entry, body) if pattern.search(body) else body + ";" + entry
+            markup = markup[:style.start(2)] + body + markup[style.end(2):]
+        anchor = dml.element_span(markup, "x:Anchor")
+        if anchor:
+            markup = (markup[:anchor[0]] + f"<x:Anchor>{control_anchor(shape, grid)}</x:Anchor>"
+                      + markup[anchor[1]:])
+    if shape.text != before.text:
+        body = "<div>" + "<br/>".join(escape(line) for line in shape.text.split("\n")) + "</div>"
+        box = dml.element_span(markup, "v:textbox")
+        if box:
+            start = markup.find(">", box[0]) + 1
+            markup = markup[:start] + body + markup[box[1] - len("</v:textbox>"):]
+        else:
+            start = markup.find("<x:ClientData")
+            if start >= 0:
+                markup = markup[:start] + f"<v:textbox>{body}</v:textbox>" + markup[start:]
+    return vml[:span[0]] + markup + vml[span[1]:]
+
+
+def with_control_bindings(properties: str, control: ControlInfo) -> str:
+    """Patch modeled bindings and values, preserving other control settings."""
+    for name, value in (("fmlaLink", control.linked_cell), ("fmlaRange", control.list_range)):
+        properties = _attribute_on_tag(properties, "formControlPr", name, value)
+    kind = CONTROL_KINDS.get(control.kind, control.kind)
+    if kind == "Radio":
+        properties = _attribute_on_tag(properties, "formControlPr", "firstButton", "1" if control.first_button else None)
+    if kind in {"Checkbox", "Radio"}:
+        state = {1: "Checked", 2: "Mixed"}.get(control.value, "")
+        properties = _attribute_on_tag(properties, "formControlPr", "checked", state or None)
+    if kind in {"Spin", "Scroll"}:
+        for attribute, value in (
+            ("val", control.value), ("min", control.minimum),
+            ("max", control.maximum if control.maximum is not None else (30000 if kind == "Spin" else 100)),
+            ("inc", control.increment), ("page", control.page_change), ("dx", control.drop_width),
+        ):
+            properties = _attribute_on_tag(properties, "formControlPr", attribute, str(value))
+    if control.kind in {"Drop", "List"}:
+        properties = _attribute_on_tag(properties, "formControlPr", "sel", str(control.value))
+        properties = _attribute_on_tag(properties, "formControlPr", "seltype", control.selection_mode)
+        properties = _attribute_on_tag(properties, "formControlPr", "multiSel",
+                                       ",".join(str(one) for one in control.selected_indices))
+        def attribute_text(value: str) -> str:
+            return escape(value).replace("\r", "&#13;").replace("\n", "&#10;").replace("\t", "&#9;")
+
+        item_list = "<itemLst>" + "".join(f'<item val="{attribute_text(one)}"/>' for one in control.items) + "</itemLst>"
+        if not control.items:
+            item_list = ""
+        span = dml.element_span(properties, "itemLst")
+        if span:
+            properties = properties[:span[0]] + item_list + properties[span[1]:]
+        elif item_list:
+            head = _FORM_CONTROL_PR.search(properties)
+            if head and head.group(0).endswith("/>"):
+                properties = (properties[:head.end() - 2] + ">" + item_list
+                              + "</formControlPr>" + properties[head.end():])
+            else:
+                properties = properties.replace("</formControlPr>", item_list + "</formControlPr>")
+    return properties
+
+
+def with_vml_bindings(vml: str, shape_id: int, control: ControlInfo) -> str:
+    """Keep the legacy representation of the same bindings in sync."""
+    span = _vml_shape_span(vml, f"_x0000_s{shape_id}")
+    if span is None:
+        return vml
+    markup = vml[span[0]:span[1]]
+    settings = [("FmlaLink", control.linked_cell), ("FmlaRange", control.list_range)]
+    kind = CONTROL_KINDS.get(control.kind, control.kind)
+    if kind == "Radio":
+        markup = re.sub(r"<x:FirstButton\b[^>]*(?:/>|>.*?</x:FirstButton>)", "", markup, flags=re.DOTALL)
+        if control.first_button:
+            markup = markup.replace("</x:ClientData>", "<x:FirstButton/></x:ClientData>")
+    if kind in {"Checkbox", "Radio"}:
+        settings.append(("Checked", str({1: 1, 2: 2}.get(control.value, 0))))
+    if kind in {"Spin", "Scroll"}:
+        settings.extend((tag, str(value)) for tag, value in (
+            ("Val", control.value), ("Min", control.minimum),
+            ("Max", control.maximum if control.maximum is not None else (30000 if kind == "Spin" else 100)),
+            ("Inc", control.increment), ("Page", control.page_change), ("Dx", control.drop_width),
+        ))
+    if control.kind in {"Drop", "List"}:
+        settings.append(("Sel", str(control.value)))
+        settings.append(("SelType", {"single": "Single", "multi": "Multi", "extended": "Extend"}[control.selection_mode]))
+        settings.append(("MultiSel", ",".join(str(one) for one in control.selected_indices)))
+        markup = re.sub(r"<x:ListItem>.*?</x:ListItem>", "", markup, flags=re.DOTALL)
+        items = "".join(f"<x:ListItem>{escape(one)}</x:ListItem>" for one in control.items)
+        markup = markup.replace("</x:ClientData>", items + "</x:ClientData>")
+    for tag, value in settings:
+        pattern = re.compile(rf"<x:{tag}(?:\s[^>]*)?/>|<x:{tag}>.*?</x:{tag}>", re.DOTALL)
+        replacement = f"<x:{tag}>{escape(value)}</x:{tag}>" if value else ""
+        if pattern.search(markup):
+            markup = pattern.sub(lambda _: replacement, markup)
+        elif replacement:
+            markup = markup.replace("</x:ClientData>", replacement + "</x:ClientData>")
+    return vml[:span[0]] + markup + vml[span[1]:]
 
 
 def new_anchor(shape: Shape, grid: SheetGrid | None = None) -> str:
@@ -700,9 +958,13 @@ def _markup_for(shape: Shape, grid: SheetGrid | None = None) -> str:
         markup = _moved(markup, shape, was, grid)
     if shape.kind != "formControl":
         if shape.macro != was.macro:
-            markup = _MACRO.sub(f'macro="{escape(shape.macro)}"', markup, count=1)
-        if shape.text != was.text:
-            markup = dml.replace_text(markup, shape.text, "xdr:txBody")
+            element = re.search(r"<(xdr:(?:sp|cxnSp|pic|graphicFrame|grpSp))(?=[\s/>])", markup)
+            if element:
+                markup = _attribute_on_tag(markup, element.group(1), "macro", shape.macro)
+    if shape.text != was.text:
+        # Excel-authored controls can also carry a hidden DrawingML
+        # caption. Excel prefers it to VML when both exist.
+        markup = dml.replace_text(markup, shape.text, "xdr:txBody")
     return markup
 
 

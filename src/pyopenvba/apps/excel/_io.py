@@ -13,6 +13,7 @@ whatever the model has no field for.
 
 from __future__ import annotations
 
+import posixpath
 import re
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -314,7 +315,7 @@ def _read_shapes(sheet: Worksheet, package: OpcFile, sheet_xml: str) -> None:
     are in that part, and a form control's own settings are in the
     ``ctrlProps`` part the sheet points at separately.
     """
-    from pyopenvba.shapes._xlsx import grid_of, read_controls, read_drawing
+    from pyopenvba.shapes._xlsx import control_text, grid_of, read_controls, read_drawing
 
     part = _sheet_relationship(package, sheet.part_name, "drawing")
     if not part or not package.has(part):
@@ -327,6 +328,8 @@ def _read_shapes(sheet: Worksheet, package: OpcFile, sheet_xml: str) -> None:
     sheet.shape_count = len(sheet.shapes_)
     parts = _control_parts(package, sheet.part_name)
     controls = read_controls(sheet_xml, parts)
+    vml_part = _sheet_relationship(package, sheet.part_name, "vmlDrawing")
+    vml = package.read(vml_part).decode("utf-8") if vml_part and package.has(vml_part) else ""
     for shape in sheet.shapes_:
         found = controls.get(shape.shape_id)
         if found is not None:
@@ -337,6 +340,11 @@ def _read_shapes(sheet: Worksheet, package: OpcFile, sheet_xml: str) -> None:
             # Excel reports a control's macro workbook-qualified, and
             # writes it as [0]!Name; the model carries the plain name.
             shape.macro = found.macro_text.rpartition("!")[2]
+            if vml and "<xdr:txBody" not in shape.source:
+                shape.text = control_text(vml, shape.shape_id)
+    from pyopenvba.apps.excel._radios import initialize
+
+    initialize(sheet)
     sheet.drawing_dirty = False
 
 
@@ -405,7 +413,7 @@ def _control_parts(package: OpcFile, sheet_part: str) -> dict[str, str]:
 
 def _write_shapes(book: Workbook, package: OpcFile) -> None:
     """Write back the drawing of every sheet whose shapes changed."""
-    from pyopenvba.shapes._xlsx import EMPTY_DRAWING, written
+    from pyopenvba.shapes._xlsx import EMPTY_DRAWING, read_drawing, written
 
     for sheet in book.sheets_:
         if not sheet.drawing_dirty:
@@ -414,12 +422,103 @@ def _write_shapes(book: Workbook, package: OpcFile) -> None:
         if not part:
             continue
         original = sheet.drawing_xml or EMPTY_DRAWING
+        before = read_drawing(original, sheet.drawing_grid())
         package.write(part, written(sheet.shapes_, original, sheet.drawing_grid()).encode("utf-8"))
         sheet.drawing_part = part
         sheet.drawing_xml = package.read(part).decode("utf-8", errors="replace")
+        _sync_controls(package, sheet, before)
         _write_new_controls(package, sheet)
         _write_control_macros(package, sheet)
         sheet.drawing_dirty = False
+
+
+def _sync_controls(package: OpcFile, sheet: Worksheet, before: list[ShapeState]) -> None:
+    """Follow control edits and deletions into the sheet, VML and part relationships."""
+    from pyopenvba.shapes._xlsx import (
+        control_text, read_controls, with_control_shape, with_vml_control,
+        without_control, without_vml_control, with_control_bindings, with_vml_bindings,
+    )
+
+    if not sheet.part_name or not package.has(sheet.part_name):
+        return
+    xml = package.read(sheet.part_name).decode("utf-8")
+    controls = read_controls(xml, _control_parts(package, sheet.part_name))
+    vml_part = _sheet_relationship(package, sheet.part_name, "vmlDrawing")
+    vml = package.read(vml_part).decode("utf-8") if vml_part and package.has(vml_part) else ""
+    current = {item.shape_id: item for item in sheet.shapes_}
+    for old in before:
+        info = controls.get(old.shape_id)
+        if old.kind != "formControl" or info is None:
+            continue
+        item = current.get(old.shape_id)
+        if item is None or item.control is None or item.control.relationship != info.relationship:
+            part = _part_for(package, sheet.part_name, info.relationship)
+            xml = without_control(xml, old.shape_id)
+            vml = without_vml_control(vml, old.shape_id)
+            _remove_sheet_relationship(package, sheet.part_name, info.relationship)
+            if part:
+                _remove_unreferenced_part(package, part)
+            continue
+        if "<xdr:txBody" not in old.source:
+            old.text = control_text(vml, old.shape_id)
+        if (item.name, item.left, item.top, item.width, item.height) != (
+            old.name, old.left, old.top, old.width, old.height,
+        ):
+            xml = with_control_shape(xml, item, sheet.drawing_grid())
+        vml = with_vml_control(vml, item, old, sheet.drawing_grid())
+        if any(getattr(item.control, key) != getattr(info, key) for key in (
+            "linked_cell", "list_range", "value", "selection_mode", "items", "selected_indices",
+            "minimum", "maximum", "increment", "page_change", "drop_width", "first_button",
+        )):
+            part = _part_for(package, sheet.part_name, info.relationship)
+            if part and package.has(part):
+                properties = package.read(part).decode("utf-8")
+                package.write(part, with_control_bindings(properties, item.control).encode("utf-8"))
+            vml = with_vml_bindings(vml, item.shape_id, item.control)
+    if vml_part:
+        if re.search(r"<v:shape(?=[\s/>])", vml):
+            package.write(vml_part, vml.encode("utf-8"))
+        else:
+            for rid, (kind, _) in _sheet_relationships(package, sheet.part_name).items():
+                if kind == "vmlDrawing":
+                    _remove_sheet_relationship(package, sheet.part_name, rid)
+                    xml = re.sub(
+                        r"<legacyDrawing\b[^>]*/>",
+                        lambda m: "" if _attributes(m.group(0)).get("r:id") == rid else m.group(0), xml,
+                    )
+            _remove_unreferenced_part(package, vml_part)
+    package.write(sheet.part_name, xml.encode("utf-8"))
+
+
+def _remove_sheet_relationship(package: OpcFile, sheet_part: str, relationship: str) -> None:
+    folder, _, name = sheet_part.rpartition("/")
+    part = f"{folder}/_rels/{name}.rels"
+    if package.has(part):
+        text = package.read(part).decode("utf-8")
+        text = re.sub(r"<Relationship\b[^>]*/>",
+                      lambda m: "" if _attributes(m.group(0)).get("Id") == relationship else m.group(0), text)
+        package.write(part, text.encode("utf-8"))
+
+
+def _remove_unreferenced_part(package: OpcFile, part: str) -> None:
+    """A control part may be shared; remove it only after its final relationship."""
+    for name in package.names():
+        if not name.endswith(".rels"):
+            continue
+        folder = name.split("/_rels/", 1)[0] if "/_rels/" in name else ""
+        for element in re.findall(r"<Relationship\b[^>]*/>", package.read(name).decode("utf-8")):
+            attrs = _attributes(element)
+            if attrs.get("TargetMode") == "External":
+                continue
+            target = attrs.get("Target", "")
+            resolved = target.lstrip("/") if target.startswith("/") else posixpath.normpath(posixpath.join(folder, target))
+            if resolved == part:
+                return
+    package.remove(part)
+    types = package.read("[Content_Types].xml").decode("utf-8")
+    types = re.sub(r"<Override\b[^>]*/>",
+                   lambda m: "" if _attributes(m.group(0)).get("PartName") == f"/{part}" else m.group(0), types)
+    package.write("[Content_Types].xml", types.encode("utf-8"))
 
 
 def _write_new_controls(package: OpcFile, sheet: Worksheet) -> None:
@@ -714,6 +813,11 @@ def _split_reference(reference: str) -> tuple[int, int]:
 
 def save_workbook(book: Workbook, target: Path) -> None:
     """Write the workbook out, patching only the cells the model changed."""
+    from pyopenvba.apps.excel._controls import refresh
+
+    for sheet in book.sheets_:
+        for shape in sheet.shapes_:
+            refresh(sheet, shape)
     package = book.package
     if package is None:
         package = _fresh_package(target.suffix.lower())
@@ -1045,6 +1149,13 @@ def _formula_value(cell: Cell) -> tuple[str, str]:
 
 def _value_body(value: object) -> tuple[str, str]:
     from pyopenvba.formula._values import ExcelError
+    from pyopenvba.interpreter._values import VBAErrorValue
+
+    if isinstance(value, VBAErrorValue):
+        from pyopenvba.apps.excel._calc import ERROR_NUMBERS
+
+        value = ExcelError(next((name for name, number in ERROR_NUMBERS.items()
+                                if number == value.number), "#VALUE!"))
 
     if value is EMPTY:
         return "", ""
@@ -1145,7 +1256,16 @@ def _write_names(book: Workbook, package: OpcFile) -> None:
     for entry in book.names_.entries:
         # A name that came from the file keeps the attributes it came
         # with; localSheetId and hidden are not the model's to drop.
-        attributes = entry.attributes or f'name="{_escape(entry.name)}"'
+        from pyopenvba._a1 import split_sheet
+
+        owned = _attributes(f"<definedName {entry.attributes}>")
+        scope, bare = split_sheet(entry.name)
+        owned["name"] = bare
+        if scope:
+            index = next((i for i, sheet in enumerate(book.sheets_) if sheet.name.lower() == scope.lower()), None)
+            if index is not None:
+                owned["localSheetId"] = str(index)
+        attributes = " ".join(f'{key}="{_escape(value)}"' for key, value in owned.items())
         keep.append(f"<definedName {attributes}>{_escape(entry.refers_to.lstrip('='))}</definedName>")
     block = f"<definedNames>{''.join(keep)}</definedNames>" if keep else ""
     if "<definedNames>" in text:

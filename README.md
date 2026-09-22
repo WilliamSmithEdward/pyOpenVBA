@@ -592,6 +592,122 @@ app.run("Draw")
 app.save("with_button.xlsm")      # Excel opens it as a button
 ```
 
+The same worksheet shapes can be edited directly from Python:
+
+```python
+app = ExcelApplication.open("report.xlsm", with_vba=False)
+sheet = app.sheet(1)
+sheet.add_button(name="Refresh", left=100, top=50, width=90, height=30,
+                 text="Refresh", macro="RefreshReport")
+sheet.update_shape("Refresh", left=120, text="Refresh report")
+print(sheet.shape("Refresh").control)  # control details
+sheet.update_shape("Refresh", macro="")  # unlink its macro
+sheet.remove_shape("Refresh")
+app.save("report_out.xlsm")
+```
+
+`shapes()` and `shape(name)` return detached snapshots, including each
+control's linked cell, list range and value. Use `update_shape` to make
+an edit. `add_shape` creates a measured AutoShape and `add_textbox`
+creates a horizontal text box; coordinates and sizes are nonnegative
+points. `update_control(name, linked_cell="$H$1", list_range="$J$1:$J$3")`
+edits saved form-control bindings (list ranges apply to dropdowns and
+list boxes); use an empty string to disconnect a binding. References
+may be A1 cells/ranges or workbook and worksheet-local names in this
+workbook. These binding edits leave cell
+values untouched. `set_control_value(name, 1)` checks a checkbox; use
+`-4146` or `0` to uncheck it and `2` for mixed. Changed states write
+True, False or #N/A to the linked cell. Direct cell writes and calculated
+formulas also update linked checkboxes, including links across sheets.
+VBA exposes the same state through `Shape.ControlFormat.Value`; its
+`LinkedCell` setter follows Excel's rebinding behavior.
+For single-selection dropdowns and list boxes backed by ranges,
+`set_control_value(name, 2)` selects the second row; zero clears the
+selection. These controls synchronize numeric indexes with linked cells.
+VBA also supports `ControlFormat.ListFillRange` and `ListCount`.
+Changing the source range clamps the selection or restores it from the
+linked cell without overwriting that cell.
+
+Named bindings support aliases, local-name precedence and changes to a
+name's target. A linked name covering a rectangle writes its top-left
+cell. Missing names remain saved; they provide no linked target and an
+empty list source. Shrinking or deleting a named list source adjusts its
+selection. Named `CHOOSE`, `IF`, `INDEX`, `OFFSET` and `INDIRECT` formulas support dynamic
+targets, including cell-driven list sizes and addresses. `INDEX` supports
+single-area sources and zero indices selecting whole rows or columns.
+Invalid `INDEX` and `OFFSET` ranges provide empty sources.
+`CHOOSE` and `IF` resolve only the selected branch; selected scalar values
+or errors provide empty sources, and cell-driven conditions redirect bindings.
+`INDIRECT` accepts A1 and absolute R1C1 addresses, including quoted sheet names.
+Other reference formulas, multi-area `INDEX`, relative R1C1 `INDIRECT`,
+cyclic aliases and external workbook bindings remain explicitly unsupported.
+
+Inline lists support `control_items`, `add_control_item`,
+`update_control_item`, `remove_control_item`, and `clear_control_items`.
+Their VBA equivalents are `List(index)`, `AddItem`, `RemoveItem`, and
+`RemoveAllItems`. Item edits adjust selection indexes without changing
+the linked cell. Use `set_control_selection_mode(name, 2)` and
+`set_control_selection(name, [1, 3])` for multi-selection; mode 3 is
+extended selection. Snapshots expose `items`, `selection_mode`, and
+`selected_indices`. VBA supports `ControlFormat.MultiSelect` and
+`Shape.DrawingObject.Selected(index)`. A multi-selection list's scalar
+`Value` read raises Excel error 1004.
+
+`set_control_items(name, ["one", "two"])` replaces the entire list after
+validating every string. VBA supports whole-list `ControlFormat.List`
+reads and assignments: reads return a detached one-based Variant array,
+or Null when empty. VBA assignments follow Excel's error behavior,
+including retaining a successfully written prefix when a later array
+element is invalid. Python replacement validates before making changes.
+
+As in Excel, adding or replacing an item in a range-backed list
+disconnects the source and starts a new inline list; it does not edit
+the source cells. Clearing disconnects it too, while removing individual
+range-backed items raises an error. These conversions reset selection
+and can write zero to the linked cell. Edit the source cells directly
+when the control should remain range-backed.
+Spinners and scroll bars support `set_control_value` and VBA
+`ControlFormat.Value`, `LinkedCell`, `Min`, `Max` and `SmallChange`.
+Scroll bars also expose `LargeChange`; Excel rejects that member on
+spinners. Direct values must fit the bounds. Numeric linked-cell values
+clamp the control while preserving the cell, text preserves its state,
+and empty/error cells reset it to its minimum. Snapshots retain numeric
+bounds and increments, and saved controls preserve their type and state.
+Excel can reconcile a saved control with its linked cell when opening
+the file; its stored value alone does not determine the displayed state.
+`add_form_control(control_type, name="Choices", left=12, top=20)` creates
+buttons (0), checkboxes (1), dropdowns (2), group boxes (4), labels (5),
+list boxes (6), option buttons (7), scroll bars (8), and spinners (9).
+It uses the same geometry, caption, macro and name arguments as `add_button`.
+Multi/extended lists retain selections when switching between those two
+modes. Changing their source keeps only selected indexes that fit the new
+range; switching to single selection clears them. VBA rebinding writes the
+stored scalar index when the destination cell differs, even though a
+multi-selection list does not expose a scalar `Value` getter.
+Radio groups support off (`-4146` or `0`) and on (`1`) through
+`set_control_value` and VBA `ControlFormat.Value`. Selecting a button clears
+its peers and writes its one-based group index to the shared linked cell;
+cell edits select that index without rewriting the cell. Text preserves
+selection; empty/error cells and out-of-range indexes clear it. Group
+membership stays stable during ordinary movement and is reconstructed from
+group-box geometry on reopening, matching Excel. Non-overlapping boxes
+support interleaved creation and regrouping, including a separate unboxed
+group. Splitting preserves selected buttons; merging keeps the first
+selected button in control order. Adding a box to split interleaved radios
+preserves the linked cell's previous index. Radios can also be created
+inside existing overlapping or nested boxes: earlier boxes win partial
+overlaps, while a strictly nested inner box wins regardless of creation
+order. Adding and deleting those boxes transfers group links and selections
+with Excel's measured behavior. A late nested box leaves the link with its
+surviving outer group. An identical box can transfer the original link to
+an unlinked unboxed group; an already linked unboxed group keeps its link.
+Deleting a radio leaves the linked cell
+unchanged; deleting the leader retains the link for a boxed group and
+clears it for an unboxed group.
+Creating pictures, charts and shape groups remains tracked work.
+Removing a control cleans up its worksheet record, properties
+part, relationship and VML while preserving other controls and notes.
+
 Every answer the interpreter, the calculation engine and the three
 object models give was measured in the application itself rather than
 assumed, and a file nobody changed saves back byte for byte. What is

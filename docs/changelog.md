@@ -7,6 +7,9 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Absolute R1C1 addresses in `INDIRECT`-backed Excel control names, with
+  eight native behavior cases and a save/reopen gate for cell-driven
+  source and linked-cell addresses. Relative R1C1 remains unsupported.
 - Shared `references()`, `add_reference()` and `remove_reference()` APIs
   across Excel, Word, PowerPoint and Access, with Office presets and custom
   registered libraries. GUID-based adds are idempotent; removing an absent
@@ -16,6 +19,108 @@ All notable changes to pyOpenVBA are documented here. This project follows
   honor save protection/signature rules and invalidate compiled caches.
   Native Excel, Word and PowerPoint gates check references before VBA
   injection, compile early-bound declarations, and verify removal.
+- Conditional Forms control names using `CHOOSE` and `IF`, with lazy
+  branch selection, cell-driven targets and empty sources for selected
+  scalar values/errors. Sixteen native Excel cases and two live
+  save/reopen gates cover lists and linked-cell writes.
+- Single-area `INDEX` names for Forms control sources and links, including
+  whole rows/columns, aliases, nested reference formulas and cell-driven
+  targets. Fifteen native Excel cases verify indices, selected items and
+  linked destinations; a live gate verifies dynamic bindings after saving.
+- Forms control names backed by `OFFSET` and A1 `INDIRECT`, including
+  nested offsets, aliases, cell-driven addresses and calculated list
+  sizes. Twelve native Excel cases cover dynamic selection and invalid
+  ranges; save/reopen gates verify dynamic sources and linked targets.
+- Named Forms control links and list sources, including workbook/local
+  names, aliases, missing names and changes to their targets. Twenty-four
+  native Excel cases cover resolution and selection behavior; live
+  save/reopen gates verify workbook and worksheet-local bindings.
+  Newly created local names serialize with Excel's worksheet scope.
+- Late overlapping-box additions, including nested-group link retention
+  and identical-box link transfer to an unlinked sheet group. Eighty new
+  native Excel cases cover link combinations and selection states.
+- Radio ownership in existing partial, nested and identical overlapping
+  boxes, plus group-box deletion and link transfer. Thirty-two native
+  behavior cases cover creation order, deletion and late additions.
+- Non-overlapping, interleaved radio groups and multi-box regrouping,
+  replaying 44 native Excel cases. Membership is retained during movement
+  and reconstructed on open, verified with an Excel-authored moved-radio
+  fixture and two live save/reopen gates.
+- Single-box radio regrouping: adding a box around a contiguous prefix,
+  suffix or whole group, and deleting it to merge the groups. Thirty-six
+  native Excel cases cover selection and linked-cell effects, with live
+  save/reopen checks for both operations.
+- Radio-group values, shared linked cells, persisted group boundaries and
+  deletion behavior, supported by 70 native Excel behavior cases and an
+  Excel save/reopen gate.
+- `SheetView.add_form_control` creates all nine supported Forms control
+  types with validation before mutation and detached return snapshots.
+- Multi/extended list source and linked-cell rebinding, plus selection
+  preservation when switching between those modes, replaying 28 native
+  Excel measurements and verified by an Excel persistence gate.
+- Spinner/scroll-bar values, linked cells, bounds and increments, replaying
+  52 native Excel cases. Scroll bars support `LargeChange`; spinners
+  reproduce Excel's error 438 for that member.
+- Issue #25 regressions using Excel-authored control fixtures: radio state
+  reading, Radio/Spin/Scroll/GBox type preservation, and numeric defaults
+  and bounds. Unchecked controls omit the `checked` attribute as Excel does.
+- A public Python worksheet shape API through `ExcelApplication.sheet()`:
+  `shapes`, `shape`, `add_shape`, `add_textbox`, `add_button`,
+  `update_shape` and `remove_shape`. Reads return detached snapshots
+  with control details; edits share the VBA model's state. Names and
+  geometry are validated before mutation.
+- `SheetView.update_control` edits or clears saved linked-cell and list-range
+  bindings, updating control properties and VML together. It validates A1
+  references before mutation and leaves existing cell values untouched.
+- Checkbox values through `SheetView.set_control_value` and VBA's
+  `Shape.ControlFormat.Value`, plus the checkbox `ControlFormat.LinkedCell`
+  property. Direct cell writes and formula calculations synchronize linked
+  checkboxes across sheets. Thirty live Excel probes cover defaults,
+  invalid values, unchanged assignments, text/errors, formulas and rebinding.
+- Single-selection dropdown/list-box values through the same Python/VBA
+  API, with A1 range sources, numeric linked-cell synchronization, and
+  VBA `ListFillRange` and `ListCount`. Fifty live Excel probes cover
+  bounds, errors, coercions, formulas and source removal/restoration.
+- Inline list read/add/insert/update/remove/clear APIs in Python and VBA,
+  plus multi/extended list-box selection, `ControlFormat.MultiSelect`,
+  and `DrawingObject.Selected(index)`. Fifty-four live Excel probes cover
+  item edits, selection shifts, mode transitions, native constants and
+  source conversion. Inline items and selected indexes persist through
+  the properties and VML parts, with live save/reopen gates for all modes.
+- Whole-list VBA reads and assignments, plus Python `set_control_items`.
+  Ninety-two live cases cover detached one-based arrays, Null/empty lists,
+  one- and two-dimensional assignments, array bounds, partial failures,
+  and range-backed edits. Item additions/replacements disconnect an A1
+  source and start an inline list without changing source cells; individual
+  removal from a range source raises Excel error 1004.
+
+### Fixed
+
+- Multi-selection controls now read Excel's lowercase `seltype` attribute
+  and `multiSel` indexes; scalar `Value` reads raise error 1004 in VBA.
+
+- Dropdown/list selections now read and persist the `sel` property and
+  VML `Sel`, preserving the separate `val` field. Excel opens new and
+  subsequently edited controls with the expected type and selection.
+
+- Checkbox snapshots now report Excel's unchecked (`-4146`), checked (`1`)
+  and mixed (`2`) values, replayed from live Excel measurements.
+- Checkbox state persists in both control properties and VML; newly created
+  checkboxes use the correct properties-part control type.
+- Literal error cells read back as VBA error values, and assigned VBA error
+  values save as error cells. Text TRUE/FALSE assignments become booleans,
+  matching the measured linked-cell cases.
+
+- Deleting a form control now removes its worksheet record, properties
+  part, relationship and VML shape as well as its drawing. Shared parts
+  and other VML shapes survive; the final control can be deleted and a
+  new one added on a later save.
+- Renaming, moving, resizing and changing a control's caption now reach
+  both its worksheet/VML records and its drawing. Live Excel exposed
+  that an existing control can have a second caption in DrawingML which
+  takes precedence over the VML caption.
+- Shape names containing a backslash are written literally, and a macro
+  can be assigned to a shape whose drawing omitted the macro attribute.
 
 ## [6.0.0] - 2026-09-20
 

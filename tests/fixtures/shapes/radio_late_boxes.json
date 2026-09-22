@@ -1,0 +1,562 @@
+[
+  {
+    "layout": "identical",
+    "links": "none",
+    "chosen": 0,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "-4146:;-4146:;-4146:;:|-4146:;1:;1:;:"
+  },
+  {
+    "layout": "identical",
+    "links": "none",
+    "chosen": 1,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\na.ControlFormat.Value = 1\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "1:;-4146:;-4146:;:|-4146:;1:;1:;:"
+  },
+  {
+    "layout": "identical",
+    "links": "none",
+    "chosen": 2,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\nb.ControlFormat.Value = 1\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "-4146:;1:;-4146:;:|-4146:;1:;1:;:"
+  },
+  {
+    "layout": "identical",
+    "links": "none",
+    "chosen": 3,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\nc.ControlFormat.Value = 1\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "-4146:;-4146:;1:;:|-4146:;1:;1:;:"
+  },
+  {
+    "layout": "identical",
+    "links": "inside",
+    "chosen": 0,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\na.ControlFormat.LinkedCell = \"$H$1\"\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "-4146:;-4146:;-4146:$H$1;:|-4146:;1:;1:$H$1;1:"
+  },
+  {
+    "layout": "identical",
+    "links": "inside",
+    "chosen": 1,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\na.ControlFormat.LinkedCell = \"$H$1\"\na.ControlFormat.Value = 1\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "1:;-4146:;-4146:$H$1;0:|-4146:;1:;1:$H$1;1:"
+  },
+  {
+    "layout": "identical",
+    "links": "inside",
+    "chosen": 2,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\na.ControlFormat.LinkedCell = \"$H$1\"\nb.ControlFormat.Value = 1\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "-4146:;1:;-4146:$H$1;0:|-4146:;1:;1:$H$1;1:"
+  },
+  {
+    "layout": "identical",
+    "links": "inside",
+    "chosen": 3,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\na.ControlFormat.LinkedCell = \"$H$1\"\nc.ControlFormat.Value = 1\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "-4146:;-4146:;1:$H$1;1:|-4146:;1:;1:$H$1;1:"
+  },
+  {
+    "layout": "identical",
+    "links": "outside",
+    "chosen": 0,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\nc.ControlFormat.LinkedCell = \"$H$2\"\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "-4146:;-4146:;-4146:$H$2;:|-4146:;1:;1:$H$2;:1"
+  },
+  {
+    "layout": "identical",
+    "links": "outside",
+    "chosen": 1,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\nc.ControlFormat.LinkedCell = \"$H$2\"\na.ControlFormat.Value = 1\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "1:;-4146:;-4146:$H$2;:|-4146:;1:;1:$H$2;:1"
+  },
+  {
+    "layout": "identical",
+    "links": "outside",
+    "chosen": 2,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\nc.ControlFormat.LinkedCell = \"$H$2\"\nb.ControlFormat.Value = 1\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "-4146:;1:;-4146:$H$2;:|-4146:;1:;1:$H$2;:1"
+  },
+  {
+    "layout": "identical",
+    "links": "outside",
+    "chosen": 3,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\nc.ControlFormat.LinkedCell = \"$H$2\"\nc.ControlFormat.Value = 1\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "-4146:;-4146:;1:$H$2;:1|-4146:;1:;1:$H$2;:1"
+  },
+  {
+    "layout": "identical",
+    "links": "both",
+    "chosen": 0,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\na.ControlFormat.LinkedCell = \"$H$1\"\nc.ControlFormat.LinkedCell = \"$H$2\"\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "-4146:$H$1;-4146:$H$1;-4146:$H$2;:|-4146:$H$1;1:$H$1;1:$H$2;2:1"
+  },
+  {
+    "layout": "identical",
+    "links": "both",
+    "chosen": 1,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\na.ControlFormat.LinkedCell = \"$H$1\"\nc.ControlFormat.LinkedCell = \"$H$2\"\na.ControlFormat.Value = 1\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "1:$H$1;-4146:$H$1;-4146:$H$2;1:|-4146:$H$1;1:$H$1;1:$H$2;2:1"
+  },
+  {
+    "layout": "identical",
+    "links": "both",
+    "chosen": 2,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\na.ControlFormat.LinkedCell = \"$H$1\"\nc.ControlFormat.LinkedCell = \"$H$2\"\nb.ControlFormat.Value = 1\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "-4146:$H$1;1:$H$1;-4146:$H$2;2:|-4146:$H$1;1:$H$1;1:$H$2;2:1"
+  },
+  {
+    "layout": "identical",
+    "links": "both",
+    "chosen": 3,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\na.ControlFormat.LinkedCell = \"$H$1\"\nc.ControlFormat.LinkedCell = \"$H$2\"\nc.ControlFormat.Value = 1\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "-4146:$H$1;-4146:$H$1;1:$H$2;:1|-4146:$H$1;1:$H$1;1:$H$2;2:1"
+  },
+  {
+    "layout": "identical_all",
+    "links": "none",
+    "chosen": 0,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 10, 70, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "-4146:;-4146:;-4146:;:|-4146:;-4146:;1:;:"
+  },
+  {
+    "layout": "identical_all",
+    "links": "none",
+    "chosen": 1,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 10, 70, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\na.ControlFormat.Value = 1\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "1:;-4146:;-4146:;:|-4146:;-4146:;1:;:"
+  },
+  {
+    "layout": "identical_all",
+    "links": "none",
+    "chosen": 2,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 10, 70, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\nb.ControlFormat.Value = 1\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "-4146:;1:;-4146:;:|-4146:;-4146:;1:;:"
+  },
+  {
+    "layout": "identical_all",
+    "links": "none",
+    "chosen": 3,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 10, 70, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\nc.ControlFormat.Value = 1\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "-4146:;-4146:;1:;:|-4146:;-4146:;1:;:"
+  },
+  {
+    "layout": "identical_all",
+    "links": "inside",
+    "chosen": 0,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 10, 70, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\na.ControlFormat.LinkedCell = \"$H$1\"\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "-4146:$H$1;-4146:$H$1;-4146:$H$1;:|-4146:$H$1;-4146:$H$1;1:$H$1;3:"
+  },
+  {
+    "layout": "identical_all",
+    "links": "inside",
+    "chosen": 1,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 10, 70, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\na.ControlFormat.LinkedCell = \"$H$1\"\na.ControlFormat.Value = 1\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "1:$H$1;-4146:$H$1;-4146:$H$1;1:|-4146:$H$1;-4146:$H$1;1:$H$1;3:"
+  },
+  {
+    "layout": "identical_all",
+    "links": "inside",
+    "chosen": 2,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 10, 70, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\na.ControlFormat.LinkedCell = \"$H$1\"\nb.ControlFormat.Value = 1\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "-4146:$H$1;1:$H$1;-4146:$H$1;2:|-4146:$H$1;-4146:$H$1;1:$H$1;3:"
+  },
+  {
+    "layout": "identical_all",
+    "links": "inside",
+    "chosen": 3,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 10, 70, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\na.ControlFormat.LinkedCell = \"$H$1\"\nc.ControlFormat.Value = 1\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "-4146:$H$1;-4146:$H$1;1:$H$1;3:|-4146:$H$1;-4146:$H$1;1:$H$1;3:"
+  },
+  {
+    "layout": "identical_all",
+    "links": "outside",
+    "chosen": 0,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 10, 70, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\nc.ControlFormat.LinkedCell = \"$H$2\"\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "-4146:$H$2;-4146:$H$2;-4146:$H$2;:|-4146:$H$2;-4146:$H$2;1:$H$2;:3"
+  },
+  {
+    "layout": "identical_all",
+    "links": "outside",
+    "chosen": 1,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 10, 70, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\nc.ControlFormat.LinkedCell = \"$H$2\"\na.ControlFormat.Value = 1\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "1:$H$2;-4146:$H$2;-4146:$H$2;:1|-4146:$H$2;-4146:$H$2;1:$H$2;:3"
+  },
+  {
+    "layout": "identical_all",
+    "links": "outside",
+    "chosen": 2,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 10, 70, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\nc.ControlFormat.LinkedCell = \"$H$2\"\nb.ControlFormat.Value = 1\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "-4146:$H$2;1:$H$2;-4146:$H$2;:2|-4146:$H$2;-4146:$H$2;1:$H$2;:3"
+  },
+  {
+    "layout": "identical_all",
+    "links": "outside",
+    "chosen": 3,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 10, 70, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\nc.ControlFormat.LinkedCell = \"$H$2\"\nc.ControlFormat.Value = 1\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "-4146:$H$2;-4146:$H$2;1:$H$2;:3|-4146:$H$2;-4146:$H$2;1:$H$2;:3"
+  },
+  {
+    "layout": "identical_all",
+    "links": "both",
+    "chosen": 0,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 10, 70, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\na.ControlFormat.LinkedCell = \"$H$1\"\nc.ControlFormat.LinkedCell = \"$H$2\"\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "-4146:$H$2;-4146:$H$2;-4146:$H$2;:|-4146:$H$2;-4146:$H$2;1:$H$2;:3"
+  },
+  {
+    "layout": "identical_all",
+    "links": "both",
+    "chosen": 1,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 10, 70, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\na.ControlFormat.LinkedCell = \"$H$1\"\nc.ControlFormat.LinkedCell = \"$H$2\"\na.ControlFormat.Value = 1\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "1:$H$2;-4146:$H$2;-4146:$H$2;:1|-4146:$H$2;-4146:$H$2;1:$H$2;:3"
+  },
+  {
+    "layout": "identical_all",
+    "links": "both",
+    "chosen": 2,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 10, 70, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\na.ControlFormat.LinkedCell = \"$H$1\"\nc.ControlFormat.LinkedCell = \"$H$2\"\nb.ControlFormat.Value = 1\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "-4146:$H$2;1:$H$2;-4146:$H$2;:2|-4146:$H$2;-4146:$H$2;1:$H$2;:3"
+  },
+  {
+    "layout": "identical_all",
+    "links": "both",
+    "chosen": 3,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 10, 70, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\na.ControlFormat.LinkedCell = \"$H$1\"\nc.ControlFormat.LinkedCell = \"$H$2\"\nc.ControlFormat.Value = 1\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "-4146:$H$2;-4146:$H$2;1:$H$2;:3|-4146:$H$2;-4146:$H$2;1:$H$2;:3"
+  },
+  {
+    "layout": "nested",
+    "links": "none",
+    "chosen": 0,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 120, 35\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "-4146:;-4146:;-4146:;:|-4146:;1:;1:;:"
+  },
+  {
+    "layout": "nested",
+    "links": "none",
+    "chosen": 1,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\na.ControlFormat.Value = 1\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 120, 35\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "1:;-4146:;-4146:;:|1:;1:;1:;:"
+  },
+  {
+    "layout": "nested",
+    "links": "none",
+    "chosen": 2,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\nb.ControlFormat.Value = 1\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 120, 35\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "-4146:;1:;-4146:;:|-4146:;1:;1:;:"
+  },
+  {
+    "layout": "nested",
+    "links": "none",
+    "chosen": 3,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\nc.ControlFormat.Value = 1\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 120, 35\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "-4146:;-4146:;1:;:|-4146:;1:;1:;:"
+  },
+  {
+    "layout": "nested",
+    "links": "inside",
+    "chosen": 0,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\na.ControlFormat.LinkedCell = \"$H$1\"\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 120, 35\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "-4146:;-4146:$H$1;-4146:;:|-4146:;1:$H$1;1:;1:"
+  },
+  {
+    "layout": "nested",
+    "links": "inside",
+    "chosen": 1,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\na.ControlFormat.LinkedCell = \"$H$1\"\na.ControlFormat.Value = 1\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 120, 35\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "1:;-4146:$H$1;-4146:;0:|1:;1:$H$1;1:;1:"
+  },
+  {
+    "layout": "nested",
+    "links": "inside",
+    "chosen": 2,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\na.ControlFormat.LinkedCell = \"$H$1\"\nb.ControlFormat.Value = 1\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 120, 35\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "-4146:;1:$H$1;-4146:;1:|-4146:;1:$H$1;1:;1:"
+  },
+  {
+    "layout": "nested",
+    "links": "inside",
+    "chosen": 3,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\na.ControlFormat.LinkedCell = \"$H$1\"\nc.ControlFormat.Value = 1\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 120, 35\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "-4146:;-4146:$H$1;1:;:|-4146:;1:$H$1;1:;1:"
+  },
+  {
+    "layout": "nested",
+    "links": "outside",
+    "chosen": 0,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\nc.ControlFormat.LinkedCell = \"$H$2\"\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 120, 35\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "-4146:;-4146:;-4146:$H$2;:|-4146:;1:;1:$H$2;:1"
+  },
+  {
+    "layout": "nested",
+    "links": "outside",
+    "chosen": 1,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\nc.ControlFormat.LinkedCell = \"$H$2\"\na.ControlFormat.Value = 1\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 120, 35\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "1:;-4146:;-4146:$H$2;:|1:;1:;1:$H$2;:1"
+  },
+  {
+    "layout": "nested",
+    "links": "outside",
+    "chosen": 2,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\nc.ControlFormat.LinkedCell = \"$H$2\"\nb.ControlFormat.Value = 1\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 120, 35\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "-4146:;1:;-4146:$H$2;:|-4146:;1:;1:$H$2;:1"
+  },
+  {
+    "layout": "nested",
+    "links": "outside",
+    "chosen": 3,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\nc.ControlFormat.LinkedCell = \"$H$2\"\nc.ControlFormat.Value = 1\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 120, 35\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "-4146:;-4146:;1:$H$2;:1|-4146:;1:;1:$H$2;:1"
+  },
+  {
+    "layout": "nested",
+    "links": "both",
+    "chosen": 0,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\na.ControlFormat.LinkedCell = \"$H$1\"\nc.ControlFormat.LinkedCell = \"$H$2\"\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 120, 35\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "-4146:;-4146:$H$1;-4146:$H$2;:|-4146:;1:$H$1;1:$H$2;1:1"
+  },
+  {
+    "layout": "nested",
+    "links": "both",
+    "chosen": 1,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\na.ControlFormat.LinkedCell = \"$H$1\"\nc.ControlFormat.LinkedCell = \"$H$2\"\na.ControlFormat.Value = 1\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 120, 35\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "1:;-4146:$H$1;-4146:$H$2;0:|1:;1:$H$1;1:$H$2;1:1"
+  },
+  {
+    "layout": "nested",
+    "links": "both",
+    "chosen": 2,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\na.ControlFormat.LinkedCell = \"$H$1\"\nc.ControlFormat.LinkedCell = \"$H$2\"\nb.ControlFormat.Value = 1\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 120, 35\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "-4146:;1:$H$1;-4146:$H$2;1:|-4146:;1:$H$1;1:$H$2;1:1"
+  },
+  {
+    "layout": "nested",
+    "links": "both",
+    "chosen": 3,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\na.ControlFormat.LinkedCell = \"$H$1\"\nc.ControlFormat.LinkedCell = \"$H$2\"\nc.ControlFormat.Value = 1\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 120, 35\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "-4146:;-4146:$H$1;1:$H$2;:1|-4146:;1:$H$1;1:$H$2;1:1"
+  },
+  {
+    "layout": "outer",
+    "links": "none",
+    "chosen": 0,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 320, 120\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "-4146:;-4146:;-4146:;:|-4146:;1:;1:;:"
+  },
+  {
+    "layout": "outer",
+    "links": "none",
+    "chosen": 1,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\na.ControlFormat.Value = 1\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 320, 120\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "1:;-4146:;-4146:;:|-4146:;1:;1:;:"
+  },
+  {
+    "layout": "outer",
+    "links": "none",
+    "chosen": 2,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\nb.ControlFormat.Value = 1\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 320, 120\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "-4146:;1:;-4146:;:|-4146:;1:;1:;:"
+  },
+  {
+    "layout": "outer",
+    "links": "none",
+    "chosen": 3,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\nc.ControlFormat.Value = 1\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 320, 120\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "-4146:;-4146:;1:;:|-4146:;1:;1:;:"
+  },
+  {
+    "layout": "outer",
+    "links": "inside",
+    "chosen": 0,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\na.ControlFormat.LinkedCell = \"$H$1\"\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 320, 120\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "-4146:$H$1;-4146:$H$1;-4146:;:|-4146:$H$1;1:$H$1;1:;2:"
+  },
+  {
+    "layout": "outer",
+    "links": "inside",
+    "chosen": 1,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\na.ControlFormat.LinkedCell = \"$H$1\"\na.ControlFormat.Value = 1\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 320, 120\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "1:$H$1;-4146:$H$1;-4146:;1:|-4146:$H$1;1:$H$1;1:;2:"
+  },
+  {
+    "layout": "outer",
+    "links": "inside",
+    "chosen": 2,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\na.ControlFormat.LinkedCell = \"$H$1\"\nb.ControlFormat.Value = 1\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 320, 120\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "-4146:$H$1;1:$H$1;-4146:;2:|-4146:$H$1;1:$H$1;1:;2:"
+  },
+  {
+    "layout": "outer",
+    "links": "inside",
+    "chosen": 3,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\na.ControlFormat.LinkedCell = \"$H$1\"\nc.ControlFormat.Value = 1\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 320, 120\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "-4146:$H$1;-4146:$H$1;1:;:|-4146:$H$1;1:$H$1;1:;2:"
+  },
+  {
+    "layout": "outer",
+    "links": "outside",
+    "chosen": 0,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\nc.ControlFormat.LinkedCell = \"$H$2\"\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 320, 120\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "-4146:;-4146:;-4146:$H$2;:|-4146:;1:;1:$H$2;:1"
+  },
+  {
+    "layout": "outer",
+    "links": "outside",
+    "chosen": 1,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\nc.ControlFormat.LinkedCell = \"$H$2\"\na.ControlFormat.Value = 1\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 320, 120\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "1:;-4146:;-4146:$H$2;:|-4146:;1:;1:$H$2;:1"
+  },
+  {
+    "layout": "outer",
+    "links": "outside",
+    "chosen": 2,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\nc.ControlFormat.LinkedCell = \"$H$2\"\nb.ControlFormat.Value = 1\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 320, 120\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "-4146:;1:;-4146:$H$2;:|-4146:;1:;1:$H$2;:1"
+  },
+  {
+    "layout": "outer",
+    "links": "outside",
+    "chosen": 3,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\nc.ControlFormat.LinkedCell = \"$H$2\"\nc.ControlFormat.Value = 1\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 320, 120\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "-4146:;-4146:;1:$H$2;:1|-4146:;1:;1:$H$2;:1"
+  },
+  {
+    "layout": "outer",
+    "links": "both",
+    "chosen": 0,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\na.ControlFormat.LinkedCell = \"$H$1\"\nc.ControlFormat.LinkedCell = \"$H$2\"\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 320, 120\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "-4146:$H$1;-4146:$H$1;-4146:$H$2;:|-4146:$H$1;1:$H$1;1:$H$2;2:1"
+  },
+  {
+    "layout": "outer",
+    "links": "both",
+    "chosen": 1,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\na.ControlFormat.LinkedCell = \"$H$1\"\nc.ControlFormat.LinkedCell = \"$H$2\"\na.ControlFormat.Value = 1\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 320, 120\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "1:$H$1;-4146:$H$1;-4146:$H$2;1:|-4146:$H$1;1:$H$1;1:$H$2;2:1"
+  },
+  {
+    "layout": "outer",
+    "links": "both",
+    "chosen": 2,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\na.ControlFormat.LinkedCell = \"$H$1\"\nc.ControlFormat.LinkedCell = \"$H$2\"\nb.ControlFormat.Value = 1\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 320, 120\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "-4146:$H$1;1:$H$1;-4146:$H$2;2:|-4146:$H$1;1:$H$1;1:$H$2;2:1"
+  },
+  {
+    "layout": "outer",
+    "links": "both",
+    "chosen": 3,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\na.ControlFormat.LinkedCell = \"$H$1\"\nc.ControlFormat.LinkedCell = \"$H$2\"\nc.ControlFormat.Value = 1\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 320, 120\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "-4146:$H$1;-4146:$H$1;1:$H$2;:1|-4146:$H$1;1:$H$1;1:$H$2;2:1"
+  },
+  {
+    "layout": "partial",
+    "links": "none",
+    "chosen": 0,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\nActiveSheet.Shapes.AddFormControl 4, 0, 30, 320, 100\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "-4146:;-4146:;-4146:;:|-4146:;1:;1:;:"
+  },
+  {
+    "layout": "partial",
+    "links": "none",
+    "chosen": 1,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\na.ControlFormat.Value = 1\nActiveSheet.Shapes.AddFormControl 4, 0, 30, 320, 100\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "1:;-4146:;-4146:;:|-4146:;1:;1:;:"
+  },
+  {
+    "layout": "partial",
+    "links": "none",
+    "chosen": 2,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\nb.ControlFormat.Value = 1\nActiveSheet.Shapes.AddFormControl 4, 0, 30, 320, 100\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "-4146:;1:;-4146:;:|-4146:;1:;1:;:"
+  },
+  {
+    "layout": "partial",
+    "links": "none",
+    "chosen": 3,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\nc.ControlFormat.Value = 1\nActiveSheet.Shapes.AddFormControl 4, 0, 30, 320, 100\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "-4146:;-4146:;1:;:|-4146:;1:;1:;:"
+  },
+  {
+    "layout": "partial",
+    "links": "inside",
+    "chosen": 0,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\na.ControlFormat.LinkedCell = \"$H$1\"\nActiveSheet.Shapes.AddFormControl 4, 0, 30, 320, 100\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "-4146:$H$1;-4146:$H$1;-4146:;:|-4146:$H$1;1:$H$1;1:;2:"
+  },
+  {
+    "layout": "partial",
+    "links": "inside",
+    "chosen": 1,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\na.ControlFormat.LinkedCell = \"$H$1\"\na.ControlFormat.Value = 1\nActiveSheet.Shapes.AddFormControl 4, 0, 30, 320, 100\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "1:$H$1;-4146:$H$1;-4146:;1:|-4146:$H$1;1:$H$1;1:;2:"
+  },
+  {
+    "layout": "partial",
+    "links": "inside",
+    "chosen": 2,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\na.ControlFormat.LinkedCell = \"$H$1\"\nb.ControlFormat.Value = 1\nActiveSheet.Shapes.AddFormControl 4, 0, 30, 320, 100\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "-4146:$H$1;1:$H$1;-4146:;2:|-4146:$H$1;1:$H$1;1:;2:"
+  },
+  {
+    "layout": "partial",
+    "links": "inside",
+    "chosen": 3,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\na.ControlFormat.LinkedCell = \"$H$1\"\nc.ControlFormat.Value = 1\nActiveSheet.Shapes.AddFormControl 4, 0, 30, 320, 100\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "-4146:$H$1;-4146:$H$1;1:;:|-4146:$H$1;1:$H$1;1:;2:"
+  },
+  {
+    "layout": "partial",
+    "links": "outside",
+    "chosen": 0,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\nc.ControlFormat.LinkedCell = \"$H$2\"\nActiveSheet.Shapes.AddFormControl 4, 0, 30, 320, 100\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "-4146:;-4146:;-4146:$H$2;:|-4146:;1:;1:$H$2;:1"
+  },
+  {
+    "layout": "partial",
+    "links": "outside",
+    "chosen": 1,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\nc.ControlFormat.LinkedCell = \"$H$2\"\na.ControlFormat.Value = 1\nActiveSheet.Shapes.AddFormControl 4, 0, 30, 320, 100\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "1:;-4146:;-4146:$H$2;:|-4146:;1:;1:$H$2;:1"
+  },
+  {
+    "layout": "partial",
+    "links": "outside",
+    "chosen": 2,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\nc.ControlFormat.LinkedCell = \"$H$2\"\nb.ControlFormat.Value = 1\nActiveSheet.Shapes.AddFormControl 4, 0, 30, 320, 100\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "-4146:;1:;-4146:$H$2;:|-4146:;1:;1:$H$2;:1"
+  },
+  {
+    "layout": "partial",
+    "links": "outside",
+    "chosen": 3,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\nc.ControlFormat.LinkedCell = \"$H$2\"\nc.ControlFormat.Value = 1\nActiveSheet.Shapes.AddFormControl 4, 0, 30, 320, 100\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "-4146:;-4146:;1:$H$2;:1|-4146:;1:;1:$H$2;:1"
+  },
+  {
+    "layout": "partial",
+    "links": "both",
+    "chosen": 0,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\na.ControlFormat.LinkedCell = \"$H$1\"\nc.ControlFormat.LinkedCell = \"$H$2\"\nActiveSheet.Shapes.AddFormControl 4, 0, 30, 320, 100\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "-4146:$H$1;-4146:$H$1;-4146:$H$2;:|-4146:$H$1;1:$H$1;1:$H$2;2:1"
+  },
+  {
+    "layout": "partial",
+    "links": "both",
+    "chosen": 1,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\na.ControlFormat.LinkedCell = \"$H$1\"\nc.ControlFormat.LinkedCell = \"$H$2\"\na.ControlFormat.Value = 1\nActiveSheet.Shapes.AddFormControl 4, 0, 30, 320, 100\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "1:$H$1;-4146:$H$1;-4146:$H$2;1:|-4146:$H$1;1:$H$1;1:$H$2;2:1"
+  },
+  {
+    "layout": "partial",
+    "links": "both",
+    "chosen": 2,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\na.ControlFormat.LinkedCell = \"$H$1\"\nc.ControlFormat.LinkedCell = \"$H$2\"\nb.ControlFormat.Value = 1\nActiveSheet.Shapes.AddFormControl 4, 0, 30, 320, 100\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "-4146:$H$1;1:$H$1;-4146:$H$2;2:|-4146:$H$1;1:$H$1;1:$H$2;2:1"
+  },
+  {
+    "layout": "partial",
+    "links": "both",
+    "chosen": 3,
+    "body": "Range(\"H1:H2\").ClearContents\nActiveSheet.Shapes.AddFormControl 4, 0, 0, 150, 100\nSet a = ActiveSheet.Shapes.AddFormControl(7, 10, 10, 90, 20)\nSet b = ActiveSheet.Shapes.AddFormControl(7, 10, 40, 90, 20)\nSet c = ActiveSheet.Shapes.AddFormControl(7, 200, 10, 90, 20)\na.Name = \"First\"\nb.Name = \"Second\"\nc.Name = \"Third\"\na.ControlFormat.LinkedCell = \"$H$1\"\nc.ControlFormat.LinkedCell = \"$H$2\"\nc.ControlFormat.Value = 1\nActiveSheet.Shapes.AddFormControl 4, 0, 30, 320, 100\nReport = CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\nb.ControlFormat.Value = 1\nc.ControlFormat.Value = 1\nReport = Report & \"|\" & CStr(a.ControlFormat.Value) & \":\" & a.ControlFormat.LinkedCell & \";\" & _\nCStr(b.ControlFormat.Value) & \":\" & b.ControlFormat.LinkedCell & \";\" & _\nCStr(c.ControlFormat.Value) & \":\" & c.ControlFormat.LinkedCell & \";\" & _\nCStr(Range(\"H1\").Value) & \":\" & CStr(Range(\"H2\").Value)\n",
+    "reported": "-4146:$H$1;-4146:$H$1;1:$H$2;:1|-4146:$H$1;1:$H$1;1:$H$2;2:1"
+  }
+]

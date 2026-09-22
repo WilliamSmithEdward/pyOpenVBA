@@ -148,6 +148,20 @@ class ControlInfo:
     part_name: str = ""
     #: The relationship the sheet names it by.
     relationship: str = ""
+    #: Excel's single, multi, or extended mode; multi modes use selected_indices.
+    selection_mode: str = "single"
+    items: list[str] = field(default_factory=lambda: [])
+    selected_indices: list[int] = field(default_factory=lambda: [])
+    minimum: int = 0
+    #: None requests the measured creation default for a spinner/scroll bar.
+    maximum: int | None = None
+    increment: int = 1
+    page_change: int = 10
+    drop_width: int = 31
+    #: Starts a radio group in control order; only its leader stores the link.
+    first_button: bool = False
+    #: Runtime group-box shape id (0 for the sheet); reconstructed on open.
+    radio_group: int | None = None
 
 
 @dataclass(slots=True)

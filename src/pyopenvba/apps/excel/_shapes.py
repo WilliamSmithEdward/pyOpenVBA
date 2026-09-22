@@ -157,6 +157,9 @@ class Shapes(VBACollection):
         from pyopenvba.shapes._values import ControlInfo
 
         wanted = int(to_number(Type)) if Type is not MISSING else 0
+        from pyopenvba.apps.excel._radios import creation_group
+
+        first_button = creation_group(self.sheet, wanted, _number(Left), _number(Top), _number(Width), _number(Height))
         shape = self._made(
             kind="formControl",
             geometry="rect",
@@ -164,6 +167,16 @@ class Shapes(VBACollection):
             box=(Left, Top, Width, Height),
         )
         shape.control = ControlInfo(kind=FORM_CONTROLS.get(wanted, "Button").replace(" ", ""))
+        if wanted in (2, 6):
+            shape.control.kind = "Drop" if wanted == 2 else "List"
+        if wanted in (4, 7, 8, 9):
+            shape.control.kind = {4: "GBox", 7: "Radio", 8: "Scroll", 9: "Spin"}[wanted]
+        if wanted in (1, 7):
+            shape.control.value = -4146
+        if wanted == 7:
+            shape.control.first_button = first_button
+        if wanted in (8, 9):
+            shape.control.maximum = 100 if wanted == 8 else 30000
         # A control is numbered from 1025, apart from the drawing
         # shapes, which start at 2.  The VML names it by that number
         # too, and Excel will not open a file where the two disagree.
@@ -173,6 +186,14 @@ class Shapes(VBACollection):
             if one.kind == "formControl" and one is not shape
         ]
         shape.shape_id = max(others, default=FIRST_CONTROL_ID - 1) + 1
+        if wanted == 7:
+            from pyopenvba.apps.excel._radios import groups
+
+            groups(self.sheet)
+        if wanted == 4:
+            from pyopenvba.apps.excel._radios import added_box
+
+            added_box(self.sheet, shape)
         return ShapeObject(self.sheet, shape)
 
     @method
@@ -260,6 +281,19 @@ class ShapeObject(VBAObject):
         self.shape = shape
 
     # -- what it is
+
+    @member
+    def ControlFormat(self) -> object:
+        if self.shape.control is None:
+            raise error(1004, "this shape is not a form control")
+        return ControlFormat(self.sheet, self.shape)
+
+    @member
+    def DrawingObject(self) -> object:
+        from pyopenvba.apps.excel._controls import list_control
+
+        list_control(self.shape)
+        return ListDrawingObject(self.sheet, self.shape)
 
     @member
     def Name(self) -> object:
@@ -367,6 +401,9 @@ class ShapeObject(VBAObject):
 
     @method
     def Delete(self) -> object:
+        from pyopenvba.apps.excel._radios import deleting
+
+        deleting(self.sheet, self.shape)
         self.sheet.shapes_ = [one for one in self.sheet.shapes_ if one is not self.shape]
         self.sheet.drawing_changed()
         return EMPTY
@@ -468,6 +505,251 @@ class Characters(VBAObject):
     @member
     def Count(self) -> object:
         return VBAInt(len(self.owner.shape.text), "Long")
+
+
+class ControlFormat(VBAObject):
+    """The implemented checkbox, list-item and selection properties."""
+
+    vba_type_name = "ControlFormat"
+
+    def __init__(self, sheet: Worksheet, shape: Shape) -> None:
+        self.sheet = sheet
+        self.shape = shape
+
+    def _numeric_property(self, name: str) -> object:
+        from pyopenvba.apps.excel._controls import numeric_control, numeric_maximum
+
+        control = numeric_control(self.shape)
+        if name == "page_change" and control.kind == "Spin":
+            raise error(438, "spinners do not expose LargeChange")
+        value = numeric_maximum(control) if name == "maximum" else getattr(control, name)
+        return VBAInt(value, "Long")
+
+    def _set_numeric_property(self, name: str, value: object) -> None:
+        from pyopenvba.apps.excel._controls import set_numeric_property
+
+        self._numeric_property(name)
+        try:
+            set_numeric_property(self.sheet, self.shape, name, int(to_number(value)))
+        except ValueError as exc:
+            raise error(1004, str(exc)) from exc
+
+    @member
+    def Min(self) -> object:
+        return self._numeric_property("minimum")
+
+    @setter("Min")
+    def _set_min(self, value: object) -> None:
+        self._set_numeric_property("minimum", value)
+
+    @member
+    def Max(self) -> object:
+        return self._numeric_property("maximum")
+
+    @setter("Max")
+    def _set_max(self, value: object) -> None:
+        self._set_numeric_property("maximum", value)
+
+    @member
+    def SmallChange(self) -> object:
+        return self._numeric_property("increment")
+
+    @setter("SmallChange")
+    def _set_small_change(self, value: object) -> None:
+        self._set_numeric_property("increment", value)
+
+    @member
+    def LargeChange(self) -> object:
+        return self._numeric_property("page_change")
+
+    @setter("LargeChange")
+    def _set_large_change(self, value: object) -> None:
+        self._set_numeric_property("page_change", value)
+
+    @member
+    def LinkedCell(self) -> object:
+        assert self.shape.control is not None
+        if self.shape.control.kind == "Radio":
+            from pyopenvba.apps.excel._radios import link
+
+            return link(self.sheet, self.shape)
+        return self.shape.control.linked_cell
+
+    @member
+    def ListCount(self) -> object:
+        from pyopenvba.apps.excel._controls import list_count
+
+        return VBAInt(list_count(self.sheet, self.shape), "Long")
+
+    @member
+    def MultiSelect(self) -> object:
+        from pyopenvba.apps.excel._controls import list_control
+
+        control = list_control(self.shape)
+        if control.kind == "Drop":
+            raise error(1004, "MultiSelect cannot be read on a dropdown")
+        return VBAInt({"single": -4142, "multi": -4154, "extended": 3}[control.selection_mode], "Long")
+
+    @setter("MultiSelect")
+    def _set_multi_select(self, value: object) -> None:
+        from pyopenvba.apps.excel._controls import set_mode
+
+        try:
+            set_mode(self.sheet, self.shape, int(to_number(value)))
+        except ValueError as exc:
+            raise error(1004, str(exc)) from exc
+
+    @member
+    def List(self, Index: object = MISSING) -> object:
+        from pyopenvba.apps.excel._controls import items
+        from pyopenvba.interpreter._values import NULL, VBAArray
+
+        entries = items(self.sheet, self.shape)
+        if Index is MISSING:
+            return VBAArray([(1, len(entries))], items=list(entries)) if entries else NULL
+        index = int(to_number(Index))
+        if not 1 <= index <= len(entries):
+            raise error(1004, "list index is outside the list")
+        return entries[index - 1]
+
+    @setter("List")
+    def _set_list(self, Index: object, value: object) -> None:
+        if Index is MISSING:
+            self._replace_list(value)
+            return
+        self._edit_items("set", int(to_number(Index)), to_text(value))
+
+    def _replace_list(self, value: object) -> None:
+        from itertools import product
+        from pyopenvba.interpreter._values import NULL, VBAArray
+
+        if value is NULL:
+            raise error(1004, "Null cannot be assigned to a list")
+        if isinstance(value, VBAArray):
+            if value.size == 0:
+                raise error(13, "an empty array cannot be assigned to a list")
+            # Excel traverses dimensions in row-major order here, unlike
+            # VBA's internal column-major storage.
+            entries = [value.get(list(index)) for index in product(
+                *(range(low, high + 1) for low, high in value.bounds))]
+        else:
+            entries = [value]
+        self._edit_items("clear")
+        for entry in entries:
+            if not isinstance(entry, str):
+                # Excel retains the successfully written prefix on error.
+                raise error(1004, "list array entries must be strings")
+            self._edit_items("add", text=entry)
+
+    def _edit_items(self, operation: str, index: int = 0, text: str = "", count: int = 1) -> None:
+        from pyopenvba.apps.excel._controls import edit_items
+
+        try:
+            edit_items(self.sheet, self.shape, operation, index, text, count)
+        except ValueError as exc:
+            raise error(1004, str(exc)) from exc
+
+    @method
+    def AddItem(self, Text: object = MISSING, Index: object = MISSING) -> object:
+        self._edit_items("add", 0 if Index is MISSING else int(to_number(Index)), to_text(Text))
+        return EMPTY
+
+    @method
+    def RemoveItem(self, Index: object = MISSING, Count: object = MISSING) -> object:
+        self._edit_items("remove", int(to_number(Index)), count=1 if Count is MISSING else int(to_number(Count)))
+        return EMPTY
+
+    @method
+    def RemoveAllItems(self) -> object:
+        self._edit_items("clear")
+        return EMPTY
+
+    @member
+    def ListFillRange(self) -> object:
+        from pyopenvba.apps.excel._controls import list_count
+
+        list_count(self.sheet, self.shape)
+        assert self.shape.control is not None
+        return self.shape.control.list_range
+
+    @setter("ListFillRange")
+    def _set_list_fill_range(self, value: object) -> None:
+        from pyopenvba.apps.excel._controls import list_control
+        from pyopenvba.apps.excel._shape_api import update_control_shape
+
+        list_control(self.shape)
+        try:
+            update_control_shape(self.sheet, self.shape, linked_cell=None, list_range=to_text(value))
+        except ValueError as exc:
+            raise error(1004, str(exc)) from exc
+
+    @setter("LinkedCell")
+    def _set_linked_cell(self, value: object) -> None:
+        from pyopenvba.apps.excel._controls import set_link
+
+        set_link(self.sheet, self.shape, to_text(value))
+
+    @member
+    def Value(self) -> object:
+        from pyopenvba.apps.excel._controls import value_control, refresh
+
+        if self.shape.control is not None and self.shape.control.selection_mode != "single":
+            raise error(1004, "a multi-selection list has no scalar Value")
+        value_control(self.shape)
+        refresh(self.sheet, self.shape)
+        assert self.shape.control is not None
+        return VBAInt(self.shape.control.value, "Long")
+
+    @setter("Value")
+    def _set_value(self, value: object) -> None:
+        from pyopenvba.apps.excel._controls import set_value
+
+        try:
+            # Excel treats Boolean True as on and truncates fractional
+            # values here, unlike VBA's usual CLng conversion.
+            wanted = int(value) if isinstance(value, bool) else int(to_number(value))
+            set_value(self.sheet, self.shape, wanted)
+        except ValueError as exc:
+            raise error(1004, str(exc)) from exc
+
+
+class ListDrawingObject(VBAObject):
+    """The Selected property of a form list's legacy drawing object."""
+
+    def __init__(self, sheet: Worksheet, shape: Shape) -> None:
+        self.sheet, self.shape = sheet, shape
+        self.vba_type_name = "ListBox" if shape.control and shape.control.kind == "List" else "DropDown"
+
+    @member
+    def Selected(self, Index: object = MISSING) -> object:
+        from pyopenvba.apps.excel._controls import list_count, list_control
+
+        index = int(to_number(Index))
+        if not 1 <= index <= list_count(self.sheet, self.shape):
+            raise error(1004, "selection index is outside the list")
+        control = list_control(self.shape)
+        return index in control.selected_indices if control.selection_mode != "single" else index == control.value
+
+    @setter("Selected")
+    def _set_selected(self, Index: object, value: object) -> None:
+        from pyopenvba.apps.excel._controls import list_control, set_selection, set_value
+        from pyopenvba.interpreter._values import to_bool
+
+        index = int(to_number(Index))
+        self.Selected(Index)  # validate before changing state
+        control = list_control(self.shape)
+        if control.selection_mode == "single":
+            if to_bool(value):
+                set_value(self.sheet, self.shape, index)
+            elif control.value == index:
+                set_value(self.sheet, self.shape, 0)
+        else:
+            selected = set(control.selected_indices)
+            if to_bool(value):
+                selected.add(index)
+            else:
+                selected.discard(index)
+            set_selection(self.sheet, self.shape, sorted(selected))
 
 
 def _number(value: object) -> float:

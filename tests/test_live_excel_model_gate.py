@@ -1044,3 +1044,169 @@ End Function'''
         result = excel.run_vba(inspect, "Inspect", timeout=120.0)
         assert result.ok, f"{result.outcome}: {result.message}"
         assert str(result.value) == "Choices|Target|y|2|2|b|1"
+
+
+def test_excel_find_on_headless_saved_cells(tmp_path: Path) -> None:
+    harness = pytest.importorskip("pyvbaharness")
+    app = ExcelApplication()
+    app.add_workbook()
+    setup = '''Public Sub Build()
+Range("A1").Value = "Alpha"
+Range("B1").Value = "alphabet"
+Range("A2").Value = "alpha"
+Range("C3").Formula = "=1/2"
+Range("C3").NumberFormat = "0%"
+End Sub'''
+    report = '''Public Function Report() As String
+Dim hit As Object
+Set hit = Range("A1:C3").Find("alpha", , xlFormulas, xlPart, xlByRows, xlNext, False, False, False)
+Report = hit.Address
+Set hit = Range("A1:C3").FindNext(hit)
+Report = Report & "|" & hit.Address
+Set hit = Range("A1:C3").Find("50%", LookIn:=xlValues)
+Report = Report & "|" & hit.Address
+End Function'''
+    app.add_module(setup, name="Builder")
+    app.add_module(report, name="Probe")
+    app.run("Build")
+    expected = app.run("Report")
+    assert expected == "$B$1|$A$2|$C$3"
+    path = tmp_path / "find.xlsm"
+    app.save(path)
+    reopened = ExcelApplication.open(path)
+    reopened.add_module(report, name="Probe")
+    assert reopened.run("Report") == expected
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+        excel.open_document(path)
+        result = excel.run_vba(report, "Report", timeout=120.0)
+        assert result.ok, result.message
+        assert result.value == expected
+
+
+@pytest.mark.parametrize("across", [False, True])
+@pytest.mark.parametrize("unmerge", [False, True])
+def test_excel_reads_merged_ranges(tmp_path: Path, across: bool, unmerge: bool) -> None:
+    harness = pytest.importorskip("pyvbaharness")
+    app = ExcelApplication()
+    app.add_workbook()
+    app.add_module(f'''Public Sub Build()
+Range("C2").Value = "first"
+Range("B3").Value = "second"
+Range("B2:D4").Merge Across:={str(across)}
+If {str(unmerge)} Then Range("C3").UnMerge
+End Sub''', name="Builder")
+    report = '''Public Function Report() As String
+Report = Range("B2").MergeArea.Address & "|" & Range("C3").MergeArea.Address & "|" & CStr(Range("B2").Value) & "|" & CStr(Range("B3").Value)
+End Function'''
+    app.add_module(report, name="Probe")
+    app.run("Build")
+    expected = app.run("Report")
+    path = tmp_path / "merged_ranges.xlsm"
+    app.save(path)
+    reopened = ExcelApplication.open(path, with_vba=False)
+    reopened.add_module(report, name="Probe")
+    assert reopened.run("Report") == expected
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+        excel.open_document(path)
+        result = excel.run_vba(report, "Report", timeout=120.0)
+        assert result.ok, result.message
+        assert result.value == expected
+
+
+def test_excel_reads_r1c1_formulas(tmp_path: Path) -> None:
+    harness = pytest.importorskip("pyvbaharness")
+    app = ExcelApplication()
+    app.add_workbook()
+    app.add_module('''Sub Build()
+Range("A1:A3").Value = 7
+Range("B1:B3").FormulaR1C1 = "=RC[-1]*2+R1C1"
+Application.Calculate
+End Sub''', name="Builder")
+    report = '''Function Report() As String
+Report = Range("B3").Formula & "|" & Range("B3").FormulaR1C1 & "|" & CStr(Range("B3").Value)
+End Function'''
+    app.add_module(report, name="Probe")
+    app.run("Build")
+    expected = app.run("Report")
+    assert expected == "=A3*2+$A$1|=RC[-1]*2+R1C1|21"
+    path = tmp_path / "r1c1.xlsm"
+    app.save(path)
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+        excel.open_document(path)
+        result = excel.run_vba(report, "Report", timeout=120.0)
+        assert result.ok, result.message
+        assert result.value == expected
+
+
+@pytest.mark.parametrize("name", ["row_matrix", "tiled", "errors", "lower_bounds"])
+@pytest.mark.parametrize("style", ["a1", "r1c1"])
+def test_excel_reads_formula_arrays(tmp_path: Path, name: str, style: str) -> None:
+    import json
+
+    harness = pytest.importorskip("pyvbaharness")
+    filename = "formula_a1_arrays.json" if style == "a1" else "formula_arrays.json"
+    records = json.loads((Path(__file__).parent / "fixtures" / filename).read_text())
+    record = next(r for r in records if r["name"] == name)
+    app = ExcelApplication()
+    app.add_workbook()
+    body = record["body"]
+    app.add_module('Public Function Build() As String\nDim cell As Object, n As Long\n'
+                   + body.replace("Report", "Build") + 'End Function', name="Builder")
+    assert app.run("Build") == record["reported"]
+    path = tmp_path / "formula_arrays.xlsm"
+    app.save(path)
+    report = ('Public Function Report() As String\nDim cell As Object, n As Long\n'
+              + body[body.index('Report = CStr(n)'):] + 'End Function')
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+        excel.open_document(path)
+        result = excel.run_vba(report, "Report", timeout=120.0)
+        assert result.ok, result.message
+        assert result.value == record["reported"]
+
+
+@pytest.mark.parametrize("name", ["overlap_down", "tile", "blank_tail", "tiled_formula", "format"])
+def test_excel_reads_copied_ranges(tmp_path: Path, name: str) -> None:
+    import json
+
+    harness = pytest.importorskip("pyvbaharness")
+    records = json.loads((Path(__file__).parent / "fixtures/range_copy.json").read_text())
+    record = next(r for r in records if r["name"] == name)
+    app = ExcelApplication()
+    app.add_workbook()
+    body = record["body"]
+    app.add_module('Function Build() As String\nDim cell As Object, n As Long\n'
+                   + body.replace("Report", "Build") + 'End Function', name="Builder")
+    assert app.run("Build") == record["reported"]
+    path = tmp_path / "copied_ranges.xlsm"
+    app.save(path)
+    report = ('Function Report() As String\nDim cell As Object, n As Long\n'
+              + body[body.index('Report = CStr(n)'):] + 'End Function')
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+        excel.open_document(path)
+        result = excel.run_vba(report, "Report", timeout=120.0)
+        assert result.ok, result.message
+        assert result.value == record["reported"]
+
+
+@pytest.mark.parametrize("name", ["insert_row", "delete_row", "insert_column", "delete_columns"])
+def test_excel_reads_structural_edits(tmp_path: Path, name: str) -> None:
+    import json
+
+    harness = pytest.importorskip("pyvbaharness")
+    records = json.loads((Path(__file__).parent / "fixtures/range_edit.json").read_text())
+    record = next(r for r in records if r["name"] == name)
+    app = ExcelApplication()
+    app.add_workbook()
+    body = record["body"]
+    app.add_module('Function Build() As String\nDim cell As Object, n As Long\n'
+                   + body.replace("Report", "Build") + 'End Function', name="Builder")
+    assert app.run("Build") == record["reported"]
+    path = tmp_path / "structural_edits.xlsm"
+    app.save(path)
+    report = ('Function Report() As String\nDim cell As Object, n As Long\n'
+              + 'Worksheets("Sheet1").Activate\n' + body[body.index('Report = CStr(n)'):] + 'End Function')
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+        excel.open_document(path)
+        result = excel.run_vba(report, "Report", timeout=120.0)
+        assert result.ok, result.message
+        assert result.value == record["reported"]

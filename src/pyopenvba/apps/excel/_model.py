@@ -21,6 +21,9 @@ from typing import TYPE_CHECKING, Any
 from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, parse_reference
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.formula._parse import shift_text
+from pyopenvba.formula._r1c1 import from_a1, to_a1
+from pyopenvba.apps.excel._find import FindState
+from pyopenvba.apps.excel import _merges
 from pyopenvba.shapes._values import Shape as ShapeState
 from pyopenvba.interpreter._objects import VBACollection, VBAObject, member, method, setter
 from pyopenvba.interpreter._values import (
@@ -29,7 +32,9 @@ from pyopenvba.interpreter._values import (
     ERR_SUBSCRIPT_OUT_OF_RANGE,
     MISSING,
     NOTHING,
+    NULL,
     VBAArray,
+    VBAErrorValue,
     VBADate,
     VBAInt,
     error,
@@ -104,6 +109,7 @@ class Application(ExcelObject):
         self.active_book: Workbook | None = None
         self._this_workbook: Workbook | None = None
         self.worksheet_function = WorksheetFunction(self)
+        self.find_state = FindState()
 
     # -- identity
 
@@ -658,6 +664,8 @@ class Worksheet(ExcelObject):
         self.book = book
         self.name = name
         self.cells_: dict[tuple[int, int], Cell] = {}
+        self.merged_areas: list[Area] = []
+        self.merges_dirty = False
         self.visible = -1  # xlSheetVisible
         self.column_widths: dict[int, float] = {}
         self.row_heights: dict[int, float] = {}
@@ -904,6 +912,8 @@ class Worksheet(ExcelObject):
 
     def used_bounds(self) -> tuple[int, int, int, int] | None:
         live = [(row, column) for (row, column), cell in self.cells_.items() if not cell.is_blank()]
+        for area in self.merged_areas:
+            live.extend(((area.top, area.left), (area.bottom, area.right)))
         if not live:
             return None
         rows = [row for row, _ in live]
@@ -1037,18 +1047,7 @@ class Range(ExcelObject):
 
     @member
     def Formula(self) -> object:
-        if self.single:
-            cell = self.sheet.cell(self.first.top, self.first.left)
-            if cell is None:
-                return ""
-            return cell.formula or _formula_text(cell.value)
-        area = self.bounded()
-        items: list[object] = []
-        for column in range(area.left, area.right + 1):
-            for row in range(area.top, area.bottom + 1):
-                cell = self.sheet.cell(row, column)
-                items.append("" if cell is None else (cell.formula or _formula_text(cell.value)))
-        return VBAArray([(1, area.rows), (1, area.columns)], items=items)
+        return self._read_formulas(r1c1=False)
 
     @setter("Formula")
     def _set_formula(self, value: object) -> None:
@@ -1058,9 +1057,14 @@ class Range(ExcelObject):
         reference that is not held by a dollar sign, which is why
         Range("D2:D6").Formula = "=B2*C2" leaves =B6*C6 in D6.
         """
+        if isinstance(value, VBAArray):
+            self._write_formula_array(value, r1c1=False)
+            return
         written = to_text(value)
         anchor = self.first
         for row, column in self.writable_positions():
+            if not _merges.writable(self.sheet, row, column):
+                continue
             text = (
                 shift_text(written, row - anchor.top, column - anchor.left)
                 if written.startswith("=")
@@ -1080,7 +1084,86 @@ class Range(ExcelObject):
 
     @member
     def FormulaR1C1(self) -> object:
-        raise VBAUnsupportedError("FormulaR1C1 is not implemented by pyOpenVBA")
+        return self._read_formulas(r1c1=True)
+
+    def _read_formulas(self, *, r1c1: bool) -> object:
+        def read(row: int, column: int) -> object:
+            cell = self.sheet.cell(row, column)
+            if cell is None:
+                return ""
+            if cell.formula:
+                return from_a1(cell.formula, row, column) if r1c1 else cell.formula
+            return _formula_text(cell.value)
+
+        area = self.first
+        if self.single:
+            return read(area.top, area.left)
+        return VBAArray([(1, area.rows), (1, area.columns)], items=[
+            read(row, column) for column in range(area.left, area.right + 1)
+            for row in range(area.top, area.bottom + 1)
+        ])
+
+    @setter("FormulaR1C1")
+    def _set_formula_r1c1(self, value: object) -> None:
+        if isinstance(value, VBAArray):
+            self._write_formula_array(value, r1c1=True)
+            return
+        written = to_text(value)
+        for row, column in self.writable_positions():
+            if not _merges.writable(self.sheet, row, column):
+                continue
+            try:
+                text = to_a1(written, row, column) if written.startswith("=") else written
+            except ValueError as exc:
+                raise error(1004, str(exc)) from None
+            Range(self.sheet, [Area(row, column, row, column)])._set_formula(text)
+
+    def _write_formula_array(self, array: VBAArray, *, r1c1: bool) -> None:
+        from pyopenvba.formula._values import NA
+
+        if array.dimensions not in (1, 2):
+            raise error(13, "Formula assignment requires a one- or two-dimensional array")
+        if not array.size:
+            return
+        source_rows = array.bounds[0][1] - array.bounds[0][0] + 1 if array.dimensions == 2 else 1
+        source_columns = array.bounds[-1][1] - array.bounds[-1][0] + 1
+        # Validate the existing write-size limit before changing any area.
+        self.writable_positions()
+        for area in self.areas:
+            for row in range(area.top, area.bottom + 1):
+                for column in range(area.left, area.right + 1):
+                    if not _merges.writable(self.sheet, row, column):
+                        continue
+                    down, across = row - area.top, column - area.left
+                    source_row = 0 if source_rows == 1 else down
+                    source_column = 0 if source_columns == 1 else across
+                    if source_row >= source_rows or source_column >= source_columns:
+                        self._put(row, column, NA)
+                        continue
+                    indices = [array.bounds[-1][0] + source_column]
+                    if array.dimensions == 2:
+                        indices.insert(0, array.bounds[0][0] + source_row)
+                    item = array.get(indices)
+                    if item is NULL:
+                        item = EMPTY
+                    if isinstance(item, VBAErrorValue):
+                        from pyopenvba.apps.excel._calc import from_vba
+
+                        item = from_vba(item)
+                    if isinstance(item, str) and item.startswith("="):
+                        # A1 repeats a singleton axis by shifting the formula.
+                        # R1C1 also resolves at each destination, except that a
+                        # one-element array behaves like a scalar assignment.
+                        extra_row = down if source_rows == 1 else 0
+                        extra_column = across if source_columns == 1 else 0
+                        if r1c1 and array.size == 1:
+                            extra_row = extra_column = 0
+                        try:
+                            item = (to_a1(item, row + extra_row, column + extra_column) if r1c1
+                                    else shift_text(item, extra_row, extra_column))
+                        except ValueError as exc:
+                            raise error(1004, str(exc)) from None
+                    self._put(row, column, item)
 
     @member
     def NumberFormat(self) -> object:
@@ -1286,6 +1369,8 @@ class Range(ExcelObject):
 
     @method
     def Clear(self) -> object:
+        _merges.validate_clear(self)
+        _merges.unmerge(self)
         for row, column in self.writable_positions():
             self.sheet.cells_.pop((row, column), None)
             self.sheet.cell_changed(row, column)
@@ -1293,6 +1378,7 @@ class Range(ExcelObject):
 
     @method
     def ClearContents(self) -> object:
+        _merges.validate_clear(self)
         for row, column in self.writable_positions():
             cell = self.sheet.cell(row, column)
             if cell is not None:
@@ -1307,6 +1393,11 @@ class Range(ExcelObject):
     def Delete(self, Shift: object = MISSING) -> object:
         """Delete, which pulls the cells below or to the right up or left."""
         area = self.first
+        if area.whole_rows or area.whole_columns:
+            from pyopenvba.apps.excel._editing import edit
+
+            edit(self, delete=True)
+            return EMPTY
         up = Shift is MISSING or int(to_integer(Shift, "Long")) == -4162  # xlUp
         moved: dict[tuple[int, int], Cell] = {}
         for (row, column), cell in self.sheet.cells_.items():
@@ -1325,6 +1416,11 @@ class Range(ExcelObject):
     @method
     def Insert(self, Shift: object = MISSING, CopyOrigin: object = MISSING) -> object:
         area = self.first
+        if area.whole_rows or area.whole_columns:
+            from pyopenvba.apps.excel._editing import edit
+
+            edit(self, delete=False)
+            return EMPTY
         down = Shift is MISSING or int(to_integer(Shift, "Long")) == -4121  # xlDown
         moved: dict[tuple[int, int], Cell] = {}
         for (row, column), cell in self.sheet.cells_.items():
@@ -1345,24 +1441,37 @@ class Range(ExcelObject):
             return True
         if not isinstance(Destination, Range):
             raise error(1004, "Copy needs a range to copy to")
-        area = self.bounded()
-        target = Destination.first
-        for row in range(area.top, area.bottom + 1):
-            for column in range(area.left, area.right + 1):
-                source = self.sheet.cell(row, column)
-                if source is None:
-                    Destination.sheet.cells_.pop(
-                        (target.top + row - area.top, target.left + column - area.left), None
-                    )
-                    continue
-                copy = Cell(**{field_.name: getattr(source, field_.name) for field_ in _CELL_FIELDS})
-                if copy.formula:
-                    # A copied formula moves with the cell, the same way
-                    # one written to a block does.
-                    copy.formula = shift_text(copy.formula, target.top - area.top, target.left - area.left)
-                    copy.stale = True
-                    copy.value = EMPTY
-                Destination.sheet.cells_[(target.top + row - area.top, target.left + column - area.left)] = copy
+        if len(self.areas) != 1 or len(Destination.areas) != 1:
+            raise VBAUnsupportedError("Copy with multiple source or destination areas is not implemented")
+        area, target = self.first, Destination.first
+        repeat = target.rows % area.rows == 0 and target.columns % area.columns == 0
+        rows = target.rows if repeat else area.rows
+        columns = target.columns if repeat else area.columns
+        bottom, right = target.top + rows - 1, target.left + columns - 1
+        if bottom > MAX_ROWS or right > MAX_COLUMNS:
+            raise error(1004, "Copy would extend beyond the worksheet")
+        written = Area(target.top, target.left, bottom, right)
+        if any(_merges.intersects(area, one) for one in self.sheet.merged_areas) or any(
+            _merges.intersects(written, one) for one in Destination.sheet.merged_areas
+        ):
+            raise VBAUnsupportedError("Copy involving merged cells is not implemented")
+        if rows * columns > 1048576:
+            raise VBAUnsupportedError("Copy destinations larger than 1048576 cells are not implemented")
+        # Snapshot before clearing or writing: source and destination can overlap.
+        sources = {(row - area.top, column - area.left): cell
+                   for (row, column), cell in self.sheet.cells_.items() if area.contains(row, column)}
+        for position in list(Destination.sheet.cells_):
+            if written.contains(*position):
+                del Destination.sheet.cells_[position]
+        for tile_row in range(target.top, bottom + 1, area.rows):
+            for tile_column in range(target.left, right + 1, area.columns):
+                for (down, across), source in sources.items():
+                    copy = Cell(**{field_.name: getattr(source, field_.name) for field_ in _CELL_FIELDS})
+                    if copy.formula:
+                        copy.formula = shift_text(copy.formula, tile_row - area.top, tile_column - area.left)
+                        copy.stale = True
+                        copy.value = EMPTY
+                    Destination.sheet.cells_[(tile_row + down, tile_column + across)] = copy
         Destination.sheet.shape_changed()
         return True
 
@@ -1400,8 +1509,22 @@ class Range(ExcelObject):
         return Range(self.sheet, [Area(row, column, row, column, self.first.sheet)])
 
     @method
-    def Find(self, What: object = MISSING, *rest: object) -> object:
-        raise VBAUnsupportedError("Range.Find is not implemented by pyOpenVBA")
+    def Find(self, What: object, After: object = MISSING, LookIn: object = MISSING,
+             LookAt: object = MISSING, SearchOrder: object = MISSING, SearchDirection: object = MISSING,
+             MatchCase: object = MISSING, MatchByte: object = MISSING, SearchFormat: object = MISSING) -> object:
+        from pyopenvba.apps.excel._find import find
+        return find(self, What, After, LookIn, LookAt, SearchOrder, SearchDirection,
+                    MatchCase, MatchByte, SearchFormat)
+
+    @method
+    def FindNext(self, After: object = MISSING) -> object:
+        from pyopenvba.apps.excel._find import find
+        return find(self, MISSING, After, direction=1, again=True)
+
+    @method
+    def FindPrevious(self, After: object = MISSING) -> object:
+        from pyopenvba.apps.excel._find import find
+        return find(self, MISSING, After, direction=2, again=True)
 
     @method
     def AutoFit(self) -> object:
@@ -1409,15 +1532,37 @@ class Range(ExcelObject):
 
     @method
     def Merge(self, Across: object = MISSING) -> object:
-        raise VBAUnsupportedError("Range.Merge is not implemented by pyOpenVBA")
+        _merges.merge(self, False if Across is MISSING else to_bool(Across))
+        return EMPTY
+
+    @method
+    def UnMerge(self) -> object:
+        _merges.unmerge(self)
+        return EMPTY
+
+    @member
+    def MergeCells(self) -> object:
+        return _merges.flag(self)
+
+    @setter("MergeCells")
+    def _set_merge_cells(self, value: object) -> None:
+        if to_bool(value):
+            _merges.merge(self, False)
+        else:
+            _merges.unmerge(self)
+
+    @member
+    def MergeArea(self) -> object:
+        if not self.single:
+            raise error(1004, "MergeArea requires one cell")
+        area = _merges.at(self.sheet, self.first.top, self.first.left)
+        return Range(self.sheet, [area or self.first])
 
     # -- Python side
 
     def vba_iterate(self) -> Iterator[object]:
-        area = self.bounded()
-        for row in range(area.top, area.bottom + 1):
-            for column in range(area.left, area.right + 1):
-                yield Range(self.sheet, [Area(row, column, row, column, area.sheet)])
+        for row, column in self.positions():
+            yield Range(self.sheet, [Area(row, column, row, column, self.sheet.name)])
 
     def _read(self, row: int, column: int) -> object:
         cell = self.sheet.cell(row, column)
@@ -1459,6 +1604,8 @@ class Range(ExcelObject):
             return
         stored = as_cell_value(value)
         for row, column in self.writable_positions():
+            if not _merges.writable(self.sheet, row, column):
+                continue
             cell = self.sheet.cell(row, column, create=True)
             assert cell is not None
             cell.value = stored
@@ -1490,6 +1637,8 @@ class Range(ExcelObject):
         self.sheet.touched()
 
     def _put(self, row: int, column: int, value: object) -> None:
+        if not _merges.writable(self.sheet, row, column):
+            return
         cell = self.sheet.cell(row, column, create=True)
         assert cell is not None
         if isinstance(value, str) and value.startswith("="):
@@ -1590,6 +1739,7 @@ class Font(ExcelObject):
     def _set_bold(self, value: object) -> None:
         for cell in self._each():
             cell.font_bold = to_bool(value)
+        self.target.sheet.touched()
 
     @member
     def Italic(self) -> object:
@@ -2019,8 +2169,14 @@ def _display_text(cell: Cell) -> str:
 
 
 def _formula_text(value: object) -> str:
+    from pyopenvba.formula._values import ExcelError
+
     if value is EMPTY:
         return ""
+    if isinstance(value, bool):
+        return "TRUE" if value else "FALSE"
+    if isinstance(value, ExcelError):
+        return value.name
     return to_text(value)
 
 

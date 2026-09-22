@@ -90,7 +90,7 @@ _TOKEN: Final = re.compile(
     rf"""
     (?P<ws>\s+)
   | (?P<text>"(?:[^"]|"")*")
-  | (?P<error>\#N/A|\#NULL!|\#DIV/0!|\#VALUE!|\#REF!|\#NAME\?|\#NUM!|\#SPILL!|\#CALC!|\#GETTING_DATA)
+  | (?P<error>(?:{_SHEET})?(?:\#N/A|\#NULL!|\#DIV/0!|\#VALUE!|\#REF!|\#NAME\?|\#NUM!|\#SPILL!|\#CALC!|\#GETTING_DATA))
   | (?P<ref>(?:{_SHEET})?(?:{_CELL}:{_CELL}|{_WHOLE_COLUMNS}|{_WHOLE_ROWS}|{_CELL})(?![A-Za-z0-9_.(]))
   | (?P<name>(?:{_SHEET})?[A-Za-z_\\À-￿][A-Za-z0-9_.À-￿]*)
   | (?P<number>(?:[0-9]+\.?[0-9]*|\.[0-9]+)(?:[eE][-+]?[0-9]+)?)
@@ -226,7 +226,8 @@ class Parser:
             return Literal(value=token.text[1:-1].replace('""', '"'))
         if token.kind == "error":
             self.advance()
-            return Literal(value=ERRORS.get(token.text, ExcelError(token.text)))
+            text = "#" + token.text.rpartition("!#")[2] if "!#" in token.text else token.text
+            return Literal(value=ERRORS.get(text, ExcelError(text)))
         if token.kind == "ref":
             self.advance()
             sheet, body = split_sheet(token.text)

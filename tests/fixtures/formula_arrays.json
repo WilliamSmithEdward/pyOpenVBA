@@ -1,0 +1,77 @@
+[
+  {
+    "name": "matrix",
+    "body": "Application.DisplayAlerts = False\nRange(\"A1:F6\").UnMerge\nRange(\"A1:F6\").Clear\nRange(\"A1:B6\").Value = 7\nRange(\"C3:D4\").Value = \"old\"\nDim a(1 To 2, 1 To 2) As Variant\na(1, 1) = \"=RC[-1]\"\na(1, 2) = \"=R1C1\"\na(2, 1) = 12\na(2, 2) = \"text\"\nOn Error Resume Next\nRange(\"C3:D4\").FormulaR1C1 = a\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n)\nFor Each cell In Range(\"C3:D4\")\nReport = Report & \"|\" & CStr(cell.FormulaR1C1) & \":\" & TypeName(cell.Value) & \":\" & CStr(cell.Value)\nNext cell\n",
+    "reported": "0|=RC[-1]:Double:7|=R1C1:Double:7|12:Double:12|text:String:text"
+  },
+  {
+    "name": "lower_bounds",
+    "body": "Application.DisplayAlerts = False\nRange(\"A1:F6\").UnMerge\nRange(\"A1:F6\").Clear\nRange(\"A1:B6\").Value = 7\nRange(\"C3:D4\").Value = \"old\"\nDim a(-2 To -1, 4 To 5) As Variant\na(-2, 4) = \"=RC[-1]\"\na(-2, 5) = True\na(-1, 4) = Empty\na(-1, 5) = \"12\"\nOn Error Resume Next\nRange(\"C3:D4\").FormulaR1C1 = a\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n)\nFor Each cell In Range(\"C3:D4\")\nReport = Report & \"|\" & CStr(cell.FormulaR1C1) & \":\" & TypeName(cell.Value) & \":\" & CStr(cell.Value)\nNext cell\n",
+    "reported": "0|=RC[-1]:Double:7|TRUE:Boolean:True|:Empty:|12:Double:12"
+  },
+  {
+    "name": "short_matrix",
+    "body": "Application.DisplayAlerts = False\nRange(\"A1:F6\").UnMerge\nRange(\"A1:F6\").Clear\nRange(\"A1:B6\").Value = 7\nRange(\"C3:D4\").Value = \"old\"\nDim a(1 To 1, 1 To 1) As Variant\na(1, 1) = \"=RC[-1]\"\nOn Error Resume Next\nRange(\"C3:D4\").FormulaR1C1 = a\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n)\nFor Each cell In Range(\"C3:D4\")\nReport = Report & \"|\" & CStr(cell.FormulaR1C1) & \":\" & TypeName(cell.Value) & \":\" & CStr(cell.Value)\nNext cell\n",
+    "reported": "0|=RC[-1]:Double:7|=RC[-1]:Double:7|=RC[-1]:Double:7|=RC[-1]:Double:7"
+  },
+  {
+    "name": "wide_matrix",
+    "body": "Application.DisplayAlerts = False\nRange(\"A1:F6\").UnMerge\nRange(\"A1:F6\").Clear\nRange(\"A1:B6\").Value = 7\nRange(\"C3:D4\").Value = \"old\"\nDim a(1 To 3, 1 To 3) As Variant\na(1, 1) = \"=RC[-1]\"\na(2, 2) = \"=RC[-1]+1\"\nOn Error Resume Next\nRange(\"C3:D4\").FormulaR1C1 = a\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n)\nFor Each cell In Range(\"C3:D4\")\nReport = Report & \"|\" & CStr(cell.FormulaR1C1) & \":\" & TypeName(cell.Value) & \":\" & CStr(cell.Value)\nNext cell\n",
+    "reported": "0|=RC[-1]:Double:7|:Empty:|:Empty:|=RC[-1]+1:Double:1"
+  },
+  {
+    "name": "flat",
+    "body": "Application.DisplayAlerts = False\nRange(\"A1:F6\").UnMerge\nRange(\"A1:F6\").Clear\nRange(\"A1:B6\").Value = 7\nRange(\"C3:D4\").Value = \"old\"\nDim a As Variant\na = Array(\"=RC[-1]\", \"=R1C1\")\nOn Error Resume Next\nRange(\"C3:D4\").FormulaR1C1 = a\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n)\nFor Each cell In Range(\"C3:D4\")\nReport = Report & \"|\" & CStr(cell.FormulaR1C1) & \":\" & TypeName(cell.Value) & \":\" & CStr(cell.Value)\nNext cell\n",
+    "reported": "0|=RC[-1]:Double:7|=R1C1:Double:7|=R[1]C[-1]:Double:7|=R1C1:Double:7"
+  },
+  {
+    "name": "short_flat",
+    "body": "Application.DisplayAlerts = False\nRange(\"A1:F6\").UnMerge\nRange(\"A1:F6\").Clear\nRange(\"A1:B6\").Value = 7\nRange(\"C3:D4\").Value = \"old\"\nDim a As Variant\na = Array(\"=RC[-1]\")\nOn Error Resume Next\nRange(\"C3:D4\").FormulaR1C1 = a\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n)\nFor Each cell In Range(\"C3:D4\")\nReport = Report & \"|\" & CStr(cell.FormulaR1C1) & \":\" & TypeName(cell.Value) & \":\" & CStr(cell.Value)\nNext cell\n",
+    "reported": "0|=RC[-1]:Double:7|=RC[-1]:Double:7|=RC[-1]:Double:7|=RC[-1]:Double:7"
+  },
+  {
+    "name": "empty_flat",
+    "body": "Application.DisplayAlerts = False\nRange(\"A1:F6\").UnMerge\nRange(\"A1:F6\").Clear\nRange(\"A1:B6\").Value = 7\nRange(\"C3:D4\").Value = \"old\"\nDim a As Variant\na = Array()\nOn Error Resume Next\nRange(\"C3:D4\").FormulaR1C1 = a\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n)\nFor Each cell In Range(\"C3:D4\")\nReport = Report & \"|\" & CStr(cell.FormulaR1C1) & \":\" & TypeName(cell.Value) & \":\" & CStr(cell.Value)\nNext cell\n",
+    "reported": "0|old:String:old|old:String:old|old:String:old|old:String:old"
+  },
+  {
+    "name": "three_dimensions",
+    "body": "Application.DisplayAlerts = False\nRange(\"A1:F6\").UnMerge\nRange(\"A1:F6\").Clear\nRange(\"A1:B6\").Value = 7\nRange(\"C3:D4\").Value = \"old\"\nDim a(1 To 2, 1 To 2, 1 To 2) As Variant\na(1, 1, 1) = \"=RC[-1]\"\na(2, 2, 1) = 9\na(1, 1, 2) = 99\nOn Error Resume Next\nRange(\"C3:D4\").FormulaR1C1 = a\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n)\nFor Each cell In Range(\"C3:D4\")\nReport = Report & \"|\" & CStr(cell.FormulaR1C1) & \":\" & TypeName(cell.Value) & \":\" & CStr(cell.Value)\nNext cell\n",
+    "reported": "13|old:String:old|old:String:old|old:String:old|old:String:old"
+  },
+  {
+    "name": "errors",
+    "body": "Application.DisplayAlerts = False\nRange(\"A1:F6\").UnMerge\nRange(\"A1:F6\").Clear\nRange(\"A1:B6\").Value = 7\nRange(\"C3:D4\").Value = \"old\"\nDim a As Variant\na = Array(CVErr(2042), Null)\nOn Error Resume Next\nRange(\"C3:D4\").FormulaR1C1 = a\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n)\nFor Each cell In Range(\"C3:D4\")\nReport = Report & \"|\" & CStr(cell.FormulaR1C1) & \":\" & TypeName(cell.Value) & \":\" & CStr(cell.Value)\nNext cell\n",
+    "reported": "0|#N/A:Error:Error 2042|:Empty:|#N/A:Error:Error 2042|:Empty:"
+  },
+  {
+    "name": "merged",
+    "body": "Application.DisplayAlerts = False\nRange(\"A1:F6\").UnMerge\nRange(\"A1:F6\").Clear\nRange(\"A1:B6\").Value = 7\nRange(\"C3:D4\").Value = \"old\"\nDim a As Variant\na = Array(\"=RC[-1]\", 99)\nRange(\"C3:D4\").Merge\nOn Error Resume Next\nRange(\"C3:D4\").FormulaR1C1 = a\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n)\nFor Each cell In Range(\"C3:D4\")\nReport = Report & \"|\" & CStr(cell.FormulaR1C1) & \":\" & TypeName(cell.Value) & \":\" & CStr(cell.Value)\nNext cell\n",
+    "reported": "0|=RC[-1]:Double:7|:Empty:|:Empty:|:Empty:"
+  },
+  {
+    "name": "single",
+    "body": "Application.DisplayAlerts = False\nRange(\"A1:F6\").UnMerge\nRange(\"A1:F6\").Clear\nRange(\"A1:B6\").Value = 7\nRange(\"C3:D4\").Value = \"old\"\nDim a As Variant\na = Array(\"=RC[-1]\", 99)\nOn Error Resume Next\nRange(\"C3\").FormulaR1C1 = a\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n)\nFor Each cell In Range(\"C3:D4\")\nReport = Report & \"|\" & CStr(cell.FormulaR1C1) & \":\" & TypeName(cell.Value) & \":\" & CStr(cell.Value)\nNext cell\n",
+    "reported": "0|=RC[-1]:Double:7|old:String:old|old:String:old|old:String:old"
+  },
+  {
+    "name": "row_matrix",
+    "body": "Application.DisplayAlerts = False\nRange(\"A1:F6\").UnMerge\nRange(\"A1:F6\").Clear\nRange(\"A1:B6\").Value = 7\nRange(\"C3:D4\").Value = \"old\"\nDim a(1 To 1, 1 To 2) As Variant\na(1, 1) = \"=RC[-1]\"\na(1, 2) = \"=RC[-2]\"\nOn Error Resume Next\nRange(\"C3:D4\").FormulaR1C1 = a\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n)\nFor Each cell In Range(\"C3:D4\")\nReport = Report & \"|\" & CStr(cell.FormulaR1C1) & \":\" & TypeName(cell.Value) & \":\" & CStr(cell.Value)\nNext cell\n",
+    "reported": "0|=RC[-1]:Double:7|=RC[-2]:Double:7|=R[1]C[-1]:Double:7|=R[1]C[-2]:Double:7"
+  },
+  {
+    "name": "column_matrix",
+    "body": "Application.DisplayAlerts = False\nRange(\"A1:F6\").UnMerge\nRange(\"A1:F6\").Clear\nRange(\"A1:B6\").Value = 7\nRange(\"C3:D4\").Value = \"old\"\nDim a(1 To 2, 1 To 1) As Variant\na(1, 1) = \"=RC[-1]\"\na(2, 1) = \"=R[-1]C[-1]\"\nOn Error Resume Next\nRange(\"C3:D4\").FormulaR1C1 = a\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n)\nFor Each cell In Range(\"C3:D4\")\nReport = Report & \"|\" & CStr(cell.FormulaR1C1) & \":\" & TypeName(cell.Value) & \":\" & CStr(cell.Value)\nNext cell\n",
+    "reported": "0|=RC[-1]:Double:7|=RC:Double:0|=R[-1]C[-1]:Double:7|=R[-1]C:Double:0"
+  },
+  {
+    "name": "tiled",
+    "body": "Application.DisplayAlerts = False\nRange(\"A1:F6\").UnMerge\nRange(\"A1:F6\").Clear\nRange(\"A1:B6\").Value = 7\nRange(\"C3:D4\").Value = \"old\"\nDim a(1 To 2, 1 To 2) As Variant\na(1, 1) = \"=RC[-1]\"\na(1, 2) = 20\na(2, 1) = 30\na(2, 2) = \"=RC[-1]\"\nOn Error Resume Next\nRange(\"C3:E5\").FormulaR1C1 = a\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n)\nFor Each cell In Range(\"C3:E5\")\nReport = Report & \"|\" & CStr(cell.FormulaR1C1) & \":\" & TypeName(cell.Value) & \":\" & CStr(cell.Value)\nNext cell\n",
+    "reported": "0|=RC[-1]:Double:7|20:Double:20|#N/A:Error:Error 2042|30:Double:30|=RC[-1]:Double:30|#N/A:Error:Error 2042|#N/A:Error:Error 2042|#N/A:Error:Error 2042|#N/A:Error:Error 2042"
+  },
+  {
+    "name": "multi_area",
+    "body": "Application.DisplayAlerts = False\nRange(\"A1:F6\").UnMerge\nRange(\"A1:F6\").Clear\nRange(\"A1:B6\").Value = 7\nRange(\"C3:D4\").Value = \"old\"\nDim a As Variant\na = Array(\"=RC[-1]\", 99)\nOn Error Resume Next\nRange(\"C3,D4\").FormulaR1C1 = a\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n)\nFor Each cell In Range(\"C3:D4\")\nReport = Report & \"|\" & CStr(cell.FormulaR1C1) & \":\" & TypeName(cell.Value) & \":\" & CStr(cell.Value)\nNext cell\n",
+    "reported": "0|=RC[-1]:Double:7|old:String:old|old:String:old|=RC[-1]:String:old"
+  }
+]

@@ -216,7 +216,7 @@ class Calculator:
     # --- what the engine asks of a grid ------------------------------------------------
 
     def cell_value(self, sheet: str, row: int, column: int) -> object:
-        return _to_formula(self.value_of(sheet, row, column))
+        return from_vba(self.value_of(sheet, row, column))
 
     def block(self, sheet: str, area: Area) -> Matrix:
         target = self._sheet_named(area.sheet or sheet)
@@ -266,7 +266,7 @@ class Calculator:
 # --- moving values across the boundary ------------------------------------------------------
 
 
-def _to_formula(value: object) -> object:
+def from_vba(value: object) -> object:
     """A cell's stored value as the formula engine sees it."""
     if value is EMPTY:
         return BLANK

@@ -7,6 +7,52 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Whole-row/column insertion and deletion now update A1 formulas throughout
+  the workbook and defined names, including absolute references, expanding or
+  shrinking ranges, and deleted targets becoming `#REF!`. Twelve native cases
+  and four native save/reopen checks cover both axes. Qualified errors such as
+  `Sheet1!#REF!` now calculate correctly. Inserts that would discard occupied
+  edge cells fail before mutation. Merges/shapes, partial-cell reference
+  rewriting and full formatting/metadata movement remain incomplete.
+  Fresh workbooks now register additional worksheet parts in the workbook
+  sheet list and relationships, preserving cross-sheet formulas on reopen.
+- Corrected explicit-destination `Range.Copy`: snapshots protect overlapping
+  copies, trailing blank source cells clear destination cells, exact destination
+  multiples repeat the source block, and copied formulas shift per block.
+  Seventeen native cases and five native save/reopen checks cover geometry,
+  cross-sheet copying, formulas and formatting. Merged-cell/multi-area copies
+  and destinations larger than 1,048,576 cells remain explicitly unsupported.
+  Bold font state now loads and saves, including copied/blank cells and
+  bold-only edits; other font and formatting persistence remains incomplete.
+- A1 `Range.Formula` array assignment shares the R1C1 array writer, with
+  native A1 reference shifting during singleton-axis expansion. Fifteen native
+  comparison cases and four native save/reopen checks cover formulas, mixed
+  values, errors, bounds, merged cells and multiple areas. Both formula getters
+  now share array reads that retain requested trailing blank cells.
+- Headless Excel `Range.FormulaR1C1` scalar/block assignment and scalar/array
+  reads, including relative, absolute and mixed references, whole rows/columns,
+  quoted text and worksheet-edge wrapping. Twelve native comparison cases,
+  headless persistence and a native Excel save/reopen gate cover conversion.
+  Array assignment additionally passes 15 native cases and four native
+  save/reopen checks, covering custom lower bounds, singleton-axis expansion,
+  errors, empty arrays, merged cells and multiple areas. Uncovered matrix cells
+  receive `#N/A`, and higher-dimensional arrays raise error 13.
+  Workbook loading now preserves numeric cells as Doubles instead of narrowing
+  whole numbers to VBA Integer/Long; formula reads use Excel's boolean/error text.
+- Headless Excel `Merge`, `UnMerge`, `MergeCells` and `MergeArea`, including
+  ordinary overlap expansion, across-row merges, first-nonempty value/formula
+  retention and merged-region persistence. Twenty-one native cases and four
+  live save/reopen checks cover values, flags, partial-clear errors and unmerge.
+  Range enumeration now includes explicitly requested blank cells outside the
+  used range. Multi-area merges and across merges over existing multi-row
+  merged regions remain unsupported.
+- Headless Excel `Range.Find`, `FindNext` and `FindPrevious` for single-area
+  ranges: values/formulas, whole/partial matching, wildcards and escapes,
+  case sensitivity, row/column traversal, wraparound, blank cells and saved
+  application search settings. Forty-eight native cases pin behavior;
+  save/reopen and sparse whole-sheet checks cover persistence and scale.
+  Multi-area, comments, format searches and MatchByte=True remain explicit
+  unsupported operations.
 - Absolute R1C1 addresses in `INDIRECT`-backed Excel control names, with
   eight native behavior cases and a save/reopen gate for cell-driven
   source and linked-cell addresses. Relative R1C1 remains unsupported.

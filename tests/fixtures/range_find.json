@@ -1,0 +1,242 @@
+[
+  {
+    "name": "formula_boolean_case",
+    "body": "Range(\"A1:D4\").Clear\nRange(\"A1\").Value = \"Alpha\"\nRange(\"B1\").Value = \"alphabet\"\nRange(\"A2\").Value = \"alpha\"\nRange(\"C2\").Value = 12\nRange(\"B3\").Value = \"ALPHA\"\nSet hit = Range(\"A1:C3\").Find(\"__reset__\", , -4123, 2, 1, 1, False, False, False)\nOn Error Resume Next\nRange(\"C3\").Formula = \"=TRUE()\"\nSet hit = Range(\"C3\").Find(\"TRUE\", LookIn:=-4163, MatchCase:=True)\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\"\nIf Not hit Is Nothing Then Report = Report & hit.Address\n",
+    "reported": "0|$C$3"
+  },
+  {
+    "name": "saved_lookin",
+    "body": "Range(\"A1:D4\").Clear\nRange(\"A1\").Value = \"Alpha\"\nRange(\"B1\").Value = \"alphabet\"\nRange(\"A2\").Value = \"alpha\"\nRange(\"C2\").Value = 12\nRange(\"B3\").Value = \"ALPHA\"\nSet hit = Range(\"A1:C3\").Find(\"__reset__\", , -4123, 2, 1, 1, False, False, False)\nOn Error Resume Next\nRange(\"C3\").Formula = \"=1+11\"\nSet hit = Range(\"C3\").Find(\"none\", LookIn:=-4163)\nSet hit = Range(\"C3\").Find(12)\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\"\nIf Not hit Is Nothing Then Report = Report & hit.Address\n",
+    "reported": "0|$C$3"
+  },
+  {
+    "name": "next_case",
+    "body": "Range(\"A1:D4\").Clear\nRange(\"A1\").Value = \"Alpha\"\nRange(\"B1\").Value = \"alphabet\"\nRange(\"A2\").Value = \"alpha\"\nRange(\"C2\").Value = 12\nRange(\"B3\").Value = \"ALPHA\"\nSet hit = Range(\"A1:C3\").Find(\"__reset__\", , -4123, 2, 1, 1, False, False, False)\nOn Error Resume Next\nSet hit = Range(\"A1:C3\").Find(\"alpha\", MatchCase:=True)\nSet hit = Range(\"A1:C3\").FindNext(hit)\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\"\nIf Not hit Is Nothing Then Report = Report & hit.Address\n",
+    "reported": "0|$A$2"
+  },
+  {
+    "name": "tilde",
+    "body": "Range(\"A1:D4\").Clear\nRange(\"A1\").Value = \"Alpha\"\nRange(\"B1\").Value = \"alphabet\"\nRange(\"A2\").Value = \"alpha\"\nRange(\"C2\").Value = 12\nRange(\"B3\").Value = \"ALPHA\"\nSet hit = Range(\"A1:C3\").Find(\"__reset__\", , -4123, 2, 1, 1, False, False, False)\nOn Error Resume Next\nRange(\"C3\").Value = \"a~b\"\nSet hit = Range(\"A1:C3\").Find(\"~~\")\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\"\nIf Not hit Is Nothing Then Report = Report & hit.Address\n",
+    "reported": "0|$C$3"
+  },
+  {
+    "name": "tilde_other",
+    "body": "Range(\"A1:D4\").Clear\nRange(\"A1\").Value = \"Alpha\"\nRange(\"B1\").Value = \"alphabet\"\nRange(\"A2\").Value = \"alpha\"\nRange(\"C2\").Value = 12\nRange(\"B3\").Value = \"ALPHA\"\nSet hit = Range(\"A1:C3\").Find(\"__reset__\", , -4123, 2, 1, 1, False, False, False)\nOn Error Resume Next\nRange(\"C3\").Value = \"a~b\"\nSet hit = Range(\"A1:C3\").Find(\"~b\")\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\"\nIf Not hit Is Nothing Then Report = Report & hit.Address\n",
+    "reported": "0|$B$1"
+  },
+  {
+    "name": "tilde_trailing",
+    "body": "Range(\"A1:D4\").Clear\nRange(\"A1\").Value = \"Alpha\"\nRange(\"B1\").Value = \"alphabet\"\nRange(\"A2\").Value = \"alpha\"\nRange(\"C2\").Value = 12\nRange(\"B3\").Value = \"ALPHA\"\nSet hit = Range(\"A1:C3\").Find(\"__reset__\", , -4123, 2, 1, 1, False, False, False)\nOn Error Resume Next\nRange(\"C3\").Value = \"a~b\"\nSet hit = Range(\"A1:C3\").Find(\"~\")\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\"\nIf Not hit Is Nothing Then Report = Report & hit.Address\n",
+    "reported": "0|$A$1"
+  },
+  {
+    "name": "tilde_trailing_after",
+    "body": "Range(\"A1:D4\").Clear\nRange(\"A1\").Value = \"Alpha\"\nRange(\"B1\").Value = \"alphabet\"\nRange(\"A2\").Value = \"alpha\"\nRange(\"C2\").Value = 12\nRange(\"B3\").Value = \"ALPHA\"\nSet hit = Range(\"A1:C3\").Find(\"__reset__\", , -4123, 2, 1, 1, False, False, False)\nOn Error Resume Next\nSet hit = Range(\"A1:C3\").Find(\"~\", After:=Range(\"B1\"))\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\"\nIf Not hit Is Nothing Then Report = Report & hit.Address\n",
+    "reported": "0|$B$1"
+  },
+  {
+    "name": "tilde_suffix",
+    "body": "Range(\"A1:D4\").Clear\nRange(\"A1\").Value = \"Alpha\"\nRange(\"B1\").Value = \"alphabet\"\nRange(\"A2\").Value = \"alpha\"\nRange(\"C2\").Value = 12\nRange(\"B3\").Value = \"ALPHA\"\nSet hit = Range(\"A1:C3\").Find(\"__reset__\", , -4123, 2, 1, 1, False, False, False)\nOn Error Resume Next\nSet hit = Range(\"A1:C3\").Find(\"alp~\")\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\"\nIf Not hit Is Nothing Then Report = Report & hit.Address\n",
+    "reported": "0|$B$1"
+  },
+  {
+    "name": "tilde_trailing_whole",
+    "body": "Range(\"A1:D4\").Clear\nRange(\"A1\").Value = \"Alpha\"\nRange(\"B1\").Value = \"alphabet\"\nRange(\"A2\").Value = \"alpha\"\nRange(\"C2\").Value = 12\nRange(\"B3\").Value = \"ALPHA\"\nSet hit = Range(\"A1:C3\").Find(\"__reset__\", , -4123, 2, 1, 1, False, False, False)\nOn Error Resume Next\nSet hit = Range(\"A1:C3\").Find(\"~\", LookAt:=1)\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\"\nIf Not hit Is Nothing Then Report = Report & hit.Address\n",
+    "reported": "0|$A$1"
+  },
+  {
+    "name": "error_text",
+    "body": "Range(\"A1:D4\").Clear\nRange(\"A1\").Value = \"Alpha\"\nRange(\"B1\").Value = \"alphabet\"\nRange(\"A2\").Value = \"alpha\"\nRange(\"C2\").Value = 12\nRange(\"B3\").Value = \"ALPHA\"\nSet hit = Range(\"A1:C3\").Find(\"__reset__\", , -4123, 2, 1, 1, False, False, False)\nOn Error Resume Next\nRange(\"C3\").Formula = \"=1/0\"\nSet hit = Range(\"C3\").Find(\"#DIV/0!\", LookIn:=-4163)\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\"\nIf Not hit Is Nothing Then Report = Report & hit.Address\n",
+    "reported": "0|$C$3"
+  },
+  {
+    "name": "all_star",
+    "body": "Range(\"A1:D4\").Clear\nRange(\"A1\").Value = \"Alpha\"\nRange(\"B1\").Value = \"alphabet\"\nRange(\"A2\").Value = \"alpha\"\nRange(\"C2\").Value = 12\nRange(\"B3\").Value = \"ALPHA\"\nSet hit = Range(\"A1:C3\").Find(\"__reset__\", , -4123, 2, 1, 1, False, False, False)\nOn Error Resume Next\nSet hit = Range(\"A1:D4\").Find(\"*\", After:=Range(\"B1\"))\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\"\nIf Not hit Is Nothing Then Report = Report & hit.Address\n",
+    "reported": "0|$A$2"
+  },
+  {
+    "name": "empty_single",
+    "body": "Range(\"A1:D4\").Clear\nRange(\"A1\").Value = \"Alpha\"\nRange(\"B1\").Value = \"alphabet\"\nRange(\"A2\").Value = \"alpha\"\nRange(\"C2\").Value = 12\nRange(\"B3\").Value = \"ALPHA\"\nSet hit = Range(\"A1:C3\").Find(\"__reset__\", , -4123, 2, 1, 1, False, False, False)\nOn Error Resume Next\nSet hit = Range(\"D4\").Find(\"\", LookIn:=-4163)\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\"\nIf Not hit Is Nothing Then Report = Report & hit.Address\n",
+    "reported": "0|$D$4"
+  },
+  {
+    "name": "empty_formula_single",
+    "body": "Range(\"A1:D4\").Clear\nRange(\"A1\").Value = \"Alpha\"\nRange(\"B1\").Value = \"alphabet\"\nRange(\"A2\").Value = \"alpha\"\nRange(\"C2\").Value = 12\nRange(\"B3\").Value = \"ALPHA\"\nSet hit = Range(\"A1:C3\").Find(\"__reset__\", , -4123, 2, 1, 1, False, False, False)\nOn Error Resume Next\nRange(\"C3\").Formula = \"=\"\"\"\"\"\nSet hit = Range(\"C3\").Find(\"\", LookIn:=-4163)\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\"\nIf Not hit Is Nothing Then Report = Report & hit.Address\n",
+    "reported": "0|$C$3"
+  },
+  {
+    "name": "empty_formula_text",
+    "body": "Range(\"A1:D4\").Clear\nRange(\"A1\").Value = \"Alpha\"\nRange(\"B1\").Value = \"alphabet\"\nRange(\"A2\").Value = \"alpha\"\nRange(\"C2\").Value = 12\nRange(\"B3\").Value = \"ALPHA\"\nSet hit = Range(\"A1:C3\").Find(\"__reset__\", , -4123, 2, 1, 1, False, False, False)\nOn Error Resume Next\nRange(\"C3\").Formula = \"=\"\"\"\"\"\nSet hit = Range(\"C3\").Find(\"\", LookIn:=-4123)\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\"\nIf Not hit Is Nothing Then Report = Report & hit.Address\n",
+    "reported": "0|"
+  },
+  {
+    "name": "invalid_lookin",
+    "body": "Range(\"A1:D4\").Clear\nRange(\"A1\").Value = \"Alpha\"\nRange(\"B1\").Value = \"alphabet\"\nRange(\"A2\").Value = \"alpha\"\nRange(\"C2\").Value = 12\nRange(\"B3\").Value = \"ALPHA\"\nSet hit = Range(\"A1:C3\").Find(\"__reset__\", , -4123, 2, 1, 1, False, False, False)\nOn Error Resume Next\nSet hit = Range(\"A1:C3\").Find(\"alpha\", LookIn:=0)\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\"\nIf Not hit Is Nothing Then Report = Report & hit.Address\n",
+    "reported": "9|"
+  },
+  {
+    "name": "invalid_lookat",
+    "body": "Range(\"A1:D4\").Clear\nRange(\"A1\").Value = \"Alpha\"\nRange(\"B1\").Value = \"alphabet\"\nRange(\"A2\").Value = \"alpha\"\nRange(\"C2\").Value = 12\nRange(\"B3\").Value = \"ALPHA\"\nSet hit = Range(\"A1:C3\").Find(\"__reset__\", , -4123, 2, 1, 1, False, False, False)\nOn Error Resume Next\nSet hit = Range(\"A1:C3\").Find(\"alpha\", LookAt:=0)\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\"\nIf Not hit Is Nothing Then Report = Report & hit.Address\n",
+    "reported": "9|"
+  },
+  {
+    "name": "invalid_order",
+    "body": "Range(\"A1:D4\").Clear\nRange(\"A1\").Value = \"Alpha\"\nRange(\"B1\").Value = \"alphabet\"\nRange(\"A2\").Value = \"alpha\"\nRange(\"C2\").Value = 12\nRange(\"B3\").Value = \"ALPHA\"\nSet hit = Range(\"A1:C3\").Find(\"__reset__\", , -4123, 2, 1, 1, False, False, False)\nOn Error Resume Next\nSet hit = Range(\"A1:C3\").Find(\"alpha\", SearchOrder:=0)\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\"\nIf Not hit Is Nothing Then Report = Report & hit.Address\n",
+    "reported": "9|"
+  },
+  {
+    "name": "invalid_direction",
+    "body": "Range(\"A1:D4\").Clear\nRange(\"A1\").Value = \"Alpha\"\nRange(\"B1\").Value = \"alphabet\"\nRange(\"A2\").Value = \"alpha\"\nRange(\"C2\").Value = 12\nRange(\"B3\").Value = \"ALPHA\"\nSet hit = Range(\"A1:C3\").Find(\"__reset__\", , -4123, 2, 1, 1, False, False, False)\nOn Error Resume Next\nSet hit = Range(\"A1:C3\").Find(\"alpha\", SearchDirection:=0)\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\"\nIf Not hit Is Nothing Then Report = Report & hit.Address\n",
+    "reported": "0|$B$1"
+  },
+  {
+    "name": "next_no_after",
+    "body": "Range(\"A1:D4\").Clear\nRange(\"A1\").Value = \"Alpha\"\nRange(\"B1\").Value = \"alphabet\"\nRange(\"A2\").Value = \"alpha\"\nRange(\"C2\").Value = 12\nRange(\"B3\").Value = \"ALPHA\"\nSet hit = Range(\"A1:C3\").Find(\"__reset__\", , -4123, 2, 1, 1, False, False, False)\nOn Error Resume Next\nSet hit = Range(\"A1:C3\").Find(\"alpha\")\nSet hit = Range(\"A1:C3\").FindNext()\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\"\nIf Not hit Is Nothing Then Report = Report & hit.Address\n",
+    "reported": "0|$B$1"
+  },
+  {
+    "name": "previous_no_after",
+    "body": "Range(\"A1:D4\").Clear\nRange(\"A1\").Value = \"Alpha\"\nRange(\"B1\").Value = \"alphabet\"\nRange(\"A2\").Value = \"alpha\"\nRange(\"C2\").Value = 12\nRange(\"B3\").Value = \"ALPHA\"\nSet hit = Range(\"A1:C3\").Find(\"__reset__\", , -4123, 2, 1, 1, False, False, False)\nOn Error Resume Next\nSet hit = Range(\"A1:C3\").Find(\"alpha\")\nSet hit = Range(\"A1:C3\").FindPrevious()\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\"\nIf Not hit Is Nothing Then Report = Report & hit.Address\n",
+    "reported": "0|$B$3"
+  },
+  {
+    "name": "default",
+    "body": "Range(\"A1:D4\").Clear\nRange(\"A1\").Value = \"Alpha\"\nRange(\"B1\").Value = \"alphabet\"\nRange(\"A2\").Value = \"alpha\"\nRange(\"C2\").Value = 12\nRange(\"B3\").Value = \"ALPHA\"\nSet hit = Range(\"A1:C3\").Find(\"__reset__\", , -4123, 2, 1, 1, False, False, False)\nOn Error Resume Next\nSet hit = Range(\"A1:C3\").Find(\"alpha\")\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\"\nIf Not hit Is Nothing Then Report = Report & hit.Address\n",
+    "reported": "0|$B$1"
+  },
+  {
+    "name": "whole",
+    "body": "Range(\"A1:D4\").Clear\nRange(\"A1\").Value = \"Alpha\"\nRange(\"B1\").Value = \"alphabet\"\nRange(\"A2\").Value = \"alpha\"\nRange(\"C2\").Value = 12\nRange(\"B3\").Value = \"ALPHA\"\nSet hit = Range(\"A1:C3\").Find(\"__reset__\", , -4123, 2, 1, 1, False, False, False)\nOn Error Resume Next\nSet hit = Range(\"A1:C3\").Find(\"alpha\", LookAt:=1)\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\"\nIf Not hit Is Nothing Then Report = Report & hit.Address\n",
+    "reported": "0|$A$2"
+  },
+  {
+    "name": "case",
+    "body": "Range(\"A1:D4\").Clear\nRange(\"A1\").Value = \"Alpha\"\nRange(\"B1\").Value = \"alphabet\"\nRange(\"A2\").Value = \"alpha\"\nRange(\"C2\").Value = 12\nRange(\"B3\").Value = \"ALPHA\"\nSet hit = Range(\"A1:C3\").Find(\"__reset__\", , -4123, 2, 1, 1, False, False, False)\nOn Error Resume Next\nSet hit = Range(\"A1:C3\").Find(\"alpha\", MatchCase:=True)\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\"\nIf Not hit Is Nothing Then Report = Report & hit.Address\n",
+    "reported": "0|$B$1"
+  },
+  {
+    "name": "after",
+    "body": "Range(\"A1:D4\").Clear\nRange(\"A1\").Value = \"Alpha\"\nRange(\"B1\").Value = \"alphabet\"\nRange(\"A2\").Value = \"alpha\"\nRange(\"C2\").Value = 12\nRange(\"B3\").Value = \"ALPHA\"\nSet hit = Range(\"A1:C3\").Find(\"__reset__\", , -4123, 2, 1, 1, False, False, False)\nOn Error Resume Next\nSet hit = Range(\"A1:C3\").Find(\"alpha\", After:=Range(\"B1\"))\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\"\nIf Not hit Is Nothing Then Report = Report & hit.Address\n",
+    "reported": "0|$A$2"
+  },
+  {
+    "name": "wrap",
+    "body": "Range(\"A1:D4\").Clear\nRange(\"A1\").Value = \"Alpha\"\nRange(\"B1\").Value = \"alphabet\"\nRange(\"A2\").Value = \"alpha\"\nRange(\"C2\").Value = 12\nRange(\"B3\").Value = \"ALPHA\"\nSet hit = Range(\"A1:C3\").Find(\"__reset__\", , -4123, 2, 1, 1, False, False, False)\nOn Error Resume Next\nSet hit = Range(\"A1:C3\").Find(\"Alpha\", After:=Range(\"C3\"), MatchCase:=True)\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\"\nIf Not hit Is Nothing Then Report = Report & hit.Address\n",
+    "reported": "0|$A$1"
+  },
+  {
+    "name": "columns",
+    "body": "Range(\"A1:D4\").Clear\nRange(\"A1\").Value = \"Alpha\"\nRange(\"B1\").Value = \"alphabet\"\nRange(\"A2\").Value = \"alpha\"\nRange(\"C2\").Value = 12\nRange(\"B3\").Value = \"ALPHA\"\nSet hit = Range(\"A1:C3\").Find(\"__reset__\", , -4123, 2, 1, 1, False, False, False)\nOn Error Resume Next\nSet hit = Range(\"A1:C3\").Find(\"alpha\", SearchOrder:=2)\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\"\nIf Not hit Is Nothing Then Report = Report & hit.Address\n",
+    "reported": "0|$A$2"
+  },
+  {
+    "name": "previous",
+    "body": "Range(\"A1:D4\").Clear\nRange(\"A1\").Value = \"Alpha\"\nRange(\"B1\").Value = \"alphabet\"\nRange(\"A2\").Value = \"alpha\"\nRange(\"C2\").Value = 12\nRange(\"B3\").Value = \"ALPHA\"\nSet hit = Range(\"A1:C3\").Find(\"__reset__\", , -4123, 2, 1, 1, False, False, False)\nOn Error Resume Next\nSet hit = Range(\"A1:C3\").Find(\"alpha\", SearchDirection:=2)\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\"\nIf Not hit Is Nothing Then Report = Report & hit.Address\n",
+    "reported": "0|$B$3"
+  },
+  {
+    "name": "missing",
+    "body": "Range(\"A1:D4\").Clear\nRange(\"A1\").Value = \"Alpha\"\nRange(\"B1\").Value = \"alphabet\"\nRange(\"A2\").Value = \"alpha\"\nRange(\"C2\").Value = 12\nRange(\"B3\").Value = \"ALPHA\"\nSet hit = Range(\"A1:C3\").Find(\"__reset__\", , -4123, 2, 1, 1, False, False, False)\nOn Error Resume Next\nSet hit = Range(\"A1:C3\").Find(\"absent\")\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\"\nIf Not hit Is Nothing Then Report = Report & hit.Address\n",
+    "reported": "0|"
+  },
+  {
+    "name": "wildcard",
+    "body": "Range(\"A1:D4\").Clear\nRange(\"A1\").Value = \"Alpha\"\nRange(\"B1\").Value = \"alphabet\"\nRange(\"A2\").Value = \"alpha\"\nRange(\"C2\").Value = 12\nRange(\"B3\").Value = \"ALPHA\"\nSet hit = Range(\"A1:C3\").Find(\"__reset__\", , -4123, 2, 1, 1, False, False, False)\nOn Error Resume Next\nSet hit = Range(\"A1:C3\").Find(\"a?pha\", LookAt:=1)\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\"\nIf Not hit Is Nothing Then Report = Report & hit.Address\n",
+    "reported": "0|$A$2"
+  },
+  {
+    "name": "star",
+    "body": "Range(\"A1:D4\").Clear\nRange(\"A1\").Value = \"Alpha\"\nRange(\"B1\").Value = \"alphabet\"\nRange(\"A2\").Value = \"alpha\"\nRange(\"C2\").Value = 12\nRange(\"B3\").Value = \"ALPHA\"\nSet hit = Range(\"A1:C3\").Find(\"__reset__\", , -4123, 2, 1, 1, False, False, False)\nOn Error Resume Next\nSet hit = Range(\"A1:C3\").Find(\"*bet*\", LookAt:=1)\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\"\nIf Not hit Is Nothing Then Report = Report & hit.Address\n",
+    "reported": "0|$B$1"
+  },
+  {
+    "name": "literal_star",
+    "body": "Range(\"A1:D4\").Clear\nRange(\"A1\").Value = \"Alpha\"\nRange(\"B1\").Value = \"alphabet\"\nRange(\"A2\").Value = \"alpha\"\nRange(\"C2\").Value = 12\nRange(\"B3\").Value = \"ALPHA\"\nSet hit = Range(\"A1:C3\").Find(\"__reset__\", , -4123, 2, 1, 1, False, False, False)\nOn Error Resume Next\nRange(\"C3\").Value = \"a*b\"\nSet hit = Range(\"A1:C3\").Find(\"~*\")\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\"\nIf Not hit Is Nothing Then Report = Report & hit.Address\n",
+    "reported": "0|$C$3"
+  },
+  {
+    "name": "literal_question",
+    "body": "Range(\"A1:D4\").Clear\nRange(\"A1\").Value = \"Alpha\"\nRange(\"B1\").Value = \"alphabet\"\nRange(\"A2\").Value = \"alpha\"\nRange(\"C2\").Value = 12\nRange(\"B3\").Value = \"ALPHA\"\nSet hit = Range(\"A1:C3\").Find(\"__reset__\", , -4123, 2, 1, 1, False, False, False)\nOn Error Resume Next\nRange(\"C3\").Value = \"a?b\"\nSet hit = Range(\"A1:C3\").Find(\"~?\")\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\"\nIf Not hit Is Nothing Then Report = Report & hit.Address\n",
+    "reported": "0|$C$3"
+  },
+  {
+    "name": "number",
+    "body": "Range(\"A1:D4\").Clear\nRange(\"A1\").Value = \"Alpha\"\nRange(\"B1\").Value = \"alphabet\"\nRange(\"A2\").Value = \"alpha\"\nRange(\"C2\").Value = 12\nRange(\"B3\").Value = \"ALPHA\"\nSet hit = Range(\"A1:C3\").Find(\"__reset__\", , -4123, 2, 1, 1, False, False, False)\nOn Error Resume Next\nSet hit = Range(\"A1:C3\").Find(12, LookAt:=1)\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\"\nIf Not hit Is Nothing Then Report = Report & hit.Address\n",
+    "reported": "0|$C$2"
+  },
+  {
+    "name": "formula_text",
+    "body": "Range(\"A1:D4\").Clear\nRange(\"A1\").Value = \"Alpha\"\nRange(\"B1\").Value = \"alphabet\"\nRange(\"A2\").Value = \"alpha\"\nRange(\"C2\").Value = 12\nRange(\"B3\").Value = \"ALPHA\"\nSet hit = Range(\"A1:C3\").Find(\"__reset__\", , -4123, 2, 1, 1, False, False, False)\nOn Error Resume Next\nRange(\"C3\").Formula = \"=1+11\"\nSet hit = Range(\"A1:C3\").Find(\"=1+11\", LookIn:=-4123)\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\"\nIf Not hit Is Nothing Then Report = Report & hit.Address\n",
+    "reported": "0|$C$3"
+  },
+  {
+    "name": "formula_value",
+    "body": "Range(\"A1:D4\").Clear\nRange(\"A1\").Value = \"Alpha\"\nRange(\"B1\").Value = \"alphabet\"\nRange(\"A2\").Value = \"alpha\"\nRange(\"C2\").Value = 12\nRange(\"B3\").Value = \"ALPHA\"\nSet hit = Range(\"A1:C3\").Find(\"__reset__\", , -4123, 2, 1, 1, False, False, False)\nOn Error Resume Next\nRange(\"C3\").Formula = \"=1+11\"\nSet hit = Range(\"C3\").Find(12, LookIn:=-4163)\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\"\nIf Not hit Is Nothing Then Report = Report & hit.Address\n",
+    "reported": "0|$C$3"
+  },
+  {
+    "name": "empty",
+    "body": "Range(\"A1:D4\").Clear\nRange(\"A1\").Value = \"Alpha\"\nRange(\"B1\").Value = \"alphabet\"\nRange(\"A2\").Value = \"alpha\"\nRange(\"C2\").Value = 12\nRange(\"B3\").Value = \"ALPHA\"\nSet hit = Range(\"A1:C3\").Find(\"__reset__\", , -4123, 2, 1, 1, False, False, False)\nOn Error Resume Next\nSet hit = Range(\"A1:D4\").Find(\"\", LookIn:=-4163)\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\"\nIf Not hit Is Nothing Then Report = Report & hit.Address\n",
+    "reported": "0|$C$1"
+  },
+  {
+    "name": "empty_formula",
+    "body": "Range(\"A1:D4\").Clear\nRange(\"A1\").Value = \"Alpha\"\nRange(\"B1\").Value = \"alphabet\"\nRange(\"A2\").Value = \"alpha\"\nRange(\"C2\").Value = 12\nRange(\"B3\").Value = \"ALPHA\"\nSet hit = Range(\"A1:C3\").Find(\"__reset__\", , -4123, 2, 1, 1, False, False, False)\nOn Error Resume Next\nRange(\"C3\").Formula = \"=\"\"\"\"\"\nSet hit = Range(\"A1:D4\").Find(\"\", LookIn:=-4163)\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\"\nIf Not hit Is Nothing Then Report = Report & hit.Address\n",
+    "reported": "0|$C$1"
+  },
+  {
+    "name": "boolean",
+    "body": "Range(\"A1:D4\").Clear\nRange(\"A1\").Value = \"Alpha\"\nRange(\"B1\").Value = \"alphabet\"\nRange(\"A2\").Value = \"alpha\"\nRange(\"C2\").Value = 12\nRange(\"B3\").Value = \"ALPHA\"\nSet hit = Range(\"A1:C3\").Find(\"__reset__\", , -4123, 2, 1, 1, False, False, False)\nOn Error Resume Next\nRange(\"C3\").Value = True\nSet hit = Range(\"A1:C3\").Find(True, LookAt:=1)\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\"\nIf Not hit Is Nothing Then Report = Report & hit.Address\n",
+    "reported": "0|$C$3"
+  },
+  {
+    "name": "formatted_number",
+    "body": "Range(\"A1:D4\").Clear\nRange(\"A1\").Value = \"Alpha\"\nRange(\"B1\").Value = \"alphabet\"\nRange(\"A2\").Value = \"alpha\"\nRange(\"C2\").Value = 12\nRange(\"B3\").Value = \"ALPHA\"\nSet hit = Range(\"A1:C3\").Find(\"__reset__\", , -4123, 2, 1, 1, False, False, False)\nOn Error Resume Next\nRange(\"C3\").Value = 0.5\nRange(\"C3\").NumberFormat = \"0%\"\nSet hit = Range(\"C3\").Find(\"50%\", LookIn:=-4163)\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\"\nIf Not hit Is Nothing Then Report = Report & hit.Address\n",
+    "reported": "0|$C$3"
+  },
+  {
+    "name": "raw_number",
+    "body": "Range(\"A1:D4\").Clear\nRange(\"A1\").Value = \"Alpha\"\nRange(\"B1\").Value = \"alphabet\"\nRange(\"A2\").Value = \"alpha\"\nRange(\"C2\").Value = 12\nRange(\"B3\").Value = \"ALPHA\"\nSet hit = Range(\"A1:C3\").Find(\"__reset__\", , -4123, 2, 1, 1, False, False, False)\nOn Error Resume Next\nRange(\"C3\").Value = 0.5\nRange(\"C3\").NumberFormat = \"0%\"\nSet hit = Range(\"C3\").Find(\"0.5\", LookIn:=-4123)\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\"\nIf Not hit Is Nothing Then Report = Report & hit.Address\n",
+    "reported": "0|"
+  },
+  {
+    "name": "after_outside",
+    "body": "Range(\"A1:D4\").Clear\nRange(\"A1\").Value = \"Alpha\"\nRange(\"B1\").Value = \"alphabet\"\nRange(\"A2\").Value = \"alpha\"\nRange(\"C2\").Value = 12\nRange(\"B3\").Value = \"ALPHA\"\nSet hit = Range(\"A1:C3\").Find(\"__reset__\", , -4123, 2, 1, 1, False, False, False)\nOn Error Resume Next\nSet hit = Range(\"A1:C3\").Find(\"alpha\", After:=Range(\"D4\"))\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\"\nIf Not hit Is Nothing Then Report = Report & hit.Address\n",
+    "reported": "13|"
+  },
+  {
+    "name": "after_block",
+    "body": "Range(\"A1:D4\").Clear\nRange(\"A1\").Value = \"Alpha\"\nRange(\"B1\").Value = \"alphabet\"\nRange(\"A2\").Value = \"alpha\"\nRange(\"C2\").Value = 12\nRange(\"B3\").Value = \"ALPHA\"\nSet hit = Range(\"A1:C3\").Find(\"__reset__\", , -4123, 2, 1, 1, False, False, False)\nOn Error Resume Next\nSet hit = Range(\"A1:C3\").Find(\"alpha\", After:=Range(\"A1:B1\"))\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\"\nIf Not hit Is Nothing Then Report = Report & hit.Address\n",
+    "reported": "13|"
+  },
+  {
+    "name": "saved_whole",
+    "body": "Range(\"A1:D4\").Clear\nRange(\"A1\").Value = \"Alpha\"\nRange(\"B1\").Value = \"alphabet\"\nRange(\"A2\").Value = \"alpha\"\nRange(\"C2\").Value = 12\nRange(\"B3\").Value = \"ALPHA\"\nSet hit = Range(\"A1:C3\").Find(\"__reset__\", , -4123, 2, 1, 1, False, False, False)\nOn Error Resume Next\nSet hit = Range(\"A1:C3\").Find(\"none\", LookAt:=1)\nSet hit = Range(\"A1:C3\").Find(\"alp\")\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\"\nIf Not hit Is Nothing Then Report = Report & hit.Address\n",
+    "reported": "0|"
+  },
+  {
+    "name": "saved_order",
+    "body": "Range(\"A1:D4\").Clear\nRange(\"A1\").Value = \"Alpha\"\nRange(\"B1\").Value = \"alphabet\"\nRange(\"A2\").Value = \"alpha\"\nRange(\"C2\").Value = 12\nRange(\"B3\").Value = \"ALPHA\"\nSet hit = Range(\"A1:C3\").Find(\"__reset__\", , -4123, 2, 1, 1, False, False, False)\nOn Error Resume Next\nSet hit = Range(\"A1:C3\").Find(\"none\", SearchOrder:=2)\nSet hit = Range(\"A1:C3\").Find(\"alpha\")\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\"\nIf Not hit Is Nothing Then Report = Report & hit.Address\n",
+    "reported": "0|$A$2"
+  },
+  {
+    "name": "case_not_saved",
+    "body": "Range(\"A1:D4\").Clear\nRange(\"A1\").Value = \"Alpha\"\nRange(\"B1\").Value = \"alphabet\"\nRange(\"A2\").Value = \"alpha\"\nRange(\"C2\").Value = 12\nRange(\"B3\").Value = \"ALPHA\"\nSet hit = Range(\"A1:C3\").Find(\"__reset__\", , -4123, 2, 1, 1, False, False, False)\nOn Error Resume Next\nSet hit = Range(\"A1:C3\").Find(\"none\", MatchCase:=True)\nSet hit = Range(\"A1:C3\").Find(\"ALPHA\")\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\"\nIf Not hit Is Nothing Then Report = Report & hit.Address\n",
+    "reported": "0|$B$1"
+  },
+  {
+    "name": "direction_not_saved",
+    "body": "Range(\"A1:D4\").Clear\nRange(\"A1\").Value = \"Alpha\"\nRange(\"B1\").Value = \"alphabet\"\nRange(\"A2\").Value = \"alpha\"\nRange(\"C2\").Value = 12\nRange(\"B3\").Value = \"ALPHA\"\nSet hit = Range(\"A1:C3\").Find(\"__reset__\", , -4123, 2, 1, 1, False, False, False)\nOn Error Resume Next\nSet hit = Range(\"A1:C3\").Find(\"none\", SearchDirection:=2)\nSet hit = Range(\"A1:C3\").Find(\"alpha\")\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\"\nIf Not hit Is Nothing Then Report = Report & hit.Address\n",
+    "reported": "0|$B$1"
+  },
+  {
+    "name": "next",
+    "body": "Range(\"A1:D4\").Clear\nRange(\"A1\").Value = \"Alpha\"\nRange(\"B1\").Value = \"alphabet\"\nRange(\"A2\").Value = \"alpha\"\nRange(\"C2\").Value = 12\nRange(\"B3\").Value = \"ALPHA\"\nSet hit = Range(\"A1:C3\").Find(\"__reset__\", , -4123, 2, 1, 1, False, False, False)\nOn Error Resume Next\nSet hit = Range(\"A1:C3\").Find(\"alpha\")\nSet hit = Range(\"A1:C3\").FindNext(hit)\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\"\nIf Not hit Is Nothing Then Report = Report & hit.Address\n",
+    "reported": "0|$A$2"
+  },
+  {
+    "name": "previous_method",
+    "body": "Range(\"A1:D4\").Clear\nRange(\"A1\").Value = \"Alpha\"\nRange(\"B1\").Value = \"alphabet\"\nRange(\"A2\").Value = \"alpha\"\nRange(\"C2\").Value = 12\nRange(\"B3\").Value = \"ALPHA\"\nSet hit = Range(\"A1:C3\").Find(\"__reset__\", , -4123, 2, 1, 1, False, False, False)\nOn Error Resume Next\nSet hit = Range(\"A1:C3\").Find(\"alpha\")\nSet hit = Range(\"A1:C3\").FindPrevious(hit)\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n) & \"|\"\nIf Not hit Is Nothing Then Report = Report & hit.Address\n",
+    "reported": "0|$A$1"
+  }
+]

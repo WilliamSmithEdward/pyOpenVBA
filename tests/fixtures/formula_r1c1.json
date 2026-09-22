@@ -1,0 +1,62 @@
+[
+  {
+    "name": "relative",
+    "body": "Range(\"A1:F6\").Clear\nOn Error Resume Next\nRange(\"C3:D4\").FormulaR1C1 = \"=RC[-2]+R[-1]C\"\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n)\nFor Each cell In Range(\"C3:D4\")\nReport = Report & \"|\" & cell.Formula & \":\" & cell.FormulaR1C1 & \":\" & TypeName(cell.FormulaR1C1)\nNext cell\n",
+    "reported": "0|=A3+C2:=RC[-2]+R[-1]C:String|=B3+D2:=RC[-2]+R[-1]C:String|=A4+C3:=RC[-2]+R[-1]C:String|=B4+D3:=RC[-2]+R[-1]C:String"
+  },
+  {
+    "name": "absolute",
+    "body": "Range(\"A1:F6\").Clear\nOn Error Resume Next\nRange(\"C3:D4\").FormulaR1C1 = \"=R1C1+R2C3\"\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n)\nFor Each cell In Range(\"C3:D4\")\nReport = Report & \"|\" & cell.Formula & \":\" & cell.FormulaR1C1 & \":\" & TypeName(cell.FormulaR1C1)\nNext cell\n",
+    "reported": "0|=$A$1+$C$2:=R1C1+R2C3:String|=$A$1+$C$2:=R1C1+R2C3:String|=$A$1+$C$2:=R1C1+R2C3:String|=$A$1+$C$2:=R1C1+R2C3:String"
+  },
+  {
+    "name": "mixed",
+    "body": "Range(\"A1:F6\").Clear\nOn Error Resume Next\nRange(\"C3:D4\").FormulaR1C1 = \"=R1C[-1]+R[-1]C1\"\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n)\nFor Each cell In Range(\"C3:D4\")\nReport = Report & \"|\" & cell.Formula & \":\" & cell.FormulaR1C1 & \":\" & TypeName(cell.FormulaR1C1)\nNext cell\n",
+    "reported": "0|=B$1+$A2:=R1C[-1]+R[-1]C1:String|=C$1+$A2:=R1C[-1]+R[-1]C1:String|=B$1+$A3:=R1C[-1]+R[-1]C1:String|=C$1+$A3:=R1C[-1]+R[-1]C1:String"
+  },
+  {
+    "name": "zero",
+    "body": "Range(\"A1:F6\").Clear\nOn Error Resume Next\nRange(\"C3:D4\").FormulaR1C1 = \"=R[0]C[0]\"\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n)\nFor Each cell In Range(\"C3:D4\")\nReport = Report & \"|\" & cell.Formula & \":\" & cell.FormulaR1C1 & \":\" & TypeName(cell.FormulaR1C1)\nNext cell\n",
+    "reported": "0|=C3:=RC:String|=D3:=RC:String|=C4:=RC:String|=D4:=RC:String"
+  },
+  {
+    "name": "range",
+    "body": "Range(\"A1:F6\").Clear\nOn Error Resume Next\nRange(\"C3:D4\").FormulaR1C1 = \"=SUM(R[-2]C[-2]:RC[-1])\"\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n)\nFor Each cell In Range(\"C3:D4\")\nReport = Report & \"|\" & cell.Formula & \":\" & cell.FormulaR1C1 & \":\" & TypeName(cell.FormulaR1C1)\nNext cell\n",
+    "reported": "0|=SUM(A1:B3):=SUM(R[-2]C[-2]:RC[-1]):String|=SUM(B1:C3):=SUM(R[-2]C[-2]:RC[-1]):String|=SUM(A2:B4):=SUM(R[-2]C[-2]:RC[-1]):String|=SUM(B2:C4):=SUM(R[-2]C[-2]:RC[-1]):String"
+  },
+  {
+    "name": "columns",
+    "body": "Range(\"A1:F6\").Clear\nOn Error Resume Next\nRange(\"C3:D4\").FormulaR1C1 = \"=SUM(C[-2]:C[-1])\"\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n)\nFor Each cell In Range(\"C3:D4\")\nReport = Report & \"|\" & cell.Formula & \":\" & cell.FormulaR1C1 & \":\" & TypeName(cell.FormulaR1C1)\nNext cell\n",
+    "reported": "0|=SUM(A:B):=SUM(C[-2]:C[-1]):String|=SUM(B:C):=SUM(C[-2]:C[-1]):String|=SUM(A:B):=SUM(C[-2]:C[-1]):String|=SUM(B:C):=SUM(C[-2]:C[-1]):String"
+  },
+  {
+    "name": "rows",
+    "body": "Range(\"A1:F6\").Clear\nOn Error Resume Next\nRange(\"C3:D4\").FormulaR1C1 = \"=SUM(R1:R2)\"\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n)\nFor Each cell In Range(\"C3:D4\")\nReport = Report & \"|\" & cell.Formula & \":\" & cell.FormulaR1C1 & \":\" & TypeName(cell.FormulaR1C1)\nNext cell\n",
+    "reported": "0|=SUM($1:$2):=SUM(R1:R2):String|=SUM($1:$2):=SUM(R1:R2):String|=SUM($1:$2):=SUM(R1:R2):String|=SUM($1:$2):=SUM(R1:R2):String"
+  },
+  {
+    "name": "quoted",
+    "body": "Range(\"A1:F6\").Clear\nOn Error Resume Next\nRange(\"C3:D4\").FormulaR1C1 = \"=IF(RC[-1]=1,\"\"R1C1\"\",RC[-2])\"\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n)\nFor Each cell In Range(\"C3:D4\")\nReport = Report & \"|\" & cell.Formula & \":\" & cell.FormulaR1C1 & \":\" & TypeName(cell.FormulaR1C1)\nNext cell\n",
+    "reported": "0|=IF(B3=1,\"R1C1\",A3):=IF(RC[-1]=1,\"R1C1\",RC[-2]):String|=IF(C3=1,\"R1C1\",B3):=IF(RC[-1]=1,\"R1C1\",RC[-2]):String|=IF(B4=1,\"R1C1\",A4):=IF(RC[-1]=1,\"R1C1\",RC[-2]):String|=IF(C4=1,\"R1C1\",B4):=IF(RC[-1]=1,\"R1C1\",RC[-2]):String"
+  },
+  {
+    "name": "sheet",
+    "body": "Range(\"A1:F6\").Clear\nOn Error Resume Next\nRange(\"C3:D4\").FormulaR1C1 = \"='Sheet1'!R1C1\"\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n)\nFor Each cell In Range(\"C3:D4\")\nReport = Report & \"|\" & cell.Formula & \":\" & cell.FormulaR1C1 & \":\" & TypeName(cell.FormulaR1C1)\nNext cell\n",
+    "reported": "0|=Sheet1!$A$1:=Sheet1!R1C1:String|=Sheet1!$A$1:=Sheet1!R1C1:String|=Sheet1!$A$1:=Sheet1!R1C1:String|=Sheet1!$A$1:=Sheet1!R1C1:String"
+  },
+  {
+    "name": "wrapped",
+    "body": "Range(\"A1:F6\").Clear\nOn Error Resume Next\nRange(\"C3:D4\").FormulaR1C1 = \"=R[-4]C[-4]\"\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n)\nFor Each cell In Range(\"C3:D4\")\nReport = Report & \"|\" & cell.Formula & \":\" & cell.FormulaR1C1 & \":\" & TypeName(cell.FormulaR1C1)\nNext cell\n",
+    "reported": "0|=XFC1048575:=R[1048572]C[16380]:String|=XFD1048575:=R[1048572]C[16380]:String|=XFC1048576:=R[1048572]C[16380]:String|=XFD1048576:=R[1048572]C[16380]:String"
+  },
+  {
+    "name": "constant",
+    "body": "Range(\"A1:F6\").Clear\nOn Error Resume Next\nRange(\"C3:D4\").FormulaR1C1 = \"hello\"\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n)\nFor Each cell In Range(\"C3:D4\")\nReport = Report & \"|\" & cell.Formula & \":\" & cell.FormulaR1C1 & \":\" & TypeName(cell.FormulaR1C1)\nNext cell\n",
+    "reported": "0|hello:hello:String|hello:hello:String|hello:hello:String|hello:hello:String"
+  },
+  {
+    "name": "number",
+    "body": "Range(\"A1:F6\").Clear\nOn Error Resume Next\nRange(\"C3:D4\").FormulaR1C1 = \"12\"\nn = Err.Number\nOn Error GoTo 0\nReport = CStr(n)\nFor Each cell In Range(\"C3:D4\")\nReport = Report & \"|\" & cell.Formula & \":\" & cell.FormulaR1C1 & \":\" & TypeName(cell.FormulaR1C1)\nNext cell\n",
+    "reported": "0|12:12:String|12:12:String|12:12:String|12:12:String"
+  }
+]

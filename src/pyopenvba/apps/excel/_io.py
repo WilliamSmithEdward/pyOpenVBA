@@ -18,15 +18,15 @@ import re
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from pyopenvba._a1 import Area, column_letter, column_number
+from pyopenvba._a1 import Area, column_letter, column_number, parse_reference
 from pyopenvba._xml import attributes as _attributes
 from pyopenvba._xml import escape as _escape
 from pyopenvba._xml import tag_attributes as _tag_attributes
 from pyopenvba._xml import unescape as _unescape
 from pyopenvba.exceptions import PyOpenVBAError
-from pyopenvba.interpreter._values import EMPTY, VBADate, VBAInt, to_text
+from pyopenvba.interpreter._values import EMPTY, VBADate, to_text
 from pyopenvba.powerquery._opc import OpcFile
-from pyopenvba.powerquery._sheets import add_content_type, sheet_entries
+from pyopenvba.powerquery._sheets import add_content_type, add_relationship, sheet_entries
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Application, Cell, Workbook, Worksheet
@@ -99,13 +99,14 @@ def load_workbook(application: Application, path: Path) -> Workbook:
     relationships = _relationship_map(package)
     strings = _shared_strings(package)
     styles = _style_formats(package)
+    bold_styles = _style_bolds(package)
     for name, relationship_id in sheet_entries(workbook_xml):
         part = relationships.get(relationship_id, "")
         sheet = book.add_sheet(name)
         sheet.part_name = part
         if part and package.has(part):
             sheet_xml = package.read(part).decode("utf-8", errors="replace")
-            _read_sheet(sheet, sheet_xml, strings, styles)
+            _read_sheet(sheet, sheet_xml, strings, styles, bold_styles)
             _read_shapes(sheet, package, sheet_xml)
     _read_names(book, workbook_xml)
     _read_queries(book, path)
@@ -161,9 +162,13 @@ def _style_formats(package: OpcFile) -> list[str]:
     return out
 
 
-def _read_sheet(sheet: Worksheet, xml: str, strings: list[str], styles: list[str]) -> None:
+def _read_sheet(sheet: Worksheet, xml: str, strings: list[str], styles: list[str], bold_styles: list[bool]) -> None:
     from pyopenvba.apps.excel._model import Cell
 
+    for tag in re.findall(r"<mergeCell\b[^>]*/>", xml):
+        reference = _tag_attributes(tag).get("ref", "")
+        if reference:
+            sheet.merged_areas.extend(parse_reference(reference, sheet=sheet.name))
     match = _SHEET_DATA.search(xml)
     if not match or match.group(2) == "/>":
         return
@@ -177,6 +182,8 @@ def _read_sheet(sheet: Worksheet, xml: str, strings: list[str], styles: list[str
             kind = attributes.get("t", "")
             style = attributes.get("s", "")
             number_format = "General"
+            style_index = int(style) if style.isdigit() else 0
+            bold = bold_styles[style_index] if style_index < len(bold_styles) else False
             if style.isdigit() and int(style) < len(styles):
                 number_format = styles[int(style)]
             formula = ""
@@ -185,9 +192,9 @@ def _read_sheet(sheet: Worksheet, xml: str, strings: list[str], styles: list[str
                 body = (formula_match.group(2) or "").strip()
                 formula = f"={_unescape(body)}" if body else ""
             value = _cell_value(cell_xml, kind, strings, number_format)
-            if value is EMPTY and not formula and number_format == "General":
+            if value is EMPTY and not formula and number_format == "General" and not bold:
                 continue
-            cell = Cell(value=value, formula=formula, number_format=number_format)
+            cell = Cell(value=value, formula=formula, number_format=number_format, font_bold=bold)
             sheet.cells_[(row, column)] = cell
 
 
@@ -223,9 +230,7 @@ def _cell_value(cell_xml: str, kind: str, strings: list[str], number_format: str
         return text
     if is_date_format(number_format):
         return VBADate(number)
-    if number.is_integer() and abs(number) <= 2147483647:
-        whole = int(number)
-        return VBAInt(whole, "Integer" if -32768 <= whole <= 32767 else "Long")
+    # Worksheet numbers remain Doubles even when XML omits a decimal point.
     return number
 
 
@@ -889,6 +894,7 @@ def _match_sheets_to_package(book: Workbook, package: OpcFile) -> None:
     workbook_xml = package.read("xl/workbook.xml").decode("utf-8", errors="replace")
     relationships = _relationship_map(package)
     existing = [(name, relationships.get(rid, "")) for name, rid in sheet_entries(workbook_xml)]
+    additions: list[str] = []
     for index, sheet in enumerate(book.sheets_):
         if index < len(existing):
             sheet.part_name = existing[index][1]
@@ -900,7 +906,16 @@ def _match_sheets_to_package(book: Workbook, package: OpcFile) -> None:
                 sheet.part_name,
                 "application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml",
             )
+            relationship = add_relationship(
+                package, "xl/_rels/workbook.xml.rels",
+                "http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet",
+                f"worksheets/sheet{index + 1}.xml",
+            )
+            additions.append(f'<sheet name="{_escape(sheet.name)}" sheetId="{index + 1}" r:id="{relationship}"/>')
     _rename_sheets_in_workbook(book, package, existing)
+    if additions:
+        text = package.read("xl/workbook.xml").decode("utf-8")
+        package.write("xl/workbook.xml", text.replace("</sheets>", "".join(additions) + "</sheets>", 1).encode("utf-8"))
 
 
 def _resize_loaded_tables(book: Workbook, package: OpcFile) -> None:
@@ -1050,6 +1065,23 @@ def _patched_sheet(sheet: Worksheet, original: str, package: OpcFile) -> str:
         rows[row] = _without_removed_cells(rows[row], row, sheet)
     rebuilt = "".join(rows[number] for number in sorted(order) if number in rows)
     patched = original[: match.start()] + f"<sheetData>{rebuilt}</sheetData>" + original[match.end() :]
+    if sheet.merges_dirty:
+        markup = ""
+        if sheet.merged_areas:
+            records = ''.join(f'<mergeCell ref="{area.address(absolute=False)}"/>' for area in sheet.merged_areas)
+            markup = f'<mergeCells count="{len(sheet.merged_areas)}">{records}</mergeCells>'
+        existing = re.search(r"<mergeCells\b[^>]*(?:/>|>.*?</mergeCells>)", patched, re.DOTALL)
+        if existing:
+            patched = patched[:existing.start()] + markup + patched[existing.end():]
+        elif markup:
+            # mergeCells follows customSheetViews and precedes these optional
+            # worksheet children in schema order.
+            following = re.search(r"<(?:phoneticPr|conditionalFormatting|dataValidations|hyperlinks|printOptions|"
+                                  r"pageMargins|pageSetup|headerFooter|rowBreaks|colBreaks|customProperties|cellWatches|"
+                                  r"ignoredErrors|smartTags|drawing|legacyDrawing|legacyDrawingHF|picture|oleObjects|"
+                                  r"controls|webPublishItems|tableParts|extLst)\b|</worksheet>", patched)
+            if following:
+                patched = patched[:following.start()] + markup + patched[following.start():]
     return _with_dimension(patched, sheet)
 
 
@@ -1177,11 +1209,73 @@ def _number_text(value: float) -> str:
 
 
 def _style_for(cell: Cell, existing: str, package: OpcFile) -> str:
-    """The style index a cell needs for its number format."""
+    """The style index a cell needs for its number format and bold state."""
     wanted = cell.number_format
-    if wanted in ("General", ""):
-        return existing
-    return _ensure_style(package, wanted)
+    base = existing if wanted in ("General", "") else _ensure_style(package, wanted)
+    return _ensure_bold_style(package, base, cell.font_bold)
+
+
+_FONTS = re.compile(r"<fonts\b[^>]*>.*?</fonts>", re.DOTALL)
+_FONT = re.compile(r"<font\b[^>]*?(?:/>|>.*?</font>)", re.DOTALL)
+_BOLD = re.compile(r"<b\b[^>]*?(?:/>|>.*?</b>)", re.DOTALL)
+
+
+def _font_bold(font: str) -> bool:
+    match = _BOLD.search(font)
+    return match is not None and _tag_attributes(match.group()).get("val", "1").lower() not in ("0", "false")
+
+
+def _style_bolds(package: OpcFile) -> list[bool]:
+    if not package.has("xl/styles.xml"):
+        return []
+    text = package.read("xl/styles.xml").decode("utf-8")
+    fonts, xfs = _FONTS.search(text), _CELL_XFS.search(text)
+    if fonts is None or xfs is None:
+        return []
+    states = [_font_bold(font) for font in _FONT.findall(fonts.group())]
+    return [states[index] if index < len(states) else False
+            for xf in _XF.findall(xfs.group(4))
+            for index in [int(_tag_attributes(xf).get("fontId", "0"))]]
+
+
+def _ensure_bold_style(package: OpcFile, base: str, bold: bool) -> str:
+    if not package.has("xl/styles.xml"):
+        return base
+    text = package.read("xl/styles.xml").decode("utf-8")
+    fonts_match, xfs_match = _FONTS.search(text), _CELL_XFS.search(text)
+    if fonts_match is None or xfs_match is None:
+        return base
+    fonts = _FONT.findall(fonts_match.group())
+    xfs = _XF.findall(xfs_match.group(4))
+    xf = xfs[int(base or "0")]
+    font = fonts[int(_tag_attributes(xf).get("fontId", "0"))]
+    if _font_bold(font) == bold:
+        return base
+    font = _BOLD.sub("", font)
+    if bold:
+        if font.endswith("/>"):
+            font = font[:-2] + "></font>"
+        font = font.replace("</font>", "<b/></font>")
+    if font not in fonts:
+        fonts.append(font)
+        block = fonts_match.group().replace("</fonts>", font + "</fonts>")
+        block = re.sub(r'count="\d+"', f'count="{len(fonts)}"', block, count=1)
+        text = text[:fonts_match.start()] + block + text[fonts_match.end():]
+    font_id = fonts.index(font)
+    if "fontId" in _tag_attributes(xf):
+        xf = re.sub(r'fontId="\d+"', f'fontId="{font_id}"', xf, count=1)
+    else:
+        xf = xf.replace("<xf", f'<xf fontId="{font_id}"', 1)
+    xf = re.sub(r'\sapplyFont="[^"]*"', "", xf, count=1)
+    xf = xf.replace("<xf ", '<xf applyFont="1" ', 1)
+    if xf not in xfs:
+        xfs.append(xf)
+        match = _CELL_XFS.search(text)
+        assert match is not None
+        block = match.group(1) + str(len(xfs)) + match.group(3) + match.group(4) + xf + match.group(5)
+        text = text[:match.start()] + block + text[match.end():]
+    package.write("xl/styles.xml", text.encode("utf-8"))
+    return str(xfs.index(xf))
 
 
 def _ensure_style(package: OpcFile, code: str) -> str:

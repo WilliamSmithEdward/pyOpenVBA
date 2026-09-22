@@ -275,6 +275,59 @@ scope when saved.
 Conditional reference names evaluate only the selected branch; selected
 scalar values and errors provide no control source or linked destination.
 
+**Formula arrays.** `Range.Formula` and `Range.FormulaR1C1` share array read/write
+handling. Reads retain the full requested first area, including trailing blank
+cells. A1 array entries retain their references when placed individually;
+repeating a singleton row or column shifts relative references along that axis.
+
+**R1C1 formulas.** `Range.FormulaR1C1` reads individual cells or a two-dimensional
+array, and accepts a scalar formula or a one-/two-dimensional array. Relative coordinates
+resolve independently at each destination, including Excel's worksheet-edge
+wrapping. Absolute/mixed references, ranges, whole rows/columns and sheet
+qualifiers are supported; string literals are preserved. Merged interiors are
+skipped on write. Array writes respect custom lower bounds, expand singleton
+axes with Excel's additional relative shifts, and fill uncovered cells with
+`#N/A`. One-element arrays behave like scalars; empty arrays leave the range
+unchanged. Higher-dimensional arrays raise error 13. Each area of a multi-area
+target starts from the first array element.
+
+**Ranges can be searched.** `Find`, `FindNext` and `FindPrevious` support
+single-area ranges, including whole sheets without materializing empty
+cells. Searches support formula text or displayed values, whole/partial
+matches, case sensitivity, `*`/`?` wildcards, `~` escapes, row/column order
+and forward/backward wraparound. `LookIn`, `LookAt` and search order persist
+on the application; omitted `MatchCase` and direction reset on each `Find`.
+An unsuccessful search returns `Nothing`. Multi-area ranges, comments,
+`SearchFormat=True` and `MatchByte=True` remain explicitly unsupported.
+
+**Structural references.** Whole-row/column `Insert` and `Delete` move cells
+and update formulas across worksheets and defined names. Dollar signs preserve
+their spelling but do not prevent structural movement. Referenced ranges grow
+or shrink; fully deleted targets become `#REF!`, including qualified references
+on other sheets. Insertion refuses to discard occupied cells at the grid edge.
+Sheets containing merges or shapes and multi-area structural edits are explicitly
+unsupported. Partial-cell reference rewriting, formatting inheritance/CopyOrigin,
+relative name context, and table/validation/chart metadata updates remain incomplete.
+
+**Explicit-destination copies.** `Range.Copy Destination:=...` snapshots the
+source before writing, so overlapping copies preserve the original values.
+Blank source cells clear destination cells. When both destination dimensions
+are exact source multiples, Excel's repeated-block behavior applies; otherwise
+the source-sized block is written at the destination's top-left cell. Relative
+formula references shift for each block. Cross-sheet copies, number formats
+and bold font persistence are covered. Merged cells, multiple areas and
+destinations larger than 1,048,576 cells remain unsupported. Clipboard/paste
+and full formatting parity remain incomplete.
+
+**Merged ranges are editable.** `Merge`, `UnMerge`, `MergeCells` and
+single-cell `MergeArea` expose persisted worksheet merge regions. Ordinary
+merges expand over intersecting merged regions; across-row merges operate
+one row at a time. The first nonempty value or formula is retained without
+shifting its formula references. Clearing only part of a merged region raises
+1004; clearing the whole region removes its merge, while `ClearContents`
+retains it. Multi-area merges, complex across merges and full merge-formatting
+parity remain incomplete.
+
 **Formulas are calculated.** `pyopenvba.formula` parses and evaluates
 them; the workbook keeps track of which cells are stale and what feeds
 what.  Calculation is on demand: reading a stale cell works it out, and

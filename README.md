@@ -606,6 +606,37 @@ sheet.remove_shape("Refresh")
 app.save("report_out.xlsm")
 ```
 
+`Range.Formula` and `Range.FormulaR1C1` support scalar and array writes, with
+shared bounds, error and merge handling. `FormulaR1C1` converts relative,
+absolute and mixed references. Both properties return scalar or
+two-dimensional array results, including requested trailing blank cells.
+References survive save/reopen as ordinary A1 formulas. Array writes support
+custom lower bounds, single-axis expansion, mixed values and formulas, and
+Excel's `#N/A` filling for uncovered cells.
+
+VBA `Range.Find`, `FindNext` and `FindPrevious` support single-area searches
+over formula text or displayed values, with whole/partial matching,
+wildcards, case sensitivity, traversal order and wraparound. Whole-sheet
+searches keep empty cells sparse. Multi-area, comment and format searches,
+and `MatchByte=True`, remain unsupported.
+
+Whole-row/column `Insert` and `Delete` update cell references, including absolute
+and cross-sheet references, range boundaries and defined names. Deleted targets
+become `#REF!`. Partial-cell reference updates and full formatting/metadata
+movement remain incomplete; sheets with merges or shapes are explicitly unsupported.
+
+`Range.Copy Destination:=...` handles overlapping copies, blank source cells,
+repeated destination blocks and relative formula shifts. Number formats and
+bold font state survive save/reopen. Merged-cell and multi-area copies, large
+destinations and full formatting parity remain incomplete.
+
+`Range.Merge`, `UnMerge`, `MergeCells` and single-cell `MergeArea` support
+merged-region editing and save/reopen. Ordinary overlapping merges expand
+to include the existing regions; `Across=True` merges each row separately.
+Excel's first nonempty value or formula is retained, and partial clears raise
+error 1004. Multi-area merges, across merges over existing multi-row regions,
+and full merge-formatting parity remain outside the measured support.
+
 `shapes()` and `shape(name)` return detached snapshots, including each
 control's linked cell, list range and value. Use `update_shape` to make
 an edit. `add_shape` creates a measured AutoShape and `add_textbox`

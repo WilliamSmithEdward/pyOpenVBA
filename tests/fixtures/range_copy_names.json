@@ -1,0 +1,42 @@
+[
+  {
+    "name": "constant",
+    "body": "Set src = ThisWorkbook\nSet dst = Workbooks.Add\nApplication.DisplayAlerts = False\nsrc.Worksheets(1).Range(\"A1\").Value = 7\nsrc.Names.Add \"Amount\", \"=7\"\nsrc.Worksheets(1).Range(\"B1\").Formula = \"=Amount+1\"\nsrc.Worksheets(1).Range(\"A1:B1\").Copy dst.Worksheets(1).Range(\"C3\")\nReport = dst.Worksheets(1).Range(\"D3\").Formula & \"|\" & CStr(dst.Worksheets(1).Range(\"D3\").Value) & \"|\"\nFor Each nm In dst.Names\nReport = Report & nm.Name & \"=\" & nm.RefersTo & \"|\"\nNext nm\n",
+    "reported": "=Amount+1|8|Amount==7|"
+  },
+  {
+    "name": "constant_conflict",
+    "body": "Set src = ThisWorkbook\nSet dst = Workbooks.Add\nApplication.DisplayAlerts = False\nsrc.Worksheets(1).Range(\"A1\").Value = 7\nsrc.Names.Add \"Amount\", \"=7\"\ndst.Names.Add \"Amount\", \"=99\"\nsrc.Worksheets(1).Range(\"B1\").Formula = \"=Amount+1\"\nsrc.Worksheets(1).Range(\"A1:B1\").Copy dst.Worksheets(1).Range(\"C3\")\nReport = dst.Worksheets(1).Range(\"D3\").Formula & \"|\" & CStr(dst.Worksheets(1).Range(\"D3\").Value) & \"|\"\nFor Each nm In dst.Names\nReport = Report & nm.Name & \"=\" & nm.RefersTo & \"|\"\nNext nm\n",
+    "reported": "=Amount+1|100|Amount==99|"
+  },
+  {
+    "name": "range",
+    "body": "Set src = ThisWorkbook\nSet dst = Workbooks.Add\nApplication.DisplayAlerts = False\nsrc.Worksheets(1).Range(\"A1\").Value = 7\nsrc.Names.Add \"Amount\", \"=Sheet1!$A$1\"\nsrc.Worksheets(1).Range(\"B1\").Formula = \"=Amount+1\"\nsrc.Worksheets(1).Range(\"A1:B1\").Copy dst.Worksheets(1).Range(\"C3\")\nReport = dst.Worksheets(1).Range(\"D3\").Formula & \"|\" & CStr(dst.Worksheets(1).Range(\"D3\").Value) & \"|\"\nFor Each nm In dst.Names\nReport = Report & nm.Name & \"=\" & nm.RefersTo & \"|\"\nNext nm\n",
+    "reported": "=Amount+1|1|Amount==Sheet1!$A$1|"
+  },
+  {
+    "name": "range_conflict",
+    "body": "Set src = ThisWorkbook\nSet dst = Workbooks.Add\nApplication.DisplayAlerts = False\nsrc.Worksheets(1).Range(\"A1\").Value = 7\nsrc.Names.Add \"Amount\", \"=Sheet1!$A$1\"\ndst.Names.Add \"Amount\", \"=99\"\nsrc.Worksheets(1).Range(\"B1\").Formula = \"=Amount+1\"\nsrc.Worksheets(1).Range(\"A1:B1\").Copy dst.Worksheets(1).Range(\"C3\")\nReport = dst.Worksheets(1).Range(\"D3\").Formula & \"|\" & CStr(dst.Worksheets(1).Range(\"D3\").Value) & \"|\"\nFor Each nm In dst.Names\nReport = Report & nm.Name & \"=\" & nm.RefersTo & \"|\"\nNext nm\n",
+    "reported": "=Amount+1|100|Amount==99|"
+  },
+  {
+    "name": "local",
+    "body": "Set src = ThisWorkbook\nSet dst = Workbooks.Add\nApplication.DisplayAlerts = False\nsrc.Worksheets(1).Range(\"A1\").Value = 7\nsrc.Worksheets(1).Names.Add \"Amount\", \"=Sheet1!$A$1\"\nsrc.Worksheets(1).Range(\"B1\").Formula = \"=Amount+1\"\nsrc.Worksheets(1).Range(\"A1:B1\").Copy dst.Worksheets(1).Range(\"C3\")\nReport = dst.Worksheets(1).Range(\"D3\").Formula & \"|\" & CStr(dst.Worksheets(1).Range(\"D3\").Value) & \"|\"\nFor Each nm In dst.Names\nReport = Report & nm.Name & \"=\" & nm.RefersTo & \"|\"\nNext nm\n",
+    "reported": "=Amount+1|1|Sheet1!Amount==Sheet1!$A$1|"
+  },
+  {
+    "name": "unused",
+    "body": "Set src = ThisWorkbook\nSet dst = Workbooks.Add\nApplication.DisplayAlerts = False\nsrc.Worksheets(1).Range(\"A1\").Value = 7\nsrc.Names.Add \"Amount\", \"=Sheet1!$A$1\"\nsrc.Worksheets(1).Range(\"A1:B1\").Copy dst.Worksheets(1).Range(\"C3\")\nReport = dst.Worksheets(1).Range(\"D3\").Formula & \"|\" & CStr(dst.Worksheets(1).Range(\"D3\").Value) & \"|\"\nFor Each nm In dst.Names\nReport = Report & nm.Name & \"=\" & nm.RefersTo & \"|\"\nNext nm\n",
+    "reported": "||"
+  },
+  {
+    "name": "different_sheet",
+    "body": "Set src = ThisWorkbook\nSet dst = Workbooks.Add\nApplication.DisplayAlerts = False\nsrc.Worksheets(1).Range(\"A1\").Value = 7\nsrc.Names.Add \"Amount\", \"=Sheet1!$A$1\"\ndst.Worksheets(1).Name = \"Target\"\nsrc.Worksheets(1).Range(\"B1\").Formula = \"=Amount+1\"\nsrc.Worksheets(1).Range(\"A1:B1\").Copy dst.Worksheets(1).Range(\"C3\")\nReport = dst.Worksheets(1).Range(\"D3\").Formula & \"|\" & CStr(dst.Worksheets(1).Range(\"D3\").Value) & \"|\"\nFor Each nm In dst.Names\nReport = Report & nm.Name & \"=\" & nm.RefersTo & \"|\"\nNext nm\n",
+    "reported": "=Amount+1|1|Amount==Target!$A$1|"
+  },
+  {
+    "name": "local_conflict",
+    "body": "Set src = ThisWorkbook\nSet dst = Workbooks.Add\nApplication.DisplayAlerts = False\nsrc.Worksheets(1).Range(\"A1\").Value = 7\nsrc.Worksheets(1).Names.Add \"Amount\", \"=Sheet1!$A$1\"\ndst.Names.Add \"Amount\", \"=99\"\nsrc.Worksheets(1).Range(\"B1\").Formula = \"=Amount+1\"\nsrc.Worksheets(1).Range(\"A1:B1\").Copy dst.Worksheets(1).Range(\"C3\")\nReport = dst.Worksheets(1).Range(\"D3\").Formula & \"|\" & CStr(dst.Worksheets(1).Range(\"D3\").Value) & \"|\"\nFor Each nm In dst.Names\nReport = Report & nm.Name & \"=\" & nm.RefersTo & \"|\"\nNext nm\n",
+    "reported": "=Amount+1|100|Amount==99|"
+  }
+]

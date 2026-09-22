@@ -17,7 +17,7 @@ import datetime as _dt
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from pyopenvba._a1 import Area, parse_area
+from pyopenvba._a1 import Area, parse_area, split_sheet
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.mlang import MError, Record, Table, base_scope, evaluate, parse
 from pyopenvba.mlang._eval import Scope, Thunk
@@ -83,7 +83,7 @@ def _current_workbook(book: Workbook) -> Builtin:
     def call() -> object:
         rows: list[list[object]] = []
         for entry in book.names_.entries:
-            if entry.name.startswith("ExternalData_"):
+            if split_sheet(entry.name)[1].startswith("ExternalData_"):
                 continue
             block = _named_block(book, entry.refers_to)
             if block is not None:

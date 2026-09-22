@@ -234,7 +234,7 @@ class Calculator:
         return Matrix(rows if rows else [[BLANK]])
 
     def named(self, name: str, sheet: str) -> object:
-        found = self.book.names_.find(name)
+        found = self.book.names_.find(name, scope=self.book.sheet_named(sheet))
         if found is None:
             return None
         text = found.entry.refers_to.lstrip("=")
@@ -243,10 +243,17 @@ class Calculator:
         try:
             area = parse_area(text, sheet=sheet)
         except ValueError:
-            from pyopenvba.formula._values import text_as_number
+            node = P.parse(text)
+            if isinstance(node, P.Literal):
+                return node.value
+            from pyopenvba.apps.excel._control_refs import binding
+            from pyopenvba.exceptions import VBAUnsupportedError
 
-            number = text_as_number(text)
-            return number if number is not None else text
+            try:
+                _, area = binding(self.book.sheet_named(sheet), found.entry.name)
+            except (ValueError, VBAUnsupportedError):
+                return None
+            return area
         return area
 
     def sheet_exists(self, name: str) -> bool:

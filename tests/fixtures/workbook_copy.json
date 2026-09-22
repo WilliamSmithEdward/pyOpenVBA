@@ -1,0 +1,50 @@
+[
+  {
+    "name": "range_values",
+    "body": "Set src = ThisWorkbook\nSet dst = Workbooks.Add\nsrc.Worksheets(1).Range(\"A1\").Value = 10\nsrc.Worksheets(1).Range(\"B2\").Value = 20\nsrc.Worksheets(1).Range(\"A1:B2\").Copy dst.Worksheets(1).Range(\"C3\")\nReport = CStr(dst.Worksheets.Count) & \":\" & CStr(ActiveWorkbook Is dst) & \"|\"\nFor Each sh In dst.Worksheets\nReport = Report & sh.Name & \":\"\nFor Each cell In sh.Range(\"A1:D4\")\nIf cell.Formula <> \"\" Then Report = Report & cell.Address & \"=\" & cell.Formula & \";\"\nNext cell\nReport = Report & \"|\"\nNext sh\nFor Each nm In dst.Names\nReport = Report & nm.Name & \"=\" & nm.RefersTo & \"|\"\nNext nm\n",
+    "reported": "1:True|Sheet1:$C$3=10;$D$4=20;|",
+    "source_name": "Book1"
+  },
+  {
+    "name": "range_formula",
+    "body": "Set src = ThisWorkbook\nSet dst = Workbooks.Add\nsrc.Worksheets(1).Range(\"A1\").Value = 10\nsrc.Worksheets(1).Range(\"B2\").Value = 20\nsrc.Worksheets(1).Range(\"B1\").Formula = \"=A1+$A$1\"\nsrc.Worksheets(1).Range(\"A1:B2\").Copy dst.Worksheets(1).Range(\"C3\")\nReport = CStr(dst.Worksheets.Count) & \":\" & CStr(ActiveWorkbook Is dst) & \"|\"\nFor Each sh In dst.Worksheets\nReport = Report & sh.Name & \":\"\nFor Each cell In sh.Range(\"A1:D4\")\nIf cell.Formula <> \"\" Then Report = Report & cell.Address & \"=\" & cell.Formula & \";\"\nNext cell\nReport = Report & \"|\"\nNext sh\nFor Each nm In dst.Names\nReport = Report & nm.Name & \"=\" & nm.RefersTo & \"|\"\nNext nm\n",
+    "reported": "1:True|Sheet1:$C$3=10;$D$3==C3+$A$1;$D$4=20;|",
+    "source_name": "Book3"
+  },
+  {
+    "name": "range_qualified",
+    "body": "Set src = ThisWorkbook\nSet dst = Workbooks.Add\nsrc.Worksheets(1).Range(\"A1\").Value = 10\nsrc.Worksheets(1).Range(\"B2\").Value = 20\nsrc.Worksheets(1).Range(\"B1\").Formula = \"=Sheet1!A1\"\nsrc.Worksheets(1).Range(\"A1:B2\").Copy dst.Worksheets(1).Range(\"C3\")\nReport = CStr(dst.Worksheets.Count) & \":\" & CStr(ActiveWorkbook Is dst) & \"|\"\nFor Each sh In dst.Worksheets\nReport = Report & sh.Name & \":\"\nFor Each cell In sh.Range(\"A1:D4\")\nIf cell.Formula <> \"\" Then Report = Report & cell.Address & \"=\" & cell.Formula & \";\"\nNext cell\nReport = Report & \"|\"\nNext sh\nFor Each nm In dst.Names\nReport = Report & nm.Name & \"=\" & nm.RefersTo & \"|\"\nNext nm\n",
+    "reported": "1:True|Sheet1:$C$3=10;$D$3==[Book5]Sheet1!C3;$D$4=20;|",
+    "source_name": "Book5"
+  },
+  {
+    "name": "sheet_after",
+    "body": "Set src = ThisWorkbook\nSet dst = Workbooks.Add\nsrc.Worksheets(1).Range(\"A1\").Value = 10\nsrc.Worksheets(1).Range(\"B2\").Value = 20\nsrc.Worksheets(1).Copy After:=dst.Worksheets(1)\nReport = CStr(dst.Worksheets.Count) & \":\" & CStr(ActiveWorkbook Is dst) & \"|\"\nFor Each sh In dst.Worksheets\nReport = Report & sh.Name & \":\"\nFor Each cell In sh.Range(\"A1:D4\")\nIf cell.Formula <> \"\" Then Report = Report & cell.Address & \"=\" & cell.Formula & \";\"\nNext cell\nReport = Report & \"|\"\nNext sh\nFor Each nm In dst.Names\nReport = Report & nm.Name & \"=\" & nm.RefersTo & \"|\"\nNext nm\n",
+    "reported": "2:True|Sheet1:|Sheet1 (2):$A$1=10;$B$2=20;|",
+    "source_name": "Book7"
+  },
+  {
+    "name": "sheet_before",
+    "body": "Set src = ThisWorkbook\nSet dst = Workbooks.Add\nsrc.Worksheets(1).Range(\"A1\").Value = 10\nsrc.Worksheets(1).Range(\"B2\").Value = 20\nsrc.Worksheets(1).Copy Before:=dst.Worksheets(1)\nReport = CStr(dst.Worksheets.Count) & \":\" & CStr(ActiveWorkbook Is dst) & \"|\"\nFor Each sh In dst.Worksheets\nReport = Report & sh.Name & \":\"\nFor Each cell In sh.Range(\"A1:D4\")\nIf cell.Formula <> \"\" Then Report = Report & cell.Address & \"=\" & cell.Formula & \";\"\nNext cell\nReport = Report & \"|\"\nNext sh\nFor Each nm In dst.Names\nReport = Report & nm.Name & \"=\" & nm.RefersTo & \"|\"\nNext nm\n",
+    "reported": "2:True|Sheet1 (2):$A$1=10;$B$2=20;|Sheet1:|",
+    "source_name": "Book9"
+  },
+  {
+    "name": "sheet_new",
+    "body": "Set src = ThisWorkbook\nSet dst = Workbooks.Add\nsrc.Worksheets(1).Range(\"A1\").Value = 10\nsrc.Worksheets(1).Range(\"B2\").Value = 20\nsrc.Worksheets(1).Copy\nSet dst = ActiveWorkbook\nReport = CStr(dst.Worksheets.Count) & \":\" & CStr(ActiveWorkbook Is dst) & \"|\"\nFor Each sh In dst.Worksheets\nReport = Report & sh.Name & \":\"\nFor Each cell In sh.Range(\"A1:D4\")\nIf cell.Formula <> \"\" Then Report = Report & cell.Address & \"=\" & cell.Formula & \";\"\nNext cell\nReport = Report & \"|\"\nNext sh\nFor Each nm In dst.Names\nReport = Report & nm.Name & \"=\" & nm.RefersTo & \"|\"\nNext nm\n",
+    "reported": "1:True|Sheet1:$A$1=10;$B$2=20;|",
+    "source_name": "Book11"
+  },
+  {
+    "name": "sheet_self_formula",
+    "body": "Set src = ThisWorkbook\nSet dst = Workbooks.Add\nsrc.Worksheets(1).Range(\"A1\").Value = 10\nsrc.Worksheets(1).Range(\"B2\").Value = 20\nsrc.Worksheets(1).Range(\"B1\").Formula = \"=Sheet1!A1\"\nsrc.Worksheets(1).Copy After:=dst.Worksheets(1)\nReport = CStr(dst.Worksheets.Count) & \":\" & CStr(ActiveWorkbook Is dst) & \"|\"\nFor Each sh In dst.Worksheets\nReport = Report & sh.Name & \":\"\nFor Each cell In sh.Range(\"A1:D4\")\nIf cell.Formula <> \"\" Then Report = Report & cell.Address & \"=\" & cell.Formula & \";\"\nNext cell\nReport = Report & \"|\"\nNext sh\nFor Each nm In dst.Names\nReport = Report & nm.Name & \"=\" & nm.RefersTo & \"|\"\nNext nm\n",
+    "reported": "2:True|Sheet1:|Sheet1 (2):$A$1=10;$B$1=='Sheet1 (2)'!A1;$B$2=20;|",
+    "source_name": "Book14"
+  },
+  {
+    "name": "sheet_names",
+    "body": "Set src = ThisWorkbook\nSet dst = Workbooks.Add\nsrc.Worksheets(1).Range(\"A1\").Value = 10\nsrc.Worksheets(1).Range(\"B2\").Value = 20\nsrc.Names.Add \"Amount\", \"=Sheet1!$A$1\"\nsrc.Worksheets(1).Names.Add \"LocalAmount\", \"=Sheet1!$A$1\"\nsrc.Worksheets(1).Range(\"B1\").Formula = \"=Amount+LocalAmount\"\nsrc.Worksheets(1).Copy After:=dst.Worksheets(1)\nReport = CStr(dst.Worksheets.Count) & \":\" & CStr(ActiveWorkbook Is dst) & \"|\"\nFor Each sh In dst.Worksheets\nReport = Report & sh.Name & \":\"\nFor Each cell In sh.Range(\"A1:D4\")\nIf cell.Formula <> \"\" Then Report = Report & cell.Address & \"=\" & cell.Formula & \";\"\nNext cell\nReport = Report & \"|\"\nNext sh\nFor Each nm In dst.Names\nReport = Report & nm.Name & \"=\" & nm.RefersTo & \"|\"\nNext nm\n",
+    "reported": "2:True|Sheet1:|Sheet1 (2):$A$1=10;$B$1==Amount+LocalAmount;$B$2=20;|Amount=='Sheet1 (2)'!$A$1|'Sheet1 (2)'!LocalAmount=='Sheet1 (2)'!$A$1|",
+    "source_name": "Book16"
+  }
+]

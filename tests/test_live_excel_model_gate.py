@@ -1210,3 +1210,134 @@ def test_excel_reads_structural_edits(tmp_path: Path, name: str) -> None:
         result = excel.run_vba(report, "Report", timeout=120.0)
         assert result.ok, result.message
         assert result.value == record["reported"]
+
+
+@pytest.mark.parametrize("stage", ["created", "updated", "deleted"])
+def test_excel_named_range_crud_persistence(tmp_path: Path, stage: str) -> None:
+    harness = pytest.importorskip("pyvbaharness")
+    app = ExcelApplication()
+    app.add_workbook()
+    app.sheet(1).set_value("A1", 10)
+    app.sheet(1).set_value("B1", 20)
+    app.add_named_range("GlobalName", "=Sheet1!$A$1", visible=False, comment="global")
+    app.sheet(1).add_named_range("LocalName", "=$B$1", comment="local")
+    app.sheet(1).set_value("C1", "=GlobalName+LocalName")
+    path = tmp_path / "named_ranges.xlsm"
+    app.save(path)
+    app = ExcelApplication.open(path, with_vba=False)
+    if stage != "created":
+        app.update_named_range("GlobalName", new_name="RenamedGlobal", refers_to="=Sheet1!$B$1", visible=True, comment="changed")
+        app.sheet(1).update_named_range("LocalName", new_name="RenamedLocal", refers_to="=$A$1", visible=False)
+    if stage == "deleted":
+        app.remove_named_range("RenamedGlobal")
+        app.sheet(1).remove_named_range("RenamedLocal")
+    global_name, local_name = ("GlobalName", "LocalName") if stage == "created" else ("RenamedGlobal", "RenamedLocal")
+    # Excel may create an internal _xlfn.SINGLE compatibility name when it
+    # opens a formula containing a deleted name. Count the user definitions.
+    report = '''Function Report() As String
+Dim nm As Object, userCount As Long
+For Each nm In ThisWorkbook.Names
+If Left(nm.Name, 6) <> "_xlfn." Then userCount = userCount + 1
+Next nm
+Report = CStr(userCount) & "|" & CStr(Worksheets(1).Names.Count) & "|" & Range("C1").Formula & "|" & CStr(Range("C1").Value)
+'''
+    if stage != "deleted":
+        report += f'''Report = Report & "|" & ThisWorkbook.Names("{global_name}").RefersTo & "|" & CStr(ThisWorkbook.Names("{global_name}").Visible) & "|" & ThisWorkbook.Names("{global_name}").Comment
+Report = Report & "|" & Worksheets(1).Names("{local_name}").Name & "|" & Worksheets(1).Names("{local_name}").RefersTo
+'''
+    report += "End Function"
+    app.add_module(report, name="Probe")
+    expected = app.run("Report")
+    app.save(path)
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+        excel.open_document(path)
+        result = excel.run_vba(report, "Report", timeout=120.0)
+        assert result.ok, result.message
+        assert result.value == expected
+
+
+@pytest.mark.parametrize("reopen", [False, True])
+def test_excel_cross_workbook_copy_persistence(tmp_path: Path, reopen: bool) -> None:
+    harness = pytest.importorskip("pyvbaharness")
+    app = ExcelApplication()
+    app.add_workbook()
+    source = app.sheet(1)
+    source.set_value("A1", 10)
+    source.set_value("B1", "=A1+1")
+    source.add_named_range("LocalAmount", "=$A$1")
+    destination = app.add_workbook()
+    path = tmp_path / "copied_book.xlsx"
+    if reopen:
+        app.save(path, workbook=destination)
+        destination.Close(SaveChanges=False)
+        destination = app.open_workbook(path)
+    source.copy(after=app.sheet(1, workbook=destination))
+    source.copy_range("A1:B1", app.sheet(1, workbook=destination), "C3")
+    app.save(path, workbook=destination)
+    report = '''Function Report() As String
+Report = CStr(ThisWorkbook.Worksheets.Count) & "|" & Worksheets(2).Name & "|" & CStr(Worksheets(2).Range("B1").Value) & "|" & Worksheets(1).Range("D3").Formula & "|" & CStr(Worksheets(1).Range("D3").Value) & "|" & Worksheets(2).Names("LocalAmount").RefersTo
+End Function'''
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+        excel.open_document(path)
+        result = excel.run_vba(report, "Report", timeout=120)
+        assert result.ok, result.message
+        assert result.value == "2|Sheet1 (2)|11|=C3+1|11|='Sheet1 (2)'!$A$1"
+
+
+@pytest.mark.parametrize("local", [False, True])
+def test_excel_range_copy_name_deconfliction(tmp_path: Path, local: bool) -> None:
+    harness = pytest.importorskip("pyvbaharness")
+    app = ExcelApplication()
+    app.add_workbook()
+    source = app.sheet(1)
+    names = source if local else app
+    names.add_named_range("Amount", "=Sheet1!$A$1", visible=False, comment="imported")
+    names.add_named_range("Total", "=Amount")
+    source.set_value("B1", "=Total+Amount")
+    app.add_workbook()
+    destination = app.sheet(1)
+    destination.set_value("A1", 7)
+    app.add_named_range("Amount", "=99")
+    source.copy_range("B1", destination, "D3", name_conflict="rename")
+    path = tmp_path / "deconflicted.xlsx"
+    app.save(path)
+    report = '''Function Report() As String
+Report = Range("D3").Formula & "|" & CStr(Range("D3").Value) & "|" & ThisWorkbook.Names("Amount").RefersTo
+End Function'''
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+        excel.open_document(path)
+        result = excel.run_vba(report, "Report", timeout=120)
+        assert result.ok, result.message
+        assert result.value == "=Total+Amount_2|14|=99"
+
+
+@pytest.mark.parametrize("cross_book", [False, True])
+def test_excel_worksheet_move_persistence(tmp_path: Path, cross_book: bool) -> None:
+    harness = pytest.importorskip("pyvbaharness")
+    app = ExcelApplication()
+    app.add_workbook()
+    app.add_module('''Sub Build()
+Dim sh As Object
+Set sh = ThisWorkbook.Worksheets(1)
+sh.Range("A1").Value = 7
+sh.Names.Add "LocalAmount", "=Sheet1!$A$1"
+sh.Range("B1").Formula = "=LocalAmount+1"
+ThisWorkbook.Worksheets.Add(After:=sh).Name = "Other"
+End Sub''', name="Builder")
+    app.run("Build")
+    path = tmp_path / "moved.xlsx"
+    app.save(path)
+    statement = ('Set dst = Workbooks.Add\nThisWorkbook.Worksheets(1).Move After:=dst.Worksheets(1)'
+                 if cross_book else 'ThisWorkbook.Worksheets(1).Move After:=ThisWorkbook.Worksheets(2)')
+    app.add_module('Sub Relocate()\nDim dst As Object\n' + statement + '\nEnd Sub', name="Mover")
+    app.run("Relocate")
+    app.save(path)
+    report = '''Function Report() As String
+Report = Worksheets(1).Name & "|" & Worksheets(2).Name & "|" & CStr(Worksheets(2).Range("B1").Value) & "|" & Worksheets(2).Names("LocalAmount").RefersTo
+End Function'''
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+        excel.open_document(path)
+        result = excel.run_vba(report, "Report", timeout=120)
+        assert result.ok, result.message
+        expected = "Sheet1|Sheet1 (2)|8|='Sheet1 (2)'!$A$1" if cross_book else "Other|Sheet1|8|=Sheet1!$A$1"
+        assert result.value == expected

@@ -19,13 +19,13 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, parse_reference
-from pyopenvba.exceptions import VBAUnsupportedError
+from pyopenvba.exceptions import VBAUnsupportedError, VBARuntimeError
 from pyopenvba.formula._parse import shift_text
 from pyopenvba.formula._r1c1 import from_a1, to_a1
 from pyopenvba.apps.excel._find import FindState
-from pyopenvba.apps.excel import _merges
+from pyopenvba.apps.excel import _merges, _names
 from pyopenvba.shapes._values import Shape as ShapeState
-from pyopenvba.interpreter._objects import VBACollection, VBAObject, member, method, setter
+from pyopenvba.interpreter._objects import MemberSpec, VBACollection, VBAObject, member, method, setter
 from pyopenvba.interpreter._values import (
     EMPTY,
     ERR_APPLICATION_DEFINED,
@@ -55,6 +55,20 @@ class ExcelObject(VBAObject):
     """Every Excel class, so the member inventory knows where to look."""
 
     vba_library = _LIBRARY
+    invalidated = False
+
+    def _check_alive(self) -> None:
+        if any(getattr(owner, "invalidated", False) for owner in
+               (self, getattr(self, "sheet", None), getattr(self, "entry", None))):
+            raise error(424, "Object required")
+
+    def vba_member(self, name: str) -> MemberSpec | None:
+        self._check_alive()
+        return super().vba_member(name)
+
+    def vba_default_member(self) -> MemberSpec | None:
+        self._check_alive()
+        return super().vba_default_member()
 
 
 # --- what a cell holds ---------------------------------------------------------------
@@ -332,7 +346,7 @@ class Application(ExcelObject):
         """``[A1]`` and Evaluate("A1"): a reference, or a name."""
         sheet = self._require_sheet()
         book = sheet.book
-        named = book.names_.find(text)
+        named = book.names_.find(text, scope=sheet)
         if named is not None:
             return named.refers_to_range()
         try:
@@ -375,6 +389,14 @@ class Workbooks(VBACollection, ExcelObject):
     def __init__(self, application: Application) -> None:
         self.application = application
         self.books: list[Workbook] = []
+        self._next_number = 1
+
+    def next_name(self) -> str:
+        while True:
+            name = f"Book{self._next_number}"
+            self._next_number += 1
+            if not any(book.name.casefold() == name.casefold() for book in self.books):
+                return name
 
     def vba_items(self) -> list[object]:
         return list(self.books)
@@ -389,19 +411,28 @@ class Workbooks(VBACollection, ExcelObject):
 
     @method
     def Add(self, Template: object = MISSING) -> object:
-        book = Workbook(self.application, f"Book{len(self.books) + 1}")
+        if Template is not MISSING and Template != -4167:
+            raise VBAUnsupportedError("Only worksheet workbooks are supported by Workbooks.Add")
+        book = Workbook(self.application, self.next_name())
         book.add_sheet("Sheet1")
         self.books.append(book)
         self.application.activate_book(book)
         return book
 
     @method
-    def Open(self, Filename: object = MISSING, *rest: object) -> object:
+    def Open(self, Filename: object = MISSING) -> object:
         from pyopenvba.apps.excel._io import load_workbook
 
         if Filename is MISSING:
             raise error(449)
-        book = load_workbook(self.application, Path(to_text(Filename)))
+        path = Path(to_text(Filename)).resolve()
+        existing = next((book for book in self.books if book.path and (Path(book.path) / book.name).resolve() == path), None)
+        if existing is not None:
+            self.application.activate_book(existing)
+            return existing
+        if any(book.name.casefold() == path.name.casefold() for book in self.books):
+            raise error(1004, "A workbook with that name is already open")
+        book = load_workbook(self.application, path)
         self.books.append(book)
         self.application.activate_book(book)
         return book
@@ -418,7 +449,7 @@ class Workbooks(VBACollection, ExcelObject):
         if book in self.books:
             self.books.remove(book)
         if self.application.active_book is book:
-            self.application.active_book = self.books[0] if self.books else None
+            self.application.active_book = self.books[-1] if self.books else None
 
 
 class Workbook(ExcelObject):
@@ -519,9 +550,12 @@ class Workbook(ExcelObject):
         return EMPTY
 
     @method
-    def Close(self, SaveChanges: object = MISSING, Filename: object = MISSING, *rest: object) -> object:
+    def Close(self, SaveChanges: object = MISSING, Filename: object = MISSING, RouteWorkbook: object = MISSING) -> object:
         if SaveChanges is not MISSING and to_bool(SaveChanges):
-            self.Save()
+            if Filename is not MISSING:
+                self.SaveAs(Filename)
+            else:
+                self.Save()
         self.application.workbooks_.remove(self)
         return EMPTY
 
@@ -536,7 +570,7 @@ class Workbook(ExcelObject):
         return EMPTY
 
     @method
-    def SaveAs(self, Filename: object = MISSING, *rest: object) -> object:
+    def SaveAs(self, Filename: object = MISSING) -> object:
         from pyopenvba.apps.excel._io import save_workbook
 
         if Filename is MISSING:
@@ -809,7 +843,7 @@ class Worksheet(ExcelObject):
         if isinstance(value, Range):
             return list(value.areas)
         text = to_text(value)
-        named = self.book.names_.find(text)
+        named = self.book.names_.find(text, scope=self)
         if named is not None:
             return list(named.refers_to_range().areas)
         try:
@@ -868,7 +902,8 @@ class Worksheet(ExcelObject):
 
     @member
     def Names(self, Index: object = MISSING) -> object:
-        return self.book.vba_get("Names", [] if Index is MISSING else [Index])
+        names = Names(self.book, self)
+        return names if Index is MISSING else names.vba_get("Item", [Index])
 
     # -- methods
 
@@ -887,6 +922,18 @@ class Worksheet(ExcelObject):
         self.book.sheets_.remove(self)
         self.book.saved = False
         return EMPTY
+
+    @method
+    def Copy(self, Before: object = MISSING, After: object = MISSING) -> object:
+        from pyopenvba.apps.excel._sheet_copy import copy_sheet
+
+        return copy_sheet(self, Before, After)
+
+    @method
+    def Move(self, Before: object = MISSING, After: object = MISSING) -> object:
+        from pyopenvba.apps.excel._sheet_move import move_sheet
+
+        return move_sheet(self, Before, After)
 
     @method
     def Calculate(self) -> object:
@@ -1048,6 +1095,22 @@ class Range(ExcelObject):
     @member
     def Formula(self) -> object:
         return self._read_formulas(r1c1=False)
+
+    @member
+    def Name(self) -> object:
+        for entry in self.sheet.book.names_.entries:
+            named = DefinedName(entry)
+            try:
+                target = named.refers_to_range()
+            except (VBARuntimeError, VBAUnsupportedError, ValueError):
+                continue
+            if target.sheet is self.sheet and [(a.top, a.left, a.bottom, a.right) for a in target.areas] == [(a.top, a.left, a.bottom, a.right) for a in self.areas]:
+                return named
+        raise error(1004, "This range has no defined name")
+
+    @setter("Name")
+    def _set_range_name(self, value: object) -> None:
+        self.sheet.book.names_.Add(Name=value, RefersTo=self)
 
     @setter("Formula")
     def _set_formula(self, value: object) -> None:
@@ -1436,11 +1499,18 @@ class Range(ExcelObject):
 
     @method
     def Copy(self, Destination: object = MISSING) -> object:
+        return self.copy_to(Destination)
+
+    def copy_to(self, Destination: object = MISSING, *, name_conflict: str = "reuse") -> object:
+        if name_conflict not in {"reuse", "rename", "error"}:
+            raise ValueError("name_conflict must be reuse, rename, or error")
         if Destination is MISSING:
             self.sheet.book.application.cut_copy_mode = VBAInt(1, "Long")
             return True
         if not isinstance(Destination, Range):
             raise error(1004, "Copy needs a range to copy to")
+        if Destination.sheet.book.application is not self.sheet.book.application:
+            raise error(1004, "Ranges must belong to the same Excel application")
         if len(self.areas) != 1 or len(Destination.areas) != 1:
             raise VBAUnsupportedError("Copy with multiple source or destination areas is not implemented")
         area, target = self.first, Destination.first
@@ -1460,6 +1530,14 @@ class Range(ExcelObject):
         # Snapshot before clearing or writing: source and destination can overlap.
         sources = {(row - area.top, column - area.left): cell
                    for (row, column), cell in self.sheet.cells_.items() if area.contains(row, column)}
+        from pyopenvba.apps.excel._copy_names import NameCopyPlan
+
+        plan = NameCopyPlan(self.sheet, Destination.sheet, name_conflict)
+        formulas = {position: plan.rewrite(cell.formula) for position, cell in sources.items()
+                    if cell.formula} if Destination.sheet.book is not self.sheet.book else {}
+        if plan.entries:
+            Destination.sheet.book.names_.entries.extend(plan.entries)
+            Destination.sheet.book.names_.changed = True
         for position in list(Destination.sheet.cells_):
             if written.contains(*position):
                 del Destination.sheet.cells_[position]
@@ -1468,7 +1546,7 @@ class Range(ExcelObject):
                 for (down, across), source in sources.items():
                     copy = Cell(**{field_.name: getattr(source, field_.name) for field_ in _CELL_FIELDS})
                     if copy.formula:
-                        copy.formula = shift_text(copy.formula, tile_row - area.top, tile_column - area.left)
+                        copy.formula = shift_text(formulas.get((down, across), copy.formula), tile_row - area.top, tile_column - area.left)
                         copy.stale = True
                         copy.value = EMPTY
                     Destination.sheet.cells_[(tile_row + down, tile_column + across)] = copy
@@ -1561,6 +1639,7 @@ class Range(ExcelObject):
     # -- Python side
 
     def vba_iterate(self) -> Iterator[object]:
+        self._check_alive()
         for row, column in self.positions():
             yield Range(self.sheet, [Area(row, column, row, column, self.sheet.name)])
 
@@ -1836,6 +1915,9 @@ class NameEntry:
     #: The attribute text this name was read with, so a name nobody
     #: touched is written back with its localSheetId and hidden intact.
     attributes: str = ""
+    visible: bool = True
+    comment: str = ""
+    invalidated: bool = False
 
 
 class Names(VBACollection, ExcelObject):
@@ -1843,15 +1925,35 @@ class Names(VBACollection, ExcelObject):
 
     vba_type_name = "Names"
 
-    def __init__(self, book: Workbook) -> None:
-        self.book = book
-        self.entries: list[NameEntry] = []
+    def __init__(self, book: Workbook, sheet: Worksheet | None = None) -> None:
+        self._book = book
+        self.sheet = sheet
+        self._entries: list[NameEntry] = []
         #: False until something adds, changes or removes a name, so an
         #: untouched workbook's names are never rewritten.
         self.changed = False
 
+    @property
+    def book(self) -> Workbook:
+        return self.sheet.book if self.sheet is not None else self._book
+
+    @property
+    def entries(self) -> list[NameEntry]:
+        return self.book.names_.entries if self.sheet is not None else self._entries
+
+    @entries.setter
+    def entries(self, entries: list[NameEntry]) -> None:
+        if self.sheet is not None:
+            self.book.names_.entries = entries
+        else:
+            self._entries = entries
+
     def vba_items(self) -> list[object]:
-        return [DefinedName(entry) for entry in self.entries]
+        from pyopenvba._a1 import split_sheet
+
+        self._check_alive()
+        entries = [entry for entry in self.entries if self.sheet is None or split_sheet(entry.name)[0].casefold() == self.sheet.name.casefold()]
+        return [DefinedName(entry) for entry in sorted(entries, key=lambda entry: (split_sheet(entry.name)[1].casefold(), entry.name.casefold()))]
 
     def vba_lookup(self, index: object, items: list[object]) -> object:
         if isinstance(index, str):
@@ -1861,30 +1963,58 @@ class Names(VBACollection, ExcelObject):
             return found
         return super().vba_lookup(index, items)
 
-    def find(self, name: str) -> DefinedName | None:
+    def find(self, name: str, *, scope: Worksheet | None = None) -> DefinedName | None:
+        from pyopenvba._a1 import split_sheet
+
+        owner, bare = split_sheet(name)
+        workbook_qualified = owner.casefold() == self.book.name.casefold()
+        context = self.sheet or scope or self.book.active_sheet
+        wanted_scope = owner or (context.name if context is not None else "")
+        fallback = None
         for entry in self.entries:
-            if entry.name.lower() == name.lower():
+            entry_scope, entry_bare = split_sheet(entry.name)
+            if entry_bare.casefold() != bare.casefold():
+                continue
+            if workbook_qualified:
+                if not entry_scope:
+                    return DefinedName(entry)
+                continue
+            if entry_scope.casefold() == wanted_scope.casefold():
                 return DefinedName(entry)
-        return None
+            if not entry_scope and not owner and self.sheet is None:
+                fallback = DefinedName(entry)
+        return fallback
 
     @method
-    def Add(self, Name: object = MISSING, RefersTo: object = MISSING, *rest: object) -> object:
-        if Name is MISSING or RefersTo is MISSING:
+    def Add(self, Name: object = MISSING, RefersTo: object = MISSING, Visible: object = MISSING,
+            MacroType: object = MISSING, ShortcutKey: object = MISSING, Category: object = MISSING,
+            NameLocal: object = MISSING, RefersToLocal: object = MISSING, CategoryLocal: object = MISSING,
+            RefersToR1C1: object = MISSING, RefersToR1C1Local: object = MISSING) -> object:
+        if Name is MISSING:
+            Name = NameLocal
+        if Name is MISSING:
             raise error(449)
-        wanted = to_text(Name)
-        refers = RefersTo
-        # A name refers to a sheet, not to a workbook: RefersTo reads
-        # =Sheet1!$A$1:$B$2, with no [Book1] in front of it.
-        text = (
-            "=" + refers.first.address(with_sheet=True)
-            if isinstance(refers, Range)
-            else to_text(refers)
-        )
-        self.entries = [entry for entry in self.entries if entry.name.lower() != wanted.lower()]
-        entry = NameEntry(wanted, text, self.book)
-        self.entries.append(entry)
-        self.changed = True
-        self.book.saved = False
+        if any(value is not MISSING for value in (MacroType, ShortcutKey, Category, CategoryLocal)):
+            raise VBAUnsupportedError("Macro name metadata is not implemented")
+        wanted = _names.canonical(self.book, to_text(Name), self.sheet)
+        owner = self.sheet or self.book.active_sheet
+        if owner is None:
+            raise error(1004, "No worksheet is available for the name")
+        refers = RefersTo if RefersTo is not MISSING else RefersToLocal
+        if refers is MISSING:
+            rc = RefersToR1C1 if RefersToR1C1 is not MISSING else RefersToR1C1Local
+            if rc is MISSING:
+                raise error(449)
+            refers = to_a1(to_text(rc), 1, 1)
+        text = "=" + ",".join(area.address(with_sheet=True) for area in refers.areas) if isinstance(refers, Range) else _names.qualify(to_text(refers), owner.name)
+        entry = next((one for one in self.entries if one.name.casefold() == wanted.casefold()), None)
+        if entry is None:
+            entry = NameEntry(wanted, text, self.book)
+            self.entries.append(entry)
+        entry.name, entry.refers_to = wanted, text
+        if Visible is not MISSING:
+            entry.visible = to_bool(Visible)
+        _names.changed(self.book)
         return DefinedName(entry)
 
 
@@ -1901,18 +2031,106 @@ class DefinedName(ExcelObject):
         return self.entry.name
 
     @member
+    def NameLocal(self) -> object:
+        return self.Name()
+
+    @setter("NameLocal")
+    def _set_name_local(self, value: object) -> None:
+        self._set_name(value)
+
+    @setter("Name")
+    def _set_name(self, value: object) -> None:
+        from pyopenvba._a1 import split_sheet
+
+        book = self.entry.book
+        scope, _ = split_sheet(self.entry.name)
+        wanted = _names.canonical(book, to_text(value), book.sheet_named(scope) if scope else None)
+        if any(one is not self.entry and one.name.casefold() == wanted.casefold() for one in book.names_.entries):
+            return  # Excel silently leaves the original name on collision.
+        for sheet in book.sheets_:
+            for cell in sheet.cells_.values():
+                if cell.formula:
+                    updated = _names.renamed_formula(cell.formula, sheet, self.entry, wanted)
+                    if updated != cell.formula:
+                        cell.formula = updated
+                        sheet.touched()
+            for shape in sheet.shapes_:
+                if shape.control is not None:
+                    for field in ("linked_cell", "list_range"):
+                        text = getattr(shape.control, field)
+                        updated = _names.renamed_formula(text, sheet, self.entry, wanted) if text else text
+                        if updated != text:
+                            setattr(shape.control, field, updated)
+                            sheet.drawing_changed()
+        for entry in book.names_.entries:
+            entry_scope, _ = split_sheet(entry.name)
+            owner = book.sheet_named(entry_scope) if entry_scope else book.active_sheet
+            entry.refers_to = _names.renamed_formula(entry.refers_to, owner, self.entry, wanted)
+        self.entry.name = wanted
+        _names.changed(book)
+
+    @member
+    def Visible(self) -> object:
+        return self.entry.visible
+
+    @setter("Visible")
+    def _set_visible(self, value: object) -> None:
+        self.entry.visible = to_bool(value)
+        _names.changed(self.entry.book)
+
+    @member
+    def Comment(self) -> object:
+        return self.entry.comment
+
+    @setter("Comment")
+    def _set_comment(self, value: object) -> None:
+        self.entry.comment = to_text(value)
+        _names.changed(self.entry.book)
+
+    @member
+    def Parent(self) -> object:
+        return self.entry.book
+
+    @member
+    def RefersToR1C1(self) -> object:
+        return from_a1(self.entry.refers_to, 1, 1)
+
+    @setter("RefersToR1C1")
+    def _set_refers_r1c1(self, value: object) -> None:
+        self._set_refers_to(to_a1(to_text(value), 1, 1))
+
+    @member
     def RefersTo(self) -> object:
         return self.entry.refers_to
 
+    @member
+    def RefersToLocal(self) -> object:
+        return self.RefersTo()
+
+    @setter("RefersToLocal")
+    def _set_refers_local(self, value: object) -> None:
+        self._set_refers_to(value)
+
+    @member
+    def RefersToR1C1Local(self) -> object:
+        return self.RefersToR1C1()
+
+    @setter("RefersToR1C1Local")
+    def _set_refers_r1c1_local(self, value: object) -> None:
+        self._set_refers_r1c1(value)
+
     @setter("RefersTo")
     def _set_refers_to(self, value: object) -> None:
-        self.entry.refers_to = to_text(value)
-        self.entry.book.names_.changed = True
-        self.entry.book.saved = False
+        self.entry.refers_to = _names.qualify(to_text(value), self.entry.book.active_sheet.name)
+        _names.changed(self.entry.book)
 
     @member(default=True)
     def Value(self) -> object:
         return self.entry.refers_to
+
+    @setter("Value")
+    def _set_value(self, value: object) -> None:
+        self._set_refers_to(value)
 
     @member
     def RefersToRange(self) -> object:
@@ -1922,8 +2140,7 @@ class DefinedName(ExcelObject):
     def Delete(self) -> object:
         book = self.entry.book
         book.names_.entries = [one for one in book.names_.entries if one is not self.entry]
-        book.names_.changed = True
-        book.saved = False
+        _names.changed(book)
         return EMPTY
 
     def refers_to_range(self) -> Range:
@@ -1932,7 +2149,18 @@ class DefinedName(ExcelObject):
         try:
             areas = parse_reference(text)
         except ValueError:
-            raise error(1004, f"{self.entry.name} refers to {text!r}, which is not a range") from None
+            from pyopenvba.apps.excel._control_refs import binding
+            from pyopenvba._a1 import split_sheet
+
+            scope, _ = split_sheet(self.entry.name)
+            owner = book.sheet_named(scope) if scope else book.active_sheet
+            try:
+                _, area = binding(owner, self.entry.name)
+            except (ValueError, VBAUnsupportedError):
+                area = None
+            if area is None:
+                raise error(1004, f"{self.entry.name} does not refer to a range") from None
+            areas = [area]
         sheet = book.sheet_named(areas[0].sheet) if areas[0].sheet else book.active_sheet
         if sheet is None:
             raise error(1004, f"{self.entry.name} refers to a sheet that is not there")

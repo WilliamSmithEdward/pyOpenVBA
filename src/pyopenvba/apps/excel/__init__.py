@@ -40,6 +40,8 @@ from pyopenvba.apps.excel._model import (
 from pyopenvba.interpreter._runtime import Interpreter, ModuleRuntime
 from pyopenvba.interpreter._values import EMPTY, MISSING, to_text
 from pyopenvba.shapes import Shape
+from pyopenvba.apps.excel._named_api import NamedRange, NamedRangeAPI
+from pyopenvba.apps.excel._model import Names
 
 __all__ = [
     "Application",
@@ -49,14 +51,19 @@ __all__ = [
     "SheetView",
     "Workbook",
     "Worksheet",
+    "NamedRange",
 ]
 
 
-class SheetView:
+class SheetView(NamedRangeAPI):
     """A worksheet, from Python rather than from VBA."""
 
     def __init__(self, sheet: Worksheet) -> None:
         self.sheet = sheet
+
+    @property
+    def _named_collection(self) -> Names:
+        return Names(self.sheet.book, self.sheet)
 
     @property
     def name(self) -> str:
@@ -72,6 +79,26 @@ class SheetView:
         target = self.sheet.vba_get("Range", [reference])
         assert isinstance(target, Range)
         target.vba_set("Value", value)
+
+    def copy_range(self, reference: str, destination: SheetView, target: str, *, name_conflict: str = "reuse") -> None:
+        """Copy cells; cross-book name conflicts can reuse, rename, or error."""
+        source = self.sheet.vba_get("Range", [reference])
+        assert isinstance(source, Range)
+        source.copy_to(destination.sheet.vba_get("Range", [target]), name_conflict=name_conflict)
+
+    def copy(self, *, before: SheetView | None = None, after: SheetView | None = None) -> SheetView:
+        """Copy this sheet; no destination creates and activates a new workbook."""
+        self.sheet.Copy(before.sheet if before else MISSING, after.sheet if after else MISSING)
+        book = self.sheet.book.application.active_book
+        assert book is not None and book.active_sheet is not None
+        return SheetView(book.active_sheet)
+
+    def move(self, *, before: SheetView | None = None, after: SheetView | None = None) -> SheetView:
+        """Move this sheet; omit both anchors to move into a new workbook."""
+        self.sheet.Move(before.sheet if before else MISSING, after.sheet if after else MISSING)
+        book = self.sheet.book.application.active_book
+        assert book is not None and book.active_sheet is not None
+        return self if book.active_sheet is self.sheet else SheetView(book.active_sheet)
 
     def formula(self, reference: str) -> str:
         target = self.sheet.vba_get("Range", [reference])
@@ -287,7 +314,7 @@ class SheetView:
         return f"<SheetView {self.sheet.name!r}>"
 
 
-class ExcelApplication:
+class ExcelApplication(NamedRangeAPI):
     """Excel, in memory: workbooks, sheets, cells, and the macros that move them."""
 
     def __init__(self) -> None:
@@ -340,6 +367,20 @@ class ExcelApplication:
         book = self.application.workbooks_.vba_get("Add")
         assert isinstance(book, Workbook)
         return book
+
+    def open_workbook(self, path: str | Path) -> Workbook:
+        """Open another workbook without importing its VBA modules."""
+        book = self.application.workbooks_.Open(Filename=str(path))
+        assert isinstance(book, Workbook)
+        return book
+
+    def workbooks(self) -> list[Workbook]:
+        return list(self.application.workbooks_.books)
+
+    def activate_workbook(self, book: Workbook) -> None:
+        if book not in self.application.workbooks_.books:
+            raise ValueError("Workbook is not open in this application")
+        book.Activate()
 
     def add_module(self, source: str, *, name: str = "", kind: str = "standard") -> ModuleRuntime:
         """Parse VBA and add it to the project this instance runs."""
@@ -402,9 +443,15 @@ class ExcelApplication:
             raise LookupError("no workbook is open")
         return book
 
-    def sheet(self, which: int | str = 1) -> SheetView:
+    @property
+    def _named_collection(self) -> Names:
+        return self.workbook.names_
+
+    def sheet(self, which: int | str = 1, *, workbook: Workbook | None = None) -> SheetView:
         """One sheet by position (from 1) or by name."""
-        book = self.workbook
+        book = workbook or self.workbook
+        if book not in self.application.workbooks_.books:
+            raise ValueError("Workbook is not open in this application")
         if isinstance(which, int):
             if not 1 <= which <= len(book.sheets_):
                 raise LookupError(f"this workbook has {len(book.sheets_)} sheets")
@@ -431,13 +478,16 @@ class ExcelApplication:
 
     # --- state out ---------------------------------------------------------------------
 
-    def save(self, path: str | Path | None = None) -> Path:
+    def save(self, path: str | Path | None = None, *, workbook: Workbook | None = None) -> Path:
         """Write the workbook out, keeping every part this does not model."""
         from pyopenvba.apps.excel._io import save_workbook
 
-        book = self.workbook
+        book = workbook or self.workbook
+        if book not in self.application.workbooks_.books:
+            raise ValueError("Workbook is not open in this application")
         target = Path(path) if path is not None else Path(book.path) / book.name
         save_workbook(book, target)
+        book.path, book.name = str(target.resolve().parent), target.name
         book.saved = True
         return target
 

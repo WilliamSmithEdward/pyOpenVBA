@@ -300,6 +300,60 @@ on the application; omitted `MatchCase` and direction reset on each `Find`.
 An unsuccessful search returns `Nothing`. Multi-area ranges, comments,
 `SearchFormat=True` and `MatchByte=True` remain explicitly unsupported.
 
+**Multiple workbooks.** `Workbooks.Add` creates and activates a uniquely numbered
+worksheet workbook; closing one does not reset numbering. `Open(Filename:=...)`
+adds a workbook to the same application and recognizes an already open path.
+`Close(SaveChanges:=..., Filename:=...)` supports explicit saving. Activating
+another book leaves the original macro-host `ThisWorkbook` binding intact.
+Independent VBA project/module contexts are not yet implemented.
+
+`Worksheet.Copy` accepts Before or After in the same application; omitting both
+creates a new active workbook. It copies modeled cells, merges, dimensions and
+relevant names, renames colliding tabs, and rewrites self-sheet references. Range
+copies across books support values and ordinary relative/absolute formulas.
+Range copies also import referenced names and alias dependencies. The default
+reuses destination names on collision, matching Excel with DisplayAlerts=False.
+Python `copy_range(..., name_conflict="rename")` assigns unused numeric suffixes
+and rewrites incoming formulas and aliases; `"error"` rejects collisions atomically.
+Imported local names use the destination sheet scope. Source-sheet references in
+name definitions retain their addresses on the destination sheet, independently
+of the paste offset. Unused names are not imported. Relative, circular, unresolved
+and other-sheet name imports remain unsupported; named-formula calculation still
+has the limitations described below.
+Copies requiring external workbook links, sheet copies with conflicting names, and sheet copies
+with drawings/controls, tables, validation, conditional formatting or comments,
+report unsupported. Full formatting/dimension persistence and VBA sheet-module
+copying remain incomplete. Added/copied tabs survive saving into existing packages.
+
+`Worksheet.Move` accepts the same Before/After anchors as Copy, or no anchors for
+a new workbook. Same-book moves preserve worksheet content and object identity.
+Cross-book moves invalidate held worksheet/range/local-name objects with error
+424, matching Excel; reacquire them from the destination workbook. They relocate
+local names, activate the moved sheet, and close an emptied source workbook. Moving a
+sole sheet to a new workbook raises 1004. Source references that would require
+external links, name conflicts, drawings/advanced metadata and reserved sheet-name
+transfers are explicitly unsupported. Python `SheetView.move` is a wrapper over
+this VBA model operation.
+
+**Named-range CRUD.** `Workbook.Names` includes workbook and local definitions;
+`Worksheet.Names` lists only that worksheet's local definitions. String lookups
+are case-insensitive and prefer the current worksheet's local name; qualify a
+global lookup with the workbook name when shadowed. `Names.Add` accepts named
+arguments, A1 references or absolute R1C1 references, and replaces an existing
+definition in the same scope. `Name`, `RefersTo`, `Value`, `Visible` and `Comment`
+are editable; `RefersToRange` resolves range definitions and supported aliases.
+`Range.Name` reads or creates a name. Renaming updates references in formulas,
+aliases and Forms control bindings; deletion leaves formula spelling intact and
+calculation reports `#NAME?` where appropriate. All CRUD changes persist.
+
+Python `named_ranges`, `named_range`, `add_named_range`, `update_named_range`
+and `remove_named_range` share this implementation on `ExcelApplication` and
+`SheetView`. Workbook Python lookups select global names unless explicitly
+qualified; worksheet views select local names. Missing reads/updates raise
+`KeyError`; removing a missing name returns false. `NamedRange` snapshots are
+immutable. Locale aliases use English notation; locale translation, Excel 4
+macro-name metadata and active-cell-relative name semantics remain incomplete.
+
 **Structural references.** Whole-row/column `Insert` and `Delete` move cells
 and update formulas across worksheets and defined names. Dollar signs preserve
 their spelling but do not prevent structural movement. Referenced ranges grow

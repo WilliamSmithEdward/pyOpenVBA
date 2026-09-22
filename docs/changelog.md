@@ -7,6 +7,38 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- VBA `Worksheet.Move Before:=...` / `After:=...`, with same-book reordering,
+  cross-book transfer, and new-workbook moves; Python `SheetView.move` delegates
+  to the same model implementation. Cross-book moves invalidate held VBA objects
+  with error 424, matching native Excel; reacquire them from the destination.
+  Same-book reordering preserves objects. External-link and unsupported content transfers
+  fail before mutation; reserved local-name indices follow same-book reordering.
+- Cross-workbook range copies import referenced global/local names and aliases.
+  Python callers can choose `name_conflict="reuse"`, `"rename"`, or `"error"`;
+  the default matches unattended Excel. Renaming preserves existing names and
+  rewrites incoming formulas/dependencies, with eight native behavior probes
+  and native save/reopen checks for global and local aliases.
+- Multi-workbook Python APIs (`open_workbook`, `workbooks`, `activate_workbook`,
+  explicit workbook selection for `sheet`/`save`) and `SheetView.copy`/
+  `copy_range`. VBA `Worksheet.Copy` supports Before/After in the same or another
+  workbook and creating a new workbook, including unique tab names, cells,
+  merges and relevant scoped/global names. Seven native copy comparisons and
+  two native persistence gates cover modeled copies; external-link copies and
+  advanced worksheet content remain explicitly unsupported.
+  Workbook numbering no longer reuses names after Close; named Filename and
+  SaveChanges arguments work. Newly added/copied tabs are registered when saving
+  existing packages, preserving tab order and part identities across repeated saves.
+- Named-range CRUD across workbook and worksheet scopes: named-argument
+  `Names.Add`, scoped lookup/enumeration, replacement, rename, RefersTo/Value
+  retargeting, absolute R1C1 forms, Visible, Comment, Range.Name and Delete.
+  Renames update dependent formulas, aliases and control bindings; changes
+  invalidate calculation dependencies. Nineteen native cases and three native
+  persistence gates cover creation, update and deletion. Shared Python APIs
+  provide detached `NamedRange` snapshots and add/update/remove operations on
+  `ExcelApplication` and `SheetView`.
+  Local names now retain qualified identities after reopen; Power Query's
+  ExternalData-name handling follows that identity. Formulas without cached
+  results calculate on first read after reopening.
 - Whole-row/column insertion and deletion now update A1 formulas throughout
   the workbook and defined names, including absolute references, expanding or
   shrinking ranges, and deleted targets becoming `#REF!`. Twelve native cases

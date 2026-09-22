@@ -620,6 +620,59 @@ wildcards, case sensitivity, traversal order and wraparound. Whole-sheet
 searches keep empty cells sparse. Multi-area, comment and format searches,
 and `MatchByte=True`, remain unsupported.
 
+One `ExcelApplication` can hold multiple workbooks. Workbook handles let Python
+callers select and save a particular book without depending on the active book:
+
+```python
+source_book = app.add_workbook()
+source = app.sheet(1, workbook=source_book)
+source.set_value("A1", 10)
+destination_book = app.open_workbook("destination.xlsx")
+destination = app.sheet(1, workbook=destination_book)
+source.copy_range("A1:B5", destination, "D2", name_conflict="rename")
+copied_sheet = source.copy(after=destination)  # omit before/after for a new book
+copied_sheet.move(before=destination)
+app.save("destination.xlsx", workbook=destination_book)
+```
+
+VBA supports `Workbooks.Add`, `Open`, `Activate`, `Close`, and `Worksheet.Copy`
+before/after a sheet in another open workbook. Copies preserve modeled cells,
+merges and relevant names. Range copies import names used by formulas, including
+aliases. `name_conflict="reuse"` (the default) uses the destination definition,
+matching unattended Excel; `"rename"` imports names with unused `_2`, `_3`, etc.
+suffixes and rewrites copied formulas; `"error"` rejects collisions before making
+changes. Names referencing the source sheet retain their cell addresses on the
+destination sheet; they do not shift with the paste offset. External-link range
+copies, relative name imports, sheet-copy name conflicts, drawings,
+controls and advanced worksheet metadata are explicitly unsupported. Opening
+additional workbooks does not create independent VBA execution projects.
+
+VBA `Worksheet.Move Before:=...` / `After:=...` uses the same anchors as Copy.
+Omitting both moves the sheet into a new workbook. Cross-book moves invalidate
+held VBA worksheet, range and local-name objects (error 424), matching Excel;
+reacquire them from the destination. Python `move` returns the new sheet view.
+Same-book reordering preserves object identity. Moving the last sheet to an existing
+workbook closes the empty source; moving its only sheet to a new workbook raises
+1004. Moves that need external links or unsupported sheet-content transfer fail
+before changing either workbook.
+
+Named ranges support create/read/update/delete through VBA `Names` collections
+and shared Python APIs. `app` operates on workbook names; `app.sheet(...)`
+operates on worksheet-local names. Snapshots include scope, reference, visibility
+and comments; renaming updates dependent formulas.
+
+```python
+app.add_named_range("Revenue", "=Sheet1!$B$2:$B$10", comment="Sales totals")
+app.sheet(1).add_named_range("Revenue", "=$C$2:$C$10", visible=False)
+print(app.named_ranges())                  # workbook and local definitions
+print(app.named_range("Revenue"))         # workbook definition
+app.update_named_range("Revenue", new_name="Sales", refers_to="=Sheet1!$B$2:$B$20")
+app.sheet(1).update_named_range("Revenue", comment="Local override")
+app.remove_named_range("Sales")
+app.sheet(1).remove_named_range("Revenue")
+app.save("named_ranges.xlsm")
+```
+
 Whole-row/column `Insert` and `Delete` update cell references, including absolute
 and cross-sheet references, range boundaries and defined names. Deleted targets
 become `#REF!`. Partial-cell reference updates and full formatting/metadata

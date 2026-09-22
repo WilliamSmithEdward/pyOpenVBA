@@ -194,7 +194,8 @@ def _read_sheet(sheet: Worksheet, xml: str, strings: list[str], styles: list[str
             value = _cell_value(cell_xml, kind, strings, number_format)
             if value is EMPTY and not formula and number_format == "General" and not bold:
                 continue
-            cell = Cell(value=value, formula=formula, number_format=number_format, font_bold=bold)
+            cell = Cell(value=value, formula=formula, number_format=number_format, font_bold=bold,
+                        stale=bool(formula) and value is EMPTY)
             sheet.cells_[(row, column)] = cell
 
 
@@ -251,8 +252,14 @@ def _read_names(book: Workbook, workbook_xml: str) -> None:
         name = attributes.get("name", "")
         if not name or name.startswith("_xlnm"):
             continue
+        local_id = attributes.get("localSheetId", "")
+        if local_id.isdigit() and int(local_id) < len(book.sheets_):
+            from pyopenvba._a1 import quote_sheet
+
+            name = quote_sheet(book.sheets_[int(local_id)].name) + "!" + name
         book.names_.entries.append(
-            NameEntry(name, f"={_unescape(body.strip())}", book, attributes=attributes_text.strip())
+            NameEntry(name, f"={_unescape(body.strip())}", book, attributes=attributes_text.strip(),
+                      visible=attributes.get("hidden", "0") not in ("1", "true"), comment=attributes.get("comment", ""))
         )
 
 
@@ -828,6 +835,8 @@ def save_workbook(book: Workbook, target: Path) -> None:
         package = _fresh_package(target.suffix.lower())
         book.package = package
         _match_sheets_to_package(book, package)
+    else:
+        _sync_sheets(book, package)
     for sheet in book.sheets_:
         # A sheet nobody wrote to keeps the bytes it arrived with.
         if not sheet.part_name or not sheet.dirty:
@@ -918,6 +927,74 @@ def _match_sheets_to_package(book: Workbook, package: OpcFile) -> None:
         package.write("xl/workbook.xml", text.replace("</sheets>", "".join(additions) + "</sheets>", 1).encode("utf-8"))
 
 
+def has_reserved_sheet_names(sheet: Worksheet) -> bool:
+    """Check persisted scope by part identity, including after unsaved reorders."""
+    from xml.etree import ElementTree as ET
+
+    package = sheet.book.package
+    if package is None:
+        return False
+    root = ET.fromstring(package.read("xl/workbook.xml"))
+    relationships = _relationship_map(package)
+    tabs = [node for node in root.iter() if node.tag.endswith("}sheet")]
+    index = next((str(i) for i, node in enumerate(tabs)
+                  if relationships.get(node.attrib.get("{http://schemas.openxmlformats.org/officeDocument/2006/relationships}id", "")) == sheet.part_name), "")
+    return any(node.attrib.get("name", "").startswith("_xlnm") and node.attrib.get("localSheetId") == index
+               for node in root.iter())
+
+
+def _sync_sheets(book: Workbook, package: OpcFile) -> None:
+    """Register new tabs in existing packages, preserving existing part identities."""
+    text = package.read("xl/workbook.xml").decode("utf-8")
+    relationships = _relationship_map(package)
+    block = re.search(r"<sheets\b[^>]*>.*?</sheets>", text, re.DOTALL)
+    if block is None:
+        raise WorkbookFileError("Workbook has no sheets list")
+    existing: dict[str, dict[str, str]] = {}
+    identifiers: list[int] = []
+    for tag in re.findall(r"<sheet\b[^>]*/>", block.group()):
+        attrs = _tag_attributes(tag)
+        existing[relationships.get(attrs.get("r:id", ""), "")] = attrs
+        identifiers.append(int(attrs.get("sheetId", "0")))
+    next_id = max(identifiers, default=0) + 1
+    tags: list[str] = []
+    for sheet in book.sheets_:
+        attrs = dict(existing.get(sheet.part_name, {}))
+        if not attrs:
+            number = 1
+            while package.has(f"xl/worksheets/sheet{number}.xml"):
+                number += 1
+            sheet.part_name = f"xl/worksheets/sheet{number}.xml"
+            package.write(sheet.part_name, _EMPTY_SHEET.encode())
+            add_content_type(package, sheet.part_name, "application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml")
+            rid = add_relationship(package, "xl/_rels/workbook.xml.rels",
+                                   "http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet",
+                                   f"worksheets/sheet{number}.xml")
+            attrs = {"sheetId": str(next_id), "r:id": rid}
+            next_id += 1
+        attrs["name"] = sheet.name
+        tags.append("<sheet " + " ".join(f'{key}="{_escape(value)}"' for key, value in attrs.items()) + "/>")
+    rebuilt = "<sheets>" + "".join(tags) + "</sheets>"
+    if rebuilt != block.group():
+        old_parts = list(existing)
+        new_positions = {sheet.part_name: index for index, sheet in enumerate(book.sheets_)}
+
+        def remap_reserved(match: re.Match[str]) -> str:
+            attrs = _attributes(f"<definedName {match.group(1)}>")
+            if not attrs.get("name", "").startswith("_xlnm") or "localSheetId" not in attrs:
+                return match.group()
+            index = int(attrs["localSheetId"])
+            position = new_positions.get(old_parts[index]) if index < len(old_parts) else None
+            if position is None:
+                return ""
+            return re.sub(r'localSheetId="[^"]*"', f'localSheetId="{position}"', match.group(), count=1)
+
+        updated = text[:block.start()] + rebuilt + text[block.end():]
+        updated = _DEFINED_NAME.sub(remap_reserved, updated)
+        package.write("xl/workbook.xml", updated.encode())
+        book.names_.changed = True
+
+
 def _resize_loaded_tables(book: Workbook, package: OpcFile) -> None:
     """Follow a refreshed query's rows with its table and its name.
 
@@ -1003,13 +1080,13 @@ def _follow_query_table(package: OpcFile, target: LoadTarget, headers: list[str]
 
 def _follow_defined_name(book: Workbook, package: OpcFile, name: str, target: LoadTarget) -> None:
     """The hidden ExternalData name moves with the table it stands for."""
-    from pyopenvba._a1 import quote_sheet
+    from pyopenvba._a1 import quote_sheet, split_sheet
 
     area = target.area
     wanted = f"{quote_sheet(area.sheet)}!{area.address()}"
     changed = False
     for entry in book.names_.entries:
-        if not entry.name.startswith("ExternalData_"):
+        if not split_sheet(entry.name)[1].startswith("ExternalData_"):
             continue
         if entry.refers_to.lstrip("=").split("!")[0].strip("'") != area.sheet:
             continue
@@ -1355,10 +1432,17 @@ def _write_names(book: Workbook, package: OpcFile) -> None:
         owned = _attributes(f"<definedName {entry.attributes}>")
         scope, bare = split_sheet(entry.name)
         owned["name"] = bare
+        owned.pop("localSheetId", None)
         if scope:
             index = next((i for i, sheet in enumerate(book.sheets_) if sheet.name.lower() == scope.lower()), None)
             if index is not None:
                 owned["localSheetId"] = str(index)
+        owned.pop("hidden", None)
+        if not entry.visible:
+            owned["hidden"] = "1"
+        owned.pop("comment", None)
+        if entry.comment:
+            owned["comment"] = entry.comment
         attributes = " ".join(f'{key}="{_escape(value)}"' for key, value in owned.items())
         keep.append(f"<definedName {attributes}>{_escape(entry.refers_to.lstrip('='))}</definedName>")
     block = f"<definedNames>{''.join(keep)}</definedNames>" if keep else ""

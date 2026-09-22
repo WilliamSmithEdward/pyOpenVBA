@@ -1,0 +1,58 @@
+[
+  {
+    "name": "before",
+    "body": "Set src = Workbooks.Add\nSet dst = Workbooks.Add\nApplication.DisplayAlerts = False\nsrc.Worksheets.Add(After:=src.Worksheets(1)).Name = \"Second\"\nsrc.Worksheets.Add(After:=src.Worksheets(2)).Name = \"Third\"\nsrc.Worksheets(1).Range(\"A1\").Value = 7\nsrc.Worksheets(\"Third\").Move Before:=src.Worksheets(1)\nReport = CStr(ActiveWorkbook Is dst) & \":\" & ActiveSheet.Name & \"|\"\nFor Each bk In Workbooks\nIf bk Is src Or bk Is dst Then\nIf bk Is src Then\nReport = Report & \"source:\"\nElse\nReport = Report & \"destination:\"\nEnd If\nFor Each sh In bk.Worksheets\nReport = Report & sh.Name & \",\"\nNext sh\nFor Each nm In bk.Names\nReport = Report & nm.Name & \"=\" & nm.RefersTo & \",\"\nNext nm\nReport = Report & \"|\"\nEnd If\nNext bk\n",
+    "ok": true,
+    "reported": "False:Third|source:Third,Sheet1,Second,|destination:Sheet1,|",
+    "message": ""
+  },
+  {
+    "name": "after",
+    "body": "Set src = Workbooks.Add\nSet dst = Workbooks.Add\nApplication.DisplayAlerts = False\nsrc.Worksheets.Add(After:=src.Worksheets(1)).Name = \"Second\"\nsrc.Worksheets.Add(After:=src.Worksheets(2)).Name = \"Third\"\nsrc.Worksheets(1).Range(\"A1\").Value = 7\nsrc.Worksheets(1).Move After:=src.Worksheets(\"Third\")\nReport = CStr(ActiveWorkbook Is dst) & \":\" & ActiveSheet.Name & \"|\"\nFor Each bk In Workbooks\nIf bk Is src Or bk Is dst Then\nIf bk Is src Then\nReport = Report & \"source:\"\nElse\nReport = Report & \"destination:\"\nEnd If\nFor Each sh In bk.Worksheets\nReport = Report & sh.Name & \",\"\nNext sh\nFor Each nm In bk.Names\nReport = Report & nm.Name & \"=\" & nm.RefersTo & \",\"\nNext nm\nReport = Report & \"|\"\nEnd If\nNext bk\n",
+    "ok": true,
+    "reported": "False:Sheet1|source:Second,Third,Sheet1,|destination:Sheet1,|",
+    "message": ""
+  },
+  {
+    "name": "self",
+    "body": "Set src = Workbooks.Add\nSet dst = Workbooks.Add\nApplication.DisplayAlerts = False\nsrc.Worksheets.Add(After:=src.Worksheets(1)).Name = \"Second\"\nsrc.Worksheets.Add(After:=src.Worksheets(2)).Name = \"Third\"\nsrc.Worksheets(1).Range(\"A1\").Value = 7\nsrc.Worksheets(1).Move Before:=src.Worksheets(1)\nReport = CStr(ActiveWorkbook Is dst) & \":\" & ActiveSheet.Name & \"|\"\nFor Each bk In Workbooks\nIf bk Is src Or bk Is dst Then\nIf bk Is src Then\nReport = Report & \"source:\"\nElse\nReport = Report & \"destination:\"\nEnd If\nFor Each sh In bk.Worksheets\nReport = Report & sh.Name & \",\"\nNext sh\nFor Each nm In bk.Names\nReport = Report & nm.Name & \"=\" & nm.RefersTo & \",\"\nNext nm\nReport = Report & \"|\"\nEnd If\nNext bk\n",
+    "ok": true,
+    "reported": "False:Sheet1|source:Sheet1,Second,Third,|destination:Sheet1,|",
+    "message": ""
+  },
+  {
+    "name": "new",
+    "body": "Set src = Workbooks.Add\nSet dst = Workbooks.Add\nApplication.DisplayAlerts = False\nsrc.Worksheets.Add(After:=src.Worksheets(1)).Name = \"Second\"\nsrc.Worksheets.Add(After:=src.Worksheets(2)).Name = \"Third\"\nsrc.Worksheets(1).Range(\"A1\").Value = 7\nsrc.Worksheets(1).Move\nSet dst = ActiveWorkbook\nReport = CStr(ActiveWorkbook Is dst) & \":\" & ActiveSheet.Name & \"|\"\nFor Each bk In Workbooks\nIf bk Is src Or bk Is dst Then\nIf bk Is src Then\nReport = Report & \"source:\"\nElse\nReport = Report & \"destination:\"\nEnd If\nFor Each sh In bk.Worksheets\nReport = Report & sh.Name & \",\"\nNext sh\nFor Each nm In bk.Names\nReport = Report & nm.Name & \"=\" & nm.RefersTo & \",\"\nNext nm\nReport = Report & \"|\"\nEnd If\nNext bk\n",
+    "ok": true,
+    "reported": "True:Sheet1|source:Second,Third,|destination:Sheet1,|",
+    "message": ""
+  },
+  {
+    "name": "cross",
+    "body": "Set src = Workbooks.Add\nSet dst = Workbooks.Add\nApplication.DisplayAlerts = False\nsrc.Worksheets.Add(After:=src.Worksheets(1)).Name = \"Second\"\nsrc.Worksheets.Add(After:=src.Worksheets(2)).Name = \"Third\"\nsrc.Worksheets(1).Range(\"A1\").Value = 7\nsrc.Worksheets(1).Move After:=dst.Worksheets(1)\nReport = CStr(ActiveWorkbook Is dst) & \":\" & ActiveSheet.Name & \"|\"\nFor Each bk In Workbooks\nIf bk Is src Or bk Is dst Then\nIf bk Is src Then\nReport = Report & \"source:\"\nElse\nReport = Report & \"destination:\"\nEnd If\nFor Each sh In bk.Worksheets\nReport = Report & sh.Name & \",\"\nNext sh\nFor Each nm In bk.Names\nReport = Report & nm.Name & \"=\" & nm.RefersTo & \",\"\nNext nm\nReport = Report & \"|\"\nEnd If\nNext bk\n",
+    "ok": true,
+    "reported": "True:Sheet1 (2)|source:Second,Third,|destination:Sheet1,Sheet1 (2),|",
+    "message": ""
+  },
+  {
+    "name": "names",
+    "body": "Set src = Workbooks.Add\nSet dst = Workbooks.Add\nApplication.DisplayAlerts = False\nsrc.Worksheets.Add(After:=src.Worksheets(1)).Name = \"Second\"\nsrc.Worksheets.Add(After:=src.Worksheets(2)).Name = \"Third\"\nsrc.Worksheets(1).Range(\"A1\").Value = 7\nsrc.Names.Add \"GlobalAmount\", \"=Sheet1!$A$1\"\nsrc.Worksheets(1).Names.Add \"LocalAmount\", \"=Sheet1!$A$1\"\nsrc.Worksheets(1).Range(\"B1\").Formula = \"=GlobalAmount+LocalAmount\"\nsrc.Worksheets(1).Move Before:=dst.Worksheets(1)\nReport = CStr(ActiveWorkbook Is dst) & \":\" & ActiveSheet.Name & \"|\"\nFor Each bk In Workbooks\nIf bk Is src Or bk Is dst Then\nIf bk Is src Then\nReport = Report & \"source:\"\nElse\nReport = Report & \"destination:\"\nEnd If\nFor Each sh In bk.Worksheets\nReport = Report & sh.Name & \",\"\nNext sh\nFor Each nm In bk.Names\nReport = Report & nm.Name & \"=\" & nm.RefersTo & \",\"\nNext nm\nReport = Report & \"|\"\nEnd If\nNext bk\n",
+    "ok": true,
+    "reported": "True:Sheet1 (2)|source:Second,Third,GlobalAmount=='[Book19]Sheet1 (2)'!$A$1,|destination:Sheet1 (2),Sheet1,GlobalAmount=='Sheet1 (2)'!$A$1,'Sheet1 (2)'!LocalAmount=='Sheet1 (2)'!$A$1,|",
+    "message": ""
+  },
+  {
+    "name": "last",
+    "body": "Set src = Workbooks.Add\nSet dst = Workbooks.Add\nApplication.DisplayAlerts = False\nsrc.Worksheets.Add(After:=src.Worksheets(1)).Name = \"Second\"\nsrc.Worksheets.Add(After:=src.Worksheets(2)).Name = \"Third\"\nsrc.Worksheets(1).Range(\"A1\").Value = 7\nsrc.Worksheets(\"Third\").Delete\nsrc.Worksheets(\"Second\").Delete\nsrc.Worksheets(1).Move After:=dst.Worksheets(1)\nReport = CStr(ActiveWorkbook Is dst) & \":\" & ActiveSheet.Name & \"|\"\nFor Each bk In Workbooks\nIf bk Is src Or bk Is dst Then\nIf bk Is src Then\nReport = Report & \"source:\"\nElse\nReport = Report & \"destination:\"\nEnd If\nFor Each sh In bk.Worksheets\nReport = Report & sh.Name & \",\"\nNext sh\nFor Each nm In bk.Names\nReport = Report & nm.Name & \"=\" & nm.RefersTo & \",\"\nNext nm\nReport = Report & \"|\"\nEnd If\nNext bk\n",
+    "ok": true,
+    "reported": "True:Sheet1 (2)|destination:Sheet1,Sheet1 (2),|",
+    "message": ""
+  },
+  {
+    "name": "last_new",
+    "body": "Set src = Workbooks.Add\nSet dst = Workbooks.Add\nApplication.DisplayAlerts = False\nsrc.Worksheets.Add(After:=src.Worksheets(1)).Name = \"Second\"\nsrc.Worksheets.Add(After:=src.Worksheets(2)).Name = \"Third\"\nsrc.Worksheets(1).Range(\"A1\").Value = 7\nsrc.Worksheets(\"Third\").Delete\nsrc.Worksheets(\"Second\").Delete\nOn Error Resume Next\nsrc.Worksheets(1).Move\nReport = CStr(Err.Number)\nExit Function\nReport = CStr(ActiveWorkbook Is dst) & \":\" & ActiveSheet.Name & \"|\"\nFor Each bk In Workbooks\nIf bk Is src Or bk Is dst Then\nIf bk Is src Then\nReport = Report & \"source:\"\nElse\nReport = Report & \"destination:\"\nEnd If\nFor Each sh In bk.Worksheets\nReport = Report & sh.Name & \",\"\nNext sh\nFor Each nm In bk.Names\nReport = Report & nm.Name & \"=\" & nm.RefersTo & \",\"\nNext nm\nReport = Report & \"|\"\nEnd If\nNext bk\n",
+    "ok": true,
+    "reported": "1004",
+    "message": ""
+  }
+]

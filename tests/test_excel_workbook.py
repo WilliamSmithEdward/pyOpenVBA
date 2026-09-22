@@ -180,7 +180,7 @@ def test_opening_a_workbook_reads_its_cells() -> None:
 def test_opening_a_workbook_reads_its_names_and_queries() -> None:
     app = ExcelApplication.open(LOADED)
     book = app.workbook
-    assert [entry.name for entry in book.names_.entries] == ["ExternalData_1"]
+    assert [entry.name for entry in book.names_.entries] == ["Sheet1!ExternalData_1"]
     assert [entry.name for entry in book.queries_.entries] == ["Loaded"]
 
 

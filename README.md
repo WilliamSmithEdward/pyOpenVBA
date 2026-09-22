@@ -938,6 +938,7 @@ For more:
 - [docs/power_query.md](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/docs/power_query.md): how Excel stores Power Query, and how each rule was measured.
 - [docs/ms-ovba-implementation-guide_v2.md](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/docs/ms-ovba-implementation-guide_v2.md): a language-agnostic guide to re-implementing MS-OVBA.
 - [docs/roadmap.md](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/docs/roadmap.md): per-feature status.
+- [docs/host_completeness.md](docs/host_completeness.md): whole-host completion criteria and the Excel coverage audit; Excel, then Word, then PowerPoint.
 
 ---
 

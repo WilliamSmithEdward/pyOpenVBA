@@ -433,8 +433,11 @@ a document or a presentation is edited rather than created.
 - **Power Query reaches nothing off the machine.** The language is
   evaluated and a local source is read, but `Sql.Database`, `Web.Contents`,
   `OData.Feed` and the rest of the connectors report themselves rather
-  than opening a connection. 224 of M's 859 library names are
-  implemented; the others are named as gaps, not answered wrongly.
+  than opening a connection. The static M library registers 234 names;
+  225 match the normalized 859-name reference inventory. Registration
+  counts include constants and types and do not establish conformance;
+  see the [coverage audit](host_completeness.md#reproducible-discovery-inventory).
+  Missing names are reported as gaps.
 - **No events.** `WithEvents` sinks are not connected and `RaiseEvent`
   says so.  A `Worksheet_Change` handler will not fire when a macro
   writes a cell.
@@ -494,9 +497,19 @@ a document or a presentation is edited rather than created.
 
 ## What comes next
 
-Access gets the same shape as the other three: an object model under
-`apps/`, a bridge, and a measured probe file.  The document-module
-events are the other open piece, so that writing a cell from a macro
-fires `Worksheet_Change`, and after that the parts of each host's model
-that no probe has reached yet -- Word's tables and headers,
-PowerPoint's slide masters, Excel's pivot tables.
+The completion order for the whole headless library is Excel, then
+Word, then PowerPoint, using the evidence requirements in
+[`host_completeness.md`](host_completeness.md). Shape
+support continues in both pyOpenVBA and pyOfficeEditor, through each
+library's own public API; the decision and remaining API work are
+recorded in [`roadmap.md`](roadmap.md#shape-support-in-both-libraries).
+
+Excel's completeness audit comes first. Known gaps include
+document-module events and `WithEvents`, spilling arrays, pivot tables,
+the remaining shape operations and M library coverage. A passing
+MS-OVBA file-editing gate does not establish runtime completeness.
+Word's tables and headers and PowerPoint's slide masters are examples
+of the work for their later host-specific audits.
+
+Access's object model under `apps/`, bridge and measured probe file
+follow completion of those three hosts.

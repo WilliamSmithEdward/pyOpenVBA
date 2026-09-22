@@ -42,11 +42,11 @@ done and what is not.
   `form.add_control()`, `form.add_page()`, `control.set_property()`,
   `python -m pyopenvba forms`).  Writing is lossless: an unedited form
   saves back byte for byte.
-- **Running the VBA**: a VBA interpreter and an in-memory Excel object
-  model (`pyopenvba.apps.excel.ExcelApplication`), so a macro can be
-  executed against a workbook loaded from a file or made up from
-  nothing, and the result written back out. Every expression answer is
-  measured against live Excel; see
+- **Running the VBA**: a VBA interpreter and in-memory Excel, Word and
+  PowerPoint object models, so a macro can be executed against a loaded
+  file and the result written back out. Excel also supports creating a
+  workbook from nothing. Behavior is held to measurements from the
+  corresponding Office application; see
   [`vba_runtime.md`](vba_runtime.md).
 - Pure Python 3.10+, zero runtime dependencies.
 
@@ -89,25 +89,72 @@ done and what is not.
 | 24 | API Contract | PASS | Layered modules: `pyopenvba.cfb`, `pyopenvba.vba`, `pyopenvba.excel`. Mutation surface (`add_module`/`rename_module`/`delete_module`) persists end-to-end through `save()`. |
 | 25 | Documentation | PASS | `README.md` carries the scope statement, supported formats, push/pull workflow, and safety-guard summary; `docs/roadmap.md` tracks per-gate status. |
 
+## Shape support in both libraries
+
+Shapes belong in both pyOpenVBA and pyOfficeEditor. Each library will
+continue to develop shape support through its own supported public API.
+Consumers may choose either library for the workflow they need. This
+resolves the exclusive-ownership question in
+[issue #24](https://github.com/WilliamSmithEdward/pyOpenVBA/issues/24).
+
+In pyOpenVBA, shapes serve the VBA host models and the Python API.
+The drawing readers and writers under `shapes/_xlsx.py`, `_docx.py`
+and `_pptx.py` remain private implementation details; the public
+file-editing surface is exposed through `ExcelApplication.sheet()` and
+its `SheetView` shape methods. Reading snapshots, creating AutoShapes,
+text boxes and nine Forms control types, and common edits and deletion
+are implemented. Checkbox, list and numeric control values, A1 bindings
+and workbook/local named bindings (including `CHOOSE`, `IF`, single-area `INDEX`, `OFFSET`
+and A1/absolute-R1C1 `INDIRECT`)
+have measured support, including multi/extended list rebinding and radio
+selection, shared links, deletion and non-overlapping interleaved regrouping.
+Overlapping and nested box additions also have measured link-transfer
+support. Remaining shape kinds and settings still need implementation
+and conformance evidence.
+Resolving ownership does not mark that work complete.
+
+The public API work must cover reading, creating, editing and deleting
+shapes, form-control details (including linked cells, list ranges and
+values), and setting or clearing a macro where the host supports it.
+Mutations must keep the drawing, control records, VML, content types
+and relationships consistent while preserving unrelated content.
+Both libraries should be checked against the same Office-authored
+fixtures and measured behavior. pyOpenVBA keeps its contract of zero
+runtime dependencies; supporting shapes in both libraries does not
+require consumers to import either library's private modules.
+
+The corresponding pyOfficeEditor API work remains tracked in
+[pyOfficeEditor #1](https://github.com/WilliamSmithEdward/pyOfficeEditor/issues/1).
+That issue is not a duplicate of the ownership decision.
+
 ## Near-term roadmap (in priority order)
 
-The MS-OVBA gates are all PASS. What is open belongs to the newer
-interpreter work, tracked in [`vba_runtime.md`](vba_runtime.md):
+The development order is **Excel, then Word, then PowerPoint**, covering
+the whole headless library. The scope,
+acceptance criteria and initial audit are in
+[`host_completeness.md`](host_completeness.md). Access runtime expansion
+follows those hosts. Existing functionality in every host remains
+supported.
 
-1. An Access object model with its own measured probe file, following
-   the shape `apps/excel`, `apps/word` and `apps/powerpoint` set.
-2. More of the M library, which is 224 of the 859 names `#shared`
-   reports. The gaps are named rather than answered wrongly, so what to
-   add next is whatever a real query asks for.
-3. `WithEvents` and the document-module event handlers, so a
-   `Worksheet_Change` fires when a macro writes a cell.
-4. Array formulas that spill, which the calculation engine stops short
-   of: an array result shows its first element, as it did before
-   dynamic arrays.
-5. The shapes this reads but does not make: a group, a picture and a
-   chart. All three are read, and their members and parts are reachable;
-   `ShapeRange.Group` and `AddPicture` report themselves rather than
-   writing a part they cannot yet write.
+1. Complete the public shape API work described above, starting with
+   Excel and keeping the remaining gaps explicit.
+2. Expand Excel's feature-completeness checklist to individual operations,
+   then implement and verify its gaps before moving to Word. The MS-OVBA
+   gates above cover
+   VBA project file editing; their in-scope passes do not establish
+   completeness of the Excel object model or runtime.
+3. Complete Word against its own checklist and live measurements.
+4. Complete PowerPoint against its own checklist and live measurements.
+5. Add the Access object model, bridge and measured probe file using the
+   pattern established by the other hosts.
+
+Known Excel gaps include `WithEvents` and document-module events,
+spilling array formulas, object-model members such as pivot tables,
+creating groups, pictures and charts, and the unimplemented portions of
+the M library (the registered and missing names are counted by the
+coverage audit). These are starting
+points for the completeness audit, not an exhaustive checklist. The
+current runtime limits are recorded in [`vba_runtime.md`](vba_runtime.md).
 
 ## Out of scope (no current plans)
 

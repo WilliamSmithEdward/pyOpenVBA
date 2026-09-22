@@ -33,7 +33,17 @@ For each feature, the checklist must record:
 - Dependencies on other features, remaining gaps and any explicit scope
   exception. An unsupported error is a reported gap, not a passing gate.
 
-Use **VERIFIED**, **PARTIAL**, **MISSING** and **UNASSESSED** per operation.
+Use **VERIFIED**, **PARTIAL**, **MISSING**, **UNASSESSED** and
+**EXCLUDED** per operation:
+
+- **VERIFIED**: every argument, error case and persisted effect is
+  measured against live Office and replayed offline.
+- **PARTIAL**: implemented, with live measurements behind some of it;
+  the note says what is not covered.
+- **UNASSESSED**: implemented, but not yet checked against Office.
+- **MISSING**: not implemented; using it reports itself unsupported.
+- **EXCLUDED**: out of headless scope, with the reason recorded.
+
 An area becomes VERIFIED only when its operations and evidence are
 complete. Do not advance the completion milestone to Word while Excel
 has unresolved in-scope gaps; apply the same rule before PowerPoint.
@@ -84,6 +94,35 @@ names, of which 225 match its normalized 859-name reference inventory;
 names such as constants and types and are not counts of proven functions.
 `Excel.CurrentWorkbook` is provided by the workbook evaluation context
 and must be checked separately from the static M library registry.
+
+## The operation checklist
+
+[`excel_checklist.csv`](excel_checklist.csv) has one row for every member
+of every Excel class the model implements, with its kind and signature
+from the type library, a status, the fixtures that are its evidence, and
+a note. Its `interface_gaps` column lists what a registration visibly
+lacks next to the type library: a read-write property with no setter,
+or a method missing some of Excel's parameters. A member with an
+interface gap cannot be VERIFIED.
+
+Regenerate it after adding or removing a member:
+
+```console
+python scripts/build_excel_checklist.py
+```
+
+The script reads the type-library dumps in the sibling pyVBAReference
+checkout, the same source as the object inventory, and keeps the status,
+evidence and note columns already in the file.
+`tests/test_excel_checklist.py` fails when a registered member is listed
+as missing, a missing one is listed as implemented, an implemented class
+has a member the file leaves out, or a pass names evidence that does not
+exist.
+
+The first pass marked PARTIAL only the members whose behavior a measured
+fixture exercises by name, and left every other registered member
+UNASSESSED. Nothing is VERIFIED yet: no area has finished its
+operation-level audit.
 
 ## Excel work areas
 

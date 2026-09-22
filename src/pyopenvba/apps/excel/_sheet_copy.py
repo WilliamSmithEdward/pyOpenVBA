@@ -87,8 +87,7 @@ def copy_sheet(source: Worksheet, before: object, after: object) -> object:
     at = destination.sheets_.index(anchor) + (0 if before is not MISSING else 1) if isinstance(anchor, Worksheet) else None
     copied = destination.add_sheet(name, at=at)
     copied.cells_ = cells
-    copied.row_heights = dict(source.row_heights)
-    copied.column_widths = dict(source.column_widths)
+    copied.dims = source.dims.copied(copied)
     copied.merged_areas = [Area(a.top, a.left, a.bottom, a.right, name) for a in source.merged_areas]
     copied.merges_dirty = bool(copied.merged_areas)
     destination.names_.entries.extend(names)

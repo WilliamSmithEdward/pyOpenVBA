@@ -323,8 +323,9 @@ and other-sheet name imports remain unsupported; named-formula calculation still
 has the limitations described below.
 Copies requiring external workbook links, sheet copies with conflicting names, and sheet copies
 with drawings/controls, tables, validation, conditional formatting or comments,
-report unsupported. Full formatting/dimension persistence and VBA sheet-module
-copying remain incomplete. Added/copied tabs survive saving into existing packages.
+report unsupported. Row heights, column widths and hidden rows and columns are
+copied with the sheet; row and column formats and VBA sheet-module copying remain
+incomplete. Added/copied tabs survive saving into existing packages.
 
 `Worksheet.Move` accepts the same Before/After anchors as Copy, or no anchors for
 a new workbook. Same-book moves preserve worksheet content and object identity.
@@ -360,6 +361,9 @@ and update formulas across worksheets and defined names. Dollar signs preserve
 their spelling but do not prevent structural movement. Referenced ranges grow
 or shrink; fully deleted targets become `#REF!`, including qualified references
 on other sheets. Insertion refuses to discard occupied cells at the grid edge.
+Row heights, column widths and hidden rows and columns move with the rows and
+columns; a new row takes the height of the row above it, and a new column the
+width of the one to its left.
 Sheets containing merges or shapes and multi-area structural edits are explicitly
 unsupported. Partial-cell reference rewriting, formatting inheritance/CopyOrigin,
 relative name context, and table/validation/chart metadata updates remain incomplete.
@@ -422,6 +426,52 @@ Row and column formats, `Range.Style` and the `Styles` collection,
 conditional formats, and formatting whole rows or columns at once are not
 implemented yet; the operation checklist, `docs/excel_checklist.csv`,
 records each member's status.
+
+**Row heights and column widths.** `RowHeight`, `ColumnWidth`, `Hidden`,
+`UseStandardHeight`, `UseStandardWidth`, `Height`, `Width`, `Left`, `Top`,
+row `AutoFit`, and a sheet's `StandardHeight` and `StandardWidth` behave
+as Excel does on a 96-DPI display (Windows at 100%), which is the display
+the model emulates: 152 probes of live Excel pin the answers
+(`tests/fixtures/dimensions.json`), and a live gate opens the model's own
+saved sizes in Excel. Excel rounds sizes to the pixels of whatever display
+it runs on, so the same macro gives other answers, and writes other bytes,
+on a 144-DPI one.
+
+* A height is rounded to twips and then to quarter pixels (0.1875pt), so
+  `RowHeight = 20` reads back 20, draws 26 pixels tall (`Height` 19.5)
+  and is saved as `20.100000000000001`. That spelling is Excel's: 15
+  digits when the double is within 5/16 of an epsilon of them, relative
+  to its size, and 17 otherwise, which covers all 2,184 heights a row can
+  have.
+* A width is rounded to whole pixels, seven to the character plus five,
+  so `ColumnWidth = 10.1` reads back 10.14. A width in a file converts by
+  the formula ECMA-376 gives, so a file's `width="15"` reads as 14.29.
+* A height or width of zero hides the row or column and keeps its size
+  for when it is shown again. A standard column hidden that way is saved
+  with a width of 0 and comes back with the standard width as a width of
+  its own. `Hidden` needs whole rows or columns; hiding every row, or
+  rows down to the last one, hides rows by default (`zeroHeight`), and
+  hiding every column makes the standard width 0.
+* Sizing every row, or every column, at once changes the sheet's default
+  rather than listing each one.
+* A read across several rows or columns answers the first one's value
+  unless the part of the range inside the sheet's used cells disagrees,
+  in which case it is Null. Excel walks that part with a loop that
+  restarts later lines at the range's own edge, and the model does the
+  same, so the answer depends on where the sheet's cells are exactly as
+  it does in Excel (459 live reads).
+* Whole rows copied take their heights along, and whole columns their
+  widths; an inserted row takes the height of the row above it, and an
+  inserted column the width of the one to its left.
+
+A row a larger font makes taller keeps the height its file recorded: the
+model does not yet work out font heights, so `AutoFit` on such a row, or
+on a column whose cells hold values, reports itself unsupported. The
+sizes are measured for Aptos Narrow 11 and Calibri 11 as the Normal font;
+with another Normal font the file's own standard sizes stand. Excel's used
+block, and with it which cells a multi-row read compares, also grows while
+a workbook is open and stays grown until something reads `UsedRange`; the
+model's always follows the sheet's content.
 
 **Formulas are calculated.** `pyopenvba.formula` parses and evaluates
 them; the workbook keeps track of which cells are stale and what feeds
@@ -525,6 +575,7 @@ a document or a presentation is edited rather than created.
 | `apps/excel/_shape_api.py` | Python shape operations on that same state; exposed through `SheetView` |
 | `apps/excel/_styles.py` | The stylesheet read into cell formats, colours, and the entries a save adds |
 | `apps/excel/_formats.py` | Font, Interior, Borders, alignment and protection, as a macro reads and sets them |
+| `apps/excel/_dimensions.py` | Row heights, column widths and hidden rows and columns, on a 96-DPI display |
 | `apps/word/` | Word's object model, its bridge and its file |
 | `apps/powerpoint/` | PowerPoint's, the same three |
 | `shapes/_values.py` | What a shape is, in all three hosts' words |

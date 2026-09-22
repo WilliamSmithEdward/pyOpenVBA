@@ -474,7 +474,7 @@ Range,Areas,"property, read-only",As Areas,,PARTIAL,tests/fixtures/excel_model/p
 Range,AutoComplete,method,AutoComplete(String As String) As String,,MISSING,,
 Range,AutoFill,method,"AutoFill(Destination As Range, [Type As XlAutoFillType]) As Variant",,MISSING,,
 Range,AutoFilter,method,"AutoFilter([Field As Variant], [Criteria1 As Variant], [Operator As XlAutoFilterOperator], [Criteria2 As Variant], [VisibleDropDown As Variant], [SubField As Variant]) As Variant",,MISSING,,
-Range,AutoFit,method,AutoFit() As Variant,,UNASSESSED,,
+Range,AutoFit,method,AutoFit() As Variant,,PARTIAL,tests/fixtures/dimensions.json; tests/fixtures/dimensions/dimensions_answers.json,"Rows go back to the standard height and are shown; a column whose cells hold values, or a row with a font other than the Normal one, reports unsupported, because AutoFit measures text."
 Range,AutoOutline,method,AutoOutline() As Variant,,MISSING,,
 Range,BorderAround,method,"BorderAround([LineStyle As Variant], [Weight As XlBorderWeight], [ColorIndex As XlColorIndex], [Color As Variant], [ThemeColor As Variant]) As Variant",,PARTIAL,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/fixtures/format/border_storage.json; tests/test_live_excel_model_gate.py,The ColorIndex and ThemeColor arguments and the return value are unmeasured.
 Range,Borders,"property, read-only",As Borders,,VERIFIED,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,
@@ -494,7 +494,7 @@ Range,ClearOutline,method,ClearOutline() As Variant,,MISSING,,
 Range,Column,"property, read-only",As Long,,PARTIAL,tests/fixtures/excel_model/probes.txt,
 Range,ColumnDifferences,method,ColumnDifferences(Comparison As Variant) As Range,,MISSING,,
 Range,Columns,"property, read-only",As Range,,PARTIAL,tests/fixtures/excel_model/probes.txt,
-Range,ColumnWidth,property,As Variant,,UNASSESSED,,
+Range,ColumnWidth,property,As Variant,,PARTIAL,tests/fixtures/dimensions.json; tests/fixtures/dimensions/dimensions_answers.json,Measured for Aptos Narrow 11 and Calibri 11 as the Normal font on a 96-DPI display; with another Normal font the file's own standard sizes stand. A read across several rows or columns compares inside the sheet's current used block; Excel's can stay larger for the rest of a session after a column is hidden.
 Range,Comment,"property, read-only",As Comment,,MISSING,,
 Range,CommentThreaded,"property, read-only",As CommentThreaded,,MISSING,,
 Range,Consolidate,method,"Consolidate([Sources As Variant], [Function As Variant], [TopRow As Variant], [LeftColumn As Variant], [CreateLinks As Variant]) As Variant",,MISSING,,
@@ -551,8 +551,8 @@ Range,HasArray,"property, read-only",As Variant,,MISSING,,
 Range,HasFormula,"property, read-only",As Variant,,MISSING,,
 Range,HasRichDataType,"property, read-only",As Variant,,MISSING,,
 Range,HasSpill,"property, read-only",As Variant,,MISSING,,
-Range,Height,"property, read-only",As Variant,,MISSING,,
-Range,Hidden,property,As Variant,,MISSING,,
+Range,Height,"property, read-only",As Variant,,PARTIAL,tests/fixtures/dimensions.json; tests/fixtures/dimensions/dimensions_answers.json,A row a larger font makes taller keeps the height its file recorded; the model does not work out font heights.
+Range,Hidden,property,As Variant,,PARTIAL,tests/fixtures/dimensions.json; tests/fixtures/dimensions/dimensions_answers.json,"Hiding every row, or rows down to the last one, makes hidden the sheet's default as Excel does; a block that stops short of the last row is hidden row by row, and whether Excel switches over for a large one was not measured."
 Range,HorizontalAlignment,property,As Variant,,VERIFIED,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,
 Range,Hyperlinks,"property, read-only",As Hyperlinks,,MISSING,,
 Range,ID,property,As String,,MISSING,,
@@ -563,7 +563,7 @@ Range,InsertPictureInCell,method,InsertPictureInCell(PictureURI As String),,MISS
 Range,Interior,"property, read-only",As Interior,,PARTIAL,tests/fixtures/excel_model/probes.txt,
 Range,Item,property,As Variant,no setter,UNASSESSED,,
 Range,Justify,method,Justify() As Variant,,MISSING,,
-Range,Left,"property, read-only",As Variant,,MISSING,,
+Range,Left,"property, read-only",As Variant,,PARTIAL,tests/fixtures/dimensions.json; tests/fixtures/dimensions/dimensions_answers.json,Measured for Aptos Narrow 11 and Calibri 11 as the Normal font on a 96-DPI display; with another Normal font the file's own standard sizes stand.
 Range,LinkedDataTypeState,"property, read-only",As Variant,,MISSING,,
 Range,ListHeaderRows,"property, read-only",As Long,,MISSING,,
 Range,ListNames,method,ListNames() As Variant,,MISSING,,
@@ -612,7 +612,7 @@ Range,ResetContents,method,ResetContents(),,MISSING,,
 Range,Resize,"property, read-only",As Range,,PARTIAL,tests/fixtures/excel_model/probes.txt,
 Range,Row,"property, read-only",As Long,,PARTIAL,tests/fixtures/excel_model/probes.txt,
 Range,RowDifferences,method,RowDifferences(Comparison As Variant) As Range,,MISSING,,
-Range,RowHeight,property,As Variant,,UNASSESSED,,
+Range,RowHeight,property,As Variant,,PARTIAL,tests/fixtures/dimensions.json; tests/fixtures/dimensions/dimensions_answers.json,A row a larger font makes taller keeps the height its file recorded; the model does not work out font heights. A read across several rows or columns compares inside the sheet's current used block; Excel's can stay larger for the rest of a session after a column is hidden.
 Range,Rows,"property, read-only",As Range,,PARTIAL,tests/fixtures/excel_model/probes.txt,
 Range,Run,method,"Run([Arg1 As Variant], [Arg2 As Variant], [Arg3 As Variant], [Arg4 As Variant], [Arg5 As Variant], [Arg6 As Variant], [Arg7 As Variant], [Arg8 As Variant], [Arg9 As Variant], [Arg10 As Variant], [Arg11 As Variant], [Arg12 As Variant], [Arg13 As Variant], [Arg14 As Variant], [Arg15 As Variant], [Arg16 As Variant], [Arg17 As Variant], [Arg18 As Variant], [Arg19 As Variant], [Arg20 As Variant], [Arg21 As Variant], [Arg22 As Variant], [Arg23 As Variant], [Arg24 As Variant], [Arg25 As Variant], [Arg26 As Variant], [Arg27 As Variant], [Arg28 As Variant], [Arg29 As Variant], [Arg30 As Variant]) As Variant",,MISSING,,
 Range,SavedAsArray,"property, read-only",As Variant,,MISSING,,
@@ -643,17 +643,17 @@ Range,Table,method,"Table([RowInput As Variant], [ColumnInput As Variant]) As Va
 Range,Text,"property, read-only",As Variant,,PARTIAL,tests/fixtures/excel_model/probes.txt,
 Range,TextToColumns,method,"TextToColumns([Destination As Variant], [DataType As XlTextParsingType], [TextQualifier As XlTextQualifier], [ConsecutiveDelimiter As Variant], [Tab As Variant], [Semicolon As Variant], [Comma As Variant], [Space As Variant], [Other As Variant], [OtherChar As Variant], [FieldInfo As Variant], [DecimalSeparator As Variant], [ThousandsSeparator As Variant], [TrailingMinusNumbers As Variant]) As Variant",,MISSING,,
 Range,TogglePythonMarshalMode,method,TogglePythonMarshalMode([MarshalMode As Variant]),,MISSING,,
-Range,Top,"property, read-only",As Variant,,MISSING,,
+Range,Top,"property, read-only",As Variant,,PARTIAL,tests/fixtures/dimensions.json; tests/fixtures/dimensions/dimensions_answers.json,A row a larger font makes taller keeps the height its file recorded; the model does not work out font heights.
 Range,Ungroup,method,Ungroup() As Variant,,MISSING,,
 Range,UnMerge,method,UnMerge(),,PARTIAL,tests/fixtures/range_merge.json,Multi-area merges and across merges over multi-row regions report unsupported; merge formatting is not modeled.
 Range,UpdatePictureInCellAlternativeText,method,UpdatePictureInCellAlternativeText(AlternativeText As String),,MISSING,,
-Range,UseStandardHeight,property,As Variant,,MISSING,,
-Range,UseStandardWidth,property,As Variant,,MISSING,,
+Range,UseStandardHeight,property,As Variant,,PARTIAL,tests/fixtures/dimensions.json; tests/fixtures/dimensions/dimensions_answers.json,A read across several rows or columns compares inside the sheet's current used block; Excel's can stay larger for the rest of a session after a column is hidden.
+Range,UseStandardWidth,property,As Variant,,PARTIAL,tests/fixtures/dimensions.json; tests/fixtures/dimensions/dimensions_answers.json,A read across several rows or columns compares inside the sheet's current used block; Excel's can stay larger for the rest of a session after a column is hidden.
 Range,Validation,"property, read-only",As Validation,,MISSING,,
 Range,Value,property,As Variant,,PARTIAL,tests/fixtures/excel_model/probes.txt,
 Range,Value2,property,As Variant,,UNASSESSED,,
 Range,VerticalAlignment,property,As Variant,,VERIFIED,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,
-Range,Width,"property, read-only",As Variant,,MISSING,,
+Range,Width,"property, read-only",As Variant,,PARTIAL,tests/fixtures/dimensions.json; tests/fixtures/dimensions/dimensions_answers.json,Measured for Aptos Narrow 11 and Calibri 11 as the Normal font on a 96-DPI display; with another Normal font the file's own standard sizes stand.
 Range,Worksheet,"property, read-only",As Worksheet,,PARTIAL,tests/fixtures/excel_model/probes.txt,
 Range,WrapText,property,As Variant,,VERIFIED,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,
 Range,XPath,"property, read-only",As XPath,,MISSING,,
@@ -1234,8 +1234,8 @@ Worksheet,Shapes,"property, read-only",As Shapes,,UNASSESSED,,
 Worksheet,ShowAllData,method,ShowAllData(),,MISSING,,
 Worksheet,ShowDataForm,method,ShowDataForm(),,MISSING,,
 Worksheet,Sort,"property, read-only",As Sort,,MISSING,,
-Worksheet,StandardHeight,"property, read-only",As Double,,MISSING,,
-Worksheet,StandardWidth,property,As Double,,MISSING,,
+Worksheet,StandardHeight,"property, read-only",As Double,,PARTIAL,tests/fixtures/dimensions.json; tests/fixtures/dimensions/dimensions_answers.json,Measured for Aptos Narrow 11 and Calibri 11 as the Normal font on a 96-DPI display; with another Normal font the file's own standard sizes stand.
+Worksheet,StandardWidth,property,As Double,,PARTIAL,tests/fixtures/dimensions.json; tests/fixtures/dimensions/dimensions_answers.json,Measured for Aptos Narrow 11 and Calibri 11 as the Normal font on a 96-DPI display; with another Normal font the file's own standard sizes stand.
 Worksheet,Tab,"property, read-only",As Tab,,MISSING,,
 Worksheet,TableUpdate,event,TableUpdate(Target As TableObject),,MISSING,,
 Worksheet,TransitionExpEval,property,As Boolean,,MISSING,,

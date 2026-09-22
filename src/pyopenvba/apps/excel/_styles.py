@@ -26,6 +26,7 @@ from __future__ import annotations
 import re
 from collections.abc import Callable
 from dataclasses import dataclass, field
+from fractions import Fraction
 from typing import Final, TypeVar
 
 from pyopenvba._xml import attributes as _attributes
@@ -97,19 +98,41 @@ def tint_of(value: float) -> int:
     return int(value * TINT_SCALE)
 
 
+#: How far a double may sit from its 15-digit spelling, relative to its
+#: size, for Excel to write those 15 digits: 5/16 of DBL_EPSILON.  All
+#: 2,184 row heights Excel can hold on a 96-DPI display are written by
+#: this rule, and no other threshold separates them.
+_SHORT_ENOUGH = Fraction(5, 16) * Fraction(2) ** -52
+
+
+def excel_number(value: float) -> str:
+    """A measurement as Excel writes one into XML: a row height, a tint.
+
+    Fifteen significant digits when the double is within 5/16 of an
+    epsilon of them, relative to its size, and seventeen otherwise.  That
+    is not a round-trip test: 20.1 and 19.9 round-trip at 15 digits, yet
+    Excel writes ``20.100000000000001`` and ``19.899999999999999``, because
+    near the bottom of a binade the same half-ulp error is relatively
+    larger.  15.2, further up its binade, stays ``15.2``.
+    """
+    short = f"{value:.15g}"
+    if abs(Fraction(value) - Fraction(short)) <= abs(Fraction(value)) * _SHORT_ENOUGH:
+        return short
+    return f"{value:.17g}"
+
+
 def excel_double(value: float) -> str:
     """A tint as Excel writes one into XML.
 
-    From 0.1 up, 15 significant digits when they round-trip and 17 when they
-    do not; below 0.1 always 17, in scientific notation: ``0.249977111117893``,
+    Below 0.1 always 17 digits, in scientific notation; from 0.1 up the
+    way :func:`excel_number` spells any measurement: ``0.249977111117893``,
     ``0.39997558519241921``, ``9.9978637043366805E-2``.
     """
     if value != 0 and abs(value) < 0.1:
         mantissa, exponent = f"{value:.16e}".split("e")
         mantissa = mantissa.rstrip("0").rstrip(".")
         return f"{mantissa}E{int(exponent)}"
-    digits = 15 if float(f"{value:.15g}") == value else 17
-    return f"{value:.{digits}g}"
+    return excel_number(value)
 
 
 def _color_attributes(color: Color) -> str:

@@ -137,6 +137,7 @@ def _read_sheet(sheet: Worksheet, xml: str, strings: list[str], stylesheet: Styl
         reference = _tag_attributes(tag).get("ref", "")
         if reference:
             sheet.merged_areas.extend(parse_reference(reference, sheet=sheet.name))
+    sheet.dims.load(xml)
     match = _SHEET_DATA.search(xml)
     if not match or match.group(2) == "/>":
         return
@@ -165,6 +166,7 @@ def _read_sheet(sheet: Worksheet, xml: str, strings: list[str], stylesheet: Styl
             cell = Cell(value=value, formula=formula, stale=bool(formula) and value is EMPTY, style=style,
                         xf=xf if style is not None else -1)
             sheet.cells_[(row, column)] = cell
+    sheet.dims.settle_growth()
 
 
 def _cell_value(cell_xml: str, kind: str, strings: list[str], number_format: str) -> object:
@@ -295,14 +297,16 @@ def _read_shapes(sheet: Worksheet, package: OpcFile, sheet_xml: str) -> None:
     are in that part, and a form control's own settings are in the
     ``ctrlProps`` part the sheet points at separately.
     """
-    from pyopenvba.shapes._xlsx import control_text, grid_of, read_controls, read_drawing
+    from pyopenvba.shapes._xlsx import control_text, read_controls, read_drawing
 
     part = _sheet_relationship(package, sheet.part_name, "drawing")
     if not part or not package.has(part):
         return
     sheet.drawing_part = part
     sheet.drawing_xml = package.read(part).decode("utf-8", errors="replace")
-    sheet.shapes_ = read_drawing(sheet.drawing_xml, grid_of(sheet_xml))
+    # Anchors are read against the model's own rows and columns, the ones
+    # a save writes them against, so a shape nobody moved stays put.
+    sheet.shapes_ = read_drawing(sheet.drawing_xml, sheet.drawing_grid())
     # The counter a new shape's name comes from carries on from what is
     # already there rather than starting again at one.
     sheet.shape_count = len(sheet.shapes_)
@@ -824,10 +828,20 @@ def save_workbook(book: Workbook, target: Path) -> None:
     target.write_bytes(package.serialize())
 
 
+#: A sheet added to a workbook, as Excel writes one on a 96-DPI display
+#: without the random xr:uid it gives each sheet.
 _EMPTY_SHEET = (
     '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\r\n'
-    '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
-    '<dimension ref="A1"/><sheetData/></worksheet>'
+    '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"'
+    ' xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"'
+    ' xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="x14ac xr xr2 xr3"'
+    ' xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac"'
+    ' xmlns:xr="http://schemas.microsoft.com/office/spreadsheetml/2014/revision"'
+    ' xmlns:xr2="http://schemas.microsoft.com/office/spreadsheetml/2015/revision2"'
+    ' xmlns:xr3="http://schemas.microsoft.com/office/spreadsheetml/2016/revision3">'
+    '<dimension ref="A1"/><sheetViews><sheetView workbookViewId="0"/></sheetViews>'
+    '<sheetFormatPr defaultRowHeight="15" x14ac:dyDescent="0.25"/><sheetData/>'
+    '<pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3"/></worksheet>'
 )
 
 
@@ -1092,25 +1106,22 @@ def _patched_sheet(sheet: Worksheet, original: str, package: OpcFile) -> str:
         raise WorkbookFileError(f"{sheet.part_name} has no sheetData")
     body = "" if match.group(2) == "/>" else (match.group(3) or "")
     rows: dict[int, str] = {}
-    order: list[int] = []
     for row_xml in _ROW.findall(body):
-        number = _row_number(row_xml)
-        rows[number] = row_xml
-        order.append(number)
+        rows[_row_number(row_xml)] = row_xml
+    with_cells = {row for (row, _), cell in sheet.cells_.items() if not cell.is_blank()}
     for (row, column), cell in sorted(sheet.cells_.items()):
         if cell.is_blank():
             continue
         rows[row] = _with_cell(rows.get(row, f'<row r="{row}"></row>'), row, column, cell, sheet, package)
-        if row not in order:
-            order.append(row)
     for row in list(rows):
-        if not any(not cell.is_blank() for (r, _), cell in sheet.cells_.items() if r == row) and not _CELL.search(
-            rows[row]
-        ):
-            continue
-        rows[row] = _without_removed_cells(rows[row], row, sheet)
-    rebuilt = "".join(rows[number] for number in sorted(order) if number in rows)
+        if row in with_cells or _CELL.search(rows[row]):
+            rows[row] = _without_removed_cells(rows[row], row, sheet)
+    for row in sheet.dims.rows:
+        rows.setdefault(row, f'<row r="{row}"/>')
+    rebuilt = _rows_as_excel_writes_them(sheet, original, rows)
     patched = original[: match.start()] + f"<sheetData>{rebuilt}</sheetData>" + original[match.end() :]
+    patched = _with_dimension_parts(sheet, patched)
+    sheet.dims.saved()
     if sheet.merges_dirty:
         markup = ""
         if sheet.merged_areas:
@@ -1136,6 +1147,73 @@ def _row_number(row_xml: str) -> int:
         return int(_tag_attributes(row_xml).get("r", "0"))
     except ValueError:
         return 0
+
+
+def _declares_descent(xml: str) -> bool:
+    """Whether a sheet declares the namespace Excel 2010 writes a row's descent in."""
+    root = re.search(r"<worksheet\b[^>]*>", xml)
+    return root is not None and "xmlns:x14ac=" in root.group(0)
+
+
+def _rows_as_excel_writes_them(sheet: Worksheet, original: str, rows: dict[int, str]) -> str:
+    """Every row element with its start tag worked out from the model.
+
+    The spans Excel writes cover the 16-row block's cells; a row keeps the
+    descent its file gave it, and a new one gets the Normal font's. A row
+    left with no cells and nothing of its own to say is dropped, as Excel
+    drops it.
+    """
+    from pyopenvba.apps.excel._dimensions import NORMAL_DESCENT, block_spans, row_start_tag
+
+    dims = sheet.dims
+    descent: str | None = None
+    if _declares_descent(original):
+        descent = NORMAL_DESCENT if dims.normal_known() else dims.format.get("x14ac:dyDescent", NORMAL_DESCENT)
+    spans = block_spans(sheet)
+    out: list[str] = []
+    for number in sorted(rows):
+        row_xml = rows[number]
+        head_end = row_xml.index(">")
+        closed = row_xml[head_end - 1] == "/"
+        inner = "" if closed else row_xml[head_end + 1: row_xml.rindex("</row>")]
+        has_cells = bool(_CELL.search(inner))
+        tag = row_start_tag(sheet, number, _tag_attributes(row_xml), spans.get((number - 1) // 16), descent,
+                            has_cells)
+        if tag is None:
+            continue
+        out.append(f"{tag}{inner}</row>" if has_cells else f"{tag[:-1]}/>")
+    return "".join(out)
+
+
+#: Where a worksheet's sheetFormatPr and cols go: before the first of these that is there.
+_AFTER_FORMAT = re.compile(r"<(?:cols|sheetData)\b")
+_AFTER_COLUMNS = re.compile(r"<sheetData\b")
+
+
+def _with_dimension_parts(sheet: Worksheet, xml: str) -> str:
+    """The sheet's sheetFormatPr and cols, as the model now has them."""
+    from pyopenvba.apps.excel._dimensions import columns_element, format_element
+
+    dims = sheet.dims
+    head = format_element(sheet, _declares_descent(xml))
+    if head is not None:
+        existing = re.search(r"<sheetFormatPr\b[^>]*?/>|<sheetFormatPr\b[^>]*>.*?</sheetFormatPr>", xml, re.DOTALL)
+        if existing is not None:
+            xml = xml[: existing.start()] + head + xml[existing.end():]
+        else:
+            place = _AFTER_FORMAT.search(xml)
+            if place is not None:
+                xml = xml[: place.start()] + head + xml[place.start():]
+    if dims.columns_written():
+        cols = columns_element(dims)
+        existing = re.search(r"<cols\b[^>]*>.*?</cols>|<cols\b[^>]*/>", xml, re.DOTALL)
+        if existing is not None:
+            xml = xml[: existing.start()] + cols + xml[existing.end():]
+        elif cols:
+            place = _AFTER_COLUMNS.search(xml)
+            if place is not None:
+                xml = xml[: place.start()] + cols + xml[place.start():]
+    return xml
 
 
 def _with_cell(

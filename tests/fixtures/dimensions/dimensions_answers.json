@@ -1,0 +1,455 @@
+{
+ "rows": 12,
+ "columns": 12,
+ "describe": "Public Function Describe(ws As Object) As String\n    Dim out As String, r As Long, c As Long\n    On Error Resume Next\n    out = ws.StandardHeight & \";\" & ws.StandardWidth & \";\" & ws.UsedRange.Address & \";\"\n    For r = 1 To 12\n        out = out & ws.Rows(r).RowHeight & \":\" & ws.Rows(r).Height & \":\" & ws.Rows(r).Hidden & \":\" & _\n            ws.Rows(r).UseStandardHeight & \";\"\n    Next r\n    For c = 1 To 12\n        out = out & ws.Columns(c).ColumnWidth & \":\" & ws.Columns(c).Width & \":\" & ws.Columns(c).Hidden & \":\" & _\n            ws.Columns(c).UseStandardWidth & \";\"\n    Next c\n    Describe = out\nEnd Function\n",
+ "cases": [
+  {
+   "name": "custom_rows",
+   "setup": "ws.Rows(2).RowHeight = 20\nws.Rows(3).RowHeight = 0.3\nws.Rows(4).RowHeight = 409.5\nws.Rows(5).RowHeight = 15\nws.Rows(6).RowHeight = 12.3\nws.Rows(7).RowHeight = 1.15\nws.Rows(8).RowHeight = 19.9",
+   "answers": "15;8.43;$A$2:$A$8;15:15:False:True;20:19.5:False:False;0.5:0:True:False;409.5:409.5:False:False;15:15:False:False;12.5:12:False:False;1.25:0.75:False:False;20:19.5:False:False;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;",
+   "sizes": {
+    "sheetFormatPr": "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>",
+    "cols": "",
+    "rows": [
+     "<row r=\"2\" ht=\"20.100000000000001\" customHeight=\"1\" x14ac:dyDescent=\"0.25\"/>",
+     "<row r=\"3\" ht=\"0.4\" customHeight=\"1\" x14ac:dyDescent=\"0.25\"/>",
+     "<row r=\"4\" ht=\"409.5\" customHeight=\"1\" x14ac:dyDescent=\"0.25\"/>",
+     "<row r=\"5\" ht=\"15\" customHeight=\"1\" x14ac:dyDescent=\"0.25\"/>",
+     "<row r=\"6\" ht=\"12.4\" customHeight=\"1\" x14ac:dyDescent=\"0.25\"/>",
+     "<row r=\"7\" ht=\"1.1499999999999999\" customHeight=\"1\" x14ac:dyDescent=\"0.25\"/>",
+     "<row r=\"8\" ht=\"19.899999999999999\" customHeight=\"1\" x14ac:dyDescent=\"0.25\"/>"
+    ],
+    "dimension": "<dimension ref=\"A2:A8\"/>"
+   }
+  },
+  {
+   "name": "hidden_rows",
+   "setup": "ws.Rows(2).RowHeight = 20\nws.Rows(2).Hidden = True\nws.Rows(3).Hidden = True\nws.Rows(4).RowHeight = 0\nws.Rows(5).RowHeight = 20\nws.Rows(5).RowHeight = 0\nws.Rows(6).RowHeight = 0.1\nws.Rows(7).RowHeight = 0.05",
+   "answers": "15;8.43;$A$2:$A$7;15:15:False:True;0:0:True:False;0:0:True:True;0:0:True:True;0:0:True:False;0.25:0:True:False;0:0:True:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;",
+   "sizes": {
+    "sheetFormatPr": "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>",
+    "cols": "",
+    "rows": [
+     "<row r=\"2\" ht=\"20.100000000000001\" hidden=\"1\" customHeight=\"1\" x14ac:dyDescent=\"0.25\"/>",
+     "<row r=\"3\" hidden=\"1\" x14ac:dyDescent=\"0.25\"/>",
+     "<row r=\"4\" hidden=\"1\" x14ac:dyDescent=\"0.25\"/>",
+     "<row r=\"5\" ht=\"20.100000000000001\" hidden=\"1\" customHeight=\"1\" x14ac:dyDescent=\"0.25\"/>",
+     "<row r=\"6\" ht=\"0.2\" customHeight=\"1\" x14ac:dyDescent=\"0.25\"/>",
+     "<row r=\"7\" hidden=\"1\" x14ac:dyDescent=\"0.25\"/>"
+    ],
+    "dimension": "<dimension ref=\"A2:A7\"/>"
+   }
+  },
+  {
+   "name": "custom_columns",
+   "setup": "ws.Columns(2).ColumnWidth = 20\nws.Columns(3).ColumnWidth = 0.5\nws.Columns(4).ColumnWidth = 255\nws.Columns(5).ColumnWidth = 8.43\nws.Columns(6).ColumnWidth = 10.1\nws.Columns(\"G:I\").ColumnWidth = 12\nws.Columns(11).ColumnWidth = 12",
+   "answers": "15;8.43;$A$1;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;8.43:48:False:True;20:108.75:False:False;0.5:4.5:False:False;255:1342.5:False:False;8.43:48:False:True;10.14:57:False:False;12:66.75:False:False;12:66.75:False:False;12:66.75:False:False;8.43:48:False:True;12:66.75:False:False;8.43:48:False:True;",
+   "sizes": {
+    "sheetFormatPr": "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>",
+    "cols": "<cols><col min=\"2\" max=\"2\" width=\"20.7109375\" customWidth=\"1\"/><col min=\"3\" max=\"3\" width=\"0.85546875\" customWidth=\"1\"/><col min=\"4\" max=\"4\" width=\"255.7109375\" customWidth=\"1\"/><col min=\"6\" max=\"6\" width=\"10.85546875\" customWidth=\"1\"/><col min=\"7\" max=\"9\" width=\"12.7109375\" customWidth=\"1\"/><col min=\"11\" max=\"11\" width=\"12.7109375\" customWidth=\"1\"/></cols>",
+    "rows": [],
+    "dimension": "<dimension ref=\"A1\"/>"
+   }
+  },
+  {
+   "name": "hidden_columns",
+   "setup": "ws.Columns(2).ColumnWidth = 20\nws.Columns(2).Hidden = True\nws.Columns(3).Hidden = True\nws.Columns(4).ColumnWidth = 0\nws.Columns(5).Hidden = True\nws.Columns(5).Hidden = False\nws.Columns(6).ColumnWidth = 0.04\nws.Columns(7).ColumnWidth = 20\nws.Columns(7).ColumnWidth = 0",
+   "answers": "15;8.43;$B$1:$G$1;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;8.43:48:False:True;0:0:True:False;0:0:True:False;0:0:True:False;8.43:48:False:False;0:0:True:False;0:0:True:False;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;",
+   "sizes": {
+    "sheetFormatPr": "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>",
+    "cols": "<cols><col min=\"2\" max=\"2\" width=\"20.7109375\" hidden=\"1\" customWidth=\"1\"/><col min=\"3\" max=\"4\" width=\"0\" hidden=\"1\" customWidth=\"1\"/><col min=\"5\" max=\"5\" width=\"9.140625\" customWidth=\"1\"/><col min=\"6\" max=\"6\" width=\"0\" hidden=\"1\" customWidth=\"1\"/><col min=\"7\" max=\"7\" width=\"20.7109375\" hidden=\"1\" customWidth=\"1\"/></cols>",
+    "rows": [],
+    "dimension": "<dimension ref=\"B1:G1\"/>"
+   }
+  },
+  {
+   "name": "standard_width",
+   "setup": "ws.StandardWidth = 12\nws.Columns(2).ColumnWidth = 20",
+   "answers": "15;12;$A$1;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;12:66.75:False:True;20:108.75:False:False;12:66.75:False:True;12:66.75:False:True;12:66.75:False:True;12:66.75:False:True;12:66.75:False:True;12:66.75:False:True;12:66.75:False:True;12:66.75:False:True;12:66.75:False:True;12:66.75:False:True;",
+   "sizes": {
+    "sheetFormatPr": "<sheetFormatPr defaultColWidth=\"12.7109375\" defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>",
+    "cols": "<cols><col min=\"2\" max=\"2\" width=\"20.7109375\" customWidth=\"1\"/></cols>",
+    "rows": [],
+    "dimension": "<dimension ref=\"A1\"/>"
+   }
+  },
+  {
+   "name": "standard_width_zero",
+   "setup": "ws.StandardWidth = 0",
+   "answers": "15;0;$A$1;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;0:0:True:True;0:0:True:True;0:0:True:True;0:0:True:True;0:0:True:True;0:0:True:True;0:0:True:True;0:0:True:True;0:0:True:True;0:0:True:True;0:0:True:True;0:0:True:True;",
+   "sizes": {
+    "sheetFormatPr": "<sheetFormatPr defaultColWidth=\"0\" defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>",
+    "cols": "",
+    "rows": [],
+    "dimension": "<dimension ref=\"A1\"/>"
+   }
+  },
+  {
+   "name": "standard_width_back",
+   "setup": "ws.StandardWidth = 12\nws.StandardWidth = 8.43",
+   "answers": "15;8.43;$A$1;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;",
+   "sizes": {
+    "sheetFormatPr": "<sheetFormatPr defaultColWidth=\"9.140625\" defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>",
+    "cols": "",
+    "rows": [],
+    "dimension": "<dimension ref=\"A1\"/>"
+   }
+  },
+  {
+   "name": "use_standard",
+   "setup": "ws.Rows(2).RowHeight = 20\nws.Rows(2).UseStandardHeight = True\nws.Rows(3).UseStandardHeight = False\nws.Columns(2).ColumnWidth = 20\nws.Columns(2).UseStandardWidth = True\nws.Rows(4).RowHeight = 15",
+   "answers": "15;8.43;$A$3:$A$4;15:15:False:True;15:15:False:True;15:15:False:False;15:15:False:False;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;",
+   "sizes": {
+    "sheetFormatPr": "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>",
+    "cols": "",
+    "rows": [
+     "<row r=\"3\" ht=\"15\" customHeight=\"1\" x14ac:dyDescent=\"0.25\"/>",
+     "<row r=\"4\" ht=\"15\" customHeight=\"1\" x14ac:dyDescent=\"0.25\"/>"
+    ],
+    "dimension": "<dimension ref=\"A3:A4\"/>"
+   }
+  },
+  {
+   "name": "all_rows",
+   "setup": "ws.Rows(\"1:1048576\").RowHeight = 20",
+   "answers": "20;8.43;$A$1;20:19.5:False:False;20:19.5:False:False;20:19.5:False:False;20:19.5:False:False;20:19.5:False:False;20:19.5:False:False;20:19.5:False:False;20:19.5:False:False;20:19.5:False:False;20:19.5:False:False;20:19.5:False:False;20:19.5:False:False;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;",
+   "sizes": {
+    "sheetFormatPr": "<sheetFormatPr defaultRowHeight=\"20.100000000000001\" customHeight=\"1\" x14ac:dyDescent=\"0.25\"/>",
+    "cols": "",
+    "rows": [],
+    "dimension": "<dimension ref=\"A1\"/>"
+   }
+  },
+  {
+   "name": "all_columns",
+   "setup": "ws.Columns(\"A:XFD\").ColumnWidth = 12",
+   "answers": "15;12;$A$1;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;12:66.75:False:True;12:66.75:False:True;12:66.75:False:True;12:66.75:False:True;12:66.75:False:True;12:66.75:False:True;12:66.75:False:True;12:66.75:False:True;12:66.75:False:True;12:66.75:False:True;12:66.75:False:True;12:66.75:False:True;",
+   "sizes": {
+    "sheetFormatPr": "<sheetFormatPr defaultColWidth=\"12.7109375\" defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>",
+    "cols": "",
+    "rows": [],
+    "dimension": "<dimension ref=\"A1\"/>"
+   }
+  },
+  {
+   "name": "cells_and_rows",
+   "setup": "ws.Range(\"A2\").Value = 1\nws.Range(\"C2\").Value = 2\nws.Range(\"B20\").Value = 3\nws.Rows(2).RowHeight = 20\nws.Rows(3).RowHeight = 30\nws.Rows(18).Hidden = True\nws.Range(\"E5\").Font.Bold = True",
+   "answers": "15;8.43;$A$2:$E$20;15:15:False:True;20:19.5:False:False;30:30:False:False;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;",
+   "sizes": {
+    "sheetFormatPr": "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>",
+    "cols": "",
+    "rows": [
+     "<row r=\"2\" spans=\"1:5\" ht=\"20.100000000000001\" customHeight=\"1\" x14ac:dyDescent=\"0.25\">",
+     "<row r=\"3\" spans=\"1:5\" ht=\"30\" customHeight=\"1\" x14ac:dyDescent=\"0.25\"/>",
+     "<row r=\"5\" spans=\"1:5\" x14ac:dyDescent=\"0.25\">",
+     "<row r=\"18\" spans=\"2:2\" hidden=\"1\" x14ac:dyDescent=\"0.25\"/>",
+     "<row r=\"20\" spans=\"2:2\" x14ac:dyDescent=\"0.25\">"
+    ],
+    "dimension": "<dimension ref=\"A2:E20\"/>"
+   }
+  },
+  {
+   "name": "insert_rows",
+   "setup": "ws.Rows(3).RowHeight = 30\nws.Rows(5).Hidden = True\nws.Rows(4).Insert",
+   "answers": "15;8.43;$A$3:$A$6;15:15:False:True;15:15:False:True;30:30:False:False;30:30:False:False;15:15:False:True;0:0:True:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;",
+   "sizes": {
+    "sheetFormatPr": "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>",
+    "cols": "",
+    "rows": [
+     "<row r=\"3\" customFormat=\"1\" ht=\"30\" customHeight=\"1\" x14ac:dyDescent=\"0.25\"/>",
+     "<row r=\"4\" customFormat=\"1\" ht=\"30\" customHeight=\"1\" x14ac:dyDescent=\"0.25\"/>",
+     "<row r=\"6\" customFormat=\"1\" hidden=\"1\" x14ac:dyDescent=\"0.25\"/>"
+    ],
+    "dimension": "<dimension ref=\"A3:A6\"/>"
+   }
+  },
+  {
+   "name": "insert_rows_read",
+   "setup": "ws.Rows(3).RowHeight = 30\nws.Rows(5).Hidden = True\nws.Rows(4).Insert\nDebug.Print ws.UsedRange.Address",
+   "answers": "15;8.43;$A$3:$A$6;15:15:False:True;15:15:False:True;30:30:False:False;30:30:False:False;15:15:False:True;0:0:True:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;",
+   "sizes": {
+    "sheetFormatPr": "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>",
+    "cols": "",
+    "rows": [
+     "<row r=\"3\" ht=\"30\" customHeight=\"1\" x14ac:dyDescent=\"0.25\"/>",
+     "<row r=\"4\" ht=\"30\" customHeight=\"1\" x14ac:dyDescent=\"0.25\"/>",
+     "<row r=\"6\" hidden=\"1\" x14ac:dyDescent=\"0.25\"/>"
+    ],
+    "dimension": "<dimension ref=\"A3:A6\"/>"
+   }
+  },
+  {
+   "name": "delete_columns",
+   "setup": "ws.Columns(3).ColumnWidth = 30\nws.Columns(6).Hidden = True\nws.Columns(4).ColumnWidth = 40\nws.Columns(\"D:E\").Delete",
+   "answers": "15;8.43;$A$1;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;8.43:48:False:True;8.43:48:False:True;30:161.25:False:False;0:0:True:False;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;",
+   "sizes": {
+    "sheetFormatPr": "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>",
+    "cols": "<cols><col min=\"3\" max=\"3\" width=\"30.7109375\" customWidth=\"1\"/><col min=\"4\" max=\"4\" width=\"0\" hidden=\"1\" customWidth=\"1\"/></cols>",
+    "rows": [],
+    "dimension": "<dimension ref=\"A1\"/>"
+   }
+  },
+  {
+   "name": "autofit",
+   "setup": "ws.Rows(2).RowHeight = 30\nws.Rows(3).RowHeight = 30\nws.Rows(3).Hidden = True\nws.Rows(\"2:3\").AutoFit",
+   "answers": "15;8.43;$A$1;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;",
+   "sizes": {
+    "sheetFormatPr": "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>",
+    "cols": "",
+    "rows": [],
+    "dimension": "<dimension ref=\"A1\"/>"
+   }
+  },
+  {
+   "name": "hide_every_row",
+   "setup": "ws.Rows(\"1:1048576\").Hidden = True",
+   "answers": "0;8.43;$A$1;0:0:True:True;0:0:True:True;0:0:True:True;0:0:True:True;0:0:True:True;0:0:True:True;0:0:True:True;0:0:True:True;0:0:True:True;0:0:True:True;0:0:True:True;0:0:True:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;",
+   "sizes": {
+    "sheetFormatPr": "<sheetFormatPr defaultRowHeight=\"15\" zeroHeight=\"1\" x14ac:dyDescent=\"0.25\"/>",
+    "cols": "",
+    "rows": [],
+    "dimension": "<dimension ref=\"A1\"/>"
+   }
+  },
+  {
+   "name": "show_one_of_every_row",
+   "setup": "ws.Rows(\"1:1048576\").Hidden = True\nws.Rows(5).Hidden = False",
+   "answers": "0;8.43;$A$5;0:0:True:True;0:0:True:True;0:0:True:True;0:0:True:True;15:15:False:True;0:0:True:True;0:0:True:True;0:0:True:True;0:0:True:True;0:0:True:True;0:0:True:True;0:0:True:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;",
+   "sizes": {
+    "sheetFormatPr": "<sheetFormatPr defaultRowHeight=\"15\" zeroHeight=\"1\" x14ac:dyDescent=\"0.25\"/>",
+    "cols": "",
+    "rows": [
+     "<row r=\"5\" x14ac:dyDescent=\"0.25\"/>"
+    ],
+    "dimension": "<dimension ref=\"A5\"/>"
+   }
+  },
+  {
+   "name": "hide_rows_to_the_end",
+   "setup": "ws.Rows(2).RowHeight = 20\nws.Rows(\"3:1048576\").Hidden = True",
+   "answers": "0;8.43;$A$1:$A$2;15:15:False:True;20:19.5:False:False;0:0:True:True;0:0:True:True;0:0:True:True;0:0:True:True;0:0:True:True;0:0:True:True;0:0:True:True;0:0:True:True;0:0:True:True;0:0:True:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;",
+   "sizes": {
+    "sheetFormatPr": "<sheetFormatPr defaultRowHeight=\"15\" zeroHeight=\"1\" x14ac:dyDescent=\"0.25\"/>",
+    "cols": "",
+    "rows": [
+     "<row r=\"1\" x14ac:dyDescent=\"0.25\"/>",
+     "<row r=\"2\" ht=\"20.100000000000001\" customHeight=\"1\" x14ac:dyDescent=\"0.25\"/>"
+    ],
+    "dimension": "<dimension ref=\"A1:A2\"/>"
+   }
+  },
+  {
+   "name": "hide_every_column",
+   "setup": "ws.Columns(3).ColumnWidth = 20\nws.Columns(\"A:XFD\").Hidden = True",
+   "answers": "15;0;$C$1;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;0:0:True:False;0:0:True:False;0:0:True:False;0:0:True:True;0:0:True:True;0:0:True:True;0:0:True:True;0:0:True:True;0:0:True:True;0:0:True:True;0:0:True:True;0:0:True:True;",
+   "sizes": {
+    "sheetFormatPr": "<sheetFormatPr defaultColWidth=\"0\" defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>",
+    "cols": "<cols><col min=\"1\" max=\"2\" width=\"9.140625\" hidden=\"1\"/><col min=\"3\" max=\"3\" width=\"20.7109375\" hidden=\"1\"/><col min=\"4\" max=\"16384\" width=\"9.140625\" hidden=\"1\"/></cols>",
+    "rows": [],
+    "dimension": "<dimension ref=\"C1\"/>"
+   }
+  }
+ ],
+ "foreign": {
+  "rows": [
+   [
+    2,
+    "ht=\"20\""
+   ],
+   [
+    3,
+    "ht=\"12.34\""
+   ],
+   [
+    4,
+    "ht=\"0.1\""
+   ],
+   [
+    5,
+    "ht=\"409.5\""
+   ],
+   [
+    6,
+    "ht=\"500\""
+   ],
+   [
+    7,
+    "ht=\"20\" customHeight=\"1\""
+   ],
+   [
+    8,
+    "ht=\"12.34\" customHeight=\"1\""
+   ],
+   [
+    9,
+    "ht=\"0.1\" customHeight=\"1\""
+   ],
+   [
+    10,
+    "ht=\"500\" customHeight=\"1\""
+   ],
+   [
+    11,
+    "ht=\"-5\" customHeight=\"1\""
+   ],
+   [
+    12,
+    "hidden=\"1\""
+   ],
+   [
+    13,
+    "ht=\"30\" hidden=\"1\" customHeight=\"1\""
+   ],
+   [
+    14,
+    "ht=\"0\" customHeight=\"1\""
+   ],
+   [
+    15,
+    "ht=\"15\""
+   ],
+   [
+    16,
+    "ht=\"26.25\""
+   ],
+   [
+    17,
+    "customHeight=\"1\""
+   ],
+   [
+    18,
+    "ht=\"20.100000000000001\" customHeight=\"1\""
+   ],
+   [
+    19,
+    "ht=\"7.5\" customHeight=\"1\""
+   ],
+   [
+    20,
+    "ht=\"409.6\" customHeight=\"1\""
+   ],
+   [
+    21,
+    "ht=\"409.7\" customHeight=\"1\""
+   ],
+   [
+    22,
+    "ht=\"1000\" customHeight=\"1\""
+   ]
+  ],
+  "columns": [
+   [
+    2,
+    "width=\"15\" customWidth=\"1\""
+   ],
+   [
+    3,
+    "width=\"12.345\" customWidth=\"1\""
+   ],
+   [
+    4,
+    "width=\"15\""
+   ],
+   [
+    5,
+    "width=\"0.5\" customWidth=\"1\""
+   ],
+   [
+    6,
+    "width=\"300\" customWidth=\"1\""
+   ],
+   [
+    7,
+    "width=\"20\" hidden=\"1\" customWidth=\"1\""
+   ],
+   [
+    8,
+    "width=\"0\" customWidth=\"1\""
+   ],
+   [
+    9,
+    "width=\"9.140625\" customWidth=\"1\""
+   ],
+   [
+    10,
+    "width=\"8.43\" customWidth=\"1\""
+   ],
+   [
+    11,
+    "hidden=\"1\""
+   ],
+   [
+    12,
+    "width=\"10.85546875\" customWidth=\"1\""
+   ],
+   [
+    13,
+    "width=\"1\" customWidth=\"1\""
+   ],
+   [
+    14,
+    "width=\"1.7\" customWidth=\"1\""
+   ],
+   [
+    15,
+    "width=\"0.1\" customWidth=\"1\""
+   ],
+   [
+    16,
+    "width=\"10.7874\" customWidth=\"1\""
+   ],
+   [
+    17,
+    "width=\"-3\" customWidth=\"1\""
+   ]
+  ],
+  "read_rows": 22,
+  "read_columns": 18,
+  "answers": "15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;20:19.5:False:False;12.5:12:False:False;0.25:0:True:False;409.5:499.5:False:False;5:4.5:False:False;0:0:True:True;0:0:True:False;0:0:True:False;15:15:False:True;15:15:False:True;15:15:False:False;20:19.5:False:False;7.5:7.5:False:False;409.5:409.5:False:False;409.5:409.5:False:False;409.5:999.75:False:False;8.43:48:False:True;14.29:78.75:False:False;11.57:64.5:False:False;14.29:78.75:False:True;0.25:2.25:False:False;299.29:1575:False:False;0:0:True:False;0:0:True:False;8.43:48:False:False;7.71:44.25:False:False;0:0:True:True;10.14:57:False:False;0.58:5.25:False:False;1:9:False:False;0.08:0.75:False:False;10:56.25:False:False;9358.71:49137:False:False;8.43:48:False:True;",
+  "resaved": {
+   "sheetFormatPr": "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>",
+   "cols": "<cols><col min=\"2\" max=\"2\" width=\"15\" customWidth=\"1\"/><col min=\"3\" max=\"3\" width=\"12.28515625\" customWidth=\"1\"/><col min=\"4\" max=\"4\" width=\"15\"/><col min=\"5\" max=\"5\" width=\"0.42578125\" customWidth=\"1\"/><col min=\"6\" max=\"6\" width=\"300\" customWidth=\"1\"/><col min=\"7\" max=\"7\" width=\"20\" hidden=\"1\" customWidth=\"1\"/><col min=\"8\" max=\"8\" width=\"0\" hidden=\"1\" customWidth=\"1\"/><col min=\"9\" max=\"9\" width=\"9.140625\" customWidth=\"1\"/><col min=\"10\" max=\"10\" width=\"8.42578125\" customWidth=\"1\"/><col min=\"11\" max=\"11\" width=\"0\" hidden=\"1\"/><col min=\"12\" max=\"12\" width=\"10.85546875\" customWidth=\"1\"/><col min=\"13\" max=\"13\" width=\"1\" customWidth=\"1\"/><col min=\"14\" max=\"14\" width=\"1.7109375\" customWidth=\"1\"/><col min=\"15\" max=\"15\" width=\"0.140625\" customWidth=\"1\"/><col min=\"16\" max=\"16\" width=\"10.7109375\" customWidth=\"1\"/><col min=\"17\" max=\"17\" width=\"9359.42578125\" customWidth=\"1\"/></cols>",
+   "rows": [
+    "<row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\">",
+    "<row r=\"7\" spans=\"1:1\" ht=\"20.100000000000001\" customHeight=\"1\" x14ac:dyDescent=\"0.25\"/>",
+    "<row r=\"8\" spans=\"1:1\" ht=\"12.4\" customHeight=\"1\" x14ac:dyDescent=\"0.25\"/>",
+    "<row r=\"9\" spans=\"1:1\" ht=\"0.2\" customHeight=\"1\" x14ac:dyDescent=\"0.25\"/>",
+    "<row r=\"10\" spans=\"1:1\" ht=\"409.6\" customHeight=\"1\" x14ac:dyDescent=\"0.25\"/>",
+    "<row r=\"11\" spans=\"1:1\" ht=\"5.0999999999999996\" customHeight=\"1\" x14ac:dyDescent=\"0.25\"/>",
+    "<row r=\"12\" spans=\"1:1\" hidden=\"1\" x14ac:dyDescent=\"0.25\"/>",
+    "<row r=\"13\" spans=\"1:1\" ht=\"30\" hidden=\"1\" customHeight=\"1\" x14ac:dyDescent=\"0.25\"/>",
+    "<row r=\"14\" spans=\"1:1\" ht=\"0\" hidden=\"1\" customHeight=\"1\" x14ac:dyDescent=\"0.25\"/>",
+    "<row r=\"17\" ht=\"15\" customHeight=\"1\" x14ac:dyDescent=\"0.25\"/>",
+    "<row r=\"18\" ht=\"20.100000000000001\" customHeight=\"1\" x14ac:dyDescent=\"0.25\"/>",
+    "<row r=\"19\" ht=\"7.5\" customHeight=\"1\" x14ac:dyDescent=\"0.25\"/>",
+    "<row r=\"20\" ht=\"409.6\" customHeight=\"1\" x14ac:dyDescent=\"0.25\"/>",
+    "<row r=\"21\" ht=\"409.6\" customHeight=\"1\" x14ac:dyDescent=\"0.25\"/>",
+    "<row r=\"22\" ht=\"409.6\" customHeight=\"1\" x14ac:dyDescent=\"0.25\"/>"
+   ],
+   "dimension": "<dimension ref=\"A1:G22\"/>"
+  }
+ },
+ "template": {
+  "sheetFormatPr": "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>",
+  "cols": "",
+  "rows": [
+   "<row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\">",
+   "<row r=\"3\" spans=\"1:1\" ht=\"20.100000000000001\" customHeight=\"1\" x14ac:dyDescent=\"0.25\"/>"
+  ],
+  "dimension": "<dimension ref=\"A1:A3\"/>"
+ },
+ "calibri": {
+  "edit": "ws.Range(\"A1\").Value = 1\nws.Rows(3).RowHeight = 20\nws.Columns(2).ColumnWidth = 20\nws.Rows(5).Hidden = True\nws.Columns(4).Hidden = True\nws.StandardWidth = 10",
+  "answers": "15;10;$A$1:$A$5;15:15:False:True;15:15:False:True;20:19.5:False:False;15:15:False:True;0:0:True:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;10:56.25:False:True;20:108.75:False:False;10:56.25:False:True;0:0:True:False;10:56.25:False:True;10:56.25:False:True;10:56.25:False:True;10:56.25:False:True;10:56.25:False:True;10:56.25:False:True;10:56.25:False:True;10:56.25:False:True;",
+  "sizes": {
+   "sheetFormatPr": "<sheetFormatPr defaultColWidth=\"10.7109375\" defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>",
+   "cols": "<cols><col min=\"2\" max=\"2\" width=\"20.7109375\" customWidth=\"1\"/><col min=\"4\" max=\"4\" width=\"0\" hidden=\"1\" customWidth=\"1\"/></cols>",
+   "rows": [
+    "<row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\">",
+    "<row r=\"3\" spans=\"1:1\" ht=\"20.100000000000001\" customHeight=\"1\" x14ac:dyDescent=\"0.25\"/>",
+    "<row r=\"5\" spans=\"1:1\" hidden=\"1\" x14ac:dyDescent=\"0.25\"/>"
+   ],
+   "dimension": "<dimension ref=\"A1:A5\"/>"
+  }
+ }
+}

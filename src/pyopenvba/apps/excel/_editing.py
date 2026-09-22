@@ -108,12 +108,8 @@ def edit(target: Range, *, delete: bool) -> None:
         if text != entry.refers_to:
             entry.refers_to = text
             sheet.book.names_.changed = True
-    dimensions = sheet.row_heights if rows else sheet.column_widths
-    updated: dict[int, float] = {}
-    for position, size in dimensions.items():
-        result = _interval(position, position, start, count, delete, limit)
-        if result is not None:
-            updated[result[0]] = size
-    dimensions.clear()
-    dimensions.update(updated)
+    if rows:
+        sheet.dims.shift_rows(start, count, delete)
+    else:
+        sheet.dims.shift_columns(start, count, delete)
     sheet.shape_changed()

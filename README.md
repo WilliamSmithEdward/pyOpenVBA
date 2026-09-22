@@ -674,9 +674,10 @@ app.save("named_ranges.xlsm")
 ```
 
 Whole-row/column `Insert` and `Delete` update cell references, including absolute
-and cross-sheet references, range boundaries and defined names. Deleted targets
-become `#REF!`. Partial-cell reference updates and full formatting/metadata
-movement remain incomplete; sheets with merges or shapes are explicitly unsupported.
+and cross-sheet references, range boundaries and defined names, and move row
+heights and column widths. Deleted targets become `#REF!`. Partial-cell reference
+updates and full formatting/metadata movement remain incomplete; sheets with
+merges or shapes are explicitly unsupported.
 
 `Range.Copy Destination:=...` handles overlapping copies, blank source cells,
 repeated destination blocks and relative formula shifts, and copies each
@@ -699,6 +700,14 @@ shares it. A workbook Excel formatted reads back exactly as Excel reads
 it, and a save adds only the stylesheet entries the file lacks, spelled
 as Excel spells them. Row and column formats, named cell styles and
 conditional formats are not implemented yet.
+
+Row heights, column widths and hidden rows and columns behave as they do
+in Excel on a 96-DPI display, the one the model emulates: `RowHeight = 20`
+reads back 20, draws 19.5pt tall and saves as Excel saves it; `Hidden`,
+`UseStandardHeight`, `UseStandardWidth`, `Height`, `Width`, `Left`, `Top`
+and a sheet's standard sizes follow, and all of it is read from and saved
+to the file. A row a larger font makes taller keeps the height its file
+recorded, and `AutoFit` measures no text yet.
 
 `shapes()` and `shape(name)` return detached snapshots, including each
 control's linked cell, list range and value. Use `update_shape` to make

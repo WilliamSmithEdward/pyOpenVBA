@@ -7,6 +7,22 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Row heights, column widths and hidden rows and columns as Excel keeps
+  them on a 96-DPI display. `Range` gains `Hidden`, `UseStandardHeight`,
+  `UseStandardWidth`, `Height`, `Width`, `Left` and `Top`, and a sheet
+  `StandardHeight` and `StandardWidth`; `RowHeight`, `ColumnWidth` and row
+  `AutoFit` follow Excel, and all of it is read from and saved to the
+  file. A height is rounded to twips and then to quarter pixels, a width
+  to whole pixels, a zero size hides and keeps what it hid, and every row
+  or column sized or hidden at once becomes the sheet's default. A read
+  across several rows or columns answers Null exactly where Excel's does,
+  which depends on where the sheet's cells are (459 live reads fit). 152
+  probes of live Excel pin the answers, an Excel-sized workbook and one
+  another program sized read back value for value, the model's saved
+  rows, columns and sheet defaults are Excel's XML, and a live gate opens
+  them in Excel. Heights and tints are spelled with Excel's rule for a
+  measurement: 15 digits when the double is within 5/16 of an epsilon of
+  them, relative to its size, and 17 otherwise.
 - Cell formats as Excel keeps them. A workbook's stylesheet is read into
   one format per cell: font, fill, borders, alignment, protection and
   number format. `Font` gains `Underline`, `Strikethrough`,
@@ -192,8 +208,23 @@ All notable changes to pyOpenVBA are documented here. This project follows
   source and start an inline list without changing source cells; individual
   removal from a range source raises Excel error 1004.
 
+### Changed
+
+- The in-memory Excel is Excel on a 96-DPI display (Windows at 100%): a
+  standard row is 15pt where the model used 14.5pt, the height Excel gives
+  it on a 144-DPI display. A shape's cell anchor is read and written
+  against the same rows and columns, so a shape nobody moved stays where
+  it was when its drawing is saved again.
+- A sheet the model adds is written as Excel writes a new sheet, with its
+  view, row defaults and page margins, and a rewritten sheet's row
+  defaults are this display's.
+
 ### Fixed
 
+- `ColumnWidth` and `RowHeight` were kept only in memory: a file's widths
+  and heights were never read, and a macro's were never saved.
+- `UsedRange` and a saved sheet's dimension count rows that have a height
+  or are hidden, as Excel's do.
 - A new workbook's cells read Excel's defaults: `Font.Name` is the
   workbook's own font (Aptos Narrow in a current Excel, where Calibri was
   assumed), `HorizontalAlignment` is `xlGeneral` rather than `xlLeft`, and

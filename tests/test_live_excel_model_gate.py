@@ -1370,3 +1370,39 @@ def test_excel_reads_model_authored_formats(tmp_path: Path) -> None:
     reads: list[str] = fixture["reads"]
     for name, described in zip(cases, str(result.value).split("|")[:-1], strict=True):
         assert dict(zip(reads, described.split(";")[:-1], strict=True)) == fixture["answers"][name], name
+
+def test_excel_reads_model_authored_sizes(tmp_path: Path) -> None:
+    """Every row and column sizing case the model saves reads in Excel as Excel's own file of it does.
+
+    The model sizes rows and columns for a 96-DPI display; on any other
+    Excel rounds to other pixels, so the gate says so rather than fail.
+    """
+    import json
+
+    harness = pytest.importorskip("pyvbaharness")
+    fixture = json.loads((Path(__file__).parent / "fixtures" / "dimensions" / "dimensions_answers.json").read_text())
+    cases: list[dict[str, str]] = fixture["cases"]
+    app = ExcelApplication()
+    app.add_workbook()
+    lines = ["Public Sub Build()", "Dim ws As Object"]
+    for index, case in enumerate(cases):
+        lines.append("Set ws = ActiveWorkbook.Worksheets(1)" if index == 0 else
+                     "Set ws = ActiveWorkbook.Worksheets.Add(After:=ActiveWorkbook.Worksheets"
+                     "(ActiveWorkbook.Worksheets.Count))")
+        lines += [f'ws.Name = "{case["name"]}"', *case["setup"].splitlines()]
+    app.add_module("\n".join([*lines, "ActiveWorkbook.Worksheets(1).Activate", "End Sub"]) + "\n", name="Builder")
+    app.run("Build")
+    path = tmp_path / "model_sizes.xlsx"
+    app.save(path)
+    reader = (fixture["describe"] + "Public Function Report() As String\nDim ws As Object\n"
+              'Report = ActiveSheet.StandardHeight & "#"\n'
+              'For Each ws In ActiveWorkbook.Worksheets\nReport = Report & Describe(ws) & "|"\nNext ws\nEnd Function\n')
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+        excel.open_document(path)
+        result = excel.run_vba(reader, "Report", timeout=240.0)
+        assert result.ok, result.message
+    standard, described = str(result.value).split("#", 1)
+    if standard != "15":
+        pytest.skip(f"Excel is on a display whose standard row is {standard}pt; the model emulates 96 DPI (15pt)")
+    for case, answer in zip(cases, described.split("|")[:-1], strict=True):
+        assert answer == case["answers"], case["name"]

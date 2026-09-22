@@ -26,7 +26,7 @@ from pyopenvba.exceptions import VBAUnsupportedError, VBARuntimeError
 from pyopenvba.formula._parse import shift_text
 from pyopenvba.formula._r1c1 import from_a1, to_a1
 from pyopenvba.apps.excel._find import FindState
-from pyopenvba.apps.excel import _merges, _names
+from pyopenvba.apps.excel import _dimensions, _merges, _names
 from pyopenvba.shapes._values import Shape as ShapeState
 from pyopenvba.interpreter._objects import MemberSpec, VBACollection, VBAObject, member, method, setter
 from pyopenvba.interpreter._values import (
@@ -708,8 +708,8 @@ class Worksheet(ExcelObject):
         self.merged_areas: list[Area] = []
         self.merges_dirty = False
         self.visible = -1  # xlSheetVisible
-        self.column_widths: dict[int, float] = {}
-        self.row_heights: dict[int, float] = {}
+        #: Row heights, column widths and what is hidden.
+        self.dims = _dimensions.SheetDimensions(self)
         self.selection_range: Range | None = None
         self.active_cell_range: Range | None = None
         #: What the sheet's XML part was called in the file it came from.
@@ -740,38 +740,33 @@ class Worksheet(ExcelObject):
         self.book.saved = False
 
     def column_width_points(self, column: int) -> float:
-        """How wide a column is in points, which a shape's cell needs."""
-        from pyopenvba.shapes._xlsx import DEFAULT_COLUMN_POINTS, characters_to_points
-
-        width = self.column_widths.get(column)
-        return characters_to_points(width) if width is not None else DEFAULT_COLUMN_POINTS
+        """How wide a column is in points, which a shape's cell needs: none when hidden."""
+        return self.dims.column_shown_pixels(column) * _dimensions.PIXEL
 
     def row_height_points(self, row: int) -> float:
-        """How tall a row is in points."""
-        from pyopenvba.shapes._xlsx import DEFAULT_ROW_POINTS
-
-        return self.row_heights.get(row, DEFAULT_ROW_POINTS)
+        """How tall a row is in points: none when hidden."""
+        return self.dims.row_shown_pixels(row) * _dimensions.PIXEL
 
     def drawing_grid(self) -> Any:
         """The sheet's columns and rows, as the drawing layer wants them.
 
-        The model counts columns and rows from one and keeps a column's
-        width in characters; a drawing counts from zero and works in
-        points.
+        The model counts columns and rows from one; a drawing counts from
+        zero and works in points.
         """
-        from pyopenvba.shapes._xlsx import SheetGrid, characters_to_points
+        from pyopenvba.shapes._xlsx import SheetGrid
 
+        dims = self.dims
         return SheetGrid(
-            column_widths={
-                column - 1: characters_to_points(width)
-                for column, width in self.column_widths.items()
-            },
-            row_heights={row - 1: height for row, height in self.row_heights.items()},
+            column_widths={column - 1: self.column_width_points(column) for column in dims.columns},
+            row_heights={row - 1: self.row_height_points(row) for row in dims.rows},
+            default_column=dims.standard_width() * _dimensions.PIXEL,
+            default_row=dims.default_row_pixels() * _dimensions.PIXEL,
         )
 
     def cell_changed(self, row: int, column: int) -> None:
         """One cell's contents changed: tell the calculator what to redo."""
         self.touched()
+        self.dims.fonts_changed(row)
         calculator = self.book.calculator
         cell = self.cells_.get((row, column))
         if cell is not None:
@@ -880,24 +875,24 @@ class Worksheet(ExcelObject):
     @member
     def Rows(self, Index: object = MISSING) -> object:
         if Index is MISSING:
-            return Range(self, [Area(1, 1, MAX_ROWS, MAX_COLUMNS, self.name)])
+            return Range(self, [Area(1, 1, MAX_ROWS, MAX_COLUMNS, self.name)], whole="rows")
         if isinstance(Index, str):
             # Rows("3") is the whole row, the way Rows("3:5") is.
             wanted = Index if ":" in Index else f"{Index}:{Index}"
-            return Range(self, parse_reference(wanted, sheet=self.name))
+            return Range(self, parse_reference(wanted, sheet=self.name), whole="rows")
         row = int(to_integer(Index, "Long"))
-        return Range(self, [Area(row, 1, row, MAX_COLUMNS, self.name)])
+        return Range(self, [Area(row, 1, row, MAX_COLUMNS, self.name)], whole="rows")
 
     @member
     def Columns(self, Index: object = MISSING) -> object:
         if Index is MISSING:
-            return Range(self, [Area(1, 1, MAX_ROWS, MAX_COLUMNS, self.name)])
+            return Range(self, [Area(1, 1, MAX_ROWS, MAX_COLUMNS, self.name)], whole="columns")
         if isinstance(Index, str):
             # Columns("C") is the whole column, the way Columns("C:D") is.
             wanted = Index if ":" in Index else f"{Index}:{Index}"
-            return Range(self, parse_reference(wanted, sheet=self.name))
+            return Range(self, parse_reference(wanted, sheet=self.name), whole="columns")
         column = int(to_integer(Index, "Long"))
-        return Range(self, [Area(1, column, MAX_ROWS, column, self.name)])
+        return Range(self, [Area(1, column, MAX_ROWS, column, self.name)], whole="columns")
 
     @member
     def UsedRange(self) -> object:
@@ -906,6 +901,28 @@ class Worksheet(ExcelObject):
             return Range(self, [Area(1, 1, 1, 1, self.name)])
         top, left, bottom, right = bounds
         return Range(self, [Area(top, left, bottom, right, self.name)])
+
+    @member
+    def StandardHeight(self) -> object:
+        from pyopenvba.apps.excel._dimensions import read_standard_height
+
+        return read_standard_height(self)
+
+    @setter("StandardHeight")
+    def _set_standard_height(self, value: object) -> None:
+        raise error(1004, "StandardHeight is worked out from the Normal style's font")
+
+    @member
+    def StandardWidth(self) -> object:
+        from pyopenvba.apps.excel._dimensions import read_standard_width
+
+        return read_standard_width(self)
+
+    @setter("StandardWidth")
+    def _set_standard_width(self, value: object) -> None:
+        from pyopenvba.apps.excel._dimensions import write_standard_width
+
+        write_standard_width(self, value)
 
     @member
     def Names(self, Index: object = MISSING) -> object:
@@ -984,18 +1001,30 @@ class Worksheet(ExcelObject):
         if found.is_blank():
             del self.cells_[(row, column)]
         self.touched()
+        self.dims.fonts_changed(row)
 
     def set_number_format(self, row: int, column: int, code: str) -> None:
         self.restyle(row, column, replace(self.style_at(row, column), number_format=code))
 
     def used_bounds(self) -> tuple[int, int, int, int] | None:
+        """The sheet's used block, as UsedRange and a file's dimension give it.
+
+        A row with a height, a hidden flag or a format of its own counts,
+        as its cells do; a column counts only while it is hidden keeping a
+        width. What is missing on one side defaults to row 1 or column A.
+        Excel's own block only grows while a workbook is open, and shrinks
+        when something reads UsedRange; the model's is always the content's.
+        """
         live = [(row, column) for (row, column), cell in self.cells_.items() if not cell.is_blank()]
         for area in self.merged_areas:
             live.extend(((area.top, area.left), (area.bottom, area.right)))
-        if not live:
-            return None
         rows = [row for row, _ in live]
+        rows.extend(self.dims.record_rows())
         columns = [column for _, column in live]
+        columns.extend(self.dims.used_columns())
+        if not rows and not columns:
+            return None
+        rows, columns = rows or [1], columns or [1]
         return min(rows), min(columns), max(rows), max(columns)
 
     def describe(self, indent: str = "") -> str:
@@ -1050,9 +1079,14 @@ class Range(ExcelObject):
 
     vba_type_name = "Range"
 
-    def __init__(self, sheet: Worksheet, areas: list[Area]) -> None:
+    def __init__(self, sheet: Worksheet, areas: list[Area], *, whole: str = "") -> None:
         self.sheet = sheet
         self.areas = areas or [Area(1, 1, 1, 1, sheet.name)]
+        #: "rows" or "columns" for a range made as whole rows or columns.
+        #: Every row and every column is the same block of cells, but
+        #: Rows("1:1048576").Hidden hides rows and Columns("A:XFD").Hidden
+        #: columns, where Cells.Hidden is an error.
+        self.whole = whole
 
     @property
     def first(self) -> Area:
@@ -1378,6 +1412,7 @@ class Range(ExcelObject):
         return Range(
             self.sheet,
             [Area(area.top, 1, area.bottom, MAX_COLUMNS, area.sheet) for area in self.areas],
+            whole="rows",
         )
 
     @member
@@ -1385,6 +1420,7 @@ class Range(ExcelObject):
         return Range(
             self.sheet,
             [Area(1, area.left, MAX_ROWS, area.right, area.sheet) for area in self.areas],
+            whole="columns",
         )
 
     @member
@@ -1528,25 +1564,63 @@ class Range(ExcelObject):
     def _set_formula_hidden(self, value: object) -> None:
         self._set_format("FormulaHidden", value)
 
+    # -- sizes: pyopenvba.apps.excel._dimensions has the rules
+
     @member
     def ColumnWidth(self) -> object:
-        return self.sheet.column_widths.get(self.first.left, 8.43)
+        return _dimensions.read_column_width(self)
 
     @setter("ColumnWidth")
     def _set_column_width(self, value: object) -> None:
-        width = float(to_number(value))
-        for column in range(self.first.left, min(self.first.right, self.first.left + 255) + 1):
-            self.sheet.column_widths[column] = width
+        _dimensions.write_column_width(self, value)
 
     @member
     def RowHeight(self) -> object:
-        return self.sheet.row_heights.get(self.first.top, 15.0)
+        return _dimensions.read_row_height(self)
 
     @setter("RowHeight")
     def _set_row_height(self, value: object) -> None:
-        height = float(to_number(value))
-        for row in range(self.first.top, min(self.first.bottom, self.first.top + 255) + 1):
-            self.sheet.row_heights[row] = height
+        _dimensions.write_row_height(self, value)
+
+    @member
+    def Width(self) -> object:
+        return _dimensions.read_width(self)
+
+    @member
+    def Height(self) -> object:
+        return _dimensions.read_height(self)
+
+    @member
+    def Left(self) -> object:
+        return _dimensions.read_left(self)
+
+    @member
+    def Top(self) -> object:
+        return _dimensions.read_top(self)
+
+    @member
+    def Hidden(self) -> object:
+        return _dimensions.read_hidden(self)
+
+    @setter("Hidden")
+    def _set_hidden(self, value: object) -> None:
+        _dimensions.write_hidden(self, value)
+
+    @member
+    def UseStandardHeight(self) -> object:
+        return _dimensions.read_use_standard_height(self)
+
+    @setter("UseStandardHeight")
+    def _set_use_standard_height(self, value: object) -> None:
+        _dimensions.write_use_standard_height(self, value)
+
+    @member
+    def UseStandardWidth(self) -> object:
+        return _dimensions.read_use_standard_width(self)
+
+    @setter("UseStandardWidth")
+    def _set_use_standard_width(self, value: object) -> None:
+        _dimensions.write_use_standard_width(self, value)
 
     # -- methods
 
@@ -1683,6 +1757,13 @@ class Range(ExcelObject):
                         copy.stale = True
                         copy.value = EMPTY
                     Destination.sheet.cells_[(tile_row + down, tile_column + across)] = copy
+        # Whole rows take their heights along, and whole columns their widths.
+        if area.whole_rows and written.whole_rows:
+            Destination.sheet.dims.copy_rows_from(self.sheet.dims, [
+                (area.top + (row - target.top) % area.rows, row) for row in range(target.top, bottom + 1)])
+        elif area.whole_columns and written.whole_columns:
+            Destination.sheet.dims.copy_columns_from(self.sheet.dims, [
+                (area.left + (column - target.left) % area.columns, column) for column in range(target.left, right + 1)])
         Destination.sheet.shape_changed()
         return True
 
@@ -1739,6 +1820,7 @@ class Range(ExcelObject):
 
     @method
     def AutoFit(self) -> object:
+        _dimensions.autofit(self)
         return EMPTY
 
     @method

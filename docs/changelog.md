@@ -464,6 +464,29 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- A formula that ends on a `+` or `-` whose answer all but cancels is 0,
+  as in Excel: `=0.5-0.4-0.1` is 0, not -2.8E-17. Excel sets the answer
+  to 0 when its binary exponent is 50 or more below the left operand's,
+  about seven steps of the last bit. Brackets around the whole formula,
+  or a function around the difference, keep the bits. SUM and AVERAGE
+  do the same to their last addition, and a defined name to its
+  formula. 1,788 pairs of doubles measured in live Excel pin it.
+- Comparisons round each number to fifteen significant digits, an exact
+  tie going away from zero, as Excel does. The model found the digits
+  with a logarithm, which misses by one beside a power of ten:
+  999999999999999.375 equalled 1E+15.
+- MATCH, VLOOKUP, HLOOKUP and XLOOKUP compare numbers bit for bit,
+  exact and approximate, as Excel's lookups do. The model matched them
+  to fifteen digits like `=`. COUNTIF, COUNTIFS, SUMIF and SWITCH still
+  match to fifteen digits, as in Excel.
+- A number turned to text in a formula rounds an exact tie at the
+  sixteenth digit toward zero: 4503599627370495 reads
+  `4503599627370490`. The model rounded half to even.
+- A defined name that stands for a formula, such as
+  `=Sheet1!$A$1-Sheet1!$B$1`, is worked out where the name is used. The
+  model read that one as $B$1 on a sheet called `Sheet1!$A$1-Sheet1`,
+  and answered `#NAME?` for other formulas. One with a relative
+  reference reports itself unsupported.
 - SUM, AVERAGE and AVERAGEIF add one number after another, each sum
   rounded to a double, as Excel adds. The model added exactly, and SUM
   came out a bit away from Excel's on 23 of 87 measured sets.

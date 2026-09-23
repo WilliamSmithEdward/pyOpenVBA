@@ -82,14 +82,7 @@ PROBES = read_probes()
 MEASURED = read_measured()
 
 #: Probes the engine does not answer as Excel does yet, and why.
-_SNAPPED = "Excel sets a formula's last sum or difference to 0 when it cancels to within 15 digits"
-GAPS = {
-    ";; =VAR(0.1,0.2,0.3)-0.01": _SNAPPED,
-    ";; =VAR(0.3,0.2,0.1)-0.01": _SNAPPED,
-    ";; =STDEV(0.1,0.2,0.3)-0.1": _SNAPPED,
-    ";; =VAR(0.1,0.2,0.3,0.4)-0.0166666666666667": _SNAPPED,
-    ";; =VARP(1.1,2.2,3.3)-0.806666666666667": _SNAPPED,
-}
+GAPS: dict[str, str] = {}
 
 
 def test_every_probe_was_measured() -> None:

@@ -11,8 +11,9 @@ and Null leaking into a grid that has neither.
 from __future__ import annotations
 
 import math
+import struct
 from dataclasses import dataclass
-from decimal import Decimal, localcontext
+from decimal import ROUND_HALF_DOWN, ROUND_HALF_UP, Decimal, localcontext
 from typing import Final, Iterator
 
 
@@ -235,7 +236,8 @@ def number_text(number: float, *, formula: bool = False) -> str:
     sign = "-" if number < 0 else ""
     for precision in range(15, 0, -1):
         with localcontext() as context:
-            context.prec = precision
+            # An exact tie goes toward zero: 4503599627370495 is 4503599627370490 (tests/fixtures/formula).
+            context.prec, context.rounding = precision, ROUND_HALF_DOWN
             rounded = (+Decimal(abs(number))).normalize()
         if precision == 15 and len(plain := format(rounded, "f")) <= widest:
             return sign + plain
@@ -293,24 +295,54 @@ def _kind(value: object) -> str:
 def _numeric_order(one: float, two: float) -> int:
     """Two numbers compared as a cell compares them.
 
-    Excel settles a comparison on the fifteen significant digits it
-    would show rather than on the bits, which is why =0.1+0.2=0.3 is
-    TRUE in a sheet and False almost everywhere else.
+    Excel settles a comparison on each number rounded to fifteen
+    significant digits rather than on the bits, which is why =0.1+0.2=0.3
+    is TRUE in a sheet and False almost everywhere else. An exact tie
+    rounds away from zero, unlike the number's text: 4503599627370495
+    equals 4503599627370500 but not 4503599627370490. Measured over 1,400
+    pairs a few bits apart (tests/fixtures/zero_snap.json).
     """
+    if one != one or two != two:
+        return 0
     first = _to_fifteen(one)
     second = _to_fifteen(two)
     return (first > second) - (first < second)
 
 
-def _to_fifteen(number: float) -> float:
-    if number == 0 or number != number or number in (float("inf"), float("-inf")):
-        return number
-    magnitude = math.floor(math.log10(abs(number)))
-    return round(number, max(-308, 14 - magnitude))
+def _to_fifteen(number: float) -> Decimal:
+    with localcontext() as context:
+        context.prec, context.rounding = 15, ROUND_HALF_UP
+        return +Decimal(number)
 
 
-def compare(op: str, left: object, right: object) -> bool:
-    """A comparison, with Excel's own ordering between the types."""
+def snapped(left: float, total: float) -> float:
+    """A sum or difference that all but cancels, set to zero as Excel sets it.
+
+    Measured bit for bit (scripts/measure_zero_snap.py): the last + or -
+    of a formula, and the last addition SUM and AVERAGE make, is 0 when
+    the answer's binary exponent is 50 or more below the left operand's.
+    That is seven steps of the last bit within one binade, and not a
+    matter of decimal digits: 3.1091263510296 below the double nearest
+    STDEV(1,6,7,8) keeps its 4.9E-15. The exponents are the fields as
+    stored, so an answer too small to be normal keeps its bits.
+    """
+    if total != 0 and _exponent(total) <= _exponent(left) - 50:
+        return 0.0
+    return total
+
+
+def _exponent(number: float) -> int:
+    """A double's biased exponent field: 0 for zero and the subnormals."""
+    return (struct.unpack("<Q", struct.pack("<d", number))[0] >> 52) & 0x7FF
+
+
+def compare(op: str, left: object, right: object, *, exact: bool = False) -> bool:
+    """A comparison, with Excel's own ordering between the types.
+
+    Numbers are compared to fifteen digits, as the operators and the
+    criteria functions compare them; ``exact`` compares their bits, as
+    MATCH, VLOOKUP, HLOOKUP and XLOOKUP do.
+    """
     first = single(left)
     second = single(right)
     if isinstance(first, ExcelError):
@@ -331,7 +363,7 @@ def compare(op: str, left: object, right: object) -> bool:
         order = (upper_first > upper_second) - (upper_first < upper_second)
     else:
         one, two = float(as_number(first)), float(as_number(second))
-        order = _numeric_order(one, two)
+        order = ((one > two) - (one < two)) if exact else _numeric_order(one, two)
     if op == "=":
         return order == 0
     if op == "<>":

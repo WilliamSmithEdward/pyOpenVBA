@@ -75,6 +75,8 @@ class Binary(Node):
     op: str = ""
     left: Node | None = None
     right: Node | None = None
+    #: Written in brackets, which keeps Excel from setting a last sum that cancels to zero.
+    grouped: bool = field(default=False, compare=False)
 
 
 @dataclass(slots=True)
@@ -288,6 +290,8 @@ class Parser:
                 self.advance()
                 inner = Binary(op=",", left=self.referable(inner), right=self.referable(self.expression()))
             self.expect("close")
+            if isinstance(inner, Binary):
+                inner.grouped = True
             return inner
         if token.kind == "lbrace":
             return self.array()

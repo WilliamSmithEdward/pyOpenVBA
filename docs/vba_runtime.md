@@ -914,6 +914,19 @@ of squares, and the squares about the mean when that cancels, STDEV and
 STDEVP the square roots of those; data under a thousandth still misses
 8 of 348 answers.
 
+A formula that ends on a `+` or `-` whose answer all but cancels is 0,
+as Excel sets it: when the answer's binary exponent is 50 or more below
+the left operand's (`tests/fixtures/zero_snap.json`, 1,788 pairs of
+doubles). Only the operator the formula, or a defined name's formula,
+ends on counts, not one in brackets or inside a function; SUM and
+AVERAGE do the same to their last addition, SUMPRODUCT and SUMIF not.
+Comparisons round each number to fifteen significant digits, an exact
+tie going away from zero, so `=0.1+0.2=0.3` is TRUE. COUNTIF, COUNTIFS,
+SUMIF and SWITCH match that way, while MATCH, VLOOKUP, HLOOKUP and
+XLOOKUP compare the bits. A number's text in a formula rounds a tie
+toward zero instead. An array formula (`Range.FormulaArray`) and
+`Evaluate` of an expression are not implemented.
+
 A macro reaches the same functions through `WorksheetFunction.X`, which
 raises error 1004 when the answer is an error, or the late-bound
 `Application.X`, which hands the error back as a value

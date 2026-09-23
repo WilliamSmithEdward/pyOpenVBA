@@ -45,6 +45,7 @@ from pyopenvba.formula._values import (
     as_text,
     compare,
     single,
+    snapped,
     text_as_number,
 )
 
@@ -159,16 +160,31 @@ def _matrix(value: object) -> Matrix:
 
 @function("SUM")
 def fn_sum(context: Context, args: list[Any]) -> object:
-    return _added(_numbers(args))
+    return _summed(_numbers(args))
+
+
+def _summed(numbers: Iterable[float]) -> float:
+    """Numbers added as SUM and AVERAGE add them: in order, the last addition set to zero when it cancels.
+
+    Measured bit for bit (scripts/measure_zero_snap.py): SUM(a,-b) is 0
+    for every a and b that =a-b sets to 0, while SUM(a,-b,1E-20), whose
+    last addition does not cancel, is the plain sum. SUMPRODUCT and
+    SUMIF add without it.
+    """
+    total = before = 0.0
+    for number in numbers:
+        before, total = total, total + number
+    return snapped(before, total)
 
 
 def _added(numbers: Iterable[float]) -> float:
     """Numbers added as Excel adds them: one after another, each sum rounded to a double.
 
     Measured bit for bit (scripts/measure_variance.py, 87 sets): SUM,
-    AVERAGE, SUMIF, AVERAGEIF, SUMSQ and SUMPRODUCT all add this way;
-    fsum's exact total differs in the last bit for a quarter of them, and
-    Python's own sum compensates from 3.12 on.
+    AVERAGE, SUMIF, AVERAGEIF, SUMSQ and SUMPRODUCT all add this way, SUM
+    and AVERAGE then setting a last addition that cancels to zero
+    (_summed); fsum's exact total differs in the last bit for a quarter of
+    the sets, and Python's own sum compensates from 3.12 on.
     """
     total = 0.0
     for number in numbers:
@@ -404,7 +420,7 @@ def fn_average(context: Context, args: list[Any]) -> object:
     numbers = list(_numbers(args))
     if not numbers:
         raise DIV0
-    return _added(numbers) / len(numbers)
+    return _summed(numbers) / len(numbers)
 
 
 @function("MEDIAN")
@@ -637,7 +653,8 @@ def _criterion(spec: object) -> Callable[[object], bool]:
     return ordered
 
 
-def _equal(value: object, target: object) -> bool:
+def _equal(value: object, target: object, *, exact: bool = False) -> bool:
+    """Whether a value matches: numbers to fifteen digits, or with ``exact`` bit for bit as the lookups match."""
     if value is BLANK:
         return target is BLANK
     if isinstance(target, str) and isinstance(value, str):
@@ -645,7 +662,7 @@ def _equal(value: object, target: object) -> bool:
     if isinstance(target, str) != isinstance(value, str):
         return False
     try:
-        return bool(compare("=", value, target))
+        return bool(compare("=", value, target, exact=exact))
     except ExcelError:
         return False
 
@@ -905,11 +922,12 @@ def fn_hlookup(context: Context, args: list[Any]) -> object:
 
 
 def _find_row(table: Matrix, wanted: object, column: int, approximate: bool) -> int | None:
+    """The row a lookup lands on. Lookups compare numbers bit for bit, not to fifteen digits (zero_snap.json)."""
     if not approximate:
         test = _criterion(wanted) if isinstance(wanted, str) else None
         for row in range(table.height):
             value = table.at(row, column)
-            if test(value) if test is not None else _equal(value, wanted):
+            if test(value) if test is not None else _equal(value, wanted, exact=True):
                 return row
         return None
     best: int | None = None
@@ -918,7 +936,7 @@ def _find_row(table: Matrix, wanted: object, column: int, approximate: bool) -> 
         if value is BLANK:
             continue
         try:
-            if compare("<=", value, wanted):
+            if compare("<=", value, wanted, exact=True):
                 best = row
             else:
                 break
@@ -930,7 +948,7 @@ def _find_row(table: Matrix, wanted: object, column: int, approximate: bool) -> 
 def _find_column(table: Matrix, wanted: object, row: int, approximate: bool) -> int | None:
     if not approximate:
         for column in range(table.width):
-            if _equal(table.at(row, column), wanted):
+            if _equal(table.at(row, column), wanted, exact=True):
                 return column
         return None
     best: int | None = None
@@ -939,7 +957,7 @@ def _find_column(table: Matrix, wanted: object, row: int, approximate: bool) -> 
         if value is BLANK:
             continue
         try:
-            if compare("<=", value, wanted):
+            if compare("<=", value, wanted, exact=True):
                 best = column
             else:
                 break
@@ -957,7 +975,7 @@ def fn_match(context: Context, args: list[Any]) -> object:
     if kind == 0:
         test = _criterion(wanted) if isinstance(wanted, str) else None
         for index, value in enumerate(items):
-            if test(value) if test is not None else _equal(value, wanted):
+            if test(value) if test is not None else _equal(value, wanted, exact=True):
                 return float(index + 1)
         raise NA
     best: int | None = None
@@ -965,7 +983,7 @@ def fn_match(context: Context, args: list[Any]) -> object:
         if value is BLANK:
             continue
         try:
-            fits = compare("<=", value, wanted) if kind > 0 else compare(">=", value, wanted)
+            fits = compare("<=" if kind > 0 else ">=", value, wanted, exact=True)
         except ExcelError:
             continue
         if fits:
@@ -1016,7 +1034,7 @@ def fn_xlookup(context: Context, args: list[Any]) -> object:
     items = list(where.flat())
     test = _criterion(wanted) if isinstance(wanted, str) else None
     for index, value in enumerate(items):
-        if test(value) if test is not None else _equal(value, wanted):
+        if test(value) if test is not None else _equal(value, wanted, exact=True):
             return give.at(index, 0) if give.width == 1 else give.at(0, index)
     if len(args) > 3 and args[3] is not BLANK:
         return single(args[3])

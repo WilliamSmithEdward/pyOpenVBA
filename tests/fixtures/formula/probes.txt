@@ -272,3 +272,39 @@ Range("A1").Value = 1: Range("A2").Value = 2: Range("B1:B2").Formula = "=A1*10" 
 Range("A1").Value = 1: Range("A2").Value = 2: Range("B1:B2").Formula = "=$A$1*10" ;; =B2
 Range("A1").Value = 1: Range("B1").Value = 2: Range("A2:B2").Formula = "=A1*10" ;; =B2
 Range("A1").Value = 5: Range("B1").Formula = "=A1": Range("B1").Copy Range("C2") ;; =FORMULATEXT(C2)
+
+# --- a sixteenth digit that ties, as text and in a comparison ---
+# A number typed into a formula keeps fifteen significant digits, so the
+# ties themselves are written to cells from VBA, which keeps every bit.
+Range("A1").Value = 4503599627370495# ;; =A1&""
+Range("A1").Value = -4503599627370495# ;; =A1&""
+Range("A1").Value = 4503599627370505# ;; =A1&""
+Range("A1").Value = -4503599627370505# ;; =A1&""
+Range("A1").Value = 123456789012345.5 ;; =A1&""
+Range("A1").Value = -123456789012345.5 ;; =A1&""
+Range("A1").Value = 4503599627370505#: Range("A2").Value = 4503599627370510# ;; =A1=A2
+Range("A1").Value = -4503599627370505#: Range("A2").Value = -4503599627370510# ;; =A1=A2
+Range("A1").Value = 4503599627370495#: Range("A2").Value = 4503599627370500# ;; =A1=A2
+Range("A1").Value = -4503599627370495#: Range("A2").Value = -4503599627370500# ;; =A1=A2
+Range("A1").Value = 4503599627370495#: Range("A2").Value = 4503599627370490# ;; =A1=A2
+Range("A1").Value = -4503599627370495#: Range("A2").Value = -4503599627370490# ;; =A1=A2
+Range("A1").Value = 123456789012345.5: Range("A2").Value = 123456789012346# ;; =A1=A2
+Range("A1").Value = -123456789012345.5: Range("A2").Value = -123456789012346# ;; =A1=A2
+Range("A1").Value = 4503599627370495# ;; =A1=4503599627370490
+=""&4503599627370495
+=""&-4503599627370495
+=""&4503599627370505
+=""&-4503599627370505
+=""&123456789012345.5
+=""&-123456789012345.5
+=""&123456789012346.5
+=""&-123456789012346.5
+=EXACT(4503599627370495,4503599627370490)
+=4503599627370505=4503599627370510
+=-4503599627370505=-4503599627370510
+=4503599627370495=4503599627370500
+=-4503599627370495=-4503599627370500
+=123456789012345.5=123456789012346
+=-123456789012345.5=-123456789012346
+=123456789012346.5=123456789012347
+=-123456789012346.5=-123456789012347

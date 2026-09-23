@@ -15,13 +15,14 @@ value it last had, which is what Excel shows until F9.
 from __future__ import annotations
 
 import datetime as _dt
+import re
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import Area
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.formula import _parse as P
-from pyopenvba.formula._engine import Context, clip, evaluate
+from pyopenvba.formula._engine import Context, clip, evaluate_formula
 from pyopenvba.formula._values import BLANK, REF, ExcelError, Matrix, single
 from pyopenvba.interpreter._values import EMPTY, VBACurrency, VBADate, VBAErrorValue, VBAInt
 
@@ -202,7 +203,7 @@ class Calculator:
 
     def _computed(self, compiled: Compiled, sheet: str, row: int, column: int) -> object:
         try:
-            answer = single(evaluate(compiled.node, Context(self, sheet, row, column)))
+            answer = single(evaluate_formula(compiled.node, Context(self, sheet, row, column)))
         except ExcelError as failure:
             if failure.name == "#CIRCULAR!":
                 # Excel leaves a zero in a cell that feeds itself.
@@ -238,18 +239,20 @@ class Calculator:
         from pyopenvba._a1 import parse_area
 
         try:
+            if not _one_reference(text):
+                # Sheet1!$A$1-Sheet1!$B$1 would read as $B$1 on a sheet called Sheet1!$A$1-Sheet1.
+                raise ValueError(text)
             area = parse_area(text, sheet=sheet)
         except ValueError:
             node = P.parse(text)
             if isinstance(node, P.Literal):
                 return node.value
             from pyopenvba.apps.excel._control_refs import binding
-            from pyopenvba.exceptions import VBAUnsupportedError
 
             try:
                 _, area = binding(self.book.sheet_named(sheet), found.entry.name)
             except (ValueError, VBAUnsupportedError):
-                return None
+                return _named_formula(node, text)
             return area
         return area
 
@@ -295,6 +298,33 @@ class Calculator:
 
 
 # --- moving values across the boundary ------------------------------------------------------
+
+
+def _one_reference(text: str) -> bool:
+    """Whether a defined name's formula is a reference and nothing else; text the tokenizer cannot read may be."""
+    try:
+        tokens = P.tokenize(text)
+    except P.FormulaError:
+        return True
+    return len(tokens) == 1 and tokens[0].kind == "ref"
+
+
+#: One side of a reference that names its cells outright: $A$1, a whole column $A or a whole row $1.
+_ABSOLUTE = re.compile(r"\$[A-Za-z]{1,3}(?:\$[0-9]+)?|\$[0-9]+")
+
+
+def _named_formula(node: P.Node, text: str) -> P.Node:
+    """A defined name that stands for a formula, for the engine to work out where the name is used.
+
+    A relative reference in one is counted from the cell the name was
+    defined at, which the name does not record here, so it reports itself
+    rather than answering from the wrong cells.
+    """
+    for token in P.tokenize(text):
+        sides = P.split_sheet(token.text)[1].split(":") if token.kind == "ref" else []
+        if not all(_ABSOLUTE.fullmatch(side) for side in sides):
+            raise VBAUnsupportedError("a defined name whose formula has a relative reference is not implemented")
+    return node
 
 
 def from_vba(value: object) -> object:

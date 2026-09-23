@@ -34,6 +34,7 @@ from pyopenvba.formula._values import (
     as_text,
     compare,
     single,
+    snapped,
 )
 
 #: How deep a chain of formulas may go before it is called circular.
@@ -52,7 +53,7 @@ class Grid(Protocol):
         ...
 
     def named(self, name: str, sheet: str) -> object:
-        """A defined name's value or area, or None if there is no such name."""
+        """A defined name's value, area or formula (a parsed node), or None if there is no such name."""
         ...
 
     def sheet_exists(self, name: str) -> bool: ...
@@ -120,6 +121,18 @@ class Context:
         return Area(area.top, area.left, area.bottom, area.right, sheet)
 
 
+def evaluate_formula(node: P.Node, context: Context) -> object:
+    """A whole formula's value, as a cell or a defined name holds it.
+
+    A formula that ends on a + or - whose answer all but cancels is 0, as
+    Excel sets it (snapped); one in brackets, or inside a function, keeps
+    its bits (tests/fixtures/zero_snap.json).
+    """
+    if isinstance(node, P.Binary) and node.op in ("+", "-") and not node.grouped:
+        return _binary(node, context, snap=True)
+    return evaluate(node, context)
+
+
 def evaluate(node: P.Node, context: Context) -> object:
     """A parsed formula's value, errors included."""
     if context.depth > MAX_DEPTH:
@@ -149,6 +162,9 @@ def _named(node: P.NameNode, context: Context) -> object:
         raise NAME
     if isinstance(found, Area):
         return context.grid.block(context.sheet, found)
+    if isinstance(found, P.Node):
+        # A name standing for a formula is worked out where it is used.
+        return evaluate_formula(found, context)
     return found
 
 
@@ -173,7 +189,7 @@ def _safely(apply: Callable[[object], object], value: object) -> object:
         return failure
 
 
-def _binary(node: P.Binary, context: Context) -> object:
+def _binary(node: P.Binary, context: Context, *, snap: bool = False) -> object:
     if node.op in P.REFERENCE_OPS:
         from pyopenvba.exceptions import VBAUnsupportedError
 
@@ -182,8 +198,8 @@ def _binary(node: P.Binary, context: Context) -> object:
     left = _operand(node.left, context)
     right = _operand(node.right, context)
     if isinstance(left, Matrix) or isinstance(right, Matrix):
-        return _over_blocks(node.op, left, right)
-    return _apply(node.op, left, right)
+        return _over_blocks(node.op, left, right, snap=snap)
+    return _apply(node.op, left, right, snap=snap)
 
 
 def _operand(node: P.Node | None, context: Context) -> object:
@@ -213,18 +229,18 @@ def _operand(node: P.Node | None, context: Context) -> object:
     return VALUE
 
 
-def _over_blocks(op: str, left: object, right: object) -> object:
+def _over_blocks(op: str, left: object, right: object, *, snap: bool = False) -> object:
     """An operator between blocks, which Excel applies element by element."""
     height = max(_height(left), _height(right))
     width = max(_width(left), _width(right))
     if height == 1 and width == 1:
-        return _apply(op, single(left), single(right))
+        return _apply(op, single(left), single(right), snap=snap)
     rows: list[list[object]] = []
     for row in range(height):
         line: list[object] = []
         for column in range(width):
             try:
-                line.append(_apply(op, _pick(left, row, column), _pick(right, row, column)))
+                line.append(_apply(op, _pick(left, row, column), _pick(right, row, column), snap=snap))
             except ExcelError as failure:
                 line.append(failure)
         rows.append(line)
@@ -243,7 +259,7 @@ def _pick(value: object, row: int, column: int) -> object:
     return value.at(row, column) if isinstance(value, Matrix) else value
 
 
-def _apply(op: str, left: object, right: object) -> object:
+def _apply(op: str, left: object, right: object, *, snap: bool = False) -> object:
     if op in ("=", "<>", "<", ">", "<=", ">="):
         return compare(op, left, right)
     if isinstance(left, ExcelError):
@@ -255,9 +271,9 @@ def _apply(op: str, left: object, right: object) -> object:
     first = as_number(left)
     second = as_number(right)
     if op == "+":
-        return first + second
+        return snapped(first, first + second) if snap else first + second
     if op == "-":
-        return first - second
+        return snapped(first, first - second) if snap else first - second
     if op == "*":
         return first * second
     if op == "/":

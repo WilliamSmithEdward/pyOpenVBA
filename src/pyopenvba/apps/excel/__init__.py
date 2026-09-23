@@ -294,7 +294,7 @@ class SheetView(NamedRangeAPI):
 
     def rows(self) -> list[list[object]]:
         """Everything on the sheet, row by row, as Python values."""
-        from pyopenvba.apps.excel._calc import as_vba
+        from pyopenvba.apps.excel._calc import as_python
 
         bounds = self.sheet.used_bounds()
         if bounds is None:
@@ -308,9 +308,9 @@ class SheetView(NamedRangeAPI):
                 if cell is None:
                     line.append(None)
                     continue
-                # A number is a Date or a Currency only through its cell's format.
+                # A number is a Date or a Currency only through its cell's format, and only where one holds it.
                 number = isinstance(cell.value, (int, float)) and not isinstance(cell.value, bool)
-                line.append(_plain(as_vba(cell.value, cell) if number else cell.value))
+                line.append(_plain(as_python(cell.value, cell) if number else cell.value))
             out.append(line)
         return out
 

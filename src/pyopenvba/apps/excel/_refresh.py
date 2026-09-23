@@ -134,7 +134,7 @@ def _block_of(sheet: Worksheet, area: Area, *, headers: bool) -> Table:
 
 def _to_m(sheet: Worksheet, row: int, column: int) -> object:
     """One cell as M sees it."""
-    from pyopenvba.apps.excel._calc import as_vba
+    from pyopenvba.apps.excel._calc import as_python
     from pyopenvba.formula._values import ExcelError
 
     cell = sheet.cell(row, column)
@@ -145,7 +145,7 @@ def _to_m(sheet: Worksheet, row: int, column: int) -> object:
         value = sheet.book.calculator.value_of(sheet.name, row, column)
     if isinstance(value, ExcelError):
         raise MError("Expression.Error", f"the cell holds {value.name}")
-    value = as_vba(value, cell)
+    value = as_python(value, cell)
     if value is EMPTY:
         return None
     if isinstance(value, VBADate):

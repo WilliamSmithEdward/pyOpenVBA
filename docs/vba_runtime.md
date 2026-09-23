@@ -482,7 +482,10 @@ saved (`tests/fixtures/typing/`).
   `PrefixCharacter` shows it while the cell holds text.
 * `Value` reads a number as a Date or Currency through the cell's
   format, and `Value2` as the Double it is; `Value2` writes a Date or
-  Currency as that Double.
+  Currency as that Double. A number the Date or Currency cannot hold,
+  such as 2958466 under `m/d/yyyy` or 1E+15 under `$#,##0.00`, makes
+  `Value` raise error 6, for a block as for one cell, while `Value2` and
+  `Text` still read it. The Python API's `rows()` gives the Double there.
 * `NumberFormat` keeps a code as Excel rewrites it, and the file spells
   it as Excel's file does (`tests/fixtures/format_codes/`). `Formula`
   spells a stored number as Excel does, and `Text` under General shows

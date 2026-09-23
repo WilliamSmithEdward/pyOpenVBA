@@ -79,7 +79,8 @@ FORMATS = ["General", "0", "0.00", "#,##0", "#,##0.00", "0%", "0.00%", "0.00E+00
            "d-mmm-yy", "yyyy", "dddd", "mmmm", "m", "mm", "mmm", "d", "h", "h:mm", "h:mm:ss", "mm:ss", "[h]:mm",
            "[mm]:ss", "h:mm AM/PM", "m/d/yyyy h:mm", "s", "[$-409]h:mm:ss AM/PM", "0.00;[Red]-0.00", '0 "units"']
 FORMAT_READS = ["TypeName(c.Value)", "Show(c.Value)", "Show(c.Value2)", "c.Text"]
-FORMAT_VALUES = ["45000.5625", "-1234.5", "0.25"]
+#: The last five are more than a Date or a Currency holds, one way or the other.
+FORMAT_VALUES = ["45000.5625", "-1234.5", "0.25", "-1", "-657435", "2958466", "1E+20", "922337203685478"]
 
 #: Formats a cell holds before a string is typed into it, and what is typed.
 PRESET_FORMATS = ["General", "@", "0.00", "#,##0", "0%", "$#,##0.00", "0.00E+00", "# ?/?", "m/d/yyyy", "h:mm"]
@@ -106,7 +107,14 @@ SEQUENCE_READS = ["Show(c.Value)", "c.Text", "c.NumberFormat", "c.PrefixCharacte
 ARRAYS = ['ws.Range("B2:E2").Value = Array("5%", "1/2/2020", "\'5", "$5")',
           'ws.Range("B2:E2").Value2 = Array("5%", "1/2/2020", "\'5", "$5")',
           'ws.Range("B2:E2").Value = Array(#1/2/2020#, CCur(5.5), "1,000", "1 1/2")',
-          'ws.Range("B2:E2").Value = "5%"']
+          'ws.Range("B2:E2").Value = "5%"',
+          # A block read of a cell its Date or Currency cannot hold, kept in D2 when it does not fail.
+          'ws.Range("B2").Value = 2958466: ws.Range("B2").NumberFormat = "m/d/yyyy": '
+          'ws.Range("D2").Value = TypeName(ws.Range("B2:C2").Value)',
+          'ws.Range("B2").Value = 2958466: ws.Range("B2").NumberFormat = "m/d/yyyy": '
+          'ws.Range("D2").Value = TypeName(ws.Range("B2:C2").Value2)',
+          'ws.Range("C2").Value = 1E+20: ws.Range("C2").NumberFormat = "$#,##0.00": '
+          'ws.Range("D2").Value = TypeName(ws.Range("B2:C2").Value)']
 ARRAY_READS = ["Show(c.Value)", "c.NumberFormat", "c.PrefixCharacter"]
 
 

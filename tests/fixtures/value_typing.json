@@ -20,7 +20,12 @@
  "format_values": [
   "45000.5625",
   "-1234.5",
-  "0.25"
+  "0.25",
+  "-1",
+  "-657435",
+  "2958466",
+  "1E+20",
+  "922337203685478"
  ],
  "preset_reads": [
   "TypeName(c.Value)",
@@ -682,7 +687,12 @@
    "answers": [
     "String:Double;String:Double:45000.5625;String:Double:45000.5625;String:45000.5625;",
     "String:Double;String:Double:-1234.5;String:Double:-1234.5;String:-1234.5;",
-    "String:Double;String:Double:0.25;String:Double:0.25;String:0.25;"
+    "String:Double;String:Double:0.25;String:Double:0.25;String:0.25;",
+    "String:Double;String:Double:-1;String:Double:-1;String:-1;",
+    "String:Double;String:Double:-657435;String:Double:-657435;String:-657435;",
+    "String:Double;String:Double:2958466;String:Double:2958466;String:2958466;",
+    "String:Double;String:Double:1E+20;String:Double:1E+20;String:1E+20;",
+    "String:Double;String:Double:922337203685478;String:Double:922337203685478;String:9.22337E+14;"
    ]
   },
   {
@@ -690,7 +700,12 @@
    "answers": [
     "String:Double;String:Double:45000.5625;String:Double:45000.5625;String:45001;",
     "String:Double;String:Double:-1234.5;String:Double:-1234.5;String:-1235;",
-    "String:Double;String:Double:0.25;String:Double:0.25;String:0;"
+    "String:Double;String:Double:0.25;String:Double:0.25;String:0;",
+    "String:Double;String:Double:-1;String:Double:-1;String:-1;",
+    "String:Double;String:Double:-657435;String:Double:-657435;String:-657435;",
+    "String:Double;String:Double:2958466;String:Double:2958466;String:2958466;",
+    "String:Double;String:Double:1E+20;String:Double:1E+20;String:100000000000000000000;",
+    "String:Double;String:Double:922337203685478;String:Double:922337203685478;String:922337203685478;"
    ]
   },
   {
@@ -698,7 +713,12 @@
    "answers": [
     "String:Double;String:Double:45000.5625;String:Double:45000.5625;String:45000.56;",
     "String:Double;String:Double:-1234.5;String:Double:-1234.5;String:-1234.50;",
-    "String:Double;String:Double:0.25;String:Double:0.25;String:0.25;"
+    "String:Double;String:Double:0.25;String:Double:0.25;String:0.25;",
+    "String:Double;String:Double:-1;String:Double:-1;String:-1.00;",
+    "String:Double;String:Double:-657435;String:Double:-657435;String:-657435.00;",
+    "String:Double;String:Double:2958466;String:Double:2958466;String:2958466.00;",
+    "String:Double;String:Double:1E+20;String:Double:1E+20;String:100000000000000000000.00;",
+    "String:Double;String:Double:922337203685478;String:Double:922337203685478;String:922337203685478.00;"
    ]
   },
   {
@@ -706,7 +726,12 @@
    "answers": [
     "String:Double;String:Double:45000.5625;String:Double:45000.5625;String:45,001;",
     "String:Double;String:Double:-1234.5;String:Double:-1234.5;String:-1,235;",
-    "String:Double;String:Double:0.25;String:Double:0.25;String:0;"
+    "String:Double;String:Double:0.25;String:Double:0.25;String:0;",
+    "String:Double;String:Double:-1;String:Double:-1;String:-1;",
+    "String:Double;String:Double:-657435;String:Double:-657435;String:-657,435;",
+    "String:Double;String:Double:2958466;String:Double:2958466;String:2,958,466;",
+    "String:Double;String:Double:1E+20;String:Double:1E+20;String:100,000,000,000,000,000,000;",
+    "String:Double;String:Double:922337203685478;String:Double:922337203685478;String:922,337,203,685,478;"
    ]
   },
   {
@@ -714,7 +739,12 @@
    "answers": [
     "String:Double;String:Double:45000.5625;String:Double:45000.5625;String:45,000.56;",
     "String:Double;String:Double:-1234.5;String:Double:-1234.5;String:-1,234.50;",
-    "String:Double;String:Double:0.25;String:Double:0.25;String:0.25;"
+    "String:Double;String:Double:0.25;String:Double:0.25;String:0.25;",
+    "String:Double;String:Double:-1;String:Double:-1;String:-1.00;",
+    "String:Double;String:Double:-657435;String:Double:-657435;String:-657,435.00;",
+    "String:Double;String:Double:2958466;String:Double:2958466;String:2,958,466.00;",
+    "String:Double;String:Double:1E+20;String:Double:1E+20;String:100,000,000,000,000,000,000.00;",
+    "String:Double;String:Double:922337203685478;String:Double:922337203685478;String:922,337,203,685,478.00;"
    ]
   },
   {
@@ -722,7 +752,12 @@
    "answers": [
     "String:Double;String:Double:45000.5625;String:Double:45000.5625;String:4500056%;",
     "String:Double;String:Double:-1234.5;String:Double:-1234.5;String:-123450%;",
-    "String:Double;String:Double:0.25;String:Double:0.25;String:25%;"
+    "String:Double;String:Double:0.25;String:Double:0.25;String:25%;",
+    "String:Double;String:Double:-1;String:Double:-1;String:-100%;",
+    "String:Double;String:Double:-657435;String:Double:-657435;String:-65743500%;",
+    "String:Double;String:Double:2958466;String:Double:2958466;String:295846600%;",
+    "String:Double;String:Double:1E+20;String:Double:1E+20;String:10000000000000000000000%;",
+    "String:Double;String:Double:922337203685478;String:Double:922337203685478;String:92233720368547800%;"
    ]
   },
   {
@@ -730,7 +765,12 @@
    "answers": [
     "String:Double;String:Double:45000.5625;String:Double:45000.5625;String:4500056.25%;",
     "String:Double;String:Double:-1234.5;String:Double:-1234.5;String:-123450.00%;",
-    "String:Double;String:Double:0.25;String:Double:0.25;String:25.00%;"
+    "String:Double;String:Double:0.25;String:Double:0.25;String:25.00%;",
+    "String:Double;String:Double:-1;String:Double:-1;String:-100.00%;",
+    "String:Double;String:Double:-657435;String:Double:-657435;String:-65743500.00%;",
+    "String:Double;String:Double:2958466;String:Double:2958466;String:295846600.00%;",
+    "String:Double;String:Double:1E+20;String:Double:1E+20;String:10000000000000000000000.00%;",
+    "String:Double;String:Double:922337203685478;String:Double:922337203685478;String:92233720368547800.00%;"
    ]
   },
   {
@@ -738,7 +778,12 @@
    "answers": [
     "String:Double;String:Double:45000.5625;String:Double:45000.5625;String:4.50E+04;",
     "String:Double;String:Double:-1234.5;String:Double:-1234.5;String:-1.23E+03;",
-    "String:Double;String:Double:0.25;String:Double:0.25;String:2.50E-01;"
+    "String:Double;String:Double:0.25;String:Double:0.25;String:2.50E-01;",
+    "String:Double;String:Double:-1;String:Double:-1;String:-1.00E+00;",
+    "String:Double;String:Double:-657435;String:Double:-657435;String:-6.57E+05;",
+    "String:Double;String:Double:2958466;String:Double:2958466;String:2.96E+06;",
+    "String:Double;String:Double:1E+20;String:Double:1E+20;String:1.00E+20;",
+    "String:Double;String:Double:922337203685478;String:Double:922337203685478;String:9.22E+14;"
    ]
   },
   {
@@ -746,7 +791,12 @@
    "answers": [
     "String:Double;String:Double:45000.5625;String:Double:45000.5625;String:45000 4/7;",
     "String:Double;String:Double:-1234.5;String:Double:-1234.5;String:-1234 1/2;",
-    "String:Double;String:Double:0.25;String:Double:0.25;String: 1/4;"
+    "String:Double;String:Double:0.25;String:Double:0.25;String: 1/4;",
+    "String:Double;String:Double:-1;String:Double:-1;String:-1    ;",
+    "String:Double;String:Double:-657435;String:Double:-657435;String:-657435    ;",
+    "String:Double;String:Double:2958466;String:Double:2958466;String:2958466    ;",
+    "String:Double;String:Double:1E+20;String:Double:1E+20;String:100000000000000000000    ;",
+    "String:Double;String:Double:922337203685478;String:Double:922337203685478;String:922337203685478    ;"
    ]
   },
   {
@@ -754,7 +804,12 @@
    "answers": [
     "String:Double;String:Double:45000.5625;String:Double:45000.5625;String:45000  9/16;",
     "String:Double;String:Double:-1234.5;String:Double:-1234.5;String:-1234  1/2 ;",
-    "String:Double;String:Double:0.25;String:Double:0.25;String:  1/4 ;"
+    "String:Double;String:Double:0.25;String:Double:0.25;String:  1/4 ;",
+    "String:Double;String:Double:-1;String:Double:-1;String:-1      ;",
+    "String:Double;String:Double:-657435;String:Double:-657435;String:-657435      ;",
+    "String:Double;String:Double:2958466;String:Double:2958466;String:2958466      ;",
+    "String:Double;String:Double:1E+20;String:Double:1E+20;String:100000000000000000000      ;",
+    "String:Double;String:Double:922337203685478;String:Double:922337203685478;String:922337203685478      ;"
    ]
   },
   {
@@ -762,7 +817,12 @@
    "answers": [
     "String:Double;String:Double:45000.5625;String:Double:45000.5625;String:45000.5625;",
     "String:Double;String:Double:-1234.5;String:Double:-1234.5;String:-1234.5;",
-    "String:Double;String:Double:0.25;String:Double:0.25;String:0.25;"
+    "String:Double;String:Double:0.25;String:Double:0.25;String:0.25;",
+    "String:Double;String:Double:-1;String:Double:-1;String:-1;",
+    "String:Double;String:Double:-657435;String:Double:-657435;String:-657435;",
+    "String:Double;String:Double:2958466;String:Double:2958466;String:2958466;",
+    "String:Double;String:Double:1E+20;String:Double:1E+20;String:1E+20;",
+    "String:Double;String:Double:922337203685478;String:Double:922337203685478;String:9.22337E+14;"
    ]
   },
   {
@@ -770,7 +830,12 @@
    "answers": [
     "String:Currency;String:Currency:45000.5625;String:Double:45000.5625;String:$45,001;",
     "String:Currency;String:Currency:-1234.5;String:Double:-1234.5;String:-$1,235;",
-    "String:Currency;String:Currency:0.25;String:Double:0.25;String:$0;"
+    "String:Currency;String:Currency:0.25;String:Double:0.25;String:$0;",
+    "String:Currency;String:Currency:-1;String:Double:-1;String:-$1;",
+    "String:Currency;String:Currency:-657435;String:Double:-657435;String:-$657,435;",
+    "String:Currency;String:Currency:2958466;String:Double:2958466;String:$2,958,466;",
+    "E6;E6;String:Double:1E+20;String:$100,000,000,000,000,000,000;",
+    "E6;E6;String:Double:922337203685478;String:$922,337,203,685,478;"
    ]
   },
   {
@@ -778,7 +843,12 @@
    "answers": [
     "String:Currency;String:Currency:45000.5625;String:Double:45000.5625;String:$45,001 ;",
     "String:Currency;String:Currency:-1234.5;String:Double:-1234.5;String:($1,235);",
-    "String:Currency;String:Currency:0.25;String:Double:0.25;String:$0 ;"
+    "String:Currency;String:Currency:0.25;String:Double:0.25;String:$0 ;",
+    "String:Currency;String:Currency:-1;String:Double:-1;String:($1);",
+    "String:Currency;String:Currency:-657435;String:Double:-657435;String:($657,435);",
+    "String:Currency;String:Currency:2958466;String:Double:2958466;String:$2,958,466 ;",
+    "E6;E6;String:Double:1E+20;String:$100,000,000,000,000,000,000 ;",
+    "E6;E6;String:Double:922337203685478;String:$922,337,203,685,478 ;"
    ]
   },
   {
@@ -786,7 +856,12 @@
    "answers": [
     "String:Currency;String:Currency:45000.5625;String:Double:45000.5625;String:$45,000.56 ;",
     "String:Currency;String:Currency:-1234.5;String:Double:-1234.5;String:($1,234.50);",
-    "String:Currency;String:Currency:0.25;String:Double:0.25;String:$0.25 ;"
+    "String:Currency;String:Currency:0.25;String:Double:0.25;String:$0.25 ;",
+    "String:Currency;String:Currency:-1;String:Double:-1;String:($1.00);",
+    "String:Currency;String:Currency:-657435;String:Double:-657435;String:($657,435.00);",
+    "String:Currency;String:Currency:2958466;String:Double:2958466;String:$2,958,466.00 ;",
+    "E6;E6;String:Double:1E+20;String:$100,000,000,000,000,000,000.00 ;",
+    "E6;E6;String:Double:922337203685478;String:$922,337,203,685,478.00 ;"
    ]
   },
   {
@@ -794,7 +869,12 @@
    "answers": [
     "String:Currency;String:Currency:45000.5625;String:Double:45000.5625;String: $                                                                                   45,000.56 ;",
     "String:Currency;String:Currency:-1234.5;String:Double:-1234.5;String: $                                                                                   (1,234.50);",
-    "String:Currency;String:Currency:0.25;String:Double:0.25;String: $                                                                                               0.25 ;"
+    "String:Currency;String:Currency:0.25;String:Double:0.25;String: $                                                                                               0.25 ;",
+    "String:Currency;String:Currency:-1;String:Double:-1;String: $                                                                                             (1.00);",
+    "String:Currency;String:Currency:-657435;String:Double:-657435;String: $                                                                             (657,435.00);",
+    "String:Currency;String:Currency:2958466;String:Double:2958466;String: $                                                                            2,958,466.00 ;",
+    "E6;E6;String:Double:1E+20;String: $                               100,000,000,000,000,000,000.00 ;",
+    "E6;E6;String:Double:922337203685478;String: $                                                   922,337,203,685,478.00 ;"
    ]
   },
   {
@@ -802,7 +882,12 @@
    "answers": [
     "String:Currency;String:Currency:45000.5625;String:Double:45000.5625;String:$45001;",
     "String:Currency;String:Currency:-1234.5;String:Double:-1234.5;String:-$1235;",
-    "String:Currency;String:Currency:0.25;String:Double:0.25;String:$0;"
+    "String:Currency;String:Currency:0.25;String:Double:0.25;String:$0;",
+    "String:Currency;String:Currency:-1;String:Double:-1;String:-$1;",
+    "String:Currency;String:Currency:-657435;String:Double:-657435;String:-$657435;",
+    "String:Currency;String:Currency:2958466;String:Double:2958466;String:$2958466;",
+    "E6;E6;String:Double:1E+20;String:$100000000000000000000;",
+    "E6;E6;String:Double:922337203685478;String:$922337203685478;"
    ]
   },
   {
@@ -810,7 +895,12 @@
    "answers": [
     "String:Double;String:Double:45000.5625;String:Double:45000.5625;String:45,001 USD;",
     "String:Double;String:Double:-1234.5;String:Double:-1234.5;String:-1,235 USD;",
-    "String:Double;String:Double:0.25;String:Double:0.25;String:0 USD;"
+    "String:Double;String:Double:0.25;String:Double:0.25;String:0 USD;",
+    "String:Double;String:Double:-1;String:Double:-1;String:-1 USD;",
+    "String:Double;String:Double:-657435;String:Double:-657435;String:-657,435 USD;",
+    "String:Double;String:Double:2958466;String:Double:2958466;String:2,958,466 USD;",
+    "String:Double;String:Double:1E+20;String:Double:1E+20;String:100,000,000,000,000,000,000 USD;",
+    "String:Double;String:Double:922337203685478;String:Double:922337203685478;String:922,337,203,685,478 USD;"
    ]
   },
   {
@@ -818,7 +908,12 @@
    "answers": [
     "String:Date;String:Date:3/15/2023 1:30:00 PM;String:Double:45000.5625;String:3/15/2023;",
     "String:Date;String:Date:8/13/1896 12:00:00 PM;String:Double:-1234.5;String:########################################;",
-    "String:Date;String:Date:6:00:00 AM;String:Double:0.25;String:1/0/1900;"
+    "String:Date;String:Date:6:00:00 AM;String:Double:0.25;String:1/0/1900;",
+    "String:Date;String:Date:12/29/1899;String:Double:-1;String:########################################;",
+    "E6;E6;String:Double:-657435;String:########################################;",
+    "E6;E6;String:Double:2958466;String:########################################;",
+    "E6;E6;String:Double:1E+20;String:########################################;",
+    "E6;E6;String:Double:922337203685478;String:########################################;"
    ]
   },
   {
@@ -826,7 +921,12 @@
    "answers": [
     "String:Date;String:Date:3/15/2023 1:30:00 PM;String:Double:45000.5625;String:15-Mar;",
     "String:Date;String:Date:8/13/1896 12:00:00 PM;String:Double:-1234.5;String:########################################;",
-    "String:Date;String:Date:6:00:00 AM;String:Double:0.25;String:0-Jan;"
+    "String:Date;String:Date:6:00:00 AM;String:Double:0.25;String:0-Jan;",
+    "String:Date;String:Date:12/29/1899;String:Double:-1;String:########################################;",
+    "E6;E6;String:Double:-657435;String:########################################;",
+    "E6;E6;String:Double:2958466;String:########################################;",
+    "E6;E6;String:Double:1E+20;String:########################################;",
+    "E6;E6;String:Double:922337203685478;String:########################################;"
    ]
   },
   {
@@ -834,7 +934,12 @@
    "answers": [
     "String:Date;String:Date:3/15/2023 1:30:00 PM;String:Double:45000.5625;String:Mar-23;",
     "String:Date;String:Date:8/13/1896 12:00:00 PM;String:Double:-1234.5;String:########################################;",
-    "String:Date;String:Date:6:00:00 AM;String:Double:0.25;String:Jan-00;"
+    "String:Date;String:Date:6:00:00 AM;String:Double:0.25;String:Jan-00;",
+    "String:Date;String:Date:12/29/1899;String:Double:-1;String:########################################;",
+    "E6;E6;String:Double:-657435;String:########################################;",
+    "E6;E6;String:Double:2958466;String:########################################;",
+    "E6;E6;String:Double:1E+20;String:########################################;",
+    "E6;E6;String:Double:922337203685478;String:########################################;"
    ]
   },
   {
@@ -842,7 +947,12 @@
    "answers": [
     "String:Date;String:Date:3/15/2023 1:30:00 PM;String:Double:45000.5625;String:15-Mar-23;",
     "String:Date;String:Date:8/13/1896 12:00:00 PM;String:Double:-1234.5;String:########################################;",
-    "String:Date;String:Date:6:00:00 AM;String:Double:0.25;String:0-Jan-00;"
+    "String:Date;String:Date:6:00:00 AM;String:Double:0.25;String:0-Jan-00;",
+    "String:Date;String:Date:12/29/1899;String:Double:-1;String:########################################;",
+    "E6;E6;String:Double:-657435;String:########################################;",
+    "E6;E6;String:Double:2958466;String:########################################;",
+    "E6;E6;String:Double:1E+20;String:########################################;",
+    "E6;E6;String:Double:922337203685478;String:########################################;"
    ]
   },
   {
@@ -850,7 +960,12 @@
    "answers": [
     "String:Date;String:Date:3/15/2023 1:30:00 PM;String:Double:45000.5625;String:2023;",
     "String:Date;String:Date:8/13/1896 12:00:00 PM;String:Double:-1234.5;String:########################################;",
-    "String:Date;String:Date:6:00:00 AM;String:Double:0.25;String:1900;"
+    "String:Date;String:Date:6:00:00 AM;String:Double:0.25;String:1900;",
+    "String:Date;String:Date:12/29/1899;String:Double:-1;String:########################################;",
+    "E6;E6;String:Double:-657435;String:########################################;",
+    "E6;E6;String:Double:2958466;String:########################################;",
+    "E6;E6;String:Double:1E+20;String:########################################;",
+    "E6;E6;String:Double:922337203685478;String:########################################;"
    ]
   },
   {
@@ -858,7 +973,12 @@
    "answers": [
     "String:Date;String:Date:3/15/2023 1:30:00 PM;String:Double:45000.5625;String:Wednesday;",
     "String:Date;String:Date:8/13/1896 12:00:00 PM;String:Double:-1234.5;String:########################################;",
-    "String:Date;String:Date:6:00:00 AM;String:Double:0.25;String:Saturday;"
+    "String:Date;String:Date:6:00:00 AM;String:Double:0.25;String:Saturday;",
+    "String:Date;String:Date:12/29/1899;String:Double:-1;String:########################################;",
+    "E6;E6;String:Double:-657435;String:########################################;",
+    "E6;E6;String:Double:2958466;String:########################################;",
+    "E6;E6;String:Double:1E+20;String:########################################;",
+    "E6;E6;String:Double:922337203685478;String:########################################;"
    ]
   },
   {
@@ -866,7 +986,12 @@
    "answers": [
     "String:Date;String:Date:3/15/2023 1:30:00 PM;String:Double:45000.5625;String:March;",
     "String:Date;String:Date:8/13/1896 12:00:00 PM;String:Double:-1234.5;String:########################################;",
-    "String:Date;String:Date:6:00:00 AM;String:Double:0.25;String:January;"
+    "String:Date;String:Date:6:00:00 AM;String:Double:0.25;String:January;",
+    "String:Date;String:Date:12/29/1899;String:Double:-1;String:########################################;",
+    "E6;E6;String:Double:-657435;String:########################################;",
+    "E6;E6;String:Double:2958466;String:########################################;",
+    "E6;E6;String:Double:1E+20;String:########################################;",
+    "E6;E6;String:Double:922337203685478;String:########################################;"
    ]
   },
   {
@@ -874,7 +999,12 @@
    "answers": [
     "String:Date;String:Date:3/15/2023 1:30:00 PM;String:Double:45000.5625;String:3;",
     "String:Date;String:Date:8/13/1896 12:00:00 PM;String:Double:-1234.5;String:########################################;",
-    "String:Date;String:Date:6:00:00 AM;String:Double:0.25;String:1;"
+    "String:Date;String:Date:6:00:00 AM;String:Double:0.25;String:1;",
+    "String:Date;String:Date:12/29/1899;String:Double:-1;String:########################################;",
+    "E6;E6;String:Double:-657435;String:########################################;",
+    "E6;E6;String:Double:2958466;String:########################################;",
+    "E6;E6;String:Double:1E+20;String:########################################;",
+    "E6;E6;String:Double:922337203685478;String:########################################;"
    ]
   },
   {
@@ -882,7 +1012,12 @@
    "answers": [
     "String:Date;String:Date:3/15/2023 1:30:00 PM;String:Double:45000.5625;String:03;",
     "String:Date;String:Date:8/13/1896 12:00:00 PM;String:Double:-1234.5;String:########################################;",
-    "String:Date;String:Date:6:00:00 AM;String:Double:0.25;String:01;"
+    "String:Date;String:Date:6:00:00 AM;String:Double:0.25;String:01;",
+    "String:Date;String:Date:12/29/1899;String:Double:-1;String:########################################;",
+    "E6;E6;String:Double:-657435;String:########################################;",
+    "E6;E6;String:Double:2958466;String:########################################;",
+    "E6;E6;String:Double:1E+20;String:########################################;",
+    "E6;E6;String:Double:922337203685478;String:########################################;"
    ]
   },
   {
@@ -890,7 +1025,12 @@
    "answers": [
     "String:Date;String:Date:3/15/2023 1:30:00 PM;String:Double:45000.5625;String:Mar;",
     "String:Date;String:Date:8/13/1896 12:00:00 PM;String:Double:-1234.5;String:########################################;",
-    "String:Date;String:Date:6:00:00 AM;String:Double:0.25;String:Jan;"
+    "String:Date;String:Date:6:00:00 AM;String:Double:0.25;String:Jan;",
+    "String:Date;String:Date:12/29/1899;String:Double:-1;String:########################################;",
+    "E6;E6;String:Double:-657435;String:########################################;",
+    "E6;E6;String:Double:2958466;String:########################################;",
+    "E6;E6;String:Double:1E+20;String:########################################;",
+    "E6;E6;String:Double:922337203685478;String:########################################;"
    ]
   },
   {
@@ -898,7 +1038,12 @@
    "answers": [
     "String:Date;String:Date:3/15/2023 1:30:00 PM;String:Double:45000.5625;String:15;",
     "String:Date;String:Date:8/13/1896 12:00:00 PM;String:Double:-1234.5;String:########################################;",
-    "String:Date;String:Date:6:00:00 AM;String:Double:0.25;String:0;"
+    "String:Date;String:Date:6:00:00 AM;String:Double:0.25;String:0;",
+    "String:Date;String:Date:12/29/1899;String:Double:-1;String:########################################;",
+    "E6;E6;String:Double:-657435;String:########################################;",
+    "E6;E6;String:Double:2958466;String:########################################;",
+    "E6;E6;String:Double:1E+20;String:########################################;",
+    "E6;E6;String:Double:922337203685478;String:########################################;"
    ]
   },
   {
@@ -906,7 +1051,12 @@
    "answers": [
     "String:Double;String:Double:45000.5625;String:Double:45000.5625;String:13;",
     "String:Double;String:Double:-1234.5;String:Double:-1234.5;String:########################################;",
-    "String:Double;String:Double:0.25;String:Double:0.25;String:6;"
+    "String:Double;String:Double:0.25;String:Double:0.25;String:6;",
+    "String:Double;String:Double:-1;String:Double:-1;String:########################################;",
+    "String:Double;String:Double:-657435;String:Double:-657435;String:########################################;",
+    "String:Double;String:Double:2958466;String:Double:2958466;String:########################################;",
+    "String:Double;String:Double:1E+20;String:Double:1E+20;String:########################################;",
+    "String:Double;String:Double:922337203685478;String:Double:922337203685478;String:########################################;"
    ]
   },
   {
@@ -914,7 +1064,12 @@
    "answers": [
     "String:Double;String:Double:45000.5625;String:Double:45000.5625;String:13:30;",
     "String:Double;String:Double:-1234.5;String:Double:-1234.5;String:########################################;",
-    "String:Double;String:Double:0.25;String:Double:0.25;String:6:00;"
+    "String:Double;String:Double:0.25;String:Double:0.25;String:6:00;",
+    "String:Double;String:Double:-1;String:Double:-1;String:########################################;",
+    "String:Double;String:Double:-657435;String:Double:-657435;String:########################################;",
+    "String:Double;String:Double:2958466;String:Double:2958466;String:########################################;",
+    "String:Double;String:Double:1E+20;String:Double:1E+20;String:########################################;",
+    "String:Double;String:Double:922337203685478;String:Double:922337203685478;String:########################################;"
    ]
   },
   {
@@ -922,7 +1077,12 @@
    "answers": [
     "String:Double;String:Double:45000.5625;String:Double:45000.5625;String:13:30:00;",
     "String:Double;String:Double:-1234.5;String:Double:-1234.5;String:########################################;",
-    "String:Double;String:Double:0.25;String:Double:0.25;String:6:00:00;"
+    "String:Double;String:Double:0.25;String:Double:0.25;String:6:00:00;",
+    "String:Double;String:Double:-1;String:Double:-1;String:########################################;",
+    "String:Double;String:Double:-657435;String:Double:-657435;String:########################################;",
+    "String:Double;String:Double:2958466;String:Double:2958466;String:########################################;",
+    "String:Double;String:Double:1E+20;String:Double:1E+20;String:########################################;",
+    "String:Double;String:Double:922337203685478;String:Double:922337203685478;String:########################################;"
    ]
   },
   {
@@ -930,7 +1090,12 @@
    "answers": [
     "String:Double;String:Double:45000.5625;String:Double:45000.5625;String:30:00;",
     "String:Double;String:Double:-1234.5;String:Double:-1234.5;String:########################################;",
-    "String:Double;String:Double:0.25;String:Double:0.25;String:00:00;"
+    "String:Double;String:Double:0.25;String:Double:0.25;String:00:00;",
+    "String:Double;String:Double:-1;String:Double:-1;String:########################################;",
+    "String:Double;String:Double:-657435;String:Double:-657435;String:########################################;",
+    "String:Double;String:Double:2958466;String:Double:2958466;String:########################################;",
+    "String:Double;String:Double:1E+20;String:Double:1E+20;String:########################################;",
+    "String:Double;String:Double:922337203685478;String:Double:922337203685478;String:########################################;"
    ]
   },
   {
@@ -938,7 +1103,12 @@
    "answers": [
     "String:Double;String:Double:45000.5625;String:Double:45000.5625;String:1080013:30;",
     "String:Double;String:Double:-1234.5;String:Double:-1234.5;String:########################################;",
-    "String:Double;String:Double:0.25;String:Double:0.25;String:6:00;"
+    "String:Double;String:Double:0.25;String:Double:0.25;String:6:00;",
+    "String:Double;String:Double:-1;String:Double:-1;String:########################################;",
+    "String:Double;String:Double:-657435;String:Double:-657435;String:########################################;",
+    "String:Double;String:Double:2958466;String:Double:2958466;String:########################################;",
+    "String:Double;String:Double:1E+20;String:Double:1E+20;String:########################################;",
+    "String:Double;String:Double:922337203685478;String:Double:922337203685478;String:########################################;"
    ]
   },
   {
@@ -946,7 +1116,12 @@
    "answers": [
     "String:Double;String:Double:45000.5625;String:Double:45000.5625;String:64800810:00;",
     "String:Double;String:Double:-1234.5;String:Double:-1234.5;String:########################################;",
-    "String:Double;String:Double:0.25;String:Double:0.25;String:360:00;"
+    "String:Double;String:Double:0.25;String:Double:0.25;String:360:00;",
+    "String:Double;String:Double:-1;String:Double:-1;String:########################################;",
+    "String:Double;String:Double:-657435;String:Double:-657435;String:########################################;",
+    "String:Double;String:Double:2958466;String:Double:2958466;String:########################################;",
+    "String:Double;String:Double:1E+20;String:Double:1E+20;String:########################################;",
+    "String:Double;String:Double:922337203685478;String:Double:922337203685478;String:########################################;"
    ]
   },
   {
@@ -954,7 +1129,12 @@
    "answers": [
     "String:Double;String:Double:45000.5625;String:Double:45000.5625;String:1:30 PM;",
     "String:Double;String:Double:-1234.5;String:Double:-1234.5;String:########################################;",
-    "String:Double;String:Double:0.25;String:Double:0.25;String:6:00 AM;"
+    "String:Double;String:Double:0.25;String:Double:0.25;String:6:00 AM;",
+    "String:Double;String:Double:-1;String:Double:-1;String:########################################;",
+    "String:Double;String:Double:-657435;String:Double:-657435;String:########################################;",
+    "String:Double;String:Double:2958466;String:Double:2958466;String:########################################;",
+    "String:Double;String:Double:1E+20;String:Double:1E+20;String:########################################;",
+    "String:Double;String:Double:922337203685478;String:Double:922337203685478;String:########################################;"
    ]
   },
   {
@@ -962,7 +1142,12 @@
    "answers": [
     "String:Date;String:Date:3/15/2023 1:30:00 PM;String:Double:45000.5625;String:3/15/2023 13:30;",
     "String:Date;String:Date:8/13/1896 12:00:00 PM;String:Double:-1234.5;String:########################################;",
-    "String:Date;String:Date:6:00:00 AM;String:Double:0.25;String:1/0/1900 6:00;"
+    "String:Date;String:Date:6:00:00 AM;String:Double:0.25;String:1/0/1900 6:00;",
+    "String:Date;String:Date:12/29/1899;String:Double:-1;String:########################################;",
+    "E6;E6;String:Double:-657435;String:########################################;",
+    "E6;E6;String:Double:2958466;String:########################################;",
+    "E6;E6;String:Double:1E+20;String:########################################;",
+    "E6;E6;String:Double:922337203685478;String:########################################;"
    ]
   },
   {
@@ -970,7 +1155,12 @@
    "answers": [
     "String:Double;String:Double:45000.5625;String:Double:45000.5625;String:0;",
     "String:Double;String:Double:-1234.5;String:Double:-1234.5;String:########################################;",
-    "String:Double;String:Double:0.25;String:Double:0.25;String:0;"
+    "String:Double;String:Double:0.25;String:Double:0.25;String:0;",
+    "String:Double;String:Double:-1;String:Double:-1;String:########################################;",
+    "String:Double;String:Double:-657435;String:Double:-657435;String:########################################;",
+    "String:Double;String:Double:2958466;String:Double:2958466;String:########################################;",
+    "String:Double;String:Double:1E+20;String:Double:1E+20;String:########################################;",
+    "String:Double;String:Double:922337203685478;String:Double:922337203685478;String:########################################;"
    ]
   },
   {
@@ -978,7 +1168,12 @@
    "answers": [
     "String:Double;String:Double:45000.5625;String:Double:45000.5625;String:1:30:00 PM;",
     "String:Double;String:Double:-1234.5;String:Double:-1234.5;String:########################################;",
-    "String:Double;String:Double:0.25;String:Double:0.25;String:6:00:00 AM;"
+    "String:Double;String:Double:0.25;String:Double:0.25;String:6:00:00 AM;",
+    "String:Double;String:Double:-1;String:Double:-1;String:########################################;",
+    "String:Double;String:Double:-657435;String:Double:-657435;String:########################################;",
+    "String:Double;String:Double:2958466;String:Double:2958466;String:########################################;",
+    "String:Double;String:Double:1E+20;String:Double:1E+20;String:########################################;",
+    "String:Double;String:Double:922337203685478;String:Double:922337203685478;String:########################################;"
    ]
   },
   {
@@ -986,7 +1181,12 @@
    "answers": [
     "String:Double;String:Double:45000.5625;String:Double:45000.5625;String:45000.56;",
     "String:Double;String:Double:-1234.5;String:Double:-1234.5;String:-1234.50;",
-    "String:Double;String:Double:0.25;String:Double:0.25;String:0.25;"
+    "String:Double;String:Double:0.25;String:Double:0.25;String:0.25;",
+    "String:Double;String:Double:-1;String:Double:-1;String:-1.00;",
+    "String:Double;String:Double:-657435;String:Double:-657435;String:-657435.00;",
+    "String:Double;String:Double:2958466;String:Double:2958466;String:2958466.00;",
+    "String:Double;String:Double:1E+20;String:Double:1E+20;String:100000000000000000000.00;",
+    "String:Double;String:Double:922337203685478;String:Double:922337203685478;String:922337203685478.00;"
    ]
   },
   {
@@ -994,7 +1194,12 @@
    "answers": [
     "String:Double;String:Double:45000.5625;String:Double:45000.5625;String:45001 units;",
     "String:Double;String:Double:-1234.5;String:Double:-1234.5;String:-1235 units;",
-    "String:Double;String:Double:0.25;String:Double:0.25;String:0 units;"
+    "String:Double;String:Double:0.25;String:Double:0.25;String:0 units;",
+    "String:Double;String:Double:-1;String:Double:-1;String:-1 units;",
+    "String:Double;String:Double:-657435;String:Double:-657435;String:-657435 units;",
+    "String:Double;String:Double:2958466;String:Double:2958466;String:2958466 units;",
+    "String:Double;String:Double:1E+20;String:Double:1E+20;String:100000000000000000000 units;",
+    "String:Double;String:Double:922337203685478;String:Double:922337203685478;String:922337203685478 units;"
    ]
   }
  ],
@@ -2509,6 +2714,33 @@
     "String:Double:0.05;String:0%;String:;",
     "String:Double:0.05;String:0%;String:;",
     "String:Double:0.05;String:0%;String:;"
+   ]
+  },
+  {
+   "write": "ws.Range(\"B2\").Value = 2958466: ws.Range(\"B2\").NumberFormat = \"m/d/yyyy\": ws.Range(\"D2\").Value = TypeName(ws.Range(\"B2:C2\").Value)",
+   "answers": [
+    "S6;E6;String:m/d/yyyy;String:;",
+    "String:Empty;String:General;String:;",
+    "String:Empty;String:General;String:;",
+    "String:Empty;String:General;String:;"
+   ]
+  },
+  {
+   "write": "ws.Range(\"B2\").Value = 2958466: ws.Range(\"B2\").NumberFormat = \"m/d/yyyy\": ws.Range(\"D2\").Value = TypeName(ws.Range(\"B2:C2\").Value2)",
+   "answers": [
+    "E6;String:m/d/yyyy;String:;",
+    "String:Empty;String:General;String:;",
+    "String:String:Variant();String:General;String:;",
+    "String:Empty;String:General;String:;"
+   ]
+  },
+  {
+   "write": "ws.Range(\"C2\").Value = 1E+20: ws.Range(\"C2\").NumberFormat = \"$#,##0.00\": ws.Range(\"D2\").Value = TypeName(ws.Range(\"B2:C2\").Value)",
+   "answers": [
+    "S6;String:Empty;String:General;String:;",
+    "E6;String:$#,##0.00;String:;",
+    "String:Empty;String:General;String:;",
+    "String:Empty;String:General;String:;"
    ]
   }
  ]

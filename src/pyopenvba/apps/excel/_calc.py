@@ -311,8 +311,9 @@ def as_vba(value: object, cell: Cell | None = None) -> object:
     An error becomes a Variant/Error. A cell holds every number as a
     Double, and its format decides what Range.Value makes of one: a date
     format a Date, which is what makes 44259 the fourth of March, and a
-    dollar sign a Currency. With no cell -- Value2 -- a number stays a
-    Double, as it does where the Date or Currency could not hold it.
+    dollar sign a Currency. A number the Date or Currency cannot hold is
+    error 6, as Range.Value raises it, a block's read included. With no
+    cell -- Value2 -- a number stays a Double.
     """
     if isinstance(value, ExcelError):
         return VBAErrorValue(ERROR_NUMBERS.get(value.name, 2015))
@@ -323,11 +324,16 @@ def as_vba(value: object, cell: Cell | None = None) -> object:
     from pyopenvba.apps.excel._typing import is_currency_format, is_date_format
 
     code = cell.number_format
-    try:
-        if is_date_format(code):
-            return VBADate(float(value))
-        if is_currency_format(code):
-            return VBACurrency(value)
-    except VBARuntimeError:
-        pass
+    if is_date_format(code):
+        return VBADate(float(value))
+    if is_currency_format(code):
+        return VBACurrency(value)
     return float(value)
+
+
+def as_python(value: object, cell: Cell | None = None) -> object:
+    """A cell's value as ``as_vba`` reads it, but the Double where its Date or Currency cannot hold it."""
+    try:
+        return as_vba(value, cell)
+    except VBARuntimeError:
+        return as_vba(value)

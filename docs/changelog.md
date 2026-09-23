@@ -18,8 +18,9 @@ All notable changes to pyOpenVBA are documented here. This project follows
   `"1/2"` as a half when its format is a number's, and keeps every string
   as text when its format is Text, where a Date or Currency becomes the
   text Excel shows. `Value` reads a number as a Date or Currency through
-  the cell's format and `Value2` as a Double. 3,736 writes in live Excel
-  and a workbook it saved pin the rules.
+  the cell's format, raising error 6 where one cannot hold it, and
+  `Value2` as a Double. 3,939 writes in live Excel and a workbook it
+  saved pin the rules.
 - `Range.PrefixCharacter`: a leading apostrophe keeps the rest as text
   and sets the cell's prefix flag, which its format keeps until `Clear` or
   `ClearFormats`, and which a save writes as Excel's `quotePrefix`.

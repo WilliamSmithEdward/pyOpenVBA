@@ -1192,8 +1192,8 @@ class Range(ExcelObject):
         if cell is None:
             return ""
         # Reading what a cell shows calculates it first, as looking at
-        # one in Excel does.
-        self._read(self.first.top, self.first.left)
+        # one in Excel does; read raw, since a Date too large to hold still shows.
+        self._read(self.first.top, self.first.left, raw=True)
         dims = self.sheet.dims
         return _display_text(cell, _dimensions.characters_read(dims.column_shown_pixels(self.first.left)))
 

@@ -1612,6 +1612,14 @@ class Interpreter:
                     put=lambda value, by_ref: self._property_put(owner, found, positional, named, value, by_ref),
                     take=lambda: self.call_named(found, list(positional), named, owner),
                 )
+            host = self.host.global_object("application") if self.host.has_global_member(key) else UNRESOLVED
+            if isinstance(host, VBAObject):
+                # Range("A1") = 5: the host's own member, as Application.Range("A1") = 5 would be.
+                application = host
+                return Assignable(
+                    put=lambda value, by_ref: _dispatch_set(application, key, value, positional, named, by_ref),
+                    take=lambda: _dispatch_get(application, key, positional, named),
+                )
         if isinstance(inner, A.Member):
             target = self._member_target(inner, frame)
             name = inner.name

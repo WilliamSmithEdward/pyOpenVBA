@@ -432,6 +432,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- A value assigned to a member that answers an object goes to that
+  object's default member, as VBA sends it: `Range("A1") = 5`,
+  `Cells(2, 2) = 7`, `ws.Range("A1:B2") = 0` and `r(2) = 3` all fill
+  cells. The model raised error 438 for each.
 - `Range.Value` read a number under an elapsed-minutes format, `[m]` or
   `[mm]`, as a Date, taking the `m` for a month; Excel reads a Double.
 - `NumberFormat` kept every escaped character as written. Excel drops the

@@ -193,6 +193,14 @@ class VBAObject:
         if function is None and by_ref and spec.setter is not None:
             function = spec.setter
         if function is None:
+            if not by_ref and spec.getter is not None:
+                # A read-only member that answers an object takes a value in
+                # that object's default member: ws.Range("A1") = 5 fills A1.
+                found = spec.getter(self, *self._bind(spec, args, named))
+                default = found.vba_default_member() if isinstance(found, VBAObject) else None
+                if isinstance(found, VBAObject) and default is not None and default.setter is not None:
+                    found.vba_set(default.name, value)
+                    return
             raise error(ERR_MEMBER_NOT_FOUND, f"{self.vba_type_name}.{spec.name} cannot be assigned to")
         if _takes_only_the_value(function):
             # The common shape: a setter that ignores the getter's

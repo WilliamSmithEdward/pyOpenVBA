@@ -173,6 +173,14 @@ ActiveSheet.Shapes.AddTextbox 1, 10, 20, 100, 50 ;; ActiveSheet.Shapes(1).AutoSh
 ;; ActiveSheet.Shapes.AddShape(1, 10.4, 20.6, 100, 50).Left
 ActiveSheet.Shapes.AddShape 1, 10, 20, 100, 50 ;; ActiveSheet.Shapes(1).Name
 
+# --- a value assigned to a member that answers an object goes to its default member ---
+Range("A1") = 5 ;; Range("A1").Value
+Cells(2, 2) = 7 ;; Range("B2").Value
+ActiveSheet.Range("C3") = 8 ;; Range("C3").Value
+ActiveSheet.Cells(4, 3) = "x" ;; Range("C4").Value
+Range("E1:E2") = 4 ;; Range("E2").Value
+Range("A1:B2").Cells(2, 2) = 6 ;; Range("B2").Value
+
 # --- errors the model has to raise with the same number ---
 Range("A1").Offset(-1, 0).Address
 Range("zz").Address

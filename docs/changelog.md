@@ -653,6 +653,25 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- A saved formula spells a function newer than Excel 2007 as Excel does,
+  `_xlfn.XLOOKUP`, FILTER and SORT as `_xlfn._xlws.FILTER`, and each name a
+  LET or a LAMBDA binds as `_xlpm.x`. The model wrote them bare, and Excel
+  would not open a workbook the model saved with FILTER or SORT in it
+  (`Workbooks.Open` failed with error 1004 in live Excel); a bare XLOOKUP,
+  CONCAT or LET opened, but not as Excel writes it. Which functions take
+  `_xlfn.` is Excel's own list, measured in live Excel for 517 of its 525
+  functions: NETWORKDAYS.INTL, newer than 2007, takes none. Reading a file
+  drops the prefixes again, for cells, defined names and a table's
+  formulas.
+- A saved formula Excel works out whenever anything changes carries
+  `ca="1"`: one calling NOW, OFFSET, INDIRECT, CELL, INFO and ten more, or a
+  function neither Excel nor the workbook's macros and names have. An
+  array formula like that is `aca="1"` too, unless it covers several cells
+  and calls RAND, and each of its other cells carries `<f ca="1"/>`, as
+  shared and array formulas saved in live Excel show.
+- `Range.Formula` takes a LAMBDA called where it is written,
+  `=LAMBDA(x,x*2)(5)`, and works it out, as Excel does; the model refused
+  it with error 1004.
 - A function a sheet has is spelled in capitals whatever case it is
   written in, SIN, ADDRESS and NORM.DIST as much as SUM, as 11 formulas
   measured in live Excel show. The model kept `=sin(1)` and
@@ -700,10 +719,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
 - An `e` in a number format with no sign after it shows the year, as
   Excel's era year does in this locale: `TEXT(0,"0;-0;zero")` is
   `z1900ro`, and `Range.Text` shows a cell the same way.
-- A workbook holding a formula the parser cannot read, such as a LAMBDA
-  called where it is made, works out every other formula as before; that
-  cell keeps the value its file gave it. The model stopped at the first
-  such formula, so writing any cell of the workbook failed.
+- A workbook holding a formula the parser cannot read works out every
+  other formula as before; that cell keeps the value its file gave it.
+  The model stopped at the first such formula, so writing any cell of the
+  workbook failed.
 - `Range.Select` and `Range.Activate` on a sheet that is not the active
   one are error 1004, as in Excel; the model made the sheet active.
   `Activate` on a cell inside the selection moves the active cell and

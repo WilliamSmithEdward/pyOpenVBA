@@ -39,6 +39,7 @@ from pyopenvba._a1 import Area, parse_area
 from pyopenvba._xml import attributes, escape, escape_text, unescape
 from pyopenvba.apps.excel._model import ExcelObject, Range
 from pyopenvba.exceptions import VBAUnsupportedError
+from pyopenvba.formula import _prefixes as prefixes
 from pyopenvba.formula._structured import TableShape, from_file, in_file, renamed_columns, renamed_table
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
 from pyopenvba.interpreter._values import (EMPTY, ERR_SUBSCRIPT_OUT_OF_RANGE, MISSING, NOTHING, VBADate, VBAInt, error,
@@ -140,8 +141,8 @@ def read_table(sheet: Worksheet, part: str, relationship: str, xml: str) -> Tabl
         columns.append(TableColumn(
             name=_column_name(one.get("name", "")), id=int(one.get("id", "0") or 0), uid=one.get("xr3:uid", ""),
             totals_label=_column_name(one.get("totalsRowLabel", "")), totals_function=one.get("totalsRowFunction", ""),
-            totals_formula=from_file("=" + unescape(formula.group(1))) if formula else "",
-            calculated=from_file("=" + unescape(calculated.group(1))) if calculated else ""))
+            totals_formula=_read_formula(formula.group(1)) if formula else "",
+            calculated=_read_formula(calculated.group(1)) if calculated else ""))
     return Table(
         sheet=sheet, id=int(head.get("id", "0") or 0), name=head.get("displayName") or head.get("name", ""),
         area=parse_area(head.get("ref", "A1"), sheet=""), columns=columns,
@@ -162,6 +163,17 @@ def _column_attribute(name: str) -> str:
     """A column's name as a table part spells it: a control character as _xHHHH_, in small letters as Excel
     writes it there, a tab _x0009_ (tests/fixtures/structured_references/)."""
     return re.sub(r"[\x00-\x1f]", lambda found: f"_x{ord(found.group(0)):04x}_", escape(name))
+
+
+def _read_formula(body: str) -> str:
+    """A column's formula as the table part spells it, as Range.Formula spells it."""
+    return prefixes.from_file(from_file("=" + unescape(body)))
+
+
+def _written_formula(formula: str, tables: list[str]) -> str:
+    """A column's formula as the table part spells it: structured references, newer functions and bound names as a
+    file has them, without the =."""
+    return escape_text(prefixes.in_file(in_file(formula, tables))[1:])
 
 
 def _column_name(text: str) -> str:
@@ -259,9 +271,9 @@ def _patched_column(element: str, column: TableColumn, tables: list[str]) -> str
     # The children in the schema's order: the calculated column's formula, then the custom total's.
     body = _TOTALS_FORMULA.sub("", _CALCULATED.sub("", body))
     if column.totals_function == "custom" and column.totals_formula:
-        body = f"<totalsRowFormula>{escape_text(in_file(column.totals_formula, tables)[1:])}</totalsRowFormula>" + body
+        body = f"<totalsRowFormula>{_written_formula(column.totals_formula, tables)}</totalsRowFormula>" + body
     if column.calculated:
-        body = (f"<calculatedColumnFormula>{escape_text(in_file(column.calculated, tables)[1:])}"
+        body = (f"<calculatedColumnFormula>{_written_formula(column.calculated, tables)}"
                 "</calculatedColumnFormula>" + body)
     return f"<tableColumn{inside}>{body}</tableColumn>" if body else f"<tableColumn{inside}/>"
 

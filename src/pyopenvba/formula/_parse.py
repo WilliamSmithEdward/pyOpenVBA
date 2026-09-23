@@ -66,6 +66,14 @@ class Call(Node):
 
 
 @dataclass(slots=True)
+class Invoke(Node):
+    """A call of what a call gives: a LAMBDA called where it is written, ``LAMBDA(x,x*2)(5)``."""
+
+    target: Node | None = None
+    args: list[Node] = field(default_factory=lambda: [])
+
+
+@dataclass(slots=True)
 class Unary(Node):
     op: str = ""
     operand: Node | None = None
@@ -448,7 +456,12 @@ class Parser:
             self.advance()
             return read_structured(token.text, at=token.at)
         if token.kind == "name":
-            return self.name_or_call()
+            node = self.name_or_call()
+            # Brackets straight after a call call what it gives: LAMBDA(x,x*2)(5) is 10 (tests/fixtures/formula/).
+            while isinstance(node, (Call, Invoke)) and self.at_kind("open") and not self.spaced():
+                self.advance()
+                node = Invoke(target=node, args=self.arguments())
+            return node
         if token.kind == "open":
             self.advance()
             inner = self.expression()
@@ -473,28 +486,32 @@ class Parser:
         # A call's bracket follows its name straight away; after a space it opens an intersection.
         if self.at_kind("open") and not self.spaced():
             self.advance()
-            args: list[Node] = []
-            if self.at_kind("close"):
-                self.advance()
-                return Call(name=body, args=args)
-            while True:
-                if self.at_kind("comma", "close"):
-                    # An argument left out, as in OFFSET(A1,1,,2).
-                    args.append(Literal(value=None))
-                else:
-                    args.append(self.expression())
-                if self.at_kind("comma"):
-                    self.advance()
-                    continue
-                break
-            self.expect("close")
-            return Call(name=body, args=args)
+            return Call(name=body, args=self.arguments())
         upper = body.upper()
         if upper == "TRUE":
             return Literal(value=True)
         if upper == "FALSE":
             return Literal(value=False)
         return NameNode(name=body, sheet=sheet)
+
+    def arguments(self) -> list[Node]:
+        """A call's arguments, its opening bracket read, up to and past its closing one."""
+        args: list[Node] = []
+        if self.at_kind("close"):
+            self.advance()
+            return args
+        while True:
+            if self.at_kind("comma", "close"):
+                # An argument left out, as in OFFSET(A1,1,,2).
+                args.append(Literal(value=None))
+            else:
+                args.append(self.expression())
+            if self.at_kind("comma"):
+                self.advance()
+                continue
+            break
+        self.expect("close")
+        return args
 
     def array(self) -> Node:
         self.expect("lbrace")
@@ -548,6 +565,9 @@ def _walk(node: Node | None, found: list[Reference]) -> None:
     elif isinstance(node, Call):
         for argument in node.args:
             _walk(argument, found)
+    elif isinstance(node, Invoke):
+        for argument in [node.target, *node.args]:
+            _walk(argument, found)
     elif isinstance(node, Binary):
         _walk(node.left, found)
         _walk(node.right, found)
@@ -572,6 +592,9 @@ def _walk_structured(node: Node | None, found: list[Structured]) -> None:
     elif isinstance(node, Call):
         for argument in node.args:
             _walk_structured(argument, found)
+    elif isinstance(node, Invoke):
+        for argument in [node.target, *node.args]:
+            _walk_structured(argument, found)
     elif isinstance(node, Binary):
         _walk_structured(node.left, found)
         _walk_structured(node.right, found)
@@ -593,6 +616,9 @@ def _walk_names(node: Node | None, found: list[NameNode]) -> None:
         found.append(node)
     elif isinstance(node, Call):
         for argument in node.args:
+            _walk_names(argument, found)
+    elif isinstance(node, Invoke):
+        for argument in [node.target, *node.args]:
             _walk_names(argument, found)
     elif isinstance(node, Binary):
         _walk_names(node.left, found)
@@ -716,6 +742,8 @@ def is_volatile(node: Node | None) -> bool:
         if node.name.upper() in VOLATILE:
             return True
         return any(is_volatile(argument) for argument in node.args)
+    if isinstance(node, Invoke):
+        return any(is_volatile(argument) for argument in [node.target, *node.args])
     if isinstance(node, Binary):
         return is_volatile(node.left) or is_volatile(node.right)
     if isinstance(node, Unary):

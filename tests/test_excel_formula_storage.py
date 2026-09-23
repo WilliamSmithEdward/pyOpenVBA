@@ -113,12 +113,12 @@ def _patched(app: ExcelApplication, tmp_path: Path, old: str, new: str) -> Excel
 
 
 def test_a_formula_the_parser_cannot_read_keeps_its_value_and_stops_no_other(tmp_path: Path) -> None:
-    """A LAMBDA called where it is made, as Excel saves one, is not read by the parser yet: that cell keeps the
-    value the file gave it, and the rest of the workbook is worked out as ever."""
+    """A formula the parser cannot read, here a ragged array constant a file from another program might hold,
+    keeps the value the file gave it, and the rest of the workbook is worked out as ever."""
     app = ExcelApplication()
     app.add_workbook()
     _run(app, 'ws.Range("A1").Formula = "=1+1"\nws.Range("A2").Value = 2\nws.Range("B1").Formula = "=A2*2"')
-    opened = _patched(app, tmp_path, "<f>1+1</f><v>2</v>", "<f>_xlfn.LAMBDA(_xlpm.x,_xlpm.x*2)(4)</f><v>8</v>")
+    opened = _patched(app, tmp_path, "<f>1+1</f><v>2</v>", "<f>SUM({1,2;3})</f><v>8</v>")
     reads = 'ws.Range("A1").Value & "|" & ws.Range("B1").Value'
     assert _run(opened, 'ws.Range("A2").Value = 5', reads) == "8|10"
 

@@ -43,8 +43,8 @@ from pyopenvba.formula._calc import functions as functions  # imported to regist
 from pyopenvba.formula._calc.catalog import is_excel_function
 from pyopenvba.formula._calc.nodes import function_key
 from pyopenvba.formula._calc.registry import FUNCTIONS
-from pyopenvba.formula._parse import (REFERENCE_OPS, Binary, Call, FormulaError, NameNode, Node, Reference, Structured,
-                                      Token, Unary, literal, parse, read_structured, split_sheet, tokenize)
+from pyopenvba.formula._parse import (REFERENCE_OPS, Binary, Call, FormulaError, Invoke, NameNode, Node, Reference,
+                                      Structured, Token, Unary, literal, parse, read_structured, split_sheet, tokenize)
 from pyopenvba.formula._structured import TableShape, one_cell, spelled as spelled_reference
 from pyopenvba.formula._values import number_text
 
@@ -248,6 +248,9 @@ def _check(node: Node | None) -> None:
             raise FormulaError(f"{node.name} takes references")
         for argument in node.args:
             _check(argument)
+    elif isinstance(node, Invoke):
+        for argument in [node.target, *node.args]:
+            _check(argument)
     elif isinstance(node, Unary):
         _check(node.operand)
     elif isinstance(node, Binary):
@@ -270,6 +273,9 @@ def _referring(node: Node | None) -> bool:
         return name in _ANSWER_CELLS or name not in FUNCTIONS
     if isinstance(node, NameNode):
         return node.name.upper() not in ("TRUE", "FALSE")
+    if isinstance(node, Invoke):
+        # A LAMBDA called where it is written, COUNTIF(LAMBDA(x,x)(A1),1), is taken (cells_functions.json).
+        return True
     if isinstance(node, Binary):
         return node.op in (":", " ", ",") and _referring(node.left) and _referring(node.right)
     return False
@@ -293,6 +299,9 @@ def _one_value(node: Node | None, *, one: bool, whole: bool, found: set[int]) ->
         inside = False if node.name.upper() in _AS_CELL else whole
         for index, argument in enumerate(node.args):
             _one_value(argument, one=index in places, whole=inside or index in arrays, found=found)
+    elif isinstance(node, Invoke):
+        for argument in [node.target, *node.args]:
+            _one_value(argument, one=False, whole=whole, found=found)
 
 
 def _structured(token: Token, one: bool, names: Names) -> str:

@@ -209,11 +209,27 @@ def moved(sheet: Worksheet, rewrite: Callable[[str], str]) -> None:
     sheet.array_formulas = carried
 
 
-def elements(sheet: Worksheet, escape: Callable[[str], str]) -> dict[tuple[int, int], str]:
-    """The ``<f>`` element of each array's first cell, as a save writes it."""
+def elements(sheet: Worksheet, escape: Callable[[str], str],
+             always: Callable[[str], bool]) -> dict[tuple[int, int], str]:
+    """The ``<f>`` element of each array's first cell, as a save writes it.
+
+    An array whose formula ``always`` works out whenever anything changes is ca="1", and each of its other cells
+    carries <f ca="1"/> beside its value; it is aca="1" too, unless it covers several cells and calls RAND
+    (tests/fixtures/formula_prefixes/)."""
+    from pyopenvba.formula._prefixes import calls
+
     out: dict[tuple[int, int], str] = {}
     for (row, column), block in sheet.array_formulas.items():
         cell = sheet.cells_.get((row, column))
-        if cell is not None and cell.formula:
-            out[(row, column)] = f'<f t="array" ref="{block.address(absolute=False)}">{escape(cell.formula[1:])}</f>'
+        if cell is None or not cell.formula:
+            continue
+        volatile = always(cell.formula)
+        whole = volatile and (block.rows * block.columns == 1 or not calls(cell.formula, "RAND"))
+        flags = (' aca="1"' if whole else "", ' ca="1"' if volatile else "")
+        out[(row, column)] = (f'<f t="array"{flags[0]} ref="{block.address(absolute=False)}"{flags[1]}>'
+                              f'{escape(cell.formula[1:])}</f>')
+        if volatile:
+            for member_row in range(block.top, block.bottom + 1):
+                for member_column in range(block.left, block.right + 1):
+                    out.setdefault((member_row, member_column), '<f ca="1"/>')
     return out

@@ -1,0 +1,2500 @@
+{
+ "formulas": [
+  {
+   "cell": "C1",
+   "written": "=SUMIFS(A1:A4,A1:A4,\">1\")",
+   "saved": "<c r=\"C1\"><f>SUMIFS(A1:A4,A1:A4,\"&gt;1\")</f><v>9</v></c>",
+   "formula": "=SUMIFS(A1:A4,A1:A4,\">1\")",
+   "formula2": "=SUMIFS(A1:A4,A1:A4,\">1\")",
+   "text": "9"
+  },
+  {
+   "cell": "C2",
+   "written": "=IFERROR(1/0,2)",
+   "saved": "<c r=\"C2\"><f>IFERROR(1/0,2)</f><v>2</v></c>",
+   "formula": "=IFERROR(1/0,2)",
+   "formula2": "=IFERROR(1/0,2)",
+   "text": "2"
+  },
+  {
+   "cell": "C3",
+   "written": "=AGGREGATE(9,6,A1:A4)",
+   "saved": "<c r=\"C3\"><f>_xlfn.AGGREGATE(9,6,A1:A4)</f><v>10</v></c>",
+   "formula": "=AGGREGATE(9,6,A1:A4)",
+   "formula2": "=AGGREGATE(9,6,A1:A4)",
+   "text": "10"
+  },
+  {
+   "cell": "C4",
+   "written": "=NORM.DIST(1,0,1,TRUE)",
+   "saved": "<c r=\"C4\"><f>_xlfn.NORM.DIST(1,0,1,TRUE)</f><v>0.84134474606854304</v></c>",
+   "formula": "=NORM.DIST(1,0,1,TRUE)",
+   "formula2": "=NORM.DIST(1,0,1,TRUE)",
+   "text": "0.841345"
+  },
+  {
+   "cell": "C5",
+   "written": "=PERCENTILE.INC(A1:A4,0.5)",
+   "saved": "<c r=\"C5\"><f>_xlfn.PERCENTILE.INC(A1:A4,0.5)</f><v>2.5</v></c>",
+   "formula": "=PERCENTILE.INC(A1:A4,0.5)",
+   "formula2": "=PERCENTILE.INC(A1:A4,0.5)",
+   "text": "2.5"
+  },
+  {
+   "cell": "C6",
+   "written": "=NETWORKDAYS.INTL(1,10)",
+   "saved": "<c r=\"C6\"><f>NETWORKDAYS.INTL(1,10)</f><v>7</v></c>",
+   "formula": "=NETWORKDAYS.INTL(1,10)",
+   "formula2": "=NETWORKDAYS.INTL(1,10)",
+   "text": "7"
+  },
+  {
+   "cell": "C7",
+   "written": "=CEILING.MATH(2.5)",
+   "saved": "<c r=\"C7\"><f>_xlfn.CEILING.MATH(2.5)</f><v>3</v></c>",
+   "formula": "=CEILING.MATH(2.5)",
+   "formula2": "=CEILING.MATH(2.5)",
+   "text": "3"
+  },
+  {
+   "cell": "C8",
+   "written": "=DAYS(10,1)",
+   "saved": "<c r=\"C8\"><f>_xlfn.DAYS(10,1)</f><v>9</v></c>",
+   "formula": "=DAYS(10,1)",
+   "formula2": "=DAYS(10,1)",
+   "text": "9"
+  },
+  {
+   "cell": "C9",
+   "written": "=ISFORMULA(A1)",
+   "saved": "<c r=\"C9\" t=\"b\"><f>_xlfn.ISFORMULA(A1)</f><v>0</v></c>",
+   "formula": "=ISFORMULA(A1)",
+   "formula2": "=ISFORMULA(A1)",
+   "text": "FALSE"
+  },
+  {
+   "cell": "C10",
+   "written": "=SHEET()",
+   "saved": "<c r=\"C10\"><f ca=\"1\">_xlfn.SHEET()</f><v>1</v></c>",
+   "formula": "=SHEET()",
+   "formula2": "=SHEET()",
+   "text": "1"
+  },
+  {
+   "cell": "C11",
+   "written": "=ENCODEURL(\"a b\")",
+   "saved": "<c r=\"C11\" t=\"str\"><f>_xlfn.ENCODEURL(\"a b\")</f><v>a%20b</v></c>",
+   "formula": "=ENCODEURL(\"a b\")",
+   "formula2": "=ENCODEURL(\"a b\")",
+   "text": "a%20b"
+  },
+  {
+   "cell": "C12",
+   "written": "=CONCAT(A1,A2)",
+   "saved": "<c r=\"C12\" t=\"str\"><f>_xlfn.CONCAT(A1,A2)</f><v>12</v></c>",
+   "formula": "=CONCAT(A1,A2)",
+   "formula2": "=CONCAT(A1,A2)",
+   "text": "12"
+  },
+  {
+   "cell": "C13",
+   "written": "=TEXTJOIN(\",\",TRUE,A1:A4)",
+   "saved": "<c r=\"C13\" t=\"str\"><f>_xlfn.TEXTJOIN(\",\",TRUE,A1:A4)</f><v>1,2,3,4</v></c>",
+   "formula": "=TEXTJOIN(\",\",TRUE,A1:A4)",
+   "formula2": "=TEXTJOIN(\",\",TRUE,A1:A4)",
+   "text": "1,2,3,4"
+  },
+  {
+   "cell": "C14",
+   "written": "=IFS(A1>0,1)",
+   "saved": "<c r=\"C14\"><f>_xlfn.IFS(A1&gt;0,1)</f><v>1</v></c>",
+   "formula": "=IFS(A1>0,1)",
+   "formula2": "=@IFS(A1>0,1)",
+   "text": "1"
+  },
+  {
+   "cell": "C15",
+   "written": "=SWITCH(A1,1,\"one\",\"other\")",
+   "saved": "<c r=\"C15\" t=\"str\"><f>_xlfn.SWITCH(A1,1,\"one\",\"other\")</f><v>one</v></c>",
+   "formula": "=SWITCH(A1,1,\"one\",\"other\")",
+   "formula2": "=@SWITCH(A1,1,\"one\",\"other\")",
+   "text": "one"
+  },
+  {
+   "cell": "C16",
+   "written": "=MAXIFS(A1:A4,A1:A4,\">1\")",
+   "saved": "<c r=\"C16\"><f>_xlfn.MAXIFS(A1:A4,A1:A4,\"&gt;1\")</f><v>4</v></c>",
+   "formula": "=MAXIFS(A1:A4,A1:A4,\">1\")",
+   "formula2": "=MAXIFS(A1:A4,A1:A4,\">1\")",
+   "text": "4"
+  },
+  {
+   "cell": "C17",
+   "written": "=STDEV.S(A1:A4)",
+   "saved": "<c r=\"C17\"><f>_xlfn.STDEV.S(A1:A4)</f><v>1.2909944487358056</v></c>",
+   "formula": "=STDEV.S(A1:A4)",
+   "formula2": "=STDEV.S(A1:A4)",
+   "text": "1.290994"
+  },
+  {
+   "cell": "C18",
+   "written": "=FORECAST.LINEAR(5,A1:A4,A1:A4)",
+   "saved": "<c r=\"C18\"><f>_xlfn.FORECAST.LINEAR(5,A1:A4,A1:A4)</f><v>5</v></c>",
+   "formula": "=FORECAST.LINEAR(5,A1:A4,A1:A4)",
+   "formula2": "=FORECAST.LINEAR(5,A1:A4,A1:A4)",
+   "text": "5"
+  },
+  {
+   "cell": "C19",
+   "written": "=XLOOKUP(2,A1:A4,A1:A4)",
+   "saved": "<c r=\"C19\"><f>_xlfn.XLOOKUP(2,A1:A4,A1:A4)</f><v>2</v></c>",
+   "formula": "=XLOOKUP(2,A1:A4,A1:A4)",
+   "formula2": "=XLOOKUP(2,A1:A4,A1:A4)",
+   "text": "2"
+  },
+  {
+   "cell": "C20",
+   "written": "=XMATCH(2,A1:A4)",
+   "saved": "<c r=\"C20\"><f>_xlfn.XMATCH(2,A1:A4)</f><v>2</v></c>",
+   "formula": "=XMATCH(2,A1:A4)",
+   "formula2": "=XMATCH(2,A1:A4)",
+   "text": "2"
+  },
+  {
+   "cell": "C21",
+   "written": "=FILTER(A1:A4,A1:A4>2)",
+   "saved": "<c r=\"C21\"><f>_xlfn._xlws.FILTER(A1:A4,A1:A4&gt;2)</f><v>3</v></c>",
+   "formula": "=FILTER(A1:A4,A1:A4>2)",
+   "formula2": "=@FILTER(A1:A4,A1:A4>2)",
+   "text": "3"
+  },
+  {
+   "cell": "C22",
+   "written": "=SORT(A1:A4)",
+   "saved": "<c r=\"C22\"><f>_xlfn._xlws.SORT(A1:A4)</f><v>1</v></c>",
+   "formula": "=SORT(A1:A4)",
+   "formula2": "=@SORT(A1:A4)",
+   "text": "1"
+  },
+  {
+   "cell": "C23",
+   "written": "=SORTBY(A1:A4,A1:A4)",
+   "saved": "<c r=\"C23\"><f>_xlfn.SORTBY(A1:A4,A1:A4)</f><v>1</v></c>",
+   "formula": "=SORTBY(A1:A4,A1:A4)",
+   "formula2": "=@SORTBY(A1:A4,A1:A4)",
+   "text": "1"
+  },
+  {
+   "cell": "C24",
+   "written": "=UNIQUE(A1:A4)",
+   "saved": "<c r=\"C24\"><f>_xlfn.UNIQUE(A1:A4)</f><v>1</v></c>",
+   "formula": "=UNIQUE(A1:A4)",
+   "formula2": "=@UNIQUE(A1:A4)",
+   "text": "1"
+  },
+  {
+   "cell": "C25",
+   "written": "=SEQUENCE(2)",
+   "saved": "<c r=\"C25\"><f>_xlfn.SEQUENCE(2)</f><v>1</v></c>",
+   "formula": "=SEQUENCE(2)",
+   "formula2": "=@SEQUENCE(2)",
+   "text": "1"
+  },
+  {
+   "cell": "C26",
+   "written": "=LET(x,A1,x*2)",
+   "saved": "<c r=\"C26\"><f>_xlfn.LET(_xlpm.x,A1,_xlpm.x*2)</f><v>2</v></c>",
+   "formula": "=LET(x,A1,x*2)",
+   "formula2": "=LET(x,A1,x*2)",
+   "text": "2"
+  },
+  {
+   "cell": "C27",
+   "written": "=LET(a,1,b,2,a+b)",
+   "saved": "<c r=\"C27\"><f>_xlfn.LET(_xlpm.a,1,_xlpm.b,2,_xlpm.a+_xlpm.b)</f><v>3</v></c>",
+   "formula": "=LET(a,1,b,2,a+b)",
+   "formula2": "=LET(a,1,b,2,a+b)",
+   "text": "3"
+  },
+  {
+   "cell": "C28",
+   "written": "=LAMBDA(x,x*2)(A2)",
+   "saved": "<c r=\"C28\"><f>_xlfn.LAMBDA(_xlpm.x,_xlpm.x*2)(A2)</f><v>4</v></c>",
+   "formula": "=LAMBDA(x,x*2)(A2)",
+   "formula2": "=@LAMBDA(x,@x*2)(A2)",
+   "text": "4"
+  },
+  {
+   "cell": "C29",
+   "written": "=MAP(A1:A2,LAMBDA(v,v+1))",
+   "saved": "<c r=\"C29\"><f>_xlfn.MAP(A1:A2,_xlfn.LAMBDA(_xlpm.v,_xlpm.v+1))</f><v>2</v></c>",
+   "formula": "=MAP(A1:A2,LAMBDA(v,v+1))",
+   "formula2": "=@MAP(A1:A2,LAMBDA(v,@v+1))",
+   "text": "2"
+  },
+  {
+   "cell": "C30",
+   "written": "=BYROW(A1:A2,LAMBDA(r,SUM(r)))",
+   "saved": "<c r=\"C30\"><f>_xlfn.BYROW(A1:A2,_xlfn.LAMBDA(_xlpm.r,SUM(_xlpm.r)))</f><v>1</v></c>",
+   "formula": "=BYROW(A1:A2,LAMBDA(r,SUM(r)))",
+   "formula2": "=@BYROW(A1:A2,LAMBDA(r,SUM(r)))",
+   "text": "1"
+  },
+  {
+   "cell": "C31",
+   "written": "=REDUCE(0,A1:A4,LAMBDA(a,v,a+v))",
+   "saved": "<c r=\"C31\"><f>_xlfn.REDUCE(0,A1:A4,_xlfn.LAMBDA(_xlpm.a,_xlpm.v,_xlpm.a+_xlpm.v))</f><v>10</v></c>",
+   "formula": "=REDUCE(0,A1:A4,LAMBDA(a,v,a+v))",
+   "formula2": "=@REDUCE(0,A1:A4,LAMBDA(a,v,@a+@v))",
+   "text": "10"
+  },
+  {
+   "cell": "C32",
+   "written": "=TAKE(A1:A4,2)",
+   "saved": "<c r=\"C32\" t=\"e\"><f>_xlfn.TAKE(A1:A4,2)</f><v>#VALUE!</v></c>",
+   "formula": "=TAKE(A1:A4,2)",
+   "formula2": "=@TAKE(A1:A4,2)",
+   "text": "#VALUE!"
+  },
+  {
+   "cell": "C33",
+   "written": "=CHOOSECOLS(A1:A4,1)",
+   "saved": "<c r=\"C33\"><f>_xlfn.CHOOSECOLS(A1:A4,1)</f><v>1</v></c>",
+   "formula": "=CHOOSECOLS(A1:A4,1)",
+   "formula2": "=@CHOOSECOLS(A1:A4,1)",
+   "text": "1"
+  },
+  {
+   "cell": "C34",
+   "written": "=VSTACK(A1,A2)",
+   "saved": "<c r=\"C34\"><f>_xlfn.VSTACK(A1,A2)</f><v>1</v></c>",
+   "formula": "=VSTACK(A1,A2)",
+   "formula2": "=@VSTACK(A1,A2)",
+   "text": "1"
+  },
+  {
+   "cell": "C35",
+   "written": "=HSTACK(A1,A2)",
+   "saved": "<c r=\"C35\"><f>_xlfn.HSTACK(A1,A2)</f><v>1</v></c>",
+   "formula": "=HSTACK(A1,A2)",
+   "formula2": "=@HSTACK(A1,A2)",
+   "text": "1"
+  },
+  {
+   "cell": "C36",
+   "written": "=TOCOL(A1:A2)",
+   "saved": "<c r=\"C36\"><f>_xlfn.TOCOL(A1:A2)</f><v>1</v></c>",
+   "formula": "=TOCOL(A1:A2)",
+   "formula2": "=@TOCOL(A1:A2)",
+   "text": "1"
+  },
+  {
+   "cell": "C37",
+   "written": "=TEXTBEFORE(\"a-b\",\"-\")",
+   "saved": "<c r=\"C37\" t=\"str\"><f>_xlfn.TEXTBEFORE(\"a-b\",\"-\")</f><v>a</v></c>",
+   "formula": "=TEXTBEFORE(\"a-b\",\"-\")",
+   "formula2": "=TEXTBEFORE(\"a-b\",\"-\")",
+   "text": "a"
+  },
+  {
+   "cell": "C38",
+   "written": "=ARRAYTOTEXT(A1:A2)",
+   "saved": "<c r=\"C38\" t=\"str\"><f>_xlfn.ARRAYTOTEXT(A1:A2)</f><v>1, 2</v></c>",
+   "formula": "=ARRAYTOTEXT(A1:A2)",
+   "formula2": "=ARRAYTOTEXT(A1:A2)",
+   "text": "1, 2"
+  },
+  {
+   "cell": "C39",
+   "written": "=TRIMRANGE(A1:A4)",
+   "saved": "<c r=\"C39\" t=\"e\"><f>_xlfn.TRIMRANGE(A1:A4)</f><v>#VALUE!</v></c>",
+   "formula": "=TRIMRANGE(A1:A4)",
+   "formula2": "=@TRIMRANGE(A1:A4)",
+   "text": "#VALUE!"
+  },
+  {
+   "cell": "C40",
+   "written": "=REGEXTEST(\"abc\",\"b\")",
+   "saved": "<c r=\"C40\" t=\"b\"><f>_xlfn.REGEXTEST(\"abc\",\"b\")</f><v>1</v></c>",
+   "formula": "=REGEXTEST(\"abc\",\"b\")",
+   "formula2": "=REGEXTEST(\"abc\",\"b\")",
+   "text": "TRUE"
+  },
+  {
+   "cell": "C41",
+   "written": "=PERCENTOF(A1,A1:A4)",
+   "saved": "<c r=\"C41\"><f>_xlfn.PERCENTOF(A1,A1:A4)</f><v>0.1</v></c>",
+   "formula": "=PERCENTOF(A1,A1:A4)",
+   "formula2": "=PERCENTOF(A1,A1:A4)",
+   "text": "0.1"
+  },
+  {
+   "cell": "C42",
+   "written": "=SINGLE(A1)",
+   "saved": "<c r=\"C42\"><f>_xlfn.SINGLE(A1)</f><v>1</v></c>",
+   "formula": "=@A1",
+   "formula2": "=@A1",
+   "text": "1"
+  },
+  {
+   "cell": "C43",
+   "written": "=NOTAFUNCTION(1)",
+   "saved": "<c r=\"C43\" t=\"e\"><f ca=\"1\">NOTAFUNCTION(1)</f><v>#NAME?</v></c>",
+   "formula": "=NOTAFUNCTION(1)",
+   "formula2": "=@NOTAFUNCTION(1)",
+   "text": "#NAME?"
+  },
+  {
+   "cell": "C44",
+   "written": "=SUM(A1:A4)+XLOOKUP(2,A1:A4,A1:A4)",
+   "saved": "<c r=\"C44\"><f>SUM(A1:A4)+_xlfn.XLOOKUP(2,A1:A4,A1:A4)</f><v>12</v></c>",
+   "formula": "=SUM(A1:A4)+XLOOKUP(2,A1:A4,A1:A4)",
+   "formula2": "=SUM(A1:A4)+XLOOKUP(2,A1:A4,A1:A4)",
+   "text": "12"
+  }
+ ],
+ "functions": {
+  "ABS": {
+   "call": "ABS(A1)",
+   "saved": "<f>ABS(A1)</f>"
+  },
+  "ACCRINT": {
+   "call": "ACCRINT(A1,A1,A1,A1,A1,A1)",
+   "saved": "<f>ACCRINT(A1,A1,A1,A1,A1,A1)</f>"
+  },
+  "ACCRINTM": {
+   "call": "ACCRINTM(A1,A1,A1,A1)",
+   "saved": "<f>ACCRINTM(A1,A1,A1,A1)</f>"
+  },
+  "ACOS": {
+   "call": "ACOS(A1)",
+   "saved": "<f>ACOS(A1)</f>"
+  },
+  "ACOSH": {
+   "call": "ACOSH(A1)",
+   "saved": "<f>ACOSH(A1)</f>"
+  },
+  "ACOT": {
+   "call": "ACOT(A1)",
+   "saved": "<f>_xlfn.ACOT(A1)</f>"
+  },
+  "ACOTH": {
+   "call": "ACOTH(A1)",
+   "saved": "<f>_xlfn.ACOTH(A1)</f>"
+  },
+  "ADDRESS": {
+   "call": "ADDRESS(A1,A1)",
+   "saved": "<f>ADDRESS(A1,A1)</f>"
+  },
+  "AGGREGATE": {
+   "call": "AGGREGATE(A1,A1,A1)",
+   "saved": "<f>_xlfn.AGGREGATE(A1,A1,A1)</f>"
+  },
+  "AMORDEGRC": {
+   "call": "AMORDEGRC(A1,A1,A1,A1,A1,A1)",
+   "saved": "<f>AMORDEGRC(A1,A1,A1,A1,A1,A1)</f>"
+  },
+  "AMORLINC": {
+   "call": "AMORLINC(A1,A1,A1,A1,A1,A1)",
+   "saved": "<f>AMORLINC(A1,A1,A1,A1,A1,A1)</f>"
+  },
+  "ANCHORARRAY": {
+   "call": "ANCHORARRAY(A1)",
+   "saved": ""
+  },
+  "AND": {
+   "call": "AND(A1)",
+   "saved": "<f>AND(A1)</f>"
+  },
+  "ARABIC": {
+   "call": "ARABIC(A1)",
+   "saved": "<f>_xlfn.ARABIC(A1)</f>"
+  },
+  "AREAS": {
+   "call": "AREAS(A1)",
+   "saved": "<f>AREAS(A1)</f>"
+  },
+  "ARRAYTOTEXT": {
+   "call": "ARRAYTOTEXT(A1)",
+   "saved": "<f>_xlfn.ARRAYTOTEXT(A1)</f>"
+  },
+  "ASC": {
+   "call": "ASC(A1)",
+   "saved": "<f>ASC(A1)</f>"
+  },
+  "ASIN": {
+   "call": "ASIN(A1)",
+   "saved": "<f>ASIN(A1)</f>"
+  },
+  "ASINH": {
+   "call": "ASINH(A1)",
+   "saved": "<f>ASINH(A1)</f>"
+  },
+  "ATAN": {
+   "call": "ATAN(A1)",
+   "saved": "<f>ATAN(A1)</f>"
+  },
+  "ATAN2": {
+   "call": "ATAN2(A1,A1)",
+   "saved": "<f>ATAN2(A1,A1)</f>"
+  },
+  "ATANH": {
+   "call": "ATANH(A1)",
+   "saved": "<f>ATANH(A1)</f>"
+  },
+  "AVEDEV": {
+   "call": "AVEDEV(A1)",
+   "saved": "<f>AVEDEV(A1)</f>"
+  },
+  "AVERAGE": {
+   "call": "AVERAGE(A1)",
+   "saved": "<f>AVERAGE(A1)</f>"
+  },
+  "AVERAGEA": {
+   "call": "AVERAGEA(A1)",
+   "saved": "<f>AVERAGEA(A1)</f>"
+  },
+  "AVERAGEIF": {
+   "call": "AVERAGEIF(A1,A1)",
+   "saved": "<f>AVERAGEIF(A1,A1)</f>"
+  },
+  "AVERAGEIFS": {
+   "call": "AVERAGEIFS(A1,A1,A1)",
+   "saved": "<f>AVERAGEIFS(A1,A1,A1)</f>"
+  },
+  "BAHTTEXT": {
+   "call": "BAHTTEXT(A1)",
+   "saved": "<f>BAHTTEXT(A1)</f>"
+  },
+  "BASE": {
+   "call": "BASE(A1,A1)",
+   "saved": "<f>_xlfn.BASE(A1,A1)</f>"
+  },
+  "BESSELI": {
+   "call": "BESSELI(A1,A1)",
+   "saved": "<f>BESSELI(A1,A1)</f>"
+  },
+  "BESSELJ": {
+   "call": "BESSELJ(A1,A1)",
+   "saved": "<f>BESSELJ(A1,A1)</f>"
+  },
+  "BESSELK": {
+   "call": "BESSELK(A1,A1)",
+   "saved": "<f>BESSELK(A1,A1)</f>"
+  },
+  "BESSELY": {
+   "call": "BESSELY(A1,A1)",
+   "saved": "<f>BESSELY(A1,A1)</f>"
+  },
+  "BETA.DIST": {
+   "call": "BETA.DIST(A1,A1,A1,A1)",
+   "saved": "<f>_xlfn.BETA.DIST(A1,A1,A1,A1)</f>"
+  },
+  "BETA.INV": {
+   "call": "BETA.INV(A1,A1,A1)",
+   "saved": "<f>_xlfn.BETA.INV(A1,A1,A1)</f>"
+  },
+  "BETADIST": {
+   "call": "BETADIST(A1,A1,A1)",
+   "saved": "<f>BETADIST(A1,A1,A1)</f>"
+  },
+  "BETAINV": {
+   "call": "BETAINV(A1,A1,A1)",
+   "saved": "<f>BETAINV(A1,A1,A1)</f>"
+  },
+  "BIN2DEC": {
+   "call": "BIN2DEC(A1)",
+   "saved": "<f>BIN2DEC(A1)</f>"
+  },
+  "BIN2HEX": {
+   "call": "BIN2HEX(A1)",
+   "saved": "<f>BIN2HEX(A1)</f>"
+  },
+  "BIN2OCT": {
+   "call": "BIN2OCT(A1)",
+   "saved": "<f>BIN2OCT(A1)</f>"
+  },
+  "BINOM.DIST": {
+   "call": "BINOM.DIST(A1,A1,A1,A1)",
+   "saved": "<f>_xlfn.BINOM.DIST(A1,A1,A1,A1)</f>"
+  },
+  "BINOM.DIST.RANGE": {
+   "call": "BINOM.DIST.RANGE(A1,A1,A1)",
+   "saved": "<f>_xlfn.BINOM.DIST.RANGE(A1,A1,A1)</f>"
+  },
+  "BINOM.INV": {
+   "call": "BINOM.INV(A1,A1,A1)",
+   "saved": "<f>_xlfn.BINOM.INV(A1,A1,A1)</f>"
+  },
+  "BINOMDIST": {
+   "call": "BINOMDIST(A1,A1,A1,A1)",
+   "saved": "<f>BINOMDIST(A1,A1,A1,A1)</f>"
+  },
+  "BITAND": {
+   "call": "BITAND(A1,A1)",
+   "saved": "<f>_xlfn.BITAND(A1,A1)</f>"
+  },
+  "BITLSHIFT": {
+   "call": "BITLSHIFT(A1,A1)",
+   "saved": "<f>_xlfn.BITLSHIFT(A1,A1)</f>"
+  },
+  "BITOR": {
+   "call": "BITOR(A1,A1)",
+   "saved": "<f>_xlfn.BITOR(A1,A1)</f>"
+  },
+  "BITRSHIFT": {
+   "call": "BITRSHIFT(A1,A1)",
+   "saved": "<f>_xlfn.BITRSHIFT(A1,A1)</f>"
+  },
+  "BITXOR": {
+   "call": "BITXOR(A1,A1)",
+   "saved": "<f>_xlfn.BITXOR(A1,A1)</f>"
+  },
+  "BYCOL": {
+   "call": "BYCOL(A1,A1)",
+   "saved": "<f>_xlfn.BYCOL(A1,A1)</f>"
+  },
+  "BYROW": {
+   "call": "BYROW(A1,A1)",
+   "saved": "<f>_xlfn.BYROW(A1,A1)</f>"
+  },
+  "CALL": {
+   "call": "",
+   "saved": ""
+  },
+  "CEILING": {
+   "call": "CEILING(A1,A1)",
+   "saved": "<f>CEILING(A1,A1)</f>"
+  },
+  "CEILING.MATH": {
+   "call": "CEILING.MATH(A1)",
+   "saved": "<f>_xlfn.CEILING.MATH(A1)</f>"
+  },
+  "CEILING.PRECISE": {
+   "call": "CEILING.PRECISE(A1)",
+   "saved": "<f>_xlfn.CEILING.PRECISE(A1)</f>"
+  },
+  "CELL": {
+   "call": "CELL(A1)",
+   "saved": "<f ca=\"1\">CELL(A1)</f>"
+  },
+  "CHAR": {
+   "call": "CHAR(A1)",
+   "saved": "<f>CHAR(A1)</f>"
+  },
+  "CHIDIST": {
+   "call": "CHIDIST(A1,A1)",
+   "saved": "<f>CHIDIST(A1,A1)</f>"
+  },
+  "CHIINV": {
+   "call": "CHIINV(A1,A1)",
+   "saved": "<f>CHIINV(A1,A1)</f>"
+  },
+  "CHISQ.DIST": {
+   "call": "CHISQ.DIST(A1,A1,A1)",
+   "saved": "<f>_xlfn.CHISQ.DIST(A1,A1,A1)</f>"
+  },
+  "CHISQ.DIST.RT": {
+   "call": "CHISQ.DIST.RT(A1,A1)",
+   "saved": "<f>_xlfn.CHISQ.DIST.RT(A1,A1)</f>"
+  },
+  "CHISQ.INV": {
+   "call": "CHISQ.INV(A1,A1)",
+   "saved": "<f>_xlfn.CHISQ.INV(A1,A1)</f>"
+  },
+  "CHISQ.INV.RT": {
+   "call": "CHISQ.INV.RT(A1,A1)",
+   "saved": "<f>_xlfn.CHISQ.INV.RT(A1,A1)</f>"
+  },
+  "CHISQ.TEST": {
+   "call": "CHISQ.TEST(A1,A1)",
+   "saved": "<f>_xlfn.CHISQ.TEST(A1,A1)</f>"
+  },
+  "CHITEST": {
+   "call": "CHITEST(A1,A1)",
+   "saved": "<f>CHITEST(A1,A1)</f>"
+  },
+  "CHOOSE": {
+   "call": "CHOOSE(A1,A1)",
+   "saved": "<f>CHOOSE(A1,A1)</f>"
+  },
+  "CHOOSECOLS": {
+   "call": "CHOOSECOLS(A1,A1)",
+   "saved": "<f>_xlfn.CHOOSECOLS(A1,A1)</f>"
+  },
+  "CHOOSEROWS": {
+   "call": "CHOOSEROWS(A1,A1)",
+   "saved": "<f>_xlfn.CHOOSEROWS(A1,A1)</f>"
+  },
+  "CLEAN": {
+   "call": "CLEAN(A1)",
+   "saved": "<f>CLEAN(A1)</f>"
+  },
+  "CODE": {
+   "call": "CODE(A1)",
+   "saved": "<f>CODE(A1)</f>"
+  },
+  "COLUMN": {
+   "call": "COLUMN()",
+   "saved": "<f>COLUMN()</f>"
+  },
+  "COLUMNS": {
+   "call": "COLUMNS(A1)",
+   "saved": "<f>COLUMNS(A1)</f>"
+  },
+  "COMBIN": {
+   "call": "COMBIN(A1,A1)",
+   "saved": "<f>COMBIN(A1,A1)</f>"
+  },
+  "COMBINA": {
+   "call": "COMBINA(A1,A1)",
+   "saved": "<f>_xlfn.COMBINA(A1,A1)</f>"
+  },
+  "COMPLEX": {
+   "call": "COMPLEX(A1,A1)",
+   "saved": "<f>COMPLEX(A1,A1)</f>"
+  },
+  "CONCAT": {
+   "call": "CONCAT(A1)",
+   "saved": "<f>_xlfn.CONCAT(A1)</f>"
+  },
+  "CONCATENATE": {
+   "call": "CONCATENATE(A1)",
+   "saved": "<f>CONCATENATE(A1)</f>"
+  },
+  "CONFIDENCE": {
+   "call": "CONFIDENCE(A1,A1,A1)",
+   "saved": "<f>CONFIDENCE(A1,A1,A1)</f>"
+  },
+  "CONFIDENCE.NORM": {
+   "call": "CONFIDENCE.NORM(A1,A1,A1)",
+   "saved": "<f>_xlfn.CONFIDENCE.NORM(A1,A1,A1)</f>"
+  },
+  "CONFIDENCE.T": {
+   "call": "CONFIDENCE.T(A1,A1,A1)",
+   "saved": "<f>_xlfn.CONFIDENCE.T(A1,A1,A1)</f>"
+  },
+  "CONVERT": {
+   "call": "CONVERT(A1,A1,A1)",
+   "saved": "<f>CONVERT(A1,A1,A1)</f>"
+  },
+  "CORREL": {
+   "call": "CORREL(A1,A1)",
+   "saved": "<f>CORREL(A1,A1)</f>"
+  },
+  "COS": {
+   "call": "COS(A1)",
+   "saved": "<f>COS(A1)</f>"
+  },
+  "COSH": {
+   "call": "COSH(A1)",
+   "saved": "<f>COSH(A1)</f>"
+  },
+  "COT": {
+   "call": "COT(A1)",
+   "saved": "<f>_xlfn.COT(A1)</f>"
+  },
+  "COTH": {
+   "call": "COTH(A1)",
+   "saved": "<f>_xlfn.COTH(A1)</f>"
+  },
+  "COUNT": {
+   "call": "COUNT(A1)",
+   "saved": "<f>COUNT(A1)</f>"
+  },
+  "COUNTA": {
+   "call": "COUNTA(A1)",
+   "saved": "<f>COUNTA(A1)</f>"
+  },
+  "COUNTBLANK": {
+   "call": "COUNTBLANK(A1)",
+   "saved": "<f>COUNTBLANK(A1)</f>"
+  },
+  "COUNTIF": {
+   "call": "COUNTIF(A1,A1)",
+   "saved": "<f>COUNTIF(A1,A1)</f>"
+  },
+  "COUNTIFS": {
+   "call": "COUNTIFS(A1,A1)",
+   "saved": "<f>COUNTIFS(A1,A1)</f>"
+  },
+  "COUPDAYBS": {
+   "call": "COUPDAYBS(A1,A1,A1)",
+   "saved": "<f>COUPDAYBS(A1,A1,A1)</f>"
+  },
+  "COUPDAYS": {
+   "call": "COUPDAYS(A1,A1,A1)",
+   "saved": "<f>COUPDAYS(A1,A1,A1)</f>"
+  },
+  "COUPDAYSNC": {
+   "call": "COUPDAYSNC(A1,A1,A1)",
+   "saved": "<f>COUPDAYSNC(A1,A1,A1)</f>"
+  },
+  "COUPNCD": {
+   "call": "COUPNCD(A1,A1,A1)",
+   "saved": "<f>COUPNCD(A1,A1,A1)</f>"
+  },
+  "COUPNUM": {
+   "call": "COUPNUM(A1,A1,A1)",
+   "saved": "<f>COUPNUM(A1,A1,A1)</f>"
+  },
+  "COUPPCD": {
+   "call": "COUPPCD(A1,A1,A1)",
+   "saved": "<f>COUPPCD(A1,A1,A1)</f>"
+  },
+  "COVAR": {
+   "call": "COVAR(A1,A1)",
+   "saved": "<f>COVAR(A1,A1)</f>"
+  },
+  "COVARIANCE.P": {
+   "call": "COVARIANCE.P(A1,A1)",
+   "saved": "<f>_xlfn.COVARIANCE.P(A1,A1)</f>"
+  },
+  "COVARIANCE.S": {
+   "call": "COVARIANCE.S(A1,A1)",
+   "saved": "<f>_xlfn.COVARIANCE.S(A1,A1)</f>"
+  },
+  "CRITBINOM": {
+   "call": "CRITBINOM(A1,A1,A1)",
+   "saved": "<f>CRITBINOM(A1,A1,A1)</f>"
+  },
+  "CSC": {
+   "call": "CSC(A1)",
+   "saved": "<f>_xlfn.CSC(A1)</f>"
+  },
+  "CSCH": {
+   "call": "CSCH(A1)",
+   "saved": "<f>_xlfn.CSCH(A1)</f>"
+  },
+  "CUBEKPIMEMBER": {
+   "call": "CUBEKPIMEMBER(A1,A1,A1)",
+   "saved": "<f>CUBEKPIMEMBER(A1,A1,A1)</f>"
+  },
+  "CUBEMEMBER": {
+   "call": "CUBEMEMBER(A1,A1)",
+   "saved": "<f>CUBEMEMBER(A1,A1)</f>"
+  },
+  "CUBEMEMBERPROPERTY": {
+   "call": "CUBEMEMBERPROPERTY(A1,A1,A1)",
+   "saved": "<f>CUBEMEMBERPROPERTY(A1,A1,A1)</f>"
+  },
+  "CUBERANKEDMEMBER": {
+   "call": "CUBERANKEDMEMBER(A1,A1,A1)",
+   "saved": "<f>CUBERANKEDMEMBER(A1,A1,A1)</f>"
+  },
+  "CUBESET": {
+   "call": "CUBESET(A1,A1)",
+   "saved": "<f>CUBESET(A1,A1)</f>"
+  },
+  "CUBESETCOUNT": {
+   "call": "CUBESETCOUNT(A1)",
+   "saved": "<f>CUBESETCOUNT(A1)</f>"
+  },
+  "CUBEVALUE": {
+   "call": "CUBEVALUE(A1)",
+   "saved": "<f>CUBEVALUE(A1)</f>"
+  },
+  "CUMIPMT": {
+   "call": "CUMIPMT(A1,A1,A1,A1,A1,A1)",
+   "saved": "<f>CUMIPMT(A1,A1,A1,A1,A1,A1)</f>"
+  },
+  "CUMPRINC": {
+   "call": "CUMPRINC(A1,A1,A1,A1,A1,A1)",
+   "saved": "<f>CUMPRINC(A1,A1,A1,A1,A1,A1)</f>"
+  },
+  "DATE": {
+   "call": "DATE(A1,A1,A1)",
+   "saved": "<f>DATE(A1,A1,A1)</f>"
+  },
+  "DATEDIF": {
+   "call": "DATEDIF(A1,A1,A1)",
+   "saved": "<f>DATEDIF(A1,A1,A1)</f>"
+  },
+  "DATEVALUE": {
+   "call": "DATEVALUE(A1)",
+   "saved": "<f>DATEVALUE(A1)</f>"
+  },
+  "DAVERAGE": {
+   "call": "DAVERAGE(A1,A1,A1)",
+   "saved": "<f>DAVERAGE(A1,A1,A1)</f>"
+  },
+  "DAY": {
+   "call": "DAY(A1)",
+   "saved": "<f>DAY(A1)</f>"
+  },
+  "DAYS": {
+   "call": "DAYS(A1,A1)",
+   "saved": "<f>_xlfn.DAYS(A1,A1)</f>"
+  },
+  "DAYS360": {
+   "call": "DAYS360(A1,A1)",
+   "saved": "<f>DAYS360(A1,A1)</f>"
+  },
+  "DB": {
+   "call": "DB(A1,A1,A1,A1)",
+   "saved": "<f>DB(A1,A1,A1,A1)</f>"
+  },
+  "DBCS": {
+   "call": "DBCS(A1)",
+   "saved": "<f>DBCS(A1)</f>"
+  },
+  "DCOUNT": {
+   "call": "DCOUNT(A1,A1,A1)",
+   "saved": "<f>DCOUNT(A1,A1,A1)</f>"
+  },
+  "DCOUNTA": {
+   "call": "DCOUNTA(A1,A1,A1)",
+   "saved": "<f>DCOUNTA(A1,A1,A1)</f>"
+  },
+  "DDB": {
+   "call": "DDB(A1,A1,A1,A1)",
+   "saved": "<f>DDB(A1,A1,A1,A1)</f>"
+  },
+  "DEC2BIN": {
+   "call": "DEC2BIN(A1)",
+   "saved": "<f>DEC2BIN(A1)</f>"
+  },
+  "DEC2HEX": {
+   "call": "DEC2HEX(A1)",
+   "saved": "<f>DEC2HEX(A1)</f>"
+  },
+  "DEC2OCT": {
+   "call": "DEC2OCT(A1)",
+   "saved": "<f>DEC2OCT(A1)</f>"
+  },
+  "DECIMAL": {
+   "call": "DECIMAL(A1,A1)",
+   "saved": "<f>_xlfn.DECIMAL(A1,A1)</f>"
+  },
+  "DEGREES": {
+   "call": "DEGREES(A1)",
+   "saved": "<f>DEGREES(A1)</f>"
+  },
+  "DELTA": {
+   "call": "DELTA(A1)",
+   "saved": "<f>DELTA(A1)</f>"
+  },
+  "DETECTLANGUAGE": {
+   "call": "DETECTLANGUAGE(A1)",
+   "saved": "<f ca=\"1\">_xlfn.DETECTLANGUAGE(A1)</f>"
+  },
+  "DEVSQ": {
+   "call": "DEVSQ(A1)",
+   "saved": "<f>DEVSQ(A1)</f>"
+  },
+  "DGET": {
+   "call": "DGET(A1,A1,A1)",
+   "saved": "<f>DGET(A1,A1,A1)</f>"
+  },
+  "DISC": {
+   "call": "DISC(A1,A1,A1,A1)",
+   "saved": "<f>DISC(A1,A1,A1,A1)</f>"
+  },
+  "DMAX": {
+   "call": "DMAX(A1,A1,A1)",
+   "saved": "<f>DMAX(A1,A1,A1)</f>"
+  },
+  "DMIN": {
+   "call": "DMIN(A1,A1,A1)",
+   "saved": "<f>DMIN(A1,A1,A1)</f>"
+  },
+  "DOLLAR": {
+   "call": "DOLLAR(A1)",
+   "saved": "<f>DOLLAR(A1)</f>"
+  },
+  "DOLLARDE": {
+   "call": "DOLLARDE(A1,A1)",
+   "saved": "<f>DOLLARDE(A1,A1)</f>"
+  },
+  "DOLLARFR": {
+   "call": "DOLLARFR(A1,A1)",
+   "saved": "<f>DOLLARFR(A1,A1)</f>"
+  },
+  "DPRODUCT": {
+   "call": "DPRODUCT(A1,A1,A1)",
+   "saved": "<f>DPRODUCT(A1,A1,A1)</f>"
+  },
+  "DROP": {
+   "call": "DROP(A1,A1)",
+   "saved": "<f>_xlfn.DROP(A1,A1)</f>"
+  },
+  "DSTDEV": {
+   "call": "DSTDEV(A1,A1,A1)",
+   "saved": "<f>DSTDEV(A1,A1,A1)</f>"
+  },
+  "DSTDEVP": {
+   "call": "DSTDEVP(A1,A1,A1)",
+   "saved": "<f>DSTDEVP(A1,A1,A1)</f>"
+  },
+  "DSUM": {
+   "call": "DSUM(A1,A1,A1)",
+   "saved": "<f>DSUM(A1,A1,A1)</f>"
+  },
+  "DURATION": {
+   "call": "DURATION(A1,A1,A1,A1,A1)",
+   "saved": "<f>DURATION(A1,A1,A1,A1,A1)</f>"
+  },
+  "DVAR": {
+   "call": "DVAR(A1,A1,A1)",
+   "saved": "<f>DVAR(A1,A1,A1)</f>"
+  },
+  "DVARP": {
+   "call": "DVARP(A1,A1,A1)",
+   "saved": "<f>DVARP(A1,A1,A1)</f>"
+  },
+  "ECMA.CEILING": {
+   "call": "ECMA.CEILING(A1,A1)",
+   "saved": "<f>ECMA.CEILING(A1,A1)</f>"
+  },
+  "EDATE": {
+   "call": "EDATE(A1,A1)",
+   "saved": "<f>EDATE(A1,A1)</f>"
+  },
+  "EFFECT": {
+   "call": "EFFECT(A1,A1)",
+   "saved": "<f>EFFECT(A1,A1)</f>"
+  },
+  "ENCODEURL": {
+   "call": "ENCODEURL(A1)",
+   "saved": "<f>_xlfn.ENCODEURL(A1)</f>"
+  },
+  "EOMONTH": {
+   "call": "EOMONTH(A1,A1)",
+   "saved": "<f>EOMONTH(A1,A1)</f>"
+  },
+  "ERF": {
+   "call": "ERF(A1)",
+   "saved": "<f>ERF(A1)</f>"
+  },
+  "ERF.PRECISE": {
+   "call": "ERF.PRECISE(A1)",
+   "saved": "<f>_xlfn.ERF.PRECISE(A1)</f>"
+  },
+  "ERFC": {
+   "call": "ERFC(A1)",
+   "saved": "<f>ERFC(A1)</f>"
+  },
+  "ERFC.PRECISE": {
+   "call": "ERFC.PRECISE(A1)",
+   "saved": "<f>_xlfn.ERFC.PRECISE(A1)</f>"
+  },
+  "ERROR.TYPE": {
+   "call": "ERROR.TYPE(A1)",
+   "saved": "<f>ERROR.TYPE(A1)</f>"
+  },
+  "EUROCONVERT": {
+   "call": "EUROCONVERT()",
+   "saved": "<f ca=\"1\">EUROCONVERT()</f>"
+  },
+  "EVEN": {
+   "call": "EVEN(A1)",
+   "saved": "<f>EVEN(A1)</f>"
+  },
+  "EXACT": {
+   "call": "EXACT(A1,A1)",
+   "saved": "<f>EXACT(A1,A1)</f>"
+  },
+  "EXP": {
+   "call": "EXP(A1)",
+   "saved": "<f>EXP(A1)</f>"
+  },
+  "EXPAND": {
+   "call": "EXPAND(A1,A1)",
+   "saved": "<f>_xlfn.EXPAND(A1,A1)</f>"
+  },
+  "EXPON.DIST": {
+   "call": "EXPON.DIST(A1,A1,A1)",
+   "saved": "<f>_xlfn.EXPON.DIST(A1,A1,A1)</f>"
+  },
+  "EXPONDIST": {
+   "call": "EXPONDIST(A1,A1,A1)",
+   "saved": "<f>EXPONDIST(A1,A1,A1)</f>"
+  },
+  "F.DIST": {
+   "call": "F.DIST(A1,A1,A1,A1)",
+   "saved": "<f>_xlfn.F.DIST(A1,A1,A1,A1)</f>"
+  },
+  "F.DIST.RT": {
+   "call": "F.DIST.RT(A1,A1,A1)",
+   "saved": "<f>_xlfn.F.DIST.RT(A1,A1,A1)</f>"
+  },
+  "F.INV": {
+   "call": "F.INV(A1,A1,A1)",
+   "saved": "<f>_xlfn.F.INV(A1,A1,A1)</f>"
+  },
+  "F.INV.RT": {
+   "call": "F.INV.RT(A1,A1,A1)",
+   "saved": "<f>_xlfn.F.INV.RT(A1,A1,A1)</f>"
+  },
+  "F.TEST": {
+   "call": "F.TEST(A1,A1)",
+   "saved": "<f>_xlfn.F.TEST(A1,A1)</f>"
+  },
+  "FACT": {
+   "call": "FACT(A1)",
+   "saved": "<f>FACT(A1)</f>"
+  },
+  "FACTDOUBLE": {
+   "call": "FACTDOUBLE(A1)",
+   "saved": "<f>FACTDOUBLE(A1)</f>"
+  },
+  "FALSE": {
+   "call": "FALSE()",
+   "saved": "<f>FALSE()</f>"
+  },
+  "FDIST": {
+   "call": "FDIST(A1,A1,A1)",
+   "saved": "<f>FDIST(A1,A1,A1)</f>"
+  },
+  "FILTER": {
+   "call": "FILTER(A1,A1)",
+   "saved": "<f>_xlfn._xlws.FILTER(A1,A1)</f>"
+  },
+  "FILTERXML": {
+   "call": "FILTERXML(A1,A1)",
+   "saved": "<f>_xlfn.FILTERXML(A1,A1)</f>"
+  },
+  "FIND": {
+   "call": "FIND(A1,A1)",
+   "saved": "<f>FIND(A1,A1)</f>"
+  },
+  "FINDB": {
+   "call": "FINDB(A1,A1)",
+   "saved": "<f>FINDB(A1,A1)</f>"
+  },
+  "FINV": {
+   "call": "FINV(A1,A1,A1)",
+   "saved": "<f>FINV(A1,A1,A1)</f>"
+  },
+  "FISHER": {
+   "call": "FISHER(A1)",
+   "saved": "<f>FISHER(A1)</f>"
+  },
+  "FISHERINV": {
+   "call": "FISHERINV(A1)",
+   "saved": "<f>FISHERINV(A1)</f>"
+  },
+  "FIXED": {
+   "call": "FIXED(A1)",
+   "saved": "<f>FIXED(A1)</f>"
+  },
+  "FLOOR": {
+   "call": "FLOOR(A1,A1)",
+   "saved": "<f>FLOOR(A1,A1)</f>"
+  },
+  "FLOOR.MATH": {
+   "call": "FLOOR.MATH(A1)",
+   "saved": "<f>_xlfn.FLOOR.MATH(A1)</f>"
+  },
+  "FLOOR.PRECISE": {
+   "call": "FLOOR.PRECISE(A1)",
+   "saved": "<f>_xlfn.FLOOR.PRECISE(A1)</f>"
+  },
+  "FORECAST": {
+   "call": "FORECAST(A1,A1,A1)",
+   "saved": "<f>FORECAST(A1,A1,A1)</f>"
+  },
+  "FORECAST.ETS": {
+   "call": "FORECAST.ETS(A1,A1,A1)",
+   "saved": "<f>_xlfn.FORECAST.ETS(A1,A1,A1)</f>"
+  },
+  "FORECAST.ETS.CONFINT": {
+   "call": "FORECAST.ETS.CONFINT(A1,A1,A1)",
+   "saved": "<f>_xlfn.FORECAST.ETS.CONFINT(A1,A1,A1)</f>"
+  },
+  "FORECAST.ETS.SEASONALITY": {
+   "call": "FORECAST.ETS.SEASONALITY(A1,A1)",
+   "saved": "<f>_xlfn.FORECAST.ETS.SEASONALITY(A1,A1)</f>"
+  },
+  "FORECAST.ETS.STAT": {
+   "call": "FORECAST.ETS.STAT(A1,A1,A1)",
+   "saved": "<f>_xlfn.FORECAST.ETS.STAT(A1,A1,A1)</f>"
+  },
+  "FORECAST.LINEAR": {
+   "call": "FORECAST.LINEAR(A1,A1,A1)",
+   "saved": "<f>_xlfn.FORECAST.LINEAR(A1,A1,A1)</f>"
+  },
+  "FORMULATEXT": {
+   "call": "FORMULATEXT(A1)",
+   "saved": "<f ca=\"1\">_xlfn.FORMULATEXT(A1)</f>"
+  },
+  "FREQUENCY": {
+   "call": "FREQUENCY(A1,A1)",
+   "saved": "<f>FREQUENCY(A1,A1)</f>"
+  },
+  "FTEST": {
+   "call": "FTEST(A1,A1)",
+   "saved": "<f>FTEST(A1,A1)</f>"
+  },
+  "FV": {
+   "call": "FV(A1,A1,A1)",
+   "saved": "<f>FV(A1,A1,A1)</f>"
+  },
+  "FVSCHEDULE": {
+   "call": "FVSCHEDULE(A1,A1)",
+   "saved": "<f>FVSCHEDULE(A1,A1)</f>"
+  },
+  "GAMMA": {
+   "call": "GAMMA(A1)",
+   "saved": "<f>_xlfn.GAMMA(A1)</f>"
+  },
+  "GAMMA.DIST": {
+   "call": "GAMMA.DIST(A1,A1,A1,A1)",
+   "saved": "<f>_xlfn.GAMMA.DIST(A1,A1,A1,A1)</f>"
+  },
+  "GAMMA.INV": {
+   "call": "GAMMA.INV(A1,A1,A1)",
+   "saved": "<f>_xlfn.GAMMA.INV(A1,A1,A1)</f>"
+  },
+  "GAMMADIST": {
+   "call": "GAMMADIST(A1,A1,A1,A1)",
+   "saved": "<f>GAMMADIST(A1,A1,A1,A1)</f>"
+  },
+  "GAMMAINV": {
+   "call": "GAMMAINV(A1,A1,A1)",
+   "saved": "<f>GAMMAINV(A1,A1,A1)</f>"
+  },
+  "GAMMALN": {
+   "call": "GAMMALN(A1)",
+   "saved": "<f>GAMMALN(A1)</f>"
+  },
+  "GAMMALN.PRECISE": {
+   "call": "GAMMALN.PRECISE(A1)",
+   "saved": "<f>_xlfn.GAMMALN.PRECISE(A1)</f>"
+  },
+  "GAUSS": {
+   "call": "GAUSS(A1)",
+   "saved": "<f>_xlfn.GAUSS(A1)</f>"
+  },
+  "GCD": {
+   "call": "GCD(A1)",
+   "saved": "<f>GCD(A1)</f>"
+  },
+  "GEOMEAN": {
+   "call": "GEOMEAN(A1)",
+   "saved": "<f>GEOMEAN(A1)</f>"
+  },
+  "GESTEP": {
+   "call": "GESTEP(A1)",
+   "saved": "<f>GESTEP(A1)</f>"
+  },
+  "GETPIVOTDATA": {
+   "call": "GETPIVOTDATA(A1,A1)",
+   "saved": "<f>GETPIVOTDATA(A1,A1)</f>"
+  },
+  "GROUPBY": {
+   "call": "GROUPBY(A1,A1,A1)",
+   "saved": "<f>_xlfn.GROUPBY(A1,A1,A1)</f>"
+  },
+  "GROWTH": {
+   "call": "GROWTH(A1)",
+   "saved": "<f>GROWTH(A1)</f>"
+  },
+  "HARMEAN": {
+   "call": "HARMEAN(A1)",
+   "saved": "<f>HARMEAN(A1)</f>"
+  },
+  "HEX2BIN": {
+   "call": "HEX2BIN(A1)",
+   "saved": "<f>HEX2BIN(A1)</f>"
+  },
+  "HEX2DEC": {
+   "call": "HEX2DEC(A1)",
+   "saved": "<f>HEX2DEC(A1)</f>"
+  },
+  "HEX2OCT": {
+   "call": "HEX2OCT(A1)",
+   "saved": "<f>HEX2OCT(A1)</f>"
+  },
+  "HLOOKUP": {
+   "call": "HLOOKUP(A1,A1,A1)",
+   "saved": "<f>HLOOKUP(A1,A1,A1)</f>"
+  },
+  "HOUR": {
+   "call": "HOUR(A1)",
+   "saved": "<f>HOUR(A1)</f>"
+  },
+  "HSTACK": {
+   "call": "HSTACK(A1)",
+   "saved": "<f>_xlfn.HSTACK(A1)</f>"
+  },
+  "HYPERLINK": {
+   "call": "HYPERLINK(A1)",
+   "saved": "<f>HYPERLINK(A1)</f>"
+  },
+  "HYPGEOM.DIST": {
+   "call": "HYPGEOM.DIST(A1,A1,A1,A1,A1)",
+   "saved": "<f>_xlfn.HYPGEOM.DIST(A1,A1,A1,A1,A1)</f>"
+  },
+  "HYPGEOMDIST": {
+   "call": "HYPGEOMDIST(A1,A1,A1,A1)",
+   "saved": "<f>HYPGEOMDIST(A1,A1,A1,A1)</f>"
+  },
+  "IF": {
+   "call": "IF(A1,A1)",
+   "saved": "<f>IF(A1,A1)</f>"
+  },
+  "IFERROR": {
+   "call": "IFERROR(A1,A1)",
+   "saved": "<f>IFERROR(A1,A1)</f>"
+  },
+  "IFNA": {
+   "call": "IFNA(A1,A1)",
+   "saved": "<f>_xlfn.IFNA(A1,A1)</f>"
+  },
+  "IFS": {
+   "call": "IFS(A1,A1)",
+   "saved": "<f>_xlfn.IFS(A1,A1)</f>"
+  },
+  "IMABS": {
+   "call": "IMABS(A1)",
+   "saved": "<f>IMABS(A1)</f>"
+  },
+  "IMAGE": {
+   "call": "IMAGE(A1)",
+   "saved": "<f>_xlfn.IMAGE(A1)</f>"
+  },
+  "IMAGINARY": {
+   "call": "IMAGINARY(A1)",
+   "saved": "<f>IMAGINARY(A1)</f>"
+  },
+  "IMARGUMENT": {
+   "call": "IMARGUMENT(A1)",
+   "saved": "<f>IMARGUMENT(A1)</f>"
+  },
+  "IMCONJUGATE": {
+   "call": "IMCONJUGATE(A1)",
+   "saved": "<f>IMCONJUGATE(A1)</f>"
+  },
+  "IMCOS": {
+   "call": "IMCOS(A1)",
+   "saved": "<f>IMCOS(A1)</f>"
+  },
+  "IMCOSH": {
+   "call": "IMCOSH(A1)",
+   "saved": "<f>_xlfn.IMCOSH(A1)</f>"
+  },
+  "IMCOT": {
+   "call": "IMCOT(A1)",
+   "saved": "<f>_xlfn.IMCOT(A1)</f>"
+  },
+  "IMCSC": {
+   "call": "IMCSC(A1)",
+   "saved": "<f>_xlfn.IMCSC(A1)</f>"
+  },
+  "IMCSCH": {
+   "call": "IMCSCH(A1)",
+   "saved": "<f>_xlfn.IMCSCH(A1)</f>"
+  },
+  "IMDIV": {
+   "call": "IMDIV(A1,A1)",
+   "saved": "<f>IMDIV(A1,A1)</f>"
+  },
+  "IMEXP": {
+   "call": "IMEXP(A1)",
+   "saved": "<f>IMEXP(A1)</f>"
+  },
+  "IMLN": {
+   "call": "IMLN(A1)",
+   "saved": "<f>IMLN(A1)</f>"
+  },
+  "IMLOG10": {
+   "call": "IMLOG10(A1)",
+   "saved": "<f>IMLOG10(A1)</f>"
+  },
+  "IMLOG2": {
+   "call": "IMLOG2(A1)",
+   "saved": "<f>IMLOG2(A1)</f>"
+  },
+  "IMPOWER": {
+   "call": "IMPOWER(A1,A1)",
+   "saved": "<f>IMPOWER(A1,A1)</f>"
+  },
+  "IMPRODUCT": {
+   "call": "IMPRODUCT(A1)",
+   "saved": "<f>IMPRODUCT(A1)</f>"
+  },
+  "IMREAL": {
+   "call": "IMREAL(A1)",
+   "saved": "<f>IMREAL(A1)</f>"
+  },
+  "IMSEC": {
+   "call": "IMSEC(A1)",
+   "saved": "<f>_xlfn.IMSEC(A1)</f>"
+  },
+  "IMSECH": {
+   "call": "IMSECH(A1)",
+   "saved": "<f>_xlfn.IMSECH(A1)</f>"
+  },
+  "IMSIN": {
+   "call": "IMSIN(A1)",
+   "saved": "<f>IMSIN(A1)</f>"
+  },
+  "IMSINH": {
+   "call": "IMSINH(A1)",
+   "saved": "<f>_xlfn.IMSINH(A1)</f>"
+  },
+  "IMSQRT": {
+   "call": "IMSQRT(A1)",
+   "saved": "<f>IMSQRT(A1)</f>"
+  },
+  "IMSUB": {
+   "call": "IMSUB(A1,A1)",
+   "saved": "<f>IMSUB(A1,A1)</f>"
+  },
+  "IMSUM": {
+   "call": "IMSUM(A1)",
+   "saved": "<f>IMSUM(A1)</f>"
+  },
+  "IMTAN": {
+   "call": "IMTAN(A1)",
+   "saved": "<f>_xlfn.IMTAN(A1)</f>"
+  },
+  "INDEX": {
+   "call": "INDEX(A1,1)",
+   "saved": "<f>INDEX(A1,1)</f>"
+  },
+  "INDIRECT": {
+   "call": "INDIRECT(A1)",
+   "saved": "<f ca=\"1\">INDIRECT(A1)</f>"
+  },
+  "INFO": {
+   "call": "INFO(A1)",
+   "saved": "<f ca=\"1\">INFO(A1)</f>"
+  },
+  "INT": {
+   "call": "INT(A1)",
+   "saved": "<f>INT(A1)</f>"
+  },
+  "INTERCEPT": {
+   "call": "INTERCEPT(A1,A1)",
+   "saved": "<f>INTERCEPT(A1,A1)</f>"
+  },
+  "INTRATE": {
+   "call": "INTRATE(A1,A1,A1,A1)",
+   "saved": "<f>INTRATE(A1,A1,A1,A1)</f>"
+  },
+  "IPMT": {
+   "call": "IPMT(A1,A1,A1,A1)",
+   "saved": "<f>IPMT(A1,A1,A1,A1)</f>"
+  },
+  "IRR": {
+   "call": "IRR(A1)",
+   "saved": "<f>IRR(A1)</f>"
+  },
+  "ISBLANK": {
+   "call": "ISBLANK(A1)",
+   "saved": "<f>ISBLANK(A1)</f>"
+  },
+  "ISERR": {
+   "call": "ISERR(A1)",
+   "saved": "<f>ISERR(A1)</f>"
+  },
+  "ISERROR": {
+   "call": "ISERROR(A1)",
+   "saved": "<f>ISERROR(A1)</f>"
+  },
+  "ISEVEN": {
+   "call": "ISEVEN(A1)",
+   "saved": "<f>ISEVEN(A1)</f>"
+  },
+  "ISFORMULA": {
+   "call": "ISFORMULA(A1)",
+   "saved": "<f>_xlfn.ISFORMULA(A1)</f>"
+  },
+  "ISLOGICAL": {
+   "call": "ISLOGICAL(A1)",
+   "saved": "<f>ISLOGICAL(A1)</f>"
+  },
+  "ISNA": {
+   "call": "ISNA(A1)",
+   "saved": "<f>ISNA(A1)</f>"
+  },
+  "ISNONTEXT": {
+   "call": "ISNONTEXT(A1)",
+   "saved": "<f>ISNONTEXT(A1)</f>"
+  },
+  "ISNUMBER": {
+   "call": "ISNUMBER(A1)",
+   "saved": "<f>ISNUMBER(A1)</f>"
+  },
+  "ISO.CEILING": {
+   "call": "ISO.CEILING(A1)",
+   "saved": "<f>ISO.CEILING(A1)</f>"
+  },
+  "ISODD": {
+   "call": "ISODD(A1)",
+   "saved": "<f>ISODD(A1)</f>"
+  },
+  "ISOMITTED": {
+   "call": "ISOMITTED(A1)",
+   "saved": "<f>_xlfn.ISOMITTED(A1)</f>"
+  },
+  "ISOWEEKNUM": {
+   "call": "ISOWEEKNUM(A1)",
+   "saved": "<f>_xlfn.ISOWEEKNUM(A1)</f>"
+  },
+  "ISPMT": {
+   "call": "ISPMT(A1,A1,A1,A1)",
+   "saved": "<f>ISPMT(A1,A1,A1,A1)</f>"
+  },
+  "ISREF": {
+   "call": "ISREF(A1)",
+   "saved": "<f>ISREF(A1)</f>"
+  },
+  "ISTEXT": {
+   "call": "ISTEXT(A1)",
+   "saved": "<f>ISTEXT(A1)</f>"
+  },
+  "KURT": {
+   "call": "KURT(A1)",
+   "saved": "<f>KURT(A1)</f>"
+  },
+  "LAMBDA": {
+   "call": "LAMBDA(x,x)(A1)",
+   "saved": "<f>_xlfn.LAMBDA(_xlpm.x,_xlpm.x)(A1)</f>"
+  },
+  "LARGE": {
+   "call": "LARGE(A1,A1)",
+   "saved": "<f>LARGE(A1,A1)</f>"
+  },
+  "LCM": {
+   "call": "LCM(A1)",
+   "saved": "<f>LCM(A1)</f>"
+  },
+  "LEFT": {
+   "call": "LEFT(A1)",
+   "saved": "<f>LEFT(A1)</f>"
+  },
+  "LEFTB": {
+   "call": "LEFTB(A1)",
+   "saved": "<f>LEFTB(A1)</f>"
+  },
+  "LEN": {
+   "call": "LEN(A1)",
+   "saved": "<f>LEN(A1)</f>"
+  },
+  "LENB": {
+   "call": "LENB(A1)",
+   "saved": "<f>LENB(A1)</f>"
+  },
+  "LET": {
+   "call": "LET(x,A1,x)",
+   "saved": "<f>_xlfn.LET(_xlpm.x,A1,_xlpm.x)</f>"
+  },
+  "LINEST": {
+   "call": "LINEST(A1)",
+   "saved": "<f>LINEST(A1)</f>"
+  },
+  "LN": {
+   "call": "LN(A1)",
+   "saved": "<f>LN(A1)</f>"
+  },
+  "LOG": {
+   "call": "LOG(A1)",
+   "saved": "<f>LOG(A1)</f>"
+  },
+  "LOG10": {
+   "call": "LOG10(A1)",
+   "saved": "<f>LOG10(A1)</f>"
+  },
+  "LOGEST": {
+   "call": "LOGEST(A1)",
+   "saved": "<f>LOGEST(A1)</f>"
+  },
+  "LOGINV": {
+   "call": "LOGINV(A1,A1,A1)",
+   "saved": "<f>LOGINV(A1,A1,A1)</f>"
+  },
+  "LOGNORM.DIST": {
+   "call": "LOGNORM.DIST(A1,A1,A1,A1)",
+   "saved": "<f>_xlfn.LOGNORM.DIST(A1,A1,A1,A1)</f>"
+  },
+  "LOGNORM.INV": {
+   "call": "LOGNORM.INV(A1,A1,A1)",
+   "saved": "<f>_xlfn.LOGNORM.INV(A1,A1,A1)</f>"
+  },
+  "LOGNORMDIST": {
+   "call": "LOGNORMDIST(A1,A1,A1)",
+   "saved": "<f>LOGNORMDIST(A1,A1,A1)</f>"
+  },
+  "LOOKUP": {
+   "call": "LOOKUP(A1,A1)",
+   "saved": "<f>LOOKUP(A1,A1)</f>"
+  },
+  "LOWER": {
+   "call": "LOWER(A1)",
+   "saved": "<f>LOWER(A1)</f>"
+  },
+  "MAKEARRAY": {
+   "call": "MAKEARRAY(A1,A1,A1)",
+   "saved": "<f>_xlfn.MAKEARRAY(A1,A1,A1)</f>"
+  },
+  "MAP": {
+   "call": "MAP(A1,LAMBDA(x,x))",
+   "saved": "<f>_xlfn.MAP(A1,_xlfn.LAMBDA(_xlpm.x,_xlpm.x))</f>"
+  },
+  "MATCH": {
+   "call": "MATCH(A1,A1)",
+   "saved": "<f>MATCH(A1,A1)</f>"
+  },
+  "MAX": {
+   "call": "MAX(A1)",
+   "saved": "<f>MAX(A1)</f>"
+  },
+  "MAXA": {
+   "call": "MAXA(A1)",
+   "saved": "<f>MAXA(A1)</f>"
+  },
+  "MAXIFS": {
+   "call": "MAXIFS(A1,A1,A1)",
+   "saved": "<f>_xlfn.MAXIFS(A1,A1,A1)</f>"
+  },
+  "MDETERM": {
+   "call": "MDETERM(A1)",
+   "saved": "<f>MDETERM(A1)</f>"
+  },
+  "MDURATION": {
+   "call": "MDURATION(A1,A1,A1,A1,A1)",
+   "saved": "<f>MDURATION(A1,A1,A1,A1,A1)</f>"
+  },
+  "MEDIAN": {
+   "call": "MEDIAN(A1)",
+   "saved": "<f>MEDIAN(A1)</f>"
+  },
+  "MID": {
+   "call": "MID(A1,A1,A1)",
+   "saved": "<f>MID(A1,A1,A1)</f>"
+  },
+  "MIDB": {
+   "call": "MIDB(A1,A1,A1)",
+   "saved": "<f>MIDB(A1,A1,A1)</f>"
+  },
+  "MIN": {
+   "call": "MIN(A1)",
+   "saved": "<f>MIN(A1)</f>"
+  },
+  "MINA": {
+   "call": "MINA(A1)",
+   "saved": "<f>MINA(A1)</f>"
+  },
+  "MINIFS": {
+   "call": "MINIFS(A1,A1,A1)",
+   "saved": "<f>_xlfn.MINIFS(A1,A1,A1)</f>"
+  },
+  "MINUTE": {
+   "call": "MINUTE(A1)",
+   "saved": "<f>MINUTE(A1)</f>"
+  },
+  "MINVERSE": {
+   "call": "MINVERSE(A1)",
+   "saved": "<f>MINVERSE(A1)</f>"
+  },
+  "MIRR": {
+   "call": "MIRR(A1,A1,A1)",
+   "saved": "<f>MIRR(A1,A1,A1)</f>"
+  },
+  "MMULT": {
+   "call": "MMULT(A1,A1)",
+   "saved": "<f>MMULT(A1,A1)</f>"
+  },
+  "MOD": {
+   "call": "MOD(A1,A1)",
+   "saved": "<f>MOD(A1,A1)</f>"
+  },
+  "MODE": {
+   "call": "MODE(A1)",
+   "saved": "<f>MODE(A1)</f>"
+  },
+  "MODE.MULT": {
+   "call": "MODE.MULT(A1)",
+   "saved": "<f>_xlfn.MODE.MULT(A1)</f>"
+  },
+  "MODE.SNGL": {
+   "call": "MODE.SNGL(A1)",
+   "saved": "<f>_xlfn.MODE.SNGL(A1)</f>"
+  },
+  "MONTH": {
+   "call": "MONTH(A1)",
+   "saved": "<f>MONTH(A1)</f>"
+  },
+  "MROUND": {
+   "call": "MROUND(A1,A1)",
+   "saved": "<f>MROUND(A1,A1)</f>"
+  },
+  "MULTINOMIAL": {
+   "call": "MULTINOMIAL(A1)",
+   "saved": "<f>MULTINOMIAL(A1)</f>"
+  },
+  "MUNIT": {
+   "call": "MUNIT(A1)",
+   "saved": "<f>_xlfn.MUNIT(A1)</f>"
+  },
+  "N": {
+   "call": "N(A1)",
+   "saved": "<f>N(A1)</f>"
+  },
+  "NA": {
+   "call": "NA()",
+   "saved": "<f>NA()</f>"
+  },
+  "NEGBINOM.DIST": {
+   "call": "NEGBINOM.DIST(A1,A1,A1,A1)",
+   "saved": "<f>_xlfn.NEGBINOM.DIST(A1,A1,A1,A1)</f>"
+  },
+  "NEGBINOMDIST": {
+   "call": "NEGBINOMDIST(A1,A1,A1)",
+   "saved": "<f>NEGBINOMDIST(A1,A1,A1)</f>"
+  },
+  "NETWORKDAYS": {
+   "call": "NETWORKDAYS(A1,A1)",
+   "saved": "<f>NETWORKDAYS(A1,A1)</f>"
+  },
+  "NETWORKDAYS.INTL": {
+   "call": "NETWORKDAYS.INTL(A1,A1)",
+   "saved": "<f>NETWORKDAYS.INTL(A1,A1)</f>"
+  },
+  "NOMINAL": {
+   "call": "NOMINAL(A1,A1)",
+   "saved": "<f>NOMINAL(A1,A1)</f>"
+  },
+  "NORM.DIST": {
+   "call": "NORM.DIST(A1,A1,A1,A1)",
+   "saved": "<f>_xlfn.NORM.DIST(A1,A1,A1,A1)</f>"
+  },
+  "NORM.INV": {
+   "call": "NORM.INV(A1,A1,A1)",
+   "saved": "<f>_xlfn.NORM.INV(A1,A1,A1)</f>"
+  },
+  "NORM.S.DIST": {
+   "call": "NORM.S.DIST(A1,A1)",
+   "saved": "<f>_xlfn.NORM.S.DIST(A1,A1)</f>"
+  },
+  "NORM.S.INV": {
+   "call": "NORM.S.INV(A1)",
+   "saved": "<f>_xlfn.NORM.S.INV(A1)</f>"
+  },
+  "NORMDIST": {
+   "call": "NORMDIST(A1,A1,A1,A1)",
+   "saved": "<f>NORMDIST(A1,A1,A1,A1)</f>"
+  },
+  "NORMINV": {
+   "call": "NORMINV(A1,A1,A1)",
+   "saved": "<f>NORMINV(A1,A1,A1)</f>"
+  },
+  "NORMSDIST": {
+   "call": "NORMSDIST(A1)",
+   "saved": "<f>NORMSDIST(A1)</f>"
+  },
+  "NORMSINV": {
+   "call": "NORMSINV(A1)",
+   "saved": "<f>NORMSINV(A1)</f>"
+  },
+  "NOT": {
+   "call": "NOT(A1)",
+   "saved": "<f>NOT(A1)</f>"
+  },
+  "NOW": {
+   "call": "NOW()",
+   "saved": "<f ca=\"1\">NOW()</f>"
+  },
+  "NPER": {
+   "call": "NPER(A1,A1,A1)",
+   "saved": "<f>NPER(A1,A1,A1)</f>"
+  },
+  "NPV": {
+   "call": "NPV(A1,A1)",
+   "saved": "<f>NPV(A1,A1)</f>"
+  },
+  "NUMBERVALUE": {
+   "call": "NUMBERVALUE(A1)",
+   "saved": "<f>_xlfn.NUMBERVALUE(A1)</f>"
+  },
+  "OCT2BIN": {
+   "call": "OCT2BIN(A1)",
+   "saved": "<f>OCT2BIN(A1)</f>"
+  },
+  "OCT2DEC": {
+   "call": "OCT2DEC(A1)",
+   "saved": "<f>OCT2DEC(A1)</f>"
+  },
+  "OCT2HEX": {
+   "call": "OCT2HEX(A1)",
+   "saved": "<f>OCT2HEX(A1)</f>"
+  },
+  "ODD": {
+   "call": "ODD(A1)",
+   "saved": "<f>ODD(A1)</f>"
+  },
+  "ODDFPRICE": {
+   "call": "",
+   "saved": ""
+  },
+  "ODDFYIELD": {
+   "call": "",
+   "saved": ""
+  },
+  "ODDLPRICE": {
+   "call": "",
+   "saved": ""
+  },
+  "ODDLYIELD": {
+   "call": "",
+   "saved": ""
+  },
+  "OFFSET": {
+   "call": "OFFSET(A1,A1,A1)",
+   "saved": "<f ca=\"1\">OFFSET(A1,A1,A1)</f>"
+  },
+  "OR": {
+   "call": "OR(A1)",
+   "saved": "<f>OR(A1)</f>"
+  },
+  "PDURATION": {
+   "call": "PDURATION(A1,A1,A1)",
+   "saved": "<f>_xlfn.PDURATION(A1,A1,A1)</f>"
+  },
+  "PEARSON": {
+   "call": "PEARSON(A1,A1)",
+   "saved": "<f>PEARSON(A1,A1)</f>"
+  },
+  "PERCENTILE": {
+   "call": "PERCENTILE(A1,A1)",
+   "saved": "<f>PERCENTILE(A1,A1)</f>"
+  },
+  "PERCENTILE.EXC": {
+   "call": "PERCENTILE.EXC(A1,A1)",
+   "saved": "<f>_xlfn.PERCENTILE.EXC(A1,A1)</f>"
+  },
+  "PERCENTILE.INC": {
+   "call": "PERCENTILE.INC(A1,A1)",
+   "saved": "<f>_xlfn.PERCENTILE.INC(A1,A1)</f>"
+  },
+  "PERCENTOF": {
+   "call": "PERCENTOF(A1,A1)",
+   "saved": "<f>_xlfn.PERCENTOF(A1,A1)</f>"
+  },
+  "PERCENTRANK": {
+   "call": "PERCENTRANK(A1,A1)",
+   "saved": "<f>PERCENTRANK(A1,A1)</f>"
+  },
+  "PERCENTRANK.EXC": {
+   "call": "PERCENTRANK.EXC(A1,A1)",
+   "saved": "<f>_xlfn.PERCENTRANK.EXC(A1,A1)</f>"
+  },
+  "PERCENTRANK.INC": {
+   "call": "PERCENTRANK.INC(A1,A1)",
+   "saved": "<f>_xlfn.PERCENTRANK.INC(A1,A1)</f>"
+  },
+  "PERMUT": {
+   "call": "PERMUT(A1,A1)",
+   "saved": "<f>PERMUT(A1,A1)</f>"
+  },
+  "PERMUTATIONA": {
+   "call": "PERMUTATIONA(A1,A1)",
+   "saved": "<f>_xlfn.PERMUTATIONA(A1,A1)</f>"
+  },
+  "PHI": {
+   "call": "PHI(A1)",
+   "saved": "<f>_xlfn.PHI(A1)</f>"
+  },
+  "PHONETIC": {
+   "call": "PHONETIC(A1)",
+   "saved": "<f>PHONETIC(A1)</f>"
+  },
+  "PI": {
+   "call": "PI()",
+   "saved": "<f>PI()</f>"
+  },
+  "PIVOTBY": {
+   "call": "PIVOTBY(A1,A1,A1,A1)",
+   "saved": "<f>_xlfn.PIVOTBY(A1,A1,A1,A1)</f>"
+  },
+  "PMT": {
+   "call": "PMT(A1,A1,A1)",
+   "saved": "<f>PMT(A1,A1,A1)</f>"
+  },
+  "POISSON": {
+   "call": "POISSON(A1,A1,A1)",
+   "saved": "<f>POISSON(A1,A1,A1)</f>"
+  },
+  "POISSON.DIST": {
+   "call": "POISSON.DIST(A1,A1,A1)",
+   "saved": "<f>_xlfn.POISSON.DIST(A1,A1,A1)</f>"
+  },
+  "POWER": {
+   "call": "POWER(A1,A1)",
+   "saved": "<f>POWER(A1,A1)</f>"
+  },
+  "PPMT": {
+   "call": "PPMT(A1,A1,A1,A1)",
+   "saved": "<f>PPMT(A1,A1,A1,A1)</f>"
+  },
+  "PRICE": {
+   "call": "PRICE(A1,A1,A1,A1,A1,A1)",
+   "saved": "<f>PRICE(A1,A1,A1,A1,A1,A1)</f>"
+  },
+  "PRICEDISC": {
+   "call": "PRICEDISC(A1,A1,A1,A1)",
+   "saved": "<f>PRICEDISC(A1,A1,A1,A1)</f>"
+  },
+  "PRICEMAT": {
+   "call": "PRICEMAT(A1,A1,A1,A1,A1)",
+   "saved": "<f>PRICEMAT(A1,A1,A1,A1,A1)</f>"
+  },
+  "PROB": {
+   "call": "PROB(A1,A1,A1)",
+   "saved": "<f>PROB(A1,A1,A1)</f>"
+  },
+  "PRODUCT": {
+   "call": "PRODUCT(A1)",
+   "saved": "<f>PRODUCT(A1)</f>"
+  },
+  "PROPER": {
+   "call": "PROPER(A1)",
+   "saved": "<f>PROPER(A1)</f>"
+  },
+  "PV": {
+   "call": "PV(A1,A1,A1)",
+   "saved": "<f>PV(A1,A1,A1)</f>"
+  },
+  "PY": {
+   "call": "",
+   "saved": ""
+  },
+  "QUARTILE": {
+   "call": "QUARTILE(A1,A1)",
+   "saved": "<f>QUARTILE(A1,A1)</f>"
+  },
+  "QUARTILE.EXC": {
+   "call": "QUARTILE.EXC(A1,A1)",
+   "saved": "<f>_xlfn.QUARTILE.EXC(A1,A1)</f>"
+  },
+  "QUARTILE.INC": {
+   "call": "QUARTILE.INC(A1,A1)",
+   "saved": "<f>_xlfn.QUARTILE.INC(A1,A1)</f>"
+  },
+  "QUOTIENT": {
+   "call": "QUOTIENT(A1,A1)",
+   "saved": "<f>QUOTIENT(A1,A1)</f>"
+  },
+  "RADIANS": {
+   "call": "RADIANS(A1)",
+   "saved": "<f>RADIANS(A1)</f>"
+  },
+  "RAND": {
+   "call": "RAND()",
+   "saved": "<f ca=\"1\">RAND()</f>"
+  },
+  "RANDARRAY": {
+   "call": "RANDARRAY()",
+   "saved": "<f ca=\"1\">_xlfn.RANDARRAY()</f>"
+  },
+  "RANDBETWEEN": {
+   "call": "RANDBETWEEN(A1,A1)",
+   "saved": "<f ca=\"1\">RANDBETWEEN(A1,A1)</f>"
+  },
+  "RANK": {
+   "call": "RANK(A1,A1)",
+   "saved": "<f>RANK(A1,A1)</f>"
+  },
+  "RANK.AVG": {
+   "call": "RANK.AVG(A1,A1)",
+   "saved": "<f>_xlfn.RANK.AVG(A1,A1)</f>"
+  },
+  "RANK.EQ": {
+   "call": "RANK.EQ(A1,A1)",
+   "saved": "<f>_xlfn.RANK.EQ(A1,A1)</f>"
+  },
+  "RATE": {
+   "call": "RATE(A1,A1,A1)",
+   "saved": "<f>RATE(A1,A1,A1)</f>"
+  },
+  "RECEIVED": {
+   "call": "RECEIVED(A1,A1,A1,A1)",
+   "saved": "<f>RECEIVED(A1,A1,A1,A1)</f>"
+  },
+  "REDUCE": {
+   "call": "REDUCE(A1,A1,A1)",
+   "saved": "<f>_xlfn.REDUCE(A1,A1,A1)</f>"
+  },
+  "REGEXEXTRACT": {
+   "call": "REGEXEXTRACT(A1,A1)",
+   "saved": "<f>_xlfn.REGEXEXTRACT(A1,A1)</f>"
+  },
+  "REGEXREPLACE": {
+   "call": "REGEXREPLACE(A1,A1,A1)",
+   "saved": "<f>_xlfn.REGEXREPLACE(A1,A1,A1)</f>"
+  },
+  "REGEXTEST": {
+   "call": "REGEXTEST(A1,A1)",
+   "saved": "<f>_xlfn.REGEXTEST(A1,A1)</f>"
+  },
+  "REGISTER.ID": {
+   "call": "",
+   "saved": ""
+  },
+  "REPLACE": {
+   "call": "REPLACE(A1,A1,A1,A1)",
+   "saved": "<f>REPLACE(A1,A1,A1,A1)</f>"
+  },
+  "REPLACEB": {
+   "call": "REPLACEB(A1,A1,A1,A1)",
+   "saved": "<f>REPLACEB(A1,A1,A1,A1)</f>"
+  },
+  "REPT": {
+   "call": "REPT(A1,A1)",
+   "saved": "<f>REPT(A1,A1)</f>"
+  },
+  "RIGHT": {
+   "call": "RIGHT(A1)",
+   "saved": "<f>RIGHT(A1)</f>"
+  },
+  "RIGHTB": {
+   "call": "RIGHTB(A1)",
+   "saved": "<f>RIGHTB(A1)</f>"
+  },
+  "ROMAN": {
+   "call": "ROMAN(A1)",
+   "saved": "<f>ROMAN(A1)</f>"
+  },
+  "ROUND": {
+   "call": "ROUND(A1,A1)",
+   "saved": "<f>ROUND(A1,A1)</f>"
+  },
+  "ROUNDDOWN": {
+   "call": "ROUNDDOWN(A1,A1)",
+   "saved": "<f>ROUNDDOWN(A1,A1)</f>"
+  },
+  "ROUNDUP": {
+   "call": "ROUNDUP(A1,A1)",
+   "saved": "<f>ROUNDUP(A1,A1)</f>"
+  },
+  "ROW": {
+   "call": "ROW()",
+   "saved": "<f>ROW()</f>"
+  },
+  "ROWS": {
+   "call": "ROWS(A1)",
+   "saved": "<f>ROWS(A1)</f>"
+  },
+  "RRI": {
+   "call": "RRI(A1,A1,A1)",
+   "saved": "<f>_xlfn.RRI(A1,A1,A1)</f>"
+  },
+  "RSQ": {
+   "call": "RSQ(A1,A1)",
+   "saved": "<f>RSQ(A1,A1)</f>"
+  },
+  "RTD": {
+   "call": "RTD(A1,A1,A1)",
+   "saved": "<f>RTD(A1,A1,A1)</f>"
+  },
+  "SCAN": {
+   "call": "SCAN(A1,A1,A1)",
+   "saved": "<f>_xlfn.SCAN(A1,A1,A1)</f>"
+  },
+  "SEARCH": {
+   "call": "SEARCH(A1,A1)",
+   "saved": "<f>SEARCH(A1,A1)</f>"
+  },
+  "SEARCHB": {
+   "call": "SEARCHB(A1,A1)",
+   "saved": "<f>SEARCHB(A1,A1)</f>"
+  },
+  "SEC": {
+   "call": "SEC(A1)",
+   "saved": "<f>_xlfn.SEC(A1)</f>"
+  },
+  "SECH": {
+   "call": "SECH(A1)",
+   "saved": "<f>_xlfn.SECH(A1)</f>"
+  },
+  "SECOND": {
+   "call": "SECOND(A1)",
+   "saved": "<f>SECOND(A1)</f>"
+  },
+  "SEQUENCE": {
+   "call": "SEQUENCE(A1)",
+   "saved": "<f>_xlfn.SEQUENCE(A1)</f>"
+  },
+  "SERIESSUM": {
+   "call": "SERIESSUM(A1,A1,A1,A1)",
+   "saved": "<f>SERIESSUM(A1,A1,A1,A1)</f>"
+  },
+  "SHEET": {
+   "call": "SHEET()",
+   "saved": "<f ca=\"1\">_xlfn.SHEET()</f>"
+  },
+  "SHEETS": {
+   "call": "SHEETS()",
+   "saved": "<f ca=\"1\">_xlfn.SHEETS()</f>"
+  },
+  "SIGN": {
+   "call": "SIGN(A1)",
+   "saved": "<f>SIGN(A1)</f>"
+  },
+  "SIN": {
+   "call": "SIN(A1)",
+   "saved": "<f>SIN(A1)</f>"
+  },
+  "SINGLE": {
+   "call": "SINGLE(A1)",
+   "saved": "<f>_xlfn.SINGLE(A1)</f>"
+  },
+  "SINH": {
+   "call": "SINH(A1)",
+   "saved": "<f>SINH(A1)</f>"
+  },
+  "SKEW": {
+   "call": "SKEW(A1)",
+   "saved": "<f>SKEW(A1)</f>"
+  },
+  "SKEW.P": {
+   "call": "SKEW.P(A1)",
+   "saved": "<f>_xlfn.SKEW.P(A1)</f>"
+  },
+  "SLN": {
+   "call": "SLN(A1,A1,A1)",
+   "saved": "<f>SLN(A1,A1,A1)</f>"
+  },
+  "SLOPE": {
+   "call": "SLOPE(A1,A1)",
+   "saved": "<f>SLOPE(A1,A1)</f>"
+  },
+  "SMALL": {
+   "call": "SMALL(A1,A1)",
+   "saved": "<f>SMALL(A1,A1)</f>"
+  },
+  "SORT": {
+   "call": "SORT(A1)",
+   "saved": "<f>_xlfn._xlws.SORT(A1)</f>"
+  },
+  "SORTBY": {
+   "call": "SORTBY(A1,A1)",
+   "saved": "<f>_xlfn.SORTBY(A1,A1)</f>"
+  },
+  "SQRT": {
+   "call": "SQRT(A1)",
+   "saved": "<f>SQRT(A1)</f>"
+  },
+  "SQRTPI": {
+   "call": "SQRTPI(A1)",
+   "saved": "<f>SQRTPI(A1)</f>"
+  },
+  "STANDARDIZE": {
+   "call": "STANDARDIZE(A1,A1,A1)",
+   "saved": "<f>STANDARDIZE(A1,A1,A1)</f>"
+  },
+  "STDEV": {
+   "call": "STDEV(A1)",
+   "saved": "<f>STDEV(A1)</f>"
+  },
+  "STDEV.P": {
+   "call": "STDEV.P(A1)",
+   "saved": "<f>_xlfn.STDEV.P(A1)</f>"
+  },
+  "STDEV.S": {
+   "call": "STDEV.S(A1)",
+   "saved": "<f>_xlfn.STDEV.S(A1)</f>"
+  },
+  "STDEVA": {
+   "call": "STDEVA(A1)",
+   "saved": "<f>STDEVA(A1)</f>"
+  },
+  "STDEVP": {
+   "call": "STDEVP(A1)",
+   "saved": "<f>STDEVP(A1)</f>"
+  },
+  "STDEVPA": {
+   "call": "STDEVPA(A1)",
+   "saved": "<f>STDEVPA(A1)</f>"
+  },
+  "STEYX": {
+   "call": "STEYX(A1,A1)",
+   "saved": "<f>STEYX(A1,A1)</f>"
+  },
+  "STOCKHISTORY": {
+   "call": "STOCKHISTORY(A1,A1)",
+   "saved": "<f>_xlfn.STOCKHISTORY(A1,A1)</f>"
+  },
+  "SUBSTITUTE": {
+   "call": "SUBSTITUTE(A1,A1,A1)",
+   "saved": "<f>SUBSTITUTE(A1,A1,A1)</f>"
+  },
+  "SUBTOTAL": {
+   "call": "SUBTOTAL(A1,A1)",
+   "saved": "<f>SUBTOTAL(A1,A1)</f>"
+  },
+  "SUM": {
+   "call": "SUM(A1)",
+   "saved": "<f>SUM(A1)</f>"
+  },
+  "SUMIF": {
+   "call": "SUMIF(A1,A1)",
+   "saved": "<f>SUMIF(A1,A1)</f>"
+  },
+  "SUMIFS": {
+   "call": "SUMIFS(A1,A1,A1)",
+   "saved": "<f>SUMIFS(A1,A1,A1)</f>"
+  },
+  "SUMPRODUCT": {
+   "call": "SUMPRODUCT(A1)",
+   "saved": "<f>SUMPRODUCT(A1)</f>"
+  },
+  "SUMSQ": {
+   "call": "SUMSQ(A1)",
+   "saved": "<f>SUMSQ(A1)</f>"
+  },
+  "SUMX2MY2": {
+   "call": "SUMX2MY2(A1,A1)",
+   "saved": "<f>SUMX2MY2(A1,A1)</f>"
+  },
+  "SUMX2PY2": {
+   "call": "SUMX2PY2(A1,A1)",
+   "saved": "<f>SUMX2PY2(A1,A1)</f>"
+  },
+  "SUMXMY2": {
+   "call": "SUMXMY2(A1,A1)",
+   "saved": "<f>SUMXMY2(A1,A1)</f>"
+  },
+  "SWITCH": {
+   "call": "SWITCH(A1,A1,A1)",
+   "saved": "<f>_xlfn.SWITCH(A1,A1,A1)</f>"
+  },
+  "SYD": {
+   "call": "SYD(A1,A1,A1,A1)",
+   "saved": "<f>SYD(A1,A1,A1,A1)</f>"
+  },
+  "T": {
+   "call": "T(A1)",
+   "saved": "<f>T(A1)</f>"
+  },
+  "T.DIST": {
+   "call": "T.DIST(A1,A1,A1)",
+   "saved": "<f>_xlfn.T.DIST(A1,A1,A1)</f>"
+  },
+  "T.DIST.2T": {
+   "call": "T.DIST.2T(A1,A1)",
+   "saved": "<f>_xlfn.T.DIST.2T(A1,A1)</f>"
+  },
+  "T.DIST.RT": {
+   "call": "T.DIST.RT(A1,A1)",
+   "saved": "<f>_xlfn.T.DIST.RT(A1,A1)</f>"
+  },
+  "T.INV": {
+   "call": "T.INV(A1,A1)",
+   "saved": "<f>_xlfn.T.INV(A1,A1)</f>"
+  },
+  "T.INV.2T": {
+   "call": "T.INV.2T(A1,A1)",
+   "saved": "<f>_xlfn.T.INV.2T(A1,A1)</f>"
+  },
+  "T.TEST": {
+   "call": "T.TEST(A1,A1,A1,A1)",
+   "saved": "<f>_xlfn.T.TEST(A1,A1,A1,A1)</f>"
+  },
+  "TAKE": {
+   "call": "TAKE(A1,A1)",
+   "saved": "<f>_xlfn.TAKE(A1,A1)</f>"
+  },
+  "TAN": {
+   "call": "TAN(A1)",
+   "saved": "<f>TAN(A1)</f>"
+  },
+  "TANH": {
+   "call": "TANH(A1)",
+   "saved": "<f>TANH(A1)</f>"
+  },
+  "TBILLEQ": {
+   "call": "TBILLEQ(A1,A1,A1)",
+   "saved": "<f>TBILLEQ(A1,A1,A1)</f>"
+  },
+  "TBILLPRICE": {
+   "call": "TBILLPRICE(A1,A1,A1)",
+   "saved": "<f>TBILLPRICE(A1,A1,A1)</f>"
+  },
+  "TBILLYIELD": {
+   "call": "TBILLYIELD(A1,A1,A1)",
+   "saved": "<f>TBILLYIELD(A1,A1,A1)</f>"
+  },
+  "TDIST": {
+   "call": "TDIST(A1,A1,A1)",
+   "saved": "<f>TDIST(A1,A1,A1)</f>"
+  },
+  "TEXT": {
+   "call": "TEXT(A1,A1)",
+   "saved": "<f>TEXT(A1,A1)</f>"
+  },
+  "TEXTAFTER": {
+   "call": "TEXTAFTER(A1,A1)",
+   "saved": "<f>_xlfn.TEXTAFTER(A1,A1)</f>"
+  },
+  "TEXTBEFORE": {
+   "call": "TEXTBEFORE(A1,A1)",
+   "saved": "<f>_xlfn.TEXTBEFORE(A1,A1)</f>"
+  },
+  "TEXTJOIN": {
+   "call": "TEXTJOIN(A1,A1,A1)",
+   "saved": "<f>_xlfn.TEXTJOIN(A1,A1,A1)</f>"
+  },
+  "TEXTSPLIT": {
+   "call": "TEXTSPLIT(A1,A1)",
+   "saved": "<f>_xlfn.TEXTSPLIT(A1,A1)</f>"
+  },
+  "TIME": {
+   "call": "TIME(A1,A1,A1)",
+   "saved": "<f>TIME(A1,A1,A1)</f>"
+  },
+  "TIMEVALUE": {
+   "call": "TIMEVALUE(A1)",
+   "saved": "<f>TIMEVALUE(A1)</f>"
+  },
+  "TINV": {
+   "call": "TINV(A1,A1)",
+   "saved": "<f>TINV(A1,A1)</f>"
+  },
+  "TOCOL": {
+   "call": "TOCOL(A1)",
+   "saved": "<f>_xlfn.TOCOL(A1)</f>"
+  },
+  "TODAY": {
+   "call": "TODAY()",
+   "saved": "<f ca=\"1\">TODAY()</f>"
+  },
+  "TOROW": {
+   "call": "TOROW(A1)",
+   "saved": "<f>_xlfn.TOROW(A1)</f>"
+  },
+  "TRANSLATE": {
+   "call": "TRANSLATE(A1)",
+   "saved": "<f ca=\"1\">_xlfn.TRANSLATE(A1)</f>"
+  },
+  "TRANSPOSE": {
+   "call": "TRANSPOSE(A1)",
+   "saved": "<f>TRANSPOSE(A1)</f>"
+  },
+  "TREND": {
+   "call": "TREND(A1)",
+   "saved": "<f>TREND(A1)</f>"
+  },
+  "TRIM": {
+   "call": "TRIM(A1)",
+   "saved": "<f>TRIM(A1)</f>"
+  },
+  "TRIMMEAN": {
+   "call": "TRIMMEAN(A1,A1)",
+   "saved": "<f>TRIMMEAN(A1,A1)</f>"
+  },
+  "TRIMRANGE": {
+   "call": "TRIMRANGE(A1)",
+   "saved": "<f>_xlfn.TRIMRANGE(A1)</f>"
+  },
+  "TRUE": {
+   "call": "TRUE()",
+   "saved": "<f>TRUE()</f>"
+  },
+  "TRUNC": {
+   "call": "TRUNC(A1)",
+   "saved": "<f>TRUNC(A1)</f>"
+  },
+  "TTEST": {
+   "call": "TTEST(A1,A1,A1,A1)",
+   "saved": "<f>TTEST(A1,A1,A1,A1)</f>"
+  },
+  "TYPE": {
+   "call": "TYPE(A1)",
+   "saved": "<f>TYPE(A1)</f>"
+  },
+  "UNICHAR": {
+   "call": "UNICHAR(A1)",
+   "saved": "<f>_xlfn.UNICHAR(A1)</f>"
+  },
+  "UNICODE": {
+   "call": "UNICODE(A1)",
+   "saved": "<f>_xlfn.UNICODE(A1)</f>"
+  },
+  "UNIQUE": {
+   "call": "UNIQUE(A1)",
+   "saved": "<f>_xlfn.UNIQUE(A1)</f>"
+  },
+  "UPPER": {
+   "call": "UPPER(A1)",
+   "saved": "<f>UPPER(A1)</f>"
+  },
+  "USDOLLAR": {
+   "call": "USDOLLAR(A1)",
+   "saved": "<f>USDOLLAR(A1)</f>"
+  },
+  "VALUE": {
+   "call": "VALUE(A1)",
+   "saved": "<f>VALUE(A1)</f>"
+  },
+  "VALUETOTEXT": {
+   "call": "VALUETOTEXT(A1)",
+   "saved": "<f>_xlfn.VALUETOTEXT(A1)</f>"
+  },
+  "VAR": {
+   "call": "VAR(A1)",
+   "saved": "<f>VAR(A1)</f>"
+  },
+  "VAR.P": {
+   "call": "VAR.P(A1)",
+   "saved": "<f>_xlfn.VAR.P(A1)</f>"
+  },
+  "VAR.S": {
+   "call": "VAR.S(A1)",
+   "saved": "<f>_xlfn.VAR.S(A1)</f>"
+  },
+  "VARA": {
+   "call": "VARA(A1)",
+   "saved": "<f>VARA(A1)</f>"
+  },
+  "VARP": {
+   "call": "VARP(A1)",
+   "saved": "<f>VARP(A1)</f>"
+  },
+  "VARPA": {
+   "call": "VARPA(A1)",
+   "saved": "<f>VARPA(A1)</f>"
+  },
+  "VDB": {
+   "call": "VDB(A1,A1,A1,A1,A1)",
+   "saved": "<f>VDB(A1,A1,A1,A1,A1)</f>"
+  },
+  "VLOOKUP": {
+   "call": "VLOOKUP(A1,A1,A1)",
+   "saved": "<f>VLOOKUP(A1,A1,A1)</f>"
+  },
+  "VSTACK": {
+   "call": "VSTACK(A1)",
+   "saved": "<f>_xlfn.VSTACK(A1)</f>"
+  },
+  "WEBSERVICE": {
+   "call": "WEBSERVICE(A1)",
+   "saved": "<f>_xlfn.WEBSERVICE(A1)</f>"
+  },
+  "WEEKDAY": {
+   "call": "WEEKDAY(A1)",
+   "saved": "<f>WEEKDAY(A1)</f>"
+  },
+  "WEEKNUM": {
+   "call": "WEEKNUM(A1)",
+   "saved": "<f>WEEKNUM(A1)</f>"
+  },
+  "WEIBULL": {
+   "call": "WEIBULL(A1,A1,A1,A1)",
+   "saved": "<f>WEIBULL(A1,A1,A1,A1)</f>"
+  },
+  "WEIBULL.DIST": {
+   "call": "WEIBULL.DIST(A1,A1,A1,A1)",
+   "saved": "<f>_xlfn.WEIBULL.DIST(A1,A1,A1,A1)</f>"
+  },
+  "WORKDAY": {
+   "call": "WORKDAY(A1,A1)",
+   "saved": "<f>WORKDAY(A1,A1)</f>"
+  },
+  "WORKDAY.INTL": {
+   "call": "WORKDAY.INTL(A1,A1)",
+   "saved": "<f>WORKDAY.INTL(A1,A1)</f>"
+  },
+  "WRAPCOLS": {
+   "call": "WRAPCOLS(A1,A1)",
+   "saved": "<f>_xlfn.WRAPCOLS(A1,A1)</f>"
+  },
+  "WRAPROWS": {
+   "call": "WRAPROWS(A1,A1)",
+   "saved": "<f>_xlfn.WRAPROWS(A1,A1)</f>"
+  },
+  "XIRR": {
+   "call": "XIRR(A1,A1)",
+   "saved": "<f>XIRR(A1,A1)</f>"
+  },
+  "XLOOKUP": {
+   "call": "XLOOKUP(A1,A1,A1)",
+   "saved": "<f>_xlfn.XLOOKUP(A1,A1,A1)</f>"
+  },
+  "XMATCH": {
+   "call": "XMATCH(A1,A1)",
+   "saved": "<f>_xlfn.XMATCH(A1,A1)</f>"
+  },
+  "XNPV": {
+   "call": "XNPV(A1,A1,A1)",
+   "saved": "<f>XNPV(A1,A1,A1)</f>"
+  },
+  "XOR": {
+   "call": "XOR(A1)",
+   "saved": "<f>_xlfn.XOR(A1)</f>"
+  },
+  "YEAR": {
+   "call": "YEAR(A1)",
+   "saved": "<f>YEAR(A1)</f>"
+  },
+  "YEARFRAC": {
+   "call": "YEARFRAC(A1,A1)",
+   "saved": "<f>YEARFRAC(A1,A1)</f>"
+  },
+  "YIELD": {
+   "call": "YIELD(A1,A1,A1,A1,A1,A1)",
+   "saved": "<f>YIELD(A1,A1,A1,A1,A1,A1)</f>"
+  },
+  "YIELDDISC": {
+   "call": "YIELDDISC(A1,A1,A1,A1)",
+   "saved": "<f>YIELDDISC(A1,A1,A1,A1)</f>"
+  },
+  "YIELDMAT": {
+   "call": "YIELDMAT(A1,A1,A1,A1,A1)",
+   "saved": "<f>YIELDMAT(A1,A1,A1,A1,A1)</f>"
+  },
+  "Z.TEST": {
+   "call": "Z.TEST(A1,A1)",
+   "saved": "<f>_xlfn.Z.TEST(A1,A1)</f>"
+  },
+  "ZTEST": {
+   "call": "ZTEST(A1,A1)",
+   "saved": "<f>ZTEST(A1,A1)</f>"
+  }
+ },
+ "volatile": {
+  "udf": "Public Function MyUdf(x As Variant) As Variant\n    MyUdf = x\nEnd Function\n",
+  "writes": "ws.Range(\"A1:B3\").Value = 1\nws.Range(\"C1:C3\").Formula = \"=NOW()+A1\"\nws.Range(\"D1:D3\").Formula = \"=A1*2\"\nws.Range(\"E1:E2\").FormulaArray = \"=RAND()+A1:A2\"\nws.Range(\"F1\").FormulaArray = \"=SUM(OFFSET(A1,0,0,2,1))\"\nws.Range(\"G1:G2\").FormulaArray = \"=OFFSET(A1,0,0,2,1)\"\nws.Range(\"H1:H2\").FormulaArray = \"=RAND()+NOW()\"\nws.Range(\"I1\").Formula = \"=MyUdf(1)\"\nws.Range(\"I2\").Formula = \"=SUM(A1,MyUdf(2))\"\nws.Range(\"I3\").Formula = \"=SUM(A1:A3,INDIRECT(\"\"A1\"\"))\"\nws.Range(\"J1:J3\").Formula = \"=MyUdf(A1)\"\nws.Range(\"K1\").Formula = \"=NOTAFUNCTION(1)\"\nws.Range(\"K2\").Formula = \"=INFO(\"\"numfile\"\")\"\nws.Range(\"K3\").FormulaArray = \"=RANDBETWEEN(1,9)\"\nws.Range(\"L1\").Formula = \"=LET(f,LAMBDA(x,x+1),f(2))\"\nws.Range(\"L2\").Formula = \"=LET(x,1,LET(y,x+1,x+y))\"\nThisWorkbook.Names.Add \"Twice\", \"=LAMBDA(x,x*2)\"\nws.Range(\"L3\").Formula = \"=Twice(5)\"\nws.Range(\"M1\").Formula = \"=SUM(A1:A3 (A1:B1))\"\nws.Range(\"M2\").Formula = \"=LET(x,{1,2},SUM(x))\"\nws.Range(\"M3\").Formula = \"=MAP(A1:A2,LAMBDA(a,LET(b,a*2,b+a)))\"\n",
+  "cells": {
+   "C1": "<f t=\"shared\" ref=\"C1:C3\" ca=\"1\" si=\"0\">NOW()+A1</f>",
+   "D1": "<f t=\"shared\" ref=\"D1:D3\" si=\"1\">A1*2</f>",
+   "E1": "<f t=\"array\" ref=\"E1:E2\" ca=\"1\">RAND()+A1:A2</f>",
+   "F1": "<f t=\"array\" aca=\"1\" ref=\"F1\" ca=\"1\">SUM(OFFSET(A1,0,0,2,1))</f>",
+   "G1": "<f t=\"array\" aca=\"1\" ref=\"G1:G2\" ca=\"1\">OFFSET(A1,0,0,2,1)</f>",
+   "H1": "<f t=\"array\" ref=\"H1:H2\" ca=\"1\">RAND()+NOW()</f>",
+   "I1": "<f>MyUdf(1)</f>",
+   "J1": "<f t=\"shared\" ref=\"J1:J3\" si=\"2\">MyUdf(A1)</f>",
+   "K1": "<f ca=\"1\">NOTAFUNCTION(1)</f>",
+   "L1": "<f>_xlfn.LET(_xlpm.f,_xlfn.LAMBDA(_xlpm.x,_xlpm.x+1),_xlpm.f(2))</f>",
+   "M1": "<f>SUM(A1:A3 (A1:B1))</f>",
+   "C2": "<f t=\"shared\" ca=\"1\" si=\"0\"/>",
+   "D2": "<f t=\"shared\" si=\"1\"/>",
+   "E2": "<f ca=\"1\"/>",
+   "G2": "<f ca=\"1\"/>",
+   "H2": "<f ca=\"1\"/>",
+   "I2": "<f>SUM(A1,MyUdf(2))</f>",
+   "J2": "<f t=\"shared\" si=\"2\"/>",
+   "K2": "<f ca=\"1\">INFO(\"numfile\")</f>",
+   "L2": "<f>_xlfn.LET(_xlpm.x,1,_xlfn.LET(_xlpm.y,_xlpm.x+1,_xlpm.x+_xlpm.y))</f>",
+   "M2": "<f>_xlfn.LET(_xlpm.x,{1,2},SUM(_xlpm.x))</f>",
+   "C3": "<f t=\"shared\" ca=\"1\" si=\"0\"/>",
+   "D3": "<f t=\"shared\" si=\"1\"/>",
+   "I3": "<f ca=\"1\">SUM(A1:A3,INDIRECT(\"A1\"))</f>",
+   "J3": "<f t=\"shared\" si=\"2\"/>",
+   "K3": "<f t=\"array\" aca=\"1\" ref=\"K3\" ca=\"1\">RANDBETWEEN(1,9)</f>",
+   "L3": "<f>Twice(5)</f>",
+   "M3": "<f>_xlfn.MAP(A1:A2,_xlfn.LAMBDA(_xlpm.a,_xlfn.LET(_xlpm.b,_xlpm.a*2,_xlpm.b+_xlpm.a)))</f>"
+  },
+  "names": {
+   "_xlpm.a": "#NAME?",
+   "_xlpm.b": "#NAME?",
+   "_xlpm.f": "#NAME?",
+   "_xlpm.x": "#NAME?",
+   "_xlpm.y": "#NAME?",
+   "Twice": "_xlfn.LAMBDA(_xlpm.x,_xlpm.x*2)"
+  }
+ }
+}

@@ -15,18 +15,20 @@ from __future__ import annotations
 
 import posixpath
 import re
-from collections.abc import Collection
+from collections.abc import Callable, Collection
 from functools import lru_cache
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from pyopenvba._a1 import Area, column_letter, column_number, parse_area, parse_reference
+from pyopenvba._a1 import Area, column_letter, column_number, parse_area, parse_reference, split_sheet
 from pyopenvba._xml import attributes as _attributes
 from pyopenvba._xml import escape as _escape
 from pyopenvba._xml import escape_text as _escape_text
 from pyopenvba._xml import tag_attributes as _tag_attributes
 from pyopenvba._xml import unescape as _unescape
 from pyopenvba.exceptions import PyOpenVBAError
+from pyopenvba.formula import _prefixes as prefixes
+from pyopenvba.formula._prefixes import calculated_always
 from pyopenvba.formula._structured import from_file, in_file
 from pyopenvba.interpreter._values import EMPTY, VBADate, to_text
 from pyopenvba.powerquery._opc import OpcFile
@@ -1267,10 +1269,16 @@ def _patched_sheet(sheet: Worksheet, original: str, package: OpcFile) -> str:
     def spell(text: str) -> str:
         return _formula_xml(text, tables)
 
-    formulas = formula_elements(sheet, spell) | elements(sheet, spell)
+    knows = _knows(sheet.book)
+
+    def always(formula: str) -> bool:
+        return calculated_always(formula, knows)
+
+    formulas = formula_elements(sheet, spell, always) | elements(sheet, spell, always)
     for position, cell in sheet.cells_.items():
         if cell.formula and position not in formulas:
-            formulas[position] = f"<f>{spell(cell.formula[1:])}</f>"
+            volatile = ' ca="1"' if always(cell.formula) else ""
+            formulas[position] = f"<f{volatile}>{spell(cell.formula[1:])}</f>"
     for row in set(rows) | set(by_row):
         rows[row] = _row_with_cells(rows.get(row, f'<row r="{row}"></row>'), row, by_row.get(row, []), stylesheet,
                                     formulas)
@@ -1420,9 +1428,28 @@ def _cell_xml(reference: str, cell: Cell, style: str, formula: str | None = None
         element = formula or f"<f>{_formula_xml(cell.formula[1:], ())}</f>"
         return f'<c r="{reference}"{attributes}{kind}>{element}{body}</c>'
     kind, body = _value_body(cell.value)
+    if formula is not None:
+        # Another cell of an array formula worked out whenever anything changes: <f ca="1"/> beside its value.
+        return f'<c r="{reference}"{attributes}{kind}>{formula}{body}</c>'
     if not body:
         return f'<c r="{reference}"{attributes}/>'
     return f'<c r="{reference}"{attributes}{kind}>{body}</c>'
+
+
+def _knows(book: Workbook) -> Callable[[str], bool]:
+    """Whether a workbook has a name a formula calls: a defined name, or a Function of a macro's module."""
+    names = {split_sheet(entry.name)[1].lower() for entry in book.names_.entries}
+    interpreter = book.application.interpreter
+
+    def knows(name: str) -> bool:
+        if name.lower() in names:
+            return True
+        if interpreter is None or "." in name:
+            return False
+        found, _ = interpreter.find_procedure(name)
+        return found is not None and found.kind == "function"
+
+    return knows
 
 
 def _calculated(book: Workbook) -> None:
@@ -1445,15 +1472,17 @@ def _calculated(book: Workbook) -> None:
 
 def _formula_xml(text: str, tables: Collection[str]) -> str:
     """A formula, without its =, as a file spells it between <f> tags: structured references as a file has them
-    (pyopenvba.formula._structured.in_file), a line break as Excel writes one there, CR LF, and a carriage
-    return on its own as _x000D_ (tests/fixtures/structured_references/)."""
-    return _escape_text(in_file("=" + text, tables)[1:]).replace("\r", "_x000D_").replace("\n", "\r\n")
+    (pyopenvba.formula._structured.in_file), a newer function and a name a LET binds with their prefixes
+    (pyopenvba.formula._prefixes), a line break as Excel writes one there, CR LF, and a carriage return on its own
+    as _x000D_ (tests/fixtures/structured_references/)."""
+    spelled = prefixes.in_file(in_file("=" + text, tables))
+    return _escape_text(spelled[1:]).replace("\r", "_x000D_").replace("\n", "\r\n")
 
 
 def _formula_read(body: str) -> str:
     """A formula a file spells between <f> tags, or in a defined name, as Range.Formula spells it."""
     text = _unescape(body).replace("\r\n", "\n")
-    return from_file("=" + re.sub(r"_x000[dD]_", "\r", text))
+    return prefixes.from_file(from_file("=" + re.sub(r"_x000[dD]_", "\r", text)))
 
 
 def _formula_value(cell: Cell) -> tuple[str, str]:
@@ -1581,7 +1610,7 @@ def _write_names(book: Workbook, package: OpcFile) -> None:
         if entry.comment:
             owned["comment"] = entry.comment
         attributes = " ".join(f'{key}="{_escape(value)}"' for key, value in owned.items())
-        refers_to = in_file(entry.refers_to, tables)
+        refers_to = prefixes.in_file(in_file(entry.refers_to, tables))
         written.append((_name_order(book, owned["name"], owned.get("localSheetId")),
                         f"<definedName {attributes}>{_escape(refers_to.lstrip('='))}</definedName>"))
     # Excel writes its names in the Name Manager's order: by name as it shows there, ignoring case, and

@@ -1292,6 +1292,19 @@ cleared leaves the group while the block stays; inserting and deleting
 rows and columns move the block as they move a reference. Reading such
 a file gives every cell of the block its own formula to work out.
 
+A formula in the file names a function newer than Excel 2007 as Excel
+does, `_xlfn.XLOOKUP`, FILTER and SORT as `_xlfn._xlws.FILTER`, and each
+name a LET or a LAMBDA binds as `_xlpm.x`
+(`tests/fixtures/formula_prefixes/`, a call of 517 of Excel's 525
+functions and 44 formulas Excel saved); which functions take `_xlfn.` is
+Excel's own list, not the year they came. A formula Excel works out
+whenever anything changes, NOW, OFFSET or INDIRECT in it, or a function
+neither Excel nor the workbook has, is saved `ca="1"`, and an array
+formula `aca="1"` too unless it covers several cells and calls RAND.
+Range.Formula reads each back without the prefixes. Excel also keeps a
+hidden `_xlpm.x` name for each bound name in a workbook saved with its
+macros, which the model does not write.
+
 ## What is not
 
 - **Formulas do not spill.** An array result lands in the one cell

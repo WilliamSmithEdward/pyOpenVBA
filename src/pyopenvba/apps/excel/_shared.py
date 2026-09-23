@@ -43,13 +43,16 @@ def group(sheet: Worksheet, area: Area, cells: list[Cell]) -> None:
         cell.shared = key
 
 
-def formula_elements(sheet: Worksheet, escape: Callable[[str], str]) -> dict[tuple[int, int], str]:
+def formula_elements(sheet: Worksheet, escape: Callable[[str], str],
+                     always: Callable[[str], bool]) -> dict[tuple[int, int], str]:
     """The ``<f>`` element of each cell a save writes as part of a shared formula, by position.
 
     A group's first cell with a formula, in row order, carries the formula
     and the block; a later cell is written as the group's only while its
     formula is still the first one's moved to where it stands, and it lies
     inside the block. Anything else is written as a formula of its own.
+    Every cell of a group whose formula ``always`` works out whenever
+    anything changes is ca="1" (tests/fixtures/formula_prefixes/).
     """
     members: dict[int, list[tuple[int, int, Cell]]] = {}
     for (row, column), cell in sorted(sheet.cells_.items()):
@@ -63,10 +66,11 @@ def formula_elements(sheet: Worksheet, escape: Callable[[str], str]) -> dict[tup
     for index, (key, cells) in enumerate(sorted(members.items(), key=lambda item: item[1][0][:2])):
         top, left, first = cells[0]
         block = sheet.shared_groups[key].address(absolute=False)
-        out[(top, left)] = f'<f t="shared" ref="{block}" si="{index}">{escape(first.formula[1:])}</f>'
+        volatile = ' ca="1"' if always(first.formula) else ""
+        out[(top, left)] = f'<f t="shared" ref="{block}"{volatile} si="{index}">{escape(first.formula[1:])}</f>'
         for row, column, cell in cells[1:]:
             if shift_text(first.formula, row - top, column - left) == cell.formula:
-                out[(row, column)] = f'<f t="shared" si="{index}"/>'
+                out[(row, column)] = f'<f t="shared"{volatile} si="{index}"/>'
     return out
 
 

@@ -56,9 +56,13 @@ _VOLATILE = frozenset({"NOW", "TODAY", "RAND", "RANDBETWEEN", "RANDARRAY", "OFFS
                        "SUBTOTAL"})
 #: One side of a reference that names its cells outright: $A$1, a whole column $A or a whole row $1.
 _ABSOLUTE = re.compile(r"\$[A-Za-z]{1,3}(?:\$[0-9]+)?|\$[0-9]+")
-#: VBA's CVErr numbers for Excel's errors.
-_ERROR_NAMES = {2000: "#NULL!", 2007: "#DIV/0!", 2015: "#VALUE!", 2023: "#REF!", 2029: "#NAME?", 2036: "#NUM!",
-                2042: "#N/A"}
+#: VBA's CVErr numbers for the errors a cell holds, and what it answers when VBA asks a cell holding one for its
+#: Value. A cell takes CVErr of these numbers and refuses any other with error 1004 (tests/fixtures/excel_model/).
+ERROR_NUMBERS: dict[str, int] = {"#NULL!": 2000, "#DIV/0!": 2007, "#VALUE!": 2015, "#REF!": 2023, "#NAME?": 2029,
+                                 "#NUM!": 2036, "#N/A": 2042, "#GETTING_DATA": 2043, "#SPILL!": 2045,
+                                 "#CONNECT!": 2046, "#BLOCKED!": 2047, "#UNKNOWN!": 2048, "#FIELD!": 2049,
+                                 "#CALC!": 2050}
+_ERROR_NAMES = {number: name for name, number in ERROR_NUMBERS.items()}
 
 
 def scalar(value: object) -> Scalar:
@@ -290,4 +294,4 @@ def _check_absolute(text: str) -> None:
             raise VBAUnsupportedError("a defined name whose formula has a relative reference is not implemented")
 
 
-__all__ = ["EngineBook", "model_value", "scalar", "volatile"]
+__all__ = ["ERROR_NUMBERS", "EngineBook", "model_value", "scalar", "volatile"]

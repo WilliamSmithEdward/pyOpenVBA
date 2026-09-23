@@ -484,3 +484,19 @@ Dim c As New Collection: CallByName c, "Add", VbMethod, "x": CallByName c, "Add"
 ;; CallByName(Range("A1"), "Address", VbGet, False, False)
 Range("A1").Value = 5 ;; CallByName(Range("A1"), "Value", VbMethod)
 ;; CallByName(Range("A1"), "Offset", VbGet)
+
+# --- the errors a cell holds by CVErr's number, the newer ones too ---
+Range("A1").Value = CVErr(2042) ;; Range("A1").Formula & "|" & CStr(Range("A1").Value)
+Range("A1").Value = CVErr(2043) ;; Range("A1").Formula & "|" & CStr(Range("A1").Value)
+Range("A1").Value = CVErr(2045) ;; Range("A1").Formula & "|" & CStr(Range("A1").Value)
+Range("A1").Value = CVErr(2046) ;; Range("A1").Formula & "|" & CStr(Range("A1").Value)
+Range("A1").Value = CVErr(2047) ;; Range("A1").Formula & "|" & CStr(Range("A1").Value)
+Range("A1").Value = CVErr(2048) ;; Range("A1").Formula & "|" & CStr(Range("A1").Value)
+Range("A1").Value = CVErr(2049) ;; Range("A1").Formula & "|" & CStr(Range("A1").Value)
+Range("A1").Value = CVErr(2050) ;; Range("A1").Formula & "|" & CStr(Range("A1").Value)
+Range("A1").Value = CVErr(2044) ;; Range("A1").Formula
+Range("A1").Value = CVErr(2051) ;; Range("A1").Formula
+Range("A1").Value = CVErr(2001) ;; Range("A1").Formula
+Range("A1").Value = CVErr(1) ;; Range("A1").Formula
+Range("A1").Formula = "=DROP(1,1)" ;; CStr(Range("A1").Value)
+Range("A1").Formula = "=DROP(1,1)" ;; IsError(Range("A1").Value)

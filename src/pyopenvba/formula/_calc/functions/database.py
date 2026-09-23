@@ -147,6 +147,10 @@ def records(context: Context, database: Value, field: Scalar, criteria: Value) -
     the field was named at all."""
     table = area_of(database)
     wanted = area_of(criteria)
+    if table.height < 2 or wanted.height < 2:
+        # Labels alone are #VALUE!, for the database and for the criteria, where one blank row of criteria under
+        # them selects every record (tests/fixtures/formula/). pyOpenVBA's own (docs/formula_engine.md).
+        raise ExcelError(VALUE)
     book = context.book
     labels = [_label(book.cell(table.sheet, table.top, column)) for column in range(table.left, table.right + 1)]
     column = _field(context, field, labels)

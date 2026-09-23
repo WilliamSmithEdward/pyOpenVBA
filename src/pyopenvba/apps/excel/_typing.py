@@ -52,9 +52,6 @@ from pyopenvba.interpreter._values import EMPTY, VBACurrency, VBADate, VBAErrorV
 
 #: The errors typing turns into error values; #SPILL! and the rest stay text.
 _TYPED_ERRORS = ("#NULL!", "#DIV/0!", "#VALUE!", "#REF!", "#NAME?", "#NUM!", "#N/A")
-#: CVErr's numbers for the errors a cell can hold.
-_ERROR_CODES = {"#NULL!": 2000, "#DIV/0!": 2007, "#VALUE!": 2015, "#REF!": 2023, "#NAME?": 2029, "#NUM!": 2036,
-                "#N/A": 2042}
 _MONTHS = {name: index for index, names in enumerate(
     (("jan", "january"), ("feb", "february"), ("mar", "march"), ("apr", "april"), ("may",), ("jun", "june"),
      ("jul", "july"), ("aug", "august"), ("sep", "september"), ("oct", "october"), ("nov", "november"),
@@ -154,7 +151,12 @@ def _typed(value: object, *, fractions: bool) -> Typed:
     if isinstance(value, (int, float, Decimal)):
         return Typed(float(value))
     if isinstance(value, VBAErrorValue):
-        name = next((name for name, number in _ERROR_CODES.items() if number == value.number), "#VALUE!")
+        from pyopenvba.apps.excel._engine_book import ERROR_NUMBERS
+
+        name = next((name for name, number in ERROR_NUMBERS.items() if number == value.number), None)
+        if name is None:
+            # CVErr of a number no cell error has, CVErr(2044), is refused (tests/fixtures/excel_model/).
+            raise error(1004, "Application-defined or object-defined error")
         return Typed(ERRORS.get(name, ExcelError(name)))
     return Typed(value)
 

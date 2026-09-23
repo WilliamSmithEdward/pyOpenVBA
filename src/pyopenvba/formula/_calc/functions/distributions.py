@@ -1066,7 +1066,9 @@ def _binomial_inverse(context: Context, trials: Scalar, chance: Scalar, alpha: S
     n = _whole(context, trials)
     p = context.number(chance)
     target = context.number(alpha)
-    if n < 0 or not 0 <= p <= 1 or not 0 <= target <= 1:
+    # A chance or an alpha of 0 or 1 is #NUM!, BINOM.INV(1,1,0.5) and BINOM.INV(1,0.5,1) (tests/fixtures/formula/).
+    # pyOpenVBA's own (docs/formula_engine.md).
+    if n < 0 or not 0 < p < 1 or not 0 < target < 1:
         return NUM
     with localcontext(special.CONTEXT):
         total = D(0)

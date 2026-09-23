@@ -198,6 +198,7 @@ def SHEETS(context: Context, value: Value | None = None) -> Value:
 #: What CELL tells about a cell's formatting, which this engine does not
 #: read: those keep the value Excel cached.
 _FORMATTING = frozenset({"color", "format", "parentheses", "prefix", "protect", "width"})
+_KINDS = _FORMATTING | {"address", "col", "contents", "filename", "row", "type"}
 
 
 @function("CELL", V, REF, minimum=1)
@@ -205,7 +206,13 @@ def CELL(context: Context, info: Scalar, reference: Reference | None = None) -> 
     """What CELL tells about a cell: its address, row, column, contents,
     type or file. An address on another sheet names the workbook too, as
     ``[Book1.xlsx]Data!$B$5``, by the name the workbook has now."""
-    kind = context.text(info).lower()
+    if isinstance(info, CellError):
+        return info
+    # An info type that is not one of the words, a number or TRUE included, is #VALUE! before any cell is read:
+    # CELL(1) (tests/fixtures/formula/). pyOpenVBA's own (docs/formula_engine.md).
+    kind = info.lower() if isinstance(info, str) else ""
+    if kind not in _KINDS:
+        return VALUE
     if reference is None:
         raise UnsupportedFormulaError("CELL without a reference, which reads the cell last changed")
     if kind in _FORMATTING:

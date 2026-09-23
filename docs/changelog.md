@@ -658,8 +658,21 @@ All notable changes to pyOpenVBA are documented here. This project follows
 - A `+` before a reference reads its cells as values, as Excel does:
   `ISREF(+A1)` is FALSE, `=+A1:A3` is the cell in the formula's row, and
   `COUNTIF(+A1:A3,1)` is refused.
-- BINOM.DIST, BINOMDIST, BINOM.DIST.RANGE, BINOM.INV and CRITBINOM with a
-  chance of 1 or 0 work out; the engine failed on 0 to the power 0.
+- BINOM.DIST, BINOMDIST and BINOM.DIST.RANGE with a chance of 1 or 0 work
+  out; the engine failed on 0 to the power 0. BINOM.INV and CRITBINOM with
+  a chance or an alpha of 0 or 1 are #NUM!, as in Excel.
+- The database functions over labels alone, a database or criteria of one
+  row, are #VALUE! as in Excel; they answered 0. ACCRINTM settled the day
+  it is issued is 0, CELL with an info type that is not one of its words,
+  `CELL(1)`, is #VALUE! rather than unsupported, and XIRR of one payment
+  is #N/A. 38 formulas measured in live Excel pin these.
+- A cell holding #CALC!, #SPILL!, #FIELD!, #GETTING_DATA, #CONNECT!,
+  #BLOCKED! or #UNKNOWN! reads in VBA as its own error, `Error 2050` for
+  #CALC!, where the model answered `Error 2015`. `CVErr` of those numbers
+  writes that error, and `CVErr` of a number no cell error has, 2044 or
+  2051, is error 1004 as in Excel; the model wrote #VALUE!.
+- `Range.Formula` refuses `ANCHORARRAY(A1)`, the file's spelling of `A1#`,
+  with error 1004, as Excel does.
 - A Forms control linked to more than one cell, `$H$1:$I$1`, writes its
   top left cell, as Excel does; the model refused the link. A control
   name that comes back to itself gives an empty list, as in Excel, where
@@ -957,9 +970,9 @@ All notable changes to pyOpenVBA are documented here. This project follows
   the copy differs from pyOfficeEditor, and makes it again.
 - `scripts/measure_cells_functions.py` writes each of the engine's
   functions on its own and into COUNTIF's range in live Excel, and
-  `tests/test_formula.py` replays all 493. 20 calls whose values differ
-  from Excel's, most of them with arguments that make no sense, are
-  strict expected failures with their reasons.
+  `tests/test_formula.py` replays all 493. AMORDEGRC and a LAMBDA called
+  where it is written, the two whose answers still differ from Excel's,
+  are strict expected failures with their reasons.
 
 ### Removed
 

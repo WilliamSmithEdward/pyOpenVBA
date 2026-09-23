@@ -24,7 +24,7 @@ from typing import TYPE_CHECKING
 from pyopenvba._a1 import Area
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.apps.excel._arrays import array_at
-from pyopenvba.apps.excel._engine_book import EngineBook, model_value, volatile
+from pyopenvba.apps.excel._engine_book import ERROR_NUMBERS, EngineBook, model_value, volatile
 from pyopenvba.formula._calc.evaluator import Context as EngineContext
 from pyopenvba.formula._calc.lexer import FormulaSyntaxError
 from pyopenvba.formula._calc.nodes import Node
@@ -35,18 +35,6 @@ from pyopenvba.interpreter._values import EMPTY, VBACurrency, VBADate, VBAErrorV
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Cell, Workbook, Worksheet
-
-#: What a cell holding an error answers when VBA asks for its Value.
-#: These are Excel's own CVErr numbers.
-ERROR_NUMBERS: dict[str, int] = {
-    "#NULL!": 2000,
-    "#DIV/0!": 2007,
-    "#VALUE!": 2015,
-    "#REF!": 2023,
-    "#NAME?": 2029,
-    "#NUM!": 2036,
-    "#N/A": 2042,
-}
 
 CellKey = tuple[str, int, int]
 

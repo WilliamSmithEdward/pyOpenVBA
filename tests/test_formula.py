@@ -84,8 +84,18 @@ def evaluate(probe: str) -> str:
 PROBES = read_probes()
 MEASURED = read_measured()
 
+_AMORDEGRC = "Excel's AMORDEGRC has other coefficients and ends an asset's life otherwise, not yet worked out"
+_LAMBDA_CALLED = "the model does not read a LAMBDA called where it is written"
+
 #: Probes the engine does not answer as Excel does yet, and why.
-GAPS: dict[str, str] = {}
+GAPS: dict[str, str] = {
+    "=XIRR({-1,2},{1,2})": "Excel's iteration stops short of a rate as large as 7.5E+109, which the engine's finds; "
+                           "how Excel's stops is not yet worked out",
+    **dict.fromkeys((f"=AMORDEGRC({arguments})" for arguments in (
+        "1,1,1,1,1,1", "1000,1,100,100,1,2", "1000,1,100,100,1,1", "1000,1,100,100,1,0.5", "1000,1,100,100,1,0.4",
+        "1000,1,100,100,1,0.22")), _AMORDEGRC),
+    "=LAMBDA(x,x*2)(5)": _LAMBDA_CALLED,
+}
 
 
 def test_every_probe_was_measured() -> None:
@@ -158,23 +168,8 @@ End Function
 """
 
 
-_ONE_CELL_DATABASE = "a database function over one cell is #VALUE! in Excel"
 #: Functions whose call here is not answered as Excel answers it, and why.
-CELLS_GAPS: dict[str, str] = {
-    "ACCRINTM": "an issue date on the settlement date is answered in Excel and #NUM! here",
-    "AMORDEGRC": "a life of one year is #NUM! in Excel",
-    "ANCHORARRAY": "Excel does not take ANCHORARRAY written as a call, the file's spelling of A1#",
-    "BINOM.INV": "one trial with a chance of 1 and an alpha of 1 is #NUM! in Excel; which of the two it refuses is not "
-                 "measured",
-    "CRITBINOM": "one trial with a chance of 1 and an alpha of 1 is #NUM! in Excel; which of the two it refuses is not "
-                 "measured",
-    "CELL": "an info type that is not text is #VALUE! in Excel before CELL reads a cell",
-    **dict.fromkeys(("DAVERAGE", "DCOUNT", "DCOUNTA", "DMAX", "DMIN", "DPRODUCT", "DSTDEV", "DSTDEVP", "DSUM", "DVAR",
-                     "DVARP"), _ONE_CELL_DATABASE),
-    "DROP": "dropping every row is #CALC! in Excel",
-    "LAMBDA": "the model does not read a LAMBDA called where it is written",
-    "XIRR": "one value on one date is #N/A in Excel",
-}
+CELLS_GAPS: dict[str, str] = {"AMORDEGRC": _AMORDEGRC, "LAMBDA": _LAMBDA_CALLED}
 
 
 @pytest.fixture(scope="module")

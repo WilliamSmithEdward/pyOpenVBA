@@ -29,6 +29,7 @@ from pyopenvba.formula._calc.functions.dates import basis, days_between, serial_
 from pyopenvba.formula._calc.registry import R, V, function
 from pyopenvba.formula._calc.values import (
     DIV0,
+    NA,
     NUM,
     VALUE,
     Array,
@@ -381,6 +382,10 @@ def _newton(
 @function("XIRR", R, R, V, minimum=2)
 def XIRR(context: Context, values: Value, when: Value, guess: Scalar | None = None) -> Value:
     amounts, days = _series(context, values, when)
+    if len(amounts) == 1:
+        # One payment is #N/A, whatever its sign: XIRR(1,1) (tests/fixtures/formula/). pyOpenVBA's own
+        # (docs/formula_engine.md).
+        return NA
     if not (any(amount > 0 for amount in amounts) and any(amount < 0 for amount in amounts)):
         return NUM
     start = _optional(context, guess, 0.1)
@@ -999,7 +1004,9 @@ def ACCRINTM(
     coupon_rate = context.number(rate)
     value = context.number(par)
     kind = basis(context, basis_)
-    if coupon_rate <= 0 or value <= 0 or start >= end:
+    # Settled the day it is issued, it has accrued nothing: ACCRINTM(1,1,1,1) is 0 (tests/fixtures/formula/).
+    # pyOpenVBA's own (docs/formula_engine.md).
+    if coupon_rate <= 0 or value <= 0 or start > end:
         return NUM
     return checked(value * coupon_rate * year_fraction(start, end, kind, epoch_1904=context.epoch_1904))
 

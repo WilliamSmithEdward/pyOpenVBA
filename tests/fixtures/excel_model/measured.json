@@ -442,6 +442,20 @@
   ";; CallByName(Application, \"Name\", VbGet)": "String|Microsoft Excel",
   ";; CallByName(Range(\"A1\"), \"Address\", VbGet, False, False)": "String|A1",
   "Range(\"A1\").Value = 5 ;; CallByName(Range(\"A1\"), \"Value\", VbMethod)": "!438",
-  ";; CallByName(Range(\"A1\"), \"Offset\", VbGet)": "Empty|"
+  ";; CallByName(Range(\"A1\"), \"Offset\", VbGet)": "Empty|",
+  "Range(\"A1\").Value = CVErr(2042) ;; Range(\"A1\").Formula & \"|\" & CStr(Range(\"A1\").Value)": "String|#N/A|Error 2042",
+  "Range(\"A1\").Value = CVErr(2043) ;; Range(\"A1\").Formula & \"|\" & CStr(Range(\"A1\").Value)": "String|#GETTING_DATA|Error 2043",
+  "Range(\"A1\").Value = CVErr(2045) ;; Range(\"A1\").Formula & \"|\" & CStr(Range(\"A1\").Value)": "String|#SPILL!|Error 2045",
+  "Range(\"A1\").Value = CVErr(2046) ;; Range(\"A1\").Formula & \"|\" & CStr(Range(\"A1\").Value)": "String|#CONNECT!|Error 2046",
+  "Range(\"A1\").Value = CVErr(2047) ;; Range(\"A1\").Formula & \"|\" & CStr(Range(\"A1\").Value)": "String|#BLOCKED!|Error 2047",
+  "Range(\"A1\").Value = CVErr(2048) ;; Range(\"A1\").Formula & \"|\" & CStr(Range(\"A1\").Value)": "String|#UNKNOWN!|Error 2048",
+  "Range(\"A1\").Value = CVErr(2049) ;; Range(\"A1\").Formula & \"|\" & CStr(Range(\"A1\").Value)": "String|#FIELD!|Error 2049",
+  "Range(\"A1\").Value = CVErr(2050) ;; Range(\"A1\").Formula & \"|\" & CStr(Range(\"A1\").Value)": "String|#CALC!|Error 2050",
+  "Range(\"A1\").Value = CVErr(2044) ;; Range(\"A1\").Formula": "!1004",
+  "Range(\"A1\").Value = CVErr(2051) ;; Range(\"A1\").Formula": "!1004",
+  "Range(\"A1\").Value = CVErr(2001) ;; Range(\"A1\").Formula": "!1004",
+  "Range(\"A1\").Value = CVErr(1) ;; Range(\"A1\").Formula": "!1004",
+  "Range(\"A1\").Formula = \"=DROP(1,1)\" ;; CStr(Range(\"A1\").Value)": "String|Error 2050",
+  "Range(\"A1\").Formula = \"=DROP(1,1)\" ;; IsError(Range(\"A1\").Value)": "Boolean|True"
  }
 }

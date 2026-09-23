@@ -239,6 +239,9 @@ def _check(node: Node | None) -> None:
     """
     if isinstance(node, Call):
         name = node.name.upper()
+        if name == "ANCHORARRAY":
+            # The file's spelling of A1#, which Excel does not take written as a call (tests/fixtures/formula/).
+            raise FormulaError("ANCHORARRAY is not taken written as a call")
         places = _CELLS.get(name)
         if places is not None and (len(node.args) < _FEWEST.get(name, 0)
                                    or not all(_referring(node.args[index]) for index in places.within(len(node.args)))):

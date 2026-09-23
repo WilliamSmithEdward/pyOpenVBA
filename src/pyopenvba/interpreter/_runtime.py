@@ -1744,13 +1744,17 @@ def vba_constant(name: str) -> object:
     """A constant of the VBA library itself, which every host has.
 
     vbCrLf and vbYes belong to the language rather than to Excel, so
-    they resolve with no host at all.
+    they resolve with no host at all. A whole number is a Long, as an
+    enum's member is however small, unless it is declared an Integer, as
+    the key codes are.
     """
+    from pyopenvba.interpreter._constants_data import INTEGER_CONSTANTS
+
     found = _vba_constants().get(name)
     if found is None:
         return UNRESOLVED
     if isinstance(found, int) and not isinstance(found, bool):
-        return VBAInt(found, "Integer" if -32768 <= found <= 32767 else "Long")
+        return VBAInt(found, "Integer" if name.lower() in INTEGER_CONSTANTS else "Long")
     return found
 
 

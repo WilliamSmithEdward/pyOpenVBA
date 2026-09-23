@@ -32,6 +32,9 @@ CONSTANT_LIBRARIES = ("excel", "vba", "office")
 
 INVENTORY_OUT = ROOT / "src" / "pyopenvba" / "interpreter" / "_inventory_data.py"
 CONSTANTS_OUT = ROOT / "src" / "pyopenvba" / "interpreter" / "_constants_data.py"
+#: VBA's constants read from its own type library (scripts/dump_vba_typelib_constants.py): the dumps leave out
+#: ColorConstants, KeyCodeConstants, SystemColorConstants, VbQueryClose and FormShowConstants.
+VBA_TYPELIB = ROOT / "scripts" / "vba_typelib_constants.json"
 
 
 def load_library(reference: Path, library: str) -> list[dict[str, object]]:
@@ -67,9 +70,15 @@ def build_inventory(reference: Path) -> dict[str, str]:
     return table
 
 
-def build_constants(reference: Path) -> dict[str, dict[str, int | float | str]]:
-    """One table per library, so a Word host does not answer to xlUp."""
+def build_constants(reference: Path) -> tuple[dict[str, dict[str, int | float | str]], set[str]]:
+    """One table per library, so a Word host does not answer to xlUp, and the names declared Integer.
+
+    An enumeration's members are Longs to VBA, however small; a module's
+    constants have the type they are declared with, which the key codes
+    declare Integer (tests/fixtures/vba_semantics).
+    """
     tables: dict[str, dict[str, int | float | str]] = {}
+    integers: set[str] = set()
     for library in CONSTANT_LIBRARIES:
         table: dict[str, int | float | str] = {}
         for type_doc in load_library(reference, library):
@@ -84,8 +93,16 @@ def build_constants(reference: Path) -> dict[str, dict[str, int | float | str]]:
                     continue
                 if isinstance(value, (int, float, str)):
                     table[name] = value
+                    if entry.get("type") == "Integer":
+                        integers.add(name.lower())
         tables[library] = table
-    return tables
+    for group in json.loads(VBA_TYPELIB.read_text(encoding="utf-8"))["groups"].values():
+        for name, entry in group.items():
+            if name not in tables["vba"]:
+                tables["vba"][name] = entry["value"]
+                if entry["type"] == "Integer":
+                    integers.add(name.lower())
+    return tables, integers
 
 
 def write_inventory(table: dict[str, str]) -> None:
@@ -149,7 +166,7 @@ def write_inventory(table: dict[str, str]) -> None:
     INVENTORY_OUT.write_text("\n".join(lines), encoding="utf-8")
 
 
-def write_constants(tables: dict[str, dict[str, int | float | str]]) -> None:
+def write_constants(tables: dict[str, dict[str, int | float | str]], integers: set[str]) -> None:
     lines = [
         '"""Every vb, xl and mso constant, generated from the type libraries.',
         "",
@@ -172,6 +189,10 @@ def write_constants(tables: dict[str, dict[str, int | float | str]]) -> None:
         for key in sorted(table, key=str.lower):
             lines.append(f"    {key!r}: {table[key]!r},")
         lines.extend(["}", ""])
+    lines.extend(["#: The whole-number constants declared Integer, lowercased; every other one is a Long.",
+                  "INTEGER_CONSTANTS: Final[frozenset[str]] = frozenset({"])
+    lines.extend(f"    {name!r}," for name in sorted(integers))
+    lines.extend(["})", ""])
     CONSTANTS_OUT.write_text("\n".join(lines), encoding="utf-8")
 
 
@@ -180,9 +201,9 @@ def main() -> int:
     if not reference.is_dir():
         raise SystemExit(f"pyVBAReference is not at {reference}")
     inventory = build_inventory(reference)
-    constants = build_constants(reference)
+    constants, integers = build_constants(reference)
     write_inventory(inventory)
-    write_constants(constants)
+    write_constants(constants, integers)
     print(f"{len(inventory)} classes -> {INVENTORY_OUT.relative_to(ROOT)} ({INVENTORY_OUT.stat().st_size} bytes)")
     print(f"{len(constants)} constants -> {CONSTANTS_OUT.relative_to(ROOT)} ({CONSTANTS_OUT.stat().st_size} bytes)")
     return 0

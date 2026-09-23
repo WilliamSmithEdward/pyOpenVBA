@@ -119,6 +119,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
   top left. 45 formulas in live Excel pin it. Before, each reported
   itself unsupported. Another function given a union, and a relative
   R1C1 reference in INDIRECT, still do.
+- The constants of VBA's own type library that the reference dumps left
+  out: the colours (`vbRed`), the key codes (`vbKeyReturn`), the system
+  colours (`vbButtonFace`), `vbModeless` and the QueryClose modes.
+  `scripts/dump_vba_typelib_constants.py` reads them from VBE7.DLL.
 - Defined names are written in Excel's order: by name as the Name Manager
   shows it, ignoring case, a sheet's own before the workbook's.
 - `Range.RemoveDuplicates`. A row goes when the columns asked for hold
@@ -486,6 +490,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- A constant is a Long, as VBA holds an enum's member however small:
+  `TypeName(xlUp)` and `TypeName(vbOK)` are `Long`. Only the key codes
+  are declared Integer. The model made every constant that fits an
+  Integer one, so `vbYes * 10000` overflowed.
 - Arithmetic that passes the largest double, as `=1E+300*1E+300` does,
   is `#NUM!`, as in Excel. The model answered infinity.
 - A formula that ends on a `+` or `-` whose answer all but cancels is 0,

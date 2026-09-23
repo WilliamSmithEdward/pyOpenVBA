@@ -201,3 +201,10 @@ Range("zz").Address
 Worksheets("NoSuchSheet").Name
 Range("A1").Resize(0, 1).Address
 ActiveWorkbook.Names("NoSuchName").RefersTo
+
+# --- the type an enum constant has ---
+TypeName(xlUp)
+TypeName(xlCalculationManual)
+TypeName(xlNone)
+TypeName(msoTrue)
+TypeName(xlWorksheet)

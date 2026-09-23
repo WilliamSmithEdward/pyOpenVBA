@@ -1,0 +1,1133 @@
+{
+ "source": "VBE7.DLL",
+ "groups": {
+  "VbVarType": {
+   "vbEmpty": {
+    "value": 0,
+    "type": "Long"
+   },
+   "vbNull": {
+    "value": 1,
+    "type": "Long"
+   },
+   "vbInteger": {
+    "value": 2,
+    "type": "Long"
+   },
+   "vbLong": {
+    "value": 3,
+    "type": "Long"
+   },
+   "vbLongLong": {
+    "value": 20,
+    "type": "Long"
+   },
+   "vbSingle": {
+    "value": 4,
+    "type": "Long"
+   },
+   "vbDouble": {
+    "value": 5,
+    "type": "Long"
+   },
+   "vbCurrency": {
+    "value": 6,
+    "type": "Long"
+   },
+   "vbDate": {
+    "value": 7,
+    "type": "Long"
+   },
+   "vbString": {
+    "value": 8,
+    "type": "Long"
+   },
+   "vbObject": {
+    "value": 9,
+    "type": "Long"
+   },
+   "vbError": {
+    "value": 10,
+    "type": "Long"
+   },
+   "vbBoolean": {
+    "value": 11,
+    "type": "Long"
+   },
+   "vbVariant": {
+    "value": 12,
+    "type": "Long"
+   },
+   "vbDataObject": {
+    "value": 13,
+    "type": "Long"
+   },
+   "vbDecimal": {
+    "value": 14,
+    "type": "Long"
+   },
+   "vbByte": {
+    "value": 17,
+    "type": "Long"
+   },
+   "vbUserDefinedType": {
+    "value": 36,
+    "type": "Long"
+   },
+   "vbArray": {
+    "value": 8192,
+    "type": "Long"
+   }
+  },
+  "VbMsgBoxStyle": {
+   "vbOKOnly": {
+    "value": 0,
+    "type": "Long"
+   },
+   "vbOKCancel": {
+    "value": 1,
+    "type": "Long"
+   },
+   "vbAbortRetryIgnore": {
+    "value": 2,
+    "type": "Long"
+   },
+   "vbYesNoCancel": {
+    "value": 3,
+    "type": "Long"
+   },
+   "vbYesNo": {
+    "value": 4,
+    "type": "Long"
+   },
+   "vbRetryCancel": {
+    "value": 5,
+    "type": "Long"
+   },
+   "vbCritical": {
+    "value": 16,
+    "type": "Long"
+   },
+   "vbQuestion": {
+    "value": 32,
+    "type": "Long"
+   },
+   "vbExclamation": {
+    "value": 48,
+    "type": "Long"
+   },
+   "vbInformation": {
+    "value": 64,
+    "type": "Long"
+   },
+   "vbDefaultButton1": {
+    "value": 0,
+    "type": "Long"
+   },
+   "vbDefaultButton2": {
+    "value": 256,
+    "type": "Long"
+   },
+   "vbDefaultButton3": {
+    "value": 512,
+    "type": "Long"
+   },
+   "vbDefaultButton4": {
+    "value": 768,
+    "type": "Long"
+   },
+   "vbApplicationModal": {
+    "value": 0,
+    "type": "Long"
+   },
+   "vbSystemModal": {
+    "value": 4096,
+    "type": "Long"
+   },
+   "vbMsgBoxHelpButton": {
+    "value": 16384,
+    "type": "Long"
+   },
+   "vbMsgBoxRight": {
+    "value": 524288,
+    "type": "Long"
+   },
+   "vbMsgBoxRtlReading": {
+    "value": 1048576,
+    "type": "Long"
+   },
+   "vbMsgBoxSetForeground": {
+    "value": 65536,
+    "type": "Long"
+   }
+  },
+  "VbMsgBoxResult": {
+   "vbOK": {
+    "value": 1,
+    "type": "Long"
+   },
+   "vbCancel": {
+    "value": 2,
+    "type": "Long"
+   },
+   "vbAbort": {
+    "value": 3,
+    "type": "Long"
+   },
+   "vbRetry": {
+    "value": 4,
+    "type": "Long"
+   },
+   "vbIgnore": {
+    "value": 5,
+    "type": "Long"
+   },
+   "vbYes": {
+    "value": 6,
+    "type": "Long"
+   },
+   "vbNo": {
+    "value": 7,
+    "type": "Long"
+   }
+  },
+  "VbFileAttribute": {
+   "vbNormal": {
+    "value": 0,
+    "type": "Long"
+   },
+   "vbReadOnly": {
+    "value": 1,
+    "type": "Long"
+   },
+   "vbHidden": {
+    "value": 2,
+    "type": "Long"
+   },
+   "vbSystem": {
+    "value": 4,
+    "type": "Long"
+   },
+   "vbVolume": {
+    "value": 8,
+    "type": "Long"
+   },
+   "vbDirectory": {
+    "value": 16,
+    "type": "Long"
+   },
+   "vbArchive": {
+    "value": 32,
+    "type": "Long"
+   },
+   "vbAlias": {
+    "value": 64,
+    "type": "Long"
+   }
+  },
+  "VbStrConv": {
+   "vbUpperCase": {
+    "value": 1,
+    "type": "Long"
+   },
+   "vbLowerCase": {
+    "value": 2,
+    "type": "Long"
+   },
+   "vbProperCase": {
+    "value": 3,
+    "type": "Long"
+   },
+   "vbWide": {
+    "value": 4,
+    "type": "Long"
+   },
+   "vbNarrow": {
+    "value": 8,
+    "type": "Long"
+   },
+   "vbKatakana": {
+    "value": 16,
+    "type": "Long"
+   },
+   "vbHiragana": {
+    "value": 32,
+    "type": "Long"
+   },
+   "vbUnicode": {
+    "value": 64,
+    "type": "Long"
+   },
+   "vbFromUnicode": {
+    "value": 128,
+    "type": "Long"
+   }
+  },
+  "VbDayOfWeek": {
+   "vbUseSystemDayOfWeek": {
+    "value": 0,
+    "type": "Long"
+   },
+   "vbSunday": {
+    "value": 1,
+    "type": "Long"
+   },
+   "vbMonday": {
+    "value": 2,
+    "type": "Long"
+   },
+   "vbTuesday": {
+    "value": 3,
+    "type": "Long"
+   },
+   "vbWednesday": {
+    "value": 4,
+    "type": "Long"
+   },
+   "vbThursday": {
+    "value": 5,
+    "type": "Long"
+   },
+   "vbFriday": {
+    "value": 6,
+    "type": "Long"
+   },
+   "vbSaturday": {
+    "value": 7,
+    "type": "Long"
+   }
+  },
+  "VbFirstWeekOfYear": {
+   "vbUseSystem": {
+    "value": 0,
+    "type": "Long"
+   },
+   "vbFirstJan1": {
+    "value": 1,
+    "type": "Long"
+   },
+   "vbFirstFourDays": {
+    "value": 2,
+    "type": "Long"
+   },
+   "vbFirstFullWeek": {
+    "value": 3,
+    "type": "Long"
+   }
+  },
+  "VbIMEStatus": {
+   "vbIMENoOp": {
+    "value": 0,
+    "type": "Long"
+   },
+   "vbIMEModeNoControl": {
+    "value": 0,
+    "type": "Long"
+   },
+   "vbIMEOn": {
+    "value": 1,
+    "type": "Long"
+   },
+   "vbIMEModeOn": {
+    "value": 1,
+    "type": "Long"
+   },
+   "vbIMEOff": {
+    "value": 2,
+    "type": "Long"
+   },
+   "vbIMEModeOff": {
+    "value": 2,
+    "type": "Long"
+   },
+   "vbIMEDisable": {
+    "value": 3,
+    "type": "Long"
+   },
+   "vbIMEModeDisable": {
+    "value": 3,
+    "type": "Long"
+   },
+   "vbIMEHiragana": {
+    "value": 4,
+    "type": "Long"
+   },
+   "vbIMEModeHiragana": {
+    "value": 4,
+    "type": "Long"
+   },
+   "vbIMEKatakanaDbl": {
+    "value": 5,
+    "type": "Long"
+   },
+   "vbIMEModeKatakana": {
+    "value": 5,
+    "type": "Long"
+   },
+   "vbIMEKatakanaSng": {
+    "value": 6,
+    "type": "Long"
+   },
+   "vbIMEModeKatakanaHalf": {
+    "value": 6,
+    "type": "Long"
+   },
+   "vbIMEAlphaDbl": {
+    "value": 7,
+    "type": "Long"
+   },
+   "vbIMEModeAlphaFull": {
+    "value": 7,
+    "type": "Long"
+   },
+   "vbIMEAlphaSng": {
+    "value": 8,
+    "type": "Long"
+   },
+   "vbIMEModeAlpha": {
+    "value": 8,
+    "type": "Long"
+   },
+   "vbIMEModeHangulFull": {
+    "value": 9,
+    "type": "Long"
+   },
+   "vbIMEModeHangul": {
+    "value": 10,
+    "type": "Long"
+   }
+  },
+  "VbAppWinStyle": {
+   "vbHide": {
+    "value": 0,
+    "type": "Long"
+   },
+   "vbNormalFocus": {
+    "value": 1,
+    "type": "Long"
+   },
+   "vbMinimizedFocus": {
+    "value": 2,
+    "type": "Long"
+   },
+   "vbMaximizedFocus": {
+    "value": 3,
+    "type": "Long"
+   },
+   "vbNormalNoFocus": {
+    "value": 4,
+    "type": "Long"
+   },
+   "vbMinimizedNoFocus": {
+    "value": 6,
+    "type": "Long"
+   }
+  },
+  "VbCompareMethod": {
+   "vbBinaryCompare": {
+    "value": 0,
+    "type": "Long"
+   },
+   "vbTextCompare": {
+    "value": 1,
+    "type": "Long"
+   },
+   "vbDatabaseCompare": {
+    "value": 2,
+    "type": "Long"
+   }
+  },
+  "VbCalendar": {
+   "vbCalGreg": {
+    "value": 0,
+    "type": "Long"
+   },
+   "vbCalHijri": {
+    "value": 1,
+    "type": "Long"
+   }
+  },
+  "VbDateTimeFormat": {
+   "vbGeneralDate": {
+    "value": 0,
+    "type": "Long"
+   },
+   "vbLongDate": {
+    "value": 1,
+    "type": "Long"
+   },
+   "vbShortDate": {
+    "value": 2,
+    "type": "Long"
+   },
+   "vbLongTime": {
+    "value": 3,
+    "type": "Long"
+   },
+   "vbShortTime": {
+    "value": 4,
+    "type": "Long"
+   }
+  },
+  "VbTriState": {
+   "vbUseDefault": {
+    "value": -2,
+    "type": "Long"
+   },
+   "vbTrue": {
+    "value": -1,
+    "type": "Long"
+   },
+   "vbFalse": {
+    "value": 0,
+    "type": "Long"
+   }
+  },
+  "VbCallType": {
+   "VbMethod": {
+    "value": 1,
+    "type": "Long"
+   },
+   "VbGet": {
+    "value": 2,
+    "type": "Long"
+   },
+   "VbLet": {
+    "value": 4,
+    "type": "Long"
+   },
+   "VbSet": {
+    "value": 8,
+    "type": "Long"
+   }
+  },
+  "Constants": {
+   "vbObjectError": {
+    "value": -2147221504,
+    "type": "Long"
+   },
+   "vbNullString": {
+    "value": "",
+    "type": "String"
+   },
+   "vbNullChar": {
+    "value": "\u0000",
+    "type": "String"
+   },
+   "vbCrLf": {
+    "value": "\r\n",
+    "type": "String"
+   },
+   "vbNewLine": {
+    "value": "\r\n",
+    "type": "String"
+   },
+   "vbCr": {
+    "value": "\r",
+    "type": "String"
+   },
+   "vbLf": {
+    "value": "\n",
+    "type": "String"
+   },
+   "vbBack": {
+    "value": "\b",
+    "type": "String"
+   },
+   "vbFormFeed": {
+    "value": "\f",
+    "type": "String"
+   },
+   "vbTab": {
+    "value": "\t",
+    "type": "String"
+   },
+   "vbVerticalTab": {
+    "value": "\u000b",
+    "type": "String"
+   }
+  },
+  "VbQueryClose": {
+   "vbAppWindows": {
+    "value": 2,
+    "type": "Long"
+   },
+   "vbFormMDIForm": {
+    "value": 4,
+    "type": "Long"
+   },
+   "vbFormCode": {
+    "value": 1,
+    "type": "Long"
+   },
+   "vbFormControlMenu": {
+    "value": 0,
+    "type": "Long"
+   },
+   "vbAppTaskManager": {
+    "value": 3,
+    "type": "Long"
+   }
+  },
+  "KeyCodeConstants": {
+   "vbKeyLButton": {
+    "value": 1,
+    "type": "Integer"
+   },
+   "vbKeyRButton": {
+    "value": 2,
+    "type": "Integer"
+   },
+   "vbKeyCancel": {
+    "value": 3,
+    "type": "Integer"
+   },
+   "vbKeyMButton": {
+    "value": 4,
+    "type": "Integer"
+   },
+   "vbKeyBack": {
+    "value": 8,
+    "type": "Integer"
+   },
+   "vbKeyTab": {
+    "value": 9,
+    "type": "Integer"
+   },
+   "vbKeyClear": {
+    "value": 12,
+    "type": "Integer"
+   },
+   "vbKeyReturn": {
+    "value": 13,
+    "type": "Integer"
+   },
+   "vbKeyShift": {
+    "value": 16,
+    "type": "Integer"
+   },
+   "vbKeyControl": {
+    "value": 17,
+    "type": "Integer"
+   },
+   "vbKeyMenu": {
+    "value": 18,
+    "type": "Integer"
+   },
+   "vbKeyPause": {
+    "value": 19,
+    "type": "Integer"
+   },
+   "vbKeyCapital": {
+    "value": 20,
+    "type": "Integer"
+   },
+   "vbKeyEscape": {
+    "value": 27,
+    "type": "Integer"
+   },
+   "vbKeySpace": {
+    "value": 32,
+    "type": "Integer"
+   },
+   "vbKeyPageUp": {
+    "value": 33,
+    "type": "Integer"
+   },
+   "vbKeyPageDown": {
+    "value": 34,
+    "type": "Integer"
+   },
+   "vbKeyEnd": {
+    "value": 35,
+    "type": "Integer"
+   },
+   "vbKeyHome": {
+    "value": 36,
+    "type": "Integer"
+   },
+   "vbKeyLeft": {
+    "value": 37,
+    "type": "Integer"
+   },
+   "vbKeyUp": {
+    "value": 38,
+    "type": "Integer"
+   },
+   "vbKeyRight": {
+    "value": 39,
+    "type": "Integer"
+   },
+   "vbKeyDown": {
+    "value": 40,
+    "type": "Integer"
+   },
+   "vbKeySelect": {
+    "value": 41,
+    "type": "Integer"
+   },
+   "vbKeyPrint": {
+    "value": 42,
+    "type": "Integer"
+   },
+   "vbKeyExecute": {
+    "value": 43,
+    "type": "Integer"
+   },
+   "vbKeySnapshot": {
+    "value": 44,
+    "type": "Integer"
+   },
+   "vbKeyInsert": {
+    "value": 45,
+    "type": "Integer"
+   },
+   "vbKeyDelete": {
+    "value": 46,
+    "type": "Integer"
+   },
+   "vbKeyHelp": {
+    "value": 47,
+    "type": "Integer"
+   },
+   "vbKeyNumlock": {
+    "value": 144,
+    "type": "Integer"
+   },
+   "vbKeyA": {
+    "value": 65,
+    "type": "Integer"
+   },
+   "vbKeyB": {
+    "value": 66,
+    "type": "Integer"
+   },
+   "vbKeyC": {
+    "value": 67,
+    "type": "Integer"
+   },
+   "vbKeyD": {
+    "value": 68,
+    "type": "Integer"
+   },
+   "vbKeyE": {
+    "value": 69,
+    "type": "Integer"
+   },
+   "vbKeyF": {
+    "value": 70,
+    "type": "Integer"
+   },
+   "vbKeyG": {
+    "value": 71,
+    "type": "Integer"
+   },
+   "vbKeyH": {
+    "value": 72,
+    "type": "Integer"
+   },
+   "vbKeyI": {
+    "value": 73,
+    "type": "Integer"
+   },
+   "vbKeyJ": {
+    "value": 74,
+    "type": "Integer"
+   },
+   "vbKeyK": {
+    "value": 75,
+    "type": "Integer"
+   },
+   "vbKeyL": {
+    "value": 76,
+    "type": "Integer"
+   },
+   "vbKeyM": {
+    "value": 77,
+    "type": "Integer"
+   },
+   "vbKeyN": {
+    "value": 78,
+    "type": "Integer"
+   },
+   "vbKeyO": {
+    "value": 79,
+    "type": "Integer"
+   },
+   "vbKeyP": {
+    "value": 80,
+    "type": "Integer"
+   },
+   "vbKeyQ": {
+    "value": 81,
+    "type": "Integer"
+   },
+   "vbKeyR": {
+    "value": 82,
+    "type": "Integer"
+   },
+   "vbKeyS": {
+    "value": 83,
+    "type": "Integer"
+   },
+   "vbKeyT": {
+    "value": 84,
+    "type": "Integer"
+   },
+   "vbKeyU": {
+    "value": 85,
+    "type": "Integer"
+   },
+   "vbKeyV": {
+    "value": 86,
+    "type": "Integer"
+   },
+   "vbKeyW": {
+    "value": 87,
+    "type": "Integer"
+   },
+   "vbKeyX": {
+    "value": 88,
+    "type": "Integer"
+   },
+   "vbKeyY": {
+    "value": 89,
+    "type": "Integer"
+   },
+   "vbKeyZ": {
+    "value": 90,
+    "type": "Integer"
+   },
+   "vbKey0": {
+    "value": 48,
+    "type": "Integer"
+   },
+   "vbKey1": {
+    "value": 49,
+    "type": "Integer"
+   },
+   "vbKey2": {
+    "value": 50,
+    "type": "Integer"
+   },
+   "vbKey3": {
+    "value": 51,
+    "type": "Integer"
+   },
+   "vbKey4": {
+    "value": 52,
+    "type": "Integer"
+   },
+   "vbKey5": {
+    "value": 53,
+    "type": "Integer"
+   },
+   "vbKey6": {
+    "value": 54,
+    "type": "Integer"
+   },
+   "vbKey7": {
+    "value": 55,
+    "type": "Integer"
+   },
+   "vbKey8": {
+    "value": 56,
+    "type": "Integer"
+   },
+   "vbKey9": {
+    "value": 57,
+    "type": "Integer"
+   },
+   "vbKeyNumpad0": {
+    "value": 96,
+    "type": "Integer"
+   },
+   "vbKeyNumpad1": {
+    "value": 97,
+    "type": "Integer"
+   },
+   "vbKeyNumpad2": {
+    "value": 98,
+    "type": "Integer"
+   },
+   "vbKeyNumpad3": {
+    "value": 99,
+    "type": "Integer"
+   },
+   "vbKeyNumpad4": {
+    "value": 100,
+    "type": "Integer"
+   },
+   "vbKeyNumpad5": {
+    "value": 101,
+    "type": "Integer"
+   },
+   "vbKeyNumpad6": {
+    "value": 102,
+    "type": "Integer"
+   },
+   "vbKeyNumpad7": {
+    "value": 103,
+    "type": "Integer"
+   },
+   "vbKeyNumpad8": {
+    "value": 104,
+    "type": "Integer"
+   },
+   "vbKeyNumpad9": {
+    "value": 105,
+    "type": "Integer"
+   },
+   "vbKeyMultiply": {
+    "value": 106,
+    "type": "Integer"
+   },
+   "vbKeyAdd": {
+    "value": 107,
+    "type": "Integer"
+   },
+   "vbKeySeparator": {
+    "value": 108,
+    "type": "Integer"
+   },
+   "vbKeySubtract": {
+    "value": 109,
+    "type": "Integer"
+   },
+   "vbKeyDecimal": {
+    "value": 110,
+    "type": "Integer"
+   },
+   "vbKeyDivide": {
+    "value": 111,
+    "type": "Integer"
+   },
+   "vbKeyF1": {
+    "value": 112,
+    "type": "Integer"
+   },
+   "vbKeyF2": {
+    "value": 113,
+    "type": "Integer"
+   },
+   "vbKeyF3": {
+    "value": 114,
+    "type": "Integer"
+   },
+   "vbKeyF4": {
+    "value": 115,
+    "type": "Integer"
+   },
+   "vbKeyF5": {
+    "value": 116,
+    "type": "Integer"
+   },
+   "vbKeyF6": {
+    "value": 117,
+    "type": "Integer"
+   },
+   "vbKeyF7": {
+    "value": 118,
+    "type": "Integer"
+   },
+   "vbKeyF8": {
+    "value": 119,
+    "type": "Integer"
+   },
+   "vbKeyF9": {
+    "value": 120,
+    "type": "Integer"
+   },
+   "vbKeyF10": {
+    "value": 121,
+    "type": "Integer"
+   },
+   "vbKeyF11": {
+    "value": 122,
+    "type": "Integer"
+   },
+   "vbKeyF12": {
+    "value": 123,
+    "type": "Integer"
+   },
+   "vbKeyF13": {
+    "value": 124,
+    "type": "Integer"
+   },
+   "vbKeyF14": {
+    "value": 125,
+    "type": "Integer"
+   },
+   "vbKeyF15": {
+    "value": 126,
+    "type": "Integer"
+   },
+   "vbKeyF16": {
+    "value": 127,
+    "type": "Integer"
+   }
+  },
+  "ColorConstants": {
+   "vbBlack": {
+    "value": 0,
+    "type": "Long"
+   },
+   "vbRed": {
+    "value": 255,
+    "type": "Long"
+   },
+   "vbGreen": {
+    "value": 65280,
+    "type": "Long"
+   },
+   "vbYellow": {
+    "value": 65535,
+    "type": "Long"
+   },
+   "vbBlue": {
+    "value": 16711680,
+    "type": "Long"
+   },
+   "vbMagenta": {
+    "value": 16711935,
+    "type": "Long"
+   },
+   "vbCyan": {
+    "value": 16776960,
+    "type": "Long"
+   },
+   "vbWhite": {
+    "value": 16777215,
+    "type": "Long"
+   }
+  },
+  "SystemColorConstants": {
+   "vbScrollBars": {
+    "value": -2147483648,
+    "type": "Long"
+   },
+   "vbDesktop": {
+    "value": -2147483647,
+    "type": "Long"
+   },
+   "vbActiveTitleBar": {
+    "value": -2147483646,
+    "type": "Long"
+   },
+   "vbInactiveTitleBar": {
+    "value": -2147483645,
+    "type": "Long"
+   },
+   "vbMenuBar": {
+    "value": -2147483644,
+    "type": "Long"
+   },
+   "vbWindowBackground": {
+    "value": -2147483643,
+    "type": "Long"
+   },
+   "vbWindowFrame": {
+    "value": -2147483642,
+    "type": "Long"
+   },
+   "vbMenuText": {
+    "value": -2147483641,
+    "type": "Long"
+   },
+   "vbWindowText": {
+    "value": -2147483640,
+    "type": "Long"
+   },
+   "vbTitleBarText": {
+    "value": -2147483639,
+    "type": "Long"
+   },
+   "vbActiveBorder": {
+    "value": -2147483638,
+    "type": "Long"
+   },
+   "vbInactiveBorder": {
+    "value": -2147483637,
+    "type": "Long"
+   },
+   "vbApplicationWorkspace": {
+    "value": -2147483636,
+    "type": "Long"
+   },
+   "vbHighlight": {
+    "value": -2147483635,
+    "type": "Long"
+   },
+   "vbHighlightText": {
+    "value": -2147483634,
+    "type": "Long"
+   },
+   "vbButtonFace": {
+    "value": -2147483633,
+    "type": "Long"
+   },
+   "vbButtonShadow": {
+    "value": -2147483632,
+    "type": "Long"
+   },
+   "vbGrayText": {
+    "value": -2147483631,
+    "type": "Long"
+   },
+   "vbButtonText": {
+    "value": -2147483630,
+    "type": "Long"
+   },
+   "vbInactiveCaptionText": {
+    "value": -2147483629,
+    "type": "Long"
+   },
+   "vb3DHighlight": {
+    "value": -2147483628,
+    "type": "Long"
+   },
+   "vb3DFace": {
+    "value": -2147483633,
+    "type": "Long"
+   },
+   "vbMsgBox": {
+    "value": -2147483625,
+    "type": "Long"
+   },
+   "vbMsgBoxText": {
+    "value": -2147483624,
+    "type": "Long"
+   },
+   "vb3DShadow": {
+    "value": -2147483632,
+    "type": "Long"
+   },
+   "vb3DDKShadow": {
+    "value": -2147483627,
+    "type": "Long"
+   },
+   "vb3DLight": {
+    "value": -2147483626,
+    "type": "Long"
+   },
+   "vbInfoText": {
+    "value": -2147483625,
+    "type": "Long"
+   },
+   "vbInfoBackground": {
+    "value": -2147483624,
+    "type": "Long"
+   }
+  },
+  "FormShowConstants": {
+   "vbModeless": {
+    "value": 0,
+    "type": "Long"
+   },
+   "vbModal": {
+    "value": 1,
+    "type": "Long"
+   }
+  }
+ }
+}

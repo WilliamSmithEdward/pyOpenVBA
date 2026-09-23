@@ -258,6 +258,21 @@ CStr(CSng(12345678))
 CStr(CSng(1234567))
 CStr(1E+15 - 1)
 CStr(9999999999999998#)
+# The constant modules of VBA's type library: colours, key codes, system colours, forms.
+vbRed
+TypeName(vbRed)
+vbKeyReturn
+TypeName(vbKeyA)
+vbButtonFace
+vbModeless
+vbFormCode
+TypeName(vbOK)
+TypeName(vbTextCompare)
+TypeName(vbObjectError)
+TypeName(vbKeyF1)
+TypeName(vbBlack)
+vbYes * 10000
+vbKeyA * 1000
 # An exact tie at the last digit shown goes away from zero, a Single's as a Double's.
 CStr(CSng(2 ^ -11))
 CStr(-CSng(2 ^ -11))

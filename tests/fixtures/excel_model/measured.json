@@ -175,6 +175,11 @@
   "Range(\"zz\").Address": "!1004",
   "Worksheets(\"NoSuchSheet\").Name": "!9",
   "Range(\"A1\").Resize(0, 1).Address": "!1004",
-  "ActiveWorkbook.Names(\"NoSuchName\").RefersTo": "!1004"
+  "ActiveWorkbook.Names(\"NoSuchName\").RefersTo": "!1004",
+  "TypeName(xlUp)": "String|Long",
+  "TypeName(xlCalculationManual)": "String|Long",
+  "TypeName(xlNone)": "String|Long",
+  "TypeName(msoTrue)": "String|Long",
+  "TypeName(xlWorksheet)": "String|Long"
  }
 }

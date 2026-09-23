@@ -14,7 +14,7 @@ from functools import lru_cache
 from typing import TYPE_CHECKING
 
 from pyopenvba.exceptions import VBAUnsupportedError
-from pyopenvba.interpreter._constants_data import EXCEL_CONSTANTS, OFFICE_CONSTANTS, VBA_CONSTANTS
+from pyopenvba.interpreter._constants_data import EXCEL_CONSTANTS, INTEGER_CONSTANTS, OFFICE_CONSTANTS, VBA_CONSTANTS
 from pyopenvba.interpreter._inventory import members_of
 from pyopenvba.interpreter._runtime import HostBridge, UNRESOLVED
 from pyopenvba.interpreter._values import VBAInt
@@ -46,7 +46,7 @@ class ExcelBridge(HostBridge):
 
     def constant(self, name: str) -> object:
         found = _by_lower_case().get(name.lower())
-        return UNRESOLVED if found is None else _as_vba(found)
+        return UNRESOLVED if found is None else _as_vba(name.lower(), found)
 
     def create(self, type_name_: str) -> object:
         raise VBAUnsupportedError(
@@ -67,9 +67,10 @@ def _by_lower_case() -> dict[str, int | float | str]:
     return out
 
 
-def _as_vba(value: int | float | str) -> object:
+def _as_vba(name: str, value: int | float | str) -> object:
+    """A constant as VBA holds it: an enum's member a Long however small, a key code the Integer it is declared."""
     if isinstance(value, bool):  # pragma: no cover - filtered out when generated
         return value
     if isinstance(value, int):
-        return VBAInt(value, "Integer" if -32768 <= value <= 32767 else "Long")
+        return VBAInt(value, "Integer" if name in INTEGER_CONSTANTS else "Long")
     return value

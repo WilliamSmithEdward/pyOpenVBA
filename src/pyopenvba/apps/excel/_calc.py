@@ -193,12 +193,6 @@ class Calculator:
 
         owner = next(one for one in self.book.sheets_ if one.name.lower() == sheet.lower())
         cell_changed(owner, row, column, value)
-        if cell.number_format in ("General", ""):
-            from pyopenvba.formula._functions import result_format
-
-            wanted = result_format(compiled.node)
-            if wanted:
-                owner.set_number_format(row, column, wanted)
         return value
 
     def _computed(self, compiled: Compiled, sheet: str, row: int, column: int) -> object:

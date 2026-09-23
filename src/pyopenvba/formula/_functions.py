@@ -1971,35 +1971,6 @@ def fn_formulatext(context: Context, nodes: list[Any]) -> object:
     return text
 
 
-#: Functions whose answer is a date, so a cell holding one shows a date
-#: rather than the serial number behind it.
-#: Measured: DATE and TODAY bring a date format with them, while
-#: EDATE, EOMONTH, TIME and DATEVALUE leave the cell showing the serial
-#: number.
-DATE_RESULTS: Final = frozenset({"DATE", "TODAY"})
-TIME_RESULTS: Final[frozenset[str]] = frozenset()
-MOMENT_RESULTS: Final = frozenset({"NOW"})
-
-
-def result_format(node: object) -> str:
-    """The number format Excel gives a cell for this formula, if any.
-
-    A formula that answers with a date arrives formatted as one: the
-    cell shows 3/4/2021 rather than 44259, and VBA reading it back gets
-    a Date.  It is the function that decides, not the value, which is
-    why =44259 on its own stays a number.
-    """
-    if isinstance(node, P.Call):
-        name = node.name.upper()
-        if name in DATE_RESULTS:
-            return "m/d/yyyy"
-        if name in TIME_RESULTS:
-            return "h:mm:ss AM/PM"
-        if name in MOMENT_RESULTS:
-            return "m/d/yyyy h:mm"
-    return ""
-
-
 def known_names() -> frozenset[str]:
     """Every function this implements, for the inventory to check against."""
     return frozenset(FUNCTIONS)

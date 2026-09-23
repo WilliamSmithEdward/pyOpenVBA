@@ -1485,6 +1485,7 @@ class Range(ExcelObject):
             return
         anchor = self.first
         spelled: str | None = None
+        placed: list[tuple[int, int]] = []
         for row, column in self.writable_positions():
             if not _merges.writable(self.sheet, row, column):
                 continue
@@ -1492,9 +1493,12 @@ class Range(ExcelObject):
                 if spelled is None:
                     # Excel reads the formula once and writes it out again, as spelled_formula does.
                     spelled = spelled_formula(self.sheet, value)
-                self._put_formula(row, column, shift_text(spelled, row - anchor.top, column - anchor.left))
+                if self._put_formula(row, column, shift_text(spelled, row - anchor.top, column - anchor.left)):
+                    placed.append((row, column))
             else:
                 self._type_into(row, column, value)
+        if spelled is not None:
+            self._bring_format(placed, spelled, anchor.top, anchor.left)
 
     @member
     def HasFormula(self) -> object:
@@ -1541,6 +1545,8 @@ class Range(ExcelObject):
         if not isinstance(value, str):
             self._write(value)
             return
+        placed: list[tuple[int, int]] = []
+        first: tuple[str, int, int] | None = None
         for row, column in self.writable_positions():
             if not _merges.writable(self.sheet, row, column):
                 continue
@@ -1551,7 +1557,12 @@ class Range(ExcelObject):
                 a1 = to_a1(value, row, column)
             except ValueError as exc:
                 raise error(1004, str(exc)) from None
-            self._put_formula(row, column, spelled_formula(self.sheet, a1))
+            formula = spelled_formula(self.sheet, a1)
+            first = first or (formula, row, column)
+            if self._put_formula(row, column, formula):
+                placed.append((row, column))
+        if first is not None:
+            self._bring_format(placed, *first)
 
     def _write_formula_array(self, array: VBAArray, *, r1c1: bool) -> None:
         from pyopenvba.formula._values import NA
@@ -2671,7 +2682,9 @@ class Range(ExcelObject):
         if not _merges.writable(self.sheet, row, column):
             return
         if isinstance(value, str) and _is_formula(value) and not self._keeps_text(row, column):
-            self._put_formula(row, column, spelled_formula(self.sheet, value))
+            formula = spelled_formula(self.sheet, value)
+            if self._put_formula(row, column, formula):
+                self._bring_format([(row, column)], formula, row, column)
         else:
             self._type_into(row, column, value, raw=raw)
 
@@ -2679,16 +2692,34 @@ class Range(ExcelObject):
         """Whether a position is a Text cell, which keeps whatever string is written to it as text."""
         return self.sheet.style_at(row, column).number_format == "@"
 
-    def _put_formula(self, row: int, column: int, formula: str) -> None:
+    def _put_formula(self, row: int, column: int, formula: str) -> bool:
+        """Write one formula into one cell; False when a protected sheet held the cell back."""
         gate = self.sheet.write_gate
         if gate is not None and not gate.admits(row, column):
-            return
+            return False
         cell = self.sheet.cell(row, column, create=True)
         assert cell is not None
         cell.formula = formula
         cell.stale = True
         cell.value = EMPTY
         self.sheet.cell_changed(row, column)
+        return True
+
+    def _bring_format(self, placed: list[tuple[int, int]], formula: str, row: int, column: int) -> None:
+        """Give the cells a formula was just written to the number format it brings, where they are General.
+
+        Excel works the format out once, from the formula as written at the
+        top left of the range, and gives it to every cell of the write.
+        """
+        from pyopenvba.apps.excel._formula_format import brought_format
+
+        code = brought_format(self.sheet, formula, row, column) if placed else ""
+        if not code:
+            return
+        for one_row, one_column in placed:
+            style = self.sheet.style_at(one_row, one_column)
+            if style.number_format in ("General", ""):
+                self.sheet.restyle(one_row, one_column, applying(style, "number_format", number_format=code))
 
     def _type_into(self, row: int, column: int, value: object, *, raw: bool = False) -> None:
         """Write one value into one cell as Excel types it: the value, the format it brings, and a prefix."""

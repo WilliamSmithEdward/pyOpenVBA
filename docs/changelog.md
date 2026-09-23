@@ -523,6 +523,16 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- A formula written to a General cell takes the number format Excel
+  gives it, as it is written: `=A1+30` on a date is a date, so its Value
+  reads back as a Date rather than a Double. A reference brings its
+  top-left cell's format, `+` and `-` the first side's but nothing for
+  two dates, `*`, `/` and `&` nothing, and SUM, MAX, MIN, INT, ROUND,
+  ROUNDDOWN, ROUNDUP, TRUNC and MOD their first formatted argument's.
+  TIME brings h:mm AM/PM. A range written at once takes its first cell's
+  format. The model formatted only a formula that was itself DATE, TODAY
+  or NOW, and only when it was first worked out. 111 cases in live Excel
+  pin it.
 - A range or an array where a formula wants one value is handled as
   Excel handles it in a cell. Cells given to a function that wants one
   value, beside an operator, or as the whole formula are cut to the one

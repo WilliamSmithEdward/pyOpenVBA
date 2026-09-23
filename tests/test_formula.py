@@ -85,10 +85,7 @@ PROBES = read_probes()
 MEASURED = read_measured()
 
 #: Probes the engine does not answer as Excel does yet, and why.
-GAPS: dict[str, str] = {
-    "=SUM(DATE(2020,{1,2},1))": "the value is right, but the cell takes a date format from the DATE inside SUM, "
-                                "and the model formats only a formula that is itself DATE, TODAY or NOW",
-}
+GAPS: dict[str, str] = {}
 
 
 def test_every_probe_was_measured() -> None:

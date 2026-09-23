@@ -117,7 +117,8 @@ is what settled these:
   so `SUM(A1,"2")` is three and a range holding "2" adds nothing; COUNT
   walks past an error that SUM would stop at.
 - `=A1` on an empty cell is 0, and `DATE(...)` brings a date format
-  with it while `EOMONTH(...)` leaves the serial number showing.
+  with it while `EOMONTH(...)` leaves the serial number showing (the
+  object-model sweep below has the whole rule).
 
 The same method covers the Excel object model:
 `tests/fixtures/excel_model/probes.txt` and `tests/test_excel_model.py`,
@@ -129,6 +130,15 @@ sweep is what settled these:
   m/d/yyyy format it brings, and `""` leaves the cell Empty.
 - `Range("A1:B2").Value = Array(7, 8)` puts 7 in A2 as well as A1: a
   flat array is one row, repeated down.
+- A formula written to a General cell takes the number format of what it
+  works with, once, as it is written: `=A1+30` on a date is a date, so
+  its Value reads back as a Date. A reference brings its top-left cell's
+  format; `+` and `-` bring the first side's, except that two dates bring
+  none; `*`, `/` and `&` bring nothing; DATE, TODAY, NOW and TIME bring
+  their own; SUM, MAX, MIN, INT, ROUND, ROUNDDOWN, ROUNDUP, TRUNC and MOD
+  hand on their first formatted argument's, and other functions bring
+  nothing. A range written at once takes the format its first cell's
+  formula brings, and a source formatted later changes nothing.
 - `End` looks at the neighbour, so `End(xlDown)` from a lone A1 is
   A1048576 rather than A1, and walks over a cell with only a format as
   over an empty one.

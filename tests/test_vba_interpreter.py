@@ -501,7 +501,7 @@ def test_a_declare_into_a_dll_is_unsupported_and_says_which_library() -> None:
 
 def test_createobject_is_unsupported_rather_than_a_silent_nothing() -> None:
     with pytest.raises(VBAUnsupportedError):
-        value('Sub Main()\n    Dim o As Object\n    Set o = CreateObject("Scripting.Dictionary")\nEnd Sub\n')
+        value('Sub Main()\n    Dim o As Object\n    Set o = CreateObject("ADODB.Connection")\nEnd Sub\n')
 
 
 # --- dialogs and the console ------------------------------------------------------------------
@@ -550,3 +550,25 @@ def test_a_blanked_branch_keeps_the_line_numbers() -> None:
             "End Sub\n"
         )
     assert "line 5" in raised.value.where
+
+
+# --- Scripting.Dictionary (its rules are measured in fixtures/vba_semantics) -----------------
+
+
+def test_new_dictionary_is_the_same_dictionary_createobject_makes() -> None:
+    assert value("Function Main()\n    Dim d As New Scripting.Dictionary\n    d.Add \"a\", 1\n"
+                 "    Main = TypeName(d) & d.Count\nEnd Function\n") == "Dictionary1"
+
+
+def test_an_object_goes_into_a_dictionary_with_set() -> None:
+    assert value("Function Main()\n    Dim d As Object, c As New Collection\n"
+                 "    Set d = CreateObject(\"Scripting.Dictionary\")\n    c.Add 7\n    Set d(\"k\") = c\n"
+                 "    Main = d(\"k\").Count & TypeName(d(\"k\"))\nEnd Function\n") == "1Collection"
+
+
+def test_a_class_module_called_dictionary_comes_before_the_scripting_one() -> None:
+    vba = Interpreter()
+    vba.add_module("Public Name As String\n", name="Dictionary", kind="class")
+    vba.add_module("Function Main()\n    Dim d As New Dictionary\n    d.Name = \"mine\"\n    Main = d.Name\n"
+                   "End Function\n", name="Module1")
+    assert vba.run("Main") == "mine"

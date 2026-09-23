@@ -1056,7 +1056,11 @@ a document or a presentation is edited rather than created.
 - **Nothing outside the model.** File I/O, the file system verbs, the
   registry, `Shell`, `SendKeys`, `CreateObject` and `Declare` into a DLL
   all report themselves unsupported rather than reaching the real
-  machine.
+  machine. The one exception is `Scripting.Dictionary`, which
+  `CreateObject` and `New` make in memory, matching keys as the real one
+  does: numbers by value whatever their type, Empty and "" as one key,
+  objects by identity, text with or without case (47 probes in
+  `tests/fixtures/vba_semantics`).
 - **`.xlsb` cells.** The binary sheet part is not read; its VBA project
   is readable through `ExcelFile` as before.  The same goes for the
   legacy `.doc`, `.ppt` and `.xls`, whose text and shapes live in

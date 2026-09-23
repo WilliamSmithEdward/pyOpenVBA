@@ -132,6 +132,14 @@ All notable changes to pyOpenVBA are documented here. This project follows
   the protection as Excel does, the password as a salted SHA-512 hash
   Excel opens, and a protected sheet in a file is protected when read,
   its password checked against Excel's hash or the legacy 16-bit one.
+- `Scripting.Dictionary`, made by `CreateObject` or `New` without
+  starting the Scripting Runtime. Keys match as the real dictionary
+  matches them: 1, 1# and 1& are one key, a Date is its serial number,
+  True is -1, Empty and "" are one key, an object is itself, and text
+  goes case and all unless CompareMode is vbTextCompare. Reading a
+  missing key adds it. Keys and Items are zero-based arrays in insertion
+  order, For Each walks the keys, and the errors are the real one's. 47
+  probes in live Excel pin it.
 - `Range.CountLarge`, `Next`, `Previous`, `Calculate`, `AddressLocal`,
   `FormulaLocal`, `FormulaR1C1Local` and `NumberFormatLocal`, and
   `Worksheet.Next` and `Previous`. The Local spellings are the English

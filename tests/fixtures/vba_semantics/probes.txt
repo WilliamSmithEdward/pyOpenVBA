@@ -305,3 +305,51 @@ CStr(CVErr(2042))
 Val(CVErr(2042))
 Int(CVErr(2042))
 CVErr(2042) + 1
+
+# --- Scripting.Dictionary, made with CreateObject ---
+Dim d As Object: Set d = CreateObject("Scripting.Dictionary") ;; TypeName(d)
+Dim d As Object: Set d = CreateObject("Scripting.Dictionary") ;; d.Count
+Dim d As Object: Set d = CreateObject("Scripting.Dictionary") ;; d.CompareMode
+Dim d As Object: Set d = CreateObject("Scripting.Dictionary"): d.Add "a", 1 ;; d.Count
+Dim d As Object: Set d = CreateObject("Scripting.Dictionary"): d.Add "a", 1 ;; d("a")
+Dim d As Object: Set d = CreateObject("Scripting.Dictionary"): d.Add "a", 1 ;; d.Item("a")
+Dim d As Object: Set d = CreateObject("Scripting.Dictionary"): d.Add "a", 1 ;; d.Exists("a")
+Dim d As Object: Set d = CreateObject("Scripting.Dictionary"): d.Add "a", 1 ;; d.Exists("A")
+Dim d As Object: Set d = CreateObject("Scripting.Dictionary"): d.CompareMode = vbTextCompare: d.Add "a", 1 ;; d.Exists("A")
+Dim d As Object: Set d = CreateObject("Scripting.Dictionary"): d.CompareMode = vbTextCompare: d.Add "a", 1: d.Add "A", 2 ;; d.Count
+Dim d As Object: Set d = CreateObject("Scripting.Dictionary"): d.Add "a", 1: d.Add "a", 2 ;; d.Count
+Dim d As Object: Set d = CreateObject("Scripting.Dictionary") ;; IsEmpty(d("missing"))
+Dim d As Object: Set d = CreateObject("Scripting.Dictionary"): v = d("missing") ;; d.Count
+Dim d As Object: Set d = CreateObject("Scripting.Dictionary"): v = d.Exists("missing") ;; d.Count
+Dim d As Object: Set d = CreateObject("Scripting.Dictionary"): d("k") = 5 ;; d("k")
+Dim d As Object: Set d = CreateObject("Scripting.Dictionary"): d("k") = 5: d("k") = 6 ;; d("k") & "," & d.Count
+Dim d As Object: Set d = CreateObject("Scripting.Dictionary"): d.Add "a", 1: d.Item("a") = 9 ;; d("a")
+Dim d As Object: Set d = CreateObject("Scripting.Dictionary"): d.Add "b", 1: d.Add "a", 2 ;; Join(d.Keys, ",")
+Dim d As Object: Set d = CreateObject("Scripting.Dictionary"): d.Add "b", 1: d.Add "a", 2 ;; Join(d.Items, ",")
+Dim d As Object: Set d = CreateObject("Scripting.Dictionary"): d.Add "a", 1: d.Add "b", 2 ;; LBound(d.Keys) & "," & UBound(d.Keys)
+Dim d As Object: Set d = CreateObject("Scripting.Dictionary") ;; UBound(d.Keys)
+Dim d As Object: Set d = CreateObject("Scripting.Dictionary") ;; TypeName(d.Keys)
+Dim d As Object: Set d = CreateObject("Scripting.Dictionary"): d.Add "a", 1: d.Add "b", 2 ;; d.Items()(1)
+Dim d As Object: Set d = CreateObject("Scripting.Dictionary"): d.Add "a", 1: d.Add "b", 2: d.Remove "a" ;; Join(d.Keys, ",")
+Dim d As Object: Set d = CreateObject("Scripting.Dictionary"): d.Remove "zz" ;; d.Count
+Dim d As Object: Set d = CreateObject("Scripting.Dictionary"): d.Add "a", 1: d.RemoveAll ;; d.Count
+Dim d As Object: Set d = CreateObject("Scripting.Dictionary"): d.Add "a", 1: d.Remove "a": d.Add "a", 2 ;; Join(d.Keys, ",") & d("a")
+Dim d As Object: Set d = CreateObject("Scripting.Dictionary"): d.Add "a", 1: d.Key("a") = "b" ;; Join(d.Keys, ",") & d("b")
+Dim d As Object: Set d = CreateObject("Scripting.Dictionary"): d.Add "a", 1: d.Key("zz") = "b" ;; d.Count
+Dim d As Object: Set d = CreateObject("Scripting.Dictionary"): d.Add "a", 1: d.Add "b", 2: d.Key("a") = "b" ;; d.Count
+Dim d As Object: Set d = CreateObject("Scripting.Dictionary"): d.Add "a", 1: d.CompareMode = vbTextCompare ;; d.CompareMode
+Dim d As Object: Set d = CreateObject("Scripting.Dictionary"): d.Add 1, "one" ;; d.Exists("1")
+Dim d As Object: Set d = CreateObject("Scripting.Dictionary"): d.Add 1, "one" ;; d.Exists(1#)
+Dim d As Object: Set d = CreateObject("Scripting.Dictionary"): d.Add 1, "one" ;; d(1&)
+Dim d As Object: Set d = CreateObject("Scripting.Dictionary"): d.Add CInt(1), "i": d.Add CDbl(1), "d" ;; d.Count
+Dim d As Object: Set d = CreateObject("Scripting.Dictionary"): d.Add "1", "s": d.Add 1, "n" ;; d.Count
+Dim d As Object: Set d = CreateObject("Scripting.Dictionary"): d.Add 1.5, "x" ;; d(1.5)
+Dim d As Object: Set d = CreateObject("Scripting.Dictionary"): d.Add #1/1/2020#, 1 ;; d.Exists(43831)
+Dim d As Object: Set d = CreateObject("Scripting.Dictionary"): d.Add True, 1 ;; d.Exists(-1)
+Dim d As Object: Set d = CreateObject("Scripting.Dictionary"): d.Add Empty, 1 ;; d.Exists("") & "," & d.Exists(Empty)
+Dim d As Object: Set d = CreateObject("Scripting.Dictionary"): d.Add Null, 1 ;; d.Count
+Dim d As Object: Set d = CreateObject("Scripting.Dictionary"): Dim o As Object: Set o = New Collection: d.Add o, 1 ;; d.Exists(o)
+Dim d As Object: Set d = CreateObject("Scripting.Dictionary"): d.Add "a", Array(1, 2) ;; d("a")(1)
+Dim d As Object: Set d = CreateObject("Scripting.Dictionary"): Dim k As Variant, s As String: d.Add "a", 1: d.Add "b", 2: For Each k In d: s = s & k: Next ;; s
+Dim d As Object: Set d = CreateObject("Scripting.Dictionary"): d.Add "a", 1 ;; d.Count + d.Count
+Dim d As Object: Set d = CreateObject("scripting.dictionary") ;; TypeName(d)

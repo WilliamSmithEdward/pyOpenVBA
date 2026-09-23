@@ -622,6 +622,10 @@ class Interpreter:
         return default
 
     def create_com(self, class_name: str) -> object:
+        if class_name.lower() == "scripting.dictionary":
+            from pyopenvba.interpreter._scripting import Dictionary
+
+            return Dictionary()
         made = self.host.create(class_name)
         if made is not UNRESOLVED:
             return made
@@ -1492,6 +1496,11 @@ class Interpreter:
             if initialise is not None:
                 self.call(initialise, runtime, [], {}, me=instance)
             return instance
+        if key in ("scripting.dictionary", "dictionary"):
+            # New Dictionary, with a reference to the Scripting Runtime; a class module of that name comes first.
+            from pyopenvba.interpreter._scripting import Dictionary
+
+            return Dictionary()
         made = self.host.create(type_name_)
         if made is not UNRESOLVED:
             return made

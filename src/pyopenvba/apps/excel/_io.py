@@ -148,6 +148,9 @@ def _read_sheet(sheet: Worksheet, xml: str, strings: list[str], stylesheet: Styl
         from pyopenvba.apps.excel._autofilter import read_filter
 
         sheet.auto_filter = read_filter(sheet, element.group())
+    from pyopenvba.apps.excel._protection import read_protection
+
+    read_protection(sheet, xml)
     sheet.dims.load(xml)
     match = _SHEET_DATA.search(xml)
     if match and match.group(2) != "/>":
@@ -1139,6 +1142,10 @@ def _patched_sheet(sheet: Worksheet, original: str, package: OpcFile) -> str:
     sheet.dims.saved()
     if sheet.filter_changed:
         patched = _with_auto_filter(sheet, patched)
+    if sheet.protection_changed:
+        from pyopenvba.apps.excel._protection import with_protection
+
+        patched = with_protection(sheet, patched)
     if sheet.merges_dirty:
         markup = ""
         if sheet.merged_areas:

@@ -30,10 +30,24 @@ alone, a macro's edits meet it:
   changes nothing; the Sort object sorts anyway.
 
 Protect empties the clipboard, as Excel's does.
+
+In the file (scripts/measure_protection_file.py) protection is the
+sheetProtection element after sheetData: sheet, objects and scenarios
+for Contents, DrawingObjects and Scenarios, an attribute of "0" for each
+Allow option, selectLockedCells and selectUnlockedCells for
+EnableSelection, and a password as its SHA-512 hash -- the salt and the
+UTF-16 password hashed, then the hash and a counter 100,000 times -- or,
+from older writers, the legacy 16-bit hash. UserInterfaceOnly is not
+saved. A sheet read with the element is protected as Protect would
+protect it.
 """
 
 from __future__ import annotations
 
+import base64
+import hashlib
+import os
+import re
 from collections.abc import Generator
 from contextlib import contextmanager
 from dataclasses import dataclass, field
@@ -68,21 +82,65 @@ _GENERIC = frozenset({"Color", "ColorIndex", "ThemeColor", "TintAndShade", "Patt
 
 @dataclass(frozen=True, slots=True)
 class SheetProtection:
-    """What Protect set on a sheet."""
+    """What Protect set on a sheet, or what its file said."""
 
+    #: The password a macro gave, kept to check the next one against.
     password: str = ""
     contents: bool = True
     drawing_objects: bool = True
     scenarios: bool = True
     user_interface_only: bool = False
     allows: frozenset[str] = field(default_factory=lambda: frozenset[str]())
+    #: The password as a file holds it: algorithm, hash, salt and spin count, or the legacy 16-bit hash.
+    hashed: tuple[str, str, str, int] | None = None
+    legacy: str = ""
 
     def options(self) -> tuple[bool, bool, bool, bool, frozenset[str]]:
         return self.contents, self.drawing_objects, self.scenarios, self.user_interface_only, self.allows
 
+    @property
+    def locked_by_password(self) -> bool:
+        return bool(self.password or self.hashed or self.legacy)
+
     def opens(self, password: str) -> bool:
         """Whether a password opens the sheet: its own, matched case and all, or any when it has none."""
-        return not self.password or password == self.password
+        if self.password:
+            return password == self.password
+        if self.hashed is not None:
+            algorithm, hash_value, salt_value, spins = self.hashed
+            return spun(password, base64.b64decode(salt_value), spins, algorithm) == hash_value
+        if self.legacy:
+            return legacy_hash(password) == self.legacy.upper()
+        return True
+
+
+#: Excel's names for the hash functions a sheet's password is kept with.
+_ALGORITHMS = {"SHA-512": "sha512", "SHA-384": "sha384", "SHA-256": "sha256", "SHA-1": "sha1", "MD5": "md5"}
+#: What Excel writes, measured (tests/fixtures/protection_file.json).
+SPIN_COUNT = 100000
+
+
+def spun(password: str, salt: bytes, spins: int, algorithm: str = "SHA-512") -> str:
+    """A password's hash as Excel keeps it: the salt and the UTF-16 password hashed, then the hash and a
+    little-endian counter hashed again ``spins`` times; fitted to hashes Excel wrote."""
+    name = _ALGORITHMS.get(algorithm)
+    if name is None:
+        raise VBAUnsupportedError(f"a sheet password hashed with {algorithm} is not implemented")
+    digest = hashlib.new(name, salt + password.encode("utf-16-le")).digest()
+    for index in range(spins):
+        digest = hashlib.new(name, digest + index.to_bytes(4, "little")).digest()
+    return base64.b64encode(digest).decode("ascii")
+
+
+def legacy_hash(password: str) -> str:
+    """ECMA-376's legacy 16-bit password hash, which Excel still reads; measured for ASCII passwords."""
+    if not password.isascii():
+        raise VBAUnsupportedError("a legacy sheet password with characters outside ASCII is not implemented")
+    value = 0
+    for index, char in enumerate(password, 1):
+        bits = ord(char) << index
+        value ^= (bits & 0x7FFF) | (bits >> 15)
+    return f"{value ^ len(password) ^ 0xCE4B:04X}"
 
 
 class Protection(ExcelObject):
@@ -159,7 +217,7 @@ def protect(sheet: Worksheet, password: object, options: dict[str, object]) -> N
     if current is not None:
         if wanted.options() == current.options():
             return
-        if current.password and password is MISSING:
+        if current.locked_by_password and password is MISSING:
             raise VBAUnsupportedError("Protect that changes a sheet protected with a password, given none, asks for "
                                       "the password in a dialog; that is not implemented")
         if not current.opens(supplied):
@@ -167,18 +225,116 @@ def protect(sheet: Worksheet, password: object, options: dict[str, object]) -> N
     sheet.protection = wanted
     sheet.protection_allows = wanted.allows
     sheet.book.application.clipboard = None
+    _changed(sheet)
 
 
 def unprotect(sheet: Worksheet, password: object) -> None:
     current = sheet.protection
     if current is None:
         return
-    if current.password and password is MISSING:
+    if current.locked_by_password and password is MISSING:
         raise VBAUnsupportedError("Unprotect of a sheet protected with a password, given none, asks for the "
                                   "password in a dialog; that is not implemented")
     if not current.opens("" if password is MISSING else to_text(password)):
         raise error(1004, WRONG_PASSWORD)
     sheet.protection = None
+    _changed(sheet)
+
+
+def _changed(sheet: Worksheet) -> None:
+    sheet.protection_changed = True
+    sheet.touched()
+
+
+# --- in the file (tests/fixtures/protection_file.json) --------------------------------------------------
+
+#: The sheetProtection element, which a sheet's XML holds at most once.
+_ELEMENT = re.compile(r"<sheetProtection\b[^>]*/>")
+#: The worksheet children sheetProtection comes before, in the schema's order.
+_FOLLOWING = re.compile(
+    r"<(?:protectedRanges|scenarios|autoFilter|sortState|dataConsolidate|customSheetViews|mergeCells|phoneticPr|"
+    r"conditionalFormatting|dataValidations|hyperlinks|printOptions|pageMargins|pageSetup|headerFooter|rowBreaks|"
+    r"colBreaks|customProperties|cellWatches|ignoredErrors|smartTags|drawing|legacyDrawing|legacyDrawingHF|"
+    r"picture|oleObjects|controls|webPublishItems|tableParts|extLst)\b|</worksheet>")
+#: Each Allow option's attribute, "0" when the option is given, in the order Excel writes them, with the two
+#: EnableSelection attributes in their places.
+_ATTRIBUTES = (("AllowFormattingCells", "formatCells"), ("AllowFormattingColumns", "formatColumns"),
+               ("AllowFormattingRows", "formatRows"), ("AllowInsertingColumns", "insertColumns"),
+               ("AllowInsertingRows", "insertRows"), ("AllowInsertingHyperlinks", "insertHyperlinks"),
+               ("AllowDeletingColumns", "deleteColumns"), ("AllowDeletingRows", "deleteRows"),
+               ("", "selectLockedCells"), ("AllowSorting", "sort"), ("AllowFiltering", "autoFilter"),
+               ("AllowUsingPivotTables", "pivotTables"), ("", "selectUnlockedCells"))
+#: EnableSelection's values: xlNoRestrictions, xlUnlockedCells, xlNoSelection.
+_SELECTION = {0: (False, False), 1: (True, False), -4142: (True, True)}
+
+
+def read_protection(sheet: Worksheet, xml: str) -> None:
+    """A sheet's protection as its file holds it, enforced from then on as a macro's Protect would be."""
+    from pyopenvba._xml import tag_attributes
+
+    found = _ELEMENT.search(xml)
+    if found is None:
+        return
+    attributes = tag_attributes(found.group(0))
+
+    def on(name: str) -> bool:
+        return attributes.get(name, "0") in ("1", "true")
+
+    allows = frozenset(option for option, name in _ATTRIBUTES if option and attributes.get(name) in ("0", "false"))
+    hashed = None
+    if "hashValue" in attributes:
+        hashed = (attributes.get("algorithmName", "SHA-512"), attributes["hashValue"],
+                  attributes.get("saltValue", ""), int(attributes.get("spinCount", "0")))
+    sheet.protection = SheetProtection(contents=on("sheet"), drawing_objects=on("objects"), scenarios=on("scenarios"),
+                                       allows=allows, hashed=hashed, legacy=attributes.get("password", ""))
+    sheet.protection_allows = allows
+    sheet.enable_selection = -4142 if on("selectUnlockedCells") else (1 if on("selectLockedCells") else 0)
+
+
+def protection_xml(sheet: Worksheet) -> str:
+    """The sheetProtection element for a sheet's protection, as Excel writes it; nothing for an unprotected sheet.
+
+    A password a macro gave is hashed as Excel hashes one, with a salt of
+    its own, and the hash kept, so a later save writes the same element.
+    """
+    found = sheet.protection
+    if found is None:
+        return ""
+    if found.password and found.hashed is None:
+        salt = os.urandom(16)
+        found = SheetProtection(found.password, found.contents, found.drawing_objects, found.scenarios,
+                                found.user_interface_only, found.allows,
+                                ("SHA-512", spun(found.password, salt, SPIN_COUNT), base64.b64encode(salt).decode(),
+                                 SPIN_COUNT))
+        sheet.protection = found
+    parts: list[str] = []
+    if found.legacy and found.hashed is None:
+        parts.append(f'password="{found.legacy}"')
+    if found.hashed is not None:
+        algorithm, hash_value, salt_value, spins = found.hashed
+        parts += [f'algorithmName="{algorithm}"', f'hashValue="{hash_value}"', f'saltValue="{salt_value}"',
+                  f'spinCount="{spins}"']
+    parts += [f'{name}="1"' for name, on in (("sheet", found.contents), ("objects", found.drawing_objects),
+                                               ("scenarios", found.scenarios)) if on]
+    locked_cells, unlocked_cells = _SELECTION.get(sheet.enable_selection, (False, False))
+    for option, name in _ATTRIBUTES:
+        if option and option in found.allows:
+            parts.append(f'{name}="0"')
+        elif name == "selectLockedCells" and locked_cells or name == "selectUnlockedCells" and unlocked_cells:
+            parts.append(f'{name}="1"')
+    return f"<sheetProtection {' '.join(parts)}/>"
+
+
+def with_protection(sheet: Worksheet, xml: str) -> str:
+    """A sheet's XML with its sheetProtection element as the model has it: replaced, put in its place, or gone."""
+    markup = protection_xml(sheet)
+    existing = _ELEMENT.search(xml)
+    if existing is not None:
+        return xml[:existing.start()] + markup + xml[existing.end():]
+    following = _FOLLOWING.search(xml)
+    if not markup or following is None:
+        return xml
+    return xml[:following.start()] + markup + xml[following.start():]
 
 
 def enforced(sheet: Worksheet) -> SheetProtection | None:

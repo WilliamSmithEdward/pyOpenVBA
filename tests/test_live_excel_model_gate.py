@@ -1631,3 +1631,48 @@ def test_excel_reads_the_filtered_edits_this_made(tmp_path: Path) -> None:
     for layout in layouts:
         # What Excel read after the edit, past the error and the value the setup left.
         assert read[layout["name"][:28]] == "hidden=" + layout["answers"].split(";hidden=", 1)[1], layout["name"]
+
+
+def test_excel_reads_the_protection_this_wrote(tmp_path: Path) -> None:
+    """Every protection tests/fixtures/protection_file.json measured, made by the model, saved, opened in Excel.
+
+    Where a password was given, Excel refuses a wrong one and takes the
+    right one: the hash the model wrote with its own salt is Excel's.
+    """
+    import json
+
+    harness = pytest.importorskip("pyvbaharness")
+    record = json.loads((Path(__file__).parent / "fixtures" / "protection_file.json").read_text(encoding="utf-8"))
+    passwords = {"password": "pw", "password_long": "Correct Horse 9!", "allow_everything_select_none": "pw"}
+    paths: dict[str, Path] = {}
+    for case in record["cases"]:
+        app = ExcelApplication()
+        app.add_workbook()
+        app.add_module(f"Public Sub Make()\nDim ws As Object\nSet ws = ActiveWorkbook.Worksheets(1)\n{case['action']}\n"
+                       "End Sub\n", name="Builder")
+        app.run("Make")
+        paths[case["name"]] = tmp_path / f"{case['name']}.xlsx"
+        app.save(paths[case["name"]])
+    read: dict[str, str] = {}
+    opened: dict[str, str] = {}
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+        for case in record["cases"]:
+            excel.open_document(paths[case["name"]])
+            reader = f"Public Function Report() As String\nDim ws As Object\nSet ws = ActiveWorkbook.Worksheets(1)\n" \
+                     f"Report = {record['read']}\nEnd Function\n"
+            result = excel.run_vba(reader, "Report", timeout=120.0)
+            assert result.ok, result.message
+            read[case["name"]] = str(result.value)
+            if case["name"] in passwords:
+                trial = ("Public Function Report() As String\nDim ws As Object, out As String\n"
+                         "Set ws = ActiveWorkbook.Worksheets(1)\nOn Error Resume Next\nws.Unprotect \"not it\"\n"
+                         "out = Err.Number & \",\" & ws.ProtectContents\nErr.Clear\n"
+                         f"ws.Unprotect \"{passwords[case['name']]}\"\n"
+                         "Report = out & \",\" & Err.Number & \",\" & ws.ProtectContents\nEnd Function\n")
+                result = excel.run_vba(trial, "Report", timeout=120.0)
+                assert result.ok, result.message
+                opened[case["name"]] = str(result.value)
+    for case in record["cases"]:
+        assert read[case["name"]] == case["read"], case["name"]
+    for name in passwords:
+        assert opened[name] == "1004,True,0,False", name

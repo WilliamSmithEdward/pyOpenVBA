@@ -750,6 +750,8 @@ class Worksheet(ExcelObject):
         self.protection: SheetProtection | None = None
         #: The Allow options the last Protect gave, which Unprotect leaves in place.
         self.protection_allows: frozenset[str] = frozenset()
+        #: True once a macro protects or unprotects the sheet, so a save writes its sheetProtection again.
+        self.protection_changed = False
         #: EnableSelection: xlNoRestrictions, 0, until a macro sets it.
         self.enable_selection = 0
         #: The write in progress on the protected sheet, which passes over its locked cells.

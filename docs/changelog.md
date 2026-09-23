@@ -128,8 +128,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
   rows and columns unless allowed, merging, filling, copying onto locked
   cells, AutoFilter, RemoveDuplicates and sorting. UserInterfaceOnly
   frees macros. A second Protect, the password rules and the Allow
-  options follow Excel's. 168 cases in live Excel pin it. The protection
-  is not yet read from or written to a file.
+  options follow Excel's. 168 cases in live Excel pin it. A save writes
+  the protection as Excel does, the password as a salted SHA-512 hash
+  Excel opens, and a protected sheet in a file is protected when read,
+  its password checked against Excel's hash or the legacy 16-bit one.
 - The constants of VBA's own type library that the reference dumps left
   out: the colours (`vbRed`), the key codes (`vbKeyReturn`), the system
   colours (`vbButtonFace`), `vbModeless` and the QueryClose modes.

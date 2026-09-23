@@ -1,0 +1,146 @@
+{
+ "read": "ws.ProtectContents & \",\" & ws.ProtectDrawingObjects & \",\" & ws.ProtectScenarios & \",\" & ws.ProtectionMode & \",\" & ws.EnableSelection & \",\" & ws.Protection.AllowFormattingCells & \",\" & ws.Protection.AllowInsertingRows & \",\" & ws.Protection.AllowSorting & \",\" & ws.Protection.AllowFiltering",
+ "cases": [
+  {
+   "name": "plain",
+   "action": "ws.Protect",
+   "element": "<sheetProtection sheet=\"1\" objects=\"1\" scenarios=\"1\"/>",
+   "before": "sheetData",
+   "after": "pageMargins",
+   "read": "True,True,True,False,0,False,False,False,False"
+  },
+  {
+   "name": "password",
+   "action": "ws.Protect \"pw\"",
+   "element": "<sheetProtection algorithmName=\"SHA-512\" hashValue=\"ipvZheUGNdCuSJsPz+/UdUo13GGW+BlTeeLbemGozQCXtX7SzoLs+U0HK0A6YY+9teG7yj8k/fZcSNOPLXtYnA==\" saltValue=\"A7khwybxBAU/KYKsiTQueA==\" spinCount=\"100000\" sheet=\"1\" objects=\"1\" scenarios=\"1\"/>",
+   "before": "sheetData",
+   "after": "pageMargins",
+   "read": "True,True,True,False,0,False,False,False,False"
+  },
+  {
+   "name": "password_long",
+   "action": "ws.Protect \"Correct Horse 9!\"",
+   "element": "<sheetProtection algorithmName=\"SHA-512\" hashValue=\"cyFbXmGK+TSwxpT4RNTKHH+ybAgVOtoVmnBis2865UQjnKHzKdGCn9fwD1ySHnBKvLo8zln4JOnt/o6mVnIMoQ==\" saltValue=\"vJkT82Af/ra+T+4+luBgJg==\" spinCount=\"100000\" sheet=\"1\" objects=\"1\" scenarios=\"1\"/>",
+   "before": "sheetData",
+   "after": "pageMargins",
+   "read": "True,True,True,False,0,False,False,False,False"
+  },
+  {
+   "name": "contents_false",
+   "action": "ws.Protect Contents:=False",
+   "element": "<sheetProtection objects=\"1\" scenarios=\"1\"/>",
+   "before": "sheetData",
+   "after": "pageMargins",
+   "read": "False,True,True,False,0,False,False,False,False"
+  },
+  {
+   "name": "drawing_scenarios_false",
+   "action": "ws.Protect DrawingObjects:=False, Scenarios:=False",
+   "element": "<sheetProtection sheet=\"1\"/>",
+   "before": "sheetData",
+   "after": "pageMargins",
+   "read": "True,False,False,False,0,False,False,False,False"
+  },
+  {
+   "name": "user_interface_only",
+   "action": "ws.Protect UserInterfaceOnly:=True",
+   "element": "<sheetProtection sheet=\"1\" objects=\"1\" scenarios=\"1\"/>",
+   "before": "sheetData",
+   "after": "pageMargins",
+   "read": "True,True,True,False,0,False,False,False,False"
+  },
+  {
+   "name": "allow_formatting_cells",
+   "action": "ws.Protect AllowFormattingCells:=True",
+   "element": "<sheetProtection sheet=\"1\" objects=\"1\" scenarios=\"1\" formatCells=\"0\"/>",
+   "before": "sheetData",
+   "after": "pageMargins",
+   "read": "True,True,True,False,0,True,False,False,False"
+  },
+  {
+   "name": "allow_everything",
+   "action": "ws.Protect AllowFormattingCells:=True, AllowFormattingColumns:=True, AllowFormattingRows:=True, AllowInsertingColumns:=True, AllowInsertingRows:=True, AllowInsertingHyperlinks:=True, AllowDeletingColumns:=True, AllowDeletingRows:=True, AllowSorting:=True, AllowFiltering:=True, AllowUsingPivotTables:=True",
+   "element": "<sheetProtection sheet=\"1\" objects=\"1\" scenarios=\"1\" formatCells=\"0\" formatColumns=\"0\" formatRows=\"0\" insertColumns=\"0\" insertRows=\"0\" insertHyperlinks=\"0\" deleteColumns=\"0\" deleteRows=\"0\" sort=\"0\" autoFilter=\"0\" pivotTables=\"0\"/>",
+   "before": "sheetData",
+   "after": "pageMargins",
+   "read": "True,True,True,False,0,True,True,True,True"
+  },
+  {
+   "name": "select_unlocked",
+   "action": "ws.EnableSelection = xlUnlockedCells: ws.Protect",
+   "element": "<sheetProtection sheet=\"1\" objects=\"1\" scenarios=\"1\" selectLockedCells=\"1\"/>",
+   "before": "sheetData",
+   "after": "pageMargins",
+   "read": "True,True,True,False,1,False,False,False,False"
+  },
+  {
+   "name": "select_none",
+   "action": "ws.EnableSelection = xlNoSelection: ws.Protect",
+   "element": "<sheetProtection sheet=\"1\" objects=\"1\" scenarios=\"1\" selectLockedCells=\"1\" selectUnlockedCells=\"1\"/>",
+   "before": "sheetData",
+   "after": "pageMargins",
+   "read": "True,True,True,False,-4142,False,False,False,False"
+  },
+  {
+   "name": "unprotected_again",
+   "action": "ws.Protect \"pw\": ws.Unprotect \"pw\"",
+   "element": "",
+   "before": "",
+   "after": "",
+   "read": "False,False,False,False,0,False,False,False,False"
+  },
+  {
+   "name": "unlocked_cell",
+   "action": "ws.Range(\"A1\").Locked = False: ws.Protect",
+   "element": "<sheetProtection sheet=\"1\" objects=\"1\" scenarios=\"1\"/>",
+   "before": "sheetData",
+   "after": "pageMargins",
+   "read": "True,True,True,False,0,False,False,False,False"
+  },
+  {
+   "name": "allow_everything_select_none",
+   "action": "ws.EnableSelection = xlNoSelection: ws.Protect \"pw\", DrawingObjects:=False, AllowFormattingCells:=True, AllowFormattingColumns:=True, AllowFormattingRows:=True, AllowInsertingColumns:=True, AllowInsertingRows:=True, AllowInsertingHyperlinks:=True, AllowDeletingColumns:=True, AllowDeletingRows:=True, AllowSorting:=True, AllowFiltering:=True, AllowUsingPivotTables:=True",
+   "element": "<sheetProtection algorithmName=\"SHA-512\" hashValue=\"2LpDatFYfZC12z/aJkXigMvRLygQCBMV9C8LkJiy1RYRwf6DLR9zGHqIJjSR3XtLeeb5f16fkuoKY9Wk6+cLUA==\" saltValue=\"9DvRelSOMEYZbUDbLl04pg==\" spinCount=\"100000\" sheet=\"1\" scenarios=\"1\" formatCells=\"0\" formatColumns=\"0\" formatRows=\"0\" insertColumns=\"0\" insertRows=\"0\" insertHyperlinks=\"0\" deleteColumns=\"0\" deleteRows=\"0\" selectLockedCells=\"1\" sort=\"0\" autoFilter=\"0\" pivotTables=\"0\" selectUnlockedCells=\"1\"/>",
+   "before": "sheetData",
+   "after": "pageMargins",
+   "read": "True,False,True,False,-4142,True,True,True,True"
+  }
+ ],
+ "legacy": [
+  {
+   "name": "legacy_right",
+   "password": "pw",
+   "hash": "CF75",
+   "attempt": "pw",
+   "answer": "0,False"
+  },
+  {
+   "name": "legacy_wrong",
+   "password": "pw",
+   "hash": "CF75",
+   "attempt": "bad",
+   "answer": "1004,True"
+  },
+  {
+   "name": "legacy_case",
+   "password": "pw",
+   "hash": "CF75",
+   "attempt": "PW",
+   "answer": "1004,True"
+  },
+  {
+   "name": "legacy_long_right",
+   "password": "Correct Horse9!",
+   "hash": "A981",
+   "attempt": "Correct Horse9!",
+   "answer": "0,False"
+  },
+  {
+   "name": "legacy_long_wrong",
+   "password": "Correct Horse9!",
+   "hash": "A981",
+   "attempt": "Correct",
+   "answer": "1004,True"
+  }
+ ]
+}

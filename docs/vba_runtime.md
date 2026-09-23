@@ -381,8 +381,13 @@ error text:
   with AllowSorting over unlocked cells, and the Sort object sorts
   regardless. Replace answers True and changes nothing.
 * With DrawingObjects, AddShape fails; other changes to shapes report
-  themselves unsupported. The protection is not yet read from or written
-  to a file.
+  themselves unsupported.
+* A save writes the sheetProtection element Excel writes, the password
+  as its SHA-512 hash with a salt of the model's own, and a sheet read
+  with one is protected, its password checked against that hash or the
+  legacy 16-bit one older writers use (`tests/fixtures/protection_file.json`,
+  13 files and 5 legacy passwords; a live gate opens the model's files
+  in Excel). UserInterfaceOnly is not saved, as in Excel.
 
 **Filtering.** `Range.AutoFilter` and the AutoFilter, Filters and Filter
 objects filter as Excel does (`tests/fixtures/autofilter.json`, 113

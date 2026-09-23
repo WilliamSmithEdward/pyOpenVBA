@@ -451,6 +451,12 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- `Range.Cut` moves a reference that loses a whole edge to the cells it
+  moves, as Excel does. Across sheets the reference keeps the rest:
+  `SUM(B2:B7)` reads `SUM(B5:B7)` once B2:B4 is cut away. On its own
+  sheet the edge goes where the block goes when the block moves straight
+  along the range: B7 cut to B9 leaves `SUM(B2:B9)`. The model left
+  both as they were. 24 layouts in live Excel pin it.
 - `Range.Delete` and `Range.Insert` with a `Shift` rewrite the references
   to the cells they move, as Excel does. A reference whose columns lie in
   the band that shifts moves and stretches as it would for whole rows,

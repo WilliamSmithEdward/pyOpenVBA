@@ -32,15 +32,6 @@ UNSUPPORTED = {
     **{name: "the formula engine has no SUBTOTAL" for name in ("subtotal_filtered", "subtotal_by_hand")},
 }
 
-#: Layouts that meet a gap the model documents rather than refuses, and which one.
-_CUT = "a cut to another sheet trims a reference it takes the top or bottom of, which the model leaves"
-GAPS = {
-    "cut_part": _CUT,
-    "cut_part_no_filter": _CUT,
-    "cut_bottom_no_filter": _CUT,
-    "cut_column_part_no_filter": _CUT,
-}
-
 
 def _run(layout: dict[str, Any]) -> object:
     code = ["Public Function Report() As String", "Dim ws As Object, failed As String, v As Variant, dest As Object",
@@ -54,15 +45,7 @@ def _run(layout: dict[str, Any]) -> object:
     return app.run("Report")
 
 
-def _cases() -> list[Any]:
-    cases: list[Any] = []
-    for layout in LAYOUTS:
-        marks = [pytest.mark.xfail(reason=GAPS[layout["name"]], strict=True)] if layout["name"] in GAPS else []
-        cases.append(pytest.param(layout, id=layout["name"], marks=marks))
-    return cases
-
-
-@pytest.mark.parametrize("layout", _cases())
+@pytest.mark.parametrize("layout", LAYOUTS, ids=[layout["name"] for layout in LAYOUTS])
 def test_a_filtered_sheet_takes_edits_as_excel_does(layout: dict[str, Any]) -> None:
     if layout["name"] in UNSUPPORTED:
         with pytest.raises(VBAUnsupportedError):
@@ -72,6 +55,4 @@ def test_a_filtered_sheet_takes_edits_as_excel_does(layout: dict[str, Any]) -> N
 
 
 def test_every_listed_layout_is_in_the_fixture() -> None:
-    names = {layout["name"] for layout in LAYOUTS}
-    assert set(UNSUPPORTED) <= names
-    assert set(GAPS) <= names
+    assert set(UNSUPPORTED) <= {layout["name"] for layout in LAYOUTS}

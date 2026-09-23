@@ -523,7 +523,15 @@ or formulas, all but borders, or column widths
 * A cut moves cells and formats. Every reference in the workbook wholly
   inside the block follows it, names included and to another sheet with
   the sheet's name; one wholly inside the cells it lands on becomes
-  `#REF!`; one that only overlaps stays.
+  `#REF!`. A formula cut to another sheet keeps pointing where it did.
+* A reference that loses a whole edge to the block -- its full width at
+  the top or bottom, its full height at a side -- keeps the rest when the
+  block goes to another sheet, `SUM(B2:B7)` reading `SUM(B5:B7)` once
+  B2:B4 goes. On its own sheet the edge goes where the block does, if the
+  block moves straight along the range and the range stays the right way
+  round: B7 cut to B9 leaves `SUM(B2:B9)`, C2:C6 cut to E2 leaves
+  `SUM(B2:E6)` for `SUM(B2:C6)`. Any other overlap, and whole rows and
+  columns, stay (`tests/fixtures/cut_references.json`, 24 layouts).
 
 **Ranges can be searched.** `Find`, `FindNext` and `FindPrevious` support
 single-area ranges, including whole sheets without materializing empty

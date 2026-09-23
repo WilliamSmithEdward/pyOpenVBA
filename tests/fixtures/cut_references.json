@@ -1,0 +1,126 @@
+{
+ "helper": "\nPrivate Function Dump(src As Object, dst As Object) As String\n    Dim out As String, c As Object\n    For Each c In src.Range(\"F1:F9\").Cells\n        out = out & c.Formula & \";\"\n    Next\n    out = out & \" dst=\" & dst.Range(\"H1\").Formula & \" name=\" & src.Parent.Names(\"Tracked\").RefersTo & \" src=\"\n    For Each c In src.Range(\"A1:E12\").Cells\n        out = out & c.Formula & \",\"\n    Next\n    out = out & \" dstcells=\"\n    For Each c In dst.Range(\"A1:E8\").Cells\n        out = out & c.Formula & \",\"\n    Next\n    Dump = out\nEnd Function\n",
+ "setup": "For r = 2 To 7\n    src.Cells(r, 2).Value = r - 1\n    src.Cells(r, 3).Value = (r - 1) * 10\nNext\nsrc.Range(\"F1\").Formula = \"=SUM(B2:B7)\"\nsrc.Range(\"F2\").Formula = \"=SUM(B2:C6)\"\nsrc.Range(\"F3\").Formula = \"=B7\"\nsrc.Range(\"F4\").Formula = \"=SUM($B$2:$B$7)\"\nsrc.Range(\"F5\").Formula = \"=SUM(B:B)\"\nsrc.Range(\"F6\").Formula = \"=SUM(D2:D6)\"\nsrc.Range(\"F7\").Formula = \"=SUM(B3:B5)\"\nsrc.Range(\"F8\").Formula = \"=SUM(A1:C8)\"\nsrc.Range(\"F9\").Formula = \"=SUM(C2:C7)\"\ndst.Range(\"H1\").Formula = \"=SUM(Src!B2:B7)\"\nsrc.Parent.Names.Add Name:=\"Tracked\", RefersTo:=\"=Src!$B$2:$B$7\"\n",
+ "layouts": [
+  {
+   "name": "same_bottom_cell",
+   "cut": "src.Range(\"B7\").Cut src.Range(\"B9\")",
+   "answers": "=SUM(B2:B9);=SUM(B2:C6);=B9;=SUM($B$2:$B$9);=SUM(B:B);=SUM(D2:D6);=SUM(B3:B5);=SUM(A1:C8);=SUM(C2:C7); dst==SUM(Src!B2:B9) name==Src!$B$2:$B$9 src=,,,,,,1,10,,,,2,20,,,,3,30,,,,4,40,,,,5,50,,,,,60,,,,,,,,,6,,,,,,,,,,,,,,,,,,, dstcells=,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+  },
+  {
+   "name": "same_top_cell",
+   "cut": "src.Range(\"B2\").Cut src.Range(\"B1\")",
+   "answers": "=SUM(B1:B7);=SUM(B2:C6);=B7;=SUM($B$1:$B$7);=SUM(B:B);=SUM(D2:D6);=SUM(B3:B5);=SUM(A1:C8);=SUM(C2:C7); dst==SUM(Src!B1:B7) name==Src!$B$1:$B$7 src=,1,,,,,,10,,,,2,20,,,,3,30,,,,4,40,,,,5,50,,,,6,60,,,,,,,,,,,,,,,,,,,,,,,,,,,, dstcells=,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+  },
+  {
+   "name": "same_top_cell_far",
+   "cut": "src.Range(\"B2\").Cut src.Range(\"D10\")",
+   "answers": "=SUM(B2:B7);=SUM(B2:C6);=B7;=SUM($B$2:$B$7);=SUM(B:B);=SUM(D2:D6);=SUM(B3:B5);=SUM(A1:C8);=SUM(C2:C7); dst==SUM(Src!B2:B7) name==Src!$B$2:$B$7 src=,,,,,,,10,,,,2,20,,,,3,30,,,,4,40,,,,5,50,,,,6,60,,,,,,,,,,,,,,,,1,,,,,,,,,,,, dstcells=,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+  },
+  {
+   "name": "same_bottom_strip",
+   "cut": "src.Range(\"B6:B7\").Cut src.Range(\"B10\")",
+   "answers": "=SUM(B2:B11);=SUM(B2:C6);=B11;=SUM($B$2:$B$11);=SUM(B:B);=SUM(D2:D6);=SUM(B3:B5);=SUM(A1:C8);=SUM(C2:C7); dst==SUM(Src!B2:B11) name==Src!$B$2:$B$11 src=,,,,,,1,10,,,,2,20,,,,3,30,,,,4,40,,,,,50,,,,,60,,,,,,,,,,,,,,5,,,,,6,,,,,,,,, dstcells=,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+  },
+  {
+   "name": "same_top_strip_far",
+   "cut": "src.Range(\"A2:C4\").Cut src.Range(\"A10\")",
+   "answers": "=SUM(B2:B7);=SUM(B2:C6);=B7;=SUM($B$2:$B$7);=SUM(B:B);=SUM(D2:D6);=SUM(B3:B5);=SUM(A1:C8);=SUM(C2:C7); dst==SUM(Src!B2:B7) name==Src!$B$2:$B$7 src=,,,,,,,,,,,,,,,,,,,,,4,40,,,,5,50,,,,6,60,,,,,,,,,,,,,,1,10,,,,2,20,,,,3,30,,, dstcells=,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+  },
+  {
+   "name": "same_top_strip_near",
+   "cut": "src.Range(\"B2:B3\").Cut src.Range(\"B8\")",
+   "answers": "=SUM(B2:B7);=SUM(B2:C6);=B7;=SUM($B$2:$B$7);=SUM(B:B);=SUM(D2:D6);=SUM(B3:B5);=SUM(A1:C8);=SUM(C2:C7); dst==SUM(Src!B2:B7) name==Src!$B$2:$B$7 src=,,,,,,,10,,,,,20,,,,3,30,,,,4,40,,,,5,50,,,,6,60,,,,1,,,,,2,,,,,,,,,,,,,,,,,,, dstcells=,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+  },
+  {
+   "name": "same_sideways",
+   "cut": "src.Range(\"B2:B4\").Cut src.Range(\"D2\")",
+   "answers": "=SUM(B2:B7);=SUM(B2:C6);=B7;=SUM($B$2:$B$7);=SUM(B:B);=SUM(D2:D6);=SUM(B3:B5);=SUM(A1:C8);=SUM(C2:C7); dst==SUM(Src!B2:B7) name==Src!$B$2:$B$7 src=,,,,,,,10,1,,,,20,2,,,,30,3,,,4,40,,,,5,50,,,,6,60,,,,,,,,,,,,,,,,,,,,,,,,,,,, dstcells=,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+  },
+  {
+   "name": "same_whole",
+   "cut": "src.Range(\"B2:B7\").Cut src.Range(\"D1\")",
+   "answers": "=SUM(D1:D6);=SUM(B2:C6);=D6;=SUM($D$1:$D$6);=SUM(B:B);=SUM(#REF!);=SUM(D2:D4);=SUM(A1:C8);=SUM(C2:C7); dst==SUM(Src!D1:D6) name==Src!$D$1:$D$6 src=,,,1,,,,10,2,,,,20,3,,,,30,4,,,,40,5,,,,50,6,,,,60,,,,,,,,,,,,,,,,,,,,,,,,,,,, dstcells=,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+  },
+  {
+   "name": "same_right_column",
+   "cut": "src.Range(\"C2:C6\").Cut src.Range(\"E2\")",
+   "answers": "=SUM(B2:B7);=SUM(B2:E6);=B7;=SUM($B$2:$B$7);=SUM(B:B);=SUM(D2:D6);=SUM(B3:B5);=SUM(A1:C8);=SUM(C2:C7); dst==SUM(Src!B2:B7) name==Src!$B$2:$B$7 src=,,,,,,1,,,10,,2,,,20,,3,,,30,,4,,,40,,5,,,50,,6,60,,,,,,,,,,,,,,,,,,,,,,,,,,,, dstcells=,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+  },
+  {
+   "name": "same_down_one",
+   "cut": "src.Range(\"B2:B7\").Cut src.Range(\"B3\")",
+   "answers": "=SUM(B3:B8);=SUM(B2:C6);=B8;=SUM($B$3:$B$8);=SUM(B:B);=SUM(D2:D6);=SUM(B4:B6);=SUM(A1:C8);=SUM(C2:C7); dst==SUM(Src!B3:B8) name==Src!$B$3:$B$8 src=,,,,,,,10,,,,1,20,,,,2,30,,,,3,40,,,,4,50,,,,5,60,,,,6,,,,,,,,,,,,,,,,,,,,,,,, dstcells=,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+  },
+  {
+   "name": "same_onto_ref",
+   "cut": "src.Range(\"B2:B3\").Cut src.Range(\"D2\")",
+   "answers": "=SUM(B2:B7);=SUM(B2:C6);=B7;=SUM($B$2:$B$7);=SUM(B:B);=SUM(D2:D6);=SUM(B3:B5);=SUM(A1:C8);=SUM(C2:C7); dst==SUM(Src!B2:B7) name==Src!$B$2:$B$7 src=,,,,,,,10,1,,,,20,2,,,3,30,,,,4,40,,,,5,50,,,,6,60,,,,,,,,,,,,,,,,,,,,,,,,,,,, dstcells=,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+  },
+  {
+   "name": "same_onto_whole_ref",
+   "cut": "src.Range(\"B2:B6\").Cut src.Range(\"D2\")",
+   "answers": "=SUM(B2:B7);=SUM(B2:C6);=B7;=SUM($B$2:$B$7);=SUM(B:B);=SUM(#REF!);=SUM(D3:D5);=SUM(A1:C8);=SUM(C2:C7); dst==SUM(Src!B2:B7) name==Src!$B$2:$B$7 src=,,,,,,,10,1,,,,20,2,,,,30,3,,,,40,4,,,,50,5,,,6,60,,,,,,,,,,,,,,,,,,,,,,,,,,,, dstcells=,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+  },
+  {
+   "name": "same_block_down",
+   "cut": "src.Range(\"B2:C7\").Cut src.Range(\"B4\")",
+   "answers": "=SUM(B4:B9);=SUM(B4:C8);=B9;=SUM($B$4:$B$9);=SUM(B:B);=SUM(D2:D6);=SUM(B5:B7);=SUM(A1:C8);=SUM(C4:C9); dst==SUM(Src!B4:B9) name==Src!$B$4:$B$9 src=,,,,,,,,,,,,,,,,1,10,,,,2,20,,,,3,30,,,,4,40,,,,5,50,,,,6,60,,,,,,,,,,,,,,,,,, dstcells=,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+  },
+  {
+   "name": "other_top_cell",
+   "cut": "src.Range(\"B2\").Cut dst.Range(\"A1\")",
+   "answers": "=SUM(B3:B7);=SUM(B2:C6);=B7;=SUM($B$3:$B$7);=SUM(B:B);=SUM(D2:D6);=SUM(B3:B5);=SUM(A1:C8);=SUM(C2:C7); dst==SUM(Src!B3:B7) name==Src!$B$3:$B$7 src=,,,,,,,10,,,,2,20,,,,3,30,,,,4,40,,,,5,50,,,,6,60,,,,,,,,,,,,,,,,,,,,,,,,,,,, dstcells=1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+  },
+  {
+   "name": "other_bottom_cell",
+   "cut": "src.Range(\"B7\").Cut dst.Range(\"A1\")",
+   "answers": "=SUM(B2:B6);=SUM(B2:C6);=Dst!A1;=SUM($B$2:$B$6);=SUM(B:B);=SUM(D2:D6);=SUM(B3:B5);=SUM(A1:C8);=SUM(C2:C7); dst==SUM(Src!B2:B6) name==Src!$B$2:$B$6 src=,,,,,,1,10,,,,2,20,,,,3,30,,,,4,40,,,,5,50,,,,,60,,,,,,,,,,,,,,,,,,,,,,,,,,,, dstcells=6,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+  },
+  {
+   "name": "other_middle_cell",
+   "cut": "src.Range(\"B4\").Cut dst.Range(\"A1\")",
+   "answers": "=SUM(B2:B7);=SUM(B2:C6);=B7;=SUM($B$2:$B$7);=SUM(B:B);=SUM(D2:D6);=SUM(B3:B5);=SUM(A1:C8);=SUM(C2:C7); dst==SUM(Src!B2:B7) name==Src!$B$2:$B$7 src=,,,,,,1,10,,,,2,20,,,,,30,,,,4,40,,,,5,50,,,,6,60,,,,,,,,,,,,,,,,,,,,,,,,,,,, dstcells=3,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+  },
+  {
+   "name": "other_top_strip",
+   "cut": "src.Range(\"B2:B4\").Cut dst.Range(\"A1\")",
+   "answers": "=SUM(B5:B7);=SUM(B2:C6);=B7;=SUM($B$5:$B$7);=SUM(B:B);=SUM(D2:D6);=SUM(B5:B5);=SUM(A1:C8);=SUM(C2:C7); dst==SUM(Src!B5:B7) name==Src!$B$5:$B$7 src=,,,,,,,10,,,,,20,,,,,30,,,,4,40,,,,5,50,,,,6,60,,,,,,,,,,,,,,,,,,,,,,,,,,,, dstcells=1,,,,,2,,,,,3,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+  },
+  {
+   "name": "other_bottom_strip",
+   "cut": "src.Range(\"B5:B7\").Cut dst.Range(\"A1\")",
+   "answers": "=SUM(B2:B4);=SUM(B2:C6);=Dst!A3;=SUM($B$2:$B$4);=SUM(B:B);=SUM(D2:D6);=SUM(B3:B4);=SUM(A1:C8);=SUM(C2:C7); dst==SUM(Src!B2:B4) name==Src!$B$2:$B$4 src=,,,,,,1,10,,,,2,20,,,,3,30,,,,,40,,,,,50,,,,,60,,,,,,,,,,,,,,,,,,,,,,,,,,,, dstcells=4,,,,,5,,,,,6,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+  },
+  {
+   "name": "other_right_column",
+   "cut": "src.Range(\"C2:C6\").Cut dst.Range(\"A1\")",
+   "answers": "=SUM(B2:B7);=SUM(B2:B6);=B7;=SUM($B$2:$B$7);=SUM(B:B);=SUM(D2:D6);=SUM(B3:B5);=SUM(A1:C8);=SUM(C7:C7); dst==SUM(Src!B2:B7) name==Src!$B$2:$B$7 src=,,,,,,1,,,,,2,,,,,3,,,,,4,,,,,5,,,,,6,60,,,,,,,,,,,,,,,,,,,,,,,,,,,, dstcells=10,,,,,20,,,,,30,,,,,40,,,,,50,,,,,,,,,,,,,,,,,,,,"
+  },
+  {
+   "name": "other_left_column",
+   "cut": "src.Range(\"B2:B6\").Cut dst.Range(\"A1\")",
+   "answers": "=SUM(B7:B7);=SUM(C2:C6);=B7;=SUM($B$7:$B$7);=SUM(B:B);=SUM(D2:D6);=SUM(Dst!A2:A4);=SUM(A1:C8);=SUM(C2:C7); dst==SUM(Src!B7:B7) name==Src!$B$7:$B$7 src=,,,,,,,10,,,,,20,,,,,30,,,,,40,,,,,50,,,,6,60,,,,,,,,,,,,,,,,,,,,,,,,,,,, dstcells=1,,,,,2,,,,,3,,,,,4,,,,,5,,,,,,,,,,,,,,,,,,,,"
+  },
+  {
+   "name": "other_wide_top",
+   "cut": "src.Range(\"A2:E3\").Cut dst.Range(\"A1\")",
+   "answers": "=SUM(B4:B7);=SUM(B4:C6);=B7;=SUM($B$4:$B$7);=SUM(B:B);=SUM(D4:D6);=SUM(B4:B5);=SUM(A1:C8);=SUM(C4:C7); dst==SUM(Src!B4:B7) name==Src!$B$4:$B$7 src=,,,,,,,,,,,,,,,,3,30,,,,4,40,,,,5,50,,,,6,60,,,,,,,,,,,,,,,,,,,,,,,,,,,, dstcells=,1,10,,,,2,20,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+  },
+  {
+   "name": "other_corner",
+   "cut": "src.Range(\"B2:B3\").Cut dst.Range(\"A1\")",
+   "answers": "=SUM(B4:B7);=SUM(B2:C6);=B7;=SUM($B$4:$B$7);=SUM(B:B);=SUM(D2:D6);=SUM(B4:B5);=SUM(A1:C8);=SUM(C2:C7); dst==SUM(Src!B4:B7) name==Src!$B$4:$B$7 src=,,,,,,,10,,,,,20,,,,3,30,,,,4,40,,,,5,50,,,,6,60,,,,,,,,,,,,,,,,,,,,,,,,,,,, dstcells=1,,,,,2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+  },
+  {
+   "name": "other_whole",
+   "cut": "src.Range(\"B2:B7\").Cut dst.Range(\"A1\")",
+   "answers": "=SUM(Dst!A1:A6);=SUM(C2:C6);=Dst!A6;=SUM(Dst!$A$1:$A$6);=SUM(B:B);=SUM(D2:D6);=SUM(Dst!A2:A4);=SUM(A1:C8);=SUM(C2:C7); dst==SUM(Dst!A1:A6) name==Dst!$A$1:$A$6 src=,,,,,,,10,,,,,20,,,,,30,,,,,40,,,,,50,,,,,60,,,,,,,,,,,,,,,,,,,,,,,,,,,, dstcells=1,,,,,2,,,,,3,,,,,4,,,,,5,,,,,6,,,,,,,,,,,,,,,"
+  },
+  {
+   "name": "other_more_than_whole",
+   "cut": "src.Range(\"B1:B8\").Cut dst.Range(\"A1\")",
+   "answers": "=SUM(Dst!A2:A7);=SUM(C2:C6);=Dst!A7;=SUM(Dst!$A$2:$A$7);=SUM(B:B);=SUM(D2:D6);=SUM(Dst!A3:A5);=SUM(A1:C8);=SUM(C2:C7); dst==SUM(Dst!A2:A7) name==Dst!$A$2:$A$7 src=,,,,,,,10,,,,,20,,,,,30,,,,,40,,,,,50,,,,,60,,,,,,,,,,,,,,,,,,,,,,,,,,,, dstcells=,,,,,1,,,,,2,,,,,3,,,,,4,,,,,5,,,,,6,,,,,,,,,,"
+  }
+ ]
+}

@@ -25,8 +25,11 @@ Measured in live Excel (scripts/measure_paste.py):
 - Cut moves the cells, formats and all, and leaves blanks behind. Every
   reference in the workbook that lies wholly inside the moved block,
   names included, follows it, to another sheet with the sheet's name;
-  one wholly inside the cells the block lands on becomes #REF!; one that
-  only overlaps either stays as it is.
+  one wholly inside the cells the block lands on becomes #REF!.
+  (scripts/measure_cut_references.py, 24 layouts:) one that loses a
+  whole edge to the block keeps the rest when the block goes to another
+  sheet, and on its own sheet takes the edge along when the block moves
+  straight along it; any other overlap stays as it is.
 
 Measured in live Excel (scripts/measure_autofilter_edits.py):
 
@@ -436,9 +439,14 @@ def moved_references(formula: str, owner: str, sheet: str, area: Area, target: s
 
     A reference wholly inside ``area`` on ``sheet`` moves by ``down`` and
     ``across`` to ``target``; one wholly inside ``landing`` on ``target``,
-    whose cells the block replaces, becomes #REF!. A formula ``moving``
-    with the block to ``target`` names that sheet only where it did, and
-    names its old sheet for a reference to it that stays behind.
+    whose cells the block replaces, becomes #REF!. One that loses a whole
+    edge to the block -- its full width at the top or bottom, its full
+    height at a side -- keeps the rest when the block goes to another
+    sheet, and on its own sheet takes the edge where the block goes, if
+    the block moves straight along it and the range stays the right way
+    round: B7 cut to B9 leaves SUM(B2:B7) reading SUM(B2:B9). A formula
+    ``moving`` with the block to ``target`` names that sheet only where
+    it did, and names its old sheet for a reference to it that stays behind.
     """
     body = formula[1:] if formula.startswith("=") else formula
     after = target if moving else owner
@@ -456,10 +464,18 @@ def moved_references(formula: str, owner: str, sheet: str, area: Area, target: s
             if target.casefold() != on.casefold() or named:
                 prefix = quote_sheet(target) + "!" if (named or target.casefold() != after.casefold()) else ""
             pieces.append((token.at, token.at + len(token.text), prefix + moved))
-        elif on.casefold() == target.casefold() and _inside(box, landing):
+            continue
+        if on.casefold() == target.casefold() and _inside(box, landing):
             pieces.append((token.at, token.at + len(token.text), prefix + "#REF!"))
-        elif not named and after.casefold() != owner.casefold():
-            pieces.append((token.at, token.at + len(token.text), quote_sheet(owner) + "!" + token.text))
+            continue
+        edged = _edged(corners, box, area, down, across, elsewhere=target.casefold() != sheet.casefold()) \
+            if on.casefold() == sheet.casefold() else None
+        if edged is None and (named or after.casefold() == owner.casefold()):
+            continue
+        text = reference if edged is None else edged
+        if not named and after.casefold() != owner.casefold():
+            prefix = quote_sheet(owner) + "!"
+        pieces.append((token.at, token.at + len(token.text), prefix + text))
     for start, stop, replacement in reversed(pieces):
         body = body[:start] + replacement + body[stop:]
     return ("=" if formula.startswith("=") else "") + body
@@ -492,6 +508,42 @@ def _box(corners: list[tuple[str, int | None, str, int | None]]) -> Area:
 
 def _inside(box: Area, area: Area) -> bool:
     return area.top <= box.top and box.bottom <= area.bottom and area.left <= box.left and box.right <= area.right
+
+
+def _edged(corners: list[tuple[str, int | None, str, int | None]], box: Area, area: Area, down: int, across: int,
+           *, elsewhere: bool) -> str | None:
+    """A reference that loses a whole edge to a cut block, as moved_references has it; None where it stays."""
+    if any(corner[1] is None or corner[3] is None for corner in corners):
+        return None  # Whole rows and columns stay.
+    top, left = max(box.top, area.top), max(box.left, area.left)
+    bottom, right = min(box.bottom, area.bottom), min(box.right, area.right)
+    if top > bottom or left > right:
+        return None
+    wide, tall = (left, right) == (box.left, box.right), (top, bottom) == (box.top, box.bottom)
+    side = "top" if wide and top == box.top else "bottom" if wide and bottom == box.bottom else \
+        "left" if tall and left == box.left else "right" if tall and right == box.right else ""
+    if not side or (not elsewhere and (across if side in ("top", "bottom") else down)):
+        return None  # On its own sheet an edge follows only a block moving straight along the range.
+    new_top, new_left, new_bottom, new_right = box.top, box.left, box.bottom, box.right
+    if side == "top":
+        new_top = bottom + 1 if elsewhere else box.top + down
+    elif side == "bottom":
+        new_bottom = top - 1 if elsewhere else box.bottom + down
+    elif side == "left":
+        new_left = right + 1 if elsewhere else box.left + across
+    else:
+        new_right = left - 1 if elsewhere else box.right + across
+    if new_top > new_bottom or new_left > new_right or new_top < 1 or new_left < 1 or new_bottom > MAX_ROWS \
+            or new_right > MAX_COLUMNS:
+        return None
+    rows = [corner[3] or 0 for corner in corners]
+    columns = [corner[1] or 0 for corner in corners]
+    placed_rows = [new_top] if len(corners) == 1 else [new_top, new_bottom] if rows[0] <= rows[-1] else \
+        [new_bottom, new_top]
+    placed_columns = [new_left] if len(corners) == 1 else [new_left, new_right] if columns[0] <= columns[-1] else \
+        [new_right, new_left]
+    return ":".join(f"{column_fixed}{column_letter(column)}{row_fixed}{row}"
+                    for (column_fixed, _, row_fixed, _), row, column in zip(corners, placed_rows, placed_columns))
 
 
 def _shifted(corner: tuple[str, int | None, str, int | None], down: int, across: int) -> str:

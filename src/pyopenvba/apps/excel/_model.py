@@ -57,6 +57,7 @@ if TYPE_CHECKING:
     from pyopenvba.apps.excel._styles import Style, Stylesheet
     from pyopenvba.apps.excel._tables import Table
     from pyopenvba.apps.excel._typing import Typed
+    from pyopenvba.apps.excel._validation import Rule as ValidationRule
     from pyopenvba.formula._structured import TableShape
     from pyopenvba.interpreter._runtime import Interpreter
 
@@ -793,6 +794,10 @@ class Worksheet(ExcelObject):
         self.array_formulas: dict[tuple[int, int], Area] = {}
         #: The sheet's tables, in the order its file lists them (see _tables).
         self.tables: list[Table] = []
+        #: The sheet's data validation rules, in the order its file lists them (see _validation).
+        self.validations: list[ValidationRule] = []
+        #: True once a rule is added, changed or removed, so a save writes the rules again.
+        self.validations_changed = False
         self.merged_areas: list[Area] = []
         self.merges_dirty = False
         self.visible = -1  # xlSheetVisible
@@ -1636,6 +1641,13 @@ class Range(ExcelObject):
         return Range(self.sheet, [_arrays.current_array(self)])
 
     @member
+    def Validation(self) -> object:
+        """The data validation rule the range's cells have (see _validation)."""
+        from pyopenvba.apps.excel._validation import Validation
+
+        return Validation(self)
+
+    @member
     def ListObject(self) -> object:
         """The table the range's first cell is part of, or Nothing."""
         from pyopenvba.apps.excel._tables import table_at, view
@@ -2201,6 +2213,11 @@ class Range(ExcelObject):
         clear_formats(target)
         target._clear_contents()
         header_cleared(target)
+        if self.sheet.validations:
+            from pyopenvba.apps.excel._validation import remove
+
+            # Clear takes the cells out of their validation rules too; ClearContents leaves them.
+            remove(self.sheet, [Area(area.top, area.left, area.bottom, area.right) for area in target.areas])
         _events.after_edit(self)
         return EMPTY
 
@@ -2482,6 +2499,14 @@ class Range(ExcelObject):
             for (row, column), style in plan:
                 if style != Destination.sheet.inherited_style(row, column):
                     Destination.sheet.restyle(row, column, style)
+        if self.sheet.validations or Destination.sheet.validations:
+            from pyopenvba.apps.excel._validation import copied
+
+            # The copy takes the validation rules of the cells copied along, each tile of it.
+            for tile_row in range(target.top, bottom + 1, area.rows):
+                for tile_column in range(target.left, right + 1, area.columns):
+                    copied(self.sheet, Area(area.top, area.left, area.bottom, area.right), Destination.sheet,
+                           Area(tile_row, tile_column, tile_row + area.rows - 1, tile_column + area.columns - 1))
         if names_brought:
             # Names the copy brought can change what any formula means.
             Destination.sheet.shape_changed()

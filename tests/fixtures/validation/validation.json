@@ -1,0 +1,600 @@
+{
+ "helpers": "Private Function R_Type(v As Object) As String\n    On Error GoTo Bad\n    R_Type = CStr(v.Type)\n    Exit Function\nBad:\n    R_Type = \"!\" & Err.Number\nEnd Function\n\nPrivate Function R_AlertStyle(v As Object) As String\n    On Error GoTo Bad\n    R_AlertStyle = CStr(v.AlertStyle)\n    Exit Function\nBad:\n    R_AlertStyle = \"!\" & Err.Number\nEnd Function\n\nPrivate Function R_Operator(v As Object) As String\n    On Error GoTo Bad\n    R_Operator = CStr(v.Operator)\n    Exit Function\nBad:\n    R_Operator = \"!\" & Err.Number\nEnd Function\n\nPrivate Function R_Formula1(v As Object) As String\n    On Error GoTo Bad\n    R_Formula1 = CStr(v.Formula1)\n    Exit Function\nBad:\n    R_Formula1 = \"!\" & Err.Number\nEnd Function\n\nPrivate Function R_Formula2(v As Object) As String\n    On Error GoTo Bad\n    R_Formula2 = CStr(v.Formula2)\n    Exit Function\nBad:\n    R_Formula2 = \"!\" & Err.Number\nEnd Function\n\nPrivate Function R_IgnoreBlank(v As Object) As String\n    On Error GoTo Bad\n    R_IgnoreBlank = CStr(v.IgnoreBlank)\n    Exit Function\nBad:\n    R_IgnoreBlank = \"!\" & Err.Number\nEnd Function\n\nPrivate Function R_InCellDropdown(v As Object) As String\n    On Error GoTo Bad\n    R_InCellDropdown = CStr(v.InCellDropdown)\n    Exit Function\nBad:\n    R_InCellDropdown = \"!\" & Err.Number\nEnd Function\n\nPrivate Function R_ShowInput(v As Object) As String\n    On Error GoTo Bad\n    R_ShowInput = CStr(v.ShowInput)\n    Exit Function\nBad:\n    R_ShowInput = \"!\" & Err.Number\nEnd Function\n\nPrivate Function R_ShowError(v As Object) As String\n    On Error GoTo Bad\n    R_ShowError = CStr(v.ShowError)\n    Exit Function\nBad:\n    R_ShowError = \"!\" & Err.Number\nEnd Function\n\nPrivate Function R_InputTitle(v As Object) As String\n    On Error GoTo Bad\n    R_InputTitle = CStr(v.InputTitle)\n    Exit Function\nBad:\n    R_InputTitle = \"!\" & Err.Number\nEnd Function\n\nPrivate Function R_InputMessage(v As Object) As String\n    On Error GoTo Bad\n    R_InputMessage = CStr(v.InputMessage)\n    Exit Function\nBad:\n    R_InputMessage = \"!\" & Err.Number\nEnd Function\n\nPrivate Function R_ErrorTitle(v As Object) As String\n    On Error GoTo Bad\n    R_ErrorTitle = CStr(v.ErrorTitle)\n    Exit Function\nBad:\n    R_ErrorTitle = \"!\" & Err.Number\nEnd Function\n\nPrivate Function R_ErrorMessage(v As Object) As String\n    On Error GoTo Bad\n    R_ErrorMessage = CStr(v.ErrorMessage)\n    Exit Function\nBad:\n    R_ErrorMessage = \"!\" & Err.Number\nEnd Function\n\nPrivate Function R_Value(v As Object) As String\n    On Error GoTo Bad\n    R_Value = CStr(v.Value)\n    Exit Function\nBad:\n    R_Value = \"!\" & Err.Number\nEnd Function\n\nPrivate Function Describe(c As Object) As String\n    Dim v As Object\n    Set v = c.Validation\n    Describe = R_Type(v) & \"~;~\" & R_AlertStyle(v) & \"~;~\" & R_Operator(v) & \"~;~\" & R_Formula1(v) & \"~;~\" & R_Formula2(v) & \"~;~\" & R_IgnoreBlank(v) & \"~;~\" & R_InCellDropdown(v) & \"~;~\" & R_ShowInput(v) & \"~;~\" & R_ShowError(v) & \"~;~\" & R_InputTitle(v) & \"~;~\" & R_InputMessage(v) & \"~;~\" & R_ErrorTitle(v) & \"~;~\" & R_ErrorMessage(v) & \"~;~\" & R_Value(v)\nEnd Function\n",
+ "properties": [
+  "Type",
+  "AlertStyle",
+  "Operator",
+  "Formula1",
+  "Formula2",
+  "IgnoreBlank",
+  "InCellDropdown",
+  "ShowInput",
+  "ShowError",
+  "InputTitle",
+  "InputMessage",
+  "ErrorTitle",
+  "ErrorMessage",
+  "Value"
+ ],
+ "read": [
+  "A1",
+  "A3",
+  "A5",
+  "A6",
+  "B1",
+  "C1",
+  "C3"
+ ],
+ "books": [
+  {
+   "name": "none",
+   "making": "",
+   "e1": "",
+   "cells": {
+    "A1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "A3": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "A5": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "A6": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "B1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C3": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True"
+   },
+   "saved": ""
+  },
+  {
+   "name": "list_literal",
+   "making": "ws.Range(\"A1:A5\").Validation.Add Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Operator:=xlBetween, Formula1:=\"red,green,blue\"",
+   "e1": "",
+   "cells": {
+    "A1": "3~;~1~;~1~;~red,green,blue~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A3": "3~;~1~;~1~;~red,green,blue~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A5": "3~;~1~;~1~;~red,green,blue~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A6": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "B1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C3": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True"
+   },
+   "saved": "<dataValidations count=\"1\"><dataValidation type=\"list\" allowBlank=\"1\" showInputMessage=\"1\" showErrorMessage=\"1\" sqref=\"A1:A5\" xr:uid=\"{7125EA59-C54F-458E-A52E-F08E62BEDAA2}\"><formula1>\"red,green,blue\"</formula1></dataValidation></dataValidations>"
+  },
+  {
+   "name": "list_only_type",
+   "making": "ws.Range(\"A1:A5\").Validation.Add xlValidateList, , , \"red,green,blue\"",
+   "e1": "",
+   "cells": {
+    "A1": "3~;~1~;~1~;~red,green,blue~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A3": "3~;~1~;~1~;~red,green,blue~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A5": "3~;~1~;~1~;~red,green,blue~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A6": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "B1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C3": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True"
+   },
+   "saved": "<dataValidations count=\"1\"><dataValidation type=\"list\" allowBlank=\"1\" showInputMessage=\"1\" showErrorMessage=\"1\" sqref=\"A1:A5\" xr:uid=\"{80E557AF-3051-4C94-9F49-5F74B93D087D}\"><formula1>\"red,green,blue\"</formula1></dataValidation></dataValidations>"
+  },
+  {
+   "name": "list_range",
+   "making": "ws.Range(\"D1:D3\").Value = Application.Transpose(Array(\"x\", \"y\", \"z\"))\nws.Range(\"A1:A5\").Validation.Add xlValidateList, Formula1:=\"=$D$1:$D$3\"",
+   "e1": "",
+   "cells": {
+    "A1": "3~;~1~;~1~;~=$D$1:$D$3~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A3": "3~;~1~;~1~;~=$D$1:$D$3~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A5": "3~;~1~;~1~;~=$D$1:$D$3~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A6": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "B1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C3": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True"
+   },
+   "saved": "<dataValidations count=\"1\"><dataValidation type=\"list\" allowBlank=\"1\" showInputMessage=\"1\" showErrorMessage=\"1\" sqref=\"A1:A5\" xr:uid=\"{DA922F13-E723-4007-B74D-63E3B6D53AB5}\"><formula1>$D$1:$D$3</formula1></dataValidation></dataValidations>"
+  },
+  {
+   "name": "list_relative",
+   "making": "ws.Range(\"A1:A5\").Validation.Add xlValidateList, Formula1:=\"=D1:D3\"",
+   "e1": "",
+   "cells": {
+    "A1": "3~;~1~;~1~;~=D1:D3~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A3": "3~;~1~;~1~;~=D3:D5~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A5": "3~;~1~;~1~;~=D5:D7~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A6": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "B1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C3": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True"
+   },
+   "saved": "<dataValidations count=\"1\"><dataValidation type=\"list\" allowBlank=\"1\" showInputMessage=\"1\" showErrorMessage=\"1\" sqref=\"A1:A5\" xr:uid=\"{ADAFBDD8-1C89-4F26-8006-4CC38D82ADC3}\"><formula1>D1:D3</formula1></dataValidation></dataValidations>"
+  },
+  {
+   "name": "whole_between",
+   "making": "ws.Range(\"A1:A5\").Validation.Add xlValidateWholeNumber, xlValidAlertStop, xlBetween, \"1\", \"10\"",
+   "e1": "",
+   "cells": {
+    "A1": "1~;~1~;~1~;~1~;~10~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A3": "1~;~1~;~1~;~1~;~10~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A5": "1~;~1~;~1~;~1~;~10~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A6": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "B1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C3": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True"
+   },
+   "saved": "<dataValidations count=\"1\"><dataValidation type=\"whole\" allowBlank=\"1\" showInputMessage=\"1\" showErrorMessage=\"1\" sqref=\"A1:A5\" xr:uid=\"{53344252-70EC-4BD8-908F-D9AEA53ABDFE}\"><formula1>1</formula1><formula2>10</formula2></dataValidation></dataValidations>"
+  },
+  {
+   "name": "whole_numbers",
+   "making": "ws.Range(\"A1:A5\").Validation.Add xlValidateWholeNumber, xlValidAlertStop, xlBetween, 1, 10",
+   "e1": "",
+   "cells": {
+    "A1": "1~;~1~;~1~;~1~;~10~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A3": "1~;~1~;~1~;~1~;~10~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A5": "1~;~1~;~1~;~1~;~10~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A6": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "B1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C3": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True"
+   },
+   "saved": "<dataValidations count=\"1\"><dataValidation type=\"whole\" allowBlank=\"1\" showInputMessage=\"1\" showErrorMessage=\"1\" sqref=\"A1:A5\" xr:uid=\"{6D87819A-F81A-4986-9451-465EF0C4A9D7}\"><formula1>1</formula1><formula2>10</formula2></dataValidation></dataValidations>"
+  },
+  {
+   "name": "decimal_greater",
+   "making": "ws.Range(\"A1:A5\").Validation.Add xlValidateDecimal, xlValidAlertWarning, xlGreater, \"0.5\"",
+   "e1": "",
+   "cells": {
+    "A1": "2~;~2~;~5~;~0.5~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A3": "2~;~2~;~5~;~0.5~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A5": "2~;~2~;~5~;~0.5~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A6": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "B1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C3": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True"
+   },
+   "saved": "<dataValidations count=\"1\"><dataValidation type=\"decimal\" errorStyle=\"warning\" operator=\"greaterThan\" allowBlank=\"1\" showInputMessage=\"1\" showErrorMessage=\"1\" sqref=\"A1:A5\" xr:uid=\"{E13A2F1B-579C-449B-BE1C-24389252DA95}\"><formula1>0.5</formula1></dataValidation></dataValidations>"
+  },
+  {
+   "name": "date_from",
+   "making": "ws.Range(\"A1:A5\").Validation.Add xlValidateDate, xlValidAlertInformation, xlGreaterEqual, \"1/2/2020\"",
+   "e1": "",
+   "cells": {
+    "A1": "4~;~3~;~7~;~1/2/2020~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A3": "4~;~3~;~7~;~1/2/2020~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A5": "4~;~3~;~7~;~1/2/2020~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A6": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "B1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C3": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True"
+   },
+   "saved": "<dataValidations count=\"1\"><dataValidation type=\"date\" errorStyle=\"information\" operator=\"greaterThanOrEqual\" allowBlank=\"1\" showInputMessage=\"1\" showErrorMessage=\"1\" sqref=\"A1:A5\" xr:uid=\"{4964FD38-7FBB-4909-8A81-B5B87029608E}\"><formula1>43832</formula1></dataValidation></dataValidations>"
+  },
+  {
+   "name": "time_between",
+   "making": "ws.Range(\"A1:A5\").Validation.Add xlValidateTime, Formula1:=\"9:00\", Formula2:=\"17:30\"",
+   "e1": "",
+   "cells": {
+    "A1": "5~;~1~;~1~;~9:00:00 AM~;~5:30:00 PM~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A3": "5~;~1~;~1~;~9:00:00 AM~;~5:30:00 PM~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A5": "5~;~1~;~1~;~9:00:00 AM~;~5:30:00 PM~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A6": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "B1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C3": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True"
+   },
+   "saved": "<dataValidations count=\"1\"><dataValidation type=\"time\" allowBlank=\"1\" showInputMessage=\"1\" showErrorMessage=\"1\" sqref=\"A1:A5\" xr:uid=\"{CE4C4FD5-2432-48EA-B8BD-2EAF9DFBA0B8}\"><formula1>0.375</formula1><formula2>0.729166666666667</formula2></dataValidation></dataValidations>"
+  },
+  {
+   "name": "text_length",
+   "making": "ws.Range(\"A1:A5\").Validation.Add xlValidateTextLength, , xlLessEqual, \"5\"",
+   "e1": "",
+   "cells": {
+    "A1": "6~;~1~;~8~;~5~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A3": "6~;~1~;~8~;~5~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A5": "6~;~1~;~8~;~5~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A6": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "B1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C3": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True"
+   },
+   "saved": "<dataValidations count=\"1\"><dataValidation type=\"textLength\" operator=\"lessThanOrEqual\" allowBlank=\"1\" showInputMessage=\"1\" showErrorMessage=\"1\" sqref=\"A1:A5\" xr:uid=\"{B041D477-0FAA-420D-96CB-BCE08BE32E60}\"><formula1>5</formula1></dataValidation></dataValidations>"
+  },
+  {
+   "name": "custom_relative",
+   "making": "ws.Range(\"A1:A5\").Validation.Add xlValidateCustom, Formula1:=\"=A1>B1\"",
+   "e1": "",
+   "cells": {
+    "A1": "7~;~1~;~1~;~=A1>B1~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A3": "7~;~1~;~1~;~=A3>B3~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A5": "7~;~1~;~1~;~=A5>B5~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A6": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "B1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C3": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True"
+   },
+   "saved": "<dataValidations count=\"1\"><dataValidation type=\"custom\" allowBlank=\"1\" showInputMessage=\"1\" showErrorMessage=\"1\" sqref=\"A1:A5\" xr:uid=\"{CACB5B23-6BBD-4389-B831-1A8DAFE69642}\"><formula1>A1&gt;B1</formula1></dataValidation></dataValidations>"
+  },
+  {
+   "name": "any_value",
+   "making": "ws.Range(\"A1:A5\").Validation.Add xlValidateInputOnly",
+   "e1": "",
+   "cells": {
+    "A1": "0~;~1~;~1~;~~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A3": "0~;~1~;~1~;~~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A5": "0~;~1~;~1~;~~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A6": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "B1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C3": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True"
+   },
+   "saved": "<dataValidations count=\"1\"><dataValidation allowBlank=\"1\" showInputMessage=\"1\" showErrorMessage=\"1\" sqref=\"A1:A5\" xr:uid=\"{92F77159-5791-40C1-96FC-5031AEE13C52}\"/></dataValidations>"
+  },
+  {
+   "name": "messages",
+   "making": "With ws.Range(\"A1:A5\").Validation\n.Add xlValidateList, Formula1:=\"a,b\"\n.InputTitle = \"Pick\"\n.InputMessage = \"One of a or b\"\n.ErrorTitle = \"Wrong\"\n.ErrorMessage = \"Not a or b\"\n.ShowInput = False\n.IgnoreBlank = False\n.InCellDropdown = False\nEnd With",
+   "e1": "",
+   "cells": {
+    "A1": "3~;~1~;~1~;~a,b~;~~;~False~;~False~;~False~;~True~;~Pick~;~One of a or b~;~Wrong~;~Not a or b~;~False",
+    "A3": "3~;~1~;~1~;~a,b~;~~;~False~;~False~;~False~;~True~;~Pick~;~One of a or b~;~Wrong~;~Not a or b~;~False",
+    "A5": "3~;~1~;~1~;~a,b~;~~;~False~;~False~;~False~;~True~;~Pick~;~One of a or b~;~Wrong~;~Not a or b~;~False",
+    "A6": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "B1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C3": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True"
+   },
+   "saved": "<dataValidations count=\"1\"><dataValidation type=\"list\" showDropDown=\"1\" showErrorMessage=\"1\" errorTitle=\"Wrong\" error=\"Not a or b\" promptTitle=\"Pick\" prompt=\"One of a or b\" sqref=\"A1:A5\" xr:uid=\"{1F662F3C-8E29-4AAF-A43E-37BDCAFFEE3D}\"><formula1>\"a,b\"</formula1></dataValidation></dataValidations>"
+  },
+  {
+   "name": "added_twice",
+   "making": "ws.Range(\"A1:A5\").Validation.Add xlValidateList, Formula1:=\"a,b\"\nOn Error Resume Next\nws.Range(\"A1:A5\").Validation.Add xlValidateList, Formula1:=\"c,d\"\nws.Range(\"E1\").Value = Err.Number\nOn Error GoTo 0",
+   "e1": "1004",
+   "cells": {
+    "A1": "3~;~1~;~1~;~a,b~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A3": "3~;~1~;~1~;~a,b~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A5": "3~;~1~;~1~;~a,b~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A6": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "B1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C3": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True"
+   },
+   "saved": "<dataValidations count=\"1\"><dataValidation type=\"list\" allowBlank=\"1\" showInputMessage=\"1\" showErrorMessage=\"1\" sqref=\"A1:A5\" xr:uid=\"{8CA798B0-226B-472E-A667-E7FF95E61DC1}\"><formula1>\"a,b\"</formula1></dataValidation></dataValidations>"
+  },
+  {
+   "name": "added_over_part",
+   "making": "ws.Range(\"A1:A5\").Validation.Add xlValidateList, Formula1:=\"a,b\"\nOn Error Resume Next\nws.Range(\"A3:C3\").Validation.Add xlValidateList, Formula1:=\"c,d\"\nws.Range(\"E1\").Value = Err.Number\nOn Error GoTo 0",
+   "e1": "1004",
+   "cells": {
+    "A1": "3~;~1~;~1~;~a,b~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A3": "3~;~1~;~1~;~a,b~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A5": "3~;~1~;~1~;~a,b~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A6": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "B1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C3": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True"
+   },
+   "saved": "<dataValidations count=\"1\"><dataValidation type=\"list\" allowBlank=\"1\" showInputMessage=\"1\" showErrorMessage=\"1\" sqref=\"A1:A5\" xr:uid=\"{767FD138-0EDC-460B-AA74-C349D49A0C8E}\"><formula1>\"a,b\"</formula1></dataValidation></dataValidations>"
+  },
+  {
+   "name": "deleted",
+   "making": "ws.Range(\"A1:A5\").Validation.Add xlValidateList, Formula1:=\"a,b\"\nws.Range(\"A1:A5\").Validation.Delete",
+   "e1": "",
+   "cells": {
+    "A1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "A3": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "A5": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "A6": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "B1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C3": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True"
+   },
+   "saved": ""
+  },
+  {
+   "name": "deleted_part",
+   "making": "ws.Range(\"A1:A5\").Validation.Add xlValidateList, Formula1:=\"a,b\"\nws.Range(\"A3\").Validation.Delete",
+   "e1": "",
+   "cells": {
+    "A1": "3~;~1~;~1~;~a,b~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A3": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "A5": "3~;~1~;~1~;~a,b~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A6": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "B1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C3": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True"
+   },
+   "saved": "<dataValidations count=\"1\"><dataValidation type=\"list\" allowBlank=\"1\" showInputMessage=\"1\" showErrorMessage=\"1\" sqref=\"A1:A2 A4:A5\" xr:uid=\"{25377CEF-9F69-42FB-9859-DABA391F03A3}\"><formula1>\"a,b\"</formula1></dataValidation></dataValidations>"
+  },
+  {
+   "name": "modified",
+   "making": "ws.Range(\"A1:A5\").Validation.Add xlValidateList, Formula1:=\"a,b\"\nws.Range(\"A1:A5\").Validation.Modify xlValidateWholeNumber, xlValidAlertStop, xlGreater, \"3\"",
+   "e1": "",
+   "cells": {
+    "A1": "1~;~1~;~5~;~3~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A3": "1~;~1~;~5~;~3~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A5": "1~;~1~;~5~;~3~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A6": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "B1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C3": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True"
+   },
+   "saved": "<dataValidations count=\"1\"><dataValidation type=\"whole\" operator=\"greaterThan\" allowBlank=\"1\" showInputMessage=\"1\" showErrorMessage=\"1\" sqref=\"A1:A5\" xr:uid=\"{AB3368DC-D6E1-44E9-B361-561F8EE9FBDB}\"><formula1>3</formula1></dataValidation></dataValidations>"
+  },
+  {
+   "name": "value_checked",
+   "making": "ws.Range(\"A1:A5\").Validation.Add xlValidateList, Formula1:=\"red,green\"\nws.Range(\"A1\").Value = \"red\"\nws.Range(\"A3\").Value = \"blue\"",
+   "e1": "",
+   "cells": {
+    "A1": "3~;~1~;~1~;~red,green~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A3": "3~;~1~;~1~;~red,green~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~False",
+    "A5": "3~;~1~;~1~;~red,green~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A6": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "B1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C3": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True"
+   },
+   "saved": "<dataValidations count=\"1\"><dataValidation type=\"list\" allowBlank=\"1\" showInputMessage=\"1\" showErrorMessage=\"1\" sqref=\"A1:A5\" xr:uid=\"{013BBDB5-0AA7-42BF-8F77-B0AB639C34FC}\"><formula1>\"red,green\"</formula1></dataValidation></dataValidations>"
+  },
+  {
+   "name": "value_numbers",
+   "making": "ws.Range(\"A1:A5\").Validation.Add xlValidateWholeNumber, , xlBetween, \"1\", \"10\"\nws.Range(\"A1\").Value = 5\nws.Range(\"A3\").Value = 50\nws.Range(\"A5\").Value = 2.5",
+   "e1": "",
+   "cells": {
+    "A1": "1~;~1~;~1~;~1~;~10~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A3": "1~;~1~;~1~;~1~;~10~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~False",
+    "A5": "1~;~1~;~1~;~1~;~10~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~False",
+    "A6": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "B1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C3": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True"
+   },
+   "saved": "<dataValidations count=\"1\"><dataValidation type=\"whole\" allowBlank=\"1\" showInputMessage=\"1\" showErrorMessage=\"1\" sqref=\"A1:A5\" xr:uid=\"{612DE117-D742-44C3-B894-1845FA7209A6}\"><formula1>1</formula1><formula2>10</formula2></dataValidation></dataValidations>"
+  },
+  {
+   "name": "rows_inserted",
+   "making": "ws.Range(\"A1:A5\").Validation.Add xlValidateCustom, Formula1:=\"=A1>B1\"\nws.Rows(3).Insert",
+   "e1": "",
+   "cells": {
+    "A1": "7~;~1~;~1~;~=A1>B1~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A3": "7~;~1~;~1~;~=A3>B3~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A5": "7~;~1~;~1~;~=A5>B5~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A6": "7~;~1~;~1~;~=A6>B6~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "B1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C3": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True"
+   },
+   "saved": "<dataValidations count=\"1\"><dataValidation type=\"custom\" allowBlank=\"1\" showInputMessage=\"1\" showErrorMessage=\"1\" sqref=\"A1:A6\" xr:uid=\"{FAFFD89E-0F16-439B-9638-BC9EEF8F06C4}\"><formula1>A1&gt;B1</formula1></dataValidation></dataValidations>"
+  },
+  {
+   "name": "rows_deleted",
+   "making": "ws.Range(\"A1:A5\").Validation.Add xlValidateList, Formula1:=\"a,b\"\nws.Rows(2).Delete",
+   "e1": "",
+   "cells": {
+    "A1": "3~;~1~;~1~;~a,b~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A3": "3~;~1~;~1~;~a,b~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A5": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "A6": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "B1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C3": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True"
+   },
+   "saved": "<dataValidations count=\"1\"><dataValidation type=\"list\" allowBlank=\"1\" showInputMessage=\"1\" showErrorMessage=\"1\" sqref=\"A1:A4\" xr:uid=\"{9F51950B-6DEA-4B35-8A95-9DDB478E79AA}\"><formula1>\"a,b\"</formula1></dataValidation></dataValidations>"
+  },
+  {
+   "name": "copied",
+   "making": "ws.Range(\"A1:A5\").Validation.Add xlValidateList, Formula1:=\"a,b\"\nws.Range(\"A1\").Copy ws.Range(\"C1\")",
+   "e1": "",
+   "cells": {
+    "A1": "3~;~1~;~1~;~a,b~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A3": "3~;~1~;~1~;~a,b~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A5": "3~;~1~;~1~;~a,b~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A6": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "B1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C1": "3~;~1~;~1~;~a,b~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "C3": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True"
+   },
+   "saved": "<dataValidations count=\"1\"><dataValidation type=\"list\" allowBlank=\"1\" showInputMessage=\"1\" showErrorMessage=\"1\" sqref=\"A1:A5 C1\" xr:uid=\"{81C20E0C-7547-404F-9100-C22DA7F016A8}\"><formula1>\"a,b\"</formula1></dataValidation></dataValidations>"
+  },
+  {
+   "name": "cleared",
+   "making": "ws.Range(\"A1:A5\").Validation.Add xlValidateList, Formula1:=\"a,b\"\nws.Range(\"A1:A2\").Clear",
+   "e1": "",
+   "cells": {
+    "A1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "A3": "3~;~1~;~1~;~a,b~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A5": "3~;~1~;~1~;~a,b~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A6": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "B1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C3": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True"
+   },
+   "saved": "<dataValidations count=\"1\"><dataValidation type=\"list\" allowBlank=\"1\" showInputMessage=\"1\" showErrorMessage=\"1\" sqref=\"A3:A5\" xr:uid=\"{7021E8F1-0152-4B6B-A6D4-279D6F7E2EED}\"><formula1>\"a,b\"</formula1></dataValidation></dataValidations>"
+  },
+  {
+   "name": "clear_contents",
+   "making": "ws.Range(\"A1:A5\").Validation.Add xlValidateList, Formula1:=\"a,b\"\nws.Range(\"A1:A2\").ClearContents",
+   "e1": "",
+   "cells": {
+    "A1": "3~;~1~;~1~;~a,b~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A3": "3~;~1~;~1~;~a,b~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A5": "3~;~1~;~1~;~a,b~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A6": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "B1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C3": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True"
+   },
+   "saved": "<dataValidations count=\"1\"><dataValidation type=\"list\" allowBlank=\"1\" showInputMessage=\"1\" showErrorMessage=\"1\" sqref=\"A1:A5\" xr:uid=\"{30ED758B-A55B-494A-997F-6C3A6DEE834D}\"><formula1>\"a,b\"</formula1></dataValidation></dataValidations>"
+  },
+  {
+   "name": "two_rules",
+   "making": "ws.Range(\"C1:C3\").Validation.Add xlValidateList, Formula1:=\"a,b\"\nws.Range(\"A1:A5\").Validation.Add xlValidateWholeNumber, , xlGreater, \"0\"",
+   "e1": "",
+   "cells": {
+    "A1": "1~;~1~;~5~;~0~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A3": "1~;~1~;~5~;~0~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A5": "1~;~1~;~5~;~0~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A6": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "B1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C1": "3~;~1~;~1~;~a,b~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "C3": "3~;~1~;~1~;~a,b~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True"
+   },
+   "saved": "<dataValidations count=\"2\"><dataValidation type=\"list\" allowBlank=\"1\" showInputMessage=\"1\" showErrorMessage=\"1\" sqref=\"C1:C3\" xr:uid=\"{5E87866A-76A5-4BD3-BC20-58AC39BDFBAB}\"><formula1>\"a,b\"</formula1></dataValidation><dataValidation type=\"whole\" operator=\"greaterThan\" allowBlank=\"1\" showInputMessage=\"1\" showErrorMessage=\"1\" sqref=\"A1:A5\" xr:uid=\"{6CACE76E-4458-4E9B-861D-7EEB2AD31772}\"><formula1>0</formula1></dataValidation></dataValidations>"
+  },
+  {
+   "name": "block",
+   "making": "ws.Range(\"A1:C3\").Validation.Add xlValidateList, Formula1:=\"a,b\"",
+   "e1": "",
+   "cells": {
+    "A1": "3~;~1~;~1~;~a,b~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A3": "3~;~1~;~1~;~a,b~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A5": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "A6": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "B1": "3~;~1~;~1~;~a,b~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "C1": "3~;~1~;~1~;~a,b~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "C3": "3~;~1~;~1~;~a,b~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True"
+   },
+   "saved": "<dataValidations count=\"1\"><dataValidation type=\"list\" allowBlank=\"1\" showInputMessage=\"1\" showErrorMessage=\"1\" sqref=\"A1:C3\" xr:uid=\"{64F45010-D587-4DD6-8FAB-1DA844E8E53A}\"><formula1>\"a,b\"</formula1></dataValidation></dataValidations>"
+  },
+  {
+   "name": "union",
+   "making": "ws.Range(\"A1,A3,C3\").Validation.Add xlValidateList, Formula1:=\"a,b\"",
+   "e1": "",
+   "cells": {
+    "A1": "3~;~1~;~1~;~a,b~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A3": "3~;~1~;~1~;~a,b~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A5": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "A6": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "B1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C3": "3~;~1~;~1~;~a,b~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True"
+   },
+   "saved": "<dataValidations count=\"1\"><dataValidation type=\"list\" allowBlank=\"1\" showInputMessage=\"1\" showErrorMessage=\"1\" sqref=\"A1 A3 C3\" xr:uid=\"{D5CF9587-E643-474B-B281-6E223B2AB4B4}\"><formula1>\"a,b\"</formula1></dataValidation></dataValidations>"
+  },
+  {
+   "name": "other_sheet_list",
+   "making": "ws.Parent.Worksheets.Add After:=ws\nws.Parent.Worksheets(2).Range(\"A1:A2\").Value = Application.Transpose(Array(\"p\", \"q\"))\nws.Range(\"A1:A5\").Validation.Add xlValidateList, Formula1:=\"=Sheet2!$A$1:$A$2\"",
+   "e1": "",
+   "cells": {
+    "A1": "3~;~1~;~1~;~=Sheet2!$A$1:$A$2~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A3": "3~;~1~;~1~;~=Sheet2!$A$1:$A$2~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A5": "3~;~1~;~1~;~=Sheet2!$A$1:$A$2~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A6": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "B1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C3": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True"
+   },
+   "saved": ""
+  },
+  {
+   "name": "value_case",
+   "making": "ws.Range(\"A1:A6\").Validation.Add xlValidateList, Formula1:=\"red,green\"\nws.Range(\"A1\").Value = \"RED\"\nws.Range(\"A3\").Value = \" red\"\nws.Range(\"A5\").Value = \"green \"\nws.Range(\"A6\").Value = 1",
+   "e1": "",
+   "cells": {
+    "A1": "3~;~1~;~1~;~red,green~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~False",
+    "A3": "3~;~1~;~1~;~red,green~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A5": "3~;~1~;~1~;~red,green~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A6": "3~;~1~;~1~;~red,green~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~False",
+    "B1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C3": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True"
+   },
+   "saved": "<dataValidations count=\"1\"><dataValidation type=\"list\" allowBlank=\"1\" showInputMessage=\"1\" showErrorMessage=\"1\" sqref=\"A1:A6\" xr:uid=\"{E00B954B-FD9D-4928-AB5B-12F4E325C2F3}\"><formula1>\"red,green\"</formula1></dataValidation></dataValidations>"
+  },
+  {
+   "name": "value_list_range",
+   "making": "ws.Range(\"D1:D3\").Value = Application.Transpose(Array(\"x\", 2, \"z\"))\nws.Range(\"A1:A6\").Validation.Add xlValidateList, Formula1:=\"=$D$1:$D$3\"\nws.Range(\"A1\").Value = \"X\"\nws.Range(\"A3\").Value = \"w\"\nws.Range(\"A5\").Value = 2\nws.Range(\"A6\").Value = \"2\"",
+   "e1": "",
+   "cells": {
+    "A1": "3~;~1~;~1~;~=$D$1:$D$3~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A3": "3~;~1~;~1~;~=$D$1:$D$3~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~False",
+    "A5": "3~;~1~;~1~;~=$D$1:$D$3~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A6": "3~;~1~;~1~;~=$D$1:$D$3~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "B1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C3": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True"
+   },
+   "saved": "<dataValidations count=\"1\"><dataValidation type=\"list\" allowBlank=\"1\" showInputMessage=\"1\" showErrorMessage=\"1\" sqref=\"A1:A6\" xr:uid=\"{BA28F257-2310-41A6-90FE-A67A753E32D1}\"><formula1>$D$1:$D$3</formula1></dataValidation></dataValidations>"
+  },
+  {
+   "name": "value_custom",
+   "making": "ws.Range(\"A1:A6\").Validation.Add xlValidateCustom, Formula1:=\"=A1>B1\"\nws.Range(\"A1:B1\").Value = Array(5, 3)\nws.Range(\"A3:B3\").Value = Array(1, 2)\nws.Range(\"B5\").Value = 1\nws.Range(\"A6:B6\").Value = Array(\"a\", 1)",
+   "e1": "",
+   "cells": {
+    "A1": "7~;~1~;~1~;~=A1>B1~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A3": "7~;~1~;~1~;~=A3>B3~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~False",
+    "A5": "7~;~1~;~1~;~=A5>B5~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A6": "7~;~1~;~1~;~=A6>B6~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "B1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C3": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True"
+   },
+   "saved": "<dataValidations count=\"1\"><dataValidation type=\"custom\" allowBlank=\"1\" showInputMessage=\"1\" showErrorMessage=\"1\" sqref=\"A1:A6\" xr:uid=\"{B8A23D00-78BD-4CCC-8A86-A5EF64193223}\"><formula1>A1&gt;B1</formula1></dataValidation></dataValidations>"
+  },
+  {
+   "name": "value_text_length",
+   "making": "ws.Range(\"A1:A6\").Validation.Add xlValidateTextLength, , xlLessEqual, \"5\"\nws.Range(\"A1\").Value = \"abc\"\nws.Range(\"A3\").Value = \"abcdefg\"\nws.Range(\"A5\").Value = 123456\nws.Range(\"A6\").Value = 12345",
+   "e1": "",
+   "cells": {
+    "A1": "6~;~1~;~8~;~5~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A3": "6~;~1~;~8~;~5~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~False",
+    "A5": "6~;~1~;~8~;~5~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~False",
+    "A6": "6~;~1~;~8~;~5~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "B1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C3": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True"
+   },
+   "saved": "<dataValidations count=\"1\"><dataValidation type=\"textLength\" operator=\"lessThanOrEqual\" allowBlank=\"1\" showInputMessage=\"1\" showErrorMessage=\"1\" sqref=\"A1:A6\" xr:uid=\"{90D1F3AA-158D-4CC9-B109-DF72F5CD0B7B}\"><formula1>5</formula1></dataValidation></dataValidations>"
+  },
+  {
+   "name": "value_date",
+   "making": "ws.Range(\"A1:A6\").Validation.Add xlValidateDate, , xlGreaterEqual, \"1/2/2020\"\nws.Range(\"A1\").Value = DateSerial(2020, 1, 3)\nws.Range(\"A3\").Value = DateSerial(2019, 1, 1)\nws.Range(\"A5\").Value = \"text\"\nws.Range(\"A6\").Value = 43833",
+   "e1": "",
+   "cells": {
+    "A1": "4~;~1~;~7~;~1/2/2020~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A3": "4~;~1~;~7~;~1/2/2020~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~False",
+    "A5": "4~;~1~;~7~;~1/2/2020~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~False",
+    "A6": "4~;~1~;~7~;~1/2/2020~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "B1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C3": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True"
+   },
+   "saved": "<dataValidations count=\"1\"><dataValidation type=\"date\" operator=\"greaterThanOrEqual\" allowBlank=\"1\" showInputMessage=\"1\" showErrorMessage=\"1\" sqref=\"A1:A6\" xr:uid=\"{19E0A08A-9639-4D37-85C0-287DD22E9FC6}\"><formula1>43832</formula1></dataValidation></dataValidations>"
+  },
+  {
+   "name": "value_decimal",
+   "making": "ws.Range(\"A1:A6\").Validation.Add xlValidateDecimal, , xlGreater, \"0.5\"\nws.Range(\"A1\").Value = 0.6\nws.Range(\"A3\").Value = \"abc\"\nws.Range(\"A5\").Value = True\nws.Range(\"A6\").Value = \"0.7\"",
+   "e1": "",
+   "cells": {
+    "A1": "2~;~1~;~5~;~0.5~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A3": "2~;~1~;~5~;~0.5~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~False",
+    "A5": "2~;~1~;~5~;~0.5~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A6": "2~;~1~;~5~;~0.5~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "B1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C3": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True"
+   },
+   "saved": "<dataValidations count=\"1\"><dataValidation type=\"decimal\" operator=\"greaterThan\" allowBlank=\"1\" showInputMessage=\"1\" showErrorMessage=\"1\" sqref=\"A1:A6\" xr:uid=\"{9A2D5CD1-60D0-4F67-852D-232B73933762}\"><formula1>0.5</formula1></dataValidation></dataValidations>"
+  },
+  {
+   "name": "value_whole_text",
+   "making": "ws.Range(\"A1:A6\").Validation.Add xlValidateWholeNumber, , xlBetween, \"1\", \"10\"\nws.Range(\"A1\").Value = \"5\"\nws.Range(\"A3\").Value = 0\nws.Range(\"A5\").Value = 10\nws.Range(\"A6\").Value = -1",
+   "e1": "",
+   "cells": {
+    "A1": "1~;~1~;~1~;~1~;~10~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A3": "1~;~1~;~1~;~1~;~10~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~False",
+    "A5": "1~;~1~;~1~;~1~;~10~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A6": "1~;~1~;~1~;~1~;~10~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~False",
+    "B1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C3": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True"
+   },
+   "saved": "<dataValidations count=\"1\"><dataValidation type=\"whole\" allowBlank=\"1\" showInputMessage=\"1\" showErrorMessage=\"1\" sqref=\"A1:A6\" xr:uid=\"{2935F261-6C35-413C-A278-02E5E2D81C88}\"><formula1>1</formula1><formula2>10</formula2></dataValidation></dataValidations>"
+  },
+  {
+   "name": "mixed_range",
+   "making": "ws.Range(\"A1\").Validation.Add xlValidateList, Formula1:=\"a,b\"\nws.Range(\"A3\").Validation.Add xlValidateList, Formula1:=\"a,b\"\nOn Error Resume Next\nws.Range(\"E1\").Value = \"type \" & ws.Range(\"A1:A3\").Validation.Type\nIf Err.Number <> 0 Then ws.Range(\"E1\").Value = \"!\" & Err.Number\nErr.Clear\nws.Range(\"E1\").Value = ws.Range(\"E1\").Value & \"/\" & ws.Range(\"A1,A3\").Validation.Type\nIf Err.Number <> 0 Then ws.Range(\"E1\").Value = ws.Range(\"E1\").Value & \"/!\" & Err.Number\nOn Error GoTo 0",
+   "e1": "!1004/3",
+   "cells": {
+    "A1": "3~;~1~;~1~;~a,b~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A3": "3~;~1~;~1~;~a,b~;~~;~True~;~True~;~True~;~True~;~~;~~;~~;~~;~True",
+    "A5": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "A6": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "B1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C1": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True",
+    "C3": "!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~!1004~;~~;~!1004~;~~;~!1004~;~True"
+   },
+   "saved": "<dataValidations count=\"1\"><dataValidation type=\"list\" allowBlank=\"1\" showInputMessage=\"1\" showErrorMessage=\"1\" sqref=\"A1 A3\" xr:uid=\"{FEF377FF-4062-40DC-B119-E05E47B21AA6}\"><formula1>\"a,b\"</formula1></dataValidation></dataValidations>"
+  }
+ ]
+}

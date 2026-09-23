@@ -157,6 +157,14 @@ All notable changes to pyOpenVBA are documented here. This project follows
   ordinary one, and a save of the sheet lost the array. 78 cases and 4
   workbooks in live Excel pin it. Copying part of an array, and filling,
   sorting, replacing or removing duplicates in one, report themselves.
+- Data validation: `Range.Validation` and the Validation object --
+  `Add`, `Modify`, `Delete`, every setting and message, and `Value`,
+  which checks the cell's value against its rule as Excel does. Rules
+  move with inserted and deleted rows and columns, split round a Delete
+  or a Clear, travel with a copy, and a rule like one the sheet has joins
+  it; a save writes the dataValidations element as Excel writes it. 39
+  workbooks in live Excel pin it. A list read from another sheet, which
+  Excel keeps in the worksheet's x14 extension, is read and not made.
 - Excel tables: `Worksheet.ListObjects`, `ListObjects.Add`, and the
   ListObject, ListColumns, ListColumn, ListRows and ListRow objects,
   with `Range.ListObject`. A file's tables are read, and Add makes one

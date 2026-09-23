@@ -21,7 +21,7 @@ from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, column_letter, column_number
 from pyopenvba._xml import attributes
-from pyopenvba.apps.excel import _arrays, _shared, _tables
+from pyopenvba.apps.excel import _arrays, _shared, _tables, _validation
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.formula._parse import split_sheet, tokenize
 from pyopenvba.interpreter._values import error
@@ -140,6 +140,8 @@ def edit(target: Range, *, delete: bool) -> None:
                                               delete=delete))
     _tables.moved(sheet, lambda text: rewrite(text, sheet.name, sheet.name, rows=rows, start=start, count=count,
                                               delete=delete), rows=rows)
+    _validation.moved(sheet, lambda text: rewrite(text, sheet.name, sheet.name, rows=rows, start=start, count=count,
+                                                  delete=delete))
     if rows:
         sheet.dims.shift_rows(start, count, delete)
     else:
@@ -227,6 +229,7 @@ def shift_cells(target: Range, area: Area, *, delete: bool, vertical: bool, thro
             entry.refers_to = text
             sheet.book.names_.changed = True
     _shared.moved(sheet, lambda text: rewrite_shift(text, sheet.name, sheet.name, shift))
+    _validation.moved(sheet, lambda text: rewrite_shift(text, sheet.name, sheet.name, shift))
     if not delete and start > 1:
         # Measured: inserted cells take the formats of the cells above them, or to their left.
         _inherit_formats(sheet, rows=vertical, start=start, count=count, band=band)

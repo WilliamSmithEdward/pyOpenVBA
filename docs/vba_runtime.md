@@ -1121,6 +1121,26 @@ column is that function, another formula is custom, and a value is a
 label, a number becoming its text. `[#Totals]` names the row while it
 shows and is #REF! while it does not.
 
+**Data validation.** `Range.Validation` reads and writes a sheet's
+validation rules as Excel does (`tests/fixtures/validation/`, 39
+workbooks). `Add` takes every type, alert style and operator, a list of
+items or cells and bounds given as text, numbers or dates; over cells
+that already have a rule it is error 1004, and a rule like one the sheet
+has joins it. `Formula1` and `Formula2` read back as given, a formula
+with its relative references moved to the cell asked about, a date as
+m/d/yyyy and a time as h:mm:ss AM/PM. Without a rule every property is
+error 1004 except `InputTitle` and `ErrorTitle`, which read "", and
+`Value`, which is True. `Value` checks the cell's value as Excel does: a
+list of items by its text with the spaces round it dropped, case and
+all; a list from cells with case ignored; numbers, dates and times
+within the bounds, TRUE counting as 1; a text's length; a custom formula
+coming to TRUE. `Delete` and `Clear` take cells out of their rules, which
+split round them; a copy carries the rules along, and inserting or
+deleting rows or columns moves a rule as it moves a reference. A save
+writes the dataValidations element as Excel writes it. A list read from
+another sheet, which Excel keeps in the worksheet's x14 extension, is
+read and not made.
+
 **Structured references.** A formula names part of a table by its name
 and columns, `Table1[Qty]`, `Table1[[#Headers],[Qty]:[Price]]`,
 `Table1[@Qty]`, and the model reads, spells, saves and works them out as

@@ -769,7 +769,7 @@ Range,UnMerge,method,UnMerge(),,PARTIAL,tests/fixtures/range_merge.json,Multi-ar
 Range,UpdatePictureInCellAlternativeText,method,UpdatePictureInCellAlternativeText(AlternativeText As String),,MISSING,,
 Range,UseStandardHeight,property,As Variant,,PARTIAL,tests/fixtures/dimensions.json; tests/fixtures/dimensions/dimensions_answers.json,A read across several rows or columns compares inside the sheet's current used block; Excel's can stay larger for the rest of a session after a column is hidden.
 Range,UseStandardWidth,property,As Variant,,PARTIAL,tests/fixtures/dimensions.json; tests/fixtures/dimensions/dimensions_answers.json,A read across several rows or columns compares inside the sheet's current used block; Excel's can stay larger for the rest of a session after a column is hidden.
-Range,Validation,"property, read-only",As Validation,,MISSING,,
+Range,Validation,"property, read-only",As Validation,,VERIFIED,tests/fixtures/validation/validation.json,The rule the range's cells have.
 Range,Value,property,As Variant,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/value_typing.json; tests/fixtures/typing_formats.json; tests/fixtures/autofilter_edits.json,"A string is typed as Excel types it, bringing its number format and prefix character, and a number reads as a Date or Currency through its cell's format; what Text shows through those formats waits on the number-format engine. An array fills each area from its first item; on a filtered sheet only the visible cells take a write, and a two-dimensional array written to several areas wider than one column reports itself unsupported."
 Range,Value2,property,As Variant,,PARTIAL,tests/fixtures/value_typing.json; tests/fixtures/typing_formats.json; tests/fixtures/autofilter_edits.json,"Reads every number as a Double, and writes a Date or Currency as the Double under it, bringing no format. Writes reach what Value's do."
 Range,VerticalAlignment,property,As Variant,,VERIFIED,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,
@@ -1046,6 +1046,27 @@ TextFrame2,VerticalAnchor,property,As MsoVerticalAnchor,,MISSING,,
 TextFrame2,WarpFormat,property,As MsoWarpFormat,,MISSING,,
 TextFrame2,WordArtformat,property,As MsoPresetTextEffect,,MISSING,,
 TextFrame2,WordWrap,property,As MsoTriState,,MISSING,,
+Validation,Add,method,"Add(Type As XlDVType, [AlertStyle As Variant], [Operator As Variant], [Formula1 As Variant], [Formula2 As Variant])",,PARTIAL,tests/fixtures/validation/validation.json,"Every type, alert style and operator, a list of items or cells, bounds as text, numbers or dates; over cells with a rule it is error 1004, and a rule like one the sheet has joins it. A list read from another sheet, which Excel keeps in the x14 extension, reports itself."
+Validation,AlertStyle,"property, read-only",As Long,,VERIFIED,tests/fixtures/validation/validation.json,
+Validation,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/validation/validation.json,
+Validation,Creator,"property, read-only",As XlCreator,,MISSING,,
+Validation,Delete,method,Delete(),,VERIFIED,tests/fixtures/validation/validation.json,"Takes the cells out of their rules, a rule splitting round them."
+Validation,ErrorMessage,property,As String,,VERIFIED,tests/fixtures/validation/validation.json,
+Validation,ErrorTitle,property,As String,,VERIFIED,tests/fixtures/validation/validation.json,"Reads """" where the cells have no rule."
+Validation,Formula1,"property, read-only",As String,,VERIFIED,tests/fixtures/validation/validation.json,"A list without quotes, a formula moved to the cell asked about, a date as m/d/yyyy and a time as h:mm:ss AM/PM."
+Validation,Formula2,"property, read-only",As String,,VERIFIED,tests/fixtures/validation/validation.json,
+Validation,IgnoreBlank,property,As Boolean,,VERIFIED,tests/fixtures/validation/validation.json,
+Validation,IMEMode,property,As Long,,MISSING,,
+Validation,InCellDropdown,property,As Boolean,,VERIFIED,tests/fixtures/validation/validation.json,Saved as Excel's inverted showDropDown.
+Validation,InputMessage,property,As String,,VERIFIED,tests/fixtures/validation/validation.json,
+Validation,InputTitle,property,As String,,VERIFIED,tests/fixtures/validation/validation.json,"Reads """" where the cells have no rule."
+Validation,Modify,method,"Modify([Type As Variant], [AlertStyle As Variant], [Operator As Variant], [Formula1 As Variant], [Formula2 As Variant])",,PARTIAL,tests/fixtures/validation/validation.json,"The type, alert style, operator and bounds of a rule the range is all of; part of a rule reports itself."
+Validation,Operator,"property, read-only",As Long,,VERIFIED,tests/fixtures/validation/validation.json,
+Validation,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/validation/validation.json,The range.
+Validation,ShowError,property,As Boolean,,VERIFIED,tests/fixtures/validation/validation.json,
+Validation,ShowInput,property,As Boolean,,VERIFIED,tests/fixtures/validation/validation.json,
+Validation,Type,"property, read-only",As Long,,VERIFIED,tests/fixtures/validation/validation.json,Error 1004 where a cell of the range has no rule.
+Validation,Value,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/validation/validation.json,"Whether the value passes, for every type, measured cell by cell; a range of several cells passes when each does, which is not measured."
 Workbook,_CodeName,property,As String,,MISSING,,
 Workbook,AcceptAllChanges,method,"AcceptAllChanges([When As Variant], [Who As Variant], [Where As Variant])",,MISSING,,
 Workbook,AccuracyVersion,property,As Long,,MISSING,,

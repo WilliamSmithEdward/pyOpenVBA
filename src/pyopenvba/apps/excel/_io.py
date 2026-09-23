@@ -99,6 +99,9 @@ def load_workbook(application: Application, path: Path) -> Workbook:
             _read_sheet(sheet, sheet_xml, strings, stylesheet)
             _read_shapes(sheet, package, sheet_xml)
             _read_tables(sheet, package, sheet_xml)
+            from pyopenvba.apps.excel._validation import read_rules
+
+            sheet.validations = read_rules(sheet_xml)
     _read_names(book, workbook_xml)
     from pyopenvba.apps.excel._protection import read_book_protection
 
@@ -1266,6 +1269,11 @@ def _patched_sheet(sheet: Worksheet, original: str, package: OpcFile) -> str:
         from pyopenvba.apps.excel._protection import with_protection
 
         patched = with_protection(sheet, patched)
+    if sheet.validations_changed:
+        from pyopenvba.apps.excel._validation import with_rules
+
+        patched = with_rules(sheet, patched)
+        sheet.validations_changed = False
     if sheet.merges_dirty:
         markup = ""
         if sheet.merged_areas:

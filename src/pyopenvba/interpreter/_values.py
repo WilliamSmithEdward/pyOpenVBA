@@ -270,6 +270,9 @@ class VBADate:
         seconds = round(fraction * 86400.0)
         if seconds >= 86400:
             days, seconds = days + 1, 0
+        if days >= 2958466:
+            # A time that rounds past the last second of 9999 stays on it.
+            days, seconds = 2958465, 86399
         return self.EPOCH + _dt.timedelta(days=days, seconds=seconds)
 
     def __repr__(self) -> str:
@@ -653,14 +656,16 @@ def to_text(value: object, *, context: str = "") -> str:
 def date_text(value: VBADate) -> str:
     """A Date as VBA's default conversion prints it.
 
-    Midnight prints as the date alone and a serial under a day as the
-    time alone, which is why a cell holding 0.5 shows only a clock.
+    The moment is rounded to the second first. On 30 December 1899, day
+    0, it prints as the time alone, midnight included, which is why a cell
+    holding 0.5 shows only a clock; at midnight on any other day, as the
+    date alone, so a time a hair short of midnight prints the next day.
     """
     when = value.to_datetime()
-    if value.serial == math.floor(value.serial):
-        return f"{when.month}/{when.day}/{when.year}"
-    if -1 < value.serial < 1:
+    if when.date() == VBADate.EPOCH.date():
         return _time_text(when)
+    if when.time() == _dt.time():
+        return f"{when.month}/{when.day}/{when.year}"
     return f"{when.month}/{when.day}/{when.year} {_time_text(when)}"
 
 

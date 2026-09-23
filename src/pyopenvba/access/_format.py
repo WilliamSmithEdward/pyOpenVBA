@@ -139,7 +139,11 @@ def _as_date(value: object) -> _dt.datetime:
         return _dt.datetime.combine(value, _dt.time())
     if isinstance(value, (int, float, Decimal)):
         whole = int(value)
-        return _dt.datetime(1899, 12, 30) + _dt.timedelta(days=whole, seconds=round(abs(float(value) - whole) * 86400))
+        seconds = round(abs(float(value) - whole) * 86400)
+        if whole == 2958465 and seconds >= 86400:
+            # A time that rounds past the last second of 9999 stays on it.
+            seconds = 86399
+        return _dt.datetime(1899, 12, 30) + _dt.timedelta(days=whole, seconds=seconds)
     from pyopenvba.access._sql import parse_date_literal
 
     return parse_date_literal(str(value))

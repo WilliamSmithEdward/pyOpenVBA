@@ -24,10 +24,12 @@ fills the cell with ``#`` and makes TEXT an error.
   denominator has no more digits than its placeholders, or rounds to a
   denominator written out; a fraction of nothing leaves its places blank.
 - A date or time reads the serial on Excel's calendar, day 0 being 0
-  January 1900 and day 60 the 29 February 1900 Excel counts. The time is
-  rounded to the second, or to the fraction of one shown, in double
-  arithmetic, before it is split. A serial below 0 or past 31 December
-  9999 cannot be shown.
+  January 1900 and day 60 the 29 February 1900 Excel counts. Half a
+  second, or half the fraction of one shown, is added to the serial
+  before the day, hours, minutes and seconds are cut off it one by one
+  (scripts/measure_time_rounding.py); a count of elapsed seconds alone is
+  rounded from fifteen digits instead. A serial below 0 or past 31
+  December 9999 cannot be shown.
 - ``@`` shows text; a code with no text section shows text as it is, and
   a Boolean as TRUE or FALSE, through the text section when there is one.
 - ``_x`` leaves a space the width of ``x``, which in text is a space.
@@ -532,13 +534,35 @@ def excel_date(day: int) -> tuple[int, int, int]:
     return when.year, when.month, when.day
 
 
+def clock(value: float, places: int = 0) -> tuple[int, int, int, int, int]:
+    """A serial as the day, hour, minute, second and ``places`` decimals of a second Excel shows for it.
+
+    Excel adds half of the last unit shown to the serial, in double
+    arithmetic, and then takes the day, the hours, the minutes and the
+    seconds off what that leaves, each by multiplying up and cutting off.
+    So a time a hair under half a second can still round up, and one a
+    hair over can round down; measured on 152 such times.
+    """
+    unit = 10**places
+    moment = value + 0.5 / (86400 * unit)
+    day = math.floor(moment)
+    rest = (moment - day) * 24
+    hour = math.floor(rest)
+    rest = (rest - hour) * 60
+    minute = math.floor(rest)
+    rest = (rest - minute) * 60
+    second = math.floor(rest)
+    return day, hour, minute, second, math.floor((rest - second) * unit)
+
+
 def _date(items: list[_Item], value: float) -> str:
     """A serial through date and time codes, rounded to the smallest part shown."""
     parts = [item for item in items if item.kind in ("date", "elapsed", "ampm")]
     if len(parts) == 1 and parts[0].kind == "elapsed" and parts[0].text[0] == "s" and not any(
             item.kind == "point" for item in items):
-        # Elapsed seconds alone are a count of seconds, sign and all, with no calendar to leave.
-        seconds = int(math.copysign(math.floor(abs(value) * 86400 + 0.5), value))
+        # Elapsed seconds alone are a count of seconds, sign and all, with no calendar to leave: the
+        # seconds to fifteen digits, then to the nearest one.
+        seconds = int(math.copysign(int(_rounded(_significant(abs(value) * 86400), 0)), value))
         return "".join(("-" if seconds < 0 else "") + str(abs(seconds)).rjust(len(item.text), "0")
                        if item.kind == "elapsed" else _literal(item) for item in items)
     if value < 0 or value >= 2958466:
@@ -553,15 +577,10 @@ def _date(items: list[_Item], value: float) -> str:
                 tenths.add(look)
                 look += 1
     places = len(tenths)
-    scale = 86400 * 10 ** places
-    # Excel works the time out in double arithmetic, so 12:30:45.55 is exactly half a tenth and rounds up.
-    ticks = math.floor(value * scale + 0.5)
-    day, within = divmod(ticks, scale)
+    day, hour, minute, second, part = clock(value, places)
     if day >= 2958466:
         raise UndisplayableError("a date past 9999")
-    seconds, part = divmod(within, 10 ** places)
-    hour, minute, second = seconds // 3600, seconds // 60 % 60, seconds % 60
-    total = ticks // 10 ** places
+    total = day * 86400 + hour * 3600 + minute * 60 + second
     year, month, date = excel_date(day)
     twelve = any(item.kind == "ampm" for item in items)
     fraction = str(part).rjust(places, "0") if places else ""

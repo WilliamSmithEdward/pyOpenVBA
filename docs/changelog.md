@@ -38,10 +38,13 @@ All notable changes to pyOpenVBA are documented here. This project follows
   placeholders, grouping and scaling commas, percent, exponents,
   fractions, text sections, dates and times on Excel's 1900 calendar,
   and elapsed times. 156 codes through 28 values in live Excel are
-  reproduced exactly. A value its format cannot show fills the cell with
-  `#` as wide as the column, and makes `TEXT` an error. A format with a
-  `*` fill reports itself unsupported in `Range.Text`, since what it pads
-  the cell with depends on the width in pixels. Before, both went
+  reproduced exactly. A time rounds to the second, or to the fraction of
+  one shown, as Excel rounds it: half a unit is added to the serial before
+  the hours, minutes and seconds are cut off it, which 152 times on the
+  half second in live Excel pin. A value its format cannot show fills
+  the cell with `#` as wide as the column, and makes `TEXT` an error. A
+  format with a `*` fill reports itself unsupported in `Range.Text`, since
+  what it pads the cell with depends on the width in pixels. Before, both went
   through Access's `Format`, which spelled `$#,##0_)` as `$5_)`, fractions
   as `2 ?/?` and `[h]:mm:ss` as `[1]:00:00`.
 - `Range.SpecialCells` for constants and formulas of each kind, blanks,
@@ -342,6 +345,13 @@ All notable changes to pyOpenVBA are documented here. This project follows
   give its number, as VBA's do, and `Val` of one raises error 13.
 - `CDbl("1E-25")` and any other number string with an upper-case
   exponent raised a Python error.
+- `CStr` of a Date chose what to print from the serial rather than the
+  moment rounded to the second: `CDate(0)` printed `12/30/1899` where VBA
+  prints `12:00:00 AM`, and a time a hair short of midnight printed the
+  time where VBA prints the next day's date.
+- `CStr`, `Format`, `Hour`, `Minute` and `Second` of a Date that rounds
+  past the last second of 9999 raised a Python error; VBA stays on that
+  second.
 - Built-in number formats 5 to 8, 12, 13, 37 to 44 and 48 were missing
   from the model's table, so a save gave them custom ids, and 47 was
   spelt `mmss.0` where Excel reads `mm:ss.0`.

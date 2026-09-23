@@ -482,9 +482,14 @@ rules: 156 codes through 28 values in live Excel pin them
   multiplies; exponents step in multiples of the whole placeholders.
 * A fraction is the last continued-fraction convergent that fits, worked
   out in double arithmetic, so 0.5625 over one digit is 4/7.
-* Dates and times run on Excel's 1900 calendar with its 29 February, and
-  a time rounds in double arithmetic to the unit shown; a serial outside
-  1900 to 9999 fills the cell with `#` and makes `TEXT` an error.
+* Dates and times run on Excel's 1900 calendar with its 29 February. A
+  time rounds as Excel's does: half the unit shown is added to the serial
+  in double arithmetic, then the day, hours, minutes and seconds are cut
+  off it one by one, so a time a hair under half a second can round up
+  (152 times on the half second, `tests/fixtures/time_rounding.json`). A
+  count of elapsed seconds alone rounds from fifteen digits, which misses
+  two of those. A serial outside 1900 to 9999 fills the cell with `#` and
+  makes `TEXT` an error.
 * What a `*` fill pads a cell with depends on its width in pixels, and
   `Text` says it cannot tell; a value too wide for its column, which
   Excel shows as `#` or with fewer digits, is not modelled.

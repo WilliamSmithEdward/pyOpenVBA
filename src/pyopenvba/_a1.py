@@ -100,7 +100,8 @@ class Area:
         column_mark = "$" if columns_fixed else ""
         if self.whole_columns and not self.whole_rows:
             body = f"{column_mark}{column_letter(self.left)}:{column_mark}{column_letter(self.right)}"
-        elif self.whole_rows and not self.whole_columns:
+        elif self.whole_rows:
+            # The whole sheet is spelt as its rows: $1:$1048576.
             body = f"{row_mark}{self.top}:{row_mark}{self.bottom}"
         else:
             first = f"{column_mark}{column_letter(self.left)}{row_mark}{self.top}"

@@ -132,6 +132,10 @@ sweep is what settled these:
 - `End` looks at the neighbour, so `End(xlDown)` from a lone A1 is
   A1048576 rather than A1, and walks over a cell with only a format as
   over an empty one.
+- `SpecialCells` splits what it finds into the areas Excel returns:
+  from the last cell back, each cell joins the one-column area below it
+  or the one-row area to its right, so the same cells can come back as
+  columns or rows depending on their shape (`tests/fixtures/special_cells.json`).
 - `FillDown` and its three siblings copy an area's first row or column
   over the rest as `Copy` does, blanks included, and a one-row area fills
   from the row above it (`tests/fixtures/fill.json`).

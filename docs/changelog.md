@@ -43,6 +43,14 @@ All notable changes to pyOpenVBA are documented here. This project follows
   the cell with depends on the width in pixels. Before, both went
   through Access's `Format`, which spelled `$#,##0_)` as `$5_)`, fractions
   as `2 ?/?` and `[h]:mm:ss` as `[1]:00:00`.
+- `Range.SpecialCells` for constants and formulas of each kind, blanks,
+  the last cell and visible cells, with Excel's own quirks: a one-cell
+  range searches from A1 to the last cell, a merged area comes whole, and
+  what is found is split into the very areas Excel returns -- taken from
+  the last cell back, each joining the one-column area below it or the
+  one-row area to its right. 18 layouts of live Excel, eight of them
+  random grids, pin it. Comments, validation and conditional formats
+  report themselves unsupported.
 - `Range.FillDown`, `FillUp`, `FillRight` and `FillLeft`: each area's
   first row or column, in the direction of the fill, copied over the rest
   as `Copy` copies it, blanks included; a one-row or one-column area fills
@@ -327,6 +335,8 @@ All notable changes to pyOpenVBA are documented here. This project follows
   to an exponent from 1E+11 and below 1E-4.
 - `End` stopped at a cell with only a format; Excel walks over one as
   over an empty cell.
+- The whole sheet's address was spelt `$A$1:$XFD$1048576`; Excel spells it
+  `$1:$1048576`.
 - `CLng`, `CInt`, `CByte`, `CSng`, `CDbl` and `CCur` of an Error value
   give its number, as VBA's do, and `Val` of one raises error 13.
 - `CDbl("1E-25")` and any other number string with an upper-case

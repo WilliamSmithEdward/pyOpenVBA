@@ -1909,6 +1909,14 @@ class Range(ExcelObject):
             Range(self.sheet, [source]).copy_to(Range(self.sheet, [target]))
         return True
 
+    @method
+    def SpecialCells(self, Type: object = MISSING, Value: object = MISSING) -> object:
+        from pyopenvba.apps.excel._special_cells import special_cells
+
+        if Type is MISSING:
+            raise error(449)
+        return special_cells(self, Type, Value)
+
     @member
     def CurrentRegion(self) -> object:
         """The block around the first cell that empty rows and columns bound, as Ctrl+* selects it."""

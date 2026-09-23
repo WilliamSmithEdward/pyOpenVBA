@@ -525,10 +525,10 @@ Range,EntireColumn,"property, read-only",As Range,,PARTIAL,tests/fixtures/excel_
 Range,EntireRow,"property, read-only",As Range,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/row_formats/row_formats.json,"Whole rows, whole columns and the whole sheet are formatted through their own formats, as Excel keeps them."
 Range,Errors,"property, read-only",As Errors,,MISSING,,
 Range,ExportAsFixedFormat,method,"ExportAsFixedFormat(Type As XlFixedFormatType, [Filename As Variant], [Quality As Variant], [IncludeDocProperties As Variant], [IgnorePrintAreas As Variant], [From As Variant], [To As Variant], [OpenAfterPublish As Variant], [FixedFormatExtClassPtr As Variant], [WorkIdentity As Variant])",,MISSING,,
-Range,FillDown,method,FillDown() As Variant,,PARTIAL,tests/fixtures/fill.json,"Copies each area's first row over the rest as Copy does; a one-row area fills from the row above. A fill over merged cells reports itself unsupported."
-Range,FillLeft,method,FillLeft() As Variant,,PARTIAL,tests/fixtures/fill.json,"Copies each area's last column over the rest as Copy does; a one-column area fills from the column to its right. A fill over merged cells reports itself unsupported."
-Range,FillRight,method,FillRight() As Variant,,PARTIAL,tests/fixtures/fill.json,"Copies each area's first column over the rest as Copy does; a one-column area fills from the column to its left. A fill over merged cells reports itself unsupported."
-Range,FillUp,method,FillUp() As Variant,,PARTIAL,tests/fixtures/fill.json,"Copies each area's last row over the rest as Copy does; a one-row area fills from the row below. A fill over merged cells reports itself unsupported."
+Range,FillDown,method,FillDown() As Variant,,PARTIAL,tests/fixtures/fill.json,Copies each area's first row over the rest as Copy does; a one-row area fills from the row above. A fill over merged cells reports itself unsupported.
+Range,FillLeft,method,FillLeft() As Variant,,PARTIAL,tests/fixtures/fill.json,Copies each area's last column over the rest as Copy does; a one-column area fills from the column to its right. A fill over merged cells reports itself unsupported.
+Range,FillRight,method,FillRight() As Variant,,PARTIAL,tests/fixtures/fill.json,Copies each area's first column over the rest as Copy does; a one-column area fills from the column to its left. A fill over merged cells reports itself unsupported.
+Range,FillUp,method,FillUp() As Variant,,PARTIAL,tests/fixtures/fill.json,Copies each area's last row over the rest as Copy does; a one-row area fills from the row below. A fill over merged cells reports itself unsupported.
 Range,Find,method,"Find(What As Variant, [After As Variant], [LookIn As Variant], [LookAt As Variant], [SearchOrder As Variant], [SearchDirection As XlSearchDirection], [MatchCase As Variant], [MatchByte As Variant], [SearchFormat As Variant]) As Range",,PARTIAL,tests/fixtures/range_find.json,"One area only; multi-area, comment and format searches and MatchByte:=True report unsupported."
 Range,FindNext,method,FindNext([After As Variant]) As Range,,PARTIAL,tests/fixtures/range_find.json,"One area only; multi-area, comment and format searches and MatchByte:=True report unsupported."
 Range,FindPrevious,method,FindPrevious([After As Variant]) As Range,,PARTIAL,tests/fixtures/range_find.json,"One area only; multi-area, comment and format searches and MatchByte:=True report unsupported."
@@ -632,7 +632,7 @@ Range,SortSpecial,method,"SortSpecial([SortMethod As XlSortMethod], [Key1 As Var
 Range,SoundNote,"property, read-only",As SoundNote,,MISSING,,
 Range,SparklineGroups,"property, read-only",As SparklineGroups,,MISSING,,
 Range,Speak,method,"Speak([SpeakDirection As Variant], [SpeakFormulas As Variant])",,MISSING,,
-Range,SpecialCells,method,"SpecialCells(Type As XlCellType, [Value As Variant]) As Range",,MISSING,,
+Range,SpecialCells,method,"SpecialCells(Type As XlCellType, [Value As Variant]) As Range",,PARTIAL,tests/fixtures/special_cells.json,"Constants and formulas by kind, blanks, the last cell and visible cells, split into areas as Excel splits them; comments, validation and conditional formats report themselves unsupported."
 Range,SpillingToRange,"property, read-only",As Range,,MISSING,,
 Range,SpillParent,"property, read-only",As Range,,MISSING,,
 Range,Style,property,As Variant,,MISSING,,

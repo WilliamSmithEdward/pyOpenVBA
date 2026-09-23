@@ -939,7 +939,7 @@ class Worksheet(ExcelObject):
         if cell is not None:
             calculator.remember(self.name, row, column, cell)
         else:
-            calculator.compiled.pop((self.name.lower(), row, column), None)
+            calculator.forget(self.name, row, column)
         calculator.wrote(self.name, row, column)
         if cell is None or not cell.formula:
             from pyopenvba.apps.excel._controls import cell_changed

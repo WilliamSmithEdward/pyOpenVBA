@@ -1,0 +1,42 @@
+{
+ "running total": {
+  "setup": "ws.Range(\"A1\").Value = 1\nws.Range(\"A2:A3000\").Formula = \"=A1+1\"",
+  "read": "ws.Range(\"A3000\").Value",
+  "answer": "3000"
+ },
+ "running total, the top changed": {
+  "setup": "ws.Range(\"A1\").Value = 1\nws.Range(\"A2:A3000\").Formula = \"=A1+1\"\nws.Range(\"A1\").Value = 10",
+  "read": "ws.Range(\"A3000\").Value",
+  "answer": "3009"
+ },
+ "written in manual calculation": {
+  "setup": "Application.Calculation = -4135\nws.Range(\"B2:B3000\").Formula = \"=B1+1\"\nws.Range(\"B1\").Value = 1\nApplication.Calculation = -4105",
+  "read": "ws.Range(\"B3000\").Value",
+  "answer": "3000"
+ },
+ "the bottom read from the top": {
+  "setup": "Application.Calculation = -4135\nws.Range(\"C2:C3000\").Formula = \"=C1+1\"\nws.Range(\"C1\").Value = 1\nws.Range(\"D1\").Formula = \"=C3000*2\"\nApplication.Calculation = -4105",
+  "read": "ws.Range(\"D1\").Value",
+  "answer": "6000"
+ },
+ "a sum over the chain": {
+  "setup": "ws.Range(\"A1\").Value = 1\nws.Range(\"A2:A3000\").Formula = \"=A1+1\"\nws.Range(\"E1\").Formula = \"=SUM(A1:A3000)\"",
+  "read": "ws.Range(\"E1\").Value",
+  "answer": "4501500"
+ },
+ "each cell reading two": {
+  "setup": "ws.Range(\"H1:H2\").Value = 1\nws.Range(\"H3:H3000\").Formula = \"=MOD(H1+H2,1000)\"",
+  "read": "ws.Range(\"H3000\").Value",
+  "answer": "0"
+ },
+ "running upward": {
+  "setup": "ws.Range(\"I3000\").Value = 1\nws.Range(\"I1:I2999\").Formula = \"=I2+1\"",
+  "read": "ws.Range(\"I1\").Value",
+  "answer": "3000"
+ },
+ "across two columns": {
+  "setup": "ws.Range(\"J1\").Value = 1\nws.Range(\"K1:K1500\").FormulaR1C1 = \"=RC[-1]+1\"\nws.Range(\"J2:J1500\").FormulaR1C1 = \"=R[-1]C[1]+1\"",
+  "read": "ws.Range(\"K1500\").Value",
+  "answer": "3000"
+ }
+}

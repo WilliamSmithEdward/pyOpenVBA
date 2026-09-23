@@ -661,6 +661,18 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- A long chain of cells comes to what Excel shows. A running total 300 rows
+  down, `=A1+1` filled from A2, read 140 at the bottom: past about 140
+  cells one inside another, Python ran out of stack, and the model took
+  the cell for one that fed itself and left 0 in it. A cell more than 24
+  cells down is now put off, worked out on its own and the cell wanting
+  it tried again, so a chain of any length comes out right: 3000 rows,
+  running up or down, summed, read from above or across two columns, as
+  8 chains measured in live Excel show
+  (scripts/measure_long_chains.py). A change at the top of a chain
+  finds what reads it through an index rather than by going through
+  every formula once per cell down, so changing the top of a 5000-row
+  chain takes a fraction of a second, not ten.
 - A saved formula spells a function newer than Excel 2007 as Excel does,
   `_xlfn.XLOOKUP`, FILTER and SORT as `_xlfn._xlws.FILTER`, and each name a
   LET or a LAMBDA binds as `_xlpm.x`. The model wrote them bare, and Excel

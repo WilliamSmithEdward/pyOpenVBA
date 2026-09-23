@@ -38,6 +38,20 @@ if TYPE_CHECKING:
 
 CellKey = tuple[str, int, int]
 
+#: How many cells deep one cell is worked out inside another before the next is put off (see Calculator.value_of).
+_DEEPEST = 24
+
+
+class _Deeper(BaseException):
+    """A cell too deep to work out inside the others, for the cell read from the top to work out first. A
+    BaseException, so no ``except Exception`` a formula's function runs through takes it for the formula failing."""
+
+    def __init__(self, sheet: str, row: int, column: int) -> None:
+        super().__init__(sheet, row, column)
+        self.sheet = sheet
+        self.row = row
+        self.column = column
+
 
 @dataclass(slots=True)
 class Compiled:
@@ -58,11 +72,19 @@ class Calculator:
         #: The workbook as the formula engine reads it.
         self.engine_book = EngineBook(self)
         self.compiled: dict[CellKey, Compiled] = {}
+        #: Which formulas read each cell a formula names on its own, and the blocks of cells each other formula reads,
+        #: so that a change finds what reads it without going through every formula.
+        self._readers: dict[CellKey, set[CellKey]] = {}
+        self._blocks: dict[CellKey, list[Area]] = {}
         #: Cells that could not be worked out because they feed
         #: themselves.  Excel shows zero in these and warns separately.
         self.circular: set[CellKey] = set()
         self._built = False
+        #: The cells being worked out, one inside another, and how many.
         self._working: set[CellKey] = set()
+        self._depth = 0
+        #: The cells put off until a cell too deep to work out inside them is worked out.
+        self._waiting: set[CellKey] = set()
 
     # --- keeping track ------------------------------------------------------------
 
@@ -80,16 +102,48 @@ class Calculator:
         """Take note of a cell's formula, or forget it if there is none."""
         key = (sheet.lower(), row, column)
         if not cell.formula:
-            self.compiled.pop(key, None)
+            self._keep(key, None)
             return
         try:
             node = self.engine_book.read(cell.formula)
         except FormulaSyntaxError as failure:
             # One formula the parser cannot read stops no other from being worked out.
-            self.compiled[key] = Compiled(node=None, unread=str(failure))
+            self._keep(key, Compiled(node=None, unread=str(failure)))
             return
         precedents = self.engine_book.precedents(node, sheet, row, column)
-        self.compiled[key] = Compiled(node=node, precedents=precedents, volatile=volatile(node))
+        self._keep(key, Compiled(node=node, precedents=precedents, volatile=volatile(node)))
+
+    def forget(self, sheet: str, row: int, column: int) -> None:
+        """A cell is gone: forget its formula."""
+        self._keep((sheet.lower(), row, column), None)
+
+    def _keep(self, key: CellKey, compiled: Compiled | None) -> None:
+        """Keep ``compiled`` as the formula at ``key``, or none, and note which cells it reads."""
+        old = self.compiled.pop(key, None)
+        if old is not None:
+            for area in old.precedents:
+                readers = self._readers.get((area.sheet.lower(), area.top, area.left))
+                if readers is not None:
+                    readers.discard(key)
+            self._blocks.pop(key, None)
+        if compiled is None:
+            return
+        self.compiled[key] = compiled
+        blocks: list[Area] = []
+        for area in compiled.precedents:
+            if area.top == area.bottom and area.left == area.right:
+                self._readers.setdefault((area.sheet.lower(), area.top, area.left), set()).add(key)
+            else:
+                blocks.append(area)
+        if blocks:
+            self._blocks[key] = blocks
+
+    def _reading(self, name: str, row: int, column: int) -> set[CellKey]:
+        """The formulas that read a cell."""
+        found = set(self._readers.get((name, row, column), ()))
+        found.update(key for key, blocks in self._blocks.items()
+                     if any(area.sheet.lower() == name and area.contains(row, column) for area in blocks))
+        return found
 
     def rebuild(self) -> None:
         """Forget every parsed formula and mark them all for another look.
@@ -99,6 +153,8 @@ class Calculator:
         all again.
         """
         self.compiled.clear()
+        self._readers.clear()
+        self._blocks.clear()
         self.circular.clear()
         self._built = False
         for sheet in self.book.sheets_:
@@ -117,7 +173,7 @@ class Calculator:
         self.build()
         name = sheet.lower()
         for key in [key for key in self.compiled if key[0] == name and area.contains(key[1], key[2])]:
-            del self.compiled[key]
+            self._keep(key, None)
         reading: set[CellKey] = set()
         for key, compiled in self.compiled.items():
             if any(one.sheet.lower() == name and one.top <= area.bottom and area.top <= one.bottom
@@ -131,24 +187,19 @@ class Calculator:
             self._spoil(reading, set(reading))
 
     def _spoil(self, changed: set[CellKey], seen: set[CellKey]) -> None:
-        following: set[CellKey] = set()
-        for key, compiled in self.compiled.items():
-            if key in seen:
-                continue
-            if any(
-                area.sheet.lower() == name and area.contains(row, column)
-                for name, row, column in changed
-                for area in compiled.precedents
-            ):
-                cell = self._cell(key)
-                if cell is not None and not cell.stale:
-                    cell.stale = True
-                    following.add(key)
-                    # What reads a cell of an array formula follows the array.
-                    following.update(self._members(key))
-                seen.add(key)
-        if following:
-            self._spoil(following, seen)
+        """Mark stale what reads ``changed``, and what reads that, a wave at a time."""
+        while changed:
+            following: set[CellKey] = set()
+            for name, row, column in changed:
+                for key in self._reading(name, row, column) - seen:
+                    cell = self._cell(key)
+                    if cell is not None and not cell.stale:
+                        cell.stale = True
+                        following.add(key)
+                        # What reads a cell of an array formula follows the array.
+                        following.update(self._members(key))
+                    seen.add(key)
+            changed = following
 
     def _cell(self, key: CellKey) -> Cell | None:
         for sheet in self.book.sheets_:
@@ -198,14 +249,43 @@ class Calculator:
         return worked
 
     def value_of(self, sheet: str, row: int, column: int, *, force: bool = False) -> object:
-        """A cell's value, worked out first if it needs to be; a cell of an array formula, by working out the array."""
+        """A cell's value, worked out first if it needs to be; a cell of an array formula, by working out the array.
+
+        A cell read from outside any formula is worked out from here. A cell
+        more than :data:`_DEEPEST` cells down is put off: it is worked out on
+        its own, and the cell that wanted it tried again. A running total
+        thousands of rows long comes out as it does in Excel, and no chain of
+        cells runs Python out of stack.
+        """
+        if self._depth:
+            return self._value(sheet, row, column, force)
+        wanted = [(sheet, row, column, force)]
+        waiting: list[CellKey] = []
+        try:
+            while True:
+                try:
+                    value = self._value(*wanted[-1])
+                except _Deeper as deeper:
+                    top = wanted[-1]
+                    waiting.append((top[0].lower(), top[1], top[2]))
+                    self._waiting.add(waiting[-1])
+                    wanted.append((deeper.sheet, deeper.row, deeper.column, False))
+                    continue
+                wanted.pop()
+                if not wanted:
+                    return value
+                self._waiting.discard(waiting.pop())
+        finally:
+            self._waiting.difference_update(waiting)
+
+    def _value(self, sheet: str, row: int, column: int, force: bool) -> object:
         self.build()
         key = (sheet.lower(), row, column)
         owner = self._sheet_named(sheet)
         if owner is not None and owner.array_formulas:
             found = array_at(owner, row, column)
             if found is not None and found[0] != (row, column):
-                self.value_of(sheet, *found[0], force=force)
+                self._value(sheet, *found[0], force)
                 member = owner.cells_.get((row, column))
                 return EMPTY if member is None else member.value
         cell = self._cell(key)
@@ -221,20 +301,29 @@ class Calculator:
             return cell.value
         if not self.automatic and not force:
             return cell.value
-        if key in self._working:
+        if key in self._working or key in self._waiting:
             self.circular.add(key)
             raise ExcelError("#CIRCULAR!")
+        if self._depth >= _DEEPEST:
+            raise _Deeper(sheet, row, column)
         self._working.add(key)
+        self._depth += 1
         try:
             value = self._computed(compiled, sheet, row, column)
         finally:
+            self._depth -= 1
             self._working.discard(key)
         cell.value = value
         cell.stale = False
         from pyopenvba.apps.excel._controls import cell_changed
 
         owner = next(one for one in self.book.sheets_ if one.name.lower() == sheet.lower())
-        cell_changed(owner, row, column, value)
+        # A control's cell is read from the top, so that nothing put off stops the control short.
+        depth, self._depth = self._depth, 0
+        try:
+            cell_changed(owner, row, column, value)
+        finally:
+            self._depth = depth
         return value
 
     def _computed(self, compiled: Compiled, sheet: str, row: int, column: int) -> object:

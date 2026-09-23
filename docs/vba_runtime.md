@@ -956,8 +956,12 @@ follows the sheet's content.
 the library; the workbook keeps track of which cells are stale and what
 feeds what.  Calculation is on demand: reading a stale cell works it out, and
 working it out works out whatever it reads, so nothing is ordered up
-front and INDIRECT is no harder than a plain reference.  Writing a cell
-spoils whatever reads it, a volatile function is recomputed every time,
+front and INDIRECT is no harder than a plain reference.  A cell more than
+24 cells down is put off, worked out on its own and the cell that wanted
+it tried again, so a running total thousands of rows long comes out as
+in Excel without running Python out of stack.  Writing a cell
+spoils whatever reads it, found through an index of which formulas read
+each cell, a volatile function is recomputed every time,
 a formula written to a block or copied has its relative references
 moved, a circular reference leaves a zero and is recorded, and manual
 calculation mode keeps the old value until something calls Calculate,

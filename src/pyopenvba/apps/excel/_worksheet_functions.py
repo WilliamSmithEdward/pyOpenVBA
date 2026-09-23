@@ -52,6 +52,8 @@ _VARIANT: Final = frozenset({
 })
 #: Functions that answer with part of a range when handed one, which reads back as Range.Value reads.
 _REFERENCES: Final = frozenset({"INDEX", "CHOOSE", "XLOOKUP"})
+#: Functions a range is handed to as the cells it names rather than their values.
+_BY_REFERENCE: Final = frozenset({"SUBTOTAL"})
 
 
 def engine_name(name: str) -> str | None:
@@ -79,8 +81,17 @@ def call(application: Application, name: str, args: Any, named: Any, *, raising:
     if sheet is None:
         raise error(1004, "There is no workbook open")
     context = Context(sheet.book.calculator, sheet.name)
+    from pyopenvba.apps.excel._model import Range
+
+    nodes: list[P.Node] = []
+    for value, one in zip(values, converted, strict=True):
+        if function in _BY_REFERENCE and isinstance(value, Range):
+            # SUBTOTAL reads which rows are hidden, so a range goes to it as the cells it names.
+            nodes.extend(P.Reference(text=area.address(absolute=False), sheet=value.sheet.name) for area in value.areas)
+        else:
+            nodes.append(P.Literal(value=one))
     try:
-        answer = run(function, [P.Literal(value=one) for one in converted], context)
+        answer = run(function, nodes, context)
     except ExcelError as failure:
         answer = failure
     if isinstance(answer, ExcelError):

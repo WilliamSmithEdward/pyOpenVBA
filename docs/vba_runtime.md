@@ -897,6 +897,16 @@ logical functions.  Anything else Excel has says so by name rather than
 answering `#NAME?`, which is reserved for a function Excel has not got
 either.
 
+SUBTOTAL reads which rows are hidden (`tests/fixtures/subtotal.json`, 31
+layouts): 1 to 11 pass over the rows a filter hid -- and while a sheet
+is in filter mode Excel takes every hidden row there for one, whatever
+hid it -- and 101 to 111 over every hidden row, while hidden columns
+count. It passes over a cell holding SUBTOTAL or AGGREGATE, cuts its
+function number to a whole one, and is recalculated as rows are hidden,
+filtered or shown. A value where it wants a range is error 1004 when the
+formula is written; a reference that OFFSET, INDIRECT, IF, INDEX or a
+reference operator gives reports itself unsupported.
+
 SUM, AVERAGE, SUMSQ and their kin add one number after another, each
 sum rounded to a double, as Excel adds (`tests/fixtures/variance.json`,
 87 sets, compared bit for bit). VAR and VARP take Excel's one-pass sum

@@ -77,9 +77,19 @@ All notable changes to pyOpenVBA are documented here. This project follows
   filtered column filters again by the rest, and deleting or clearing
   the header row turns it off. `AutoFilter.Range` runs on over rows
   written below it, which filtering again takes in. 195 layouts in live
-  Excel pin it; SUBTOTAL, not in the formula engine, and a
-  two-dimensional array written to several areas, which Excel reads at
-  another stride, report themselves unsupported.
+  Excel pin it; a two-dimensional array written to several areas, which
+  Excel reads at another stride, reports itself unsupported.
+- SUBTOTAL, in cells and through `WorksheetFunction.Subtotal`. 1 to 11
+  pass over the rows a filter hid -- and while a sheet is in filter mode
+  Excel takes every hidden row there for one -- 101 to 111 over every
+  hidden row, and hidden columns count. A cell that holds SUBTOTAL or
+  AGGREGATE is passed over. The function number is cut to a whole one,
+  TRUE is 1, and anything outside 1 to 11 and 101 to 111 is `#VALUE!`; a
+  value where a range belongs is error 1004 when the formula is written,
+  as in Excel. A SUBTOTAL recalculates as rows are hidden, filtered or
+  shown. 31 layouts in live Excel pin it; a reference that OFFSET,
+  INDIRECT, IF, INDEX or a reference operator gives reports itself
+  unsupported.
 - SUMSQ and DEVSQ, in cells and through `WorksheetFunction`, each
   Excel's double to the bit over 87 sets of numbers. DEVSQ of no numbers
   is `#NUM!`.

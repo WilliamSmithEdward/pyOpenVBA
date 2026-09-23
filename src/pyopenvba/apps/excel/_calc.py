@@ -19,14 +19,14 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import Area
-from pyopenvba.exceptions import VBARuntimeError
+from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.formula import _parse as P
 from pyopenvba.formula._engine import Context, clip, evaluate
-from pyopenvba.formula._values import BLANK, ExcelError, Matrix, single
+from pyopenvba.formula._values import BLANK, REF, ExcelError, Matrix, single
 from pyopenvba.interpreter._values import EMPTY, VBACurrency, VBADate, VBAErrorValue, VBAInt
 
 if TYPE_CHECKING:
-    from pyopenvba.apps.excel._model import Cell, Workbook
+    from pyopenvba.apps.excel._model import Cell, Workbook, Worksheet
 
 #: What a cell holding an error answers when VBA asks for its Value.
 #: These are Excel's own CVErr numbers.
@@ -140,7 +140,7 @@ class Calculator:
                 return sheet.cells_.get((key[1], key[2]))
         return None
 
-    def _sheet_named(self, name: str) -> object:
+    def _sheet_named(self, name: str) -> Worksheet | None:
         for sheet in self.book.sheets_:
             if sheet.name.lower() == name.lower():
                 return sheet
@@ -220,17 +220,13 @@ class Calculator:
         return from_vba(self.value_of(sheet, row, column))
 
     def block(self, sheet: str, area: Area) -> Matrix:
-        target = self._sheet_named(area.sheet or sheet)
-        if target is None:
-            from pyopenvba.formula._values import REF
-
-            raise REF
-        bounded = clip(area, target.used_bounds())  # type: ignore[attr-defined]
+        target = self._worksheet(area.sheet or sheet)
+        bounded = clip(area, target.used_bounds())
         rows: list[list[object]] = []
         for row in range(bounded.top, bounded.bottom + 1):
             line: list[object] = []
             for column in range(bounded.left, bounded.right + 1):
-                line.append(self.cell_value(target.name, row, column))  # type: ignore[attr-defined]
+                line.append(self.cell_value(target.name, row, column))
             rows.append(line)
         return Matrix(rows if rows else [[BLANK]])
 
@@ -259,6 +255,33 @@ class Calculator:
 
     def sheet_exists(self, name: str) -> bool:
         return self._sheet_named(name) is not None
+
+    def _worksheet(self, name: str) -> Worksheet:
+        """The sheet a reference names; one the workbook has not got is #REF!."""
+        found = self._sheet_named(name)
+        if found is None:
+            raise REF
+        return found
+
+    def used(self, sheet: str) -> tuple[int, int, int, int] | None:
+        return self._worksheet(sheet).used_bounds()
+
+    def hidden_rows(self, sheet: str, every: bool) -> set[int]:
+        """The rows SUBTOTAL passes over on a sheet.
+
+        Measured (scripts/measure_subtotal.py): 101 to 111 pass over every
+        hidden row, 1 to 11 only the rows a filter hid -- and while the
+        sheet is in filter mode Excel takes every hidden row for one,
+        whatever hid it, inside the filter's range or not.
+        """
+        target = self._worksheet(sheet)
+        dims = target.dims
+        if dims.zero_height:
+            raise VBAUnsupportedError("SUBTOTAL over a sheet whose rows are hidden by default is not implemented")
+        found = target.auto_filter
+        if not every and (found is None or not found.fields):
+            return set()
+        return {row for row, record in dims.rows.items() if record.hidden}
 
     def formula_at(self, sheet: str, row: int, column: int) -> str:
         cell = self._cell((sheet.lower(), row, column))

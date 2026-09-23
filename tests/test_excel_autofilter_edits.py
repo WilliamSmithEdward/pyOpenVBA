@@ -29,7 +29,6 @@ UNSUPPORTED = {
     **{name: "Excel reads a two-dimensional array for the second of several areas at another stride"
        for name in ("array_distinct", "array_distinct_3col", "array_small", "array_areas_no_filter",
                     "value_self_assign")},
-    **{name: "the formula engine has no SUBTOTAL" for name in ("subtotal_filtered", "subtotal_by_hand")},
 }
 
 

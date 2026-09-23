@@ -355,9 +355,10 @@ def parse(formula: str) -> Node:
 # --- what a formula depends on --------------------------------------------------------
 
 #: Functions whose answer can change without any cell changing, so a
-#: formula holding one is recalculated every time.
+#: formula holding one is recalculated every time. SUBTOTAL changes as
+#: rows are hidden, filtered or shown, which Excel recalculates it for.
 VOLATILE: Final = frozenset(
-    {"NOW", "TODAY", "RAND", "RANDBETWEEN", "RANDARRAY", "OFFSET", "INDIRECT", "CELL", "INFO"}
+    {"NOW", "TODAY", "RAND", "RANDBETWEEN", "RANDARRAY", "OFFSET", "INDIRECT", "CELL", "INFO", "SUBTOTAL"}
 )
 
 

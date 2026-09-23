@@ -35,7 +35,8 @@ from typing import Final, Protocol
 
 from pyopenvba._a1 import column_letter, column_number, quote_sheet
 from pyopenvba.formula._inventory import excel_has_function
-from pyopenvba.formula._parse import FormulaError, Token, literal, parse, split_sheet, tokenize
+from pyopenvba.formula._parse import (Binary, Call, FormulaError, NameNode, Node, Reference, Token, Unary, literal,
+                                      parse, split_sheet, tokenize)
 from pyopenvba.formula._values import number_text
 
 #: The largest number a formula can hold written out.
@@ -77,7 +78,7 @@ def spelled(formula: str, names: Names) -> str:
     unmodelled = _UNMODELLED.search(_QUOTED.sub('""', body))
     if unmodelled is not None:
         raise UnmodelledFormulaError(f"{unmodelled.group(0)!r} in a formula is not implemented")
-    parse(formula)
+    _check(parse(formula))
     tokens = tokenize(body, spaces=True)
     pieces: list[str] = []
     array = 0
@@ -116,6 +117,40 @@ def spelled(formula: str, names: Names) -> str:
         previous = token
         index += 1
     return "=" + "".join(pieces)
+
+
+#: Functions Excel refuses a formula for when an argument from a place on is not a reference, and the fewest
+#: arguments each takes. Measured (scripts/measure_subtotal.py): SUBTOTAL(9,5), SUBTOTAL(9,"5"),
+#: SUBTOTAL(9,{1,2,3}), SUBTOTAL(9,B2:B9*1) and SUBTOTAL(9) are each error 1004 when written.
+_REFERENCES: Final = {"SUBTOTAL": (1, 2)}
+
+
+def _check(node: Node | None) -> None:
+    """Refuse what Excel refuses in a formula past its syntax: a value where a function wants a reference."""
+    if isinstance(node, Call):
+        wanted = _REFERENCES.get(node.name.upper())
+        if wanted is not None:
+            first, fewest = wanted
+            if len(node.args) < fewest or not all(_referring(argument) for argument in node.args[first:]):
+                raise FormulaError(f"{node.name} takes references")
+        for argument in node.args:
+            _check(argument)
+    elif isinstance(node, Unary):
+        _check(node.operand)
+    elif isinstance(node, Binary):
+        _check(node.left)
+        _check(node.right)
+
+
+def _referring(node: Node | None) -> bool:
+    """Whether an argument can stand for a reference: a reference, a name, a function's answer, or references joined."""
+    if isinstance(node, (Reference, Call)):
+        return True
+    if isinstance(node, NameNode):
+        return node.name.upper() not in ("TRUE", "FALSE")
+    if isinstance(node, Binary):
+        return node.op in (":", " ", ",") and _referring(node.left) and _referring(node.right)
+    return False
 
 
 def _next(tokens: list[Token], index: int) -> Token:

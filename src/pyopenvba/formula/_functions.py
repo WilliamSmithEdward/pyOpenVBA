@@ -28,7 +28,7 @@ from typing import Any, Final
 from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, column_letter
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.formula import _parse as P
-from pyopenvba.formula._engine import Context, evaluate
+from pyopenvba.formula._engine import Context, clip, evaluate
 from pyopenvba.formula._values import (
     BLANK,
     DIV0,
@@ -539,6 +539,59 @@ def fn_devsq(context: Context, args: list[Any]) -> object:
         raise NUM
     mean = _added(numbers) / len(numbers)
     return _added((number - mean) * (number - mean) for number in numbers)
+
+
+#: What each of SUBTOTAL's function numbers works out, 101 to 111 as 1 to 11.
+_SUBTOTALS: Final = {1: fn_average, 2: fn_count, 3: fn_counta, 4: fn_max, 5: fn_min, 6: fn_product, 7: fn_stdev,
+                     8: fn_stdevp, 9: fn_sum, 10: fn_var, 11: fn_varp}
+
+
+@function("SUBTOTAL", lazy=True)
+def fn_subtotal(context: Context, nodes: list[Any]) -> object:
+    """SUBTOTAL over the cells of its references, as Excel works it out.
+
+    Measured (scripts/measure_subtotal.py): the function number is read
+    as a number and cut to a whole one, TRUE being 1 and "9" 9; outside 1
+    to 11 and 101 to 111 it is #VALUE!. 1 to 11 pass over the rows a
+    filter hid, 101 to 111 over every hidden row, as the grid says which;
+    hidden columns count. A cell whose formula holds SUBTOTAL or
+    AGGREGATE is passed over, so subtotals are not counted twice. The
+    cells then go to the function as a range would: SUM over an error is
+    that error, COUNT walks past it and COUNTA counts it.
+    """
+    if len(nodes) < 2:
+        raise VALUE
+    number = single(context.value(nodes[0]))
+    if isinstance(number, ExcelError):
+        raise number
+    value = as_number(number)
+    kind = int(value) if value >= 0 else -1
+    if not (1 <= kind <= 11 or 101 <= kind <= 111):
+        raise VALUE
+    values: list[list[object]] = []
+    for node in nodes[1:]:
+        area = context.area_of(node)
+        if area is None:
+            raise VBAUnsupportedError("SUBTOTAL over a reference that a function or an operator gives is not implemented")
+        sheet = area.sheet or context.sheet
+        bounded = clip(area, context.grid.used(sheet))
+        passed = context.grid.hidden_rows(sheet, kind > 100)
+        for row in range(bounded.top, bounded.bottom + 1):
+            if row in passed:
+                continue
+            for column in range(bounded.left, bounded.right + 1):
+                if not _subtotalled(context.grid.formula_at(sheet, row, column)):
+                    values.append([context.grid.cell_value(sheet, row, column)])
+    return _SUBTOTALS[kind % 100](context, [Matrix(values if values else [[BLANK]])])
+
+
+def _subtotalled(formula: str) -> bool:
+    """Whether a cell's formula calls SUBTOTAL or AGGREGATE, which SUBTOTAL passes over."""
+    if not formula:
+        return False
+    tokens = P.tokenize(formula[1:] if formula.startswith("=") else formula)
+    return any(token.kind == "name" and token.text.upper() in ("SUBTOTAL", "AGGREGATE") and following.kind == "open"
+               for token, following in zip(tokens, tokens[1:]))
 
 
 # --- criteria ------------------------------------------------------------------------------------

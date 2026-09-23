@@ -61,6 +61,14 @@ class Grid(Protocol):
         """The formula text in one cell, for FORMULATEXT."""
         ...
 
+    def used(self, sheet: str) -> tuple[int, int, int, int] | None:
+        """A sheet's used block -- top, left, bottom, right -- or None when it has nothing."""
+        ...
+
+    def hidden_rows(self, sheet: str, every: bool) -> set[int]:
+        """The rows SUBTOTAL passes over on a sheet: every hidden one, or with ``every`` false those a filter hid."""
+        ...
+
     def now(self) -> _dt.datetime:
         """The clock the workbook is running on."""
         ...

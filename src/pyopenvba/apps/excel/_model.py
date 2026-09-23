@@ -1863,6 +1863,52 @@ class Range(ExcelObject):
         Destination.sheet.shape_changed()
         return True
 
+    @method
+    def FillDown(self) -> object:
+        return self._fill(1, 0)
+
+    @method
+    def FillUp(self) -> object:
+        return self._fill(-1, 0)
+
+    @method
+    def FillRight(self) -> object:
+        return self._fill(0, 1)
+
+    @method
+    def FillLeft(self) -> object:
+        return self._fill(0, -1)
+
+    def _fill(self, down: int, across: int) -> object:
+        """Copy each area's first row or column, in the direction of the fill, over the rest of it.
+
+        Everything the source holds goes -- values, formulas moved with
+        each row or column, formats, and blanks over what was there. An
+        area one row deep takes its source from the row before it, and one
+        with no row before it is error 1004, before anything changes.
+        """
+        plans: list[tuple[Area, Area]] = []
+        for area in self.areas:
+            lines = area.rows if down else area.columns
+            if lines == 1:
+                # A single line is filled from its neighbour on the side the fill comes from.
+                source = Area(area.top - down, area.left - across, area.bottom - down, area.right - across)
+                if not (1 <= source.top and source.bottom <= MAX_ROWS and 1 <= source.left
+                        and source.right <= MAX_COLUMNS):
+                    raise error(1004, "There is nothing to fill from")
+                plans.append((source, area))
+            elif down:
+                edge = area.top if down > 0 else area.bottom
+                rest = (area.top + 1, area.bottom) if down > 0 else (area.top, area.bottom - 1)
+                plans.append((Area(edge, area.left, edge, area.right), Area(rest[0], area.left, rest[1], area.right)))
+            else:
+                edge = area.left if across > 0 else area.right
+                rest = (area.left + 1, area.right) if across > 0 else (area.left, area.right - 1)
+                plans.append((Area(area.top, edge, area.bottom, edge), Area(area.top, rest[0], area.bottom, rest[1])))
+        for source, target in plans:
+            Range(self.sheet, [source]).copy_to(Range(self.sheet, [target]))
+        return True
+
     @member
     def CurrentRegion(self) -> object:
         """The block around the first cell that empty rows and columns bound, as Ctrl+* selects it."""

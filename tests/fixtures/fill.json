@@ -1,0 +1,85 @@
+{
+ "helper": "Private Function Show(v As Variant) As String\n    If IsNull(v) Then\n        Show = \"Null\"\n    ElseIf IsEmpty(v) Then\n        Show = \"Empty\"\n    ElseIf IsError(v) Then\n        Show = \"Error:\" & CStr(CLng(v))\n    Else\n        Show = TypeName(v) & \":\" & CStr(v)\n    End If\nEnd Function\n\nPrivate Function Dump(ws As Object) As String\n    Dim out As String, c As Object\n    For Each c In ws.Range(\"A1:E6\").Cells\n        out = out & c.Formula & \"~\" & c.NumberFormat & \"~\" & c.Font.Bold & \"~\" & c.Interior.ColorIndex & \"/\"\n    Next\n    Dump = out & ws.UsedRange.Address\nEnd Function\n",
+ "layouts": [
+  {
+   "name": "down_block",
+   "setup": "ws.Range(\"A1\").Value = 1\nws.Range(\"B1\").Formula = \"=A1*2\"\nws.Range(\"C1\").Value = \"x\"\nws.Range(\"D1\").Value = 3\nws.Range(\"D1\").NumberFormat = \"0.00\"\nws.Range(\"D1\").Font.Bold = True\nws.Range(\"A3\").Value = \"old\"\nws.Range(\"E4\").Value = 9\nv = ws.Range(\"A1:E5\").FillDown",
+   "answers": "Boolean:True;1~General~False~-4142/=A1*2~General~False~-4142/x~General~False~-4142/3~0.00~True~-4142/~General~False~-4142/1~General~False~-4142/=A2*2~General~False~-4142/x~General~False~-4142/3~0.00~True~-4142/~General~False~-4142/1~General~False~-4142/=A3*2~General~False~-4142/x~General~False~-4142/3~0.00~True~-4142/~General~False~-4142/1~General~False~-4142/=A4*2~General~False~-4142/x~General~False~-4142/3~0.00~True~-4142/~General~False~-4142/1~General~False~-4142/=A5*2~General~False~-4142/x~General~False~-4142/3~0.00~True~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/$A$1:$D$5"
+  },
+  {
+   "name": "down_one_row",
+   "setup": "ws.Range(\"A1\").Value = 1\nws.Range(\"B1\").Formula = \"=A1*2\"\nv = ws.Range(\"A2:B2\").FillDown",
+   "answers": "Boolean:True;1~General~False~-4142/=A1*2~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/1~General~False~-4142/=A2*2~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/$A$1:$B$2"
+  },
+  {
+   "name": "down_one_cell",
+   "setup": "ws.Range(\"B1\").Value = 5\nv = ws.Range(\"B2\").FillDown",
+   "answers": "Boolean:True;~General~False~-4142/5~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/5~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/$B$1:$B$2"
+  },
+  {
+   "name": "down_top_row",
+   "setup": "ws.Range(\"A1\").Value = 1\nv = ws.Range(\"A1:B1\").FillDown",
+   "answers": "S1004;Empty;1~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/$A$1"
+  },
+  {
+   "name": "down_references",
+   "setup": "ws.Range(\"A1\").Formula = \"=$C$1+C$1+$C1+C1\"\nws.Range(\"C1:C4\").Value = 1\nws.Range(\"B2:B3\").Value = 9\nv = ws.Range(\"A1:B3\").FillDown",
+   "answers": "Boolean:True;=$C$1+C$1+$C1+C1~General~False~-4142/~General~False~-4142/1~General~False~-4142/~General~False~-4142/~General~False~-4142/=$C$1+C$1+$C2+C2~General~False~-4142/~General~False~-4142/1~General~False~-4142/~General~False~-4142/~General~False~-4142/=$C$1+C$1+$C3+C3~General~False~-4142/~General~False~-4142/1~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/1~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/$A$1:$C$4"
+  },
+  {
+   "name": "down_formats",
+   "setup": "ws.Range(\"A1\").Value = 1\nws.Range(\"A1\").Interior.ColorIndex = 6\nws.Range(\"A1\").Borders(xlEdgeBottom).LineStyle = xlContinuous\nws.Range(\"A2:A3\").Interior.ColorIndex = 3\nv = ws.Range(\"A1:A3\").FillDown",
+   "answers": "Boolean:True;1~General~False~6/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/1~General~False~6/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/1~General~False~6/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/$A$1:$A$3"
+  },
+  {
+   "name": "up_block",
+   "setup": "ws.Range(\"A5\").Value = 1\nws.Range(\"B5\").Formula = \"=A5*2\"\nws.Range(\"A1\").Value = \"old\"\nv = ws.Range(\"A1:B5\").FillUp",
+   "answers": "Boolean:True;1~General~False~-4142/=A1*2~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/1~General~False~-4142/=A2*2~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/1~General~False~-4142/=A3*2~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/1~General~False~-4142/=A4*2~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/1~General~False~-4142/=A5*2~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/$A$1:$B$5"
+  },
+  {
+   "name": "up_one_row",
+   "setup": "ws.Range(\"A3\").Value = 1\nws.Range(\"B3\").Formula = \"=A3*2\"\nv = ws.Range(\"A2:B2\").FillUp",
+   "answers": "Boolean:True;~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/1~General~False~-4142/=A2*2~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/1~General~False~-4142/=A3*2~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/$A$2:$B$3"
+  },
+  {
+   "name": "right_block",
+   "setup": "ws.Range(\"A1\").Value = 1\nws.Range(\"A2\").Formula = \"=A1*2\"\nws.Range(\"C2\").Value = \"old\"\nv = ws.Range(\"A1:D2\").FillRight",
+   "answers": "Boolean:True;1~General~False~-4142/1~General~False~-4142/1~General~False~-4142/1~General~False~-4142/~General~False~-4142/=A1*2~General~False~-4142/=B1*2~General~False~-4142/=C1*2~General~False~-4142/=D1*2~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/$A$1:$D$2"
+  },
+  {
+   "name": "right_one_column",
+   "setup": "ws.Range(\"A1\").Value = 1\nws.Range(\"A2\").Formula = \"=A1*2\"\nv = ws.Range(\"B1:B2\").FillRight",
+   "answers": "Boolean:True;1~General~False~-4142/1~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/=A1*2~General~False~-4142/=B1*2~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/$A$1:$B$2"
+  },
+  {
+   "name": "left_block",
+   "setup": "ws.Range(\"D1\").Value = 1\nws.Range(\"D2\").Formula = \"=D1*2\"\nv = ws.Range(\"A1:D2\").FillLeft",
+   "answers": "Boolean:True;1~General~False~-4142/1~General~False~-4142/1~General~False~-4142/1~General~False~-4142/~General~False~-4142/=A1*2~General~False~-4142/=B1*2~General~False~-4142/=C1*2~General~False~-4142/=D1*2~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/$A$1:$D$2"
+  },
+  {
+   "name": "left_one_column",
+   "setup": "ws.Range(\"C1\").Value = 1\nws.Range(\"C2\").Formula = \"=C1*2\"\nv = ws.Range(\"B1:B2\").FillLeft",
+   "answers": "Boolean:True;~General~False~-4142/1~General~False~-4142/1~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/=B1*2~General~False~-4142/=C1*2~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/$B$1:$C$2"
+  },
+  {
+   "name": "several_areas",
+   "setup": "ws.Range(\"A1\").Value = 1\nws.Range(\"C1\").Value = 2\nv = ws.Range(\"A1:A3,C1:C3\").FillDown",
+   "answers": "Boolean:True;1~General~False~-4142/~General~False~-4142/2~General~False~-4142/~General~False~-4142/~General~False~-4142/1~General~False~-4142/~General~False~-4142/2~General~False~-4142/~General~False~-4142/~General~False~-4142/1~General~False~-4142/~General~False~-4142/2~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/$A$1:$C$3"
+  },
+  {
+   "name": "merged_source",
+   "setup": "ws.Range(\"A1:B1\").Merge\nws.Range(\"A1\").Value = 1\nv = ws.Range(\"A1:B3\").FillDown",
+   "answers": "Boolean:True;1~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/1~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/1~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/$A$1:$B$3"
+  },
+  {
+   "name": "text_is_not_a_series",
+   "setup": "ws.Range(\"A1\").Value = \"Item 1\"\nws.Range(\"B1\").Value = #1/2/2020#\nv = ws.Range(\"A1:B3\").FillDown",
+   "answers": "Boolean:True;Item 1~General~False~-4142/43832~m/d/yyyy~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/Item 1~General~False~-4142/43832~m/d/yyyy~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/Item 1~General~False~-4142/43832~m/d/yyyy~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/$A$1:$B$3"
+  },
+  {
+   "name": "prefix_and_error",
+   "setup": "ws.Range(\"A1\").Value = \"'5\"\nws.Range(\"B1\").Formula = \"=1/0\"\nv = ws.Range(\"A1:B2\").FillDown",
+   "answers": "Boolean:True;5~General~False~-4142/=1/0~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/5~General~False~-4142/=1/0~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/~General~False~-4142/$A$1:$B$2"
+  }
+ ]
+}

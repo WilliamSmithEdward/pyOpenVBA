@@ -132,6 +132,9 @@ sweep is what settled these:
 - `End` looks at the neighbour, so `End(xlDown)` from a lone A1 is
   A1048576 rather than A1, and walks over a cell with only a format as
   over an empty one.
+- `FillDown` and its three siblings copy an area's first row or column
+  over the rest as `Copy` does, blanks included, and a one-row area fills
+  from the row above it (`tests/fixtures/fill.json`).
 - `CurrentRegion` starts from the first area's top-left cell, so
   `Range("A1:E5").CurrentRegion` can be smaller than A1:E5, and grows
   while the ring around it holds a value or formula, corners included;

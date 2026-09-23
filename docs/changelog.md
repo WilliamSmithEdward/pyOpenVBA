@@ -43,6 +43,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
   the cell with depends on the width in pixels. Before, both went
   through Access's `Format`, which spelled `$#,##0_)` as `$5_)`, fractions
   as `2 ?/?` and `[h]:mm:ss` as `[1]:00:00`.
+- `Range.FillDown`, `FillUp`, `FillRight` and `FillLeft`: each area's
+  first row or column, in the direction of the fill, copied over the rest
+  as `Copy` copies it, blanks included; a one-row or one-column area fills
+  from its neighbour, and one at the edge of the sheet is error 1004
+  before anything changes. 16 layouts of live Excel pin them.
 - `Range.CurrentRegion`, as Excel answers it: from the first area's
   top-left cell, grown while the ring around it holds a value or a
   formula, corners included, taking in merged areas whole. 34 layouts of

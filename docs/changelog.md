@@ -100,10 +100,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
   `Evaluate("A1:A3*2")` is three numbers, in an array counted from 1
   that is one-dimensional when it is one row. An error comes back as an
   error value. An expression Excel cannot read, an empty one, or one
-  past 255 characters is Error 2015. 91 cases in live Excel pin it. A
-  known gap: ROW() and COLUMN() with no argument, which Excel hands back
-  as a one-item array. Before, text that was not a reference, a name or
-  an array constant reported itself unsupported.
+  past 255 characters is Error 2015; ROW() and COLUMN() with no
+  argument are an array of one. 91 cases in live Excel pin it. Before,
+  text that was not a reference, a name or an array constant reported
+  itself unsupported.
 - Formulas work with references as Excel does. The range operator
   joins any two references, so `SUM(A1:INDEX(A:A,5))`,
   `SUM(INDEX(A1:A10,2):A5)` and `SUM(Block:A5)` add what they span.
@@ -550,6 +550,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- CHOOSE with an array of indexes chooses for each item, as Excel does
+  in a cell: `CHOOSE({1,2},A1:A3,B1:B3)` is the two columns side by
+  side, so `VLOOKUP(x,CHOOSE({1,2},B:B,A:A),2,FALSE)` looks to the left.
+  The model chose once, by the first index. 7 formulas in live Excel pin
+  it.
 - `Me` in a class module is the instance the code runs for. The model
   reported it as an undefined variable.
 - Arguments given to a property that takes none apply to what it

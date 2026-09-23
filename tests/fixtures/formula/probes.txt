@@ -375,6 +375,13 @@ Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("H2").Formul
 =MATCH(3,3)
 =SUMPRODUCT(INDEX({1,2;3,4},{1,2},1))
 =SUM(IF({TRUE,TRUE},1,{1,2,3}))
+=SUM(CHOOSE({1,2,3},10,20,30))
+=SUM(CHOOSE({1;2},{1,2},{10,20}))
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("B1:B3").Value = Application.Transpose(Array(10, 20, 30)) ;; =SUM(CHOOSE({1,2},A1:A3,B1:B3))
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("B1:B3").Value = Application.Transpose(Array(10, 20, 30)) ;; =SUM(CHOOSE({1,1},A1:A3,B1:B3))
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("B1:B3").Value = Application.Transpose(Array("one", "two", "three")) ;; =VLOOKUP("two",CHOOSE({1,2},B1:B3,A1:A3),2,FALSE)
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("B1:B3").Value = Application.Transpose(Array(10, 20, 30)) ;; =SUMPRODUCT(CHOOSE({1,2},A1:A3,B1:B3))
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("B1:B3").Value = Application.Transpose(Array(10, 20, 30)) ;; =ROWS(CHOOSE({1,2},A1:A3,B1:B3))&"x"&COLUMNS(CHOOSE({1,2},A1:A3,B1:B3))
 =SUM(IFNA({1,#N/A,3},10))
 Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("B1:B3").Value = Application.Transpose(Array("one", "two", "three")): Range("H3").Formula = "=VLOOKUP(A1:A3,A1:B3,2,FALSE)" ;; =H3
 Range("A1:C1").Value = Array(1, 2, 3): Range("A2:C2").Value = Array(10, 20, 30): Range("C4").Formula = "=HLOOKUP(A1:C1,A1:C2,2,FALSE)" ;; =C4

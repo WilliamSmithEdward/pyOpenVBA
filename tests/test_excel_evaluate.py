@@ -22,11 +22,7 @@ CASES: list[dict[str, Any]] = RECORD["cases"]
 BATCH = 30
 
 #: Cases the model answers differently, and why.
-KNOWN = {
-    ("Application", "ROW()"): "ROW() with no argument is one number to the engine, a one-item array to Evaluate",
-    ("Application", "COLUMN()"): "COLUMN() with no argument is one number to the engine, a one-item array to Evaluate",
-    ("Other", "ROW()"): "ROW() with no argument is one number to the engine, a one-item array to Evaluate",
-}
+KNOWN: dict[tuple[str, str], str] = {}
 
 
 def _call(how: str, expression: str) -> str:

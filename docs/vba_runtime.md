@@ -984,8 +984,10 @@ array given there is run through item by item into an array of
 answers, `SUM(LEN({"a","bb"}))` being 3, except that INDEX, VLOOKUP,
 HLOOKUP, XLOOKUP, IFERROR and IFNA take its first item. Arrays of
 different sizes line up as they do beside an operator, `#N/A` past the
-end of a shorter one, and IF takes a branch for each item of an array of
-conditions. SUMPRODUCT's arguments, INDEX's first and those of ROWS and
+end of a shorter one. IF takes a branch for each item of an array of
+conditions, and CHOOSE a choice for each item of an array of indexes, so
+`CHOOSE({1,2},B:B,A:A)` sets two columns side by side for a VLOOKUP to
+look left in. SUMPRODUCT's arguments, INDEX's first and those of ROWS and
 COLUMNS are worked out as arrays even in a cell, so
 `SUMPRODUCT(LEN(A1:A3))` adds every length, but not through an IF,
 CHOOSE, IFERROR, IFNA, IFS or SWITCH inside them, which is why
@@ -1041,8 +1043,8 @@ intersection or a union. Anything else is worked out as an array
 formula, blocks whole, into a value, an array counted from 1 or an error
 value; Evaluate never raises a formula's error. An unreadable or empty
 expression, or one past 255 characters, is Error 2015. ROW() and
-COLUMN() with no argument, which Excel hands back as a one-item array,
-are a known gap.
+COLUMN() with no argument come back as an array of one, as Excel hands
+them back.
 
 A macro reaches the same functions through `WorksheetFunction.X`, which
 raises error 1004 when the answer is an error, or the late-bound

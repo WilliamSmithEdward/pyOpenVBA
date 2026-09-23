@@ -1118,22 +1118,52 @@ def _switch_taken(context: Context, nodes: list[Any]) -> int:
 
 @function("CHOOSE", lazy=True)
 def fn_choose(context: Context, nodes: list[Any]) -> object:
-    """The value chosen, a block kept whole: SUM(CHOOSE(2,A1:A2,B1:B3)) adds B1:B3."""
+    """The value chosen, a block kept whole: SUM(CHOOSE(2,A1:A2,B1:B3)) adds B1:B3.
+
+    An array of indexes chooses for each item, as IF does for an array of
+    conditions: CHOOSE({1,2},A1:A3,B1:B3) is A1:A3 beside B1:B3.
+    """
     context = _as_cell(context)
-    return evaluate(nodes[_chosen(context, nodes)], context)
+    which = intersected(nodes[0], context) if nodes else VALUE
+    if isinstance(which, Matrix) and not which.single:
+        return _choose_each(context, nodes, which)
+    return evaluate(nodes[_choice(single(which), nodes)], context)
+
+
+def _choose_each(context: Context, nodes: list[Any], indexes: Matrix) -> Matrix:
+    """CHOOSE over an array of indexes: every choice worked out, the answer as big as the biggest of them and the
+    indexes, #N/A past the end of a shorter one."""
+    choices = [_argument(node, context, one=False) for node in nodes[1:]]
+    shapes = [indexes, *(choice for choice in choices if isinstance(choice, Matrix))]
+    rows: list[list[object]] = []
+    for row in range(max(shape.height for shape in shapes)):
+        line: list[object] = []
+        for column in range(max(shape.width for shape in shapes)):
+            try:
+                picked = choices[_choice(indexes.at(row, column), nodes) - 1]
+            except ExcelError as failure:
+                picked = failure
+            line.append(picked.at(row, column) if isinstance(picked, Matrix) else picked)
+        rows.append(line)
+    return Matrix(rows)
 
 
 @refers("CHOOSE")
 def ref_choose(context: Context, nodes: list[P.Node]) -> list[Area] | None:
     context = _as_cell(context)
-    return context.areas_of(nodes[_chosen(context, nodes)])
+    which = intersected(nodes[0], context) if nodes else VALUE
+    if isinstance(which, Matrix) and not which.single:
+        # A choice for each item is an array, never cells.
+        return None
+    return context.areas_of(nodes[_choice(single(which), nodes)])
 
 
-def _chosen(context: Context, nodes: list[Any]) -> int:
-    which = int(as_number(single(intersected(nodes[0], context)))) if nodes else 0
-    if which < 1 or which >= len(nodes):
+def _choice(which: object, nodes: list[Any]) -> int:
+    """Which argument an index picks, 1 the first after it; #VALUE! past either end."""
+    number = int(as_number(which))
+    if number < 1 or number >= len(nodes):
         raise VALUE
-    return which
+    return number
 
 
 # --- lookup ----------------------------------------------------------------------------------------
@@ -1371,9 +1401,13 @@ def _found_at(wanted: object, where: Matrix) -> int | None:
 
 @function("ROW", lazy=True)
 def fn_row(context: Context, nodes: list[Any]) -> object:
-    """The row number, or in an array formula or argument every row's: SUM(ROW(A1:A3)) in a cell is 1."""
+    """The row number, or in an array formula or argument every row's: SUM(ROW(A1:A3)) in a cell is 1.
+
+    With no argument it is the formula's own row, which an array formula
+    answers as an array of one: Evaluate("ROW()") is {1}.
+    """
     if not nodes:
-        return float(context.row)
+        return Matrix([[float(context.row)]]) if context.array else float(context.row)
     area = context.area_of(nodes[0])
     if area is None:
         raise REF
@@ -1384,9 +1418,9 @@ def fn_row(context: Context, nodes: list[Any]) -> object:
 
 @function("COLUMN", lazy=True)
 def fn_column(context: Context, nodes: list[Any]) -> object:
-    """The column number, or in an array formula or argument every column's."""
+    """The column number, or in an array formula or argument every column's; with no argument, as ROW()."""
     if not nodes:
-        return float(context.column)
+        return Matrix([[float(context.column)]]) if context.array else float(context.column)
     area = context.area_of(nodes[0])
     if area is None:
         raise REF

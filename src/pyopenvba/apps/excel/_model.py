@@ -1846,17 +1846,26 @@ class Range(ExcelObject):
     def Delete(self, Shift: object = MISSING) -> object:
         """Delete, which pulls the cells below or to the right up or left.
 
+        With no Shift a range taller than it is wide pulls cells left and
+        any other range pulls them up; _editing has how references follow.
         On a filtered sheet, as _visible has it, a delete that would pull
         cells up takes the whole of each visible row instead, anywhere on
-        the sheet, and one that pulls them left takes the visible cells.
+        the sheet, with no Shift too, and one that pulls them left takes
+        the visible cells.
         """
         from pyopenvba.apps.excel._visible import filtering
 
-        up = Shift is MISSING or int(to_integer(Shift, "Long")) == -4162  # xlUp
-        if filtering(self.sheet) and not all(area.whole_columns for area in self.areas):
+        filtered = filtering(self.sheet) and not all(area.whole_columns for area in self.areas)
+        if Shift is MISSING:
+            up = filtered or self.first.rows <= self.first.columns
+        else:
+            up = int(to_integer(Shift, "Long")) == -4162  # xlUp
+        if filtered:
             self._delete_filtered(up)
         elif all(area.whole_rows for area in self.areas) or all(area.whole_columns for area in self.areas):
             self._delete_lines()
+        elif len(self.areas) != 1:
+            raise VBAUnsupportedError("deleting cells in several areas is not implemented")
         else:
             self._delete_cells(self.first, up)
         return EMPTY
@@ -1889,26 +1898,20 @@ class Range(ExcelObject):
             self._delete_cells(area, False)
 
     def _delete_cells(self, area: Area, up: bool) -> None:
+        from pyopenvba.apps.excel._editing import shift_cells
+
         self._shifting_cells()
-        moved: dict[tuple[int, int], Cell] = {}
-        for (row, column), cell in self.sheet.cells_.items():
-            if area.contains(row, column):
-                continue
-            if up and column >= area.left and column <= area.right and row > area.bottom:
-                moved[(row - area.rows, column)] = cell
-            elif not up and row >= area.top and row <= area.bottom and column > area.right:
-                moved[(row, column - area.columns)] = cell
-            else:
-                moved[(row, column)] = cell
-        self.sheet.cells_ = moved
-        self.sheet.shape_changed()
+        shift_cells(self, area, delete=True, vertical=up)
 
     @method
     def Insert(self, Shift: object = MISSING, CopyOrigin: object = MISSING) -> object:
         """Insert, which pushes cells down or right.
 
-        On a filtered sheet, as _visible has it, whole rows go in as many
-        as the range shows, at its top, and inserting cells is error 1004.
+        With no Shift a range taller than it is wide pushes cells right and
+        any other range pushes them down; _editing has how references
+        follow. On a filtered sheet, as _visible has it, whole rows go in
+        as many as the range shows, at its top, and inserting cells is
+        error 1004.
         """
         from pyopenvba.apps.excel._visible import filtering, visible_rows
 
@@ -1930,18 +1933,14 @@ class Range(ExcelObject):
             return EMPTY
         if filtered:
             raise error(1004, "Insert method of Range class failed")
+        if len(self.areas) != 1:
+            raise VBAUnsupportedError("inserting cells in several areas is not implemented")
+        from pyopenvba.apps.excel._editing import shift_cells
+
         self._shifting_cells()
-        down = Shift is MISSING or int(to_integer(Shift, "Long")) == -4121  # xlDown
-        moved: dict[tuple[int, int], Cell] = {}
-        for (row, column), cell in self.sheet.cells_.items():
-            if down and area.left <= column <= area.right and row >= area.top:
-                moved[(row + area.rows, column)] = cell
-            elif not down and area.top <= row <= area.bottom and column >= area.left:
-                moved[(row, column + area.columns)] = cell
-            else:
-                moved[(row, column)] = cell
-        self.sheet.cells_ = moved
-        self.sheet.shape_changed()
+        # With no Shift a range taller than it is wide pushes cells right, any other range down.
+        down = area.rows <= area.columns if Shift is MISSING else int(to_integer(Shift, "Long")) == -4121  # xlDown
+        shift_cells(self, area, delete=False, vertical=down)
         return EMPTY
 
     def _shifting_cells(self) -> None:

@@ -1,0 +1,241 @@
+{
+ "helper": "\nPrivate Function Dump(ws As Object) As String\n    Dim out As String, c As Object, other As Object\n    For Each c In ws.Range(\"A1:J17\").Cells\n        If c.HasFormula Then out = out & c.Address(False, False) & \"=\" & c.Formula & \";\"\n    Next\n    out = out & \" cells=\"\n    For Each c In ws.Range(\"A1:E12\").Cells\n        out = out & c.Formula & \",\"\n    Next\n    Set other = ws.Parent.Worksheets(\"Other\")\n    out = out & \" other=\" & other.Range(\"A1\").Formula & \";\" & other.Range(\"A2\").Formula\n    out = out & \" names=\" & ws.Parent.Names(\"Tracked\").RefersTo & \";\" & ws.Parent.Names(\"Cell\").RefersTo\n    On Error Resume Next\n    Dim f As String, db As String\n    f = \"\"\n    f = ws.AutoFilter.Range.Address(False, False)\n    db = \"\"\n    db = ws.Names(\"_FilterDatabase\").RefersTo\n    On Error GoTo 0\n    If f <> \"\" Then out = out & \" filter=\" & f\n    If db <> \"\" Then out = out & \" db=\" & db\n    out = out & \" fmt=\" & ws.Range(\"B3\").NumberFormat & \",\" & ws.Range(\"B4\").NumberFormat & \",\" & _\n        ws.Range(\"C3\").NumberFormat & \",\" & ws.Range(\"B3\").Font.Bold & \",\" & ws.Range(\"B5\").NumberFormat\n    Dump = out\nEnd Function\n",
+ "grid": "For r = 1 To 10\n    For c = 1 To 5\n        ws.Cells(r, c).Value = r * 10 + c\n    Next\nNext\nws.Range(\"H1\").Formula = \"=B3\"\nws.Range(\"H2\").Formula = \"=B5\"\nws.Range(\"H3\").Formula = \"=$B$3\"\nws.Range(\"H4\").Formula = \"=B$5\"\nws.Range(\"H5\").Formula = \"=$B5\"\nws.Range(\"H6\").Formula = \"=C5\"\nws.Range(\"H7\").Formula = \"=SUM(B2:B6)\"\nws.Range(\"H8\").Formula = \"=SUM(B4:B8)\"\nws.Range(\"H9\").Formula = \"=SUM(A2:C6)\"\nws.Range(\"H10\").Formula = \"=SUM(B2:C6)\"\nws.Range(\"H11\").Formula = \"=SUM(B3:B4)\"\nws.Range(\"H12\").Formula = \"=SUM(B:B)\"\nws.Range(\"H13\").Formula = \"=SUM(3:3)\"\nws.Range(\"H14\").Formula = \"=B10\"\nws.Range(\"H15\").Formula = \"=SUM(A5:E5)\"\nws.Range(\"H16\").Formula = \"=D3\"\nws.Range(\"H17\").Formula = \"=SUM(B1:B10)\"\nws.Range(\"B11\").Formula = \"=B2+1\"\nws.Range(\"B12\").Formula = \"=B11*2\"\nws.Range(\"C11\").Formula = \"=C5\"\nother.Range(\"A1\").Formula = \"=Grid!B5\"\nother.Range(\"A2\").Formula = \"=SUM(Grid!B2:B6)\"\nws.Parent.Names.Add Name:=\"Tracked\", RefersTo:=\"=Grid!$B$2:$B$6\"\nws.Parent.Names.Add Name:=\"Cell\", RefersTo:=\"=Grid!$B$5\"\n",
+ "layouts": [
+  {
+   "name": "del_up_b3b4",
+   "setup": "ws.Range(\"B3:B4\").Delete Shift:=xlUp",
+   "answers": "H1==#REF!;H2==B3;H3==#REF!;H4==B$3;H5==$B3;H6==C5;H7==SUM(B2:B4);H8==SUM(B3:B6);B9==B2+1;H9==SUM(A2:C6);B10==B9*2;H10==SUM(B2:C6);C11==C5;H11==SUM(#REF!);H12==SUM(B:B);H13==SUM(3:3);H14==B8;H15==SUM(A5:E5);H16==D3;H17==SUM(B1:B8); cells=11,12,13,14,15,21,22,23,24,25,31,52,33,34,35,41,62,43,44,45,51,72,53,54,55,61,82,63,64,65,71,92,73,74,75,81,102,83,84,85,91,=B2+1,93,94,95,101,=B9*2,103,104,105,,,=C5,,,,,,,, other==Grid!B3;=SUM(Grid!B2:B4) names==Grid!$B$2:$B$4;=Grid!$B$3 fmt=General,General,General,False,General"
+  },
+  {
+   "name": "del_up_b3c4",
+   "setup": "ws.Range(\"B3:C4\").Delete Shift:=xlUp",
+   "answers": "H1==#REF!;H2==B3;H3==#REF!;H4==B$3;H5==$B3;H6==C3;H7==SUM(B2:B4);H8==SUM(B3:B6);B9==B2+1;C9==C3;H9==SUM(A2:C6);B10==B9*2;H10==SUM(B2:C4);H11==SUM(#REF!);H12==SUM(B:B);H13==SUM(3:3);H14==B8;H15==SUM(A5:E5);H16==D3;H17==SUM(B1:B8); cells=11,12,13,14,15,21,22,23,24,25,31,52,53,34,35,41,62,63,44,45,51,72,73,54,55,61,82,83,64,65,71,92,93,74,75,81,102,103,84,85,91,=B2+1,=C3,94,95,101,=B9*2,,104,105,,,,,,,,,,, other==Grid!B3;=SUM(Grid!B2:B4) names==Grid!$B$2:$B$4;=Grid!$B$3 fmt=General,General,General,False,General"
+  },
+  {
+   "name": "del_up_b1b2",
+   "setup": "ws.Range(\"B1:B2\").Delete Shift:=xlUp",
+   "answers": "H1==B1;H2==B3;H3==$B$1;H4==B$3;H5==$B3;H6==C5;H7==SUM(B1:B4);H8==SUM(B2:B6);B9==#REF!+1;H9==SUM(A2:C6);B10==B9*2;H10==SUM(B2:C6);C11==C5;H11==SUM(B1:B2);H12==SUM(B:B);H13==SUM(3:3);H14==B8;H15==SUM(A5:E5);H16==D3;H17==SUM(B1:B8); cells=11,32,13,14,15,21,42,23,24,25,31,52,33,34,35,41,62,43,44,45,51,72,53,54,55,61,82,63,64,65,71,92,73,74,75,81,102,83,84,85,91,=#REF!+1,93,94,95,101,=B9*2,103,104,105,,,=C5,,,,,,,, other==Grid!B3;=SUM(Grid!B1:B4) names==Grid!$B$1:$B$4;=Grid!$B$3 fmt=General,General,General,False,General"
+  },
+  {
+   "name": "del_up_b2b6",
+   "setup": "ws.Range(\"B2:B6\").Delete Shift:=xlUp",
+   "answers": "H1==#REF!;H2==#REF!;H3==#REF!;H4==#REF!;H5==#REF!;B6==#REF!+1;H6==C5;B7==B6*2;H7==SUM(#REF!);H8==SUM(B2:B3);H9==SUM(A2:C6);H10==SUM(C2:C6);C11==C5;H11==SUM(#REF!);H12==SUM(B:B);H13==SUM(3:3);H14==B5;H15==SUM(A5:E5);H16==D3;H17==SUM(B1:B5); cells=11,12,13,14,15,21,72,23,24,25,31,82,33,34,35,41,92,43,44,45,51,102,53,54,55,61,=#REF!+1,63,64,65,71,=B6*2,73,74,75,81,,83,84,85,91,,93,94,95,101,,103,104,105,,,=C5,,,,,,,, other==Grid!#REF!;=SUM(Grid!#REF!) names==Grid!#REF!;=Grid!#REF! fmt=General,General,General,False,General"
+  },
+  {
+   "name": "del_up_b2b3",
+   "setup": "ws.Range(\"B2:B3\").Delete Shift:=xlUp",
+   "answers": "H1==#REF!;H2==B3;H3==#REF!;H4==B$3;H5==$B3;H6==C5;H7==SUM(B2:B4);H8==SUM(B2:B6);B9==#REF!+1;H9==SUM(A2:C6);B10==B9*2;H10==SUM(B2:C6);C11==C5;H11==SUM(B2:B2);H12==SUM(B:B);H13==SUM(3:3);H14==B8;H15==SUM(A5:E5);H16==D3;H17==SUM(B1:B8); cells=11,12,13,14,15,21,42,23,24,25,31,52,33,34,35,41,62,43,44,45,51,72,53,54,55,61,82,63,64,65,71,92,73,74,75,81,102,83,84,85,91,=#REF!+1,93,94,95,101,=B9*2,103,104,105,,,=C5,,,,,,,, other==Grid!B3;=SUM(Grid!B2:B4) names==Grid!$B$2:$B$4;=Grid!$B$3 fmt=General,General,General,False,General"
+  },
+  {
+   "name": "del_up_b6b7",
+   "setup": "ws.Range(\"B6:B7\").Delete Shift:=xlUp",
+   "answers": "H1==B3;H2==B5;H3==$B$3;H4==B$5;H5==$B5;H6==C5;H7==SUM(B2:B5);H8==SUM(B4:B6);B9==B2+1;H9==SUM(A2:C6);B10==B9*2;H10==SUM(B2:C6);C11==C5;H11==SUM(B3:B4);H12==SUM(B:B);H13==SUM(3:3);H14==B8;H15==SUM(A5:E5);H16==D3;H17==SUM(B1:B8); cells=11,12,13,14,15,21,22,23,24,25,31,32,33,34,35,41,42,43,44,45,51,52,53,54,55,61,82,63,64,65,71,92,73,74,75,81,102,83,84,85,91,=B2+1,93,94,95,101,=B9*2,103,104,105,,,=C5,,,,,,,, other==Grid!B5;=SUM(Grid!B2:B5) names==Grid!$B$2:$B$5;=Grid!$B$5 fmt=General,General,General,False,General"
+  },
+  {
+   "name": "del_up_b5",
+   "setup": "ws.Range(\"B5\").Delete Shift:=xlUp",
+   "answers": "H1==B3;H2==#REF!;H3==$B$3;H4==#REF!;H5==#REF!;H6==C5;H7==SUM(B2:B5);H8==SUM(B4:B7);H9==SUM(A2:C6);B10==B2+1;H10==SUM(B2:C6);B11==B10*2;C11==C5;H11==SUM(B3:B4);H12==SUM(B:B);H13==SUM(3:3);H14==B9;H15==SUM(A5:E5);H16==D3;H17==SUM(B1:B9); cells=11,12,13,14,15,21,22,23,24,25,31,32,33,34,35,41,42,43,44,45,51,62,53,54,55,61,72,63,64,65,71,82,73,74,75,81,92,83,84,85,91,102,93,94,95,101,=B2+1,103,104,105,,=B10*2,=C5,,,,,,,, other==Grid!#REF!;=SUM(Grid!B2:B5) names==Grid!$B$2:$B$5;=Grid!#REF! fmt=General,General,General,False,General"
+  },
+  {
+   "name": "del_up_a3e4",
+   "setup": "ws.Range(\"A3:E4\").Delete Shift:=xlUp",
+   "answers": "H1==#REF!;H2==B3;H3==#REF!;H4==B$3;H5==$B3;H6==C3;H7==SUM(B2:B4);H8==SUM(B3:B6);B9==B2+1;C9==C3;H9==SUM(A2:C4);B10==B9*2;H10==SUM(B2:C4);H11==SUM(#REF!);H12==SUM(B:B);H13==SUM(3:3);H14==B8;H15==SUM(A3:E3);H16==#REF!;H17==SUM(B1:B8); cells=11,12,13,14,15,21,22,23,24,25,51,52,53,54,55,61,62,63,64,65,71,72,73,74,75,81,82,83,84,85,91,92,93,94,95,101,102,103,104,105,,=B2+1,=C3,,,,=B9*2,,,,,,,,,,,,,, other==Grid!B3;=SUM(Grid!B2:B4) names==Grid!$B$2:$B$4;=Grid!$B$3 fmt=General,General,General,False,General"
+  },
+  {
+   "name": "del_up_a3c4",
+   "setup": "ws.Range(\"A3:C4\").Delete Shift:=xlUp",
+   "answers": "H1==#REF!;H2==B3;H3==#REF!;H4==B$3;H5==$B3;H6==C3;H7==SUM(B2:B4);H8==SUM(B3:B6);B9==B2+1;C9==C3;H9==SUM(A2:C4);B10==B9*2;H10==SUM(B2:C4);H11==SUM(#REF!);H12==SUM(B:B);H13==SUM(3:3);H14==B8;H15==SUM(A5:E5);H16==D3;H17==SUM(B1:B8); cells=11,12,13,14,15,21,22,23,24,25,51,52,53,34,35,61,62,63,44,45,71,72,73,54,55,81,82,83,64,65,91,92,93,74,75,101,102,103,84,85,,=B2+1,=C3,94,95,,=B9*2,,104,105,,,,,,,,,,, other==Grid!B3;=SUM(Grid!B2:B4) names==Grid!$B$2:$B$4;=Grid!$B$3 fmt=General,General,General,False,General"
+  },
+  {
+   "name": "del_up_b10",
+   "setup": "ws.Range(\"B10\").Delete Shift:=xlUp",
+   "answers": "H1==B3;H2==B5;H3==$B$3;H4==B$5;H5==$B5;H6==C5;H7==SUM(B2:B6);H8==SUM(B4:B8);H9==SUM(A2:C6);B10==B2+1;H10==SUM(B2:C6);B11==B10*2;C11==C5;H11==SUM(B3:B4);H12==SUM(B:B);H13==SUM(3:3);H14==#REF!;H15==SUM(A5:E5);H16==D3;H17==SUM(B1:B9); cells=11,12,13,14,15,21,22,23,24,25,31,32,33,34,35,41,42,43,44,45,51,52,53,54,55,61,62,63,64,65,71,72,73,74,75,81,82,83,84,85,91,92,93,94,95,101,=B2+1,103,104,105,,=B10*2,=C5,,,,,,,, other==Grid!B5;=SUM(Grid!B2:B6) names==Grid!$B$2:$B$6;=Grid!$B$5 fmt=General,General,General,False,General"
+  },
+  {
+   "name": "ins_down_b3b4",
+   "setup": "ws.Range(\"B3:B4\").Insert Shift:=xlDown",
+   "answers": "H1==B5;H2==B7;H3==$B$5;H4==B$7;H5==$B7;H6==C5;H7==SUM(B2:B8);H8==SUM(B6:B10);H9==SUM(A2:C6);H10==SUM(B2:C6);C11==C5;H11==SUM(B5:B6);H12==SUM(B:B);B13==B2+1;H13==SUM(3:3);B14==B13*2;H14==B12;H15==SUM(A5:E5);H16==D3;H17==SUM(B1:B12); cells=11,12,13,14,15,21,22,23,24,25,31,,33,34,35,41,,43,44,45,51,32,53,54,55,61,42,63,64,65,71,52,73,74,75,81,62,83,84,85,91,72,93,94,95,101,82,103,104,105,,92,=C5,,,,102,,,, other==Grid!B7;=SUM(Grid!B2:B8) names==Grid!$B$2:$B$8;=Grid!$B$7 fmt=General,General,General,False,General"
+  },
+  {
+   "name": "ins_down_b3c4",
+   "setup": "ws.Range(\"B3:C4\").Insert Shift:=xlDown",
+   "answers": "H1==B5;H2==B7;H3==$B$5;H4==B$7;H5==$B7;H6==C7;H7==SUM(B2:B8);H8==SUM(B6:B10);H9==SUM(A2:C6);H10==SUM(B2:C8);H11==SUM(B5:B6);H12==SUM(B:B);B13==B2+1;C13==C7;H13==SUM(3:3);B14==B13*2;H14==B12;H15==SUM(A5:E5);H16==D3;H17==SUM(B1:B12); cells=11,12,13,14,15,21,22,23,24,25,31,,,34,35,41,,,44,45,51,32,33,54,55,61,42,43,64,65,71,52,53,74,75,81,62,63,84,85,91,72,73,94,95,101,82,83,104,105,,92,93,,,,102,103,,, other==Grid!B7;=SUM(Grid!B2:B8) names==Grid!$B$2:$B$8;=Grid!$B$7 fmt=General,General,General,False,General"
+  },
+  {
+   "name": "ins_down_b2",
+   "setup": "ws.Range(\"B2\").Insert Shift:=xlDown",
+   "answers": "H1==B4;H2==B6;H3==$B$4;H4==B$6;H5==$B6;H6==C5;H7==SUM(B3:B7);H8==SUM(B5:B9);H9==SUM(A2:C6);H10==SUM(B2:C6);C11==C5;H11==SUM(B4:B5);B12==B3+1;H12==SUM(B:B);B13==B12*2;H13==SUM(3:3);H14==B11;H15==SUM(A5:E5);H16==D3;H17==SUM(B1:B11); cells=11,12,13,14,15,21,,23,24,25,31,22,33,34,35,41,32,43,44,45,51,42,53,54,55,61,52,63,64,65,71,62,73,74,75,81,72,83,84,85,91,82,93,94,95,101,92,103,104,105,,102,=C5,,,,=B3+1,,,, other==Grid!B6;=SUM(Grid!B3:B7) names==Grid!$B$3:$B$7;=Grid!$B$6 fmt=General,General,General,False,General"
+  },
+  {
+   "name": "ins_down_b6",
+   "setup": "ws.Range(\"B6\").Insert Shift:=xlDown",
+   "answers": "H1==B3;H2==B5;H3==$B$3;H4==B$5;H5==$B5;H6==C5;H7==SUM(B2:B7);H8==SUM(B4:B9);H9==SUM(A2:C6);H10==SUM(B2:C6);C11==C5;H11==SUM(B3:B4);B12==B2+1;H12==SUM(B:B);B13==B12*2;H13==SUM(3:3);H14==B11;H15==SUM(A5:E5);H16==D3;H17==SUM(B1:B11); cells=11,12,13,14,15,21,22,23,24,25,31,32,33,34,35,41,42,43,44,45,51,52,53,54,55,61,,63,64,65,71,62,73,74,75,81,72,83,84,85,91,82,93,94,95,101,92,103,104,105,,102,=C5,,,,=B2+1,,,, other==Grid!B5;=SUM(Grid!B2:B7) names==Grid!$B$2:$B$7;=Grid!$B$5 fmt=General,General,General,False,General"
+  },
+  {
+   "name": "ins_down_b7",
+   "setup": "ws.Range(\"B7\").Insert Shift:=xlDown",
+   "answers": "H1==B3;H2==B5;H3==$B$3;H4==B$5;H5==$B5;H6==C5;H7==SUM(B2:B6);H8==SUM(B4:B9);H9==SUM(A2:C6);H10==SUM(B2:C6);C11==C5;H11==SUM(B3:B4);B12==B2+1;H12==SUM(B:B);B13==B12*2;H13==SUM(3:3);H14==B11;H15==SUM(A5:E5);H16==D3;H17==SUM(B1:B11); cells=11,12,13,14,15,21,22,23,24,25,31,32,33,34,35,41,42,43,44,45,51,52,53,54,55,61,62,63,64,65,71,,73,74,75,81,72,83,84,85,91,82,93,94,95,101,92,103,104,105,,102,=C5,,,,=B2+1,,,, other==Grid!B5;=SUM(Grid!B2:B6) names==Grid!$B$2:$B$6;=Grid!$B$5 fmt=General,General,General,False,General"
+  },
+  {
+   "name": "ins_down_a2c2",
+   "setup": "ws.Range(\"A2:C2\").Insert Shift:=xlDown",
+   "answers": "H1==B4;H2==B6;H3==$B$4;H4==B$6;H5==$B6;H6==C6;H7==SUM(B3:B7);H8==SUM(B5:B9);H9==SUM(A3:C7);H10==SUM(B3:C7);H11==SUM(B4:B5);B12==B3+1;C12==C6;H12==SUM(B:B);B13==B12*2;H13==SUM(3:3);H14==B11;H15==SUM(A5:E5);H16==D3;H17==SUM(B1:B11); cells=11,12,13,14,15,,,,24,25,21,22,23,34,35,31,32,33,44,45,41,42,43,54,55,51,52,53,64,65,61,62,63,74,75,71,72,73,84,85,81,82,83,94,95,91,92,93,104,105,101,102,103,,,,=B3+1,=C6,,, other==Grid!B6;=SUM(Grid!B3:B7) names==Grid!$B$3:$B$7;=Grid!$B$6 fmt=General,General,General,False,General"
+  },
+  {
+   "name": "del_left_b3c3",
+   "setup": "ws.Range(\"B3:C3\").Delete Shift:=xlToLeft",
+   "answers": "H1==#REF!;H2==B5;F3==#REF!;H4==B$5;H5==$B5;H6==C5;H7==SUM(B2:B6);H8==SUM(B4:B8);H9==SUM(A2:C6);H10==SUM(B2:C6);B11==B2+1;C11==C5;H11==SUM(B4:B4);B12==B11*2;H12==SUM(B:B);H13==SUM(3:3);H14==B10;H15==SUM(A5:E5);H16==B3;H17==SUM(B1:B10); cells=11,12,13,14,15,21,22,23,24,25,31,34,35,,,41,42,43,44,45,51,52,53,54,55,61,62,63,64,65,71,72,73,74,75,81,82,83,84,85,91,92,93,94,95,101,102,103,104,105,,=B2+1,=C5,,,,=B11*2,,,, other==Grid!B5;=SUM(Grid!B2:B6) names==Grid!$B$2:$B$6;=Grid!$B$5 fmt=General,General,General,False,General"
+  },
+  {
+   "name": "del_left_b3c5",
+   "setup": "ws.Range(\"B3:C5\").Delete Shift:=xlToLeft",
+   "answers": "H1==#REF!;H2==#REF!;F3==#REF!;F4==#REF!;F5==#REF!;H6==#REF!;H7==SUM(B2:B6);H8==SUM(B6:B8);H9==SUM(A2:C6);H10==SUM(B2:C6);B11==B2+1;C11==#REF!;H11==SUM(#REF!);B12==B11*2;H12==SUM(B:B);H13==SUM(3:3);H14==B10;H15==SUM(A5:C5);H16==B3;H17==SUM(B1:B10); cells=11,12,13,14,15,21,22,23,24,25,31,34,35,,,41,44,45,,,51,54,55,,,61,62,63,64,65,71,72,73,74,75,81,82,83,84,85,91,92,93,94,95,101,102,103,104,105,,=B2+1,=#REF!,,,,=B11*2,,,, other==Grid!#REF!;=SUM(Grid!B2:B6) names==Grid!$B$2:$B$6;=Grid!#REF! fmt=General,General,General,False,General"
+  },
+  {
+   "name": "del_left_a5",
+   "setup": "ws.Range(\"A5\").Delete Shift:=xlToLeft",
+   "answers": "H1==B3;H2==A5;H3==$B$3;H4==A$5;G5==$A5;H6==B5;H7==SUM(B2:B6);H8==SUM(B4:B8);H9==SUM(A2:C6);H10==SUM(B2:C6);B11==B2+1;C11==B5;H11==SUM(B3:B4);B12==B11*2;H12==SUM(B:B);H13==SUM(3:3);H14==B10;H15==SUM(A5:D5);H16==D3;H17==SUM(B1:B10); cells=11,12,13,14,15,21,22,23,24,25,31,32,33,34,35,41,42,43,44,45,52,53,54,55,,61,62,63,64,65,71,72,73,74,75,81,82,83,84,85,91,92,93,94,95,101,102,103,104,105,,=B2+1,=B5,,,,=B11*2,,,, other==Grid!A5;=SUM(Grid!B2:B6) names==Grid!$B$2:$B$6;=Grid!$A$5 fmt=General,General,General,False,General"
+  },
+  {
+   "name": "del_left_a5e5",
+   "setup": "ws.Range(\"A5:E5\").Delete Shift:=xlToLeft",
+   "answers": "H1==B3;H2==#REF!;H3==$B$3;H4==#REF!;C5==#REF!;H6==#REF!;H7==SUM(B2:B6);H8==SUM(B4:B8);H9==SUM(A2:C6);H10==SUM(B2:C6);B11==B2+1;C11==#REF!;H11==SUM(B3:B4);B12==B11*2;H12==SUM(B:B);H13==SUM(3:3);H14==B10;H15==SUM(#REF!);H16==D3;H17==SUM(B1:B10); cells=11,12,13,14,15,21,22,23,24,25,31,32,33,34,35,41,42,43,44,45,,,=#REF!,,,61,62,63,64,65,71,72,73,74,75,81,82,83,84,85,91,92,93,94,95,101,102,103,104,105,,=B2+1,=#REF!,,,,=B11*2,,,, other==Grid!#REF!;=SUM(Grid!B2:B6) names==Grid!$B$2:$B$6;=Grid!#REF! fmt=General,General,General,False,General"
+  },
+  {
+   "name": "ins_right_b3c3",
+   "setup": "ws.Range(\"B3:C3\").Insert Shift:=xlToRight",
+   "answers": "H1==D3;H2==B5;J3==$D$3;H4==B$5;H5==$B5;H6==C5;H7==SUM(B2:B6);H8==SUM(B4:B8);H9==SUM(A2:C6);H10==SUM(B2:C6);B11==B2+1;C11==C5;H11==SUM(B3:B4);B12==B11*2;H12==SUM(B:B);H13==SUM(3:3);H14==B10;H15==SUM(A5:E5);H16==F3;H17==SUM(B1:B10); cells=11,12,13,14,15,21,22,23,24,25,31,,,32,33,41,42,43,44,45,51,52,53,54,55,61,62,63,64,65,71,72,73,74,75,81,82,83,84,85,91,92,93,94,95,101,102,103,104,105,,=B2+1,=C5,,,,=B11*2,,,, other==Grid!B5;=SUM(Grid!B2:B6) names==Grid!$B$2:$B$6;=Grid!$B$5 fmt=General,General,General,False,General"
+  },
+  {
+   "name": "ins_right_a5",
+   "setup": "ws.Range(\"A5\").Insert Shift:=xlToRight",
+   "answers": "H1==B3;H2==C5;H3==$B$3;H4==C$5;I5==$C5;H6==D5;H7==SUM(B2:B6);H8==SUM(B4:B8);H9==SUM(A2:C6);H10==SUM(B2:C6);B11==B2+1;C11==D5;H11==SUM(B3:B4);B12==B11*2;H12==SUM(B:B);H13==SUM(3:3);H14==B10;H15==SUM(B5:F5);H16==D3;H17==SUM(B1:B10); cells=11,12,13,14,15,21,22,23,24,25,31,32,33,34,35,41,42,43,44,45,,51,52,53,54,61,62,63,64,65,71,72,73,74,75,81,82,83,84,85,91,92,93,94,95,101,102,103,104,105,,=B2+1,=D5,,,,=B11*2,,,, other==Grid!C5;=SUM(Grid!B2:B6) names==Grid!$B$2:$B$6;=Grid!$C$5 fmt=General,General,General,False,General"
+  },
+  {
+   "name": "del_default_b3",
+   "setup": "ws.Range(\"B3\").Delete",
+   "answers": "H1==#REF!;H2==B4;H3==#REF!;H4==B$4;H5==$B4;H6==C5;H7==SUM(B2:B5);H8==SUM(B3:B7);H9==SUM(A2:C6);B10==B2+1;H10==SUM(B2:C6);B11==B10*2;C11==C5;H11==SUM(B3:B3);H12==SUM(B:B);H13==SUM(3:3);H14==B9;H15==SUM(A5:E5);H16==D3;H17==SUM(B1:B9); cells=11,12,13,14,15,21,22,23,24,25,31,42,33,34,35,41,52,43,44,45,51,62,53,54,55,61,72,63,64,65,71,82,73,74,75,81,92,83,84,85,91,102,93,94,95,101,=B2+1,103,104,105,,=B10*2,=C5,,,,,,,, other==Grid!B4;=SUM(Grid!B2:B5) names==Grid!$B$2:$B$5;=Grid!$B$4 fmt=General,General,General,False,General"
+  },
+  {
+   "name": "del_default_b3b4",
+   "setup": "ws.Range(\"B3:B4\").Delete",
+   "answers": "H1==#REF!;H2==B5;G3==#REF!;G4==B$5;H5==$B5;H6==C5;H7==SUM(B2:B6);H8==SUM(B5:B8);H9==SUM(A2:C6);H10==SUM(B2:C6);B11==B2+1;C11==C5;H11==SUM(#REF!);B12==B11*2;H12==SUM(B:B);H13==SUM(3:3);H14==B10;H15==SUM(A5:E5);H16==C3;H17==SUM(B1:B10); cells=11,12,13,14,15,21,22,23,24,25,31,33,34,35,,41,43,44,45,,51,52,53,54,55,61,62,63,64,65,71,72,73,74,75,81,82,83,84,85,91,92,93,94,95,101,102,103,104,105,,=B2+1,=C5,,,,=B11*2,,,, other==Grid!B5;=SUM(Grid!B2:B6) names==Grid!$B$2:$B$6;=Grid!$B$5 fmt=General,General,General,False,General"
+  },
+  {
+   "name": "del_default_b3c3",
+   "setup": "ws.Range(\"B3:C3\").Delete",
+   "answers": "H1==#REF!;H2==B4;H3==#REF!;H4==B$4;H5==$B4;H6==C4;H7==SUM(B2:B5);H8==SUM(B3:B7);H9==SUM(A2:C6);B10==B2+1;C10==C4;H10==SUM(B2:C5);B11==B10*2;H11==SUM(B3:B3);H12==SUM(B:B);H13==SUM(3:3);H14==B9;H15==SUM(A5:E5);H16==D3;H17==SUM(B1:B9); cells=11,12,13,14,15,21,22,23,24,25,31,42,43,34,35,41,52,53,44,45,51,62,63,54,55,61,72,73,64,65,71,82,83,74,75,81,92,93,84,85,91,102,103,94,95,101,=B2+1,=C4,104,105,,=B10*2,,,,,,,,, other==Grid!B4;=SUM(Grid!B2:B5) names==Grid!$B$2:$B$5;=Grid!$B$4 fmt=General,General,General,False,General"
+  },
+  {
+   "name": "del_default_b3d4",
+   "setup": "ws.Range(\"B3:D4\").Delete",
+   "answers": "H1==#REF!;H2==B3;H3==#REF!;H4==B$3;H5==$B3;H6==C3;H7==SUM(B2:B4);H8==SUM(B3:B6);B9==B2+1;C9==C3;H9==SUM(A2:C6);B10==B9*2;H10==SUM(B2:C4);H11==SUM(#REF!);H12==SUM(B:B);H13==SUM(3:3);H14==B8;H15==SUM(A5:E5);H16==#REF!;H17==SUM(B1:B8); cells=11,12,13,14,15,21,22,23,24,25,31,52,53,54,35,41,62,63,64,45,51,72,73,74,55,61,82,83,84,65,71,92,93,94,75,81,102,103,104,85,91,=B2+1,=C3,,95,101,=B9*2,,,105,,,,,,,,,,, other==Grid!B3;=SUM(Grid!B2:B4) names==Grid!$B$2:$B$4;=Grid!$B$3 fmt=General,General,General,False,General"
+  },
+  {
+   "name": "del_default_b3c5",
+   "setup": "ws.Range(\"B3:C5\").Delete",
+   "answers": "H1==#REF!;H2==#REF!;F3==#REF!;F4==#REF!;F5==#REF!;H6==#REF!;H7==SUM(B2:B6);H8==SUM(B6:B8);H9==SUM(A2:C6);H10==SUM(B2:C6);B11==B2+1;C11==#REF!;H11==SUM(#REF!);B12==B11*2;H12==SUM(B:B);H13==SUM(3:3);H14==B10;H15==SUM(A5:C5);H16==B3;H17==SUM(B1:B10); cells=11,12,13,14,15,21,22,23,24,25,31,34,35,,,41,44,45,,,51,54,55,,,61,62,63,64,65,71,72,73,74,75,81,82,83,84,85,91,92,93,94,95,101,102,103,104,105,,=B2+1,=#REF!,,,,=B11*2,,,, other==Grid!#REF!;=SUM(Grid!B2:B6) names==Grid!$B$2:$B$6;=Grid!#REF! fmt=General,General,General,False,General"
+  },
+  {
+   "name": "ins_default_b3b4",
+   "setup": "ws.Range(\"B3:B4\").Insert",
+   "answers": "H1==C3;H2==B5;I3==$C$3;I4==B$5;H5==$B5;H6==C5;H7==SUM(B2:B6);H8==SUM(B4:B8);H9==SUM(A2:C6);H10==SUM(B2:C6);B11==B2+1;C11==C5;H11==SUM(C3:C4);B12==B11*2;H12==SUM(B:B);H13==SUM(3:3);H14==B10;H15==SUM(A5:E5);H16==E3;H17==SUM(B1:B10); cells=11,12,13,14,15,21,22,23,24,25,31,,32,33,34,41,,42,43,44,51,52,53,54,55,61,62,63,64,65,71,72,73,74,75,81,82,83,84,85,91,92,93,94,95,101,102,103,104,105,,=B2+1,=C5,,,,=B11*2,,,, other==Grid!B5;=SUM(Grid!B2:B6) names==Grid!$B$2:$B$6;=Grid!$B$5 fmt=General,General,General,False,General"
+  },
+  {
+   "name": "ins_default_b3c3",
+   "setup": "ws.Range(\"B3:C3\").Insert",
+   "answers": "H1==B4;H2==B6;H3==$B$4;H4==B$6;H5==$B6;H6==C6;H7==SUM(B2:B7);H8==SUM(B5:B9);H9==SUM(A2:C6);H10==SUM(B2:C7);H11==SUM(B4:B5);B12==B2+1;C12==C6;H12==SUM(B:B);B13==B12*2;H13==SUM(3:3);H14==B11;H15==SUM(A5:E5);H16==D3;H17==SUM(B1:B11); cells=11,12,13,14,15,21,22,23,24,25,31,,,34,35,41,32,33,44,45,51,42,43,54,55,61,52,53,64,65,71,62,63,74,75,81,72,73,84,85,91,82,83,94,95,101,92,93,104,105,,102,103,,,,=B2+1,=C6,,, other==Grid!B6;=SUM(Grid!B2:B7) names==Grid!$B$2:$B$7;=Grid!$B$6 fmt=General,General,General,False,General"
+  },
+  {
+   "name": "ins_default_b3c5",
+   "setup": "ws.Range(\"B3:C5\").Insert",
+   "answers": "H1==D3;H2==D5;J3==$D$3;J4==D$5;J5==$D5;H6==E5;H7==SUM(B2:B6);H8==SUM(B4:B8);H9==SUM(A2:C6);H10==SUM(B2:C6);B11==B2+1;C11==E5;H11==SUM(D3:D4);B12==B11*2;H12==SUM(B:B);H13==SUM(3:3);H14==B10;H15==SUM(A5:G5);H16==F3;H17==SUM(B1:B10); cells=11,12,13,14,15,21,22,23,24,25,31,,,32,33,41,,,42,43,51,,,52,53,61,62,63,64,65,71,72,73,74,75,81,82,83,84,85,91,92,93,94,95,101,102,103,104,105,,=B2+1,=E5,,,,=B11*2,,,, other==Grid!D5;=SUM(Grid!B2:B6) names==Grid!$B$2:$B$6;=Grid!$D$5 fmt=General,General,General,False,General"
+  },
+  {
+   "name": "filter_del_b3",
+   "setup": "ws.Range(\"A1:C10\").AutoFilter\nws.Range(\"B3\").Delete Shift:=xlUp",
+   "answers": "H1==#REF!;H2==B4;H3==#REF!;H4==B$4;H5==$B4;H6==C5;H7==SUM(B2:B5);H8==SUM(B3:B7);H9==SUM(A2:C6);B10==B2+1;H10==SUM(B2:C6);B11==B10*2;C11==C5;H11==SUM(B3:B3);H12==SUM(B:B);H13==SUM(3:3);H14==B9;H15==SUM(A5:E5);H16==D3;H17==SUM(B1:B9); cells=11,12,13,14,15,21,22,23,24,25,31,42,33,34,35,41,52,43,44,45,51,62,53,54,55,61,72,63,64,65,71,82,73,74,75,81,92,83,84,85,91,102,93,94,95,101,=B2+1,103,104,105,,=B10*2,=C5,,,,,,,, other==Grid!B4;=SUM(Grid!B2:B5) names==Grid!$B$2:$B$5;=Grid!$B$4 filter=A1:C11 db==Grid!$A$1:$C$10 fmt=General,General,General,False,General"
+  },
+  {
+   "name": "filter_del_a3c3",
+   "setup": "ws.Range(\"A1:C10\").AutoFilter\nws.Range(\"A3:C3\").Delete Shift:=xlUp",
+   "answers": "H1==#REF!;H2==B4;H3==#REF!;H4==B$4;H5==$B4;H6==C4;H7==SUM(B2:B5);H8==SUM(B3:B7);H9==SUM(A2:C5);B10==B2+1;C10==C4;H10==SUM(B2:C5);B11==B10*2;H11==SUM(B3:B3);H12==SUM(B:B);H13==SUM(3:3);H14==B9;H15==SUM(A5:E5);H16==D3;H17==SUM(B1:B9); cells=11,12,13,14,15,21,22,23,24,25,41,42,43,34,35,51,52,53,44,45,61,62,63,54,55,71,72,73,64,65,81,82,83,74,75,91,92,93,84,85,101,102,103,94,95,,=B2+1,=C4,104,105,,=B10*2,,,,,,,,, other==Grid!B4;=SUM(Grid!B2:B5) names==Grid!$B$2:$B$5;=Grid!$B$4 filter=A1:C11 db==Grid!$A$1:$C$9 fmt=General,General,General,False,General"
+  },
+  {
+   "name": "filter_ins_a3c3",
+   "setup": "ws.Range(\"A1:C10\").AutoFilter\nws.Range(\"A3:C3\").Insert Shift:=xlDown",
+   "answers": "H1==B4;H2==B6;H3==$B$4;H4==B$6;H5==$B6;H6==C6;H7==SUM(B2:B7);H8==SUM(B5:B9);H9==SUM(A2:C7);H10==SUM(B2:C7);H11==SUM(B4:B5);B12==B2+1;C12==C6;H12==SUM(B:B);B13==B12*2;H13==SUM(3:3);H14==B11;H15==SUM(A5:E5);H16==D3;H17==SUM(B1:B11); cells=11,12,13,14,15,21,22,23,24,25,,,,34,35,31,32,33,44,45,41,42,43,54,55,51,52,53,64,65,61,62,63,74,75,71,72,73,84,85,81,82,83,94,95,91,92,93,104,105,101,102,103,,,,=B2+1,=C6,,, other==Grid!B6;=SUM(Grid!B2:B7) names==Grid!$B$2:$B$7;=Grid!$B$6 filter=A1:C13 db==Grid!$A$1:$C$11 fmt=General,General,General,False,General"
+  },
+  {
+   "name": "filter_del_left_a3",
+   "setup": "ws.Range(\"A1:C10\").AutoFilter\nws.Range(\"A3\").Delete Shift:=xlToLeft",
+   "answers": "H1==A3;H2==B5;G3==$A$3;H4==B$5;H5==$B5;H6==C5;H7==SUM(B2:B6);H8==SUM(B4:B8);H9==SUM(A2:C6);H10==SUM(B2:C6);B11==B2+1;C11==C5;H11==SUM(B3:B4);B12==B11*2;H12==SUM(B:B);H13==SUM(3:3);H14==B10;H15==SUM(A5:E5);H16==C3;H17==SUM(B1:B10); cells=11,12,13,14,15,21,22,23,24,25,32,33,34,35,,41,42,43,44,45,51,52,53,54,55,61,62,63,64,65,71,72,73,74,75,81,82,83,84,85,91,92,93,94,95,101,102,103,104,105,,=B2+1,=C5,,,,=B11*2,,,, other==Grid!B5;=SUM(Grid!B2:B6) names==Grid!$B$2:$B$6;=Grid!$B$5 filter=A1:C12 db==Grid!$A$1:$C$10 fmt=General,General,General,False,General"
+  },
+  {
+   "name": "filter_ins_right_a1",
+   "setup": "ws.Range(\"A1:C10\").AutoFilter\nws.Range(\"A1:A10\").Insert Shift:=xlToRight",
+   "answers": "I1==C3;I2==C5;I3==$C$3;I4==C$5;I5==$C5;I6==D5;I7==SUM(C2:C6);I8==SUM(C4:C8);I9==SUM(B2:D6);I10==SUM(C2:D6);B11==C2+1;C11==D5;H11==SUM(C3:C4);B12==B11*2;H12==SUM(B:B);H13==SUM(3:3);H14==C10;H15==SUM(B5:F5);H16==E3;H17==SUM(C1:C10); cells=,11,12,13,14,,21,22,23,24,,31,32,33,34,,41,42,43,44,,51,52,53,54,,61,62,63,64,,71,72,73,74,,81,82,83,84,,91,92,93,94,,101,102,103,104,,=C2+1,=D5,,,,=B11*2,,,, other==Grid!C5;=SUM(Grid!C2:C6) names==Grid!$C$2:$C$6;=Grid!$C$5 filter=B1:D12 db==Grid!$B$1:$D$10 fmt=General,General,General,False,General"
+  },
+  {
+   "name": "filter_del_below",
+   "setup": "ws.Range(\"A1:C10\").AutoFilter\nws.Range(\"A11:C11\").Delete Shift:=xlUp",
+   "answers": "H1==B3;H2==B5;H3==$B$3;H4==B$5;H5==$B5;H6==C5;H7==SUM(B2:B6);H8==SUM(B4:B8);H9==SUM(A2:C6);H10==SUM(B2:C6);B11==#REF!*2;H11==SUM(B3:B4);H12==SUM(B:B);H13==SUM(3:3);H14==B10;H15==SUM(A5:E5);H16==D3;H17==SUM(B1:B10); cells=11,12,13,14,15,21,22,23,24,25,31,32,33,34,35,41,42,43,44,45,51,52,53,54,55,61,62,63,64,65,71,72,73,74,75,81,82,83,84,85,91,92,93,94,95,101,102,103,104,105,,=#REF!*2,,,,,,,,, other==Grid!B5;=SUM(Grid!B2:B6) names==Grid!$B$2:$B$6;=Grid!$B$5 filter=A1:C11 db==Grid!$A$1:$C$10 fmt=General,General,General,False,General"
+  },
+  {
+   "name": "del_default_b3c4",
+   "setup": "ws.Range(\"B3:C4\").Delete",
+   "answers": "H1==#REF!;H2==B3;H3==#REF!;H4==B$3;H5==$B3;H6==C3;H7==SUM(B2:B4);H8==SUM(B3:B6);B9==B2+1;C9==C3;H9==SUM(A2:C6);B10==B9*2;H10==SUM(B2:C4);H11==SUM(#REF!);H12==SUM(B:B);H13==SUM(3:3);H14==B8;H15==SUM(A5:E5);H16==D3;H17==SUM(B1:B8); cells=11,12,13,14,15,21,22,23,24,25,31,52,53,34,35,41,62,63,44,45,51,72,73,54,55,61,82,83,64,65,71,92,93,74,75,81,102,103,84,85,91,=B2+1,=C3,94,95,101,=B9*2,,104,105,,,,,,,,,,, other==Grid!B3;=SUM(Grid!B2:B4) names==Grid!$B$2:$B$4;=Grid!$B$3 fmt=General,General,General,False,General"
+  },
+  {
+   "name": "del_default_b3d5",
+   "setup": "ws.Range(\"B3:D5\").Delete",
+   "answers": "H1==#REF!;H2==#REF!;H3==#REF!;H4==#REF!;H5==#REF!;H6==#REF!;H7==SUM(B2:B3);B8==B2+1;C8==#REF!;H8==SUM(B3:B5);B9==B8*2;H9==SUM(A2:C6);H10==SUM(B2:C3);H11==SUM(#REF!);H12==SUM(B:B);H13==SUM(3:3);H14==B7;H15==SUM(A5:E5);H16==#REF!;H17==SUM(B1:B7); cells=11,12,13,14,15,21,22,23,24,25,31,62,63,64,35,41,72,73,74,45,51,82,83,84,55,61,92,93,94,65,71,102,103,104,75,81,=B2+1,=#REF!,,85,91,=B8*2,,,95,101,,,,105,,,,,,,,,,, other==Grid!#REF!;=SUM(Grid!B2:B3) names==Grid!$B$2:$B$3;=Grid!#REF! fmt=General,General,General,False,General"
+  },
+  {
+   "name": "ins_default_b3c4",
+   "setup": "ws.Range(\"B3:C4\").Insert",
+   "answers": "H1==B5;H2==B7;H3==$B$5;H4==B$7;H5==$B7;H6==C7;H7==SUM(B2:B8);H8==SUM(B6:B10);H9==SUM(A2:C6);H10==SUM(B2:C8);H11==SUM(B5:B6);H12==SUM(B:B);B13==B2+1;C13==C7;H13==SUM(3:3);B14==B13*2;H14==B12;H15==SUM(A5:E5);H16==D3;H17==SUM(B1:B12); cells=11,12,13,14,15,21,22,23,24,25,31,,,34,35,41,,,44,45,51,32,33,54,55,61,42,43,64,65,71,52,53,74,75,81,62,63,84,85,91,72,73,94,95,101,82,83,104,105,,92,93,,,,102,103,,, other==Grid!B7;=SUM(Grid!B2:B8) names==Grid!$B$2:$B$8;=Grid!$B$7 fmt=General,General,General,False,General"
+  },
+  {
+   "name": "filter_del_header",
+   "setup": "ws.Range(\"A1:C10\").AutoFilter\nws.Range(\"A1:C1\").Delete Shift:=xlUp",
+   "answers": "H1==B2;H2==B4;H3==$B$2;H4==B$4;H5==$B4;H6==C4;H7==SUM(B1:B5);H8==SUM(B3:B7);H9==SUM(A1:C5);B10==B1+1;C10==C4;H10==SUM(B1:C5);B11==B10*2;H11==SUM(B2:B3);H12==SUM(B:B);H13==SUM(3:3);H14==B9;H15==SUM(A5:E5);H16==D3;H17==SUM(B1:B9); cells=21,22,23,14,15,31,32,33,24,25,41,42,43,34,35,51,52,53,44,45,61,62,63,54,55,71,72,73,64,65,81,82,83,74,75,91,92,93,84,85,101,102,103,94,95,,=B1+1,=C4,104,105,,=B10*2,,,,,,,,, other==Grid!B4;=SUM(Grid!B1:B5) names==Grid!$B$1:$B$5;=Grid!$B$4 fmt=General,General,General,False,General"
+  },
+  {
+   "name": "filter_ins_header",
+   "setup": "ws.Range(\"A1:C10\").AutoFilter\nws.Range(\"A1:C1\").Insert Shift:=xlDown",
+   "answers": "H1==B4;H2==B6;H3==$B$4;H4==B$6;H5==$B6;H6==C6;H7==SUM(B3:B7);H8==SUM(B5:B9);H9==SUM(A3:C7);H10==SUM(B3:C7);H11==SUM(B4:B5);B12==B3+1;C12==C6;H12==SUM(B:B);B13==B12*2;H13==SUM(3:3);H14==B11;H15==SUM(A5:E5);H16==D3;H17==SUM(B2:B11); cells=,,,14,15,11,12,13,24,25,21,22,23,34,35,31,32,33,44,45,41,42,43,54,55,51,52,53,64,65,61,62,63,74,75,71,72,73,84,85,81,82,83,94,95,91,92,93,104,105,101,102,103,,,,=B3+1,=C6,,, other==Grid!B6;=SUM(Grid!B3:B7) names==Grid!$B$3:$B$7;=Grid!$B$6 filter=A2:C13 db==Grid!$A$2:$C$11 fmt=General,General,General,False,General"
+  },
+  {
+   "name": "filter_del_whole",
+   "setup": "ws.Range(\"A1:C10\").AutoFilter\nws.Range(\"A1:C10\").Delete Shift:=xlUp",
+   "answers": "B1==#REF!+1;C1==#REF!;H1==#REF!;B2==B1*2;H2==#REF!;H3==#REF!;H4==#REF!;H5==#REF!;H6==#REF!;H7==SUM(#REF!);H8==SUM(#REF!);H9==SUM(#REF!);H10==SUM(#REF!);H11==SUM(#REF!);H12==SUM(B:B);H13==SUM(3:3);H14==#REF!;H15==SUM(D5:E5);H16==D3;H17==SUM(#REF!); cells=,=#REF!+1,=#REF!,14,15,,=B1*2,,24,25,,,,34,35,,,,44,45,,,,54,55,,,,64,65,,,,74,75,,,,84,85,,,,94,95,,,,104,105,,,,,,,,,,, other==Grid!#REF!;=SUM(Grid!#REF!) names==Grid!#REF!;=Grid!#REF! fmt=General,General,General,False,General"
+  },
+  {
+   "name": "filter_del_left_header",
+   "setup": "ws.Range(\"A1:C10\").AutoFilter\nws.Range(\"A1\").Delete Shift:=xlToLeft",
+   "answers": "G1==B3;H2==B5;H3==$B$3;H4==B$5;H5==$B5;H6==C5;H7==SUM(B2:B6);H8==SUM(B4:B8);H9==SUM(A2:C6);H10==SUM(B2:C6);B11==B2+1;C11==C5;H11==SUM(B3:B4);B12==B11*2;H12==SUM(B:B);H13==SUM(3:3);H14==B10;H15==SUM(A5:E5);H16==D3;H17==SUM(B1:B10); cells=12,13,14,15,,21,22,23,24,25,31,32,33,34,35,41,42,43,44,45,51,52,53,54,55,61,62,63,64,65,71,72,73,74,75,81,82,83,84,85,91,92,93,94,95,101,102,103,104,105,,=B2+1,=C5,,,,=B11*2,,,, other==Grid!B5;=SUM(Grid!B2:B6) names==Grid!$B$2:$B$6;=Grid!$B$5 filter=A1:C12 db==Grid!$A$1:$C$10 fmt=General,General,General,False,General"
+  },
+  {
+   "name": "ins_down_formats",
+   "setup": "ws.Range(\"B2\").NumberFormat = \"0.00\"\nws.Range(\"B2\").Font.Bold = True\nws.Range(\"B5\").NumberFormat = \"0%\"\nws.Range(\"B3:B4\").Insert Shift:=xlDown",
+   "answers": "H1==B5;H2==B7;H3==$B$5;H4==B$7;H5==$B7;H6==C5;H7==SUM(B2:B8);H8==SUM(B6:B10);H9==SUM(A2:C6);H10==SUM(B2:C6);C11==C5;H11==SUM(B5:B6);H12==SUM(B:B);B13==B2+1;H13==SUM(3:3);B14==B13*2;H14==B12;H15==SUM(A5:E5);H16==D3;H17==SUM(B1:B12); cells=11,12,13,14,15,21,22,23,24,25,31,,33,34,35,41,,43,44,45,51,32,53,54,55,61,42,63,64,65,71,52,73,74,75,81,62,83,84,85,91,72,93,94,95,101,82,103,104,105,,92,=C5,,,,102,,,, other==Grid!B7;=SUM(Grid!B2:B8) names==Grid!$B$2:$B$8;=Grid!$B$7 fmt=0.00,0.00,General,True,General"
+  },
+  {
+   "name": "ins_right_formats",
+   "setup": "ws.Range(\"A3\").NumberFormat = \"0.00\"\nws.Range(\"A3\").Font.Bold = True\nws.Range(\"B3:C3\").Insert Shift:=xlToRight",
+   "answers": "H1==D3;H2==B5;J3==$D$3;H4==B$5;H5==$B5;H6==C5;H7==SUM(B2:B6);H8==SUM(B4:B8);H9==SUM(A2:C6);H10==SUM(B2:C6);B11==B2+1;C11==C5;H11==SUM(B3:B4);B12==B11*2;H12==SUM(B:B);H13==SUM(3:3);H14==B10;H15==SUM(A5:E5);H16==F3;H17==SUM(B1:B10); cells=11,12,13,14,15,21,22,23,24,25,31,,,32,33,41,42,43,44,45,51,52,53,54,55,61,62,63,64,65,71,72,73,74,75,81,82,83,84,85,91,92,93,94,95,101,102,103,104,105,,=B2+1,=C5,,,,=B11*2,,,, other==Grid!B5;=SUM(Grid!B2:B6) names==Grid!$B$2:$B$6;=Grid!$B$5 fmt=0.00,General,0.00,True,General"
+  },
+  {
+   "name": "del_up_formats",
+   "setup": "ws.Range(\"B5\").NumberFormat = \"0%\"\nws.Range(\"B3:B4\").Delete Shift:=xlUp",
+   "answers": "H1==#REF!;H2==B3;H3==#REF!;H4==B$3;H5==$B3;H6==C5;H7==SUM(B2:B4);H8==SUM(B3:B6);B9==B2+1;H9==SUM(A2:C6);B10==B9*2;H10==SUM(B2:C6);C11==C5;H11==SUM(#REF!);H12==SUM(B:B);H13==SUM(3:3);H14==B8;H15==SUM(A5:E5);H16==D3;H17==SUM(B1:B8); cells=11,12,13,14,15,21,22,23,24,25,31,52,33,34,35,41,62,43,44,45,51,72,53,54,55,61,82,63,64,65,71,92,73,74,75,81,102,83,84,85,91,=B2+1,93,94,95,101,=B9*2,103,104,105,,,=C5,,,,,,,, other==Grid!B3;=SUM(Grid!B2:B4) names==Grid!$B$2:$B$4;=Grid!$B$3 fmt=0%,General,General,False,General"
+  },
+  {
+   "name": "ins_down_formats_top",
+   "setup": "ws.Range(\"B1\").NumberFormat = \"0.00\"\nws.Range(\"B1\").Insert Shift:=xlDown",
+   "answers": "H1==B4;H2==B6;H3==$B$4;H4==B$6;H5==$B6;H6==C5;H7==SUM(B3:B7);H8==SUM(B5:B9);H9==SUM(A2:C6);H10==SUM(B2:C6);C11==C5;H11==SUM(B4:B5);B12==B3+1;H12==SUM(B:B);B13==B12*2;H13==SUM(3:3);H14==B11;H15==SUM(A5:E5);H16==D3;H17==SUM(B2:B11); cells=11,,13,14,15,21,12,23,24,25,31,22,33,34,35,41,32,43,44,45,51,42,53,54,55,61,52,63,64,65,71,62,73,74,75,81,72,83,84,85,91,82,93,94,95,101,92,103,104,105,,102,=C5,,,,=B3+1,,,, other==Grid!B6;=SUM(Grid!B3:B7) names==Grid!$B$3:$B$7;=Grid!$B$6 fmt=General,General,General,False,General"
+  }
+ ]
+}

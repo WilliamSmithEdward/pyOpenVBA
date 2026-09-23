@@ -451,6 +451,16 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- `Range.Delete` and `Range.Insert` with a `Shift` rewrite the references
+  to the cells they move, as Excel does. A reference whose columns lie in
+  the band that shifts moves and stretches as it would for whole rows,
+  `#REF!` once everything it reads is deleted, and so do names, formulas
+  on other sheets and the AutoFilter's range; one reaching outside the
+  band stays, unless a delete takes a whole edge of it: `SUM(B2:C6)` reads
+  `SUM(C2:C6)` once B2:B6 is deleted up. Inserted cells take the formats
+  above them or to their left. With no `Shift`, a range taller than it is
+  wide shifts across, as Excel decides; the model always shifted up or
+  down, and never touched a reference. 47 layouts in live Excel pin it.
 - A value assigned to a member that answers an object goes to that
   object's default member, as VBA sends it: `Range("A1") = 5`,
   `Cells(2, 2) = 7`, `ws.Range("A1:B2") = 0` and `r(2) = 3` all fill

@@ -64,6 +64,7 @@ from pyopenvba.interpreter._values import (EMPTY, MISSING, NOTHING, VBAArray, VB
                                            to_integer, to_number, to_text)
 
 if TYPE_CHECKING:
+    from pyopenvba.apps.excel._editing import CellShift
     from pyopenvba.apps.excel._model import Worksheet
 
 AND, OR, TOP_ITEMS, BOTTOM_ITEMS, TOP_PERCENT, BOTTOM_PERCENT, VALUES = 1, 2, 3, 4, 5, 6, 7
@@ -564,6 +565,40 @@ def filter_edited(sheet: Worksheet, *, rows: bool, start: int, count: int, delet
     if dropped:
         found.apply(sheet)
     _changed(sheet)
+
+
+def filter_shifted(sheet: Worksheet, shift: CellShift) -> Callable[[], None]:
+    """What a cell shift does to the sheet's filter: worked out before any cell moves, done by what it returns.
+
+    Measured (scripts/measure_cell_shifts.py): the range moves and
+    stretches as a reference to it does, as its hidden name does, and a
+    delete up of its header cells, or of all of it, removes the filter and
+    the name. A shift that moves a filter with criteria was not measured.
+    """
+    from pyopenvba.apps.excel._editing import shifted_box
+
+    found = sheet.auto_filter
+    if found is None:
+        return lambda: None
+    box = found.area
+    before = (box.top, box.left, box.bottom, box.right)
+    moved = shifted_box(before, shift)
+    band, start = shift.band, shift.start
+    header = shift.vertical and shift.delete and band[0] <= box.left and box.right <= band[1] and \
+        start <= box.top < start + shift.count
+    if moved == before and not header:
+        return lambda: None
+    if found.fields:
+        raise VBAUnsupportedError("a cell shift that moves a filter with criteria is not implemented")
+    if moved is None or header:
+        return lambda: _drop(sheet)
+    after = moved
+
+    def follow() -> None:
+        found.area = Area(after[0], after[1], after[2], after[3], box.sheet)
+        _changed(sheet)
+
+    return follow
 
 
 def filter_moved(sheet: Worksheet, area: Area, target: Worksheet, down: int, across: int) -> None:

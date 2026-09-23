@@ -610,9 +610,31 @@ on other sheets. Insertion refuses to discard occupied cells at the grid edge.
 Row heights, column widths and hidden rows and columns move with the rows and
 columns; a new row takes the height of the row above it, and a new column the
 width of the one to its left.
-Sheets containing merges or shapes and multi-area structural edits are explicitly
-unsupported. Partial-cell reference rewriting, formatting inheritance/CopyOrigin,
-relative name context, and table/validation/chart metadata updates remain incomplete.
+Sheets containing merges or shapes are explicitly unsupported; several areas of
+whole rows or columns are deleted the last first. CopyOrigin, relative name context,
+and table/validation/chart metadata updates remain incomplete.
+
+**Inserting and deleting cells.** `Insert` and `Delete` with a `Shift` move
+the cells in the band of columns (or rows) the range spans, and every
+reference follows as Excel's does (`tests/fixtures/cell_shifts.json`, 47
+layouts).
+
+* With no `Shift`, a range taller than it is wide shifts across and any
+  other range up or down, a single cell and a square included.
+* A reference whose columns lie in the band moves and stretches as it would
+  for whole rows, `#REF!` once every cell it reads is deleted; this holds
+  for formulas on other sheets, names, formulas in the cells that move,
+  and the AutoFilter's range, whose header deleted takes the filter away.
+* A reference that reaches outside the band stays as it was, however its
+  cells in the band move, unless a delete takes all of them, rows and
+  all, at one edge: then it keeps the rest, so `SUM(B2:C6)` reads
+  `SUM(C2:C6)` once B2:B6 is deleted up, and `SUM(B3:B4)` reads
+  `SUM(B4:B4)` once B3:C3 is deleted left. A whole-column reference stays
+  through a shift up or down, a whole-row one through a shift across.
+* Inserted cells take the formats of the cells above them, or to their
+  left, as an inserted row does.
+* Several areas, merges, shapes, and rows or columns with formats of their
+  own report themselves unsupported.
 
 **Explicit-destination copies.** `Range.Copy Destination:=...` snapshots the
 source before writing, so overlapping copies preserve the original values.
@@ -767,8 +789,8 @@ that opens the model's own file (`tests/fixtures/row_formats/`).
   Copying whole rows or columns copies their formats, and copying cells
   copies the format each one showed.
 
-Shifting cells up, down or across (`Insert` or `Delete` with a `Shift`) on
-a sheet whose rows or columns carry formats reports itself unsupported,
+Shifting cells up, down or across (`Insert` or `Delete` with a `Shift` or
+none) on a sheet whose rows or columns carry formats reports itself unsupported,
 as do `Insert` with `xlFormatFromRightOrBelow`, a border along whole rows
 or columns whose positions show different lines, and an edge of the whole
 sheet with cells along it.

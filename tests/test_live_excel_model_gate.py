@@ -1561,6 +1561,40 @@ def test_excel_reads_the_filters_this_wrote(tmp_path: Path) -> None:
         assert read[case["name"]] == case["reopened"], case["name"]
 
 
+def test_excel_reads_the_cell_shifts_this_made(tmp_path: Path) -> None:
+    """Cells tests/fixtures/cell_shifts.json shifted, made by the model, saved, and opened in Excel one by one."""
+    import json
+
+    harness = pytest.importorskip("pyvbaharness")
+    record = json.loads((Path(__file__).parent / "fixtures" / "cell_shifts.json").read_text(encoding="utf-8"))
+    chosen = ("del_up_b3b4", "del_up_b2b6", "ins_down_b3c4", "del_left_b3c5", "ins_right_a5", "del_default_b3b4",
+              "ins_down_formats", "filter_ins_a3c3", "filter_del_header", "filter_ins_right_a1")
+    layouts = [layout for layout in record["layouts"] if layout["name"] in chosen]
+    paths: list[Path] = []
+    for layout in layouts:
+        code = ["Public Sub Build()", "Dim ws As Object, other As Object, r As Long, c As Long",
+                "Set ws = ActiveWorkbook.Worksheets(1)", 'ws.Name = "Grid"',
+                "Set other = ActiveWorkbook.Worksheets.Add(After:=ws)", 'other.Name = "Other"',
+                *record["grid"].splitlines(), *layout["setup"].splitlines(), "End Sub"]
+        app = ExcelApplication()
+        app.add_workbook()
+        app.add_module("\n".join(code) + "\n", name="Builder")
+        app.run("Build")
+        path = tmp_path / f"{layout['name']}.xlsx"
+        app.save(path)
+        paths.append(path)
+    reader = record["helper"] + 'Public Function Report() As String\nReport = Dump(Worksheets("Grid"))\nEnd Function\n'
+    read: dict[str, str] = {}
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+        for layout, path in zip(layouts, paths, strict=True):
+            excel.open_document(path)
+            result = excel.run_vba(reader, "Report", timeout=120.0)
+            assert result.ok, result.message
+            read[layout["name"]] = str(result.value)
+    for layout in layouts:
+        assert read[layout["name"]] == layout["answers"], layout["name"]
+
+
 def test_excel_reads_the_filtered_edits_this_made(tmp_path: Path) -> None:
     """Every edit tests/fixtures/autofilter_edits.json measured, made by the model, saved and opened in Excel."""
     import json

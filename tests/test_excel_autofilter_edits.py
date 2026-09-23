@@ -33,13 +33,8 @@ UNSUPPORTED = {
 }
 
 #: Layouts that meet a gap the model documents rather than refuses, and which one.
-_SHIFTS = "a cell shift moves cells without rewriting the references to them (Range.Delete and Insert, PARTIAL)"
 _CUT = "a cut to another sheet trims a reference it takes the top or bottom of, which the model leaves"
 GAPS = {
-    "del_cells_arrows_only": _SHIFTS,
-    "ins_cells_arrows_only": _SHIFTS,
-    "del_cells_left": _SHIFTS,
-    "del_cells_left_hidden_row": _SHIFTS,
     "cut_part": _CUT,
     "cut_part_no_filter": _CUT,
     "cut_bottom_no_filter": _CUT,

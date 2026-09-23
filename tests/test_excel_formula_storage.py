@@ -97,26 +97,42 @@ def test_a_save_works_out_a_formula_nothing_has_read(tmp_path: Path) -> None:
     assert found is not None and found.group() == '<c r="B1"><f>A1*3</f><v>6</v></c>'
 
 
+def _patched(app: ExcelApplication, tmp_path: Path, old: str, new: str) -> ExcelApplication:
+    """The workbook saved, its first sheet's ``old`` replaced by ``new`` as Excel would have written it, opened."""
+    path = app.save(tmp_path / "made.xlsx")
+    with zipfile.ZipFile(path) as package:
+        parts = {name: package.read(name) for name in package.namelist()}
+    sheet = parts["xl/worksheets/sheet1.xml"].decode("utf-8")
+    assert old in sheet
+    parts["xl/worksheets/sheet1.xml"] = sheet.replace(old, new).encode("utf-8")
+    patched = tmp_path / "patched.xlsx"
+    with zipfile.ZipFile(patched, "w", zipfile.ZIP_DEFLATED) as package:
+        for name, data in parts.items():
+            package.writestr(name, data)
+    return ExcelApplication.open(patched, with_vba=False)
+
+
 def test_a_formula_the_parser_cannot_read_keeps_its_value_and_stops_no_other(tmp_path: Path) -> None:
     """A LAMBDA called where it is made, as Excel saves one, is not read by the parser yet: that cell keeps the
     value the file gave it, and the rest of the workbook is worked out as ever."""
     app = ExcelApplication()
     app.add_workbook()
     _run(app, 'ws.Range("A1").Formula = "=1+1"\nws.Range("A2").Value = 2\nws.Range("B1").Formula = "=A2*2"')
-    path = app.save(tmp_path / "made.xlsx")
-    with zipfile.ZipFile(path) as package:
-        parts = {name: package.read(name) for name in package.namelist()}
-    sheet = parts["xl/worksheets/sheet1.xml"].decode("utf-8")
-    assert "<f>1+1</f><v>2</v>" in sheet
-    parts["xl/worksheets/sheet1.xml"] = sheet.replace(
-        "<f>1+1</f><v>2</v>", "<f>_xlfn.LAMBDA(_xlpm.x,_xlpm.x*2)(4)</f><v>8</v>").encode("utf-8")
-    patched = tmp_path / "lambda.xlsx"
-    with zipfile.ZipFile(patched, "w", zipfile.ZIP_DEFLATED) as package:
-        for name, data in parts.items():
-            package.writestr(name, data)
-    opened = ExcelApplication.open(patched, with_vba=False)
+    opened = _patched(app, tmp_path, "<f>1+1</f><v>2</v>", "<f>_xlfn.LAMBDA(_xlpm.x,_xlpm.x*2)(4)</f><v>8</v>")
     reads = 'ws.Range("A1").Value & "|" & ws.Range("B1").Value'
     assert _run(opened, 'ws.Range("A2").Value = 5', reads) == "8|10"
+
+
+def test_a_formula_whose_answer_is_empty_text_reads_back_as_text(tmp_path: Path) -> None:
+    """Excel saves a formula's empty text as <v/>, as pyOfficeEditor's formula corpus has MID("hello",9,2); under
+    manual calculation the cell shows what the file cached, which is text."""
+    app = ExcelApplication()
+    app.add_workbook()
+    _run(app, 'ws.Range("A1").Formula = "=1+1"')
+    opened = _patched(app, tmp_path, '<c r="A1"><f>1+1</f><v>2</v></c>',
+                      '<c r="A1" t="str"><f>MID("hello",9,2)</f><v/></c>')
+    reads = 'TypeName(ws.Range("A1").Value) & "|" & ws.Range("A1").Value'
+    assert _run(opened, "Application.Calculation = xlCalculationManual", reads) == "String|"
 
 
 @pytest.mark.parametrize("name", [_param(name) for name in CASES])

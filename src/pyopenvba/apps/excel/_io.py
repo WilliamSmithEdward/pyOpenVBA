@@ -41,7 +41,8 @@ if TYPE_CHECKING:
 _ROW = re.compile(r"<row\b[^>]*?(?:/>|>.*?</row>)", re.DOTALL)
 _CELL = re.compile(r"<c\b[^>]*?(?:/>|>.*?</c>)", re.DOTALL)
 _SHEET_DATA = re.compile(r"(<sheetData\b[^>]*?)(/>|>(.*?)</sheetData>)", re.DOTALL)
-_VALUE = re.compile(r"<v[^>]*>(.*?)</v>", re.DOTALL)
+#: A cell's value; Excel writes a formula's empty text as <v/>.
+_VALUE = re.compile(r"<v\b[^>]*?(?:/>|>(.*?)</v>)", re.DOTALL)
 _FORMULA = re.compile(r"<f\b([^>]*)(?:/>|>(.*?)</f>)", re.DOTALL)
 _INLINE = re.compile(r"<is>(.*?)</is>", re.DOTALL)
 _TEXT = re.compile(r"<t[^>]*>(.*?)</t>", re.DOTALL)
@@ -248,9 +249,9 @@ def _cell_value(cell_xml: str, kind: str, strings: list[str]) -> object:
         inline = _INLINE.search(cell_xml)
         return "".join(_unescape(piece) for piece in _TEXT.findall(inline.group(1))) if inline else ""
     raw = _VALUE.search(cell_xml)
-    if raw is None:
+    if raw is None or (raw.group(1) is None and kind != "str"):
         return EMPTY
-    text = _unescape(raw.group(1))
+    text = _unescape(raw.group(1) or "")
     if kind == "s":
         try:
             return strings[int(text)]

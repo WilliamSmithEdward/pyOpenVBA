@@ -619,6 +619,8 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- A formula whose answer is empty text, which Excel saves as `<v/>`,
+  reads back as "" rather than as an empty cell.
 - A workbook holding a formula the parser cannot read, such as a LAMBDA
   called where it is made, works out every other formula as before; that
   cell keeps the value its file gave it. The model stopped at the first

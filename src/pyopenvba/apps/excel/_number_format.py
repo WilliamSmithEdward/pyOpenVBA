@@ -5,8 +5,10 @@ parses it and writes it back out. What scripts/measure_typing_formats.py
 and scripts/measure_format_codes.py measured of that:
 
 - a quoted ``"$"`` becomes a bare ``$``, while ``"-"``, ``" "`` and other
-  quoted text stay quoted; an escaped ``\\-``, ``\\(`` or ``\\)`` becomes
-  bare, while ``\\$``, ``\\%`` and ``\\@`` stay escaped;
+  quoted text stay quoted; an escaped character becomes bare unless bare
+  it would mean something -- ``\\-``, ``\\(``, ``\\T`` and ``\\1`` lose
+  the backslash, while ``\\$``, ``\\%``, ``\\@``, ``\\0``, ``\\E`` and
+  the other date and era letters keep it (scripts/measure_format_escapes.py);
 - date and time codes are lower case, ``General`` and colour names are
   capitalised, and ``am/pm`` becomes ``AM/PM`` while ``a/p`` stays;
 - a lower-case exponent, ``0.00e+00``, is refused with error 1004.
@@ -37,6 +39,8 @@ _COLOURS = {name.lower(): name for name in ("Black", "Blue", "Cyan", "Green", "M
 _ELAPSED = re.compile(r"[hms]+", re.IGNORECASE)
 #: Literals NumberFormat shows bare and the file escapes.
 _ESCAPED_IN_FILE = "-() "
+#: Characters an escape stays on, since bare they would be part of the format: the rest lose it.
+_KEPT_ESCAPED = frozenset('"#$%*/0:;?@[\\]_ABDEGHMNRSYabdeghmnrsy')
 
 #: Excel's built-in formats on a US English system, by id, as NumberFormat spells them.
 BUILTIN: Final[dict[int, str]] = {
@@ -66,6 +70,16 @@ def normalized(code: str, *, strict: bool = True) -> str:
     """
     pieces: list[str] = []
     run: list[str] = []
+    listed = list(tokens(code))
+    # Whether each section has a digit placeholder, which an escaped dot needs to stay escaped.
+    digits = [False]
+    for kind, text in listed:
+        if kind == "char" and text == ";":
+            digits.append(False)
+        elif kind == "char" and text in "0#?":
+            digits[-1] = True
+    section = 0
+    previous = ""
 
     def close_run() -> None:
         # General and AM/PM take the case Excel writes them in; a/p keeps its own.
@@ -73,15 +87,17 @@ def normalized(code: str, *, strict: bool = True) -> str:
         pieces.append(re.sub(r"am/pm", "AM/PM", text, flags=re.IGNORECASE))
         run.clear()
 
-    for kind, text in tokens(code):
+    for kind, text in listed:
+        after, previous = previous, text if kind == "char" else ""
         if kind == "char":
             run.append(text.lower() if text in "YMDHS" else text)
+            section += text == ";"
             continue
         close_run()
         if kind == "quoted":
             pieces.append("$" if text == '"$"' else text)
         elif kind == "escaped":
-            pieces.append(text[1] if text[1] in _ESCAPED_IN_FILE else text)
+            pieces.append(_escaped(text[1], after, digits[section]))
         elif kind == "bracket":
             inner = text[1:-1]
             if inner.lower() in _COLOURS:
@@ -95,6 +111,21 @@ def normalized(code: str, *, strict: bool = True) -> str:
             pieces.append(text)
     close_run()
     return "".join(pieces)
+
+
+def _escaped(char: str, after: str, digits: bool) -> str:
+    """An escaped character as NumberFormat spells it: bare unless bare it would mean something.
+
+    Measured over every printable character (scripts/measure_format_escapes.py).
+    A comma stays escaped straight after a digit placeholder, where bare it
+    would scale the number, and a dot in a section with digits, where it
+    would be the decimal point.
+    """
+    if char in _KEPT_ESCAPED:
+        return "\\" + char
+    if (char == "," and after in ("0", "#", "?")) or (char == "." and digits):
+        return "\\" + char
+    return char
 
 
 def from_file(code: str) -> str:

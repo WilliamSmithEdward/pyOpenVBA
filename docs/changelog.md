@@ -404,6 +404,12 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 - `Range.Value` read a number under an elapsed-minutes format, `[m]` or
   `[mm]`, as a Date, taking the `m` for a month; Excel reads a Double.
+- `NumberFormat` kept every escaped character as written. Excel drops the
+  backslash wherever the bare character would mean nothing, so
+  `\T\R\U\E` reads back `T\RU\E`: digits but 0, most marks and the
+  letters that are no date, time or era code lose it, and a dot keeps it
+  only in a section with digits, a comma only straight after one. Every
+  printable character, measured four ways, pins it.
 - `Range.Formula` read a stored number as VBA's `CStr` spells it; it now
   spells it as Excel does, written out up to 21 characters. `=A1&""`
   writes numbers out up to 20 characters as Excel does, where it switched

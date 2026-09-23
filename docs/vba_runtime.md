@@ -130,7 +130,13 @@ sweep is what settled these:
 - `Range("A1:B2").Value = Array(7, 8)` puts 7 in A2 as well as A1: a
   flat array is one row, repeated down.
 - `End` looks at the neighbour, so `End(xlDown)` from a lone A1 is
-  A1048576 rather than A1.
+  A1048576 rather than A1, and walks over a cell with only a format as
+  over an empty one.
+- `CurrentRegion` starts from the first area's top-left cell, so
+  `Range("A1:E5").CurrentRegion` can be smaller than A1:E5, and grows
+  while the ring around it holds a value or formula, corners included;
+  a formula returning "" counts, a format alone does not, and a merged
+  area is taken in whole (`tests/fixtures/current_region.json`).
 - `Range("ZZ")` is error 1004, because a column on its own needs the
   colon.
 

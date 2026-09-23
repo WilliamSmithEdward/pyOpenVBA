@@ -43,6 +43,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
   the cell with depends on the width in pixels. Before, both went
   through Access's `Format`, which spelled `$#,##0_)` as `$5_)`, fractions
   as `2 ?/?` and `[h]:mm:ss` as `[1]:00:00`.
+- `Range.CurrentRegion`, as Excel answers it: from the first area's
+  top-left cell, grown while the ring around it holds a value or a
+  formula, corners included, taking in merged areas whole. 34 layouts of
+  live Excel pin it, eight of them random grids read from every other
+  cell.
 - Rows grow with their borders as Excel's do. A medium line along a row's
   bottom edge draws it a pixel taller; a thick or double line draws the
   row below a pixel taller too; and a save writes the `thickBot` and
@@ -315,6 +320,8 @@ All notable changes to pyOpenVBA are documented here. This project follows
   spells it as Excel does, written out up to 21 characters. `=A1&""`
   writes numbers out up to 20 characters as Excel does, where it switched
   to an exponent from 1E+11 and below 1E-4.
+- `End` stopped at a cell with only a format; Excel walks over one as
+  over an empty cell.
 - `CLng`, `CInt`, `CByte`, `CSng`, `CDbl` and `CCur` of an Error value
   give its number, as VBA's do, and `Val` of one raises error 13.
 - `CDbl("1E-25")` and any other number string with an upper-case

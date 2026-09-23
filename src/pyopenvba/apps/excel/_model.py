@@ -1863,9 +1863,18 @@ class Range(ExcelObject):
         Destination.sheet.shape_changed()
         return True
 
+    @member
+    def CurrentRegion(self) -> object:
+        """The block around the first cell that empty rows and columns bound, as Ctrl+* selects it."""
+        from pyopenvba.apps.excel._region import current_region
+
+        return Range(self.sheet, [current_region(self.sheet, self.first.top, self.first.left)])
+
     @method
     def End(self, Direction: object = MISSING) -> object:
         """The cell you land on with Ctrl and an arrow key."""
+        from pyopenvba.apps.excel._region import holds_content
+
         if Direction is MISSING:
             raise error(449)
         which = int(to_integer(Direction, "Long"))
@@ -1876,8 +1885,8 @@ class Range(ExcelObject):
         down, across = steps[which]
 
         def occupied(at_row: int, at_column: int) -> bool:
-            found = self.sheet.cell(at_row, at_column)
-            return found is not None and not found.is_blank()
+            # A cell with only a format is walked over like an empty one.
+            return holds_content(self.sheet, at_row, at_column)
 
         def inside(at_row: int, at_column: int) -> bool:
             return 1 <= at_row <= MAX_ROWS and 1 <= at_column <= MAX_COLUMNS

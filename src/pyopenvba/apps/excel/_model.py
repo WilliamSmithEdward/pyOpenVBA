@@ -50,6 +50,7 @@ from pyopenvba.interpreter._values import (
 )
 
 if TYPE_CHECKING:
+    from pyopenvba.apps.excel._clipboard import Clip
     from pyopenvba.apps.excel._styles import Style, Stylesheet
     from pyopenvba.apps.excel._typing import Typed
     from pyopenvba.interpreter._runtime import Interpreter
@@ -116,7 +117,8 @@ class Application(ExcelObject):
         self.enable_events = True
         self.calculation = -4105  # xlCalculationAutomatic
         self.status_bar: object = False
-        self.cut_copy_mode: object = False
+        #: What Copy or Cut last put on the clipboard (see _clipboard).
+        self.clipboard: Clip | None = None
         self.user_name = "pyOpenVBA"
         self.interpreter: Interpreter | None = None
         self.active_book: Workbook | None = None
@@ -194,11 +196,15 @@ class Application(ExcelObject):
 
     @member
     def CutCopyMode(self) -> object:
-        return self.cut_copy_mode
+        """0 with nothing on the clipboard, 1 after Copy and 2 after Cut."""
+        from pyopenvba.apps.excel._clipboard import mode
+
+        return mode(self.clipboard)
 
     @setter("CutCopyMode")
     def _set_cut_copy_mode(self, value: object) -> None:
-        self.cut_copy_mode = value
+        if not to_bool(value):
+            self.clipboard = None
 
     @member
     def UserName(self) -> object:
@@ -945,6 +951,13 @@ class Worksheet(ExcelObject):
     @method
     def Select(self, Replace: object = MISSING) -> object:
         return self.Activate()
+
+    @method
+    def Paste(self, Destination: object = MISSING, Link: object = MISSING) -> object:
+        """What Copy or Cut put on the clipboard, at Destination or the selection."""
+        from pyopenvba.apps.excel._clipboard import paste
+
+        return paste(self, Destination, Link)
 
     @method
     def Delete(self) -> object:
@@ -1800,12 +1813,26 @@ class Range(ExcelObject):
     def Copy(self, Destination: object = MISSING) -> object:
         return self.copy_to(Destination)
 
+    @method
+    def Cut(self, Destination: object = MISSING) -> object:
+        from pyopenvba.apps.excel._clipboard import cut
+
+        return cut(self, Destination)
+
+    @method
+    def PasteSpecial(self, Paste: object = MISSING, Operation: object = MISSING, SkipBlanks: object = MISSING,
+                     Transpose: object = MISSING) -> object:
+        from pyopenvba.apps.excel._clipboard import paste_special
+
+        return paste_special(self, Paste, Operation, SkipBlanks, Transpose)
+
     def copy_to(self, Destination: object = MISSING, *, name_conflict: str = "reuse") -> object:
         if name_conflict not in {"reuse", "rename", "error"}:
             raise ValueError("name_conflict must be reuse, rename, or error")
         if Destination is MISSING:
-            self.sheet.book.application.cut_copy_mode = VBAInt(1, "Long")
-            return True
+            from pyopenvba.apps.excel._clipboard import copy
+
+            return copy(self)
         if not isinstance(Destination, Range):
             raise error(1004, "Copy needs a range to copy to")
         if Destination.sheet.book.application is not self.sheet.book.application:

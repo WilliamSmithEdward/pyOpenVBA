@@ -443,6 +443,43 @@ def shift_text(formula: str, down: int, across: int) -> str:
     return ("=" if formula.startswith("=") else "") + out
 
 
+def transpose_text(formula: str, source: tuple[int, int], target: tuple[int, int]) -> str:
+    """A formula pasted transposed, from the cell at ``source`` to the one at ``target``.
+
+    Measured in live Excel: a reference relative in both its row and its
+    column keeps its distance from the formula with the rows and columns
+    swapped, so =C5 in A1 pasted transposed into D1 is =H3. A reference
+    with a dollar sign anywhere stays as it is.
+    """
+    from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, column_letter, column_number
+
+    body = formula[1:] if formula.startswith("=") else formula
+    pieces: list[tuple[int, int, str]] = []
+    for token in tokenize(body):
+        if token.kind != "ref":
+            continue
+        _, reference = split_sheet(token.text)
+        corners: list[str] = []
+        for part in reference.split(":"):
+            found = _CORNER.match(part)
+            column_fixed, letters, row_fixed, digits = found.groups() if found else ("$", None, "$", None)
+            if column_fixed or row_fixed or not letters or not digits:
+                corners.append(part)
+                continue
+            row = target[0] + column_number(letters) - source[1]
+            column = target[1] + int(digits) - source[0]
+            if not (1 <= row <= MAX_ROWS and 1 <= column <= MAX_COLUMNS):
+                corners = ["#REF!"]
+                break
+            corners.append(f"{column_letter(column)}{row}")
+        prefix = token.text[: len(token.text) - len(reference)]
+        pieces.append((token.at, token.at + len(token.text), prefix + ":".join(corners)))
+    out = body
+    for start, stop, replacement in reversed(pieces):
+        out = out[:start] + replacement + out[stop:]
+    return ("=" if formula.startswith("=") else "") + out
+
+
 def shift_reference(text: str, down: int, across: int) -> str:
     """One reference moved, with anything behind a dollar sign left alone."""
     parts = text.split(":")

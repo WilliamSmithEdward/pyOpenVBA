@@ -62,7 +62,7 @@ Application,Creator,"property, read-only",As XlCreator,,UNASSESSED,,
 Application,Cursor,property,As XlMousePointer,,MISSING,,
 Application,CursorMovement,property,As Long,,MISSING,,
 Application,CustomListCount,"property, read-only",As Long,,MISSING,,
-Application,CutCopyMode,property,As XlCutCopyMode,,UNASSESSED,,
+Application,CutCopyMode,property,As XlCutCopyMode,,VERIFIED,tests/fixtures/paste.json,"0, 1 after Copy and 2 after Cut; False clears the clipboard."
 Application,DataEntryMode,property,As Long,,MISSING,,
 Application,DDEAppReturnCode,"property, read-only",As Long,,MISSING,,
 Application,DDEExecute,method,"DDEExecute(Channel As Long, String As String)",,MISSING,,
@@ -499,7 +499,7 @@ Range,Comment,"property, read-only",As Comment,,MISSING,,
 Range,CommentThreaded,"property, read-only",As CommentThreaded,,MISSING,,
 Range,Consolidate,method,"Consolidate([Sources As Variant], [Function As Variant], [TopRow As Variant], [LeftColumn As Variant], [CreateLinks As Variant]) As Variant",,MISSING,,
 Range,ConvertToLinkedDataType,method,"ConvertToLinkedDataType(ServiceID As Long, LanguageCulture As String)",,MISSING,,
-Range,Copy,method,Copy([Destination As Variant]) As Variant,,PARTIAL,tests/fixtures/range_copy.json; tests/fixtures/range_copy_names.json; tests/fixtures/row_formats/row_formats.json,"Destination form only; the clipboard, merged cells, several areas and destinations over 1,048,576 cells report unsupported. Whole rows and columns carry their formats, and cells the format each one showed."
+Range,Copy,method,Copy([Destination As Variant]) As Variant,,PARTIAL,tests/fixtures/range_copy.json; tests/fixtures/range_copy_names.json; tests/fixtures/row_formats/row_formats.json; tests/fixtures/paste.json,"To a destination, or onto the clipboard for Paste and PasteSpecial; merged cells, areas with gaps between them and destinations over 1,048,576 cells report unsupported. Whole rows and columns carry their formats, and cells the format each one showed."
 Range,CopyFromRecordset,method,"CopyFromRecordset(Data As IUnknown, [MaxRows As Variant], [MaxColumns As Variant]) As Long",,MISSING,,
 Range,CopyPicture,method,"CopyPicture([Appearance As XlPictureAppearance], [Format As XlCopyPictureFormat]) As Variant",,MISSING,,
 Range,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/excel_model/probes.txt,
@@ -508,7 +508,7 @@ Range,CreateNames,method,"CreateNames([Top As Variant], [Left As Variant], [Bott
 Range,Creator,"property, read-only",As XlCreator,,MISSING,,
 Range,CurrentArray,"property, read-only",As Range,,MISSING,,
 Range,CurrentRegion,"property, read-only",As Range,,VERIFIED,tests/fixtures/current_region.json,"From the first area's top-left cell, grown while the ring around it holds a value or formula, corners included; merged areas count by their first cell and are taken in whole."
-Range,Cut,method,Cut([Destination As Variant]) As Variant,,MISSING,,
+Range,Cut,method,Cut([Destination As Variant]) As Variant,,PARTIAL,tests/fixtures/paste.json,"Moves cells and every reference wholly inside them, names included; merged cells, another workbook, and whole rows or columns with sizes or formats of their own report themselves unsupported."
 Range,DataSeries,method,"DataSeries([Rowcol As Variant], [Type As XlDataSeriesType], [Date As XlDataSeriesDate], [Step As Variant], [Stop As Variant], [Trend As Variant]) As Variant",,MISSING,,
 Range,DataTypeToText,method,DataTypeToText(),,MISSING,,
 Range,Delete,method,Delete([Shift As Variant]) As Variant,,PARTIAL,tests/fixtures/range_edit.json; tests/fixtures/excel_model/probes.txt; tests/fixtures/row_formats/row_formats.json,"Whole rows and columns rewrite references and take their formats with them; a partial shift moves cells without rewriting references, and sheets with merges or shapes report unsupported. Shifting cells on a sheet whose rows or columns carry formats reports unsupported."
@@ -587,7 +587,7 @@ Range,PageBreak,property,As Long,,MISSING,,
 Range,Parent,"property, read-only",As Object,,UNASSESSED,,
 Range,Parse,method,"Parse([ParseLine As Variant], [Destination As Variant]) As Variant",,MISSING,,
 Range,PastePictureInCell,method,PastePictureInCell(),,MISSING,,
-Range,PasteSpecial,method,"PasteSpecial([Paste As XlPasteType], [Operation As XlPasteSpecialOperation], [SkipBlanks As Variant], [Transpose As Variant]) As Variant",,MISSING,,
+Range,PasteSpecial,method,"PasteSpecial([Paste As XlPasteType], [Operation As XlPasteSpecialOperation], [SkipBlanks As Variant], [Transpose As Variant]) As Variant",,PARTIAL,tests/fixtures/paste.json,"Everything, values, formulas, formats, number formats, all but borders and column widths, with operations, skipped blanks and transposing; comments and validation report themselves unsupported."
 Range,Phonetic,"property, read-only",As Phonetic,,MISSING,,
 Range,Phonetics,"property, read-only",As Phonetics,,MISSING,,
 Range,PivotCell,"property, read-only",As PivotCell,,MISSING,,
@@ -1200,7 +1200,7 @@ Worksheet,OLEObjects,method,OLEObjects([Index As Variant]) As Object,,MISSING,,
 Worksheet,Outline,"property, read-only",As Outline,,MISSING,,
 Worksheet,PageSetup,"property, read-only",As PageSetup,,MISSING,,
 Worksheet,Parent,"property, read-only",As Object,,UNASSESSED,,
-Worksheet,Paste,method,"Paste([Destination As Variant], [Link As Variant])",,MISSING,,
+Worksheet,Paste,method,"Paste([Destination As Variant], [Link As Variant])",,PARTIAL,tests/fixtures/paste.json,"What Copy or Cut put on the clipboard, at Destination or the selection; Link:=True reports itself unsupported."
 Worksheet,PasteSpecial,method,"PasteSpecial([Format As Variant], [Link As Variant], [DisplayAsIcon As Variant], [IconFileName As Variant], [IconIndex As Variant], [IconLabel As Variant], [NoHTMLFormatting As Variant])",,MISSING,,
 Worksheet,PivotTableAfterValueChange,event,"PivotTableAfterValueChange(TargetPivotTable As PivotTable, TargetRange As Range)",,MISSING,,
 Worksheet,PivotTableBeforeAllocateChanges,event,"PivotTableBeforeAllocateChanges(TargetPivotTable As PivotTable, ValueChangeStart As Long, ValueChangeEnd As Long, Cancel As Boolean)",,MISSING,,

@@ -49,6 +49,18 @@ All notable changes to pyOpenVBA are documented here. This project follows
   what it pads the cell with depends on the width in pixels. Before, both went
   through Access's `Format`, which spelled `$#,##0_)` as `$5_)`, fractions
   as `2 ?/?` and `[h]:mm:ss` as `[1]:00:00`.
+- The clipboard, as recorded macros use it. `Range.Copy` and the new
+  `Range.Cut` with no destination put the range on it, and
+  `CutCopyMode` reads 1 or 2. The new `Worksheet.Paste` pastes it at a
+  destination or the selection, and the new `Range.PasteSpecial` pastes
+  everything, values, formulas, formats, number formats with values or
+  formulas, all but borders, or column widths, with Excel's operations,
+  skipped blanks and transposing. What is pasted is what the cells hold
+  then, a copy lasts through any number of pastes, and a paste fills the
+  destination with copies when it is a whole number of the source's
+  size. `Cut` moves cells, and every reference in the workbook wholly
+  inside them follows, names included, while one wholly inside the cells
+  they land on becomes `#REF!`. 49 layouts in live Excel pin it.
 - `Range.Replace`, as Excel's does it. It edits the text the formula bar
   shows -- 1234 in `#,##0` is `1234`, a date `1/2/2020`, 50% `50%` -- and
   types what is left again, so the number 123 with `2` replaced by `5` is

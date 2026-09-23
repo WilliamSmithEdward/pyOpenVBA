@@ -328,6 +328,31 @@ axes with Excel's additional relative shifts, and fill uncovered cells with
 unchanged. Higher-dimensional arrays raise error 13. Each area of a multi-area
 target starts from the first array element.
 
+**The clipboard.** `Range.Copy` and `Range.Cut` with no destination put
+the range on the clipboard, and `Application.CutCopyMode` reads 1 after
+a copy, 2 after a cut and 0 once it is cleared; setting it to False
+clears it. `Worksheet.Paste` pastes what is there at its destination or
+the selection, and `Range.PasteSpecial` pastes all of it, the values
+cells show, their formulas, their formats, number formats with values
+or formulas, all but borders, or column widths
+(`tests/fixtures/paste.json`, 49 layouts).
+
+* A paste reads the source when it pastes, so a cell changed after the
+  copy pastes as it is now; writing to a cell does not end a copy, and a
+  copy can be pasted any number of times. A cut ends with its paste and
+  cannot be pasted special. Pasting with nothing copied is error 1004.
+* A destination that is a whole number of source sizes is filled with
+  copies; any other takes the source's size from its top-left cell.
+* An operation combines what is pasted with what is under it: blanks
+  count as 0, text on either side leaves the cell alone, and a formula
+  on either side makes one, `=10*(D1*2)` or `=(5+5)+1`.
+* Transposed, references relative in both row and column keep their
+  distance with rows and columns swapped; others stay as they are.
+* A cut moves cells and formats. Every reference in the workbook wholly
+  inside the block follows it, names included and to another sheet with
+  the sheet's name; one wholly inside the cells it lands on becomes
+  `#REF!`; one that only overlaps stays.
+
 **Ranges can be searched.** `Find`, `FindNext` and `FindPrevious` support
 single-area ranges, including whole sheets without materializing empty
 cells. Searches support formula text or displayed values, whole/partial

@@ -11,7 +11,7 @@ from pyopenvba.formula._parse import split_sheet, tokenize
 from pyopenvba.interpreter._values import error
 
 if TYPE_CHECKING:
-    from pyopenvba.apps.excel._model import Range, Cell, Worksheet, NameEntry
+    from pyopenvba.apps.excel._model import Range, Cell, Worksheet, NameEntry, Workbook
 
 _CORNER = re.compile(r"^(\$?)([A-Za-z]+)?(\$?)([0-9]+)?$")
 
@@ -66,6 +66,15 @@ def rewrite(formula: str, owner: str, edited: str, *, rows: bool, start: int, co
     return formula
 
 
+def name_scope(book: Workbook, entry: NameEntry) -> str:
+    """The sheet a defined name belongs to, by its qualified name or its localSheetId; "" for the workbook's own."""
+    scope, _ = split_sheet(entry.name)
+    local_id = attributes(f"<definedName {entry.attributes}>").get("localSheetId", "")
+    if not scope and local_id.isdigit() and int(local_id) < len(book.sheets_):
+        scope = book.sheets_[int(local_id)].name
+    return scope
+
+
 def edit(target: Range, *, delete: bool) -> None:
     sheet, area = target.sheet, target.first
     if len(target.areas) != 1:
@@ -92,11 +101,7 @@ def edit(target: Range, *, delete: bool) -> None:
                     formulas.append((owner, cell, text))
     names: list[tuple[NameEntry, str]] = []
     for entry in sheet.book.names_.entries:
-        scope, _ = split_sheet(entry.name)
-        local_id = attributes(f"<definedName {entry.attributes}>").get("localSheetId", "")
-        if not scope and local_id.isdigit() and int(local_id) < len(sheet.book.sheets_):
-            scope = sheet.book.sheets_[int(local_id)].name
-        text = rewrite(entry.refers_to, scope or sheet.name, sheet.name,
+        text = rewrite(entry.refers_to, name_scope(sheet.book, entry) or sheet.name, sheet.name,
                        rows=rows, start=start, count=count, delete=delete)
         names.append((entry, text))
     # All validation/conversion precedes mutation.

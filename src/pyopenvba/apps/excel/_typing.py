@@ -139,7 +139,7 @@ def format_after(current: str, brought: str | None) -> str | None:
 
 def reads_fractions(current: str) -> bool:
     """Whether a cell reads a typed ``1/2`` as a half: it has a number format that is not a date or time."""
-    return current not in ("General", "", "@") and not _codes(current)
+    return current not in ("General", "", "@") and not date_time_codes(current)
 
 
 def _typed(value: object, *, fractions: bool) -> Typed:
@@ -441,7 +441,7 @@ def edit_text(value: object, number_format: str) -> str:
         return value.name
     if isinstance(value, (int, float)):
         number = float(value)
-        if _codes(number_format) and 0 <= number < 2958466:
+        if date_time_codes(number_format) and 0 <= number < 2958466:
             return _moment_text(number, number_format)
         if _is_percent(number_format):
             return number_text(number * 100, formula=True) + "%"
@@ -454,7 +454,7 @@ def _moment_text(number: float, code: str) -> str:
     parts: list[str] = []
     if is_date_format(code) or day >= 1:
         parts.append(format_value(float(day), "m/d/yyyy"))
-    if any(found[0] in "hs" for found in _codes(code)) or number != day:
+    if any(found[0] in "hsHMS" for found in date_time_codes(code)) or number != day:
         _, hour, minute, second, _ = clock(number - day)
         parts.append(f"{hour % 12 or 12}:{minute:02d}:{second:02d} {'AM' if hour < 12 else 'PM'}")
     return "  ".join(parts)
@@ -484,30 +484,35 @@ def replaced(text: str, current: str, *, prefixed: bool) -> Typed:
 # --- what a format makes a value read as -------------------------------------------------------------
 
 
-def _codes(code: str) -> list[str]:
-    """The date and time codes in a number format, in order: y, m, d, h and s runs, elapsed ones included."""
+def date_time_codes(code: str) -> list[str]:
+    """The date and time codes in a number format, in order: y, m, d, h and s runs.
+
+    An elapsed [h], [m] or [s] comes back as H, M or S, since [m] is
+    minutes wherever it stands.
+    """
     body = re.sub(r'"[^"]*"|\\.', "", code)
     body = re.sub(r"\[(?![hms]+\])[^\]]*\]", "", body, flags=re.IGNORECASE)
-    body = re.sub(r"am/pm|a/p", "", body, flags=re.IGNORECASE)
-    return re.findall(r"y+|m+|d+|h+|s+", body.lower())
+    body = re.sub(r"am/pm|a/p", "", body, flags=re.IGNORECASE).lower()
+    body = re.sub(r"\[([hms])+\]", lambda found: found.group(1).upper(), body)
+    return re.findall(r"y+|m+|d+|h+|s+|[HMS]", body)
 
 
 def is_date_format(code: str) -> bool:
     """Whether a format makes Range.Value read its number as a Date: it names a year, a month or a day.
 
-    A format of times alone -- h:mm, mm:ss, [h]:mm -- leaves the number a
-    Double. ``m`` and ``mm`` are minutes straight after an hour or before
-    seconds, and a month otherwise.
+    A format of times alone -- h:mm, mm:ss, [h]:mm, [m] -- leaves the
+    number a Double. ``m`` and ``mm`` are minutes straight after an hour
+    or before seconds, and a month otherwise.
     """
     if code in ("General", "", "@"):
         return False
-    codes = _codes(code)
+    codes = date_time_codes(code)
     for index, found in enumerate(codes):
         if found[0] in "yd":
             return True
         if found[0] == "m":
-            after_hour = index > 0 and codes[index - 1][0] == "h"
-            before_second = index + 1 < len(codes) and codes[index + 1][0] == "s"
+            after_hour = index > 0 and codes[index - 1][0] in "hH"
+            before_second = index + 1 < len(codes) and codes[index + 1][0] in "sS"
             if len(found) >= 3 or not (after_hour or before_second):
                 return True
     return False

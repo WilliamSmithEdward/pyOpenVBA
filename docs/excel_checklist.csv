@@ -472,7 +472,7 @@ Range,ApplyNames,method,"ApplyNames([Names As Variant], [IgnoreRelativeAbsolute 
 Range,ApplyOutlineStyles,method,ApplyOutlineStyles() As Variant,,MISSING,,
 Range,Areas,"property, read-only",As Areas,,PARTIAL,tests/fixtures/excel_model/probes.txt,
 Range,AutoComplete,method,AutoComplete(String As String) As String,,MISSING,,
-Range,AutoFill,method,"AutoFill(Destination As Range, [Type As XlAutoFillType]) As Variant",,MISSING,,
+Range,AutoFill,method,"AutoFill(Destination As Range, [Type As XlAutoFillType]) As Variant",,PARTIAL,tests/fixtures/autofill.json,"Every fill type but Flash Fill, down, up or across, with Excel's series of numbers, dates, times, text and names; a trend through three or more uneven numbers, a growth trend, dates whose times differ, a destination running on two ways and merged cells report themselves unsupported."
 Range,AutoFilter,method,"AutoFilter([Field As Variant], [Criteria1 As Variant], [Operator As XlAutoFilterOperator], [Criteria2 As Variant], [VisibleDropDown As Variant], [SubField As Variant]) As Variant",,MISSING,,
 Range,AutoFit,method,AutoFit() As Variant,,PARTIAL,tests/fixtures/dimensions.json; tests/fixtures/dimensions/dimensions_answers.json; tests/fixtures/font_rows.json,"Rows go back to the height their fonts give them and are shown; a row resting on something not measured, or a column whose cells hold values, reports unsupported, because AutoFit measures text."
 Range,AutoOutline,method,AutoOutline() As Variant,,MISSING,,

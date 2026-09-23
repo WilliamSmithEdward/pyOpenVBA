@@ -351,6 +351,57 @@ target starts from the first array element.
 * xlSortTextAsNumbers sorts text that would type as a number -- `(3)`,
   `5%`, `$5`, `1,000` -- as that number, among the numbers.
 
+**AutoFill.** `Range.AutoFill` fills as Excel does
+(`tests/fixtures/autofill.json`, 208 layouts and 520 columns).
+
+* The destination is one block on the source's sheet that holds the
+  source and runs on from one of its edges; anything else is error 1004.
+  The source repeats along it one column at a time for a fill down or up
+  and one row at a time for a fill across, going backwards from the
+  source for a fill up or left.
+* Inside a column (or row), neighbouring cells of one kind make a run,
+  blanks passed over, and a run carries on as a series: numbers, dates,
+  times, text with a number at its end or its start, ordinals like 2nd,
+  and day and month names. Formulas repeat, moved as a copy moves them;
+  text, TRUE and FALSE, errors and blanks repeat as they are, and a
+  blank clears what it lands on. Every cell takes the format of the
+  source cell it repeats.
+* Numbers stay in one run while their formats agree -- General goes with
+  any format but a date's or a time's, and otherwise the first format
+  that is not General decides, so `0.00` and `0%` part. A number that is
+  the whole source repeats; one alone in its run otherwise steps by 1;
+  two step by their difference. A value is the first number plus the
+  step times how far along it is, with that product rounded to 15
+  significant digits and then the sum, both half away from zero, so 1/3,
+  2/3 carries on 1, 1.33333333333333, 1.66666666666666. Three or more
+  numbers follow their least-squares line; when their steps agree to 15
+  digits that is the same thing, and otherwise Excel's value comes from
+  its LINEST arithmetic, which the model cannot match to the last digit,
+  so it reports itself unsupported.
+* A lone cell repeats rather than steps when the cells beside it across
+  the fill make a run of their own: filling down a row of 1 and 2 repeats
+  both, while 1 beside a word counts on.
+* Dates step by a day, or by a month under the built-in `mmm-yy`. Several
+  step by their difference: by whole months where they share a day of
+  the month or all end one, by days otherwise, and they repeat where the
+  steps differ. A time steps by an hour, several by their difference.
+  xlFillDays, xlFillWeekdays, xlFillMonths and xlFillYears step dates by
+  that unit and drop their times; dates that do not make such a series
+  move on by the unit each time round, and everything but dates repeats.
+* Text keeps what surrounds its number and the zeros written in front of
+  it (`Item007` goes to `Item008`); a number past 4294967295 is not one,
+  and counting down past 0 shows the value without its sign. Runs share a
+  prefix, ignoring case and a last space, dot or hyphen. `Q1` to `Q4` and
+  the `Qtr`, `Quarter` and `1st Qtr` forms wrap round the quarters.
+  Names keep the first one's case and short or long form, and `May`
+  counts as either.
+* xlFillCopy repeats everything, xlFillFormats the formats alone, and
+  xlFillValues fills without touching the formats. xlLinearTrend steps
+  numbers and repeats everything else. xlGrowthTrend, Flash Fill, dates
+  whose times differ, weekday fills of dates more than a week apart,
+  merged cells, row and column formats, and a destination that runs on
+  in two directions at once report themselves unsupported.
+
 **The clipboard.** `Range.Copy` and `Range.Cut` with no destination put
 the range on the clipboard, and `Application.CutCopyMode` reads 1 after
 a copy, 2 after a cut and 0 once it is cleared; setting it to False

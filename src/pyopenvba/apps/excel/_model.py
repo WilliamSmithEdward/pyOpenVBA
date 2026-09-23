@@ -1923,6 +1923,12 @@ class Range(ExcelObject):
         return True
 
     @method
+    def AutoFill(self, Destination: object = MISSING, Type: object = MISSING) -> object:
+        from pyopenvba.apps.excel._autofill import autofill
+
+        return autofill(self, Destination, Type)
+
+    @method
     def FillDown(self) -> object:
         return self._fill(1, 0)
 

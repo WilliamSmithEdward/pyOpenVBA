@@ -49,6 +49,27 @@ All notable changes to pyOpenVBA are documented here. This project follows
   what it pads the cell with depends on the width in pixels. Before, both went
   through Access's `Format`, which spelled `$#,##0_)` as `$5_)`, fractions
   as `2 ?/?` and `[h]:mm:ss` as `[1]:00:00`.
+- `Range.AutoFill`, with every fill type but Flash Fill. The source
+  repeats down, up or across the destination one column or row at a
+  time; runs of numbers, dates, times, text with a number in it, and day
+  and month names carry on as series, and the rest repeats, formulas
+  moved as a copy moves them. Numbers step by 1 alone and by their
+  difference in pairs, each value the first plus the step times how far
+  along, that product rounded to 15 digits and then the sum, as Excel
+  does (1/3, 2/3 goes on 1, 1.33333333333333, 1.66666666666666). A number
+  that is the whole source repeats, and so does a lone cell in a row
+  filled down beside others of its kind. Dates step by days, by months
+  under `mmm-yy` or where they share a day of the month or all end one,
+  and by weekdays, months or years when asked; times by an hour. Text
+  keeps what surrounds its number and the zeros in front of it, 1st goes
+  to 2nd, Q4 and 4th Qtr wrap to the first quarter, and Mon and JANUARY
+  keep their case. Numbers run together while their formats agree.
+  `xlFillCopy`, `xlFillFormats` and `xlFillValues` repeat everything, the
+  formats alone and the values alone. 208 layouts and 520 columns in live
+  Excel pin it. What the model cannot match reports itself: a trend
+  through three or more numbers that do not step evenly, which Excel
+  takes from its LINEST arithmetic, a growth trend, dates whose times
+  differ, and a destination that runs on two ways at once.
 - Worksheet functions from VBA go through the formula engine:
   `WorksheetFunction.X` raises error 1004 on an error and `Application.X`,
   the late-bound form, hands it back as an error value, for every one of
@@ -381,6 +402,8 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- `Range.Value` read a number under an elapsed-minutes format, `[m]` or
+  `[mm]`, as a Date, taking the `m` for a month; Excel reads a Double.
 - `Range.Formula` read a stored number as VBA's `CStr` spells it; it now
   spells it as Excel does, written out up to 21 characters. `=A1&""`
   writes numbers out up to 20 characters as Excel does, where it switched

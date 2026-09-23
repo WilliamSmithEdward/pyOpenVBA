@@ -208,3 +208,57 @@ TypeName(xlCalculationManual)
 TypeName(xlNone)
 TypeName(msoTrue)
 TypeName(xlWorksheet)
+
+# --- Count of whole rows and columns, which counts the lines ---
+Rows.Count
+Columns.Count
+Rows(3).Count
+Columns(2).Count
+Columns("B:C").Count
+Rows("2:5").Count
+Cells.Count
+Range("A3").EntireRow.Count
+Range("B1").EntireColumn.Count
+Cells(Rows.Count, 1).Address
+Cells(1, Columns.Count).Address
+Rows.CountLarge
+Range("A1").Value = 1: Range("A5").Value = 2 ;; Cells(Rows.Count, 1).End(xlUp).Row
+
+# --- CountLarge, Next and Previous, and the Local spellings ---
+Range("A1:B3").CountLarge
+TypeName(Range("A1:B3").CountLarge)
+Cells.CountLarge
+TypeName(Cells.CountLarge)
+Columns(2).CountLarge
+Range("B2").Next.Address
+Range("B2").Previous.Address
+Range("A2").Previous.Address
+Range("XFD2").Next.Address
+Range("B2:C3").Next.Address
+Range("B2:C3").Previous.Address
+TypeName(Worksheets(Worksheets.Count).Next)
+TypeName(Worksheets(1).Previous)
+Worksheets.Add After:=Worksheets(Worksheets.Count) ;; Worksheets(2).Previous.Name = Worksheets(1).Name
+Worksheets.Add After:=Worksheets(Worksheets.Count) ;; Worksheets(1).Next.Name = Worksheets(2).Name
+Range("A1").AddressLocal
+Range("A1:B2").AddressLocal(False, False)
+Range("A1").AddressLocal(ReferenceStyle:=xlR1C1)
+Range("A1:B2").Address(ReferenceStyle:=xlR1C1)
+Rows(2).Address(ReferenceStyle:=xlR1C1)
+Rows("2:3").Address(ReferenceStyle:=xlR1C1)
+Columns("B:C").Address(ReferenceStyle:=xlR1C1)
+Range("A1,B3:C4").Address(ReferenceStyle:=xlR1C1)
+Range("B2").Address(False, False, xlR1C1, , Range("A1"))
+Range("B2").Address(True, False, xlR1C1, , Range("C3"))
+Range("B2:C3").Address(False, True, xlR1C1, , Range("D4"))
+Range("B2").Address(False, False, xlR1C1)
+Range("C3").Select ;; Range("B2").Address(False, False, xlR1C1)
+Range("B2").Address(False, False, xlA1, , Range("D4"))
+Range("A1").Formula = "=SUM(B1:B2)" ;; Range("A1").FormulaLocal
+Range("A1").Formula = "=SUM(B1:B2)" ;; Range("A1").FormulaR1C1Local
+Range("A1").Value = 5 ;; Range("A1").FormulaLocal
+Range("A1").NumberFormat = "0.00%" ;; Range("A1").NumberFormatLocal
+Range("A1").FormulaLocal = "=1+2" ;; Range("A1").Value
+Range("A1").FormulaR1C1Local = "=R1C2*2": Range("B1").Value = 4 ;; Range("A1").Formula
+Range("A1").NumberFormatLocal = "0.0" ;; Range("A1").NumberFormat
+TypeName(Range("A1").Calculate)

@@ -498,8 +498,8 @@ Range,Activate,method,Activate() As Variant,,UNASSESSED,,
 Range,AddComment,method,AddComment([Text As Variant]) As Comment,,MISSING,,
 Range,AddCommentThreaded,method,AddCommentThreaded(Text As String) As CommentThreaded,,MISSING,,
 Range,AddIndent,property,As Variant,,PARTIAL,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,Measured with distributed alignment only.
-Range,Address,"property, read-only",As String,,PARTIAL,tests/fixtures/excel_model/probes.txt,
-Range,AddressLocal,"property, read-only",As String,,MISSING,,
+Range,Address,"property, read-only",As String,,PARTIAL,tests/fixtures/excel_model/probes.txt,"A1 or R1C1 style; a relative R1C1 part counts from RelativeTo, or from A1 when it is left out, whatever is selected."
+Range,AddressLocal,"property, read-only",As String,,PARTIAL,tests/fixtures/excel_model/probes.txt,"The same as Address, as an English Excel has it; the model keeps the English spelling."
 Range,AdvancedFilter,method,"AdvancedFilter(Action As XlFilterAction, [CriteriaRange As Variant], [CopyToRange As Variant], [Unique As Variant]) As Variant",,MISSING,,
 Range,AllocateChanges,method,AllocateChanges(),,MISSING,,
 Range,AllowEdit,"property, read-only",As Boolean,,MISSING,,
@@ -514,7 +514,7 @@ Range,AutoFit,method,AutoFit() As Variant,,PARTIAL,tests/fixtures/dimensions.jso
 Range,AutoOutline,method,AutoOutline() As Variant,,MISSING,,
 Range,BorderAround,method,"BorderAround([LineStyle As Variant], [Weight As XlBorderWeight], [ColorIndex As XlColorIndex], [Color As Variant], [ThemeColor As Variant]) As Variant",,PARTIAL,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/fixtures/format/border_storage.json; tests/test_live_excel_model_gate.py,The ColorIndex and ThemeColor arguments and the return value are unmeasured.
 Range,Borders,"property, read-only",As Borders,,VERIFIED,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,
-Range,Calculate,method,Calculate() As Variant,,MISSING,,
+Range,Calculate,method,Calculate() As Variant,,PARTIAL,tests/fixtures/excel_model/probes.txt,Works the range's formulas out again and answers Null.
 Range,CalculateRowMajorOrder,method,CalculateRowMajorOrder() As Variant,,MISSING,,
 Range,CellControl,"property, read-only",As CellControl,,MISSING,,
 Range,Cells,"property, read-only",As Range,,PARTIAL,tests/fixtures/excel_model/probes.txt,
@@ -538,8 +538,8 @@ Range,ConvertToLinkedDataType,method,"ConvertToLinkedDataType(ServiceID As Long,
 Range,Copy,method,Copy([Destination As Variant]) As Variant,,PARTIAL,tests/fixtures/range_copy.json; tests/fixtures/range_copy_names.json; tests/fixtures/row_formats/row_formats.json; tests/fixtures/paste.json; tests/fixtures/autofilter_edits.json,"To a destination, or onto the clipboard for Paste and PasteSpecial. Several areas close up, stacked or side by side, pasting their formulas as the values they show except through PasteSpecial; on a filtered sheet the visible cells go, into each visible block of the destination. Merged cells and destinations over 1,048,576 cells report unsupported. Whole rows and columns carry their formats, and cells the format each one showed."
 Range,CopyFromRecordset,method,"CopyFromRecordset(Data As IUnknown, [MaxRows As Variant], [MaxColumns As Variant]) As Long",,MISSING,,
 Range,CopyPicture,method,"CopyPicture([Appearance As XlPictureAppearance], [Format As XlCopyPictureFormat]) As Variant",,MISSING,,
-Range,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/excel_model/probes.txt,
-Range,CountLarge,"property, read-only",As Variant,,MISSING,,
+Range,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/excel_model/probes.txt,"The rows of whole rows (Rows.Count is 1048576), the columns of whole columns, else the cells; past a Long, error 6, as Cells.Count is."
+Range,CountLarge,"property, read-only",As Variant,,PARTIAL,tests/fixtures/excel_model/probes.txt,"Count as a LongLong: the rows of whole rows, the columns of whole columns, else the cells, Cells.CountLarge 17179869184."
 Range,CreateNames,method,"CreateNames([Top As Variant], [Left As Variant], [Bottom As Variant], [Right As Variant]) As Variant",,MISSING,,
 Range,Creator,"property, read-only",As XlCreator,,MISSING,,
 Range,CurrentArray,"property, read-only",As Range,,MISSING,,
@@ -578,9 +578,9 @@ Range,Formula2R1C1,property,As Variant,,MISSING,,
 Range,Formula2R1C1Local,property,As Variant,,MISSING,,
 Range,FormulaArray,property,As Variant,,MISSING,,
 Range,FormulaHidden,property,As Variant,,VERIFIED,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,
-Range,FormulaLocal,property,As Variant,,MISSING,,
+Range,FormulaLocal,property,As Variant,,PARTIAL,tests/fixtures/excel_model/probes.txt,"The same as Formula, as an English Excel has it; the model keeps the English spelling."
 Range,FormulaR1C1,property,As Variant,,PARTIAL,tests/fixtures/formula_r1c1.json; tests/fixtures/formula_arrays.json; tests/fixtures/autofilter_edits.json,Relative R1C1 inside INDIRECT names is not implemented. On a filtered sheet only the visible cells take it.
-Range,FormulaR1C1Local,property,As Variant,,MISSING,,
+Range,FormulaR1C1Local,property,As Variant,,PARTIAL,tests/fixtures/excel_model/probes.txt,"The same as FormulaR1C1, as an English Excel has it; the model keeps the English spelling."
 Range,FunctionWizard,method,FunctionWizard() As Variant,,MISSING,,
 Range,Group,method,"Group([Start As Variant], [End As Variant], [By As Variant], [Periods As Variant]) As Variant",,MISSING,,
 Range,HasArray,"property, read-only",As Variant,,MISSING,,
@@ -612,10 +612,10 @@ Range,MergeArea,"property, read-only",As Range,,PARTIAL,tests/fixtures/range_mer
 Range,MergeCells,property,As Variant,,PARTIAL,tests/fixtures/range_merge.json,Multi-area merges and across merges over multi-row regions report unsupported; merge formatting is not modeled.
 Range,Name,property,As Variant,,PARTIAL,tests/fixtures/names_crud.json,
 Range,NavigateArrow,method,"NavigateArrow([TowardPrecedent As Variant], [ArrowNumber As Variant], [LinkNumber As Variant]) As Variant",,MISSING,,
-Range,Next,"property, read-only",As Range,,MISSING,,
+Range,Next,"property, read-only",As Range,,PARTIAL,tests/fixtures/excel_model/probes.txt,"The cell right of the top-left one, error 1004 past the last column; on a protected sheet, where it moves between unlocked cells, it reports itself unsupported."
 Range,NoteText,method,"NoteText([Text As Variant], [Start As Variant], [Length As Variant]) As String",,MISSING,,
 Range,NumberFormat,property,As Variant,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/row_formats/row_formats.json; tests/fixtures/typing_formats.json; tests/fixtures/autofilter_edits.json,"Whole rows, whole columns and the whole sheet are formatted through their own formats, as Excel keeps them. On a filtered sheet only the visible cells take a format, as Font, Interior, Borders and alignment do. A code is kept as Excel rewrites it -- a quoted $ bare, codes in their case, a lower-case exponent refused -- except the thousands separator Excel moves when a quoted literal splits the digits."
-Range,NumberFormatLocal,property,As Variant,,MISSING,,
+Range,NumberFormatLocal,property,As Variant,,PARTIAL,tests/fixtures/excel_model/probes.txt,"The same as NumberFormat, as an English Excel has it; the model keeps the English spelling."
 Range,Offset,"property, read-only",As Range,,PARTIAL,tests/fixtures/excel_model/probes.txt,
 Range,Orientation,property,As Variant,,VERIFIED,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,
 Range,OutlineLevel,property,As Variant,,MISSING,,
@@ -633,7 +633,7 @@ Range,PivotTable,"property, read-only",As PivotTable,,MISSING,,
 Range,PlacePictureOverCells,method,PlacePictureOverCells([AsReference As Variant]),,MISSING,,
 Range,Precedents,"property, read-only",As Range,,MISSING,,
 Range,PrefixCharacter,"property, read-only",As Variant,,PARTIAL,tests/fixtures/value_typing.json; tests/fixtures/typing_formats.json,"The apostrophe a cell was typed with, kept by its format until Clear or ClearFormats and shown while the cell holds text; the Lotus navigation prefixes are not modelled."
-Range,Previous,"property, read-only",As Range,,MISSING,,
+Range,Previous,"property, read-only",As Range,,PARTIAL,tests/fixtures/excel_model/probes.txt,"The cell left of the top-left one, error 1004 before column A; on a protected sheet it reports itself unsupported."
 Range,PrintOut,method,"PrintOut([From As Variant], [To As Variant], [Copies As Variant], [Preview As Variant], [ActivePrinter As Variant], [PrintToFile As Variant], [Collate As Variant], [PrToFileName As Variant]) As Variant",,MISSING,,
 Range,PrintPreview,method,PrintPreview([EnableChanges As Variant]) As Variant,,MISSING,,
 Range,QueryTable,"property, read-only",As QueryTable,,MISSING,,
@@ -1266,7 +1266,7 @@ Worksheet,Move,method,"Move([Before As Variant], [After As Variant])",,PARTIAL,t
 Worksheet,Name,property,As String,,PARTIAL,tests/fixtures/excel_model/probes.txt,
 Worksheet,NamedSheetViews,"property, read-only",As NamedSheetViewCollection,,MISSING,,
 Worksheet,Names,"property, read-only",As Names,,PARTIAL,tests/fixtures/names_crud.json,
-Worksheet,Next,"property, read-only",As Object,,MISSING,,
+Worksheet,Next,"property, read-only",As Object,,PARTIAL,tests/fixtures/excel_model/probes.txt,"The sheet after, Nothing after the last."
 Worksheet,OLEObjects,method,OLEObjects([Index As Variant]) As Object,,MISSING,,
 Worksheet,Outline,"property, read-only",As Outline,,MISSING,,
 Worksheet,PageSetup,"property, read-only",As PageSetup,,MISSING,,
@@ -1281,7 +1281,7 @@ Worksheet,PivotTableChangeSync,event,PivotTableChangeSync(Target As PivotTable),
 Worksheet,PivotTables,method,PivotTables([Index As Variant]) As Object,,MISSING,,
 Worksheet,PivotTableUpdate,event,PivotTableUpdate(Target As PivotTable),,MISSING,,
 Worksheet,PivotTableWizard,method,"PivotTableWizard([SourceType As Variant], [SourceData As Variant], [TableDestination As Variant], [TableName As Variant], [RowGrand As Variant], [ColumnGrand As Variant], [SaveData As Variant], [HasAutoFormat As Variant], [AutoPage As Variant], [Reserved As Variant], [BackgroundQuery As Variant], [OptimizeCache As Variant], [PageFieldOrder As Variant], [PageFieldWrapCount As Variant], [ReadData As Variant], [Connection As Variant]) As PivotTable",,MISSING,,
-Worksheet,Previous,"property, read-only",As Object,,MISSING,,
+Worksheet,Previous,"property, read-only",As Object,,PARTIAL,tests/fixtures/excel_model/probes.txt,"The sheet before, Nothing before the first."
 Worksheet,PrintedCommentPages,"property, read-only",As Long,,MISSING,,
 Worksheet,PrintOut,method,"PrintOut([From As Variant], [To As Variant], [Copies As Variant], [Preview As Variant], [ActivePrinter As Variant], [PrintToFile As Variant], [Collate As Variant], [PrToFileName As Variant], [IgnorePrintAreas As Variant])",,MISSING,,
 Worksheet,PrintPreview,method,PrintPreview([EnableChanges As Variant]),,MISSING,,

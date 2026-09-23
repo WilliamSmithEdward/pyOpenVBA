@@ -893,6 +893,18 @@ class Worksheet(ExcelObject):
         return VBAInt(self.book.sheets_.index(self) + 1, "Long")
 
     @member
+    def Next(self) -> object:
+        """The sheet after this one, or Nothing after the last."""
+        index = self.book.sheets_.index(self)
+        return self.book.sheets_[index + 1] if index + 1 < len(self.book.sheets_) else NOTHING
+
+    @member
+    def Previous(self) -> object:
+        """The sheet before this one, or Nothing before the first."""
+        index = self.book.sheets_.index(self)
+        return self.book.sheets_[index - 1] if index > 0 else NOTHING
+
+    @member
     def Visible(self) -> object:
         return VBAInt(self.visible, "Long")
 
@@ -1601,6 +1613,33 @@ class Range(ExcelObject):
 
         text = normalized(to_text(value))
         restyle(self, lambda style: applying(style, "number_format", number_format=text))
+
+    # The Local spellings are in the language of the user's settings, which the model keeps English: the same
+    # text as the plain ones, as an English Excel has them (tests/fixtures/excel_model/probes.txt).
+
+    @member
+    def NumberFormatLocal(self) -> object:
+        return self.NumberFormat()
+
+    @setter("NumberFormatLocal")
+    def _set_number_format_local(self, value: object) -> None:
+        self._set_number_format(value)
+
+    @member
+    def FormulaLocal(self) -> object:
+        return self._read_formulas(r1c1=False)
+
+    @setter("FormulaLocal")
+    def _set_formula_local(self, value: object) -> None:
+        self._set_formula(value)
+
+    @member
+    def FormulaR1C1Local(self) -> object:
+        return self._read_formulas(r1c1=True)
+
+    @setter("FormulaR1C1Local")
+    def _set_formula_r1c1_local(self, value: object) -> None:
+        self._set_formula_r1c1(value)
         self.sheet.touched()
 
     # -- geometry
@@ -1618,10 +1657,25 @@ class Range(ExcelObject):
         columns_fixed = True if ColumnAbsolute is MISSING else to_bool(ColumnAbsolute)
         external = External is not MISSING and to_bool(External)
         book = f"[{self.sheet.book.name}]" if external else ""
-        return ",".join(
-            book + area.address(rows_fixed=rows_fixed, columns_fixed=columns_fixed, with_sheet=external)
-            for area in self.areas
-        )
+        texts = [area.address(rows_fixed=rows_fixed, columns_fixed=columns_fixed, with_sheet=external)
+                 for area in self.areas]
+        if ReferenceStyle is not MISSING and int(to_integer(ReferenceStyle, "Long")) == -4150:  # xlR1C1
+            # Relative parts count from RelativeTo, and from A1 without it, whatever is selected.
+            anchor = RelativeTo.first if isinstance(RelativeTo, Range) else Area(1, 1, 1, 1)
+            texts = [from_a1("=" + text, anchor.top, anchor.left)[1:] for text in texts]
+        return ",".join(book + text for text in texts)
+
+    @member
+    def AddressLocal(
+        self,
+        RowAbsolute: object = MISSING,
+        ColumnAbsolute: object = MISSING,
+        ReferenceStyle: object = MISSING,
+        External: object = MISSING,
+        RelativeTo: object = MISSING,
+    ) -> object:
+        """Address in the language of the user's settings, which the model keeps English: the same text."""
+        return self.Address(RowAbsolute, ColumnAbsolute, ReferenceStyle, External, RelativeTo)
 
     @member
     def Row(self) -> object:
@@ -1633,8 +1687,57 @@ class Range(ExcelObject):
 
     @member
     def Count(self) -> object:
-        total = sum(area.rows * area.columns for area in self.areas)
+        """The rows of whole rows, the columns of whole columns, else the cells: Rows.Count is 1048576.
+
+        A count past a Long is error 6, as Cells.Count is.
+        """
+        total = self._count()
+        if total > 2147483647:
+            raise error(6, "Overflow")
         return VBAInt(total, "Long")
+
+    @member
+    def CountLarge(self) -> object:
+        """Count as a LongLong, which holds a whole sheet: Cells.CountLarge is 17179869184."""
+        return VBAInt(self._count(), "LongLong")
+
+    def _count(self) -> int:
+        if self.whole == "rows":
+            return sum(area.rows for area in self.areas)
+        if self.whole == "columns":
+            return sum(area.columns for area in self.areas)
+        return sum(area.rows * area.columns for area in self.areas)
+
+    @member
+    def Next(self) -> object:
+        """The cell right of the range's top-left one; past the last column, error 1004."""
+        return self._beside(1)
+
+    @member
+    def Previous(self) -> object:
+        """The cell left of the range's top-left one; before column A, error 1004."""
+        return self._beside(-1)
+
+    def _beside(self, step: int) -> Range:
+        from pyopenvba.apps.excel._protection import enforced
+
+        if enforced(self.sheet) is not None:
+            raise VBAUnsupportedError("Next and Previous on a protected sheet, where they move between its unlocked "
+                                      "cells, are not implemented")
+        area = self.first
+        column = area.left + step
+        if not 1 <= column <= MAX_COLUMNS:
+            raise error(1004, "Application-defined or object-defined error")
+        return Range(self.sheet, [Area(area.top, column, area.top, column, self.sheet.name)])
+
+    @method
+    def Calculate(self) -> object:
+        """Work the range's formulas out again; Excel answers Null."""
+        calculator = self.sheet.book.calculator
+        for row, column in self.cell_positions():
+            if self.sheet.cells_[(row, column)].formula:
+                calculator.value_of(self.sheet.name, row, column, force=True)
+        return NULL
 
     @member
     def Rows(self, Index: object = MISSING) -> object:

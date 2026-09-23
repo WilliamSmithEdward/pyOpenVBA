@@ -388,14 +388,14 @@ def refuse(sheet: Worksheet, message: str, allow: str = "") -> None:
 #: Range properties a protected sheet refuses, and the Allow option that lets each through; none for those it
 #: always refuses.
 _RANGE_FORMATS: dict[str, str] = {
-    **dict.fromkeys(("NumberFormat", "HorizontalAlignment", "VerticalAlignment", "WrapText", "ShrinkToFit",
-                     "IndentLevel", "AddIndent", "Orientation", "ReadingOrder"), "AllowFormattingCells"),
+    **dict.fromkeys(("NumberFormat", "NumberFormatLocal", "HorizontalAlignment", "VerticalAlignment", "WrapText",
+                     "ShrinkToFit", "IndentLevel", "AddIndent", "Orientation", "ReadingOrder"), "AllowFormattingCells"),
     **dict.fromkeys(("Locked", "FormulaHidden", "MergeCells"), ""),
     **dict.fromkeys(("ColumnWidth", "UseStandardWidth"), "AllowFormattingColumns"),
     **dict.fromkeys(("RowHeight", "UseStandardHeight"), "AllowFormattingRows"),
 }
 #: Range properties whose writes the write gate meets, or that change no cell.
-_RANGE_FREE = frozenset({"Value", "Value2", "Formula", "FormulaR1C1", "Name"})
+_RANGE_FREE = frozenset({"Value", "Value2", "Formula", "FormulaR1C1", "FormulaLocal", "FormulaR1C1Local", "Name"})
 
 
 def check_range_set(target: Range, member: str) -> None:

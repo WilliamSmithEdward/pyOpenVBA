@@ -132,6 +132,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
   the protection as Excel does, the password as a salted SHA-512 hash
   Excel opens, and a protected sheet in a file is protected when read,
   its password checked against Excel's hash or the legacy 16-bit one.
+- `Range.CountLarge`, `Next`, `Previous`, `Calculate`, `AddressLocal`,
+  `FormulaLocal`, `FormulaR1C1Local` and `NumberFormatLocal`, and
+  `Worksheet.Next` and `Previous`. The Local spellings are the English
+  ones, as an English Excel has them; `Calculate` answers Null.
 - Workbook protection: `Workbook.Protect`, `Unprotect`,
   `ProtectStructure` and `ProtectWindows`. A protected structure refuses
   adding, deleting, renaming, moving, copying and hiding sheets with
@@ -511,6 +515,14 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- `Rows.Count` is 1048576 and `Columns.Count` 16384: Count counts the
+  rows of whole rows and the columns of whole columns, as Excel does,
+  `EntireRow` and `EntireColumn` included. The model counted their cells,
+  so `Cells(Rows.Count, 1).End(xlUp)` failed. `Cells.Count` is error 6,
+  as in Excel.
+- `Range.Address` writes R1C1 style when asked, a relative part counted
+  from RelativeTo, or from A1 without it. The model ignored
+  ReferenceStyle and wrote A1 style.
 - A constant is a Long, as VBA holds an enum's member however small:
   `TypeName(xlUp)` and `TypeName(vbOK)` are `Long`. Only the key codes
   are declared Integer. The model made every constant that fits an

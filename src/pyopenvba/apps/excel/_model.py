@@ -1639,7 +1639,73 @@ class Range(ExcelObject):
     def FormulaR1C1(self) -> object:
         return self._read_formulas(r1c1=True)
 
-    def _read_formulas(self, *, r1c1: bool) -> object:
+    @member
+    def Formula2(self) -> object:
+        return self._read_formulas(r1c1=False, at=True)
+
+    @member
+    def Formula2R1C1(self) -> object:
+        return self._read_formulas(r1c1=True, at=True)
+
+    @setter("Formula2")
+    def _set_formula2(self, value: object) -> None:
+        self._set_formula(self._legacy(value, r1c1=False))
+
+    @setter("Formula2R1C1")
+    def _set_formula2_r1c1(self, value: object) -> None:
+        self._set_formula(self._legacy(value, r1c1=True))
+
+    def _legacy(self, value: object, *, r1c1: bool) -> object:
+        """A formula Formula2 writes, as Formula would write it: with its @ taken out, where the formula Formula
+        writes reads back through Formula2 as written (tests/fixtures/implicit_intersection.json). Any other is a
+        dynamic-array formula, not implemented yet; a value is written as Formula writes one."""
+        from pyopenvba.formula._formula2 import UnreadFormula2Error, formula2, legacy
+        from pyopenvba.formula._parse import FormulaError
+
+        if isinstance(value, VBAObject):
+            value = value.vba_value()
+        if isinstance(value, VBAArray):
+            raise VBAUnsupportedError("Range.Formula2 given an array is not implemented")
+        if not isinstance(value, str) or not _is_formula(value):
+            return value
+        anchor = self.first
+        text = value
+        if r1c1:
+            try:
+                text = to_a1(value, anchor.top, anchor.left)
+            except ValueError as exc:
+                raise error(1004, str(exc)) from None
+        spelled = spelled_formula(self.sheet, text, anchor.top, anchor.left, at=True)
+        written = ""
+        try:
+            written = legacy(spelled)
+            same = formula2(written, self._named) == spelled
+        except (FormulaError, UnreadFormula2Error):
+            same = False
+        if not same:
+            raise VBAUnsupportedError(f"a dynamic-array formula, one Formula2 reads without the @ Formula would add, "
+                                      f"is not implemented: {value}")
+        return written
+
+    def _named(self, name: str) -> str | None:
+        """A defined name's formula as this sheet finds the name, or None where it finds none."""
+        found = self.sheet.book.names_.find(name, scope=self.sheet)
+        return None if found is None else found.entry.refers_to
+
+    def _formula2(self, formula: str, *, whole: bool) -> str:
+        """A formula as Formula2 reads it: with an @ where it cuts cells to one value, none in an array formula's
+        top, which is worked out whole."""
+        from pyopenvba.formula._formula2 import UnreadFormula2Error, formula2
+        from pyopenvba.formula._parse import FormulaError
+
+        try:
+            return formula2(formula, self._named, whole=whole)
+        except UnreadFormula2Error as exc:
+            raise VBAUnsupportedError(str(exc)) from None
+        except FormulaError:
+            raise VBAUnsupportedError(f"Formula2 of {formula} is not implemented") from None
+
+    def _read_formulas(self, *, r1c1: bool, at: bool = False) -> object:
         def read(row: int, column: int) -> object:
             found = _arrays.array_at(self.sheet, row, column) if self.sheet.array_formulas else None
             if found is not None:
@@ -1650,6 +1716,8 @@ class Range(ExcelObject):
                 return ""
             if cell.formula:
                 text = shown_formula(self.sheet, row, column, cell.formula)
+                if at:
+                    text = self._formula2(text, whole=found is not None)
                 return from_a1(text, row, column) if r1c1 else text
             return _formula_text(cell.value)
 
@@ -3664,14 +3732,16 @@ def shown_formula(sheet: Worksheet, row: int, column: int, formula: str) -> str:
     return formula if table is None else shown(formula, table.name)
 
 
-def spelled_formula(sheet: Worksheet, formula: str, row: int = 0, column: int = 0, *, whole: bool = False) -> str:
+def spelled_formula(sheet: Worksheet, formula: str, row: int = 0, column: int = 0, *, whole: bool = False,
+                    at: bool = False) -> str:
     """A formula a macro writes to ``sheet``, at the cell in ``row`` and ``column`` where it has one, as Excel
-    spells it back; error 1004 where Excel refuses it. ``whole`` for an array formula."""
+    spells it back; error 1004 where Excel refuses it. ``whole`` for an array formula, ``at`` for one written
+    through Formula2, which may hold an @."""
     from pyopenvba.formula._parse import FormulaError
     from pyopenvba.formula._spell import UnmodelledFormulaError, spelled
 
     try:
-        return spelled(formula, _BookNames(sheet, row, column), whole=whole)
+        return spelled(formula, _BookNames(sheet, row, column), whole=whole, at=at)
     except UnmodelledFormulaError as exc:
         raise VBAUnsupportedError(str(exc)) from None
     except FormulaError:

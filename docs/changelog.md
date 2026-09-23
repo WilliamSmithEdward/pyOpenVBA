@@ -534,6 +534,14 @@ All notable changes to pyOpenVBA are documented here. This project follows
   native Excel cases cover resolution and selection behavior; live
   save/reopen gates verify workbook and worksheet-local bindings.
   Newly created local names serialize with Excel's worksheet scope.
+- `Range.Formula2` and `Formula2R1C1`. A formula written through
+  `Range.Formula` reads back with an @ wherever it cuts cells to one
+  value, as Excel's does: `=@A1:A3`, `=SUM(@A1:A3*2)`, `=@INDEX(A1:A3,0)`,
+  and none on `=SUM(A1:A3)`. The rule was measured in live Excel for each
+  of its functions with each argument a cell, a range and an operation on
+  a range, and on 150 formulas more, 2100 in all. A formula written
+  through Formula2 that Formula would write the same, the @ aside, is
+  written so; a dynamic-array formula, which spills, reports itself.
 - A Forms control's link or list can be any formula that lands on cells,
   worked out by the cell engine as Excel works a name's formula out: the
   range operator, an intersection, brackets, LET, XLOOKUP, IFS, SWITCH.

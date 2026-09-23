@@ -1,0 +1,8982 @@
+{
+ "setup": "ws.Name = \"Data\"\nws.Range(\"A1:A3\").Value = Application.Transpose(Array(1, 2, 3))\nws.Range(\"B1\").Value = 5\nws.Range(\"E1\").Formula2 = \"=SEQUENCE(3)\"\nActiveWorkbook.Names.Add \"Cells3\", \"=Data!$A$1:$A$3\"\nActiveWorkbook.Names.Add \"One\", \"=Data!$B$1\"\nActiveWorkbook.Names.Add \"Const\", \"=5\"\nActiveWorkbook.Names.Add \"Arr\", \"={1,2,3}\"\nActiveWorkbook.Names.Add \"Calc\", \"=Data!$A$1:$A$3*2\"\nActiveWorkbook.Names.Add \"Twice\", \"=LAMBDA(x,x*2)\"\n",
+ "functions": {
+  "ABS": {
+   "cell": [
+    "=ABS(A1)",
+    "=ABS(A1)"
+   ],
+   "range": [
+    "=ABS(A1:A2)",
+    "=ABS(@A1:A2)"
+   ],
+   "worked": [
+    "=ABS(A1:A2*1)",
+    "=ABS(@A1:A2*1)"
+   ]
+  },
+  "ACCRINT": {
+   "cell": [
+    "=ACCRINT(A1,A1,A1,A1,A1,A1)",
+    "=ACCRINT(A1,A1,A1,A1,A1,A1)"
+   ],
+   "range": [
+    "=ACCRINT(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=ACCRINT(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=ACCRINT(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=ACCRINT(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=ACCRINT(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=ACCRINT(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=ACCRINT(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=ACCRINT(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "ACCRINTM": {
+   "cell": [
+    "=ACCRINTM(A1,A1,A1,A1)",
+    "=ACCRINTM(A1,A1,A1,A1)"
+   ],
+   "range": [
+    "=ACCRINTM(A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=ACCRINTM(A1:A2,A1:A2,A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=ACCRINTM(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=ACCRINTM(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=ACCRINTM(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=ACCRINTM(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=ACCRINTM(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=ACCRINTM(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "ACOS": {
+   "cell": [
+    "=ACOS(A1)",
+    "=ACOS(A1)"
+   ],
+   "range": [
+    "=ACOS(A1:A2)",
+    "=ACOS(@A1:A2)"
+   ],
+   "worked": [
+    "=ACOS(A1:A2*1)",
+    "=ACOS(@A1:A2*1)"
+   ]
+  },
+  "ACOSH": {
+   "cell": [
+    "=ACOSH(A1)",
+    "=ACOSH(A1)"
+   ],
+   "range": [
+    "=ACOSH(A1:A2)",
+    "=ACOSH(@A1:A2)"
+   ],
+   "worked": [
+    "=ACOSH(A1:A2*1)",
+    "=ACOSH(@A1:A2*1)"
+   ]
+  },
+  "ACOT": {
+   "cell": [
+    "=ACOT(A1)",
+    "=ACOT(A1)"
+   ],
+   "range": [
+    "=ACOT(A1:A2)",
+    "=ACOT(@A1:A2)"
+   ],
+   "worked": [
+    "=ACOT(A1:A2*1)",
+    "=ACOT(@A1:A2*1)"
+   ]
+  },
+  "ACOTH": {
+   "cell": [
+    "=ACOTH(A1)",
+    "=ACOTH(A1)"
+   ],
+   "range": [
+    "=ACOTH(A1:A2)",
+    "=ACOTH(@A1:A2)"
+   ],
+   "worked": [
+    "=ACOTH(A1:A2*1)",
+    "=ACOTH(@A1:A2*1)"
+   ]
+  },
+  "ADDRESS": {
+   "cell": [
+    "=ADDRESS(A1,A1)",
+    "=ADDRESS(A1,A1)"
+   ],
+   "range": [
+    "=ADDRESS(A1:A2,A1:A2)",
+    "=ADDRESS(@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=ADDRESS(A1:A2*1,A1:A2*1)",
+    "=ADDRESS(@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=ADDRESS(A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=ADDRESS(@A1:A2,@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=ADDRESS(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=ADDRESS(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "AGGREGATE": {
+   "cell": [
+    "=AGGREGATE(A1,A1,A1)",
+    "=AGGREGATE(A1,A1,A1)"
+   ],
+   "range": [
+    "=AGGREGATE(A1:A2,A1:A2,A1:A2)",
+    "=AGGREGATE(@A1:A2,@A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=AGGREGATE(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=AGGREGATE(@A1:A2*1,@A1:A2*1,A1:A2*1)"
+   ],
+   "wide": [
+    "=AGGREGATE(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=AGGREGATE(@A1:A2,@A1:A2,A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=AGGREGATE(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "!1004"
+   ]
+  },
+  "AMORDEGRC": {
+   "cell": [
+    "=AMORDEGRC(A1,A1,A1,A1,A1,A1)",
+    "=AMORDEGRC(A1,A1,A1,A1,A1,A1)"
+   ],
+   "range": [
+    "=AMORDEGRC(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=AMORDEGRC(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=AMORDEGRC(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=AMORDEGRC(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=AMORDEGRC(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=AMORDEGRC(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=AMORDEGRC(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=AMORDEGRC(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "AMORLINC": {
+   "cell": [
+    "=AMORLINC(A1,A1,A1,A1,A1,A1)",
+    "=AMORLINC(A1,A1,A1,A1,A1,A1)"
+   ],
+   "range": [
+    "=AMORLINC(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=AMORLINC(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=AMORLINC(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=AMORLINC(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=AMORLINC(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=AMORLINC(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=AMORLINC(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=AMORLINC(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "AND": {
+   "cell": [
+    "=AND(A1)",
+    "=AND(A1)"
+   ],
+   "range": [
+    "=AND(A1:A2)",
+    "=AND(A1:A2)"
+   ],
+   "worked": [
+    "=AND(A1:A2*1)",
+    "=AND(@A1:A2*1)"
+   ],
+   "wide": [
+    "=AND(A1:A2,A1:A2,A1:A2)",
+    "=AND(A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=AND(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=AND(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "ARABIC": {
+   "cell": [
+    "=ARABIC(A1)",
+    "=ARABIC(A1)"
+   ],
+   "range": [
+    "=ARABIC(A1:A2)",
+    "=ARABIC(@A1:A2)"
+   ],
+   "worked": [
+    "=ARABIC(A1:A2*1)",
+    "=ARABIC(@A1:A2*1)"
+   ]
+  },
+  "AREAS": {
+   "cell": [
+    "=AREAS(A1)",
+    "=AREAS(A1)"
+   ],
+   "range": [
+    "=AREAS(A1:A2)",
+    "=AREAS(A1:A2)"
+   ],
+   "worked": [
+    "=AREAS(A1:A2*1)",
+    "!1004"
+   ]
+  },
+  "ARRAYTOTEXT": {
+   "cell": [
+    "=ARRAYTOTEXT(A1)",
+    "=ARRAYTOTEXT(A1)"
+   ],
+   "range": [
+    "=ARRAYTOTEXT(A1:A2)",
+    "=ARRAYTOTEXT(A1:A2)"
+   ],
+   "worked": [
+    "=ARRAYTOTEXT(A1:A2*1)",
+    "=ARRAYTOTEXT(A1:A2*1)"
+   ],
+   "wide": [
+    "=ARRAYTOTEXT(A1:A2,A1:A2)",
+    "=ARRAYTOTEXT(A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=ARRAYTOTEXT(A1:A2*1,A1:A2*1)",
+    "=ARRAYTOTEXT(A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "ASC": {
+   "cell": [
+    "=ASC(A1)",
+    "=ASC(A1)"
+   ],
+   "range": [
+    "=ASC(A1:A2)",
+    "=ASC(@A1:A2)"
+   ],
+   "worked": [
+    "=ASC(A1:A2*1)",
+    "=ASC(@A1:A2*1)"
+   ]
+  },
+  "ASIN": {
+   "cell": [
+    "=ASIN(A1)",
+    "=ASIN(A1)"
+   ],
+   "range": [
+    "=ASIN(A1:A2)",
+    "=ASIN(@A1:A2)"
+   ],
+   "worked": [
+    "=ASIN(A1:A2*1)",
+    "=ASIN(@A1:A2*1)"
+   ]
+  },
+  "ASINH": {
+   "cell": [
+    "=ASINH(A1)",
+    "=ASINH(A1)"
+   ],
+   "range": [
+    "=ASINH(A1:A2)",
+    "=ASINH(@A1:A2)"
+   ],
+   "worked": [
+    "=ASINH(A1:A2*1)",
+    "=ASINH(@A1:A2*1)"
+   ]
+  },
+  "ATAN": {
+   "cell": [
+    "=ATAN(A1)",
+    "=ATAN(A1)"
+   ],
+   "range": [
+    "=ATAN(A1:A2)",
+    "=ATAN(@A1:A2)"
+   ],
+   "worked": [
+    "=ATAN(A1:A2*1)",
+    "=ATAN(@A1:A2*1)"
+   ]
+  },
+  "ATAN2": {
+   "cell": [
+    "=ATAN2(A1,A1)",
+    "=ATAN2(A1,A1)"
+   ],
+   "range": [
+    "=ATAN2(A1:A2,A1:A2)",
+    "=ATAN2(@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=ATAN2(A1:A2*1,A1:A2*1)",
+    "=ATAN2(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "ATANH": {
+   "cell": [
+    "=ATANH(A1)",
+    "=ATANH(A1)"
+   ],
+   "range": [
+    "=ATANH(A1:A2)",
+    "=ATANH(@A1:A2)"
+   ],
+   "worked": [
+    "=ATANH(A1:A2*1)",
+    "=ATANH(@A1:A2*1)"
+   ]
+  },
+  "AVEDEV": {
+   "cell": [
+    "=AVEDEV(A1)",
+    "=AVEDEV(A1)"
+   ],
+   "range": [
+    "=AVEDEV(A1:A2)",
+    "=AVEDEV(A1:A2)"
+   ],
+   "worked": [
+    "=AVEDEV(A1:A2*1)",
+    "=AVEDEV(@A1:A2*1)"
+   ],
+   "wide": [
+    "=AVEDEV(A1:A2,A1:A2,A1:A2)",
+    "=AVEDEV(A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=AVEDEV(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=AVEDEV(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "AVERAGE": {
+   "cell": [
+    "=AVERAGE(A1)",
+    "=AVERAGE(A1)"
+   ],
+   "range": [
+    "=AVERAGE(A1:A2)",
+    "=AVERAGE(A1:A2)"
+   ],
+   "worked": [
+    "=AVERAGE(A1:A2*1)",
+    "=AVERAGE(@A1:A2*1)"
+   ],
+   "wide": [
+    "=AVERAGE(A1:A2,A1:A2,A1:A2)",
+    "=AVERAGE(A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=AVERAGE(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=AVERAGE(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "AVERAGEA": {
+   "cell": [
+    "=AVERAGEA(A1)",
+    "=AVERAGEA(A1)"
+   ],
+   "range": [
+    "=AVERAGEA(A1:A2)",
+    "=AVERAGEA(A1:A2)"
+   ],
+   "worked": [
+    "=AVERAGEA(A1:A2*1)",
+    "=AVERAGEA(@A1:A2*1)"
+   ],
+   "wide": [
+    "=AVERAGEA(A1:A2,A1:A2,A1:A2)",
+    "=AVERAGEA(A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=AVERAGEA(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=AVERAGEA(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "AVERAGEIF": {
+   "cell": [
+    "=AVERAGEIF(A1,A1)",
+    "=AVERAGEIF(A1,A1)"
+   ],
+   "range": [
+    "=AVERAGEIF(A1:A2,A1:A2)",
+    "=AVERAGEIF(A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=AVERAGEIF(A1:A2*1,A1:A2*1)",
+    "!1004"
+   ],
+   "wide": [
+    "=AVERAGEIF(A1:A2,A1:A2,A1:A2)",
+    "=AVERAGEIF(A1:A2,@A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=AVERAGEIF(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "!1004"
+   ]
+  },
+  "AVERAGEIFS": {
+   "cell": [
+    "=AVERAGEIFS(A1,A1,A1)",
+    "=AVERAGEIFS(A1,A1,A1)"
+   ],
+   "range": [
+    "=AVERAGEIFS(A1:A2,A1:A2,A1:A2)",
+    "=AVERAGEIFS(A1:A2,A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=AVERAGEIFS(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "!1004"
+   ],
+   "wide": [
+    "=AVERAGEIFS(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=AVERAGEIFS(A1:A2,A1:A2,@A1:A2,A1:A2,@A1:A2,A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=AVERAGEIFS(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "!1004"
+   ]
+  },
+  "BAHTTEXT": {
+   "cell": [
+    "=BAHTTEXT(A1)",
+    "=BAHTTEXT(A1)"
+   ],
+   "range": [
+    "=BAHTTEXT(A1:A2)",
+    "=BAHTTEXT(@A1:A2)"
+   ],
+   "worked": [
+    "=BAHTTEXT(A1:A2*1)",
+    "=BAHTTEXT(@A1:A2*1)"
+   ]
+  },
+  "BASE": {
+   "cell": [
+    "=BASE(A1,A1)",
+    "=BASE(A1,A1)"
+   ],
+   "range": [
+    "=BASE(A1:A2,A1:A2)",
+    "=BASE(@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=BASE(A1:A2*1,A1:A2*1)",
+    "=BASE(@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=BASE(A1:A2,A1:A2,A1:A2)",
+    "=BASE(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=BASE(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=BASE(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "BESSELI": {
+   "cell": [
+    "=BESSELI(A1,A1)",
+    "=BESSELI(A1,A1)"
+   ],
+   "range": [
+    "=BESSELI(A1:A2,A1:A2)",
+    "=BESSELI(A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=BESSELI(A1:A2*1,A1:A2*1)",
+    "=BESSELI(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "BESSELJ": {
+   "cell": [
+    "=BESSELJ(A1,A1)",
+    "=BESSELJ(A1,A1)"
+   ],
+   "range": [
+    "=BESSELJ(A1:A2,A1:A2)",
+    "=BESSELJ(A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=BESSELJ(A1:A2*1,A1:A2*1)",
+    "=BESSELJ(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "BESSELK": {
+   "cell": [
+    "=BESSELK(A1,A1)",
+    "=BESSELK(A1,A1)"
+   ],
+   "range": [
+    "=BESSELK(A1:A2,A1:A2)",
+    "=BESSELK(A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=BESSELK(A1:A2*1,A1:A2*1)",
+    "=BESSELK(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "BESSELY": {
+   "cell": [
+    "=BESSELY(A1,A1)",
+    "=BESSELY(A1,A1)"
+   ],
+   "range": [
+    "=BESSELY(A1:A2,A1:A2)",
+    "=BESSELY(A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=BESSELY(A1:A2*1,A1:A2*1)",
+    "=BESSELY(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "BETA.DIST": {
+   "cell": [
+    "=BETA.DIST(A1,A1,A1,A1)",
+    "=BETA.DIST(A1,A1,A1,A1)"
+   ],
+   "range": [
+    "=BETA.DIST(A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=BETA.DIST(@A1:A2,@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=BETA.DIST(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=BETA.DIST(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=BETA.DIST(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=BETA.DIST(@A1:A2,@A1:A2,@A1:A2,@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=BETA.DIST(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=BETA.DIST(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "BETA.INV": {
+   "cell": [
+    "=BETA.INV(A1,A1,A1)",
+    "=BETA.INV(A1,A1,A1)"
+   ],
+   "range": [
+    "=BETA.INV(A1:A2,A1:A2,A1:A2)",
+    "=BETA.INV(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=BETA.INV(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=BETA.INV(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=BETA.INV(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=BETA.INV(@A1:A2,@A1:A2,@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=BETA.INV(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=BETA.INV(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "BETADIST": {
+   "cell": [
+    "=BETADIST(A1,A1,A1)",
+    "=BETADIST(A1,A1,A1)"
+   ],
+   "range": [
+    "=BETADIST(A1:A2,A1:A2,A1:A2)",
+    "=BETADIST(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=BETADIST(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=BETADIST(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=BETADIST(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=BETADIST(@A1:A2,@A1:A2,@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=BETADIST(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=BETADIST(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "BETAINV": {
+   "cell": [
+    "=BETAINV(A1,A1,A1)",
+    "=BETAINV(A1,A1,A1)"
+   ],
+   "range": [
+    "=BETAINV(A1:A2,A1:A2,A1:A2)",
+    "=BETAINV(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=BETAINV(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=BETAINV(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=BETAINV(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=BETAINV(@A1:A2,@A1:A2,@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=BETAINV(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=BETAINV(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "BIN2DEC": {
+   "cell": [
+    "=BIN2DEC(A1)",
+    "=BIN2DEC(A1)"
+   ],
+   "range": [
+    "=BIN2DEC(A1:A2)",
+    "=BIN2DEC(A1:A2)"
+   ],
+   "worked": [
+    "=BIN2DEC(A1:A2*1)",
+    "=BIN2DEC(@A1:A2*1)"
+   ]
+  },
+  "BIN2HEX": {
+   "cell": [
+    "=BIN2HEX(A1)",
+    "=BIN2HEX(A1)"
+   ],
+   "range": [
+    "=BIN2HEX(A1:A2)",
+    "=BIN2HEX(A1:A2)"
+   ],
+   "worked": [
+    "=BIN2HEX(A1:A2*1)",
+    "=BIN2HEX(@A1:A2*1)"
+   ],
+   "wide": [
+    "=BIN2HEX(A1:A2,A1:A2)",
+    "=BIN2HEX(A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=BIN2HEX(A1:A2*1,A1:A2*1)",
+    "=BIN2HEX(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "BIN2OCT": {
+   "cell": [
+    "=BIN2OCT(A1)",
+    "=BIN2OCT(A1)"
+   ],
+   "range": [
+    "=BIN2OCT(A1:A2)",
+    "=BIN2OCT(A1:A2)"
+   ],
+   "worked": [
+    "=BIN2OCT(A1:A2*1)",
+    "=BIN2OCT(@A1:A2*1)"
+   ],
+   "wide": [
+    "=BIN2OCT(A1:A2,A1:A2)",
+    "=BIN2OCT(A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=BIN2OCT(A1:A2*1,A1:A2*1)",
+    "=BIN2OCT(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "BINOM.DIST": {
+   "cell": [
+    "=BINOM.DIST(A1,A1,A1,A1)",
+    "=BINOM.DIST(A1,A1,A1,A1)"
+   ],
+   "range": [
+    "=BINOM.DIST(A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=BINOM.DIST(@A1:A2,@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=BINOM.DIST(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=BINOM.DIST(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "BINOM.DIST.RANGE": {
+   "cell": [
+    "=BINOM.DIST.RANGE(A1,A1,A1)",
+    "=BINOM.DIST.RANGE(A1,A1,A1)"
+   ],
+   "range": [
+    "=BINOM.DIST.RANGE(A1:A2,A1:A2,A1:A2)",
+    "=BINOM.DIST.RANGE(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=BINOM.DIST.RANGE(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=BINOM.DIST.RANGE(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=BINOM.DIST.RANGE(A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=BINOM.DIST.RANGE(@A1:A2,@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=BINOM.DIST.RANGE(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=BINOM.DIST.RANGE(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "BINOM.INV": {
+   "cell": [
+    "=BINOM.INV(A1,A1,A1)",
+    "=BINOM.INV(A1,A1,A1)"
+   ],
+   "range": [
+    "=BINOM.INV(A1:A2,A1:A2,A1:A2)",
+    "=BINOM.INV(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=BINOM.INV(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=BINOM.INV(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "BINOMDIST": {
+   "cell": [
+    "=BINOMDIST(A1,A1,A1,A1)",
+    "=BINOMDIST(A1,A1,A1,A1)"
+   ],
+   "range": [
+    "=BINOMDIST(A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=BINOMDIST(@A1:A2,@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=BINOMDIST(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=BINOMDIST(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "BITAND": {
+   "cell": [
+    "=BITAND(A1,A1)",
+    "=BITAND(A1,A1)"
+   ],
+   "range": [
+    "=BITAND(A1:A2,A1:A2)",
+    "=BITAND(@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=BITAND(A1:A2*1,A1:A2*1)",
+    "=BITAND(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "BITLSHIFT": {
+   "cell": [
+    "=BITLSHIFT(A1,A1)",
+    "=BITLSHIFT(A1,A1)"
+   ],
+   "range": [
+    "=BITLSHIFT(A1:A2,A1:A2)",
+    "=BITLSHIFT(@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=BITLSHIFT(A1:A2*1,A1:A2*1)",
+    "=BITLSHIFT(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "BITOR": {
+   "cell": [
+    "=BITOR(A1,A1)",
+    "=BITOR(A1,A1)"
+   ],
+   "range": [
+    "=BITOR(A1:A2,A1:A2)",
+    "=BITOR(@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=BITOR(A1:A2*1,A1:A2*1)",
+    "=BITOR(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "BITRSHIFT": {
+   "cell": [
+    "=BITRSHIFT(A1,A1)",
+    "=BITRSHIFT(A1,A1)"
+   ],
+   "range": [
+    "=BITRSHIFT(A1:A2,A1:A2)",
+    "=BITRSHIFT(@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=BITRSHIFT(A1:A2*1,A1:A2*1)",
+    "=BITRSHIFT(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "BITXOR": {
+   "cell": [
+    "=BITXOR(A1,A1)",
+    "=BITXOR(A1,A1)"
+   ],
+   "range": [
+    "=BITXOR(A1:A2,A1:A2)",
+    "=BITXOR(@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=BITXOR(A1:A2*1,A1:A2*1)",
+    "=BITXOR(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "BYCOL": {
+   "cell": [
+    "=BYCOL(A1,A1)",
+    "=@BYCOL(A1,A1)"
+   ],
+   "range": [
+    "=BYCOL(A1:A2,A1:A2)",
+    "=@BYCOL(A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=BYCOL(A1:A2*1,A1:A2*1)",
+    "=@BYCOL(A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "BYROW": {
+   "cell": [
+    "=BYROW(A1,A1)",
+    "=@BYROW(A1,A1)"
+   ],
+   "range": [
+    "=BYROW(A1:A2,A1:A2)",
+    "=@BYROW(A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=BYROW(A1:A2*1,A1:A2*1)",
+    "=@BYROW(A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "CEILING": {
+   "cell": [
+    "=CEILING(A1,A1)",
+    "=CEILING(A1,A1)"
+   ],
+   "range": [
+    "=CEILING(A1:A2,A1:A2)",
+    "=CEILING(@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=CEILING(A1:A2*1,A1:A2*1)",
+    "=CEILING(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "CEILING.MATH": {
+   "cell": [
+    "=CEILING.MATH(A1)",
+    "=CEILING.MATH(A1)"
+   ],
+   "range": [
+    "=CEILING.MATH(A1:A2)",
+    "=CEILING.MATH(@A1:A2)"
+   ],
+   "worked": [
+    "=CEILING.MATH(A1:A2*1)",
+    "=CEILING.MATH(@A1:A2*1)"
+   ],
+   "wide": [
+    "=CEILING.MATH(A1:A2,A1:A2,A1:A2)",
+    "=CEILING.MATH(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=CEILING.MATH(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=CEILING.MATH(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "CEILING.PRECISE": {
+   "cell": [
+    "=CEILING.PRECISE(A1)",
+    "=CEILING.PRECISE(A1)"
+   ],
+   "range": [
+    "=CEILING.PRECISE(A1:A2)",
+    "=CEILING.PRECISE(@A1:A2)"
+   ],
+   "worked": [
+    "=CEILING.PRECISE(A1:A2*1)",
+    "=CEILING.PRECISE(@A1:A2*1)"
+   ],
+   "wide": [
+    "=CEILING.PRECISE(A1:A2,A1:A2)",
+    "=CEILING.PRECISE(@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=CEILING.PRECISE(A1:A2*1,A1:A2*1)",
+    "=CEILING.PRECISE(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "CELL": {
+   "cell": [
+    "=CELL(A1)",
+    "=@CELL(A1)"
+   ],
+   "range": [
+    "=CELL(A1:A2)",
+    "=@CELL(@A1:A2)"
+   ],
+   "worked": [
+    "=CELL(A1:A2*1)",
+    "=@CELL(@A1:A2*1)"
+   ],
+   "wide": [
+    "=CELL(A1:A2,A1:A2)",
+    "=@CELL(@A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=CELL(A1:A2*1,A1:A2*1)",
+    "!1004"
+   ]
+  },
+  "CHAR": {
+   "cell": [
+    "=CHAR(A1)",
+    "=CHAR(A1)"
+   ],
+   "range": [
+    "=CHAR(A1:A2)",
+    "=CHAR(@A1:A2)"
+   ],
+   "worked": [
+    "=CHAR(A1:A2*1)",
+    "=CHAR(@A1:A2*1)"
+   ]
+  },
+  "CHIDIST": {
+   "cell": [
+    "=CHIDIST(A1,A1)",
+    "=CHIDIST(A1,A1)"
+   ],
+   "range": [
+    "=CHIDIST(A1:A2,A1:A2)",
+    "=CHIDIST(@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=CHIDIST(A1:A2*1,A1:A2*1)",
+    "=CHIDIST(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "CHIINV": {
+   "cell": [
+    "=CHIINV(A1,A1)",
+    "=CHIINV(A1,A1)"
+   ],
+   "range": [
+    "=CHIINV(A1:A2,A1:A2)",
+    "=CHIINV(@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=CHIINV(A1:A2*1,A1:A2*1)",
+    "=CHIINV(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "CHISQ.DIST": {
+   "cell": [
+    "=CHISQ.DIST(A1,A1,A1)",
+    "=CHISQ.DIST(A1,A1,A1)"
+   ],
+   "range": [
+    "=CHISQ.DIST(A1:A2,A1:A2,A1:A2)",
+    "=CHISQ.DIST(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=CHISQ.DIST(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=CHISQ.DIST(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "CHISQ.DIST.RT": {
+   "cell": [
+    "=CHISQ.DIST.RT(A1,A1)",
+    "=CHISQ.DIST.RT(A1,A1)"
+   ],
+   "range": [
+    "=CHISQ.DIST.RT(A1:A2,A1:A2)",
+    "=CHISQ.DIST.RT(@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=CHISQ.DIST.RT(A1:A2*1,A1:A2*1)",
+    "=CHISQ.DIST.RT(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "CHISQ.INV": {
+   "cell": [
+    "=CHISQ.INV(A1,A1)",
+    "=CHISQ.INV(A1,A1)"
+   ],
+   "range": [
+    "=CHISQ.INV(A1:A2,A1:A2)",
+    "=CHISQ.INV(@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=CHISQ.INV(A1:A2*1,A1:A2*1)",
+    "=CHISQ.INV(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "CHISQ.INV.RT": {
+   "cell": [
+    "=CHISQ.INV.RT(A1,A1)",
+    "=CHISQ.INV.RT(A1,A1)"
+   ],
+   "range": [
+    "=CHISQ.INV.RT(A1:A2,A1:A2)",
+    "=CHISQ.INV.RT(@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=CHISQ.INV.RT(A1:A2*1,A1:A2*1)",
+    "=CHISQ.INV.RT(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "CHISQ.TEST": {
+   "cell": [
+    "=CHISQ.TEST(A1,A1)",
+    "=CHISQ.TEST(A1,A1)"
+   ],
+   "range": [
+    "=CHISQ.TEST(A1:A2,A1:A2)",
+    "=CHISQ.TEST(A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=CHISQ.TEST(A1:A2*1,A1:A2*1)",
+    "=CHISQ.TEST(A1:A2*1,A1:A2*1)"
+   ]
+  },
+  "CHITEST": {
+   "cell": [
+    "=CHITEST(A1,A1)",
+    "=CHITEST(A1,A1)"
+   ],
+   "range": [
+    "=CHITEST(A1:A2,A1:A2)",
+    "=CHITEST(A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=CHITEST(A1:A2*1,A1:A2*1)",
+    "=CHITEST(A1:A2*1,A1:A2*1)"
+   ]
+  },
+  "CHOOSE": {
+   "cell": [
+    "=CHOOSE(A1,A1)",
+    "=CHOOSE(A1,A1)"
+   ],
+   "range": [
+    "=CHOOSE(A1:A2,A1:A2)",
+    "=@CHOOSE(@A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=CHOOSE(A1:A2*1,A1:A2*1)",
+    "=CHOOSE(@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=CHOOSE(A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=@CHOOSE(@A1:A2,A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=CHOOSE(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=CHOOSE(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "CHOOSECOLS": {
+   "cell": [
+    "=CHOOSECOLS(A1,A1)",
+    "=@CHOOSECOLS(A1,A1)"
+   ],
+   "range": [
+    "=CHOOSECOLS(A1:A2,A1:A2)",
+    "=@CHOOSECOLS(A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=CHOOSECOLS(A1:A2*1,A1:A2*1)",
+    "=@CHOOSECOLS(A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=CHOOSECOLS(A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=@CHOOSECOLS(A1:A2,@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=CHOOSECOLS(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=@CHOOSECOLS(A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "CHOOSEROWS": {
+   "cell": [
+    "=CHOOSEROWS(A1,A1)",
+    "=@CHOOSEROWS(A1,A1)"
+   ],
+   "range": [
+    "=CHOOSEROWS(A1:A2,A1:A2)",
+    "=@CHOOSEROWS(A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=CHOOSEROWS(A1:A2*1,A1:A2*1)",
+    "=@CHOOSEROWS(A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=CHOOSEROWS(A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=@CHOOSEROWS(A1:A2,@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=CHOOSEROWS(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=@CHOOSEROWS(A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "CLEAN": {
+   "cell": [
+    "=CLEAN(A1)",
+    "=CLEAN(A1)"
+   ],
+   "range": [
+    "=CLEAN(A1:A2)",
+    "=CLEAN(@A1:A2)"
+   ],
+   "worked": [
+    "=CLEAN(A1:A2*1)",
+    "=CLEAN(@A1:A2*1)"
+   ]
+  },
+  "CODE": {
+   "cell": [
+    "=CODE(A1)",
+    "=CODE(A1)"
+   ],
+   "range": [
+    "=CODE(A1:A2)",
+    "=CODE(@A1:A2)"
+   ],
+   "worked": [
+    "=CODE(A1:A2*1)",
+    "=CODE(@A1:A2*1)"
+   ]
+  },
+  "COLUMN": {
+   "cell": [
+    "=COLUMN()",
+    "=COLUMN()"
+   ],
+   "range": [
+    "=COLUMN()",
+    "=COLUMN()"
+   ],
+   "worked": [
+    "=COLUMN()",
+    "=COLUMN()"
+   ],
+   "wide": [
+    "=COLUMN(A1:A2)",
+    "=@COLUMN(A1:A2)"
+   ],
+   "wide_worked": [
+    "=COLUMN(A1:A2*1)",
+    "!1004"
+   ]
+  },
+  "COLUMNS": {
+   "cell": [
+    "=COLUMNS(A1)",
+    "=COLUMNS(A1)"
+   ],
+   "range": [
+    "=COLUMNS(A1:A2)",
+    "=COLUMNS(A1:A2)"
+   ],
+   "worked": [
+    "=COLUMNS(A1:A2*1)",
+    "=COLUMNS(A1:A2*1)"
+   ]
+  },
+  "COMBIN": {
+   "cell": [
+    "=COMBIN(A1,A1)",
+    "=COMBIN(A1,A1)"
+   ],
+   "range": [
+    "=COMBIN(A1:A2,A1:A2)",
+    "=COMBIN(@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=COMBIN(A1:A2*1,A1:A2*1)",
+    "=COMBIN(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "COMBINA": {
+   "cell": [
+    "=COMBINA(A1,A1)",
+    "=COMBINA(A1,A1)"
+   ],
+   "range": [
+    "=COMBINA(A1:A2,A1:A2)",
+    "=COMBINA(@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=COMBINA(A1:A2*1,A1:A2*1)",
+    "=COMBINA(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "COMPLEX": {
+   "cell": [
+    "=COMPLEX(A1,A1)",
+    "=COMPLEX(A1,A1)"
+   ],
+   "range": [
+    "=COMPLEX(A1:A2,A1:A2)",
+    "=COMPLEX(A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=COMPLEX(A1:A2*1,A1:A2*1)",
+    "=COMPLEX(@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=COMPLEX(A1:A2,A1:A2,A1:A2)",
+    "=COMPLEX(A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=COMPLEX(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=COMPLEX(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "CONCAT": {
+   "cell": [
+    "=CONCAT(A1)",
+    "=CONCAT(A1)"
+   ],
+   "range": [
+    "=CONCAT(A1:A2)",
+    "=CONCAT(A1:A2)"
+   ],
+   "worked": [
+    "=CONCAT(A1:A2*1)",
+    "=CONCAT(@A1:A2*1)"
+   ],
+   "wide": [
+    "=CONCAT(A1:A2,A1:A2,A1:A2)",
+    "=CONCAT(A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=CONCAT(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=CONCAT(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "CONCATENATE": {
+   "cell": [
+    "=CONCATENATE(A1)",
+    "=CONCATENATE(A1)"
+   ],
+   "range": [
+    "=CONCATENATE(A1:A2)",
+    "=CONCATENATE(@A1:A2)"
+   ],
+   "worked": [
+    "=CONCATENATE(A1:A2*1)",
+    "=CONCATENATE(@A1:A2*1)"
+   ],
+   "wide": [
+    "=CONCATENATE(A1:A2,A1:A2,A1:A2)",
+    "=CONCATENATE(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=CONCATENATE(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=CONCATENATE(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "CONFIDENCE": {
+   "cell": [
+    "=CONFIDENCE(A1,A1,A1)",
+    "=CONFIDENCE(A1,A1,A1)"
+   ],
+   "range": [
+    "=CONFIDENCE(A1:A2,A1:A2,A1:A2)",
+    "=CONFIDENCE(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=CONFIDENCE(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=CONFIDENCE(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "CONFIDENCE.NORM": {
+   "cell": [
+    "=CONFIDENCE.NORM(A1,A1,A1)",
+    "=CONFIDENCE.NORM(A1,A1,A1)"
+   ],
+   "range": [
+    "=CONFIDENCE.NORM(A1:A2,A1:A2,A1:A2)",
+    "=CONFIDENCE.NORM(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=CONFIDENCE.NORM(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=CONFIDENCE.NORM(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "CONFIDENCE.T": {
+   "cell": [
+    "=CONFIDENCE.T(A1,A1,A1)",
+    "=CONFIDENCE.T(A1,A1,A1)"
+   ],
+   "range": [
+    "=CONFIDENCE.T(A1:A2,A1:A2,A1:A2)",
+    "=CONFIDENCE.T(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=CONFIDENCE.T(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=CONFIDENCE.T(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "CONVERT": {
+   "cell": [
+    "=CONVERT(A1,A1,A1)",
+    "=CONVERT(A1,A1,A1)"
+   ],
+   "range": [
+    "=CONVERT(A1:A2,A1:A2,A1:A2)",
+    "=CONVERT(A1:A2,A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=CONVERT(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=CONVERT(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "CORREL": {
+   "cell": [
+    "=CORREL(A1,A1)",
+    "=CORREL(A1,A1)"
+   ],
+   "range": [
+    "=CORREL(A1:A2,A1:A2)",
+    "=CORREL(A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=CORREL(A1:A2*1,A1:A2*1)",
+    "=CORREL(A1:A2*1,A1:A2*1)"
+   ]
+  },
+  "COS": {
+   "cell": [
+    "=COS(A1)",
+    "=COS(A1)"
+   ],
+   "range": [
+    "=COS(A1:A2)",
+    "=COS(@A1:A2)"
+   ],
+   "worked": [
+    "=COS(A1:A2*1)",
+    "=COS(@A1:A2*1)"
+   ]
+  },
+  "COSH": {
+   "cell": [
+    "=COSH(A1)",
+    "=COSH(A1)"
+   ],
+   "range": [
+    "=COSH(A1:A2)",
+    "=COSH(@A1:A2)"
+   ],
+   "worked": [
+    "=COSH(A1:A2*1)",
+    "=COSH(@A1:A2*1)"
+   ]
+  },
+  "COT": {
+   "cell": [
+    "=COT(A1)",
+    "=COT(A1)"
+   ],
+   "range": [
+    "=COT(A1:A2)",
+    "=COT(@A1:A2)"
+   ],
+   "worked": [
+    "=COT(A1:A2*1)",
+    "=COT(@A1:A2*1)"
+   ]
+  },
+  "COTH": {
+   "cell": [
+    "=COTH(A1)",
+    "=COTH(A1)"
+   ],
+   "range": [
+    "=COTH(A1:A2)",
+    "=COTH(@A1:A2)"
+   ],
+   "worked": [
+    "=COTH(A1:A2*1)",
+    "=COTH(@A1:A2*1)"
+   ]
+  },
+  "COUNT": {
+   "cell": [
+    "=COUNT(A1)",
+    "=COUNT(A1)"
+   ],
+   "range": [
+    "=COUNT(A1:A2)",
+    "=COUNT(A1:A2)"
+   ],
+   "worked": [
+    "=COUNT(A1:A2*1)",
+    "=COUNT(@A1:A2*1)"
+   ],
+   "wide": [
+    "=COUNT(A1:A2,A1:A2,A1:A2)",
+    "=COUNT(A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=COUNT(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=COUNT(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "COUNTA": {
+   "cell": [
+    "=COUNTA(A1)",
+    "=COUNTA(A1)"
+   ],
+   "range": [
+    "=COUNTA(A1:A2)",
+    "=COUNTA(A1:A2)"
+   ],
+   "worked": [
+    "=COUNTA(A1:A2*1)",
+    "=COUNTA(@A1:A2*1)"
+   ],
+   "wide": [
+    "=COUNTA(A1:A2,A1:A2,A1:A2)",
+    "=COUNTA(A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=COUNTA(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=COUNTA(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "COUNTBLANK": {
+   "cell": [
+    "=COUNTBLANK(A1)",
+    "=COUNTBLANK(A1)"
+   ],
+   "range": [
+    "=COUNTBLANK(A1:A2)",
+    "=COUNTBLANK(A1:A2)"
+   ],
+   "worked": [
+    "=COUNTBLANK(A1:A2*1)",
+    "!1004"
+   ]
+  },
+  "COUNTIF": {
+   "cell": [
+    "=COUNTIF(A1,A1)",
+    "=COUNTIF(A1,A1)"
+   ],
+   "range": [
+    "=COUNTIF(A1:A2,A1:A2)",
+    "=COUNTIF(A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=COUNTIF(A1:A2*1,A1:A2*1)",
+    "!1004"
+   ]
+  },
+  "COUNTIFS": {
+   "cell": [
+    "=COUNTIFS(A1,A1)",
+    "=COUNTIFS(A1,A1)"
+   ],
+   "range": [
+    "=COUNTIFS(A1:A2,A1:A2)",
+    "=COUNTIFS(A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=COUNTIFS(A1:A2*1,A1:A2*1)",
+    "!1004"
+   ],
+   "wide": [
+    "=COUNTIFS(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=COUNTIFS(A1:A2,@A1:A2,A1:A2,@A1:A2,A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=COUNTIFS(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "!1004"
+   ]
+  },
+  "COUPDAYBS": {
+   "cell": [
+    "=COUPDAYBS(A1,A1,A1)",
+    "=COUPDAYBS(A1,A1,A1)"
+   ],
+   "range": [
+    "=COUPDAYBS(A1:A2,A1:A2,A1:A2)",
+    "=COUPDAYBS(A1:A2,A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=COUPDAYBS(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=COUPDAYBS(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=COUPDAYBS(A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=COUPDAYBS(A1:A2,A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=COUPDAYBS(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=COUPDAYBS(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "COUPDAYS": {
+   "cell": [
+    "=COUPDAYS(A1,A1,A1)",
+    "=COUPDAYS(A1,A1,A1)"
+   ],
+   "range": [
+    "=COUPDAYS(A1:A2,A1:A2,A1:A2)",
+    "=COUPDAYS(A1:A2,A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=COUPDAYS(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=COUPDAYS(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=COUPDAYS(A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=COUPDAYS(A1:A2,A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=COUPDAYS(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=COUPDAYS(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "COUPDAYSNC": {
+   "cell": [
+    "=COUPDAYSNC(A1,A1,A1)",
+    "=COUPDAYSNC(A1,A1,A1)"
+   ],
+   "range": [
+    "=COUPDAYSNC(A1:A2,A1:A2,A1:A2)",
+    "=COUPDAYSNC(A1:A2,A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=COUPDAYSNC(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=COUPDAYSNC(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=COUPDAYSNC(A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=COUPDAYSNC(A1:A2,A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=COUPDAYSNC(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=COUPDAYSNC(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "COUPNCD": {
+   "cell": [
+    "=COUPNCD(A1,A1,A1)",
+    "=COUPNCD(A1,A1,A1)"
+   ],
+   "range": [
+    "=COUPNCD(A1:A2,A1:A2,A1:A2)",
+    "=COUPNCD(A1:A2,A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=COUPNCD(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=COUPNCD(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=COUPNCD(A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=COUPNCD(A1:A2,A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=COUPNCD(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=COUPNCD(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "COUPNUM": {
+   "cell": [
+    "=COUPNUM(A1,A1,A1)",
+    "=COUPNUM(A1,A1,A1)"
+   ],
+   "range": [
+    "=COUPNUM(A1:A2,A1:A2,A1:A2)",
+    "=COUPNUM(A1:A2,A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=COUPNUM(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=COUPNUM(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=COUPNUM(A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=COUPNUM(A1:A2,A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=COUPNUM(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=COUPNUM(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "COUPPCD": {
+   "cell": [
+    "=COUPPCD(A1,A1,A1)",
+    "=COUPPCD(A1,A1,A1)"
+   ],
+   "range": [
+    "=COUPPCD(A1:A2,A1:A2,A1:A2)",
+    "=COUPPCD(A1:A2,A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=COUPPCD(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=COUPPCD(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=COUPPCD(A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=COUPPCD(A1:A2,A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=COUPPCD(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=COUPPCD(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "COVAR": {
+   "cell": [
+    "=COVAR(A1,A1)",
+    "=COVAR(A1,A1)"
+   ],
+   "range": [
+    "=COVAR(A1:A2,A1:A2)",
+    "=COVAR(A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=COVAR(A1:A2*1,A1:A2*1)",
+    "=COVAR(A1:A2*1,A1:A2*1)"
+   ]
+  },
+  "COVARIANCE.P": {
+   "cell": [
+    "=COVARIANCE.P(A1,A1)",
+    "=COVARIANCE.P(A1,A1)"
+   ],
+   "range": [
+    "=COVARIANCE.P(A1:A2,A1:A2)",
+    "=COVARIANCE.P(A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=COVARIANCE.P(A1:A2*1,A1:A2*1)",
+    "=COVARIANCE.P(A1:A2*1,A1:A2*1)"
+   ]
+  },
+  "COVARIANCE.S": {
+   "cell": [
+    "=COVARIANCE.S(A1,A1)",
+    "=COVARIANCE.S(A1,A1)"
+   ],
+   "range": [
+    "=COVARIANCE.S(A1:A2,A1:A2)",
+    "=COVARIANCE.S(A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=COVARIANCE.S(A1:A2*1,A1:A2*1)",
+    "=COVARIANCE.S(A1:A2*1,A1:A2*1)"
+   ]
+  },
+  "CRITBINOM": {
+   "cell": [
+    "=CRITBINOM(A1,A1,A1)",
+    "=CRITBINOM(A1,A1,A1)"
+   ],
+   "range": [
+    "=CRITBINOM(A1:A2,A1:A2,A1:A2)",
+    "=CRITBINOM(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=CRITBINOM(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=CRITBINOM(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "CSC": {
+   "cell": [
+    "=CSC(A1)",
+    "=CSC(A1)"
+   ],
+   "range": [
+    "=CSC(A1:A2)",
+    "=CSC(@A1:A2)"
+   ],
+   "worked": [
+    "=CSC(A1:A2*1)",
+    "=CSC(@A1:A2*1)"
+   ]
+  },
+  "CSCH": {
+   "cell": [
+    "=CSCH(A1)",
+    "=CSCH(A1)"
+   ],
+   "range": [
+    "=CSCH(A1:A2)",
+    "=CSCH(@A1:A2)"
+   ],
+   "worked": [
+    "=CSCH(A1:A2*1)",
+    "=CSCH(@A1:A2*1)"
+   ]
+  },
+  "CUBEKPIMEMBER": {
+   "cell": [
+    "=CUBEKPIMEMBER(A1,A1,A1)",
+    "=CUBEKPIMEMBER(A1,A1,A1)"
+   ],
+   "range": [
+    "=CUBEKPIMEMBER(A1:A2,A1:A2,A1:A2)",
+    "=CUBEKPIMEMBER(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=CUBEKPIMEMBER(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=CUBEKPIMEMBER(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "CUBEMEMBER": {
+   "cell": [
+    "=CUBEMEMBER(A1,A1)",
+    "=CUBEMEMBER(A1,A1)"
+   ],
+   "range": [
+    "=CUBEMEMBER(A1:A2,A1:A2)",
+    "=CUBEMEMBER(@A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=CUBEMEMBER(A1:A2*1,A1:A2*1)",
+    "=CUBEMEMBER(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "CUBEMEMBERPROPERTY": {
+   "cell": [
+    "=CUBEMEMBERPROPERTY(A1,A1,A1)",
+    "=CUBEMEMBERPROPERTY(A1,A1,A1)"
+   ],
+   "range": [
+    "=CUBEMEMBERPROPERTY(A1:A2,A1:A2,A1:A2)",
+    "=CUBEMEMBERPROPERTY(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=CUBEMEMBERPROPERTY(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=CUBEMEMBERPROPERTY(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "CUBERANKEDMEMBER": {
+   "cell": [
+    "=CUBERANKEDMEMBER(A1,A1,A1)",
+    "=CUBERANKEDMEMBER(A1,A1,A1)"
+   ],
+   "range": [
+    "=CUBERANKEDMEMBER(A1:A2,A1:A2,A1:A2)",
+    "=CUBERANKEDMEMBER(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=CUBERANKEDMEMBER(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=CUBERANKEDMEMBER(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "CUBESET": {
+   "cell": [
+    "=CUBESET(A1,A1)",
+    "=CUBESET(A1,A1)"
+   ],
+   "range": [
+    "=CUBESET(A1:A2,A1:A2)",
+    "=CUBESET(@A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=CUBESET(A1:A2*1,A1:A2*1)",
+    "=CUBESET(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "CUBESETCOUNT": {
+   "cell": [
+    "=CUBESETCOUNT(A1)",
+    "=CUBESETCOUNT(A1)"
+   ],
+   "range": [
+    "=CUBESETCOUNT(A1:A2)",
+    "=CUBESETCOUNT(@A1:A2)"
+   ],
+   "worked": [
+    "=CUBESETCOUNT(A1:A2*1)",
+    "=CUBESETCOUNT(@A1:A2*1)"
+   ]
+  },
+  "CUBEVALUE": {
+   "cell": [
+    "=CUBEVALUE(A1)",
+    "=CUBEVALUE(A1)"
+   ],
+   "range": [
+    "=CUBEVALUE(A1:A2)",
+    "=CUBEVALUE(@A1:A2)"
+   ],
+   "worked": [
+    "=CUBEVALUE(A1:A2*1)",
+    "=CUBEVALUE(@A1:A2*1)"
+   ]
+  },
+  "CUMIPMT": {
+   "cell": [
+    "=CUMIPMT(A1,A1,A1,A1,A1,A1)",
+    "=CUMIPMT(A1,A1,A1,A1,A1,A1)"
+   ],
+   "range": [
+    "=CUMIPMT(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=CUMIPMT(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=CUMIPMT(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=CUMIPMT(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "CUMPRINC": {
+   "cell": [
+    "=CUMPRINC(A1,A1,A1,A1,A1,A1)",
+    "=CUMPRINC(A1,A1,A1,A1,A1,A1)"
+   ],
+   "range": [
+    "=CUMPRINC(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=CUMPRINC(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=CUMPRINC(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=CUMPRINC(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "DATE": {
+   "cell": [
+    "=DATE(A1,A1,A1)",
+    "=DATE(A1,A1,A1)"
+   ],
+   "range": [
+    "=DATE(A1:A2,A1:A2,A1:A2)",
+    "=DATE(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=DATE(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=DATE(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "DATEDIF": {
+   "cell": [
+    "=DATEDIF(A1,A1,A1)",
+    "=DATEDIF(A1,A1,A1)"
+   ],
+   "range": [
+    "=DATEDIF(A1:A2,A1:A2,A1:A2)",
+    "=DATEDIF(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=DATEDIF(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=DATEDIF(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "DATEVALUE": {
+   "cell": [
+    "=DATEVALUE(A1)",
+    "=DATEVALUE(A1)"
+   ],
+   "range": [
+    "=DATEVALUE(A1:A2)",
+    "=DATEVALUE(@A1:A2)"
+   ],
+   "worked": [
+    "=DATEVALUE(A1:A2*1)",
+    "=DATEVALUE(@A1:A2*1)"
+   ]
+  },
+  "DAVERAGE": {
+   "cell": [
+    "=DAVERAGE(A1,A1,A1)",
+    "=DAVERAGE(A1,A1,A1)"
+   ],
+   "range": [
+    "=DAVERAGE(A1:A2,A1:A2,A1:A2)",
+    "=DAVERAGE(A1:A2,A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=DAVERAGE(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "!1004"
+   ]
+  },
+  "DAY": {
+   "cell": [
+    "=DAY(A1)",
+    "=DAY(A1)"
+   ],
+   "range": [
+    "=DAY(A1:A2)",
+    "=DAY(@A1:A2)"
+   ],
+   "worked": [
+    "=DAY(A1:A2*1)",
+    "=DAY(@A1:A2*1)"
+   ]
+  },
+  "DAYS": {
+   "cell": [
+    "=DAYS(A1,A1)",
+    "=DAYS(A1,A1)"
+   ],
+   "range": [
+    "=DAYS(A1:A2,A1:A2)",
+    "=DAYS(@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=DAYS(A1:A2*1,A1:A2*1)",
+    "=DAYS(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "DAYS360": {
+   "cell": [
+    "=DAYS360(A1,A1)",
+    "=DAYS360(A1,A1)"
+   ],
+   "range": [
+    "=DAYS360(A1:A2,A1:A2)",
+    "=DAYS360(@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=DAYS360(A1:A2*1,A1:A2*1)",
+    "=DAYS360(@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=DAYS360(A1:A2,A1:A2,A1:A2)",
+    "=DAYS360(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=DAYS360(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=DAYS360(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "DB": {
+   "cell": [
+    "=DB(A1,A1,A1,A1)",
+    "=DB(A1,A1,A1,A1)"
+   ],
+   "range": [
+    "=DB(A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=DB(@A1:A2,@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=DB(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=DB(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=DB(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=DB(@A1:A2,@A1:A2,@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=DB(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=DB(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "DBCS": {
+   "cell": [
+    "=DBCS(A1)",
+    "=DBCS(A1)"
+   ],
+   "range": [
+    "=DBCS(A1:A2)",
+    "=DBCS(@A1:A2)"
+   ],
+   "worked": [
+    "=DBCS(A1:A2*1)",
+    "=DBCS(@A1:A2*1)"
+   ]
+  },
+  "DCOUNT": {
+   "cell": [
+    "=DCOUNT(A1,A1,A1)",
+    "=DCOUNT(A1,A1,A1)"
+   ],
+   "range": [
+    "=DCOUNT(A1:A2,A1:A2,A1:A2)",
+    "=DCOUNT(A1:A2,A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=DCOUNT(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "!1004"
+   ]
+  },
+  "DCOUNTA": {
+   "cell": [
+    "=DCOUNTA(A1,A1,A1)",
+    "=DCOUNTA(A1,A1,A1)"
+   ],
+   "range": [
+    "=DCOUNTA(A1:A2,A1:A2,A1:A2)",
+    "=DCOUNTA(A1:A2,A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=DCOUNTA(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "!1004"
+   ]
+  },
+  "DDB": {
+   "cell": [
+    "=DDB(A1,A1,A1,A1)",
+    "=DDB(A1,A1,A1,A1)"
+   ],
+   "range": [
+    "=DDB(A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=DDB(@A1:A2,@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=DDB(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=DDB(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=DDB(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=DDB(@A1:A2,@A1:A2,@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=DDB(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=DDB(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "DEC2BIN": {
+   "cell": [
+    "=DEC2BIN(A1)",
+    "=DEC2BIN(A1)"
+   ],
+   "range": [
+    "=DEC2BIN(A1:A2)",
+    "=DEC2BIN(A1:A2)"
+   ],
+   "worked": [
+    "=DEC2BIN(A1:A2*1)",
+    "=DEC2BIN(@A1:A2*1)"
+   ],
+   "wide": [
+    "=DEC2BIN(A1:A2,A1:A2)",
+    "=DEC2BIN(A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=DEC2BIN(A1:A2*1,A1:A2*1)",
+    "=DEC2BIN(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "DEC2HEX": {
+   "cell": [
+    "=DEC2HEX(A1)",
+    "=DEC2HEX(A1)"
+   ],
+   "range": [
+    "=DEC2HEX(A1:A2)",
+    "=DEC2HEX(A1:A2)"
+   ],
+   "worked": [
+    "=DEC2HEX(A1:A2*1)",
+    "=DEC2HEX(@A1:A2*1)"
+   ],
+   "wide": [
+    "=DEC2HEX(A1:A2,A1:A2)",
+    "=DEC2HEX(A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=DEC2HEX(A1:A2*1,A1:A2*1)",
+    "=DEC2HEX(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "DEC2OCT": {
+   "cell": [
+    "=DEC2OCT(A1)",
+    "=DEC2OCT(A1)"
+   ],
+   "range": [
+    "=DEC2OCT(A1:A2)",
+    "=DEC2OCT(A1:A2)"
+   ],
+   "worked": [
+    "=DEC2OCT(A1:A2*1)",
+    "=DEC2OCT(@A1:A2*1)"
+   ],
+   "wide": [
+    "=DEC2OCT(A1:A2,A1:A2)",
+    "=DEC2OCT(A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=DEC2OCT(A1:A2*1,A1:A2*1)",
+    "=DEC2OCT(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "DECIMAL": {
+   "cell": [
+    "=DECIMAL(A1,A1)",
+    "=DECIMAL(A1,A1)"
+   ],
+   "range": [
+    "=DECIMAL(A1:A2,A1:A2)",
+    "=DECIMAL(@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=DECIMAL(A1:A2*1,A1:A2*1)",
+    "=DECIMAL(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "DEGREES": {
+   "cell": [
+    "=DEGREES(A1)",
+    "=DEGREES(A1)"
+   ],
+   "range": [
+    "=DEGREES(A1:A2)",
+    "=DEGREES(@A1:A2)"
+   ],
+   "worked": [
+    "=DEGREES(A1:A2*1)",
+    "=DEGREES(@A1:A2*1)"
+   ]
+  },
+  "DELTA": {
+   "cell": [
+    "=DELTA(A1)",
+    "=DELTA(A1)"
+   ],
+   "range": [
+    "=DELTA(A1:A2)",
+    "=DELTA(A1:A2)"
+   ],
+   "worked": [
+    "=DELTA(A1:A2*1)",
+    "=DELTA(@A1:A2*1)"
+   ],
+   "wide": [
+    "=DELTA(A1:A2,A1:A2)",
+    "=DELTA(A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=DELTA(A1:A2*1,A1:A2*1)",
+    "=DELTA(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "DETECTLANGUAGE": {
+   "cell": [
+    "=DETECTLANGUAGE(A1)",
+    "=DETECTLANGUAGE(A1)"
+   ],
+   "range": [
+    "=DETECTLANGUAGE(A1:A2)",
+    "=DETECTLANGUAGE(@A1:A2)"
+   ],
+   "worked": [
+    "=DETECTLANGUAGE(A1:A2*1)",
+    "=DETECTLANGUAGE(@A1:A2*1)"
+   ]
+  },
+  "DEVSQ": {
+   "cell": [
+    "=DEVSQ(A1)",
+    "=DEVSQ(A1)"
+   ],
+   "range": [
+    "=DEVSQ(A1:A2)",
+    "=DEVSQ(A1:A2)"
+   ],
+   "worked": [
+    "=DEVSQ(A1:A2*1)",
+    "=DEVSQ(@A1:A2*1)"
+   ],
+   "wide": [
+    "=DEVSQ(A1:A2,A1:A2,A1:A2)",
+    "=DEVSQ(A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=DEVSQ(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=DEVSQ(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "DGET": {
+   "cell": [
+    "=DGET(A1,A1,A1)",
+    "=DGET(A1,A1,A1)"
+   ],
+   "range": [
+    "=DGET(A1:A2,A1:A2,A1:A2)",
+    "=DGET(A1:A2,A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=DGET(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "!1004"
+   ]
+  },
+  "DISC": {
+   "cell": [
+    "=DISC(A1,A1,A1,A1)",
+    "=DISC(A1,A1,A1,A1)"
+   ],
+   "range": [
+    "=DISC(A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=DISC(A1:A2,A1:A2,A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=DISC(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=DISC(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=DISC(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=DISC(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=DISC(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=DISC(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "DMAX": {
+   "cell": [
+    "=DMAX(A1,A1,A1)",
+    "=DMAX(A1,A1,A1)"
+   ],
+   "range": [
+    "=DMAX(A1:A2,A1:A2,A1:A2)",
+    "=DMAX(A1:A2,A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=DMAX(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "!1004"
+   ]
+  },
+  "DMIN": {
+   "cell": [
+    "=DMIN(A1,A1,A1)",
+    "=DMIN(A1,A1,A1)"
+   ],
+   "range": [
+    "=DMIN(A1:A2,A1:A2,A1:A2)",
+    "=DMIN(A1:A2,A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=DMIN(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "!1004"
+   ]
+  },
+  "DOLLAR": {
+   "cell": [
+    "=DOLLAR(A1)",
+    "=DOLLAR(A1)"
+   ],
+   "range": [
+    "=DOLLAR(A1:A2)",
+    "=DOLLAR(@A1:A2)"
+   ],
+   "worked": [
+    "=DOLLAR(A1:A2*1)",
+    "=DOLLAR(@A1:A2*1)"
+   ],
+   "wide": [
+    "=DOLLAR(A1:A2,A1:A2)",
+    "=DOLLAR(@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=DOLLAR(A1:A2*1,A1:A2*1)",
+    "=DOLLAR(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "DOLLARDE": {
+   "cell": [
+    "=DOLLARDE(A1,A1)",
+    "=DOLLARDE(A1,A1)"
+   ],
+   "range": [
+    "=DOLLARDE(A1:A2,A1:A2)",
+    "=DOLLARDE(A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=DOLLARDE(A1:A2*1,A1:A2*1)",
+    "=DOLLARDE(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "DOLLARFR": {
+   "cell": [
+    "=DOLLARFR(A1,A1)",
+    "=DOLLARFR(A1,A1)"
+   ],
+   "range": [
+    "=DOLLARFR(A1:A2,A1:A2)",
+    "=DOLLARFR(A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=DOLLARFR(A1:A2*1,A1:A2*1)",
+    "=DOLLARFR(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "DPRODUCT": {
+   "cell": [
+    "=DPRODUCT(A1,A1,A1)",
+    "=DPRODUCT(A1,A1,A1)"
+   ],
+   "range": [
+    "=DPRODUCT(A1:A2,A1:A2,A1:A2)",
+    "=DPRODUCT(A1:A2,A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=DPRODUCT(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "!1004"
+   ]
+  },
+  "DROP": {
+   "cell": [
+    "=DROP(A1,A1)",
+    "=@DROP(A1,A1)"
+   ],
+   "range": [
+    "=DROP(A1:A2,A1:A2)",
+    "=@DROP(A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=DROP(A1:A2*1,A1:A2*1)",
+    "=@DROP(A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=DROP(A1:A2,A1:A2,A1:A2)",
+    "=@DROP(A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=DROP(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=@DROP(A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "DSTDEV": {
+   "cell": [
+    "=DSTDEV(A1,A1,A1)",
+    "=DSTDEV(A1,A1,A1)"
+   ],
+   "range": [
+    "=DSTDEV(A1:A2,A1:A2,A1:A2)",
+    "=DSTDEV(A1:A2,A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=DSTDEV(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "!1004"
+   ]
+  },
+  "DSTDEVP": {
+   "cell": [
+    "=DSTDEVP(A1,A1,A1)",
+    "=DSTDEVP(A1,A1,A1)"
+   ],
+   "range": [
+    "=DSTDEVP(A1:A2,A1:A2,A1:A2)",
+    "=DSTDEVP(A1:A2,A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=DSTDEVP(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "!1004"
+   ]
+  },
+  "DSUM": {
+   "cell": [
+    "=DSUM(A1,A1,A1)",
+    "=DSUM(A1,A1,A1)"
+   ],
+   "range": [
+    "=DSUM(A1:A2,A1:A2,A1:A2)",
+    "=DSUM(A1:A2,A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=DSUM(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "!1004"
+   ]
+  },
+  "DURATION": {
+   "cell": [
+    "=DURATION(A1,A1,A1,A1,A1)",
+    "=DURATION(A1,A1,A1,A1,A1)"
+   ],
+   "range": [
+    "=DURATION(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=DURATION(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=DURATION(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=DURATION(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=DURATION(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=DURATION(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=DURATION(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=DURATION(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "DVAR": {
+   "cell": [
+    "=DVAR(A1,A1,A1)",
+    "=DVAR(A1,A1,A1)"
+   ],
+   "range": [
+    "=DVAR(A1:A2,A1:A2,A1:A2)",
+    "=DVAR(A1:A2,A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=DVAR(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "!1004"
+   ]
+  },
+  "DVARP": {
+   "cell": [
+    "=DVARP(A1,A1,A1)",
+    "=DVARP(A1,A1,A1)"
+   ],
+   "range": [
+    "=DVARP(A1:A2,A1:A2,A1:A2)",
+    "=DVARP(A1:A2,A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=DVARP(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "!1004"
+   ]
+  },
+  "ECMA.CEILING": {
+   "cell": [
+    "=ECMA.CEILING(A1,A1)",
+    "=ECMA.CEILING(A1,A1)"
+   ],
+   "range": [
+    "=ECMA.CEILING(A1:A2,A1:A2)",
+    "=ECMA.CEILING(@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=ECMA.CEILING(A1:A2*1,A1:A2*1)",
+    "=ECMA.CEILING(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "EDATE": {
+   "cell": [
+    "=EDATE(A1,A1)",
+    "=EDATE(A1,A1)"
+   ],
+   "range": [
+    "=EDATE(A1:A2,A1:A2)",
+    "=EDATE(A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=EDATE(A1:A2*1,A1:A2*1)",
+    "=EDATE(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "EFFECT": {
+   "cell": [
+    "=EFFECT(A1,A1)",
+    "=EFFECT(A1,A1)"
+   ],
+   "range": [
+    "=EFFECT(A1:A2,A1:A2)",
+    "=EFFECT(A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=EFFECT(A1:A2*1,A1:A2*1)",
+    "=EFFECT(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "ENCODEURL": {
+   "cell": [
+    "=ENCODEURL(A1)",
+    "=ENCODEURL(A1)"
+   ],
+   "range": [
+    "=ENCODEURL(A1:A2)",
+    "=ENCODEURL(@A1:A2)"
+   ],
+   "worked": [
+    "=ENCODEURL(A1:A2*1)",
+    "=ENCODEURL(@A1:A2*1)"
+   ]
+  },
+  "EOMONTH": {
+   "cell": [
+    "=EOMONTH(A1,A1)",
+    "=EOMONTH(A1,A1)"
+   ],
+   "range": [
+    "=EOMONTH(A1:A2,A1:A2)",
+    "=EOMONTH(A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=EOMONTH(A1:A2*1,A1:A2*1)",
+    "=EOMONTH(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "ERF": {
+   "cell": [
+    "=ERF(A1)",
+    "=ERF(A1)"
+   ],
+   "range": [
+    "=ERF(A1:A2)",
+    "=ERF(A1:A2)"
+   ],
+   "worked": [
+    "=ERF(A1:A2*1)",
+    "=ERF(@A1:A2*1)"
+   ],
+   "wide": [
+    "=ERF(A1:A2,A1:A2)",
+    "=ERF(A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=ERF(A1:A2*1,A1:A2*1)",
+    "=ERF(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "ERF.PRECISE": {
+   "cell": [
+    "=ERF.PRECISE(A1)",
+    "=ERF.PRECISE(A1)"
+   ],
+   "range": [
+    "=ERF.PRECISE(A1:A2)",
+    "=ERF.PRECISE(A1:A2)"
+   ],
+   "worked": [
+    "=ERF.PRECISE(A1:A2*1)",
+    "=ERF.PRECISE(@A1:A2*1)"
+   ]
+  },
+  "ERFC": {
+   "cell": [
+    "=ERFC(A1)",
+    "=ERFC(A1)"
+   ],
+   "range": [
+    "=ERFC(A1:A2)",
+    "=ERFC(A1:A2)"
+   ],
+   "worked": [
+    "=ERFC(A1:A2*1)",
+    "=ERFC(@A1:A2*1)"
+   ]
+  },
+  "ERFC.PRECISE": {
+   "cell": [
+    "=ERFC.PRECISE(A1)",
+    "=ERFC.PRECISE(A1)"
+   ],
+   "range": [
+    "=ERFC.PRECISE(A1:A2)",
+    "=ERFC.PRECISE(A1:A2)"
+   ],
+   "worked": [
+    "=ERFC.PRECISE(A1:A2*1)",
+    "=ERFC.PRECISE(@A1:A2*1)"
+   ]
+  },
+  "ERROR.TYPE": {
+   "cell": [
+    "=ERROR.TYPE(A1)",
+    "=ERROR.TYPE(A1)"
+   ],
+   "range": [
+    "=ERROR.TYPE(A1:A2)",
+    "=ERROR.TYPE(@A1:A2)"
+   ],
+   "worked": [
+    "=ERROR.TYPE(A1:A2*1)",
+    "=ERROR.TYPE(@A1:A2*1)"
+   ]
+  },
+  "EUROCONVERT": {
+   "cell": [
+    "=EUROCONVERT()",
+    "=@EUROCONVERT()"
+   ],
+   "range": [
+    "=EUROCONVERT()",
+    "=@EUROCONVERT()"
+   ],
+   "worked": [
+    "=EUROCONVERT()",
+    "=@EUROCONVERT()"
+   ]
+  },
+  "EVEN": {
+   "cell": [
+    "=EVEN(A1)",
+    "=EVEN(A1)"
+   ],
+   "range": [
+    "=EVEN(A1:A2)",
+    "=EVEN(@A1:A2)"
+   ],
+   "worked": [
+    "=EVEN(A1:A2*1)",
+    "=EVEN(@A1:A2*1)"
+   ]
+  },
+  "EXACT": {
+   "cell": [
+    "=EXACT(A1,A1)",
+    "=EXACT(A1,A1)"
+   ],
+   "range": [
+    "=EXACT(A1:A2,A1:A2)",
+    "=EXACT(@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=EXACT(A1:A2*1,A1:A2*1)",
+    "=EXACT(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "EXP": {
+   "cell": [
+    "=EXP(A1)",
+    "=EXP(A1)"
+   ],
+   "range": [
+    "=EXP(A1:A2)",
+    "=EXP(@A1:A2)"
+   ],
+   "worked": [
+    "=EXP(A1:A2*1)",
+    "=EXP(@A1:A2*1)"
+   ]
+  },
+  "EXPAND": {
+   "cell": [
+    "=EXPAND(A1,A1)",
+    "=@EXPAND(A1,A1)"
+   ],
+   "range": [
+    "=EXPAND(A1:A2,A1:A2)",
+    "=@EXPAND(A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=EXPAND(A1:A2*1,A1:A2*1)",
+    "=@EXPAND(A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=EXPAND(A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=@EXPAND(A1:A2,@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=EXPAND(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=@EXPAND(A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "EXPON.DIST": {
+   "cell": [
+    "=EXPON.DIST(A1,A1,A1)",
+    "=EXPON.DIST(A1,A1,A1)"
+   ],
+   "range": [
+    "=EXPON.DIST(A1:A2,A1:A2,A1:A2)",
+    "=EXPON.DIST(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=EXPON.DIST(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=EXPON.DIST(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "EXPONDIST": {
+   "cell": [
+    "=EXPONDIST(A1,A1,A1)",
+    "=EXPONDIST(A1,A1,A1)"
+   ],
+   "range": [
+    "=EXPONDIST(A1:A2,A1:A2,A1:A2)",
+    "=EXPONDIST(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=EXPONDIST(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=EXPONDIST(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "F.DIST": {
+   "cell": [
+    "=F.DIST(A1,A1,A1,A1)",
+    "=F.DIST(A1,A1,A1,A1)"
+   ],
+   "range": [
+    "=F.DIST(A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=F.DIST(@A1:A2,@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=F.DIST(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=F.DIST(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "F.DIST.RT": {
+   "cell": [
+    "=F.DIST.RT(A1,A1,A1)",
+    "=F.DIST.RT(A1,A1,A1)"
+   ],
+   "range": [
+    "=F.DIST.RT(A1:A2,A1:A2,A1:A2)",
+    "=F.DIST.RT(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=F.DIST.RT(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=F.DIST.RT(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "F.INV": {
+   "cell": [
+    "=F.INV(A1,A1,A1)",
+    "=F.INV(A1,A1,A1)"
+   ],
+   "range": [
+    "=F.INV(A1:A2,A1:A2,A1:A2)",
+    "=F.INV(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=F.INV(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=F.INV(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "F.INV.RT": {
+   "cell": [
+    "=F.INV.RT(A1,A1,A1)",
+    "=F.INV.RT(A1,A1,A1)"
+   ],
+   "range": [
+    "=F.INV.RT(A1:A2,A1:A2,A1:A2)",
+    "=F.INV.RT(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=F.INV.RT(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=F.INV.RT(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "F.TEST": {
+   "cell": [
+    "=F.TEST(A1,A1)",
+    "=F.TEST(A1,A1)"
+   ],
+   "range": [
+    "=F.TEST(A1:A2,A1:A2)",
+    "=F.TEST(A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=F.TEST(A1:A2*1,A1:A2*1)",
+    "=F.TEST(A1:A2*1,A1:A2*1)"
+   ]
+  },
+  "FACT": {
+   "cell": [
+    "=FACT(A1)",
+    "=FACT(A1)"
+   ],
+   "range": [
+    "=FACT(A1:A2)",
+    "=FACT(@A1:A2)"
+   ],
+   "worked": [
+    "=FACT(A1:A2*1)",
+    "=FACT(@A1:A2*1)"
+   ]
+  },
+  "FACTDOUBLE": {
+   "cell": [
+    "=FACTDOUBLE(A1)",
+    "=FACTDOUBLE(A1)"
+   ],
+   "range": [
+    "=FACTDOUBLE(A1:A2)",
+    "=FACTDOUBLE(A1:A2)"
+   ],
+   "worked": [
+    "=FACTDOUBLE(A1:A2*1)",
+    "=FACTDOUBLE(@A1:A2*1)"
+   ]
+  },
+  "FALSE": {
+   "cell": [
+    "=FALSE()",
+    "=FALSE()"
+   ],
+   "range": [
+    "=FALSE()",
+    "=FALSE()"
+   ],
+   "worked": [
+    "=FALSE()",
+    "=FALSE()"
+   ]
+  },
+  "FDIST": {
+   "cell": [
+    "=FDIST(A1,A1,A1)",
+    "=FDIST(A1,A1,A1)"
+   ],
+   "range": [
+    "=FDIST(A1:A2,A1:A2,A1:A2)",
+    "=FDIST(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=FDIST(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=FDIST(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "FILTER": {
+   "cell": [
+    "=FILTER(A1,A1)",
+    "=@FILTER(A1,A1)"
+   ],
+   "range": [
+    "=FILTER(A1:A2,A1:A2)",
+    "=@FILTER(A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=FILTER(A1:A2*1,A1:A2*1)",
+    "=@FILTER(A1:A2*1,A1:A2*1)"
+   ],
+   "wide": [
+    "=FILTER(A1:A2,A1:A2,A1:A2)",
+    "=@FILTER(A1:A2,A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=FILTER(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=@FILTER(A1:A2*1,A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "FILTERXML": {
+   "cell": [
+    "=FILTERXML(A1,A1)",
+    "=@FILTERXML(A1,A1)"
+   ],
+   "range": [
+    "=FILTERXML(A1:A2,A1:A2)",
+    "=@FILTERXML(@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=FILTERXML(A1:A2*1,A1:A2*1)",
+    "=@FILTERXML(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "FIND": {
+   "cell": [
+    "=FIND(A1,A1)",
+    "=FIND(A1,A1)"
+   ],
+   "range": [
+    "=FIND(A1:A2,A1:A2)",
+    "=FIND(@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=FIND(A1:A2*1,A1:A2*1)",
+    "=FIND(@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=FIND(A1:A2,A1:A2,A1:A2)",
+    "=FIND(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=FIND(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=FIND(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "FINDB": {
+   "cell": [
+    "=FINDB(A1,A1)",
+    "=FINDB(A1,A1)"
+   ],
+   "range": [
+    "=FINDB(A1:A2,A1:A2)",
+    "=FINDB(@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=FINDB(A1:A2*1,A1:A2*1)",
+    "=FINDB(@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=FINDB(A1:A2,A1:A2,A1:A2)",
+    "=FINDB(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=FINDB(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=FINDB(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "FINV": {
+   "cell": [
+    "=FINV(A1,A1,A1)",
+    "=FINV(A1,A1,A1)"
+   ],
+   "range": [
+    "=FINV(A1:A2,A1:A2,A1:A2)",
+    "=FINV(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=FINV(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=FINV(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "FISHER": {
+   "cell": [
+    "=FISHER(A1)",
+    "=FISHER(A1)"
+   ],
+   "range": [
+    "=FISHER(A1:A2)",
+    "=FISHER(@A1:A2)"
+   ],
+   "worked": [
+    "=FISHER(A1:A2*1)",
+    "=FISHER(@A1:A2*1)"
+   ]
+  },
+  "FISHERINV": {
+   "cell": [
+    "=FISHERINV(A1)",
+    "=FISHERINV(A1)"
+   ],
+   "range": [
+    "=FISHERINV(A1:A2)",
+    "=FISHERINV(@A1:A2)"
+   ],
+   "worked": [
+    "=FISHERINV(A1:A2*1)",
+    "=FISHERINV(@A1:A2*1)"
+   ]
+  },
+  "FIXED": {
+   "cell": [
+    "=FIXED(A1)",
+    "=FIXED(A1)"
+   ],
+   "range": [
+    "=FIXED(A1:A2)",
+    "=FIXED(@A1:A2)"
+   ],
+   "worked": [
+    "=FIXED(A1:A2*1)",
+    "=FIXED(@A1:A2*1)"
+   ],
+   "wide": [
+    "=FIXED(A1:A2,A1:A2,A1:A2)",
+    "=FIXED(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=FIXED(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=FIXED(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "FLOOR": {
+   "cell": [
+    "=FLOOR(A1,A1)",
+    "=FLOOR(A1,A1)"
+   ],
+   "range": [
+    "=FLOOR(A1:A2,A1:A2)",
+    "=FLOOR(@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=FLOOR(A1:A2*1,A1:A2*1)",
+    "=FLOOR(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "FLOOR.MATH": {
+   "cell": [
+    "=FLOOR.MATH(A1)",
+    "=FLOOR.MATH(A1)"
+   ],
+   "range": [
+    "=FLOOR.MATH(A1:A2)",
+    "=FLOOR.MATH(@A1:A2)"
+   ],
+   "worked": [
+    "=FLOOR.MATH(A1:A2*1)",
+    "=FLOOR.MATH(@A1:A2*1)"
+   ],
+   "wide": [
+    "=FLOOR.MATH(A1:A2,A1:A2,A1:A2)",
+    "=FLOOR.MATH(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=FLOOR.MATH(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=FLOOR.MATH(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "FLOOR.PRECISE": {
+   "cell": [
+    "=FLOOR.PRECISE(A1)",
+    "=FLOOR.PRECISE(A1)"
+   ],
+   "range": [
+    "=FLOOR.PRECISE(A1:A2)",
+    "=FLOOR.PRECISE(@A1:A2)"
+   ],
+   "worked": [
+    "=FLOOR.PRECISE(A1:A2*1)",
+    "=FLOOR.PRECISE(@A1:A2*1)"
+   ],
+   "wide": [
+    "=FLOOR.PRECISE(A1:A2,A1:A2)",
+    "=FLOOR.PRECISE(@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=FLOOR.PRECISE(A1:A2*1,A1:A2*1)",
+    "=FLOOR.PRECISE(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "FORECAST": {
+   "cell": [
+    "=FORECAST(A1,A1,A1)",
+    "=FORECAST(A1,A1,A1)"
+   ],
+   "range": [
+    "=FORECAST(A1:A2,A1:A2,A1:A2)",
+    "=FORECAST(@A1:A2,A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=FORECAST(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=FORECAST(@A1:A2*1,A1:A2*1,A1:A2*1)"
+   ]
+  },
+  "FORECAST.ETS": {
+   "cell": [
+    "=FORECAST.ETS(A1,A1,A1)",
+    "=FORECAST.ETS(A1,A1,A1)"
+   ],
+   "range": [
+    "=FORECAST.ETS(A1:A2,A1:A2,A1:A2)",
+    "=FORECAST.ETS(@A1:A2,A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=FORECAST.ETS(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=FORECAST.ETS(@A1:A2*1,A1:A2*1,A1:A2*1)"
+   ]
+  },
+  "FORECAST.ETS.CONFINT": {
+   "cell": [
+    "=FORECAST.ETS.CONFINT(A1,A1,A1)",
+    "=FORECAST.ETS.CONFINT(A1,A1,A1)"
+   ],
+   "range": [
+    "=FORECAST.ETS.CONFINT(A1:A2,A1:A2,A1:A2)",
+    "=FORECAST.ETS.CONFINT(@A1:A2,A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=FORECAST.ETS.CONFINT(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=FORECAST.ETS.CONFINT(@A1:A2*1,A1:A2*1,A1:A2*1)"
+   ]
+  },
+  "FORECAST.ETS.SEASONALITY": {
+   "cell": [
+    "=FORECAST.ETS.SEASONALITY(A1,A1)",
+    "=FORECAST.ETS.SEASONALITY(A1,A1)"
+   ],
+   "range": [
+    "=FORECAST.ETS.SEASONALITY(A1:A2,A1:A2)",
+    "=FORECAST.ETS.SEASONALITY(A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=FORECAST.ETS.SEASONALITY(A1:A2*1,A1:A2*1)",
+    "=FORECAST.ETS.SEASONALITY(A1:A2*1,A1:A2*1)"
+   ]
+  },
+  "FORECAST.ETS.STAT": {
+   "cell": [
+    "=FORECAST.ETS.STAT(A1,A1,A1)",
+    "=FORECAST.ETS.STAT(A1,A1,A1)"
+   ],
+   "range": [
+    "=FORECAST.ETS.STAT(A1:A2,A1:A2,A1:A2)",
+    "=FORECAST.ETS.STAT(A1:A2,A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=FORECAST.ETS.STAT(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=FORECAST.ETS.STAT(A1:A2*1,A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "FORECAST.LINEAR": {
+   "cell": [
+    "=FORECAST.LINEAR(A1,A1,A1)",
+    "=FORECAST.LINEAR(A1,A1,A1)"
+   ],
+   "range": [
+    "=FORECAST.LINEAR(A1:A2,A1:A2,A1:A2)",
+    "=FORECAST.LINEAR(@A1:A2,A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=FORECAST.LINEAR(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=FORECAST.LINEAR(@A1:A2*1,A1:A2*1,A1:A2*1)"
+   ]
+  },
+  "FORMULATEXT": {
+   "cell": [
+    "=FORMULATEXT(A1)",
+    "=FORMULATEXT(A1)"
+   ],
+   "range": [
+    "=FORMULATEXT(A1:A2)",
+    "=@FORMULATEXT(A1:A2)"
+   ],
+   "worked": [
+    "=FORMULATEXT(A1:A2*1)",
+    "!1004"
+   ]
+  },
+  "FREQUENCY": {
+   "cell": [
+    "=FREQUENCY(A1,A1)",
+    "=@FREQUENCY(A1,A1)"
+   ],
+   "range": [
+    "=FREQUENCY(A1:A2,A1:A2)",
+    "=@FREQUENCY(A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=FREQUENCY(A1:A2*1,A1:A2*1)",
+    "=@FREQUENCY(A1:A2*1,A1:A2*1)"
+   ]
+  },
+  "FTEST": {
+   "cell": [
+    "=FTEST(A1,A1)",
+    "=FTEST(A1,A1)"
+   ],
+   "range": [
+    "=FTEST(A1:A2,A1:A2)",
+    "=FTEST(A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=FTEST(A1:A2*1,A1:A2*1)",
+    "=FTEST(A1:A2*1,A1:A2*1)"
+   ]
+  },
+  "FV": {
+   "cell": [
+    "=FV(A1,A1,A1)",
+    "=FV(A1,A1,A1)"
+   ],
+   "range": [
+    "=FV(A1:A2,A1:A2,A1:A2)",
+    "=FV(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=FV(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=FV(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=FV(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=FV(@A1:A2,@A1:A2,@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=FV(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=FV(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "FVSCHEDULE": {
+   "cell": [
+    "=FVSCHEDULE(A1,A1)",
+    "=FVSCHEDULE(A1,A1)"
+   ],
+   "range": [
+    "=FVSCHEDULE(A1:A2,A1:A2)",
+    "=FVSCHEDULE(A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=FVSCHEDULE(A1:A2*1,A1:A2*1)",
+    "=FVSCHEDULE(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "GAMMA": {
+   "cell": [
+    "=GAMMA(A1)",
+    "=GAMMA(A1)"
+   ],
+   "range": [
+    "=GAMMA(A1:A2)",
+    "=GAMMA(@A1:A2)"
+   ],
+   "worked": [
+    "=GAMMA(A1:A2*1)",
+    "=GAMMA(@A1:A2*1)"
+   ]
+  },
+  "GAMMA.DIST": {
+   "cell": [
+    "=GAMMA.DIST(A1,A1,A1,A1)",
+    "=GAMMA.DIST(A1,A1,A1,A1)"
+   ],
+   "range": [
+    "=GAMMA.DIST(A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=GAMMA.DIST(@A1:A2,@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=GAMMA.DIST(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=GAMMA.DIST(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "GAMMA.INV": {
+   "cell": [
+    "=GAMMA.INV(A1,A1,A1)",
+    "=GAMMA.INV(A1,A1,A1)"
+   ],
+   "range": [
+    "=GAMMA.INV(A1:A2,A1:A2,A1:A2)",
+    "=GAMMA.INV(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=GAMMA.INV(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=GAMMA.INV(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "GAMMADIST": {
+   "cell": [
+    "=GAMMADIST(A1,A1,A1,A1)",
+    "=GAMMADIST(A1,A1,A1,A1)"
+   ],
+   "range": [
+    "=GAMMADIST(A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=GAMMADIST(@A1:A2,@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=GAMMADIST(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=GAMMADIST(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "GAMMAINV": {
+   "cell": [
+    "=GAMMAINV(A1,A1,A1)",
+    "=GAMMAINV(A1,A1,A1)"
+   ],
+   "range": [
+    "=GAMMAINV(A1:A2,A1:A2,A1:A2)",
+    "=GAMMAINV(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=GAMMAINV(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=GAMMAINV(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "GAMMALN": {
+   "cell": [
+    "=GAMMALN(A1)",
+    "=GAMMALN(A1)"
+   ],
+   "range": [
+    "=GAMMALN(A1:A2)",
+    "=GAMMALN(@A1:A2)"
+   ],
+   "worked": [
+    "=GAMMALN(A1:A2*1)",
+    "=GAMMALN(@A1:A2*1)"
+   ]
+  },
+  "GAMMALN.PRECISE": {
+   "cell": [
+    "=GAMMALN.PRECISE(A1)",
+    "=GAMMALN.PRECISE(A1)"
+   ],
+   "range": [
+    "=GAMMALN.PRECISE(A1:A2)",
+    "=GAMMALN.PRECISE(@A1:A2)"
+   ],
+   "worked": [
+    "=GAMMALN.PRECISE(A1:A2*1)",
+    "=GAMMALN.PRECISE(@A1:A2*1)"
+   ]
+  },
+  "GAUSS": {
+   "cell": [
+    "=GAUSS(A1)",
+    "=GAUSS(A1)"
+   ],
+   "range": [
+    "=GAUSS(A1:A2)",
+    "=GAUSS(@A1:A2)"
+   ],
+   "worked": [
+    "=GAUSS(A1:A2*1)",
+    "=GAUSS(@A1:A2*1)"
+   ]
+  },
+  "GCD": {
+   "cell": [
+    "=GCD(A1)",
+    "=GCD(A1)"
+   ],
+   "range": [
+    "=GCD(A1:A2)",
+    "=GCD(A1:A2)"
+   ],
+   "worked": [
+    "=GCD(A1:A2*1)",
+    "=GCD(@A1:A2*1)"
+   ],
+   "wide": [
+    "=GCD(A1:A2,A1:A2,A1:A2)",
+    "=GCD(A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=GCD(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=GCD(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "GEOMEAN": {
+   "cell": [
+    "=GEOMEAN(A1)",
+    "=GEOMEAN(A1)"
+   ],
+   "range": [
+    "=GEOMEAN(A1:A2)",
+    "=GEOMEAN(A1:A2)"
+   ],
+   "worked": [
+    "=GEOMEAN(A1:A2*1)",
+    "=GEOMEAN(@A1:A2*1)"
+   ],
+   "wide": [
+    "=GEOMEAN(A1:A2,A1:A2,A1:A2)",
+    "=GEOMEAN(A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=GEOMEAN(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=GEOMEAN(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "GESTEP": {
+   "cell": [
+    "=GESTEP(A1)",
+    "=GESTEP(A1)"
+   ],
+   "range": [
+    "=GESTEP(A1:A2)",
+    "=GESTEP(A1:A2)"
+   ],
+   "worked": [
+    "=GESTEP(A1:A2*1)",
+    "=GESTEP(@A1:A2*1)"
+   ],
+   "wide": [
+    "=GESTEP(A1:A2,A1:A2)",
+    "=GESTEP(A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=GESTEP(A1:A2*1,A1:A2*1)",
+    "=GESTEP(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "GETPIVOTDATA": {
+   "cell": [
+    "=GETPIVOTDATA(A1,A1)",
+    "=GETPIVOTDATA(A1,A1)"
+   ],
+   "range": [
+    "=GETPIVOTDATA(A1:A2,A1:A2)",
+    "=GETPIVOTDATA(A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=GETPIVOTDATA(A1:A2*1,A1:A2*1)",
+    "=GETPIVOTDATA(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "GROUPBY": {
+   "cell": [
+    "=GROUPBY(A1,A1,A1)",
+    "=@GROUPBY(A1,A1,A1)"
+   ],
+   "range": [
+    "=GROUPBY(A1:A2,A1:A2,A1:A2)",
+    "=@GROUPBY(A1:A2,A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=GROUPBY(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=@GROUPBY(A1:A2*1,A1:A2*1,A1:A2*1)"
+   ]
+  },
+  "GROWTH": {
+   "cell": [
+    "=GROWTH(A1)",
+    "=@GROWTH(A1)"
+   ],
+   "range": [
+    "=GROWTH(A1:A2)",
+    "=@GROWTH(A1:A2)"
+   ],
+   "worked": [
+    "=GROWTH(A1:A2*1)",
+    "=@GROWTH(A1:A2*1)"
+   ],
+   "wide": [
+    "=GROWTH(A1:A2,A1:A2,A1:A2)",
+    "=@GROWTH(A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=GROWTH(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=@GROWTH(A1:A2*1,A1:A2*1,A1:A2*1)"
+   ]
+  },
+  "HARMEAN": {
+   "cell": [
+    "=HARMEAN(A1)",
+    "=HARMEAN(A1)"
+   ],
+   "range": [
+    "=HARMEAN(A1:A2)",
+    "=HARMEAN(A1:A2)"
+   ],
+   "worked": [
+    "=HARMEAN(A1:A2*1)",
+    "=HARMEAN(@A1:A2*1)"
+   ],
+   "wide": [
+    "=HARMEAN(A1:A2,A1:A2,A1:A2)",
+    "=HARMEAN(A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=HARMEAN(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=HARMEAN(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "HEX2BIN": {
+   "cell": [
+    "=HEX2BIN(A1)",
+    "=HEX2BIN(A1)"
+   ],
+   "range": [
+    "=HEX2BIN(A1:A2)",
+    "=HEX2BIN(A1:A2)"
+   ],
+   "worked": [
+    "=HEX2BIN(A1:A2*1)",
+    "=HEX2BIN(@A1:A2*1)"
+   ],
+   "wide": [
+    "=HEX2BIN(A1:A2,A1:A2)",
+    "=HEX2BIN(A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=HEX2BIN(A1:A2*1,A1:A2*1)",
+    "=HEX2BIN(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "HEX2DEC": {
+   "cell": [
+    "=HEX2DEC(A1)",
+    "=HEX2DEC(A1)"
+   ],
+   "range": [
+    "=HEX2DEC(A1:A2)",
+    "=HEX2DEC(A1:A2)"
+   ],
+   "worked": [
+    "=HEX2DEC(A1:A2*1)",
+    "=HEX2DEC(@A1:A2*1)"
+   ]
+  },
+  "HEX2OCT": {
+   "cell": [
+    "=HEX2OCT(A1)",
+    "=HEX2OCT(A1)"
+   ],
+   "range": [
+    "=HEX2OCT(A1:A2)",
+    "=HEX2OCT(A1:A2)"
+   ],
+   "worked": [
+    "=HEX2OCT(A1:A2*1)",
+    "=HEX2OCT(@A1:A2*1)"
+   ],
+   "wide": [
+    "=HEX2OCT(A1:A2,A1:A2)",
+    "=HEX2OCT(A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=HEX2OCT(A1:A2*1,A1:A2*1)",
+    "=HEX2OCT(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "HLOOKUP": {
+   "cell": [
+    "=HLOOKUP(A1,A1,A1)",
+    "=HLOOKUP(A1,A1,A1)"
+   ],
+   "range": [
+    "=HLOOKUP(A1:A2,A1:A2,A1:A2)",
+    "=HLOOKUP(@A1:A2,A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=HLOOKUP(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=HLOOKUP(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=HLOOKUP(A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=HLOOKUP(@A1:A2,A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=HLOOKUP(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=HLOOKUP(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "HOUR": {
+   "cell": [
+    "=HOUR(A1)",
+    "=HOUR(A1)"
+   ],
+   "range": [
+    "=HOUR(A1:A2)",
+    "=HOUR(@A1:A2)"
+   ],
+   "worked": [
+    "=HOUR(A1:A2*1)",
+    "=HOUR(@A1:A2*1)"
+   ]
+  },
+  "HSTACK": {
+   "cell": [
+    "=HSTACK(A1)",
+    "=@HSTACK(A1)"
+   ],
+   "range": [
+    "=HSTACK(A1:A2)",
+    "=@HSTACK(A1:A2)"
+   ],
+   "worked": [
+    "=HSTACK(A1:A2*1)",
+    "=@HSTACK(A1:A2*1)"
+   ],
+   "wide": [
+    "=HSTACK(A1:A2,A1:A2,A1:A2)",
+    "=@HSTACK(A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=HSTACK(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=@HSTACK(A1:A2*1,A1:A2*1,A1:A2*1)"
+   ]
+  },
+  "HYPERLINK": {
+   "cell": [
+    "=HYPERLINK(A1)",
+    "=HYPERLINK(A1)"
+   ],
+   "range": [
+    "=HYPERLINK(A1:A2)",
+    "=HYPERLINK(@A1:A2)"
+   ],
+   "worked": [
+    "=HYPERLINK(A1:A2*1)",
+    "=HYPERLINK(@A1:A2*1)"
+   ],
+   "wide": [
+    "=HYPERLINK(A1:A2,A1:A2)",
+    "=HYPERLINK(@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=HYPERLINK(A1:A2*1,A1:A2*1)",
+    "=HYPERLINK(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "HYPGEOM.DIST": {
+   "cell": [
+    "=HYPGEOM.DIST(A1,A1,A1,A1,A1)",
+    "=HYPGEOM.DIST(A1,A1,A1,A1,A1)"
+   ],
+   "range": [
+    "=HYPGEOM.DIST(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=HYPGEOM.DIST(@A1:A2,@A1:A2,@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=HYPGEOM.DIST(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=HYPGEOM.DIST(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "HYPGEOMDIST": {
+   "cell": [
+    "=HYPGEOMDIST(A1,A1,A1,A1)",
+    "=HYPGEOMDIST(A1,A1,A1,A1)"
+   ],
+   "range": [
+    "=HYPGEOMDIST(A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=HYPGEOMDIST(@A1:A2,@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=HYPGEOMDIST(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=HYPGEOMDIST(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "IF": {
+   "cell": [
+    "=IF(A1,A1)",
+    "=IF(A1,A1)"
+   ],
+   "range": [
+    "=IF(A1:A2,A1:A2)",
+    "=@IF(@A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=IF(A1:A2*1,A1:A2*1)",
+    "=IF(@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=IF(A1:A2,A1:A2,A1:A2)",
+    "=@IF(@A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=IF(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=IF(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "IFERROR": {
+   "cell": [
+    "=IFERROR(A1,A1)",
+    "=IFERROR(A1,A1)"
+   ],
+   "range": [
+    "=IFERROR(A1:A2,A1:A2)",
+    "=@IFERROR(@A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=IFERROR(A1:A2*1,A1:A2*1)",
+    "=IFERROR(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "IFNA": {
+   "cell": [
+    "=IFNA(A1,A1)",
+    "=IFNA(A1,A1)"
+   ],
+   "range": [
+    "=IFNA(A1:A2,A1:A2)",
+    "=@IFNA(@A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=IFNA(A1:A2*1,A1:A2*1)",
+    "=IFNA(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "IFS": {
+   "cell": [
+    "=IFS(A1,A1)",
+    "=@IFS(A1,A1)"
+   ],
+   "range": [
+    "=IFS(A1:A2,A1:A2)",
+    "=@IFS(@A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=IFS(A1:A2*1,A1:A2*1)",
+    "=@IFS(@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=IFS(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=@IFS(@A1:A2,A1:A2,@A1:A2,A1:A2,@A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=IFS(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=@IFS(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "IMABS": {
+   "cell": [
+    "=IMABS(A1)",
+    "=IMABS(A1)"
+   ],
+   "range": [
+    "=IMABS(A1:A2)",
+    "=IMABS(A1:A2)"
+   ],
+   "worked": [
+    "=IMABS(A1:A2*1)",
+    "=IMABS(@A1:A2*1)"
+   ]
+  },
+  "IMAGE": {
+   "cell": [
+    "=IMAGE(A1)",
+    "=IMAGE(A1)"
+   ],
+   "range": [
+    "=IMAGE(A1:A2)",
+    "=IMAGE(@A1:A2)"
+   ],
+   "worked": [
+    "=IMAGE(A1:A2*1)",
+    "=IMAGE(@A1:A2*1)"
+   ]
+  },
+  "IMAGINARY": {
+   "cell": [
+    "=IMAGINARY(A1)",
+    "=IMAGINARY(A1)"
+   ],
+   "range": [
+    "=IMAGINARY(A1:A2)",
+    "=IMAGINARY(A1:A2)"
+   ],
+   "worked": [
+    "=IMAGINARY(A1:A2*1)",
+    "=IMAGINARY(@A1:A2*1)"
+   ]
+  },
+  "IMARGUMENT": {
+   "cell": [
+    "=IMARGUMENT(A1)",
+    "=IMARGUMENT(A1)"
+   ],
+   "range": [
+    "=IMARGUMENT(A1:A2)",
+    "=IMARGUMENT(A1:A2)"
+   ],
+   "worked": [
+    "=IMARGUMENT(A1:A2*1)",
+    "=IMARGUMENT(@A1:A2*1)"
+   ]
+  },
+  "IMCONJUGATE": {
+   "cell": [
+    "=IMCONJUGATE(A1)",
+    "=IMCONJUGATE(A1)"
+   ],
+   "range": [
+    "=IMCONJUGATE(A1:A2)",
+    "=IMCONJUGATE(A1:A2)"
+   ],
+   "worked": [
+    "=IMCONJUGATE(A1:A2*1)",
+    "=IMCONJUGATE(@A1:A2*1)"
+   ]
+  },
+  "IMCOS": {
+   "cell": [
+    "=IMCOS(A1)",
+    "=IMCOS(A1)"
+   ],
+   "range": [
+    "=IMCOS(A1:A2)",
+    "=IMCOS(A1:A2)"
+   ],
+   "worked": [
+    "=IMCOS(A1:A2*1)",
+    "=IMCOS(@A1:A2*1)"
+   ]
+  },
+  "IMCOSH": {
+   "cell": [
+    "=IMCOSH(A1)",
+    "=IMCOSH(A1)"
+   ],
+   "range": [
+    "=IMCOSH(A1:A2)",
+    "=IMCOSH(A1:A2)"
+   ],
+   "worked": [
+    "=IMCOSH(A1:A2*1)",
+    "=IMCOSH(@A1:A2*1)"
+   ]
+  },
+  "IMCOT": {
+   "cell": [
+    "=IMCOT(A1)",
+    "=IMCOT(A1)"
+   ],
+   "range": [
+    "=IMCOT(A1:A2)",
+    "=IMCOT(A1:A2)"
+   ],
+   "worked": [
+    "=IMCOT(A1:A2*1)",
+    "=IMCOT(@A1:A2*1)"
+   ]
+  },
+  "IMCSC": {
+   "cell": [
+    "=IMCSC(A1)",
+    "=IMCSC(A1)"
+   ],
+   "range": [
+    "=IMCSC(A1:A2)",
+    "=IMCSC(A1:A2)"
+   ],
+   "worked": [
+    "=IMCSC(A1:A2*1)",
+    "=IMCSC(@A1:A2*1)"
+   ]
+  },
+  "IMCSCH": {
+   "cell": [
+    "=IMCSCH(A1)",
+    "=IMCSCH(A1)"
+   ],
+   "range": [
+    "=IMCSCH(A1:A2)",
+    "=IMCSCH(A1:A2)"
+   ],
+   "worked": [
+    "=IMCSCH(A1:A2*1)",
+    "=IMCSCH(@A1:A2*1)"
+   ]
+  },
+  "IMDIV": {
+   "cell": [
+    "=IMDIV(A1,A1)",
+    "=IMDIV(A1,A1)"
+   ],
+   "range": [
+    "=IMDIV(A1:A2,A1:A2)",
+    "=IMDIV(A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=IMDIV(A1:A2*1,A1:A2*1)",
+    "=IMDIV(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "IMEXP": {
+   "cell": [
+    "=IMEXP(A1)",
+    "=IMEXP(A1)"
+   ],
+   "range": [
+    "=IMEXP(A1:A2)",
+    "=IMEXP(A1:A2)"
+   ],
+   "worked": [
+    "=IMEXP(A1:A2*1)",
+    "=IMEXP(@A1:A2*1)"
+   ]
+  },
+  "IMLN": {
+   "cell": [
+    "=IMLN(A1)",
+    "=IMLN(A1)"
+   ],
+   "range": [
+    "=IMLN(A1:A2)",
+    "=IMLN(A1:A2)"
+   ],
+   "worked": [
+    "=IMLN(A1:A2*1)",
+    "=IMLN(@A1:A2*1)"
+   ]
+  },
+  "IMLOG10": {
+   "cell": [
+    "=IMLOG10(A1)",
+    "=IMLOG10(A1)"
+   ],
+   "range": [
+    "=IMLOG10(A1:A2)",
+    "=IMLOG10(A1:A2)"
+   ],
+   "worked": [
+    "=IMLOG10(A1:A2*1)",
+    "=IMLOG10(@A1:A2*1)"
+   ]
+  },
+  "IMLOG2": {
+   "cell": [
+    "=IMLOG2(A1)",
+    "=IMLOG2(A1)"
+   ],
+   "range": [
+    "=IMLOG2(A1:A2)",
+    "=IMLOG2(A1:A2)"
+   ],
+   "worked": [
+    "=IMLOG2(A1:A2*1)",
+    "=IMLOG2(@A1:A2*1)"
+   ]
+  },
+  "IMPOWER": {
+   "cell": [
+    "=IMPOWER(A1,A1)",
+    "=IMPOWER(A1,A1)"
+   ],
+   "range": [
+    "=IMPOWER(A1:A2,A1:A2)",
+    "=IMPOWER(A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=IMPOWER(A1:A2*1,A1:A2*1)",
+    "=IMPOWER(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "IMPRODUCT": {
+   "cell": [
+    "=IMPRODUCT(A1)",
+    "=IMPRODUCT(A1)"
+   ],
+   "range": [
+    "=IMPRODUCT(A1:A2)",
+    "=IMPRODUCT(A1:A2)"
+   ],
+   "worked": [
+    "=IMPRODUCT(A1:A2*1)",
+    "=IMPRODUCT(@A1:A2*1)"
+   ],
+   "wide": [
+    "=IMPRODUCT(A1:A2,A1:A2,A1:A2)",
+    "=IMPRODUCT(A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=IMPRODUCT(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=IMPRODUCT(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "IMREAL": {
+   "cell": [
+    "=IMREAL(A1)",
+    "=IMREAL(A1)"
+   ],
+   "range": [
+    "=IMREAL(A1:A2)",
+    "=IMREAL(A1:A2)"
+   ],
+   "worked": [
+    "=IMREAL(A1:A2*1)",
+    "=IMREAL(@A1:A2*1)"
+   ]
+  },
+  "IMSEC": {
+   "cell": [
+    "=IMSEC(A1)",
+    "=IMSEC(A1)"
+   ],
+   "range": [
+    "=IMSEC(A1:A2)",
+    "=IMSEC(A1:A2)"
+   ],
+   "worked": [
+    "=IMSEC(A1:A2*1)",
+    "=IMSEC(@A1:A2*1)"
+   ]
+  },
+  "IMSECH": {
+   "cell": [
+    "=IMSECH(A1)",
+    "=IMSECH(A1)"
+   ],
+   "range": [
+    "=IMSECH(A1:A2)",
+    "=IMSECH(A1:A2)"
+   ],
+   "worked": [
+    "=IMSECH(A1:A2*1)",
+    "=IMSECH(@A1:A2*1)"
+   ]
+  },
+  "IMSIN": {
+   "cell": [
+    "=IMSIN(A1)",
+    "=IMSIN(A1)"
+   ],
+   "range": [
+    "=IMSIN(A1:A2)",
+    "=IMSIN(A1:A2)"
+   ],
+   "worked": [
+    "=IMSIN(A1:A2*1)",
+    "=IMSIN(@A1:A2*1)"
+   ]
+  },
+  "IMSINH": {
+   "cell": [
+    "=IMSINH(A1)",
+    "=IMSINH(A1)"
+   ],
+   "range": [
+    "=IMSINH(A1:A2)",
+    "=IMSINH(A1:A2)"
+   ],
+   "worked": [
+    "=IMSINH(A1:A2*1)",
+    "=IMSINH(@A1:A2*1)"
+   ]
+  },
+  "IMSQRT": {
+   "cell": [
+    "=IMSQRT(A1)",
+    "=IMSQRT(A1)"
+   ],
+   "range": [
+    "=IMSQRT(A1:A2)",
+    "=IMSQRT(A1:A2)"
+   ],
+   "worked": [
+    "=IMSQRT(A1:A2*1)",
+    "=IMSQRT(@A1:A2*1)"
+   ]
+  },
+  "IMSUB": {
+   "cell": [
+    "=IMSUB(A1,A1)",
+    "=IMSUB(A1,A1)"
+   ],
+   "range": [
+    "=IMSUB(A1:A2,A1:A2)",
+    "=IMSUB(A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=IMSUB(A1:A2*1,A1:A2*1)",
+    "=IMSUB(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "IMSUM": {
+   "cell": [
+    "=IMSUM(A1)",
+    "=IMSUM(A1)"
+   ],
+   "range": [
+    "=IMSUM(A1:A2)",
+    "=IMSUM(A1:A2)"
+   ],
+   "worked": [
+    "=IMSUM(A1:A2*1)",
+    "=IMSUM(@A1:A2*1)"
+   ],
+   "wide": [
+    "=IMSUM(A1:A2,A1:A2,A1:A2)",
+    "=IMSUM(A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=IMSUM(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=IMSUM(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "IMTAN": {
+   "cell": [
+    "=IMTAN(A1)",
+    "=IMTAN(A1)"
+   ],
+   "range": [
+    "=IMTAN(A1:A2)",
+    "=IMTAN(A1:A2)"
+   ],
+   "worked": [
+    "=IMTAN(A1:A2*1)",
+    "=IMTAN(@A1:A2*1)"
+   ]
+  },
+  "INDEX": {
+   "cell": [
+    "=INDEX(A1,1)",
+    "=INDEX(A1,1)"
+   ],
+   "range": [
+    "=INDEX(A1:A2,1)",
+    "=INDEX(A1:A2,1)"
+   ],
+   "worked": [
+    "=INDEX(A1:A2*1,1)",
+    "=@INDEX(A1:A2*1,1)"
+   ],
+   "wide": [
+    "=INDEX(A1:A2,A1:A2,A1:A2)",
+    "=@INDEX(A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=INDEX(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=@INDEX(A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "INDIRECT": {
+   "cell": [
+    "=INDIRECT(A1)",
+    "=@INDIRECT(A1)"
+   ],
+   "range": [
+    "=INDIRECT(A1:A2)",
+    "=@INDIRECT(@A1:A2)"
+   ],
+   "worked": [
+    "=INDIRECT(A1:A2*1)",
+    "=@INDIRECT(@A1:A2*1)"
+   ],
+   "wide": [
+    "=INDIRECT(A1:A2,A1:A2)",
+    "=@INDIRECT(@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=INDIRECT(A1:A2*1,A1:A2*1)",
+    "=@INDIRECT(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "INFO": {
+   "cell": [
+    "=INFO(A1)",
+    "=INFO(A1)"
+   ],
+   "range": [
+    "=INFO(A1:A2)",
+    "=INFO(@A1:A2)"
+   ],
+   "worked": [
+    "=INFO(A1:A2*1)",
+    "=INFO(@A1:A2*1)"
+   ]
+  },
+  "INT": {
+   "cell": [
+    "=INT(A1)",
+    "=INT(A1)"
+   ],
+   "range": [
+    "=INT(A1:A2)",
+    "=INT(@A1:A2)"
+   ],
+   "worked": [
+    "=INT(A1:A2*1)",
+    "=INT(@A1:A2*1)"
+   ]
+  },
+  "INTERCEPT": {
+   "cell": [
+    "=INTERCEPT(A1,A1)",
+    "=INTERCEPT(A1,A1)"
+   ],
+   "range": [
+    "=INTERCEPT(A1:A2,A1:A2)",
+    "=INTERCEPT(A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=INTERCEPT(A1:A2*1,A1:A2*1)",
+    "=INTERCEPT(A1:A2*1,A1:A2*1)"
+   ]
+  },
+  "INTRATE": {
+   "cell": [
+    "=INTRATE(A1,A1,A1,A1)",
+    "=INTRATE(A1,A1,A1,A1)"
+   ],
+   "range": [
+    "=INTRATE(A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=INTRATE(A1:A2,A1:A2,A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=INTRATE(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=INTRATE(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=INTRATE(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=INTRATE(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=INTRATE(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=INTRATE(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "IPMT": {
+   "cell": [
+    "=IPMT(A1,A1,A1,A1)",
+    "=IPMT(A1,A1,A1,A1)"
+   ],
+   "range": [
+    "=IPMT(A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=IPMT(@A1:A2,@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=IPMT(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=IPMT(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=IPMT(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=IPMT(@A1:A2,@A1:A2,@A1:A2,@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=IPMT(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=IPMT(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "IRR": {
+   "cell": [
+    "=IRR(A1)",
+    "=IRR(A1)"
+   ],
+   "range": [
+    "=IRR(A1:A2)",
+    "=IRR(A1:A2)"
+   ],
+   "worked": [
+    "=IRR(A1:A2*1)",
+    "=IRR(A1:A2*1)"
+   ],
+   "wide": [
+    "=IRR(A1:A2,A1:A2)",
+    "=IRR(A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=IRR(A1:A2*1,A1:A2*1)",
+    "=IRR(A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "ISBLANK": {
+   "cell": [
+    "=ISBLANK(A1)",
+    "=ISBLANK(A1)"
+   ],
+   "range": [
+    "=ISBLANK(A1:A2)",
+    "=ISBLANK(@A1:A2)"
+   ],
+   "worked": [
+    "=ISBLANK(A1:A2*1)",
+    "=ISBLANK(@A1:A2*1)"
+   ]
+  },
+  "ISERR": {
+   "cell": [
+    "=ISERR(A1)",
+    "=ISERR(A1)"
+   ],
+   "range": [
+    "=ISERR(A1:A2)",
+    "=ISERR(@A1:A2)"
+   ],
+   "worked": [
+    "=ISERR(A1:A2*1)",
+    "=ISERR(@A1:A2*1)"
+   ]
+  },
+  "ISERROR": {
+   "cell": [
+    "=ISERROR(A1)",
+    "=ISERROR(A1)"
+   ],
+   "range": [
+    "=ISERROR(A1:A2)",
+    "=ISERROR(@A1:A2)"
+   ],
+   "worked": [
+    "=ISERROR(A1:A2*1)",
+    "=ISERROR(@A1:A2*1)"
+   ]
+  },
+  "ISEVEN": {
+   "cell": [
+    "=ISEVEN(A1)",
+    "=ISEVEN(A1)"
+   ],
+   "range": [
+    "=ISEVEN(A1:A2)",
+    "=ISEVEN(A1:A2)"
+   ],
+   "worked": [
+    "=ISEVEN(A1:A2*1)",
+    "=ISEVEN(@A1:A2*1)"
+   ]
+  },
+  "ISFORMULA": {
+   "cell": [
+    "=ISFORMULA(A1)",
+    "=ISFORMULA(A1)"
+   ],
+   "range": [
+    "=ISFORMULA(A1:A2)",
+    "=@ISFORMULA(A1:A2)"
+   ],
+   "worked": [
+    "=ISFORMULA(A1:A2*1)",
+    "!1004"
+   ]
+  },
+  "ISLOGICAL": {
+   "cell": [
+    "=ISLOGICAL(A1)",
+    "=ISLOGICAL(A1)"
+   ],
+   "range": [
+    "=ISLOGICAL(A1:A2)",
+    "=ISLOGICAL(@A1:A2)"
+   ],
+   "worked": [
+    "=ISLOGICAL(A1:A2*1)",
+    "=ISLOGICAL(@A1:A2*1)"
+   ]
+  },
+  "ISNA": {
+   "cell": [
+    "=ISNA(A1)",
+    "=ISNA(A1)"
+   ],
+   "range": [
+    "=ISNA(A1:A2)",
+    "=ISNA(@A1:A2)"
+   ],
+   "worked": [
+    "=ISNA(A1:A2*1)",
+    "=ISNA(@A1:A2*1)"
+   ]
+  },
+  "ISNONTEXT": {
+   "cell": [
+    "=ISNONTEXT(A1)",
+    "=ISNONTEXT(A1)"
+   ],
+   "range": [
+    "=ISNONTEXT(A1:A2)",
+    "=ISNONTEXT(@A1:A2)"
+   ],
+   "worked": [
+    "=ISNONTEXT(A1:A2*1)",
+    "=ISNONTEXT(@A1:A2*1)"
+   ]
+  },
+  "ISNUMBER": {
+   "cell": [
+    "=ISNUMBER(A1)",
+    "=ISNUMBER(A1)"
+   ],
+   "range": [
+    "=ISNUMBER(A1:A2)",
+    "=ISNUMBER(@A1:A2)"
+   ],
+   "worked": [
+    "=ISNUMBER(A1:A2*1)",
+    "=ISNUMBER(@A1:A2*1)"
+   ]
+  },
+  "ISO.CEILING": {
+   "cell": [
+    "=ISO.CEILING(A1)",
+    "=ISO.CEILING(A1)"
+   ],
+   "range": [
+    "=ISO.CEILING(A1:A2)",
+    "=ISO.CEILING(@A1:A2)"
+   ],
+   "worked": [
+    "=ISO.CEILING(A1:A2*1)",
+    "=ISO.CEILING(@A1:A2*1)"
+   ],
+   "wide": [
+    "=ISO.CEILING(A1:A2,A1:A2)",
+    "=ISO.CEILING(@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=ISO.CEILING(A1:A2*1,A1:A2*1)",
+    "=ISO.CEILING(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "ISODD": {
+   "cell": [
+    "=ISODD(A1)",
+    "=ISODD(A1)"
+   ],
+   "range": [
+    "=ISODD(A1:A2)",
+    "=ISODD(A1:A2)"
+   ],
+   "worked": [
+    "=ISODD(A1:A2*1)",
+    "=ISODD(@A1:A2*1)"
+   ]
+  },
+  "ISOMITTED": {
+   "cell": [
+    "=ISOMITTED(A1)",
+    "=ISOMITTED(A1)"
+   ],
+   "range": [
+    "=ISOMITTED(A1:A2)",
+    "=ISOMITTED(A1:A2)"
+   ],
+   "worked": [
+    "=ISOMITTED(A1:A2*1)",
+    "=ISOMITTED(@A1:A2*1)"
+   ]
+  },
+  "ISOWEEKNUM": {
+   "cell": [
+    "=ISOWEEKNUM(A1)",
+    "=ISOWEEKNUM(A1)"
+   ],
+   "range": [
+    "=ISOWEEKNUM(A1:A2)",
+    "=ISOWEEKNUM(@A1:A2)"
+   ],
+   "worked": [
+    "=ISOWEEKNUM(A1:A2*1)",
+    "=ISOWEEKNUM(@A1:A2*1)"
+   ]
+  },
+  "ISPMT": {
+   "cell": [
+    "=ISPMT(A1,A1,A1,A1)",
+    "=ISPMT(A1,A1,A1,A1)"
+   ],
+   "range": [
+    "=ISPMT(A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=ISPMT(@A1:A2,@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=ISPMT(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=ISPMT(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "ISREF": {
+   "cell": [
+    "=ISREF(A1)",
+    "=ISREF(A1)"
+   ],
+   "range": [
+    "=ISREF(A1:A2)",
+    "=ISREF(A1:A2)"
+   ],
+   "worked": [
+    "=ISREF(A1:A2*1)",
+    "=ISREF(@A1:A2*1)"
+   ]
+  },
+  "ISTEXT": {
+   "cell": [
+    "=ISTEXT(A1)",
+    "=ISTEXT(A1)"
+   ],
+   "range": [
+    "=ISTEXT(A1:A2)",
+    "=ISTEXT(@A1:A2)"
+   ],
+   "worked": [
+    "=ISTEXT(A1:A2*1)",
+    "=ISTEXT(@A1:A2*1)"
+   ]
+  },
+  "KURT": {
+   "cell": [
+    "=KURT(A1)",
+    "=KURT(A1)"
+   ],
+   "range": [
+    "=KURT(A1:A2)",
+    "=KURT(A1:A2)"
+   ],
+   "worked": [
+    "=KURT(A1:A2*1)",
+    "=KURT(@A1:A2*1)"
+   ],
+   "wide": [
+    "=KURT(A1:A2,A1:A2,A1:A2)",
+    "=KURT(A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=KURT(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=KURT(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "LAMBDA": {
+   "cell": [
+    "=LAMBDA(x,x)(A1)",
+    "=@LAMBDA(x,x)(A1)"
+   ],
+   "range": [
+    "=LAMBDA(x,x)(A1:A2)",
+    "=@LAMBDA(x,x)(A1:A2)"
+   ],
+   "worked": [
+    "=LAMBDA(x,x)(A1:A2*1)",
+    "=@LAMBDA(x,x)(@A1:A2*1)"
+   ],
+   "wide": [
+    "=LAMBDA(x,y,x+y)(A1:A2,A1:A2)",
+    "=@LAMBDA(x,y,@x+@y)(A1:A2,A1:A2)"
+   ]
+  },
+  "LARGE": {
+   "cell": [
+    "=LARGE(A1,A1)",
+    "=LARGE(A1,A1)"
+   ],
+   "range": [
+    "=LARGE(A1:A2,A1:A2)",
+    "=LARGE(A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=LARGE(A1:A2*1,A1:A2*1)",
+    "=LARGE(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "LCM": {
+   "cell": [
+    "=LCM(A1)",
+    "=LCM(A1)"
+   ],
+   "range": [
+    "=LCM(A1:A2)",
+    "=LCM(A1:A2)"
+   ],
+   "worked": [
+    "=LCM(A1:A2*1)",
+    "=LCM(@A1:A2*1)"
+   ],
+   "wide": [
+    "=LCM(A1:A2,A1:A2,A1:A2)",
+    "=LCM(A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=LCM(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=LCM(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "LEFT": {
+   "cell": [
+    "=LEFT(A1)",
+    "=LEFT(A1)"
+   ],
+   "range": [
+    "=LEFT(A1:A2)",
+    "=LEFT(@A1:A2)"
+   ],
+   "worked": [
+    "=LEFT(A1:A2*1)",
+    "=LEFT(@A1:A2*1)"
+   ],
+   "wide": [
+    "=LEFT(A1:A2,A1:A2)",
+    "=LEFT(@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=LEFT(A1:A2*1,A1:A2*1)",
+    "=LEFT(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "LEFTB": {
+   "cell": [
+    "=LEFTB(A1)",
+    "=LEFTB(A1)"
+   ],
+   "range": [
+    "=LEFTB(A1:A2)",
+    "=LEFTB(@A1:A2)"
+   ],
+   "worked": [
+    "=LEFTB(A1:A2*1)",
+    "=LEFTB(@A1:A2*1)"
+   ],
+   "wide": [
+    "=LEFTB(A1:A2,A1:A2)",
+    "=LEFTB(@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=LEFTB(A1:A2*1,A1:A2*1)",
+    "=LEFTB(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "LEN": {
+   "cell": [
+    "=LEN(A1)",
+    "=LEN(A1)"
+   ],
+   "range": [
+    "=LEN(A1:A2)",
+    "=LEN(@A1:A2)"
+   ],
+   "worked": [
+    "=LEN(A1:A2*1)",
+    "=LEN(@A1:A2*1)"
+   ]
+  },
+  "LENB": {
+   "cell": [
+    "=LENB(A1)",
+    "=LENB(A1)"
+   ],
+   "range": [
+    "=LENB(A1:A2)",
+    "=LENB(@A1:A2)"
+   ],
+   "worked": [
+    "=LENB(A1:A2*1)",
+    "=LENB(@A1:A2*1)"
+   ]
+  },
+  "LET": {
+   "cell": [
+    "=LET(x,A1,x)",
+    "=LET(x,A1,x)"
+   ],
+   "range": [
+    "=LET(x,A1:A2,x)",
+    "=@LET(x,A1:A2,x)"
+   ],
+   "worked": [
+    "=LET(x,A1:A2*1,x)",
+    "=LET(x,@A1:A2*1,x)"
+   ],
+   "wide": [
+    "=LET(x,A1:A2,y,A1:A2,x+y)",
+    "=LET(x,A1:A2,y,A1:A2,@x+@y)"
+   ]
+  },
+  "LINEST": {
+   "cell": [
+    "=LINEST(A1)",
+    "=@LINEST(A1)"
+   ],
+   "range": [
+    "=LINEST(A1:A2)",
+    "=@LINEST(A1:A2)"
+   ],
+   "worked": [
+    "=LINEST(A1:A2*1)",
+    "=@LINEST(A1:A2*1)"
+   ],
+   "wide": [
+    "=LINEST(A1:A2,A1:A2,A1:A2)",
+    "=@LINEST(A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=LINEST(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=@LINEST(A1:A2*1,A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "LN": {
+   "cell": [
+    "=LN(A1)",
+    "=LN(A1)"
+   ],
+   "range": [
+    "=LN(A1:A2)",
+    "=LN(@A1:A2)"
+   ],
+   "worked": [
+    "=LN(A1:A2*1)",
+    "=LN(@A1:A2*1)"
+   ]
+  },
+  "LOG": {
+   "cell": [
+    "=LOG(A1)",
+    "=LOG(A1)"
+   ],
+   "range": [
+    "=LOG(A1:A2)",
+    "=LOG(@A1:A2)"
+   ],
+   "worked": [
+    "=LOG(A1:A2*1)",
+    "=LOG(@A1:A2*1)"
+   ],
+   "wide": [
+    "=LOG(A1:A2,A1:A2)",
+    "=LOG(@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=LOG(A1:A2*1,A1:A2*1)",
+    "=LOG(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "LOG10": {
+   "cell": [
+    "=LOG10(A1)",
+    "=LOG10(A1)"
+   ],
+   "range": [
+    "=LOG10(A1:A2)",
+    "=LOG10(@A1:A2)"
+   ],
+   "worked": [
+    "=LOG10(A1:A2*1)",
+    "=LOG10(@A1:A2*1)"
+   ]
+  },
+  "LOGEST": {
+   "cell": [
+    "=LOGEST(A1)",
+    "=@LOGEST(A1)"
+   ],
+   "range": [
+    "=LOGEST(A1:A2)",
+    "=@LOGEST(A1:A2)"
+   ],
+   "worked": [
+    "=LOGEST(A1:A2*1)",
+    "=@LOGEST(A1:A2*1)"
+   ],
+   "wide": [
+    "=LOGEST(A1:A2,A1:A2,A1:A2)",
+    "=@LOGEST(A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=LOGEST(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=@LOGEST(A1:A2*1,A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "LOGINV": {
+   "cell": [
+    "=LOGINV(A1,A1,A1)",
+    "=LOGINV(A1,A1,A1)"
+   ],
+   "range": [
+    "=LOGINV(A1:A2,A1:A2,A1:A2)",
+    "=LOGINV(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=LOGINV(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=LOGINV(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "LOGNORM.DIST": {
+   "cell": [
+    "=LOGNORM.DIST(A1,A1,A1,A1)",
+    "=LOGNORM.DIST(A1,A1,A1,A1)"
+   ],
+   "range": [
+    "=LOGNORM.DIST(A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=LOGNORM.DIST(@A1:A2,@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=LOGNORM.DIST(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=LOGNORM.DIST(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "LOGNORM.INV": {
+   "cell": [
+    "=LOGNORM.INV(A1,A1,A1)",
+    "=LOGNORM.INV(A1,A1,A1)"
+   ],
+   "range": [
+    "=LOGNORM.INV(A1:A2,A1:A2,A1:A2)",
+    "=LOGNORM.INV(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=LOGNORM.INV(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=LOGNORM.INV(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "LOGNORMDIST": {
+   "cell": [
+    "=LOGNORMDIST(A1,A1,A1)",
+    "=LOGNORMDIST(A1,A1,A1)"
+   ],
+   "range": [
+    "=LOGNORMDIST(A1:A2,A1:A2,A1:A2)",
+    "=LOGNORMDIST(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=LOGNORMDIST(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=LOGNORMDIST(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "LOOKUP": {
+   "cell": [
+    "=LOOKUP(A1,A1)",
+    "=LOOKUP(A1,A1)"
+   ],
+   "range": [
+    "=LOOKUP(A1:A2,A1:A2)",
+    "=LOOKUP(@A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=LOOKUP(A1:A2*1,A1:A2*1)",
+    "=LOOKUP(@A1:A2*1,A1:A2*1)"
+   ],
+   "wide": [
+    "=LOOKUP(A1:A2,A1:A2,A1:A2)",
+    "=LOOKUP(@A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=LOOKUP(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=LOOKUP(@A1:A2*1,A1:A2*1,A1:A2*1)"
+   ]
+  },
+  "LOWER": {
+   "cell": [
+    "=LOWER(A1)",
+    "=LOWER(A1)"
+   ],
+   "range": [
+    "=LOWER(A1:A2)",
+    "=LOWER(@A1:A2)"
+   ],
+   "worked": [
+    "=LOWER(A1:A2*1)",
+    "=LOWER(@A1:A2*1)"
+   ]
+  },
+  "MAKEARRAY": {
+   "cell": [
+    "=MAKEARRAY(A1,A1,A1)",
+    "=@MAKEARRAY(A1,A1,A1)"
+   ],
+   "range": [
+    "=MAKEARRAY(A1:A2,A1:A2,A1:A2)",
+    "=@MAKEARRAY(@A1:A2,@A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=MAKEARRAY(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=@MAKEARRAY(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "MAP": {
+   "cell": [
+    "=MAP(A1,LAMBDA(x,x))",
+    "=@MAP(A1,LAMBDA(x,x))"
+   ],
+   "range": [
+    "=MAP(A1:A2,LAMBDA(x,x))",
+    "=@MAP(A1:A2,LAMBDA(x,x))"
+   ],
+   "worked": [
+    "=MAP(A1:A2*1,LAMBDA(x,x))",
+    "=@MAP(A1:A2*1,LAMBDA(x,x))"
+   ],
+   "wide": [
+    "=MAP(A1:A2,A1:A2,A1:A2)",
+    "=@MAP(A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=MAP(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=@MAP(A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "MATCH": {
+   "cell": [
+    "=MATCH(A1,A1)",
+    "=MATCH(A1,A1)"
+   ],
+   "range": [
+    "=MATCH(A1:A2,A1:A2)",
+    "=MATCH(@A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=MATCH(A1:A2*1,A1:A2*1)",
+    "=MATCH(@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=MATCH(A1:A2,A1:A2,A1:A2)",
+    "=MATCH(@A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=MATCH(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=MATCH(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "MAX": {
+   "cell": [
+    "=MAX(A1)",
+    "=MAX(A1)"
+   ],
+   "range": [
+    "=MAX(A1:A2)",
+    "=MAX(A1:A2)"
+   ],
+   "worked": [
+    "=MAX(A1:A2*1)",
+    "=MAX(@A1:A2*1)"
+   ],
+   "wide": [
+    "=MAX(A1:A2,A1:A2,A1:A2)",
+    "=MAX(A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=MAX(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=MAX(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "MAXA": {
+   "cell": [
+    "=MAXA(A1)",
+    "=MAXA(A1)"
+   ],
+   "range": [
+    "=MAXA(A1:A2)",
+    "=MAXA(A1:A2)"
+   ],
+   "worked": [
+    "=MAXA(A1:A2*1)",
+    "=MAXA(@A1:A2*1)"
+   ],
+   "wide": [
+    "=MAXA(A1:A2,A1:A2,A1:A2)",
+    "=MAXA(A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=MAXA(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=MAXA(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "MAXIFS": {
+   "cell": [
+    "=MAXIFS(A1,A1,A1)",
+    "=MAXIFS(A1,A1,A1)"
+   ],
+   "range": [
+    "=MAXIFS(A1:A2,A1:A2,A1:A2)",
+    "=MAXIFS(A1:A2,A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=MAXIFS(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "!1004"
+   ],
+   "wide": [
+    "=MAXIFS(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=MAXIFS(A1:A2,A1:A2,@A1:A2,A1:A2,@A1:A2,A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=MAXIFS(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "!1004"
+   ]
+  },
+  "MDETERM": {
+   "cell": [
+    "=MDETERM(A1)",
+    "=MDETERM(A1)"
+   ],
+   "range": [
+    "=MDETERM(A1:A2)",
+    "=MDETERM(A1:A2)"
+   ],
+   "worked": [
+    "=MDETERM(A1:A2*1)",
+    "=MDETERM(A1:A2*1)"
+   ]
+  },
+  "MDURATION": {
+   "cell": [
+    "=MDURATION(A1,A1,A1,A1,A1)",
+    "=MDURATION(A1,A1,A1,A1,A1)"
+   ],
+   "range": [
+    "=MDURATION(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=MDURATION(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=MDURATION(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=MDURATION(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=MDURATION(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=MDURATION(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=MDURATION(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=MDURATION(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "MEDIAN": {
+   "cell": [
+    "=MEDIAN(A1)",
+    "=MEDIAN(A1)"
+   ],
+   "range": [
+    "=MEDIAN(A1:A2)",
+    "=MEDIAN(A1:A2)"
+   ],
+   "worked": [
+    "=MEDIAN(A1:A2*1)",
+    "=MEDIAN(@A1:A2*1)"
+   ],
+   "wide": [
+    "=MEDIAN(A1:A2,A1:A2,A1:A2)",
+    "=MEDIAN(A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=MEDIAN(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=MEDIAN(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "MID": {
+   "cell": [
+    "=MID(A1,A1,A1)",
+    "=MID(A1,A1,A1)"
+   ],
+   "range": [
+    "=MID(A1:A2,A1:A2,A1:A2)",
+    "=MID(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=MID(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=MID(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "MIDB": {
+   "cell": [
+    "=MIDB(A1,A1,A1)",
+    "=MIDB(A1,A1,A1)"
+   ],
+   "range": [
+    "=MIDB(A1:A2,A1:A2,A1:A2)",
+    "=MIDB(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=MIDB(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=MIDB(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "MIN": {
+   "cell": [
+    "=MIN(A1)",
+    "=MIN(A1)"
+   ],
+   "range": [
+    "=MIN(A1:A2)",
+    "=MIN(A1:A2)"
+   ],
+   "worked": [
+    "=MIN(A1:A2*1)",
+    "=MIN(@A1:A2*1)"
+   ],
+   "wide": [
+    "=MIN(A1:A2,A1:A2,A1:A2)",
+    "=MIN(A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=MIN(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=MIN(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "MINA": {
+   "cell": [
+    "=MINA(A1)",
+    "=MINA(A1)"
+   ],
+   "range": [
+    "=MINA(A1:A2)",
+    "=MINA(A1:A2)"
+   ],
+   "worked": [
+    "=MINA(A1:A2*1)",
+    "=MINA(@A1:A2*1)"
+   ],
+   "wide": [
+    "=MINA(A1:A2,A1:A2,A1:A2)",
+    "=MINA(A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=MINA(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=MINA(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "MINIFS": {
+   "cell": [
+    "=MINIFS(A1,A1,A1)",
+    "=MINIFS(A1,A1,A1)"
+   ],
+   "range": [
+    "=MINIFS(A1:A2,A1:A2,A1:A2)",
+    "=MINIFS(A1:A2,A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=MINIFS(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "!1004"
+   ],
+   "wide": [
+    "=MINIFS(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=MINIFS(A1:A2,A1:A2,@A1:A2,A1:A2,@A1:A2,A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=MINIFS(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "!1004"
+   ]
+  },
+  "MINUTE": {
+   "cell": [
+    "=MINUTE(A1)",
+    "=MINUTE(A1)"
+   ],
+   "range": [
+    "=MINUTE(A1:A2)",
+    "=MINUTE(@A1:A2)"
+   ],
+   "worked": [
+    "=MINUTE(A1:A2*1)",
+    "=MINUTE(@A1:A2*1)"
+   ]
+  },
+  "MINVERSE": {
+   "cell": [
+    "=MINVERSE(A1)",
+    "=@MINVERSE(A1)"
+   ],
+   "range": [
+    "=MINVERSE(A1:A2)",
+    "=@MINVERSE(A1:A2)"
+   ],
+   "worked": [
+    "=MINVERSE(A1:A2*1)",
+    "=@MINVERSE(A1:A2*1)"
+   ]
+  },
+  "MIRR": {
+   "cell": [
+    "=MIRR(A1,A1,A1)",
+    "=MIRR(A1,A1,A1)"
+   ],
+   "range": [
+    "=MIRR(A1:A2,A1:A2,A1:A2)",
+    "=MIRR(A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=MIRR(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=MIRR(A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "MMULT": {
+   "cell": [
+    "=MMULT(A1,A1)",
+    "=@MMULT(A1,A1)"
+   ],
+   "range": [
+    "=MMULT(A1:A2,A1:A2)",
+    "=@MMULT(A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=MMULT(A1:A2*1,A1:A2*1)",
+    "=@MMULT(A1:A2*1,A1:A2*1)"
+   ]
+  },
+  "MOD": {
+   "cell": [
+    "=MOD(A1,A1)",
+    "=MOD(A1,A1)"
+   ],
+   "range": [
+    "=MOD(A1:A2,A1:A2)",
+    "=MOD(@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=MOD(A1:A2*1,A1:A2*1)",
+    "=MOD(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "MODE": {
+   "cell": [
+    "=MODE(A1)",
+    "=MODE(A1)"
+   ],
+   "range": [
+    "=MODE(A1:A2)",
+    "=MODE(A1:A2)"
+   ],
+   "worked": [
+    "=MODE(A1:A2*1)",
+    "=MODE(A1:A2*1)"
+   ],
+   "wide": [
+    "=MODE(A1:A2,A1:A2,A1:A2)",
+    "=MODE(A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=MODE(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=MODE(A1:A2*1,A1:A2*1,A1:A2*1)"
+   ]
+  },
+  "MODE.MULT": {
+   "cell": [
+    "=MODE.MULT(A1)",
+    "=@MODE.MULT(A1)"
+   ],
+   "range": [
+    "=MODE.MULT(A1:A2)",
+    "=@MODE.MULT(A1:A2)"
+   ],
+   "worked": [
+    "=MODE.MULT(A1:A2*1)",
+    "=@MODE.MULT(A1:A2*1)"
+   ],
+   "wide": [
+    "=MODE.MULT(A1:A2,A1:A2,A1:A2)",
+    "=@MODE.MULT(A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=MODE.MULT(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=@MODE.MULT(A1:A2*1,A1:A2*1,A1:A2*1)"
+   ]
+  },
+  "MODE.SNGL": {
+   "cell": [
+    "=MODE.SNGL(A1)",
+    "=MODE.SNGL(A1)"
+   ],
+   "range": [
+    "=MODE.SNGL(A1:A2)",
+    "=MODE.SNGL(A1:A2)"
+   ],
+   "worked": [
+    "=MODE.SNGL(A1:A2*1)",
+    "=MODE.SNGL(A1:A2*1)"
+   ],
+   "wide": [
+    "=MODE.SNGL(A1:A2,A1:A2,A1:A2)",
+    "=MODE.SNGL(A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=MODE.SNGL(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=MODE.SNGL(A1:A2*1,A1:A2*1,A1:A2*1)"
+   ]
+  },
+  "MONTH": {
+   "cell": [
+    "=MONTH(A1)",
+    "=MONTH(A1)"
+   ],
+   "range": [
+    "=MONTH(A1:A2)",
+    "=MONTH(@A1:A2)"
+   ],
+   "worked": [
+    "=MONTH(A1:A2*1)",
+    "=MONTH(@A1:A2*1)"
+   ]
+  },
+  "MROUND": {
+   "cell": [
+    "=MROUND(A1,A1)",
+    "=MROUND(A1,A1)"
+   ],
+   "range": [
+    "=MROUND(A1:A2,A1:A2)",
+    "=MROUND(A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=MROUND(A1:A2*1,A1:A2*1)",
+    "=MROUND(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "MULTINOMIAL": {
+   "cell": [
+    "=MULTINOMIAL(A1)",
+    "=MULTINOMIAL(A1)"
+   ],
+   "range": [
+    "=MULTINOMIAL(A1:A2)",
+    "=MULTINOMIAL(A1:A2)"
+   ],
+   "worked": [
+    "=MULTINOMIAL(A1:A2*1)",
+    "=MULTINOMIAL(@A1:A2*1)"
+   ],
+   "wide": [
+    "=MULTINOMIAL(A1:A2,A1:A2,A1:A2)",
+    "=MULTINOMIAL(A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=MULTINOMIAL(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=MULTINOMIAL(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "MUNIT": {
+   "cell": [
+    "=MUNIT(A1)",
+    "=@MUNIT(A1)"
+   ],
+   "range": [
+    "=MUNIT(A1:A2)",
+    "=@MUNIT(@A1:A2)"
+   ],
+   "worked": [
+    "=MUNIT(A1:A2*1)",
+    "=@MUNIT(@A1:A2*1)"
+   ]
+  },
+  "N": {
+   "cell": [
+    "=N(A1)",
+    "=N(A1)"
+   ],
+   "range": [
+    "=N(A1:A2)",
+    "=N(A1:A2)"
+   ],
+   "worked": [
+    "=N(A1:A2*1)",
+    "=N(@A1:A2*1)"
+   ]
+  },
+  "NA": {
+   "cell": [
+    "=NA()",
+    "=NA()"
+   ],
+   "range": [
+    "=NA()",
+    "=NA()"
+   ],
+   "worked": [
+    "=NA()",
+    "=NA()"
+   ]
+  },
+  "NEGBINOM.DIST": {
+   "cell": [
+    "=NEGBINOM.DIST(A1,A1,A1,A1)",
+    "=NEGBINOM.DIST(A1,A1,A1,A1)"
+   ],
+   "range": [
+    "=NEGBINOM.DIST(A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=NEGBINOM.DIST(@A1:A2,@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=NEGBINOM.DIST(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=NEGBINOM.DIST(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "NEGBINOMDIST": {
+   "cell": [
+    "=NEGBINOMDIST(A1,A1,A1)",
+    "=NEGBINOMDIST(A1,A1,A1)"
+   ],
+   "range": [
+    "=NEGBINOMDIST(A1:A2,A1:A2,A1:A2)",
+    "=NEGBINOMDIST(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=NEGBINOMDIST(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=NEGBINOMDIST(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "NETWORKDAYS": {
+   "cell": [
+    "=NETWORKDAYS(A1,A1)",
+    "=NETWORKDAYS(A1,A1)"
+   ],
+   "range": [
+    "=NETWORKDAYS(A1:A2,A1:A2)",
+    "=NETWORKDAYS(A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=NETWORKDAYS(A1:A2*1,A1:A2*1)",
+    "=NETWORKDAYS(@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=NETWORKDAYS(A1:A2,A1:A2,A1:A2)",
+    "=NETWORKDAYS(A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=NETWORKDAYS(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=NETWORKDAYS(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "NETWORKDAYS.INTL": {
+   "cell": [
+    "=NETWORKDAYS.INTL(A1,A1)",
+    "=NETWORKDAYS.INTL(A1,A1)"
+   ],
+   "range": [
+    "=NETWORKDAYS.INTL(A1:A2,A1:A2)",
+    "=NETWORKDAYS.INTL(A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=NETWORKDAYS.INTL(A1:A2*1,A1:A2*1)",
+    "=NETWORKDAYS.INTL(@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=NETWORKDAYS.INTL(A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=NETWORKDAYS.INTL(A1:A2,A1:A2,@A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=NETWORKDAYS.INTL(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=NETWORKDAYS.INTL(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "NOMINAL": {
+   "cell": [
+    "=NOMINAL(A1,A1)",
+    "=NOMINAL(A1,A1)"
+   ],
+   "range": [
+    "=NOMINAL(A1:A2,A1:A2)",
+    "=NOMINAL(A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=NOMINAL(A1:A2*1,A1:A2*1)",
+    "=NOMINAL(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "NORM.DIST": {
+   "cell": [
+    "=NORM.DIST(A1,A1,A1,A1)",
+    "=NORM.DIST(A1,A1,A1,A1)"
+   ],
+   "range": [
+    "=NORM.DIST(A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=NORM.DIST(@A1:A2,@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=NORM.DIST(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=NORM.DIST(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "NORM.INV": {
+   "cell": [
+    "=NORM.INV(A1,A1,A1)",
+    "=NORM.INV(A1,A1,A1)"
+   ],
+   "range": [
+    "=NORM.INV(A1:A2,A1:A2,A1:A2)",
+    "=NORM.INV(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=NORM.INV(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=NORM.INV(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "NORM.S.DIST": {
+   "cell": [
+    "=NORM.S.DIST(A1,A1)",
+    "=NORM.S.DIST(A1,A1)"
+   ],
+   "range": [
+    "=NORM.S.DIST(A1:A2,A1:A2)",
+    "=NORM.S.DIST(@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=NORM.S.DIST(A1:A2*1,A1:A2*1)",
+    "=NORM.S.DIST(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "NORM.S.INV": {
+   "cell": [
+    "=NORM.S.INV(A1)",
+    "=NORM.S.INV(A1)"
+   ],
+   "range": [
+    "=NORM.S.INV(A1:A2)",
+    "=NORM.S.INV(@A1:A2)"
+   ],
+   "worked": [
+    "=NORM.S.INV(A1:A2*1)",
+    "=NORM.S.INV(@A1:A2*1)"
+   ]
+  },
+  "NORMDIST": {
+   "cell": [
+    "=NORMDIST(A1,A1,A1,A1)",
+    "=NORMDIST(A1,A1,A1,A1)"
+   ],
+   "range": [
+    "=NORMDIST(A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=NORMDIST(@A1:A2,@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=NORMDIST(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=NORMDIST(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "NORMINV": {
+   "cell": [
+    "=NORMINV(A1,A1,A1)",
+    "=NORMINV(A1,A1,A1)"
+   ],
+   "range": [
+    "=NORMINV(A1:A2,A1:A2,A1:A2)",
+    "=NORMINV(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=NORMINV(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=NORMINV(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "NORMSDIST": {
+   "cell": [
+    "=NORMSDIST(A1)",
+    "=NORMSDIST(A1)"
+   ],
+   "range": [
+    "=NORMSDIST(A1:A2)",
+    "=NORMSDIST(@A1:A2)"
+   ],
+   "worked": [
+    "=NORMSDIST(A1:A2*1)",
+    "=NORMSDIST(@A1:A2*1)"
+   ]
+  },
+  "NORMSINV": {
+   "cell": [
+    "=NORMSINV(A1)",
+    "=NORMSINV(A1)"
+   ],
+   "range": [
+    "=NORMSINV(A1:A2)",
+    "=NORMSINV(@A1:A2)"
+   ],
+   "worked": [
+    "=NORMSINV(A1:A2*1)",
+    "=NORMSINV(@A1:A2*1)"
+   ]
+  },
+  "NOT": {
+   "cell": [
+    "=NOT(A1)",
+    "=NOT(A1)"
+   ],
+   "range": [
+    "=NOT(A1:A2)",
+    "=NOT(@A1:A2)"
+   ],
+   "worked": [
+    "=NOT(A1:A2*1)",
+    "=NOT(@A1:A2*1)"
+   ]
+  },
+  "NOW": {
+   "cell": [
+    "=NOW()",
+    "=NOW()"
+   ],
+   "range": [
+    "=NOW()",
+    "=NOW()"
+   ],
+   "worked": [
+    "=NOW()",
+    "=NOW()"
+   ]
+  },
+  "NPER": {
+   "cell": [
+    "=NPER(A1,A1,A1)",
+    "=NPER(A1,A1,A1)"
+   ],
+   "range": [
+    "=NPER(A1:A2,A1:A2,A1:A2)",
+    "=NPER(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=NPER(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=NPER(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=NPER(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=NPER(@A1:A2,@A1:A2,@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=NPER(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=NPER(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "NPV": {
+   "cell": [
+    "=NPV(A1,A1)",
+    "=NPV(A1,A1)"
+   ],
+   "range": [
+    "=NPV(A1:A2,A1:A2)",
+    "=NPV(@A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=NPV(A1:A2*1,A1:A2*1)",
+    "=NPV(@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=NPV(A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=NPV(@A1:A2,A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=NPV(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=NPV(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "NUMBERVALUE": {
+   "cell": [
+    "=NUMBERVALUE(A1)",
+    "=NUMBERVALUE(A1)"
+   ],
+   "range": [
+    "=NUMBERVALUE(A1:A2)",
+    "=NUMBERVALUE(@A1:A2)"
+   ],
+   "worked": [
+    "=NUMBERVALUE(A1:A2*1)",
+    "=NUMBERVALUE(@A1:A2*1)"
+   ],
+   "wide": [
+    "=NUMBERVALUE(A1:A2,A1:A2,A1:A2)",
+    "=NUMBERVALUE(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=NUMBERVALUE(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=NUMBERVALUE(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "OCT2BIN": {
+   "cell": [
+    "=OCT2BIN(A1)",
+    "=OCT2BIN(A1)"
+   ],
+   "range": [
+    "=OCT2BIN(A1:A2)",
+    "=OCT2BIN(A1:A2)"
+   ],
+   "worked": [
+    "=OCT2BIN(A1:A2*1)",
+    "=OCT2BIN(@A1:A2*1)"
+   ],
+   "wide": [
+    "=OCT2BIN(A1:A2,A1:A2)",
+    "=OCT2BIN(A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=OCT2BIN(A1:A2*1,A1:A2*1)",
+    "=OCT2BIN(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "OCT2DEC": {
+   "cell": [
+    "=OCT2DEC(A1)",
+    "=OCT2DEC(A1)"
+   ],
+   "range": [
+    "=OCT2DEC(A1:A2)",
+    "=OCT2DEC(A1:A2)"
+   ],
+   "worked": [
+    "=OCT2DEC(A1:A2*1)",
+    "=OCT2DEC(@A1:A2*1)"
+   ]
+  },
+  "OCT2HEX": {
+   "cell": [
+    "=OCT2HEX(A1)",
+    "=OCT2HEX(A1)"
+   ],
+   "range": [
+    "=OCT2HEX(A1:A2)",
+    "=OCT2HEX(A1:A2)"
+   ],
+   "worked": [
+    "=OCT2HEX(A1:A2*1)",
+    "=OCT2HEX(@A1:A2*1)"
+   ],
+   "wide": [
+    "=OCT2HEX(A1:A2,A1:A2)",
+    "=OCT2HEX(A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=OCT2HEX(A1:A2*1,A1:A2*1)",
+    "=OCT2HEX(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "ODD": {
+   "cell": [
+    "=ODD(A1)",
+    "=ODD(A1)"
+   ],
+   "range": [
+    "=ODD(A1:A2)",
+    "=ODD(@A1:A2)"
+   ],
+   "worked": [
+    "=ODD(A1:A2*1)",
+    "=ODD(@A1:A2*1)"
+   ]
+  },
+  "OFFSET": {
+   "cell": [
+    "=OFFSET(A1,A1,A1)",
+    "=OFFSET(A1,A1,A1)"
+   ],
+   "range": [
+    "=OFFSET(A1:A2,A1:A2,A1:A2)",
+    "=@OFFSET(A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=OFFSET(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "!1004"
+   ],
+   "wide": [
+    "=OFFSET(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=@OFFSET(A1:A2,@A1:A2,@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=OFFSET(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "!1004"
+   ]
+  },
+  "OR": {
+   "cell": [
+    "=OR(A1)",
+    "=OR(A1)"
+   ],
+   "range": [
+    "=OR(A1:A2)",
+    "=OR(A1:A2)"
+   ],
+   "worked": [
+    "=OR(A1:A2*1)",
+    "=OR(@A1:A2*1)"
+   ],
+   "wide": [
+    "=OR(A1:A2,A1:A2,A1:A2)",
+    "=OR(A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=OR(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=OR(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "PDURATION": {
+   "cell": [
+    "=PDURATION(A1,A1,A1)",
+    "=PDURATION(A1,A1,A1)"
+   ],
+   "range": [
+    "=PDURATION(A1:A2,A1:A2,A1:A2)",
+    "=PDURATION(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=PDURATION(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=PDURATION(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "PEARSON": {
+   "cell": [
+    "=PEARSON(A1,A1)",
+    "=PEARSON(A1,A1)"
+   ],
+   "range": [
+    "=PEARSON(A1:A2,A1:A2)",
+    "=PEARSON(A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=PEARSON(A1:A2*1,A1:A2*1)",
+    "=PEARSON(A1:A2*1,A1:A2*1)"
+   ]
+  },
+  "PERCENTILE": {
+   "cell": [
+    "=PERCENTILE(A1,A1)",
+    "=PERCENTILE(A1,A1)"
+   ],
+   "range": [
+    "=PERCENTILE(A1:A2,A1:A2)",
+    "=PERCENTILE(A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=PERCENTILE(A1:A2*1,A1:A2*1)",
+    "=PERCENTILE(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "PERCENTILE.EXC": {
+   "cell": [
+    "=PERCENTILE.EXC(A1,A1)",
+    "=PERCENTILE.EXC(A1,A1)"
+   ],
+   "range": [
+    "=PERCENTILE.EXC(A1:A2,A1:A2)",
+    "=PERCENTILE.EXC(A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=PERCENTILE.EXC(A1:A2*1,A1:A2*1)",
+    "=PERCENTILE.EXC(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "PERCENTILE.INC": {
+   "cell": [
+    "=PERCENTILE.INC(A1,A1)",
+    "=PERCENTILE.INC(A1,A1)"
+   ],
+   "range": [
+    "=PERCENTILE.INC(A1:A2,A1:A2)",
+    "=PERCENTILE.INC(A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=PERCENTILE.INC(A1:A2*1,A1:A2*1)",
+    "=PERCENTILE.INC(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "PERCENTOF": {
+   "cell": [
+    "=PERCENTOF(A1,A1)",
+    "=PERCENTOF(A1,A1)"
+   ],
+   "range": [
+    "=PERCENTOF(A1:A2,A1:A2)",
+    "=PERCENTOF(A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=PERCENTOF(A1:A2*1,A1:A2*1)",
+    "=PERCENTOF(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "PERCENTRANK": {
+   "cell": [
+    "=PERCENTRANK(A1,A1)",
+    "=PERCENTRANK(A1,A1)"
+   ],
+   "range": [
+    "=PERCENTRANK(A1:A2,A1:A2)",
+    "=PERCENTRANK(A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=PERCENTRANK(A1:A2*1,A1:A2*1)",
+    "=PERCENTRANK(@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=PERCENTRANK(A1:A2,A1:A2,A1:A2)",
+    "=PERCENTRANK(A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=PERCENTRANK(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=PERCENTRANK(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "PERCENTRANK.EXC": {
+   "cell": [
+    "=PERCENTRANK.EXC(A1,A1)",
+    "=PERCENTRANK.EXC(A1,A1)"
+   ],
+   "range": [
+    "=PERCENTRANK.EXC(A1:A2,A1:A2)",
+    "=PERCENTRANK.EXC(A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=PERCENTRANK.EXC(A1:A2*1,A1:A2*1)",
+    "=PERCENTRANK.EXC(@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=PERCENTRANK.EXC(A1:A2,A1:A2,A1:A2)",
+    "=PERCENTRANK.EXC(A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=PERCENTRANK.EXC(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=PERCENTRANK.EXC(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "PERCENTRANK.INC": {
+   "cell": [
+    "=PERCENTRANK.INC(A1,A1)",
+    "=PERCENTRANK.INC(A1,A1)"
+   ],
+   "range": [
+    "=PERCENTRANK.INC(A1:A2,A1:A2)",
+    "=PERCENTRANK.INC(A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=PERCENTRANK.INC(A1:A2*1,A1:A2*1)",
+    "=PERCENTRANK.INC(@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=PERCENTRANK.INC(A1:A2,A1:A2,A1:A2)",
+    "=PERCENTRANK.INC(A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=PERCENTRANK.INC(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=PERCENTRANK.INC(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "PERMUT": {
+   "cell": [
+    "=PERMUT(A1,A1)",
+    "=PERMUT(A1,A1)"
+   ],
+   "range": [
+    "=PERMUT(A1:A2,A1:A2)",
+    "=PERMUT(@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=PERMUT(A1:A2*1,A1:A2*1)",
+    "=PERMUT(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "PERMUTATIONA": {
+   "cell": [
+    "=PERMUTATIONA(A1,A1)",
+    "=PERMUTATIONA(A1,A1)"
+   ],
+   "range": [
+    "=PERMUTATIONA(A1:A2,A1:A2)",
+    "=PERMUTATIONA(@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=PERMUTATIONA(A1:A2*1,A1:A2*1)",
+    "=PERMUTATIONA(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "PHI": {
+   "cell": [
+    "=PHI(A1)",
+    "=PHI(A1)"
+   ],
+   "range": [
+    "=PHI(A1:A2)",
+    "=PHI(@A1:A2)"
+   ],
+   "worked": [
+    "=PHI(A1:A2*1)",
+    "=PHI(@A1:A2*1)"
+   ]
+  },
+  "PHONETIC": {
+   "cell": [
+    "=PHONETIC(A1)",
+    "=PHONETIC(A1)"
+   ],
+   "range": [
+    "=PHONETIC(A1:A2)",
+    "=PHONETIC(A1:A2)"
+   ],
+   "worked": [
+    "=PHONETIC(A1:A2*1)",
+    "!1004"
+   ]
+  },
+  "PI": {
+   "cell": [
+    "=PI()",
+    "=PI()"
+   ],
+   "range": [
+    "=PI()",
+    "=PI()"
+   ],
+   "worked": [
+    "=PI()",
+    "=PI()"
+   ]
+  },
+  "PIVOTBY": {
+   "cell": [
+    "=PIVOTBY(A1,A1,A1,A1)",
+    "=@PIVOTBY(A1,A1,A1,A1)"
+   ],
+   "range": [
+    "=PIVOTBY(A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=@PIVOTBY(A1:A2,A1:A2,A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=PIVOTBY(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=@PIVOTBY(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)"
+   ]
+  },
+  "PMT": {
+   "cell": [
+    "=PMT(A1,A1,A1)",
+    "=PMT(A1,A1,A1)"
+   ],
+   "range": [
+    "=PMT(A1:A2,A1:A2,A1:A2)",
+    "=PMT(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=PMT(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=PMT(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=PMT(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=PMT(@A1:A2,@A1:A2,@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=PMT(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=PMT(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "POISSON": {
+   "cell": [
+    "=POISSON(A1,A1,A1)",
+    "=POISSON(A1,A1,A1)"
+   ],
+   "range": [
+    "=POISSON(A1:A2,A1:A2,A1:A2)",
+    "=POISSON(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=POISSON(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=POISSON(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "POISSON.DIST": {
+   "cell": [
+    "=POISSON.DIST(A1,A1,A1)",
+    "=POISSON.DIST(A1,A1,A1)"
+   ],
+   "range": [
+    "=POISSON.DIST(A1:A2,A1:A2,A1:A2)",
+    "=POISSON.DIST(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=POISSON.DIST(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=POISSON.DIST(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "POWER": {
+   "cell": [
+    "=POWER(A1,A1)",
+    "=POWER(A1,A1)"
+   ],
+   "range": [
+    "=POWER(A1:A2,A1:A2)",
+    "=POWER(@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=POWER(A1:A2*1,A1:A2*1)",
+    "=POWER(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "PPMT": {
+   "cell": [
+    "=PPMT(A1,A1,A1,A1)",
+    "=PPMT(A1,A1,A1,A1)"
+   ],
+   "range": [
+    "=PPMT(A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=PPMT(@A1:A2,@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=PPMT(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=PPMT(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=PPMT(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=PPMT(@A1:A2,@A1:A2,@A1:A2,@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=PPMT(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=PPMT(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "PRICE": {
+   "cell": [
+    "=PRICE(A1,A1,A1,A1,A1,A1)",
+    "=PRICE(A1,A1,A1,A1,A1,A1)"
+   ],
+   "range": [
+    "=PRICE(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=PRICE(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=PRICE(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=PRICE(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=PRICE(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=PRICE(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=PRICE(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=PRICE(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "PRICEDISC": {
+   "cell": [
+    "=PRICEDISC(A1,A1,A1,A1)",
+    "=PRICEDISC(A1,A1,A1,A1)"
+   ],
+   "range": [
+    "=PRICEDISC(A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=PRICEDISC(A1:A2,A1:A2,A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=PRICEDISC(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=PRICEDISC(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=PRICEDISC(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=PRICEDISC(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=PRICEDISC(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=PRICEDISC(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "PRICEMAT": {
+   "cell": [
+    "=PRICEMAT(A1,A1,A1,A1,A1)",
+    "=PRICEMAT(A1,A1,A1,A1,A1)"
+   ],
+   "range": [
+    "=PRICEMAT(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=PRICEMAT(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=PRICEMAT(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=PRICEMAT(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=PRICEMAT(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=PRICEMAT(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=PRICEMAT(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=PRICEMAT(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "PROB": {
+   "cell": [
+    "=PROB(A1,A1,A1)",
+    "=PROB(A1,A1,A1)"
+   ],
+   "range": [
+    "=PROB(A1:A2,A1:A2,A1:A2)",
+    "=PROB(A1:A2,A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=PROB(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=PROB(A1:A2*1,A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=PROB(A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=PROB(A1:A2,A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=PROB(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=PROB(A1:A2*1,A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "PRODUCT": {
+   "cell": [
+    "=PRODUCT(A1)",
+    "=PRODUCT(A1)"
+   ],
+   "range": [
+    "=PRODUCT(A1:A2)",
+    "=PRODUCT(A1:A2)"
+   ],
+   "worked": [
+    "=PRODUCT(A1:A2*1)",
+    "=PRODUCT(@A1:A2*1)"
+   ],
+   "wide": [
+    "=PRODUCT(A1:A2,A1:A2,A1:A2)",
+    "=PRODUCT(A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=PRODUCT(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=PRODUCT(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "PROPER": {
+   "cell": [
+    "=PROPER(A1)",
+    "=PROPER(A1)"
+   ],
+   "range": [
+    "=PROPER(A1:A2)",
+    "=PROPER(@A1:A2)"
+   ],
+   "worked": [
+    "=PROPER(A1:A2*1)",
+    "=PROPER(@A1:A2*1)"
+   ]
+  },
+  "PV": {
+   "cell": [
+    "=PV(A1,A1,A1)",
+    "=PV(A1,A1,A1)"
+   ],
+   "range": [
+    "=PV(A1:A2,A1:A2,A1:A2)",
+    "=PV(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=PV(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=PV(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=PV(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=PV(@A1:A2,@A1:A2,@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=PV(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=PV(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "QUARTILE": {
+   "cell": [
+    "=QUARTILE(A1,A1)",
+    "=QUARTILE(A1,A1)"
+   ],
+   "range": [
+    "=QUARTILE(A1:A2,A1:A2)",
+    "=QUARTILE(A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=QUARTILE(A1:A2*1,A1:A2*1)",
+    "=QUARTILE(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "QUARTILE.EXC": {
+   "cell": [
+    "=QUARTILE.EXC(A1,A1)",
+    "=QUARTILE.EXC(A1,A1)"
+   ],
+   "range": [
+    "=QUARTILE.EXC(A1:A2,A1:A2)",
+    "=QUARTILE.EXC(A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=QUARTILE.EXC(A1:A2*1,A1:A2*1)",
+    "=QUARTILE.EXC(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "QUARTILE.INC": {
+   "cell": [
+    "=QUARTILE.INC(A1,A1)",
+    "=QUARTILE.INC(A1,A1)"
+   ],
+   "range": [
+    "=QUARTILE.INC(A1:A2,A1:A2)",
+    "=QUARTILE.INC(A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=QUARTILE.INC(A1:A2*1,A1:A2*1)",
+    "=QUARTILE.INC(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "QUOTIENT": {
+   "cell": [
+    "=QUOTIENT(A1,A1)",
+    "=QUOTIENT(A1,A1)"
+   ],
+   "range": [
+    "=QUOTIENT(A1:A2,A1:A2)",
+    "=QUOTIENT(A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=QUOTIENT(A1:A2*1,A1:A2*1)",
+    "=QUOTIENT(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "RADIANS": {
+   "cell": [
+    "=RADIANS(A1)",
+    "=RADIANS(A1)"
+   ],
+   "range": [
+    "=RADIANS(A1:A2)",
+    "=RADIANS(@A1:A2)"
+   ],
+   "worked": [
+    "=RADIANS(A1:A2*1)",
+    "=RADIANS(@A1:A2*1)"
+   ]
+  },
+  "RAND": {
+   "cell": [
+    "=RAND()",
+    "=RAND()"
+   ],
+   "range": [
+    "=RAND()",
+    "=RAND()"
+   ],
+   "worked": [
+    "=RAND()",
+    "=RAND()"
+   ]
+  },
+  "RANDARRAY": {
+   "cell": [
+    "=RANDARRAY()",
+    "=@RANDARRAY()"
+   ],
+   "range": [
+    "=RANDARRAY()",
+    "=@RANDARRAY()"
+   ],
+   "worked": [
+    "=RANDARRAY()",
+    "=@RANDARRAY()"
+   ],
+   "wide": [
+    "=RANDARRAY(A1:A2,A1:A2)",
+    "=@RANDARRAY(@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=RANDARRAY(A1:A2*1,A1:A2*1)",
+    "=@RANDARRAY(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "RANDBETWEEN": {
+   "cell": [
+    "=RANDBETWEEN(A1,A1)",
+    "=RANDBETWEEN(A1,A1)"
+   ],
+   "range": [
+    "=RANDBETWEEN(A1:A2,A1:A2)",
+    "=RANDBETWEEN(A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=RANDBETWEEN(A1:A2*1,A1:A2*1)",
+    "=RANDBETWEEN(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "RANK": {
+   "cell": [
+    "=RANK(A1,A1)",
+    "=RANK(A1,A1)"
+   ],
+   "range": [
+    "=RANK(A1:A2,A1:A2)",
+    "=RANK(@A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=RANK(A1:A2*1,A1:A2*1)",
+    "!1004"
+   ],
+   "wide": [
+    "=RANK(A1:A2,A1:A2,A1:A2)",
+    "=RANK(@A1:A2,A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=RANK(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "!1004"
+   ]
+  },
+  "RANK.AVG": {
+   "cell": [
+    "=RANK.AVG(A1,A1)",
+    "=RANK.AVG(A1,A1)"
+   ],
+   "range": [
+    "=RANK.AVG(A1:A2,A1:A2)",
+    "=RANK.AVG(@A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=RANK.AVG(A1:A2*1,A1:A2*1)",
+    "!1004"
+   ],
+   "wide": [
+    "=RANK.AVG(A1:A2,A1:A2,A1:A2)",
+    "=RANK.AVG(@A1:A2,A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=RANK.AVG(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "!1004"
+   ]
+  },
+  "RANK.EQ": {
+   "cell": [
+    "=RANK.EQ(A1,A1)",
+    "=RANK.EQ(A1,A1)"
+   ],
+   "range": [
+    "=RANK.EQ(A1:A2,A1:A2)",
+    "=RANK.EQ(@A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=RANK.EQ(A1:A2*1,A1:A2*1)",
+    "!1004"
+   ],
+   "wide": [
+    "=RANK.EQ(A1:A2,A1:A2,A1:A2)",
+    "=RANK.EQ(@A1:A2,A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=RANK.EQ(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "!1004"
+   ]
+  },
+  "RATE": {
+   "cell": [
+    "=RATE(A1,A1,A1)",
+    "=RATE(A1,A1,A1)"
+   ],
+   "range": [
+    "=RATE(A1:A2,A1:A2,A1:A2)",
+    "=RATE(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=RATE(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=RATE(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=RATE(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=RATE(@A1:A2,@A1:A2,@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=RATE(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=RATE(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "RECEIVED": {
+   "cell": [
+    "=RECEIVED(A1,A1,A1,A1)",
+    "=RECEIVED(A1,A1,A1,A1)"
+   ],
+   "range": [
+    "=RECEIVED(A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=RECEIVED(A1:A2,A1:A2,A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=RECEIVED(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=RECEIVED(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=RECEIVED(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=RECEIVED(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=RECEIVED(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=RECEIVED(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "REDUCE": {
+   "cell": [
+    "=REDUCE(A1,A1,A1)",
+    "=@REDUCE(A1,A1,A1)"
+   ],
+   "range": [
+    "=REDUCE(A1:A2,A1:A2,A1:A2)",
+    "=@REDUCE(A1:A2,A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=REDUCE(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=@REDUCE(@A1:A2*1,A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "REGEXEXTRACT": {
+   "cell": [
+    "=REGEXEXTRACT(A1,A1)",
+    "=@REGEXEXTRACT(A1,A1)"
+   ],
+   "range": [
+    "=REGEXEXTRACT(A1:A2,A1:A2)",
+    "=@REGEXEXTRACT(@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=REGEXEXTRACT(A1:A2*1,A1:A2*1)",
+    "=@REGEXEXTRACT(@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=REGEXEXTRACT(A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=@REGEXEXTRACT(@A1:A2,@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=REGEXEXTRACT(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=@REGEXEXTRACT(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "REGEXREPLACE": {
+   "cell": [
+    "=REGEXREPLACE(A1,A1,A1)",
+    "=REGEXREPLACE(A1,A1,A1)"
+   ],
+   "range": [
+    "=REGEXREPLACE(A1:A2,A1:A2,A1:A2)",
+    "=REGEXREPLACE(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=REGEXREPLACE(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=REGEXREPLACE(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=REGEXREPLACE(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=REGEXREPLACE(@A1:A2,@A1:A2,@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=REGEXREPLACE(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=REGEXREPLACE(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "REGEXTEST": {
+   "cell": [
+    "=REGEXTEST(A1,A1)",
+    "=REGEXTEST(A1,A1)"
+   ],
+   "range": [
+    "=REGEXTEST(A1:A2,A1:A2)",
+    "=REGEXTEST(@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=REGEXTEST(A1:A2*1,A1:A2*1)",
+    "=REGEXTEST(@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=REGEXTEST(A1:A2,A1:A2,A1:A2)",
+    "=REGEXTEST(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=REGEXTEST(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=REGEXTEST(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "REPLACE": {
+   "cell": [
+    "=REPLACE(A1,A1,A1,A1)",
+    "=REPLACE(A1,A1,A1,A1)"
+   ],
+   "range": [
+    "=REPLACE(A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=REPLACE(@A1:A2,@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=REPLACE(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=REPLACE(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "REPLACEB": {
+   "cell": [
+    "=REPLACEB(A1,A1,A1,A1)",
+    "=REPLACEB(A1,A1,A1,A1)"
+   ],
+   "range": [
+    "=REPLACEB(A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=REPLACEB(@A1:A2,@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=REPLACEB(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=REPLACEB(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "REPT": {
+   "cell": [
+    "=REPT(A1,A1)",
+    "=REPT(A1,A1)"
+   ],
+   "range": [
+    "=REPT(A1:A2,A1:A2)",
+    "=REPT(@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=REPT(A1:A2*1,A1:A2*1)",
+    "=REPT(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "RIGHT": {
+   "cell": [
+    "=RIGHT(A1)",
+    "=RIGHT(A1)"
+   ],
+   "range": [
+    "=RIGHT(A1:A2)",
+    "=RIGHT(@A1:A2)"
+   ],
+   "worked": [
+    "=RIGHT(A1:A2*1)",
+    "=RIGHT(@A1:A2*1)"
+   ],
+   "wide": [
+    "=RIGHT(A1:A2,A1:A2)",
+    "=RIGHT(@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=RIGHT(A1:A2*1,A1:A2*1)",
+    "=RIGHT(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "RIGHTB": {
+   "cell": [
+    "=RIGHTB(A1)",
+    "=RIGHTB(A1)"
+   ],
+   "range": [
+    "=RIGHTB(A1:A2)",
+    "=RIGHTB(@A1:A2)"
+   ],
+   "worked": [
+    "=RIGHTB(A1:A2*1)",
+    "=RIGHTB(@A1:A2*1)"
+   ],
+   "wide": [
+    "=RIGHTB(A1:A2,A1:A2)",
+    "=RIGHTB(@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=RIGHTB(A1:A2*1,A1:A2*1)",
+    "=RIGHTB(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "ROMAN": {
+   "cell": [
+    "=ROMAN(A1)",
+    "=ROMAN(A1)"
+   ],
+   "range": [
+    "=ROMAN(A1:A2)",
+    "=ROMAN(@A1:A2)"
+   ],
+   "worked": [
+    "=ROMAN(A1:A2*1)",
+    "=ROMAN(@A1:A2*1)"
+   ],
+   "wide": [
+    "=ROMAN(A1:A2,A1:A2)",
+    "=ROMAN(@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=ROMAN(A1:A2*1,A1:A2*1)",
+    "=ROMAN(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "ROUND": {
+   "cell": [
+    "=ROUND(A1,A1)",
+    "=ROUND(A1,A1)"
+   ],
+   "range": [
+    "=ROUND(A1:A2,A1:A2)",
+    "=ROUND(@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=ROUND(A1:A2*1,A1:A2*1)",
+    "=ROUND(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "ROUNDDOWN": {
+   "cell": [
+    "=ROUNDDOWN(A1,A1)",
+    "=ROUNDDOWN(A1,A1)"
+   ],
+   "range": [
+    "=ROUNDDOWN(A1:A2,A1:A2)",
+    "=ROUNDDOWN(@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=ROUNDDOWN(A1:A2*1,A1:A2*1)",
+    "=ROUNDDOWN(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "ROUNDUP": {
+   "cell": [
+    "=ROUNDUP(A1,A1)",
+    "=ROUNDUP(A1,A1)"
+   ],
+   "range": [
+    "=ROUNDUP(A1:A2,A1:A2)",
+    "=ROUNDUP(@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=ROUNDUP(A1:A2*1,A1:A2*1)",
+    "=ROUNDUP(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "ROW": {
+   "cell": [
+    "=ROW()",
+    "=ROW()"
+   ],
+   "range": [
+    "=ROW()",
+    "=ROW()"
+   ],
+   "worked": [
+    "=ROW()",
+    "=ROW()"
+   ],
+   "wide": [
+    "=ROW(A1:A2)",
+    "=@ROW(A1:A2)"
+   ],
+   "wide_worked": [
+    "=ROW(A1:A2*1)",
+    "!1004"
+   ]
+  },
+  "ROWS": {
+   "cell": [
+    "=ROWS(A1)",
+    "=ROWS(A1)"
+   ],
+   "range": [
+    "=ROWS(A1:A2)",
+    "=ROWS(A1:A2)"
+   ],
+   "worked": [
+    "=ROWS(A1:A2*1)",
+    "=ROWS(A1:A2*1)"
+   ]
+  },
+  "RRI": {
+   "cell": [
+    "=RRI(A1,A1,A1)",
+    "=RRI(A1,A1,A1)"
+   ],
+   "range": [
+    "=RRI(A1:A2,A1:A2,A1:A2)",
+    "=RRI(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=RRI(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=RRI(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "RSQ": {
+   "cell": [
+    "=RSQ(A1,A1)",
+    "=RSQ(A1,A1)"
+   ],
+   "range": [
+    "=RSQ(A1:A2,A1:A2)",
+    "=RSQ(A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=RSQ(A1:A2*1,A1:A2*1)",
+    "=RSQ(A1:A2*1,A1:A2*1)"
+   ]
+  },
+  "RTD": {
+   "cell": [
+    "=RTD(A1,A1,A1)",
+    "=RTD(A1,A1,A1)"
+   ],
+   "range": [
+    "=RTD(A1:A2,A1:A2,A1:A2)",
+    "=RTD(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=RTD(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=RTD(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "SCAN": {
+   "cell": [
+    "=SCAN(A1,A1,A1)",
+    "=@SCAN(A1,A1,A1)"
+   ],
+   "range": [
+    "=SCAN(A1:A2,A1:A2,A1:A2)",
+    "=@SCAN(A1:A2,A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=SCAN(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=@SCAN(@A1:A2*1,A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "SEARCH": {
+   "cell": [
+    "=SEARCH(A1,A1)",
+    "=SEARCH(A1,A1)"
+   ],
+   "range": [
+    "=SEARCH(A1:A2,A1:A2)",
+    "=SEARCH(@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=SEARCH(A1:A2*1,A1:A2*1)",
+    "=SEARCH(@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=SEARCH(A1:A2,A1:A2,A1:A2)",
+    "=SEARCH(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=SEARCH(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=SEARCH(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "SEARCHB": {
+   "cell": [
+    "=SEARCHB(A1,A1)",
+    "=SEARCHB(A1,A1)"
+   ],
+   "range": [
+    "=SEARCHB(A1:A2,A1:A2)",
+    "=SEARCHB(@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=SEARCHB(A1:A2*1,A1:A2*1)",
+    "=SEARCHB(@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=SEARCHB(A1:A2,A1:A2,A1:A2)",
+    "=SEARCHB(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=SEARCHB(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=SEARCHB(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "SEC": {
+   "cell": [
+    "=SEC(A1)",
+    "=SEC(A1)"
+   ],
+   "range": [
+    "=SEC(A1:A2)",
+    "=SEC(@A1:A2)"
+   ],
+   "worked": [
+    "=SEC(A1:A2*1)",
+    "=SEC(@A1:A2*1)"
+   ]
+  },
+  "SECH": {
+   "cell": [
+    "=SECH(A1)",
+    "=SECH(A1)"
+   ],
+   "range": [
+    "=SECH(A1:A2)",
+    "=SECH(@A1:A2)"
+   ],
+   "worked": [
+    "=SECH(A1:A2*1)",
+    "=SECH(@A1:A2*1)"
+   ]
+  },
+  "SECOND": {
+   "cell": [
+    "=SECOND(A1)",
+    "=SECOND(A1)"
+   ],
+   "range": [
+    "=SECOND(A1:A2)",
+    "=SECOND(@A1:A2)"
+   ],
+   "worked": [
+    "=SECOND(A1:A2*1)",
+    "=SECOND(@A1:A2*1)"
+   ]
+  },
+  "SEQUENCE": {
+   "cell": [
+    "=SEQUENCE(A1)",
+    "=@SEQUENCE(A1)"
+   ],
+   "range": [
+    "=SEQUENCE(A1:A2)",
+    "=@SEQUENCE(@A1:A2)"
+   ],
+   "worked": [
+    "=SEQUENCE(A1:A2*1)",
+    "=@SEQUENCE(@A1:A2*1)"
+   ],
+   "wide": [
+    "=SEQUENCE(A1:A2,A1:A2,A1:A2)",
+    "=@SEQUENCE(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=SEQUENCE(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=@SEQUENCE(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "SERIESSUM": {
+   "cell": [
+    "=SERIESSUM(A1,A1,A1,A1)",
+    "=SERIESSUM(A1,A1,A1,A1)"
+   ],
+   "range": [
+    "=SERIESSUM(A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=SERIESSUM(A1:A2,A1:A2,A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=SERIESSUM(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=SERIESSUM(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "SHEET": {
+   "cell": [
+    "=SHEET()",
+    "=SHEET()"
+   ],
+   "range": [
+    "=SHEET()",
+    "=SHEET()"
+   ],
+   "worked": [
+    "=SHEET()",
+    "=SHEET()"
+   ],
+   "wide": [
+    "=SHEET(A1:A2)",
+    "=SHEET(A1:A2)"
+   ],
+   "wide_worked": [
+    "=SHEET(A1:A2*1)",
+    "=SHEET(@A1:A2*1)"
+   ]
+  },
+  "SHEETS": {
+   "cell": [
+    "=SHEETS()",
+    "=SHEETS()"
+   ],
+   "range": [
+    "=SHEETS()",
+    "=SHEETS()"
+   ],
+   "worked": [
+    "=SHEETS()",
+    "=SHEETS()"
+   ],
+   "wide": [
+    "=SHEETS(A1:A2)",
+    "=SHEETS(A1:A2)"
+   ],
+   "wide_worked": [
+    "=SHEETS(A1:A2*1)",
+    "=SHEETS(A1:A2*1)"
+   ]
+  },
+  "SIGN": {
+   "cell": [
+    "=SIGN(A1)",
+    "=SIGN(A1)"
+   ],
+   "range": [
+    "=SIGN(A1:A2)",
+    "=SIGN(@A1:A2)"
+   ],
+   "worked": [
+    "=SIGN(A1:A2*1)",
+    "=SIGN(@A1:A2*1)"
+   ]
+  },
+  "SIN": {
+   "cell": [
+    "=SIN(A1)",
+    "=SIN(A1)"
+   ],
+   "range": [
+    "=SIN(A1:A2)",
+    "=SIN(@A1:A2)"
+   ],
+   "worked": [
+    "=SIN(A1:A2*1)",
+    "=SIN(@A1:A2*1)"
+   ]
+  },
+  "SINGLE": {
+   "cell": [
+    "=SINGLE(A1)",
+    "=@A1"
+   ],
+   "range": [
+    "=SINGLE(A1:A2)",
+    "=@A1:A2"
+   ],
+   "worked": [
+    "=SINGLE(A1:A2*1)",
+    "=@@A1:A2*1"
+   ]
+  },
+  "SINH": {
+   "cell": [
+    "=SINH(A1)",
+    "=SINH(A1)"
+   ],
+   "range": [
+    "=SINH(A1:A2)",
+    "=SINH(@A1:A2)"
+   ],
+   "worked": [
+    "=SINH(A1:A2*1)",
+    "=SINH(@A1:A2*1)"
+   ]
+  },
+  "SKEW": {
+   "cell": [
+    "=SKEW(A1)",
+    "=SKEW(A1)"
+   ],
+   "range": [
+    "=SKEW(A1:A2)",
+    "=SKEW(A1:A2)"
+   ],
+   "worked": [
+    "=SKEW(A1:A2*1)",
+    "=SKEW(@A1:A2*1)"
+   ],
+   "wide": [
+    "=SKEW(A1:A2,A1:A2,A1:A2)",
+    "=SKEW(A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=SKEW(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=SKEW(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "SKEW.P": {
+   "cell": [
+    "=SKEW.P(A1)",
+    "=SKEW.P(A1)"
+   ],
+   "range": [
+    "=SKEW.P(A1:A2)",
+    "=SKEW.P(A1:A2)"
+   ],
+   "worked": [
+    "=SKEW.P(A1:A2*1)",
+    "=SKEW.P(@A1:A2*1)"
+   ],
+   "wide": [
+    "=SKEW.P(A1:A2,A1:A2,A1:A2)",
+    "=SKEW.P(A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=SKEW.P(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=SKEW.P(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "SLN": {
+   "cell": [
+    "=SLN(A1,A1,A1)",
+    "=SLN(A1,A1,A1)"
+   ],
+   "range": [
+    "=SLN(A1:A2,A1:A2,A1:A2)",
+    "=SLN(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=SLN(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=SLN(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "SLOPE": {
+   "cell": [
+    "=SLOPE(A1,A1)",
+    "=SLOPE(A1,A1)"
+   ],
+   "range": [
+    "=SLOPE(A1:A2,A1:A2)",
+    "=SLOPE(A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=SLOPE(A1:A2*1,A1:A2*1)",
+    "=SLOPE(A1:A2*1,A1:A2*1)"
+   ]
+  },
+  "SMALL": {
+   "cell": [
+    "=SMALL(A1,A1)",
+    "=SMALL(A1,A1)"
+   ],
+   "range": [
+    "=SMALL(A1:A2,A1:A2)",
+    "=SMALL(A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=SMALL(A1:A2*1,A1:A2*1)",
+    "=SMALL(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "SORT": {
+   "cell": [
+    "=SORT(A1)",
+    "=@SORT(A1)"
+   ],
+   "range": [
+    "=SORT(A1:A2)",
+    "=@SORT(A1:A2)"
+   ],
+   "worked": [
+    "=SORT(A1:A2*1)",
+    "=@SORT(A1:A2*1)"
+   ],
+   "wide": [
+    "=SORT(A1:A2,A1:A2,A1:A2)",
+    "=@SORT(A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=SORT(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=@SORT(A1:A2*1,A1:A2*1,A1:A2*1)"
+   ]
+  },
+  "SORTBY": {
+   "cell": [
+    "=SORTBY(A1,A1)",
+    "=@SORTBY(A1,A1)"
+   ],
+   "range": [
+    "=SORTBY(A1:A2,A1:A2)",
+    "=@SORTBY(A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=SORTBY(A1:A2*1,A1:A2*1)",
+    "=@SORTBY(A1:A2*1,A1:A2*1)"
+   ],
+   "wide": [
+    "=SORTBY(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)",
+    "!1004"
+   ],
+   "wide_worked": [
+    "=SORTBY(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "!1004"
+   ]
+  },
+  "SQRT": {
+   "cell": [
+    "=SQRT(A1)",
+    "=SQRT(A1)"
+   ],
+   "range": [
+    "=SQRT(A1:A2)",
+    "=SQRT(@A1:A2)"
+   ],
+   "worked": [
+    "=SQRT(A1:A2*1)",
+    "=SQRT(@A1:A2*1)"
+   ]
+  },
+  "SQRTPI": {
+   "cell": [
+    "=SQRTPI(A1)",
+    "=SQRTPI(A1)"
+   ],
+   "range": [
+    "=SQRTPI(A1:A2)",
+    "=SQRTPI(A1:A2)"
+   ],
+   "worked": [
+    "=SQRTPI(A1:A2*1)",
+    "=SQRTPI(@A1:A2*1)"
+   ]
+  },
+  "STANDARDIZE": {
+   "cell": [
+    "=STANDARDIZE(A1,A1,A1)",
+    "=STANDARDIZE(A1,A1,A1)"
+   ],
+   "range": [
+    "=STANDARDIZE(A1:A2,A1:A2,A1:A2)",
+    "=STANDARDIZE(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=STANDARDIZE(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=STANDARDIZE(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "STDEV": {
+   "cell": [
+    "=STDEV(A1)",
+    "=STDEV(A1)"
+   ],
+   "range": [
+    "=STDEV(A1:A2)",
+    "=STDEV(A1:A2)"
+   ],
+   "worked": [
+    "=STDEV(A1:A2*1)",
+    "=STDEV(@A1:A2*1)"
+   ],
+   "wide": [
+    "=STDEV(A1:A2,A1:A2,A1:A2)",
+    "=STDEV(A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=STDEV(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=STDEV(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "STDEV.P": {
+   "cell": [
+    "=STDEV.P(A1)",
+    "=STDEV.P(A1)"
+   ],
+   "range": [
+    "=STDEV.P(A1:A2)",
+    "=STDEV.P(A1:A2)"
+   ],
+   "worked": [
+    "=STDEV.P(A1:A2*1)",
+    "=STDEV.P(@A1:A2*1)"
+   ],
+   "wide": [
+    "=STDEV.P(A1:A2,A1:A2,A1:A2)",
+    "=STDEV.P(A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=STDEV.P(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=STDEV.P(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "STDEV.S": {
+   "cell": [
+    "=STDEV.S(A1)",
+    "=STDEV.S(A1)"
+   ],
+   "range": [
+    "=STDEV.S(A1:A2)",
+    "=STDEV.S(A1:A2)"
+   ],
+   "worked": [
+    "=STDEV.S(A1:A2*1)",
+    "=STDEV.S(@A1:A2*1)"
+   ],
+   "wide": [
+    "=STDEV.S(A1:A2,A1:A2,A1:A2)",
+    "=STDEV.S(A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=STDEV.S(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=STDEV.S(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "STDEVA": {
+   "cell": [
+    "=STDEVA(A1)",
+    "=STDEVA(A1)"
+   ],
+   "range": [
+    "=STDEVA(A1:A2)",
+    "=STDEVA(A1:A2)"
+   ],
+   "worked": [
+    "=STDEVA(A1:A2*1)",
+    "=STDEVA(@A1:A2*1)"
+   ],
+   "wide": [
+    "=STDEVA(A1:A2,A1:A2,A1:A2)",
+    "=STDEVA(A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=STDEVA(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=STDEVA(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "STDEVP": {
+   "cell": [
+    "=STDEVP(A1)",
+    "=STDEVP(A1)"
+   ],
+   "range": [
+    "=STDEVP(A1:A2)",
+    "=STDEVP(A1:A2)"
+   ],
+   "worked": [
+    "=STDEVP(A1:A2*1)",
+    "=STDEVP(@A1:A2*1)"
+   ],
+   "wide": [
+    "=STDEVP(A1:A2,A1:A2,A1:A2)",
+    "=STDEVP(A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=STDEVP(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=STDEVP(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "STDEVPA": {
+   "cell": [
+    "=STDEVPA(A1)",
+    "=STDEVPA(A1)"
+   ],
+   "range": [
+    "=STDEVPA(A1:A2)",
+    "=STDEVPA(A1:A2)"
+   ],
+   "worked": [
+    "=STDEVPA(A1:A2*1)",
+    "=STDEVPA(@A1:A2*1)"
+   ],
+   "wide": [
+    "=STDEVPA(A1:A2,A1:A2,A1:A2)",
+    "=STDEVPA(A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=STDEVPA(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=STDEVPA(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "STEYX": {
+   "cell": [
+    "=STEYX(A1,A1)",
+    "=STEYX(A1,A1)"
+   ],
+   "range": [
+    "=STEYX(A1:A2,A1:A2)",
+    "=STEYX(A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=STEYX(A1:A2*1,A1:A2*1)",
+    "=STEYX(A1:A2*1,A1:A2*1)"
+   ]
+  },
+  "STOCKHISTORY": {
+   "cell": [
+    "=STOCKHISTORY(A1,A1)",
+    "=@STOCKHISTORY(A1,A1)"
+   ],
+   "range": [
+    "=STOCKHISTORY(A1:A2,A1:A2)",
+    "=@STOCKHISTORY(@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=STOCKHISTORY(A1:A2*1,A1:A2*1)",
+    "=@STOCKHISTORY(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "SUBSTITUTE": {
+   "cell": [
+    "=SUBSTITUTE(A1,A1,A1)",
+    "=SUBSTITUTE(A1,A1,A1)"
+   ],
+   "range": [
+    "=SUBSTITUTE(A1:A2,A1:A2,A1:A2)",
+    "=SUBSTITUTE(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=SUBSTITUTE(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=SUBSTITUTE(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=SUBSTITUTE(A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=SUBSTITUTE(@A1:A2,@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=SUBSTITUTE(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=SUBSTITUTE(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "SUBTOTAL": {
+   "cell": [
+    "=SUBTOTAL(A1,A1)",
+    "=SUBTOTAL(A1,A1)"
+   ],
+   "range": [
+    "=SUBTOTAL(A1:A2,A1:A2)",
+    "=SUBTOTAL(@A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=SUBTOTAL(A1:A2*1,A1:A2*1)",
+    "!1004"
+   ],
+   "wide": [
+    "=SUBTOTAL(A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=SUBTOTAL(@A1:A2,A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=SUBTOTAL(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "!1004"
+   ]
+  },
+  "SUM": {
+   "cell": [
+    "=SUM(A1)",
+    "=SUM(A1)"
+   ],
+   "range": [
+    "=SUM(A1:A2)",
+    "=SUM(A1:A2)"
+   ],
+   "worked": [
+    "=SUM(A1:A2*1)",
+    "=SUM(@A1:A2*1)"
+   ],
+   "wide": [
+    "=SUM(A1:A2,A1:A2,A1:A2)",
+    "=SUM(A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=SUM(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=SUM(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "SUMIF": {
+   "cell": [
+    "=SUMIF(A1,A1)",
+    "=SUMIF(A1,A1)"
+   ],
+   "range": [
+    "=SUMIF(A1:A2,A1:A2)",
+    "=SUMIF(A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=SUMIF(A1:A2*1,A1:A2*1)",
+    "!1004"
+   ],
+   "wide": [
+    "=SUMIF(A1:A2,A1:A2,A1:A2)",
+    "=SUMIF(A1:A2,@A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=SUMIF(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "!1004"
+   ]
+  },
+  "SUMIFS": {
+   "cell": [
+    "=SUMIFS(A1,A1,A1)",
+    "=SUMIFS(A1,A1,A1)"
+   ],
+   "range": [
+    "=SUMIFS(A1:A2,A1:A2,A1:A2)",
+    "=SUMIFS(A1:A2,A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=SUMIFS(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "!1004"
+   ],
+   "wide": [
+    "=SUMIFS(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=SUMIFS(A1:A2,A1:A2,@A1:A2,A1:A2,@A1:A2,A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=SUMIFS(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "!1004"
+   ]
+  },
+  "SUMPRODUCT": {
+   "cell": [
+    "=SUMPRODUCT(A1)",
+    "=SUMPRODUCT(A1)"
+   ],
+   "range": [
+    "=SUMPRODUCT(A1:A2)",
+    "=SUMPRODUCT(A1:A2)"
+   ],
+   "worked": [
+    "=SUMPRODUCT(A1:A2*1)",
+    "=SUMPRODUCT(A1:A2*1)"
+   ],
+   "wide": [
+    "=SUMPRODUCT(A1:A2,A1:A2,A1:A2)",
+    "=SUMPRODUCT(A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=SUMPRODUCT(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=SUMPRODUCT(A1:A2*1,A1:A2*1,A1:A2*1)"
+   ]
+  },
+  "SUMSQ": {
+   "cell": [
+    "=SUMSQ(A1)",
+    "=SUMSQ(A1)"
+   ],
+   "range": [
+    "=SUMSQ(A1:A2)",
+    "=SUMSQ(A1:A2)"
+   ],
+   "worked": [
+    "=SUMSQ(A1:A2*1)",
+    "=SUMSQ(@A1:A2*1)"
+   ],
+   "wide": [
+    "=SUMSQ(A1:A2,A1:A2,A1:A2)",
+    "=SUMSQ(A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=SUMSQ(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=SUMSQ(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "SUMX2MY2": {
+   "cell": [
+    "=SUMX2MY2(A1,A1)",
+    "=SUMX2MY2(A1,A1)"
+   ],
+   "range": [
+    "=SUMX2MY2(A1:A2,A1:A2)",
+    "=SUMX2MY2(A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=SUMX2MY2(A1:A2*1,A1:A2*1)",
+    "=SUMX2MY2(A1:A2*1,A1:A2*1)"
+   ]
+  },
+  "SUMX2PY2": {
+   "cell": [
+    "=SUMX2PY2(A1,A1)",
+    "=SUMX2PY2(A1,A1)"
+   ],
+   "range": [
+    "=SUMX2PY2(A1:A2,A1:A2)",
+    "=SUMX2PY2(A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=SUMX2PY2(A1:A2*1,A1:A2*1)",
+    "=SUMX2PY2(A1:A2*1,A1:A2*1)"
+   ]
+  },
+  "SUMXMY2": {
+   "cell": [
+    "=SUMXMY2(A1,A1)",
+    "=SUMXMY2(A1,A1)"
+   ],
+   "range": [
+    "=SUMXMY2(A1:A2,A1:A2)",
+    "=SUMXMY2(A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=SUMXMY2(A1:A2*1,A1:A2*1)",
+    "=SUMXMY2(A1:A2*1,A1:A2*1)"
+   ]
+  },
+  "SWITCH": {
+   "cell": [
+    "=SWITCH(A1,A1,A1)",
+    "=@SWITCH(A1,A1,A1)"
+   ],
+   "range": [
+    "=SWITCH(A1:A2,A1:A2,A1:A2)",
+    "=@SWITCH(@A1:A2,@A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=SWITCH(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=@SWITCH(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=SWITCH(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=@SWITCH(@A1:A2,@A1:A2,A1:A2,@A1:A2,A1:A2,@A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=SWITCH(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=@SWITCH(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "SYD": {
+   "cell": [
+    "=SYD(A1,A1,A1,A1)",
+    "=SYD(A1,A1,A1,A1)"
+   ],
+   "range": [
+    "=SYD(A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=SYD(@A1:A2,@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=SYD(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=SYD(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "T": {
+   "cell": [
+    "=T(A1)",
+    "=T(A1)"
+   ],
+   "range": [
+    "=T(A1:A2)",
+    "=T(A1:A2)"
+   ],
+   "worked": [
+    "=T(A1:A2*1)",
+    "=T(@A1:A2*1)"
+   ]
+  },
+  "T.DIST": {
+   "cell": [
+    "=T.DIST(A1,A1,A1)",
+    "=T.DIST(A1,A1,A1)"
+   ],
+   "range": [
+    "=T.DIST(A1:A2,A1:A2,A1:A2)",
+    "=T.DIST(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=T.DIST(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=T.DIST(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "T.DIST.2T": {
+   "cell": [
+    "=T.DIST.2T(A1,A1)",
+    "=T.DIST.2T(A1,A1)"
+   ],
+   "range": [
+    "=T.DIST.2T(A1:A2,A1:A2)",
+    "=T.DIST.2T(@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=T.DIST.2T(A1:A2*1,A1:A2*1)",
+    "=T.DIST.2T(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "T.DIST.RT": {
+   "cell": [
+    "=T.DIST.RT(A1,A1)",
+    "=T.DIST.RT(A1,A1)"
+   ],
+   "range": [
+    "=T.DIST.RT(A1:A2,A1:A2)",
+    "=T.DIST.RT(@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=T.DIST.RT(A1:A2*1,A1:A2*1)",
+    "=T.DIST.RT(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "T.INV": {
+   "cell": [
+    "=T.INV(A1,A1)",
+    "=T.INV(A1,A1)"
+   ],
+   "range": [
+    "=T.INV(A1:A2,A1:A2)",
+    "=T.INV(@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=T.INV(A1:A2*1,A1:A2*1)",
+    "=T.INV(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "T.INV.2T": {
+   "cell": [
+    "=T.INV.2T(A1,A1)",
+    "=T.INV.2T(A1,A1)"
+   ],
+   "range": [
+    "=T.INV.2T(A1:A2,A1:A2)",
+    "=T.INV.2T(@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=T.INV.2T(A1:A2*1,A1:A2*1)",
+    "=T.INV.2T(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "T.TEST": {
+   "cell": [
+    "=T.TEST(A1,A1,A1,A1)",
+    "=T.TEST(A1,A1,A1,A1)"
+   ],
+   "range": [
+    "=T.TEST(A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=T.TEST(A1:A2,A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=T.TEST(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=T.TEST(A1:A2*1,A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "TAKE": {
+   "cell": [
+    "=TAKE(A1,A1)",
+    "=@TAKE(A1,A1)"
+   ],
+   "range": [
+    "=TAKE(A1:A2,A1:A2)",
+    "=@TAKE(A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=TAKE(A1:A2*1,A1:A2*1)",
+    "=@TAKE(A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=TAKE(A1:A2,A1:A2,A1:A2)",
+    "=@TAKE(A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=TAKE(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=@TAKE(A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "TAN": {
+   "cell": [
+    "=TAN(A1)",
+    "=TAN(A1)"
+   ],
+   "range": [
+    "=TAN(A1:A2)",
+    "=TAN(@A1:A2)"
+   ],
+   "worked": [
+    "=TAN(A1:A2*1)",
+    "=TAN(@A1:A2*1)"
+   ]
+  },
+  "TANH": {
+   "cell": [
+    "=TANH(A1)",
+    "=TANH(A1)"
+   ],
+   "range": [
+    "=TANH(A1:A2)",
+    "=TANH(@A1:A2)"
+   ],
+   "worked": [
+    "=TANH(A1:A2*1)",
+    "=TANH(@A1:A2*1)"
+   ]
+  },
+  "TBILLEQ": {
+   "cell": [
+    "=TBILLEQ(A1,A1,A1)",
+    "=TBILLEQ(A1,A1,A1)"
+   ],
+   "range": [
+    "=TBILLEQ(A1:A2,A1:A2,A1:A2)",
+    "=TBILLEQ(A1:A2,A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=TBILLEQ(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=TBILLEQ(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "TBILLPRICE": {
+   "cell": [
+    "=TBILLPRICE(A1,A1,A1)",
+    "=TBILLPRICE(A1,A1,A1)"
+   ],
+   "range": [
+    "=TBILLPRICE(A1:A2,A1:A2,A1:A2)",
+    "=TBILLPRICE(A1:A2,A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=TBILLPRICE(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=TBILLPRICE(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "TBILLYIELD": {
+   "cell": [
+    "=TBILLYIELD(A1,A1,A1)",
+    "=TBILLYIELD(A1,A1,A1)"
+   ],
+   "range": [
+    "=TBILLYIELD(A1:A2,A1:A2,A1:A2)",
+    "=TBILLYIELD(A1:A2,A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=TBILLYIELD(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=TBILLYIELD(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "TDIST": {
+   "cell": [
+    "=TDIST(A1,A1,A1)",
+    "=TDIST(A1,A1,A1)"
+   ],
+   "range": [
+    "=TDIST(A1:A2,A1:A2,A1:A2)",
+    "=TDIST(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=TDIST(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=TDIST(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "TEXT": {
+   "cell": [
+    "=TEXT(A1,A1)",
+    "=TEXT(A1,A1)"
+   ],
+   "range": [
+    "=TEXT(A1:A2,A1:A2)",
+    "=TEXT(@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=TEXT(A1:A2*1,A1:A2*1)",
+    "=TEXT(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "TEXTAFTER": {
+   "cell": [
+    "=TEXTAFTER(A1,A1)",
+    "=TEXTAFTER(A1,A1)"
+   ],
+   "range": [
+    "=TEXTAFTER(A1:A2,A1:A2)",
+    "=TEXTAFTER(@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=TEXTAFTER(A1:A2*1,A1:A2*1)",
+    "=TEXTAFTER(@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=TEXTAFTER(A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=TEXTAFTER(@A1:A2,@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=TEXTAFTER(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=TEXTAFTER(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "TEXTBEFORE": {
+   "cell": [
+    "=TEXTBEFORE(A1,A1)",
+    "=TEXTBEFORE(A1,A1)"
+   ],
+   "range": [
+    "=TEXTBEFORE(A1:A2,A1:A2)",
+    "=TEXTBEFORE(@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=TEXTBEFORE(A1:A2*1,A1:A2*1)",
+    "=TEXTBEFORE(@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=TEXTBEFORE(A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=TEXTBEFORE(@A1:A2,@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=TEXTBEFORE(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=TEXTBEFORE(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "TEXTJOIN": {
+   "cell": [
+    "=TEXTJOIN(A1,A1,A1)",
+    "=TEXTJOIN(A1,A1,A1)"
+   ],
+   "range": [
+    "=TEXTJOIN(A1:A2,A1:A2,A1:A2)",
+    "=TEXTJOIN(A1:A2,@A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=TEXTJOIN(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=TEXTJOIN(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=TEXTJOIN(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=TEXTJOIN(A1:A2,@A1:A2,A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=TEXTJOIN(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=TEXTJOIN(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "TEXTSPLIT": {
+   "cell": [
+    "=TEXTSPLIT(A1,A1)",
+    "=@TEXTSPLIT(A1,A1)"
+   ],
+   "range": [
+    "=TEXTSPLIT(A1:A2,A1:A2)",
+    "=@TEXTSPLIT(@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=TEXTSPLIT(A1:A2*1,A1:A2*1)",
+    "=@TEXTSPLIT(@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=TEXTSPLIT(A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=@TEXTSPLIT(@A1:A2,@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=TEXTSPLIT(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=@TEXTSPLIT(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "TIME": {
+   "cell": [
+    "=TIME(A1,A1,A1)",
+    "=TIME(A1,A1,A1)"
+   ],
+   "range": [
+    "=TIME(A1:A2,A1:A2,A1:A2)",
+    "=TIME(@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=TIME(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=TIME(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "TIMEVALUE": {
+   "cell": [
+    "=TIMEVALUE(A1)",
+    "=TIMEVALUE(A1)"
+   ],
+   "range": [
+    "=TIMEVALUE(A1:A2)",
+    "=TIMEVALUE(@A1:A2)"
+   ],
+   "worked": [
+    "=TIMEVALUE(A1:A2*1)",
+    "=TIMEVALUE(@A1:A2*1)"
+   ]
+  },
+  "TINV": {
+   "cell": [
+    "=TINV(A1,A1)",
+    "=TINV(A1,A1)"
+   ],
+   "range": [
+    "=TINV(A1:A2,A1:A2)",
+    "=TINV(@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=TINV(A1:A2*1,A1:A2*1)",
+    "=TINV(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "TOCOL": {
+   "cell": [
+    "=TOCOL(A1)",
+    "=@TOCOL(A1)"
+   ],
+   "range": [
+    "=TOCOL(A1:A2)",
+    "=@TOCOL(A1:A2)"
+   ],
+   "worked": [
+    "=TOCOL(A1:A2*1)",
+    "=@TOCOL(A1:A2*1)"
+   ],
+   "wide": [
+    "=TOCOL(A1:A2,A1:A2,A1:A2)",
+    "=@TOCOL(A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=TOCOL(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=@TOCOL(A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "TODAY": {
+   "cell": [
+    "=TODAY()",
+    "=TODAY()"
+   ],
+   "range": [
+    "=TODAY()",
+    "=TODAY()"
+   ],
+   "worked": [
+    "=TODAY()",
+    "=TODAY()"
+   ]
+  },
+  "TOROW": {
+   "cell": [
+    "=TOROW(A1)",
+    "=@TOROW(A1)"
+   ],
+   "range": [
+    "=TOROW(A1:A2)",
+    "=@TOROW(A1:A2)"
+   ],
+   "worked": [
+    "=TOROW(A1:A2*1)",
+    "=@TOROW(A1:A2*1)"
+   ],
+   "wide": [
+    "=TOROW(A1:A2,A1:A2,A1:A2)",
+    "=@TOROW(A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=TOROW(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=@TOROW(A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "TRANSLATE": {
+   "cell": [
+    "=TRANSLATE(A1)",
+    "=TRANSLATE(A1)"
+   ],
+   "range": [
+    "=TRANSLATE(A1:A2)",
+    "=TRANSLATE(@A1:A2)"
+   ],
+   "worked": [
+    "=TRANSLATE(A1:A2*1)",
+    "=TRANSLATE(@A1:A2*1)"
+   ]
+  },
+  "TRANSPOSE": {
+   "cell": [
+    "=TRANSPOSE(A1)",
+    "=@TRANSPOSE(A1)"
+   ],
+   "range": [
+    "=TRANSPOSE(A1:A2)",
+    "=@TRANSPOSE(@A1:A2)"
+   ],
+   "worked": [
+    "=TRANSPOSE(A1:A2*1)",
+    "=@TRANSPOSE(@A1:A2*1)"
+   ]
+  },
+  "TREND": {
+   "cell": [
+    "=TREND(A1)",
+    "=@TREND(A1)"
+   ],
+   "range": [
+    "=TREND(A1:A2)",
+    "=@TREND(A1:A2)"
+   ],
+   "worked": [
+    "=TREND(A1:A2*1)",
+    "=@TREND(A1:A2*1)"
+   ],
+   "wide": [
+    "=TREND(A1:A2,A1:A2,A1:A2)",
+    "=@TREND(A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=TREND(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=@TREND(A1:A2*1,A1:A2*1,A1:A2*1)"
+   ]
+  },
+  "TRIM": {
+   "cell": [
+    "=TRIM(A1)",
+    "=TRIM(A1)"
+   ],
+   "range": [
+    "=TRIM(A1:A2)",
+    "=TRIM(@A1:A2)"
+   ],
+   "worked": [
+    "=TRIM(A1:A2*1)",
+    "=TRIM(@A1:A2*1)"
+   ]
+  },
+  "TRIMMEAN": {
+   "cell": [
+    "=TRIMMEAN(A1,A1)",
+    "=TRIMMEAN(A1,A1)"
+   ],
+   "range": [
+    "=TRIMMEAN(A1:A2,A1:A2)",
+    "=TRIMMEAN(A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=TRIMMEAN(A1:A2*1,A1:A2*1)",
+    "=TRIMMEAN(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "TRIMRANGE": {
+   "cell": [
+    "=TRIMRANGE(A1)",
+    "=@TRIMRANGE(A1)"
+   ],
+   "range": [
+    "=TRIMRANGE(A1:A2)",
+    "=@TRIMRANGE(A1:A2)"
+   ],
+   "worked": [
+    "=TRIMRANGE(A1:A2*1)",
+    "=@TRIMRANGE(A1:A2*1)"
+   ],
+   "wide": [
+    "=TRIMRANGE(A1:A2,A1:A2,A1:A2)",
+    "=@TRIMRANGE(A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=TRIMRANGE(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=@TRIMRANGE(A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "TRUE": {
+   "cell": [
+    "=TRUE()",
+    "=TRUE()"
+   ],
+   "range": [
+    "=TRUE()",
+    "=TRUE()"
+   ],
+   "worked": [
+    "=TRUE()",
+    "=TRUE()"
+   ]
+  },
+  "TRUNC": {
+   "cell": [
+    "=TRUNC(A1)",
+    "=TRUNC(A1)"
+   ],
+   "range": [
+    "=TRUNC(A1:A2)",
+    "=TRUNC(@A1:A2)"
+   ],
+   "worked": [
+    "=TRUNC(A1:A2*1)",
+    "=TRUNC(@A1:A2*1)"
+   ],
+   "wide": [
+    "=TRUNC(A1:A2,A1:A2)",
+    "=TRUNC(@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=TRUNC(A1:A2*1,A1:A2*1)",
+    "=TRUNC(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "TTEST": {
+   "cell": [
+    "=TTEST(A1,A1,A1,A1)",
+    "=TTEST(A1,A1,A1,A1)"
+   ],
+   "range": [
+    "=TTEST(A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=TTEST(A1:A2,A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=TTEST(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=TTEST(A1:A2*1,A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "TYPE": {
+   "cell": [
+    "=TYPE(A1)",
+    "=TYPE(A1)"
+   ],
+   "range": [
+    "=TYPE(A1:A2)",
+    "=TYPE(@A1:A2)"
+   ],
+   "worked": [
+    "=TYPE(A1:A2*1)",
+    "=TYPE(@A1:A2*1)"
+   ]
+  },
+  "UNICHAR": {
+   "cell": [
+    "=UNICHAR(A1)",
+    "=UNICHAR(A1)"
+   ],
+   "range": [
+    "=UNICHAR(A1:A2)",
+    "=UNICHAR(@A1:A2)"
+   ],
+   "worked": [
+    "=UNICHAR(A1:A2*1)",
+    "=UNICHAR(@A1:A2*1)"
+   ]
+  },
+  "UNICODE": {
+   "cell": [
+    "=UNICODE(A1)",
+    "=UNICODE(A1)"
+   ],
+   "range": [
+    "=UNICODE(A1:A2)",
+    "=UNICODE(@A1:A2)"
+   ],
+   "worked": [
+    "=UNICODE(A1:A2*1)",
+    "=UNICODE(@A1:A2*1)"
+   ]
+  },
+  "UNIQUE": {
+   "cell": [
+    "=UNIQUE(A1)",
+    "=@UNIQUE(A1)"
+   ],
+   "range": [
+    "=UNIQUE(A1:A2)",
+    "=@UNIQUE(A1:A2)"
+   ],
+   "worked": [
+    "=UNIQUE(A1:A2*1)",
+    "=@UNIQUE(A1:A2*1)"
+   ],
+   "wide": [
+    "=UNIQUE(A1:A2,A1:A2,A1:A2)",
+    "=@UNIQUE(A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=UNIQUE(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=@UNIQUE(A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "UPPER": {
+   "cell": [
+    "=UPPER(A1)",
+    "=UPPER(A1)"
+   ],
+   "range": [
+    "=UPPER(A1:A2)",
+    "=UPPER(@A1:A2)"
+   ],
+   "worked": [
+    "=UPPER(A1:A2*1)",
+    "=UPPER(@A1:A2*1)"
+   ]
+  },
+  "USDOLLAR": {
+   "cell": [
+    "=USDOLLAR(A1)",
+    "=USDOLLAR(A1)"
+   ],
+   "range": [
+    "=USDOLLAR(A1:A2)",
+    "=USDOLLAR(@A1:A2)"
+   ],
+   "worked": [
+    "=USDOLLAR(A1:A2*1)",
+    "=USDOLLAR(@A1:A2*1)"
+   ],
+   "wide": [
+    "=USDOLLAR(A1:A2,A1:A2)",
+    "=USDOLLAR(@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=USDOLLAR(A1:A2*1,A1:A2*1)",
+    "=USDOLLAR(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "VALUE": {
+   "cell": [
+    "=VALUE(A1)",
+    "=VALUE(A1)"
+   ],
+   "range": [
+    "=VALUE(A1:A2)",
+    "=VALUE(@A1:A2)"
+   ],
+   "worked": [
+    "=VALUE(A1:A2*1)",
+    "=VALUE(@A1:A2*1)"
+   ]
+  },
+  "VALUETOTEXT": {
+   "cell": [
+    "=VALUETOTEXT(A1)",
+    "=VALUETOTEXT(A1)"
+   ],
+   "range": [
+    "=VALUETOTEXT(A1:A2)",
+    "=VALUETOTEXT(@A1:A2)"
+   ],
+   "worked": [
+    "=VALUETOTEXT(A1:A2*1)",
+    "=VALUETOTEXT(@A1:A2*1)"
+   ],
+   "wide": [
+    "=VALUETOTEXT(A1:A2,A1:A2)",
+    "=VALUETOTEXT(@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=VALUETOTEXT(A1:A2*1,A1:A2*1)",
+    "=VALUETOTEXT(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "VAR": {
+   "cell": [
+    "=VAR(A1)",
+    "=VAR(A1)"
+   ],
+   "range": [
+    "=VAR(A1:A2)",
+    "=VAR(A1:A2)"
+   ],
+   "worked": [
+    "=VAR(A1:A2*1)",
+    "=VAR(@A1:A2*1)"
+   ],
+   "wide": [
+    "=VAR(A1:A2,A1:A2,A1:A2)",
+    "=VAR(A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=VAR(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=VAR(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "VAR.P": {
+   "cell": [
+    "=VAR.P(A1)",
+    "=VAR.P(A1)"
+   ],
+   "range": [
+    "=VAR.P(A1:A2)",
+    "=VAR.P(A1:A2)"
+   ],
+   "worked": [
+    "=VAR.P(A1:A2*1)",
+    "=VAR.P(@A1:A2*1)"
+   ],
+   "wide": [
+    "=VAR.P(A1:A2,A1:A2,A1:A2)",
+    "=VAR.P(A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=VAR.P(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=VAR.P(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "VAR.S": {
+   "cell": [
+    "=VAR.S(A1)",
+    "=VAR.S(A1)"
+   ],
+   "range": [
+    "=VAR.S(A1:A2)",
+    "=VAR.S(A1:A2)"
+   ],
+   "worked": [
+    "=VAR.S(A1:A2*1)",
+    "=VAR.S(@A1:A2*1)"
+   ],
+   "wide": [
+    "=VAR.S(A1:A2,A1:A2,A1:A2)",
+    "=VAR.S(A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=VAR.S(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=VAR.S(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "VARA": {
+   "cell": [
+    "=VARA(A1)",
+    "=VARA(A1)"
+   ],
+   "range": [
+    "=VARA(A1:A2)",
+    "=VARA(A1:A2)"
+   ],
+   "worked": [
+    "=VARA(A1:A2*1)",
+    "=VARA(@A1:A2*1)"
+   ],
+   "wide": [
+    "=VARA(A1:A2,A1:A2,A1:A2)",
+    "=VARA(A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=VARA(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=VARA(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "VARP": {
+   "cell": [
+    "=VARP(A1)",
+    "=VARP(A1)"
+   ],
+   "range": [
+    "=VARP(A1:A2)",
+    "=VARP(A1:A2)"
+   ],
+   "worked": [
+    "=VARP(A1:A2*1)",
+    "=VARP(@A1:A2*1)"
+   ],
+   "wide": [
+    "=VARP(A1:A2,A1:A2,A1:A2)",
+    "=VARP(A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=VARP(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=VARP(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "VARPA": {
+   "cell": [
+    "=VARPA(A1)",
+    "=VARPA(A1)"
+   ],
+   "range": [
+    "=VARPA(A1:A2)",
+    "=VARPA(A1:A2)"
+   ],
+   "worked": [
+    "=VARPA(A1:A2*1)",
+    "=VARPA(@A1:A2*1)"
+   ],
+   "wide": [
+    "=VARPA(A1:A2,A1:A2,A1:A2)",
+    "=VARPA(A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=VARPA(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=VARPA(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "VDB": {
+   "cell": [
+    "=VDB(A1,A1,A1,A1,A1)",
+    "=VDB(A1,A1,A1,A1,A1)"
+   ],
+   "range": [
+    "=VDB(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=VDB(@A1:A2,@A1:A2,@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=VDB(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=VDB(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=VDB(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=VDB(@A1:A2,@A1:A2,@A1:A2,@A1:A2,@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=VDB(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=VDB(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "VLOOKUP": {
+   "cell": [
+    "=VLOOKUP(A1,A1,A1)",
+    "=VLOOKUP(A1,A1,A1)"
+   ],
+   "range": [
+    "=VLOOKUP(A1:A2,A1:A2,A1:A2)",
+    "=VLOOKUP(@A1:A2,A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=VLOOKUP(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=VLOOKUP(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=VLOOKUP(A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=VLOOKUP(@A1:A2,A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=VLOOKUP(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=VLOOKUP(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "VSTACK": {
+   "cell": [
+    "=VSTACK(A1)",
+    "=@VSTACK(A1)"
+   ],
+   "range": [
+    "=VSTACK(A1:A2)",
+    "=@VSTACK(A1:A2)"
+   ],
+   "worked": [
+    "=VSTACK(A1:A2*1)",
+    "=@VSTACK(A1:A2*1)"
+   ],
+   "wide": [
+    "=VSTACK(A1:A2,A1:A2,A1:A2)",
+    "=@VSTACK(A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=VSTACK(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=@VSTACK(A1:A2*1,A1:A2*1,A1:A2*1)"
+   ]
+  },
+  "WEBSERVICE": {
+   "cell": [
+    "=WEBSERVICE(A1)",
+    "=WEBSERVICE(A1)"
+   ],
+   "range": [
+    "=WEBSERVICE(A1:A2)",
+    "=WEBSERVICE(@A1:A2)"
+   ],
+   "worked": [
+    "=WEBSERVICE(A1:A2*1)",
+    "=WEBSERVICE(@A1:A2*1)"
+   ]
+  },
+  "WEEKDAY": {
+   "cell": [
+    "=WEEKDAY(A1)",
+    "=WEEKDAY(A1)"
+   ],
+   "range": [
+    "=WEEKDAY(A1:A2)",
+    "=WEEKDAY(@A1:A2)"
+   ],
+   "worked": [
+    "=WEEKDAY(A1:A2*1)",
+    "=WEEKDAY(@A1:A2*1)"
+   ],
+   "wide": [
+    "=WEEKDAY(A1:A2,A1:A2)",
+    "=WEEKDAY(@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=WEEKDAY(A1:A2*1,A1:A2*1)",
+    "=WEEKDAY(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "WEEKNUM": {
+   "cell": [
+    "=WEEKNUM(A1)",
+    "=WEEKNUM(A1)"
+   ],
+   "range": [
+    "=WEEKNUM(A1:A2)",
+    "=WEEKNUM(A1:A2)"
+   ],
+   "worked": [
+    "=WEEKNUM(A1:A2*1)",
+    "=WEEKNUM(@A1:A2*1)"
+   ],
+   "wide": [
+    "=WEEKNUM(A1:A2,A1:A2)",
+    "=WEEKNUM(A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=WEEKNUM(A1:A2*1,A1:A2*1)",
+    "=WEEKNUM(@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "WEIBULL": {
+   "cell": [
+    "=WEIBULL(A1,A1,A1,A1)",
+    "=WEIBULL(A1,A1,A1,A1)"
+   ],
+   "range": [
+    "=WEIBULL(A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=WEIBULL(@A1:A2,@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=WEIBULL(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=WEIBULL(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "WEIBULL.DIST": {
+   "cell": [
+    "=WEIBULL.DIST(A1,A1,A1,A1)",
+    "=WEIBULL.DIST(A1,A1,A1,A1)"
+   ],
+   "range": [
+    "=WEIBULL.DIST(A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=WEIBULL.DIST(@A1:A2,@A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=WEIBULL.DIST(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=WEIBULL.DIST(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "WORKDAY": {
+   "cell": [
+    "=WORKDAY(A1,A1)",
+    "=WORKDAY(A1,A1)"
+   ],
+   "range": [
+    "=WORKDAY(A1:A2,A1:A2)",
+    "=WORKDAY(A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=WORKDAY(A1:A2*1,A1:A2*1)",
+    "=WORKDAY(@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=WORKDAY(A1:A2,A1:A2,A1:A2)",
+    "=WORKDAY(A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=WORKDAY(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=WORKDAY(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "WORKDAY.INTL": {
+   "cell": [
+    "=WORKDAY.INTL(A1,A1)",
+    "=WORKDAY.INTL(A1,A1)"
+   ],
+   "range": [
+    "=WORKDAY.INTL(A1:A2,A1:A2)",
+    "=WORKDAY.INTL(A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=WORKDAY.INTL(A1:A2*1,A1:A2*1)",
+    "=WORKDAY.INTL(@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=WORKDAY.INTL(A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=WORKDAY.INTL(A1:A2,A1:A2,@A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=WORKDAY.INTL(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=WORKDAY.INTL(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "WRAPCOLS": {
+   "cell": [
+    "=WRAPCOLS(A1,A1)",
+    "=@WRAPCOLS(A1,A1)"
+   ],
+   "range": [
+    "=WRAPCOLS(A1:A2,A1:A2)",
+    "=@WRAPCOLS(A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=WRAPCOLS(A1:A2*1,A1:A2*1)",
+    "=@WRAPCOLS(A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=WRAPCOLS(A1:A2,A1:A2,A1:A2)",
+    "=@WRAPCOLS(A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=WRAPCOLS(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=@WRAPCOLS(A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "WRAPROWS": {
+   "cell": [
+    "=WRAPROWS(A1,A1)",
+    "=@WRAPROWS(A1,A1)"
+   ],
+   "range": [
+    "=WRAPROWS(A1:A2,A1:A2)",
+    "=@WRAPROWS(A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=WRAPROWS(A1:A2*1,A1:A2*1)",
+    "=@WRAPROWS(A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=WRAPROWS(A1:A2,A1:A2,A1:A2)",
+    "=@WRAPROWS(A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=WRAPROWS(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=@WRAPROWS(A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "XIRR": {
+   "cell": [
+    "=XIRR(A1,A1)",
+    "=XIRR(A1,A1)"
+   ],
+   "range": [
+    "=XIRR(A1:A2,A1:A2)",
+    "=XIRR(A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=XIRR(A1:A2*1,A1:A2*1)",
+    "=XIRR(@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=XIRR(A1:A2,A1:A2,A1:A2)",
+    "=XIRR(A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=XIRR(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=XIRR(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "XLOOKUP": {
+   "cell": [
+    "=XLOOKUP(A1,A1,A1)",
+    "=XLOOKUP(A1,A1,A1)"
+   ],
+   "range": [
+    "=XLOOKUP(A1:A2,A1:A2,A1:A2)",
+    "=XLOOKUP(@A1:A2,A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=XLOOKUP(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=@XLOOKUP(@A1:A2*1,A1:A2*1,A1:A2*1)"
+   ],
+   "wide": [
+    "=XLOOKUP(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=@XLOOKUP(@A1:A2,A1:A2,A1:A2,A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=XLOOKUP(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=@XLOOKUP(@A1:A2*1,A1:A2*1,A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "XMATCH": {
+   "cell": [
+    "=XMATCH(A1,A1)",
+    "=XMATCH(A1,A1)"
+   ],
+   "range": [
+    "=XMATCH(A1:A2,A1:A2)",
+    "=XMATCH(@A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=XMATCH(A1:A2*1,A1:A2*1)",
+    "=XMATCH(@A1:A2*1,A1:A2*1)"
+   ],
+   "wide": [
+    "=XMATCH(A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=XMATCH(@A1:A2,A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=XMATCH(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=XMATCH(@A1:A2*1,A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "XNPV": {
+   "cell": [
+    "=XNPV(A1,A1,A1)",
+    "=XNPV(A1,A1,A1)"
+   ],
+   "range": [
+    "=XNPV(A1:A2,A1:A2,A1:A2)",
+    "=XNPV(A1:A2,A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=XNPV(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=XNPV(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "XOR": {
+   "cell": [
+    "=XOR(A1)",
+    "=XOR(A1)"
+   ],
+   "range": [
+    "=XOR(A1:A2)",
+    "=XOR(A1:A2)"
+   ],
+   "worked": [
+    "=XOR(A1:A2*1)",
+    "=XOR(@A1:A2*1)"
+   ],
+   "wide": [
+    "=XOR(A1:A2,A1:A2,A1:A2)",
+    "=XOR(A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=XOR(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=XOR(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "YEAR": {
+   "cell": [
+    "=YEAR(A1)",
+    "=YEAR(A1)"
+   ],
+   "range": [
+    "=YEAR(A1:A2)",
+    "=YEAR(@A1:A2)"
+   ],
+   "worked": [
+    "=YEAR(A1:A2*1)",
+    "=YEAR(@A1:A2*1)"
+   ]
+  },
+  "YEARFRAC": {
+   "cell": [
+    "=YEARFRAC(A1,A1)",
+    "=YEARFRAC(A1,A1)"
+   ],
+   "range": [
+    "=YEARFRAC(A1:A2,A1:A2)",
+    "=YEARFRAC(A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=YEARFRAC(A1:A2*1,A1:A2*1)",
+    "=YEARFRAC(@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=YEARFRAC(A1:A2,A1:A2,A1:A2)",
+    "=YEARFRAC(A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=YEARFRAC(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=YEARFRAC(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "YIELD": {
+   "cell": [
+    "=YIELD(A1,A1,A1,A1,A1,A1)",
+    "=YIELD(A1,A1,A1,A1,A1,A1)"
+   ],
+   "range": [
+    "=YIELD(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=YIELD(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=YIELD(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=YIELD(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=YIELD(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=YIELD(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=YIELD(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=YIELD(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "YIELDDISC": {
+   "cell": [
+    "=YIELDDISC(A1,A1,A1,A1)",
+    "=YIELDDISC(A1,A1,A1,A1)"
+   ],
+   "range": [
+    "=YIELDDISC(A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=YIELDDISC(A1:A2,A1:A2,A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=YIELDDISC(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=YIELDDISC(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=YIELDDISC(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=YIELDDISC(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=YIELDDISC(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=YIELDDISC(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "YIELDMAT": {
+   "cell": [
+    "=YIELDMAT(A1,A1,A1,A1,A1)",
+    "=YIELDMAT(A1,A1,A1,A1,A1)"
+   ],
+   "range": [
+    "=YIELDMAT(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=YIELDMAT(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)"
+   ],
+   "worked": [
+    "=YIELDMAT(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=YIELDMAT(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=YIELDMAT(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)",
+    "=YIELDMAT(A1:A2,A1:A2,A1:A2,A1:A2,A1:A2,A1:A2)"
+   ],
+   "wide_worked": [
+    "=YIELDMAT(A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=YIELDMAT(@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "Z.TEST": {
+   "cell": [
+    "=Z.TEST(A1,A1)",
+    "=Z.TEST(A1,A1)"
+   ],
+   "range": [
+    "=Z.TEST(A1:A2,A1:A2)",
+    "=Z.TEST(A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=Z.TEST(A1:A2*1,A1:A2*1)",
+    "=Z.TEST(@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=Z.TEST(A1:A2,A1:A2,A1:A2)",
+    "=Z.TEST(A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=Z.TEST(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=Z.TEST(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  },
+  "ZTEST": {
+   "cell": [
+    "=ZTEST(A1,A1)",
+    "=ZTEST(A1,A1)"
+   ],
+   "range": [
+    "=ZTEST(A1:A2,A1:A2)",
+    "=ZTEST(A1:A2,@A1:A2)"
+   ],
+   "worked": [
+    "=ZTEST(A1:A2*1,A1:A2*1)",
+    "=ZTEST(@A1:A2*1,@A1:A2*1)"
+   ],
+   "wide": [
+    "=ZTEST(A1:A2,A1:A2,A1:A2)",
+    "=ZTEST(A1:A2,@A1:A2,@A1:A2)"
+   ],
+   "wide_worked": [
+    "=ZTEST(A1:A2*1,A1:A2*1,A1:A2*1)",
+    "=ZTEST(@A1:A2*1,@A1:A2*1,@A1:A2*1)"
+   ]
+  }
+ },
+ "formulas": {
+  "=A1:A3": "=@A1:A3",
+  "=A1": "=A1",
+  "=A1:A1": "=@A1:A1",
+  "=A:A": "=@A:A",
+  "=1:1": "=@1:1",
+  "=A1:B1": "=@A1:B1",
+  "=Data!A1:A3": "=@Data!A1:A3",
+  "=Cells3": "=@Cells3",
+  "=One": "=One",
+  "=Const": "=Const",
+  "=Arr": "=@Arr",
+  "=Calc": "=@Calc",
+  "=Twice(A1:A3)": "=@Twice(A1:A3)",
+  "=Twice(A1)": "=@Twice(A1)",
+  "=A1:A3*2": "=@A1:A3*2",
+  "=-A1:A3": "=-@A1:A3",
+  "=A1:A3%": "=@A1:A3%",
+  "=A1:A3&\"x\"": "=@A1:A3&\"x\"",
+  "=A1:A3=1": "=@A1:A3=1",
+  "=(A1:A3)": "=(@A1:A3)",
+  "=+A1:A3": "=+@A1:A3",
+  "=A1:A3+A1:A3": "=@A1:A3+@A1:A3",
+  "=SUM(A1:A3)": "=SUM(A1:A3)",
+  "=SUM(A1:A3*2)": "=SUM(@A1:A3*2)",
+  "=SUM(-A1:A3)": "=SUM(-@A1:A3)",
+  "=SUMPRODUCT(A1:A3*2)": "=SUMPRODUCT(A1:A3*2)",
+  "=ABS(A1:A3)": "=ABS(@A1:A3)",
+  "=ABS(A1)": "=ABS(A1)",
+  "=ABS(Cells3)": "=ABS(@Cells3)",
+  "=LEN(A1:A3)": "=LEN(@A1:A3)",
+  "=IF(A1:A3>1,1,0)": "=IF(@A1:A3>1,1,0)",
+  "=IF(A1>1,A1:A3,0)": "=@IF(A1>1,A1:A3,0)",
+  "=IF(A1>1,1,A1:A3)": "=@IF(A1>1,1,A1:A3)",
+  "=INDEX(A1:A3,2)": "=INDEX(A1:A3,2)",
+  "=INDEX(A1:A3,0)": "=@INDEX(A1:A3,0)",
+  "=INDEX(A1:A3,A1:A3)": "=@INDEX(A1:A3,@A1:A3)",
+  "=VLOOKUP(A1:A3,A1:B3,2,FALSE)": "=VLOOKUP(@A1:A3,A1:B3,2,FALSE)",
+  "=MATCH(A1:A3,A1:A3,0)": "=MATCH(@A1:A3,A1:A3,0)",
+  "=COUNTIF(A1:A3,A1:A3)": "=COUNTIF(A1:A3,@A1:A3)",
+  "=SUMIF(A1:A3,\">1\",A1:A3)": "=SUMIF(A1:A3,\">1\",A1:A3)",
+  "=CHOOSE(1,A1:A3)": "=@CHOOSE(1,A1:A3)",
+  "=CHOOSE(A1:A3,1,2,3)": "=CHOOSE(@A1:A3,1,2,3)",
+  "=OFFSET(A1,0,0,3,1)": "=@OFFSET(A1,0,0,3,1)",
+  "=SUM(OFFSET(A1,0,0,3,1))": "=SUM(OFFSET(A1,0,0,3,1))",
+  "=INDIRECT(\"A1:A3\")": "=@INDIRECT(\"A1:A3\")",
+  "=ROW(A1:A3)": "=@ROW(A1:A3)",
+  "=ROWS(A1:A3)": "=ROWS(A1:A3)",
+  "=ROW()": "=ROW()",
+  "=COLUMN(A1:B1)": "=@COLUMN(A1:B1)",
+  "=TRANSPOSE(A1:A3)": "=@TRANSPOSE(@A1:A3)",
+  "=MMULT(A1:A3,TRANSPOSE(A1:A3))": "=@MMULT(A1:A3,TRANSPOSE(@A1:A3))",
+  "=N(A1:A3)": "=N(A1:A3)",
+  "=T(A1:A3)": "=T(A1:A3)",
+  "=IFERROR(A1:A3,0)": "=IFERROR(@A1:A3,0)",
+  "=IFERROR(1/A1:A3,0)": "=IFERROR(1/@A1:A3,0)",
+  "=MAX(A1:A3)*A1:A3": "=MAX(A1:A3)*@A1:A3",
+  "=SUM(A1:A3)+A1:A3": "=SUM(A1:A3)+@A1:A3",
+  "={1,2,3}": "=@{1,2,3}",
+  "={1,2,3}*A1:A3": "=@{1,2,3}*@A1:A3",
+  "=TEXT(A1:A3,\"0\")": "=TEXT(@A1:A3,\"0\")",
+  "=DATE(2020,A1:A3,1)": "=DATE(2020,@A1:A3,1)",
+  "=LET(x,A1:A3,x)": "=@LET(x,A1:A3,x)",
+  "=LET(x,A1:A3,SUM(x))": "=LET(x,A1:A3,SUM(x))",
+  "=LET(x,A1:A3,x*2)": "=LET(x,A1:A3,@x*2)",
+  "=LET(x,A1,x)": "=LET(x,A1,x)",
+  "=LAMBDA(x,x*2)(A1:A3)": "=@LAMBDA(x,@x*2)(A1:A3)",
+  "=MAP(A1:A3,LAMBDA(v,v*2))": "=@MAP(A1:A3,LAMBDA(v,@v*2))",
+  "=SEQUENCE(A1:A3)": "=@SEQUENCE(@A1:A3)",
+  "=XLOOKUP(A1:A3,A1:A3,A1:A3)": "=XLOOKUP(@A1:A3,A1:A3,A1:A3)",
+  "=XLOOKUP(2,A1:A3,A1:B3)": "=@XLOOKUP(2,A1:A3,A1:B3)",
+  "=FILTER(A1:A3,A1:A3>1)": "=@FILTER(A1:A3,A1:A3>1)",
+  "=SORT(A1:A3)": "=@SORT(A1:A3)",
+  "=A1:A3 A2:A3": "=@A1:A3 A2:A3",
+  "=(A1:A3,B1:B3)": "=(A1:A3,B1:B3)",
+  "=SUM((A1:A3,B1:B3))": "=SUM((A1:A3,B1:B3))",
+  "=E1#": "=@E1#",
+  "=SUM(E1#)": "=SUM(E1#)",
+  "=E1#*2": "=@E1#*2",
+  "=Data!A1:Data!A3": "=@Data!A1:Data!A3",
+  "=SUBTOTAL(9,A1:A3)": "=SUBTOTAL(9,A1:A3)",
+  "=AGGREGATE(9,6,A1:A3)": "=AGGREGATE(9,6,A1:A3)",
+  "=HYPERLINK(\"x\",A1:A3)": "=HYPERLINK(\"x\",@A1:A3)",
+  "=CELL(\"row\",A1:A3)": "=@CELL(\"row\",A1:A3)",
+  "=ISBLANK(A1:A3)": "=ISBLANK(@A1:A3)",
+  "=AND(A1:A3>1)": "=AND(@A1:A3>1)",
+  "=OR(A1:A3)": "=OR(A1:A3)",
+  "=SUM(IF(A1:A3>1,1,0))": "=SUM(IF(@A1:A3>1,1,0))",
+  "=CONCAT(A1:A3)": "=CONCAT(A1:A3)",
+  "=TEXTJOIN(\",\",1,A1:A3)": "=TEXTJOIN(\",\",1,A1:A3)",
+  "=UNIQUE(A1:A3)": "=@UNIQUE(A1:A3)",
+  "=XMATCH(A1:A3,A1:A3)": "=XMATCH(@A1:A3,A1:A3)",
+  "=A1:A3>A2:A4": "=@A1:A3>@A2:A4",
+  "=MAX(A1:A3)": "=MAX(A1:A3)",
+  "=MIN(A1:A3,A1:A3*2)": "=MIN(A1:A3,@A1:A3*2)",
+  "=NOTAFUNCTION(A1:A3)": "=@NOTAFUNCTION(A1:A3)",
+  "=IFS(A1>0,A1:A3)": "=@IFS(A1>0,A1:A3)",
+  "=SWITCH(A1,1,A1:A3)": "=@SWITCH(A1,1,A1:A3)",
+  "=LOOKUP(2,A1:A3)": "=LOOKUP(2,A1:A3)",
+  "=HLOOKUP(1,A1:B3,A1:A3)": "=HLOOKUP(1,A1:B3,@A1:A3)",
+  "=SUMIFS(A1:A3,A1:A3,\">1\")": "=SUMIFS(A1:A3,A1:A3,\">1\")",
+  "=COUNTA(A1:A3)": "=COUNTA(A1:A3)",
+  "=RANK(A1,A1:A3)": "=RANK(A1,A1:A3)",
+  "=LARGE(A1:A3,A1:A3)": "=LARGE(A1:A3,@A1:A3)",
+  "=@A1:A3": "=@A1:A3",
+  "=LET(x,A1:A2,y,A1:A2,x+y)": "=LET(x,A1:A2,y,A1:A2,@x+@y)",
+  "=LET(x,A1:A3,y,x*2,SUM(y))": "=LET(x,A1:A3,y,@x*2,SUM(y))",
+  "=LAMBDA(a,b,a+b)(A1:A2,A1:A2)": "=@LAMBDA(a,b,@a+@b)(A1:A2,A1:A2)",
+  "=SUM(A1:A3)*A1": "=SUM(A1:A3)*A1",
+  "=A1*B1:B2": "=A1*@B1:B2",
+  "=INDEX(A1:B3,2,2)": "=INDEX(A1:B3,2,2)",
+  "=INDEX(A1:B3,2)": "=INDEX(A1:B3,2)",
+  "=INDEX(A1:B3,0,1)": "=@INDEX(A1:B3,0,1)",
+  "=INDEX(A1:B3,1,0)": "=@INDEX(A1:B3,1,0)",
+  "=OFFSET(A1,1,1)": "=OFFSET(A1,1,1)",
+  "=OFFSET(A1,0,0,1,1)": "=OFFSET(A1,0,0,1,1)",
+  "=OFFSET(A1:B2,0,0)": "=@OFFSET(A1:B2,0,0)",
+  "=ROW(A1)": "=ROW(A1)",
+  "=ROW(A1:A1)": "=@ROW(A1:A1)",
+  "=COLUMN(A1:A1)": "=@COLUMN(A1:A1)",
+  "=XLOOKUP(2,A1:A3,B1:B3)": "=XLOOKUP(2,A1:A3,B1:B3)",
+  "=XLOOKUP(2,A1:C1,A2:C3)": "=@XLOOKUP(2,A1:C1,A2:C3)",
+  "=IF(TRUE,A1,A2)": "=IF(TRUE,A1,A2)",
+  "=IF(TRUE,A1:A2)": "=@IF(TRUE,A1:A2)",
+  "=CHOOSE(2,A1,A2:A3)": "=@CHOOSE(2,A1,A2:A3)",
+  "=IFERROR(A1,A2:A3)": "=@IFERROR(A1,A2:A3)",
+  "=VLOOKUP(1,A1:B3,{1,2})": "=VLOOKUP(1,A1:B3,@{1,2})",
+  "=SUM(A1:A3,A1)": "=SUM(A1:A3,A1)",
+  "=ISREF(A1:A3)": "=ISREF(A1:A3)",
+  "=ISFORMULA(A1)": "=ISFORMULA(A1)",
+  "=ISFORMULA(A1:A1)": "=@ISFORMULA(A1:A1)",
+  "=CELL(\"row\",A1)": "=@CELL(\"row\",A1)",
+  "=INDIRECT(\"A1\")": "=@INDIRECT(\"A1\")",
+  "=HYPERLINK(A1:A2,\"x\")": "=HYPERLINK(@A1:A2,\"x\")",
+  "=Cells3*2": "=@Cells3*2",
+  "=SUM(Cells3)": "=SUM(Cells3)",
+  "=One+Cells3": "=One+@Cells3",
+  "=Arr*2": "=@Arr*2",
+  "=SUM(Arr)": "=SUM(Arr)",
+  "=Twice(Cells3)": "=@Twice(Cells3)",
+  "=LET(x,Cells3,x)": "=@LET(x,Cells3,x)",
+  "=E1#+1": "=@E1#+1",
+  "=SUM(E1#*2)": "=SUM(E1#*2)",
+  "=TRANSPOSE(E1#)": "=@TRANSPOSE(E1#)",
+  "=IF(A1:A3>1,A1:A3)": "=@IF(@A1:A3>1,A1:A3)",
+  "=SUM(A1:A3>1)": "=SUM(@A1:A3>1)",
+  "=COUNT(A1:A3*2)": "=COUNT(@A1:A3*2)",
+  "=SUMPRODUCT((A1:A3>1)*A1:A3)": "=SUMPRODUCT((A1:A3>1)*A1:A3)",
+  "=INDEX(A1:A3*2,2)": "=@INDEX(A1:A3*2,2)",
+  "=INDEX(A1:A3*2,0)": "=@INDEX(A1:A3*2,0)",
+  "=MATCH(2,A1:A3*1,0)": "=MATCH(2,@A1:A3*1,0)",
+  "=VLOOKUP(2,A1:B3*1,2,FALSE)": "=VLOOKUP(2,@A1:B3*1,2,FALSE)",
+  "=SUM(INDEX(A1:A3,0))": "=SUM(INDEX(A1:A3,0))",
+  "=MAX(INDEX(A1:A3*2,0))": "=MAX(INDEX(A1:A3*2,0))"
+ }
+}

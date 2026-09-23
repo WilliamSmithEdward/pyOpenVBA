@@ -165,9 +165,10 @@ class Names(Protocol):
         ...
 
 
-def spelled(formula: str, names: Names, *, whole: bool = False) -> str:
+def spelled(formula: str, names: Names, *, whole: bool = False, at: bool = False) -> str:
     """``formula``, which starts with =, as Excel spells it back; ``whole`` for a formula worked out whole, as an
-    array formula is, where no column is cut to this row."""
+    array formula is, where no column is cut to this row; ``at`` for a formula written through Formula2, which may
+    cut a range to one value with @."""
     body = formula[1:]
     try:
         tokens = tokenize(body, spaces=True)
@@ -176,6 +177,8 @@ def spelled(formula: str, names: Names, *, whole: bool = False) -> str:
         if unmodelled is not None:
             raise UnmodelledFormulaError(f"{unmodelled.group(0)!r} in a formula is not implemented") from None
         raise
+    if not at and any(token.kind == "op" and token.text == "@" for token in tokens):
+        raise UnmodelledFormulaError("'@' in a formula written through Range.Formula is not implemented")
     tree = parse(formula)
     _check(tree)
     one_value: set[int] = set()

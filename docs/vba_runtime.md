@@ -1311,7 +1311,10 @@ macros, which the model does not write.
   that holds the formula and shows its first element, which is what
   Excel did before dynamic arrays; an array formula fills the block
   FormulaArray gave it and no more.  Implicit intersection is applied
-  wherever a formula wants one value, as Excel's `@` does.
+  wherever a formula wants one value, as Excel's `@` does, and
+  `Range.Formula2` reads a formula back with that `@` as Excel does
+  (`tests/fixtures/implicit_intersection.json`, 2100 live formulas); a
+  formula written through Formula2 that would spill reports itself.
 - **Power Query reaches nothing off the machine.** The language is
   evaluated and a local source is read, but `Sql.Database`, `Web.Contents`,
   `OData.Feed` and the rest of the connectors report themselves rather

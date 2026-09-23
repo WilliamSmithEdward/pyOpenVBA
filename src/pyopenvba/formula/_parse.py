@@ -155,7 +155,7 @@ _TOKEN: Final = re.compile(
   | (?P<ref>(?:{_SHEET})?(?:{_CELL}:{_CELL}|{_WHOLE_COLUMNS}|{_WHOLE_ROWS}|{_CELL})(?![A-Za-z0-9_.(]))
   | (?P<name>(?:{_SHEET})?[A-Za-z_\\À-￿][A-Za-z0-9_.À-￿]*)
   | (?P<number>(?:[0-9]+\.?[0-9]*|\.[0-9]+)(?:[eE][-+]?[0-9]+)?)
-  | (?P<op><>|<=|>=|[=<>+\-*/^&%:])
+  | (?P<op><>|<=|>=|[=<>+\-*/^&%:@])
   | (?P<open>\()
   | (?P<close>\))
   | (?P<comma>,)
@@ -351,6 +351,16 @@ class Parser:
         self.tokens = tokens
         self.source = source
         self.at = 0
+        #: Where each node's text starts in the source, by the node's id.
+        self.starts: dict[int, int] = {}
+
+    def placed(self, node: Node, start: int) -> Node:
+        """``node``, noted as starting at ``start`` in the source."""
+        self.starts[id(node)] = start
+        return node
+
+    def start(self, node: Node) -> int:
+        return self.starts.get(id(node), -1)
 
     @property
     def token(self) -> Token:
@@ -382,7 +392,7 @@ class Parser:
         while self.token.kind == "op" and self.token.text in _LEVELS[level]:
             op = self.advance().text
             right = self.expression(level + 1)
-            left = Binary(op=op, left=left, right=right)
+            left = self.placed(Binary(op=op, left=left, right=right), self.start(left))
         return left
 
     def unary(self) -> Node:
@@ -395,19 +405,21 @@ class Parser:
         node = self.tight()
         while self.token.kind == "op" and self.token.text == "^":
             self.advance()
-            node = Binary(op="^", left=node, right=self.tight())
+            node = self.placed(Binary(op="^", left=node, right=self.tight()), self.start(node))
         return node
 
     def tight(self) -> Node:
-        """A signed operand with its percent signs, and no power."""
-        if self.token.kind == "op" and self.token.text in ("-", "+"):
+        """A signed operand with its percent signs, and no power; an @ binds as a sign does, over a range or an
+        intersection whole: @A1:A3 A2:A3."""
+        if self.token.kind == "op" and self.token.text in ("-", "+", "@"):
+            start = self.token.at
             op = self.advance().text
             # A + is kept: it reads cells as values, so COUNTIF(+A1:A3,1) is refused (tests/fixtures/formula/).
-            return Unary(op=op, operand=self.tight())
+            return self.placed(Unary(op=op, operand=self.tight()), start)
         node = self.operand()
         while self.token.kind == "op" and self.token.text == "%":
             self.advance()
-            node = Unary(op="%", operand=node)
+            node = self.placed(Unary(op="%", operand=node), self.start(node))
         return node
 
     def operand(self) -> Node:
@@ -416,9 +428,11 @@ class Parser:
         while True:
             if self.token.kind == "op" and self.token.text == ":":
                 self.advance()
-                node = Binary(op=":", left=self.referable(node), right=self.referable(self.primary()))
+                joined = Binary(op=":", left=self.referable(node), right=self.referable(self.primary()))
+                node = self.placed(joined, self.start(node))
             elif self.token.kind in ("ref", "structured", "name", "open") and self.spaced():
-                node = Binary(op=" ", left=self.referable(node), right=self.referable(self.primary()))
+                joined = Binary(op=" ", left=self.referable(node), right=self.referable(self.primary()))
+                node = self.placed(joined, self.start(node))
             else:
                 return node
 
@@ -437,6 +451,13 @@ class Parser:
         raise FormulaError(f"a reference operator needs references in {self.source!r}")
 
     def primary(self) -> Node:
+        token = self.token
+        if token.kind == "open":
+            # The node inside brackets starts inside them, where Formula2 puts its @: (@A1:A3).
+            return self.bracketed()
+        return self.placed(self.unplaced(), token.at)
+
+    def unplaced(self) -> Node:
         token = self.token
         if token.kind == "number":
             self.advance()
@@ -460,22 +481,25 @@ class Parser:
             # Brackets straight after a call call what it gives: LAMBDA(x,x*2)(5) is 10 (tests/fixtures/formula/).
             while isinstance(node, (Call, Invoke)) and self.at_kind("open") and not self.spaced():
                 self.advance()
-                node = Invoke(target=node, args=self.arguments())
+                node = self.placed(Invoke(target=node, args=self.arguments()), token.at)
             return node
-        if token.kind == "open":
-            self.advance()
-            inner = self.expression()
-            while self.token.kind == "comma":
-                # Inside brackets a comma joins references into a union.
-                self.advance()
-                inner = Binary(op=",", left=self.referable(inner), right=self.referable(self.expression()))
-            self.expect("close")
-            if isinstance(inner, Binary):
-                inner.grouped = True
-            return inner
         if token.kind == "lbrace":
             return self.array()
         raise FormulaError(f"unexpected {token.text!r} in {self.source!r}")
+
+    def bracketed(self) -> Node:
+        """What stands in brackets, the node inside them keeping its own start."""
+        self.advance()
+        inner = self.expression()
+        while self.token.kind == "comma":
+            # Inside brackets a comma joins references into a union.
+            self.advance()
+            joined = Binary(op=",", left=self.referable(inner), right=self.referable(self.expression()))
+            inner = self.placed(joined, self.start(inner))
+        self.expect("close")
+        if isinstance(inner, Binary):
+            inner.grouped = True
+        return inner
 
     def at_kind(self, *kinds: str) -> bool:
         return self.tokens[self.at].kind in kinds
@@ -532,12 +556,18 @@ class Parser:
 
 def parse(formula: str) -> Node:
     """Parse a formula, with or without its leading equals sign."""
+    return parse_placed(formula)[0]
+
+
+def parse_placed(formula: str) -> tuple[Node, dict[int, int]]:
+    """A formula parsed, with where each node's text starts after the = by the node's id."""
     body = formula.strip()
     if body.startswith("="):
         body = body[1:]
     if not body:
         raise FormulaError("an empty formula")
-    return Parser(tokenize(body), body).parse()
+    parser = Parser(tokenize(body), body)
+    return parser.parse(), parser.starts
 
 
 # --- what a formula depends on --------------------------------------------------------

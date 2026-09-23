@@ -917,6 +917,7 @@ def save_workbook(book: Workbook, target: Path) -> None:
     """Write the workbook out, patching only the cells the model changed."""
     from pyopenvba.apps.excel._controls import refresh
 
+    _calculated(book)
     for sheet in book.sheets_:
         for shape in sheet.shapes_:
             refresh(sheet, shape)
@@ -1397,6 +1398,24 @@ def _cell_xml(reference: str, cell: Cell, style: str, formula: str | None = None
     if not body:
         return f'<c r="{reference}"{attributes}/>'
     return f'<c r="{reference}"{attributes}{kind}>{body}</c>'
+
+
+def _calculated(book: Workbook) -> None:
+    """Work out each formula nothing has read since it changed, so that it is saved with its value as Excel saves
+    it: under automatic calculation every cell is up to date. One the model cannot work out is saved without a
+    value, and under manual calculation a cell keeps the value it last had."""
+    from pyopenvba.exceptions import VBAUnsupportedError
+
+    calculator = book.calculator
+    if not calculator.automatic:
+        return
+    for sheet in book.sheets_:
+        for (row, column), cell in list(sheet.cells_.items()):
+            if cell.formula and cell.stale:
+                try:
+                    calculator.value_of(sheet.name, row, column)
+                except VBAUnsupportedError:
+                    continue
 
 
 def _formula_xml(text: str, tables: Collection[str]) -> str:

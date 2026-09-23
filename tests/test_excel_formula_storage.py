@@ -10,8 +10,8 @@ The model reads each file's formulas as Excel reads them, works them out
 again as Excel does after an edit, and saves each case with its formulas
 stored as Excel stored them: which are shared or array formulas, over
 which block, in which order. The values a cell carries are left out of
-that comparison, since the model works a formula out only when something
-asks.
+that comparison: a save writes every formula's value, but a cell's <v>
+follows a spelling rule for numbers the model does not have yet.
 """
 
 from __future__ import annotations
@@ -85,6 +85,16 @@ def test_a_formula_and_its_text_keep_their_quotes_as_excel_writes_them(tmp_path:
     saved = _sheet_xml(app.save(tmp_path / "quotes.xlsx"))
     wanted = next(cell for cell in CASES["kinds"]["cells"] if cell.startswith('<c r="S1"'))
     assert re.search(r'<c r="S1".*?</c>', saved).group() == wanted  # type: ignore[union-attr]
+
+
+def test_a_save_works_out_a_formula_nothing_has_read(tmp_path: Path) -> None:
+    """Under automatic calculation Excel's cells are always up to date, so a formula written and never read is
+    saved with its value, as the totals rows in tests/fixtures/tables/totals_row/ are."""
+    app = ExcelApplication()
+    app.add_workbook()
+    _run(app, 'ws.Range("A1").Value = 2\nws.Range("B1").Formula = "=A1*3"', '""')
+    found = re.search(r'<c r="B1".*?</c>', _sheet_xml(app.save(tmp_path / "unread.xlsx")))
+    assert found is not None and found.group() == '<c r="B1"><f>A1*3</f><v>6</v></c>'
 
 
 @pytest.mark.parametrize("name", [_param(name) for name in CASES])

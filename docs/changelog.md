@@ -575,6 +575,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- A save works out every formula nothing has read since it was written,
+  and saves it with its value, as Excel's cells are always up to date
+  under automatic calculation. The model saved such a formula with no
+  value. One the model cannot work out is still saved without one, and
+  under manual calculation a cell keeps the value it last had.
 - `Err` clears where VBA clears it: when a procedure of the macro starts,
   on every `On Error` statement, and on leaving a procedure from its
   error handler. It keeps what a procedure left in it after the procedure

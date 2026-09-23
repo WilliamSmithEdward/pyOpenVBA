@@ -21,7 +21,7 @@ from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, column_letter, column_number
 from pyopenvba._xml import attributes
-from pyopenvba.apps.excel import _arrays, _shared, _tables, _validation
+from pyopenvba.apps.excel import _arrays, _shared, _tables, _validation, _windows
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.formula._parse import split_sheet, tokenize
 from pyopenvba.interpreter._values import error
@@ -104,6 +104,7 @@ def edit(target: Range, *, delete: bool) -> None:
     start, count, limit = (area.top, area.rows, MAX_ROWS) if rows else (area.left, area.columns, MAX_COLUMNS)
     _arrays.edit_admitted(sheet, rows=rows, start=start, count=count, delete=delete)
     _tables.edit_admitted(sheet, rows=rows, start=start, count=count, delete=delete)
+    _windows.edit_admitted(sheet, rows=rows, start=start, count=count, delete=delete)
     moved: dict[tuple[int, int], Cell] = {}
     for (row, column), cell in sheet.cells_.items():
         position = row if rows else column
@@ -142,6 +143,7 @@ def edit(target: Range, *, delete: bool) -> None:
                                               delete=delete), rows=rows)
     _validation.moved(sheet, lambda text: rewrite(text, sheet.name, sheet.name, rows=rows, start=start, count=count,
                                                   delete=delete))
+    _windows.edited(sheet, rows=rows, start=start, count=count, delete=delete)
     if rows:
         sheet.dims.shift_rows(start, count, delete)
     else:

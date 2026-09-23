@@ -101,6 +101,10 @@ def copy_sheet(source: Worksheet, before: object, after: object) -> object:
     copied.protection = source.protection
     copied.protection_allows = source.protection_allows
     copied.enable_selection = source.enable_selection
+    # The copy has the view the sheet had, its zoom, panes and selection (tests/fixtures/windows/).
+    from pyopenvba.apps.excel._windows import copied as copied_view
+
+    copied_view(source, copied)
     destination.names_.entries.extend(names)
     destination.names_.changed = True
     copied.shape_changed()

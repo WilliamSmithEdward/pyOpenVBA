@@ -139,6 +139,8 @@ class Application(ExcelObject):
         self.user_name = "pyOpenVBA"
         self.interpreter: Interpreter | None = None
         self.active_book: Workbook | None = None
+        #: The workbooks whose windows have been to the front, front first (see _windows).
+        self.window_order: list[Workbook] = []
         self._this_workbook: Workbook | None = None
         self.worksheet_function = WorksheetFunction(self)
         self.find_state = FindState()
@@ -274,6 +276,26 @@ class Application(ExcelObject):
         return book.active_sheet if book is not None else NOTHING
 
     @member
+    def ActiveWindow(self) -> object:
+        from pyopenvba.apps.excel._windows import window_of
+
+        return window_of(self.active_book) if self.active_book is not None else NOTHING
+
+    @member
+    def Windows(self, Index: object = MISSING) -> object:
+        from pyopenvba.apps.excel._windows import Windows
+
+        windows = Windows(self)
+        return windows if Index is MISSING else windows.vba_get("Item", [Index])
+
+    @method
+    def Goto(self, Reference: object = MISSING, Scroll: object = MISSING) -> object:
+        from pyopenvba.apps.excel._windows import goto
+
+        goto(self, Reference, Scroll)
+        return EMPTY
+
+    @member
     def ActiveCell(self) -> object:
         sheet = self.active_book.active_sheet if self.active_book is not None else None
         return sheet.active_cell if sheet is not None else NOTHING
@@ -366,6 +388,7 @@ class Application(ExcelObject):
     @method
     def Quit(self) -> object:
         self.workbooks_.books.clear()
+        self.window_order.clear()
         self.active_book = None
         return EMPTY
 
@@ -397,6 +420,9 @@ class Application(ExcelObject):
         return sheet
 
     def activate_book(self, book: Workbook) -> None:
+        from pyopenvba.apps.excel._windows import brought_forward
+
+        brought_forward(self, book)
         self.active_book = book
         if self._this_workbook is None:
             self._this_workbook = book
@@ -476,10 +502,15 @@ class Workbooks(VBACollection, ExcelObject):
         return self.application
 
     def remove(self, book: Workbook) -> None:
+        from pyopenvba.apps.excel._windows import front_to_back
+
         if book in self.books:
             self.books.remove(book)
+        if book in self.application.window_order:
+            self.application.window_order.remove(book)
         if self.application.active_book is book:
-            self.application.active_book = self.books[-1] if self.books else None
+            # The window behind comes to the front, measured.
+            self.application.active_book = front_to_back(self.application)[0] if self.books else None
 
 
 class Workbook(ExcelObject):
@@ -512,6 +543,10 @@ class Workbook(ExcelObject):
         self.protection: BookProtection | None = None
         #: True once a macro protects or unprotects the workbook, so a save writes workbookProtection again.
         self.protection_changed = False
+        from pyopenvba.apps.excel._windows import BookViewState
+
+        #: The workbook's window: its tabs, scroll bars and caption (see _windows).
+        self.view = BookViewState()
 
     @property
     def calculator(self) -> Any:
@@ -580,6 +615,13 @@ class Workbook(ExcelObject):
     def ActiveSheet(self) -> object:
         sheet = self.active_sheet
         return sheet if sheet is not None else NOTHING
+
+    @member
+    def Windows(self, Index: object = MISSING) -> object:
+        from pyopenvba.apps.excel._windows import Windows
+
+        windows = Windows(self.application, self)
+        return windows if Index is MISSING else windows.vba_get("Item", [Index])
 
     @member
     def Names(self, Index: object = MISSING) -> object:
@@ -803,6 +845,10 @@ class Worksheet(ExcelObject):
         self.visible = -1  # xlSheetVisible
         #: Row heights, column widths and what is hidden.
         self.dims = _dimensions.SheetDimensions(self)
+        from pyopenvba.apps.excel._windows import SheetViewState
+
+        #: How the window shows the sheet: zoom, panes, where it is scrolled to (see _windows).
+        self.view = SheetViewState()
         self.selection_range: Range | None = None
         #: The settings Worksheet.Sort holds, made the first time it is asked for.
         self.sort_state: SortState | None = None
@@ -2175,8 +2221,10 @@ class Range(ExcelObject):
 
     @method
     def Select(self) -> object:
+        from pyopenvba.apps.excel._windows import check_shown
+
+        check_shown(self, "Select")
         self.select_as_excel_does()
-        self.sheet.book.activate_sheet(self.sheet)
         return EMPTY
 
     def select_as_excel_does(self) -> None:
@@ -2188,12 +2236,16 @@ class Range(ExcelObject):
         self.sheet.active_cell_range = Range(
             self.sheet, [Area(self.first.top, self.first.left, self.first.top, self.first.left, self.first.sheet)]
         )
+        self.sheet.view.changed = True
         if shown != [(one.top, one.left, one.bottom, one.right) for one in self.areas]:
             _events.selected(self.sheet, self)
 
     @method
     def Activate(self) -> object:
-        return self.Select()
+        from pyopenvba.apps.excel._windows import activate
+
+        activate(self)
+        return EMPTY
 
     @method
     def Clear(self) -> object:

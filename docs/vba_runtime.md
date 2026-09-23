@@ -1144,6 +1144,38 @@ writes the dataValidations element as Excel writes it. A list read from
 another sheet, which Excel keeps in the worksheet's x14 extension, is
 read and not made.
 
+**Windows and sheet views.** `ActiveWindow`, `Windows`,
+`Workbook.Windows` and `Goto` behave as Excel does with its window shown
+(`tests/fixtures/windows/`, 113 workbooks). Each sheet has its own view,
+which the window shows while the sheet is active: zoom, gridlines,
+headings, zeros and formulas, the view it is in, where it is scrolled
+to, its frozen panes and its selection. Each view keeps its own zoom, so
+the page break preview opens at 60 and the normal view's zoom comes
+back when it is chosen again; 85.6 is 85, and outside 10 to 400 is error
+1004. `FreezePanes` freezes the rows above and the columns left of the
+active cell. ScrollRow and ScrollColumn then scroll the pane under or
+right of them, never past the frozen rows, and the whole window along a
+way nothing is frozen. The macro recorder's Freeze Top Row, which sets
+SplitColumn and SplitRow and then FreezePanes, freezes a split in place,
+and the file keeps it as frozenSplit. Rows or columns inserted or
+deleted among the frozen ones grow or shrink them, never below one, and
+move the scrolling pane as far. The selection and the window's top left
+stay where they are, as Excel leaves them. `Activate` moves the active
+cell when the range's first cell is in the selection, and otherwise
+selects the range. `Select` and `Activate` on a sheet that is not the
+active one are error 1004. `Goto` activates the range's sheet and
+selects the range; with Scroll, it puts the range's first cell at the
+top left. `Windows` lists windows front to back: a new workbook's comes
+to the front, one activated comes forward only while the screen
+updates, and closing the active workbook activates the window behind
+it. A workbook opens on the sheet its file had active, with that sheet's
+selection. A save writes each view, and the active tab, as Excel writes
+them. Three things depend on the window's size and report themselves: a
+split that is not frozen, which Excel keeps in twips of the rows,
+columns and headings it shows; freezing with the active cell out of
+view, where Excel freezes the middle of the window; and the window's
+size and state before a macro sets them.
+
 **Structured references.** A formula names part of a table by its name
 and columns, `Table1[Qty]`, `Table1[[#Headers],[Qty]:[Price]]`,
 `Table1[@Qty]`, and the model reads, spells, saves and works them out as

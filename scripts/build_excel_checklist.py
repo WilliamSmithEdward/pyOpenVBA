@@ -35,11 +35,21 @@ NOT_IMPLEMENTED = ("MISSING", "EXCLUDED")
 
 def bound_classes() -> dict[str, type]:
     """The model class behind each Excel type, one per type name."""
-    from pyopenvba.apps.excel import _autofilter, _formats, _model, _protection, _shapes, _sort, _tables, _validation
+    from pyopenvba.apps.excel import (
+        _autofilter,
+        _formats,
+        _model,
+        _protection,
+        _shapes,
+        _sort,
+        _tables,
+        _validation,
+        _windows,
+    )
     from pyopenvba.interpreter._objects import VBAObject
 
     found: dict[str, type] = {}
-    for module in (_model, _shapes, _formats, _sort, _autofilter, _protection, _tables, _validation):
+    for module in (_model, _shapes, _formats, _sort, _autofilter, _protection, _tables, _validation, _windows):
         for cls in vars(module).values():
             if not inspect.isclass(cls) or cls.__module__ != module.__name__:
                 continue

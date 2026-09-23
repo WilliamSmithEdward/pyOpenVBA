@@ -100,8 +100,13 @@ def load_workbook(application: Application, path: Path) -> Workbook:
             _read_shapes(sheet, package, sheet_xml)
             _read_tables(sheet, package, sheet_xml)
             from pyopenvba.apps.excel._validation import read_rules
+            from pyopenvba.apps.excel._windows import read_view
 
             sheet.validations = read_rules(sheet_xml)
+            read_view(sheet, sheet_xml)
+    from pyopenvba.apps.excel._windows import read_book_view
+
+    read_book_view(book, workbook_xml)
     _read_names(book, workbook_xml)
     from pyopenvba.apps.excel._protection import read_book_protection
 
@@ -931,16 +936,21 @@ def save_workbook(book: Workbook, target: Path) -> None:
         _match_sheets_to_package(book, package)
     else:
         _sync_sheets(book, package)
+    from pyopenvba.apps.excel._windows import saved, tabs_moved, with_book_view, with_view
+
+    tabs = tabs_moved(book)
     for sheet in book.sheets_:
-        # A sheet nobody wrote to keeps the bytes it arrived with.
-        if not sheet.part_name or not sheet.dirty:
+        # A sheet nobody wrote to keeps the bytes it arrived with, its view too unless the window changed it.
+        if not sheet.part_name or not (sheet.dirty or sheet.view.changed or tabs):
             continue
         original = (
             package.read(sheet.part_name).decode("utf-8", errors="replace")
             if package.has(sheet.part_name)
             else _EMPTY_SHEET
         )
-        package.write(sheet.part_name, _patched_sheet(sheet, original, package).encode("utf-8"))
+        patched = with_view(sheet, _patched_sheet(sheet, original, package) if sheet.dirty else original, tabs=tabs)
+        if sheet.dirty or patched != original:
+            package.write(sheet.part_name, patched.encode("utf-8"))
     if book.names_.changed:
         _write_names(book, package)
     if book.protection_changed and package.has("xl/workbook.xml"):
@@ -948,12 +958,18 @@ def save_workbook(book: Workbook, target: Path) -> None:
 
         text = package.read("xl/workbook.xml").decode("utf-8", errors="replace")
         package.write("xl/workbook.xml", with_book_protection(book, text).encode("utf-8"))
+    if (tabs or book.view.changed) and package.has("xl/workbook.xml"):
+        text = package.read("xl/workbook.xml").decode("utf-8", errors="replace")
+        viewed = with_book_view(book, text)
+        if viewed != text:
+            package.write("xl/workbook.xml", viewed.encode("utf-8"))
     _resize_loaded_tables(book, package)
     _write_tables(book, package)
     _write_shapes(book, package)
     _write_styles(book, package)
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_bytes(package.serialize())
+    saved(book)
 
 
 #: A sheet added to a workbook, as Excel writes one on a 96-DPI display

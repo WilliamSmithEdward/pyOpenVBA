@@ -162,6 +162,16 @@ All notable changes to pyOpenVBA are documented here. This project follows
   VbMethod on a host object's property, VbSet with a value, or a call
   type with none of the four is error 438, as 24 probes in live Excel
   show. `Collection.Item` is a method, as VBA's own Collection has it.
+- Windows: `Application.ActiveWindow`, `Application.Windows`,
+  `Workbook.Windows`, `Application.Goto` and the Window object -- zoom,
+  view, gridlines, headings, zeros and formulas, scrolling, frozen panes
+  and the macro recorder's Freeze Top Row, SplitRow and SplitColumn,
+  caption, tabs, tab ratio and scroll bars. Each sheet keeps its own view
+  and selection, a copy of the sheet takes them along, and a save writes
+  them as Excel does. Windows lists windows front to back as Excel does.
+  113 workbooks in live Excel pin it. A split that is not frozen, which
+  Excel keeps in twips of what the window shows, is answered for and not
+  saved; freezing with the active cell out of view reports itself.
 - Data validation: `Range.Validation` and the Validation object --
   `Add`, `Modify`, `Delete`, every setting and message, and `Value`,
   which checks the cell's value against its rule as Excel does. Rules
@@ -609,6 +619,16 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- `Range.Select` and `Range.Activate` on a sheet that is not the active
+  one are error 1004, as in Excel; the model made the sheet active.
+  `Activate` on a cell inside the selection moves the active cell and
+  keeps the selection; the model selected the cell alone.
+- A workbook opens on the sheet its file had active, with that sheet's
+  selection, and a save moves the selected tab to the active sheet. The
+  model opened every workbook on its first sheet, and a save left the
+  tab where the file had it.
+- Closing the active workbook activates the window behind it, as Excel
+  does; the model activated the workbook opened last.
 - A save works out every formula nothing has read since it was written,
   and saves it with its value, as Excel's cells are always up to date
   under automatic calculation. The model saved such a formula with no

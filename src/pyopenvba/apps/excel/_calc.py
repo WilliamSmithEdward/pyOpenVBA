@@ -22,8 +22,8 @@ from typing import TYPE_CHECKING
 from pyopenvba._a1 import Area
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.formula import _parse as P
-from pyopenvba.formula._engine import Context, clip, evaluate_formula
-from pyopenvba.formula._values import BLANK, REF, ExcelError, Matrix, single
+from pyopenvba.formula._engine import Context, cell_answer, clip
+from pyopenvba.formula._values import BLANK, REF, ExcelError, Matrix
 from pyopenvba.interpreter._values import EMPTY, VBACurrency, VBADate, VBAErrorValue, VBAInt
 
 if TYPE_CHECKING:
@@ -203,7 +203,7 @@ class Calculator:
 
     def _computed(self, compiled: Compiled, sheet: str, row: int, column: int) -> object:
         try:
-            answer = single(evaluate_formula(compiled.node, Context(self, sheet, row, column)))
+            answer = cell_answer(compiled.node, Context(self, sheet, row, column))
         except ExcelError as failure:
             if failure.name == "#CIRCULAR!":
                 # Excel leaves a zero in a cell that feeds itself.
@@ -252,8 +252,9 @@ class Calculator:
             try:
                 _, area = binding(self.book.sheet_named(sheet), found.entry.name)
             except (ValueError, VBAUnsupportedError):
-                return _named_formula(node, text)
-            return area
+                area = None
+            # A formula that does not land on cells, IF($A$1:$A$3>1,1,0), is worked out where the name is used.
+            return _named_formula(node, text) if area is None else area
         return area
 
     def sheet_exists(self, name: str) -> bool:

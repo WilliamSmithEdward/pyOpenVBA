@@ -26,12 +26,6 @@ KNOWN = {
     ("Application", "ROW()"): "ROW() with no argument is one number to the engine, a one-item array to Evaluate",
     ("Application", "COLUMN()"): "COLUMN() with no argument is one number to the engine, a one-item array to Evaluate",
     ("Other", "ROW()"): "ROW() with no argument is one number to the engine, a one-item array to Evaluate",
-    ("Application", 'IF(A1:A3>1,"big","small")'): "the engine does not run IF once per item of a block",
-    ("Application", "UPPER(B1:B3)"): "the engine does not run a function once per item of a block given for a value",
-}
-#: Cases that report themselves unsupported, and why.
-UNSUPPORTED = {
-    ("Application", "XLOOKUP(3,A1:A5,B1:B5)"): "XLOOKUP, which Evaluate hands back as a Range",
 }
 
 
@@ -64,17 +58,13 @@ def _key(case: dict[str, Any]) -> tuple[str, str]:
     return case["how"], case["expression"]
 
 
-#: The cases the model runs: an unsupported one would stop the rest of its procedure.
-RUN = [case for case in CASES if _key(case) not in UNSUPPORTED]
-
-
 @pytest.fixture(scope="module")
 def answers() -> dict[tuple[str, str], str]:
     app = ExcelApplication()
     app.add_workbook()
-    app.add_module(_module(RUN), name="Probe")
-    got = [part.split("^")[0] for part in str(app.run("Probe")).split("|")[: len(RUN)]]
-    return {_key(case): answer for case, answer in zip(RUN, got, strict=True)}
+    app.add_module(_module(CASES), name="Probe")
+    got = [part.split("^")[0] for part in str(app.run("Probe")).split("|")[: len(CASES)]]
+    return {_key(case): answer for case, answer in zip(CASES, got, strict=True)}
 
 
 def _param(index: int, case: dict[str, Any]) -> Any:
@@ -83,19 +73,7 @@ def _param(index: int, case: dict[str, Any]) -> Any:
     return pytest.param(index, marks=marks, id=f"{case['how']}-{case['expression'][:40]}")
 
 
-@pytest.mark.parametrize("index", [_param(index, case) for index, case in enumerate(RUN)])
+@pytest.mark.parametrize("index", [_param(index, case) for index, case in enumerate(CASES)])
 def test_evaluate_answers_as_excels_does(answers: dict[tuple[str, str], str], index: int) -> None:
-    case = RUN[index]
+    case = CASES[index]
     assert answers[_key(case)] == case["answer"]
-
-
-@pytest.mark.parametrize("key", sorted(UNSUPPORTED))
-def test_what_evaluate_cannot_work_out_says_so(key: tuple[str, str]) -> None:
-    from pyopenvba.exceptions import VBAUnsupportedError
-
-    case = next(one for one in CASES if _key(one) == key)
-    app = ExcelApplication()
-    app.add_workbook()
-    app.add_module(_module([case]), name="Probe")
-    with pytest.raises(VBAUnsupportedError, match=UNSUPPORTED[key].split(",")[0].split(" ")[0]):
-        app.run("Probe")

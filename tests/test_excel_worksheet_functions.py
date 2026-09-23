@@ -25,9 +25,6 @@ BATCH = 40
 
 #: Calls the model answers differently, and why.
 KNOWN = {
-    'Round(ws.Range("A1:A2"), 0)': "the engine does not run a function once per item of a range given for a value",
-    'IsText(ws.Range("B1:B2"))': "the engine does not run a function once per item of a range given for a value",
-    "Match(Array(3, 1), 3, 0)": "the engine does not run a function once per item of an array given for a value",
     "Choose(1, Empty)": "the engine cannot tell an argument left out from a blank cell, which CHOOSE hands back",
 }
 

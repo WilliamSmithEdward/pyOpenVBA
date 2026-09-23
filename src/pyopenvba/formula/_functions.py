@@ -23,12 +23,13 @@ import random
 import re
 import statistics
 from collections.abc import Callable, Iterable, Iterator, Sequence
+from dataclasses import dataclass, replace
 from typing import Any, Final
 
 from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, column_letter
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.formula import _parse as P
-from pyopenvba.formula._engine import Context, clip, evaluate
+from pyopenvba.formula._engine import Context, clip, evaluate, intersected
 from pyopenvba.formula._values import (
     BLANK,
     DIV0,
@@ -101,10 +102,114 @@ def call(name: str, args: list[P.Node], context: Context) -> object:
     implementation, lazy = found
     if lazy:
         return implementation(context, list(args))
-    values = [evaluate(node, context) for node in args]
+    count = len(args)
+    lifted = _places(_LIFTED, upper, count)
+    one = lifted | _places(_FIRST_ITEM, upper, count)
+    whole = _places(_ARRAYS, upper, count)
+    for index in _places(CELLS, upper, count):
+        if isinstance(args[index], (P.NameNode, P.Call)) and context.areas_of(args[index]) is None:
+            # A name or a function standing where cells are read, and coming to a value: COUNTIF(dbl,4).
+            raise VALUE
+    as_array = replace(context, array_argument=True) if whole else context
+    values = [_argument(node, as_array if index in whole else context, one=index in one)
+              for index, node in enumerate(args)]
     if any(isinstance(value, Areas) for value in values):
         values = _with_areas(upper, values)
+    arrays = {index: value for index in lifted if isinstance(value := values[index], Matrix) and not value.single}
+    if arrays:
+        return _item_by_item(implementation, context, values, arrays)
     return implementation(context, values)
+
+
+def _argument(node: P.Node, context: Context, *, one: bool) -> object:
+    """What an argument comes to, an error included: a function is handed #DIV/0! as a value, and COUNT passes it."""
+    try:
+        return intersected(node, context) if one else evaluate(node, context)
+    except ExcelError as failure:
+        if failure.name == "#CIRCULAR!":
+            raise
+        return failure
+
+
+def _item_by_item(implementation: Implementation, context: Context, values: list[object],
+                  arrays: dict[int, Matrix]) -> object:
+    """A function run once for each item of the arrays given where it wants one value, its answers an array.
+
+    The arrays line up as :meth:`Matrix.at` lines them up: one row or
+    one column repeats across the others, and past the end of a shorter
+    array an item is #N/A.
+    """
+    height = max(array.height for array in arrays.values())
+    width = max(array.width for array in arrays.values())
+    rows: list[list[object]] = []
+    for row in range(height):
+        line: list[object] = []
+        for column in range(width):
+            given = list(values)
+            for index, array in arrays.items():
+                given[index] = array.at(row, column)
+            try:
+                answer = implementation(context, given)
+            except ExcelError as failure:
+                answer = failure
+            line.append(single(answer) if isinstance(answer, Matrix) else answer)
+        rows.append(line)
+    return Matrix(rows)
+
+
+@dataclass(frozen=True)
+class Places:
+    """Which of a function's arguments a rule covers: some places, and every ``step``-th from ``start`` on."""
+
+    fixed: tuple[int, ...] = ()
+    start: int | None = None
+    step: int = 1
+
+    def within(self, count: int) -> frozenset[int]:
+        run = range(self.start, count, self.step) if self.start is not None else range(0)
+        return frozenset(index for index in (*self.fixed, *run) if index < count)
+
+
+_EVERY: Final = Places(start=0)
+
+# Measured in tests/fixtures/formula/probes.txt, one probe or more per function.
+
+#: Where a function wants one value and runs item by item through an array given there, its answer an array:
+#: SUM(LEN({"a","bb"})) is 3. In a cell, cells given there are first cut to the formula's own row or column.
+_LIFTED: Final[dict[str, Places]] = {
+    **dict.fromkeys((
+        "ABS", "ADDRESS", "CEILING", "CEILING.MATH", "CHAR", "CODE", "CONCATENATE", "DATE", "DATEVALUE", "DAY",
+        "DAYS", "EDATE", "EOMONTH", "ERROR.TYPE", "EXACT", "EXP", "FIND", "FLOOR", "FLOOR.MATH", "HOUR", "INT",
+        "ISBLANK", "ISERR", "ISERROR", "ISLOGICAL", "ISNA", "ISNONTEXT", "ISNUMBER", "ISTEXT", "LEFT", "LEN", "LN",
+        "LOG", "LOG10", "LOWER", "MID", "MINUTE", "MOD", "MONTH", "MROUND", "NOT", "POWER", "PROPER", "RANDBETWEEN",
+        "REPLACE", "REPT", "RIGHT", "ROUND", "ROUNDDOWN", "ROUNDUP", "SEARCH", "SECOND", "SIGN", "SQRT", "SUBSTITUTE",
+        "TEXT", "TIME", "TRIM", "TRUNC", "UPPER", "VALUE", "WEEKDAY", "YEAR"), _EVERY),
+    "COUNTIF": Places((1,)), "SUMIF": Places((1,)), "AVERAGEIF": Places((1,)),
+    "COUNTIFS": Places(start=1, step=2), "SUMIFS": Places(start=2, step=2),
+    "MATCH": Places((0, 2)), "LARGE": Places((1,)), "SMALL": Places((1,)),
+}
+#: Where a function wants one value but takes only the first item of an array: SUM(INDEX({1,2;3,4},{1,2},{1,2}))
+#: is 1, even inside SUMPRODUCT. Cells are cut as for the functions above.
+_FIRST_ITEM: Final[dict[str, Places]] = {
+    "INDEX": Places((1, 2, 3)), "VLOOKUP": Places((0, 2, 3)), "HLOOKUP": Places((0, 2, 3)), "XLOOKUP": Places((0,)),
+}
+#: Arguments worked out as arrays even in a cell: SUMPRODUCT(LEN(A1:A3)) adds every length, and INDEX(A1:A3*2,2)
+#: is A2*2 in any row.
+_ARRAYS: Final[dict[str, Places]] = {"SUMPRODUCT": _EVERY, "INDEX": Places((0,))}
+#: Arguments that have to be cells. Excel will not take a formula with a value there (error 1004): a number, text,
+#: an array, an operator's answer, or a function that answers with a value, SUMIF(LEN(A1:A3),1). A name or a
+#: function that can answer with cells is taken, and is #VALUE! when it comes to a value instead.
+CELLS: Final[dict[str, Places]] = {
+    "SUBTOTAL": Places(start=1), "COUNTIF": Places((0,)), "SUMIF": Places((0, 2)), "AVERAGEIF": Places((0, 2)),
+    "COUNTIFS": Places(start=0, step=2), "SUMIFS": Places((0,), start=1, step=2),
+    "AVERAGEIFS": Places((0,), start=1, step=2), "COUNTBLANK": Places((0,)), "OFFSET": Places((0,)),
+    "ROW": Places((0,)), "COLUMN": Places((0,)), "AREAS": Places((0,)),
+}
+
+
+def _places(table: dict[str, Places], name: str, count: int) -> frozenset[int]:
+    places = table.get(name)
+    return frozenset() if places is None else places.within(count)
 
 
 def _with_areas(name: str, values: list[object]) -> list[object]:
@@ -803,57 +908,127 @@ def fn_averageif(context: Context, args: list[Any]) -> object:
 # --- logic -------------------------------------------------------------------------------------------
 
 
+def _as_cell(context: Context) -> Context:
+    """Where IF, CHOOSE, IFERROR, IFNA, IFS and SWITCH work out their arguments.
+
+    An argument worked out as an array stops at them: inside SUMPRODUCT,
+    IF(A1:A3>1,1,0) still reads the one row the formula is on, which is
+    why SUMPRODUCT(IF(...)) wants Ctrl+Shift+Enter. A whole array
+    formula, as Evaluate works one, reaches through.
+    """
+    return replace(context, array_argument=False) if context.array_argument else context
+
+
 @function("IF", lazy=True)
 def fn_if(context: Context, nodes: list[Any]) -> object:
-    """IF runs only the branch it takes, which is why it is lazy; a block it lands on stays whole."""
+    """IF runs only the branch it takes, which is why it is lazy; a block it lands on stays whole.
+
+    The condition wants one value, so in a cell A1:A3>2 reads the row
+    the formula is on. An array of conditions takes a branch for each
+    item, and the answer is an array: IF({TRUE,FALSE},{1,2},0) is {1,0}.
+    """
     if not nodes:
         raise VALUE
-    condition = as_bool(single(evaluate(nodes[0], context)))
-    if condition:
+    context = _as_cell(context)
+    condition = intersected(nodes[0], context)
+    if isinstance(condition, Matrix) and not condition.single:
+        return _if_each(context, nodes, condition)
+    if as_bool(single(condition)):
         return evaluate(nodes[1], context) if len(nodes) > 1 else True
     if len(nodes) > 2:
         return evaluate(nodes[2], context)
     return False
 
 
+def _if_each(context: Context, nodes: list[Any], conditions: Matrix) -> Matrix:
+    """IF over an array of conditions: each item takes its branch, and a branch that is an array gives its item there.
+
+    Both branches are worked out, and the answer is as big as the biggest
+    of the three, #N/A past the end of a shorter one: IF({TRUE,FALSE},
+    {1,2,3},0) is {1,0,#N/A}, and IF({TRUE,TRUE},1,{1,2,3}) {1,1,#N/A}.
+    """
+    branches = [_branch(context, nodes, 1), _branch(context, nodes, 2)]
+    shapes = [conditions, *(branch for branch in branches if isinstance(branch, Matrix))]
+    rows: list[list[object]] = []
+    for row in range(max(shape.height for shape in shapes)):
+        line: list[object] = []
+        for column in range(max(shape.width for shape in shapes)):
+            try:
+                taken = branches[0] if as_bool(conditions.at(row, column)) else branches[1]
+            except ExcelError as failure:
+                taken = failure
+            line.append(taken.at(row, column) if isinstance(taken, Matrix) else taken)
+        rows.append(line)
+    return Matrix(rows)
+
+
+def _branch(context: Context, nodes: list[Any], index: int) -> object:
+    """One of IF's branches, worked out whole; one left out is TRUE or FALSE, as IF answers without it."""
+    if index >= len(nodes):
+        return index == 1
+    try:
+        return evaluate(nodes[index], context)
+    except ExcelError as failure:
+        return failure
+
+
 @refers("IF")
 def ref_if(context: Context, nodes: list[P.Node]) -> list[Area] | None:
     if not nodes:
         raise VALUE
-    branch = 1 if as_bool(single(evaluate(nodes[0], context))) else 2
+    context = _as_cell(context)
+    condition = intersected(nodes[0], context)
+    if isinstance(condition, Matrix) and not condition.single:
+        # A branch for each item is an array, never cells.
+        return None
+    branch = 1 if as_bool(single(condition)) else 2
     return context.areas_of(nodes[branch]) if branch < len(nodes) else None
 
 
 @function("IFS", lazy=True)
 def fn_ifs(context: Context, nodes: list[Any]) -> object:
+    """The value after the first condition that holds, a block kept whole as IF keeps one."""
+    context = _as_cell(context)
+    return evaluate(nodes[_ifs_taken(context, nodes)], context)
+
+
+@refers("IFS")
+def ref_ifs(context: Context, nodes: list[P.Node]) -> list[Area] | None:
+    context = _as_cell(context)
+    return context.areas_of(nodes[_ifs_taken(context, nodes)])
+
+
+def _ifs_taken(context: Context, nodes: list[Any]) -> int:
     for index in range(0, len(nodes) - 1, 2):
-        if as_bool(single(evaluate(nodes[index], context))):
-            return single(evaluate(nodes[index + 1], context))
+        if as_bool(single(intersected(nodes[index], context))):
+            return index + 1
     raise NA
 
 
 @function("IFERROR", lazy=True)
 def fn_iferror(context: Context, nodes: list[Any]) -> object:
+    """The value, or the fallback when it is an error; of an array given for either, the first item."""
+    context = _as_cell(context)
     try:
-        value = evaluate(nodes[0], context)
+        value = single(intersected(nodes[0], context))
     except ExcelError:
-        return single(evaluate(nodes[1], context)) if len(nodes) > 1 else BLANK
-    value = single(value)
+        value = VALUE
     if isinstance(value, ExcelError):
-        return single(evaluate(nodes[1], context)) if len(nodes) > 1 else BLANK
+        return single(intersected(nodes[1], context)) if len(nodes) > 1 else BLANK
     return value
 
 
 @function("IFNA", lazy=True)
 def fn_ifna(context: Context, nodes: list[Any]) -> object:
+    context = _as_cell(context)
     try:
-        value = single(evaluate(nodes[0], context))
+        value = single(intersected(nodes[0], context))
     except ExcelError as failure:
         if failure != NA:
             raise
-        return single(evaluate(nodes[1], context)) if len(nodes) > 1 else BLANK
+        value = NA
     if value == NA:
-        return single(evaluate(nodes[1], context)) if len(nodes) > 1 else BLANK
+        return single(intersected(nodes[1], context)) if len(nodes) > 1 else BLANK
     return value
 
 
@@ -916,32 +1091,49 @@ def fn_false(context: Context, args: list[Any]) -> object:
 
 @function("SWITCH", lazy=True)
 def fn_switch(context: Context, nodes: list[Any]) -> object:
-    subject = single(evaluate(nodes[0], context))
+    """The value after the first case equal to the subject, or the default; a block kept whole as IF keeps one."""
+    context = _as_cell(context)
+    return evaluate(nodes[_switch_taken(context, nodes)], context)
+
+
+@refers("SWITCH")
+def ref_switch(context: Context, nodes: list[P.Node]) -> list[Area] | None:
+    context = _as_cell(context)
+    return context.areas_of(nodes[_switch_taken(context, nodes)])
+
+
+def _switch_taken(context: Context, nodes: list[Any]) -> int:
+    subject = single(intersected(nodes[0], context))
+    if isinstance(subject, ExcelError):
+        raise subject
     index = 1
     while index + 1 < len(nodes):
-        if _equal(subject, single(evaluate(nodes[index], context))):
-            return single(evaluate(nodes[index + 1], context))
+        if _equal(subject, single(intersected(nodes[index], context))):
+            return index + 1
         index += 2
     if index < len(nodes):
-        return single(evaluate(nodes[index], context))
+        return index
     raise NA
 
 
 @function("CHOOSE", lazy=True)
 def fn_choose(context: Context, nodes: list[Any]) -> object:
     """The value chosen, a block kept whole: SUM(CHOOSE(2,A1:A2,B1:B3)) adds B1:B3."""
-    which = int(as_number(single(evaluate(nodes[0], context))))
-    if which < 1 or which >= len(nodes):
-        raise VALUE
-    return evaluate(nodes[which], context)
+    context = _as_cell(context)
+    return evaluate(nodes[_chosen(context, nodes)], context)
 
 
 @refers("CHOOSE")
 def ref_choose(context: Context, nodes: list[P.Node]) -> list[Area] | None:
-    which = int(as_number(single(evaluate(nodes[0], context)))) if nodes else 0
+    context = _as_cell(context)
+    return context.areas_of(nodes[_chosen(context, nodes)])
+
+
+def _chosen(context: Context, nodes: list[Any]) -> int:
+    which = int(as_number(single(intersected(nodes[0], context)))) if nodes else 0
     if which < 1 or which >= len(nodes):
         raise VALUE
-    return context.areas_of(nodes[which])
+    return which
 
 
 # --- lookup ----------------------------------------------------------------------------------------
@@ -1023,7 +1215,12 @@ def _find_column(table: Matrix, wanted: object, row: int, approximate: bool) -> 
 @function("MATCH")
 def fn_match(context: Context, args: list[Any]) -> object:
     wanted = _one(args, 0)
-    block = _matrix(args[1])
+    if isinstance(args[1], ExcelError):
+        raise args[1]
+    if not isinstance(args[1], Matrix):
+        # A value is not something to look in, even one equal to the value sought: Match(3, 3, 0) is #N/A.
+        raise NA
+    block = args[1]
     kind = _int(args, 2, 1)
     items = list(block.flat())
     if kind == 0:
@@ -1110,11 +1307,14 @@ def ref_index(context: Context, nodes: list[P.Node]) -> list[Area] | None:
 
 
 def _node_int(context: Context, nodes: list[P.Node], at: int, default: int) -> int:
-    """A whole-number argument of a function handed its nodes, cut toward zero; left out, the default."""
+    """A whole-number argument of a function handed its nodes, cut toward zero; left out, the default.
+
+    It wants one value, so in a cell INDEX(A1:A3,A1:A3) in row 2 reads A2.
+    """
     node = nodes[at] if at < len(nodes) else None
     if node is None or (isinstance(node, P.Literal) and node.value is None):
         return default
-    value = single(evaluate(node, context))
+    value = single(intersected(node, context))
     if isinstance(value, ExcelError):
         raise value
     if value is BLANK:
@@ -1133,49 +1333,75 @@ def fn_areas(context: Context, nodes: list[Any]) -> object:
 
 @function("XLOOKUP")
 def fn_xlookup(context: Context, args: list[Any]) -> object:
-    wanted = _one(args, 0)
-    where = _matrix(args[1])
     give = _matrix(args[2])
-    items = list(where.flat())
-    test = _criterion(wanted) if isinstance(wanted, str) else None
-    for index, value in enumerate(items):
-        if test(value) if test is not None else _equal(value, wanted, exact=True):
-            return give.at(index, 0) if give.width == 1 else give.at(0, index)
+    index = _found_at(_one(args, 0), _matrix(args[1]))
+    if index is not None:
+        return give.at(index, 0) if give.width == 1 else give.at(0, index)
     if len(args) > 3 and args[3] is not BLANK:
         return single(args[3])
     raise NA
 
 
+@refers("XLOOKUP")
+def ref_xlookup(context: Context, nodes: list[P.Node]) -> list[Area] | None:
+    """XLOOKUP into cells answers with the cell it finds, so COUNTIF(XLOOKUP(2,A1:A3,A1:A3),2) counts one cell."""
+    area = context.area_of(nodes[2]) if len(nodes) > 2 else None
+    if area is None:
+        return None
+    index = _found_at(single(intersected(nodes[0], context)), _matrix(evaluate(nodes[1], context)))
+    if index is None:
+        return context.areas_of(nodes[3]) if len(nodes) > 3 else None
+    if area.columns == 1:
+        row = area.top + index
+        return [Area(row, area.left, row, area.left, area.sheet)] if row <= area.bottom else None
+    column = area.left + index
+    return [Area(area.top, column, area.top, column, area.sheet)] if column <= area.right else None
+
+
+def _found_at(wanted: object, where: Matrix) -> int | None:
+    """Where XLOOKUP finds a value, counting along the cells it looks in."""
+    if isinstance(wanted, ExcelError):
+        raise wanted
+    test = _criterion(wanted) if isinstance(wanted, str) else None
+    for index, value in enumerate(where.flat()):
+        if test(value) if test is not None else _equal(value, wanted, exact=True):
+            return index
+    return None
+
+
 @function("ROW", lazy=True)
 def fn_row(context: Context, nodes: list[Any]) -> object:
+    """The row number, or in an array formula or argument every row's: SUM(ROW(A1:A3)) in a cell is 1."""
     if not nodes:
         return float(context.row)
     area = context.area_of(nodes[0])
     if area is None:
         raise REF
-    if area.rows == 1:
+    if area.rows == 1 or not (context.array or context.array_argument):
         return float(area.top)
     return Matrix([[float(row)] for row in range(area.top, min(area.bottom, area.top + 9999) + 1)])
 
 
 @function("COLUMN", lazy=True)
 def fn_column(context: Context, nodes: list[Any]) -> object:
+    """The column number, or in an array formula or argument every column's."""
     if not nodes:
         return float(context.column)
     area = context.area_of(nodes[0])
     if area is None:
         raise REF
-    if area.columns == 1:
+    if area.columns == 1 or not (context.array or context.array_argument):
         return float(area.left)
     return Matrix([[float(column) for column in range(area.left, min(area.right, area.left + 9999) + 1)]])
 
 
 @function("ROWS", lazy=True)
 def fn_rows(context: Context, nodes: list[Any]) -> object:
+    """How many rows; anything other than cells is worked out as an array, so ROWS(A1:A3*2) is 3 in any row."""
     area = context.area_of(nodes[0]) if nodes else None
     if area is not None:
         return float(area.rows)
-    return float(_matrix(evaluate(nodes[0], context)).height)
+    return float(_matrix(evaluate(nodes[0], replace(context, array_argument=True))).height)
 
 
 @function("COLUMNS", lazy=True)
@@ -1183,7 +1409,7 @@ def fn_columns(context: Context, nodes: list[Any]) -> object:
     area = context.area_of(nodes[0]) if nodes else None
     if area is not None:
         return float(area.columns)
-    return float(_matrix(evaluate(nodes[0], context)).width)
+    return float(_matrix(evaluate(nodes[0], replace(context, array_argument=True))).width)
 
 
 @function("OFFSET", lazy=True)
@@ -1515,17 +1741,42 @@ def fn_time(context: Context, args: list[Any]) -> object:
 
 @function("YEAR")
 def fn_year(context: Context, args: list[Any]) -> object:
-    return float(_as_datetime(as_number(_one(args, 0, BLANK))).year)
+    return float(_calendar(as_number(_one(args, 0, BLANK)))[0])
 
 
 @function("MONTH")
 def fn_month(context: Context, args: list[Any]) -> object:
-    return float(_as_datetime(as_number(_one(args, 0, BLANK))).month)
+    return float(_calendar(as_number(_one(args, 0, BLANK)))[1])
 
 
 @function("DAY")
 def fn_day(context: Context, args: list[Any]) -> object:
-    return float(_as_datetime(as_number(_one(args, 0, BLANK))).day)
+    return float(_calendar(as_number(_one(args, 0, BLANK)))[2])
+
+
+#: The last day Excel has a date for, 31 December 9999.
+_LAST_SERIAL: Final = 2958465
+
+
+def _calendar(serial: float) -> tuple[int, int, int]:
+    """The year, month and day Excel shows for a serial number.
+
+    Excel's calendar has a 29 February 1900, serial 60, so every serial
+    before it is a day later than counting from 30 December 1899 gives:
+    1 is 1 January 1900 (DAY({1,2}) adds to 3), and 0 is day 0 of it.
+    """
+    if serial < 0 or serial >= _LAST_SERIAL + 1:
+        raise NUM
+    when = _as_datetime(serial)
+    days = (when.date() - EPOCH.date()).days
+    if days >= 61:
+        return when.year, when.month, when.day
+    if days == 60:
+        return 1900, 2, 29
+    if days == 0:
+        return 1900, 1, 0
+    when += _dt.timedelta(days=1)
+    return when.year, when.month, when.day
 
 
 @function("HOUR")
@@ -1639,29 +1890,34 @@ def fn_islogical(context: Context, args: list[Any]) -> object:
     return isinstance(single(args[0]) if args else BLANK, bool)
 
 
-@function("ISERROR", lazy=True)
-def fn_iserror(context: Context, nodes: list[Any]) -> object:
-    try:
-        return isinstance(single(evaluate(nodes[0], context)), ExcelError)
-    except ExcelError:
-        return True
+@function("ISERROR")
+def fn_iserror(context: Context, args: list[Any]) -> object:
+    return isinstance(_given(args), ExcelError)
 
 
-@function("ISERR", lazy=True)
-def fn_iserr(context: Context, nodes: list[Any]) -> object:
-    try:
-        value = single(evaluate(nodes[0], context))
-    except ExcelError as failure:
-        return failure != NA
+@function("ISERR")
+def fn_iserr(context: Context, args: list[Any]) -> object:
+    value = _given(args)
     return isinstance(value, ExcelError) and value != NA
 
 
-@function("ISNA", lazy=True)
-def fn_isna(context: Context, nodes: list[Any]) -> object:
+@function("ISNA")
+def fn_isna(context: Context, args: list[Any]) -> object:
+    return _given(args) == NA
+
+
+def _given(args: list[Any]) -> object:
+    """The one value an IS function looks at, an error as much as any other."""
+    return single(args[0]) if args else BLANK
+
+
+@function("ISREF", lazy=True)
+def fn_isref(context: Context, nodes: list[Any]) -> object:
+    """Whether the argument is cells, in any row: ISREF(A1:A3) is TRUE, ISREF(1) FALSE."""
     try:
-        return single(evaluate(nodes[0], context)) == NA
-    except ExcelError as failure:
-        return failure == NA
+        return bool(nodes) and context.areas_of(nodes[0]) is not None
+    except ExcelError:
+        return False
 
 
 @function("NA")
@@ -1669,12 +1925,9 @@ def fn_na(context: Context, args: list[Any]) -> object:
     raise NA
 
 
-@function("ERROR.TYPE", lazy=True)
-def fn_error_type(context: Context, nodes: list[Any]) -> object:
-    try:
-        value = single(evaluate(nodes[0], context))
-    except ExcelError as failure:
-        return float(ERROR_NUMBERS.get(failure.name, 8))
+@function("ERROR.TYPE")
+def fn_error_type(context: Context, args: list[Any]) -> object:
+    value = _given(args)
     if isinstance(value, ExcelError):
         return float(ERROR_NUMBERS.get(value.name, 8))
     raise NA

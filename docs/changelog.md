@@ -94,17 +94,16 @@ All notable changes to pyOpenVBA are documented here. This project follows
   is `#NUM!`.
 - `Application.Evaluate`, `[...]` and `Worksheet.Evaluate` work out an
   expression as Excel's Evaluate does. What comes to cells is a Range: a
-  reference, a name for cells, INDEX, OFFSET, INDIRECT, CHOOSE or IF
-  landing on cells, an intersection or a union. Anything else is worked
-  out as an array formula, blocks whole: `Evaluate("A1:A3*2")` is three
-  numbers, in an array counted from 1 that is one-dimensional when it
-  is one row. An error comes back as an error value. An expression
-  Excel cannot read, an empty one, or one past 255 characters is Error
-  2015. 91 cases in live Excel pin it. Known gaps: ROW() and COLUMN()
-  with no argument, which Excel hands back as a one-item array; a
-  function run once per item of a block; and XLOOKUP's Range. Before,
-  text that was not a reference, a name or an array constant reported
-  itself unsupported.
+  reference, a name for cells, INDEX, OFFSET, INDIRECT, CHOOSE, IF, IFS,
+  SWITCH or XLOOKUP landing on cells, an intersection or a union.
+  Anything else is worked out as an array formula, blocks whole:
+  `Evaluate("A1:A3*2")` is three numbers, in an array counted from 1
+  that is one-dimensional when it is one row. An error comes back as an
+  error value. An expression Excel cannot read, an empty one, or one
+  past 255 characters is Error 2015. 91 cases in live Excel pin it. A
+  known gap: ROW() and COLUMN() with no argument, which Excel hands back
+  as a one-item array. Before, text that was not a reference, a name or
+  an array constant reported itself unsupported.
 - Formulas work with references as Excel does. The range operator
   joins any two references, so `SUM(A1:INDEX(A:A,5))`,
   `SUM(INDEX(A1:A10,2):A5)` and `SUM(Block:A5)` add what they span.
@@ -113,8 +112,9 @@ All notable changes to pyOpenVBA are documented here. This project follows
   read whole by SUM, COUNT, COUNTA, AVERAGE, MAX, MIN, LARGE and
   SUBTOTAL, picked from by INDEX's fourth argument and counted by AREAS.
   COUNTIF refuses it with `#VALUE!`, and a cell holding one is
-  `#VALUE!`. INDEX, OFFSET, INDIRECT, CHOOSE and IF give cells wherever
-  a reference is wanted, for ROWS, ROW, OFFSET's start or a SUBTOTAL.
+  `#VALUE!`. INDEX, OFFSET, INDIRECT, CHOOSE, IF, IFS, SWITCH and
+  XLOOKUP give cells wherever a reference is wanted, for ROWS, ROW,
+  OFFSET's start, a COUNTIF or a SUBTOTAL.
   INDIRECT reads a defined name and an R1C1 reference counted from the
   top left. 45 formulas in live Excel pin it. Before, each reported
   itself unsupported. Another function given a union, and a relative
@@ -523,6 +523,39 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- A range or an array where a formula wants one value is handled as
+  Excel handles it in a cell. Cells given to a function that wants one
+  value, beside an operator, or as the whole formula are cut to the one
+  on the formula's own row or column, as Excel's `@` does: `=LEN(A1:A3)`
+  in row 2 is `LEN(A2)` and in row 5 `#VALUE!`, and `SUM(A1:A3*2)` in
+  row 2 is 4. An array given there is run through item by item, so
+  `SUM(LEN({"a","bb"}))` is 3, except by INDEX, VLOOKUP, HLOOKUP,
+  XLOOKUP, IFERROR and IFNA, which take its first item. IF takes a
+  branch for each item of an array of conditions. SUMPRODUCT's
+  arguments, INDEX's first and those of ROWS and COLUMNS are worked out
+  as arrays even in a cell, except inside an IF, CHOOSE, IFERROR, IFNA,
+  IFS or SWITCH, and a defined name's formula as an array formula. ROW
+  and COLUMN give every row or column only in an array. The model read
+  the first cell of a block in a cell and an operator's whole block
+  everywhere, so a formula written before dynamic arrays could come out
+  wrong without saying so. 232 formulas in live Excel pin it.
+- A value where the -IF and -IFS functions, COUNTBLANK, OFFSET, ROW,
+  COLUMN or AREAS read cells is error 1004 when the formula is written,
+  as it already was for SUBTOTAL, and a function that answers with a
+  value counts as one: `SUMIF(LEN(A1:A3),1)` is refused, as is
+  `SUBTOTAL(9,LEN(A1))`, which the model took. A name there that comes
+  to a value is `#VALUE!`.
+- An argument that comes to an error reaches its function as a value:
+  `COUNT(A1:A3*2)` in row 5 is 0 and `COUNTA` of it 1, as in Excel. The
+  model answered the error.
+- DAY, MONTH and YEAR read a serial number before March 1900 on Excel's
+  calendar, which has a 29 February 1900: `DAY(1)` is 1 and `YEAR(1)`
+  1900. The model read such a date a day early.
+- A defined name whose formula comes to a value rather than cells, such
+  as `=IF($A$1:$A$3>1,1,0)`, is worked out where it is used. The model
+  answered `#NAME?`.
+- `MATCH(3,3,0)` is `#N/A`: MATCH looks only in a range or an array.
+- ISREF, which reported itself unsupported.
 - `Rows.Count` is 1048576 and `Columns.Count` 16384: Count counts the
   rows of whole rows and the columns of whole columns, as Excel does,
   `EntireRow` and `EntireColumn` included. The model counted their cells,

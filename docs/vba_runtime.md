@@ -960,9 +960,33 @@ spans any two references, `A1:INDEX(A:A,5)` or `Block:A5`; an
 intersection is the cells two blocks share, `#NULL!` when none; a union
 is read whole by SUM, COUNT, COUNTA, AVERAGE, MAX, MIN, LARGE and
 SUBTOTAL, and COUNTIF refuses it with `#VALUE!`. INDEX, OFFSET,
-INDIRECT, CHOOSE and IF give cells wherever a reference is wanted, and
-CHOOSE and IF hand a block on whole. Another function given a union
-reports itself unsupported.
+INDIRECT, CHOOSE, IF, IFS, SWITCH and XLOOKUP give cells wherever a
+reference is wanted, and CHOOSE, IF, IFS and SWITCH hand a block on
+whole. Another function given a union reports itself unsupported.
+
+A formula in a cell wants one value in many places, and gets one as it
+did before dynamic arrays (`tests/fixtures/formula/probes.txt`, 232 of
+its formulas). Cells given where a function wants one value, beside an
+operator, or as the whole formula are cut to the one on the formula's
+own row or column, as `@` writes it: `=LEN(A1:A3)` in row 2 is
+`LEN(A2)` and in row 5 `#VALUE!`, and `SUM(A1:A3*2)` in row 2 is 4. An
+array given there is run through item by item into an array of
+answers, `SUM(LEN({"a","bb"}))` being 3, except that INDEX, VLOOKUP,
+HLOOKUP, XLOOKUP, IFERROR and IFNA take its first item. Arrays of
+different sizes line up as they do beside an operator, `#N/A` past the
+end of a shorter one, and IF takes a branch for each item of an array of
+conditions. SUMPRODUCT's arguments, INDEX's first and those of ROWS and
+COLUMNS are worked out as arrays even in a cell, so
+`SUMPRODUCT(LEN(A1:A3))` adds every length, but not through an IF,
+CHOOSE, IFERROR, IFNA, IFS or SWITCH inside them, which is why
+`SUMPRODUCT(IF(...))` wants Ctrl+Shift+Enter in Excel. A defined name's
+formula is worked out as an array formula, and ROW and COLUMN give every
+row or column only in an array. An argument that comes to an error
+reaches its function as a value, so COUNT walks past it. The -IF and
+-IFS functions, SUBTOTAL, COUNTBLANK, OFFSET, ROW, COLUMN and AREAS read
+cells: a value there, a function that answers with one included, is
+error 1004 when the formula is written, and a name there that comes to a
+value is `#VALUE!`.
 
 SUM, AVERAGE, SUMSQ and their kin add one number after another, each
 sum rounded to a double, as Excel adds (`tests/fixtures/variance.json`,
@@ -987,13 +1011,13 @@ implemented.
 `Evaluate`, `[...]` and `Worksheet.Evaluate` work an expression out as
 Excel's Evaluate does (`tests/fixtures/evaluate.json`, 91 cases). What
 comes to cells is a Range: a reference, a name for cells, INDEX, OFFSET,
-INDIRECT, CHOOSE or IF landing on cells, an intersection or a union.
-Anything else is worked out as an array formula, blocks whole, into a
-value, an array counted from 1 or an error value; Evaluate never raises
-a formula's error. An unreadable or empty expression, or one past 255
-characters, is Error 2015. ROW() and COLUMN() with no argument, a
-function run once per item of a block and XLOOKUP's Range are known
-gaps.
+INDIRECT, CHOOSE, IF, IFS, SWITCH or XLOOKUP landing on cells, an
+intersection or a union. Anything else is worked out as an array
+formula, blocks whole, into a value, an array counted from 1 or an error
+value; Evaluate never raises a formula's error. An unreadable or empty
+expression, or one past 255 characters, is Error 2015. ROW() and
+COLUMN() with no argument, which Excel hands back as a one-item array,
+are a known gap.
 
 A macro reaches the same functions through `WorksheetFunction.X`, which
 raises error 1004 when the answer is an error, or the late-bound
@@ -1006,7 +1030,7 @@ from 1, one-dimensional when it is one row, except where INDEX, CHOOSE
 or XLOOKUP answered with part of a range, which reads back
 two-dimensional; a WorksheetFunction member typed other than Variant
 cannot hand one back, which is error 13. A range or array given where
-one value is wanted is not yet run item by item as Excel runs it.
+one value is wanted is run item by item, as in a cell, into an array.
 
 **Power Query is evaluated.** `pyopenvba.mlang` is an M evaluator, so
 `WorkbookQuery.Refresh` works out the query's rows and writes them to
@@ -1040,8 +1064,8 @@ a document or a presentation is edited rather than created.
 
 - **Array formulas do not spill.** An array result lands in the one cell
   that holds the formula and shows its first element, which is what
-  Excel did before dynamic arrays.  Implicit intersection is applied to
-  a multi-cell reference beside an operator, as Excel's `@` does.
+  Excel did before dynamic arrays.  Implicit intersection is applied
+  wherever a formula wants one value, as Excel's `@` does.
 - **Power Query reaches nothing off the machine.** The language is
   evaluated and a local source is read, but `Sql.Database`, `Web.Contents`,
   `OData.Feed` and the rest of the connectors report themselves rather

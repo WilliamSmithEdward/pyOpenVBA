@@ -16,7 +16,7 @@ from __future__ import annotations
 import datetime as _dt
 import math
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Final, Protocol
 
 from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, parse_area
@@ -87,8 +87,12 @@ class Context:
     row: int = 1
     column: int = 1
     depth: int = 0
-    #: Worked out as an array formula is, as Evaluate works one: a block beside an operator stays whole.
+    #: Worked out as an array formula is, by Evaluate or for a defined name's formula: blocks stay whole.
     array: bool = False
+    #: Inside an argument Excel works out as an array even in a cell, SUMPRODUCT's or INDEX's first: blocks stay
+    #: whole as in an array formula, but IF, CHOOSE, IFERROR, IFNA, IFS and SWITCH work their own arguments out as a
+    #: cell does.
+    array_argument: bool = False
 
     def at(self, sheet: str, row: int, column: int) -> Context:
         return Context(self.grid, sheet, row, column, self.depth + 1)
@@ -160,6 +164,11 @@ def evaluate_formula(node: P.Node, context: Context) -> object:
     return evaluate(node, context)
 
 
+def cell_answer(node: P.Node, context: Context) -> object:
+    """What a cell holding this formula shows: one value, cells cut to the cell's own row or column as @A1:A3 is."""
+    return single(intersected(node, context) if _names_cells(node) else evaluate_formula(node, context))
+
+
 def evaluate(node: P.Node, context: Context) -> object:
     """A parsed formula's value, errors included."""
     if context.depth > MAX_DEPTH:
@@ -190,13 +199,15 @@ def _named(node: P.NameNode, context: Context) -> object:
     if isinstance(found, Area):
         return context.grid.block(context.sheet, found)
     if isinstance(found, P.Node):
-        # A name standing for a formula is worked out where it is used.
-        return evaluate_formula(found, context)
+        # A name standing for a formula is worked out where it is used, and as an array formula is: SUM(dbl) adds
+        # all of $A$1:$A$3*2, and =dbl on its own shows the first (tests/fixtures/formula/probes.txt).
+        return evaluate_formula(found, replace(context, array=True))
     return found
 
 
 def _unary(node: P.Unary, context: Context) -> object:
-    value = evaluate(node.operand, context) if node.operand is not None else BLANK
+    # A minus sign wants one value too: =ABS(-A1:A3) in H2 reads A2.
+    value = intersected(node.operand, context) if node.operand is not None else BLANK
     if isinstance(value, Matrix) and value.single:
         # One cell is one value, as beside a binary operator: -A1 is a number, not a block of one.
         value = single(value)
@@ -261,31 +272,59 @@ def _binary(node: P.Binary, context: Context, *, snap: bool = False) -> object:
 
 
 def _operand(node: P.Node | None, context: Context) -> object:
-    """One side of an operator, narrowed the way a cell narrows it.
+    """One side of an operator: one value, as intersected gives it."""
+    return BLANK if node is None else intersected(node, context)
 
-    A reference spanning several cells used beside an operator is cut
-    down to the one on the formula's own row or column, which is what
-    Excel writes as @A1:A2 and what makes SUM(A1:A2*2) two rather than
-    six.  An array written out is left whole, and so is every block when
-    the formula is worked out as an array.
+
+def intersected(node: P.Node, context: Context) -> object:
+    """A node where a formula wants one value, narrowed the way a cell narrows it.
+
+    Cells spanning several -- a reference, a name for cells, OFFSET or
+    INDEX landing on cells -- are cut down to the one on the formula's own
+    row or column, which is what Excel writes as @A1:A3: =LEN(A1:A3) in H2
+    is LEN(A2), and in H5, beside none of them, #VALUE!. An array written
+    out or answered by a function is left whole, and so are the cells when
+    the formula, or the argument, is worked out as an array
+    (tests/fixtures/formula/probes.txt).
     """
-    if node is None:
-        return BLANK
-    value = evaluate(node, context)
-    if context.array or not isinstance(node, P.Reference) or not isinstance(value, Matrix) or value.single:
-        return value
-    area = context.resolve(node)
-    if area.columns == 1 and area.rows > 1:
-        offset = context.row - area.top
-        return value.rows[offset][0] if 0 <= offset < value.height else VALUE
-    if area.rows == 1 and area.columns > 1:
-        offset = context.column - area.left
-        return value.rows[0][offset] if 0 <= offset < value.width else VALUE
-    down = context.row - area.top
-    across = context.column - area.left
-    if 0 <= down < value.height and 0 <= across < value.width:
-        return value.rows[down][across]
-    return VALUE
+    if not _names_cells(node):
+        return evaluate(node, context)
+    areas = context.areas_of(node)
+    if areas is None:
+        return evaluate(node, context)
+    if context.array or context.array_argument:
+        return _referenced(areas, context)
+    if len(areas) != 1:
+        # Several areas where one value is wanted.
+        return VALUE
+    return _at_formula(areas[0], context)
+
+
+def _names_cells(node: P.Node) -> bool:
+    """Whether a node can come to cells rather than a value, which only areas_of can settle."""
+    if isinstance(node, (P.Reference, P.NameNode)):
+        return True
+    if isinstance(node, P.Binary):
+        return node.op in P.REFERENCE_OPS
+    if isinstance(node, P.Call):
+        from pyopenvba.formula._functions import REFERENCES
+
+        return node.name.upper() in REFERENCES
+    return False
+
+
+def _at_formula(area: Area, context: Context) -> object:
+    """The cell of ``area`` on the formula's own row, column or both, or #VALUE! when it has none there."""
+    row, column = area.top, area.left
+    if area.rows > 1 and area.columns == 1:
+        row = context.row
+    elif area.columns > 1 and area.rows == 1:
+        column = context.column
+    elif area.rows > 1:
+        row, column = context.row, context.column
+    if not (area.top <= row <= area.bottom and area.left <= column <= area.right):
+        return VALUE
+    return context.grid.cell_value(area.sheet or context.sheet, row, column)
 
 
 def _over_blocks(op: str, left: object, right: object, *, snap: bool = False) -> object:

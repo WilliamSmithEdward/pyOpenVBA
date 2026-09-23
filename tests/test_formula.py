@@ -19,7 +19,7 @@ from pathlib import Path
 import pytest
 
 from pyopenvba.apps.excel import ExcelApplication
-from pyopenvba.exceptions import VBAUnsupportedError
+from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.formula._values import ExcelError
 from pyopenvba.interpreter._values import EMPTY, VBAErrorValue, VBADate, to_text, type_name
 
@@ -76,13 +76,19 @@ def evaluate(probe: str) -> str:
         return describe(app, target.vba_get("Value"))  # type: ignore[union-attr]
     except VBAUnsupportedError as gap:
         return f"!unsupported: {gap}"
+    except VBARuntimeError as failure:
+        # As the measuring macro records it: a formula Excel will not take is error 1004.
+        return f"!{failure.number}"
 
 
 PROBES = read_probes()
 MEASURED = read_measured()
 
 #: Probes the engine does not answer as Excel does yet, and why.
-GAPS: dict[str, str] = {}
+GAPS: dict[str, str] = {
+    "=SUM(DATE(2020,{1,2},1))": "the value is right, but the cell takes a date format from the DATE inside SUM, "
+                                "and the model formats only a formula that is itself DATE, TODAY or NOW",
+}
 
 
 def test_every_probe_was_measured() -> None:

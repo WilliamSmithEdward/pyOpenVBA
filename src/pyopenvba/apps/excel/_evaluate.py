@@ -3,13 +3,14 @@
 Measured from VBA (scripts/measure_evaluate.py, tests/fixtures/evaluate.json).
 Application.Evaluate and the bracket form work on the active sheet,
 Worksheet.Evaluate on its own. An expression that comes to cells -- a
-reference, a name for cells, INDEX, OFFSET, INDIRECT, CHOOSE or IF that
-lands on cells, an intersection or a union -- is a Range. Anything else
-is a value, an array counted from 1, or an error value; Evaluate hands an
-error back rather than raising it. Blocks are worked out whole, as an
-array formula works them: A1:A3*2 is three numbers. A last sum that all
-but cancels is 0, as in a cell. An expression Excel cannot read, an
-empty one, or one longer than 255 characters is Error 2015.
+reference, a name for cells, INDEX, OFFSET, INDIRECT, CHOOSE, IF, IFS,
+SWITCH or XLOOKUP that lands on cells, an intersection or a union -- is
+a Range. Anything else is a value, an array counted from 1, or an error
+value; Evaluate hands an error back rather than raising it. Blocks are
+worked out whole, as an array formula works them: A1:A3*2 is three
+numbers. A last sum that all but cancels is 0, as in a cell. An
+expression Excel cannot read, an empty one, or one longer than 255
+characters is Error 2015.
 """
 
 from __future__ import annotations
@@ -45,8 +46,6 @@ def evaluated(sheet: Worksheet, text: str) -> object:
         node = P.parse(text.strip().removeprefix("="))
     except P.FormulaError:
         return VBAErrorValue(UNREADABLE)
-    if isinstance(node, P.Call) and node.name.upper() == "XLOOKUP":
-        raise VBAUnsupportedError("Evaluate of XLOOKUP, which comes to a Range, is not implemented")
     context = Context(sheet.book.calculator, sheet.name, array=True)
     try:
         areas = context.areas_of(node)

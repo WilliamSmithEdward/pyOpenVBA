@@ -34,6 +34,7 @@ import re
 from typing import Final, Protocol
 
 from pyopenvba._a1 import column_letter, column_number, quote_sheet
+from pyopenvba.formula._functions import CELLS, FUNCTIONS, REFERENCES
 from pyopenvba.formula._inventory import excel_has_function
 from pyopenvba.formula._parse import (Binary, Call, FormulaError, NameNode, Node, Reference, Token, Unary, literal,
                                       parse, split_sheet, tokenize)
@@ -119,20 +120,23 @@ def spelled(formula: str, names: Names) -> str:
     return "=" + "".join(pieces)
 
 
-#: Functions Excel refuses a formula for when an argument from a place on is not a reference, and the fewest
-#: arguments each takes. Measured (scripts/measure_subtotal.py): SUBTOTAL(9,5), SUBTOTAL(9,"5"),
-#: SUBTOTAL(9,{1,2,3}), SUBTOTAL(9,B2:B9*1) and SUBTOTAL(9) are each error 1004 when written.
-_REFERENCES: Final = {"SUBTOTAL": (1, 2)}
+#: The fewest arguments a function that reads cells is taken with. Measured (scripts/measure_subtotal.py):
+#: SUBTOTAL(9) is error 1004 when written.
+_FEWEST: Final = {"SUBTOTAL": 2}
 
 
 def _check(node: Node | None) -> None:
-    """Refuse what Excel refuses in a formula past its syntax: a value where a function wants a reference."""
+    """Refuse what Excel refuses in a formula past its syntax: a value where a function reads cells.
+
+    Which arguments have to be cells is :data:`~pyopenvba.formula._functions.CELLS`, measured in
+    tests/fixtures/formula/probes.txt and by scripts/measure_subtotal.py.
+    """
     if isinstance(node, Call):
-        wanted = _REFERENCES.get(node.name.upper())
-        if wanted is not None:
-            first, fewest = wanted
-            if len(node.args) < fewest or not all(_referring(argument) for argument in node.args[first:]):
-                raise FormulaError(f"{node.name} takes references")
+        name = node.name.upper()
+        places = CELLS.get(name)
+        if places is not None and (len(node.args) < _FEWEST.get(name, 0)
+                                   or not all(_referring(node.args[index]) for index in places.within(len(node.args)))):
+            raise FormulaError(f"{node.name} takes references")
         for argument in node.args:
             _check(argument)
     elif isinstance(node, Unary):
@@ -143,9 +147,17 @@ def _check(node: Node | None) -> None:
 
 
 def _referring(node: Node | None) -> bool:
-    """Whether an argument can stand for a reference: a reference, a name, a function's answer, or references joined."""
-    if isinstance(node, (Reference, Call)):
+    """Whether an argument can stand for cells: a reference, a name, references joined, or a call.
+
+    A call counts only to a function that can answer with cells: OFFSET,
+    INDEX or IF can, LEN, SUM or IFERROR cannot. A function the model does
+    not have is let through, since what it answers with is not known here.
+    """
+    if isinstance(node, Reference):
         return True
+    if isinstance(node, Call):
+        name = node.name.upper()
+        return name in REFERENCES or name not in FUNCTIONS
     if isinstance(node, NameNode):
         return node.name.upper() not in ("TRUE", "FALSE")
     if isinstance(node, Binary):

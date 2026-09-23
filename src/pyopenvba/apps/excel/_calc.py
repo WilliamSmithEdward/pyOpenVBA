@@ -19,10 +19,11 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import Area
+from pyopenvba.exceptions import VBARuntimeError
 from pyopenvba.formula import _parse as P
 from pyopenvba.formula._engine import Context, clip, evaluate
 from pyopenvba.formula._values import BLANK, ExcelError, Matrix, single
-from pyopenvba.interpreter._values import EMPTY, VBADate, VBAErrorValue, VBAInt
+from pyopenvba.interpreter._values import EMPTY, VBACurrency, VBADate, VBAErrorValue, VBAInt
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Cell, Workbook
@@ -307,15 +308,26 @@ def _to_cell(value: object) -> object:
 def as_vba(value: object, cell: Cell | None = None) -> object:
     """A cell's value as VBA reads it.
 
-    An error becomes a Variant/Error, and a number in a date-formatted
-    cell becomes a Date, which is how VBA sees one: the format is what
-    makes 44259 into the fourth of March.
+    An error becomes a Variant/Error. A cell holds every number as a
+    Double, and its format decides what Range.Value makes of one: a date
+    format a Date, which is what makes 44259 the fourth of March, and a
+    dollar sign a Currency. With no cell -- Value2 -- a number stays a
+    Double, as it does where the Date or Currency could not hold it.
     """
     if isinstance(value, ExcelError):
         return VBAErrorValue(ERROR_NUMBERS.get(value.name, 2015))
-    if cell is not None and isinstance(value, (int, float)) and not isinstance(value, bool):
-        from pyopenvba.apps.excel._io import is_date_format
+    if isinstance(value, VBADate):
+        value = value.serial
+    if cell is None or isinstance(value, bool) or not isinstance(value, (int, float)):
+        return value
+    from pyopenvba.apps.excel._typing import is_currency_format, is_date_format
 
-        if is_date_format(cell.number_format):
+    code = cell.number_format
+    try:
+        if is_date_format(code):
             return VBADate(float(value))
-    return value
+        if is_currency_format(code):
+            return VBACurrency(value)
+    except VBARuntimeError:
+        pass
+    return float(value)

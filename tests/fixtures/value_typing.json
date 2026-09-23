@@ -1,0 +1,2463 @@
+{
+ "helper": "Private Function Show(v As Variant) As String\n    If IsNull(v) Then\n        Show = \"Null\"\n    ElseIf IsEmpty(v) Then\n        Show = \"Empty\"\n    ElseIf IsError(v) Then\n        Show = \"Error:\" & CStr(CLng(v))\n    Else\n        Show = TypeName(v) & \":\" & CStr(v)\n    End If\nEnd Function\n",
+ "year": 2026,
+ "reads": [
+  "TypeName(c.Value)",
+  "Show(c.Value)",
+  "c.Text",
+  "c.Formula",
+  "c.PrefixCharacter",
+  "c.NumberFormat",
+  "IsEmpty(c.Value)",
+  "c.HasFormula"
+ ],
+ "format_reads": [
+  "TypeName(c.Value)",
+  "Show(c.Value)",
+  "Show(c.Value2)",
+  "c.Text"
+ ],
+ "format_values": [
+  "45000.5625",
+  "-1234.5",
+  "0.25"
+ ],
+ "preset_reads": [
+  "TypeName(c.Value)",
+  "Show(c.Value)",
+  "Show(c.Value2)",
+  "c.Text",
+  "c.Formula",
+  "c.PrefixCharacter",
+  "c.NumberFormat"
+ ],
+ "sequence_reads": [
+  "Show(c.Value)",
+  "c.Text",
+  "c.NumberFormat",
+  "c.PrefixCharacter"
+ ],
+ "array_reads": [
+  "Show(c.Value)",
+  "c.NumberFormat",
+  "c.PrefixCharacter"
+ ],
+ "cases": [
+  {
+   "text": "\"\"",
+   "answers": "String:Empty;String:Empty;String:;String:;String:;String:General;Boolean:True;Boolean:False;"
+  },
+  {
+   "text": "\" \"",
+   "answers": "String:String;String:String: ;String: ;String: ;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"  \"",
+   "answers": "String:String;String:String:  ;String:  ;String:  ;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "vbTab",
+   "answers": "String:String;String:String:\t;String:\t;String:\t;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "Chr(160)",
+   "answers": "String:String;String:String: ;String: ;String: ;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\" a\"",
+   "answers": "String:String;String:String: a;String: a;String: a;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"a \"",
+   "answers": "String:String;String:String:a ;String:a ;String:a ;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\" 5\"",
+   "answers": "String:Double;String:Double:5;String:5;String:5;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"5 \"",
+   "answers": "String:Double;String:Double:5;String:5;String:5;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\" 5 \"",
+   "answers": "String:Double;String:Double:5;String:5;String:5;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"5\"",
+   "answers": "String:Double;String:Double:5;String:5;String:5;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"-5\"",
+   "answers": "String:Double;String:Double:-5;String:-5;String:-5;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"+5\"",
+   "answers": "String:Double;String:Double:5;String:5;String:5;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"5-\"",
+   "answers": "String:String;String:String:5-;String:5-;String:5-;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"(5)\"",
+   "answers": "String:Double;String:Double:-5;String:-5;String:-5;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"1,000\"",
+   "answers": "String:Double;String:Double:1000;String:1,000;String:1000;String:;String:#,##0;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"1,000.5\"",
+   "answers": "String:Double;String:Double:1000.5;String:1,000.50;String:1000.5;String:;String:#,##0.00;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"1 000\"",
+   "answers": "String:String;String:String:1 000;String:1 000;String:1 000;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"5%\"",
+   "answers": "String:Double;String:Double:0.05;String:5%;String:0.05;String:;String:0%;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\" 5%\"",
+   "answers": "String:Double;String:Double:0.05;String:5%;String:0.05;String:;String:0%;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"5 %\"",
+   "answers": "String:Double;String:Double:0.05;String:5%;String:0.05;String:;String:0%;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"$5\"",
+   "answers": "String:Currency;String:Currency:5;String:$5 ;String:5;String:;String:$#,##0_);[Red]($#,##0);Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"$1,000.50\"",
+   "answers": "String:Currency;String:Currency:1000.5;String:$1,000.50 ;String:1000.5;String:;String:$#,##0.00_);[Red]($#,##0.00);Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"-$5\"",
+   "answers": "String:Currency;String:Currency:-5;String:($5);String:-5;String:;String:$#,##0_);[Red]($#,##0);Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"1e3\"",
+   "answers": "String:Double;String:Double:1000;String:1.00E+03;String:1000;String:;String:0.00E+00;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"1E+03\"",
+   "answers": "String:Double;String:Double:1000;String:1.00E+03;String:1000;String:;String:0.00E+00;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"1e400\"",
+   "answers": "String:String;String:String:1e400;String:1e400;String:1e400;String:;String:0.00E+00;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\".5\"",
+   "answers": "String:Double;String:Double:0.5;String:0.5;String:0.5;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"5.\"",
+   "answers": "String:Double;String:Double:5;String:5;String:5;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"0005\"",
+   "answers": "String:Double;String:Double:5;String:5;String:5;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"5.50\"",
+   "answers": "String:Double;String:Double:5.5;String:5.5;String:5.5;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"1/2\"",
+   "answers": "String:Date;String:Date:1/2/2026;String:2-Jan;String:46024;String:;String:d-mmm;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"1/2/2020\"",
+   "answers": "String:Date;String:Date:1/2/2020;String:1/2/2020;String:43832;String:;String:m/d/yyyy;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"2020-01-02\"",
+   "answers": "String:Date;String:Date:1/2/2020;String:1/2/2020;String:43832;String:;String:m/d/yyyy;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"Jan 2, 2020\"",
+   "answers": "String:Date;String:Date:1/2/2020;String:2-Jan-20;String:43832;String:;String:d-mmm-yy;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"2 Jan 2020\"",
+   "answers": "String:Date;String:Date:1/2/2020;String:2-Jan-20;String:43832;String:;String:d-mmm-yy;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"12:30\"",
+   "answers": "String:Double;String:Double:0.520833333333333;String:12:30;String:0.520833333333333;String:;String:h:mm;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"12:30:45\"",
+   "answers": "String:Double;String:Double:0.521354166666667;String:12:30:45;String:0.521354166666667;String:;String:h:mm:ss;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"1:2:3\"",
+   "answers": "String:Double;String:Double:4.30902777777778E-02;String:1:02:03;String:0.0430902777777778;String:;String:h:mm:ss;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"12:30 PM\"",
+   "answers": "String:Double;String:Double:0.520833333333333;String:12:30 PM;String:0.520833333333333;String:;String:h:mm AM/PM;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"1/2/2020 12:30\"",
+   "answers": "String:Date;String:Date:1/2/2020 12:30:00 PM;String:1/2/2020 12:30;String:43832.5208333333;String:;String:m/d/yyyy h:mm;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"TRUE\"",
+   "answers": "String:Boolean;String:Boolean:True;String:TRUE;String:TRUE;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"true\"",
+   "answers": "String:Boolean;String:Boolean:True;String:TRUE;String:TRUE;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\" TRUE\"",
+   "answers": "String:String;String:String: TRUE;String: TRUE;String: TRUE;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"FALSE \"",
+   "answers": "String:String;String:String:FALSE ;String:FALSE ;String:FALSE ;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"Yes\"",
+   "answers": "String:String;String:String:Yes;String:Yes;String:Yes;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"#N/A\"",
+   "answers": "String:Error;String:Error:2042;String:#N/A;String:#N/A;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"#DIV/0!\"",
+   "answers": "String:Error;String:Error:2007;String:#DIV/0!;String:#DIV/0!;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"'\"",
+   "answers": "String:String;String:String:;String:;String:;String:';String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"'5\"",
+   "answers": "String:String;String:String:5;String:5;String:5;String:';String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"''5\"",
+   "answers": "String:String;String:String:'5;String:'5;String:'5;String:';String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"'abc\"",
+   "answers": "String:String;String:String:abc;String:abc;String:abc;String:';String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"' 5\"",
+   "answers": "String:String;String:String: 5;String: 5;String: 5;String:';String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"'TRUE\"",
+   "answers": "String:String;String:String:TRUE;String:TRUE;String:TRUE;String:';String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"'=1+1\"",
+   "answers": "String:String;String:String:=1+1;String:=1+1;String:=1+1;String:';String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"=1+1\"",
+   "answers": "String:Double;String:Double:2;String:2;String:=1+1;String:;String:General;Boolean:False;Boolean:True;"
+  },
+  {
+   "text": "\" =1+1\"",
+   "answers": "String:String;String:String: =1+1;String: =1+1;String: =1+1;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"a\" & vbLf & \"b\"",
+   "answers": "String:String;String:String:a\nb;String:a\nb;String:a\nb;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"1 1/2\"",
+   "answers": "String:Double;String:Double:1.5;String:1 1/2;String:1.5;String:;String:# ?/?;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"5 1/4\"",
+   "answers": "String:Double;String:Double:5.25;String:5 1/4;String:5.25;String:;String:# ?/?;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"- 5\"",
+   "answers": "String:Double;String:Double:-5;String:-5;String:-5;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"5E\"",
+   "answers": "String:String;String:String:5E;String:5E;String:5E;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"&H10\"",
+   "answers": "String:String;String:String:&H10;String:&H10;String:&H10;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"0x10\"",
+   "answers": "String:String;String:String:0x10;String:0x10;String:0x10;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"1.2.3\"",
+   "answers": "String:String;String:String:1.2.3;String:1.2.3;String:1.2.3;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"12/31\"",
+   "answers": "String:Date;String:Date:12/31/2026;String:31-Dec;String:46387;String:;String:d-mmm;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"31/12/2020\"",
+   "answers": "String:String;String:String:31/12/2020;String:31/12/2020;String:31/12/2020;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"13/1/2020\"",
+   "answers": "String:String;String:String:13/1/2020;String:13/1/2020;String:13/1/2020;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"2/29/2021\"",
+   "answers": "String:String;String:String:2/29/2021;String:2/29/2021;String:2/29/2021;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"1-2-2020\"",
+   "answers": "String:Date;String:Date:1/2/2020;String:1/2/2020;String:43832;String:;String:m/d/yyyy;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"5.5%\"",
+   "answers": "String:Double;String:Double:0.055;String:5.50%;String:0.055;String:;String:0.00%;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"-5%\"",
+   "answers": "String:Double;String:Double:-0.05;String:-5%;String:-0.05;String:;String:0%;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"(5%)\"",
+   "answers": "String:Double;String:Double:-0.05;String:-5%;String:-0.05;String:;String:0%;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"$-5\"",
+   "answers": "String:Currency;String:Currency:-5;String:($5);String:-5;String:;String:$#,##0_);[Red]($#,##0);Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"($5)\"",
+   "answers": "String:Currency;String:Currency:-5;String:($5);String:-5;String:;String:$#,##0_);[Red]($#,##0);Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"1,00\"",
+   "answers": "String:String;String:String:1,00;String:1,00;String:1,00;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"1,0000\"",
+   "answers": "String:Double;String:Double:10000;String:10,000;String:10000;String:;String:#,##0;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"1,000,000\"",
+   "answers": "String:Double;String:Double:1000000;String:1,000,000;String:1000000;String:;String:#,##0;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\",5\"",
+   "answers": "String:String;String:String:,5;String:,5;String:,5;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"1,000%\"",
+   "answers": "String:Double;String:Double:10;String:1000%;String:10;String:;String:0%;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"$1e3\"",
+   "answers": "String:Double;String:Double:1000;String:1.00E+03;String:1000;String:;String:0.00E+00;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"1.5e3\"",
+   "answers": "String:Double;String:Double:1500;String:1.50E+03;String:1500;String:;String:0.00E+00;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"1e-3\"",
+   "answers": "String:Double;String:Double:0.001;String:1.00E-03;String:0.001;String:;String:0.00E+00;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"1/4\"",
+   "answers": "String:Date;String:Date:1/4/2026;String:4-Jan;String:46026;String:;String:d-mmm;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"3/16\"",
+   "answers": "String:Date;String:Date:3/16/2026;String:16-Mar;String:46097;String:;String:d-mmm;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"1 3/16\"",
+   "answers": "String:Double;String:Double:1.1875;String:1  3/16;String:1.1875;String:;String:# ??/??;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"0 1/2\"",
+   "answers": "String:Double;String:Double:0.5;String: 1/2;String:0.5;String:;String:# ?/?;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"-1 1/2\"",
+   "answers": "String:Double;String:Double:-1.5;String:-1 1/2;String:-1.5;String:;String:# ?/?;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"#n/a\"",
+   "answers": "String:Error;String:Error:2042;String:#N/A;String:#N/A;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"#VALUE!\"",
+   "answers": "String:Error;String:Error:2015;String:#VALUE!;String:#VALUE!;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"#REF!\"",
+   "answers": "String:Error;String:Error:2023;String:#REF!;String:#REF!;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"#NAME?\"",
+   "answers": "String:Error;String:Error:2029;String:#NAME?;String:#NAME?;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"#NUM!\"",
+   "answers": "String:Error;String:Error:2036;String:#NUM!;String:#NUM!;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"#NULL!\"",
+   "answers": "String:Error;String:Error:2000;String:#NULL!;String:#NULL!;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"#SPILL!\"",
+   "answers": "String:String;String:String:#SPILL!;String:#SPILL!;String:#SPILL!;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"12:30:45 AM\"",
+   "answers": "String:Double;String:Double:2.13541666666667E-02;String:12:30:45 AM;String:0.0213541666666667;String:;String:h:mm:ss AM/PM;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"25:00\"",
+   "answers": "String:Double;String:Double:1.04166666666667;String:25:00:00;String:1.04166666666667;String:;String:[h]:mm:ss;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"1:60\"",
+   "answers": "String:Double;String:Double:8.33333333333333E-02;String:0.083333333;String:0.0833333333333333;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"12:30am\"",
+   "answers": "String:String;String:String:12:30am;String:12:30am;String:12:30am;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"12 PM\"",
+   "answers": "String:Double;String:Double:0.5;String:12:00 PM;String:0.5;String:;String:h:mm AM/PM;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"2020/1/2\"",
+   "answers": "String:Date;String:Date:1/2/2020;String:1/2/2020;String:43832;String:;String:m/d/yyyy;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"1/2/20\"",
+   "answers": "String:Date;String:Date:1/2/2020;String:1/2/2020;String:43832;String:;String:m/d/yyyy;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"1/2/1920\"",
+   "answers": "String:Date;String:Date:1/2/1920;String:1/2/1920;String:7307;String:;String:m/d/yyyy;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"1/2/29\"",
+   "answers": "String:Date;String:Date:1/2/2029;String:1/2/2029;String:47120;String:;String:m/d/yyyy;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"1/2/30\"",
+   "answers": "String:Date;String:Date:1/2/1930;String:1/2/1930;String:10960;String:;String:m/d/yyyy;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"Jan 2020\"",
+   "answers": "String:Date;String:Date:1/1/2020;String:Jan-20;String:43831;String:;String:mmm-yy;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"January 2\"",
+   "answers": "String:Date;String:Date:1/2/2026;String:2-Jan;String:46024;String:;String:d-mmm;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"2-Jan\"",
+   "answers": "String:Date;String:Date:1/2/2026;String:2-Jan;String:46024;String:;String:d-mmm;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"2-Jan-2020\"",
+   "answers": "String:Date;String:Date:1/2/2020;String:2-Jan-20;String:43832;String:;String:d-mmm-yy;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"Mon, Jan 2, 2020\"",
+   "answers": "String:String;String:String:Mon, Jan 2, 2020;String:Mon, Jan 2, 2020;String:Mon, Jan 2, 2020;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"5 5\"",
+   "answers": "String:String;String:String:5 5;String:5 5;String:5 5;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"$ 5\"",
+   "answers": "String:Currency;String:Currency:5;String:$5 ;String:5;String:;String:$#,##0_);[Red]($#,##0);Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"5$\"",
+   "answers": "String:String;String:String:5$;String:5$;String:5$;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"1.5.2020\"",
+   "answers": "String:String;String:String:1.5.2020;String:1.5.2020;String:1.5.2020;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"1/2020\"",
+   "answers": "String:Date;String:Date:1/1/2020;String:Jan-20;String:43831;String:;String:mmm-yy;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"1-2\"",
+   "answers": "String:Date;String:Date:1/2/2026;String:2-Jan;String:46024;String:;String:d-mmm;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"Jan-2020\"",
+   "answers": "String:Date;String:Date:1/1/2020;String:Jan-20;String:43831;String:;String:mmm-yy;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"2 January\"",
+   "answers": "String:Date;String:Date:1/2/2026;String:2-Jan;String:46024;String:;String:d-mmm;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"January 2020\"",
+   "answers": "String:Date;String:Date:1/1/2020;String:Jan-20;String:43831;String:;String:mmm-yy;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"Jan 2 2020\"",
+   "answers": "String:String;String:String:Jan 2 2020;String:Jan 2 2020;String:Jan 2 2020;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"2020-1-2 12:30\"",
+   "answers": "String:Date;String:Date:1/2/2020 12:30:00 PM;String:1/2/2020 12:30;String:43832.5208333333;String:;String:m/d/yyyy h:mm;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"1/2/2020 1:2:3 PM\"",
+   "answers": "String:Date;String:Date:1/2/2020 1:02:03 PM;String:1/2/2020 13:02;String:43832.5430902778;String:;String:m/d/yyyy h:mm;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"12:30:45.5\"",
+   "answers": "String:Double;String:Double:0.521359953703704;String:30:45.5;String:0.521359953703704;String:;String:mm:ss.0;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"$5.5\"",
+   "answers": "String:Currency;String:Currency:5.5;String:$5.50 ;String:5.5;String:;String:$#,##0.00_);[Red]($#,##0.00);Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"$5%\"",
+   "answers": "String:String;String:String:$5%;String:$5%;String:$5%;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"1,234,5\"",
+   "answers": "String:String;String:String:1,234,5;String:1,234,5;String:1,234,5;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"1234,567\"",
+   "answers": "String:Double;String:Double:1234567;String:1,234,567;String:1234567;String:;String:#,##0;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"$.5\"",
+   "answers": "String:Currency;String:Currency:0.5;String:$0.50 ;String:0.5;String:;String:$#,##0.00_);[Red]($#,##0.00);Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"-.5\"",
+   "answers": "String:Double;String:Double:-0.5;String:-0.5;String:-0.5;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"5 1/10\"",
+   "answers": "String:Double;String:Double:5.1;String:5  1/10;String:5.1;String:;String:# ??/??;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"1/0\"",
+   "answers": "String:Date;String:Date:1/1/2000;String:Jan-00;String:36526;String:;String:mmm-yy;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"1 1/0\"",
+   "answers": "String:String;String:String:1 1/0;String:1 1/0;String:1 1/0;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"TRUE \"",
+   "answers": "String:String;String:String:TRUE ;String:TRUE ;String:TRUE ;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"#N/A \"",
+   "answers": "String:String;String:String:#N/A ;String:#N/A ;String:#N/A ;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"1 2/3\"",
+   "answers": "String:Double;String:Double:1.66666666666667;String:1 2/3;String:1.66666666666667;String:;String:# ?/?;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "#1/2/2020#",
+   "answers": "String:Date;String:Date:1/2/2020;String:1/2/2020;String:43832;String:;String:m/d/yyyy;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "#1/2/2020 12:30:00 PM#",
+   "answers": "String:Date;String:Date:1/2/2020 12:30:00 PM;String:1/2/2020 12:30;String:43832.5208333333;String:;String:m/d/yyyy h:mm;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "#12:30:00 PM#",
+   "answers": "String:Double;String:Double:0.520833333333333;String:12:30:00 PM;String:0.520833333333333;String:;String:h:mm:ss AM/PM;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "CCur(5.5)",
+   "answers": "String:Currency;String:Currency:5.5;String:$5.50 ;String:5.5;String:;String:$#,##0.00_);($#,##0.00);Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "CCur(1000)",
+   "answers": "String:Currency;String:Currency:1000;String:$1,000.00 ;String:1000;String:;String:$#,##0.00_);($#,##0.00);Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "CDec(1.5)",
+   "answers": "String:Double;String:Double:1.5;String:1.5;String:1.5;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "CInt(5)",
+   "answers": "String:Double;String:Double:5;String:5;String:5;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "CSng(1.5)",
+   "answers": "String:Double;String:Double:1.5;String:1.5;String:1.5;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "True",
+   "answers": "String:Boolean;String:Boolean:True;String:TRUE;String:TRUE;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "CVErr(2042)",
+   "answers": "String:Error;String:Error:2042;String:#N/A;String:#N/A;String:;String:General;Boolean:False;Boolean:False;"
+  }
+ ],
+ "formats": [
+  {
+   "code": "General",
+   "answers": [
+    "String:Double;String:Double:45000.5625;String:Double:45000.5625;String:45000.5625;",
+    "String:Double;String:Double:-1234.5;String:Double:-1234.5;String:-1234.5;",
+    "String:Double;String:Double:0.25;String:Double:0.25;String:0.25;"
+   ]
+  },
+  {
+   "code": "0",
+   "answers": [
+    "String:Double;String:Double:45000.5625;String:Double:45000.5625;String:45001;",
+    "String:Double;String:Double:-1234.5;String:Double:-1234.5;String:-1235;",
+    "String:Double;String:Double:0.25;String:Double:0.25;String:0;"
+   ]
+  },
+  {
+   "code": "0.00",
+   "answers": [
+    "String:Double;String:Double:45000.5625;String:Double:45000.5625;String:45000.56;",
+    "String:Double;String:Double:-1234.5;String:Double:-1234.5;String:-1234.50;",
+    "String:Double;String:Double:0.25;String:Double:0.25;String:0.25;"
+   ]
+  },
+  {
+   "code": "#,##0",
+   "answers": [
+    "String:Double;String:Double:45000.5625;String:Double:45000.5625;String:45,001;",
+    "String:Double;String:Double:-1234.5;String:Double:-1234.5;String:-1,235;",
+    "String:Double;String:Double:0.25;String:Double:0.25;String:0;"
+   ]
+  },
+  {
+   "code": "#,##0.00",
+   "answers": [
+    "String:Double;String:Double:45000.5625;String:Double:45000.5625;String:45,000.56;",
+    "String:Double;String:Double:-1234.5;String:Double:-1234.5;String:-1,234.50;",
+    "String:Double;String:Double:0.25;String:Double:0.25;String:0.25;"
+   ]
+  },
+  {
+   "code": "0%",
+   "answers": [
+    "String:Double;String:Double:45000.5625;String:Double:45000.5625;String:4500056%;",
+    "String:Double;String:Double:-1234.5;String:Double:-1234.5;String:-123450%;",
+    "String:Double;String:Double:0.25;String:Double:0.25;String:25%;"
+   ]
+  },
+  {
+   "code": "0.00%",
+   "answers": [
+    "String:Double;String:Double:45000.5625;String:Double:45000.5625;String:4500056.25%;",
+    "String:Double;String:Double:-1234.5;String:Double:-1234.5;String:-123450.00%;",
+    "String:Double;String:Double:0.25;String:Double:0.25;String:25.00%;"
+   ]
+  },
+  {
+   "code": "0.00E+00",
+   "answers": [
+    "String:Double;String:Double:45000.5625;String:Double:45000.5625;String:4.50E+04;",
+    "String:Double;String:Double:-1234.5;String:Double:-1234.5;String:-1.23E+03;",
+    "String:Double;String:Double:0.25;String:Double:0.25;String:2.50E-01;"
+   ]
+  },
+  {
+   "code": "# ?/?",
+   "answers": [
+    "String:Double;String:Double:45000.5625;String:Double:45000.5625;String:45000 4/7;",
+    "String:Double;String:Double:-1234.5;String:Double:-1234.5;String:-1234 1/2;",
+    "String:Double;String:Double:0.25;String:Double:0.25;String: 1/4;"
+   ]
+  },
+  {
+   "code": "# ??/??",
+   "answers": [
+    "String:Double;String:Double:45000.5625;String:Double:45000.5625;String:45000  9/16;",
+    "String:Double;String:Double:-1234.5;String:Double:-1234.5;String:-1234  1/2 ;",
+    "String:Double;String:Double:0.25;String:Double:0.25;String:  1/4 ;"
+   ]
+  },
+  {
+   "code": "@",
+   "answers": [
+    "String:Double;String:Double:45000.5625;String:Double:45000.5625;String:45000.5625;",
+    "String:Double;String:Double:-1234.5;String:Double:-1234.5;String:-1234.5;",
+    "String:Double;String:Double:0.25;String:Double:0.25;String:0.25;"
+   ]
+  },
+  {
+   "code": "$#,##0",
+   "answers": [
+    "String:Currency;String:Currency:45000.5625;String:Double:45000.5625;String:$45,001;",
+    "String:Currency;String:Currency:-1234.5;String:Double:-1234.5;String:-$1,235;",
+    "String:Currency;String:Currency:0.25;String:Double:0.25;String:$0;"
+   ]
+  },
+  {
+   "code": "$#,##0_);[Red]($#,##0)",
+   "answers": [
+    "String:Currency;String:Currency:45000.5625;String:Double:45000.5625;String:$45,001 ;",
+    "String:Currency;String:Currency:-1234.5;String:Double:-1234.5;String:($1,235);",
+    "String:Currency;String:Currency:0.25;String:Double:0.25;String:$0 ;"
+   ]
+  },
+  {
+   "code": "$#,##0.00_);($#,##0.00)",
+   "answers": [
+    "String:Currency;String:Currency:45000.5625;String:Double:45000.5625;String:$45,000.56 ;",
+    "String:Currency;String:Currency:-1234.5;String:Double:-1234.5;String:($1,234.50);",
+    "String:Currency;String:Currency:0.25;String:Double:0.25;String:$0.25 ;"
+   ]
+  },
+  {
+   "code": "_($* #,##0.00_);_($* (#,##0.00);_($* \"-\"??_);_(@_)",
+   "answers": [
+    "String:Currency;String:Currency:45000.5625;String:Double:45000.5625;String: $                                                                                   45,000.56 ;",
+    "String:Currency;String:Currency:-1234.5;String:Double:-1234.5;String: $                                                                                   (1,234.50);",
+    "String:Currency;String:Currency:0.25;String:Double:0.25;String: $                                                                                               0.25 ;"
+   ]
+  },
+  {
+   "code": "\"$\"0",
+   "answers": [
+    "String:Currency;String:Currency:45000.5625;String:Double:45000.5625;String:$45001;",
+    "String:Currency;String:Currency:-1234.5;String:Double:-1234.5;String:-$1235;",
+    "String:Currency;String:Currency:0.25;String:Double:0.25;String:$0;"
+   ]
+  },
+  {
+   "code": "#,##0 [$USD]",
+   "answers": [
+    "String:Double;String:Double:45000.5625;String:Double:45000.5625;String:45,001 USD;",
+    "String:Double;String:Double:-1234.5;String:Double:-1234.5;String:-1,235 USD;",
+    "String:Double;String:Double:0.25;String:Double:0.25;String:0 USD;"
+   ]
+  },
+  {
+   "code": "m/d/yyyy",
+   "answers": [
+    "String:Date;String:Date:3/15/2023 1:30:00 PM;String:Double:45000.5625;String:3/15/2023;",
+    "String:Date;String:Date:8/13/1896 12:00:00 PM;String:Double:-1234.5;String:########################################;",
+    "String:Date;String:Date:6:00:00 AM;String:Double:0.25;String:1/0/1900;"
+   ]
+  },
+  {
+   "code": "d-mmm",
+   "answers": [
+    "String:Date;String:Date:3/15/2023 1:30:00 PM;String:Double:45000.5625;String:15-Mar;",
+    "String:Date;String:Date:8/13/1896 12:00:00 PM;String:Double:-1234.5;String:########################################;",
+    "String:Date;String:Date:6:00:00 AM;String:Double:0.25;String:0-Jan;"
+   ]
+  },
+  {
+   "code": "mmm-yy",
+   "answers": [
+    "String:Date;String:Date:3/15/2023 1:30:00 PM;String:Double:45000.5625;String:Mar-23;",
+    "String:Date;String:Date:8/13/1896 12:00:00 PM;String:Double:-1234.5;String:########################################;",
+    "String:Date;String:Date:6:00:00 AM;String:Double:0.25;String:Jan-00;"
+   ]
+  },
+  {
+   "code": "d-mmm-yy",
+   "answers": [
+    "String:Date;String:Date:3/15/2023 1:30:00 PM;String:Double:45000.5625;String:15-Mar-23;",
+    "String:Date;String:Date:8/13/1896 12:00:00 PM;String:Double:-1234.5;String:########################################;",
+    "String:Date;String:Date:6:00:00 AM;String:Double:0.25;String:0-Jan-00;"
+   ]
+  },
+  {
+   "code": "yyyy",
+   "answers": [
+    "String:Date;String:Date:3/15/2023 1:30:00 PM;String:Double:45000.5625;String:2023;",
+    "String:Date;String:Date:8/13/1896 12:00:00 PM;String:Double:-1234.5;String:########################################;",
+    "String:Date;String:Date:6:00:00 AM;String:Double:0.25;String:1900;"
+   ]
+  },
+  {
+   "code": "dddd",
+   "answers": [
+    "String:Date;String:Date:3/15/2023 1:30:00 PM;String:Double:45000.5625;String:Wednesday;",
+    "String:Date;String:Date:8/13/1896 12:00:00 PM;String:Double:-1234.5;String:########################################;",
+    "String:Date;String:Date:6:00:00 AM;String:Double:0.25;String:Saturday;"
+   ]
+  },
+  {
+   "code": "mmmm",
+   "answers": [
+    "String:Date;String:Date:3/15/2023 1:30:00 PM;String:Double:45000.5625;String:March;",
+    "String:Date;String:Date:8/13/1896 12:00:00 PM;String:Double:-1234.5;String:########################################;",
+    "String:Date;String:Date:6:00:00 AM;String:Double:0.25;String:January;"
+   ]
+  },
+  {
+   "code": "m",
+   "answers": [
+    "String:Date;String:Date:3/15/2023 1:30:00 PM;String:Double:45000.5625;String:3;",
+    "String:Date;String:Date:8/13/1896 12:00:00 PM;String:Double:-1234.5;String:########################################;",
+    "String:Date;String:Date:6:00:00 AM;String:Double:0.25;String:1;"
+   ]
+  },
+  {
+   "code": "mm",
+   "answers": [
+    "String:Date;String:Date:3/15/2023 1:30:00 PM;String:Double:45000.5625;String:03;",
+    "String:Date;String:Date:8/13/1896 12:00:00 PM;String:Double:-1234.5;String:########################################;",
+    "String:Date;String:Date:6:00:00 AM;String:Double:0.25;String:01;"
+   ]
+  },
+  {
+   "code": "mmm",
+   "answers": [
+    "String:Date;String:Date:3/15/2023 1:30:00 PM;String:Double:45000.5625;String:Mar;",
+    "String:Date;String:Date:8/13/1896 12:00:00 PM;String:Double:-1234.5;String:########################################;",
+    "String:Date;String:Date:6:00:00 AM;String:Double:0.25;String:Jan;"
+   ]
+  },
+  {
+   "code": "d",
+   "answers": [
+    "String:Date;String:Date:3/15/2023 1:30:00 PM;String:Double:45000.5625;String:15;",
+    "String:Date;String:Date:8/13/1896 12:00:00 PM;String:Double:-1234.5;String:########################################;",
+    "String:Date;String:Date:6:00:00 AM;String:Double:0.25;String:0;"
+   ]
+  },
+  {
+   "code": "h",
+   "answers": [
+    "String:Double;String:Double:45000.5625;String:Double:45000.5625;String:13;",
+    "String:Double;String:Double:-1234.5;String:Double:-1234.5;String:########################################;",
+    "String:Double;String:Double:0.25;String:Double:0.25;String:6;"
+   ]
+  },
+  {
+   "code": "h:mm",
+   "answers": [
+    "String:Double;String:Double:45000.5625;String:Double:45000.5625;String:13:30;",
+    "String:Double;String:Double:-1234.5;String:Double:-1234.5;String:########################################;",
+    "String:Double;String:Double:0.25;String:Double:0.25;String:6:00;"
+   ]
+  },
+  {
+   "code": "h:mm:ss",
+   "answers": [
+    "String:Double;String:Double:45000.5625;String:Double:45000.5625;String:13:30:00;",
+    "String:Double;String:Double:-1234.5;String:Double:-1234.5;String:########################################;",
+    "String:Double;String:Double:0.25;String:Double:0.25;String:6:00:00;"
+   ]
+  },
+  {
+   "code": "mm:ss",
+   "answers": [
+    "String:Double;String:Double:45000.5625;String:Double:45000.5625;String:30:00;",
+    "String:Double;String:Double:-1234.5;String:Double:-1234.5;String:########################################;",
+    "String:Double;String:Double:0.25;String:Double:0.25;String:00:00;"
+   ]
+  },
+  {
+   "code": "[h]:mm",
+   "answers": [
+    "String:Double;String:Double:45000.5625;String:Double:45000.5625;String:1080013:30;",
+    "String:Double;String:Double:-1234.5;String:Double:-1234.5;String:########################################;",
+    "String:Double;String:Double:0.25;String:Double:0.25;String:6:00;"
+   ]
+  },
+  {
+   "code": "[mm]:ss",
+   "answers": [
+    "String:Double;String:Double:45000.5625;String:Double:45000.5625;String:64800810:00;",
+    "String:Double;String:Double:-1234.5;String:Double:-1234.5;String:########################################;",
+    "String:Double;String:Double:0.25;String:Double:0.25;String:360:00;"
+   ]
+  },
+  {
+   "code": "h:mm AM/PM",
+   "answers": [
+    "String:Double;String:Double:45000.5625;String:Double:45000.5625;String:1:30 PM;",
+    "String:Double;String:Double:-1234.5;String:Double:-1234.5;String:########################################;",
+    "String:Double;String:Double:0.25;String:Double:0.25;String:6:00 AM;"
+   ]
+  },
+  {
+   "code": "m/d/yyyy h:mm",
+   "answers": [
+    "String:Date;String:Date:3/15/2023 1:30:00 PM;String:Double:45000.5625;String:3/15/2023 13:30;",
+    "String:Date;String:Date:8/13/1896 12:00:00 PM;String:Double:-1234.5;String:########################################;",
+    "String:Date;String:Date:6:00:00 AM;String:Double:0.25;String:1/0/1900 6:00;"
+   ]
+  },
+  {
+   "code": "s",
+   "answers": [
+    "String:Double;String:Double:45000.5625;String:Double:45000.5625;String:0;",
+    "String:Double;String:Double:-1234.5;String:Double:-1234.5;String:########################################;",
+    "String:Double;String:Double:0.25;String:Double:0.25;String:0;"
+   ]
+  },
+  {
+   "code": "[$-409]h:mm:ss AM/PM",
+   "answers": [
+    "String:Double;String:Double:45000.5625;String:Double:45000.5625;String:1:30:00 PM;",
+    "String:Double;String:Double:-1234.5;String:Double:-1234.5;String:########################################;",
+    "String:Double;String:Double:0.25;String:Double:0.25;String:6:00:00 AM;"
+   ]
+  },
+  {
+   "code": "0.00;[Red]-0.00",
+   "answers": [
+    "String:Double;String:Double:45000.5625;String:Double:45000.5625;String:45000.56;",
+    "String:Double;String:Double:-1234.5;String:Double:-1234.5;String:-1234.50;",
+    "String:Double;String:Double:0.25;String:Double:0.25;String:0.25;"
+   ]
+  },
+  {
+   "code": "0 \"units\"",
+   "answers": [
+    "String:Double;String:Double:45000.5625;String:Double:45000.5625;String:45001 units;",
+    "String:Double;String:Double:-1234.5;String:Double:-1234.5;String:-1235 units;",
+    "String:Double;String:Double:0.25;String:Double:0.25;String:0 units;"
+   ]
+  }
+ ],
+ "presets": [
+  {
+   "writer": "Value",
+   "code": "General",
+   "text": "\"5\"",
+   "answers": "String:Double;String:Double:5;String:Double:5;String:5;String:5;String:;String:General;"
+  },
+  {
+   "writer": "Value",
+   "code": "General",
+   "text": "\"5%\"",
+   "answers": "String:Double;String:Double:0.05;String:Double:0.05;String:5%;String:0.05;String:;String:0%;"
+  },
+  {
+   "writer": "Value",
+   "code": "General",
+   "text": "\"$5\"",
+   "answers": "String:Currency;String:Currency:5;String:Double:5;String:$5 ;String:5;String:;String:$#,##0_);[Red]($#,##0);"
+  },
+  {
+   "writer": "Value",
+   "code": "General",
+   "text": "\"1,000\"",
+   "answers": "String:Double;String:Double:1000;String:Double:1000;String:1,000;String:1000;String:;String:#,##0;"
+  },
+  {
+   "writer": "Value",
+   "code": "General",
+   "text": "\"1e3\"",
+   "answers": "String:Double;String:Double:1000;String:Double:1000;String:1.00E+03;String:1000;String:;String:0.00E+00;"
+  },
+  {
+   "writer": "Value",
+   "code": "General",
+   "text": "\"1 1/2\"",
+   "answers": "String:Double;String:Double:1.5;String:Double:1.5;String:1 1/2;String:1.5;String:;String:# ?/?;"
+  },
+  {
+   "writer": "Value",
+   "code": "General",
+   "text": "\"1/2/2020\"",
+   "answers": "String:Date;String:Date:1/2/2020;String:Double:43832;String:1/2/2020;String:43832;String:;String:m/d/yyyy;"
+  },
+  {
+   "writer": "Value",
+   "code": "General",
+   "text": "\"12:30\"",
+   "answers": "String:Double;String:Double:0.520833333333333;String:Double:0.520833333333333;String:12:30;String:0.520833333333333;String:;String:h:mm;"
+  },
+  {
+   "writer": "Value",
+   "code": "General",
+   "text": "\"TRUE\"",
+   "answers": "String:Boolean;String:Boolean:True;String:Boolean:True;String:TRUE;String:TRUE;String:;String:General;"
+  },
+  {
+   "writer": "Value",
+   "code": "General",
+   "text": "\"'5\"",
+   "answers": "String:String;String:String:5;String:String:5;String:5;String:5;String:';String:General;"
+  },
+  {
+   "writer": "Value",
+   "code": "General",
+   "text": "\"#N/A\"",
+   "answers": "String:Error;String:Error:2042;String:Error:2042;String:#N/A;String:#N/A;String:;String:General;"
+  },
+  {
+   "writer": "Value",
+   "code": "General",
+   "text": "\"abc\"",
+   "answers": "String:String;String:String:abc;String:String:abc;String:abc;String:abc;String:;String:General;"
+  },
+  {
+   "writer": "Value",
+   "code": "General",
+   "text": "#1/2/2020#",
+   "answers": "String:Date;String:Date:1/2/2020;String:Double:43832;String:1/2/2020;String:43832;String:;String:m/d/yyyy;"
+  },
+  {
+   "writer": "Value",
+   "code": "General",
+   "text": "CCur(5.5)",
+   "answers": "String:Currency;String:Currency:5.5;String:Double:5.5;String:$5.50 ;String:5.5;String:;String:$#,##0.00_);($#,##0.00);"
+  },
+  {
+   "writer": "Value",
+   "code": "General",
+   "text": "5",
+   "answers": "String:Double;String:Double:5;String:Double:5;String:5;String:5;String:;String:General;"
+  },
+  {
+   "writer": "Value",
+   "code": "General",
+   "text": "True",
+   "answers": "String:Boolean;String:Boolean:True;String:Boolean:True;String:TRUE;String:TRUE;String:;String:General;"
+  },
+  {
+   "writer": "Value",
+   "code": "@",
+   "text": "\"5\"",
+   "answers": "String:String;String:String:5;String:String:5;String:5;String:5;String:;String:@;"
+  },
+  {
+   "writer": "Value",
+   "code": "@",
+   "text": "\"5%\"",
+   "answers": "String:String;String:String:5%;String:String:5%;String:5%;String:5%;String:;String:@;"
+  },
+  {
+   "writer": "Value",
+   "code": "@",
+   "text": "\"$5\"",
+   "answers": "String:String;String:String:$5;String:String:$5;String:$5;String:$5;String:;String:@;"
+  },
+  {
+   "writer": "Value",
+   "code": "@",
+   "text": "\"1,000\"",
+   "answers": "String:String;String:String:1,000;String:String:1,000;String:1,000;String:1,000;String:;String:@;"
+  },
+  {
+   "writer": "Value",
+   "code": "@",
+   "text": "\"1e3\"",
+   "answers": "String:String;String:String:1e3;String:String:1e3;String:1e3;String:1e3;String:;String:@;"
+  },
+  {
+   "writer": "Value",
+   "code": "@",
+   "text": "\"1 1/2\"",
+   "answers": "String:String;String:String:1 1/2;String:String:1 1/2;String:1 1/2;String:1 1/2;String:;String:@;"
+  },
+  {
+   "writer": "Value",
+   "code": "@",
+   "text": "\"1/2/2020\"",
+   "answers": "String:String;String:String:1/2/2020;String:String:1/2/2020;String:1/2/2020;String:1/2/2020;String:;String:@;"
+  },
+  {
+   "writer": "Value",
+   "code": "@",
+   "text": "\"12:30\"",
+   "answers": "String:String;String:String:12:30;String:String:12:30;String:12:30;String:12:30;String:;String:@;"
+  },
+  {
+   "writer": "Value",
+   "code": "@",
+   "text": "\"TRUE\"",
+   "answers": "String:String;String:String:TRUE;String:String:TRUE;String:TRUE;String:TRUE;String:;String:@;"
+  },
+  {
+   "writer": "Value",
+   "code": "@",
+   "text": "\"'5\"",
+   "answers": "String:String;String:String:5;String:String:5;String:5;String:5;String:';String:@;"
+  },
+  {
+   "writer": "Value",
+   "code": "@",
+   "text": "\"#N/A\"",
+   "answers": "String:String;String:String:#N/A;String:String:#N/A;String:#N/A;String:#N/A;String:;String:@;"
+  },
+  {
+   "writer": "Value",
+   "code": "@",
+   "text": "\"abc\"",
+   "answers": "String:String;String:String:abc;String:String:abc;String:abc;String:abc;String:;String:@;"
+  },
+  {
+   "writer": "Value",
+   "code": "@",
+   "text": "#1/2/2020#",
+   "answers": "String:String;String:String:1/2/2020;String:String:1/2/2020;String:1/2/2020;String:1/2/2020;String:;String:@;"
+  },
+  {
+   "writer": "Value",
+   "code": "@",
+   "text": "CCur(5.5)",
+   "answers": "String:String;String:String:$5.50 ;String:String:$5.50 ;String:$5.50 ;String:$5.50 ;String:;String:$#,##0.00_);($#,##0.00);"
+  },
+  {
+   "writer": "Value",
+   "code": "@",
+   "text": "5",
+   "answers": "String:Double;String:Double:5;String:Double:5;String:5;String:5;String:;String:@;"
+  },
+  {
+   "writer": "Value",
+   "code": "@",
+   "text": "True",
+   "answers": "String:Boolean;String:Boolean:True;String:Boolean:True;String:TRUE;String:TRUE;String:;String:@;"
+  },
+  {
+   "writer": "Value",
+   "code": "0.00",
+   "text": "\"5\"",
+   "answers": "String:Double;String:Double:5;String:Double:5;String:5.00;String:5;String:;String:0.00;"
+  },
+  {
+   "writer": "Value",
+   "code": "0.00",
+   "text": "\"5%\"",
+   "answers": "String:Double;String:Double:0.05;String:Double:0.05;String:0.05;String:0.05;String:;String:0.00;"
+  },
+  {
+   "writer": "Value",
+   "code": "0.00",
+   "text": "\"$5\"",
+   "answers": "String:Double;String:Double:5;String:Double:5;String:5.00;String:5;String:;String:0.00;"
+  },
+  {
+   "writer": "Value",
+   "code": "0.00",
+   "text": "\"1,000\"",
+   "answers": "String:Double;String:Double:1000;String:Double:1000;String:1000.00;String:1000;String:;String:0.00;"
+  },
+  {
+   "writer": "Value",
+   "code": "0.00",
+   "text": "\"1e3\"",
+   "answers": "String:Double;String:Double:1000;String:Double:1000;String:1000.00;String:1000;String:;String:0.00;"
+  },
+  {
+   "writer": "Value",
+   "code": "0.00",
+   "text": "\"1 1/2\"",
+   "answers": "String:Double;String:Double:1.5;String:Double:1.5;String:1.50;String:1.5;String:;String:0.00;"
+  },
+  {
+   "writer": "Value",
+   "code": "0.00",
+   "text": "\"1/2/2020\"",
+   "answers": "String:Double;String:Double:43832;String:Double:43832;String:43832.00;String:43832;String:;String:0.00;"
+  },
+  {
+   "writer": "Value",
+   "code": "0.00",
+   "text": "\"12:30\"",
+   "answers": "String:Double;String:Double:0.520833333333333;String:Double:0.520833333333333;String:0.52;String:0.520833333333333;String:;String:0.00;"
+  },
+  {
+   "writer": "Value",
+   "code": "0.00",
+   "text": "\"TRUE\"",
+   "answers": "String:Boolean;String:Boolean:True;String:Boolean:True;String:TRUE;String:TRUE;String:;String:0.00;"
+  },
+  {
+   "writer": "Value",
+   "code": "0.00",
+   "text": "\"'5\"",
+   "answers": "String:String;String:String:5;String:String:5;String:5;String:5;String:';String:0.00;"
+  },
+  {
+   "writer": "Value",
+   "code": "0.00",
+   "text": "\"#N/A\"",
+   "answers": "String:Error;String:Error:2042;String:Error:2042;String:#N/A;String:#N/A;String:;String:0.00;"
+  },
+  {
+   "writer": "Value",
+   "code": "0.00",
+   "text": "\"abc\"",
+   "answers": "String:String;String:String:abc;String:String:abc;String:abc;String:abc;String:;String:0.00;"
+  },
+  {
+   "writer": "Value",
+   "code": "0.00",
+   "text": "#1/2/2020#",
+   "answers": "String:Double;String:Double:43832;String:Double:43832;String:43832.00;String:43832;String:;String:0.00;"
+  },
+  {
+   "writer": "Value",
+   "code": "0.00",
+   "text": "CCur(5.5)",
+   "answers": "String:Double;String:Double:5.5;String:Double:5.5;String:5.50;String:5.5;String:;String:0.00;"
+  },
+  {
+   "writer": "Value",
+   "code": "0.00",
+   "text": "5",
+   "answers": "String:Double;String:Double:5;String:Double:5;String:5.00;String:5;String:;String:0.00;"
+  },
+  {
+   "writer": "Value",
+   "code": "0.00",
+   "text": "True",
+   "answers": "String:Boolean;String:Boolean:True;String:Boolean:True;String:TRUE;String:TRUE;String:;String:0.00;"
+  },
+  {
+   "writer": "Value",
+   "code": "#,##0",
+   "text": "\"5\"",
+   "answers": "String:Double;String:Double:5;String:Double:5;String:5;String:5;String:;String:#,##0;"
+  },
+  {
+   "writer": "Value",
+   "code": "#,##0",
+   "text": "\"5%\"",
+   "answers": "String:Double;String:Double:0.05;String:Double:0.05;String:0;String:0.05;String:;String:#,##0;"
+  },
+  {
+   "writer": "Value",
+   "code": "#,##0",
+   "text": "\"$5\"",
+   "answers": "String:Double;String:Double:5;String:Double:5;String:5;String:5;String:;String:#,##0;"
+  },
+  {
+   "writer": "Value",
+   "code": "#,##0",
+   "text": "\"1,000\"",
+   "answers": "String:Double;String:Double:1000;String:Double:1000;String:1,000;String:1000;String:;String:#,##0;"
+  },
+  {
+   "writer": "Value",
+   "code": "#,##0",
+   "text": "\"1e3\"",
+   "answers": "String:Double;String:Double:1000;String:Double:1000;String:1,000;String:1000;String:;String:#,##0;"
+  },
+  {
+   "writer": "Value",
+   "code": "#,##0",
+   "text": "\"1 1/2\"",
+   "answers": "String:Double;String:Double:1.5;String:Double:1.5;String:2;String:1.5;String:;String:#,##0;"
+  },
+  {
+   "writer": "Value",
+   "code": "#,##0",
+   "text": "\"1/2/2020\"",
+   "answers": "String:Double;String:Double:43832;String:Double:43832;String:43,832;String:43832;String:;String:#,##0;"
+  },
+  {
+   "writer": "Value",
+   "code": "#,##0",
+   "text": "\"12:30\"",
+   "answers": "String:Double;String:Double:0.520833333333333;String:Double:0.520833333333333;String:1;String:0.520833333333333;String:;String:#,##0;"
+  },
+  {
+   "writer": "Value",
+   "code": "#,##0",
+   "text": "\"TRUE\"",
+   "answers": "String:Boolean;String:Boolean:True;String:Boolean:True;String:TRUE;String:TRUE;String:;String:#,##0;"
+  },
+  {
+   "writer": "Value",
+   "code": "#,##0",
+   "text": "\"'5\"",
+   "answers": "String:String;String:String:5;String:String:5;String:5;String:5;String:';String:#,##0;"
+  },
+  {
+   "writer": "Value",
+   "code": "#,##0",
+   "text": "\"#N/A\"",
+   "answers": "String:Error;String:Error:2042;String:Error:2042;String:#N/A;String:#N/A;String:;String:#,##0;"
+  },
+  {
+   "writer": "Value",
+   "code": "#,##0",
+   "text": "\"abc\"",
+   "answers": "String:String;String:String:abc;String:String:abc;String:abc;String:abc;String:;String:#,##0;"
+  },
+  {
+   "writer": "Value",
+   "code": "#,##0",
+   "text": "#1/2/2020#",
+   "answers": "String:Double;String:Double:43832;String:Double:43832;String:43,832;String:43832;String:;String:#,##0;"
+  },
+  {
+   "writer": "Value",
+   "code": "#,##0",
+   "text": "CCur(5.5)",
+   "answers": "String:Double;String:Double:5.5;String:Double:5.5;String:6;String:5.5;String:;String:#,##0;"
+  },
+  {
+   "writer": "Value",
+   "code": "#,##0",
+   "text": "5",
+   "answers": "String:Double;String:Double:5;String:Double:5;String:5;String:5;String:;String:#,##0;"
+  },
+  {
+   "writer": "Value",
+   "code": "#,##0",
+   "text": "True",
+   "answers": "String:Boolean;String:Boolean:True;String:Boolean:True;String:TRUE;String:TRUE;String:;String:#,##0;"
+  },
+  {
+   "writer": "Value",
+   "code": "0%",
+   "text": "\"5\"",
+   "answers": "String:Double;String:Double:5;String:Double:5;String:500%;String:5;String:;String:0%;"
+  },
+  {
+   "writer": "Value",
+   "code": "0%",
+   "text": "\"5%\"",
+   "answers": "String:Double;String:Double:0.05;String:Double:0.05;String:5%;String:0.05;String:;String:0%;"
+  },
+  {
+   "writer": "Value",
+   "code": "0%",
+   "text": "\"$5\"",
+   "answers": "String:Currency;String:Currency:5;String:Double:5;String:$5 ;String:5;String:;String:$#,##0_);[Red]($#,##0);"
+  },
+  {
+   "writer": "Value",
+   "code": "0%",
+   "text": "\"1,000\"",
+   "answers": "String:Double;String:Double:1000;String:Double:1000;String:100000%;String:1000;String:;String:0%;"
+  },
+  {
+   "writer": "Value",
+   "code": "0%",
+   "text": "\"1e3\"",
+   "answers": "String:Double;String:Double:1000;String:Double:1000;String:1.00E+03;String:1000;String:;String:0.00E+00;"
+  },
+  {
+   "writer": "Value",
+   "code": "0%",
+   "text": "\"1 1/2\"",
+   "answers": "String:Double;String:Double:1.5;String:Double:1.5;String:1 1/2;String:1.5;String:;String:# ?/?;"
+  },
+  {
+   "writer": "Value",
+   "code": "0%",
+   "text": "\"1/2/2020\"",
+   "answers": "String:Date;String:Date:1/2/2020;String:Double:43832;String:1/2/2020;String:43832;String:;String:m/d/yyyy;"
+  },
+  {
+   "writer": "Value",
+   "code": "0%",
+   "text": "\"12:30\"",
+   "answers": "String:Double;String:Double:0.520833333333333;String:Double:0.520833333333333;String:12:30;String:0.520833333333333;String:;String:h:mm;"
+  },
+  {
+   "writer": "Value",
+   "code": "0%",
+   "text": "\"TRUE\"",
+   "answers": "String:Boolean;String:Boolean:True;String:Boolean:True;String:TRUE;String:TRUE;String:;String:0%;"
+  },
+  {
+   "writer": "Value",
+   "code": "0%",
+   "text": "\"'5\"",
+   "answers": "String:String;String:String:5;String:String:5;String:5;String:5;String:';String:0%;"
+  },
+  {
+   "writer": "Value",
+   "code": "0%",
+   "text": "\"#N/A\"",
+   "answers": "String:Error;String:Error:2042;String:Error:2042;String:#N/A;String:#N/A;String:;String:0%;"
+  },
+  {
+   "writer": "Value",
+   "code": "0%",
+   "text": "\"abc\"",
+   "answers": "String:String;String:String:abc;String:String:abc;String:abc;String:abc;String:;String:0%;"
+  },
+  {
+   "writer": "Value",
+   "code": "0%",
+   "text": "#1/2/2020#",
+   "answers": "String:Date;String:Date:1/2/2020;String:Double:43832;String:1/2/2020;String:43832;String:;String:m/d/yyyy;"
+  },
+  {
+   "writer": "Value",
+   "code": "0%",
+   "text": "CCur(5.5)",
+   "answers": "String:Currency;String:Currency:5.5;String:Double:5.5;String:$5.50 ;String:5.5;String:;String:$#,##0.00_);($#,##0.00);"
+  },
+  {
+   "writer": "Value",
+   "code": "0%",
+   "text": "5",
+   "answers": "String:Double;String:Double:5;String:Double:5;String:500%;String:5;String:;String:0%;"
+  },
+  {
+   "writer": "Value",
+   "code": "0%",
+   "text": "True",
+   "answers": "String:Boolean;String:Boolean:True;String:Boolean:True;String:TRUE;String:TRUE;String:;String:0%;"
+  },
+  {
+   "writer": "Value",
+   "code": "$#,##0.00",
+   "text": "\"5\"",
+   "answers": "String:Currency;String:Currency:5;String:Double:5;String:$5.00;String:5;String:;String:$#,##0.00;"
+  },
+  {
+   "writer": "Value",
+   "code": "$#,##0.00",
+   "text": "\"5%\"",
+   "answers": "String:Currency;String:Currency:0.05;String:Double:0.05;String:$0.05;String:0.05;String:;String:$#,##0.00;"
+  },
+  {
+   "writer": "Value",
+   "code": "$#,##0.00",
+   "text": "\"$5\"",
+   "answers": "String:Currency;String:Currency:5;String:Double:5;String:$5.00;String:5;String:;String:$#,##0.00;"
+  },
+  {
+   "writer": "Value",
+   "code": "$#,##0.00",
+   "text": "\"1,000\"",
+   "answers": "String:Currency;String:Currency:1000;String:Double:1000;String:$1,000.00;String:1000;String:;String:$#,##0.00;"
+  },
+  {
+   "writer": "Value",
+   "code": "$#,##0.00",
+   "text": "\"1e3\"",
+   "answers": "String:Currency;String:Currency:1000;String:Double:1000;String:$1,000.00;String:1000;String:;String:$#,##0.00;"
+  },
+  {
+   "writer": "Value",
+   "code": "$#,##0.00",
+   "text": "\"1 1/2\"",
+   "answers": "String:Currency;String:Currency:1.5;String:Double:1.5;String:$1.50;String:1.5;String:;String:$#,##0.00;"
+  },
+  {
+   "writer": "Value",
+   "code": "$#,##0.00",
+   "text": "\"1/2/2020\"",
+   "answers": "String:Currency;String:Currency:43832;String:Double:43832;String:$43,832.00;String:43832;String:;String:$#,##0.00;"
+  },
+  {
+   "writer": "Value",
+   "code": "$#,##0.00",
+   "text": "\"12:30\"",
+   "answers": "String:Currency;String:Currency:0.5208;String:Double:0.520833333333333;String:$0.52;String:0.520833333333333;String:;String:$#,##0.00;"
+  },
+  {
+   "writer": "Value",
+   "code": "$#,##0.00",
+   "text": "\"TRUE\"",
+   "answers": "String:Boolean;String:Boolean:True;String:Boolean:True;String:TRUE;String:TRUE;String:;String:$#,##0.00;"
+  },
+  {
+   "writer": "Value",
+   "code": "$#,##0.00",
+   "text": "\"'5\"",
+   "answers": "String:String;String:String:5;String:String:5;String:5;String:5;String:';String:$#,##0.00;"
+  },
+  {
+   "writer": "Value",
+   "code": "$#,##0.00",
+   "text": "\"#N/A\"",
+   "answers": "String:Error;String:Error:2042;String:Error:2042;String:#N/A;String:#N/A;String:;String:$#,##0.00;"
+  },
+  {
+   "writer": "Value",
+   "code": "$#,##0.00",
+   "text": "\"abc\"",
+   "answers": "String:String;String:String:abc;String:String:abc;String:abc;String:abc;String:;String:$#,##0.00;"
+  },
+  {
+   "writer": "Value",
+   "code": "$#,##0.00",
+   "text": "#1/2/2020#",
+   "answers": "String:Currency;String:Currency:43832;String:Double:43832;String:$43,832.00;String:43832;String:;String:$#,##0.00;"
+  },
+  {
+   "writer": "Value",
+   "code": "$#,##0.00",
+   "text": "CCur(5.5)",
+   "answers": "String:Currency;String:Currency:5.5;String:Double:5.5;String:$5.50;String:5.5;String:;String:$#,##0.00;"
+  },
+  {
+   "writer": "Value",
+   "code": "$#,##0.00",
+   "text": "5",
+   "answers": "String:Currency;String:Currency:5;String:Double:5;String:$5.00;String:5;String:;String:$#,##0.00;"
+  },
+  {
+   "writer": "Value",
+   "code": "$#,##0.00",
+   "text": "True",
+   "answers": "String:Boolean;String:Boolean:True;String:Boolean:True;String:TRUE;String:TRUE;String:;String:$#,##0.00;"
+  },
+  {
+   "writer": "Value",
+   "code": "0.00E+00",
+   "text": "\"5\"",
+   "answers": "String:Double;String:Double:5;String:Double:5;String:5.00E+00;String:5;String:;String:0.00E+00;"
+  },
+  {
+   "writer": "Value",
+   "code": "0.00E+00",
+   "text": "\"5%\"",
+   "answers": "String:Double;String:Double:0.05;String:Double:0.05;String:5%;String:0.05;String:;String:0%;"
+  },
+  {
+   "writer": "Value",
+   "code": "0.00E+00",
+   "text": "\"$5\"",
+   "answers": "String:Currency;String:Currency:5;String:Double:5;String:$5 ;String:5;String:;String:$#,##0_);[Red]($#,##0);"
+  },
+  {
+   "writer": "Value",
+   "code": "0.00E+00",
+   "text": "\"1,000\"",
+   "answers": "String:Double;String:Double:1000;String:Double:1000;String:1.00E+03;String:1000;String:;String:0.00E+00;"
+  },
+  {
+   "writer": "Value",
+   "code": "0.00E+00",
+   "text": "\"1e3\"",
+   "answers": "String:Double;String:Double:1000;String:Double:1000;String:1.00E+03;String:1000;String:;String:0.00E+00;"
+  },
+  {
+   "writer": "Value",
+   "code": "0.00E+00",
+   "text": "\"1 1/2\"",
+   "answers": "String:Double;String:Double:1.5;String:Double:1.5;String:1 1/2;String:1.5;String:;String:# ?/?;"
+  },
+  {
+   "writer": "Value",
+   "code": "0.00E+00",
+   "text": "\"1/2/2020\"",
+   "answers": "String:Date;String:Date:1/2/2020;String:Double:43832;String:1/2/2020;String:43832;String:;String:m/d/yyyy;"
+  },
+  {
+   "writer": "Value",
+   "code": "0.00E+00",
+   "text": "\"12:30\"",
+   "answers": "String:Double;String:Double:0.520833333333333;String:Double:0.520833333333333;String:12:30;String:0.520833333333333;String:;String:h:mm;"
+  },
+  {
+   "writer": "Value",
+   "code": "0.00E+00",
+   "text": "\"TRUE\"",
+   "answers": "String:Boolean;String:Boolean:True;String:Boolean:True;String:TRUE;String:TRUE;String:;String:0.00E+00;"
+  },
+  {
+   "writer": "Value",
+   "code": "0.00E+00",
+   "text": "\"'5\"",
+   "answers": "String:String;String:String:5;String:String:5;String:5;String:5;String:';String:0.00E+00;"
+  },
+  {
+   "writer": "Value",
+   "code": "0.00E+00",
+   "text": "\"#N/A\"",
+   "answers": "String:Error;String:Error:2042;String:Error:2042;String:#N/A;String:#N/A;String:;String:0.00E+00;"
+  },
+  {
+   "writer": "Value",
+   "code": "0.00E+00",
+   "text": "\"abc\"",
+   "answers": "String:String;String:String:abc;String:String:abc;String:abc;String:abc;String:;String:0.00E+00;"
+  },
+  {
+   "writer": "Value",
+   "code": "0.00E+00",
+   "text": "#1/2/2020#",
+   "answers": "String:Date;String:Date:1/2/2020;String:Double:43832;String:1/2/2020;String:43832;String:;String:m/d/yyyy;"
+  },
+  {
+   "writer": "Value",
+   "code": "0.00E+00",
+   "text": "CCur(5.5)",
+   "answers": "String:Currency;String:Currency:5.5;String:Double:5.5;String:$5.50 ;String:5.5;String:;String:$#,##0.00_);($#,##0.00);"
+  },
+  {
+   "writer": "Value",
+   "code": "0.00E+00",
+   "text": "5",
+   "answers": "String:Double;String:Double:5;String:Double:5;String:5.00E+00;String:5;String:;String:0.00E+00;"
+  },
+  {
+   "writer": "Value",
+   "code": "0.00E+00",
+   "text": "True",
+   "answers": "String:Boolean;String:Boolean:True;String:Boolean:True;String:TRUE;String:TRUE;String:;String:0.00E+00;"
+  },
+  {
+   "writer": "Value",
+   "code": "# ?/?",
+   "text": "\"5\"",
+   "answers": "String:Double;String:Double:5;String:Double:5;String:5    ;String:5;String:;String:# ?/?;"
+  },
+  {
+   "writer": "Value",
+   "code": "# ?/?",
+   "text": "\"5%\"",
+   "answers": "String:Double;String:Double:0.05;String:Double:0.05;String:5%;String:0.05;String:;String:0%;"
+  },
+  {
+   "writer": "Value",
+   "code": "# ?/?",
+   "text": "\"$5\"",
+   "answers": "String:Currency;String:Currency:5;String:Double:5;String:$5 ;String:5;String:;String:$#,##0_);[Red]($#,##0);"
+  },
+  {
+   "writer": "Value",
+   "code": "# ?/?",
+   "text": "\"1,000\"",
+   "answers": "String:Double;String:Double:1000;String:Double:1000;String:1000    ;String:1000;String:;String:# ?/?;"
+  },
+  {
+   "writer": "Value",
+   "code": "# ?/?",
+   "text": "\"1e3\"",
+   "answers": "String:Double;String:Double:1000;String:Double:1000;String:1.00E+03;String:1000;String:;String:0.00E+00;"
+  },
+  {
+   "writer": "Value",
+   "code": "# ?/?",
+   "text": "\"1 1/2\"",
+   "answers": "String:Double;String:Double:1.5;String:Double:1.5;String:1 1/2;String:1.5;String:;String:# ?/?;"
+  },
+  {
+   "writer": "Value",
+   "code": "# ?/?",
+   "text": "\"1/2/2020\"",
+   "answers": "String:Date;String:Date:1/2/2020;String:Double:43832;String:1/2/2020;String:43832;String:;String:m/d/yyyy;"
+  },
+  {
+   "writer": "Value",
+   "code": "# ?/?",
+   "text": "\"12:30\"",
+   "answers": "String:Double;String:Double:0.520833333333333;String:Double:0.520833333333333;String:12:30;String:0.520833333333333;String:;String:h:mm;"
+  },
+  {
+   "writer": "Value",
+   "code": "# ?/?",
+   "text": "\"TRUE\"",
+   "answers": "String:Boolean;String:Boolean:True;String:Boolean:True;String:TRUE;String:TRUE;String:;String:# ?/?;"
+  },
+  {
+   "writer": "Value",
+   "code": "# ?/?",
+   "text": "\"'5\"",
+   "answers": "String:String;String:String:5;String:String:5;String:5;String:5;String:';String:# ?/?;"
+  },
+  {
+   "writer": "Value",
+   "code": "# ?/?",
+   "text": "\"#N/A\"",
+   "answers": "String:Error;String:Error:2042;String:Error:2042;String:#N/A;String:#N/A;String:;String:# ?/?;"
+  },
+  {
+   "writer": "Value",
+   "code": "# ?/?",
+   "text": "\"abc\"",
+   "answers": "String:String;String:String:abc;String:String:abc;String:abc;String:abc;String:;String:# ?/?;"
+  },
+  {
+   "writer": "Value",
+   "code": "# ?/?",
+   "text": "#1/2/2020#",
+   "answers": "String:Date;String:Date:1/2/2020;String:Double:43832;String:1/2/2020;String:43832;String:;String:m/d/yyyy;"
+  },
+  {
+   "writer": "Value",
+   "code": "# ?/?",
+   "text": "CCur(5.5)",
+   "answers": "String:Currency;String:Currency:5.5;String:Double:5.5;String:$5.50 ;String:5.5;String:;String:$#,##0.00_);($#,##0.00);"
+  },
+  {
+   "writer": "Value",
+   "code": "# ?/?",
+   "text": "5",
+   "answers": "String:Double;String:Double:5;String:Double:5;String:5    ;String:5;String:;String:# ?/?;"
+  },
+  {
+   "writer": "Value",
+   "code": "# ?/?",
+   "text": "True",
+   "answers": "String:Boolean;String:Boolean:True;String:Boolean:True;String:TRUE;String:TRUE;String:;String:# ?/?;"
+  },
+  {
+   "writer": "Value",
+   "code": "m/d/yyyy",
+   "text": "\"5\"",
+   "answers": "String:Date;String:Date:1/4/1900;String:Double:5;String:1/5/1900;String:5;String:;String:m/d/yyyy;"
+  },
+  {
+   "writer": "Value",
+   "code": "m/d/yyyy",
+   "text": "\"5%\"",
+   "answers": "String:Double;String:Double:0.05;String:Double:0.05;String:5%;String:0.05;String:;String:0%;"
+  },
+  {
+   "writer": "Value",
+   "code": "m/d/yyyy",
+   "text": "\"$5\"",
+   "answers": "String:Currency;String:Currency:5;String:Double:5;String:$5 ;String:5;String:;String:$#,##0_);[Red]($#,##0);"
+  },
+  {
+   "writer": "Value",
+   "code": "m/d/yyyy",
+   "text": "\"1,000\"",
+   "answers": "String:Date;String:Date:9/26/1902;String:Double:1000;String:9/26/1902;String:1000;String:;String:m/d/yyyy;"
+  },
+  {
+   "writer": "Value",
+   "code": "m/d/yyyy",
+   "text": "\"1e3\"",
+   "answers": "String:Double;String:Double:1000;String:Double:1000;String:1.00E+03;String:1000;String:;String:0.00E+00;"
+  },
+  {
+   "writer": "Value",
+   "code": "m/d/yyyy",
+   "text": "\"1 1/2\"",
+   "answers": "String:Double;String:Double:1.5;String:Double:1.5;String:1 1/2;String:1.5;String:;String:# ?/?;"
+  },
+  {
+   "writer": "Value",
+   "code": "m/d/yyyy",
+   "text": "\"1/2/2020\"",
+   "answers": "String:Date;String:Date:1/2/2020;String:Double:43832;String:1/2/2020;String:43832;String:;String:m/d/yyyy;"
+  },
+  {
+   "writer": "Value",
+   "code": "m/d/yyyy",
+   "text": "\"12:30\"",
+   "answers": "String:Double;String:Double:0.520833333333333;String:Double:0.520833333333333;String:12:30;String:0.520833333333333;String:;String:h:mm;"
+  },
+  {
+   "writer": "Value",
+   "code": "m/d/yyyy",
+   "text": "\"TRUE\"",
+   "answers": "String:Boolean;String:Boolean:True;String:Boolean:True;String:TRUE;String:TRUE;String:;String:m/d/yyyy;"
+  },
+  {
+   "writer": "Value",
+   "code": "m/d/yyyy",
+   "text": "\"'5\"",
+   "answers": "String:String;String:String:5;String:String:5;String:5;String:5;String:';String:m/d/yyyy;"
+  },
+  {
+   "writer": "Value",
+   "code": "m/d/yyyy",
+   "text": "\"#N/A\"",
+   "answers": "String:Error;String:Error:2042;String:Error:2042;String:#N/A;String:#N/A;String:;String:m/d/yyyy;"
+  },
+  {
+   "writer": "Value",
+   "code": "m/d/yyyy",
+   "text": "\"abc\"",
+   "answers": "String:String;String:String:abc;String:String:abc;String:abc;String:abc;String:;String:m/d/yyyy;"
+  },
+  {
+   "writer": "Value",
+   "code": "m/d/yyyy",
+   "text": "#1/2/2020#",
+   "answers": "String:Date;String:Date:1/2/2020;String:Double:43832;String:1/2/2020;String:43832;String:;String:m/d/yyyy;"
+  },
+  {
+   "writer": "Value",
+   "code": "m/d/yyyy",
+   "text": "CCur(5.5)",
+   "answers": "String:Currency;String:Currency:5.5;String:Double:5.5;String:$5.50 ;String:5.5;String:;String:$#,##0.00_);($#,##0.00);"
+  },
+  {
+   "writer": "Value",
+   "code": "m/d/yyyy",
+   "text": "5",
+   "answers": "String:Date;String:Date:1/4/1900;String:Double:5;String:1/5/1900;String:5;String:;String:m/d/yyyy;"
+  },
+  {
+   "writer": "Value",
+   "code": "m/d/yyyy",
+   "text": "True",
+   "answers": "String:Boolean;String:Boolean:True;String:Boolean:True;String:TRUE;String:TRUE;String:;String:m/d/yyyy;"
+  },
+  {
+   "writer": "Value",
+   "code": "h:mm",
+   "text": "\"5\"",
+   "answers": "String:Double;String:Double:5;String:Double:5;String:0:00;String:5;String:;String:h:mm;"
+  },
+  {
+   "writer": "Value",
+   "code": "h:mm",
+   "text": "\"5%\"",
+   "answers": "String:Double;String:Double:0.05;String:Double:0.05;String:5%;String:0.05;String:;String:0%;"
+  },
+  {
+   "writer": "Value",
+   "code": "h:mm",
+   "text": "\"$5\"",
+   "answers": "String:Currency;String:Currency:5;String:Double:5;String:$5 ;String:5;String:;String:$#,##0_);[Red]($#,##0);"
+  },
+  {
+   "writer": "Value",
+   "code": "h:mm",
+   "text": "\"1,000\"",
+   "answers": "String:Double;String:Double:1000;String:Double:1000;String:0:00;String:1000;String:;String:h:mm;"
+  },
+  {
+   "writer": "Value",
+   "code": "h:mm",
+   "text": "\"1e3\"",
+   "answers": "String:Double;String:Double:1000;String:Double:1000;String:1.00E+03;String:1000;String:;String:0.00E+00;"
+  },
+  {
+   "writer": "Value",
+   "code": "h:mm",
+   "text": "\"1 1/2\"",
+   "answers": "String:Double;String:Double:1.5;String:Double:1.5;String:1 1/2;String:1.5;String:;String:# ?/?;"
+  },
+  {
+   "writer": "Value",
+   "code": "h:mm",
+   "text": "\"1/2/2020\"",
+   "answers": "String:Date;String:Date:1/2/2020;String:Double:43832;String:1/2/2020;String:43832;String:;String:m/d/yyyy;"
+  },
+  {
+   "writer": "Value",
+   "code": "h:mm",
+   "text": "\"12:30\"",
+   "answers": "String:Double;String:Double:0.520833333333333;String:Double:0.520833333333333;String:12:30;String:0.520833333333333;String:;String:h:mm;"
+  },
+  {
+   "writer": "Value",
+   "code": "h:mm",
+   "text": "\"TRUE\"",
+   "answers": "String:Boolean;String:Boolean:True;String:Boolean:True;String:TRUE;String:TRUE;String:;String:h:mm;"
+  },
+  {
+   "writer": "Value",
+   "code": "h:mm",
+   "text": "\"'5\"",
+   "answers": "String:String;String:String:5;String:String:5;String:5;String:5;String:';String:h:mm;"
+  },
+  {
+   "writer": "Value",
+   "code": "h:mm",
+   "text": "\"#N/A\"",
+   "answers": "String:Error;String:Error:2042;String:Error:2042;String:#N/A;String:#N/A;String:;String:h:mm;"
+  },
+  {
+   "writer": "Value",
+   "code": "h:mm",
+   "text": "\"abc\"",
+   "answers": "String:String;String:String:abc;String:String:abc;String:abc;String:abc;String:;String:h:mm;"
+  },
+  {
+   "writer": "Value",
+   "code": "h:mm",
+   "text": "#1/2/2020#",
+   "answers": "String:Date;String:Date:1/2/2020;String:Double:43832;String:1/2/2020;String:43832;String:;String:m/d/yyyy;"
+  },
+  {
+   "writer": "Value",
+   "code": "h:mm",
+   "text": "CCur(5.5)",
+   "answers": "String:Currency;String:Currency:5.5;String:Double:5.5;String:$5.50 ;String:5.5;String:;String:$#,##0.00_);($#,##0.00);"
+  },
+  {
+   "writer": "Value",
+   "code": "h:mm",
+   "text": "5",
+   "answers": "String:Double;String:Double:5;String:Double:5;String:0:00;String:5;String:;String:h:mm;"
+  },
+  {
+   "writer": "Value",
+   "code": "h:mm",
+   "text": "True",
+   "answers": "String:Boolean;String:Boolean:True;String:Boolean:True;String:TRUE;String:TRUE;String:;String:h:mm;"
+  },
+  {
+   "writer": "Value2",
+   "code": "General",
+   "text": "\"5\"",
+   "answers": "String:Double;String:Double:5;String:Double:5;String:5;String:5;String:;String:General;"
+  },
+  {
+   "writer": "Value2",
+   "code": "General",
+   "text": "\"5%\"",
+   "answers": "String:Double;String:Double:0.05;String:Double:0.05;String:5%;String:0.05;String:;String:0%;"
+  },
+  {
+   "writer": "Value2",
+   "code": "General",
+   "text": "\"$5\"",
+   "answers": "String:Currency;String:Currency:5;String:Double:5;String:$5 ;String:5;String:;String:$#,##0_);[Red]($#,##0);"
+  },
+  {
+   "writer": "Value2",
+   "code": "General",
+   "text": "\"1,000\"",
+   "answers": "String:Double;String:Double:1000;String:Double:1000;String:1,000;String:1000;String:;String:#,##0;"
+  },
+  {
+   "writer": "Value2",
+   "code": "General",
+   "text": "\"1e3\"",
+   "answers": "String:Double;String:Double:1000;String:Double:1000;String:1.00E+03;String:1000;String:;String:0.00E+00;"
+  },
+  {
+   "writer": "Value2",
+   "code": "General",
+   "text": "\"1 1/2\"",
+   "answers": "String:Double;String:Double:1.5;String:Double:1.5;String:1 1/2;String:1.5;String:;String:# ?/?;"
+  },
+  {
+   "writer": "Value2",
+   "code": "General",
+   "text": "\"1/2/2020\"",
+   "answers": "String:Date;String:Date:1/2/2020;String:Double:43832;String:1/2/2020;String:43832;String:;String:m/d/yyyy;"
+  },
+  {
+   "writer": "Value2",
+   "code": "General",
+   "text": "\"12:30\"",
+   "answers": "String:Double;String:Double:0.520833333333333;String:Double:0.520833333333333;String:12:30;String:0.520833333333333;String:;String:h:mm;"
+  },
+  {
+   "writer": "Value2",
+   "code": "General",
+   "text": "\"TRUE\"",
+   "answers": "String:Boolean;String:Boolean:True;String:Boolean:True;String:TRUE;String:TRUE;String:;String:General;"
+  },
+  {
+   "writer": "Value2",
+   "code": "General",
+   "text": "\"'5\"",
+   "answers": "String:String;String:String:5;String:String:5;String:5;String:5;String:';String:General;"
+  },
+  {
+   "writer": "Value2",
+   "code": "General",
+   "text": "\"#N/A\"",
+   "answers": "String:Error;String:Error:2042;String:Error:2042;String:#N/A;String:#N/A;String:;String:General;"
+  },
+  {
+   "writer": "Value2",
+   "code": "General",
+   "text": "\"abc\"",
+   "answers": "String:String;String:String:abc;String:String:abc;String:abc;String:abc;String:;String:General;"
+  },
+  {
+   "writer": "Value2",
+   "code": "General",
+   "text": "#1/2/2020#",
+   "answers": "String:Double;String:Double:43832;String:Double:43832;String:43832;String:43832;String:;String:General;"
+  },
+  {
+   "writer": "Value2",
+   "code": "General",
+   "text": "CCur(5.5)",
+   "answers": "String:Double;String:Double:5.5;String:Double:5.5;String:5.5;String:5.5;String:;String:General;"
+  },
+  {
+   "writer": "Value2",
+   "code": "General",
+   "text": "5",
+   "answers": "String:Double;String:Double:5;String:Double:5;String:5;String:5;String:;String:General;"
+  },
+  {
+   "writer": "Value2",
+   "code": "General",
+   "text": "True",
+   "answers": "String:Boolean;String:Boolean:True;String:Boolean:True;String:TRUE;String:TRUE;String:;String:General;"
+  },
+  {
+   "writer": "Value2",
+   "code": "@",
+   "text": "\"5\"",
+   "answers": "String:String;String:String:5;String:String:5;String:5;String:5;String:;String:@;"
+  },
+  {
+   "writer": "Value2",
+   "code": "@",
+   "text": "\"5%\"",
+   "answers": "String:String;String:String:5%;String:String:5%;String:5%;String:5%;String:;String:@;"
+  },
+  {
+   "writer": "Value2",
+   "code": "@",
+   "text": "\"$5\"",
+   "answers": "String:String;String:String:$5;String:String:$5;String:$5;String:$5;String:;String:@;"
+  },
+  {
+   "writer": "Value2",
+   "code": "@",
+   "text": "\"1,000\"",
+   "answers": "String:String;String:String:1,000;String:String:1,000;String:1,000;String:1,000;String:;String:@;"
+  },
+  {
+   "writer": "Value2",
+   "code": "@",
+   "text": "\"1e3\"",
+   "answers": "String:String;String:String:1e3;String:String:1e3;String:1e3;String:1e3;String:;String:@;"
+  },
+  {
+   "writer": "Value2",
+   "code": "@",
+   "text": "\"1 1/2\"",
+   "answers": "String:String;String:String:1 1/2;String:String:1 1/2;String:1 1/2;String:1 1/2;String:;String:@;"
+  },
+  {
+   "writer": "Value2",
+   "code": "@",
+   "text": "\"1/2/2020\"",
+   "answers": "String:String;String:String:1/2/2020;String:String:1/2/2020;String:1/2/2020;String:1/2/2020;String:;String:@;"
+  },
+  {
+   "writer": "Value2",
+   "code": "@",
+   "text": "\"12:30\"",
+   "answers": "String:String;String:String:12:30;String:String:12:30;String:12:30;String:12:30;String:;String:@;"
+  },
+  {
+   "writer": "Value2",
+   "code": "@",
+   "text": "\"TRUE\"",
+   "answers": "String:String;String:String:TRUE;String:String:TRUE;String:TRUE;String:TRUE;String:;String:@;"
+  },
+  {
+   "writer": "Value2",
+   "code": "@",
+   "text": "\"'5\"",
+   "answers": "String:String;String:String:5;String:String:5;String:5;String:5;String:';String:@;"
+  },
+  {
+   "writer": "Value2",
+   "code": "@",
+   "text": "\"#N/A\"",
+   "answers": "String:String;String:String:#N/A;String:String:#N/A;String:#N/A;String:#N/A;String:;String:@;"
+  },
+  {
+   "writer": "Value2",
+   "code": "@",
+   "text": "\"abc\"",
+   "answers": "String:String;String:String:abc;String:String:abc;String:abc;String:abc;String:;String:@;"
+  },
+  {
+   "writer": "Value2",
+   "code": "@",
+   "text": "#1/2/2020#",
+   "answers": "String:Double;String:Double:43832;String:Double:43832;String:43832;String:43832;String:;String:@;"
+  },
+  {
+   "writer": "Value2",
+   "code": "@",
+   "text": "CCur(5.5)",
+   "answers": "String:Double;String:Double:5.5;String:Double:5.5;String:5.5;String:5.5;String:;String:@;"
+  },
+  {
+   "writer": "Value2",
+   "code": "@",
+   "text": "5",
+   "answers": "String:Double;String:Double:5;String:Double:5;String:5;String:5;String:;String:@;"
+  },
+  {
+   "writer": "Value2",
+   "code": "@",
+   "text": "True",
+   "answers": "String:Boolean;String:Boolean:True;String:Boolean:True;String:TRUE;String:TRUE;String:;String:@;"
+  },
+  {
+   "writer": "Formula",
+   "code": "General",
+   "text": "\"5\"",
+   "answers": "String:Double;String:Double:5;String:Double:5;String:5;String:5;String:;String:General;"
+  },
+  {
+   "writer": "Formula",
+   "code": "General",
+   "text": "\"5%\"",
+   "answers": "String:Double;String:Double:0.05;String:Double:0.05;String:5%;String:0.05;String:;String:0%;"
+  },
+  {
+   "writer": "Formula",
+   "code": "General",
+   "text": "\"$5\"",
+   "answers": "String:Currency;String:Currency:5;String:Double:5;String:$5 ;String:5;String:;String:$#,##0_);[Red]($#,##0);"
+  },
+  {
+   "writer": "Formula",
+   "code": "General",
+   "text": "\"1,000\"",
+   "answers": "String:Double;String:Double:1000;String:Double:1000;String:1,000;String:1000;String:;String:#,##0;"
+  },
+  {
+   "writer": "Formula",
+   "code": "General",
+   "text": "\"1e3\"",
+   "answers": "String:Double;String:Double:1000;String:Double:1000;String:1.00E+03;String:1000;String:;String:0.00E+00;"
+  },
+  {
+   "writer": "Formula",
+   "code": "General",
+   "text": "\"1 1/2\"",
+   "answers": "String:Double;String:Double:1.5;String:Double:1.5;String:1 1/2;String:1.5;String:;String:# ?/?;"
+  },
+  {
+   "writer": "Formula",
+   "code": "General",
+   "text": "\"1/2/2020\"",
+   "answers": "String:Date;String:Date:1/2/2020;String:Double:43832;String:1/2/2020;String:43832;String:;String:m/d/yyyy;"
+  },
+  {
+   "writer": "Formula",
+   "code": "General",
+   "text": "\"12:30\"",
+   "answers": "String:Double;String:Double:0.520833333333333;String:Double:0.520833333333333;String:12:30;String:0.520833333333333;String:;String:h:mm;"
+  },
+  {
+   "writer": "Formula",
+   "code": "General",
+   "text": "\"TRUE\"",
+   "answers": "String:Boolean;String:Boolean:True;String:Boolean:True;String:TRUE;String:TRUE;String:;String:General;"
+  },
+  {
+   "writer": "Formula",
+   "code": "General",
+   "text": "\"'5\"",
+   "answers": "String:String;String:String:5;String:String:5;String:5;String:5;String:';String:General;"
+  },
+  {
+   "writer": "Formula",
+   "code": "General",
+   "text": "\"#N/A\"",
+   "answers": "String:Error;String:Error:2042;String:Error:2042;String:#N/A;String:#N/A;String:;String:General;"
+  },
+  {
+   "writer": "Formula",
+   "code": "General",
+   "text": "\"abc\"",
+   "answers": "String:String;String:String:abc;String:String:abc;String:abc;String:abc;String:;String:General;"
+  },
+  {
+   "writer": "Formula",
+   "code": "General",
+   "text": "#1/2/2020#",
+   "answers": "String:Date;String:Date:1/2/2020;String:Double:43832;String:1/2/2020;String:43832;String:;String:m/d/yyyy;"
+  },
+  {
+   "writer": "Formula",
+   "code": "General",
+   "text": "CCur(5.5)",
+   "answers": "String:Currency;String:Currency:5.5;String:Double:5.5;String:$5.50 ;String:5.5;String:;String:$#,##0.00_);($#,##0.00);"
+  },
+  {
+   "writer": "Formula",
+   "code": "General",
+   "text": "5",
+   "answers": "String:Double;String:Double:5;String:Double:5;String:5;String:5;String:;String:General;"
+  },
+  {
+   "writer": "Formula",
+   "code": "General",
+   "text": "True",
+   "answers": "String:Boolean;String:Boolean:True;String:Boolean:True;String:TRUE;String:TRUE;String:;String:General;"
+  },
+  {
+   "writer": "Formula",
+   "code": "@",
+   "text": "\"5\"",
+   "answers": "String:String;String:String:5;String:String:5;String:5;String:5;String:;String:@;"
+  },
+  {
+   "writer": "Formula",
+   "code": "@",
+   "text": "\"5%\"",
+   "answers": "String:String;String:String:5%;String:String:5%;String:5%;String:5%;String:;String:@;"
+  },
+  {
+   "writer": "Formula",
+   "code": "@",
+   "text": "\"$5\"",
+   "answers": "String:String;String:String:$5;String:String:$5;String:$5;String:$5;String:;String:@;"
+  },
+  {
+   "writer": "Formula",
+   "code": "@",
+   "text": "\"1,000\"",
+   "answers": "String:String;String:String:1,000;String:String:1,000;String:1,000;String:1,000;String:;String:@;"
+  },
+  {
+   "writer": "Formula",
+   "code": "@",
+   "text": "\"1e3\"",
+   "answers": "String:String;String:String:1e3;String:String:1e3;String:1e3;String:1e3;String:;String:@;"
+  },
+  {
+   "writer": "Formula",
+   "code": "@",
+   "text": "\"1 1/2\"",
+   "answers": "String:String;String:String:1 1/2;String:String:1 1/2;String:1 1/2;String:1 1/2;String:;String:@;"
+  },
+  {
+   "writer": "Formula",
+   "code": "@",
+   "text": "\"1/2/2020\"",
+   "answers": "String:String;String:String:1/2/2020;String:String:1/2/2020;String:1/2/2020;String:1/2/2020;String:;String:@;"
+  },
+  {
+   "writer": "Formula",
+   "code": "@",
+   "text": "\"12:30\"",
+   "answers": "String:String;String:String:12:30;String:String:12:30;String:12:30;String:12:30;String:;String:@;"
+  },
+  {
+   "writer": "Formula",
+   "code": "@",
+   "text": "\"TRUE\"",
+   "answers": "String:String;String:String:TRUE;String:String:TRUE;String:TRUE;String:TRUE;String:;String:@;"
+  },
+  {
+   "writer": "Formula",
+   "code": "@",
+   "text": "\"'5\"",
+   "answers": "String:String;String:String:5;String:String:5;String:5;String:5;String:';String:@;"
+  },
+  {
+   "writer": "Formula",
+   "code": "@",
+   "text": "\"#N/A\"",
+   "answers": "String:String;String:String:#N/A;String:String:#N/A;String:#N/A;String:#N/A;String:;String:@;"
+  },
+  {
+   "writer": "Formula",
+   "code": "@",
+   "text": "\"abc\"",
+   "answers": "String:String;String:String:abc;String:String:abc;String:abc;String:abc;String:;String:@;"
+  },
+  {
+   "writer": "Formula",
+   "code": "@",
+   "text": "#1/2/2020#",
+   "answers": "String:String;String:String:1/2/2020;String:String:1/2/2020;String:1/2/2020;String:1/2/2020;String:;String:@;"
+  },
+  {
+   "writer": "Formula",
+   "code": "@",
+   "text": "CCur(5.5)",
+   "answers": "String:String;String:String:$5.50 ;String:String:$5.50 ;String:$5.50 ;String:$5.50 ;String:;String:$#,##0.00_);($#,##0.00);"
+  },
+  {
+   "writer": "Formula",
+   "code": "@",
+   "text": "5",
+   "answers": "String:Double;String:Double:5;String:Double:5;String:5;String:5;String:;String:@;"
+  },
+  {
+   "writer": "Formula",
+   "code": "@",
+   "text": "True",
+   "answers": "String:Boolean;String:Boolean:True;String:Boolean:True;String:TRUE;String:TRUE;String:;String:@;"
+  }
+ ],
+ "sequences": [
+  {
+   "steps": [
+    "\"'5\"",
+    "\"abc\"",
+    "\"'x\"",
+    "5",
+    "\"'y\"",
+    "\"=1+1\"",
+    "\"'z\"",
+    "ClearContents",
+    "\"q\""
+   ],
+   "answers": [
+    "String:String:5;String:5;String:General;String:';",
+    "String:String:abc;String:abc;String:General;String:';",
+    "String:String:x;String:x;String:General;String:';",
+    "String:Double:5;String:5;String:General;String:;",
+    "String:String:y;String:y;String:General;String:';",
+    "String:Double:2;String:2;String:General;String:;",
+    "String:String:z;String:z;String:General;String:';",
+    "String:Empty;String:;String:General;String:;",
+    "String:String:q;String:q;String:General;String:';"
+   ]
+  },
+  {
+   "steps": [
+    "\"5%\"",
+    "\"7\"",
+    "\"$5\"",
+    "\"1/2/2020\"",
+    "\"12:30\"",
+    "\"1e3\"",
+    "\"1 1/2\"",
+    "\"TRUE\"",
+    "\"abc\"",
+    "\"5\""
+   ],
+   "answers": [
+    "String:Double:0.05;String:5%;String:0%;String:;",
+    "String:Double:7;String:700%;String:0%;String:;",
+    "String:Currency:5;String:$5 ;String:$#,##0_);[Red]($#,##0);String:;",
+    "String:Date:1/2/2020;String:1/2/2020;String:m/d/yyyy;String:;",
+    "String:Double:0.520833333333333;String:12:30;String:h:mm;String:;",
+    "String:Double:1000;String:1.00E+03;String:0.00E+00;String:;",
+    "String:Double:1.5;String:1 1/2;String:# ?/?;String:;",
+    "String:Boolean:True;String:TRUE;String:# ?/?;String:;",
+    "String:String:abc;String:abc;String:# ?/?;String:;",
+    "String:Double:5;String:5    ;String:# ?/?;String:;"
+   ]
+  },
+  {
+   "steps": [
+    "\"1/2/2020\"",
+    "\"12:30\"",
+    "\"1/2/2020 12:30\"",
+    "\"5\"",
+    "\"Jan 2020\"",
+    "\"2-Jan\""
+   ],
+   "answers": [
+    "String:Date:1/2/2020;String:1/2/2020;String:m/d/yyyy;String:;",
+    "String:Double:0.520833333333333;String:12:30;String:h:mm;String:;",
+    "String:Date:1/2/2020 12:30:00 PM;String:1/2/2020 12:30;String:m/d/yyyy h:mm;String:;",
+    "String:Date:1/4/1900;String:1/5/1900 0:00;String:m/d/yyyy h:mm;String:;",
+    "String:Date:1/1/2020;String:1/1/2020 0:00;String:m/d/yyyy h:mm;String:;",
+    "String:Date:1/2/2026;String:1/2/2026 0:00;String:m/d/yyyy h:mm;String:;"
+   ]
+  },
+  {
+   "steps": [
+    "\"$5\"",
+    "\"$5.5\"",
+    "\"5%\"",
+    "\"1,000.5\"",
+    "\"1e3\""
+   ],
+   "answers": [
+    "String:Currency:5;String:$5 ;String:$#,##0_);[Red]($#,##0);String:;",
+    "String:Currency:5.5;String:$6 ;String:$#,##0_);[Red]($#,##0);String:;",
+    "String:Double:0.05;String:5%;String:0%;String:;",
+    "String:Double:1000.5;String:100050%;String:0%;String:;",
+    "String:Double:1000;String:1.00E+03;String:0.00E+00;String:;"
+   ]
+  },
+  {
+   "steps": [
+    "\"12:30\"",
+    "\"1:2:3\"",
+    "\"25:00\"",
+    "\"12:30 PM\"",
+    "\"12:30:45.5\""
+   ],
+   "answers": [
+    "String:Double:0.520833333333333;String:12:30;String:h:mm;String:;",
+    "String:Double:4.30902777777778E-02;String:1:02;String:h:mm;String:;",
+    "String:Double:1.04166666666667;String:1:00;String:h:mm;String:;",
+    "String:Double:0.520833333333333;String:12:30;String:h:mm;String:;",
+    "String:Double:0.521359953703704;String:12:30;String:h:mm;String:;"
+   ]
+  },
+  {
+   "steps": [
+    "\"1 1/2\"",
+    "\"1 3/16\"",
+    "\"0 1/2\"",
+    "\"5%\""
+   ],
+   "answers": [
+    "String:Double:1.5;String:1 1/2;String:# ?/?;String:;",
+    "String:Double:1.1875;String:1 1/5;String:# ?/?;String:;",
+    "String:Double:0.5;String: 1/2;String:# ?/?;String:;",
+    "String:Double:0.05;String:5%;String:0%;String:;"
+   ]
+  },
+  {
+   "steps": [
+    "#1/2/2020#",
+    "CCur(5.5)",
+    "#12:30:00 PM#",
+    "5"
+   ],
+   "answers": [
+    "String:Date:1/2/2020;String:1/2/2020;String:m/d/yyyy;String:;",
+    "String:Currency:5.5;String:$5.50 ;String:$#,##0.00_);($#,##0.00);String:;",
+    "String:Double:0.520833333333333;String:12:30:00 PM;String:h:mm:ss AM/PM;String:;",
+    "String:Double:5;String:12:00:00 AM;String:h:mm:ss AM/PM;String:;"
+   ]
+  }
+ ],
+ "arrays": [
+  {
+   "write": "ws.Range(\"B2:E2\").Value = Array(\"5%\", \"1/2/2020\", \"'5\", \"$5\")",
+   "answers": [
+    "String:Double:0.05;String:0%;String:;",
+    "String:Date:1/2/2020;String:m/d/yyyy;String:;",
+    "String:String:5;String:General;String:';",
+    "String:Currency:5;String:$#,##0_);[Red]($#,##0);String:;"
+   ]
+  },
+  {
+   "write": "ws.Range(\"B2:E2\").Value2 = Array(\"5%\", \"1/2/2020\", \"'5\", \"$5\")",
+   "answers": [
+    "String:Double:0.05;String:0%;String:;",
+    "String:Date:1/2/2020;String:m/d/yyyy;String:;",
+    "String:String:5;String:General;String:';",
+    "String:Currency:5;String:$#,##0_);[Red]($#,##0);String:;"
+   ]
+  },
+  {
+   "write": "ws.Range(\"B2:E2\").Value = Array(#1/2/2020#, CCur(5.5), \"1,000\", \"1 1/2\")",
+   "answers": [
+    "String:Date:1/2/2020;String:m/d/yyyy;String:;",
+    "String:Currency:5.5;String:$#,##0.00_);($#,##0.00);String:;",
+    "String:Double:1000;String:#,##0;String:;",
+    "String:Double:1.5;String:# ?/?;String:;"
+   ]
+  },
+  {
+   "write": "ws.Range(\"B2:E2\").Value = \"5%\"",
+   "answers": [
+    "String:Double:0.05;String:0%;String:;",
+    "String:Double:0.05;String:0%;String:;",
+    "String:Double:0.05;String:0%;String:;",
+    "String:Double:0.05;String:0%;String:;"
+   ]
+  }
+ ]
+}

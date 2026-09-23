@@ -32,6 +32,7 @@ from typing import Final, TypeVar
 from pyopenvba._xml import attributes as _attributes
 from pyopenvba._xml import escape as _escape
 from pyopenvba._xml import unescape as _unescape
+from pyopenvba.apps.excel._number_format import BUILTIN, SPELLED_OUT, from_file, to_file
 
 _T = TypeVar("_T")
 
@@ -650,35 +651,6 @@ def protection_xml(protection: Protection) -> str:
     return "<protection " + " ".join(found) + "/>"
 
 
-# --- number formats -------------------------------------------------------------------------------
-
-BUILTIN_FORMAT_CODES: Final[dict[int, str]] = {
-    0: "General",
-    1: "0",
-    2: "0.00",
-    3: "#,##0",
-    4: "#,##0.00",
-    9: "0%",
-    10: "0.00%",
-    11: "0.00E+00",
-    14: "m/d/yyyy",
-    15: "d-mmm-yy",
-    16: "d-mmm",
-    17: "mmm-yy",
-    18: "h:mm AM/PM",
-    19: "h:mm:ss AM/PM",
-    20: "h:mm",
-    21: "h:mm:ss",
-    22: "m/d/yyyy h:mm",
-    45: "mm:ss",
-    46: "[h]:mm:ss",
-    47: "mmss.0",
-    49: "@",
-}
-#: The built-in formats that show a date or a time.
-BUILTIN_DATE_FORMATS: Final = frozenset({14, 15, 16, 17, 18, 19, 20, 21, 22, 45, 46, 47})
-
-
 # --- the stylesheet -----------------------------------------------------------------------------------
 
 _SECTION = {"numFmts": "numFmt", "fonts": "font", "fills": "fill", "borders": "border",
@@ -719,13 +691,18 @@ class Stylesheet:
         )
         self.colors = Colors(parse_theme(theme_xml) if theme_xml else DEFAULT_THEME,
                              palette if len(palette) >= 64 else ())
-        self.number_formats: dict[int, str] = dict(BUILTIN_FORMAT_CODES)
+        #: Every format by id, as Range.NumberFormat spells it; the file's own spelling is read through from_file.
+        self.number_formats: dict[int, str] = dict(BUILTIN)
+        #: The ids the file's numFmts spell out, which a save does not spell out again.
+        self._declared: set[int] = set()
         for element in _children(xml, "numFmts"):
             found = _attributes(element)
             try:
-                self.number_formats[int(found.get("numFmtId", "0"))] = _unescape(found.get("formatCode", ""))
+                identifier = int(found.get("numFmtId", "0"))
             except ValueError:
                 continue
+            self.number_formats[identifier] = from_file(_unescape(found.get("formatCode", "")))
+            self._declared.add(identifier)
         self.fonts = [parse_font(one) for one in _children(xml, "fonts")] or [Font()]
         self.fills = [parse_fill(one) for one in _children(xml, "fills")] or [Fill()]
         self.borders = [parse_border(one) for one in _children(xml, "borders")] or [Border()]
@@ -781,9 +758,6 @@ class Stylesheet:
     def style(self, index: int) -> Style:
         return self.styles[index] if 0 <= index < len(self.styles) else self.styles[0]
 
-    def is_date_style(self, index: int) -> bool:
-        return self.style(index).number_format in {BUILTIN_FORMAT_CODES[one] for one in BUILTIN_DATE_FORMATS}
-
     # -- adding
 
     def index_as_read(self, style: Style, xf: int) -> int:
@@ -826,13 +800,24 @@ class Stylesheet:
             return len(items) - 1
 
     def _number_format_id(self, code: str) -> int:
+        """The id a format is written with: a built-in one where it has one, else the file's own or a new one.
+
+        Excel spells out the currency and accounting built-ins in numFmts
+        as well, the first time a cell uses one.
+        """
         for identifier, known in self.number_formats.items():
             if known == code and (identifier < 164 or identifier in self._custom_ids()):
+                if identifier in SPELLED_OUT and identifier not in self._declared:
+                    self._declare(identifier, code)
                 return identifier
         identifier = max([163, *self.number_formats]) + 1
         self.number_formats[identifier] = code
-        self._added["numFmts"].append(f'<numFmt numFmtId="{identifier}" formatCode="{_escape(code)}"/>')
+        self._declare(identifier, code)
         return identifier
+
+    def _declare(self, identifier: int, code: str) -> None:
+        self._declared.add(identifier)
+        self._added["numFmts"].append(f'<numFmt numFmtId="{identifier}" formatCode="{_escape(to_file(code))}"/>')
 
     def _custom_ids(self) -> set[int]:
         return {one for one in self.number_formats if one >= 164}

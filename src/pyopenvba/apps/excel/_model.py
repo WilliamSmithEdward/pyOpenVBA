@@ -16,7 +16,7 @@ Font, Interior, Borders, alignment -- lives in
 from __future__ import annotations
 
 from collections.abc import Iterator
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from decimal import Decimal
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -1151,15 +1151,7 @@ class Range(ExcelObject):
 
     @member(default=True)
     def Value(self, RangeValueDataType: object = MISSING) -> object:
-        if self.single:
-            return self._read(self.first.top, self.first.left)
-        area = self.bounded()
-        items: list[object] = []
-        # VBA lays a two-dimensional array out column by column.
-        for column in range(area.left, area.right + 1):
-            for row in range(area.top, area.bottom + 1):
-                items.append(self._read(row, column))
-        return VBAArray([(1, area.rows), (1, area.columns)], items=items)
+        return self._values(raw=False)
 
     @setter("Value")
     def _set_value(self, value: object) -> None:
@@ -1167,11 +1159,31 @@ class Range(ExcelObject):
 
     @member
     def Value2(self) -> object:
-        return self.Value()
+        """Value without the Date and Currency a cell's format makes of its number."""
+        return self._values(raw=True)
 
     @setter("Value2")
     def _set_value2(self, value: object) -> None:
-        self._write(value)
+        self._write(value, raw=True)
+
+    def _values(self, *, raw: bool) -> object:
+        if self.single:
+            return self._read(self.first.top, self.first.left, raw=raw)
+        area = self.bounded()
+        items: list[object] = []
+        # VBA lays a two-dimensional array out column by column.
+        for column in range(area.left, area.right + 1):
+            for row in range(area.top, area.bottom + 1):
+                items.append(self._read(row, column, raw=raw))
+        return VBAArray([(1, area.rows), (1, area.columns)], items=items)
+
+    @member
+    def PrefixCharacter(self) -> object:
+        """The apostrophe a cell was typed with, while it holds text; a format keeps it, so a number hides it."""
+        cell = self.sheet.cell(self.first.top, self.first.left)
+        if cell is None or cell.formula or not isinstance(cell.value, str):
+            return ""
+        return "'" if cell.style is not None and cell.style.quote_prefix else ""
 
     @member
     def Text(self) -> object:
@@ -1209,32 +1221,34 @@ class Range(ExcelObject):
 
         Excel anchors what was written at the top left and shifts every
         reference that is not held by a dollar sign, which is why
-        Range("D2:D6").Formula = "=B2*C2" leaves =B6*C6 in D6.
+        Range("D2:D6").Formula = "=B2*C2" leaves =B6*C6 in D6. What is not
+        a formula is typed as Value types it, and a Text cell keeps even a
+        formula as the text it is.
         """
         if isinstance(value, VBAArray):
             self._write_formula_array(value, r1c1=False)
             return
-        written = to_text(value)
+        if isinstance(value, VBAObject):
+            value = value.vba_value()
+        if not isinstance(value, str):
+            self._write(value)
+            return
         anchor = self.first
         for row, column in self.writable_positions():
             if not _merges.writable(self.sheet, row, column):
                 continue
-            text = (
-                shift_text(written, row - anchor.top, column - anchor.left)
-                if written.startswith("=")
-                else written
-            )
-            cell = self.sheet.cell(row, column, create=True)
-            assert cell is not None
-            if text.startswith("="):
-                cell.formula = text
-                cell.stale = True
-                cell.value = EMPTY
+            if value.startswith("=") and not self._keeps_text(row, column):
+                self._put_formula(row, column, shift_text(value, row - anchor.top, column - anchor.left))
             else:
-                cell.formula = ""
-                cell.stale = False
-                cell.value = _from_text(text)
-            self.sheet.cell_changed(row, column)
+                self._type_into(row, column, value)
+
+    @member
+    def HasFormula(self) -> object:
+        """True when every cell holds a formula, False when none does, and Null for a mix."""
+        area = self.first if self.single else self.bounded()
+        found = {bool(cell is not None and cell.formula) for row in range(area.top, area.bottom + 1)
+                 for column in range(area.left, area.right + 1) for cell in [self.sheet.cell(row, column)]}
+        return NULL if len(found) > 1 else found.pop()
 
     @member
     def FormulaR1C1(self) -> object:
@@ -1262,15 +1276,21 @@ class Range(ExcelObject):
         if isinstance(value, VBAArray):
             self._write_formula_array(value, r1c1=True)
             return
-        written = to_text(value)
+        if isinstance(value, VBAObject):
+            value = value.vba_value()
+        if not isinstance(value, str):
+            self._write(value)
+            return
         for row, column in self.writable_positions():
             if not _merges.writable(self.sheet, row, column):
                 continue
+            if not value.startswith("=") or self._keeps_text(row, column):
+                self._type_into(row, column, value)
+                continue
             try:
-                text = to_a1(written, row, column) if written.startswith("=") else written
+                self._put_formula(row, column, to_a1(value, row, column))
             except ValueError as exc:
                 raise error(1004, str(exc)) from None
-            Range(self.sheet, [Area(row, column, row, column)])._set_formula(text)
 
     def _write_formula_array(self, array: VBAArray, *, r1c1: bool) -> None:
         from pyopenvba.formula._values import NA
@@ -1328,8 +1348,9 @@ class Range(ExcelObject):
     @setter("NumberFormat")
     def _set_number_format(self, value: object) -> None:
         from pyopenvba.apps.excel._formats import restyle
+        from pyopenvba.apps.excel._number_format import normalized
 
-        text = to_text(value)
+        text = normalized(to_text(value))
         restyle(self, lambda style: applying(style, "number_format", number_format=text))
         self.sheet.touched()
 
@@ -1932,20 +1953,15 @@ class Range(ExcelObject):
         for row, column in self.positions():
             yield Range(self.sheet, [Area(row, column, row, column, self.sheet.name)])
 
-    def _read(self, row: int, column: int) -> object:
+    def _read(self, row: int, column: int, *, raw: bool = False) -> object:
+        """A cell's value as VBA reads it; ``raw`` is Value2, which leaves a number a Double whatever its format."""
+        from pyopenvba.apps.excel._calc import as_vba
+
         cell = self.sheet.cell(row, column)
         if cell is None:
             return EMPTY
-        if cell.formula:
-            from pyopenvba.apps.excel._calc import as_vba
-
-            return as_vba(self.sheet.book.calculator.value_of(self.sheet.name, row, column), cell)
-        from pyopenvba.formula._values import ExcelError
-        if isinstance(cell.value, ExcelError):
-            from pyopenvba.apps.excel._calc import as_vba
-
-            return as_vba(cell.value)
-        return cell.value
+        value = self.sheet.book.calculator.value_of(self.sheet.name, row, column) if cell.formula else cell.value
+        return as_vba(value, None if raw else cell)
 
     def writable_positions(self) -> list[tuple[int, int]]:
         """Which cells a write touches.
@@ -1962,27 +1978,20 @@ class Range(ExcelObject):
                     out.append((row, column))
         return out
 
-    def _write(self, value: object) -> None:
+    def _write(self, value: object, *, raw: bool = False) -> None:
         if isinstance(value, VBAArray):
-            self._write_array(value)
+            self._write_array(value, raw=raw)
             return
         if isinstance(value, VBAObject):
             value = value.vba_value()
         if isinstance(value, str) and value.startswith("="):
             self._set_formula(value)
             return
-        stored = as_cell_value(value)
         for row, column in self.writable_positions():
-            if not _merges.writable(self.sheet, row, column):
-                continue
-            cell = self.sheet.cell(row, column, create=True)
-            assert cell is not None
-            cell.value = stored
-            cell.formula = ""
-            cell.stale = False
-            self.sheet.cell_changed(row, column)
+            if _merges.writable(self.sheet, row, column):
+                self._type_into(row, column, value, raw=raw)
 
-    def _write_array(self, array: VBAArray) -> None:
+    def _write_array(self, array: VBAArray, *, raw: bool = False) -> None:
         area = self.first
         if array.dimensions == 1:
             # A flat array is one row, laid across and repeated down
@@ -1993,7 +2002,7 @@ class Range(ExcelObject):
                 if column > area.right:
                     break
                 for row in range(area.top, area.bottom + 1):
-                    self._put(row, column, item)
+                    self._put(row, column, item, raw=raw)
         else:
             rows, columns = array.bounds[0], array.bounds[1]
             for row_index in range(rows[0], rows[1] + 1):
@@ -2002,23 +2011,47 @@ class Range(ExcelObject):
                     column = area.left + column_index - columns[0]
                     if row > area.bottom or column > area.right:
                         continue
-                    self._put(row, column, array.get([row_index, column_index]))
+                    self._put(row, column, array.get([row_index, column_index]), raw=raw)
         self.sheet.touched()
 
-    def _put(self, row: int, column: int, value: object) -> None:
+    def _put(self, row: int, column: int, value: object, *, raw: bool = False) -> None:
         if not _merges.writable(self.sheet, row, column):
             return
+        if isinstance(value, str) and value.startswith("=") and not self._keeps_text(row, column):
+            self._put_formula(row, column, value)
+        else:
+            self._type_into(row, column, value, raw=raw)
+
+    def _keeps_text(self, row: int, column: int) -> bool:
+        """Whether a position is a Text cell, which keeps whatever string is written to it as text."""
+        return self.sheet.style_at(row, column).number_format == "@"
+
+    def _put_formula(self, row: int, column: int, formula: str) -> None:
         cell = self.sheet.cell(row, column, create=True)
         assert cell is not None
-        if isinstance(value, str) and value.startswith("="):
-            cell.formula = value
-            cell.stale = True
-            cell.value = EMPTY
-            self.sheet.cell_changed(row, column)
-            return
-        cell.value = as_cell_value(value)
+        cell.formula = formula
+        cell.stale = True
+        cell.value = EMPTY
+        self.sheet.cell_changed(row, column)
+
+    def _type_into(self, row: int, column: int, value: object, *, raw: bool = False) -> None:
+        """Write one value into one cell as Excel types it: the value, the format it brings, and a prefix."""
+        from pyopenvba.apps.excel._typing import typed
+
+        cell = self.sheet.cell(row, column, create=True)
+        assert cell is not None
+        style = cell.style or self.sheet.book.stylesheet.default
+        result = typed(value, style.number_format, raw=raw)
+        cell.value = result.value
         cell.formula = ""
         cell.stale = False
+        changed = style
+        if result.number_format is not None:
+            changed = applying(changed, "number_format", number_format=result.number_format)
+        if result.prefix and not changed.quote_prefix:
+            changed = replace(changed, quote_prefix=True)
+        if changed != style:
+            self.sheet.restyle(row, column, changed)
         self.sheet.cell_changed(row, column)
 
     def describe(self, indent: str = "") -> str:
@@ -2555,17 +2588,20 @@ def _same(left: object, right: object) -> bool:
 
 def _display_text(cell: Cell) -> str:
     """What the cell shows, which is its value through its number format."""
-    from pyopenvba.formula._values import ExcelError, number_text
+    from pyopenvba.apps.excel._number_format import general_text
+    from pyopenvba.formula._values import ExcelError
 
     if cell.stale:
         return ""
     if isinstance(cell.value, ExcelError):
         return cell.value.name
-    if cell.number_format in ("General", "") or cell.value is EMPTY:
+    if cell.number_format in ("General", "", "@") or cell.value is EMPTY:
         if cell.value is EMPTY:
             return ""
-        if isinstance(cell.value, float):
-            return number_text(cell.value)
+        if isinstance(cell.value, bool):
+            return "TRUE" if cell.value else "FALSE"
+        if isinstance(cell.value, (int, float)):
+            return general_text(float(cell.value))
         return to_text(cell.value)
     from pyopenvba.access._format import format_value
 
@@ -2574,7 +2610,8 @@ def _display_text(cell: Cell) -> str:
 
 
 def _formula_text(value: object) -> str:
-    from pyopenvba.formula._values import ExcelError
+    """What Range.Formula reads for a constant: a number as Excel spells one there, not as CStr would."""
+    from pyopenvba.formula._values import ExcelError, number_text
 
     if value is EMPTY:
         return ""
@@ -2582,38 +2619,23 @@ def _formula_text(value: object) -> str:
         return "TRUE" if value else "FALSE"
     if isinstance(value, ExcelError):
         return value.name
+    if isinstance(value, VBADate):
+        value = value.serial
+    if isinstance(value, (int, float)):
+        return number_text(float(value), formula=True)
     return to_text(value)
 
 
-def as_cell_value(value: object) -> object:
-    """A value as a cell holds it.
+def stored_value(value: object) -> object:
+    """A value as a cell holds it when nothing types it: every number a Double, a Date the serial under it.
 
-    A cell keeps every number as a Double, whatever width the macro
-    computed it in, and reads a string the way it reads typing: "5"
-    becomes the number, "1/2/2020" becomes a date, and "" leaves the
-    cell empty.  Both measured against Excel.
+    What a macro writes goes through typing instead (see _typing); this is
+    for values that arrive already typed, as a query's rows do.
     """
-    if isinstance(value, bool) or isinstance(value, VBADate):
+    if isinstance(value, bool):
         return value
+    if isinstance(value, VBADate):
+        return value.serial
     if isinstance(value, (int, float, Decimal)):
         return float(value)
-    if isinstance(value, str):
-        return _from_text(value)
     return value
-
-
-def _from_text(text: str) -> object:
-    """A string written into a cell, read as Excel reads typing."""
-    from pyopenvba.interpreter._values import parse_date_text
-
-    stripped = text.strip()
-    if not stripped:
-        return EMPTY
-    if stripped.upper() in {"TRUE", "FALSE"}:
-        return stripped.upper() == "TRUE"
-    try:
-        return float(stripped)
-    except ValueError:
-        pass
-    when = parse_date_text(stripped)
-    return when if when is not None else text

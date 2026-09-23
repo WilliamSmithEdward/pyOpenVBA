@@ -22,7 +22,7 @@ from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.mlang import MError, Record, Table, base_scope, evaluate, parse
 from pyopenvba.mlang._eval import Scope, Thunk
 from pyopenvba.mlang._values import Builtin, Duration, is_list
-from pyopenvba.interpreter._values import EMPTY, VBADate
+from pyopenvba.interpreter._values import EMPTY, VBACurrency, VBADate
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Workbook, Worksheet
@@ -152,7 +152,7 @@ def _to_m(sheet: Worksheet, row: int, column: int) -> object:
         return value.to_datetime()
     if isinstance(value, bool):
         return value
-    if isinstance(value, (int, float)):
+    if isinstance(value, (int, float, VBACurrency)):
         return float(value)
     return value
 
@@ -238,7 +238,7 @@ def write_table(book: Workbook, target: LoadTarget, table: Table) -> None:
 
 
 def _put(sheet: Worksheet, row: int, column: int, value: object) -> None:
-    from pyopenvba.apps.excel._model import as_cell_value
+    from pyopenvba.apps.excel._model import stored_value
 
     cell = sheet.cell(row, column, create=True)
     assert cell is not None
@@ -247,11 +247,11 @@ def _put(sheet: Worksheet, row: int, column: int, value: object) -> None:
     if value is None:
         cell.value = EMPTY
     elif isinstance(value, _dt.datetime):
-        cell.value = VBADate.from_datetime(value)
+        cell.value = VBADate.from_datetime(value).serial
         if cell.number_format in ("General", ""):
             sheet.set_number_format(row, column, "m/d/yyyy h:mm")
     elif isinstance(value, _dt.date):
-        cell.value = VBADate.from_datetime(value)
+        cell.value = VBADate.from_datetime(value).serial
         if cell.number_format in ("General", ""):
             sheet.set_number_format(row, column, "m/d/yyyy")
     elif isinstance(value, Duration):
@@ -261,4 +261,5 @@ def _put(sheet: Worksheet, row: int, column: int, value: object) -> None:
             "a query whose cells hold tables or records has to be expanded before it is loaded"
         )
     else:
-        cell.value = as_cell_value(value)
+        # A query's rows arrive typed: its text stays text, as it does in Excel's own load.
+        cell.value = stored_value(value)

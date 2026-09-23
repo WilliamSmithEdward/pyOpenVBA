@@ -562,7 +562,7 @@ def text_to_number(text: str) -> int | float:
         return VBAInt(sign * int(match.group("hex"), 16), "Long")
     if match.group("octal") is not None:
         return VBAInt(sign * int(match.group("octal"), 8), "Long")
-    body = match.group("plain").replace("d", "e").replace("D", "e")
+    body = match.group("plain").lower().replace("d", "e")
     if "." not in body and "e" not in body:
         return VBAInt(sign * int(body), "Long" if abs(int(body)) > 32767 else "Integer")
     return sign * float(body)

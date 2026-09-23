@@ -271,3 +271,15 @@ CDate("x")
 "a" * 2
 Asc("")
 StrReverse(Null)
+
+# --- an Error Variant through the conversion functions: its number, except where arithmetic reads it ---
+CLng(CVErr(2042))
+CInt(CVErr(2042))
+CDbl(CVErr(2042))
+CSng(CVErr(2042))
+CCur(CVErr(2042))
+CByte(CVErr(5))
+CStr(CVErr(2042))
+Val(CVErr(2042))
+Int(CVErr(2042))
+CVErr(2042) + 1

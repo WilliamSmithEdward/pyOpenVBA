@@ -7,6 +7,31 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Cells are typed as Excel types them. A string written through `Value`,
+  `Value2`, `Formula`, `FormulaR1C1` or an array brings the number format
+  typing it gives -- `"5%"` 0%, `"$1,000.50"` a dollar format, `"1e3"`
+  scientific, `"1 3/16"` a fraction, times with seconds, tenths and
+  AM/PM, dates month first on Excel's 1900 calendar -- and a Date or
+  Currency a macro computes brings its own. A cell keeps a format of its
+  own unless it is General or a built-in one of another kind, reads
+  `"1/2"` as a half when its format is a number's, and keeps every string
+  as text when its format is Text, where a Date or Currency becomes the
+  text Excel shows. `Value` reads a number as a Date or Currency through
+  the cell's format and `Value2` as a Double. 3,723 writes in live Excel
+  and a workbook it saved pin the rules.
+- `Range.PrefixCharacter`: a leading apostrophe keeps the rest as text
+  and sets the cell's prefix flag, which its format keeps until `Clear` or
+  `ClearFormats`, and which a save writes as Excel's `quotePrefix`.
+- `Range.HasFormula`.
+- `NumberFormat` keeps a code as Excel rewrites it -- a quoted `"$"` bare,
+  an escaped `\-` or `\(` bare, codes in their case, a lower-case exponent
+  refused with error 1004 -- and the file spells a code as Excel's does,
+  with the `$` quoted, literal dashes, brackets and spaces escaped, and
+  the currency and accounting built-ins (ids 5 to 8 and 41 to 44) written
+  out. A file's own spelling reads back as Excel reads it.
+- `Range.Text` under General shows what Excel's eleven characters show:
+  the number in full while it fits, else rounded or given an exponent,
+  whichever keeps more digits.
 - Rows grow with their borders as Excel's do. A medium line along a row's
   bottom edge draws it a pixel taller; a thick or double line draws the
   row below a pixel taller too; and a save writes the `thickBot` and
@@ -250,6 +275,9 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Changed
 
+- A cell holds every number as a Double, a date included; its format
+  decides what `Value` reads. A query's refreshed rows keep their text as
+  text rather than typing it.
 - The in-memory Excel is Excel on a 96-DPI display (Windows at 100%): a
   standard row is 15pt where the model used 14.5pt, the height Excel gives
   it on a 144-DPI display. A shape's cell anchor is read and written
@@ -272,6 +300,17 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- `Range.Formula` read a stored number as VBA's `CStr` spells it; it now
+  spells it as Excel does, written out up to 21 characters. `=A1&""`
+  writes numbers out up to 20 characters as Excel does, where it switched
+  to an exponent from 1E+11 and below 1E-4.
+- `CLng`, `CInt`, `CByte`, `CSng`, `CDbl` and `CCur` of an Error value
+  give its number, as VBA's do, and `Val` of one raises error 13.
+- `CDbl("1E-25")` and any other number string with an upper-case
+  exponent raised a Python error.
+- Built-in number formats 5 to 8, 12, 13, 37 to 44 and 48 were missing
+  from the model's table, so a save gave them custom ids, and 47 was
+  spelt `mmss.0` where Excel reads `mm:ss.0`.
 - Saving a sheet took time proportional to the square of the cells in a
   row, since each cell was spliced into its row's XML one by one; a row
   of thousands of cells took minutes.

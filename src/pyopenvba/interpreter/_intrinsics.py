@@ -156,19 +156,29 @@ def vba_cbool(interpreter: Interpreter, value: object) -> object:
     return to_bool(value)
 
 
+def _convertible(value: object) -> object:
+    """An Error as the number conversion functions read it: its number.
+
+    CLng(CVErr(2042)) is 2042, and so are CInt, CByte, CSng, CDbl and CCur
+    of it, measured in Excel's VBA; arithmetic on the same Variant, Int
+    and Val are still a type mismatch.
+    """
+    return VBAInt(value.number, "Long") if isinstance(value, VBAErrorValue) else value
+
+
 @intrinsic("CByte", "Expression", minimum=1)
 def vba_cbyte(interpreter: Interpreter, value: object) -> object:
-    return to_integer(value, "Byte")
+    return to_integer(_convertible(value), "Byte")
 
 
 @intrinsic("CInt", "Expression", minimum=1)
 def vba_cint(interpreter: Interpreter, value: object) -> object:
-    return to_integer(value, "Integer")
+    return to_integer(_convertible(value), "Integer")
 
 
 @intrinsic("CLng", "Expression", minimum=1)
 def vba_clng(interpreter: Interpreter, value: object) -> object:
-    return to_integer(value, "Long")
+    return to_integer(_convertible(value), "Long")
 
 
 @intrinsic("CLngLng", "Expression", minimum=1)
@@ -178,17 +188,17 @@ def vba_clnglng(interpreter: Interpreter, value: object) -> object:
 
 @intrinsic("CSng", "Expression", minimum=1)
 def vba_csng(interpreter: Interpreter, value: object) -> object:
-    return VBASingle(float(to_number(value)))
+    return VBASingle(float(to_number(_convertible(value))))
 
 
 @intrinsic("CDbl", "Expression", minimum=1)
 def vba_cdbl(interpreter: Interpreter, value: object) -> object:
-    return float(to_number(value))
+    return float(to_number(_convertible(value)))
 
 
 @intrinsic("CCur", "Expression", minimum=1)
 def vba_ccur(interpreter: Interpreter, value: object) -> object:
-    return VBACurrency(to_number(value))
+    return VBACurrency(to_number(_convertible(value)))
 
 
 @intrinsic("CDec", "Expression", minimum=1)
@@ -224,6 +234,9 @@ def vba_cverr(interpreter: Interpreter, value: object) -> object:
 @intrinsic("Val", "String", minimum=1)
 def vba_val(interpreter: Interpreter, value: object) -> object:
     """Val takes the leading number and stops, and always gives a Double."""
+    if isinstance(value, VBAErrorValue):
+        # CStr spells an Error as "Error 2042"; Val refuses one outright.
+        raise error(ERR_TYPE_MISMATCH)
     text = to_text(value).replace(" ", "").replace("\t", "")
     if text[:2].lower() in ("&h", "&o"):
         for stop in range(len(text), 2, -1):

@@ -1478,3 +1478,50 @@ def test_excel_reads_model_authored_row_formats(tmp_path: Path) -> None:
         assert result.ok, result.message
     for case, answer in zip(cases, str(result.value).split("|")[:-1], strict=True):
         assert answer == case["after"], case["name"]
+
+
+def test_excel_reads_model_typed_cells(tmp_path: Path) -> None:
+    """Cells the model typed read in Excel -- type, number, format, prefix and what shows -- as Excel's own do."""
+    import json
+
+    from pyopenvba.apps.excel import _typing
+
+    harness = pytest.importorskip("pyvbaharness")
+    folder = Path(__file__).parent / "fixtures" / "typing"
+    fixture = json.loads((folder / "typing.json").read_text(encoding="utf-8"))
+    lines = ["Public Sub Build()", "Dim c As Object"]
+    for row, steps in enumerate(fixture["cases"], start=1):
+        lines.append(f"Set c = Cells({row}, 1)")
+        lines += [step if step.startswith("c.") else f"c.Value = {step}" for step in steps]
+    app = ExcelApplication()
+    app.add_workbook()
+    app.add_module("\n".join([*lines, "End Sub"]) + "\n", name="Builder")
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(_typing, "_this_year", lambda: fixture["year"])
+        app.run("Build")
+    path = tmp_path / "model_typing.xlsx"
+    app.save(path)
+    count = len(fixture["cases"])
+    reader = (
+        "Private Function ReadAll(ws As Object) As String\n"
+        "Dim out As String, c As Object, i As Long\n"
+        f"For i = 1 To {count}\n"
+        "Set c = ws.Cells(i, 1)\n"
+        'out = out & TypeName(c.Value) & "~" & CStr(c.Value2) & "~" & c.NumberFormat & "~" & '
+        'c.PrefixCharacter & "~" & c.Text & "|"\n'
+        "Next\nReadAll = out\nEnd Function\n"
+        "Public Function Report() As String\n"
+        "Dim ours As Object, theirs As Object\n"
+        "Application.DisplayAlerts = False\n"
+        "Set ours = ActiveWorkbook\n"
+        f'Set theirs = Workbooks.Open("{folder / "typing.xlsx"}", ReadOnly:=True)\n'
+        'Report = ReadAll(ours.Worksheets(1)) & "<ours|theirs>" & ReadAll(theirs.Worksheets(1))\n'
+        "theirs.Close False\nEnd Function\n"
+    )
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+        excel.open_document(path)
+        result = excel.run_vba(reader, "Report", timeout=240.0)
+        assert result.ok, result.message
+    ours, theirs = str(result.value).split("<ours|theirs>", 1)
+    for steps, mine, excels in zip(fixture["cases"], ours.split("|")[:count], theirs.split("|")[:count], strict=True):
+        assert mine == excels, steps

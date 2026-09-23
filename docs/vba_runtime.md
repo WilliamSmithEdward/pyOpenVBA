@@ -125,8 +125,8 @@ measured with `python scripts/measure_vba_semantics.py excel`.  That
 sweep is what settled these:
 
 - A cell keeps every number as a Double, and reads a string the way it
-  reads typing: `"5"` becomes the number, `"1/2/2020"` becomes a Date,
-  and `""` leaves the cell Empty.
+  reads typing: `"5"` becomes the number, `"1/2/2020"` a date with the
+  m/d/yyyy format it brings, and `""` leaves the cell Empty.
 - `Range("A1:B2").Value = Array(7, 8)` puts 7 in A2 as well as A1: a
   flat array is one row, repeated down.
 - `End` looks at the neighbour, so `End(xlDown)` from a lone A1 is
@@ -425,6 +425,38 @@ first whenever one is used.
 `Range.Style`, the `Styles` collection and conditional formats are not
 implemented yet; the operation checklist, `docs/excel_checklist.csv`,
 records each member's status.
+
+**Typing.** A string written through `Value`, `Value2`, `Formula` or an
+array is typed the way Excel types what someone enters in a cell, and a
+Date or Currency a macro computes brings a format of its own. 3,723
+writes in live Excel pin the rules (`tests/fixtures/value_typing.json`,
+`tests/fixtures/typing_formats.json`), with 49 more in a workbook Excel
+saved (`tests/fixtures/typing/`).
+
+* `"5%"` is 0.05 in the 0% format, `"$1,000.50"` a dollar amount,
+  `"1e3"` scientific, `"1 3/16"` a fraction, `"12:30:45.5"` a time to the
+  tenth of a second, and `"1/2"` the second of January this year. Dates
+  run month first on Excel's own calendar, which has a 29 February 1900,
+  from 1900 to 9999; a date that does not exist stays text.
+* A cell keeps its own format unless it is General, or one of Excel's
+  built-in currency, accounting, percent, scientific, fraction, date and
+  time formats and the typed value is of another kind; a number with
+  thousands separators replaces nothing. A cell with a number format of
+  its own reads `"1/2"` as a half.
+* A Text cell keeps every string as written, a formula included, and
+  turns a Date or Currency into the text Excel shows for it.
+* A leading apostrophe keeps the rest as text and sets the cell's
+  prefix flag, which its format keeps until `Clear` or `ClearFormats`;
+  `PrefixCharacter` shows it while the cell holds text.
+* `Value` reads a number as a Date or Currency through the cell's
+  format, and `Value2` as the Double it is; `Value2` writes a Date or
+  Currency as that Double.
+* `NumberFormat` keeps a code as Excel rewrites it, and the file spells
+  it as Excel's file does (`tests/fixtures/format_codes/`). `Formula`
+  spells a stored number as Excel does, and `Text` under General shows
+  what Excel's eleven characters show (`tests/fixtures/number_spelling.json`);
+  what `Text` shows through other formats is Excel's number-format
+  engine, which the model does not have yet.
 
 **Row and column formats.** Formatting a range that spans every column
 formats its rows, one that spans every row formats its columns, and the

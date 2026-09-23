@@ -165,7 +165,7 @@ def _read_cells(sheet: Worksheet, rows: str, strings: list[str], stylesheet: Sty
             if formula_match is not None:
                 body = (formula_match.group(2) or "").strip()
                 formula = f"={_unescape(body)}" if body else ""
-            value = _cell_value(cell_xml, kind, strings, (style or stylesheet.default).number_format)
+            value = _cell_value(cell_xml, kind, strings)
             if value is EMPTY and not formula and (style or stylesheet.default) == sheet.inherited_style(row, column):
                 # An empty cell in the format its row or column gives it says nothing, and Excel drops it.
                 sheet.dims.tidied = True
@@ -179,7 +179,7 @@ def _read_cells(sheet: Worksheet, rows: str, strings: list[str], stylesheet: Sty
     sheet.dims.settle_growth()
 
 
-def _cell_value(cell_xml: str, kind: str, strings: list[str], number_format: str) -> object:
+def _cell_value(cell_xml: str, kind: str, strings: list[str]) -> object:
     if kind == "inlineStr":
         inline = _INLINE.search(cell_xml)
         return "".join(_unescape(piece) for piece in _TEXT.findall(inline.group(1))) if inline else ""
@@ -204,24 +204,13 @@ def _cell_value(cell_xml: str, kind: str, strings: list[str], number_format: str
         from pyopenvba.interpreter._values import parse_date_text
 
         parsed = parse_date_text(text.replace("T", " "))
-        return parsed if parsed is not None else text
+        return parsed.serial if parsed is not None else text
     try:
-        number = float(text)
+        # Worksheet numbers remain Doubles even when XML omits a decimal point;
+        # the cell's format decides what Range.Value makes of one.
+        return float(text)
     except ValueError:
         return text
-    if is_date_format(number_format):
-        return VBADate(number)
-    # Worksheet numbers remain Doubles even when XML omits a decimal point.
-    return number
-
-
-def is_date_format(code: str) -> bool:
-    """Whether a number format makes its cell a Date rather than a number."""
-    if code in ("General", "", "@"):
-        return False
-    body = re.sub(r"\[[^\]]*\]", "", code)
-    body = re.sub(r'"[^"]*"', "", body)
-    return any(char in body for char in "ymdhs") and "e+" not in body.lower()
 
 
 def _read_names(book: Workbook, workbook_xml: str) -> None:

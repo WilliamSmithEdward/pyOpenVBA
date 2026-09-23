@@ -535,7 +535,7 @@ Range,FindPrevious,method,FindPrevious([After As Variant]) As Range,,PARTIAL,tes
 Range,FlashFill,method,FlashFill(),,MISSING,,
 Range,Font,"property, read-only",As Font,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/row_formats/row_formats.json,"Whole rows, whole columns and the whole sheet are formatted through their own formats, as Excel keeps them."
 Range,FormatConditions,"property, read-only",As FormatConditions,,MISSING,,
-Range,Formula,property,As Variant,,PARTIAL,tests/fixtures/formula_a1_arrays.json; tests/fixtures/excel_model/probes.txt,
+Range,Formula,property,As Variant,,PARTIAL,tests/fixtures/formula_a1_arrays.json; tests/fixtures/excel_model/probes.txt; tests/fixtures/number_spelling.json; tests/fixtures/typing_formats.json,"A constant number reads back as Excel spells it there; what is not a formula is typed as Value types it, and a Text cell keeps even a formula as text."
 Range,Formula2,property,As Variant,,MISSING,,
 Range,Formula2Local,property,As Variant,,MISSING,,
 Range,Formula2R1C1,property,As Variant,,MISSING,,
@@ -548,7 +548,7 @@ Range,FormulaR1C1Local,property,As Variant,,MISSING,,
 Range,FunctionWizard,method,FunctionWizard() As Variant,,MISSING,,
 Range,Group,method,"Group([Start As Variant], [End As Variant], [By As Variant], [Periods As Variant]) As Variant",,MISSING,,
 Range,HasArray,"property, read-only",As Variant,,MISSING,,
-Range,HasFormula,"property, read-only",As Variant,,MISSING,,
+Range,HasFormula,"property, read-only",As Variant,,PARTIAL,tests/fixtures/value_typing.json; tests/fixtures/typing_formats.json,"Measured on single cells; a block with and without formulas answers Null, as Excel documents rather than as measured."
 Range,HasRichDataType,"property, read-only",As Variant,,MISSING,,
 Range,HasSpill,"property, read-only",As Variant,,MISSING,,
 Range,Height,"property, read-only",As Variant,,PARTIAL,tests/fixtures/dimensions.json; tests/fixtures/dimensions/dimensions_answers.json; tests/fixtures/font_rows.json,"A row grows with its fonts from a measured table of eleven families; one resting on another font, a mix of tables, super- or subscript, or wrapped or turned text keeps its file's height until it changes, then reports unsupported."
@@ -578,7 +578,7 @@ Range,Name,property,As Variant,,PARTIAL,tests/fixtures/names_crud.json,
 Range,NavigateArrow,method,"NavigateArrow([TowardPrecedent As Variant], [ArrowNumber As Variant], [LinkNumber As Variant]) As Variant",,MISSING,,
 Range,Next,"property, read-only",As Range,,MISSING,,
 Range,NoteText,method,"NoteText([Text As Variant], [Start As Variant], [Length As Variant]) As String",,MISSING,,
-Range,NumberFormat,property,As Variant,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/row_formats/row_formats.json,"Whole rows, whole columns and the whole sheet are formatted through their own formats, as Excel keeps them."
+Range,NumberFormat,property,As Variant,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/row_formats/row_formats.json; tests/fixtures/typing_formats.json,"Whole rows, whole columns and the whole sheet are formatted through their own formats, as Excel keeps them. A code is kept as Excel rewrites it -- a quoted $ bare, codes in their case, a lower-case exponent refused -- except the thousands separator Excel moves when a quoted literal splits the digits."
 Range,NumberFormatLocal,property,As Variant,,MISSING,,
 Range,Offset,"property, read-only",As Range,,PARTIAL,tests/fixtures/excel_model/probes.txt,
 Range,Orientation,property,As Variant,,VERIFIED,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,
@@ -596,7 +596,7 @@ Range,PivotItem,"property, read-only",As PivotItem,,MISSING,,
 Range,PivotTable,"property, read-only",As PivotTable,,MISSING,,
 Range,PlacePictureOverCells,method,PlacePictureOverCells([AsReference As Variant]),,MISSING,,
 Range,Precedents,"property, read-only",As Range,,MISSING,,
-Range,PrefixCharacter,"property, read-only",As Variant,,MISSING,,
+Range,PrefixCharacter,"property, read-only",As Variant,,PARTIAL,tests/fixtures/value_typing.json; tests/fixtures/typing_formats.json,"The apostrophe a cell was typed with, kept by its format until Clear or ClearFormats and shown while the cell holds text; the Lotus navigation prefixes are not modelled."
 Range,Previous,"property, read-only",As Range,,MISSING,,
 Range,PrintOut,method,"PrintOut([From As Variant], [To As Variant], [Copies As Variant], [Preview As Variant], [ActivePrinter As Variant], [PrintToFile As Variant], [Collate As Variant], [PrToFileName As Variant]) As Variant",,MISSING,,
 Range,PrintPreview,method,PrintPreview([EnableChanges As Variant]) As Variant,,MISSING,,
@@ -650,8 +650,8 @@ Range,UpdatePictureInCellAlternativeText,method,UpdatePictureInCellAlternativeTe
 Range,UseStandardHeight,property,As Variant,,PARTIAL,tests/fixtures/dimensions.json; tests/fixtures/dimensions/dimensions_answers.json,A read across several rows or columns compares inside the sheet's current used block; Excel's can stay larger for the rest of a session after a column is hidden.
 Range,UseStandardWidth,property,As Variant,,PARTIAL,tests/fixtures/dimensions.json; tests/fixtures/dimensions/dimensions_answers.json,A read across several rows or columns compares inside the sheet's current used block; Excel's can stay larger for the rest of a session after a column is hidden.
 Range,Validation,"property, read-only",As Validation,,MISSING,,
-Range,Value,property,As Variant,,PARTIAL,tests/fixtures/excel_model/probes.txt,
-Range,Value2,property,As Variant,,UNASSESSED,,
+Range,Value,property,As Variant,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/value_typing.json; tests/fixtures/typing_formats.json,"A string is typed as Excel types it, bringing its number format and prefix character, and a number reads as a Date or Currency through its cell's format; what Text shows through those formats waits on the number-format engine."
+Range,Value2,property,As Variant,,PARTIAL,tests/fixtures/value_typing.json; tests/fixtures/typing_formats.json,"Reads every number as a Double, and writes a Date or Currency as the Double under it, bringing no format."
 Range,VerticalAlignment,property,As Variant,,VERIFIED,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,
 Range,Width,"property, read-only",As Variant,,PARTIAL,tests/fixtures/dimensions.json; tests/fixtures/dimensions/dimensions_answers.json,Measured for Aptos Narrow 11 and Calibri 11 as the Normal font on a 96-DPI display; with another Normal font the file's own standard sizes stand.
 Range,Worksheet,"property, read-only",As Worksheet,,PARTIAL,tests/fixtures/excel_model/probes.txt,

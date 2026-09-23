@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
+from decimal import Decimal, localcontext
 from typing import Final, Iterator
 
 
@@ -214,11 +215,15 @@ def as_text(value: object) -> str:
     return str(value)
 
 
-def number_text(number: float) -> str:
-    """A number as a cell shows it under the General format.
+def number_text(number: float, *, formula: bool = False) -> str:
+    """A number as Excel spells it in text: fifteen significant digits, in as few characters as allowed.
 
-    Up to fifteen significant digits, with an exponent outside the range
-    a cell can show plainly.
+    Leaving the sign aside, ``=A1&""`` spells a number in at most twenty
+    characters and a cell's Formula, ``formula``, in twenty-one: written
+    out in full while that fits -- 12345678901234500000, 0.000001 -- and
+    otherwise with an exponent of two digits at least, the mantissa losing
+    digits until it fits, as 1.2345678901235E+100 does. Measured across
+    exponents from -25 to 300.
     """
     if number != number:
         return "#NUM!"
@@ -226,17 +231,23 @@ def number_text(number: float) -> str:
         return "0"
     if number in (float("inf"), float("-inf")):
         return "#NUM!"
-    magnitude = math.floor(math.log10(abs(number)))
-    if -5 < magnitude < 11:
-        text = f"{number:.{max(0, 15 - 1 - magnitude)}f}"
-        if "." in text:
-            text = text.rstrip("0").rstrip(".")
-        return text or "0"
-    body = f"{number:.14E}"
-    mantissa, _, exponent = body.partition("E")
-    if "." in mantissa:
-        mantissa = mantissa.rstrip("0").rstrip(".")
-    return f"{mantissa}E{exponent[0]}{int(exponent[1:]):02d}"
+    widest = 21 if formula else 20
+    sign = "-" if number < 0 else ""
+    for precision in range(15, 0, -1):
+        with localcontext() as context:
+            context.prec = precision
+            rounded = (+Decimal(abs(number))).normalize()
+        if precision == 15 and len(plain := format(rounded, "f")) <= widest:
+            return sign + plain
+        _, digits, exponent = rounded.as_tuple()
+        assert isinstance(exponent, int)
+        highest = exponent + len(digits) - 1
+        mantissa = "".join(str(digit) for digit in digits)
+        body = mantissa[0] + ("." + mantissa[1:] if len(mantissa) > 1 else "")
+        text = f"{body}E{'+' if highest >= 0 else '-'}{abs(highest):02d}"
+        if len(text) <= widest:
+            return sign + text
+    raise AssertionError("a one-digit mantissa always fits")
 
 
 def as_bool(value: object) -> bool:

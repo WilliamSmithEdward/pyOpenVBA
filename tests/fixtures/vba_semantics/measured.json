@@ -244,6 +244,16 @@
   "CDate(\"x\")": "!13",
   "\"a\" * 2": "!13",
   "Asc(\"\")": "!5",
-  "StrReverse(Null)": "!94"
+  "StrReverse(Null)": "!94",
+  "CLng(CVErr(2042))": "Long|2042",
+  "CInt(CVErr(2042))": "Integer|2042",
+  "CDbl(CVErr(2042))": "Double|2042",
+  "CSng(CVErr(2042))": "Single|2042",
+  "CCur(CVErr(2042))": "Currency|2042",
+  "CByte(CVErr(5))": "Byte|5",
+  "CStr(CVErr(2042))": "String|Error 2042",
+  "Val(CVErr(2042))": "!13",
+  "Int(CVErr(2042))": "!13",
+  "CVErr(2042) + 1": "!13"
  }
 }

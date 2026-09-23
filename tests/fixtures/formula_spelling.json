@@ -190,6 +190,50 @@
    "answer": "=TEXTJOIN(\",\",TRUE,A2:A3)<~>=TEXTJOIN(\",\",TRUE,R[1]C:R[2]C)<~>True"
   },
   {
+   "formula": "\"=sin(1)\"",
+   "answer": "=SIN(1)<~>=SIN(1)<~>True"
+  },
+  {
+   "formula": "\"=address(1,1)\"",
+   "answer": "=ADDRESS(1,1)<~>=ADDRESS(1,1)<~>True"
+  },
+  {
+   "formula": "\"=areas(a1)\"",
+   "answer": "=AREAS(A1)<~>=AREAS(RC)<~>True"
+  },
+  {
+   "formula": "\"=datedif(1,2,\"\"d\"\")\"",
+   "answer": "=DATEDIF(1,2,\"d\")<~>=DATEDIF(1,2,\"d\")<~>True"
+  },
+  {
+   "formula": "\"=norm.dist(1,0,1,true)\"",
+   "answer": "=NORM.DIST(1,0,1,TRUE)<~>=NORM.DIST(1,0,1,TRUE)<~>True"
+  },
+  {
+   "formula": "\"=Stdev.S(1,2)\"",
+   "answer": "=STDEV.S(1,2)<~>=STDEV.S(1,2)<~>True"
+  },
+  {
+   "formula": "\"=forecast.linear(1,{1,2},{1,2})\"",
+   "answer": "=FORECAST.LINEAR(1,{1,2},{1,2})<~>=FORECAST.LINEAR(1,{1,2},{1,2})<~>True"
+  },
+  {
+   "formula": "\"=webservice(\"\"x\"\")\"",
+   "answer": "=WEBSERVICE(\"x\")<~>=WEBSERVICE(\"x\")<~>True"
+  },
+  {
+   "formula": "\"=sequence(2)\"",
+   "answer": "=SEQUENCE(2)<~>=SEQUENCE(2)<~>True"
+  },
+  {
+   "formula": "\"=let(x,1,X+1)\"",
+   "answer": "=LET(x,1,x+1)<~>=LET(x,1,x+1)<~>True"
+  },
+  {
+   "formula": "\"=Let(Total,1,total*2)\"",
+   "answer": "=LET(Total,1,Total*2)<~>=LET(Total,1,Total*2)<~>True"
+  },
+  {
    "formula": "\"=1.50\"",
    "answer": "=1.5<~>=1.5<~>True"
   },

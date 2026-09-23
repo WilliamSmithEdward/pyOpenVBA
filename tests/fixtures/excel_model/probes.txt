@@ -500,3 +500,10 @@ Range("A1").Value = CVErr(2001) ;; Range("A1").Formula
 Range("A1").Value = CVErr(1) ;; Range("A1").Formula
 Range("A1").Formula = "=DROP(1,1)" ;; CStr(Range("A1").Value)
 Range("A1").Formula = "=DROP(1,1)" ;; IsError(Range("A1").Value)
+
+# --- a sheet function WorksheetFunction does not carry ---
+;; WorksheetFunction.If(True, 1, 2)
+;; WorksheetFunction.Sin(1)
+;; WorksheetFunction.Address(1, 1)
+;; Application.If(True, 1, 2)
+;; Application.Sin(1)

@@ -3485,9 +3485,8 @@ class WorksheetFunction(ExcelObject):
             return call(self.application, name, args, named, raising=True)
         spec = self.vba_member(name)
         if spec is None:
-            from pyopenvba.formula._inventory import excel_has_function
-
-            if excel_has_function(name):
+            # A sheet function WorksheetFunction does not carry, If or Sin, is no member either (error 438).
+            if member_exists("WorksheetFunction", name, "excel"):
                 raise VBAUnsupportedError(
                     f"WorksheetFunction.{name} is a real Excel function that pyOpenVBA "
                     f"does not implement"

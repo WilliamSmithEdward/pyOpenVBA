@@ -40,9 +40,9 @@ from typing import Final, Protocol
 
 from pyopenvba._a1 import column_letter, column_number, quote_sheet
 from pyopenvba.formula._calc import functions as functions  # imported to register every function
+from pyopenvba.formula._calc.catalog import is_excel_function
 from pyopenvba.formula._calc.nodes import function_key
 from pyopenvba.formula._calc.registry import FUNCTIONS
-from pyopenvba.formula._inventory import excel_has_function
 from pyopenvba.formula._parse import (REFERENCE_OPS, Binary, Call, FormulaError, NameNode, Node, Reference, Structured,
                                       Token, Unary, literal, parse, read_structured, split_sheet, tokenize)
 from pyopenvba.formula._structured import TableShape, one_cell, spelled as spelled_reference
@@ -387,8 +387,9 @@ def _name(text: str, called: bool, names: Names) -> str:
 
 
 def _fixed(bare: str, called: bool) -> bool:
-    """Whether a name is one of Excel's own, spelled in capitals: a function it has, or TRUE or FALSE."""
-    return excel_has_function(bare) if called else bare.upper() in ("TRUE", "FALSE")
+    """Whether a name is one of Excel's own, spelled in capitals: a function a sheet has, SIN and NORM.DIST as much
+    as SUM, or TRUE or FALSE (tests/fixtures/formula_spelling.json)."""
+    return is_excel_function(bare) if called else bare.upper() in ("TRUE", "FALSE")
 
 
 def remembered_names(formula: str, names: Names) -> list[str]:

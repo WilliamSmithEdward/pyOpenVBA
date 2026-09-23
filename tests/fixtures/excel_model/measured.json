@@ -456,6 +456,11 @@
   "Range(\"A1\").Value = CVErr(2001) ;; Range(\"A1\").Formula": "!1004",
   "Range(\"A1\").Value = CVErr(1) ;; Range(\"A1\").Formula": "!1004",
   "Range(\"A1\").Formula = \"=DROP(1,1)\" ;; CStr(Range(\"A1\").Value)": "String|Error 2050",
-  "Range(\"A1\").Formula = \"=DROP(1,1)\" ;; IsError(Range(\"A1\").Value)": "Boolean|True"
+  "Range(\"A1\").Formula = \"=DROP(1,1)\" ;; IsError(Range(\"A1\").Value)": "Boolean|True",
+  ";; WorksheetFunction.If(True, 1, 2)": "!438",
+  ";; WorksheetFunction.Sin(1)": "!438",
+  ";; WorksheetFunction.Address(1, 1)": "!438",
+  ";; Application.If(True, 1, 2)": "!438",
+  ";; Application.Sin(1)": "!438"
  }
 }

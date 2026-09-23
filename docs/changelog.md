@@ -653,6 +653,14 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- A function a sheet has is spelled in capitals whatever case it is
+  written in, SIN, ADDRESS and NORM.DIST as much as SUM, as 11 formulas
+  measured in live Excel show. The model kept `=sin(1)` and
+  `=norm.dist(1,0,1,true)` as written: it asked VBA's WorksheetFunction,
+  which has no SIN and spells NORM.DIST with an underscore, where it now
+  asks the formula engine's list of Excel's 525 functions.
+  `WorksheetFunction.If` and `WorksheetFunction.Sin` are error 438, as in
+  Excel, rather than reported unsupported.
 - RATE and IRR stop where Excel's own iterations stop, to the bit, and FV
   and PV round as Excel does where the payment and the balance cancel:
   `RATE(10,-100,1000)` is -1.96E-10, not 0. This is pyOfficeEditor's

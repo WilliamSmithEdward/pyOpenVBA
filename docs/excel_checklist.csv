@@ -605,7 +605,7 @@ Range,Range,"property, read-only",As Range,,MISSING,,
 Range,ReadingOrder,property,As Long,,VERIFIED,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,
 Range,RefreshLinkedDataType,method,RefreshLinkedDataType([DomainID As Variant]),,MISSING,,
 Range,RemoveControls,method,RemoveControls(),,MISSING,,
-Range,RemoveDuplicates,method,"RemoveDuplicates([Columns As Variant], [Header As XlYesNoGuess])",,MISSING,,
+Range,RemoveDuplicates,method,"RemoveDuplicates([Columns As Variant], [Header As XlYesNoGuess])",,PARTIAL,tests/fixtures/remove_duplicates.json,"Keeps each first row by the columns asked for, matching blanks, errors, text ignoring case and numbers by value and what they show; text beyond ASCII, merged cells and rows or columns with formats of their own report themselves unsupported."
 Range,RemoveSubtotal,method,RemoveSubtotal() As Variant,,MISSING,,
 Range,Replace,method,"Replace(What As Variant, Replacement As Variant, [LookAt As Variant], [SearchOrder As Variant], [MatchCase As Variant], [MatchByte As Variant], [SearchFormat As Variant], [ReplaceFormat As Variant], [FormulaVersion As Variant]) As Boolean",,PARTIAL,tests/fixtures/replace.json,"Edits the text the formula bar shows and types what is left as Excel does; SearchFormat, ReplaceFormat, MatchByte:=True and Formula2 semantics report themselves unsupported."
 Range,ResetContents,method,ResetContents(),,MISSING,,

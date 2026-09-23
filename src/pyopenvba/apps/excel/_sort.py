@@ -165,7 +165,7 @@ def sort_area(sheet: Worksheet, area: Area, keys: list[Key], *, header: bool, ma
     calculator.rebuild()
 
 
-def _guessed(sheet: Worksheet, area: Area, across: bool) -> bool:
+def guessed_header(sheet: Worksheet, area: Area, across: bool) -> bool:
     """Whether xlGuess takes the first row, or column, for a header."""
     from pyopenvba.apps.excel._region import holds_content
 
@@ -235,7 +235,7 @@ def range_sort(target: Range, keys: list[tuple[object, object, object]], header:
             continue
         resolved.append(_key(key, area, across, order, option))
     kept = NO if header is MISSING else int(to_integer(header, "Long"))
-    has_header = kept == YES or (kept == GUESS and _guessed(target.sheet, area, across))
+    has_header = kept == YES or (kept == GUESS and guessed_header(target.sheet, area, across))
     sort_area(target.sheet, area, resolved, header=has_header,
               match_case=match_case is not MISSING and to_bool(match_case), across=across)
     return True

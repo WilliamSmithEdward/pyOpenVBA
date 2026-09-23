@@ -1986,6 +1986,12 @@ class Range(ExcelObject):
                           Header, OrderCustom, MatchCase, Orientation)
 
     @method
+    def RemoveDuplicates(self, Columns: object = MISSING, Header: object = MISSING) -> object:
+        from pyopenvba.apps.excel._duplicates import remove_duplicates
+
+        return remove_duplicates(self, Columns, Header)
+
+    @method
     def SpecialCells(self, Type: object = MISSING, Value: object = MISSING) -> object:
         from pyopenvba.apps.excel._special_cells import special_cells
 

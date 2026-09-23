@@ -49,6 +49,18 @@ All notable changes to pyOpenVBA are documented here. This project follows
   what it pads the cell with depends on the width in pixels. Before, both went
   through Access's `Format`, which spelled `$#,##0_)` as `$5_)`, fractions
   as `2 ?/?` and `[h]:mm:ss` as `[1]:00:00`.
+- `Range.RemoveDuplicates`. A row goes when the columns asked for hold
+  what an earlier row's hold, and the rows left close up from the top of
+  the range, formats and all, formulas shifting as a copy's would, while
+  nothing outside the range moves. Cells match when both are blank, the
+  same error, text the same but for case, or numbers of equal value that
+  show the same: 1 and 1.00 differ, and so do 0.3 and 0.1 + 0.2. TRUE is
+  a number 1 that shows TRUE; text never matches a number. Header is xlNo
+  when left out and xlGuess guesses as Sort does; a single cell works on
+  its current region. Columns left out or 0 does nothing, one outside the
+  range is error 1004, an array of them error 5 if any is outside. 98
+  layouts in live Excel pin it; text beyond ASCII, which Windows compares
+  with æ matching ae, reports itself unsupported.
 - `Range.AutoFill`, with every fill type but Flash Fill. The source
   repeats down, up or across the destination one column or row at a
   time; runs of numbers, dates, times, text with a number in it, and day

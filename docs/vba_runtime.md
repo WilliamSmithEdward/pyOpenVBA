@@ -351,6 +351,27 @@ target starts from the first array element.
 * xlSortTextAsNumbers sorts text that would type as a number -- `(3)`,
   `5%`, `$5`, `1,000` -- as that number, among the numbers.
 
+**Removing duplicates.** `Range.RemoveDuplicates` removes rows as Excel
+does (`tests/fixtures/remove_duplicates.json`, 98 layouts).
+
+* A row goes when the columns asked for hold what an earlier row's hold;
+  the first of each stays. The rows left close up from the top of the
+  range, formats and all, their formulas shifting as a copy's would, so
+  `=A1` moved up a row is `=#REF!`. The rows freed at the bottom are
+  cleared, and nothing outside the range moves or is rewritten.
+* Cells match when both are blank, both the same error, both text that is
+  the same ignoring case, or both numbers of equal value that show the
+  same, so 1 and 1.00 differ and so do 0.3 and 0.1 + 0.2. TRUE and FALSE
+  count as numbers 1 and 0 that show TRUE and FALSE. Text never matches a
+  number, whatever each shows. Formulas match by what they give.
+* Windows compares the text, so æ matches ae and ß ss; that is reproduced
+  for printable ASCII, and other text reports itself unsupported.
+* Header is xlNo when left out, and xlGuess guesses as Sort's does. A
+  single cell works on its current region. Columns counts from the
+  range's first column: left out or 0 it does nothing, outside the range
+  it is error 1004, and in an array of them, which may repeat, one
+  outside the range, 0 included, is error 5.
+
 **AutoFill.** `Range.AutoFill` fills as Excel does
 (`tests/fixtures/autofill.json`, 208 layouts and 520 columns).
 

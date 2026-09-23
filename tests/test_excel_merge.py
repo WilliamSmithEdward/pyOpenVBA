@@ -61,3 +61,22 @@ Counted = Counted + 1
 Next cell
 End Function''', name="Probe")
     assert app.run("Counted") == 9
+
+
+def test_for_each_walks_every_row_and_column_of_a_range_past_the_used_range() -> None:
+    """For Each r In Range("A1:G8").Rows is eight rows however few hold anything, as the grid read in
+    tests/fixtures/tables/edits/ is in Excel; only a range as tall or wide as the sheet is cut to what it uses."""
+    app = ExcelApplication()
+    app.add_workbook()
+    app.add_module('''Public Function Counted() As String
+Dim line As Object, rows As Long, columns As Long
+Range("A1").Value = 1
+For Each line In Range("A1:G8").Rows
+rows = rows + 1
+Next line
+For Each line In Range("A1:G8").Columns
+columns = columns + 1
+Next line
+Counted = rows & "/" & columns & "/" & Range("A:A").Rows.Count & "/" & Range("A1:G8").Columns.Count
+End Function''', name="Probe")
+    assert app.run("Counted") == "8/7/1048576/7"

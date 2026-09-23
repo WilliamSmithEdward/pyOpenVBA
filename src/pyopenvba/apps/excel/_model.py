@@ -2976,7 +2976,7 @@ class RowsOf(VBACollection, ExcelObject):
         self.target = target
 
     def vba_items(self) -> list[object]:
-        area = self.target.bounded()
+        area = _walked(self.target)
         return [
             Range(self.target.sheet, [Area(row, area.left, row, area.right, area.sheet)])
             for row in range(area.top, area.bottom + 1)
@@ -2996,7 +2996,7 @@ class ColumnsOf(VBACollection, ExcelObject):
         self.target = target
 
     def vba_items(self) -> list[object]:
-        area = self.target.bounded()
+        area = _walked(self.target)
         return [
             Range(self.target.sheet, [Area(area.top, column, area.bottom, column, area.sheet)])
             for column in range(area.left, area.right + 1)
@@ -3005,6 +3005,13 @@ class ColumnsOf(VBACollection, ExcelObject):
     @member
     def Count(self) -> object:
         return VBAInt(self.target.first.columns, "Long")
+
+
+def _walked(target: Range) -> Area:
+    """The block For Each walks a range's rows or columns over: all of it, but for one spanning every row or
+    column of the sheet, which is cut to what the sheet uses (see Range.bounded)."""
+    area = target.first
+    return target.bounded() if area.rows >= MAX_ROWS or area.columns >= MAX_COLUMNS else area
 
 
 # --- names -------------------------------------------------------------------------------------

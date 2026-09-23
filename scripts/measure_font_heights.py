@@ -1,19 +1,23 @@
-"""How tall Excel makes a row for the fonts in its cells, on a 96-DPI display.
+"""How tall Excel makes a row for the fonts in it, on a 96-DPI display.
 
-A row that keeps no height of its own is as tall as its tallest font, and
-never shorter than the standard row. How tall a font makes it depends on
-the font's pixel size, round(points * 4 / 3), and on the font itself,
-through its hinted metrics, irregularly enough that no formula over the
-font's tables reproduces it. So this measures every pixel size from 1 to
-546 (409.5pt) for each font, in regular, bold, italic and bold italic,
-and records the row's height in pixels and the descent Excel writes for
-it. Excel keeps about a thousand fonts in a workbook, so each batch of
-cases gets a workbook of its own.
+A row that keeps no height of its own is as tall as the fonts in it make
+it. How tall a font makes it depends on the font's pixel size,
+round(points * 4 / 3), and on the font itself, through its hinted
+metrics, irregularly enough that no formula over the font's tables
+reproduces it. So this measures every pixel size from 1 to 546 (409.5pt)
+for each font, in regular, bold, italic and bold italic, and records the
+row's height in pixels and the descent Excel writes for it. Excel keeps
+about a thousand fonts in a workbook, so each batch of cases gets a
+workbook of its own.
 
-    python scripts/measure_font_heights.py
+    python scripts/measure_font_heights.py            # beside the Normal font
+    python scripts/measure_font_heights.py --alone    # on a row to itself
 
-writes tests/fixtures/font_rows.json, from which
-scripts/bake_font_rows.py builds src/pyopenvba/apps/excel/_font_rows.py.
+The first sets the font on one cell, so the row still holds the Normal
+font everywhere else; the second sets it on the whole row, which leaves
+it alone there. Both write tests/fixtures/font_rows.json, the second into
+the tables the first made, and scripts/bake_font_rows.py builds
+src/pyopenvba/apps/excel/_font_rows.py from it.
 """
 
 from __future__ import annotations
@@ -51,7 +55,14 @@ def points(pixels: int) -> float:
     return max(pixels * 0.75, 1.0)
 
 
-def procedure(index: int, batch: list[tuple[str, bool, bool, int]], target: Path) -> list[str]:
+def procedure(index: int, batch: list[tuple[str, bool, bool, int]], target: Path, alone: bool) -> list[str]:
+    """One workbook's worth of cases: each font on a row of its own.
+
+    Set on one cell, the font shares its row with the Normal font in
+    every other column. Set on the whole row, which is how a row format
+    is kept, it is alone there, and a font smaller than the Normal one
+    then makes the row shorter than the standard.
+    """
     spec = ";".join(f"{font}|{int(bold)}|{int(italic)}|{points(pixels)!r}" for font, bold, italic, pixels in batch)
     pieces = [spec[start:start + 800] for start in range(0, len(spec), 800)]
     lines = [f"Private Function Batch{index}() As String", "Dim out As String, i As Long, spec As Variant",
@@ -59,7 +70,8 @@ def procedure(index: int, batch: list[tuple[str, bool, bool, int]], target: Path
              "Set wb = Workbooks.Add(xlWBATWorksheet)", "Set ws = wb.Worksheets(1)"]
     lines += [f's = s & "{piece}"' for piece in pieces]
     lines += ['spec = Split(s, ";")', "For i = 0 To UBound(spec)", 'parts = Split(spec(i), "|")',
-              "With ws.Cells(i + 1, 1).Font", ".Name = parts(0)", '.Bold = (parts(1) = "1")',
+              "With ws.Rows(i + 1).Font" if alone else "With ws.Cells(i + 1, 1).Font", ".Name = parts(0)",
+              '.Bold = (parts(1) = "1")',
               '.Italic = (parts(2) = "1")', ".Size = Val(parts(3))", "End With",
               'out = out & ws.Rows(i + 1).Height & ","', "Next i",
               f'wb.SaveAs Filename:="{target}", FileFormat:=51', "wb.Close False",
@@ -72,6 +84,9 @@ PER_RUN = 8
 
 
 def main() -> None:
+    import sys
+
+    alone = "--alone" in sys.argv[1:]
     items = cases()
     folder = Path(tempfile.mkdtemp())
     batches = [items[start:start + BATCH] for start in range(0, len(items), BATCH)]
@@ -89,7 +104,7 @@ def main() -> None:
             body: list[str] = []
             for index in indexes:
                 head.append(f'out = out & Batch{index}() & "#"')
-                body += procedure(index, batches[index], targets[index])
+                body += procedure(index, batches[index], targets[index], alone)
             head += ["Application.ScreenUpdating = True", "Probe = out", "End Function"]
             result = excel.run_vba("\n".join(head + body) + "\n", "Probe", timeout=900.0)
             assert result.ok, f"{result.outcome}: {result.message} {result.error}"
@@ -109,8 +124,16 @@ def main() -> None:
                             "row": round(float(height) / 0.75), "ht": stored.group(1) if stored else None,
                             "descent": descent.group(1) if descent else None})
     tables = compact(records)
+    if alone:
+        # Kept beside the measurement with the Normal font, table by table.
+        existing: list[dict[str, object]] = json.loads(OUT.read_text(encoding="utf-8"))
+        by_key = {(t["font"], t["bold"], t["italic"]): t for t in tables}
+        for table in existing:
+            found = by_key[(table["font"], table["bold"], table["italic"])]
+            table["alone"], table["alone_descent"] = found["rows"], found["descent"]
+        tables = existing
     OUT.write_text(written(tables), encoding="utf-8")
-    print("saved", len(tables), "tables from", len(records), "cases")
+    print("saved", len(tables), "tables from", len(records), "cases", "(alone)" if alone else "")
 
 
 def written(tables: list[dict[str, object]]) -> str:
@@ -146,7 +169,7 @@ def compact(records: list[dict[str, object]]) -> list[dict[str, object]]:
             spelled = str(record["descent"])
             twips = round(float(spelled) * 20)
             assert excel_number(twips / 20) == spelled, (font, pixels, spelled)
-            assert record["ht"] == (height_text(row * 4) if row > 20 else None), (font, pixels, record["ht"])
+            assert record["ht"] == (height_text(row * 4) if row != 20 else None), (font, pixels, record["ht"])
             rows.append(row)
             descents.append(twips)
         out.append({"font": font, "bold": bold, "italic": italic, "rows": rows, "descent": descents})

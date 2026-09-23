@@ -55,9 +55,13 @@ def test_the_baked_font_table_is_the_measurement() -> None:
     for table in tables:
         index = _font_rows.table_of(table["font"].upper(), table["bold"], table["italic"])
         assert index is not None, table["font"]
+        pixel_sizes = range(1, _font_rows.MOST_PIXELS + 1)
         measured = list(zip(table["rows"], table["descent"], strict=True))
-        baked = [_font_rows.row_of(index, pixels) for pixels in range(1, _font_rows.MOST_PIXELS + 1)]
+        baked = [_font_rows.row_of(index, pixels) for pixels in pixel_sizes]
         assert baked == measured, (table["font"], table["bold"], table["italic"])
+        measured_alone = list(zip(table["alone"], table["alone_descent"], strict=True))
+        baked_alone = [_font_rows.row_of(index, pixels, alone=True) for pixels in pixel_sizes]
+        assert baked_alone == measured_alone, (table["font"], table["bold"], table["italic"], "alone")
 
 
 @pytest.mark.parametrize("record", UNMEASURED, ids=[record["name"] for record in UNMEASURED])

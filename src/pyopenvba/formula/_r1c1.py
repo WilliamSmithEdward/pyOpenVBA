@@ -65,16 +65,21 @@ def from_a1(formula: str, row: int, column: int) -> str:
             continue
         _, reference = split_sheet(token.text)
         parts: list[str] = []
+        whole = False
         for corner in reference.split(":"):
             a1 = _A1.fullmatch(corner)
             assert a1 is not None
             col_fixed, letters, row_fixed, digits = a1.groups()
+            whole = whole or not (letters and digits)
             axes: list[str] = []
             for axis, value, fixed, origin in (("R", int(digits) if digits else None, row_fixed or (col_fixed if not letters else ""), row),
                                                ("C", column_number(letters) if letters else None, col_fixed, column)):
                 if value is not None:
                     axes.append(axis + (str(value) if fixed else (f"[{value - origin}]" if value != origin else "")))
             parts.append("".join(axes))
+        if whole and len(parts) == 2 and parts[0] == parts[1]:
+            # A whole row or column is written once: A:A is C, not C:C.
+            parts = parts[:1]
         pieces.append((token.at, token.at + len(token.text), _prefix(token.text, reference) + ":".join(parts)))
     for start, end, replacement in reversed(pieces):
         formula = formula[:start] + replacement + formula[end:]

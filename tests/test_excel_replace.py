@@ -8,9 +8,6 @@ found; and 20 numbers in 26 formats, each read back as the text Replace
 edits by replacing every digit in turn with q. Each layout runs on a
 fresh workbook in the model, with the year a date typed without one
 falls in held at the year the fixture was measured.
-
-A formula Replace changes keeps the text it was left with, where Excel
-spells its references in capitals; that layout is expected to fail.
 """
 
 from __future__ import annotations
@@ -27,9 +24,6 @@ RECORD: dict[str, Any] = json.loads((Path(__file__).parent / "fixtures" / "repla
 LAYOUTS: list[dict[str, Any]] = RECORD["layouts"]
 EDIT_TEXTS: dict[str, Any] = RECORD["edit_texts"]
 
-#: Layouts the model does not reproduce yet, and why.
-KNOWN = {"formula_case": "Excel spells a formula's references in capitals; the model keeps the text as written"}
-
 
 def _run(layout: dict[str, Any]) -> object:
     code = ["Public Function Report() As String", "Dim ws As Object, failed As String, v As Variant, f As Object",
@@ -44,9 +38,7 @@ def _run(layout: dict[str, Any]) -> object:
         return app.run("Report")
 
 
-@pytest.mark.parametrize("layout", [
-    pytest.param(layout, marks=pytest.mark.xfail(reason=KNOWN[layout["name"]], strict=True))
-    if layout["name"] in KNOWN else layout for layout in LAYOUTS], ids=[layout["name"] for layout in LAYOUTS])
+@pytest.mark.parametrize("layout", LAYOUTS, ids=[layout["name"] for layout in LAYOUTS])
 def test_replace_leaves_what_excel_leaves(layout: dict[str, Any]) -> None:
     assert _run(layout) == layout["answers"]
 

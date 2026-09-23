@@ -1,0 +1,485 @@
+{
+ "helper": "Public Function MyUdf(x As Variant) As Variant\n    MyUdf = x\nEnd Function\n\nPrivate Function Spelled(ws As Object, text As String) As String\n    Dim c As Object\n    Set c = ws.Range(\"A1\")\n    c.Clear\n    On Error Resume Next\n    Err.Clear\n    c.Formula = text\n    If Err.Number <> 0 Then\n        Spelled = \"E\" & Err.Number\n    Else\n        Spelled = c.Formula & \"<~>\" & c.FormulaR1C1 & \"<~>\" & c.HasFormula\n    End If\n    On Error GoTo 0\nEnd Function\n",
+ "cases": [
+  {
+   "formula": "\"=a1+b2\"",
+   "answer": "=A1+B2<~>=RC+R[1]C[1]<~>True"
+  },
+  {
+   "formula": "\"=$a$1+a$1+$a1\"",
+   "answer": "=$A$1+A$1+$A1<~>=R1C1+R1C+RC1<~>True"
+  },
+  {
+   "formula": "\"=sum(a1:b2)\"",
+   "answer": "=SUM(A1:B2)<~>=SUM(RC:R[1]C[1])<~>True"
+  },
+  {
+   "formula": "\"=SUM(B2:A1)\"",
+   "answer": "=SUM(A1:B2)<~>=SUM(RC:R[1]C[1])<~>True"
+  },
+  {
+   "formula": "\"=SUM(A2:B1)\"",
+   "answer": "=SUM(A1:B2)<~>=SUM(RC:R[1]C[1])<~>True"
+  },
+  {
+   "formula": "\"=SUM($B$2:A1)\"",
+   "answer": "=SUM(A1:$B$2)<~>=SUM(RC:R2C2)<~>True"
+  },
+  {
+   "formula": "\"=a1:a1\"",
+   "answer": "=A1:A1<~>=RC:RC<~>True"
+  },
+  {
+   "formula": "\"=SUM(a:a)\"",
+   "answer": "=SUM(A:A)<~>=SUM(C)<~>True"
+  },
+  {
+   "formula": "\"=SUM(1:1)\"",
+   "answer": "=SUM(1:1)<~>=SUM(R)<~>True"
+  },
+  {
+   "formula": "\"=SUM(b:a)\"",
+   "answer": "=SUM(A:B)<~>=SUM(C:C[1])<~>True"
+  },
+  {
+   "formula": "\"=SUM(2:1)\"",
+   "answer": "=SUM(1:2)<~>=SUM(R:R[1])<~>True"
+  },
+  {
+   "formula": "\"=SUM($b:a)\"",
+   "answer": "=SUM(A:$B)<~>=SUM(C:C2)<~>True"
+  },
+  {
+   "formula": "\"=xfd1048576\"",
+   "answer": "=XFD1048576<~>=R[1048575]C[16383]<~>True"
+  },
+  {
+   "formula": "\"=SUM(A1:B2 B1:C3)\"",
+   "answer": "=SUM(A1:B2 B1:C3)<~>=SUM(RC:R[1]C[1] RC[1]:R[2]C[2])<~>True"
+  },
+  {
+   "formula": "\"=SUM((A1,B1))\"",
+   "answer": "=SUM((A1,B1))<~>=SUM((RC,RC[1]))<~>True"
+  },
+  {
+   "formula": "\"=data!a1\"",
+   "answer": "=Data!A1<~>=Data!RC<~>True"
+  },
+  {
+   "formula": "\"=DATA!A1\"",
+   "answer": "=Data!A1<~>=Data!RC<~>True"
+  },
+  {
+   "formula": "\"='data'!A1\"",
+   "answer": "=Data!A1<~>=Data!RC<~>True"
+  },
+  {
+   "formula": "\"='Data'!A1\"",
+   "answer": "=Data!A1<~>=Data!RC<~>True"
+  },
+  {
+   "formula": "\"='My Sheet'!a1\"",
+   "answer": "='My Sheet'!A1<~>='My Sheet'!RC<~>True"
+  },
+  {
+   "formula": "\"='my sheet'!A1\"",
+   "answer": "='My Sheet'!A1<~>='My Sheet'!RC<~>True"
+  },
+  {
+   "formula": "\"=Data!A1:B2\"",
+   "answer": "=Data!A1:B2<~>=Data!RC:R[1]C[1]<~>True"
+  },
+  {
+   "formula": "\"=SUM(Data!B2:A1)\"",
+   "answer": "=SUM(Data!A1:B2)<~>=SUM(Data!RC:R[1]C[1])<~>True"
+  },
+  {
+   "formula": "\"=SUM(data!a1:data!b2)\"",
+   "answer": "=SUM(Data!A1:Data!B2)<~>=SUM(Data!RC:Data!R[1]C[1])<~>True"
+  },
+  {
+   "formula": "\"=My Sheet!A1\"",
+   "answer": "=My Sheet!A1<~>=My Sheet!RC<~>True"
+  },
+  {
+   "formula": "\"=sum(1,2)\"",
+   "answer": "=SUM(1,2)<~>=SUM(1,2)<~>True"
+  },
+  {
+   "formula": "\"=Sum(1, 2)\"",
+   "answer": "=SUM(1, 2)<~>=SUM(1, 2)<~>True"
+  },
+  {
+   "formula": "\"=if(true,1,0)\"",
+   "answer": "=IF(TRUE,1,0)<~>=IF(TRUE,1,0)<~>True"
+  },
+  {
+   "formula": "\"=foo(1)\"",
+   "answer": "=foo(1)<~>=foo(1)<~>True"
+  },
+  {
+   "formula": "\"=Foo(1)+foo(2)\"",
+   "answer": "=foo(1)+foo(2)<~>=foo(1)+foo(2)<~>True"
+  },
+  {
+   "formula": "\"=myudf(1)\"",
+   "answer": "=myudf(1)<~>=myudf(1)<~>True"
+  },
+  {
+   "formula": "\"=MYUDF(1)\"",
+   "answer": "=myudf(1)<~>=myudf(1)<~>True"
+  },
+  {
+   "formula": "\"=na()\"",
+   "answer": "=NA()<~>=NA()<~>True"
+  },
+  {
+   "formula": "\"=pi()\"",
+   "answer": "=PI()<~>=PI()<~>True"
+  },
+  {
+   "formula": "\"=true\"",
+   "answer": "=TRUE<~>=TRUE<~>True"
+  },
+  {
+   "formula": "\"=false\"",
+   "answer": "=FALSE<~>=FALSE<~>True"
+  },
+  {
+   "formula": "\"=True+1\"",
+   "answer": "=TRUE+1<~>=TRUE+1<~>True"
+  },
+  {
+   "formula": "\"=true()\"",
+   "answer": "=TRUE()<~>=TRUE()<~>True"
+  },
+  {
+   "formula": "\"=myname\"",
+   "answer": "=MyName<~>=MyName<~>True"
+  },
+  {
+   "formula": "\"=MYNAME\"",
+   "answer": "=MyName<~>=MyName<~>True"
+  },
+  {
+   "formula": "\"=undefinedname\"",
+   "answer": "=undefinedname<~>=undefinedname<~>True"
+  },
+  {
+   "formula": "\"=sum(myname)\"",
+   "answer": "=SUM(MyName)<~>=SUM(MyName)<~>True"
+  },
+  {
+   "formula": "\"=Undefined+undefined\"",
+   "answer": "=Undefined+Undefined<~>=Undefined+Undefined<~>True"
+  },
+  {
+   "formula": "\"=len(\"\"x\"\")\"",
+   "answer": "=LEN(\"x\")<~>=LEN(\"x\")<~>True"
+  },
+  {
+   "formula": "\"=iferror(1/0,0)\"",
+   "answer": "=IFERROR(1/0,0)<~>=IFERROR(1/0,0)<~>True"
+  },
+  {
+   "formula": "\"=xlookup(1,a2:a3,b2:b3)\"",
+   "answer": "=XLOOKUP(1,A2:A3,B2:B3)<~>=XLOOKUP(1,R[1]C:R[2]C,R[1]C[1]:R[2]C[1])<~>True"
+  },
+  {
+   "formula": "\"=textjoin(\"\",\"\",true,a2:a3)\"",
+   "answer": "=TEXTJOIN(\",\",TRUE,A2:A3)<~>=TEXTJOIN(\",\",TRUE,R[1]C:R[2]C)<~>True"
+  },
+  {
+   "formula": "\"=1.50\"",
+   "answer": "=1.5<~>=1.5<~>True"
+  },
+  {
+   "formula": "\"=1e3\"",
+   "answer": "=1000<~>=1000<~>True"
+  },
+  {
+   "formula": "\"=1E+3\"",
+   "answer": "=1000<~>=1000<~>True"
+  },
+  {
+   "formula": "\"=1e-3\"",
+   "answer": "=0.001<~>=0.001<~>True"
+  },
+  {
+   "formula": "\"=.5\"",
+   "answer": "=0.5<~>=0.5<~>True"
+  },
+  {
+   "formula": "\"=5.\"",
+   "answer": "=5<~>=5<~>True"
+  },
+  {
+   "formula": "\"=0005\"",
+   "answer": "=5<~>=5<~>True"
+  },
+  {
+   "formula": "\"=1.0E-10\"",
+   "answer": "=0.0000000001<~>=0.0000000001<~>True"
+  },
+  {
+   "formula": "\"=123456789012345678\"",
+   "answer": "=123456789012345000<~>=123456789012345000<~>True"
+  },
+  {
+   "formula": "\"=1e308\"",
+   "answer": "E1004"
+  },
+  {
+   "formula": "\"=0.1+0.2\"",
+   "answer": "=0.1+0.2<~>=0.1+0.2<~>True"
+  },
+  {
+   "formula": "\"=1234567890.12345\"",
+   "answer": "=1234567890.12345<~>=1234567890.12345<~>True"
+  },
+  {
+   "formula": "\"=100000000000000000000\"",
+   "answer": "=100000000000000000000<~>=100000000000000000000<~>True"
+  },
+  {
+   "formula": "\"=1E+21\"",
+   "answer": "=1E+21<~>=1E+21<~>True"
+  },
+  {
+   "formula": "\"=0.000001\"",
+   "answer": "=0.000001<~>=0.000001<~>True"
+  },
+  {
+   "formula": "\"=0.0000001\"",
+   "answer": "=0.0000001<~>=0.0000001<~>True"
+  },
+  {
+   "formula": "\"=1e-20\"",
+   "answer": "=1E-20<~>=1E-20<~>True"
+  },
+  {
+   "formula": "\"=3.14159265358979323846\"",
+   "answer": "=3.14159265358979<~>=3.14159265358979<~>True"
+  },
+  {
+   "formula": "\"=-0\"",
+   "answer": "=0<~>=0<~>True"
+  },
+  {
+   "formula": "\"=0.0\"",
+   "answer": "=0<~>=0<~>True"
+  },
+  {
+   "formula": "\"=#n/a\"",
+   "answer": "=#N/A<~>=#N/A<~>True"
+  },
+  {
+   "formula": "\"=#div/0!\"",
+   "answer": "=#DIV/0!<~>=#DIV/0!<~>True"
+  },
+  {
+   "formula": "\"=#REF!\"",
+   "answer": "=#REF!<~>=#REF!<~>True"
+  },
+  {
+   "formula": "\"=#value!\"",
+   "answer": "=#VALUE!<~>=#VALUE!<~>True"
+  },
+  {
+   "formula": "\"=#name?\"",
+   "answer": "=#NAME?<~>=#NAME?<~>True"
+  },
+  {
+   "formula": "\"=#num!\"",
+   "answer": "=#NUM!<~>=#NUM!<~>True"
+  },
+  {
+   "formula": "\"=#null!\"",
+   "answer": "=#NULL!<~>=#NULL!<~>True"
+  },
+  {
+   "formula": "\"=iserror(#n/a)\"",
+   "answer": "=ISERROR(#N/A)<~>=ISERROR(#N/A)<~>True"
+  },
+  {
+   "formula": "\"=\"\"abc\"\"\"",
+   "answer": "=\"abc\"<~>=\"abc\"<~>True"
+  },
+  {
+   "formula": "\"=\"\"a\"\"&\"\"b\"\"\"",
+   "answer": "=\"a\"&\"b\"<~>=\"a\"&\"b\"<~>True"
+  },
+  {
+   "formula": "\"=\"\"A1\"\"\"",
+   "answer": "=\"A1\"<~>=\"A1\"<~>True"
+  },
+  {
+   "formula": "\"=\"\"\"\"\"",
+   "answer": "=\"\"<~>=\"\"<~>True"
+  },
+  {
+   "formula": "\"=\"\"a b\"\"\"",
+   "answer": "=\"a b\"<~>=\"a b\"<~>True"
+  },
+  {
+   "formula": "\"= 1 + 2\"",
+   "answer": "= 1 + 2<~>= 1 + 2<~>True"
+  },
+  {
+   "formula": "\"=1  +  2\"",
+   "answer": "=1  +  2<~>=1  +  2<~>True"
+  },
+  {
+   "formula": "\"=SUM( 1 , 2 )\"",
+   "answer": "=SUM( 1, 2 )<~>=SUM( 1, 2 )<~>True"
+  },
+  {
+   "formula": "\"=  1\"",
+   "answer": "=  1<~>=  1<~>True"
+  },
+  {
+   "formula": "\"=1 \"",
+   "answer": "=1<~>=1<~>True"
+  },
+  {
+   "formula": "\"= sum (1)\"",
+   "answer": "E1004"
+  },
+  {
+   "formula": "\"=1+\" & vbLf & \"2\"",
+   "answer": "=1+\n2<~>=1+\n2<~>True"
+  },
+  {
+   "formula": "\"=(1)\"",
+   "answer": "=(1)<~>=(1)<~>True"
+  },
+  {
+   "formula": "\"=((1))\"",
+   "answer": "=((1))<~>=((1))<~>True"
+  },
+  {
+   "formula": "\"=( 1 )\"",
+   "answer": "=( 1 )<~>=( 1 )<~>True"
+  },
+  {
+   "formula": "\"=SUM(1 ,2)\"",
+   "answer": "=SUM(1,2)<~>=SUM(1,2)<~>True"
+  },
+  {
+   "formula": "\"=-( 1)\"",
+   "answer": "=-( 1)<~>=-( 1)<~>True"
+  },
+  {
+   "formula": "\"=A1 \"",
+   "answer": "=A1<~>=RC<~>True"
+  },
+  {
+   "formula": "\"=A1  +B1\"",
+   "answer": "=A1  +B1<~>=RC  +RC[1]<~>True"
+  },
+  {
+   "formula": "\"=1<>2\"",
+   "answer": "=1<>2<~>=1<>2<~>True"
+  },
+  {
+   "formula": "\"=1>=2\"",
+   "answer": "=1>=2<~>=1>=2<~>True"
+  },
+  {
+   "formula": "\"=1 <> 2\"",
+   "answer": "=1 <> 2<~>=1 <> 2<~>True"
+  },
+  {
+   "formula": "\"=+1\"",
+   "answer": "=1<~>=1<~>True"
+  },
+  {
+   "formula": "\"=--1\"",
+   "answer": "=--1<~>=--1<~>True"
+  },
+  {
+   "formula": "\"=1%\"",
+   "answer": "=1%<~>=1%<~>True"
+  },
+  {
+   "formula": "\"=2^3\"",
+   "answer": "=2^3<~>=2^3<~>True"
+  },
+  {
+   "formula": "\"=-a1\"",
+   "answer": "=-A1<~>=-RC<~>True"
+  },
+  {
+   "formula": "\"=1&2\"",
+   "answer": "=1&2<~>=1&2<~>True"
+  },
+  {
+   "formula": "\"=a1=b1\"",
+   "answer": "=A1=B1<~>=RC=RC[1]<~>True"
+  },
+  {
+   "formula": "\"=1=1\"",
+   "answer": "=1=1<~>=1=1<~>True"
+  },
+  {
+   "formula": "\"={1,2;3,4}\"",
+   "answer": "={1,2;3,4}<~>={1,2;3,4}<~>True"
+  },
+  {
+   "formula": "\"={1, 2}\"",
+   "answer": "={1,2}<~>={1,2}<~>True"
+  },
+  {
+   "formula": "\"={1.50,\"\"a\"\",true}\"",
+   "answer": "={1.5,\"a\",TRUE}<~>={1.5,\"a\",TRUE}<~>True"
+  },
+  {
+   "formula": "\"=SUM({1,2,3})\"",
+   "answer": "=SUM({1,2,3})<~>=SUM({1,2,3})<~>True"
+  },
+  {
+   "formula": "\"={1;2}\"",
+   "answer": "={1;2}<~>={1;2}<~>True"
+  },
+  {
+   "formula": "\"={-1,+2}\"",
+   "answer": "={-1,2}<~>={-1,2}<~>True"
+  },
+  {
+   "formula": "\"+1+2\"",
+   "answer": "+1+2<~>+1+2<~>False"
+  },
+  {
+   "formula": "\"-1+2\"",
+   "answer": "-1+2<~>-1+2<~>False"
+  },
+  {
+   "formula": "\"+a1\"",
+   "answer": "+a1<~>+a1<~>False"
+  },
+  {
+   "formula": "\"=+a1\"",
+   "answer": "=+A1<~>=+RC<~>True"
+  },
+  {
+   "formula": "\"=1+\"",
+   "answer": "E1004"
+  },
+  {
+   "formula": "\"=sum(\"",
+   "answer": "E1004"
+  },
+  {
+   "formula": "\"=a1:\"",
+   "answer": "E1004"
+  },
+  {
+   "formula": "\"=)\"",
+   "answer": "E1004"
+  },
+  {
+   "formula": "\"=\"",
+   "answer": "=<~>=<~>False"
+  }
+ ]
+}

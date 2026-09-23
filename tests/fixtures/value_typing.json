@@ -589,6 +589,38 @@
    "answers": "String:Double;String:Double:1.66666666666667;String:1 2/3;String:1.66666666666667;String:;String:# ?/?;Boolean:False;Boolean:False;"
   },
   {
+   "text": "\"123456789012345678\"",
+   "answers": "String:Double;String:Double:1.23456789012345E+17;String:1.23457E+17;String:123456789012345000;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"1234567890123456789\"",
+   "answers": "String:Double;String:Double:1.23456789012345E+18;String:1.23457E+18;String:1234567890123450000;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"0.12345678901234567\"",
+   "answers": "String:Double;String:Double:0.123456789012345;String:0.123456789;String:0.123456789012345;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"12345678901234.5678\"",
+   "answers": "String:Double;String:Double:12345678901234.5;String:1.23457E+13;String:12345678901234.5;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"1.99999999999999999\"",
+   "answers": "String:Double;String:Double:1.99999999999999;String:2;String:1.99999999999999;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"99999999999999999\"",
+   "answers": "String:Double;String:Double:9.99999999999999E+16;String:1E+17;String:99999999999999900;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"-123456789012345678\"",
+   "answers": "String:Double;String:Double:-1.23456789012345E+17;String:-1.23457E+17;String:-123456789012345000;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"1.23456789012345678E+20\"",
+   "answers": "String:Double;String:Double:1.23456789012345E+20;String:1.23E+20;String:123456789012345000000;String:;String:0.00E+00;Boolean:False;Boolean:False;"
+  },
+  {
    "text": "\"1/2/2020  12:30\"",
    "answers": "String:Date;String:Date:1/2/2020 12:30:00 PM;String:1/2/2020 12:30;String:43832.5208333333;String:;String:m/d/yyyy h:mm;Boolean:False;Boolean:False;"
   },

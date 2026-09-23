@@ -464,6 +464,9 @@ class Workbook(ExcelObject):
         self.sheets_: list[Worksheet] = []
         self.names_ = Names(self)
         self.queries_ = Queries(self)
+        #: How the workbook first spelled each name its formulas use but it does not define, by lower case;
+        #: None until a formula is written, when the formulas it has teach it.
+        self.name_spellings: dict[str, str] | None = None
         self.active_sheet_index = 0
         #: The package this was loaded from, kept so a save can put back
         #: every part pyOpenVBA does not model.
@@ -1236,11 +1239,15 @@ class Range(ExcelObject):
             self._write(value)
             return
         anchor = self.first
+        spelled: str | None = None
         for row, column in self.writable_positions():
             if not _merges.writable(self.sheet, row, column):
                 continue
-            if value.startswith("=") and not self._keeps_text(row, column):
-                self._put_formula(row, column, shift_text(value, row - anchor.top, column - anchor.left))
+            if _is_formula(value) and not self._keeps_text(row, column):
+                if spelled is None:
+                    # Excel reads the formula once and writes it out again, as spelled_formula does.
+                    spelled = spelled_formula(self.sheet, value)
+                self._put_formula(row, column, shift_text(spelled, row - anchor.top, column - anchor.left))
             else:
                 self._type_into(row, column, value)
 
@@ -1286,13 +1293,14 @@ class Range(ExcelObject):
         for row, column in self.writable_positions():
             if not _merges.writable(self.sheet, row, column):
                 continue
-            if not value.startswith("=") or self._keeps_text(row, column):
+            if not _is_formula(value) or self._keeps_text(row, column):
                 self._type_into(row, column, value)
                 continue
             try:
-                self._put_formula(row, column, to_a1(value, row, column))
+                a1 = to_a1(value, row, column)
             except ValueError as exc:
                 raise error(1004, str(exc)) from None
+            self._put_formula(row, column, spelled_formula(self.sheet, a1))
 
     def _write_formula_array(self, array: VBAArray, *, r1c1: bool) -> None:
         from pyopenvba.formula._values import NA
@@ -1994,19 +2002,18 @@ class Range(ExcelObject):
         other cell, a Text cell's included, takes a formula as a formula.
         """
         from pyopenvba.apps.excel._typing import replaced
-        from pyopenvba.formula._parse import FormulaError, parse
 
         if not _merges.writable(self.sheet, row, column):
             return True
         cell = self.sheet.cell(row, column)
         prefixed = cell is not None and not cell.formula and isinstance(cell.value, str) \
             and cell.style is not None and cell.style.quote_prefix
-        if text.startswith("=") and not prefixed:
+        if _is_formula(text) and not prefixed:
             try:
-                parse(text)
-            except FormulaError:
+                formula = spelled_formula(self.sheet, text)
+            except VBARuntimeError:
                 return False
-            self._put_formula(row, column, text)
+            self._put_formula(row, column, formula)
             return True
         self._store(row, column, replaced(text, self.sheet.style_at(row, column).number_format, prefixed=prefixed))
         return True
@@ -2115,8 +2122,8 @@ class Range(ExcelObject):
     def _put(self, row: int, column: int, value: object, *, raw: bool = False) -> None:
         if not _merges.writable(self.sheet, row, column):
             return
-        if isinstance(value, str) and value.startswith("=") and not self._keeps_text(row, column):
-            self._put_formula(row, column, value)
+        if isinstance(value, str) and _is_formula(value) and not self._keeps_text(row, column):
+            self._put_formula(row, column, spelled_formula(self.sheet, value))
         else:
             self._type_into(row, column, value, raw=raw)
 
@@ -2756,6 +2763,56 @@ def _formula_text(value: object) -> str:
     if isinstance(value, (int, float)):
         return number_text(float(value), formula=True)
     return to_text(value)
+
+
+class _BookNames:
+    """The workbook a formula is written into, as spelling it asks (see pyopenvba.formula._spell)."""
+
+    def __init__(self, sheet: Worksheet) -> None:
+        self.book = sheet.book
+        self.home = sheet.name
+
+    def sheet(self, name: str) -> str | None:
+        return next((one.name for one in self.book.sheets_ if one.name.lower() == name.lower()), None)
+
+    def defined(self, name: str, sheet: str) -> str | None:
+        from pyopenvba._a1 import split_sheet
+
+        scope = next((one for one in self.book.sheets_ if one.name.lower() == sheet.lower()), None)
+        found = self.book.names_.find(name, scope=scope)
+        return None if found is None else split_sheet(found.entry.name)[1]
+
+    def remembered(self, name: str) -> str:
+        from pyopenvba.formula._spell import remembered_names
+
+        spellings = self.book.name_spellings
+        if spellings is None:
+            # A workbook learns the names its formulas already use the first time it needs one.
+            spellings = self.book.name_spellings = {}
+            for sheet in self.book.sheets_:
+                names = _BookNames(sheet)
+                for _, cell in sorted(sheet.cells_.items()):
+                    for one in remembered_names(cell.formula, names) if cell.formula else []:
+                        spellings.setdefault(one.lower(), one)
+        return spellings.setdefault(name.lower(), name)
+
+
+def _is_formula(text: str) -> bool:
+    """Whether a string written to a cell is a formula: it starts with =, and = alone is text."""
+    return text.startswith("=") and text != "="
+
+
+def spelled_formula(sheet: Worksheet, formula: str) -> str:
+    """A formula a macro writes to ``sheet``, as Excel spells it back; error 1004 where Excel refuses it."""
+    from pyopenvba.formula._parse import FormulaError
+    from pyopenvba.formula._spell import UnmodelledFormulaError, spelled
+
+    try:
+        return spelled(formula, _BookNames(sheet))
+    except UnmodelledFormulaError as exc:
+        raise VBAUnsupportedError(str(exc)) from None
+    except FormulaError:
+        raise error(1004, "Application-defined or object-defined error") from None
 
 
 def stored_value(value: object) -> object:

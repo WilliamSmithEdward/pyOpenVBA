@@ -15,6 +15,7 @@ scripts/measure_typing_formats.py):
 - A number may carry a sign, parentheses for a negative, a dollar sign,
   thousands separators (three or more digits after each), a percent sign,
   an exponent, or a whole part and a fraction; each brings its own format.
+  Digits past the fifteenth significant one are cut off, not rounded.
 - Dates read month first, with two-digit years before 30 in this century
   and years from 1900 to 9999 on Excel's calendar, which has a 29 February
   1900; a month and a number that cannot be its day is a month and year;
@@ -45,6 +46,7 @@ from dataclasses import dataclass
 from decimal import Decimal
 
 from pyopenvba.formula._display import clock, format_value
+from pyopenvba.formula._parse import literal
 from pyopenvba.formula._values import ERRORS, ExcelError, number_text
 from pyopenvba.interpreter._values import EMPTY, VBACurrency, VBADate, VBAErrorValue, error
 
@@ -260,7 +262,7 @@ def _number(body: str, *, fractions: bool) -> Typed | None:
     if _EXPONENT.fullmatch(text):
         if percent:
             return None
-        value = float(text)
+        value = literal(text)
         if math.isinf(value):
             # Excel keeps a number too large as text, and still gives the cell the scientific format.
             return Typed(None, "0.00E+00")
@@ -282,7 +284,7 @@ def _number(body: str, *, fractions: bool) -> Typed | None:
     plain = _PLAIN.fullmatch(text)
     if plain is None or not (plain.group("whole") or plain.group("fraction")):
         return None
-    value = float(text.replace(",", ""))
+    value = literal(text.replace(",", ""))
     if percent:
         value /= 100
     value = -value if negative else value

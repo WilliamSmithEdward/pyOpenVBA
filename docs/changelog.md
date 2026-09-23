@@ -19,8 +19,9 @@ All notable changes to pyOpenVBA are documented here. This project follows
   as text when its format is Text, where a Date or Currency becomes the
   text Excel shows. `Value` reads a number as a Date or Currency through
   the cell's format, raising error 6 where one cannot hold it, and
-  `Value2` as a Double. 3,939 writes in live Excel and a workbook it
-  saved pin the rules.
+  `Value2` as a Double. A number typed with more than fifteen significant
+  digits keeps fifteen, the rest cut off rather than rounded. 3,947
+  writes in live Excel and a workbook it saved pin the rules.
 - `Range.PrefixCharacter`: a leading apostrophe keeps the rest as text
   and sets the cell's prefix flag, which its format keeps until `Clear` or
   `ClearFormats`, and which a save writes as Excel's `quotePrefix`.
@@ -349,6 +350,24 @@ All notable changes to pyOpenVBA are documented here. This project follows
   to an exponent from 1E+11 and below 1E-4.
 - `End` stopped at a cell with only a format; Excel walks over one as
   over an empty cell.
+- A formula a macro writes is spelled as Excel spells it back, through
+  `Formula`, `FormulaR1C1`, `Value`, an array or `Replace`: references in
+  capitals and ranges from their top-left corner (`SUM(B2:A1)` is
+  `SUM(A1:B2)`), sheets as they are named, Excel's functions, TRUE,
+  FALSE and errors in capitals, defined names as they were defined, any
+  other name as the workbook first saw it, and numbers written out again
+  from their first fifteen digits (`=1.50` is `=1.5`, `=+1` is `=1`).
+  Spaces stay, except before a comma, at the end and in an array
+  constant. A formula Excel refuses to read raises error 1004 where the
+  model kept it, and `=` alone is text. The model kept the text as
+  written. 120 formulas in live Excel pin the rules.
+- Formulas read ranges between two sheet-qualified references
+  (`Data!A1:Data!B2`), intersections (`A1:B2 B1:C3`) and unions in
+  brackets; working one out reports itself unsupported, where the text
+  could not be read at all. A function's bracket has to follow its name,
+  as in Excel, and an error typed in lower case is read.
+- `FormulaR1C1` spelt a whole row or column in its own row or column
+  twice, `C:C` for `A:A`; Excel writes `C`.
 - `Find` among formulas read a constant as the cell shows it, so 1234 in
   `#,##0` was found by `1,234` and not by `1234`; it reads it as the
   formula bar shows it, as Excel does.

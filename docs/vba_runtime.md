@@ -295,6 +295,23 @@ scope when saved.
 Conditional reference names evaluate only the selected branch; selected
 scalar values and errors provide no control source or linked destination.
 
+**Formulas are spelled as Excel spells them.** Excel does not keep the
+text of a formula it is given: it reads it and writes it out again, and
+so does the model, whichever way the formula arrives -- `Formula`,
+`FormulaR1C1`, `Value`, an array or `Replace`
+(`tests/fixtures/formula_spelling.json`, 120 formulas). References go into
+capitals and ranges run from their top-left corner, each coordinate
+keeping its own `$`, so `SUM($B$2:A1)` reads back `SUM(A1:$B$2)`. Sheets
+are spelled as named and quoted only where they need it. Excel's own
+functions, TRUE, FALSE and errors are in capitals, defined names are
+spelled as defined, and any other name -- an unknown function, a macro's
+function, an undefined name -- as the workbook first saw it. Numbers keep
+fifteen significant digits and are written out again, a sign in front
+being part of the number. Spaces stay, except before a comma, at the end
+and inside an array constant. A formula Excel cannot read raises error
+1004, `=` alone is text, and a structured reference or a dynamic-array
+`@` or `#` reports itself unsupported.
+
 **Formula arrays.** `Range.Formula` and `Range.FormulaR1C1` share array read/write
 handling. Reads retain the full requested first area, including trailing blank
 cells. A1 array entries retain their references when placed individually;

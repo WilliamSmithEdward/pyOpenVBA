@@ -166,6 +166,11 @@ def _safely(apply: Callable[[object], object], value: object) -> object:
 
 
 def _binary(node: P.Binary, context: Context) -> object:
+    if node.op in P.REFERENCE_OPS:
+        from pyopenvba.exceptions import VBAUnsupportedError
+
+        raise VBAUnsupportedError("a range between references, an intersection or a union of references in a "
+                                  "formula is not implemented")
     left = _operand(node.left, context)
     right = _operand(node.right, context)
     if isinstance(left, Matrix) or isinstance(right, Matrix):

@@ -3,7 +3,10 @@
 The grammar is not VBA's: ``&`` is the only concatenation, ``^`` binds
 tighter than unary minus in one direction and looser in the other,
 ``%`` follows its operand, a reference is a value, and TRUE is a
-constant rather than a keyword.
+constant rather than a keyword. References join tighter than anything:
+``:`` spans two of them, a space intersects them, and a comma inside
+brackets unites them; a function's bracket follows its name with no
+space between.
 
 What is parsed here is the text after the leading ``=``.  A formula
 that this cannot read raises :class:`FormulaError`, which is a compile
@@ -15,6 +18,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
+from decimal import ROUND_DOWN, Decimal, localcontext
 from typing import Final
 
 from pyopenvba.exceptions import PyOpenVBAError
@@ -90,11 +94,11 @@ _TOKEN: Final = re.compile(
     rf"""
     (?P<ws>\s+)
   | (?P<text>"(?:[^"]|"")*")
-  | (?P<error>(?:{_SHEET})?(?:\#N/A|\#NULL!|\#DIV/0!|\#VALUE!|\#REF!|\#NAME\?|\#NUM!|\#SPILL!|\#CALC!|\#GETTING_DATA))
+  | (?P<error>(?:{_SHEET})?(?i:\#N/A|\#NULL!|\#DIV/0!|\#VALUE!|\#REF!|\#NAME\?|\#NUM!|\#SPILL!|\#CALC!|\#GETTING_DATA))
   | (?P<ref>(?:{_SHEET})?(?:{_CELL}:{_CELL}|{_WHOLE_COLUMNS}|{_WHOLE_ROWS}|{_CELL})(?![A-Za-z0-9_.(]))
   | (?P<name>(?:{_SHEET})?[A-Za-z_\\À-￿][A-Za-z0-9_.À-￿]*)
   | (?P<number>(?:[0-9]+\.?[0-9]*|\.[0-9]+)(?:[eE][-+]?[0-9]+)?)
-  | (?P<op><>|<=|>=|[=<>+\-*/^&%])
+  | (?P<op><>|<=|>=|[=<>+\-*/^&%:])
   | (?P<open>\()
   | (?P<close>\))
   | (?P<comma>,)
@@ -113,8 +117,8 @@ class Token:
     at: int
 
 
-def tokenize(source: str) -> list[Token]:
-    """Every token of a formula, without the leading equals sign."""
+def tokenize(source: str, *, spaces: bool = False) -> list[Token]:
+    """Every token of a formula, without the leading equals sign; ``spaces`` keeps the runs of white space too."""
     out: list[Token] = []
     position = 0
     while position < len(source):
@@ -123,11 +127,25 @@ def tokenize(source: str) -> list[Token]:
             raise FormulaError(f"cannot read the formula at {source[position:position + 12]!r}")
         position = match.end()
         kind = match.lastgroup or ""
-        if kind == "ws":
+        if kind == "ws" and not spaces:
             continue
         out.append(Token(kind, match.group(0), match.start()))
     out.append(Token("eof", "", len(source)))
     return out
+
+
+def literal(text: str) -> float:
+    """A number written in a formula, as Excel keeps it: to fifteen significant digits, the rest cut off.
+
+    Excel drops the digits past the fifteenth rather than rounding them, so
+    =123456789012345678 holds 123456789012345000.
+    """
+    number = Decimal(text)
+    if not number:
+        return 0.0
+    with localcontext() as context:
+        context.prec = 1000
+        return float(number.quantize(Decimal(1).scaleb(number.adjusted() - 14), rounding=ROUND_DOWN))
 
 
 def split_sheet(text: str) -> tuple[str, str]:
@@ -141,6 +159,9 @@ def split_sheet(text: str) -> tuple[str, str]:
 
 
 # --- the parser ---------------------------------------------------------------------
+
+#: The operators that join references: a range between two, their intersection, and their union.
+REFERENCE_OPS: Final = frozenset({":", " ", ","})
 
 #: Loosest first; every one is left-associative.
 _LEVELS: Final = (
@@ -210,23 +231,48 @@ class Parser:
             op = self.advance().text
             operand = self.tight()
             return operand if op == "+" else Unary(op="-", operand=operand)
-        node = self.primary()
+        node = self.operand()
         while self.token.kind == "op" and self.token.text == "%":
             self.advance()
             node = Unary(op="%", operand=node)
         return node
 
+    def operand(self) -> Node:
+        """A primary with the reference operators that bind tightest: a range (``:``) and an intersection (a space)."""
+        node = self.primary()
+        while True:
+            if self.token.kind == "op" and self.token.text == ":":
+                self.advance()
+                node = Binary(op=":", left=self.referable(node), right=self.referable(self.primary()))
+            elif self.token.kind in ("ref", "name", "open") and self.spaced():
+                node = Binary(op=" ", left=self.referable(node), right=self.referable(self.primary()))
+            else:
+                return node
+
+    def spaced(self) -> bool:
+        """Whether white space stands between the last token read and the next."""
+        if not self.at:
+            return False
+        before = self.tokens[self.at - 1]
+        return self.token.at > before.at + len(before.text)
+
+    def referable(self, node: Node) -> Node:
+        """A reference operator's operand, which has to be a reference, a name or a call that might give one."""
+        if isinstance(node, (Reference, NameNode, Call)) or (isinstance(node, Binary) and node.op in REFERENCE_OPS):
+            return node
+        raise FormulaError(f"a reference operator needs references in {self.source!r}")
+
     def primary(self) -> Node:
         token = self.token
         if token.kind == "number":
             self.advance()
-            return Literal(value=float(token.text))
+            return Literal(value=literal(token.text))
         if token.kind == "text":
             self.advance()
             return Literal(value=token.text[1:-1].replace('""', '"'))
         if token.kind == "error":
             self.advance()
-            text = "#" + token.text.rpartition("!#")[2] if "!#" in token.text else token.text
+            text = ("#" + token.text.rpartition("!#")[2] if "!#" in token.text else token.text).upper()
             return Literal(value=ERRORS.get(text, ExcelError(text)))
         if token.kind == "ref":
             self.advance()
@@ -237,6 +283,10 @@ class Parser:
         if token.kind == "open":
             self.advance()
             inner = self.expression()
+            while self.token.kind == "comma":
+                # Inside brackets a comma joins references into a union.
+                self.advance()
+                inner = Binary(op=",", left=self.referable(inner), right=self.referable(self.expression()))
             self.expect("close")
             return inner
         if token.kind == "lbrace":
@@ -249,7 +299,8 @@ class Parser:
     def name_or_call(self) -> Node:
         token = self.advance()
         sheet, body = split_sheet(token.text)
-        if self.at_kind("open"):
+        # A call's bracket follows its name straight away; after a space it opens an intersection.
+        if self.at_kind("open") and not self.spaced():
             self.advance()
             args: list[Node] = []
             if self.at_kind("close"):

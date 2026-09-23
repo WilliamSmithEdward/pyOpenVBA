@@ -1081,9 +1081,32 @@ TotalsRowRange, ListColumns and ListRows; its name, style and style
 options can be set, and `Range.ListObject` finds the table a cell is in.
 A save writes a new table in the part Excel writes for it, and a table
 read from a file keeps its part until it changes. Whole rows inserted or
-deleted through a table carry it; structured references, the totals
-row, ListRows.Add and Delete, Resize, Unlist and column edits through a
-table report themselves.
+deleted through a table carry it; the totals row, ListRows.Add and
+Delete, Resize, Unlist and column edits through a table report
+themselves.
+
+**Structured references.** A formula names part of a table by its name
+and columns, `Table1[Qty]`, `Table1[[#Headers],[Qty]:[Price]]`,
+`Table1[@Qty]`, and the model reads, spells, saves and works them out as
+Excel does (`tests/fixtures/structured_references/`, 80 formulas, a sweep
+of 50 column names and the renames below). Range.Formula spells a
+reference in the table's and the columns' own case, this row as `@`, the
+whole table as its bare name; a column whose name holds a space or ASCII
+punctuation other than `|` is bracketed after `@`, `Odd[@[Unit Price]]`,
+and an apostrophe escapes `[ ] # '` and, on screen, `@`. A file spells
+this row `[#This Row]` and the whole table `Table1[]`. Where one value is
+wanted, a column of a table with more than one row of data is written as
+this row's cell: `=Table1[Qty]` reads back `=Table1[@Qty]`. Inside its
+own table a formula leaves the table's name out of `[Qty]` and `[@Qty]`
+and keeps it anywhere else. A table or a column Excel does not have is
+error 1004. Renaming the table, setting `ListColumn.Name` or writing over
+a header renames every formula with it; a header names its column with
+the text it shows, a blank one is the first free ColumnN, and of two
+alike the one further left keeps the name. `Range("Table1[Qty]")` and
+Evaluate read them too. AutoFill across moves a reference to one column
+along the table's columns, round from the last to the first; a copy or
+FillRight does not. `Names.Add` refuses one in RefersTo and takes it in
+RefersToR1C1, as Excel does.
 
 **Events and a sheet's own code.** A sheet's module and ThisWorkbook
 are the code of their sheet and workbook (`tests/fixtures/events.json`,

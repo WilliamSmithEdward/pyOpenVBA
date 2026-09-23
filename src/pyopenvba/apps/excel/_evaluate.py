@@ -40,10 +40,16 @@ def evaluated(sheet: Worksheet, text: str) -> object:
 
     if len(text) > LONGEST:
         return VBAErrorValue(UNREADABLE)
-    if "[" in text:
+    body = text.strip().removeprefix("=")
+    try:
+        tokens = P.tokenize(body)
+    except P.FormulaError:
+        return VBAErrorValue(UNREADABLE)
+    if any(token.kind == "structured" and following.kind in ("ref", "name", "structured")
+           and following.at == token.at + len(token.text) for token, following in zip(tokens, tokens[1:])):
         raise VBAUnsupportedError(f"Evaluate of {text!r}, which names another workbook, is not implemented")
     try:
-        node = P.parse(text.strip().removeprefix("="))
+        node = P.parse(body)
     except P.FormulaError:
         return VBAErrorValue(UNREADABLE)
     context = Context(sheet.book.calculator, sheet.name, array=True)

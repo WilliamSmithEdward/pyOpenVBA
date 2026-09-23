@@ -24,6 +24,7 @@ from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.formula import _parse as P
 from pyopenvba.apps.excel._arrays import array_at
 from pyopenvba.formula._engine import Context, cell_answer, clip, evaluate_formula
+from pyopenvba.formula._structured import TableShape, area as structured_area
 from pyopenvba.formula._values import BLANK, REF, VALUE, Areas, ExcelError, Matrix
 from pyopenvba.interpreter._values import EMPTY, VBACurrency, VBADate, VBAErrorValue, VBAInt
 
@@ -96,6 +97,11 @@ class Calculator:
             found = self.named(named.name, named.sheet or sheet)
             if isinstance(found, Area):
                 areas.append(found)
+        for structured in P.structured_references(node):
+            table = self.table(structured.table)
+            if table is not None:
+                # All of the table: a reference to this row reads one row of it, but which depends on the formula.
+                areas.append(table.area)
         self.compiled[key] = Compiled(node=node, precedents=areas, volatile=P.is_volatile(node))
 
     def rebuild(self) -> None:
@@ -291,7 +297,9 @@ class Calculator:
     def named(self, name: str, sheet: str) -> object:
         found = self.book.names_.find(name, scope=self.book.sheet_named(sheet))
         if found is None:
-            return None
+            # A table's name on its own stands for its data, as Table1[] does.
+            table = self.table(name)
+            return None if table is None else structured_area(P.Structured(table=table.name), table, 0)
         text = found.entry.refers_to.lstrip("=")
         from pyopenvba._a1 import parse_area
 
@@ -313,6 +321,16 @@ class Calculator:
             # A formula that does not land on cells, IF($A$1:$A$3>1,1,0), is worked out where the name is used.
             return _named_formula(node, text) if area is None else area
         return area
+
+    def table(self, name: str) -> TableShape | None:
+        from pyopenvba.apps.excel._tables import shape
+
+        wanted = name.lower()
+        for sheet in self.book.sheets_:
+            for table in sheet.tables:
+                if table.name.lower() == wanted:
+                    return shape(table)
+        return None
 
     def sheet_exists(self, name: str) -> bool:
         return self._sheet_named(name) is not None
@@ -345,8 +363,13 @@ class Calculator:
         return {row for row, record in dims.rows.items() if record.hidden}
 
     def formula_at(self, sheet: str, row: int, column: int) -> str:
+        from pyopenvba.apps.excel._model import shown_formula
+
         cell = self._cell((sheet.lower(), row, column))
-        return cell.formula if cell is not None else ""
+        owner = self._sheet_named(sheet)
+        if cell is None or not cell.formula or owner is None:
+            return cell.formula if cell is not None else ""
+        return shown_formula(owner, row, column, cell.formula)
 
     def now(self) -> _dt.datetime:
         interpreter = self.book.application.interpreter

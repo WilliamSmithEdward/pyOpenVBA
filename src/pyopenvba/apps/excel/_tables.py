@@ -34,12 +34,13 @@ from pyopenvba._a1 import Area, parse_area
 from pyopenvba._xml import attributes, escape
 from pyopenvba.apps.excel._model import ExcelObject, Range
 from pyopenvba.exceptions import VBAUnsupportedError
+from pyopenvba.formula._structured import TableShape, renamed_columns, renamed_table
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
-from pyopenvba.interpreter._values import (EMPTY, ERR_SUBSCRIPT_OUT_OF_RANGE, MISSING, NOTHING, VBAInt, error, to_bool,
-                                           to_integer, to_text)
+from pyopenvba.interpreter._values import (EMPTY, ERR_SUBSCRIPT_OUT_OF_RANGE, MISSING, NOTHING, VBADate, VBAInt, error,
+                                           to_bool, to_integer, to_text)
 
 if TYPE_CHECKING:
-    from pyopenvba.apps.excel._model import Worksheet
+    from pyopenvba.apps.excel._model import Workbook, Worksheet
 
 #: ListObjects.Add's SourceType for a range of the sheet, and its answers to whether the range has headers.
 SOURCE_RANGE = 1
@@ -115,7 +116,8 @@ def read_table(sheet: Worksheet, part: str, relationship: str, xml: str) -> Tabl
     head = attributes(found.group(0)) if found else {}
     style = _STYLE.search(xml)
     shown = attributes(style.group(0)) if style else {}
-    columns = [TableColumn(name=one.get("name", ""), id=int(one.get("id", "0") or 0), uid=one.get("xr3:uid", ""))
+    columns = [TableColumn(name=_column_name(one.get("name", "")), id=int(one.get("id", "0") or 0),
+                           uid=one.get("xr3:uid", ""))
                for one in (attributes(_opening(match.group(0))) for match in _COLUMN.finditer(xml))]
     return Table(
         sheet=sheet, id=int(head.get("id", "0") or 0), name=head.get("displayName") or head.get("name", ""),
@@ -132,6 +134,17 @@ def _opening(element: str) -> str:
     return element if stop < 0 else element[: stop + 1]
 
 
+def _column_attribute(name: str) -> str:
+    """A column's name as a table part spells it: a control character as _xHHHH_, in small letters as Excel
+    writes it there, a tab _x0009_ (tests/fixtures/structured_references/)."""
+    return re.sub(r"[\x00-\x1f]", lambda found: f"_x{ord(found.group(0)):04x}_", escape(name))
+
+
+def _column_name(text: str) -> str:
+    """A column's name from its table part, each _xHHHH_ the character it stands for."""
+    return re.sub(r"_x([0-9A-Fa-f]{4})_", lambda found: chr(int(found.group(1), 16)), text)
+
+
 def table_xml(table: Table) -> str:
     """The part for a table the model made, as Excel writes one."""
     reference = table.area.address(absolute=False)
@@ -142,7 +155,7 @@ def table_xml(table: Table) -> str:
                     table.area.right).address(absolute=False)
     auto_filter = f'<autoFilter ref="{filtered}" xr:uid="{table.uid}"/>' if table.auto_filter and table.headers \
         else ""
-    columns = "".join(f'<tableColumn id="{column.id}" xr3:uid="{column.uid}" name="{escape(column.name)}"/>'
+    columns = "".join(f'<tableColumn id="{column.id}" xr3:uid="{column.uid}" name="{_column_attribute(column.name)}"/>'
                       for column in table.columns)
     style = (f'<tableStyleInfo name="{escape(table.style)}" showFirstColumn="{int(table.first_column)}" '
              f'showLastColumn="{int(table.last_column)}" showRowStripes="{int(table.row_stripes)}" '
@@ -163,8 +176,17 @@ def patched_xml(table: Table) -> str:
     head = found.group(0)
     for attribute, value in (("name", escape(table.name)), ("displayName", escape(table.name)),
                              ("ref", table.area.address(absolute=False))):
-        head = re.sub(rf'(\s{attribute}=")[^"]*(")', rf"\g<1>{value}\2", head, count=1)
+        head = re.sub(rf'(\s{attribute}=")[^"]*(")', lambda match: match.group(1) + value + match.group(2), head,
+                      count=1)
     xml = xml[: found.start()] + head + xml[found.end():]
+    elements = list(_COLUMN.finditer(xml))
+    if len(elements) == len(table.columns):
+        # Each column under the name it has now, a header written over or ListColumn.Name set.
+        for element, column in reversed(list(zip(elements, table.columns))):
+            opening = _opening(element.group(0))
+            named = re.sub(r'(\sname=")[^"]*(")', lambda match: match.group(1) + _column_attribute(column.name)
+                           + match.group(2), opening, count=1)
+            xml = xml[: element.start()] + named + xml[element.start() + len(opening):]
     data = table.data
     filtered = Area(table.area.top, table.area.left, data.bottom if data is not None else table.area.top,
                     table.area.right).address(absolute=False)
@@ -190,6 +212,139 @@ def patched_xml(table: Table) -> str:
 
 def _guid() -> str:
     return "{" + str(uuid.uuid4()).upper() + "}"
+
+
+def shape(table: Table) -> TableShape:
+    """What a structured reference needs to know of a table."""
+    area = table.area
+    return TableShape(table.name, Area(area.top, area.left, area.bottom, area.right, table.sheet.name), table.headers,
+                      table.totals, tuple(column.name for column in table.columns))
+
+
+# --- names ---------------------------------------------------------------------------------------
+
+
+def rewrite_formulas(book: Workbook, change: Callable[[str], str]) -> None:
+    """Put every formula of the workbook -- its cells' and its defined names' -- through ``change``."""
+    for sheet in book.sheets_:
+        for cell in sheet.cells_.values():
+            if cell.formula:
+                updated = change(cell.formula)
+                if updated != cell.formula:
+                    cell.formula = updated
+                    sheet.touched()
+    for entry in book.names_.entries:
+        updated = change(entry.refers_to)
+        if updated != entry.refers_to:
+            entry.refers_to = updated
+            book.names_.changed = True
+    book.calculator.rebuild()
+
+
+def rename(table: Table, wanted: str) -> None:
+    """ListObject.Name: the table's new name, and every formula naming it follows."""
+    old = table.name
+    table.name = wanted
+    table.changed = True
+    table.sheet.touched()
+    rewrite_formulas(table.sheet.book, lambda text: renamed_table(text, old, wanted))
+
+
+#: Set while a table's header cells are being written with its columns' names, which is itself an edit of them.
+_naming: set[int] = set()
+
+
+def headers_changed(sheet: Worksheet, row: int, column: int) -> None:
+    """A cell changed: where it is a table's header, the columns take the names its cells now give.
+
+    Measured (tests/fixtures/structured_references/): a header cell names
+    its column with the text it shows -- 1.5, TRUE, 1/2/2020 -- and holds
+    that text afterwards; one left empty is the first free ColumnN, and of
+    two alike the one further left keeps the name and the other is
+    numbered, whichever was written. Every formula follows its column.
+    """
+    table = next((one for one in sheet.tables if one.headers and one.area.top == row
+                  and one.area.left <= column <= one.area.right), None)
+    if table is None or id(table) in _naming:
+        return
+    texts = [_cell_text(sheet, row, one) for one in range(table.area.left, table.area.right + 1)]
+    name_columns(table, _column_names(texts))
+
+
+def name_columns(table: Table, names: list[str]) -> None:
+    """Give a table's columns these names: in its header cells, as text, and in every formula naming them."""
+    renames = {column.name.lower(): name for column, name in zip(table.columns, names) if column.name != name}
+    for column, name in zip(table.columns, names):
+        column.name = name
+    sheet = table.sheet
+    if table.headers:
+        _naming.add(id(table))
+        try:
+            for offset, name in enumerate(names):
+                cell = sheet.cell(table.area.top, table.area.left + offset, create=True)
+                assert cell is not None
+                if cell.value != name or cell.formula:
+                    cell.value, cell.formula, cell.stale, cell.shared = name, "", False, None
+                    sheet.cell_changed(table.area.top, table.area.left + offset)
+        finally:
+            _naming.discard(id(table))
+    if renames:
+        table.changed = True
+        sheet.touched()
+        rewrite_formulas(sheet.book, lambda text: renamed_columns(text, table.name, renames))
+
+
+def _cell_text(sheet: Worksheet, row: int, column: int) -> str:
+    """What a header cell names its column with: the text it shows, a number or a date through its format."""
+    from pyopenvba.formula._display import UndisplayableError, shown
+
+    cell = sheet.cell(row, column)
+    if cell is None:
+        return ""
+    value = sheet.book.calculator.value_of(sheet.name, row, column)
+    if isinstance(value, VBADate):
+        value = value.serial
+    if value is EMPTY or value is None:
+        return ""
+    if isinstance(value, (bool, int, float)):
+        try:
+            return shown(value, cell.number_format)[0]
+        except UndisplayableError:
+            pass
+    return to_text(value)
+
+
+def range_areas(sheet: Worksheet, text: str) -> list[Area] | None:
+    """What Range reads a table's name or a structured reference as, None for text that is neither.
+
+    Measured: Range("Table1") is the table's data and Range("Table1[Qty]")
+    a column of it; this row, a totals row the table does not show, a
+    column it has not got, or a table on another sheet is error 1004.
+    """
+    from pyopenvba.formula._parse import STRUCTURED, THIS_ROW, FormulaError, Structured, read_structured, split_sheet
+    from pyopenvba.formula._structured import area
+    from pyopenvba.formula._values import ExcelError
+
+    if re.fullmatch(STRUCTURED, text):
+        try:
+            node = read_structured(text)
+        except FormulaError:
+            raise error(1004, f"{text!r} is not a reference Excel reads") from None
+    else:
+        owner, bare = split_sheet(text)
+        node = Structured(table=bare, sheet=owner)
+    table = next((one for one in all_tables(sheet) if one.name.lower() == node.table.lower()), None)
+    if table is None:
+        if "[" in text:
+            raise error(1004, f"no table for {text!r}")
+        return None
+    on = table.sheet.name.lower()
+    if (node.sheet.lower() != on if node.sheet else table.sheet is not sheet) or THIS_ROW in node.items:
+        raise error(1004, f"{text!r} is not a range of this sheet")
+    try:
+        return [area(node, shape(table), 0)]
+    except ExcelError:
+        raise error(1004, f"{text!r} names no cells") from None
 
 
 # --- making one ----------------------------------------------------------------------------------
@@ -257,7 +412,7 @@ def add(sheet: Worksheet, source: Range, headers: int, style: str) -> Table:
         area = Area(area.top, area.left, area.bottom + 1, area.right)
         names = _column_names([""] * area.columns)
     else:
-        names = _column_names([_header_text(one) for one in first_row])
+        names = _column_names([_cell_text(sheet, area.top, column) for column in range(area.left, area.right + 1)])
     for offset, name in enumerate(names):
         # Header cells hold their column's name as text: 2020 becomes "2020".
         cell = sheet.cell(area.top, area.left + offset, create=True)
@@ -272,15 +427,6 @@ def add(sheet: Worksheet, source: Range, headers: int, style: str) -> Table:
     sheet.tables.append(table)
     sheet.touched()
     return table
-
-
-def _header_text(value: object) -> str:
-    """What a header cell's value names a column as: text as it is, a number as the text it shows."""
-    if value is EMPTY or value is None:
-        return ""
-    if isinstance(value, float) and value.is_integer():
-        return str(int(value))
-    return to_text(value)
 
 
 def _meets(first: Area, second: Area) -> bool:
@@ -403,8 +549,7 @@ class ListObject(ExcelObject):
         if not re.fullmatch(r"[A-Za-z_\\][A-Za-z0-9_.\\]*", wanted) or any(
                 one is not self.table and one.name.lower() == wanted.lower() for one in all_tables(self.sheet)):
             raise error(1004, "That table name is not valid or is taken")
-        self.table.name = wanted
-        self._changed()
+        rename(self.table, wanted)
 
     @member
     def DisplayName(self) -> object:
@@ -558,6 +703,17 @@ class ListColumn(ExcelObject):
     @member
     def Name(self) -> object:
         return self.table.columns[self.index - 1].name
+
+    @setter("Name")
+    def _set_name(self, value: object) -> None:
+        """Rename the column, its header and every formula naming it with it. Measured: a name another column has,
+        in any case, leaves the column as it was without an error; an empty one is the first free ColumnN."""
+        wanted = to_text(value)
+        names = [column.name for column in self.table.columns]
+        if any(index != self.index - 1 and name.lower() == wanted.lower() for index, name in enumerate(names)):
+            return
+        names[self.index - 1] = wanted
+        name_columns(self.table, _column_names(names))
 
     @member
     def Index(self) -> object:

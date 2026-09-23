@@ -166,9 +166,22 @@ All notable changes to pyOpenVBA are documented here. This project follows
   error 1004 over another table. A table's name, style and style options
   can be set. A save writes each new table in the parts Excel writes for
   it; a table read from a file keeps its part until it changes. 8
-  workbooks and 15 questions in live Excel pin it. Structured
-  references, the totals row and editing a table's rows and columns come
-  later.
+  workbooks and 15 questions in live Excel pin it. The totals row and
+  editing a table's rows and columns come later.
+- Structured references. A formula can name part of a table,
+  `Table1[Qty]`, `Table1[#All]`, `Table1[[#Headers],[Qty]:[Price]]`,
+  `Table1[@Qty]`, and the model spells it back, saves it, reads it from a
+  file and works it out as Excel does: this row as `@` on screen and
+  `[#This Row]` in the file, the whole table as its bare name and
+  `Table1[]`, column names escaped and bracketed as Excel escapes them, a
+  column read as this row's cell where one value is wanted, and the
+  table's name left out of `[Qty]` and `[@Qty]` inside the table.
+  `Range("Table1[Qty]")` and Evaluate read them. Renaming a table,
+  setting `ListColumn.Name` or writing over a header renames every
+  formula with it, and a header names its column with the text it shows.
+  AutoFill across moves a reference to one column along the table. 80
+  formulas, a sweep of 50 column names, copies, fills and renames in live
+  Excel pin it.
 - Events, and a sheet's own code. A sheet's module and ThisWorkbook
   are their objects' code: a code name reaches its sheet or workbook, as
   `Sheet1.Range("A1")`; inside the module `Me` is the object and its
@@ -569,6 +582,9 @@ All notable changes to pyOpenVBA are documented here. This project follows
   alone. The model never cleared it on a call or an `On Error`
   statement, so an error handled in one function was still in `Err` in
   the next one. 23 programs in live Excel pin it.
+- A table part names a column holding a tab or a line break with Excel's
+  `_x0009_` escapes; the model wrote the characters themselves, which a
+  reader of the file takes for spaces.
 - CHOOSE with an array of indexes chooses for each item, as Excel does
   in a cell: `CHOOSE({1,2},A1:A3,B1:B3)` is the two columns side by
   side, so `VLOOKUP(x,CHOOSE({1,2},B:B,A:A),2,FALSE)` looks to the left.

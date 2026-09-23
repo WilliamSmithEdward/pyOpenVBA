@@ -4,16 +4,18 @@ from __future__ import annotations
 import re
 
 from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, column_letter, column_number
-from pyopenvba.formula._parse import split_sheet, tokenize
+from pyopenvba.formula._parse import STRUCTURED, split_sheet, tokenize
 
 _OFFSET = r"(?:\[-?\d+\]|\d+)?"
 _ROW = rf"R{_OFFSET}"
 _COL = rf"C{_OFFSET}"
 _SHEET = r"(?:'(?:[^']|'')+'|[A-Za-z0-9_.À-￿]+)!"
+#: A structured reference comes after the R1C1 forms, so that R[-1]C reads as one; what is in its brackets, a
+#: column named R1C1 or C, is left as it is.
 _SCAN = re.compile(
     rf'(?P<text>"(?:[^"]|"")*")|(?P<ref>(?<![\w.])(?:{_SHEET})?'
     rf'(?:{_ROW}{_COL}(?::{_ROW}{_COL})?|{_ROW}:{_ROW}|{_COL}:{_COL}|{_ROW}|{_COL})(?![\w.(]))'
-    rf"|(?P<sheet>{_SHEET})", re.IGNORECASE,
+    rf"|(?P<sheet>{_SHEET})|(?P<structured>{STRUCTURED})", re.IGNORECASE,
 )
 _RC = re.compile(rf"^(?:R(?P<row>{_OFFSET}))?(?:C(?P<col>{_OFFSET}))?$", re.IGNORECASE)
 _A1 = re.compile(r"^(\$?)([A-Za-z]+)?(\$?)(\d+)?$")

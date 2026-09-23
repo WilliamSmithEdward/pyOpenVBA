@@ -57,6 +57,7 @@ if TYPE_CHECKING:
     from pyopenvba.apps.excel._styles import Style, Stylesheet
     from pyopenvba.apps.excel._tables import Table
     from pyopenvba.apps.excel._typing import Typed
+    from pyopenvba.formula._structured import TableShape
     from pyopenvba.interpreter._runtime import Interpreter
 
 _LIBRARY = "excel"
@@ -875,8 +876,12 @@ class Worksheet(ExcelObject):
         )
 
     def cell_changed(self, row: int, column: int) -> None:
-        """One cell's contents changed: tell the calculator what to redo."""
+        """One cell's contents changed: tell the calculator what to redo, and a table whose header it is."""
         self.touched()
+        if self.tables:
+            from pyopenvba.apps.excel._tables import headers_changed
+
+            headers_changed(self, row, column)
         self.dims.fonts_changed(row)
         calculator = self.book.calculator
         cell = self.cells_.get((row, column))
@@ -981,6 +986,12 @@ class Worksheet(ExcelObject):
         named = self.book.names_.find(text, scope=self)
         if named is not None:
             return list(named.refers_to_range().areas)
+        if any(sheet.tables for sheet in self.book.sheets_):
+            from pyopenvba.apps.excel._tables import range_areas
+
+            found = range_areas(self, text)
+            if found is not None:
+                return found
         try:
             return parse_reference(text, sheet=self.name)
         except ValueError:
@@ -1538,7 +1549,7 @@ class Range(ExcelObject):
             if _is_formula(value) and not self._keeps_text(row, column):
                 if spelled is None:
                     # Excel reads the formula once and writes it out again, as spelled_formula does.
-                    spelled = spelled_formula(self.sheet, value)
+                    spelled = spelled_formula(self.sheet, value, anchor.top, anchor.left)
                 if self._put_formula(row, column, shift_text(spelled, row - anchor.top, column - anchor.left)):
                     placed.append((row, column))
             else:
@@ -1575,7 +1586,8 @@ class Range(ExcelObject):
             if cell is None:
                 return ""
             if cell.formula:
-                return from_a1(cell.formula, row, column) if r1c1 else cell.formula
+                text = shown_formula(self.sheet, row, column, cell.formula)
+                return from_a1(text, row, column) if r1c1 else text
             return _formula_text(cell.value)
 
         area = self.first
@@ -1650,7 +1662,7 @@ class Range(ExcelObject):
                 a1 = to_a1(value, row, column)
             except ValueError as exc:
                 raise error(1004, str(exc)) from None
-            formula = spelled_formula(self.sheet, a1)
+            formula = spelled_formula(self.sheet, a1, row, column)
             first = first or (formula, row, column)
             if self._put_formula(row, column, formula):
                 placed.append((row, column))
@@ -2705,7 +2717,7 @@ class Range(ExcelObject):
             and cell.style is not None and cell.style.quote_prefix
         if _is_formula(text) and not prefixed:
             try:
-                formula = spelled_formula(self.sheet, text)
+                formula = spelled_formula(self.sheet, text, row, column)
             except VBARuntimeError:
                 return False
             self._put_formula(row, column, formula)
@@ -2856,7 +2868,7 @@ class Range(ExcelObject):
         if not _merges.writable(self.sheet, row, column):
             return
         if isinstance(value, str) and _is_formula(value) and not self._keeps_text(row, column):
-            formula = spelled_formula(self.sheet, value)
+            formula = spelled_formula(self.sheet, value, row, column)
             if self._put_formula(row, column, formula):
                 self._bring_format([(row, column)], formula, row, column)
         else:
@@ -3098,6 +3110,10 @@ class Names(VBACollection, ExcelObject):
             if rc is MISSING:
                 raise error(449)
             refers = to_a1(to_text(rc), 1, 1)
+        elif not isinstance(refers, Range) and _names.structured(to_text(refers)):
+            # Measured (tests/fixtures/structured_references/): RefersTo will not take =Table1[Qty], though
+            # RefersToR1C1 does.
+            raise error(1004, "Application-defined or object-defined error")
         text = "=" + ",".join(area.address(with_sheet=True) for area in refers.areas) if isinstance(refers, Range) else _names.qualify(to_text(refers), owner.name)
         entry = next((one for one in self.entries if one.name.casefold() == wanted.casefold()), None)
         if entry is None:
@@ -3445,9 +3461,10 @@ def _formula_text(value: object) -> str:
 class _BookNames:
     """The workbook a formula is written into, as spelling it asks (see pyopenvba.formula._spell)."""
 
-    def __init__(self, sheet: Worksheet) -> None:
+    def __init__(self, sheet: Worksheet, row: int = 0, column: int = 0) -> None:
         self.book = sheet.book
         self.home = sheet.name
+        self.at = (sheet, row, column)
 
     def sheet(self, name: str) -> str | None:
         return next((one.name for one in self.book.sheets_ if one.name.lower() == name.lower()), None)
@@ -3457,7 +3474,21 @@ class _BookNames:
 
         scope = next((one for one in self.book.sheets_ if one.name.lower() == sheet.lower()), None)
         found = self.book.names_.find(name, scope=scope)
-        return None if found is None else split_sheet(found.entry.name)[1]
+        if found is None:
+            # A table's name is the workbook's too, and stands for the table's data.
+            table = self.table(name)
+            return None if table is None else table.name
+        return split_sheet(found.entry.name)[1]
+
+    def table(self, name: str) -> TableShape | None:
+        return self.book.calculator.table(name)
+
+    def here(self) -> TableShape | None:
+        from pyopenvba.apps.excel._tables import shape, table_at
+
+        sheet, row, column = self.at
+        found = table_at(sheet, row, column)
+        return None if found is None else shape(found)
 
     def remembered(self, name: str) -> str:
         from pyopenvba.formula._spell import remembered_names
@@ -3506,23 +3537,36 @@ def _array_formula_text(sheet: Worksheet, formula: str, row: int, column: int) -
         tokens = []
     if not any(token.kind == "name" and _R1C1_NAME.fullmatch(token.text) for token in tokens):
         try:
-            return spelled_formula(sheet, formula)
+            return spelled_formula(sheet, formula, row, column, whole=True)
         except VBARuntimeError:
             pass
     try:
         converted = to_a1(formula, row, column)
     except ValueError:
         raise error(1004, "Unable to set the FormulaArray property of the Range class") from None
-    return spelled_formula(sheet, converted)
+    return spelled_formula(sheet, converted, row, column, whole=True)
 
 
-def spelled_formula(sheet: Worksheet, formula: str) -> str:
-    """A formula a macro writes to ``sheet``, as Excel spells it back; error 1004 where Excel refuses it."""
+def shown_formula(sheet: Worksheet, row: int, column: int, formula: str) -> str:
+    """A cell's formula as Range.Formula shows it: in a table, without the table's name where Excel leaves it
+    out (see pyopenvba.formula._structured)."""
+    if not sheet.tables or "[" not in formula:
+        return formula
+    from pyopenvba.apps.excel._tables import table_at
+    from pyopenvba.formula._structured import shown
+
+    table = table_at(sheet, row, column)
+    return formula if table is None else shown(formula, table.name)
+
+
+def spelled_formula(sheet: Worksheet, formula: str, row: int = 0, column: int = 0, *, whole: bool = False) -> str:
+    """A formula a macro writes to ``sheet``, at the cell in ``row`` and ``column`` where it has one, as Excel
+    spells it back; error 1004 where Excel refuses it. ``whole`` for an array formula."""
     from pyopenvba.formula._parse import FormulaError
     from pyopenvba.formula._spell import UnmodelledFormulaError, spelled
 
     try:
-        return spelled(formula, _BookNames(sheet))
+        return spelled(formula, _BookNames(sheet, row, column), whole=whole)
     except UnmodelledFormulaError as exc:
         raise VBAUnsupportedError(str(exc)) from None
     except FormulaError:

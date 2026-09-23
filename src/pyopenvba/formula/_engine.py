@@ -21,6 +21,7 @@ from typing import Final, Protocol
 
 from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, parse_area
 from pyopenvba.formula import _parse as P
+from pyopenvba.formula._structured import TableShape, area as structured_area
 from pyopenvba.formula._values import (
     BLANK,
     DIV0,
@@ -57,6 +58,10 @@ class Grid(Protocol):
 
     def named(self, name: str, sheet: str) -> object:
         """A defined name's value, area or formula (a parsed node), or None if there is no such name."""
+        ...
+
+    def table(self, name: str) -> TableShape | None:
+        """The table a structured reference names, found in any case, or None."""
         ...
 
     def sheet_exists(self, name: str) -> bool: ...
@@ -117,6 +122,8 @@ class Context:
         """
         if isinstance(node, P.Reference):
             return [self.resolve(node)]
+        if isinstance(node, P.Structured):
+            return [self.structured(node)]
         if isinstance(node, P.NameNode):
             found = self.grid.named(node.name, node.sheet or self.sheet)
             if isinstance(found, Area):
@@ -151,6 +158,13 @@ class Context:
                 raise REF from None
         return Area(area.top, area.left, area.bottom, area.right, sheet)
 
+    def structured(self, node: P.Structured) -> Area:
+        """The cells a structured reference names; a table the workbook has not got is #REF!."""
+        table = self.grid.table(node.table) if node.table else None
+        if table is None:
+            raise REF
+        return structured_area(node, table, self.row)
+
 
 def evaluate_formula(node: P.Node, context: Context) -> object:
     """A whole formula's value, as a cell or a defined name holds it.
@@ -177,6 +191,8 @@ def evaluate(node: P.Node, context: Context) -> object:
         return BLANK if node.value is None else node.value
     if isinstance(node, P.Reference):
         return context.grid.block(context.sheet, context.resolve(node))
+    if isinstance(node, P.Structured):
+        return context.grid.block(context.sheet, context.structured(node))
     if isinstance(node, P.NameNode):
         return _named(node, context)
     if isinstance(node, P.Call):
@@ -302,7 +318,7 @@ def intersected(node: P.Node, context: Context) -> object:
 
 def _names_cells(node: P.Node) -> bool:
     """Whether a node can come to cells rather than a value, which only areas_of can settle."""
-    if isinstance(node, (P.Reference, P.NameNode)):
+    if isinstance(node, (P.Reference, P.Structured, P.NameNode)):
         return True
     if isinstance(node, P.Binary):
         return node.op in P.REFERENCE_OPS

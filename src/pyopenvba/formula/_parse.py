@@ -6,7 +6,8 @@ tighter than unary minus in one direction and looser in the other,
 constant rather than a keyword. References join tighter than anything:
 ``:`` spans two of them, a space intersects them, and a comma inside
 brackets unites them; a function's bracket follows its name with no
-space between.
+space between. A table's name followed by square brackets is a
+structured reference, Table1[Qty], read by :func:`read_structured`.
 
 What is parsed here is the text after the leading ``=``.  A formula
 that this cannot read raises :class:`FormulaError`, which is a compile
@@ -84,6 +85,45 @@ class ArrayLiteral(Node):
     rows: list[list[Node]] = field(default_factory=lambda: [])
 
 
+#: The special items of a structured reference, as Excel spells them.
+ALL: Final = "#All"
+DATA: Final = "#Data"
+HEADERS: Final = "#Headers"
+TOTALS: Final = "#Totals"
+THIS_ROW: Final = "#This Row"
+#: The order Excel writes items in, and the sets of them it takes (tests/fixtures/structured_references/).
+ITEM_ORDER: Final = (ALL, HEADERS, DATA, TOTALS, THIS_ROW)
+_ITEM_SETS: Final = frozenset({frozenset(), frozenset({ALL}), frozenset({DATA}), frozenset({HEADERS}),
+                               frozenset({TOTALS}), frozenset({THIS_ROW}), frozenset({HEADERS, DATA}),
+                               frozenset({DATA, TOTALS})})
+
+
+@dataclass(slots=True)
+class Structured(Node):
+    """``Table1[Qty]``, ``Table1[[#Headers],[Qty]:[Price]]``, ``Table1[@Qty]``: part of a table, by name.
+
+    ``items`` are the special items named, spelled and ordered as Excel
+    has them, none meaning the data rows, and ``@`` is ``#This Row``.
+    ``first`` and ``last`` are the columns, the same one twice for one
+    column and None for all of them; ``span`` is set when they were
+    written as a range, [[Qty]:[Qty]] too. ``spaced`` and
+    ``comma_spaced`` are the spaces Excel keeps inside the brackets and
+    after a comma. ``table`` is empty where the formula leaves it out,
+    inside the table.
+    """
+
+    table: str = ""
+    items: tuple[str, ...] = ()
+    first: str | None = None
+    last: str | None = None
+    span: bool = False
+    spaced: bool = False
+    comma_spaced: bool = False
+    sheet: str = ""
+    #: Where the reference starts in the formula's text after the equals sign.
+    at: int = field(default=0, compare=False)
+
+
 # --- tokens -------------------------------------------------------------------------
 
 #: A sheet name in front of a reference, quoted or not.
@@ -91,11 +131,18 @@ _SHEET = r"(?:'(?:[^']|'')+'|[A-Za-z0-9_.À-￿]+)!"
 _CELL = r"\$?[A-Za-z]{1,3}\$?[0-9]{1,7}"
 _WHOLE_COLUMNS = r"\$?[A-Za-z]{1,3}:\$?[A-Za-z]{1,3}"
 _WHOLE_ROWS = r"\$?[0-9]{1,7}:\$?[0-9]{1,7}"
+#: A column name inside brackets, where an apostrophe escapes the character after it.
+_ESCAPED = r"(?:'[\s\S]|[^\[\]'])"
+_BRACKETED = rf"\[{_ESCAPED}*\]"
+#: A structured reference: a table's name, or none inside the table, and what stands in its brackets.
+STRUCTURED: Final = (rf"(?:{_SHEET})?(?:[A-Za-z_\\À-￿][A-Za-z0-9_.À-￿]*)?"
+                     rf"\[(?:{_ESCAPED}*|\s*@?\s*{_BRACKETED}(?:\s*[,:]\s*{_BRACKETED})*\s*)\]")
 
 _TOKEN: Final = re.compile(
     rf"""
     (?P<ws>\s+)
   | (?P<text>"(?:[^"]|"")*")
+  | (?P<structured>{STRUCTURED})
   | (?P<error>(?:{_SHEET})?(?i:\#N/A|\#NULL!|\#DIV/0!|\#VALUE!|\#REF!|\#NAME\?|\#NUM!|\#SPILL!|\#CALC!|\#GETTING_DATA))
   | (?P<ref>(?:{_SHEET})?(?:{_CELL}:{_CELL}|{_WHOLE_COLUMNS}|{_WHOLE_ROWS}|{_CELL})(?![A-Za-z0-9_.(]))
   | (?P<name>(?:{_SHEET})?[A-Za-z_\\À-￿][A-Za-z0-9_.À-￿]*)
@@ -158,6 +205,122 @@ def split_sheet(text: str) -> tuple[str, str]:
     if head.startswith("'") and head.endswith("'"):
         head = head[1:-1].replace("''", "'")
     return head, rest
+
+
+def read_structured(text: str, *, file: bool = False, at: int = 0) -> Structured:
+    """A structured reference as a formula spells it, or as a file does with ``file``.
+
+    On screen an @ in a column's name is escaped, '@home, since it would
+    otherwise mean this row; a file spells this row [#This Row] and has no
+    need to (tests/fixtures/structured_references/). A spelling Excel does
+    not take raises :class:`FormulaError`.
+    """
+    opening = text.index("[")
+    sheet, table = split_sheet(text[:opening])
+    body = text[opening + 1:-1]
+    inner = body.strip()
+    node = Structured(table=table, sheet=sheet, at=at)
+    if not inner:
+        return node
+    if inner.startswith("@") and not file:
+        rest = inner[1:].strip()
+        node.items = (THIS_ROW,)
+        if rest.startswith("["):
+            node.first, node.last, node.span = _columns(rest, file)
+        elif rest:
+            node.first = node.last = _unescaped(rest, file)
+        node.spaced = body != inner
+        return node
+    if inner.startswith("["):
+        items: list[str] = []
+        parts, node.comma_spaced = _parts(inner)
+        for part in parts:
+            if part.startswith("[#"):
+                items.append(_item(part[1:-1]))
+            elif node.first is None:
+                node.first, node.last, node.span = _columns(part, file)
+            else:
+                raise FormulaError(f"two sets of columns in {text!r}")
+        node.items = _checked_items(items, text)
+        node.spaced = body != inner
+        return node
+    if inner.startswith("#"):
+        node.items = _checked_items([_item(inner)], text)
+        return node
+    # One column, its name everything in the brackets, spaces too: a space in front also keeps [ [ ab] ].
+    node.first = node.last = _unescaped(body, file)
+    node.spaced = body.startswith(" ")
+    return node
+
+
+def _item(text: str) -> str:
+    wanted = " ".join(text.split()).lower()
+    found = next((item for item in ITEM_ORDER if item.lower() == wanted), None)
+    if found is None:
+        raise FormulaError(f"{text!r} is not a special item of a table")
+    return found
+
+
+def _checked_items(items: list[str], text: str) -> tuple[str, ...]:
+    if len(set(items)) != len(items) or frozenset(items) not in _ITEM_SETS:
+        raise FormulaError(f"{text!r} names special items Excel does not take together")
+    return tuple(item for item in ITEM_ORDER if item in items)
+
+
+def _parts(inner: str) -> tuple[list[str], bool]:
+    """``[#All], [Qty]:[Price]`` split at the commas between the brackets, and whether a comma had a space by it."""
+    parts: list[str] = []
+    spaced = False
+    depth = 0
+    start = 0
+    index = 0
+    while index < len(inner):
+        char = inner[index]
+        if char == "'" and depth:
+            index += 2
+            continue
+        if char == "[":
+            depth += 1
+        elif char == "]":
+            depth -= 1
+        elif char == "," and not depth:
+            parts.append(inner[start:index].strip())
+            spaced = spaced or inner[index - 1:index].isspace() or inner[index + 1:index + 2].isspace()
+            start = index + 1
+        index += 1
+    parts.append(inner[start:].strip())
+    if any(not part for part in parts):
+        raise FormulaError(f"an empty part in {inner!r}")
+    return parts, spaced
+
+
+def _columns(part: str, file: bool) -> tuple[str, str, bool]:
+    """``[Qty]`` or ``[Qty]:[Price]``: the first and last column, and whether they were written as a range."""
+    pieces = re.fullmatch(rf"({_BRACKETED})(?:\s*:\s*({_BRACKETED}))?", part)
+    if pieces is None:
+        raise FormulaError(f"cannot read the columns {part!r}")
+    first = _unescaped(pieces.group(1)[1:-1], file)
+    second = pieces.group(2)
+    return first, first if second is None else _unescaped(second[1:-1], file), second is not None
+
+
+def _unescaped(name: str, file: bool) -> str:
+    """A column's name with its escapes undone: '# is #, '' is '."""
+    out: list[str] = []
+    index = 0
+    while index < len(name):
+        char = name[index]
+        if char == "'" and index + 1 < len(name):
+            out.append(name[index + 1])
+            index += 2
+            continue
+        if char in "[]#'" or (char == "@" and not file):
+            raise FormulaError(f"{char!r} unescaped in the column {name!r}")
+        out.append(char)
+        index += 1
+    if not out:
+        raise FormulaError("a column with no name")
+    return "".join(out)
 
 
 # --- the parser ---------------------------------------------------------------------
@@ -246,7 +409,7 @@ class Parser:
             if self.token.kind == "op" and self.token.text == ":":
                 self.advance()
                 node = Binary(op=":", left=self.referable(node), right=self.referable(self.primary()))
-            elif self.token.kind in ("ref", "name", "open") and self.spaced():
+            elif self.token.kind in ("ref", "structured", "name", "open") and self.spaced():
                 node = Binary(op=" ", left=self.referable(node), right=self.referable(self.primary()))
             else:
                 return node
@@ -260,7 +423,8 @@ class Parser:
 
     def referable(self, node: Node) -> Node:
         """A reference operator's operand, which has to be a reference, a name or a call that might give one."""
-        if isinstance(node, (Reference, NameNode, Call)) or (isinstance(node, Binary) and node.op in REFERENCE_OPS):
+        if isinstance(node, (Reference, Structured, NameNode, Call)) \
+                or (isinstance(node, Binary) and node.op in REFERENCE_OPS):
             return node
         raise FormulaError(f"a reference operator needs references in {self.source!r}")
 
@@ -280,6 +444,9 @@ class Parser:
             self.advance()
             sheet, body = split_sheet(token.text)
             return Reference(text=body.replace("$", ""), sheet=sheet)
+        if token.kind == "structured":
+            self.advance()
+            return read_structured(token.text, at=token.at)
         if token.kind == "name":
             return self.name_or_call()
         if token.kind == "open":
@@ -390,6 +557,26 @@ def _walk(node: Node | None, found: list[Reference]) -> None:
         for row in node.rows:
             for item in row:
                 _walk(item, found)
+
+
+def structured_references(node: Node | None) -> list[Structured]:
+    """Every structured reference a formula names."""
+    found: list[Structured] = []
+    _walk_structured(node, found)
+    return found
+
+
+def _walk_structured(node: Node | None, found: list[Structured]) -> None:
+    if isinstance(node, Structured):
+        found.append(node)
+    elif isinstance(node, Call):
+        for argument in node.args:
+            _walk_structured(argument, found)
+    elif isinstance(node, Binary):
+        _walk_structured(node.left, found)
+        _walk_structured(node.right, found)
+    elif isinstance(node, Unary):
+        _walk_structured(node.operand, found)
 
 
 def names(node: Node | None) -> list[NameNode]:

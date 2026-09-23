@@ -22,29 +22,35 @@ formula and writes it out again. Measured in live Excel
   9.99999999999999E+307 is refused.
 - Spaces and line breaks stay where they are, except before a comma, at
   the end, and anywhere in an array constant.
+- A structured reference is spelled as :mod:`pyopenvba.formula._structured`
+  sets out, naming its table even inside it, and where one value is
+  wanted a column of a table with more than one row of data becomes this
+  row's cell of it (scripts/measure_structured_references.py).
 
 What Excel refuses to read raises :class:`FormulaError`; what it reads
-and the model does not -- a table's columns in brackets, the ``@`` and
-``#`` of dynamic arrays -- raises :class:`UnmodelledFormulaError`.
+and the model does not -- the ``@`` and ``#`` of dynamic arrays, a
+reference to another workbook -- raises :class:`UnmodelledFormulaError`.
 """
 
 from __future__ import annotations
 
 import re
+from dataclasses import replace
 from typing import Final, Protocol
 
 from pyopenvba._a1 import column_letter, column_number, quote_sheet
-from pyopenvba.formula._functions import CELLS, FUNCTIONS, REFERENCES
+from pyopenvba.formula._functions import AS_CELL, CELLS, FUNCTIONS, REFERENCES, array_places, one_value_places
 from pyopenvba.formula._inventory import excel_has_function
-from pyopenvba.formula._parse import (Binary, Call, FormulaError, NameNode, Node, Reference, Token, Unary, literal,
-                                      parse, split_sheet, tokenize)
+from pyopenvba.formula._parse import (REFERENCE_OPS, Binary, Call, FormulaError, NameNode, Node, Reference, Structured,
+                                      Token, Unary, literal, parse, read_structured, split_sheet, tokenize)
+from pyopenvba.formula._structured import TableShape, one_cell, spelled as spelled_reference
 from pyopenvba.formula._values import number_text
 
 #: The largest number a formula can hold written out.
 LARGEST: Final = 9.99999999999999e307
 _CORNER: Final = re.compile(r"(\$?)([A-Za-z]{1,3})?(\$?)([0-9]{1,7})?")
-#: What Excel reads in a formula that the model does not: structured references and the dynamic-array operators.
-_UNMODELLED: Final = re.compile(r"[\[\]@]|#(?!N/A|NULL!|DIV/0!|VALUE!|REF!|NAME\?|NUM!|SPILL!|CALC!|GETTING_DATA)",
+#: What Excel reads in a formula that the model does not: the dynamic-array operators.
+_UNMODELLED: Final = re.compile(r"@|#(?!N/A|NULL!|DIV/0!|VALUE!|REF!|NAME\?|NUM!|SPILL!|CALC!|GETTING_DATA)",
                                 re.IGNORECASE)
 #: A string, or a sheet's name in apostrophes, where any character may stand.
 _QUOTED: Final = re.compile(r'"(?:[^"]|"")*"|\'(?:[^\']|\'\')*\'')
@@ -72,15 +78,31 @@ class Names(Protocol):
         """The spelling the workbook first saw an undefined name in, which from now on is ``name``'s if it has none."""
         ...
 
+    def table(self, name: str) -> TableShape | None:
+        """The table of that name, found in any case, or None."""
+        ...
 
-def spelled(formula: str, names: Names) -> str:
-    """``formula``, which starts with =, as Excel spells it back."""
+    def here(self) -> TableShape | None:
+        """The table the formula's cell is in, which a reference leaving out its table's name means, or None."""
+        ...
+
+
+def spelled(formula: str, names: Names, *, whole: bool = False) -> str:
+    """``formula``, which starts with =, as Excel spells it back; ``whole`` for a formula worked out whole, as an
+    array formula is, where no column is cut to this row."""
     body = formula[1:]
-    unmodelled = _UNMODELLED.search(_QUOTED.sub('""', body))
-    if unmodelled is not None:
-        raise UnmodelledFormulaError(f"{unmodelled.group(0)!r} in a formula is not implemented")
-    _check(parse(formula))
-    tokens = tokenize(body, spaces=True)
+    try:
+        tokens = tokenize(body, spaces=True)
+    except FormulaError:
+        unmodelled = _UNMODELLED.search(_QUOTED.sub('""', body))
+        if unmodelled is not None:
+            raise UnmodelledFormulaError(f"{unmodelled.group(0)!r} in a formula is not implemented") from None
+        raise
+    tree = parse(formula)
+    _check(tree)
+    one_value: set[int] = set()
+    if not whole:
+        _one_value(tree, one=True, whole=False, found=one_value)
     pieces: list[str] = []
     array = 0
     previous: Token | None = None
@@ -109,6 +131,12 @@ def spelled(formula: str, names: Names) -> str:
             text = _number(text, negative=False)
         elif token.kind == "ref":
             text = _reference(text, names)
+        elif token.kind == "structured":
+            following = tokens[index + 1]
+            if following.kind in ("ref", "name", "structured") and following.at == token.at + len(token.text):
+                # [Book2]Sheet1!A1: another workbook's cells.
+                raise UnmodelledFormulaError("a reference to another workbook is not implemented")
+            text = _structured(token, token.at in one_value, names)
         elif token.kind == "error":
             head, _, error = text.rpartition("#")
             text = _prefix(head[:-1], names) + "!#" + error.upper() if head else text.upper()
@@ -153,7 +181,7 @@ def _referring(node: Node | None) -> bool:
     INDEX or IF can, LEN, SUM or IFERROR cannot. A function the model does
     not have is let through, since what it answers with is not known here.
     """
-    if isinstance(node, Reference):
+    if isinstance(node, (Reference, Structured)):
         return True
     if isinstance(node, Call):
         name = node.name.upper()
@@ -163,6 +191,43 @@ def _referring(node: Node | None) -> bool:
     if isinstance(node, Binary):
         return node.op in (":", " ", ",") and _referring(node.left) and _referring(node.right)
     return False
+
+
+def _one_value(node: Node | None, *, one: bool, whole: bool, found: set[int]) -> None:
+    """Where the structured references stand that a cell cuts to its own row: each place intersected works out
+    as one value (see pyopenvba.formula._engine), outside an argument worked out whole."""
+    if isinstance(node, Structured):
+        if one and not whole:
+            found.add(node.at)
+    elif isinstance(node, Unary):
+        _one_value(node.operand, one=True, whole=whole, found=found)
+    elif isinstance(node, Binary):
+        cells = node.op in REFERENCE_OPS
+        _one_value(node.left, one=not cells, whole=whole, found=found)
+        _one_value(node.right, one=not cells, whole=whole, found=found)
+    elif isinstance(node, Call):
+        count = len(node.args)
+        places, arrays = one_value_places(node.name, count), array_places(node.name, count)
+        inside = False if node.name.upper() in AS_CELL else whole
+        for index, argument in enumerate(node.args):
+            _one_value(argument, one=index in places, whole=inside or index in arrays, found=found)
+
+
+def _structured(token: Token, one: bool, names: Names) -> str:
+    """A structured reference as Excel spells it back, naming its table; Excel refuses one to a table or a column
+    the workbook has not got."""
+    node = read_structured(token.text)
+    table = names.table(node.table) if node.table else names.here()
+    if table is None:
+        raise FormulaError(f"no table for {token.text!r}")
+    if node.first is not None:
+        first, last = table.column(node.first), table.column(node.last or node.first)
+        if first is None or last is None:
+            raise FormulaError(f"{table.name} has no column for {token.text!r}")
+        node = replace(node, first=table.columns[first], last=table.columns[last])
+    if one and not node.items and node.first is not None and not node.span and table.data_rows > 1:
+        node = one_cell(node)
+    return spelled_reference(replace(node, table=table.name, sheet=""))
 
 
 def _next(tokens: list[Token], index: int) -> Token:

@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import posixpath
 import re
+from collections.abc import Collection
 from functools import lru_cache
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -26,6 +27,7 @@ from pyopenvba._xml import escape_text as _escape_text
 from pyopenvba._xml import tag_attributes as _tag_attributes
 from pyopenvba._xml import unescape as _unescape
 from pyopenvba.exceptions import PyOpenVBAError
+from pyopenvba.formula._structured import from_file, in_file
 from pyopenvba.interpreter._values import EMPTY, VBADate, to_text
 from pyopenvba.powerquery._opc import OpcFile
 from pyopenvba.powerquery._sheets import add_content_type, add_relationship, sheet_entries
@@ -198,7 +200,7 @@ def _read_cells(sheet: Worksheet, rows: str, strings: list[str], stylesheet: Sty
             formula_match = _FORMULA.search(cell_xml)
             if formula_match is not None:
                 body = (formula_match.group(2) or "").strip()
-                formula = f"={_unescape(body)}" if body else ""
+                formula = _formula_read(body) if body else ""
                 element = _attributes(f"<f {formula_match.group(1)}>")
                 if element.get("t") == "shared" and element.get("si", "").isdigit():
                     shared = int(element["si"])
@@ -284,7 +286,7 @@ def _read_names(book: Workbook, workbook_xml: str) -> None:
 
             name = quote_sheet(book.sheets_[int(local_id)].name) + "!" + name
         book.names_.entries.append(
-            NameEntry(name, f"={_unescape(body.strip())}", book, attributes=attributes_text.strip(),
+            NameEntry(name, _formula_read(body.strip()), book, attributes=attributes_text.strip(),
                       visible=attributes.get("hidden", "0") not in ("1", "true"), comment=attributes.get("comment", ""))
         )
 
@@ -1239,10 +1241,18 @@ def _patched_sheet(sheet: Worksheet, original: str, package: OpcFile) -> str:
     from pyopenvba.apps.excel._arrays import elements
     from pyopenvba.apps.excel._shared import formula_elements
 
-    shared = formula_elements(sheet, _escape_text) | elements(sheet, _escape_text)
+    tables = [table.name for one in sheet.book.sheets_ for table in one.tables]
+
+    def spell(text: str) -> str:
+        return _formula_xml(text, tables)
+
+    formulas = formula_elements(sheet, spell) | elements(sheet, spell)
+    for position, cell in sheet.cells_.items():
+        if cell.formula and position not in formulas:
+            formulas[position] = f"<f>{spell(cell.formula[1:])}</f>"
     for row in set(rows) | set(by_row):
         rows[row] = _row_with_cells(rows.get(row, f'<row r="{row}"></row>'), row, by_row.get(row, []), stylesheet,
-                                    shared)
+                                    formulas)
     for row in set(sheet.dims.rows) | sheet.dims.shaped_rows():
         rows.setdefault(row, f'<row r="{row}"/>')
     rebuilt = _rows_as_excel_writes_them(sheet, original, rows)
@@ -1360,33 +1370,46 @@ def _with_dimension_parts(sheet: Worksheet, xml: str) -> str:
 
 
 def _row_with_cells(row_xml: str, row: int, cells: list[tuple[int, Cell]], stylesheet: Stylesheet,
-                    shared: dict[tuple[int, int], str]) -> str:
+                    formulas: dict[tuple[int, int], str]) -> str:
     """A row with the model's cells written into it in column order, in place of the ones it had.
 
-    ``shared`` is the ``<f>`` of each cell written as part of a shared formula.
+    ``formulas`` is the ``<f>`` of each formula cell, a shared formula's included.
     """
     head_end = row_xml.index(">")
     closed = row_xml[head_end - 1] == "/"
     opening = row_xml[: head_end - 1] + ">" if closed else row_xml[: head_end + 1]
     rest = "" if closed else _CELL.sub("", row_xml[head_end + 1 : row_xml.rindex("</row>")])
     written = "".join(_cell_xml(f"{column_letter(column)}{row}", cell, _style_for(cell, stylesheet),
-                                shared.get((row, column)))
+                                formulas.get((row, column)))
                       for column, cell in cells)
     return f"{opening}{written}{rest}</row>"
 
 
-def _cell_xml(reference: str, cell: Cell, style: str, shared: str | None = None) -> str:
+def _cell_xml(reference: str, cell: Cell, style: str, formula: str | None = None) -> str:
     attributes = f' s="{style}"' if style else ""
     if cell.formula:
         # A formula cell carries its last value in a <v>, never as an
         # inline string: a formula whose answer is text is t="str".
         kind, body = _formula_value(cell)
-        element = shared or f"<f>{_escape_text(cell.formula[1:])}</f>"
+        element = formula or f"<f>{_formula_xml(cell.formula[1:], ())}</f>"
         return f'<c r="{reference}"{attributes}{kind}>{element}{body}</c>'
     kind, body = _value_body(cell.value)
     if not body:
         return f'<c r="{reference}"{attributes}/>'
     return f'<c r="{reference}"{attributes}{kind}>{body}</c>'
+
+
+def _formula_xml(text: str, tables: Collection[str]) -> str:
+    """A formula, without its =, as a file spells it between <f> tags: structured references as a file has them
+    (pyopenvba.formula._structured.in_file), a line break as Excel writes one there, CR LF, and a carriage
+    return on its own as _x000D_ (tests/fixtures/structured_references/)."""
+    return _escape_text(in_file("=" + text, tables)[1:]).replace("\r", "_x000D_").replace("\n", "\r\n")
+
+
+def _formula_read(body: str) -> str:
+    """A formula a file spells between <f> tags, or in a defined name, as Range.Formula spells it."""
+    text = _unescape(body).replace("\r\n", "\n")
+    return from_file("=" + re.sub(r"_x000[dD]_", "\r", text))
 
 
 def _formula_value(cell: Cell) -> tuple[str, str]:
@@ -1487,6 +1510,7 @@ def _write_names(book: Workbook, package: OpcFile) -> None:
         return
     text = package.read("xl/workbook.xml").decode("utf-8", errors="replace")
     written: list[tuple[tuple[object, ...], str]] = []
+    tables = [table.name for sheet in book.sheets_ for table in sheet.tables]
     for attributes, body in _DEFINED_NAME.findall(text):
         found = _attributes(f"<definedName {attributes}>")
         name = found.get("name", "")
@@ -1513,8 +1537,9 @@ def _write_names(book: Workbook, package: OpcFile) -> None:
         if entry.comment:
             owned["comment"] = entry.comment
         attributes = " ".join(f'{key}="{_escape(value)}"' for key, value in owned.items())
+        refers_to = in_file(entry.refers_to, tables)
         written.append((_name_order(book, owned["name"], owned.get("localSheetId")),
-                        f"<definedName {attributes}>{_escape(entry.refers_to.lstrip('='))}</definedName>"))
+                        f"<definedName {attributes}>{_escape(refers_to.lstrip('='))}</definedName>"))
     # Excel writes its names in the Name Manager's order: by name as it shows there, ignoring case, and
     # a name on a sheet before the workbook's of the same name, sheets in the order of their names.
     written.sort(key=lambda pair: pair[0])

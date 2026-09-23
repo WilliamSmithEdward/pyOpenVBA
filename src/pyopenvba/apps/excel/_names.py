@@ -46,6 +46,14 @@ def qualify(formula: str, sheet: str) -> str:
     return text
 
 
+def structured(formula: str) -> bool:
+    """Whether a name's formula holds a structured reference, Table1[Qty]."""
+    try:
+        return any(token.kind == "structured" for token in tokenize(formula.removeprefix("=")))
+    except FormulaError:
+        return False
+
+
 def renamed_formula(formula: str, owner: Worksheet, entry: NameEntry, wanted: str) -> str:
     text = formula
     new_scope, bare = split_sheet(wanted)

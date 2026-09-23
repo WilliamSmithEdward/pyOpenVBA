@@ -212,6 +212,34 @@ def _places(table: dict[str, Places], name: str, count: int) -> frozenset[int]:
     return frozenset() if places is None else places.within(count)
 
 
+#: Where the functions that work out their own arguments read one value through intersected.
+_OWN_PLACES: Final[dict[str, Places]] = {
+    "IF": Places((0,)), "IFS": Places(start=0, step=2), "IFERROR": _EVERY, "IFNA": _EVERY, "CHOOSE": Places((0,)),
+    "OFFSET": Places(start=1),
+}
+#: The functions that work their arguments out as a cell does even inside an argument worked out as an array.
+AS_CELL: Final = frozenset({"IF", "IFS", "IFERROR", "IFNA", "SWITCH", "CHOOSE"})
+
+
+def one_value_places(name: str, count: int) -> frozenset[int]:
+    """The arguments of a call that want one value, cells there cut to the formula's own row or column."""
+    upper = name.upper()
+    found = FUNCTIONS.get(upper)
+    if found is None:
+        return frozenset()
+    if not found[1]:
+        return _places(_LIFTED, upper, count) | _places(_FIRST_ITEM, upper, count)
+    if upper == "SWITCH":
+        # The subject and each case; a value, and the default after the last case, can be cells.
+        return frozenset({0, *range(1, count - 1, 2)})
+    return _places(_OWN_PLACES, upper, count)
+
+
+def array_places(name: str, count: int) -> frozenset[int]:
+    """The arguments of a call worked out as arrays even in a cell."""
+    return _places(_ARRAYS, name.upper(), count)
+
+
 def _with_areas(name: str, values: list[object]) -> list[object]:
     """Arguments holding a union, as the function reads it: all its cells, one area, #VALUE!, or not known."""
     if name in _REFUSES_AREAS:

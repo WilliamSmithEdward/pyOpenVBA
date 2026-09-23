@@ -32,9 +32,7 @@ _UID = re.compile(r'(xr3?:uid)="\{[0-9A-F-]+\}"')
 
 #: Workbooks and questions the model answers differently, and why.
 KNOWN: dict[str, str] = {
-    "totals": "showing a table's totals row writes SUBTOTAL over a structured reference, which the formula engine "
-              "does not read yet",
-    "sheet_names": "Range reads a structured reference, Table1[Qty], which the model does not read yet",
+    "totals": "showing a table's totals row is not implemented",
 }
 
 

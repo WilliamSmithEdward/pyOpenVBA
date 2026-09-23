@@ -446,7 +446,7 @@ ListColumn,Creator,"property, read-only",As XlCreator,,MISSING,,
 ListColumn,DataBodyRange,"property, read-only",As Range,,VERIFIED,tests/fixtures/tables/tables.json,
 ListColumn,Delete,method,Delete(),,MISSING,,
 ListColumn,Index,"property, read-only",As Long,,VERIFIED,tests/fixtures/tables/tables.json,
-ListColumn,Name,property,As String,no setter,PARTIAL,tests/fixtures/tables/tables.json,Read; renaming a column is not implemented.
+ListColumn,Name,property,As String,,VERIFIED,tests/fixtures/tables/tables.json; tests/fixtures/structured_references/structured.json,"Setting it renames the column, its header and every formula naming it; a name another column has leaves the column as it was, and an empty one is the first free ColumnN."
 ListColumn,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/tables/tables.json,
 ListColumn,Range,"property, read-only",As Range,,VERIFIED,tests/fixtures/tables/tables.json,
 ListColumn,Total,"property, read-only",As Range,,MISSING,,
@@ -477,7 +477,7 @@ ListObject,HeaderRowRange,"property, read-only",As Range,,VERIFIED,tests/fixture
 ListObject,InsertRowRange,"property, read-only",As Range,,MISSING,,
 ListObject,ListColumns,"property, read-only",As ListColumns,,VERIFIED,tests/fixtures/tables/tables.json,
 ListObject,ListRows,"property, read-only",As ListRows,,VERIFIED,tests/fixtures/tables/tables.json,
-ListObject,Name,property,As String,,PARTIAL,tests/fixtures/tables/tables.json,"Setting it renames the table; a name that is taken or not a name is error 1004, which is not measured."
+ListObject,Name,property,As String,,PARTIAL,tests/fixtures/tables/tables.json; tests/fixtures/structured_references/structured.json,"Setting it renames the table and every formula naming it; a name that is taken or not a name is error 1004, which is not measured."
 ListObject,Parent,"property, read-only",As Object,,VERIFIED,tests/fixtures/tables/tables.json,The sheet.
 ListObject,Publish,method,"Publish(Target As Variant, LinkSource As Boolean) As String",,MISSING,,
 ListObject,QueryTable,"property, read-only",As QueryTable,,MISSING,,
@@ -549,7 +549,7 @@ Name,Visible,property,As Boolean,,PARTIAL,tests/fixtures/names_crud.json,
 Name,WorkbookParameter,property,As Boolean,,MISSING,,
 Names,_Default,method,"_Default([Index As Variant], [IndexLocal As Variant], [RefersTo As Variant]) As Name",,MISSING,,
 Names,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
-Names,Add,method,"Add([Name As Variant], [RefersTo As Variant], [Visible As Variant], [MacroType As Variant], [ShortcutKey As Variant], [Category As Variant], [NameLocal As Variant], [RefersToLocal As Variant], [CategoryLocal As Variant], [RefersToR1C1 As Variant], [RefersToR1C1Local As Variant]) As Name",,PARTIAL,tests/fixtures/names_crud.json; tests/fixtures/excel_model/probes.txt,"MacroType, ShortcutKey and Category report unsupported."
+Names,Add,method,"Add([Name As Variant], [RefersTo As Variant], [Visible As Variant], [MacroType As Variant], [ShortcutKey As Variant], [Category As Variant], [NameLocal As Variant], [RefersToLocal As Variant], [CategoryLocal As Variant], [RefersToR1C1 As Variant], [RefersToR1C1Local As Variant]) As Name",,PARTIAL,tests/fixtures/names_crud.json; tests/fixtures/excel_model/probes.txt; tests/fixtures/structured_references/structured.json,"MacroType, ShortcutKey and Category report unsupported. A structured reference in RefersTo is error 1004, as in Excel, and taken in RefersToR1C1."
 Names,Application,"property, read-only",As Application,,MISSING,,
 Names,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/names_crud.json; tests/fixtures/excel_model/probes.txt,
 Names,Creator,"property, read-only",As XlCreator,,MISSING,,

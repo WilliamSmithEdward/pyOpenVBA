@@ -66,6 +66,7 @@ from pyopenvba.apps.excel._typing import date_time_codes, is_date_format
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.formula._display import excel_date
 from pyopenvba.formula._parse import shift_text
+from pyopenvba.formula._structured import filled
 from pyopenvba.formula._values import ExcelError
 from pyopenvba.interpreter._values import EMPTY, MISSING, error, to_integer
 
@@ -325,6 +326,10 @@ class _Plan:
     def position(self, line: int, index: int) -> tuple[int, int]:
         return (self.area.top + index, line) if self.down else (line, self.area.left + index)
 
+    def table_columns(self, name: str) -> tuple[str, ...] | None:
+        table = self.sheet.book.calculator.table(name)
+        return None if table is None else table.columns
+
     def item(self, row: int, column: int) -> _Item:
         return _read(self.cells.get((row, column)), self.sheet.style_at(row, column).number_format)
 
@@ -394,6 +399,11 @@ class _Plan:
             cells = [cell for at in places if (cell := self.sheet.cells_.get(at)) is not None and cell.formula]
             if source is None or not source.formula or len(cells) != len(places) or not _shared.shares(source.formula):
                 continue
+            if any(cell.formula != shift_text(source.formula, at[0] - origin[0], at[1] - origin[1])
+                   for at, cell in zip(places, cells)):
+                # A table's column moved along the fill: the formulas differ by more than where they stand, and
+                # Excel writes each on its own (tests/fixtures/structured_references/).
+                continue
             block = Area(min(row for row, _ in places), min(column for _, column in places),
                          max(row for row, _ in places), max(column for _, column in places))
             key = source.shared
@@ -421,6 +431,9 @@ class _Plan:
         if content is _COPIED:
             if source is not None and source.formula:
                 formula = shift_text(source.formula, at[0] - origin[0], at[1] - origin[1])
+                if not self.down:
+                    # Across, a table's column moves one column for each time the source repeats.
+                    formula = filled(formula, (at[1] - origin[1]) // self.length, self.table_columns)
             elif source is not None:
                 value = source.value
         else:

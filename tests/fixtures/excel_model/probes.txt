@@ -181,6 +181,16 @@ ActiveSheet.Cells(4, 3) = "x" ;; Range("C4").Value
 Range("E1:E2") = 4 ;; Range("E2").Value
 Range("A1:B2").Cells(2, 2) = 6 ;; Range("B2").Value
 
+# --- Evaluate: an array constant ---
+;; Evaluate("{11,12;21,22}")(2, 1)
+;; UBound(Evaluate("{11,12;21,22}"), 2)
+;; Evaluate("{7,8}")(2)
+;; LBound(Evaluate("{7,8}"))
+;; Evaluate("{1;2;3}")(3, 1)
+;; Evaluate("{""a"",""b""}")(2)
+;; Evaluate("{TRUE,FALSE}")(1)
+;; Evaluate("{7,8}")
+
 # --- errors the model has to raise with the same number ---
 Range("A1").Offset(-1, 0).Address
 Range("zz").Address

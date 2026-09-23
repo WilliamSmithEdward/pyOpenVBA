@@ -108,7 +108,7 @@ Application,EnableLivePreview,property,As Boolean,,MISSING,,
 Application,EnableMacroAnimations,property,As Boolean,,MISSING,,
 Application,EnableSound,property,As Boolean,,MISSING,,
 Application,ErrorCheckingOptions,"property, read-only",As ErrorCheckingOptions,,MISSING,,
-Application,Evaluate,method,Evaluate(Name As Variant) As Variant,,UNASSESSED,,
+Application,Evaluate,method,Evaluate(Name As Variant) As Variant,,PARTIAL,tests/fixtures/excel_model/probes.txt,"A reference, a name, or an array constant, which comes back counted from 1 and one-dimensional when it is one row; a formula reports itself unsupported."
 Application,Excel4IntlMacroSheets,"property, read-only",As Sheets,,MISSING,,
 Application,Excel4MacroSheets,"property, read-only",As Sheets,,MISSING,,
 Application,ExecuteExcel4Macro,method,ExecuteExcel4Macro(String As String) As Variant,,MISSING,,

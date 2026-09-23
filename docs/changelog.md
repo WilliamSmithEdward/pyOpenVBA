@@ -65,6 +65,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
   file reads back as Excel reads it: 113 layouts and 34 saved filters
   in live Excel pin it, and Excel opens the filters this writes. Colour,
   icon and date-group filters in a file are kept but not applied.
+- `Application.Evaluate` and `[...]` read an array constant such as
+  `{1,2;3,4}` into an array counted from 1, one-dimensional when it is
+  one row, as Excel does. Text that is not a reference, a name or an
+  array constant reports itself unsupported; it was error 1004.
 - Defined names are written in Excel's order: by name as the Name Manager
   shows it, ignoring case, a sheet's own before the workbook's.
 - `Range.RemoveDuplicates`. A row goes when the columns asked for hold

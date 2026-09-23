@@ -363,16 +363,34 @@ class Application(ExcelObject):
     # -- Python side
 
     def evaluate_text(self, text: str) -> object:
-        """``[A1]`` and Evaluate("A1"): a reference, or a name."""
+        """``[A1]`` and Evaluate("A1"): a reference, a name, or an array constant such as {1,2;3,4}.
+
+        An array constant comes back as WorksheetFunction's arrays do:
+        counted from 1, one-dimensional when it is one row. Anything else
+        Excel would work out as a formula reports itself.
+        """
         sheet = self._require_sheet()
         book = sheet.book
         named = book.names_.find(text, scope=sheet)
         if named is not None:
             return named.refers_to_range()
+        body = text.strip()
+        if body.startswith("{") and body.endswith("}"):
+            from pyopenvba.apps.excel._worksheet_functions import answer
+            from pyopenvba.formula._engine import Context, evaluate
+            from pyopenvba.formula._parse import FormulaError, parse
+
+            try:
+                node = parse(body)
+            except FormulaError:
+                raise VBAUnsupportedError(f"Evaluate of {text!r}, which the formula engine cannot read, is not "
+                                          "implemented") from None
+            return answer(evaluate(node, Context(book.calculator, sheet.name)))
         try:
             areas = parse_reference(text, sheet=sheet.name)
         except ValueError:
-            raise error(ERR_APPLICATION_DEFINED, f"cannot evaluate {text!r}") from None
+            raise VBAUnsupportedError(f"Evaluate of {text!r}, which is not a reference, a name or an array "
+                                      "constant, is not implemented") from None
         return Range(book.sheet_named(areas[0].sheet) if areas[0].sheet else sheet, areas)
 
     def _require_book(self) -> Workbook:

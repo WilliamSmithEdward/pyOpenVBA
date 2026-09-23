@@ -178,6 +178,11 @@ def _scalar(value: object) -> object:
     return value
 
 
+def answer(value: object) -> object:
+    """An engine answer as VBA reads it back: an array counted from 1, one-dimensional when it is one row."""
+    return _array(value, whole=False) if isinstance(value, Matrix) else _scalar(value)
+
+
 def _array(matrix: Matrix, *, whole: bool) -> VBAArray:
     """An engine array as VBA reads it: one row one-dimensional, unless it is part of a range."""
     if matrix.height == 1 and not whole:

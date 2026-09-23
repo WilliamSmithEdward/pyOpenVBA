@@ -258,6 +258,13 @@ CStr(CSng(12345678))
 CStr(CSng(1234567))
 CStr(1E+15 - 1)
 CStr(9999999999999998#)
+# An exact tie at the last digit shown goes away from zero, a Single's as a Double's.
+CStr(CSng(2 ^ -11))
+CStr(-CSng(2 ^ -11))
+CStr(CSng(16777205))
+CStr(CSng(16777215))
+CStr(3109126351029605#)
+CStr(-3109126351029605#)
 
 # --- errors the interpreter has to raise with the same number ---
 Left("a", -1)

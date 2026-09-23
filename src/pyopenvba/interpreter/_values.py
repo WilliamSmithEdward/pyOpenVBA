@@ -38,7 +38,7 @@ import datetime as _dt
 import math
 import re
 import struct
-from decimal import ROUND_HALF_EVEN, Decimal, InvalidOperation, localcontext
+from decimal import ROUND_HALF_EVEN, ROUND_HALF_UP, Decimal, InvalidOperation, localcontext
 from typing import Any, Final
 
 from pyopenvba.exceptions import VBARuntimeError
@@ -613,7 +613,8 @@ def number_text(value: int | float | Decimal) -> str:
         return "-0" if math.copysign(1.0, value) < 0 else "0"
     precision = 7 if isinstance(value, VBASingle) else 15
     with localcontext() as context:
-        context.prec = precision
+        # An exact tie goes away from zero, a Single's as a Double's (tests/fixtures/vba_semantics).
+        context.prec, context.rounding = precision, ROUND_HALF_UP
         rounded = (+Decimal(float(value))).normalize()
     sign, digits, exponent = rounded.as_tuple()
     if not isinstance(exponent, int):  # pragma: no cover - only for NaN

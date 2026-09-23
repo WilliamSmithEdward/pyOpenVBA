@@ -451,6 +451,9 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- `CStr` and the text of a number round an exact tie at the last digit
+  shown away from zero, as VBA does, for a Single as for a Double.
+  `CStr(CSng(2 ^ -11))` is `4.882813E-04`; the model rounded it to even.
 - `Range.Cut` moves a reference that loses a whole edge to the cells it
   moves, as Excel does. Across sheets the reference keeps the rest:
   `SUM(B2:B7)` reads `SUM(B5:B7)` once B2:B4 is cut away. On its own

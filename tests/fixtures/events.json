@@ -1,0 +1,221 @@
+{
+ "log": "Public Events As String\n\nPublic Sub Note(ByVal text As String)\n    Events = Events & text & \"|\"\nEnd Sub\n",
+ "sheet1": "Private Sub Worksheet_Change(ByVal Target As Range)\n    Note \"Change:\" & Target.Address(False, False)\nEnd Sub\n\nPrivate Sub Worksheet_Calculate()\n    Note \"Calculate\"\nEnd Sub\n\nPrivate Sub Worksheet_SelectionChange(ByVal Target As Range)\n    Note \"SelectionChange:\" & Target.Address(False, False)\nEnd Sub\n\nPrivate Sub Worksheet_Activate()\n    Note \"Activate\"\nEnd Sub\n\nPrivate Sub Worksheet_Deactivate()\n    Note \"Deactivate\"\nEnd Sub\n",
+ "sheet2": "Public Counter As Long\n\nPrivate Sub Worksheet_Change(ByVal Target As Range)\n    Note \"Sheet2.Change:\" & Target.Address(False, False)\n    If Target.Address(False, False) = \"A1\" And Counter < 3 Then\n        Counter = Counter + 1\n        Range(\"B1\").Value = Target.Value * 2\n    End If\nEnd Sub\n\nPrivate Sub Worksheet_Activate()\n    Note \"Sheet2.Activate\"\nEnd Sub\n\nPrivate Sub Worksheet_Deactivate()\n    Note \"Sheet2.Deactivate\"\nEnd Sub\n\nPublic Function Where() As String\n    Where = Name & \"|\" & Me.Name & \"|\" & TypeName(Me) & \"|\" & ActiveSheet.Name & \"|\" & _\n        Range(\"A1\").Parent.Name & \"|\" & Cells(1, 1).Parent.Name & \"|\" & Rows.Count\nEnd Function\n\nPublic Sub WriteHere()\n    Range(\"C1\").Value = 7\nEnd Sub\n\nPrivate Function Secret() As String\n    Secret = \"secret\"\nEnd Function\n",
+ "book": "Private Sub Workbook_SheetChange(ByVal Sh As Object, ByVal Target As Range)\n    Note \"SheetChange:\" & Sh.Name & \"!\" & Target.Address(False, False)\nEnd Sub\n\nPrivate Sub Workbook_SheetCalculate(ByVal Sh As Object)\n    Note \"SheetCalculate:\" & Sh.Name\nEnd Sub\n\nPrivate Sub Workbook_SheetSelectionChange(ByVal Sh As Object, ByVal Target As Range)\n    Note \"SheetSelectionChange:\" & Sh.Name & \"!\" & Target.Address(False, False)\nEnd Sub\n\nPrivate Sub Workbook_SheetActivate(ByVal Sh As Object)\n    Note \"SheetActivate:\" & Sh.Name\nEnd Sub\n\nPrivate Sub Workbook_SheetDeactivate(ByVal Sh As Object)\n    Note \"SheetDeactivate:\" & Sh.Name\nEnd Sub\n\nPrivate Sub Workbook_NewSheet(ByVal Sh As Object)\n    Note \"NewSheet:\" & Sh.Name\nEnd Sub\n\nPublic Function Where() As String\n    Where = Name & \"|\" & Me.Name & \"|\" & TypeName(Me) & \"|\" & Sheets.Count & \"|\" & Worksheets(1).Name\nEnd Function\n",
+ "code_names": "Sheet1|Sheet2",
+ "actions": [
+  {
+   "name": "value",
+   "action": "Sheet1.Range(\"A1\").Value = 1",
+   "events": "Calculate|SheetCalculate:Sheet1|Change:A1|SheetChange:Sheet1!A1|"
+  },
+  {
+   "name": "same_value",
+   "action": "Sheet1.Range(\"A1\").Value = 1",
+   "events": "Calculate|SheetCalculate:Sheet1|Change:A1|SheetChange:Sheet1!A1|"
+  },
+  {
+   "name": "block",
+   "action": "Sheet1.Range(\"A2:B3\").Value = 5",
+   "events": "Change:A2:B3|SheetChange:Sheet1!A2:B3|"
+  },
+  {
+   "name": "areas",
+   "action": "Sheet1.Range(\"A2,B5\").Value = 6",
+   "events": "Change:A2,B5|SheetChange:Sheet1!A2,B5|"
+  },
+  {
+   "name": "formula",
+   "action": "Sheet1.Range(\"A2\").Formula = \"=1+1\"",
+   "events": "Calculate|SheetCalculate:Sheet1|Change:A2|SheetChange:Sheet1!A2|"
+  },
+  {
+   "name": "value2",
+   "action": "Sheet1.Range(\"A1\").Value2 = 2",
+   "events": "Calculate|SheetCalculate:Sheet1|Change:A1|SheetChange:Sheet1!A1|"
+  },
+  {
+   "name": "formula_r1c1",
+   "action": "Sheet1.Range(\"A1\").FormulaR1C1 = \"=3\"",
+   "events": "Calculate|SheetCalculate:Sheet1|Change:A1|SheetChange:Sheet1!A1|"
+  },
+  {
+   "name": "default_member",
+   "action": "Sheet1.Cells(1, 1) = 4",
+   "events": "Calculate|SheetCalculate:Sheet1|Change:A1|SheetChange:Sheet1!A1|"
+  },
+  {
+   "name": "clear_contents",
+   "action": "Sheet1.Range(\"A2:B3\").ClearContents",
+   "events": "Change:A2:B3|SheetChange:Sheet1!A2:B3|"
+  },
+  {
+   "name": "clear_empty",
+   "action": "Sheet1.Range(\"F1\").ClearContents",
+   "events": "Change:F1|SheetChange:Sheet1!F1|"
+  },
+  {
+   "name": "number_format",
+   "action": "Sheet1.Range(\"A2\").NumberFormat = \"0.00\"",
+   "events": ""
+  },
+  {
+   "name": "font",
+   "action": "Sheet1.Range(\"A2\").Font.Bold = True",
+   "events": ""
+  },
+  {
+   "name": "clear",
+   "action": "Sheet1.Range(\"A2:B3\").Clear",
+   "events": "Change:A2:B3|SheetChange:Sheet1!A2:B3|"
+  },
+  {
+   "name": "insert_row",
+   "action": "Sheet1.Rows(10).Insert",
+   "events": "Change:10:10|SheetChange:Sheet1!10:10|Calculate|SheetCalculate:Sheet1|"
+  },
+  {
+   "name": "delete_row",
+   "action": "Sheet1.Rows(10).Delete",
+   "events": "Calculate|SheetCalculate:Sheet1|Change:10:10|SheetChange:Sheet1!10:10|"
+  },
+  {
+   "name": "insert_cells",
+   "action": "Sheet1.Range(\"J1\").Insert Shift:=xlDown",
+   "events": "Change:J1|SheetChange:Sheet1!J1|Calculate|SheetCalculate:Sheet1|"
+  },
+  {
+   "name": "delete_cells",
+   "action": "Sheet1.Range(\"J1\").Delete Shift:=xlUp",
+   "events": "Calculate|SheetCalculate:Sheet1|Change:J1|SheetChange:Sheet1!J1|"
+  },
+  {
+   "name": "copy",
+   "action": "Sheet1.Range(\"A1\").Copy Sheet1.Range(\"F1\")",
+   "events": "Change:F1|SheetChange:Sheet1!F1|"
+  },
+  {
+   "name": "autofill",
+   "action": "Sheet1.Range(\"A1\").AutoFill Sheet1.Range(\"A1:A3\")",
+   "events": "SelectionChange:A1:A3|SheetSelectionChange:Sheet1!A1:A3|Change:A2:A3|SheetChange:Sheet1!A2:A3|"
+  },
+  {
+   "name": "fill_down",
+   "action": "Sheet1.Range(\"A1:A3\").FillDown",
+   "events": "Change:A1:A3|SheetChange:Sheet1!A1:A3|"
+  },
+  {
+   "name": "replace",
+   "action": "Sheet1.Range(\"A1:A3\").Replace \"4\", \"5\"",
+   "events": "Change:A1|SheetChange:Sheet1!A1|Change:A2|SheetChange:Sheet1!A2|Change:A3|SheetChange:Sheet1!A3|Calculate|SheetCalculate:Sheet1|"
+  },
+  {
+   "name": "sort",
+   "action": "Sheet1.Range(\"A1:A3\").Sort Key1:=Sheet1.Range(\"A1\")",
+   "events": "Calculate|SheetCalculate:Sheet1|"
+  },
+  {
+   "name": "formula_array",
+   "action": "Sheet1.Range(\"G1:G2\").FormulaArray = \"=A1:A2*2\"",
+   "events": "Calculate|SheetCalculate:Sheet1|Change:G1:G2|SheetChange:Sheet1!G1:G2|"
+  },
+  {
+   "name": "merge",
+   "action": "Sheet1.Range(\"H1:H2\").Merge",
+   "events": ""
+  },
+  {
+   "name": "events_off",
+   "action": "Application.EnableEvents = False: Sheet1.Range(\"A1\").Value = 9: Application.EnableEvents = True",
+   "events": ""
+  },
+  {
+   "name": "calculate",
+   "action": "Application.Calculate",
+   "events": "Calculate|SheetCalculate:Sheet1|"
+  },
+  {
+   "name": "select",
+   "action": "Sheet1.Range(\"A5\").Select",
+   "events": "SelectionChange:A5|SheetSelectionChange:Sheet1!A5|"
+  },
+  {
+   "name": "select_again",
+   "action": "Sheet1.Range(\"A5\").Select",
+   "events": ""
+  },
+  {
+   "name": "activate_other",
+   "action": "Sheet2.Activate",
+   "events": "Deactivate|SheetDeactivate:Sheet1|Sheet2.Activate|SheetActivate:Sheet2|"
+  },
+  {
+   "name": "activate_back",
+   "action": "Sheet1.Activate",
+   "events": "Sheet2.Deactivate|SheetDeactivate:Sheet2|Activate|SheetActivate:Sheet1|"
+  },
+  {
+   "name": "other_sheet",
+   "action": "Sheet2.Range(\"A1\").Value = 3",
+   "events": "Sheet2.Change:A1|Sheet2.Change:B1|SheetChange:Sheet2!B1|SheetChange:Sheet2!A1|"
+  },
+  {
+   "name": "add_sheet",
+   "action": "Worksheets.Add After:=Worksheets(Worksheets.Count)",
+   "events": "NewSheet:Sheet3|Sheet2.Deactivate|SheetDeactivate:Sheet2|SheetActivate:Sheet3|"
+  },
+  {
+   "name": "activate_first",
+   "action": "Sheet1.Activate",
+   "events": "SheetDeactivate:Sheet3|Activate|SheetActivate:Sheet1|"
+  },
+  {
+   "name": "add_sheet_plain",
+   "action": "Worksheets.Add",
+   "events": "NewSheet:Sheet4|Deactivate|SheetDeactivate:Sheet1|SheetActivate:Sheet4|"
+  },
+  {
+   "name": "activate_first_again",
+   "action": "Sheet1.Activate",
+   "events": "SheetDeactivate:Sheet4|Activate|SheetActivate:Sheet1|"
+  }
+ ],
+ "reach": [
+  {
+   "name": "sheet_where",
+   "code": "Sheet2.Where()",
+   "answer": "Sheet2|Sheet2|Worksheet|Sheet1|Sheet2|Sheet2|1048576"
+  },
+  {
+   "name": "book_where",
+   "code": "ThisWorkbook.Where()",
+   "answer": "Book1|Book1|Workbook|4|Sheet4"
+  },
+  {
+   "name": "sheet_write",
+   "code": "Sheet2.WriteHere: Reach = Sheet2.Range(\"C1\").Value & \"|\" & Sheet1.Range(\"C1\").Value",
+   "answer": "7|"
+  },
+  {
+   "name": "sheet_variable",
+   "code": "Sheet2.Counter = 5: Reach = Sheet2.Counter",
+   "answer": "5"
+  },
+  {
+   "name": "run",
+   "code": "Sheet2.Range(\"C1\").ClearContents: Application.Run \"Sheet2.WriteHere\": Reach = Sheet2.Range(\"C1\").Value",
+   "answer": "7"
+  },
+  {
+   "name": "private",
+   "code": "Dim late As Object: Set late = Sheet2: Reach = late.Secret()",
+   "answer": "!438"
+  },
+  {
+   "name": "code_names",
+   "code": "Reach = Worksheets(1).CodeName & \"|\" & Worksheets(2).CodeName & \"|\" & ThisWorkbook.CodeName",
+   "answer": "|Sheet1|ThisWorkbook"
+  }
+ ]
+}

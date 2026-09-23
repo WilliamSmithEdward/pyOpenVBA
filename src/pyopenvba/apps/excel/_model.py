@@ -27,7 +27,7 @@ from pyopenvba.exceptions import VBAUnsupportedError, VBARuntimeError
 from pyopenvba.formula._parse import shift_text
 from pyopenvba.formula._r1c1 import from_a1, to_a1
 from pyopenvba.apps.excel._find import FindState
-from pyopenvba.apps.excel import _arrays, _dimensions, _merges, _names
+from pyopenvba.apps.excel import _arrays, _dimensions, _events, _merges, _names
 from pyopenvba.apps.excel._styles import applying
 from pyopenvba.shapes._values import Shape as ShapeState
 from pyopenvba.interpreter._objects import MemberSpec, VBACollection, VBAObject, member, method, setter
@@ -357,6 +357,7 @@ class Application(ExcelObject):
     def Calculate(self) -> object:
         for book in self.workbooks_.books:
             book.calculator.calculate_all()
+            _events.calculated_all(book)
         return EMPTY
 
     @method
@@ -440,7 +441,7 @@ class Workbooks(VBACollection, ExcelObject):
         if Template is not MISSING and Template != -4167:
             raise VBAUnsupportedError("Only worksheet workbooks are supported by Workbooks.Add")
         book = Workbook(self.application, self.next_name())
-        book.add_sheet("Sheet1")
+        book.add_sheet("Sheet1").code_name = "Sheet1"
         self.books.append(book)
         self.application.activate_book(book)
         return book
@@ -488,6 +489,8 @@ class Workbook(ExcelObject):
         self.name = name
         self.path = path
         self.saved = True
+        #: The name the workbook's own module goes by in VBA, as ThisWorkbook.CodeName gives it.
+        self.code_name = "ThisWorkbook"
         self.sheets_: list[Worksheet] = []
         self.names_ = Names(self)
         self.queries_ = Queries(self)
@@ -530,6 +533,10 @@ class Workbook(ExcelObject):
     @member
     def Name(self) -> object:
         return self.name
+
+    @member
+    def CodeName(self) -> object:
+        return self.code_name
 
     @member
     def FullName(self) -> object:
@@ -741,14 +748,19 @@ class Sheets(VBACollection, ExcelObject):
 
         refuse_structure(self.book, ADDING)
         at: int | None = None
+        # Measured: the sheet the new one is placed beside is the one that deactivates, else the active one.
+        left = self.book.active_sheet
         if isinstance(Before, Worksheet):
             at = self.book.sheets_.index(Before)
+            left = Before
         elif isinstance(After, Worksheet):
             at = self.book.sheets_.index(After) + 1
+            left = After
         elif self.book.active_sheet is not None:
             at = self.book.sheets_.index(self.book.active_sheet)
         sheet = self.book.add_sheet(at=at)
         self.book.activate_sheet(sheet)
+        _events.new_sheet(self.book, sheet, left)
         return sheet
 
     @member
@@ -768,6 +780,9 @@ class Worksheet(ExcelObject):
     def __init__(self, book: Workbook, name: str) -> None:
         self.book = book
         self.name = name
+        #: The name the sheet goes by in VBA, Sheet1 in Sheet1.Range("A1"), and its own module's; "" for a sheet a
+        #: macro added, which Excel leaves without one.
+        self.code_name = ""
         self.cells_: dict[tuple[int, int], Cell] = {}
         #: The shared formulas: each one's block, which moves with inserts and deletes as a reference does,
         #: by the key its cells' Cell.shared holds (see _shared).
@@ -878,6 +893,10 @@ class Worksheet(ExcelObject):
         self.book.calculator.rebuild()
 
     # -- identity
+
+    @member
+    def CodeName(self) -> object:
+        return self.code_name
 
     @member
     def Name(self) -> object:
@@ -1080,8 +1099,10 @@ class Worksheet(ExcelObject):
 
     @method
     def Activate(self) -> object:
+        before = self.book.active_sheet
         self.book.activate_sheet(self)
         self.book.application.activate_book(self.book)
+        _events.activated(self.book, before, self)
         return EMPTY
 
     @method
@@ -1404,6 +1425,7 @@ class Range(ExcelObject):
             return
         with writing(self.sheet):
             self._write(value)
+        _events.after_edit(self)
 
     @member
     def Value2(self) -> object:
@@ -1418,6 +1440,7 @@ class Range(ExcelObject):
             return
         with writing(self.sheet):
             self._write(value, raw=True)
+        _events.after_edit(self)
 
     def _values(self, *, raw: bool) -> object:
         if self.single:
@@ -1485,6 +1508,7 @@ class Range(ExcelObject):
             return
         with writing(self.sheet):
             self._write_formula(value)
+        _events.after_edit(self)
 
     def _write_formula(self, value: object) -> None:
         if isinstance(value, VBAArray):
@@ -1567,6 +1591,7 @@ class Range(ExcelObject):
             raise VBAUnsupportedError("FormulaArray set to a value rather than a formula is not implemented")
         whole(self.sheet, self.areas, "Changing")
         _arrays.put(self, _array_formula_text(self.sheet, text, self.first.top, self.first.left))
+        _events.after_edit(self)
 
     @member
     def HasArray(self) -> object:
@@ -1584,6 +1609,7 @@ class Range(ExcelObject):
             return
         with writing(self.sheet):
             self._write_formula_r1c1(value)
+        _events.after_edit(self)
 
     def _write_formula_r1c1(self, value: object) -> None:
         if isinstance(value, VBAArray):
@@ -2094,12 +2120,21 @@ class Range(ExcelObject):
 
     @method
     def Select(self) -> object:
+        self.select_as_excel_does()
+        self.sheet.book.activate_sheet(self.sheet)
+        return EMPTY
+
+    def select_as_excel_does(self) -> None:
+        """Make the range the sheet's selection, its first cell the active one; SelectionChange when that moves it."""
+        before = self.sheet.selection_range
+        shown = [(one.top, one.left, one.bottom, one.right) for one in before.areas] if before is not None \
+            else [(1, 1, 1, 1)]
         self.sheet.selection_range = self
         self.sheet.active_cell_range = Range(
             self.sheet, [Area(self.first.top, self.first.left, self.first.top, self.first.left, self.first.sheet)]
         )
-        self.sheet.book.activate_sheet(self.sheet)
-        return EMPTY
+        if shown != [(one.top, one.left, one.bottom, one.right) for one in self.areas]:
+            _events.selected(self.sheet, self)
 
     @method
     def Activate(self) -> object:
@@ -2123,6 +2158,7 @@ class Range(ExcelObject):
         clear_formats(target)
         target._clear_contents()
         header_cleared(target)
+        _events.after_edit(self)
         return EMPTY
 
     @method
@@ -2139,6 +2175,7 @@ class Range(ExcelObject):
         _arrays.clear_admitted(target)
         target._clear_contents()
         header_cleared(target)
+        _events.after_edit(self)
         return EMPTY
 
     def _clear_contents(self) -> None:
@@ -2192,6 +2229,7 @@ class Range(ExcelObject):
             raise VBAUnsupportedError("deleting cells in several areas is not implemented")
         else:
             self._delete_cells(self.first, up)
+        _events.after_edit(self, calculate_first=True)
         return EMPTY
 
     def _delete_lines(self) -> None:
@@ -2253,9 +2291,12 @@ class Range(ExcelObject):
             if runs is not None:
                 count = sum(bottom - top + 1 for top, bottom in runs)
                 area = Area(area.top, 1, area.top + count - 1, MAX_COLUMNS, area.sheet)
-                edit(Range(self.sheet, [area], whole="rows"), delete=False)
+                inserted = Range(self.sheet, [area], whole="rows")
+                edit(inserted, delete=False)
+                _events.after_edit(inserted, calculate_first=False)
                 return EMPTY
             edit(self, delete=False)
+            _events.after_edit(self, calculate_first=False)
             return EMPTY
         if filtered:
             raise error(1004, "Insert method of Range class failed")
@@ -2267,6 +2308,7 @@ class Range(ExcelObject):
         # With no Shift a range taller than it is wide pushes cells right, any other range down.
         down = area.rows <= area.columns if Shift is MISSING else int(to_integer(Shift, "Long")) == -4121  # xlDown
         shift_cells(self, area, delete=False, vertical=down)
+        _events.after_edit(self, calculate_first=False)
         return EMPTY
 
     def _shifting_cells(self) -> None:
@@ -2347,6 +2389,7 @@ class Range(ExcelObject):
         plan = NameCopyPlan(self.sheet, Destination.sheet, name_conflict)
         formulas = {position: plan.rewrite(cell.formula) for position, cell in sources.items()
                     if cell.formula} if Destination.sheet.book is not self.sheet.book else {}
+        names_brought = bool(plan.entries)
         if plan.entries:
             Destination.sheet.book.names_.entries.extend(plan.entries)
             Destination.sheet.book.names_.changed = True
@@ -2392,7 +2435,12 @@ class Range(ExcelObject):
             for (row, column), style in plan:
                 if style != Destination.sheet.inherited_style(row, column):
                     Destination.sheet.restyle(row, column, style)
-        Destination.sheet.shape_changed()
+        if names_brought:
+            # Names the copy brought can change what any formula means.
+            Destination.sheet.shape_changed()
+        else:
+            Destination.sheet.touched()
+            Destination.sheet.book.calculator.wrote_area(Destination.sheet.name, written)
         return True
 
     @method
@@ -2401,23 +2449,39 @@ class Range(ExcelObject):
 
         _arrays.refuse(self.sheet, self.areas + (Destination.areas if isinstance(Destination, Range) else []),
                        "Filling")
-        return autofill(self, Destination, Type)
+        answer = autofill(self, Destination, Type)
+        if isinstance(Destination, Range) and len(Destination.areas) == 1:
+            # Excel selects what it filled, then reports the cells it filled as changed.
+            if Destination.sheet is self.sheet.book.active_sheet:
+                Destination.select_as_excel_does()
+            filled = _beyond(self.first, Destination.first)
+            if filled is not None:
+                _events.after_edit(Range(Destination.sheet, [filled]))
+        return answer
 
     @method
     def FillDown(self) -> object:
-        return self._fill(1, 0)
+        answer = self._fill(1, 0)
+        _events.after_edit(self)
+        return answer
 
     @method
     def FillUp(self) -> object:
-        return self._fill(-1, 0)
+        answer = self._fill(-1, 0)
+        _events.after_edit(self)
+        return answer
 
     @method
     def FillRight(self) -> object:
-        return self._fill(0, 1)
+        answer = self._fill(0, 1)
+        _events.after_edit(self)
+        return answer
 
     @method
     def FillLeft(self) -> object:
-        return self._fill(0, -1)
+        answer = self._fill(0, -1)
+        _events.after_edit(self)
+        return answer
 
     def _fill(self, down: int, across: int) -> object:
         """Copy each area's first row or column, in the direction of the fill, over the rest of it.
@@ -2497,8 +2561,11 @@ class Range(ExcelObject):
 
         check_sort(self)
         _arrays.refuse(self.sheet, self.areas, "Sorting")
-        return range_sort(self, [(Key1, Order1, DataOption1), (Key2, Order2, DataOption2), (Key3, Order3, DataOption3)],
-                          Header, OrderCustom, MatchCase, Orientation)
+        answer = range_sort(self, [(Key1, Order1, DataOption1), (Key2, Order2, DataOption2),
+                                   (Key3, Order3, DataOption3)], Header, OrderCustom, MatchCase, Orientation)
+        # A sort changes no cell as far as Change goes; what it moved is worked out again.
+        _events.recalculated(self.sheet.book)
+        return answer
 
     @method
     def AutoFilter(self, Field: object = MISSING, Criteria1: object = MISSING, Operator: object = MISSING,
@@ -2599,8 +2666,11 @@ class Range(ExcelObject):
             # A protected sheet's Replace answers True and changes nothing, unlocked cells included.
             return True
         _arrays.refuse(self.sheet, self.areas, "Replacing in")
-        return replace(self, What, Replacement, LookAt, SearchOrder, MatchCase, MatchByte, SearchFormat,
-                       ReplaceFormat, FormulaVersion)
+        answer = replace(self, What, Replacement, LookAt, SearchOrder, MatchCase, MatchByte, SearchFormat,
+                         ReplaceFormat, FormulaVersion)
+        # Each cell replaced was reported as it changed; the calculation comes after them all.
+        _events.recalculated(self.sheet.book)
+        return answer
 
     def replaced_in(self, row: int, column: int, text: str) -> bool:
         """Enter the text Replace left in one cell; False, changing nothing, for a formula Excel cannot read.
@@ -2621,8 +2691,11 @@ class Range(ExcelObject):
             except VBARuntimeError:
                 return False
             self._put_formula(row, column, formula)
-            return True
-        self._store(row, column, replaced(text, self.sheet.style_at(row, column).number_format, prefixed=prefixed))
+        else:
+            self._store(row, column, replaced(text, self.sheet.style_at(row, column).number_format,
+                                              prefixed=prefixed))
+        # Replace reports each cell as it changes it.
+        _events.changed(Range(self.sheet, [Area(row, column, row, column, self.sheet.name)]))
         return True
 
     @method
@@ -3386,6 +3459,19 @@ class _BookNames:
 def _is_formula(text: str) -> bool:
     """Whether a string written to a cell is a formula: it starts with =, and = alone is text."""
     return text.startswith("=") and text != "="
+
+
+def _beyond(source: Area, destination: Area) -> Area | None:
+    """The cells a fill from ``source`` over ``destination`` filled: the destination past the source."""
+    if destination.bottom > source.bottom:
+        return Area(source.bottom + 1, destination.left, destination.bottom, destination.right)
+    if destination.top < source.top:
+        return Area(destination.top, destination.left, source.top - 1, destination.right)
+    if destination.right > source.right:
+        return Area(destination.top, source.right + 1, destination.bottom, destination.right)
+    if destination.left < source.left:
+        return Area(destination.top, destination.left, destination.bottom, source.left - 1)
+    return None
 
 
 #: A name that is an R1C1 reference, which A1 will not take as a name: R1C1, RC2, R3C, R, C.

@@ -147,17 +147,23 @@ def copy_range(target: Range, destination: object) -> object:
 
     if not isinstance(destination, Range):
         raise error(1004, "Copy needs a range to copy to")
+    from pyopenvba.apps.excel._events import after_edit
+
     source = visible(target)
     made = block_of(source.areas)
-    whole(destination.sheet, [landing_of(made, destination)], "Copying")
+    landed = landing_of(made, destination)
+    whole(destination.sheet, [landed], "Copying")
     landing = visible_areas(destination)
     if landing is None:
-        return paste_block(target.sheet, made, destination)
-    first = made.parts[0][0]
-    if len(made.parts) > 1:
-        raise VBAUnsupportedError("copying several areas into a filtered range is not implemented")
-    for area in landing:
-        Range(target.sheet, [first]).copy_to(Range(destination.sheet, [area]))
+        paste_block(target.sheet, made, destination)
+    else:
+        first = made.parts[0][0]
+        if len(made.parts) > 1:
+            raise VBAUnsupportedError("copying several areas into a filtered range is not implemented")
+        for area in landing:
+            Range(target.sheet, [first]).copy_to(Range(destination.sheet, [area]))
+    # The cells copied to change, as Excel reports them.
+    after_edit(Range(destination.sheet, [landed]))
     return True
 
 

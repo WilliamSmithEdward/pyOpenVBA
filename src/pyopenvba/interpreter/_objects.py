@@ -104,6 +104,9 @@ class VBAObject:
 
     #: The library the type belongs to, for the inventory lookup.
     vba_library: str = ""
+    #: The code a document module adds to this object -- a sheet's or the workbook's own module -- whose Public
+    #: members it answers as its own: Sheet2.WriteHere, Sheet2.Counter. None for an object with no module.
+    vba_document: Any = None
 
     _vba_members: ClassVar[dict[str, MemberSpec]] = {}
 
@@ -176,6 +179,9 @@ class VBAObject:
     def vba_get(self, name: str, args: Sequence[object] = (), named: dict[str, object] | None = None) -> object:
         spec = self.vba_member(name)
         if spec is None or spec.getter is None:
+            document = self.vba_document
+            if spec is None and document is not None and document.public(name):
+                return document.vba_get(name, args, named)
             raise self.vba_no_member(name)
         if args and not named and spec.kind == "property" and not spec.parameters and not spec.varargs:
             # VBA hands arguments a property does not take to what it answers: Range("C1:C3").Formula(2, 1)
@@ -199,6 +205,10 @@ class VBAObject:
     ) -> None:
         spec = self.vba_member(name)
         if spec is None:
+            document = self.vba_document
+            if document is not None and document.public(name):
+                document.vba_set(name, value, args, named, by_ref=by_ref)
+                return
             raise self.vba_no_member(name)
         function = spec.ref_setter if by_ref and spec.ref_setter is not None else spec.setter
         if function is None and by_ref and spec.setter is not None:

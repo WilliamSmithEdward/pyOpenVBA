@@ -156,6 +156,8 @@ class ModuleRuntime:
         self.enums: dict[str, dict[str, object]] = {}
         self.enum_members: dict[str, object] = {}
         self.declares: dict[str, A.DeclareDef] = {}
+        #: A document module's one instance, bound to the object it is the code of (see bind_document).
+        self.document: UserClassInstance | None = None
         self._initialised = False
         for procedure in parsed.procedures:
             self.procedures.setdefault(procedure.name.lower(), []).append(procedure)
@@ -454,6 +456,8 @@ class UserClassInstance(VBAObject):
         self.module = module
         self.interpreter = interpreter
         self.vba_type_name = module.name
+        #: For a document module, the object it is the code of -- a worksheet, the workbook -- which Me is.
+        self.host: VBAObject | None = None
         self.variables: dict[str, Slot] = {}
         for group in module.parsed.variables:
             for declaration in group.decls:
@@ -506,6 +510,17 @@ class UserClassInstance(VBAObject):
         if procedure is not None:
             return self.interpreter.call(procedure, self.module, [], {}, me=self)
         raise error(ERR_MEMBER_NOT_FOUND, f"{self.vba_type_name} has no default member")
+
+    # --- a document module: a sheet's or the workbook's own code --------------------------
+
+    def public(self, name: str) -> bool:
+        """Whether code outside the module reaches ``name``: a Public procedure or module-level variable."""
+        key = name.lower()
+        if any(procedure.scope != "private" for procedure in self.module.procedures.get(key, [])):
+            return True
+        return key in self.variables and any(
+            group.scope in ("public", "global") and any(declaration.name.lower() == key for declaration in group.decls)
+            for group in self.module.parsed.variables)
 
     def raise_event(self, name: str, args: list[object]) -> None:
         self.interpreter.raise_event(self, name, args)
@@ -580,6 +595,16 @@ class Interpreter:
             raise VBACompileError(f"there is no module named {name}")
         return found
 
+    def bind_document(self, name: str, host: VBAObject) -> UserClassInstance:
+        """Make document module ``name`` the code of ``host``: Me is ``host``, its members are the module's by
+        name, and ``host`` answers the module's Public members to code outside it."""
+        runtime = self.module(name)
+        instance = UserClassInstance(runtime, self)
+        instance.host = host
+        runtime.document = instance
+        host.vba_document = instance
+        return instance
+
     def initialise(self) -> None:
         for runtime in list(self.modules.values()):
             if not runtime.is_class:
@@ -650,7 +675,8 @@ class Interpreter:
                 35, f"Sub or Function not defined: {procedure_name}", where=module or "the project"
             )
         try:
-            return self.call(target, runtime, list(args), {})
+            # A sheet's or the workbook's own module runs as that object's code.
+            return self.call(target, runtime, list(args), {}, me=runtime.document)
         except _EndSignal:
             return EMPTY
 
@@ -1234,6 +1260,10 @@ class Interpreter:
         """Resolve a bare name the way VBA resolves one."""
         key = _bare(name)
         if frame is not None:
+            if key == "me" and frame.me is not None:
+                # Me in a sheet's or the workbook's own module is the sheet or the workbook.
+                return frame.me.host if isinstance(frame.me, UserClassInstance) and frame.me.host is not None \
+                    else frame.me
             slot = frame.locals.get(key)
             if slot is not None:
                 return slot if want_slot else slot.get()
@@ -1254,6 +1284,10 @@ class Interpreter:
             procedure = module.procedure(key)
             if procedure is not None:
                 return self.call(procedure, module, [], {}, me=frame.me if module.is_class else None)
+            host = _host_of(frame)
+            if host is not None and host.vba_member(key) is not None:
+                # A sheet's own module reaches the sheet's members by name: Range is Me.Range.
+                return _dispatch_get(host, key, [], {})
         for runtime in self.modules.values():
             if runtime.is_class:
                 continue
@@ -1367,6 +1401,10 @@ class Interpreter:
             if procedure is not None:
                 positional, named = self._arguments(args, frame, procedure=procedure)
                 return self.call(procedure, module, positional, named, me=frame.me if module.is_class else None)
+            host = _host_of(frame)
+            if host is not None and host.vba_member(key) is not None:
+                positional, named = self._arguments(args, frame, target=host, name=key)
+                return _dispatch_get(host, key, positional, named)
             if key in module.declares:
                 raise VBAUnsupportedError(
                     f"{module.declares[key].name} is a Declare into "
@@ -1538,6 +1576,12 @@ class Interpreter:
         if slot is None:
             frame.module.initialise()
             slot = frame.module.variables.get(key)
+        host = _host_of(frame)
+        if slot is None and host is not None and host.vba_member(key) is not None:
+            # A sheet's own module sets the sheet's members by name: Name = "x" renames the sheet.
+            owner = host
+            return Assignable(put=lambda value, by_ref: owner.vba_set(key, value, by_ref=by_ref),
+                              take=lambda: owner.vba_get(key))
         if slot is None:
             for runtime in self.modules.values():
                 if runtime.is_class:
@@ -1740,6 +1784,12 @@ def _bare(name: str) -> str:
     from pyopenvba.interpreter._lex import strip_suffix
 
     return strip_suffix(name).lower()
+
+
+def _host_of(frame: Frame) -> VBAObject | None:
+    """The object a document module running in ``frame`` is the code of, if it is one."""
+    me = frame.me
+    return me.host if isinstance(me, UserClassInstance) else None
 
 
 @lru_cache(maxsize=1)

@@ -157,6 +157,20 @@ All notable changes to pyOpenVBA are documented here. This project follows
   ordinary one, and a save of the sheet lost the array. 78 cases and 4
   workbooks in live Excel pin it. Copying part of an array, and filling,
   sorting, replacing or removing duplicates in one, report themselves.
+- Events, and a sheet's own code. A sheet's module and ThisWorkbook
+  are their objects' code: a code name reaches its sheet or workbook, as
+  `Sheet1.Range("A1")`; inside the module `Me` is the object and its
+  members are the module's by name, so Range there is that sheet's; and
+  outside code reaches the module's Public members through the object,
+  `Sheet2.MyMacro` or `Application.Run "Sheet2.MyMacro"`.
+  `add_module(..., kind="document")` binds a module, and an xlsm's own
+  modules are bound as it is read. `Worksheet.CodeName` and
+  `Workbook.CodeName` come from the file. The modules hear Change,
+  Calculate, SelectionChange, Activate, Deactivate and NewSheet, sheet
+  first and workbook second, with Excel's Target and order, suppressed by
+  EnableEvents, and nested when a handler edits a sheet. 35 actions and 7
+  reach cases in live Excel pin it. Before, a `Worksheet_Change` handler
+  never ran and `Sheet1` was not defined.
 - Workbook protection: `Workbook.Protect`, `Unprotect`,
   `ProtectStructure` and `ProtectWindows`. A protected structure refuses
   adding, deleting, renaming, moving, copying and hiding sheets with
@@ -536,6 +550,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- `Me` in a class module is the instance the code runs for. The model
+  reported it as an undefined variable.
+- Arguments given to a property that takes none apply to what it
+  answers, as in VBA: `Range("C1:C3").Formula(2, 1)` is the second
+  formula of the array Formula answers. The model raised error 450.
 - A workbook Excel saved with a formula filled down, copied or written
   to a block reads with every cell's formula. Excel stores such a block
   as one shared formula whose other cells only point at the first; the

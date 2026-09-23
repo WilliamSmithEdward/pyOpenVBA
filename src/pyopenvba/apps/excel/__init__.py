@@ -37,6 +37,7 @@ from pyopenvba.apps.excel._model import (
     Workbook,
     Worksheet,
 )
+from pyopenvba.interpreter._objects import VBAObject
 from pyopenvba.interpreter._runtime import Interpreter, ModuleRuntime
 from pyopenvba.interpreter._values import EMPTY, MISSING, to_text
 from pyopenvba.shapes import Shape
@@ -363,7 +364,11 @@ class ExcelApplication(NamedRangeAPI):
                 project = host.vba_project()
                 for module in project.modules:
                     kind = "standard" if module.kind is VBAModuleKind.standard else "class"
-                    self.interpreter.add_module(module.source, name=module.name, kind=kind)
+                    # A sheet's or the workbook's own module is named by its code name.
+                    host = self.interpreter.host.global_object(module.name.lower())
+                    if kind == "class" and isinstance(host, VBAObject) and host is not self.application:
+                        kind = "document"
+                    self.add_module(module.source, name=module.name, kind=kind)
                     names.append(module.name)
         except PyOpenVBAError:
             return names
@@ -390,8 +395,21 @@ class ExcelApplication(NamedRangeAPI):
         book.Activate()
 
     def add_module(self, source: str, *, name: str = "", kind: str = "standard") -> ModuleRuntime:
-        """Parse VBA and add it to the project this instance runs."""
-        return self.interpreter.add_module(source, name=name, kind=kind)
+        """Parse VBA and add it to the project this instance runs.
+
+        A ``kind="document"`` module is a sheet's or the workbook's own code,
+        named by its code name -- Sheet1, ThisWorkbook -- in the workbook the
+        project belongs to: Me is that sheet or workbook, its members are the
+        module's by name, and code outside reaches the module's Public members
+        through it, as Sheet1.MyMacro.
+        """
+        runtime = self.interpreter.add_module(source, name=name, kind=kind)
+        if kind == "document":
+            host = self.interpreter.host.global_object(runtime.name.lower())
+            if not isinstance(host, VBAObject):
+                raise ValueError(f"no sheet or workbook has the code name {runtime.name!r}")
+            self.interpreter.bind_document(runtime.name, host)
+        return runtime
 
     # --- running --------------------------------------------------------------------
 

@@ -353,6 +353,9 @@ class SortObject(ExcelObject):
         keys = [_key(field.key, area, across, VBAInt(field.order, "Long"), VBAInt(field.option, "Long"))
                 for field in state.fields]
         sort_area(target.sheet, area, keys, header=state.header == YES, match_case=state.match_case, across=across)
+        from pyopenvba.apps.excel._events import recalculated
+
+        recalculated(target.sheet.book)
         return EMPTY
 
 

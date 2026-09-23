@@ -1057,6 +1057,33 @@ two-dimensional; a WorksheetFunction member typed other than Variant
 cannot hand one back, which is error 13. A range or array given where
 one value is wanted is run item by item, as in a cell, into an array.
 
+**Events and a sheet's own code.** A sheet's module and ThisWorkbook
+are the code of their sheet and workbook (`tests/fixtures/events.json`,
+measured in live Excel). A code name reaches its object, as
+`Sheet1.Range("A1")` does; inside the module `Me` is the sheet or the
+workbook and its members are the module's by name, so `Range("A1")` in
+Sheet2's module is Sheet2's A1 whichever sheet is active; code outside
+reaches the module's Public procedures and variables through the
+object, `Sheet2.WriteHere` or `Application.Run "Sheet2.WriteHere"`,
+and a Private one is error 438. `add_module(..., kind="document")`
+binds a module by code name, and a workbook file's own modules are
+bound as they are read.
+
+Those modules hear Excel's events, each in the sheet's module first
+and then the workbook's, and none while EnableEvents is False; a
+handler that edits a sheet hears that edit inside its own. Change comes
+with every write of Value, Value2, Formula, FormulaR1C1 or FormulaArray,
+with ClearContents, Clear, inserts, deletes, Copy, FillDown, AutoFill
+(the cells it filled, after it selects them) and Replace (a cell at a
+time), whether or not anything changed, the range written as Target;
+Sort, Merge and formats raise none. Calculate comes for each sheet an
+edit made the model work formulas out on, before the Change, except
+after an insert, which changes first, and after Replace, which
+calculates last. SelectionChange comes with a Select that moves the
+selection, Deactivate then Activate with another sheet made active,
+and NewSheet with Worksheets.Add, which then deactivates the sheet it
+was placed beside or the active one.
+
 **Power Query is evaluated.** `pyopenvba.mlang` is an M evaluator, so
 `WorkbookQuery.Refresh` works out the query's rows and writes them to
 the sheet it loads to; the table and its queryTable follow, and a save
@@ -1111,9 +1138,11 @@ a file gives every cell of the block its own formula to work out.
   counts include constants and types and do not establish conformance;
   see the [coverage audit](host_completeness.md#reproducible-discovery-inventory).
   Missing names are reported as gaps.
-- **No events.** `WithEvents` sinks are not connected and `RaiseEvent`
-  says so.  A `Worksheet_Change` handler will not fire when a macro
-  writes a cell.
+- **Events from sheets and the workbook only.** A sheet's and the
+  workbook's own modules hear Change, Calculate, SelectionChange,
+  Activate, Deactivate and NewSheet, as the events section says.
+  `WithEvents` sinks are not connected, `RaiseEvent` says so, and
+  Workbook_Open, BeforeClose and BeforeSave are not raised.
 - **Nothing outside the model.** File I/O, the file system verbs, the
   registry, `Shell`, `SendKeys`, `CreateObject` and `Declare` into a DLL
   all report themselves unsupported rather than reaching the real
@@ -1186,8 +1215,8 @@ support continues in both pyOpenVBA and pyOfficeEditor, through each
 library's own public API; the decision and remaining API work are
 recorded in [`roadmap.md`](roadmap.md#shape-support-in-both-libraries).
 
-Excel's completeness audit comes first. Known gaps include
-document-module events and `WithEvents`, spilling arrays, pivot tables,
+Excel's completeness audit comes first. Known gaps include the
+workbook's open, close and save events, `WithEvents`, spilling arrays, pivot tables,
 the remaining shape operations and M library coverage. A passing
 MS-OVBA file-editing gate does not establish runtime completeness.
 Word's tables and headers and PowerPoint's slide masters are examples

@@ -352,6 +352,28 @@ def test_a_class_module_holds_state_and_answers_its_properties() -> None:
     assert vba.console == ["ADA", "hello ADA"]
 
 
+def test_me_is_the_instance_the_procedure_runs_for() -> None:
+    vba = Interpreter()
+    vba.add_module(
+        "Public Tag As String\n"
+        "Public Function Self() As Object\n"
+        "    Set Self = Me\n"
+        "End Function\n"
+        "Public Function Who() As String\n"
+        "    Who = TypeName(Me) & \" \" & Me.Tag\n"
+        "End Function\n",
+        name="Thing",
+        kind="class",
+    )
+    vba.add_module(
+        "Sub Main()\n    Dim t As New Thing\n    t.Tag = \"x\"\n    Debug.Print t.Who()\n"
+        "    Debug.Print t.Self() Is t\nEnd Sub\n",
+        name="Module1",
+    )
+    vba.run("Main")
+    assert vba.console == ["Thing x", "True"]
+
+
 def test_class_initialize_runs_when_the_instance_is_made() -> None:
     vba = Interpreter()
     vba.add_module(

@@ -33,6 +33,16 @@ class ExcelBridge(HostBridge):
     def global_object(self, name: str) -> object:
         if name == "application":
             return self.application
+        from pyopenvba.apps.excel._model import Workbook
+
+        # A code name, Sheet1 or ThisWorkbook, is the sheet or the workbook of the project's own workbook.
+        book = self.application.vba_get("ThisWorkbook")
+        if isinstance(book, Workbook):
+            if book.code_name.lower() == name:
+                return book
+            for sheet in book.sheets_:
+                if sheet.code_name and sheet.code_name.lower() == name:
+                    return sheet
         return UNRESOLVED
 
     def has_global_member(self, name: str) -> bool:

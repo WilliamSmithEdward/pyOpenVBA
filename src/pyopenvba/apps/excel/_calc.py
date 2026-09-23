@@ -118,6 +118,25 @@ class Calculator:
         self.build()
         self._spoil({(sheet.lower(), row, column)}, set())
 
+    def wrote_area(self, sheet: str, area: Area) -> None:
+        """A block of cells changed at once, as a copy changes it: forget the formulas compiled there, and mark
+        whatever reads the block, and what reads that, as needing another look."""
+        self.build()
+        name = sheet.lower()
+        for key in [key for key in self.compiled if key[0] == name and area.contains(key[1], key[2])]:
+            del self.compiled[key]
+        reading: set[CellKey] = set()
+        for key, compiled in self.compiled.items():
+            if any(one.sheet.lower() == name and one.top <= area.bottom and area.top <= one.bottom
+                   and one.left <= area.right and area.left <= one.right for one in compiled.precedents):
+                cell = self._cell(key)
+                if cell is not None and not cell.stale:
+                    cell.stale = True
+                    reading.add(key)
+                    reading.update(self._members(key))
+        if reading:
+            self._spoil(reading, set(reading))
+
     def _spoil(self, changed: set[CellKey], seen: set[CellKey]) -> None:
         following: set[CellKey] = set()
         for key, compiled in self.compiled.items():
@@ -164,6 +183,26 @@ class Calculator:
             for (row, column), cell in list(sheet.cells_.items()):
                 if cell.formula and cell.stale:
                     self.value_of(sheet.name, row, column, force=True)
+
+    def recalculated(self) -> list[Worksheet]:
+        """Work out every formula an edit left stale, and the volatile ones, as Excel does after the edit; the
+        sheets that had formulas worked out, in order. Nothing, in manual calculation."""
+        self.build()
+        if not self.automatic:
+            return []
+        worked: list[Worksheet] = []
+        for sheet in self.book.sheets_:
+            did = False
+            for (row, column), cell in list(sheet.cells_.items()):
+                if not cell.formula:
+                    continue
+                compiled = self.compiled.get((sheet.name.lower(), row, column))
+                if cell.stale or (compiled is not None and compiled.volatile):
+                    self.value_of(sheet.name, row, column, force=True)
+                    did = True
+            if did:
+                worked.append(sheet)
+        return worked
 
     def value_of(self, sheet: str, row: int, column: int, *, force: bool = False) -> object:
         """A cell's value, worked out first if it needs to be; a cell of an array formula, by working out the array."""

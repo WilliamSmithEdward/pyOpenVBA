@@ -80,12 +80,20 @@ def load_workbook(application: Application, path: Path) -> Workbook:
     relationships = _relationship_map(package)
     strings = _shared_strings(package)
     stylesheet = book.stylesheet
+    found = re.search(r'<workbookPr\b[^>]*\bcodeName="([^"]*)"', workbook_xml)
+    if found is not None:
+        book.code_name = _unescape(found.group(1))
     for name, relationship_id in sheet_entries(workbook_xml):
         part = relationships.get(relationship_id, "")
         sheet = book.add_sheet(name)
         sheet.part_name = part
+        # A sheet's code name is in its sheetPr; one without is numbered by place, as the VBE numbers it.
+        sheet.code_name = f"Sheet{len(book.sheets_)}"
         if part and package.has(part):
             sheet_xml = package.read(part).decode("utf-8", errors="replace")
+            found = re.search(r'<sheetPr\b[^>]*\bcodeName="([^"]*)"', sheet_xml)
+            if found is not None:
+                sheet.code_name = _unescape(found.group(1))
             _read_sheet(sheet, sheet_xml, strings, stylesheet)
             _read_shapes(sheet, package, sheet_xml)
     _read_names(book, workbook_xml)

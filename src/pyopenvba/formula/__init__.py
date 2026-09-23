@@ -1,20 +1,13 @@
-"""An Excel formula engine.
+"""Excel formulas: reading one, and the values and errors a cell holds.
 
-Parses a formula, evaluates it against anything that can answer for a
-grid, and reports an error the way a cell does.
+    >>> from pyopenvba.formula import parse
+    >>> parse("=1 + 2 * 3")  # doctest: +SKIP
 
-    >>> from pyopenvba.formula import parse, evaluate
-    >>> from pyopenvba.formula._engine import Context
-    >>> node = parse("=1 + 2 * 3")
-    >>> evaluate(node, Context(grid=None, sheet=""))  # doctest: +SKIP
-    7.0
-
-The workbook's own wiring -- which cells are stale, what order to
-recalculate them in, and where a cell's value comes from -- lives in
-:mod:`pyopenvba.apps.excel._calc`.
+A workbook's formulas are worked out by :mod:`pyopenvba.formula._calc`,
+and the wiring around it -- which cells are stale, and where a cell's
+value comes from -- lives in :mod:`pyopenvba.apps.excel._calc`.
 """
 
-from pyopenvba.formula._engine import Context, Grid, evaluate
 from pyopenvba.formula._parse import FormulaError, Node, is_volatile, parse, references
 from pyopenvba.formula._values import (
     BLANK,
@@ -42,16 +35,13 @@ __all__ = [
     "NUM",
     "REF",
     "VALUE",
-    "Context",
     "ExcelError",
     "FormulaError",
-    "Grid",
     "Matrix",
     "Node",
     "as_bool",
     "as_number",
     "as_text",
-    "evaluate",
     "is_volatile",
     "number_text",
     "parse",

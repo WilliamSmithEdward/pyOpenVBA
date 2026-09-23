@@ -1,0 +1,2467 @@
+{
+ "ABS": {
+  "call": "ABS(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "ACCRINT": {
+  "call": "ACCRINT(A1,A1,A1,A1,A1,A1)",
+  "alone": "Error 2036",
+  "in_cells": 1004
+ },
+ "ACCRINTM": {
+  "call": "ACCRINTM(A1,A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "ACOS": {
+  "call": "ACOS(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "ACOSH": {
+  "call": "ACOSH(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "ACOT": {
+  "call": "ACOT(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "ACOTH": {
+  "call": "ACOTH(A1)",
+  "alone": "Error 2036",
+  "in_cells": 1004
+ },
+ "ADDRESS": {
+  "call": "ADDRESS(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "AGGREGATE": {
+  "call": "AGGREGATE(A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "AMORDEGRC": {
+  "call": "AMORDEGRC(A1,A1,A1,A1,A1,A1)",
+  "alone": "Error 2036",
+  "in_cells": 1004
+ },
+ "AMORLINC": {
+  "call": "AMORLINC(A1,A1,A1,A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "ANCHORARRAY": {
+  "call": "ANCHORARRAY(A1)",
+  "alone": "!1004",
+  "in_cells": null
+ },
+ "AND": {
+  "call": "AND(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "ARABIC": {
+  "call": "ARABIC(A1)",
+  "alone": "Error 2015",
+  "in_cells": 1004
+ },
+ "AREAS": {
+  "call": "AREAS(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "ARRAYTOTEXT": {
+  "call": "ARRAYTOTEXT(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "ASC": {
+  "call": "ASC(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "ASIN": {
+  "call": "ASIN(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "ASINH": {
+  "call": "ASINH(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "ATAN": {
+  "call": "ATAN(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "ATAN2": {
+  "call": "ATAN2(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "ATANH": {
+  "call": "ATANH(A1)",
+  "alone": "Error 2036",
+  "in_cells": 1004
+ },
+ "AVEDEV": {
+  "call": "AVEDEV(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "AVERAGE": {
+  "call": "AVERAGE(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "AVERAGEA": {
+  "call": "AVERAGEA(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "AVERAGEIF": {
+  "call": "AVERAGEIF(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "AVERAGEIFS": {
+  "call": "AVERAGEIFS(A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "BASE": {
+  "call": "BASE(A1,A1)",
+  "alone": "Error 2036",
+  "in_cells": 1004
+ },
+ "BESSELI": {
+  "call": "BESSELI(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "BESSELJ": {
+  "call": "BESSELJ(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "BESSELK": {
+  "call": "BESSELK(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "BESSELY": {
+  "call": "BESSELY(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "BETA.DIST": {
+  "call": "BETA.DIST(A1,A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "BETA.INV": {
+  "call": "BETA.INV(A1,A1,A1)",
+  "alone": "Error 2036",
+  "in_cells": 1004
+ },
+ "BETADIST": {
+  "call": "BETADIST(A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "BETAINV": {
+  "call": "BETAINV(A1,A1,A1)",
+  "alone": "Error 2036",
+  "in_cells": 1004
+ },
+ "BIN2DEC": {
+  "call": "BIN2DEC(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "BIN2HEX": {
+  "call": "BIN2HEX(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "BIN2OCT": {
+  "call": "BIN2OCT(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "BINOM.DIST": {
+  "call": "BINOM.DIST(A1,A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "BINOM.DIST.RANGE": {
+  "call": "BINOM.DIST.RANGE(A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "BINOM.INV": {
+  "call": "BINOM.INV(A1,A1,A1)",
+  "alone": "Error 2036",
+  "in_cells": 1004
+ },
+ "BINOMDIST": {
+  "call": "BINOMDIST(A1,A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "BITAND": {
+  "call": "BITAND(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "BITLSHIFT": {
+  "call": "BITLSHIFT(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "BITOR": {
+  "call": "BITOR(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "BITRSHIFT": {
+  "call": "BITRSHIFT(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "BITXOR": {
+  "call": "BITXOR(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "BYCOL": {
+  "call": "BYCOL(A1,A1)",
+  "alone": "Error 2015",
+  "in_cells": 1004
+ },
+ "BYROW": {
+  "call": "BYROW(A1,A1)",
+  "alone": "Error 2015",
+  "in_cells": 1004
+ },
+ "CEILING": {
+  "call": "CEILING(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "CEILING.MATH": {
+  "call": "CEILING.MATH(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "CEILING.PRECISE": {
+  "call": "CEILING.PRECISE(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "CELL": {
+  "call": "CELL(A1)",
+  "alone": "Error 2015",
+  "in_cells": 1004
+ },
+ "CHAR": {
+  "call": "CHAR(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "CHIDIST": {
+  "call": "CHIDIST(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "CHIINV": {
+  "call": "CHIINV(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "CHISQ.DIST": {
+  "call": "CHISQ.DIST(A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "CHISQ.DIST.RT": {
+  "call": "CHISQ.DIST.RT(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "CHISQ.INV": {
+  "call": "CHISQ.INV(A1,A1)",
+  "alone": "Error 2036",
+  "in_cells": 1004
+ },
+ "CHISQ.INV.RT": {
+  "call": "CHISQ.INV.RT(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "CHISQ.TEST": {
+  "call": "CHISQ.TEST(A1,A1)",
+  "alone": "Error 2042",
+  "in_cells": 1004
+ },
+ "CHITEST": {
+  "call": "CHITEST(A1,A1)",
+  "alone": "Error 2042",
+  "in_cells": 1004
+ },
+ "CHOOSE": {
+  "call": "CHOOSE(A1,A1)",
+  "alone": "ok",
+  "in_cells": 0
+ },
+ "CHOOSECOLS": {
+  "call": "CHOOSECOLS(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "CHOOSEROWS": {
+  "call": "CHOOSEROWS(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "CLEAN": {
+  "call": "CLEAN(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "CODE": {
+  "call": "CODE(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "COLUMN": {
+  "call": "COLUMN()",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "COLUMNS": {
+  "call": "COLUMNS(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "COMBIN": {
+  "call": "COMBIN(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "COMBINA": {
+  "call": "COMBINA(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "COMPLEX": {
+  "call": "COMPLEX(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "CONCAT": {
+  "call": "CONCAT(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "CONCATENATE": {
+  "call": "CONCATENATE(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "CONFIDENCE": {
+  "call": "CONFIDENCE(A1,A1,A1)",
+  "alone": "Error 2036",
+  "in_cells": 1004
+ },
+ "CONFIDENCE.NORM": {
+  "call": "CONFIDENCE.NORM(A1,A1,A1)",
+  "alone": "Error 2036",
+  "in_cells": 1004
+ },
+ "CONFIDENCE.T": {
+  "call": "CONFIDENCE.T(A1,A1,A1)",
+  "alone": "Error 2036",
+  "in_cells": 1004
+ },
+ "CONVERT": {
+  "call": "CONVERT(A1,A1,A1)",
+  "alone": "Error 2042",
+  "in_cells": 1004
+ },
+ "CORREL": {
+  "call": "CORREL(A1,A1)",
+  "alone": "Error 2007",
+  "in_cells": 1004
+ },
+ "COS": {
+  "call": "COS(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "COSH": {
+  "call": "COSH(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "COT": {
+  "call": "COT(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "COTH": {
+  "call": "COTH(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "COUNT": {
+  "call": "COUNT(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "COUNTA": {
+  "call": "COUNTA(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "COUNTBLANK": {
+  "call": "COUNTBLANK(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "COUNTIF": {
+  "call": "COUNTIF(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "COUNTIFS": {
+  "call": "COUNTIFS(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "COUPDAYBS": {
+  "call": "COUPDAYBS(A1,A1,A1)",
+  "alone": "Error 2036",
+  "in_cells": 1004
+ },
+ "COUPDAYS": {
+  "call": "COUPDAYS(A1,A1,A1)",
+  "alone": "Error 2036",
+  "in_cells": 1004
+ },
+ "COUPDAYSNC": {
+  "call": "COUPDAYSNC(A1,A1,A1)",
+  "alone": "Error 2036",
+  "in_cells": 1004
+ },
+ "COUPNCD": {
+  "call": "COUPNCD(A1,A1,A1)",
+  "alone": "Error 2036",
+  "in_cells": 1004
+ },
+ "COUPNUM": {
+  "call": "COUPNUM(A1,A1,A1)",
+  "alone": "Error 2036",
+  "in_cells": 1004
+ },
+ "COUPPCD": {
+  "call": "COUPPCD(A1,A1,A1)",
+  "alone": "Error 2036",
+  "in_cells": 1004
+ },
+ "COVAR": {
+  "call": "COVAR(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "COVARIANCE.P": {
+  "call": "COVARIANCE.P(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "COVARIANCE.S": {
+  "call": "COVARIANCE.S(A1,A1)",
+  "alone": "Error 2007",
+  "in_cells": 1004
+ },
+ "CRITBINOM": {
+  "call": "CRITBINOM(A1,A1,A1)",
+  "alone": "Error 2036",
+  "in_cells": 1004
+ },
+ "CSC": {
+  "call": "CSC(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "CSCH": {
+  "call": "CSCH(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "CUMIPMT": {
+  "call": "CUMIPMT(A1,A1,A1,A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "CUMPRINC": {
+  "call": "CUMPRINC(A1,A1,A1,A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "DATE": {
+  "call": "DATE(A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "DATEDIF": {
+  "call": "DATEDIF(A1,A1,A1)",
+  "alone": "Error 2036",
+  "in_cells": 1004
+ },
+ "DATEVALUE": {
+  "call": "DATEVALUE(A1)",
+  "alone": "Error 2015",
+  "in_cells": 1004
+ },
+ "DAVERAGE": {
+  "call": "DAVERAGE(A1,A1,A1)",
+  "alone": "Error 2015",
+  "in_cells": 1004
+ },
+ "DAY": {
+  "call": "DAY(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "DAYS": {
+  "call": "DAYS(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "DAYS360": {
+  "call": "DAYS360(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "DB": {
+  "call": "DB(A1,A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "DBCS": {
+  "call": "DBCS(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "DCOUNT": {
+  "call": "DCOUNT(A1,A1,A1)",
+  "alone": "Error 2015",
+  "in_cells": 1004
+ },
+ "DCOUNTA": {
+  "call": "DCOUNTA(A1,A1,A1)",
+  "alone": "Error 2015",
+  "in_cells": 1004
+ },
+ "DDB": {
+  "call": "DDB(A1,A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "DEC2BIN": {
+  "call": "DEC2BIN(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "DEC2HEX": {
+  "call": "DEC2HEX(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "DEC2OCT": {
+  "call": "DEC2OCT(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "DECIMAL": {
+  "call": "DECIMAL(A1,A1)",
+  "alone": "Error 2036",
+  "in_cells": 1004
+ },
+ "DEGREES": {
+  "call": "DEGREES(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "DELTA": {
+  "call": "DELTA(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "DEVSQ": {
+  "call": "DEVSQ(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "DGET": {
+  "call": "DGET(A1,A1,A1)",
+  "alone": "Error 2015",
+  "in_cells": 1004
+ },
+ "DISC": {
+  "call": "DISC(A1,A1,A1,A1)",
+  "alone": "Error 2036",
+  "in_cells": 1004
+ },
+ "DMAX": {
+  "call": "DMAX(A1,A1,A1)",
+  "alone": "Error 2015",
+  "in_cells": 1004
+ },
+ "DMIN": {
+  "call": "DMIN(A1,A1,A1)",
+  "alone": "Error 2015",
+  "in_cells": 1004
+ },
+ "DOLLAR": {
+  "call": "DOLLAR(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "DOLLARDE": {
+  "call": "DOLLARDE(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "DOLLARFR": {
+  "call": "DOLLARFR(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "DPRODUCT": {
+  "call": "DPRODUCT(A1,A1,A1)",
+  "alone": "Error 2015",
+  "in_cells": 1004
+ },
+ "DROP": {
+  "call": "DROP(A1,A1)",
+  "alone": "Error 2050",
+  "in_cells": 0
+ },
+ "DSTDEV": {
+  "call": "DSTDEV(A1,A1,A1)",
+  "alone": "Error 2015",
+  "in_cells": 1004
+ },
+ "DSTDEVP": {
+  "call": "DSTDEVP(A1,A1,A1)",
+  "alone": "Error 2015",
+  "in_cells": 1004
+ },
+ "DSUM": {
+  "call": "DSUM(A1,A1,A1)",
+  "alone": "Error 2015",
+  "in_cells": 1004
+ },
+ "DURATION": {
+  "call": "DURATION(A1,A1,A1,A1,A1)",
+  "alone": "Error 2036",
+  "in_cells": 1004
+ },
+ "DVAR": {
+  "call": "DVAR(A1,A1,A1)",
+  "alone": "Error 2015",
+  "in_cells": 1004
+ },
+ "DVARP": {
+  "call": "DVARP(A1,A1,A1)",
+  "alone": "Error 2015",
+  "in_cells": 1004
+ },
+ "ECMA.CEILING": {
+  "call": "ECMA.CEILING(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "EDATE": {
+  "call": "EDATE(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "EFFECT": {
+  "call": "EFFECT(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "ENCODEURL": {
+  "call": "ENCODEURL(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "EOMONTH": {
+  "call": "EOMONTH(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "ERF": {
+  "call": "ERF(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "ERF.PRECISE": {
+  "call": "ERF.PRECISE(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "ERFC": {
+  "call": "ERFC(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "ERFC.PRECISE": {
+  "call": "ERFC.PRECISE(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "ERROR.TYPE": {
+  "call": "ERROR.TYPE(A1)",
+  "alone": "Error 2042",
+  "in_cells": 1004
+ },
+ "EVEN": {
+  "call": "EVEN(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "EXACT": {
+  "call": "EXACT(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "EXP": {
+  "call": "EXP(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "EXPAND": {
+  "call": "EXPAND(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "EXPON.DIST": {
+  "call": "EXPON.DIST(A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "EXPONDIST": {
+  "call": "EXPONDIST(A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "F.DIST": {
+  "call": "F.DIST(A1,A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "F.DIST.RT": {
+  "call": "F.DIST.RT(A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "F.INV": {
+  "call": "F.INV(A1,A1,A1)",
+  "alone": "Error 2036",
+  "in_cells": 1004
+ },
+ "F.INV.RT": {
+  "call": "F.INV.RT(A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "F.TEST": {
+  "call": "F.TEST(A1,A1)",
+  "alone": "Error 2007",
+  "in_cells": 1004
+ },
+ "FACT": {
+  "call": "FACT(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "FACTDOUBLE": {
+  "call": "FACTDOUBLE(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "FALSE": {
+  "call": "FALSE()",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "FDIST": {
+  "call": "FDIST(A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "FILTER": {
+  "call": "FILTER(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "FIND": {
+  "call": "FIND(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "FINDB": {
+  "call": "FINDB(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "FINV": {
+  "call": "FINV(A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "FISHER": {
+  "call": "FISHER(A1)",
+  "alone": "Error 2036",
+  "in_cells": 1004
+ },
+ "FISHERINV": {
+  "call": "FISHERINV(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "FIXED": {
+  "call": "FIXED(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "FLOOR": {
+  "call": "FLOOR(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "FLOOR.MATH": {
+  "call": "FLOOR.MATH(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "FLOOR.PRECISE": {
+  "call": "FLOOR.PRECISE(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "FORECAST": {
+  "call": "FORECAST(A1,A1,A1)",
+  "alone": "Error 2007",
+  "in_cells": 1004
+ },
+ "FORECAST.LINEAR": {
+  "call": "FORECAST.LINEAR(A1,A1,A1)",
+  "alone": "Error 2007",
+  "in_cells": 1004
+ },
+ "FORMULATEXT": {
+  "call": "FORMULATEXT(A1)",
+  "alone": "Error 2042",
+  "in_cells": 1004
+ },
+ "FREQUENCY": {
+  "call": "FREQUENCY(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "FTEST": {
+  "call": "FTEST(A1,A1)",
+  "alone": "Error 2007",
+  "in_cells": 1004
+ },
+ "FV": {
+  "call": "FV(A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "FVSCHEDULE": {
+  "call": "FVSCHEDULE(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "GAMMA": {
+  "call": "GAMMA(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "GAMMA.DIST": {
+  "call": "GAMMA.DIST(A1,A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "GAMMA.INV": {
+  "call": "GAMMA.INV(A1,A1,A1)",
+  "alone": "Error 2036",
+  "in_cells": 1004
+ },
+ "GAMMADIST": {
+  "call": "GAMMADIST(A1,A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "GAMMAINV": {
+  "call": "GAMMAINV(A1,A1,A1)",
+  "alone": "Error 2036",
+  "in_cells": 1004
+ },
+ "GAMMALN": {
+  "call": "GAMMALN(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "GAMMALN.PRECISE": {
+  "call": "GAMMALN.PRECISE(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "GAUSS": {
+  "call": "GAUSS(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "GCD": {
+  "call": "GCD(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "GEOMEAN": {
+  "call": "GEOMEAN(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "GESTEP": {
+  "call": "GESTEP(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "GROWTH": {
+  "call": "GROWTH(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "HARMEAN": {
+  "call": "HARMEAN(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "HEX2BIN": {
+  "call": "HEX2BIN(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "HEX2DEC": {
+  "call": "HEX2DEC(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "HEX2OCT": {
+  "call": "HEX2OCT(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "HLOOKUP": {
+  "call": "HLOOKUP(A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "HOUR": {
+  "call": "HOUR(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "HSTACK": {
+  "call": "HSTACK(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "HYPERLINK": {
+  "call": "HYPERLINK(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "HYPGEOM.DIST": {
+  "call": "HYPGEOM.DIST(A1,A1,A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "HYPGEOMDIST": {
+  "call": "HYPGEOMDIST(A1,A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "IF": {
+  "call": "IF(A1,A1)",
+  "alone": "ok",
+  "in_cells": 0
+ },
+ "IFERROR": {
+  "call": "IFERROR(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "IFNA": {
+  "call": "IFNA(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "IFS": {
+  "call": "IFS(A1,A1)",
+  "alone": "ok",
+  "in_cells": 0
+ },
+ "IMABS": {
+  "call": "IMABS(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "IMAGINARY": {
+  "call": "IMAGINARY(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "IMARGUMENT": {
+  "call": "IMARGUMENT(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "IMCONJUGATE": {
+  "call": "IMCONJUGATE(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "IMCOS": {
+  "call": "IMCOS(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "IMCOSH": {
+  "call": "IMCOSH(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "IMCOT": {
+  "call": "IMCOT(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "IMCSC": {
+  "call": "IMCSC(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "IMCSCH": {
+  "call": "IMCSCH(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "IMDIV": {
+  "call": "IMDIV(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "IMEXP": {
+  "call": "IMEXP(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "IMLN": {
+  "call": "IMLN(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "IMLOG10": {
+  "call": "IMLOG10(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "IMLOG2": {
+  "call": "IMLOG2(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "IMPOWER": {
+  "call": "IMPOWER(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "IMPRODUCT": {
+  "call": "IMPRODUCT(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "IMREAL": {
+  "call": "IMREAL(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "IMSEC": {
+  "call": "IMSEC(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "IMSECH": {
+  "call": "IMSECH(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "IMSIN": {
+  "call": "IMSIN(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "IMSINH": {
+  "call": "IMSINH(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "IMSQRT": {
+  "call": "IMSQRT(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "IMSUB": {
+  "call": "IMSUB(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "IMSUM": {
+  "call": "IMSUM(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "IMTAN": {
+  "call": "IMTAN(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "INDEX": {
+  "call": "INDEX(A1,1)",
+  "alone": "ok",
+  "in_cells": 0
+ },
+ "INDIRECT": {
+  "call": "INDIRECT(A1)",
+  "alone": "Error 2023",
+  "in_cells": 0
+ },
+ "INT": {
+  "call": "INT(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "INTERCEPT": {
+  "call": "INTERCEPT(A1,A1)",
+  "alone": "Error 2007",
+  "in_cells": 1004
+ },
+ "INTRATE": {
+  "call": "INTRATE(A1,A1,A1,A1)",
+  "alone": "Error 2036",
+  "in_cells": 1004
+ },
+ "IPMT": {
+  "call": "IPMT(A1,A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "IRR": {
+  "call": "IRR(A1)",
+  "alone": "Error 2036",
+  "in_cells": 1004
+ },
+ "ISBLANK": {
+  "call": "ISBLANK(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "ISERR": {
+  "call": "ISERR(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "ISERROR": {
+  "call": "ISERROR(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "ISEVEN": {
+  "call": "ISEVEN(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "ISFORMULA": {
+  "call": "ISFORMULA(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "ISLOGICAL": {
+  "call": "ISLOGICAL(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "ISNA": {
+  "call": "ISNA(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "ISNONTEXT": {
+  "call": "ISNONTEXT(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "ISNUMBER": {
+  "call": "ISNUMBER(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "ISO.CEILING": {
+  "call": "ISO.CEILING(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "ISODD": {
+  "call": "ISODD(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "ISOMITTED": {
+  "call": "ISOMITTED(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "ISOWEEKNUM": {
+  "call": "ISOWEEKNUM(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "ISPMT": {
+  "call": "ISPMT(A1,A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "ISREF": {
+  "call": "ISREF(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "ISTEXT": {
+  "call": "ISTEXT(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "KURT": {
+  "call": "KURT(A1)",
+  "alone": "Error 2007",
+  "in_cells": 1004
+ },
+ "LAMBDA": {
+  "call": "LAMBDA(x,x)(A1)",
+  "alone": "ok",
+  "in_cells": 0
+ },
+ "LARGE": {
+  "call": "LARGE(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "LCM": {
+  "call": "LCM(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "LEFT": {
+  "call": "LEFT(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "LEFTB": {
+  "call": "LEFTB(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "LEN": {
+  "call": "LEN(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "LENB": {
+  "call": "LENB(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "LET": {
+  "call": "LET(x,A1,x)",
+  "alone": "ok",
+  "in_cells": 0
+ },
+ "LINEST": {
+  "call": "LINEST(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "LN": {
+  "call": "LN(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "LOG": {
+  "call": "LOG(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "LOG10": {
+  "call": "LOG10(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "LOGEST": {
+  "call": "LOGEST(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "LOGINV": {
+  "call": "LOGINV(A1,A1,A1)",
+  "alone": "Error 2036",
+  "in_cells": 1004
+ },
+ "LOGNORM.DIST": {
+  "call": "LOGNORM.DIST(A1,A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "LOGNORM.INV": {
+  "call": "LOGNORM.INV(A1,A1,A1)",
+  "alone": "Error 2036",
+  "in_cells": 1004
+ },
+ "LOGNORMDIST": {
+  "call": "LOGNORMDIST(A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "LOOKUP": {
+  "call": "LOOKUP(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "LOWER": {
+  "call": "LOWER(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "MAKEARRAY": {
+  "call": "MAKEARRAY(A1,A1,A1)",
+  "alone": "Error 2015",
+  "in_cells": 1004
+ },
+ "MAP": {
+  "call": "MAP(A1,LAMBDA(x,x))",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "MATCH": {
+  "call": "MATCH(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "MAX": {
+  "call": "MAX(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "MAXA": {
+  "call": "MAXA(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "MAXIFS": {
+  "call": "MAXIFS(A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "MDETERM": {
+  "call": "MDETERM(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "MDURATION": {
+  "call": "MDURATION(A1,A1,A1,A1,A1)",
+  "alone": "Error 2036",
+  "in_cells": 1004
+ },
+ "MEDIAN": {
+  "call": "MEDIAN(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "MID": {
+  "call": "MID(A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "MIDB": {
+  "call": "MIDB(A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "MIN": {
+  "call": "MIN(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "MINA": {
+  "call": "MINA(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "MINIFS": {
+  "call": "MINIFS(A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "MINUTE": {
+  "call": "MINUTE(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "MINVERSE": {
+  "call": "MINVERSE(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "MIRR": {
+  "call": "MIRR(A1,A1,A1)",
+  "alone": "Error 2007",
+  "in_cells": 1004
+ },
+ "MMULT": {
+  "call": "MMULT(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "MOD": {
+  "call": "MOD(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "MODE": {
+  "call": "MODE(A1)",
+  "alone": "Error 2042",
+  "in_cells": 1004
+ },
+ "MODE.MULT": {
+  "call": "MODE.MULT(A1)",
+  "alone": "Error 2042",
+  "in_cells": 1004
+ },
+ "MODE.SNGL": {
+  "call": "MODE.SNGL(A1)",
+  "alone": "Error 2042",
+  "in_cells": 1004
+ },
+ "MONTH": {
+  "call": "MONTH(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "MROUND": {
+  "call": "MROUND(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "MULTINOMIAL": {
+  "call": "MULTINOMIAL(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "MUNIT": {
+  "call": "MUNIT(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "N": {
+  "call": "N(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "NA": {
+  "call": "NA()",
+  "alone": "Error 2042",
+  "in_cells": 1004
+ },
+ "NEGBINOM.DIST": {
+  "call": "NEGBINOM.DIST(A1,A1,A1,A1)",
+  "alone": "Error 2036",
+  "in_cells": 1004
+ },
+ "NEGBINOMDIST": {
+  "call": "NEGBINOMDIST(A1,A1,A1)",
+  "alone": "Error 2036",
+  "in_cells": 1004
+ },
+ "NETWORKDAYS": {
+  "call": "NETWORKDAYS(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "NETWORKDAYS.INTL": {
+  "call": "NETWORKDAYS.INTL(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "NOMINAL": {
+  "call": "NOMINAL(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "NORM.DIST": {
+  "call": "NORM.DIST(A1,A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "NORM.INV": {
+  "call": "NORM.INV(A1,A1,A1)",
+  "alone": "Error 2036",
+  "in_cells": 1004
+ },
+ "NORM.S.DIST": {
+  "call": "NORM.S.DIST(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "NORM.S.INV": {
+  "call": "NORM.S.INV(A1)",
+  "alone": "Error 2036",
+  "in_cells": 1004
+ },
+ "NORMDIST": {
+  "call": "NORMDIST(A1,A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "NORMINV": {
+  "call": "NORMINV(A1,A1,A1)",
+  "alone": "Error 2036",
+  "in_cells": 1004
+ },
+ "NORMSDIST": {
+  "call": "NORMSDIST(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "NORMSINV": {
+  "call": "NORMSINV(A1)",
+  "alone": "Error 2036",
+  "in_cells": 1004
+ },
+ "NOT": {
+  "call": "NOT(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "NOW": {
+  "call": "NOW()",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "NPER": {
+  "call": "NPER(A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "NPV": {
+  "call": "NPV(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "NUMBERVALUE": {
+  "call": "NUMBERVALUE(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "OCT2BIN": {
+  "call": "OCT2BIN(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "OCT2DEC": {
+  "call": "OCT2DEC(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "OCT2HEX": {
+  "call": "OCT2HEX(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "ODD": {
+  "call": "ODD(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "OFFSET": {
+  "call": "OFFSET(A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 0
+ },
+ "OR": {
+  "call": "OR(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "PDURATION": {
+  "call": "PDURATION(A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "PEARSON": {
+  "call": "PEARSON(A1,A1)",
+  "alone": "Error 2007",
+  "in_cells": 1004
+ },
+ "PERCENTILE": {
+  "call": "PERCENTILE(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "PERCENTILE.EXC": {
+  "call": "PERCENTILE.EXC(A1,A1)",
+  "alone": "Error 2036",
+  "in_cells": 1004
+ },
+ "PERCENTILE.INC": {
+  "call": "PERCENTILE.INC(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "PERCENTOF": {
+  "call": "PERCENTOF(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "PERCENTRANK": {
+  "call": "PERCENTRANK(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "PERCENTRANK.EXC": {
+  "call": "PERCENTRANK.EXC(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "PERCENTRANK.INC": {
+  "call": "PERCENTRANK.INC(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "PERMUT": {
+  "call": "PERMUT(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "PERMUTATIONA": {
+  "call": "PERMUTATIONA(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "PHI": {
+  "call": "PHI(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "PI": {
+  "call": "PI()",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "PMT": {
+  "call": "PMT(A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "POISSON": {
+  "call": "POISSON(A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "POISSON.DIST": {
+  "call": "POISSON.DIST(A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "POWER": {
+  "call": "POWER(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "PPMT": {
+  "call": "PPMT(A1,A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "PRICE": {
+  "call": "PRICE(A1,A1,A1,A1,A1,A1)",
+  "alone": "Error 2036",
+  "in_cells": 1004
+ },
+ "PRICEDISC": {
+  "call": "PRICEDISC(A1,A1,A1,A1)",
+  "alone": "Error 2036",
+  "in_cells": 1004
+ },
+ "PRICEMAT": {
+  "call": "PRICEMAT(A1,A1,A1,A1,A1)",
+  "alone": "Error 2036",
+  "in_cells": 1004
+ },
+ "PROB": {
+  "call": "PROB(A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "PRODUCT": {
+  "call": "PRODUCT(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "PROPER": {
+  "call": "PROPER(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "PV": {
+  "call": "PV(A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "QUARTILE": {
+  "call": "QUARTILE(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "QUARTILE.EXC": {
+  "call": "QUARTILE.EXC(A1,A1)",
+  "alone": "Error 2036",
+  "in_cells": 1004
+ },
+ "QUARTILE.INC": {
+  "call": "QUARTILE.INC(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "QUOTIENT": {
+  "call": "QUOTIENT(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "RADIANS": {
+  "call": "RADIANS(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "RAND": {
+  "call": "RAND()",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "RANDARRAY": {
+  "call": "RANDARRAY()",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "RANDBETWEEN": {
+  "call": "RANDBETWEEN(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "RANK": {
+  "call": "RANK(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "RANK.AVG": {
+  "call": "RANK.AVG(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "RANK.EQ": {
+  "call": "RANK.EQ(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "RATE": {
+  "call": "RATE(A1,A1,A1)",
+  "alone": "Error 2036",
+  "in_cells": 1004
+ },
+ "RECEIVED": {
+  "call": "RECEIVED(A1,A1,A1,A1)",
+  "alone": "Error 2036",
+  "in_cells": 1004
+ },
+ "REDUCE": {
+  "call": "REDUCE(A1,A1,A1)",
+  "alone": "Error 2015",
+  "in_cells": 0
+ },
+ "REGEXEXTRACT": {
+  "call": "REGEXEXTRACT(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "REGEXREPLACE": {
+  "call": "REGEXREPLACE(A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "REGEXTEST": {
+  "call": "REGEXTEST(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "REPLACE": {
+  "call": "REPLACE(A1,A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "REPLACEB": {
+  "call": "REPLACEB(A1,A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "REPT": {
+  "call": "REPT(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "RIGHT": {
+  "call": "RIGHT(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "RIGHTB": {
+  "call": "RIGHTB(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "ROMAN": {
+  "call": "ROMAN(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "ROUND": {
+  "call": "ROUND(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "ROUNDDOWN": {
+  "call": "ROUNDDOWN(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "ROUNDUP": {
+  "call": "ROUNDUP(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "ROW": {
+  "call": "ROW()",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "ROWS": {
+  "call": "ROWS(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "RRI": {
+  "call": "RRI(A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "RSQ": {
+  "call": "RSQ(A1,A1)",
+  "alone": "Error 2007",
+  "in_cells": 1004
+ },
+ "SCAN": {
+  "call": "SCAN(A1,A1,A1)",
+  "alone": "Error 2015",
+  "in_cells": 1004
+ },
+ "SEARCH": {
+  "call": "SEARCH(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "SEARCHB": {
+  "call": "SEARCHB(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "SEC": {
+  "call": "SEC(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "SECH": {
+  "call": "SECH(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "SECOND": {
+  "call": "SECOND(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "SEQUENCE": {
+  "call": "SEQUENCE(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "SERIESSUM": {
+  "call": "SERIESSUM(A1,A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "SHEET": {
+  "call": "SHEET()",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "SHEETS": {
+  "call": "SHEETS()",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "SIGN": {
+  "call": "SIGN(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "SIN": {
+  "call": "SIN(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "SINGLE": {
+  "call": "SINGLE(A1)",
+  "alone": "ok",
+  "in_cells": 0
+ },
+ "SINH": {
+  "call": "SINH(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "SKEW": {
+  "call": "SKEW(A1)",
+  "alone": "Error 2007",
+  "in_cells": 1004
+ },
+ "SKEW.P": {
+  "call": "SKEW.P(A1)",
+  "alone": "Error 2007",
+  "in_cells": 1004
+ },
+ "SLN": {
+  "call": "SLN(A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "SLOPE": {
+  "call": "SLOPE(A1,A1)",
+  "alone": "Error 2007",
+  "in_cells": 1004
+ },
+ "SMALL": {
+  "call": "SMALL(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "SORT": {
+  "call": "SORT(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "SORTBY": {
+  "call": "SORTBY(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "SQRT": {
+  "call": "SQRT(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "SQRTPI": {
+  "call": "SQRTPI(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "STANDARDIZE": {
+  "call": "STANDARDIZE(A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "STDEV": {
+  "call": "STDEV(A1)",
+  "alone": "Error 2007",
+  "in_cells": 1004
+ },
+ "STDEV.P": {
+  "call": "STDEV.P(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "STDEV.S": {
+  "call": "STDEV.S(A1)",
+  "alone": "Error 2007",
+  "in_cells": 1004
+ },
+ "STDEVA": {
+  "call": "STDEVA(A1)",
+  "alone": "Error 2007",
+  "in_cells": 1004
+ },
+ "STDEVP": {
+  "call": "STDEVP(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "STDEVPA": {
+  "call": "STDEVPA(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "STEYX": {
+  "call": "STEYX(A1,A1)",
+  "alone": "Error 2007",
+  "in_cells": 1004
+ },
+ "SUBSTITUTE": {
+  "call": "SUBSTITUTE(A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "SUBTOTAL": {
+  "call": "SUBTOTAL(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "SUM": {
+  "call": "SUM(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "SUMIF": {
+  "call": "SUMIF(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "SUMIFS": {
+  "call": "SUMIFS(A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "SUMPRODUCT": {
+  "call": "SUMPRODUCT(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "SUMSQ": {
+  "call": "SUMSQ(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "SUMX2MY2": {
+  "call": "SUMX2MY2(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "SUMX2PY2": {
+  "call": "SUMX2PY2(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "SUMXMY2": {
+  "call": "SUMXMY2(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "SWITCH": {
+  "call": "SWITCH(A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 0
+ },
+ "SYD": {
+  "call": "SYD(A1,A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "T": {
+  "call": "T(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "T.DIST": {
+  "call": "T.DIST(A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "T.DIST.2T": {
+  "call": "T.DIST.2T(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "T.DIST.RT": {
+  "call": "T.DIST.RT(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "T.INV": {
+  "call": "T.INV(A1,A1)",
+  "alone": "Error 2036",
+  "in_cells": 1004
+ },
+ "T.INV.2T": {
+  "call": "T.INV.2T(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "T.TEST": {
+  "call": "T.TEST(A1,A1,A1,A1)",
+  "alone": "Error 2007",
+  "in_cells": 1004
+ },
+ "TAKE": {
+  "call": "TAKE(A1,A1)",
+  "alone": "ok",
+  "in_cells": 0
+ },
+ "TAN": {
+  "call": "TAN(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "TANH": {
+  "call": "TANH(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "TBILLEQ": {
+  "call": "TBILLEQ(A1,A1,A1)",
+  "alone": "Error 2036",
+  "in_cells": 1004
+ },
+ "TBILLPRICE": {
+  "call": "TBILLPRICE(A1,A1,A1)",
+  "alone": "Error 2036",
+  "in_cells": 1004
+ },
+ "TBILLYIELD": {
+  "call": "TBILLYIELD(A1,A1,A1)",
+  "alone": "Error 2036",
+  "in_cells": 1004
+ },
+ "TDIST": {
+  "call": "TDIST(A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "TEXT": {
+  "call": "TEXT(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "TEXTAFTER": {
+  "call": "TEXTAFTER(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "TEXTBEFORE": {
+  "call": "TEXTBEFORE(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "TEXTJOIN": {
+  "call": "TEXTJOIN(A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "TEXTSPLIT": {
+  "call": "TEXTSPLIT(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "TIME": {
+  "call": "TIME(A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "TIMEVALUE": {
+  "call": "TIMEVALUE(A1)",
+  "alone": "Error 2015",
+  "in_cells": 1004
+ },
+ "TINV": {
+  "call": "TINV(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "TOCOL": {
+  "call": "TOCOL(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "TODAY": {
+  "call": "TODAY()",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "TOROW": {
+  "call": "TOROW(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "TRANSPOSE": {
+  "call": "TRANSPOSE(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "TREND": {
+  "call": "TREND(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "TRIM": {
+  "call": "TRIM(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "TRIMMEAN": {
+  "call": "TRIMMEAN(A1,A1)",
+  "alone": "Error 2036",
+  "in_cells": 1004
+ },
+ "TRIMRANGE": {
+  "call": "TRIMRANGE(A1)",
+  "alone": "ok",
+  "in_cells": 0
+ },
+ "TRUE": {
+  "call": "TRUE()",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "TRUNC": {
+  "call": "TRUNC(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "TTEST": {
+  "call": "TTEST(A1,A1,A1,A1)",
+  "alone": "Error 2007",
+  "in_cells": 1004
+ },
+ "TYPE": {
+  "call": "TYPE(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "UNICHAR": {
+  "call": "UNICHAR(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "UNICODE": {
+  "call": "UNICODE(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "UNIQUE": {
+  "call": "UNIQUE(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "UPPER": {
+  "call": "UPPER(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "USDOLLAR": {
+  "call": "USDOLLAR(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "VALUE": {
+  "call": "VALUE(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "VALUETOTEXT": {
+  "call": "VALUETOTEXT(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "VAR": {
+  "call": "VAR(A1)",
+  "alone": "Error 2007",
+  "in_cells": 1004
+ },
+ "VAR.P": {
+  "call": "VAR.P(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "VAR.S": {
+  "call": "VAR.S(A1)",
+  "alone": "Error 2007",
+  "in_cells": 1004
+ },
+ "VARA": {
+  "call": "VARA(A1)",
+  "alone": "Error 2007",
+  "in_cells": 1004
+ },
+ "VARP": {
+  "call": "VARP(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "VARPA": {
+  "call": "VARPA(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "VDB": {
+  "call": "VDB(A1,A1,A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "VLOOKUP": {
+  "call": "VLOOKUP(A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "VSTACK": {
+  "call": "VSTACK(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "WEEKDAY": {
+  "call": "WEEKDAY(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "WEEKNUM": {
+  "call": "WEEKNUM(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "WEIBULL": {
+  "call": "WEIBULL(A1,A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "WEIBULL.DIST": {
+  "call": "WEIBULL.DIST(A1,A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "WORKDAY": {
+  "call": "WORKDAY(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "WORKDAY.INTL": {
+  "call": "WORKDAY.INTL(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "WRAPCOLS": {
+  "call": "WRAPCOLS(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "WRAPROWS": {
+  "call": "WRAPROWS(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "XIRR": {
+  "call": "XIRR(A1,A1)",
+  "alone": "Error 2042",
+  "in_cells": 1004
+ },
+ "XLOOKUP": {
+  "call": "XLOOKUP(A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 0
+ },
+ "XMATCH": {
+  "call": "XMATCH(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "XNPV": {
+  "call": "XNPV(A1,A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "XOR": {
+  "call": "XOR(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "YEAR": {
+  "call": "YEAR(A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "YEARFRAC": {
+  "call": "YEARFRAC(A1,A1)",
+  "alone": "ok",
+  "in_cells": 1004
+ },
+ "YIELD": {
+  "call": "YIELD(A1,A1,A1,A1,A1,A1)",
+  "alone": "Error 2036",
+  "in_cells": 1004
+ },
+ "YIELDDISC": {
+  "call": "YIELDDISC(A1,A1,A1,A1)",
+  "alone": "Error 2036",
+  "in_cells": 1004
+ },
+ "YIELDMAT": {
+  "call": "YIELDMAT(A1,A1,A1,A1,A1)",
+  "alone": "Error 2036",
+  "in_cells": 1004
+ },
+ "Z.TEST": {
+  "call": "Z.TEST(A1,A1)",
+  "alone": "Error 2007",
+  "in_cells": 1004
+ },
+ "ZTEST": {
+  "call": "ZTEST(A1,A1)",
+  "alone": "Error 2007",
+  "in_cells": 1004
+ }
+}

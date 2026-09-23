@@ -1010,9 +1010,15 @@ def _binomial_arguments(context: Context, successes: Scalar, trials: Scalar, cha
     return k, n, p
 
 
+def _exact_power(base: Decimal, exponent: int) -> Decimal:
+    """``base ** exponent``, with 0 to the 0 being 1, which Decimal will not work out: BINOM.DIST(1,1,1,TRUE) is
+    answered in Excel (tests/fixtures/formula/cells_functions.json). pyOpenVBA's own (docs/formula_engine.md)."""
+    return D(1) if exponent == 0 else base**exponent
+
+
 def _binomial_exact(k: int, n: int, p: float) -> Decimal:
     exact_p = D(p)
-    return D(math.comb(n, k)) * exact_p**k * (1 - exact_p) ** (n - k)
+    return D(math.comb(n, k)) * _exact_power(exact_p, k) * _exact_power(1 - exact_p, n - k)
 
 
 def _binomial_density(k: int, n: int, p: float) -> float:

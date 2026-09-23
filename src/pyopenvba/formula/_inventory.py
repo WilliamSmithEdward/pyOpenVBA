@@ -49,6 +49,7 @@ def excel_has_function(name: str) -> bool:
 
 def unimplemented() -> list[str]:
     """Every Excel function this does not implement, for the docs to list."""
-    from pyopenvba.formula._functions import known_names
+    from pyopenvba.formula._calc import functions as functions  # imported to register every function
+    from pyopenvba.formula._calc.registry import FUNCTIONS
 
-    return sorted(_known() - known_names())
+    return sorted(_known() - frozenset(FUNCTIONS))

@@ -28,10 +28,21 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Final
 
 from pyopenvba.apps.excel._typing import is_date_format
-from pyopenvba.exceptions import VBARuntimeError
-from pyopenvba.formula import _parse as P
-from pyopenvba.formula._engine import Context
-from pyopenvba.formula._values import ExcelError
+from pyopenvba.exceptions import VBAUnsupportedError
+from pyopenvba.formula._calc.evaluator import Context
+from pyopenvba.formula._calc.lexer import FormulaSyntaxError
+from pyopenvba.formula._calc.nodes import (
+    AreaReference,
+    AxisReference,
+    Binary,
+    Call,
+    CellReference,
+    NameReference,
+    Node,
+    Paren,
+    Unary,
+)
+from pyopenvba.formula._calc.values import ExcelError, Reference
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Worksheet
@@ -40,25 +51,30 @@ if TYPE_CHECKING:
 _BRINGS: Final = {"DATE": "m/d/yyyy", "TODAY": "m/d/yyyy", "NOW": "m/d/yyyy h:mm", "TIME": "h:mm AM/PM"}
 #: Functions that hand on the format of their first argument that has one.
 _HANDS_ON: Final = frozenset({"SUM", "MAX", "MIN", "INT", "ROUND", "ROUNDDOWN", "ROUNDUP", "TRUNC", "MOD"})
+#: What names cells as it is written: a reference or a defined name.
+_CELLS: Final = (CellReference, AreaReference, AxisReference, NameReference)
 
 
 def brought_format(sheet: Worksheet, formula: str, row: int, column: int) -> str:
     """The format a formula written at ``row``, ``column`` of ``sheet`` brings, or "" for none."""
+    calculator = sheet.book.calculator
     try:
-        node = P.parse(formula.removeprefix("="))
-    except P.FormulaError:
+        node = calculator.engine_book.read("=" + formula.removeprefix("="))
+    except FormulaSyntaxError:
         return ""
-    return _format_of(node, Context(sheet.book.calculator, sheet.name, row, column), sheet)
+    now = calculator.now()
+    context = Context(calculator.engine_book, sheet.name, row, column, today=now.date(), now=now)
+    return _format_of(node, context, sheet)
 
 
-def _format_of(node: P.Node | None, context: Context, sheet: Worksheet) -> str:
-    if node is None:
-        return ""
-    if isinstance(node, (P.Reference, P.NameNode)) or (isinstance(node, P.Binary) and node.op in P.REFERENCE_OPS):
+def _format_of(node: Node, context: Context, sheet: Worksheet) -> str:
+    if isinstance(node, _CELLS) or (isinstance(node, Binary) and node.op in (":", " ", ",")):
         return _cells_format(node, context, sheet)
-    if isinstance(node, P.Unary):
+    if isinstance(node, Paren):
+        return _format_of(node.inner, context, sheet)
+    if isinstance(node, Unary):
         return _format_of(node.operand, context, sheet) if node.op in ("+", "-") else ""
-    if isinstance(node, P.Binary):
+    if isinstance(node, Binary):
         if node.op not in ("+", "-"):
             return ""
         left = _format_of(node.left, context, sheet)
@@ -66,8 +82,8 @@ def _format_of(node: P.Node | None, context: Context, sheet: Worksheet) -> str:
         if left and right and is_date_format(left) and is_date_format(right):
             return ""
         return left or right
-    if isinstance(node, P.Call):
-        name = node.name.upper()
+    if isinstance(node, Call):
+        name = node.function
         if name in _BRINGS:
             return _BRINGS[name]
         if name in _HANDS_ON:
@@ -75,19 +91,17 @@ def _format_of(node: P.Node | None, context: Context, sheet: Worksheet) -> str:
     return ""
 
 
-def _cells_format(node: P.Node, context: Context, sheet: Worksheet) -> str:
-    """The format of the top-left cell a reference names, "" for General or for no cells."""
+def _cells_format(node: Node, context: Context, sheet: Worksheet) -> str:
+    """The format of the top-left cell a reference names, "" for General or for no cells.
+
+    A name the engine cannot work out, one with a relative reference, brings nothing, and the formula is still
+    written: reading the cell reports it."""
     try:
-        areas = context.areas_of(node)
-    except ExcelError:
+        value = context.evaluate(node)
+    except (ExcelError, VBAUnsupportedError):
         return ""
-    if not areas:
+    if not isinstance(value, Reference):
         return ""
-    first = areas[0]
-    try:
-        owner = sheet.book.sheet_named(first.sheet) if first.sheet else sheet
-    except VBARuntimeError:
-        # A sheet the workbook has not got brings nothing.
-        return ""
-    code = owner.style_at(first.top, first.left).number_format
+    first = value.areas[0]
+    code = sheet.book.sheet_named(first.sheet).style_at(first.top, first.left).number_format
     return "" if code in ("General", "") else code

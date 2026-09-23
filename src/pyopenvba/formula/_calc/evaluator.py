@@ -414,7 +414,9 @@ class Context:
     def _unary(self, node: Unary) -> Value:
         value = self.evaluate(node.operand)
         if node.op == "+":
-            return value
+            # A sign reads cells as values, and keeps what it reads: ISREF(+A1) is FALSE, and =+A1:A3 is the cell
+            # in the formula's row (tests/fixtures/formula/).
+            return self.map(value, _same)
         if node.op == "@":
             return self.implicit(value) if isinstance(value, Reference) else self.first(value)
         return self.map(value, self._negate)
@@ -716,6 +718,10 @@ class Context:
         if not math.isfinite(number) or abs(number) > 2.0**53:
             raise ExcelError(NUM)
         return int(number)
+
+
+def _same(value: Scalar) -> Scalar:
+    return value
 
 
 def arithmetic(op: str, a: float, b: float, final: bool = False) -> Scalar:

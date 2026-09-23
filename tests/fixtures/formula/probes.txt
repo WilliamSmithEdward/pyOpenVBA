@@ -585,3 +585,33 @@ Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)) ;; =COUNTIF(IFERROR
 Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)) ;; =COUNTIF(SUM(A1:A3),1)
 Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)) ;; =COUNTIF(IF(TRUE,5),5)
 Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)) ;; =COUNTIF(CHOOSE(1,5),5)
+
+# --- INDEX with one index over cells in rows and columns: #REF!, unless the column is written and left empty ---
+Range("A1").Value = 1: Range("B1").Value = 2: Range("A2").Value = 3: Range("B2").Value = 4 ;; =INDEX(A1:B2,2)
+Range("A1").Value = 1: Range("B1").Value = 2: Range("A2").Value = 3: Range("B2").Value = 4 ;; =SUM(INDEX(A1:B2,2))
+Range("A1").Value = 1: Range("B1").Value = 2: Range("A2").Value = 3: Range("B2").Value = 4 ;; =ISREF(INDEX(A1:B2,2))
+Range("A1").Value = 1: Range("B1").Value = 2: Range("A2").Value = 3: Range("B2").Value = 4 ;; =ROWS(INDEX(A1:B2,0))
+Range("A1").Value = 1: Range("B1").Value = 2: Range("A2").Value = 3: Range("B2").Value = 4 ;; =INDEX(A1:B2,2,)
+Range("A1").Value = 1: Range("B1").Value = 2: Range("A2").Value = 3: Range("B2").Value = 4 ;; =SUM(INDEX(A1:B2,2,))
+Range("A1").Value = 1: Range("B1").Value = 2: Range("A2").Value = 3: Range("B2").Value = 4 ;; =SUM(INDEX(A1:B2,,2))
+Range("A1").Value = 1: Range("B1").Value = 2: Range("A2").Value = 3: Range("B2").Value = 4 ;; =ROWS(INDEX(A1:B2,,2))
+Range("A1").Value = 1: Range("B1").Value = 2 ;; =INDEX(A1:B1,2)
+=INDEX({1,2;3,4},2)
+=SUM(INDEX({1,2;3,4},2))
+
+# --- a sign or brackets round a reference ---
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)) ;; =ISREF(+A1)
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)) ;; =ISREF(+A1:A3)
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)) ;; =ISREF((A1:A3))
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)) ;; =ISREF(-A1)
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)) ;; =COUNTIF(+A1:A3,1)
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)) ;; =COUNTIF((A1:A3),1)
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)) ;; =ROWS(+A1:A3)
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)) ;; =SUM(+A1:A3)
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)) ;; =+A1:A3
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)) ;; =INDEX(+A1:A3,2)
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)) ;; =OFFSET(+A1,1,0)
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)) ;; =ROW(+A2)
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)) ;; =SUMPRODUCT(+A1:A3)
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)) ;; =ISREF(++A1)
+Range("A1").Value = "x" ;; =+A1

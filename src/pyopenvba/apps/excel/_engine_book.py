@@ -278,12 +278,11 @@ def volatile(node: Node) -> bool:
 
 
 def _check_absolute(text: str) -> None:
-    """A defined name that stands for more than one reference, with a relative reference in it, reports itself."""
+    """A defined name whose formula has a relative reference reports itself, a lone reference such as Sheet1!A1
+    too."""
     try:
         tokens = P.tokenize(text)
     except P.FormulaError:
-        return
-    if len(tokens) == 1 and tokens[0].kind == "ref":
         return
     for token in tokens:
         sides = P.split_sheet(token.text)[1].split(":") if token.kind == "ref" else []

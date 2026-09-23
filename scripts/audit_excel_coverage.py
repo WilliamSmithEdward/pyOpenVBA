@@ -26,7 +26,8 @@ sys.path.insert(0, str(ROOT / "src"))
 
 def report() -> dict[str, object]:
     from pyopenvba.apps.excel import _autofilter, _formats, _model, _shapes, _sort
-    from pyopenvba.formula._functions import known_names
+    from pyopenvba.formula._calc import functions as functions  # imported to register every function
+    from pyopenvba.formula._calc.registry import FUNCTIONS
     from pyopenvba.formula._inventory import unimplemented
     from pyopenvba.interpreter._inventory_data import MEMBERS
     from pyopenvba.interpreter._objects import VBAObject
@@ -96,7 +97,7 @@ def report() -> dict[str, object]:
             if key.startswith("excel:") and key not in matched_keys
         },
         "formula": {
-            "registered_names": sorted(known_names()),
+            "registered_names": sorted(FUNCTIONS),
             "missing_reference_names": unimplemented(),
             "worksheet_function_bindings": sorted(_model.WorksheetFunction._vba_members),
         },

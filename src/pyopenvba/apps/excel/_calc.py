@@ -5,8 +5,8 @@ reads the workbook through :mod:`pyopenvba.apps.excel._engine_book`.
 This is the bookkeeping around it: which cells hold formulas, which
 cells feed which, and what has to be worked out again after a macro
 writes somewhere. Evaluate, WorksheetFunction, a validation's formula, a
-control's link and the format a formula gives its cell still go through
-the older engine in :mod:`pyopenvba.formula`, for which this is the grid.
+control's link and the format a formula gives its cell go through the
+same engine.
 
 Calculation is on demand.  Reading a stale cell computes it, and
 computing it computes whatever it reads, so nothing is ordered up front
@@ -18,22 +18,19 @@ value it last had, which is what Excel shows until F9.
 from __future__ import annotations
 
 import datetime as _dt
-import re
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import Area
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
-from pyopenvba.formula import _parse as P
 from pyopenvba.apps.excel._arrays import array_at
 from pyopenvba.apps.excel._engine_book import EngineBook, model_value, volatile
 from pyopenvba.formula._calc.evaluator import Context as EngineContext
 from pyopenvba.formula._calc.lexer import FormulaSyntaxError
 from pyopenvba.formula._calc.nodes import Node
 from pyopenvba.formula._calc.values import Array, ExcelError as EngineError
-from pyopenvba.formula._engine import clip
-from pyopenvba.formula._structured import TableShape, area as structured_area
-from pyopenvba.formula._values import BLANK, REF, ExcelError, Matrix
+from pyopenvba.formula._structured import TableShape
+from pyopenvba.formula._values import BLANK, REF, ExcelError
 from pyopenvba.interpreter._values import EMPTY, VBACurrency, VBADate, VBAErrorValue, VBAInt
 
 if TYPE_CHECKING:
@@ -287,49 +284,7 @@ class Calculator:
         return {(key[0], row, column) for row in range(block.top, block.bottom + 1)
                 for column in range(block.left, block.right + 1)} - {key}
 
-    # --- what the engine asks of a grid ------------------------------------------------
-
-    def cell_value(self, sheet: str, row: int, column: int) -> object:
-        return from_vba(self.value_of(sheet, row, column))
-
-    def block(self, sheet: str, area: Area) -> Matrix:
-        target = self._worksheet(area.sheet or sheet)
-        bounded = clip(area, target.used_bounds())
-        rows: list[list[object]] = []
-        for row in range(bounded.top, bounded.bottom + 1):
-            line: list[object] = []
-            for column in range(bounded.left, bounded.right + 1):
-                line.append(self.cell_value(target.name, row, column))
-            rows.append(line)
-        return Matrix(rows if rows else [[BLANK]])
-
-    def named(self, name: str, sheet: str) -> object:
-        found = self.book.names_.find(name, scope=self.book.sheet_named(sheet))
-        if found is None:
-            # A table's name on its own stands for its data, as Table1[] does.
-            table = self.table(name)
-            return None if table is None else structured_area(P.Structured(table=table.name), table, 0)
-        text = found.entry.refers_to.lstrip("=")
-        from pyopenvba._a1 import parse_area
-
-        try:
-            if not _one_reference(text):
-                # Sheet1!$A$1-Sheet1!$B$1 would read as $B$1 on a sheet called Sheet1!$A$1-Sheet1.
-                raise ValueError(text)
-            area = parse_area(text, sheet=sheet)
-        except ValueError:
-            node = P.parse(text)
-            if isinstance(node, P.Literal):
-                return node.value
-            from pyopenvba.apps.excel._control_refs import binding
-
-            try:
-                _, area = binding(self.book.sheet_named(sheet), found.entry.name)
-            except (ValueError, VBAUnsupportedError):
-                area = None
-            # A formula that does not land on cells, IF($A$1:$A$3>1,1,0), is worked out where the name is used.
-            return _named_formula(node, text) if area is None else area
-        return area
+    # --- what the engine's book asks of the workbook ---------------------------------------
 
     def table(self, name: str) -> TableShape | None:
         from pyopenvba.apps.excel._tables import shape
@@ -341,18 +296,12 @@ class Calculator:
                     return shape(table)
         return None
 
-    def sheet_exists(self, name: str) -> bool:
-        return self._sheet_named(name) is not None
-
     def _worksheet(self, name: str) -> Worksheet:
         """The sheet a reference names; one the workbook has not got is #REF!."""
         found = self._sheet_named(name)
         if found is None:
             raise REF
         return found
-
-    def used(self, sheet: str) -> tuple[int, int, int, int] | None:
-        return self._worksheet(sheet).used_bounds()
 
     def hidden_rows(self, sheet: str, every: bool) -> set[int]:
         """The rows SUBTOTAL passes over on a sheet.
@@ -388,33 +337,6 @@ class Calculator:
 
 
 # --- moving values across the boundary ------------------------------------------------------
-
-
-def _one_reference(text: str) -> bool:
-    """Whether a defined name's formula is a reference and nothing else; text the tokenizer cannot read may be."""
-    try:
-        tokens = P.tokenize(text)
-    except P.FormulaError:
-        return True
-    return len(tokens) == 1 and tokens[0].kind == "ref"
-
-
-#: One side of a reference that names its cells outright: $A$1, a whole column $A or a whole row $1.
-_ABSOLUTE = re.compile(r"\$[A-Za-z]{1,3}(?:\$[0-9]+)?|\$[0-9]+")
-
-
-def _named_formula(node: P.Node, text: str) -> P.Node:
-    """A defined name that stands for a formula, for the engine to work out where the name is used.
-
-    A relative reference in one is counted from the cell the name was
-    defined at, which the name does not record here, so it reports itself
-    rather than answering from the wrong cells.
-    """
-    for token in P.tokenize(text):
-        sides = P.split_sheet(token.text)[1].split(":") if token.kind == "ref" else []
-        if not all(_ABSOLUTE.fullmatch(side) for side in sides):
-            raise VBAUnsupportedError("a defined name whose formula has a relative reference is not implemented")
-    return node
 
 
 def from_vba(value: object) -> object:

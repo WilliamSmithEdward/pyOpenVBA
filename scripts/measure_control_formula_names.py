@@ -57,6 +57,32 @@ PROBES = {
     "indirect_alias": ('=INDIRECT("Choices")', False, ''),
     "offset_zero": ('=OFFSET(Sheet1!$J$1,0,0,0,1)', False, ''),
     "offset_invalid": ('=OFFSET(Sheet1!$J$1,-1,0)', False, ''),
+    # A link to more than one cell, by a name, directly or by a formula.
+    "wide_link_name": ('=Sheet1!$H$1:$I$1', True, ''),
+    "wide_link_direct": ('=Sheet1!$J$1:$J$3', True, '', '', '$H$1:$I$1'),
+    "offset_wide_link": ('=OFFSET(Sheet1!$H$1,0,0,1,2)', True, ''),
+    "index_row_link": ('=INDEX(Sheet1!$H$1:$I$2,2,)', True, ''),
+    "index_two_dimensional_list": ('=INDEX(Sheet1!$J$1:$K$3,2)', False, ''),
+    # Other formulas that land on cells, and some that do not.
+    "range_index_list": ('=Sheet1!$J$1:INDEX(Sheet1!$J$1:$J$3,2)', False, ''),
+    "intersection_list": ('=Sheet1!$J$1:$J$3 Sheet1!$J$2:$K$3', False, ''),
+    "union_list": ('=(Sheet1!$J$1,Sheet1!$J$3)', False, ''),
+    "paren_list": ('=(Sheet1!$J$1:$J$3)', False, ''),
+    "plus_list": ('=+Sheet1!$J$1:$J$3', False, ''),
+    "let_list": ('=LET(x,Sheet1!$J$2:$J$3,x)', False, ''),
+    "xlookup_link": ('=XLOOKUP("b",Sheet1!$J$1:$J$3,Sheet1!$H$1:$H$3)', True, ''),
+    "ifs_list": ('=IFS(FALSE,Sheet1!$J$1,TRUE,Sheet1!$J$2:$J$3)', False, ''),
+    "switch_list": ('=SWITCH(2,1,Sheet1!$J$1,2,Sheet1!$J$2:$J$3)', False, ''),
+    "iferror_list": ('=IFERROR(Sheet1!$J$2:$J$3,0)', False, ''),
+    "sum_list": ('=SUM(Sheet1!$J$1:$J$3)', False, ''),
+    "undefined_list": ('=CHOOSE(1,Nowhere)', False, ''),
+    "circular_list": ('=CHOOSE(1,Loop)', False, '', 'ActiveWorkbook.Names.Add "Loop", "=CHOOSE(1,Dynamic)"\n'),
+    "circular_alias_list": ('=Loop', False, '', 'ActiveWorkbook.Names.Add "Loop", "=Dynamic"\n'),
+    # Which cell a relative R1C1 reference counts from: A1, the active cell or the control's.
+    "relative_r1c1_list": ('=INDIRECT("R[0]C[9]:R[2]C[9]",FALSE)', False, '', 'Range("A1").Select\n'),
+    "relative_r1c1_active": ('=INDIRECT("R[0]C[9]:R[2]C[9]",FALSE)', False, '', 'Range("B2").Select\n'),
+    "relative_r1c1_placed": ('=INDIRECT("R[0]C[9]:R[2]C[9]",FALSE)', False, '',
+                             'Range("A1").Select\nsh.Top = Range("B2").Top\nsh.Left = Range("B2").Left\n'),
 }
 
 
@@ -64,7 +90,9 @@ def main() -> None:
     records = []
     with ExcelSession(HarnessConfig(lock_wait_s=45.0)) as excel:
         excel.new_document()
-        for name, (formula, linked, after) in PROBES.items():
+        for name, (formula, linked, after, *more) in PROBES.items():
+            # What runs once the control is there, and what its link or list is set to.
+            before, target = (more + ["", "Dynamic"][len(more):])[:2]
             escaped = formula.replace('"', '""')
             field = "LinkedCell" if linked else "ListFillRange"
             body = ('Range("H1:K3").ClearContents\n'
@@ -73,8 +101,8 @@ def main() -> None:
                     'ActiveWorkbook.Names.Add "Choices", "=Sheet1!$J$1:$J$3"\n'
                     f'ActiveWorkbook.Names.Add "Dynamic", "{escaped}"\n'
                     'Set sh = ActiveSheet.Shapes.AddFormControl(6, 0, 0, 90, 60)\n'
-                    'sh.ControlFormat.ListFillRange = "$J$1:$J$3"\nOn Error Resume Next\n'
-                    f'sh.ControlFormat.{field} = "Dynamic"\nsh.ControlFormat.Value = 3\n'
+                    'sh.ControlFormat.ListFillRange = "$J$1:$J$3"\n' + before + 'On Error Resume Next\n'
+                    f'sh.ControlFormat.{field} = "{target}"\nsh.ControlFormat.Value = 3\n'
                     + after + '\nn = Err.Number\nOn Error GoTo 0\n'
                     'Report = CStr(n) & "|" & sh.ControlFormat.LinkedCell & "|" & sh.ControlFormat.ListFillRange & "|" & _\n'
                     'CStr(sh.ControlFormat.Value) & "|" & CStr(sh.ControlFormat.ListCount) & "|" & _\n'

@@ -383,41 +383,44 @@ def _text(value: object) -> str:
         return to_text(value)
 
 
-def _evaluated(sheet: Worksheet, rule: Rule, formula: str, row: int, column: int) -> object:
-    """A rule's formula worked out where the cell is, a block kept whole; None where it cannot be."""
-    from pyopenvba.formula._engine import Context, evaluate_formula
-    from pyopenvba.formula._parse import FormulaError, parse
-    from pyopenvba.formula._values import ExcelError
+def _evaluated(sheet: Worksheet, rule: Rule, formula: str, row: int, column: int) -> list[list[object]] | None:
+    """A rule's formula worked out where the cell is, a block kept whole, as rows of values, a blank None; None where
+    it cannot be worked out."""
+    from pyopenvba.apps.excel._engine_book import model_value
+    from pyopenvba.formula._calc.evaluator import Context
+    from pyopenvba.formula._calc.lexer import FormulaSyntaxError
+    from pyopenvba.formula._calc.values import Empty, ExcelError
 
     if not formula:
         return None
     try:
-        return float(formula)
+        return [[float(formula)]]
     except ValueError:
         pass
+    calculator = sheet.book.calculator
     try:
-        node = parse(_moved(formula, rule.anchor, (row, column)))
-        return evaluate_formula(node, Context(sheet.book.calculator, sheet.name, row, column))
-    except (FormulaError, ExcelError):
+        node = calculator.engine_book.read("=" + _moved(formula, rule.anchor, (row, column)))
+    except FormulaSyntaxError:
         return None
+    now = calculator.now()
+    context = Context(calculator.engine_book, sheet.name, row, column, array=True, today=now.date(), now=now)
+    try:
+        grid = context.array_of(context.formula(node))
+    except ExcelError:
+        return None
+    return [[None if isinstance(one, Empty) else model_value(one) for one in line] for line in grid.rows]
 
 
 def _worked_out(sheet: Worksheet, rule: Rule, formula: str, row: int, column: int) -> object:
     """A rule's formula as one value where the cell is: a block's first."""
-    from pyopenvba.formula._values import Matrix
-
     answer = _evaluated(sheet, rule, formula, row, column)
-    return answer.rows[0][0] if isinstance(answer, Matrix) else answer
+    return None if not answer or not answer[0] else answer[0][0]
 
 
 def _listed(sheet: Worksheet, rule: Rule, row: int, column: int) -> list[object]:
     """The values a list rule's formula names, where the cell is."""
-    from pyopenvba.formula._values import Matrix
-
     answer = _evaluated(sheet, rule, rule.formula1, row, column)
-    if isinstance(answer, Matrix):
-        return [item for line in answer.rows for item in line]
-    return [] if answer is None else [answer]
+    return [item for line in answer or [] for item in line if item is not None]
 
 
 # --- VBA -------------------------------------------------------------------------------------

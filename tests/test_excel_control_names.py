@@ -40,21 +40,15 @@ End Sub''', name="Builder")
     assert len(sheet.control_items("ChoicesControl")) == 3
 
 
-def test_unsupported_named_formulas_and_cycles_do_not_mutate() -> None:
+def test_a_reference_to_another_workbook_is_unsupported_and_does_not_mutate() -> None:
+    """A name's formula and a name that comes back to itself are measured in control_formula_names.json."""
     from pyopenvba.exceptions import VBAUnsupportedError
 
     app = ExcelApplication()
     app.add_workbook()
-    app.add_module('''Public Sub Build()
-ActiveWorkbook.Names.Add "Dynamic", "=XLOOKUP(1,Sheet1!$A$1:$A$2,Sheet1!$B$1:$B$2)"
-ActiveWorkbook.Names.Add "LoopOne", "=LoopTwo"
-ActiveWorkbook.Names.Add "LoopTwo", "=LoopOne"
-End Sub''', name="Builder")
-    app.run("Build")
     sheet = app.sheet(1)
     sheet.add_form_control(6, name="Choices")
     before = sheet.shape("Choices")
-    for name in ("Dynamic", "LoopOne", "[Other.xlsx]Sheet1!A1"):
-        with pytest.raises(VBAUnsupportedError):
-            sheet.update_control("Choices", linked_cell="$H$1", list_range=name)
-        assert sheet.shape("Choices") == before
+    with pytest.raises(VBAUnsupportedError):
+        sheet.update_control("Choices", linked_cell="$H$1", list_range="[Other.xlsx]Sheet1!A1")
+    assert sheet.shape("Choices") == before

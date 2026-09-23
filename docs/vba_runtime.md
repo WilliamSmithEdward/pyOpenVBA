@@ -307,14 +307,19 @@ Overlapping/nested boxes support radio creation, box deletion and late
 additions, including measured shared-link retention and transfer.
 Control links and list sources also resolve workbook and worksheet-local
 names, aliases and changed targets. Missing names remain saved without a
-target. `CHOOSE`, `IF`, single-area `INDEX`, `OFFSET` and `INDIRECT` names resolve dynamic
-sources and linked targets. Other reference formulas, multi-area `INDEX`,
-relative R1C1 `INDIRECT`, cyclic aliases
-and external links are not supported. Local names retain their worksheet
-scope when saved.
-`INDIRECT` accepts A1 and absolute R1C1 addresses.
-Conditional reference names evaluate only the selected branch; selected
-scalar values and errors provide no control source or linked destination.
+target. A name's formula, or a formula given directly, is worked out by
+the cell engine as Excel works a name's formula out, from A1
+(`tests/fixtures/shapes/control_formula_names.json`, 73 live cases):
+whatever lands on one block of cells is the source or the link --
+`CHOOSE`, `IF`, `IFS`, `SWITCH`, `INDEX`, `OFFSET`, `INDIRECT` in A1 or
+R1C1, `LET`, `XLOOKUP`, the range operator and an intersection among
+them -- and a relative R1C1 address counts from A1, whichever cell is
+active. A value, an error, two areas, a reference with a sign before it
+or a name that comes back to itself gives no source and no link; a link
+to more than one cell writes its top left cell. Conditional names work
+out only the branch they take. External links are not supported, nor a
+name with a relative reference inside a control's formula. Local names
+retain their worksheet scope when saved.
 
 **Formulas are spelled as Excel spells them.** Excel does not keep the
 text of a formula it is given: it reads it and writes it out again, and
@@ -1021,7 +1026,12 @@ reaches its function as a value, so COUNT walks past it. The -IF and
 -IFS functions, SUBTOTAL, COUNTBLANK, OFFSET, ROW, COLUMN and AREAS read
 cells: a value there, a function that answers with one included, is
 error 1004 when the formula is written, and a name there that comes to a
-value is `#VALUE!`.
+value is `#VALUE!`. Of the engine's 493 functions Excel takes 15 there,
+the ones that can answer with cells: CHOOSE, DROP, IF, IFS, INDEX,
+INDIRECT, LAMBDA, LET, OFFSET, REDUCE, SINGLE, SWITCH, TAKE, TRIMRANGE
+and XLOOKUP (`tests/fixtures/formula/cells_functions.json`). A `+`
+before a reference reads its cells as values, so `COUNTIF(+A1:A3,1)` is
+refused too.
 
 SUM, AVERAGE, SUMSQ and their kin add one number after another, each
 sum rounded to a double, as Excel adds (`tests/fixtures/variance.json`,
@@ -1341,8 +1351,9 @@ a file gives every cell of the block its own formula to work out.
 | `apps/excel/_model.py` | Excel's object model |
 | `apps/excel/_calc.py` | Which cells are stale, and what they come to |
 | `formula/_parse.py` | The formula grammar |
-| `formula/_engine.py` | Evaluating one formula against a grid |
-| `formula/_functions.py` | The worksheet functions |
+| `formula/_spell.py` | How Excel spells a formula it is given, and which it refuses |
+| `formula/_calc/` | The formula engine and the worksheet functions (`docs/formula_engine.md`) |
+| `apps/excel/_engine_book.py` | The workbook as the formula engine reads it |
 | `apps/excel/_io.py` | Reading and writing the workbook file |
 | `apps/excel/_bridge.py` | What a project sees when Excel is the host |
 | `apps/excel/_shapes.py` | A sheet's shapes, as a macro reaches them |

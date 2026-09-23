@@ -35,11 +35,13 @@ reference to another workbook -- raises :class:`UnmodelledFormulaError`.
 from __future__ import annotations
 
 import re
-from dataclasses import replace
+from dataclasses import dataclass, replace
 from typing import Final, Protocol
 
 from pyopenvba._a1 import column_letter, column_number, quote_sheet
-from pyopenvba.formula._functions import AS_CELL, CELLS, FUNCTIONS, REFERENCES, array_places, one_value_places
+from pyopenvba.formula._calc import functions as functions  # imported to register every function
+from pyopenvba.formula._calc.nodes import function_key
+from pyopenvba.formula._calc.registry import FUNCTIONS
 from pyopenvba.formula._inventory import excel_has_function
 from pyopenvba.formula._parse import (REFERENCE_OPS, Binary, Call, FormulaError, NameNode, Node, Reference, Structured,
                                       Token, Unary, literal, parse, read_structured, split_sheet, tokenize)
@@ -54,6 +56,82 @@ _UNMODELLED: Final = re.compile(r"@|#(?!N/A|NULL!|DIV/0!|VALUE!|REF!|NAME\?|NUM!
                                 re.IGNORECASE)
 #: A string, or a sheet's name in apostrophes, where any character may stand.
 _QUOTED: Final = re.compile(r'"(?:[^"]|"")*"|\'(?:[^\']|\'\')*\'')
+
+
+@dataclass(frozen=True)
+class _Places:
+    """Which of a function's arguments a rule covers: some places, and every ``step``-th from ``start`` on."""
+
+    fixed: tuple[int, ...] = ()
+    start: int | None = None
+    step: int = 1
+
+    def within(self, count: int) -> frozenset[int]:
+        run = range(self.start, count, self.step) if self.start is not None else range(0)
+        return frozenset(index for index in (*self.fixed, *run) if index < count)
+
+
+_EVERY: Final = _Places(start=0)
+
+# Measured in tests/fixtures/formula/probes.txt, one probe or more per function.
+
+#: Where a function wants one value and runs item by item through an array given there, its answer an array:
+#: SUM(LEN({"a","bb"})) is 3. In a cell, cells given there are first cut to the formula's own row or column.
+_LIFTED: Final[dict[str, _Places]] = {
+    **dict.fromkeys((
+        "ABS", "ADDRESS", "CEILING", "CEILING.MATH", "CHAR", "CODE", "CONCATENATE", "DATE", "DATEVALUE", "DAY",
+        "DAYS", "EDATE", "EOMONTH", "ERROR.TYPE", "EXACT", "EXP", "FIND", "FLOOR", "FLOOR.MATH", "HOUR", "INT",
+        "ISBLANK", "ISERR", "ISERROR", "ISLOGICAL", "ISNA", "ISNONTEXT", "ISNUMBER", "ISTEXT", "LEFT", "LEN", "LN",
+        "LOG", "LOG10", "LOWER", "MID", "MINUTE", "MOD", "MONTH", "MROUND", "NOT", "POWER", "PROPER", "RANDBETWEEN",
+        "REPLACE", "REPT", "RIGHT", "ROUND", "ROUNDDOWN", "ROUNDUP", "SEARCH", "SECOND", "SIGN", "SQRT", "SUBSTITUTE",
+        "TEXT", "TIME", "TRIM", "TRUNC", "UPPER", "VALUE", "WEEKDAY", "YEAR"), _EVERY),
+    "COUNTIF": _Places((1,)), "SUMIF": _Places((1,)), "AVERAGEIF": _Places((1,)),
+    "COUNTIFS": _Places(start=1, step=2), "SUMIFS": _Places(start=2, step=2),
+    "MATCH": _Places((0, 2)), "LARGE": _Places((1,)), "SMALL": _Places((1,)),
+}
+#: Where a function wants one value but takes only the first item of an array: SUM(INDEX({1,2;3,4},{1,2},{1,2}))
+#: is 1, even inside SUMPRODUCT. Cells are cut as for the functions above.
+_FIRST_ITEM: Final[dict[str, _Places]] = {
+    "INDEX": _Places((1, 2, 3)), "VLOOKUP": _Places((0, 2, 3)), "HLOOKUP": _Places((0, 2, 3)),
+    "XLOOKUP": _Places((0,)),
+}
+#: Where the functions that work out their own arguments read one value through intersected.
+_OWN_PLACES: Final[dict[str, _Places]] = {
+    "IF": _Places((0,)), "IFS": _Places(start=0, step=2), "IFERROR": _EVERY, "IFNA": _EVERY, "CHOOSE": _Places((0,)),
+    "OFFSET": _Places(start=1),
+}
+#: Arguments worked out as arrays even in a cell: SUMPRODUCT(LEN(A1:A3)) adds every length, and INDEX(A1:A3*2,2)
+#: is A2*2 in any row.
+_ARRAYS: Final[dict[str, _Places]] = {"SUMPRODUCT": _EVERY, "INDEX": _Places((0,))}
+#: Arguments that have to be cells. Excel will not take a formula with a value there (error 1004): a number, text,
+#: an array, an operator's answer, or a function that answers with a value, SUMIF(LEN(A1:A3),1). A name or a
+#: function that can answer with cells is taken, and is #VALUE! when it comes to a value instead.
+_CELLS: Final[dict[str, _Places]] = {
+    "SUBTOTAL": _Places(start=1), "COUNTIF": _Places((0,)), "SUMIF": _Places((0, 2)), "AVERAGEIF": _Places((0, 2)),
+    "COUNTIFS": _Places(start=0, step=2), "SUMIFS": _Places((0,), start=1, step=2),
+    "AVERAGEIFS": _Places((0,), start=1, step=2), "COUNTBLANK": _Places((0,)), "OFFSET": _Places((0,)),
+    "ROW": _Places((0,)), "COLUMN": _Places((0,)), "AREAS": _Places((0,)),
+}
+#: The functions that can answer with cells, the only ones Excel takes where cells are wanted: every other function
+#: the engine has is refused there (scripts/measure_cells_functions.py, tests/fixtures/formula/cells_functions.json).
+_ANSWER_CELLS: Final = frozenset({"CHOOSE", "DROP", "IF", "IFS", "INDEX", "INDIRECT", "LAMBDA", "LET", "OFFSET",
+                                  "REDUCE", "SINGLE", "SWITCH", "TAKE", "TRIMRANGE", "XLOOKUP"})
+#: The functions that work their arguments out as a cell does even inside an argument worked out as an array.
+_AS_CELL: Final = frozenset({"IF", "IFS", "IFERROR", "IFNA", "SWITCH", "CHOOSE"})
+
+
+def _places(table: dict[str, _Places], name: str, count: int) -> frozenset[int]:
+    places = table.get(name)
+    return frozenset() if places is None else places.within(count)
+
+
+def _one_value_places(name: str, count: int) -> frozenset[int]:
+    """The arguments of a call that want one value, cells there cut to the formula's own row or column."""
+    upper = name.upper()
+    if upper == "SWITCH":
+        # The subject and each case; a value, and the default after the last case, can be cells.
+        return frozenset({0, *range(1, count - 1, 2)})
+    return _places(_LIFTED, upper, count) | _places(_FIRST_ITEM, upper, count) | _places(_OWN_PLACES, upper, count)
 
 
 class UnmodelledFormulaError(FormulaError):
@@ -156,12 +234,12 @@ _FEWEST: Final = {"SUBTOTAL": 2}
 def _check(node: Node | None) -> None:
     """Refuse what Excel refuses in a formula past its syntax: a value where a function reads cells.
 
-    Which arguments have to be cells is :data:`~pyopenvba.formula._functions.CELLS`, measured in
-    tests/fixtures/formula/probes.txt and by scripts/measure_subtotal.py.
+    Which arguments have to be cells is :data:`_CELLS`, measured in tests/fixtures/formula/probes.txt and by
+    scripts/measure_subtotal.py.
     """
     if isinstance(node, Call):
         name = node.name.upper()
-        places = CELLS.get(name)
+        places = _CELLS.get(name)
         if places is not None and (len(node.args) < _FEWEST.get(name, 0)
                                    or not all(_referring(node.args[index]) for index in places.within(len(node.args)))):
             raise FormulaError(f"{node.name} takes references")
@@ -178,14 +256,15 @@ def _referring(node: Node | None) -> bool:
     """Whether an argument can stand for cells: a reference, a name, references joined, or a call.
 
     A call counts only to a function that can answer with cells: OFFSET,
-    INDEX or IF can, LEN, SUM or IFERROR cannot. A function the model does
-    not have is let through, since what it answers with is not known here.
+    INDEX or IF can, LEN, SUM or IFERROR cannot. A function the engine
+    has not got is let through, since what it answers with is not known
+    here.
     """
     if isinstance(node, (Reference, Structured)):
         return True
     if isinstance(node, Call):
-        name = node.name.upper()
-        return name in REFERENCES or name not in FUNCTIONS
+        name = function_key(node.name)
+        return name in _ANSWER_CELLS or name not in FUNCTIONS
     if isinstance(node, NameNode):
         return node.name.upper() not in ("TRUE", "FALSE")
     if isinstance(node, Binary):
@@ -195,7 +274,7 @@ def _referring(node: Node | None) -> bool:
 
 def _one_value(node: Node | None, *, one: bool, whole: bool, found: set[int]) -> None:
     """Where the structured references stand that a cell cuts to its own row: each place intersected works out
-    as one value (see pyopenvba.formula._engine), outside an argument worked out whole."""
+    as one value (see pyopenvba.formula._calc.evaluator), outside an argument worked out whole."""
     if isinstance(node, Structured):
         if one and not whole:
             found.add(node.at)
@@ -207,8 +286,8 @@ def _one_value(node: Node | None, *, one: bool, whole: bool, found: set[int]) ->
         _one_value(node.right, one=not cells, whole=whole, found=found)
     elif isinstance(node, Call):
         count = len(node.args)
-        places, arrays = one_value_places(node.name, count), array_places(node.name, count)
-        inside = False if node.name.upper() in AS_CELL else whole
+        places, arrays = _one_value_places(node.name, count), _places(_ARRAYS, node.name.upper(), count)
+        inside = False if node.name.upper() in _AS_CELL else whole
         for index, argument in enumerate(node.args):
             _one_value(argument, one=index in places, whole=inside or index in arrays, found=found)
 

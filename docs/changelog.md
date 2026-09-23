@@ -507,7 +507,7 @@ All notable changes to pyOpenVBA are documented here. This project follows
   unsupported operations.
 - Absolute R1C1 addresses in `INDIRECT`-backed Excel control names, with
   eight native behavior cases and a save/reopen gate for cell-driven
-  source and linked-cell addresses. Relative R1C1 remains unsupported.
+  source and linked-cell addresses. A relative one counts from A1.
 - Shared `references()`, `add_reference()` and `remove_reference()` APIs
   across Excel, Word, PowerPoint and Access, with Office presets and custom
   registered libraries. GUID-based adds are idempotent; removing an absent
@@ -534,6 +534,13 @@ All notable changes to pyOpenVBA are documented here. This project follows
   native Excel cases cover resolution and selection behavior; live
   save/reopen gates verify workbook and worksheet-local bindings.
   Newly created local names serialize with Excel's worksheet scope.
+- A Forms control's link or list can be any formula that lands on cells,
+  worked out by the cell engine as Excel works a name's formula out: the
+  range operator, an intersection, brackets, LET, XLOOKUP, IFS, SWITCH.
+  22 more cases measured in live Excel: a formula that comes to a value,
+  an error, two areas, or a reference with a sign before it gives an
+  empty list, and a relative R1C1 address in INDIRECT counts from A1
+  whichever cell is active and wherever the control is.
 - Late overlapping-box additions, including nested-group link retention
   and identical-box link transfer to an unlinked sheet group. Eighty new
   native Excel cases cover link combinations and selection states.
@@ -612,6 +619,15 @@ All notable changes to pyOpenVBA are documented here. This project follows
   same engine: 388 WorksheetFunction members where the model had 75. A
   range is handed over as its cells, so COUNTIF, SUBTOTAL and INDEX read
   cells from VBA as in a cell, and a range of several areas is taken.
+- A data validation's formula, a Forms control's link and list, and the
+  number format a formula brings go through the same engine, and the
+  model's own engine is gone.
+- Writing a formula refuses any function that answers with a value where
+  cells are wanted, as `COUNTIF(SUM(A1:A3),1)` is refused, for every
+  function the engine has. Excel was measured with each of the 493 in
+  COUNTIF's range and takes 15 of them there, DROP, TAKE, LET and
+  TRIMRANGE among them. The model let through any function its old
+  engine did not have.
 - A cell holds every number as a Double, a date included; its format
   decides what `Value` reads. A query's refreshed rows keep their text as
   text rather than typing it.
@@ -637,6 +653,17 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- `INDEX(A1:B2,2)`, one index into cells in rows and columns, is #REF! as
+  in Excel; the engine gave row 2. `INDEX(A1:B2,2,)` is still row 2.
+- A `+` before a reference reads its cells as values, as Excel does:
+  `ISREF(+A1)` is FALSE, `=+A1:A3` is the cell in the formula's row, and
+  `COUNTIF(+A1:A3,1)` is refused.
+- BINOM.DIST, BINOMDIST, BINOM.DIST.RANGE, BINOM.INV and CRITBINOM with a
+  chance of 1 or 0 work out; the engine failed on 0 to the power 0.
+- A Forms control linked to more than one cell, `$H$1:$I$1`, writes its
+  top left cell, as Excel does; the model refused the link. A control
+  name that comes back to itself gives an empty list, as in Excel, where
+  the model reported it unsupported.
 - AND, OR and XOR pass over a text argument that says neither TRUE nor
   FALSE, as Excel does: `AND(TRUE,"x")` is TRUE, and only with nothing
   logical left is the answer #VALUE!. 12 formulas in live Excel pin it.
@@ -928,6 +955,17 @@ All notable changes to pyOpenVBA are documented here. This project follows
   pyOfficeEditor's corpus as Excel cached them, to the bit or within the
   units pyOfficeEditor allows. `scripts/copy_formula_engine.py` shows how
   the copy differs from pyOfficeEditor, and makes it again.
+- `scripts/measure_cells_functions.py` writes each of the engine's
+  functions on its own and into COUNTIF's range in live Excel, and
+  `tests/test_formula.py` replays all 493. 20 calls whose values differ
+  from Excel's, most of them with arguments that make no sense, are
+  strict expected failures with their reasons.
+
+### Removed
+
+- `pyopenvba.formula.Context`, `Grid` and `evaluate`, the model's own
+  formula engine, which nothing in the library used any longer.
+  `pyopenvba.formula` keeps its parser and its values.
 
 ## [6.0.0] - 2026-09-20
 

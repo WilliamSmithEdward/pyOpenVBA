@@ -18,7 +18,7 @@ def linked_target(sheet: Worksheet, reference: str) -> tuple[Worksheet, int, int
     from pyopenvba.apps.excel._control_refs import binding
 
     try:
-        _, area = binding(sheet, reference, single=True)
+        _, area = binding(sheet, reference)
     except ValueError as exc:
         raise VBAUnsupportedError(str(exc)) from exc
     if area is None:
@@ -277,7 +277,7 @@ def set_link(sheet: Worksheet, shape: Shape, reference: str) -> None:
     """VBA rebinding writes the control's state if the target value differs."""
     from pyopenvba.apps.excel._control_refs import binding
 
-    reference, _ = binding(sheet, reference, single=True)
+    reference, _ = binding(sheet, reference)
     if shape.control is not None and shape.control.kind == "Radio":
         from pyopenvba.apps.excel._radios import set_link as set_radio_link
 

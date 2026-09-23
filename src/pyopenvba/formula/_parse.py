@@ -394,8 +394,8 @@ class Parser:
         """A signed operand with its percent signs, and no power."""
         if self.token.kind == "op" and self.token.text in ("-", "+"):
             op = self.advance().text
-            operand = self.tight()
-            return operand if op == "+" else Unary(op="-", operand=operand)
+            # A + is kept: it reads cells as values, so COUNTIF(+A1:A3,1) is refused (tests/fixtures/formula/).
+            return Unary(op=op, operand=self.tight())
         node = self.operand()
         while self.token.kind == "op" and self.token.text == "%":
             self.advance()

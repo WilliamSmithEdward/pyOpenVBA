@@ -143,7 +143,7 @@ def update_control_shape(
     if list_range is not None and control.kind not in {"Drop", "List"}:
         raise VBAUnsupportedError(f"list ranges are not supported for {control.kind}")
     if linked_cell is not None:
-        linked_cell, _ = binding(sheet, linked_cell, single=True)
+        linked_cell, _ = binding(sheet, linked_cell)
     if list_range is not None:
         list_range, _ = binding(sheet, list_range)
     if linked_cell is not None:

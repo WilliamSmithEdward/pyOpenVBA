@@ -275,6 +275,10 @@ def INDEX(
         if column is None and block.height == 1:
             # One index into a row counts along it.
             down, across = 1, down
+        elif column is None and block.width > 1:
+            # One index into cells in rows and columns is #REF!, even 0, where a column written and left empty is
+            # the whole row: INDEX(A1:B2,2,) (tests/fixtures/formula/).
+            return REF_ERROR
         if down > block.height or across > block.width:
             return REF_ERROR
         top, bottom = (block.top, block.bottom) if down == 0 else (block.top + down - 1,) * 2

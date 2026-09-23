@@ -75,8 +75,7 @@ def test_control_bindings_round_trip_and_clear(tmp_path: Path) -> None:
 
 
 @pytest.mark.parametrize("name,link,source", [
-    ("Rect", "$K$1", None), ("Check1", "$K$1", "$J$1:$J$3"),
-    ("Drop1", "$K$1:$K$2", None), ("Drop1", "$K$1", "Missing!A1:A2"),
+    ("Rect", "$K$1", None), ("Check1", "$K$1", "$J$1:$J$3"), ("Drop1", "$K$1", "Missing!A1:A2"),
     ("Drop1", "$K$1", "A1\x00"), ("Button1", "$K$1", None),
 ])
 def test_invalid_control_bindings_are_atomic(name: str, link: str, source: str | None) -> None:

@@ -19,9 +19,10 @@ from functools import lru_cache
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from pyopenvba._a1 import Area, column_letter, column_number, parse_reference
+from pyopenvba._a1 import Area, column_letter, column_number, parse_area, parse_reference
 from pyopenvba._xml import attributes as _attributes
 from pyopenvba._xml import escape as _escape
+from pyopenvba._xml import escape_text as _escape_text
 from pyopenvba._xml import tag_attributes as _tag_attributes
 from pyopenvba._xml import unescape as _unescape
 from pyopenvba.exceptions import PyOpenVBAError
@@ -167,7 +168,11 @@ def _read_sheet(sheet: Worksheet, xml: str, strings: list[str], stylesheet: Styl
 
 def _read_cells(sheet: Worksheet, rows: str, strings: list[str], stylesheet: Stylesheet) -> None:
     from pyopenvba.apps.excel._model import Cell
+    from pyopenvba.formula._parse import shift_text
 
+    # A shared formula's text is in its first cell only; the others are filled in from it once all are read.
+    firsts: dict[int, tuple[int, int, str]] = {}
+    followers: list[tuple[int, int, Cell]] = []
     for row_xml in _ROW.findall(rows):
         for cell_xml in _CELL.findall(row_xml):
             attributes = _tag_attributes(cell_xml)
@@ -180,12 +185,20 @@ def _read_cells(sheet: Worksheet, rows: str, strings: list[str], stylesheet: Sty
             xf = int(written) if written.isdigit() else 0
             style = stylesheet.style(xf) if xf else None
             formula = ""
+            shared: int | None = None
             formula_match = _FORMULA.search(cell_xml)
             if formula_match is not None:
                 body = (formula_match.group(2) or "").strip()
                 formula = f"={_unescape(body)}" if body else ""
+                element = _attributes(f"<f {formula_match.group(1)}>")
+                if element.get("t") == "shared" and element.get("si", "").isdigit():
+                    shared = int(element["si"])
+                    if formula and element.get("ref"):
+                        sheet.shared_groups[shared] = parse_area(element["ref"], sheet="")
+                        firsts[shared] = (row, column, formula)
             value = _cell_value(cell_xml, kind, strings)
-            if value is EMPTY and not formula and (style or stylesheet.default) == sheet.inherited_style(row, column):
+            if value is EMPTY and formula_match is None \
+                    and (style or stylesheet.default) == sheet.inherited_style(row, column):
                 # An empty cell in the format its row or column gives it says nothing, and Excel drops it.
                 sheet.dims.tidied = True
                 continue
@@ -193,8 +206,18 @@ def _read_cells(sheet: Worksheet, rows: str, strings: list[str], stylesheet: Sty
                 # A cell on the default format still has to read that format.
                 style = stylesheet.default
             cell = Cell(value=value, formula=formula, stale=bool(formula) and value is EMPTY, style=style,
-                        xf=xf if style is not None else -1)
+                        xf=xf if style is not None else -1, shared=shared)
             sheet.cells_[(row, column)] = cell
+            if shared is not None and not formula:
+                followers.append((row, column, cell))
+    for row, column, cell in followers:
+        first = firsts.get(cell.shared) if cell.shared is not None else None
+        if first is None:
+            cell.shared = None
+            continue
+        top, left, text = first
+        cell.formula = shift_text(text, row - top, column - left)
+        cell.stale = cell.value is EMPTY
     sheet.dims.settle_growth()
 
 
@@ -1140,8 +1163,12 @@ def _patched_sheet(sheet: Worksheet, original: str, package: OpcFile) -> str:
         if sheet.holds(row, column, cell):
             by_row.setdefault(row, []).append((column, cell))
     stylesheet = sheet.book.stylesheet
+    from pyopenvba.apps.excel._shared import formula_elements
+
+    shared = formula_elements(sheet, _escape_text)
     for row in set(rows) | set(by_row):
-        rows[row] = _row_with_cells(rows.get(row, f'<row r="{row}"></row>'), row, by_row.get(row, []), stylesheet)
+        rows[row] = _row_with_cells(rows.get(row, f'<row r="{row}"></row>'), row, by_row.get(row, []), stylesheet,
+                                    shared)
     for row in set(sheet.dims.rows) | sheet.dims.shaped_rows():
         rows.setdefault(row, f'<row r="{row}"/>')
     rebuilt = _rows_as_excel_writes_them(sheet, original, rows)
@@ -1258,24 +1285,30 @@ def _with_dimension_parts(sheet: Worksheet, xml: str) -> str:
     return xml
 
 
-def _row_with_cells(row_xml: str, row: int, cells: list[tuple[int, Cell]], stylesheet: Stylesheet) -> str:
-    """A row with the model's cells written into it in column order, in place of the ones it had."""
+def _row_with_cells(row_xml: str, row: int, cells: list[tuple[int, Cell]], stylesheet: Stylesheet,
+                    shared: dict[tuple[int, int], str]) -> str:
+    """A row with the model's cells written into it in column order, in place of the ones it had.
+
+    ``shared`` is the ``<f>`` of each cell written as part of a shared formula.
+    """
     head_end = row_xml.index(">")
     closed = row_xml[head_end - 1] == "/"
     opening = row_xml[: head_end - 1] + ">" if closed else row_xml[: head_end + 1]
     rest = "" if closed else _CELL.sub("", row_xml[head_end + 1 : row_xml.rindex("</row>")])
-    written = "".join(_cell_xml(f"{column_letter(column)}{row}", cell, _style_for(cell, stylesheet))
+    written = "".join(_cell_xml(f"{column_letter(column)}{row}", cell, _style_for(cell, stylesheet),
+                                shared.get((row, column)))
                       for column, cell in cells)
     return f"{opening}{written}{rest}</row>"
 
 
-def _cell_xml(reference: str, cell: Cell, style: str) -> str:
+def _cell_xml(reference: str, cell: Cell, style: str, shared: str | None = None) -> str:
     attributes = f' s="{style}"' if style else ""
     if cell.formula:
         # A formula cell carries its last value in a <v>, never as an
         # inline string: a formula whose answer is text is t="str".
         kind, body = _formula_value(cell)
-        return f'<c r="{reference}"{attributes}{kind}><f>{_escape(cell.formula[1:])}</f>{body}</c>'
+        element = shared or f"<f>{_escape_text(cell.formula[1:])}</f>"
+        return f'<c r="{reference}"{attributes}{kind}>{element}{body}</c>'
     kind, body = _value_body(cell.value)
     if not body:
         return f'<c r="{reference}"{attributes}/>'
@@ -1294,12 +1327,12 @@ def _formula_value(cell: Cell) -> tuple[str, str]:
     if isinstance(value, bool):
         return ' t="b"', f"<v>{1 if value else 0}</v>"
     if isinstance(value, str):
-        return ' t="str"', f"<v>{_escape(value)}</v>"
+        return ' t="str"', f"<v>{_escape_text(value)}</v>"
     if isinstance(value, VBADate):
         return "", f"<v>{_number_text(value.serial)}</v>"
     if isinstance(value, (int, float)):
         return "", f"<v>{_number_text(value)}</v>"
-    return ' t="str"', f"<v>{_escape(to_text(value))}</v>"
+    return ' t="str"', f"<v>{_escape_text(to_text(value))}</v>"
 
 
 def _value_body(value: object) -> tuple[str, str]:

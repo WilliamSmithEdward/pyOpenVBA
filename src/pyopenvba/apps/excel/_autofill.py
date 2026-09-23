@@ -373,6 +373,39 @@ class _Plan:
                 writes.append((at, positions[slot], content))
         for at, origin, content in writes:
             self.write(at, origin, content)
+        if self.length == 1:
+            self.share(writes)
+
+    def share(self, writes: list[tuple[tuple[int, int], tuple[int, int], object]]) -> None:
+        """Keep the formula one cell filled along its line as one shared formula, as Excel keeps it.
+
+        Measured: filled from a cell of a shared formula, the new cells join
+        it and its block stretches over them; otherwise they are one of
+        their own, the source cell left out.
+        """
+        from pyopenvba.apps.excel import _shared
+
+        filled: dict[tuple[int, int], list[tuple[int, int]]] = {}
+        for at, origin, content in writes:
+            if content is _COPIED:
+                filled.setdefault(origin, []).append(at)
+        for origin, places in filled.items():
+            source = self.cells.get(origin)
+            cells = [cell for at in places if (cell := self.sheet.cells_.get(at)) is not None and cell.formula]
+            if source is None or not source.formula or len(cells) != len(places) or not _shared.shares(source.formula):
+                continue
+            block = Area(min(row for row, _ in places), min(column for _, column in places),
+                         max(row for row, _ in places), max(column for _, column in places))
+            key = source.shared
+            joined = self.sheet.shared_groups.get(key) if key is not None else None
+            if key is None or joined is None:
+                if len(cells) > 1:
+                    _shared.group(self.sheet, block, cells)
+                continue
+            self.sheet.shared_groups[key] = Area(min(joined.top, block.top), min(joined.left, block.left),
+                                                 max(joined.bottom, block.bottom), max(joined.right, block.right))
+            for cell in cells:
+                cell.shared = key
 
     def write(self, at: tuple[int, int], origin: tuple[int, int], content: object) -> None:
         from pyopenvba.apps.excel._model import Cell

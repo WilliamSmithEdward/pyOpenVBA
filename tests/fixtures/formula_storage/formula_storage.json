@@ -1,0 +1,368 @@
+{
+ "base": "written",
+ "edits": [
+  "value_edit",
+  "split_formula",
+  "split_clear",
+  "master_formula",
+  "master_clear",
+  "insert_row",
+  "delete_row",
+  "rewrite",
+  "extend_fill"
+ ],
+ "cases": [
+  {
+   "name": "written",
+   "action": "ws.Range(\"A1:A4\").Value = Application.Transpose(Array(1, 2, 3, 4))\nws.Range(\"B1:B3\").Formula = \"=A1*2\"\nws.Range(\"C1\").Formula = \"=A1*3\"\nws.Range(\"C1\").AutoFill ws.Range(\"C1:C3\")\nws.Range(\"G1\").Formula = \"=A1\"\nws.Range(\"G2\").Formula = \"=A2\"\nws.Range(\"H1:I2\").Formula = \"=$A1+A$1\"",
+   "cells": [
+    "<c r=\"B1\"><f t=\"shared\" ref=\"B1:B3\" si=\"0\">A1*2</f><v>2</v></c>",
+    "<c r=\"C1\"><f>A1*3</f><v>3</v></c>",
+    "<c r=\"G1\"><f>A1</f><v>1</v></c>",
+    "<c r=\"H1\"><f t=\"shared\" ref=\"H1:I2\" si=\"1\">$A1+A$1</f><v>2</v></c>",
+    "<c r=\"I1\"><f t=\"shared\" si=\"1\"/><v>3</v></c>",
+    "<c r=\"B2\"><f t=\"shared\" si=\"0\"/><v>4</v></c>",
+    "<c r=\"C2\"><f t=\"shared\" ref=\"C2:C3\" si=\"2\">A2*3</f><v>6</v></c>",
+    "<c r=\"G2\"><f>A2</f><v>2</v></c>",
+    "<c r=\"H2\"><f t=\"shared\" si=\"1\"/><v>3</v></c>",
+    "<c r=\"I2\"><f t=\"shared\" si=\"1\"/><v>4</v></c>",
+    "<c r=\"B3\"><f t=\"shared\" si=\"0\"/><v>6</v></c>",
+    "<c r=\"C3\"><f t=\"shared\" si=\"2\"/><v>9</v></c>"
+   ],
+   "read": {
+    "B1": "=A1*2=2",
+    "C1": "=A1*3=3",
+    "G1": "=A1=1",
+    "H1": "=$A1+A$1=2",
+    "I1": "=$A1+B$1=3",
+    "B2": "=A2*2=4",
+    "C2": "=A2*3=6",
+    "G2": "=A2=2",
+    "H2": "=$A2+A$1=3",
+    "I2": "=$A2+B$1=4",
+    "B3": "=A3*2=6",
+    "C3": "=A3*3=9"
+   }
+  },
+  {
+   "name": "kinds",
+   "action": "ws.Range(\"A1:A4\").Value = Application.Transpose(Array(1, 2, 3, 4))\nws.Range(\"K1:K2\").Formula = \"=5\"\nws.Range(\"L1:L2\").FormulaR1C1 = \"=RC1*2\"\nws.Range(\"M1:M2\").Value = \"=A1\"\nws.Range(\"O1\").Formula = \"=A1\"\nws.Range(\"O1:O3\").FillDown\nws.Range(\"P1\").Formula = \"=A1\"\nws.Range(\"P1\").Copy ws.Range(\"P2:P3\")\nws.Range(\"Q1:Q3\").Formula = \"=SUM($A$1:$A$4)\"\nws.Range(\"R1:R2\").Formula = \"=A1&\"\"x\"\"\"\nws.Range(\"S1\").Formula = \"=\"\"a\"\"\"\"b<&>\"\"\"",
+   "cells": [
+    "<c r=\"K1\"><f>5</f><v>5</v></c>",
+    "<c r=\"L1\"><f t=\"shared\" ref=\"L1:L2\" si=\"0\">$A1*2</f><v>2</v></c>",
+    "<c r=\"M1\"><f t=\"shared\" ref=\"M1:M2\" si=\"1\">A1</f><v>1</v></c>",
+    "<c r=\"O1\"><f>A1</f><v>1</v></c>",
+    "<c r=\"P1\"><f>A1</f><v>1</v></c>",
+    "<c r=\"Q1\"><f t=\"shared\" ref=\"Q1:Q3\" si=\"2\">SUM($A$1:$A$4)</f><v>10</v></c>",
+    "<c r=\"R1\" t=\"str\"><f t=\"shared\" ref=\"R1:R2\" si=\"3\">A1&amp;\"x\"</f><v>1x</v></c>",
+    "<c r=\"S1\" t=\"str\"><f>\"a\"\"b&lt;&amp;&gt;\"</f><v>a\"b&lt;&amp;&gt;</v></c>",
+    "<c r=\"K2\"><f>5</f><v>5</v></c>",
+    "<c r=\"L2\"><f t=\"shared\" si=\"0\"/><v>4</v></c>",
+    "<c r=\"M2\"><f t=\"shared\" si=\"1\"/><v>2</v></c>",
+    "<c r=\"O2\"><f t=\"shared\" ref=\"O2:O3\" si=\"4\">A2</f><v>2</v></c>",
+    "<c r=\"P2\"><f t=\"shared\" ref=\"P2:P3\" si=\"5\">A2</f><v>2</v></c>",
+    "<c r=\"Q2\"><f t=\"shared\" si=\"2\"/><v>10</v></c>",
+    "<c r=\"R2\" t=\"str\"><f t=\"shared\" si=\"3\"/><v>2x</v></c>",
+    "<c r=\"O3\"><f t=\"shared\" si=\"4\"/><v>3</v></c>",
+    "<c r=\"P3\"><f t=\"shared\" si=\"5\"/><v>3</v></c>",
+    "<c r=\"Q3\"><f t=\"shared\" si=\"2\"/><v>10</v></c>"
+   ],
+   "read": {
+    "K1": "=5=5",
+    "L1": "=$A1*2=2",
+    "M1": "=A1=1",
+    "O1": "=A1=1",
+    "P1": "=A1=1",
+    "Q1": "=SUM($A$1:$A$4)=10",
+    "R1": "=A1&\"x\"=1x",
+    "S1": "=\"a\"\"b<&>\"=a\"b<&>",
+    "K2": "=5=5",
+    "L2": "=$A2*2=4",
+    "M2": "=A2=2",
+    "O2": "=A2=2",
+    "P2": "=A2=2",
+    "Q2": "=SUM($A$1:$A$4)=10",
+    "R2": "=A2&\"x\"=2x",
+    "O3": "=A3=3",
+    "P3": "=A3=3",
+    "Q3": "=SUM($A$1:$A$4)=10"
+   }
+  },
+  {
+   "name": "value_edit",
+   "action": "ws.Range(\"A2\").Value = 20",
+   "cells": [
+    "<c r=\"B1\"><f t=\"shared\" ref=\"B1:B3\" si=\"0\">A1*2</f><v>2</v></c>",
+    "<c r=\"C1\"><f>A1*3</f><v>3</v></c>",
+    "<c r=\"G1\"><f>A1</f><v>1</v></c>",
+    "<c r=\"H1\"><f t=\"shared\" ref=\"H1:I2\" si=\"1\">$A1+A$1</f><v>2</v></c>",
+    "<c r=\"I1\"><f t=\"shared\" si=\"1\"/><v>3</v></c>",
+    "<c r=\"B2\"><f t=\"shared\" si=\"0\"/><v>40</v></c>",
+    "<c r=\"C2\"><f t=\"shared\" ref=\"C2:C3\" si=\"2\">A2*3</f><v>60</v></c>",
+    "<c r=\"G2\"><f>A2</f><v>20</v></c>",
+    "<c r=\"H2\"><f t=\"shared\" si=\"1\"/><v>21</v></c>",
+    "<c r=\"I2\"><f t=\"shared\" si=\"1\"/><v>22</v></c>",
+    "<c r=\"B3\"><f t=\"shared\" si=\"0\"/><v>6</v></c>",
+    "<c r=\"C3\"><f t=\"shared\" si=\"2\"/><v>9</v></c>"
+   ],
+   "read": {
+    "B1": "=A1*2=2",
+    "C1": "=A1*3=3",
+    "G1": "=A1=1",
+    "H1": "=$A1+A$1=2",
+    "I1": "=$A1+B$1=3",
+    "B2": "=A2*2=40",
+    "C2": "=A2*3=60",
+    "G2": "=A2=20",
+    "H2": "=$A2+A$1=21",
+    "I2": "=$A2+B$1=22",
+    "B3": "=A3*2=6",
+    "C3": "=A3*3=9"
+   }
+  },
+  {
+   "name": "split_formula",
+   "action": "ws.Range(\"B2\").Formula = \"=A2*5\"",
+   "cells": [
+    "<c r=\"B1\"><f t=\"shared\" ref=\"B1:B3\" si=\"0\">A1*2</f><v>2</v></c>",
+    "<c r=\"C1\"><f>A1*3</f><v>3</v></c>",
+    "<c r=\"G1\"><f>A1</f><v>1</v></c>",
+    "<c r=\"H1\"><f t=\"shared\" ref=\"H1:I2\" si=\"1\">$A1+A$1</f><v>2</v></c>",
+    "<c r=\"I1\"><f t=\"shared\" si=\"1\"/><v>3</v></c>",
+    "<c r=\"B2\"><f>A2*5</f><v>10</v></c>",
+    "<c r=\"C2\"><f t=\"shared\" ref=\"C2:C3\" si=\"2\">A2*3</f><v>6</v></c>",
+    "<c r=\"G2\"><f>A2</f><v>2</v></c>",
+    "<c r=\"H2\"><f t=\"shared\" si=\"1\"/><v>3</v></c>",
+    "<c r=\"I2\"><f t=\"shared\" si=\"1\"/><v>4</v></c>",
+    "<c r=\"B3\"><f t=\"shared\" si=\"0\"/><v>6</v></c>",
+    "<c r=\"C3\"><f t=\"shared\" si=\"2\"/><v>9</v></c>"
+   ],
+   "read": {
+    "B1": "=A1*2=2",
+    "C1": "=A1*3=3",
+    "G1": "=A1=1",
+    "H1": "=$A1+A$1=2",
+    "I1": "=$A1+B$1=3",
+    "B2": "=A2*5=10",
+    "C2": "=A2*3=6",
+    "G2": "=A2=2",
+    "H2": "=$A2+A$1=3",
+    "I2": "=$A2+B$1=4",
+    "B3": "=A3*2=6",
+    "C3": "=A3*3=9"
+   }
+  },
+  {
+   "name": "split_clear",
+   "action": "ws.Range(\"B2\").ClearContents",
+   "cells": [
+    "<c r=\"B1\"><f t=\"shared\" ref=\"B1:B3\" si=\"0\">A1*2</f><v>2</v></c>",
+    "<c r=\"C1\"><f>A1*3</f><v>3</v></c>",
+    "<c r=\"G1\"><f>A1</f><v>1</v></c>",
+    "<c r=\"H1\"><f t=\"shared\" ref=\"H1:I2\" si=\"1\">$A1+A$1</f><v>2</v></c>",
+    "<c r=\"I1\"><f t=\"shared\" si=\"1\"/><v>3</v></c>",
+    "<c r=\"C2\"><f t=\"shared\" ref=\"C2:C3\" si=\"2\">A2*3</f><v>6</v></c>",
+    "<c r=\"G2\"><f>A2</f><v>2</v></c>",
+    "<c r=\"H2\"><f t=\"shared\" si=\"1\"/><v>3</v></c>",
+    "<c r=\"I2\"><f t=\"shared\" si=\"1\"/><v>4</v></c>",
+    "<c r=\"B3\"><f t=\"shared\" si=\"0\"/><v>6</v></c>",
+    "<c r=\"C3\"><f t=\"shared\" si=\"2\"/><v>9</v></c>"
+   ],
+   "read": {
+    "B1": "=A1*2=2",
+    "C1": "=A1*3=3",
+    "G1": "=A1=1",
+    "H1": "=$A1+A$1=2",
+    "I1": "=$A1+B$1=3",
+    "C2": "=A2*3=6",
+    "G2": "=A2=2",
+    "H2": "=$A2+A$1=3",
+    "I2": "=$A2+B$1=4",
+    "B3": "=A3*2=6",
+    "C3": "=A3*3=9"
+   }
+  },
+  {
+   "name": "master_formula",
+   "action": "ws.Range(\"B1\").Formula = \"=A1*7\"",
+   "cells": [
+    "<c r=\"B1\"><f>A1*7</f><v>7</v></c>",
+    "<c r=\"C1\"><f>A1*3</f><v>3</v></c>",
+    "<c r=\"G1\"><f>A1</f><v>1</v></c>",
+    "<c r=\"H1\"><f t=\"shared\" ref=\"H1:I2\" si=\"0\">$A1+A$1</f><v>2</v></c>",
+    "<c r=\"I1\"><f t=\"shared\" si=\"0\"/><v>8</v></c>",
+    "<c r=\"B2\"><f t=\"shared\" ref=\"B1:B3\" si=\"1\">A2*2</f><v>4</v></c>",
+    "<c r=\"C2\"><f t=\"shared\" ref=\"C2:C3\" si=\"2\">A2*3</f><v>6</v></c>",
+    "<c r=\"G2\"><f>A2</f><v>2</v></c>",
+    "<c r=\"H2\"><f t=\"shared\" si=\"0\"/><v>3</v></c>",
+    "<c r=\"I2\"><f t=\"shared\" si=\"0\"/><v>9</v></c>",
+    "<c r=\"B3\"><f t=\"shared\" si=\"1\"/><v>6</v></c>",
+    "<c r=\"C3\"><f t=\"shared\" si=\"2\"/><v>9</v></c>"
+   ],
+   "read": {
+    "B1": "=A1*7=7",
+    "C1": "=A1*3=3",
+    "G1": "=A1=1",
+    "H1": "=$A1+A$1=2",
+    "I1": "=$A1+B$1=8",
+    "B2": "=A2*2=4",
+    "C2": "=A2*3=6",
+    "G2": "=A2=2",
+    "H2": "=$A2+A$1=3",
+    "I2": "=$A2+B$1=9",
+    "B3": "=A3*2=6",
+    "C3": "=A3*3=9"
+   }
+  },
+  {
+   "name": "master_clear",
+   "action": "ws.Range(\"B1\").ClearContents",
+   "cells": [
+    "<c r=\"C1\"><f>A1*3</f><v>3</v></c>",
+    "<c r=\"G1\"><f>A1</f><v>1</v></c>",
+    "<c r=\"H1\"><f t=\"shared\" ref=\"H1:I2\" si=\"0\">$A1+A$1</f><v>2</v></c>",
+    "<c r=\"I1\"><f t=\"shared\" si=\"0\"/><v>1</v></c>",
+    "<c r=\"B2\"><f t=\"shared\" ref=\"B1:B3\" si=\"1\">A2*2</f><v>4</v></c>",
+    "<c r=\"C2\"><f t=\"shared\" ref=\"C2:C3\" si=\"2\">A2*3</f><v>6</v></c>",
+    "<c r=\"G2\"><f>A2</f><v>2</v></c>",
+    "<c r=\"H2\"><f t=\"shared\" si=\"0\"/><v>3</v></c>",
+    "<c r=\"I2\"><f t=\"shared\" si=\"0\"/><v>2</v></c>",
+    "<c r=\"B3\"><f t=\"shared\" si=\"1\"/><v>6</v></c>",
+    "<c r=\"C3\"><f t=\"shared\" si=\"2\"/><v>9</v></c>"
+   ],
+   "read": {
+    "C1": "=A1*3=3",
+    "G1": "=A1=1",
+    "H1": "=$A1+A$1=2",
+    "I1": "=$A1+B$1=1",
+    "B2": "=A2*2=4",
+    "C2": "=A2*3=6",
+    "G2": "=A2=2",
+    "H2": "=$A2+A$1=3",
+    "I2": "=$A2+B$1=2",
+    "B3": "=A3*2=6",
+    "C3": "=A3*3=9"
+   }
+  },
+  {
+   "name": "insert_row",
+   "action": "ws.Rows(2).Insert",
+   "cells": [
+    "<c r=\"B1\"><f t=\"shared\" ref=\"B1:B4\" si=\"0\">A1*2</f><v>2</v></c>",
+    "<c r=\"C1\"><f>A1*3</f><v>3</v></c>",
+    "<c r=\"G1\"><f>A1</f><v>1</v></c>",
+    "<c r=\"H1\"><f t=\"shared\" ref=\"H1:I3\" si=\"1\">$A1+A$1</f><v>2</v></c>",
+    "<c r=\"I1\"><f t=\"shared\" si=\"1\"/><v>3</v></c>",
+    "<c r=\"B3\"><f t=\"shared\" si=\"0\"/><v>4</v></c>",
+    "<c r=\"C3\"><f t=\"shared\" ref=\"C3:C4\" si=\"2\">A3*3</f><v>6</v></c>",
+    "<c r=\"G3\"><f>A3</f><v>2</v></c>",
+    "<c r=\"H3\"><f t=\"shared\" si=\"1\"/><v>3</v></c>",
+    "<c r=\"I3\"><f t=\"shared\" si=\"1\"/><v>4</v></c>",
+    "<c r=\"B4\"><f t=\"shared\" si=\"0\"/><v>6</v></c>",
+    "<c r=\"C4\"><f t=\"shared\" si=\"2\"/><v>9</v></c>"
+   ],
+   "read": {
+    "B1": "=A1*2=2",
+    "C1": "=A1*3=3",
+    "G1": "=A1=1",
+    "H1": "=$A1+A$1=2",
+    "I1": "=$A1+B$1=3",
+    "B3": "=A3*2=4",
+    "C3": "=A3*3=6",
+    "G3": "=A3=2",
+    "H3": "=$A3+A$1=3",
+    "I3": "=$A3+B$1=4",
+    "B4": "=A4*2=6",
+    "C4": "=A4*3=9"
+   }
+  },
+  {
+   "name": "delete_row",
+   "action": "ws.Rows(2).Delete",
+   "cells": [
+    "<c r=\"B1\"><f t=\"shared\" ref=\"B1:B2\" si=\"0\">A1*2</f><v>2</v></c>",
+    "<c r=\"C1\"><f>A1*3</f><v>3</v></c>",
+    "<c r=\"G1\"><f>A1</f><v>1</v></c>",
+    "<c r=\"H1\"><f t=\"shared\" ref=\"H1:I1\" si=\"1\">$A1+A$1</f><v>2</v></c>",
+    "<c r=\"I1\"><f t=\"shared\" si=\"1\"/><v>3</v></c>",
+    "<c r=\"B2\"><f t=\"shared\" si=\"0\"/><v>6</v></c>",
+    "<c r=\"C2\"><f t=\"shared\" ref=\"C2\" si=\"2\">A2*3</f><v>9</v></c>"
+   ],
+   "read": {
+    "B1": "=A1*2=2",
+    "C1": "=A1*3=3",
+    "G1": "=A1=1",
+    "H1": "=$A1+A$1=2",
+    "I1": "=$A1+B$1=3",
+    "B2": "=A2*2=6",
+    "C2": "=A2*3=9"
+   }
+  },
+  {
+   "name": "rewrite",
+   "action": "ws.Range(\"B1:B3\").Formula = \"=A1*2\"",
+   "cells": [
+    "<c r=\"B1\"><f t=\"shared\" ref=\"B1:B3\" si=\"0\">A1*2</f><v>2</v></c>",
+    "<c r=\"C1\"><f>A1*3</f><v>3</v></c>",
+    "<c r=\"G1\"><f>A1</f><v>1</v></c>",
+    "<c r=\"H1\"><f t=\"shared\" ref=\"H1:I2\" si=\"1\">$A1+A$1</f><v>2</v></c>",
+    "<c r=\"I1\"><f t=\"shared\" si=\"1\"/><v>3</v></c>",
+    "<c r=\"B2\"><f t=\"shared\" si=\"0\"/><v>4</v></c>",
+    "<c r=\"C2\"><f t=\"shared\" ref=\"C2:C3\" si=\"2\">A2*3</f><v>6</v></c>",
+    "<c r=\"G2\"><f>A2</f><v>2</v></c>",
+    "<c r=\"H2\"><f t=\"shared\" si=\"1\"/><v>3</v></c>",
+    "<c r=\"I2\"><f t=\"shared\" si=\"1\"/><v>4</v></c>",
+    "<c r=\"B3\"><f t=\"shared\" si=\"0\"/><v>6</v></c>",
+    "<c r=\"C3\"><f t=\"shared\" si=\"2\"/><v>9</v></c>"
+   ],
+   "read": {
+    "B1": "=A1*2=2",
+    "C1": "=A1*3=3",
+    "G1": "=A1=1",
+    "H1": "=$A1+A$1=2",
+    "I1": "=$A1+B$1=3",
+    "B2": "=A2*2=4",
+    "C2": "=A2*3=6",
+    "G2": "=A2=2",
+    "H2": "=$A2+A$1=3",
+    "I2": "=$A2+B$1=4",
+    "B3": "=A3*2=6",
+    "C3": "=A3*3=9"
+   }
+  },
+  {
+   "name": "extend_fill",
+   "action": "ws.Range(\"B3\").AutoFill ws.Range(\"B3:B4\")",
+   "cells": [
+    "<c r=\"B1\"><f t=\"shared\" ref=\"B1:B4\" si=\"0\">A1*2</f><v>2</v></c>",
+    "<c r=\"C1\"><f>A1*3</f><v>3</v></c>",
+    "<c r=\"G1\"><f>A1</f><v>1</v></c>",
+    "<c r=\"H1\"><f t=\"shared\" ref=\"H1:I2\" si=\"1\">$A1+A$1</f><v>2</v></c>",
+    "<c r=\"I1\"><f t=\"shared\" si=\"1\"/><v>3</v></c>",
+    "<c r=\"B2\"><f t=\"shared\" si=\"0\"/><v>4</v></c>",
+    "<c r=\"C2\"><f t=\"shared\" ref=\"C2:C3\" si=\"2\">A2*3</f><v>6</v></c>",
+    "<c r=\"G2\"><f>A2</f><v>2</v></c>",
+    "<c r=\"H2\"><f t=\"shared\" si=\"1\"/><v>3</v></c>",
+    "<c r=\"I2\"><f t=\"shared\" si=\"1\"/><v>4</v></c>",
+    "<c r=\"B3\"><f t=\"shared\" si=\"0\"/><v>6</v></c>",
+    "<c r=\"C3\"><f t=\"shared\" si=\"2\"/><v>9</v></c>",
+    "<c r=\"B4\"><f t=\"shared\" si=\"0\"/><v>8</v></c>"
+   ],
+   "read": {
+    "B1": "=A1*2=2",
+    "C1": "=A1*3=3",
+    "G1": "=A1=1",
+    "H1": "=$A1+A$1=2",
+    "I1": "=$A1+B$1=3",
+    "B2": "=A2*2=4",
+    "C2": "=A2*3=6",
+    "G2": "=A2=2",
+    "H2": "=$A2+A$1=3",
+    "I2": "=$A2+B$1=4",
+    "B3": "=A3*2=6",
+    "C3": "=A3*3=9",
+    "B4": "=A4*2=8"
+   }
+  }
+ ]
+}

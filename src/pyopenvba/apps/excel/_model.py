@@ -104,6 +104,8 @@ class Cell:
     style: Style | None = None
     #: The xf the cell was read with, which a save keeps while the format is unchanged.
     xf: int = -1
+    #: The shared formula the cell's formula belongs to, a key of its sheet's shared_groups; None for its own.
+    shared: int | None = None
 
     @property
     def number_format(self) -> str:
@@ -766,6 +768,9 @@ class Worksheet(ExcelObject):
         self.book = book
         self.name = name
         self.cells_: dict[tuple[int, int], Cell] = {}
+        #: The shared formulas: each one's block, which moves with inserts and deletes as a reference does,
+        #: by the key its cells' Cell.shared holds (see _shared).
+        self.shared_groups: dict[int, Area] = {}
         self.merged_areas: list[Area] = []
         self.merges_dirty = False
         self.visible = -1  # xlSheetVisible
@@ -1499,6 +1504,7 @@ class Range(ExcelObject):
                 self._type_into(row, column, value)
         if spelled is not None:
             self._bring_format(placed, spelled, anchor.top, anchor.left)
+            self._share(placed, spelled)
 
     @member
     def HasFormula(self) -> object:
@@ -1563,6 +1569,7 @@ class Range(ExcelObject):
                 placed.append((row, column))
         if first is not None:
             self._bring_format(placed, *first)
+            self._share(placed, first[0])
 
     def _write_formula_array(self, array: VBAArray, *, r1c1: bool) -> None:
         from pyopenvba.formula._values import NA
@@ -2307,12 +2314,22 @@ class Range(ExcelObject):
             for tile_column in range(target.left, right + 1, area.columns):
                 for (down, across), source in sources.items():
                     copy = Cell(**{field_.name: getattr(source, field_.name) for field_ in _CELL_FIELDS})
+                    copy.shared = None
                     if copy.formula:
                         copy.formula = shift_text(formulas.get((down, across), copy.formula), tile_row - area.top, tile_column - area.left)
                         copy.stale = True
                         copy.value = EMPTY
                     Destination.sheet.cells_[(tile_row + down, tile_column + across)] = copy
                     Destination.sheet.settle(tile_row + down, tile_column + across)
+        lone = sources.get((0, 0))
+        if area.rows == area.columns == 1 and lone is not None and lone.formula and rows * columns > 1:
+            from pyopenvba.apps.excel import _shared
+
+            # One cell's formula copied over a block is one shared formula there, as Excel keeps it.
+            if _shared.shares(lone.formula):
+                _shared.group(Destination.sheet, written, [
+                    Destination.sheet.cells_[(row, column)] for row in range(written.top, written.bottom + 1)
+                    for column in range(written.left, written.right + 1)])
         # A position that showed its row's or column's format keeps showing it where the destination's differs.
         for plan in shown:
             for (row, column), style in plan:
@@ -2702,8 +2719,19 @@ class Range(ExcelObject):
         cell.formula = formula
         cell.stale = True
         cell.value = EMPTY
+        cell.shared = None
         self.sheet.cell_changed(row, column)
         return True
+
+    def _share(self, placed: list[tuple[int, int]], formula: str) -> None:
+        """Make a formula written to a whole block at once one shared formula over the block, as Excel keeps it."""
+        from pyopenvba.apps.excel import _shared
+
+        area = self.first
+        if len(self.areas) != 1 or len(placed) < 2 or len(placed) != area.rows * area.columns \
+                or not _shared.shares(formula):
+            return
+        _shared.group(self.sheet, area, [self.sheet.cells_[position] for position in placed])
 
     def _bring_format(self, placed: list[tuple[int, int]], formula: str, row: int, column: int) -> None:
         """Give the cells a formula was just written to the number format it brings, where they are General.
@@ -2741,6 +2769,7 @@ class Range(ExcelObject):
         cell.value = result.value
         cell.formula = ""
         cell.stale = False
+        cell.shared = None
         changed = style
         if result.number_format is not None:
             changed = applying(changed, "number_format", number_format=result.number_format)

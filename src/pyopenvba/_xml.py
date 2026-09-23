@@ -45,6 +45,11 @@ def escape(text: str) -> str:
     )
 
 
+def escape_text(text: str) -> str:
+    """Text between tags as Excel spells it in a cell's formula and value: a quote left as it is."""
+    return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
+
 def attributes(element: str) -> dict[str, str]:
     """The attributes of one element, in whatever order they were written.
 

@@ -523,6 +523,15 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- A workbook Excel saved with a formula filled down, copied or written
+  to a block reads with every cell's formula. Excel stores such a block
+  as one shared formula whose other cells only point at the first; the
+  model read those cells as the values they last showed, so they never
+  changed again. A save now writes shared formulas as Excel does: over
+  the block a macro writes, fills or copies a formula to, kept through
+  edits, inserts and deletes as Excel keeps them, and numbered as Excel
+  numbers them. A formula's text and value keep a quote as it is, as
+  Excel writes them. 12 workbooks saved by Excel pin it.
 - A formula written to a General cell takes the number format Excel
   gives it, as it is written: `=A1+30` on a date is a date, so its Value
   reads back as a Date rather than a Double. A reference brings its

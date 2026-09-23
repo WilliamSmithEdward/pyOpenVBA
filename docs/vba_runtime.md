@@ -1070,6 +1070,17 @@ nothing is written from the template captured from a freshly
 Excel-authored file; Word and PowerPoint have no such template yet, so
 a document or a presentation is edited rather than created.
 
+A formula written to a block at once is a shared formula in the file,
+as Excel stores it (`tests/fixtures/formula_storage/`, 12 workbooks
+Excel saved): the block's first cell carries the formula and the others
+point at it. Formula, FormulaR1C1 and Value make one over the block
+written, unless the formula names no cell; AutoFill, FillDown and Copy
+from one cell make one over the new cells, and a fill from a shared
+formula's cell joins it and stretches its block. A cell rewritten or
+cleared leaves the group while the block stays; inserting and deleting
+rows and columns move the block as they move a reference. Reading such
+a file gives every cell of the block its own formula to work out.
+
 ## What is not
 
 - **Array formulas do not spill.** An array result lands in the one cell

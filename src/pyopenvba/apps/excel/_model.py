@@ -1193,7 +1193,8 @@ class Range(ExcelObject):
         # Reading what a cell shows calculates it first, as looking at
         # one in Excel does.
         self._read(self.first.top, self.first.left)
-        return _display_text(cell)
+        dims = self.sheet.dims
+        return _display_text(cell, _dimensions.characters_read(dims.column_shown_pixels(self.first.left)))
 
     @member
     def Formula(self) -> object:
@@ -2520,6 +2521,28 @@ class WorksheetFunction(ExcelObject):
         return " ".join(to_text(Arg1).split())
 
     @method
+    def Text(self, Arg1: object = MISSING, Arg2: object = MISSING) -> object:
+        """A value through a number format, as the TEXT function shows it; what it cannot show is error 1004."""
+        from pyopenvba.formula._display import UndisplayableError, format_value
+        from pyopenvba.formula._values import text_as_number
+
+        value = Arg1.vba_value() if isinstance(Arg1, VBAObject) else Arg1
+        if isinstance(value, VBADate):
+            value = value.serial
+        elif value is EMPTY:
+            value = 0.0
+        elif isinstance(value, str):
+            # Text that reads as a number is formatted as the number, as TEXT does.
+            number = text_as_number(value)
+            value = value if number is None else number
+        elif not isinstance(value, bool):
+            value = float(to_number(value))
+        try:
+            return format_value(value, to_text(Arg2))
+        except UndisplayableError:
+            raise error(1004, "Unable to get the Text property of the WorksheetFunction class") from None
+
+    @method
     def Proper(self, Arg1: object = MISSING) -> object:
         return to_text(Arg1).title()
 
@@ -2586,27 +2609,33 @@ def _same(left: object, right: object) -> bool:
 # --- helpers ----------------------------------------------------------------------------------------
 
 
-def _display_text(cell: Cell) -> str:
-    """What the cell shows, which is its value through its number format."""
-    from pyopenvba.apps.excel._number_format import general_text
+def _display_text(cell: Cell, characters: float) -> str:
+    """What the cell shows: its value through its number format, in a column ``characters`` wide.
+
+    A value its format cannot show, a date before 1900 say, fills the
+    column with as many # as it is characters wide (measured at 40 and 60).
+    What a ``*`` fill pads the cell with depends on its width in pixels and
+    the font's, which is not modelled, and neither is a value too wide for
+    its column, which Excel shows as # or with fewer digits.
+    """
+    from pyopenvba.formula._display import UndisplayableError, shown
     from pyopenvba.formula._values import ExcelError
 
-    if cell.stale:
+    value = cell.value.serial if isinstance(cell.value, VBADate) else cell.value
+    if cell.stale or value is EMPTY:
         return ""
-    if isinstance(cell.value, ExcelError):
-        return cell.value.name
-    if cell.number_format in ("General", "", "@") or cell.value is EMPTY:
-        if cell.value is EMPTY:
-            return ""
-        if isinstance(cell.value, bool):
-            return "TRUE" if cell.value else "FALSE"
-        if isinstance(cell.value, (int, float)):
-            return general_text(float(cell.value))
-        return to_text(cell.value)
-    from pyopenvba.access._format import format_value
-
-    value = cell.value.to_datetime() if isinstance(cell.value, VBADate) else cell.value
-    return format_value(value, cell.number_format)
+    if isinstance(value, ExcelError):
+        return value.name
+    if not isinstance(value, (bool, str, int, float)):
+        return to_text(value)
+    try:
+        text, fills = shown(value, cell.number_format)
+    except UndisplayableError:
+        return "#" * int(characters)
+    if fills:
+        raise VBAUnsupportedError("what a number format with a * fill shows depends on the cell's width in pixels, "
+                                  "which pyOpenVBA does not model")
+    return text
 
 
 def _formula_text(value: object) -> str:

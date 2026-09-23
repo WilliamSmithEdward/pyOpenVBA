@@ -38,8 +38,9 @@ import datetime as _dt
 import math
 import re
 from dataclasses import dataclass
-from decimal import ROUND_HALF_UP, Decimal
+from decimal import Decimal
 
+from pyopenvba.formula._display import format_value
 from pyopenvba.formula._values import ERRORS, ExcelError
 from pyopenvba.interpreter._values import EMPTY, VBACurrency, VBADate, VBAErrorValue, error
 
@@ -168,7 +169,7 @@ def _as_text(value: object) -> Typed:
         return Typed(_date_text(value.serial))
     if isinstance(value, VBACurrency):
         # The cell takes the Currency's format as well, which no other write to a Text cell does.
-        return Typed(_currency_text(value), CURRENCY_VALUE)
+        return Typed(format_value(float(value), CURRENCY_VALUE), CURRENCY_VALUE)
     return _typed(value, fractions=False)
 
 
@@ -180,34 +181,8 @@ def _date_text(serial: float) -> str:
     seconds = round((serial - day) * 86400)
     if seconds >= 86400:
         day, seconds = day + 1, 0
-    if not day:
-        return _clock_text(seconds)
-    year, month, date = excel_date(day)
-    text = f"{month}/{date}/{year}"
-    return f"{text}  {_clock_text(seconds)}" if seconds else text
-
-
-def _clock_text(seconds: int) -> str:
-    hours, rest = divmod(seconds, 3600)
-    minutes, second = divmod(rest, 60)
-    return f"{hours % 12 or 12}:{minutes:02d}:{second:02d} {'AM' if hours < 12 else 'PM'}"
-
-
-def _currency_text(amount: Decimal) -> str:
-    """A Currency through $#,##0.00_);($#,##0.00), as a Text cell keeps it."""
-    cents = amount.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
-    body = f"${abs(cents):,.2f}"
-    return f"({body})" if cents < 0 else f"{body} "
-
-
-def excel_date(day: int) -> tuple[int, int, int]:
-    """A serial day on Excel's 1900 calendar, which counts a 29 February 1900 and a day 0 of January."""
-    if day == 60:
-        return 1900, 2, 29
-    if day == 0:
-        return 1900, 1, 0
-    when = _dt.date(1899, 12, 30) + _dt.timedelta(days=day + 1 if day < 60 else day)
-    return when.year, when.month, when.day
+    code = "h:mm:ss AM/PM" if not day else "m/d/yyyy  h:mm:ss AM/PM" if seconds else "m/d/yyyy"
+    return format_value(serial, code)
 
 
 def _serial(year: int, month: int, day: int) -> float | None:

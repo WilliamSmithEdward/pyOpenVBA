@@ -1149,20 +1149,23 @@ def fn_value(context: Context, args: list[Any]) -> object:
 
 @function("TEXT")
 def fn_text_function(context: Context, args: list[Any]) -> object:
-    from pyopenvba.access._format import format_value
+    """A value through a number format, as Excel's formats show it; one the format cannot show is #VALUE!."""
+    from pyopenvba.formula._display import UndisplayableError, format_value
 
     value = _one(args, 0, BLANK)
     pattern = as_text(_one(args, 1, BLANK))
     if value is BLANK:
         value = 0.0
-    if _is_date_pattern(pattern):
-        return format_value(_as_datetime(as_number(value)), pattern)
-    return format_value(as_number(value) if not isinstance(value, str) else value, pattern)
-
-
-def _is_date_pattern(pattern: str) -> bool:
-    body = re.sub(r'"[^"]*"', "", pattern)
-    return any(char in body for char in "ymdhs")
+    if isinstance(value, str):
+        # Text that reads as a number is formatted as the number.
+        number = text_as_number(value)
+        value = value if number is None else number
+    elif not isinstance(value, bool):
+        value = as_number(value)
+    try:
+        return format_value(value, pattern)
+    except UndisplayableError:
+        raise VALUE from None
 
 
 @function("T")

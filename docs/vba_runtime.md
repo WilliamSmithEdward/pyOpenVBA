@@ -454,9 +454,27 @@ saved (`tests/fixtures/typing/`).
 * `NumberFormat` keeps a code as Excel rewrites it, and the file spells
   it as Excel's file does (`tests/fixtures/format_codes/`). `Formula`
   spells a stored number as Excel does, and `Text` under General shows
-  what Excel's eleven characters show (`tests/fixtures/number_spelling.json`);
-  what `Text` shows through other formats is Excel's number-format
-  engine, which the model does not have yet.
+  what Excel's eleven characters show (`tests/fixtures/number_spelling.json`).
+
+**Number formats.** `Range.Text`, the `TEXT` function and
+`WorksheetFunction.Text` show a value through Excel's own number-format
+rules: 156 codes through 28 values in live Excel pin them
+(`tests/fixtures/number_formats.json`), every one reproduced.
+
+* Sections for positive, negative, zero and text, and conditions such as
+  `[>=100]`; a negative number that rounds to nothing loses its minus,
+  except in a mixed fraction.
+* Digits round half away from zero from fifteen significant digits;
+  thousands commas group, a trailing comma divides by 1,000, `%`
+  multiplies; exponents step in multiples of the whole placeholders.
+* A fraction is the last continued-fraction convergent that fits, worked
+  out in double arithmetic, so 0.5625 over one digit is 4/7.
+* Dates and times run on Excel's 1900 calendar with its 29 February, and
+  a time rounds in double arithmetic to the unit shown; a serial outside
+  1900 to 9999 fills the cell with `#` and makes `TEXT` an error.
+* What a `*` fill pads a cell with depends on its width in pixels, and
+  `Text` says it cannot tell; a value too wide for its column, which
+  Excel shows as `#` or with fewer digits, is not modelled.
 
 **Row and column formats.** Formatting a range that spans every column
 formats its rows, one that spans every row formats its columns, and the

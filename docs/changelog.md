@@ -32,6 +32,17 @@ All notable changes to pyOpenVBA are documented here. This project follows
 - `Range.Text` under General shows what Excel's eleven characters show:
   the number in full while it fits, else rounded or given an exponent,
   whichever keeps more digits.
+- Excel's number-format engine behind `Range.Text`, the `TEXT` function
+  and the new `WorksheetFunction.Text`: sections and conditions, digit
+  placeholders, grouping and scaling commas, percent, exponents,
+  fractions, text sections, dates and times on Excel's 1900 calendar,
+  and elapsed times. 156 codes through 28 values in live Excel are
+  reproduced exactly. A value its format cannot show fills the cell with
+  `#` as wide as the column, and makes `TEXT` an error. A format with a
+  `*` fill reports itself unsupported in `Range.Text`, since what it pads
+  the cell with depends on the width in pixels. Before, both went
+  through Access's `Format`, which spelled `$#,##0_)` as `$5_)`, fractions
+  as `2 ?/?` and `[h]:mm:ss` as `[1]:00:00`.
 - Rows grow with their borders as Excel's do. A medium line along a row's
   bottom edge draws it a pixel taller; a thick or double line draws the
   row below a pixel taller too; and a save writes the `thickBot` and

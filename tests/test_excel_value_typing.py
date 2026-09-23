@@ -12,10 +12,10 @@ how far a typed time and fraction may run, and how Excel rewrites a
 number format it is given. Each probe is rebuilt from its record, run
 once in the model, and compared read by read.
 
-Range.Text is left out of these comparisons: what a cell shows through a
-format is Excel's number-format engine, which the model does not have
-yet, so the replay reads a placeholder where the probe read Text.
-Everything else a probe read is compared exactly.
+Every read is compared exactly, Range.Text included, except Text through
+a format with a ``*`` fill: what that shows depends on the cell's width in
+pixels, which the model reports it cannot tell, so the replay reads a
+placeholder there instead.
 """
 
 from __future__ import annotations
@@ -31,6 +31,7 @@ from typing import Any
 import pytest
 
 from pyopenvba.apps.excel import ExcelApplication, _typing
+from pyopenvba.formula._display import tokens
 
 FIXTURES = Path(__file__).parent / "fixtures"
 TYPING: dict[str, Any] = json.loads((FIXTURES / "value_typing.json").read_text(encoding="utf-8"))
@@ -39,14 +40,22 @@ SAVED: dict[str, Any] = json.loads((FIXTURES / "typing" / "typing.json").read_te
 STEP = "^"
 
 
-def _read_lines(expressions: list[str]) -> list[str]:
+#: What the replay reads in place of Range.Text through a filled format; the comparison drops it on both sides.
+_PLACEHOLDER = "String:(text)"
+
+
+def _read_lines(expressions: list[str], *, text: bool = True) -> list[str]:
     lines: list[str] = []
     for expression in expressions:
-        # Range.Text waits on the number-format engine; the comparison drops it on both sides.
-        read = '"(text)"' if expression == "c.Text" else expression
+        read = '"(text)"' if expression == "c.Text" and not text else expression
         lines += ["Err.Clear", "v = Empty", f"v = {read}",
                   'If Err.Number <> 0 Then out = out & "E" & Err.Number & ";" Else out = out & Show(v) & ";"']
     return lines
+
+
+def _fills(code: str) -> bool:
+    """Whether a code pads a cell with a * fill, which makes Range.Text depend on the cell's width in pixels."""
+    return any(kind == "pair" and text[0] == "*" for kind, text in tokens(code))
 
 
 def _vba_text(text: str) -> str:
@@ -81,7 +90,7 @@ def _typing_module(record: dict[str, Any]) -> str:
         for value in record["format_values"]:
             lines += ["c.Clear", "Err.Clear", f"c.Value = {value}", f"c.NumberFormat = {_vba_text(case['code'])}",
                       'If Err.Number <> 0 Then out = out & "S" & Err.Number & ";"',
-                      *_read_lines(record["format_reads"]), f'out = out & "{STEP}"']
+                      *_read_lines(record["format_reads"], text=not _fills(case["code"])), f'out = out & "{STEP}"']
         body += _function(f"Format{index}", lines)
     head.append('out = out & "~PRESETS~"')
     for index, case in enumerate(record["presets"]):
@@ -216,13 +225,11 @@ def _reads(answer: str) -> list[str]:
     return parts
 
 
-def _without_text(answer: str, reads: list[str]) -> list[str]:
-    """A step's reads, less what Range.Text showed."""
+def _split(answer: str, reads: list[str]) -> tuple[list[str], list[str]]:
+    """A step's answer as the failure of its write, if any, and one answer per read."""
     parts = _reads(answer)
     failed = [parts.pop(0)] if parts and re.fullmatch(r"S\d+", parts[0]) and len(parts) > len(reads) else []
-    if "c.Text" in reads and len(parts) == len(reads):
-        parts.pop(reads.index("c.Text"))
-    return failed + parts
+    return failed, parts
 
 
 def _steps(answer: str) -> list[str]:
@@ -231,9 +238,13 @@ def _steps(answer: str) -> list[str]:
 
 def _compare(excel: list[str], model: list[str], reads: list[str]) -> Iterator[tuple[int, list[str], list[str]]]:
     for index, (want, got) in enumerate(zip(excel, model, strict=True)):
-        wanted, found = _without_text(want, reads), _without_text(got, reads)
-        if wanted != found:
-            yield index, wanted, found
+        (failed, wanted), (missed, found) = _split(want, reads), _split(got, reads)
+        if "c.Text" in reads and len(found) == len(reads) and found[reads.index("c.Text")] == _PLACEHOLDER:
+            # The model read a placeholder where Text depends on the width: compare the rest.
+            wanted = [part for position, part in enumerate(wanted) if position != reads.index("c.Text")]
+            found = [part for position, part in enumerate(found) if position != reads.index("c.Text")]
+        if failed + wanted != missed + found:
+            yield index, failed + wanted, missed + found
 
 
 @pytest.mark.parametrize("index", range(len(TYPING["cases"])), ids=[case["text"] for case in TYPING["cases"]])

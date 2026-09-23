@@ -459,3 +459,28 @@ Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").For
 Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1").FormulaArray = "=A1:A3" ;; Range("C1").NumberFormat
 Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10": Range("C1:C3").Copy Range("E1") ;; Range("E2").HasArray & "|" & Range("E2").Value
 Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10": Range("C2").Copy Range("E1") ;; Range("E1").HasArray & "|" & Range("E1").Formula
+
+# --- CallByName: a member named at run time ---
+Range("A1").Value = 5 ;; CallByName(Range("A1"), "Value", VbGet)
+Range("A1").Value = 5 ;; CallByName(Range("A1"), "vALUE", VbGet)
+CallByName Range("A1"), "Value", VbLet, 42 ;; Range("A1").Value
+;; CallByName(Range("A1"), "Offset", VbGet, 1, 2).Address
+;; CallByName(ActiveSheet, "Range", VbGet, "B2").Address
+;; CallByName(ActiveSheet, "Range", VbMethod, "B2:C3").Address
+;; CallByName(Range("A1"), "Nope", VbGet)
+;; CallByName(Range("A1"), "Value", 3)
+;; CallByName(Range("A1"), "Value", 16)
+;; CallByName(Nothing, "Value", VbGet)
+;; CallByName(5, "Value", VbGet)
+;; CallByName("text", "Len", VbGet)
+CallByName Range("A1").Font, "Bold", VbLet, True ;; Range("A1").Font.Bold
+Range("A1").Value = 5: CallByName Range("A1"), "ClearContents", VbMethod ;; IsEmpty(Range("A1").Value)
+;; TypeName(CallByName(Range("A1"), "ClearContents", VbMethod))
+Dim c As New Collection: CallByName c, "Add", VbMethod, "x": CallByName c, "Add", VbMethod, "y" ;; c.Count & "|" & CallByName(c, "Item", VbMethod, 2)
+;; CallByName(Range("A1:B2"), "Count", VbGet)
+;; TypeName(CallByName(Range("A1"), "Font", VbGet))
+;; CallByName(Range("A1"), "Value", VbSet, 1)
+;; CallByName(Application, "Name", VbGet)
+;; CallByName(Range("A1"), "Address", VbGet, False, False)
+Range("A1").Value = 5 ;; CallByName(Range("A1"), "Value", VbMethod)
+;; CallByName(Range("A1"), "Offset", VbGet)

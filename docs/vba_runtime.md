@@ -258,7 +258,10 @@ a built-in function or an object's member leaves it alone.
 **The runtime library.** The conversion, maths, string, date, array and
 information functions, `Format` (shared with the Access engine, which is
 the same function in Office), `MsgBox` and `InputBox`, and the financial
-functions that are closed forms.
+functions that are closed forms. `CallByName` reaches a member named at
+run time as Excel's VBA does: VbGet reads a property and passes the
+arguments, VbLet sets one, and VbMethod on a host object's property, or
+VbSet with a value, is error 438.
 
 `MsgBox` does not block.  It records the message and answers from a
 queue the caller primed, so a macro that would have stopped for a prompt

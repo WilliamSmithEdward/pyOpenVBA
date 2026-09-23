@@ -400,6 +400,14 @@ class Collection(VBACollection):
     def vba_lookup(self, index: object, items: list[object]) -> object:
         return self._items[self._position(index) - 1]
 
+    @method(default=True)
+    def Item(self, Index: object = MISSING) -> object:
+        """A method in VBA's Collection, where a host's collections have a property: CallByName(c, "Item",
+        VbMethod, 2) reaches it (tests/fixtures/excel_model/probes.txt)."""
+        if Index is MISSING:
+            raise error(449)
+        return self.vba_lookup(Index, self._items)
+
     def describe(self, indent: str = "") -> str:
         return f"{indent}Collection ({len(self._items)} items)"
 

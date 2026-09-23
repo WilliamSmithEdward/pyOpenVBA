@@ -157,6 +157,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
   ordinary one, and a save of the sheet lost the array. 78 cases and 4
   workbooks in live Excel pin it. Copying part of an array, and filling,
   sorting, replacing or removing duplicates in one, report themselves.
+- `CallByName`, a member named at run time: VbGet reads a property and
+  passes its arguments, VbLet sets one, VbMethod calls a method, and
+  VbMethod on a host object's property, VbSet with a value, or a call
+  type with none of the four is error 438, as 24 probes in live Excel
+  show. `Collection.Item` is a method, as VBA's own Collection has it.
 - Data validation: `Range.Validation` and the Validation object --
   `Add`, `Modify`, `Delete`, every setting and message, and `Value`,
   which checks the cell's value against its rule as Excel does. Rules

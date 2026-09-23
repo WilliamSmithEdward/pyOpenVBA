@@ -93,7 +93,6 @@ UNIMPLEMENTED: Final[dict[str, str]] = {
     "command": "reads the command line Office was started with",
     "environ": "reads the machine's environment",
     "doevents": "yields to a message pump this does not have",
-    "callbyname": "calls a member by a name computed at run time",
     "getobject": "attaches to a running application",
     "erl": "reports the last numbered line",
     "rate": "is an iterative financial solver",
@@ -146,6 +145,43 @@ def _unimplemented(name: str, reason: str) -> Intrinsic:
 
 for _name, _reason in UNIMPLEMENTED.items():
     INTRINSICS[_name] = _unimplemented(_name, _reason)
+
+
+#: CallByName's CallType: VbMethod, VbGet, VbLet and VbSet, which may be added together.
+_METHOD, _GET, _LET, _SET = 1, 2, 4, 8
+
+
+def _call_by_name(interpreter: Interpreter, args: list[object], named: dict[str, object]) -> object:
+    """CallByName(Object, ProcName, CallType, Args...): a member named at run time.
+
+    Measured in live Excel (tests/fixtures/excel_model/probes.txt): a name
+    found in any case; VbGet reads a property and passes the arguments,
+    VbLet sets one to the last argument; VbMethod on a property of a
+    host object is error 438, as VbSet with a value is, and so is a
+    CallType with none of the four in it; Nothing is error 5.
+    """
+    if named:
+        raise error(446, "CallByName takes no named arguments")
+    if len(args) < 3:
+        raise error(449, "CallByName needs an object, a name and a call type")
+    target, name, kind = args[0], to_text(args[1]), int(to_integer(args[2], "Long"))
+    rest = list(args[3:])
+    if target is NOTHING:
+        raise error(5, "Invalid procedure call or argument")
+    if not isinstance(target, VBAObject):
+        raise error(424, "Object required")
+    spec = target.vba_member(name)
+    if kind & (_LET | _SET):
+        if not rest or (kind & _SET and not isinstance(rest[-1], VBAObject) and rest[-1] is not NOTHING):
+            raise error(438, f"{target.vba_type_name} has no such member as {name}")
+        target.vba_set(name, rest[-1], rest[:-1], {}, by_ref=bool(kind & _SET))
+        return EMPTY
+    if not kind & (_METHOD | _GET) or (kind == _METHOD and spec is not None and spec.kind != "method"):
+        raise error(438, f"{target.vba_type_name} has no such member as {name}")
+    return target.vba_get(name, rest, {})
+
+
+INTRINSICS["callbyname"] = _call_by_name
 
 
 # --- conversion ---------------------------------------------------------------------

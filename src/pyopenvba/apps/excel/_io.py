@@ -1126,7 +1126,7 @@ def _patched_sheet(sheet: Worksheet, original: str, package: OpcFile) -> str:
     stylesheet = sheet.book.stylesheet
     for row in set(rows) | set(by_row):
         rows[row] = _row_with_cells(rows.get(row, f'<row r="{row}"></row>'), row, by_row.get(row, []), stylesheet)
-    for row in sheet.dims.rows:
+    for row in set(sheet.dims.rows) | sheet.dims.shaped_rows():
         rows.setdefault(row, f'<row r="{row}"/>')
     rebuilt = _rows_as_excel_writes_them(sheet, original, rows)
     patched = original[: match.start()] + f"<sheetData>{rebuilt}</sheetData>" + original[match.end() :]

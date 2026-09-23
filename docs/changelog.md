@@ -7,6 +7,15 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Rows grow with their borders as Excel's do. A medium line along a row's
+  bottom edge draws it a pixel taller; a thick or double line draws the
+  row below a pixel taller too; and a save writes the `thickBot` and
+  `thickTop` flags, the height and the deeper descent Excel writes, on
+  the rows and on the sheet's standard row when column formats carry the
+  lines. Where lines of both weights meet along one edge, the first cell
+  along the row with one decides, as in Excel. 39 cases of live Excel pin
+  the answers, one of them Excel's answer for a border along a hidden
+  row, which the model reports it cannot tell.
 - Row, column and sheet-wide formats as Excel keeps them. Formatting a
   range that spans every column formats its rows, one that spans every
   row its columns, and the whole sheet every column. Each row and column

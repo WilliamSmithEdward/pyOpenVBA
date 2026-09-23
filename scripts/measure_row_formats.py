@@ -66,6 +66,18 @@ def heights(*rows: int) -> list[str]:
     return [*(f"ws.Rows({row}).RowHeight" for row in rows), "ws.StandardHeight"]
 
 
+#: The file's border styles, as the LineStyle and Weight a macro sets for each.
+LINE_WEIGHTS = {"hair": (1, 1), "thin": (1, 2), "medium": (1, -4138), "thick": (1, 4), "dashed": (-4115, 2),
+                "mediumDashed": (-4115, -4138), "mediumDashDot": (4, -4138), "mediumDashDotDot": (5, -4138),
+                "double": (-4119, 4), "slantDashDot": (13, -4138)}
+
+
+def line_edge(reference: str, which: str, style: str) -> str:
+    """Set one border of a range to one of the file's styles."""
+    line, weight = LINE_WEIGHTS[style]
+    return f"{at(reference)}.Borders({which}).LineStyle = {line}\n{at(reference)}.Borders({which}).Weight = {weight}"
+
+
 C2 = at("B2")
 
 #: name -> (setup, reads). Every setup works on ws, the case's own sheet.
@@ -293,6 +305,58 @@ CASES: dict[str, tuple[str, list[str]]] = {
     "row_style_rows_all_height": ('ws.Rows("1:1048576").RowHeight = 20\nws.Rows(3).Font.Bold = True', heights(3)),
     "unmeasured_row_column_mix": ('ws.Rows(2).Font.Name = "Arial"\nws.Columns(3).Font.Name = "Times New Roman"',
                                   heights(2)),
+    # --- borders that make rows taller ---------------------------------------------------------------
+    **{f"edge_bottom_{style}": (line_edge("B2", "xlEdgeBottom", style), heights(1, 2, 3, 4))
+       for style in ("thin", "medium", "thick", "double", "mediumDashed", "mediumDashDot", "mediumDashDotDot",
+                     "slantDashDot", "dashed", "hair")},
+    "edge_top_double": (line_edge("B3", "xlEdgeTop", "double"), heights(1, 2, 3, 4)),
+    "edge_top_medium": (line_edge("B3", "xlEdgeTop", "medium"), heights(1, 2, 3, 4)),
+    "edge_row1_top_thick": (line_edge("A1", "xlEdgeTop", "thick"), heights(1, 2)),
+    "edge_row1_top_medium": (line_edge("A1", "xlEdgeTop", "medium"), heights(1, 2)),
+    "edge_last_row_double": (line_edge("B1048576", "xlEdgeBottom", "double"), heights(1048575, 1048576)),
+    "edge_left_double": (line_edge("B2", "xlEdgeLeft", "double"), heights(1, 2, 3)),
+    "edge_inside_medium": (line_edge("B2:B3", "xlInsideHorizontal", "medium"), heights(1, 2, 3, 4)),
+    "edge_inside_double": (line_edge("B2:B3", "xlInsideHorizontal", "double"), heights(1, 2, 3, 4)),
+    "edge_double_both": (line_edge("B2", "xlEdgeTop", "double") + "\n" + line_edge("B2", "xlEdgeBottom", "double"),
+                         heights(1, 2, 3, 4)),
+    "edge_medium_top_and_bottom": (line_edge("B3", "xlEdgeTop", "medium") + "\n"
+                                   + line_edge("B3", "xlEdgeBottom", "medium"), heights(1, 2, 3, 4)),
+    "edge_double_big_font": ('ws.Range("B2").Font.Size = 20\n' + line_edge("B2", "xlEdgeBottom", "double"),
+                             heights(1, 2, 3, 4)),
+    "edge_double_small_row": ("ws.Rows(2).Font.Size = 8\n" + line_edge("B2", "xlEdgeBottom", "double"),
+                              heights(1, 2, 3, 4)),
+    "edge_double_custom_height": ("ws.Rows(2).RowHeight = 30\n" + line_edge("B2", "xlEdgeBottom", "double"),
+                                  heights(1, 2, 3, 4)),
+    "edge_double_autofit": ("ws.Rows(2).RowHeight = 30\n" + line_edge("B2", "xlEdgeBottom", "double")
+                            + "\nws.Rows(2).AutoFit", heights(1, 2, 3, 4)),
+    "edge_double_cleared": (line_edge("B2", "xlEdgeBottom", "double")
+                            + '\nws.Range("B2").Borders(xlEdgeBottom).LineStyle = xlNone', heights(1, 2, 3, 4)),
+    "edge_row_style_double": ("ws.Rows(2).Borders(xlEdgeBottom).LineStyle = xlDouble", heights(1, 2, 3, 4)),
+    "edge_far_column": (line_edge("XFD2", "xlEdgeBottom", "double"), heights(1, 2, 3, 4)),
+    "edge_value_medium": ('ws.Range("B2").Value = 5\n' + line_edge("B2", "xlEdgeBottom", "medium"), heights(2, 3)),
+    "edge_column_inside_double": ("ws.Columns(3).Borders(xlInsideHorizontal).LineStyle = xlDouble",
+                                  heights(1, 2, 1048576)),
+    "edge_column_inside_medium": ("ws.Columns(3).Borders(xlInsideHorizontal).LineStyle = xlContinuous\n"
+                                  "ws.Columns(3).Borders(xlInsideHorizontal).Weight = xlMedium", heights(1, 2, 1048576)),
+    "edge_column_double_value": ('ws.Columns(3).Borders(xlInsideHorizontal).LineStyle = xlDouble\n'
+                                 'ws.Range("E5").Value = 1', heights(1, 5)),
+    "edge_sheet_inside_double": ("ws.Cells.Borders(xlInsideHorizontal).LineStyle = xlDouble", heights(1, 2)),
+    # Medium and thick lines along one edge: the first cell along the row with a line that counts decides.
+    "edge_mix_medium_double": (line_edge("B2", "xlEdgeBottom", "medium") + "\n"
+                               + line_edge("C2", "xlEdgeBottom", "double"), heights(1, 2, 3, 4)),
+    "edge_mix_double_medium": (line_edge("B2", "xlEdgeBottom", "double") + "\n"
+                               + line_edge("C2", "xlEdgeBottom", "medium"), heights(1, 2, 3, 4)),
+    "edge_mix_c_medium_first": (line_edge("C2", "xlEdgeBottom", "medium") + "\n"
+                                + line_edge("B2", "xlEdgeBottom", "double"), heights(1, 2, 3, 4)),
+    "edge_mix_thin_double": (line_edge("B2", "xlEdgeBottom", "thin") + "\n"
+                             + line_edge("C2", "xlEdgeBottom", "double"), heights(1, 2, 3, 4)),
+    "edge_mix_top_below": (line_edge("B2", "xlEdgeBottom", "medium") + "\n" + line_edge("C3", "xlEdgeTop", "double"),
+                           heights(1, 2, 3, 4)),
+    "edge_mix_row_then_cell": ("ws.Rows(2).Borders(xlEdgeBottom).LineStyle = xlDouble\n"
+                               + line_edge("C2", "xlEdgeBottom", "medium"), heights(1, 2, 3, 4)),
+    # A border along a hidden row: Excel's answers are recorded, and the model reports that it cannot tell.
+    "unmeasured_edge_hidden_row": (line_edge("B2", "xlEdgeBottom", "double") + "\nws.Rows(3).Hidden = True",
+                                   heights(1, 2, 3, 4)),
 }
 
 #: Planted sheets: name -> (cols, sheetData body, a macro run once the file is open, reads).

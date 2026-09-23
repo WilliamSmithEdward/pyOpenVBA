@@ -45,8 +45,8 @@ from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.interpreter._values import EMPTY, NULL, error, to_number
 
 if TYPE_CHECKING:
-    from pyopenvba.apps.excel._model import Range, Worksheet
-    from pyopenvba.apps.excel._styles import Style
+    from pyopenvba.apps.excel._model import Cell, Range, Worksheet
+    from pyopenvba.apps.excel._styles import Side, Style
 
 #: Points in a pixel on the display the model emulates.
 PIXEL = 0.75
@@ -81,7 +81,7 @@ _FORMAT_ORDER = ("baseColWidth", "defaultColWidth", "defaultRowHeight", "customH
                  "thickBottom", "outlineLevelRow", "outlineLevelCol")
 #: A row's own attributes, which the model works out; everything else it carries.
 #: A row's s means nothing without customFormat, and Excel drops it.
-_ROW_OWN = {"r", "spans", "s", "customFormat", "ht", "hidden", "customHeight", _DESCENT}
+_ROW_OWN = {"r", "spans", "s", "customFormat", "ht", "hidden", "customHeight", "thickTop", "thickBot", _DESCENT}
 _COLUMN_OWN = {"min", "max", "width", "style", "hidden", "customWidth"}
 
 
@@ -198,6 +198,8 @@ class RowRecord:
     style: Style | None = None
     #: The xf the file gave the row's format, reused while the format holds.
     xf: int = -1
+    #: The thickTop and thickBot the file gave the row, kept where the model cannot work them out.
+    flags_as_read: tuple[bool, bool] = (False, False)
 
     def empty(self) -> bool:
         return (self.height is None and not self.hidden and self.grown is None and not self.extra
@@ -286,6 +288,9 @@ class SheetDimensions:
         #: The standard row the column formats make, or why the model cannot tell.
         self._default_row: tuple[int, int] | None = None
         self._default_reason: str | None = None
+        #: The thickTop and thickBot of rows the model worked out, and of the standard row.
+        self._flags: dict[int, tuple[bool, bool]] = {}
+        self._default_flags: tuple[bool, bool] = (False, False)
         self._grown_valid = False
 
     # -- reading a file
@@ -340,7 +345,8 @@ class SheetDimensions:
             return
         if not 1 <= row <= MAX_ROWS:
             return
-        record = RowRecord(descent=attrs.get(_DESCENT, ""))
+        record = RowRecord(descent=attrs.get(_DESCENT, ""),
+                           flags_as_read=(attrs.get("thickTop") in ("1", "true"), attrs.get("thickBot") in ("1", "true")))
         if attrs.get("customFormat") in ("1", "true"):
             record.style, record.xf = self._style_read(attrs.get("s", "0"))
         elif "s" in attrs:
@@ -477,18 +483,21 @@ class SheetDimensions:
         self._grown_valid = False
 
     def _settle(self) -> None:
-        """Work out how tall each row's fonts make it, and the standard row the column formats make.
+        """Work out how tall each row's fonts and borders make it, and the standard row the column formats make.
 
         Every position of a row shows a font: its cell's, else the row's
         format's, else its column's, else the Normal one. The measured tables
         give a font's row beside the Normal font and on a row to itself, and
-        two fonts from different tables together are not measured.
+        two fonts from different tables together are not measured. A medium
+        or heavier line along a row's bottom, and a thick or double line
+        along its top, draw it a pixel taller (see :func:`_edge_flags`).
         """
         if self._grown_valid:
             return
         self._grown_valid = True
         self._grown.clear()
         self._unmeasured.clear()
+        self._flags.clear()
         default = self.sheet.book.stylesheet.default
         normal = default.font
         normal_entry = (_font_rows.table_of(normal.name, normal.bold, normal.italic), font_pixels(normal.size))
@@ -498,41 +507,106 @@ class SheetDimensions:
         unstyled = MAX_COLUMNS - sum(groups.values())
         if unstyled:
             groups[default] = groups.get(default, 0) + unstyled
-        self._default_row, self._default_reason = None, None
-        found = _row_fonts([_font_entry(style, False) for style in groups], normal_entry, unknown)
-        if isinstance(found, str):
-            self._default_reason = found
-        else:
-            self._default_row = found
+        # The columns whose format has a line heavy enough to count, in order.
+        edged_columns = sorted((column, _lines(record.style)) for column, record in self.columns.items()
+                               if record.style is not None and _lines(record.style) != (0, 0))
+        default_fonts = _row_fonts([_font_entry(style, False) for style in groups], normal_entry, unknown)
+        default_lines = _first_lines([], edged_columns)
+        default_flags = _edge_flags(default_lines, default_lines, default_lines)
+        self._default_row, self._default_reason, self._default_flags = None, None, (False, False)
+        if isinstance(default_fonts, str):
+            self._default_reason = default_fonts
+        elif _lines(default) != (0, 0):
+            self._default_reason = "borders in the default format"
+        elif default_fonts is not None:
+            self._default_row, self._default_flags = _with_flags(default_fonts, default_flags), default_flags
         # A font in a merged cell over several rows makes none of them taller.
         tall = [area for area in self.sheet.merged_areas if area.rows > 1]
-        by_row: dict[int, list[tuple[int, tuple[int, int] | str | None]]] = {}
+        by_row: dict[int, list[tuple[int, Cell]]] = {}
         for (row, column), cell in self.sheet.cells_.items():
-            if tall and any(area.contains(row, column) for area in tall):
-                continue
-            text = cell.value is not EMPTY or bool(cell.formula)
-            by_row.setdefault(row, []).append((column, _font_entry(cell.style or default, text)))
-        rows = set(by_row) | {row for row, record in self.rows.items() if record.style is not None}
-        for row in rows:
-            cells = by_row.get(row, [])
-            entries = [entry for _, entry in cells]
+            by_row.setdefault(row, []).append((column, cell))
+        special = set(by_row) | {row for row, record in self.rows.items() if record.style is not None}
+        fonts: dict[int, tuple[int, int] | str | None] = {}
+        lines: dict[int, tuple[int, int]] = {}
+        for row in special:
+            cells = sorted(by_row.get(row, []), key=lambda found: found[0])
+            entries = [_font_entry(cell.style or default, cell.value is not EMPTY or bool(cell.formula))
+                       for column, cell in cells
+                       if not (tall and any(area.contains(row, column) for area in tall))]
             record = self.rows.get(row)
+            own = record.style if record is not None and record.style is not None else None
             if len(cells) < MAX_COLUMNS:
-                if record is not None and record.style is not None:
-                    entries.append(_font_entry(record.style, False))
+                if own is not None:
+                    others = [own]
                 else:
                     # A column format shows wherever one of its columns has no cell in the row.
                     covered: dict[Style, int] = {}
                     for column, _ in cells:
-                        shown = self.column_style(column) or default
-                        covered[shown] = covered.get(shown, 0) + 1
-                    entries.extend(_font_entry(style, False) for style, count in groups.items()
-                                   if count > covered.get(style, 0))
-            height = _row_fonts(entries, normal_entry, unknown)
-            if isinstance(height, str):
-                self._unmeasured[row] = height
-            elif height is not None and height != self._default_row:
-                self._grown[row] = height
+                        column_format = self.column_style(column) or default
+                        covered[column_format] = covered.get(column_format, 0) + 1
+                    others = [style for style, count in groups.items() if count > covered.get(style, 0)]
+                entries.extend(_font_entry(style, False) for style in others)
+            fonts[row] = _row_fonts(entries, normal_entry, unknown)
+            taken = {column for column, _ in cells}
+            beyond = [(0, _lines(own))] if own is not None and len(cells) < MAX_COLUMNS else \
+                [(column, found) for column, found in edged_columns if column not in taken]
+            lines[row] = _first_lines([_lines(cell.style or default) for _, cell in cells], beyond)
+        # Rows whose borders can differ from the standard row's: those with cells or a format, their
+        # neighbours, and the first and last rows, which have no neighbour on one side.
+        edged = {one for row in special for one in (row - 1, row, row + 1) if 1 <= one <= MAX_ROWS}
+        edged.update((1, MAX_ROWS))
+        for row in edged:
+            found = fonts.get(row, default_fonts)
+            flags = _edge_flags(lines.get(row - 1, default_lines) if row > 1 else None,
+                                lines.get(row, default_lines),
+                                lines.get(row + 1, default_lines) if row < MAX_ROWS else None)
+            if isinstance(found, str):
+                self._unmeasured[row] = found
+            elif found is None:
+                # The Normal font was not measured: the file's heights stand, unless a border moves them.
+                if flags != self._default_flags:
+                    self._unmeasured[row] = unknown or "the Normal font"
+            else:
+                self._flags[row] = flags
+                shape = _with_flags(found, flags)
+                if shape != self._default_row:
+                    self._grown[row] = shape
+        self._settle_hidden(lines, default_lines)
+
+    def _settle_hidden(self, lines: dict[int, tuple[int, int]], default_lines: tuple[int, int]) -> None:
+        """Leave unmeasured the rows around a hidden row that a border draws taller.
+
+        Excel carries such a border on past the hidden row to the next row
+        shown, which was measured once and not closely enough to follow.
+        """
+        reason = "a medium or thick border beside a hidden row"
+        if self.zero_height and (self._flags or self._default_flags != (False, False)):
+            for row in set(self._flags) | set(self._grown):
+                self._border_unmeasured(row, reason)
+            return
+
+        def between(upper: int) -> bool:
+            """Whether a line heavy enough to count runs between a row and the next."""
+            return bool(lines.get(upper, default_lines)[1] or lines.get(upper + 1, default_lines)[0])
+
+        hidden = {row for row, record in self.rows.items() if record.hidden or record.height == 0}
+        for row in hidden:
+            if not ((row > 1 and between(row - 1)) or (row < MAX_ROWS and between(row))):
+                continue
+            first, last = row, row
+            while first - 1 in hidden:
+                first -= 1
+            while last + 1 in hidden:
+                last += 1
+            for one in range(max(first - 1, 1), min(last + 1, MAX_ROWS) + 1):
+                self._border_unmeasured(one, reason)
+
+    def _border_unmeasured(self, row: int, reason: str) -> None:
+        """A row whose borders the model cannot follow; a change beside it counts as a change to it,
+        since the borders it shares with its neighbours decide its height."""
+        self._unmeasured[row] = reason
+        if self._touched & {row - 1, row, row + 1}:
+            self._touched.add(row)
 
     def settle_growth(self) -> None:
         """After loading: a height a file recorded for a row matters only where the model cannot work it out.
@@ -573,6 +647,33 @@ class SheetDimensions:
         quarters, descent = grown
         standard = self.standard_written()[0]
         return (height_text(quarters) if quarters != standard else None), excel_number(descent / 20)
+
+    def written_flags(self, row: int) -> tuple[bool, bool]:
+        """The thickTop and thickBot a row is written with: its borders', or its file's where not measured."""
+        self._settle()
+        if row in self._unmeasured:
+            record = self.rows.get(row)
+            if record is None or row in self._touched or self._columns_touched:
+                return False, False
+            return record.flags_as_read
+        return self._flags.get(row, self._default_flags)
+
+    def default_flags(self) -> tuple[bool, bool]:
+        """The thickTop and thickBot of a row the column formats alone decide."""
+        self._settle()
+        return self._default_flags
+
+    def shaped_rows(self) -> set[int]:
+        """Rows the model worked out as taller, shorter or edged otherwise than the standard row.
+
+        Excel keeps a record for each, so each is written and each counts
+        in the used block, even with no cell: a row under a double border
+        does both.
+        """
+        self._settle()
+        found = set(self._grown)
+        found.update(row for row, flags in self._flags.items() if flags != self._default_flags)
+        return found
 
     def row_hidden(self, row: int) -> bool:
         record = self.rows.get(row)
@@ -972,6 +1073,63 @@ class SheetDimensions:
         self.columns_changed = self.format_changed = self.moved = False
 
 
+#: Lines that make the row above them a pixel taller, and lines that also make the row below one.
+_MEDIUM_LINES = frozenset({"medium", "mediumDashed", "mediumDashDot", "mediumDashDotDot", "slantDashDot"})
+_THICK_LINES = frozenset({"thick", "double"})
+
+
+def _weight(side: Side) -> int:
+    """1 for a medium line, 2 for a thick or double one, 0 for anything lighter."""
+    return 2 if side.style in _THICK_LINES else 1 if side.style in _MEDIUM_LINES else 0
+
+
+def _lines(style: Style) -> tuple[int, int]:
+    """The weights of a format's top and bottom lines."""
+    return _weight(style.border.top), _weight(style.border.bottom)
+
+
+def _first_lines(cells: list[tuple[int, int]], beyond: list[tuple[int, tuple[int, int]]]) -> tuple[int, int]:
+    """The weight that counts along a row's top and along its bottom.
+
+    Excel takes the first cell along the row, by column, with a line heavy
+    enough to count; failing that, the row's own format, or the first
+    column whose format has one. So a medium line in B2 and a double one in
+    C2 make row 3 no taller, while a double one in B2 and a medium one in
+    C2 do, whichever was set first.
+    """
+    top = next((found for found, _ in cells if found), 0)
+    bottom = next((found for _, found in cells if found), 0)
+    if not top:
+        top = next((found for _, (found, _) in beyond if found), 0)
+    if not bottom:
+        bottom = next((found for _, (_, found) in beyond if found), 0)
+    return top, bottom
+
+
+def _edge_flags(above: tuple[int, int] | None, own: tuple[int, int],
+                below: tuple[int, int] | None) -> tuple[bool, bool]:
+    """A row's thickTop and thickBot, from the lines that count along its top and bottom and its neighbours'.
+
+    A medium or heavier line between a row and the next draws the upper
+    one a pixel taller (thickBot); a thick or double one draws the lower
+    one a pixel taller too (thickTop). A line is between the two rows
+    whichever of them keeps it, as MS-XLS says of the ROW record's flags;
+    the first row has nothing above it, and the last nothing below.
+    """
+    thick_top = own[0] == 2 or (above is not None and above[1] == 2)
+    thick_bottom = own[1] > 0 or (below is not None and below[0] > 0)
+    return thick_top, thick_bottom
+
+
+def _with_flags(shape: tuple[int, int], flags: tuple[bool, bool]) -> tuple[int, int]:
+    """A row's height in quarter pixels and descent in twips once its borders' pixels are added.
+
+    Each flag is a pixel, and thickBot deepens the descent by a twip.
+    """
+    top, bottom = flags
+    return shape[0] + 4 * (top + bottom), shape[1] + bottom
+
+
 def _font_entry(style: Style, text: bool) -> tuple[int, int] | str | None:
     """What a cell showing a format adds to its row's height.
 
@@ -1087,6 +1245,7 @@ def _used_area(sheet: Worksheet) -> tuple[int, int, int, int] | None:
         return None
     rows = [row for row, _ in cells]
     rows.extend(sheet.dims.record_rows())
+    rows.extend(sheet.dims.shaped_rows())
     columns = [column for _, column in cells]
     return min(rows), min(columns), max(rows), max(columns)
 
@@ -1377,6 +1536,11 @@ def row_start_tag(sheet: Worksheet, row: int, original: dict[str, str] | None, s
             attrs["customHeight"] = "1"
     if "ht" not in attrs and grown_height is not None and dims.all_rows is None:
         attrs["ht"] = grown_height
+    thick_top, thick_bottom = dims.written_flags(row)
+    if thick_top:
+        attrs["thickTop"] = "1"
+    if thick_bottom:
+        attrs["thickBot"] = "1"
     listed = record is not None and dims.zero_height
     if len(attrs) == 1 + (spans is not None) and not has_cells and not listed:
         return None
@@ -1431,6 +1595,13 @@ def format_element(sheet: Worksheet, has_descent: bool) -> str | None:
     elif known:
         attrs["defaultRowHeight"] = height_text(dims.standard_written()[0])
         attrs.pop("customHeight", None)
+    if known:
+        # Borders every row shows make the standard row taller, and the sheet says which.
+        for name, on in zip(("thickTop", "thickBottom"), dims.default_flags(), strict=True):
+            if on:
+                attrs[name] = "1"
+            else:
+                attrs.pop(name, None)
     elif "defaultRowHeight" not in attrs:
         attrs["defaultRowHeight"] = height_text(dims.standard_written()[0])
     if dims.zero_height:

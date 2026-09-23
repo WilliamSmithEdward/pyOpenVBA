@@ -520,6 +520,13 @@ on a 144-DPI one.
   font reaches every row, `StandardHeight` included. A merged cell over
   several rows, and turned text in an empty cell, make no row taller. The
   file gets the height and the descent Excel writes for it.
+* A medium line along a row's bottom edge (medium, its dashed and dotted
+  forms, or slant dash-dot) draws that row a pixel taller (`thickBot`,
+  and a twip more descent). A thick or double line also draws the row
+  below a pixel taller (`thickTop`). A line counts for both rows whichever
+  of them keeps it. When lines of both weights run along one edge, Excel
+  takes the first cell along the row, by column, with a line that
+  counts, then the row's format, then the first column's.
 
 A row whose height rests on something the model has not measured -- a
 font outside the table, two fonts from different tables in one row
@@ -529,9 +536,9 @@ alone does not separate), super- or subscript, or wrapped or turned text
 After that, reading its height or `AutoFit` reports itself unsupported,
 and a save writes the row without one, which Excel works out again only
 some of the time. `AutoFit` on a column whose cells hold values also
-reports unsupported, since it measures text. A double border between two
-rows makes Excel draw both a pixel taller and flag them (`thickBot`,
-`thickTop`), which the model does not do yet. The sizes are measured for
+reports unsupported, since it measures text, and so does the height of a
+row beside a hidden row that a medium or thick border runs along, which
+Excel carries on to the next row shown. The sizes are measured for
 Aptos Narrow 11 and Calibri 11 as the Normal font; with another Normal
 font the file's own standard sizes stand. Excel's used block, and with it
 which cells a multi-row read compares, also grows while a workbook is open

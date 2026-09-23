@@ -1600,6 +1600,498 @@
    ],
    "before": "String:$C$2;Double:15;Double:15;",
    "after": "String:$C$2;Double:15;Double:15;"
+  },
+  {
+   "name": "edge_bottom_thin",
+   "setup": "ws.Range(\"B2\").Borders(xlEdgeBottom).LineStyle = 1\nws.Range(\"B2\").Borders(xlEdgeBottom).Weight = 2",
+   "reads": [
+    "ws.Rows(1).RowHeight",
+    "ws.Rows(2).RowHeight",
+    "ws.Rows(3).RowHeight",
+    "ws.Rows(4).RowHeight",
+    "ws.StandardHeight"
+   ],
+   "before": "String:$B$2;Double:15;Double:15;Double:15;Double:15;Double:15;",
+   "after": "String:$B$2;Double:15;Double:15;Double:15;Double:15;Double:15;"
+  },
+  {
+   "name": "edge_bottom_medium",
+   "setup": "ws.Range(\"B2\").Borders(xlEdgeBottom).LineStyle = 1\nws.Range(\"B2\").Borders(xlEdgeBottom).Weight = -4138",
+   "reads": [
+    "ws.Rows(1).RowHeight",
+    "ws.Rows(2).RowHeight",
+    "ws.Rows(3).RowHeight",
+    "ws.Rows(4).RowHeight",
+    "ws.StandardHeight"
+   ],
+   "before": "String:$B$2;Double:15;Double:15.75;Double:15;Double:15;Double:15;",
+   "after": "String:$B$2;Double:15;Double:15.75;Double:15;Double:15;Double:15;"
+  },
+  {
+   "name": "edge_bottom_thick",
+   "setup": "ws.Range(\"B2\").Borders(xlEdgeBottom).LineStyle = 1\nws.Range(\"B2\").Borders(xlEdgeBottom).Weight = 4",
+   "reads": [
+    "ws.Rows(1).RowHeight",
+    "ws.Rows(2).RowHeight",
+    "ws.Rows(3).RowHeight",
+    "ws.Rows(4).RowHeight",
+    "ws.StandardHeight"
+   ],
+   "before": "String:$B$2:$B$3;Double:15;Double:15.75;Double:15.75;Double:15;Double:15;",
+   "after": "String:$B$2:$B$3;Double:15;Double:15.75;Double:15.75;Double:15;Double:15;"
+  },
+  {
+   "name": "edge_bottom_double",
+   "setup": "ws.Range(\"B2\").Borders(xlEdgeBottom).LineStyle = -4119\nws.Range(\"B2\").Borders(xlEdgeBottom).Weight = 4",
+   "reads": [
+    "ws.Rows(1).RowHeight",
+    "ws.Rows(2).RowHeight",
+    "ws.Rows(3).RowHeight",
+    "ws.Rows(4).RowHeight",
+    "ws.StandardHeight"
+   ],
+   "before": "String:$B$2:$B$3;Double:15;Double:15.75;Double:15.75;Double:15;Double:15;",
+   "after": "String:$B$2:$B$3;Double:15;Double:15.75;Double:15.75;Double:15;Double:15;"
+  },
+  {
+   "name": "edge_bottom_mediumDashed",
+   "setup": "ws.Range(\"B2\").Borders(xlEdgeBottom).LineStyle = -4115\nws.Range(\"B2\").Borders(xlEdgeBottom).Weight = -4138",
+   "reads": [
+    "ws.Rows(1).RowHeight",
+    "ws.Rows(2).RowHeight",
+    "ws.Rows(3).RowHeight",
+    "ws.Rows(4).RowHeight",
+    "ws.StandardHeight"
+   ],
+   "before": "String:$B$2;Double:15;Double:15.75;Double:15;Double:15;Double:15;",
+   "after": "String:$B$2;Double:15;Double:15.75;Double:15;Double:15;Double:15;"
+  },
+  {
+   "name": "edge_bottom_mediumDashDot",
+   "setup": "ws.Range(\"B2\").Borders(xlEdgeBottom).LineStyle = 4\nws.Range(\"B2\").Borders(xlEdgeBottom).Weight = -4138",
+   "reads": [
+    "ws.Rows(1).RowHeight",
+    "ws.Rows(2).RowHeight",
+    "ws.Rows(3).RowHeight",
+    "ws.Rows(4).RowHeight",
+    "ws.StandardHeight"
+   ],
+   "before": "String:$B$2;Double:15;Double:15.75;Double:15;Double:15;Double:15;",
+   "after": "String:$B$2;Double:15;Double:15.75;Double:15;Double:15;Double:15;"
+  },
+  {
+   "name": "edge_bottom_mediumDashDotDot",
+   "setup": "ws.Range(\"B2\").Borders(xlEdgeBottom).LineStyle = 5\nws.Range(\"B2\").Borders(xlEdgeBottom).Weight = -4138",
+   "reads": [
+    "ws.Rows(1).RowHeight",
+    "ws.Rows(2).RowHeight",
+    "ws.Rows(3).RowHeight",
+    "ws.Rows(4).RowHeight",
+    "ws.StandardHeight"
+   ],
+   "before": "String:$B$2;Double:15;Double:15.75;Double:15;Double:15;Double:15;",
+   "after": "String:$B$2;Double:15;Double:15.75;Double:15;Double:15;Double:15;"
+  },
+  {
+   "name": "edge_bottom_slantDashDot",
+   "setup": "ws.Range(\"B2\").Borders(xlEdgeBottom).LineStyle = 13\nws.Range(\"B2\").Borders(xlEdgeBottom).Weight = -4138",
+   "reads": [
+    "ws.Rows(1).RowHeight",
+    "ws.Rows(2).RowHeight",
+    "ws.Rows(3).RowHeight",
+    "ws.Rows(4).RowHeight",
+    "ws.StandardHeight"
+   ],
+   "before": "String:$B$2;Double:15;Double:15.75;Double:15;Double:15;Double:15;",
+   "after": "String:$B$2;Double:15;Double:15.75;Double:15;Double:15;Double:15;"
+  },
+  {
+   "name": "edge_bottom_dashed",
+   "setup": "ws.Range(\"B2\").Borders(xlEdgeBottom).LineStyle = -4115\nws.Range(\"B2\").Borders(xlEdgeBottom).Weight = 2",
+   "reads": [
+    "ws.Rows(1).RowHeight",
+    "ws.Rows(2).RowHeight",
+    "ws.Rows(3).RowHeight",
+    "ws.Rows(4).RowHeight",
+    "ws.StandardHeight"
+   ],
+   "before": "String:$B$2;Double:15;Double:15;Double:15;Double:15;Double:15;",
+   "after": "String:$B$2;Double:15;Double:15;Double:15;Double:15;Double:15;"
+  },
+  {
+   "name": "edge_bottom_hair",
+   "setup": "ws.Range(\"B2\").Borders(xlEdgeBottom).LineStyle = 1\nws.Range(\"B2\").Borders(xlEdgeBottom).Weight = 1",
+   "reads": [
+    "ws.Rows(1).RowHeight",
+    "ws.Rows(2).RowHeight",
+    "ws.Rows(3).RowHeight",
+    "ws.Rows(4).RowHeight",
+    "ws.StandardHeight"
+   ],
+   "before": "String:$B$2;Double:15;Double:15;Double:15;Double:15;Double:15;",
+   "after": "String:$B$2;Double:15;Double:15;Double:15;Double:15;Double:15;"
+  },
+  {
+   "name": "edge_top_double",
+   "setup": "ws.Range(\"B3\").Borders(xlEdgeTop).LineStyle = -4119\nws.Range(\"B3\").Borders(xlEdgeTop).Weight = 4",
+   "reads": [
+    "ws.Rows(1).RowHeight",
+    "ws.Rows(2).RowHeight",
+    "ws.Rows(3).RowHeight",
+    "ws.Rows(4).RowHeight",
+    "ws.StandardHeight"
+   ],
+   "before": "String:$B$2:$B$3;Double:15;Double:15.75;Double:15.75;Double:15;Double:15;",
+   "after": "String:$B$2:$B$3;Double:15;Double:15.75;Double:15.75;Double:15;Double:15;"
+  },
+  {
+   "name": "edge_top_medium",
+   "setup": "ws.Range(\"B3\").Borders(xlEdgeTop).LineStyle = 1\nws.Range(\"B3\").Borders(xlEdgeTop).Weight = -4138",
+   "reads": [
+    "ws.Rows(1).RowHeight",
+    "ws.Rows(2).RowHeight",
+    "ws.Rows(3).RowHeight",
+    "ws.Rows(4).RowHeight",
+    "ws.StandardHeight"
+   ],
+   "before": "String:$B$2:$B$3;Double:15;Double:15.75;Double:15;Double:15;Double:15;",
+   "after": "String:$B$2:$B$3;Double:15;Double:15.75;Double:15;Double:15;Double:15;"
+  },
+  {
+   "name": "edge_row1_top_thick",
+   "setup": "ws.Range(\"A1\").Borders(xlEdgeTop).LineStyle = 1\nws.Range(\"A1\").Borders(xlEdgeTop).Weight = 4",
+   "reads": [
+    "ws.Rows(1).RowHeight",
+    "ws.Rows(2).RowHeight",
+    "ws.StandardHeight"
+   ],
+   "before": "String:$A$1;Double:15.75;Double:15;Double:15;",
+   "after": "String:$A$1;Double:15.75;Double:15;Double:15;"
+  },
+  {
+   "name": "edge_row1_top_medium",
+   "setup": "ws.Range(\"A1\").Borders(xlEdgeTop).LineStyle = 1\nws.Range(\"A1\").Borders(xlEdgeTop).Weight = -4138",
+   "reads": [
+    "ws.Rows(1).RowHeight",
+    "ws.Rows(2).RowHeight",
+    "ws.StandardHeight"
+   ],
+   "before": "String:$A$1;Double:15;Double:15;Double:15;",
+   "after": "String:$A$1;Double:15;Double:15;Double:15;"
+  },
+  {
+   "name": "edge_last_row_double",
+   "setup": "ws.Range(\"B1048576\").Borders(xlEdgeBottom).LineStyle = -4119\nws.Range(\"B1048576\").Borders(xlEdgeBottom).Weight = 4",
+   "reads": [
+    "ws.Rows(1048575).RowHeight",
+    "ws.Rows(1048576).RowHeight",
+    "ws.StandardHeight"
+   ],
+   "before": "String:$B$1048576;Double:15;Double:15.75;Double:15;",
+   "after": "String:$B$1048576;Double:15;Double:15.75;Double:15;"
+  },
+  {
+   "name": "edge_left_double",
+   "setup": "ws.Range(\"B2\").Borders(xlEdgeLeft).LineStyle = -4119\nws.Range(\"B2\").Borders(xlEdgeLeft).Weight = 4",
+   "reads": [
+    "ws.Rows(1).RowHeight",
+    "ws.Rows(2).RowHeight",
+    "ws.Rows(3).RowHeight",
+    "ws.StandardHeight"
+   ],
+   "before": "String:$B$2;Double:15;Double:15;Double:15;Double:15;",
+   "after": "String:$B$2;Double:15;Double:15;Double:15;Double:15;"
+  },
+  {
+   "name": "edge_inside_medium",
+   "setup": "ws.Range(\"B2:B3\").Borders(xlInsideHorizontal).LineStyle = 1\nws.Range(\"B2:B3\").Borders(xlInsideHorizontal).Weight = -4138",
+   "reads": [
+    "ws.Rows(1).RowHeight",
+    "ws.Rows(2).RowHeight",
+    "ws.Rows(3).RowHeight",
+    "ws.Rows(4).RowHeight",
+    "ws.StandardHeight"
+   ],
+   "before": "String:$B$2:$B$3;Double:15;Double:15.75;Double:15;Double:15;Double:15;",
+   "after": "String:$B$2:$B$3;Double:15;Double:15.75;Double:15;Double:15;Double:15;"
+  },
+  {
+   "name": "edge_inside_double",
+   "setup": "ws.Range(\"B2:B3\").Borders(xlInsideHorizontal).LineStyle = -4119\nws.Range(\"B2:B3\").Borders(xlInsideHorizontal).Weight = 4",
+   "reads": [
+    "ws.Rows(1).RowHeight",
+    "ws.Rows(2).RowHeight",
+    "ws.Rows(3).RowHeight",
+    "ws.Rows(4).RowHeight",
+    "ws.StandardHeight"
+   ],
+   "before": "String:$B$2:$B$3;Double:15;Double:15.75;Double:15.75;Double:15;Double:15;",
+   "after": "String:$B$2:$B$3;Double:15;Double:15.75;Double:15.75;Double:15;Double:15;"
+  },
+  {
+   "name": "edge_double_both",
+   "setup": "ws.Range(\"B2\").Borders(xlEdgeTop).LineStyle = -4119\nws.Range(\"B2\").Borders(xlEdgeTop).Weight = 4\nws.Range(\"B2\").Borders(xlEdgeBottom).LineStyle = -4119\nws.Range(\"B2\").Borders(xlEdgeBottom).Weight = 4",
+   "reads": [
+    "ws.Rows(1).RowHeight",
+    "ws.Rows(2).RowHeight",
+    "ws.Rows(3).RowHeight",
+    "ws.Rows(4).RowHeight",
+    "ws.StandardHeight"
+   ],
+   "before": "String:$B$1:$B$3;Double:15.75;Double:16.5;Double:15.75;Double:15;Double:15;",
+   "after": "String:$B$1:$B$3;Double:15.75;Double:16.5;Double:15.75;Double:15;Double:15;"
+  },
+  {
+   "name": "edge_medium_top_and_bottom",
+   "setup": "ws.Range(\"B3\").Borders(xlEdgeTop).LineStyle = 1\nws.Range(\"B3\").Borders(xlEdgeTop).Weight = -4138\nws.Range(\"B3\").Borders(xlEdgeBottom).LineStyle = 1\nws.Range(\"B3\").Borders(xlEdgeBottom).Weight = -4138",
+   "reads": [
+    "ws.Rows(1).RowHeight",
+    "ws.Rows(2).RowHeight",
+    "ws.Rows(3).RowHeight",
+    "ws.Rows(4).RowHeight",
+    "ws.StandardHeight"
+   ],
+   "before": "String:$B$2:$B$3;Double:15;Double:15.75;Double:15.75;Double:15;Double:15;",
+   "after": "String:$B$2:$B$3;Double:15;Double:15.75;Double:15.75;Double:15;Double:15;"
+  },
+  {
+   "name": "edge_double_big_font",
+   "setup": "ws.Range(\"B2\").Font.Size = 20\nws.Range(\"B2\").Borders(xlEdgeBottom).LineStyle = -4119\nws.Range(\"B2\").Borders(xlEdgeBottom).Weight = 4",
+   "reads": [
+    "ws.Rows(1).RowHeight",
+    "ws.Rows(2).RowHeight",
+    "ws.Rows(3).RowHeight",
+    "ws.Rows(4).RowHeight",
+    "ws.StandardHeight"
+   ],
+   "before": "String:$B$2:$B$3;Double:15;Double:27;Double:15.75;Double:15;Double:15;",
+   "after": "String:$B$2:$B$3;Double:15;Double:27;Double:15.75;Double:15;Double:15;"
+  },
+  {
+   "name": "edge_double_small_row",
+   "setup": "ws.Rows(2).Font.Size = 8\nws.Range(\"B2\").Borders(xlEdgeBottom).LineStyle = -4119\nws.Range(\"B2\").Borders(xlEdgeBottom).Weight = 4",
+   "reads": [
+    "ws.Rows(1).RowHeight",
+    "ws.Rows(2).RowHeight",
+    "ws.Rows(3).RowHeight",
+    "ws.Rows(4).RowHeight",
+    "ws.StandardHeight"
+   ],
+   "before": "String:$B$2:$B$3;Double:15;Double:12;Double:15.75;Double:15;Double:15;",
+   "after": "String:$B$2:$B$3;Double:15;Double:12;Double:15.75;Double:15;Double:15;"
+  },
+  {
+   "name": "edge_double_custom_height",
+   "setup": "ws.Rows(2).RowHeight = 30\nws.Range(\"B2\").Borders(xlEdgeBottom).LineStyle = -4119\nws.Range(\"B2\").Borders(xlEdgeBottom).Weight = 4",
+   "reads": [
+    "ws.Rows(1).RowHeight",
+    "ws.Rows(2).RowHeight",
+    "ws.Rows(3).RowHeight",
+    "ws.Rows(4).RowHeight",
+    "ws.StandardHeight"
+   ],
+   "before": "String:$B$2:$B$3;Double:15;Double:30;Double:15.75;Double:15;Double:15;",
+   "after": "String:$B$2:$B$3;Double:15;Double:30;Double:15.75;Double:15;Double:15;"
+  },
+  {
+   "name": "edge_double_autofit",
+   "setup": "ws.Rows(2).RowHeight = 30\nws.Range(\"B2\").Borders(xlEdgeBottom).LineStyle = -4119\nws.Range(\"B2\").Borders(xlEdgeBottom).Weight = 4\nws.Rows(2).AutoFit",
+   "reads": [
+    "ws.Rows(1).RowHeight",
+    "ws.Rows(2).RowHeight",
+    "ws.Rows(3).RowHeight",
+    "ws.Rows(4).RowHeight",
+    "ws.StandardHeight"
+   ],
+   "before": "String:$B$2:$B$3;Double:15;Double:15.75;Double:15.75;Double:15;Double:15;",
+   "after": "String:$B$2:$B$3;Double:15;Double:15.75;Double:15.75;Double:15;Double:15;"
+  },
+  {
+   "name": "edge_double_cleared",
+   "setup": "ws.Range(\"B2\").Borders(xlEdgeBottom).LineStyle = -4119\nws.Range(\"B2\").Borders(xlEdgeBottom).Weight = 4\nws.Range(\"B2\").Borders(xlEdgeBottom).LineStyle = xlNone",
+   "reads": [
+    "ws.Rows(1).RowHeight",
+    "ws.Rows(2).RowHeight",
+    "ws.Rows(3).RowHeight",
+    "ws.Rows(4).RowHeight",
+    "ws.StandardHeight"
+   ],
+   "before": "String:$B$2;Double:15;Double:15;Double:15;Double:15;Double:15;",
+   "after": "String:$A$1;Double:15;Double:15;Double:15;Double:15;Double:15;"
+  },
+  {
+   "name": "edge_row_style_double",
+   "setup": "ws.Rows(2).Borders(xlEdgeBottom).LineStyle = xlDouble",
+   "reads": [
+    "ws.Rows(1).RowHeight",
+    "ws.Rows(2).RowHeight",
+    "ws.Rows(3).RowHeight",
+    "ws.Rows(4).RowHeight",
+    "ws.StandardHeight"
+   ],
+   "before": "String:$A$2:$A$3;Double:15;Double:15.75;Double:15.75;Double:15;Double:15;",
+   "after": "String:$A$2:$A$3;Double:15;Double:15.75;Double:15.75;Double:15;Double:15;"
+  },
+  {
+   "name": "edge_far_column",
+   "setup": "ws.Range(\"XFD2\").Borders(xlEdgeBottom).LineStyle = -4119\nws.Range(\"XFD2\").Borders(xlEdgeBottom).Weight = 4",
+   "reads": [
+    "ws.Rows(1).RowHeight",
+    "ws.Rows(2).RowHeight",
+    "ws.Rows(3).RowHeight",
+    "ws.Rows(4).RowHeight",
+    "ws.StandardHeight"
+   ],
+   "before": "String:$XFD$2:$XFD$3;Double:15;Double:15.75;Double:15.75;Double:15;Double:15;",
+   "after": "String:$XFD$2:$XFD$3;Double:15;Double:15.75;Double:15.75;Double:15;Double:15;"
+  },
+  {
+   "name": "edge_value_medium",
+   "setup": "ws.Range(\"B2\").Value = 5\nws.Range(\"B2\").Borders(xlEdgeBottom).LineStyle = 1\nws.Range(\"B2\").Borders(xlEdgeBottom).Weight = -4138",
+   "reads": [
+    "ws.Rows(2).RowHeight",
+    "ws.Rows(3).RowHeight",
+    "ws.StandardHeight"
+   ],
+   "before": "String:$B$2;Double:15.75;Double:15;Double:15;",
+   "after": "String:$B$2;Double:15.75;Double:15;Double:15;"
+  },
+  {
+   "name": "edge_column_inside_double",
+   "setup": "ws.Columns(3).Borders(xlInsideHorizontal).LineStyle = xlDouble",
+   "reads": [
+    "ws.Rows(1).RowHeight",
+    "ws.Rows(2).RowHeight",
+    "ws.Rows(1048576).RowHeight",
+    "ws.StandardHeight"
+   ],
+   "before": "String:$C$1;Double:16.5;Double:16.5;Double:16.5;Double:16.5;",
+   "after": "String:$C$1;Double:16.5;Double:16.5;Double:16.5;Double:16.5;"
+  },
+  {
+   "name": "edge_column_inside_medium",
+   "setup": "ws.Columns(3).Borders(xlInsideHorizontal).LineStyle = xlContinuous\nws.Columns(3).Borders(xlInsideHorizontal).Weight = xlMedium",
+   "reads": [
+    "ws.Rows(1).RowHeight",
+    "ws.Rows(2).RowHeight",
+    "ws.Rows(1048576).RowHeight",
+    "ws.StandardHeight"
+   ],
+   "before": "String:$C$1;Double:15.75;Double:15.75;Double:15.75;Double:15.75;",
+   "after": "String:$C$1;Double:15.75;Double:15.75;Double:15.75;Double:15.75;"
+  },
+  {
+   "name": "edge_column_double_value",
+   "setup": "ws.Columns(3).Borders(xlInsideHorizontal).LineStyle = xlDouble\nws.Range(\"E5\").Value = 1",
+   "reads": [
+    "ws.Rows(1).RowHeight",
+    "ws.Rows(5).RowHeight",
+    "ws.StandardHeight"
+   ],
+   "before": "String:$C$5:$E$5;Double:16.5;Double:16.5;Double:16.5;",
+   "after": "String:$C$5:$E$5;Double:16.5;Double:16.5;Double:16.5;"
+  },
+  {
+   "name": "edge_sheet_inside_double",
+   "setup": "ws.Cells.Borders(xlInsideHorizontal).LineStyle = xlDouble",
+   "reads": [
+    "ws.Rows(1).RowHeight",
+    "ws.Rows(2).RowHeight",
+    "ws.StandardHeight"
+   ],
+   "before": "String:$A$1;Double:16.5;Double:16.5;Double:16.5;",
+   "after": "String:$A$1;Double:16.5;Double:16.5;Double:16.5;"
+  },
+  {
+   "name": "edge_mix_medium_double",
+   "setup": "ws.Range(\"B2\").Borders(xlEdgeBottom).LineStyle = 1\nws.Range(\"B2\").Borders(xlEdgeBottom).Weight = -4138\nws.Range(\"C2\").Borders(xlEdgeBottom).LineStyle = -4119\nws.Range(\"C2\").Borders(xlEdgeBottom).Weight = 4",
+   "reads": [
+    "ws.Rows(1).RowHeight",
+    "ws.Rows(2).RowHeight",
+    "ws.Rows(3).RowHeight",
+    "ws.Rows(4).RowHeight",
+    "ws.StandardHeight"
+   ],
+   "before": "String:$B$2:$C$2;Double:15;Double:15.75;Double:15;Double:15;Double:15;",
+   "after": "String:$B$2:$C$2;Double:15;Double:15.75;Double:15;Double:15;Double:15;"
+  },
+  {
+   "name": "edge_mix_double_medium",
+   "setup": "ws.Range(\"B2\").Borders(xlEdgeBottom).LineStyle = -4119\nws.Range(\"B2\").Borders(xlEdgeBottom).Weight = 4\nws.Range(\"C2\").Borders(xlEdgeBottom).LineStyle = 1\nws.Range(\"C2\").Borders(xlEdgeBottom).Weight = -4138",
+   "reads": [
+    "ws.Rows(1).RowHeight",
+    "ws.Rows(2).RowHeight",
+    "ws.Rows(3).RowHeight",
+    "ws.Rows(4).RowHeight",
+    "ws.StandardHeight"
+   ],
+   "before": "String:$B$2:$C$3;Double:15;Double:15.75;Double:15.75;Double:15;Double:15;",
+   "after": "String:$B$2:$C$3;Double:15;Double:15.75;Double:15.75;Double:15;Double:15;"
+  },
+  {
+   "name": "edge_mix_c_medium_first",
+   "setup": "ws.Range(\"C2\").Borders(xlEdgeBottom).LineStyle = 1\nws.Range(\"C2\").Borders(xlEdgeBottom).Weight = -4138\nws.Range(\"B2\").Borders(xlEdgeBottom).LineStyle = -4119\nws.Range(\"B2\").Borders(xlEdgeBottom).Weight = 4",
+   "reads": [
+    "ws.Rows(1).RowHeight",
+    "ws.Rows(2).RowHeight",
+    "ws.Rows(3).RowHeight",
+    "ws.Rows(4).RowHeight",
+    "ws.StandardHeight"
+   ],
+   "before": "String:$B$2:$C$3;Double:15;Double:15.75;Double:15.75;Double:15;Double:15;",
+   "after": "String:$B$2:$C$3;Double:15;Double:15.75;Double:15.75;Double:15;Double:15;"
+  },
+  {
+   "name": "edge_mix_thin_double",
+   "setup": "ws.Range(\"B2\").Borders(xlEdgeBottom).LineStyle = 1\nws.Range(\"B2\").Borders(xlEdgeBottom).Weight = 2\nws.Range(\"C2\").Borders(xlEdgeBottom).LineStyle = -4119\nws.Range(\"C2\").Borders(xlEdgeBottom).Weight = 4",
+   "reads": [
+    "ws.Rows(1).RowHeight",
+    "ws.Rows(2).RowHeight",
+    "ws.Rows(3).RowHeight",
+    "ws.Rows(4).RowHeight",
+    "ws.StandardHeight"
+   ],
+   "before": "String:$B$2:$C$3;Double:15;Double:15.75;Double:15.75;Double:15;Double:15;",
+   "after": "String:$B$2:$C$3;Double:15;Double:15.75;Double:15.75;Double:15;Double:15;"
+  },
+  {
+   "name": "edge_mix_top_below",
+   "setup": "ws.Range(\"B2\").Borders(xlEdgeBottom).LineStyle = 1\nws.Range(\"B2\").Borders(xlEdgeBottom).Weight = -4138\nws.Range(\"C3\").Borders(xlEdgeTop).LineStyle = -4119\nws.Range(\"C3\").Borders(xlEdgeTop).Weight = 4",
+   "reads": [
+    "ws.Rows(1).RowHeight",
+    "ws.Rows(2).RowHeight",
+    "ws.Rows(3).RowHeight",
+    "ws.Rows(4).RowHeight",
+    "ws.StandardHeight"
+   ],
+   "before": "String:$B$2:$C$3;Double:15;Double:15.75;Double:15.75;Double:15;Double:15;",
+   "after": "String:$B$2:$C$3;Double:15;Double:15.75;Double:15.75;Double:15;Double:15;"
+  },
+  {
+   "name": "edge_mix_row_then_cell",
+   "setup": "ws.Rows(2).Borders(xlEdgeBottom).LineStyle = xlDouble\nws.Range(\"C2\").Borders(xlEdgeBottom).LineStyle = 1\nws.Range(\"C2\").Borders(xlEdgeBottom).Weight = -4138",
+   "reads": [
+    "ws.Rows(1).RowHeight",
+    "ws.Rows(2).RowHeight",
+    "ws.Rows(3).RowHeight",
+    "ws.Rows(4).RowHeight",
+    "ws.StandardHeight"
+   ],
+   "before": "String:$C$2;Double:15;Double:15.75;Double:15;Double:15;Double:15;",
+   "after": "String:$C$2;Double:15;Double:15.75;Double:15;Double:15;Double:15;"
+  },
+  {
+   "name": "unmeasured_edge_hidden_row",
+   "setup": "ws.Range(\"B2\").Borders(xlEdgeBottom).LineStyle = -4119\nws.Range(\"B2\").Borders(xlEdgeBottom).Weight = 4\nws.Rows(3).Hidden = True",
+   "reads": [
+    "ws.Rows(1).RowHeight",
+    "ws.Rows(2).RowHeight",
+    "ws.Rows(3).RowHeight",
+    "ws.Rows(4).RowHeight",
+    "ws.StandardHeight"
+   ],
+   "before": "String:$B$2:$B$4;Double:15;Double:15.75;Double:0;Double:15.75;Double:15;",
+   "after": "String:$B$2:$B$4;Double:15;Double:15.75;Double:0;Double:15.75;Double:15;"
   }
  ],
  "planted": [

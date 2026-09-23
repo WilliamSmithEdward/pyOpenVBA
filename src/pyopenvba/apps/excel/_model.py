@@ -1033,8 +1033,9 @@ class Worksheet(ExcelObject):
         """The sheet's used block, as UsedRange and a file's dimension give it.
 
         A row with a height, a hidden flag or a format of its own counts,
-        as its cells do; a column counts only while it is hidden keeping a
-        width, or while its format is apart from the sheet's. What is
+        as its cells do, and so does one a border draws taller; a column
+        counts only while it is hidden keeping a width, or while its format
+        is apart from the sheet's. What is
         missing on one side defaults to row 1 or column A. Excel's own
         block only grows while a workbook is open, and shrinks when
         something reads UsedRange; the model's is always the content's.
@@ -1044,6 +1045,7 @@ class Worksheet(ExcelObject):
             live.extend(((area.top, area.left), (area.bottom, area.right)))
         rows = [row for row, _ in live]
         rows.extend(self.dims.record_rows())
+        rows.extend(self.dims.shaped_rows())
         columns = [column for _, column in live]
         columns.extend(self.dims.used_columns())
         if not rows and not columns:

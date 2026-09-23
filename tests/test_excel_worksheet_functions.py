@@ -24,9 +24,7 @@ CASES: list[dict[str, Any]] = RECORD["cases"]
 BATCH = 40
 
 #: Calls the model answers differently, and why.
-KNOWN = {
-    "Choose(1, Empty)": "the engine cannot tell an argument left out from a blank cell, which CHOOSE hands back",
-}
+KNOWN: dict[str, str] = {}
 
 
 def _module() -> str:

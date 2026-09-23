@@ -53,6 +53,21 @@ class Empty:
 
 EMPTY = Empty()
 
+
+class Omitted(Empty):
+    """An argument left out, as a function hands one back: CHOOSE(1,). It is blank to every formula,
+    ``CHOOSE(1,)&"x"`` being x, and VBA alone reads it back as 0, where it reads a blank cell as Empty
+    (pyOpenVBA's tests/fixtures/formula/ and tests/fixtures/worksheet_functions.json)."""
+
+    __slots__ = ()
+    _instance: Empty | None = None
+
+    def __repr__(self) -> str:
+        return "OMITTED"
+
+
+OMITTED = Omitted()
+
 Scalar = float | str | bool | CellError | Empty
 
 NULL = CellError("#NULL!")
@@ -379,6 +394,7 @@ __all__ = [
     "DIV0",
     "EMPTY",
     "ERROR_NUMBERS",
+    "OMITTED",
     "MAX_TEXT",
     "NA",
     "NAME",
@@ -392,6 +408,7 @@ __all__ = [
     "Empty",
     "ExcelError",
     "Lambda",
+    "Omitted",
     "Reference",
     "Scalar",
     "Scope",

@@ -24,10 +24,14 @@ from __future__ import annotations
 
 from collections.abc import Iterator
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 from pyopenvba.formula._calc.host import quote_sheet_name
 from pyopenvba.formula._calc.reference import AxisRef, CellRef
 from pyopenvba.formula._calc.cells import CellError
+
+if TYPE_CHECKING:
+    from pyopenvba.formula._calc.values import Value
 
 
 @dataclass(frozen=True, slots=True)
@@ -196,6 +200,14 @@ class Missing:
     """An argument left empty."""
 
 
+@dataclass(frozen=True, slots=True, eq=False)
+class Given:
+    """A value handed to a function from outside any formula, as VBA hands WorksheetFunction one: a scalar, an array
+    or cells. pyOpenVBA's own (docs/formula_engine.md)."""
+
+    value: Value
+
+
 @dataclass(frozen=True, slots=True)
 class Paren:
     inner: Node
@@ -220,6 +232,7 @@ Node = (
     | Invoke
     | Missing
     | Paren
+    | Given
 )
 
 #: The prefixes a file puts before a function newer than Excel 2007, before
@@ -287,6 +300,8 @@ def render(node: Node) -> str:
 
 
 def _render(node: Node, context: int) -> str:
+    if isinstance(node, Given):
+        raise ValueError("a value handed in from outside a formula has no spelling")
     if isinstance(node, Number):
         return node.text
     if isinstance(node, Text):
@@ -385,6 +400,7 @@ __all__ = [
     "ALL",
     "BINDING",
     "DATA",
+    "Given",
     "HEADERS",
     "PERCENT_BINDING",
     "PREFIX_BINDING",

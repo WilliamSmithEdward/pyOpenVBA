@@ -41,6 +41,7 @@ from pyopenvba.formula._calc.nodes import (
     CellReference,
     ErrorLiteral,
     ErrorReference,
+    Given,
     Invoke,
     Logical,
     Missing,
@@ -64,6 +65,7 @@ from pyopenvba.formula._calc.values import (
     NAME,
     NULL,
     NUM,
+    OMITTED,
     REF,
     VALUE,
     Area,
@@ -267,7 +269,11 @@ class Context:
             return REF
         if isinstance(node, Invoke):
             return self._invoke(self.evaluate(node.target), node.args)
-        return EMPTY
+        if isinstance(node, Given):
+            return node.value
+        # What is left is an argument left empty, which a function can hand back: blank to a formula, CHOOSE(1,)&"x"
+        # being x, and 0 to VBA (see Omitted).
+        return OMITTED
 
     def evaluate_array(self, node: Node) -> Value:
         """node evaluated as an array formula would evaluate it."""

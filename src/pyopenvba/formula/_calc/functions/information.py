@@ -124,7 +124,10 @@ def ERROR_TYPE(context: Context, value: Scalar) -> Value:
 
 def _where(context: Context, reference: Value | None, *, row: bool) -> Value:
     if reference is None:
-        return float(context.row if row else context.column)
+        # An array formula's own row is a one-item array: Evaluate("ROW()") is one (pyOpenVBA's
+        # tests/fixtures/evaluate.json).
+        where = float(context.row if row else context.column)
+        return Array([[where]]) if context.array and not context.legacy else where
     if not isinstance(reference, Reference) or reference.area is None:
         return VALUE
     area = reference.area

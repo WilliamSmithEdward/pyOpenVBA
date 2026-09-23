@@ -1069,18 +1069,23 @@ expression, or one past 255 characters, is Error 2015. ROW() and
 COLUMN() with no argument come back as an array of one, as Excel hands
 them back.
 
-A macro reaches the same functions through `WorksheetFunction.X`, which
-raises error 1004 when the answer is an error, or the late-bound
-`Application.X`, which hands the error back as a value
-(`tests/fixtures/worksheet_functions.json`, 150 calls made both ways). A
+A macro reaches the same functions -- every WorksheetFunction member the
+cell engine has -- through `WorksheetFunction.X`, which raises error
+1004 when the answer is an error, or the late-bound `Application.X`,
+which hands the error back as a value
+(`tests/fixtures/worksheet_functions.json`, 160 calls made both ways). A
 range argument is its cells, a VBA array a row or, with two dimensions
 or as an array of arrays, rows; a Date is its serial, Empty an argument
-left out, and Null error 1004. An array answer is a VBA array counted
-from 1, one-dimensional when it is one row, except where INDEX, CHOOSE
-or XLOOKUP answered with part of a range, which reads back
-two-dimensional; a WorksheetFunction member typed other than Variant
-cannot hand one back, which is error 13. A range or array given where
-one value is wanted is run item by item, as in a cell, into an array.
+left out, and Null error 1004. The arguments are worked out as an array
+formula works them out, so a range or array given where one value is
+wanted is run item by item into an array. An array answer is a VBA
+array counted from 1, one-dimensional when it is one row, except where
+the answer is part of a range, as INDEX, CHOOSE or XLOOKUP give one,
+which reads back two-dimensional; a WorksheetFunction member typed other
+than Variant cannot hand one back, which is error 13. Given single
+values, a function answering one item hands back the item, as
+`Transpose(5)` does; and an argument left out that a function hands back
+reads as 0, `Choose(1, Empty)`, where a blank cell reads as Empty.
 
 **Tables.** `Worksheet.ListObjects` holds the sheet's tables, read from
 a file or made by `ListObjects.Add` over a range

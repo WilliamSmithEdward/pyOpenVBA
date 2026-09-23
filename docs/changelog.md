@@ -608,8 +608,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
   the model missed. RIGHT past the text's length, MATCH over a single
   value, CHOOSE with an array of positions, R1C1 ranges in INDIRECT and
   a number turned to text in twenty characters follow Excel too.
-  Evaluate, WorksheetFunction, a validation's formula and a control's
-  link still use the model's engine.
+- `WorksheetFunction.X`, `Application.X` and `Evaluate` go through the
+  same engine: 388 WorksheetFunction members where the model had 75. A
+  range is handed over as its cells, so COUNTIF, SUBTOTAL and INDEX read
+  cells from VBA as in a cell, and a range of several areas is taken.
 - A cell holds every number as a Double, a date included; its format
   decides what `Value` reads. A query's refreshed rows keep their text as
   text rather than typing it.
@@ -635,6 +637,12 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- AND, OR and XOR pass over a text argument that says neither TRUE nor
+  FALSE, as Excel does: `AND(TRUE,"x")` is TRUE, and only with nothing
+  logical left is the answer #VALUE!. 12 formulas in live Excel pin it.
+- `WorksheetFunction.Choose(1, Empty)` is 0, as in Excel: an argument
+  left out that a function hands back reads as 0 in VBA, where a blank
+  cell reads as Empty. The model answered Empty.
 - A formula whose answer is empty text, which Excel saves as `<v/>`,
   reads back as "" rather than as an empty cell.
 - An `e` in a number format with no sign after it shows the year, as

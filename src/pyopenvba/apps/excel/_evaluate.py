@@ -17,10 +17,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from pyopenvba._a1 import Area
+from pyopenvba.apps.excel._engine_book import EngineBook
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.formula import _parse as P
-from pyopenvba.formula._engine import Context, evaluate_formula
-from pyopenvba.formula._values import ExcelError
+from pyopenvba.formula._calc.evaluator import TableShape
+from pyopenvba.formula._calc.lexer import FormulaSyntaxError
+from pyopenvba.formula._calc.values import ExcelError, Reference
 from pyopenvba.interpreter._values import VBAErrorValue
 
 if TYPE_CHECKING:
@@ -34,9 +37,9 @@ UNREADABLE = 2015
 
 def evaluated(sheet: Worksheet, text: str) -> object:
     """What Evaluate answers for ``text``, with ``sheet`` the one its references are on."""
-    from pyopenvba.apps.excel._calc import as_vba
     from pyopenvba.apps.excel._model import Range
     from pyopenvba.apps.excel._worksheet_functions import answer
+    from pyopenvba.formula._calc.evaluator import Context
 
     if len(text) > LONGEST:
         return VBAErrorValue(UNREADABLE)
@@ -48,21 +51,35 @@ def evaluated(sheet: Worksheet, text: str) -> object:
     if any(token.kind == "structured" and following.kind in ("ref", "name", "structured")
            and following.at == token.at + len(token.text) for token, following in zip(tokens, tokens[1:])):
         raise VBAUnsupportedError(f"Evaluate of {text!r}, which names another workbook, is not implemented")
+    calculator = sheet.book.calculator
     try:
-        node = P.parse(body)
-    except P.FormulaError:
+        node = calculator.engine_book.read("=" + body)
+    except FormulaSyntaxError:
         return VBAErrorValue(UNREADABLE)
-    context = Context(sheet.book.calculator, sheet.name, array=True)
+    now = calculator.now()
+    context = Context(_FromNoCell(calculator), sheet.name, 1, 1, array=True, today=now.date(), now=now)
     try:
-        areas = context.areas_of(node)
+        value = context.formula(node)
     except ExcelError as failure:
-        return as_vba(failure)
-    if areas is not None:
-        owner = sheet.book.sheet_named(areas[0].sheet)
-        assert owner is not None
-        return Range(owner, areas)
-    try:
-        value = evaluate_formula(node, context)
-    except ExcelError as failure:
-        value = failure
+        value = failure.error
+    if isinstance(value, Reference):
+        return _range(sheet, value) if value.areas else Range(sheet, [])
     return answer(value)
+
+
+class _FromNoCell(EngineBook):
+    """The workbook as Evaluate reads it: from no cell, so a column named without its table has no table to be in,
+    and Evaluate("[Qty]") is an error (tests/fixtures/structured_references/)."""
+
+    def table_at(self, sheet: str, row: int, column: int) -> TableShape | None:
+        return None
+
+
+def _range(sheet: Worksheet, reference: Reference) -> object:
+    """The cells an expression came to, as a Range on the sheet they are on."""
+    from pyopenvba.apps.excel._model import Range
+
+    owner = sheet.book.sheet_named(reference.areas[0].sheet)
+    if any(area.sheet != owner.name for area in reference.areas):
+        raise VBAUnsupportedError("Evaluate of cells on more than one sheet is not implemented")
+    return Range(owner, [Area(area.top, area.left, area.bottom, area.right, owner.name) for area in reference.areas])

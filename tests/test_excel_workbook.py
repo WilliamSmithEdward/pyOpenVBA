@@ -178,8 +178,8 @@ def test_a_class_whose_members_sit_on_its_interface_still_tells_a_gap_from_a_typ
 def test_a_worksheet_function_this_lacks_says_which_one() -> None:
     app = fresh()
     with pytest.raises(VBAUnsupportedError) as raised:
-        macro(app, "    Application.WorksheetFunction.Fisher(0.5)")
-    assert "Fisher" in str(raised.value)
+        macro(app, "    Application.WorksheetFunction.BahtText(1)")
+    assert "BahtText" in str(raised.value)
 
 
 # --- loading a real workbook ----------------------------------------------------------------

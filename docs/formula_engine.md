@@ -56,4 +56,11 @@ column's `@` kept escaped: a file writes a column named `@home` as
    over a single value is #N/A; CHOOSE with an array of positions picks
    item by item, lined up as an operator lines arrays up; INDEX's first
    argument, ROWS and COLUMNS are worked out whole; INDIRECT reads an R1C1
-   range.
+   range; AND, OR and XOR pass over a text argument that says neither
+   TRUE nor FALSE, `AND(TRUE,"x")` being TRUE; ROW() and COLUMN() with no
+   argument are an array of one in an array formula.
+8. **Values from VBA.** `nodes.Given` carries a value into a call from
+   outside any formula, as WorksheetFunction hands one: a scalar, an array
+   with blanks in it, or cells. `values.Omitted`, what an argument left
+   empty evaluates to, is blank to every formula (`CHOOSE(1,)&"x"` is x)
+   and reads back in VBA as 0, where a blank cell reads as Empty.

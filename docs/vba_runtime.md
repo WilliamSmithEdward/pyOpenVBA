@@ -904,8 +904,19 @@ hid it -- and 101 to 111 over every hidden row, while hidden columns
 count. It passes over a cell holding SUBTOTAL or AGGREGATE, cuts its
 function number to a whole one, and is recalculated as rows are hidden,
 filtered or shown. A value where it wants a range is error 1004 when the
-formula is written; a reference that OFFSET, INDIRECT, IF, INDEX or a
-reference operator gives reports itself unsupported.
+formula is written. A reference that OFFSET, INDIRECT, IF, INDEX, a name
+or a reference operator gives is read as its cells, every area of a
+union.
+
+A reference can come from more than a cell address
+(`tests/fixtures/reference_forms.json`, 45 formulas). The range operator
+spans any two references, `A1:INDEX(A:A,5)` or `Block:A5`; an
+intersection is the cells two blocks share, `#NULL!` when none; a union
+is read whole by SUM, COUNT, COUNTA, AVERAGE, MAX, MIN, LARGE and
+SUBTOTAL, and COUNTIF refuses it with `#VALUE!`. INDEX, OFFSET,
+INDIRECT, CHOOSE and IF give cells wherever a reference is wanted, and
+CHOOSE and IF hand a block on whole. Another function given a union
+reports itself unsupported.
 
 SUM, AVERAGE, SUMSQ and their kin add one number after another, each
 sum rounded to a double, as Excel adds (`tests/fixtures/variance.json`,
@@ -935,8 +946,8 @@ Anything else is worked out as an array formula, blocks whole, into a
 value, an array counted from 1 or an error value; Evaluate never raises
 a formula's error. An unreadable or empty expression, or one past 255
 characters, is Error 2015. ROW() and COLUMN() with no argument, a
-function run once per item of a block, an intersection inside a formula
-and XLOOKUP's Range are known gaps.
+function run once per item of a block and XLOOKUP's Range are known
+gaps.
 
 A macro reaches the same functions through `WorksheetFunction.X`, which
 raises error 1004 when the answer is an error, or the late-bound

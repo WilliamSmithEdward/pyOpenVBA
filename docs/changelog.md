@@ -87,9 +87,8 @@ All notable changes to pyOpenVBA are documented here. This project follows
   TRUE is 1, and anything outside 1 to 11 and 101 to 111 is `#VALUE!`; a
   value where a range belongs is error 1004 when the formula is written,
   as in Excel. A SUBTOTAL recalculates as rows are hidden, filtered or
-  shown. 31 layouts in live Excel pin it; a reference that OFFSET,
-  INDIRECT, IF, INDEX or a reference operator gives reports itself
-  unsupported.
+  shown. 31 layouts in live Excel pin it, including references that
+  OFFSET, INDIRECT, IF, INDEX, a name or a reference operator give.
 - SUMSQ and DEVSQ, in cells and through `WorksheetFunction`, each
   Excel's double to the bit over 87 sets of numbers. DEVSQ of no numbers
   is `#NUM!`.
@@ -103,9 +102,23 @@ All notable changes to pyOpenVBA are documented here. This project follows
   Excel cannot read, an empty one, or one past 255 characters is Error
   2015. 91 cases in live Excel pin it. Known gaps: ROW() and COLUMN()
   with no argument, which Excel hands back as a one-item array; a
-  function run once per item of a block; an intersection inside a
-  formula; and XLOOKUP's Range. Before, text that was not a reference, a
-  name or an array constant reported itself unsupported.
+  function run once per item of a block; and XLOOKUP's Range. Before,
+  text that was not a reference, a name or an array constant reported
+  itself unsupported.
+- Formulas work with references as Excel does. The range operator
+  joins any two references, so `SUM(A1:INDEX(A:A,5))`,
+  `SUM(INDEX(A1:A10,2):A5)` and `SUM(Block:A5)` add what they span.
+  An intersection, `SUM(A1:A5 A2:B3)`, reads the cells two blocks share
+  and is `#NULL!` when they share none. A union, `SUM((A1:A2,A4))`, is
+  read whole by SUM, COUNT, COUNTA, AVERAGE, MAX, MIN, LARGE and
+  SUBTOTAL, picked from by INDEX's fourth argument and counted by AREAS.
+  COUNTIF refuses it with `#VALUE!`, and a cell holding one is
+  `#VALUE!`. INDEX, OFFSET, INDIRECT, CHOOSE and IF give cells wherever
+  a reference is wanted, for ROWS, ROW, OFFSET's start or a SUBTOTAL.
+  INDIRECT reads a defined name and an R1C1 reference counted from the
+  top left. 45 formulas in live Excel pin it. Before, each reported
+  itself unsupported. Another function given a union, and a relative
+  R1C1 reference in INDIRECT, still do.
 - Defined names are written in Excel's order: by name as the Name Manager
   shows it, ignoring case, a sheet's own before the workbook's.
 - `Range.RemoveDuplicates`. A row goes when the columns asked for hold

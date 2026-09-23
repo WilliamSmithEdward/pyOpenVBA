@@ -38,6 +38,7 @@ from pyopenvba.formula._values import (
     NUM,
     REF,
     VALUE,
+    Areas,
     ExcelError,
     Matrix,
     as_bool,
@@ -53,8 +54,16 @@ from pyopenvba.formula._values import (
 EPOCH: Final = _dt.datetime(1899, 12, 30)
 
 Implementation = Callable[[Context, list[Any]], object]
+Referring = Callable[[Context, list[P.Node]], "list[Area] | None"]
 
 FUNCTIONS: dict[str, tuple[Implementation, bool]] = {}
+#: Functions whose answer can be cells, and how each works out which: what the range operator, an
+#: intersection or ROWS reads from INDEX(A:A,5) or OFFSET(A1,2,0) (tests/fixtures/reference_forms.json).
+REFERENCES: dict[str, Referring] = {}
+#: Functions measured reading every block of a union, (A1:A2,A4), as one argument.
+_READS_AREAS: Final = frozenset({"SUM", "COUNT", "COUNTA", "AVERAGE", "MAX", "MIN", "LARGE", "INDEX"})
+#: Functions measured refusing a union with #VALUE!.
+_REFUSES_AREAS: Final = frozenset({"COUNTIF"})
 
 
 def function(*names: str, lazy: bool = False) -> Callable[[Implementation], Implementation]:
@@ -72,6 +81,17 @@ def function(*names: str, lazy: bool = False) -> Callable[[Implementation], Impl
     return register
 
 
+def refers(*names: str) -> Callable[[Referring], Referring]:
+    """Register how a function that can answer with cells works out which cells."""
+
+    def register(implementation: Referring) -> Referring:
+        for name in names:
+            REFERENCES[name.upper()] = implementation
+        return implementation
+
+    return register
+
+
 def call(name: str, args: list[P.Node], context: Context) -> object:
     """Run a worksheet function, or say honestly why not."""
     upper = name.upper()
@@ -81,7 +101,21 @@ def call(name: str, args: list[P.Node], context: Context) -> object:
     implementation, lazy = found
     if lazy:
         return implementation(context, list(args))
-    return implementation(context, [evaluate(node, context) for node in args])
+    values = [evaluate(node, context) for node in args]
+    if any(isinstance(value, Areas) for value in values):
+        values = _with_areas(upper, values)
+    return implementation(context, values)
+
+
+def _with_areas(name: str, values: list[object]) -> list[object]:
+    """Arguments holding a union, as the function reads it: all its cells, one area, #VALUE!, or not known."""
+    if name in _REFUSES_AREAS:
+        raise VALUE
+    if name not in _READS_AREAS:
+        raise VBAUnsupportedError(f"{name} given several areas at once, (A1:A2,A4), is not implemented")
+    if name == "INDEX":
+        return values
+    return [value.joined() if isinstance(value, Areas) else value for value in values]
 
 
 def _missing(name: str) -> Exception:
@@ -586,18 +620,21 @@ def fn_subtotal(context: Context, nodes: list[Any]) -> object:
         raise VALUE
     values: list[list[object]] = []
     for node in nodes[1:]:
-        area = context.area_of(node)
-        if area is None:
-            raise VBAUnsupportedError("SUBTOTAL over a reference that a function or an operator gives is not implemented")
-        sheet = area.sheet or context.sheet
-        bounded = clip(area, context.grid.used(sheet))
-        passed = context.grid.hidden_rows(sheet, kind > 100)
-        for row in range(bounded.top, bounded.bottom + 1):
-            if row in passed:
-                continue
-            for column in range(bounded.left, bounded.right + 1):
-                if not _subtotalled(context.grid.formula_at(sheet, row, column)):
-                    values.append([context.grid.cell_value(sheet, row, column)])
+        areas = context.areas_of(node)
+        if areas is None:
+            # Written as a value, which Excel refuses when the formula is written: only a formula made some other
+            # way, a name standing for one, reaches here.
+            raise VALUE
+        for area in areas:
+            sheet = area.sheet or context.sheet
+            bounded = clip(area, context.grid.used(sheet))
+            passed = context.grid.hidden_rows(sheet, kind > 100)
+            for row in range(bounded.top, bounded.bottom + 1):
+                if row in passed:
+                    continue
+                for column in range(bounded.left, bounded.right + 1):
+                    if not _subtotalled(context.grid.formula_at(sheet, row, column)):
+                        values.append([context.grid.cell_value(sheet, row, column)])
     return _SUBTOTALS[kind % 100](context, [Matrix(values if values else [[BLANK]])])
 
 
@@ -768,15 +805,23 @@ def fn_averageif(context: Context, args: list[Any]) -> object:
 
 @function("IF", lazy=True)
 def fn_if(context: Context, nodes: list[Any]) -> object:
-    """IF runs only the branch it takes, which is why it is lazy."""
+    """IF runs only the branch it takes, which is why it is lazy; a block it lands on stays whole."""
     if not nodes:
         raise VALUE
     condition = as_bool(single(evaluate(nodes[0], context)))
     if condition:
-        return single(evaluate(nodes[1], context)) if len(nodes) > 1 else True
+        return evaluate(nodes[1], context) if len(nodes) > 1 else True
     if len(nodes) > 2:
-        return single(evaluate(nodes[2], context))
+        return evaluate(nodes[2], context)
     return False
+
+
+@refers("IF")
+def ref_if(context: Context, nodes: list[P.Node]) -> list[Area] | None:
+    if not nodes:
+        raise VALUE
+    branch = 1 if as_bool(single(evaluate(nodes[0], context))) else 2
+    return context.areas_of(nodes[branch]) if branch < len(nodes) else None
 
 
 @function("IFS", lazy=True)
@@ -884,10 +929,19 @@ def fn_switch(context: Context, nodes: list[Any]) -> object:
 
 @function("CHOOSE", lazy=True)
 def fn_choose(context: Context, nodes: list[Any]) -> object:
+    """The value chosen, a block kept whole: SUM(CHOOSE(2,A1:A2,B1:B3)) adds B1:B3."""
     which = int(as_number(single(evaluate(nodes[0], context))))
     if which < 1 or which >= len(nodes):
         raise VALUE
-    return single(evaluate(nodes[which], context))
+    return evaluate(nodes[which], context)
+
+
+@refers("CHOOSE")
+def ref_choose(context: Context, nodes: list[P.Node]) -> list[Area] | None:
+    which = int(as_number(single(evaluate(nodes[0], context)))) if nodes else 0
+    if which < 1 or which >= len(nodes):
+        raise VALUE
+    return context.areas_of(nodes[which])
 
 
 # --- lookup ----------------------------------------------------------------------------------------
@@ -997,7 +1051,14 @@ def fn_match(context: Context, args: list[Any]) -> object:
 
 @function("INDEX")
 def fn_index(context: Context, args: list[Any]) -> object:
-    block = _matrix(args[0])
+    first = args[0]
+    if isinstance(first, Areas):
+        # INDEX((A1:A2,B1:B2),1,1,2): the fourth argument picks the area.
+        number = _int(args, 3, 1)
+        if number < 1 or number > len(first.blocks):
+            raise REF
+        first = first.blocks[number - 1]
+    block = _matrix(first)
     row = _int(args, 1, 0)
     column = _int(args, 2, 0)
     if block.single:
@@ -1024,6 +1085,50 @@ def fn_index(context: Context, args: list[Any]) -> object:
     if row < 1 or row > block.height or column < 1 or column > block.width:
         raise REF
     return block.rows[row - 1][column - 1]
+
+
+@refers("INDEX")
+def ref_index(context: Context, nodes: list[P.Node]) -> list[Area] | None:
+    """INDEX of cells is cells: A1:INDEX(A:A,5) runs to A5, and INDEX(A1:B10,0,2) is B1:B10."""
+    areas = context.areas_of(nodes[0]) if len(nodes) >= 2 else None
+    if areas is None:
+        return None
+    number = _node_int(context, nodes, 3, 1)
+    if number < 1 or number > len(areas):
+        raise REF
+    area = areas[number - 1]
+    row = _node_int(context, nodes, 1, 0)
+    column = _node_int(context, nodes, 2, 0)
+    if len(nodes) < 3 and area.rows == 1 and area.columns > 1:
+        # Given one index, a single row is counted along.
+        row, column = 1, row
+    if row < 0 or column < 0 or row > area.rows or column > area.columns:
+        raise REF
+    top, bottom = (area.top + row - 1,) * 2 if row else (area.top, area.bottom)
+    left, right = (area.left + column - 1,) * 2 if column else (area.left, area.right)
+    return [Area(top, left, bottom, right, area.sheet)]
+
+
+def _node_int(context: Context, nodes: list[P.Node], at: int, default: int) -> int:
+    """A whole-number argument of a function handed its nodes, cut toward zero; left out, the default."""
+    node = nodes[at] if at < len(nodes) else None
+    if node is None or (isinstance(node, P.Literal) and node.value is None):
+        return default
+    value = single(evaluate(node, context))
+    if isinstance(value, ExcelError):
+        raise value
+    if value is BLANK:
+        return default
+    number = as_number(value)
+    return int(number) if number >= 0 else -int(-number)
+
+
+@function("AREAS", lazy=True)
+def fn_areas(context: Context, nodes: list[Any]) -> object:
+    areas = context.areas_of(nodes[0]) if nodes else None
+    if areas is None:
+        raise VALUE
+    return float(len(areas))
 
 
 @function("XLOOKUP")
@@ -1083,41 +1188,64 @@ def fn_columns(context: Context, nodes: list[Any]) -> object:
 
 @function("OFFSET", lazy=True)
 def fn_offset(context: Context, nodes: list[Any]) -> object:
+    moved = ref_offset(context, nodes)
+    assert moved is not None
+    return context.grid.block(context.sheet, moved[0])
+
+
+@refers("OFFSET")
+def ref_offset(context: Context, nodes: list[P.Node]) -> list[Area] | None:
     area = context.area_of(nodes[0]) if nodes else None
     if area is None:
         raise REF
-    down = int(as_number(single(evaluate(nodes[1], context)))) if len(nodes) > 1 else 0
-    across = int(as_number(single(evaluate(nodes[2], context)))) if len(nodes) > 2 else 0
-    height = area.rows
-    width = area.columns
-    if len(nodes) > 3 and not isinstance(nodes[3], P.Literal):
-        height = int(as_number(single(evaluate(nodes[3], context))))
-    elif len(nodes) > 3 and isinstance(nodes[3], P.Literal) and nodes[3].value is not None:
-        height = int(as_number(nodes[3].value))
-    if len(nodes) > 4 and not isinstance(nodes[4], P.Literal):
-        width = int(as_number(single(evaluate(nodes[4], context))))
-    elif len(nodes) > 4 and isinstance(nodes[4], P.Literal) and nodes[4].value is not None:
-        width = int(as_number(nodes[4].value))
-    top = area.top + down
-    left = area.left + across
+    top = area.top + _node_int(context, nodes, 1, 0)
+    left = area.left + _node_int(context, nodes, 2, 0)
+    height = _node_int(context, nodes, 3, area.rows)
+    width = _node_int(context, nodes, 4, area.columns)
     if top < 1 or left < 1 or height < 1 or width < 1:
         raise REF
     if top + height - 1 > MAX_ROWS or left + width - 1 > MAX_COLUMNS:
         raise REF
-    moved = Area(top, left, top + height - 1, left + width - 1, area.sheet)
-    return context.grid.block(context.sheet, moved)
+    return [Area(top, left, top + height - 1, left + width - 1, area.sheet)]
 
 
 @function("INDIRECT", lazy=True)
 def fn_indirect(context: Context, nodes: list[Any]) -> object:
+    found = ref_indirect(context, nodes)
+    assert found is not None
+    return context.grid.block(context.sheet, found[0])
+
+
+#: An R1C1 reference counted from the top left, which INDIRECT(text,FALSE) reads: R1C1 or R1C1:R3C1.
+_R1C1: Final = re.compile(r"R([0-9]+)C([0-9]+)(?::R([0-9]+)C([0-9]+))?", re.IGNORECASE)
+
+
+@refers("INDIRECT")
+def ref_indirect(context: Context, nodes: list[P.Node]) -> list[Area] | None:
+    """The cells a text names: A1 style, a defined name, or R1C1 style when the second argument is FALSE."""
     text = as_text(single(evaluate(nodes[0], context)))
     sheet, body = P.split_sheet(text)
-    reference = P.Reference(text=body.replace("$", ""), sheet=sheet)
+    if sheet and not context.grid.sheet_exists(sheet):
+        raise REF
+    if len(nodes) > 1 and not as_bool(single(evaluate(nodes[1], context))):
+        match = _R1C1.fullmatch(body)
+        if match is None:
+            if "[" in body or re.fullmatch(r"R\[?-?[0-9]*\]?C\[?-?[0-9]*\]?(?::.*)?", body, re.IGNORECASE):
+                raise VBAUnsupportedError(f"INDIRECT of the relative R1C1 reference {text!r} is not implemented")
+            raise REF
+        top, bottom = sorted((int(match[1]), int(match[3] or match[1])))
+        left, right = sorted((int(match[2]), int(match[4] or match[2])))
+        if top < 1 or left < 1 or bottom > MAX_ROWS or right > MAX_COLUMNS:
+            raise REF
+        return [Area(top, left, bottom, right, sheet or context.sheet)]
     try:
-        area = context.resolve(reference)
+        return [context.resolve(P.Reference(text=body.replace("$", ""), sheet=sheet))]
     except ExcelError:
-        raise REF from None
-    return context.grid.block(context.sheet, area)
+        pass
+    named = context.areas_of(P.NameNode(name=body, sheet=sheet)) if re.fullmatch(r"[A-Za-z_\\][\w.\\]*", body) else None
+    if named is None:
+        raise REF
+    return named
 
 
 @function("TRANSPOSE")

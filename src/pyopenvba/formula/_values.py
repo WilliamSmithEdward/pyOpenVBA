@@ -270,8 +270,26 @@ def as_bool(value: object) -> bool:
     return as_number(value) != 0
 
 
+@dataclass(frozen=True, slots=True)
+class Areas:
+    """Several blocks named at once, as (A1:A2,A4) names them.
+
+    SUM, COUNT, AVERAGE, MAX, LARGE and the like read every cell of
+    every block; where one value is wanted it is #VALUE!, as =(A1:A2,A4)
+    is in a cell (tests/fixtures/reference_forms.json).
+    """
+
+    blocks: tuple[Matrix, ...]
+
+    def joined(self) -> Matrix:
+        """Every cell of every block, in order, as one column."""
+        return Matrix([[item] for block in self.blocks for item in block.flat()])
+
+
 def single(value: object) -> object:
     """A block reduced to the one value an operator can use."""
+    if isinstance(value, Areas):
+        return VALUE
     return value.first() if isinstance(value, Matrix) else value
 
 

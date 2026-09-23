@@ -108,7 +108,7 @@ Application,EnableLivePreview,property,As Boolean,,MISSING,,
 Application,EnableMacroAnimations,property,As Boolean,,MISSING,,
 Application,EnableSound,property,As Boolean,,MISSING,,
 Application,ErrorCheckingOptions,"property, read-only",As ErrorCheckingOptions,,MISSING,,
-Application,Evaluate,method,Evaluate(Name As Variant) As Variant,,PARTIAL,tests/fixtures/evaluate.json; tests/fixtures/excel_model/probes.txt; tests/fixtures/autofilter_edits.json,"An expression on the active sheet, as Evaluate works it out: cells come back as a Range, blocks are worked out whole into arrays counted from 1, an error comes back as an error value, and an unreadable, empty or over-long expression is Error 2015. ROW() and COLUMN() with no argument, a function run once per item of a block, an intersection inside a formula and XLOOKUP's Range are known gaps."
+Application,Evaluate,method,Evaluate(Name As Variant) As Variant,,PARTIAL,tests/fixtures/evaluate.json; tests/fixtures/excel_model/probes.txt; tests/fixtures/autofilter_edits.json,"An expression on the active sheet, as Evaluate works it out: cells come back as a Range, blocks are worked out whole into arrays counted from 1, an error comes back as an error value, and an unreadable, empty or over-long expression is Error 2015. ROW() and COLUMN() with no argument, a function run once per item of a block and XLOOKUP's Range are known gaps."
 Application,Excel4IntlMacroSheets,"property, read-only",As Sheets,,MISSING,,
 Application,Excel4MacroSheets,"property, read-only",As Sheets,,MISSING,,
 Application,ExecuteExcel4Macro,method,ExecuteExcel4Macro(String As String) As Variant,,MISSING,,

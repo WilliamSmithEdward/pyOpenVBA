@@ -31,7 +31,6 @@ KNOWN = {
 }
 #: Cases that report themselves unsupported, and why.
 UNSUPPORTED = {
-    ("Application", "SUM(A1:A5 A2:B3)"): "an intersection inside a formula",
     ("Application", "XLOOKUP(3,A1:A5,B1:B5)"): "XLOOKUP, which Evaluate hands back as a Range",
 }
 

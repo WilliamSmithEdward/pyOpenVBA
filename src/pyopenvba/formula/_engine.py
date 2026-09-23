@@ -25,9 +25,11 @@ from pyopenvba.formula._values import (
     BLANK,
     DIV0,
     NAME,
+    NULL,
     NUM,
     REF,
     VALUE,
+    Areas,
     ExcelError,
     Matrix,
     as_bool,
@@ -98,12 +100,34 @@ class Context:
         return evaluate(node, self)
 
     def area_of(self, node: P.Node | None) -> Area | None:
-        """The block a node names, where it names one."""
+        """The block a node names, where it names one block."""
+        areas = self.areas_of(node)
+        return areas[0] if areas is not None and len(areas) == 1 else None
+
+    def areas_of(self, node: P.Node | None) -> list[Area] | None:
+        """The blocks a node names, or None when it comes to a value.
+
+        A reference, a name for cells, the range operator, an intersection
+        or a union, and INDEX, OFFSET, INDIRECT, CHOOSE or IF landing on
+        cells all name blocks (tests/fixtures/reference_forms.json).
+        """
         if isinstance(node, P.Reference):
-            return self.resolve(node)
+            return [self.resolve(node)]
         if isinstance(node, P.NameNode):
             found = self.grid.named(node.name, node.sheet or self.sheet)
-            return found if isinstance(found, Area) else None
+            if isinstance(found, Area):
+                return [found]
+            return self.areas_of(found) if isinstance(found, P.Node) else None
+        if isinstance(node, P.Binary) and node.op in P.REFERENCE_OPS:
+            left, right = self.areas_of(node.left), self.areas_of(node.right)
+            if left is None or right is None:
+                raise VALUE
+            return _joined(node.op, left, right)
+        if isinstance(node, P.Call):
+            from pyopenvba.formula._functions import REFERENCES
+
+            found_references = REFERENCES.get(node.name.upper())
+            return found_references(self, node.args) if found_references is not None else None
         return None
 
     def resolve(self, node: P.Reference) -> Area:
@@ -195,12 +219,40 @@ def _safely(apply: Callable[[object], object], value: object) -> object:
         return failure
 
 
+def _joined(op: str, left: list[Area], right: list[Area]) -> list[Area]:
+    """Two references joined by a reference operator: the block spanning both, the cells they share, or both."""
+    if op == ",":
+        return left + right
+    if op == ":":
+        if len(left) != 1 or len(right) != 1 or left[0].sheet.lower() != right[0].sheet.lower():
+            raise VALUE
+        first, second = left[0], right[0]
+        return [Area(min(first.top, second.top), min(first.left, second.left), max(first.bottom, second.bottom),
+                     max(first.right, second.right), first.sheet)]
+    shared: list[Area] = []
+    for first in left:
+        for second in right:
+            top, bottom = max(first.top, second.top), min(first.bottom, second.bottom)
+            start, end = max(first.left, second.left), min(first.right, second.right)
+            if first.sheet.lower() == second.sheet.lower() and top <= bottom and start <= end:
+                shared.append(Area(top, start, bottom, end, first.sheet))
+    if not shared:
+        # Blocks that do not meet, A1:A2 B3:B4.
+        raise NULL
+    return shared
+
+
+def _referenced(areas: list[Area], context: Context) -> object:
+    """What the blocks a reference operator names hold: one block, or several at once."""
+    blocks = [context.grid.block(context.sheet, area) for area in areas]
+    return blocks[0] if len(blocks) == 1 else Areas(tuple(blocks))
+
+
 def _binary(node: P.Binary, context: Context, *, snap: bool = False) -> object:
     if node.op in P.REFERENCE_OPS:
-        from pyopenvba.exceptions import VBAUnsupportedError
-
-        raise VBAUnsupportedError("a range between references, an intersection or a union of references in a "
-                                  "formula is not implemented")
+        areas = context.areas_of(node)
+        assert areas is not None
+        return _referenced(areas, context)
     left = _operand(node.left, context)
     right = _operand(node.right, context)
     if isinstance(left, Matrix) or isinstance(right, Matrix):

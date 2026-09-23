@@ -21,8 +21,8 @@ from pyopenvba.exceptions import VBAUnsupportedError
 RECORD: dict[str, Any] = json.loads((Path(__file__).parent / "fixtures" / "subtotal.json").read_text(encoding="utf-8"))
 LAYOUTS: list[dict[str, Any]] = RECORD["layouts"]
 
-#: Layouts the model refuses, and why: it keeps no reference through a function's answer or an operator.
-UNSUPPORTED = {"reference_arguments": "a reference that OFFSET, INDIRECT, IF, INDEX or a reference operator gives"}
+#: Layouts the model refuses, and why.
+UNSUPPORTED: dict[str, str] = {}
 
 
 def _run(layout: dict[str, Any]) -> object:

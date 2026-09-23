@@ -1,0 +1,230 @@
+{
+ "setup": "Private Sub Fill(ws As Object)\n    Dim r As Long\n    For r = 1 To 10\n        ws.Cells(r, 1).Value = r\n        ws.Cells(r, 2).Value = r + 10\n    Next\n    ws.Range(\"C1\").Value = \"x\"\n    ws.Range(\"C2\").Value = \"y\"\n    ws.Range(\"C3\").Value = \"z\"\n    ws.Parent.Names.Add Name:=\"Block\", RefersTo:=\"=\" & ws.Name & \"!$A$1:$A$3\"\n    ws.Parent.Names.Add Name:=\"Dyn\", RefersTo:=\"=OFFSET(\" & ws.Name & \"!$A$1,0,0,3,1)\"\n    ws.Parent.Names.Add Name:=\"Pick\", RefersTo:=\"=INDEX(\" & ws.Name & \"!$A$1:$A$10,4)\"\nEnd Sub\n",
+ "cases": [
+  {
+   "formula": "=SUM(A1:INDEX(A1:A10,3))",
+   "spelled": "=SUM(A1:INDEX(A1:A10,3))",
+   "value": "Double:6"
+  },
+  {
+   "formula": "=SUM(INDEX(A1:A10,2):A5)",
+   "spelled": "=SUM(INDEX(A1:A10,2):A5)",
+   "value": "Double:14"
+  },
+  {
+   "formula": "=SUM(INDEX(A1:A10,2):INDEX(A1:A10,4))",
+   "spelled": "=SUM(INDEX(A1:A10,2):INDEX(A1:A10,4))",
+   "value": "Double:9"
+  },
+  {
+   "formula": "=SUM(A1:OFFSET(A1,2,0))",
+   "spelled": "=SUM(A1:OFFSET(A1,2,0))",
+   "value": "Double:6"
+  },
+  {
+   "formula": "=SUM(INDIRECT(\"A1\"):A3)",
+   "spelled": "=SUM(INDIRECT(\"A1\"):A3)",
+   "value": "Double:6"
+  },
+  {
+   "formula": "=SUM(Block:A5)",
+   "spelled": "=SUM(Block:A5)",
+   "value": "Double:15"
+  },
+  {
+   "formula": "=SUM(Pick:A6)",
+   "spelled": "=SUM(Pick:A6)",
+   "value": "Double:15"
+  },
+  {
+   "formula": "=SUM(A1:A3:B5)",
+   "spelled": "=SUM(A1:A3:B5)",
+   "value": "Double:80"
+  },
+  {
+   "formula": "=ROWS(A1:INDEX(A:A,4))",
+   "spelled": "=ROWS(A1:INDEX(A:A,4))",
+   "value": "Double:4"
+  },
+  {
+   "formula": "=COLUMNS(A1:INDEX(A1:C10,1,3))",
+   "spelled": "=COLUMNS(A1:INDEX(A1:C10,1,3))",
+   "value": "Double:3"
+  },
+  {
+   "formula": "=SUMIF(A1:INDEX(A1:A10,5),\">2\")",
+   "spelled": "=SUMIF(A1:INDEX(A1:A10,5),\">2\")",
+   "value": "Double:12"
+  },
+  {
+   "formula": "=SUMPRODUCT(A1:INDEX(A1:A10,3))",
+   "spelled": "=SUMPRODUCT(A1:INDEX(A1:A10,3))",
+   "value": "Double:6"
+  },
+  {
+   "formula": "=SUM(A1:A5 A2:B3)",
+   "spelled": "=SUM(A1:A5 A2:B3)",
+   "value": "Double:5"
+  },
+  {
+   "formula": "=A1:A5 A3:B3",
+   "spelled": "=A1:A5 A3:B3",
+   "value": "Double:3"
+  },
+  {
+   "formula": "=A1:A2 B3:B4",
+   "spelled": "=A1:A2 B3:B4",
+   "value": "Error:2000"
+  },
+  {
+   "formula": "=A1:A3 A2",
+   "spelled": "=A1:A3 A2",
+   "value": "Double:2"
+  },
+  {
+   "formula": "=SUM(A1:A10 A5:A6)",
+   "spelled": "=SUM(A1:A10 A5:A6)",
+   "value": "Double:11"
+  },
+  {
+   "formula": "=SUM(A:A A3)",
+   "spelled": "=SUM(A:A A3)",
+   "value": "Double:3"
+  },
+  {
+   "formula": "=SUM((A1:A2,A4))",
+   "spelled": "=SUM((A1:A2,A4))",
+   "value": "Double:7"
+  },
+  {
+   "formula": "=COUNT((A1:A2,C1))",
+   "spelled": "=COUNT((A1:A2,C1))",
+   "value": "Double:2"
+  },
+  {
+   "formula": "=COUNTA((A1:A2,C1))",
+   "spelled": "=COUNTA((A1:A2,C1))",
+   "value": "Double:3"
+  },
+  {
+   "formula": "=AVERAGE((A1:A2,A4))",
+   "spelled": "=AVERAGE((A1:A2,A4))",
+   "value": "Double:2.33333333333333"
+  },
+  {
+   "formula": "=MAX((A1:A2,B1:B2))",
+   "spelled": "=MAX((A1:A2,B1:B2))",
+   "value": "Double:12"
+  },
+  {
+   "formula": "=MIN((A3,B1:B2))",
+   "spelled": "=MIN((A3,B1:B2))",
+   "value": "Double:3"
+  },
+  {
+   "formula": "=(A1:A2,A4)",
+   "spelled": "=(A1:A2,A4)",
+   "value": "Error:2015"
+  },
+  {
+   "formula": "=INDEX((A1:A2,B1:B2),1,1,2)",
+   "spelled": "=INDEX((A1:A2,B1:B2),1,1,2)",
+   "value": "Double:11"
+  },
+  {
+   "formula": "=AREAS((A1:A2,A4))",
+   "spelled": "=AREAS((A1:A2,A4))",
+   "value": "Double:2"
+  },
+  {
+   "formula": "=SUBTOTAL(9,(A1:A2,A4))",
+   "spelled": "=SUBTOTAL(9,(A1:A2,A4))",
+   "value": "Double:7"
+  },
+  {
+   "formula": "=COUNTIF((A1:A2,A4),\">1\")",
+   "spelled": "=COUNTIF((A1:A2,A4),\">1\")",
+   "value": "Error:2015"
+  },
+  {
+   "formula": "=LARGE((A1:A2,A4),1)",
+   "spelled": "=LARGE((A1:A2,A4),1)",
+   "value": "Double:4"
+  },
+  {
+   "formula": "=SUM(OFFSET(A1,1,0,3,1))",
+   "spelled": "=SUM(OFFSET(A1,1,0,3,1))",
+   "value": "Double:9"
+  },
+  {
+   "formula": "=SUM(INDIRECT(\"A1:A3\"))",
+   "spelled": "=SUM(INDIRECT(\"A1:A3\"))",
+   "value": "Double:6"
+  },
+  {
+   "formula": "=SUM(INDIRECT(\"R1C1:R3C1\",FALSE))",
+   "spelled": "=SUM(INDIRECT(\"R1C1:R3C1\",FALSE))",
+   "value": "Double:6"
+  },
+  {
+   "formula": "=SUM(IF(TRUE,A1:A3))",
+   "spelled": "=SUM(IF(TRUE,A1:A3))",
+   "value": "Double:6"
+  },
+  {
+   "formula": "=SUM(CHOOSE(2,A1:A2,B1:B3))",
+   "spelled": "=SUM(CHOOSE(2,A1:A2,B1:B3))",
+   "value": "Double:36"
+  },
+  {
+   "formula": "=SUM(Dyn)",
+   "spelled": "=SUM(Dyn)",
+   "value": "Double:6"
+  },
+  {
+   "formula": "=ROW(INDEX(A1:A10,4))",
+   "spelled": "=ROW(INDEX(A1:A10,4))",
+   "value": "Double:4"
+  },
+  {
+   "formula": "=SUM(OFFSET(Block,1,0))",
+   "spelled": "=SUM(OFFSET(Block,1,0))",
+   "value": "Double:9"
+  },
+  {
+   "formula": "=SUM(INDEX(A1:B10,0,2))",
+   "spelled": "=SUM(INDEX(A1:B10,0,2))",
+   "value": "Double:155"
+  },
+  {
+   "formula": "=SUM(INDEX(A1:B10,2,0))",
+   "spelled": "=SUM(INDEX(A1:B10,2,0))",
+   "value": "Double:14"
+  },
+  {
+   "formula": "=Pick",
+   "spelled": "=Pick",
+   "value": "Double:4"
+  },
+  {
+   "formula": "=Pick*2",
+   "spelled": "=Pick*2",
+   "value": "Double:8"
+  },
+  {
+   "formula": "=SUM(INDIRECT(\"Block\"))",
+   "spelled": "=SUM(INDIRECT(\"Block\"))",
+   "value": "Double:6"
+  },
+  {
+   "formula": "=SUM(INDIRECT(\"Sheet1!A1:A2\"))",
+   "spelled": "=SUM(INDIRECT(\"Sheet1!A1:A2\"))",
+   "value": "Double:3"
+  },
+  {
+   "formula": "=SUM(INDIRECT(\"Nowhere!A1\"))",
+   "spelled": "=SUM(INDIRECT(\"Nowhere!A1\"))",
+   "value": "Error:2023"
+  }
+ ]
+}

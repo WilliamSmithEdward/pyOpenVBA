@@ -16,7 +16,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from pyopenvba._a1 import Area
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.formula import _parse as P
 from pyopenvba.formula._engine import Context, evaluate_formula
@@ -30,8 +29,6 @@ if TYPE_CHECKING:
 LONGEST = 255
 #: What Evaluate answers for an expression it cannot read: #VALUE!, by its CVErr number.
 UNREADABLE = 2015
-#: Functions whose answer can be cells, which Evaluate then hands back as a Range.
-_REFERRING = frozenset({"INDEX", "OFFSET", "INDIRECT", "CHOOSE", "IF"})
 
 
 def evaluated(sheet: Worksheet, text: str) -> object:
@@ -48,9 +45,11 @@ def evaluated(sheet: Worksheet, text: str) -> object:
         node = P.parse(text.strip().removeprefix("="))
     except P.FormulaError:
         return VBAErrorValue(UNREADABLE)
+    if isinstance(node, P.Call) and node.name.upper() == "XLOOKUP":
+        raise VBAUnsupportedError("Evaluate of XLOOKUP, which comes to a Range, is not implemented")
     context = Context(sheet.book.calculator, sheet.name, array=True)
     try:
-        areas = _areas(sheet, node, context)
+        areas = context.areas_of(node)
     except ExcelError as failure:
         return as_vba(failure)
     if areas is not None:
@@ -62,40 +61,3 @@ def evaluated(sheet: Worksheet, text: str) -> object:
     except ExcelError as failure:
         value = failure
     return answer(value)
-
-
-def _areas(sheet: Worksheet, node: P.Node | None, context: Context) -> list[Area] | None:
-    """The cells an expression comes to, or None when it comes to a value."""
-    from pyopenvba.apps.excel._control_refs import formula_area
-
-    if isinstance(node, P.Reference):
-        return [context.resolve(node)]
-    if isinstance(node, P.NameNode):
-        named = context.grid.named(node.name, node.sheet or context.sheet)
-        return [named] if isinstance(named, Area) else None
-    if isinstance(node, P.Binary) and node.op == ",":
-        left, right = _areas(sheet, node.left, context), _areas(sheet, node.right, context)
-        return None if left is None or right is None else left + right
-    if isinstance(node, P.Binary) and node.op == " ":
-        left, right = _areas(sheet, node.left, context), _areas(sheet, node.right, context)
-        if left is None or right is None or len(left) != 1 or len(right) != 1:
-            return None
-        return [_intersection(left[0], right[0])]
-    if isinstance(node, P.Call) and node.name.upper() == "XLOOKUP":
-        raise VBAUnsupportedError("Evaluate of XLOOKUP, which comes to a Range, is not implemented")
-    if isinstance(node, P.Call) and node.name.upper() in _REFERRING:
-        found = formula_area(sheet, node)
-        if found is None:
-            return None
-        # INDIRECT("A2") names no sheet: the one Evaluate works on.
-        return [Area(found.top, found.left, found.bottom, found.right, found.sheet or context.sheet)]
-    return None
-
-
-def _intersection(first: Area, second: Area) -> Area:
-    """The cells two blocks share; none is #NULL!, as A1:A2 B1:B2 is."""
-    top, bottom = max(first.top, second.top), min(first.bottom, second.bottom)
-    left, right = max(first.left, second.left), min(first.right, second.right)
-    if first.sheet.lower() != second.sheet.lower() or top > bottom or left > right:
-        raise ExcelError("#NULL!")
-    return Area(top, left, bottom, right, first.sheet)

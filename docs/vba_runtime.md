@@ -328,6 +328,29 @@ axes with Excel's additional relative shifts, and fill uncovered cells with
 unchanged. Higher-dimensional arrays raise error 13. Each area of a multi-area
 target starts from the first array element.
 
+**Sorting.** `Range.Sort` and `Worksheet.Sort` sort as Excel does
+(`tests/fixtures/sort.json`, 58 layouts; `tests/fixtures/sort_order.json`,
+583 values four ways).
+
+* Ascending, numbers come first, then text, then FALSE and TRUE, then
+  errors, which all compare equal; descending reverses that, and blank
+  cells go last either way. Rows that compare equal keep their order.
+* Text sorts as Windows sorts words: spaces and marks, then digits, then
+  letters, case ignored unless MatchCase puts lower case first, and
+  hyphens and apostrophes passed over but for breaking ties, so `coop`
+  comes before `co-op` and both before `cop`. That is reproduced for
+  ASCII; text with other characters reports itself unsupported.
+* Each row of the range moves whole, formats and all, its formulas
+  shifting as a copy's would; nothing outside the range changes. A single
+  cell sorts its current region, and a key outside the range, or none,
+  is error 1004.
+* An omitted Header is xlNo. xlGuess keeps the first row out when, in any
+  column, it and the row under it both hold something and differ in
+  kind, in any part of their format, or in the first being in capitals
+  and the second not. The Sort object keeps a header only for xlYes.
+* xlSortTextAsNumbers sorts text that would type as a number -- `(3)`,
+  `5%`, `$5`, `1,000` -- as that number, among the numbers.
+
 **The clipboard.** `Range.Copy` and `Range.Cut` with no destination put
 the range on the clipboard, and `Application.CutCopyMode` reads 1 after
 a copy, 2 after a cut and 0 once it is cleared; setting it to False

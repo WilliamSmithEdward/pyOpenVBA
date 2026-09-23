@@ -51,6 +51,7 @@ from pyopenvba.interpreter._values import (
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._clipboard import Clip
+    from pyopenvba.apps.excel._sort import SortState
     from pyopenvba.apps.excel._styles import Style, Stylesheet
     from pyopenvba.apps.excel._typing import Typed
     from pyopenvba.interpreter._runtime import Interpreter
@@ -722,6 +723,8 @@ class Worksheet(ExcelObject):
         #: Row heights, column widths and what is hidden.
         self.dims = _dimensions.SheetDimensions(self)
         self.selection_range: Range | None = None
+        #: The settings Worksheet.Sort holds, made the first time it is asked for.
+        self.sort_state: SortState | None = None
         self.active_cell_range: Range | None = None
         #: What the sheet's XML part was called in the file it came from.
         self.part_name = ""
@@ -939,6 +942,13 @@ class Worksheet(ExcelObject):
     def Names(self, Index: object = MISSING) -> object:
         names = Names(self.book, self)
         return names if Index is MISSING else names.vba_get("Item", [Index])
+
+    @member
+    def Sort(self) -> object:
+        """The sheet's sort settings, as a recorded macro sets and applies them."""
+        from pyopenvba.apps.excel._sort import SortObject
+
+        return SortObject(self)
 
     # -- methods
 
@@ -1944,6 +1954,17 @@ class Range(ExcelObject):
         for source, target in plans:
             Range(self.sheet, [source]).copy_to(Range(self.sheet, [target]))
         return True
+
+    @method
+    def Sort(self, Key1: object = MISSING, Order1: object = MISSING, Key2: object = MISSING, Type: object = MISSING,
+             Order2: object = MISSING, Key3: object = MISSING, Order3: object = MISSING, Header: object = MISSING,
+             OrderCustom: object = MISSING, MatchCase: object = MISSING, Orientation: object = MISSING,
+             SortMethod: object = MISSING, DataOption1: object = MISSING, DataOption2: object = MISSING,
+             DataOption3: object = MISSING) -> object:
+        from pyopenvba.apps.excel._sort import range_sort
+
+        return range_sort(self, [(Key1, Order1, DataOption1), (Key2, Order2, DataOption2), (Key3, Order3, DataOption3)],
+                          Header, OrderCustom, MatchCase, Orientation)
 
     @method
     def SpecialCells(self, Type: object = MISSING, Value: object = MISSING) -> object:

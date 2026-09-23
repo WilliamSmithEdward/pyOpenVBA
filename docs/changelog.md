@@ -49,6 +49,18 @@ All notable changes to pyOpenVBA are documented here. This project follows
   what it pads the cell with depends on the width in pixels. Before, both went
   through Access's `Format`, which spelled `$#,##0_)` as `$5_)`, fractions
   as `2 ?/?` and `[h]:mm:ss` as `[1]:00:00`.
+- `Range.Sort`, and `Worksheet.Sort` with its `SortFields`, `SetRange`,
+  `Header`, `MatchCase`, `Orientation` and `Apply` as a recorded macro
+  uses them. Numbers sort before text, text before FALSE and TRUE, those
+  before errors, and blanks go last either way; the sort is stable. Text
+  sorts as Excel sorts it -- marks before digits before letters, case
+  ignored unless asked for, hyphens and apostrophes passed over but for
+  ties -- for ASCII, checked on 400 random strings; text beyond ASCII
+  reports itself unsupported. Rows move whole, formulas shifting with
+  them. Up to three keys, orders, orientation and text sorted as numbers
+  work; a single cell sorts its current region; an omitted Header is
+  xlNo, and xlGuess takes the first row for a header as Excel does. 58
+  layouts and four orderings of 583 values in live Excel pin it.
 - The clipboard, as recorded macros use it. `Range.Copy` and the new
   `Range.Cut` with no destination put the range on it, and
   `CutCopyMode` reads 1 or 2. The new `Worksheet.Paste` pastes it at a

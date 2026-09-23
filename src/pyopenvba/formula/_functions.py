@@ -239,7 +239,7 @@ def fn_mround(context: Context, args: list[Any]) -> object:
     return _round_half_up(number / step, 0) * step
 
 
-@function("CEILING", "CEILING.MATH")
+@function("CEILING")
 def fn_ceiling(context: Context, args: list[Any]) -> object:
     number = as_number(_one(args, 0))
     step = as_number(_one(args, 1)) if len(args) > 1 else 1.0
@@ -247,6 +247,19 @@ def fn_ceiling(context: Context, args: list[Any]) -> object:
         return 0.0
     if (number < 0) != (step < 0) and len(args) > 1:
         raise NUM
+    return math.ceil(number / step) * step
+
+
+@function("CEILING.MATH")
+def fn_ceiling_math(context: Context, args: list[Any]) -> object:
+    """Up to a multiple of the significance, whatever its sign; a negative number with a mode goes away from zero."""
+    number = as_number(_one(args, 0))
+    step = abs(as_number(_one(args, 1, 1.0))) if len(args) > 1 else 1.0
+    mode = as_number(_one(args, 2, 0.0)) if len(args) > 2 else 0.0
+    if step == 0:
+        return 0.0
+    if number < 0 and mode != 0:
+        return -math.ceil(-number / step) * step
     return math.ceil(number / step) * step
 
 
@@ -273,8 +286,12 @@ def fn_mod(context: Context, args: list[Any]) -> object:
 
 @function("POWER")
 def fn_power(context: Context, args: list[Any]) -> object:
+    base, exponent = as_number(_one(args, 0, BLANK)), as_number(_one(args, 1, BLANK))
+    if base == 0 and exponent == 0:
+        # Excel has no answer for 0 to the 0, where Python says 1.
+        raise NUM
     try:
-        result = as_number(_one(args, 0)) ** as_number(_one(args, 1))
+        result = base**exponent
     except (OverflowError, ValueError, ZeroDivisionError):
         raise NUM from None
     if isinstance(result, complex):
@@ -416,17 +433,32 @@ def fn_small(context: Context, args: list[Any]) -> object:
 
 @function("COUNT")
 def fn_count(context: Context, args: list[Any]) -> object:
-    """COUNT counts numbers and walks past an error, where SUM stops at one."""
+    """COUNT counts numbers and walks past an error, where SUM stops at one.
+
+    Inside a range or array only numbers count; an argument given on its
+    own counts when it is a number, TRUE or FALSE, text that reads as a
+    number, or left out, as in COUNT(,).
+    """
     total = 0
-    for value in _values(args):
-        if isinstance(value, (int, float)) and not isinstance(value, bool):
+    for value in args:
+        if isinstance(value, Matrix):
+            total += sum(1 for item in value.flat() if isinstance(item, (int, float)) and not isinstance(item, bool))
+        elif value is BLANK or isinstance(value, (bool, int, float)) or (
+                isinstance(value, str) and text_as_number(value) is not None):
             total += 1
     return float(total)
 
 
 @function("COUNTA")
 def fn_counta(context: Context, args: list[Any]) -> object:
-    return float(sum(1 for value in _values(args) if value is not BLANK))
+    """Everything that is not blank; an argument left out counts, as in COUNTA(,1)."""
+    total = 0
+    for value in args:
+        if isinstance(value, Matrix):
+            total += sum(1 for item in value.flat() if item is not BLANK)
+        else:
+            total += 1
+    return float(total)
 
 
 @function("COUNTBLANK")
@@ -867,6 +899,11 @@ def fn_index(context: Context, args: list[Any]) -> object:
             if row < 1 or row > block.height:
                 raise REF
             return block.rows[row - 1][0]
+        if block.height == 1 and len(args) < 3:
+            # Given one index, a single row is counted along.
+            if row < 1 or row > block.width:
+                raise REF
+            return block.rows[0][row - 1]
         if row < 1 or row > block.height:
             raise REF
         return Matrix([list(block.rows[row - 1])])
@@ -971,7 +1008,10 @@ def fn_indirect(context: Context, nodes: list[Any]) -> object:
 
 @function("TRANSPOSE")
 def fn_transpose(context: Context, args: list[Any]) -> object:
-    block = _matrix(args[0])
+    if not isinstance(args[0], Matrix):
+        # A single value is its own transpose.
+        return args[0]
+    block = args[0]
     return Matrix([[block.rows[row][column] for row in range(block.height)] for column in range(block.width)])
 
 
@@ -1303,14 +1343,26 @@ def _days_in_month(year: int, month: int) -> int:
 
 @function("DAYS")
 def fn_days(context: Context, args: list[Any]) -> object:
-    return float(int(as_number(_one(args, 0, BLANK))) - int(as_number(_one(args, 1, BLANK))))
+    """The days between two dates, either of which may be text that reads as one."""
+    return float(int(_day(_one(args, 0, BLANK))) - int(_day(_one(args, 1, BLANK))))
+
+
+def _day(value: object) -> float:
+    if isinstance(value, str) and text_as_number(value) is None:
+        return _date_value(value)
+    return as_number(value)
 
 
 @function("DATEVALUE")
 def fn_datevalue(context: Context, args: list[Any]) -> object:
+    return _date_value(as_text(_one(args, 0, BLANK)))
+
+
+def _date_value(text: str) -> float:
+    """The day a text names, or #VALUE! where it names none."""
     from pyopenvba.interpreter._values import parse_date_text
 
-    parsed = parse_date_text(as_text(_one(args, 0, BLANK)))
+    parsed = parse_date_text(text)
     if parsed is None:
         raise VALUE
     return float(math.floor(parsed.serial))

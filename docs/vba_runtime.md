@@ -718,6 +718,19 @@ logical functions.  Anything else Excel has says so by name rather than
 answering `#NAME?`, which is reserved for a function Excel has not got
 either.
 
+A macro reaches the same functions through `WorksheetFunction.X`, which
+raises error 1004 when the answer is an error, or the late-bound
+`Application.X`, which hands the error back as a value
+(`tests/fixtures/worksheet_functions.json`, 150 calls made both ways). A
+range argument is its cells, a VBA array a row or, with two dimensions
+or as an array of arrays, rows; a Date is its serial, Empty an argument
+left out, and Null error 1004. An array answer is a VBA array counted
+from 1, one-dimensional when it is one row, except where INDEX, CHOOSE
+or XLOOKUP answered with part of a range, which reads back
+two-dimensional; a WorksheetFunction member typed other than Variant
+cannot hand one back, which is error 13. A range or array given where
+one value is wanted is not yet run item by item as Excel runs it.
+
 **Power Query is evaluated.** `pyopenvba.mlang` is an M evaluator, so
 `WorkbookQuery.Refresh` works out the query's rows and writes them to
 the sheet it loads to; the table and its queryTable follow, and a save

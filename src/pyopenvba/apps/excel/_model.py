@@ -15,7 +15,7 @@ Font, Interior, Borders, alignment -- lives in
 
 from __future__ import annotations
 
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from dataclasses import dataclass, replace
 from decimal import Decimal
 from pathlib import Path
@@ -44,7 +44,6 @@ from pyopenvba.interpreter._values import (
     error,
     to_bool,
     to_integer,
-    to_number,
     to_text,
     type_name,
 )
@@ -170,6 +169,20 @@ class Application(ExcelObject):
     @setter("DisplayAlerts")
     def _set_display_alerts(self, value: object) -> None:
         self.display_alerts = to_bool(value)
+
+    def vba_get(self, name: str, args: Any = (), named: Any = None) -> object:
+        """A member, or a worksheet function called the late-bound way, which hands an error back as a value."""
+        if self.vba_member(name) is None:
+            from pyopenvba.interpreter._inventory import member_exists
+
+            if member_exists("WorksheetFunction", name, "excel"):
+                from pyopenvba.apps.excel._worksheet_functions import call, engine_name
+
+                if engine_name(name) is None:
+                    raise VBAUnsupportedError(f"Application.{name} is a worksheet function that pyOpenVBA does not "
+                                              f"implement")
+                return call(self, name, args, named, raising=False)
+        return super().vba_get(name, args, named)
 
     @member
     def EnableEvents(self) -> object:
@@ -2620,10 +2633,11 @@ class WorkbookQuery(ExcelObject):
 
 
 class WorksheetFunction(ExcelObject):
-    """The worksheet functions a macro calls through Application.
+    """The worksheet functions a macro calls through Application.WorksheetFunction.
 
-    A short list on purpose: each one here behaves as Excel's does, and
-    anything else says it is not implemented rather than guessing.
+    Each member is the formula engine's function of the same name, called
+    as _worksheet_functions describes; a real Excel function the engine
+    does not have says it is not implemented rather than guessing.
     """
 
     vba_type_name = "WorksheetFunction"
@@ -2632,6 +2646,11 @@ class WorksheetFunction(ExcelObject):
         self.application = application
 
     def vba_get(self, name: str, args: Any = (), named: Any = None) -> object:
+        from pyopenvba.apps.excel._worksheet_functions import call, engine_name
+        from pyopenvba.interpreter._inventory import member_exists
+
+        if engine_name(name) is not None and member_exists("WorksheetFunction", name, "excel"):
+            return call(self.application, name, args, named, raising=True)
         spec = self.vba_member(name)
         if spec is None:
             from pyopenvba.formula._inventory import excel_has_function
@@ -2644,124 +2663,24 @@ class WorksheetFunction(ExcelObject):
             raise error(438, f"WorksheetFunction has no member named {name}")
         return super().vba_get(name, args, named)
 
-    @method
-    def Sum(self, *args: object) -> object:
-        return sum((float(to_number(one)) for one in _numbers(args)), 0.0)
 
-    @method
-    def Average(self, *args: object) -> object:
-        values = [float(to_number(one)) for one in _numbers(args)]
-        if not values:
-            raise error(1004, "Average has nothing to average")
-        return sum(values) / len(values)
+def _register_worksheet_functions() -> None:
+    """A member for each WorksheetFunction method the formula engine has, so the inventory sees them."""
+    from pyopenvba.apps.excel._worksheet_functions import call, engine_name
+    from pyopenvba.interpreter._inventory import members_of
 
-    @method
-    def Max(self, *args: object) -> object:
-        values = [float(to_number(one)) for one in _numbers(args)]
-        return max(values) if values else 0.0
+    def calling(name: str) -> Callable[..., object]:
+        def run(self: WorksheetFunction, *args: object) -> object:
+            return call(self.application, name, args, None, raising=True)
 
-    @method
-    def Min(self, *args: object) -> object:
-        values = [float(to_number(one)) for one in _numbers(args)]
-        return min(values) if values else 0.0
+        return run
 
-    @method
-    def Count(self, *args: object) -> object:
-        # A worksheet function hands back a Double even when counting.
-        return float(len(list(_numbers(args))))
-
-    @method
-    def CountA(self, *args: object) -> object:
-        return float(sum(1 for one in _flatten(args) if one is not EMPTY and one != ""))
-
-    @method
-    def Trim(self, Arg1: object = MISSING) -> object:
-        return " ".join(to_text(Arg1).split())
-
-    @method
-    def Text(self, Arg1: object = MISSING, Arg2: object = MISSING) -> object:
-        """A value through a number format, as the TEXT function shows it; what it cannot show is error 1004."""
-        from pyopenvba.formula._display import UndisplayableError, format_value
-        from pyopenvba.formula._values import text_as_number
-
-        value = Arg1.vba_value() if isinstance(Arg1, VBAObject) else Arg1
-        if isinstance(value, VBADate):
-            value = value.serial
-        elif value is EMPTY:
-            value = 0.0
-        elif isinstance(value, str):
-            # Text that reads as a number is formatted as the number, as TEXT does.
-            number = text_as_number(value)
-            value = value if number is None else number
-        elif not isinstance(value, bool):
-            value = float(to_number(value))
-        try:
-            return format_value(value, to_text(Arg2))
-        except UndisplayableError:
-            raise error(1004, "Unable to get the Text property of the WorksheetFunction class") from None
-
-    @method
-    def Proper(self, Arg1: object = MISSING) -> object:
-        return to_text(Arg1).title()
-
-    @method
-    def VLookup(
-        self,
-        Arg1: object = MISSING,
-        Arg2: object = MISSING,
-        Arg3: object = MISSING,
-        Arg4: object = MISSING,
-    ) -> object:
-        if not isinstance(Arg2, Range):
-            raise error(1004, "VLookup needs a range to look in")
-        column = int(to_integer(Arg3, "Long"))
-        exact = Arg4 is not MISSING and not to_bool(Arg4)
-        area = Arg2.bounded()
-        if column < 1 or column > area.columns:
-            raise error(1004, "VLookup was asked for a column outside the range")
-        wanted = Arg1
-        for row in range(area.top, area.bottom + 1):
-            cell = Arg2.sheet.cell(row, area.left)
-            value = cell.value if cell is not None else EMPTY
-            if _same(value, wanted):
-                found = Arg2.sheet.cell(row, area.left + column - 1)
-                return found.value if found is not None else EMPTY
-        if exact or True:
-            raise error(1004, "VLookup found nothing")
-        return EMPTY
+    for name in sorted(members_of("WorksheetFunction", "excel")):
+        if engine_name(name) is not None:
+            WorksheetFunction.vba_add_member(MemberSpec(name=name, kind="method", getter=calling(name), varargs=True))
 
 
-def _flatten(args: tuple[object, ...]) -> Iterator[object]:
-    for one in args:
-        if isinstance(one, Range):
-            area = one.bounded()
-            for row in range(area.top, area.bottom + 1):
-                for column in range(area.left, area.right + 1):
-                    cell = one.sheet.cell(row, column)
-                    yield cell.value if cell is not None else EMPTY
-        elif isinstance(one, VBAArray):
-            yield from one.elements()
-        elif one is not MISSING:
-            yield one
-
-
-def _numbers(args: tuple[object, ...]) -> Iterator[object]:
-    for value in _flatten(args):
-        if isinstance(value, bool):
-            continue
-        if isinstance(value, (int, float, VBADate)) or isinstance(value, type(EMPTY)) and value is not EMPTY:
-            yield value
-        elif hasattr(value, "__float__") and not isinstance(value, str):
-            yield value
-
-
-def _same(left: object, right: object) -> bool:
-    if isinstance(left, str) or isinstance(right, str):
-        return to_text(left).lower() == to_text(right).lower()
-    try:
-        return float(to_number(left)) == float(to_number(right))
-    except Exception:  # noqa: BLE001
-        return False
+_register_worksheet_functions()
 
 
 # --- helpers ----------------------------------------------------------------------------------------

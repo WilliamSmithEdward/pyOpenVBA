@@ -49,6 +49,19 @@ All notable changes to pyOpenVBA are documented here. This project follows
   what it pads the cell with depends on the width in pixels. Before, both went
   through Access's `Format`, which spelled `$#,##0_)` as `$5_)`, fractions
   as `2 ?/?` and `[h]:mm:ss` as `[1]:00:00`.
+- Worksheet functions from VBA go through the formula engine:
+  `WorksheetFunction.X` raises error 1004 on an error and `Application.X`,
+  the late-bound form, hands it back as an error value, for every one of
+  the 72 WorksheetFunction members the engine has, `Match`, `Index`,
+  `Transpose`, `CountIf`, `SumIfs`, `XLookup` and `Round` among them. A
+  range argument is its cells, a VBA array a row or rows, Empty an
+  argument left out; an array answer is a VBA array from 1, one row
+  one-dimensional unless INDEX, CHOOSE or XLOOKUP answered with part of a
+  range. The hand-written `Sum`, `Average`, `Max`, `Min`, `Count`,
+  `CountA`, `Trim`, `Text`, `Proper` and `VLookup` are gone; `VLookup`'s
+  approximate match now works. 150 calls made both ways in live Excel pin
+  it; a range or array given where one value is wanted is not yet run
+  item by item.
 - `Range.Sort`, and `Worksheet.Sort` with its `SortFields`, `SetRange`,
   `Header`, `MatchCase`, `Orientation` and `Apply` as a recorded macro
   uses them. Numbers sort before text, text before FALSE and TRUE, those
@@ -392,6 +405,12 @@ All notable changes to pyOpenVBA are documented here. This project follows
   as in Excel, and an error typed in lower case is read.
 - `FormulaR1C1` spelt a whole row or column in its own row or column
   twice, `C:C` for `A:A`; Excel writes `C`.
+- Formula functions that differed from Excel's: `COUNT` of values given
+  as arguments counts TRUE, FALSE, text that reads as a number and an
+  argument left out; `COUNTA` counts one left out; `POWER(0,0)` is
+  `#NUM!`; `DAYS` reads text dates; `CEILING.MATH` takes the magnitude of
+  its significance and a mode; `INDEX` of one row with one index counts
+  along it; `TRANSPOSE` of a single value is the value.
 - `Find` among formulas read a constant as the cell shows it, so 1234 in
   `#,##0` was found by `1,234` and not by `1234`; it reads it as the
   formula bar shows it, as Excel does.

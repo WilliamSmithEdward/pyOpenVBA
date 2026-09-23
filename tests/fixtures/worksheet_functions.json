@@ -1,0 +1,906 @@
+{
+ "helper": "Private Function Item(v As Variant) As String\n    If IsError(v) Then\n        Item = \"Error:\" & CStr(CLng(v))\n    ElseIf IsEmpty(v) Then\n        Item = \"Empty\"\n    ElseIf IsObject(v) Then\n        Item = \"Object\"\n    Else\n        Item = TypeName(v) & \":\" & CStr(v)\n    End If\nEnd Function\n\nPrivate Function Show(v As Variant) As String\n    Dim out As String, r As Long, c As Long, rows As Long, cols As Long, two As Boolean\n    If IsObject(v) Then\n        If v Is Nothing Then Show = \"Nothing\" Else Show = TypeName(v) & \"@\" & v.Address(False, False)\n        Exit Function\n    End If\n    If Not IsArray(v) Then\n        Show = Item(v)\n        Exit Function\n    End If\n    On Error Resume Next\n    cols = UBound(v, 2)\n    two = (Err.Number = 0)\n    Err.Clear\n    On Error GoTo 0\n    If two Then\n        out = \"Array(\" & LBound(v, 1) & \" To \" & UBound(v, 1) & \", \" & LBound(v, 2) & \" To \" & UBound(v, 2) & \")\"\n        For r = LBound(v, 1) To UBound(v, 1)\n            For c = LBound(v, 2) To UBound(v, 2)\n                out = out & \" \" & Item(v(r, c))\n            Next\n        Next\n    Else\n        out = \"Array(\" & LBound(v) & \" To \" & UBound(v) & \")\"\n        For r = LBound(v) To UBound(v)\n            out = out & \" \" & Item(v(r))\n        Next\n    End If\n    Show = out\nEnd Function\n",
+ "setup": "Private Sub Fill(ws As Object)\n    Dim r As Long\n    For r = 1 To 5\n        ws.Cells(r, 1).Value = r\n        ws.Cells(r, 2).Value = Chr(96 + r)\n    Next\n    ws.Range(\"C1\").Value = 10\n    ws.Range(\"C2\").Value = \"x\"\n    ws.Range(\"C4\").Value = True\n    ws.Range(\"C5\").Value = CVErr(xlErrNA)\n    ws.Range(\"D1:E1\").Value = Array(1, 2)\n    ws.Range(\"D2:E2\").Value = Array(3, 4)\n    ws.Range(\"D3:E3\").Value = Array(5, 6)\n    ws.Range(\"F1\").Value = 3\n    ws.Range(\"F2\").Value = 1\n    ws.Range(\"F3\").Value = 2\n    ws.Range(\"G1:J1\").Value = Array(\"p\", \"q\", \"r\", \"s\")\n    ws.Range(\"G2:J2\").Value = Array(1, 2, 3, 4)\nEnd Sub\n",
+ "cases": [
+  {
+   "function": "And",
+   "arguments": "True, 1",
+   "worksheet_function": "Boolean:True",
+   "application": "Boolean:True"
+  },
+  {
+   "function": "And",
+   "arguments": "ws.Range(\"A1:A5\")",
+   "worksheet_function": "Boolean:True",
+   "application": "Boolean:True"
+  },
+  {
+   "function": "And",
+   "arguments": "False, \"x\"",
+   "worksheet_function": "Boolean:False",
+   "application": "Boolean:False"
+  },
+  {
+   "function": "Average",
+   "arguments": "1, 2, \"3\"",
+   "worksheet_function": "Double:2",
+   "application": "Double:2"
+  },
+  {
+   "function": "Average",
+   "arguments": "ws.Range(\"C1:C5\")",
+   "worksheet_function": "E1004",
+   "application": "Error:2042"
+  },
+  {
+   "function": "Average",
+   "arguments": "ws.Range(\"A1:A5\"), 10",
+   "worksheet_function": "Double:4.16666666666667",
+   "application": "Double:4.16666666666667"
+  },
+  {
+   "function": "Average",
+   "arguments": "Array(1, 2, 3)",
+   "worksheet_function": "Double:2",
+   "application": "Double:2"
+  },
+  {
+   "function": "AverageIf",
+   "arguments": "ws.Range(\"A1:A5\"), \">2\"",
+   "worksheet_function": "Double:4",
+   "application": "Double:4"
+  },
+  {
+   "function": "AverageIf",
+   "arguments": "ws.Range(\"B1:B5\"), \"b\", ws.Range(\"A1:A5\")",
+   "worksheet_function": "Double:2",
+   "application": "Double:2"
+  },
+  {
+   "function": "Ceiling",
+   "arguments": "2.5, 1",
+   "worksheet_function": "Double:3",
+   "application": "Double:3"
+  },
+  {
+   "function": "Ceiling",
+   "arguments": "-2.5, -2",
+   "worksheet_function": "Double:-4",
+   "application": "Double:-4"
+  },
+  {
+   "function": "Ceiling",
+   "arguments": "2.5, -1",
+   "worksheet_function": "E1004",
+   "application": "Error:2036"
+  },
+  {
+   "function": "Ceiling_Math",
+   "arguments": "2.5",
+   "worksheet_function": "Double:3",
+   "application": "Double:3"
+  },
+  {
+   "function": "Ceiling_Math",
+   "arguments": "-2.5, 2, 1",
+   "worksheet_function": "Double:-4",
+   "application": "Double:-4"
+  },
+  {
+   "function": "Choose",
+   "arguments": "2, \"a\", \"b\", \"c\"",
+   "worksheet_function": "String:b",
+   "application": "String:b"
+  },
+  {
+   "function": "Choose",
+   "arguments": "4, \"a\", \"b\"",
+   "worksheet_function": "E1004",
+   "application": "Error:2015"
+  },
+  {
+   "function": "Concat",
+   "arguments": "\"a\", 1, True",
+   "worksheet_function": "String:a1TRUE",
+   "application": "String:a1TRUE"
+  },
+  {
+   "function": "Concat",
+   "arguments": "ws.Range(\"B1:B3\")",
+   "worksheet_function": "String:abc",
+   "application": "String:abc"
+  },
+  {
+   "function": "Count",
+   "arguments": "1, \"2\", \"x\", True",
+   "worksheet_function": "Double:3",
+   "application": "Double:3"
+  },
+  {
+   "function": "Count",
+   "arguments": "ws.Range(\"C1:C5\")",
+   "worksheet_function": "Double:1",
+   "application": "Double:1"
+  },
+  {
+   "function": "Count",
+   "arguments": "Array(1, \"a\", True)",
+   "worksheet_function": "Double:1",
+   "application": "Double:1"
+  },
+  {
+   "function": "CountA",
+   "arguments": "ws.Range(\"C1:C5\")",
+   "worksheet_function": "Double:4",
+   "application": "Double:4"
+  },
+  {
+   "function": "CountA",
+   "arguments": "1, \"\", \"x\"",
+   "worksheet_function": "Double:3",
+   "application": "Double:3"
+  },
+  {
+   "function": "CountBlank",
+   "arguments": "ws.Range(\"C1:C5\")",
+   "worksheet_function": "Double:1",
+   "application": "Double:1"
+  },
+  {
+   "function": "CountIf",
+   "arguments": "ws.Range(\"A1:A5\"), \">2\"",
+   "worksheet_function": "Double:3",
+   "application": "Double:3"
+  },
+  {
+   "function": "CountIf",
+   "arguments": "ws.Range(\"B1:B5\"), \"b\"",
+   "worksheet_function": "Double:1",
+   "application": "Double:1"
+  },
+  {
+   "function": "CountIf",
+   "arguments": "ws.Range(\"B1:B5\"), \"*\"",
+   "worksheet_function": "Double:5",
+   "application": "Double:5"
+  },
+  {
+   "function": "CountIf",
+   "arguments": "ws.Range(\"A1:A5\"), 3",
+   "worksheet_function": "Double:1",
+   "application": "Double:1"
+  },
+  {
+   "function": "CountIfs",
+   "arguments": "ws.Range(\"A1:A5\"), \">1\", ws.Range(\"F1:F5\"), \"<3\"",
+   "worksheet_function": "Double:2",
+   "application": "Double:2"
+  },
+  {
+   "function": "Days",
+   "arguments": "#1/10/2020#, #1/1/2020#",
+   "worksheet_function": "Double:9",
+   "application": "Double:9"
+  },
+  {
+   "function": "Days",
+   "arguments": "\"2020-01-10\", \"2020-01-01\"",
+   "worksheet_function": "Double:9",
+   "application": "Double:9"
+  },
+  {
+   "function": "EDate",
+   "arguments": "#1/31/2020#, 1",
+   "worksheet_function": "Double:43890",
+   "application": "Double:43890"
+  },
+  {
+   "function": "EoMonth",
+   "arguments": "#1/15/2020#, 0",
+   "worksheet_function": "Double:43861",
+   "application": "Double:43861"
+  },
+  {
+   "function": "Find",
+   "arguments": "\"b\", \"abc\"",
+   "worksheet_function": "Double:2",
+   "application": "Double:2"
+  },
+  {
+   "function": "Find",
+   "arguments": "\"z\", \"abc\"",
+   "worksheet_function": "E1004",
+   "application": "Error:2015"
+  },
+  {
+   "function": "Find",
+   "arguments": "\"B\", \"abc\"",
+   "worksheet_function": "E1004",
+   "application": "Error:2015"
+  },
+  {
+   "function": "Floor",
+   "arguments": "2.5, 1",
+   "worksheet_function": "Double:2",
+   "application": "Double:2"
+  },
+  {
+   "function": "Floor_Math",
+   "arguments": "-2.5",
+   "worksheet_function": "Double:-3",
+   "application": "Double:-3"
+  },
+  {
+   "function": "HLookup",
+   "arguments": "\"q\", ws.Range(\"G1:J2\"), 2, False",
+   "worksheet_function": "Double:2",
+   "application": "Double:2"
+  },
+  {
+   "function": "HLookup",
+   "arguments": "\"z\", ws.Range(\"G1:J2\"), 2, False",
+   "worksheet_function": "E1004",
+   "application": "Error:2042"
+  },
+  {
+   "function": "IfError",
+   "arguments": "5, 0",
+   "worksheet_function": "Double:5",
+   "application": "Double:5"
+  },
+  {
+   "function": "IfError",
+   "arguments": "CVErr(xlErrDiv0), \"x\"",
+   "worksheet_function": "String:x",
+   "application": "String:x"
+  },
+  {
+   "function": "IfNa",
+   "arguments": "CVErr(xlErrNA), \"na\"",
+   "worksheet_function": "String:na",
+   "application": "String:na"
+  },
+  {
+   "function": "Index",
+   "arguments": "ws.Range(\"D1:E3\"), 2, 2",
+   "worksheet_function": "Double:4",
+   "application": "Double:4"
+  },
+  {
+   "function": "Index",
+   "arguments": "ws.Range(\"A1:A5\"), 3",
+   "worksheet_function": "Double:3",
+   "application": "Double:3"
+  },
+  {
+   "function": "Index",
+   "arguments": "Array(1, 2, 3), 2",
+   "worksheet_function": "Double:2",
+   "application": "Double:2"
+  },
+  {
+   "function": "Index",
+   "arguments": "ws.Range(\"D1:E3\"), 0, 1",
+   "worksheet_function": "Array(1 To 3, 1 To 1) Double:1 Double:3 Double:5",
+   "application": "Array(1 To 3, 1 To 1) Double:1 Double:3 Double:5"
+  },
+  {
+   "function": "Index",
+   "arguments": "ws.Range(\"D1:E3\"), 2, 0",
+   "worksheet_function": "Array(1 To 1, 1 To 2) Double:3 Double:4",
+   "application": "Array(1 To 1, 1 To 2) Double:3 Double:4"
+  },
+  {
+   "function": "Index",
+   "arguments": "Array(Array(1, 2), Array(3, 4)), 2, 1",
+   "worksheet_function": "Double:3",
+   "application": "Double:3"
+  },
+  {
+   "function": "IsErr",
+   "arguments": "CVErr(xlErrNA)",
+   "worksheet_function": "Boolean:False",
+   "application": "Boolean:False"
+  },
+  {
+   "function": "IsError",
+   "arguments": "CVErr(xlErrNA)",
+   "worksheet_function": "Boolean:True",
+   "application": "Boolean:True"
+  },
+  {
+   "function": "IsNA",
+   "arguments": "ws.Range(\"C5\")",
+   "worksheet_function": "Boolean:True",
+   "application": "Boolean:True"
+  },
+  {
+   "function": "IsLogical",
+   "arguments": "True",
+   "worksheet_function": "Boolean:True",
+   "application": "Boolean:True"
+  },
+  {
+   "function": "IsNonText",
+   "arguments": "\"x\"",
+   "worksheet_function": "Boolean:False",
+   "application": "Boolean:False"
+  },
+  {
+   "function": "IsNumber",
+   "arguments": "\"1\"",
+   "worksheet_function": "Boolean:False",
+   "application": "Boolean:False"
+  },
+  {
+   "function": "IsText",
+   "arguments": "\"x\"",
+   "worksheet_function": "Boolean:True",
+   "application": "Boolean:True"
+  },
+  {
+   "function": "Large",
+   "arguments": "ws.Range(\"A1:A5\"), 2",
+   "worksheet_function": "Double:4",
+   "application": "Double:4"
+  },
+  {
+   "function": "Small",
+   "arguments": "Array(5, 1, 3), 1",
+   "worksheet_function": "Double:1",
+   "application": "Double:1"
+  },
+  {
+   "function": "Ln",
+   "arguments": "10",
+   "worksheet_function": "Double:2.30258509299405",
+   "application": "Double:2.30258509299405"
+  },
+  {
+   "function": "Log",
+   "arguments": "100",
+   "worksheet_function": "Double:2",
+   "application": "Double:2"
+  },
+  {
+   "function": "Log",
+   "arguments": "8, 2",
+   "worksheet_function": "Double:3",
+   "application": "Double:3"
+  },
+  {
+   "function": "Log10",
+   "arguments": "1000",
+   "worksheet_function": "Double:3",
+   "application": "Double:3"
+  },
+  {
+   "function": "Match",
+   "arguments": "\"c\", ws.Range(\"B1:B5\"), 0",
+   "worksheet_function": "Double:3",
+   "application": "Double:3"
+  },
+  {
+   "function": "Match",
+   "arguments": "3.5, ws.Range(\"A1:A5\"), 1",
+   "worksheet_function": "Double:3",
+   "application": "Double:3"
+  },
+  {
+   "function": "Match",
+   "arguments": "\"z\", ws.Range(\"B1:B5\"), 0",
+   "worksheet_function": "E1004",
+   "application": "Error:2042"
+  },
+  {
+   "function": "Match",
+   "arguments": "Array(3, 1), 3, 0",
+   "worksheet_function": "E13",
+   "application": "Array(1 To 2) Error:2042 Error:2042"
+  },
+  {
+   "function": "Match",
+   "arguments": "\"C\", ws.Range(\"B1:B5\"), 0",
+   "worksheet_function": "Double:3",
+   "application": "Double:3"
+  },
+  {
+   "function": "Max",
+   "arguments": "1, \"5\", ws.Range(\"C1:C4\")",
+   "worksheet_function": "Double:10",
+   "application": "Double:10"
+  },
+  {
+   "function": "Max",
+   "arguments": "Array(1, 7, 3)",
+   "worksheet_function": "Double:7",
+   "application": "Double:7"
+  },
+  {
+   "function": "Min",
+   "arguments": "ws.Range(\"C1:C5\")",
+   "worksheet_function": "E1004",
+   "application": "Error:2042"
+  },
+  {
+   "function": "Min",
+   "arguments": "-1, 2",
+   "worksheet_function": "Double:-1",
+   "application": "Double:-1"
+  },
+  {
+   "function": "Median",
+   "arguments": "Array(3, 1, 2)",
+   "worksheet_function": "Double:2",
+   "application": "Double:2"
+  },
+  {
+   "function": "MRound",
+   "arguments": "10, 3",
+   "worksheet_function": "Double:9",
+   "application": "Double:9"
+  },
+  {
+   "function": "Or",
+   "arguments": "False, 0",
+   "worksheet_function": "Boolean:False",
+   "application": "Boolean:False"
+  },
+  {
+   "function": "Pi",
+   "arguments": "",
+   "worksheet_function": "Double:3.14159265358979",
+   "application": "Double:3.14159265358979"
+  },
+  {
+   "function": "Power",
+   "arguments": "2, 10",
+   "worksheet_function": "Double:1024",
+   "application": "Double:1024"
+  },
+  {
+   "function": "Product",
+   "arguments": "ws.Range(\"A1:A5\")",
+   "worksheet_function": "Double:120",
+   "application": "Double:120"
+  },
+  {
+   "function": "Proper",
+   "arguments": "\"hello WORLD o'neil 2nd\"",
+   "worksheet_function": "String:Hello World O'Neil 2Nd",
+   "application": "String:Hello World O'Neil 2Nd"
+  },
+  {
+   "function": "Replace",
+   "arguments": "\"abcdef\", 2, 3, \"X\"",
+   "worksheet_function": "String:aXef",
+   "application": "String:aXef"
+  },
+  {
+   "function": "Rept",
+   "arguments": "\"ab\", 3",
+   "worksheet_function": "String:ababab",
+   "application": "String:ababab"
+  },
+  {
+   "function": "Round",
+   "arguments": "2.345, 2",
+   "worksheet_function": "Double:2.35",
+   "application": "Double:2.35"
+  },
+  {
+   "function": "Round",
+   "arguments": "2.5, 0",
+   "worksheet_function": "Double:3",
+   "application": "Double:3"
+  },
+  {
+   "function": "Round",
+   "arguments": "-2.5, 0",
+   "worksheet_function": "Double:-3",
+   "application": "Double:-3"
+  },
+  {
+   "function": "RoundDown",
+   "arguments": "2.345, 1",
+   "worksheet_function": "Double:2.3",
+   "application": "Double:2.3"
+  },
+  {
+   "function": "RoundUp",
+   "arguments": "2.341, 1",
+   "worksheet_function": "Double:2.4",
+   "application": "Double:2.4"
+  },
+  {
+   "function": "Search",
+   "arguments": "\"C\", \"abc\"",
+   "worksheet_function": "Double:3",
+   "application": "Double:3"
+  },
+  {
+   "function": "Search",
+   "arguments": "\"?c\", \"abc\"",
+   "worksheet_function": "Double:2",
+   "application": "Double:2"
+  },
+  {
+   "function": "StDev",
+   "arguments": "Array(1, 2, 3, 4)",
+   "worksheet_function": "Double:1.29099444873581",
+   "application": "Double:1.29099444873581"
+  },
+  {
+   "function": "StDev_P",
+   "arguments": "Array(1, 2, 3, 4)",
+   "worksheet_function": "Double:1.11803398874989",
+   "application": "Double:1.11803398874989"
+  },
+  {
+   "function": "StDev_S",
+   "arguments": "Array(1, 2, 3, 4)",
+   "worksheet_function": "Double:1.29099444873581",
+   "application": "Double:1.29099444873581"
+  },
+  {
+   "function": "StDevP",
+   "arguments": "Array(1, 2, 3, 4)",
+   "worksheet_function": "Double:1.11803398874989",
+   "application": "Double:1.11803398874989"
+  },
+  {
+   "function": "Var",
+   "arguments": "Array(1, 2, 3, 4)",
+   "worksheet_function": "Double:1.66666666666667",
+   "application": "Double:1.66666666666667"
+  },
+  {
+   "function": "Var_P",
+   "arguments": "Array(1, 2, 3, 4)",
+   "worksheet_function": "Double:1.25",
+   "application": "Double:1.25"
+  },
+  {
+   "function": "Var_S",
+   "arguments": "Array(1, 2, 3, 4)",
+   "worksheet_function": "Double:1.66666666666667",
+   "application": "Double:1.66666666666667"
+  },
+  {
+   "function": "VarP",
+   "arguments": "Array(1, 2, 3, 4)",
+   "worksheet_function": "Double:1.25",
+   "application": "Double:1.25"
+  },
+  {
+   "function": "Substitute",
+   "arguments": "\"a-b-c\", \"-\", \"+\"",
+   "worksheet_function": "String:a+b+c",
+   "application": "String:a+b+c"
+  },
+  {
+   "function": "Substitute",
+   "arguments": "\"a-b-c\", \"-\", \"+\", 2",
+   "worksheet_function": "String:a-b+c",
+   "application": "String:a-b+c"
+  },
+  {
+   "function": "Sum",
+   "arguments": "1, \"2\", True",
+   "worksheet_function": "Double:4",
+   "application": "Double:4"
+  },
+  {
+   "function": "Sum",
+   "arguments": "ws.Range(\"C1:C4\")",
+   "worksheet_function": "Double:10",
+   "application": "Double:10"
+  },
+  {
+   "function": "Sum",
+   "arguments": "ws.Range(\"C1:C5\")",
+   "worksheet_function": "E1004",
+   "application": "Error:2042"
+  },
+  {
+   "function": "Sum",
+   "arguments": "Array(1, \"2\", True)",
+   "worksheet_function": "Double:1",
+   "application": "Double:1"
+  },
+  {
+   "function": "Sum",
+   "arguments": "#1/2/2020#, 1",
+   "worksheet_function": "Double:43833",
+   "application": "Double:43833"
+  },
+  {
+   "function": "SumIf",
+   "arguments": "ws.Range(\"A1:A5\"), \">2\"",
+   "worksheet_function": "Double:12",
+   "application": "Double:12"
+  },
+  {
+   "function": "SumIf",
+   "arguments": "ws.Range(\"B1:B5\"), \"b\", ws.Range(\"A1:A5\")",
+   "worksheet_function": "Double:2",
+   "application": "Double:2"
+  },
+  {
+   "function": "SumIfs",
+   "arguments": "ws.Range(\"A1:A5\"), ws.Range(\"A1:A5\"), \">1\", ws.Range(\"A1:A5\"), \"<5\"",
+   "worksheet_function": "Double:9",
+   "application": "Double:9"
+  },
+  {
+   "function": "SumProduct",
+   "arguments": "ws.Range(\"A1:A3\"), ws.Range(\"F1:F3\")",
+   "worksheet_function": "Double:11",
+   "application": "Double:11"
+  },
+  {
+   "function": "SumProduct",
+   "arguments": "Array(1, 2), Array(3, 4)",
+   "worksheet_function": "Double:11",
+   "application": "Double:11"
+  },
+  {
+   "function": "Text",
+   "arguments": "1234.5, \"#,##0.00\"",
+   "worksheet_function": "String:1,234.50",
+   "application": "String:1,234.50"
+  },
+  {
+   "function": "TextJoin",
+   "arguments": "\",\", True, ws.Range(\"B1:B3\")",
+   "worksheet_function": "String:a,b,c",
+   "application": "String:a,b,c"
+  },
+  {
+   "function": "TextJoin",
+   "arguments": "\",\", False, \"a\", \"\", \"b\"",
+   "worksheet_function": "String:a,,b",
+   "application": "String:a,,b"
+  },
+  {
+   "function": "Transpose",
+   "arguments": "Array(1, 2, 3)",
+   "worksheet_function": "Array(1 To 3, 1 To 1) Double:1 Double:2 Double:3",
+   "application": "Array(1 To 3, 1 To 1) Double:1 Double:2 Double:3"
+  },
+  {
+   "function": "Transpose",
+   "arguments": "ws.Range(\"A1:A3\")",
+   "worksheet_function": "Array(1 To 3) Double:1 Double:2 Double:3",
+   "application": "Array(1 To 3) Double:1 Double:2 Double:3"
+  },
+  {
+   "function": "Transpose",
+   "arguments": "ws.Range(\"D1:E3\")",
+   "worksheet_function": "Array(1 To 2, 1 To 3) Double:1 Double:3 Double:5 Double:2 Double:4 Double:6",
+   "application": "Array(1 To 2, 1 To 3) Double:1 Double:3 Double:5 Double:2 Double:4 Double:6"
+  },
+  {
+   "function": "Transpose",
+   "arguments": "ws.Range(\"G1:J1\")",
+   "worksheet_function": "Array(1 To 4, 1 To 1) String:p String:q String:r String:s",
+   "application": "Array(1 To 4, 1 To 1) String:p String:q String:r String:s"
+  },
+  {
+   "function": "Transpose",
+   "arguments": "Array(Array(1, 2), Array(3, 4))",
+   "worksheet_function": "Array(1 To 2, 1 To 2) Double:1 Double:3 Double:2 Double:4",
+   "application": "Array(1 To 2, 1 To 2) Double:1 Double:3 Double:2 Double:4"
+  },
+  {
+   "function": "Trim",
+   "arguments": "\"  a   b  \"",
+   "worksheet_function": "String:a b",
+   "application": "String:a b"
+  },
+  {
+   "function": "VLookup",
+   "arguments": "ws.Range(\"A3\"), ws.Range(\"A1:B5\"), 2, False",
+   "worksheet_function": "String:c",
+   "application": "String:c"
+  },
+  {
+   "function": "VLookup",
+   "arguments": "3, ws.Range(\"A1:B5\"), 2, False",
+   "worksheet_function": "String:c",
+   "application": "String:c"
+  },
+  {
+   "function": "VLookup",
+   "arguments": "3.5, ws.Range(\"A1:B5\"), 2, True",
+   "worksheet_function": "String:c",
+   "application": "String:c"
+  },
+  {
+   "function": "VLookup",
+   "arguments": "9, ws.Range(\"A1:B5\"), 2, False",
+   "worksheet_function": "E1004",
+   "application": "Error:2042"
+  },
+  {
+   "function": "VLookup",
+   "arguments": "\"C\", ws.Range(\"B1:B5\"), 1, False",
+   "worksheet_function": "String:c",
+   "application": "String:c"
+  },
+  {
+   "function": "VLookup",
+   "arguments": "3, ws.Range(\"A1:B5\"), 2",
+   "worksheet_function": "String:c",
+   "application": "String:c"
+  },
+  {
+   "function": "Weekday",
+   "arguments": "#1/5/2020#",
+   "worksheet_function": "Double:1",
+   "application": "Double:1"
+  },
+  {
+   "function": "Weekday",
+   "arguments": "#1/5/2020#, 2",
+   "worksheet_function": "Double:7",
+   "application": "Double:7"
+  },
+  {
+   "function": "XLookup",
+   "arguments": "\"c\", ws.Range(\"B1:B5\"), ws.Range(\"A1:A5\")",
+   "worksheet_function": "Double:3",
+   "application": "Double:3"
+  },
+  {
+   "function": "XLookup",
+   "arguments": "\"z\", ws.Range(\"B1:B5\"), ws.Range(\"A1:A5\"), \"none\"",
+   "worksheet_function": "String:none",
+   "application": "String:none"
+  },
+  {
+   "function": "Xor",
+   "arguments": "True, True, False",
+   "worksheet_function": "Boolean:False",
+   "application": "Boolean:False"
+  },
+  {
+   "function": "VLookup",
+   "arguments": "3, ws.Range(\"A1:C5\"), 3, False",
+   "worksheet_function": "Empty",
+   "application": "Empty"
+  },
+  {
+   "function": "Index",
+   "arguments": "ws.Range(\"C1:C5\"), 3",
+   "worksheet_function": "Empty",
+   "application": "Empty"
+  },
+  {
+   "function": "Choose",
+   "arguments": "1, Empty",
+   "worksheet_function": "Double:0",
+   "application": "Double:0"
+  },
+  {
+   "function": "Sum",
+   "arguments": "Empty, 1",
+   "worksheet_function": "Double:1",
+   "application": "Double:1"
+  },
+  {
+   "function": "Count",
+   "arguments": "Empty",
+   "worksheet_function": "Double:1",
+   "application": "Double:1"
+  },
+  {
+   "function": "CountA",
+   "arguments": "Empty, 1",
+   "worksheet_function": "Double:2",
+   "application": "Double:2"
+  },
+  {
+   "function": "Concat",
+   "arguments": "\"a\", Empty, \"b\"",
+   "worksheet_function": "String:ab",
+   "application": "String:ab"
+  },
+  {
+   "function": "Max",
+   "arguments": "Empty, -1",
+   "worksheet_function": "Double:0",
+   "application": "Double:0"
+  },
+  {
+   "function": "Round",
+   "arguments": "ws.Range(\"A2\"), 0",
+   "worksheet_function": "Double:2",
+   "application": "Double:2"
+  },
+  {
+   "function": "Round",
+   "arguments": "\"2.5\", 0",
+   "worksheet_function": "Double:3",
+   "application": "Double:3"
+  },
+  {
+   "function": "Round",
+   "arguments": "ws.Range(\"A1:A2\"), 0",
+   "worksheet_function": "E13",
+   "application": "Array(1 To 2, 1 To 1) Double:1 Double:2"
+  },
+  {
+   "function": "Power",
+   "arguments": "Empty, 0",
+   "worksheet_function": "E1004",
+   "application": "Error:2036"
+  },
+  {
+   "function": "Rept",
+   "arguments": "\"x\", 2.9",
+   "worksheet_function": "String:xx",
+   "application": "String:xx"
+  },
+  {
+   "function": "IsText",
+   "arguments": "ws.Range(\"B1:B2\")",
+   "worksheet_function": "E13",
+   "application": "Array(1 To 2, 1 To 1) Boolean:True Boolean:True"
+  },
+  {
+   "function": "Sum",
+   "arguments": "Null",
+   "worksheet_function": "E1004",
+   "application": "E1004"
+  },
+  {
+   "function": "Sum",
+   "arguments": "CCur(1.5), CDec(2.5)",
+   "worksheet_function": "Double:4",
+   "application": "Double:4"
+  },
+  {
+   "function": "And",
+   "arguments": "Array(True, False)",
+   "worksheet_function": "Boolean:False",
+   "application": "Boolean:False"
+  },
+  {
+   "function": "Match",
+   "arguments": "2, Array(1, 2, 3), 0",
+   "worksheet_function": "Double:2",
+   "application": "Double:2"
+  },
+  {
+   "function": "Match",
+   "arguments": "\"b\", Array(\"a\", \"b\"), 0",
+   "worksheet_function": "Double:2",
+   "application": "Double:2"
+  },
+  {
+   "function": "Index",
+   "arguments": "Array(Array(1, 2), Array(3, 4)), 0, 2",
+   "worksheet_function": "Array(1 To 2, 1 To 1) Double:2 Double:4",
+   "application": "Array(1 To 2, 1 To 1) Double:2 Double:4"
+  },
+  {
+   "function": "Transpose",
+   "arguments": "Array(Array(1), Array(2))",
+   "worksheet_function": "Array(1 To 2) Double:1 Double:2",
+   "application": "Array(1 To 2) Double:1 Double:2"
+  },
+  {
+   "function": "Transpose",
+   "arguments": "5",
+   "worksheet_function": "Double:5",
+   "application": "Double:5"
+  },
+  {
+   "function": "Index",
+   "arguments": "ws.Range(\"A1:A5\"), 0, 1",
+   "worksheet_function": "Array(1 To 5, 1 To 1) Double:1 Double:2 Double:3 Double:4 Double:5",
+   "application": "Array(1 To 5, 1 To 1) Double:1 Double:2 Double:3 Double:4 Double:5"
+  }
+ ]
+}

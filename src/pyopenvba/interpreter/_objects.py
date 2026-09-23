@@ -155,6 +155,11 @@ class VBAObject:
         if "vba_type_name" not in vars(cls):
             cls.vba_type_name = cls.__name__
 
+    @classmethod
+    def vba_add_member(cls, spec: MemberSpec) -> None:
+        """Register a member made at run time rather than written as a method, unless the class has one of the name."""
+        cls._vba_members.setdefault(spec.name.lower(), spec)
+
     # --- dispatch ---------------------------------------------------------------
 
     def vba_member(self, name: str) -> MemberSpec | None:

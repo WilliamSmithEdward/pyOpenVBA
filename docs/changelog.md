@@ -157,6 +157,18 @@ All notable changes to pyOpenVBA are documented here. This project follows
   ordinary one, and a save of the sheet lost the array. 78 cases and 4
   workbooks in live Excel pin it. Copying part of an array, and filling,
   sorting, replacing or removing duplicates in one, report themselves.
+- Excel tables: `Worksheet.ListObjects`, `ListObjects.Add`, and the
+  ListObject, ListColumns, ListColumn, ListRows and ListRow objects,
+  with `Range.ListObject`. A file's tables are read, and Add makes one
+  over a range as Excel does: headers from the first row turned to text,
+  generated names for blank and repeated ones, a header row put in when
+  the range has none, the first free TableN, TableStyleMedium2, and
+  error 1004 over another table. A table's name, style and style options
+  can be set. A save writes each new table in the parts Excel writes for
+  it; a table read from a file keeps its part until it changes. 8
+  workbooks and 15 questions in live Excel pin it. Structured
+  references, the totals row and editing a table's rows and columns come
+  later.
 - Events, and a sheet's own code. A sheet's module and ThisWorkbook
   are their objects' code: a code name reaches its sheet or workbook, as
   `Sheet1.Range("A1")`; inside the module `Me` is the object and its

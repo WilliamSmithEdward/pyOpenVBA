@@ -55,6 +55,7 @@ if TYPE_CHECKING:
     from pyopenvba.apps.excel._clipboard import Clip
     from pyopenvba.apps.excel._sort import SortState
     from pyopenvba.apps.excel._styles import Style, Stylesheet
+    from pyopenvba.apps.excel._tables import Table
     from pyopenvba.apps.excel._typing import Typed
     from pyopenvba.interpreter._runtime import Interpreter
 
@@ -789,6 +790,8 @@ class Worksheet(ExcelObject):
         self.shared_groups: dict[int, Area] = {}
         #: The array formulas: each one's block by its first cell, which holds the formula (see _arrays).
         self.array_formulas: dict[tuple[int, int], Area] = {}
+        #: The sheet's tables, in the order its file lists them (see _tables).
+        self.tables: list[Table] = []
         self.merged_areas: list[Area] = []
         self.merges_dirty = False
         self.visible = -1  # xlSheetVisible
@@ -1058,6 +1061,13 @@ class Worksheet(ExcelObject):
     def Names(self, Index: object = MISSING) -> object:
         names = Names(self.book, self)
         return names if Index is MISSING else names.vba_get("Item", [Index])
+
+    @member
+    def ListObjects(self, Index: object = MISSING) -> object:
+        from pyopenvba.apps.excel._tables import ListObjects
+
+        tables = ListObjects(self)
+        return tables if Index is MISSING else tables.vba_get("Item", [Index])
 
     @member
     def Sort(self) -> object:
@@ -1600,6 +1610,14 @@ class Range(ExcelObject):
     @member
     def CurrentArray(self) -> object:
         return Range(self.sheet, [_arrays.current_array(self)])
+
+    @member
+    def ListObject(self) -> object:
+        """The table the range's first cell is part of, or Nothing."""
+        from pyopenvba.apps.excel._tables import table_at, view
+
+        table = table_at(self.sheet, self.first.top, self.first.left)
+        return NOTHING if table is None else view(table)
 
     @setter("FormulaR1C1")
     def _set_formula_r1c1(self, value: object) -> None:

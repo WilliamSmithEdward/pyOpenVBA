@@ -39,6 +39,8 @@ def copy_sheet(source: Worksheet, before: object, after: object) -> object:
         raise error(1004, "Worksheets must belong to the same Excel application")
     if source.shapes_:
         raise VBAUnsupportedError("Worksheet.Copy with drawings or controls is not implemented")
+    if source.tables:
+        raise VBAUnsupportedError("Worksheet.Copy with tables is not implemented")
     if source.book.package is not None and source.part_name:
         xml = source.book.package.read(source.part_name).decode("utf-8")
         if any(f"<{tag}" in xml for tag in ("tableParts", "conditionalFormatting", "dataValidations", "hyperlinks", "legacyDrawing")):

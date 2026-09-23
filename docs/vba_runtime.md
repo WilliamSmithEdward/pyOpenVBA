@@ -1059,6 +1059,24 @@ two-dimensional; a WorksheetFunction member typed other than Variant
 cannot hand one back, which is error 13. A range or array given where
 one value is wanted is run item by item, as in a cell, into an array.
 
+**Tables.** `Worksheet.ListObjects` holds the sheet's tables, read from
+a file or made by `ListObjects.Add` over a range
+(`tests/fixtures/tables/`, 8 workbooks Excel saved and 15 questions).
+With headers the first row's cells name the columns and become text; a
+blank one is the first free ColumnN and a repeated one takes the next
+free number after it. Without, a header row goes in above the range and
+the cells under it move down; left to guess, text over data is taken as
+headers. The new table is the first free TableN in the workbook, styled
+TableStyleMedium2, and a range meeting another table is error 1004. A
+ListObject answers its Range, DataBodyRange, HeaderRowRange,
+TotalsRowRange, ListColumns and ListRows; its name, style and style
+options can be set, and `Range.ListObject` finds the table a cell is in.
+A save writes a new table in the part Excel writes for it, and a table
+read from a file keeps its part until it changes. Whole rows inserted or
+deleted through a table carry it; structured references, the totals
+row, ListRows.Add and Delete, Resize, Unlist and column edits through a
+table report themselves.
+
 **Events and a sheet's own code.** A sheet's module and ThisWorkbook
 are the code of their sheet and workbook (`tests/fixtures/events.json`,
 measured in live Excel). A code name reaches its object, as

@@ -96,6 +96,7 @@ def load_workbook(application: Application, path: Path) -> Workbook:
                 sheet.code_name = _unescape(found.group(1))
             _read_sheet(sheet, sheet_xml, strings, stylesheet)
             _read_shapes(sheet, package, sheet_xml)
+            _read_tables(sheet, package, sheet_xml)
     _read_names(book, workbook_xml)
     from pyopenvba.apps.excel._protection import read_book_protection
 
@@ -448,6 +449,66 @@ def _control_parts(package: OpcFile, sheet_part: str) -> dict[str, str]:
         if package.has(part):
             out[relationship] = package.read(part).decode("utf-8", errors="replace")
     return out
+
+
+def _read_tables(sheet: Worksheet, package: OpcFile, sheet_xml: str) -> None:
+    """The tables the sheet's tableParts name, each from its own part."""
+    from pyopenvba.apps.excel._tables import read_table
+
+    for relationship in re.findall(r'<tablePart\b[^>]*\br:id="([^"]+)"', sheet_xml):
+        part = _part_for(package, sheet.part_name, relationship)
+        if part and package.has(part):
+            xml = package.read(part).decode("utf-8", errors="replace")
+            sheet.tables.append(read_table(sheet, part, relationship, xml))
+
+
+#: Where a sheet's tableParts go: before the first of these that is there.
+_AFTER_TABLE_PARTS = re.compile(r"<extLst\b|</worksheet>")
+
+
+def _write_tables(book: Workbook, package: OpcFile) -> None:
+    """Every table the model made or changed, in its own part; a sheet with a new one names it in tableParts."""
+    from pyopenvba.apps.excel._tables import patched_xml, table_xml
+
+    for sheet in book.sheets_:
+        added = False
+        for table in sheet.tables:
+            if table.part and not table.changed:
+                continue
+            if table.part and table.xml:
+                table.xml = patched_xml(table)
+                package.write(table.part, table.xml.encode("utf-8"))
+                table.changed = False
+                continue
+            if not table.part:
+                if not sheet.part_name:
+                    continue
+                taken = set(package.names())
+                number = 1
+                while f"xl/tables/table{number}.xml" in taken:
+                    number += 1
+                table.part = f"xl/tables/table{number}.xml"
+                add_content_type(package, table.part,
+                                 "application/vnd.openxmlformats-officedocument.spreadsheetml.table+xml")
+                table.relationship = _add_sheet_relationship(
+                    package, sheet.part_name, f"../tables/table{number}.xml",
+                    "http://schemas.openxmlformats.org/officeDocument/2006/relationships/table")
+                added = True
+            table.xml = table_xml(table)
+            package.write(table.part, table.xml.encode("utf-8"))
+            table.changed = False
+        if added and package.has(sheet.part_name):
+            xml = package.read(sheet.part_name).decode("utf-8", errors="replace")
+            parts = "".join(f'<tablePart r:id="{table.relationship}"/>' for table in sheet.tables)
+            element = f'<tableParts count="{len(sheet.tables)}">{parts}</tableParts>'
+            existing = re.search(r"<tableParts\b.*?</tableParts>|<tableParts\b[^>]*/>", xml, re.DOTALL)
+            if existing is not None:
+                xml = xml[: existing.start()] + element + xml[existing.end():]
+            else:
+                place = _AFTER_TABLE_PARTS.search(xml)
+                if place is not None:
+                    xml = xml[: place.start()] + element + xml[place.start():]
+            package.write(sheet.part_name, xml.encode("utf-8"))
 
 
 def _write_shapes(book: Workbook, package: OpcFile) -> None:
@@ -882,6 +943,7 @@ def save_workbook(book: Workbook, target: Path) -> None:
         text = package.read("xl/workbook.xml").decode("utf-8", errors="replace")
         package.write("xl/workbook.xml", with_book_protection(book, text).encode("utf-8"))
     _resize_loaded_tables(book, package)
+    _write_tables(book, package)
     _write_shapes(book, package)
     _write_styles(book, package)
     target.parent.mkdir(parents=True, exist_ok=True)

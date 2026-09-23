@@ -1,0 +1,179 @@
+{
+ "reader": "Private Function Tables(ws As Object) As String\n    Dim t As Object, c As Object, out As String\n    out = ws.ListObjects.Count & \";\"\n    For Each t In ws.ListObjects\n        out = out & t.Name & \",\" & t.DisplayName & \",\" & t.Range.Address & \",\" & Where(t.DataBodyRange) & \",\" & _\n            Where(t.HeaderRowRange) & \",\" & Where(t.TotalsRowRange) & \",\" & t.ListColumns.Count & \",\" & _\n            t.ListRows.Count & \",\" & t.ShowTotals & \",\" & t.ShowHeaders & \",\" & t.TableStyle & \",\" & _\n            t.ShowAutoFilter & \",\" & t.ShowTableStyleRowStripes & \",\" & t.ShowTableStyleFirstColumn & \",\" & _\n            t.ShowTableStyleLastColumn & \",\" & t.ShowTableStyleColumnStripes & \",\" & t.Parent.Name & \",\"\n        For Each c In t.ListColumns\n            out = out & c.Index & \":\" & c.Name & \":\" & Where(c.DataBodyRange) & \":\" & c.Range.Address & \":\" & _\n                TypeName(c.Range.Cells(1).Value) & \"/\"\n        Next\n        out = out & \",\" & t.ListRows(1).Range.Address & \",\" & t.ListRows(1).Index & \";\"\n    Next\n    Tables = out\nEnd Function\n\nPrivate Function Where(r As Object) As String\n    If r Is Nothing Then Where = \"Nothing\" Else Where = r.Address\nEnd Function\n",
+ "books": [
+  {
+   "name": "basic",
+   "making": "ws.Range(\"A1:C1\").Value = Array(\"Name\", \"Qty\", \"Price\")\nws.Range(\"A2:C2\").Value = Array(\"apple\", 3, 1.5)\nws.Range(\"A3:C3\").Value = Array(\"pear\", 5, 2.25)\nws.Range(\"A4:C4\").Value = Array(\"plum\", 7, 0.5)\nws.ListObjects.Add xlSrcRange, ws.Range(\"A1:C4\"), , xlYes",
+   "read": "1;Table1,Table1,$A$1:$C$4,$A$2:$C$4,$A$1:$C$1,Nothing,3,3,False,True,TableStyleMedium2,True,True,False,False,False,Sheet1,1:Name:$A$2:$A$4:$A$1:$A$4:String/2:Qty:$B$2:$B$4:$B$1:$B$4:String/3:Price:$C$2:$C$4:$C$1:$C$4:String/,$A$2:$C$2,1;",
+   "parts": {
+    "xl/tables/table1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"1\" xr:uid=\"{A4D8F3D8-F467-4AA5-9983-C242458FC8E8}\" name=\"Table1\" displayName=\"Table1\" ref=\"A1:C4\" totalsRowShown=\"0\"><autoFilter ref=\"A1:C4\" xr:uid=\"{A4D8F3D8-F467-4AA5-9983-C242458FC8E8}\"/><tableColumns count=\"3\"><tableColumn id=\"1\" xr3:uid=\"{399AEEC2-49AC-4C6D-9182-24FBAA1DD1C8}\" name=\"Name\"/><tableColumn id=\"2\" xr3:uid=\"{8ED0D613-D7C3-4595-A0F3-E298F8514873}\" name=\"Qty\"/><tableColumn id=\"3\" xr3:uid=\"{6667B335-4260-4A50-99DF-6204F5AAF1EB}\" name=\"Price\"/></tableColumns><tableStyleInfo name=\"TableStyleMedium2\" showFirstColumn=\"0\" showLastColumn=\"0\" showRowStripes=\"1\" showColumnStripes=\"0\"/></table>",
+    "tableParts": "<tableParts count=\"1\"><tablePart r:id=\"rId1\"/></tableParts>",
+    "sheet_tail": "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/><tableParts count=\"1\"><tablePart r:id=\"rId1\"/></tableParts>",
+    "sheet_rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/table\" Target=\"../tables/table1.xml\"/></Relationships>",
+    "content_types": "<Override PartName=\"/xl/tables/table1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.table+xml\"/>"
+   }
+  },
+  {
+   "name": "totals",
+   "making": "ws.Range(\"A1:C1\").Value = Array(\"Name\", \"Qty\", \"Price\")\nws.Range(\"A2:C2\").Value = Array(\"apple\", 3, 1.5)\nws.Range(\"A3:C3\").Value = Array(\"pear\", 5, 2.25)\nws.Range(\"A4:C4\").Value = Array(\"plum\", 7, 0.5)\nSet t = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:C4\"), , xlYes)\nt.ShowTotals = True",
+   "read": "1;Table1,Table1,$A$1:$C$5,$A$2:$C$4,$A$1:$C$1,$A$5:$C$5,3,3,True,True,TableStyleMedium2,True,True,False,False,False,Sheet1,1:Name:$A$2:$A$4:$A$1:$A$5:String/2:Qty:$B$2:$B$4:$B$1:$B$5:String/3:Price:$C$2:$C$4:$C$1:$C$5:String/,$A$2:$C$2,1;",
+   "parts": {
+    "xl/tables/table1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"1\" xr:uid=\"{53D5CC50-9DF9-4919-8367-16CE8BFB576F}\" name=\"Table1\" displayName=\"Table1\" ref=\"A1:C5\" totalsRowCount=\"1\"><autoFilter ref=\"A1:C4\" xr:uid=\"{53D5CC50-9DF9-4919-8367-16CE8BFB576F}\"/><tableColumns count=\"3\"><tableColumn id=\"1\" xr3:uid=\"{B378972C-C783-4036-B28B-8D1413B9CFE4}\" name=\"Name\" totalsRowLabel=\"Total\"/><tableColumn id=\"2\" xr3:uid=\"{42BA2D6C-9E04-40E3-BC14-97AE4355BC0B}\" name=\"Qty\"/><tableColumn id=\"3\" xr3:uid=\"{49862A4B-586B-4B69-96A0-E17920B1800A}\" name=\"Price\" totalsRowFunction=\"sum\"/></tableColumns><tableStyleInfo name=\"TableStyleMedium2\" showFirstColumn=\"0\" showLastColumn=\"0\" showRowStripes=\"1\" showColumnStripes=\"0\"/></table>",
+    "tableParts": "<tableParts count=\"1\"><tablePart r:id=\"rId1\"/></tableParts>",
+    "sheet_tail": "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/><tableParts count=\"1\"><tablePart r:id=\"rId1\"/></tableParts>",
+    "sheet_rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/table\" Target=\"../tables/table1.xml\"/></Relationships>",
+    "content_types": "<Override PartName=\"/xl/tables/table1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.table+xml\"/>"
+   }
+  },
+  {
+   "name": "no_headers",
+   "making": "ws.Range(\"A2:B2\").Value = Array(1, 2)\nws.Range(\"A3:B3\").Value = Array(3, 4)\nws.ListObjects.Add xlSrcRange, ws.Range(\"A2:B3\"), , xlNo",
+   "read": "1;Table1,Table1,$A$2:$B$4,$A$3:$B$4,$A$2:$B$2,Nothing,2,2,False,True,TableStyleMedium2,True,True,False,False,False,Sheet1,1:Column1:$A$3:$A$4:$A$2:$A$4:String/2:Column2:$B$3:$B$4:$B$2:$B$4:String/,$A$3:$B$3,1;",
+   "parts": {
+    "xl/tables/table1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"1\" xr:uid=\"{3504D50D-9D85-4E6E-9BC7-3D1E5B80691D}\" name=\"Table1\" displayName=\"Table1\" ref=\"A2:B4\" totalsRowShown=\"0\"><autoFilter ref=\"A2:B4\" xr:uid=\"{3504D50D-9D85-4E6E-9BC7-3D1E5B80691D}\"/><tableColumns count=\"2\"><tableColumn id=\"1\" xr3:uid=\"{B2588A0F-1EC9-4AAD-8ABD-C970F2EC9F06}\" name=\"Column1\"/><tableColumn id=\"2\" xr3:uid=\"{78578409-B853-486B-9172-AD6D5E2763DA}\" name=\"Column2\"/></tableColumns><tableStyleInfo name=\"TableStyleMedium2\" showFirstColumn=\"0\" showLastColumn=\"0\" showRowStripes=\"1\" showColumnStripes=\"0\"/></table>",
+    "tableParts": "<tableParts count=\"1\"><tablePart r:id=\"rId1\"/></tableParts>",
+    "sheet_tail": "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/><tableParts count=\"1\"><tablePart r:id=\"rId1\"/></tableParts>",
+    "sheet_rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/table\" Target=\"../tables/table1.xml\"/></Relationships>",
+    "content_types": "<Override PartName=\"/xl/tables/table1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.table+xml\"/>"
+   }
+  },
+  {
+   "name": "named",
+   "making": "ws.Range(\"A1:C1\").Value = Array(\"Name\", \"Qty\", \"Price\")\nws.Range(\"A2:C2\").Value = Array(\"apple\", 3, 1.5)\nws.Range(\"A3:C3\").Value = Array(\"pear\", 5, 2.25)\nws.Range(\"A4:C4\").Value = Array(\"plum\", 7, 0.5)\nSet t = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:C4\"), , xlYes)\nt.Name = \"Sales\"\nt.TableStyle = \"TableStyleLight9\"\nt.ShowTableStyleRowStripes = False\nt.ShowTableStyleFirstColumn = True",
+   "read": "1;Sales,Sales,$A$1:$C$4,$A$2:$C$4,$A$1:$C$1,Nothing,3,3,False,True,TableStyleLight9,True,False,True,False,False,Sheet1,1:Name:$A$2:$A$4:$A$1:$A$4:String/2:Qty:$B$2:$B$4:$B$1:$B$4:String/3:Price:$C$2:$C$4:$C$1:$C$4:String/,$A$2:$C$2,1;",
+   "parts": {
+    "xl/tables/table1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"1\" xr:uid=\"{C26629D9-9945-4F32-8DD3-65B836A055BB}\" name=\"Sales\" displayName=\"Sales\" ref=\"A1:C4\" totalsRowShown=\"0\"><autoFilter ref=\"A1:C4\" xr:uid=\"{C26629D9-9945-4F32-8DD3-65B836A055BB}\"/><tableColumns count=\"3\"><tableColumn id=\"1\" xr3:uid=\"{33B290D2-9F52-4BEF-B830-1550615835BA}\" name=\"Name\"/><tableColumn id=\"2\" xr3:uid=\"{9BDDEF60-6AEC-4196-BD88-DAD572C155FC}\" name=\"Qty\"/><tableColumn id=\"3\" xr3:uid=\"{C3F7168E-C8C5-47CA-8A50-80AA6E141325}\" name=\"Price\"/></tableColumns><tableStyleInfo name=\"TableStyleLight9\" showFirstColumn=\"1\" showLastColumn=\"0\" showRowStripes=\"0\" showColumnStripes=\"0\"/></table>",
+    "tableParts": "<tableParts count=\"1\"><tablePart r:id=\"rId1\"/></tableParts>",
+    "sheet_tail": "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/><tableParts count=\"1\"><tablePart r:id=\"rId1\"/></tableParts>",
+    "sheet_rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/table\" Target=\"../tables/table1.xml\"/></Relationships>",
+    "content_types": "<Override PartName=\"/xl/tables/table1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.table+xml\"/>"
+   }
+  },
+  {
+   "name": "two",
+   "making": "ws.Range(\"A1:C1\").Value = Array(\"Name\", \"Qty\", \"Price\")\nws.Range(\"A2:C2\").Value = Array(\"apple\", 3, 1.5)\nws.Range(\"A3:C3\").Value = Array(\"pear\", 5, 2.25)\nws.Range(\"A4:C4\").Value = Array(\"plum\", 7, 0.5)\nws.ListObjects.Add xlSrcRange, ws.Range(\"A1:C4\"), , xlYes\nws.Range(\"E1:F1\").Value = Array(\"Key\", \"Value\")\nws.Range(\"E2:F2\").Value = Array(\"a\", 1)\nws.ListObjects.Add xlSrcRange, ws.Range(\"E1:F2\"), , xlYes",
+   "read": "2;Table1,Table1,$A$1:$C$4,$A$2:$C$4,$A$1:$C$1,Nothing,3,3,False,True,TableStyleMedium2,True,True,False,False,False,Sheet1,1:Name:$A$2:$A$4:$A$1:$A$4:String/2:Qty:$B$2:$B$4:$B$1:$B$4:String/3:Price:$C$2:$C$4:$C$1:$C$4:String/,$A$2:$C$2,1;Table2,Table2,$E$1:$F$2,$E$2:$F$2,$E$1:$F$1,Nothing,2,1,False,True,TableStyleMedium2,True,True,False,False,False,Sheet1,1:Key:$E$2:$E$1:$E$2:String/2:Value:$F$2:$F$1:$F$2:String/,$E$2:$F$2,1;",
+   "parts": {
+    "xl/tables/table1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"1\" xr:uid=\"{591E7D1F-FD44-4DAB-9686-91139B127CA2}\" name=\"Table1\" displayName=\"Table1\" ref=\"A1:C4\" totalsRowShown=\"0\"><autoFilter ref=\"A1:C4\" xr:uid=\"{591E7D1F-FD44-4DAB-9686-91139B127CA2}\"/><tableColumns count=\"3\"><tableColumn id=\"1\" xr3:uid=\"{4AE0A3B4-83EB-4005-A794-3AC905BF468C}\" name=\"Name\"/><tableColumn id=\"2\" xr3:uid=\"{2AF40FF5-B232-42ED-B83D-6373071F32C5}\" name=\"Qty\"/><tableColumn id=\"3\" xr3:uid=\"{3DCDB9A6-1F99-457E-AF85-03D51859A1AD}\" name=\"Price\"/></tableColumns><tableStyleInfo name=\"TableStyleMedium2\" showFirstColumn=\"0\" showLastColumn=\"0\" showRowStripes=\"1\" showColumnStripes=\"0\"/></table>",
+    "xl/tables/table2.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"2\" xr:uid=\"{0348F02E-5EAD-4FFF-A31F-7B9E7101BA66}\" name=\"Table2\" displayName=\"Table2\" ref=\"E1:F2\" totalsRowShown=\"0\"><autoFilter ref=\"E1:F2\" xr:uid=\"{0348F02E-5EAD-4FFF-A31F-7B9E7101BA66}\"/><tableColumns count=\"2\"><tableColumn id=\"1\" xr3:uid=\"{2FA1ED58-7E40-4031-9771-9FA4FCD89788}\" name=\"Key\"/><tableColumn id=\"2\" xr3:uid=\"{64D63461-50B3-4D11-B1CE-C842D296E649}\" name=\"Value\"/></tableColumns><tableStyleInfo name=\"TableStyleMedium2\" showFirstColumn=\"0\" showLastColumn=\"0\" showRowStripes=\"1\" showColumnStripes=\"0\"/></table>",
+    "tableParts": "<tableParts count=\"2\"><tablePart r:id=\"rId1\"/><tablePart r:id=\"rId2\"/></tableParts>",
+    "sheet_tail": "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/><tableParts count=\"2\"><tablePart r:id=\"rId1\"/><tablePart r:id=\"rId2\"/></tableParts>",
+    "sheet_rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId2\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/table\" Target=\"../tables/table2.xml\"/><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/table\" Target=\"../tables/table1.xml\"/></Relationships>",
+    "content_types": "<Override PartName=\"/xl/tables/table1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.table+xml\"/> <Override PartName=\"/xl/tables/table2.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.table+xml\"/>"
+   }
+  },
+  {
+   "name": "guess",
+   "making": "ws.Range(\"A1:C1\").Value = Array(\"Name\", \"Qty\", \"Price\")\nws.Range(\"A2:C2\").Value = Array(\"apple\", 3, 1.5)\nws.Range(\"A3:C3\").Value = Array(\"pear\", 5, 2.25)\nws.Range(\"A4:C4\").Value = Array(\"plum\", 7, 0.5)\nws.ListObjects.Add xlSrcRange, ws.Range(\"A1:C4\")",
+   "read": "1;Table1,Table1,$A$1:$C$4,$A$2:$C$4,$A$1:$C$1,Nothing,3,3,False,True,TableStyleMedium2,True,True,False,False,False,Sheet1,1:Name:$A$2:$A$4:$A$1:$A$4:String/2:Qty:$B$2:$B$4:$B$1:$B$4:String/3:Price:$C$2:$C$4:$C$1:$C$4:String/,$A$2:$C$2,1;",
+   "parts": {
+    "xl/tables/table1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"1\" xr:uid=\"{CF720299-429D-4F90-824C-F10BB80A0094}\" name=\"Table1\" displayName=\"Table1\" ref=\"A1:C4\" totalsRowShown=\"0\"><autoFilter ref=\"A1:C4\" xr:uid=\"{CF720299-429D-4F90-824C-F10BB80A0094}\"/><tableColumns count=\"3\"><tableColumn id=\"1\" xr3:uid=\"{0A452D48-80D3-4A6F-8976-DE6CF2087F60}\" name=\"Name\"/><tableColumn id=\"2\" xr3:uid=\"{3996A800-78D0-4804-9DFA-BBD08DE8E105}\" name=\"Qty\"/><tableColumn id=\"3\" xr3:uid=\"{D4A315B7-1066-4187-BADF-77E5ECD838BC}\" name=\"Price\"/></tableColumns><tableStyleInfo name=\"TableStyleMedium2\" showFirstColumn=\"0\" showLastColumn=\"0\" showRowStripes=\"1\" showColumnStripes=\"0\"/></table>",
+    "tableParts": "<tableParts count=\"1\"><tablePart r:id=\"rId1\"/></tableParts>",
+    "sheet_tail": "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/><tableParts count=\"1\"><tablePart r:id=\"rId1\"/></tableParts>",
+    "sheet_rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/table\" Target=\"../tables/table1.xml\"/></Relationships>",
+    "content_types": "<Override PartName=\"/xl/tables/table1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.table+xml\"/>"
+   }
+  },
+  {
+   "name": "guess_numbers",
+   "making": "ws.Range(\"A1:B1\").Value = Array(1, 2)\nws.Range(\"A2:B2\").Value = Array(3, 4)\nws.ListObjects.Add xlSrcRange, ws.Range(\"A1:B2\")",
+   "read": "1;Table1,Table1,$A$1:$B$3,$A$2:$B$3,$A$1:$B$1,Nothing,2,2,False,True,TableStyleMedium2,True,True,False,False,False,Sheet1,1:Column1:$A$2:$A$3:$A$1:$A$3:String/2:Column2:$B$2:$B$3:$B$1:$B$3:String/,$A$2:$B$2,1;",
+   "parts": {
+    "xl/tables/table1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"1\" xr:uid=\"{CEA0E21E-47EB-4801-B57B-F0A06A582291}\" name=\"Table1\" displayName=\"Table1\" ref=\"A1:B3\" totalsRowShown=\"0\"><autoFilter ref=\"A1:B3\" xr:uid=\"{CEA0E21E-47EB-4801-B57B-F0A06A582291}\"/><tableColumns count=\"2\"><tableColumn id=\"1\" xr3:uid=\"{2AC73A46-735D-4A1D-8C7C-D93840AA85C0}\" name=\"Column1\"/><tableColumn id=\"2\" xr3:uid=\"{4F5E03A4-780F-4304-B057-06206AF972F0}\" name=\"Column2\"/></tableColumns><tableStyleInfo name=\"TableStyleMedium2\" showFirstColumn=\"0\" showLastColumn=\"0\" showRowStripes=\"1\" showColumnStripes=\"0\"/></table>",
+    "tableParts": "<tableParts count=\"1\"><tablePart r:id=\"rId1\"/></tableParts>",
+    "sheet_tail": "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/><tableParts count=\"1\"><tablePart r:id=\"rId1\"/></tableParts>",
+    "sheet_rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/table\" Target=\"../tables/table1.xml\"/></Relationships>",
+    "content_types": "<Override PartName=\"/xl/tables/table1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.table+xml\"/>"
+   }
+  },
+  {
+   "name": "odd_headers",
+   "making": "ws.Range(\"A1:D1\").Value = Array(\"Name\", \"\", \"Name\", 2020)\nws.Range(\"A2:D2\").Value = Array(\"a\", 1, 2, 3)\nws.ListObjects.Add xlSrcRange, ws.Range(\"A1:D2\"), , xlYes",
+   "read": "1;Table1,Table1,$A$1:$D$2,$A$2:$D$2,$A$1:$D$1,Nothing,4,1,False,True,TableStyleMedium2,True,True,False,False,False,Sheet1,1:Name:$A$2:$A$1:$A$2:String/2:Column1:$B$2:$B$1:$B$2:String/3:Name2:$C$2:$C$1:$C$2:String/4:2020:$D$2:$D$1:$D$2:String/,$A$2:$D$2,1;",
+   "parts": {
+    "xl/tables/table1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"1\" xr:uid=\"{ACDC05E8-8D9F-4FB7-9094-14E1A791CAA9}\" name=\"Table1\" displayName=\"Table1\" ref=\"A1:D2\" totalsRowShown=\"0\"><autoFilter ref=\"A1:D2\" xr:uid=\"{ACDC05E8-8D9F-4FB7-9094-14E1A791CAA9}\"/><tableColumns count=\"4\"><tableColumn id=\"1\" xr3:uid=\"{C5DBDB99-A258-4715-B6AA-0FBDA9E6551D}\" name=\"Name\"/><tableColumn id=\"2\" xr3:uid=\"{E161CDDC-CFCA-40A9-8168-95F14EAC4FC1}\" name=\"Column1\"/><tableColumn id=\"3\" xr3:uid=\"{A918ABCC-1547-43B0-9863-14DC0D0F51C5}\" name=\"Name2\"/><tableColumn id=\"4\" xr3:uid=\"{DB30D98F-CF3D-4A4D-8252-7AB0B50B797E}\" name=\"2020\"/></tableColumns><tableStyleInfo name=\"TableStyleMedium2\" showFirstColumn=\"0\" showLastColumn=\"0\" showRowStripes=\"1\" showColumnStripes=\"0\"/></table>",
+    "tableParts": "<tableParts count=\"1\"><tablePart r:id=\"rId1\"/></tableParts>",
+    "sheet_tail": "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/><tableParts count=\"1\"><tablePart r:id=\"rId1\"/></tableParts>",
+    "sheet_rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/table\" Target=\"../tables/table1.xml\"/></Relationships>",
+    "content_types": "<Override PartName=\"/xl/tables/table1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.table+xml\"/>"
+   }
+  }
+ ],
+ "questions": [
+  {
+   "name": "list_object_inside",
+   "question": "ws.Range(\"B3\").ListObject.Name",
+   "answer": "Table1"
+  },
+  {
+   "name": "list_object_header",
+   "question": "ws.Range(\"A1\").ListObject.Name",
+   "answer": "Table1"
+  },
+  {
+   "name": "list_object_other",
+   "question": "ws.Range(\"F2\").ListObject.Name",
+   "answer": "Table2"
+  },
+  {
+   "name": "list_object_outside",
+   "question": "TypeName(ws.Range(\"H9\").ListObject)",
+   "answer": "Nothing"
+  },
+  {
+   "name": "by_name",
+   "question": "ws.ListObjects(\"Table2\").Range.Address",
+   "answer": "$E$1:$F$2"
+  },
+  {
+   "name": "by_index",
+   "question": "ws.ListObjects(2).Name",
+   "answer": "Table2"
+  },
+  {
+   "name": "missing_name",
+   "question": "ws.ListObjects(\"Nope\").Name",
+   "answer": "!9"
+  },
+  {
+   "name": "missing_index",
+   "question": "ws.ListObjects(3).Name",
+   "answer": "!9"
+  },
+  {
+   "name": "column_by_name",
+   "question": "ws.ListObjects(1).ListColumns(\"Qty\").Index",
+   "answer": "2"
+  },
+  {
+   "name": "column_missing",
+   "question": "ws.ListObjects(1).ListColumns(\"Nope\").Index",
+   "answer": "!9"
+  },
+  {
+   "name": "row_missing",
+   "question": "ws.ListObjects(1).ListRows(4).Index",
+   "answer": "!9"
+  },
+  {
+   "name": "typename",
+   "question": "TypeName(ws.ListObjects(1)) & TypeName(ws.ListObjects) & TypeName(ws.ListObjects(1).ListColumns) & TypeName(ws.ListObjects(1).ListColumns(1)) & TypeName(ws.ListObjects(1).ListRows) & TypeName(ws.ListObjects(1).ListRows(1))",
+   "answer": "ListObjectListObjectsListColumnsListColumnListRowsListRow"
+  },
+  {
+   "name": "overlap",
+   "question": "ws.ListObjects.Add(xlSrcRange, ws.Range(\"B2:C3\"), , xlYes).Name",
+   "answer": "!1004"
+  },
+  {
+   "name": "default_member",
+   "question": "ws.ListObjects(1)",
+   "answer": "Table1"
+  },
+  {
+   "name": "sheet_names",
+   "question": "ActiveWorkbook.Names.Count & \"/\" & ws.Range(\"Table1\").Address & \"/\" & ws.Range(\"Table1[Qty]\").Address & \"/\" & ws.Range(\"Table1[#All]\").Address & \"/\" & ws.Range(\"Table1[#Headers]\").Address",
+   "answer": "0/$A$2:$C$4/$B$2:$B$4/$A$1:$C$4/$A$1:$C$1"
+  }
+ ]
+}

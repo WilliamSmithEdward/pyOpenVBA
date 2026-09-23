@@ -351,6 +351,40 @@ target starts from the first array element.
 * xlSortTextAsNumbers sorts text that would type as a number -- `(3)`,
   `5%`, `$5`, `1,000` -- as that number, among the numbers.
 
+**Filtering.** `Range.AutoFilter` and the AutoFilter, Filters and Filter
+objects filter as Excel does (`tests/fixtures/autofilter.json`, 113
+layouts; `tests/fixtures/autofilter_file/`, 34 filters Excel saved).
+
+* AutoFilter with no field turns the sheet's filter on -- over a single
+  cell's current region, or whole columns cut to the used rows -- or off
+  where there is one. With a field it filters that column of the sheet's
+  filter, whatever range it was called on, turning one on first where
+  there is none. The first filter leaves a hidden name, _FilterDatabase,
+  which outlives it.
+* Filtering shows or hides every row under the header by all the
+  columns' criteria, rows hidden by hand included, and nothing changes
+  when a cell does until ApplyFilter. ShowAllData clears the criteria and
+  shows the rows, error 1004 when there are none; AutoFilterMode = False
+  takes the filter off.
+* `=` or no operator matches what a cell shows, ignoring case, with `*`,
+  `?` and `~`: "1" matches 1 but not 1 shown as 1.00, and a wildcard
+  matches text only. `=` alone matches blanks, `<>` alone the rest. `<>`
+  with a number is not equal in value, with text the opposite of `=`.
+  `>`, `>=`, `<` and `<=` compare numbers, dates by their serial, and
+  text as Sort orders it; nothing else passes. Spaces round a criterion
+  go, and a number reads back spelled afresh, a date as its serial.
+* xlFilterValues with one value is a plain criterion, with two an xlOr,
+  and with more a sorted list matched exactly, and returns the field.
+  Top and bottom items keep the numbers at or past the one in that
+  place, reading back as `>=` or `<=` it; a percentage rounds down to
+  whole items, at least one. Above and below average compare with the
+  mean. A column with an error in it makes both error 1004.
+* The file keeps plain criteria, xlOr pairs of them and lists as a list
+  of values, and the rest as custom filters, with the threshold of a top
+  filter and the mean of an average one; Excel reads each back as it
+  was. A colour, icon or date-group filter read from a file is kept as it
+  was, but reading or applying it reports itself unsupported.
+
 **Removing duplicates.** `Range.RemoveDuplicates` removes rows as Excel
 does (`tests/fixtures/remove_duplicates.json`, 98 layouts).
 

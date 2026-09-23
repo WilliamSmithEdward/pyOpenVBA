@@ -49,6 +49,7 @@ from pyopenvba.interpreter._values import (
 )
 
 if TYPE_CHECKING:
+    from pyopenvba.apps.excel._autofilter import SheetFilter
     from pyopenvba.apps.excel._clipboard import Clip
     from pyopenvba.apps.excel._sort import SortState
     from pyopenvba.apps.excel._styles import Style, Stylesheet
@@ -738,6 +739,10 @@ class Worksheet(ExcelObject):
         self.selection_range: Range | None = None
         #: The settings Worksheet.Sort holds, made the first time it is asked for.
         self.sort_state: SortState | None = None
+        #: The sheet's AutoFilter: its range and the criteria on its columns.
+        self.auto_filter: SheetFilter | None = None
+        #: True once the filter is made, changed or removed, so a save writes it again.
+        self.filter_changed = False
         self.active_cell_range: Range | None = None
         #: What the sheet's XML part was called in the file it came from.
         self.part_name = ""
@@ -760,6 +765,16 @@ class Worksheet(ExcelObject):
     def touched(self) -> None:
         self.dirty = True
         self.book.saved = False
+
+    def declares_revisions(self) -> bool:
+        """Whether the sheet's part declares the revision namespace, where an autoFilter's xr:uid lives."""
+        import re
+
+        package = self.book.package
+        if package is None or not self.part_name or not package.has(self.part_name):
+            return True
+        root = re.search(r"<worksheet\b[^>]*>", package.read(self.part_name).decode("utf-8", errors="replace"))
+        return root is not None and "xmlns:xr=" in root.group(0)
 
     def drawing_changed(self) -> None:
         """A shape was added, moved, renamed or deleted."""
@@ -962,6 +977,33 @@ class Worksheet(ExcelObject):
         from pyopenvba.apps.excel._sort import SortObject
 
         return SortObject(self)
+
+    @member
+    def AutoFilter(self) -> object:
+        from pyopenvba.apps.excel._autofilter import sheet_autofilter
+
+        return sheet_autofilter(self)
+
+    @member
+    def AutoFilterMode(self) -> object:
+        return self.auto_filter is not None
+
+    @setter("AutoFilterMode")
+    def _set_auto_filter_mode(self, value: object) -> None:
+        from pyopenvba.apps.excel._autofilter import set_mode
+
+        set_mode(self, value)
+
+    @member
+    def FilterMode(self) -> object:
+        return self.auto_filter is not None and bool(self.auto_filter.fields)
+
+    @method
+    def ShowAllData(self) -> object:
+        from pyopenvba.apps.excel._autofilter import show_all_data
+
+        show_all_data(self)
+        return EMPTY
 
     # -- methods
 
@@ -1984,6 +2026,13 @@ class Range(ExcelObject):
 
         return range_sort(self, [(Key1, Order1, DataOption1), (Key2, Order2, DataOption2), (Key3, Order3, DataOption3)],
                           Header, OrderCustom, MatchCase, Orientation)
+
+    @method
+    def AutoFilter(self, Field: object = MISSING, Criteria1: object = MISSING, Operator: object = MISSING,
+                   Criteria2: object = MISSING, VisibleDropDown: object = MISSING, SubField: object = MISSING) -> object:
+        from pyopenvba.apps.excel._autofilter import range_autofilter
+
+        return range_autofilter(self, Field, Criteria1, Operator, Criteria2, VisibleDropDown, SubField)
 
     @method
     def RemoveDuplicates(self, Columns: object = MISSING, Header: object = MISSING) -> object:

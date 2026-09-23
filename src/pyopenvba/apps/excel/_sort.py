@@ -6,7 +6,7 @@ Measured in live Excel (scripts/measure_sort_order.py, scripts/measure_sort.py):
   errors, all of them equal; descending, errors, TRUE and FALSE, text,
   numbers. Blank cells go last either way. The sort is stable: rows that
   compare equal keep their order.
-- Text sorts as Windows sorts words, which ``_text_key`` reproduces for
+- Text sorts as Windows sorts words, which ``text_key`` reproduces for
   ASCII, checked on 400 random strings: spaces and marks before digits,
   digits before letters, case ignored unless MatchCase asks for lower
   case first, and hyphens and apostrophes ignored but for breaking ties.
@@ -60,7 +60,7 @@ class Key:
     numbers: bool = False
 
 
-def _text_key(text: str, match_case: bool) -> tuple[tuple[int, ...], tuple[int, ...], tuple[tuple[int, int], ...]]:
+def text_key(text: str, match_case: bool) -> tuple[tuple[int, ...], tuple[int, ...], tuple[tuple[int, int], ...]]:
     """Text as Windows word sort compares it: weights, then case, then the hyphens and apostrophes it passed over."""
     weights: list[int] = []
     cases: list[int] = []
@@ -94,7 +94,7 @@ def _classified(value: object, key: Key, match_case: bool) -> tuple[int, object]
         found = typed_text(text).value
         if isinstance(found, float):
             return _NUMBER, found
-    return _TEXT, _text_key(text, match_case)
+    return _TEXT, text_key(text, match_case)
 
 
 def _compare(first: tuple[int, object], second: tuple[int, object], descending: bool) -> int:

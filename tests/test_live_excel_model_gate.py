@@ -1525,3 +1525,37 @@ def test_excel_reads_model_typed_cells(tmp_path: Path) -> None:
     ours, theirs = str(result.value).split("<ours|theirs>", 1)
     for steps, mine, excels in zip(fixture["cases"], ours.split("|")[:count], theirs.split("|")[:count], strict=True):
         assert mine == excels, steps
+
+
+def test_excel_reads_the_filters_this_wrote(tmp_path: Path) -> None:
+    """Every kind of filter tests/fixtures/autofilter_file measured, made by the model and opened in Excel."""
+    import json
+
+    harness = pytest.importorskip("pyvbaharness")
+    record = json.loads((Path(__file__).parent / "fixtures" / "autofilter_file" / "autofilter_file.json")
+                        .read_text(encoding="utf-8"))
+    build = ["Public Sub Build()", "Dim wb As Object, ws As Object", "Set wb = ActiveWorkbook"]
+    bodies: list[str] = []
+    for index, case in enumerate(record["cases"]):
+        build += ["Set ws = wb.Worksheets(1)" if index == 0 else
+                  "Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))",
+                  f'ws.Name = "{case["name"]}"', f"Case{index} ws"]
+        bodies.append("\n".join([f"Private Sub Case{index}(ws As Object)", "Dim v As Variant",
+                                 *(record["table"] + case["setup"]).splitlines(), "End Sub"]) + "\n")
+    build += ["End Sub"]
+    app = ExcelApplication()
+    app.add_workbook()
+    app.add_module("\n".join(build) + "\n" + "".join(bodies), name="Builder")
+    app.run("Build")
+    path = tmp_path / "filters.xlsx"
+    app.save(path)
+    reader = (record["helper"] + "Public Function Report() As String\nDim ws As Object, out As String\n"
+              "For Each ws In ActiveWorkbook.Worksheets\nout = out & ws.Name & \"^\" & Dump(ws) & \"|\"\nNext\n"
+              "Report = out\nEnd Function\n")
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+        excel.open_document(path)
+        result = excel.run_vba(reader, "Report", timeout=240.0)
+        assert result.ok, result.message
+    read = dict(one.split("^", 1) for one in str(result.value).split("|") if one)
+    for case in record["cases"]:
+        assert read[case["name"]] == case["reopened"], case["name"]

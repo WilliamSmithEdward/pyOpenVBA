@@ -44,6 +44,14 @@ _INLINE = re.compile(r"<is>(.*?)</is>", re.DOTALL)
 _TEXT = re.compile(r"<t[^>]*>(.*?)</t>", re.DOTALL)
 _SHARED_ITEM = re.compile(r"<si>(.*?)</si>", re.DOTALL)
 _DEFINED_NAME = re.compile(r"<definedName\b([^>]*)>(.*?)</definedName>", re.DOTALL)
+_FILTER_DATABASE = "_xlnm._FilterDatabase"
+_AUTO_FILTER = re.compile(r"<autoFilter\b[^>]*/>|<autoFilter\b.*?</autoFilter>", re.DOTALL)
+#: The worksheet children an autoFilter comes before, in the schema's order.
+_AFTER_AUTO_FILTER = re.compile(
+    r"<(?:sortState|dataConsolidate|customSheetViews|mergeCells|phoneticPr|conditionalFormatting|dataValidations|"
+    r"hyperlinks|printOptions|pageMargins|pageSetup|headerFooter|rowBreaks|colBreaks|customProperties|cellWatches|"
+    r"ignoredErrors|smartTags|drawing|legacyDrawing|legacyDrawingHF|picture|oleObjects|controls|webPublishItems|"
+    r"tableParts|extLst)\b|</worksheet>")
 
 
 class WorkbookFileError(PyOpenVBAError):
@@ -135,6 +143,11 @@ def _read_sheet(sheet: Worksheet, xml: str, strings: list[str], stylesheet: Styl
         reference = _tag_attributes(tag).get("ref", "")
         if reference:
             sheet.merged_areas.extend(parse_reference(reference, sheet=sheet.name))
+    element = _AUTO_FILTER.search(xml)
+    if element is not None:
+        from pyopenvba.apps.excel._autofilter import read_filter
+
+        sheet.auto_filter = read_filter(sheet, element.group())
     sheet.dims.load(xml)
     match = _SHEET_DATA.search(xml)
     if match and match.group(2) != "/>":
@@ -219,7 +232,10 @@ def _read_names(book: Workbook, workbook_xml: str) -> None:
     for attributes_text, body in _DEFINED_NAME.findall(workbook_xml):
         attributes = _attributes(f"<definedName {attributes_text}>")
         name = attributes.get("name", "")
-        if not name or name.startswith("_xlnm"):
+        if name == _FILTER_DATABASE:
+            # The model keeps a filter's hidden name, as Excel shows it: _FilterDatabase on its sheet.
+            name = name.removeprefix("_xlnm.")
+        elif not name or name.startswith("_xlnm"):
             continue
         local_id = attributes.get("localSheetId", "")
         if local_id.isdigit() and int(local_id) < len(book.sheets_):
@@ -1121,6 +1137,8 @@ def _patched_sheet(sheet: Worksheet, original: str, package: OpcFile) -> str:
     patched = original[: match.start()] + f"<sheetData>{rebuilt}</sheetData>" + original[match.end() :]
     patched = _with_dimension_parts(sheet, patched)
     sheet.dims.saved()
+    if sheet.filter_changed:
+        patched = _with_auto_filter(sheet, patched)
     if sheet.merges_dirty:
         markup = ""
         if sheet.merged_areas:
@@ -1139,6 +1157,18 @@ def _patched_sheet(sheet: Worksheet, original: str, package: OpcFile) -> str:
             if following:
                 patched = patched[:following.start()] + markup + patched[following.start():]
     return _with_dimension(patched, sheet)
+
+
+def _with_auto_filter(sheet: Worksheet, xml: str) -> str:
+    """The sheet's autoFilter element as the model has it: replaced, put in its place, or taken out."""
+    markup = sheet.auto_filter.xml() if sheet.auto_filter is not None else ""
+    existing = _AUTO_FILTER.search(xml)
+    if existing is not None:
+        return xml[:existing.start()] + markup + xml[existing.end():]
+    following = _AFTER_AUTO_FILTER.search(xml)
+    if not markup or following is None:
+        return xml
+    return xml[:following.start()] + markup + xml[following.start():]
 
 
 def _row_number(row_xml: str) -> int:
@@ -1310,16 +1340,37 @@ def _with_dimension(xml: str, sheet: Worksheet) -> str:
     return re.sub(r'<dimension\b[^>]*/>', f'<dimension ref="{reference}"/>', xml, count=1)
 
 
+def _name_order(book: Workbook, name: str, local: str | None) -> tuple[object, ...]:
+    """Where Excel puts a defined name in the file: measured by scripts/measure_autofilter_file.py."""
+    sheet = ""
+    if local is not None and local.isdigit() and int(local) < len(book.sheets_):
+        sheet = book.sheets_[int(local)].name
+    return (_collation(name.removeprefix("_xlnm.")), 0 if local is not None else 1, _collation(sheet))
+
+
+def _collation(text: str) -> tuple[object, ...]:
+    """Text as Excel orders names: word sort ignoring case, and other text by its lower-case characters."""
+    from pyopenvba.apps.excel._sort import text_key
+    from pyopenvba.exceptions import VBAUnsupportedError
+
+    try:
+        return text_key(text, False)
+    except VBAUnsupportedError:
+        return (tuple(100 + ord(char) for char in text.lower()), (), ())
+
+
 def _write_names(book: Workbook, package: OpcFile) -> None:
     """The model's defined names, put back into the workbook part."""
     if not package.has("xl/workbook.xml"):
         return
     text = package.read("xl/workbook.xml").decode("utf-8", errors="replace")
-    keep = [
-        f"<definedName {attributes}>{body}</definedName>"
-        for attributes, body in _DEFINED_NAME.findall(text)
-        if _attributes(f"<definedName {attributes}>").get("name", "").startswith("_xlnm")
-    ]
+    written: list[tuple[tuple[object, ...], str]] = []
+    for attributes, body in _DEFINED_NAME.findall(text):
+        found = _attributes(f"<definedName {attributes}>")
+        name = found.get("name", "")
+        if name.startswith("_xlnm") and name != _FILTER_DATABASE:
+            written.append((_name_order(book, name, found.get("localSheetId")),
+                            f"<definedName {attributes}>{body}</definedName>"))
     for entry in book.names_.entries:
         # A name that came from the file keeps the attributes it came
         # with; localSheetId and hidden are not the model's to drop.
@@ -1327,7 +1378,7 @@ def _write_names(book: Workbook, package: OpcFile) -> None:
 
         owned = _attributes(f"<definedName {entry.attributes}>")
         scope, bare = split_sheet(entry.name)
-        owned["name"] = bare
+        owned["name"] = _FILTER_DATABASE if bare == "_FilterDatabase" else bare
         owned.pop("localSheetId", None)
         if scope:
             index = next((i for i, sheet in enumerate(book.sheets_) if sheet.name.lower() == scope.lower()), None)
@@ -1340,7 +1391,12 @@ def _write_names(book: Workbook, package: OpcFile) -> None:
         if entry.comment:
             owned["comment"] = entry.comment
         attributes = " ".join(f'{key}="{_escape(value)}"' for key, value in owned.items())
-        keep.append(f"<definedName {attributes}>{_escape(entry.refers_to.lstrip('='))}</definedName>")
+        written.append((_name_order(book, owned["name"], owned.get("localSheetId")),
+                        f"<definedName {attributes}>{_escape(entry.refers_to.lstrip('='))}</definedName>"))
+    # Excel writes its names in the Name Manager's order: by name as it shows there, ignoring case, and
+    # a name on a sheet before the workbook's of the same name, sheets in the order of their names.
+    written.sort(key=lambda pair: pair[0])
+    keep = [element for _, element in written]
     block = f"<definedNames>{''.join(keep)}</definedNames>" if keep else ""
     if "<definedNames>" in text:
         text = re.sub(r"<definedNames>.*?</definedNames>", block, text, count=1, flags=re.DOTALL)

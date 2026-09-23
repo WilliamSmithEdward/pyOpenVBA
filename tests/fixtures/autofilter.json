@@ -1,0 +1,571 @@
+{
+ "helper": "Private Function Show(v As Variant) As String\n    Dim i As Long, out As String\n    If IsArray(v) Then\n        out = \"Array(\"\n        For i = LBound(v) To UBound(v)\n            out = out & Show(v(i)) & \",\"\n        Next\n        Show = out & \")\"\n    ElseIf IsNull(v) Then\n        Show = \"Null\"\n    ElseIf IsEmpty(v) Then\n        Show = \"Empty\"\n    ElseIf IsError(v) Then\n        Show = \"Error:\" & CStr(CLng(v))\n    ElseIf IsObject(v) Then\n        Show = \"Object\"\n    Else\n        Show = TypeName(v) & \":\" & CStr(v)\n    End If\nEnd Function\n\nPrivate Function Filters(ws As Object) As String\n    Dim out As String, i As Long, f As Object, part As String\n    On Error Resume Next\n    out = \"mode=\" & ws.AutoFilterMode & \" filtering=\" & ws.FilterMode\n    If ws.AutoFilterMode Then\n        out = out & \" range=\" & ws.AutoFilter.Range.Address & \" count=\" & ws.AutoFilter.Filters.Count\n        For i = 1 To ws.AutoFilter.Filters.Count\n            Set f = ws.AutoFilter.Filters(i)\n            part = \" f\" & i & \":\" & f.On\n            If f.On Then\n                Err.Clear\n                part = part & \" op=\" & f.Operator\n                If Err.Number <> 0 Then part = part & \" op=E\" & Err.Number\n                Err.Clear\n                part = part & \" c1=\" & Show(f.Criteria1)\n                If Err.Number <> 0 Then part = part & \" c1=E\" & Err.Number\n                Err.Clear\n                part = part & \" c2=\" & Show(f.Criteria2)\n                If Err.Number <> 0 Then part = part & \" c2=E\" & Err.Number\n            End If\n            out = out & part\n        Next\n    End If\n    Err.Clear\n    Dim n As Object\n    Set n = Nothing\n    Set n = ws.Names(\"_FilterDatabase\")\n    If Not n Is Nothing Then out = out & \" db=\" & n.RefersTo & \":\" & n.Visible\n    Filters = out\nEnd Function\n\nPrivate Function Dump(ws As Object) As String\n    Dim out As String, r As Long\n    For r = 1 To 14\n        If ws.Rows(r).Hidden Then out = out & r & \",\"\n    Next\n    Dump = \"hidden=\" & out & \" \" & Filters(ws)\nEnd Function\n",
+ "table": "ws.Range(\"A1:D1\").Value = Array(\"Name\", \"Qty\", \"Day\", \"Note\")\nws.Range(\"A2:D2\").Value = Array(\"apple\", 1, #1/1/2020#, \"x\")\nws.Range(\"A3:D3\").Value = Array(\"Apple\", 2, #1/15/2020#, \"y\")\nws.Range(\"A4:D4\").Value = Array(\"banana\", 2.5, #2/1/2020#, \"x\")\nws.Range(\"A5:D5\").Value = Array(\"cherry\", 10, #3/1/2020#, \"\")\nws.Range(\"A6\").Value = \"apple pie\"\nws.Range(\"B6\").Value = -1\nws.Range(\"C6\").Value = #1/1/2021#\nws.Range(\"A7\").Value = \"b*\"\nws.Range(\"B7\").Value = 1\nws.Range(\"B7\").NumberFormat = \"0.00\"\nws.Range(\"C7\").Value = #12/31/2019#\nws.Range(\"A8\").Value = \"~\"\nws.Range(\"B8\").Value = 100\nws.Range(\"A9\").Value = \"'123\"\nws.Range(\"B9\").Value = \"'5\"\nws.Range(\"C9\").Value = \"text\"\nws.Range(\"A10\").Value = \"Banana\"\nws.Range(\"B10\").Value = True\nws.Range(\"C10\").Value = #1/15/2020 6:00:00 AM#\nws.Range(\"A11\").Value = \"date\"\nws.Range(\"B11\").Formula = \"=1/0\"\nws.Range(\"A12\").Value = \"cherry\"\nws.Range(\"B12\").Value = 2\nws.Range(\"C12\").Value = #1/15/2020#\nws.Range(\"D12\").Value = \"y\"\nws.Range(\"A13\").Value = 12\nws.Range(\"B13\").Value = 0.5\n",
+ "layouts": [
+  {
+   "name": "arrows_only",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter\n",
+   "answers": "Boolean:True;hidden= mode=True filtering=False range=$A$1:$D$13 count=4 f1:False f2:False f3:False f4:False db==arrows_only!$A$1:$D$13:False"
+  },
+  {
+   "name": "arrows_twice",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter\nv = ws.Range(\"A1:D13\").AutoFilter\n",
+   "answers": "Boolean:True;hidden= mode=False filtering=False db==arrows_twice!$A$1:$D$13:False"
+  },
+  {
+   "name": "single_cell",
+   "setup": "v = ws.Range(\"B3\").AutoFilter\n",
+   "answers": "Boolean:True;hidden= mode=True filtering=False range=$A$1:$D$13 count=4 f1:False f2:False f3:False f4:False db==single_cell!$A$1:$D$13:False"
+  },
+  {
+   "name": "equals_text",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=1, Criteria1:=\"apple\")\n",
+   "answers": "Boolean:True;hidden=4,5,6,7,8,9,10,11,12,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False db==equals_text!$A$1:$D$13:False"
+  },
+  {
+   "name": "equals_sign",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=1, Criteria1:=\"=apple\")\n",
+   "answers": "Boolean:True;hidden=4,5,6,7,8,9,10,11,12,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False db==equals_sign!$A$1:$D$13:False"
+  },
+  {
+   "name": "not_equal",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=1, Criteria1:=\"<>apple\")\n",
+   "answers": "Boolean:True;hidden=2,3, mode=True filtering=True range=$A$1:$D$13 count=4 f1:True op=0 c1=String:<>apple c2=E1004 f2:False f3:False f4:False db==not_equal!$A$1:$D$13:False"
+  },
+  {
+   "name": "starts",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=1, Criteria1:=\"a*\")\n",
+   "answers": "Boolean:True;hidden=4,5,7,8,9,10,11,12,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:True op=0 c1=String:=a* c2=E1004 f2:False f3:False f4:False db==starts!$A$1:$D$13:False"
+  },
+  {
+   "name": "contains",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=1, Criteria1:=\"*an*\")\n",
+   "answers": "Boolean:True;hidden=2,3,5,6,7,8,9,11,12,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:True op=0 c1=String:=*an* c2=E1004 f2:False f3:False f4:False db==contains!$A$1:$D$13:False"
+  },
+  {
+   "name": "one_char",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=1, Criteria1:=\"?pple\")\n",
+   "answers": "Boolean:True;hidden=4,5,6,7,8,9,10,11,12,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:True op=0 c1=String:=?pple c2=E1004 f2:False f3:False f4:False db==one_char!$A$1:$D$13:False"
+  },
+  {
+   "name": "escaped_star",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=1, Criteria1:=\"b~*\")\n",
+   "answers": "Boolean:True;hidden=2,3,4,5,6,8,9,10,11,12,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:True op=0 c1=String:=b~* c2=E1004 f2:False f3:False f4:False db==escaped_star!$A$1:$D$13:False"
+  },
+  {
+   "name": "tilde",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=1, Criteria1:=\"~~\")\n",
+   "answers": "Boolean:True;hidden=2,3,4,5,6,7,8,9,10,11,12,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:True op=0 c1=String:=~~ c2=E1004 f2:False f3:False f4:False db==tilde!$A$1:$D$13:False"
+  },
+  {
+   "name": "blanks",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=4, Criteria1:=\"=\")\n",
+   "answers": "Boolean:True;hidden=2,3,4,12, mode=True filtering=True range=$A$1:$D$13 count=4 f1:False f2:False f3:False f4:True op=0 c1=String:= c2=E1004 db==blanks!$A$1:$D$13:False"
+  },
+  {
+   "name": "non_blanks",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=4, Criteria1:=\"<>\")\n",
+   "answers": "Boolean:True;hidden=5,6,7,8,9,10,11,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:False f2:False f3:False f4:True op=0 c1=String:<> c2=E1004 db==non_blanks!$A$1:$D$13:False"
+  },
+  {
+   "name": "any_text",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=1, Criteria1:=\"*\")\n",
+   "answers": "Boolean:True;hidden=13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:True op=0 c1=String:=* c2=E1004 f2:False f3:False f4:False db==any_text!$A$1:$D$13:False"
+  },
+  {
+   "name": "numeric_text",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=1, Criteria1:=\"123\")\n",
+   "answers": "Boolean:True;hidden=2,3,4,5,6,7,8,10,11,12,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:True op=0 c1=String:=123 c2=E1004 f2:False f3:False f4:False db==numeric_text!$A$1:$D$13:False"
+  },
+  {
+   "name": "number_equals",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=2, Criteria1:=\"1\")\n",
+   "answers": "Boolean:True;hidden=3,4,5,6,7,8,9,10,11,12,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:False f2:True op=0 c1=String:=1 c2=E1004 f3:False f4:False db==number_equals!$A$1:$D$13:False"
+  },
+  {
+   "name": "number_equals_sign",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=2, Criteria1:=\"=1\")\n",
+   "answers": "Boolean:True;hidden=3,4,5,6,7,8,9,10,11,12,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:False f2:True op=0 c1=String:=1 c2=E1004 f3:False f4:False db==number_equals_sign!$A$1:$D$13:False"
+  },
+  {
+   "name": "number_shown",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=2, Criteria1:=\"1.00\")\n",
+   "answers": "Boolean:True;hidden=2,3,4,5,6,8,9,10,11,12,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:False f2:True op=0 c1=String:=1.00 c2=E1004 f3:False f4:False db==number_shown!$A$1:$D$13:False"
+  },
+  {
+   "name": "number_greater",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=2, Criteria1:=\">2\")\n",
+   "answers": "Boolean:True;hidden=2,3,6,7,9,10,11,12,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:False f2:True op=0 c1=String:>2 c2=E1004 f3:False f4:False db==number_greater!$A$1:$D$13:False"
+  },
+  {
+   "name": "number_at_least",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=2, Criteria1:=\">=2\")\n",
+   "answers": "Boolean:True;hidden=2,6,7,9,10,11,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:False f2:True op=0 c1=String:>=2 c2=E1004 f3:False f4:False db==number_at_least!$A$1:$D$13:False"
+  },
+  {
+   "name": "number_below",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=2, Criteria1:=\"<2.5\")\n",
+   "answers": "Boolean:True;hidden=4,5,8,9,10,11, mode=True filtering=True range=$A$1:$D$13 count=4 f1:False f2:True op=0 c1=String:<2.5 c2=E1004 f3:False f4:False db==number_below!$A$1:$D$13:False"
+  },
+  {
+   "name": "number_not",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=2, Criteria1:=\"<>2\")\n",
+   "answers": "Boolean:True;hidden=3,12, mode=True filtering=True range=$A$1:$D$13 count=4 f1:False f2:True op=0 c1=String:<>2 c2=E1004 f3:False f4:False db==number_not!$A$1:$D$13:False"
+  },
+  {
+   "name": "number_value",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=2, Criteria1:=2)\n",
+   "answers": "Boolean:True;hidden=2,4,5,6,7,8,9,10,11,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:False f2:True op=0 c1=String:=2 c2=E1004 f3:False f4:False db==number_value!$A$1:$D$13:False"
+  },
+  {
+   "name": "between_and",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=2, Criteria1:=\">=1\", Operator:=xlAnd, Criteria2:=\"<=10\")\n",
+   "answers": "Boolean:True;hidden=6,8,9,10,11,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:False f2:True op=1 c1=String:>=1 c2=String:<=10 f3:False f4:False db==between_and!$A$1:$D$13:False"
+  },
+  {
+   "name": "either_or",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=1, Criteria1:=\"apple\", Operator:=xlOr, Criteria2:=\"cherry\")\n",
+   "answers": "Boolean:True;hidden=4,6,7,8,9,10,11,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:True op=2 c1=String:=apple c2=String:=cherry f2:False f3:False f4:False db==either_or!$A$1:$D$13:False"
+  },
+  {
+   "name": "values_list",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=1, Criteria1:=Array(\"apple\", \"cherry\"), Operator:=xlFilterValues)\n",
+   "answers": "Double:1;hidden=4,6,7,8,9,10,11,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:True op=2 c1=String:=apple c2=String:=cherry f2:False f3:False f4:False db==values_list!$A$1:$D$13:False"
+  },
+  {
+   "name": "values_list_numbers",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=2, Criteria1:=Array(\"1\", \"2\"), Operator:=xlFilterValues)\n",
+   "answers": "Double:2;hidden=4,5,6,7,8,9,10,11,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:False f2:True op=2 c1=String:=1 c2=String:=2 f3:False f4:False db==values_list_numbers!$A$1:$D$13:False"
+  },
+  {
+   "name": "values_one",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=1, Criteria1:=\"banana\", Operator:=xlFilterValues)\n",
+   "answers": "Double:1;hidden=2,3,5,6,7,8,9,11,12,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:True op=0 c1=String:=banana c2=E1004 f2:False f3:False f4:False db==values_one!$A$1:$D$13:False"
+  },
+  {
+   "name": "top_items",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=2, Criteria1:=\"3\", Operator:=xlTop10Items)\n",
+   "answers": "S1004;Empty;hidden= mode=False filtering=False"
+  },
+  {
+   "name": "bottom_items",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=2, Criteria1:=\"2\", Operator:=xlBottom10Items)\n",
+   "answers": "S1004;Empty;hidden= mode=False filtering=False"
+  },
+  {
+   "name": "top_percent",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=2, Criteria1:=\"30\", Operator:=xlTop10Percent)\n",
+   "answers": "S1004;Empty;hidden= mode=False filtering=False"
+  },
+  {
+   "name": "above_average",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=2, Criteria1:=xlFilterAboveAverage, Operator:=xlFilterDynamic)\n",
+   "answers": "S1004;Empty;hidden= mode=False filtering=False"
+  },
+  {
+   "name": "date_after",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=3, Criteria1:=\">1/15/2020\")\n",
+   "answers": "Boolean:True;hidden=2,3,7,8,9,11,12,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:False f2:False f3:True op=0 c1=String:>43845 c2=E1004 f4:False db==date_after!$A$1:$D$13:False"
+  },
+  {
+   "name": "date_equals",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=3, Criteria1:=\"1/15/2020\")\n",
+   "answers": "Boolean:True;hidden=2,4,5,6,7,8,9,10,11,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:False f2:False f3:True op=0 c1=String:=1/15/2020 c2=E1004 f4:False db==date_equals!$A$1:$D$13:False"
+  },
+  {
+   "name": "date_serial",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=3, Criteria1:=\">=\" & CLng(#1/15/2020#))\n",
+   "answers": "Boolean:True;hidden=2,7,8,9,11,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:False f2:False f3:True op=0 c1=String:>=43845 c2=E1004 f4:False db==date_serial!$A$1:$D$13:False"
+  },
+  {
+   "name": "two_fields",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=1, Criteria1:=\"cherry\")\nv = ws.Range(\"A1:D13\").AutoFilter(Field:=4, Criteria1:=\"y\")\n",
+   "answers": "Boolean:True;hidden=2,3,4,5,6,7,8,9,10,11,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:True op=0 c1=String:=cherry c2=E1004 f2:False f3:False f4:True op=0 c1=String:=y c2=E1004 db==two_fields!$A$1:$D$13:False"
+  },
+  {
+   "name": "replace_field",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=1, Criteria1:=\"apple\")\nv = ws.Range(\"A1:D13\").AutoFilter(Field:=1, Criteria1:=\"cherry\")\n",
+   "answers": "Boolean:True;hidden=2,3,4,6,7,8,9,10,11,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:True op=0 c1=String:=cherry c2=E1004 f2:False f3:False f4:False db==replace_field!$A$1:$D$13:False"
+  },
+  {
+   "name": "clear_field",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=1, Criteria1:=\"apple\")\nv = ws.Range(\"A1:D13\").AutoFilter(Field:=1)\n",
+   "answers": "Boolean:True;hidden= mode=True filtering=False range=$A$1:$D$13 count=4 f1:False f2:False f3:False f4:False db==clear_field!$A$1:$D$13:False"
+  },
+  {
+   "name": "show_all",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=1, Criteria1:=\"apple\")\nws.ShowAllData\n",
+   "answers": "Boolean:True;hidden= mode=True filtering=False range=$A$1:$D$13 count=4 f1:False f2:False f3:False f4:False db==show_all!$A$1:$D$13:False"
+  },
+  {
+   "name": "show_all_unfiltered",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter\nws.ShowAllData\n",
+   "answers": "S1004;Boolean:True;hidden= mode=True filtering=False range=$A$1:$D$13 count=4 f1:False f2:False f3:False f4:False db==show_all_unfiltered!$A$1:$D$13:False"
+  },
+  {
+   "name": "mode_off",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=1, Criteria1:=\"apple\")\nws.AutoFilterMode = False\n",
+   "answers": "Boolean:True;hidden= mode=False filtering=False db==mode_off!$A$1:$D$13:False"
+  },
+  {
+   "name": "toggle_off",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=1, Criteria1:=\"apple\")\nv = ws.Range(\"A1:D13\").AutoFilter\n",
+   "answers": "Boolean:True;hidden= mode=False filtering=False db==toggle_off!$A$1:$D$13:False"
+  },
+  {
+   "name": "field_outside",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=5, Criteria1:=\"x\")\n",
+   "answers": "S1004;Empty;hidden= mode=False filtering=False"
+  },
+  {
+   "name": "field_zero",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=0, Criteria1:=\"x\")\n",
+   "answers": "S1004;Empty;hidden= mode=False filtering=False"
+  },
+  {
+   "name": "other_range",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=1, Criteria1:=\"apple\")\nv = ws.Range(\"F1:G3\").AutoFilter(Field:=1, Criteria1:=\"x\")\n",
+   "answers": "Boolean:True;hidden=2,3,4,5,6,7,8,9,10,11,12,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:True op=0 c1=String:=x c2=E1004 f2:False f3:False f4:False db==other_range!$A$1:$D$13:False"
+  },
+  {
+   "name": "narrow",
+   "setup": "v = ws.Range(\"A1:B13\").AutoFilter(Field:=2, Criteria1:=\">5\")\n",
+   "answers": "Boolean:True;hidden=2,3,4,6,7,9,10,11,12,13, mode=True filtering=True range=$A$1:$B$13 count=2 f1:False f2:True op=0 c1=String:>5 c2=E1004 db==narrow!$A$1:$B$13:False"
+  },
+  {
+   "name": "case_upper",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=1, Criteria1:=\"APPLE\")\n",
+   "answers": "Boolean:True;hidden=4,5,6,7,8,9,10,11,12,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:True op=0 c1=String:=APPLE c2=E1004 f2:False f3:False f4:False db==case_upper!$A$1:$D$13:False"
+  },
+  {
+   "name": "boolean",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=2, Criteria1:=\"TRUE\")\n",
+   "answers": "Boolean:True;hidden=2,3,4,5,6,7,8,9,11,12,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:False f2:True op=0 c1=String:=TRUE c2=E1004 f3:False f4:False db==boolean!$A$1:$D$13:False"
+  },
+  {
+   "name": "error_value",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=2, Criteria1:=\"#DIV/0!\")\n",
+   "answers": "Boolean:True;hidden=2,3,4,5,6,7,8,9,10,12,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:False f2:True op=0 c1=String:=#DIV/0! c2=E1004 f3:False f4:False db==error_value!$A$1:$D$13:False"
+  },
+  {
+   "name": "text_number_criterion",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=2, Criteria1:=\"5\")\n",
+   "answers": "Boolean:True;hidden=2,3,4,5,6,7,8,10,11,12,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:False f2:True op=0 c1=String:=5 c2=E1004 f3:False f4:False db==text_number_criterion!$A$1:$D$13:False"
+  },
+  {
+   "name": "hidden_dropdown",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=1, Criteria1:=\"apple\", VisibleDropDown:=False)\n",
+   "answers": "Boolean:True;hidden=4,5,6,7,8,9,10,11,12,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False db==hidden_dropdown!$A$1:$D$13:False"
+  },
+  {
+   "name": "apply_filter",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=1, Criteria1:=\"apple\")\nws.Range(\"A2\").Value = \"cherry\"\nws.AutoFilter.ApplyFilter\n",
+   "answers": "Boolean:True;hidden=2,4,5,6,7,8,9,10,11,12,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False db==apply_filter!$A$1:$D$13:False"
+  },
+  {
+   "name": "edit_after",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=1, Criteria1:=\"apple\")\nws.Range(\"A4\").Value = \"apple\"\n",
+   "answers": "Boolean:True;hidden=4,5,6,7,8,9,10,11,12,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False db==edit_after!$A$1:$D$13:False"
+  },
+  {
+   "name": "whole_columns",
+   "setup": "v = ws.Range(\"A:D\").AutoFilter(Field:=1, Criteria1:=\"apple\")\n",
+   "answers": "Boolean:True;hidden=4,5,6,7,8,9,10,11,12,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False db==whole_columns!$A$1:$D$13:False"
+  },
+  {
+   "name": "top_number",
+   "setup": "ws.Range(\"F1\").Value = \"N\"\nws.Range(\"F2:F9\").Value = Application.Transpose(Array(5, 3, 9, 1, 7, 3, 12, 0.5))\nv = ws.Range(\"F1:F9\").AutoFilter(Field:=1, Criteria1:=3, Operator:=xlTop10Items)\n",
+   "answers": "Boolean:True;hidden=2,3,5,7,9, mode=True filtering=True range=$F$1:$F$9 count=1 f1:True op=3 c1=String:>=7 c2=E1004 db==top_number!$F$1:$F$9:False"
+  },
+  {
+   "name": "top_text_count",
+   "setup": "ws.Range(\"F1\").Value = \"N\"\nws.Range(\"F2:F9\").Value = Application.Transpose(Array(5, 3, 9, 1, 7, 3, 12, 0.5))\nv = ws.Range(\"F1:F9\").AutoFilter(Field:=1, Criteria1:=\"3\", Operator:=xlTop10Items)\n",
+   "answers": "Boolean:True;hidden=2,3,5,7,9, mode=True filtering=True range=$F$1:$F$9 count=1 f1:True op=3 c1=String:>=7 c2=E1004 db==top_text_count!$F$1:$F$9:False"
+  },
+  {
+   "name": "top_ties",
+   "setup": "ws.Range(\"F1\").Value = \"N\"\nws.Range(\"F2:F9\").Value = Application.Transpose(Array(5, 3, 9, 1, 7, 3, 12, 0.5))\nv = ws.Range(\"F1:F9\").AutoFilter(Field:=1, Criteria1:=4, Operator:=xlTop10Items)\n",
+   "answers": "Boolean:True;hidden=3,5,7,9, mode=True filtering=True range=$F$1:$F$9 count=1 f1:True op=3 c1=String:>=5 c2=E1004 db==top_ties!$F$1:$F$9:False"
+  },
+  {
+   "name": "bottom_number",
+   "setup": "ws.Range(\"F1\").Value = \"N\"\nws.Range(\"F2:F9\").Value = Application.Transpose(Array(5, 3, 9, 1, 7, 3, 12, 0.5))\nv = ws.Range(\"F1:F9\").AutoFilter(Field:=1, Criteria1:=2, Operator:=xlBottom10Items)\n",
+   "answers": "Boolean:True;hidden=2,3,4,6,7,8, mode=True filtering=True range=$F$1:$F$9 count=1 f1:True op=4 c1=String:<=1 c2=E1004 db==bottom_number!$F$1:$F$9:False"
+  },
+  {
+   "name": "top_percent_clean",
+   "setup": "ws.Range(\"F1\").Value = \"N\"\nws.Range(\"F2:F9\").Value = Application.Transpose(Array(5, 3, 9, 1, 7, 3, 12, 0.5))\nv = ws.Range(\"F1:F9\").AutoFilter(Field:=1, Criteria1:=25, Operator:=xlTop10Percent)\n",
+   "answers": "Boolean:True;hidden=2,3,5,6,7,9, mode=True filtering=True range=$F$1:$F$9 count=1 f1:True op=5 c1=String:>=9 c2=E1004 db==top_percent_clean!$F$1:$F$9:False"
+  },
+  {
+   "name": "bottom_percent",
+   "setup": "ws.Range(\"F1\").Value = \"N\"\nws.Range(\"F2:F9\").Value = Application.Transpose(Array(5, 3, 9, 1, 7, 3, 12, 0.5))\nv = ws.Range(\"F1:F9\").AutoFilter(Field:=1, Criteria1:=40, Operator:=xlBottom10Percent)\n",
+   "answers": "Boolean:True;hidden=2,4,6,8, mode=True filtering=True range=$F$1:$F$9 count=1 f1:True op=6 c1=String:<=3 c2=E1004 db==bottom_percent!$F$1:$F$9:False"
+  },
+  {
+   "name": "above_average_clean",
+   "setup": "ws.Range(\"F1\").Value = \"N\"\nws.Range(\"F2:F9\").Value = Application.Transpose(Array(5, 3, 9, 1, 7, 3, 12, 0.5))\nv = ws.Range(\"F1:F9\").AutoFilter(Field:=1, Criteria1:=xlFilterAboveAverage, Operator:=xlFilterDynamic)\n",
+   "answers": "Boolean:True;hidden=2,3,5,7,9, mode=True filtering=True range=$F$1:$F$9 count=1 f1:True op=11 c1=Long:33 c2=E1004 db==above_average_clean!$F$1:$F$9:False"
+  },
+  {
+   "name": "below_average",
+   "setup": "ws.Range(\"F1\").Value = \"N\"\nws.Range(\"F2:F9\").Value = Application.Transpose(Array(5, 3, 9, 1, 7, 3, 12, 0.5))\nv = ws.Range(\"F1:F9\").AutoFilter(Field:=1, Criteria1:=xlFilterBelowAverage, Operator:=xlFilterDynamic)\n",
+   "answers": "Boolean:True;hidden=4,6,8, mode=True filtering=True range=$F$1:$F$9 count=1 f1:True op=11 c1=Long:34 c2=E1004 db==below_average!$F$1:$F$9:False"
+  },
+  {
+   "name": "top_mixed",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=2, Criteria1:=3, Operator:=xlTop10Items)\n",
+   "answers": "S1004;Empty;hidden= mode=False filtering=False"
+  },
+  {
+   "name": "text_greater",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=1, Criteria1:=\">b\")\n",
+   "answers": "Boolean:True;hidden=2,3,6,8,9,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:True op=0 c1=String:>b c2=E1004 f2:False f3:False f4:False db==text_greater!$A$1:$D$13:False"
+  },
+  {
+   "name": "text_below",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=1, Criteria1:=\"<banana\")\n",
+   "answers": "Boolean:True;hidden=4,5,10,11,12,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:True op=0 c1=String:<banana c2=E1004 f2:False f3:False f4:False db==text_below!$A$1:$D$13:False"
+  },
+  {
+   "name": "text_at_most",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=1, Criteria1:=\"<=banana\")\n",
+   "answers": "Boolean:True;hidden=5,11,12,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:True op=0 c1=String:<=banana c2=E1004 f2:False f3:False f4:False db==text_at_most!$A$1:$D$13:False"
+  },
+  {
+   "name": "number_cells_text_criterion",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=2, Criteria1:=\">a\")\n",
+   "answers": "Boolean:True;hidden=2,3,4,5,6,7,8,9,10,11,12,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:False f2:True op=0 c1=String:>a c2=E1004 f3:False f4:False db==number_cells_text_criterion!$A$1:$D$13:False"
+  },
+  {
+   "name": "tilde_alone",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=1, Criteria1:=\"~\")\n",
+   "answers": "Boolean:True;hidden=2,3,4,5,6,7,9,10,11,12,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:True op=0 c1=String:=~ c2=E1004 f2:False f3:False f4:False db==tilde_alone!$A$1:$D$13:False"
+  },
+  {
+   "name": "tilde_question",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=1, Criteria1:=\"b~?\")\n",
+   "answers": "Boolean:True;hidden=2,3,4,5,6,7,8,9,10,11,12,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:True op=0 c1=String:=b~? c2=E1004 f2:False f3:False f4:False db==tilde_question!$A$1:$D$13:False"
+  },
+  {
+   "name": "equals_star",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=1, Criteria1:=\"=*\")\n",
+   "answers": "Boolean:True;hidden=13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:True op=0 c1=String:=* c2=E1004 f2:False f3:False f4:False db==equals_star!$A$1:$D$13:False"
+  },
+  {
+   "name": "not_star",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=1, Criteria1:=\"<>*\")\n",
+   "answers": "Boolean:True;hidden=2,3,4,5,6,7,8,9,10,11,12, mode=True filtering=True range=$A$1:$D$13 count=4 f1:True op=0 c1=String:<>* c2=E1004 f2:False f3:False f4:False db==not_star!$A$1:$D$13:False"
+  },
+  {
+   "name": "not_wildcard",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=1, Criteria1:=\"<>a*\")\n",
+   "answers": "Boolean:True;hidden=2,3,6, mode=True filtering=True range=$A$1:$D$13 count=4 f1:True op=0 c1=String:<>a* c2=E1004 f2:False f3:False f4:False db==not_wildcard!$A$1:$D$13:False"
+  },
+  {
+   "name": "spaces",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=1, Criteria1:=\" apple\")\n",
+   "answers": "Boolean:True;hidden=4,5,6,7,8,9,10,11,12,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False db==spaces!$A$1:$D$13:False"
+  },
+  {
+   "name": "values_three",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=1, Criteria1:=Array(\"apple\", \"cherry\", \"banana\"), Operator:=xlFilterValues)\n",
+   "answers": "Double:1;hidden=6,7,8,9,11,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:True op=7 c1=Array(String:=apple,String:=banana,String:=cherry,) c2=E1004 f2:False f3:False f4:False db==values_three!$A$1:$D$13:False"
+  },
+  {
+   "name": "values_numbers_shown",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=2, Criteria1:=Array(\"1.00\", \"10\", \"TRUE\"), Operator:=xlFilterValues)\n",
+   "answers": "Double:2;hidden=2,3,4,6,8,9,11,12,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:False f2:True op=7 c1=Array(String:=1.00,String:=10,String:=TRUE,) c2=E1004 f3:False f4:False db==values_numbers_shown!$A$1:$D$13:False"
+  },
+  {
+   "name": "values_blank",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=4, Criteria1:=Array(\"x\", \"\"), Operator:=xlFilterValues)\n",
+   "answers": "Double:4;hidden=3,12, mode=True filtering=True range=$A$1:$D$13 count=4 f1:False f2:False f3:False f4:True op=2 c1=String:= c2=String:=x db==values_blank!$A$1:$D$13:False"
+  },
+  {
+   "name": "values_dates",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=3, Criteria1:=Array(\"1/15/2020\", \"3/1/2020\"), Operator:=xlFilterValues)\n",
+   "answers": "Double:3;hidden=2,4,6,7,8,9,10,11,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:False f2:False f3:True op=2 c1=String:=1/15/2020 c2=String:=3/1/2020 f4:False db==values_dates!$A$1:$D$13:False"
+  },
+  {
+   "name": "values_wildcard",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=1, Criteria1:=Array(\"a*\"), Operator:=xlFilterValues)\n",
+   "answers": "Double:1;hidden=4,5,7,8,9,10,11,12,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:True op=0 c1=String:=a* c2=E1004 f2:False f3:False f4:False db==values_wildcard!$A$1:$D$13:False"
+  },
+  {
+   "name": "time_criterion",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=3, Criteria1:=\">1/15/2020 5:00\")\n",
+   "answers": "Boolean:True;hidden=2,3,7,8,9,11,12,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:False f2:False f3:True op=0 c1=String:>43845.2083333333 c2=E1004 f4:False db==time_criterion!$A$1:$D$13:False"
+  },
+  {
+   "name": "equals_serial",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=3, Criteria1:=\"43845\")\n",
+   "answers": "Boolean:True;hidden=2,3,4,5,6,7,8,9,10,11,12,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:False f2:False f3:True op=0 c1=String:=43845 c2=E1004 f4:False db==equals_serial!$A$1:$D$13:False"
+  },
+  {
+   "name": "number_not_shown",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=2, Criteria1:=\"<>1\")\n",
+   "answers": "Boolean:True;hidden=2,7, mode=True filtering=True range=$A$1:$D$13 count=4 f1:False f2:True op=0 c1=String:<>1 c2=E1004 f3:False f4:False db==number_not_shown!$A$1:$D$13:False"
+  },
+  {
+   "name": "or_numbers",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=2, Criteria1:=\"<0\", Operator:=xlOr, Criteria2:=\">50\")\n",
+   "answers": "Boolean:True;hidden=2,3,4,5,7,9,10,11,12,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:False f2:True op=2 c1=String:<0 c2=String:>50 f3:False f4:False db==or_numbers!$A$1:$D$13:False"
+  },
+  {
+   "name": "and_text",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=1, Criteria1:=\"a*\", Operator:=xlAnd, Criteria2:=\"<>apple\")\n",
+   "answers": "Boolean:True;hidden=2,3,4,5,7,8,9,10,11,12,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:True op=1 c1=String:=a* c2=String:<>apple f2:False f3:False f4:False db==and_text!$A$1:$D$13:False"
+  },
+  {
+   "name": "operator_alone",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=1, Criteria1:=\"apple\", Operator:=xlAnd)\n",
+   "answers": "Boolean:True;hidden=4,5,6,7,8,9,10,11,12,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False db==operator_alone!$A$1:$D$13:False"
+  },
+  {
+   "name": "criteria2_alone",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=1, Criteria2:=\"apple\")\n",
+   "answers": "Boolean:True;hidden=2,3,4,5,6,7,8,9,10,11,12,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:True op=1 c1=String:= c2=String:=apple f2:False f3:False f4:False db==criteria2_alone!$A$1:$D$13:False"
+  },
+  {
+   "name": "mode_read_missing",
+   "setup": "v = ws.AutoFilterMode\n",
+   "answers": "Boolean:False;hidden= mode=False filtering=False"
+  },
+  {
+   "name": "filter_object_missing",
+   "setup": "Set x = ws.AutoFilter\nv = (x Is Nothing)\n",
+   "answers": "Boolean:True;hidden= mode=False filtering=False"
+  },
+  {
+   "name": "filters_count_after_off",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter\nv = ws.Range(\"A1:D13\").AutoFilter\nv = ws.AutoFilter Is Nothing\n",
+   "answers": "Boolean:True;hidden= mode=False filtering=False db==filters_count_after_off!$A$1:$D$13:False"
+  },
+  {
+   "name": "range_hidden_rows_before",
+   "setup": "ws.Rows(6).Hidden = True\nv = ws.Range(\"A1:D13\").AutoFilter(Field:=1, Criteria1:=\"banana\")\n",
+   "answers": "Boolean:True;hidden=2,3,5,6,7,8,9,11,12,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:True op=0 c1=String:=banana c2=E1004 f2:False f3:False f4:False db==range_hidden_rows_before!$A$1:$D$13:False"
+  },
+  {
+   "name": "range_hidden_then_show_all",
+   "setup": "ws.Rows(6).Hidden = True\nv = ws.Range(\"A1:D13\").AutoFilter(Field:=1, Criteria1:=\"apple\")\nws.ShowAllData\n",
+   "answers": "Boolean:True;hidden= mode=True filtering=False range=$A$1:$D$13 count=4 f1:False f2:False f3:False f4:False db==range_hidden_then_show_all!$A$1:$D$13:False"
+  },
+  {
+   "name": "top_beside_text",
+   "setup": "ws.Range(\"F1\").Value = \"N\"\nws.Range(\"F2:F9\").Value = Application.Transpose(Array(5, 3, 9, 1, 7, 3, 12, 0.5))\nws.Range(\"F5\").Value = \"x\"\nv = ws.Range(\"F1:F9\").AutoFilter(Field:=1, Criteria1:=3, Operator:=xlTop10Items)\n",
+   "answers": "Boolean:True;hidden=2,3,5,7,9, mode=True filtering=True range=$F$1:$F$9 count=1 f1:True op=3 c1=String:>=7 c2=E1004 db==top_beside_text!$F$1:$F$9:False"
+  },
+  {
+   "name": "top_beside_error",
+   "setup": "ws.Range(\"F1\").Value = \"N\"\nws.Range(\"F2:F9\").Value = Application.Transpose(Array(5, 3, 9, 1, 7, 3, 12, 0.5))\nws.Range(\"F5\").Formula = \"=1/0\"\nv = ws.Range(\"F1:F9\").AutoFilter(Field:=1, Criteria1:=3, Operator:=xlTop10Items)\n",
+   "answers": "S1004;Empty;hidden= mode=False filtering=False"
+  },
+  {
+   "name": "top_beside_blank",
+   "setup": "ws.Range(\"F1\").Value = \"N\"\nws.Range(\"F2:F9\").Value = Application.Transpose(Array(5, 3, 9, 1, 7, 3, 12, 0.5))\nws.Range(\"F5\").ClearContents\nv = ws.Range(\"F1:F9\").AutoFilter(Field:=1, Criteria1:=3, Operator:=xlTop10Items)\n",
+   "answers": "Boolean:True;hidden=2,3,5,7,9, mode=True filtering=True range=$F$1:$F$9 count=1 f1:True op=3 c1=String:>=7 c2=E1004 db==top_beside_blank!$F$1:$F$9:False"
+  },
+  {
+   "name": "average_beside_text",
+   "setup": "ws.Range(\"F1\").Value = \"N\"\nws.Range(\"F2:F9\").Value = Application.Transpose(Array(5, 3, 9, 1, 7, 3, 12, 0.5))\nws.Range(\"F5\").Value = \"x\"\nv = ws.Range(\"F1:F9\").AutoFilter(Field:=1, Criteria1:=xlFilterAboveAverage, Operator:=xlFilterDynamic)\n",
+   "answers": "Boolean:True;hidden=2,3,5,7,9, mode=True filtering=True range=$F$1:$F$9 count=1 f1:True op=11 c1=Long:33 c2=E1004 db==average_beside_text!$F$1:$F$9:False"
+  },
+  {
+   "name": "average_beside_error",
+   "setup": "ws.Range(\"F1\").Value = \"N\"\nws.Range(\"F2:F9\").Value = Application.Transpose(Array(5, 3, 9, 1, 7, 3, 12, 0.5))\nws.Range(\"F5\").Formula = \"=1/0\"\nv = ws.Range(\"F1:F9\").AutoFilter(Field:=1, Criteria1:=xlFilterAboveAverage, Operator:=xlFilterDynamic)\n",
+   "answers": "S1004;Empty;hidden= mode=False filtering=False"
+  },
+  {
+   "name": "percent_35",
+   "setup": "ws.Range(\"F1\").Value = \"N\"\nws.Range(\"F2:F9\").Value = Application.Transpose(Array(5, 3, 9, 1, 7, 3, 12, 0.5))\nv = ws.Range(\"F1:F9\").AutoFilter(Field:=1, Criteria1:=35, Operator:=xlTop10Percent)\n",
+   "answers": "Boolean:True;hidden=2,3,5,6,7,9, mode=True filtering=True range=$F$1:$F$9 count=1 f1:True op=5 c1=String:>=9 c2=E1004 db==percent_35!$F$1:$F$9:False"
+  },
+  {
+   "name": "percent_30",
+   "setup": "ws.Range(\"F1\").Value = \"N\"\nws.Range(\"F2:F9\").Value = Application.Transpose(Array(5, 3, 9, 1, 7, 3, 12, 0.5))\nv = ws.Range(\"F1:F9\").AutoFilter(Field:=1, Criteria1:=30, Operator:=xlTop10Percent)\n",
+   "answers": "Boolean:True;hidden=2,3,5,6,7,9, mode=True filtering=True range=$F$1:$F$9 count=1 f1:True op=5 c1=String:>=9 c2=E1004 db==percent_30!$F$1:$F$9:False"
+  },
+  {
+   "name": "percent_10",
+   "setup": "ws.Range(\"F1\").Value = \"N\"\nws.Range(\"F2:F9\").Value = Application.Transpose(Array(5, 3, 9, 1, 7, 3, 12, 0.5))\nv = ws.Range(\"F1:F9\").AutoFilter(Field:=1, Criteria1:=10, Operator:=xlTop10Percent)\n",
+   "answers": "Boolean:True;hidden=2,3,4,5,6,7,9, mode=True filtering=True range=$F$1:$F$9 count=1 f1:True op=5 c1=String:>=12 c2=E1004 db==percent_10!$F$1:$F$9:False"
+  },
+  {
+   "name": "percent_5",
+   "setup": "ws.Range(\"F1\").Value = \"N\"\nws.Range(\"F2:F9\").Value = Application.Transpose(Array(5, 3, 9, 1, 7, 3, 12, 0.5))\nv = ws.Range(\"F1:F9\").AutoFilter(Field:=1, Criteria1:=5, Operator:=xlTop10Percent)\n",
+   "answers": "Boolean:True;hidden=2,3,4,5,6,7,9, mode=True filtering=True range=$F$1:$F$9 count=1 f1:True op=5 c1=String:>=12 c2=E1004 db==percent_5!$F$1:$F$9:False"
+  },
+  {
+   "name": "top_five_ties",
+   "setup": "ws.Range(\"F1\").Value = \"N\"\nws.Range(\"F2:F9\").Value = Application.Transpose(Array(5, 3, 9, 1, 7, 3, 12, 0.5))\nv = ws.Range(\"F1:F9\").AutoFilter(Field:=1, Criteria1:=5, Operator:=xlTop10Items)\n",
+   "answers": "Boolean:True;hidden=5,9, mode=True filtering=True range=$F$1:$F$9 count=1 f1:True op=3 c1=String:>=3 c2=E1004 db==top_five_ties!$F$1:$F$9:False"
+  },
+  {
+   "name": "top_all",
+   "setup": "ws.Range(\"F1\").Value = \"N\"\nws.Range(\"F2:F9\").Value = Application.Transpose(Array(5, 3, 9, 1, 7, 3, 12, 0.5))\nv = ws.Range(\"F1:F9\").AutoFilter(Field:=1, Criteria1:=20, Operator:=xlTop10Items)\n",
+   "answers": "Boolean:True;hidden= mode=True filtering=True range=$F$1:$F$9 count=1 f1:True op=3 c1=String:>=0.5 c2=E1004 db==top_all!$F$1:$F$9:False"
+  },
+  {
+   "name": "top_zero",
+   "setup": "ws.Range(\"F1\").Value = \"N\"\nws.Range(\"F2:F9\").Value = Application.Transpose(Array(5, 3, 9, 1, 7, 3, 12, 0.5))\nv = ws.Range(\"F1:F9\").AutoFilter(Field:=1, Criteria1:=0, Operator:=xlTop10Items)\n",
+   "answers": "S1004;Empty;hidden= mode=False filtering=False"
+  },
+  {
+   "name": "top_fraction",
+   "setup": "ws.Range(\"F1\").Value = \"N\"\nws.Range(\"F2:F9\").Value = Application.Transpose(Array(5, 3, 9, 1, 7, 3, 12, 0.5))\nv = ws.Range(\"F1:F9\").AutoFilter(Field:=1, Criteria1:=2.5, Operator:=xlTop10Items)\n",
+   "answers": "Boolean:True;hidden=2,3,5,6,7,9, mode=True filtering=True range=$F$1:$F$9 count=1 f1:True op=3 c1=String:>=9 c2=E1004 db==top_fraction!$F$1:$F$9:False"
+  },
+  {
+   "name": "values_wildcards_three",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=1, Criteria1:=Array(\"a*\", \"b*\", \"c*\"), Operator:=xlFilterValues)\n",
+   "answers": "Double:1;hidden=2,3,4,5,6,8,9,10,11,12,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:True op=7 c1=Array(String:=a*,String:=b*,String:=c*,) c2=E1004 f2:False f3:False f4:False db==values_wildcards_three!$A$1:$D$13:False"
+  },
+  {
+   "name": "hidden_match_shown",
+   "setup": "ws.Rows(2).Hidden = True\nv = ws.Range(\"A1:D13\").AutoFilter(Field:=1, Criteria1:=\"apple\")\n",
+   "answers": "Boolean:True;hidden=4,5,6,7,8,9,10,11,12,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False db==hidden_match_shown!$A$1:$D$13:False"
+  },
+  {
+   "name": "trailing_space",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=1, Criteria1:=\"apple \")\n",
+   "answers": "Boolean:True;hidden=4,5,6,7,8,9,10,11,12,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False db==trailing_space!$A$1:$D$13:False"
+  },
+  {
+   "name": "equals_spaces",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=4, Criteria1:=\"= \")\n",
+   "answers": "Boolean:True;hidden=2,3,4,12, mode=True filtering=True range=$A$1:$D$13 count=4 f1:False f2:False f3:False f4:True op=0 c1=String:= c2=E1004 db==equals_spaces!$A$1:$D$13:False"
+  },
+  {
+   "name": "not_number_blanks",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=4, Criteria1:=\"<>5\")\n",
+   "answers": "Boolean:True;hidden= mode=True filtering=True range=$A$1:$D$13 count=4 f1:False f2:False f3:False f4:True op=0 c1=String:<>5 c2=E1004 db==not_number_blanks!$A$1:$D$13:False"
+  },
+  {
+   "name": "second_range_arrows",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=1, Criteria1:=\"apple\")\nws.Range(\"F1\").Value = \"N\"\nws.Range(\"F2:F9\").Value = Application.Transpose(Array(5, 3, 9, 1, 7, 3, 12, 0.5))\nv = ws.Range(\"F1:F9\").AutoFilter\n",
+   "answers": "Boolean:True;hidden= mode=False filtering=False db==second_range_arrows!$A$1:$D$13:False"
+  },
+  {
+   "name": "sub_range",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=1, Criteria1:=\"apple\")\nv = ws.Range(\"A1:B13\").AutoFilter(Field:=2, Criteria1:=\">1\")\n",
+   "answers": "Boolean:True;hidden=2,4,5,6,7,8,9,10,11,12,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:True op=0 c1=String:>1 c2=E1004 f3:False f4:False db==sub_range!$A$1:$D$13:False"
+  },
+  {
+   "name": "less_than_date_text",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=3, Criteria1:=\"<2/1/2020\")\n",
+   "answers": "Boolean:True;hidden=4,5,6,8,9,11,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:False f2:False f3:True op=0 c1=String:<43862 c2=E1004 f4:False db==less_than_date_text!$A$1:$D$13:False"
+  },
+  {
+   "name": "not_date",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=3, Criteria1:=\"<>1/15/2020\")\n",
+   "answers": "Boolean:True;hidden=3,12, mode=True filtering=True range=$A$1:$D$13 count=4 f1:False f2:False f3:True op=0 c1=String:<>43845 c2=E1004 f4:False db==not_date!$A$1:$D$13:False"
+  },
+  {
+   "name": "number_greater_text_cell",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=1, Criteria1:=\">100\")\n",
+   "answers": "Boolean:True;hidden=2,3,4,5,6,7,8,9,10,11,12,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:True op=0 c1=String:>100 c2=E1004 f2:False f3:False f4:False db==number_greater_text_cell!$A$1:$D$13:False"
+  }
+ ]
+}

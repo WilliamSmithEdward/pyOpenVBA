@@ -25,7 +25,7 @@ sys.path.insert(0, str(ROOT / "src"))
 
 
 def report() -> dict[str, object]:
-    from pyopenvba.apps.excel import _formats, _model, _shapes, _sort
+    from pyopenvba.apps.excel import _autofilter, _formats, _model, _shapes, _sort
     from pyopenvba.formula._functions import known_names
     from pyopenvba.formula._inventory import unimplemented
     from pyopenvba.interpreter._inventory_data import MEMBERS
@@ -35,7 +35,7 @@ def report() -> dict[str, object]:
 
     bindings: list[dict[str, object]] = []
     matched_keys: set[str] = set()
-    for module in (_model, _shapes, _formats, _sort):
+    for module in (_model, _shapes, _formats, _sort, _autofilter):
         for name, cls in sorted(vars(module).items()):
             if not inspect.isclass(cls) or cls.__module__ != module.__name__:
                 continue

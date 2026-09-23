@@ -49,6 +49,24 @@ All notable changes to pyOpenVBA are documented here. This project follows
   what it pads the cell with depends on the width in pixels. Before, both went
   through Access's `Format`, which spelled `$#,##0_)` as `$5_)`, fractions
   as `2 ?/?` and `[h]:mm:ss` as `[1]:00:00`.
+- AutoFilter: `Range.AutoFilter`, `Worksheet.AutoFilter`, `AutoFilterMode`,
+  `FilterMode` and `ShowAllData`, and the AutoFilter, Filters and Filter
+  objects a macro reads them through. A criterion with `=` or none matches
+  the text a cell shows, ignoring case, with `*`, `?` and `~`, so `1`
+  finds 1 but not 1 shown as 1.00, and a wildcard finds text only; `<>`,
+  `>`, `>=`, `<` and `<=` compare numbers and dates by value and text as
+  Sort orders it. xlAnd and xlOr, lists with xlFilterValues, top and
+  bottom items and percentages, and above and below average work as
+  Excel's do, down to how each criterion reads back (`>1/15/2020` is
+  `>43845`, `>2.50` is `>2.5`) and the field a list returns. Filtering
+  shows and hides every row under the header; ShowAllData and turning
+  the filter off show them again. The file holds each filter as Excel
+  writes it, with the hidden `_FilterDatabase` name, and a filter in a
+  file reads back as Excel reads it: 113 layouts and 34 saved filters
+  in live Excel pin it, and Excel opens the filters this writes. Colour,
+  icon and date-group filters in a file are kept but not applied.
+- Defined names are written in Excel's order: by name as the Name Manager
+  shows it, ignoring case, a sheet's own before the workbook's.
 - `Range.RemoveDuplicates`. A row goes when the columns asked for hold
   what an earlier row's hold, and the rows left close up from the top of
   the range, formats and all, formulas shifting as a copy's would, while

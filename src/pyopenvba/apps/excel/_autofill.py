@@ -115,6 +115,10 @@ def autofill(source: Range, destination: object, kind_argument: object) -> objec
         filled = (Area(area.top, area.right + 1, area.bottom, target.right) if target.right > area.right
                   else Area(area.top, target.left, area.bottom, area.left - 1))
     whole(sheet, [filled], "AutoFill")
+    if sheet.tables:
+        from pyopenvba.apps.excel._tables import refuse_growth
+
+        refuse_growth(sheet, filled, "AutoFill into")
     _check_modelled(sheet, area, target)
     plan = _Plan(sheet, area, target, down, kind)
     plan.fill()

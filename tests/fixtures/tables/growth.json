@@ -1,0 +1,127 @@
+{
+ "setup": "ws.Range(\"A1:C1\").Value = Array(\"Name\", \"Qty\", \"Price\")\nws.Range(\"A2:C2\").Value = Array(\"apple\", 3, 1.5)\nws.Range(\"A3:C3\").Value = Array(\"pear\", 5, 2.25)\nws.Range(\"A4:C4\").Value = Array(\"plum\", 7, 0.5)\nSet t = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:C4\"), , xlYes)",
+ "references": [
+  "=SUM(C2:C4)",
+  "=SUM(C3:C4)",
+  "=SUM(C1:C4)",
+  "=COUNTA(A1:C4)",
+  "=SUM($C$2:$C$4)",
+  "=C4",
+  "=SUM(C2:D4)",
+  "=SUM(C2:C3)",
+  "=C5",
+  "=SUM(C2:C5)",
+  "=SUM(B2:C4)",
+  "=COUNTA(A2:A4)",
+  "=SUM(C:C)",
+  "=SUM(D2:D4)"
+ ],
+ "reader": "Private Function Read(ws As Object) As String\n    Dim k As Long, out As String\n    out = ws.ListObjects(1).Range.Address & \"~;~\"\n    For k = 1 To 14\n        out = out & ws.Cells(k, 8).Formula & \"~;~\"\n    Next\n    out = out & ws.Range(\"D1\").Formula & \"~;~\" & ws.Range(\"D5\").Formula\n    Read = out\nEnd Function\n",
+ "cases": [
+  {
+   "name": "none",
+   "writing": "",
+   "answer": "0~;~$A$1:$C$4~;~=SUM(C2:C4)~;~=SUM(C3:C4)~;~=SUM(C1:C4)~;~=COUNTA(A1:C4)~;~=SUM($C$2:$C$4)~;~=C4~;~=SUM(C2:D4)~;~=SUM(C2:C3)~;~=C5~;~=SUM(C2:C5)~;~=SUM(B2:C4)~;~=COUNTA(A2:A4)~;~=SUM(C:C)~;~=SUM(D2:D4)~;~~;~"
+  },
+  {
+   "name": "value_below",
+   "writing": "ws.Range(\"A5\").Value = \"kiwi\"",
+   "answer": "0~;~$A$1:$C$5~;~=SUM(C2:C5)~;~=SUM(C3:C4)~;~=SUM(C1:C5)~;~=COUNTA(A1:C5)~;~=SUM($C$2:$C$5)~;~=C4~;~=SUM(C2:D4)~;~=SUM(C2:C3)~;~=C5~;~=SUM(C2:C5)~;~=SUM(B2:C5)~;~=COUNTA(A2:A5)~;~=SUM(C:C)~;~=SUM(D2:D4)~;~~;~"
+  },
+  {
+   "name": "number_below_last_column",
+   "writing": "ws.Range(\"C5\").Value = 9",
+   "answer": "0~;~$A$1:$C$5~;~=SUM(C2:C5)~;~=SUM(C3:C4)~;~=SUM(C1:C5)~;~=COUNTA(A1:C5)~;~=SUM($C$2:$C$5)~;~=C4~;~=SUM(C2:D4)~;~=SUM(C2:C3)~;~=C5~;~=SUM(C2:C5)~;~=SUM(B2:C5)~;~=COUNTA(A2:A5)~;~=SUM(C:C)~;~=SUM(D2:D4)~;~~;~"
+  },
+  {
+   "name": "formula_below",
+   "writing": "ws.Range(\"B5\").Formula = \"=1+1\"",
+   "answer": "0~;~$A$1:$C$5~;~=SUM(C2:C4)~;~=SUM(C3:C4)~;~=SUM(C1:C4)~;~=COUNTA(A1:C4)~;~=SUM($C$2:$C$4)~;~=C4~;~=SUM(C2:D4)~;~=SUM(C2:C3)~;~=C5~;~=SUM(C2:C5)~;~=SUM(B2:C4)~;~=COUNTA(A2:A4)~;~=SUM(C:C)~;~=SUM(D2:D4)~;~~;~"
+  },
+  {
+   "name": "empty_below",
+   "writing": "ws.Range(\"A5\").Value = \"\"",
+   "answer": "0~;~$A$1:$C$4~;~=SUM(C2:C4)~;~=SUM(C3:C4)~;~=SUM(C1:C4)~;~=COUNTA(A1:C4)~;~=SUM($C$2:$C$4)~;~=C4~;~=SUM(C2:D4)~;~=SUM(C2:C3)~;~=C5~;~=SUM(C2:C5)~;~=SUM(B2:C4)~;~=COUNTA(A2:A4)~;~=SUM(C:C)~;~=SUM(D2:D4)~;~~;~"
+  },
+  {
+   "name": "row_below",
+   "writing": "ws.Range(\"A5:C5\").Value = Array(\"kiwi\", 9, 4)",
+   "answer": "0~;~$A$1:$C$5~;~=SUM(C2:C5)~;~=SUM(C3:C4)~;~=SUM(C1:C5)~;~=COUNTA(A1:C5)~;~=SUM($C$2:$C$5)~;~=C4~;~=SUM(C2:D4)~;~=SUM(C2:C3)~;~=C5~;~=SUM(C2:C5)~;~=SUM(B2:C5)~;~=COUNTA(A2:A5)~;~=SUM(C:C)~;~=SUM(D2:D4)~;~~;~"
+  },
+  {
+   "name": "two_rows_below",
+   "writing": "ws.Range(\"A5:C6\").Value = 1",
+   "answer": "0~;~$A$1:$C$6~;~=SUM(C2:C6)~;~=SUM(C3:C4)~;~=SUM(C1:C6)~;~=COUNTA(A1:C6)~;~=SUM($C$2:$C$6)~;~=C4~;~=SUM(C2:D4)~;~=SUM(C2:C3)~;~=C5~;~=SUM(C2:C5)~;~=SUM(B2:C6)~;~=COUNTA(A2:A6)~;~=SUM(C:C)~;~=SUM(D2:D4)~;~~;~"
+  },
+  {
+   "name": "below_outside",
+   "writing": "ws.Range(\"D5\").Value = 1",
+   "answer": "0~;~$A$1:$C$4~;~=SUM(C2:C4)~;~=SUM(C3:C4)~;~=SUM(C1:C4)~;~=COUNTA(A1:C4)~;~=SUM($C$2:$C$4)~;~=C4~;~=SUM(C2:D4)~;~=SUM(C2:C3)~;~=C5~;~=SUM(C2:C5)~;~=SUM(B2:C4)~;~=COUNTA(A2:A4)~;~=SUM(C:C)~;~=SUM(D2:D4)~;~~;~1"
+  },
+  {
+   "name": "two_below",
+   "writing": "ws.Range(\"A6\").Value = \"gap\"",
+   "answer": "0~;~$A$1:$C$4~;~=SUM(C2:C4)~;~=SUM(C3:C4)~;~=SUM(C1:C4)~;~=COUNTA(A1:C4)~;~=SUM($C$2:$C$4)~;~=C4~;~=SUM(C2:D4)~;~=SUM(C2:C3)~;~=C5~;~=SUM(C2:C5)~;~=SUM(B2:C4)~;~=COUNTA(A2:A4)~;~=SUM(C:C)~;~=SUM(D2:D4)~;~~;~"
+  },
+  {
+   "name": "value_right",
+   "writing": "ws.Range(\"D2\").Value = 1",
+   "answer": "0~;~$A$1:$D$4~;~=SUM(C2:C4)~;~=SUM(C3:C4)~;~=SUM(C1:C4)~;~=COUNTA(A1:C4)~;~=SUM($C$2:$C$4)~;~=C4~;~=SUM(C2:D4)~;~=SUM(C2:C3)~;~=C5~;~=SUM(C2:C5)~;~=SUM(B2:C4)~;~=COUNTA(A2:A4)~;~=SUM(C:C)~;~=SUM(D2:D4)~;~Column1~;~"
+  },
+  {
+   "name": "header_right",
+   "writing": "ws.Range(\"D1\").Value = \"Extra\"",
+   "answer": "0~;~$A$1:$D$4~;~=SUM(C2:C4)~;~=SUM(C3:C4)~;~=SUM(C1:C4)~;~=COUNTA(A1:C4)~;~=SUM($C$2:$C$4)~;~=C4~;~=SUM(C2:D4)~;~=SUM(C2:C3)~;~=C5~;~=SUM(C2:C5)~;~=SUM(B2:C4)~;~=COUNTA(A2:A4)~;~=SUM(C:C)~;~=SUM(D2:D4)~;~Extra~;~"
+  },
+  {
+   "name": "number_header_right",
+   "writing": "ws.Range(\"D1\").Value = 5",
+   "answer": "0~;~$A$1:$D$4~;~=SUM(C2:C4)~;~=SUM(C3:C4)~;~=SUM(C1:C4)~;~=COUNTA(A1:C4)~;~=SUM($C$2:$C$4)~;~=C4~;~=SUM(C2:D4)~;~=SUM(C2:C3)~;~=C5~;~=SUM(C2:C5)~;~=SUM(B2:C4)~;~=COUNTA(A2:A4)~;~=SUM(C:C)~;~=SUM(D2:D4)~;~5~;~"
+  },
+  {
+   "name": "column_right",
+   "writing": "ws.Range(\"D1:D4\").Value = 1",
+   "answer": "0~;~$A$1:$D$4~;~=SUM(C2:C4)~;~=SUM(C3:C4)~;~=SUM(C1:C4)~;~=COUNTA(A1:C4)~;~=SUM($C$2:$C$4)~;~=C4~;~=SUM(C2:D4)~;~=SUM(C2:C3)~;~=C5~;~=SUM(C2:C5)~;~=SUM(B2:C4)~;~=COUNTA(A2:A4)~;~=SUM(C:C)~;~=SUM(D2:D4)~;~1~;~"
+  },
+  {
+   "name": "right_outside",
+   "writing": "ws.Range(\"D5\").Value = 1",
+   "answer": "0~;~$A$1:$C$4~;~=SUM(C2:C4)~;~=SUM(C3:C4)~;~=SUM(C1:C4)~;~=COUNTA(A1:C4)~;~=SUM($C$2:$C$4)~;~=C4~;~=SUM(C2:D4)~;~=SUM(C2:C3)~;~=C5~;~=SUM(C2:C5)~;~=SUM(B2:C4)~;~=COUNTA(A2:A4)~;~=SUM(C:C)~;~=SUM(D2:D4)~;~~;~1"
+  },
+  {
+   "name": "below_with_totals",
+   "writing": "t.ShowTotals = True\nws.Range(\"A7\").Value = \"kiwi\"",
+   "answer": "0~;~$A$1:$C$5~;~=SUM(C2:C4)~;~=SUM(C3:C4)~;~=SUM(C1:C4)~;~=COUNTA(A1:C4)~;~=SUM($C$2:$C$4)~;~=C4~;~=SUM(C2:D4)~;~=SUM(C2:C3)~;~=C6~;~=SUM(C2:C6)~;~=SUM(B2:C4)~;~=COUNTA(A2:A4)~;~=SUM(C:C)~;~=SUM(D2:D4)~;~~;~"
+  },
+  {
+   "name": "under_totals",
+   "writing": "t.ShowTotals = True\nws.Range(\"A6\").Value = \"kiwi\"",
+   "answer": "0~;~$A$1:$C$5~;~=SUM(C2:C4)~;~=SUM(C3:C4)~;~=SUM(C1:C4)~;~=COUNTA(A1:C4)~;~=SUM($C$2:$C$4)~;~=C4~;~=SUM(C2:D4)~;~=SUM(C2:C3)~;~=C6~;~=SUM(C2:C6)~;~=SUM(B2:C4)~;~=COUNTA(A2:A4)~;~=SUM(C:C)~;~=SUM(D2:D4)~;~~;~"
+  },
+  {
+   "name": "cells_below",
+   "writing": "ws.Cells(5, 1).Value = \"kiwi\"\nws.Cells(5, 2).Value = 9",
+   "answer": "0~;~$A$1:$C$5~;~=SUM(C2:C5)~;~=SUM(C3:C4)~;~=SUM(C1:C5)~;~=COUNTA(A1:C5)~;~=SUM($C$2:$C$5)~;~=C4~;~=SUM(C2:D4)~;~=SUM(C2:C3)~;~=C5~;~=SUM(C2:C5)~;~=SUM(B2:C5)~;~=COUNTA(A2:A5)~;~=SUM(C:C)~;~=SUM(D2:D4)~;~~;~"
+  },
+  {
+   "name": "copy_below",
+   "writing": "ws.Range(\"A4:C4\").Copy ws.Range(\"A5\")",
+   "answer": "0~;~$A$1:$C$5~;~=SUM(C2:C5)~;~=SUM(C3:C4)~;~=SUM(C1:C5)~;~=COUNTA(A1:C5)~;~=SUM($C$2:$C$5)~;~=C4~;~=SUM(C2:D4)~;~=SUM(C2:C3)~;~=C6~;~=SUM(C2:C6)~;~=SUM(B2:C5)~;~=COUNTA(A2:A5)~;~=SUM(C:C)~;~=SUM(D2:D4)~;~~;~"
+  },
+  {
+   "name": "fill_down",
+   "writing": "ws.Range(\"A4:C5\").FillDown",
+   "answer": "0~;~$A$1:$C$5~;~=SUM(C2:C5)~;~=SUM(C3:C4)~;~=SUM(C1:C5)~;~=COUNTA(A1:C5)~;~=SUM($C$2:$C$5)~;~=C4~;~=SUM(C2:D4)~;~=SUM(C2:C3)~;~=C6~;~=SUM(C2:C6)~;~=SUM(B2:C5)~;~=COUNTA(A2:A5)~;~=SUM(C:C)~;~=SUM(D2:D4)~;~~;~"
+  },
+  {
+   "name": "calculated_then_below",
+   "writing": "t.ListColumns.Add\nt.ListColumns(4).DataBodyRange.Formula = \"=[@Qty]*2\"\nws.Range(\"A5\").Value = \"kiwi\"",
+   "answer": "0~;~$A$1:$D$5~;~~;~~;~~;~~;~=SUM($C$2:$C$5)~;~=C4~;~=SUM(C2:E4)~;~=SUM(C2:C3)~;~=C5~;~=SUM(C2:C5)~;~=SUM(B2:C5)~;~=COUNTA(A2:A5)~;~=SUM(C:C)~;~=SUM(E2:E4)~;~Column1~;~=[@Qty]*2"
+  },
+  {
+   "name": "second_table_below",
+   "writing": "ws.Range(\"A6:B6\").Value = Array(\"Key\", \"Value\")\nws.Range(\"A7:B7\").Value = Array(\"a\", 1)\nws.ListObjects.Add xlSrcRange, ws.Range(\"A6:B7\"), , xlYes\nws.Range(\"A5\").Value = \"kiwi\"",
+   "answer": "0~;~$A$1:$C$5~;~=SUM(C2:C5)~;~=SUM(C3:C4)~;~=SUM(C1:C5)~;~=COUNTA(A1:C5)~;~=SUM($C$2:$C$5)~;~=C4~;~=SUM(C2:D4)~;~=SUM(C2:C3)~;~=C5~;~=SUM(C2:C5)~;~=SUM(B2:C5)~;~=COUNTA(A2:A5)~;~=SUM(C:C)~;~=SUM(D2:D4)~;~~;~"
+  }
+ ]
+}

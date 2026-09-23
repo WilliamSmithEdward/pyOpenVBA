@@ -444,7 +444,7 @@ ListColumn,_Default,"property, read-only",As String,,PARTIAL,tests/fixtures/tabl
 ListColumn,Application,"property, read-only",As Application,,MISSING,,
 ListColumn,Creator,"property, read-only",As XlCreator,,MISSING,,
 ListColumn,DataBodyRange,"property, read-only",As Range,,VERIFIED,tests/fixtures/tables/tables.json,
-ListColumn,Delete,method,Delete(),,MISSING,,
+ListColumn,Delete,method,Delete(),,PARTIAL,tests/fixtures/tables/edits/edits.json,"The column's cells deleted, those right of them moving across, and a structured reference to it #REF!; deleting the only column reports itself."
 ListColumn,Index,"property, read-only",As Long,,VERIFIED,tests/fixtures/tables/tables.json,
 ListColumn,Name,property,As String,,VERIFIED,tests/fixtures/tables/tables.json; tests/fixtures/structured_references/structured.json,"Setting it renames the column, its header and every formula naming it; a name another column has leaves the column as it was, and an empty one is the first free ColumnN."
 ListColumn,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/tables/tables.json,
@@ -454,7 +454,7 @@ ListColumn,TotalsCalculation,property,As XlTotalsCalculation,,VERIFIED,tests/fix
 ListColumn,XPath,"property, read-only",As XPath,,MISSING,,
 ListColumns,_Default,"property, read-only",As ListColumn,,MISSING,,
 ListColumns,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
-ListColumns,Add,method,Add([Position As Variant]) As ListColumn,,MISSING,,
+ListColumns,Add,method,Add([Position As Variant]) As ListColumn,,VERIFIED,tests/fixtures/tables/edits/edits.json,"At the end or at a position, named the first free ColumnN, the cells right of it in the table's rows moving across."
 ListColumns,Application,"property, read-only",As Application,,MISSING,,
 ListColumns,Count,"property, read-only",As Long,,VERIFIED,tests/fixtures/tables/tables.json,
 ListColumns,Creator,"property, read-only",As XlCreator,,MISSING,,
@@ -469,7 +469,7 @@ ListObject,AutoFilter,"property, read-only",As AutoFilter,,MISSING,,
 ListObject,Comment,property,As String,,MISSING,,
 ListObject,Creator,"property, read-only",As XlCreator,,MISSING,,
 ListObject,DataBodyRange,"property, read-only",As Range,,VERIFIED,tests/fixtures/tables/tables.json,
-ListObject,Delete,method,Delete(),,MISSING,,
+ListObject,Delete,method,Delete(),,VERIFIED,tests/fixtures/tables/edits/edits.json,"The table's cells cleared, formats and all, and every reference to it #REF!."
 ListObject,DisplayName,property,As String,,PARTIAL,tests/fixtures/tables/tables.json,"The table's name, as Name."
 ListObject,DisplayRightToLeft,"property, read-only",As Boolean,,MISSING,,
 ListObject,ExportToVisio,method,ExportToVisio(),,MISSING,,
@@ -483,7 +483,7 @@ ListObject,Publish,method,"Publish(Target As Variant, LinkSource As Boolean) As 
 ListObject,QueryTable,"property, read-only",As QueryTable,,MISSING,,
 ListObject,Range,"property, read-only",As Range,,VERIFIED,tests/fixtures/tables/tables.json,
 ListObject,Refresh,method,Refresh(),,MISSING,,
-ListObject,Resize,method,Resize(Range As Range),,MISSING,,
+ListObject,Resize,method,Resize(Range As Range),,PARTIAL,tests/fixtures/tables/edits/edits.json,"Over a block with the same top-left cell: a column left out is #REF! wherever named, a new one named from its header; a block on another header row is error 1004. Moving the left edge, or a table with a totals row or no header row, reports itself."
 ListObject,SharePointURL,"property, read-only",As String,,MISSING,,
 ListObject,ShowAutoFilter,property,As Boolean,,PARTIAL,tests/fixtures/tables/tables.json,"Read and set, saved as Excel saves it."
 ListObject,ShowAutoFilterDropDown,property,As Boolean,,MISSING,,
@@ -501,7 +501,7 @@ ListObject,TableObject,"property, read-only",As TableObject,,MISSING,,
 ListObject,TableStyle,property,As Variant,,PARTIAL,tests/fixtures/tables/tables.json,"Read and set, saved as Excel saves it."
 ListObject,TotalsRowRange,"property, read-only",As Range,,VERIFIED,tests/fixtures/tables/tables.json,Nothing with no totals row.
 ListObject,Unlink,method,Unlink(),,MISSING,,
-ListObject,Unlist,method,Unlist(),,MISSING,,
+ListObject,Unlist,method,Unlist(),,PARTIAL,tests/fixtures/tables/edits/edits.json,"Reports itself: Excel turns the table's style into each cell's format, which the model does not."
 ListObject,XmlMap,"property, read-only",As XmlMap,,MISSING,,
 ListObjects,_Default,"property, read-only",As ListObject,,MISSING,,
 ListObjects,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
@@ -513,13 +513,13 @@ ListObjects,Item,"property, read-only",As ListObject,,VERIFIED,tests/fixtures/ta
 ListObjects,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/tables/tables.json,
 ListRow,Application,"property, read-only",As Application,,MISSING,,
 ListRow,Creator,"property, read-only",As XlCreator,,MISSING,,
-ListRow,Delete,method,Delete(),,MISSING,,
+ListRow,Delete,method,Delete(),,PARTIAL,tests/fixtures/tables/edits/edits.json,"The row's cells deleted, those under them moving up; deleting the only row of data reports itself."
 ListRow,Index,"property, read-only",As Long,,VERIFIED,tests/fixtures/tables/tables.json,
 ListRow,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/tables/tables.json,
 ListRow,Range,"property, read-only",As Range,,VERIFIED,tests/fixtures/tables/tables.json,
 ListRows,_Default,"property, read-only",As ListRow,,MISSING,,
 ListRows,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
-ListRows,Add,method,"Add([Position As Variant], [AlwaysInsert As Variant]) As ListRow",,MISSING,,
+ListRows,Add,method,"Add([Position As Variant], [AlwaysInsert As Variant]) As ListRow",,VERIFIED,tests/fixtures/tables/edits/edits.json,"At the end, above a totals row, or at a position, the table's columns moving down; with AlwaysInsert False over an empty row the table takes the row. A calculated column fills the new row, and a reference to a column's rows stretches over it."
 ListRows,Application,"property, read-only",As Application,,MISSING,,
 ListRows,Count,"property, read-only",As Long,,VERIFIED,tests/fixtures/tables/tables.json,
 ListRows,Creator,"property, read-only",As XlCreator,,MISSING,,

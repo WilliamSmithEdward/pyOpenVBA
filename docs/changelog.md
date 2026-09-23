@@ -178,6 +178,17 @@ All notable changes to pyOpenVBA are documented here. This project follows
   row is what the column totals from then on, and a number written there
   becomes its text. The table part keeps each label, function and custom
   formula as Excel does. 20 workbooks in live Excel pin it.
+- Editing a table's rows and columns: `ListRows.Add`, `ListRow.Delete`,
+  `ListColumns.Add`, `ListColumn.Delete`, `ListObject.Resize` and
+  `ListObject.Delete`, each moving the cells around the table and the
+  references to them as Excel does, a structured reference to a column
+  that goes becoming #REF!. A formula written into an empty table column
+  fills it and makes it calculated, and a row the table gains takes the
+  formula. A value or formula a macro writes in the row under a table or
+  the column right of it takes the table over it, and a value written
+  under it stretches `SUM(C2:C4)` over the new row as Excel does. 28
+  workbooks and 21 writes in live Excel pin it. `ListObject.Unlist`, and a
+  copy or fill next to a table, report themselves.
 - Structured references. A formula can name part of a table,
   `Table1[Qty]`, `Table1[#All]`, `Table1[[#Headers],[Qty]:[Price]]`,
   `Table1[@Qty]`, and the model spells it back, saves it, reads it from a

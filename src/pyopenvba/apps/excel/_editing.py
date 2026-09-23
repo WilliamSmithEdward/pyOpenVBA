@@ -28,6 +28,7 @@ from pyopenvba.interpreter._values import error
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Range, Cell, Worksheet, NameEntry, Workbook
+    from pyopenvba.apps.excel._tables import Table
 
 _CORNER = re.compile(r"^(\$?)([A-Za-z]+)?(\$?)([0-9]+)?$")
 
@@ -176,9 +177,11 @@ def _inherit_formats(sheet: Worksheet, *, rows: bool, start: int, count: int,
 # --- cell shifts ---------------------------------------------------------------------------------------
 
 
-def shift_cells(target: Range, area: Area, *, delete: bool, vertical: bool) -> None:
+def shift_cells(target: Range, area: Area, *, delete: bool, vertical: bool, through: Table | None = None) -> None:
     """``area`` deleted or inserted, the cells in its band of columns moving up or down -- ``vertical`` -- or in
-    its band of rows across, and every reference to them following as the module docstring has it."""
+    its band of rows across, and every reference to them following as the module docstring has it. ``through``
+    is a table the shift may run through, a row or a column of it going in or out, whose block the caller keeps
+    up to date."""
     sheet = target.sheet
     if sheet.merged_areas or sheet.shapes_:
         raise VBAUnsupportedError("shifting cells on a sheet with merges or shapes is not implemented")
@@ -187,7 +190,7 @@ def shift_cells(target: Range, area: Area, *, delete: bool, vertical: bool) -> N
     limit = MAX_ROWS if vertical else MAX_COLUMNS
     region = Area(start, band[0], MAX_ROWS, band[1]) if vertical else Area(band[0], start, band[1], MAX_COLUMNS)
     _arrays.refuse(sheet, [region], "Shifting")
-    _tables.refuse(sheet, region, "Shifting")
+    _tables.refuse(sheet, region, "Shifting", allowing=through)
     moved: dict[tuple[int, int], Cell] = {}
     for (row, column), cell in sheet.cells_.items():
         along, across = (row, column) if vertical else (column, row)

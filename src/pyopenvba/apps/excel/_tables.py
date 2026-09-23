@@ -61,6 +61,7 @@ _COLUMN = re.compile(r"<tableColumn\b[^>]*?(?:/>|>.*?</tableColumn>)", re.DOTALL
 _STYLE = re.compile(r"<tableStyleInfo\b[^>]*/>")
 _FILTER = re.compile(r"<autoFilter\b[^>]*?(?:/>|>.*?</autoFilter>)", re.DOTALL)
 _TOTALS_FORMULA = re.compile(r"<totalsRowFormula\b[^>]*>(.*?)</totalsRowFormula>", re.DOTALL)
+_CALCULATED = re.compile(r"<calculatedColumnFormula\b[^>]*>(.*?)</calculatedColumnFormula>", re.DOTALL)
 
 
 @dataclass
@@ -73,6 +74,8 @@ class TableColumn:
     totals_label: str = ""
     totals_function: str = ""
     totals_formula: str = ""
+    #: A calculated column's formula, which a row the table gains takes; "" for a column of values.
+    calculated: str = ""
 
 
 @dataclass
@@ -133,10 +136,12 @@ def read_table(sheet: Worksheet, part: str, relationship: str, xml: str) -> Tabl
     for match in _COLUMN.finditer(xml):
         one = attributes(_opening(match.group(0)))
         formula = _TOTALS_FORMULA.search(match.group(0))
+        calculated = _CALCULATED.search(match.group(0))
         columns.append(TableColumn(
             name=_column_name(one.get("name", "")), id=int(one.get("id", "0") or 0), uid=one.get("xr3:uid", ""),
             totals_label=_column_name(one.get("totalsRowLabel", "")), totals_function=one.get("totalsRowFunction", ""),
-            totals_formula=from_file("=" + unescape(formula.group(1))) if formula else ""))
+            totals_formula=from_file("=" + unescape(formula.group(1))) if formula else "",
+            calculated=from_file("=" + unescape(calculated.group(1))) if calculated else ""))
     return Table(
         sheet=sheet, id=int(head.get("id", "0") or 0), name=head.get("displayName") or head.get("name", ""),
         area=parse_area(head.get("ref", "A1"), sheet=""), columns=columns,
@@ -251,16 +256,17 @@ def _patched_column(element: str, column: TableColumn, tables: list[str]) -> str
         f' totalsRowLabel="{_column_attribute(column.totals_label)}"' if column.totals_label else ""
     inside = re.sub(r'(\sname=")[^"]*(")', lambda match: match.group(1) + _column_attribute(column.name)
                     + match.group(2) + totals, inside, count=1)
-    body = _TOTALS_FORMULA.sub("", body)
+    # The children in the schema's order: the calculated column's formula, then the custom total's.
+    body = _TOTALS_FORMULA.sub("", _CALCULATED.sub("", body))
     if column.totals_function == "custom" and column.totals_formula:
-        formula = f"<totalsRowFormula>{escape_text(in_file(column.totals_formula, tables)[1:])}</totalsRowFormula>"
-        calculated = body.find("</calculatedColumnFormula>")
-        at = calculated + len("</calculatedColumnFormula>") if calculated >= 0 else 0
-        body = body[:at] + formula + body[at:]
+        body = f"<totalsRowFormula>{escape_text(in_file(column.totals_formula, tables)[1:])}</totalsRowFormula>" + body
+    if column.calculated:
+        body = (f"<calculatedColumnFormula>{escape_text(in_file(column.calculated, tables)[1:])}"
+                "</calculatedColumnFormula>" + body)
     return f"<tableColumn{inside}>{body}</tableColumn>" if body else f"<tableColumn{inside}/>"
 
 
-def _guid() -> str:
+def guid() -> str:
     return "{" + str(uuid.uuid4()).upper() + "}"
 
 
@@ -286,10 +292,11 @@ def rewrite_formulas(book: Workbook, change: Callable[[str], str]) -> None:
                     sheet.touched()
         for table in sheet.tables:
             for column in table.columns:
-                if column.totals_formula:
-                    updated = change(column.totals_formula)
-                    if updated != column.totals_formula:
-                        column.totals_formula, table.changed = updated, True
+                for field in ("totals_formula", "calculated"):
+                    text: str = getattr(column, field)
+                    if text and (updated := change(text)) != text:
+                        setattr(column, field, updated)
+                        table.changed = True
     for entry in book.names_.entries:
         updated = change(entry.refers_to)
         if updated != entry.refers_to:
@@ -331,8 +338,8 @@ def headers_changed(sheet: Worksheet, row: int, column: int) -> None:
                   and one.area.left <= column <= one.area.right), None)
     if table is None or id(table) in _naming:
         return
-    texts = [_cell_text(sheet, row, one) for one in range(table.area.left, table.area.right + 1)]
-    name_columns(table, _column_names(texts))
+    texts = [cell_text(sheet, row, one) for one in range(table.area.left, table.area.right + 1)]
+    name_columns(table, column_names(texts))
 
 
 def name_columns(table: Table, names: list[str]) -> None:
@@ -458,7 +465,7 @@ def totals_changed(sheet: Worksheet, row: int, column: int) -> None:
         if entry.totals_function == "custom":
             entry.totals_formula = cell.formula
     elif cell is not None and cell.value is not EMPTY:
-        entry.totals_label = _cell_text(sheet, row, column)
+        entry.totals_label = cell_text(sheet, row, column)
         if cell.value != entry.totals_label:
             _naming.add(id(table))
             try:
@@ -485,7 +492,7 @@ def _function_of(formula: str, table: Table, column: TableColumn) -> str | None:
     return next((name for name, number in _SUBTOTAL.items() if code.value == number), None)
 
 
-def _cell_text(sheet: Worksheet, row: int, column: int) -> str:
+def cell_text(sheet: Worksheet, row: int, column: int) -> str:
     """What a header cell names its column with: the text it shows, a number or a date through its format."""
     from pyopenvba.formula._display import UndisplayableError, shown
 
@@ -557,7 +564,7 @@ def _free_name(sheet: Worksheet) -> str:
     return f"Table{number}"
 
 
-def _column_names(texts: list[str]) -> list[str]:
+def column_names(texts: list[str]) -> list[str]:
     """Header texts as Excel makes column names of them: a blank one ColumnN, a repeat numbered after itself."""
     names: list[str] = []
     for text in texts:
@@ -601,9 +608,9 @@ def add(sheet: Worksheet, source: Range, headers: int, style: str) -> Table:
         top = Area(area.top, area.left, area.top, area.right, sheet.name)
         shift_cells(Range(sheet, [top]), top, delete=False, vertical=True)
         area = Area(area.top, area.left, area.bottom + 1, area.right)
-        names = _column_names([""] * area.columns)
+        names = column_names([""] * area.columns)
     else:
-        names = _column_names([_cell_text(sheet, area.top, column) for column in range(area.left, area.right + 1)])
+        names = column_names([cell_text(sheet, area.top, column) for column in range(area.left, area.right + 1)])
     for offset, name in enumerate(names):
         # Header cells hold their column's name as text: 2020 becomes "2020".
         cell = sheet.cell(area.top, area.left + offset, create=True)
@@ -611,9 +618,9 @@ def add(sheet: Worksheet, source: Range, headers: int, style: str) -> Table:
         if cell.value != name or cell.formula:
             cell.value, cell.formula, cell.stale, cell.shared = name, "", False, None
             sheet.cell_changed(area.top, area.left + offset)
-    uid = _guid()
+    uid = guid()
     table = Table(sheet=sheet, id=max((one.id for one in all_tables(sheet)), default=0) + 1, name=_free_name(sheet),
-                  area=area, columns=[TableColumn(name, index + 1, _guid()) for index, name in enumerate(names)],
+                  area=area, columns=[TableColumn(name, index + 1, guid()) for index, name in enumerate(names)],
                   style=style, uid=uid, changed=True)
     sheet.tables.append(table)
     sheet.touched()
@@ -660,9 +667,22 @@ def edit_admitted(sheet: Worksheet, *, rows: bool, start: int, count: int, delet
             raise VBAUnsupportedError("deleting a table's header row is not implemented")
 
 
-def refuse(sheet: Worksheet, area: Area, doing: str) -> None:
-    """Report an edit the model does not carry through tables."""
-    if any(_meets(table.area, area) for table in sheet.tables):
+def refuse_growth(sheet: Worksheet, area: Area, doing: str) -> None:
+    """Report a copy or a fill into the row under a table, or the column right of it, which Excel takes the table
+    over by putting a table row in first, the cells under it moving down (tests/fixtures/tables/growth.json)."""
+    for table in sheet.tables:
+        whole = table.area
+        below = not table.totals and area.top <= whole.bottom + 1 <= area.bottom \
+            and area.left <= whole.right and whole.left <= area.right
+        right = area.left <= whole.right + 1 <= area.right and area.top <= whole.bottom and whole.top <= area.bottom
+        if below or right:
+            raise VBAUnsupportedError(f"{doing} the row under a table or the column right of it, which grows the "
+                                      "table, is not implemented")
+
+
+def refuse(sheet: Worksheet, area: Area, doing: str, *, allowing: Table | None = None) -> None:
+    """Report an edit the model does not carry through tables, but for the one ``allowing`` names."""
+    if any(_meets(table.area, area) for table in sheet.tables if table is not allowing):
         raise VBAUnsupportedError(f"{doing} cells of a table is not implemented")
 
 
@@ -780,6 +800,29 @@ class ListObject(ExcelObject):
     def ListRows(self) -> object:
         return ListRows(self.table)
 
+    @method
+    def Resize(self, Range: object = MISSING) -> object:
+        from pyopenvba.apps.excel._model import Range as Cells
+        from pyopenvba.apps.excel._table_edits import resize
+
+        if not isinstance(Range, Cells) or Range.sheet is not self.sheet or len(Range.areas) != 1:
+            raise error(1004, "Resize takes a range of the table's sheet")
+        first = Range.first
+        resize(self.table, Area(first.top, first.left, first.bottom, first.right))
+        return EMPTY
+
+    @method
+    def Delete(self) -> object:
+        from pyopenvba.apps.excel._table_edits import delete_table
+
+        delete_table(self.table)
+        return EMPTY
+
+    @method
+    def Unlist(self) -> object:
+        raise VBAUnsupportedError("ListObject.Unlist, which turns the table's style into each cell's format, is not "
+                                  "implemented")
+
     @member
     def ShowTotals(self) -> object:
         return self.table.totals
@@ -879,6 +922,13 @@ class ListColumns(VBACollection, ExcelObject):
     def Parent(self) -> object:
         return view(self.table)
 
+    @method
+    def Add(self, Position: object = MISSING) -> object:
+        from pyopenvba.apps.excel._table_edits import add_column
+
+        where = None if Position is MISSING else int(to_integer(Position, "Long"))
+        return ListColumn(self.table, add_column(self.table, where))
+
 
 class ListColumn(ExcelObject):
     vba_type_name = "ListColumn"
@@ -908,7 +958,7 @@ class ListColumn(ExcelObject):
         if any(index != self.index - 1 and name.lower() == wanted.lower() for index, name in enumerate(names)):
             return
         names[self.index - 1] = wanted
-        name_columns(self.table, _column_names(names))
+        name_columns(self.table, column_names(names))
 
     @member
     def Index(self) -> object:
@@ -949,6 +999,13 @@ class ListColumn(ExcelObject):
             return NOTHING
         return Range(self.sheet, [Area(data.top, self._column(), data.bottom, self._column(), self.sheet.name)])
 
+    @method
+    def Delete(self) -> object:
+        from pyopenvba.apps.excel._table_edits import delete_column
+
+        delete_column(self.table, self.index)
+        return EMPTY
+
 
 class ListRows(VBACollection, ExcelObject):
     vba_type_name = "ListRows"
@@ -963,6 +1020,15 @@ class ListRows(VBACollection, ExcelObject):
     @member
     def Parent(self) -> object:
         return view(self.table)
+
+    @method
+    def Add(self, Position: object = MISSING, AlwaysInsert: object = MISSING) -> object:
+        """A row put in, at the end or at a position (see _table_edits.add_row)."""
+        from pyopenvba.apps.excel._table_edits import add_row
+
+        where = None if Position is MISSING else int(to_integer(Position, "Long"))
+        always = True if AlwaysInsert is MISSING else to_bool(AlwaysInsert)
+        return ListRow(self.table, add_row(self.table, where, always))
 
 
 class ListRow(ExcelObject):
@@ -987,3 +1053,10 @@ class ListRow(ExcelObject):
         assert data is not None
         row = data.top + self.index - 1
         return Range(self.sheet, [Area(row, data.left, row, data.right, self.sheet.name)])
+
+    @method
+    def Delete(self) -> object:
+        from pyopenvba.apps.excel._table_edits import delete_row
+
+        delete_row(self.table, self.index)
+        return EMPTY

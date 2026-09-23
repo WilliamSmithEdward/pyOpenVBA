@@ -1081,8 +1081,29 @@ TotalsRowRange, ListColumns and ListRows; its name, style and style
 options can be set, and `Range.ListObject` finds the table a cell is in.
 A save writes a new table in the part Excel writes for it, and a table
 read from a file keeps its part until it changes. Whole rows inserted or
-deleted through a table carry it; ListRows.Add and Delete, Resize,
-Unlist and column edits through a table report themselves.
+deleted through a table carry it; Unlist, whole columns inserted or
+deleted through a table, and a copy or fill into the row under a table
+or the column right of it report themselves.
+
+A table's rows and columns are edited as Excel edits them
+(`tests/fixtures/tables/edits/`, 28 workbooks, and
+`tests/fixtures/tables/growth.json`). `ListRows.Add` puts a row in at the
+end, above the totals row, or at a position, the table's columns moving
+down under it; with AlwaysInsert False and the row under the table empty,
+the table takes that row. `ListRow.Delete` takes one out, the cells under
+it moving up. `ListColumns.Add` puts in a column named the first free
+ColumnN, the cells right of it in the table's rows moving across;
+`ListColumn.Delete` takes one out, and `Resize` lays the table over
+another block with the same header row; a structured reference to a
+column that goes is #REF!. `ListObject.Delete` clears the table's cells
+and every reference to it becomes #REF!. A formula written into a table
+column that is otherwise empty fills the column, and so does one written
+over all of it: the column is calculated, and a row the table gains
+takes the formula. A value or a formula a macro writes into the row just
+under a table, or the column just right of it, takes the table over it,
+though not under a totals row; a value written under it also stretches
+each reference that ran down a column of the table from its header or
+first row to its last, so `SUM(C2:C4)` reads `SUM(C2:C5)`.
 
 `ShowTotals` shows a table's totals row as Excel does
 (`tests/fixtures/tables/totals_row/`, 20 workbooks): cells go in under

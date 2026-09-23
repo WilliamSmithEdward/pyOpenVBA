@@ -1446,7 +1446,17 @@ class Range(ExcelObject):
             return
         with writing(self.sheet):
             self._write(value)
+        self._tables_follow()
         _events.after_edit(self)
+
+    def _tables_follow(self) -> None:
+        """A table around what was written follows it: it grows over a row or column written next to it, and a
+        formula written into one of its columns can make the column calculated (see _table_edits)."""
+        if self.sheet.tables:
+            from pyopenvba.apps.excel import _table_edits
+
+            _table_edits.calculated(self.sheet, list(self.areas))
+            _table_edits.grow(self.sheet, list(self.areas))
 
     @member
     def Value2(self) -> object:
@@ -1461,6 +1471,7 @@ class Range(ExcelObject):
             return
         with writing(self.sheet):
             self._write(value, raw=True)
+        self._tables_follow()
         _events.after_edit(self)
 
     def _values(self, *, raw: bool) -> object:
@@ -1529,6 +1540,7 @@ class Range(ExcelObject):
             return
         with writing(self.sheet):
             self._write_formula(value)
+        self._tables_follow()
         _events.after_edit(self)
 
     def _write_formula(self, value: object) -> None:
@@ -1639,6 +1651,7 @@ class Range(ExcelObject):
             return
         with writing(self.sheet):
             self._write_formula_r1c1(value)
+        self._tables_follow()
         _events.after_edit(self)
 
     def _write_formula_r1c1(self, value: object) -> None:
@@ -2393,6 +2406,10 @@ class Range(ExcelObject):
         if bottom > MAX_ROWS or right > MAX_COLUMNS:
             raise error(1004, "Copy would extend beyond the worksheet")
         written = Area(target.top, target.left, bottom, right)
+        if Destination.sheet.tables:
+            from pyopenvba.apps.excel._tables import refuse_growth
+
+            refuse_growth(Destination.sheet, written, "Copying into")
         if any(_merges.intersects(area, one) for one in self.sheet.merged_areas) or any(
             _merges.intersects(written, one) for one in Destination.sheet.merged_areas
         ):
@@ -2524,6 +2541,11 @@ class Range(ExcelObject):
         """
         from pyopenvba.apps.excel._visible import visible_areas
 
+        if self.sheet.tables:
+            from pyopenvba.apps.excel._tables import refuse_growth
+
+            for area in self.areas:
+                refuse_growth(self.sheet, area, "Filling into")
         parts = visible_areas(self)
         if parts is not None:
             return self._fill_visible(parts, down, across)

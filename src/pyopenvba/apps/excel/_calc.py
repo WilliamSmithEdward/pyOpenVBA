@@ -48,11 +48,13 @@ CellKey = tuple[str, int, int]
 
 @dataclass(slots=True)
 class Compiled:
-    """One cell's formula, parsed once."""
+    """One cell's formula, parsed once; no node for one the parser cannot read, which keeps the value it has."""
 
-    node: P.Node
+    node: P.Node | None
     precedents: list[Area] = field(default_factory=lambda: [])
     volatile: bool = False
+    #: Why the parser could not read the formula.
+    unread: str = ""
 
 
 class Calculator:
@@ -85,7 +87,12 @@ class Calculator:
         if not cell.formula:
             self.compiled.pop(key, None)
             return
-        node = P.parse(cell.formula)
+        try:
+            node = P.parse(cell.formula)
+        except P.FormulaError as failure:
+            # One formula the parser cannot read stops no other from being worked out.
+            self.compiled[key] = Compiled(node=None, unread=str(failure))
+            return
         context = Context(self, sheet, row, column)
         areas: list[Area] = []
         for reference in P.references(node):
@@ -251,6 +258,9 @@ class Calculator:
         return value
 
     def _computed(self, compiled: Compiled, sheet: str, row: int, column: int) -> object:
+        if compiled.node is None:
+            raise VBAUnsupportedError(f"working out a formula the model cannot read is not implemented: "
+                                      f"{compiled.unread}")
         owner = self._sheet_named(sheet)
         block = owner.array_formulas.get((row, column)) if owner is not None else None
         try:

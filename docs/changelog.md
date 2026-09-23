@@ -619,6 +619,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- A workbook holding a formula the parser cannot read, such as a LAMBDA
+  called where it is made, works out every other formula as before; that
+  cell keeps the value its file gave it. The model stopped at the first
+  such formula, so writing any cell of the workbook failed.
 - `Range.Select` and `Range.Activate` on a sheet that is not the active
   one are error 1004, as in Excel; the model made the sheet active.
   `Activate` on a cell inside the selection moves the active cell and

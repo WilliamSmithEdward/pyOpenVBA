@@ -1436,3 +1436,45 @@ def test_excel_reads_model_authored_sizes(tmp_path: Path) -> None:
         # work it out again when it opens the file.
         if not case["name"].startswith("recorded_"):
             assert answer == case["answers"], case["name"]
+
+
+def _row_format_reads(name: str, reads: list[str]) -> str:
+    """The reads scripts/measure_row_formats.py made of one case: the used range first, then each read."""
+    lines = [f"Private Function {name}(ws As Object) As String", "Dim out As String, v As Variant",
+             "On Error Resume Next"]
+    for expression in ["ws.UsedRange.Address", *reads]:
+        lines += ["Err.Clear", "v = Empty", f"v = {expression}",
+                  'If Err.Number <> 0 Then out = out & "E" & Err.Number & ";" Else out = out & Show(v) & ";"']
+    return "\n".join([*lines, "On Error GoTo 0", f"{name} = out", "End Function"]) + "\n"
+
+
+def test_excel_reads_model_authored_row_formats(tmp_path: Path) -> None:
+    """Every row, column and sheet format case the model saves reads in Excel as Excel's own file of it does."""
+    import json
+
+    harness = pytest.importorskip("pyvbaharness")
+    fixture = json.loads((Path(__file__).parent / "fixtures" / "row_formats" / "row_formats.json").read_text())
+    cases = [case for case in fixture["cases"] if not case["name"].startswith("unmeasured_")]
+    app = ExcelApplication()
+    app.add_workbook()
+    lines = ["Public Sub Build()", "Dim ws As Object"]
+    for index, case in enumerate(cases):
+        lines.append("Set ws = ActiveWorkbook.Worksheets(1)" if index == 0 else
+                     "Set ws = ActiveWorkbook.Worksheets.Add(After:=ActiveWorkbook.Worksheets"
+                     "(ActiveWorkbook.Worksheets.Count))")
+        lines += [f'ws.Name = "{case["name"]}"', *case["setup"].splitlines()]
+    app.add_module("\n".join([*lines, "ActiveWorkbook.Worksheets(1).Activate", "End Sub"]) + "\n", name="Builder")
+    app.run("Build")
+    path = tmp_path / "model_row_formats.xlsx"
+    app.save(path)
+    reader = fixture["helper"] + "".join(_row_format_reads(f"Reads{index}", case["reads"])
+                                         for index, case in enumerate(cases))
+    reader += ("Public Function Report() As String\n"
+               + "".join(f'Report = Report & Reads{index}(ActiveWorkbook.Worksheets({index + 1})) & "|"\n'
+                         for index in range(len(cases))) + "End Function\n")
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+        excel.open_document(path)
+        result = excel.run_vba(reader, "Report", timeout=240.0)
+        assert result.ok, result.message
+    for case, answer in zip(cases, str(result.value).split("|")[:-1], strict=True):
+        assert answer == case["after"], case["name"]

@@ -25,7 +25,7 @@ from __future__ import annotations
 
 import re
 from collections.abc import Callable
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from fractions import Fraction
 from typing import Final, TypeVar
 
@@ -407,6 +407,23 @@ class Style:
     #: The cell style it derives from, the xf's xfId.
     base: int = 0
     quote_prefix: bool = False
+    #: The parts of the format it applies itself, the xf's apply flags: each
+    #: part it holds differently from its cell style, and every part a macro
+    #: has set, even to what it already was. Excel keeps a format a macro
+    #: made bold and then not bold apart from the default one, so a cell
+    #: that went through that stays; a file's flags are not read, since
+    #: Excel takes a format that differs only in them as the same one.
+    applied: frozenset[str] = frozenset()
+
+
+#: The parts of a format, in the order an xf's apply flags are written.
+APPLY_FLAGS: Final = {"number_format": "applyNumberFormat", "font": "applyFont", "fill": "applyFill",
+                      "border": "applyBorder", "alignment": "applyAlignment", "protection": "applyProtection"}
+
+
+def applying(style: Style, part: str, **changes: object) -> Style:
+    """The format with one part set by a macro: changed as asked, and applied from now on."""
+    return replace(style, applied=style.applied | {part}, **changes)  # type: ignore[arg-type]
 
 
 # --- reading a stylesheet -------------------------------------------------------------------------
@@ -738,15 +755,23 @@ class Stylesheet:
     def _style(self, element: str) -> Style:
         found = _attributes(element)
         number = int(found.get("numFmtId", "0") or 0)
+        font, fill, border = (int(found.get(key, "0") or 0) for key in ("fontId", "fillId", "borderId"))
+        base_index = int(found.get("xfId", "0") or 0)
+        alignment, protection = parse_alignment(element), parse_protection(element)
+        base = self.bases[base_index] if 0 <= base_index < len(self.bases) else _BaseStyle()
+        differs = {"number_format": number != base.number_format, "font": font != base.font,
+                   "fill": fill != base.fill, "border": border != base.border,
+                   "alignment": alignment != base.alignment, "protection": protection != base.protection}
         return Style(
             number_format=self.number_formats.get(number, "General"),
-            font=self._part(self.fonts, int(found.get("fontId", "0") or 0), self.fonts[0]),
-            fill=self._part(self.fills, int(found.get("fillId", "0") or 0), Fill()),
-            border=self._part(self.borders, int(found.get("borderId", "0") or 0), Border()),
-            alignment=parse_alignment(element),
-            protection=parse_protection(element),
-            base=int(found.get("xfId", "0") or 0),
+            font=self._part(self.fonts, font, self.fonts[0]),
+            fill=self._part(self.fills, fill, Fill()),
+            border=self._part(self.borders, border, Border()),
+            alignment=alignment,
+            protection=protection,
+            base=base_index,
             quote_prefix=found.get("quotePrefix", "0") in ("1", "true"),
+            applied=frozenset(part for part, yes in differs.items() if yes),
         )
 
     @property
@@ -761,6 +786,12 @@ class Stylesheet:
 
     # -- adding
 
+    def index_as_read(self, style: Style, xf: int) -> int:
+        """The xf a format is written with: the one it was read with while that still says the same."""
+        if 0 <= xf < len(self.styles) and self.styles[xf] == style:
+            return xf
+        return self.index_of(style)
+
     def index_of(self, style: Style) -> int:
         """The xf for ``style``, reusing an equal one or adding what the stylesheet lacks."""
         found = self._index.get(style)
@@ -773,11 +804,11 @@ class Stylesheet:
         border = self._entry("borders", self.borders, style.border, border_xml)
         head = (f'<xf numFmtId="{number}" fontId="{font}" fillId="{fill}" borderId="{border}" xfId="{style.base}"'
                 + (' quotePrefix="1"' if style.quote_prefix else ""))
-        for applied, name in ((number != base.number_format, "applyNumberFormat"), (font != base.font, "applyFont"),
-                              (fill != base.fill, "applyFill"), (border != base.border, "applyBorder"),
-                              (style.alignment != base.alignment, "applyAlignment"),
-                              (style.protection != base.protection, "applyProtection")):
-            if applied:
+        differs = {"number_format": number != base.number_format, "font": font != base.font,
+                   "fill": fill != base.fill, "border": border != base.border,
+                   "alignment": style.alignment != base.alignment, "protection": style.protection != base.protection}
+        for part, name in APPLY_FLAGS.items():
+            if part in style.applied or differs[part]:
                 head += f' {name}="1"'
         inner = alignment_xml(style.alignment) + protection_xml(style.protection)
         self._added["cellXfs"].append(head + (f">{inner}</xf>" if inner else "/>"))

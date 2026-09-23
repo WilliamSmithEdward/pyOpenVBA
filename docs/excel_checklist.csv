@@ -484,10 +484,10 @@ Range,CellControl,"property, read-only",As CellControl,,MISSING,,
 Range,Cells,"property, read-only",As Range,,PARTIAL,tests/fixtures/excel_model/probes.txt,
 Range,Characters,"property, read-only",As Characters,,MISSING,,
 Range,CheckSpelling,method,"CheckSpelling([CustomDictionary As Variant], [IgnoreUppercase As Variant], [AlwaysSuggest As Variant], [SpellLang As Variant]) As Variant",,MISSING,,
-Range,Clear,method,Clear() As Variant,,PARTIAL,tests/fixtures/excel_model/probes.txt,
+Range,Clear,method,Clear() As Variant,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/row_formats/row_formats.json; tests/test_live_excel_model_gate.py,A position a row or column format reaches keeps a cell in the default format.
 Range,ClearComments,method,ClearComments(),,MISSING,,
-Range,ClearContents,method,ClearContents([RemoveControls As Variant]) As Variant,no RemoveControls,PARTIAL,tests/fixtures/excel_model/probes.txt,
-Range,ClearFormats,method,ClearFormats() As Variant,,VERIFIED,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,
+Range,ClearContents,method,ClearContents([RemoveControls As Variant]) As Variant,no RemoveControls,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/row_formats/row_formats.json,An emptied cell in the format its row or column gives it goes.
+Range,ClearFormats,method,ClearFormats() As Variant,,VERIFIED,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py; tests/fixtures/row_formats/row_formats.json,"Whole rows and columns lose their own formats, and positions a column's or row's format still reaches get a cell in the default format."
 Range,ClearHyperlinks,method,ClearHyperlinks(),,MISSING,,
 Range,ClearNotes,method,ClearNotes() As Variant,,MISSING,,
 Range,ClearOutline,method,ClearOutline() As Variant,,MISSING,,
@@ -499,7 +499,7 @@ Range,Comment,"property, read-only",As Comment,,MISSING,,
 Range,CommentThreaded,"property, read-only",As CommentThreaded,,MISSING,,
 Range,Consolidate,method,"Consolidate([Sources As Variant], [Function As Variant], [TopRow As Variant], [LeftColumn As Variant], [CreateLinks As Variant]) As Variant",,MISSING,,
 Range,ConvertToLinkedDataType,method,"ConvertToLinkedDataType(ServiceID As Long, LanguageCulture As String)",,MISSING,,
-Range,Copy,method,Copy([Destination As Variant]) As Variant,,PARTIAL,tests/fixtures/range_copy.json; tests/fixtures/range_copy_names.json,"Destination form only; the clipboard, merged cells, several areas and destinations over 1,048,576 cells report unsupported."
+Range,Copy,method,Copy([Destination As Variant]) As Variant,,PARTIAL,tests/fixtures/range_copy.json; tests/fixtures/range_copy_names.json; tests/fixtures/row_formats/row_formats.json,"Destination form only; the clipboard, merged cells, several areas and destinations over 1,048,576 cells report unsupported. Whole rows and columns carry their formats, and cells the format each one showed."
 Range,CopyFromRecordset,method,"CopyFromRecordset(Data As IUnknown, [MaxRows As Variant], [MaxColumns As Variant]) As Long",,MISSING,,
 Range,CopyPicture,method,"CopyPicture([Appearance As XlPictureAppearance], [Format As XlCopyPictureFormat]) As Variant",,MISSING,,
 Range,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/excel_model/probes.txt,
@@ -511,7 +511,7 @@ Range,CurrentRegion,"property, read-only",As Range,,MISSING,,
 Range,Cut,method,Cut([Destination As Variant]) As Variant,,MISSING,,
 Range,DataSeries,method,"DataSeries([Rowcol As Variant], [Type As XlDataSeriesType], [Date As XlDataSeriesDate], [Step As Variant], [Stop As Variant], [Trend As Variant]) As Variant",,MISSING,,
 Range,DataTypeToText,method,DataTypeToText(),,MISSING,,
-Range,Delete,method,Delete([Shift As Variant]) As Variant,,PARTIAL,tests/fixtures/range_edit.json; tests/fixtures/excel_model/probes.txt,"Whole rows and columns rewrite references; a partial shift moves cells without rewriting references, and sheets with merges or shapes report unsupported."
+Range,Delete,method,Delete([Shift As Variant]) As Variant,,PARTIAL,tests/fixtures/range_edit.json; tests/fixtures/excel_model/probes.txt; tests/fixtures/row_formats/row_formats.json,"Whole rows and columns rewrite references and take their formats with them; a partial shift moves cells without rewriting references, and sheets with merges or shapes report unsupported. Shifting cells on a sheet whose rows or columns carry formats reports unsupported."
 Range,Dependents,"property, read-only",As Range,,MISSING,,
 Range,DialogBox,method,DialogBox() As Variant,,MISSING,,
 Range,DirectDependents,"property, read-only",As Range,,MISSING,,
@@ -521,8 +521,8 @@ Range,DiscardChanges,method,DiscardChanges(),,MISSING,,
 Range,DisplayFormat,"property, read-only",As DisplayFormat,,MISSING,,
 Range,EditionOptions,method,"EditionOptions(Type As XlEditionType, Option As XlEditionOptionsOption, [Name As Variant], [Reference As Variant], [Appearance As XlPictureAppearance], [ChartSize As XlPictureAppearance], [Format As Variant]) As Variant",,MISSING,,
 Range,End,"property, read-only",As Range,,PARTIAL,tests/fixtures/excel_model/probes.txt,
-Range,EntireColumn,"property, read-only",As Range,,PARTIAL,tests/fixtures/excel_model/probes.txt,
-Range,EntireRow,"property, read-only",As Range,,PARTIAL,tests/fixtures/excel_model/probes.txt,
+Range,EntireColumn,"property, read-only",As Range,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/row_formats/row_formats.json,"Whole rows, whole columns and the whole sheet are formatted through their own formats, as Excel keeps them."
+Range,EntireRow,"property, read-only",As Range,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/row_formats/row_formats.json,"Whole rows, whole columns and the whole sheet are formatted through their own formats, as Excel keeps them."
 Range,Errors,"property, read-only",As Errors,,MISSING,,
 Range,ExportAsFixedFormat,method,"ExportAsFixedFormat(Type As XlFixedFormatType, [Filename As Variant], [Quality As Variant], [IncludeDocProperties As Variant], [IgnorePrintAreas As Variant], [From As Variant], [To As Variant], [OpenAfterPublish As Variant], [FixedFormatExtClassPtr As Variant], [WorkIdentity As Variant])",,MISSING,,
 Range,FillDown,method,FillDown() As Variant,,MISSING,,
@@ -533,7 +533,7 @@ Range,Find,method,"Find(What As Variant, [After As Variant], [LookIn As Variant]
 Range,FindNext,method,FindNext([After As Variant]) As Range,,PARTIAL,tests/fixtures/range_find.json,"One area only; multi-area, comment and format searches and MatchByte:=True report unsupported."
 Range,FindPrevious,method,FindPrevious([After As Variant]) As Range,,PARTIAL,tests/fixtures/range_find.json,"One area only; multi-area, comment and format searches and MatchByte:=True report unsupported."
 Range,FlashFill,method,FlashFill(),,MISSING,,
-Range,Font,"property, read-only",As Font,,PARTIAL,tests/fixtures/excel_model/probes.txt,
+Range,Font,"property, read-only",As Font,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/row_formats/row_formats.json,"Whole rows, whole columns and the whole sheet are formatted through their own formats, as Excel keeps them."
 Range,FormatConditions,"property, read-only",As FormatConditions,,MISSING,,
 Range,Formula,property,As Variant,,PARTIAL,tests/fixtures/formula_a1_arrays.json; tests/fixtures/excel_model/probes.txt,
 Range,Formula2,property,As Variant,,MISSING,,
@@ -557,10 +557,10 @@ Range,HorizontalAlignment,property,As Variant,,VERIFIED,tests/fixtures/range_for
 Range,Hyperlinks,"property, read-only",As Hyperlinks,,MISSING,,
 Range,ID,property,As String,,MISSING,,
 Range,IndentLevel,property,As Variant,,VERIFIED,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,
-Range,Insert,method,"Insert([Shift As Variant], [CopyOrigin As Variant]) As Variant",,PARTIAL,tests/fixtures/range_edit.json; tests/fixtures/excel_model/probes.txt,"Whole rows and columns rewrite references; a partial shift moves cells without rewriting references, and sheets with merges or shapes report unsupported."
+Range,Insert,method,"Insert([Shift As Variant], [CopyOrigin As Variant]) As Variant",,PARTIAL,tests/fixtures/range_edit.json; tests/fixtures/excel_model/probes.txt; tests/fixtures/row_formats/row_formats.json,"Whole rows and columns rewrite references, and a new row or column takes the formats beside it; a partial shift moves cells without rewriting references, and sheets with merges or shapes report unsupported. Shifting cells on a sheet whose rows or columns carry formats, and CopyOrigin:=xlFormatFromRightOrBelow, report unsupported."
 Range,InsertIndent,method,InsertIndent(InsertAmount As Long),,MISSING,,
 Range,InsertPictureInCell,method,InsertPictureInCell(PictureURI As String),,MISSING,,
-Range,Interior,"property, read-only",As Interior,,PARTIAL,tests/fixtures/excel_model/probes.txt,
+Range,Interior,"property, read-only",As Interior,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/row_formats/row_formats.json,"Whole rows, whole columns and the whole sheet are formatted through their own formats, as Excel keeps them."
 Range,Item,property,As Variant,no setter,UNASSESSED,,
 Range,Justify,method,Justify() As Variant,,MISSING,,
 Range,Left,"property, read-only",As Variant,,PARTIAL,tests/fixtures/dimensions.json; tests/fixtures/dimensions/dimensions_answers.json,Measured for Aptos Narrow 11 and Calibri 11 as the Normal font on a 96-DPI display; with another Normal font the file's own standard sizes stand.
@@ -578,7 +578,7 @@ Range,Name,property,As Variant,,PARTIAL,tests/fixtures/names_crud.json,
 Range,NavigateArrow,method,"NavigateArrow([TowardPrecedent As Variant], [ArrowNumber As Variant], [LinkNumber As Variant]) As Variant",,MISSING,,
 Range,Next,"property, read-only",As Range,,MISSING,,
 Range,NoteText,method,"NoteText([Text As Variant], [Start As Variant], [Length As Variant]) As String",,MISSING,,
-Range,NumberFormat,property,As Variant,,PARTIAL,tests/fixtures/excel_model/probes.txt,
+Range,NumberFormat,property,As Variant,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/row_formats/row_formats.json,"Whole rows, whole columns and the whole sheet are formatted through their own formats, as Excel keeps them."
 Range,NumberFormatLocal,property,As Variant,,MISSING,,
 Range,Offset,"property, read-only",As Range,,PARTIAL,tests/fixtures/excel_model/probes.txt,
 Range,Orientation,property,As Variant,,VERIFIED,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,
@@ -612,7 +612,7 @@ Range,ResetContents,method,ResetContents(),,MISSING,,
 Range,Resize,"property, read-only",As Range,,PARTIAL,tests/fixtures/excel_model/probes.txt,
 Range,Row,"property, read-only",As Long,,PARTIAL,tests/fixtures/excel_model/probes.txt,
 Range,RowDifferences,method,RowDifferences(Comparison As Variant) As Range,,MISSING,,
-Range,RowHeight,property,As Variant,,PARTIAL,tests/fixtures/dimensions.json; tests/fixtures/dimensions/dimensions_answers.json; tests/fixtures/font_rows.json,"A row grows with its fonts from a measured table of eleven families; one resting on another font, a mix of tables, super- or subscript, or wrapped or turned text keeps its file's height until it changes, then reports unsupported. A read across several rows or columns compares inside the sheet's current used block; Excel's can stay larger for the rest of a session after a column is hidden."
+Range,RowHeight,property,As Variant,,PARTIAL,tests/fixtures/dimensions.json; tests/fixtures/dimensions/dimensions_answers.json; tests/fixtures/font_rows.json; tests/fixtures/row_formats/row_formats.json,"A row grows or shrinks with the fonts at its positions -- its cells', its own format's, its columns' -- from a measured table of eleven families beside the Normal font and alone; one resting on another font, a mix of tables, super- or subscript, or wrapped or turned text keeps its file's height until it changes, then reports unsupported. A read across several rows or columns compares inside the sheet's current used block; Excel's can stay larger for the rest of a session after a column is hidden."
 Range,Rows,"property, read-only",As Range,,PARTIAL,tests/fixtures/excel_model/probes.txt,
 Range,Run,method,"Run([Arg1 As Variant], [Arg2 As Variant], [Arg3 As Variant], [Arg4 As Variant], [Arg5 As Variant], [Arg6 As Variant], [Arg7 As Variant], [Arg8 As Variant], [Arg9 As Variant], [Arg10 As Variant], [Arg11 As Variant], [Arg12 As Variant], [Arg13 As Variant], [Arg14 As Variant], [Arg15 As Variant], [Arg16 As Variant], [Arg17 As Variant], [Arg18 As Variant], [Arg19 As Variant], [Arg20 As Variant], [Arg21 As Variant], [Arg22 As Variant], [Arg23 As Variant], [Arg24 As Variant], [Arg25 As Variant], [Arg26 As Variant], [Arg27 As Variant], [Arg28 As Variant], [Arg29 As Variant], [Arg30 As Variant]) As Variant",,MISSING,,
 Range,SavedAsArray,"property, read-only",As Variant,,MISSING,,
@@ -1234,7 +1234,7 @@ Worksheet,Shapes,"property, read-only",As Shapes,,UNASSESSED,,
 Worksheet,ShowAllData,method,ShowAllData(),,MISSING,,
 Worksheet,ShowDataForm,method,ShowDataForm(),,MISSING,,
 Worksheet,Sort,"property, read-only",As Sort,,MISSING,,
-Worksheet,StandardHeight,"property, read-only",As Double,,PARTIAL,tests/fixtures/dimensions.json; tests/fixtures/dimensions/dimensions_answers.json,Measured for Aptos Narrow 11 and Calibri 11 as the Normal font on a 96-DPI display; with another Normal font the file's own standard sizes stand.
+Worksheet,StandardHeight,"property, read-only",As Double,,PARTIAL,tests/fixtures/dimensions.json; tests/fixtures/dimensions/dimensions_answers.json; tests/fixtures/row_formats/row_formats.json,"Measured for Aptos Narrow 11 and Calibri 11 as the Normal font on a 96-DPI display, and moved by the fonts of column formats; with another Normal font the file's own standard sizes stand."
 Worksheet,StandardWidth,property,As Double,,PARTIAL,tests/fixtures/dimensions.json; tests/fixtures/dimensions/dimensions_answers.json,Measured for Aptos Narrow 11 and Calibri 11 as the Normal font on a 96-DPI display; with another Normal font the file's own standard sizes stand.
 Worksheet,Tab,"property, read-only",As Tab,,MISSING,,
 Worksheet,TableUpdate,event,TableUpdate(Target As TableObject),,MISSING,,

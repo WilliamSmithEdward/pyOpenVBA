@@ -26,6 +26,7 @@ from dataclasses import replace
 from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area
+from pyopenvba.apps.excel import _row_formats
 from pyopenvba.apps.excel import _styles as S
 from pyopenvba.apps.excel._model import ExcelObject
 from pyopenvba.exceptions import VBAUnsupportedError
@@ -74,25 +75,18 @@ _OPPOSITE = {"left": ("right", 0, -1), "right": ("left", 0, 1), "top": ("bottom"
 
 
 def styles_of(target: Range) -> list[S.Style]:
-    """Every distinct format in the range, without walking cells nobody has touched."""
+    """Every distinct format the range's positions show, without walking positions nobody has touched."""
     sheet = target.sheet
-    default = sheet.book.stylesheet.default
     found: dict[S.Style, None] = {}
     for area in target.areas:
         bottom, right = min(area.bottom, MAX_ROWS), min(area.right, MAX_COLUMNS)
         size = (bottom - area.top + 1) * (right - area.left + 1)
-        if size <= 65536:
+        if size <= 4096:
             for row in range(area.top, bottom + 1):
                 for column in range(area.left, right + 1):
                     found[sheet.style_at(row, column)] = None
             continue
-        present = 0
-        for (row, column), cell in sheet.cells_.items():
-            if area.top <= row <= bottom and area.left <= column <= right:
-                present += 1
-                found[cell.style if cell.style is not None else default] = None
-        if present < size:
-            found[default] = None
+        found.update(dict.fromkeys(_row_formats.distinct_styles(sheet, area)))
     return list(found)
 
 
@@ -106,9 +100,25 @@ def uniform(values: Iterable[object]) -> object:
 
 
 def restyle(target: Range, change: Callable[[S.Style], S.Style]) -> None:
+    """Change the format every position of the range shows: whole rows and columns through their own formats."""
     sheet = target.sheet
-    for row, column in target.writable_positions():
+    parts = [area for area in target.areas if not _row_formats.format_area(sheet, area, change)]
+    for row, column in _positions(parts):
         sheet.restyle(row, column, change(sheet.style_at(row, column)))
+
+
+def _within_limit(areas: list[Area]) -> None:
+    """Formatting more than 1,048,576 positions one by one reports itself; whole rows and columns go another way."""
+    if any(area.rows * area.columns > 1048576 for area in areas):
+        raise VBAUnsupportedError("formatting more than 1,048,576 cells at once, short of whole rows or "
+                                  "columns, is not implemented")
+
+
+def _positions(areas: list[Area]) -> list[tuple[int, int]]:
+    """Every position of areas that are not whole rows or columns, which a format change visits one by one."""
+    _within_limit(areas)
+    return [(row, column) for area in areas for row in range(area.top, area.bottom + 1)
+            for column in range(area.left, area.right + 1)]
 
 
 def _long(value: int) -> VBAInt:
@@ -171,7 +181,7 @@ class Font(ExcelObject):
         return uniform(get(style.font) for style in styles_of(self.target))
 
     def _write(self, change: Callable[[S.Font], S.Font]) -> None:
-        restyle(self.target, lambda style: replace(style, font=change(style.font)))
+        restyle(self.target, lambda style: S.applying(style, "font", font=change(style.font)))
 
     def _color(self, what: str) -> object:
         colors = {style.font.color for style in styles_of(self.target)}
@@ -382,7 +392,7 @@ class Interior(ExcelObject):
         def apply(style: S.Style) -> S.Style:
             if style.fill.gradient:
                 raise VBAUnsupportedError("a gradient fill's Interior is not implemented")
-            return replace(style, fill=change(style.fill))
+            return S.applying(style, "fill", fill=change(style.fill))
 
         restyle(self.target, apply)
 
@@ -554,6 +564,22 @@ def _diagonal(border: S.Border, index: int) -> S.Side:
     return border.diagonal if shown else S.NO_SIDE
 
 
+def with_diagonal(border: S.Border, index: int, change: Callable[[S.Side], S.Side]) -> S.Border:
+    """A border with one diagonal changed.
+
+    Both diagonals share one line: xlDiagonalDown (5) and xlDiagonalUp (6)
+    only say which of them show it.
+    """
+    side = change(_diagonal(border, index))
+    up, down = border.diagonal_up, border.diagonal_down
+    if index == 6:
+        up = bool(side.style)
+    else:
+        down = bool(side.style)
+    shared = side if side.style else (border.diagonal if up or down else S.NO_SIDE)
+    return replace(border, diagonal=shared, diagonal_up=up, diagonal_down=down)
+
+
 def change_side(sheet: Worksheet, row: int, column: int, index: int, change: Callable[[S.Side], S.Side],
                 *, clear_neighbour: bool = True) -> None:
     """Set one edge of one cell the way Excel does it."""
@@ -561,28 +587,19 @@ def change_side(sheet: Worksheet, row: int, column: int, index: int, change: Cal
     sides = {name: effective_side(sheet, row, column, name) for name in ("left", "right", "top", "bottom")}
     border = replace(style.border, **sides)
     if index in (5, 6):
-        # Both diagonals share one line: xlDiagonalDown (5) and xlDiagonalUp (6) only
-        # say which of them show it.
-        side = change(_diagonal(border, index))
-        up, down = border.diagonal_up, border.diagonal_down
-        if index == 6:
-            up = bool(side.style)
-        else:
-            down = bool(side.style)
-        shared = side if side.style else (border.diagonal if up or down else S.NO_SIDE)
-        border = replace(border, diagonal=shared, diagonal_up=up, diagonal_down=down)
-        sheet.restyle(row, column, replace(style, border=border))
+        sheet.restyle(row, column, S.applying(style, "border", border=with_diagonal(border, index, change)))
         return
     name = EDGES[index]
     border = replace(border, **{name: change(getattr(border, name))})
-    sheet.restyle(row, column, replace(style, border=border))
+    sheet.restyle(row, column, S.applying(style, "border", border=border))
     if not clear_neighbour:
         return
     opposite, down, across = _OPPOSITE[name]
     row, column = row + down, column + across
     if 1 <= row <= MAX_ROWS and 1 <= column <= MAX_COLUMNS and own_side(sheet, row, column, opposite).style:
         theirs = sheet.style_at(row, column)
-        sheet.restyle(row, column, replace(theirs, border=replace(theirs.border, **{opposite: S.NO_SIDE})))
+        cleared = replace(theirs.border, **{opposite: S.NO_SIDE})
+        sheet.restyle(row, column, S.applying(theirs, "border", border=cleared))
 
 
 def inside_current(upper: S.Side, lower: S.Side) -> S.Side:
@@ -711,8 +728,10 @@ class Border(ExcelObject):
 
     def apply(self, change: Callable[[S.Side], S.Side]) -> None:
         sheet = self.target.sheet
-        self.target.writable_positions()
-        for area in self.target.areas:
+        parts = [area for area in self.target.areas
+                 if not _row_formats.border_area(sheet, area, self.index, change)]
+        _within_limit(parts)
+        for area in parts:
             if self.index in (5, 6):
                 for row in range(area.top, area.bottom + 1):
                     for column in range(area.left, area.right + 1):
@@ -739,15 +758,23 @@ class Border(ExcelObject):
     def sides(self) -> list[S.Side]:
         """Every side along this border, which a property of the whole collection answers over."""
         sheet, area = self.target.sheet, self.target.first
+        # Along a whole row or column most positions stand for each other: a sample of them answers.
+        columns = (range(area.left, area.right + 1) if area.columns <= 4096 else
+                   _row_formats.sample_columns(sheet, area.left, area.right, area.top, area.bottom))
+        rows = (range(area.top, area.bottom + 1) if area.rows <= 4096 else
+                _row_formats.sample_rows(sheet, area.top, area.bottom, area.left, area.right))
         if self.index in EDGES:
             name = EDGES[self.index]
             if name in ("top", "bottom"):
                 row = area.top if name == "top" else area.bottom
-                return [effective_side(sheet, row, column, name) for column in range(area.left, area.right + 1)]
+                return [effective_side(sheet, row, column, name) for column in columns]
             column = area.left if name == "left" else area.right
-            return [effective_side(sheet, row, column, name) for row in range(area.top, area.bottom + 1)]
-        name = "bottom" if self.index == 12 else "right"
-        return [effective_side(sheet, row, column, name) for (row, column), _ in _inside_pairs(area, self.index)]
+            return [effective_side(sheet, row, column, name) for row in rows]
+        if self.index == 12:
+            return [effective_side(sheet, row, column, "bottom") for row in rows if row < area.bottom
+                    for column in columns]
+        return [effective_side(sheet, row, column, "right") for row in rows for column in columns
+                if column < area.right]
 
     @member
     def LineStyle(self) -> object:
@@ -958,10 +985,11 @@ def write_alignment(target: Range, what: str, value: object) -> None:
     if what in ("Locked", "FormulaHidden"):
         on = to_bool(value)
         field_name = "locked" if what == "Locked" else "hidden"
-        restyle(target, lambda style: replace(style, protection=replace(style.protection, **{field_name: on})))
+        restyle(target, lambda style: S.applying(style, "protection",
+                                                 protection=replace(style.protection, **{field_name: on})))
         return
     change = _alignment_change(what, value)
-    restyle(target, lambda style: replace(style, alignment=change(style.alignment)))
+    restyle(target, lambda style: S.applying(style, "alignment", alignment=change(style.alignment)))
 
 
 def _alignment_change(what: str, value: object) -> Callable[[S.Alignment], S.Alignment]:
@@ -1015,10 +1043,9 @@ def clear_formats(target: Range) -> None:
 
     _merges.unmerge(target)
     sheet = target.sheet
-    for row, column in target.writable_positions():
-        cell = sheet.cell(row, column)
-        if cell is not None and cell.style is not None:
-            cell.style, cell.xf = None, -1
-            if cell.is_blank():
-                del sheet.cells_[(row, column)]
+    parts = [area for area in target.areas if not _row_formats.clear_area(sheet, area)]
+    default = sheet.book.stylesheet.default
+    for row, column in _positions(parts):
+        # A position a row or column format reaches keeps a cell in the default format.
+        sheet.restyle(row, column, default)
     sheet.touched()

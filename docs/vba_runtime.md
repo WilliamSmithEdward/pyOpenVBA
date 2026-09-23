@@ -422,10 +422,52 @@ first whenever one is used.
   left-aligned, and choosing an alignment that cannot be indented drops
   the indent. `ClearFormats` unmerges.
 
-Row and column formats, `Range.Style` and the `Styles` collection,
-conditional formats, and formatting whole rows or columns at once are not
+`Range.Style`, the `Styles` collection and conditional formats are not
 implemented yet; the operation checklist, `docs/excel_checklist.csv`,
 records each member's status.
+
+**Row and column formats.** Formatting a range that spans every column
+formats its rows, one that spans every row formats its columns, and the
+whole sheet formats every column. Excel keeps a format for each row and
+column besides each cell's own, and a position with no cell shows its
+row's format, else its column's, else the default. 149 probes of live
+Excel pin the rules, with the workbook Excel saved and read back, 16
+files written the way another program might write them, and a live gate
+that opens the model's own file (`tests/fixtures/row_formats/`).
+
+* Every cell in the rows or columns changes from its own format. Where a
+  formatted row crosses a formatted column, the position gets a cell of
+  its own when neither format alone would show what the change made of
+  it, in either order. A new cell starts in its row's format, else its
+  column's.
+* Excel keeps an empty cell only while its format differs from the one
+  its row or column would give it. A format that a macro has set any part
+  of, even to what it already was, counts as different:
+  `Range("B2").Font.Bold = False` on an untouched cell puts B2 in the used
+  range, with an xf that applies its font. Once the workbook is saved and
+  opened again, Excel takes that format for the default and B2 is gone.
+* `ClearFormats` on whole rows or columns takes their format away, and
+  gives a cell in the default format to each position that a column's or
+  row's format would still reach.
+* Formatting the whole sheet formats every column. Whatever format column
+  XFD has is the sheet's: a row with no format of its own takes a change
+  from it, and only columns formatted apart from it count in the used
+  range, in a file as in a macro.
+* Borders on whole rows go on the row's format. The exceptions are the
+  left edge, which goes on the cells of column A, and the right edge,
+  which only marks the format as applying borders. On whole columns the
+  top and bottom edges only mark it, apart from cells already in row 1.
+  On the whole sheet every edge only marks it.
+* An inserted row takes the format of the row above it and of each of
+  that row's cells; an inserted column those of the column to its left.
+  Copying whole rows or columns copies their formats, and copying cells
+  copies the format each one showed.
+
+Shifting cells up, down or across (`Insert` or `Delete` with a `Shift`) on
+a sheet whose rows or columns carry formats reports itself unsupported,
+as do `Insert` with `xlFormatFromRightOrBelow`, a border along whole rows
+or columns whose positions show different lines, and an edge of the whole
+sheet with cells along it.
 
 **Row heights and column widths.** `RowHeight`, `ColumnWidth`, `Hidden`,
 `UseStandardHeight`, `UseStandardWidth`, `Height`, `Width`, `Left`, `Top`,
@@ -463,17 +505,21 @@ on a 144-DPI one.
 * Whole rows copied take their heights along, and whole columns their
   widths; an inserted row takes the height of the row above it, and an
   inserted column the width of the one to its left.
-* A row that keeps no height of its own is as tall as its tallest font,
-  and never shorter than the standard row; `AutoFit` puts a row back to
-  that. How tall a font makes a row depends on its size in pixels and on
-  the font's hinted metrics, irregularly enough that no formula
-  reproduces it, so the model carries a table measured in live Excel for
-  Aptos (and Aptos Narrow and Display), Calibri (and Calibri Light),
-  Arial, Cambria, Consolas, Courier New, Georgia, Segoe UI, Tahoma, Times
-  New Roman and Verdana, in all four styles and every size up to 409.5pt
-  (`src/pyopenvba/apps/excel/_font_rows.py`). A merged cell over several
-  rows, and turned text in an empty cell, make no row taller. The file
-  gets the height and the descent Excel writes for it.
+* A row that keeps no height of its own is as tall as the fonts at its
+  positions make it: each cell's own, the row's format's where it has no
+  cell, else its columns'. `AutoFit` puts a row back to that. How tall a
+  font makes a row depends on its size in pixels and on the font's hinted
+  metrics, irregularly enough that no formula reproduces it, so the model
+  carries a table measured in live Excel for Aptos (and Aptos Narrow and
+  Display), Calibri (and Calibri Light), Arial, Cambria, Consolas, Courier
+  New, Georgia, Segoe UI, Tahoma, Times New Roman and Verdana, in all four
+  styles and every size up to 409.5pt, both beside the Normal font and on
+  a row to itself (`src/pyopenvba/apps/excel/_font_rows.py`). The Normal
+  font counts only where some position still shows it, so a row formatted
+  in 8pt is 11.25pt tall and one formatted in Arial 14.25pt. A column's
+  font reaches every row, `StandardHeight` included. A merged cell over
+  several rows, and turned text in an empty cell, make no row taller. The
+  file gets the height and the descent Excel writes for it.
 
 A row whose height rests on something the model has not measured -- a
 font outside the table, two fonts from different tables in one row
@@ -483,7 +529,9 @@ alone does not separate), super- or subscript, or wrapped or turned text
 After that, reading its height or `AutoFit` reports itself unsupported,
 and a save writes the row without one, which Excel works out again only
 some of the time. `AutoFit` on a column whose cells hold values also
-reports unsupported, since it measures text. The sizes are measured for
+reports unsupported, since it measures text. A double border between two
+rows makes Excel draw both a pixel taller and flag them (`thickBot`,
+`thickTop`), which the model does not do yet. The sizes are measured for
 Aptos Narrow 11 and Calibri 11 as the Normal font; with another Normal
 font the file's own standard sizes stand. Excel's used block, and with it
 which cells a multi-row read compares, also grows while a workbook is open
@@ -527,7 +575,11 @@ app.save("sales_out.xlsx")
 document from `.docx`, `.docm` or `.dotm`, and a presentation from
 `.pptx`, `.pptm` or `.potm`, each written back with only what changed
 rewritten: a sheet, a slide or a body nobody touched keeps its bytes,
-and an unchanged file saves byte for byte.  A workbook made from
+and an unchanged file saves byte for byte. The exception is a sheet that
+Excel itself tidies on opening: an empty cell in its row's or column's
+format, a row format every column already shows, a column with no width,
+or a used block the sheet's contents do not match. The model tidies the
+same things, and writes such a sheet again the way Excel saves it.  A workbook made from
 nothing is written from the template captured from a freshly
 Excel-authored file; Word and PowerPoint have no such template yet, so
 a document or a presentation is edited rather than created.
@@ -593,6 +645,7 @@ a document or a presentation is edited rather than created.
 | `apps/excel/_styles.py` | The stylesheet read into cell formats, colours, and the entries a save adds |
 | `apps/excel/_formats.py` | Font, Interior, Borders, alignment and protection, as a macro reads and sets them |
 | `apps/excel/_dimensions.py` | Row heights, column widths and hidden rows and columns, on a 96-DPI display |
+| `apps/excel/_row_formats.py` | Formats a whole row, a whole column or the whole sheet carries, and how a change spreads |
 | `apps/excel/_font_rows.py` | How tall each measured font makes a row, baked from `tests/fixtures/font_rows.json` |
 | `apps/word/` | Word's object model, its bridge and its file |
 | `apps/powerpoint/` | PowerPoint's, the same three |

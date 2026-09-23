@@ -7,6 +7,26 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Row, column and sheet-wide formats as Excel keeps them. Formatting a
+  range that spans every column formats its rows, one that spans every
+  row its columns, and the whole sheet every column. Each row and column
+  keeps a format of its own (a row's `s` with `customFormat`, a column's
+  `style`), read from and saved to the file, and a position with no cell
+  shows its row's format, else its column's. A formatted row and a
+  formatted column crossing get a cell of their own, a new cell starts in
+  its row's or column's format, and an empty cell goes once its format is
+  the one it would inherit. `ClearFormats` and `Clear` put positions back
+  to the default, inserted rows and columns take the formats beside them,
+  and copies carry what each position showed. Borders on whole rows,
+  columns and the sheet follow Excel's own rules for each edge. Reads over
+  whole rows and columns answer Null exactly where Excel's do, without
+  visiting every position. A row's height counts the font at every
+  position, from a second table measured for each font on a row to itself,
+  so a row or column format makes rows shorter or taller and moves
+  `StandardHeight`. 149 probes of live Excel pin the answers; Excel's own
+  saved workbook reads back; 16 files written the way another program
+  might write them read and save as Excel's do; the model's saved rows,
+  columns and cells are Excel's XML; and a live gate opens them in Excel.
 - Rows grow with their fonts as Excel's do. A row that keeps no height of
   its own is as tall as its tallest font, read from a table measured in
   live Excel: every pixel size up to 409.5pt of Aptos, Calibri, Arial,
@@ -229,9 +249,27 @@ All notable changes to pyOpenVBA are documented here. This project follows
 - A sheet the model adds is written as Excel writes a new sheet, with its
   view, row defaults and page margins, and a rewritten sheet's row
   defaults are this display's.
+- Setting any part of a format marks that part as applied, as Excel does,
+  even when the value does not change. An xf's apply flags now say what a
+  macro set rather than what differs from the cell style, so
+  `Font.Bold = False` on an untouched cell leaves a formatted empty cell
+  in the used range and in the file, as in Excel. A file's apply flags
+  are not read, since Excel takes a format that differs only in them for
+  the same one.
+- A loaded sheet that Excel tidies on opening is written again on save as
+  Excel writes it, instead of keeping its bytes. That covers an empty cell
+  in the format its row or column gives it, a row format every column
+  shows, a column with no width, and a stale dimension.
 
 ### Fixed
 
+- Saving a sheet took time proportional to the square of the cells in a
+  row, since each cell was spliced into its row's XML one by one; a row
+  of thousands of cells took minutes.
+- A column a file gives no width reads as Excel reads it: hidden, and 0
+  wide.
+- `ClearContents` and `Clear` drop a cell they leave empty and in its
+  inherited format, and no longer visit every position of a large range.
 - `ColumnWidth` and `RowHeight` were kept only in memory: a file's widths
   and heights were never read, and a macro's were never saved.
 - `UsedRange` and a saved sheet's dimension count rows that have a height

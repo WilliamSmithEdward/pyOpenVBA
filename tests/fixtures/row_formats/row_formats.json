@@ -1,0 +1,1776 @@
+{
+ "helper": "Private Function Show(v As Variant) As String\n    If IsNull(v) Then\n        Show = \"Null\"\n    ElseIf IsEmpty(v) Then\n        Show = \"Empty\"\n    Else\n        Show = TypeName(v) & \":\" & CStr(v)\n    End If\nEnd Function\n",
+ "cases": [
+  {
+   "name": "noop_bold_false",
+   "setup": "ws.Range(\"B2\").Font.Bold = False",
+   "reads": [
+    "ws.Range(\"B2\").Font.Bold",
+    "ws.Range(\"B2\").Interior.Color",
+    "ws.Range(\"B2\").NumberFormat",
+    "ws.Range(\"B2\").HorizontalAlignment",
+    "ws.Range(\"B2\").Locked",
+    "ws.Range(\"B2\").Borders(xlEdgeLeft).LineStyle"
+   ],
+   "before": "String:$B$2;Boolean:False;Double:16777215;String:General;Long:1;Boolean:True;Long:-4142;",
+   "after": "String:$A$1;Boolean:False;Double:16777215;String:General;Long:1;Boolean:True;Long:-4142;"
+  },
+  {
+   "name": "bold_unbold",
+   "setup": "ws.Range(\"B2\").Font.Bold = True\nws.Range(\"B2\").Font.Bold = False",
+   "reads": [
+    "ws.Range(\"B2\").Font.Bold",
+    "ws.Range(\"B2\").Interior.Color",
+    "ws.Range(\"B2\").NumberFormat",
+    "ws.Range(\"B2\").HorizontalAlignment",
+    "ws.Range(\"B2\").Locked",
+    "ws.Range(\"B2\").Borders(xlEdgeLeft).LineStyle"
+   ],
+   "before": "String:$B$2;Boolean:False;Double:16777215;String:General;Long:1;Boolean:True;Long:-4142;",
+   "after": "String:$A$1;Boolean:False;Double:16777215;String:General;Long:1;Boolean:True;Long:-4142;"
+  },
+  {
+   "name": "noop_name_same",
+   "setup": "ws.Range(\"B2\").Font.Name = \"Aptos Narrow\"",
+   "reads": [
+    "ws.Range(\"B2\").Font.Bold",
+    "ws.Range(\"B2\").Interior.Color",
+    "ws.Range(\"B2\").NumberFormat",
+    "ws.Range(\"B2\").HorizontalAlignment",
+    "ws.Range(\"B2\").Locked",
+    "ws.Range(\"B2\").Borders(xlEdgeLeft).LineStyle"
+   ],
+   "before": "String:$B$2;Boolean:False;Double:16777215;String:General;Long:1;Boolean:True;Long:-4142;",
+   "after": "String:$A$1;Boolean:False;Double:16777215;String:General;Long:1;Boolean:True;Long:-4142;"
+  },
+  {
+   "name": "noop_size_same",
+   "setup": "ws.Range(\"B2\").Font.Size = 11",
+   "reads": [
+    "ws.Range(\"B2\").Font.Bold",
+    "ws.Range(\"B2\").Interior.Color",
+    "ws.Range(\"B2\").NumberFormat",
+    "ws.Range(\"B2\").HorizontalAlignment",
+    "ws.Range(\"B2\").Locked",
+    "ws.Range(\"B2\").Borders(xlEdgeLeft).LineStyle"
+   ],
+   "before": "String:$B$2;Boolean:False;Double:16777215;String:General;Long:1;Boolean:True;Long:-4142;",
+   "after": "String:$A$1;Boolean:False;Double:16777215;String:General;Long:1;Boolean:True;Long:-4142;"
+  },
+  {
+   "name": "noop_color_auto",
+   "setup": "ws.Range(\"B2\").Font.ColorIndex = xlColorIndexAutomatic",
+   "reads": [
+    "ws.Range(\"B2\").Font.Bold",
+    "ws.Range(\"B2\").Interior.Color",
+    "ws.Range(\"B2\").NumberFormat",
+    "ws.Range(\"B2\").HorizontalAlignment",
+    "ws.Range(\"B2\").Locked",
+    "ws.Range(\"B2\").Borders(xlEdgeLeft).LineStyle"
+   ],
+   "before": "String:$B$2;Boolean:False;Double:16777215;String:General;Long:1;Boolean:True;Long:-4142;",
+   "after": "String:$B$2;Boolean:False;Double:16777215;String:General;Long:1;Boolean:True;Long:-4142;"
+  },
+  {
+   "name": "fill_back",
+   "setup": "ws.Range(\"B2\").Interior.Color = 255\nws.Range(\"B2\").Interior.ColorIndex = xlNone",
+   "reads": [
+    "ws.Range(\"B2\").Font.Bold",
+    "ws.Range(\"B2\").Interior.Color",
+    "ws.Range(\"B2\").NumberFormat",
+    "ws.Range(\"B2\").HorizontalAlignment",
+    "ws.Range(\"B2\").Locked",
+    "ws.Range(\"B2\").Borders(xlEdgeLeft).LineStyle"
+   ],
+   "before": "String:$B$2;Boolean:False;Double:16777215;String:General;Long:1;Boolean:True;Long:-4142;",
+   "after": "String:$A$1;Boolean:False;Double:16777215;String:General;Long:1;Boolean:True;Long:-4142;"
+  },
+  {
+   "name": "noop_fill_none",
+   "setup": "ws.Range(\"B2\").Interior.ColorIndex = xlNone",
+   "reads": [
+    "ws.Range(\"B2\").Font.Bold",
+    "ws.Range(\"B2\").Interior.Color",
+    "ws.Range(\"B2\").NumberFormat",
+    "ws.Range(\"B2\").HorizontalAlignment",
+    "ws.Range(\"B2\").Locked",
+    "ws.Range(\"B2\").Borders(xlEdgeLeft).LineStyle"
+   ],
+   "before": "String:$B$2;Boolean:False;Double:16777215;String:General;Long:1;Boolean:True;Long:-4142;",
+   "after": "String:$A$1;Boolean:False;Double:16777215;String:General;Long:1;Boolean:True;Long:-4142;"
+  },
+  {
+   "name": "numfmt_back",
+   "setup": "ws.Range(\"B2\").NumberFormat = \"0.00\"\nws.Range(\"B2\").NumberFormat = \"General\"",
+   "reads": [
+    "ws.Range(\"B2\").Font.Bold",
+    "ws.Range(\"B2\").Interior.Color",
+    "ws.Range(\"B2\").NumberFormat",
+    "ws.Range(\"B2\").HorizontalAlignment",
+    "ws.Range(\"B2\").Locked",
+    "ws.Range(\"B2\").Borders(xlEdgeLeft).LineStyle"
+   ],
+   "before": "String:$B$2;Boolean:False;Double:16777215;String:General;Long:1;Boolean:True;Long:-4142;",
+   "after": "String:$A$1;Boolean:False;Double:16777215;String:General;Long:1;Boolean:True;Long:-4142;"
+  },
+  {
+   "name": "noop_numfmt",
+   "setup": "ws.Range(\"B2\").NumberFormat = \"General\"",
+   "reads": [
+    "ws.Range(\"B2\").Font.Bold",
+    "ws.Range(\"B2\").Interior.Color",
+    "ws.Range(\"B2\").NumberFormat",
+    "ws.Range(\"B2\").HorizontalAlignment",
+    "ws.Range(\"B2\").Locked",
+    "ws.Range(\"B2\").Borders(xlEdgeLeft).LineStyle"
+   ],
+   "before": "String:$B$2;Boolean:False;Double:16777215;String:General;Long:1;Boolean:True;Long:-4142;",
+   "after": "String:$A$1;Boolean:False;Double:16777215;String:General;Long:1;Boolean:True;Long:-4142;"
+  },
+  {
+   "name": "align_back",
+   "setup": "ws.Range(\"B2\").HorizontalAlignment = xlCenter\nws.Range(\"B2\").HorizontalAlignment = xlGeneral",
+   "reads": [
+    "ws.Range(\"B2\").Font.Bold",
+    "ws.Range(\"B2\").Interior.Color",
+    "ws.Range(\"B2\").NumberFormat",
+    "ws.Range(\"B2\").HorizontalAlignment",
+    "ws.Range(\"B2\").Locked",
+    "ws.Range(\"B2\").Borders(xlEdgeLeft).LineStyle"
+   ],
+   "before": "String:$B$2;Boolean:False;Double:16777215;String:General;Long:1;Boolean:True;Long:-4142;",
+   "after": "String:$A$1;Boolean:False;Double:16777215;String:General;Long:1;Boolean:True;Long:-4142;"
+  },
+  {
+   "name": "noop_align",
+   "setup": "ws.Range(\"B2\").HorizontalAlignment = xlGeneral",
+   "reads": [
+    "ws.Range(\"B2\").Font.Bold",
+    "ws.Range(\"B2\").Interior.Color",
+    "ws.Range(\"B2\").NumberFormat",
+    "ws.Range(\"B2\").HorizontalAlignment",
+    "ws.Range(\"B2\").Locked",
+    "ws.Range(\"B2\").Borders(xlEdgeLeft).LineStyle"
+   ],
+   "before": "String:$B$2;Boolean:False;Double:16777215;String:General;Long:1;Boolean:True;Long:-4142;",
+   "after": "String:$A$1;Boolean:False;Double:16777215;String:General;Long:1;Boolean:True;Long:-4142;"
+  },
+  {
+   "name": "locked_back",
+   "setup": "ws.Range(\"B2\").Locked = False\nws.Range(\"B2\").Locked = True",
+   "reads": [
+    "ws.Range(\"B2\").Font.Bold",
+    "ws.Range(\"B2\").Interior.Color",
+    "ws.Range(\"B2\").NumberFormat",
+    "ws.Range(\"B2\").HorizontalAlignment",
+    "ws.Range(\"B2\").Locked",
+    "ws.Range(\"B2\").Borders(xlEdgeLeft).LineStyle"
+   ],
+   "before": "String:$B$2;Boolean:False;Double:16777215;String:General;Long:1;Boolean:True;Long:-4142;",
+   "after": "String:$A$1;Boolean:False;Double:16777215;String:General;Long:1;Boolean:True;Long:-4142;"
+  },
+  {
+   "name": "noop_locked",
+   "setup": "ws.Range(\"B2\").Locked = True",
+   "reads": [
+    "ws.Range(\"B2\").Font.Bold",
+    "ws.Range(\"B2\").Interior.Color",
+    "ws.Range(\"B2\").NumberFormat",
+    "ws.Range(\"B2\").HorizontalAlignment",
+    "ws.Range(\"B2\").Locked",
+    "ws.Range(\"B2\").Borders(xlEdgeLeft).LineStyle"
+   ],
+   "before": "String:$B$2;Boolean:False;Double:16777215;String:General;Long:1;Boolean:True;Long:-4142;",
+   "after": "String:$A$1;Boolean:False;Double:16777215;String:General;Long:1;Boolean:True;Long:-4142;"
+  },
+  {
+   "name": "border_back",
+   "setup": "ws.Range(\"B2\").Borders(xlEdgeLeft).LineStyle = xlContinuous\nws.Range(\"B2\").Borders(xlEdgeLeft).LineStyle = xlNone",
+   "reads": [
+    "ws.Range(\"B2\").Font.Bold",
+    "ws.Range(\"B2\").Interior.Color",
+    "ws.Range(\"B2\").NumberFormat",
+    "ws.Range(\"B2\").HorizontalAlignment",
+    "ws.Range(\"B2\").Locked",
+    "ws.Range(\"B2\").Borders(xlEdgeLeft).LineStyle"
+   ],
+   "before": "String:$B$2;Boolean:False;Double:16777215;String:General;Long:1;Boolean:True;Long:-4142;",
+   "after": "String:$A$1;Boolean:False;Double:16777215;String:General;Long:1;Boolean:True;Long:-4142;"
+  },
+  {
+   "name": "noop_border",
+   "setup": "ws.Range(\"B2\").Borders(xlEdgeLeft).LineStyle = xlNone",
+   "reads": [
+    "ws.Range(\"B2\").Font.Bold",
+    "ws.Range(\"B2\").Interior.Color",
+    "ws.Range(\"B2\").NumberFormat",
+    "ws.Range(\"B2\").HorizontalAlignment",
+    "ws.Range(\"B2\").Locked",
+    "ws.Range(\"B2\").Borders(xlEdgeLeft).LineStyle"
+   ],
+   "before": "String:$B$2;Boolean:False;Double:16777215;String:General;Long:1;Boolean:True;Long:-4142;",
+   "after": "String:$A$1;Boolean:False;Double:16777215;String:General;Long:1;Boolean:True;Long:-4142;"
+  },
+  {
+   "name": "bold_clear_formats",
+   "setup": "ws.Range(\"B2\").Font.Bold = True\nws.Range(\"B2\").ClearFormats",
+   "reads": [
+    "ws.Range(\"B2\").Font.Bold",
+    "ws.Range(\"B2\").Interior.Color",
+    "ws.Range(\"B2\").NumberFormat",
+    "ws.Range(\"B2\").HorizontalAlignment",
+    "ws.Range(\"B2\").Locked",
+    "ws.Range(\"B2\").Borders(xlEdgeLeft).LineStyle"
+   ],
+   "before": "String:$A$1;Boolean:False;Double:16777215;String:General;Long:1;Boolean:True;Long:-4142;",
+   "after": "String:$A$1;Boolean:False;Double:16777215;String:General;Long:1;Boolean:True;Long:-4142;"
+  },
+  {
+   "name": "unbold_then_fill",
+   "setup": "ws.Range(\"B2\").Font.Bold = True\nws.Range(\"B2\").Font.Bold = False\nws.Range(\"B2\").Interior.Color = 65535",
+   "reads": [
+    "ws.Range(\"B2\").Font.Bold",
+    "ws.Range(\"B2\").Interior.Color",
+    "ws.Range(\"B2\").NumberFormat",
+    "ws.Range(\"B2\").HorizontalAlignment",
+    "ws.Range(\"B2\").Locked",
+    "ws.Range(\"B2\").Borders(xlEdgeLeft).LineStyle"
+   ],
+   "before": "String:$B$2;Boolean:False;Double:65535;String:General;Long:1;Boolean:True;Long:-4142;",
+   "after": "String:$B$2;Boolean:False;Double:65535;String:General;Long:1;Boolean:True;Long:-4142;"
+  },
+  {
+   "name": "bold_then_fill",
+   "setup": "ws.Range(\"B2\").Font.Bold = True\nws.Range(\"B2\").Interior.Color = 65535",
+   "reads": [
+    "ws.Range(\"B2\").Font.Bold",
+    "ws.Range(\"B2\").Interior.Color",
+    "ws.Range(\"B2\").NumberFormat",
+    "ws.Range(\"B2\").HorizontalAlignment",
+    "ws.Range(\"B2\").Locked",
+    "ws.Range(\"B2\").Borders(xlEdgeLeft).LineStyle"
+   ],
+   "before": "String:$B$2;Boolean:True;Double:65535;String:General;Long:1;Boolean:True;Long:-4142;",
+   "after": "String:$B$2;Boolean:True;Double:65535;String:General;Long:1;Boolean:True;Long:-4142;"
+  },
+  {
+   "name": "value_noop_bold",
+   "setup": "ws.Range(\"B2\").Value = 1\nws.Range(\"B2\").Font.Bold = False",
+   "reads": [
+    "ws.Range(\"B2\").Font.Bold",
+    "ws.Range(\"B2\").Interior.Color",
+    "ws.Range(\"B2\").NumberFormat",
+    "ws.Range(\"B2\").HorizontalAlignment",
+    "ws.Range(\"B2\").Locked",
+    "ws.Range(\"B2\").Borders(xlEdgeLeft).LineStyle"
+   ],
+   "before": "String:$B$2;Boolean:False;Double:16777215;String:General;Long:1;Boolean:True;Long:-4142;",
+   "after": "String:$B$2;Boolean:False;Double:16777215;String:General;Long:1;Boolean:True;Long:-4142;"
+  },
+  {
+   "name": "value_bold_unbold",
+   "setup": "ws.Range(\"B2\").Value = 1\nws.Range(\"B2\").Font.Bold = True\nws.Range(\"B2\").Font.Bold = False",
+   "reads": [
+    "ws.Range(\"B2\").Font.Bold",
+    "ws.Range(\"B2\").Interior.Color",
+    "ws.Range(\"B2\").NumberFormat",
+    "ws.Range(\"B2\").HorizontalAlignment",
+    "ws.Range(\"B2\").Locked",
+    "ws.Range(\"B2\").Borders(xlEdgeLeft).LineStyle"
+   ],
+   "before": "String:$B$2;Boolean:False;Double:16777215;String:General;Long:1;Boolean:True;Long:-4142;",
+   "after": "String:$B$2;Boolean:False;Double:16777215;String:General;Long:1;Boolean:True;Long:-4142;"
+  },
+  {
+   "name": "unbold_clear_contents",
+   "setup": "ws.Range(\"B2\").Value = 1\nws.Range(\"B2\").Font.Bold = True\nws.Range(\"B2\").Font.Bold = False\nws.Range(\"B2\").ClearContents",
+   "reads": [
+    "ws.Range(\"B2\").Font.Bold",
+    "ws.Range(\"B2\").Interior.Color",
+    "ws.Range(\"B2\").NumberFormat",
+    "ws.Range(\"B2\").HorizontalAlignment",
+    "ws.Range(\"B2\").Locked",
+    "ws.Range(\"B2\").Borders(xlEdgeLeft).LineStyle"
+   ],
+   "before": "String:$B$2;Boolean:False;Double:16777215;String:General;Long:1;Boolean:True;Long:-4142;",
+   "after": "String:$A$1;Boolean:False;Double:16777215;String:General;Long:1;Boolean:True;Long:-4142;"
+  },
+  {
+   "name": "range_noop_then_one",
+   "setup": "ws.Range(\"B2:C2\").Font.Bold = False\nws.Range(\"C2\").Font.Italic = True",
+   "reads": [
+    "ws.Range(\"C2\").Font.Italic",
+    "ws.Range(\"B2\").Font.Italic"
+   ],
+   "before": "String:$B$2:$C$2;Boolean:True;Boolean:False;",
+   "after": "String:$C$2;Boolean:True;Boolean:False;"
+  },
+  {
+   "name": "copy_bold_unbold",
+   "setup": "ws.Range(\"B2\").Font.Bold = True\nws.Range(\"B2\").Font.Bold = False\nws.Range(\"B2\").Copy ws.Range(\"D4\")",
+   "reads": [
+    "ws.Range(\"D4\").Font.Bold",
+    "ws.Range(\"D4\").Interior.Color",
+    "ws.Range(\"D4\").NumberFormat",
+    "ws.Range(\"D4\").HorizontalAlignment",
+    "ws.Range(\"D4\").Locked",
+    "ws.Range(\"D4\").Borders(xlEdgeLeft).LineStyle"
+   ],
+   "before": "String:$B$2:$D$4;Boolean:False;Double:16777215;String:General;Long:1;Boolean:True;Long:-4142;",
+   "after": "String:$A$1;Boolean:False;Double:16777215;String:General;Long:1;Boolean:True;Long:-4142;"
+  },
+  {
+   "name": "row_bold",
+   "setup": "ws.Range(\"A3\").Value = 1\nws.Range(\"C3\").Interior.Color = RGB(255, 0, 0)\nws.Rows(3).Font.Bold = True\nws.Range(\"D3\").Value = \"new\"",
+   "reads": [
+    "ws.Range(\"A3\").Font.Bold",
+    "ws.Range(\"C3\").Font.Bold",
+    "ws.Range(\"C3\").Interior.Color",
+    "ws.Range(\"Z3\").Font.Bold",
+    "ws.Range(\"D3\").Font.Bold",
+    "ws.Rows(3).Font.Bold",
+    "ws.Range(\"A4\").Font.Bold",
+    "ws.Range(\"XFD3\").Font.Bold",
+    "ws.Columns(26).Font.Bold",
+    "ws.Cells.Font.Bold"
+   ],
+   "before": "String:$A$3:$D$3;Boolean:True;Boolean:True;Double:255;Boolean:True;Boolean:True;Boolean:True;Boolean:False;Boolean:True;Null;Null;",
+   "after": "String:$A$3:$D$3;Boolean:True;Boolean:True;Double:255;Boolean:True;Boolean:True;Boolean:True;Boolean:False;Boolean:True;Null;Null;"
+  },
+  {
+   "name": "row_only",
+   "setup": "ws.Rows(3).Font.Bold = True",
+   "reads": [
+    "ws.Rows(3).Font.Bold",
+    "ws.Range(\"A1:A5\").Font.Bold",
+    "ws.Range(\"B3:C3\").Font.Bold"
+   ],
+   "before": "String:$A$3;Boolean:True;Null;Boolean:True;",
+   "after": "String:$A$3;Boolean:True;Null;Boolean:True;"
+  },
+  {
+   "name": "column_only",
+   "setup": "ws.Columns(\"C\").Font.Bold = True",
+   "reads": [
+    "ws.Columns(3).Font.Bold",
+    "ws.Range(\"C1:C5\").Font.Bold",
+    "ws.Range(\"B1:C1\").Font.Bold"
+   ],
+   "before": "String:$C$1;Boolean:True;Boolean:True;Null;",
+   "after": "String:$C$1;Boolean:True;Boolean:True;Null;"
+  },
+  {
+   "name": "column_italic",
+   "setup": "ws.Range(\"C1\").Value = 1\nws.Columns(\"C\").Font.Italic = True\nws.Range(\"C10\").Value = \"new\"",
+   "reads": [
+    "ws.Range(\"C1\").Font.Italic",
+    "ws.Range(\"C500\").Font.Italic",
+    "ws.Range(\"C10\").Font.Italic",
+    "ws.Columns(\"C\").Font.Italic",
+    "ws.Range(\"D1\").Font.Italic",
+    "ws.Range(\"C1048576\").Font.Italic"
+   ],
+   "before": "String:$C$1:$C$10;Boolean:True;Boolean:True;Boolean:True;Boolean:True;Boolean:False;Boolean:True;",
+   "after": "String:$C$1:$C$10;Boolean:True;Boolean:True;Boolean:True;Boolean:True;Boolean:False;Boolean:True;"
+  },
+  {
+   "name": "row_then_column",
+   "setup": "ws.Rows(5).Font.Bold = True\nws.Columns(\"E\").Font.Italic = True",
+   "reads": [
+    "ws.Range(\"E5\").Font.Bold",
+    "ws.Range(\"E5\").Font.Italic",
+    "ws.Range(\"F5\").Font.Italic",
+    "ws.Range(\"E6\").Font.Bold",
+    "ws.Rows(5).Font.Italic",
+    "ws.Columns(5).Font.Bold"
+   ],
+   "before": "String:$E$5;Boolean:True;Boolean:True;Boolean:False;Boolean:False;Null;Null;",
+   "after": "String:$E$5;Boolean:True;Boolean:True;Boolean:False;Boolean:False;Null;Null;"
+  },
+  {
+   "name": "column_then_row",
+   "setup": "ws.Columns(\"E\").Font.Italic = True\nws.Rows(5).Font.Bold = True",
+   "reads": [
+    "ws.Range(\"E5\").Font.Bold",
+    "ws.Range(\"E5\").Font.Italic",
+    "ws.Range(\"F5\").Font.Italic",
+    "ws.Range(\"E6\").Font.Bold",
+    "ws.Rows(5).Font.Italic",
+    "ws.Columns(5).Font.Bold"
+   ],
+   "before": "String:$E$5;Boolean:True;Boolean:True;Boolean:False;Boolean:False;Null;Null;",
+   "after": "String:$E$5;Boolean:True;Boolean:True;Boolean:False;Boolean:False;Null;Null;"
+  },
+  {
+   "name": "same_change_cross",
+   "setup": "ws.Columns(\"E\").Font.Bold = True\nws.Rows(5).Font.Bold = True",
+   "reads": [
+    "ws.Range(\"E5\").Font.Bold"
+   ],
+   "before": "String:$E$5;Boolean:True;",
+   "after": "String:$E$5;Boolean:True;"
+  },
+  {
+   "name": "same_change_cross_rev",
+   "setup": "ws.Rows(5).Font.Bold = True\nws.Columns(\"E\").Font.Bold = True",
+   "reads": [
+    "ws.Range(\"E5\").Font.Bold"
+   ],
+   "before": "String:$E$5;Boolean:True;",
+   "after": "String:$E$5;Boolean:True;"
+  },
+  {
+   "name": "value_in_row_and_column",
+   "setup": "ws.Rows(5).Font.Bold = True\nws.Columns(\"E\").Font.Italic = True\nws.Range(\"F5\").Value = \"x\"\nws.Range(\"E7\").Value = \"y\"",
+   "reads": [
+    "ws.Range(\"F5\").Font.Bold",
+    "ws.Range(\"F5\").Font.Italic",
+    "ws.Range(\"E7\").Font.Bold",
+    "ws.Range(\"E7\").Font.Italic"
+   ],
+   "before": "String:$E$5:$F$7;Boolean:True;Boolean:False;Boolean:False;Boolean:True;",
+   "after": "String:$E$5:$F$7;Boolean:True;Boolean:False;Boolean:False;Boolean:True;"
+  },
+  {
+   "name": "row_noop",
+   "setup": "ws.Rows(3).Font.Bold = False",
+   "reads": [
+    "ws.Rows(3).Font.Bold"
+   ],
+   "before": "String:$A$3;Boolean:False;",
+   "after": "String:$A$1;Boolean:False;"
+  },
+  {
+   "name": "row_bold_unbold",
+   "setup": "ws.Rows(3).Font.Bold = True\nws.Rows(3).Font.Bold = False",
+   "reads": [
+    "ws.Rows(3).Font.Bold"
+   ],
+   "before": "String:$A$3;Boolean:False;",
+   "after": "String:$A$1;Boolean:False;"
+  },
+  {
+   "name": "column_noop",
+   "setup": "ws.Columns(3).Font.Bold = False",
+   "reads": [
+    "ws.Columns(3).Font.Bold"
+   ],
+   "before": "String:$C$1;Boolean:False;",
+   "after": "String:$A$1;Boolean:False;"
+  },
+  {
+   "name": "column_bold_unbold",
+   "setup": "ws.Columns(3).Font.Bold = True\nws.Columns(3).Font.Bold = False",
+   "reads": [
+    "ws.Columns(3).Font.Bold"
+   ],
+   "before": "String:$C$1;Boolean:False;",
+   "after": "String:$A$1;Boolean:False;"
+  },
+  {
+   "name": "rows_range",
+   "setup": "ws.Rows(\"3:5\").Interior.Color = RGB(0, 255, 0)",
+   "reads": [
+    "ws.Range(\"Q4\").Interior.Color",
+    "ws.Rows(\"3:5\").Interior.Color"
+   ],
+   "before": "String:$A$3:$A$5;Double:65280;Double:65280;",
+   "after": "String:$A$3:$A$5;Double:65280;Double:65280;"
+  },
+  {
+   "name": "whole_rows_by_address",
+   "setup": "ws.Range(\"A7:XFD8\").Font.Bold = True",
+   "reads": [
+    "ws.Range(\"Q8\").Font.Bold"
+   ],
+   "before": "String:$A$7:$A$8;Boolean:True;",
+   "after": "String:$A$7:$A$8;Boolean:True;"
+  },
+  {
+   "name": "entire_row",
+   "setup": "ws.Range(\"B9\").EntireRow.Font.Italic = True",
+   "reads": [
+    "ws.Range(\"Q9\").Font.Italic"
+   ],
+   "before": "String:$A$9;Boolean:True;",
+   "after": "String:$A$9;Boolean:True;"
+  },
+  {
+   "name": "columns_range",
+   "setup": "ws.Columns(\"B:D\").Font.Bold = True",
+   "reads": [
+    "ws.Range(\"C9\").Font.Bold",
+    "ws.Columns(\"B:D\").Font.Bold"
+   ],
+   "before": "String:$B$1:$D$1;Boolean:True;Boolean:True;",
+   "after": "String:$B$1:$D$1;Boolean:True;Boolean:True;"
+  },
+  {
+   "name": "row_number_format",
+   "setup": "ws.Rows(3).NumberFormat = \"0.00\"\nws.Range(\"B3\").Value = 1.5",
+   "reads": [
+    "ws.Range(\"B3\").NumberFormat",
+    "ws.Range(\"B3\").Text",
+    "ws.Range(\"Z3\").NumberFormat"
+   ],
+   "before": "String:$B$3;String:0.00;String:1.50;String:0.00;",
+   "after": "String:$B$3;String:0.00;String:1.50;String:0.00;"
+  },
+  {
+   "name": "column_then_value",
+   "setup": "ws.Columns(\"C\").Font.Bold = True\nws.Range(\"C2\").Value = 1",
+   "reads": [
+    "ws.Range(\"C2\").Font.Bold"
+   ],
+   "before": "String:$C$2;Boolean:True;",
+   "after": "String:$C$2;Boolean:True;"
+  },
+  {
+   "name": "row_style_value_far",
+   "setup": "ws.Rows(3).Font.Bold = True\nws.Range(\"XFD3\").Value = 1",
+   "reads": [
+    "ws.Range(\"XFD3\").Font.Bold"
+   ],
+   "before": "String:$XFD$3;Boolean:True;",
+   "after": "String:$XFD$3;Boolean:True;"
+  },
+  {
+   "name": "column_hidden_style",
+   "setup": "ws.Columns(3).Hidden = True\nws.Columns(3).Font.Bold = True",
+   "reads": [
+    "ws.Columns(3).Hidden"
+   ],
+   "before": "String:$C$1;Boolean:True;",
+   "after": "String:$C$1;Boolean:True;"
+  },
+  {
+   "name": "column_width_style",
+   "setup": "ws.Columns(3).ColumnWidth = 20\nws.Columns(3).Font.Bold = True",
+   "reads": [
+    "ws.Columns(3).ColumnWidth"
+   ],
+   "before": "String:$C$1;Double:20;",
+   "after": "String:$C$1;Double:20;"
+  },
+  {
+   "name": "style_then_width",
+   "setup": "ws.Columns(3).Font.Bold = True\nws.Columns(3).ColumnWidth = 20",
+   "reads": [
+    "ws.Columns(3).ColumnWidth"
+   ],
+   "before": "String:$C$1;Double:20;",
+   "after": "String:$C$1;Double:20;"
+  },
+  {
+   "name": "row_height_style",
+   "setup": "ws.Rows(3).RowHeight = 30\nws.Rows(3).Font.Bold = True",
+   "reads": [
+    "ws.Rows(3).RowHeight"
+   ],
+   "before": "String:$A$3;Double:30;",
+   "after": "String:$A$3;Double:30;"
+  },
+  {
+   "name": "row_hidden_style",
+   "setup": "ws.Rows(3).Hidden = True\nws.Rows(3).Font.Bold = True",
+   "reads": [
+    "ws.Rows(3).Hidden"
+   ],
+   "before": "String:$A$3;Boolean:True;",
+   "after": "String:$A$3;Boolean:True;"
+  },
+  {
+   "name": "reads_mixed",
+   "setup": "ws.Rows(3).Font.Bold = True\nws.Columns(3).Font.Bold = True\nws.Range(\"E3\").Font.Bold = False",
+   "reads": [
+    "ws.Range(\"A1:E5\").Font.Bold",
+    "ws.Range(\"C1:C2\").Font.Bold",
+    "ws.Range(\"A3:D3\").Font.Bold",
+    "ws.Rows(3).Font.Bold",
+    "ws.Columns(3).Font.Bold",
+    "ws.Cells.Font.Bold",
+    "ws.Rows(\"3:4\").Font.Bold",
+    "ws.Columns(\"C:D\").Font.Bold"
+   ],
+   "before": "String:$C$3:$E$3;Null;Boolean:True;Boolean:True;Null;Boolean:True;Null;Null;Null;",
+   "after": "String:$C$3:$E$3;Null;Boolean:True;Boolean:True;Null;Boolean:True;Null;Null;Null;"
+  },
+  {
+   "name": "numfmt_rows_read",
+   "setup": "ws.Rows(3).NumberFormat = \"0.00\"",
+   "reads": [
+    "ws.Rows(3).NumberFormat",
+    "ws.Rows(\"3:4\").NumberFormat",
+    "ws.Columns(1).NumberFormat",
+    "ws.Cells.NumberFormat"
+   ],
+   "before": "String:$A$3;String:0.00;Null;Null;Null;",
+   "after": "String:$A$3;String:0.00;Null;Null;Null;"
+  },
+  {
+   "name": "interior_rows_read",
+   "setup": "ws.Rows(3).Interior.Color = 255",
+   "reads": [
+    "ws.Rows(3).Interior.Color",
+    "ws.Rows(\"3:4\").Interior.Color",
+    "ws.Rows(\"3:4\").Interior.ColorIndex"
+   ],
+   "before": "String:$A$3;Double:255;Double:0;Null;",
+   "after": "String:$A$3;Double:255;Double:0;Null;"
+  },
+  {
+   "name": "cell_bold_unbold",
+   "setup": "ws.Range(\"B2\").Font.Bold = True\nws.Range(\"B2\").Font.Bold = False",
+   "reads": [
+    "ws.Range(\"B2\").Font.Bold"
+   ],
+   "before": "String:$B$2;Boolean:False;",
+   "after": "String:$A$1;Boolean:False;"
+  },
+  {
+   "name": "row_cell_unbold",
+   "setup": "ws.Rows(3).Font.Bold = True\nws.Range(\"C3\").Font.Bold = False",
+   "reads": [
+    "ws.Range(\"C3\").Font.Bold",
+    "ws.Rows(3).Font.Bold",
+    "ws.Range(\"A3:B3\").Font.Bold",
+    "ws.Range(\"B3:C3\").Font.Bold"
+   ],
+   "before": "String:$C$3;Boolean:False;Null;Boolean:True;Null;",
+   "after": "String:$C$3;Boolean:False;Null;Boolean:True;Null;"
+  },
+  {
+   "name": "row_cell_rebold",
+   "setup": "ws.Rows(3).Font.Bold = True\nws.Range(\"C3\").Font.Bold = False\nws.Range(\"C3\").Font.Bold = True",
+   "reads": [
+    "ws.Range(\"C3\").Font.Bold",
+    "ws.Rows(3).Font.Bold"
+   ],
+   "before": "String:$A$3;Boolean:True;Boolean:True;",
+   "after": "String:$A$3;Boolean:True;Boolean:True;"
+  },
+  {
+   "name": "row_value_cleared",
+   "setup": "ws.Rows(3).Font.Bold = True\nws.Range(\"A3\").Value = 1\nws.Range(\"A3\").ClearContents",
+   "reads": [
+    "ws.Range(\"A3\").Font.Bold"
+   ],
+   "before": "String:$A$3;Boolean:True;",
+   "after": "String:$A$3;Boolean:True;"
+  },
+  {
+   "name": "row_cell_clear",
+   "setup": "ws.Rows(3).Font.Bold = True\nws.Range(\"A3\").Value = 1\nws.Range(\"A3\").Clear",
+   "reads": [
+    "ws.Range(\"A3\").Font.Bold"
+   ],
+   "before": "String:$A$3;Boolean:False;",
+   "after": "String:$A$3;Boolean:False;"
+  },
+  {
+   "name": "row_cell_clear_formats",
+   "setup": "ws.Rows(3).Font.Bold = True\nws.Range(\"B3\").ClearFormats",
+   "reads": [
+    "ws.Range(\"B3\").Font.Bold",
+    "ws.Rows(3).Font.Bold"
+   ],
+   "before": "String:$B$3;Boolean:False;Null;",
+   "after": "String:$B$3;Boolean:False;Null;"
+  },
+  {
+   "name": "row_clear_formats",
+   "setup": "ws.Range(\"A3\").Value = 1\nws.Range(\"B3\").Interior.Color = 255\nws.Rows(3).Font.Bold = True\nws.Rows(3).ClearFormats",
+   "reads": [
+    "ws.Range(\"A3\").Font.Bold",
+    "ws.Range(\"Z3\").Font.Bold",
+    "ws.Rows(3).Font.Bold",
+    "ws.Range(\"B3\").Interior.Color"
+   ],
+   "before": "String:$A$3;Boolean:False;Boolean:False;Boolean:False;Double:16777215;",
+   "after": "String:$A$3;Boolean:False;Boolean:False;Boolean:False;Double:16777215;"
+  },
+  {
+   "name": "column_clear_formats",
+   "setup": "ws.Columns(3).Font.Bold = True\nws.Range(\"C2\").Value = 1\nws.Columns(3).ClearFormats",
+   "reads": [
+    "ws.Range(\"C2\").Font.Bold",
+    "ws.Columns(3).Font.Bold"
+   ],
+   "before": "String:$C$2;Boolean:False;Boolean:False;",
+   "after": "String:$C$2;Boolean:False;Boolean:False;"
+  },
+  {
+   "name": "blank_meets_row",
+   "setup": "ws.Rows(3).Font.Bold = True\nws.Range(\"C3\").Font.Italic = True\nws.Rows(3).Font.Italic = True",
+   "reads": [
+    "ws.Range(\"C3\").Font.Bold",
+    "ws.Range(\"C3\").Font.Italic"
+   ],
+   "before": "String:$A$3;Boolean:True;Boolean:True;",
+   "after": "String:$A$3;Boolean:True;Boolean:True;"
+  },
+  {
+   "name": "column_blank_clear_formats",
+   "setup": "ws.Columns(3).Font.Bold = True\nws.Range(\"C5\").ClearFormats",
+   "reads": [
+    "ws.Range(\"C5\").Font.Bold"
+   ],
+   "before": "String:$C$5;Boolean:False;",
+   "after": "String:$C$5;Boolean:False;"
+  },
+  {
+   "name": "column_value_cleared",
+   "setup": "ws.Columns(3).Font.Bold = True\nws.Range(\"C5\").Value = 1\nws.Range(\"C5\").ClearContents",
+   "reads": [
+    "ws.Range(\"C5\").Font.Bold"
+   ],
+   "before": "String:$C$1;Boolean:True;",
+   "after": "String:$C$1;Boolean:True;"
+  },
+  {
+   "name": "cross_cleared",
+   "setup": "ws.Rows(5).Font.Bold = True\nws.Columns(5).Font.Italic = True\nws.Range(\"E5\").ClearContents",
+   "reads": [
+    "ws.Range(\"E5\").Font.Bold",
+    "ws.Range(\"E5\").Font.Italic"
+   ],
+   "before": "String:$E$5;Boolean:True;Boolean:True;",
+   "after": "String:$E$5;Boolean:True;Boolean:True;"
+  },
+  {
+   "name": "cross_clear_formats",
+   "setup": "ws.Rows(5).Font.Bold = True\nws.Columns(5).Font.Italic = True\nws.Range(\"E5\").ClearFormats",
+   "reads": [
+    "ws.Range(\"E5\").Font.Bold",
+    "ws.Range(\"E5\").Font.Italic"
+   ],
+   "before": "String:$E$5;Boolean:False;Boolean:False;",
+   "after": "String:$E$5;Boolean:False;Boolean:False;"
+  },
+  {
+   "name": "cf_row_under_style_column",
+   "setup": "ws.Columns(3).Font.Bold = True\nws.Rows(3).Font.Italic = True\nws.Rows(3).ClearFormats",
+   "reads": [
+    "ws.Range(\"C3\").Font.Bold",
+    "ws.Range(\"C3\").Font.Italic"
+   ],
+   "before": "String:$C$3;Boolean:False;Boolean:False;",
+   "after": "String:$C$3;Boolean:False;Boolean:False;"
+  },
+  {
+   "name": "cf_plain_row_under_column",
+   "setup": "ws.Columns(3).Font.Bold = True\nws.Rows(3).ClearFormats",
+   "reads": [
+    "ws.Range(\"C3\").Font.Bold"
+   ],
+   "before": "String:$C$3;Boolean:False;",
+   "after": "String:$C$3;Boolean:False;"
+  },
+  {
+   "name": "cf_column_under_row",
+   "setup": "ws.Rows(3).Font.Bold = True\nws.Columns(3).ClearFormats",
+   "reads": [
+    "ws.Range(\"C3\").Font.Bold"
+   ],
+   "before": "String:$C$3;Boolean:False;",
+   "after": "String:$C$3;Boolean:False;"
+  },
+  {
+   "name": "cf_column_across_rows",
+   "setup": "ws.Rows(3).Font.Bold = True\nws.Columns(3).Font.Italic = True\nws.Columns(3).ClearFormats",
+   "reads": [
+    "ws.Range(\"C3\").Font.Bold",
+    "ws.Range(\"C3\").Font.Italic"
+   ],
+   "before": "String:$C$3;Boolean:False;Boolean:False;",
+   "after": "String:$C$3;Boolean:False;Boolean:False;"
+  },
+  {
+   "name": "cf_cells_row_area",
+   "setup": "ws.Rows(3).Font.Bold = True\nws.Range(\"B3:D3\").ClearFormats",
+   "reads": [
+    "ws.Range(\"C3\").Font.Bold"
+   ],
+   "before": "String:$B$3:$D$3;Boolean:False;",
+   "after": "String:$B$3:$D$3;Boolean:False;"
+  },
+  {
+   "name": "row_clear",
+   "setup": "ws.Rows(3).Font.Bold = True\nws.Range(\"B3\").Value = 1\nws.Rows(3).Clear",
+   "reads": [
+    "ws.Range(\"B3\").Font.Bold"
+   ],
+   "before": "String:$A$1;Boolean:False;",
+   "after": "String:$A$1;Boolean:False;"
+  },
+  {
+   "name": "row_clear_contents",
+   "setup": "ws.Rows(3).Font.Bold = True\nws.Range(\"B3\").Value = 1\nws.Rows(3).ClearContents",
+   "reads": [
+    "ws.Range(\"B3\").Font.Bold",
+    "ws.Range(\"B3\").Value"
+   ],
+   "before": "String:$A$3;Boolean:True;Empty;",
+   "after": "String:$A$3;Boolean:True;Empty;"
+  },
+  {
+   "name": "whole_sheet",
+   "setup": "ws.Range(\"B2\").Value = 1\nws.Cells.Font.Name = \"Arial\"",
+   "reads": [
+    "ws.Range(\"B2\").Font.Name",
+    "ws.Range(\"Z99\").Font.Name",
+    "ws.Cells.Font.Name",
+    "ws.Rows(2).RowHeight",
+    "ws.StandardHeight"
+   ],
+   "before": "String:$B$2;String:Arial;String:Arial;String:Arial;Double:14.25;Double:14.25;",
+   "after": "String:$B$2;String:Arial;String:Arial;String:Arial;Double:14.25;Double:14.25;"
+  },
+  {
+   "name": "whole_sheet_with_row",
+   "setup": "ws.Rows(3).Font.Bold = True\nws.Cells.Font.Name = \"Arial\"",
+   "reads": [
+    "ws.Range(\"Z3\").Font.Name",
+    "ws.Range(\"Z3\").Font.Bold",
+    "ws.Rows(3).RowHeight",
+    "ws.Rows(4).RowHeight",
+    "ws.StandardHeight"
+   ],
+   "before": "String:$A$3;String:Arial;Boolean:True;Double:15;Double:14.25;Double:14.25;",
+   "after": "String:$A$3;String:Arial;Boolean:True;Double:15;Double:14.25;Double:14.25;"
+  },
+  {
+   "name": "whole_sheet_with_column",
+   "setup": "ws.Columns(3).Font.Bold = True\nws.Cells.Font.Italic = True",
+   "reads": [
+    "ws.Range(\"C3\").Font.Bold",
+    "ws.Range(\"C3\").Font.Italic",
+    "ws.Range(\"D3\").Font.Italic"
+   ],
+   "before": "String:$C$1;Boolean:True;Boolean:True;Boolean:True;",
+   "after": "String:$C$1;Boolean:True;Boolean:True;Boolean:True;"
+  },
+  {
+   "name": "rows_all",
+   "setup": "ws.Rows(\"1:1048576\").Font.Italic = True",
+   "reads": [
+    "ws.Range(\"Z3\").Font.Italic"
+   ],
+   "before": "String:$A$1;Boolean:True;",
+   "after": "String:$A$1;Boolean:True;"
+  },
+  {
+   "name": "sheet_then_column_clear",
+   "setup": "ws.Cells.Font.Bold = True\nws.Columns(3).ClearFormats",
+   "reads": [
+    "ws.Range(\"C4\").Font.Bold",
+    "ws.Range(\"D4\").Font.Bold"
+   ],
+   "before": "String:$C$1;Boolean:False;Boolean:True;",
+   "after": "String:$C$1;Boolean:False;Boolean:True;"
+  },
+  {
+   "name": "sheet_then_row",
+   "setup": "ws.Cells.Font.Bold = True\nws.Rows(4).Font.Italic = True",
+   "reads": [
+    "ws.Range(\"C4\").Font.Bold",
+    "ws.Range(\"C4\").Font.Italic"
+   ],
+   "before": "String:$A$4;Boolean:True;Boolean:True;",
+   "after": "String:$A$4;Boolean:True;Boolean:True;"
+  },
+  {
+   "name": "sheet_then_column",
+   "setup": "ws.Cells.Font.Bold = True\nws.Columns(4).Font.Italic = True",
+   "reads": [
+    "ws.Range(\"D9\").Font.Bold",
+    "ws.Range(\"D9\").Font.Italic"
+   ],
+   "before": "String:$D$1;Boolean:True;Boolean:True;",
+   "after": "String:$D$1;Boolean:True;Boolean:True;"
+  },
+  {
+   "name": "sheet_clear_formats",
+   "setup": "ws.Columns(3).Font.Italic = True\nws.Cells.Font.Bold = True\nws.Cells.ClearFormats",
+   "reads": [
+    "ws.Range(\"C3\").Font.Italic",
+    "ws.Range(\"C3\").Font.Bold"
+   ],
+   "before": "String:$A$1;Boolean:False;Boolean:False;",
+   "after": "String:$A$1;Boolean:False;Boolean:False;"
+  },
+  {
+   "name": "sheet_twice",
+   "setup": "ws.Cells.Font.Bold = True\nws.Cells.Font.Italic = True\nws.Range(\"B2\").Value = 1",
+   "reads": [
+    "ws.Range(\"B2\").Font.Bold",
+    "ws.Range(\"B2\").Font.Italic"
+   ],
+   "before": "String:$B$2;Boolean:True;Boolean:True;",
+   "after": "String:$B$2;Boolean:True;Boolean:True;"
+  },
+  {
+   "name": "sheet_then_value_far",
+   "setup": "ws.Cells.Font.Bold = True\nws.Range(\"XFD1048576\").Value = 1",
+   "reads": [
+    "ws.Range(\"XFD1048576\").Font.Bold"
+   ],
+   "before": "String:$XFD$1048576;Boolean:True;",
+   "after": "String:$XFD$1048576;Boolean:True;"
+  },
+  {
+   "name": "sheet_with_width",
+   "setup": "ws.Columns(3).ColumnWidth = 20\nws.Cells.Font.Bold = True",
+   "reads": [
+    "ws.Columns(3).ColumnWidth"
+   ],
+   "before": "String:$A$1;Double:20;",
+   "after": "String:$A$1;Double:20;"
+  },
+  {
+   "name": "sheet_with_hidden",
+   "setup": "ws.Columns(3).Hidden = True\nws.Cells.Font.Bold = True",
+   "reads": [
+    "ws.Columns(3).Hidden"
+   ],
+   "before": "String:$A$1;Boolean:True;",
+   "after": "String:$A$1;Boolean:True;"
+  },
+  {
+   "name": "columns_all_but_one",
+   "setup": "ws.Columns(\"A:XFC\").Font.Bold = True",
+   "reads": [
+    "ws.Range(\"XFD1\").Font.Bold"
+   ],
+   "before": "String:$A$1:$XFC$1;Boolean:False;",
+   "after": "String:$A$1:$XFC$1;Boolean:False;"
+  },
+  {
+   "name": "base_all_but_last_then_row",
+   "setup": "ws.Columns(\"A:XFC\").Font.Bold = True\nws.Rows(4).Font.Italic = True",
+   "reads": [
+    "ws.Range(\"A4\").Font.Bold",
+    "ws.Range(\"XFD4\").Font.Bold",
+    "ws.Range(\"XFD4\").Font.Italic"
+   ],
+   "before": "String:$A$4:$XFC$4;Boolean:True;Boolean:False;Boolean:True;",
+   "after": "String:$A$4:$XFC$4;Boolean:True;Boolean:False;Boolean:True;"
+  },
+  {
+   "name": "insert_below_formatted",
+   "setup": "ws.Rows(3).Font.Bold = True\nws.Rows(4).Insert",
+   "reads": [
+    "ws.Range(\"Z4\").Font.Bold",
+    "ws.Range(\"Z3\").Font.Bold",
+    "ws.Range(\"Z5\").Font.Bold"
+   ],
+   "before": "String:$A$3:$A$4;Boolean:True;Boolean:True;Boolean:False;",
+   "after": "String:$A$3:$A$4;Boolean:True;Boolean:True;Boolean:False;"
+  },
+  {
+   "name": "insert_at_formatted",
+   "setup": "ws.Rows(3).Font.Bold = True\nws.Rows(3).Insert",
+   "reads": [
+    "ws.Range(\"Z3\").Font.Bold",
+    "ws.Range(\"Z4\").Font.Bold"
+   ],
+   "before": "String:$A$4;Boolean:False;Boolean:True;",
+   "after": "String:$A$4;Boolean:False;Boolean:True;"
+  },
+  {
+   "name": "ins_at_bold_above_italic",
+   "setup": "ws.Rows(3).Font.Bold = True\nws.Rows(2).Font.Italic = True\nws.Rows(3).Insert",
+   "reads": [
+    "ws.Range(\"Z3\").Font.Italic",
+    "ws.Range(\"Z3\").Font.Bold"
+   ],
+   "before": "String:$A$2:$A$4;Boolean:True;Boolean:False;",
+   "after": "String:$A$2:$A$4;Boolean:True;Boolean:False;"
+  },
+  {
+   "name": "ins_far_below",
+   "setup": "ws.Rows(6).Font.Bold = True\nws.Rows(3).Insert",
+   "reads": [
+    "ws.Range(\"Z7\").Font.Bold"
+   ],
+   "before": "String:$A$7;Boolean:True;",
+   "after": "String:$A$7;Boolean:True;"
+  },
+  {
+   "name": "ins_two_at_bold",
+   "setup": "ws.Rows(3).Font.Bold = True\nws.Rows(\"3:4\").Insert",
+   "reads": [
+    "ws.Range(\"Z5\").Font.Bold"
+   ],
+   "before": "String:$A$5;Boolean:True;",
+   "after": "String:$A$5;Boolean:True;"
+  },
+  {
+   "name": "ins_first_row",
+   "setup": "ws.Rows(1).Font.Bold = True\nws.Rows(1).Insert",
+   "reads": [
+    "ws.Range(\"Z1\").Font.Bold",
+    "ws.Range(\"Z2\").Font.Bold"
+   ],
+   "before": "String:$A$2;Boolean:False;Boolean:True;",
+   "after": "String:$A$2;Boolean:False;Boolean:True;"
+  },
+  {
+   "name": "ins_below_bold_cells",
+   "setup": "ws.Rows(3).Font.Bold = True\nws.Range(\"B3\").Interior.Color = 255\nws.Range(\"C3\").Value = 5\nws.Rows(4).Insert",
+   "reads": [
+    "ws.Range(\"B4\").Interior.Color",
+    "ws.Range(\"C4\").Font.Bold"
+   ],
+   "before": "String:$B$3:$C$4;Double:255;Boolean:True;",
+   "after": "String:$B$3:$C$4;Double:255;Boolean:True;"
+  },
+  {
+   "name": "ins_below_cell_format",
+   "setup": "ws.Range(\"B3\").Font.Italic = True\nws.Range(\"C3\").Value = 5\nws.Rows(4).Insert",
+   "reads": [
+    "ws.Range(\"B4\").Font.Italic",
+    "ws.Range(\"C4\").Value"
+   ],
+   "before": "String:$B$3:$C$4;Boolean:True;Empty;",
+   "after": "String:$B$3:$C$4;Boolean:True;Empty;"
+  },
+  {
+   "name": "ins_below_row_under_column",
+   "setup": "ws.Columns(2).Font.Italic = True\nws.Rows(3).Font.Bold = True\nws.Rows(4).Insert",
+   "reads": [
+    "ws.Range(\"B4\").Font.Italic",
+    "ws.Range(\"B4\").Font.Bold"
+   ],
+   "before": "String:$B$3:$B$4;Boolean:True;Boolean:True;",
+   "after": "String:$B$3:$B$4;Boolean:True;Boolean:True;"
+  },
+  {
+   "name": "ins_col_at_italic",
+   "setup": "ws.Columns(3).Font.Italic = True\nws.Columns(3).Insert",
+   "reads": [
+    "ws.Range(\"C5\").Font.Italic",
+    "ws.Range(\"D5\").Font.Italic"
+   ],
+   "before": "String:$D$1;Boolean:False;Boolean:True;",
+   "after": "String:$D$1;Boolean:False;Boolean:True;"
+  },
+  {
+   "name": "ins_col_right_cells",
+   "setup": "ws.Range(\"C2\").Font.Italic = True\nws.Columns(4).Insert",
+   "reads": [
+    "ws.Range(\"D2\").Font.Italic"
+   ],
+   "before": "String:$C$2:$D$2;Boolean:True;",
+   "after": "String:$C$2:$D$2;Boolean:True;"
+  },
+  {
+   "name": "insert_column_right",
+   "setup": "ws.Columns(\"C\").Font.Italic = True\nws.Columns(\"D\").Insert",
+   "reads": [
+    "ws.Range(\"D5\").Font.Italic",
+    "ws.Range(\"E5\").Font.Italic"
+   ],
+   "before": "String:$C$1:$D$1;Boolean:True;Boolean:False;",
+   "after": "String:$C$1:$D$1;Boolean:True;Boolean:False;"
+  },
+  {
+   "name": "delete_formatted_row",
+   "setup": "ws.Rows(3).Font.Bold = True\nws.Rows(5).Font.Italic = True\nws.Rows(3).Delete",
+   "reads": [
+    "ws.Range(\"Z3\").Font.Bold",
+    "ws.Range(\"Z4\").Font.Italic",
+    "ws.Range(\"Z5\").Font.Italic"
+   ],
+   "before": "String:$A$4;Boolean:False;Boolean:True;Boolean:False;",
+   "after": "String:$A$4;Boolean:False;Boolean:True;Boolean:False;"
+  },
+  {
+   "name": "del_italic_below",
+   "setup": "ws.Rows(5).Font.Italic = True\nws.Rows(3).Delete",
+   "reads": [
+    "ws.Range(\"Z4\").Font.Italic"
+   ],
+   "before": "String:$A$4;Boolean:True;",
+   "after": "String:$A$4;Boolean:True;"
+  },
+  {
+   "name": "del_bold_itself",
+   "setup": "ws.Rows(3).Font.Bold = True\nws.Rows(3).Delete",
+   "reads": [
+    "ws.Range(\"Z3\").Font.Bold"
+   ],
+   "before": "String:$A$1;Boolean:False;",
+   "after": "String:$A$1;Boolean:False;"
+  },
+  {
+   "name": "del_above_bold",
+   "setup": "ws.Rows(3).Font.Bold = True\nws.Rows(2).Delete",
+   "reads": [
+    "ws.Range(\"Z2\").Font.Bold"
+   ],
+   "before": "String:$A$2;Boolean:True;",
+   "after": "String:$A$2;Boolean:True;"
+  },
+  {
+   "name": "del_col_italic_right",
+   "setup": "ws.Columns(5).Font.Italic = True\nws.Columns(3).Delete",
+   "reads": [
+    "ws.Range(\"D5\").Font.Italic"
+   ],
+   "before": "String:$D$1;Boolean:True;",
+   "after": "String:$D$1;Boolean:True;"
+  },
+  {
+   "name": "copy_row",
+   "setup": "ws.Rows(3).Font.Bold = True\nws.Range(\"B3\").Value = 1\nws.Rows(3).Copy ws.Rows(8)",
+   "reads": [
+    "ws.Range(\"Z8\").Font.Bold",
+    "ws.Range(\"B8\").Font.Bold"
+   ],
+   "before": "String:$B$3:$B$8;Boolean:True;Boolean:True;",
+   "after": "String:$B$3:$B$8;Boolean:True;Boolean:True;"
+  },
+  {
+   "name": "copy_row_onto_row",
+   "setup": "ws.Rows(3).Font.Bold = True\nws.Range(\"B5\").Value = 1\nws.Rows(3).Copy ws.Rows(5)",
+   "reads": [
+    "ws.Range(\"B5\").Value",
+    "ws.Range(\"Z5\").Font.Bold"
+   ],
+   "before": "String:$A$3:$A$5;Empty;Boolean:True;",
+   "after": "String:$A$3:$A$5;Empty;Boolean:True;"
+  },
+  {
+   "name": "copy_plain_row_onto_bold",
+   "setup": "ws.Rows(5).Font.Bold = True\nws.Rows(3).Copy ws.Rows(5)",
+   "reads": [
+    "ws.Range(\"Z5\").Font.Bold"
+   ],
+   "before": "String:$A$1;Boolean:False;",
+   "after": "String:$A$1;Boolean:False;"
+  },
+  {
+   "name": "copy_column",
+   "setup": "ws.Columns(3).Font.Italic = True\nws.Columns(3).Copy ws.Columns(6)",
+   "reads": [
+    "ws.Range(\"F9\").Font.Italic"
+   ],
+   "before": "String:$C$1:$F$1;Boolean:True;",
+   "after": "String:$C$1:$F$1;Boolean:True;"
+  },
+  {
+   "name": "copy_cells_from_bold_row",
+   "setup": "ws.Rows(3).Font.Bold = True\nws.Range(\"A3:B3\").Copy ws.Range(\"D7\")",
+   "reads": [
+    "ws.Range(\"D7\").Font.Bold",
+    "ws.Range(\"F7\").Font.Bold"
+   ],
+   "before": "String:$D$3:$E$7;Boolean:True;Boolean:False;",
+   "after": "String:$D$3:$E$7;Boolean:True;Boolean:False;"
+  },
+  {
+   "name": "b_row_top_italic_above",
+   "setup": "ws.Rows(2).Font.Italic = True\nws.Rows(3).Borders(xlEdgeTop).LineStyle = xlContinuous",
+   "reads": [
+    "ws.Range(\"Z2\").Borders(xlEdgeBottom).LineStyle",
+    "ws.Range(\"Z3\").Borders(xlEdgeTop).LineStyle"
+   ],
+   "before": "String:$A$2:$A$3;Long:1;Long:1;",
+   "after": "String:$A$2:$A$3;Long:1;Long:1;"
+  },
+  {
+   "name": "b_row_top_over_bottom",
+   "setup": "ws.Rows(2).Borders(xlEdgeBottom).LineStyle = xlContinuous\nws.Rows(3).Borders(xlEdgeTop).LineStyle = xlDash",
+   "reads": [
+    "ws.Range(\"Z2\").Borders(xlEdgeBottom).LineStyle",
+    "ws.Range(\"Z3\").Borders(xlEdgeTop).LineStyle"
+   ],
+   "before": "String:$A$2:$A$3;Long:-4115;Long:-4115;",
+   "after": "String:$A$3;Long:-4115;Long:-4115;"
+  },
+  {
+   "name": "b_row_top_neighbour_cell",
+   "setup": "ws.Range(\"B2\").Borders(xlEdgeBottom).LineStyle = xlContinuous\nws.Rows(3).Borders(xlEdgeTop).LineStyle = xlDash",
+   "reads": [
+    "ws.Range(\"B2\").Borders(xlEdgeBottom).LineStyle",
+    "ws.Range(\"B3\").Borders(xlEdgeTop).LineStyle"
+   ],
+   "before": "String:$B$2:$B$3;Long:-4115;Long:-4115;",
+   "after": "String:$A$3;Long:-4115;Long:-4115;"
+  },
+  {
+   "name": "b_row_bottom",
+   "setup": "ws.Rows(3).Borders(xlEdgeBottom).LineStyle = xlContinuous",
+   "reads": [
+    "ws.Range(\"Z4\").Borders(xlEdgeTop).LineStyle"
+   ],
+   "before": "String:$A$3;Long:1;",
+   "after": "String:$A$3;Long:1;"
+  },
+  {
+   "name": "b_row_left",
+   "setup": "ws.Rows(3).Borders(xlEdgeLeft).LineStyle = xlContinuous",
+   "reads": [
+    "ws.Range(\"A3\").Borders(xlEdgeLeft).LineStyle",
+    "ws.Range(\"Z3\").Borders(xlEdgeLeft).LineStyle"
+   ],
+   "before": "String:$A$3;Long:1;Long:-4142;",
+   "after": "String:$A$3;Long:1;Long:-4142;"
+  },
+  {
+   "name": "b_row_right",
+   "setup": "ws.Rows(3).Borders(xlEdgeRight).LineStyle = xlContinuous",
+   "reads": [
+    "ws.Range(\"XFD3\").Borders(xlEdgeRight).LineStyle",
+    "ws.Range(\"Z3\").Borders(xlEdgeRight).LineStyle"
+   ],
+   "before": "String:$A$3;Long:-4142;Long:-4142;",
+   "after": "String:$A$1;Long:-4142;Long:-4142;"
+  },
+  {
+   "name": "b_rows_left_two",
+   "setup": "ws.Rows(\"3:4\").Borders(xlEdgeLeft).LineStyle = xlContinuous",
+   "reads": [
+    "ws.Range(\"A3\").Borders(xlEdgeLeft).LineStyle",
+    "ws.Range(\"A4\").Borders(xlEdgeLeft).LineStyle"
+   ],
+   "before": "String:$A$3:$A$4;Long:1;Long:1;",
+   "after": "String:$A$3:$A$4;Long:1;Long:1;"
+  },
+  {
+   "name": "b_row_left_cells",
+   "setup": "ws.Range(\"B3\").Value = 1\nws.Range(\"A3\").Value = 2\nws.Rows(3).Borders(xlEdgeLeft).LineStyle = xlContinuous",
+   "reads": [
+    "ws.Range(\"A3\").Borders(xlEdgeLeft).LineStyle"
+   ],
+   "before": "String:$A$3:$B$3;Long:1;",
+   "after": "String:$A$3:$B$3;Long:1;"
+  },
+  {
+   "name": "b_rows_inside_h",
+   "setup": "ws.Rows(\"3:4\").Borders(xlInsideHorizontal).LineStyle = xlContinuous",
+   "reads": [
+    "ws.Range(\"Z3\").Borders(xlEdgeBottom).LineStyle",
+    "ws.Range(\"Z4\").Borders(xlEdgeTop).LineStyle",
+    "ws.Range(\"Z4\").Borders(xlEdgeBottom).LineStyle"
+   ],
+   "before": "String:$A$3:$A$4;Long:1;Long:1;Long:-4142;",
+   "after": "String:$A$3:$A$4;Long:1;Long:1;Long:-4142;"
+  },
+  {
+   "name": "b_row_inside_v",
+   "setup": "ws.Rows(3).Borders(xlInsideVertical).LineStyle = xlContinuous",
+   "reads": [
+    "ws.Range(\"Z3\").Borders(xlEdgeLeft).LineStyle",
+    "ws.Range(\"Z3\").Borders(xlEdgeRight).LineStyle",
+    "ws.Range(\"A3\").Borders(xlEdgeLeft).LineStyle"
+   ],
+   "before": "String:$A$3;Long:1;Long:1;Long:1;",
+   "after": "String:$A$3;Long:1;Long:1;Long:1;"
+  },
+  {
+   "name": "b_row_all",
+   "setup": "ws.Rows(3).Borders.LineStyle = xlContinuous",
+   "reads": [
+    "ws.Range(\"Z3\").Borders(xlEdgeLeft).LineStyle",
+    "ws.Range(\"Z3\").Borders(xlEdgeTop).LineStyle",
+    "ws.Range(\"Z3\").Borders(xlEdgeBottom).LineStyle",
+    "ws.Rows(3).Borders.LineStyle"
+   ],
+   "before": "String:$A$3;Long:1;Long:1;Long:1;Long:1;",
+   "after": "String:$A$3;Long:1;Long:1;Long:1;Long:1;"
+  },
+  {
+   "name": "b_row_around",
+   "setup": "ws.Rows(3).BorderAround xlContinuous",
+   "reads": [
+    "ws.Range(\"Z3\").Borders(xlEdgeTop).LineStyle",
+    "ws.Range(\"Z3\").Borders(xlEdgeLeft).LineStyle",
+    "ws.Range(\"A3\").Borders(xlEdgeLeft).LineStyle"
+   ],
+   "before": "String:$A$3;Long:1;Long:-4142;Long:1;",
+   "after": "String:$A$3;Long:1;Long:-4142;Long:1;"
+  },
+  {
+   "name": "b_row_diag",
+   "setup": "ws.Rows(3).Borders(xlDiagonalUp).LineStyle = xlContinuous",
+   "reads": [
+    "ws.Range(\"Z3\").Borders(xlDiagonalUp).LineStyle"
+   ],
+   "before": "String:$A$3;Long:1;",
+   "after": "String:$A$3;Long:1;"
+  },
+  {
+   "name": "b_row_top_first",
+   "setup": "ws.Rows(1).Borders(xlEdgeTop).LineStyle = xlContinuous",
+   "reads": [
+    "ws.Range(\"Z1\").Borders(xlEdgeTop).LineStyle"
+   ],
+   "before": "String:$A$1;Long:1;",
+   "after": "String:$A$1;Long:1;"
+  },
+  {
+   "name": "b_row_bottom_last",
+   "setup": "ws.Rows(1048576).Borders(xlEdgeBottom).LineStyle = xlContinuous",
+   "reads": [
+    "ws.Range(\"Z1048576\").Borders(xlEdgeBottom).LineStyle"
+   ],
+   "before": "String:$A$1048576;Long:1;",
+   "after": "String:$A$1048576;Long:1;"
+  },
+  {
+   "name": "b_row_top_cells",
+   "setup": "ws.Range(\"A3\").Value = 1\nws.Range(\"C2\").Value = 2\nws.Rows(3).Borders(xlEdgeTop).LineStyle = xlContinuous",
+   "reads": [
+    "ws.Range(\"C2\").Borders(xlEdgeBottom).LineStyle",
+    "ws.Range(\"A3\").Borders(xlEdgeTop).LineStyle"
+   ],
+   "before": "String:$A$2:$C$3;Long:1;Long:1;",
+   "after": "String:$A$2:$C$3;Long:1;Long:1;"
+  },
+  {
+   "name": "b_row_top_under_column",
+   "setup": "ws.Columns(3).Font.Italic = True\nws.Rows(3).Borders(xlEdgeTop).LineStyle = xlContinuous",
+   "reads": [
+    "ws.Range(\"C3\").Borders(xlEdgeTop).LineStyle",
+    "ws.Range(\"C3\").Font.Italic"
+   ],
+   "before": "String:$C$3;Long:1;Boolean:True;",
+   "after": "String:$C$3;Long:1;Boolean:True;"
+  },
+  {
+   "name": "b_row_read",
+   "setup": "ws.Rows(3).Borders(xlEdgeTop).LineStyle = xlContinuous",
+   "reads": [
+    "ws.Rows(3).Borders(xlEdgeTop).LineStyle",
+    "ws.Rows(3).Borders.LineStyle",
+    "ws.Rows(3).Borders(xlEdgeBottom).LineStyle"
+   ],
+   "before": "String:$A$3;Long:1;Null;Long:-4142;",
+   "after": "String:$A$3;Long:1;Null;Long:-4142;"
+  },
+  {
+   "name": "b_col_left",
+   "setup": "ws.Columns(3).Borders(xlEdgeLeft).LineStyle = xlContinuous",
+   "reads": [
+    "ws.Range(\"B9\").Borders(xlEdgeRight).LineStyle"
+   ],
+   "before": "String:$C$1;Long:1;",
+   "after": "String:$C$1;Long:1;"
+  },
+  {
+   "name": "b_col_right",
+   "setup": "ws.Columns(3).Borders(xlEdgeRight).LineStyle = xlContinuous",
+   "reads": [
+    "ws.Range(\"D9\").Borders(xlEdgeLeft).LineStyle",
+    "ws.Range(\"C9\").Borders(xlEdgeRight).LineStyle"
+   ],
+   "before": "String:$C$1;Long:1;Long:1;",
+   "after": "String:$C$1;Long:1;Long:1;"
+  },
+  {
+   "name": "b_col_top",
+   "setup": "ws.Columns(3).Borders(xlEdgeTop).LineStyle = xlContinuous",
+   "reads": [
+    "ws.Range(\"C1\").Borders(xlEdgeTop).LineStyle",
+    "ws.Range(\"C9\").Borders(xlEdgeTop).LineStyle"
+   ],
+   "before": "String:$C$1;Long:-4142;Long:-4142;",
+   "after": "String:$A$1;Long:-4142;Long:-4142;"
+  },
+  {
+   "name": "b_col_bottom",
+   "setup": "ws.Columns(3).Borders(xlEdgeBottom).LineStyle = xlContinuous",
+   "reads": [
+    "ws.Range(\"C1048576\").Borders(xlEdgeBottom).LineStyle",
+    "ws.Range(\"C9\").Borders(xlEdgeBottom).LineStyle"
+   ],
+   "before": "String:$C$1;Long:-4142;Long:-4142;",
+   "after": "String:$A$1;Long:-4142;Long:-4142;"
+  },
+  {
+   "name": "b_col_top_cells",
+   "setup": "ws.Range(\"C1\").Value = 1\nws.Columns(3).Borders(xlEdgeTop).LineStyle = xlContinuous",
+   "reads": [
+    "ws.Range(\"C1\").Borders(xlEdgeTop).LineStyle",
+    "ws.Range(\"C9\").Borders(xlEdgeTop).LineStyle"
+   ],
+   "before": "String:$C$1;Long:1;Long:-4142;",
+   "after": "String:$C$1;Long:1;Long:-4142;"
+  },
+  {
+   "name": "b_cols_inside_v",
+   "setup": "ws.Columns(\"C:D\").Borders(xlInsideVertical).LineStyle = xlContinuous",
+   "reads": [
+    "ws.Range(\"C9\").Borders(xlEdgeRight).LineStyle",
+    "ws.Range(\"D9\").Borders(xlEdgeLeft).LineStyle",
+    "ws.Range(\"D9\").Borders(xlEdgeRight).LineStyle"
+   ],
+   "before": "String:$C$1:$D$1;Long:1;Long:1;Long:-4142;",
+   "after": "String:$C$1:$D$1;Long:1;Long:1;Long:-4142;"
+  },
+  {
+   "name": "b_col_inside_h",
+   "setup": "ws.Columns(3).Borders(xlInsideHorizontal).LineStyle = xlContinuous",
+   "reads": [
+    "ws.Range(\"C9\").Borders(xlEdgeTop).LineStyle",
+    "ws.Range(\"C9\").Borders(xlEdgeBottom).LineStyle"
+   ],
+   "before": "String:$C$1;Long:1;Long:1;",
+   "after": "String:$C$1;Long:1;Long:1;"
+  },
+  {
+   "name": "b_col_all",
+   "setup": "ws.Columns(3).Borders.LineStyle = xlContinuous",
+   "reads": [
+    "ws.Range(\"C9\").Borders(xlEdgeLeft).LineStyle",
+    "ws.Range(\"C9\").Borders(xlEdgeTop).LineStyle",
+    "ws.Range(\"C9\").Borders(xlEdgeRight).LineStyle",
+    "ws.Range(\"C9\").Borders(xlEdgeBottom).LineStyle",
+    "ws.Columns(3).Borders.LineStyle"
+   ],
+   "before": "String:$C$1;Long:1;Long:1;Long:1;Long:1;Long:1;",
+   "after": "String:$C$1;Long:1;Long:1;Long:1;Long:1;Long:1;"
+  },
+  {
+   "name": "b_col_around",
+   "setup": "ws.Columns(3).BorderAround xlContinuous",
+   "reads": [
+    "ws.Range(\"C9\").Borders(xlEdgeLeft).LineStyle",
+    "ws.Range(\"C9\").Borders(xlEdgeTop).LineStyle",
+    "ws.Range(\"C1\").Borders(xlEdgeTop).LineStyle"
+   ],
+   "before": "String:$C$1;Long:1;Long:-4142;Long:-4142;",
+   "after": "String:$C$1;Long:1;Long:-4142;Long:-4142;"
+  },
+  {
+   "name": "b_sheet_top",
+   "setup": "ws.Cells.Borders(xlEdgeTop).LineStyle = xlContinuous",
+   "reads": [
+    "ws.Range(\"Z1\").Borders(xlEdgeTop).LineStyle",
+    "ws.Range(\"C9\").Borders(xlEdgeTop).LineStyle"
+   ],
+   "before": "String:$A$1;Long:-4142;Long:-4142;",
+   "after": "String:$A$1;Long:-4142;Long:-4142;"
+  },
+  {
+   "name": "b_sheet_left",
+   "setup": "ws.Cells.Borders(xlEdgeLeft).LineStyle = xlContinuous",
+   "reads": [
+    "ws.Range(\"A9\").Borders(xlEdgeLeft).LineStyle",
+    "ws.Range(\"C9\").Borders(xlEdgeLeft).LineStyle"
+   ],
+   "before": "String:$A$1;Long:-4142;Long:-4142;",
+   "after": "String:$A$1;Long:-4142;Long:-4142;"
+  },
+  {
+   "name": "b_sheet_inside_h",
+   "setup": "ws.Cells.Borders(xlInsideHorizontal).LineStyle = xlContinuous",
+   "reads": [
+    "ws.Range(\"C9\").Borders(xlEdgeTop).LineStyle",
+    "ws.Range(\"C9\").Borders(xlEdgeBottom).LineStyle"
+   ],
+   "before": "String:$A$1;Long:1;Long:1;",
+   "after": "String:$A$1;Long:1;Long:1;"
+  },
+  {
+   "name": "row_font_size",
+   "setup": "ws.Rows(2).Font.Size = 20",
+   "reads": [
+    "ws.Range(\"Q2\").Font.Size",
+    "ws.Rows(2).RowHeight",
+    "ws.StandardHeight"
+   ],
+   "before": "String:$A$2;Double:20;Double:26.25;Double:15;",
+   "after": "String:$A$2;Double:20;Double:26.25;Double:15;"
+  },
+  {
+   "name": "row_small_font",
+   "setup": "ws.Rows(2).Font.Size = 8",
+   "reads": [
+    "ws.Rows(2).RowHeight",
+    "ws.StandardHeight"
+   ],
+   "before": "String:$A$2;Double:11.25;Double:15;",
+   "after": "String:$A$2;Double:11.25;Double:15;"
+  },
+  {
+   "name": "row_arial",
+   "setup": "ws.Rows(2).Font.Name = \"Arial\"",
+   "reads": [
+    "ws.Rows(2).RowHeight",
+    "ws.StandardHeight",
+    "ws.Rows(2).UseStandardHeight"
+   ],
+   "before": "String:$A$2;Double:14.25;Double:15;Boolean:True;",
+   "after": "String:$A$2;Double:14.25;Double:15;Boolean:True;"
+  },
+  {
+   "name": "row_arial_normal_cell",
+   "setup": "ws.Rows(2).Font.Name = \"Arial\"\nws.Range(\"B2\").Font.Name = \"Aptos Narrow\"",
+   "reads": [
+    "ws.Rows(2).RowHeight",
+    "ws.StandardHeight"
+   ],
+   "before": "String:$B$2;Double:15;Double:15;",
+   "after": "String:$B$2;Double:15;Double:15;"
+  },
+  {
+   "name": "row_arial_value",
+   "setup": "ws.Rows(2).Font.Name = \"Arial\"\nws.Range(\"B2\").Value = 5",
+   "reads": [
+    "ws.Rows(2).RowHeight",
+    "ws.StandardHeight"
+   ],
+   "before": "String:$B$2;Double:14.25;Double:15;",
+   "after": "String:$B$2;Double:14.25;Double:15;"
+  },
+  {
+   "name": "column_font_size",
+   "setup": "ws.Columns(\"B\").Font.Size = 20\nws.Range(\"B7\").Value = \"x\"",
+   "reads": [
+    "ws.Range(\"B1\").Font.Size",
+    "ws.Rows(1).RowHeight",
+    "ws.Rows(7).RowHeight",
+    "ws.StandardHeight"
+   ],
+   "before": "String:$B$7;Double:20;Double:26.25;Double:26.25;Double:26.25;",
+   "after": "String:$B$7;Double:20;Double:26.25;Double:26.25;Double:26.25;"
+  },
+  {
+   "name": "column_big_cell_small",
+   "setup": "ws.Columns(\"B\").Font.Size = 20\nws.Range(\"B7\").Font.Size = 8",
+   "reads": [
+    "ws.Rows(1).RowHeight",
+    "ws.Rows(7).RowHeight",
+    "ws.StandardHeight"
+   ],
+   "before": "String:$B$7;Double:26.25;Double:15;Double:26.25;",
+   "after": "String:$B$7;Double:26.25;Double:15;Double:26.25;"
+  },
+  {
+   "name": "column_arial",
+   "setup": "ws.Columns(2).Font.Name = \"Arial\"",
+   "reads": [
+    "ws.Rows(2).RowHeight",
+    "ws.StandardHeight"
+   ],
+   "before": "String:$B$1;Double:15;Double:15;",
+   "after": "String:$B$1;Double:15;Double:15;"
+  },
+  {
+   "name": "row_arial_column_arial",
+   "setup": "ws.Rows(2).Font.Name = \"Arial\"\nws.Columns(3).Font.Name = \"Arial\"",
+   "reads": [
+    "ws.Rows(2).RowHeight",
+    "ws.Rows(3).RowHeight",
+    "ws.StandardHeight"
+   ],
+   "before": "String:$C$2;Double:14.25;Double:15;Double:15;",
+   "after": "String:$C$2;Double:14.25;Double:15;Double:15;"
+  },
+  {
+   "name": "sheet_size",
+   "setup": "ws.Cells.Font.Size = 20\nws.Range(\"C3\").Font.Size = 11",
+   "reads": [
+    "ws.Rows(1).RowHeight",
+    "ws.Rows(3).RowHeight",
+    "ws.StandardHeight"
+   ],
+   "before": "String:$C$3;Double:26.25;Double:26.25;Double:26.25;",
+   "after": "String:$C$3;Double:26.25;Double:26.25;Double:26.25;"
+  },
+  {
+   "name": "row_style_rows_all_height",
+   "setup": "ws.Rows(\"1:1048576\").RowHeight = 20\nws.Rows(3).Font.Bold = True",
+   "reads": [
+    "ws.Rows(3).RowHeight",
+    "ws.StandardHeight"
+   ],
+   "before": "String:$A$3;Double:20;Double:20;",
+   "after": "String:$A$3;Double:20;Double:20;"
+  },
+  {
+   "name": "unmeasured_row_column_mix",
+   "setup": "ws.Rows(2).Font.Name = \"Arial\"\nws.Columns(3).Font.Name = \"Times New Roman\"",
+   "reads": [
+    "ws.Rows(2).RowHeight",
+    "ws.StandardHeight"
+   ],
+   "before": "String:$C$2;Double:15;Double:15;",
+   "after": "String:$C$2;Double:15;Double:15;"
+  }
+ ],
+ "planted": [
+  {
+   "name": "load_all_cols",
+   "cols": "<col min=\"1\" max=\"16384\" width=\"9.140625\" style=\"{B}\"/>",
+   "rows": "",
+   "macro": "",
+   "reads": [
+    "ws.Range(\"Z9\").Font.Bold"
+   ],
+   "answers": "String:$A$1;Boolean:True;"
+  },
+  {
+   "name": "load_split",
+   "cols": "<col min=\"1\" max=\"2\" width=\"9.140625\" style=\"{B}\"/><col min=\"3\" max=\"3\" width=\"9.140625\" style=\"{I}\"/><col min=\"4\" max=\"16384\" width=\"9.140625\" style=\"{B}\"/>",
+   "rows": "",
+   "macro": "",
+   "reads": [
+    "ws.Range(\"C5\").Font.Italic",
+    "ws.Range(\"D5\").Font.Bold"
+   ],
+   "answers": "String:$C$1;Boolean:True;Boolean:True;"
+  },
+  {
+   "name": "load_all_but_last",
+   "cols": "<col min=\"1\" max=\"16383\" width=\"9.140625\" style=\"{B}\"/><col min=\"16384\" max=\"16384\" width=\"9.140625\" style=\"{I}\"/>",
+   "rows": "",
+   "macro": "",
+   "reads": [
+    "ws.Range(\"XFD5\").Font.Italic"
+   ],
+   "answers": "String:$A$1:$XFC$1;Boolean:True;"
+  },
+  {
+   "name": "load_half",
+   "cols": "<col min=\"1\" max=\"8192\" width=\"9.140625\" style=\"{B}\"/><col min=\"8193\" max=\"16384\" width=\"9.140625\" style=\"{I}\"/>",
+   "rows": "",
+   "macro": "",
+   "reads": [
+    "ws.Range(\"LCC5\").Font.Italic"
+   ],
+   "answers": "String:$A$1:$LCB$1;Boolean:True;"
+  },
+  {
+   "name": "load_xfd_only",
+   "cols": "<col min=\"16384\" max=\"16384\" width=\"9.140625\" style=\"{B}\"/>",
+   "rows": "",
+   "macro": "",
+   "reads": [
+    "ws.Range(\"A5\").Font.Bold"
+   ],
+   "answers": "String:$A$1:$XFC$1;Boolean:False;"
+  },
+  {
+   "name": "load_all_then_row",
+   "cols": "<col min=\"1\" max=\"16384\" width=\"9.140625\" style=\"{B}\"/>",
+   "rows": "",
+   "macro": "ws.Rows(4).Font.Italic = True",
+   "reads": [
+    "ws.Range(\"C4\").Font.Bold",
+    "ws.Range(\"C4\").Font.Italic"
+   ],
+   "answers": "String:$A$4;Boolean:True;Boolean:True;"
+  },
+  {
+   "name": "load_split_then_row",
+   "cols": "<col min=\"1\" max=\"2\" width=\"9.140625\" style=\"{B}\"/><col min=\"3\" max=\"3\" width=\"9.140625\" style=\"{I}\"/><col min=\"4\" max=\"16384\" width=\"9.140625\" style=\"{B}\"/>",
+   "rows": "",
+   "macro": "ws.Rows(4).Font.Underline = xlUnderlineStyleSingle",
+   "reads": [
+    "ws.Range(\"C4\").Font.Italic",
+    "ws.Range(\"D4\").Font.Bold"
+   ],
+   "answers": "String:$C$4;Boolean:True;Boolean:True;"
+  },
+  {
+   "name": "load_all_then_column_clear",
+   "cols": "<col min=\"1\" max=\"16384\" width=\"9.140625\" style=\"{B}\"/>",
+   "rows": "",
+   "macro": "ws.Columns(3).ClearFormats",
+   "reads": [
+    "ws.Range(\"C4\").Font.Bold"
+   ],
+   "answers": "String:$C$1;Boolean:False;"
+  },
+  {
+   "name": "load_one_col_no_width",
+   "cols": "<col min=\"3\" max=\"3\" style=\"{B}\"/>",
+   "rows": "",
+   "macro": "",
+   "reads": [
+    "ws.Columns(3).ColumnWidth",
+    "ws.Columns(3).Hidden",
+    "ws.Range(\"C4\").Font.Bold"
+   ],
+   "answers": "String:$C$1;Double:0;Boolean:True;Boolean:True;"
+  },
+  {
+   "name": "load_row_cf_no_s",
+   "cols": "<col min=\"3\" max=\"3\" width=\"9.140625\" style=\"{B}\"/>",
+   "rows": "<row r=\"3\" customFormat=\"1\"/>",
+   "macro": "",
+   "reads": [
+    "ws.Range(\"C3\").Font.Bold",
+    "ws.Range(\"C4\").Font.Bold"
+   ],
+   "answers": "String:$C$3;Boolean:False;Boolean:True;"
+  },
+  {
+   "name": "load_row_s_no_cf",
+   "cols": "",
+   "rows": "<row r=\"3\" s=\"{B}\"/>",
+   "macro": "",
+   "reads": [
+    "ws.Range(\"Z3\").Font.Bold"
+   ],
+   "answers": "String:$A$1;Boolean:False;"
+  },
+  {
+   "name": "load_row_blank_cell",
+   "cols": "",
+   "rows": "<row r=\"3\" s=\"{B}\" customFormat=\"1\"><c r=\"C3\"/></row>",
+   "macro": "",
+   "reads": [
+    "ws.Range(\"C3\").Font.Bold",
+    "ws.Range(\"D3\").Font.Bold"
+   ],
+   "answers": "String:$C$3;Boolean:False;Boolean:True;"
+  },
+  {
+   "name": "load_blank_same_as_row",
+   "cols": "",
+   "rows": "<row r=\"3\" s=\"{B}\" customFormat=\"1\"><c r=\"C3\" s=\"{B}\"/></row>",
+   "macro": "",
+   "reads": [
+    "ws.Range(\"C3\").Font.Bold"
+   ],
+   "answers": "String:$A$3;Boolean:True;"
+  },
+  {
+   "name": "load_blank_default_cell",
+   "cols": "",
+   "rows": "<row r=\"3\"><c r=\"C3\"/></row>",
+   "macro": "",
+   "reads": [
+    "ws.Range(\"C3\").Font.Bold"
+   ],
+   "answers": "String:$A$1;Boolean:False;"
+  },
+  {
+   "name": "load_blank_same_as_column",
+   "cols": "<col min=\"3\" max=\"3\" width=\"9.140625\" style=\"{B}\"/>",
+   "rows": "<row r=\"5\"><c r=\"C5\" s=\"{B}\"/></row>",
+   "macro": "",
+   "reads": [
+    "ws.Range(\"C5\").Font.Bold"
+   ],
+   "answers": "String:$C$1;Boolean:True;"
+  },
+  {
+   "name": "load_row_style_cells_same",
+   "cols": "",
+   "rows": "<row r=\"3\" s=\"{B}\" customFormat=\"1\"><c r=\"C3\" s=\"{B}\"><v>1</v></c></row>",
+   "macro": "ws.Range(\"C3\").ClearContents",
+   "reads": [
+    "ws.Range(\"C3\").Font.Bold"
+   ],
+   "answers": "String:$A$3;Boolean:True;"
+  }
+ ],
+ "bold": 1,
+ "italic": 2
+}

@@ -698,16 +698,19 @@ when they differ, theme colours take their tints the way Excel computes
 them, and a border between two cells is stored and read the way Excel
 shares it. A workbook Excel formatted reads back exactly as Excel reads
 it, and a save adds only the stylesheet entries the file lacks, spelled
-as Excel spells them. Row and column formats, named cell styles and
-conditional formats are not implemented yet.
+as Excel spells them. Formatting whole rows, whole columns or the whole
+sheet keeps the row, column and sheet formats Excel keeps, with the
+cells Excel makes where they cross, and saves them as Excel does. Named
+cell styles and conditional formats are not implemented yet.
 
 Row heights, column widths and hidden rows and columns behave as they do
 in Excel on a 96-DPI display, the one the model emulates: `RowHeight = 20`
 reads back 20, draws 19.5pt tall and saves as Excel saves it; `Hidden`,
 `UseStandardHeight`, `UseStandardWidth`, `Height`, `Width`, `Left`, `Top`
 and a sheet's standard sizes follow, and all of it is read from and saved
-to the file. A row grows with its fonts as Excel's does, from heights
-measured in live Excel for the common Office and Windows fonts; a row
+to the file. A row grows or shrinks with the fonts its cells, its own
+format and its columns show, as Excel's does, from heights measured in
+live Excel for the common Office and Windows fonts; a row
 whose height rests on an unmeasured font, a mix of fonts, or wrapped
 text reports itself unsupported, and column `AutoFit` measures no text
 yet.

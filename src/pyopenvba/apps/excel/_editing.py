@@ -112,4 +112,24 @@ def edit(target: Range, *, delete: bool) -> None:
         sheet.dims.shift_rows(start, count, delete)
     else:
         sheet.dims.shift_columns(start, count, delete)
+    if not delete and start > 1:
+        _inherit_formats(sheet, rows=rows, start=start, count=count)
     sheet.shape_changed()
+
+
+def _inherit_formats(sheet: Worksheet, *, rows: bool, start: int, count: int) -> None:
+    """New rows take the formats of the cells in the row above; new columns those of the column to the left.
+
+    The row's or column's own format came along with its height or width;
+    a cell here is made only where it would show something else.
+    """
+    from pyopenvba.apps.excel._model import Cell
+
+    limit = MAX_ROWS if rows else MAX_COLUMNS
+    for (row, column), cell in list(sheet.cells_.items()):
+        if (row if rows else column) != start - 1:
+            continue
+        for index in range(start, min(start + count, limit + 1)):
+            position = (index, column) if rows else (row, index)
+            sheet.cells_[position] = Cell(style=cell.style)
+            sheet.settle(*position)

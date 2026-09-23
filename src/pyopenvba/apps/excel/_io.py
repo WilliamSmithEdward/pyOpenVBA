@@ -131,17 +131,25 @@ def read_stylesheet(package: OpcFile | None) -> Stylesheet:
 
 
 def _read_sheet(sheet: Worksheet, xml: str, strings: list[str], stylesheet: Stylesheet) -> None:
-    from pyopenvba.apps.excel._model import Cell
-
     for tag in re.findall(r"<mergeCell\b[^>]*/>", xml):
         reference = _tag_attributes(tag).get("ref", "")
         if reference:
             sheet.merged_areas.extend(parse_reference(reference, sheet=sheet.name))
     sheet.dims.load(xml)
     match = _SHEET_DATA.search(xml)
-    if not match or match.group(2) == "/>":
-        return
-    for row_xml in _ROW.findall(match.group(3) or ""):
+    if match and match.group(2) != "/>":
+        _read_cells(sheet, match.group(3) or "", strings, stylesheet)
+    stated = re.search(r"<dimension\b[^>]*/>", xml)
+    if sheet.dims.tidied or (stated is not None and _with_dimension(stated.group(0), sheet) != stated.group(0)):
+        # What Excel let go of on opening the file is gone from it when Excel saves, and the
+        # used block it states is the one Excel works out.
+        sheet.dirty = True
+
+
+def _read_cells(sheet: Worksheet, rows: str, strings: list[str], stylesheet: Stylesheet) -> None:
+    from pyopenvba.apps.excel._model import Cell
+
+    for row_xml in _ROW.findall(rows):
         for cell_xml in _CELL.findall(row_xml):
             attributes = _tag_attributes(cell_xml)
             reference = attributes.get("r", "")
@@ -158,7 +166,9 @@ def _read_sheet(sheet: Worksheet, xml: str, strings: list[str], stylesheet: Styl
                 body = (formula_match.group(2) or "").strip()
                 formula = f"={_unescape(body)}" if body else ""
             value = _cell_value(cell_xml, kind, strings, (style or stylesheet.default).number_format)
-            if value is EMPTY and not formula and style is None:
+            if value is EMPTY and not formula and (style or stylesheet.default) == sheet.inherited_style(row, column):
+                # An empty cell in the format its row or column gives it says nothing, and Excel drops it.
+                sheet.dims.tidied = True
                 continue
             if style is None and stylesheet.default.number_format != "General":
                 # A cell on the default format still has to read that format.
@@ -1111,7 +1121,7 @@ def _patched_sheet(sheet: Worksheet, original: str, package: OpcFile) -> str:
     # Each row's cells are the model's, written in one pass: those that say something, in column order.
     by_row: dict[int, list[tuple[int, Cell]]] = {}
     for (row, column), cell in sorted(sheet.cells_.items()):
-        if not cell.is_blank():
+        if sheet.holds(row, column, cell):
             by_row.setdefault(row, []).append((column, cell))
     stylesheet = sheet.book.stylesheet
     for row in set(rows) | set(by_row):
@@ -1163,12 +1173,10 @@ def _rows_as_excel_writes_them(sheet: Worksheet, original: str, rows: dict[int, 
     left with no cells and nothing of its own to say is dropped, as Excel
     drops it.
     """
-    from pyopenvba.apps.excel._dimensions import NORMAL_DESCENT, block_spans, row_start_tag
+    from pyopenvba.apps.excel._dimensions import block_spans, row_start_tag
 
     dims = sheet.dims
-    descent: str | None = None
-    if _declares_descent(original):
-        descent = NORMAL_DESCENT if dims.normal_known() else dims.format.get("x14ac:dyDescent", NORMAL_DESCENT)
+    descent = dims.default_descent() if _declares_descent(original) else None
     spans = block_spans(sheet)
     out: list[str] = []
     for number in sorted(rows):
@@ -1304,9 +1312,7 @@ def _style_for(cell: Cell, stylesheet: Stylesheet) -> str:
     """The xf a cell is written with: the one it was read with while its format is unchanged."""
     if cell.style is None:
         return ""
-    if 0 <= cell.xf < len(stylesheet.styles) and stylesheet.style(cell.xf) == cell.style:
-        return str(cell.xf)
-    return str(stylesheet.index_of(cell.style))
+    return str(stylesheet.index_as_read(cell.style, cell.xf))
 
 
 def _with_dimension(xml: str, sheet: Worksheet) -> str:

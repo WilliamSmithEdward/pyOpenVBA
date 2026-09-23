@@ -16,7 +16,7 @@ Font, Interior, Borders, alignment -- lives in
 from __future__ import annotations
 
 from collections.abc import Iterator
-from dataclasses import dataclass, replace
+from dataclasses import dataclass
 from decimal import Decimal
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -27,6 +27,7 @@ from pyopenvba.formula._parse import shift_text
 from pyopenvba.formula._r1c1 import from_a1, to_a1
 from pyopenvba.apps.excel._find import FindState
 from pyopenvba.apps.excel import _dimensions, _merges, _names
+from pyopenvba.apps.excel._styles import applying
 from pyopenvba.shapes._values import Shape as ShapeState
 from pyopenvba.interpreter._objects import MemberSpec, VBACollection, VBAObject, member, method, setter
 from pyopenvba.interpreter._values import (
@@ -975,47 +976,70 @@ class Worksheet(ExcelObject):
         return self.active_cell_range if self.active_cell_range is not None else self.vba_get("Range", ["A1"])
 
     def cell(self, row: int, column: int, *, create: bool = False) -> Cell | None:
+        """The cell at a position; a new one starts in the format its row or column gives it."""
         found = self.cells_.get((row, column))
         if found is None and create:
-            found = Cell()
+            inherited = self.inherited_style(row, column)
+            found = Cell(style=None if inherited == self.book.stylesheet.default else inherited)
             self.cells_[(row, column)] = found
         return found
 
+    def inherited_style(self, row: int, column: int) -> Style:
+        """The format a position shows with no cell there: its row's, else its column's, else the default."""
+        record = self.dims.rows.get(row)
+        if record is not None and record.style is not None:
+            return record.style
+        return self.dims.column_style(column) or self.book.stylesheet.default
+
     def style_at(self, row: int, column: int) -> Style:
-        """The format a cell shows, which is the workbook's default until someone sets one."""
+        """The format a cell shows: its own, or the one its row or column gives it."""
         found = self.cells_.get((row, column))
-        if found is not None and found.style is not None:
-            return found.style
-        return self.book.stylesheet.default
+        if found is not None:
+            return found.style or self.book.stylesheet.default
+        return self.inherited_style(row, column)
+
+    def holds(self, row: int, column: int, cell: Cell) -> bool:
+        """Whether a cell says anything: a value, a formula, or a format apart from the one it would inherit.
+
+        Excel keeps a cell with nothing in it only while its format differs
+        from its row's or column's, and lets it go the moment it does not.
+        """
+        if cell.value is not EMPTY or cell.formula:
+            return True
+        return (cell.style or self.book.stylesheet.default) != self.inherited_style(row, column)
+
+    def settle(self, row: int, column: int) -> None:
+        """Drop the cell at a position if it no longer says anything."""
+        found = self.cells_.get((row, column))
+        if found is not None and not self.holds(row, column, found):
+            del self.cells_[(row, column)]
 
     def restyle(self, row: int, column: int, style: Style) -> None:
-        """Give a cell a new format; the default one leaves it unformatted."""
+        """Give a position a new format, keeping a cell there only while it has to."""
         found = self.cells_.get((row, column))
-        unformatted = style == self.book.stylesheet.default
         if found is None:
-            if unformatted:
+            if style == self.inherited_style(row, column):
                 return
-            found = self.cell(row, column, create=True)
-            assert found is not None
-        found.style, found.xf = (None if unformatted else style), -1
-        if found.is_blank():
-            del self.cells_[(row, column)]
+            found = self.cells_[(row, column)] = Cell()
+        found.style, found.xf = (None if style == self.book.stylesheet.default else style), -1
+        self.settle(row, column)
         self.touched()
         self.dims.fonts_changed(row)
 
     def set_number_format(self, row: int, column: int, code: str) -> None:
-        self.restyle(row, column, replace(self.style_at(row, column), number_format=code))
+        self.restyle(row, column, applying(self.style_at(row, column), "number_format", number_format=code))
 
     def used_bounds(self) -> tuple[int, int, int, int] | None:
         """The sheet's used block, as UsedRange and a file's dimension give it.
 
         A row with a height, a hidden flag or a format of its own counts,
         as its cells do; a column counts only while it is hidden keeping a
-        width. What is missing on one side defaults to row 1 or column A.
-        Excel's own block only grows while a workbook is open, and shrinks
-        when something reads UsedRange; the model's is always the content's.
+        width, or while its format is apart from the sheet's. What is
+        missing on one side defaults to row 1 or column A. Excel's own
+        block only grows while a workbook is open, and shrinks when
+        something reads UsedRange; the model's is always the content's.
         """
-        live = [(row, column) for (row, column), cell in self.cells_.items() if not cell.is_blank()]
+        live = [(row, column) for (row, column), cell in self.cells_.items() if self.holds(row, column, cell)]
         for area in self.merged_areas:
             live.extend(((area.top, area.left), (area.bottom, area.right)))
         rows = [row for row, _ in live]
@@ -1301,9 +1325,10 @@ class Range(ExcelObject):
 
     @setter("NumberFormat")
     def _set_number_format(self, value: object) -> None:
+        from pyopenvba.apps.excel._formats import restyle
+
         text = to_text(value)
-        for row, column in self.writable_positions():
-            self.sheet.set_number_format(row, column, text)
+        restyle(self, lambda style: applying(style, "number_format", number_format=text))
         self.sheet.touched()
 
     # -- geometry
@@ -1639,25 +1664,42 @@ class Range(ExcelObject):
 
     @method
     def Clear(self) -> object:
+        """ClearFormats and ClearContents: a position a row or column format reaches keeps a cell in the default."""
+        from pyopenvba.apps.excel._formats import clear_formats
+
         _merges.validate_clear(self)
-        _merges.unmerge(self)
-        for row, column in self.writable_positions():
-            self.sheet.cells_.pop((row, column), None)
-            self.sheet.cell_changed(row, column)
+        clear_formats(self)
+        self._clear_contents()
         return EMPTY
 
     @method
     def ClearContents(self) -> object:
         _merges.validate_clear(self)
-        for row, column in self.writable_positions():
-            cell = self.sheet.cell(row, column)
-            if cell is not None:
-                cell.value = EMPTY
-                cell.formula = ""
-                cell.stale = False
-                self.sheet.cell_changed(row, column)
-        self.sheet.touched()
+        self._clear_contents()
         return EMPTY
+
+    def _clear_contents(self) -> None:
+        """Every value and formula gone; a cell left with nothing to say goes with them."""
+        for row, column in self.cell_positions():
+            cell = self.sheet.cells_[(row, column)]
+            cell.value = EMPTY
+            cell.formula = ""
+            cell.stale = False
+            self.sheet.settle(row, column)
+            self.sheet.cell_changed(row, column)
+        self.sheet.touched()
+
+    def cell_positions(self) -> list[tuple[int, int]]:
+        """The positions of the range that hold a cell, found without visiting every position of a large range."""
+        cells = self.sheet.cells_
+        out: list[tuple[int, int]] = []
+        for area in self.areas:
+            if area.rows * area.columns <= len(cells):
+                out.extend((row, column) for row in range(area.top, area.bottom + 1)
+                           for column in range(area.left, area.right + 1) if (row, column) in cells)
+            else:
+                out.extend(sorted(position for position in cells if area.contains(*position)))
+        return out
 
     @method
     def Delete(self, Shift: object = MISSING) -> object:
@@ -1668,6 +1710,7 @@ class Range(ExcelObject):
 
             edit(self, delete=True)
             return EMPTY
+        self._shifting_cells()
         up = Shift is MISSING or int(to_integer(Shift, "Long")) == -4162  # xlUp
         moved: dict[tuple[int, int], Cell] = {}
         for (row, column), cell in self.sheet.cells_.items():
@@ -1686,11 +1729,15 @@ class Range(ExcelObject):
     @method
     def Insert(self, Shift: object = MISSING, CopyOrigin: object = MISSING) -> object:
         area = self.first
+        if CopyOrigin is not MISSING and int(to_integer(CopyOrigin, "Long")) != 0:
+            raise VBAUnsupportedError("Insert taking formats from the right or below (xlFormatFromRightOrBelow) "
+                                      "is not implemented")
         if area.whole_rows or area.whole_columns:
             from pyopenvba.apps.excel._editing import edit
 
             edit(self, delete=False)
             return EMPTY
+        self._shifting_cells()
         down = Shift is MISSING or int(to_integer(Shift, "Long")) == -4121  # xlDown
         moved: dict[tuple[int, int], Cell] = {}
         for (row, column), cell in self.sheet.cells_.items():
@@ -1703,6 +1750,18 @@ class Range(ExcelObject):
         self.sheet.cells_ = moved
         self.sheet.shape_changed()
         return EMPTY
+
+    def _shifting_cells(self) -> None:
+        """Refuse to shift cells on a sheet whose rows or columns carry formats.
+
+        Excel moves the format each position shows along with the cells,
+        which the model does not work out.
+        """
+        dims = self.sheet.dims
+        if any(record.style is not None for record in dims.rows.values()) or \
+                any(record.style is not None for record in dims.columns.values()):
+            raise VBAUnsupportedError("shifting cells on a sheet whose rows or columns carry formats is not "
+                                      "implemented")
 
     @method
     def Copy(self, Destination: object = MISSING) -> object:
@@ -1737,6 +1796,13 @@ class Range(ExcelObject):
         # Snapshot before clearing or writing: source and destination can overlap.
         sources = {(row - area.top, column - area.left): cell
                    for (row, column), cell in self.sheet.cells_.items() if area.contains(row, column)}
+        from pyopenvba.apps.excel._row_formats import shown_formats
+
+        whole_rows, whole_columns = area.whole_rows and written.whole_rows, area.whole_columns and written.whole_columns
+        shown = [shown_formats(self.sheet, area, Destination.sheet, tile_row, tile_column, sources,
+                               rows_follow=whole_rows, columns_follow=whole_columns)
+                 for tile_row in range(target.top, bottom + 1, area.rows)
+                 for tile_column in range(target.left, right + 1, area.columns)]
         from pyopenvba.apps.excel._copy_names import NameCopyPlan
 
         plan = NameCopyPlan(self.sheet, Destination.sheet, name_conflict)
@@ -1748,6 +1814,13 @@ class Range(ExcelObject):
         for position in list(Destination.sheet.cells_):
             if written.contains(*position):
                 del Destination.sheet.cells_[position]
+        # Whole rows take their heights and formats along, and whole columns their widths and formats.
+        if whole_rows:
+            Destination.sheet.dims.copy_rows_from(self.sheet.dims, [
+                (area.top + (row - target.top) % area.rows, row) for row in range(target.top, bottom + 1)])
+        elif whole_columns:
+            Destination.sheet.dims.copy_columns_from(self.sheet.dims, [
+                (area.left + (column - target.left) % area.columns, column) for column in range(target.left, right + 1)])
         for tile_row in range(target.top, bottom + 1, area.rows):
             for tile_column in range(target.left, right + 1, area.columns):
                 for (down, across), source in sources.items():
@@ -1757,13 +1830,12 @@ class Range(ExcelObject):
                         copy.stale = True
                         copy.value = EMPTY
                     Destination.sheet.cells_[(tile_row + down, tile_column + across)] = copy
-        # Whole rows take their heights along, and whole columns their widths.
-        if area.whole_rows and written.whole_rows:
-            Destination.sheet.dims.copy_rows_from(self.sheet.dims, [
-                (area.top + (row - target.top) % area.rows, row) for row in range(target.top, bottom + 1)])
-        elif area.whole_columns and written.whole_columns:
-            Destination.sheet.dims.copy_columns_from(self.sheet.dims, [
-                (area.left + (column - target.left) % area.columns, column) for column in range(target.left, right + 1)])
+                    Destination.sheet.settle(tile_row + down, tile_column + across)
+        # A position that showed its row's or column's format keeps showing it where the destination's differs.
+        for plan in shown:
+            for (row, column), style in plan:
+                if style != Destination.sheet.inherited_style(row, column):
+                    Destination.sheet.restyle(row, column, style)
         Destination.sheet.shape_changed()
         return True
 

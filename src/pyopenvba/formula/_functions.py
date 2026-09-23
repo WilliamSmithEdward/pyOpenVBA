@@ -22,7 +22,7 @@ import math
 import random
 import re
 import statistics
-from collections.abc import Callable, Iterator, Sequence
+from collections.abc import Callable, Iterable, Iterator, Sequence
 from typing import Any, Final
 
 from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, column_letter
@@ -159,7 +159,21 @@ def _matrix(value: object) -> Matrix:
 
 @function("SUM")
 def fn_sum(context: Context, args: list[Any]) -> object:
-    return math.fsum(_numbers(args))
+    return _added(_numbers(args))
+
+
+def _added(numbers: Iterable[float]) -> float:
+    """Numbers added as Excel adds them: one after another, each sum rounded to a double.
+
+    Measured bit for bit (scripts/measure_variance.py, 87 sets): SUM,
+    AVERAGE, SUMIF, AVERAGEIF, SUMSQ and SUMPRODUCT all add this way;
+    fsum's exact total differs in the last bit for a quarter of them, and
+    Python's own sum compensates from 3.12 on.
+    """
+    total = 0.0
+    for number in numbers:
+        total += number
+    return total
 
 
 @function("PRODUCT")
@@ -390,7 +404,7 @@ def fn_average(context: Context, args: list[Any]) -> object:
     numbers = list(_numbers(args))
     if not numbers:
         raise DIV0
-    return math.fsum(numbers) / len(numbers)
+    return _added(numbers) / len(numbers)
 
 
 @function("MEDIAN")
@@ -466,36 +480,65 @@ def fn_countblank(context: Context, args: list[Any]) -> object:
     return float(sum(1 for value in _values(args) if value is BLANK or value == ""))
 
 
+def _variance(args: Sequence[object], *, sample: bool) -> float:
+    """The variance as Excel works it out, to the bit.
+
+    Measured bit for bit (scripts/measure_variance.py, 87 sets): Excel
+    takes the one-pass sum of squares -- (S2 - S1^2/n)/(n-1) for VAR,
+    (n*S2 - S1^2)/(n*n) for VARP, added as SUM adds -- unless it cancels,
+    and then the two-pass one, the squares about the mean. It cancels,
+    by the rule that fits, when the numerator is under a hundredth of S2
+    or the variance under 1e-6; that misses only data smaller than a
+    thousandth, 8 answers of 348. STDEV and STDEVP are the square roots.
+    """
+    numbers = list(_numbers(args))
+    count = len(numbers)
+    if count < (2 if sample else 1):
+        raise DIV0
+    divisor = count - 1 if sample else count
+    first = _added(numbers)
+    second = _added(number * number for number in numbers)
+    one_pass = (second - first * first / count) / divisor if sample else \
+        (count * second - first * first) / (count * divisor)
+    if second and (second - first * first / count) / second >= 0.01 and one_pass >= 1e-6:
+        return one_pass
+    mean = first / count
+    return _added((number - mean) * (number - mean) for number in numbers) / divisor
+
+
 @function("STDEV", "STDEV.S")
 def fn_stdev(context: Context, args: list[Any]) -> object:
-    numbers = list(_numbers(args))
-    if len(numbers) < 2:
-        raise DIV0
-    return float(statistics.stdev(numbers))
+    return math.sqrt(_variance(args, sample=True))
 
 
 @function("STDEVP", "STDEV.P")
 def fn_stdevp(context: Context, args: list[Any]) -> object:
-    numbers = list(_numbers(args))
-    if not numbers:
-        raise DIV0
-    return float(statistics.pstdev(numbers))
+    return math.sqrt(_variance(args, sample=False))
 
 
 @function("VAR", "VAR.S")
 def fn_var(context: Context, args: list[Any]) -> object:
-    numbers = list(_numbers(args))
-    if len(numbers) < 2:
-        raise DIV0
-    return float(statistics.variance(numbers))
+    return _variance(args, sample=True)
 
 
 @function("VARP", "VAR.P")
 def fn_varp(context: Context, args: list[Any]) -> object:
+    return _variance(args, sample=False)
+
+
+@function("SUMSQ")
+def fn_sumsq(context: Context, args: list[Any]) -> object:
+    return _added(number * number for number in _numbers(args))
+
+
+@function("DEVSQ")
+def fn_devsq(context: Context, args: list[Any]) -> object:
+    """The squares about the mean, in two passes, as Excel adds them: measured bit for bit."""
     numbers = list(_numbers(args))
     if not numbers:
-        raise DIV0
-    return float(statistics.pvariance(numbers))
+        raise NUM
+    mean = _added(numbers) / len(numbers)
+    return _added((number - mean) * (number - mean) for number in numbers)
 
 
 # --- criteria ------------------------------------------------------------------------------------
@@ -647,7 +690,7 @@ def fn_averageif(context: Context, args: list[Any]) -> object:
                 kept.append(float(value))
     if not kept:
         raise DIV0
-    return math.fsum(kept) / len(kept)
+    return _added(kept) / len(kept)
 
 
 # --- logic -------------------------------------------------------------------------------------------

@@ -189,6 +189,36 @@
    "application": "Double:9"
   },
   {
+   "function": "DevSq",
+   "arguments": "Array(1, 2, 3, 4)",
+   "worksheet_function": "Double:5",
+   "application": "Double:5"
+  },
+  {
+   "function": "DevSq",
+   "arguments": "ws.Range(\"C1:C5\")",
+   "worksheet_function": "E1004",
+   "application": "Error:2042"
+  },
+  {
+   "function": "DevSq",
+   "arguments": "ws.Range(\"A1:A5\"), 10",
+   "worksheet_function": "Double:50.8333333333333",
+   "application": "Double:50.8333333333333"
+  },
+  {
+   "function": "DevSq",
+   "arguments": "1, \"2\", True",
+   "worksheet_function": "Double:0.666666666666667",
+   "application": "Double:0.666666666666667"
+  },
+  {
+   "function": "DevSq",
+   "arguments": "ws.Range(\"B1:B5\")",
+   "worksheet_function": "E1004",
+   "application": "Error:2036"
+  },
+  {
    "function": "EDate",
    "arguments": "#1/31/2020#, 1",
    "worksheet_function": "Double:43890",
@@ -643,6 +673,36 @@
    "arguments": "Array(1, 2), Array(3, 4)",
    "worksheet_function": "Double:11",
    "application": "Double:11"
+  },
+  {
+   "function": "SumSq",
+   "arguments": "Array(1, 2, 3, 4)",
+   "worksheet_function": "Double:30",
+   "application": "Double:30"
+  },
+  {
+   "function": "SumSq",
+   "arguments": "ws.Range(\"C1:C5\")",
+   "worksheet_function": "E1004",
+   "application": "Error:2042"
+  },
+  {
+   "function": "SumSq",
+   "arguments": "ws.Range(\"A1:A5\"), 10",
+   "worksheet_function": "Double:155",
+   "application": "Double:155"
+  },
+  {
+   "function": "SumSq",
+   "arguments": "1, \"2\", True",
+   "worksheet_function": "Double:6",
+   "application": "Double:6"
+  },
+  {
+   "function": "SumSq",
+   "arguments": "ws.Range(\"B1:B5\")",
+   "worksheet_function": "Double:0",
+   "application": "Double:0"
   },
   {
    "function": "Text",

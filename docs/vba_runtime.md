@@ -897,6 +897,13 @@ logical functions.  Anything else Excel has says so by name rather than
 answering `#NAME?`, which is reserved for a function Excel has not got
 either.
 
+SUM, AVERAGE, SUMSQ and their kin add one number after another, each
+sum rounded to a double, as Excel adds (`tests/fixtures/variance.json`,
+87 sets, compared bit for bit). VAR and VARP take Excel's one-pass sum
+of squares, and the squares about the mean when that cancels, STDEV and
+STDEVP the square roots of those; data under a thousandth still misses
+8 of 348 answers.
+
 A macro reaches the same functions through `WorksheetFunction.X`, which
 raises error 1004 when the answer is an error, or the late-bound
 `Application.X`, which hands the error back as a value

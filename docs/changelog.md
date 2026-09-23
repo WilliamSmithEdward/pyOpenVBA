@@ -80,6 +80,9 @@ All notable changes to pyOpenVBA are documented here. This project follows
   Excel pin it; SUBTOTAL, not in the formula engine, and a
   two-dimensional array written to several areas, which Excel reads at
   another stride, report themselves unsupported.
+- SUMSQ and DEVSQ, in cells and through `WorksheetFunction`, each
+  Excel's double to the bit over 87 sets of numbers. DEVSQ of no numbers
+  is `#NUM!`.
 - `Application.Evaluate` and `[...]` read an array constant such as
   `{1,2;3,4}` into an array counted from 1, one-dimensional when it is
   one row, as Excel does. Text that is not a reference, a name or an
@@ -451,6 +454,15 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- SUM, AVERAGE and AVERAGEIF add one number after another, each sum
+  rounded to a double, as Excel adds. The model added exactly, and SUM
+  came out a bit away from Excel's on 23 of 87 measured sets.
+- STDEV, STDEVP, VAR and VARP are Excel's doubles. Excel takes the
+  one-pass sum of squares, and the squares about the mean when that
+  cancels; the model worked the exact variance. STDEV of 1, 6, 7 and 8
+  is 3.1091263510296048, as in Excel. 340 of 348 answers over 87 sets
+  match to the bit. The other 8 are on data under a thousandth and stay
+  known misses.
 - `CStr` and the text of a number round an exact tie at the last digit
   shown away from zero, as VBA does, for a Single as for a Double.
   `CStr(CSng(2 ^ -11))` is `4.882813E-04`; the model rounded it to even.

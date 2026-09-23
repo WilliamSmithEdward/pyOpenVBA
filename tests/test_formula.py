@@ -142,6 +142,39 @@ def test_a_function_excel_has_not_got_either_is_a_name_error() -> None:
     assert isinstance(app.workbook.sheets_[0].cells_[(1, 1)].value, ExcelError)
 
 
+def _irr(flows: list[float], guess: str = "") -> tuple[object, object]:
+    """IRR over flows written to row 1, as a cell works it out: its value and its text."""
+    app = ExcelApplication()
+    app.add_workbook()
+    sheet = app.sheet(1)
+    for column, flow in enumerate(flows):
+        sheet.set_value(f"{chr(ord('A') + column)}1", flow)
+    last = chr(ord("A") + len(flows) - 1)
+    sheet.set_value("A3", f"=IRR(A1:{last}1{',' + guess if guess else ''})")
+    return sheet.value("A3"), app.evaluate('Range("A3").Text')
+
+
+# IRR follows Excel's own secant iteration, stopping where it stops: measured to the bit in live Excel by
+# pyOfficeEditor (its commit ed27bf2, tests/test_excel_calc.py), whose engine this is.
+
+
+def test_irr_stops_short_of_the_root_where_excel_does() -> None:
+    flows = [-23518.90552495122, 5897.322375982933, 8074.228465462295, 3418.6542983744653, 6167.091710440405]
+    assert _irr(flows, "0.3")[0] == 0.0006747819308212666
+
+
+def test_irr_starts_again_from_a_tenth_when_its_guess_fails() -> None:
+    flows = [-24518.42305940892, 1937.6740514260678, 1767.627855347036, 1621.8383666307395, 3423.8749530313867,
+             4005.481458699994, 3303.67042464501, 4648.740185700573, 2305.081428575526, 7245.145640629922,
+             5949.791802306586]
+    assert _irr(flows, "1")[0] == 0.06297805183414074
+
+
+def test_irr_needs_a_residual_under_its_tolerance() -> None:
+    assert _irr([-1069510457926.0002, 1099511627776.0])[1] == "#NUM!"
+    assert _irr([-977338919173.8009, 1099511627776.0], "0.05")[0] == 0.12500546760736642
+
+
 #: Every function the engine has, written on its own and into COUNTIF's range in live Excel
 #: (scripts/measure_cells_functions.py).
 CELLS_FUNCTIONS: dict[str, dict[str, object]] = json.loads(

@@ -38,10 +38,7 @@ INPUTS = frozenset({"About", "Data", "Numbers", "Pairs", "FileLiterals", "Powers
                     "DatePairs", "Reals", "Wholes", "Times", "Ties", "Crit", "Stats", "Db", "Samples"})
 
 #: Formulas whose result the engine does not match, and why.
-KNOWN: dict[str, str] = {
-    # The rate is exactly 0; Excel's iteration stops at -1.96E-10.
-    "Financial!R19C1": "RATE(10,-100,1000,0,0,0.1)",
-}
+KNOWN: dict[str, str] = {}
 
 #: Functions the corpus holds to within a number of units in the last place of Excel's result rather than to the
 #: bit, as pyOfficeEditor holds them: the most any formula calling one is off by. Every other function is exact.
@@ -59,8 +56,8 @@ NEAR: dict[str, int] = {
 }  # fmt: skip
 
 #: Functions Excel solves by iteration, stopping short of the root; the engine converges fully, and the two agree to
-#: this fraction of the result.
-ITERATIVE: dict[str, float] = {"RATE": 1e-12, "IRR": 1e-12, "XIRR": 1e-8, "YIELD": 1e-12}
+#: this fraction of the result. RATE and IRR follow Excel's own iterations, to the bit.
+ITERATIVE: dict[str, float] = {"XIRR": 1e-8, "YIELD": 1e-12}
 
 
 @pytest.fixture(scope="module")

@@ -1,7 +1,7 @@
 """Formulas as Excel reads and calculates them: pyOfficeEditor's formula engine.
 
 This package is a copy of ``pyofficeeditor.excel._calc`` from
-pyOfficeEditor, as committed at 098e441, with its imports pointed here. It
+pyOfficeEditor, as committed at ed27bf2, with its imports pointed here. It
 reads a formula as Excel does, into a tree, and calculates it: 493 of
 Excel's functions, its precedence, coercion and implicit intersection, and
 arithmetic as the x87 does it, held to 10,958 formulas Excel calculated.

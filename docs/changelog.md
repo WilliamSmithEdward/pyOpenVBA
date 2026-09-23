@@ -653,6 +653,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- RATE and IRR stop where Excel's own iterations stop, to the bit, and FV
+  and PV round as Excel does where the payment and the balance cancel:
+  `RATE(10,-100,1000)` is -1.96E-10, not 0. This is pyOfficeEditor's
+  ed27bf2, taken into the engine.
 - `INDEX(A1:B2,2)`, one index into cells in rows and columns, is #REF! as
   in Excel; the engine gave row 2. `INDEX(A1:B2,2,)` is still row 2.
 - A `+` before a reference reads its cells as values, as Excel does:
@@ -962,7 +966,7 @@ All notable changes to pyOpenVBA are documented here. This project follows
 ### Internal
 
 - pyOfficeEditor's formula engine, copied into `pyopenvba.formula._calc`
-  from its commit 098e441: a parser, an evaluator and 493 of Excel's
+  from its commit ed27bf2: a parser, an evaluator and 493 of Excel's
   functions, with arithmetic as the x87 does it. Over the model's own
   workbook, through `_engine_book`, it works out all 10,958 formulas of
   pyOfficeEditor's corpus as Excel cached them, to the bit or within the

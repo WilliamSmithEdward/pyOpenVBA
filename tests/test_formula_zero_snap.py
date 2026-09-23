@@ -28,8 +28,6 @@ FIRST_ROW = {"sweep": 1, "places": 2001, "contexts": 3001, "sums": 4001, "compar
 #: Answers the model does not give as Excel does yet, and why.
 GAPS: dict[tuple[str, str], str] = {
     ("contexts", "array"): "Range.FormulaArray, one array formula over a block, is not implemented",
-    ("contexts", "ws.Evaluate"): "Evaluate of an expression other than a reference, a name or an array",
-    ("contexts", "Application.Evaluate"): "Evaluate of an expression other than a reference, a name or an array",
 }
 
 
@@ -72,7 +70,7 @@ def _answers(block: str) -> list[dict[str, str]]:
     last = first + len(RECORD[block]["rows"]) - 1
     names = list(RECORD[block]["formulas"])
     if block == "contexts":
-        # Only the defined names: the array formula and Evaluate are known gaps.
+        # The array formula is a known gap; the names and Evaluate are not.
         lines = ["Sub Name_Gaps()"]
         for row in range(first, last + 1):
             refers = f"={sheet.name}!$A${row}-{sheet.name}!$B${row}"
@@ -91,6 +89,10 @@ def _answers(block: str) -> list[dict[str, str]]:
         answers: dict[str, str] = {}
         for name, column in columns.items():
             answers[name] = _encoded(_range(sheet, f"{column_letter(column)}{row}").vba_get("Value"))
+        if block == "contexts":
+            answers["ws.Evaluate"] = _encoded(app.evaluate(f'ActiveSheet.Evaluate("A{row}-B{row}")'))
+            answers["Application.Evaluate"] = _encoded(
+                app.evaluate(f'Application.Evaluate("={sheet.name}!A{row}-{sheet.name}!B{row}")'))
         out.append(answers)
     return out
 

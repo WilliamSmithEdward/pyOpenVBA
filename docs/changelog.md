@@ -93,10 +93,19 @@ All notable changes to pyOpenVBA are documented here. This project follows
 - SUMSQ and DEVSQ, in cells and through `WorksheetFunction`, each
   Excel's double to the bit over 87 sets of numbers. DEVSQ of no numbers
   is `#NUM!`.
-- `Application.Evaluate` and `[...]` read an array constant such as
-  `{1,2;3,4}` into an array counted from 1, one-dimensional when it is
-  one row, as Excel does. Text that is not a reference, a name or an
-  array constant reports itself unsupported; it was error 1004.
+- `Application.Evaluate`, `[...]` and `Worksheet.Evaluate` work out an
+  expression as Excel's Evaluate does. What comes to cells is a Range: a
+  reference, a name for cells, INDEX, OFFSET, INDIRECT, CHOOSE or IF
+  landing on cells, an intersection or a union. Anything else is worked
+  out as an array formula, blocks whole: `Evaluate("A1:A3*2")` is three
+  numbers, in an array counted from 1 that is one-dimensional when it
+  is one row. An error comes back as an error value. An expression
+  Excel cannot read, an empty one, or one past 255 characters is Error
+  2015. 91 cases in live Excel pin it. Known gaps: ROW() and COLUMN()
+  with no argument, which Excel hands back as a one-item array; a
+  function run once per item of a block; an intersection inside a
+  formula; and XLOOKUP's Range. Before, text that was not a reference, a
+  name or an array constant reported itself unsupported.
 - Defined names are written in Excel's order: by name as the Name Manager
   shows it, ignoring case, a sheet's own before the workbook's.
 - `Range.RemoveDuplicates`. A row goes when the columns asked for hold
@@ -464,6 +473,8 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- Arithmetic that passes the largest double, as `=1E+300*1E+300` does,
+  is `#NUM!`, as in Excel. The model answered infinity.
 - A formula that ends on a `+` or `-` whose answer all but cancels is 0,
   as in Excel: `=0.5-0.4-0.1` is 0, not -2.8E-17. Excel sets the answer
   to 0 when its binary exponent is 50 or more below the left operand's,

@@ -1,0 +1,461 @@
+{
+ "helper": "Private Function Item(v As Variant) As String\n    If IsError(v) Then\n        Item = \"Error:\" & CStr(CLng(v))\n    ElseIf IsEmpty(v) Then\n        Item = \"Empty\"\n    ElseIf IsObject(v) Then\n        Item = \"Object\"\n    Else\n        Item = TypeName(v) & \":\" & CStr(v)\n    End If\nEnd Function\n\nPrivate Function Show(v As Variant) As String\n    Dim out As String, r As Long, c As Long, cols As Long, two As Boolean\n    If IsObject(v) Then\n        If v Is Nothing Then Show = \"Nothing\" Else Show = TypeName(v) & \"@\" & v.Parent.Name & \"!\" & v.Address(False, False)\n        Exit Function\n    End If\n    If Not IsArray(v) Then\n        Show = Item(v)\n        Exit Function\n    End If\n    On Error Resume Next\n    cols = UBound(v, 2)\n    two = (Err.Number = 0)\n    Err.Clear\n    On Error GoTo 0\n    If two Then\n        out = \"Array(\" & LBound(v, 1) & \" To \" & UBound(v, 1) & \", \" & LBound(v, 2) & \" To \" & UBound(v, 2) & \")\"\n        For r = LBound(v, 1) To UBound(v, 1)\n            For c = LBound(v, 2) To UBound(v, 2)\n                out = out & \" \" & Item(v(r, c))\n            Next\n        Next\n    Else\n        out = \"Array(\" & LBound(v) & \" To \" & UBound(v) & \")\"\n        For r = LBound(v) To UBound(v)\n            out = out & \" \" & Item(v(r))\n        Next\n    End If\n    Show = out\nEnd Function\n",
+ "setup": "Private Sub Fill(wb As Object)\n    Dim ws As Object, r As Long\n    Set ws = wb.Worksheets(1)\n    ws.Name = \"Data\"\n    For r = 1 To 5\n        ws.Cells(r, 1).Value = r\n        ws.Cells(r, 2).Value = Chr(96 + r)\n    Next\n    ws.Range(\"C1\").Value = 0.1\n    ws.Range(\"C2\").Value = 0.2\n    ws.Range(\"C3\").Value = 0.3\n    ws.Range(\"G5\").Formula = \"=A1*10\"\n    wb.Worksheets.Add(After:=ws).Name = \"Other\"\n    wb.Worksheets(\"Other\").Range(\"A1\").Value = 100\n    wb.Worksheets(\"Other\").Range(\"A2\").Value = 200\n    wb.Names.Add Name:=\"Block\", RefersTo:=\"=Data!$A$1:$A$3\"\n    wb.Names.Add Name:=\"Rate\", RefersTo:=\"=0.5\"\n    wb.Names.Add Name:=\"Twice\", RefersTo:=\"=Data!$A$1*2\"\n    ws.Activate\nEnd Sub\n",
+ "cases": [
+  {
+   "how": "Application",
+   "expression": "1+2",
+   "answer": "Double:3"
+  },
+  {
+   "how": "Application",
+   "expression": "=1+2",
+   "answer": "Double:3"
+  },
+  {
+   "how": "Application",
+   "expression": " 1 + 2 ",
+   "answer": "Double:3"
+  },
+  {
+   "how": "Application",
+   "expression": "2^10",
+   "answer": "Double:1024"
+  },
+  {
+   "how": "Application",
+   "expression": "-A1",
+   "answer": "Double:-1"
+  },
+  {
+   "how": "Application",
+   "expression": "A1%",
+   "answer": "Double:0.01"
+  },
+  {
+   "how": "Application",
+   "expression": "7/2",
+   "answer": "Double:3.5"
+  },
+  {
+   "how": "Application",
+   "expression": "1/0",
+   "answer": "Error:2007"
+  },
+  {
+   "how": "Application",
+   "expression": "\"abc\"",
+   "answer": "String:abc"
+  },
+  {
+   "how": "Application",
+   "expression": "TRUE",
+   "answer": "Boolean:True"
+  },
+  {
+   "how": "Application",
+   "expression": "1E+300*1E+300",
+   "answer": "Error:2036"
+  },
+  {
+   "how": "Application",
+   "expression": "0.3-0.2-0.1",
+   "answer": "Double:0"
+  },
+  {
+   "how": "Application",
+   "expression": "(0.3-0.2-0.1)",
+   "answer": "Double:-2.77555756156289E-17"
+  },
+  {
+   "how": "Application",
+   "expression": "A1&B1",
+   "answer": "String:1a"
+  },
+  {
+   "how": "Application",
+   "expression": "C1+C2=C3",
+   "answer": "Boolean:True"
+  },
+  {
+   "how": "Application",
+   "expression": "C1+C2-C3",
+   "answer": "Double:0"
+  },
+  {
+   "how": "Application",
+   "expression": "A1:A3*2",
+   "answer": "Array(1 To 3, 1 To 1) Double:2 Double:4 Double:6"
+  },
+  {
+   "how": "Application",
+   "expression": "A1:A3=2",
+   "answer": "Array(1 To 3, 1 To 1) Boolean:False Boolean:True Boolean:False"
+  },
+  {
+   "how": "Application",
+   "expression": "A1:A3+B1:B3",
+   "answer": "Array(1 To 3, 1 To 1) Error:2015 Error:2015 Error:2015"
+  },
+  {
+   "how": "Application",
+   "expression": "{1,2;3,4}*2",
+   "answer": "Array(1 To 2, 1 To 2) Double:2 Double:4 Double:6 Double:8"
+  },
+  {
+   "how": "Application",
+   "expression": "{1,2,3}+{10;20}",
+   "answer": "Array(1 To 2, 1 To 3) Double:11 Double:12 Double:13 Double:21 Double:22 Double:23"
+  },
+  {
+   "how": "Application",
+   "expression": "-A1:A2",
+   "answer": "Array(1 To 2, 1 To 1) Double:-1 Double:-2"
+  },
+  {
+   "how": "Application",
+   "expression": "A1:B2&\"!\"",
+   "answer": "Array(1 To 2, 1 To 2) String:1! String:a! String:2! String:b!"
+  },
+  {
+   "how": "Application",
+   "expression": "A1",
+   "answer": "Range@Data!A1"
+  },
+  {
+   "how": "Application",
+   "expression": "A1:C1",
+   "answer": "Range@Data!A1:C1"
+  },
+  {
+   "how": "Application",
+   "expression": "Data!A2",
+   "answer": "Range@Data!A2"
+  },
+  {
+   "how": "Application",
+   "expression": "Other!A1",
+   "answer": "Range@Other!A1"
+  },
+  {
+   "how": "Application",
+   "expression": "$A$1",
+   "answer": "Range@Data!A1"
+  },
+  {
+   "how": "Application",
+   "expression": "A:A",
+   "answer": "Range@Data!A:A"
+  },
+  {
+   "how": "Application",
+   "expression": "Block",
+   "answer": "Range@Data!A1:A3"
+  },
+  {
+   "how": "Application",
+   "expression": "Rate",
+   "answer": "Double:0.5"
+  },
+  {
+   "how": "Application",
+   "expression": "Twice",
+   "answer": "Double:2"
+  },
+  {
+   "how": "Application",
+   "expression": "G5",
+   "answer": "Range@Data!G5"
+  },
+  {
+   "how": "Application",
+   "expression": "G5+1",
+   "answer": "Double:11"
+  },
+  {
+   "how": "Application",
+   "expression": "A1:A5 A3:B3",
+   "answer": "Range@Data!A3"
+  },
+  {
+   "how": "Application",
+   "expression": "(A1:A2,A4)",
+   "answer": "Range@Data!A1:A2,A4"
+  },
+  {
+   "how": "Application",
+   "expression": "A1:A2 B1:B2",
+   "answer": "Error:2000"
+  },
+  {
+   "how": "Application",
+   "expression": "A1:B2 B2:C3",
+   "answer": "Range@Data!B2"
+  },
+  {
+   "how": "Application",
+   "expression": "Block A2:B2",
+   "answer": "Range@Data!A2"
+  },
+  {
+   "how": "Application",
+   "expression": "SUM(A1:A5 A2:B3)",
+   "answer": "Double:5"
+  },
+  {
+   "how": "Application",
+   "expression": "(A1,B1)",
+   "answer": "Range@Data!A1,B1"
+  },
+  {
+   "how": "Application",
+   "expression": "CHOOSE(2,A1,A2)",
+   "answer": "Range@Data!A2"
+  },
+  {
+   "how": "Application",
+   "expression": "IF(TRUE,A1:A2)",
+   "answer": "Range@Data!A1:A2"
+  },
+  {
+   "how": "Application",
+   "expression": "XLOOKUP(3,A1:A5,B1:B5)",
+   "answer": "Range@Data!B3"
+  },
+  {
+   "how": "Application",
+   "expression": "SUM(A1:A5)",
+   "answer": "Double:15"
+  },
+  {
+   "how": "Application",
+   "expression": "SUM(A1:A3*A1:A3)",
+   "answer": "Double:14"
+  },
+  {
+   "how": "Application",
+   "expression": "SUMPRODUCT((A1:A5>2)*A1:A5)",
+   "answer": "Double:12"
+  },
+  {
+   "how": "Application",
+   "expression": "ROW(A1:A3)",
+   "answer": "Array(1 To 3, 1 To 1) Double:1 Double:2 Double:3"
+  },
+  {
+   "how": "Application",
+   "expression": "ROW()",
+   "answer": "Array(1 To 1) Double:1"
+  },
+  {
+   "how": "Application",
+   "expression": "COLUMN()",
+   "answer": "Array(1 To 1) Double:1"
+  },
+  {
+   "how": "Application",
+   "expression": "INDEX(A1:A5,3)",
+   "answer": "Range@Data!A3"
+  },
+  {
+   "how": "Application",
+   "expression": "OFFSET(A1,1,0)",
+   "answer": "Range@Data!A2"
+  },
+  {
+   "how": "Application",
+   "expression": "OFFSET(A1,0,0,3,1)",
+   "answer": "Range@Data!A1:A3"
+  },
+  {
+   "how": "Application",
+   "expression": "INDIRECT(\"A2\")",
+   "answer": "Range@Data!A2"
+  },
+  {
+   "how": "Application",
+   "expression": "IF(A1>0,\"pos\",\"neg\")",
+   "answer": "String:pos"
+  },
+  {
+   "how": "Application",
+   "expression": "IF(A1:A3>1,\"big\",\"small\")",
+   "answer": "Array(1 To 3, 1 To 1) String:small String:big String:big"
+  },
+  {
+   "how": "Application",
+   "expression": "NOW()>0",
+   "answer": "Boolean:True"
+  },
+  {
+   "how": "Application",
+   "expression": "DATE(2020,1,2)",
+   "answer": "Double:43832"
+  },
+  {
+   "how": "Application",
+   "expression": "COUNTIF(A1:A5,\">2\")",
+   "answer": "Double:3"
+  },
+  {
+   "how": "Application",
+   "expression": "TRANSPOSE(A1:A3)",
+   "answer": "Array(1 To 3) Double:1 Double:2 Double:3"
+  },
+  {
+   "how": "Application",
+   "expression": "UPPER(B1:B3)",
+   "answer": "Array(1 To 3, 1 To 1) String:A String:B String:C"
+  },
+  {
+   "how": "Application",
+   "expression": "LEN(B1)",
+   "answer": "Double:1"
+  },
+  {
+   "how": "Application",
+   "expression": "MAX(A1:A5)-MIN(A1:A5)",
+   "answer": "Double:4"
+  },
+  {
+   "how": "Application",
+   "expression": "VLOOKUP(3,A1:B5,2,FALSE)",
+   "answer": "String:c"
+  },
+  {
+   "how": "Application",
+   "expression": "MATCH(\"c\",B1:B5,0)",
+   "answer": "Double:3"
+  },
+  {
+   "how": "Application",
+   "expression": "ISNUMBER(A1)",
+   "answer": "Boolean:True"
+  },
+  {
+   "how": "Application",
+   "expression": "NA()",
+   "answer": "Error:2042"
+  },
+  {
+   "how": "Application",
+   "expression": "Twice*A2",
+   "answer": "Double:4"
+  },
+  {
+   "how": "Application",
+   "expression": "SUM(Block)",
+   "answer": "Double:6"
+  },
+  {
+   "how": "Application",
+   "expression": "NOTAFUNCTION(1)",
+   "answer": "Error:2029"
+  },
+  {
+   "how": "Application",
+   "expression": "notaname",
+   "answer": "Error:2029"
+  },
+  {
+   "how": "Application",
+   "expression": "1+",
+   "answer": "Error:2015"
+  },
+  {
+   "how": "Application",
+   "expression": "",
+   "answer": "Error:2015"
+  },
+  {
+   "how": "Application",
+   "expression": "SUM(",
+   "answer": "Error:2015"
+  },
+  {
+   "how": "Application",
+   "expression": "1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1",
+   "answer": "Error:2015"
+  },
+  {
+   "how": "Brackets",
+   "expression": "1+2",
+   "answer": "Double:3"
+  },
+  {
+   "how": "Brackets",
+   "expression": "A1+A2",
+   "answer": "Double:3"
+  },
+  {
+   "how": "Brackets",
+   "expression": "A1:A3*2",
+   "answer": "Array(1 To 3, 1 To 1) Double:2 Double:4 Double:6"
+  },
+  {
+   "how": "Brackets",
+   "expression": "SUM(A1:A5)",
+   "answer": "Double:15"
+  },
+  {
+   "how": "Brackets",
+   "expression": "A1",
+   "answer": "Range@Data!A1"
+  },
+  {
+   "how": "Brackets",
+   "expression": "Other!A1",
+   "answer": "Range@Other!A1"
+  },
+  {
+   "how": "Brackets",
+   "expression": "Twice",
+   "answer": "Double:2"
+  },
+  {
+   "how": "Brackets",
+   "expression": "0.3-0.2-0.1",
+   "answer": "Double:0"
+  },
+  {
+   "how": "Brackets",
+   "expression": "Block",
+   "answer": "Range@Data!A1:A3"
+  },
+  {
+   "how": "Other",
+   "expression": "A1",
+   "answer": "Range@Other!A1"
+  },
+  {
+   "how": "Other",
+   "expression": "A1*2",
+   "answer": "Double:200"
+  },
+  {
+   "how": "Other",
+   "expression": "SUM(Data!A1:A5)",
+   "answer": "Double:15"
+  },
+  {
+   "how": "Other",
+   "expression": "Data!A1+A1",
+   "answer": "Double:101"
+  },
+  {
+   "how": "Other",
+   "expression": "ROW()",
+   "answer": "Array(1 To 1) Double:1"
+  },
+  {
+   "how": "Other",
+   "expression": "Twice",
+   "answer": "Double:2"
+  },
+  {
+   "how": "Other",
+   "expression": "Block",
+   "answer": "Range@Data!A1:A3"
+  }
+ ]
+}

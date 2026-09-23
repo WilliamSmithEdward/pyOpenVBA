@@ -35,8 +35,17 @@ def _name(sheet: Worksheet, scope: str, name: str) -> tuple[NameEntry, str] | No
     return local or global_name
 
 
-def _formula_area(sheet: Worksheet, node: P.Node, seen: frozenset[str]) -> Area | None:
-    """Resolve measured reference formulas without materializing their cells."""
+def formula_area(sheet: Worksheet, node: P.Node) -> Area | None:
+    """The cells a formula comes to, or None when it comes to a value: what Evaluate hands back as a Range."""
+    return _formula_area(sheet, node, frozenset(), values=True)
+
+
+def _formula_area(sheet: Worksheet, node: P.Node, seen: frozenset[str], *, values: bool = False) -> Area | None:
+    """Resolve measured reference formulas without materializing their cells.
+
+    Another function is refused, as a control's link must be cells; with
+    ``values`` it is taken for a value instead.
+    """
     context = Context(sheet.book.calculator, sheet.name)
     if isinstance(node, P.Reference):
         return context.resolve(node)
@@ -50,12 +59,12 @@ def _formula_area(sheet: Worksheet, node: P.Node, seen: frozenset[str]) -> Area 
     args = node.args
     if node.name.upper() == "CHOOSE" and len(args) >= 2:
         index = int(as_number(single(context.value(args[0]))))
-        return _formula_area(sheet, args[index], seen) if 1 <= index < len(args) else None
+        return _formula_area(sheet, args[index], seen, values=values) if 1 <= index < len(args) else None
     if node.name.upper() == "IF" and 2 <= len(args) <= 3:
         index = 1 if as_bool(single(context.value(args[0]))) else 2
-        return _formula_area(sheet, args[index], seen) if index < len(args) else None
+        return _formula_area(sheet, args[index], seen, values=values) if index < len(args) else None
     if node.name.upper() == "INDEX" and 2 <= len(args) <= 4:
-        area = _formula_area(sheet, args[0], seen)
+        area = _formula_area(sheet, args[0], seen, values=values)
         if area is None:
             return None
         row = int(as_number(single(context.value(args[1]))))
@@ -93,7 +102,7 @@ def _formula_area(sheet: Worksheet, node: P.Node, seen: frozenset[str]) -> Area 
             return Area(top, left, bottom, right, target.name) if target else None
         return binding(sheet, text, seen=seen)[1]
     if node.name.upper() == "OFFSET" and 3 <= len(args) <= 5:
-        area = _formula_area(sheet, args[0], seen)
+        area = _formula_area(sheet, args[0], seen, values=values)
         if area is None:
             return None
         def number(index: int, default: int) -> int:
@@ -111,6 +120,8 @@ def _formula_area(sheet: Worksheet, node: P.Node, seen: frozenset[str]) -> Area 
         if top + height - 1 > MAX_ROWS or left + width - 1 > MAX_COLUMNS:
             return None
         return Area(top, left, top + height - 1, left + width - 1, area.sheet)
+    if values:
+        return None
     raise VBAUnsupportedError("control reference formulas currently support CHOOSE, IF, INDEX, OFFSET and INDIRECT")
 
 

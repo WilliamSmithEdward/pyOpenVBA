@@ -1,0 +1,101 @@
+"""Evaluate and [...]: an expression worked out as Excel's Evaluate works it out.
+
+Measured from VBA (scripts/measure_evaluate.py, tests/fixtures/evaluate.json).
+Application.Evaluate and the bracket form work on the active sheet,
+Worksheet.Evaluate on its own. An expression that comes to cells -- a
+reference, a name for cells, INDEX, OFFSET, INDIRECT, CHOOSE or IF that
+lands on cells, an intersection or a union -- is a Range. Anything else
+is a value, an array counted from 1, or an error value; Evaluate hands an
+error back rather than raising it. Blocks are worked out whole, as an
+array formula works them: A1:A3*2 is three numbers. A last sum that all
+but cancels is 0, as in a cell. An expression Excel cannot read, an
+empty one, or one longer than 255 characters is Error 2015.
+"""
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+from pyopenvba._a1 import Area
+from pyopenvba.exceptions import VBAUnsupportedError
+from pyopenvba.formula import _parse as P
+from pyopenvba.formula._engine import Context, evaluate_formula
+from pyopenvba.formula._values import ExcelError
+from pyopenvba.interpreter._values import VBAErrorValue
+
+if TYPE_CHECKING:
+    from pyopenvba.apps.excel._model import Worksheet
+
+#: The longest expression Evaluate reads.
+LONGEST = 255
+#: What Evaluate answers for an expression it cannot read: #VALUE!, by its CVErr number.
+UNREADABLE = 2015
+#: Functions whose answer can be cells, which Evaluate then hands back as a Range.
+_REFERRING = frozenset({"INDEX", "OFFSET", "INDIRECT", "CHOOSE", "IF"})
+
+
+def evaluated(sheet: Worksheet, text: str) -> object:
+    """What Evaluate answers for ``text``, with ``sheet`` the one its references are on."""
+    from pyopenvba.apps.excel._calc import as_vba
+    from pyopenvba.apps.excel._model import Range
+    from pyopenvba.apps.excel._worksheet_functions import answer
+
+    if len(text) > LONGEST:
+        return VBAErrorValue(UNREADABLE)
+    if "[" in text:
+        raise VBAUnsupportedError(f"Evaluate of {text!r}, which names another workbook, is not implemented")
+    try:
+        node = P.parse(text.strip().removeprefix("="))
+    except P.FormulaError:
+        return VBAErrorValue(UNREADABLE)
+    context = Context(sheet.book.calculator, sheet.name, array=True)
+    try:
+        areas = _areas(sheet, node, context)
+    except ExcelError as failure:
+        return as_vba(failure)
+    if areas is not None:
+        owner = sheet.book.sheet_named(areas[0].sheet)
+        assert owner is not None
+        return Range(owner, areas)
+    try:
+        value = evaluate_formula(node, context)
+    except ExcelError as failure:
+        value = failure
+    return answer(value)
+
+
+def _areas(sheet: Worksheet, node: P.Node | None, context: Context) -> list[Area] | None:
+    """The cells an expression comes to, or None when it comes to a value."""
+    from pyopenvba.apps.excel._control_refs import formula_area
+
+    if isinstance(node, P.Reference):
+        return [context.resolve(node)]
+    if isinstance(node, P.NameNode):
+        named = context.grid.named(node.name, node.sheet or context.sheet)
+        return [named] if isinstance(named, Area) else None
+    if isinstance(node, P.Binary) and node.op == ",":
+        left, right = _areas(sheet, node.left, context), _areas(sheet, node.right, context)
+        return None if left is None or right is None else left + right
+    if isinstance(node, P.Binary) and node.op == " ":
+        left, right = _areas(sheet, node.left, context), _areas(sheet, node.right, context)
+        if left is None or right is None or len(left) != 1 or len(right) != 1:
+            return None
+        return [_intersection(left[0], right[0])]
+    if isinstance(node, P.Call) and node.name.upper() == "XLOOKUP":
+        raise VBAUnsupportedError("Evaluate of XLOOKUP, which comes to a Range, is not implemented")
+    if isinstance(node, P.Call) and node.name.upper() in _REFERRING:
+        found = formula_area(sheet, node)
+        if found is None:
+            return None
+        # INDIRECT("A2") names no sheet: the one Evaluate works on.
+        return [Area(found.top, found.left, found.bottom, found.right, found.sheet or context.sheet)]
+    return None
+
+
+def _intersection(first: Area, second: Area) -> Area:
+    """The cells two blocks share; none is #NULL!, as A1:A2 B1:B2 is."""
+    top, bottom = max(first.top, second.top), min(first.bottom, second.bottom)
+    left, right = max(first.left, second.left), min(first.right, second.right)
+    if first.sheet.lower() != second.sheet.lower() or top > bottom or left > right:
+        raise ExcelError("#NULL!")
+    return Area(top, left, bottom, right, first.sheet)

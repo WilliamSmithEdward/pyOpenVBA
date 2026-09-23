@@ -14,6 +14,7 @@ neighbouring cell can show it.
 from __future__ import annotations
 
 import datetime as _dt
+import math
 from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Final, Protocol
@@ -84,6 +85,8 @@ class Context:
     row: int = 1
     column: int = 1
     depth: int = 0
+    #: Worked out as an array formula is, as Evaluate works one: a block beside an operator stays whole.
+    array: bool = False
 
     def at(self, sheet: str, row: int, column: int) -> Context:
         return Context(self.grid, sheet, row, column, self.depth + 1)
@@ -170,6 +173,9 @@ def _named(node: P.NameNode, context: Context) -> object:
 
 def _unary(node: P.Unary, context: Context) -> object:
     value = evaluate(node.operand, context) if node.operand is not None else BLANK
+    if isinstance(value, Matrix) and value.single:
+        # One cell is one value, as beside a binary operator: -A1 is a number, not a block of one.
+        value = single(value)
     if node.op == "%":
         return _map(value, lambda one: as_number(one) / 100.0)
     return _map(value, lambda one: -as_number(one))
@@ -208,12 +214,13 @@ def _operand(node: P.Node | None, context: Context) -> object:
     A reference spanning several cells used beside an operator is cut
     down to the one on the formula's own row or column, which is what
     Excel writes as @A1:A2 and what makes SUM(A1:A2*2) two rather than
-    six.  An array written out is left whole.
+    six.  An array written out is left whole, and so is every block when
+    the formula is worked out as an array.
     """
     if node is None:
         return BLANK
     value = evaluate(node, context)
-    if not isinstance(node, P.Reference) or not isinstance(value, Matrix) or value.single:
+    if context.array or not isinstance(node, P.Reference) or not isinstance(value, Matrix) or value.single:
         return value
     area = context.resolve(node)
     if area.columns == 1 and area.rows > 1:
@@ -271,24 +278,29 @@ def _apply(op: str, left: object, right: object, *, snap: bool = False) -> objec
     first = as_number(left)
     second = as_number(right)
     if op == "+":
-        return snapped(first, first + second) if snap else first + second
-    if op == "-":
-        return snapped(first, first - second) if snap else first - second
-    if op == "*":
-        return first * second
-    if op == "/":
+        result = first + second
+    elif op == "-":
+        result = first - second
+    elif op == "*":
+        result = first * second
+    elif op == "/":
         if second == 0:
             raise DIV0
-        return first / second
-    if op == "^":
+        result = first / second
+    elif op == "^":
         try:
-            result = first**second
+            power = first**second
         except (OverflowError, ValueError, ZeroDivisionError):
             raise NUM from None
-        if isinstance(result, complex):
+        if isinstance(power, complex):
             raise NUM
-        return float(result)
-    raise VALUE
+        result = float(power)
+    else:
+        raise VALUE
+    if not math.isfinite(result):
+        # Past the largest double, as 1E+300*1E+300 is: #NUM! (tests/fixtures/evaluate.json).
+        raise NUM
+    return snapped(first, result) if snap and op in ("+", "-") else result
 
 
 def clip(area: Area, used: tuple[int, int, int, int] | None) -> Area:

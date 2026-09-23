@@ -924,8 +924,19 @@ Comparisons round each number to fifteen significant digits, an exact
 tie going away from zero, so `=0.1+0.2=0.3` is TRUE. COUNTIF, COUNTIFS,
 SUMIF and SWITCH match that way, while MATCH, VLOOKUP, HLOOKUP and
 XLOOKUP compare the bits. A number's text in a formula rounds a tie
-toward zero instead. An array formula (`Range.FormulaArray`) and
-`Evaluate` of an expression are not implemented.
+toward zero instead. An array formula (`Range.FormulaArray`) is not
+implemented.
+
+`Evaluate`, `[...]` and `Worksheet.Evaluate` work an expression out as
+Excel's Evaluate does (`tests/fixtures/evaluate.json`, 91 cases). What
+comes to cells is a Range: a reference, a name for cells, INDEX, OFFSET,
+INDIRECT, CHOOSE or IF landing on cells, an intersection or a union.
+Anything else is worked out as an array formula, blocks whole, into a
+value, an array counted from 1 or an error value; Evaluate never raises
+a formula's error. An unreadable or empty expression, or one past 255
+characters, is Error 2015. ROW() and COLUMN() with no argument, a
+function run once per item of a block, an intersection inside a formula
+and XLOOKUP's Range are known gaps.
 
 A macro reaches the same functions through `WorksheetFunction.X`, which
 raises error 1004 when the answer is an error, or the late-bound

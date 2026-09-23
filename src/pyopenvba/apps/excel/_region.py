@@ -61,7 +61,12 @@ def _with_merges(sheet: Worksheet, box: tuple[int, int, int, int]) -> tuple[int,
 
 def current_region(sheet: Worksheet, row: int, column: int) -> Area:
     """The region CurrentRegion answers for the cell at ``row`` and ``column``."""
-    box = (row, column, row, column)
+    return region_around(sheet, Area(row, column, row, column, sheet.name))
+
+
+def region_around(sheet: Worksheet, area: Area) -> Area:
+    """The region that grows from a whole block as CurrentRegion grows from one cell."""
+    box = (area.top, area.left, area.bottom, area.right)
     while True:
         top, left, bottom, right = before = _with_merges(sheet, box)
         # The ring around the box, one cell out on every side and its corners with it; each side

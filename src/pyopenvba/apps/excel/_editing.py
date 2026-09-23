@@ -16,7 +16,9 @@ if TYPE_CHECKING:
 _CORNER = re.compile(r"^(\$?)([A-Za-z]+)?(\$?)([0-9]+)?$")
 
 
-def _interval(low: int, high: int, start: int, count: int, delete: bool, limit: int) -> tuple[int, int] | None:
+def interval(low: int, high: int, start: int, count: int, delete: bool, limit: int) -> tuple[int, int] | None:
+    """Where the rows or columns ``low`` to ``high`` end up when ``count`` go in or out at ``start``; None when
+    every one of them is deleted."""
     if not delete:
         low += count if low >= start else 0
         high += count if high >= start else 0
@@ -45,7 +47,7 @@ def rewrite(formula: str, owner: str, edited: str, *, rows: bool, start: int, co
         if any(value is None for value in values):
             continue  # Whole columns survive row edits, and vice versa.
         positions = [value for value in values if value is not None]
-        result = _interval(min(positions), max(positions), start, count, delete, MAX_ROWS if rows else MAX_COLUMNS)
+        result = interval(min(positions), max(positions), start, count, delete, MAX_ROWS if rows else MAX_COLUMNS)
         prefix = token.text[:-len(reference)]
         if result is None:
             replacement = "#REF!"
@@ -86,7 +88,7 @@ def edit(target: Range, *, delete: bool) -> None:
     moved: dict[tuple[int, int], Cell] = {}
     for (row, column), cell in sheet.cells_.items():
         position = row if rows else column
-        result = _interval(position, position, start, count, delete, limit)
+        result = interval(position, position, start, count, delete, limit)
         if result is None:
             if not delete and not cell.is_blank():
                 raise error(1004, "Insertion would move nonempty cells beyond the worksheet")
@@ -119,6 +121,9 @@ def edit(target: Range, *, delete: bool) -> None:
         sheet.dims.shift_columns(start, count, delete)
     if not delete and start > 1:
         _inherit_formats(sheet, rows=rows, start=start, count=count)
+    from pyopenvba.apps.excel._autofilter import filter_edited
+
+    filter_edited(sheet, rows=rows, start=start, count=count, delete=delete)
     sheet.shape_changed()
 
 

@@ -1559,3 +1559,41 @@ def test_excel_reads_the_filters_this_wrote(tmp_path: Path) -> None:
     read = dict(one.split("^", 1) for one in str(result.value).split("|") if one)
     for case in record["cases"]:
         assert read[case["name"]] == case["reopened"], case["name"]
+
+
+def test_excel_reads_the_filtered_edits_this_made(tmp_path: Path) -> None:
+    """Every edit tests/fixtures/autofilter_edits.json measured, made by the model, saved and opened in Excel."""
+    import json
+
+    from test_excel_autofilter_edits import GAPS, UNSUPPORTED
+
+    harness = pytest.importorskip("pyvbaharness")
+    record = json.loads((Path(__file__).parent / "fixtures" / "autofilter_edits.json").read_text(encoding="utf-8"))
+    layouts = [layout for layout in record["layouts"] if layout["name"] not in UNSUPPORTED | GAPS]
+    build = ["Public Sub Build()", "Dim wb As Object, ws As Object", "Set wb = ActiveWorkbook"]
+    bodies: list[str] = []
+    for index, layout in enumerate(layouts):
+        build += ["Set ws = wb.Worksheets(1)" if index == 0 else
+                  "Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))",
+                  f'ws.Name = "{layout["name"][:28]}"', f"Case{index} ws"]
+        bodies.append("\n".join([f"Private Sub Case{index}(ws As Object)", "Dim v As Variant, dest As Object",
+                                 "On Error Resume Next", *(record["table"] + layout["setup"]).splitlines(),
+                                 "End Sub"]) + "\n")
+    build += ["End Sub"]
+    app = ExcelApplication()
+    app.add_workbook()
+    app.add_module(record["helper"] + "\n".join(build) + "\n" + "".join(bodies), name="Builder")
+    app.run("Build")
+    path = tmp_path / "filtered_edits.xlsx"
+    app.save(path)
+    reader = (record["helper"] + "Public Function Report() As String\nDim ws As Object, out As String\n"
+              "For Each ws In ActiveWorkbook.Worksheets\nout = out & ws.Name & \"^\" & Dump(ws) & \"|\"\nNext\n"
+              "Report = out\nEnd Function\n")
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+        excel.open_document(path)
+        result = excel.run_vba(reader, "Report", timeout=240.0)
+        assert result.ok, result.message
+    read = dict(one.split("^", 1) for one in str(result.value).split("|") if one)
+    for layout in layouts:
+        # What Excel read after the edit, past the error and the value the setup left.
+        assert read[layout["name"][:28]] == "hidden=" + layout["answers"].split(";hidden=", 1)[1], layout["name"]

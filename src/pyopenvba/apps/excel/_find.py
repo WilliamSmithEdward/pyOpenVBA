@@ -28,6 +28,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import Area
+from pyopenvba.apps.excel._visible import visible
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.interpreter._values import MISSING, NOTHING, error, to_bool, to_integer, to_text
 
@@ -185,6 +186,8 @@ def replace(target: Range, what: object, replacement: object, look_at: object = 
     if not _parts(text):
         return True
     pattern = _pattern(text, whole == 1, case)
+    # On a filtered sheet only the visible cells change, as _visible has it.
+    target = visible(target)
     sheet = target.sheet
     cells: list[tuple[int, int]] = []
     for area in target.areas:

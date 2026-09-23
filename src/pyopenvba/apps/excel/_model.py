@@ -1409,7 +1409,7 @@ class Range(ExcelObject):
         source_columns = array.bounds[-1][1] - array.bounds[-1][0] + 1
         # Validate the existing write-size limit before changing any area.
         self.writable_positions()
-        for area in self.areas:
+        for area in self._array_areas(array):
             for row in range(area.top, area.bottom + 1):
                 for column in range(area.left, area.right + 1):
                     if not _merges.writable(self.sheet, row, column):
@@ -1623,9 +1623,12 @@ class Range(ExcelObject):
 
     @method
     def ClearFormats(self) -> object:
+        from pyopenvba.apps.excel._autofilter import header_cleared
         from pyopenvba.apps.excel._formats import clear_formats
+        from pyopenvba.apps.excel._visible import visible
 
         clear_formats(self)
+        header_cleared(visible(self))
         return EMPTY
 
     def _format(self, what: str) -> object:
@@ -1794,17 +1797,26 @@ class Range(ExcelObject):
     @method
     def Clear(self) -> object:
         """ClearFormats and ClearContents: a position a row or column format reaches keeps a cell in the default."""
+        from pyopenvba.apps.excel._autofilter import header_cleared
         from pyopenvba.apps.excel._formats import clear_formats
+        from pyopenvba.apps.excel._visible import visible
 
-        _merges.validate_clear(self)
-        clear_formats(self)
-        self._clear_contents()
+        target = visible(self)
+        _merges.validate_clear(target)
+        clear_formats(target)
+        target._clear_contents()
+        header_cleared(target)
         return EMPTY
 
     @method
     def ClearContents(self) -> object:
-        _merges.validate_clear(self)
-        self._clear_contents()
+        from pyopenvba.apps.excel._autofilter import header_cleared
+        from pyopenvba.apps.excel._visible import visible
+
+        target = visible(self)
+        _merges.validate_clear(target)
+        target._clear_contents()
+        header_cleared(target)
         return EMPTY
 
     def _clear_contents(self) -> None:
@@ -1832,15 +1844,52 @@ class Range(ExcelObject):
 
     @method
     def Delete(self, Shift: object = MISSING) -> object:
-        """Delete, which pulls the cells below or to the right up or left."""
-        area = self.first
-        if area.whole_rows or area.whole_columns:
-            from pyopenvba.apps.excel._editing import edit
+        """Delete, which pulls the cells below or to the right up or left.
 
-            edit(self, delete=True)
-            return EMPTY
-        self._shifting_cells()
+        On a filtered sheet, as _visible has it, a delete that would pull
+        cells up takes the whole of each visible row instead, anywhere on
+        the sheet, and one that pulls them left takes the visible cells.
+        """
+        from pyopenvba.apps.excel._visible import filtering
+
         up = Shift is MISSING or int(to_integer(Shift, "Long")) == -4162  # xlUp
+        if filtering(self.sheet) and not all(area.whole_columns for area in self.areas):
+            self._delete_filtered(up)
+        elif all(area.whole_rows for area in self.areas) or all(area.whole_columns for area in self.areas):
+            self._delete_lines()
+        else:
+            self._delete_cells(self.first, up)
+        return EMPTY
+
+    def _delete_lines(self) -> None:
+        """Whole rows or columns deleted, the last area first, so that each goes from where it was."""
+        from pyopenvba.apps.excel._editing import edit
+
+        rows = all(area.whole_rows for area in self.areas)
+        spans = sorted((area.top, area.bottom) if rows else (area.left, area.right) for area in self.areas)
+        if any(later[0] <= earlier[1] for earlier, later in zip(spans, spans[1:])):
+            raise VBAUnsupportedError("deleting overlapping rows or columns is not implemented")
+        for low, high in reversed(spans):
+            area = Area(low, 1, high, MAX_COLUMNS, self.sheet.name) if rows else \
+                Area(1, low, MAX_ROWS, high, self.sheet.name)
+            edit(Range(self.sheet, [area], whole=self.whole), delete=True)
+
+    def _delete_filtered(self, up: bool) -> None:
+        from pyopenvba.apps.excel._visible import unmeasured, visible_areas, visible_rows
+
+        if not all(area.whole_rows for area in self.areas):
+            unmeasured(self, "Deleting cells", lines="columns")
+        if up or all(area.whole_rows for area in self.areas):
+            runs = visible_rows(self) or [(area.top, area.bottom) for area in self.areas]
+            Range(self.sheet, [Area(top, 1, bottom, MAX_COLUMNS, self.sheet.name) for top, bottom in runs],
+                  whole="rows")._delete_lines()
+            return
+        # Each visible block of rows gives up its cells on its own.
+        for area in visible_areas(self) or self.areas:
+            self._delete_cells(area, False)
+
+    def _delete_cells(self, area: Area, up: bool) -> None:
+        self._shifting_cells()
         moved: dict[tuple[int, int], Cell] = {}
         for (row, column), cell in self.sheet.cells_.items():
             if area.contains(row, column):
@@ -1853,19 +1902,34 @@ class Range(ExcelObject):
                 moved[(row, column)] = cell
         self.sheet.cells_ = moved
         self.sheet.shape_changed()
-        return EMPTY
 
     @method
     def Insert(self, Shift: object = MISSING, CopyOrigin: object = MISSING) -> object:
+        """Insert, which pushes cells down or right.
+
+        On a filtered sheet, as _visible has it, whole rows go in as many
+        as the range shows, at its top, and inserting cells is error 1004.
+        """
+        from pyopenvba.apps.excel._visible import filtering, visible_rows
+
         area = self.first
         if CopyOrigin is not MISSING and int(to_integer(CopyOrigin, "Long")) != 0:
             raise VBAUnsupportedError("Insert taking formats from the right or below (xlFormatFromRightOrBelow) "
                                       "is not implemented")
+        filtered = filtering(self.sheet)
         if area.whole_rows or area.whole_columns:
             from pyopenvba.apps.excel._editing import edit
 
+            runs = visible_rows(self) if filtered and area.whole_rows and len(self.areas) == 1 else None
+            if runs is not None:
+                count = sum(bottom - top + 1 for top, bottom in runs)
+                area = Area(area.top, 1, area.top + count - 1, MAX_COLUMNS, area.sheet)
+                edit(Range(self.sheet, [area], whole="rows"), delete=False)
+                return EMPTY
             edit(self, delete=False)
             return EMPTY
+        if filtered:
+            raise error(1004, "Insert method of Range class failed")
         self._shifting_cells()
         down = Shift is MISSING or int(to_integer(Shift, "Long")) == -4121  # xlDown
         moved: dict[tuple[int, int], Cell] = {}
@@ -1894,7 +1958,9 @@ class Range(ExcelObject):
 
     @method
     def Copy(self, Destination: object = MISSING) -> object:
-        return self.copy_to(Destination)
+        from pyopenvba.apps.excel._clipboard import copy, copy_range
+
+        return copy(self) if Destination is MISSING else copy_range(self, Destination)
 
     @method
     def Cut(self, Destination: object = MISSING) -> object:
@@ -2011,7 +2077,13 @@ class Range(ExcelObject):
         each row or column, formats, and blanks over what was there. An
         area one row deep takes its source from the row before it, and one
         with no row before it is error 1004, before anything changes.
+        On a filtered sheet the visible cells fill, as _visible has it.
         """
+        from pyopenvba.apps.excel._visible import visible_areas
+
+        parts = visible_areas(self)
+        if parts is not None:
+            return self._fill_visible(parts, down, across)
         plans: list[tuple[Area, Area]] = []
         for area in self.areas:
             lines = area.rows if down else area.columns
@@ -2032,6 +2104,30 @@ class Range(ExcelObject):
                 plans.append((Area(area.top, edge, area.bottom, edge), Area(area.top, rest[0], area.bottom, rest[1])))
         for source, target in plans:
             Range(self.sheet, [source]).copy_to(Range(self.sheet, [target]))
+        return True
+
+    def _fill_visible(self, parts: list[Area], down: int, across: int) -> object:
+        """A fill of a filtered range's visible cells.
+
+        One visible block fills as a range of its own. Several, which
+        only hidden rows part, fill across each on its own, and down or
+        up from the first or last visible row into every other one.
+        """
+        if len(parts) == 1:
+            return Range(self.sheet, parts)._fill(down, across)
+        if any((area.left, area.right) != (parts[0].left, parts[0].right) for area in parts):
+            raise VBAUnsupportedError("filling a filtered range that hidden columns cut is not implemented")
+        if across:
+            for area in parts:
+                Range(self.sheet, [area])._fill(down, across)
+            return True
+        rows = [row for area in parts for row in range(area.top, area.bottom + 1)]
+        source = rows[0] if down > 0 else rows[-1]
+        left, right = parts[0].left, parts[0].right
+        for row in rows:
+            if row != source:
+                Range(self.sheet, [Area(source, left, source, right)]).copy_to(
+                    Range(self.sheet, [Area(row, left, row, right)]))
         return True
 
     @method
@@ -2209,13 +2305,15 @@ class Range(ExcelObject):
         return as_vba(value, None if raw else cell)
 
     def writable_positions(self) -> list[tuple[int, int]]:
-        """Which cells a write touches.
+        """Which cells a write touches: on a filtered sheet only the visible ones, as _visible has it.
 
         Excel fills a whole column, or formats it through the column's own
         format; the model does neither yet, so the write reports itself.
         """
+        from pyopenvba.apps.excel._visible import visible_areas
+
         out: list[tuple[int, int]] = []
-        for area in self.areas:
+        for area in visible_areas(self) or self.areas:
             if area.rows * area.columns > 1048576:
                 raise VBAUnsupportedError("writing to or formatting more than 1,048,576 cells at once is not implemented")
             for row in range(area.top, area.bottom + 1):
@@ -2237,18 +2335,20 @@ class Range(ExcelObject):
                 self._type_into(row, column, value, raw=raw)
 
     def _write_array(self, array: VBAArray, *, raw: bool = False) -> None:
-        area = self.first
-        if array.dimensions == 1:
-            # A flat array is one row, laid across and repeated down
-            # every row of the range, which is what Excel does with it.
-            items = array.elements()
-            for offset, item in enumerate(items):
-                column = area.left + offset
-                if column > area.right:
-                    break
-                for row in range(area.top, area.bottom + 1):
-                    self._put(row, column, item, raw=raw)
-        else:
+        """An array written to each area -- each visible area, on a filtered sheet -- from the array's first item."""
+        areas = self._array_areas(array)
+        for area in areas:
+            if array.dimensions == 1:
+                # A flat array is one row, laid across and repeated down
+                # every row of the range, which is what Excel does with it.
+                items = array.elements()
+                for offset, item in enumerate(items):
+                    column = area.left + offset
+                    if column > area.right:
+                        break
+                    for row in range(area.top, area.bottom + 1):
+                        self._put(row, column, item, raw=raw)
+                continue
             rows, columns = array.bounds[0], array.bounds[1]
             for row_index in range(rows[0], rows[1] + 1):
                 for column_index in range(columns[0], columns[1] + 1):
@@ -2258,6 +2358,23 @@ class Range(ExcelObject):
                         continue
                     self._put(row, column, array.get([row_index, column_index]), raw=raw)
         self.sheet.touched()
+
+    def _array_areas(self, array: VBAArray) -> list[Area]:
+        """The areas an array is written to, each from the array's start.
+
+        Excel reads a two-dimensional array for the second of several
+        areas at another stride -- {11,12;21,22;...;61,62} written to
+        A2:B2, A4:B4 and A6:B6 leaves 11 and 31 in A4:B4 -- so areas wider
+        than one column report themselves; one column wide, each takes the
+        array's first column.
+        """
+        from pyopenvba.apps.excel._visible import visible_areas
+
+        areas = visible_areas(self) or self.areas
+        if len(areas) > 1 and array.dimensions == 2 and any(area.columns > 1 for area in areas):
+            raise VBAUnsupportedError("writing a two-dimensional array to several areas wider than one column is "
+                                      "not implemented")
+        return areas
 
     def _put(self, row: int, column: int, value: object, *, raw: bool = False) -> None:
         if not _merges.writable(self.sheet, row, column):

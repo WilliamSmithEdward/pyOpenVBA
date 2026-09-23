@@ -21,6 +21,11 @@ Measured in live Excel (scripts/measure_remove_duplicates.py):
   happens; outside the range it is error 1004. An array of them compares
   them all, an empty one does nothing, and one outside the range, 0
   included, is error 5.
+- Over a filter's range (scripts/measure_autofilter_edits.py) every row
+  counts, hidden or not. Over the whole range the range gives up the
+  rows that went, and those left below it show; over all of it but its
+  header the range stays. Either way a filter with criteria filters
+  again. Other overlaps with a filter's range report themselves.
 """
 
 from __future__ import annotations
@@ -62,6 +67,13 @@ def remove_duplicates(target: Range, columns: object, header: object) -> object:
     used = sheet.used_bounds()
     if used is None:
         return EMPTY
+    box = sheet.auto_filter.area if sheet.auto_filter is not None else None
+    overlaps = box is not None and box.top <= area.bottom and area.top <= box.bottom and \
+        box.left <= area.right and area.left <= box.right
+    if box is not None and overlaps and ((area.left, area.right, area.bottom) != (box.left, box.right, box.bottom)
+                                         or area.top not in (box.top, box.top + 1)):
+        # Measured over a filter's whole range and over all of it but its header; nothing else.
+        raise VBAUnsupportedError("RemoveDuplicates over part of a filter's range is not implemented")
     first = area.top + (1 if kept == YES or (kept == GUESS and guessed_header(sheet, area, False)) else 0)
     last = min(area.bottom, used[2])
     seen: set[tuple[tuple[object, ...], ...]] = set()
@@ -86,6 +98,11 @@ def remove_duplicates(target: Range, columns: object, header: object) -> object:
             cell.formula = shift_text(cell.formula, down, 0)
             cell.stale, cell.value = True, EMPTY
         sheet.cells_[(row + down, column)] = cell
+    if box is not None and overlaps:
+        from pyopenvba.apps.excel._autofilter import filtered_again
+
+        # Over the whole range the range gives up the rows that went; either way the filter applies again.
+        filtered_again(sheet, last - first + 1 - len(rows) if area.top == box.top else 0)
     sheet.touched()
     sheet.book.calculator.rebuild()
     return EMPTY

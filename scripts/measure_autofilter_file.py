@@ -65,6 +65,13 @@ CASES: dict[str, str] = {
     "and_plain": filt('Field:=1, Criteria1:="apple", Operator:=xlAnd, Criteria2:="Apple"'),
     "or_blank": filt('Field:=4, Criteria1:="=", Operator:=xlOr, Criteria2:="x"'),
     "decimal_greater": filt('Field:=2, Criteria1:=">2.50"'),
+    "grown_below": filt('Field:=1, Criteria1:="apple"') + 'ws.Range("A14").Value = "apple"\n',
+    "grown_reapplied": filt('Field:=1, Criteria1:="apple"') + 'ws.Range("A14").Value = "pear"\nws.AutoFilter.ApplyFilter\n',
+    "sub_range": filt('Field:=1, Criteria1:="apple"', "A1:D5"),
+    "sub_range_arrows": filt(reference="A1:D5"),
+    "sub_range_then_field": filt(reference="A1:D5") + filt('Field:=1, Criteria1:="apple"', "A1"),
+    "sub_range_refiltered": filt('Field:=1, Criteria1:="apple"', "A1:D5") + filt('Field:=2, Criteria1:=">1"', "A1:D5"),
+    "sub_range_mid": filt('Field:=1, Criteria1:="apple"', "A3:D5"),
 }
 
 

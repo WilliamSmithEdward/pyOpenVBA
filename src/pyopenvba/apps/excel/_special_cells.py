@@ -29,6 +29,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area
+from pyopenvba.apps.excel._visible import bands
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.formula._values import ExcelError
 from pyopenvba.interpreter._values import EMPTY, MISSING, VBADate, error, to_integer
@@ -184,22 +185,9 @@ def _visible(target: Range) -> list[Area]:
     hidden_columns = {column for column, record in dims.columns.items() if record.hidden}
     out: list[Area] = []
     for area in areas:
-        rows = _bands(area.top, area.bottom, hidden_rows)
-        columns = _bands(area.left, area.right, hidden_columns)
+        rows = bands(area.top, area.bottom, hidden_rows)
+        columns = bands(area.left, area.right, hidden_columns)
         out += [Area(top, left, bottom, right, sheet.name) for top, bottom in rows for left, right in columns]
     if not out:
         raise error(1004, "No cells were found.")
     return out
-
-
-def _bands(first: int, last: int, hidden: set[int]) -> list[tuple[int, int]]:
-    """The runs of positions from ``first`` to ``last`` that are not hidden."""
-    bands: list[tuple[int, int]] = []
-    start = first
-    for position in sorted(one for one in hidden if first <= one <= last):
-        if position > start:
-            bands.append((start, position - 1))
-        start = position + 1
-    if start <= last:
-        bands.append((start, last))
-    return bands

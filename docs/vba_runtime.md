@@ -384,6 +384,49 @@ layouts; `tests/fixtures/autofilter_file/`, 34 filters Excel saved).
   filter and the mean of an average one; Excel reads each back as it
   was. A colour, icon or date-group filter read from a file is kept as it
   was, but reading or applying it reports itself unsupported.
+* `AutoFilter.Range` runs on down to the foot of the data around the
+  filter, as CurrentRegion grows, so a row written just below it joins
+  it. Filtering again and ApplyFilter take that row in; the file and the
+  hidden name keep the range as it was until then.
+
+**Editing a filtered sheet.** While a sheet is in filter mode Excel holds
+most edits to what shows (`tests/fixtures/autofilter_edits.json`, 195
+layouts, each in a new workbook).
+
+* A write, a format, a border, a clear, Replace, a row height or a fill
+  reaches only the visible cells of its range: the cells in no hidden row
+  and no hidden column, whatever hid them. A range with no visible cell
+  is edited whole, so a single hidden cell still takes a value. Outside
+  filter mode nothing is held back.
+* Each visible block takes a write as a range of its own: a scalar in
+  every cell, an array from its first item, a formula moving from the
+  range's own top-left cell. Excel reads a two-dimensional array for the
+  second of several blocks at another stride, so an array wider than one
+  column over several blocks reports itself unsupported, filtered or not.
+* A fill across fills each visible block on its own; a fill down or up
+  copies the first or last visible row into every other visible one.
+* Copy takes the visible cells and closes them up, one block under
+  another, as a copy of several areas always does; `Copy Destination:=`
+  and `Worksheet.Paste` paste their formulas as the values they show,
+  PasteSpecial keeps them. A destination with hidden rows takes the copy
+  in each of its visible blocks in turn; PasteSpecial pastes over hidden
+  rows as it would anywhere.
+* Deleting cells upward, or with no Shift, deletes the whole of each
+  visible row, anywhere on the sheet; deleting them to the left takes the
+  visible cells. Inserting cells is error 1004, and inserting whole rows
+  inserts as many as the range shows, at its top.
+* Sort sorts the visible rows among themselves into the rows they fill.
+  RemoveDuplicates counts every row, gives the filter's range up the
+  rows that went, and filters again.
+* AutoFill, Merge, PasteSpecial, SpecialCells and every read ignore the
+  filter.
+* The filter follows the sheet: inserted and deleted rows and columns
+  move and stretch its range, a deleted filtered column takes its
+  criteria along and the rest filter again, and deleting the header row
+  or every column removes the filter and its hidden name. Clearing, or
+  clearing the formats of, the whole header row turns the filter off. A
+  cut of the whole range moves the filter along its sheet with its
+  criteria cleared, or takes it away to another sheet.
 
 **Removing duplicates.** `Range.RemoveDuplicates` removes rows as Excel
 does (`tests/fixtures/remove_duplicates.json`, 98 layouts).

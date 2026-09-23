@@ -29,6 +29,7 @@ from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area
 from pyopenvba.apps.excel import _row_formats
 from pyopenvba.apps.excel import _styles as S
 from pyopenvba.apps.excel._model import ExcelObject
+from pyopenvba.apps.excel._visible import visible_areas
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.interpreter._objects import VBACollection, member, setter
 from pyopenvba.interpreter._values import MISSING, NULL, VBAInt, error, to_bool, to_integer, to_number, to_text
@@ -100,9 +101,13 @@ def uniform(values: Iterable[object]) -> object:
 
 
 def restyle(target: Range, change: Callable[[S.Style], S.Style]) -> None:
-    """Change the format every position of the range shows: whole rows and columns through their own formats."""
+    """Change the format every position of the range shows: whole rows and columns through their own formats.
+
+    On a filtered sheet only the visible cells change, as _visible has it.
+    """
     sheet = target.sheet
-    parts = [area for area in target.areas if not _row_formats.format_area(sheet, area, change)]
+    parts = [area for area in visible_areas(target) or target.areas
+             if not _row_formats.format_area(sheet, area, change)]
     for row, column in _positions(parts):
         sheet.restyle(row, column, change(sheet.style_at(row, column)))
 
@@ -727,8 +732,9 @@ class Border(ExcelObject):
         self.apply(_side_change(what, value))
 
     def apply(self, change: Callable[[S.Side], S.Side]) -> None:
+        """Set the border on each area -- each visible area, on a filtered sheet, measured for the bottom edge."""
         sheet = self.target.sheet
-        parts = [area for area in self.target.areas
+        parts = [area for area in visible_areas(self.target) or self.target.areas
                  if not _row_formats.border_area(sheet, area, self.index, change)]
         _within_limit(parts)
         for area in parts:
@@ -1038,9 +1044,14 @@ def _alignment_change(what: str, value: object) -> Callable[[S.Alignment], S.Ali
 
 
 def clear_formats(target: Range) -> None:
-    """Range.ClearFormats: every cell back to the default format, and merged cells unmerged."""
-    from pyopenvba.apps.excel import _merges
+    """Range.ClearFormats: every cell back to the default format, and merged cells unmerged.
 
+    On a filtered sheet only the visible cells, as _visible has it.
+    """
+    from pyopenvba.apps.excel import _merges
+    from pyopenvba.apps.excel._visible import visible
+
+    target = visible(target)
     _merges.unmerge(target)
     sheet = target.sheet
     parts = [area for area in target.areas if not _row_formats.clear_area(sheet, area)]

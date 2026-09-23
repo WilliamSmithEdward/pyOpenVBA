@@ -27,6 +27,18 @@ Measured in live Excel (scripts/measure_paste.py):
   names included, follows it, to another sheet with the sheet's name;
   one wholly inside the cells the block lands on becomes #REF!; one that
   only overlaps either stays as it is.
+
+Measured in live Excel (scripts/measure_autofilter_edits.py):
+
+- A copy of several areas -- a filtered range's visible cells among
+  them -- closes them up, one under another when they share their
+  columns and side by side when they share their rows; areas that share
+  neither are error 1004. Copy with a destination and Worksheet.Paste
+  paste their formulas as the values they show; PasteSpecial keeps a
+  formula, moved as far as its own cell was.
+- Cutting a filter's whole range moves the filter with it on its sheet,
+  its criteria cleared and its rows shown; to another sheet the filter
+  goes, its rows shown, and its hidden name follows the cells.
 """
 
 from __future__ import annotations
@@ -35,6 +47,7 @@ from dataclasses import dataclass, replace
 from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, column_letter, column_number, quote_sheet
+from pyopenvba.apps.excel._visible import unmeasured, visible, visible_areas
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.formula._parse import shift_text, split_sheet, tokenize, transpose_text
 from pyopenvba.formula._values import ERRORS, ExcelError, number_text
@@ -54,13 +67,59 @@ _UNMODELLED = {-4144: "comments", 6: "data validation"}
 _OPERATIONS = {-4142: "", 2: "+", 3: "-", 4: "*", 5: "/"}
 
 
+@dataclass(frozen=True)
+class Block:
+    """What a copy covers: its areas, closed up into one block, each with the row and column it starts at."""
+
+    parts: tuple[tuple[Area, int, int], ...]
+    rows: int
+    columns: int
+
+    def source(self, down: int, across: int) -> tuple[int, int]:
+        """The cell a position of the block comes from."""
+        for area, top, left in self.parts:
+            if top <= down < top + area.rows and left <= across < left + area.columns:
+                return area.top + down - top, area.left + across - left
+        raise AssertionError("a position outside the block")
+
+    def covers(self, row: int, column: int) -> bool:
+        return any(area.contains(row, column) for area, _, _ in self.parts)
+
+
+def block_of(areas: list[Area]) -> Block:
+    """The block copied areas close up into: one under another when they share their columns, side by side
+    when they share their rows, and error 1004 when they share neither."""
+    first = areas[0]
+    if len(areas) == 1:
+        return Block(((first, 0, 0),), first.rows, first.columns)
+    stacked = all((area.left, area.right) == (first.left, first.right) for area in areas)
+    beside = all((area.top, area.bottom) == (first.top, first.bottom) for area in areas)
+    if not stacked and not beside:
+        raise error(1004, "That command cannot be used on multiple selections")
+    starts = [area.top if stacked else area.left for area in areas]
+    ends = [area.bottom if stacked else area.right for area in areas]
+    if any(start <= end for end, start in zip(ends, starts[1:])):
+        raise VBAUnsupportedError("copying areas out of order, or overlapping, is not implemented")
+    parts: list[tuple[Area, int, int]] = []
+    offset = 0
+    for area in areas:
+        parts.append((area, offset, 0) if stacked else (area, 0, offset))
+        offset += area.rows if stacked else area.columns
+    return Block(tuple(parts), offset if stacked else first.rows, first.columns if stacked else offset)
+
+
 @dataclass
 class Clip:
     """What Copy or Cut put on the clipboard: the range itself, read when it is pasted."""
 
     source: Range
-    area: Area
+    block: Block
     cut: bool
+
+    @property
+    def area(self) -> Area:
+        """What a cut moves: its one area."""
+        return self.block.parts[0][0]
 
 
 def mode(clip: Clip | None) -> VBAInt:
@@ -68,8 +127,69 @@ def mode(clip: Clip | None) -> VBAInt:
 
 
 def copy(target: Range) -> object:
-    """Range.Copy with no destination."""
-    target.sheet.book.application.clipboard = Clip(target, _one_block(target), cut=False)
+    """Range.Copy with no destination: on a filtered sheet the visible cells, as _visible has it."""
+    source = visible(target)
+    target.sheet.book.application.clipboard = Clip(source, block_of(source.areas), cut=False)
+    return True
+
+
+def copy_range(target: Range, destination: object) -> object:
+    """Range.Copy with a destination: on a filtered sheet, the visible cells into the visible cells.
+
+    A destination with hidden cells takes the copy in each visible block,
+    one after the other, a later one pasting over what an earlier one ran into.
+    """
+    from pyopenvba.apps.excel._model import Range
+
+    if not isinstance(destination, Range):
+        raise error(1004, "Copy needs a range to copy to")
+    source = visible(target)
+    made = block_of(source.areas)
+    landing = visible_areas(destination)
+    if landing is None:
+        return paste_block(target.sheet, made, destination)
+    first = made.parts[0][0]
+    if len(made.parts) > 1:
+        raise VBAUnsupportedError("copying several areas into a filtered range is not implemented")
+    for area in landing:
+        Range(target.sheet, [first]).copy_to(Range(destination.sheet, [area]))
+    return True
+
+
+def paste_block(sheet: Worksheet, made: Block, destination: Range) -> object:
+    """A copy pasted as Copy and Paste paste it: one area as a copy of it, several closed up at the destination's
+    top-left with their formulas turned into the values they show."""
+    from pyopenvba.apps.excel import _merges
+    from pyopenvba.apps.excel._model import Range
+
+    if len(made.parts) == 1:
+        return Range(sheet, [made.parts[0][0]]).copy_to(destination)
+    corner = destination.first
+    if len(destination.areas) != 1 or not (destination.single or (corner.rows, corner.columns) == (made.rows,
+                                                                                                    made.columns)):
+        raise VBAUnsupportedError("pasting several copied areas over a range of another size is not implemented")
+    landing = Area(corner.top, corner.left, corner.top + made.rows - 1, corner.left + made.columns - 1)
+    if landing.bottom > MAX_ROWS or landing.right > MAX_COLUMNS:
+        raise error(1004, "The paste would run past the edge of the worksheet")
+    if destination.sheet is sheet and any(_merges.intersects(landing, area) for area, _, _ in made.parts):
+        raise VBAUnsupportedError("pasting copied areas over themselves is not implemented")
+    # The values first: a formula shows what it gives where it is.
+    calculator = sheet.book.calculator
+    values = {position: calculator.value_of(sheet.name, *position) for position, cell in sheet.cells_.items()
+              if cell.formula and made.covers(*position)}
+    target = destination.sheet
+    for area, down, across in made.parts:
+        top, left = corner.top + down, corner.left + across
+        Range(sheet, [area]).copy_to(Range(target, [Area(top, left, top + area.rows - 1, left + area.columns - 1)]))
+        for (row, column), value in values.items():
+            if not area.contains(row, column):
+                continue
+            at = (row - area.top + top, column - area.left + left)
+            cell = target.cell(*at)
+            if cell is not None:
+                cell.formula, cell.value, cell.stale = "", value, False
+                target.settle(*at)
+                target.cell_changed(*at)
     return True
 
 
@@ -80,30 +200,12 @@ def cut(target: Range, destination: object) -> object:
     if len(target.areas) != 1:
         raise error(1004, "That command cannot be used on multiple selections")
     if destination is MISSING:
-        target.sheet.book.application.clipboard = Clip(target, target.first, cut=True)
+        target.sheet.book.application.clipboard = Clip(target, block_of([target.first]), cut=True)
         return True
     if not isinstance(destination, Range):
         raise error(1004, "Cut needs a range to move to")
     move(target, target.first, destination)
     return True
-
-
-def _one_block(target: Range) -> Area:
-    """The block a copy covers: its one area, or areas that together fill one rectangle."""
-    if len(target.areas) == 1:
-        return target.first
-    top = min(area.top for area in target.areas)
-    left = min(area.left for area in target.areas)
-    bottom = max(area.bottom for area in target.areas)
-    right = max(area.right for area in target.areas)
-    cells = sum(area.rows * area.columns for area in target.areas)
-    same_columns = all((area.left, area.right) == (left, right) for area in target.areas)
-    same_rows = all((area.top, area.bottom) == (top, bottom) for area in target.areas)
-    if (same_columns or same_rows) and cells == (bottom - top + 1) * (right - left + 1):
-        return Area(top, left, bottom, right, target.sheet.name)
-    if same_columns or same_rows:
-        raise VBAUnsupportedError("copying areas with gaps between them is not implemented")
-    raise error(1004, "That command cannot be used on multiple selections")
 
 
 def _clip(target: Range) -> Clip:
@@ -129,8 +231,8 @@ def paste(sheet: Worksheet, destination: object, link: object) -> object:
     if clip.cut:
         move(clip.source, clip.area, destination)
         return True
-    source = Range(clip.source.sheet, [clip.area])
-    return source.copy_to(destination)
+    unmeasured(destination, "Worksheet.Paste")
+    return paste_block(clip.source.sheet, clip.block, destination)
 
 
 def paste_special(target: Range, what: object, operation: object, skip_blanks: object, transpose: object) -> object:
@@ -148,11 +250,11 @@ def paste_special(target: Range, what: object, operation: object, skip_blanks: o
         raise error(1004, "PasteSpecial has no such operation")
     skipping = skip_blanks is not MISSING and to_bool(skip_blanks)
     turned = transpose is not MISSING and to_bool(transpose)
-    source_sheet, area = clip.source.sheet, clip.area
+    source_sheet, made = clip.source.sheet, clip.block
     if kind == COLUMN_WIDTHS:
-        _column_widths(source_sheet, area, target)
+        _column_widths(source_sheet, made, target)
         return True
-    rows, columns = (area.columns, area.rows) if turned else (area.rows, area.columns)
+    rows, columns = (made.columns, made.rows) if turned else (made.rows, made.columns)
     corner = target.first
     tiled = corner.rows % rows == 0 and corner.columns % columns == 0
     height, width = (corner.rows, corner.columns) if tiled else (rows, columns)
@@ -162,7 +264,7 @@ def paste_special(target: Range, what: object, operation: object, skip_blanks: o
     if (kind in _CONTENT_FORMULAS or op) and sheet.book is not source_sheet.book:
         raise VBAUnsupportedError("PasteSpecial of formulas into another workbook is not implemented")
     source_cells = {position: _snapshot(cell) for position, cell in source_sheet.cells_.items()
-                    if area.contains(*position)}
+                    if made.covers(*position)}
     values = {position: source_sheet.book.calculator.value_of(source_sheet.name, *position)
               for position, cell in source_cells.items() if cell.formula} if kind in _CONTENT_VALUES else {}
     from pyopenvba.apps.excel import _merges
@@ -173,8 +275,7 @@ def paste_special(target: Range, what: object, operation: object, skip_blanks: o
             if not _merges.writable(sheet, row, column):
                 continue
             inner_down, inner_across = down % rows, across % columns
-            source = (area.top + inner_across, area.left + inner_down) if turned \
-                else (area.top + inner_down, area.left + inner_across)
+            source = made.source(inner_across, inner_down) if turned else made.source(inner_down, inner_across)
             cell = source_cells.get(source)
             blank = cell is None or (cell.value is EMPTY and not cell.formula)
             if blank and skipping:
@@ -254,12 +355,12 @@ def _operand(value: object) -> str | None:
     return None if number is None else number_text(number, formula=True)
 
 
-def _column_widths(source_sheet: Worksheet, area: Area, target: Range) -> None:
+def _column_widths(source_sheet: Worksheet, made: Block, target: Range) -> None:
     dims, widths = target.sheet.dims, source_sheet.dims
-    for offset in range(area.columns):
+    for offset in range(made.columns):
         column = target.first.left + offset
         if column <= MAX_COLUMNS:
-            dims.set_column_width(column, widths.column_pixels(area.left + offset))
+            dims.set_column_width(column, widths.column_pixels(made.source(0, offset)[1]))
     target.sheet.touched()
 
 
@@ -269,6 +370,7 @@ def _column_widths(source_sheet: Worksheet, area: Area, target: Range) -> None:
 def move(source: Range, area: Area, destination: Range) -> None:
     """Cut ``area`` to ``destination``'s top-left cell, taking every reference to it along."""
     from pyopenvba.apps.excel import _merges
+    from pyopenvba.apps.excel._model import Range
 
     sheet, target = source.sheet, destination.sheet
     if sheet.book is not target.book:
@@ -283,6 +385,7 @@ def move(source: Range, area: Area, destination: Range) -> None:
     if _sized(sheet, area) or _sized(target, landing):
         raise VBAUnsupportedError("cutting whole rows or columns that carry sizes or formats of their own is not "
                                   "implemented")
+    unmeasured(Range(target, [landing]), "Cutting cells")
     down, across = top - area.top, left - area.left
     moving = {position: cell for position, cell in sheet.cells_.items() if area.contains(*position)}
     book = sheet.book
@@ -309,6 +412,9 @@ def move(source: Range, area: Area, destination: Range) -> None:
         if cell.formula:
             cell.value = EMPTY
         target.cells_[(row + down, column + across)] = cell
+    from pyopenvba.apps.excel._autofilter import filter_moved
+
+    filter_moved(sheet, area, target, down, across)
     for owner in {sheet, target}:
         owner.touched()
         owner.book.calculator.rebuild()

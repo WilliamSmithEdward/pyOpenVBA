@@ -41,6 +41,7 @@ from pyopenvba._xml import attributes as _attributes
 from pyopenvba._xml import escape as _escape
 from pyopenvba.apps.excel import _font_rows
 from pyopenvba.apps.excel._styles import excel_number
+from pyopenvba.apps.excel._visible import unmeasured, visible_rows
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.interpreter._values import EMPTY, NULL, error, to_number
 
@@ -1311,6 +1312,14 @@ def write_row_height(target: Range, value: object) -> None:
         raise error(1004, "a row can be from 0 to 409.5 points tall")
     quarters = quarters_for(points)
     dims = _dims(target)
+    runs = visible_rows(target)
+    if runs is not None:
+        # On a filtered sheet only the shown rows take the height, as _visible has it.
+        for top, bottom in runs:
+            for row in range(top, bottom + 1):
+                dims.set_row_height(row, quarters)
+        target.sheet.touched()
+        return
     if any(_all_rows(area) for area in target.areas):
         if not quarters:
             raise VBAUnsupportedError("hiding every row of a sheet is not implemented")
@@ -1336,6 +1345,7 @@ def write_column_width(target: Range, value: object) -> None:
         raise error(1004, "a column can be from 0 to 255 characters wide")
     pixels = pixels_for(characters)
     dims = _dims(target)
+    unmeasured(target, "ColumnWidth", lines="columns")
     if any(_all_columns(area) for area in target.areas):
         dims.size_all_columns(pixels)
     else:
@@ -1377,6 +1387,17 @@ def write_hidden(target: Range, value: object) -> None:
     area, rows = _whole(target)
     hidden = _flag(value)
     dims = _dims(target)
+    if rows and (runs := visible_rows(target)) is not None:
+        # On a filtered sheet only the shown rows are reached, as _visible has it: showing them does nothing.
+        if hidden:
+            from pyopenvba.apps.excel._model import Range
+
+            for top, bottom in runs:
+                write_hidden(Range(target.sheet, [Area(top, 1, bottom, MAX_COLUMNS, area.sheet)], whole="rows"), True)
+        return
+    if not rows and not hidden:
+        # Hiding columns ends the same whichever were reached; showing them was not measured.
+        unmeasured(target, "Showing columns", lines="columns")
     if rows:
         if area.bottom == MAX_ROWS and area.top - 1 < MAX_ROWS - area.top + 1:
             if hidden:
@@ -1409,6 +1430,7 @@ def read_use_standard_height(target: Range) -> object:
 def write_use_standard_height(target: Range, value: object) -> None:
     standard = _flag(value)
     dims = _dims(target)
+    unmeasured(target, "UseStandardHeight", lines="rows")
     for row in _rows_of(target):
         if standard:
             dims.standard_row(row)
@@ -1427,6 +1449,7 @@ def write_use_standard_width(target: Range, value: object) -> None:
     if not _flag(value):
         return
     dims = _dims(target)
+    unmeasured(target, "UseStandardWidth", lines="columns")
     for column in _columns_of(target):
         dims.standard_column(column)
     target.sheet.touched()
@@ -1454,6 +1477,7 @@ def autofit(target: Range) -> None:
     """AutoFit on whole rows or columns: a row loses the height it kept; an empty column keeps its width."""
     area, rows = _whole(target)
     dims = _dims(target)
+    unmeasured(target, "AutoFit", lines="rows" if rows else "columns")
     if rows:
         for row in range(area.top, area.bottom + 1):
             dims.autofit_row(row)

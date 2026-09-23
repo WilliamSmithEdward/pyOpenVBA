@@ -54,7 +54,7 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
-from pyopenvba._a1 import Area, parse_reference, quote_sheet
+from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, parse_reference, quote_sheet
 from pyopenvba.apps.excel._model import ExcelObject, NameEntry, Range
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.formula._display import UndisplayableError, shown
@@ -500,6 +500,146 @@ def _new_filter(sheet: Worksheet, area: Area) -> SheetFilter:
     return made
 
 
+# --- the filter as the sheet changes around it ------------------------------------------------------------
+
+
+def grown(sheet: Worksheet, area: Area) -> Area:
+    """A filter's range as Excel reads and applies it: its rows run on to the foot of the data around it.
+
+    Measured (scripts/measure_autofilter_edits.py, measure_autofilter_file.py):
+    a filter over A1:C7 reads A1:C8 once anything is written in row 8
+    where the block around the range reaches -- D8 and E8 do, Z8 does
+    not, as CurrentRegion grows -- and A1:C7 again once it is cleared. A
+    new filter over A1:D5 of a table down to row 13 filters and saves
+    A1:D13 while its hidden name keeps A1:D5; arrows alone keep A1:D5.
+    Filtering again, or ApplyFilter, takes in what has grown; filtering
+    again renames it, ApplyFilter does not.
+    """
+    from pyopenvba.apps.excel._region import region_around
+
+    bottom = region_around(sheet, area).bottom
+    return area if bottom <= area.bottom else Area(area.top, area.left, bottom, area.right, area.sheet)
+
+
+def filter_edited(sheet: Worksheet, *, rows: bool, start: int, count: int, delete: bool) -> None:
+    """A sheet's filter after ``count`` whole rows or columns go in or out at ``start``.
+
+    Measured: the range moves and stretches as a reference does. Deleting
+    its header row takes the filter and its hidden name away, showing
+    what is left of its rows, and so does deleting all its columns.
+    Deleting a filtered column drops that column's criteria and filters
+    again by the rest; the other columns' criteria follow their columns.
+    """
+    from pyopenvba.apps.excel._editing import interval
+
+    found = sheet.auto_filter
+    if found is None:
+        return
+    box = found.area
+    if rows:
+        span = interval(box.top, box.bottom, start, count, delete, MAX_ROWS)
+        if span is not None and not (delete and start <= box.top < start + count):
+            found.area = Area(span[0], box.left, span[1], box.right, box.sheet)
+            _changed(sheet)
+            return
+        if span is not None:
+            for row in range(span[0], span[1] + 1):
+                if sheet.dims.row_hidden(row):
+                    sheet.dims.hide_row(row, False)
+        _drop(sheet)
+        return
+    span = interval(box.left, box.right, start, count, delete, MAX_COLUMNS)
+    if span is None:
+        found.show_all(sheet)
+        _drop(sheet)
+        return
+    fields: dict[int, FieldFilter] = {}
+    for index, one in found.fields.items():
+        column = interval(box.left + index - 1, box.left + index - 1, start, count, delete, MAX_COLUMNS)
+        if column is not None:
+            fields[column[0] - span[0] + 1] = one
+    dropped = len(fields) != len(found.fields)
+    found.fields = fields
+    found.area = Area(box.top, span[0], box.bottom, span[1], box.sheet)
+    if dropped:
+        found.apply(sheet)
+    _changed(sheet)
+
+
+def filter_moved(sheet: Worksheet, area: Area, target: Worksheet, down: int, across: int) -> None:
+    """A sheet's filter after a cut moves ``area`` by ``down`` and ``across`` to ``target``.
+
+    Measured: a cut of the whole range moves the filter along its sheet
+    with its criteria cleared, and to another sheet takes it away; its
+    rows show either way, and the hidden name follows the cells. A cut
+    of part of the range leaves the filter as it was.
+    """
+    found = sheet.auto_filter
+    box = found.area if found is not None else None
+    if found is None or box is None or not (area.top <= box.top and box.bottom <= area.bottom
+                                            and area.left <= box.left and box.right <= area.right):
+        return
+    found.show_all(sheet)
+    if target is sheet:
+        found.area = Area(box.top + down, box.left + across, box.bottom + down, box.right + across, box.sheet)
+        found.fields.clear()
+    else:
+        sheet.auto_filter = None
+    _changed(sheet)
+
+
+def header_cleared(target: Range) -> None:
+    """A Clear, ClearContents or ClearFormats of ``target``, which turns the filter off if it took in the whole
+    header row.
+
+    Measured: clearing A1:C1 over a filter on A1:C7, or any range around
+    it, turns the filter off as AutoFilterMode = False does, its rows shown
+    and its hidden name kept; clearing A1 alone, or writing "" to A1:C1,
+    leaves it.
+    """
+    sheet = target.sheet
+    found = sheet.auto_filter
+    if found is None:
+        return
+    box = found.area
+    if all(any(area.contains(box.top, column) for area in target.areas) for column in range(box.left, box.right + 1)):
+        found.show_all(sheet)
+        sheet.auto_filter = None
+        _changed(sheet)
+
+
+def filtered_again(sheet: Worksheet, removed: int) -> None:
+    """A sheet's filter after RemoveDuplicates over its range, which gave up ``removed`` rows at its foot.
+
+    Measured: the rows given up show, the hidden name follows the range,
+    and a filter with criteria filters again.
+    """
+    found = sheet.auto_filter
+    if found is None:
+        return
+    if removed:
+        box = found.area
+        found.area = Area(box.top, box.left, box.bottom - removed, box.right, box.sheet)
+        _remember_database(sheet, found.area)
+        for row in range(found.area.bottom + 1, box.bottom + 1):
+            if sheet.dims.row_hidden(row):
+                sheet.dims.hide_row(row, False)
+    if found.fields:
+        found.apply(sheet)
+    _changed(sheet)
+
+
+def _drop(sheet: Worksheet) -> None:
+    """The filter gone, and its hidden name with it."""
+    sheet.auto_filter = None
+    names = sheet.book.names_
+    local = (quote_sheet(sheet.name) + "!_FilterDatabase").lower()
+    for entry in [entry for entry in names.entries if entry.name.lower() == local]:
+        names.entries.remove(entry)
+        names.changed = True
+    _changed(sheet)
+
+
 def range_autofilter(target: Range, field_argument: object, criteria1: object, operator: object, criteria2: object,
                      visible_dropdown: object, sub_field: object) -> object:
     """Range.AutoFilter."""
@@ -518,7 +658,9 @@ def range_autofilter(target: Range, field_argument: object, criteria1: object, o
             _new_filter(sheet, _filter_area(target))
         _changed(sheet)
         return True
-    area = existing.area if existing is not None else _filter_area(target)
+    asked = _filter_area(target) if existing is None else existing.area
+    # Filtering takes in the rows of data grown on below the range.
+    area = grown(sheet, asked)
     index = int(to_integer(field_argument, "Long"))
     if not 1 <= index <= area.columns:
         raise error(1004, "AutoFilter's field is outside the range")
@@ -526,7 +668,11 @@ def range_autofilter(target: Range, field_argument: object, criteria1: object, o
     if made is None and hidden_button:
         raise VBAUnsupportedError("hiding a drop-down without criteria is not implemented")
     if existing is None:
-        existing = _new_filter(sheet, area)
+        # A new filter's name keeps the range it was asked for; filtering again names the grown one.
+        existing = _new_filter(sheet, asked)
+    else:
+        _remember_database(sheet, area)
+    existing.area = area
     if made is None:
         existing.fields.pop(index, None)
     else:
@@ -703,7 +849,7 @@ class AutoFilter(ExcelObject):
 
     @member
     def Range(self) -> object:
-        return Range(self.sheet, [self.state().area])
+        return Range(self.sheet, [grown(self.sheet, self.state().area)])
 
     @member
     def Filters(self, Index: object = MISSING) -> object:
@@ -716,7 +862,12 @@ class AutoFilter(ExcelObject):
 
     @method
     def ApplyFilter(self) -> object:
-        self.state().apply(self.sheet)
+        found = self.state()
+        area = grown(self.sheet, found.area)
+        if area != found.area:
+            found.area = area
+            _changed(self.sheet)
+        found.apply(self.sheet)
         return EMPTY
 
     @method

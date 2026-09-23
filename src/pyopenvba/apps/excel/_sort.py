@@ -21,6 +21,9 @@ Measured in live Excel (scripts/measure_sort_order.py, scripts/measure_sort.py):
   in format, or in the first being in capitals and the second not.
 - The Sort object sorts its range by its fields in order, keeping them
   after Apply; it keeps a header only when told xlYes.
+- On a filtered sheet (scripts/measure_autofilter_edits.py) the visible
+  rows sort among themselves into the rows they fill; the hidden ones
+  stay, and a range with no visible row does not change.
 """
 
 from __future__ import annotations
@@ -31,6 +34,7 @@ from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import Area
 from pyopenvba.apps.excel._model import ExcelObject, Range
+from pyopenvba.apps.excel._visible import filtering, hidden_lines, unmeasured
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.formula._parse import shift_text
 from pyopenvba.formula._values import ExcelError
@@ -135,6 +139,16 @@ def sort_area(sheet: Worksheet, area: Area, keys: list[Key], *, header: bool, ma
         return calculator.value_of(sheet.name, row, column) if cell.formula else cell.value
 
     lines = list(range(first, last + 1))
+    block = Area(area.top, first, area.bottom, last) if across else Area(first, area.left, last, area.right)
+    if filtering(sheet):
+        # A filtered sheet sorts its visible rows among themselves, into the rows they fill, and none
+        # when none shows: measured for Range.Sort and the Sort object.
+        if across:
+            unmeasured(Range(sheet, [block]), "Sorting left to right")
+        else:
+            unmeasured(Range(sheet, [block]), "Sorting over hidden columns", lines="columns")
+            hidden, _ = hidden_lines(sheet)
+            lines = [line for line in lines if line not in hidden]
     classified = {line: [_classified(value(line, key), key, match_case) for key in keys] for line in lines}
 
     def compare(one: int, other: int) -> int:
@@ -145,9 +159,9 @@ def sort_area(sheet: Worksheet, area: Area, keys: list[Key], *, header: bool, ma
         return 0
 
     order = sorted(lines, key=cmp_to_key(compare))
-    destination = {source: first + index for index, source in enumerate(order)}
-    block = Area(area.top, first, area.bottom, last) if across else Area(first, area.left, last, area.right)
-    moving = {position: cell for position, cell in sheet.cells_.items() if block.contains(*position)}
+    destination = dict(zip(order, lines, strict=True))
+    moving = {position: cell for position, cell in sheet.cells_.items()
+              if block.contains(*position) and position[1 if across else 0] in destination}
     for position in moving:
         del sheet.cells_[position]
     for (row, column), cell in moving.items():

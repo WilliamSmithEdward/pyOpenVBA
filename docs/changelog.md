@@ -65,6 +65,21 @@ All notable changes to pyOpenVBA are documented here. This project follows
   file reads back as Excel reads it: 113 layouts and 34 saved filters
   in live Excel pin it, and Excel opens the filters this writes. Colour,
   icon and date-group filters in a file are kept but not applied.
+- Edits on a filtered sheet hold back to what shows, as Excel's do.
+  Values, formulas, formats, borders, clearing, fills, Replace, Sort, row
+  heights and hiding reach only the visible cells, and a range with no
+  visible cell is edited whole. Copy takes the visible cells, closed up,
+  and pastes their formulas as the values they show; a copy of several
+  areas does the same anywhere. Deleting cells up deletes the visible
+  rows whole, inserting cells is error 1004, and inserting whole rows
+  inserts as many as the range shows. The filter follows the sheet: rows
+  and columns inserted and deleted move and stretch it, deleting a
+  filtered column filters again by the rest, and deleting or clearing
+  the header row turns it off. `AutoFilter.Range` runs on over rows
+  written below it, which filtering again takes in. 195 layouts in live
+  Excel pin it; SUBTOTAL, not in the formula engine, and a
+  two-dimensional array written to several areas, which Excel reads at
+  another stride, report themselves unsupported.
 - `Application.Evaluate` and `[...]` read an array constant such as
   `{1,2;3,4}` into an array counted from 1, one-dimensional when it is
   one row, as Excel does. Text that is not a reference, a name or an

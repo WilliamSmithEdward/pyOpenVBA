@@ -1,0 +1,981 @@
+{
+ "helper": "Private Function Show(v As Variant) As String\n    Dim i As Long, out As String\n    If IsArray(v) Then\n        out = \"Array(\"\n        For i = LBound(v) To UBound(v)\n            out = out & Show(v(i)) & \",\"\n        Next\n        Show = out & \")\"\n    ElseIf IsNull(v) Then\n        Show = \"Null\"\n    ElseIf IsEmpty(v) Then\n        Show = \"Empty\"\n    ElseIf IsError(v) Then\n        Show = \"Error:\" & CStr(CLng(v))\n    ElseIf IsObject(v) Then\n        Show = \"Object\"\n    Else\n        Show = TypeName(v) & \":\" & CStr(v)\n    End If\nEnd Function\n\nPrivate Function Filters(ws As Object) As String\n    Dim out As String, i As Long, f As Object, part As String\n    On Error Resume Next\n    out = \"mode=\" & ws.AutoFilterMode & \" filtering=\" & ws.FilterMode\n    If ws.AutoFilterMode Then\n        out = out & \" range=\" & ws.AutoFilter.Range.Address & \" count=\" & ws.AutoFilter.Filters.Count\n        For i = 1 To ws.AutoFilter.Filters.Count\n            Set f = ws.AutoFilter.Filters(i)\n            part = \" f\" & i & \":\" & f.On\n            If f.On Then\n                Err.Clear\n                part = part & \" op=\" & f.Operator\n                If Err.Number <> 0 Then part = part & \" op=E\" & Err.Number\n                Err.Clear\n                part = part & \" c1=\" & Show(f.Criteria1)\n                If Err.Number <> 0 Then part = part & \" c1=E\" & Err.Number\n                Err.Clear\n                part = part & \" c2=\" & Show(f.Criteria2)\n                If Err.Number <> 0 Then part = part & \" c2=E\" & Err.Number\n            End If\n            out = out & part\n        Next\n    End If\n    Err.Clear\n    Dim n As Object\n    Set n = Nothing\n    Set n = ws.Names(\"_FilterDatabase\")\n    If Not n Is Nothing Then out = out & \" db=\" & n.RefersTo & \":\" & n.Visible\n    Filters = out\nEnd Function\n\nPrivate Function Rows(ws As Object) As String\n    Dim out As String, r As Long\n    For r = 1 To 14\n        If ws.Rows(r).Hidden Then out = out & r & \",\"\n    Next\n    Rows = \"hidden=\" & out & \" \" & Filters(ws)\nEnd Function\n\nPrivate Function Cells8(ws As Object) As String\n    Dim out As String, c As Object\n    For Each c In ws.Range(\"A1:G8\").Cells\n        out = out & c.Formula & \"<>\"\n    Next\n    Cells8 = out\nEnd Function\n\nPrivate Function Dump(ws As Object) As String\n    Dim landed As String, other As Object\n    On Error Resume Next\n    Set other = Nothing\n    Set other = ws.Parent.Worksheets(ws.Name & \"_to\")\n    If Not other Is Nothing Then landed = \" landed=\" & other.UsedRange.Address & \":\" & Cells8(other)\n    On Error GoTo 0\n    Dump = Rows(ws) & \" cells=\" & Cells8(ws) & landed\nEnd Function\n",
+ "table": "ws.Range(\"A1:C1\").Value = Array(\"Name\", \"Qty\", \"Twice\")\nws.Range(\"A2:B2\").Value = Array(\"apple\", 1)\nws.Range(\"A3:B3\").Value = Array(\"pear\", 2)\nws.Range(\"A4:B4\").Value = Array(\"apple\", 3)\nws.Range(\"A5:B5\").Value = Array(\"fig\", 4)\nws.Range(\"A6:B6\").Value = Array(\"apple\", 5)\nws.Range(\"A7:B7\").Value = Array(\"kiwi\", 6)\nws.Range(\"C2:C7\").Formula = \"=B2*2\"\nws.Range(\"D1\").Formula = \"=SUM(B2:B7)\"\nws.Range(\"F1:F7\").Value = Application.Transpose(Array(\"f1\", \"f2\", \"f3\", \"f4\", \"f5\", \"f6\", \"f7\"))\nws.Range(\"A1:C7\").AutoFilter Field:=1, Criteria1:=\"apple\"\n",
+ "layouts": [
+  {
+   "name": "visible_cells",
+   "setup": "v = ws.AutoFilter.Range.SpecialCells(xlCellTypeVisible).Address",
+   "answers": "String:$A$1:$C$2,$A$4:$C$4,$A$6:$C$6;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==visible_cells!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "visible_body",
+   "setup": "v = ws.AutoFilter.Range.Offset(1).SpecialCells(xlCellTypeVisible).Address",
+   "answers": "String:$A$2:$C$2,$A$4:$C$4,$A$6:$C$6,$A$8:$C$8;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==visible_body!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "copy_filtered",
+   "setup": "Set dest = ws.Parent.Worksheets.Add(After:=ws)\ndest.Name = ws.Name & \"_to\"\nws.Activate\nv = ws.AutoFilter.Range.Copy(dest.Range(\"A1\"))",
+   "answers": "Boolean:True;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==copy_filtered!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><> landed=$A$1:$C$4:Name<>Qty<>Twice<><><><><>apple<>1<>2<><><><><>apple<>3<>6<><><><><>apple<>5<>10<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>"
+  },
+  {
+   "name": "copy_part",
+   "setup": "Set dest = ws.Parent.Worksheets.Add(After:=ws)\ndest.Name = ws.Name & \"_to\"\nws.Activate\nv = ws.Range(\"A2:B6\").Copy(dest.Range(\"A1\"))",
+   "answers": "Boolean:True;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==copy_part!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><> landed=$A$1:$B$3:apple<>1<><><><><><>apple<>3<><><><><><>apple<>5<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>"
+  },
+  {
+   "name": "copy_column",
+   "setup": "Set dest = ws.Parent.Worksheets.Add(After:=ws)\ndest.Name = ws.Name & \"_to\"\nws.Activate\nv = ws.Range(\"B1:B7\").Copy(dest.Range(\"A1\"))",
+   "answers": "Boolean:True;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==copy_column!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><> landed=$A$1:$A$4:Qty<><><><><><><>1<><><><><><><>3<><><><><><><>5<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>"
+  },
+  {
+   "name": "copy_outside",
+   "setup": "Set dest = ws.Parent.Worksheets.Add(After:=ws)\ndest.Name = ws.Name & \"_to\"\nws.Activate\nv = ws.Range(\"D1:D3\").Copy(dest.Range(\"A1\"))",
+   "answers": "Boolean:True;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==copy_outside!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><> landed=$A$1:=SUM(#REF!)<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>"
+  },
+  {
+   "name": "copy_to_clipboard",
+   "setup": "Set dest = ws.Parent.Worksheets.Add(After:=ws)\ndest.Name = ws.Name & \"_to\"\nws.Activate\nws.AutoFilter.Range.Copy\ndest.Paste dest.Range(\"A1\")",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==copy_to_clipboard!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><> landed=$A$1:$C$4:Name<>Qty<>Twice<><><><><>apple<>1<>2<><><><><>apple<>3<>6<><><><><>apple<>5<>10<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>"
+  },
+  {
+   "name": "copy_hidden_by_hand",
+   "setup": "ws.AutoFilterMode = False\nws.Rows(3).Hidden = True\nSet dest = ws.Parent.Worksheets.Add(After:=ws)\ndest.Name = ws.Name & \"_to\"\nws.Activate\nv = ws.Range(\"A1:C7\").Copy(dest.Range(\"A1\"))",
+   "answers": "Boolean:True;hidden=3, mode=False filtering=False db==copy_hidden_by_hand!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><> landed=$A$1:$C$7:Name<>Qty<>Twice<><><><><>apple<>1<>=B2*2<><><><><>pear<>2<>=B3*2<><><><><>apple<>3<>=B4*2<><><><><>fig<>4<>=B5*2<><><><><>apple<>5<>=B6*2<><><><><>kiwi<>6<>=B7*2<><><><><><><><><><><><>"
+  },
+  {
+   "name": "copy_arrows_only",
+   "setup": "ws.ShowAllData\nws.Rows(3).Hidden = True\nSet dest = ws.Parent.Worksheets.Add(After:=ws)\ndest.Name = ws.Name & \"_to\"\nws.Activate\nv = ws.Range(\"A1:C7\").Copy(dest.Range(\"A1\"))",
+   "answers": "Boolean:True;hidden=3, mode=True filtering=False range=$A$1:$C$7 count=3 f1:False f2:False f3:False db==copy_arrows_only!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><> landed=$A$1:$C$7:Name<>Qty<>Twice<><><><><>apple<>1<>=B2*2<><><><><>pear<>2<>=B3*2<><><><><>apple<>3<>=B4*2<><><><><>fig<>4<>=B5*2<><><><><>apple<>5<>=B6*2<><><><><>kiwi<>6<>=B7*2<><><><><><><><><><><><>"
+  },
+  {
+   "name": "clear_filtered",
+   "setup": "ws.Range(\"A2:B7\").ClearContents",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==clear_filtered!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><><><>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><><><>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><><><>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "value_filtered",
+   "setup": "ws.Range(\"B2:B7\").Value = 9",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==value_filtered!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>9<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>9<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>9<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "delete_visible",
+   "setup": "ws.AutoFilter.Range.Offset(1).SpecialCells(xlCellTypeVisible).EntireRow.Delete",
+   "answers": "Empty;hidden=2,3,4, mode=True filtering=True range=$A$1:$C$4 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==delete_visible!$A$1:$C$4:False cells=Name<>Qty<>Twice<>=SUM(B2:B4)<><>f1<><>pear<>2<>=B2*2<><><>f3<><>fig<>4<>=B3*2<><><>f5<><>kiwi<>6<>=B4*2<><><>f7<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>"
+  },
+  {
+   "name": "delete_rows_through",
+   "setup": "ws.Range(\"A3:A5\").EntireRow.Delete",
+   "answers": "Empty;hidden=3,4,6, mode=True filtering=True range=$A$1:$C$6 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==delete_rows_through!$A$1:$C$6:False cells=Name<>Qty<>Twice<>=SUM(B2:B6)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>fig<>4<>=B4*2<><><>f5<><>apple<>5<>=B5*2<><><>f6<><>kiwi<>6<>=B6*2<><><>f7<><><><><><><><><><><><><><><><>"
+  },
+  {
+   "name": "delete_one_row",
+   "setup": "ws.Rows(4).Delete",
+   "answers": "Empty;hidden=3,4,6, mode=True filtering=True range=$A$1:$C$6 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==delete_one_row!$A$1:$C$6:False cells=Name<>Qty<>Twice<>=SUM(B2:B6)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>fig<>4<>=B4*2<><><>f5<><>apple<>5<>=B5*2<><><>f6<><>kiwi<>6<>=B6*2<><><>f7<><><><><><><><><><><><><><><><>"
+  },
+  {
+   "name": "delete_header",
+   "setup": "ws.Rows(1).Delete",
+   "answers": "Empty;hidden= mode=False filtering=False cells=apple<>1<>=B1*2<><><>f2<><>pear<>2<>=B2*2<><><>f3<><>apple<>3<>=B3*2<><><>f4<><>fig<>4<>=B4*2<><><>f5<><>apple<>5<>=B5*2<><><>f6<><>kiwi<>6<>=B6*2<><><>f7<><><><><><><><><><><><><><><><>"
+  },
+  {
+   "name": "delete_above",
+   "setup": "ws.Range(\"F1\").Value = 1\nws.Rows(1).Insert\nws.Rows(1).Delete",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==delete_above!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "insert_inside",
+   "setup": "ws.Rows(3).Insert",
+   "answers": "Empty;hidden=4,6,8, mode=True filtering=True range=$A$1:$C$8 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==insert_inside!$A$1:$C$8:False cells=Name<>Qty<>Twice<>=SUM(B2:B8)<><>f1<><>apple<>1<>=B2*2<><><>f2<><><><><><><><><>pear<>2<>=B4*2<><><>f3<><>apple<>3<>=B5*2<><><>f4<><>fig<>4<>=B6*2<><><>f5<><>apple<>5<>=B7*2<><><>f6<><>kiwi<>6<>=B8*2<><><>f7<><>"
+  },
+  {
+   "name": "insert_above",
+   "setup": "ws.Rows(1).Insert",
+   "answers": "Empty;hidden=4,6,8, mode=True filtering=True range=$A$2:$C$8 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==insert_above!$A$2:$C$8:False cells=<><><><><><><>Name<>Qty<>Twice<>=SUM(B3:B8)<><>f1<><>apple<>1<>=B3*2<><><>f2<><>pear<>2<>=B4*2<><><>f3<><>apple<>3<>=B5*2<><><>f4<><>fig<>4<>=B6*2<><><>f5<><>apple<>5<>=B7*2<><><>f6<><>kiwi<>6<>=B8*2<><><>f7<><>"
+  },
+  {
+   "name": "insert_below",
+   "setup": "ws.Rows(8).Insert",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==insert_below!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "delete_filtered_column",
+   "setup": "ws.Columns(1).Delete",
+   "answers": "Empty;hidden= mode=True filtering=False range=$A$1:$B$7 count=2 f1:False f2:False db==delete_filtered_column!$A$1:$B$7:False cells=Qty<>Twice<>=SUM(A2:A7)<><>f1<><><>1<>=A2*2<><><>f2<><><>2<>=A3*2<><><>f3<><><>3<>=A4*2<><><>f4<><><>4<>=A5*2<><><>f5<><><>5<>=A6*2<><><>f6<><><>6<>=A7*2<><><>f7<><><><><><><><><><>"
+  },
+  {
+   "name": "delete_other_column",
+   "setup": "ws.Columns(2).Delete",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$B$7 count=2 f1:True op=0 c1=String:=apple c2=E1004 f2:False db==delete_other_column!$A$1:$B$7:False cells=Name<>Twice<>=SUM(#REF!)<><>f1<><><>apple<>=#REF!*2<><><>f2<><><>pear<>=#REF!*2<><><>f3<><><>apple<>=#REF!*2<><><>f4<><><>fig<>=#REF!*2<><><>f5<><><>apple<>=#REF!*2<><><>f6<><><>kiwi<>=#REF!*2<><><>f7<><><><><><><><><><>"
+  },
+  {
+   "name": "insert_column",
+   "setup": "ws.Columns(2).Insert",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$D$7 count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False db==insert_column!$A$1:$D$7:False cells=Name<><>Qty<>Twice<>=SUM(C2:C7)<><>f1<>apple<><>1<>=C2*2<><><>f2<>pear<><>2<>=C3*2<><><>f3<>apple<><>3<>=C4*2<><><>f4<>fig<><>4<>=C5*2<><><>f5<>apple<><>5<>=C6*2<><><>f6<>kiwi<><>6<>=C7*2<><><>f7<><><><><><><><>"
+  },
+  {
+   "name": "delete_all_body",
+   "setup": "ws.Rows(\"2:7\").Delete",
+   "answers": "Empty;hidden=2,3,4, mode=True filtering=True range=$A$1:$C$4 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==delete_all_body!$A$1:$C$4:False cells=Name<>Qty<>Twice<>=SUM(B2:B4)<><>f1<><>pear<>2<>=B2*2<><><>f3<><>fig<>4<>=B3*2<><><>f5<><>kiwi<>6<>=B4*2<><><>f7<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>"
+  },
+  {
+   "name": "range_delete_up",
+   "setup": "ws.Range(\"A3:C3\").Delete Shift:=xlUp",
+   "answers": "Empty;hidden=4,6, mode=True filtering=True range=$A$1:$C$6 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==range_delete_up!$A$1:$C$6:False cells=Name<>Qty<>Twice<>=SUM(B2:B6)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>apple<>3<>=B3*2<><><>f4<><>fig<>4<>=B4*2<><><>f5<><>apple<>5<>=B5*2<><><>f6<><>kiwi<>6<>=B6*2<><><>f7<><><><><><><><><><><><><><><><>"
+  },
+  {
+   "name": "entire_row_filtered",
+   "setup": "ws.Range(\"A2:A7\").EntireRow.Hidden = False",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==entire_row_filtered!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "value_default_member",
+   "setup": "ws.Range(\"B2:B7\") = 9",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==value_default_member!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>9<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>9<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>9<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "value_array",
+   "setup": "ws.Range(\"B2:B7\").Value = Application.Transpose(Array(11, 12, 13, 14, 15, 16))",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==value_array!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>11<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>11<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>11<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "value2_filtered",
+   "setup": "ws.Range(\"B2:B7\").Value2 = 9",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==value2_filtered!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>9<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>9<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>9<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "formula_filtered",
+   "setup": "ws.Range(\"B2:B7\").Formula = \"=ROW()\"",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==formula_filtered!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>=ROW()<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>=ROW()<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>=ROW()<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "value_one_hidden_cell",
+   "setup": "ws.Range(\"B3\").Value = 9",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==value_one_hidden_cell!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>9<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "value_outside_columns",
+   "setup": "ws.Range(\"E2:E7\").Value = 1\nv = ws.Range(\"E2\").Formula & \",\" & ws.Range(\"E3\").Formula",
+   "answers": "String:1,;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==value_outside_columns!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><>1<>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><>1<>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><>1<>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "value_resized",
+   "setup": "ws.Range(\"B2\").Resize(6, 1).Value = 9",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==value_resized!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>9<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>9<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>9<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "number_format_filtered",
+   "setup": "ws.Range(\"B2:B7\").NumberFormat = \"0.00\"\nv = ws.Range(\"B2\").NumberFormat & \",\" & ws.Range(\"B3\").NumberFormat",
+   "answers": "String:0.00,General;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==number_format_filtered!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "bold_filtered",
+   "setup": "ws.Range(\"A2:A7\").Font.Bold = True\nv = ws.Range(\"A2\").Font.Bold & \",\" & ws.Range(\"A3\").Font.Bold",
+   "answers": "String:True,False;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==bold_filtered!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "clear_all_filtered",
+   "setup": "ws.Range(\"A2:B7\").Clear",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==clear_all_filtered!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><><><>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><><><>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><><><>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "fill_down_filtered",
+   "setup": "ws.Range(\"B2:B7\").FillDown",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==fill_down_filtered!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>1<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>1<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "rows_hidden_true",
+   "setup": "ws.Rows(4).Hidden = True",
+   "answers": "Empty;hidden=3,4,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==rows_hidden_true!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "rows_hidden_false_one",
+   "setup": "ws.Rows(3).Hidden = False",
+   "answers": "Empty;hidden=5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==rows_hidden_false_one!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "delete_hidden_row",
+   "setup": "ws.Rows(3).Delete",
+   "answers": "Empty;hidden=4,6, mode=True filtering=True range=$A$1:$C$6 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==delete_hidden_row!$A$1:$C$6:False cells=Name<>Qty<>Twice<>=SUM(B2:B6)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>apple<>3<>=B3*2<><><>f4<><>fig<>4<>=B4*2<><><>f5<><>apple<>5<>=B5*2<><><>f6<><>kiwi<>6<>=B6*2<><><>f7<><><><><><><><><><><><><><><><>"
+  },
+  {
+   "name": "insert_entire_row_visible",
+   "setup": "ws.Range(\"A4\").EntireRow.Insert",
+   "answers": "Empty;hidden=3,6,8, mode=True filtering=True range=$A$1:$C$8 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==insert_entire_row_visible!$A$1:$C$8:False cells=Name<>Qty<>Twice<>=SUM(B2:B8)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><><><><><><><><>apple<>3<>=B5*2<><><>f4<><>fig<>4<>=B6*2<><><>f5<><>apple<>5<>=B7*2<><><>f6<><>kiwi<>6<>=B8*2<><><>f7<><>"
+  },
+  {
+   "name": "clear_outside_filter",
+   "setup": "ws.ShowAllData\nws.Range(\"E2:E7\").Value = 1\nws.Range(\"A1:C7\").AutoFilter Field:=1, Criteria1:=\"apple\"\nws.Range(\"E2:E7\").ClearContents\nv = ws.Range(\"E2\").Formula & \",\" & ws.Range(\"E3\").Formula",
+   "answers": "String:,1;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==clear_outside_filter!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><>1<>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><>1<>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><>1<>f7<><><><><><><><><>"
+  },
+  {
+   "name": "copy_single_area_visible",
+   "setup": "Set dest = ws.Parent.Worksheets.Add(After:=ws)\ndest.Name = ws.Name & \"_to\"\nws.Activate\nv = ws.Range(\"A1:C2\").Copy(dest.Range(\"A1\"))",
+   "answers": "Boolean:True;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==copy_single_area_visible!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><> landed=$A$1:$C$2:Name<>Qty<>Twice<><><><><>apple<>1<>=B2*2<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>"
+  },
+  {
+   "name": "copy_multi_areas_no_formula",
+   "setup": "Set dest = ws.Parent.Worksheets.Add(After:=ws)\ndest.Name = ws.Name & \"_to\"\nws.Activate\nv = ws.Range(\"A1:B7\").Copy(dest.Range(\"A1\"))",
+   "answers": "Boolean:True;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==copy_multi_areas_no_formula!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><> landed=$A$1:$B$4:Name<>Qty<><><><><><>apple<>1<><><><><><>apple<>3<><><><><><>apple<>5<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>"
+  },
+  {
+   "name": "value_hidden_row_cells",
+   "setup": "ws.Range(\"A3:C3\").Value = 9",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==value_hidden_row_cells!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>9<>9<>9<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "kiwi_value_hidden_block",
+   "setup": "ws.Range(\"A1:C7\").AutoFilter Field:=1, Criteria1:=\"kiwi\"\nws.Range(\"B3:B5\").Value = 9",
+   "answers": "Empty;hidden=2,3,4,5,6, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=kiwi c2=E1004 f2:False f3:False db==kiwi_value_hidden_block!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>9<>=B3*2<><><>f3<><>apple<>9<>=B4*2<><><>f4<><>fig<>9<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "kiwi_value_spanning",
+   "setup": "ws.Range(\"A1:C7\").AutoFilter Field:=1, Criteria1:=\"kiwi\"\nws.Range(\"B5:B7\").Value = 9",
+   "answers": "Empty;hidden=2,3,4,5,6, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=kiwi c2=E1004 f2:False f3:False db==kiwi_value_spanning!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>9<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "kiwi_unhide_block",
+   "setup": "ws.Range(\"A1:C7\").AutoFilter Field:=1, Criteria1:=\"kiwi\"\nws.Rows(\"3:5\").Hidden = False",
+   "answers": "Empty;hidden=2,6, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=kiwi c2=E1004 f2:False f3:False db==kiwi_unhide_block!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "kiwi_delete_block",
+   "setup": "ws.Range(\"A1:C7\").AutoFilter Field:=1, Criteria1:=\"kiwi\"\nws.Rows(\"3:4\").Delete",
+   "answers": "Empty;hidden=2,3,4, mode=True filtering=True range=$A$1:$C$5 count=3 f1:True op=0 c1=String:=kiwi c2=E1004 f2:False f3:False db==kiwi_delete_block!$A$1:$C$5:False cells=Name<>Qty<>Twice<>=SUM(B2:B5)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>fig<>4<>=B3*2<><><>f5<><>apple<>5<>=B4*2<><><>f6<><>kiwi<>6<>=B5*2<><><>f7<><><><><><><><><><><><><><><><><><><><><><><>"
+  },
+  {
+   "name": "kiwi_clear_block",
+   "setup": "ws.Range(\"A1:C7\").AutoFilter Field:=1, Criteria1:=\"kiwi\"\nws.Range(\"A3:B5\").ClearContents",
+   "answers": "Empty;hidden=2,3,4,5,6, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=kiwi c2=E1004 f2:False f3:False db==kiwi_clear_block!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><><><>=B3*2<><><>f3<><><><>=B4*2<><><>f4<><><><>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "value_hidden_by_hand",
+   "setup": "ws.AutoFilterMode = False\nws.Rows(3).Hidden = True\nws.Range(\"B2:B7\").Value = 9",
+   "answers": "Empty;hidden=3, mode=False filtering=False db==value_hidden_by_hand!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>9<>=B2*2<><><>f2<><>pear<>9<>=B3*2<><><>f3<><>apple<>9<>=B4*2<><><>f4<><>fig<>9<>=B5*2<><><>f5<><>apple<>9<>=B6*2<><><>f6<><>kiwi<>9<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "value_filter_and_hand",
+   "setup": "ws.Rows(2).Hidden = True\nws.Range(\"B2:B7\").Value = 9",
+   "answers": "Empty;hidden=2,3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==value_filter_and_hand!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>9<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>9<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "value_below_filter_hand",
+   "setup": "ws.Rows(9).Hidden = True\nws.Range(\"B8:B10\").Value = 9\nv = ws.Range(\"B8\").Formula & \",\" & ws.Range(\"B9\").Formula & \",\" & ws.Range(\"B10\").Formula",
+   "answers": "String:9,,9;hidden=3,5,7,9, mode=True filtering=True range=$A$1:$C$8 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==value_below_filter_hand!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><>9<><><><><><>"
+  },
+  {
+   "name": "delete_below_filter_hand",
+   "setup": "ws.Rows(9).Hidden = True\nws.Range(\"A8:A10\").Value = Application.Transpose(Array(\"x\", \"y\", \"z\"))\nws.Rows(\"8:10\").Delete\nv = ws.Range(\"A8\").Formula & \",\" & ws.Range(\"A9\").Formula",
+   "answers": "String:,;hidden=3,5,7,8, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==delete_below_filter_hand!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "copy_filter_and_hand",
+   "setup": "ws.Rows(2).Hidden = True\nSet dest = ws.Parent.Worksheets.Add(After:=ws)\ndest.Name = ws.Name & \"_to\"\nws.Activate\nv = ws.Range(\"A1:C7\").Copy(dest.Range(\"A1\"))",
+   "answers": "Boolean:True;hidden=2,3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==copy_filter_and_hand!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><> landed=$A$1:$C$3:Name<>Qty<>Twice<><><><><>apple<>3<>6<><><><><>apple<>5<>10<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>"
+  },
+  {
+   "name": "cut_filtered",
+   "setup": "Set dest = ws.Parent.Worksheets.Add(After:=ws)\ndest.Name = ws.Name & \"_to\"\nws.Activate\nv = ws.Range(\"A1:C7\").Cut(dest.Range(\"A1\"))\nv = Rows(dest)",
+   "answers": "S1004;String:hidden= mode=False filtering=False;hidden= mode=False filtering=False db==cut_filtered_to!$A$1:$C$7:False cells=<><><>=SUM(cut_filtered_to!B2:B7)<><>f1<><><><><><><>f2<><><><><><><>f3<><><><><><><>f4<><><><><><><>f5<><><><><><><>f6<><><><><><><>f7<><><><><><><><><> landed=$A$1:$C$7:Name<>Qty<>Twice<><><><><>apple<>1<>=B2*2<><><><><>pear<>2<>=B3*2<><><><><>apple<>3<>=B4*2<><><><><>fig<>4<>=B5*2<><><><><>apple<>5<>=B6*2<><><><><>kiwi<>6<>=B7*2<><><><><><><><><><><><>"
+  },
+  {
+   "name": "copy_paste_formulas",
+   "setup": "Set dest = ws.Parent.Worksheets.Add(After:=ws)\ndest.Name = ws.Name & \"_to\"\nws.Activate\nws.AutoFilter.Range.Copy\ndest.Range(\"A1\").PasteSpecial xlPasteFormulas",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==copy_paste_formulas!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><> landed=$A$1:$C$4:Name<>Qty<>Twice<><><><><>apple<>1<>=B2*2<><><><><>apple<>3<>=B3*2<><><><><>apple<>5<>=B4*2<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>"
+  },
+  {
+   "name": "copy_paste_values",
+   "setup": "Set dest = ws.Parent.Worksheets.Add(After:=ws)\ndest.Name = ws.Name & \"_to\"\nws.Activate\nws.AutoFilter.Range.Copy\ndest.Range(\"A1\").PasteSpecial xlPasteValues",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==copy_paste_values!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><> landed=$A$1:$C$4:Name<>Qty<>Twice<><><><><>apple<>1<>2<><><><><>apple<>3<>6<><><><><>apple<>5<>10<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>"
+  },
+  {
+   "name": "paste_into_filtered",
+   "setup": "Set dest = ws.Parent.Worksheets.Add(After:=ws)\ndest.Range(\"A1:A3\").Value = Application.Transpose(Array(7, 8, 9))\nv = dest.Range(\"A1:A3\").Copy(ws.Range(\"B2\"))",
+   "answers": "Boolean:True;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==paste_into_filtered!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>7<>=B2*2<><><>f2<><>pear<>8<>=B3*2<><><>f3<><>apple<>9<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "read_filtered",
+   "setup": "v = Join(Application.Transpose(ws.Range(\"B2:B7\").Value), \",\") & \";\" & ws.Range(\"B2:B7\").Cells.Count & \";\" & Application.Sum(ws.Range(\"B2:B7\"))",
+   "answers": "String:1,2,3,4,5,6;6;21;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==read_filtered!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "delete_whole_filter_rows",
+   "setup": "ws.Range(\"A1:C7\").EntireRow.Delete",
+   "answers": "Empty;hidden= mode=False filtering=False cells=pear<>2<>=B1*2<><><>f3<><>fig<>4<>=B2*2<><><>f5<><>kiwi<>6<>=B3*2<><><>f7<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>"
+  },
+  {
+   "name": "range_delete_filter",
+   "setup": "ws.AutoFilter.Range.Delete",
+   "answers": "Empty;hidden= mode=False filtering=False cells=pear<>2<>=B1*2<><><>f3<><>fig<>4<>=B2*2<><><>f5<><>kiwi<>6<>=B3*2<><><>f7<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>"
+  },
+  {
+   "name": "range_delete_up_multi",
+   "setup": "ws.Range(\"A2:C4\").Delete Shift:=xlUp",
+   "answers": "Empty;hidden=2,3,5, mode=True filtering=True range=$A$1:$C$5 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==range_delete_up_multi!$A$1:$C$5:False cells=Name<>Qty<>Twice<>=SUM(B2:B5)<><>f1<><>pear<>2<>=B2*2<><><>f3<><>fig<>4<>=B3*2<><><>f5<><>apple<>5<>=B4*2<><><>f6<><>kiwi<>6<>=B5*2<><><>f7<><><><><><><><><><><><><><><><><><><><><><><>"
+  },
+  {
+   "name": "range_insert_down_multi",
+   "setup": "ws.Range(\"A2:C4\").Insert Shift:=xlDown",
+   "answers": "S1004;Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==range_insert_down_multi!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "insert_rows_through",
+   "setup": "ws.Range(\"A3:A5\").EntireRow.Insert",
+   "answers": "Empty;hidden=4,6,8, mode=True filtering=True range=$A$1:$C$8 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==insert_rows_through!$A$1:$C$8:False cells=Name<>Qty<>Twice<>=SUM(B2:B8)<><>f1<><>apple<>1<>=B2*2<><><>f2<><><><><><><><><>pear<>2<>=B4*2<><><>f3<><>apple<>3<>=B5*2<><><>f4<><>fig<>4<>=B6*2<><><>f5<><>apple<>5<>=B7*2<><><>f6<><>kiwi<>6<>=B8*2<><><>f7<><>"
+  },
+  {
+   "name": "autofill_filtered",
+   "setup": "ws.Range(\"B2\").Value = 10\nws.Range(\"B2\").AutoFill ws.Range(\"B2:B7\"), xlFillSeries",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==autofill_filtered!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>10<>=B2*2<><><>f2<><>pear<>11<>=B3*2<><><>f3<><>apple<>12<>=B4*2<><><>f4<><>fig<>13<>=B5*2<><><>f5<><>apple<>14<>=B6*2<><><>f6<><>kiwi<>15<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "autofill_copy",
+   "setup": "ws.Range(\"B2\").AutoFill ws.Range(\"B2:B7\"), xlFillCopy",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==autofill_copy!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>1<>=B3*2<><><>f3<><>apple<>1<>=B4*2<><><>f4<><>fig<>1<>=B5*2<><><>f5<><>apple<>1<>=B6*2<><><>f6<><>kiwi<>1<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "formula_r1c1_filtered",
+   "setup": "ws.Range(\"B2:B7\").FormulaR1C1 = \"=ROW()\"",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==formula_r1c1_filtered!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>=ROW()<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>=ROW()<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>=ROW()<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "cells_clear_contents",
+   "setup": "ws.Cells.ClearContents",
+   "answers": "Empty;hidden= mode=False filtering=False db==cells_clear_contents!$A$1:$C$7:False cells=<><><><><><><><><><><><><><>pear<>2<>=B3*2<><><>f3<><><><><><><><><>fig<>4<>=B5*2<><><>f5<><><><><><><><><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "rows_clear_contents",
+   "setup": "ws.Rows(\"2:7\").ClearContents",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==rows_clear_contents!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><><><><><><><><>pear<>2<>=B3*2<><><>f3<><><><><><><><><>fig<>4<>=B5*2<><><>f5<><><><><><><><><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "unhide_all_rows",
+   "setup": "ws.Cells.EntireRow.Hidden = False",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==unhide_all_rows!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "rows_hidden_false_all",
+   "setup": "ws.Rows.Hidden = False",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==rows_hidden_false_all!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "ext_text_below",
+   "setup": "ws.Range(\"A8\").Value = \"x\"",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$8 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==ext_text_below!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><>x<><><><><><><>"
+  },
+  {
+   "name": "ext_outside_columns",
+   "setup": "ws.Range(\"D8\").Value = 1",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$8 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==ext_outside_columns!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><>1<><><><>"
+  },
+  {
+   "name": "ext_far_column",
+   "setup": "ws.Range(\"E8\").Value = 1",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$8 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==ext_far_column!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><>1<><><>"
+  },
+  {
+   "name": "ext_gap_row",
+   "setup": "ws.Range(\"B9\").Value = 1",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==ext_gap_row!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "ext_two_rows",
+   "setup": "ws.Range(\"B9\").Value = 1\nws.Range(\"B8\").Value = 1",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$9 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==ext_two_rows!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><>1<><><><><><>"
+  },
+  {
+   "name": "ext_formula",
+   "setup": "ws.Range(\"B8\").Formula = \"=1+1\"",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$8 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==ext_formula!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><>=1+1<><><><><><>"
+  },
+  {
+   "name": "ext_empty_string",
+   "setup": "ws.Range(\"B8\").Value = \"\"",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==ext_empty_string!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "ext_arrows_only",
+   "setup": "ws.ShowAllData\nws.Range(\"B8\").Value = 9",
+   "answers": "Empty;hidden= mode=True filtering=False range=$A$1:$C$8 count=3 f1:False f2:False f3:False db==ext_arrows_only!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><>9<><><><><><>"
+  },
+  {
+   "name": "ext_format_only",
+   "setup": "ws.Range(\"B8\").NumberFormat = \"0.00\"",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==ext_format_only!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "ext_then_clear",
+   "setup": "ws.Range(\"B8\").Value = 9\nws.Range(\"B8\").ClearContents",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==ext_then_clear!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "ext_reapply",
+   "setup": "ws.Range(\"A8\").Value = \"apple\"\nws.Range(\"A9\").Value = \"pear\"\nws.AutoFilter.ApplyFilter",
+   "answers": "Empty;hidden=3,5,7,9, mode=True filtering=True range=$A$1:$C$9 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==ext_reapply!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><>apple<><><><><><><>"
+  },
+  {
+   "name": "ext_refilter",
+   "setup": "ws.Range(\"A8\").Value = \"pear\"\nws.Range(\"A1\").AutoFilter Field:=1, Criteria1:=\"apple\"",
+   "answers": "Empty;hidden=3,5,7,8, mode=True filtering=True range=$A$1:$C$8 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==ext_refilter!$A$1:$C$8:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><>pear<><><><><><><>"
+  },
+  {
+   "name": "ext_no_filter",
+   "setup": "ws.AutoFilterMode = False\nws.Range(\"A1:C7\").AutoFilter\nws.Range(\"B8\").Value = 9",
+   "answers": "Empty;hidden= mode=True filtering=False range=$A$1:$C$8 count=3 f1:False f2:False f3:False db==ext_no_filter!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><>9<><><><><><>"
+  },
+  {
+   "name": "row_height_filtered",
+   "setup": "ws.Rows(\"2:7\").RowHeight = 30\nws.ShowAllData\nv = ws.Rows(2).RowHeight & \",\" & ws.Rows(3).RowHeight",
+   "answers": "String:30,15;hidden= mode=True filtering=False range=$A$1:$C$7 count=3 f1:False f2:False f3:False db==row_height_filtered!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "replace_filtered",
+   "setup": "v = ws.Range(\"A2:A7\").Replace(\"i\", \"I\")",
+   "answers": "Boolean:True;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==replace_filtered!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "sort_filtered",
+   "setup": "ws.Range(\"A1:C7\").Sort Key1:=ws.Range(\"B1\"), Order1:=xlDescending, Header:=xlYes",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==sort_filtered!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>5<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>1<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "remove_duplicates_filtered",
+   "setup": "ws.Range(\"A1:C7\").RemoveDuplicates Columns:=1, Header:=xlYes",
+   "answers": "Empty;hidden=3,4,5, mode=True filtering=True range=$A$1:$C$5 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==remove_duplicates_filtered!$A$1:$C$5:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>fig<>4<>=B4*2<><><>f4<><>kiwi<>6<>=B5*2<><><>f5<><><><><><><>f6<><><><><><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "special_constants",
+   "setup": "v = ws.Range(\"A1:C7\").SpecialCells(xlCellTypeConstants).Address",
+   "answers": "String:$A$1:$C$1,$A$2:$B$7;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==special_constants!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "subtotal_filtered",
+   "setup": "ws.Range(\"E1\").Formula = \"=SUBTOTAL(9,B2:B7)&\"\",\"\"&SUBTOTAL(109,B2:B7)&\"\",\"\"&SUBTOTAL(3,A2:A7)\"\nv = ws.Range(\"E1\").Value & \";\" & Application.WorksheetFunction.Subtotal(9, ws.Range(\"B2:B7\"))",
+   "answers": "String:9,9,3;9;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==subtotal_filtered!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<>=SUBTOTAL(9,B2:B7)&\",\"&SUBTOTAL(109,B2:B7)&\",\"&SUBTOTAL(3,A2:A7)<>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "subtotal_by_hand",
+   "setup": "ws.AutoFilterMode = False\nws.Rows(3).Hidden = True\nws.Range(\"E1\").Formula = \"=SUBTOTAL(9,B2:B7)&\"\",\"\"&SUBTOTAL(109,B2:B7)&\"\",\"\"&SUBTOTAL(3,A2:A7)\"\nv = ws.Range(\"E1\").Value",
+   "answers": "String:21,19,6;hidden=3, mode=False filtering=False db==subtotal_by_hand!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<>=SUBTOTAL(9,B2:B7)&\",\"&SUBTOTAL(109,B2:B7)&\",\"&SUBTOTAL(3,A2:A7)<>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "interior_filtered",
+   "setup": "ws.Range(\"A2:A7\").Interior.Color = 255\nv = ws.Range(\"A2\").Interior.Color & \",\" & ws.Range(\"A3\").Interior.Color",
+   "answers": "String:255,16777215;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==interior_filtered!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "alignment_filtered",
+   "setup": "ws.Range(\"A2:A7\").HorizontalAlignment = xlCenter\nv = ws.Range(\"A2\").HorizontalAlignment & \",\" & ws.Range(\"A3\").HorizontalAlignment",
+   "answers": "String:-4108,1;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==alignment_filtered!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "clear_formats_filtered",
+   "setup": "ws.ShowAllData\nws.Range(\"B2:B7\").NumberFormat = \"0.00\"\nws.Range(\"A1:C7\").AutoFilter Field:=1, Criteria1:=\"apple\"\nws.Range(\"B2:B7\").ClearFormats\nv = ws.Range(\"B2\").NumberFormat & \",\" & ws.Range(\"B3\").NumberFormat",
+   "answers": "String:General,0.00;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==clear_formats_filtered!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "fill_right_filtered",
+   "setup": "ws.Range(\"A2:C4\").FillRight",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==fill_right_filtered!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>apple<>apple<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>apple<>apple<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "fill_up_filtered",
+   "setup": "ws.Range(\"B2:B7\").FillUp",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==fill_up_filtered!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>5<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>5<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "fill_down_first_hidden",
+   "setup": "ws.Range(\"B3:B7\").FillDown",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==fill_down_first_hidden!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>3<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "fill_down_kiwi",
+   "setup": "ws.Range(\"A1:C7\").AutoFilter Field:=1, Criteria1:=\"kiwi\"\nws.Range(\"B2:B7\").FillDown",
+   "answers": "Empty;hidden=2,3,4,5,6, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=kiwi c2=E1004 f2:False f3:False db==fill_down_kiwi!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>5<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "value_self_assign",
+   "setup": "ws.Range(\"A2:B7\").Value = ws.Range(\"A2:B7\").Value",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==value_self_assign!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>apple<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>1<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "value_array_area",
+   "setup": "ws.ShowAllData\nws.Range(\"A1:C7\").AutoFilter Field:=2, Criteria1:=\">2\"\nws.Range(\"B2:B7\").Value = Application.Transpose(Array(11, 12, 13, 14, 15, 16))",
+   "answers": "Empty;hidden=2,3, mode=True filtering=True range=$A$1:$C$7 count=3 f1:False f2:True op=0 c1=String:>2 c2=E1004 f3:False db==value_array_area!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>11<>=B4*2<><><>f4<><>fig<>12<>=B5*2<><><>f5<><>apple<>13<>=B6*2<><><>f6<><>kiwi<>14<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "value_row_array",
+   "setup": "ws.Range(\"A2:B7\").Value = Array(7, 8)",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==value_row_array!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>7<>8<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>7<>8<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>7<>8<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "value_union_areas",
+   "setup": "ws.Range(\"B2,B3\").Value = 9",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==value_union_areas!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>9<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "value_arrows_only",
+   "setup": "ws.ShowAllData\nws.Rows(3).Hidden = True\nws.Range(\"B2:B7\").Value = 9",
+   "answers": "Empty;hidden=3, mode=True filtering=False range=$A$1:$C$7 count=3 f1:False f2:False f3:False db==value_arrows_only!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>9<>=B2*2<><><>f2<><>pear<>9<>=B3*2<><><>f3<><>apple<>9<>=B4*2<><><>f4<><>fig<>9<>=B5*2<><><>f5<><>apple<>9<>=B6*2<><><>f6<><>kiwi<>9<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "ins_rows_2_4",
+   "setup": "ws.Range(\"A2:A4\").EntireRow.Insert",
+   "answers": "Empty;hidden=5,7,9, mode=True filtering=True range=$A$1:$C$9 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==ins_rows_2_4!$A$1:$C$9:False cells=Name<>Qty<>Twice<>=SUM(B4:B9)<><>f1<><><><><><><><><><><><><><><><>apple<>1<>=B4*2<><><>f2<><>pear<>2<>=B5*2<><><>f3<><>apple<>3<>=B6*2<><><>f4<><>fig<>4<>=B7*2<><><>f5<><>apple<>5<>=B8*2<><><>f6<><>"
+  },
+  {
+   "name": "ins_rows_3_7",
+   "setup": "ws.Range(\"A3:A7\").EntireRow.Insert",
+   "answers": "Empty;hidden=5,7,9, mode=True filtering=True range=$A$1:$C$9 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==ins_rows_3_7!$A$1:$C$9:False cells=Name<>Qty<>Twice<>=SUM(B2:B9)<><>f1<><>apple<>1<>=B2*2<><><>f2<><><><><><><><><><><><><><><><>pear<>2<>=B5*2<><><>f3<><>apple<>3<>=B6*2<><><>f4<><>fig<>4<>=B7*2<><><>f5<><>apple<>5<>=B8*2<><><>f6<><>"
+  },
+  {
+   "name": "ins_rows_2_7",
+   "setup": "ws.Rows(\"2:7\").Insert",
+   "answers": "Empty;hidden=6,8,10, mode=True filtering=True range=$A$1:$C$10 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==ins_rows_2_7!$A$1:$C$10:False cells=Name<>Qty<>Twice<>=SUM(B5:B10)<><>f1<><><><><><><><><><><><><><><><><><><><><><><>apple<>1<>=B5*2<><><>f2<><>pear<>2<>=B6*2<><><>f3<><>apple<>3<>=B7*2<><><>f4<><>fig<>4<>=B8*2<><><>f5<><>"
+  },
+  {
+   "name": "ins_kiwi_block",
+   "setup": "ws.Range(\"A1:C7\").AutoFilter Field:=1, Criteria1:=\"kiwi\"\nws.Rows(\"3:4\").Insert",
+   "answers": "Empty;hidden=2,5,6,7,8, mode=True filtering=True range=$A$1:$C$9 count=3 f1:True op=0 c1=String:=kiwi c2=E1004 f2:False f3:False db==ins_kiwi_block!$A$1:$C$9:False cells=Name<>Qty<>Twice<>=SUM(B2:B9)<><>f1<><>apple<>1<>=B2*2<><><>f2<><><><><><><><><><><><><><><><>pear<>2<>=B5*2<><><>f3<><>apple<>3<>=B6*2<><><>f4<><>fig<>4<>=B7*2<><><>f5<><>apple<>5<>=B8*2<><><>f6<><>"
+  },
+  {
+   "name": "ins_cells_visible_row",
+   "setup": "ws.Range(\"A4:C4\").Insert Shift:=xlDown",
+   "answers": "S1004;Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==ins_cells_visible_row!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "ins_cells_hidden_row",
+   "setup": "ws.Range(\"A3:C3\").Insert Shift:=xlDown",
+   "answers": "S1004;Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==ins_cells_hidden_row!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "ins_cells_outside",
+   "setup": "ws.Range(\"E2:E4\").Insert Shift:=xlDown",
+   "answers": "S1004;Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==ins_cells_outside!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "ins_cells_right",
+   "setup": "ws.Range(\"A2:A4\").Insert Shift:=xlToRight",
+   "answers": "S1004;Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==ins_cells_right!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "del_cells_left",
+   "setup": "ws.Range(\"A2:A4\").Delete Shift:=xlToLeft",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==del_cells_left!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>1<>=A2*2<><><>f2<><><>pear<>2<>=B3*2<><><>f3<><>3<>=A4*2<><><>f4<><><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "del_cells_outside",
+   "setup": "ws.Range(\"E2:F4\").Delete Shift:=xlUp",
+   "answers": "Empty;hidden=2,3,5, mode=True filtering=True range=$A$1:$C$5 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==del_cells_outside!$A$1:$C$5:False cells=Name<>Qty<>Twice<>=SUM(B2:B5)<><>f1<><>pear<>2<>=B2*2<><><>f3<><>fig<>4<>=B3*2<><><>f5<><>apple<>5<>=B4*2<><><>f6<><>kiwi<>6<>=B5*2<><><>f7<><><><><><><><><><><><><><><><><><><><><><><>"
+  },
+  {
+   "name": "del_cells_part_columns",
+   "setup": "ws.Range(\"A2:B4\").Delete Shift:=xlUp",
+   "answers": "Empty;hidden=2,3,5, mode=True filtering=True range=$A$1:$C$5 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==del_cells_part_columns!$A$1:$C$5:False cells=Name<>Qty<>Twice<>=SUM(B2:B5)<><>f1<><>pear<>2<>=B2*2<><><>f3<><>fig<>4<>=B3*2<><><>f5<><>apple<>5<>=B4*2<><><>f6<><>kiwi<>6<>=B5*2<><><>f7<><><><><><><><><><><><><><><><><><><><><><><>"
+  },
+  {
+   "name": "del_range_no_shift",
+   "setup": "ws.Range(\"A2:C4\").Delete",
+   "answers": "Empty;hidden=2,3,5, mode=True filtering=True range=$A$1:$C$5 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==del_range_no_shift!$A$1:$C$5:False cells=Name<>Qty<>Twice<>=SUM(B2:B5)<><>f1<><>pear<>2<>=B2*2<><><>f3<><>fig<>4<>=B3*2<><><>f5<><>apple<>5<>=B4*2<><><>f6<><>kiwi<>6<>=B5*2<><><>f7<><><><><><><><><><><><><><><><><><><><><><><>"
+  },
+  {
+   "name": "del_cells_below",
+   "setup": "ws.Range(\"A8:C9\").Delete Shift:=xlUp",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==del_cells_below!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "del_filter_and_hand",
+   "setup": "ws.Rows(2).Hidden = True\nws.Rows(\"2:7\").Delete",
+   "answers": "Empty;hidden=2,3,4,5, mode=True filtering=True range=$A$1:$C$5 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==del_filter_and_hand!$A$1:$C$5:False cells=Name<>Qty<>Twice<>=SUM(B2:B5)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>fig<>4<>=B4*2<><><>f5<><>kiwi<>6<>=B5*2<><><>f7<><><><><><><><><><><><><><><><><><><><><><><>"
+  },
+  {
+   "name": "field3_delete_col2",
+   "setup": "ws.ShowAllData\nws.Range(\"A1:C7\").AutoFilter Field:=3, Criteria1:=\">5\"\nws.Columns(2).Delete",
+   "answers": "Empty;hidden=2,3, mode=True filtering=True range=$A$1:$B$7 count=2 f1:False f2:True op=0 c1=String:>5 c2=E1004 db==field3_delete_col2!$A$1:$B$7:False cells=Name<>Twice<>=SUM(#REF!)<><>f1<><><>apple<>=#REF!*2<><><>f2<><><>pear<>=#REF!*2<><><>f3<><><>apple<>=#REF!*2<><><>f4<><><>fig<>=#REF!*2<><><>f5<><><>apple<>=#REF!*2<><><>f6<><><>kiwi<>=#REF!*2<><><>f7<><><><><><><><><><>"
+  },
+  {
+   "name": "delete_all_filter_columns",
+   "setup": "ws.Columns(\"A:C\").Delete",
+   "answers": "Empty;hidden= mode=False filtering=False cells==SUM(#REF!)<><>f1<><><><><><><>f2<><><><><><><>f3<><><><><><><>f4<><><><><><><>f5<><><><><><><>f6<><><><><><><>f7<><><><><><><><><><><><>"
+  },
+  {
+   "name": "delete_two_columns",
+   "setup": "ws.Columns(\"B:C\").Delete",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$A$7 count=1 f1:True op=0 c1=String:=apple c2=E1004 db==delete_two_columns!$A$1:$A$7:False cells=Name<>=SUM(#REF!)<><>f1<><><><>apple<><><>f2<><><><>pear<><><>f3<><><><>apple<><><>f4<><><><>fig<><><>f5<><><><>apple<><><>f6<><><><>kiwi<><><>f7<><><><><><><><><><><>"
+  },
+  {
+   "name": "insert_column_before",
+   "setup": "ws.Columns(1).Insert",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$B$1:$D$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==insert_column_before!$B$1:$D$7:False cells=<>Name<>Qty<>Twice<>=SUM(C2:C7)<><>f1<><>apple<>1<>=C2*2<><><>f2<><>pear<>2<>=C3*2<><><>f3<><>apple<>3<>=C4*2<><><>f4<><>fig<>4<>=C5*2<><><>f5<><>apple<>5<>=C6*2<><><>f6<><>kiwi<>6<>=C7*2<><><>f7<><><><><><><><>"
+  },
+  {
+   "name": "insert_column_after",
+   "setup": "ws.Columns(4).Insert",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==insert_column_after!$A$1:$C$7:False cells=Name<>Qty<>Twice<><>=SUM(B2:B7)<><>f1<>apple<>1<>=B2*2<><><><>f2<>pear<>2<>=B3*2<><><><>f3<>apple<>3<>=B4*2<><><><>f4<>fig<>4<>=B5*2<><><><>f5<>apple<>5<>=B6*2<><><><>f6<>kiwi<>6<>=B7*2<><><><>f7<><><><><><><><>"
+  },
+  {
+   "name": "cut_part",
+   "setup": "Set dest = ws.Parent.Worksheets.Add(After:=ws)\ndest.Name = ws.Name & \"_to\"\nws.Activate\nws.Range(\"A2:C4\").Cut dest.Range(\"A1\")",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==cut_part!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B5:B7)<><>f1<><><><><><><>f2<><><><><><><>f3<><><><><><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><> landed=$A$1:$C$3:apple<>1<>=B1*2<><><><><>pear<>2<>=B2*2<><><><><>apple<>3<>=B3*2<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>"
+  },
+  {
+   "name": "cut_same_sheet",
+   "setup": "ws.Range(\"A2:C2\").Cut ws.Range(\"A10\")\nv = ws.Range(\"A10\").Formula & \",\" & ws.Range(\"C10\").Formula",
+   "answers": "String:apple,=B10*2;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==cut_same_sheet!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><><><><><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "cut_whole_same_sheet",
+   "setup": "ws.Range(\"A1:C7\").Cut ws.Range(\"A11\")",
+   "answers": "Empty;hidden= mode=True filtering=False range=$A$11:$C$17 count=3 f1:False f2:False f3:False db==cut_whole_same_sheet!$A$11:$C$17:False cells=<><><>=SUM(B12:B17)<><>f1<><><><><><><>f2<><><><><><><>f3<><><><><><><>f4<><><><><><><>f5<><><><><><><>f6<><><><><><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "copy_paste_all",
+   "setup": "Set dest = ws.Parent.Worksheets.Add(After:=ws)\ndest.Name = ws.Name & \"_to\"\nws.Activate\nws.AutoFilter.Range.Copy\ndest.Range(\"A1\").PasteSpecial xlPasteAll",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==copy_paste_all!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><> landed=$A$1:$C$4:Name<>Qty<>Twice<><><><><>apple<>1<>=B2*2<><><><><>apple<>3<>=B3*2<><><><><>apple<>5<>=B4*2<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>"
+  },
+  {
+   "name": "copy_paste_formulas_formats",
+   "setup": "Set dest = ws.Parent.Worksheets.Add(After:=ws)\ndest.Name = ws.Name & \"_to\"\nws.Activate\nws.AutoFilter.Range.Copy\ndest.Range(\"A1\").PasteSpecial xlPasteFormulasAndNumberFormats",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==copy_paste_formulas_formats!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><> landed=$A$1:$C$4:Name<>Qty<>Twice<><><><><>apple<>1<>=B2*2<><><><><>apple<>3<>=B3*2<><><><><>apple<>5<>=B4*2<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>"
+  },
+  {
+   "name": "copy_same_sheet",
+   "setup": "ws.Range(\"A1:C7\").Copy ws.Range(\"E1\")",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==copy_same_sheet!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<>Name<>Qty<>Twice<>apple<>1<>=B2*2<><>apple<>1<>2<>pear<>2<>=B3*2<><>apple<>3<>6<>apple<>3<>=B4*2<><>apple<>5<>10<>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "paste_range_into_filtered",
+   "setup": "Set dest = ws.Parent.Worksheets.Add(After:=ws)\ndest.Range(\"A1:A3\").Value = Application.Transpose(Array(7, 8, 9))\nv = dest.Range(\"A1:A3\").Copy(ws.Range(\"B2:B7\"))",
+   "answers": "Boolean:True;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$8 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==paste_range_into_filtered!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>7<>=B2*2<><><>f2<><>pear<>8<>=B3*2<><><>f3<><>apple<>7<>=B4*2<><><>f4<><>fig<>8<>=B5*2<><><>f5<><>apple<>7<>=B6*2<><><>f6<><>kiwi<>8<>=B7*2<><><>f7<><><>9<><><><><><>"
+  },
+  {
+   "name": "paste_special_into_filtered",
+   "setup": "Set dest = ws.Parent.Worksheets.Add(After:=ws)\ndest.Range(\"A1:A3\").Value = Application.Transpose(Array(7, 8, 9))\ndest.Range(\"A1:A3\").Copy\nws.Range(\"B2\").PasteSpecial xlPasteValues",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==paste_special_into_filtered!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>7<>=B2*2<><><>f2<><>pear<>8<>=B3*2<><><>f3<><>apple<>9<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "array_distinct",
+   "setup": "ws.Range(\"A2:B7\").Value = Application.Evaluate(\"{11,12;21,22;31,32;41,42;51,52;61,62}\")",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==array_distinct!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>11<>12<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>11<>31<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>11<>12<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "array_distinct_qty",
+   "setup": "ws.ShowAllData\nws.Range(\"A1:C7\").AutoFilter Field:=2, Criteria1:=\">2\"\nws.Range(\"A2:B7\").Value = Application.Evaluate(\"{11,12;21,22;31,32;41,42;51,52;61,62}\")",
+   "answers": "Empty;hidden=2,3, mode=True filtering=True range=$A$1:$C$7 count=3 f1:False f2:True op=0 c1=String:>2 c2=E1004 f3:False db==array_distinct_qty!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>11<>12<>=B4*2<><><>f4<><>21<>22<>=B5*2<><><>f5<><>31<>32<>=B6*2<><><>f6<><>41<>42<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "array_distinct_3col",
+   "setup": "ws.Range(\"A2:C7\").Value = Application.Evaluate(\"{11,12,13;21,22,23;31,32,33;41,42,43;51,52,53;61,62,63}\")",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==array_distinct_3col!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>11<>12<>13<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>11<>41<>12<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>11<>12<>13<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "array_small",
+   "setup": "ws.Range(\"A2:B7\").Value = Application.Evaluate(\"{11,12;21,22}\")",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==array_small!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>11<>12<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>11<>12<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>11<>12<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "array_areas_no_filter",
+   "setup": "ws.AutoFilterMode = False\nws.Range(\"A2:B2,A4:B4,A6:B6\").Value = Application.Evaluate(\"{11,12;21,22;31,32;41,42;51,52;61,62}\")",
+   "answers": "Empty;hidden= mode=False filtering=False db==array_areas_no_filter!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>11<>12<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>11<>31<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>11<>12<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "array_areas_column",
+   "setup": "ws.AutoFilterMode = False\nws.Range(\"B2,B4,B6\").Value = Application.Evaluate(\"{11;21;31;41;51;61}\")",
+   "answers": "Empty;hidden= mode=False filtering=False db==array_areas_column!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>11<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>11<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>11<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "formula_array_filtered",
+   "setup": "ws.Range(\"B2:B7\").Formula = Application.Evaluate(\"{\"\"=1\"\";\"\"=2\"\";\"\"=3\"\";\"\"=4\"\";\"\"=5\"\";\"\"=6\"\"}\")",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==formula_array_filtered!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>=1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>=1<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>=1<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "del_cells_kiwi_block",
+   "setup": "ws.Range(\"A1:C7\").AutoFilter Field:=1, Criteria1:=\"kiwi\"\nws.Range(\"A3:C4\").Delete Shift:=xlUp",
+   "answers": "Empty;hidden=2,3,4, mode=True filtering=True range=$A$1:$C$5 count=3 f1:True op=0 c1=String:=kiwi c2=E1004 f2:False f3:False db==del_cells_kiwi_block!$A$1:$C$5:False cells=Name<>Qty<>Twice<>=SUM(B2:B5)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>fig<>4<>=B3*2<><><>f5<><>apple<>5<>=B4*2<><><>f6<><>kiwi<>6<>=B5*2<><><>f7<><><><><><><><><><><><><><><><><><><><><><><>"
+  },
+  {
+   "name": "del_cells_below_rows",
+   "setup": "ws.Range(\"A9\").Value = \"a9\"\nws.Range(\"F9\").Value = \"f9\"\nws.Range(\"A8\").Delete Shift:=xlUp\nv = ws.Range(\"A8\").Formula & \",\" & ws.Range(\"F8\").Formula & \",\" & ws.Range(\"F9\").Formula",
+   "answers": "String:a9,f9,;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$8 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==del_cells_below_rows!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><>a9<><><><><>f9<><>"
+  },
+  {
+   "name": "del_cells_far_rows",
+   "setup": "ws.Range(\"A20:A21\").Value = 1\nws.Range(\"F21\").Value = \"f21\"\nws.Range(\"A20\").Delete Shift:=xlUp\nv = ws.Range(\"A20\").Formula & \",\" & ws.Range(\"F20\").Formula & \",\" & ws.Range(\"F21\").Formula",
+   "answers": "String:1,f21,;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==del_cells_far_rows!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "del_cells_arrows_only",
+   "setup": "ws.ShowAllData\nws.Range(\"A3:C3\").Delete Shift:=xlUp",
+   "answers": "Empty;hidden= mode=True filtering=False range=$A$1:$C$6 count=3 f1:False f2:False f3:False db==del_cells_arrows_only!$A$1:$C$6:False cells=Name<>Qty<>Twice<>=SUM(B2:B6)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>apple<>3<>=B3*2<><><>f3<><>fig<>4<>=B4*2<><><>f4<><>apple<>5<>=B5*2<><><>f5<><>kiwi<>6<>=B6*2<><><>f6<><><><><><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "del_cells_left_hidden_row",
+   "setup": "ws.Range(\"A3\").Delete Shift:=xlToLeft",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==del_cells_left_hidden_row!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>2<>=A3*2<><><>f3<><><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "ins_cells_below",
+   "setup": "ws.Range(\"A9:C9\").Insert Shift:=xlDown",
+   "answers": "S1004;Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==ins_cells_below!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "ins_cells_far",
+   "setup": "ws.Range(\"H20\").Insert Shift:=xlDown",
+   "answers": "S1004;Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==ins_cells_far!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "ins_cells_arrows_only",
+   "setup": "ws.ShowAllData\nws.Range(\"A4:C4\").Insert Shift:=xlDown",
+   "answers": "Empty;hidden= mode=True filtering=False range=$A$1:$C$8 count=3 f1:False f2:False f3:False db==ins_cells_arrows_only!$A$1:$C$8:False cells=Name<>Qty<>Twice<>=SUM(B2:B8)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><><><><><><>f4<><>apple<>3<>=B5*2<><><>f5<><>fig<>4<>=B6*2<><><>f6<><>apple<>5<>=B7*2<><><>f7<><>kiwi<>6<>=B8*2<><><><><>"
+  },
+  {
+   "name": "ins_cells_right_far",
+   "setup": "ws.Range(\"H3\").Insert Shift:=xlToRight",
+   "answers": "S1004;Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==ins_cells_right_far!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "ins_entire_row_below",
+   "setup": "ws.Range(\"A9\").EntireRow.Insert",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==ins_entire_row_below!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "cut_part_no_filter",
+   "setup": "ws.AutoFilterMode = False\nSet dest = ws.Parent.Worksheets.Add(After:=ws)\ndest.Name = ws.Name & \"_to\"\nws.Activate\nws.Range(\"A2:C4\").Cut dest.Range(\"A1\")",
+   "answers": "Empty;hidden= mode=False filtering=False db==cut_part_no_filter!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B5:B7)<><>f1<><><><><><><>f2<><><><><><><>f3<><><><><><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><> landed=$A$1:$C$3:apple<>1<>=B1*2<><><><><>pear<>2<>=B2*2<><><><><>apple<>3<>=B3*2<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>"
+  },
+  {
+   "name": "cut_bottom_no_filter",
+   "setup": "ws.AutoFilterMode = False\nSet dest = ws.Parent.Worksheets.Add(After:=ws)\ndest.Name = ws.Name & \"_to\"\nws.Activate\nws.Range(\"A5:C7\").Cut dest.Range(\"A1\")",
+   "answers": "Empty;hidden= mode=False filtering=False db==cut_bottom_no_filter!$A$1:$C$4:False cells=Name<>Qty<>Twice<>=SUM(B2:B4)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><><><><><><>f5<><><><><><><>f6<><><><><><><>f7<><><><><><><><><> landed=$A$1:$C$3:fig<>4<>=B1*2<><><><><>apple<>5<>=B2*2<><><><><>kiwi<>6<>=B3*2<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>"
+  },
+  {
+   "name": "cut_middle_no_filter",
+   "setup": "ws.AutoFilterMode = False\nSet dest = ws.Parent.Worksheets.Add(After:=ws)\ndest.Name = ws.Name & \"_to\"\nws.Activate\nws.Range(\"A3:C4\").Cut dest.Range(\"A1\")",
+   "answers": "Empty;hidden= mode=False filtering=False db==cut_middle_no_filter!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><><><><><><>f3<><><><><><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><> landed=$A$1:$C$2:pear<>2<>=B1*2<><><><><>apple<>3<>=B2*2<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>"
+  },
+  {
+   "name": "cut_same_sheet_no_filter",
+   "setup": "ws.AutoFilterMode = False\nws.Range(\"A2:C4\").Cut ws.Range(\"A10\")",
+   "answers": "Empty;hidden= mode=False filtering=False db==cut_same_sheet_no_filter!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><><><><><><>f2<><><><><><><>f3<><><><><><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "cut_column_part_no_filter",
+   "setup": "ws.AutoFilterMode = False\nSet dest = ws.Parent.Worksheets.Add(After:=ws)\ndest.Name = ws.Name & \"_to\"\nws.Activate\nws.Range(\"B2:B4\").Cut dest.Range(\"A1\")",
+   "answers": "Empty;hidden= mode=False filtering=False db==cut_column_part_no_filter!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B5:B7)<><>f1<><>apple<><>=cut_column_part_no_filter_to!A1*2<><><>f2<><>pear<><>=cut_column_part_no_filter_to!A2*2<><><>f3<><>apple<><>=cut_column_part_no_filter_to!A3*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><> landed=$A$1:$A$3:1<><><><><><><>2<><><><><><><>3<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>"
+  },
+  {
+   "name": "cut_column_whole_no_filter",
+   "setup": "ws.AutoFilterMode = False\nSet dest = ws.Parent.Worksheets.Add(After:=ws)\ndest.Name = ws.Name & \"_to\"\nws.Activate\nws.Range(\"B2:B7\").Cut dest.Range(\"A1\")",
+   "answers": "Empty;hidden= mode=False filtering=False db==cut_column_whole_no_filter!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(cut_column_whole_no_filter_to!A1:A6)<><>f1<><>apple<><>=cut_column_whole_no_filter_to!A1*2<><><>f2<><>pear<><>=cut_column_whole_no_filter_to!A2*2<><><>f3<><>apple<><>=cut_column_whole_no_filter_to!A3*2<><><>f4<><>fig<><>=cut_column_whole_no_filter_to!A4*2<><><>f5<><>apple<><>=cut_column_whole_no_filter_to!A5*2<><><>f6<><>kiwi<><>=cut_column_whole_no_filter_to!A6*2<><><>f7<><><><><><><><><> landed=$A$1:$A$6:1<><><><><><><>2<><><><><><><>3<><><><><><><>4<><><><><><><>5<><><><><><><>6<><><><><><><><><><><><><><><><><><><><><>"
+  },
+  {
+   "name": "remove_duplicates_arrows",
+   "setup": "ws.ShowAllData\nws.Range(\"A1:C7\").RemoveDuplicates Columns:=1, Header:=xlYes",
+   "answers": "Empty;hidden= mode=True filtering=False range=$A$1:$C$5 count=3 f1:False f2:False f3:False db==remove_duplicates_arrows!$A$1:$C$5:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>fig<>4<>=B4*2<><><>f4<><>kiwi<>6<>=B5*2<><><>f5<><><><><><><>f6<><><><><><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "remove_duplicates_hand",
+   "setup": "ws.AutoFilterMode = False\nws.Rows(3).Hidden = True\nws.Range(\"A1:C7\").RemoveDuplicates Columns:=1, Header:=xlYes",
+   "answers": "Empty;hidden=3, mode=False filtering=False db==remove_duplicates_hand!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>fig<>4<>=B4*2<><><>f4<><>kiwi<>6<>=B5*2<><><>f5<><><><><><><>f6<><><><><><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "remove_duplicates_part",
+   "setup": "ws.Range(\"A2:C7\").RemoveDuplicates Columns:=1, Header:=xlNo",
+   "answers": "Empty;hidden=3,4,5,6,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==remove_duplicates_part!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>fig<>4<>=B4*2<><><>f4<><>kiwi<>6<>=B5*2<><><>f5<><><><><><><>f6<><><><><><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "merge_filtered",
+   "setup": "ws.Range(\"E2:E4\").Merge\nv = ws.Range(\"E2\").MergeArea.Address & \",\" & ws.Range(\"E4\").MergeArea.Address",
+   "answers": "String:$E$2:$E$4,$E$2:$E$4;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==merge_filtered!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "borders_filtered",
+   "setup": "ws.Range(\"A2:A7\").Borders(xlEdgeBottom).LineStyle = xlContinuous\nv = ws.Range(\"A2\").Borders(xlEdgeBottom).LineStyle & \",\" & ws.Range(\"A4\").Borders(xlEdgeBottom).LineStyle & \",\" & ws.Range(\"A6\").Borders(xlEdgeBottom).LineStyle & \",\" & ws.Range(\"A7\").Borders(xlEdgeBottom).LineStyle",
+   "answers": "String:1,1,1,-4142;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==borders_filtered!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "delete_one_of_two_fields",
+   "setup": "ws.Range(\"A1:C7\").AutoFilter Field:=2, Criteria1:=\">1\"\nws.Columns(1).Delete",
+   "answers": "Empty;hidden=2, mode=True filtering=True range=$A$1:$B$7 count=2 f1:True op=0 c1=String:>1 c2=E1004 f2:False db==delete_one_of_two_fields!$A$1:$B$7:False cells=Qty<>Twice<>=SUM(A2:A7)<><>f1<><><>1<>=A2*2<><><>f2<><><>2<>=A3*2<><><>f3<><><>3<>=A4*2<><><>f4<><><>4<>=A5*2<><><>f5<><><>5<>=A6*2<><><>f6<><><>6<>=A7*2<><><>f7<><><><><><><><><><>"
+  },
+  {
+   "name": "ext_far_far",
+   "setup": "ws.Range(\"Z8\").Value = 1",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==ext_far_far!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "ext_formula_blank",
+   "setup": "ws.Range(\"B8\").Formula = \"=\"\"\"\"\"",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$8 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==ext_formula_blank!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><>=\"\"<><><><><><>"
+  },
+  {
+   "name": "ext_hidden_row",
+   "setup": "ws.Rows(8).Hidden = True\nws.Range(\"B8\").Value = 1",
+   "answers": "Empty;hidden=3,5,7,8, mode=True filtering=True range=$A$1:$C$8 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==ext_hidden_row!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><>1<><><><><><>"
+  },
+  {
+   "name": "copy_areas_stacked",
+   "setup": "ws.AutoFilterMode = False\nSet dest = ws.Parent.Worksheets.Add(After:=ws)\ndest.Name = ws.Name & \"_to\"\nws.Activate\nv = ws.Range(\"A1:C2,A4:C4\").Copy(dest.Range(\"A1\"))",
+   "answers": "Boolean:True;hidden= mode=False filtering=False db==copy_areas_stacked!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><> landed=$A$1:$C$3:Name<>Qty<>Twice<><><><><>apple<>1<>2<><><><><>apple<>3<>6<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>"
+  },
+  {
+   "name": "copy_areas_side",
+   "setup": "ws.AutoFilterMode = False\nSet dest = ws.Parent.Worksheets.Add(After:=ws)\ndest.Name = ws.Name & \"_to\"\nws.Activate\nv = ws.Range(\"A1:A3,C1:C3\").Copy(dest.Range(\"A1\"))",
+   "answers": "Boolean:True;hidden= mode=False filtering=False db==copy_areas_side!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><> landed=$A$1:$B$3:Name<>Twice<><><><><><>apple<>2<><><><><><>pear<>4<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>"
+  },
+  {
+   "name": "copy_areas_paste_all",
+   "setup": "ws.AutoFilterMode = False\nSet dest = ws.Parent.Worksheets.Add(After:=ws)\ndest.Name = ws.Name & \"_to\"\nws.Activate\nws.Range(\"A1:C2,A4:C4\").Copy\ndest.Range(\"A1\").PasteSpecial xlPasteAll",
+   "answers": "Empty;hidden= mode=False filtering=False db==copy_areas_paste_all!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><> landed=$A$1:$C$3:Name<>Qty<>Twice<><><><><>apple<>1<>=B2*2<><><><><>apple<>3<>=B3*2<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>"
+  },
+  {
+   "name": "copy_areas_bad",
+   "setup": "ws.AutoFilterMode = False\nSet dest = ws.Parent.Worksheets.Add(After:=ws)\ndest.Name = ws.Name & \"_to\"\nws.Activate\nv = ws.Range(\"A1:B2,C4:C5\").Copy(dest.Range(\"A1\"))",
+   "answers": "S1004;Empty;hidden= mode=False filtering=False db==copy_areas_bad!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><> landed=$A$1:<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>"
+  },
+  {
+   "name": "ext_refilter_explicit",
+   "setup": "ws.Range(\"A8\").Value = \"pear\"\nws.Range(\"A1:C7\").AutoFilter Field:=1, Criteria1:=\"apple\"",
+   "answers": "Empty;hidden=3,5,7,8, mode=True filtering=True range=$A$1:$C$8 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==ext_refilter_explicit!$A$1:$C$8:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><>pear<><><><><><><>"
+  },
+  {
+   "name": "ext_show_all",
+   "setup": "ws.Range(\"A8\").Value = \"x\"\nws.Rows(8).Hidden = True\nws.ShowAllData",
+   "answers": "Empty;hidden=8, mode=True filtering=False range=$A$1:$C$8 count=3 f1:False f2:False f3:False db==ext_show_all!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><>x<><><><><><><>"
+  },
+  {
+   "name": "paste_special_range_into_filtered",
+   "setup": "Set dest = ws.Parent.Worksheets.Add(After:=ws)\ndest.Range(\"A1:A3\").Value = Application.Transpose(Array(7, 8, 9))\ndest.Range(\"A1:A3\").Copy\nws.Range(\"B2:B7\").PasteSpecial xlPasteValues",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==paste_special_range_into_fil!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>7<>=B2*2<><><>f2<><>pear<>8<>=B3*2<><><>f3<><>apple<>9<>=B4*2<><><>f4<><>fig<>7<>=B5*2<><><>f5<><>apple<>8<>=B6*2<><><>f6<><>kiwi<>9<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "copy_formats_filtered",
+   "setup": "ws.ShowAllData\nws.Range(\"B4\").NumberFormat = \"0.00\"\nws.Range(\"A1:C7\").AutoFilter Field:=1, Criteria1:=\"apple\"\nSet dest = ws.Parent.Worksheets.Add(After:=ws)\ndest.Name = ws.Name & \"_to\"\nws.Activate\nv = ws.Range(\"A1:C7\").Copy(dest.Range(\"A1\"))\nv = dest.Range(\"B3\").NumberFormat & \",\" & dest.Range(\"B2\").NumberFormat",
+   "answers": "String:0.00,General;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==copy_formats_filtered!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><> landed=$A$1:$C$4:Name<>Qty<>Twice<><><><><>apple<>1<>2<><><><><>apple<>3<>6<><><><><>apple<>5<>10<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>"
+  },
+  {
+   "name": "array_row_2d",
+   "setup": "ws.Range(\"A2:B7\").Value = Application.Evaluate(\"{7,8}\")",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==array_row_2d!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>7<>8<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>7<>8<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>7<>8<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "remove_duplicates_outside",
+   "setup": "ws.ShowAllData\nws.Range(\"E1:E7\").Value = Application.Transpose(Array(\"h\", 1, 1, 2, 2, 3, 3))\nws.Range(\"A1:C7\").AutoFilter Field:=1, Criteria1:=\"apple\"\nws.Range(\"E1:E7\").RemoveDuplicates Columns:=1, Header:=xlYes",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==remove_duplicates_outside!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<>h<>f1<><>apple<>1<>=B2*2<><>1<>f2<><>pear<>2<>=B3*2<><>2<>f3<><>apple<>3<>=B4*2<><>3<>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "sort_object_filtered",
+   "setup": "With ws.Sort\n.SortFields.Clear\n.SortFields.Add Key:=ws.Range(\"B2:B7\"), Order:=xlDescending\n.SetRange ws.Range(\"A1:C7\")\n.Header = xlYes\n.Apply\nEnd With",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==sort_object_filtered!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>5<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>1<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "sort_hidden_block",
+   "setup": "ws.Range(\"A1:C7\").AutoFilter Field:=1, Criteria1:=\"kiwi\"\nws.Range(\"A2:C6\").Sort Key1:=ws.Range(\"B2\"), Order1:=xlDescending, Header:=xlNo",
+   "answers": "Empty;hidden=2,3,4,5,6, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=kiwi c2=E1004 f2:False f3:False db==sort_hidden_block!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "del_narrow_no_shift",
+   "setup": "ws.Range(\"A2:A7\").Delete",
+   "answers": "Empty;hidden=2,3,4, mode=True filtering=True range=$A$1:$C$4 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==del_narrow_no_shift!$A$1:$C$4:False cells=Name<>Qty<>Twice<>=SUM(B2:B4)<><>f1<><>pear<>2<>=B2*2<><><>f3<><>fig<>4<>=B3*2<><><>f5<><>kiwi<>6<>=B4*2<><><>f7<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>"
+  },
+  {
+   "name": "delete_header_arrows",
+   "setup": "ws.ShowAllData\nws.Rows(1).Delete",
+   "answers": "Empty;hidden= mode=False filtering=False cells=apple<>1<>=B1*2<><><>f2<><>pear<>2<>=B2*2<><><>f3<><>apple<>3<>=B3*2<><><>f4<><>fig<>4<>=B4*2<><><>f5<><>apple<>5<>=B5*2<><><>f6<><>kiwi<>6<>=B6*2<><><>f7<><><><><><><><><><><><><><><><>"
+  },
+  {
+   "name": "formula_relative_filtered",
+   "setup": "ws.Range(\"E2:E7\").Formula = \"=B2*10\"\nv = ws.Range(\"E2\").Formula & \",\" & ws.Range(\"E4\").Formula & \",\" & ws.Range(\"E6\").Formula",
+   "answers": "String:=B2*10,=B4*10,=B6*10;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==formula_relative_filtered!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><>=B2*10<>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><>=B4*10<>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><>=B6*10<>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "formula_relative_first_hidden",
+   "setup": "ws.Range(\"E3:E7\").Formula = \"=B3*10\"\nv = ws.Range(\"E3\").Formula & \",\" & ws.Range(\"E4\").Formula & \",\" & ws.Range(\"E6\").Formula",
+   "answers": "String:,=B4*10,=B6*10;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==formula_relative_first_hidde!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><>=B4*10<>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><>=B6*10<>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "value_hidden_column",
+   "setup": "ws.Columns(5).Hidden = True\nws.Range(\"D2:F7\").Value = 9\nv = ws.Range(\"D2\").Formula & \",\" & ws.Range(\"E2\").Formula & \",\" & ws.Range(\"F3\").Formula",
+   "answers": "String:9,,f3;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==value_hidden_column!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<>9<><>9<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<>9<><>9<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<>9<><>9<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "value_hidden_column_no_filter",
+   "setup": "ws.AutoFilterMode = False\nws.Columns(5).Hidden = True\nws.Range(\"D2:F7\").Value = 9\nv = ws.Range(\"D2\").Formula & \",\" & ws.Range(\"E2\").Formula & \",\" & ws.Range(\"F3\").Formula",
+   "answers": "String:9,9,9;hidden= mode=False filtering=False db==value_hidden_column_no_filte!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<>9<>9<>9<><>pear<>2<>=B3*2<>9<>9<>9<><>apple<>3<>=B4*2<>9<>9<>9<><>fig<>4<>=B5*2<>9<>9<>9<><>apple<>5<>=B6*2<>9<>9<>9<><>kiwi<>6<>=B7*2<>9<>9<>9<><><><><><><><><>"
+  },
+  {
+   "name": "clear_hidden_column",
+   "setup": "ws.Columns(6).Hidden = True\nws.Range(\"E1:F7\").ClearContents",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==clear_hidden_column!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "clear_header",
+   "setup": "ws.Range(\"A1:C1\").ClearContents",
+   "answers": "Empty;hidden= mode=False filtering=False db==clear_header!$A$1:$C$7:False cells=<><><>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "clear_header_cell",
+   "setup": "ws.Range(\"A1\").ClearContents",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==clear_header_cell!$A$1:$C$7:False cells=<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "clear_one_header_cell",
+   "setup": "ws.Range(\"B1\").ClearContents",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==clear_one_header_cell!$A$1:$C$7:False cells=Name<><>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "clear_filter_range",
+   "setup": "ws.Range(\"A1:C7\").ClearContents",
+   "answers": "Empty;hidden= mode=False filtering=False db==clear_filter_range!$A$1:$C$7:False cells=<><><>=SUM(B2:B7)<><>f1<><><><><><><>f2<><>pear<>2<>=B3*2<><><>f3<><><><><><><>f4<><>fig<>4<>=B5*2<><><>f5<><><><><><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "clear_header_arrows",
+   "setup": "ws.ShowAllData\nws.Range(\"A1:C1\").ClearContents",
+   "answers": "Empty;hidden= mode=False filtering=False db==clear_header_arrows!$A$1:$C$7:False cells=<><><>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "clear_header_no_criteria",
+   "setup": "ws.AutoFilterMode = False\nws.Range(\"A1:C7\").AutoFilter\nws.Range(\"A1:C1\").ClearContents",
+   "answers": "Empty;hidden= mode=False filtering=False db==clear_header_no_criteria!$A$1:$C$7:False cells=<><><>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "value_header_empty",
+   "setup": "ws.Range(\"A1:C1\").Value = \"\"",
+   "answers": "Empty;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==value_header_empty!$A$1:$C$7:False cells=<><><>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "clear_header_wider",
+   "setup": "ws.Range(\"A1:D1\").ClearContents",
+   "answers": "Empty;hidden= mode=False filtering=False db==clear_header_wider!$A$1:$C$7:False cells=<><><><><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "clear_rows_1_3",
+   "setup": "ws.Rows(\"1:3\").ClearContents",
+   "answers": "Empty;hidden= mode=False filtering=False db==clear_rows_1_3!$A$1:$C$7:False cells=<><><><><><><><><><><><><><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "cells_clear",
+   "setup": "ws.Cells.Clear",
+   "answers": "Empty;hidden= mode=False filtering=False db==cells_clear!$A$1:$C$7:False cells=<><><><><><><><><><><><><><>pear<>2<>=B3*2<><><>f3<><><><><><><><><>fig<>4<>=B5*2<><><>f5<><><><><><><><><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "clear_header_formats",
+   "setup": "ws.Range(\"A1:C1\").ClearFormats",
+   "answers": "Empty;hidden= mode=False filtering=False db==clear_header_formats!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "clear_header_then_refill",
+   "setup": "ws.Range(\"A1:C1\").ClearContents\nws.Range(\"A1:C1\").Value = Array(\"N\", \"Q\", \"T\")",
+   "answers": "Empty;hidden= mode=False filtering=False db==clear_header_then_refill!$A$1:$C$7:False cells=N<>Q<>T<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><>"
+  },
+  {
+   "name": "cut_formula_out",
+   "setup": "ws.Range(\"E2\").Formula = \"=D1+B2\"\nSet dest = ws.Parent.Worksheets.Add(After:=ws)\ndest.Name = ws.Name & \"_to\"\nws.Activate\nws.Range(\"E2\").Cut dest.Range(\"A1\")\nv = dest.Range(\"A1\").Formula",
+   "answers": "String:=cut_formula_out!D1+cut_formula_out!B2;hidden=3,5,7, mode=True filtering=True range=$A$1:$C$7 count=3 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False db==cut_formula_out!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><> landed=$A$1:=cut_formula_out!D1+cut_formula_out!B2<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>"
+  },
+  {
+   "name": "copy_areas_adjacent",
+   "setup": "ws.AutoFilterMode = False\nSet dest = ws.Parent.Worksheets.Add(After:=ws)\ndest.Name = ws.Name & \"_to\"\nws.Activate\nv = ws.Range(\"A1:B3,C1:C3\").Copy(dest.Range(\"A1\"))",
+   "answers": "Boolean:True;hidden= mode=False filtering=False db==copy_areas_adjacent!$A$1:$C$7:False cells=Name<>Qty<>Twice<>=SUM(B2:B7)<><>f1<><>apple<>1<>=B2*2<><><>f2<><>pear<>2<>=B3*2<><><>f3<><>apple<>3<>=B4*2<><><>f4<><>fig<>4<>=B5*2<><><>f5<><>apple<>5<>=B6*2<><><>f6<><>kiwi<>6<>=B7*2<><><>f7<><><><><><><><><> landed=$A$1:$C$3:Name<>Qty<>Twice<><><><><>apple<>1<>2<><><><><>pear<>2<>4<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>"
+  }
+ ]
+}

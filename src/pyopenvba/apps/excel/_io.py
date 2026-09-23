@@ -1108,14 +1108,14 @@ def _patched_sheet(sheet: Worksheet, original: str, package: OpcFile) -> str:
     rows: dict[int, str] = {}
     for row_xml in _ROW.findall(body):
         rows[_row_number(row_xml)] = row_xml
-    with_cells = {row for (row, _), cell in sheet.cells_.items() if not cell.is_blank()}
+    # Each row's cells are the model's, written in one pass: those that say something, in column order.
+    by_row: dict[int, list[tuple[int, Cell]]] = {}
     for (row, column), cell in sorted(sheet.cells_.items()):
-        if cell.is_blank():
-            continue
-        rows[row] = _with_cell(rows.get(row, f'<row r="{row}"></row>'), row, column, cell, sheet, package)
-    for row in list(rows):
-        if row in with_cells or _CELL.search(rows[row]):
-            rows[row] = _without_removed_cells(rows[row], row, sheet)
+        if not cell.is_blank():
+            by_row.setdefault(row, []).append((column, cell))
+    stylesheet = sheet.book.stylesheet
+    for row in set(rows) | set(by_row):
+        rows[row] = _row_with_cells(rows.get(row, f'<row r="{row}"></row>'), row, by_row.get(row, []), stylesheet)
     for row in sheet.dims.rows:
         rows.setdefault(row, f'<row r="{row}"/>')
     rebuilt = _rows_as_excel_writes_them(sheet, original, rows)
@@ -1216,57 +1216,15 @@ def _with_dimension_parts(sheet: Worksheet, xml: str) -> str:
     return xml
 
 
-def _with_cell(
-    row_xml: str, row: int, column: int, cell: Cell, sheet: Worksheet, package: OpcFile
-) -> str:
-    """One cell written into its row, replacing whatever was there."""
-    reference = f"{column_letter(column)}{row}"
-    existing = None
-    for candidate in _CELL.findall(row_xml):
-        if _tag_attributes(candidate).get("r", "") == reference:
-            existing = candidate
-            break
-    style = _style_for(cell, sheet.book.stylesheet)
-    written = _cell_xml(reference, cell, style)
-    if existing is not None:
-        return row_xml.replace(existing, written, 1)
-    return _insert_cell(row_xml, written, column)
-
-
-def _insert_cell(row_xml: str, written: str, column: int) -> str:
-    """Put a cell into a row, keeping the row's cells in column order."""
-    opening = row_xml[: row_xml.index(">") + 1]
-    if row_xml.endswith("/>"):
-        opening = row_xml[:-2] + ">"
-        return f"{opening}{written}</row>"
-    inner = row_xml[len(opening) : row_xml.rindex("</row>")]
-    pieces = _CELL.findall(inner)
-    for index, piece in enumerate(pieces):
-        reference = _tag_attributes(piece).get("r", "")
-        letters = "".join(char for char in reference if char.isalpha())
-        if letters and column_number(letters) > column:
-            rebuilt = "".join(pieces[:index]) + written + "".join(pieces[index:])
-            return f"{opening}{rebuilt}</row>"
-    return f"{opening}{inner}{written}</row>"
-
-
-def _without_removed_cells(row_xml: str, row: int, sheet: Worksheet) -> str:
-    """Drop the cells the model no longer holds anything for."""
-    out = row_xml
-    for candidate in _CELL.findall(row_xml):
-        reference = _tag_attributes(candidate).get("r", "")
-        if not reference:
-            continue
-        try:
-            column, number = _split_reference(reference)
-        except ValueError:
-            continue
-        if number != row:
-            continue
-        cell = sheet.cells_.get((row, column))
-        if cell is None or cell.is_blank():
-            out = out.replace(candidate, "", 1)
-    return out
+def _row_with_cells(row_xml: str, row: int, cells: list[tuple[int, Cell]], stylesheet: Stylesheet) -> str:
+    """A row with the model's cells written into it in column order, in place of the ones it had."""
+    head_end = row_xml.index(">")
+    closed = row_xml[head_end - 1] == "/"
+    opening = row_xml[: head_end - 1] + ">" if closed else row_xml[: head_end + 1]
+    rest = "" if closed else _CELL.sub("", row_xml[head_end + 1 : row_xml.rindex("</row>")])
+    written = "".join(_cell_xml(f"{column_letter(column)}{row}", cell, _style_for(cell, stylesheet))
+                      for column, cell in cells)
+    return f"{opening}{written}{rest}</row>"
 
 
 def _cell_xml(reference: str, cell: Cell, style: str) -> str:

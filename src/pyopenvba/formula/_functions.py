@@ -1459,11 +1459,12 @@ def fn_column(context: Context, nodes: list[Any]) -> object:
 
 @function("ROWS", lazy=True)
 def fn_rows(context: Context, nodes: list[Any]) -> object:
-    """How many rows; anything other than cells is worked out as an array, so ROWS(A1:A3*2) is 3 in any row."""
+    """How many rows; anything other than cells is worked out as an array, so ROWS(A1:A3*2) is 3 in any row.
+    An error on its own is that error: ROWS(#REF!) is #REF! (tests/fixtures/tables/edits/)."""
     area = context.area_of(nodes[0]) if nodes else None
     if area is not None:
         return float(area.rows)
-    return float(_matrix(evaluate(nodes[0], replace(context, array_argument=True))).height)
+    return float(_matrix(_not_an_error(evaluate(nodes[0], replace(context, array_argument=True)))).height)
 
 
 @function("COLUMNS", lazy=True)
@@ -1471,7 +1472,14 @@ def fn_columns(context: Context, nodes: list[Any]) -> object:
     area = context.area_of(nodes[0]) if nodes else None
     if area is not None:
         return float(area.columns)
-    return float(_matrix(evaluate(nodes[0], replace(context, array_argument=True))).width)
+    return float(_matrix(_not_an_error(evaluate(nodes[0], replace(context, array_argument=True)))).width)
+
+
+def _not_an_error(value: object) -> object:
+    """A value, raised where it is an error on its own; an array holding errors is still an array."""
+    if isinstance(value, ExcelError):
+        raise value
+    return value
 
 
 @function("OFFSET", lazy=True)

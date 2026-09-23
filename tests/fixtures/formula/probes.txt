@@ -517,6 +517,10 @@ Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("H5").Formul
 Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("H5").Formula = "=SUMPRODUCT(LARGE(A1:A3,{1,2}))" ;; =H5
 Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("H5").Formula = "=SUM(ROW(A1:A3))" ;; =H5
 Range("A1:C1").Value = Array(1, 2, 3): Range("E5").Formula = "=SUM(COLUMN(A1:C1))" ;; =E5
+;; =ROWS(#REF!)
+;; =COLUMNS(#N/A)
+;; =ROWS({1,#N/A;2,3})
+;; =COLUMNS({1,#N/A})
 
 # --- a defined name for cells or for a formula ---
 Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): ActiveWorkbook.Names.Add Name:="dbl", RefersTo:="=$A$1:$A$3*2": Range("H5").Formula = "=SUM(dbl)" ;; =H5

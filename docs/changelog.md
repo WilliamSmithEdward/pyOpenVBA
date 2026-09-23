@@ -11,13 +11,14 @@ All notable changes to pyOpenVBA are documented here. This project follows
   `Value2`, `Formula`, `FormulaR1C1` or an array brings the number format
   typing it gives -- `"5%"` 0%, `"$1,000.50"` a dollar format, `"1e3"`
   scientific, `"1 3/16"` a fraction, times with seconds, tenths and
-  AM/PM, dates month first on Excel's 1900 calendar -- and a Date or
+  AM/PM, dates month first on Excel's 1900 calendar, a run of spaces
+  between a date's or a time's parts read as one -- and a Date or
   Currency a macro computes brings its own. A cell keeps a format of its
   own unless it is General or a built-in one of another kind, reads
   `"1/2"` as a half when its format is a number's, and keeps every string
   as text when its format is Text, where a Date or Currency becomes the
   text Excel shows. `Value` reads a number as a Date or Currency through
-  the cell's format and `Value2` as a Double. 3,723 writes in live Excel
+  the cell's format and `Value2` as a Double. 3,736 writes in live Excel
   and a workbook it saved pin the rules.
 - `Range.PrefixCharacter`: a leading apostrophe keeps the rest as text
   and sets the cell's prefix flag, which its format keeps until `Clear` or

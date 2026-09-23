@@ -584,6 +584,58 @@
    "answers": "String:Double;String:Double:1.66666666666667;String:1 2/3;String:1.66666666666667;String:;String:# ?/?;Boolean:False;Boolean:False;"
   },
   {
+   "text": "\"1/2/2020  12:30\"",
+   "answers": "String:Date;String:Date:1/2/2020 12:30:00 PM;String:1/2/2020 12:30;String:43832.5208333333;String:;String:m/d/yyyy h:mm;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"1/2/2020   1:00 PM\"",
+   "answers": "String:Date;String:Date:1/2/2020 1:00:00 PM;String:1/2/2020 13:00;String:43832.5416666667;String:;String:m/d/yyyy h:mm;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"12:30  PM\"",
+   "answers": "String:Double;String:Double:0.520833333333333;String:12:30 PM;String:0.520833333333333;String:;String:h:mm AM/PM;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"1/2/2020 12:30  PM\"",
+   "answers": "String:Date;String:Date:1/2/2020 12:30:00 PM;String:1/2/2020 12:30;String:43832.5208333333;String:;String:m/d/yyyy h:mm;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"Jan  2, 2020\"",
+   "answers": "String:Date;String:Date:1/2/2020;String:2-Jan-20;String:43832;String:;String:d-mmm-yy;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"Jan 2,  2020\"",
+   "answers": "String:Date;String:Date:1/2/2020;String:2-Jan-20;String:43832;String:;String:d-mmm-yy;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"2  Jan  2020\"",
+   "answers": "String:Date;String:Date:1/2/2020;String:2-Jan-20;String:43832;String:;String:d-mmm-yy;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"1  1/2\"",
+   "answers": "String:String;String:String:1  1/2;String:1  1/2;String:1  1/2;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"$  5\"",
+   "answers": "String:Currency;String:Currency:5;String:$5 ;String:5;String:;String:$#,##0_);[Red]($#,##0);Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"-  5\"",
+   "answers": "String:Double;String:Double:-5;String:-5;String:-5;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"5  %\"",
+   "answers": "String:Double;String:Double:0.05;String:5%;String:0.05;String:;String:0%;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"Jan  2020\"",
+   "answers": "String:Date;String:Date:1/1/2020;String:Jan-20;String:43831;String:;String:mmm-yy;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"12  PM\"",
+   "answers": "String:Double;String:Double:0.5;String:12:00 PM;String:0.5;String:;String:h:mm AM/PM;Boolean:False;Boolean:False;"
+  },
+  {
    "text": "#1/2/2020#",
    "answers": "String:Date;String:Date:1/2/2020;String:1/2/2020;String:43832;String:;String:m/d/yyyy;Boolean:False;Boolean:False;"
   },

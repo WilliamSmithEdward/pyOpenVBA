@@ -20,7 +20,8 @@ scripts/measure_typing_formats.py):
   1900; a month and a number that cannot be its day is a month and year;
   month names, times with or without seconds, AM/PM and fractions of a
   second, and a date with a time each bring their own formats. A date
-  that does not exist stays text.
+  that does not exist stays text. A run of spaces between the parts of a
+  date or a time counts as one space, though not in a fraction.
 
 What the cell already holds decides the rest. A Text cell (``@``) keeps
 every string as it is written and turns a Date or a Currency a macro
@@ -292,7 +293,8 @@ def _number(body: str, *, fractions: bool) -> Typed | None:
 
 
 def _moment(body: str) -> Typed | None:
-    """A typed date, time, or date and time, or None."""
+    """A typed date, time, or date and time, or None; a run of spaces separates as one space does."""
+    body = re.sub(" {2,}", " ", body)
     time = _time(body)
     if time is not None:
         return time

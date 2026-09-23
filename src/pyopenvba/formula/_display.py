@@ -226,6 +226,12 @@ def _letters(run: str) -> Iterator[_Item]:
             count = len(run[index:]) - len(run[index:].lstrip(char.lower() + char.upper()))
             yield _Item("date", char.lower() * count)
             index += count
+        elif char in "eE":
+            # e without a sign after it is the era year, which in this locale is the year: TEXT(0,"zero") shows
+            # z1900ro (pyOfficeEditor's formula corpus).
+            count = len(run[index:]) - len(run[index:].lstrip("eE"))
+            yield _Item("date", "yyyy")
+            index += count
         elif char in ".,%/@":
             yield _Item({".": "point", ",": "comma", "%": "percent", "/": "slash", "@": "text"}[char], char)
             index += 1

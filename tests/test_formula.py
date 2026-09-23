@@ -107,6 +107,11 @@ def test_matches_excel(probe: str) -> None:
     assert got == want, f"{probe}\n  Excel: {want}\n  ours : {got}"
 
 
+def test_an_e_in_a_number_format_is_the_year() -> None:
+    """In pyOfficeEditor's formula corpus Excel shows TEXT(0,"0;-0;zero") as z1900ro: the e is the era year."""
+    assert evaluate('=TEXT(0,"0;-0;zero")') == "String|z1900ro"
+
+
 def test_an_unimplemented_function_says_so_rather_than_answering_name() -> None:
     """A gap here has to look different from a function Excel lacks."""
     app = ExcelApplication()

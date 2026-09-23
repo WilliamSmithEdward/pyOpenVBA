@@ -1,0 +1,120 @@
+{
+ "helpers": "Private Function RaisesHandledEnd() As String\n    On Error Resume Next\n    Err.Raise 1004\n    RaisesHandledEnd = \"inside \" & Err.Number\nEnd Function\n\nPrivate Function RaisesHandledExit() As String\n    On Error Resume Next\n    Err.Raise 1004\n    RaisesHandledExit = \"inside \" & Err.Number\n    Exit Function\nEnd Function\n\nPrivate Sub RaisesHandledSub()\n    On Error Resume Next\n    Err.Raise 1004\nEnd Sub\n\nPrivate Function SetsWithoutHandler() As String\n    Err.Number = 5\n    SetsWithoutHandler = \"inside \" & Err.Number\nEnd Function\n\nPrivate Function Plain() As String\n    Plain = \"inside \" & Err.Number\nEnd Function\n\nPrivate Function PlainExit() As String\n    PlainExit = \"inside \" & Err.Number\n    Exit Function\nEnd Function\n\nPrivate Function Clears() As String\n    Err.Clear\n    Clears = \"inside \" & Err.Number\nEnd Function\n\nPrivate Function RaisesUnhandled() As String\n    Err.Raise 1004\nEnd Function\n\nPrivate Function HandlerLabel() As String\n    On Error GoTo Bad\n    Err.Raise 13\n    HandlerLabel = \"not here\"\n    Exit Function\nBad:\n    HandlerLabel = \"handled \" & Err.Number\nEnd Function\n\nPrivate Function HandlerResume() As String\n    Dim seen As Long\n    On Error GoTo Bad\n    Err.Raise 13\n    HandlerResume = \"resumed \" & seen & \" \" & Err.Number\n    Exit Function\nBad:\n    seen = Err.Number\n    Resume Next\nEnd Function\n\nPrivate Function ErrorStatementHandled() As String\n    On Error Resume Next\n    Error 11\n    ErrorStatementHandled = \"inside \" & Err.Number\nEnd Function\n\nPrivate Function HandlerExit() As String\n    On Error GoTo Bad\n    Err.Raise 13\n    Exit Function\nBad:\n    HandlerExit = \"handled \" & Err.Number\n    Exit Function\nEnd Function\n\nPrivate Sub PlainSub()\n    Dim x As Long\n    x = 1\nEnd Sub\n\nPrivate Function Outer() As String\n    Outer = \"outer sees \" & Err.Number & \", \" & Plain()\nEnd Function\n",
+ "cases": [
+  {
+   "name": "handled_end",
+   "body": "out = RaisesHandledEnd() & \" / after \" & Err.Number",
+   "answer": "inside 1004 / after 1004"
+  },
+  {
+   "name": "handled_exit",
+   "body": "out = RaisesHandledExit() & \" / after \" & Err.Number",
+   "answer": "inside 1004 / after 1004"
+  },
+  {
+   "name": "handled_sub",
+   "body": "RaisesHandledSub\nout = \"after \" & Err.Number",
+   "answer": "after 1004"
+  },
+  {
+   "name": "set_without_handler",
+   "body": "out = SetsWithoutHandler() & \" / after \" & Err.Number",
+   "answer": "inside 5 / after 5"
+  },
+  {
+   "name": "caller_error_through_plain_call",
+   "body": "On Error Resume Next\nErr.Raise 7\nout = \"before \" & Err.Number & \" / \" & Plain() & \" / after \" & Err.Number",
+   "answer": "before 7 / inside 0 / after 0"
+  },
+  {
+   "name": "caller_error_through_plain_exit",
+   "body": "On Error Resume Next\nErr.Raise 7\nout = \"before \" & Err.Number & \" / \" & PlainExit() & \" / after \" & Err.Number",
+   "answer": "before 7 / inside 0 / after 0"
+  },
+  {
+   "name": "caller_error_through_handled_call",
+   "body": "On Error Resume Next\nErr.Raise 7\nout = \"before \" & Err.Number & \" / \" & RaisesHandledEnd() & \" / after \" & Err.Number",
+   "answer": "before 7 / inside 1004 / after 1004"
+  },
+  {
+   "name": "callee_clears",
+   "body": "On Error Resume Next\nErr.Raise 7\nout = Clears() & \" / after \" & Err.Number",
+   "answer": "inside 0 / after 0"
+  },
+  {
+   "name": "unhandled_reaches_caller",
+   "body": "On Error Resume Next\nout = \"skipped\"\nout = RaisesUnhandled()\nout = out & \" / after \" & Err.Number",
+   "answer": "skipped / after 1004"
+  },
+  {
+   "name": "on_error_again",
+   "body": "On Error Resume Next\nErr.Raise 7\nOn Error Resume Next\nout = \"after \" & Err.Number",
+   "answer": "after 0"
+  },
+  {
+   "name": "on_error_goto_0",
+   "body": "On Error Resume Next\nErr.Raise 7\nOn Error GoTo 0\nout = \"after \" & Err.Number",
+   "answer": "after 0"
+  },
+  {
+   "name": "on_error_goto_label",
+   "body": "On Error Resume Next\nErr.Raise 7\nOn Error GoTo Bad\nout = \"after \" & Err.Number\nGoTo Done\nBad:\nout = \"bad\"\nDone:",
+   "answer": "after 0"
+  },
+  {
+   "name": "handler_exit",
+   "body": "out = HandlerExit() & \" / after \" & Err.Number",
+   "answer": "handled 13 / after 0"
+  },
+  {
+   "name": "caller_error_through_builtin",
+   "body": "On Error Resume Next\nErr.Raise 7\nDim n As Long\nn = Len(\"abc\")\nout = \"after \" & Err.Number",
+   "answer": "after 7"
+  },
+  {
+   "name": "caller_error_through_object",
+   "body": "On Error Resume Next\nErr.Raise 7\nDim s As String\ns = Application.Name\nout = \"after \" & Err.Number",
+   "answer": "after 7"
+  },
+  {
+   "name": "caller_error_through_sub",
+   "body": "On Error Resume Next\nErr.Raise 7\nPlainSub\nout = \"after \" & Err.Number",
+   "answer": "after 0"
+  },
+  {
+   "name": "set_then_call",
+   "body": "Err.Number = 5\nout = \"before \" & Err.Number & \" / \" & Plain() & \" / after \" & Err.Number",
+   "answer": "before 5 / inside 0 / after 0"
+  },
+  {
+   "name": "nested_calls",
+   "body": "On Error Resume Next\nErr.Raise 7\nout = Outer() & \" / after \" & Err.Number",
+   "answer": "outer sees 0, inside 0 / after 0"
+  },
+  {
+   "name": "handler_label",
+   "body": "out = HandlerLabel() & \" / after \" & Err.Number",
+   "answer": "handled 13 / after 0"
+  },
+  {
+   "name": "handler_resume",
+   "body": "out = HandlerResume() & \" / after \" & Err.Number",
+   "answer": "resumed 13 0 / after 0"
+  },
+  {
+   "name": "error_statement",
+   "body": "out = ErrorStatementHandled() & \" / after \" & Err.Number",
+   "answer": "inside 11 / after 11"
+  },
+  {
+   "name": "resume_next_keeps",
+   "body": "On Error Resume Next\nErr.Raise 7\nDim x As Long\nx = 1\nout = \"after \" & Err.Number",
+   "answer": "after 7"
+  },
+  {
+   "name": "second_error_replaces",
+   "body": "On Error Resume Next\nErr.Raise 7\nErr.Raise 9\nout = \"after \" & Err.Number",
+   "answer": "after 9"
+  }
+ ]
+}

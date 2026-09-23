@@ -562,6 +562,13 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- `Err` clears where VBA clears it: when a procedure of the macro starts,
+  on every `On Error` statement, and on leaving a procedure from its
+  error handler. It keeps what a procedure left in it after the procedure
+  returns, and a built-in function or an object's member leaves it
+  alone. The model never cleared it on a call or an `On Error`
+  statement, so an error handled in one function was still in `Err` in
+  the next one. 23 programs in live Excel pin it.
 - CHOOSE with an array of indexes chooses for each item, as Excel does
   in a cell: `CHOOSE({1,2},A1:A3,B1:B3)` is the two columns side by
   side, so `VLOOKUP(x,CHOOSE({1,2},B:B,A:A),2,FALSE)` looks to the left.

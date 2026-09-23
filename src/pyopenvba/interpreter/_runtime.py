@@ -262,10 +262,15 @@ class ErrObject(VBAObject):
 
     @method
     def Clear(self) -> object:
+        self.reset()
+        return EMPTY
+
+    def reset(self) -> None:
+        """No error, as VBA leaves Err on entering a procedure, on an On Error statement, on Resume and on leaving
+        an error handler (tests/fixtures/vba_semantics/err_lifetime.json)."""
         self.number = 0
         self.description = ""
         self.source = ""
-        return EMPTY
 
     @method
     def Raise(
@@ -709,6 +714,8 @@ class Interpreter:
         module.initialise()
         frame = Frame(procedure=procedure, module=module, me=me)
         self._bind_arguments(frame, procedure, args, named)
+        # A procedure starts with no error, whatever its caller's Err held; what it leaves in Err stays after it.
+        self.err.reset()
         if procedure.kind in ("function", "get"):
             frame.locals[procedure.name.lower()] = Slot(
                 default_for(procedure.returns), procedure.returns
@@ -867,8 +874,7 @@ class Interpreter:
             self._execute_block(frame.procedure.body, frame, start=index)
         except _ResumeSignal as resume:
             frame.in_handler = False
-            self.err.capture(VBARuntimeError(0, ""))
-            self.err.number = 0
+            self.err.reset()
             if resume.mode == "next":
                 return "next"
             if resume.mode == "same":
@@ -877,9 +883,14 @@ class Interpreter:
         except _GotoSignal:
             frame.in_handler = False
             raise
+        except _ExitSignal:
+            # Leaving the procedure from its handler leaves no error behind.
+            self.err.reset()
+            raise
         finally:
             if frame.in_handler:
                 frame.in_handler = False
+        self.err.reset()
         raise _ExitSignal(_exit_word(frame.procedure.kind))
 
     @classmethod
@@ -1096,6 +1107,8 @@ class Interpreter:
         return None
 
     def _do_on_error(self, statement: A.OnError, frame: Frame) -> None:
+        # Every On Error statement clears Err (tests/fixtures/vba_semantics/err_lifetime.json).
+        self.err.reset()
         if statement.mode == "clear":
             frame.handler = "none"
             frame.handler_label = ""

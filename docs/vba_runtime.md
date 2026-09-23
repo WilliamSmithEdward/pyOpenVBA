@@ -247,6 +247,14 @@ error happened, so `Resume Next` hands control back to the statement
 after it even inside a loop, which is what a loop-and-skip macro
 depends on.
 
+`Err` clears where VBA clears it, measured in live Excel
+(`tests/fixtures/vba_semantics/err_lifetime.json`): when a procedure of
+the macro starts, on every `On Error` statement, on `Resume`, and on
+leaving a procedure from its error handler. What a procedure leaves in
+it otherwise stays after the procedure returns, so a function that
+handles an error with `On Error Resume Next` hands it to its caller, and
+a built-in function or an object's member leaves it alone.
+
 **The runtime library.** The conversion, maths, string, date, array and
 information functions, `Format` (shared with the Access engine, which is
 the same function in Office), `MsgBox` and `InputBox`, and the financial

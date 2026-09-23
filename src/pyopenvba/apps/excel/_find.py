@@ -1,4 +1,26 @@
-"""Measured single-area Range.Find matching and application search state."""
+"""Range.Find, FindNext, FindPrevious and Replace, and the search settings they share.
+
+Find looks in one area. Among formulas it reads a formula's text and a
+constant's text as the formula bar shows it; among values, what the cell
+shows. Replace always edits that formula-bar text (scripts/measure_replace.py):
+
+- ``?`` is any one character, ``*`` any run of them -- as short as will
+  match, except at the end of what is sought, where it runs to the end --
+  and ``~`` takes the next character as it is. A ``~`` with nothing after
+  it is dropped, and a search for nothing replaces nothing.
+- Every match in a cell is replaced, left to right, and what is left is
+  typed again as Replace types it (see ``_typing.replaced``). A formula
+  Excel cannot read stops the Replace at that cell, the cells before it
+  changed and none after.
+- By rows the cells are taken area by area, row by row, from the first;
+  by columns, column by column, starting after the first cell of the
+  first area and coming back to it last. A cell two areas share is
+  replaced twice.
+- Replace always answers True. It leaves its LookAt, SearchOrder,
+  MatchCase and what it sought for the next Find and FindNext, and takes
+  LookAt and SearchOrder from the last one; MatchCase is False unless it
+  is given.
+"""
 from __future__ import annotations
 
 import re
@@ -22,23 +44,34 @@ class FindState:
     match_case: bool = False
 
 
-def _pattern(text: str, whole: bool, match_case: bool) -> re.Pattern[str]:
+def _parts(text: str) -> list[str]:
+    """What is sought, as pieces of a regular expression; a star at the end runs to the end of the text."""
     parts: list[str] = []
     index = 0
     while index < len(text):
         char = text[index]
-        if char == "~" and index + 1 == len(text):
-            break
-        if char == "~" and index + 1 < len(text):
+        if char == "~":
+            if index + 1 == len(text):
+                break
             index += 1
             parts.append(re.escape(text[index]))
         else:
-            parts.append(".*" if char == "*" else "." if char == "?" else re.escape(char))
+            parts.append(".*?" if char == "*" else "." if char == "?" else re.escape(char))
         index += 1
-    body = "".join(parts)
+    if parts and parts[-1] == ".*?":
+        parts[-1] = ".*"
+    return parts
+
+
+def _pattern(text: str, whole: bool, match_case: bool) -> re.Pattern[str]:
+    body = "".join(_parts(text))
     if whole:
         body = r"\A(?:" + body + r")\Z"
     return re.compile(body, re.DOTALL | (0 if match_case else re.IGNORECASE))
+
+
+def _sought(value: object) -> str:
+    return ("TRUE" if value else "FALSE") if isinstance(value, bool) else to_text(value)
 
 
 def find(target: Range, what: object, after: object = MISSING, look_in: object = MISSING,
@@ -46,6 +79,7 @@ def find(target: Range, what: object, after: object = MISSING, look_in: object =
          match_case: object = MISSING, match_byte: object = MISSING,
          search_format: object = MISSING, *, again: bool = False) -> object:
     from pyopenvba.apps.excel._model import Range
+    from pyopenvba.apps.excel._typing import edit_text
 
     if len(target.areas) != 1:
         raise VBAUnsupportedError("Range.Find on multiple areas is not implemented")
@@ -75,7 +109,7 @@ def find(target: Range, what: object, after: object = MISSING, look_in: object =
             return NOTHING
     else:
         case = False if match_case is MISSING else to_bool(match_case)
-    text = ("TRUE" if what else "FALSE") if isinstance(what, bool) else to_text(what)
+    text = _sought(what)
     pattern = _pattern(text, whole == 1, case)
     state.look_in, state.look_at, state.order = source, whole, traversal
     state.what, state.match_case = what, case
@@ -112,8 +146,9 @@ def find(target: Range, what: object, after: object = MISSING, look_in: object =
     for row, column in positions:
         cell = target.sheet.cell(row, column)
         found = Range(target.sheet, [Area(row, column, row, column, target.sheet.name)])
-        if cell is not None and source == -4123 and cell.formula:
-            value = cell.formula
+        if cell is not None and source == -4123:
+            # Among formulas a constant reads as the formula bar shows it: 1234 in #,##0 is 1234, not 1,234.
+            value = cell.formula or edit_text(cell.value, cell.number_format)
         else:
             value = to_text(found.Text())
             if cell is not None and isinstance(cell.value, bool):
@@ -122,3 +157,63 @@ def find(target: Range, what: object, after: object = MISSING, look_in: object =
         if matches:
             return found
     return NOTHING
+
+
+def replace(target: Range, what: object, replacement: object, look_at: object = MISSING,
+            order: object = MISSING, match_case: object = MISSING, match_byte: object = MISSING,
+            search_format: object = MISSING, replace_format: object = MISSING,
+            formula_version: object = MISSING) -> object:
+    from pyopenvba.apps.excel._typing import edit_text
+
+    if what is MISSING or replacement is MISSING:
+        raise error(449)
+    if match_byte is not MISSING and to_bool(match_byte):
+        raise VBAUnsupportedError("Range.Replace MatchByte=True is not implemented")
+    for name, flag in (("SearchFormat", search_format), ("ReplaceFormat", replace_format)):
+        if flag is not MISSING and to_bool(flag):
+            raise VBAUnsupportedError(f"Range.Replace {name}=True is not implemented")
+    if formula_version is not MISSING and int(to_integer(formula_version, "Long")) != 0:
+        raise VBAUnsupportedError("Range.Replace with Formula2 semantics is not implemented")
+    state = target.sheet.book.application.find_state
+    whole = state.look_at if look_at is MISSING else int(to_integer(look_at, "Long"))
+    traversal = state.order if order is MISSING else int(to_integer(order, "Long"))
+    if whole not in {1, 2} or traversal not in {1, 2}:
+        raise error(9)
+    case = False if match_case is MISSING else to_bool(match_case)
+    state.look_in, state.look_at, state.order, state.what, state.match_case = -4123, whole, traversal, what, case
+    text, new = _sought(what), _sought(replacement)
+    if not _parts(text):
+        return True
+    pattern = _pattern(text, whole == 1, case)
+    sheet = target.sheet
+    cells: list[tuple[int, int]] = []
+    for area in target.areas:
+        inside = [position for position in sheet.cells_ if area.contains(*position)]
+        inside.sort(key=(lambda position: position) if traversal == 1 else (lambda position: position[::-1]))
+        cells += inside
+    first = (target.first.top, target.first.left)
+    if traversal == 2 and cells and cells[0] == first:
+        # By columns Excel starts after the first cell and comes back to it last.
+        cells.append(cells.pop(0))
+    for row, column in cells:
+        cell = sheet.cells_.get((row, column))
+        if cell is None:
+            continue
+        before = cell.formula or edit_text(cell.value, cell.number_format)
+        after = _substituted(pattern, before, new) if before else None
+        if after is not None and not target.replaced_in(row, column, after):
+            break
+    return True
+
+
+def _substituted(pattern: re.Pattern[str], text: str, replacement: str) -> str | None:
+    """``text`` with every match of ``pattern`` replaced, left to right, or None where nothing matches."""
+    pieces: list[str] = []
+    at = 0
+    while at < len(text):
+        found = pattern.search(text, at)
+        if found is None or found.end() == found.start():
+            break
+        pieces += [text[at:found.start()], replacement]
+        at = found.end()
+    return "".join(pieces) + text[at:] if pieces else None

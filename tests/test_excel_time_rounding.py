@@ -4,8 +4,9 @@ tests/fixtures/time_rounding.json is what scripts/measure_time_rounding.py
 saw in live Excel: 152 serials, most of them on the half second -- or half
 a tenth, hundredth or thousandth of one -- where ways of rounding part,
 each read through Range.Text under seven date and time formats, through
-the TEXT function and through VBA's CStr, Format, Hour, Minute and Second.
-Each value reaches both sides exactly, rebuilt in VBA from its bits.
+the TEXT function and through VBA's CStr, Format, Hour, Minute and Second,
+and as the text Replace edits in a cell, the recorded probe run as it
+ran. Each value reaches both sides exactly, rebuilt in VBA from its bits.
 
 Two counts of elapsed seconds, ``[s]``, and some of VBA's own roundings
 are not reproduced: the rule behind them is not known yet.
@@ -73,6 +74,20 @@ def test_a_time_shows_as_excel_rounds_it(answers: list[list[str]], index: int) -
         shown[elapsed] = wanted[elapsed]
     assert shown == wanted
     assert answers[index][len(FORMATS)] == case["read"][0]
+
+
+@pytest.fixture(scope="module")
+def edited() -> list[str]:
+    """The text Replace edits in each cell, as the recorded probe reads it: every digit replaced in turn with q."""
+    app = ExcelApplication()
+    app.add_workbook()
+    app.add_module(RECORD["code"], name="Probe")
+    return [row.split("^")[-1] for row in str(app.run("Probe")).split("|")[: len(CASES)]]
+
+
+@pytest.mark.parametrize("index", range(len(CASES)), ids=[repr(case["value"]) for case in CASES])
+def test_replace_edits_a_time_rounded_as_the_formula_bar_rounds_it(edited: list[str], index: int) -> None:
+    assert edited[index] == CASES[index]["edited"]
 
 
 def _vba_matches(answers: list[list[str]], index: int) -> bool:

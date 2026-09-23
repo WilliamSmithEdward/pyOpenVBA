@@ -1,0 +1,1021 @@
+{
+ "helper": "Private Function Show(v As Variant) As String\n    If IsNull(v) Then\n        Show = \"Null\"\n    ElseIf IsEmpty(v) Then\n        Show = \"Empty\"\n    ElseIf IsError(v) Then\n        Show = \"Error:\" & CStr(CLng(v))\n    ElseIf IsObject(v) Then\n        Show = \"Object\"\n    Else\n        Show = TypeName(v) & \":\" & CStr(v)\n    End If\nEnd Function\n\nPrivate Function Dump(ws As Object) As String\n    Dim out As String, c As Object\n    For Each c In ws.Range(\"A1:D4\").Cells\n        out = out & c.Formula & \"~\" & TypeName(c.Value) & \"~\" & c.NumberFormat & \"~\" & c.PrefixCharacter & \"<>\"\n    Next\n    Dump = out & ws.UsedRange.Address\nEnd Function\n\nPrivate Function Where(r As Object, what As String, inside As Long) As String\n    Dim hit As Object\n    Set hit = r.Find(what, LookIn:=inside, LookAt:=xlPart)\n    If hit Is Nothing Then Where = \"Nothing\" Else Where = hit.Address(False, False)\nEnd Function\n",
+ "year": 2026,
+ "layouts": [
+  {
+   "name": "part",
+   "setup": "ws.Range(\"A1\").Value = \"apple\"\nws.Range(\"A2\").Value = \"pineapple\"\nws.Range(\"A3\").Value = \"grape\"\nv = ws.Range(\"A1:A3\").Replace(\"apple\", \"pear\")",
+   "answers": "Boolean:True;pear~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>pinepear~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>grape~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1:$A$3"
+  },
+  {
+   "name": "whole",
+   "setup": "ws.Range(\"A1\").Value = \"apple\"\nws.Range(\"A2\").Value = \"pineapple\"\nws.Range(\"A3\").Value = \"grape\"\nv = ws.Range(\"A1:A3\").Replace(\"apple\", \"pear\", LookAt:=xlWhole)",
+   "answers": "Boolean:True;pear~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>pineapple~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>grape~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1:$A$3"
+  },
+  {
+   "name": "case_kept",
+   "setup": "ws.Range(\"A1\").Value = \"Apple\"\nws.Range(\"A2\").Value = \"apple\"\nv = ws.Range(\"A1:A2\").Replace(\"apple\", \"x\", MatchCase:=True)",
+   "answers": "Boolean:True;Apple~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>x~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1:$A$2"
+  },
+  {
+   "name": "case_ignored",
+   "setup": "ws.Range(\"A1\").Value = \"Apple\"\nws.Range(\"A2\").Value = \"APPLE pie\"\nv = ws.Range(\"A1:A2\").Replace(\"apple\", \"x\", MatchCase:=False)",
+   "answers": "Boolean:True;x~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>x pie~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1:$A$2"
+  },
+  {
+   "name": "every_occurrence",
+   "setup": "ws.Range(\"A1\").Value = \"aaa\"\nws.Range(\"A2\").Value = \"aaaa\"\nv = ws.Range(\"A1:A2\").Replace(\"aa\", \"b\")",
+   "answers": "Boolean:True;ba~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>bb~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1:$A$2"
+  },
+  {
+   "name": "wildcards",
+   "setup": "ws.Range(\"A1\").Value = \"abc\"\nws.Range(\"A2\").Value = \"axc\"\nws.Range(\"A3\").Value = \"xxabcxxabc\"\nws.Range(\"A4\").Value = \"a*c\"\nv = ws.Range(\"A1:A4\").Replace(\"a?c\", \"Z\")",
+   "answers": "Boolean:True;Z~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>Z~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>xxZxxZ~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>Z~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1:$A$4"
+  },
+  {
+   "name": "star",
+   "setup": "ws.Range(\"A1\").Value = \"xxabcxxabc\"\nws.Range(\"A2\").Value = \"abc\"\nv = ws.Range(\"A1:A2\").Replace(\"a*c\", \"-\")",
+   "answers": "Boolean:True;xx-xx-~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>-~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1:$A$2"
+  },
+  {
+   "name": "star_only",
+   "setup": "ws.Range(\"A1\").Value = \"abc\"\nws.Range(\"A2\").Value = \"abc\"\nv = ws.Range(\"A1\").Replace(\"*\", \"Z\")\nv = ws.Range(\"A2\").Replace(\"?\", \"Z\")",
+   "answers": "Boolean:True;Z~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>ZZZ~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1:$A$2"
+  },
+  {
+   "name": "escape",
+   "setup": "ws.Range(\"A1\").Value = \"a*c\"\nws.Range(\"A2\").Value = \"abc\"\nv = ws.Range(\"A1:A2\").Replace(\"a~*c\", \"Y\")",
+   "answers": "Boolean:True;Y~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>abc~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1:$A$2"
+  },
+  {
+   "name": "replacement_literal",
+   "setup": "ws.Range(\"A1\").Value = \"abc\"\nv = ws.Range(\"A1\").Replace(\"b\", \"~*?\")",
+   "answers": "Boolean:True;a~*?c~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1"
+  },
+  {
+   "name": "numbers_typed_again",
+   "setup": "ws.Range(\"A1\").Value = 123\nws.Range(\"A2\").Value = \"1a\"\nws.Range(\"A3\").Value = \"abc\"\nws.Range(\"A4\").Value = 1.5\nv = ws.Range(\"A1\").Replace(\"2\", \"5\")\nv = ws.Range(\"A2\").Replace(\"a\", \"\")\nv = ws.Range(\"A3\").Replace(\"abc\", \"5%\")\nv = ws.Range(\"A4\").Replace(\".\", \",\")",
+   "answers": "Boolean:True;153~Double~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>1~Double~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>0.05~Double~0%~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>1,5~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1:$A$4"
+  },
+  {
+   "name": "numeric_arguments",
+   "setup": "ws.Range(\"A1\").Value = 123\nv = ws.Range(\"A1\").Replace(2, 5)",
+   "answers": "Boolean:True;153~Double~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1"
+  },
+  {
+   "name": "formula",
+   "setup": "ws.Range(\"B1\").Value = 2\nws.Range(\"C1\").Value = 3\nws.Range(\"A1\").Formula = \"=B1+1\"\nv = ws.Range(\"A1\").Replace(\"B1\", \"C1\")",
+   "answers": "Boolean:True;=C1+1~Double~General~<>2~Double~General~<>3~Double~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1:$C$1"
+  },
+  {
+   "name": "formula_whole",
+   "setup": "ws.Range(\"B1\").Value = 2\nws.Range(\"A1\").Formula = \"=B1+1\"\nv = ws.Range(\"A1\").Replace(\"=B1+1\", \"5\", LookAt:=xlWhole)",
+   "answers": "Boolean:True;5~Double~General~<>2~Double~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1:$B$1"
+  },
+  {
+   "name": "formula_result_not_searched",
+   "setup": "ws.Range(\"B1\").Value = 2\nws.Range(\"A1\").Formula = \"=B1+1\"\nv = ws.Range(\"A1:A2\").Replace(\"3\", \"9\")",
+   "answers": "Boolean:True;=B1+1~Double~General~<>2~Double~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1:$B$1"
+  },
+  {
+   "name": "invalid_formula",
+   "setup": "ws.Range(\"B1\").Value = 2\nws.Range(\"A1\").Formula = \"=B1+1\"\nws.Range(\"A2\").Value = \"a+b\"\nv = ws.Range(\"A1:A2\").Replace(\"+\", \"+)\")",
+   "answers": "Boolean:True;=B1+1~Double~General~<>2~Double~General~<>~Empty~General~<>~Empty~General~<>a+b~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1:$B$2"
+  },
+  {
+   "name": "text_to_formula",
+   "setup": "ws.Range(\"A1\").Value = \"x1+1\"\nws.Range(\"A2\").NumberFormat = \"@\"\nws.Range(\"A2\").Value = \"x1+1\"\nv = ws.Range(\"A1:A2\").Replace(\"x\", \"=\")",
+   "answers": "Boolean:True;=1+1~Double~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>=1+1~Double~@~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1:$A$2"
+  },
+  {
+   "name": "emptied",
+   "setup": "ws.Range(\"A1\").Value = \"abc\"\nws.Range(\"A2\").Value = \"abcd\"\nv = ws.Range(\"A1:A2\").Replace(\"abc\", \"\")",
+   "answers": "Boolean:True;~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>d~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$2"
+  },
+  {
+   "name": "date",
+   "setup": "ws.Range(\"A1\").Value = #1/2/2020#\nws.Range(\"A2\").Value = #1/2/2020#\nv = ws.Range(\"A1\").Replace(\"2020\", \"2021\")\nv = ws.Range(\"A2\").Replace(\"4\", \"5\")",
+   "answers": "Boolean:True;44198~Date~m/d/yyyy~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>43832~Date~m/d/yyyy~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1:$A$2"
+  },
+  {
+   "name": "percent",
+   "setup": "ws.Range(\"A1\").Value = 0.5\nws.Range(\"A1\").NumberFormat = \"0%\"\nv = ws.Range(\"A1\").Replace(\"0.\", \"0.0\")",
+   "answers": "Boolean:True;0.5~Double~0%~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1"
+  },
+  {
+   "name": "time",
+   "setup": "ws.Range(\"A1\").Value = 0.75\nws.Range(\"A1\").NumberFormat = \"h:mm AM/PM\"\nv = ws.Range(\"A1\").Replace(\"PM\", \"AM\")",
+   "answers": "Boolean:True;0.25~Double~h:mm AM/PM~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1"
+  },
+  {
+   "name": "boolean",
+   "setup": "ws.Range(\"A1\").Value = True\nws.Range(\"A2\").Value = True\nv = ws.Range(\"A1\").Replace(\"TRUE\", \"FALSE\")\nv = ws.Range(\"A2\").Replace(\"T\", \"X\")",
+   "answers": "Boolean:True;FALSE~Boolean~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>XRUE~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1:$A$2"
+  },
+  {
+   "name": "error",
+   "setup": "ws.Range(\"A1\").Value = \"#N/A\"\nv = ws.Range(\"A1\").Replace(\"N/A\", \"DIV/0!\")",
+   "answers": "Boolean:True;#DIV/0!~Error~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1"
+  },
+  {
+   "name": "prefixed",
+   "setup": "ws.Range(\"A1\").Value = \"'123\"\nv = ws.Range(\"A1\").Replace(\"1\", \"9\")",
+   "answers": "Boolean:True;923~String~General~'<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1"
+  },
+  {
+   "name": "text_cell",
+   "setup": "ws.Range(\"A1\").NumberFormat = \"@\"\nws.Range(\"A1\").Value = \"123\"\nv = ws.Range(\"A1\").Replace(\"1\", \"9\")",
+   "answers": "Boolean:True;923~Double~@~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1"
+  },
+  {
+   "name": "formatted_number",
+   "setup": "ws.Range(\"A1\").Value = 1234\nws.Range(\"A1\").NumberFormat = \"#,##0\"\nv = ws.Range(\"A1\").Replace(\"2\", \"7\")",
+   "answers": "Boolean:True;1734~Double~#,##0~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1"
+  },
+  {
+   "name": "single_cell_scope",
+   "setup": "ws.Range(\"A1\").Value = \"cat\"\nws.Range(\"B2\").Value = \"cat\"\nv = ws.Range(\"A1\").Replace(\"cat\", \"dog\")",
+   "answers": "Boolean:True;dog~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>cat~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1:$B$2"
+  },
+  {
+   "name": "single_cell_miss",
+   "setup": "ws.Range(\"A1\").Value = \"x\"\nws.Range(\"B2\").Value = \"cat\"\nv = ws.Range(\"A1\").Replace(\"cat\", \"dog\")",
+   "answers": "Boolean:True;x~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>cat~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1:$B$2"
+  },
+  {
+   "name": "several_areas",
+   "setup": "ws.Range(\"A1\").Value = \"cat\"\nws.Range(\"B2\").Value = \"cat\"\nws.Range(\"C3\").Value = \"cat\"\nv = ws.Range(\"A1,C3\").Replace(\"cat\", \"dog\")",
+   "answers": "Boolean:True;dog~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>cat~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>dog~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1:$C$3"
+  },
+  {
+   "name": "whole_sheet",
+   "setup": "ws.Range(\"A1\").Value = \"cat\"\nws.Range(\"D4\").Value = \"cat\"\nv = ws.Cells.Replace(\"cat\", \"dog\")",
+   "answers": "Boolean:True;dog~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>dog~String~General~<>$A$1:$D$4"
+  },
+  {
+   "name": "nothing_found",
+   "setup": "ws.Range(\"A1\").Value = \"x\"\nv = ws.Range(\"A1:A2\").Replace(\"zzz\", \"y\")",
+   "answers": "Boolean:True;x~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1"
+  },
+  {
+   "name": "empty_what",
+   "setup": "ws.Range(\"A1\").Value = \"x\"\nv = ws.Range(\"A1:B2\").Replace(\"\", \"y\")",
+   "answers": "Boolean:True;x~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1"
+  },
+  {
+   "name": "number_whole",
+   "setup": "ws.Range(\"A1\").Value = 12\nws.Range(\"A2\").Value = 123\nv = ws.Range(\"A1:A2\").Replace(\"12\", \"7\", LookAt:=xlWhole)",
+   "answers": "Boolean:True;7~Double~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>123~Double~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1:$A$2"
+  },
+  {
+   "name": "leaves_look_at",
+   "setup": "ws.Range(\"A1\").Value = \"q\"\nws.Range(\"A2\").Value = \"pq\"\nv = ws.Range(\"A1:A2\").Replace(\"zz\", \"y\", LookAt:=xlWhole)\nv = ws.Range(\"A1:A2\").Find(\"q\").Address(False, False)",
+   "answers": "String:A1;q~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>pq~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1:$A$2"
+  },
+  {
+   "name": "leaves_order",
+   "setup": "ws.Range(\"A1\").Value = \"x\"\nws.Range(\"B1\").Value = \"q\"\nws.Range(\"A2\").Value = \"q\"\nv = ws.Range(\"A1:B2\").Replace(\"zz\", \"y\", SearchOrder:=xlByColumns)\nv = ws.Range(\"A1:B2\").Find(\"q\").Address(False, False)",
+   "answers": "String:A2;x~String~General~<>q~String~General~<>~Empty~General~<>~Empty~General~<>q~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1:$B$2"
+  },
+  {
+   "name": "leaves_case",
+   "setup": "ws.Range(\"A1\").Value = \"x\"\nws.Range(\"A2\").Value = \"Q\"\nws.Range(\"A3\").Value = \"q\"\nv = ws.Range(\"A1:A3\").Replace(\"zz\", \"y\", MatchCase:=True)\nv = ws.Range(\"A1:A3\").Find(\"q\").Address(False, False)",
+   "answers": "String:A2;x~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>Q~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>q~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1:$A$3"
+  },
+  {
+   "name": "leaves_what",
+   "setup": "ws.Range(\"A1\").Value = \"x\"\nws.Range(\"A2\").Value = \"a\"\nws.Range(\"A3\").Value = \"b\"\nSet f = ws.Range(\"A1:A3\").Find(\"a\")\nv = ws.Range(\"A1:A3\").Replace(\"b\", \"bb\")\nv = ws.Range(\"A1:A3\").FindNext(ws.Range(\"A2\")).Address(False, False)",
+   "answers": "String:A3;x~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>a~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>bb~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1:$A$3"
+  },
+  {
+   "name": "takes_look_at",
+   "setup": "ws.Range(\"A1\").Value = \"pq\"\nws.Range(\"A2\").Value = \"q\"\nSet f = ws.Range(\"A1:A2\").Find(\"zz\", LookAt:=xlWhole)\nv = ws.Range(\"A1:A2\").Replace(\"q\", \"r\")",
+   "answers": "Boolean:True;pq~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>r~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1:$A$2"
+  },
+  {
+   "name": "takes_case",
+   "setup": "ws.Range(\"A1\").Value = \"Q\"\nws.Range(\"A2\").Value = \"q\"\nSet f = ws.Range(\"A1:A2\").Find(\"zz\", MatchCase:=True)\nv = ws.Range(\"A1:A2\").Replace(\"q\", \"r\")",
+   "answers": "Boolean:True;r~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>r~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1:$A$2"
+  },
+  {
+   "name": "find_formatted",
+   "setup": "ws.Range(\"A1\").Value = 1234\nws.Range(\"A1\").NumberFormat = \"#,##0\"\nws.Range(\"A2\").Value = #1/2/2020#\nws.Range(\"A3\").Value = 0.5\nws.Range(\"A3\").NumberFormat = \"0%\"\nws.Range(\"A4\").Value = 0.75\nws.Range(\"A4\").NumberFormat = \"h:mm AM/PM\"\nv = Where(ws.Range(\"A1:A4\"), \"1,234\", xlFormulas) & \",\" & Where(ws.Range(\"A1:A4\"), \"1234\", xlFormulas) & \",\" & Where(ws.Range(\"A1:A4\"), \"2020\", xlFormulas) & \",\" & Where(ws.Range(\"A1:A4\"), \"43832\", xlFormulas) & \",\" & Where(ws.Range(\"A1:A4\"), \"50%\", xlFormulas) & \",\" & Where(ws.Range(\"A1:A4\"), \"0.5\", xlFormulas) & \",\" & Where(ws.Range(\"A1:A4\"), \"PM\", xlFormulas) & \",\" & Where(ws.Range(\"A1:A4\"), \"0.75\", xlFormulas) & \",\" & Where(ws.Range(\"A1:A4\"), \"1,234\", xlValues) & \",\" & Where(ws.Range(\"A1:A4\"), \"1234\", xlValues) & \",\" & Where(ws.Range(\"A1:A4\"), \"2020\", xlValues) & \",\" & Where(ws.Range(\"A1:A4\"), \"43832\", xlValues) & \",\" & Where(ws.Range(\"A1:A4\"), \"50%\", xlValues) & \",\" & Where(ws.Range(\"A1:A4\"), \"0.5\", xlValues) & \",\" & Where(ws.Range(\"A1:A4\"), \"PM\", xlValues) & \",\" & Where(ws.Range(\"A1:A4\"), \"0.75\", xlValues)",
+   "answers": "String:Nothing,A1,A2,Nothing,A3,Nothing,A4,Nothing,A1,Nothing,A2,Nothing,A3,Nothing,A4,Nothing;1234~Double~#,##0~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>43832~Date~m/d/yyyy~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>0.5~Double~0%~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>0.75~Double~h:mm AM/PM~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1:$A$4"
+  },
+  {
+   "name": "replace_formatted",
+   "setup": "ws.Range(\"A1\").Value = 1234\nws.Range(\"A1\").NumberFormat = \"#,##0\"\nws.Range(\"A2\").Value = #1/2/2020#\nws.Range(\"A3\").Value = 0.5\nws.Range(\"A3\").NumberFormat = \"0%\"\nws.Range(\"A4\").Value = 0.75\nws.Range(\"A4\").NumberFormat = \"h:mm AM/PM\"\nv = ws.Range(\"A1:A4\").Replace(\"1,234\", \"x\")",
+   "answers": "Boolean:True;1234~Double~#,##0~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>43832~Date~m/d/yyyy~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>0.5~Double~0%~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>0.75~Double~h:mm AM/PM~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1:$A$4"
+  },
+  {
+   "name": "values_then_replace",
+   "setup": "ws.Range(\"A1\").Value = 1234\nws.Range(\"A1\").NumberFormat = \"#,##0\"\nSet f = ws.Range(\"A1:A2\").Find(\"zz\", LookIn:=xlValues)\nv = ws.Range(\"A1:A2\").Replace(\"1,234\", \"x\")",
+   "answers": "Boolean:True;1234~Double~#,##0~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1"
+  },
+  {
+   "name": "leaves_look_in",
+   "setup": "ws.Range(\"A1\").Value = 1234\nws.Range(\"A1\").NumberFormat = \"#,##0\"\nSet f = ws.Range(\"A1:A2\").Find(\"zz\", LookIn:=xlValues)\nv = ws.Range(\"A1:A2\").Replace(\"zz\", \"y\")\nSet f = ws.Range(\"A1:A2\").Find(\"1,234\")\nIf f Is Nothing Then v = \"Nothing\" Else v = f.Address(False, False)",
+   "answers": "String:Nothing;1234~Double~#,##0~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1"
+  },
+  {
+   "name": "stars",
+   "setup": "ws.Range(\"A1\").Value = \"abcabc\"\nv = ws.Range(\"A1\").Replace(\"*c\", \"Z\")\nws.Range(\"B1\").Value = \"abab\"\nv = ws.Range(\"B1\").Replace(\"a*\", \"Z\")\nws.Range(\"C1\").Value = \"abcabc\"\nv = ws.Range(\"C1\").Replace(\"*b*\", \"Z\")\nws.Range(\"D1\").Value = \"aXbYcaXbYc\"\nv = ws.Range(\"D1\").Replace(\"a*b*c\", \"Z\")\nws.Range(\"A2\").Value = \"abc\"\nv = ws.Range(\"A2\").Replace(\"**\", \"Z\")\nws.Range(\"B2\").Value = \"abc\"\nv = ws.Range(\"B2\").Replace(\"*?\", \"Z\")\nws.Range(\"C2\").Value = \"abc\"\nv = ws.Range(\"C2\").Replace(\"?*\", \"Z\")\nws.Range(\"D2\").Value = \"abcb\"\nv = ws.Range(\"D2\").Replace(\"b*\", \"Z\")\nws.Range(\"A3\").Value = \"abcbc\"\nv = ws.Range(\"A3\").Replace(\"a*c\", \"Z\")\nws.Range(\"B3\").Value = \"xa\"\nv = ws.Range(\"B3\").Replace(\"a*\", \"Z\")\nws.Range(\"C3\").Value = \"bab\"\nv = ws.Range(\"C3\").Replace(\"*a\", \"Z\")\nws.Range(\"D3\").Value = \"abc\"\nv = ws.Range(\"D3\").Replace(\"c*\", \"Z\")\nws.Range(\"A4\").Value = \"aaa\"\nv = ws.Range(\"A4\").Replace(\"a*a\", \"Z\")\nws.Range(\"B4\").Value = \"abcabc\"\nv = ws.Range(\"B4\").Replace(\"*\", \"Z\", LookAt:=xlWhole)\nws.Range(\"C4\").Value = \"ab\"\nv = ws.Range(\"C4\").Replace(\"a~\", \"Z\")\nws.Range(\"D4\").Value = \"a~b\"\nv = ws.Range(\"D4\").Replace(\"~\", \"Z\")",
+   "answers": "Boolean:True;ZZ~String~General~<>Z~String~General~<>Z~String~General~<>ZZ~String~General~<>Z~String~General~<>ZZZ~String~General~<>Z~String~General~<>aZ~String~General~<>Zbc~String~General~<>xZ~String~General~<>Zb~String~General~<>abZ~String~General~<>Za~String~General~<>Z~String~General~<>ab~String~General~<>a~b~String~General~<>$A$1:$D$4"
+  },
+  {
+   "name": "tildes",
+   "setup": "ws.Range(\"A1\").Value = \"a~b\"\nv = ws.Range(\"A1\").Replace(\"a~\", \"Z\")\nws.Range(\"B1\").Value = \"ab\"\nv = ws.Range(\"B1\").Replace(\"a~\", \"Z\")\nws.Range(\"C1\").Value = \"a~~b\"\nv = ws.Range(\"C1\").Replace(\"~~\", \"Z\")\nws.Range(\"D1\").Value = \"a?b\"\nv = ws.Range(\"D1\").Replace(\"~?\", \"Z\")\nws.Range(\"A2\").Value = \"abc\"\nv = ws.Range(\"A2\").Replace(\"~a\", \"Z\")\nws.Range(\"B2\").Value = \"a~b\"\nv = ws.Range(\"B2\").Replace(\"~b\", \"Z\")\nws.Range(\"C2\").Value = \"ab\"\nv = ws.Range(\"C2\").Replace(\"b~\", \"Z\")\nws.Range(\"D2\").Value = \"ab~\"\nv = ws.Range(\"D2\").Replace(\"b~\", \"Z\")\nws.Range(\"A3\").Value = \"a~b\"\nv = ws.Range(\"A3\").Replace(\"~\", \"Z\")\nws.Range(\"B3\").Value = \"abc\"\nv = ws.Range(\"B3\").Replace(\"*~\", \"Z\")",
+   "answers": "Boolean:True;Z~b~String~General~<>Zb~String~General~<>aZZb~String~General~<>aZb~String~General~<>Zbc~String~General~<>a~Z~String~General~<>aZ~String~General~<>aZ~~String~General~<>a~b~String~General~<>Z~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1:$D$3"
+  },
+  {
+   "name": "invalid_rows",
+   "setup": "ws.Range(\"A1\").Value = \"c+d\"\nws.Range(\"B1\").Value = \"a+b\"\nws.Range(\"A2\").Formula = \"=1+1\"\nws.Range(\"B2\").Value = \"e+f\"\nv = ws.Range(\"A1:B2\").Replace(\"+\", \"+)\")",
+   "answers": "Boolean:True;c+)d~String~General~<>a+)b~String~General~<>~Empty~General~<>~Empty~General~<>=1+1~Double~General~<>e+f~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1:$B$2"
+  },
+  {
+   "name": "invalid_columns",
+   "setup": "ws.Range(\"A1\").Value = \"c+d\"\nws.Range(\"B1\").Value = \"a+b\"\nws.Range(\"A2\").Formula = \"=1+1\"\nws.Range(\"B2\").Value = \"e+f\"\nv = ws.Range(\"A1:B2\").Replace(\"+\", \"+)\", SearchOrder:=xlByColumns)",
+   "answers": "Boolean:True;c+d~String~General~<>a+b~String~General~<>~Empty~General~<>~Empty~General~<>=1+1~Double~General~<>e+f~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1:$B$2"
+  },
+  {
+   "name": "invalid_mid_row",
+   "setup": "ws.Range(\"A1\").Value = \"a+b\"\nws.Range(\"B1\").Formula = \"=1+1\"\nws.Range(\"C1\").Value = \"c+d\"\nws.Range(\"A2\").Value = \"e+f\"\nv = ws.Range(\"A1:C2\").Replace(\"+\", \"+)\")",
+   "answers": "Boolean:True;a+)b~String~General~<>=1+1~Double~General~<>c+d~String~General~<>~Empty~General~<>e+f~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1:$C$2"
+  },
+  {
+   "name": "invalid_mid_column",
+   "setup": "ws.Range(\"A1\").Value = \"a+b\"\nws.Range(\"A2\").Formula = \"=1+1\"\nws.Range(\"A3\").Value = \"c+d\"\nws.Range(\"B1\").Value = \"e+f\"\nv = ws.Range(\"A1:B3\").Replace(\"+\", \"+)\", SearchOrder:=xlByColumns)",
+   "answers": "Boolean:True;a+b~String~General~<>e+f~String~General~<>~Empty~General~<>~Empty~General~<>=1+1~Double~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>c+d~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1:$B$3"
+  },
+  {
+   "name": "invalid_first_row",
+   "setup": "ws.Range(\"A1\").Formula = \"=1+1\"\nws.Range(\"B1\").Value = \"a+b\"\nws.Range(\"A2\").Value = \"c+d\"\nv = ws.Range(\"A1:B2\").Replace(\"+\", \"+)\")",
+   "answers": "Boolean:True;=1+1~Double~General~<>a+b~String~General~<>~Empty~General~<>~Empty~General~<>c+d~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1:$B$2"
+  },
+  {
+   "name": "invalid_first_column",
+   "setup": "ws.Range(\"A1\").Formula = \"=1+1\"\nws.Range(\"A2\").Value = \"a+b\"\nws.Range(\"B1\").Value = \"c+d\"\nv = ws.Range(\"A1:B2\").Replace(\"+\", \"+)\", SearchOrder:=xlByColumns)",
+   "answers": "Boolean:True;=1+1~Double~General~<>c+)d~String~General~<>~Empty~General~<>~Empty~General~<>a+)b~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1:$B$2"
+  },
+  {
+   "name": "invalid_diagonal",
+   "setup": "ws.Range(\"A1\").Value = \"a+b\"\nws.Range(\"B2\").Formula = \"=1+1\"\nws.Range(\"C3\").Value = \"c+d\"\nws.Range(\"A3\").Value = \"e+f\"\nws.Range(\"C1\").Value = \"g+h\"\nv = ws.Range(\"A1:C3\").Replace(\"+\", \"+)\")",
+   "answers": "Boolean:True;a+)b~String~General~<>~Empty~General~<>g+)h~String~General~<>~Empty~General~<>~Empty~General~<>=1+1~Double~General~<>~Empty~General~<>~Empty~General~<>e+f~String~General~<>~Empty~General~<>c+d~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1:$C$3"
+  },
+  {
+   "name": "invalid_diagonal_columns",
+   "setup": "ws.Range(\"A1\").Value = \"a+b\"\nws.Range(\"B2\").Formula = \"=1+1\"\nws.Range(\"C3\").Value = \"c+d\"\nws.Range(\"A3\").Value = \"e+f\"\nws.Range(\"C1\").Value = \"g+h\"\nv = ws.Range(\"A1:C3\").Replace(\"+\", \"+)\", SearchOrder:=xlByColumns)",
+   "answers": "Boolean:True;a+b~String~General~<>~Empty~General~<>g+h~String~General~<>~Empty~General~<>~Empty~General~<>=1+1~Double~General~<>~Empty~General~<>~Empty~General~<>e+)f~String~General~<>~Empty~General~<>c+d~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1:$C$3"
+  },
+  {
+   "name": "invalid_long_row",
+   "setup": "ws.Range(\"A1\").Value = \"a+b\"\nws.Range(\"B1\").Value = \"c+d\"\nws.Range(\"C1\").Formula = \"=1+1\"\nws.Range(\"D1\").Value = \"e+f\"\nws.Range(\"A2\").Value = \"g+h\"\nv = ws.Range(\"A1:D2\").Replace(\"+\", \"+)\")",
+   "answers": "Boolean:True;a+)b~String~General~<>c+)d~String~General~<>=1+1~Double~General~<>e+f~String~General~<>g+h~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1:$D$2"
+  },
+  {
+   "name": "invalid_long_column",
+   "setup": "ws.Range(\"A1\").Value = \"a+b\"\nws.Range(\"A2\").Value = \"c+d\"\nws.Range(\"A3\").Formula = \"=1+1\"\nws.Range(\"A4\").Value = \"e+f\"\nws.Range(\"B1\").Value = \"g+h\"\nv = ws.Range(\"A1:B4\").Replace(\"+\", \"+)\", SearchOrder:=xlByColumns)",
+   "answers": "Boolean:True;a+b~String~General~<>g+h~String~General~<>~Empty~General~<>~Empty~General~<>c+)d~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>=1+1~Double~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>e+f~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1:$B$4"
+  },
+  {
+   "name": "invalid_areas",
+   "setup": "ws.Range(\"A1\").Value = \"a+b\"\nws.Range(\"B2\").Formula = \"=1+1\"\nws.Range(\"C3\").Value = \"c+d\"\nv = ws.Range(\"C3,B2,A1\").Replace(\"+\", \"+)\")",
+   "answers": "Boolean:True;a+b~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>=1+1~Double~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>c+)d~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1:$C$3"
+  },
+  {
+   "name": "invalid_areas_columns",
+   "setup": "ws.Range(\"A1\").Value = \"a+b\"\nws.Range(\"B2\").Formula = \"=1+1\"\nws.Range(\"C3\").Value = \"c+d\"\nv = ws.Range(\"C3,B2,A1\").Replace(\"+\", \"+)\", SearchOrder:=xlByColumns)",
+   "answers": "Boolean:True;a+b~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>=1+1~Double~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>c+d~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1:$C$3"
+  },
+  {
+   "name": "columns_all_valid",
+   "setup": "ws.Range(\"A1\").Value = \"a+b\"\nws.Range(\"A2\").Value = \"c+d\"\nws.Range(\"B1\").Value = \"e+f\"\nws.Range(\"B2\").Value = \"g+h\"\nv = ws.Range(\"A1:B2\").Replace(\"+\", \"+)\", SearchOrder:=xlByColumns)",
+   "answers": "Boolean:True;a+)b~String~General~<>e+)f~String~General~<>~Empty~General~<>~Empty~General~<>c+)d~String~General~<>g+)h~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1:$B$2"
+  },
+  {
+   "name": "columns_block_areas",
+   "setup": "ws.Range(\"A1\").Value = \"a+b\"\nws.Range(\"A2\").Value = \"c+d\"\nws.Range(\"C1\").Formula = \"=1+1\"\nws.Range(\"C2\").Value = \"e+f\"\nv = ws.Range(\"A1:A2,C1:C2\").Replace(\"+\", \"+)\", SearchOrder:=xlByColumns)",
+   "answers": "Boolean:True;a+b~String~General~<>~Empty~General~<>=1+1~Double~General~<>~Empty~General~<>c+)d~String~General~<>~Empty~General~<>e+f~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1:$C$2"
+  },
+  {
+   "name": "columns_block_areas_first",
+   "setup": "ws.Range(\"A1\").Formula = \"=1+1\"\nws.Range(\"A2\").Value = \"c+d\"\nws.Range(\"C1\").Value = \"e+f\"\nws.Range(\"C2\").Value = \"g+h\"\nv = ws.Range(\"A1:A2,C1:C2\").Replace(\"+\", \"+)\", SearchOrder:=xlByColumns)",
+   "answers": "Boolean:True;=1+1~Double~General~<>~Empty~General~<>e+)f~String~General~<>~Empty~General~<>c+)d~String~General~<>~Empty~General~<>g+)h~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1:$C$2"
+  },
+  {
+   "name": "rows_block_areas",
+   "setup": "ws.Range(\"A1\").Value = \"a+b\"\nws.Range(\"B1\").Formula = \"=1+1\"\nws.Range(\"A3\").Value = \"c+d\"\nws.Range(\"B3\").Value = \"e+f\"\nv = ws.Range(\"A1:B1,A3:B3\").Replace(\"+\", \"+)\")",
+   "answers": "Boolean:True;a+)b~String~General~<>=1+1~Double~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>c+d~String~General~<>e+f~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1:$B$3"
+  },
+  {
+   "name": "rows_block_areas_second",
+   "setup": "ws.Range(\"A1\").Value = \"a+b\"\nws.Range(\"B1\").Value = \"c+d\"\nws.Range(\"A3\").Formula = \"=1+1\"\nws.Range(\"B3\").Value = \"e+f\"\nv = ws.Range(\"A3:B3,A1:B1\").Replace(\"+\", \"+)\")",
+   "answers": "Boolean:True;a+b~String~General~<>c+d~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>=1+1~Double~General~<>e+f~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1:$B$3"
+  },
+  {
+   "name": "columns_one_row",
+   "setup": "ws.Range(\"A1\").Formula = \"=1+1\"\nws.Range(\"B1\").Value = \"a+b\"\nws.Range(\"C1\").Value = \"c+d\"\nv = ws.Range(\"A1:C1\").Replace(\"+\", \"+)\", SearchOrder:=xlByColumns)",
+   "answers": "Boolean:True;=1+1~Double~General~<>a+)b~String~General~<>c+)d~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1:$C$1"
+  },
+  {
+   "name": "rows_one_column",
+   "setup": "ws.Range(\"A1\").Formula = \"=1+1\"\nws.Range(\"A2\").Value = \"a+b\"\nws.Range(\"A3\").Value = \"c+d\"\nv = ws.Range(\"A1:A3\").Replace(\"+\", \"+)\")",
+   "answers": "Boolean:True;=1+1~Double~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>a+b~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>c+d~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1:$A$3"
+  },
+  {
+   "name": "columns_offset",
+   "setup": "ws.Range(\"B2\").Formula = \"=1+1\"\nws.Range(\"B3\").Value = \"a+b\"\nws.Range(\"C2\").Value = \"c+d\"\nv = ws.Range(\"B2:C3\").Replace(\"+\", \"+)\", SearchOrder:=xlByColumns)",
+   "answers": "Boolean:True;~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>=1+1~Double~General~<>c+)d~String~General~<>~Empty~General~<>~Empty~General~<>a+)b~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$B$2:$C$3"
+  },
+  {
+   "name": "rows_offset",
+   "setup": "ws.Range(\"B2\").Value = \"a+b\"\nws.Range(\"C2\").Formula = \"=1+1\"\nws.Range(\"B3\").Value = \"c+d\"\nv = ws.Range(\"B2:C3\").Replace(\"+\", \"+)\")",
+   "answers": "Boolean:True;~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>a+)b~String~General~<>=1+1~Double~General~<>~Empty~General~<>~Empty~General~<>c+d~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$B$2:$C$3"
+  },
+  {
+   "name": "rows_active_cell",
+   "setup": "ws.Range(\"A1\").Value = \"c+d\"\nws.Range(\"B1\").Value = \"a+b\"\nws.Range(\"A2\").Formula = \"=1+1\"\nws.Range(\"B2\").Value = \"e+f\"\nws.Activate\nws.Range(\"B2\").Select\nv = ws.Range(\"A1:B2\").Replace(\"+\", \"+)\")",
+   "answers": "Boolean:True;c+)d~String~General~<>a+)b~String~General~<>~Empty~General~<>~Empty~General~<>=1+1~Double~General~<>e+f~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1:$B$2"
+  },
+  {
+   "name": "columns_active_cell",
+   "setup": "ws.Range(\"A1\").Formula = \"=1+1\"\nws.Range(\"A2\").Value = \"a+b\"\nws.Range(\"B1\").Value = \"c+d\"\nws.Range(\"B2\").Value = \"e+f\"\nws.Activate\nws.Range(\"B2\").Select\nv = ws.Range(\"A1:B2\").Replace(\"+\", \"+)\", SearchOrder:=xlByColumns)",
+   "answers": "Boolean:True;=1+1~Double~General~<>c+)d~String~General~<>~Empty~General~<>~Empty~General~<>a+)b~String~General~<>e+)f~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1:$B$2"
+  },
+  {
+   "name": "text_cell_formats",
+   "setup": "ws.Range(\"A1\").NumberFormat = \"@\"\nws.Range(\"A1\").Value = \"x\"\nv = ws.Range(\"A1\").Replace(\"x\", \"1,000\")\nws.Range(\"A2\").NumberFormat = \"@\"\nws.Range(\"A2\").Value = \"x\"\nv = ws.Range(\"A2\").Replace(\"x\", \"1:60\")\nws.Range(\"A3\").NumberFormat = \"@\"\nws.Range(\"A3\").Value = \"x\"\nv = ws.Range(\"A3\").Replace(\"x\", \"1 1/2\")\nws.Range(\"A4\").NumberFormat = \"@\"\nws.Range(\"A4\").Value = \"x\"\nv = ws.Range(\"A4\").Replace(\"x\", \"$5\")",
+   "answers": "Boolean:True;1000~Double~@~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>0.0833333333333333~Double~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>1.5~Double~# ?/?~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>5~Currency~$#,##0_);[Red]($#,##0)~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1:$A$4"
+  },
+  {
+   "name": "same_text",
+   "setup": "ws.Range(\"A1\").NumberFormat = \"@\"\nws.Range(\"A1\").Value = \"123\"\nv = ws.Range(\"A1\").Replace(\"1\", \"1\")\nws.Range(\"A2\").NumberFormat = \"@\"\nws.Range(\"A2\").Value = \"123\"\nws.Range(\"A2\").NumberFormat = \"General\"\nv = ws.Range(\"A2\").Replace(\"2\", \"2\")\nws.Range(\"A3\").Value = \"'abc\"\nv = ws.Range(\"A3\").Replace(\"abc\", \"\")",
+   "answers": "Boolean:True;123~Double~@~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>123~Double~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~String~General~'<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1:$A$3"
+  },
+  {
+   "name": "overlapping_areas",
+   "setup": "ws.Range(\"B2\").Value = \"a\"\nv = ws.Range(\"A1:B2,B2:C3\").Replace(\"a\", \"ab\")",
+   "answers": "Boolean:True;~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>abb~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$B$2"
+  },
+  {
+   "name": "merged_and_hidden",
+   "setup": "ws.Range(\"A1:B2\").Merge\nws.Range(\"A1\").Value = \"cat\"\nws.Range(\"A3\").Value = \"cat\"\nws.Rows(3).Hidden = True\nv = ws.Range(\"A1:C4\").Replace(\"cat\", \"dog\")",
+   "answers": "Boolean:True;dog~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>dog~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1:$B$3"
+  },
+  {
+   "name": "date_and_time",
+   "setup": "ws.Range(\"A1\").Value = 43832.5\nws.Range(\"A1\").NumberFormat = \"m/d/yyyy h:mm\"\nv = ws.Range(\"A1\").Replace(\"PM\", \"AM\")\nws.Range(\"A2\").Value = \"1/2/2020  12:00\"\nws.Range(\"A3\").Value = \"1/2/2020   1:00 PM\"\nws.Range(\"A4\").Value = 0.5\nws.Range(\"A4\").NumberFormat = \"m/d/yyyy\"\nv = ws.Range(\"A4\").Replace(\"PM\", \"AM\")",
+   "answers": "Boolean:True;43832~Date~m/d/yyyy h:mm~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>43832.5~Date~m/d/yyyy h:mm~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>43832.5416666667~Date~m/d/yyyy h:mm~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>1/0/1900  12:00:00 AM~String~m/d/yyyy~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1:$A$4"
+  },
+  {
+   "name": "bad_arguments",
+   "setup": "ws.Range(\"A1\").Value = \"a\"\nv = ws.Range(\"A1\").Replace(\"a\", \"b\", LookAt:=5)\nv = v & \",\" & Err.Number\nErr.Clear\nws.Range(\"A2\").Value = \"a\"\nv = ws.Range(\"A2\").Replace(\"a\", \"b\", SearchOrder:=7)\nv = v & \",\" & Err.Number",
+   "answers": "S9;String:,9,9;a~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>a~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1:$A$2"
+  },
+  {
+   "name": "prefix_formula_number",
+   "setup": "ws.Range(\"A1\").Value = \"'x1+1\"\nv = ws.Range(\"A1\").Replace(\"x\", \"=\")\nws.Range(\"A2\").Value = \"'123\"\nws.Range(\"A2\").Value = 5\nv = ws.Range(\"A2\").Replace(\"5\", \"6\")",
+   "answers": "Boolean:True;=1+1~String~General~'<>~Empty~General~<>~Empty~General~<>~Empty~General~<>6~Double~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1:$A$2"
+  },
+  {
+   "name": "formula_case",
+   "setup": "ws.Range(\"A1\").Formula = \"=B1+1\"\nv = ws.Range(\"A1\").Replace(\"b1\", \"c1\")",
+   "answers": "Boolean:True;=C1+1~Double~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1"
+  },
+  {
+   "name": "formula_to_text",
+   "setup": "ws.Range(\"A1\").Formula = \"=B1+1\"\nv = ws.Range(\"A1\").Replace(\"=\", \"\")",
+   "answers": "Boolean:True;B1+1~String~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1"
+  },
+  {
+   "name": "text_cell_brings",
+   "setup": "ws.Range(\"A1\").NumberFormat = \"@\"\nws.Range(\"A1\").Value = \"abc\"\nv = ws.Range(\"A1\").Replace(\"abc\", \"5%\")\nws.Range(\"A2\").NumberFormat = \"@\"\nws.Range(\"A2\").Value = \"x\"\nv = ws.Range(\"A2\").Replace(\"x\", \"1/2/2020\")\nws.Range(\"A3\").NumberFormat = \"@\"\nws.Range(\"A3\").Value = \"x\"\nv = ws.Range(\"A3\").Replace(\"x\", \"'5\")\nws.Range(\"A4\").NumberFormat = \"@\"\nws.Range(\"A4\").Value = \"x\"\nv = ws.Range(\"A4\").Replace(\"x\", \"TRUE\")",
+   "answers": "Boolean:True;0.05~Double~0%~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>43832~Date~m/d/yyyy~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>5~String~@~'<>~Empty~General~<>~Empty~General~<>~Empty~General~<>TRUE~Boolean~@~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1:$A$4"
+  },
+  {
+   "name": "fraction_cell",
+   "setup": "ws.Range(\"A1\").NumberFormat = \"0.00\"\nws.Range(\"A1\").Value = \"x\"\nv = ws.Range(\"A1\").Replace(\"x\", \"1/2\")\nws.Range(\"A2\").Value = \"x\"\nv = ws.Range(\"A2\").Replace(\"x\", \"1 1/2\")",
+   "answers": "Boolean:True;46024~Double~0.00~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>1.5~Double~# ?/?~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1:$A$2"
+  },
+  {
+   "name": "prefix_removed",
+   "setup": "ws.Range(\"A1\").Value = \"'123\"\nws.Range(\"A2\").Value = \"'456\"\nv = Where(ws.Range(\"A1:A2\"), \"'4\", xlFormulas) & \",\" & Where(ws.Range(\"A1:A2\"), \"'4\", xlValues)\nws.Range(\"A1\").Replace \"'\", \"\"",
+   "answers": "String:Nothing,Nothing;123~String~General~'<>~Empty~General~<>~Empty~General~<>~Empty~General~<>456~String~General~'<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>~Empty~General~<>$A$1:$A$2"
+  }
+ ],
+ "edit_texts": {
+  "code": "Private Function EditText(c As Object) As String\n    Dim d As Long\n    For d = 0 To 9\n        c.Replace CStr(d), \"q\", LookAt:=xlPart, SearchOrder:=xlByRows, MatchCase:=False\n        If TypeName(c.Value2) = \"String\" Then\n            EditText = Replace(c.Value2, \"q\", CStr(d))\n            Exit Function\n        End If\n    Next\n    EditText = \"?\" & c.Formula\nEnd Function\nPublic Function Texts() As String\n    Dim wb As Object, ws As Object, values As Variant, formats As Variant, r As Long, k As Long, out As String\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    values = Array(0, 0.5, 0.75, 1, 1.25, 43832, 43832.5, -1, -0.25, 1234.5678, 0.055, 1E+20, 1E-20, 60, 2958465.5, 2958466, 0.500005787037037, 0.999999999, 12345678901234567, 0.1)\n    formats = Array(\"General\", \"0.00\", \"#,##0\", \"$#,##0.00_);($#,##0.00)\", \"0%\", \"0.00%\", \"0.00E+00\", \"# ?/?\", \"m/d/yyyy\", \"d-mmm-yy\", \"yyyy-mm-dd\", \"mmm\", \"dddd\", \"h:mm\", \"h:mm AM/PM\", \"h:mm:ss\", \"[h]:mm:ss\", \"[mm]:ss\", \"mm:ss.0\", \"m/d/yyyy h:mm\", \"@\", \"0\\%\", \"0.0%;[Red]-0.0%\", \"[$-409]mmmm d, yyyy;@\", \"ss\", \"h\")\n    For r = 0 To UBound(values)\n        For k = 0 To UBound(formats)\n            ws.Cells(r + 1, k + 1).Value = values(r)\n            ws.Cells(r + 1, k + 1).NumberFormat = formats(k)\n            out = out & EditText(ws.Cells(r + 1, k + 1)) & \"^\"\n        Next\n        out = out & \"|\"\n    Next\n    wb.Close False\n    Texts = out\nEnd Function\n",
+  "values": [
+   "0",
+   "0.5",
+   "0.75",
+   "1",
+   "1.25",
+   "43832",
+   "43832.5",
+   "-1",
+   "-0.25",
+   "1234.5678",
+   "0.055",
+   "1E+20",
+   "1E-20",
+   "60",
+   "2958465.5",
+   "2958466",
+   "0.500005787037037",
+   "0.999999999",
+   "12345678901234567",
+   "0.1"
+  ],
+  "formats": [
+   "General",
+   "0.00",
+   "#,##0",
+   "$#,##0.00_);($#,##0.00)",
+   "0%",
+   "0.00%",
+   "0.00E+00",
+   "# ?/?",
+   "m/d/yyyy",
+   "d-mmm-yy",
+   "yyyy-mm-dd",
+   "mmm",
+   "dddd",
+   "h:mm",
+   "h:mm AM/PM",
+   "h:mm:ss",
+   "[h]:mm:ss",
+   "[mm]:ss",
+   "mm:ss.0",
+   "m/d/yyyy h:mm",
+   "@",
+   "0\\%",
+   "0.0%;[Red]-0.0%",
+   "[$-409]mmmm d, yyyy;@",
+   "ss",
+   "h"
+  ],
+  "texts": [
+   [
+    "0",
+    "0",
+    "0",
+    "0",
+    "0%",
+    "0%",
+    "0",
+    "0",
+    "1/0/1900",
+    "1/0/1900",
+    "1/0/1900",
+    "1/0/1900",
+    "1/0/1900",
+    "12:00:00 AM",
+    "12:00:00 AM",
+    "12:00:00 AM",
+    "12:00:00 AM",
+    "12:00:00 AM",
+    "12:00:00 AM",
+    "1/0/1900  12:00:00 AM",
+    "0",
+    "0",
+    "0%",
+    "1/0/1900",
+    "12:00:00 AM",
+    "12:00:00 AM"
+   ],
+   [
+    "0.5",
+    "0.5",
+    "0.5",
+    "0.5",
+    "50%",
+    "50%",
+    "0.5",
+    "0.5",
+    "1/0/1900  12:00:00 PM",
+    "1/0/1900  12:00:00 PM",
+    "1/0/1900  12:00:00 PM",
+    "1/0/1900  12:00:00 PM",
+    "1/0/1900  12:00:00 PM",
+    "12:00:00 PM",
+    "12:00:00 PM",
+    "12:00:00 PM",
+    "12:00:00 PM",
+    "12:00:00 PM",
+    "12:00:00 PM",
+    "1/0/1900  12:00:00 PM",
+    "0.5",
+    "0.5",
+    "50%",
+    "1/0/1900  12:00:00 PM",
+    "12:00:00 PM",
+    "12:00:00 PM"
+   ],
+   [
+    "0.75",
+    "0.75",
+    "0.75",
+    "0.75",
+    "75%",
+    "75%",
+    "0.75",
+    "0.75",
+    "1/0/1900  6:00:00 PM",
+    "1/0/1900  6:00:00 PM",
+    "1/0/1900  6:00:00 PM",
+    "1/0/1900  6:00:00 PM",
+    "1/0/1900  6:00:00 PM",
+    "6:00:00 PM",
+    "6:00:00 PM",
+    "6:00:00 PM",
+    "6:00:00 PM",
+    "6:00:00 PM",
+    "6:00:00 PM",
+    "1/0/1900  6:00:00 PM",
+    "0.75",
+    "0.75",
+    "75%",
+    "1/0/1900  6:00:00 PM",
+    "6:00:00 PM",
+    "6:00:00 PM"
+   ],
+   [
+    "1",
+    "1",
+    "1",
+    "1",
+    "100%",
+    "100%",
+    "1",
+    "1",
+    "1/1/1900",
+    "1/1/1900",
+    "1/1/1900",
+    "1/1/1900",
+    "1/1/1900",
+    "1/1/1900  12:00:00 AM",
+    "1/1/1900  12:00:00 AM",
+    "1/1/1900  12:00:00 AM",
+    "1/1/1900  12:00:00 AM",
+    "1/1/1900  12:00:00 AM",
+    "1/1/1900  12:00:00 AM",
+    "1/1/1900  12:00:00 AM",
+    "1",
+    "1",
+    "100%",
+    "1/1/1900",
+    "1/1/1900  12:00:00 AM",
+    "1/1/1900  12:00:00 AM"
+   ],
+   [
+    "1.25",
+    "1.25",
+    "1.25",
+    "1.25",
+    "125%",
+    "125%",
+    "1.25",
+    "1.25",
+    "1/1/1900  6:00:00 AM",
+    "1/1/1900  6:00:00 AM",
+    "1/1/1900  6:00:00 AM",
+    "1/1/1900  6:00:00 AM",
+    "1/1/1900  6:00:00 AM",
+    "1/1/1900  6:00:00 AM",
+    "1/1/1900  6:00:00 AM",
+    "1/1/1900  6:00:00 AM",
+    "1/1/1900  6:00:00 AM",
+    "1/1/1900  6:00:00 AM",
+    "1/1/1900  6:00:00 AM",
+    "1/1/1900  6:00:00 AM",
+    "1.25",
+    "1.25",
+    "125%",
+    "1/1/1900  6:00:00 AM",
+    "1/1/1900  6:00:00 AM",
+    "1/1/1900  6:00:00 AM"
+   ],
+   [
+    "43832",
+    "43832",
+    "43832",
+    "43832",
+    "4383200%",
+    "4383200%",
+    "43832",
+    "43832",
+    "1/2/2020",
+    "1/2/2020",
+    "1/2/2020",
+    "1/2/2020",
+    "1/2/2020",
+    "1/2/2020  12:00:00 AM",
+    "1/2/2020  12:00:00 AM",
+    "1/2/2020  12:00:00 AM",
+    "1/2/2020  12:00:00 AM",
+    "1/2/2020  12:00:00 AM",
+    "1/2/2020  12:00:00 AM",
+    "1/2/2020  12:00:00 AM",
+    "43832",
+    "43832",
+    "4383200%",
+    "1/2/2020",
+    "1/2/2020  12:00:00 AM",
+    "1/2/2020  12:00:00 AM"
+   ],
+   [
+    "43832.5",
+    "43832.5",
+    "43832.5",
+    "43832.5",
+    "4383250%",
+    "4383250%",
+    "43832.5",
+    "43832.5",
+    "1/2/2020  12:00:00 PM",
+    "1/2/2020  12:00:00 PM",
+    "1/2/2020  12:00:00 PM",
+    "1/2/2020  12:00:00 PM",
+    "1/2/2020  12:00:00 PM",
+    "1/2/2020  12:00:00 PM",
+    "1/2/2020  12:00:00 PM",
+    "1/2/2020  12:00:00 PM",
+    "1/2/2020  12:00:00 PM",
+    "1/2/2020  12:00:00 PM",
+    "1/2/2020  12:00:00 PM",
+    "1/2/2020  12:00:00 PM",
+    "43832.5",
+    "43832.5",
+    "4383250%",
+    "1/2/2020  12:00:00 PM",
+    "1/2/2020  12:00:00 PM",
+    "1/2/2020  12:00:00 PM"
+   ],
+   [
+    "-1",
+    "-1",
+    "-1",
+    "-1",
+    "-100%",
+    "-100%",
+    "-1",
+    "-1",
+    "-1",
+    "-1",
+    "-1",
+    "-1",
+    "-1",
+    "-1",
+    "-1",
+    "-1",
+    "-1",
+    "-1",
+    "-1",
+    "-1",
+    "-1",
+    "-1",
+    "-100%",
+    "-1",
+    "-1",
+    "-1"
+   ],
+   [
+    "-0.25",
+    "-0.25",
+    "-0.25",
+    "-0.25",
+    "-25%",
+    "-25%",
+    "-0.25",
+    "-0.25",
+    "-0.25",
+    "-0.25",
+    "-0.25",
+    "-0.25",
+    "-0.25",
+    "-0.25",
+    "-0.25",
+    "-0.25",
+    "-0.25",
+    "-0.25",
+    "-0.25",
+    "-0.25",
+    "-0.25",
+    "-0.25",
+    "-25%",
+    "-0.25",
+    "-0.25",
+    "-0.25"
+   ],
+   [
+    "1234.5678",
+    "1234.5678",
+    "1234.5678",
+    "1234.5678",
+    "123456.78%",
+    "123456.78%",
+    "1234.5678",
+    "1234.5678",
+    "5/18/1903  1:37:38 PM",
+    "5/18/1903  1:37:38 PM",
+    "5/18/1903  1:37:38 PM",
+    "5/18/1903  1:37:38 PM",
+    "5/18/1903  1:37:38 PM",
+    "5/18/1903  1:37:38 PM",
+    "5/18/1903  1:37:38 PM",
+    "5/18/1903  1:37:38 PM",
+    "5/18/1903  1:37:38 PM",
+    "5/18/1903  1:37:38 PM",
+    "5/18/1903  1:37:38 PM",
+    "5/18/1903  1:37:38 PM",
+    "1234.5678",
+    "1234.5678",
+    "123456.78%",
+    "5/18/1903  1:37:38 PM",
+    "5/18/1903  1:37:38 PM",
+    "5/18/1903  1:37:38 PM"
+   ],
+   [
+    "0.055",
+    "0.055",
+    "0.055",
+    "0.055",
+    "5.5%",
+    "5.5%",
+    "0.055",
+    "0.055",
+    "1/0/1900  1:19:12 AM",
+    "1/0/1900  1:19:12 AM",
+    "1/0/1900  1:19:12 AM",
+    "1/0/1900  1:19:12 AM",
+    "1/0/1900  1:19:12 AM",
+    "1:19:12 AM",
+    "1:19:12 AM",
+    "1:19:12 AM",
+    "1:19:12 AM",
+    "1:19:12 AM",
+    "1:19:12 AM",
+    "1/0/1900  1:19:12 AM",
+    "0.055",
+    "0.055",
+    "5.5%",
+    "1/0/1900  1:19:12 AM",
+    "1:19:12 AM",
+    "1:19:12 AM"
+   ],
+   [
+    "100000000000000000000",
+    "100000000000000000000",
+    "100000000000000000000",
+    "100000000000000000000",
+    "1E+22%",
+    "1E+22%",
+    "100000000000000000000",
+    "100000000000000000000",
+    "100000000000000000000",
+    "100000000000000000000",
+    "100000000000000000000",
+    "100000000000000000000",
+    "100000000000000000000",
+    "100000000000000000000",
+    "100000000000000000000",
+    "100000000000000000000",
+    "100000000000000000000",
+    "100000000000000000000",
+    "100000000000000000000",
+    "100000000000000000000",
+    "100000000000000000000",
+    "100000000000000000000",
+    "1E+22%",
+    "100000000000000000000",
+    "100000000000000000000",
+    "100000000000000000000"
+   ],
+   [
+    "1E-20",
+    "1E-20",
+    "1E-20",
+    "1E-20",
+    "0.000000000000000001%",
+    "0.000000000000000001%",
+    "1E-20",
+    "1E-20",
+    "1/0/1900  12:00:00 AM",
+    "1/0/1900  12:00:00 AM",
+    "1/0/1900  12:00:00 AM",
+    "1/0/1900  12:00:00 AM",
+    "1/0/1900  12:00:00 AM",
+    "12:00:00 AM",
+    "12:00:00 AM",
+    "12:00:00 AM",
+    "12:00:00 AM",
+    "12:00:00 AM",
+    "12:00:00 AM",
+    "1/0/1900  12:00:00 AM",
+    "1E-20",
+    "1E-20",
+    "0.000000000000000001%",
+    "1/0/1900  12:00:00 AM",
+    "12:00:00 AM",
+    "12:00:00 AM"
+   ],
+   [
+    "60",
+    "60",
+    "60",
+    "60",
+    "6000%",
+    "6000%",
+    "60",
+    "60",
+    "2/29/1900",
+    "2/29/1900",
+    "2/29/1900",
+    "2/29/1900",
+    "2/29/1900",
+    "2/29/1900  12:00:00 AM",
+    "2/29/1900  12:00:00 AM",
+    "2/29/1900  12:00:00 AM",
+    "2/29/1900  12:00:00 AM",
+    "2/29/1900  12:00:00 AM",
+    "2/29/1900  12:00:00 AM",
+    "2/29/1900  12:00:00 AM",
+    "60",
+    "60",
+    "6000%",
+    "2/29/1900",
+    "2/29/1900  12:00:00 AM",
+    "2/29/1900  12:00:00 AM"
+   ],
+   [
+    "2958465.5",
+    "2958465.5",
+    "2958465.5",
+    "2958465.5",
+    "295846550%",
+    "295846550%",
+    "2958465.5",
+    "2958465.5",
+    "12/31/9999  12:00:00 PM",
+    "12/31/9999  12:00:00 PM",
+    "12/31/9999  12:00:00 PM",
+    "12/31/9999  12:00:00 PM",
+    "12/31/9999  12:00:00 PM",
+    "12/31/9999  12:00:00 PM",
+    "12/31/9999  12:00:00 PM",
+    "12/31/9999  12:00:00 PM",
+    "12/31/9999  12:00:00 PM",
+    "12/31/9999  12:00:00 PM",
+    "12/31/9999  12:00:00 PM",
+    "12/31/9999  12:00:00 PM",
+    "2958465.5",
+    "2958465.5",
+    "295846550%",
+    "12/31/9999  12:00:00 PM",
+    "12/31/9999  12:00:00 PM",
+    "12/31/9999  12:00:00 PM"
+   ],
+   [
+    "2958466",
+    "2958466",
+    "2958466",
+    "2958466",
+    "295846600%",
+    "295846600%",
+    "2958466",
+    "2958466",
+    "2958466",
+    "2958466",
+    "2958466",
+    "2958466",
+    "2958466",
+    "2958466",
+    "2958466",
+    "2958466",
+    "2958466",
+    "2958466",
+    "2958466",
+    "2958466",
+    "2958466",
+    "2958466",
+    "295846600%",
+    "2958466",
+    "2958466",
+    "2958466"
+   ],
+   [
+    "0.500005787037037",
+    "0.500005787037037",
+    "0.500005787037037",
+    "0.500005787037037",
+    "50.0005787037037%",
+    "50.0005787037037%",
+    "0.500005787037037",
+    "0.500005787037037",
+    "1/0/1900  12:00:00 PM",
+    "1/0/1900  12:00:00 PM",
+    "1/0/1900  12:00:00 PM",
+    "1/0/1900  12:00:00 PM",
+    "1/0/1900  12:00:00 PM",
+    "12:00:00 PM",
+    "12:00:00 PM",
+    "12:00:00 PM",
+    "12:00:00 PM",
+    "12:00:00 PM",
+    "12:00:00 PM",
+    "1/0/1900  12:00:00 PM",
+    "0.500005787037037",
+    "0.500005787037037",
+    "50.0005787037037%",
+    "1/0/1900  12:00:00 PM",
+    "12:00:00 PM",
+    "12:00:00 PM"
+   ],
+   [
+    "0.999999999",
+    "0.999999999",
+    "0.999999999",
+    "0.999999999",
+    "99.9999999%",
+    "99.9999999%",
+    "0.999999999",
+    "0.999999999",
+    "1/0/1900  12:00:00 AM",
+    "1/0/1900  12:00:00 AM",
+    "1/0/1900  12:00:00 AM",
+    "1/0/1900  12:00:00 AM",
+    "1/0/1900  12:00:00 AM",
+    "12:00:00 AM",
+    "12:00:00 AM",
+    "12:00:00 AM",
+    "12:00:00 AM",
+    "12:00:00 AM",
+    "12:00:00 AM",
+    "1/0/1900  12:00:00 AM",
+    "0.999999999",
+    "0.999999999",
+    "99.9999999%",
+    "1/0/1900  12:00:00 AM",
+    "12:00:00 AM",
+    "12:00:00 AM"
+   ],
+   [
+    "12345678901234600",
+    "12345678901234600",
+    "12345678901234600",
+    "12345678901234600",
+    "1234567890123460000%",
+    "1234567890123460000%",
+    "12345678901234600",
+    "12345678901234600",
+    "12345678901234600",
+    "12345678901234600",
+    "12345678901234600",
+    "12345678901234600",
+    "12345678901234600",
+    "12345678901234600",
+    "12345678901234600",
+    "12345678901234600",
+    "12345678901234600",
+    "12345678901234600",
+    "12345678901234600",
+    "12345678901234600",
+    "12345678901234600",
+    "12345678901234600",
+    "1234567890123460000%",
+    "12345678901234600",
+    "12345678901234600",
+    "12345678901234600"
+   ],
+   [
+    "0.1",
+    "0.1",
+    "0.1",
+    "0.1",
+    "10%",
+    "10%",
+    "0.1",
+    "0.1",
+    "1/0/1900  2:24:00 AM",
+    "1/0/1900  2:24:00 AM",
+    "1/0/1900  2:24:00 AM",
+    "1/0/1900  2:24:00 AM",
+    "1/0/1900  2:24:00 AM",
+    "2:24:00 AM",
+    "2:24:00 AM",
+    "2:24:00 AM",
+    "2:24:00 AM",
+    "2:24:00 AM",
+    "2:24:00 AM",
+    "1/0/1900  2:24:00 AM",
+    "0.1",
+    "0.1",
+    "10%",
+    "1/0/1900  2:24:00 AM",
+    "2:24:00 AM",
+    "2:24:00 AM"
+   ]
+  ]
+ }
+}

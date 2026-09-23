@@ -139,6 +139,12 @@ sweep is what settled these:
 - `FillDown` and its three siblings copy an area's first row or column
   over the rest as `Copy` does, blanks included, and a one-row area fills
   from the row above it (`tests/fixtures/fill.json`).
+- `Replace` edits the text the formula bar shows, not what the cell
+  shows: 1234 in `#,##0` is `1234`, a date `1/2/2020`, 50% `50%`. What it
+  leaves is typed again, into a Text cell too, so replacing `2` with `5`
+  in the number 123 gives the number 153 and `x1+1` with `=` a formula.
+  A formula it cannot enter stops it there, the cells before changed and
+  none after (`tests/fixtures/replace.json`).
 - `CurrentRegion` starts from the first area's top-left cell, so
   `Range("A1:E5").CurrentRegion` can be smaller than A1:E5, and grows
   while the ring around it holds a value or formula, corners included;
@@ -309,10 +315,23 @@ target starts from the first array element.
 single-area ranges, including whole sheets without materializing empty
 cells. Searches support formula text or displayed values, whole/partial
 matches, case sensitivity, `*`/`?` wildcards, `~` escapes, row/column order
-and forward/backward wraparound. `LookIn`, `LookAt` and search order persist
+and forward/backward wraparound. Among formulas a constant reads as the
+formula bar shows it. `LookIn`, `LookAt` and search order persist
 on the application; omitted `MatchCase` and direction reset on each `Find`.
 An unsuccessful search returns `Nothing`. Multi-area ranges, comments,
 `SearchFormat=True` and `MatchByte=True` remain explicitly unsupported.
+
+`Replace` works on any range, several areas and whole sheets included,
+through the same wildcards: a `*` is as short as will match, except at
+the end of what is sought, where it runs to the end of the text. Every
+match in a cell is replaced, left to right. By rows it takes the cells
+area by area from the first; by columns it starts after the first cell
+and comes back to it last, which shows only when a formula it cannot
+enter stops it. It always answers True, leaves its `LookAt`, order,
+`MatchCase` and what it sought for the next `Find` and `FindNext`, and
+looks among formulas whatever `LookIn` was. `SearchFormat`,
+`ReplaceFormat`, `MatchByte` and Formula2 semantics report themselves
+unsupported.
 
 **Multiple workbooks.** `Workbooks.Add` creates and activates a uniquely numbered
 worksheet workbook; closing one does not reset numbering. `Open(Filename:=...)`

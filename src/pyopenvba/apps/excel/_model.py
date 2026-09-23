@@ -51,6 +51,7 @@ from pyopenvba.interpreter._values import (
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._styles import Style, Stylesheet
+    from pyopenvba.apps.excel._typing import Typed
     from pyopenvba.interpreter._runtime import Interpreter
 
 _LIBRARY = "excel"
@@ -1978,6 +1979,39 @@ class Range(ExcelObject):
         return find(self, MISSING, After, direction=2, again=True)
 
     @method
+    def Replace(self, What: object = MISSING, Replacement: object = MISSING, LookAt: object = MISSING,
+                SearchOrder: object = MISSING, MatchCase: object = MISSING, MatchByte: object = MISSING,
+                SearchFormat: object = MISSING, ReplaceFormat: object = MISSING,
+                FormulaVersion: object = MISSING) -> object:
+        from pyopenvba.apps.excel._find import replace
+        return replace(self, What, Replacement, LookAt, SearchOrder, MatchCase, MatchByte, SearchFormat,
+                       ReplaceFormat, FormulaVersion)
+
+    def replaced_in(self, row: int, column: int, text: str) -> bool:
+        """Enter the text Replace left in one cell; False, changing nothing, for a formula Excel cannot read.
+
+        A cell that shows a prefix character keeps its text as text; any
+        other cell, a Text cell's included, takes a formula as a formula.
+        """
+        from pyopenvba.apps.excel._typing import replaced
+        from pyopenvba.formula._parse import FormulaError, parse
+
+        if not _merges.writable(self.sheet, row, column):
+            return True
+        cell = self.sheet.cell(row, column)
+        prefixed = cell is not None and not cell.formula and isinstance(cell.value, str) \
+            and cell.style is not None and cell.style.quote_prefix
+        if text.startswith("=") and not prefixed:
+            try:
+                parse(text)
+            except FormulaError:
+                return False
+            self._put_formula(row, column, text)
+            return True
+        self._store(row, column, replaced(text, self.sheet.style_at(row, column).number_format, prefixed=prefixed))
+        return True
+
+    @method
     def AutoFit(self) -> object:
         _dimensions.autofit(self)
         return EMPTY
@@ -2105,7 +2139,13 @@ class Range(ExcelObject):
         cell = self.sheet.cell(row, column, create=True)
         assert cell is not None
         style = cell.style or self.sheet.book.stylesheet.default
-        result = typed(value, style.number_format, raw=raw)
+        self._store(row, column, typed(value, style.number_format, raw=raw))
+
+    def _store(self, row: int, column: int, result: Typed) -> None:
+        """Put what typing made of a write into one cell: its value, the format it ends with, and a prefix."""
+        cell = self.sheet.cell(row, column, create=True)
+        assert cell is not None
+        style = cell.style or self.sheet.book.stylesheet.default
         cell.value = result.value
         cell.formula = ""
         cell.stale = False

@@ -47,6 +47,15 @@ All notable changes to pyOpenVBA are documented here. This project follows
   what it pads the cell with depends on the width in pixels. Before, both went
   through Access's `Format`, which spelled `$#,##0_)` as `$5_)`, fractions
   as `2 ?/?` and `[h]:mm:ss` as `[1]:00:00`.
+- `Range.Replace`, as Excel's does it. It edits the text the formula bar
+  shows -- 1234 in `#,##0` is `1234`, a date `1/2/2020`, 50% `50%` -- and
+  types what is left again, so the number 123 with `2` replaced by `5` is
+  the number 153, and even a Text cell takes a number or a formula. The
+  wildcards are Find's, a `*` as short as will match except at the end.
+  A formula it cannot enter stops it there. It works on several areas
+  and whole sheets, always answers True, and leaves its settings for the
+  next `Find`. 80 layouts in live Excel and the formula-bar text of 20
+  numbers in 26 formats pin it.
 - `Range.SpecialCells` for constants and formulas of each kind, blanks,
   the last cell and visible cells, with Excel's own quirks: a one-cell
   range searches from A1 to the last cell, a merged area comes whole, and
@@ -339,6 +348,9 @@ All notable changes to pyOpenVBA are documented here. This project follows
   to an exponent from 1E+11 and below 1E-4.
 - `End` stopped at a cell with only a format; Excel walks over one as
   over an empty cell.
+- `Find` among formulas read a constant as the cell shows it, so 1234 in
+  `#,##0` was found by `1,234` and not by `1234`; it reads it as the
+  formula bar shows it, as Excel does.
 - The whole sheet's address was spelt `$A$1:$XFD$1048576`; Excel spells it
   `$1:$1048576`.
 - `CLng`, `CInt`, `CByte`, `CSng`, `CDbl` and `CCur` of an Error value

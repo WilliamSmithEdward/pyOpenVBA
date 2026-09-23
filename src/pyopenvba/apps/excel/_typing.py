@@ -31,6 +31,9 @@ replaces the cell's own only when that one is General, or one of Excel's
 built-in currency, accounting, percent, scientific, fraction, date and
 time formats and the new one is of another kind; thousands separators
 never replace a format.
+
+Range.Replace types too, with rules of its own (``replaced``), into the
+text the formula bar shows for a cell (``edit_text``).
 """
 
 from __future__ import annotations
@@ -41,8 +44,8 @@ import re
 from dataclasses import dataclass
 from decimal import Decimal
 
-from pyopenvba.formula._display import format_value
-from pyopenvba.formula._values import ERRORS, ExcelError
+from pyopenvba.formula._display import clock, format_value
+from pyopenvba.formula._values import ERRORS, ExcelError, number_text
 from pyopenvba.interpreter._values import EMPTY, VBACurrency, VBADate, VBAErrorValue, error
 
 #: The errors typing turns into error values; #SPILL! and the rest stay text.
@@ -116,12 +119,16 @@ def typed(value: object, current: str = "General", *, raw: bool = False) -> Type
 
 
 def format_after(current: str, brought: str | None) -> str | None:
-    """The format a cell takes when typing brings ``brought``, or None where it keeps ``current``."""
+    """The format a cell takes when typing brings ``brought``, or None where it keeps ``current``.
+
+    Only Replace types into a Text cell, and a format it brings replaces
+    Text as it would a built-in format of another kind.
+    """
     if brought is None or brought == current:
         return None
     if current in ("General", ""):
         return None if brought == "General" else brought
-    held = _REPLACEABLE.get(current)
+    held = "text" if current == "@" else _REPLACEABLE.get(current)
     kind = _BROUGHT.get(brought)
     if held is None or kind in (None, "number", held):
         return None
@@ -404,6 +411,72 @@ def _time(body: str) -> Typed | None:
     else:
         code = "h:mm:ss" if with_seconds else "h:mm"
     return Typed(value, code)
+
+
+# --- the text a cell is edited as ------------------------------------------------------------------
+
+
+def edit_text(value: object, number_format: str) -> str:
+    """What the formula bar shows for a constant: the text Find looks in among formulas and Replace changes.
+
+    Measured through 20 numbers in 26 formats (scripts/measure_replace.py)
+    and 152 times on the half second (scripts/measure_time_rounding.py).
+    A number is spelled as Range.Formula spells it, under a percent format
+    as a percentage. Under a date or time format it is the date m/d/yyyy on
+    Excel's calendar, the time h:mm:ss AM/PM, or both two spaces apart:
+    the date where the format has one or the number is a day or more, the
+    time where the format has one or the number is not a whole day. The
+    time is the day's fraction rounded to the second as a cell rounds one,
+    and never carried into the next day. A number no date holds, below 0
+    or past 9999, is spelled as a number. Text is itself, without the
+    apostrophe it may have been typed with.
+    """
+    if value is EMPTY:
+        return ""
+    if isinstance(value, bool):
+        return "TRUE" if value else "FALSE"
+    if isinstance(value, ExcelError):
+        return value.name
+    if isinstance(value, (int, float)):
+        number = float(value)
+        if _codes(number_format) and 0 <= number < 2958466:
+            return _moment_text(number, number_format)
+        if _is_percent(number_format):
+            return number_text(number * 100, formula=True) + "%"
+        return number_text(number, formula=True)
+    return str(value)
+
+
+def _moment_text(number: float, code: str) -> str:
+    day = math.floor(number)
+    parts: list[str] = []
+    if is_date_format(code) or day >= 1:
+        parts.append(format_value(float(day), "m/d/yyyy"))
+    if any(found[0] in "hs" for found in _codes(code)) or number != day:
+        _, hour, minute, second, _ = clock(number - day)
+        parts.append(f"{hour % 12 or 12}:{minute:02d}:{second:02d} {'AM' if hour < 12 else 'PM'}")
+    return "  ".join(parts)
+
+
+def _is_percent(code: str) -> bool:
+    """Whether a format multiplies by 100: a % sign that is not quoted, escaped, bracketed or a padding's."""
+    return "%" in re.sub(r'"[^"]*"|\\.|_.|\*.|\[[^\]]*\]', "", code)
+
+
+def replaced(text: str, current: str, *, prefixed: bool) -> Typed:
+    """What Replace leaves in a cell whose text it changed, the cell's format being ``current``.
+
+    Replace types the new text as it would be typed into a General cell:
+    a Text cell's string becomes a number, a date or a Boolean too, and
+    ``1/2`` is the second of January even where the cell's format is a
+    number's. The format the text brings then goes where typing's would,
+    replacing Text as it replaces a built-in format of another kind. A
+    cell that showed a prefix character keeps it, and its text stays text.
+    """
+    if prefixed:
+        return typed_text("'" + text)
+    found = typed_text(text)
+    return Typed(found.value, format_after(current, found.number_format), found.prefix)
 
 
 # --- what a format makes a value read as -------------------------------------------------------------

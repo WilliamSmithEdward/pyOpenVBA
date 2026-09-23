@@ -607,7 +607,7 @@ Range,RefreshLinkedDataType,method,RefreshLinkedDataType([DomainID As Variant]),
 Range,RemoveControls,method,RemoveControls(),,MISSING,,
 Range,RemoveDuplicates,method,"RemoveDuplicates([Columns As Variant], [Header As XlYesNoGuess])",,MISSING,,
 Range,RemoveSubtotal,method,RemoveSubtotal() As Variant,,MISSING,,
-Range,Replace,method,"Replace(What As Variant, Replacement As Variant, [LookAt As Variant], [SearchOrder As Variant], [MatchCase As Variant], [MatchByte As Variant], [SearchFormat As Variant], [ReplaceFormat As Variant], [FormulaVersion As Variant]) As Boolean",,MISSING,,
+Range,Replace,method,"Replace(What As Variant, Replacement As Variant, [LookAt As Variant], [SearchOrder As Variant], [MatchCase As Variant], [MatchByte As Variant], [SearchFormat As Variant], [ReplaceFormat As Variant], [FormulaVersion As Variant]) As Boolean",,PARTIAL,tests/fixtures/replace.json,"Edits the text the formula bar shows and types what is left as Excel does; SearchFormat, ReplaceFormat, MatchByte:=True and Formula2 semantics report themselves unsupported."
 Range,ResetContents,method,ResetContents(),,MISSING,,
 Range,Resize,"property, read-only",As Range,,PARTIAL,tests/fixtures/excel_model/probes.txt,
 Range,Row,"property, read-only",As Long,,PARTIAL,tests/fixtures/excel_model/probes.txt,

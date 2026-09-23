@@ -28,7 +28,8 @@ from pyopenvba.apps.excel._engine_book import ERROR_NUMBERS, EngineBook, model_v
 from pyopenvba.formula._calc.evaluator import Context as EngineContext
 from pyopenvba.formula._calc.lexer import FormulaSyntaxError
 from pyopenvba.formula._calc.nodes import Node
-from pyopenvba.formula._calc.values import Array, ExcelError as EngineError
+from pyopenvba.formula._calc.values import Array, ExcelError as EngineError, Scalar
+from pyopenvba.formula._deep import deep
 from pyopenvba.formula._structured import TableShape
 from pyopenvba.formula._values import BLANK, REF, ExcelError
 from pyopenvba.interpreter._values import EMPTY, VBACurrency, VBADate, VBAErrorValue, VBAInt
@@ -104,14 +105,18 @@ class Calculator:
         if not cell.formula:
             self._keep(key, None)
             return
+        formula = cell.formula
         try:
-            node = self.engine_book.read(cell.formula)
+            compiled = deep(lambda: self._compiled(formula, sheet, row, column))
         except FormulaSyntaxError as failure:
             # One formula the parser cannot read stops no other from being worked out.
-            self._keep(key, Compiled(node=None, unread=str(failure)))
-            return
+            compiled = Compiled(node=None, unread=str(failure))
+        self._keep(key, compiled)
+
+    def _compiled(self, formula: str, sheet: str, row: int, column: int) -> Compiled:
+        node = self.engine_book.read(formula)
         precedents = self.engine_book.precedents(node, sheet, row, column)
-        self._keep(key, Compiled(node=node, precedents=precedents, volatile=volatile(node)))
+        return Compiled(node=node, precedents=precedents, volatile=volatile(node))
 
     def forget(self, sheet: str, row: int, column: int) -> None:
         """A cell is gone: forget its formula."""
@@ -333,13 +338,25 @@ class Calculator:
         owner = self._worksheet(sheet)
         block = owner.array_formulas.get((row, column))
         now = self.now()
-        context = EngineContext(self.engine_book, owner.name, row, column, array=block is not None, today=now.date(),
-                                now=now)
+        node = compiled.node
+
+        def context() -> EngineContext:
+            return EngineContext(self.engine_book, owner.name, row, column, array=block is not None, today=now.date(),
+                                 now=now)
+
+        def one() -> Scalar:
+            working = context()
+            return working.first(working.formula(node))
+
+        def whole() -> Array:
+            working = context()
+            return working.array_of(working.formula(node))
+
         try:
-            value = context.formula(compiled.node)
+            # Worked out afresh on a deeper stack if the formula's tree is deeper than Python's.
             if block is None:
-                return model_value(context.first(value))
-            return _spread(owner, block, context.array_of(value))
+                return model_value(deep(one))
+            return _spread(owner, block, deep(whole))
         except EngineError as failure:
             return model_value(failure.error) if block is None else _spread(owner, block, Array([[failure.error]]))
         except ExcelError as failure:

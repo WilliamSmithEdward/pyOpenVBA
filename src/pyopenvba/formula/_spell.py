@@ -43,6 +43,7 @@ from pyopenvba.formula._calc import functions as functions  # imported to regist
 from pyopenvba.formula._calc.catalog import is_excel_function
 from pyopenvba.formula._calc.nodes import function_key
 from pyopenvba.formula._calc.registry import FUNCTIONS
+from pyopenvba.formula._deep import deep
 from pyopenvba.formula._parse import (REFERENCE_OPS, Binary, Call, FormulaError, Invoke, NameNode, Node, Reference,
                                       Structured, Token, Unary, literal, parse, read_structured, split_sheet, tokenize)
 from pyopenvba.formula._structured import TableShape, one_cell, spelled as spelled_reference
@@ -169,6 +170,10 @@ def spelled(formula: str, names: Names, *, whole: bool = False, at: bool = False
     """``formula``, which starts with =, as Excel spells it back; ``whole`` for a formula worked out whole, as an
     array formula is, where no column is cut to this row; ``at`` for a formula written through Formula2, which may
     cut a range to one value with @."""
+    return deep(lambda: _spelled(formula, names, whole=whole, at=at))
+
+
+def _spelled(formula: str, names: Names, *, whole: bool, at: bool) -> str:
     body = formula[1:]
     try:
         tokens = tokenize(body, spaces=True)

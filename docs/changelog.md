@@ -673,6 +673,20 @@ All notable changes to pyOpenVBA are documented here. This project follows
   finds what reads it through an index rather than by going through
   every formula once per cell down, so changing the top of a 5000-row
   chain takes a fraction of a second, not ten.
+- The deepest formulas Excel takes work: 4096 terms added one to the
+  next, 256 brackets one inside another, 65 functions, a thousand signs
+  before a number or 8190 percent signs after one, 8192 characters in
+  all. Writing one raised error 28, out of stack space, where the model
+  went down the formula's tree one call inside another; such work is
+  now done again on a thread with room enough
+  (`pyopenvba.formula._deep`), and each formula comes to what Excel
+  shows and reads back as long, written, filled, copied, saved and
+  opened again, as 22 formulas measured in live Excel show
+  (scripts/measure_long_chains.py). `FormulaR1C1` reads the first 8192
+  characters of a formula R1C1 spells longer, as Excel does. Excel keeps
+  a formula only while its compiled form fits 16384 bytes, which the
+  model, having no compiled form, does not check: four of the 22 go past
+  it.
 - A saved formula spells a function newer than Excel 2007 as Excel does,
   `_xlfn.XLOOKUP`, FILTER and SORT as `_xlfn._xlws.FILTER`, and each name a
   LET or a LAMBDA binds as `_xlpm.x`. The model wrote them bare, and Excel

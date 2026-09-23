@@ -62,6 +62,8 @@ if TYPE_CHECKING:
     from pyopenvba.interpreter._runtime import Interpreter
 
 _LIBRARY = "excel"
+#: The longest formula Excel keeps, in characters.
+LONGEST_FORMULA = 8192
 
 
 class ExcelObject(VBAObject):
@@ -1718,7 +1720,9 @@ class Range(ExcelObject):
                 text = shown_formula(self.sheet, row, column, cell.formula)
                 if at:
                     text = self._formula2(text, whole=found is not None)
-                return from_a1(text, row, column) if r1c1 else text
+                # R1C1 can spell a formula longer than Excel's 8192 characters, and reads only that many
+                # (tests/fixtures/long_chains.json).
+                return from_a1(text, row, column)[:LONGEST_FORMULA] if r1c1 else text
             return _formula_text(cell.value)
 
         area = self.first

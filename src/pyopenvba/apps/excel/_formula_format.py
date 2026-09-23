@@ -43,6 +43,7 @@ from pyopenvba.formula._calc.nodes import (
     Unary,
 )
 from pyopenvba.formula._calc.values import ExcelError, Reference
+from pyopenvba.formula._deep import deep
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Worksheet
@@ -57,6 +58,10 @@ _CELLS: Final = (CellReference, AreaReference, AxisReference, NameReference)
 
 def brought_format(sheet: Worksheet, formula: str, row: int, column: int) -> str:
     """The format a formula written at ``row``, ``column`` of ``sheet`` brings, or "" for none."""
+    return deep(lambda: _brought_format(sheet, formula, row, column))
+
+
+def _brought_format(sheet: Worksheet, formula: str, row: int, column: int) -> str:
     calculator = sheet.book.calculator
     try:
         node = calculator.engine_book.read("=" + formula.removeprefix("="))

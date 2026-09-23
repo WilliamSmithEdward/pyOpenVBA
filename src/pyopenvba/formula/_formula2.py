@@ -42,6 +42,7 @@ from pyopenvba.formula._calc import functions as functions  # imported to regist
 from pyopenvba.formula._calc.catalog import is_excel_function
 from pyopenvba.formula._calc.nodes import function_key
 from pyopenvba.formula._calc.registry import FUNCTIONS
+from pyopenvba.formula._deep import deep
 from pyopenvba.formula._parse import (ArrayLiteral, Binary, Call, FormulaError, Invoke, Literal, NameNode, Node,
                                       Reference, Structured, Unary, parse, parse_placed, tokenize)
 
@@ -336,6 +337,10 @@ def formula2(formula: str, named: Callable[[str], str | None], *, whole: bool = 
     """``formula``, as Range.Formula spells it, as Formula2 reads it back: with an @ where it cuts cells to one
     value. ``named`` gives a defined name's formula, or None; ``whole`` for an array formula, worked out whole,
     which cuts nothing at its top."""
+    return deep(lambda: _formula2(formula, named, whole=whole))
+
+
+def _formula2(formula: str, named: Callable[[str], str | None], *, whole: bool) -> str:
     tree, starts = parse_placed(formula)
     walk = _Walk(starts, named)
     walk.visit(tree, WHOLE if whole else VALUE)

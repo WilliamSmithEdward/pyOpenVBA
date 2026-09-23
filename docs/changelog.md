@@ -895,6 +895,18 @@ All notable changes to pyOpenVBA are documented here. This project follows
 - Shape names containing a backslash are written literally, and a macro
   can be assigned to a shape whose drawing omitted the macro attribute.
 
+### Internal
+
+- pyOfficeEditor's formula engine, copied into `pyopenvba.formula._calc`
+  from its commit 098e441: a parser, an evaluator and 493 of Excel's
+  functions, with arithmetic as the x87 does it. Over the model's own
+  workbook, through `_engine_book`, it works out all 10,958 formulas of
+  pyOfficeEditor's corpus as Excel cached them, to the bit or within the
+  units pyOfficeEditor allows; the engine the model calculates with
+  matched 6,718. Cells keep the model's engine until its own live
+  measurements agree with the new one: legacy formulas, lookups compared
+  to the bit, the zero a last sum snaps to and variance bits among them.
+
 ## [6.0.0] - 2026-09-20
 
 VBA runs. Not read, not analysed: executed, against an Office

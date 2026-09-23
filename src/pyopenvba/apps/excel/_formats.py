@@ -182,6 +182,11 @@ class Font(ExcelObject):
     def __init__(self, target: Range) -> None:
         self.target = target
 
+    def guard_set(self, member: str) -> None:
+        from pyopenvba.apps.excel._protection import check_format_set
+
+        check_format_set(self.target.sheet, self.vba_type_name, member)
+
     def _read(self, get: Callable[[S.Font], object]) -> object:
         return uniform(get(style.font) for style in styles_of(self.target))
 
@@ -386,6 +391,11 @@ class Interior(ExcelObject):
 
     def __init__(self, target: Range) -> None:
         self.target = target
+
+    def guard_set(self, member: str) -> None:
+        from pyopenvba.apps.excel._protection import check_format_set
+
+        check_format_set(self.target.sheet, self.vba_type_name, member)
 
     def _fills(self) -> list[S.Fill]:
         fills = list({style.fill: None for style in styles_of(self.target)})
@@ -711,6 +721,11 @@ class Border(ExcelObject):
         self.target = target
         self.index = index
 
+    def guard_set(self, member: str) -> None:
+        from pyopenvba.apps.excel._protection import check_format_set
+
+        check_format_set(self.target.sheet, self.vba_type_name, member)
+
     def side(self) -> S.Side:
         """What the range answers for this border: its first cell along it."""
         sheet, area = self.target.sheet, self.target.first
@@ -846,6 +861,11 @@ class Borders(VBACollection, ExcelObject):
 
     def __init__(self, target: Range) -> None:
         self.target = target
+
+    def guard_set(self, member: str) -> None:
+        from pyopenvba.apps.excel._protection import check_format_set
+
+        check_format_set(self.target.sheet, self.vba_type_name, member)
 
     def vba_items(self) -> list[object]:
         return [Border(self.target, index) for index in (7, 8, 9, 10, 5, 6)]

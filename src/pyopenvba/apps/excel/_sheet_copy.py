@@ -90,6 +90,10 @@ def copy_sheet(source: Worksheet, before: object, after: object) -> object:
     copied.dims = source.dims.copied(copied)
     copied.merged_areas = [Area(a.top, a.left, a.bottom, a.right, name) for a in source.merged_areas]
     copied.merges_dirty = bool(copied.merged_areas)
+    # A protected sheet's copy is protected the same way (tests/fixtures/protection.json).
+    copied.protection = source.protection
+    copied.protection_allows = source.protection_allows
+    copied.enable_selection = source.enable_selection
     destination.names_.entries.extend(names)
     destination.names_.changed = True
     copied.shape_changed()

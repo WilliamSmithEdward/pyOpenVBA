@@ -119,6 +119,17 @@ All notable changes to pyOpenVBA are documented here. This project follows
   top left. 45 formulas in live Excel pin it. Before, each reported
   itself unsupported. Another function given a union, and a relative
   R1C1 reference in INDIRECT, still do.
+- Sheet protection: `Worksheet.Protect`, `Unprotect`,
+  `ProtectContents`, `ProtectDrawingObjects`, `ProtectScenarios`,
+  `ProtectionMode`, `EnableSelection` and the Protection object. A
+  protected sheet refuses a macro what Excel refuses it, with Excel's
+  own error text: writes to locked cells (the unlocked ones still take
+  the value), clears, formats unless allowed, inserting and deleting
+  rows and columns unless allowed, merging, filling, copying onto locked
+  cells, AutoFilter, RemoveDuplicates and sorting. UserInterfaceOnly
+  frees macros. A second Protect, the password rules and the Allow
+  options follow Excel's. 168 cases in live Excel pin it. The protection
+  is not yet read from or written to a file.
 - The constants of VBA's own type library that the reference dumps left
   out: the colours (`vbRed`), the key codes (`vbKeyReturn`), the system
   colours (`vbButtonFace`), `vbModeless` and the QueryClose modes.

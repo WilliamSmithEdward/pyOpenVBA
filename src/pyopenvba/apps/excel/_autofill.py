@@ -105,6 +105,15 @@ def autofill(source: Range, destination: object, kind_argument: object) -> objec
     area, target = source.first, destination.first
     down = _direction(area, target)
     sheet = source.sheet
+    from pyopenvba.apps.excel._protection import whole
+
+    if down:
+        filled = (Area(area.bottom + 1, area.left, target.bottom, area.right) if target.bottom > area.bottom
+                  else Area(target.top, area.left, area.top - 1, area.right))
+    else:
+        filled = (Area(area.top, area.right + 1, area.bottom, target.right) if target.right > area.right
+                  else Area(area.top, target.left, area.bottom, area.left - 1))
+    whole(sheet, [filled], "AutoFill")
     _check_modelled(sheet, area, target)
     plan = _Plan(sheet, area, target, down, kind)
     plan.fill()

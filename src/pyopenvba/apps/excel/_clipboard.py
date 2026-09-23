@@ -50,6 +50,7 @@ from dataclasses import dataclass, replace
 from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, column_letter, column_number, quote_sheet
+from pyopenvba.apps.excel._protection import whole
 from pyopenvba.apps.excel._visible import unmeasured, visible, visible_areas
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.formula._parse import shift_text, split_sheet, tokenize, transpose_text
@@ -148,6 +149,7 @@ def copy_range(target: Range, destination: object) -> object:
         raise error(1004, "Copy needs a range to copy to")
     source = visible(target)
     made = block_of(source.areas)
+    whole(destination.sheet, [landing_of(made, destination)], "Copying")
     landing = visible_areas(destination)
     if landing is None:
         return paste_block(target.sheet, made, destination)
@@ -157,6 +159,15 @@ def copy_range(target: Range, destination: object) -> object:
     for area in landing:
         Range(target.sheet, [first]).copy_to(Range(destination.sheet, [area]))
     return True
+
+
+def landing_of(made: Block, destination: Range) -> Area:
+    """The cells a paste lands on: whole copies tiled over the destination when it holds them, else one at its corner."""
+    corner = destination.first
+    tiled = corner.rows % made.rows == 0 and corner.columns % made.columns == 0
+    height, width = (corner.rows, corner.columns) if tiled else (made.rows, made.columns)
+    return Area(corner.top, corner.left, min(corner.top + height - 1, MAX_ROWS),
+                min(corner.left + width - 1, MAX_COLUMNS), destination.sheet.name)
 
 
 def paste_block(sheet: Worksheet, made: Block, destination: Range) -> object:
@@ -207,14 +218,16 @@ def cut(target: Range, destination: object) -> object:
         return True
     if not isinstance(destination, Range):
         raise error(1004, "Cut needs a range to move to")
+    whole(target.sheet, [target.first], "Cut")
+    whole(destination.sheet, [landing_of(block_of([target.first]), destination)], "Cut")
     move(target, target.first, destination)
     return True
 
 
-def _clip(target: Range) -> Clip:
+def _clip(target: Range, empty: str = "There is nothing to paste") -> Clip:
     clip = target.sheet.book.application.clipboard
     if clip is None:
-        raise error(1004, "There is nothing to paste")
+        raise error(1004, empty)
     return clip
 
 
@@ -232,6 +245,9 @@ def paste(sheet: Worksheet, destination: object, link: object) -> object:
         raise error(1004, "Paste needs a range to paste into")
     clip = _clip(destination)
     if clip.cut:
+        whole(clip.source.sheet, [clip.area], "Cut")
+    whole(destination.sheet, [landing_of(clip.block, destination)], "Pasting")
+    if clip.cut:
         move(clip.source, clip.area, destination)
         return True
     unmeasured(destination, "Worksheet.Paste")
@@ -240,7 +256,8 @@ def paste(sheet: Worksheet, destination: object, link: object) -> object:
 
 def paste_special(target: Range, what: object, operation: object, skip_blanks: object, transpose: object) -> object:
     """Range.PasteSpecial."""
-    clip = _clip(target)
+    # Measured with the clipboard emptied, as Protect empties it.
+    clip = _clip(target, "PasteSpecial method of Range class failed")
     if clip.cut:
         raise error(1004, "PasteSpecial cannot paste what was cut")
     kind = ALL if what is MISSING else int(to_integer(what, "Long"))
@@ -264,6 +281,8 @@ def paste_special(target: Range, what: object, operation: object, skip_blanks: o
     if corner.top + height - 1 > MAX_ROWS or corner.left + width - 1 > MAX_COLUMNS:
         raise error(1004, "The paste would run past the edge of the worksheet")
     sheet = target.sheet
+    whole(sheet, [Area(corner.top, corner.left, corner.top + height - 1, corner.left + width - 1, sheet.name)],
+          "PasteSpecial")
     if (kind in _CONTENT_FORMULAS or op) and sheet.book is not source_sheet.book:
         raise VBAUnsupportedError("PasteSpecial of formulas into another workbook is not implemented")
     source_cells = {position: _snapshot(cell) for position, cell in source_sheet.cells_.items()

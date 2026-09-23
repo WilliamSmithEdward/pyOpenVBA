@@ -14,6 +14,7 @@ models of the same thing.
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from typing import TYPE_CHECKING
 
 from pyopenvba.exceptions import VBAUnsupportedError
@@ -66,6 +67,19 @@ FORM_CONTROLS: dict[int, str] = {
 ERR_NO_SUCH_SHAPE = -2147024809
 
 
+class _Drawn(VBAObject):
+    """A shape or a part of one, which a sheet protecting its drawing objects keeps a macro from changing."""
+
+    sheet: Worksheet
+
+    def vba_set(self, name: str, value: object, args: Sequence[object] = (), named: dict[str, object] | None = None,
+                *, by_ref: bool = False) -> None:
+        from pyopenvba.apps.excel._protection import guard_drawing
+
+        guard_drawing(self.sheet, f"setting {self.vba_type_name}.{name}")
+        super().vba_set(name, value, args, named, by_ref=by_ref)
+
+
 class Shapes(VBACollection):
     """The shapes on one worksheet."""
 
@@ -97,6 +111,11 @@ class Shapes(VBACollection):
         Width: object = MISSING,
         Height: object = MISSING,
     ) -> object:
+        from pyopenvba.apps.excel._protection import drawing_enforced
+
+        if drawing_enforced(self.sheet):
+            # Measured: what AddShape says on a sheet protecting its drawing objects.
+            raise error(1004, "The specified value is out of range.")
         wanted = int(to_number(Type)) if Type is not MISSING else 1
         shape = self._made(
             kind="shape",
@@ -116,6 +135,9 @@ class Shapes(VBACollection):
         Width: object = MISSING,
         Height: object = MISSING,
     ) -> object:
+        from pyopenvba.apps.excel._protection import guard_drawing
+
+        guard_drawing(self.sheet, "Shapes.AddTextbox")
         shape = self._made(
             kind="textBox", geometry="rect", stem="TextBox", box=(Left, Top, Width, Height)
         )
@@ -130,6 +152,9 @@ class Shapes(VBACollection):
         EndY: object = MISSING,
     ) -> object:
         """A line, which Excel places by its two ends rather than a box."""
+        from pyopenvba.apps.excel._protection import guard_drawing
+
+        guard_drawing(self.sheet, "Shapes.AddLine")
         start_x, start_y = _number(BeginX), _number(BeginY)
         end_x, end_y = _number(EndX), _number(EndY)
         shape = self._made(
@@ -154,8 +179,10 @@ class Shapes(VBACollection):
         Width: object = MISSING,
         Height: object = MISSING,
     ) -> object:
+        from pyopenvba.apps.excel._protection import guard_drawing
         from pyopenvba.shapes._values import ControlInfo
 
+        guard_drawing(self.sheet, "Shapes.AddFormControl")
         wanted = int(to_number(Type)) if Type is not MISSING else 0
         from pyopenvba.apps.excel._radios import creation_group
 
@@ -271,7 +298,7 @@ class ShapeRange(VBACollection):
         return EMPTY
 
 
-class ShapeObject(VBAObject):
+class ShapeObject(_Drawn):
     """One shape on a sheet."""
 
     vba_type_name = "Shape"
@@ -401,8 +428,10 @@ class ShapeObject(VBAObject):
 
     @method
     def Delete(self) -> object:
+        from pyopenvba.apps.excel._protection import guard_drawing
         from pyopenvba.apps.excel._radios import deleting
 
+        guard_drawing(self.sheet, "Shape.Delete")
         deleting(self.sheet, self.shape)
         self.sheet.shapes_ = [one for one in self.sheet.shapes_ if one is not self.shape]
         self.sheet.drawing_changed()
@@ -485,13 +514,14 @@ class TextFrame2(VBAObject):
         return VBAInt(-1 if self.owner.shape.text else 0, "Long")
 
 
-class Characters(VBAObject):
+class Characters(_Drawn):
     """The characters of a shape's text."""
 
     vba_type_name = "Characters"
 
     def __init__(self, shape: ShapeObject) -> None:
         self.owner = shape
+        self.sheet = shape.sheet
 
     @member(default=True)
     def Text(self) -> object:
@@ -507,7 +537,7 @@ class Characters(VBAObject):
         return VBAInt(len(self.owner.shape.text), "Long")
 
 
-class ControlFormat(VBAObject):
+class ControlFormat(_Drawn):
     """The implemented checkbox, list-item and selection properties."""
 
     vba_type_name = "ControlFormat"
@@ -713,7 +743,7 @@ class ControlFormat(VBAObject):
             raise error(1004, str(exc)) from exc
 
 
-class ListDrawingObject(VBAObject):
+class ListDrawingObject(_Drawn):
     """The Selected property of a form list's legacy drawing object."""
 
     def __init__(self, sheet: Worksheet, shape: Shape) -> None:

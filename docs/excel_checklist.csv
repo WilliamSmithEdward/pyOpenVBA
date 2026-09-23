@@ -471,6 +471,18 @@ Names,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/names_crud.jso
 Names,Creator,"property, read-only",As XlCreator,,MISSING,,
 Names,Item,method,"Item([Index As Variant], [IndexLocal As Variant], [RefersTo As Variant]) As Name","no IndexLocal, RefersTo",UNASSESSED,,
 Names,Parent,"property, read-only",As Object,,MISSING,,
+Protection,AllowDeletingColumns,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/protection.json,"What the last Protect gave, which Unprotect leaves as it was."
+Protection,AllowDeletingRows,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/protection.json,"What the last Protect gave, which Unprotect leaves as it was."
+Protection,AllowEditRanges,"property, read-only",As AllowEditRanges,,MISSING,,
+Protection,AllowFiltering,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/protection.json,"What the last Protect gave, which Unprotect leaves as it was."
+Protection,AllowFormattingCells,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/protection.json,"What the last Protect gave, which Unprotect leaves as it was."
+Protection,AllowFormattingColumns,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/protection.json,"What the last Protect gave, which Unprotect leaves as it was."
+Protection,AllowFormattingRows,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/protection.json,"What the last Protect gave, which Unprotect leaves as it was."
+Protection,AllowInsertingColumns,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/protection.json,"What the last Protect gave, which Unprotect leaves as it was."
+Protection,AllowInsertingHyperlinks,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/protection.json,"What the last Protect gave, which Unprotect leaves as it was."
+Protection,AllowInsertingRows,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/protection.json,"What the last Protect gave, which Unprotect leaves as it was."
+Protection,AllowSorting,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/protection.json,"What the last Protect gave, which Unprotect leaves as it was."
+Protection,AllowUsingPivotTables,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/protection.json,"What the last Protect gave, which Unprotect leaves as it was."
 Queries,_Default,"property, read-only",As WorkbookQuery,,MISSING,,
 Queries,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
 Queries,Add,method,"Add(Name As String, Formula As String, [Description As Variant]) As WorkbookQuery",,UNASSESSED,,
@@ -550,8 +562,8 @@ Range,EntireRow,"property, read-only",As Range,,PARTIAL,tests/fixtures/excel_mod
 Range,Errors,"property, read-only",As Errors,,MISSING,,
 Range,ExportAsFixedFormat,method,"ExportAsFixedFormat(Type As XlFixedFormatType, [Filename As Variant], [Quality As Variant], [IncludeDocProperties As Variant], [IgnorePrintAreas As Variant], [From As Variant], [To As Variant], [OpenAfterPublish As Variant], [FixedFormatExtClassPtr As Variant], [WorkIdentity As Variant])",,MISSING,,
 Range,FillDown,method,FillDown() As Variant,,PARTIAL,tests/fixtures/fill.json; tests/fixtures/autofilter_edits.json,"Copies each area's first row over the rest as Copy does; a one-row area fills from the row above. A fill over merged cells reports itself unsupported. On a filtered sheet the first visible row fills every other visible one, and one visible block fills as a range of its own."
-Range,FillLeft,method,FillLeft() As Variant,,PARTIAL,tests/fixtures/fill.json; tests/fixtures/autofilter_edits.json,"Copies each area's last column over the rest as Copy does; a one-column area fills from the column to its right. A fill over merged cells reports itself unsupported. On a filtered sheet each visible block fills on its own."
-Range,FillRight,method,FillRight() As Variant,,PARTIAL,tests/fixtures/fill.json; tests/fixtures/autofilter_edits.json,"Copies each area's first column over the rest as Copy does; a one-column area fills from the column to its left. A fill over merged cells reports itself unsupported. On a filtered sheet each visible block fills on its own."
+Range,FillLeft,method,FillLeft() As Variant,,PARTIAL,tests/fixtures/fill.json; tests/fixtures/autofilter_edits.json,Copies each area's last column over the rest as Copy does; a one-column area fills from the column to its right. A fill over merged cells reports itself unsupported. On a filtered sheet each visible block fills on its own.
+Range,FillRight,method,FillRight() As Variant,,PARTIAL,tests/fixtures/fill.json; tests/fixtures/autofilter_edits.json,Copies each area's first column over the rest as Copy does; a one-column area fills from the column to its left. A fill over merged cells reports itself unsupported. On a filtered sheet each visible block fills on its own.
 Range,FillUp,method,FillUp() As Variant,,PARTIAL,tests/fixtures/fill.json; tests/fixtures/autofilter_edits.json,"Copies each area's last row over the rest as Copy does; a one-row area fills from the row below. A fill over merged cells reports itself unsupported. On a filtered sheet the last visible row fills every other visible one, and one visible block fills as a range of its own."
 Range,Find,method,"Find(What As Variant, [After As Variant], [LookIn As Variant], [LookAt As Variant], [SearchOrder As Variant], [SearchDirection As XlSearchDirection], [MatchCase As Variant], [MatchByte As Variant], [SearchFormat As Variant]) As Range",,PARTIAL,tests/fixtures/range_find.json,"One area only; multi-area, comment and format searches and MatchByte:=True report unsupported."
 Range,FindNext,method,FindNext([After As Variant]) As Range,,PARTIAL,tests/fixtures/range_find.json,"One area only; multi-area, comment and format searches and MatchByte:=True report unsupported."
@@ -1239,7 +1251,7 @@ Worksheet,EnableCalculation,property,As Boolean,,MISSING,,
 Worksheet,EnableFormatConditionsCalculation,property,As Boolean,,MISSING,,
 Worksheet,EnableOutlining,property,As Boolean,,MISSING,,
 Worksheet,EnablePivotTable,property,As Boolean,,MISSING,,
-Worksheet,EnableSelection,property,As XlEnableSelection,,MISSING,,
+Worksheet,EnableSelection,property,As XlEnableSelection,,PARTIAL,tests/fixtures/protection.json,Kept as set; the model has no selection for it to restrict.
 Worksheet,Evaluate,method,Evaluate(Name As Variant) As Variant,,PARTIAL,tests/fixtures/evaluate.json,"As Application.Evaluate, with references on this sheet rather than the active one."
 Worksheet,ExportAsFixedFormat,method,"ExportAsFixedFormat(Type As XlFixedFormatType, [Filename As Variant], [Quality As Variant], [IncludeDocProperties As Variant], [IgnorePrintAreas As Variant], [From As Variant], [To As Variant], [OpenAfterPublish As Variant], [FixedFormatExtClassPtr As Variant], [WorkIdentity As Variant])",,MISSING,,
 Worksheet,FilterMode,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/autofilter.json; tests/fixtures/autofilter_file/autofilter_file.json; tests/test_live_excel_model_gate.py,
@@ -1273,12 +1285,12 @@ Worksheet,Previous,"property, read-only",As Object,,MISSING,,
 Worksheet,PrintedCommentPages,"property, read-only",As Long,,MISSING,,
 Worksheet,PrintOut,method,"PrintOut([From As Variant], [To As Variant], [Copies As Variant], [Preview As Variant], [ActivePrinter As Variant], [PrintToFile As Variant], [Collate As Variant], [PrToFileName As Variant], [IgnorePrintAreas As Variant])",,MISSING,,
 Worksheet,PrintPreview,method,PrintPreview([EnableChanges As Variant]),,MISSING,,
-Worksheet,Protect,method,"Protect([Password As Variant], [DrawingObjects As Variant], [Contents As Variant], [Scenarios As Variant], [UserInterfaceOnly As Variant], [AllowFormattingCells As Variant], [AllowFormattingColumns As Variant], [AllowFormattingRows As Variant], [AllowInsertingColumns As Variant], [AllowInsertingRows As Variant], [AllowInsertingHyperlinks As Variant], [AllowDeletingColumns As Variant], [AllowDeletingRows As Variant], [AllowSorting As Variant], [AllowFiltering As Variant], [AllowUsingPivotTables As Variant])",,MISSING,,
-Worksheet,ProtectContents,"property, read-only",As Boolean,,MISSING,,
-Worksheet,ProtectDrawingObjects,"property, read-only",As Boolean,,MISSING,,
-Worksheet,Protection,"property, read-only",As Protection,,MISSING,,
-Worksheet,ProtectionMode,"property, read-only",As Boolean,,MISSING,,
-Worksheet,ProtectScenarios,"property, read-only",As Boolean,,MISSING,,
+Worksheet,Protect,method,"Protect([Password As Variant], [DrawingObjects As Variant], [Contents As Variant], [Scenarios As Variant], [UserInterfaceOnly As Variant], [AllowFormattingCells As Variant], [AllowFormattingColumns As Variant], [AllowFormattingRows As Variant], [AllowInsertingColumns As Variant], [AllowInsertingRows As Variant], [AllowInsertingHyperlinks As Variant], [AllowDeletingColumns As Variant], [AllowDeletingRows As Variant], [AllowSorting As Variant], [AllowFiltering As Variant], [AllowUsingPivotTables As Variant])",,PARTIAL,tests/fixtures/protection.json,"Contents, DrawingObjects and Scenarios True unless given, the Allow options False; a second Protect changes only what it asks to change, needing the password to, and empties the clipboard. A protected sheet refuses a macro's edits to locked cells, formats and structure with Excel's own errors; UserInterfaceOnly frees macros. Given no password where Excel would ask for one, it reports itself unsupported."
+Worksheet,ProtectContents,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/protection.json,
+Worksheet,ProtectDrawingObjects,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/protection.json,
+Worksheet,Protection,"property, read-only",As Protection,,PARTIAL,tests/fixtures/protection.json,
+Worksheet,ProtectionMode,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/protection.json,True while the sheet is protected for the user interface only.
+Worksheet,ProtectScenarios,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/protection.json,
 Worksheet,QueryTables,"property, read-only",As QueryTables,,MISSING,,
 Worksheet,Range,"property, read-only",As Range,,UNASSESSED,,
 Worksheet,ResetAllPageBreaks,method,ResetAllPageBreaks(),,MISSING,,
@@ -1300,7 +1312,7 @@ Worksheet,TableUpdate,event,TableUpdate(Target As TableObject),,MISSING,,
 Worksheet,TransitionExpEval,property,As Boolean,,MISSING,,
 Worksheet,TransitionFormEntry,property,As Boolean,,MISSING,,
 Worksheet,Type,"property, read-only",As XlSheetType,,UNASSESSED,,
-Worksheet,Unprotect,method,Unprotect([Password As Variant]),,MISSING,,
+Worksheet,Unprotect,method,Unprotect([Password As Variant]),,PARTIAL,tests/fixtures/protection.json,"The password matched case and all, any opening a sheet that has none; given none where Excel would ask in a dialog, it reports itself unsupported."
 Worksheet,UsedRange,"property, read-only",As Range,,PARTIAL,tests/fixtures/excel_model/probes.txt,
 Worksheet,Visible,property,As XlSheetVisibility,,UNASSESSED,,
 Worksheet,VPageBreaks,"property, read-only",As VPageBreaks,,MISSING,,

@@ -1,0 +1,1013 @@
+{
+ "state": "ws.ProtectContents & \",\" & ws.ProtectDrawingObjects & \",\" & ws.ProtectScenarios & \",\" & ws.ProtectionMode & \",\" & TypeName(ws.Range(\"A1\").Value) & \":\" & CStr(ws.Range(\"A1\").Value)",
+ "cases": [
+  {
+   "name": "protect",
+   "setup": "",
+   "action": "ws.Protect",
+   "answer": "E0:;True,True,True,False,Empty:"
+  },
+  {
+   "name": "protect_flags",
+   "setup": "",
+   "action": "ws.Protect: out = out & ws.Protection.AllowFormattingCells & \",\" & ws.Protection.AllowInsertingRows & \",\" & ws.Protection.AllowDeletingRows & \",\" & ws.Protection.AllowSorting & \",\" & ws.Protection.AllowFiltering & \";\"",
+   "answer": "False,False,False,False,False;E0:;True,True,True,False,Empty:"
+  },
+  {
+   "name": "write_locked",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").Value = 1",
+   "answer": "E1004:The cell or chart you're trying to change is on a protected sheet. To make a change, unprotect the sheet. You might be requested to enter a password.;True,True,True,False,Empty:"
+  },
+  {
+   "name": "write_unlocked",
+   "setup": "ws.Range(\"A1\").Locked = False: ws.Protect",
+   "action": "ws.Range(\"A1\").Value = 1",
+   "answer": "E0:;True,True,True,False,Double:1"
+  },
+  {
+   "name": "write_mixed",
+   "setup": "ws.Range(\"A1\").Locked = False: ws.Protect",
+   "action": "ws.Range(\"A1:A2\").Value = 1",
+   "answer": "E1004:The cell or chart you're trying to change is on a protected sheet. To make a change, unprotect the sheet. You might be requested to enter a password.;True,True,True,False,Double:1"
+  },
+  {
+   "name": "write_formula",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").Formula = \"=1+1\"",
+   "answer": "E1004:The cell or chart you're trying to change is on a protected sheet. To make a change, unprotect the sheet. You might be requested to enter a password.;True,True,True,False,Empty:"
+  },
+  {
+   "name": "write_same_value",
+   "setup": "ws.Range(\"A1\").Value = 5: ws.Protect",
+   "action": "ws.Range(\"A1\").Value = 5",
+   "answer": "E1004:The cell or chart you're trying to change is on a protected sheet. To make a change, unprotect the sheet. You might be requested to enter a password.;True,True,True,False,Double:5"
+  },
+  {
+   "name": "clear_contents",
+   "setup": "ws.Range(\"A1\").Value = 5: ws.Protect",
+   "action": "ws.Range(\"A1\").ClearContents",
+   "answer": "E1004:The cell or chart you're trying to change is on a protected sheet. To make a change, unprotect the sheet. You might be requested to enter a password.;True,True,True,False,Double:5"
+  },
+  {
+   "name": "clear",
+   "setup": "ws.Range(\"A1\").Value = 5: ws.Protect",
+   "action": "ws.Range(\"A1\").Clear",
+   "answer": "E1004:The cell or chart you're trying to change is on a protected sheet. To make a change, unprotect the sheet. You might be requested to enter a password.;True,True,True,False,Double:5"
+  },
+  {
+   "name": "clear_unlocked",
+   "setup": "ws.Range(\"A1\").Value = 5: ws.Range(\"A1\").Locked = False: ws.Protect",
+   "action": "ws.Range(\"A1\").ClearContents",
+   "answer": "E0:;True,True,True,False,Empty:"
+  },
+  {
+   "name": "user_interface_only",
+   "setup": "ws.Protect UserInterfaceOnly:=True",
+   "action": "ws.Range(\"A1\").Value = 1",
+   "answer": "E0:;True,True,True,True,Double:1"
+  },
+  {
+   "name": "contents_false",
+   "setup": "ws.Protect Contents:=False",
+   "action": "ws.Range(\"A1\").Value = 1",
+   "answer": "E0:;False,True,True,False,Double:1"
+  },
+  {
+   "name": "drawing_false",
+   "setup": "",
+   "action": "ws.Protect DrawingObjects:=False",
+   "answer": "E0:;True,False,True,False,Empty:"
+  },
+  {
+   "name": "scenarios_false",
+   "setup": "",
+   "action": "ws.Protect Scenarios:=False",
+   "answer": "E0:;True,True,False,False,Empty:"
+  },
+  {
+   "name": "set_locked",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").Locked = False",
+   "answer": "E1004:Unable to set the Locked property of the Range class;True,True,True,False,Empty:"
+  },
+  {
+   "name": "read_locked",
+   "setup": "ws.Protect",
+   "action": "out = out & ws.Range(\"A1\").Locked & \";\"",
+   "answer": "True;E0:;True,True,True,False,Empty:"
+  },
+  {
+   "name": "format_locked",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").Interior.Color = vbRed",
+   "answer": "E1004:Application-defined or object-defined error;True,True,True,False,Empty:"
+  },
+  {
+   "name": "format_allowed",
+   "setup": "ws.Protect AllowFormattingCells:=True",
+   "action": "ws.Range(\"A1\").Interior.Color = vbRed",
+   "answer": "E0:;True,True,True,False,Empty:"
+  },
+  {
+   "name": "number_format",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").NumberFormat = \"0.00\"",
+   "answer": "E1004:Unable to set the NumberFormat property of the Range class;True,True,True,False,Empty:"
+  },
+  {
+   "name": "number_format_allowed",
+   "setup": "ws.Protect AllowFormattingCells:=True",
+   "action": "ws.Range(\"A1\").NumberFormat = \"0.00\"",
+   "answer": "E0:;True,True,True,False,Empty:"
+  },
+  {
+   "name": "font_bold",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").Font.Bold = True",
+   "answer": "E1004:Unable to set the Bold property of the Font class;True,True,True,False,Empty:"
+  },
+  {
+   "name": "format_unlocked",
+   "setup": "ws.Range(\"A1\").Locked = False: ws.Protect",
+   "action": "ws.Range(\"A1\").Interior.Color = vbRed",
+   "answer": "E1004:Application-defined or object-defined error;True,True,True,False,Empty:"
+  },
+  {
+   "name": "column_width",
+   "setup": "ws.Protect",
+   "action": "ws.Columns(1).ColumnWidth = 20",
+   "answer": "E1004:Unable to set the ColumnWidth property of the Range class;True,True,True,False,Empty:"
+  },
+  {
+   "name": "column_width_allowed",
+   "setup": "ws.Protect AllowFormattingColumns:=True",
+   "action": "ws.Columns(1).ColumnWidth = 20",
+   "answer": "E0:;True,True,True,False,Empty:"
+  },
+  {
+   "name": "row_height",
+   "setup": "ws.Protect",
+   "action": "ws.Rows(1).RowHeight = 30",
+   "answer": "E1004:Unable to set the RowHeight property of the Range class;True,True,True,False,Empty:"
+  },
+  {
+   "name": "row_height_allowed",
+   "setup": "ws.Protect AllowFormattingRows:=True",
+   "action": "ws.Rows(1).RowHeight = 30",
+   "answer": "E0:;True,True,True,False,Empty:"
+  },
+  {
+   "name": "insert_row",
+   "setup": "ws.Protect",
+   "action": "ws.Rows(2).Insert",
+   "answer": "E1004:Insert method of Range class failed;True,True,True,False,Empty:"
+  },
+  {
+   "name": "insert_row_allowed",
+   "setup": "ws.Protect AllowInsertingRows:=True",
+   "action": "ws.Rows(2).Insert",
+   "answer": "E0:;True,True,True,False,Empty:"
+  },
+  {
+   "name": "delete_row",
+   "setup": "ws.Protect",
+   "action": "ws.Rows(2).Delete",
+   "answer": "E1004:Delete method of Range class failed;True,True,True,False,Empty:"
+  },
+  {
+   "name": "delete_row_allowed",
+   "setup": "ws.Protect AllowDeletingRows:=True",
+   "action": "ws.Rows(2).Delete",
+   "answer": "E1004:The cell or chart you're trying to change is on a protected sheet. To make a change, unprotect the sheet. You might be requested to enter a password.;True,True,True,False,Empty:"
+  },
+  {
+   "name": "delete_row_allowed_unlocked",
+   "setup": "ws.Rows(2).Locked = False: ws.Protect AllowDeletingRows:=True",
+   "action": "ws.Rows(2).Delete",
+   "answer": "E0:;True,True,True,False,Empty:"
+  },
+  {
+   "name": "insert_column",
+   "setup": "ws.Protect",
+   "action": "ws.Columns(2).Insert",
+   "answer": "E1004:Insert method of Range class failed;True,True,True,False,Empty:"
+  },
+  {
+   "name": "insert_column_allowed",
+   "setup": "ws.Protect AllowInsertingColumns:=True",
+   "action": "ws.Columns(2).Insert",
+   "answer": "E0:;True,True,True,False,Empty:"
+  },
+  {
+   "name": "delete_column_allowed",
+   "setup": "ws.Protect AllowDeletingColumns:=True",
+   "action": "ws.Columns(2).Delete",
+   "answer": "E1004:The cell or chart you're trying to change is on a protected sheet. To make a change, unprotect the sheet. You might be requested to enter a password.;True,True,True,False,Empty:"
+  },
+  {
+   "name": "hide_row",
+   "setup": "ws.Protect",
+   "action": "ws.Rows(3).Hidden = True",
+   "answer": "E1004:Unable to set the Hidden property of the Range class;True,True,True,False,Empty:"
+  },
+  {
+   "name": "hide_row_allowed",
+   "setup": "ws.Protect AllowFormattingRows:=True",
+   "action": "ws.Rows(3).Hidden = True",
+   "answer": "E0:;True,True,True,False,Empty:"
+  },
+  {
+   "name": "merge",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1:B2\").Merge",
+   "answer": "E1004:Application-defined or object-defined error;True,True,True,False,Empty:"
+  },
+  {
+   "name": "copy_into_locked",
+   "setup": "ws.Range(\"A1\").Value = 5: ws.Protect",
+   "action": "ws.Range(\"A1\").Copy ws.Range(\"B1\")",
+   "answer": "E1004:The cell or chart you're trying to change is on a protected sheet. To make a change, unprotect the sheet. You might be requested to enter a password.;True,True,True,False,Double:5"
+  },
+  {
+   "name": "copy_into_unlocked",
+   "setup": "ws.Range(\"A1\").Value = 5: ws.Range(\"B1\").Locked = False: ws.Protect",
+   "action": "ws.Range(\"A1\").Copy ws.Range(\"B1\"): out = out & CStr(ws.Range(\"B1\").Value) & \";\"",
+   "answer": "5;E0:;True,True,True,False,Double:5"
+  },
+  {
+   "name": "read_value",
+   "setup": "ws.Range(\"A1\").Value = 5: ws.Protect",
+   "action": "out = out & CStr(ws.Range(\"A1\").Value) & \";\"",
+   "answer": "5;E0:;True,True,True,False,Double:5"
+  },
+  {
+   "name": "rename",
+   "setup": "ws.Protect",
+   "action": "ws.Name = \"Renamed\" & ws.Index",
+   "answer": "E0:;True,True,True,False,Empty:"
+  },
+  {
+   "name": "password_unprotect",
+   "setup": "ws.Protect \"pw\"",
+   "action": "ws.Unprotect \"pw\"",
+   "answer": "E0:;False,False,False,False,Empty:"
+  },
+  {
+   "name": "password_wrong",
+   "setup": "ws.Protect \"pw\"",
+   "action": "ws.Unprotect \"bad\"",
+   "answer": "E1004:The password you supplied is not correct. Verify that the CAPS LOCK key is off and be sure to use the correct capitalization.;True,True,True,False,Empty:"
+  },
+  {
+   "name": "password_case",
+   "setup": "ws.Protect \"pw\"",
+   "action": "ws.Unprotect \"PW\"",
+   "answer": "E1004:The password you supplied is not correct. Verify that the CAPS LOCK key is off and be sure to use the correct capitalization.;True,True,True,False,Empty:"
+  },
+  {
+   "name": "password_empty",
+   "setup": "ws.Protect \"\"",
+   "action": "ws.Unprotect",
+   "answer": "E0:;False,False,False,False,Empty:"
+  },
+  {
+   "name": "no_password_given_one",
+   "setup": "ws.Protect",
+   "action": "ws.Unprotect \"anything\"",
+   "answer": "E0:;False,False,False,False,Empty:"
+  },
+  {
+   "name": "unprotect_unprotected",
+   "setup": "",
+   "action": "ws.Unprotect",
+   "answer": "E0:;False,False,False,False,Empty:"
+  },
+  {
+   "name": "protect_twice",
+   "setup": "ws.Protect",
+   "action": "ws.Protect",
+   "answer": "E0:;True,True,True,False,Empty:"
+  },
+  {
+   "name": "protect_twice_password",
+   "setup": "ws.Protect \"pw\"",
+   "action": "ws.Protect \"other\"",
+   "answer": "E0:;True,True,True,False,Empty:"
+  },
+  {
+   "name": "protect_twice_same_password",
+   "setup": "ws.Protect \"pw\"",
+   "action": "ws.Protect \"pw\", Contents:=False",
+   "answer": "E0:;False,True,True,False,Empty:"
+  },
+  {
+   "name": "protect_again_changes",
+   "setup": "ws.Protect",
+   "action": "ws.Protect Contents:=False",
+   "answer": "E0:;False,True,True,False,Empty:"
+  },
+  {
+   "name": "unlocked_after_unprotect",
+   "setup": "ws.Protect \"pw\": ws.Unprotect \"pw\"",
+   "action": "ws.Range(\"A1\").Value = 1",
+   "answer": "E0:;False,False,False,False,Double:1"
+  },
+  {
+   "name": "select_locked",
+   "setup": "ws.Protect",
+   "action": "ws.Activate: ws.Range(\"A1\").Select",
+   "answer": "E0:;True,True,True,False,Empty:"
+  },
+  {
+   "name": "enable_selection",
+   "setup": "ws.Protect",
+   "action": "out = out & ws.EnableSelection & \";\"",
+   "answer": "0;E0:;True,True,True,False,Empty:"
+  },
+  {
+   "name": "write_mixed_reverse",
+   "setup": "ws.Range(\"A2\").Locked = False: ws.Protect",
+   "action": "ws.Range(\"A1:A2\").Value = 1: out = out & CStr(ws.Range(\"A2\").Value) & \";\"",
+   "answer": "1;E1004:The cell or chart you're trying to change is on a protected sheet. To make a change, unprotect the sheet. You might be requested to enter a password.;True,True,True,False,Empty:"
+  },
+  {
+   "name": "write_mixed_across",
+   "setup": "ws.Range(\"A1,C1\").Locked = False: ws.Protect",
+   "action": "ws.Range(\"A1:C1\").Value = 7: out = out & CStr(ws.Range(\"B1\").Value) & \",\" & CStr(ws.Range(\"C1\").Value) & \";\"",
+   "answer": ",7;E1004:The cell or chart you're trying to change is on a protected sheet. To make a change, unprotect the sheet. You might be requested to enter a password.;True,True,True,False,Double:7"
+  },
+  {
+   "name": "write_array_mixed",
+   "setup": "ws.Range(\"A1\").Locked = False: ws.Range(\"B1\").Locked = False: ws.Protect",
+   "action": "ws.Range(\"A1:C1\").Value = Array(1, 2, 3): out = out & CStr(ws.Range(\"B1\").Value) & \";\"",
+   "answer": "2;E1004:The cell or chart you're trying to change is on a protected sheet. To make a change, unprotect the sheet. You might be requested to enter a password.;True,True,True,False,Double:1"
+  },
+  {
+   "name": "protect_other_password_options",
+   "setup": "ws.Protect \"pw\"",
+   "action": "ws.Protect \"other\", Contents:=False",
+   "answer": "E1004:The password you supplied is not correct. Verify that the CAPS LOCK key is off and be sure to use the correct capitalization.;True,True,True,False,Empty:"
+  },
+  {
+   "name": "protect_other_password_keeps",
+   "setup": "ws.Protect \"pw\": ws.Protect \"other\"",
+   "action": "ws.Unprotect \"pw\"",
+   "answer": "E0:;False,False,False,False,Empty:"
+  },
+  {
+   "name": "protect_other_password_new",
+   "setup": "ws.Protect \"pw\": ws.Protect \"other\"",
+   "action": "ws.Unprotect \"other\"",
+   "answer": "E1004:The password you supplied is not correct. Verify that the CAPS LOCK key is off and be sure to use the correct capitalization.;True,True,True,False,Empty:"
+  },
+  {
+   "name": "protect_no_password_then_one",
+   "setup": "ws.Protect: ws.Protect \"pw\"",
+   "action": "ws.Unprotect",
+   "answer": "E0:;False,False,False,False,Empty:"
+  },
+  {
+   "name": "user_interface_then_plain",
+   "setup": "ws.Protect UserInterfaceOnly:=True: ws.Protect",
+   "action": "ws.Range(\"A1\").Value = 1",
+   "answer": "E0:;True,True,True,True,Double:1"
+  },
+  {
+   "name": "user_interface_format",
+   "setup": "ws.Protect UserInterfaceOnly:=True",
+   "action": "ws.Range(\"A1\").Interior.Color = vbRed",
+   "answer": "E0:;True,True,True,True,Empty:"
+  },
+  {
+   "name": "interior_pattern",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").Interior.Pattern = xlSolid",
+   "answer": "E1004:Application-defined or object-defined error;True,True,True,False,Empty:"
+  },
+  {
+   "name": "interior_color_index",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").Interior.ColorIndex = 3",
+   "answer": "E1004:Application-defined or object-defined error;True,True,True,False,Empty:"
+  },
+  {
+   "name": "font_size",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").Font.Size = 20",
+   "answer": "E1004:Unable to set the Size property of the Font class;True,True,True,False,Empty:"
+  },
+  {
+   "name": "font_color",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").Font.Color = vbRed",
+   "answer": "E1004:Application-defined or object-defined error;True,True,True,False,Empty:"
+  },
+  {
+   "name": "font_name",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").Font.Name = \"Arial\"",
+   "answer": "E1004:Unable to set the Name property of the Font class;True,True,True,False,Empty:"
+  },
+  {
+   "name": "horizontal_alignment",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").HorizontalAlignment = xlCenter",
+   "answer": "E1004:Unable to set the HorizontalAlignment property of the Range class;True,True,True,False,Empty:"
+  },
+  {
+   "name": "wrap_text",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").WrapText = True",
+   "answer": "E1004:Unable to set the WrapText property of the Range class;True,True,True,False,Empty:"
+  },
+  {
+   "name": "border_line",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").Borders.LineStyle = xlContinuous",
+   "answer": "E1004:Unable to set the LineStyle property of the Borders class;True,True,True,False,Empty:"
+  },
+  {
+   "name": "border_weight",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").Borders(xlEdgeTop).Weight = xlThick",
+   "answer": "E1004:Unable to set the Weight property of the Border class;True,True,True,False,Empty:"
+  },
+  {
+   "name": "indent",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").IndentLevel = 2",
+   "answer": "E1004:Unable to set the IndentLevel property of the Range class;True,True,True,False,Empty:"
+  },
+  {
+   "name": "formula_hidden",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").FormulaHidden = True",
+   "answer": "E1004:Unable to set the FormulaHidden property of the Range class;True,True,True,False,Empty:"
+  },
+  {
+   "name": "clear_formats",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").ClearFormats",
+   "answer": "E1004:The cell or chart you're trying to change is on a protected sheet. To make a change, unprotect the sheet. You might be requested to enter a password.;True,True,True,False,Empty:"
+  },
+  {
+   "name": "sort",
+   "setup": "ws.Range(\"A1:A3\").Value = Application.Transpose(Array(3, 1, 2)): ws.Protect",
+   "action": "ws.Range(\"A1:A3\").Sort Key1:=ws.Range(\"A1\"), Header:=xlNo",
+   "answer": "E1004:Sort method of Range class failed;True,True,True,False,Double:3"
+  },
+  {
+   "name": "autofilter",
+   "setup": "ws.Range(\"A1:A3\").Value = Application.Transpose(Array(\"h\", 1, 2)): ws.Protect",
+   "action": "ws.Range(\"A1:A3\").AutoFilter Field:=1, Criteria1:=\"1\"",
+   "answer": "E1004:You cannot use this command on a protected sheet. To use this command, you must first unprotect the sheet (Review tab, Protect group, Unprotect Sheet button). You may be prompted for a password.;True,True,True,False,String:h"
+  },
+  {
+   "name": "insert_cells",
+   "setup": "ws.Protect AllowInsertingRows:=True",
+   "action": "ws.Range(\"A2\").Insert Shift:=xlDown",
+   "answer": "E1004:Insert method of Range class failed;True,True,True,False,Empty:"
+  },
+  {
+   "name": "protect_options_new_password",
+   "setup": "ws.Protect",
+   "action": "ws.Protect \"pw\", Contents:=False: ws.Unprotect \"bad\"",
+   "answer": "E1004:The password you supplied is not correct. Verify that the CAPS LOCK key is off and be sure to use the correct capitalization.;False,True,True,False,Empty:"
+  },
+  {
+   "name": "protect_options_new_password_opens",
+   "setup": "ws.Protect",
+   "action": "ws.Protect \"pw\", Contents:=False: ws.Unprotect \"pw\"",
+   "answer": "E0:;False,False,False,False,Empty:"
+  },
+  {
+   "name": "protect_user_interface_again",
+   "setup": "ws.Protect \"pw\"",
+   "action": "ws.Protect \"pw\", UserInterfaceOnly:=True: ws.Range(\"A1\").Value = 1",
+   "answer": "E0:;True,True,True,True,Double:1"
+  },
+  {
+   "name": "protect_user_interface_wrong",
+   "setup": "ws.Protect \"pw\"",
+   "action": "ws.Protect \"bad\", UserInterfaceOnly:=True",
+   "answer": "E1004:The password you supplied is not correct. Verify that the CAPS LOCK key is off and be sure to use the correct capitalization.;True,True,True,False,Empty:"
+  },
+  {
+   "name": "protect_same_option_other_password",
+   "setup": "ws.Protect \"pw\"",
+   "action": "ws.Protect \"other\", Contents:=True",
+   "answer": "E0:;True,True,True,False,Empty:"
+  },
+  {
+   "name": "protect_allow_then_plain",
+   "setup": "ws.Protect AllowFormattingCells:=True",
+   "action": "ws.Protect: out = out & ws.Protection.AllowFormattingCells & \";\"",
+   "answer": "False;E0:;True,True,True,False,Empty:"
+  },
+  {
+   "name": "delete_cells",
+   "setup": "ws.Range(\"A2\").Locked = False: ws.Protect",
+   "action": "ws.Range(\"A2\").Delete Shift:=xlUp",
+   "answer": "E1004:Delete method of Range class failed;True,True,True,False,Empty:"
+  },
+  {
+   "name": "unmerge",
+   "setup": "ws.Range(\"A1:B1\").Merge: ws.Protect",
+   "action": "ws.Range(\"A1:B1\").UnMerge",
+   "answer": "E1004:Application-defined or object-defined error;True,True,True,False,Empty:"
+  },
+  {
+   "name": "replace",
+   "setup": "ws.Range(\"A1\").Value = \"abc\": ws.Protect",
+   "action": "ws.Range(\"A1\").Replace \"b\", \"x\", LookAt:=xlPart",
+   "answer": "E0:;True,True,True,False,String:abc"
+  },
+  {
+   "name": "replace_unlocked",
+   "setup": "ws.Range(\"A1\").Value = \"abc\": ws.Range(\"A1\").Locked = False: ws.Protect",
+   "action": "ws.Range(\"A1\").Replace \"b\", \"x\", LookAt:=xlPart: out = out & ws.Range(\"A1\").Value & \";\"",
+   "answer": "abc;E0:;True,True,True,False,String:abc"
+  },
+  {
+   "name": "replace_unprotected",
+   "setup": "ws.Range(\"A1\").Value = \"abc\"",
+   "action": "ws.Range(\"A1\").Replace \"b\", \"x\", LookAt:=xlPart: out = out & ws.Range(\"A1\").Value & \";\"",
+   "answer": "axc;E0:;False,False,False,False,String:axc"
+  },
+  {
+   "name": "fill_down",
+   "setup": "ws.Range(\"A1\").Value = 1: ws.Protect",
+   "action": "ws.Range(\"A1:A3\").FillDown",
+   "answer": "E1004:The cell or chart you're trying to change is on a protected sheet. To make a change, unprotect the sheet. You might be requested to enter a password.;True,True,True,False,Double:1"
+  },
+  {
+   "name": "autofill",
+   "setup": "ws.Range(\"A1\").Value = 1: ws.Protect",
+   "action": "ws.Range(\"A1\").AutoFill ws.Range(\"A1:A3\")",
+   "answer": "E1004:The cell or chart you're trying to change is on a protected sheet. To make a change, unprotect the sheet. You might be requested to enter a password.;True,True,True,False,Double:1"
+  },
+  {
+   "name": "paste_special",
+   "setup": "ws.Range(\"A1\").Value = 1: ws.Range(\"A1\").Copy: ws.Protect",
+   "action": "ws.Range(\"B1\").PasteSpecial xlPasteValues",
+   "answer": "E1004:PasteSpecial method of Range class failed;True,True,True,False,Double:1"
+  },
+  {
+   "name": "remove_duplicates",
+   "setup": "ws.Range(\"A1:A3\").Value = 1: ws.Protect",
+   "action": "ws.Range(\"A1:A3\").RemoveDuplicates 1",
+   "answer": "E1004:Application-defined or object-defined error;True,True,True,False,Double:1"
+  },
+  {
+   "name": "sort_allowed_unlocked",
+   "setup": "ws.Range(\"A1:A3\").Value = Application.Transpose(Array(3, 1, 2)): ws.Range(\"A1:A3\").Locked = False: ws.Protect AllowSorting:=True",
+   "action": "ws.Range(\"A1:A3\").Sort Key1:=ws.Range(\"A1\"), Header:=xlNo",
+   "answer": "E0:;True,True,True,False,Double:1"
+  },
+  {
+   "name": "autofilter_allowed",
+   "setup": "ws.Range(\"A1:A3\").Value = Application.Transpose(Array(\"h\", 1, 2)): ws.Range(\"A1:A3\").AutoFilter: ws.Protect AllowFiltering:=True",
+   "action": "ws.Range(\"A1:A3\").AutoFilter Field:=1, Criteria1:=\"1\"",
+   "answer": "E1004:You cannot use this command on a protected sheet. To use this command, you must first unprotect the sheet (Review tab, Protect group, Unprotect Sheet button). You may be prompted for a password.;True,True,True,False,String:h"
+  },
+  {
+   "name": "clear_contents_mixed",
+   "setup": "ws.Range(\"A1:A2\").Value = 5: ws.Range(\"A1\").Locked = False: ws.Protect",
+   "action": "ws.Range(\"A1:A2\").ClearContents: out = out & CStr(ws.Range(\"A2\").Value) & \";\"",
+   "answer": "5;E1004:The cell or chart you're trying to change is on a protected sheet. To make a change, unprotect the sheet. You might be requested to enter a password.;True,True,True,False,Double:5"
+  },
+  {
+   "name": "clear_mixed",
+   "setup": "ws.Range(\"A1:A2\").Value = 5: ws.Range(\"A1\").Locked = False: ws.Protect",
+   "action": "ws.Range(\"A1:A2\").Clear: out = out & CStr(ws.Range(\"A2\").Value) & \";\"",
+   "answer": "5;E1004:The cell or chart you're trying to change is on a protected sheet. To make a change, unprotect the sheet. You might be requested to enter a password.;True,True,True,False,Double:5"
+  },
+  {
+   "name": "clear_unlocked_locks",
+   "setup": "ws.Range(\"A1\").Value = 5: ws.Range(\"A1\").Locked = False: ws.Protect",
+   "action": "ws.Range(\"A1\").Clear: out = out & ws.Range(\"A1\").Locked & \";\"",
+   "answer": "False;E0:;True,True,True,False,Empty:"
+  },
+  {
+   "name": "clear_formats_unlocked",
+   "setup": "ws.Range(\"A1\").Locked = False: ws.Protect",
+   "action": "ws.Range(\"A1\").ClearFormats: out = out & ws.Range(\"A1\").Locked & \";\"",
+   "answer": "True;E0:;True,True,True,False,Empty:"
+  },
+  {
+   "name": "border_around",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").BorderAround xlContinuous",
+   "answer": "E1004:BorderAround method of Range class failed;True,True,True,False,Empty:"
+  },
+  {
+   "name": "cut_locked_source",
+   "setup": "ws.Range(\"A1\").Value = 5: ws.Range(\"B1\").Locked = False: ws.Protect",
+   "action": "ws.Range(\"A1\").Cut ws.Range(\"B1\")",
+   "answer": "E1004:The cell or chart you're trying to change is on a protected sheet. To make a change, unprotect the sheet. You might be requested to enter a password.;True,True,True,False,Double:5"
+  },
+  {
+   "name": "cut_unlocked",
+   "setup": "ws.Range(\"A1\").Value = 5: ws.Range(\"A1:B1\").Locked = False: ws.Protect",
+   "action": "ws.Range(\"A1\").Cut ws.Range(\"B1\"): out = out & CStr(ws.Range(\"B1\").Value) & \";\"",
+   "answer": "5;E0:;True,True,True,False,Empty:"
+  },
+  {
+   "name": "paste_special_unlocked",
+   "setup": "ws.Range(\"A1\").Value = 1: ws.Range(\"B1\").Locked = False: ws.Protect: ws.Range(\"A1\").Copy",
+   "action": "ws.Range(\"B1\").PasteSpecial xlPasteValues: out = out & CStr(ws.Range(\"B1\").Value) & \";\"",
+   "answer": "1;E0:;True,True,True,False,Double:1"
+  },
+  {
+   "name": "paste_special_copied_after",
+   "setup": "ws.Range(\"A1\").Value = 1: ws.Protect: ws.Range(\"A1\").Copy",
+   "action": "ws.Range(\"B1\").PasteSpecial xlPasteValues",
+   "answer": "E1004:The cell or chart you're trying to change is on a protected sheet. To make a change, unprotect the sheet. You might be requested to enter a password.;True,True,True,False,Double:1"
+  },
+  {
+   "name": "fill_right",
+   "setup": "ws.Range(\"A1\").Value = 1: ws.Protect",
+   "action": "ws.Range(\"A1:C1\").FillRight",
+   "answer": "E1004:The cell or chart you're trying to change is on a protected sheet. To make a change, unprotect the sheet. You might be requested to enter a password.;True,True,True,False,Double:1"
+  },
+  {
+   "name": "fill_down_unlocked",
+   "setup": "ws.Range(\"A1\").Value = 1: ws.Range(\"A2:A3\").Locked = False: ws.Protect",
+   "action": "ws.Range(\"A1:A3\").FillDown: out = out & CStr(ws.Range(\"A3\").Value) & \";\"",
+   "answer": "1;E0:;True,True,True,False,Double:1"
+  },
+  {
+   "name": "replace_returns",
+   "setup": "ws.Range(\"A1\").Value = \"abc\": ws.Protect",
+   "action": "out = out & ws.Range(\"A1\").Replace(\"b\", \"x\", LookAt:=xlPart) & \";\"",
+   "answer": "True;E0:;True,True,True,False,String:abc"
+  },
+  {
+   "name": "autofit",
+   "setup": "ws.Range(\"A1\").Value = \"a long text here\": ws.Protect",
+   "action": "ws.Columns(1).AutoFit",
+   "answer": "E1004:AutoFit method of Range class failed;True,True,True,False,String:a long text here"
+  },
+  {
+   "name": "autofit_allowed",
+   "setup": "ws.Range(\"A1\").Value = \"a long text here\": ws.Protect AllowFormattingColumns:=True",
+   "action": "ws.Columns(1).AutoFit",
+   "answer": "E0:;True,True,True,False,String:a long text here"
+  },
+  {
+   "name": "show_all_data",
+   "setup": "ws.Range(\"A1:A3\").Value = Application.Transpose(Array(\"h\", 1, 2)): ws.Range(\"A1:A3\").AutoFilter 1, \"1\": ws.Protect",
+   "action": "ws.ShowAllData",
+   "answer": "E1004:ShowAllData method of Worksheet class failed;True,True,True,False,String:h"
+  },
+  {
+   "name": "worksheet_paste",
+   "setup": "ws.Range(\"A1\").Value = 1: ws.Protect: ws.Range(\"A1\").Copy",
+   "action": "ws.Paste ws.Range(\"B1\")",
+   "answer": "E1004:The cell or chart you're trying to change is on a protected sheet. To make a change, unprotect the sheet. You might be requested to enter a password.;True,True,True,False,Double:1"
+  },
+  {
+   "name": "copy_sheet",
+   "setup": "ws.Protect",
+   "action": "ws.Copy After:=ws: out = out & wb.Worksheets(ws.Index + 1).ProtectContents & \";\"",
+   "answer": "True;E0:;True,True,True,False,Empty:"
+  },
+  {
+   "name": "range_name",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").Name = \"Here\" & ws.Index",
+   "answer": "E0:;True,True,True,False,Empty:"
+  },
+  {
+   "name": "merge_cells_property",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1:B1\").MergeCells = True",
+   "answer": "E1004:Unable to set the MergeCells property of the Range class;True,True,True,False,Empty:"
+  },
+  {
+   "name": "locked_allowed",
+   "setup": "ws.Protect AllowFormattingCells:=True",
+   "action": "ws.Range(\"A1\").Locked = False",
+   "answer": "E1004:Unable to set the Locked property of the Range class;True,True,True,False,Empty:"
+  },
+  {
+   "name": "hide_column",
+   "setup": "ws.Protect",
+   "action": "ws.Columns(2).Hidden = True",
+   "answer": "E1004:Unable to set the Hidden property of the Range class;True,True,True,False,Empty:"
+  },
+  {
+   "name": "hide_column_allowed",
+   "setup": "ws.Protect AllowFormattingColumns:=True",
+   "action": "ws.Columns(2).Hidden = True",
+   "answer": "E0:;True,True,True,False,Empty:"
+  },
+  {
+   "name": "use_standard_height",
+   "setup": "ws.Protect",
+   "action": "ws.Rows(1).UseStandardHeight = True",
+   "answer": "E1004:Unable to set the UseStandardHeight property of the Range class;True,True,True,False,Empty:"
+  },
+  {
+   "name": "use_standard_width",
+   "setup": "ws.Protect",
+   "action": "ws.Columns(1).UseStandardWidth = True",
+   "answer": "E1004:Unable to set the UseStandardWidth property of the Range class;True,True,True,False,Empty:"
+  },
+  {
+   "name": "add_indent",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").AddIndent = True",
+   "answer": "E1004:Unable to set the AddIndent property of the Range class;True,True,True,False,Empty:"
+  },
+  {
+   "name": "reading_order",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").ReadingOrder = xlRTL",
+   "answer": "E1004:Unable to set the ReadingOrder property of the Range class;True,True,True,False,Empty:"
+  },
+  {
+   "name": "formula_r1c1",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").FormulaR1C1 = \"=1\"",
+   "answer": "E1004:The cell or chart you're trying to change is on a protected sheet. To make a change, unprotect the sheet. You might be requested to enter a password.;True,True,True,False,Empty:"
+  },
+  {
+   "name": "value2",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").Value2 = 1",
+   "answer": "E1004:The cell or chart you're trying to change is on a protected sheet. To make a change, unprotect the sheet. You might be requested to enter a password.;True,True,True,False,Empty:"
+  },
+  {
+   "name": "sort_object",
+   "setup": "ws.Range(\"A1:A3\").Value = Application.Transpose(Array(3, 1, 2)): ws.Protect",
+   "action": "ws.Sort.SortFields.Clear: ws.Sort.SortFields.Add ws.Range(\"A1\"): ws.Sort.SetRange ws.Range(\"A1:A3\"): ws.Sort.Apply",
+   "answer": "E0:;True,True,True,False,Double:1"
+  },
+  {
+   "name": "add_shape",
+   "setup": "ws.Protect",
+   "action": "ws.Shapes.AddShape 1, 10, 10, 50, 50",
+   "answer": "E1004:The specified value is out of range.;True,True,True,False,Empty:"
+  },
+  {
+   "name": "add_shape_drawing_false",
+   "setup": "ws.Protect DrawingObjects:=False",
+   "action": "ws.Shapes.AddShape 1, 10, 10, 50, 50",
+   "answer": "E0:;True,False,True,False,Empty:"
+  },
+  {
+   "name": "delete_sheet",
+   "setup": "ws.Protect",
+   "action": "ws.Delete",
+   "answer": "E0:;"
+  },
+  {
+   "name": "allow_after_unprotect",
+   "setup": "ws.Protect AllowFormattingCells:=True, AllowSorting:=True: ws.Unprotect",
+   "action": "out = out & ws.Protection.AllowFormattingCells & \",\" & ws.Protection.AllowSorting & \";\"",
+   "answer": "True,True;E0:;False,False,False,False,Empty:"
+  },
+  {
+   "name": "enable_selection_set",
+   "setup": "",
+   "action": "ws.EnableSelection = xlUnlockedCells: out = out & ws.EnableSelection & \";\"",
+   "answer": "1;E0:;False,False,False,False,Empty:"
+  },
+  {
+   "name": "format NumberFormat",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").NumberFormat = \"0.00\"",
+   "answer": "E1004:Unable to set the NumberFormat property of the Range class;True,True,True,False,Empty:"
+  },
+  {
+   "name": "format HorizontalAlignment",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").HorizontalAlignment = xlRight",
+   "answer": "E1004:Unable to set the HorizontalAlignment property of the Range class;True,True,True,False,Empty:"
+  },
+  {
+   "name": "format VerticalAlignment",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").VerticalAlignment = xlTop",
+   "answer": "E1004:Unable to set the VerticalAlignment property of the Range class;True,True,True,False,Empty:"
+  },
+  {
+   "name": "format WrapText",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").WrapText = True",
+   "answer": "E1004:Unable to set the WrapText property of the Range class;True,True,True,False,Empty:"
+  },
+  {
+   "name": "format Orientation",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").Orientation = 45",
+   "answer": "E1004:Unable to set the Orientation property of the Range class;True,True,True,False,Empty:"
+  },
+  {
+   "name": "format IndentLevel",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").IndentLevel = 1",
+   "answer": "E1004:Unable to set the IndentLevel property of the Range class;True,True,True,False,Empty:"
+  },
+  {
+   "name": "format ShrinkToFit",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").ShrinkToFit = True",
+   "answer": "E1004:Unable to set the ShrinkToFit property of the Range class;True,True,True,False,Empty:"
+  },
+  {
+   "name": "format Locked",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").Locked = False",
+   "answer": "E1004:Unable to set the Locked property of the Range class;True,True,True,False,Empty:"
+  },
+  {
+   "name": "format FormulaHidden",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").FormulaHidden = True",
+   "answer": "E1004:Unable to set the FormulaHidden property of the Range class;True,True,True,False,Empty:"
+  },
+  {
+   "name": "format Font.Name",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").Font.Name = \"Arial\"",
+   "answer": "E1004:Unable to set the Name property of the Font class;True,True,True,False,Empty:"
+  },
+  {
+   "name": "format Font.Size",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").Font.Size = 14",
+   "answer": "E1004:Unable to set the Size property of the Font class;True,True,True,False,Empty:"
+  },
+  {
+   "name": "format Font.Bold",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").Font.Bold = True",
+   "answer": "E1004:Unable to set the Bold property of the Font class;True,True,True,False,Empty:"
+  },
+  {
+   "name": "format Font.Italic",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").Font.Italic = True",
+   "answer": "E1004:Unable to set the Italic property of the Font class;True,True,True,False,Empty:"
+  },
+  {
+   "name": "format Font.Underline",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").Font.Underline = xlUnderlineStyleSingle",
+   "answer": "E1004:Unable to set the Underline property of the Font class;True,True,True,False,Empty:"
+  },
+  {
+   "name": "format Font.Strikethrough",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").Font.Strikethrough = True",
+   "answer": "E1004:Unable to set the Strikethrough property of the Font class;True,True,True,False,Empty:"
+  },
+  {
+   "name": "format Font.Color",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").Font.Color = vbRed",
+   "answer": "E1004:Application-defined or object-defined error;True,True,True,False,Empty:"
+  },
+  {
+   "name": "format Font.ColorIndex",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").Font.ColorIndex = 3",
+   "answer": "E1004:Application-defined or object-defined error;True,True,True,False,Empty:"
+  },
+  {
+   "name": "format Font.ThemeColor",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").Font.ThemeColor = xlThemeColorAccent1",
+   "answer": "E1004:Application-defined or object-defined error;True,True,True,False,Empty:"
+  },
+  {
+   "name": "format Font.TintAndShade",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").Font.TintAndShade = 0.5",
+   "answer": "E1004:Application-defined or object-defined error;True,True,True,False,Empty:"
+  },
+  {
+   "name": "format Font.Superscript",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").Font.Superscript = True",
+   "answer": "E1004:Unable to set the Superscript property of the Font class;True,True,True,False,Empty:"
+  },
+  {
+   "name": "format Font.Subscript",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").Font.Subscript = True",
+   "answer": "E1004:Unable to set the Subscript property of the Font class;True,True,True,False,Empty:"
+  },
+  {
+   "name": "format Font.FontStyle",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").Font.FontStyle = \"Bold\"",
+   "answer": "E1004:Unable to set the FontStyle property of the Font class;True,True,True,False,Empty:"
+  },
+  {
+   "name": "format Interior.Color",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").Interior.Color = vbRed",
+   "answer": "E1004:Application-defined or object-defined error;True,True,True,False,Empty:"
+  },
+  {
+   "name": "format Interior.ColorIndex",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").Interior.ColorIndex = 3",
+   "answer": "E1004:Application-defined or object-defined error;True,True,True,False,Empty:"
+  },
+  {
+   "name": "format Interior.Pattern",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").Interior.Pattern = xlGray50",
+   "answer": "E1004:Application-defined or object-defined error;True,True,True,False,Empty:"
+  },
+  {
+   "name": "format Interior.PatternColor",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").Interior.PatternColor = vbBlue",
+   "answer": "E1004:Application-defined or object-defined error;True,True,True,False,Empty:"
+  },
+  {
+   "name": "format Interior.PatternColorIndex",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").Interior.PatternColorIndex = 5",
+   "answer": "E1004:Application-defined or object-defined error;True,True,True,False,Empty:"
+  },
+  {
+   "name": "format Interior.ThemeColor",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").Interior.ThemeColor = xlThemeColorAccent1",
+   "answer": "E1004:Application-defined or object-defined error;True,True,True,False,Empty:"
+  },
+  {
+   "name": "format Interior.TintAndShade",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").Interior.TintAndShade = 0.5",
+   "answer": "E1004:Application-defined or object-defined error;True,True,True,False,Empty:"
+  },
+  {
+   "name": "format Borders.LineStyle",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").Borders.LineStyle = xlContinuous",
+   "answer": "E1004:Unable to set the LineStyle property of the Borders class;True,True,True,False,Empty:"
+  },
+  {
+   "name": "format Borders.Weight",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").Borders.Weight = xlThick",
+   "answer": "E1004:Unable to set the Weight property of the Borders class;True,True,True,False,Empty:"
+  },
+  {
+   "name": "format Borders.Color",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").Borders.Color = vbRed",
+   "answer": "E1004:Application-defined or object-defined error;True,True,True,False,Empty:"
+  },
+  {
+   "name": "format Borders.ColorIndex",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").Borders.ColorIndex = 3",
+   "answer": "E1004:Application-defined or object-defined error;True,True,True,False,Empty:"
+  },
+  {
+   "name": "format Borders(xlEdgeLeft).LineStyle",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").Borders(xlEdgeLeft).LineStyle = xlContinuous",
+   "answer": "E1004:Unable to set the LineStyle property of the Border class;True,True,True,False,Empty:"
+  },
+  {
+   "name": "format Borders(xlEdgeLeft).Weight",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").Borders(xlEdgeLeft).Weight = xlThick",
+   "answer": "E1004:Unable to set the Weight property of the Border class;True,True,True,False,Empty:"
+  },
+  {
+   "name": "format Borders(xlEdgeLeft).Color",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").Borders(xlEdgeLeft).Color = vbRed",
+   "answer": "E1004:Application-defined or object-defined error;True,True,True,False,Empty:"
+  },
+  {
+   "name": "format Borders(xlEdgeLeft).ColorIndex",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").Borders(xlEdgeLeft).ColorIndex = 3",
+   "answer": "E1004:Application-defined or object-defined error;True,True,True,False,Empty:"
+  },
+  {
+   "name": "format Borders(xlEdgeLeft).ThemeColor",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").Borders(xlEdgeLeft).ThemeColor = xlThemeColorAccent1",
+   "answer": "E1004:Application-defined or object-defined error;True,True,True,False,Empty:"
+  },
+  {
+   "name": "format Borders(xlEdgeLeft).TintAndShade",
+   "setup": "ws.Protect",
+   "action": "ws.Range(\"A1\").Borders(xlEdgeLeft).TintAndShade = 0.5",
+   "answer": "E1004:Application-defined or object-defined error;True,True,True,False,Empty:"
+  }
+ ]
+}

@@ -15,7 +15,7 @@ Font, Interior, Borders, alignment -- lives in
 
 from __future__ import annotations
 
-from collections.abc import Callable, Iterator
+from collections.abc import Callable, Iterator, Sequence
 from dataclasses import dataclass, replace
 from decimal import Decimal
 from pathlib import Path
@@ -50,6 +50,7 @@ from pyopenvba.interpreter._values import (
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._autofilter import SheetFilter
+    from pyopenvba.apps.excel._protection import Gate, SheetProtection
     from pyopenvba.apps.excel._clipboard import Clip
     from pyopenvba.apps.excel._sort import SortState
     from pyopenvba.apps.excel._styles import Style, Stylesheet
@@ -77,6 +78,15 @@ class ExcelObject(VBAObject):
     def vba_default_member(self) -> MemberSpec | None:
         self._check_alive()
         return super().vba_default_member()
+
+    def vba_set(self, name: str, value: object, args: Sequence[object] = (), named: dict[str, object] | None = None,
+                *, by_ref: bool = False) -> None:
+        spec = self.vba_member(name)
+        self.guard_set(spec.name if spec is not None else name)
+        super().vba_set(name, value, args, named, by_ref=by_ref)
+
+    def guard_set(self, member: str) -> None:
+        """Refuse a property a protected sheet does not let a macro set: the classes of cells say which."""
 
 
 # --- what a cell holds ---------------------------------------------------------------
@@ -736,6 +746,14 @@ class Worksheet(ExcelObject):
         self.auto_filter: SheetFilter | None = None
         #: True once the filter is made, changed or removed, so a save writes it again.
         self.filter_changed = False
+        #: What Protect set, or None while the sheet is not protected (see _protection).
+        self.protection: SheetProtection | None = None
+        #: The Allow options the last Protect gave, which Unprotect leaves in place.
+        self.protection_allows: frozenset[str] = frozenset()
+        #: EnableSelection: xlNoRestrictions, 0, until a macro sets it.
+        self.enable_selection = 0
+        #: The write in progress on the protected sheet, which passes over its locked cells.
+        self.write_gate: Gate | None = None
         self.active_cell_range: Range | None = None
         #: What the sheet's XML part was called in the file it came from.
         self.part_name = ""
@@ -994,7 +1012,9 @@ class Worksheet(ExcelObject):
     @method
     def ShowAllData(self) -> object:
         from pyopenvba.apps.excel._autofilter import show_all_data
+        from pyopenvba.apps.excel._protection import refuse
 
+        refuse(self, "ShowAllData method of Worksheet class failed")
         show_all_data(self)
         return EMPTY
 
@@ -1045,6 +1065,67 @@ class Worksheet(ExcelObject):
         from pyopenvba.apps.excel._evaluate import evaluated
 
         return evaluated(self, to_text(Name))
+
+    # -- protection (see _protection)
+
+    @method
+    def Protect(self, Password: object = MISSING, DrawingObjects: object = MISSING, Contents: object = MISSING,
+                Scenarios: object = MISSING, UserInterfaceOnly: object = MISSING,
+                AllowFormattingCells: object = MISSING, AllowFormattingColumns: object = MISSING,
+                AllowFormattingRows: object = MISSING, AllowInsertingColumns: object = MISSING,
+                AllowInsertingRows: object = MISSING, AllowInsertingHyperlinks: object = MISSING,
+                AllowDeletingColumns: object = MISSING, AllowDeletingRows: object = MISSING,
+                AllowSorting: object = MISSING, AllowFiltering: object = MISSING,
+                AllowUsingPivotTables: object = MISSING) -> object:
+        from pyopenvba.apps.excel._protection import protect
+
+        options = {"DrawingObjects": DrawingObjects, "Contents": Contents, "Scenarios": Scenarios,
+                   "UserInterfaceOnly": UserInterfaceOnly, "AllowFormattingCells": AllowFormattingCells,
+                   "AllowFormattingColumns": AllowFormattingColumns, "AllowFormattingRows": AllowFormattingRows,
+                   "AllowInsertingColumns": AllowInsertingColumns, "AllowInsertingRows": AllowInsertingRows,
+                   "AllowInsertingHyperlinks": AllowInsertingHyperlinks, "AllowDeletingColumns": AllowDeletingColumns,
+                   "AllowDeletingRows": AllowDeletingRows, "AllowSorting": AllowSorting,
+                   "AllowFiltering": AllowFiltering, "AllowUsingPivotTables": AllowUsingPivotTables}
+        protect(self, Password, options)
+        return EMPTY
+
+    @method
+    def Unprotect(self, Password: object = MISSING) -> object:
+        from pyopenvba.apps.excel._protection import unprotect
+
+        unprotect(self, Password)
+        return EMPTY
+
+    @member
+    def ProtectContents(self) -> object:
+        return self.protection is not None and self.protection.contents
+
+    @member
+    def ProtectDrawingObjects(self) -> object:
+        return self.protection is not None and self.protection.drawing_objects
+
+    @member
+    def ProtectScenarios(self) -> object:
+        return self.protection is not None and self.protection.scenarios
+
+    @member
+    def ProtectionMode(self) -> object:
+        """True while the sheet is protected for the user interface only, which leaves macros free."""
+        return self.protection is not None and self.protection.user_interface_only
+
+    @member
+    def Protection(self) -> object:
+        from pyopenvba.apps.excel._protection import Protection
+
+        return Protection(self)
+
+    @member
+    def EnableSelection(self) -> object:
+        return VBAInt(self.enable_selection, "Long")
+
+    @setter("EnableSelection")
+    def _set_enable_selection(self, value: object) -> None:
+        self.enable_selection = int(to_integer(value, "Long"))
 
     # -- Python side
 
@@ -1195,6 +1276,11 @@ class Range(ExcelObject):
         #: columns, where Cells.Hidden is an error.
         self.whole = whole
 
+    def guard_set(self, member: str) -> None:
+        from pyopenvba.apps.excel._protection import check_range_set
+
+        check_range_set(self, member)
+
     @property
     def first(self) -> Area:
         return self.areas[0]
@@ -1236,7 +1322,10 @@ class Range(ExcelObject):
 
     @setter("Value")
     def _set_value(self, value: object) -> None:
-        self._write(value)
+        from pyopenvba.apps.excel._protection import writing
+
+        with writing(self.sheet):
+            self._write(value)
 
     @member
     def Value2(self) -> object:
@@ -1245,7 +1334,10 @@ class Range(ExcelObject):
 
     @setter("Value2")
     def _set_value2(self, value: object) -> None:
-        self._write(value, raw=True)
+        from pyopenvba.apps.excel._protection import writing
+
+        with writing(self.sheet):
+            self._write(value, raw=True)
 
     def _values(self, *, raw: bool) -> object:
         if self.single:
@@ -1307,6 +1399,12 @@ class Range(ExcelObject):
         a formula is typed as Value types it, and a Text cell keeps even a
         formula as the text it is.
         """
+        from pyopenvba.apps.excel._protection import writing
+
+        with writing(self.sheet):
+            self._write_formula(value)
+
+    def _write_formula(self, value: object) -> None:
         if isinstance(value, VBAArray):
             self._write_formula_array(value, r1c1=False)
             return
@@ -1359,6 +1457,12 @@ class Range(ExcelObject):
 
     @setter("FormulaR1C1")
     def _set_formula_r1c1(self, value: object) -> None:
+        from pyopenvba.apps.excel._protection import writing
+
+        with writing(self.sheet):
+            self._write_formula_r1c1(value)
+
+    def _write_formula_r1c1(self, value: object) -> None:
         if isinstance(value, VBAArray):
             self._write_formula_array(value, r1c1=True)
             return
@@ -1598,7 +1702,9 @@ class Range(ExcelObject):
     def BorderAround(self, LineStyle: object = MISSING, Weight: object = MISSING, ColorIndex: object = MISSING,
                      Color: object = MISSING, ThemeColor: object = MISSING) -> object:
         from pyopenvba.apps.excel._formats import border_around
+        from pyopenvba.apps.excel._protection import refuse
 
+        refuse(self.sheet, "BorderAround method of Range class failed", "AllowFormattingCells")
         border_around(self, LineStyle, Weight, ColorIndex, Color, ThemeColor)
         return EMPTY
 
@@ -1606,8 +1712,10 @@ class Range(ExcelObject):
     def ClearFormats(self) -> object:
         from pyopenvba.apps.excel._autofilter import header_cleared
         from pyopenvba.apps.excel._formats import clear_formats
+        from pyopenvba.apps.excel._protection import whole
         from pyopenvba.apps.excel._visible import visible
 
+        whole(self.sheet, visible(self).areas, "ClearFormats")
         clear_formats(self)
         header_cleared(visible(self))
         return EMPTY
@@ -1782,8 +1890,13 @@ class Range(ExcelObject):
         from pyopenvba.apps.excel._formats import clear_formats
         from pyopenvba.apps.excel._visible import visible
 
+        from pyopenvba.apps.excel._protection import enforced
+
         target = visible(self)
         _merges.validate_clear(target)
+        if enforced(self.sheet) is not None:
+            # On a protected sheet Clear clears the contents alone, as ClearContents would.
+            return self.ClearContents()
         clear_formats(target)
         target._clear_contents()
         header_cleared(target)
@@ -1792,10 +1905,14 @@ class Range(ExcelObject):
     @method
     def ClearContents(self) -> object:
         from pyopenvba.apps.excel._autofilter import header_cleared
+        from pyopenvba.apps.excel._protection import PROTECTED, any_locked, enforced
         from pyopenvba.apps.excel._visible import visible
 
         target = visible(self)
         _merges.validate_clear(target)
+        if enforced(self.sheet) is not None and any_locked(self.sheet, target.areas):
+            # Unlike a write, a clear that meets a locked cell leaves every cell as it was.
+            raise error(1004, PROTECTED)
         target._clear_contents()
         header_cleared(target)
         return EMPTY
@@ -1834,8 +1951,10 @@ class Range(ExcelObject):
         the sheet, with no Shift too, and one that pulls them left takes
         the visible cells.
         """
+        from pyopenvba.apps.excel._protection import check_delete
         from pyopenvba.apps.excel._visible import filtering
 
+        check_delete(self)
         filtered = filtering(self.sheet) and not all(area.whole_columns for area in self.areas)
         if Shift is MISSING:
             up = filtered or self.first.rows <= self.first.columns
@@ -1894,8 +2013,10 @@ class Range(ExcelObject):
         as many as the range shows, at its top, and inserting cells is
         error 1004.
         """
+        from pyopenvba.apps.excel._protection import check_insert
         from pyopenvba.apps.excel._visible import filtering, visible_rows
 
+        check_insert(self)
         area = self.first
         if CopyOrigin is not MISSING and int(to_integer(CopyOrigin, "Long")) != 0:
             raise VBAUnsupportedError("Insert taking formats from the right or below (xlFormatFromRightOrBelow) "
@@ -2082,6 +2203,9 @@ class Range(ExcelObject):
                 edge = area.left if across > 0 else area.right
                 rest = (area.left + 1, area.right) if across > 0 else (area.left, area.right - 1)
                 plans.append((Area(area.top, edge, area.bottom, edge), Area(area.top, rest[0], area.bottom, rest[1])))
+        from pyopenvba.apps.excel._protection import whole
+
+        whole(self.sheet, [target for _, target in plans], "Filling")
         for source, target in plans:
             Range(self.sheet, [source]).copy_to(Range(self.sheet, [target]))
         return True
@@ -2093,6 +2217,10 @@ class Range(ExcelObject):
         only hidden rows part, fill across each on its own, and down or
         up from the first or last visible row into every other one.
         """
+        from pyopenvba.apps.excel._protection import enforced
+
+        if enforced(self.sheet) is not None:
+            raise VBAUnsupportedError("filling a filtered range of a protected sheet is not implemented")
         if len(parts) == 1:
             return Range(self.sheet, parts)._fill(down, across)
         if any((area.left, area.right) != (parts[0].left, parts[0].right) for area in parts):
@@ -2116,8 +2244,10 @@ class Range(ExcelObject):
              OrderCustom: object = MISSING, MatchCase: object = MISSING, Orientation: object = MISSING,
              SortMethod: object = MISSING, DataOption1: object = MISSING, DataOption2: object = MISSING,
              DataOption3: object = MISSING) -> object:
+        from pyopenvba.apps.excel._protection import check_sort
         from pyopenvba.apps.excel._sort import range_sort
 
+        check_sort(self)
         return range_sort(self, [(Key1, Order1, DataOption1), (Key2, Order2, DataOption2), (Key3, Order3, DataOption3)],
                           Header, OrderCustom, MatchCase, Orientation)
 
@@ -2125,13 +2255,18 @@ class Range(ExcelObject):
     def AutoFilter(self, Field: object = MISSING, Criteria1: object = MISSING, Operator: object = MISSING,
                    Criteria2: object = MISSING, VisibleDropDown: object = MISSING, SubField: object = MISSING) -> object:
         from pyopenvba.apps.excel._autofilter import range_autofilter
+        from pyopenvba.apps.excel._protection import FILTERING, refuse
 
+        # AllowFiltering lets the user filter, not a macro.
+        refuse(self.sheet, FILTERING)
         return range_autofilter(self, Field, Criteria1, Operator, Criteria2, VisibleDropDown, SubField)
 
     @method
     def RemoveDuplicates(self, Columns: object = MISSING, Header: object = MISSING) -> object:
         from pyopenvba.apps.excel._duplicates import remove_duplicates
+        from pyopenvba.apps.excel._protection import APPLICATION_DEFINED, refuse
 
+        refuse(self.sheet, APPLICATION_DEFINED)
         return remove_duplicates(self, Columns, Header)
 
     @method
@@ -2208,6 +2343,11 @@ class Range(ExcelObject):
                 SearchFormat: object = MISSING, ReplaceFormat: object = MISSING,
                 FormulaVersion: object = MISSING) -> object:
         from pyopenvba.apps.excel._find import replace
+        from pyopenvba.apps.excel._protection import enforced
+
+        if enforced(self.sheet) is not None:
+            # A protected sheet's Replace answers True and changes nothing, unlocked cells included.
+            return True
         return replace(self, What, Replacement, LookAt, SearchOrder, MatchCase, MatchByte, SearchFormat,
                        ReplaceFormat, FormulaVersion)
 
@@ -2236,16 +2376,26 @@ class Range(ExcelObject):
 
     @method
     def AutoFit(self) -> object:
+        from pyopenvba.apps.excel._protection import refuse, whole_lines
+
+        allow = "AllowFormattingRows" if whole_lines(self) == "rows" else "AllowFormattingColumns"
+        refuse(self.sheet, "AutoFit method of Range class failed", allow)
         _dimensions.autofit(self)
         return EMPTY
 
     @method
     def Merge(self, Across: object = MISSING) -> object:
+        from pyopenvba.apps.excel._protection import APPLICATION_DEFINED, refuse
+
+        refuse(self.sheet, APPLICATION_DEFINED)
         _merges.merge(self, False if Across is MISSING else to_bool(Across))
         return EMPTY
 
     @method
     def UnMerge(self) -> object:
+        from pyopenvba.apps.excel._protection import APPLICATION_DEFINED, refuse
+
+        refuse(self.sheet, APPLICATION_DEFINED)
         _merges.unmerge(self)
         return EMPTY
 
@@ -2369,6 +2519,9 @@ class Range(ExcelObject):
         return self.sheet.style_at(row, column).number_format == "@"
 
     def _put_formula(self, row: int, column: int, formula: str) -> None:
+        gate = self.sheet.write_gate
+        if gate is not None and not gate.admits(row, column):
+            return
         cell = self.sheet.cell(row, column, create=True)
         assert cell is not None
         cell.formula = formula
@@ -2380,6 +2533,9 @@ class Range(ExcelObject):
         """Write one value into one cell as Excel types it: the value, the format it brings, and a prefix."""
         from pyopenvba.apps.excel._typing import typed
 
+        gate = self.sheet.write_gate
+        if gate is not None and not gate.admits(row, column):
+            return
         cell = self.sheet.cell(row, column, create=True)
         assert cell is not None
         style = cell.style or self.sheet.book.stylesheet.default

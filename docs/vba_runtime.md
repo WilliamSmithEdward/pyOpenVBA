@@ -351,6 +351,39 @@ target starts from the first array element.
 * xlSortTextAsNumbers sorts text that would type as a number -- `(3)`,
   `5%`, `$5`, `1,000` -- as that number, among the numbers.
 
+**Protection.** `Worksheet.Protect`, `Unprotect` and the Protection
+object follow Excel (`tests/fixtures/protection.json`, 168 cases), and a
+protected sheet refuses a macro what Excel refuses it, with Excel's own
+error text:
+
+* Protect sets Contents, DrawingObjects and Scenarios, True unless given,
+  and the Allow options, False unless given. A second Protect that asks
+  for what the sheet has already does nothing, even with another
+  password; one that changes something needs the sheet's password and
+  takes the new one. UserInterfaceOnly is kept unless given. Protect
+  empties the clipboard. The Allow options outlast Unprotect.
+* A password is matched case and all; a sheet with none opens to any.
+  Where Excel would ask for the password in a dialog, Unprotect or
+  Protect with none given reports itself unsupported.
+* A value or formula written to cells reaches the unlocked ones and then
+  raises error 1004 if any locked one was among them. ClearContents and
+  Clear refuse if any cell is locked and change none; Clear then clears
+  contents only.
+* Formatting a cell, locked or not, needs AllowFormattingCells; column
+  widths and hiding AllowFormattingColumns, row heights and hiding
+  AllowFormattingRows. Locked, FormulaHidden and MergeCells stay
+  refused. Colour and pattern properties fail with Excel's generic
+  error, the others naming the property and its class.
+* Whole rows or columns insert with their Allow option, and delete with
+  it when none of their cells is locked; inserting or deleting cells is
+  refused. Merging, filling, copying or cutting onto locked cells,
+  AutoFilter, RemoveDuplicates and Range.Sort fail; Range.Sort works
+  with AllowSorting over unlocked cells, and the Sort object sorts
+  regardless. Replace answers True and changes nothing.
+* With DrawingObjects, AddShape fails; other changes to shapes report
+  themselves unsupported. The protection is not yet read from or written
+  to a file.
+
 **Filtering.** `Range.AutoFilter` and the AutoFilter, Filters and Filter
 objects filter as Excel does (`tests/fixtures/autofilter.json`, 113
 layouts; `tests/fixtures/autofilter_file/`, 34 filters Excel saved).

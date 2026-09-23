@@ -1676,3 +1676,40 @@ def test_excel_reads_the_protection_this_wrote(tmp_path: Path) -> None:
         assert read[case["name"]] == case["read"], case["name"]
     for name in passwords:
         assert opened[name] == "1004,True,0,False", name
+
+
+def test_excel_reads_the_workbook_protection_this_wrote(tmp_path: Path) -> None:
+    """Every workbook protection tests/fixtures/workbook_protection.json saved, made by the model, opened in Excel."""
+    import json
+
+    harness = pytest.importorskip("pyvbaharness")
+    record = json.loads((Path(__file__).parent / "fixtures" / "workbook_protection.json").read_text(encoding="utf-8"))
+    fresh = 'Set wb = ActiveWorkbook\nwb.Worksheets(1).Name = "Alpha"\nwb.Worksheets.Add(After:=wb.Worksheets(1)).Name = "Beta"'
+    paths: dict[str, Path] = {}
+    for case in record["files"]:
+        app = ExcelApplication()
+        app.add_workbook()
+        app.add_module(f"Public Sub Make()\nDim wb As Object\n{fresh}\n{case['action']}\nEnd Sub\n", name="Builder")
+        app.run("Make")
+        paths[case["name"]] = tmp_path / f"{case['name']}.xlsx"
+        app.save(paths[case["name"]])
+    read: dict[str, str] = {}
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+        for case in record["files"]:
+            excel.open_document(paths[case["name"]])
+            reader = (record["helper"] + "Public Function Report() As String\nDim wb As Object\nSet wb = ActiveWorkbook\n"
+                      f"Report = {record['state']}\nEnd Function\n")
+            result = excel.run_vba(reader, "Report", timeout=120.0)
+            assert result.ok, result.message
+            read[case["name"]] = str(result.value)
+            if case["name"] == "password":
+                trial = ("Public Function Report() As String\nDim wb As Object, out As String\nSet wb = ActiveWorkbook\n"
+                         "On Error Resume Next\nwb.Unprotect \"not it\"\nout = Err.Number & \",\" & wb.ProtectStructure\n"
+                         "Err.Clear\nwb.Unprotect \"pw\"\nReport = out & \",\" & Err.Number & \",\" & wb.ProtectStructure\n"
+                         "End Function\n")
+                result = excel.run_vba(trial, "Report", timeout=120.0)
+                assert result.ok, result.message
+                read["password trial"] = str(result.value)
+    for case in record["files"]:
+        assert read[case["name"]] == case["read"], case["name"]
+    assert read["password trial"] == "1004,True,0,False"

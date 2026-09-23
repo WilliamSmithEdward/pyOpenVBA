@@ -50,7 +50,7 @@ from pyopenvba.interpreter._values import (
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._autofilter import SheetFilter
-    from pyopenvba.apps.excel._protection import Gate, SheetProtection
+    from pyopenvba.apps.excel._protection import BookProtection, Gate, SheetProtection
     from pyopenvba.apps.excel._clipboard import Clip
     from pyopenvba.apps.excel._sort import SortState
     from pyopenvba.apps.excel._styles import Style, Stylesheet
@@ -499,6 +499,10 @@ class Workbook(ExcelObject):
         #: Where each query's rows go, read from the package on demand.
         self._load_targets: Any = None
         self._stylesheet: Stylesheet | None = None
+        #: What Workbook.Protect set, or None while the structure is not protected (see _protection).
+        self.protection: BookProtection | None = None
+        #: True once a macro protects or unprotects the workbook, so a save writes workbookProtection again.
+        self.protection_changed = False
 
     @property
     def calculator(self) -> Any:
@@ -584,6 +588,31 @@ class Workbook(ExcelObject):
     def Activate(self) -> object:
         self.application.activate_book(self)
         return EMPTY
+
+    # -- protection (see _protection)
+
+    @method
+    def Protect(self, Password: object = MISSING, Structure: object = MISSING, Windows: object = MISSING) -> object:
+        from pyopenvba.apps.excel._protection import protect_book
+
+        protect_book(self, Password, Structure)
+        return EMPTY
+
+    @method
+    def Unprotect(self, Password: object = MISSING) -> object:
+        from pyopenvba.apps.excel._protection import unprotect_book
+
+        unprotect_book(self, Password)
+        return EMPTY
+
+    @member
+    def ProtectStructure(self) -> object:
+        return self.protection is not None
+
+    @member
+    def ProtectWindows(self) -> object:
+        """False: Excel takes Protect's Windows and protects nothing with it, measured."""
+        return False
 
     @method
     def Close(self, SaveChanges: object = MISSING, Filename: object = MISSING, RouteWorkbook: object = MISSING) -> object:
@@ -705,6 +734,9 @@ class Sheets(VBACollection, ExcelObject):
         Count: object = MISSING,
         Type: object = MISSING,
     ) -> object:
+        from pyopenvba.apps.excel._protection import ADDING, refuse_structure
+
+        refuse_structure(self.book, ADDING)
         at: int | None = None
         if isinstance(Before, Worksheet):
             at = self.book.sheets_.index(Before)
@@ -847,6 +879,9 @@ class Worksheet(ExcelObject):
 
     @setter("Name")
     def _set_name(self, value: object) -> None:
+        from pyopenvba.apps.excel._protection import APPLICATION_DEFINED, refuse_structure
+
+        refuse_structure(self.book, APPLICATION_DEFINED)
         wanted = to_text(value)
         if any(sheet is not self and sheet.name.lower() == wanted.lower() for sheet in self.book.sheets_):
             raise error(1004, f"a sheet called {wanted} is already there")
@@ -863,6 +898,9 @@ class Worksheet(ExcelObject):
 
     @setter("Visible")
     def _set_visible(self, value: object) -> None:
+        from pyopenvba.apps.excel._protection import HIDING, refuse_structure
+
+        refuse_structure(self.book, HIDING)
         self.visible = -1 if value is True else (0 if value is False else int(to_integer(value, "Long")))
 
     @member
@@ -1041,21 +1079,39 @@ class Worksheet(ExcelObject):
 
     @method
     def Delete(self) -> object:
+        from pyopenvba.apps.excel._protection import DELETING, refuse_structure
+
+        refuse_structure(self.book, DELETING)
         self.book.sheets_.remove(self)
         self.book.saved = False
         return EMPTY
 
     @method
     def Copy(self, Before: object = MISSING, After: object = MISSING) -> object:
+        from pyopenvba.apps.excel._protection import COPYING
         from pyopenvba.apps.excel._sheet_copy import copy_sheet
 
+        self._guard_structure(Before, After, COPYING, "Copying")
         return copy_sheet(self, Before, After)
 
     @method
     def Move(self, Before: object = MISSING, After: object = MISSING) -> object:
+        from pyopenvba.apps.excel._protection import MOVING
         from pyopenvba.apps.excel._sheet_move import move_sheet
 
+        self._guard_structure(Before, After, MOVING, "Moving")
         return move_sheet(self, Before, After)
+
+    def _guard_structure(self, before: object, after: object, message: str, what: str) -> None:
+        """Within one protected workbook, error 1004 with ``message``; to or from another while one is protected,
+        which was not measured, a report."""
+        from pyopenvba.apps.excel._protection import refuse_structure
+
+        anchor = before if isinstance(before, Worksheet) else after if isinstance(after, Worksheet) else None
+        if anchor is not None and anchor.book is self.book:
+            refuse_structure(self.book, message)
+        elif self.book.protection is not None or (anchor is not None and anchor.book.protection is not None):
+            raise VBAUnsupportedError(f"{what} a sheet between workbooks, one of them protected, is not implemented")
 
     @method
     def Calculate(self) -> object:

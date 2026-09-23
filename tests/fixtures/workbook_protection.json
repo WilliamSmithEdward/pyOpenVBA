@@ -1,0 +1,294 @@
+{
+ "helper": "Private Function Sheets_(wb As Object) As String\n    Dim ws As Object, out As String\n    For Each ws In wb.Worksheets\n        out = out & ws.Name & \":\" & ws.Visible & \" \"\n    Next\n    Sheets_ = Trim(out)\nEnd Function\n",
+ "state": "wb.ProtectStructure & \",\" & wb.ProtectWindows & \",\" & Sheets_(wb)",
+ "cases": [
+  {
+   "name": "protect",
+   "setup": "",
+   "action": "wb.Protect",
+   "answer": "E0:;True,False,Alpha:-1 Beta:-1"
+  },
+  {
+   "name": "protect_password",
+   "setup": "",
+   "action": "wb.Protect \"pw\"",
+   "answer": "E0:;True,False,Alpha:-1 Beta:-1"
+  },
+  {
+   "name": "protect_windows",
+   "setup": "",
+   "action": "wb.Protect Structure:=True, Windows:=True",
+   "answer": "E0:;True,False,Alpha:-1 Beta:-1"
+  },
+  {
+   "name": "protect_structure_false",
+   "setup": "",
+   "action": "wb.Protect Structure:=False",
+   "answer": "E0:;False,False,Alpha:-1 Beta:-1"
+  },
+  {
+   "name": "protect_nothing",
+   "setup": "",
+   "action": "wb.Protect Structure:=False, Windows:=False",
+   "answer": "E0:;False,False,Alpha:-1 Beta:-1"
+  },
+  {
+   "name": "add_sheet",
+   "setup": "wb.Protect",
+   "action": "wb.Worksheets.Add",
+   "answer": "E1004:Add method of Sheets class failed;True,False,Alpha:-1 Beta:-1"
+  },
+  {
+   "name": "add_sheet_after",
+   "setup": "wb.Protect",
+   "action": "wb.Worksheets.Add After:=wb.Worksheets(2)",
+   "answer": "E1004:Add method of Sheets class failed;True,False,Alpha:-1 Beta:-1"
+  },
+  {
+   "name": "delete_sheet",
+   "setup": "wb.Protect",
+   "action": "wb.Worksheets(\"Beta\").Delete",
+   "answer": "E1004:Delete method of Worksheet class failed;True,False,Alpha:-1 Beta:-1"
+  },
+  {
+   "name": "rename_sheet",
+   "setup": "wb.Protect",
+   "action": "wb.Worksheets(\"Beta\").Name = \"Gamma\"",
+   "answer": "E1004:Application-defined or object-defined error;True,False,Alpha:-1 Beta:-1"
+  },
+  {
+   "name": "move_sheet",
+   "setup": "wb.Protect",
+   "action": "wb.Worksheets(\"Beta\").Move Before:=wb.Worksheets(\"Alpha\")",
+   "answer": "E1004:Move method of Worksheet class failed;True,False,Alpha:-1 Beta:-1"
+  },
+  {
+   "name": "copy_sheet",
+   "setup": "wb.Protect",
+   "action": "wb.Worksheets(\"Beta\").Copy After:=wb.Worksheets(\"Beta\")",
+   "answer": "E1004:Workbook is protected and cannot be changed.;True,False,Alpha:-1 Beta:-1"
+  },
+  {
+   "name": "hide_sheet",
+   "setup": "wb.Protect",
+   "action": "wb.Worksheets(\"Beta\").Visible = xlSheetHidden",
+   "answer": "E1004:Unable to set the Visible property of the Worksheet class;True,False,Alpha:-1 Beta:-1"
+  },
+  {
+   "name": "unhide_sheet",
+   "setup": "wb.Worksheets(\"Beta\").Visible = xlSheetHidden: wb.Protect",
+   "action": "wb.Worksheets(\"Beta\").Visible = xlSheetVisible",
+   "answer": "E1004:Unable to set the Visible property of the Worksheet class;True,False,Alpha:-1 Beta:0"
+  },
+  {
+   "name": "very_hidden",
+   "setup": "wb.Protect",
+   "action": "wb.Worksheets(\"Beta\").Visible = xlSheetVeryHidden",
+   "answer": "E1004:Unable to set the Visible property of the Worksheet class;True,False,Alpha:-1 Beta:-1"
+  },
+  {
+   "name": "write_cell",
+   "setup": "wb.Protect",
+   "action": "wb.Worksheets(\"Beta\").Range(\"A1\").Value = 1: out = out & wb.Worksheets(\"Beta\").Range(\"A1\").Value & \";\"",
+   "answer": "1;E0:;True,False,Alpha:-1 Beta:-1"
+  },
+  {
+   "name": "add_name",
+   "setup": "wb.Protect",
+   "action": "wb.Names.Add Name:=\"Here\", RefersTo:=\"=Alpha!$A$1\": out = out & wb.Names.Count & \";\"",
+   "answer": "1;E0:;True,False,Alpha:-1 Beta:-1"
+  },
+  {
+   "name": "activate_sheet",
+   "setup": "wb.Protect",
+   "action": "wb.Worksheets(\"Beta\").Activate: out = out & wb.ActiveSheet.Name & \";\"",
+   "answer": "Beta;E0:;True,False,Alpha:-1 Beta:-1"
+  },
+  {
+   "name": "sheet_protect",
+   "setup": "wb.Protect",
+   "action": "wb.Worksheets(\"Beta\").Protect: out = out & wb.Worksheets(\"Beta\").ProtectContents & \";\"",
+   "answer": "True;E0:;True,False,Alpha:-1 Beta:-1"
+  },
+  {
+   "name": "unprotect",
+   "setup": "wb.Protect",
+   "action": "wb.Unprotect",
+   "answer": "E0:;False,False,Alpha:-1 Beta:-1"
+  },
+  {
+   "name": "unprotect_password",
+   "setup": "wb.Protect \"pw\"",
+   "action": "wb.Unprotect \"pw\"",
+   "answer": "E0:;False,False,Alpha:-1 Beta:-1"
+  },
+  {
+   "name": "unprotect_wrong",
+   "setup": "wb.Protect \"pw\"",
+   "action": "wb.Unprotect \"bad\"",
+   "answer": "E1004:The password you supplied is not correct. Verify that the CAPS LOCK key is off and be sure to use the correct capitalization.;True,False,Alpha:-1 Beta:-1"
+  },
+  {
+   "name": "unprotect_case",
+   "setup": "wb.Protect \"pw\"",
+   "action": "wb.Unprotect \"PW\"",
+   "answer": "E1004:The password you supplied is not correct. Verify that the CAPS LOCK key is off and be sure to use the correct capitalization.;True,False,Alpha:-1 Beta:-1"
+  },
+  {
+   "name": "unprotect_any",
+   "setup": "wb.Protect",
+   "action": "wb.Unprotect \"anything\"",
+   "answer": "E0:;False,False,Alpha:-1 Beta:-1"
+  },
+  {
+   "name": "unprotect_unprotected",
+   "setup": "",
+   "action": "wb.Unprotect",
+   "answer": "E0:;False,False,Alpha:-1 Beta:-1"
+  },
+  {
+   "name": "protect_twice",
+   "setup": "wb.Protect",
+   "action": "wb.Protect",
+   "answer": "E0:;False,False,Alpha:-1 Beta:-1"
+  },
+  {
+   "name": "protect_twice_password",
+   "setup": "wb.Protect \"pw\"",
+   "action": "wb.Protect \"other\"",
+   "answer": "E1004:The password you supplied is not correct. Verify that the CAPS LOCK key is off and be sure to use the correct capitalization.;True,False,Alpha:-1 Beta:-1"
+  },
+  {
+   "name": "protect_again_windows",
+   "setup": "wb.Protect",
+   "action": "wb.Protect Structure:=True, Windows:=True",
+   "answer": "E0:;True,False,Alpha:-1 Beta:-1"
+  },
+  {
+   "name": "protect_again_password_windows",
+   "setup": "wb.Protect \"pw\"",
+   "action": "wb.Protect \"pw\", Structure:=True, Windows:=True",
+   "answer": "E0:;True,False,Alpha:-1 Beta:-1"
+  },
+  {
+   "name": "protect_again_other_windows",
+   "setup": "wb.Protect \"pw\"",
+   "action": "wb.Protect \"other\", Structure:=True, Windows:=True",
+   "answer": "E1004:The password you supplied is not correct. Verify that the CAPS LOCK key is off and be sure to use the correct capitalization.;True,False,Alpha:-1 Beta:-1"
+  },
+  {
+   "name": "unprotected_again_add",
+   "setup": "wb.Protect \"pw\": wb.Unprotect \"pw\"",
+   "action": "wb.Worksheets.Add",
+   "answer": "E0:;False,False,Alpha:-1 Sheet3:-1 Beta:-1"
+  },
+  {
+   "name": "windows_only_add",
+   "setup": "wb.Protect Structure:=False, Windows:=True",
+   "action": "wb.Worksheets.Add",
+   "answer": "E0:;False,False,Alpha:-1 Sheet3:-1 Beta:-1"
+  },
+  {
+   "name": "protect_three_times",
+   "setup": "wb.Protect: wb.Protect",
+   "action": "wb.Protect",
+   "answer": "E0:;True,False,Alpha:-1 Beta:-1"
+  },
+  {
+   "name": "protect_password_twice",
+   "setup": "wb.Protect \"pw\"",
+   "action": "wb.Protect \"pw\"",
+   "answer": "E0:;False,False,Alpha:-1 Beta:-1"
+  },
+  {
+   "name": "protect_password_twice_then_add",
+   "setup": "wb.Protect \"pw\": wb.Protect \"pw\"",
+   "action": "wb.Worksheets.Add",
+   "answer": "E0:;False,False,Alpha:-1 Sheet3:-1 Beta:-1"
+  },
+  {
+   "name": "protect_structure_true_twice",
+   "setup": "wb.Protect Structure:=True",
+   "action": "wb.Protect Structure:=True",
+   "answer": "E0:;True,False,Alpha:-1 Beta:-1"
+  },
+  {
+   "name": "protect_plain_then_password",
+   "setup": "wb.Protect",
+   "action": "wb.Protect \"pw\"",
+   "answer": "E0:;False,False,Alpha:-1 Beta:-1"
+  },
+  {
+   "name": "protect_plain_then_password_after",
+   "setup": "wb.Protect: wb.Protect \"pw\"",
+   "action": "wb.Protect: out = out & wb.ProtectStructure & \";\"",
+   "answer": "True;E0:;True,False,Alpha:-1 Beta:-1"
+  },
+  {
+   "name": "protect_password_structure_false",
+   "setup": "wb.Protect \"pw\"",
+   "action": "wb.Protect \"pw\", Structure:=False",
+   "answer": "E0:;False,False,Alpha:-1 Beta:-1"
+  },
+  {
+   "name": "protect_plain_structure_false",
+   "setup": "wb.Protect",
+   "action": "wb.Protect Structure:=False",
+   "answer": "E0:;False,False,Alpha:-1 Beta:-1"
+  },
+  {
+   "name": "protect_password_then_unprotect_other",
+   "setup": "wb.Protect \"pw\": wb.Protect \"pw\", Structure:=True",
+   "action": "wb.Unprotect \"other\"",
+   "answer": "E1004:The password you supplied is not correct. Verify that the CAPS LOCK key is off and be sure to use the correct capitalization.;True,False,Alpha:-1 Beta:-1"
+  },
+  {
+   "name": "protect_structure_false_unprotected",
+   "setup": "",
+   "action": "wb.Protect Structure:=False: wb.Worksheets.Add",
+   "answer": "E0:;False,False,Alpha:-1 Sheet3:-1 Beta:-1"
+  }
+ ],
+ "files": [
+  {
+   "name": "plain",
+   "action": "wb.Protect",
+   "element": "<workbookProtection lockStructure=\"1\"/>",
+   "before": "xr",
+   "after": "bookViews",
+   "read": "True,False,Alpha:-1 Beta:-1"
+  },
+  {
+   "name": "password",
+   "action": "wb.Protect \"pw\"",
+   "element": "<workbookProtection workbookAlgorithmName=\"SHA-512\" workbookHashValue=\"N+kUOSz582ARxXGND2CEAggKv65xtFvsSbdIHNRF178kogxZi55eq+ETG71gMJisBUPGuKFUzZd9yr7eEntuZA==\" workbookSaltValue=\"VfpU5jdBMGTonahMESHp+w==\" workbookSpinCount=\"100000\" lockStructure=\"1\"/>",
+   "before": "xr",
+   "after": "bookViews",
+   "read": "True,False,Alpha:-1 Beta:-1"
+  },
+  {
+   "name": "windows",
+   "action": "wb.Protect Structure:=True, Windows:=True",
+   "element": "<workbookProtection lockStructure=\"1\"/>",
+   "before": "xr",
+   "after": "bookViews",
+   "read": "True,False,Alpha:-1 Beta:-1"
+  },
+  {
+   "name": "windows_only",
+   "action": "wb.Protect Structure:=False, Windows:=True",
+   "element": "",
+   "before": "",
+   "after": "",
+   "read": "False,False,Alpha:-1 Beta:-1"
+  },
+  {
+   "name": "unprotected_again",
+   "action": "wb.Protect \"pw\": wb.Unprotect \"pw\"",
+   "element": "",
+   "before": "",
+   "after": "",
+   "read": "False,False,Alpha:-1 Beta:-1"
+  }
+ ]
+}

@@ -388,6 +388,14 @@ error text:
   legacy 16-bit one older writers use (`tests/fixtures/protection_file.json`,
   13 files and 5 legacy passwords; a live gate opens the model's files
   in Excel). UserInterfaceOnly is not saved, as in Excel.
+* `Workbook.Protect` protects the structure (`tests/fixtures/workbook_protection.json`,
+  41 cases and 5 files): adding, deleting, renaming, moving, copying and
+  hiding sheets then fail with Excel's errors, while cells, names and
+  sheet protection carry on. On a protected workbook Protect needs the
+  password, then sets the structure as Structure says; with Structure
+  left out it turns the protection off. Windows does nothing and
+  ProtectWindows stays False, as in Excel today. workbookProtection is
+  saved before bookViews and read back as Excel reads it.
 
 **Filtering.** `Range.AutoFilter` and the AutoFilter, Filters and Filter
 objects filter as Excel does (`tests/fixtures/autofilter.json`, 113

@@ -88,6 +88,9 @@ def load_workbook(application: Application, path: Path) -> Workbook:
             _read_sheet(sheet, sheet_xml, strings, stylesheet)
             _read_shapes(sheet, package, sheet_xml)
     _read_names(book, workbook_xml)
+    from pyopenvba.apps.excel._protection import read_book_protection
+
+    read_book_protection(book, workbook_xml)
     _read_queries(book, path)
     book.saved = True
     return book
@@ -839,6 +842,11 @@ def save_workbook(book: Workbook, target: Path) -> None:
         package.write(sheet.part_name, _patched_sheet(sheet, original, package).encode("utf-8"))
     if book.names_.changed:
         _write_names(book, package)
+    if book.protection_changed and package.has("xl/workbook.xml"):
+        from pyopenvba.apps.excel._protection import with_book_protection
+
+        text = package.read("xl/workbook.xml").decode("utf-8", errors="replace")
+        package.write("xl/workbook.xml", with_book_protection(book, text).encode("utf-8"))
     _resize_loaded_tables(book, package)
     _write_shapes(book, package)
     _write_styles(book, package)

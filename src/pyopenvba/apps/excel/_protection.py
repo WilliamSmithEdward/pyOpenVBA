@@ -60,7 +60,7 @@ from pyopenvba.interpreter._objects import member
 from pyopenvba.interpreter._values import MISSING, error, to_bool, to_text
 
 if TYPE_CHECKING:
-    from pyopenvba.apps.excel._model import Range, Worksheet
+    from pyopenvba.apps.excel._model import Range, Workbook, Worksheet
 
 #: Error 1004's text for a change a protected sheet refuses.
 PROTECTED = ("The cell or chart you're trying to change is on a protected sheet. To make a change, unprotect the "
@@ -104,14 +104,35 @@ class SheetProtection:
 
     def opens(self, password: str) -> bool:
         """Whether a password opens the sheet: its own, matched case and all, or any when it has none."""
-        if self.password:
-            return password == self.password
-        if self.hashed is not None:
-            algorithm, hash_value, salt_value, spins = self.hashed
-            return spun(password, base64.b64decode(salt_value), spins, algorithm) == hash_value
-        if self.legacy:
-            return legacy_hash(password) == self.legacy.upper()
-        return True
+        return _opens(password, self.password, self.hashed, self.legacy)
+
+
+@dataclass(frozen=True, slots=True)
+class BookProtection:
+    """What Workbook.Protect set, or what the file said: the structure locked, and the password that opens it."""
+
+    password: str = ""
+    hashed: tuple[str, str, str, int] | None = None
+    legacy: str = ""
+
+    @property
+    def locked_by_password(self) -> bool:
+        return bool(self.password or self.hashed or self.legacy)
+
+    def opens(self, password: str) -> bool:
+        return _opens(password, self.password, self.hashed, self.legacy)
+
+
+def _opens(password: str, plain: str, hashed: tuple[str, str, str, int] | None, legacy: str) -> bool:
+    """Whether a password matches the one a protection keeps, however it keeps it; any matches none."""
+    if plain:
+        return password == plain
+    if hashed is not None:
+        algorithm, hash_value, salt_value, spins = hashed
+        return spun(password, base64.b64decode(salt_value), spins, algorithm) == hash_value
+    if legacy:
+        return legacy_hash(password) == legacy.upper()
+    return True
 
 
 #: Excel's names for the hash functions a sheet's password is kept with.
@@ -515,3 +536,119 @@ def whole(sheet: Worksheet, areas: list[Area], what: str) -> None:
     if False not in states:
         raise error(1004, PROTECTED)
     raise VBAUnsupportedError(f"{what} over locked and unlocked cells of a protected sheet is not implemented")
+
+
+# --- the workbook's structure (scripts/measure_workbook_protection.py) ------------------------------------
+
+#: What each change to the sheets says when the workbook's structure is protected.
+ADDING = "Add method of Sheets class failed"
+DELETING = "Delete method of Worksheet class failed"
+MOVING = "Move method of Worksheet class failed"
+COPYING = "Workbook is protected and cannot be changed."
+HIDING = "Unable to set the Visible property of the Worksheet class"
+
+
+def protect_book(book: Workbook, password: object, structure: object) -> None:
+    """Workbook.Protect, as Excel does it.
+
+    On a workbook whose structure is not protected it protects the
+    structure unless Structure says False. On one that is, it first needs
+    the password, then sets the structure as Structure says -- and with
+    Structure left out, turns the protection off: a second plain Protect
+    unprotects. Windows is taken and does nothing, as in Excel today.
+    """
+    supplied = "" if password is MISSING else to_text(password)
+    current = book.protection
+    if current is None:
+        if structure is MISSING or to_bool(structure):
+            book.protection = BookProtection(password=supplied)
+            _book_changed(book)
+        return
+    if current.locked_by_password and password is MISSING:
+        raise VBAUnsupportedError("Protect of a workbook protected with a password, given none, asks for the "
+                                  "password in a dialog; that is not implemented")
+    if not current.opens(supplied):
+        raise error(1004, WRONG_PASSWORD)
+    if structure is MISSING or not to_bool(structure):
+        book.protection = None
+        _book_changed(book)
+
+
+def unprotect_book(book: Workbook, password: object) -> None:
+    current = book.protection
+    if current is None:
+        return
+    if current.locked_by_password and password is MISSING:
+        raise VBAUnsupportedError("Unprotect of a workbook protected with a password, given none, asks for the "
+                                  "password in a dialog; that is not implemented")
+    if not current.opens("" if password is MISSING else to_text(password)):
+        raise error(1004, WRONG_PASSWORD)
+    book.protection = None
+    _book_changed(book)
+
+
+def _book_changed(book: Workbook) -> None:
+    book.protection_changed = True
+    book.saved = False
+
+
+def refuse_structure(book: Workbook, message: str) -> None:
+    """Error 1004 with ``message`` when the workbook's structure is protected."""
+    if book.protection is not None:
+        raise error(1004, message)
+
+
+#: The workbookProtection element, which workbook.xml holds at most once.
+_BOOK_ELEMENT = re.compile(r"<workbookProtection\b[^>]*/>")
+#: The workbook children workbookProtection comes before, in the schema's order.
+_BOOK_FOLLOWING = re.compile(r"<(?:bookViews|sheets)\b")
+
+
+def read_book_protection(book: Workbook, xml: str) -> None:
+    """The workbook's protection as workbook.xml holds it: protected while lockStructure is on."""
+    from pyopenvba._xml import tag_attributes
+
+    found = _BOOK_ELEMENT.search(xml)
+    if found is None:
+        return
+    attributes = tag_attributes(found.group(0))
+    if attributes.get("lockStructure", "0") not in ("1", "true"):
+        return
+    hashed = None
+    if "workbookHashValue" in attributes:
+        hashed = (attributes.get("workbookAlgorithmName", "SHA-512"), attributes["workbookHashValue"],
+                  attributes.get("workbookSaltValue", ""), int(attributes.get("workbookSpinCount", "0")))
+    book.protection = BookProtection(hashed=hashed, legacy=attributes.get("workbookPassword", ""))
+
+
+def book_protection_xml(book: Workbook) -> str:
+    """The workbookProtection element as Excel writes it, the password hashed as a sheet's is; nothing unprotected."""
+    found = book.protection
+    if found is None:
+        return ""
+    if found.password and found.hashed is None:
+        salt = os.urandom(16)
+        found = BookProtection(found.password, ("SHA-512", spun(found.password, salt, SPIN_COUNT),
+                                                base64.b64encode(salt).decode(), SPIN_COUNT))
+        book.protection = found
+    parts: list[str] = []
+    if found.legacy and found.hashed is None:
+        parts.append(f'workbookPassword="{found.legacy}"')
+    if found.hashed is not None:
+        algorithm, hash_value, salt_value, spins = found.hashed
+        parts += [f'workbookAlgorithmName="{algorithm}"', f'workbookHashValue="{hash_value}"',
+                  f'workbookSaltValue="{salt_value}"', f'workbookSpinCount="{spins}"']
+    parts.append('lockStructure="1"')
+    return f"<workbookProtection {' '.join(parts)}/>"
+
+
+def with_book_protection(book: Workbook, xml: str) -> str:
+    """workbook.xml with its workbookProtection element as the model has it: replaced, put in its place, or gone."""
+    markup = book_protection_xml(book)
+    existing = _BOOK_ELEMENT.search(xml)
+    if existing is not None:
+        return xml[:existing.start()] + markup + xml[existing.end():]
+    following = _BOOK_FOLLOWING.search(xml)
+    if not markup or following is None:
+        return xml
+    return xml[:following.start()] + markup + xml[following.start():]

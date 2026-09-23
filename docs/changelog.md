@@ -132,6 +132,14 @@ All notable changes to pyOpenVBA are documented here. This project follows
   the protection as Excel does, the password as a salted SHA-512 hash
   Excel opens, and a protected sheet in a file is protected when read,
   its password checked against Excel's hash or the legacy 16-bit one.
+- Workbook protection: `Workbook.Protect`, `Unprotect`,
+  `ProtectStructure` and `ProtectWindows`. A protected structure refuses
+  adding, deleting, renaming, moving, copying and hiding sheets with
+  Excel's own errors. A second Protect needs the password, and one with
+  no Structure turns the protection off, as in Excel; Windows does
+  nothing, as in Excel today. It is saved and read as Excel saves and
+  reads it, the password as a salted SHA-512 hash Excel opens. 41 cases
+  and 5 files in live Excel pin it.
 - The constants of VBA's own type library that the reference dumps left
   out: the colours (`vbRed`), the key codes (`vbKeyReturn`), the system
   colours (`vbButtonFace`), `vbModeless` and the QueryClose modes.

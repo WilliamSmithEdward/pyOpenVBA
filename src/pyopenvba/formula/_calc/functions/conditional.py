@@ -19,6 +19,7 @@ from pyopenvba.formula._calc.functions.common import (
     shaped,
 )
 from pyopenvba.formula._calc.numbers import total
+from pyopenvba.formula._calc.precise import summed
 from pyopenvba.formula._calc.registry import R, V, function
 from pyopenvba.formula._calc.values import DIV0, VALUE, Area, ExcelError, Scalar, Value
 from pyopenvba.formula._calc.cells import CellError
@@ -54,7 +55,9 @@ def _numbers_at(context: Context, area: Area, positions: list[tuple[int, int]]) 
 
 
 def _sum(values: list[float]) -> float:
-    return checked(total(values))
+    """SUMIF's and SUMIFS's total, added in order with no last addition snapped to zero as SUM snaps one:
+    SUMIF over 1 and -(1+2^-52) is -2^-52 (pyOpenVBA's tests/fixtures/zero_snap.json)."""
+    return checked(summed(values))
 
 
 @function("COUNTIF", R, V)

@@ -67,9 +67,11 @@ class TableShape:
 # --- spelling ------------------------------------------------------------------------------------
 
 
-def spelled(node: Structured, *, file: bool = False, table: str | None = None) -> str:
-    """A reference as Range.Formula spells it, or as a file does with ``file``; ``table`` is the name written."""
+def spelled(node: Structured, *, file: bool = False, table: str | None = None, at_escaped: bool = False) -> str:
+    """A reference as Range.Formula spells it, or as a file does with ``file``; ``table`` is the name written, and
+    ``at_escaped`` keeps the ' before an @ in a column's name, which a file leaves bare."""
     name = node.table if table is None else table
+    file_escapes = file and not at_escaped
     items = node.items
     if not items and node.first is None and not node.spaced:
         return name + "[]" if file else name
@@ -82,14 +84,14 @@ def spelled(node: Structured, *, file: bool = False, table: str | None = None) -
         return f"{name}[@[{escaped}]]" if any(char in _BRACKETED_AFTER_AT for char in node.first) \
             else f"{name}[@{escaped}]"
     if not items and node.first is not None and not node.span and not node.spaced:
-        escaped = _escaped(node.first, file)
+        escaped = _escaped(node.first, file_escapes)
         return f"{name}[[{escaped}]]" if node.first != node.first.strip(" ") else f"{name}[{escaped}]"
     if len(items) == 1 and node.first is None and not node.spaced:
         return f"{name}[{items[0]}]"
     parts = [f"[{item}]" for item in items]
     if node.first is not None:
-        parts.append(f"[{_escaped(node.first, file)}]" + (f":[{_escaped(node.last or node.first, file)}]"
-                                                          if node.span else ""))
+        parts.append(f"[{_escaped(node.first, file_escapes)}]"
+                     + (f":[{_escaped(node.last or node.first, file_escapes)}]" if node.span else ""))
     inside = (", " if node.comma_spaced else ",").join(parts)
     return f"{name}[ {inside} ]" if node.spaced else f"{name}[{inside}]"
 
@@ -155,8 +157,10 @@ def shown(formula: str, here: str | None) -> str:
     return rewritten(formula, change)
 
 
-def in_file(formula: str, tables: Collection[str]) -> str:
-    """A formula as a file spells it: this row as [#This Row], a table on its own as Table1[], @ unescaped."""
+def in_file(formula: str, tables: Collection[str], *, at_escaped: bool = False) -> str:
+    """A formula as a file spells it: this row as [#This Row], a table on its own as Table1[], @ unescaped; with
+    ``at_escaped``, as the formula engine reads it, a column's @ kept escaped, since the engine reads a bare [@ as
+    this row."""
     wanted = {name.lower() for name in tables}
     lowered = formula.lower()
     if "[" not in formula and not any(name in lowered for name in wanted):
@@ -164,7 +168,7 @@ def in_file(formula: str, tables: Collection[str]) -> str:
 
     def change(token: Token) -> str | None:
         if token.kind == "structured":
-            return spelled(read_structured(token.text), file=True)
+            return spelled(read_structured(token.text), file=True, at_escaped=at_escaped)
         if token.kind == "name" and token.text.lower() in wanted:
             return token.text + "[]"
         return None

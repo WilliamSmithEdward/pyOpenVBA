@@ -594,6 +594,22 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Changed
 
+- Cells are worked out by pyOfficeEditor's formula engine, which the
+  library took in: 493 of Excel's 525 functions where the model had 122,
+  Excel's coercion and comparisons, and arithmetic as the x87 does it.
+  Over the model's workbook it comes to what Excel cached for all 10,958
+  formulas of pyOfficeEditor's corpus, where the model's own engine
+  matched 6,718, and it answers every live measurement the model had:
+  legacy formulas take the first item of an array where INDEX, the
+  lookups, IFERROR and IFNA want one value, IF and its kind work their
+  arguments out as a cell does inside SUMPRODUCT, lookups compare
+  numbers to the bit, and a defined name's formula is an array formula.
+  It also matches Excel's VAR and STDEV on the data under a thousandth
+  the model missed. RIGHT past the text's length, MATCH over a single
+  value, CHOOSE with an array of positions, R1C1 ranges in INDIRECT and
+  a number turned to text in twenty characters follow Excel too.
+  Evaluate, WorksheetFunction, a validation's formula and a control's
+  link still use the model's engine.
 - A cell holds every number as a Double, a date included; its format
   decides what `Value` reads. A query's refreshed rows keep their text as
   text rather than typing it.
@@ -902,10 +918,8 @@ All notable changes to pyOpenVBA are documented here. This project follows
   functions, with arithmetic as the x87 does it. Over the model's own
   workbook, through `_engine_book`, it works out all 10,958 formulas of
   pyOfficeEditor's corpus as Excel cached them, to the bit or within the
-  units pyOfficeEditor allows; the engine the model calculates with
-  matched 6,718. Cells keep the model's engine until its own live
-  measurements agree with the new one: legacy formulas, lookups compared
-  to the bit, the zero a last sum snaps to and variance bits among them.
+  units pyOfficeEditor allows. `scripts/copy_formula_engine.py` shows how
+  the copy differs from pyOfficeEditor, and makes it again.
 
 ## [6.0.0] - 2026-09-20
 

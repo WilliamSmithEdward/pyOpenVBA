@@ -116,11 +116,11 @@ def test_an_unimplemented_function_says_so_rather_than_answering_name() -> None:
     """A gap here has to look different from a function Excel lacks."""
     app = ExcelApplication()
     app.add_workbook()
-    app.add_module('Sub Main()\n    Range("A1").Formula = "=BESSELI(1,1)"\nEnd Sub\n', name="Module1")
+    app.add_module('Sub Main()\n    Range("A1").Formula = "=BAHTTEXT(1)"\nEnd Sub\n', name="Module1")
     app.run("Main")
     with pytest.raises(VBAUnsupportedError) as raised:
         app.sheet(1).value("A1")
-    assert "BESSELI" in str(raised.value)
+    assert "BAHTTEXT" in str(raised.value)
 
 
 def test_a_function_excel_has_not_got_either_is_a_name_error() -> None:

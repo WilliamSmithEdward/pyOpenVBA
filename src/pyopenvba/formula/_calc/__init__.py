@@ -16,7 +16,9 @@ arithmetic as the x87 does it, held to 10,958 formulas Excel calculated.
 
 Every module keeps its name from pyOfficeEditor, so a later copy is a diff
 of the same files: scripts/copy_formula_engine.py shows the differences
-and makes the copy. pyOfficeEditor's own workbook driver, ``engine.py``,
+and makes the copy. The copy carries changes of pyOpenVBA's own, each for
+one of its live measurements, that a later copy has to keep; they are
+listed in docs/formula_engine.md. pyOfficeEditor's own workbook driver, ``engine.py``,
 is not copied; :mod:`pyopenvba.apps.excel._engine_book` gives the engine
 a workbook of the model to read. The rest of pyOfficeEditor the engine
 used came along as :mod:`.collate` and :mod:`.reference`; :mod:`.cells`

@@ -62,7 +62,8 @@ def LEFT(context: Context, text: Scalar, count: Scalar | None = None) -> Value:
 def RIGHT(context: Context, text: Scalar, count: Scalar | None = None) -> Value:
     source = context.text(text)
     length = _length(context, count, 1)
-    return source[len(source) - length :] if length else ""
+    # A count past the text's length is the whole text: RIGHT("abc",5) is abc (tests/fixtures/formula/).
+    return source[max(len(source) - length, 0) :] if length else ""
 
 
 @function("MID", V, V, V)
@@ -342,7 +343,7 @@ def T(context: Context, value: Scalar) -> Value:
     return value if isinstance(value, str) else ""
 
 
-@function("N", V)
+@function("N", V, legacy_corner=(0,))
 def N(context: Context, value: Scalar) -> Value:
     if isinstance(value, CellError):
         return value

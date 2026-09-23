@@ -208,6 +208,10 @@ class Context:
         self.row = row
         self.column = column
         self.array = array
+        #: A legacy formula, which Excel works out as it did before dynamic arrays (see registry). Every formula but
+        #: an array formula is one: Range.Formula writes them, and a file keeps a formula that needs dynamic arrays
+        #: as an array formula.
+        self.legacy = not array
         self.now = now or dt.datetime.now()
         self.today = today or self.now.date()
         #: Names bound by LET and by a LAMBDA's call, innermost last.
@@ -346,9 +350,16 @@ class Context:
         if key in self._names or len(self._names) > 64:
             return NAME
         self._names.append(key)
+        saved = self.array, self.legacy
+        # A name standing for a formula is worked out where it is used, and as an array formula is, whatever formula
+        # uses it: SUM(dbl) with dbl =$A$1:$A$3*2 adds all three, =dbl alone shows the first, and an IF in the name
+        # picks item by item (tests/fixtures/formula/). As a formula of its own, its last sum snaps to zero as a
+        # cell's does (tests/fixtures/zero_snap.json).
+        self.array, self.legacy = True, False
         try:
-            return self.evaluate(found)
+            return self.formula(found)
         finally:
+            self.array, self.legacy = saved
             self._names.pop()
 
     def _structured(self, node: StructuredReference) -> Value:
@@ -365,20 +376,21 @@ class Context:
         items = set(node.items) or {DATA}
         if ALL in items:
             spans.append((table.top, table.bottom))
-        if HEADERS in items:
-            if not table.headers:
-                return REF
+        # A special item the table does not show leaves the rest: Table1[[#Data],[#Totals]] is the data of a table
+        # without a totals row, and only with nothing left is it #REF! (tests/fixtures/structured_references/).
+        if HEADERS in items and table.headers:
             spans.append((table.top, table.top))
         if DATA in items:
             spans.append((data_top, data_bottom))
-        if TOTALS in items:
-            if not table.totals:
-                return REF
+        if TOTALS in items and table.totals:
             spans.append((table.bottom, table.bottom))
         if THIS_ROW in items:
-            if not (data_top <= self.row <= data_bottom) or self.sheet != table.sheet:
+            # This row is the formula's own row, on whatever sheet the formula is.
+            if not data_top <= self.row <= data_bottom:
                 return VALUE
             spans.append((self.row, self.row))
+        if not spans:
+            return REF
         top = min(span[0] for span in spans)
         bottom = max(span[1] for span in spans)
         left, right = table.left, table.right
@@ -721,6 +733,10 @@ def arithmetic(op: str, a: float, b: float, final: bool = False) -> Scalar:
         return power(a, b)
     if not math.isfinite(result):
         return NUM
+    if op in ("+", "-"):
+        # A sum or difference too small to be normal keeps its bits: 2^-1000 less the double after it is -2^-1052
+        # (pyOpenVBA's tests/fixtures/zero_snap.json).
+        return result + 0.0
     return normal(result) + 0.0
 
 

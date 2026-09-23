@@ -6,7 +6,7 @@ from __future__ import annotations
 from pyopenvba.formula._calc.evaluator import Context
 from pyopenvba.formula._calc.functions.common import matrix
 from pyopenvba.formula._calc.nodes import Node
-from pyopenvba.formula._calc.registry import LAZY, REF, R, V, function
+from pyopenvba.formula._calc.registry import LAZY, REF, A, R, V, function
 from pyopenvba.formula._calc.values import (
     ERROR_NUMBERS,
     NA,
@@ -147,7 +147,7 @@ def COLUMN(context: Context, reference: Value | None = None) -> Value:
     return _where(context, reference, row=False)
 
 
-@function("ROWS", R)
+@function("ROWS", A)
 def ROWS(context: Context, value: Value) -> Value:
     if isinstance(value, Reference):
         if value.area is None:
@@ -156,7 +156,7 @@ def ROWS(context: Context, value: Value) -> Value:
     return float(matrix(context, value).height)
 
 
-@function("COLUMNS", R)
+@function("COLUMNS", A)
 def COLUMNS(context: Context, value: Value) -> Value:
     if isinstance(value, Reference):
         if value.area is None:

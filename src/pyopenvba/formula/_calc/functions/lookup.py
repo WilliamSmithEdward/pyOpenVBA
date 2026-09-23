@@ -50,6 +50,15 @@ def _same_kind(first: Scalar, second: Scalar) -> bool:
     return isinstance(first, str) == isinstance(second, str) and not isinstance(second, (Empty, CellError))
 
 
+def _order(value: Scalar, target: Scalar) -> int:
+    """How a lookup orders a value against what it looks for: numbers to the bit, where = reads fifteen digits --
+    MATCH, VLOOKUP, HLOOKUP and XLOOKUP pass over a double one unit in the last place from the one they look for,
+    exact or approximate (pyOpenVBA's tests/fixtures/zero_snap.json) -- and text and logicals as compare has them."""
+    if isinstance(value, float) and isinstance(target, float):
+        return (value > target) - (value < target)
+    return compare(value, target)
+
+
 def _exact(values: list[Scalar], target: Scalar, *, wildcards: bool, last: bool = False) -> int | None:
     """The position of the first value equal to ``target``, or with
     ``last`` the last one."""
@@ -61,7 +70,7 @@ def _exact(values: list[Scalar], target: Scalar, *, wildcards: bool, last: bool 
             if isinstance(value, str) and isinstance(target, str) and _collate.wildcard_match(target, value):
                 return index
             continue
-        if _same_kind(target, value) and compare(value, target) == 0:
+        if _same_kind(target, value) and _order(value, target) == 0:
             return index
     return None
 
@@ -74,7 +83,7 @@ def _approximate(values: list[Scalar], target: Scalar, *, descending: bool = Fal
     found: int | None = None
     while low <= high:
         middle = (low + high) // 2
-        order = compare(values[positions[middle]], target)
+        order = _order(values[positions[middle]], target)
         if (order <= 0) if not descending else (order >= 0):
             found = positions[middle]
             low = middle + 1
@@ -89,12 +98,12 @@ def _lookup_value(value: Scalar) -> Scalar:
     return value
 
 
-@function("VLOOKUP", V, R, V, V, minimum=3)
+@function("VLOOKUP", V, R, V, V, minimum=3, legacy_first=(0, 2, 3))
 def VLOOKUP(context: Context, value: Scalar, table: Value, column: Scalar, approximate: Scalar | None = None) -> Value:
     return _table_lookup(context, value, table, column, approximate, vertical=True)
 
 
-@function("HLOOKUP", V, R, V, V, minimum=3)
+@function("HLOOKUP", V, R, V, V, minimum=3, legacy_first=(0, 2, 3))
 def HLOOKUP(context: Context, value: Scalar, table: Value, row: Scalar, approximate: Scalar | None = None) -> Value:
     return _table_lookup(context, value, table, row, approximate, vertical=False)
 
@@ -127,6 +136,12 @@ def _vector(context: Context, value: Value) -> list[Scalar]:
 
 @function("MATCH", V, R, V, minimum=2)
 def MATCH(context: Context, value: Scalar, array: Value, kind: Scalar | None = None) -> Value:
+    if isinstance(array, CellError):
+        return array
+    if not isinstance(array, (Reference, Array)):
+        # A value where the cells or the array go is nothing to look through: MATCH(3,3,0) is #N/A
+        # (tests/fixtures/formula/).
+        return NA
     target = _lookup_value(value)
     mode = 1.0 if kind is None else context.number(kind)
     values = _vector(context, array)
@@ -156,7 +171,7 @@ def _x_search(
     if search in (2, -2):
         if mode == 0:
             found = _approximate(values, target, descending=search == -2)
-            return found if found is not None and compare(values[found], target) == 0 else None
+            return found if found is not None and _order(values[found], target) == 0 else None
         if mode == -1:
             return _approximate(values, target, descending=search == -2)
     exact = _exact(values, target, wildcards=mode == 2, last=search == -1)
@@ -168,18 +183,18 @@ def _x_search(
         candidate = values[index]
         if not _same_kind(target, candidate):
             continue
-        direction = compare(candidate, target)
+        direction = _order(candidate, target)
         if (mode == -1 and direction < 0) or (mode == 1 and direction > 0):
             if best is None:
                 best = index
                 continue
-            closer = compare(candidate, values[best])
+            closer = _order(candidate, values[best])
             if (mode == -1 and closer > 0) or (mode == 1 and closer < 0):
                 best = index
     return best
 
 
-@function("XLOOKUP", V, R, R, LAZY, V, V, minimum=3)
+@function("XLOOKUP", V, R, R, LAZY, V, V, minimum=3, legacy_first=(0,))
 def XLOOKUP(
     context: Context,
     value: Scalar,
@@ -244,7 +259,7 @@ def LOOKUP(context: Context, value: Scalar, lookup: Value, result: Value | None 
     return answers[position] if position < len(answers) else NA
 
 
-@function("INDEX", R, V, V, V, minimum=1)
+@function("INDEX", A, V, V, V, minimum=1, legacy_first=(1, 2, 3))
 def INDEX(
     context: Context, array: Value, row: Scalar | None = None, column: Scalar | None = None, area: Scalar | None = None
 ) -> Value:
@@ -311,13 +326,15 @@ def OFFSET(
 
 
 _R1C1 = re.compile(
-    r"(?:(?P<sheet>'(?:[^']|'')+'|[^!]+)!)?R(?P<row>\[-?\d+\]|\d+)?C(?P<column>\[-?\d+\]|\d+)?",
+    r"(?:(?P<sheet>'(?:[^']|'')+'|[^!]+)!)?R(?P<row>\[-?\d+\]|\d+)?C(?P<column>\[-?\d+\]|\d+)?"
+    r"(?::R(?P<row2>\[-?\d+\]|\d+)?C(?P<column2>\[-?\d+\]|\d+)?)?",
     re.IGNORECASE,
 )
 
 
 def _r1c1(text: str, context: Context) -> Node | None:
-    """An R1C1 reference as the node its A1 spelling would parse to."""
+    """An R1C1 reference, a cell or the block between two, as the node its A1 spelling would parse to:
+    INDIRECT("R1C1:R3C1",FALSE) is A1:A3 (tests/fixtures/reference_forms.json)."""
     match = _R1C1.fullmatch(text)
     if match is None:
         return None
@@ -329,13 +346,19 @@ def _r1c1(text: str, context: Context) -> Node | None:
             return base + int(part[1:-1])
         return int(part)
 
-    row = resolve(match.group("row"), context.row)
-    column = resolve(match.group("column"), context.column)
-    if not (1 <= row <= MAX_ROW and 1 <= column <= MAX_COLUMN):
-        return None
+    corners: list[str] = []
+    for row_part, column_part in (("row", "column"), ("row2", "column2")):
+        if row_part == "row2" and match.group(row_part) is None and match.group(column_part) is None \
+                and ":" not in text:
+            break
+        row = resolve(match.group(row_part), context.row)
+        column = resolve(match.group(column_part), context.column)
+        if not (1 <= row <= MAX_ROW and 1 <= column <= MAX_COLUMN):
+            return None
+        corners.append(f"{column_letter(column)}{row}")
     sheet = match.group("sheet")
     prefix = sheet + "!" if sheet else ""
-    return parse(f"{prefix}{column_letter(column)}{row}")
+    return parse(prefix + ":".join(corners))
 
 
 @function("INDIRECT", V, V, minimum=1, volatile=True)
@@ -378,7 +401,7 @@ def ADDRESS(
     return text
 
 
-@function("TRANSPOSE", A)
+@function("TRANSPOSE", A, legacy_cell=(0,))
 def TRANSPOSE(context: Context, array: Value) -> Value:
     grid = matrix(context, array)
     return Array([list(column) for column in zip(*grid.rows, strict=True)])

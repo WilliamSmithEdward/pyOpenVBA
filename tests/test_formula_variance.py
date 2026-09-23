@@ -20,9 +20,8 @@ RECORD: dict[str, Any] = json.loads((Path(__file__).parent / "fixtures" / "varia
 FORMULAS: dict[str, str] = RECORD["formulas"]
 SETS: list[dict[str, Any]] = RECORD["sets"]
 
-#: Answers the model's one-pass/two-pass rule misses: data under a thousandth, where Excel's choice is not yet known.
-MISSED = {(24, "VAR"), (24, "STDEV"), (24, "VARP"), (24, "STDEVP"), (43, "VAR"), (43, "STDEV"), (59, "VAR"),
-          (59, "STDEV")}
+#: Answers the model does not give as Excel does yet.
+MISSED: set[tuple[int, str]] = set()
 
 
 def _answers(values: list[float]) -> dict[str, float]:

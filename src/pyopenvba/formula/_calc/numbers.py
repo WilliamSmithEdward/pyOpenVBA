@@ -99,8 +99,16 @@ def number_text(value: float) -> str:
         plain = "0." + "0" * (-exponent - 1) + digits
     if len(plain) <= _PLAIN_WIDTH:
         return sign + plain
-    mantissa = digits[0] + ("." + digits[1:] if len(digits) > 1 else "")
-    return f"{sign}{mantissa}E{'+' if exponent >= 0 else '-'}{abs(exponent):02d}"
+    # With an exponent, the mantissa loses digits until the text fits the same twenty characters, the sign apart:
+    # 1.23456789012345E+100 is 1.2345678901235E+100, measured by pyOpenVBA from 1E-25 to 1E+300
+    # (tests/fixtures/number_spelling.json).
+    for count in range(len(digits), 0, -1):
+        shorter, power = _significant(value, count)
+        mantissa = shorter[0] + ("." + shorter[1:] if len(shorter) > 1 else "")
+        text = f"{mantissa}E{'+' if power >= 0 else '-'}{abs(power):02d}"
+        if len(text) <= _PLAIN_WIDTH:
+            return sign + text
+    raise AssertionError("a one-digit mantissa always fits")
 
 
 def _fifteen(value: float) -> Decimal:
@@ -128,9 +136,11 @@ def near_zero(left: float, right: float, result: float) -> float:
     under eight units in the last place of ``left``.
 
     The left operand, not the smaller: ``1-(1-8u)`` is 0 while ``(1-8u)-1``
-    is not, ``u`` being a unit in the last place of 1 below it.
+    is not, ``u`` being a unit in the last place of 1 below it. An answer
+    too small to be normal keeps its bits: 2^-1000 less the double after it
+    is -2^-1052, measured by pyOpenVBA (tests/fixtures/zero_snap.json).
     """
-    if result == 0.0:
+    if result == 0.0 or abs(result) < SMALLEST:
         return result
     if abs(result) < _NEAR_ZERO_UNITS * math.ulp(left):
         return 0.0

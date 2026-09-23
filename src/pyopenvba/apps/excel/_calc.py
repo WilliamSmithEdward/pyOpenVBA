@@ -1,9 +1,12 @@
 """Recalculation: which cells are stale, and what they come to.
 
-The engine in :mod:`pyopenvba.formula` evaluates one formula against a
-grid.  This is the grid, and the bookkeeping around it: which cells hold
-formulas, which cells feed which, and what has to be worked out again
-after a macro writes somewhere.
+A cell's formula is worked out by :mod:`pyopenvba.formula._calc`, which
+reads the workbook through :mod:`pyopenvba.apps.excel._engine_book`.
+This is the bookkeeping around it: which cells hold formulas, which
+cells feed which, and what has to be worked out again after a macro
+writes somewhere. Evaluate, WorksheetFunction, a validation's formula, a
+control's link and the format a formula gives its cell still go through
+the older engine in :mod:`pyopenvba.formula`, for which this is the grid.
 
 Calculation is on demand.  Reading a stale cell computes it, and
 computing it computes whatever it reads, so nothing is ordered up front
@@ -23,9 +26,14 @@ from pyopenvba._a1 import Area
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.formula import _parse as P
 from pyopenvba.apps.excel._arrays import array_at
-from pyopenvba.formula._engine import Context, cell_answer, clip, evaluate_formula
+from pyopenvba.apps.excel._engine_book import EngineBook, model_value, volatile
+from pyopenvba.formula._calc.evaluator import Context as EngineContext
+from pyopenvba.formula._calc.lexer import FormulaSyntaxError
+from pyopenvba.formula._calc.nodes import Node
+from pyopenvba.formula._calc.values import Array, ExcelError as EngineError
+from pyopenvba.formula._engine import clip
 from pyopenvba.formula._structured import TableShape, area as structured_area
-from pyopenvba.formula._values import BLANK, REF, VALUE, Areas, ExcelError, Matrix
+from pyopenvba.formula._values import BLANK, REF, ExcelError, Matrix
 from pyopenvba.interpreter._values import EMPTY, VBACurrency, VBADate, VBAErrorValue, VBAInt
 
 if TYPE_CHECKING:
@@ -50,7 +58,7 @@ CellKey = tuple[str, int, int]
 class Compiled:
     """One cell's formula, parsed once; no node for one the parser cannot read, which keeps the value it has."""
 
-    node: P.Node | None
+    node: Node | None
     precedents: list[Area] = field(default_factory=lambda: [])
     volatile: bool = False
     #: Why the parser could not read the formula.
@@ -62,6 +70,8 @@ class Calculator:
 
     def __init__(self, book: Workbook) -> None:
         self.book = book
+        #: The workbook as the formula engine reads it.
+        self.engine_book = EngineBook(self)
         self.compiled: dict[CellKey, Compiled] = {}
         #: Cells that could not be worked out because they feed
         #: themselves.  Excel shows zero in these and warns separately.
@@ -88,28 +98,13 @@ class Calculator:
             self.compiled.pop(key, None)
             return
         try:
-            node = P.parse(cell.formula)
-        except P.FormulaError as failure:
+            node = self.engine_book.read(cell.formula)
+        except FormulaSyntaxError as failure:
             # One formula the parser cannot read stops no other from being worked out.
             self.compiled[key] = Compiled(node=None, unread=str(failure))
             return
-        context = Context(self, sheet, row, column)
-        areas: list[Area] = []
-        for reference in P.references(node):
-            try:
-                areas.append(context.resolve(reference))
-            except ExcelError:
-                continue
-        for named in P.names(node):
-            found = self.named(named.name, named.sheet or sheet)
-            if isinstance(found, Area):
-                areas.append(found)
-        for structured in P.structured_references(node):
-            table = self.table(structured.table)
-            if table is not None:
-                # All of the table: a reference to this row reads one row of it, but which depends on the formula.
-                areas.append(table.area)
-        self.compiled[key] = Compiled(node=node, precedents=areas, volatile=P.is_volatile(node))
+        precedents = self.engine_book.precedents(node, sheet, row, column)
+        self.compiled[key] = Compiled(node=node, precedents=precedents, volatile=volatile(node))
 
     def rebuild(self) -> None:
         """Forget every parsed formula and mark them all for another look.
@@ -261,23 +256,27 @@ class Calculator:
         if compiled.node is None:
             raise VBAUnsupportedError(f"working out a formula the model cannot read is not implemented: "
                                       f"{compiled.unread}")
-        owner = self._sheet_named(sheet)
-        block = owner.array_formulas.get((row, column)) if owner is not None else None
+        owner = self._worksheet(sheet)
+        block = owner.array_formulas.get((row, column))
+        now = self.now()
+        context = EngineContext(self.engine_book, owner.name, row, column, array=block is not None, today=now.date(),
+                                now=now)
         try:
-            if owner is not None and block is not None:
-                answer = evaluate_formula(compiled.node, Context(self, sheet, row, column, array=True))
-                return _spread(owner, block, answer)
-            answer = cell_answer(compiled.node, Context(self, sheet, row, column))
+            value = context.formula(compiled.node)
+            if block is None:
+                return model_value(context.first(value))
+            return _spread(owner, block, context.array_of(value))
+        except EngineError as failure:
+            return model_value(failure.error) if block is None else _spread(owner, block, Array([[failure.error]]))
         except ExcelError as failure:
-            if failure.name == "#CIRCULAR!":
-                # Excel leaves a zero in a cell that feeds itself.
-                self.circular.add((sheet.lower(), row, column))
-                return 0.0
-            return failure if owner is None or block is None else _spread(owner, block, failure)
+            if failure.name != "#CIRCULAR!":
+                raise
+            # Excel leaves a zero in a cell that feeds itself.
+            self.circular.add((sheet.lower(), row, column))
+            return 0.0
         except RecursionError:
             self.circular.add((sheet.lower(), row, column))
             return 0.0
-        return _to_cell(answer)
 
     def _members(self, key: CellKey) -> set[CellKey]:
         """The other cells of the array formula whose first cell is ``key``, if it is one."""
@@ -438,20 +437,16 @@ def from_vba(value: object) -> object:
     return value
 
 
-def _spread(sheet: Worksheet, block: Area, answer: object) -> object:
-    """An array formula's answer laid over its block, as Matrix.at lines it up; the first cell's item, for it to keep.
+def _spread(sheet: Worksheet, block: Area, answer: Array) -> object:
+    """An array formula's answer laid over its block, as Array.at lines it up; the first cell's item, for it to keep.
 
     One row or column repeats across the block, and past the end of the
     answer a cell shows #N/A.
     """
-    first: object = BLANK
+    first: object = 0.0
     for row in range(block.top, block.bottom + 1):
         for column in range(block.left, block.right + 1):
-            if isinstance(answer, Matrix):
-                item = answer.at(row - block.top, column - block.left)
-            else:
-                item = VALUE if isinstance(answer, Areas) else answer
-            value = _to_cell(item)
+            value = model_value(answer.at(row - block.top, column - block.left))
             if (row, column) == (block.top, block.left):
                 first = value
                 continue
@@ -459,17 +454,6 @@ def _spread(sheet: Worksheet, block: Area, answer: object) -> object:
             assert cell is not None
             cell.value, cell.stale = value, False
     return first
-
-
-def _to_cell(value: object) -> object:
-    """A computed value as the cell stores it."""
-    if value is BLANK:
-        # A formula that comes to nothing shows a zero: =A1 on an empty
-        # cell is 0, not empty.
-        return 0.0
-    if isinstance(value, Matrix):
-        return _to_cell(value.first())
-    return value
 
 
 def as_vba(value: object, cell: Cell | None = None) -> object:

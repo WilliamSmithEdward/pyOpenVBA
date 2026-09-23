@@ -17,6 +17,19 @@ An implementation takes the evaluation context first, then its arguments;
 an argument not given is left to the implementation's own default, and one
 given empty, as in ``IF(A1,,2)``, is :data:`~.values.EMPTY`. It raises
 :class:`~.values.ExcelError` to return an error.
+
+A legacy formula -- one Range.Formula writes, or a file keeps without
+``t="array"`` -- is worked out as Excel worked formulas out before
+dynamic arrays, and a function declares where that differs, as
+pyOpenVBA measured through Range.Formula (tests/fixtures/formula/):
+``legacy_first`` are the places that take only the first item of an array
+given there, even inside SUMPRODUCT, ``SUM(INDEX({1,2;3,4},{1,2},{1,2}))``
+being 1; ``legacy_cell`` the places worked out as a cell works a value
+out rather than whole, ``SUM(TRANSPOSE(A1:A3*2))`` being #VALUE! in row 5;
+``legacy_corner`` the places that take the first cell of a range, not
+the one in the formula's row; and ``legacy_as_cell`` a function that
+works all its arguments out as a cell does, even inside an argument
+worked out whole, as IF does inside SUMPRODUCT.
 """
 
 from __future__ import annotations
@@ -66,6 +79,11 @@ class Function:
     #: Whether a result can change with nothing in the workbook changing,
     #: as NOW's does.
     volatile: bool = False
+    #: What a legacy formula does differently, as the module docstring has it.
+    legacy_first: frozenset[int] = frozenset()
+    legacy_cell: frozenset[int] = frozenset()
+    legacy_corner: frozenset[int] = frozenset()
+    legacy_as_cell: bool = False
 
     def kind(self, index: int) -> Kind:
         if index < len(self.kinds):
@@ -84,6 +102,10 @@ def function(
     maximum: int | None = None,
     repeat: int = 1,
     volatile: bool = False,
+    legacy_first: tuple[int, ...] = (),
+    legacy_cell: tuple[int, ...] = (),
+    legacy_corner: tuple[int, ...] = (),
+    legacy_as_cell: bool = False,
 ) -> Callable[[Implementation], Implementation]:
     """Register an implementation under ``name``. With no ``minimum`` every
     declared argument is required; with no ``maximum`` no more are allowed.
@@ -98,6 +120,10 @@ def function(
             len(kinds) if maximum is None else maximum,
             repeat,
             volatile,
+            frozenset(legacy_first),
+            frozenset(legacy_cell),
+            frozenset(legacy_corner),
+            legacy_as_cell,
         )
         return implementation
 
@@ -106,6 +132,13 @@ def function(
 
 def call(entry: Function, context: Context, nodes: tuple[Node, ...]) -> Value:
     """Evaluate the arguments the way each parameter takes them, and call."""
+    if context.legacy and context.array and entry.legacy_as_cell:
+        # Inside an argument worked out whole, a legacy formula's IF works its own arguments out as a cell does.
+        context.array = False
+        try:
+            return call(entry, context, nodes)
+        finally:
+            context.array = True
     args: list[Any] = []
     lifted: list[int] = []
     for index, node in enumerate(nodes):
@@ -116,11 +149,18 @@ def call(entry: Function, context: Context, nodes: tuple[Node, ...]) -> Value:
         if isinstance(node, Missing):
             args.append(EMPTY)
             continue
-        value = context.evaluate_array(node) if kind is Kind.ARRAY else context.evaluate(node)
+        whole = kind is Kind.ARRAY and not (context.legacy and index in entry.legacy_cell)
+        value = context.evaluate_array(node) if whole else context.evaluate(node)
         if kind is Kind.VALUE:
+            if context.legacy and index in entry.legacy_corner and isinstance(value, Reference) \
+                    and value.area is not None and not context.array:
+                value = context.book.cell(value.area.sheet, value.area.top, value.area.left)
             value = context.operand(value)
             if isinstance(value, Array):
-                lifted.append(index)
+                if context.legacy and index in entry.legacy_first:
+                    value = context.first(value)
+                else:
+                    lifted.append(index)
         elif kind is Kind.REFERENCE and not isinstance(value, Reference):
             return VALUE
         args.append(value)

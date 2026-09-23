@@ -27,7 +27,7 @@ def _truth(context: Context, value: Scalar) -> bool | CellError:
         return error.error
 
 
-@function("IF", LAZY, LAZY, LAZY, minimum=2)
+@function("IF", LAZY, LAZY, LAZY, minimum=2, legacy_as_cell=True)
 def IF(context: Context, test: Node, then: Node, otherwise: Node | None = None) -> Value:
     condition = context.operand(context.evaluate(test))
     if isinstance(condition, Array):
@@ -104,17 +104,17 @@ def FALSE(context: Context) -> Value:
     return False
 
 
-@function("IFERROR", V, V)
+@function("IFERROR", V, V, legacy_first=(0, 1), legacy_as_cell=True)
 def IFERROR(context: Context, value: Scalar, fallback: Scalar) -> Value:
     return fallback if isinstance(value, CellError) else value
 
 
-@function("IFNA", V, V)
+@function("IFNA", V, V, legacy_first=(0, 1), legacy_as_cell=True)
 def IFNA(context: Context, value: Scalar, fallback: Scalar) -> Value:
     return fallback if isinstance(value, CellError) and value.code == NA.code else value
 
 
-@function("IFS", LAZY, LAZY, maximum=254, repeat=2)
+@function("IFS", LAZY, LAZY, maximum=254, repeat=2, legacy_as_cell=True)
 def IFS(context: Context, *args: Node) -> Value:
     if len(args) % 2:
         return NA
@@ -127,7 +127,7 @@ def IFS(context: Context, *args: Node) -> Value:
     return NA
 
 
-@function("SWITCH", V, LAZY, LAZY, maximum=254, repeat=2)
+@function("SWITCH", V, LAZY, LAZY, maximum=254, repeat=2, legacy_as_cell=True)
 def SWITCH(context: Context, expression: Scalar, *args: Node) -> Value:
     if isinstance(expression, CellError):
         return expression
@@ -143,12 +143,43 @@ def SWITCH(context: Context, expression: Scalar, *args: Node) -> Value:
     return NA
 
 
-@function("CHOOSE", V, LAZY, maximum=255)
-def CHOOSE(context: Context, index: Scalar, *choices: Node) -> Value:
-    position = int(context.number(index))
-    if not 1 <= position <= len(choices):
-        return VALUE
-    return context.evaluate(choices[position - 1])
+@function("CHOOSE", R, LAZY, maximum=255, legacy_as_cell=True)
+def CHOOSE(context: Context, index: Value, *choices: Node) -> Value:
+    chosen = context.operand(index)
+    if not isinstance(chosen, Array):
+        position = int(context.number(chosen))
+        if not 1 <= position <= len(choices):
+            return VALUE
+        return context.evaluate(choices[position - 1])
+    # An array of positions picks item by item, each from the choice it names, lined up with the positions as an
+    # operator lines two arrays up: CHOOSE({1,2},A1:A3,B1:B3) is the two columns side by side
+    # (tests/fixtures/formula/).
+    positions: list[list[int | CellError]] = [[_position(context, item, len(choices)) for item in row]
+                                              for row in chosen.rows]
+    picked = {one: context.array_of(context.evaluate(choices[one - 1]))
+              for row in positions for one in row if isinstance(one, int)}
+    height = max([chosen.height, *(array.height for array in picked.values())])
+    width = max([chosen.width, *(array.width for array in picked.values())])
+    rows: list[list[Scalar]] = []
+    for row in range(height):
+        items: list[Scalar] = []
+        for column in range(width):
+            where = chosen.at(row, column)
+            one = _position(context, where, len(choices))
+            items.append(one if isinstance(one, CellError) else picked[one].at(row, column))
+        rows.append(items)
+    return Array(rows)
+
+
+def _position(context: Context, item: Scalar, count: int) -> int | CellError:
+    """Which choice an item of CHOOSE's positions names, or the error it makes."""
+    if isinstance(item, CellError):
+        return item
+    try:
+        position = int(context.number(item))
+    except ExcelError as error:
+        return error.error
+    return position if 1 <= position <= count else VALUE
 
 
 __all__: list[str] = []

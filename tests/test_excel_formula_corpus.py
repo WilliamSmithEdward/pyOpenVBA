@@ -27,10 +27,8 @@ import pytest
 from pyopenvba.apps.excel import ExcelApplication
 from pyopenvba.apps.excel._engine_book import EngineBook, model_value
 from pyopenvba.apps.excel._model import Workbook
-from pyopenvba.formula._calc import parse
 from pyopenvba.formula._calc.evaluator import Context
 from pyopenvba.formula._calc.nodes import Call, walk
-from pyopenvba.formula._structured import in_file
 from pyopenvba.formula._values import ExcelError
 
 FIXTURE = Path(__file__).parent / "fixtures" / "formula_corpus" / "inputs.xlsx"
@@ -90,7 +88,6 @@ def test_each_formula_comes_to_what_excel_cached(book: Workbook, name: str) -> N
     assert isinstance(serial, float)
     built = dt.date(1899, 12, 30) + dt.timedelta(days=int(serial))
     engine_book = EngineBook(book.calculator)
-    tables = engine_book.table_names()
     sheet = book.sheet_named(name)
     assert sheet is not None
     wrong: list[str] = []
@@ -98,7 +95,7 @@ def test_each_formula_comes_to_what_excel_cached(book: Workbook, name: str) -> N
         if not cell.formula:
             continue
         address = f"{name}!R{row}C{column}"
-        node = parse(in_file(cell.formula, tables))
+        node = engine_book.read(cell.formula)
         called = {one.function for one in walk(node) if isinstance(one, Call)}
         array = (row, column) in sheet.array_formulas
         context = Context(engine_book, sheet.name, row, column, array=array, today=built,

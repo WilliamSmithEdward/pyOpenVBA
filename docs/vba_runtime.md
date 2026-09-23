@@ -946,9 +946,10 @@ which cells a multi-row read compares, also grows while a workbook is open
 and stays grown until something reads `UsedRange`; the model's always
 follows the sheet's content.
 
-**Formulas are calculated.** `pyopenvba.formula` parses and evaluates
-them; the workbook keeps track of which cells are stale and what feeds
-what.  Calculation is on demand: reading a stale cell works it out, and
+**Formulas are calculated.** A cell's formula is worked out by
+`pyopenvba.formula._calc`, pyOfficeEditor's formula engine taken into
+the library; the workbook keeps track of which cells are stale and what
+feeds what.  Calculation is on demand: reading a stale cell works it out, and
 working it out works out whatever it reads, so nothing is ordered up
 front and INDIRECT is no harder than a plain reference.  Writing a cell
 spoils whatever reads it, a volatile function is recomputed every time,
@@ -957,12 +958,23 @@ moved, a circular reference leaves a zero and is recorded, and manual
 calculation mode keeps the old value until something calls Calculate,
 which is what Excel shows until F9.
 
-About a hundred worksheet functions are implemented, chosen by what
-macros actually call: the aggregations and their -IF and -IFS forms, the
-lookups, the text and date families, the information tests, and the
-logical functions.  Anything else Excel has says so by name rather than
-answering `#NAME?`, which is reserved for a function Excel has not got
-either.
+493 of Excel's 525 worksheet functions are implemented, with Excel's
+precedence, coercion and comparisons and its arithmetic as the x87 does
+it: all 10,958 formulas of pyOfficeEditor's corpus come to what Excel
+calculated (`tests/fixtures/formula_corpus/`), to the bit but for a few
+statistical and financial functions held within some units in the last
+place. The rest -- the cube functions, WEBSERVICE, STOCKHISTORY and the
+like -- say so by name rather than answering `#NAME?`, which is reserved
+for a function Excel has not got either. A formula is worked out as the
+versions of Excel before dynamic arrays worked it out, as Range.Formula
+writes one and a file keeps one: where one value is wanted, INDEX, the
+lookups, IFERROR and IFNA take the first item of an array given there;
+IF and its kind work their arguments out as a cell does even inside
+SUMPRODUCT; and a defined name standing for a formula is worked out as
+an array formula (`tests/fixtures/formula/`). An array formula works
+everything out whole. Exact and approximate lookups compare numbers to
+the bit, where `=` reads fifteen digits
+(`tests/fixtures/zero_snap.json`).
 
 SUBTOTAL reads which rows are hidden (`tests/fixtures/subtotal.json`, 31
 layouts): 1 to 11 pass over the rows a filter hid -- and while a sheet

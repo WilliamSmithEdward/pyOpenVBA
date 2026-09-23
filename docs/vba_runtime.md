@@ -431,7 +431,7 @@ records each member's status.
 `UseStandardHeight`, `UseStandardWidth`, `Height`, `Width`, `Left`, `Top`,
 row `AutoFit`, and a sheet's `StandardHeight` and `StandardWidth` behave
 as Excel does on a 96-DPI display (Windows at 100%), which is the display
-the model emulates: 152 probes of live Excel pin the answers
+the model emulates: 185 probes of live Excel pin the answers
 (`tests/fixtures/dimensions.json`), and a live gate opens the model's own
 saved sizes in Excel. Excel rounds sizes to the pixels of whatever display
 it runs on, so the same macro gives other answers, and writes other bytes,
@@ -463,15 +463,32 @@ on a 144-DPI one.
 * Whole rows copied take their heights along, and whole columns their
   widths; an inserted row takes the height of the row above it, and an
   inserted column the width of the one to its left.
+* A row that keeps no height of its own is as tall as its tallest font,
+  and never shorter than the standard row; `AutoFit` puts a row back to
+  that. How tall a font makes a row depends on its size in pixels and on
+  the font's hinted metrics, irregularly enough that no formula
+  reproduces it, so the model carries a table measured in live Excel for
+  Aptos (and Aptos Narrow and Display), Calibri (and Calibri Light),
+  Arial, Cambria, Consolas, Courier New, Georgia, Segoe UI, Tahoma, Times
+  New Roman and Verdana, in all four styles and every size up to 409.5pt
+  (`src/pyopenvba/apps/excel/_font_rows.py`). A merged cell over several
+  rows, and turned text in an empty cell, make no row taller. The file
+  gets the height and the descent Excel writes for it.
 
-A row a larger font makes taller keeps the height its file recorded: the
-model does not yet work out font heights, so `AutoFit` on such a row, or
-on a column whose cells hold values, reports itself unsupported. The
-sizes are measured for Aptos Narrow 11 and Calibri 11 as the Normal font;
-with another Normal font the file's own standard sizes stand. Excel's used
-block, and with it which cells a multi-row read compares, also grows while
-a workbook is open and stays grown until something reads `UsedRange`; the
-model's always follows the sheet's content.
+A row whose height rests on something the model has not measured -- a
+font outside the table, two fonts from different tables in one row
+(Excel adds the tallest ascent to the deepest descent, which a row height
+alone does not separate), super- or subscript, or wrapped or turned text
+-- keeps the height its file recorded until something in the row changes.
+After that, reading its height or `AutoFit` reports itself unsupported,
+and a save writes the row without one, which Excel works out again only
+some of the time. `AutoFit` on a column whose cells hold values also
+reports unsupported, since it measures text. The sizes are measured for
+Aptos Narrow 11 and Calibri 11 as the Normal font; with another Normal
+font the file's own standard sizes stand. Excel's used block, and with it
+which cells a multi-row read compares, also grows while a workbook is open
+and stays grown until something reads `UsedRange`; the model's always
+follows the sheet's content.
 
 **Formulas are calculated.** `pyopenvba.formula` parses and evaluates
 them; the workbook keeps track of which cells are stale and what feeds
@@ -576,6 +593,7 @@ a document or a presentation is edited rather than created.
 | `apps/excel/_styles.py` | The stylesheet read into cell formats, colours, and the entries a save adds |
 | `apps/excel/_formats.py` | Font, Interior, Borders, alignment and protection, as a macro reads and sets them |
 | `apps/excel/_dimensions.py` | Row heights, column widths and hidden rows and columns, on a 96-DPI display |
+| `apps/excel/_font_rows.py` | How tall each measured font makes a row, baked from `tests/fixtures/font_rows.json` |
 | `apps/word/` | Word's object model, its bridge and its file |
 | `apps/powerpoint/` | PowerPoint's, the same three |
 | `shapes/_values.py` | What a shape is, in all three hosts' words |

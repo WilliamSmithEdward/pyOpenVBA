@@ -7,6 +7,17 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Rows grow with their fonts as Excel's do. A row that keeps no height of
+  its own is as tall as its tallest font, read from a table measured in
+  live Excel: every pixel size up to 409.5pt of Aptos, Calibri, Arial,
+  Cambria, Consolas, Courier New, Georgia, Segoe UI, Tahoma, Times New
+  Roman and Verdana, in all four styles, 25,662 rows in all. `AutoFit`
+  sizes a row to it, merged cells over several rows and empty turned
+  cells leave rows alone, and a save writes the height and descent Excel
+  does. A row whose height rests on something not measured -- another
+  font, fonts from two tables, super- or subscript, wrapped or turned
+  text -- keeps the height its file recorded until it changes, and then
+  reports itself unsupported rather than guess.
 - Row heights, column widths and hidden rows and columns as Excel keeps
   them on a 96-DPI display. `Range` gains `Hidden`, `UseStandardHeight`,
   `UseStandardWidth`, `Height`, `Width`, `Left` and `Top`, and a sheet

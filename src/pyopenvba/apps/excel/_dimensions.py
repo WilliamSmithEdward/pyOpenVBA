@@ -39,6 +39,8 @@ from typing import TYPE_CHECKING
 from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area
 from pyopenvba._xml import attributes as _attributes
 from pyopenvba._xml import escape as _escape
+from pyopenvba.apps.excel import _font_rows
+from pyopenvba.apps.excel._styles import excel_number
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.interpreter._values import EMPTY, NULL, error, to_number
 
@@ -67,6 +69,8 @@ _DESCENT = "x14ac:dyDescent"
 _KNOWN_NORMAL = {("aptos narrow", 11.0), ("calibri", 11.0)}
 #: The descent Excel writes for a row in the Normal font.
 NORMAL_DESCENT = "0.25"
+#: Alignments that wrap a cell's text onto more lines, as WrapText does.
+_WRAPPING = ("justify", "distributed")
 
 _ROW_ORDER = ("r", "spans", "s", "customFormat", "ht", "hidden", "customHeight", "outlineLevel", "collapsed",
               "thickTop", "thickBot", "ph")
@@ -115,8 +119,6 @@ def row_pixels(quarters: int) -> int:
 
 def height_text(quarters: int) -> str:
     """The ht a file stores for a row this tall: rounded up to twips, at most 409.6pt."""
-    from pyopenvba.apps.excel._styles import excel_number
-
     twips = min((15 * quarters + 3) // 4, MOST_STORED_TWIPS)
     return excel_number(twips / 20)
 
@@ -152,8 +154,6 @@ def characters_read(pixels: int) -> float:
 
 def width_text(pixels: int) -> str:
     """The width a file stores for a column this wide."""
-    from pyopenvba.apps.excel._styles import excel_number
-
     return excel_number(float(Fraction(pixels * 256 // DIGIT, 256)))
 
 
@@ -161,6 +161,11 @@ def standard_pixels(base_width: int = 8) -> int:
     """A sheet's standard column when its file names only a base width: rounded up to 8 pixels."""
     pixels = base_width * DIGIT + PADDING
     return (pixels + 7) // 8 * 8
+
+
+def font_pixels(points: float) -> int:
+    """A font's size in pixels, which is what its row height depends on: 12.375pt is 17."""
+    return _c_round(points * 4 / 3)
 
 
 # --- what a sheet holds ------------------------------------------------------------------------
@@ -245,6 +250,15 @@ class SheetDimensions:
         #: Columns hidden while they kept a width of their own. Excel's used
         #: block takes them in and keeps them, whatever the column does next.
         self.kept_columns: set[int] = set()
+        #: Rows their fonts make taller than the standard, or give another
+        #: descent: row -> (quarter pixels, descent in twips).
+        self._grown: dict[int, tuple[int, int]] = {}
+        #: Rows whose height rests on something not measured, and what.
+        self._unmeasured: dict[int, str] = {}
+        #: Rows whose cells changed since the file was read, so a height it
+        #: recorded for them no longer holds.
+        self._touched: set[int] = set()
+        self._grown_valid = False
 
     # -- reading a file
 
@@ -330,45 +344,136 @@ class SheetDimensions:
         return self.rows.get(row)
 
     def row_quarters(self, row: int) -> int:
-        """A row's height when shown, in quarter pixels."""
-        record = self.rows.get(row)
-        if record is not None:
-            if record.height is not None:
-                return record.height
-            if record.grown is not None:
-                return max(record.grown, self.default_quarters())
-        return self.default_quarters()
+        """A row's height when shown, in quarter pixels.
 
-    def _rows_with_fonts(self, rows: set[int] | None = None) -> set[int]:
-        """The rows, of those asked about, with a cell in a font other than the Normal one."""
-        default = self.sheet.book.stylesheet.default.font
-        return {row for (row, _), cell in self.sheet.cells_.items()
-                if (rows is None or row in rows) and cell.style is not None and cell.style.font != default}
-
-    def settle_growth(self) -> None:
-        """After loading: a height a file gave a row without customHeight holds only while a font makes it.
-
-        Excel works a row's height out from its fonts when it opens a
-        file, so a height left on a row whose cells are all in the Normal
-        font reads as the standard one.
+        A row that keeps no height of its own is as tall as its fonts
+        make it. Where the model cannot tell -- a font it has not
+        measured, wrapped or turned text, a mix of fonts -- it takes the
+        height the file recorded while nothing in the row has changed, and
+        reports the height unsupported once something has.
         """
-        grown = {row for row, record in self.rows.items() if record.grown is not None}
-        if not grown:
-            return
-        keep = self._rows_with_fonts(grown)
-        for row in grown - keep:
-            record = self.rows[row]
-            record.grown, record.height_as_read = None, ""
-            self._settle_row(row)
-        self.changed_rows -= grown - keep
+        record = self.rows.get(row)
+        if record is not None and record.height is not None:
+            return record.height
+        default = self.default_quarters()
+        if self.all_rows is not None:
+            return default
+        self._settle()
+        reason = self._unmeasured.get(row)
+        if reason is not None:
+            if row in self._touched:
+                raise VBAUnsupportedError(f"the height of row {row} rests on {reason}, which is not measured")
+            if record is not None and record.grown is not None:
+                return max(record.grown, default)
+            return default
+        grown = self._grown.get(row)
+        return max(grown[0], default) if grown is not None else default
 
     def fonts_changed(self, row: int) -> None:
-        """A cell in a row changed its format or went away."""
-        record = self.rows.get(row)
-        if record is None or record.grown is None or self._rows_with_fonts({row}):
+        """A cell in a row changed its value or its format, or went away."""
+        self._touched.add(row)
+        self._grown_valid = False
+
+    def invalidate_growth(self) -> None:
+        """Something that decides which fonts count changed: a merge."""
+        self._grown_valid = False
+
+    def _settle(self) -> None:
+        """Work out, from the cells, how tall each row's fonts make it."""
+        if self._grown_valid:
             return
-        record.grown, record.height_as_read = None, ""
-        self._settle_row(row)
+        self._grown_valid = True
+        self._grown.clear()
+        self._unmeasured.clear()
+        normal = self.sheet.book.stylesheet.default.font
+        normal_table = _font_rows.table_of(normal.name, normal.bold, normal.italic)
+        normal_pixels = font_pixels(normal.size)
+        known = self.normal_known()
+        # A font in a merged cell over several rows makes none of them taller.
+        tall = [area for area in self.sheet.merged_areas if area.rows > 1]
+        entries: dict[int, list[tuple[int, int]]] = {}
+        for (row, column), cell in self.sheet.cells_.items():
+            style = cell.style
+            if style is None:
+                continue
+            font, alignment = style.font, style.alignment
+            wraps = alignment.wrap or alignment.horizontal in _WRAPPING or alignment.vertical in _WRAPPING
+            if font == normal and not wraps and not alignment.text_rotation:
+                continue
+            if tall and any(area.contains(row, column) for area in tall):
+                continue
+            text = cell.value is not EMPTY or bool(cell.formula)
+            if alignment.text_rotation:
+                # Turned text in an empty cell takes no room; with text it takes its length.
+                if text:
+                    self._unmeasured.setdefault(row, "turned text")
+                continue
+            if wraps and text:
+                self._unmeasured.setdefault(row, "wrapped text")
+                continue
+            if font.vert_align in ("superscript", "subscript"):
+                self._unmeasured.setdefault(row, f"{font.vert_align} text")
+                continue
+            table = _font_rows.table_of(font.name, font.bold, font.italic)
+            pixels = font_pixels(font.size)
+            if table is None or not 1 <= pixels <= _font_rows.MOST_PIXELS:
+                self._unmeasured.setdefault(row, f"the font {font.name}")
+                continue
+            if table == normal_table and pixels <= normal_pixels:
+                continue
+            if not known:
+                self._unmeasured.setdefault(row, f"the Normal font {normal.name} {normal.size:g}")
+                continue
+            entries.setdefault(row, []).append((table, pixels))
+        for row, found in entries.items():
+            if row in self._unmeasured:
+                continue
+            if len({table for table, _ in found}) > 1:
+                # Each font was measured alone; together Excel adds the
+                # tallest ascent to the deepest descent, which a row's
+                # height alone does not tell apart.
+                self._unmeasured[row] = "a mix of fonts"
+                continue
+            pixels, descent = max(_font_rows.row_of(table, pixels) for table, pixels in found)
+            self._grown[row] = (pixels * 4, descent)
+
+    def settle_growth(self) -> None:
+        """After loading: a height a file recorded for a row matters only where the model cannot work it out.
+
+        Excel works a row's height out from its fonts when it opens a
+        file, so a recorded height left on a row whose fonts the model
+        measures, or on a row with none, goes.
+        """
+        self._settle()
+        for row, record in list(self.rows.items()):
+            if record.grown is not None and row not in self._unmeasured:
+                record.grown, record.height_as_read = None, ""
+                if record.empty() and not self.zero_height:
+                    del self.rows[row]
+
+    def sized_rows(self) -> set[int]:
+        """Every row whose height can differ from the default: records, and rows their fonts set."""
+        self._settle()
+        return set(self.rows) | set(self._grown) | set(self._unmeasured)
+
+    def written_growth(self, row: int) -> tuple[str | None, str | None]:
+        """The ht a row keeping no height of its own is written with, and the descent its fonts give it.
+
+        A row whose height rests on something not measured is written as
+        its file had it while untouched, and otherwise with neither: Excel
+        works both out again when it opens the file.
+        """
+        self._settle()
+        record = self.rows.get(row)
+        if row in self._unmeasured:
+            if row in self._touched or record is None:
+                return None, None
+            return (record.height_as_read or None) if record.grown is not None else None, record.descent or None
+        grown = self._grown.get(row)
+        if grown is None:
+            return None, None
+        quarters, descent = grown
+        return (height_text(quarters) if quarters > self.default_quarters() else None), excel_number(descent / 20)
 
     def row_hidden(self, row: int) -> bool:
         record = self.rows.get(row)
@@ -462,9 +567,11 @@ class SheetDimensions:
         self._settle_row(row)
 
     def autofit_row(self, row: int) -> None:
-        if self._rows_with_fonts({row}):
-            raise VBAUnsupportedError("AutoFit of a row whose cells use a font other than the Normal one is not "
-                                      "implemented")
+        """AutoFit: the row loses the height it kept and is shown, as tall as its fonts make it."""
+        self._settle()
+        reason = self._unmeasured.get(row)
+        if reason is not None:
+            raise VBAUnsupportedError(f"AutoFit of row {row} rests on {reason}, which is not measured")
         record = self._touch_row(row)
         record.height, record.hidden, record.grown, record.height_as_read = None, False, None, ""
         self._settle_row(row)
@@ -574,7 +681,7 @@ class SheetDimensions:
             return 0
         default = self.default_row_pixels()
         total = (bottom - top + 1) * default
-        for row in self.rows:
+        for row in self.sized_rows():
             if top <= row <= bottom:
                 total += self.row_shown_pixels(row) - default
         return total
@@ -610,6 +717,15 @@ class SheetDimensions:
                     moved[row] = RowRecord(height=above.height)
         self.rows = moved
         self.moved = True
+        touched: set[int] = set()
+        for row in self._touched:
+            if delete and start <= row < start + count:
+                continue
+            target = (row - count if row >= start + count else row) if delete else (row + count if row >= start else row)
+            if target <= MAX_ROWS:
+                touched.add(target)
+        self._touched = touched
+        self._grown_valid = False
 
     def shift_columns(self, start: int, count: int, delete: bool) -> None:
         moved: dict[int, ColumnRecord] = {}
@@ -667,6 +783,7 @@ class SheetDimensions:
         other.format = dict(self.format)
         other.all_rows, other.zero_height, other.standard = self.all_rows, self.zero_height, self.standard
         other.kept_columns = set(self.kept_columns)
+        other._touched = set(self._touched)
         other.changed_rows = set(other.rows)
         other.columns_changed = other.format_changed = other.moved = True
         return other
@@ -808,7 +925,7 @@ def read_row_height(target: Range) -> object:
     def height(row: int) -> object:
         return 0.0 if dims.row_hidden(row) else row_points_read(dims.row_quarters(row))
 
-    return _compared(target, True, height, dims.record_rows())
+    return _compared(target, True, height, dims.sized_rows())
 
 
 def write_row_height(target: Range, value: object) -> None:
@@ -909,7 +1026,7 @@ def write_hidden(target: Range, value: object) -> None:
 
 def read_use_standard_height(target: Range) -> object:
     dims = _dims(target)
-    return _compared(target, True, lambda row: not dims.row_is_custom(row), dims.record_rows())
+    return _compared(target, True, lambda row: not dims.row_is_custom(row), dims.sized_rows())
 
 
 def write_use_standard_height(target: Range, value: object) -> None:
@@ -1022,22 +1139,23 @@ def row_start_tag(sheet: Worksheet, row: int, original: dict[str, str] | None, s
         attrs["spans"] = spans
     kept = original if original is not None and not dims.moved else {}
     attrs.update({key: value for key, value in kept.items() if key not in _ROW_OWN})
+    grown_height, grown_descent = dims.written_growth(row)
     if record is not None:
         attrs.update(record.extra)
         if record.height is not None:
             attrs["ht"] = record.height_as_read or height_text(record.height)
-        elif record.grown is not None:
-            attrs["ht"] = record.height_as_read or height_text(record.grown)
         if record.hidden or record.height == 0:
             attrs["hidden"] = "1"
         if record.height is not None:
             attrs["customHeight"] = "1"
+    if "ht" not in attrs and grown_height is not None and dims.all_rows is None:
+        attrs["ht"] = grown_height
     listed = record is not None and dims.zero_height
     if len(attrs) == 1 + (spans is not None) and not has_cells and not listed:
         return None
     if descent is not None:
-        written = (record.descent if record is not None else "") or kept.get(_DESCENT, "")
-        attrs[_DESCENT] = written or descent
+        # The descent comes from the row's fonts, even when it keeps a height of its own.
+        attrs[_DESCENT] = grown_descent or descent
     names = _ordered(attrs, _ROW_ORDER)
     body = " ".join(f'{key}="{_escape(attrs[key])}"' for key in names)
     return f"<row {body}>"

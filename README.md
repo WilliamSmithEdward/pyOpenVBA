@@ -706,8 +706,11 @@ in Excel on a 96-DPI display, the one the model emulates: `RowHeight = 20`
 reads back 20, draws 19.5pt tall and saves as Excel saves it; `Hidden`,
 `UseStandardHeight`, `UseStandardWidth`, `Height`, `Width`, `Left`, `Top`
 and a sheet's standard sizes follow, and all of it is read from and saved
-to the file. A row a larger font makes taller keeps the height its file
-recorded, and `AutoFit` measures no text yet.
+to the file. A row grows with its fonts as Excel's does, from heights
+measured in live Excel for the common Office and Windows fonts; a row
+whose height rests on an unmeasured font, a mix of fonts, or wrapped
+text reports itself unsupported, and column `AutoFit` measures no text
+yet.
 
 `shapes()` and `shape(name)` return detached snapshots, including each
 control's linked cell, list range and value. Use `update_shape` to make

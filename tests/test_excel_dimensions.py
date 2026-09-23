@@ -20,19 +20,53 @@ from typing import Any
 import pytest
 
 from pyopenvba.apps.excel import ExcelApplication
+from pyopenvba.exceptions import VBAUnsupportedError
 
 FIXTURES = Path(__file__).parent / "fixtures"
 RECORDS: list[dict[str, str]] = json.loads((FIXTURES / "dimensions.json").read_text(encoding="utf-8"))
 FILE: dict[str, Any] = json.loads((FIXTURES / "dimensions" / "dimensions_answers.json").read_text(encoding="utf-8"))
 CASES: list[dict[str, Any]] = FILE["cases"]
+#: The cases the model can write as Excel does, with where each sits among
+#: the sheets: a recorded_ case rests on heights only Excel works out, which
+#: the model reads back from Excel's file but cannot write itself.
+WRITTEN = [(index, case) for index, case in enumerate(CASES) if not case["name"].startswith("recorded_")]
 
 
-@pytest.mark.parametrize("record", RECORDS, ids=[record["name"] for record in RECORDS])
+#: Probes whose answer rests on something the model has not measured -- a
+#: mix of fonts, a font outside the tables, super- or subscript, wrapped or
+#: turned text. Excel's answers are recorded; the model says it cannot tell.
+UNMEASURED = [record for record in RECORDS if record["name"].startswith("unmeasured_")]
+
+
+@pytest.mark.parametrize("record", [record for record in RECORDS if record not in UNMEASURED],
+                         ids=[record["name"] for record in RECORDS if record not in UNMEASURED])
 def test_measured_dimension(record: dict[str, str]) -> None:
     app = ExcelApplication()
     app.add_workbook()
     app.add_module(record["code"], name="Probe")
     assert app.run("Report") == record["reported"]
+
+
+def test_the_baked_font_table_is_the_measurement() -> None:
+    """src/pyopenvba/apps/excel/_font_rows.py holds exactly what tests/fixtures/font_rows.json measured."""
+    from pyopenvba.apps.excel import _font_rows
+
+    tables: list[dict[str, Any]] = json.loads((FIXTURES / "font_rows.json").read_text(encoding="utf-8"))
+    for table in tables:
+        index = _font_rows.table_of(table["font"].upper(), table["bold"], table["italic"])
+        assert index is not None, table["font"]
+        measured = list(zip(table["rows"], table["descent"], strict=True))
+        baked = [_font_rows.row_of(index, pixels) for pixels in range(1, _font_rows.MOST_PIXELS + 1)]
+        assert baked == measured, (table["font"], table["bold"], table["italic"])
+
+
+@pytest.mark.parametrize("record", UNMEASURED, ids=[record["name"] for record in UNMEASURED])
+def test_an_unmeasured_row_height_reports_itself(record: dict[str, str]) -> None:
+    app = ExcelApplication()
+    app.add_workbook()
+    app.add_module(record["code"], name="Probe")
+    with pytest.raises(VBAUnsupportedError, match="not measured"):
+        app.run("Report")
 
 
 def _sheet_parts(path: Path) -> list[str]:
@@ -134,7 +168,7 @@ _AS_READ = {"insert_rows": "insert_rows_read"}
 _BY_NAME = {case["name"]: case for case in CASES}
 
 
-@pytest.mark.parametrize("index,case", list(enumerate(CASES)), ids=[case["name"] for case in CASES])
+@pytest.mark.parametrize("index,case", WRITTEN, ids=[case["name"] for _, case in WRITTEN])
 def test_a_model_authored_size_is_written_as_excel_writes_it(model_authored: Path, index: int,
                                                              case: dict[str, Any]) -> None:
     expected = _BY_NAME[_AS_READ.get(case["name"], case["name"])]["sizes"]
@@ -156,7 +190,7 @@ def model_reopened(model_authored: Path) -> dict[str, str]:
     return _answers(app)
 
 
-@pytest.mark.parametrize("case", CASES, ids=[case["name"] for case in CASES])
+@pytest.mark.parametrize("case", [case for _, case in WRITTEN], ids=[case["name"] for _, case in WRITTEN])
 def test_a_model_authored_size_survives_a_save(model_reopened: dict[str, str], case: dict[str, Any]) -> None:
     assert _agrees(case["name"], model_reopened[case["name"]], case["answers"])
 

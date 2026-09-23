@@ -281,6 +281,71 @@ PROBES.update({
                    ["wb.Worksheets(2).Rows(2).RowHeight", "wb.Worksheets(2).Columns(2).ColumnWidth",
                     "wb.Worksheets(2).Rows(3).Hidden", "wb.Worksheets(2).Columns(3).Hidden",
                     "wb.Worksheets(2).StandardWidth", "wb.Worksheets(2).Columns(4).ColumnWidth"]),
+    # --- rows as tall as their fonts ---------------------------------------------------------------
+    "font_grows_row": ('ws.Range("A1").Font.Size = 20',
+                       [*reads("ws.Rows(1)", ROW), 'ws.Range("A2").Top', 'ws.Rows("1:2").Height',
+                        "ws.StandardHeight", "ws.UsedRange.Address"]),
+    "font_grows_row_with_value": ('ws.Range("A1").Value = "x"\nws.Range("A1").Font.Size = 20', reads("ws.Rows(1)", ROW)),
+    "font_back_to_normal": ('ws.Range("A1").Font.Size = 20\nws.Range("A1").Font.Size = 11', reads("ws.Rows(1)", ROW)),
+    "font_smaller_than_normal": ('ws.Range("A1").Font.Size = 8', reads("ws.Rows(1)", ROW)),
+    "font_other_face": ('ws.Range("A1").Font.Name = "Segoe UI"\nws.Range("A2").Font.Name = "Tahoma"\n'
+                        'ws.Range("A2").Font.Size = 16\nws.Range("A3").Font.Name = "Arial"\n'
+                        'ws.Range("A3").Font.Size = 20\nws.Range("A3").Font.Bold = True\n'
+                        'ws.Range("A4").Font.Name = "calibri light"\nws.Range("A4").Font.Size = 30',
+                        [*reads("ws.Rows(1)", ROW), *reads("ws.Rows(2)", ROW), *reads("ws.Rows(3)", ROW),
+                         *reads("ws.Rows(4)", ROW)]),
+    "font_same_face_sizes": ('ws.Range("A1").Font.Size = 20\nws.Range("B1").Font.Size = 26\n'
+                             'ws.Range("C1").Font.Size = 14\nws.Range("D1").Font.Name = "Aptos"\n'
+                             'ws.Range("D1").Font.Size = 24', reads("ws.Rows(1)", ROW)),
+    "font_odd_sizes": ('ws.Range("A1").Font.Size = 12.375\nws.Range("A2").Font.Size = 12.4\n'
+                       'ws.Range("A3").Font.Size = 10.3\nws.Range("A4").Font.Size = 409',
+                       [*reads("ws.Rows(1)", ROW), *reads("ws.Rows(2)", ROW), *reads("ws.Rows(3)", ROW),
+                        *reads("ws.Rows(4)", ROW)]),
+    "font_custom_row": ('ws.Rows(1).RowHeight = 12\nws.Range("A1").Font.Size = 20', reads("ws.Rows(1)", ROW)),
+    "font_autofit": ('ws.Rows(1).RowHeight = 12\nws.Range("A1").Font.Size = 20\nws.Rows(1).AutoFit',
+                     reads("ws.Rows(1)", ROW)),
+    "font_use_standard": ('ws.Range("A1").Font.Size = 20\nws.Rows(1).UseStandardHeight = True\n'
+                          'ws.Range("A2").Font.Size = 20\nws.Rows(2).UseStandardHeight = False\n'
+                          'ws.Range("A2").Font.Size = 30', [*reads("ws.Rows(1)", ROW), *reads("ws.Rows(2)", ROW)]),
+    "font_clearing": ('ws.Range("A1").Font.Size = 20\nws.Range("A1").ClearFormats\n'
+                      'ws.Range("A2").Value = 1\nws.Range("A2").Font.Size = 20\nws.Range("A2").ClearContents\n'
+                      'ws.Range("A3").Value = 1\nws.Range("A3").Font.Size = 20\nws.Range("A3").Clear',
+                      [*reads("ws.Rows(1)", ROW), *reads("ws.Rows(2)", ROW), *reads("ws.Rows(3)", ROW)]),
+    "font_hidden_row": ('ws.Range("A1").Font.Size = 20\nws.Rows(1).Hidden = True\nws.Range("A2").Font.Size = 20\n'
+                        "ws.Rows(2).Hidden = True\nws.Rows(2).Hidden = False",
+                        [*reads("ws.Rows(1)", ROW), *reads("ws.Rows(2)", ROW)]),
+    "font_merged": ('ws.Range("A1:A2").Merge\nws.Range("A1").Font.Size = 20\nws.Range("C4:D4").Merge\n'
+                    'ws.Range("C4").Font.Size = 20',
+                    [*reads("ws.Rows(1)", ROW), *reads("ws.Rows(2)", ROW), *reads("ws.Rows(4)", ROW)]),
+    "font_wrap_and_turn_without_text": ('ws.Range("A1").Font.Size = 20\nws.Range("A1").WrapText = True\n'
+                                        'ws.Range("A2").Font.Size = 20\nws.Range("A2").Orientation = 90',
+                                        [*reads("ws.Rows(1)", ROW), *reads("ws.Rows(2)", ROW)]),
+    "font_on_a_block": ('ws.Range("A1:C3").Font.Size = 16', [*reads("ws.Rows(1)", ROW), *reads("ws.Rows(3)", ROW),
+                                                             *reads("ws.Rows(4)", ROW), 'ws.Range("A5").Top']),
+    "font_rows_below_move": ('ws.Range("A2").Font.Size = 30\nws.Range("A4").Font.Name = "Georgia"\n'
+                             'ws.Range("A4").Font.Size = 40', ['ws.Range("A3").Top', 'ws.Range("A10").Top',
+                                                               'ws.Rows("1:5").Height']),
+    "font_multi_row_read": ('ws.Range("A1").Font.Size = 20\nws.Range("A3").Value = 1',
+                            ['ws.Rows("1:2").RowHeight', 'ws.Rows("2:3").RowHeight', 'ws.Rows("1:2").UseStandardHeight',
+                             'ws.Range("A1:A2").RowHeight']),
+    "font_copied": ('ws.Range("A1").Font.Size = 20\nws.Range("A1").Copy ws.Range("A5")\n'
+                    "ws.Rows(1).Copy ws.Rows(7)", [*reads("ws.Rows(5)", ROW), *reads("ws.Rows(7)", ROW)]),
+    "font_insert_below": ('ws.Range("A2").Font.Size = 20\nws.Rows(2).Insert',
+                          [*reads("ws.Rows(2)", ROW), *reads("ws.Rows(3)", ROW)]),
+    # --- what the model reports unsupported: Excel's answers, recorded ----------------------------
+    "unmeasured_mixed_faces": ('ws.Range("A1").Font.Size = 20\nws.Range("B1").Font.Name = "Arial"\n'
+                               'ws.Range("B1").Font.Size = 26\nws.Range("A2").Font.Name = "Segoe UI"\n'
+                               'ws.Range("B2").Font.Name = "Tahoma"\nws.Range("B2").Font.Size = 16',
+                               [*reads("ws.Rows(1)", ROW), *reads("ws.Rows(2)", ROW)]),
+    "unmeasured_face": ('ws.Range("A1").Font.Name = "Segoe Print"\nws.Range("A1").Font.Size = 20',
+                        reads("ws.Rows(1)", ROW)),
+    "unmeasured_superscript": ('ws.Range("A1").Font.Size = 20\nws.Range("A1").Font.Superscript = True\n'
+                               'ws.Range("A2").Font.Size = 20\nws.Range("A2").Font.Subscript = True',
+                               [*reads("ws.Rows(1)", ROW), *reads("ws.Rows(2)", ROW)]),
+    "unmeasured_wrapped_text": ('ws.Range("A1").Value = "x" & vbLf & "y"\nws.Range("A1").WrapText = True',
+                                reads("ws.Rows(1)", ROW)),
+    "unmeasured_turned_text": ('ws.Range("A1").Value = "turned"\nws.Range("A1").Font.Size = 20\n'
+                               'ws.Range("A1").Orientation = 90', reads("ws.Rows(1)", ROW)),
 })
 
 

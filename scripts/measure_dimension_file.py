@@ -89,6 +89,21 @@ CASES: dict[str, str] = {
     "show_one_of_every_row": 'ws.Rows("1:1048576").Hidden = True\nws.Rows(5).Hidden = False',
     "hide_rows_to_the_end": 'ws.Rows(2).RowHeight = 20\nws.Rows("3:1048576").Hidden = True',
     "hide_every_column": 'ws.Columns(3).ColumnWidth = 20\nws.Columns("A:XFD").Hidden = True',
+    "font_rows": 'ws.Range("A1").Font.Size = 20\nws.Range("A2").Font.Name = "Segoe UI"\n'
+                 'ws.Range("A3").Font.Name = "Arial"\nws.Range("A3").Font.Size = 26\nws.Range("A3").Font.Bold = True\n'
+                 'ws.Rows(4).RowHeight = 12\nws.Range("A4").Font.Size = 20\nws.Range("A5").Value = 1\n'
+                 'ws.Range("A5").Font.Size = 20\nws.Range("A5").ClearContents\nws.Range("A6").Font.Size = 20\n'
+                 'ws.Rows(6).Hidden = True\nws.Range("B7").Font.Name = "Georgia"\nws.Range("B7").Font.Size = 40\n'
+                 'ws.Range("A8").Font.Size = 14\nws.Range("B8").Font.Name = "Aptos"\nws.Range("B8").Font.Size = 30\n'
+                 'ws.Range("A9").Font.Size = 12.375\nws.Range("A10").Font.Size = 8',
+    # Heights the model cannot work out: a file Excel saved with them reads back
+    # from the heights it recorded, which the model keeps while nothing changes.
+    "recorded_rows": 'ws.Range("A1").Font.Size = 20\nws.Range("B1").Font.Name = "Arial"\nws.Range("B1").Font.Size = 26\n'
+                     'ws.Range("A2").Font.Name = "Segoe Print"\nws.Range("A2").Font.Size = 20\n'
+                     'ws.Range("A3").Font.Size = 20\nws.Range("A3").Font.Superscript = True\n'
+                     'ws.Range("A4").Value = "x" & vbLf & "y"\nws.Range("A4").WrapText = True\n'
+                     'ws.Range("A5").Value = "turned"\nws.Range("A5").Orientation = 90\n'
+                     'ws.Range("A6").Font.Name = "Segoe Print"\nws.Range("A6").Font.Size = 8',
 }
 
 #: What is done to a workbook whose Normal font is Calibri 11, the default before Aptos.

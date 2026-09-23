@@ -51,6 +51,8 @@ def unmerge(target: Range) -> None:
     if kept != sheet.merged_areas:
         sheet.merged_areas = kept
         sheet.merges_dirty = True
+        # A merged cell's font does not make its rows taller; unmerged, it can.
+        sheet.dims.invalidate_growth()
         sheet.touched()
 
 
@@ -88,4 +90,5 @@ def merge(target: Range, across: bool) -> None:
         sheet.merged_areas = [one for one in sheet.merged_areas if not intersects(one, wanted)]
         sheet.merged_areas.append(wanted)
         sheet.merges_dirty = True
+        sheet.dims.invalidate_growth()
         sheet.touched()

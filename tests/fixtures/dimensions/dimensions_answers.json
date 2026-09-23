@@ -248,6 +248,46 @@
     "rows": [],
     "dimension": "<dimension ref=\"C1\"/>"
    }
+  },
+  {
+   "name": "font_rows",
+   "setup": "ws.Range(\"A1\").Font.Size = 20\nws.Range(\"A2\").Font.Name = \"Segoe UI\"\nws.Range(\"A3\").Font.Name = \"Arial\"\nws.Range(\"A3\").Font.Size = 26\nws.Range(\"A3\").Font.Bold = True\nws.Rows(4).RowHeight = 12\nws.Range(\"A4\").Font.Size = 20\nws.Range(\"A5\").Value = 1\nws.Range(\"A5\").Font.Size = 20\nws.Range(\"A5\").ClearContents\nws.Range(\"A6\").Font.Size = 20\nws.Rows(6).Hidden = True\nws.Range(\"B7\").Font.Name = \"Georgia\"\nws.Range(\"B7\").Font.Size = 40\nws.Range(\"A8\").Font.Size = 14\nws.Range(\"B8\").Font.Name = \"Aptos\"\nws.Range(\"B8\").Font.Size = 30\nws.Range(\"A9\").Font.Size = 12.375\nws.Range(\"A10\").Font.Size = 8",
+   "answers": "15;8.43;$A$1:$B$10;26.25:26.25:False:True;16.5:16.5:False:True;33.75:33.75:False:True;12:12:False:False;26.25:26.25:False:True;0:0:True:True;49.5:49.5:False:True;39:39:False:True;17.25:17.25:False:True;15:15:False:True;15:15:False:True;15:15:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;",
+   "sizes": {
+    "sheetFormatPr": "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>",
+    "cols": "",
+    "rows": [
+     "<row r=\"1\" spans=\"1:2\" ht=\"26.25\" x14ac:dyDescent=\"0.4\">",
+     "<row r=\"2\" spans=\"1:2\" ht=\"16.5\" x14ac:dyDescent=\"0.3\">",
+     "<row r=\"3\" spans=\"1:2\" ht=\"33.75\" x14ac:dyDescent=\"0.5\">",
+     "<row r=\"4\" spans=\"1:2\" ht=\"12\" customHeight=\"1\" x14ac:dyDescent=\"0.4\">",
+     "<row r=\"5\" spans=\"1:2\" ht=\"26.25\" x14ac:dyDescent=\"0.4\">",
+     "<row r=\"6\" spans=\"1:2\" ht=\"26.25\" hidden=\"1\" x14ac:dyDescent=\"0.4\">",
+     "<row r=\"7\" spans=\"1:2\" ht=\"49.5\" x14ac:dyDescent=\"0.65\">",
+     "<row r=\"8\" spans=\"1:2\" ht=\"39\" x14ac:dyDescent=\"0.6\">",
+     "<row r=\"9\" spans=\"1:2\" ht=\"17.25\" x14ac:dyDescent=\"0.3\">",
+     "<row r=\"10\" spans=\"1:2\" x14ac:dyDescent=\"0.25\">"
+    ],
+    "dimension": "<dimension ref=\"A1:B10\"/>"
+   }
+  },
+  {
+   "name": "recorded_rows",
+   "setup": "ws.Range(\"A1\").Font.Size = 20\nws.Range(\"B1\").Font.Name = \"Arial\"\nws.Range(\"B1\").Font.Size = 26\nws.Range(\"A2\").Font.Name = \"Segoe Print\"\nws.Range(\"A2\").Font.Size = 20\nws.Range(\"A3\").Font.Size = 20\nws.Range(\"A3\").Font.Superscript = True\nws.Range(\"A4\").Value = \"x\" & vbLf & \"y\"\nws.Range(\"A4\").WrapText = True\nws.Range(\"A5\").Value = \"turned\"\nws.Range(\"A5\").Orientation = 90\nws.Range(\"A6\").Font.Name = \"Segoe Print\"\nws.Range(\"A6\").Font.Size = 8",
+   "answers": "15;8.43;$A$1:$B$6;33:33:False:True;41.25:41.25:False:True;29.25:29.25:False:True;30:30:False:True;35.25:35.25:False:True;18:18:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;15:15:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;8.43:48:False:True;",
+   "sizes": {
+    "sheetFormatPr": "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>",
+    "cols": "",
+    "rows": [
+     "<row r=\"1\" spans=\"1:2\" ht=\"33\" x14ac:dyDescent=\"0.45\">",
+     "<row r=\"2\" spans=\"1:2\" ht=\"41.25\" x14ac:dyDescent=\"1.05\">",
+     "<row r=\"3\" spans=\"1:2\" ht=\"29.25\" x14ac:dyDescent=\"0.4\">",
+     "<row r=\"4\" spans=\"1:2\" ht=\"30\" x14ac:dyDescent=\"0.25\">",
+     "<row r=\"5\" spans=\"1:2\" ht=\"35.25\" x14ac:dyDescent=\"0.25\">",
+     "<row r=\"6\" spans=\"1:2\" ht=\"18\" x14ac:dyDescent=\"0.45\">"
+    ],
+    "dimension": "<dimension ref=\"A1:B6\"/>"
+   }
   }
  ],
  "foreign": {

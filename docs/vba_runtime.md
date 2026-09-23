@@ -1081,9 +1081,24 @@ TotalsRowRange, ListColumns and ListRows; its name, style and style
 options can be set, and `Range.ListObject` finds the table a cell is in.
 A save writes a new table in the part Excel writes for it, and a table
 read from a file keeps its part until it changes. Whole rows inserted or
-deleted through a table carry it; the totals row, ListRows.Add and
-Delete, Resize, Unlist and column edits through a table report
-themselves.
+deleted through a table carry it; ListRows.Add and Delete, Resize,
+Unlist and column edits through a table report themselves.
+
+`ShowTotals` shows a table's totals row as Excel does
+(`tests/fixtures/tables/totals_row/`, 20 workbooks): cells go in under
+the table across its columns, those below moving down even when the row
+under the table is empty. The first time, the first column says Total,
+unless it is the only one, and the last adds itself up with
+`SUBTOTAL(109,[Price])`, or counts with 103 where its values are not all
+numbers. `ListColumn.TotalsCalculation` sets each column's function --
+Sum 109, Average 101, Count 103, CountNums 102, Min 105, Max 104, StdDev
+107, Var 110, None nothing, Custom an empty cell until a formula is
+written -- whether the row shows or not. Hiding the row deletes its cells,
+those below moving up, and what each column totals comes back with it.
+Writing into the row changes what the column totals: a SUBTOTAL of the
+column is that function, another formula is custom, and a value is a
+label, a number becoming its text. `[#Totals]` names the row while it
+shows and is #REF! while it does not.
 
 **Structured references.** A formula names part of a table by its name
 and columns, `Table1[Qty]`, `Table1[[#Headers],[Qty]:[Price]]`,

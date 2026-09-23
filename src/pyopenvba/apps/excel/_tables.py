@@ -20,6 +20,11 @@ with row stripes and an AutoFilter. Its name is not a defined name. A
 file keeps each table in its own part, xl/tables/tableN.xml, which the
 sheet names in a tableParts element; a table read from a file keeps its
 part as it was until it changes.
+
+A header names its column, and writing over one renames the column
+through every formula; the totals row under the data shows and hides as
+:func:`show_totals` and :func:`hide_totals` set out
+(scripts/measure_structured_references.py, scripts/measure_totals_row.py).
 """
 
 from __future__ import annotations
@@ -31,10 +36,10 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import Area, parse_area
-from pyopenvba._xml import attributes, escape
+from pyopenvba._xml import attributes, escape, escape_text, unescape
 from pyopenvba.apps.excel._model import ExcelObject, Range
 from pyopenvba.exceptions import VBAUnsupportedError
-from pyopenvba.formula._structured import TableShape, renamed_columns, renamed_table
+from pyopenvba.formula._structured import TableShape, from_file, in_file, renamed_columns, renamed_table
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
 from pyopenvba.interpreter._values import (EMPTY, ERR_SUBSCRIPT_OUT_OF_RANGE, MISSING, NOTHING, VBADate, VBAInt, error,
                                            to_bool, to_integer, to_text)
@@ -55,6 +60,7 @@ _TABLE = re.compile(r"<table\b[^>]*>")
 _COLUMN = re.compile(r"<tableColumn\b[^>]*?(?:/>|>.*?</tableColumn>)", re.DOTALL)
 _STYLE = re.compile(r"<tableStyleInfo\b[^>]*/>")
 _FILTER = re.compile(r"<autoFilter\b[^>]*?(?:/>|>.*?</autoFilter>)", re.DOTALL)
+_TOTALS_FORMULA = re.compile(r"<totalsRowFormula\b[^>]*>(.*?)</totalsRowFormula>", re.DOTALL)
 
 
 @dataclass
@@ -62,6 +68,11 @@ class TableColumn:
     name: str
     id: int
     uid: str = ""
+    #: What the totals row holds under the column, kept while the row is hidden: a label, or a function by its
+    #: name in the part -- sum, count, custom and the rest -- with a custom one's formula.
+    totals_label: str = ""
+    totals_function: str = ""
+    totals_formula: str = ""
 
 
 @dataclass
@@ -76,6 +87,8 @@ class Table:
     columns: list[TableColumn]
     headers: bool = True
     totals: bool = False
+    #: Whether the totals row has ever been shown, which a part says by leaving out totalsRowShown="0".
+    totals_shown: bool = False
     style: str = DEFAULT_STYLE
     first_column: bool = False
     last_column: bool = False
@@ -116,13 +129,19 @@ def read_table(sheet: Worksheet, part: str, relationship: str, xml: str) -> Tabl
     head = attributes(found.group(0)) if found else {}
     style = _STYLE.search(xml)
     shown = attributes(style.group(0)) if style else {}
-    columns = [TableColumn(name=_column_name(one.get("name", "")), id=int(one.get("id", "0") or 0),
-                           uid=one.get("xr3:uid", ""))
-               for one in (attributes(_opening(match.group(0))) for match in _COLUMN.finditer(xml))]
+    columns: list[TableColumn] = []
+    for match in _COLUMN.finditer(xml):
+        one = attributes(_opening(match.group(0)))
+        formula = _TOTALS_FORMULA.search(match.group(0))
+        columns.append(TableColumn(
+            name=_column_name(one.get("name", "")), id=int(one.get("id", "0") or 0), uid=one.get("xr3:uid", ""),
+            totals_label=_column_name(one.get("totalsRowLabel", "")), totals_function=one.get("totalsRowFunction", ""),
+            totals_formula=from_file("=" + unescape(formula.group(1))) if formula else ""))
     return Table(
         sheet=sheet, id=int(head.get("id", "0") or 0), name=head.get("displayName") or head.get("name", ""),
         area=parse_area(head.get("ref", "A1"), sheet=""), columns=columns,
         headers=head.get("headerRowCount", "1") != "0", totals=int(head.get("totalsRowCount", "0") or 0) > 0,
+        totals_shown=head.get("totalsRowShown", "1") != "0",
         style=shown.get("name", ""), first_column=shown.get("showFirstColumn") == "1",
         last_column=shown.get("showLastColumn") == "1", row_stripes=shown.get("showRowStripes") == "1",
         column_stripes=shown.get("showColumnStripes") == "1", auto_filter=_FILTER.search(xml) is not None,
@@ -148,15 +167,16 @@ def _column_name(text: str) -> str:
 def table_xml(table: Table) -> str:
     """The part for a table the model made, as Excel writes one."""
     reference = table.area.address(absolute=False)
-    counts = ' totalsRowCount="1"' if table.totals else ' totalsRowShown="0"'
     header = "" if table.headers else ' headerRowCount="0"'
     data = table.data
     filtered = Area(table.area.top, table.area.left, data.bottom if data is not None else table.area.top,
                     table.area.right).address(absolute=False)
     auto_filter = f'<autoFilter ref="{filtered}" xr:uid="{table.uid}"/>' if table.auto_filter and table.headers \
         else ""
-    columns = "".join(f'<tableColumn id="{column.id}" xr3:uid="{column.uid}" name="{_column_attribute(column.name)}"/>'
+    names = [one.name for one in all_tables(table.sheet)]
+    columns = "".join(_patched_column(f'<tableColumn id="{column.id}" xr3:uid="{column.uid}" name=""/>', column, names)
                       for column in table.columns)
+    counts = _totals_counts(table)
     style = (f'<tableStyleInfo name="{escape(table.style)}" showFirstColumn="{int(table.first_column)}" '
              f'showLastColumn="{int(table.last_column)}" showRowStripes="{int(table.row_stripes)}" '
              f'showColumnStripes="{int(table.column_stripes)}"/>')
@@ -178,15 +198,17 @@ def patched_xml(table: Table) -> str:
                              ("ref", table.area.address(absolute=False))):
         head = re.sub(rf'(\s{attribute}=")[^"]*(")', lambda match: match.group(1) + value + match.group(2), head,
                       count=1)
+    head = re.sub(r'\s(?:totalsRowCount|totalsRowShown)="[^"]*"', "", head)
+    after = max((match.end() for name in ("ref", "tableType", "headerRowCount", "insertRow", "insertRowShift")
+                 for match in re.finditer(rf'\s{name}="[^"]*"', head)), default=len(head) - 1)
+    head = head[:after] + _totals_counts(table) + head[after:]
     xml = xml[: found.start()] + head + xml[found.end():]
     elements = list(_COLUMN.finditer(xml))
     if len(elements) == len(table.columns):
-        # Each column under the name it has now, a header written over or ListColumn.Name set.
+        # Each column under the name it has now and with what its totals row holds.
+        names = [one.name for one in all_tables(table.sheet)]
         for element, column in reversed(list(zip(elements, table.columns))):
-            opening = _opening(element.group(0))
-            named = re.sub(r'(\sname=")[^"]*(")', lambda match: match.group(1) + _column_attribute(column.name)
-                           + match.group(2), opening, count=1)
-            xml = xml[: element.start()] + named + xml[element.start() + len(opening):]
+            xml = xml[: element.start()] + _patched_column(element.group(0), column, names) + xml[element.end():]
     data = table.data
     filtered = Area(table.area.top, table.area.left, data.bottom if data is not None else table.area.top,
                     table.area.right).address(absolute=False)
@@ -210,6 +232,34 @@ def patched_xml(table: Table) -> str:
     return xml.replace("</table>", style + "</table>", 1)
 
 
+def _totals_counts(table: Table) -> str:
+    """The table element's word on its totals row: shown, never shown, or neither for one shown and hidden again."""
+    if table.totals:
+        return ' totalsRowCount="1"'
+    return "" if table.totals_shown else ' totalsRowShown="0"'
+
+
+def _patched_column(element: str, column: TableColumn, tables: list[str]) -> str:
+    """A tableColumn element with the column's name and what its totals row holds, anything else kept: a label
+    or a function as an attribute after the name, and a custom function's formula as the file spells it."""
+    opening = _opening(element)
+    closed = opening.endswith("/>")
+    inside = opening[len("<tableColumn"):-2 if closed else -1]
+    body = "" if closed else element[len(opening):element.rindex("</tableColumn>")]
+    inside = re.sub(r'\s(?:totalsRowFunction|totalsRowLabel)="[^"]*"', "", inside)
+    totals = f' totalsRowFunction="{column.totals_function}"' if column.totals_function else \
+        f' totalsRowLabel="{_column_attribute(column.totals_label)}"' if column.totals_label else ""
+    inside = re.sub(r'(\sname=")[^"]*(")', lambda match: match.group(1) + _column_attribute(column.name)
+                    + match.group(2) + totals, inside, count=1)
+    body = _TOTALS_FORMULA.sub("", body)
+    if column.totals_function == "custom" and column.totals_formula:
+        formula = f"<totalsRowFormula>{escape_text(in_file(column.totals_formula, tables)[1:])}</totalsRowFormula>"
+        calculated = body.find("</calculatedColumnFormula>")
+        at = calculated + len("</calculatedColumnFormula>") if calculated >= 0 else 0
+        body = body[:at] + formula + body[at:]
+    return f"<tableColumn{inside}>{body}</tableColumn>" if body else f"<tableColumn{inside}/>"
+
+
 def _guid() -> str:
     return "{" + str(uuid.uuid4()).upper() + "}"
 
@@ -225,7 +275,8 @@ def shape(table: Table) -> TableShape:
 
 
 def rewrite_formulas(book: Workbook, change: Callable[[str], str]) -> None:
-    """Put every formula of the workbook -- its cells' and its defined names' -- through ``change``."""
+    """Put every formula of the workbook -- its cells', its defined names' and its tables' totals -- through
+    ``change``."""
     for sheet in book.sheets_:
         for cell in sheet.cells_.values():
             if cell.formula:
@@ -233,6 +284,12 @@ def rewrite_formulas(book: Workbook, change: Callable[[str], str]) -> None:
                 if updated != cell.formula:
                     cell.formula = updated
                     sheet.touched()
+        for table in sheet.tables:
+            for column in table.columns:
+                if column.totals_formula:
+                    updated = change(column.totals_formula)
+                    if updated != column.totals_formula:
+                        column.totals_formula, table.changed = updated, True
     for entry in book.names_.entries:
         updated = change(entry.refers_to)
         if updated != entry.refers_to:
@@ -250,8 +307,15 @@ def rename(table: Table, wanted: str) -> None:
     rewrite_formulas(table.sheet.book, lambda text: renamed_table(text, old, wanted))
 
 
-#: Set while a table's header cells are being written with its columns' names, which is itself an edit of them.
+#: Set while the model writes a table's header or totals cells itself, which is an edit of them too.
 _naming: set[int] = set()
+
+
+def edited(sheet: Worksheet, row: int, column: int) -> None:
+    """A cell changed: where it is a table's header, the column takes the name it gives; where it is in the totals
+    row, the column totals as it now says."""
+    headers_changed(sheet, row, column)
+    totals_changed(sheet, row, column)
 
 
 def headers_changed(sheet: Worksheet, row: int, column: int) -> None:
@@ -292,6 +356,133 @@ def name_columns(table: Table, names: list[str]) -> None:
         table.changed = True
         sheet.touched()
         rewrite_formulas(sheet.book, lambda text: renamed_columns(text, table.name, renames))
+
+
+#: TotalsCalculation's numbers, each the function's name in a table part, and the SUBTOTAL each function writes.
+CALCULATIONS = ("", "sum", "average", "count", "countNums", "min", "max", "stdDev", "var", "custom")
+_SUBTOTAL = {"sum": 109, "average": 101, "count": 103, "countNums": 102, "min": 105, "max": 104, "stdDev": 107,
+             "var": 110}
+
+
+def show_totals(table: Table) -> None:
+    """ShowTotals = True, as measured (tests/fixtures/tables/totals_row/).
+
+    Cells go in under the table across its columns, those below moving
+    down, even where they are empty. The first time the row is shown the
+    first column says Total, unless it is the only one or totals already,
+    and the last adds itself up, or counts where its values are not all
+    numbers. Each column's label, SUBTOTAL or formula is written in.
+    """
+    from pyopenvba.apps.excel._editing import shift_cells
+
+    sheet, area = table.sheet, table.area
+    if not table.totals_shown:
+        last, first = table.columns[-1], table.columns[0]
+        if not last.totals_function:
+            last.totals_function = "sum" if _numbers(table, len(table.columns) - 1) else "count"
+        if len(table.columns) > 1 and not first.totals_function and not first.totals_label:
+            first.totals_label = "Total"
+    below = Area(area.bottom + 1, area.left, area.bottom + 1, area.right, sheet.name)
+    shift_cells(Range(sheet, [below]), below, delete=False, vertical=True)
+    table.area = Area(area.top, area.left, area.bottom + 1, area.right)
+    table.totals = table.totals_shown = table.changed = True
+    for index in range(len(table.columns)):
+        _write_total(table, index)
+    sheet.shape_changed()
+
+
+def hide_totals(table: Table) -> None:
+    """ShowTotals = False: the row's cells are deleted, those below moving up; what each column totals stays for
+    the next time it is shown."""
+    from pyopenvba.apps.excel._editing import shift_cells
+
+    sheet, area = table.sheet, table.area
+    table.area = Area(area.top, area.left, area.bottom - 1, area.right)
+    table.totals, table.changed = False, True
+    row = Area(area.bottom, area.left, area.bottom, area.right, sheet.name)
+    shift_cells(Range(sheet, [row]), row, delete=True, vertical=True)
+    sheet.shape_changed()
+
+
+def _numbers(table: Table, index: int) -> bool:
+    """Whether a column's data is all numbers, and there is some."""
+    data = table.data
+    if data is None:
+        return False
+    calculator = table.sheet.book.calculator
+    values = [calculator.value_of(table.sheet.name, row, data.left + index) for row in range(data.top, data.bottom + 1)]
+    present = [value for value in values if value is not EMPTY]
+    return bool(present) and all(isinstance(value, (int, float)) and not isinstance(value, bool) for value in present)
+
+
+def _write_total(table: Table, index: int) -> None:
+    """Write a column's totals cell as the column says: its SUBTOTAL, its own formula, its label or nothing."""
+    from pyopenvba.formula._parse import Structured
+    from pyopenvba.formula._structured import spelled
+
+    sheet, column = table.sheet, table.columns[index]
+    row, at = table.area.bottom, table.area.left + index
+    formula, value = "", EMPTY
+    code = _SUBTOTAL.get(column.totals_function)
+    if code is not None:
+        formula = f"=SUBTOTAL({code},{spelled(Structured(table=table.name, first=column.name, last=column.name))})"
+    elif column.totals_function == "custom":
+        formula = column.totals_formula
+    elif column.totals_label:
+        value = column.totals_label
+    cell = sheet.cell(row, at, create=bool(formula) or value is not EMPTY)
+    if cell is None:
+        return
+    _naming.add(id(table))
+    try:
+        cell.value, cell.formula, cell.stale, cell.shared = value, formula, bool(formula), None
+        sheet.cell_changed(row, at)
+    finally:
+        _naming.discard(id(table))
+
+
+def totals_changed(sheet: Worksheet, row: int, column: int) -> None:
+    """A cell of a totals row written: the column totals as the cell now says. A SUBTOTAL of the column is that
+    function, TotalsCalculation reading it back; any other formula is the column's own, custom; a value is its
+    label, a number written there becoming its text; an empty cell totals nothing."""
+    table = next((one for one in sheet.tables if one.totals and one.area.bottom == row
+                  and one.area.left <= column <= one.area.right), None)
+    if table is None or id(table) in _naming:
+        return
+    entry = table.columns[column - table.area.left]
+    cell = sheet.cell(row, column)
+    entry.totals_label = entry.totals_function = entry.totals_formula = ""
+    table.changed = True
+    if cell is not None and cell.formula:
+        entry.totals_function = _function_of(cell.formula, table, entry) or "custom"
+        if entry.totals_function == "custom":
+            entry.totals_formula = cell.formula
+    elif cell is not None and cell.value is not EMPTY:
+        entry.totals_label = _cell_text(sheet, row, column)
+        if cell.value != entry.totals_label:
+            _naming.add(id(table))
+            try:
+                cell.value = entry.totals_label
+                sheet.cell_changed(row, column)
+            finally:
+                _naming.discard(id(table))
+
+
+def _function_of(formula: str, table: Table, column: TableColumn) -> str | None:
+    """The totals function a formula is: SUBTOTAL with one of the codes over this column's data, or None."""
+    from pyopenvba.formula._parse import Call, FormulaError, Literal, Structured, parse
+
+    try:
+        node = parse(formula)
+    except FormulaError:
+        return None
+    if not (isinstance(node, Call) and node.name.upper() == "SUBTOTAL" and len(node.args) == 2):
+        return None
+    code, reference = node.args
+    if not (isinstance(code, Literal) and isinstance(reference, Structured)) or reference.items or reference.span \
+            or reference.table.lower() != table.name.lower() or (reference.first or "").lower() != column.name.lower():
+        return None
+    return next((name for name, number in _SUBTOTAL.items() if code.value == number), None)
 
 
 def _cell_text(sheet: Worksheet, row: int, column: int) -> str:
@@ -595,8 +786,12 @@ class ListObject(ExcelObject):
 
     @setter("ShowTotals")
     def _set_show_totals(self, value: object) -> None:
-        if to_bool(value) != self.table.totals:
-            raise VBAUnsupportedError("showing or hiding a table's totals row is not implemented")
+        wanted = to_bool(value)
+        if wanted != self.table.totals:
+            if wanted:
+                show_totals(self.table)
+            else:
+                hide_totals(self.table)
 
     @member
     def ShowHeaders(self) -> object:
@@ -718,6 +913,25 @@ class ListColumn(ExcelObject):
     @member
     def Index(self) -> object:
         return VBAInt(self.index, "Long")
+
+    @member
+    def TotalsCalculation(self) -> object:
+        function = self.table.columns[self.index - 1].totals_function
+        return VBAInt(CALCULATIONS.index(function) if function in CALCULATIONS else 0, "Long")
+
+    @setter("TotalsCalculation")
+    def _set_totals_calculation(self, value: object) -> None:
+        """What the column's totals row works out, shown or not: a SUBTOTAL, nothing, or custom, which leaves the
+        cell empty until a formula is written there (tests/fixtures/tables/totals_row/)."""
+        number = int(to_integer(value, "Long"))
+        if not 0 <= number < len(CALCULATIONS):
+            raise VBAUnsupportedError(f"TotalsCalculation {number} is not implemented")
+        column = self.table.columns[self.index - 1]
+        column.totals_function, column.totals_label, column.totals_formula = CALCULATIONS[number], "", ""
+        self.table.changed = True
+        self.sheet.touched()
+        if self.table.totals:
+            _write_total(self.table, self.index - 1)
 
     @member
     def Parent(self) -> object:

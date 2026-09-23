@@ -879,9 +879,9 @@ class Worksheet(ExcelObject):
         """One cell's contents changed: tell the calculator what to redo, and a table whose header it is."""
         self.touched()
         if self.tables:
-            from pyopenvba.apps.excel._tables import headers_changed
+            from pyopenvba.apps.excel._tables import edited
 
-            headers_changed(self, row, column)
+            edited(self, row, column)
         self.dims.fonts_changed(row)
         calculator = self.book.calculator
         cell = self.cells_.get((row, column))

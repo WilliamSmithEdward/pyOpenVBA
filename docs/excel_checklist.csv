@@ -450,7 +450,7 @@ ListColumn,Name,property,As String,,VERIFIED,tests/fixtures/tables/tables.json; 
 ListColumn,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/tables/tables.json,
 ListColumn,Range,"property, read-only",As Range,,VERIFIED,tests/fixtures/tables/tables.json,
 ListColumn,Total,"property, read-only",As Range,,MISSING,,
-ListColumn,TotalsCalculation,property,As XlTotalsCalculation,,MISSING,,
+ListColumn,TotalsCalculation,property,As XlTotalsCalculation,,VERIFIED,tests/fixtures/tables/totals_row/totals_row.json,"Read and set, the totals row shown or hidden: each function its SUBTOTAL, None an empty cell, Custom an empty cell until a formula is written there; read back from a SUBTOTAL, a formula or a label written into the row."
 ListColumn,XPath,"property, read-only",As XPath,,MISSING,,
 ListColumns,_Default,"property, read-only",As ListColumn,,MISSING,,
 ListColumns,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
@@ -492,7 +492,7 @@ ListObject,ShowTableStyleColumnStripes,property,As Boolean,,PARTIAL,tests/fixtur
 ListObject,ShowTableStyleFirstColumn,property,As Boolean,,PARTIAL,tests/fixtures/tables/tables.json,"Read and set, saved as Excel saves it."
 ListObject,ShowTableStyleLastColumn,property,As Boolean,,PARTIAL,tests/fixtures/tables/tables.json,"Read and set, saved as Excel saves it."
 ListObject,ShowTableStyleRowStripes,property,As Boolean,,PARTIAL,tests/fixtures/tables/tables.json,"Read and set, saved as Excel saves it."
-ListObject,ShowTotals,property,As Boolean,,PARTIAL,tests/fixtures/tables/tables.json,"Read; showing or hiding the totals row reports itself, since it writes SUBTOTAL over a structured reference."
+ListObject,ShowTotals,property,As Boolean,,VERIFIED,tests/fixtures/tables/tables.json; tests/fixtures/tables/totals_row/totals_row.json,"Showing the row puts cells in under the table, those below moving down; the first time, the first column says Total and the last adds up, or counts when not all numbers; hiding deletes the cells and keeps what each column totals."
 ListObject,Slicers,"property, read-only",As Slicers,,MISSING,,
 ListObject,Sort,"property, read-only",As Sort,,MISSING,,
 ListObject,SourceType,"property, read-only",As XlListObjectSourceType,,MISSING,,

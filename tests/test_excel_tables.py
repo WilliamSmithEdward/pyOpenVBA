@@ -31,9 +31,7 @@ QUESTIONS: list[dict[str, str]] = RECORD["questions"]
 _UID = re.compile(r'(xr3?:uid)="\{[0-9A-F-]+\}"')
 
 #: Workbooks and questions the model answers differently, and why.
-KNOWN: dict[str, str] = {
-    "totals": "showing a table's totals row is not implemented",
-}
+KNOWN: dict[str, str] = {}
 
 
 def _loose(xml: str) -> str:

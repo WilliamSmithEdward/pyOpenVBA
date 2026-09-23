@@ -166,8 +166,18 @@ All notable changes to pyOpenVBA are documented here. This project follows
   error 1004 over another table. A table's name, style and style options
   can be set. A save writes each new table in the parts Excel writes for
   it; a table read from a file keeps its part until it changes. 8
-  workbooks and 15 questions in live Excel pin it. The totals row and
-  editing a table's rows and columns come later.
+  workbooks and 15 questions in live Excel pin it. Editing a table's rows
+  and columns comes later.
+- A table's totals row: `ListObject.ShowTotals` and
+  `ListColumn.TotalsCalculation`. Showing the row puts cells in under the
+  table, those below moving down; the first time, the first column says
+  Total and the last adds up, or counts where its values are not all
+  numbers. Each function writes its SUBTOTAL, `SUBTOTAL(109,[Price])`;
+  hiding the row deletes its cells and keeps what each column totals for
+  the next time. A label, a SUBTOTAL or another formula written into the
+  row is what the column totals from then on, and a number written there
+  becomes its text. The table part keeps each label, function and custom
+  formula as Excel does. 20 workbooks in live Excel pin it.
 - Structured references. A formula can name part of a table,
   `Table1[Qty]`, `Table1[#All]`, `Table1[[#Headers],[Qty]:[Price]]`,
   `Table1[@Qty]`, and the model spells it back, saves it, reads it from a

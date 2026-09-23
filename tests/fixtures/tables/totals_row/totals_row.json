@@ -1,0 +1,375 @@
+{
+ "helpers": "Private Function Cells3(ws As Object, r As Long) As String\n    Dim c As Long, out As String\n    For c = 1 To 3\n        out = out & ws.Cells(r, c).Formula & \"=\" & TypeName(ws.Cells(r, c).Value) & \":\" & _\n            CStr(ws.Cells(r, c).Text) & \"/\"\n    Next\n    Cells3 = out\nEnd Function\n\nPrivate Function Calcs(t As Object) As String\n    Dim c As Object, out As String\n    For Each c In t.ListColumns\n        out = out & c.Name & \":\" & c.TotalsCalculation & \"/\"\n    Next\n    Calcs = out\nEnd Function\n\nPrivate Function Formulas(ws As Object, r As Long, last As Long) As String\n    Dim k As Long, out As String\n    For k = 1 To last\n        out = out & ws.Cells(r, k).Formula & \"/\"\n    Next\n    Formulas = out\nEnd Function\n\nPrivate Function Values(ws As Object, r As Long, last As Long) As String\n    Dim k As Long, out As String\n    For k = r To last\n        out = out & CStr(ws.Range(\"E\" & k).Text) & \"/\"\n    Next\n    Values = out\nEnd Function\n",
+ "books": [
+  {
+   "name": "shown",
+   "making": "ws.Range(\"A1:C1\").Value = Array(\"Name\", \"Qty\", \"Price\")\nws.Range(\"A2:C2\").Value = Array(\"apple\", 3, 1.5)\nws.Range(\"A3:C3\").Value = Array(\"pear\", 5, 2.25)\nws.Range(\"A4:C4\").Value = Array(\"plum\", 7, 0.5)\nSet t = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:C4\"), , xlYes)\nt.ShowTotals = True",
+   "questions": [
+    "t.Range.Address",
+    "t.TotalsRowRange.Address",
+    "t.ListRows.Count",
+    "Cells3(ws, 5)",
+    "Calcs(t)",
+    "ws.Range(\"A5\").Formula & \"/\" & ws.Range(\"C5\").FormulaR1C1"
+   ],
+   "answers": [
+    "$A$1:$C$5",
+    "$A$5:$C$5",
+    "3",
+    "Total=String:Total/=Empty:/=SUBTOTAL(109,[Price])=Double:4.25/",
+    "Name:0/Qty:0/Price:1/",
+    "Total/=SUBTOTAL(109,[Price])"
+   ],
+   "parts": {
+    "xl/tables/table1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"1\" xr:uid=\"{C9F275F6-547F-4BFB-8EC7-2362579DA985}\" name=\"Table1\" displayName=\"Table1\" ref=\"A1:C5\" totalsRowCount=\"1\"><autoFilter ref=\"A1:C4\" xr:uid=\"{C9F275F6-547F-4BFB-8EC7-2362579DA985}\"/><tableColumns count=\"3\"><tableColumn id=\"1\" xr3:uid=\"{45FBB017-C1CC-46E4-8B50-E2BB60C822A0}\" name=\"Name\" totalsRowLabel=\"Total\"/><tableColumn id=\"2\" xr3:uid=\"{5B6DEC46-28DE-4A18-80A4-3926BA69FF2F}\" name=\"Qty\"/><tableColumn id=\"3\" xr3:uid=\"{DF1A9653-3C5A-4FCC-860A-14D5B0D17C2C}\" name=\"Price\" totalsRowFunction=\"sum\"/></tableColumns><tableStyleInfo name=\"TableStyleMedium2\" showFirstColumn=\"0\" showLastColumn=\"0\" showRowStripes=\"1\" showColumnStripes=\"0\"/></table>",
+    "sheetData": "<sheetData><row r=\"1\" spans=\"1:3\" x14ac:dyDescent=\"0.25\"><c r=\"A1\" t=\"s\"><v>0</v></c><c r=\"B1\" t=\"s\"><v>1</v></c><c r=\"C1\" t=\"s\"><v>2</v></c></row><row r=\"2\" spans=\"1:3\" x14ac:dyDescent=\"0.25\"><c r=\"A2\" t=\"s\"><v>3</v></c><c r=\"B2\"><v>3</v></c><c r=\"C2\"><v>1.5</v></c></row><row r=\"3\" spans=\"1:3\" x14ac:dyDescent=\"0.25\"><c r=\"A3\" t=\"s\"><v>4</v></c><c r=\"B3\"><v>5</v></c><c r=\"C3\"><v>2.25</v></c></row><row r=\"4\" spans=\"1:3\" x14ac:dyDescent=\"0.25\"><c r=\"A4\" t=\"s\"><v>5</v></c><c r=\"B4\"><v>7</v></c><c r=\"C4\"><v>0.5</v></c></row><row r=\"5\" spans=\"1:3\" x14ac:dyDescent=\"0.25\"><c r=\"A5\" t=\"s\"><v>6</v></c><c r=\"C5\"><f>SUBTOTAL(109,Table1[Price])</f><v>4.25</v></c></row></sheetData>",
+    "sharedStrings": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" count=\"7\" uniqueCount=\"7\"><si><t>Name</t></si><si><t>Qty</t></si><si><t>Price</t></si><si><t>apple</t></si><si><t>pear</t></si><si><t>plum</t></si><si><t>Total</t></si></sst>"
+   }
+  },
+  {
+   "name": "shown_neighbours",
+   "making": "ws.Range(\"A1:C1\").Value = Array(\"Name\", \"Qty\", \"Price\")\nws.Range(\"A2:C2\").Value = Array(\"apple\", 3, 1.5)\nws.Range(\"A3:C3\").Value = Array(\"pear\", 5, 2.25)\nws.Range(\"A4:C4\").Value = Array(\"plum\", 7, 0.5)\nws.Range(\"A7\").Value = \"below\"\nws.Range(\"E5\").Value = \"beside\"\nws.Range(\"B6\").Value = \"under\"\nSet t = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:C4\"), , xlYes)\nt.ShowTotals = True",
+   "questions": [
+    "t.Range.Address",
+    "Cells3(ws, 5)",
+    "Cells3(ws, 6)",
+    "Cells3(ws, 7)",
+    "ws.Range(\"E5\").Value & \"/\" & ws.Range(\"E6\").Value"
+   ],
+   "answers": [
+    "$A$1:$C$5",
+    "Total=String:Total/=Empty:/=SUBTOTAL(109,[Price])=Double:4.25/",
+    "=Empty:/=Empty:/=Empty:/",
+    "=Empty:/under=String:under/=Empty:/",
+    "beside/"
+   ],
+   "parts": {
+    "xl/tables/table1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"1\" xr:uid=\"{6D68B99A-5E7A-496D-A8CB-7604DE9189C9}\" name=\"Table1\" displayName=\"Table1\" ref=\"A1:C5\" totalsRowCount=\"1\"><autoFilter ref=\"A1:C4\" xr:uid=\"{6D68B99A-5E7A-496D-A8CB-7604DE9189C9}\"/><tableColumns count=\"3\"><tableColumn id=\"1\" xr3:uid=\"{64A8EA93-C0EF-405B-831F-C7B89DE52CB8}\" name=\"Name\" totalsRowLabel=\"Total\"/><tableColumn id=\"2\" xr3:uid=\"{FB5821B2-206A-4C61-89EE-5216FF1F1DC4}\" name=\"Qty\"/><tableColumn id=\"3\" xr3:uid=\"{DE079DE7-8A9B-485E-B9A8-10A0FA7C6ECC}\" name=\"Price\" totalsRowFunction=\"sum\"/></tableColumns><tableStyleInfo name=\"TableStyleMedium2\" showFirstColumn=\"0\" showLastColumn=\"0\" showRowStripes=\"1\" showColumnStripes=\"0\"/></table>",
+    "sheetData": "<sheetData><row r=\"1\" spans=\"1:5\" x14ac:dyDescent=\"0.25\"><c r=\"A1\" t=\"s\"><v>0</v></c><c r=\"B1\" t=\"s\"><v>1</v></c><c r=\"C1\" t=\"s\"><v>2</v></c></row><row r=\"2\" spans=\"1:5\" x14ac:dyDescent=\"0.25\"><c r=\"A2\" t=\"s\"><v>3</v></c><c r=\"B2\"><v>3</v></c><c r=\"C2\"><v>1.5</v></c></row><row r=\"3\" spans=\"1:5\" x14ac:dyDescent=\"0.25\"><c r=\"A3\" t=\"s\"><v>4</v></c><c r=\"B3\"><v>5</v></c><c r=\"C3\"><v>2.25</v></c></row><row r=\"4\" spans=\"1:5\" x14ac:dyDescent=\"0.25\"><c r=\"A4\" t=\"s\"><v>5</v></c><c r=\"B4\"><v>7</v></c><c r=\"C4\"><v>0.5</v></c></row><row r=\"5\" spans=\"1:5\" x14ac:dyDescent=\"0.25\"><c r=\"A5\" t=\"s\"><v>9</v></c><c r=\"C5\"><f>SUBTOTAL(109,Table1[Price])</f><v>4.25</v></c><c r=\"E5\" t=\"s\"><v>7</v></c></row><row r=\"7\" spans=\"1:5\" x14ac:dyDescent=\"0.25\"><c r=\"B7\" t=\"s\"><v>8</v></c></row><row r=\"8\" spans=\"1:5\" x14ac:dyDescent=\"0.25\"><c r=\"A8\" t=\"s\"><v>6</v></c></row></sheetData>",
+    "sharedStrings": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" count=\"10\" uniqueCount=\"10\"><si><t>Name</t></si><si><t>Qty</t></si><si><t>Price</t></si><si><t>apple</t></si><si><t>pear</t></si><si><t>plum</t></si><si><t>below</t></si><si><t>beside</t></si><si><t>under</t></si><si><t>Total</t></si></sst>"
+   }
+  },
+  {
+   "name": "shown_blocked",
+   "making": "ws.Range(\"A1:C1\").Value = Array(\"Name\", \"Qty\", \"Price\")\nws.Range(\"A2:C2\").Value = Array(\"apple\", 3, 1.5)\nws.Range(\"A3:C3\").Value = Array(\"pear\", 5, 2.25)\nws.Range(\"A4:C4\").Value = Array(\"plum\", 7, 0.5)\nws.Range(\"A5\").Value = \"blocked\"\nws.Range(\"E5\").Value = \"beside\"\nSet t = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:C4\"), , xlYes)\nt.ShowTotals = True",
+   "questions": [
+    "t.Range.Address",
+    "Cells3(ws, 5)",
+    "Cells3(ws, 6)",
+    "ws.Range(\"E5\").Value & \"/\" & ws.Range(\"E6\").Value"
+   ],
+   "answers": [
+    "$A$1:$C$5",
+    "Total=String:Total/=Empty:/=SUBTOTAL(109,[Price])=Double:4.25/",
+    "blocked=String:blocked/=Empty:/=Empty:/",
+    "beside/"
+   ],
+   "parts": {
+    "xl/tables/table1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"1\" xr:uid=\"{1F801921-B8B7-49B2-B918-A9CBD7CB4E5A}\" name=\"Table1\" displayName=\"Table1\" ref=\"A1:C5\" totalsRowCount=\"1\"><autoFilter ref=\"A1:C4\" xr:uid=\"{1F801921-B8B7-49B2-B918-A9CBD7CB4E5A}\"/><tableColumns count=\"3\"><tableColumn id=\"1\" xr3:uid=\"{5662DBDC-272F-4560-B8E1-8328AB611200}\" name=\"Name\" totalsRowLabel=\"Total\"/><tableColumn id=\"2\" xr3:uid=\"{7C9B821F-BB3A-4C2D-90CE-7280F09C6934}\" name=\"Qty\"/><tableColumn id=\"3\" xr3:uid=\"{7DD6229F-C791-4B7A-85A2-B849CF63D895}\" name=\"Price\" totalsRowFunction=\"sum\"/></tableColumns><tableStyleInfo name=\"TableStyleMedium2\" showFirstColumn=\"0\" showLastColumn=\"0\" showRowStripes=\"1\" showColumnStripes=\"0\"/></table>",
+    "sheetData": "<sheetData><row r=\"1\" spans=\"1:5\" x14ac:dyDescent=\"0.25\"><c r=\"A1\" t=\"s\"><v>0</v></c><c r=\"B1\" t=\"s\"><v>1</v></c><c r=\"C1\" t=\"s\"><v>2</v></c></row><row r=\"2\" spans=\"1:5\" x14ac:dyDescent=\"0.25\"><c r=\"A2\" t=\"s\"><v>3</v></c><c r=\"B2\"><v>3</v></c><c r=\"C2\"><v>1.5</v></c></row><row r=\"3\" spans=\"1:5\" x14ac:dyDescent=\"0.25\"><c r=\"A3\" t=\"s\"><v>4</v></c><c r=\"B3\"><v>5</v></c><c r=\"C3\"><v>2.25</v></c></row><row r=\"4\" spans=\"1:5\" x14ac:dyDescent=\"0.25\"><c r=\"A4\" t=\"s\"><v>5</v></c><c r=\"B4\"><v>7</v></c><c r=\"C4\"><v>0.5</v></c></row><row r=\"5\" spans=\"1:5\" x14ac:dyDescent=\"0.25\"><c r=\"A5\" t=\"s\"><v>8</v></c><c r=\"C5\"><f>SUBTOTAL(109,Table1[Price])</f><v>4.25</v></c><c r=\"E5\" t=\"s\"><v>7</v></c></row><row r=\"6\" spans=\"1:5\" x14ac:dyDescent=\"0.25\"><c r=\"A6\" t=\"s\"><v>6</v></c></row></sheetData>",
+    "sharedStrings": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" count=\"9\" uniqueCount=\"9\"><si><t>Name</t></si><si><t>Qty</t></si><si><t>Price</t></si><si><t>apple</t></si><si><t>pear</t></si><si><t>plum</t></si><si><t>blocked</t></si><si><t>beside</t></si><si><t>Total</t></si></sst>"
+   }
+  },
+  {
+   "name": "text_last",
+   "making": "ws.Range(\"A1:C1\").Value = Array(\"Name\", \"Qty\", \"Note\")\nws.Range(\"A2:C2\").Value = Array(\"apple\", 3, \"x\")\nws.Range(\"A3:C3\").Value = Array(\"pear\", 5, \"y\")\nSet t = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:C4\"), , xlYes)\nt.ShowTotals = True",
+   "questions": [
+    "Cells3(ws, 4)",
+    "Calcs(t)"
+   ],
+   "answers": [
+    "=Empty:/=Empty:/=Empty:/",
+    "Name:0/Qty:0/Note:3/"
+   ],
+   "parts": {
+    "xl/tables/table1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"1\" xr:uid=\"{33EA1484-30A8-47E4-B552-0E5ED141BFE4}\" name=\"Table1\" displayName=\"Table1\" ref=\"A1:C5\" totalsRowCount=\"1\"><autoFilter ref=\"A1:C4\" xr:uid=\"{33EA1484-30A8-47E4-B552-0E5ED141BFE4}\"/><tableColumns count=\"3\"><tableColumn id=\"1\" xr3:uid=\"{42470BF4-DAD3-47E4-A898-2CF97C1334C2}\" name=\"Name\" totalsRowLabel=\"Total\"/><tableColumn id=\"2\" xr3:uid=\"{C1ADC9B6-8C0E-481B-8DDD-00FCF2CFBC0B}\" name=\"Qty\"/><tableColumn id=\"3\" xr3:uid=\"{9F9E0669-2088-4862-B715-EA21ADF92452}\" name=\"Note\" totalsRowFunction=\"count\"/></tableColumns><tableStyleInfo name=\"TableStyleMedium2\" showFirstColumn=\"0\" showLastColumn=\"0\" showRowStripes=\"1\" showColumnStripes=\"0\"/></table>",
+    "sheetData": "<sheetData><row r=\"1\" spans=\"1:3\" x14ac:dyDescent=\"0.25\"><c r=\"A1\" t=\"s\"><v>0</v></c><c r=\"B1\" t=\"s\"><v>1</v></c><c r=\"C1\" t=\"s\"><v>2</v></c></row><row r=\"2\" spans=\"1:3\" x14ac:dyDescent=\"0.25\"><c r=\"A2\" t=\"s\"><v>3</v></c><c r=\"B2\"><v>3</v></c><c r=\"C2\" t=\"s\"><v>4</v></c></row><row r=\"3\" spans=\"1:3\" x14ac:dyDescent=\"0.25\"><c r=\"A3\" t=\"s\"><v>5</v></c><c r=\"B3\"><v>5</v></c><c r=\"C3\" t=\"s\"><v>6</v></c></row><row r=\"5\" spans=\"1:3\" x14ac:dyDescent=\"0.25\"><c r=\"A5\" t=\"s\"><v>7</v></c><c r=\"C5\"><f>SUBTOTAL(103,Table1[Note])</f><v>2</v></c></row></sheetData>",
+    "sharedStrings": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" count=\"8\" uniqueCount=\"8\"><si><t>Name</t></si><si><t>Qty</t></si><si><t>Note</t></si><si><t>apple</t></si><si><t>x</t></si><si><t>pear</t></si><si><t>y</t></si><si><t>Total</t></si></sst>"
+   }
+  },
+  {
+   "name": "number_first",
+   "making": "ws.Range(\"A1:B1\").Value = Array(\"Qty\", \"Price\")\nws.Range(\"A2:B2\").Value = Array(3, 1.5)\nws.Range(\"A3:B3\").Value = Array(5, 2.25)\nSet t = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:B3\"), , xlYes)\nt.ShowTotals = True",
+   "questions": [
+    "Cells3(ws, 4)",
+    "Calcs(t)"
+   ],
+   "answers": [
+    "Total=String:Total/=SUBTOTAL(109,[Price])=Double:3.75/=Empty:/",
+    "Qty:0/Price:1/"
+   ],
+   "parts": {
+    "xl/tables/table1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"1\" xr:uid=\"{E940E05E-6F35-43B4-B6FF-3FFD7D5596D3}\" name=\"Table1\" displayName=\"Table1\" ref=\"A1:B4\" totalsRowCount=\"1\"><autoFilter ref=\"A1:B3\" xr:uid=\"{E940E05E-6F35-43B4-B6FF-3FFD7D5596D3}\"/><tableColumns count=\"2\"><tableColumn id=\"1\" xr3:uid=\"{EB720D8A-E2FD-4716-8539-2E3F081C70DD}\" name=\"Qty\" totalsRowLabel=\"Total\"/><tableColumn id=\"2\" xr3:uid=\"{C255053F-14C8-4DA3-9497-34A188E64A35}\" name=\"Price\" totalsRowFunction=\"sum\"/></tableColumns><tableStyleInfo name=\"TableStyleMedium2\" showFirstColumn=\"0\" showLastColumn=\"0\" showRowStripes=\"1\" showColumnStripes=\"0\"/></table>",
+    "sheetData": "<sheetData><row r=\"1\" spans=\"1:2\" x14ac:dyDescent=\"0.25\"><c r=\"A1\" t=\"s\"><v>0</v></c><c r=\"B1\" t=\"s\"><v>1</v></c></row><row r=\"2\" spans=\"1:2\" x14ac:dyDescent=\"0.25\"><c r=\"A2\"><v>3</v></c><c r=\"B2\"><v>1.5</v></c></row><row r=\"3\" spans=\"1:2\" x14ac:dyDescent=\"0.25\"><c r=\"A3\"><v>5</v></c><c r=\"B3\"><v>2.25</v></c></row><row r=\"4\" spans=\"1:2\" x14ac:dyDescent=\"0.25\"><c r=\"A4\" t=\"s\"><v>2</v></c><c r=\"B4\"><f>SUBTOTAL(109,Table1[Price])</f><v>3.75</v></c></row></sheetData>",
+    "sharedStrings": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" count=\"3\" uniqueCount=\"3\"><si><t>Qty</t></si><si><t>Price</t></si><si><t>Total</t></si></sst>"
+   }
+  },
+  {
+   "name": "single",
+   "making": "ws.Range(\"A1\").Value = \"Qty\"\nws.Range(\"A2\").Value = 3\nws.Range(\"A3\").Value = 5\nSet t = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:A3\"), , xlYes)\nt.ShowTotals = True",
+   "questions": [
+    "Cells3(ws, 4)",
+    "Calcs(t)"
+   ],
+   "answers": [
+    "=SUBTOTAL(109,[Qty])=Double:8/=Empty:/=Empty:/",
+    "Qty:1/"
+   ],
+   "parts": {
+    "xl/tables/table1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"1\" xr:uid=\"{FF39DD6D-D90D-4B1E-AB8A-B926B10F6A0C}\" name=\"Table1\" displayName=\"Table1\" ref=\"A1:A4\" totalsRowCount=\"1\"><autoFilter ref=\"A1:A3\" xr:uid=\"{FF39DD6D-D90D-4B1E-AB8A-B926B10F6A0C}\"/><tableColumns count=\"1\"><tableColumn id=\"1\" xr3:uid=\"{1CEB5DA3-8437-4B16-A137-A55BE53AACED}\" name=\"Qty\" totalsRowFunction=\"sum\"/></tableColumns><tableStyleInfo name=\"TableStyleMedium2\" showFirstColumn=\"0\" showLastColumn=\"0\" showRowStripes=\"1\" showColumnStripes=\"0\"/></table>",
+    "sheetData": "<sheetData><row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\"><c r=\"A1\" t=\"s\"><v>0</v></c></row><row r=\"2\" spans=\"1:1\" x14ac:dyDescent=\"0.25\"><c r=\"A2\"><v>3</v></c></row><row r=\"3\" spans=\"1:1\" x14ac:dyDescent=\"0.25\"><c r=\"A3\"><v>5</v></c></row><row r=\"4\" spans=\"1:1\" x14ac:dyDescent=\"0.25\"><c r=\"A4\"><f>SUBTOTAL(109,Table1[Qty])</f><v>8</v></c></row></sheetData>",
+    "sharedStrings": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" count=\"1\" uniqueCount=\"1\"><si><t>Qty</t></si></sst>"
+   }
+  },
+  {
+   "name": "hidden_again",
+   "making": "ws.Range(\"A1:C1\").Value = Array(\"Name\", \"Qty\", \"Price\")\nws.Range(\"A2:C2\").Value = Array(\"apple\", 3, 1.5)\nws.Range(\"A3:C3\").Value = Array(\"pear\", 5, 2.25)\nws.Range(\"A4:C4\").Value = Array(\"plum\", 7, 0.5)\nws.Range(\"A7\").Value = \"below\"\nSet t = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:C4\"), , xlYes)\nt.ShowTotals = True\nt.ShowTotals = False",
+   "questions": [
+    "t.Range.Address",
+    "Cells3(ws, 5)",
+    "Cells3(ws, 6)",
+    "Cells3(ws, 7)",
+    "Calcs(t)"
+   ],
+   "answers": [
+    "$A$1:$C$4",
+    "=Empty:/=Empty:/=Empty:/",
+    "=Empty:/=Empty:/=Empty:/",
+    "below=String:below/=Empty:/=Empty:/",
+    "Name:0/Qty:0/Price:1/"
+   ],
+   "parts": {
+    "xl/tables/table1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"1\" xr:uid=\"{D7DA5A2E-670A-4DE0-93C7-B84F597F54C6}\" name=\"Table1\" displayName=\"Table1\" ref=\"A1:C4\"><autoFilter ref=\"A1:C4\" xr:uid=\"{D7DA5A2E-670A-4DE0-93C7-B84F597F54C6}\"/><tableColumns count=\"3\"><tableColumn id=\"1\" xr3:uid=\"{73878298-FB4F-46F3-95AB-004EF3360ADB}\" name=\"Name\" totalsRowLabel=\"Total\"/><tableColumn id=\"2\" xr3:uid=\"{E100B28C-05D2-4A15-9A6E-1A3AB7614748}\" name=\"Qty\"/><tableColumn id=\"3\" xr3:uid=\"{0FD34191-828A-4823-BEEB-23FFA80153E4}\" name=\"Price\" totalsRowFunction=\"sum\"/></tableColumns><tableStyleInfo name=\"TableStyleMedium2\" showFirstColumn=\"0\" showLastColumn=\"0\" showRowStripes=\"1\" showColumnStripes=\"0\"/></table>",
+    "sheetData": "<sheetData><row r=\"1\" spans=\"1:3\" x14ac:dyDescent=\"0.25\"><c r=\"A1\" t=\"s\"><v>0</v></c><c r=\"B1\" t=\"s\"><v>1</v></c><c r=\"C1\" t=\"s\"><v>2</v></c></row><row r=\"2\" spans=\"1:3\" x14ac:dyDescent=\"0.25\"><c r=\"A2\" t=\"s\"><v>3</v></c><c r=\"B2\"><v>3</v></c><c r=\"C2\"><v>1.5</v></c></row><row r=\"3\" spans=\"1:3\" x14ac:dyDescent=\"0.25\"><c r=\"A3\" t=\"s\"><v>4</v></c><c r=\"B3\"><v>5</v></c><c r=\"C3\"><v>2.25</v></c></row><row r=\"4\" spans=\"1:3\" x14ac:dyDescent=\"0.25\"><c r=\"A4\" t=\"s\"><v>5</v></c><c r=\"B4\"><v>7</v></c><c r=\"C4\"><v>0.5</v></c></row><row r=\"7\" spans=\"1:3\" x14ac:dyDescent=\"0.25\"><c r=\"A7\" t=\"s\"><v>6</v></c></row></sheetData>",
+    "sharedStrings": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" count=\"7\" uniqueCount=\"7\"><si><t>Name</t></si><si><t>Qty</t></si><si><t>Price</t></si><si><t>apple</t></si><si><t>pear</t></si><si><t>plum</t></si><si><t>below</t></si></sst>"
+   }
+  },
+  {
+   "name": "shown_again",
+   "making": "ws.Range(\"A1:C1\").Value = Array(\"Name\", \"Qty\", \"Price\")\nws.Range(\"A2:C2\").Value = Array(\"apple\", 3, 1.5)\nws.Range(\"A3:C3\").Value = Array(\"pear\", 5, 2.25)\nws.Range(\"A4:C4\").Value = Array(\"plum\", 7, 0.5)\nSet t = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:C4\"), , xlYes)\nt.ShowTotals = True\nt.ListColumns(2).TotalsCalculation = xlTotalsCalculationMax\nt.ShowTotals = False\nt.ShowTotals = True",
+   "questions": [
+    "Cells3(ws, 5)",
+    "Calcs(t)"
+   ],
+   "answers": [
+    "Total=String:Total/=SUBTOTAL(104,[Qty])=Double:7/=SUBTOTAL(109,[Price])=Double:4.25/",
+    "Name:0/Qty:6/Price:1/"
+   ],
+   "parts": {
+    "xl/tables/table1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"1\" xr:uid=\"{9D8C6515-6DEB-4EDF-9644-D2E49F893BE1}\" name=\"Table1\" displayName=\"Table1\" ref=\"A1:C5\" totalsRowCount=\"1\"><autoFilter ref=\"A1:C4\" xr:uid=\"{9D8C6515-6DEB-4EDF-9644-D2E49F893BE1}\"/><tableColumns count=\"3\"><tableColumn id=\"1\" xr3:uid=\"{8B82E13F-175B-42A6-A1A0-A16C23D1EC35}\" name=\"Name\" totalsRowLabel=\"Total\"/><tableColumn id=\"2\" xr3:uid=\"{B62F942B-3B64-4749-B787-3DDAC9A0A0A9}\" name=\"Qty\" totalsRowFunction=\"max\"/><tableColumn id=\"3\" xr3:uid=\"{E53AAD06-AB0A-4B5B-8438-4DA0394F9316}\" name=\"Price\" totalsRowFunction=\"sum\"/></tableColumns><tableStyleInfo name=\"TableStyleMedium2\" showFirstColumn=\"0\" showLastColumn=\"0\" showRowStripes=\"1\" showColumnStripes=\"0\"/></table>",
+    "sheetData": "<sheetData><row r=\"1\" spans=\"1:3\" x14ac:dyDescent=\"0.25\"><c r=\"A1\" t=\"s\"><v>0</v></c><c r=\"B1\" t=\"s\"><v>1</v></c><c r=\"C1\" t=\"s\"><v>2</v></c></row><row r=\"2\" spans=\"1:3\" x14ac:dyDescent=\"0.25\"><c r=\"A2\" t=\"s\"><v>3</v></c><c r=\"B2\"><v>3</v></c><c r=\"C2\"><v>1.5</v></c></row><row r=\"3\" spans=\"1:3\" x14ac:dyDescent=\"0.25\"><c r=\"A3\" t=\"s\"><v>4</v></c><c r=\"B3\"><v>5</v></c><c r=\"C3\"><v>2.25</v></c></row><row r=\"4\" spans=\"1:3\" x14ac:dyDescent=\"0.25\"><c r=\"A4\" t=\"s\"><v>5</v></c><c r=\"B4\"><v>7</v></c><c r=\"C4\"><v>0.5</v></c></row><row r=\"5\" spans=\"1:3\" x14ac:dyDescent=\"0.25\"><c r=\"A5\" t=\"s\"><v>6</v></c><c r=\"B5\"><f>SUBTOTAL(104,Table1[Qty])</f><v>7</v></c><c r=\"C5\"><f>SUBTOTAL(109,Table1[Price])</f><v>4.25</v></c></row></sheetData>",
+    "sharedStrings": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" count=\"7\" uniqueCount=\"7\"><si><t>Name</t></si><si><t>Qty</t></si><si><t>Price</t></si><si><t>apple</t></si><si><t>pear</t></si><si><t>plum</t></si><si><t>Total</t></si></sst>"
+   }
+  },
+  {
+   "name": "functions",
+   "making": "ws.Range(\"A1:K1\").Value = Array(\"Label\", \"n0\", \"n1\", \"n2\", \"n3\", \"n4\", \"n5\", \"n6\", \"n7\", \"n8\", \"n9\")\nws.Range(\"A2:K2\").Value = Array(\"a\", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10)\nws.Range(\"A3:K3\").Value = Array(\"b\", 2, 3, 4, 5, 6, 7, 8, 9, 10, 11)\nSet t = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:K3\"), , xlYes)\nt.ShowTotals = True\nDim k As Long\nFor k = 0 To 8\nt.ListColumns(k + 2).TotalsCalculation = k\nNext\nOn Error Resume Next\nt.ListColumns(11).TotalsCalculation = 9\nws.Range(\"M1\").Value = Err.Number\nOn Error GoTo 0\nt.ListColumns(1).TotalsCalculation = xlTotalsCalculationCount",
+   "questions": [
+    "Calcs(t)",
+    "Formulas(ws, 4, 11)",
+    "ws.Range(\"M1\").Value"
+   ],
+   "answers": [
+    "Label:3/n0:0/n1:1/n2:2/n3:3/n4:4/n5:5/n6:6/n7:7/n8:8/n9:9/",
+    "=SUBTOTAL(103,[Label])//=SUBTOTAL(109,[n1])/=SUBTOTAL(101,[n2])/=SUBTOTAL(103,[n3])/=SUBTOTAL(102,[n4])/=SUBTOTAL(105,[n5])/=SUBTOTAL(104,[n6])/=SUBTOTAL(107,[n7])/=SUBTOTAL(110,[n8])//",
+    "0"
+   ],
+   "parts": {
+    "xl/tables/table1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"1\" xr:uid=\"{7D7B6406-6BB0-4972-BB96-1EF04CF6A92B}\" name=\"Table1\" displayName=\"Table1\" ref=\"A1:K4\" totalsRowCount=\"1\"><autoFilter ref=\"A1:K3\" xr:uid=\"{7D7B6406-6BB0-4972-BB96-1EF04CF6A92B}\"/><tableColumns count=\"11\"><tableColumn id=\"1\" xr3:uid=\"{5A199B58-F192-44B1-8907-E658E1AD2BF8}\" name=\"Label\" totalsRowFunction=\"count\"/><tableColumn id=\"2\" xr3:uid=\"{2FF35D31-6AEB-4A7B-8DB4-B7801982EAF4}\" name=\"n0\"/><tableColumn id=\"3\" xr3:uid=\"{11A1EA9D-C18B-4A6A-9374-2C696B830492}\" name=\"n1\" totalsRowFunction=\"sum\"/><tableColumn id=\"4\" xr3:uid=\"{AD749D67-7595-4D63-9D8D-8F9A5CCE8ED3}\" name=\"n2\" totalsRowFunction=\"average\"/><tableColumn id=\"5\" xr3:uid=\"{CF765D4D-112F-42B2-9973-AF072EA7AC6A}\" name=\"n3\" totalsRowFunction=\"count\"/><tableColumn id=\"6\" xr3:uid=\"{B397CC5E-41B3-4A1A-A704-8B15B32149FF}\" name=\"n4\" totalsRowFunction=\"countNums\"/><tableColumn id=\"7\" xr3:uid=\"{8EF8B40F-E602-41BC-B354-D0CD7A992FCF}\" name=\"n5\" totalsRowFunction=\"min\"/><tableColumn id=\"8\" xr3:uid=\"{B0C744CB-AEF0-42EF-8BEA-5C03E7ABEE6A}\" name=\"n6\" totalsRowFunction=\"max\"/><tableColumn id=\"9\" xr3:uid=\"{A28FE2E9-FA58-468D-9076-B309EDE9B00A}\" name=\"n7\" totalsRowFunction=\"stdDev\"/><tableColumn id=\"10\" xr3:uid=\"{66C5109F-A298-4E77-9BF1-29A1795053BA}\" name=\"n8\" totalsRowFunction=\"var\"/><tableColumn id=\"11\" xr3:uid=\"{F3FE82D4-E10F-4F44-8C4C-AE3DEE8FD7F9}\" name=\"n9\" totalsRowFunction=\"custom\"/></tableColumns><tableStyleInfo name=\"TableStyleMedium2\" showFirstColumn=\"0\" showLastColumn=\"0\" showRowStripes=\"1\" showColumnStripes=\"0\"/></table>",
+    "sheetData": "<sheetData><row r=\"1\" spans=\"1:13\" x14ac:dyDescent=\"0.25\"><c r=\"A1\" t=\"s\"><v>0</v></c><c r=\"B1\" t=\"s\"><v>1</v></c><c r=\"C1\" t=\"s\"><v>2</v></c><c r=\"D1\" t=\"s\"><v>3</v></c><c r=\"E1\" t=\"s\"><v>4</v></c><c r=\"F1\" t=\"s\"><v>5</v></c><c r=\"G1\" t=\"s\"><v>6</v></c><c r=\"H1\" t=\"s\"><v>7</v></c><c r=\"I1\" t=\"s\"><v>8</v></c><c r=\"J1\" t=\"s\"><v>9</v></c><c r=\"K1\" t=\"s\"><v>10</v></c><c r=\"M1\"><v>0</v></c></row><row r=\"2\" spans=\"1:13\" x14ac:dyDescent=\"0.25\"><c r=\"A2\" t=\"s\"><v>11</v></c><c r=\"B2\"><v>1</v></c><c r=\"C2\"><v>2</v></c><c r=\"D2\"><v>3</v></c><c r=\"E2\"><v>4</v></c><c r=\"F2\"><v>5</v></c><c r=\"G2\"><v>6</v></c><c r=\"H2\"><v>7</v></c><c r=\"I2\"><v>8</v></c><c r=\"J2\"><v>9</v></c><c r=\"K2\"><v>10</v></c></row><row r=\"3\" spans=\"1:13\" x14ac:dyDescent=\"0.25\"><c r=\"A3\" t=\"s\"><v>12</v></c><c r=\"B3\"><v>2</v></c><c r=\"C3\"><v>3</v></c><c r=\"D3\"><v>4</v></c><c r=\"E3\"><v>5</v></c><c r=\"F3\"><v>6</v></c><c r=\"G3\"><v>7</v></c><c r=\"H3\"><v>8</v></c><c r=\"I3\"><v>9</v></c><c r=\"J3\"><v>10</v></c><c r=\"K3\"><v>11</v></c></row><row r=\"4\" spans=\"1:13\" x14ac:dyDescent=\"0.25\"><c r=\"A4\"><f>SUBTOTAL(103,Table1[Label])</f><v>2</v></c><c r=\"C4\"><f>SUBTOTAL(109,Table1[n1])</f><v>5</v></c><c r=\"D4\"><f>SUBTOTAL(101,Table1[n2])</f><v>3.5</v></c><c r=\"E4\"><f>SUBTOTAL(103,Table1[n3])</f><v>2</v></c><c r=\"F4\"><f>SUBTOTAL(102,Table1[n4])</f><v>2</v></c><c r=\"G4\"><f>SUBTOTAL(105,Table1[n5])</f><v>6</v></c><c r=\"H4\"><f>SUBTOTAL(104,Table1[n6])</f><v>8</v></c><c r=\"I4\"><f>SUBTOTAL(107,Table1[n7])</f><v>0.70710678118654757</v></c><c r=\"J4\"><f>SUBTOTAL(110,Table1[n8])</f><v>0.5</v></c></row></sheetData>",
+    "sharedStrings": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" count=\"13\" uniqueCount=\"13\"><si><t>Label</t></si><si><t>n0</t></si><si><t>n1</t></si><si><t>n2</t></si><si><t>n3</t></si><si><t>n4</t></si><si><t>n5</t></si><si><t>n6</t></si><si><t>n7</t></si><si><t>n8</t></si><si><t>n9</t></si><si><t>a</t></si><si><t>b</t></si></sst>"
+   }
+  },
+  {
+   "name": "totals_references",
+   "making": "ws.Range(\"A1:C1\").Value = Array(\"Name\", \"Qty\", \"Price\")\nws.Range(\"A2:C2\").Value = Array(\"apple\", 3, 1.5)\nws.Range(\"A3:C3\").Value = Array(\"pear\", 5, 2.25)\nws.Range(\"A4:C4\").Value = Array(\"plum\", 7, 0.5)\nSet t = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:C4\"), , xlYes)\nt.ShowTotals = True\nws.Range(\"E1\").Formula = \"=Table1[#Totals]\"\nws.Range(\"E2\").Formula = \"=Table1[[#Totals],[Price]]\"\nws.Range(\"E3\").Formula = \"=ROWS(Table1[[#Data],[#Totals]])\"\nws.Range(\"E4\").Formula = \"=ROWS(Table1[#All])\"\nws.Range(\"E6\").Formula = \"=SUM(Table1[Price])\"",
+   "questions": [
+    "Formulas(ws, 1, 6)",
+    "Values(ws, 1, 6)"
+   ],
+   "answers": [
+    "Name/Qty/Price//=Table1[#Totals]//",
+    "#VALUE!/4.25/4/5//4.25/"
+   ],
+   "parts": {
+    "xl/tables/table1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"1\" xr:uid=\"{E53F54FA-6C5B-4A18-BA6D-5F1FA3351F08}\" name=\"Table1\" displayName=\"Table1\" ref=\"A1:C5\" totalsRowCount=\"1\"><autoFilter ref=\"A1:C4\" xr:uid=\"{E53F54FA-6C5B-4A18-BA6D-5F1FA3351F08}\"/><tableColumns count=\"3\"><tableColumn id=\"1\" xr3:uid=\"{137A5F4E-E92B-4D6F-81A1-22AF3439550F}\" name=\"Name\" totalsRowLabel=\"Total\"/><tableColumn id=\"2\" xr3:uid=\"{AAC39115-5B2C-4155-A76E-A161A164F72D}\" name=\"Qty\"/><tableColumn id=\"3\" xr3:uid=\"{1F228206-CE38-496F-8F3E-7BE198125A9D}\" name=\"Price\" totalsRowFunction=\"sum\"/></tableColumns><tableStyleInfo name=\"TableStyleMedium2\" showFirstColumn=\"0\" showLastColumn=\"0\" showRowStripes=\"1\" showColumnStripes=\"0\"/></table>",
+    "sheetData": "<sheetData><row r=\"1\" spans=\"1:5\" x14ac:dyDescent=\"0.25\"><c r=\"A1\" t=\"s\"><v>0</v></c><c r=\"B1\" t=\"s\"><v>1</v></c><c r=\"C1\" t=\"s\"><v>2</v></c><c r=\"E1\" t=\"e\"><f>Table1[#Totals]</f><v>#VALUE!</v></c></row><row r=\"2\" spans=\"1:5\" x14ac:dyDescent=\"0.25\"><c r=\"A2\" t=\"s\"><v>3</v></c><c r=\"B2\"><v>3</v></c><c r=\"C2\"><v>1.5</v></c><c r=\"E2\"><f>Table1[[#Totals],[Price]]</f><v>4.25</v></c></row><row r=\"3\" spans=\"1:5\" x14ac:dyDescent=\"0.25\"><c r=\"A3\" t=\"s\"><v>4</v></c><c r=\"B3\"><v>5</v></c><c r=\"C3\"><v>2.25</v></c><c r=\"E3\"><f>ROWS(Table1[[#Data],[#Totals]])</f><v>4</v></c></row><row r=\"4\" spans=\"1:5\" x14ac:dyDescent=\"0.25\"><c r=\"A4\" t=\"s\"><v>5</v></c><c r=\"B4\"><v>7</v></c><c r=\"C4\"><v>0.5</v></c><c r=\"E4\"><f>ROWS(Table1[#All])</f><v>5</v></c></row><row r=\"5\" spans=\"1:5\" x14ac:dyDescent=\"0.25\"><c r=\"A5\" t=\"s\"><v>6</v></c><c r=\"C5\"><f>SUBTOTAL(109,Table1[Price])</f><v>4.25</v></c></row><row r=\"6\" spans=\"1:5\" x14ac:dyDescent=\"0.25\"><c r=\"E6\"><f>SUM(Table1[Price])</f><v>4.25</v></c></row></sheetData>",
+    "sharedStrings": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" count=\"7\" uniqueCount=\"7\"><si><t>Name</t></si><si><t>Qty</t></si><si><t>Price</t></si><si><t>apple</t></si><si><t>pear</t></si><si><t>plum</t></si><si><t>Total</t></si></sst>"
+   }
+  },
+  {
+   "name": "totals_references_hidden",
+   "making": "ws.Range(\"A1:C1\").Value = Array(\"Name\", \"Qty\", \"Price\")\nws.Range(\"A2:C2\").Value = Array(\"apple\", 3, 1.5)\nws.Range(\"A3:C3\").Value = Array(\"pear\", 5, 2.25)\nws.Range(\"A4:C4\").Value = Array(\"plum\", 7, 0.5)\nSet t = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:C4\"), , xlYes)\nt.ShowTotals = True\nws.Range(\"E1\").Formula = \"=Table1[#Totals]\"\nws.Range(\"E2\").Formula = \"=Table1[[#Totals],[Price]]\"\nws.Range(\"E3\").Formula = \"=ROWS(Table1[[#Data],[#Totals]])\"\nt.ShowTotals = False",
+   "questions": [
+    "Formulas(ws, 1, 3)",
+    "Values(ws, 1, 3)"
+   ],
+   "answers": [
+    "Name/Qty/Price/",
+    "#REF!/#REF!/3/"
+   ],
+   "parts": {
+    "xl/tables/table1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"1\" xr:uid=\"{F3CC1246-BB00-4332-92E0-A28F502EE8B9}\" name=\"Table1\" displayName=\"Table1\" ref=\"A1:C4\"><autoFilter ref=\"A1:C4\" xr:uid=\"{F3CC1246-BB00-4332-92E0-A28F502EE8B9}\"/><tableColumns count=\"3\"><tableColumn id=\"1\" xr3:uid=\"{5735CEA3-9B90-442E-B7B2-BDD3D1CBCAB9}\" name=\"Name\" totalsRowLabel=\"Total\"/><tableColumn id=\"2\" xr3:uid=\"{53DD3833-DAB1-415E-9B1E-65327FEEC2D6}\" name=\"Qty\"/><tableColumn id=\"3\" xr3:uid=\"{21AB5898-DF5B-4FB8-A22D-0D29D61D2D2D}\" name=\"Price\" totalsRowFunction=\"sum\"/></tableColumns><tableStyleInfo name=\"TableStyleMedium2\" showFirstColumn=\"0\" showLastColumn=\"0\" showRowStripes=\"1\" showColumnStripes=\"0\"/></table>",
+    "sheetData": "<sheetData><row r=\"1\" spans=\"1:5\" x14ac:dyDescent=\"0.25\"><c r=\"A1\" t=\"s\"><v>0</v></c><c r=\"B1\" t=\"s\"><v>1</v></c><c r=\"C1\" t=\"s\"><v>2</v></c><c r=\"E1\" t=\"e\"><f>Table1[#Totals]</f><v>#REF!</v></c></row><row r=\"2\" spans=\"1:5\" x14ac:dyDescent=\"0.25\"><c r=\"A2\" t=\"s\"><v>3</v></c><c r=\"B2\"><v>3</v></c><c r=\"C2\"><v>1.5</v></c><c r=\"E2\" t=\"e\"><f>Table1[[#Totals],[Price]]</f><v>#REF!</v></c></row><row r=\"3\" spans=\"1:5\" x14ac:dyDescent=\"0.25\"><c r=\"A3\" t=\"s\"><v>4</v></c><c r=\"B3\"><v>5</v></c><c r=\"C3\"><v>2.25</v></c><c r=\"E3\"><f>ROWS(Table1[[#Data],[#Totals]])</f><v>3</v></c></row><row r=\"4\" spans=\"1:5\" x14ac:dyDescent=\"0.25\"><c r=\"A4\" t=\"s\"><v>5</v></c><c r=\"B4\"><v>7</v></c><c r=\"C4\"><v>0.5</v></c></row></sheetData>",
+    "sharedStrings": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" count=\"6\" uniqueCount=\"6\"><si><t>Name</t></si><si><t>Qty</t></si><si><t>Price</t></si><si><t>apple</t></si><si><t>pear</t></si><si><t>plum</t></si></sst>"
+   }
+  },
+  {
+   "name": "label_written",
+   "making": "ws.Range(\"A1:C1\").Value = Array(\"Name\", \"Qty\", \"Price\")\nws.Range(\"A2:C2\").Value = Array(\"apple\", 3, 1.5)\nws.Range(\"A3:C3\").Value = Array(\"pear\", 5, 2.25)\nws.Range(\"A4:C4\").Value = Array(\"plum\", 7, 0.5)\nSet t = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:C4\"), , xlYes)\nt.ShowTotals = True\nws.Range(\"A5\").Value = \"Sum\"\nws.Range(\"B5\").Formula = \"=SUBTOTAL(101,Table1[Qty])\"",
+   "questions": [
+    "Cells3(ws, 5)",
+    "Calcs(t)"
+   ],
+   "answers": [
+    "Sum=String:Sum/=SUBTOTAL(101,[Qty])=Double:5/=SUBTOTAL(109,[Price])=Double:4.25/",
+    "Name:0/Qty:2/Price:1/"
+   ],
+   "parts": {
+    "xl/tables/table1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"1\" xr:uid=\"{D065B73A-53A1-4ADE-95F8-2A2DF20EB62C}\" name=\"Table1\" displayName=\"Table1\" ref=\"A1:C5\" totalsRowCount=\"1\"><autoFilter ref=\"A1:C4\" xr:uid=\"{D065B73A-53A1-4ADE-95F8-2A2DF20EB62C}\"/><tableColumns count=\"3\"><tableColumn id=\"1\" xr3:uid=\"{AE1D704C-8A2D-4973-B936-7E1BADFCE76D}\" name=\"Name\" totalsRowLabel=\"Sum\"/><tableColumn id=\"2\" xr3:uid=\"{F88EB491-F084-4B89-A177-467C137A0962}\" name=\"Qty\" totalsRowFunction=\"average\"/><tableColumn id=\"3\" xr3:uid=\"{8E08E446-2999-45E1-B650-7BA8F4E61543}\" name=\"Price\" totalsRowFunction=\"sum\"/></tableColumns><tableStyleInfo name=\"TableStyleMedium2\" showFirstColumn=\"0\" showLastColumn=\"0\" showRowStripes=\"1\" showColumnStripes=\"0\"/></table>",
+    "sheetData": "<sheetData><row r=\"1\" spans=\"1:3\" x14ac:dyDescent=\"0.25\"><c r=\"A1\" t=\"s\"><v>0</v></c><c r=\"B1\" t=\"s\"><v>1</v></c><c r=\"C1\" t=\"s\"><v>2</v></c></row><row r=\"2\" spans=\"1:3\" x14ac:dyDescent=\"0.25\"><c r=\"A2\" t=\"s\"><v>3</v></c><c r=\"B2\"><v>3</v></c><c r=\"C2\"><v>1.5</v></c></row><row r=\"3\" spans=\"1:3\" x14ac:dyDescent=\"0.25\"><c r=\"A3\" t=\"s\"><v>4</v></c><c r=\"B3\"><v>5</v></c><c r=\"C3\"><v>2.25</v></c></row><row r=\"4\" spans=\"1:3\" x14ac:dyDescent=\"0.25\"><c r=\"A4\" t=\"s\"><v>5</v></c><c r=\"B4\"><v>7</v></c><c r=\"C4\"><v>0.5</v></c></row><row r=\"5\" spans=\"1:3\" x14ac:dyDescent=\"0.25\"><c r=\"A5\" t=\"s\"><v>6</v></c><c r=\"B5\"><f>SUBTOTAL(101,Table1[Qty])</f><v>5</v></c><c r=\"C5\"><f>SUBTOTAL(109,Table1[Price])</f><v>4.25</v></c></row></sheetData>",
+    "sharedStrings": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" count=\"7\" uniqueCount=\"7\"><si><t>Name</t></si><si><t>Qty</t></si><si><t>Price</t></si><si><t>apple</t></si><si><t>pear</t></si><si><t>plum</t></si><si><t>Sum</t></si></sst>"
+   }
+  },
+  {
+   "name": "custom_written",
+   "making": "ws.Range(\"A1:C1\").Value = Array(\"Name\", \"Qty\", \"Price\")\nws.Range(\"A2:C2\").Value = Array(\"apple\", 3, 1.5)\nws.Range(\"A3:C3\").Value = Array(\"pear\", 5, 2.25)\nws.Range(\"A4:C4\").Value = Array(\"plum\", 7, 0.5)\nSet t = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:C4\"), , xlYes)\nt.ShowTotals = True\nws.Range(\"B5\").Formula = \"=SUM(Table1[Qty])*2\"\nws.Range(\"C5\").Value = 42",
+   "questions": [
+    "Cells3(ws, 5)",
+    "Calcs(t)"
+   ],
+   "answers": [
+    "Total=String:Total/=SUM([Qty])*2=Double:30/42=String:42/",
+    "Name:0/Qty:9/Price:0/"
+   ],
+   "parts": {
+    "xl/tables/table1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"1\" xr:uid=\"{4E9A111F-76DA-4088-A96D-5EB275506D64}\" name=\"Table1\" displayName=\"Table1\" ref=\"A1:C5\" totalsRowCount=\"1\"><autoFilter ref=\"A1:C4\" xr:uid=\"{4E9A111F-76DA-4088-A96D-5EB275506D64}\"/><tableColumns count=\"3\"><tableColumn id=\"1\" xr3:uid=\"{5CE7E51A-3B0E-428C-BA07-E723C1B5D153}\" name=\"Name\" totalsRowLabel=\"Total\"/><tableColumn id=\"2\" xr3:uid=\"{3A7770C8-D287-4087-A6B4-3CC9BC7AF66C}\" name=\"Qty\" totalsRowFunction=\"custom\"><totalsRowFormula>SUM(Table1[Qty])*2</totalsRowFormula></tableColumn><tableColumn id=\"3\" xr3:uid=\"{0E6FEF83-2F9D-443C-82FA-B0ED77F3171E}\" name=\"Price\" totalsRowLabel=\"42\"/></tableColumns><tableStyleInfo name=\"TableStyleMedium2\" showFirstColumn=\"0\" showLastColumn=\"0\" showRowStripes=\"1\" showColumnStripes=\"0\"/></table>",
+    "sheetData": "<sheetData><row r=\"1\" spans=\"1:3\" x14ac:dyDescent=\"0.25\"><c r=\"A1\" t=\"s\"><v>0</v></c><c r=\"B1\" t=\"s\"><v>1</v></c><c r=\"C1\" t=\"s\"><v>2</v></c></row><row r=\"2\" spans=\"1:3\" x14ac:dyDescent=\"0.25\"><c r=\"A2\" t=\"s\"><v>3</v></c><c r=\"B2\"><v>3</v></c><c r=\"C2\"><v>1.5</v></c></row><row r=\"3\" spans=\"1:3\" x14ac:dyDescent=\"0.25\"><c r=\"A3\" t=\"s\"><v>4</v></c><c r=\"B3\"><v>5</v></c><c r=\"C3\"><v>2.25</v></c></row><row r=\"4\" spans=\"1:3\" x14ac:dyDescent=\"0.25\"><c r=\"A4\" t=\"s\"><v>5</v></c><c r=\"B4\"><v>7</v></c><c r=\"C4\"><v>0.5</v></c></row><row r=\"5\" spans=\"1:3\" x14ac:dyDescent=\"0.25\"><c r=\"A5\" t=\"s\"><v>6</v></c><c r=\"B5\"><f>SUM(Table1[Qty])*2</f><v>30</v></c><c r=\"C5\" t=\"s\"><v>7</v></c></row></sheetData>",
+    "sharedStrings": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" count=\"8\" uniqueCount=\"8\"><si><t>Name</t></si><si><t>Qty</t></si><si><t>Price</t></si><si><t>apple</t></si><si><t>pear</t></si><si><t>plum</t></si><si><t>Total</t></si><si><t>42</t></si></sst>"
+   }
+  },
+  {
+   "name": "cleared",
+   "making": "ws.Range(\"A1:C1\").Value = Array(\"Name\", \"Qty\", \"Price\")\nws.Range(\"A2:C2\").Value = Array(\"apple\", 3, 1.5)\nws.Range(\"A3:C3\").Value = Array(\"pear\", 5, 2.25)\nws.Range(\"A4:C4\").Value = Array(\"plum\", 7, 0.5)\nSet t = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:C4\"), , xlYes)\nt.ShowTotals = True\nws.Range(\"A5\").ClearContents\nws.Range(\"C5\").ClearContents",
+   "questions": [
+    "Cells3(ws, 5)",
+    "Calcs(t)"
+   ],
+   "answers": [
+    "=Empty:/=Empty:/=Empty:/",
+    "Name:0/Qty:0/Price:0/"
+   ],
+   "parts": {
+    "xl/tables/table1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"1\" xr:uid=\"{105C66D0-F553-45C1-8368-C0F628075EA2}\" name=\"Table1\" displayName=\"Table1\" ref=\"A1:C5\" totalsRowCount=\"1\"><autoFilter ref=\"A1:C4\" xr:uid=\"{105C66D0-F553-45C1-8368-C0F628075EA2}\"/><tableColumns count=\"3\"><tableColumn id=\"1\" xr3:uid=\"{52343EBE-DC30-4ABB-A81C-1826E85E8652}\" name=\"Name\"/><tableColumn id=\"2\" xr3:uid=\"{EBFF38F9-E0C8-4ED5-88BB-78F502BDDE57}\" name=\"Qty\"/><tableColumn id=\"3\" xr3:uid=\"{0F9DAF54-A323-44B7-BFDD-0AE0A54CBE2E}\" name=\"Price\"/></tableColumns><tableStyleInfo name=\"TableStyleMedium2\" showFirstColumn=\"0\" showLastColumn=\"0\" showRowStripes=\"1\" showColumnStripes=\"0\"/></table>",
+    "sheetData": "<sheetData><row r=\"1\" spans=\"1:3\" x14ac:dyDescent=\"0.25\"><c r=\"A1\" t=\"s\"><v>0</v></c><c r=\"B1\" t=\"s\"><v>1</v></c><c r=\"C1\" t=\"s\"><v>2</v></c></row><row r=\"2\" spans=\"1:3\" x14ac:dyDescent=\"0.25\"><c r=\"A2\" t=\"s\"><v>3</v></c><c r=\"B2\"><v>3</v></c><c r=\"C2\"><v>1.5</v></c></row><row r=\"3\" spans=\"1:3\" x14ac:dyDescent=\"0.25\"><c r=\"A3\" t=\"s\"><v>4</v></c><c r=\"B3\"><v>5</v></c><c r=\"C3\"><v>2.25</v></c></row><row r=\"4\" spans=\"1:3\" x14ac:dyDescent=\"0.25\"><c r=\"A4\" t=\"s\"><v>5</v></c><c r=\"B4\"><v>7</v></c><c r=\"C4\"><v>0.5</v></c></row></sheetData>",
+    "sharedStrings": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" count=\"6\" uniqueCount=\"6\"><si><t>Name</t></si><si><t>Qty</t></si><si><t>Price</t></si><si><t>apple</t></si><si><t>pear</t></si><si><t>plum</t></si></sst>"
+   }
+  },
+  {
+   "name": "set_while_hidden",
+   "making": "ws.Range(\"A1:C1\").Value = Array(\"Name\", \"Qty\", \"Price\")\nws.Range(\"A2:C2\").Value = Array(\"apple\", 3, 1.5)\nws.Range(\"A3:C3\").Value = Array(\"pear\", 5, 2.25)\nws.Range(\"A4:C4\").Value = Array(\"plum\", 7, 0.5)\nSet t = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:C4\"), , xlYes)\nt.ListColumns(2).TotalsCalculation = xlTotalsCalculationSum",
+   "questions": [
+    "Calcs(t)",
+    "t.ShowTotals",
+    "t.Range.Address",
+    "Cells3(ws, 5)"
+   ],
+   "answers": [
+    "Name:0/Qty:1/Price:0/",
+    "False",
+    "$A$1:$C$4",
+    "=Empty:/=Empty:/=Empty:/"
+   ],
+   "parts": {
+    "xl/tables/table1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"1\" xr:uid=\"{DC7AA10C-8ECE-44F4-9F69-09DB65749140}\" name=\"Table1\" displayName=\"Table1\" ref=\"A1:C4\" totalsRowShown=\"0\"><autoFilter ref=\"A1:C4\" xr:uid=\"{DC7AA10C-8ECE-44F4-9F69-09DB65749140}\"/><tableColumns count=\"3\"><tableColumn id=\"1\" xr3:uid=\"{6840282F-727A-4EB5-BF9A-AA3CB278CCB7}\" name=\"Name\"/><tableColumn id=\"2\" xr3:uid=\"{7C0CAF5D-AA6E-4D2E-8005-29EA6DE7BD41}\" name=\"Qty\" totalsRowFunction=\"sum\"/><tableColumn id=\"3\" xr3:uid=\"{498163DF-3C0B-474A-8CD1-C391F4A2D8CD}\" name=\"Price\"/></tableColumns><tableStyleInfo name=\"TableStyleMedium2\" showFirstColumn=\"0\" showLastColumn=\"0\" showRowStripes=\"1\" showColumnStripes=\"0\"/></table>",
+    "sheetData": "<sheetData><row r=\"1\" spans=\"1:3\" x14ac:dyDescent=\"0.25\"><c r=\"A1\" t=\"s\"><v>0</v></c><c r=\"B1\" t=\"s\"><v>1</v></c><c r=\"C1\" t=\"s\"><v>2</v></c></row><row r=\"2\" spans=\"1:3\" x14ac:dyDescent=\"0.25\"><c r=\"A2\" t=\"s\"><v>3</v></c><c r=\"B2\"><v>3</v></c><c r=\"C2\"><v>1.5</v></c></row><row r=\"3\" spans=\"1:3\" x14ac:dyDescent=\"0.25\"><c r=\"A3\" t=\"s\"><v>4</v></c><c r=\"B3\"><v>5</v></c><c r=\"C3\"><v>2.25</v></c></row><row r=\"4\" spans=\"1:3\" x14ac:dyDescent=\"0.25\"><c r=\"A4\" t=\"s\"><v>5</v></c><c r=\"B4\"><v>7</v></c><c r=\"C4\"><v>0.5</v></c></row></sheetData>",
+    "sharedStrings": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" count=\"6\" uniqueCount=\"6\"><si><t>Name</t></si><si><t>Qty</t></si><si><t>Price</t></si><si><t>apple</t></si><si><t>pear</t></si><si><t>plum</t></si></sst>"
+   }
+  },
+  {
+   "name": "set_while_hidden_then_shown",
+   "making": "ws.Range(\"A1:C1\").Value = Array(\"Name\", \"Qty\", \"Price\")\nws.Range(\"A2:C2\").Value = Array(\"apple\", 3, 1.5)\nws.Range(\"A3:C3\").Value = Array(\"pear\", 5, 2.25)\nws.Range(\"A4:C4\").Value = Array(\"plum\", 7, 0.5)\nSet t = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:C4\"), , xlYes)\nOn Error Resume Next\nt.ListColumns(2).TotalsCalculation = xlTotalsCalculationSum\nOn Error GoTo 0\nt.ShowTotals = True",
+   "questions": [
+    "Calcs(t)",
+    "Cells3(ws, 5)"
+   ],
+   "answers": [
+    "Name:0/Qty:1/Price:1/",
+    "Total=String:Total/=SUBTOTAL(109,[Qty])=Double:15/=SUBTOTAL(109,[Price])=Double:4.25/"
+   ],
+   "parts": {
+    "xl/tables/table1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"1\" xr:uid=\"{3CBFA888-A552-4EA7-9432-73B7A02FE0A5}\" name=\"Table1\" displayName=\"Table1\" ref=\"A1:C5\" totalsRowCount=\"1\"><autoFilter ref=\"A1:C4\" xr:uid=\"{3CBFA888-A552-4EA7-9432-73B7A02FE0A5}\"/><tableColumns count=\"3\"><tableColumn id=\"1\" xr3:uid=\"{2977BBAA-EB84-4D69-B5BF-B7EC2B87BFEC}\" name=\"Name\" totalsRowLabel=\"Total\"/><tableColumn id=\"2\" xr3:uid=\"{3B0DC250-B79A-459C-BA6A-BAAF37225A07}\" name=\"Qty\" totalsRowFunction=\"sum\"/><tableColumn id=\"3\" xr3:uid=\"{C1D2D9E3-71C7-4F95-9EE0-25399FA490C1}\" name=\"Price\" totalsRowFunction=\"sum\"/></tableColumns><tableStyleInfo name=\"TableStyleMedium2\" showFirstColumn=\"0\" showLastColumn=\"0\" showRowStripes=\"1\" showColumnStripes=\"0\"/></table>",
+    "sheetData": "<sheetData><row r=\"1\" spans=\"1:3\" x14ac:dyDescent=\"0.25\"><c r=\"A1\" t=\"s\"><v>0</v></c><c r=\"B1\" t=\"s\"><v>1</v></c><c r=\"C1\" t=\"s\"><v>2</v></c></row><row r=\"2\" spans=\"1:3\" x14ac:dyDescent=\"0.25\"><c r=\"A2\" t=\"s\"><v>3</v></c><c r=\"B2\"><v>3</v></c><c r=\"C2\"><v>1.5</v></c></row><row r=\"3\" spans=\"1:3\" x14ac:dyDescent=\"0.25\"><c r=\"A3\" t=\"s\"><v>4</v></c><c r=\"B3\"><v>5</v></c><c r=\"C3\"><v>2.25</v></c></row><row r=\"4\" spans=\"1:3\" x14ac:dyDescent=\"0.25\"><c r=\"A4\" t=\"s\"><v>5</v></c><c r=\"B4\"><v>7</v></c><c r=\"C4\"><v>0.5</v></c></row><row r=\"5\" spans=\"1:3\" x14ac:dyDescent=\"0.25\"><c r=\"A5\" t=\"s\"><v>6</v></c><c r=\"B5\"><f>SUBTOTAL(109,Table1[Qty])</f><v>15</v></c><c r=\"C5\"><f>SUBTOTAL(109,Table1[Price])</f><v>4.25</v></c></row></sheetData>",
+    "sharedStrings": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" count=\"7\" uniqueCount=\"7\"><si><t>Name</t></si><si><t>Qty</t></si><si><t>Price</t></si><si><t>apple</t></si><si><t>pear</t></si><si><t>plum</t></si><si><t>Total</t></si></sst>"
+   }
+  },
+  {
+   "name": "mixed_last",
+   "making": "ws.Range(\"A1:B1\").Value = Array(\"Name\", \"Price\")\nws.Range(\"A2:B2\").Value = Array(\"a\", 1.5)\nws.Range(\"A3:B3\").Value = Array(\"b\", \"x\")\nws.Range(\"A4:B4\").Value = Array(\"c\", 0.5)\nSet t = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:B4\"), , xlYes)\nt.ShowTotals = True",
+   "questions": [
+    "Calcs(t)",
+    "Cells3(ws, 5)"
+   ],
+   "answers": [
+    "Name:0/Price:3/",
+    "Total=String:Total/=SUBTOTAL(103,[Price])=Double:3/=Empty:/"
+   ],
+   "parts": {
+    "xl/tables/table1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"1\" xr:uid=\"{513A4423-561F-4B08-BEB0-FD73D5F18A02}\" name=\"Table1\" displayName=\"Table1\" ref=\"A1:B5\" totalsRowCount=\"1\"><autoFilter ref=\"A1:B4\" xr:uid=\"{513A4423-561F-4B08-BEB0-FD73D5F18A02}\"/><tableColumns count=\"2\"><tableColumn id=\"1\" xr3:uid=\"{247A60C4-5C48-415F-9175-29651FD4D192}\" name=\"Name\" totalsRowLabel=\"Total\"/><tableColumn id=\"2\" xr3:uid=\"{4D33FC1A-1873-4562-AAFA-69DE67F975E3}\" name=\"Price\" totalsRowFunction=\"count\"/></tableColumns><tableStyleInfo name=\"TableStyleMedium2\" showFirstColumn=\"0\" showLastColumn=\"0\" showRowStripes=\"1\" showColumnStripes=\"0\"/></table>",
+    "sheetData": "<sheetData><row r=\"1\" spans=\"1:2\" x14ac:dyDescent=\"0.25\"><c r=\"A1\" t=\"s\"><v>0</v></c><c r=\"B1\" t=\"s\"><v>1</v></c></row><row r=\"2\" spans=\"1:2\" x14ac:dyDescent=\"0.25\"><c r=\"A2\" t=\"s\"><v>2</v></c><c r=\"B2\"><v>1.5</v></c></row><row r=\"3\" spans=\"1:2\" x14ac:dyDescent=\"0.25\"><c r=\"A3\" t=\"s\"><v>3</v></c><c r=\"B3\" t=\"s\"><v>4</v></c></row><row r=\"4\" spans=\"1:2\" x14ac:dyDescent=\"0.25\"><c r=\"A4\" t=\"s\"><v>5</v></c><c r=\"B4\"><v>0.5</v></c></row><row r=\"5\" spans=\"1:2\" x14ac:dyDescent=\"0.25\"><c r=\"A5\" t=\"s\"><v>6</v></c><c r=\"B5\"><f>SUBTOTAL(103,Table1[Price])</f><v>3</v></c></row></sheetData>",
+    "sharedStrings": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" count=\"7\" uniqueCount=\"7\"><si><t>Name</t></si><si><t>Price</t></si><si><t>a</t></si><si><t>b</t></si><si><t>x</t></si><si><t>c</t></si><si><t>Total</t></si></sst>"
+   }
+  },
+  {
+   "name": "text_first_row",
+   "making": "ws.Range(\"A1:B1\").Value = Array(\"Name\", \"Price\")\nws.Range(\"A2:B2\").Value = Array(\"a\", \"x\")\nws.Range(\"A3:B3\").Value = Array(\"b\", 1.5)\nws.Range(\"A4:B4\").Value = Array(\"c\", 0.5)\nSet t = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:B4\"), , xlYes)\nt.ShowTotals = True",
+   "questions": [
+    "Calcs(t)",
+    "Cells3(ws, 5)"
+   ],
+   "answers": [
+    "Name:0/Price:3/",
+    "Total=String:Total/=SUBTOTAL(103,[Price])=Double:3/=Empty:/"
+   ],
+   "parts": {
+    "xl/tables/table1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"1\" xr:uid=\"{3BB7C62A-A4B3-4C90-8563-43E5EC03C022}\" name=\"Table1\" displayName=\"Table1\" ref=\"A1:B5\" totalsRowCount=\"1\"><autoFilter ref=\"A1:B4\" xr:uid=\"{3BB7C62A-A4B3-4C90-8563-43E5EC03C022}\"/><tableColumns count=\"2\"><tableColumn id=\"1\" xr3:uid=\"{F29798B3-7EA7-4127-A164-2C89E33CF57F}\" name=\"Name\" totalsRowLabel=\"Total\"/><tableColumn id=\"2\" xr3:uid=\"{8038DE5C-2B42-4B27-B389-DBA9A1897052}\" name=\"Price\" totalsRowFunction=\"count\"/></tableColumns><tableStyleInfo name=\"TableStyleMedium2\" showFirstColumn=\"0\" showLastColumn=\"0\" showRowStripes=\"1\" showColumnStripes=\"0\"/></table>",
+    "sheetData": "<sheetData><row r=\"1\" spans=\"1:2\" x14ac:dyDescent=\"0.25\"><c r=\"A1\" t=\"s\"><v>0</v></c><c r=\"B1\" t=\"s\"><v>1</v></c></row><row r=\"2\" spans=\"1:2\" x14ac:dyDescent=\"0.25\"><c r=\"A2\" t=\"s\"><v>2</v></c><c r=\"B2\" t=\"s\"><v>3</v></c></row><row r=\"3\" spans=\"1:2\" x14ac:dyDescent=\"0.25\"><c r=\"A3\" t=\"s\"><v>4</v></c><c r=\"B3\"><v>1.5</v></c></row><row r=\"4\" spans=\"1:2\" x14ac:dyDescent=\"0.25\"><c r=\"A4\" t=\"s\"><v>5</v></c><c r=\"B4\"><v>0.5</v></c></row><row r=\"5\" spans=\"1:2\" x14ac:dyDescent=\"0.25\"><c r=\"A5\" t=\"s\"><v>6</v></c><c r=\"B5\"><f>SUBTOTAL(103,Table1[Price])</f><v>3</v></c></row></sheetData>",
+    "sharedStrings": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" count=\"7\" uniqueCount=\"7\"><si><t>Name</t></si><si><t>Price</t></si><si><t>a</t></si><si><t>x</t></si><si><t>b</t></si><si><t>c</t></si><si><t>Total</t></si></sst>"
+   }
+  },
+  {
+   "name": "empty_last",
+   "making": "ws.Range(\"A1:B1\").Value = Array(\"Name\", \"Price\")\nws.Range(\"A2\").Value = \"a\"\nws.Range(\"A3\").Value = \"b\"\nSet t = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:B3\"), , xlYes)\nt.ShowTotals = True",
+   "questions": [
+    "Calcs(t)",
+    "Cells3(ws, 4)"
+   ],
+   "answers": [
+    "Name:0/Price:3/",
+    "Total=String:Total/=SUBTOTAL(103,[Price])=Double:0/=Empty:/"
+   ],
+   "parts": {
+    "xl/tables/table1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"1\" xr:uid=\"{A1E64925-7133-4361-A725-A472CAA6FCA0}\" name=\"Table1\" displayName=\"Table1\" ref=\"A1:B4\" totalsRowCount=\"1\"><autoFilter ref=\"A1:B3\" xr:uid=\"{A1E64925-7133-4361-A725-A472CAA6FCA0}\"/><tableColumns count=\"2\"><tableColumn id=\"1\" xr3:uid=\"{D85B1C25-39D5-421D-B70C-B0DE5504C791}\" name=\"Name\" totalsRowLabel=\"Total\"/><tableColumn id=\"2\" xr3:uid=\"{A7C0DF22-6DC9-4CE8-807C-837560319E7A}\" name=\"Price\" totalsRowFunction=\"count\"/></tableColumns><tableStyleInfo name=\"TableStyleMedium2\" showFirstColumn=\"0\" showLastColumn=\"0\" showRowStripes=\"1\" showColumnStripes=\"0\"/></table>",
+    "sheetData": "<sheetData><row r=\"1\" spans=\"1:2\" x14ac:dyDescent=\"0.25\"><c r=\"A1\" t=\"s\"><v>0</v></c><c r=\"B1\" t=\"s\"><v>1</v></c></row><row r=\"2\" spans=\"1:2\" x14ac:dyDescent=\"0.25\"><c r=\"A2\" t=\"s\"><v>2</v></c></row><row r=\"3\" spans=\"1:2\" x14ac:dyDescent=\"0.25\"><c r=\"A3\" t=\"s\"><v>3</v></c></row><row r=\"4\" spans=\"1:2\" x14ac:dyDescent=\"0.25\"><c r=\"A4\" t=\"s\"><v>4</v></c><c r=\"B4\"><f>SUBTOTAL(103,Table1[Price])</f><v>0</v></c></row></sheetData>",
+    "sharedStrings": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" count=\"5\" uniqueCount=\"5\"><si><t>Name</t></si><si><t>Price</t></si><si><t>a</t></si><si><t>b</t></si><si><t>Total</t></si></sst>"
+   }
+  },
+  {
+   "name": "renamed_column",
+   "making": "ws.Range(\"A1:C1\").Value = Array(\"Name\", \"Qty\", \"Price\")\nws.Range(\"A2:C2\").Value = Array(\"apple\", 3, 1.5)\nws.Range(\"A3:C3\").Value = Array(\"pear\", 5, 2.25)\nws.Range(\"A4:C4\").Value = Array(\"plum\", 7, 0.5)\nSet t = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:C4\"), , xlYes)\nt.ShowTotals = True\nws.Range(\"C1\").Value = \"Cost\"",
+   "questions": [
+    "Cells3(ws, 5)",
+    "Calcs(t)"
+   ],
+   "answers": [
+    "Total=String:Total/=Empty:/=SUBTOTAL(109,[Cost])=Double:4.25/",
+    "Name:0/Qty:0/Cost:1/"
+   ],
+   "parts": {
+    "xl/tables/table1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"1\" xr:uid=\"{17B5F624-D7BB-4863-96BC-2CA77D06A65D}\" name=\"Table1\" displayName=\"Table1\" ref=\"A1:C5\" totalsRowCount=\"1\"><autoFilter ref=\"A1:C4\" xr:uid=\"{17B5F624-D7BB-4863-96BC-2CA77D06A65D}\"/><tableColumns count=\"3\"><tableColumn id=\"1\" xr3:uid=\"{672282DD-CBCE-45C8-ABDC-42FBE790DCA7}\" name=\"Name\" totalsRowLabel=\"Total\"/><tableColumn id=\"2\" xr3:uid=\"{F2CD9115-4B75-4CF8-A85F-ACE6D9350463}\" name=\"Qty\"/><tableColumn id=\"3\" xr3:uid=\"{0813C23B-D510-46DE-9CA2-FEEB8559C9EB}\" name=\"Cost\" totalsRowFunction=\"sum\"/></tableColumns><tableStyleInfo name=\"TableStyleMedium2\" showFirstColumn=\"0\" showLastColumn=\"0\" showRowStripes=\"1\" showColumnStripes=\"0\"/></table>",
+    "sheetData": "<sheetData><row r=\"1\" spans=\"1:3\" x14ac:dyDescent=\"0.25\"><c r=\"A1\" t=\"s\"><v>0</v></c><c r=\"B1\" t=\"s\"><v>1</v></c><c r=\"C1\" t=\"s\"><v>6</v></c></row><row r=\"2\" spans=\"1:3\" x14ac:dyDescent=\"0.25\"><c r=\"A2\" t=\"s\"><v>2</v></c><c r=\"B2\"><v>3</v></c><c r=\"C2\"><v>1.5</v></c></row><row r=\"3\" spans=\"1:3\" x14ac:dyDescent=\"0.25\"><c r=\"A3\" t=\"s\"><v>3</v></c><c r=\"B3\"><v>5</v></c><c r=\"C3\"><v>2.25</v></c></row><row r=\"4\" spans=\"1:3\" x14ac:dyDescent=\"0.25\"><c r=\"A4\" t=\"s\"><v>4</v></c><c r=\"B4\"><v>7</v></c><c r=\"C4\"><v>0.5</v></c></row><row r=\"5\" spans=\"1:3\" x14ac:dyDescent=\"0.25\"><c r=\"A5\" t=\"s\"><v>5</v></c><c r=\"C5\"><f>SUBTOTAL(109,Table1[Cost])</f><v>4.25</v></c></row></sheetData>",
+    "sharedStrings": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" count=\"7\" uniqueCount=\"7\"><si><t>Name</t></si><si><t>Qty</t></si><si><t>apple</t></si><si><t>pear</t></si><si><t>plum</t></si><si><t>Total</t></si><si><t>Cost</t></si></sst>"
+   }
+  }
+ ]
+}

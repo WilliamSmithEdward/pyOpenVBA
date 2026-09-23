@@ -1015,8 +1015,23 @@ Comparisons round each number to fifteen significant digits, an exact
 tie going away from zero, so `=0.1+0.2=0.3` is TRUE. COUNTIF, COUNTIFS,
 SUMIF and SWITCH match that way, while MATCH, VLOOKUP, HLOOKUP and
 XLOOKUP compare the bits. A number's text in a formula rounds a tie
-toward zero instead. An array formula (`Range.FormulaArray`) is not
-implemented.
+toward zero instead.
+
+`Range.FormulaArray` writes an array formula
+(`tests/fixtures/excel_model/probes.txt`, 78 cases, and
+`tests/fixtures/formula_storage/arrays.xlsx`): one formula, in A1 or
+R1C1 and at most 255 characters, worked out once as an array over the
+block, each cell showing its item, one row or column repeated and #N/A
+past the end. Every cell of the block reports the formula, and what
+reads one follows the array. Excel guards the block: FormulaArray on one
+of its cells rewrites it and on part of it is error 1004; Value and
+Formula over part of it change nothing, and over all of it replace it;
+ClearContents over part of it, and inserting or deleting rows or
+columns through it, are error 1004. HasArray is True when a range meets
+one array and starts in it, False when it meets none, and Null
+otherwise. A file keeps the formula in the block's first cell, as Excel
+does. Copying part of an array, and filling, sorting, replacing or
+removing duplicates in one, report themselves unsupported.
 
 `Evaluate`, `[...]` and `Worksheet.Evaluate` work an expression out as
 Excel's Evaluate does (`tests/fixtures/evaluate.json`, 91 cases). What
@@ -1071,7 +1086,7 @@ Excel-authored file; Word and PowerPoint have no such template yet, so
 a document or a presentation is edited rather than created.
 
 A formula written to a block at once is a shared formula in the file,
-as Excel stores it (`tests/fixtures/formula_storage/`, 12 workbooks
+as Excel stores it (`tests/fixtures/formula_storage/`, 15 workbooks
 Excel saved): the block's first cell carries the formula and the others
 point at it. Formula, FormulaR1C1 and Value make one over the block
 written, unless the formula names no cell; AutoFill, FillDown and Copy
@@ -1083,9 +1098,10 @@ a file gives every cell of the block its own formula to work out.
 
 ## What is not
 
-- **Array formulas do not spill.** An array result lands in the one cell
+- **Formulas do not spill.** An array result lands in the one cell
   that holds the formula and shows its first element, which is what
-  Excel did before dynamic arrays.  Implicit intersection is applied
+  Excel did before dynamic arrays; an array formula fills the block
+  FormulaArray gave it and no more.  Implicit intersection is applied
   wherever a formula wants one value, as Excel's `@` does.
 - **Power Query reaches nothing off the machine.** The language is
   evaluated and a local source is read, but `Sql.Database`, `Web.Contents`,

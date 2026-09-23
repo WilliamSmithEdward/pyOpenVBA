@@ -15,6 +15,7 @@ Font, Interior, Borders, alignment -- lives in
 
 from __future__ import annotations
 
+import re
 from collections.abc import Callable, Iterator, Sequence
 from dataclasses import dataclass, replace
 from decimal import Decimal
@@ -26,7 +27,7 @@ from pyopenvba.exceptions import VBAUnsupportedError, VBARuntimeError
 from pyopenvba.formula._parse import shift_text
 from pyopenvba.formula._r1c1 import from_a1, to_a1
 from pyopenvba.apps.excel._find import FindState
-from pyopenvba.apps.excel import _dimensions, _merges, _names
+from pyopenvba.apps.excel import _arrays, _dimensions, _merges, _names
 from pyopenvba.apps.excel._styles import applying
 from pyopenvba.shapes._values import Shape as ShapeState
 from pyopenvba.interpreter._objects import MemberSpec, VBACollection, VBAObject, member, method, setter
@@ -771,6 +772,8 @@ class Worksheet(ExcelObject):
         #: The shared formulas: each one's block, which moves with inserts and deletes as a reference does,
         #: by the key its cells' Cell.shared holds (see _shared).
         self.shared_groups: dict[int, Area] = {}
+        #: The array formulas: each one's block by its first cell, which holds the formula (see _arrays).
+        self.array_formulas: dict[tuple[int, int], Area] = {}
         self.merged_areas: list[Area] = []
         self.merges_dirty = False
         self.visible = -1  # xlSheetVisible
@@ -818,8 +821,6 @@ class Worksheet(ExcelObject):
 
     def declares_revisions(self) -> bool:
         """Whether the sheet's part declares the revision namespace, where an autoFilter's xr:uid lives."""
-        import re
-
         package = self.book.package
         if package is None or not self.part_name or not package.has(self.part_name):
             return True
@@ -1278,7 +1279,7 @@ class Worksheet(ExcelObject):
         something reads UsedRange; the model's is always the content's.
         """
         live = [(row, column) for (row, column), cell in self.cells_.items() if self.holds(row, column, cell)]
-        for area in self.merged_areas:
+        for area in [*self.merged_areas, *self.array_formulas.values()]:
             live.extend(((area.top, area.left), (area.bottom, area.right)))
         rows = [row for row, _ in live]
         rows.extend(self.dims.record_rows())
@@ -1399,6 +1400,8 @@ class Range(ExcelObject):
     def _set_value(self, value: object) -> None:
         from pyopenvba.apps.excel._protection import writing
 
+        if not _arrays.write_admitted(self):
+            return
         with writing(self.sheet):
             self._write(value)
 
@@ -1411,6 +1414,8 @@ class Range(ExcelObject):
     def _set_value2(self, value: object) -> None:
         from pyopenvba.apps.excel._protection import writing
 
+        if not _arrays.write_admitted(self):
+            return
         with writing(self.sheet):
             self._write(value, raw=True)
 
@@ -1435,12 +1440,12 @@ class Range(ExcelObject):
 
     @member
     def Text(self) -> object:
-        cell = self.sheet.cell(self.first.top, self.first.left)
-        if cell is None:
-            return ""
         # Reading what a cell shows calculates it first, as looking at
         # one in Excel does; read raw, since a Date too large to hold still shows.
         self._read(self.first.top, self.first.left, raw=True)
+        cell = self.sheet.cell(self.first.top, self.first.left)
+        if cell is None:
+            return ""
         dims = self.sheet.dims
         return _display_text(cell, _dimensions.characters_read(dims.column_shown_pixels(self.first.left)))
 
@@ -1476,6 +1481,8 @@ class Range(ExcelObject):
         """
         from pyopenvba.apps.excel._protection import writing
 
+        if not _arrays.write_admitted(self):
+            return
         with writing(self.sheet):
             self._write_formula(value)
 
@@ -1508,9 +1515,15 @@ class Range(ExcelObject):
 
     @member
     def HasFormula(self) -> object:
-        """True when every cell holds a formula, False when none does, and Null for a mix."""
+        """True when every cell holds a formula, False when none does, and Null for a mix.
+
+        Every cell of an array formula holds the array's.
+        """
         area = self.first if self.single else self.bounded()
-        found = {bool(cell is not None and cell.formula) for row in range(area.top, area.bottom + 1)
+        arrays = bool(self.sheet.array_formulas)
+        found = {bool(cell is not None and cell.formula)
+                 or (arrays and _arrays.array_at(self.sheet, row, column) is not None)
+                 for row in range(area.top, area.bottom + 1)
                  for column in range(area.left, area.right + 1) for cell in [self.sheet.cell(row, column)]}
         return NULL if len(found) > 1 else found.pop()
 
@@ -1520,6 +1533,10 @@ class Range(ExcelObject):
 
     def _read_formulas(self, *, r1c1: bool) -> object:
         def read(row: int, column: int) -> object:
+            found = _arrays.array_at(self.sheet, row, column) if self.sheet.array_formulas else None
+            if found is not None:
+                # Every cell of an array formula reports the array's formula.
+                row, column = found[0]
             cell = self.sheet.cell(row, column)
             if cell is None:
                 return ""
@@ -1535,10 +1552,36 @@ class Range(ExcelObject):
             for row in range(area.top, area.bottom + 1)
         ])
 
+    @member
+    def FormulaArray(self) -> object:
+        """The array formula the range is part of, or the formula its cells share, or Null (see _arrays)."""
+        return _arrays.formula_array(self, lambda row, column: str(Range(self.sheet, [Area(row, column, row,
+                                                                                            column)]).Formula()))
+
+    @setter("FormulaArray")
+    def _set_formula_array(self, value: object) -> None:
+        from pyopenvba.apps.excel._protection import whole
+
+        text = to_text(value.vba_value() if isinstance(value, VBAObject) else value)
+        if not _is_formula(text):
+            raise VBAUnsupportedError("FormulaArray set to a value rather than a formula is not implemented")
+        whole(self.sheet, self.areas, "Changing")
+        _arrays.put(self, _array_formula_text(self.sheet, text, self.first.top, self.first.left))
+
+    @member
+    def HasArray(self) -> object:
+        return _arrays.has_array(self)
+
+    @member
+    def CurrentArray(self) -> object:
+        return Range(self.sheet, [_arrays.current_array(self)])
+
     @setter("FormulaR1C1")
     def _set_formula_r1c1(self, value: object) -> None:
         from pyopenvba.apps.excel._protection import writing
 
+        if not _arrays.write_admitted(self):
+            return
         with writing(self.sheet):
             self._write_formula_r1c1(value)
 
@@ -2076,6 +2119,7 @@ class Range(ExcelObject):
         if enforced(self.sheet) is not None:
             # On a protected sheet Clear clears the contents alone, as ClearContents would.
             return self.ClearContents()
+        _arrays.clear_admitted(target)
         clear_formats(target)
         target._clear_contents()
         header_cleared(target)
@@ -2092,6 +2136,7 @@ class Range(ExcelObject):
         if enforced(self.sheet) is not None and any_locked(self.sheet, target.areas):
             # Unlike a write, a clear that meets a locked cell leaves every cell as it was.
             raise error(1004, PROTECTED)
+        _arrays.clear_admitted(target)
         target._clear_contents()
         header_cleared(target)
         return EMPTY
@@ -2282,7 +2327,12 @@ class Range(ExcelObject):
             raise VBAUnsupportedError("Copy involving merged cells is not implemented")
         if rows * columns > 1048576:
             raise VBAUnsupportedError("Copy destinations larger than 1048576 cells are not implemented")
+        carried, split = _arrays.met(self.sheet, [area])
+        covered, cut = _arrays.met(Destination.sheet, [written])
+        if split or cut:
+            raise VBAUnsupportedError("copying part of an array formula, or over part of one, is not implemented")
         # Snapshot before clearing or writing: source and destination can overlap.
+        arrays = [self.sheet.array_formulas[anchor] for anchor in carried]
         sources = {(row - area.top, column - area.left): cell
                    for (row, column), cell in self.sheet.cells_.items() if area.contains(row, column)}
         from pyopenvba.apps.excel._row_formats import shown_formats
@@ -2303,6 +2353,8 @@ class Range(ExcelObject):
         for position in list(Destination.sheet.cells_):
             if written.contains(*position):
                 del Destination.sheet.cells_[position]
+        for anchor in covered:
+            del Destination.sheet.array_formulas[anchor]
         # Whole rows take their heights and formats along, and whole columns their widths and formats.
         if whole_rows:
             Destination.sheet.dims.copy_rows_from(self.sheet.dims, [
@@ -2321,8 +2373,13 @@ class Range(ExcelObject):
                         copy.value = EMPTY
                     Destination.sheet.cells_[(tile_row + down, tile_column + across)] = copy
                     Destination.sheet.settle(tile_row + down, tile_column + across)
+                # An array copied whole is an array where it lands.
+                for block in arrays:
+                    down, across = tile_row - area.top, tile_column - area.left
+                    Destination.sheet.array_formulas[(block.top + down, block.left + across)] = Area(
+                        block.top + down, block.left + across, block.bottom + down, block.right + across)
         lone = sources.get((0, 0))
-        if area.rows == area.columns == 1 and lone is not None and lone.formula and rows * columns > 1:
+        if area.rows == area.columns == 1 and lone is not None and lone.formula and rows * columns > 1 and not arrays:
             from pyopenvba.apps.excel import _shared
 
             # One cell's formula copied over a block is one shared formula there, as Excel keeps it.
@@ -2342,6 +2399,8 @@ class Range(ExcelObject):
     def AutoFill(self, Destination: object = MISSING, Type: object = MISSING) -> object:
         from pyopenvba.apps.excel._autofill import autofill
 
+        _arrays.refuse(self.sheet, self.areas + (Destination.areas if isinstance(Destination, Range) else []),
+                       "Filling")
         return autofill(self, Destination, Type)
 
     @method
@@ -2437,6 +2496,7 @@ class Range(ExcelObject):
         from pyopenvba.apps.excel._sort import range_sort
 
         check_sort(self)
+        _arrays.refuse(self.sheet, self.areas, "Sorting")
         return range_sort(self, [(Key1, Order1, DataOption1), (Key2, Order2, DataOption2), (Key3, Order3, DataOption3)],
                           Header, OrderCustom, MatchCase, Orientation)
 
@@ -2456,6 +2516,7 @@ class Range(ExcelObject):
         from pyopenvba.apps.excel._protection import APPLICATION_DEFINED, refuse
 
         refuse(self.sheet, APPLICATION_DEFINED)
+        _arrays.refuse(self.sheet, self.areas, "Removing duplicates from")
         return remove_duplicates(self, Columns, Header)
 
     @method
@@ -2537,6 +2598,7 @@ class Range(ExcelObject):
         if enforced(self.sheet) is not None:
             # A protected sheet's Replace answers True and changes nothing, unlocked cells included.
             return True
+        _arrays.refuse(self.sheet, self.areas, "Replacing in")
         return replace(self, What, Replacement, LookAt, SearchOrder, MatchCase, MatchByte, SearchFormat,
                        ReplaceFormat, FormulaVersion)
 
@@ -2617,6 +2679,10 @@ class Range(ExcelObject):
         """A cell's value as VBA reads it; ``raw`` is Value2, which leaves a number a Double whatever its format."""
         from pyopenvba.apps.excel._calc import as_vba
 
+        if self.sheet.array_formulas and _arrays.array_at(self.sheet, row, column) is not None:
+            # A cell of an array formula shows its item of the array, worked out first if it has to be.
+            value = self.sheet.book.calculator.value_of(self.sheet.name, row, column)
+            return as_vba(value, None if raw else self.sheet.cell(row, column))
         cell = self.sheet.cell(row, column)
         if cell is None:
             return EMPTY
@@ -3320,6 +3386,30 @@ class _BookNames:
 def _is_formula(text: str) -> bool:
     """Whether a string written to a cell is a formula: it starts with =, and = alone is text."""
     return text.startswith("=") and text != "="
+
+
+#: A name that is an R1C1 reference, which A1 will not take as a name: R1C1, RC2, R3C, R, C.
+_R1C1_NAME = re.compile(r"(?i)R(?:\d+|\[-?\d+\])?(?:C(?:\d+|\[-?\d+\])?)?|C(?:\d+|\[-?\d+\])?")
+
+
+def _array_formula_text(sheet: Worksheet, formula: str, row: int, column: int) -> str:
+    """What FormulaArray is given, as Excel spells it: A1, or R1C1 where A1 cannot read it, =SUM(R1C1:R3C1)."""
+    from pyopenvba.formula._parse import FormulaError, tokenize
+
+    try:
+        tokens = tokenize(formula[1:])
+    except FormulaError:
+        tokens = []
+    if not any(token.kind == "name" and _R1C1_NAME.fullmatch(token.text) for token in tokens):
+        try:
+            return spelled_formula(sheet, formula)
+        except VBARuntimeError:
+            pass
+    try:
+        converted = to_a1(formula, row, column)
+    except ValueError:
+        raise error(1004, "Unable to set the FormulaArray property of the Range class") from None
+    return spelled_formula(sheet, converted)
 
 
 def spelled_formula(sheet: Worksheet, formula: str) -> str:

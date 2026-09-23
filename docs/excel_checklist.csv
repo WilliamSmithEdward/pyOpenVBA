@@ -542,7 +542,7 @@ Range,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/excel_model/pr
 Range,CountLarge,"property, read-only",As Variant,,PARTIAL,tests/fixtures/excel_model/probes.txt,"Count as a LongLong: the rows of whole rows, the columns of whole columns, else the cells, Cells.CountLarge 17179869184."
 Range,CreateNames,method,"CreateNames([Top As Variant], [Left As Variant], [Bottom As Variant], [Right As Variant]) As Variant",,MISSING,,
 Range,Creator,"property, read-only",As XlCreator,,MISSING,,
-Range,CurrentArray,"property, read-only",As Range,,MISSING,,
+Range,CurrentArray,"property, read-only",As Range,,VERIFIED,tests/fixtures/excel_model/probes.txt,"The array formula block of the range's first cell, error 1004 when it is part of none."
 Range,CurrentRegion,"property, read-only",As Range,,VERIFIED,tests/fixtures/current_region.json,"From the first area's top-left cell, grown while the ring around it holds a value or formula, corners included; merged areas count by their first cell and are taken in whole."
 Range,Cut,method,Cut([Destination As Variant]) As Variant,,PARTIAL,tests/fixtures/paste.json; tests/fixtures/excel_model/probes.txt; tests/fixtures/autofilter_edits.json; tests/fixtures/cut_references.json,"Moves cells and every reference wholly inside them, names included, and a formula moved to another sheet keeps pointing where it did; a reference losing a whole edge to the block keeps the rest across sheets and takes the edge along on its own sheet. Merged cells, another workbook, and whole rows or columns with sizes or formats of their own report themselves unsupported. A cut of a filter's whole range moves the filter along its sheet with its criteria cleared, or takes it away to another."
 Range,DataSeries,method,"DataSeries([Rowcol As Variant], [Type As XlDataSeriesType], [Date As XlDataSeriesDate], [Step As Variant], [Stop As Variant], [Trend As Variant]) As Variant",,MISSING,,
@@ -576,14 +576,14 @@ Range,Formula2,property,As Variant,,MISSING,,
 Range,Formula2Local,property,As Variant,,MISSING,,
 Range,Formula2R1C1,property,As Variant,,MISSING,,
 Range,Formula2R1C1Local,property,As Variant,,MISSING,,
-Range,FormulaArray,property,As Variant,,MISSING,,
+Range,FormulaArray,property,As Variant,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/formula_storage/formula_storage.json,"One formula worked out as an array over the block, each cell showing its item, in A1 or R1C1, 255 characters at most; one cell of an array rewrites it, part of one is error 1004. Read, it is the array's formula, the formula the cells share, or Null. Saved and read as Excel saves and reads it. Over several areas, or set to a value, it reports itself unsupported, and so do copying part of an array, filling, sorting, replacing and removing duplicates in one."
 Range,FormulaHidden,property,As Variant,,VERIFIED,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,
 Range,FormulaLocal,property,As Variant,,PARTIAL,tests/fixtures/excel_model/probes.txt,"The same as Formula, as an English Excel has it; the model keeps the English spelling."
 Range,FormulaR1C1,property,As Variant,,PARTIAL,tests/fixtures/formula_r1c1.json; tests/fixtures/formula_arrays.json; tests/fixtures/autofilter_edits.json,Relative R1C1 inside INDIRECT names is not implemented. On a filtered sheet only the visible cells take it.
 Range,FormulaR1C1Local,property,As Variant,,PARTIAL,tests/fixtures/excel_model/probes.txt,"The same as FormulaR1C1, as an English Excel has it; the model keeps the English spelling."
 Range,FunctionWizard,method,FunctionWizard() As Variant,,MISSING,,
 Range,Group,method,"Group([Start As Variant], [End As Variant], [By As Variant], [Periods As Variant]) As Variant",,MISSING,,
-Range,HasArray,"property, read-only",As Variant,,MISSING,,
+Range,HasArray,"property, read-only",As Variant,,VERIFIED,tests/fixtures/excel_model/probes.txt,"True when the range meets one array formula and its first cell is in it, False when it meets none, Null otherwise."
 Range,HasFormula,"property, read-only",As Variant,,PARTIAL,tests/fixtures/value_typing.json; tests/fixtures/typing_formats.json,"Measured on single cells; a block with and without formulas answers Null, as Excel documents rather than as measured."
 Range,HasRichDataType,"property, read-only",As Variant,,MISSING,,
 Range,HasSpill,"property, read-only",As Variant,,MISSING,,

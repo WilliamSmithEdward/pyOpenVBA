@@ -196,6 +196,9 @@ def _read_cells(sheet: Worksheet, rows: str, strings: list[str], stylesheet: Sty
                     if formula and element.get("ref"):
                         sheet.shared_groups[shared] = parse_area(element["ref"], sheet="")
                         firsts[shared] = (row, column, formula)
+                elif element.get("t") == "array" and formula:
+                    # An array formula: its first cell holds it, the rest of its block the values it gave.
+                    sheet.array_formulas[(row, column)] = parse_area(element.get("ref") or reference, sheet="")
             value = _cell_value(cell_xml, kind, strings)
             if value is EMPTY and formula_match is None \
                     and (style or stylesheet.default) == sheet.inherited_style(row, column):
@@ -1163,9 +1166,10 @@ def _patched_sheet(sheet: Worksheet, original: str, package: OpcFile) -> str:
         if sheet.holds(row, column, cell):
             by_row.setdefault(row, []).append((column, cell))
     stylesheet = sheet.book.stylesheet
+    from pyopenvba.apps.excel._arrays import elements
     from pyopenvba.apps.excel._shared import formula_elements
 
-    shared = formula_elements(sheet, _escape_text)
+    shared = formula_elements(sheet, _escape_text) | elements(sheet, _escape_text)
     for row in set(rows) | set(by_row):
         rows[row] = _row_with_cells(rows.get(row, f'<row r="{row}"></row>'), row, by_row.get(row, []), stylesheet,
                                     shared)

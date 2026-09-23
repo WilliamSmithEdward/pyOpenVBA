@@ -1,11 +1,13 @@
-"""How Excel stores formulas in a saved sheet: which it shares, and what an edit does to a shared group.
+"""How Excel stores formulas in a saved sheet: which it shares, which are arrays, and what an edit does to them.
 
 Excel saves a formula written to several cells at once as a shared
 formula: the group's top-left cell carries the text and the group's
-range, and every other cell only the group's index. Each case below
-writes formulas from VBA, or edits the "written" workbook, and saves the
-result; the formula cells Excel wrote, and every formula Excel reads back
-after opening the file again, go into tests/fixtures/formula_storage/.
+range, and every other cell only the group's index. An array formula is
+kept in its block's first cell with the block beside it, the other cells
+holding only their values. Each case below writes formulas from VBA, or
+edits one of those workbooks, and saves the result; the formula cells
+Excel wrote, and every formula Excel reads back after opening the file
+again, go into tests/fixtures/formula_storage/.
 
     python scripts/measure_formula_storage.py
 
@@ -45,19 +47,28 @@ WRITTEN: list[tuple[str, str]] = [
               'ws.Range("Q1:Q3").Formula = "=SUM($A$1:$A$4)"\n'
               'ws.Range("R1:R2").Formula = "=A1&""x"""\n'
               'ws.Range("S1").Formula = "=""a""""b<&>"""'),
+    ("arrays", 'ws.Range("A1:A4").Value = Application.Transpose(Array(1, 2, 3, 4))\n'
+               'ws.Range("D1").FormulaArray = "=SUM(A1:A3*2)"\n'
+               'ws.Range("E1:E3").FormulaArray = "=A1:A3*10"\n'
+               'ws.Range("F1:F4").FormulaArray = "=A1:A3*10"\n'
+               'ws.Range("G1:H2").FormulaArray = "={1,2}"\n'
+               'ws.Range("I1").FormulaArray = "=A1:A3&""x"""'),
 ]
 
-#: Edits made to the "written" workbook before it is saved again.
-EDITS: list[tuple[str, str]] = [
-    ("value_edit", 'ws.Range("A2").Value = 20'),
-    ("split_formula", 'ws.Range("B2").Formula = "=A2*5"'),
-    ("split_clear", 'ws.Range("B2").ClearContents'),
-    ("master_formula", 'ws.Range("B1").Formula = "=A1*7"'),
-    ("master_clear", 'ws.Range("B1").ClearContents'),
-    ("insert_row", "ws.Rows(2).Insert"),
-    ("delete_row", "ws.Rows(2).Delete"),
-    ("rewrite", 'ws.Range("B1:B3").Formula = "=A1*2"'),
-    ("extend_fill", 'ws.Range("B3").AutoFill ws.Range("B3:B4")'),
+#: Edits made to one of those workbooks before it is saved again: name, the workbook, the edit.
+EDITS: list[tuple[str, str, str]] = [
+    ("value_edit", "written", 'ws.Range("A2").Value = 20'),
+    ("split_formula", "written", 'ws.Range("B2").Formula = "=A2*5"'),
+    ("split_clear", "written", 'ws.Range("B2").ClearContents'),
+    ("master_formula", "written", 'ws.Range("B1").Formula = "=A1*7"'),
+    ("master_clear", "written", 'ws.Range("B1").ClearContents'),
+    ("insert_row", "written", "ws.Rows(2).Insert"),
+    ("delete_row", "written", "ws.Rows(2).Delete"),
+    ("rewrite", "written", 'ws.Range("B1:B3").Formula = "=A1*2"'),
+    ("extend_fill", "written", 'ws.Range("B3").AutoFill ws.Range("B3:B4")'),
+    ("array_value_edit", "arrays", 'ws.Range("A2").Value = 20'),
+    ("array_cleared", "arrays", 'ws.Range("E1:E3").ClearContents'),
+    ("array_insert_row", "arrays", "ws.Rows(1).Insert"),
 ]
 
 #: Every formula cell of the block the cases use, read back after the file is opened again.
@@ -78,11 +89,11 @@ def module() -> str:
         path = FOLDER / f"{name}.xlsx"
         lines += ["Set wb = Workbooks.Add(xlWBATWorksheet)", "Set ws = wb.Worksheets(1)", writes,
                   f'wb.SaveAs Filename:="{path}", FileFormat:=51', "wb.Close False"]
-    for name, edit in EDITS:
+    for name, base, edit in EDITS:
         path = FOLDER / f"{name}.xlsx"
-        lines += [f'Set wb = Workbooks.Open("{FOLDER / "written.xlsx"}")', "Set ws = wb.Worksheets(1)", edit,
+        lines += [f'Set wb = Workbooks.Open("{FOLDER / (base + ".xlsx")}")', "Set ws = wb.Worksheets(1)", edit,
                   f'wb.SaveAs Filename:="{path}", FileFormat:=51', "wb.Close False"]
-    for name in [name for name, _ in WRITTEN] + [name for name, _ in EDITS]:
+    for name in [name for name, _ in WRITTEN] + [name for name, _, _ in EDITS]:
         lines += [f'Set wb = Workbooks.Open("{FOLDER / (name + ".xlsx")}")',
                   f'out = out & "{name}^" & Formulas(wb.Worksheets(1)) & "|"', "wb.Close False"]
     lines += ["Probe = out", "End Function"]
@@ -104,11 +115,11 @@ def main() -> None:
         assert result.ok, f"{result.outcome}: {result.message} {result.error}"
     read = dict(part.split("^", 1) for part in str(result.value).split("|") if part)
     cases = []
-    for name, action in [*WRITTEN, *EDITS]:
+    for name, base, action in [(name, "", action) for name, action in WRITTEN] + EDITS:
         formulas = [one.split("=", 1) for one in read[name].split(";") if one]
-        cases.append({"name": name, "action": action, "cells": formula_cells(FOLDER / f"{name}.xlsx"),
+        cases.append({"name": name, "base": base, "action": action, "cells": formula_cells(FOLDER / f"{name}.xlsx"),
                       "read": {address: rest for address, rest in formulas}})
-    record = {"base": "written", "edits": [name for name, _ in EDITS], "cases": cases}
+    record = {"reader": READ_BACK, "cases": cases}
     (FOLDER / "formula_storage.json").write_text(json.dumps(record, indent=1) + "\n", encoding="utf-8")
     for case in cases:
         print(f"--- {case['name']}: {case['action'].splitlines()[0]}")

@@ -345,6 +345,9 @@ class SortObject(ExcelObject):
         target = state.area
         if len(target.areas) != 1:
             raise VBAUnsupportedError("sorting several areas is not implemented")
+        from pyopenvba.apps.excel._arrays import refuse
+
+        refuse(target.sheet, target.areas, "Sorting")
         area = target.first
         across = state.orientation == LEFT_TO_RIGHT
         keys = [_key(field.key, area, across, VBAInt(field.order, "Long"), VBAInt(field.option, "Long"))

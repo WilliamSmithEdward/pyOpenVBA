@@ -28,7 +28,9 @@ from pyopenvba.interpreter._values import (
     ERR_OBJECT_VARIABLE_NOT_SET,
     MISSING,
     NOTHING,
+    VBAArray,
     error,
+    to_integer,
 )
 
 
@@ -175,6 +177,15 @@ class VBAObject:
         spec = self.vba_member(name)
         if spec is None or spec.getter is None:
             raise self.vba_no_member(name)
+        if args and not named and spec.kind == "property" and not spec.parameters and not spec.varargs:
+            # VBA hands arguments a property does not take to what it answers: Range("C1:C3").Formula(2, 1)
+            # is an item of the array Formula answers, and an object's default member takes them.
+            found = spec.getter(self)
+            if isinstance(found, VBAArray):
+                return found.get([int(to_integer(one, "Long")) for one in args])
+            default = found.vba_default_member() if isinstance(found, VBAObject) else None
+            if isinstance(found, VBAObject) and default is not None:
+                return found.vba_get(default.name, args)
         return spec.getter(self, *self._bind(spec, args, named))
 
     def vba_set(

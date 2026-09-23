@@ -22,8 +22,9 @@ from typing import TYPE_CHECKING
 from pyopenvba._a1 import Area
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.formula import _parse as P
-from pyopenvba.formula._engine import Context, cell_answer, clip
-from pyopenvba.formula._values import BLANK, REF, ExcelError, Matrix
+from pyopenvba.apps.excel._arrays import array_at
+from pyopenvba.formula._engine import Context, cell_answer, clip, evaluate_formula
+from pyopenvba.formula._values import BLANK, REF, VALUE, Areas, ExcelError, Matrix
 from pyopenvba.interpreter._values import EMPTY, VBACurrency, VBADate, VBAErrorValue, VBAInt
 
 if TYPE_CHECKING:
@@ -131,6 +132,8 @@ class Calculator:
                 if cell is not None and not cell.stale:
                     cell.stale = True
                     following.add(key)
+                    # What reads a cell of an array formula follows the array.
+                    following.update(self._members(key))
                 seen.add(key)
         if following:
             self._spoil(following, seen)
@@ -163,9 +166,16 @@ class Calculator:
                     self.value_of(sheet.name, row, column, force=True)
 
     def value_of(self, sheet: str, row: int, column: int, *, force: bool = False) -> object:
-        """A cell's value, worked out first if it needs to be."""
+        """A cell's value, worked out first if it needs to be; a cell of an array formula, by working out the array."""
         self.build()
         key = (sheet.lower(), row, column)
+        owner = self._sheet_named(sheet)
+        if owner is not None and owner.array_formulas:
+            found = array_at(owner, row, column)
+            if found is not None and found[0] != (row, column):
+                self.value_of(sheet, *found[0], force=force)
+                member = owner.cells_.get((row, column))
+                return EMPTY if member is None else member.value
         cell = self._cell(key)
         if cell is None:
             return EMPTY
@@ -196,18 +206,32 @@ class Calculator:
         return value
 
     def _computed(self, compiled: Compiled, sheet: str, row: int, column: int) -> object:
+        owner = self._sheet_named(sheet)
+        block = owner.array_formulas.get((row, column)) if owner is not None else None
         try:
+            if owner is not None and block is not None:
+                answer = evaluate_formula(compiled.node, Context(self, sheet, row, column, array=True))
+                return _spread(owner, block, answer)
             answer = cell_answer(compiled.node, Context(self, sheet, row, column))
         except ExcelError as failure:
             if failure.name == "#CIRCULAR!":
                 # Excel leaves a zero in a cell that feeds itself.
                 self.circular.add((sheet.lower(), row, column))
                 return 0.0
-            return failure
+            return failure if owner is None or block is None else _spread(owner, block, failure)
         except RecursionError:
             self.circular.add((sheet.lower(), row, column))
             return 0.0
         return _to_cell(answer)
+
+    def _members(self, key: CellKey) -> set[CellKey]:
+        """The other cells of the array formula whose first cell is ``key``, if it is one."""
+        owner = self._sheet_named(key[0])
+        block = owner.array_formulas.get((key[1], key[2])) if owner is not None else None
+        if block is None:
+            return set()
+        return {(key[0], row, column) for row in range(block.top, block.bottom + 1)
+                for column in range(block.left, block.right + 1)} - {key}
 
     # --- what the engine asks of a grid ------------------------------------------------
 
@@ -340,6 +364,29 @@ def from_vba(value: object) -> object:
                 return ExcelError(name)
         return ExcelError("#VALUE!")
     return value
+
+
+def _spread(sheet: Worksheet, block: Area, answer: object) -> object:
+    """An array formula's answer laid over its block, as Matrix.at lines it up; the first cell's item, for it to keep.
+
+    One row or column repeats across the block, and past the end of the
+    answer a cell shows #N/A.
+    """
+    first: object = BLANK
+    for row in range(block.top, block.bottom + 1):
+        for column in range(block.left, block.right + 1):
+            if isinstance(answer, Matrix):
+                item = answer.at(row - block.top, column - block.left)
+            else:
+                item = VALUE if isinstance(answer, Areas) else answer
+            value = _to_cell(item)
+            if (row, column) == (block.top, block.left):
+                first = value
+                continue
+            cell = sheet.cell(row, column, create=True)
+            assert cell is not None
+            cell.value, cell.stale = value, False
+    return first
 
 
 def _to_cell(value: object) -> object:

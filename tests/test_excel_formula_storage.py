@@ -1,16 +1,17 @@
-"""Shared formulas in the file, replayed against the in-memory model.
+"""Shared and array formulas in the file, replayed against the in-memory model.
 
 tests/fixtures/formula_storage/ is what scripts/measure_formula_storage.py
 saw: a workbook for each way of writing formulas and for each edit made to
-the "written" one, as Excel saved it, and in formula_storage.json the
-formula cells Excel wrote and every formula, with what it shows, that
-Excel read back from each file.
+one of them, as Excel saved it, and in formula_storage.json the formula
+cells Excel wrote and every formula, with what it shows, that Excel read
+back from each file through the reader the JSON keeps.
 
 The model reads each file's formulas as Excel reads them, works them out
 again as Excel does after an edit, and saves each case with its formulas
-stored as Excel stored them: which are shared, over which block, in which
-order. The values a cell carries are left out of that comparison, since
-the model works a formula out only when something asks.
+stored as Excel stored them: which are shared or array formulas, over
+which block, in which order. The values a cell carries are left out of
+that comparison, since the model works a formula out only when something
+asks.
 """
 
 from __future__ import annotations
@@ -23,14 +24,12 @@ from typing import Any
 
 import pytest
 
-from pyopenvba._a1 import column_letter
 from pyopenvba.apps.excel import ExcelApplication
 
 FIXTURES = Path(__file__).parent / "fixtures" / "formula_storage"
 RECORD: dict[str, Any] = json.loads((FIXTURES / "formula_storage.json").read_text(encoding="utf-8"))
 CASES: dict[str, dict[str, Any]] = {case["name"]: case for case in RECORD["cases"]}
-EDITS: list[str] = RECORD["edits"]
-WRITTEN = [name for name in CASES if name not in EDITS]
+EDITS = [name for name, case in CASES.items() if case["base"]]
 _FORMULA_CELL = re.compile(r'<c r="([A-Z]+\d+)"[^>]*>(?:(?!</c>).)*?(<f\b[^>]*/>|<f\b[^>]*>.*?</f>)', re.DOTALL)
 
 #: Cases the model stores differently, and why.
@@ -49,11 +48,16 @@ def _sheet_xml(path: Path) -> str:
 
 def _run(app: ExcelApplication, action: str, reads: str = "") -> str:
     """Run a case's VBA on the first sheet, then hand back what ``reads`` reads, if anything."""
-    body = "\n".join(["Public Function Probe() As String", "Dim ws As Object",
+    body = "\n".join([RECORD["reader"], "Public Function Probe() As String", "Dim ws As Object",
                       "Set ws = ActiveWorkbook.Worksheets(1)", action, f"Probe = {reads or chr(34) * 2}",
                       "End Function"])
     app.add_module(body + "\n", name="Probe")
     return str(app.run("Probe"))
+
+
+def _read(text: str) -> dict[str, str]:
+    """What the reader gave: each formula cell's formula and shown text, "formula=text", by address."""
+    return dict(one.split("=", 1) for one in text.split(";") if one)
 
 
 def _param(name: str) -> Any:
@@ -64,19 +68,13 @@ def _param(name: str) -> Any:
 @pytest.mark.parametrize("name", list(CASES))
 def test_the_model_reads_each_formula_excel_saved(name: str) -> None:
     app = ExcelApplication.open(FIXTURES / f"{name}.xlsx", with_vba=False)
-    found = {f"{column_letter(column)}{row}": cell.formula
-             for (row, column), cell in app.workbook.sheets_[0].cells_.items() if cell.formula}
-    # Each read-back is the formula and the text it shows, joined by "=".
-    assert found == {address: shown.rsplit("=", 1)[0] for address, shown in CASES[name]["read"].items()}
+    assert _read(_run(app, "", "Formulas(ws)")) == CASES[name]["read"]
 
 
 @pytest.mark.parametrize("name", EDITS)
 def test_an_edit_is_worked_out_as_excel_works_it_out(name: str) -> None:
-    app = ExcelApplication.open(FIXTURES / "written.xlsx", with_vba=False)
-    reads = " & ".join(f'"{address}=" & ws.Range("{address}").Formula & "=" & ws.Range("{address}").Text & ";"'
-                       for address in CASES[name]["read"]) or chr(34) * 2
-    got = dict(one.split("=", 1) for one in _run(app, CASES[name]["action"], reads).split(";") if one)
-    assert got == CASES[name]["read"]
+    app = ExcelApplication.open(FIXTURES / f"{CASES[name]['base']}.xlsx", with_vba=False)
+    assert _read(_run(app, CASES[name]["action"], "Formulas(ws)")) == CASES[name]["read"]
 
 
 def test_a_formula_and_its_text_keep_their_quotes_as_excel_writes_them(tmp_path: Path) -> None:
@@ -91,8 +89,8 @@ def test_a_formula_and_its_text_keep_their_quotes_as_excel_writes_them(tmp_path:
 
 @pytest.mark.parametrize("name", [_param(name) for name in CASES])
 def test_a_save_stores_the_formulas_as_excel_stores_them(name: str, tmp_path: Path) -> None:
-    if name in EDITS:
-        app = ExcelApplication.open(FIXTURES / "written.xlsx", with_vba=False)
+    if CASES[name]["base"]:
+        app = ExcelApplication.open(FIXTURES / f"{CASES[name]['base']}.xlsx", with_vba=False)
     else:
         app = ExcelApplication()
         app.add_workbook()

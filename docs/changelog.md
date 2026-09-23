@@ -144,6 +144,19 @@ All notable changes to pyOpenVBA are documented here. This project follows
   `FormulaLocal`, `FormulaR1C1Local` and `NumberFormatLocal`, and
   `Worksheet.Next` and `Previous`. The Local spellings are the English
   ones, as an English Excel has them; `Calculate` answers Null.
+- Array formulas: `Range.FormulaArray`, `HasArray` and `CurrentArray`.
+  An array formula is worked out once as an array over its block, and
+  each cell shows its item; every cell reports the formula, and what
+  reads one follows the array. FormulaArray takes A1 or R1C1 and at most
+  255 characters, rewrites a whole array from one of its cells, and is
+  error 1004 over part of one. Value and Formula over part of an array
+  change nothing and over all of it replace it; clearing part of one, or
+  inserting or deleting rows or columns through it, is error 1004, as in
+  Excel. A file keeps the formula in the block's first cell, read and
+  saved as Excel does; before, the model read such a formula as an
+  ordinary one, and a save of the sheet lost the array. 78 cases and 4
+  workbooks in live Excel pin it. Copying part of an array, and filling,
+  sorting, replacing or removing duplicates in one, report themselves.
 - Workbook protection: `Workbook.Protect`, `Unprotect`,
   `ProtectStructure` and `ProtectWindows`. A protected structure refuses
   adding, deleting, renaming, moving, copying and hiding sheets with
@@ -531,7 +544,7 @@ All notable changes to pyOpenVBA are documented here. This project follows
   the block a macro writes, fills or copies a formula to, kept through
   edits, inserts and deletes as Excel keeps them, and numbered as Excel
   numbers them. A formula's text and value keep a quote as it is, as
-  Excel writes them. 12 workbooks saved by Excel pin it.
+  Excel writes them. 11 workbooks saved by Excel pin it.
 - A formula written to a General cell takes the number format Excel
   gives it, as it is written: `=A1+30` on a date is a date, so its Value
   reads back as a Date rather than a Double. A reference brings its

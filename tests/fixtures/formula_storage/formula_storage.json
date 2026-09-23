@@ -1,19 +1,9 @@
 {
- "base": "written",
- "edits": [
-  "value_edit",
-  "split_formula",
-  "split_clear",
-  "master_formula",
-  "master_clear",
-  "insert_row",
-  "delete_row",
-  "rewrite",
-  "extend_fill"
- ],
+ "reader": "Private Function Formulas(ws As Object) As String\nDim cell As Object, out As String\nFor Each cell In ws.Range(\"A1:S5\").Cells\n    If cell.HasFormula Then out = out & cell.Address(False, False) & \"=\" & cell.Formula & \"=\" & cell.Text & \";\"\nNext\nFormulas = out\nEnd Function\n",
  "cases": [
   {
    "name": "written",
+   "base": "",
    "action": "ws.Range(\"A1:A4\").Value = Application.Transpose(Array(1, 2, 3, 4))\nws.Range(\"B1:B3\").Formula = \"=A1*2\"\nws.Range(\"C1\").Formula = \"=A1*3\"\nws.Range(\"C1\").AutoFill ws.Range(\"C1:C3\")\nws.Range(\"G1\").Formula = \"=A1\"\nws.Range(\"G2\").Formula = \"=A2\"\nws.Range(\"H1:I2\").Formula = \"=$A1+A$1\"",
    "cells": [
     "<c r=\"B1\"><f t=\"shared\" ref=\"B1:B3\" si=\"0\">A1*2</f><v>2</v></c>",
@@ -46,6 +36,7 @@
   },
   {
    "name": "kinds",
+   "base": "",
    "action": "ws.Range(\"A1:A4\").Value = Application.Transpose(Array(1, 2, 3, 4))\nws.Range(\"K1:K2\").Formula = \"=5\"\nws.Range(\"L1:L2\").FormulaR1C1 = \"=RC1*2\"\nws.Range(\"M1:M2\").Value = \"=A1\"\nws.Range(\"O1\").Formula = \"=A1\"\nws.Range(\"O1:O3\").FillDown\nws.Range(\"P1\").Formula = \"=A1\"\nws.Range(\"P1\").Copy ws.Range(\"P2:P3\")\nws.Range(\"Q1:Q3\").Formula = \"=SUM($A$1:$A$4)\"\nws.Range(\"R1:R2\").Formula = \"=A1&\"\"x\"\"\"\nws.Range(\"S1\").Formula = \"=\"\"a\"\"\"\"b<&>\"\"\"",
    "cells": [
     "<c r=\"K1\"><f>5</f><v>5</v></c>",
@@ -89,7 +80,35 @@
    }
   },
   {
+   "name": "arrays",
+   "base": "",
+   "action": "ws.Range(\"A1:A4\").Value = Application.Transpose(Array(1, 2, 3, 4))\nws.Range(\"D1\").FormulaArray = \"=SUM(A1:A3*2)\"\nws.Range(\"E1:E3\").FormulaArray = \"=A1:A3*10\"\nws.Range(\"F1:F4\").FormulaArray = \"=A1:A3*10\"\nws.Range(\"G1:H2\").FormulaArray = \"={1,2}\"\nws.Range(\"I1\").FormulaArray = \"=A1:A3&\"\"x\"\"\"",
+   "cells": [
+    "<c r=\"D1\"><f t=\"array\" ref=\"D1\">SUM(A1:A3*2)</f><v>12</v></c>",
+    "<c r=\"E1\"><f t=\"array\" ref=\"E1:E3\">A1:A3*10</f><v>10</v></c>",
+    "<c r=\"F1\"><f t=\"array\" ref=\"F1:F4\">A1:A3*10</f><v>10</v></c>",
+    "<c r=\"G1\"><f t=\"array\" ref=\"G1:H2\">{1,2}</f><v>1</v></c>",
+    "<c r=\"I1\" t=\"str\"><f t=\"array\" ref=\"I1\">A1:A3&amp;\"x\"</f><v>1x</v></c>"
+   ],
+   "read": {
+    "D1": "=SUM(A1:A3*2)=12",
+    "E1": "=A1:A3*10=10",
+    "F1": "=A1:A3*10=10",
+    "G1": "={1,2}=1",
+    "H1": "={1,2}=2",
+    "I1": "=A1:A3&\"x\"=1x",
+    "E2": "=A1:A3*10=20",
+    "F2": "=A1:A3*10=20",
+    "G2": "={1,2}=1",
+    "H2": "={1,2}=2",
+    "E3": "=A1:A3*10=30",
+    "F3": "=A1:A3*10=30",
+    "F4": "=A1:A3*10=#N/A"
+   }
+  },
+  {
    "name": "value_edit",
+   "base": "written",
    "action": "ws.Range(\"A2\").Value = 20",
    "cells": [
     "<c r=\"B1\"><f t=\"shared\" ref=\"B1:B3\" si=\"0\">A1*2</f><v>2</v></c>",
@@ -122,6 +141,7 @@
   },
   {
    "name": "split_formula",
+   "base": "written",
    "action": "ws.Range(\"B2\").Formula = \"=A2*5\"",
    "cells": [
     "<c r=\"B1\"><f t=\"shared\" ref=\"B1:B3\" si=\"0\">A1*2</f><v>2</v></c>",
@@ -154,6 +174,7 @@
   },
   {
    "name": "split_clear",
+   "base": "written",
    "action": "ws.Range(\"B2\").ClearContents",
    "cells": [
     "<c r=\"B1\"><f t=\"shared\" ref=\"B1:B3\" si=\"0\">A1*2</f><v>2</v></c>",
@@ -184,6 +205,7 @@
   },
   {
    "name": "master_formula",
+   "base": "written",
    "action": "ws.Range(\"B1\").Formula = \"=A1*7\"",
    "cells": [
     "<c r=\"B1\"><f>A1*7</f><v>7</v></c>",
@@ -216,6 +238,7 @@
   },
   {
    "name": "master_clear",
+   "base": "written",
    "action": "ws.Range(\"B1\").ClearContents",
    "cells": [
     "<c r=\"C1\"><f>A1*3</f><v>3</v></c>",
@@ -246,6 +269,7 @@
   },
   {
    "name": "insert_row",
+   "base": "written",
    "action": "ws.Rows(2).Insert",
    "cells": [
     "<c r=\"B1\"><f t=\"shared\" ref=\"B1:B4\" si=\"0\">A1*2</f><v>2</v></c>",
@@ -278,6 +302,7 @@
   },
   {
    "name": "delete_row",
+   "base": "written",
    "action": "ws.Rows(2).Delete",
    "cells": [
     "<c r=\"B1\"><f t=\"shared\" ref=\"B1:B2\" si=\"0\">A1*2</f><v>2</v></c>",
@@ -300,6 +325,7 @@
   },
   {
    "name": "rewrite",
+   "base": "written",
    "action": "ws.Range(\"B1:B3\").Formula = \"=A1*2\"",
    "cells": [
     "<c r=\"B1\"><f t=\"shared\" ref=\"B1:B3\" si=\"0\">A1*2</f><v>2</v></c>",
@@ -332,6 +358,7 @@
   },
   {
    "name": "extend_fill",
+   "base": "written",
    "action": "ws.Range(\"B3\").AutoFill ws.Range(\"B3:B4\")",
    "cells": [
     "<c r=\"B1\"><f t=\"shared\" ref=\"B1:B4\" si=\"0\">A1*2</f><v>2</v></c>",
@@ -362,6 +389,83 @@
     "B3": "=A3*2=6",
     "C3": "=A3*3=9",
     "B4": "=A4*2=8"
+   }
+  },
+  {
+   "name": "array_value_edit",
+   "base": "arrays",
+   "action": "ws.Range(\"A2\").Value = 20",
+   "cells": [
+    "<c r=\"D1\"><f t=\"array\" ref=\"D1\">SUM(A1:A3*2)</f><v>48</v></c>",
+    "<c r=\"E1\"><f t=\"array\" ref=\"E1:E3\">A1:A3*10</f><v>10</v></c>",
+    "<c r=\"F1\"><f t=\"array\" ref=\"F1:F4\">A1:A3*10</f><v>10</v></c>",
+    "<c r=\"G1\"><f t=\"array\" ref=\"G1:H2\">{1,2}</f><v>1</v></c>",
+    "<c r=\"I1\" t=\"str\"><f t=\"array\" ref=\"I1\">A1:A3&amp;\"x\"</f><v>1x</v></c>"
+   ],
+   "read": {
+    "D1": "=SUM(A1:A3*2)=48",
+    "E1": "=A1:A3*10=10",
+    "F1": "=A1:A3*10=10",
+    "G1": "={1,2}=1",
+    "H1": "={1,2}=2",
+    "I1": "=A1:A3&\"x\"=1x",
+    "E2": "=A1:A3*10=200",
+    "F2": "=A1:A3*10=200",
+    "G2": "={1,2}=1",
+    "H2": "={1,2}=2",
+    "E3": "=A1:A3*10=30",
+    "F3": "=A1:A3*10=30",
+    "F4": "=A1:A3*10=#N/A"
+   }
+  },
+  {
+   "name": "array_cleared",
+   "base": "arrays",
+   "action": "ws.Range(\"E1:E3\").ClearContents",
+   "cells": [
+    "<c r=\"D1\"><f t=\"array\" ref=\"D1\">SUM(A1:A3*2)</f><v>12</v></c>",
+    "<c r=\"F1\"><f t=\"array\" ref=\"F1:F4\">A1:A3*10</f><v>10</v></c>",
+    "<c r=\"G1\"><f t=\"array\" ref=\"G1:H2\">{1,2}</f><v>1</v></c>",
+    "<c r=\"I1\" t=\"str\"><f t=\"array\" ref=\"I1\">A1:A3&amp;\"x\"</f><v>1x</v></c>"
+   ],
+   "read": {
+    "D1": "=SUM(A1:A3*2)=12",
+    "F1": "=A1:A3*10=10",
+    "G1": "={1,2}=1",
+    "H1": "={1,2}=2",
+    "I1": "=A1:A3&\"x\"=1x",
+    "F2": "=A1:A3*10=20",
+    "G2": "={1,2}=1",
+    "H2": "={1,2}=2",
+    "F3": "=A1:A3*10=30",
+    "F4": "=A1:A3*10=#N/A"
+   }
+  },
+  {
+   "name": "array_insert_row",
+   "base": "arrays",
+   "action": "ws.Rows(1).Insert",
+   "cells": [
+    "<c r=\"D2\"><f t=\"array\" ref=\"D2\">SUM(A2:A4*2)</f><v>12</v></c>",
+    "<c r=\"E2\"><f t=\"array\" ref=\"E2:E4\">A2:A4*10</f><v>10</v></c>",
+    "<c r=\"F2\"><f t=\"array\" ref=\"F2:F5\">A2:A4*10</f><v>10</v></c>",
+    "<c r=\"G2\"><f t=\"array\" ref=\"G2:H3\">{1,2}</f><v>1</v></c>",
+    "<c r=\"I2\" t=\"str\"><f t=\"array\" ref=\"I2\">A2:A4&amp;\"x\"</f><v>1x</v></c>"
+   ],
+   "read": {
+    "D2": "=SUM(A2:A4*2)=12",
+    "E2": "=A2:A4*10=10",
+    "F2": "=A2:A4*10=10",
+    "G2": "={1,2}=1",
+    "H2": "={1,2}=2",
+    "I2": "=A2:A4&\"x\"=1x",
+    "E3": "=A2:A4*10=20",
+    "F3": "=A2:A4*10=20",
+    "G3": "={1,2}=1",
+    "H3": "={1,2}=2",
+    "E4": "=A2:A4*10=30",
+    "F4": "=A2:A4*10=30",
+    "F5": "=A2:A4*10=#N/A"
    }
   }
  ]

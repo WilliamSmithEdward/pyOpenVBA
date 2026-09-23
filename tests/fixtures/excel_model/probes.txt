@@ -377,3 +377,85 @@ Range("C1").Formula = "=INT(NOW())" ;; Range("C1").NumberFormat & "|" & TypeName
 Range("C1").Formula = "=NOW()-TODAY()" ;; Range("C1").NumberFormat & "|" & TypeName(Range("C1").Value)
 Range("C1").Formula = "=TODAY()" ;; Range("C1").NumberFormat & "|" & TypeName(Range("C1").Value)
 Range("C1").Formula = "=NOW()" ;; Range("C1").NumberFormat & "|" & TypeName(Range("C1").Value)
+
+# --- array formulas ---
+# A1:A3 hold 1, 2 and 3. An array formula is worked out once, as an array,
+# and each cell of its range shows its item.
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1").FormulaArray = "=SUM(A1:A3*2)" ;; Range("C1").Value
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1").FormulaArray = "=SUM(A1:A3*2)" ;; Range("C1").Formula
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1").FormulaArray = "=SUM(A1:A3*2)" ;; Range("C1").FormulaArray
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1").FormulaArray = "=SUM(A1:A3*2)" ;; Range("C1").HasArray
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1").FormulaArray = "=SUM(A1:A3*2)" ;; Range("C1").HasFormula
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1").FormulaArray = "=SUM(A1:A3*2)" ;; Range("C1").CurrentArray.Address
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10" ;; Range("C2").Value
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10" ;; Range("C2").Formula
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10" ;; Range("C2").FormulaArray
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10" ;; Range("C2").HasArray
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10" ;; Range("C2").HasFormula
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10" ;; Range("C2").CurrentArray.Address
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10" ;; Range("C1:C3").HasArray
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10" ;; Range("C1:D3").HasArray
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10" ;; Range("C1:C3").FormulaArray
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10" ;; Range("C1:D3").FormulaArray
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10" ;; Range("C1:C3").Formula(2, 1)
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10" ;; Range("C1:C3").HasFormula
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10" ;; Range("D1").HasArray
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10" ;; Range("D1").FormulaArray
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)) ;; Range("A1").FormulaArray
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10" ;; Range("D1").CurrentArray.Address
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10": Range("C2").Value = 5 ;; Range("C2").Value
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10": Range("C2").Formula = "=1" ;; Range("C2").Value
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10": Range("C2").ClearContents ;; Range("C2").Value
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10": Range("C1").FormulaArray = "=1" ;; Range("C1").Value
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10": Range("C2:C4").ClearContents ;; Range("C2").Value
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10": Range("C1:C3").ClearContents ;; Range("C2").HasArray & "|" & IsEmpty(Range("C2").Value)
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10": Range("C1:C4").ClearContents ;; Range("C2").HasArray & "|" & IsEmpty(Range("C2").Value)
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10": Range("C1:C3").Value = 5 ;; Range("C2").HasArray & "|" & Range("C2").Value
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10": Range("C1:C3").Formula = "=A1" ;; Range("C2").HasArray & "|" & Range("C2").Formula
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10": Range("C1:C3").FormulaArray = "=A1:A3*100" ;; Range("C2").Value
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10": Range("C1:C3").Clear ;; Range("C2").HasArray
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10": Rows(2).Delete ;; Range("C2").Value
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10": Rows(2).Insert ;; Range("C2").Value
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10": Rows(1).Insert ;; Range("C3").CurrentArray.Address & "|" & Range("C3").FormulaArray
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10": Rows(5).Insert ;; Range("C2").CurrentArray.Address
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10": Rows("1:3").Delete ;; IsEmpty(Range("C1").Value)
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10": Columns(3).Delete ;; Range("C2").HasArray
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C4").FormulaArray = "=A1:A3*10" ;; Range("C4").Text
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:D2").FormulaArray = "={1,2}" ;; Range("C2").Value & "," & Range("D2").Value
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C2").FormulaArray = "=5" ;; Range("C2").Value
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:E1").FormulaArray = "=A1:A3*10" ;; Range("D1").Value & "," & Range("E1").Value
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1").FormulaArray = "=A1:A3*10" ;; Range("C1").Value
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1*2" ;; Range("C2").Value
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("H5").FormulaArray = "=SUM(IF(A1:A3>1,A1:A3))" ;; Range("H5").Value
+Range("A1:A3").Value = Application.Transpose(Array("x", "yy", "zzz")): Range("H5").FormulaArray = "=SUM(LEN(A1:A3))" ;; Range("H5").Value
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10": Range("A2").Value = 20 ;; Range("C2").Value
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10": Range("D2").Formula = "=C2+1" ;; Range("D2").Value
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10": Range("D2").Formula = "=C2+1": Range("A2").Value = 7 ;; Range("D2").Value
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1").FormulaArray = "=SUM(R1C1:R3C1)" ;; Range("C1").Formula
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1").FormulaArray = "=" & Replace(Space(130), " ", "1+") & "1" ;; Range("C1").Value
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1").FormulaArray = "=" & Replace(Space(126), " ", "1+") & "1" ;; Range("C1").Value
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10": Range("C1").Value = 5 ;; Range("C1").Value & "|" & Range("C1").HasArray
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10": Range("C1").FormulaArray = "=1" ;; Range("C2").Value & "|" & Range("C2").HasArray & "|" & Range("C1").CurrentArray.Address
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10": Range("C2").FormulaArray = "=7" ;; Range("C1").Value & "|" & Range("C2").Value & "|" & Range("C2").CurrentArray.Address
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10": Range("C2:C3").FormulaArray = "=5" ;; Range("C1").Value & "|" & Range("C2").Value
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10": Range("C1:C4").FormulaArray = "=5" ;; Range("C4").Value & "|" & Range("C2").CurrentArray.Address
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10" ;; Range("B1:C3").HasArray
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10" ;; Range("B1:C3").FormulaArray
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10" ;; Range("C2:D3").HasArray
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10" ;; Range("C3:C4").HasArray
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10" ;; Range("A1:C1").HasArray
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10" ;; Range("D1:D3").HasArray
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10" ;; Range("D1:D3").FormulaArray
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10" ;; Range("A1:A3").FormulaArray
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10" ;; Range("C1:C3,E1").HasArray
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10": Range("E1").FormulaArray = "=1" ;; Range("C1:E3").HasArray
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10": Range("E1").FormulaArray = "=1" ;; Range("C1:E3").FormulaArray
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10" ;; Range("C1:C3").CurrentArray.Address
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10" ;; Range("C1:D3").CurrentArray.Address
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10" ;; Range("B1:C3").CurrentArray.Address
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10": Range("C1:C3").FormulaR1C1 = "=RC1" ;; Range("C2").HasArray & "|" & Range("C2").Value
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10": Range("C2").FormulaR1C1 = "=1" ;; Range("C2").Value
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10": Range("C2:D2").Value = 5 ;; Range("C2").Value & "|" & Range("D2").Value
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1").FormulaArray = "=A1:A3" ;; Range("C1").NumberFormat
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10": Range("C1:C3").Copy Range("E1") ;; Range("E2").HasArray & "|" & Range("E2").Value
+Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10": Range("C2").Copy Range("E1") ;; Range("E1").HasArray & "|" & Range("E1").Formula

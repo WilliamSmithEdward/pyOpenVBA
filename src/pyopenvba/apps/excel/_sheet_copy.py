@@ -87,8 +87,9 @@ def copy_sheet(source: Worksheet, before: object, after: object) -> object:
     at = destination.sheets_.index(anchor) + (0 if before is not MISSING else 1) if isinstance(anchor, Worksheet) else None
     copied = destination.add_sheet(name, at=at)
     copied.cells_ = cells
-    # The copied cells keep their shared formulas, so the copy keeps the blocks those name.
+    # The copied cells keep their shared formulas, so the copy keeps the blocks those name, and its arrays.
     copied.shared_groups = dict(source.shared_groups)
+    copied.array_formulas = dict(source.array_formulas)
     copied.dims = source.dims.copied(copied)
     copied.merged_areas = [Area(a.top, a.left, a.bottom, a.right, name) for a in source.merged_areas]
     copied.merges_dirty = bool(copied.merged_areas)

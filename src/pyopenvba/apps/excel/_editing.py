@@ -21,7 +21,7 @@ from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, column_letter, column_number
 from pyopenvba._xml import attributes
-from pyopenvba.apps.excel import _shared
+from pyopenvba.apps.excel import _arrays, _shared
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.formula._parse import split_sheet, tokenize
 from pyopenvba.interpreter._values import error
@@ -101,6 +101,7 @@ def edit(target: Range, *, delete: bool) -> None:
         raise VBAUnsupportedError("Whole-row/column edits on sheets with merges or shapes are not implemented")
     rows = area.whole_rows
     start, count, limit = (area.top, area.rows, MAX_ROWS) if rows else (area.left, area.columns, MAX_COLUMNS)
+    _arrays.edit_admitted(sheet, rows=rows, start=start, count=count, delete=delete)
     moved: dict[tuple[int, int], Cell] = {}
     for (row, column), cell in sheet.cells_.items():
         position = row if rows else column
@@ -132,6 +133,8 @@ def edit(target: Range, *, delete: bool) -> None:
             entry.refers_to = text
             sheet.book.names_.changed = True
     _shared.moved(sheet, lambda text: rewrite(text, sheet.name, sheet.name, rows=rows, start=start, count=count,
+                                              delete=delete))
+    _arrays.moved(sheet, lambda text: rewrite(text, sheet.name, sheet.name, rows=rows, start=start, count=count,
                                               delete=delete))
     if rows:
         sheet.dims.shift_rows(start, count, delete)
@@ -179,6 +182,8 @@ def shift_cells(target: Range, area: Area, *, delete: bool, vertical: bool) -> N
     shift = CellShift.of(area, delete=delete, vertical=vertical)
     band, start, count = shift.band, shift.start, shift.count
     limit = MAX_ROWS if vertical else MAX_COLUMNS
+    _arrays.refuse(sheet, [Area(start, band[0], MAX_ROWS, band[1]) if vertical
+                           else Area(band[0], start, band[1], MAX_COLUMNS)], "Shifting")
     moved: dict[tuple[int, int], Cell] = {}
     for (row, column), cell in sheet.cells_.items():
         along, across = (row, column) if vertical else (column, row)

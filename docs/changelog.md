@@ -440,6 +440,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
   object's default member, as VBA sends it: `Range("A1") = 5`,
   `Cells(2, 2) = 7`, `ws.Range("A1:B2") = 0` and `r(2) = 3` all fill
   cells. The model raised error 438 for each.
+- A formula cut to another sheet keeps pointing where it did. A reference
+  into the cells that move with it stays as it was written, and one to a
+  cell left behind names its old sheet: `=D1+B2` cut from CutAway1 reads
+  `=CutAway1!D1+CutAway1!B2`. The model named the new sheet in the first
+  and nothing in the second.
 - `Range.Value` read a number under an elapsed-minutes format, `[m]` or
   `[mm]`, as a Date, taking the `m` for a month; Excel reads a Double.
 - `NumberFormat` kept every escaped character as written. Excel drops the

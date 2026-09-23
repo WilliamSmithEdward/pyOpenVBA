@@ -288,10 +288,10 @@ def move(source: Range, area: Area, destination: Range) -> None:
     book = sheet.book
     # Every formula and name follows the cells before any cell moves.
     for owner in book.sheets_:
-        for cell in owner.cells_.values():
+        for position, cell in owner.cells_.items():
             if cell.formula:
                 cell.formula = moved_references(cell.formula, owner.name, sheet.name, area, target.name, landing,
-                                                down, across)
+                                                down, across, moving=owner is sheet and position in moving)
     from pyopenvba.apps.excel._editing import name_scope
 
     for entry in book.names_.entries:
@@ -325,14 +325,17 @@ def _sized(sheet: Worksheet, area: Area) -> bool:
 
 
 def moved_references(formula: str, owner: str, sheet: str, area: Area, target: str, landing: Area,
-                     down: int, across: int) -> str:
+                     down: int, across: int, *, moving: bool = False) -> str:
     """``formula``, on ``owner``, with its references into a moved block following it.
 
     A reference wholly inside ``area`` on ``sheet`` moves by ``down`` and
     ``across`` to ``target``; one wholly inside ``landing`` on ``target``,
-    whose cells the block replaces, becomes #REF!.
+    whose cells the block replaces, becomes #REF!. A formula ``moving``
+    with the block to ``target`` names that sheet only where it did, and
+    names its old sheet for a reference to it that stays behind.
     """
     body = formula[1:] if formula.startswith("=") else formula
+    after = target if moving else owner
     pieces: list[tuple[int, int, str]] = []
     for token in tokenize(body):
         if token.kind != "ref":
@@ -345,10 +348,12 @@ def moved_references(formula: str, owner: str, sheet: str, area: Area, target: s
         if on.casefold() == sheet.casefold() and _inside(box, area):
             moved = ":".join(_shifted(corner, down, across) for corner in corners)
             if target.casefold() != on.casefold() or named:
-                prefix = quote_sheet(target) + "!" if (named or target.casefold() != owner.casefold()) else ""
+                prefix = quote_sheet(target) + "!" if (named or target.casefold() != after.casefold()) else ""
             pieces.append((token.at, token.at + len(token.text), prefix + moved))
         elif on.casefold() == target.casefold() and _inside(box, landing):
             pieces.append((token.at, token.at + len(token.text), prefix + "#REF!"))
+        elif not named and after.casefold() != owner.casefold():
+            pieces.append((token.at, token.at + len(token.text), quote_sheet(owner) + "!" + token.text))
     for start, stop, replacement in reversed(pieces):
         body = body[:start] + replacement + body[stop:]
     return ("=" if formula.startswith("=") else "") + body

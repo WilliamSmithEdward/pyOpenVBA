@@ -191,6 +191,10 @@ Range("A1:B2").Cells(2, 2) = 6 ;; Range("B2").Value
 ;; Evaluate("{TRUE,FALSE}")(1)
 ;; Evaluate("{7,8}")
 
+# --- a formula cut to another sheet ---
+ActiveSheet.Name = "CutAway1": Range("E2").Formula = "=D1+B2": Worksheets.Add: Worksheets("CutAway1").Range("E2").Cut ActiveSheet.Range("A1") ;; ActiveSheet.Range("A1").Formula
+ActiveSheet.Name = "CutAway2": Range("B2").Value = 1: Range("C2").Formula = "=B2*2": Worksheets.Add: Worksheets("CutAway2").Range("B2:C2").Cut ActiveSheet.Range("A1") ;; ActiveSheet.Range("B1").Formula
+
 # --- errors the model has to raise with the same number ---
 Range("A1").Offset(-1, 0).Address
 Range("zz").Address

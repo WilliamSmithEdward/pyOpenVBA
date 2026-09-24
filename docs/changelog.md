@@ -7,6 +7,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `vba_signature()` on `ExcelFile`, `WordFile` and `PowerPointFile`: the
+  VBA project's digital signature wherever the file keeps it, the parts
+  beside `vbaProject.bin` included, with `SignatureInfo.parts` naming
+  them.
+
 - Notes, which VBA calls comments: `Range.AddComment`, `Comment`,
   `NoteText`, `ClearComments` and `ClearNotes`, `Worksheet.Comments`,
   and the `Comment` object's `Text`, `Author`, `Visible`, `Delete`,
@@ -721,6 +726,18 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- A signed `.xlsm`, `.docm` or `.pptm` whose code changes is saved
+  without its signature, as Excel, Word and PowerPoint save it (#27).
+  They keep the signature in parts beside `vbaProject.bin`, where the
+  save gate did not look, so the edited file kept the old signature and
+  Excel read `VBASigned` as True for code it did not cover. The parts,
+  their relationships and their Overrides in `[Content_Types].xml` now
+  go, and Word's remaining relationship for `vbaData.xml` is numbered
+  from `rId1` again, byte for byte as each application writes them
+  (scripts/measure_signature_parts.py). A live gate has each application
+  open the result unsigned. A signature in a binary `.xls`, `.doc` or
+  `.ppt` file is still not looked for: no signed binary file has been
+  measured.
 - A formula that names a sheet, `=Other!A1*2` or even `=Data!A1*2` on
   Data itself, written to several cells at once is saved as a formula in
   each cell, as Excel saves it. The model saved one shared formula, and

@@ -20,10 +20,12 @@ from pathlib import Path
 from typing import ClassVar, TypeVar
 
 from pyopenvba.cfb import CFB
+from pyopenvba._package_signature import signature_parts, without_signature
 from pyopenvba._references import ReferenceManager, module_offset, reference_spans
 from pyopenvba.exceptions import UnsupportedFormatError, VBAProjectError
 from pyopenvba.forms import VBAForm, create_form, form_names, read_forms
 from pyopenvba.vba import (
+    SignatureInfo,
     VBAModuleKind,
     VBAProject,
     compress,
@@ -141,6 +143,22 @@ class VBAHostFile(ReferenceManager):
     def vba_modules(self) -> dict[str, str]:
         """Return a mapping of module name -> source code."""
         return {m.name: m.source for m in self.vba_project().modules}
+
+    def vba_signature(self) -> SignatureInfo:
+        """The VBA project's digital signature, wherever the file keeps it.
+
+        That is the signature streams inside the project, and in a
+        zip-based file the parts beside ``vbaProject.bin``, which is where
+        Excel, Word and PowerPoint keep one. A save that changes the
+        project drops it.
+        """
+        info = detect_signature(self._get_cfb())
+        if self._zip is not None:
+            parts = signature_parts(self._zip.namelist(), self._zip.read, self._vba_entry)
+            info.kinds += [kind for kind in dict.fromkeys(parts.values()) if kind not in info.kinds]
+            info.parts = list(parts)
+            info.present = info.present or bool(parts)
+        return info
 
     def forms(self) -> list[VBAForm]:
         """Return the UserForm designer surfaces: controls and their nesting.
@@ -380,11 +398,14 @@ class VBAHostFile(ReferenceManager):
           ``allow_protected=True`` is passed.  Saving a protected project
           without re-encrypting the password material would leave the
           file in an inconsistent state.
-        - If the project carries any digital-signature stream and the
-          save would emit any change, the existing signature streams are
-          dropped (they are guaranteed to be stale) and a
-          ``UserWarning`` is emitted.  Set
-          ``allow_invalidate_signature=True`` to silence the warning.
+        - If the project carries a digital signature and the save would
+          emit any change, the signature is dropped, since it is
+          guaranteed to be stale, and a ``UserWarning`` is emitted.  In a
+          zip-based file that takes out the signature parts beside
+          ``vbaProject.bin``, their relationships and their Overrides, as
+          Excel, Word and PowerPoint do; any signature streams inside the
+          project go too.  Set ``allow_invalidate_signature=True`` to
+          silence the warning.
         - If the save would emit any change, the ``_VBA_PROJECT``
           performance cache body is zeroed (header preserved) so Office
           regenerates the cache on next open ([MS-OVBA] 2.3.4.1).  An edit
@@ -405,6 +426,8 @@ class VBAHostFile(ReferenceManager):
             # Not any(...): that short-circuits, and every form has to be
             # written, not just the first dirty one.
             forms_dirty |= form.write_back(cfb)
+        # What the package's other parts need: None drops a part.
+        package_edits: dict[str, bytes | None] = {}
 
         if self._project is not None:
             project = self._project
@@ -440,33 +463,9 @@ class VBAHostFile(ReferenceManager):
                 )
 
             # Safety gate 2: any change invalidates a present digital
-            # signature.  Drop the stale signature streams and warn.
+            # signature.  Drop it and warn.
             if mutating:
-                sig_info = detect_signature(cfb)
-                if sig_info.present:
-                    for sig_stream in (
-                        "_VBA_PROJECT_SIGNATURE",
-                        "_VBA_PROJECT_SIGNATURE_AGILE",
-                        "_VBA_PROJECT_SIGNATURE_V3",
-                    ):
-                        try:
-                            cfb.remove_stream_in_storage("VBA", sig_stream)
-                        except KeyError:
-                            pass
-                        try:
-                            cfb.remove_stream(sig_stream)
-                        except KeyError:
-                            pass
-                    if not allow_invalidate_signature:
-                        warnings.warn(
-                            "Dropped stale VBA digital signature streams "
-                            f"({', '.join(sig_info.kinds)}) because the "
-                            "project was modified.  Re-sign externally to "
-                            "restore trust.  Pass "
-                            "allow_invalidate_signature=True to silence.",
-                            UserWarning,
-                            stacklevel=2,
-                        )
+                package_edits = self._drop_signature(cfb, allow_invalidate_signature)
 
             # 1. Apply renames first so that pre-existing streams are at
             #    their new names before any other lookup runs.
@@ -578,8 +577,10 @@ class VBAHostFile(ReferenceManager):
                 invalidate_vba_project_cache(cfb)
         if forms_dirty and self._project is None:
             # A designer-only edit on a host whose modules were never
-            # parsed still has to invalidate the cache.
+            # parsed still has to invalidate the cache, and still leaves
+            # a signature stale.
             invalidate_vba_project_cache(cfb)
+            package_edits = self._drop_signature(cfb, allow_invalidate_signature)
 
         # [MS-OVBA] writers MUST NOT emit performance-cache (__SRP_*) streams.
         try:
@@ -609,7 +610,13 @@ class VBAHostFile(ReferenceManager):
                     out_info.create_system = info.create_system
                     out_zip.writestr(out_info, new_cfb_bytes)
                 else:
-                    data = self._zip.read(info.filename)
+                    if info.filename in package_edits:
+                        replacement = package_edits[info.filename]
+                        if replacement is None:
+                            continue
+                        data = replacement
+                    else:
+                        data = self._zip.read(info.filename)
                     out_info = zipfile.ZipInfo(
                         filename=info.filename,
                         date_time=info.date_time,
@@ -623,6 +630,46 @@ class VBAHostFile(ReferenceManager):
     # ------------------------------------------------------------------
     # Internal helpers
     # ------------------------------------------------------------------
+
+    def _drop_signature(self, cfb: CFB, allow_invalidate_signature: bool) -> dict[str, bytes | None]:
+        """Take out a signature the save leaves stale, and warn unless told not to.
+
+        Signature streams inside the project go from ``cfb``; the parts a
+        zip-based file keeps beside it come back as the package's edits,
+        None for each part that goes (see :mod:`pyopenvba._package_signature`).
+        """
+        found = detect_signature(cfb)
+        if found.present:
+            for sig_stream in (
+                "_VBA_PROJECT_SIGNATURE",
+                "_VBA_PROJECT_SIGNATURE_AGILE",
+                "_VBA_PROJECT_SIGNATURE_V3",
+            ):
+                try:
+                    cfb.remove_stream_in_storage("VBA", sig_stream)
+                except KeyError:
+                    pass
+                try:
+                    cfb.remove_stream(sig_stream)
+                except KeyError:
+                    pass
+        kinds = list(found.kinds)
+        edits: dict[str, bytes | None] = {}
+        if self._zip is not None:
+            names = self._zip.namelist()
+            kinds += [kind for kind in signature_parts(names, self._zip.read, self._vba_entry).values()
+                      if kind not in kinds]
+            edits = without_signature(names, self._zip.read, self._vba_entry)
+        if kinds and not allow_invalidate_signature:
+            warnings.warn(
+                f"Dropped the stale VBA digital signature ({', '.join(kinds)}) "
+                "because the project was modified.  Re-sign externally to "
+                "restore trust.  Pass allow_invalidate_signature=True to "
+                "silence.",
+                UserWarning,
+                stacklevel=3,
+            )
+        return edits
 
     def _open(self) -> None:
         if self._suffix in self._zip_formats:

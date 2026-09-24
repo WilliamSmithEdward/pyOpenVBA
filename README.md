@@ -902,8 +902,19 @@ the file still asks for the original password in the VBE.
 
 ### Digitally signed projects
 
-Any change to the macros invalidates a digital signature. On mutation the
-library drops the stale signature streams and emits a `UserWarning`:
+Any change to the macros invalidates a digital signature. Excel, Word and
+PowerPoint keep the signature of a `.xlsm`, `.docm` or `.pptm` in parts
+beside `vbaProject.bin`, and `vba_signature()` reads it from there:
+
+```python
+info = wb.vba_signature()
+info.present, info.kinds, info.parts
+# (True, ['v3', 'agile', 'legacy'], ['xl/vbaProjectSignatureV3.bin', ...])
+```
+
+On a save that changes the project, the library takes the signature out
+as the applications do: the parts, their relationships and their entries
+in `[Content_Types].xml`. It then emits a `UserWarning`:
 
 ```python
 import warnings
@@ -911,6 +922,11 @@ warnings.filterwarnings("error", category=UserWarning)   # treat as fatal
 
 wb.save(allow_invalidate_signature=True)                 # or accept it
 ```
+
+A save that changes nothing keeps the signature. A signature in a binary
+`.xls`, `.doc` or `.ppt` file is not looked for: there it lives in the
+file's property sets or a string table, and no signed binary file has
+been measured.
 
 ---
 

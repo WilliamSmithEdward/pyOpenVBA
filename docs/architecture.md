@@ -205,7 +205,8 @@ a fixed order:
 7. Rewrite dir / PROJECT / PROJECTwm    (if structure changed)
 8. Invalidate _VBA_PROJECT cache        (zero PerformanceCache body)
 9. Drop __SRP_* streams                 (force regeneration)
-10. Drop signature streams              (if mutating, with warning)
+10. Drop the signature                  (if mutating, with warning: streams,
+                                         and a zip file's signature parts)
 11. Serialize CFB                       (cfb.to_bytes())
 12. Write outer container               (replace single ZIP entry, or raw CFB)
 ```
@@ -259,12 +260,20 @@ attempts that came before the engine is
 | Condition                              | Default behavior                 | Override                                |
 |----------------------------------------|----------------------------------|-----------------------------------------|
 | Project is password-protected (DPB)    | `VBAProjectError` on mutation    | `save(allow_protected=True)`            |
-| Project has any signature stream       | Drop streams + `UserWarning`     | `save(allow_invalidate_signature=True)` |
+| Project is digitally signed            | Drop signature + `UserWarning`   | `save(allow_invalidate_signature=True)` |
 | Non-mutating save (`save()` no edits)  | Pass through unchanged           | n/a                                     |
 
 Both gates only apply when `save()` detects an actual change. A no-op
 save on a protected or signed workbook is always allowed and never
 removes signatures.
+
+A zip-based file keeps its signature in parts beside `vbaProject.bin`,
+related from the project's relationships part and listed in
+`[Content_Types].xml`; `_package_signature.py` finds them. Dropping one
+takes out the parts, their relationships and their Overrides, and leaves
+no relationships part where nothing else is in it. Any other
+relationship is numbered again from `rId1`, as Word numbers the one it
+keeps for `vbaData.xml` (`scripts/measure_signature_parts.py`).
 
 ---
 

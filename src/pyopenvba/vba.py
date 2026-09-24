@@ -2235,9 +2235,16 @@ def compute_v3_content_hash(project: VBAProject) -> bytes:
 
 @dataclass
 class SignatureInfo:
-    """Summary of digital-signature streams found inside a VBA CFB."""
+    """A VBA project's digital signature: whether it has one, of which kinds, and where.
+
+    :func:`detect_signature` looks inside the project's CFB. A zip-based
+    file keeps its signature in parts beside the project instead, which
+    the host files' ``vba_signature()`` also reads, listing them in
+    ``parts``.
+    """
     present: bool = False
     kinds: list[str] = field(default_factory=lambda: [])   # "legacy" | "agile" | "v3"
+    parts: list[str] = field(default_factory=lambda: [])   # package parts holding it, in a zip-based file
 
 
 _SIGNATURE_STREAM_NAMES = {
@@ -2294,6 +2301,11 @@ def detect_signature(cfb: CFB) -> SignatureInfo:
     the three known signature streams are present inside the
     ``_VBA_PROJECT_CUR/VBA`` storage path (xlsm/xlsb) or the root
     (legacy xls embedding).
+
+    Excel, Word and PowerPoint do not sign a zip-based file this way:
+    they keep the signature in parts beside ``vbaProject.bin``, which a
+    CFB cannot show. ``ExcelFile.vba_signature()`` and its Word and
+    PowerPoint counterparts read both.
     """
     info = SignatureInfo()
     candidates: list[str] = []

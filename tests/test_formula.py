@@ -171,6 +171,47 @@ def test_irr_needs_a_residual_under_its_tolerance() -> None:
     assert _irr([-977338919173.8009, 1099511627776.0], "0.05")[0] == 0.12500546760736642
 
 
+def _bond(function: str, arguments: list[float]) -> object:
+    """A bond function over arguments written to row 1, where no formula literal cuts them to fifteen digits."""
+    app = ExcelApplication()
+    app.add_workbook()
+    sheet = app.sheet(1)
+    cells = [f"{chr(ord('A') + column)}1" for column in range(len(arguments))]
+    for cell, argument in zip(cells, arguments, strict=True):
+        sheet.set_value(cell, argument)
+    sheet.set_value("A3", f"={function}({','.join(cells)})")
+    return sheet.value("A3")
+
+
+# PRICE, DURATION and MDURATION give Excel's bits on every bond probed in live Excel by pyOfficeEditor (its commit
+# 81481d2, tests/test_excel_calc.py): 1,500 PRICE probes and 1,800 each for DURATION and MDURATION.
+
+
+def test_duration_times_coupons_as_price_does_and_the_redemption_its_own_way() -> None:
+    # A coupon's time is index + DSC/E; the redemption's is DSC/E + N - 1, which rounds another way.
+    assert _bond("DURATION", [44468.0, 44647.0, 0.035429952036797184, 0.16067767704236355, 4.0, 2.0]) \
+        == 0.492182006415991
+    # Settled on a coupon date: each coupon weighs its time times its present value.
+    assert _bond("DURATION", [49383.0, 50844.0, 0.13249040076812385, 0.030546357927438164, 2.0, 1.0]) \
+        == 3.3581234390639882
+
+
+def test_mduration_divides_by_the_growth() -> None:
+    assert _bond("MDURATION", [41018.0, 41334.0, 0.10018741153059099, 0.11925232538933145, 4.0, 0.0]) \
+        == 0.806202009349328
+
+
+def test_price_takes_accrued_interest_from_the_rate() -> None:
+    # A/E * rate * 100 / frequency with coupons to come, not coupon * A/E.
+    assert _bond("PRICE", [45098.0, 45403.0, 0.13431405895368478, 0.18167305658967808, 100.0, 2.0, 2.0]) \
+        == 96.42924034785027
+    assert _bond("PRICE", [40129.0, 48923.0, 0.015269366925158684, 0.08153059843154511, 98.78907894617276, 2.0,
+                           0.0]) == 30.415592647768403
+    # With one coupon left it is coupon * (A/E).
+    assert _bond("PRICE", [44139.0, 44198.0, 0.0858656433341273, 0.015639045918274874, 98.14162125781019, 1.0,
+                           3.0]) == 99.24148797292862
+
+
 #: Every function the engine has, written on its own and into COUNTIF's range in live Excel
 #: (scripts/measure_cells_functions.py).
 CELLS_FUNCTIONS: dict[str, dict[str, object]] = json.loads(

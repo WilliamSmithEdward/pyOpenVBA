@@ -804,6 +804,14 @@ All notable changes to pyOpenVBA are documented here. This project follows
   rather than by Newton's method, and stops where Excel stops, to the bit:
   `XIRR({-1,2},{1,2})` is Excel's rate, where the engine went on to
   7.5E+109. This is pyOfficeEditor's 94ea041, held there to 2,183 probes.
+- PRICE, DURATION and MDURATION give Excel's bits on every bond probed.
+  PRICE adds the coupons, then the redemption, then takes off the accrued
+  interest, formed from the rate while coupons are still to come;
+  DURATION times each coupon at its index plus DSC/E and the redemption
+  at DSC/E + N - 1; MDURATION divides by 1 + y/f. All three count the
+  days to the next coupon as what is left of the period, E - A, on every
+  basis but actual/actual. This is pyOfficeEditor's 81481d2, held there
+  to 1,500 PRICE probes and 1,800 each for DURATION and MDURATION.
 - `INDEX(A1:B2,2)`, one index into cells in rows and columns, is #REF! as
   in Excel; the engine gave row 2. `INDEX(A1:B2,2,)` is still row 2.
 - A `+` before a reference reads its cells as values, as Excel does:

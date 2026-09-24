@@ -1001,6 +1001,17 @@ def _days_after(context: Context, settlement: int, maturity: int, frequency: int
     return float(following - settlement)
 
 
+def _to_coupon(context: Context, settlement: int, maturity: int, frequency: int, kind: int) -> float:
+    """The days from settlement to the next coupon as PRICE, YIELD and
+    DURATION count them: what is left of the period, E - A, on every basis
+    but actual/actual, where it is the days on the calendar. COUPDAYSNC
+    counts calendar days on actual/360 and actual/365 too; measured, PRICE,
+    DURATION and MDURATION do not, 160 of 160 bonds on those bases."""
+    if kind == 1:
+        return _days_after(context, settlement, maturity, frequency, kind)
+    return _period_days(context, settlement, maturity, frequency, kind) - _days_before(context, settlement, maturity, frequency, kind)
+
+
 def _coupon_arguments(
     context: Context, settlement: Scalar, maturity: Scalar, frequency: Scalar, basis_: Scalar | None
 ) -> tuple[int, int, int, int]:
@@ -1046,18 +1057,21 @@ def _price(
 ) -> float:
     """A bond's price per 100 of face value at a yield."""
     period = _period_days(context, settlement, maturity, frequency, kind)
-    remaining = _days_after(context, settlement, maturity, frequency, kind) / period
+    remaining = _to_coupon(context, settlement, maturity, frequency, kind) / period
     count = _coupon_count(context, settlement, maturity, frequency)
     accrued = _days_before(context, settlement, maturity, frequency, kind)
     coupon = 100 * rate / frequency
     if count == 1:
-        return (redemption + coupon) / (1 + remaining * yld / frequency) - coupon * accrued / period
+        return (redemption + coupon) / (1 + remaining * yld / frequency) - coupon * (accrued / period)
+    # Measured, 1,078 of 1,078 bonds: the coupons summed first, then the
+    # redemption, then the accrued interest taken off, formed from the rate
+    # as A/E * rate * 100 / frequency rather than from the coupon.
     growth = 1 + yld / frequency
-    price = redemption / _power(growth, count - 1 + remaining)
-    price -= coupon * accrued / period
+    price = 0.0
     for index in range(count):
         price += coupon / _power(growth, index + remaining)
-    return price
+    price += redemption / _power(growth, count - 1 + remaining)
+    return price - accrued / period * rate * 100 / frequency
 
 
 def _bond(
@@ -1116,7 +1130,7 @@ def YIELD(
     if count == 1:
         period = _period_days(context, first, last, times, kind)
         accrued = _days_before(context, first, last, times, kind)
-        remaining = _days_after(context, first, last, times, kind)
+        remaining = _to_coupon(context, first, last, times, kind)
         paid = target / 100 + accrued / period * coupon_rate / times
         return checked((value / 100 + coupon_rate / times - paid) / paid * (times * period / remaining))
 
@@ -1136,21 +1150,25 @@ def _duration(
     """Macaulay duration, in years: each payment's time, counted in coupon
     periods from settlement, weighted by its present value."""
     period = _period_days(context, settlement, maturity, frequency, kind)
-    offset = _days_after(context, settlement, maturity, frequency, kind) / period - 1
+    remaining = precise.divide(_to_coupon(context, settlement, maturity, frequency, kind), period)
     count = _coupon_count(context, settlement, maturity, frequency)
-    paid = coupon * 100 / frequency
-    growth = yld / frequency + 1
-    # Measured: the coupons summed first and the last payment added after,
-    # the weighted sum and the plain one each on its own.
-    weighted = 0.0
-    for time in range(1, count):
-        weighted += (time + offset) * paid / _power(growth, time + offset)
-    weighted += (count + offset) * (paid + 100) / _power(growth, count + offset)
-    value = 0.0
-    for time in range(1, count):
-        value += paid / _power(growth, time + offset)
-    value += (paid + 100) / _power(growth, count + offset)
-    return weighted / value / frequency
+    paid = precise.divide(precise.multiply(coupon, 100.0), frequency)
+    growth = precise.add(precise.divide(yld, frequency), 1.0)
+    # Measured, 1,800 of 1,800 bonds to the bit: each coupon's present value
+    # summed, and its time, index + DSC/E as PRICE counts it, times that
+    # present value; then the redemption on its own, at DSC/E + N - 1,
+    # which rounds another way, its time times 100 over the power.
+    weighted = value = 0.0
+    for index in range(count):
+        time = precise.add(float(index), remaining)
+        present = precise.divide(paid, _power(growth, time))
+        value = precise.add(value, present)
+        weighted = precise.add(weighted, precise.multiply(time, present))
+    time = precise.subtract(precise.add(remaining, float(count)), 1.0)
+    discount = _power(growth, time)
+    weighted = precise.add(weighted, precise.divide(precise.multiply(time, 100.0), discount))
+    value = precise.add(value, precise.divide(100.0, discount))
+    return precise.divide(precise.divide(weighted, value), frequency)
 
 
 @function("DURATION", V, V, V, V, V, V, minimum=5)
@@ -1187,8 +1205,8 @@ def MDURATION(
     if rate < 0 or y < 0:
         return NUM
     times = _frequency(context, frequency)
-    # Measured: times the reciprocal, not divided.
-    return checked(_duration(context, first, last, rate, y, times, basis(context, basis_)) * (1 / (1 + y / times)))
+    duration = _duration(context, first, last, rate, y, times, basis(context, basis_))
+    return checked(precise.divide(duration, precise.add(1.0, precise.divide(y, times))))
 
 
 @function("ACCRINT", V, V, V, V, V, V, V, V, minimum=6)

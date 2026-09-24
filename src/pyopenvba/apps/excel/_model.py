@@ -25,6 +25,7 @@ from typing import TYPE_CHECKING, Any
 from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, parse_reference
 from pyopenvba.exceptions import VBAUnsupportedError, VBARuntimeError
 from pyopenvba.formula._parse import shift_text
+from pyopenvba.formula._prefixes import at_kept, at_shown
 from pyopenvba.formula._r1c1 import from_a1, to_a1
 from pyopenvba.apps.excel._find import FindState
 from pyopenvba.apps.excel import _arrays, _dimensions, _events, _merges, _names
@@ -1648,7 +1649,8 @@ class Range(ExcelObject):
             if _is_formula(value) and not self._keeps_text(row, column):
                 if spelled is None:
                     # Excel reads the formula once and writes it out again, as written_formula does.
-                    spelled = written_formula(self.sheet, value, anchor.top, anchor.left, at=dynamic)
+                    spelled = written_formula(self.sheet, value, anchor.top, anchor.left, at=True)
+                    spelled = at_kept(spelled) if dynamic else legacy_formula(self.sheet, spelled)
                 if self._put_formula(row, column, shift_text(spelled, row - anchor.top, column - anchor.left),
                                      dynamic=dynamic):
                     placed.append((row, column))
@@ -1719,11 +1721,11 @@ class Range(ExcelObject):
         return spilling_to(self)
 
     def _legacy(self, value: object, *, r1c1: bool) -> tuple[object, bool]:
-        """A formula Formula2 writes, and whether it is a dynamic-array formula. One whose Formula2, with the @
-        Formula would add, reads back as written is written as Formula would write it, its @ taken out
-        (tests/fixtures/implicit_intersection.json); any other is a dynamic-array formula, as written, which spills
-        (tests/fixtures/dynamic_arrays.json). A value is written as Formula writes one."""
-        from pyopenvba.formula._formula2 import UnreadFormula2Error, formula2, legacy
+        """A formula Formula2 writes, and whether it is a dynamic-array formula. One that Formula would write so
+        that its Formula2 reads back as written is written as Formula writes it, @ and all
+        (tests/fixtures/implicit_intersection.json, at_sign.json); any other is a dynamic-array formula, as written,
+        which spills (tests/fixtures/dynamic_arrays.json). A value is written as Formula writes one."""
+        from pyopenvba.formula._formula2 import UnreadFormula2Error, formula2, written
         from pyopenvba.formula._parse import FormulaError
 
         if isinstance(value, VBAObject):
@@ -1741,18 +1743,18 @@ class Range(ExcelObject):
             spelled = spelled_formula(self.sheet, text, anchor.top, anchor.left, at=True, r1c1=True)
         else:
             spelled = written_formula(self.sheet, value, anchor.top, anchor.left, at=True)
-        written = ""
+        spelled = at_kept(spelled)
+        legacy = ""
         try:
-            written = legacy(spelled)
-            same = formula2(written, self._named) == spelled
+            legacy = written(spelled, self._named)
+            same = formula2(legacy, self._named) == spelled
         except (FormulaError, UnreadFormula2Error):
             same = False
-        return (written, False) if same else (spelled, True)
+        return (legacy, False) if same else (spelled, True)
 
     def _named(self, name: str) -> str | None:
         """A defined name's formula as this sheet finds the name, or None where it finds none."""
-        found = self.sheet.book.names_.find(name, scope=self.sheet)
-        return None if found is None else found.entry.refers_to
+        return defined_formula(self.sheet, name)
 
     def _formula2(self, formula: str, *, whole: bool) -> str:
         """A formula as Formula2 reads it: with an @ where it cuts cells to one value, none in an array formula's
@@ -1781,6 +1783,8 @@ class Range(ExcelObject):
                 if at and not cell.dynamic:
                     # A dynamic-array formula is kept as Formula2 writes it, with no @ to add.
                     text = self._formula2(text, whole=found is not None)
+                # A call of SINGLE is shown as an @, even where the @ would hold less than SINGLE does.
+                text = at_shown(text)
                 # R1C1 can spell a formula longer than Excel's 8192 characters, and reads only that many
                 # (tests/fixtures/long_chains.json).
                 return from_a1(text, row, column)[:LONGEST_FORMULA] if r1c1 else text
@@ -1870,7 +1874,7 @@ class Range(ExcelObject):
                 a1 = to_a1(value, row, column, names=True)
             except ValueError as exc:
                 raise error(1004, str(exc)) from None
-            formula = spelled_formula(self.sheet, a1, row, column, r1c1=True)
+            formula = legacy_formula(self.sheet, spelled_formula(self.sheet, a1, row, column, at=True, r1c1=True))
             first = first or (formula, row, column)
             if self._put_formula(row, column, formula):
                 placed.append((row, column))
@@ -3110,8 +3114,8 @@ class Range(ExcelObject):
         if not _merges.writable(self.sheet, row, column):
             return
         if isinstance(value, str) and _is_formula(value) and not self._keeps_text(row, column):
-            formula = spelled_formula(self.sheet, value, row, column, r1c1=True) if r1c1 \
-                else written_formula(self.sheet, value, row, column)
+            formula = legacy_formula(self.sheet, spelled_formula(self.sheet, value, row, column, at=True, r1c1=True)
+                                     if r1c1 else written_formula(self.sheet, value, row, column, at=True))
             if self._put_formula(row, column, formula):
                 self._bring_format([(row, column)], formula, row, column)
         else:
@@ -3804,6 +3808,27 @@ def written_formula(sheet: Worksheet, formula: str, row: int, column: int, *, wh
     except ValueError:
         raise error(1004, "Application-defined or object-defined error") from None
     return spelled_formula(sheet, converted, row, column, whole=whole, at=at, r1c1=True)
+
+
+def legacy_formula(sheet: Worksheet, formula: str) -> str:
+    """A formula written through Range.Formula, spelled, as Excel keeps it: a call of SINGLE an @, an @ left out
+    where the formula cuts to one value anyway, and where one is kept every @ Formula2 shows written out
+    (see pyopenvba.formula._formula2.written)."""
+    from pyopenvba.formula._formula2 import UnreadFormula2Error, written
+    from pyopenvba.formula._parse import FormulaError
+
+    try:
+        return written(formula, lambda name: defined_formula(sheet, name))
+    except UnreadFormula2Error as exc:
+        raise VBAUnsupportedError(str(exc)) from None
+    except FormulaError:
+        raise VBAUnsupportedError(f"Range.Formula given {formula} is not implemented") from None
+
+
+def defined_formula(sheet: Worksheet, name: str) -> str | None:
+    """A defined name's formula as a formula on ``sheet`` finds the name, or None where it finds none."""
+    found = sheet.book.names_.find(name, scope=sheet)
+    return None if found is None else found.entry.refers_to
 
 
 def _array_formula_text(sheet: Worksheet, formula: str, row: int, column: int) -> str:

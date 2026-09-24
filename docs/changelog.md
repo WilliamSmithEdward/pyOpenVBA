@@ -7,6 +7,21 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- An `@` written through `Range.Formula`, `FormulaR1C1` or `Value`, and
+  a call of SINGLE, which Excel writes as `@`. An `@` standing where the
+  formula cuts to one value anyway is left out, `=@A1:A3` reading back
+  `=A1:A3`. One that is kept, `=@A1`, has `Formula` read back every `@`
+  that `Formula2` shows, `=@A1+A1:A3` as `=@A1+@A1:A3`, and an operation
+  inside it is cut too, `=@(A1:A3*2)` being `=@(@A1:A3*2)`. `SINGLE(x)`
+  is written `@x`, its argument as it stands, even where the `@` then
+  holds less than SINGLE did: `=SINGLE(A1:A3%)` reads `=@A1:A3%` and is
+  still 0.01. A file keeps each `@` as `_xlfn.SINGLE`, which the model
+  now writes and reads back. 274 writes in live Excel and a workbook it
+  saved pin the rules (scripts/measure_at_sign.py), the model's save
+  held to Excel's bytes cell by cell. The model raised an error for
+  such a formula written through `Formula` and read SINGLE back as
+  SINGLE.
+
 - Cells are typed as Excel types them. A string written through `Value`,
   `Value2`, `Formula`, `FormulaR1C1` or an array brings the number format
   typing it gives -- `"5%"` 0%, `"$1,000.50"` a dollar format, `"1e3"`
@@ -677,6 +692,14 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- A formula `Formula2` writes with an `@` is saved as Excel saves it: as
+  a legacy formula wherever `Formula` would write it and read back the
+  same, `=@A1`, `=SUM(@A1:A3)` and `=LET(x,A1:A3,@x)` among them, and as
+  a dynamic array only where the `@` changes its answer, `=@A1+A1:A3`
+  spilling. The model made every such formula a dynamic array.
+  `Formula2` puts an `@` on a name the workbook does not define,
+  `=@nosuch`, which makes `Formula2 = "=nosuch+1"` a dynamic array, and
+  in front of the spaces before what it cuts, `=@ A1:A3`.
 - `Range.End` from an empty cell lands on the next filled cell, as
   Ctrl and an arrow key do: `Range("E4").End(xlUp)` below E1:E3 is E3.
   The model looked only at the neighbour and walked on to E1.

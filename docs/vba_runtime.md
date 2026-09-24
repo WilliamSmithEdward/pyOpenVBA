@@ -1325,14 +1325,15 @@ macros, which the model does not write.
 
 ## What is not
 
-- **Formulas do not spill.** An array result lands in the one cell
-  that holds the formula and shows its first element, which is what
-  Excel did before dynamic arrays; an array formula fills the block
-  FormulaArray gave it and no more.  Implicit intersection is applied
-  wherever a formula wants one value, as Excel's `@` does, and
-  `Range.Formula2` reads a formula back with that `@` as Excel does
-  (`tests/fixtures/implicit_intersection.json`, 2100 live formulas); a
-  formula written through Formula2 that would spill reports itself.
+- **Spills are not measured through a sort, an insert or a delete.** A
+  dynamic-array formula spills, grows, shrinks and is #SPILL! as Excel's
+  is (`tests/fixtures/dynamic_arrays.json`), but sorting, inserting or
+  deleting rows through what it spilled has not been held to Excel.
+  Implicit intersection is applied wherever a formula wants one value,
+  as Excel's `@` does; `Range.Formula2` reads a formula back with that
+  `@` (`tests/fixtures/implicit_intersection.json`, 2100 live formulas),
+  and an `@` or a call of SINGLE written in a formula is kept, left out
+  and saved as Excel does it (`tests/fixtures/at_sign.json`).
 - **Power Query reaches nothing off the machine.** The language is
   evaluated and a local source is read, but `Sql.Database`, `Web.Contents`,
   `OData.Feed` and the rest of the connectors report themselves rather

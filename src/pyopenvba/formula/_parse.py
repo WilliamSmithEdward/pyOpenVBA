@@ -482,13 +482,29 @@ class Parser:
 
     def tight(self) -> Node:
         """A signed operand with its percent signs, and no power; an @ binds as a sign does, over a range or an
-        intersection whole: @A1:A3 A2:A3."""
-        if self.token.kind == "op" and self.token.text in ("-", "+", "@"):
+        intersection whole, @A1:A3 A2:A3, but tighter than a percent sign: @A1:A3% is (@A1:A3)%
+        (tests/fixtures/at_sign.json)."""
+        if self.token.kind == "op" and self.token.text == "@":
+            start = self.token.at
+            self.advance()
+            return self.percents(self.placed(Unary(op="@", operand=self.signed()), start))
+        if self.token.kind == "op" and self.token.text in ("-", "+"):
             start = self.token.at
             op = self.advance().text
             # A + is kept: it reads cells as values, so COUNTIF(+A1:A3,1) is refused (tests/fixtures/formula/).
             return self.placed(Unary(op=op, operand=self.tight()), start)
-        node = self.operand()
+        return self.percents(self.operand())
+
+    def signed(self) -> Node:
+        """What an @ holds: an operand with the signs before it, and no percent sign after it."""
+        if self.token.kind == "op" and self.token.text in ("-", "+", "@"):
+            start = self.token.at
+            op = self.advance().text
+            return self.placed(Unary(op=op, operand=self.signed()), start)
+        return self.operand()
+
+    def percents(self, node: Node) -> Node:
+        """``node`` and each percent sign after it."""
         while self.token.kind == "op" and self.token.text == "%":
             self.advance()
             node = self.placed(Unary(op="%", operand=node), self.start(node))

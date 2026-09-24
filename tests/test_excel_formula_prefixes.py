@@ -30,9 +30,7 @@ _FORMULA = re.compile(r"<f\b[^>]*/>|<f\b[^>]*>.*?</f>", re.DOTALL)
 _CELL = re.compile(r'<c r="([A-Z]+\d+)"[^>]*?(?:/>|>(.*?)</c>)', re.DOTALL)
 
 #: Formulas the model does not read back as Range.Formula spells them, and why.
-READ_GAPS: dict[str, str] = {
-    "=SINGLE(A1)": "Excel reads _xlfn.SINGLE(A1) back as =@A1, the implicit intersection the model does not spell",
-}
+READ_GAPS: dict[str, str] = {}
 
 
 def _formulas(path: Path) -> dict[str, str]:

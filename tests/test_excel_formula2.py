@@ -28,12 +28,8 @@ CASES: dict[str, tuple[str, str]] = {
     **{f"formula {written}": (written, read) for written, read in RECORD["formulas"].items()},
 }
 
-_SINGLE = "Excel writes SINGLE(x) as @x when the formula is written; the model keeps SINGLE"
 #: Cases the model does not answer as Excel does, and why.
-GAPS: dict[str, str] = {
-    "SINGLE/cell": _SINGLE, "SINGLE/range": _SINGLE, "SINGLE/worked": _SINGLE,
-    "formula =@A1:A3": "Range.Formula given an @ is not implemented: what Formula reads back is not measured",
-}
+GAPS: dict[str, str] = {}
 
 
 @pytest.fixture(scope="module")

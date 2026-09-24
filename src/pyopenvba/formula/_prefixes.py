@@ -9,6 +9,10 @@ an inner LET too. Range.Formula reads each without. Which functions take
 ``_xlfn.`` is Excel's own list, not the year they came:
 NETWORKDAYS.INTL is newer than 2007 and takes none.
 
+An @, which cuts what it holds to one value, is a call of SINGLE in a
+file, =@A1 being _xlfn.SINGLE(A1); and Excel writes a formula's call of
+SINGLE as an @, its argument as it stands (tests/fixtures/at_sign.json).
+
 A file also marks a formula ``ca="1"``, worked out whenever anything
 changes, when it calls one of a few functions, NOW, OFFSET, INDIRECT and
 the like, or a function neither Excel nor the workbook's macros have. An
@@ -143,8 +147,166 @@ def _replaced(formula: str, changes: list[tuple[Token, str]]) -> str:
     return out
 
 
+def _closing(tokens: list[Token], index: int) -> int:
+    """The index of the bracket or brace closing the one at ``index``."""
+    depth = 0
+    for place in range(index, len(tokens)):
+        if tokens[place].kind in ("open", "lbrace"):
+            depth += 1
+        elif tokens[place].kind in ("close", "rbrace"):
+            depth -= 1
+            if depth == 0:
+                return place
+    raise FormulaError("a bracket is not closed")
+
+
+def _called(tokens: list[Token], index: int) -> bool:
+    """Whether the token at ``index`` is a function's name, its bracket straight after it."""
+    if index + 1 >= len(tokens):
+        return False
+    token, following = tokens[index], tokens[index + 1]
+    return token.kind == "name" and following.kind == "open" and following.at == token.at + len(token.text)
+
+
+def _primary_end(tokens: list[Token], index: int) -> int:
+    """Just past the primary at ``index``: a call with its brackets, something in brackets or braces, or one token."""
+    if _called(tokens, index):
+        return _closing(tokens, index + 1) + 1
+    if tokens[index].kind in ("open", "lbrace"):
+        return _closing(tokens, index) + 1
+    return index + 1
+
+
+def _joined(tokens: list[Token], index: int) -> bool:
+    """Whether a reference operator joins more to what ends just before ``index``: a range's colon, a spill's #, or
+    a space between two operands, which intersects them."""
+    token, before = tokens[index], tokens[index - 1]
+    if token.kind == "op":
+        return token.text in (":", "#")
+    return token.kind in ("ref", "structured", "name", "open") and token.at > before.at + len(before.text)
+
+
+def _operand_end(tokens: list[Token], index: int) -> int:
+    """Just past what an @ at ``index - 1`` holds, as Excel reads it: the signs before an operand, the operand, and
+    what a range, an intersection or a spill joins to it; a percent sign after it is outside, @A1:A3% being
+    (@A1:A3)% (tests/fixtures/at_sign.json)."""
+    while tokens[index].kind == "op" and tokens[index].text in ("+", "-", "@"):
+        index += 1
+    index = _primary_end(tokens, index)
+    while _joined(tokens, index):
+        token = tokens[index]
+        if token.kind != "op":
+            # A space, and what it intersects with.
+            index = _primary_end(tokens, index)
+        elif token.text == "#":
+            index += 1
+        else:
+            # A colon, and the range's other end.
+            index = _primary_end(tokens, index + 1)
+    return index
+
+
+def _as_single(formula: str) -> str:
+    """``formula`` with each @ written as the SINGLE a file keeps it as, =@A1 as =SINGLE(A1)."""
+    tokens = _tokens(formula)
+    if tokens is None or not any(token.kind == "op" and token.text == "@" for token in tokens):
+        return formula
+    offset = 1 if formula.startswith("=") else 0
+    # Each @ becomes SINGLE and its bracket, and a bracket closes after what it holds: each change is a place, how
+    # many characters it replaces and with what. The last is made first, so the places before stay where they are.
+    changes: list[tuple[int, int, str]] = []
+    for index, token in enumerate(tokens):
+        if token.kind == "op" and token.text == "@":
+            last = tokens[_operand_end(tokens, index + 1) - 1]
+            changes += [(offset + token.at, 1, "SINGLE("), (offset + last.at + len(last.text), 0, ")")]
+    out = formula
+    for position, length, text in sorted(changes, reverse=True):
+        out = out[:position] + text + out[position + length:]
+    return out
+
+
+def _singles(tokens: list[Token]) -> Iterator[tuple[int, int]]:
+    """Where SINGLE is called with one argument: the index of its name and of the bracket closing its call."""
+    for index in range(len(tokens) - 1):
+        if _called(tokens, index) and function_key(tokens[index].text.removeprefix(_FUNCTION)) == "SINGLE":
+            close = _closing(tokens, index + 1)
+            if close > index + 2 and not any(token.kind == "comma" for token in _level(tokens, index + 1, close)):
+                yield index, close
+
+
+def _level(tokens: list[Token], opening: int, close: int) -> Iterator[Token]:
+    """The tokens standing directly inside the brackets at ``opening`` and ``close``, not in brackets inside them."""
+    depth = 0
+    for token in tokens[opening + 1:close]:
+        if token.kind in ("close", "rbrace"):
+            depth -= 1
+        if depth == 0:
+            yield token
+        if token.kind in ("open", "lbrace"):
+            depth += 1
+
+
+def _at_for_single(formula: str, *, kept: bool) -> str:
+    """``formula`` with a call of SINGLE written as the @ Excel writes it as, its argument as it stands; ``kept`` for
+    only the calls whose @ holds just what SINGLE does."""
+    offset = 1 if formula.startswith("=") else 0
+    while True:
+        tokens = _tokens(formula)
+        if tokens is None:
+            return formula
+        found = next(((name, close) for name, close in _singles(tokens)
+                      if not kept or _holds_the_same(tokens, name, close)), None)
+        if found is None:
+            return formula
+        # One at a time, as each changes where the rest stand.
+        name, close = found
+        start, argument, end = offset + tokens[name].at, offset + tokens[name + 1].at + 1, offset + tokens[close].at
+        formula = formula[:start] + "@" + formula[argument:end] + formula[end + 1:]
+
+
+def _holds_the_same(tokens: list[Token], name: int, close: int) -> bool:
+    """Whether an @ in place of the SINGLE called at ``name`` would hold what the call does: all of its argument,
+    and nothing a reference operator joins to it on either side."""
+    inner = [*tokens[name + 2:close], Token("eof", "", tokens[close].at)]
+    if _operand_end(inner, 0) != len(inner) - 1:
+        return False
+    if close + 1 < len(tokens) and _joined(tokens, close + 1):
+        return False
+    if not name:
+        return True
+    before = tokens[name - 1]
+    if before.kind == "op":
+        return before.text != ":"
+    # A space after an operand intersects it with the call.
+    return before.kind not in ("ref", "structured", "name", "close") or tokens[name].at == before.at + len(before.text)
+
+
+def at_kept(formula: str) -> str:
+    """``formula`` with each call of SINGLE written as an @, as Excel writes it, where the @ holds just what SINGLE
+    does: =SINGLE(A1:A3) is =@A1:A3. SINGLE(A1:A3%) stays as it is, since @A1:A3% is (@A1:A3)%; :func:`at_shown`
+    writes it as Excel shows it (tests/fixtures/at_sign.json)."""
+    return _at_for_single(formula, kept=True) if "SINGLE" in formula.upper() else formula
+
+
+def at_shown(formula: str) -> str:
+    """``formula`` as Excel shows it: each call of SINGLE an @ and its argument as it stands, brackets added nowhere,
+    =SINGLE(A1:A3%) shown =@A1:A3% (tests/fixtures/at_sign.json)."""
+    return _at_for_single(formula, kept=False) if "SINGLE" in formula.upper() else formula
+
+
+def intersected(formula: str) -> bool:
+    """Whether ``formula`` cuts something to one value with an @ or a call of SINGLE."""
+    if "@" not in formula and "SINGLE" not in formula.upper():
+        return False
+    tokens = _tokens(formula)
+    return tokens is not None and (any(token.kind == "op" and token.text == "@" for token in tokens)
+                                   or next(_singles(tokens), None) is not None)
+
+
 def in_file(formula: str) -> str:
-    """``formula`` as a file spells it: each newer function and each bound name with its prefix."""
+    """``formula`` as a file spells it: each @ as SINGLE, =@A1 as =_xlfn.SINGLE(A1) (tests/fixtures/at_sign.json),
+    and each newer function and each bound name with its prefix."""
+    formula = _as_single(formula)
     tokens = _tokens(formula)
     if tokens is None:
         return formula
@@ -173,7 +335,11 @@ def in_file(formula: str) -> str:
 
 def from_file(formula: str) -> str:
     """``formula``, as a file spells it, as Range.Formula spells it: the prefixes of newer functions and of bound
-    names dropped."""
+    names dropped, and SINGLE the @ Excel reads it as (see :func:`at_kept`)."""
+    return at_kept(_unprefixed(formula))
+
+
+def _unprefixed(formula: str) -> str:
     if "_xl" not in formula.lower():
         return formula
     tokens = _tokens(formula)
@@ -241,4 +407,4 @@ def calls(formula: str, name: str) -> bool:
                                       for token, role in _roles(tokens))
 
 
-__all__ = ["bound", "calculated_always", "calls", "from_file", "in_file", "newer"]
+__all__ = ["at_kept", "at_shown", "bound", "calculated_always", "calls", "from_file", "in_file", "intersected", "newer"]

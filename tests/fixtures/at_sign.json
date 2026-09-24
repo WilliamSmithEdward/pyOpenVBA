@@ -1,0 +1,1638 @@
+{
+ "setup": "ws.Name = \"Data\"\nws.Range(\"A1:A3\").Value = Application.Transpose(Array(1, 2, 3))\nws.Range(\"E1\").Formula2 = \"=SEQUENCE(3)\"",
+ "cases": [
+  {
+   "member": "Formula",
+   "formula": "=@A1:A3",
+   "answer": "=A1:A3~=@A1:A3~=R[-7]C[-2]:R[-5]C[-2]~#VALUE!"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=@A1:A3",
+   "answer": "=A1:A3~=@A1:A3~=R[-7]C[-2]:R[-5]C[-2]~#VALUE!"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=@A1:A3",
+   "answer": "='A1':'A3'~=@'A1':'A3'~=A1:A3~#NAME?"
+  },
+  {
+   "member": "Value",
+   "formula": "=@A1:A3",
+   "answer": "=A1:A3~=@A1:A3~=R[-7]C[-2]:R[-5]C[-2]~#VALUE!"
+  },
+  {
+   "member": "Formula",
+   "formula": "=@A1:A3*2",
+   "answer": "=A1:A3*2~=@A1:A3*2~=R[-7]C[-2]:R[-5]C[-2]*2~#VALUE!"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=@A1:A3*2",
+   "answer": "=A1:A3*2~=@A1:A3*2~=R[-7]C[-2]:R[-5]C[-2]*2~#VALUE!"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=@A1:A3*2",
+   "answer": "='A1':'A3'*2~=@'A1':'A3'*2~=A1:A3*2~#NAME?"
+  },
+  {
+   "member": "Value",
+   "formula": "=@A1:A3*2",
+   "answer": "=A1:A3*2~=@A1:A3*2~=R[-7]C[-2]:R[-5]C[-2]*2~#VALUE!"
+  },
+  {
+   "member": "Formula",
+   "formula": "=SUM(@A1:A3)",
+   "answer": "=SUM(@A1:A3)~=SUM(@A1:A3)~=SUM(@R[-7]C[-2]:R[-5]C[-2])~#VALUE!"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=SUM(@A1:A3)",
+   "answer": "=SUM(@A1:A3)~=SUM(@A1:A3)~=SUM(@R[-7]C[-2]:R[-5]C[-2])~#VALUE!"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=SUM(@A1:A3)",
+   "answer": "=SUM(@'A1':'A3')~=SUM(@'A1':'A3')~=SUM(@A1:A3)~#NAME?"
+  },
+  {
+   "member": "Value",
+   "formula": "=SUM(@A1:A3)",
+   "answer": "=SUM(@A1:A3)~=SUM(@A1:A3)~=SUM(@R[-7]C[-2]:R[-5]C[-2])~#VALUE!"
+  },
+  {
+   "member": "Formula",
+   "formula": "=@SUM(A1:A3)",
+   "answer": "=@SUM(A1:A3)~=@SUM(A1:A3)~=@SUM(R[-7]C[-2]:R[-5]C[-2])~6"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=@SUM(A1:A3)",
+   "answer": "=@SUM(A1:A3)~=@SUM(A1:A3)~=@SUM(R[-7]C[-2]:R[-5]C[-2])~6"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=@SUM(A1:A3)",
+   "answer": "=@SUM('A1':'A3')~=@SUM('A1':'A3')~=@SUM(A1:A3)~#NAME?"
+  },
+  {
+   "member": "Value",
+   "formula": "=@SUM(A1:A3)",
+   "answer": "=@SUM(A1:A3)~=@SUM(A1:A3)~=@SUM(R[-7]C[-2]:R[-5]C[-2])~6"
+  },
+  {
+   "member": "Formula",
+   "formula": "=@A1",
+   "answer": "=@A1~=@A1~=@R[-7]C[-2]~1"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=@A1",
+   "answer": "=@A1~=@A1~=@R[-7]C[-2]~1"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=@A1",
+   "answer": "='A1'~=@'A1'~=A1~#NAME?"
+  },
+  {
+   "member": "Value",
+   "formula": "=@A1",
+   "answer": "=@A1~=@A1~=@R[-7]C[-2]~1"
+  },
+  {
+   "member": "Formula",
+   "formula": "=@A1:A3+@A1:A3",
+   "answer": "=A1:A3+A1:A3~=@A1:A3+@A1:A3~=R[-7]C[-2]:R[-5]C[-2]+R[-7]C[-2]:R[-5]C[-2]~#VALUE!"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=@A1:A3+@A1:A3",
+   "answer": "=A1:A3+A1:A3~=@A1:A3+@A1:A3~=R[-7]C[-2]:R[-5]C[-2]+R[-7]C[-2]:R[-5]C[-2]~#VALUE!"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=@A1:A3+@A1:A3",
+   "answer": "='A1':'A3'+'A1':'A3'~=@'A1':'A3'+@'A1':'A3'~=A1:A3+A1:A3~#NAME?"
+  },
+  {
+   "member": "Value",
+   "formula": "=@A1:A3+@A1:A3",
+   "answer": "=A1:A3+A1:A3~=@A1:A3+@A1:A3~=R[-7]C[-2]:R[-5]C[-2]+R[-7]C[-2]:R[-5]C[-2]~#VALUE!"
+  },
+  {
+   "member": "Formula",
+   "formula": "=@(A1:A3)",
+   "answer": "=@(A1:A3)~=@(A1:A3)~=@(R[-7]C[-2]:R[-5]C[-2])~#VALUE!"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=@(A1:A3)",
+   "answer": "=@(A1:A3)~=@(A1:A3)~=@(R[-7]C[-2]:R[-5]C[-2])~#VALUE!"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=@(A1:A3)",
+   "answer": "=@('A1':'A3')~=@('A1':'A3')~=@(A1:A3)~#NAME?"
+  },
+  {
+   "member": "Value",
+   "formula": "=@(A1:A3)",
+   "answer": "=@(A1:A3)~=@(A1:A3)~=@(R[-7]C[-2]:R[-5]C[-2])~#VALUE!"
+  },
+  {
+   "member": "Formula",
+   "formula": "=@INDEX(A1:A3,0)",
+   "answer": "=INDEX(A1:A3,0)~=@INDEX(A1:A3,0)~=INDEX(R[-7]C[-2]:R[-5]C[-2],0)~#VALUE!"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=@INDEX(A1:A3,0)",
+   "answer": "=INDEX(A1:A3,0)~=@INDEX(A1:A3,0)~=INDEX(R[-7]C[-2]:R[-5]C[-2],0)~#VALUE!"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=@INDEX(A1:A3,0)",
+   "answer": "=INDEX('A1':'A3',0)~=@INDEX('A1':'A3',0)~=INDEX(A1:A3,0)~#NAME?"
+  },
+  {
+   "member": "Value",
+   "formula": "=@INDEX(A1:A3,0)",
+   "answer": "=INDEX(A1:A3,0)~=@INDEX(A1:A3,0)~=INDEX(R[-7]C[-2]:R[-5]C[-2],0)~#VALUE!"
+  },
+  {
+   "member": "Formula",
+   "formula": "=@SEQUENCE(3)",
+   "answer": "=SEQUENCE(3)~=@SEQUENCE(3)~=SEQUENCE(3)~1"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=@SEQUENCE(3)",
+   "answer": "=SEQUENCE(3)~=@SEQUENCE(3)~=SEQUENCE(3)~1"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=@SEQUENCE(3)",
+   "answer": "=SEQUENCE(3)~=@SEQUENCE(3)~=SEQUENCE(3)~1"
+  },
+  {
+   "member": "Value",
+   "formula": "=@SEQUENCE(3)",
+   "answer": "=SEQUENCE(3)~=@SEQUENCE(3)~=SEQUENCE(3)~1"
+  },
+  {
+   "member": "Formula",
+   "formula": "=@@A1:A3",
+   "answer": "=@@A1:A3~=@@A1:A3~=@@R[-7]C[-2]:R[-5]C[-2]~#VALUE!"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=@@A1:A3",
+   "answer": "=@@A1:A3~=@@A1:A3~=@@R[-7]C[-2]:R[-5]C[-2]~#VALUE!"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=@@A1:A3",
+   "answer": "=@@'A1':'A3'~=@@'A1':'A3'~=@@A1:A3~#NAME?"
+  },
+  {
+   "member": "Value",
+   "formula": "=@@A1:A3",
+   "answer": "=@@A1:A3~=@@A1:A3~=@@R[-7]C[-2]:R[-5]C[-2]~#VALUE!"
+  },
+  {
+   "member": "Formula",
+   "formula": "=@1",
+   "answer": "=@1~=@1~=@1~1"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=@1",
+   "answer": "=@1~=@1~=@1~1"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=@1",
+   "answer": "=@1~=@1~=@1~1"
+  },
+  {
+   "member": "Value",
+   "formula": "=@1",
+   "answer": "=@1~=@1~=@1~1"
+  },
+  {
+   "member": "Formula",
+   "formula": "=@\"a\"",
+   "answer": "=@\"a\"~=@\"a\"~=@\"a\"~a"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=@\"a\"",
+   "answer": "=@\"a\"~=@\"a\"~=@\"a\"~a"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=@\"a\"",
+   "answer": "=@\"a\"~=@\"a\"~=@\"a\"~a"
+  },
+  {
+   "member": "Value",
+   "formula": "=@\"a\"",
+   "answer": "=@\"a\"~=@\"a\"~=@\"a\"~a"
+  },
+  {
+   "member": "Formula",
+   "formula": "=@{1,2,3}",
+   "answer": "={1,2,3}~=@{1,2,3}~={1,2,3}~1"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=@{1,2,3}",
+   "answer": "={1,2,3}~=@{1,2,3}~={1,2,3}~1"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=@{1,2,3}",
+   "answer": "={1,2,3}~=@{1,2,3}~={1,2,3}~1"
+  },
+  {
+   "member": "Value",
+   "formula": "=@{1,2,3}",
+   "answer": "={1,2,3}~=@{1,2,3}~={1,2,3}~1"
+  },
+  {
+   "member": "Formula",
+   "formula": "=-@A1:A3",
+   "answer": "=-A1:A3~=-@A1:A3~=-R[-7]C[-2]:R[-5]C[-2]~#VALUE!"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=-@A1:A3",
+   "answer": "=-A1:A3~=-@A1:A3~=-R[-7]C[-2]:R[-5]C[-2]~#VALUE!"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=-@A1:A3",
+   "answer": "=-'A1':'A3'~=-@'A1':'A3'~=-A1:A3~#NAME?"
+  },
+  {
+   "member": "Value",
+   "formula": "=-@A1:A3",
+   "answer": "=-A1:A3~=-@A1:A3~=-R[-7]C[-2]:R[-5]C[-2]~#VALUE!"
+  },
+  {
+   "member": "Formula",
+   "formula": "=@-A1:A3",
+   "answer": "=@-@A1:A3~=@-@A1:A3~=@-@R[-7]C[-2]:R[-5]C[-2]~#VALUE!"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=@-A1:A3",
+   "answer": "=@-A1:A3~=@-A1:A3~=@-R[-7]C[-2]:R[-5]C[-2]~-1"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=@-A1:A3",
+   "answer": "=@-@'A1':'A3'~=@-@'A1':'A3'~=@-@A1:A3~#NAME?"
+  },
+  {
+   "member": "Value",
+   "formula": "=@-A1:A3",
+   "answer": "=@-@A1:A3~=@-@A1:A3~=@-@R[-7]C[-2]:R[-5]C[-2]~#VALUE!"
+  },
+  {
+   "member": "Formula",
+   "formula": "=SINGLE(A1:A3)",
+   "answer": "=A1:A3~=@A1:A3~=R[-7]C[-2]:R[-5]C[-2]~#VALUE!"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=SINGLE(A1:A3)",
+   "answer": "=A1:A3~=@A1:A3~=R[-7]C[-2]:R[-5]C[-2]~#VALUE!"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=SINGLE(A1:A3)",
+   "answer": "='A1':'A3'~=@'A1':'A3'~=A1:A3~#NAME?"
+  },
+  {
+   "member": "Value",
+   "formula": "=SINGLE(A1:A3)",
+   "answer": "=A1:A3~=@A1:A3~=R[-7]C[-2]:R[-5]C[-2]~#VALUE!"
+  },
+  {
+   "member": "Formula",
+   "formula": "=SINGLE(A1)",
+   "answer": "=@A1~=@A1~=@R[-7]C[-2]~1"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=SINGLE(A1)",
+   "answer": "=@A1~=@A1~=@R[-7]C[-2]~1"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=SINGLE(A1)",
+   "answer": "='A1'~=@'A1'~=A1~#NAME?"
+  },
+  {
+   "member": "Value",
+   "formula": "=SINGLE(A1)",
+   "answer": "=@A1~=@A1~=@R[-7]C[-2]~1"
+  },
+  {
+   "member": "Formula",
+   "formula": "=SINGLE(A1:A3)*2",
+   "answer": "=A1:A3*2~=@A1:A3*2~=R[-7]C[-2]:R[-5]C[-2]*2~#VALUE!"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=SINGLE(A1:A3)*2",
+   "answer": "=A1:A3*2~=@A1:A3*2~=R[-7]C[-2]:R[-5]C[-2]*2~#VALUE!"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=SINGLE(A1:A3)*2",
+   "answer": "='A1':'A3'*2~=@'A1':'A3'*2~=A1:A3*2~#NAME?"
+  },
+  {
+   "member": "Value",
+   "formula": "=SINGLE(A1:A3)*2",
+   "answer": "=A1:A3*2~=@A1:A3*2~=R[-7]C[-2]:R[-5]C[-2]*2~#VALUE!"
+  },
+  {
+   "member": "Formula",
+   "formula": "=SUM(SINGLE(A1:A3))",
+   "answer": "=SUM(@A1:A3)~=SUM(@A1:A3)~=SUM(@R[-7]C[-2]:R[-5]C[-2])~#VALUE!"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=SUM(SINGLE(A1:A3))",
+   "answer": "=SUM(@A1:A3)~=SUM(@A1:A3)~=SUM(@R[-7]C[-2]:R[-5]C[-2])~#VALUE!"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=SUM(SINGLE(A1:A3))",
+   "answer": "=SUM(@'A1':'A3')~=SUM(@'A1':'A3')~=SUM(@A1:A3)~#NAME?"
+  },
+  {
+   "member": "Value",
+   "formula": "=SUM(SINGLE(A1:A3))",
+   "answer": "=SUM(@A1:A3)~=SUM(@A1:A3)~=SUM(@R[-7]C[-2]:R[-5]C[-2])~#VALUE!"
+  },
+  {
+   "member": "Formula",
+   "formula": "=single(A1:A3)",
+   "answer": "=A1:A3~=@A1:A3~=R[-7]C[-2]:R[-5]C[-2]~#VALUE!"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=single(A1:A3)",
+   "answer": "=A1:A3~=@A1:A3~=R[-7]C[-2]:R[-5]C[-2]~#VALUE!"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=single(A1:A3)",
+   "answer": "='A1':'A3'~=@'A1':'A3'~=A1:A3~#NAME?"
+  },
+  {
+   "member": "Value",
+   "formula": "=single(A1:A3)",
+   "answer": "=A1:A3~=@A1:A3~=R[-7]C[-2]:R[-5]C[-2]~#VALUE!"
+  },
+  {
+   "member": "Formula",
+   "formula": "=SINGLE(SEQUENCE(3))",
+   "answer": "=SEQUENCE(3)~=@SEQUENCE(3)~=SEQUENCE(3)~1"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=SINGLE(SEQUENCE(3))",
+   "answer": "=SEQUENCE(3)~=@SEQUENCE(3)~=SEQUENCE(3)~1"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=SINGLE(SEQUENCE(3))",
+   "answer": "=SEQUENCE(3)~=@SEQUENCE(3)~=SEQUENCE(3)~1"
+  },
+  {
+   "member": "Value",
+   "formula": "=SINGLE(SEQUENCE(3))",
+   "answer": "=SEQUENCE(3)~=@SEQUENCE(3)~=SEQUENCE(3)~1"
+  },
+  {
+   "member": "Formula",
+   "formula": "=SINGLE(A1:A3,1)",
+   "answer": "!1004"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=SINGLE(A1:A3,1)",
+   "answer": "!1004"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=SINGLE(A1:A3,1)",
+   "answer": "!1004"
+  },
+  {
+   "member": "Value",
+   "formula": "=SINGLE(A1:A3,1)",
+   "answer": "!1004"
+  },
+  {
+   "member": "Formula",
+   "formula": "=SINGLE()",
+   "answer": "!1004"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=SINGLE()",
+   "answer": "!1004"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=SINGLE()",
+   "answer": "!1004"
+  },
+  {
+   "member": "Value",
+   "formula": "=SINGLE()",
+   "answer": "!1004"
+  },
+  {
+   "member": "Formula",
+   "formula": "=LET(x,A1:A3,@x)",
+   "answer": "=LET(x,A1:A3,@x)~=LET(x,A1:A3,@x)~=LET(x,R[-7]C[-2]:R[-5]C[-2],@x)~#VALUE!"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=LET(x,A1:A3,@x)",
+   "answer": "=LET(x,A1:A3,@x)~=LET(x,A1:A3,@x)~=LET(x,R[-7]C[-2]:R[-5]C[-2],@x)~#VALUE!"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=LET(x,A1:A3,@x)",
+   "answer": "=LET(x,'A1':'A3',@x)~=LET(x,'A1':'A3',@x)~=LET(x,A1:A3,@x)~#NAME?"
+  },
+  {
+   "member": "Value",
+   "formula": "=LET(x,A1:A3,@x)",
+   "answer": "=LET(x,A1:A3,@x)~=LET(x,A1:A3,@x)~=LET(x,R[-7]C[-2]:R[-5]C[-2],@x)~#VALUE!"
+  },
+  {
+   "member": "Formula",
+   "formula": "=@Data!A1:A3",
+   "answer": "=Data!A1:A3~=@Data!A1:A3~=Data!R[-7]C[-2]:R[-5]C[-2]~#VALUE!"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=@Data!A1:A3",
+   "answer": "=Data!A1:A3~=@Data!A1:A3~=Data!R[-7]C[-2]:R[-5]C[-2]~#VALUE!"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=@Data!A1:A3",
+   "answer": "=Data!'A1':'A3'~=@Data!'A1':'A3'~=Data!A1:A3~#NAME?"
+  },
+  {
+   "member": "Value",
+   "formula": "=@Data!A1:A3",
+   "answer": "=Data!A1:A3~=@Data!A1:A3~=Data!R[-7]C[-2]:R[-5]C[-2]~#VALUE!"
+  },
+  {
+   "member": "Formula",
+   "formula": "=@ A1:A3",
+   "answer": "= A1:A3~=@ A1:A3~= R[-7]C[-2]:R[-5]C[-2]~#VALUE!"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=@ A1:A3",
+   "answer": "= A1:A3~=@ A1:A3~= R[-7]C[-2]:R[-5]C[-2]~#VALUE!"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=@ A1:A3",
+   "answer": "= 'A1':'A3'~=@ 'A1':'A3'~= A1:A3~#NAME?"
+  },
+  {
+   "member": "Value",
+   "formula": "=@ A1:A3",
+   "answer": "= A1:A3~=@ A1:A3~= R[-7]C[-2]:R[-5]C[-2]~#VALUE!"
+  },
+  {
+   "member": "Formula",
+   "formula": "=IF(@A1:A3>1,1,0)",
+   "answer": "=IF(A1:A3>1,1,0)~=IF(@A1:A3>1,1,0)~=IF(R[-7]C[-2]:R[-5]C[-2]>1,1,0)~#VALUE!"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=IF(@A1:A3>1,1,0)",
+   "answer": "=IF(A1:A3>1,1,0)~=IF(@A1:A3>1,1,0)~=IF(R[-7]C[-2]:R[-5]C[-2]>1,1,0)~#VALUE!"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=IF(@A1:A3>1,1,0)",
+   "answer": "=IF('A1':'A3'>1,1,0)~=IF(@'A1':'A3'>1,1,0)~=IF(A1:A3>1,1,0)~#NAME?"
+  },
+  {
+   "member": "Value",
+   "formula": "=IF(@A1:A3>1,1,0)",
+   "answer": "=IF(A1:A3>1,1,0)~=IF(@A1:A3>1,1,0)~=IF(R[-7]C[-2]:R[-5]C[-2]>1,1,0)~#VALUE!"
+  },
+  {
+   "member": "Formula",
+   "formula": "=@A1+A1:A3",
+   "answer": "=@A1+@A1:A3~=@A1+@A1:A3~=@R[-7]C[-2]+@R[-7]C[-2]:R[-5]C[-2]~#VALUE!"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=@A1+A1:A3",
+   "answer": "=@A1+A1:A3~=@A1+A1:A3~=@R[-7]C[-2]+R[-7]C[-2]:R[-5]C[-2]~2"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=@A1+A1:A3",
+   "answer": "='A1'+'A1':'A3'~=@'A1'+@'A1':'A3'~=A1+A1:A3~#NAME?"
+  },
+  {
+   "member": "Value",
+   "formula": "=@A1+A1:A3",
+   "answer": "=@A1+@A1:A3~=@A1+@A1:A3~=@R[-7]C[-2]+@R[-7]C[-2]:R[-5]C[-2]~#VALUE!"
+  },
+  {
+   "member": "Formula",
+   "formula": "=A1:A3+@A1",
+   "answer": "=@A1:A3+@A1~=@A1:A3+@A1~=@R[-7]C[-2]:R[-5]C[-2]+@R[-7]C[-2]~#VALUE!"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=A1:A3+@A1",
+   "answer": "=A1:A3+@A1~=A1:A3+@A1~=R[-7]C[-2]:R[-5]C[-2]+@R[-7]C[-2]~2"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=A1:A3+@A1",
+   "answer": "='A1':'A3'+'A1'~=@'A1':'A3'+@'A1'~=A1:A3+A1~#NAME?"
+  },
+  {
+   "member": "Value",
+   "formula": "=A1:A3+@A1",
+   "answer": "=@A1:A3+@A1~=@A1:A3+@A1~=@R[-7]C[-2]:R[-5]C[-2]+@R[-7]C[-2]~#VALUE!"
+  },
+  {
+   "member": "Formula",
+   "formula": "=SUM(@A1:A3)+A1:A3",
+   "answer": "=SUM(@A1:A3)+@A1:A3~=SUM(@A1:A3)+@A1:A3~=SUM(@R[-7]C[-2]:R[-5]C[-2])+@R[-7]C[-2]:R[-5]C[-2]~#VALUE!"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=SUM(@A1:A3)+A1:A3",
+   "answer": "=SUM(@A1:A3)+A1:A3~=SUM(@A1:A3)+A1:A3~=SUM(@R[-7]C[-2]:R[-5]C[-2])+R[-7]C[-2]:R[-5]C[-2]~#VALUE!"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=SUM(@A1:A3)+A1:A3",
+   "answer": "=SUM(@'A1':'A3')+@'A1':'A3'~=SUM(@'A1':'A3')+@'A1':'A3'~=SUM(@A1:A3)+@A1:A3~#NAME?"
+  },
+  {
+   "member": "Value",
+   "formula": "=SUM(@A1:A3)+A1:A3",
+   "answer": "=SUM(@A1:A3)+@A1:A3~=SUM(@A1:A3)+@A1:A3~=SUM(@R[-7]C[-2]:R[-5]C[-2])+@R[-7]C[-2]:R[-5]C[-2]~#VALUE!"
+  },
+  {
+   "member": "Formula",
+   "formula": "=@A1*SUM(A1:A3*2)",
+   "answer": "=@A1*SUM(@A1:A3*2)~=@A1*SUM(@A1:A3*2)~=@R[-7]C[-2]*SUM(@R[-7]C[-2]:R[-5]C[-2]*2)~#VALUE!"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=@A1*SUM(A1:A3*2)",
+   "answer": "=@A1*SUM(A1:A3*2)~=@A1*SUM(A1:A3*2)~=@R[-7]C[-2]*SUM(R[-7]C[-2]:R[-5]C[-2]*2)~12"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=@A1*SUM(A1:A3*2)",
+   "answer": "='A1'*SUM('A1':'A3'*2)~=@'A1'*SUM(@'A1':'A3'*2)~=A1*SUM(A1:A3*2)~#NAME?"
+  },
+  {
+   "member": "Value",
+   "formula": "=@A1*SUM(A1:A3*2)",
+   "answer": "=@A1*SUM(@A1:A3*2)~=@A1*SUM(@A1:A3*2)~=@R[-7]C[-2]*SUM(@R[-7]C[-2]:R[-5]C[-2]*2)~#VALUE!"
+  },
+  {
+   "member": "Formula",
+   "formula": "=@(A1:A3*2)",
+   "answer": "=@(@A1:A3*2)~=@(@A1:A3*2)~=@(@R[-7]C[-2]:R[-5]C[-2]*2)~#VALUE!"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=@(A1:A3*2)",
+   "answer": "=@(A1:A3*2)~=@(A1:A3*2)~=@(R[-7]C[-2]:R[-5]C[-2]*2)~2"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=@(A1:A3*2)",
+   "answer": "=@(@'A1':'A3'*2)~=@(@'A1':'A3'*2)~=@(@A1:A3*2)~#NAME?"
+  },
+  {
+   "member": "Value",
+   "formula": "=@(A1:A3*2)",
+   "answer": "=@(@A1:A3*2)~=@(@A1:A3*2)~=@(@R[-7]C[-2]:R[-5]C[-2]*2)~#VALUE!"
+  },
+  {
+   "member": "Formula",
+   "formula": "=@(A1:A3)*A1:A3",
+   "answer": "=@(A1:A3)*@A1:A3~=@(A1:A3)*@A1:A3~=@(R[-7]C[-2]:R[-5]C[-2])*@R[-7]C[-2]:R[-5]C[-2]~#VALUE!"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=@(A1:A3)*A1:A3",
+   "answer": "=@(A1:A3)*A1:A3~=@(A1:A3)*A1:A3~=@(R[-7]C[-2]:R[-5]C[-2])*R[-7]C[-2]:R[-5]C[-2]~#VALUE!"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=@(A1:A3)*A1:A3",
+   "answer": "=@('A1':'A3')*@'A1':'A3'~=@('A1':'A3')*@'A1':'A3'~=@(A1:A3)*@A1:A3~#NAME?"
+  },
+  {
+   "member": "Value",
+   "formula": "=@(A1:A3)*A1:A3",
+   "answer": "=@(A1:A3)*@A1:A3~=@(A1:A3)*@A1:A3~=@(R[-7]C[-2]:R[-5]C[-2])*@R[-7]C[-2]:R[-5]C[-2]~#VALUE!"
+  },
+  {
+   "member": "Formula",
+   "formula": "=IF(@A1,A1:A3,0)",
+   "answer": "=@IF(@A1,A1:A3,0)~=@IF(@A1,A1:A3,0)~=@IF(@R[-7]C[-2],R[-7]C[-2]:R[-5]C[-2],0)~#VALUE!"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=IF(@A1,A1:A3,0)",
+   "answer": "=IF(@A1,A1:A3,0)~=IF(@A1,A1:A3,0)~=IF(@R[-7]C[-2],R[-7]C[-2]:R[-5]C[-2],0)~1"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=IF(@A1,A1:A3,0)",
+   "answer": "=IF('A1','A1':'A3',0)~=@IF(@'A1','A1':'A3',0)~=IF(A1,A1:A3,0)~#NAME?"
+  },
+  {
+   "member": "Value",
+   "formula": "=IF(@A1,A1:A3,0)",
+   "answer": "=@IF(@A1,A1:A3,0)~=@IF(@A1,A1:A3,0)~=@IF(@R[-7]C[-2],R[-7]C[-2]:R[-5]C[-2],0)~#VALUE!"
+  },
+  {
+   "member": "Formula",
+   "formula": "=@SUM(A1:A3)+A1:A3",
+   "answer": "=@SUM(A1:A3)+@A1:A3~=@SUM(A1:A3)+@A1:A3~=@SUM(R[-7]C[-2]:R[-5]C[-2])+@R[-7]C[-2]:R[-5]C[-2]~#VALUE!"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=@SUM(A1:A3)+A1:A3",
+   "answer": "=@SUM(A1:A3)+A1:A3~=@SUM(A1:A3)+A1:A3~=@SUM(R[-7]C[-2]:R[-5]C[-2])+R[-7]C[-2]:R[-5]C[-2]~7"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=@SUM(A1:A3)+A1:A3",
+   "answer": "=@SUM('A1':'A3')+@'A1':'A3'~=@SUM('A1':'A3')+@'A1':'A3'~=@SUM(A1:A3)+@A1:A3~#NAME?"
+  },
+  {
+   "member": "Value",
+   "formula": "=@SUM(A1:A3)+A1:A3",
+   "answer": "=@SUM(A1:A3)+@A1:A3~=@SUM(A1:A3)+@A1:A3~=@SUM(R[-7]C[-2]:R[-5]C[-2])+@R[-7]C[-2]:R[-5]C[-2]~#VALUE!"
+  },
+  {
+   "member": "Formula",
+   "formula": "=@1+A1:A3",
+   "answer": "=@1+@A1:A3~=@1+@A1:A3~=@1+@R[-7]C[-2]:R[-5]C[-2]~#VALUE!"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=@1+A1:A3",
+   "answer": "=@1+A1:A3~=@1+A1:A3~=@1+R[-7]C[-2]:R[-5]C[-2]~2"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=@1+A1:A3",
+   "answer": "=@1+@'A1':'A3'~=@1+@'A1':'A3'~=@1+@A1:A3~#NAME?"
+  },
+  {
+   "member": "Value",
+   "formula": "=@1+A1:A3",
+   "answer": "=@1+@A1:A3~=@1+@A1:A3~=@1+@R[-7]C[-2]:R[-5]C[-2]~#VALUE!"
+  },
+  {
+   "member": "Formula",
+   "formula": "=(A1:A3)",
+   "answer": "=(A1:A3)~=(@A1:A3)~=(R[-7]C[-2]:R[-5]C[-2])~#VALUE!"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=(A1:A3)",
+   "answer": "=(A1:A3)~=(A1:A3)~=(R[-7]C[-2]:R[-5]C[-2])~1"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=(A1:A3)",
+   "answer": "=('A1':'A3')~=(@'A1':'A3')~=(A1:A3)~#NAME?"
+  },
+  {
+   "member": "Value",
+   "formula": "=(A1:A3)",
+   "answer": "=(A1:A3)~=(@A1:A3)~=(R[-7]C[-2]:R[-5]C[-2])~#VALUE!"
+  },
+  {
+   "member": "Formula",
+   "formula": "=@A1:A3 A2:B2",
+   "answer": "=A1:A3 A2:B2~=@A1:A3 A2:B2~=R[-7]C[-2]:R[-5]C[-2] R[-6]C[-2]:R[-6]C[-1]~2"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=@A1:A3 A2:B2",
+   "answer": "=A1:A3 A2:B2~=@A1:A3 A2:B2~=R[-7]C[-2]:R[-5]C[-2] R[-6]C[-2]:R[-6]C[-1]~2"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=@A1:A3 A2:B2",
+   "answer": "='A1':'A3' 'A2':'B2'~=@'A1':'A3' 'A2':'B2'~=A1:A3 A2:B2~#NAME?"
+  },
+  {
+   "member": "Value",
+   "formula": "=@A1:A3 A2:B2",
+   "answer": "=A1:A3 A2:B2~=@A1:A3 A2:B2~=R[-7]C[-2]:R[-5]C[-2] R[-6]C[-2]:R[-6]C[-1]~2"
+  },
+  {
+   "member": "Formula",
+   "formula": "=@A1:A3%",
+   "answer": "=A1:A3%~=@A1:A3%~=R[-7]C[-2]:R[-5]C[-2]%~#VALUE!"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=@A1:A3%",
+   "answer": "=A1:A3%~=@A1:A3%~=R[-7]C[-2]:R[-5]C[-2]%~#VALUE!"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=@A1:A3%",
+   "answer": "='A1':'A3'%~=@'A1':'A3'%~=A1:A3%~#NAME?"
+  },
+  {
+   "member": "Value",
+   "formula": "=@A1:A3%",
+   "answer": "=A1:A3%~=@A1:A3%~=R[-7]C[-2]:R[-5]C[-2]%~#VALUE!"
+  },
+  {
+   "member": "Formula",
+   "formula": "=@-A1:A3*2",
+   "answer": "=@-@A1:A3*2~=@-@A1:A3*2~=@-@R[-7]C[-2]:R[-5]C[-2]*2~#VALUE!"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=@-A1:A3*2",
+   "answer": "=@-A1:A3*2~=@-A1:A3*2~=@-R[-7]C[-2]:R[-5]C[-2]*2~-2"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=@-A1:A3*2",
+   "answer": "=@-@'A1':'A3'*2~=@-@'A1':'A3'*2~=@-@A1:A3*2~#NAME?"
+  },
+  {
+   "member": "Value",
+   "formula": "=@-A1:A3*2",
+   "answer": "=@-@A1:A3*2~=@-@A1:A3*2~=@-@R[-7]C[-2]:R[-5]C[-2]*2~#VALUE!"
+  },
+  {
+   "member": "Formula",
+   "formula": "=@A1:A3^2",
+   "answer": "=A1:A3^2~=@A1:A3^2~=R[-7]C[-2]:R[-5]C[-2]^2~#VALUE!"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=@A1:A3^2",
+   "answer": "=A1:A3^2~=@A1:A3^2~=R[-7]C[-2]:R[-5]C[-2]^2~#VALUE!"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=@A1:A3^2",
+   "answer": "='A1':'A3'^2~=@'A1':'A3'^2~=A1:A3^2~#NAME?"
+  },
+  {
+   "member": "Value",
+   "formula": "=@A1:A3^2",
+   "answer": "=A1:A3^2~=@A1:A3^2~=R[-7]C[-2]:R[-5]C[-2]^2~#VALUE!"
+  },
+  {
+   "member": "Formula",
+   "formula": "=@INDEX(A1:A3,2)",
+   "answer": "=@INDEX(A1:A3,2)~=@INDEX(A1:A3,2)~=@INDEX(R[-7]C[-2]:R[-5]C[-2],2)~2"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=@INDEX(A1:A3,2)",
+   "answer": "=@INDEX(A1:A3,2)~=@INDEX(A1:A3,2)~=@INDEX(R[-7]C[-2]:R[-5]C[-2],2)~2"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=@INDEX(A1:A3,2)",
+   "answer": "=INDEX('A1':'A3',2)~=@INDEX('A1':'A3',2)~=INDEX(A1:A3,2)~#NAME?"
+  },
+  {
+   "member": "Value",
+   "formula": "=@INDEX(A1:A3,2)",
+   "answer": "=@INDEX(A1:A3,2)~=@INDEX(A1:A3,2)~=@INDEX(R[-7]C[-2]:R[-5]C[-2],2)~2"
+  },
+  {
+   "member": "Formula",
+   "formula": "=@A1:A1",
+   "answer": "=A1:A1~=@A1:A1~=R[-7]C[-2]:R[-7]C[-2]~1"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=@A1:A1",
+   "answer": "=A1:A1~=@A1:A1~=R[-7]C[-2]:R[-7]C[-2]~1"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=@A1:A1",
+   "answer": "='A1':'A1'~=@'A1':'A1'~=A1:A1~#NAME?"
+  },
+  {
+   "member": "Value",
+   "formula": "=@A1:A1",
+   "answer": "=A1:A1~=@A1:A1~=R[-7]C[-2]:R[-7]C[-2]~1"
+  },
+  {
+   "member": "Formula",
+   "formula": "=@A:A",
+   "answer": "=A:A~=@A:A~=C[-2]~0"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=@A:A",
+   "answer": "=A:A~=@A:A~=C[-2]~0"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=@A:A",
+   "answer": "=A:(A)~=@A:(A)~=A:(A)~#NAME?"
+  },
+  {
+   "member": "Value",
+   "formula": "=@A:A",
+   "answer": "=A:A~=@A:A~=C[-2]~0"
+  },
+  {
+   "member": "Formula",
+   "formula": "=@Data!A1",
+   "answer": "=@Data!A1~=@Data!A1~=@Data!R[-7]C[-2]~1"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=@Data!A1",
+   "answer": "=@Data!A1~=@Data!A1~=@Data!R[-7]C[-2]~1"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=@Data!A1",
+   "answer": "=Data!'A1'~=@Data!'A1'~=Data!A1~#NAME?"
+  },
+  {
+   "member": "Value",
+   "formula": "=@Data!A1",
+   "answer": "=@Data!A1~=@Data!A1~=@Data!R[-7]C[-2]~1"
+  },
+  {
+   "member": "Formula",
+   "formula": "=@E1#",
+   "answer": "=E1#~=@E1#~=R[-7]C[2]#~#VALUE!"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=@E1#",
+   "answer": "=E1#~=@E1#~=R[-7]C[2]#~#VALUE!"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=@E1#",
+   "answer": "='E1'#~=@'E1'#~=E1#~#NAME?"
+  },
+  {
+   "member": "Value",
+   "formula": "=@E1#",
+   "answer": "=E1#~=@E1#~=R[-7]C[2]#~#VALUE!"
+  },
+  {
+   "member": "Formula",
+   "formula": "=SUM(@E1#)",
+   "answer": "=SUM(@E1#)~=SUM(@E1#)~=SUM(@R[-7]C[2]#)~#VALUE!"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=SUM(@E1#)",
+   "answer": "=SUM(@E1#)~=SUM(@E1#)~=SUM(@R[-7]C[2]#)~#VALUE!"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=SUM(@E1#)",
+   "answer": "=SUM(@'E1'#)~=SUM(@'E1'#)~=SUM(@E1#)~#NAME?"
+  },
+  {
+   "member": "Value",
+   "formula": "=SUM(@E1#)",
+   "answer": "=SUM(@E1#)~=SUM(@E1#)~=SUM(@R[-7]C[2]#)~#VALUE!"
+  },
+  {
+   "member": "Formula",
+   "formula": "=@E1#+1",
+   "answer": "=E1#+1~=@E1#+1~=R[-7]C[2]#+1~#VALUE!"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=@E1#+1",
+   "answer": "=E1#+1~=@E1#+1~=R[-7]C[2]#+1~#VALUE!"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=@E1#+1",
+   "answer": "='E1'#+1~=@'E1'#+1~=E1#+1~#NAME?"
+  },
+  {
+   "member": "Value",
+   "formula": "=@E1#+1",
+   "answer": "=E1#+1~=@E1#+1~=R[-7]C[2]#+1~#VALUE!"
+  },
+  {
+   "member": "Formula",
+   "formula": "=SINGLE(A1+1)",
+   "answer": "=@A1+1~=@A1+1~=@R[-7]C[-2]+1~2"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=SINGLE(A1+1)",
+   "answer": "=@A1+1~=@A1+1~=@R[-7]C[-2]+1~2"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=SINGLE(A1+1)",
+   "answer": "=@@'A1'+1~=@@'A1'+1~=@@A1+1~#NAME?"
+  },
+  {
+   "member": "Value",
+   "formula": "=SINGLE(A1+1)",
+   "answer": "=@A1+1~=@A1+1~=@R[-7]C[-2]+1~2"
+  },
+  {
+   "member": "Formula",
+   "formula": "=SINGLE(-A1:A3)",
+   "answer": "=@-@A1:A3~=@-@A1:A3~=@-@R[-7]C[-2]:R[-5]C[-2]~#VALUE!"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=SINGLE(-A1:A3)",
+   "answer": "=@-A1:A3~=@-A1:A3~=@-R[-7]C[-2]:R[-5]C[-2]~-1"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=SINGLE(-A1:A3)",
+   "answer": "=@-@'A1':'A3'~=@-@'A1':'A3'~=@-@A1:A3~#NAME?"
+  },
+  {
+   "member": "Value",
+   "formula": "=SINGLE(-A1:A3)",
+   "answer": "=@-@A1:A3~=@-@A1:A3~=@-@R[-7]C[-2]:R[-5]C[-2]~#VALUE!"
+  },
+  {
+   "member": "Formula",
+   "formula": "=SINGLE(A1:A3%)",
+   "answer": "=@@A1:A3%~=@@A1:A3%~=@@R[-7]C[-2]:R[-5]C[-2]%~#VALUE!"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=SINGLE(A1:A3%)",
+   "answer": "=@A1:A3%~=@A1:A3%~=@R[-7]C[-2]:R[-5]C[-2]%~0.01"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=SINGLE(A1:A3%)",
+   "answer": "=@@'A1':'A3'%~=@@'A1':'A3'%~=@@A1:A3%~#NAME?"
+  },
+  {
+   "member": "Value",
+   "formula": "=SINGLE(A1:A3%)",
+   "answer": "=@@A1:A3%~=@@A1:A3%~=@@R[-7]C[-2]:R[-5]C[-2]%~#VALUE!"
+  },
+  {
+   "member": "Formula",
+   "formula": "=SINGLE(A1:A3 A2:B2)",
+   "answer": "=A1:A3 A2:B2~=@A1:A3 A2:B2~=R[-7]C[-2]:R[-5]C[-2] R[-6]C[-2]:R[-6]C[-1]~2"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=SINGLE(A1:A3 A2:B2)",
+   "answer": "=A1:A3 A2:B2~=@A1:A3 A2:B2~=R[-7]C[-2]:R[-5]C[-2] R[-6]C[-2]:R[-6]C[-1]~2"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=SINGLE(A1:A3 A2:B2)",
+   "answer": "='A1':'A3' 'A2':'B2'~=@'A1':'A3' 'A2':'B2'~=A1:A3 A2:B2~#NAME?"
+  },
+  {
+   "member": "Value",
+   "formula": "=SINGLE(A1:A3 A2:B2)",
+   "answer": "=A1:A3 A2:B2~=@A1:A3 A2:B2~=R[-7]C[-2]:R[-5]C[-2] R[-6]C[-2]:R[-6]C[-1]~2"
+  },
+  {
+   "member": "Formula",
+   "formula": "=SINGLE((A1:A3))",
+   "answer": "=@(A1:A3)~=@(A1:A3)~=@(R[-7]C[-2]:R[-5]C[-2])~#VALUE!"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=SINGLE((A1:A3))",
+   "answer": "=@(A1:A3)~=@(A1:A3)~=@(R[-7]C[-2]:R[-5]C[-2])~#VALUE!"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=SINGLE((A1:A3))",
+   "answer": "=@('A1':'A3')~=@('A1':'A3')~=@(A1:A3)~#NAME?"
+  },
+  {
+   "member": "Value",
+   "formula": "=SINGLE((A1:A3))",
+   "answer": "=@(A1:A3)~=@(A1:A3)~=@(R[-7]C[-2]:R[-5]C[-2])~#VALUE!"
+  },
+  {
+   "member": "Formula",
+   "formula": "=SINGLE(A1)*SINGLE(A2)",
+   "answer": "=@A1*@A2~=@A1*@A2~=@R[-7]C[-2]*@R[-6]C[-2]~2"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=SINGLE(A1)*SINGLE(A2)",
+   "answer": "=@A1*@A2~=@A1*@A2~=@R[-7]C[-2]*@R[-6]C[-2]~2"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=SINGLE(A1)*SINGLE(A2)",
+   "answer": "='A1'*'A2'~=@'A1'*@'A2'~=A1*A2~#NAME?"
+  },
+  {
+   "member": "Value",
+   "formula": "=SINGLE(A1)*SINGLE(A2)",
+   "answer": "=@A1*@A2~=@A1*@A2~=@R[-7]C[-2]*@R[-6]C[-2]~2"
+  },
+  {
+   "member": "Formula",
+   "formula": "=SINGLE( A1)",
+   "answer": "=@ A1~=@ A1~=@ R[-7]C[-2]~1"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=SINGLE( A1)",
+   "answer": "=@ A1~=@ A1~=@ R[-7]C[-2]~1"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=SINGLE( A1)",
+   "answer": "= 'A1'~=@ 'A1'~= A1~#NAME?"
+  },
+  {
+   "member": "Value",
+   "formula": "=SINGLE( A1)",
+   "answer": "=@ A1~=@ A1~=@ R[-7]C[-2]~1"
+  },
+  {
+   "member": "Formula",
+   "formula": "=SINGLE(A1:A3)^2",
+   "answer": "=A1:A3^2~=@A1:A3^2~=R[-7]C[-2]:R[-5]C[-2]^2~#VALUE!"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=SINGLE(A1:A3)^2",
+   "answer": "=A1:A3^2~=@A1:A3^2~=R[-7]C[-2]:R[-5]C[-2]^2~#VALUE!"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=SINGLE(A1:A3)^2",
+   "answer": "='A1':'A3'^2~=@'A1':'A3'^2~=A1:A3^2~#NAME?"
+  },
+  {
+   "member": "Value",
+   "formula": "=SINGLE(A1:A3)^2",
+   "answer": "=A1:A3^2~=@A1:A3^2~=R[-7]C[-2]:R[-5]C[-2]^2~#VALUE!"
+  },
+  {
+   "member": "Formula",
+   "formula": "=SINGLE(SINGLE(A1:A3))",
+   "answer": "=@@A1:A3~=@@A1:A3~=@@R[-7]C[-2]:R[-5]C[-2]~#VALUE!"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=SINGLE(SINGLE(A1:A3))",
+   "answer": "=@@A1:A3~=@@A1:A3~=@@R[-7]C[-2]:R[-5]C[-2]~#VALUE!"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=SINGLE(SINGLE(A1:A3))",
+   "answer": "=@@'A1':'A3'~=@@'A1':'A3'~=@@A1:A3~#NAME?"
+  },
+  {
+   "member": "Value",
+   "formula": "=SINGLE(SINGLE(A1:A3))",
+   "answer": "=@@A1:A3~=@@A1:A3~=@@R[-7]C[-2]:R[-5]C[-2]~#VALUE!"
+  },
+  {
+   "member": "Formula",
+   "formula": "=SINGLE(E1#)",
+   "answer": "=E1#~=@E1#~=R[-7]C[2]#~#VALUE!"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=SINGLE(E1#)",
+   "answer": "=E1#~=@E1#~=R[-7]C[2]#~#VALUE!"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=SINGLE(E1#)",
+   "answer": "='E1'#~=@'E1'#~=E1#~#NAME?"
+  },
+  {
+   "member": "Value",
+   "formula": "=SINGLE(E1#)",
+   "answer": "=E1#~=@E1#~=R[-7]C[2]#~#VALUE!"
+  },
+  {
+   "member": "Formula",
+   "formula": "=SINGLE(A1,)",
+   "answer": "!1004"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=SINGLE(A1,)",
+   "answer": "!1004"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=SINGLE(A1,)",
+   "answer": "!1004"
+  },
+  {
+   "member": "Value",
+   "formula": "=SINGLE(A1,)",
+   "answer": "!1004"
+  },
+  {
+   "member": "Formula",
+   "formula": "=SINGLE(A1:A3)%",
+   "answer": "=A1:A3%~=@A1:A3%~=R[-7]C[-2]:R[-5]C[-2]%~#VALUE!"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=SINGLE(A1:A3)%",
+   "answer": "=A1:A3%~=@A1:A3%~=R[-7]C[-2]:R[-5]C[-2]%~#VALUE!"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=SINGLE(A1:A3)%",
+   "answer": "='A1':'A3'%~=@'A1':'A3'%~=A1:A3%~#NAME?"
+  },
+  {
+   "member": "Value",
+   "formula": "=SINGLE(A1:A3)%",
+   "answer": "=A1:A3%~=@A1:A3%~=R[-7]C[-2]:R[-5]C[-2]%~#VALUE!"
+  },
+  {
+   "member": "Formula",
+   "formula": "=-SINGLE(A1:A3)",
+   "answer": "=-A1:A3~=-@A1:A3~=-R[-7]C[-2]:R[-5]C[-2]~#VALUE!"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=-SINGLE(A1:A3)",
+   "answer": "=-A1:A3~=-@A1:A3~=-R[-7]C[-2]:R[-5]C[-2]~#VALUE!"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=-SINGLE(A1:A3)",
+   "answer": "=-'A1':'A3'~=-@'A1':'A3'~=-A1:A3~#NAME?"
+  },
+  {
+   "member": "Value",
+   "formula": "=-SINGLE(A1:A3)",
+   "answer": "=-A1:A3~=-@A1:A3~=-R[-7]C[-2]:R[-5]C[-2]~#VALUE!"
+  },
+  {
+   "member": "Formula",
+   "formula": "=SINGLE(A1:A3):A5",
+   "answer": "=@@A1:A3:A5~=@@A1:A3:A5~=@@R[-7]C[-2]:R[-5]C[-2]:R[-3]C[-2]~#VALUE!"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=SINGLE(A1:A3):A5",
+   "answer": "=@A1:A3:A5~=@A1:A3:A5~=@R[-7]C[-2]:R[-5]C[-2]:R[-3]C[-2]~#VALUE!"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=SINGLE(A1:A3):A5",
+   "answer": "=@@'A1':'A3':'A5'~=@@'A1':'A3':'A5'~=@@A1:A3:A5~#NAME?"
+  },
+  {
+   "member": "Value",
+   "formula": "=SINGLE(A1:A3):A5",
+   "answer": "=@@A1:A3:A5~=@@A1:A3:A5~=@@R[-7]C[-2]:R[-5]C[-2]:R[-3]C[-2]~#VALUE!"
+  },
+  {
+   "member": "Formula",
+   "formula": "=nosuch",
+   "answer": "=nosuch~=@nosuch~=nosuch~#NAME?"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=nosuch",
+   "answer": "=nosuch~=nosuch~=nosuch~#NAME?"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=nosuch",
+   "answer": "=nosuch~=@nosuch~=nosuch~#NAME?"
+  },
+  {
+   "member": "Value",
+   "formula": "=nosuch",
+   "answer": "=nosuch~=@nosuch~=nosuch~#NAME?"
+  },
+  {
+   "member": "Formula",
+   "formula": "=nosuch+1",
+   "answer": "=nosuch+1~=@nosuch+1~=nosuch+1~#NAME?"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=nosuch+1",
+   "answer": "=nosuch+1~=nosuch+1~=nosuch+1~#NAME?"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=nosuch+1",
+   "answer": "=nosuch+1~=@nosuch+1~=nosuch+1~#NAME?"
+  },
+  {
+   "member": "Value",
+   "formula": "=nosuch+1",
+   "answer": "=nosuch+1~=@nosuch+1~=nosuch+1~#NAME?"
+  },
+  {
+   "member": "Formula",
+   "formula": "=SUM(nosuch)",
+   "answer": "=SUM(nosuch)~=SUM(nosuch)~=SUM(nosuch)~#NAME?"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=SUM(nosuch)",
+   "answer": "=SUM(nosuch)~=SUM(nosuch)~=SUM(nosuch)~#NAME?"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=SUM(nosuch)",
+   "answer": "=SUM(nosuch)~=SUM(nosuch)~=SUM(nosuch)~#NAME?"
+  },
+  {
+   "member": "Value",
+   "formula": "=SUM(nosuch)",
+   "answer": "=SUM(nosuch)~=SUM(nosuch)~=SUM(nosuch)~#NAME?"
+  },
+  {
+   "member": "Formula",
+   "formula": "=@nosuch",
+   "answer": "=nosuch~=@nosuch~=nosuch~#NAME?"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=@nosuch",
+   "answer": "=nosuch~=@nosuch~=nosuch~#NAME?"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=@nosuch",
+   "answer": "=nosuch~=@nosuch~=nosuch~#NAME?"
+  },
+  {
+   "member": "Value",
+   "formula": "=@nosuch",
+   "answer": "=nosuch~=@nosuch~=nosuch~#NAME?"
+  },
+  {
+   "member": "Formula",
+   "formula": "=ABS(nosuch)",
+   "answer": "=ABS(nosuch)~=ABS(@nosuch)~=ABS(nosuch)~#NAME?"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=ABS(nosuch)",
+   "answer": "=ABS(nosuch)~=ABS(nosuch)~=ABS(nosuch)~#NAME?"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=ABS(nosuch)",
+   "answer": "=ABS(nosuch)~=ABS(@nosuch)~=ABS(nosuch)~#NAME?"
+  },
+  {
+   "member": "Value",
+   "formula": "=ABS(nosuch)",
+   "answer": "=ABS(nosuch)~=ABS(@nosuch)~=ABS(nosuch)~#NAME?"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=@R1C1:R3C1",
+   "answer": "=$A$1:$A$3~=@$A$1:$A$3~=R1C1:R3C1~#VALUE!"
+  },
+  {
+   "member": "Formula2R1C1",
+   "formula": "=@R1C1:R3C1",
+   "answer": "=$A$1:$A$3~=@$A$1:$A$3~=R1C1:R3C1~#VALUE!"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=SINGLE(R1C1:R3C1)",
+   "answer": "=$A$1:$A$3~=@$A$1:$A$3~=R1C1:R3C1~#VALUE!"
+  },
+  {
+   "member": "Formula2R1C1",
+   "formula": "=SINGLE(R1C1:R3C1)",
+   "answer": "=$A$1:$A$3~=@$A$1:$A$3~=R1C1:R3C1~#VALUE!"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=@R[-7]C[-2]:R[-5]C[-2]",
+   "answer": "=A1:A3~=@A1:A3~=R[-7]C[-2]:R[-5]C[-2]~#VALUE!"
+  },
+  {
+   "member": "Formula2R1C1",
+   "formula": "=@R[-7]C[-2]:R[-5]C[-2]",
+   "answer": "=A1:A3~=@A1:A3~=R[-7]C[-2]:R[-5]C[-2]~#VALUE!"
+  }
+ ],
+ "file": {
+  "writes": [
+   [
+    "C10",
+    "Formula",
+    "=@A1"
+   ],
+   [
+    "G10",
+    "Formula2",
+    "=@A1"
+   ],
+   [
+    "C14",
+    "Formula",
+    "=@A1:A3"
+   ],
+   [
+    "G14",
+    "Formula2",
+    "=@A1:A3"
+   ],
+   [
+    "C18",
+    "Formula",
+    "=@SUM(A1:A3)"
+   ],
+   [
+    "G18",
+    "Formula2",
+    "=@SUM(A1:A3)"
+   ],
+   [
+    "C22",
+    "Formula",
+    "=SUM(@A1:A3)"
+   ],
+   [
+    "G22",
+    "Formula2",
+    "=SUM(@A1:A3)"
+   ],
+   [
+    "C26",
+    "Formula",
+    "=@(A1:A3)"
+   ],
+   [
+    "G26",
+    "Formula2",
+    "=@(A1:A3)"
+   ],
+   [
+    "C30",
+    "Formula",
+    "=@@A1:A3"
+   ],
+   [
+    "G30",
+    "Formula2",
+    "=@@A1:A3"
+   ],
+   [
+    "C34",
+    "Formula",
+    "=@1"
+   ],
+   [
+    "G34",
+    "Formula2",
+    "=@1"
+   ],
+   [
+    "C38",
+    "Formula",
+    "=@-A1:A3"
+   ],
+   [
+    "G38",
+    "Formula2",
+    "=@-A1:A3"
+   ],
+   [
+    "C42",
+    "Formula",
+    "=@A1+A1:A3"
+   ],
+   [
+    "G42",
+    "Formula2",
+    "=@A1+A1:A3"
+   ],
+   [
+    "C46",
+    "Formula",
+    "=@(A1:A3*2)"
+   ],
+   [
+    "G46",
+    "Formula2",
+    "=@(A1:A3*2)"
+   ],
+   [
+    "C50",
+    "Formula",
+    "=@E1#"
+   ],
+   [
+    "G50",
+    "Formula2",
+    "=@E1#"
+   ],
+   [
+    "C54",
+    "Formula",
+    "=SUM(@E1#)"
+   ],
+   [
+    "G54",
+    "Formula2",
+    "=SUM(@E1#)"
+   ],
+   [
+    "C58",
+    "Formula",
+    "=LET(x,A1:A3,@x)"
+   ],
+   [
+    "G58",
+    "Formula2",
+    "=LET(x,A1:A3,@x)"
+   ],
+   [
+    "C62",
+    "Formula",
+    "=@INDEX(A1:A3,0)"
+   ],
+   [
+    "G62",
+    "Formula2",
+    "=@INDEX(A1:A3,0)"
+   ],
+   [
+    "C66",
+    "Formula",
+    "=@A1:A3%"
+   ],
+   [
+    "G66",
+    "Formula2",
+    "=@A1:A3%"
+   ],
+   [
+    "C70",
+    "Formula",
+    "=SEQUENCE(3)+@A1:A3"
+   ],
+   [
+    "G70",
+    "Formula2",
+    "=SEQUENCE(3)+@A1:A3"
+   ],
+   [
+    "C74",
+    "Formula",
+    "=SINGLE(A1+1)"
+   ],
+   [
+    "G74",
+    "Formula2",
+    "=SINGLE(A1+1)"
+   ],
+   [
+    "C78",
+    "Formula",
+    "=IF(@A1,A1:A3,0)"
+   ],
+   [
+    "G78",
+    "Formula2",
+    "=IF(@A1,A1:A3,0)"
+   ],
+   [
+    "C82",
+    "Formula",
+    "=nosuch+1"
+   ],
+   [
+    "G82",
+    "Formula2",
+    "=nosuch+1"
+   ],
+   [
+    "C86",
+    "Formula",
+    "=SINGLE(A1:A3%)"
+   ],
+   [
+    "G86",
+    "Formula2",
+    "=SINGLE(A1:A3%)"
+   ],
+   [
+    "C90",
+    "Formula",
+    "=SINGLE(A1:A3):A5"
+   ],
+   [
+    "G90",
+    "Formula2",
+    "=SINGLE(A1:A3):A5"
+   ]
+  ],
+  "reads": {
+   "C10": "=@A1~=@A1~1",
+   "G10": "=@A1~=@A1~1",
+   "C14": "=A1:A3~=@A1:A3~#VALUE!",
+   "G14": "=A1:A3~=@A1:A3~#VALUE!",
+   "C18": "=@SUM(A1:A3)~=@SUM(A1:A3)~6",
+   "G18": "=@SUM(A1:A3)~=@SUM(A1:A3)~6",
+   "C22": "=SUM(@A1:A3)~=SUM(@A1:A3)~#VALUE!",
+   "G22": "=SUM(@A1:A3)~=SUM(@A1:A3)~#VALUE!",
+   "C26": "=@(A1:A3)~=@(A1:A3)~#VALUE!",
+   "G26": "=@(A1:A3)~=@(A1:A3)~#VALUE!",
+   "C30": "=@@A1:A3~=@@A1:A3~#VALUE!",
+   "G30": "=@@A1:A3~=@@A1:A3~#VALUE!",
+   "C34": "=@1~=@1~1",
+   "G34": "=@1~=@1~1",
+   "C38": "=@-@A1:A3~=@-@A1:A3~#VALUE!",
+   "G38": "=@-A1:A3~=@-A1:A3~-1",
+   "C42": "=@A1+@A1:A3~=@A1+@A1:A3~#VALUE!",
+   "G42": "=@A1+A1:A3~=@A1+A1:A3~2",
+   "C46": "=@(@A1:A3*2)~=@(@A1:A3*2)~#VALUE!",
+   "G46": "=@(A1:A3*2)~=@(A1:A3*2)~2",
+   "C50": "=E1#~=@E1#~#VALUE!",
+   "G50": "=E1#~=@E1#~#VALUE!",
+   "C54": "=SUM(@E1#)~=SUM(@E1#)~#VALUE!",
+   "G54": "=SUM(@E1#)~=SUM(@E1#)~#VALUE!",
+   "C58": "=LET(x,A1:A3,@x)~=LET(x,A1:A3,@x)~#VALUE!",
+   "G58": "=LET(x,A1:A3,@x)~=LET(x,A1:A3,@x)~#VALUE!",
+   "C62": "=INDEX(A1:A3,0)~=@INDEX(A1:A3,0)~#VALUE!",
+   "G62": "=INDEX(A1:A3,0)~=@INDEX(A1:A3,0)~#VALUE!",
+   "C66": "=A1:A3%~=@A1:A3%~#VALUE!",
+   "G66": "=A1:A3%~=@A1:A3%~#VALUE!",
+   "C70": "=SEQUENCE(3)+A1:A3~=@SEQUENCE(3)+@A1:A3~#VALUE!",
+   "G70": "=SEQUENCE(3)+@A1:A3~=SEQUENCE(3)+@A1:A3~#VALUE!",
+   "C74": "=@A1+1~=@A1+1~2",
+   "G74": "=@A1+1~=@A1+1~2",
+   "C78": "=@IF(@A1,A1:A3,0)~=@IF(@A1,A1:A3,0)~#VALUE!",
+   "G78": "=IF(@A1,A1:A3,0)~=IF(@A1,A1:A3,0)~1",
+   "C82": "=nosuch+1~=@nosuch+1~#NAME?",
+   "G82": "=nosuch+1~=nosuch+1~#NAME?",
+   "C86": "=@@A1:A3%~=@@A1:A3%~#VALUE!",
+   "G86": "=@A1:A3%~=@A1:A3%~0.01",
+   "C90": "=@@A1:A3:A5~=@@A1:A3:A5~#VALUE!",
+   "G90": "=@A1:A3:A5~=@A1:A3:A5~#VALUE!"
+  },
+  "parts": {
+   "[Content_Types].xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Types xmlns=\"http://schemas.openxmlformats.org/package/2006/content-types\"><Default Extension=\"rels\" ContentType=\"application/vnd.openxmlformats-package.relationships+xml\"/><Default Extension=\"xml\" ContentType=\"application/xml\"/><Override PartName=\"/xl/workbook.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\"/><Override PartName=\"/xl/worksheets/sheet1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml\"/><Override PartName=\"/xl/theme/theme1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.theme+xml\"/><Override PartName=\"/xl/styles.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml\"/><Override PartName=\"/xl/metadata.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheetMetadata+xml\"/><Override PartName=\"/xl/calcChain.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.calcChain+xml\"/><Override PartName=\"/docProps/core.xml\" ContentType=\"application/vnd.openxmlformats-package.core-properties+xml\"/><Override PartName=\"/docProps/app.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.extended-properties+xml\"/></Types>",
+   "xl/worksheets/sheet1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x14ac xr xr2 xr3\" xmlns:x14ac=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr2=\"http://schemas.microsoft.com/office/spreadsheetml/2015/revision2\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" xr:uid=\"{134CF82C-E792-4A91-980F-40C7C5A9938B}\"><dimension ref=\"A1:G90\"/><sheetViews><sheetView tabSelected=\"1\" workbookViewId=\"0\"/></sheetViews><sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/><sheetData><row r=\"1\" spans=\"1:7\" x14ac:dyDescent=\"0.25\"><c r=\"A1\"><v>1</v></c><c r=\"E1\" cm=\"1\"><f t=\"array\" ref=\"E1:E3\">_xlfn.SEQUENCE(3)</f><v>1</v></c></row><row r=\"2\" spans=\"1:7\" x14ac:dyDescent=\"0.25\"><c r=\"A2\"><v>2</v></c><c r=\"E2\"><v>2</v></c></row><row r=\"3\" spans=\"1:7\" x14ac:dyDescent=\"0.25\"><c r=\"A3\"><v>3</v></c><c r=\"E3\"><v>3</v></c></row><row r=\"10\" spans=\"1:7\" x14ac:dyDescent=\"0.25\"><c r=\"C10\"><f>_xlfn.SINGLE(A1)</f><v>1</v></c><c r=\"G10\"><f>_xlfn.SINGLE(A1)</f><v>1</v></c></row><row r=\"14\" spans=\"1:7\" x14ac:dyDescent=\"0.25\"><c r=\"C14\" t=\"e\"><f>A1:A3</f><v>#VALUE!</v></c><c r=\"G14\" t=\"e\"><f>A1:A3</f><v>#VALUE!</v></c></row><row r=\"18\" spans=\"3:7\" x14ac:dyDescent=\"0.25\"><c r=\"C18\"><f>_xlfn.SINGLE(SUM(A1:A3))</f><v>6</v></c><c r=\"G18\"><f>_xlfn.SINGLE(SUM(A1:A3))</f><v>6</v></c></row><row r=\"22\" spans=\"3:7\" x14ac:dyDescent=\"0.25\"><c r=\"C22\" t=\"e\"><f>SUM(_xlfn.SINGLE(A1:A3))</f><v>#VALUE!</v></c><c r=\"G22\" t=\"e\"><f>SUM(_xlfn.SINGLE(A1:A3))</f><v>#VALUE!</v></c></row><row r=\"26\" spans=\"3:7\" x14ac:dyDescent=\"0.25\"><c r=\"C26\" t=\"e\"><f>_xlfn.SINGLE((A1:A3))</f><v>#VALUE!</v></c><c r=\"G26\" t=\"e\"><f>_xlfn.SINGLE((A1:A3))</f><v>#VALUE!</v></c></row><row r=\"30\" spans=\"3:7\" x14ac:dyDescent=\"0.25\"><c r=\"C30\" t=\"e\"><f>_xlfn.SINGLE(_xlfn.SINGLE(A1:A3))</f><v>#VALUE!</v></c><c r=\"G30\" t=\"e\"><f>_xlfn.SINGLE(_xlfn.SINGLE(A1:A3))</f><v>#VALUE!</v></c></row><row r=\"34\" spans=\"3:7\" x14ac:dyDescent=\"0.25\"><c r=\"C34\"><f>_xlfn.SINGLE(1)</f><v>1</v></c><c r=\"G34\"><f>_xlfn.SINGLE(1)</f><v>1</v></c></row><row r=\"38\" spans=\"3:7\" x14ac:dyDescent=\"0.25\"><c r=\"C38\" t=\"e\"><f>_xlfn.SINGLE(-_xlfn.SINGLE(A1:A3))</f><v>#VALUE!</v></c><c r=\"G38\" cm=\"1\"><f t=\"array\" ref=\"G38\">_xlfn.SINGLE(-A1:A3)</f><v>-1</v></c></row><row r=\"42\" spans=\"3:7\" x14ac:dyDescent=\"0.25\"><c r=\"C42\" t=\"e\"><f>_xlfn.SINGLE(A1)+_xlfn.SINGLE(A1:A3)</f><v>#VALUE!</v></c><c r=\"G42\" cm=\"1\"><f t=\"array\" ref=\"G42:G44\">_xlfn.SINGLE(A1)+A1:A3</f><v>2</v></c></row><row r=\"43\" spans=\"3:7\" x14ac:dyDescent=\"0.25\"><c r=\"G43\"><v>3</v></c></row><row r=\"44\" spans=\"3:7\" x14ac:dyDescent=\"0.25\"><c r=\"G44\"><v>4</v></c></row><row r=\"46\" spans=\"3:7\" x14ac:dyDescent=\"0.25\"><c r=\"C46\" t=\"e\"><f>_xlfn.SINGLE((_xlfn.SINGLE(A1:A3)*2))</f><v>#VALUE!</v></c><c r=\"G46\" cm=\"1\"><f t=\"array\" ref=\"G46\">_xlfn.SINGLE((A1:A3*2))</f><v>2</v></c></row><row r=\"50\" spans=\"3:7\" x14ac:dyDescent=\"0.25\"><c r=\"C50\" t=\"e\"><f>_xlfn.ANCHORARRAY(E1)</f><v>#VALUE!</v></c><c r=\"G50\" t=\"e\"><f>_xlfn.ANCHORARRAY(E1)</f><v>#VALUE!</v></c></row><row r=\"54\" spans=\"3:7\" x14ac:dyDescent=\"0.25\"><c r=\"C54\" t=\"e\"><f>SUM(_xlfn.SINGLE(_xlfn.ANCHORARRAY(E1)))</f><v>#VALUE!</v></c><c r=\"G54\" t=\"e\"><f>SUM(_xlfn.SINGLE(_xlfn.ANCHORARRAY(E1)))</f><v>#VALUE!</v></c></row><row r=\"58\" spans=\"3:7\" x14ac:dyDescent=\"0.25\"><c r=\"C58\" t=\"e\"><f>_xlfn.LET(_xlpm.x,A1:A3,_xlfn.SINGLE(_xlpm.x))</f><v>#VALUE!</v></c><c r=\"G58\" t=\"e\"><f>_xlfn.LET(_xlpm.x,A1:A3,_xlfn.SINGLE(_xlpm.x))</f><v>#VALUE!</v></c></row><row r=\"62\" spans=\"3:7\" x14ac:dyDescent=\"0.25\"><c r=\"C62\" t=\"e\"><f>INDEX(A1:A3,0)</f><v>#VALUE!</v></c><c r=\"G62\" t=\"e\"><f>INDEX(A1:A3,0)</f><v>#VALUE!</v></c></row><row r=\"66\" spans=\"3:7\" x14ac:dyDescent=\"0.25\"><c r=\"C66\" t=\"e\"><f>A1:A3%</f><v>#VALUE!</v></c><c r=\"G66\" t=\"e\"><f>A1:A3%</f><v>#VALUE!</v></c></row><row r=\"70\" spans=\"3:7\" x14ac:dyDescent=\"0.25\"><c r=\"C70\" t=\"e\"><f>_xlfn.SEQUENCE(3)+A1:A3</f><v>#VALUE!</v></c><c r=\"G70\" t=\"e\" cm=\"1\"><f t=\"array\" ref=\"G70:G72\">_xlfn.SEQUENCE(3)+_xlfn.SINGLE(A1:A3)</f><v>#VALUE!</v></c></row><row r=\"71\" spans=\"3:7\" x14ac:dyDescent=\"0.25\"><c r=\"G71\" t=\"e\"><v>#VALUE!</v></c></row><row r=\"72\" spans=\"3:7\" x14ac:dyDescent=\"0.25\"><c r=\"G72\" t=\"e\"><v>#VALUE!</v></c></row><row r=\"74\" spans=\"3:7\" x14ac:dyDescent=\"0.25\"><c r=\"C74\"><f>_xlfn.SINGLE(A1+1)</f><v>2</v></c><c r=\"G74\"><f>_xlfn.SINGLE(A1+1)</f><v>2</v></c></row><row r=\"78\" spans=\"3:7\" x14ac:dyDescent=\"0.25\"><c r=\"C78\" t=\"e\"><f>_xlfn.SINGLE(IF(_xlfn.SINGLE(A1),A1:A3,0))</f><v>#VALUE!</v></c><c r=\"G78\" cm=\"1\"><f t=\"array\" ref=\"G78:G80\">IF(_xlfn.SINGLE(A1),A1:A3,0)</f><v>1</v></c></row><row r=\"79\" spans=\"3:7\" x14ac:dyDescent=\"0.25\"><c r=\"G79\"><v>2</v></c></row><row r=\"80\" spans=\"3:7\" x14ac:dyDescent=\"0.25\"><c r=\"G80\"><v>3</v></c></row><row r=\"82\" spans=\"3:7\" x14ac:dyDescent=\"0.25\"><c r=\"C82\" t=\"e\"><f>nosuch+1</f><v>#NAME?</v></c><c r=\"G82\" t=\"e\" cm=\"1\"><f t=\"array\" ref=\"G82\">nosuch+1</f><v>#NAME?</v></c></row><row r=\"86\" spans=\"3:7\" x14ac:dyDescent=\"0.25\"><c r=\"C86\" t=\"e\"><f>_xlfn.SINGLE(_xlfn.SINGLE(A1:A3)%)</f><v>#VALUE!</v></c><c r=\"G86\" cm=\"1\"><f t=\"array\" ref=\"G86\">_xlfn.SINGLE(A1:A3%)</f><v>0.01</v></c></row><row r=\"90\" spans=\"3:7\" x14ac:dyDescent=\"0.25\"><c r=\"C90\" t=\"e\"><f>_xlfn.SINGLE(_xlfn.SINGLE(A1:A3):A5)</f><v>#VALUE!</v></c><c r=\"G90\" t=\"e\" cm=\"1\"><f t=\"array\" ref=\"G90\">_xlfn.SINGLE(A1:A3):A5</f><v>#VALUE!</v></c></row></sheetData><pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/></worksheet>",
+   "xl/metadata.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<metadata xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:xda=\"http://schemas.microsoft.com/office/spreadsheetml/2017/dynamicarray\"><metadataTypes count=\"1\"><metadataType name=\"XLDAPR\" minSupportedVersion=\"120000\" copy=\"1\" pasteAll=\"1\" pasteValues=\"1\" merge=\"1\" splitFirst=\"1\" rowColShift=\"1\" clearFormats=\"1\" clearComments=\"1\" assign=\"1\" coerce=\"1\" cellMeta=\"1\"/></metadataTypes><futureMetadata name=\"XLDAPR\" count=\"1\"><bk><extLst><ext uri=\"{bdbb8cdc-fa1e-496e-a857-3c3f30c029c3}\"><xda:dynamicArrayProperties fDynamic=\"1\" fCollapsed=\"0\"/></ext></extLst></bk></futureMetadata><cellMetadata count=\"1\"><bk><rc t=\"1\" v=\"0\"/></bk></cellMetadata></metadata>"
+  }
+ }
+}

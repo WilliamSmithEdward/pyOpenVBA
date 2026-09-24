@@ -30,6 +30,15 @@ SUM(@A1:A3*2); or whole, cutting nothing inside (SUMPRODUCT, MMULT and
 the functions that give arrays). IF, CHOOSE, IFERROR and IFNA hand a
 choice on untouched, and so do LET for what it binds and returns and a
 LAMBDA for its result, a name they bind standing for what it is given.
+A name the workbook does not define could be such cells, and takes one.
+
+An @ written in a formula is a call of SINGLE, which takes what it holds
+as a range: =@(A1:A3*2) cuts the operation inside, =@(@A1:A3*2). Written
+through Range.Formula, an @ standing where the formula cuts anyway is
+that cut and is left out, =@A1:A3 being =A1:A3, but not one over
+something in brackets, @(A1:A3); any other is kept, and then Range.Formula
+reads the formula back with every @ Formula2 shows: =@A1+A1:A3 is
+=@A1+@A1:A3 (tests/fixtures/at_sign.json, see :func:`written`).
 """
 
 from __future__ import annotations
@@ -45,6 +54,7 @@ from pyopenvba.formula._calc.registry import FUNCTIONS
 from pyopenvba.formula._deep import deep
 from pyopenvba.formula._parse import (ArrayLiteral, Binary, Call, FormulaError, Invoke, Literal, NameNode, Node,
                                       Reference, Structured, Unary, parse, parse_placed, tokenize)
+from pyopenvba.formula._prefixes import at_kept, intersected
 
 #: How a function takes each argument, by position, where it is not as one value (V) throughout: R as a range, A
 #: whole. Past the last position given the last ones repeat, as many as the function's repeating arguments.
@@ -102,8 +112,8 @@ _ROLES: Final[dict[str, str]] = {
 _ARRAYS: Final = frozenset("""
 BYCOL BYROW CELL CHOOSECOLS CHOOSEROWS DROP EUROCONVERT EXPAND FILTER FILTERXML FREQUENCY GROUPBY GROWTH HSTACK IFS
 INDIRECT LAMBDA LINEST LOGEST MAKEARRAY MAP MINVERSE MMULT MODE.MULT MUNIT PIVOTBY RANDARRAY REDUCE REGEXEXTRACT
-SCAN SEQUENCE SINGLE SORT SORTBY STOCKHISTORY SWITCH TAKE TEXTSPLIT TOCOL TOROW TRANSPOSE TREND TRIMRANGE UNIQUE
-VSTACK WRAPCOLS WRAPROWS
+SCAN SEQUENCE SORT SORTBY STOCKHISTORY SWITCH TAKE TEXTSPLIT TOCOL TOROW TRANSPOSE TREND TRIMRANGE UNIQUE VSTACK
+WRAPCOLS WRAPROWS
 """.split())
 #: The functions that hand some of their arguments on untouched, and which: CHOOSE's from the second on.
 _CHOICES: Final[dict[str, Callable[[int], bool]]] = {
@@ -129,6 +139,11 @@ class _Walk:
     bound: list[dict[str, bool]] = field(default_factory=lambda: [])
     #: How many calls the walk is inside.
     calls: int = 0
+    #: The formula's text after its =, and whether the walk looks for the @ Range.Formula leaves out, which it notes
+    #: in ``merged`` by where each stands (see :func:`written`).
+    body: str = ""
+    merging: bool = False
+    merged: set[int] = field(default_factory=lambda: set())
 
     def visit(self, node: Node | None, where: str) -> bool:
         """Mark where ``node`` takes an @ standing ``where``, and say whether it can give several values then."""
@@ -158,8 +173,7 @@ class _Walk:
             return self._name(node)
         if isinstance(node, Unary):
             if node.op == "@":
-                self.visit(node.operand, WHOLE)
-                return False
+                return self._at(node, where)
             if node.op == "#":
                 # What spilled from a cell, E1#, is cut at the formula's top, =E1#+1 reading back =@E1#+1, and in no
                 # function's argument: SUM(E1#*2) and TRANSPOSE(E1#) take none (tests/fixtures/implicit_intersection.json).
@@ -181,6 +195,19 @@ class _Walk:
             return self._call(node, where)
         return False
 
+    def _at(self, node: Unary, where: str) -> bool:
+        """An @, a call of SINGLE: one value, from what it holds taken as a range. Merging, an @ standing where one
+        value is wanted, over something the formula cuts there anyway and not in brackets, is noted as that cut."""
+        if self.merging and where == VALUE and not self.body[self.starts[id(node)] + 1:].lstrip().startswith("("):
+            marks, merged = set(self.marks), set(self.merged)
+            if self._many(node.operand, VALUE) and self._takes(node.operand):
+                self.merged.add(self.starts[id(node)])
+                return False
+            # Kept: what it holds is walked again, as SINGLE takes it.
+            self.marks, self.merged = marks, merged
+        self.visit(node.operand, RANGE)
+        return False
+
     def _name(self, node: NameNode) -> bool:
         key = node.name.upper()
         if not node.sheet:
@@ -189,7 +216,8 @@ class _Walk:
                     return scope[key]
         formula = self.named(node.name if not node.sheet else f"{node.sheet}!{node.name}")
         if formula is None:
-            return False
+            # What a name the workbook does not define stands for is not known (tests/fixtures/at_sign.json).
+            return True
         try:
             tree = parse(formula)
         except FormulaError:
@@ -363,15 +391,33 @@ def _formula2(formula: str, named: Callable[[str], str | None], *, whole: bool) 
     walk.visit(tree, WHOLE if whole else VALUE)
     body = formula[1:] if formula.startswith("=") else formula
     for start in sorted(walk.marks, reverse=True):
+        # An @ stands in front of the spaces before what it cuts: = A1:A3 reads back =@ A1:A3
+        # (tests/fixtures/at_sign.json).
+        while start and body[start - 1].isspace():
+            start -= 1
         body = body[:start] + "@" + body[start:]
     return "=" + body
 
 
-def legacy(formula: str) -> str:
-    """A formula as Formula2 spells it, its @ taken out: what Range.Formula would write for it."""
+def written(formula: str, named: Callable[[str], str | None]) -> str:
+    """``formula``, as Range.Formula is given it, as Range.Formula writes it and reads it back: a call of SINGLE
+    written as an @; an @ standing where the formula cuts anyway left out, =@A1:A3 written =A1:A3; and where an @
+    is kept, =@A1+A1:A3, every @ Formula2 shows written out, =@A1+@A1:A3. ``named`` as for :func:`formula2`."""
+    formula = at_kept(formula)
+    if not intersected(formula):
+        return formula
+    return deep(lambda: _written(formula, named))
+
+
+def _written(formula: str, named: Callable[[str], str | None]) -> str:
+    tree, starts = parse_placed(formula)
     body = formula[1:] if formula.startswith("=") else formula
+    walk = _Walk(starts, named, body=body, merging=True)
+    walk.visit(tree, VALUE)
     tokens = tokenize(body, spaces=True)
-    return "=" + "".join(token.text for token in tokens if not (token.kind == "op" and token.text == "@"))
+    kept = "=" + "".join(token.text for token in tokens
+                         if not (token.kind == "op" and token.text == "@" and token.at in walk.merged))
+    return _formula2(kept, named, whole=False) if intersected(kept) else kept
 
 
-__all__ = ["UnreadFormula2Error", "formula2", "legacy"]
+__all__ = ["UnreadFormula2Error", "formula2", "written"]

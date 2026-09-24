@@ -745,6 +745,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
   and PV round as Excel does where the payment and the balance cancel:
   `RATE(10,-100,1000)` is -1.96E-10, not 0. This is pyOfficeEditor's
   ed27bf2, taken into the engine.
+- XIRR finds its root as Excel does, by halving a bracket from the guess
+  rather than by Newton's method, and stops where Excel stops, to the bit:
+  `XIRR({-1,2},{1,2})` is Excel's rate, where the engine went on to
+  7.5E+109. This is pyOfficeEditor's 94ea041, held there to 2,183 probes.
 - `INDEX(A1:B2,2)`, one index into cells in rows and columns, is #REF! as
   in Excel; the engine gave row 2. `INDEX(A1:B2,2,)` is still row 2.
 - A `+` before a reference reads its cells as values, as Excel does:

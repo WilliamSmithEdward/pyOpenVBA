@@ -2,7 +2,7 @@
 
 Cells are worked out by `pyopenvba.formula._calc`, pyOfficeEditor's
 formula engine (`pyofficeeditor.excel._calc`), copied in from its commit
-ed27bf2 with its imports pointed at pyOpenVBA. Its modules keep their
+94ea041 with its imports pointed at pyOpenVBA. Its modules keep their
 names, so the next copy is a diff of the same files:
 
 ```console
@@ -16,7 +16,8 @@ and a new copy has to keep them or show they are no longer needed. A
 module both projects changed is merged three ways, pyOfficeEditor's
 module at the commit last copied being the base, rewritten as the script
 rewrites it: `git merge-file` took `functions/financial.py` from 098e441
-to ed27bf2 so.
+to ed27bf2 so, and 94ea041's XIRR, which touched no line pyOpenVBA
+changed, went in as its diff.
 `tests/test_excel_formula_corpus.py` runs pyOfficeEditor's own corpus
 through the copy, so both sets of measurements hold at once.
 

@@ -55,9 +55,9 @@ NEAR: dict[str, int] = {
     "LINEST": 4, "TREND": 1, "GEOMEAN": 1,
 }  # fmt: skip
 
-#: Functions Excel solves by iteration, stopping short of the root; the engine converges fully, and the two agree to
-#: this fraction of the result. RATE and IRR follow Excel's own iterations, to the bit.
-ITERATIVE: dict[str, float] = {"XIRR": 1e-8, "YIELD": 1e-12}
+#: YIELD, which Excel solves by iteration, stopping short of the root; the engine converges fully, and the two agree
+#: to this fraction of the result. RATE, IRR and XIRR follow Excel's own iterations, to the bit.
+ITERATIVE: dict[str, float] = {"YIELD": 1e-12}
 
 
 @pytest.fixture(scope="module")

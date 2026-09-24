@@ -10,10 +10,10 @@ the exception, being within one unit of exact, so it is computed exactly
 and rounded once.
 
 RATE, IRR, XIRR and YIELD solve by iteration, and Excel stops short of
-the root. RATE and IRR follow Excel's own iterations step by step, so they
-stop where it does, to the bit. XIRR, which Excel takes to within its
-documented 0.000001 percent, and YIELD converge fully, so they agree with
-Excel to that accuracy and not to the bit.
+the root. RATE, IRR and XIRR follow Excel's own iterations step by step,
+so they stop where it does, to the bit. YIELD converges fully, so it
+agrees with Excel to a few hundred units in the last place and not to the
+bit.
 """
 
 from __future__ import annotations
@@ -349,10 +349,18 @@ def _number(item: Scalar) -> float:
 
 
 def _xnpv(rate: float, amounts: list[float], days: list[int]) -> float:
-    total = 0.0
+    return _xnpv_sums(rate, amounts, days)[0]
+
+
+def _xnpv_sums(rate: float, amounts: list[float], days: list[int]) -> tuple[float, float]:
+    """The amounts discounted to the first day at ``rate`` and summed, as
+    XNPV sums them, and the sum of their sizes."""
+    total = size = 0.0
     for amount, day in zip(amounts, days, strict=True):
-        total += amount / _power(1 + rate, (day - days[0]) / 365)
-    return total
+        term = amount / _power(1 + rate, (day - days[0]) / 365)
+        total += term
+        size += abs(term)
+    return total, size
 
 
 @function("XNPV", V, R, R)
@@ -408,13 +416,82 @@ def XIRR(context: Context, values: Value, when: Value, guess: Scalar | None = No
         return NA
     if not (any(amount > 0 for amount in amounts) and any(amount < 0 for amount in amounts)):
         return NUM
-    start = _optional(context, guess, 0.1)
-    years = [(day - days[0]) / 365 for day in days]
+    return checked(_xirr(amounts, days, _optional(context, guess, 0.1)))
 
-    def slope(rate: float) -> float:
-        return precise.summed(-year * amount / (1 + rate) ** (year + 1) for amount, year in zip(amounts, years, strict=True))
 
-    return checked(_newton(lambda rate: _xnpv(rate, amounts, days), slope, start))
+def _xirr(amounts: list[float], days: list[int], guess: float) -> float:
+    """XIRR's root, found as Excel finds it.
+
+    Measured: not Newton's method but halving. The residual takes the first
+    amount's sign once the rate passes the root, and a rate whose residual
+    has that sign, or is 0, counts as past it. From the guess g, a root
+    above a positive guess is sought in [g, 2g], then [2g, 4g] and on, each
+    twice the last; above a negative one only in [g, 0]. Below a positive
+    guess it is sought in [0, g], [-g, 0] and [-1, -g] in turn, below a
+    negative one in [-1, g]; a guess at or below -1 is #NUM!, and a guess
+    of 0 is taken as 0.00001. The bracket is halved from its top,
+    ``hi - (hi - lo) / 2``, until it is narrower than 1e-8 of
+    ``0.5 + |mid|`` and the residual is under 1e-8 of the sum of the
+    discounted amounts' sizes, and the last midpoint is the answer. Held to
+    2,183 of 2,183 probes bit for bit, a root exactly at a bracket's end
+    among them.
+    """
+    if guess <= -1:
+        raise ExcelError(NUM)
+    if guess == 0:
+        guess = 1e-5
+
+    def past(rate: float) -> bool:
+        return _past_root(_xnpv_sums(rate, amounts, days)[0], amounts)
+
+    if not past(guess):
+        low, high = guess, precise.add(guess, guess) if guess > 0 else 0.0
+        for _ in range(_XIRR_STEPS):
+            if high <= low:
+                break
+            if past(high):
+                return _xirr_halved(amounts, days, low, high)
+            low, high = high, precise.multiply(high, 2.0)
+        raise ExcelError(NUM)
+    if guess < 0:
+        return _xirr_halved(amounts, days, -1.0, guess)
+    top = guess
+    for low in (0.0, -guess):
+        if low <= -1:
+            raise ExcelError(NUM)
+        if not past(low):
+            return _xirr_halved(amounts, days, low, top)
+        top = low
+    return _xirr_halved(amounts, days, -1.0, top)
+
+
+def _past_root(residual: float, amounts: list[float]) -> bool:
+    """Whether a rate with this XNPV lies at or past XIRR's root: the
+    residual is 0 or has the first amount's sign."""
+    return residual == 0 or (residual > 0) == (amounts[0] > 0)
+
+
+def _xirr_halved(amounts: list[float], days: list[int], low: float, high: float) -> float:
+    """The root in ``[low, high]`` by halving, to XIRR's tolerances; the
+    residual is never taken at ``low``, which may be -1."""
+    for _ in range(_XIRR_STEPS):
+        middle = precise.subtract(high, precise.divide(precise.subtract(high, low), 2.0))
+        if middle <= -1:
+            break
+        at_middle, size = _xnpv_sums(middle, amounts, days)
+        if _past_root(at_middle, amounts):
+            high = middle
+        else:
+            low = middle
+        if precise.subtract(high, low) < _XIRR_CLOSE * (0.5 + abs(middle)) and abs(at_middle) < _XIRR_CLOSE * size:
+            return middle
+    raise ExcelError(NUM)
+
+
+#: XIRR's limit on halving or widening steps, and its tolerance, the
+#: documented 0.000001 percent.
+_XIRR_STEPS = 100
+_XIRR_CLOSE = 1e-8
 
 
 @function("IRR", R, V, minimum=1)

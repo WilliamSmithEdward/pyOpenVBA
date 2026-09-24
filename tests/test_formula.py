@@ -88,8 +88,6 @@ _AMORDEGRC = "Excel's AMORDEGRC has other coefficients and ends an asset's life 
 
 #: Probes the engine does not answer as Excel does yet, and why.
 GAPS: dict[str, str] = {
-    "=XIRR({-1,2},{1,2})": "Excel's iteration stops short of a rate as large as 7.5E+109, which the engine's finds; "
-                           "how Excel's stops is not yet worked out",
     **dict.fromkeys((f"=AMORDEGRC({arguments})" for arguments in (
         "1,1,1,1,1,1", "1000,1,100,100,1,2", "1000,1,100,100,1,1", "1000,1,100,100,1,0.5", "1000,1,100,100,1,0.4",
         "1000,1,100,100,1,0.22")), _AMORDEGRC),

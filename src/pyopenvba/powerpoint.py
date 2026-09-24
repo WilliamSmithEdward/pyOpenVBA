@@ -26,6 +26,7 @@ from pathlib import Path
 
 from pyopenvba._host import VBAHostFile
 from pyopenvba.cfb import CFB
+from pyopenvba.vba import VBAProject
 
 _ZIP_FORMATS = frozenset({".pptm", ".potm"})
 _CFB_FORMATS = frozenset({".ppt"})
@@ -49,6 +50,19 @@ class PowerPointFile(VBAHostFile):
     _application = "PowerPoint"
     # A binary presentation embeds its project in a record, found by _vba_cfb_bytes.
     _project_storage = None
+    _project_formats = frozenset({".pptm"})
+    _main_part = "ppt/presentation.xml"
+
+    # A new project, as PowerPoint makes one: empty, and not written until
+    # it holds a module.
+
+    def _project_template(self) -> bytes:
+        from pyopenvba._templates import EMPTY_PPTM_BYTES
+
+        return EMPTY_PPTM_BYTES
+
+    def _writes_project(self, project: VBAProject) -> bool:
+        return bool(project.modules)
 
     # ------------------------------------------------------------------
     # Legacy container: the VBA project is embedded, not at the root

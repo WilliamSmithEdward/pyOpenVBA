@@ -1638,9 +1638,12 @@ def serialize_project_stream(
         and keys inside ``[Workspace]``.
     ``add_modules``:
         Sequence of ``(name, declaration_key)`` pairs where ``declaration_key``
-        is either ``"Module"`` (standard) or ``"Class"`` (class / other).
-        Each pair is appended as ``"<key>=<name>"`` after the existing
-        declarations and a matching ``[Workspace]`` entry is appended.
+        is ``"Module"`` (standard), ``"Class"`` (class / other),
+        ``"BaseClass"`` (a form) or ``"Document"`` (a workbook, sheet or
+        document module).  Each pair is appended as ``"<key>=<name>"``,
+        a document as ``"Document=<name>/&H00000000"`` as Office writes
+        one, after the existing declarations, and a matching
+        ``[Workspace]`` entry is appended.
     ``delete_names``:
         Logical names to remove.  Any ``Module=NAME`` / ``Class=NAME`` /
         ``BaseClass=NAME`` / ``Document=NAME/...`` line with a matching name
@@ -1754,7 +1757,8 @@ def serialize_project_stream(
     ]
     if fresh_adds:
         insert_at = last_decl_idx + 1 if last_decl_idx >= 0 else _project_section_end(out_lines)
-        new_decl_lines = [f"{decl_key}={name}" for name, decl_key in fresh_adds]
+        new_decl_lines = [f"Document={name}/&H00000000" if decl_key == "Document" else f"{decl_key}={name}"
+                          for name, decl_key in fresh_adds]
         out_lines[insert_at:insert_at] = new_decl_lines
         for name, _ in fresh_adds:
             seen_decls.add(name.casefold())

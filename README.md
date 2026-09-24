@@ -872,6 +872,23 @@ with ExcelFile("book.xlsm") as wb:
         print(wb.module_names())
 ```
 
+`add_vba_project()` gives a `.xlsm`, `.docm` or `.pptm` a project, the
+one its application makes for a first macro. In Excel that is a
+document module for the workbook and one for each sheet, named as Excel
+names them; in Word it is `ThisDocument`; in PowerPoint it is empty. Add
+modules to it and save:
+
+```python
+with ExcelFile("book.xlsm") as wb:
+    if not wb.has_vba_project():
+        wb.add_vba_project().add_module("Module1", "Public Sub Hello()\r\nEnd Sub\r\n")
+    wb.save()
+```
+
+A project its application would not write is not written here either:
+Excel writes only the code names for one with no code in it, and
+PowerPoint nothing for one with no module.
+
 ### Access
 
 | Extension | What it is                   | Read | Write | create_new |

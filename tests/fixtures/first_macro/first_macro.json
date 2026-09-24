@@ -1,0 +1,191 @@
+{
+ "excel": {
+  "suffix": "xlsm",
+  "resave_changes": [
+   "xl/workbook.xml"
+  ],
+  "module_changes": [
+   "[Content_Types].xml",
+   "xl/_rels/workbook.xml.rels",
+   "xl/chartsheets/sheet1.xml",
+   "xl/vbaProject.bin",
+   "xl/workbook.xml",
+   "xl/worksheets/sheet1.xml",
+   "xl/worksheets/sheet2.xml",
+   "xl/worksheets/sheet3.xml"
+  ],
+  "emptied_changes": [
+   "docProps/core.xml",
+   "xl/chartsheets/sheet1.xml",
+   "xl/workbook.xml",
+   "xl/worksheets/sheet1.xml",
+   "xl/worksheets/sheet2.xml",
+   "xl/worksheets/sheet3.xml"
+  ],
+  "module": {
+   "components": [
+    [
+     "ThisWorkbook",
+     "100"
+    ],
+    [
+     "Sheet1",
+     "100"
+    ],
+    [
+     "Sheet2",
+     "100"
+    ],
+    [
+     "Chart3",
+     "100"
+    ],
+    [
+     "Sheet4",
+     "100"
+    ],
+    [
+     "Module1",
+     "1"
+    ]
+   ],
+   "code_names": [
+    [
+     "Notes",
+     "Sheet1"
+    ],
+    [
+     "Data",
+     "Sheet2"
+    ],
+    [
+     "Chart1",
+     "Chart3"
+    ],
+    [
+     "Summary",
+     "Sheet4"
+    ]
+   ],
+   "workbook_code_name": "ThisWorkbook"
+  },
+  "emptied": {
+   "components": [
+    [
+     "ThisWorkbook",
+     "100"
+    ],
+    [
+     "Sheet1",
+     "100"
+    ],
+    [
+     "Sheet2",
+     "100"
+    ],
+    [
+     "Chart3",
+     "100"
+    ],
+    [
+     "Sheet4",
+     "100"
+    ]
+   ],
+   "code_names": [
+    [
+     "Notes",
+     "Sheet1"
+    ],
+    [
+     "Data",
+     "Sheet2"
+    ],
+    [
+     "Chart1",
+     "Chart3"
+    ],
+    [
+     "Summary",
+     "Sheet4"
+    ]
+   ],
+   "workbook_code_name": "ThisWorkbook"
+  }
+ },
+ "word": {
+  "suffix": "docm",
+  "resave_changes": [
+   "docProps/core.xml",
+   "word/settings.xml"
+  ],
+  "module_changes": [
+   "[Content_Types].xml",
+   "word/_rels/document.xml.rels",
+   "word/_rels/vbaProject.bin.rels",
+   "word/settings.xml",
+   "word/vbaData.xml",
+   "word/vbaProject.bin"
+  ],
+  "emptied_changes": [
+   "[Content_Types].xml",
+   "word/_rels/document.xml.rels",
+   "word/settings.xml",
+   "word/vbaProject.bin"
+  ],
+  "module": {
+   "components": [
+    [
+     "ThisDocument",
+     "100"
+    ],
+    [
+     "Module1",
+     "1"
+    ]
+   ],
+   "code_names": [],
+   "workbook_code_name": ""
+  },
+  "emptied": {
+   "components": [
+    [
+     "ThisDocument",
+     "100"
+    ]
+   ],
+   "code_names": [],
+   "workbook_code_name": ""
+  }
+ },
+ "powerpoint": {
+  "suffix": "pptm",
+  "resave_changes": [
+   "docProps/core.xml"
+  ],
+  "module_changes": [
+   "[Content_Types].xml",
+   "docProps/core.xml",
+   "ppt/_rels/presentation.xml.rels",
+   "ppt/vbaProject.bin"
+  ],
+  "emptied_changes": [
+   "docProps/core.xml"
+  ],
+  "module": {
+   "components": [
+    [
+     "Module1",
+     "1"
+    ]
+   ],
+   "code_names": [],
+   "workbook_code_name": ""
+  },
+  "emptied": {
+   "components": [],
+   "code_names": [],
+   "workbook_code_name": ""
+  }
+ }
+}

@@ -45,6 +45,19 @@ class WordFile(VBAHostFile):
     _host_noun = "document"
     _application = "Word"
     _project_storage = "Macros"
+    _project_formats = frozenset({".docm"})
+    _main_part = "word/document.xml"
+
+    # A new project, as Word makes one: ThisDocument, from the Normal
+    # template, which Word writes even when it is all the project holds.
+
+    def _project_template(self) -> bytes:
+        from pyopenvba._templates import EMPTY_DOCM_BYTES
+
+        return EMPTY_DOCM_BYTES
+
+    def _new_documents(self) -> list[tuple[str, str | None]]:
+        return [("ThisDocument", None)]
 
     @classmethod
     def create_new(cls, path: str | Path) -> WordFile:

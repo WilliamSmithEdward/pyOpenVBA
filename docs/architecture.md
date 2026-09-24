@@ -333,6 +333,14 @@ raises `NoVBAProjectError`, which names the file and the application its
 first macro has to be written in. A project that is there but broken is
 still a `VBAProjectError` of its own.
 
+`add_vba_project()` gives a `.xlsm`, `.docm` or `.pptm` a project built
+from the host's template, shaped to what its application makes for a
+first macro and written through the same save steps as any other
+project change (`_apply_project`). `_new_project.py` holds the measured
+rules: Excel's code names and where it writes them, which projects each
+application writes at all, and the relationship and content type a
+written one needs (`scripts/measure_first_macro.py`).
+
 ---
 
 ## 5a. UserForm designer streams

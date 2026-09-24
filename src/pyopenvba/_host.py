@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import ClassVar, TypeVar
 
 from pyopenvba.cfb import CFB
+from pyopenvba._new_project import with_project
 from pyopenvba._package_signature import signature_parts, without_signature
 from pyopenvba._references import ReferenceManager, module_offset, reference_spans
 from pyopenvba.exceptions import NoVBAProjectError, UnsupportedFormatError, VBAProjectError
@@ -88,6 +89,10 @@ class VBAHostFile(ReferenceManager):
     _host_noun: ClassVar[str]
     _application: ClassVar[str]
     _project_storage: ClassVar[str | None]
+    #: The formats add_vba_project gives a project to, each measured against its application.
+    _project_formats: ClassVar[frozenset[str]] = frozenset()
+    #: The package part a zip-based file's project is related from.
+    _main_part: ClassVar[str] = ""
 
     def __init__(self, path: str | Path) -> None:
         self._path = Path(path)
@@ -98,6 +103,9 @@ class VBAHostFile(ReferenceManager):
         self._container_raw: bytes = b""
         self._forms: list[VBAForm] | None = None
         self._has_project = True
+        # Set by add_vba_project: the project is not in the package yet, and these are its document modules.
+        self._project_added = False
+        self._document_names: set[str] = set()
         self._open()
 
     # ------------------------------------------------------------------
@@ -127,9 +135,59 @@ class VBAHostFile(ReferenceManager):
         rather than damage: listing reads answer empty, and a read or
         write of the project, a module, a form or a reference raises
         :class:`~pyopenvba.exceptions.NoVBAProjectError`.  A project that
-        holds no modules is still a project.
+        holds no modules is still a project.  :meth:`add_vba_project`
+        gives a ``.xlsm``, ``.docm`` or ``.pptm`` one.
         """
         return self._has_project
+
+    def add_vba_project(self) -> VBAProject:
+        """Give a file with no VBA project one, as its application does for a first macro.
+
+        The project holds what the application puts in a new one: in
+        Excel a document module for the workbook and one for each sheet,
+        named as Excel names them, in Word ``ThisDocument``, and in
+        PowerPoint nothing.  Add modules to it with
+        ``vba_project().add_module(...)``, then :meth:`save`, which writes
+        the project into the package as the application does -- except
+        a project the application would not write: Excel writes only the
+        code names for one with no code in it, and PowerPoint nothing for
+        one with no module (see :mod:`pyopenvba._new_project`).
+
+        Supported for ``.xlsm``, ``.docm`` and ``.pptm``; a file that has
+        a project already raises
+        :class:`~pyopenvba.exceptions.VBAProjectError`.
+        """
+        if self._has_project:
+            raise VBAProjectError(f"{self._path.name!r} already has a VBA project.")
+        if self._zip is None or self._suffix not in self._project_formats:
+            supported = ", ".join(sorted(self._project_formats))
+            raise UnsupportedFormatError(
+                f"Adding a VBA project to a {self._suffix} file is not supported; "
+                f"it is for {supported}, whose applications were measured doing it."
+            )
+        wanted = self._new_documents()
+        with zipfile.ZipFile(io.BytesIO(self._project_template())) as template:
+            cfb = CFB.from_bytes(template.read(self._vba_entry))
+        project = parse_vba_project(cfb)
+        headers = {name.casefold(): header for name, header in wanted}
+        for module in list(project.modules):
+            key = module.name.casefold()
+            unwanted = key not in headers
+            reheaded = headers.get(key) is not None and module.attribute_header != headers[key]
+            if unwanted or reheaded:
+                # Taken out; one wanted under another header comes back under its own below.
+                project.delete_module(module.name)
+        present = {module.name.casefold() for module in project.modules}
+        for name, header in wanted:
+            if name.casefold() not in present and header is not None:
+                project.add_module(name, header, kind=VBAModuleKind.other)
+        # Written through now, so a module added next is declared after these, as the application declares it.
+        self._document_names = set(headers)
+        self._apply_project(cfb, project, mutating=True)
+        project = parse_vba_project(cfb)
+        self._cfb, self._project, self._forms = cfb, project, None
+        self._has_project = self._project_added = True
+        return project
 
     def vba_project(self) -> VBAProject:
         """Parse and return the VBAProject (cached after first call)."""
@@ -144,6 +202,9 @@ class VBAHostFile(ReferenceManager):
         legacy container."""
         if not self._has_project:
             raise NoVBAProjectError(self._no_project_message())
+        if self._project_added:
+            # Made by add_vba_project: the project as it stands, edits waiting for save() aside.
+            return self._get_cfb().to_bytes()
         if self._suffix in self._cfb_formats:
             return self._vba_cfb_bytes(self._path.read_bytes())
         assert self._zip is not None
@@ -518,114 +579,7 @@ class VBAHostFile(ReferenceManager):
             if mutating:
                 package_edits = self._drop_signature(cfb, allow_invalidate_signature)
 
-            # 1. Apply renames first so that pre-existing streams are at
-            #    their new names before any other lookup runs.
-            for old, new in rename_map.items():
-                try:
-                    cfb.rename_stream_in_storage("VBA", old, new)
-                except KeyError:
-                    pass
-
-            # 2. Create brand-new streams for pending adds.  Sorted order
-            #    keeps the emitted PROJECT declarations and CFB layout
-            #    byte-deterministic across processes.
-            add_modules_for_project: list[tuple[str, str]] = []
-            for name in sorted(add_names):
-                module = next(
-                    (m for m in project.modules if m.stream_name == name), None
-                )
-                if module is None:
-                    continue
-                seed = rebuild_module_stream(module, project.code_page)
-                try:
-                    cfb.add_stream_to_storage("VBA", name, seed)
-                except ValueError:
-                    # Stream already exists (e.g. add-then-save called twice).
-                    cfb.write_stream_in_storage("VBA", name, seed)
-                module.dirty = False
-                if module.kind == VBAModuleKind.standard:
-                    decl_key = "Module"
-                elif module.name in form_names(cfb):
-                    # A designer is declared BaseClass, not Class.  The
-                    # test is structural -- its name is also a storage
-                    # beside VBA/ -- which is the same one forms.py uses
-                    # to find forms at all.
-                    decl_key = "BaseClass"
-                else:
-                    decl_key = "Class"
-                add_modules_for_project.append((module.name, decl_key))
-
-            # 3. Delete streams the user removed in-memory.
-            for name in sorted(delete_names):
-                try:
-                    cfb.remove_stream_in_storage("VBA", name)
-                except KeyError:
-                    pass
-
-            project.pending_renames.clear()
-            project.pending_adds.clear()
-            project.pending_deletes.clear()
-
-            # 4. Replace contents of any remaining dirty (pre-existing) modules.
-            write_back_modules(cfb, project)
-
-            # 5. Rewrite the dir + PROJECT streams when the module set's
-            #    identity has changed (add / rename / delete).  PROJECT is
-            #    always rewritten on a structural save so that any duplicate
-            #    declarations or stale ``[Workspace]`` entries left behind by
-            #    earlier buggy writes are scrubbed via the dedup pass in
-            #    ``serialize_project_stream``.
-            if project.dir_structure_dirty:
-                new_dir_raw = serialize_dir_stream(project)
-                cfb.write_stream_in_storage("VBA", "dir", compress(new_dir_raw))
-                try:
-                    project_raw = cfb.get_stream("PROJECT")
-                except KeyError:
-                    project_raw = None
-                if project_raw is not None:
-                    new_project = serialize_project_stream(
-                        project_raw,
-                        rename_map,
-                        add_modules=add_modules_for_project,
-                        delete_names=delete_names,
-                        code_page=project.code_page,
-                    )
-                    cfb.write_stream("PROJECT", new_project)
-                # Rewrite PROJECTwm to enumerate the current module set in
-                # both MBCS and Unicode forms.  Required whenever the module
-                # identity set changes ([MS-OVBA] 2.3.4.4).
-                # PROJECTwm lives at the project root as a sibling of the
-                # VBA storage ([MS-OVBA] 2.2.1), so it is addressed without
-                # a storage qualifier.
-                try:
-                    cfb.get_stream("PROJECTwm")
-                except KeyError:
-                    pass
-                else:
-                    wm_pairs = [
-                        (m.name, m.name_unicode or m.name)
-                        for m in project.modules
-                    ]
-                    cfb.write_stream(
-                        "PROJECTwm",
-                        serialize_projectwm(wm_pairs, code_page=project.code_page),
-                    )
-                project.dir_structure_dirty = False
-                project.dir_raw = new_dir_raw
-
-            # Reference-only writes preserve every module metadata byte, but
-            # still invalidate compiled state and honor the save safety gates.
-            if project.dir_references_dirty:
-                cfb.write_stream_in_storage("VBA", "dir", compress(project.dir_raw))
-                project.dir_references_dirty = False
-
-            # 6. Invalidate the _VBA_PROJECT performance cache so Office
-            #    regenerates it on next open ([MS-OVBA] 2.3.4.1 -- the
-            #    cache MUST be ignored on read; the verbatim cache may
-            #    reference offsets that no longer match the updated
-            #    module set or source).
-            if mutating:
-                invalidate_vba_project_cache(cfb)
+            self._apply_project(cfb, project, mutating=mutating)
         if forms_dirty and self._project is None:
             # A designer-only edit on a host whose modules were never
             # parsed still has to invalidate the cache, and still leaves
@@ -639,6 +593,126 @@ class VBAHostFile(ReferenceManager):
         except KeyError:
             pass
         new_cfb_bytes = cfb.to_bytes()
+        self._write_container(dest, new_cfb_bytes, package_edits)
+
+    def _apply_project(self, cfb: CFB, project: VBAProject, *, mutating: bool) -> None:
+        """Write ``project``'s pending renames, adds, deletes and edits into ``cfb``."""
+        rename_map = dict(project.pending_renames)
+        add_names = set(project.pending_adds)
+        delete_names = set(project.pending_deletes)
+        # 1. Apply renames first so that pre-existing streams are at
+        #    their new names before any other lookup runs.
+        for old, new in rename_map.items():
+            try:
+                cfb.rename_stream_in_storage("VBA", old, new)
+            except KeyError:
+                pass
+
+        # 2. Create brand-new streams for pending adds, in the order
+        #    the modules were added, which is the order Office declares
+        #    them in; being a list, it is also deterministic across
+        #    processes, as a set's order is not.
+        add_modules_for_project: list[tuple[str, str]] = []
+        for module in project.modules:
+            name = module.stream_name
+            if name not in add_names:
+                continue
+            seed = rebuild_module_stream(module, project.code_page)
+            try:
+                cfb.add_stream_to_storage("VBA", name, seed)
+            except ValueError:
+                # Stream already exists (e.g. add-then-save called twice).
+                cfb.write_stream_in_storage("VBA", name, seed)
+            module.dirty = False
+            if module.kind == VBAModuleKind.standard:
+                decl_key = "Module"
+            elif module.name in form_names(cfb):
+                # A designer is declared BaseClass, not Class.  The
+                # test is structural -- its name is also a storage
+                # beside VBA/ -- which is the same one forms.py uses
+                # to find forms at all.
+                decl_key = "BaseClass"
+            elif module.name.casefold() in self._document_names:
+                decl_key = "Document"
+            else:
+                decl_key = "Class"
+            add_modules_for_project.append((module.name, decl_key))
+
+        # 3. Delete streams the user removed in-memory.
+        for name in sorted(delete_names):
+            try:
+                cfb.remove_stream_in_storage("VBA", name)
+            except KeyError:
+                pass
+
+        project.pending_renames.clear()
+        project.pending_adds.clear()
+        project.pending_deletes.clear()
+
+        # 4. Replace contents of any remaining dirty (pre-existing) modules.
+        write_back_modules(cfb, project)
+
+        # 5. Rewrite the dir + PROJECT streams when the module set's
+        #    identity has changed (add / rename / delete).  PROJECT is
+        #    always rewritten on a structural save so that any duplicate
+        #    declarations or stale ``[Workspace]`` entries left behind by
+        #    earlier buggy writes are scrubbed via the dedup pass in
+        #    ``serialize_project_stream``.
+        if project.dir_structure_dirty:
+            new_dir_raw = serialize_dir_stream(project)
+            cfb.write_stream_in_storage("VBA", "dir", compress(new_dir_raw))
+            try:
+                project_raw = cfb.get_stream("PROJECT")
+            except KeyError:
+                project_raw = None
+            if project_raw is not None:
+                new_project = serialize_project_stream(
+                    project_raw,
+                    rename_map,
+                    add_modules=add_modules_for_project,
+                    delete_names=delete_names,
+                    code_page=project.code_page,
+                )
+                cfb.write_stream("PROJECT", new_project)
+            # Rewrite PROJECTwm to enumerate the current module set in
+            # both MBCS and Unicode forms.  Required whenever the module
+            # identity set changes ([MS-OVBA] 2.3.4.4).
+            # PROJECTwm lives at the project root as a sibling of the
+            # VBA storage ([MS-OVBA] 2.2.1), so it is addressed without
+            # a storage qualifier.
+            try:
+                cfb.get_stream("PROJECTwm")
+            except KeyError:
+                pass
+            else:
+                wm_pairs = [
+                    (m.name, m.name_unicode or m.name)
+                    for m in project.modules
+                ]
+                cfb.write_stream(
+                    "PROJECTwm",
+                    serialize_projectwm(wm_pairs, code_page=project.code_page),
+                )
+            project.dir_structure_dirty = False
+            project.dir_raw = new_dir_raw
+
+        # Reference-only writes preserve every module metadata byte, but
+        # still invalidate compiled state and honor the save safety gates.
+        if project.dir_references_dirty:
+            cfb.write_stream_in_storage("VBA", "dir", compress(project.dir_raw))
+            project.dir_references_dirty = False
+
+        # 6. Invalidate the _VBA_PROJECT performance cache so Office
+        #    regenerates it on next open ([MS-OVBA] 2.3.4.1 -- the
+        #    cache MUST be ignored on read; the verbatim cache may
+        #    reference offsets that no longer match the updated
+        #    module set or source).
+        if mutating:
+            invalidate_vba_project_cache(cfb)
+
+    def _write_container(self, dest: str | Path | None, new_cfb_bytes: bytes,
+                         package_edits: dict[str, bytes | None]) -> None:
+        """Write the file with ``new_cfb_bytes`` as its project and ``package_edits`` applied."""
         out_path = Path(dest) if dest is not None else self._path
 
         if self._suffix in self._cfb_formats:
@@ -647,6 +721,17 @@ class VBAHostFile(ReferenceManager):
 
         if self._zip is None:
             raise RuntimeError(f"{type(self).__name__} is not open.")
+
+        # A project add_vba_project made goes into the package as the host
+        # application writes one: with its relationship and content type,
+        # and in Excel with the code names, which Excel writes even for a
+        # project it does not write (see _new_project.py).
+        added: dict[str, bytes] = {}
+        if self._project_added and self._project is not None:
+            package_edits.update(self._project_edits())
+            if self._writes_project(self._project):
+                package_edits.update(with_project(self._zip.namelist(), self._zip.read, self._main_part))
+                added[self._vba_entry] = new_cfb_bytes
 
         buf = io.BytesIO()
         with zipfile.ZipFile(buf, "w") as out_zip:
@@ -676,6 +761,10 @@ class VBAHostFile(ReferenceManager):
                     out_info.external_attr = info.external_attr
                     out_info.create_system = info.create_system
                     out_zip.writestr(out_info, data)
+            for name, data in added.items():
+                out_info = zipfile.ZipInfo(filename=name, date_time=(1980, 1, 1, 0, 0, 0))
+                out_info.compress_type = zipfile.ZIP_DEFLATED
+                out_zip.writestr(out_info, data)
         out_path.write_bytes(buf.getvalue())
 
     # ------------------------------------------------------------------
@@ -772,11 +861,31 @@ class VBAHostFile(ReferenceManager):
         self._cfb = cfb
 
     def _no_project_message(self) -> str:
-        return (
+        message = (
             f"{self._path.name!r} has no VBA project: it is a {self._host_noun} "
             f"with no macros.  The first macro has to be written in "
-            f"{self._application}, which creates the project."
+            f"{self._application}, which creates the project"
         )
+        if self._suffix in self._project_formats:
+            return message + ", or add_vba_project() gives it one."
+        return message + "."
+
+    def _project_template(self) -> bytes:
+        """The package whose project a new one starts from: the host's own template."""
+        raise NotImplementedError
+
+    def _new_documents(self) -> list[tuple[str, str | None]]:
+        """The document modules the application puts in a new project, with the
+        header of each; None keeps the template's module as it is."""
+        return []
+
+    def _writes_project(self, project: VBAProject) -> bool:
+        """Whether the application writes a project like this one into the file."""
+        return True
+
+    def _project_edits(self) -> dict[str, bytes]:
+        """The parts a new project changes whether or not it is written."""
+        return {}
 
     def _get_cfb(self) -> CFB:
         if not self._has_project:

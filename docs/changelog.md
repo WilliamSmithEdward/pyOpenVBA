@@ -7,6 +7,22 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `add_vba_project()` on `ExcelFile`, `WordFile` and `PowerPointFile`
+  gives a `.xlsm`, `.docm` or `.pptm` with no VBA project the one its
+  application makes for a first macro. In Excel that is a document
+  module for the workbook and one for each sheet, named as Excel names
+  them, one count across worksheets and chart sheets, with the names
+  written on `workbookPr` and each sheet's `sheetPr`. In Word it is
+  `ThisDocument`, and in PowerPoint it is empty. A save writes the
+  project, its relationship and its content type as the applications
+  do, and writes no project the application would not: Excel writes only
+  the code names for one with no code, and PowerPoint nothing for one
+  with no module (scripts/measure_first_macro.py). Three things are left
+  to the applications. Office orders the new relationship its own way
+  and Word numbers them all again, Excel stamps `fileVersion` with a
+  `codeName` GUID fixed by its build, and Word writes `vbaData.xml`. A
+  live gate has each application open the result and run its module.
+
 - `has_vba_project()` on `ExcelFile`, `WordFile` and `PowerPointFile`,
   which tells a file with no VBA project from one whose project is
   empty, and `NoVBAProjectError`, a `VBAProjectError` raised by what
@@ -679,6 +695,8 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Changed
 
+- Modules added in one save are declared in the order they were added,
+  as Excel declares them, where they were sorted by name.
 - A file saved before its first macro opens, as the ordinary file it is
   (#26). `ExcelFile`, `WordFile` and `PowerPointFile` opening a
   `.xlsm`, `.docm` or `.pptm` with no `vbaProject.bin` used to raise

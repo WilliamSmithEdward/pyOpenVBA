@@ -3,9 +3,10 @@
 pending_adds / pending_deletes are sets; Python randomizes string hash
 order per process, so iterating them unsorted made multi-add saves emit
 PROJECT declarations (and CFB stream allocation) in a different order on
-each run.  save() now iterates them sorted.  The subprocess test drives
-two different PYTHONHASHSEED values to prove the output bytes no longer
-depend on hash order.
+each run.  save() now declares added modules in the order they were
+added, which a list keeps, and which is Excel's order.  The subprocess
+test drives two different PYTHONHASHSEED values to prove the output
+bytes no longer depend on hash order.
 """
 
 from __future__ import annotations
@@ -52,7 +53,9 @@ def test_multi_add_save_bytes_do_not_depend_on_hash_seed(tmp_path: Path) -> None
     assert first == second
 
 
-def test_multi_add_project_declarations_are_sorted(tmp_path: Path) -> None:
+def test_multi_add_project_declarations_follow_the_order_added(tmp_path: Path) -> None:
+    """Measured: Excel given modules named Zed, Alpha and Mid, in that
+    order, declares them Zed, Alpha, Mid."""
     target = tmp_path / "book.xlsm"
     with ExcelFile.create_new(target) as wb:
         project = wb.vba_project()
@@ -69,4 +72,4 @@ def test_multi_add_project_declarations_are_sorted(tmp_path: Path) -> None:
         for line in text.splitlines()
         if line.startswith("Module=") and line != "Module=Module1"
     ]
-    assert added == sorted(added)
+    assert added == ["Zed", "Alpha", "Mid"]

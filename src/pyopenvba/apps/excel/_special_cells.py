@@ -37,9 +37,9 @@ from pyopenvba.interpreter._values import EMPTY, MISSING, VBADate, error, to_int
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Range, Worksheet
 
-CONSTANTS, FORMULAS, BLANKS, LAST_CELL, VISIBLE = 2, -4123, 4, 11, 12
-#: The kinds that ask about comments, validation and conditional formats, which the model does not keep.
-_UNMODELLED = {-4144: "comments", -4174: "data validation", -4175: "data validation",
+CONSTANTS, FORMULAS, BLANKS, LAST_CELL, VISIBLE, COMMENTS = 2, -4123, 4, 11, 12, -4144
+#: The kinds that ask about validation and conditional formats, which the model does not keep.
+_UNMODELLED = {-4174: "data validation", -4175: "data validation",
                -4172: "conditional formats", -4173: "conditional formats"}
 NUMBERS, TEXT, LOGICAL, ERRORS = 1, 2, 4, 16
 
@@ -57,7 +57,7 @@ def special_cells(target: Range, kind_value: object, which: object) -> Range:
         return Range(sheet, [Area(row, column, row, column, sheet.name)])
     if kind == VISIBLE:
         return Range(sheet, _visible(target))
-    if kind not in (CONSTANTS, FORMULAS, BLANKS):
+    if kind not in (CONSTANTS, FORMULAS, BLANKS, COMMENTS):
         raise error(1004, "SpecialCells has no such type")
     if bounds is None:
         # A sheet with nothing on it has not even blanks.
@@ -102,6 +102,9 @@ def _matching(sheet: Worksheet, domain: Area, kind: int, flags: int) -> list[tup
     if kind == BLANKS:
         return [(row, column) for row in range(domain.top, domain.bottom + 1)
                 for column in range(domain.left, domain.right + 1) if not _holds(sheet, row, column)]
+    if kind == COMMENTS:
+        # The cells with a note (tests/fixtures/excel_model/).
+        return [position for position in sorted(sheet.notes) if domain.contains(*position)]
     out: list[tuple[int, int]] = []
     for (row, column), cell in sorted(sheet.cells_.items()):
         if not domain.contains(row, column):

@@ -1510,18 +1510,31 @@ def read_standard_height(sheet: Worksheet) -> object:
 
 
 def block_spans(sheet: Worksheet) -> dict[int, str]:
-    """The spans Excel writes on the rows of each 16-row block: the block's first and last column with a cell."""
-    reach: dict[int, list[int]] = {}
-    for (row, column), cell in sheet.cells_.items():
-        if not sheet.holds(row, column, cell):
-            continue
-        block = (row - 1) // 16
-        found = reach.get(block)
+    """The spans Excel writes on the rows of each 16-row block: the first and last column with a cell or a note in
+    each run of groups of 1024 columns that hold one, a group holding none ending a run: 1:20 16384:16384 for a
+    block reaching A, T and XFD, 1:16383 for one with a cell in every column but the last
+    (tests/fixtures/notes.json, row_formats/)."""
+    reach: dict[int, dict[int, list[int]]] = {}
+    held = [(row, column) for (row, column), cell in sheet.cells_.items() if sheet.holds(row, column, cell)]
+    for row, column in [*held, *sheet.notes]:
+        groups = reach.setdefault((row - 1) // 16, {})
+        found = groups.get((column - 1) // 1024)
         if found is None:
-            reach[block] = [column, column]
+            groups[(column - 1) // 1024] = [column, column]
         else:
             found[0], found[1] = min(found[0], column), max(found[1], column)
-    return {block: f"{low}:{high}" for block, (low, high) in reach.items()}
+    spans: dict[int, str] = {}
+    for block, groups in reach.items():
+        runs: list[list[int]] = []
+        previous = -2
+        for group, (low, high) in sorted(groups.items()):
+            if group == previous + 1:
+                runs[-1][1] = high
+            else:
+                runs.append([low, high])
+            previous = group
+        spans[block] = " ".join(f"{low}:{high}" for low, high in runs)
+    return spans
 
 
 def row_start_tag(sheet: Worksheet, row: int, original: dict[str, str] | None, spans: str | None,

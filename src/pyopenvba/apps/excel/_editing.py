@@ -114,6 +114,8 @@ def edit(target: Range, *, delete: bool) -> None:
                 raise error(1004, "Insertion would move nonempty cells beyond the worksheet")
             continue
         moved[(result[0], column) if rows else (row, result[0])] = cell
+    if not delete and any((row if rows else column) + count > limit for row, column in sheet.notes):
+        raise error(1004, "Insertion would move a cell's note beyond the worksheet")
     formulas: list[tuple[Worksheet, Cell, str]] = []
     for owner in sheet.book.sheets_:
         for cell in (moved if owner is sheet else owner.cells_).values():
@@ -148,6 +150,9 @@ def edit(target: Range, *, delete: bool) -> None:
         sheet.dims.shift_rows(start, count, delete)
     else:
         sheet.dims.shift_columns(start, count, delete)
+    from pyopenvba.apps.excel._notes import lines_moved
+
+    lines_moved(sheet, start, count, delete=delete, rows=rows)
     if not delete and start > 1:
         _inherit_formats(sheet, rows=rows, start=start, count=count)
     from pyopenvba.apps.excel._autofilter import filter_edited
@@ -207,6 +212,17 @@ def shift_cells(target: Range, area: Area, *, delete: bool, vertical: bool, thro
                     raise error(1004, "Insertion would move nonempty cells beyond the worksheet")
                 continue
         moved[(along, across) if vertical else (across, along)] = cell
+    notes: dict[tuple[int, int], tuple[int, int] | None] = {}
+    for row, column in sheet.notes:
+        along, across = (row, column) if vertical else (column, row)
+        if band[0] <= across <= band[1] and along >= start:
+            if delete and along < start + count:
+                notes[(row, column)] = None
+                continue
+            along = along - count if delete else along + count
+            if along > limit:
+                raise error(1004, "Insertion would move a cell's note beyond the worksheet")
+            notes[(row, column)] = (along, across) if vertical else (across, along)
     formulas: list[tuple[Worksheet, Cell, str]] = []
     for owner in sheet.book.sheets_:
         for cell in (moved if owner is sheet else owner.cells_).values():
@@ -232,6 +248,10 @@ def shift_cells(target: Range, area: Area, *, delete: bool, vertical: bool, thro
             sheet.book.names_.changed = True
     _shared.moved(sheet, lambda text: rewrite_shift(text, sheet.name, sheet.name, shift))
     _validation.moved(sheet, lambda text: rewrite_shift(text, sheet.name, sheet.name, shift))
+    if notes:
+        from pyopenvba.apps.excel._notes import cells_moved
+
+        cells_moved(sheet, notes)
     if not delete and start > 1:
         # Measured: inserted cells take the formats of the cells above them, or to their left.
         _inherit_formats(sheet, rows=vertical, start=start, count=count, band=band)

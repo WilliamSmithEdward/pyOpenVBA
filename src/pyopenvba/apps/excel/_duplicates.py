@@ -60,6 +60,8 @@ def remove_duplicates(target: Range, columns: object, header: object) -> object:
         return EMPTY
     if any(_merges.intersects(area, one) for one in sheet.merged_areas):
         raise VBAUnsupportedError("RemoveDuplicates over merged cells is not implemented")
+    if any(area.contains(*key) for key in sheet.notes):
+        raise VBAUnsupportedError("RemoveDuplicates over cells with notes is not implemented")
     dims = sheet.dims
     if any(area.top <= row <= area.bottom and record.style is not None for row, record in dims.rows.items()) \
             or any(dims.column_style(column) is not None for column in range(area.left, area.right + 1)):

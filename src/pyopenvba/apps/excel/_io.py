@@ -106,6 +106,7 @@ def load_workbook(application: Application, path: Path) -> Workbook:
                 sheet.code_name = _unescape(found.group(1))
             _read_sheet(sheet, sheet_xml, strings, stylesheet, metadata)
             _read_shapes(sheet, package, sheet_xml)
+            _read_notes(sheet, package)
             _read_tables(sheet, package, sheet_xml)
             from pyopenvba.apps.excel._validation import read_rules
             from pyopenvba.apps.excel._windows import read_view
@@ -445,6 +446,139 @@ def _read_shapes(sheet: Worksheet, package: OpcFile, sheet_xml: str) -> None:
     sheet.drawing_dirty = False
 
 
+def _read_notes(sheet: Worksheet, package: OpcFile) -> None:
+    """The sheet's notes, from its comments part and the boxes in its VML part (see _notes_file)."""
+    from pyopenvba.apps.excel._notes_file import read
+
+    vml_part = _sheet_relationship(package, sheet.part_name, "vmlDrawing")
+    comments_part = _sheet_relationship(package, sheet.part_name, "comments")
+    vml = package.read(vml_part).decode("utf-8", errors="replace") if vml_part and package.has(vml_part) else ""
+    comments = (package.read(comments_part).decode("utf-8", errors="replace")
+                if comments_part and package.has(comments_part) else "")
+    if vml or comments:
+        read(sheet, comments, vml)
+    sheet.notes_changed = False
+
+
+def _write_notes(book: Workbook, package: OpcFile) -> None:
+    """Every sheet whose notes changed, its comments part and the boxes in its VML part written again: made where
+    it had none, as Excel makes them, and taken away where it has no notes left (see _notes_file)."""
+    from pyopenvba.apps.excel._notes import in_order, vml_block
+    from pyopenvba.apps.excel._notes_file import comments_part, empty_vml, with_notes
+
+    for sheet in book.sheets_:
+        if not sheet.notes_changed or not sheet.part_name or not package.has(sheet.part_name):
+            continue
+        sheet.notes_changed = False
+        comments_at = _sheet_relationship(package, sheet.part_name, "comments")
+        vml_at = _sheet_relationship(package, sheet.part_name, "vmlDrawing")
+        if not sheet.notes and not comments_at:
+            continue
+        if not vml_at:
+            vml_at = _new_notes_vml(package, sheet, vml_block(sheet))
+        vml = package.read(vml_at).decode("utf-8", errors="replace") if package.has(vml_at) else ""
+        drawn = with_notes(sheet, vml or empty_vml(vml_block(sheet)))
+        if sheet.notes:
+            if not comments_at:
+                comments_at = _new_comments(package, sheet, vml_at)
+            listed = [(f"{column_letter(column)}{row}", note) for (row, column), note in in_order(sheet)]
+            package.write(comments_at, comments_part(listed).encode("utf-8"))
+        else:
+            _drop_sheet_part(package, sheet, comments_at)
+        if re.search(r"<v:shape(?=[\s/>])", drawn):
+            package.write(vml_at, drawn.encode("utf-8"))
+        else:
+            _drop_sheet_part(package, sheet, vml_at)
+
+
+def _new_vml_parts(book: Workbook, package: OpcFile) -> None:
+    """The VML part each sheet about to draw its first note or form control needs, made sheet by sheet, so they
+    are numbered in the sheets' order, as Excel numbers them (tests/fixtures/notes.json)."""
+    from pyopenvba.apps.excel._notes import vml_block
+
+    for sheet in book.sheets_:
+        if not sheet.part_name or not package.has(sheet.part_name):
+            continue
+        fresh = any(one.kind == "formControl" and one.control is not None and not one.control.part_name
+                    for one in sheet.shapes_) if sheet.drawing_dirty else False
+        if not (sheet.notes_changed and sheet.notes) and not fresh:
+            continue
+        if not _sheet_relationship(package, sheet.part_name, "vmlDrawing"):
+            _new_notes_vml(package, sheet, vml_block(sheet))
+
+
+#: What follows a sheet's <legacyDrawing> in the schema's order, after its cells: the first of these there.
+_AFTER_LEGACY_DRAWING = re.compile(r"<(?:legacyDrawingHF|picture|oleObjects|controls|webPublishItems|tableParts|"
+                                   r"extLst|mc:AlternateContent)\b|</worksheet>")
+
+
+def _new_notes_vml(package: OpcFile, sheet: Worksheet, block: int) -> str:
+    """The VML part a sheet's first note needs, numbered from its block of ids, and <legacyDrawing> naming it."""
+    from pyopenvba.apps.excel._notes_file import empty_vml
+
+    taken = {name for name in package.names() if name.startswith("xl/drawings/vmlDrawing")}
+    number = 1
+    while f"xl/drawings/vmlDrawing{number}.vml" in taken:
+        number += 1
+    part = f"xl/drawings/vmlDrawing{number}.vml"
+    package.write(part, empty_vml(block).encode("utf-8"))
+    _add_default_content_type(package, "vml", "application/vnd.openxmlformats-officedocument.vmlDrawing")
+    relationship = _add_sheet_relationship(package, sheet.part_name, f"../drawings/vmlDrawing{number}.vml",
+                                           "http://schemas.openxmlformats.org/officeDocument/2006/relationships/"
+                                           "vmlDrawing")
+    text = package.read(sheet.part_name).decode("utf-8", errors="replace")
+    if "<legacyDrawing " not in text:
+        cells_end = max(text.find("</sheetData>"), text.find("<sheetData/>"), 0)
+        place = _AFTER_LEGACY_DRAWING.search(text, cells_end)
+        at = place.start() if place is not None else len(text)
+        text = text[:at] + f'<legacyDrawing r:id="{relationship}"/>' + text[at:]
+        package.write(sheet.part_name, text.encode("utf-8"))
+    return part
+
+
+def _new_comments(package: OpcFile, sheet: Worksheet, vml_part: str) -> str:
+    """A comments part for a sheet's notes: named in the content types before the document's own properties, and
+    related to the sheet ahead of its VML part, as Excel lists them (tests/fixtures/notes.json)."""
+    from pyopenvba.apps.excel._notes_file import COMMENTS_RELATIONSHIP, COMMENTS_TYPE
+
+    taken = set(package.names())
+    number = 1
+    while f"xl/comments{number}.xml" in taken:
+        number += 1
+    part = f"xl/comments{number}.xml"
+    package.write(part, b"")
+    types = package.read("[Content_Types].xml").decode("utf-8")
+    override = f'<Override PartName="/{part}" ContentType="{COMMENTS_TYPE}"/>'
+    at = types.find('<Override PartName="/docProps/')
+    at = at if at >= 0 else types.rfind("</Types>")
+    package.write("[Content_Types].xml", (types[:at] + override + types[at:]).encode("utf-8"))
+    relationship = _add_sheet_relationship(package, sheet.part_name, f"../comments{number}.xml", COMMENTS_RELATIONSHIP)
+    folder, _, name = sheet.part_name.rpartition("/")
+    rels = f"{folder}/_rels/{name}.rels"
+    text = package.read(rels).decode("utf-8", errors="replace")
+    elements = re.findall(r"<Relationship\b[^>]*/>", text)
+    mine = next(one for one in elements if _attributes(one).get("Id") == relationship)
+    vml_target = f"../drawings/{vml_part.rpartition('/')[2]}"
+    theirs = next((one for one in elements if _attributes(one).get("Target") == vml_target), None)
+    if theirs is not None:
+        text = text.replace(mine, "").replace(theirs, mine + theirs)
+        package.write(rels, text.encode("utf-8"))
+    return part
+
+
+def _drop_sheet_part(package: OpcFile, sheet: Worksheet, part: str) -> None:
+    """A part the sheet no longer needs taken away, with its relationship, and for a VML part its <legacyDrawing>."""
+    for relationship, (kind, target) in _sheet_relationships(package, sheet.part_name).items():
+        if _resolved(target) != part:
+            continue
+        _remove_sheet_relationship(package, sheet.part_name, relationship)
+        if kind == "vmlDrawing":
+            text = package.read(sheet.part_name).decode("utf-8", errors="replace")
+            text = re.sub(r'<legacyDrawing\b[^>]*\br:id="' + re.escape(relationship) + r'"[^>]*/>', "", text)
+            package.write(sheet.part_name, text.encode("utf-8"))
+    _remove_unreferenced_part(package, part)
+
+
 def _sheet_relationship(package: OpcFile, sheet_part: str, kind: str) -> str:
     """The part a sheet's relationship of this kind points at.
 
@@ -633,7 +767,8 @@ def _sync_controls(package: OpcFile, sheet: Worksheet, before: list[ShapeState])
                 package.write(part, with_control_bindings(properties, item.control).encode("utf-8"))
             vml = with_vml_bindings(vml, item.shape_id, item.control)
     if vml_part:
-        if re.search(r"<v:shape(?=[\s/>])", vml):
+        if re.search(r"<v:shape(?=[\s/>])", vml) or sheet.notes:
+            # A part the sheet's notes are about to draw in stays, empty or not (see _write_notes).
             package.write(vml_part, vml.encode("utf-8"))
         else:
             for rid, (kind, _) in _sheet_relationships(package, sheet.part_name).items():
@@ -687,7 +822,7 @@ def _write_new_controls(package: OpcFile, sheet: Worksheet) -> None:
     of them and Excel either loses the control or asks to repair the
     file.
     """
-    from pyopenvba.shapes._xlsx import EMPTY_VML, control_entry, control_vml, with_vml_shape
+    from pyopenvba.shapes._xlsx import CONTROL_SHAPE_TYPE, EMPTY_VML, control_entry, control_vml, with_vml_shape
 
     fresh = [
         one
@@ -719,6 +854,9 @@ def _write_new_controls(package: OpcFile, sheet: Worksheet) -> None:
             shape.control.part_name = part
             shape.control.relationship = relationship
         entries.append(control_entry(shape, relationship, grid))
+        if 'id="_x0000_t201"' not in vml:
+            # A part a sheet's notes made has no shape type for a control yet.
+            vml = with_vml_shape(vml, CONTROL_SHAPE_TYPE)
         vml = with_vml_shape(vml, control_vml(shape, grid))
     package.write(vml_part, vml.encode("utf-8"))
     package.write(sheet.part_name, _with_controls(sheet_xml, entries).encode("utf-8"))
@@ -739,7 +877,8 @@ def _new_control_part(package: OpcFile, shape: ShapeState) -> str:
 
 
 def _new_vml(package: OpcFile, sheet: Worksheet) -> str:
-    """The VML part a sheet needs before it can hold a control."""
+    """The VML part a sheet needs before it can hold a control, numbered from the sheet's block of ids."""
+    from pyopenvba.apps.excel._notes import vml_block
     from pyopenvba.shapes._xlsx import EMPTY_VML
 
     taken = {name for name in package.names() if name.startswith("xl/drawings/vmlDrawing")}
@@ -747,7 +886,7 @@ def _new_vml(package: OpcFile, sheet: Worksheet) -> str:
     while f"xl/drawings/vmlDrawing{number}.vml" in taken:
         number += 1
     part = f"xl/drawings/vmlDrawing{number}.vml"
-    package.write(part, EMPTY_VML.encode("utf-8"))
+    package.write(part, EMPTY_VML.replace('data="1"', f'data="{vml_block(sheet)}"').encode("utf-8"))
     _add_default_content_type(package, "vml", "application/vnd.openxmlformats-officedocument.vmlDrawing")
     relationship = _add_sheet_relationship(
         package,
@@ -938,7 +1077,16 @@ def _name_the_drawing(package: OpcFile, sheet: Worksheet, relationship: str) -> 
     element = f'<drawing r:id="{relationship}"/>'
     if "</worksheet>" not in text:
         return
-    package.write(sheet.part_name, text.replace("</worksheet>", element + "</worksheet>").encode("utf-8"))
+    # Ahead of a <legacyDrawing> a sheet's notes put there, which the schema has after it.
+    cells_end = max(text.find("</sheetData>"), text.find("<sheetData/>"), 0)
+    place = _AFTER_DRAWING.search(text, cells_end)
+    at = place.start() if place is not None else text.rfind("</worksheet>")
+    package.write(sheet.part_name, (text[:at] + element + text[at:]).encode("utf-8"))
+
+
+#: What follows a sheet's <drawing> in the schema's order, after its cells: the first of these there.
+_AFTER_DRAWING = re.compile(r"<(?:legacyDrawing|legacyDrawingHF|picture|oleObjects|controls|webPublishItems|"
+                            r"tableParts|extLst|mc:AlternateContent)\b|</worksheet>")
 
 
 def _read_queries(book: Workbook, path: Path) -> None:
@@ -992,6 +1140,9 @@ def save_workbook(book: Workbook, target: Path) -> None:
             # A dynamic-array formula's cm and vm number the metadata the save writes afresh, so its sheet is
             # written afresh too.
             sheet.dirty = True
+        if sheet.notes_changed:
+            # A note's row and cell are written in the sheet (see _notes_file).
+            sheet.dirty = True
     for sheet in book.sheets_:
         # A sheet nobody wrote to keeps the bytes it arrived with, its view too unless the window changed it.
         if not sheet.part_name or not (sheet.dirty or sheet.view.changed or tabs):
@@ -1020,7 +1171,9 @@ def save_workbook(book: Workbook, target: Path) -> None:
             package.write("xl/workbook.xml", viewed.encode("utf-8"))
     _resize_loaded_tables(book, package)
     _write_tables(book, package)
+    _new_vml_parts(book, package)
     _write_shapes(book, package)
+    _write_notes(book, package)
     _write_styles(book, package)
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_bytes(package.serialize())
@@ -1340,7 +1493,7 @@ def _patched_sheet(sheet: Worksheet, original: str, package: OpcFile, collector:
     for row in set(rows) | set(by_row):
         rows[row] = _row_with_cells(rows.get(row, f'<row r="{row}"></row>'), row, by_row.get(row, []), stylesheet,
                                     formulas, dynamic)
-    for row in set(sheet.dims.rows) | sheet.dims.shaped_rows():
+    for row in set(sheet.dims.rows) | sheet.dims.shaped_rows() | {row for row, _ in sheet.notes}:
         rows.setdefault(row, f'<row r="{row}"/>')
     rebuilt = _rows_as_excel_writes_them(sheet, original, rows)
     patched = original[: match.start()] + f"<sheetData>{rebuilt}</sheetData>" + original[match.end() :]
@@ -1408,13 +1561,14 @@ def _rows_as_excel_writes_them(sheet: Worksheet, original: str, rows: dict[int, 
     The spans Excel writes cover the 16-row block's cells; a row keeps the
     descent its file gave it, and a new one gets the Normal font's. A row
     left with no cells and nothing of its own to say is dropped, as Excel
-    drops it.
+    drops it, unless a note is on it (tests/fixtures/notes.json).
     """
     from pyopenvba.apps.excel._dimensions import block_spans, row_start_tag
 
     dims = sheet.dims
     descent = dims.default_descent() if _declares_descent(original) else None
     spans = block_spans(sheet)
+    noted = {row for row, _ in sheet.notes}
     out: list[str] = []
     for number in sorted(rows):
         row_xml = rows[number]
@@ -1423,7 +1577,7 @@ def _rows_as_excel_writes_them(sheet: Worksheet, original: str, rows: dict[int, 
         inner = "" if closed else row_xml[head_end + 1: row_xml.rindex("</row>")]
         has_cells = bool(_CELL.search(inner))
         tag = row_start_tag(sheet, number, _tag_attributes(row_xml), spans.get((number - 1) // 16), descent,
-                            has_cells)
+                            has_cells or number in noted)
         if tag is None:
             continue
         out.append(f"{tag}{inner}</row>" if has_cells else f"{tag[:-1]}/>")
@@ -1657,8 +1811,14 @@ def _style_for(cell: Cell, stylesheet: Stylesheet) -> str:
 
 
 def _with_dimension(xml: str, sheet: Worksheet) -> str:
+    """The sheet's dimension, its used block written cell to cell even where it spans every column,
+    A1:XFD1048576 (tests/fixtures/notes.json)."""
     bounds = sheet.used_bounds()
-    reference = "A1" if bounds is None else Area(*bounds, sheet.name).address(absolute=False)
+    reference = "A1"
+    if bounds is not None:
+        top, left, bottom, right = bounds
+        first, last = f"{column_letter(left)}{top}", f"{column_letter(right)}{bottom}"
+        reference = first if first == last else f"{first}:{last}"
     return re.sub(r'<dimension\b[^>]*/>', f'<dimension ref="{reference}"/>', xml, count=1)
 
 

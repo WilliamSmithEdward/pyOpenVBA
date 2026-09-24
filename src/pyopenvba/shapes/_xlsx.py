@@ -373,9 +373,15 @@ def with_control_macro(sheet_xml: str, shape_id: int, macro: str) -> str:
     return sheet_xml
 
 
-#: What a form control's shape id starts at.  Excel numbers controls
-#: from 1025, apart from the drawing shapes, which start at 2.
-FIRST_CONTROL_ID = 1025
+#: The shape type every form control is drawn from, which comes before the first control a VML part draws.
+CONTROL_SHAPE_TYPE = (
+    '<v:shapetype id="_x0000_t201" coordsize="21600,21600" o:spt="201"\r\n'
+    '  path="m,l,21600r21600,l21600,xe">\r\n'
+    '  <v:stroke joinstyle="miter"/>\r\n'
+    '  <v:path shadowok="f" o:extrusionok="f" strokeok="f" fillok="f" o:connecttype="rect"/>\r\n'
+    '  <o:lock v:ext="edit" shapetype="t"/>\r\n'
+    " </v:shapetype>"
+)
 
 #: The VML a sheet needs before it can hold a control at all: the id
 #: map and the shape type every button is drawn from.
@@ -385,12 +391,7 @@ EMPTY_VML = (
     ' xmlns:x="urn:schemas-microsoft-com:office:excel">\r\n'
     ' <o:shapelayout v:ext="edit">\r\n'
     '  <o:idmap v:ext="edit" data="1"/>\r\n'
-    ' </o:shapelayout><v:shapetype id="_x0000_t201" coordsize="21600,21600" o:spt="201"\r\n'
-    '  path="m,l,21600r21600,l21600,xe">\r\n'
-    '  <v:stroke joinstyle="miter"/>\r\n'
-    '  <v:path shadowok="f" o:extrusionok="f" strokeok="f" fillok="f" o:connecttype="rect"/>\r\n'
-    '  <o:lock v:ext="edit" shapetype="t"/>\r\n'
-    " </v:shapetype></xml>\r\n"
+    f" </o:shapelayout>{CONTROL_SHAPE_TYPE}</xml>\r\n"
 )
 
 #: What each control this can make is called in its own part, and what

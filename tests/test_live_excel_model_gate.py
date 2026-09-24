@@ -1678,6 +1678,48 @@ def test_excel_reads_the_protection_this_wrote(tmp_path: Path) -> None:
         assert opened[name] == "1004,True,0,False", name
 
 
+def test_excel_reads_the_notes_this_wrote(tmp_path: Path) -> None:
+    """The workbook of notes tests/fixtures/notes.json measured, made by the model, saved, opened in Excel: each
+    note reads as it did in the Excel that made the measured one, form control and all."""
+    import json
+
+    harness = pytest.importorskip("pyvbaharness")
+    record = json.loads((Path(__file__).parent / "fixtures" / "notes.json").read_text(encoding="utf-8"))
+    reader = ("Public Function Notes() As String\nDim ws As Object, c As Object, out As String\n"
+              "For Each ws In ActiveWorkbook.Worksheets\n    out = out & ws.Name & \"`\"\n"
+              "    For Each c In ws.Comments\n"
+              "        out = out & c.Parent.Address(False, False) & \"|\" & Replace(Replace(c.Text, vbCr, \"\\r\"), "
+              "vbLf, \"\\n\") & \"|\" & c.Visible & \"|\" & c.Shape.Name & \"|\" & c.Shape.Left & \"|\" & c.Shape.Top "
+              "& \"|\" & c.Shape.Width & \"|\" & c.Shape.Height & \"|\" & (c.Author = Application.UserName) & \"~\"\n"
+              "    Next\n    out = out & \"^\"\nNext\nNotes = out\nEnd Function\n")
+    fields = ("cell", "text", "visible", "shape", "left", "top", "width", "height", "by_user")
+    expected = "".join(
+        name + "`" + "".join("|".join(note[field].replace("\r", "\\r").replace("\n", "\\n") for field in fields) + "~"
+                             for note in notes) + "^"
+        for name, notes in record["opened"].items())
+    app = ExcelApplication()
+    app.add_workbook()
+    lines = ["Public Sub Make()", "Dim ws As Object"]
+    for index, (name, writes) in enumerate(record["sheets"].items()):
+        lines.append("Set ws = ActiveWorkbook.Worksheets(1)" if not index else
+                     "Set ws = ActiveWorkbook.Worksheets.Add(After:=ActiveWorkbook.Worksheets("
+                     "ActiveWorkbook.Worksheets.Count))")
+        lines += [f'ws.Name = "{name}"', writes]
+    app.add_module("\n".join(lines) + "\nEnd Sub\n", name="Builder")
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+        author = excel.run_vba("Public Function Report() As String\nReport = Application.UserName\nEnd Function\n",
+                               "Report", timeout=60.0)
+        assert author.ok, author.message
+        app.application.user_name = str(author.value)
+        app.run("Make")
+        path = tmp_path / "notes.xlsx"
+        app.save(path)
+        excel.open_document(path)
+        result = excel.run_vba(reader, "Notes", timeout=120.0)
+    assert result.ok, result.message
+    assert str(result.value) == expected
+
+
 def test_excel_reads_the_workbook_protection_this_wrote(tmp_path: Path) -> None:
     """Every workbook protection tests/fixtures/workbook_protection.json saved, made by the model, opened in Excel."""
     import json

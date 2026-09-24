@@ -120,6 +120,8 @@ def sort_area(sheet: Worksheet, area: Area, keys: list[Key], *, header: bool, ma
 
     if any(_merges.intersects(area, one) for one in sheet.merged_areas):
         raise VBAUnsupportedError("sorting merged cells is not implemented")
+    if any(area.contains(*key) for key in sheet.notes):
+        raise VBAUnsupportedError("sorting cells with notes is not implemented")
     used = sheet.used_bounds()
     if used is None:
         return

@@ -152,7 +152,7 @@ entry tracked explicitly.
 | Charts | Existing chart parts can be preserved and shapes identified | Audit chart objects, creation, series, axes, formatting, data links and round trips |
 | Pivots, caches and data model | Unmodelled content is preserved in existing files | Inventory and implement headless operations; preservation alone is not runtime support |
 | Power Query | Packaging, M evaluation, local refresh and sheet load targets exist | Complete language/library conformance, data types, errors, query dependency behavior, connectors and refresh settings |
-| Other workbook features | Coverage varies and needs classification | Inventory names, links, comments/notes, hyperlinks, protection, metadata, embedded objects, connections and remaining reference/file features |
+| Other workbook features | Coverage varies and needs classification; notes, which VBA calls comments, are added, read, edited, moved with their cells, copied and saved as Excel does, over 89 live probes and a saved workbook of every kind of note, its parts written byte for byte | Inventory names, links, threaded comments, hyperlinks, protection, metadata, embedded objects, connections and remaining reference/file features; a note's box a macro moves or resizes, and notes under Sort and RemoveDuplicates |
 | Fidelity and release verification | Offline tests, live gates, language matrix and cross-platform CI exist | Add real-world mixed-feature cases, malformed/foreign-author packages and scale tests; require live evidence for new persisted behavior |
 
 ## Execution order within Excel

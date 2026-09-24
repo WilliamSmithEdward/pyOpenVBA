@@ -7,6 +7,25 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Notes, which VBA calls comments: `Range.AddComment`, `Comment`,
+  `NoteText`, `ClearComments` and `ClearNotes`, `Worksheet.Comments`,
+  and the `Comment` object's `Text`, `Author`, `Visible`, `Delete`,
+  `Next`, `Previous`, `Parent` and `Shape`. Each answers as Excel's
+  does, from AddComment's refusals, error 5 for a range of several
+  cells and 1004 for a cell with a note, to `Text "XY", 3` overwriting
+  from the third character where `Overwrite:=False` inserts. A note is a
+  shape too, "Comment 1", of Type 4, its box placed where Excel places
+  one, and it moves with its cell through inserts, deletes, Copy, Cut
+  and PasteSpecial of comments; Clear takes it, AutoFill leaves it
+  behind, and a merge keeps only the first cell's. `SpecialCells` finds
+  the cells with notes, and they count in UsedRange. A save writes the
+  comments part, each note's box in the sheet's VML part and a row for
+  each row with a note as Excel writes them, byte for byte but for the
+  random id Excel gives each note; a workbook Excel saved opens with its
+  notes and saves them back as they came. 89 probes and a saved
+  workbook of every kind of note, in live Excel, pin the rules
+  (scripts/measure_notes.py).
+
 - `Range.Range`, a reference read as though the range's first cell were
   A1, as a macro recorded with relative references uses it:
   `ActiveCell.Offset(1, 0).Range("A1")` is the cell below the active one,
@@ -711,6 +730,15 @@ All notable changes to pyOpenVBA are documented here. This project follows
   ones still reading their own sheet included (scripts/
   measure_shared_sheets.py). The workbook the filtered-edits live gate
   makes, which cuts such cells, opens in Excel again.
+- A form control on a sheet other than the first to draw one is numbered
+  from that sheet's own block of 1024 VML ids, 3073 on for the third, as
+  Excel numbers them; the model numbered every sheet's from 1025. A
+  sheet's `<drawing>` goes before its `<legacyDrawing>` and
+  `<tableParts>`, where the schema has it, rather than at the end.
+- A row's spans are Excel's: a span for each run of 1024-column groups
+  holding a cell, `1:20 16384:16384` for a row block reaching A, T and
+  XFD, where the model wrote `1:16384`. A sheet used in every column
+  writes its dimension as cells, `A1:XFD1048576`, not `1:1048576`.
 - `Range("A1:B2 B2:C3")`, two references with a space between them, is
   where they meet, B2, as in Excel. A comma binds looser,
   `Range("A1:C3 B2:D4,E5")` being B2:C3 and E5, and references that do

@@ -87,6 +87,10 @@ def merge(target: Range, across: bool) -> None:
             assert anchor is not None
             anchor.value, anchor.formula, anchor.stale = retained
             sheet.cell_changed(wanted.top, wanted.left)
+        if sheet.notes:
+            from pyopenvba.apps.excel._notes import merged
+
+            merged(sheet, wanted)
         sheet.merged_areas = [one for one in sheet.merged_areas if not intersects(one, wanted)]
         sheet.merged_areas.append(wanted)
         sheet.merges_dirty = True

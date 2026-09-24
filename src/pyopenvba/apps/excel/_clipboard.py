@@ -67,7 +67,9 @@ ALL_EXCEPT_BORDERS, COLUMN_WIDTHS, FORMULAS_AND_NUMBER_FORMATS, VALUES_AND_NUMBE
 _EVERYTHING = {ALL, ALL_EXCEPT_BORDERS, 13, 14}
 _CONTENT_FORMULAS = _EVERYTHING | {FORMULAS, FORMULAS_AND_NUMBER_FORMATS}
 _CONTENT_VALUES = {VALUES, VALUES_AND_NUMBER_FORMATS}
-_UNMODELLED = {-4144: "comments", 6: "data validation"}
+#: A paste of the notes alone, which VBA calls comments.
+COMMENTS = -4144
+_UNMODELLED = {6: "data validation"}
 _OPERATIONS = {-4142: "", 2: "+", 3: "-", 4: "*", 5: "/"}
 
 
@@ -269,7 +271,7 @@ def paste_special(target: Range, what: object, operation: object, skip_blanks: o
     kind = ALL if what is MISSING else int(to_integer(what, "Long"))
     if kind in _UNMODELLED:
         raise VBAUnsupportedError(f"PasteSpecial of {_UNMODELLED[kind]} is not implemented")
-    if kind not in _EVERYTHING | _CONTENT_FORMULAS | _CONTENT_VALUES | {FORMATS, COLUMN_WIDTHS}:
+    if kind not in _EVERYTHING | _CONTENT_FORMULAS | _CONTENT_VALUES | {FORMATS, COLUMN_WIDTHS, COMMENTS}:
         raise error(1004, "PasteSpecial has no such paste type")
     op = _OPERATIONS.get(-4142 if operation is MISSING else int(to_integer(operation, "Long")))
     if op is None:
@@ -295,8 +297,9 @@ def paste_special(target: Range, what: object, operation: object, skip_blanks: o
                     if made.covers(*position)}
     values = {position: source_sheet.book.calculator.value_of(source_sheet.name, *position)
               for position, cell in source_cells.items() if cell.formula} if kind in _CONTENT_VALUES else {}
-    from pyopenvba.apps.excel import _merges
+    from pyopenvba.apps.excel import _merges, _notes
 
+    notes: dict[tuple[int, int], _notes.Note] = {}
     for down in range(height):
         for across in range(width):
             row, column = corner.top + down, corner.left + across
@@ -304,11 +307,19 @@ def paste_special(target: Range, what: object, operation: object, skip_blanks: o
                 continue
             inner_down, inner_across = down % rows, across % columns
             source = made.source(inner_across, inner_down) if turned else made.source(inner_down, inner_across)
+            if source in source_sheet.notes:
+                notes[(row, column)] = source_sheet.notes[source]
+            if kind == COMMENTS:
+                continue
             cell = source_cells.get(source)
             blank = cell is None or (cell.value is EMPTY and not cell.formula)
             if blank and skipping:
                 continue
             _paste_one(target, kind, op, (row, column), source, cell, values.get(source), turned)
+    if kind == COMMENTS or kind in _EVERYTHING:
+        # The notes come along with everything, and on their own as comments; values and formats leave the notes
+        # where they land as they are (tests/fixtures/excel_model/).
+        _notes.copied(sheet, notes, [Area(corner.top, corner.left, corner.top + height - 1, corner.left + width - 1)])
     return True
 
 
@@ -440,6 +451,10 @@ def move(source: Range, area: Area, destination: Range) -> None:
         if cell.formula:
             cell.value = EMPTY
         target.cells_[(row + down, column + across)] = cell
+    if sheet.notes or target.notes:
+        from pyopenvba.apps.excel._notes import cut as cut_notes
+
+        cut_notes(sheet, area, target, down, across)
     from pyopenvba.apps.excel._autofilter import filter_moved
 
     filter_moved(sheet, area, target, down, across)

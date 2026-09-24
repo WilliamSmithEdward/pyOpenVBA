@@ -29,7 +29,6 @@ from pyopenvba.interpreter._values import (
     to_text,
 )
 from pyopenvba.shapes._values import PRESET_GEOMETRY, SHAPE_NAMES, Shape
-from pyopenvba.shapes._xlsx import FIRST_CONTROL_ID
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Worksheet
@@ -89,13 +88,23 @@ class Shapes(VBACollection):
         self.sheet = sheet
 
     def vba_items(self) -> list[object]:
-        return [ShapeObject(self.sheet, one) for one in self.sheet.shapes_]
+        from pyopenvba.apps.excel._notes import NoteShape
+
+        # A note's box is a shape too, "Comment 1" (tests/fixtures/excel_model/); where it comes among the drawing's
+        # shapes is not measured, and the notes follow them here.
+        return [*(ShapeObject(self.sheet, one) for one in self.sheet.shapes_),
+                *(NoteShape(self.sheet, *key) for key in self.sheet.notes)]
 
     def vba_lookup(self, index: object, items: list[object]) -> object:
         if isinstance(index, str):
             for shape in self.sheet.shapes_:
                 if shape.name.lower() == index.lower():
                     return ShapeObject(self.sheet, shape)
+            for key, note in self.sheet.notes.items():
+                if note.name.lower() == index.lower():
+                    from pyopenvba.apps.excel._notes import NoteShape
+
+                    return NoteShape(self.sheet, *key)
             raise error(ERR_NO_SUCH_SHAPE, f"there is no shape called {index}")
         position = int(to_number(index))
         if 1 <= position <= len(items):
@@ -204,15 +213,12 @@ class Shapes(VBACollection):
             shape.control.first_button = first_button
         if wanted in (8, 9):
             shape.control.maximum = 100 if wanted == 8 else 30000
-        # A control is numbered from 1025, apart from the drawing
-        # shapes, which start at 2.  The VML names it by that number
-        # too, and Excel will not open a file where the two disagree.
-        others = [
-            one.shape_id
-            for one in self.sheet.shapes_
-            if one.kind == "formControl" and one is not shape
-        ]
-        shape.shape_id = max(others, default=FIRST_CONTROL_ID - 1) + 1
+        # A control is numbered in the sheet's block of VML ids, 1025 on in the first sheet to have one, apart from
+        # the drawing shapes, which start at 2, and in one sequence with the sheet's notes (tests/fixtures/notes.json).
+        # The VML names it by that number too, and Excel will not open a file where the two disagree.
+        from pyopenvba.apps.excel._notes import next_shape_id
+
+        shape.shape_id = next_shape_id(self.sheet)
         if wanted == 7:
             from pyopenvba.apps.excel._radios import groups
 

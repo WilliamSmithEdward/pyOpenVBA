@@ -54,6 +54,7 @@ if TYPE_CHECKING:
     from pyopenvba.apps.excel._autofilter import SheetFilter
     from pyopenvba.apps.excel._protection import BookProtection, Gate, SheetProtection
     from pyopenvba.apps.excel._clipboard import Clip
+    from pyopenvba.apps.excel._notes import Note
     from pyopenvba.apps.excel._sort import SortState
     from pyopenvba.apps.excel._spills import Spill
     from pyopenvba.apps.excel._styles import Style, Stylesheet
@@ -896,6 +897,14 @@ class Worksheet(ExcelObject):
         self.drawing_part = ""
         self.drawing_xml = ""
         self.drawing_dirty = False
+        #: The notes on the sheet's cells, which VBA calls comments, by cell in the order they were made (see
+        #: _notes); True once one is added, changed, moved or removed, so a save writes them again.
+        self.notes: dict[tuple[int, int], Note] = {}
+        self.notes_changed = False
+        #: The block of ids the sheet's VML part numbers its notes and form controls from, 0 until it has one, and
+        #: the last id it gave (see _notes.next_shape_id).
+        self.vml_block = 0
+        self.vml_last_id = 0
 
     def touched(self) -> None:
         self.dirty = True
@@ -1117,6 +1126,14 @@ class Worksheet(ExcelObject):
             return Range(self, parse_reference(wanted, sheet=self.name), whole="columns")
         column = int(to_integer(Index, "Long"))
         return Range(self, [Area(1, column, MAX_ROWS, column, self.name)], whole="columns")
+
+    @member
+    def Comments(self, Index: object = MISSING) -> object:
+        """The sheet's notes, row by row (see _notes)."""
+        from pyopenvba.apps.excel._notes import Comments
+
+        notes = Comments(self)
+        return notes if Index is MISSING else notes.vba_get("Item", [Index])
 
     @member
     def UsedRange(self) -> object:
@@ -1403,6 +1420,8 @@ class Worksheet(ExcelObject):
         live = [(row, column) for (row, column), cell in self.cells_.items() if self.holds(row, column, cell)]
         for area in [*self.merged_areas, *self.array_formulas.values()]:
             live.extend(((area.top, area.left), (area.bottom, area.right)))
+        # A note's cell counts, empty or not (tests/fixtures/excel_model/, notes.json).
+        live.extend(self.notes)
         rows = [row for row, _ in live]
         rows.extend(self.dims.record_rows())
         rows.extend(self.dims.shaped_rows())
@@ -2443,6 +2462,11 @@ class Range(ExcelObject):
         clear_formats(target)
         target._clear_contents()
         header_cleared(target)
+        if self.sheet.notes:
+            from pyopenvba.apps.excel._notes import clear
+
+            # Clear takes a cell's note too; ClearContents and ClearFormats leave it (tests/fixtures/excel_model/).
+            clear(self.sheet, list(target.areas))
         if self.sheet.validations:
             from pyopenvba.apps.excel._validation import remove
 
@@ -2467,6 +2491,38 @@ class Range(ExcelObject):
         header_cleared(target)
         _events.after_edit(self)
         return EMPTY
+
+    # -- notes, which VBA calls comments (see _notes)
+
+    @method
+    def AddComment(self, Text: object = MISSING) -> object:
+        from pyopenvba.apps.excel._notes import add_comment
+
+        return add_comment(self, Text)
+
+    @member
+    def Comment(self) -> object:
+        from pyopenvba.apps.excel._notes import comment_of
+
+        return comment_of(self)
+
+    @method
+    def ClearComments(self) -> object:
+        from pyopenvba.apps.excel._notes import clear
+
+        clear(self.sheet, list(self.areas))
+        return EMPTY
+
+    @method
+    def ClearNotes(self) -> object:
+        """The same as ClearComments, as Excel does it (tests/fixtures/excel_model/)."""
+        return self.ClearComments()
+
+    @method
+    def NoteText(self, Text: object = MISSING, Start: object = MISSING, Length: object = MISSING) -> object:
+        from pyopenvba.apps.excel._notes import note_text
+
+        return note_text(self, Text, Start, Length)
 
     def _clear_contents(self) -> None:
         """Every value and formula gone; a cell left with nothing to say goes with them."""
@@ -2741,6 +2797,16 @@ class Range(ExcelObject):
                 for tile_column in range(target.left, right + 1, area.columns):
                     copied(self.sheet, Area(area.top, area.left, area.bottom, area.right), Destination.sheet,
                            Area(tile_row, tile_column, tile_row + area.rows - 1, tile_column + area.columns - 1))
+        if self.sheet.notes or Destination.sheet.notes:
+            from pyopenvba.apps.excel import _notes
+
+            # Each cell copied takes its note along, and one without takes off the note it lands on
+            # (tests/fixtures/excel_model/).
+            notes = {(tile_row + row - area.top, tile_column + column - area.left): note
+                     for (row, column), note in self.sheet.notes.items() if area.contains(row, column)
+                     for tile_row in range(target.top, bottom + 1, area.rows)
+                     for tile_column in range(target.left, right + 1, area.columns)}
+            _notes.copied(Destination.sheet, notes, [written])
         if names_brought:
             # Names the copy brought can change what any formula means.
             Destination.sheet.shape_changed()

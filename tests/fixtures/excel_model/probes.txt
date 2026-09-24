@@ -543,6 +543,98 @@ Range("A1").Value = CVErr(1) ;; Range("A1").Formula
 Range("A1").Formula = "=DROP(1,1)" ;; CStr(Range("A1").Value)
 Range("A1").Formula = "=DROP(1,1)" ;; IsError(Range("A1").Value)
 
+# --- notes, which VBA calls comments: AddComment, Comment, NoteText, Comments ---
+Range("B2").AddComment "Hello" ;; Range("B2").Comment.Text
+Range("B2").AddComment ;; Range("B2").Comment.Text
+Range("B2").AddComment "" ;; Range("B2").Comment.Text
+Range("B2").AddComment 5 ;; Range("B2").Comment.Text
+Range("B2").AddComment "Line1" & vbLf & "Line2" ;; Len(Range("B2").Comment.Text)
+Range("B2").AddComment "Line1" & vbCrLf & "Line2" ;; Len(Range("B2").Comment.Text)
+Range("B2").AddComment "Hello" ;; TypeName(Range("B2").Comment)
+;; TypeName(Range("B2").Comment)
+Range("B2").AddComment "Hello" ;; TypeName(Range("B2:C3").Comment)
+Range("C3").AddComment "Hello" ;; TypeName(Range("B2:C3").Comment)
+Range("B2").AddComment "Hello" ;; TypeName(Range("B2").AddComment("Again"))
+Range("B2:C3").AddComment "Hello" ;; ActiveSheet.Comments.Count
+Range("B2").AddComment "Hello" ;; Range("B2").Comment.Author = Application.UserName
+Range("B2").AddComment "Hello" ;; Range("B2").Comment.Visible
+Range("B2").AddComment "Hello": Range("B2").Comment.Visible = True ;; Range("B2").Comment.Visible
+Range("B2").AddComment "Hello" ;; Range("B2").Comment.Text("XY")
+Range("B2").AddComment "Hello": Range("B2").Comment.Text "Bye" ;; Range("B2").Comment.Text
+Range("B2").AddComment "Hello": Range("B2").Comment.Text "XY", 3 ;; Range("B2").Comment.Text
+Range("B2").AddComment "Hello": Range("B2").Comment.Text "XY", 3, False ;; Range("B2").Comment.Text
+Range("B2").AddComment "Hello": Range("B2").Comment.Text "XY", 3, True ;; Range("B2").Comment.Text
+Range("B2").AddComment "Hello": Range("B2").Comment.Text "XY", 10, False ;; Range("B2").Comment.Text
+Range("B2").AddComment "Hello": Range("B2").Comment.Text "XY", 0, False ;; Range("B2").Comment.Text
+Range("B2").AddComment "Hello": Range("B2").Comment.Text Start:=2 ;; Range("B2").Comment.Text
+Range("B2").AddComment "Hello" ;; Range("B2").Comment.Text(Start:=2)
+Range("B2").AddComment "Hello": Range("B2").Comment.Delete ;; TypeName(Range("B2").Comment)
+Range("B2").AddComment "Hello": Range("C3").AddComment "Bye" ;; ActiveSheet.Comments.Count
+Range("C3").AddComment "Bye": Range("B2").AddComment "Hello" ;; ActiveSheet.Comments(1).Text
+Range("B3").AddComment "Bye": Range("C2").AddComment "Hello" ;; ActiveSheet.Comments(1).Parent.Address
+Range("C2").AddComment "Bye": Range("B3").AddComment "Hello" ;; ActiveSheet.Comments(2).Parent.Address
+Range("B2").AddComment "Hello" ;; ActiveSheet.Comments(2).Text
+Range("B2").AddComment "Hello" ;; ActiveSheet.Comments(0).Text
+;; ActiveSheet.Comments.Count
+;; TypeName(ActiveSheet.Comments)
+Range("B2").AddComment "Hello": Range("C3").AddComment "Bye" ;; Range("B2").Comment.Next.Parent.Address
+Range("B2").AddComment "Hello": Range("C3").AddComment "Bye" ;; TypeName(Range("C3").Comment.Next)
+Range("B2").AddComment "Hello": Range("C3").AddComment "Bye" ;; Range("C3").Comment.Previous.Parent.Address
+Range("B2").AddComment "Hello" ;; TypeName(Range("B2").Comment.Previous)
+Range("B2").AddComment "Hello" ;; TypeName(Range("B2").Comment.Parent)
+Range("B2").AddComment "Hello" ;; Range("B2").Comment.Parent.Address
+Range("B2").AddComment "Hello" ;; Range("B2").Comment.Creator
+Range("B2").AddComment "Hello" ;; Range("B2").NoteText
+;; Range("B2").NoteText
+Range("B2").NoteText "Hello" ;; Range("B2").Comment.Text
+Range("B2").AddComment "Hello" ;; Range("B2").NoteText(Start:=2, Length:=3)
+Range("B2").AddComment "Hello" ;; Range("B2").NoteText(Start:=2)
+Range("B2").AddComment "Hello": Range("B2").NoteText "XY", 3 ;; Range("B2").NoteText
+Range("B2").AddComment "Hello": Range("B2").NoteText "XY", 3, 2 ;; Range("B2").NoteText
+Range("B2").AddComment "Hello": Range("B2").NoteText "" ;; TypeName(Range("B2").Comment)
+Range("B2").AddComment "Hello": Range("C3").AddComment "Bye" ;; Range("B2:C3").NoteText
+Range("B2").AddComment "Hello": Range("B2:C3").ClearComments ;; ActiveSheet.Comments.Count
+Range("B2").AddComment "Hello": Range("B2").ClearNotes ;; ActiveSheet.Comments.Count
+Range("B2").AddComment "Hello": Range("B2").ClearContents ;; TypeName(Range("B2").Comment)
+Range("B2").AddComment "Hello": Range("B2").ClearFormats ;; TypeName(Range("B2").Comment)
+Range("B2").AddComment "Hello": Range("B2").Clear ;; TypeName(Range("B2").Comment)
+Range("B2").AddComment "Hello": Range("B2").Value = 5 ;; TypeName(Range("B2").Comment)
+Range("B2").AddComment "Hello": Rows(1).Insert ;; Range("B3").Comment.Text
+Range("B2").AddComment "Hello": Columns(1).Insert ;; Range("C2").Comment.Text
+Range("B2").AddComment "Hello": Rows(2).Delete ;; ActiveSheet.Comments.Count
+Range("B2").AddComment "Hello": Rows(1).Delete ;; Range("B1").Comment.Text
+Range("B2").AddComment "Hello": Range("B1").Insert xlShiftDown ;; Range("B3").Comment.Text
+Range("B2").AddComment "Hello": Range("A2").Delete xlShiftToLeft ;; Range("A2").Comment.Text
+Range("B2").AddComment "Hello": Range("B2").Copy Range("D4") ;; Range("D4").Comment.Text
+Range("B2").AddComment "Hello": Range("B2").Copy Range("D4") ;; ActiveSheet.Comments.Count
+Range("B2").AddComment "Hello": Range("B2").Cut Range("D4") ;; Range("D4").Comment.Text & "|" & TypeName(Range("B2").Comment)
+Range("B2").AddComment "Hello": Range("D4").AddComment "Bye": Range("B2").Copy Range("D4") ;; Range("D4").Comment.Text
+Range("B2").AddComment "Hello": Range("D4").AddComment "Bye": Range("C3").Copy Range("D4") ;; TypeName(Range("D4").Comment)
+Range("B2").AddComment "Hello": Range("B2").Copy: Range("D4").PasteSpecial xlPasteValues ;; TypeName(Range("D4").Comment)
+Range("B2").AddComment "Hello": Range("B2").Copy: Range("D4").PasteSpecial xlPasteComments ;; Range("D4").Comment.Text
+Range("B2").AddComment "Hello": Range("B2").Copy: Range("D4").PasteSpecial xlPasteFormats ;; TypeName(Range("D4").Comment)
+Range("B2").AddComment "Hello": Range("B2").AutoFill Range("B2:B4") ;; TypeName(Range("B4").Comment)
+Range("B2").AddComment "Hello": Range("B2:C2").Merge ;; TypeName(Range("B2").Comment)
+Range("C2").AddComment "Hello": Range("B2:C2").Merge ;; TypeName(Range("B2").Comment) & "|" & ActiveSheet.Comments.Count
+Range("B2").AddComment "Hello" ;; Cells.SpecialCells(xlCellTypeComments).Address
+Range("B2").AddComment "Hello": Range("D4").AddComment "Bye" ;; Cells.SpecialCells(xlCellTypeComments).Address
+;; Cells.SpecialCells(xlCellTypeComments).Address
+Range("B2").AddComment "Hello" ;; ActiveSheet.Shapes.Count
+Range("B2").AddComment "Hello" ;; ActiveSheet.Shapes(1).Type
+Range("B2").AddComment "Hello" ;; ActiveSheet.Shapes(1).Name
+Range("B2").AddComment "Hello" ;; Range("B2").Comment.Shape.Name
+Range("B2").AddComment "Hello" ;; Range("B2").Comment.Shape.Width & "|" & Range("B2").Comment.Shape.Height
+Range("B2").AddComment "Hello" ;; Range("B2").Comment.Shape.Left & "|" & Range("B2").Comment.Shape.Top
+Range("A1").AddComment "Hello" ;; Range("A1").Comment.Shape.Left & "|" & Range("A1").Comment.Shape.Top
+Range("B2").AddComment "Hello": Range("C3").AddComment "Bye" ;; Range("C3").Comment.Shape.Name
+Range("B2").AddComment "Hello": Range("B2").Comment.Delete: Range("C3").AddComment "Bye" ;; Range("C3").Comment.Shape.Name
+Range("B2").AddComment "Hello" ;; Range("B2").Comment.Shape.Visible
+Range("B2").AddComment "Hello" ;; ActiveSheet.Comments(1).Shape.TextFrame.Characters.Text
+Range("B2").AddComment "Hello": Worksheets.Add ;; ActiveSheet.Comments.Count
+Range("B2").AddComment "Hello" ;; ActiveSheet.UsedRange.Address
+Range("B2").AddComment "Hello" ;; Range("B2").HasFormula
+Range("B2").AddComment "Hello" ;; IsEmpty(Range("B2").Value)
+
 # --- a sheet function WorksheetFunction does not carry ---
 ;; WorksheetFunction.If(True, 1, 2)
 ;; WorksheetFunction.Sin(1)

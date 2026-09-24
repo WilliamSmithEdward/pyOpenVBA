@@ -1189,6 +1189,26 @@ writes the dataValidations element as Excel writes it. A list read from
 another sheet, which Excel keeps in the worksheet's x14 extension, is
 read and not made.
 
+**Notes.** `Range.AddComment`, `Comment`, `NoteText`, `ClearComments`
+and `ClearNotes`, `Worksheet.Comments` and the `Comment` object answer as
+Excel's do (`tests/fixtures/excel_model/probes.txt`, 89 probes;
+`_notes`): a note on one cell that has none, error 5 for a range of
+several and 1004 for a cell with one, `Comments` listing them row by
+row, `Comment.Text` replacing the text from Start or putting it in with
+Overwrite False, and `NoteText ""` taking a note off. A note is a shape
+too, "Comment 1", of Type 4, in the numbering the sheet's shapes share,
+its box placed where Excel places a new one: 15 pixels right of its cell
+and 10 above, to the left or above where it would leave the sheet. A
+note moves with its cell through inserts, deletes, Copy and Cut, goes
+with a deleted row, and survives ClearContents and ClearFormats but not
+Clear; AutoFill leaves it behind and a merge keeps only the first cell's.
+A save writes the comments part, the note's box in the sheet's VML part
+and the sheet's rows as Excel does, byte for byte but for the random id
+Excel gives each note (`tests/fixtures/notes.json`, `_notes_file`), and
+a workbook Excel saved opens with its notes and saves them back as they
+came. Sorting or removing duplicates over a note, and threaded comments,
+report themselves unsupported.
+
 **Windows and sheet views.** `ActiveWindow`, `Windows`,
 `Workbook.Windows` and `Goto` behave as Excel does with its window shown
 (`tests/fixtures/windows/`, 113 workbooks). Each sheet has its own view,

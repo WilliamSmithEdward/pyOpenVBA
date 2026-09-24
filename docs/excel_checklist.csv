@@ -363,6 +363,23 @@ Characters,Insert,method,Insert(String As String) As Variant,,MISSING,,
 Characters,Parent,"property, read-only",As Object,,MISSING,,
 Characters,PhoneticCharacters,property,As String,,MISSING,,
 Characters,Text,property,As String,,PARTIAL,tests/fixtures/excel_model/probes.txt,
+Comment,Application,"property, read-only",As Application,,UNASSESSED,,
+Comment,Author,"property, read-only",As String,,VERIFIED,tests/fixtures/excel_model/probes.txt; tests/fixtures/notes.json,The application's user name when the note was made.
+Comment,Creator,"property, read-only",As XlCreator,,VERIFIED,tests/fixtures/excel_model/probes.txt,
+Comment,Delete,method,Delete(),,VERIFIED,tests/fixtures/excel_model/probes.txt; tests/fixtures/notes.json,Its shape's id and name are not given again.
+Comment,Next,method,Next() As Comment,,VERIFIED,tests/fixtures/excel_model/probes.txt,"The next note row by row, Nothing after the last."
+Comment,Parent,"property, read-only",As Object,,VERIFIED,tests/fixtures/excel_model/probes.txt,The cell.
+Comment,Previous,method,Previous() As Comment,,VERIFIED,tests/fixtures/excel_model/probes.txt,"The note before row by row, Nothing before the first."
+Comment,Shape,"property, read-only",As Shape,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/notes.json,"Name, Type, Left, Top, Width, Height, Visible, Delete and TextFrame.Characters.Text; the rest of Shape reports itself unsupported."
+Comment,Text,method,"Text([Text As Variant], [Start As Variant], [Overwrite As Variant]) As String",,VERIFIED,tests/fixtures/excel_model/probes.txt,"Given text it replaces the text from Start on, or goes in at Start with Overwrite False; Overwrite True and a Start below 1 are error 5."
+Comment,Visible,property,As Boolean,,VERIFIED,tests/fixtures/excel_model/probes.txt; tests/fixtures/notes.json,
+Comments,_Default,"property, read-only",As Comment,,MISSING,,
+Comments,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
+Comments,Application,"property, read-only",As Application,,UNASSESSED,,
+Comments,Count,"property, read-only",As Long,,VERIFIED,tests/fixtures/excel_model/probes.txt,
+Comments,Creator,"property, read-only",As XlCreator,,UNASSESSED,,
+Comments,Item,method,Item(Index As Long) As Comment,,VERIFIED,tests/fixtures/excel_model/probes.txt,Row by row; 0 is error 9 and past the last error 1004.
+Comments,Parent,"property, read-only",As Object,,UNASSESSED,,
 ControlFormat,_Default,property,As Long,,MISSING,,
 ControlFormat,AddItem,method,"AddItem(Text As String, [Index As Variant])",,PARTIAL,tests/fixtures/shapes/inline_controls.json; tests/fixtures/shapes/list_arrays.json,
 ControlFormat,Application,"property, read-only",As Application,,MISSING,,
@@ -585,7 +602,7 @@ Queries,Parent,"property, read-only",As Object,,MISSING,,
 Range,_Default,property,As Variant,,MISSING,,
 Range,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
 Range,Activate,method,Activate() As Variant,,UNASSESSED,,
-Range,AddComment,method,AddComment([Text As Variant]) As Comment,,MISSING,,
+Range,AddComment,method,AddComment([Text As Variant]) As Comment,,VERIFIED,tests/fixtures/excel_model/probes.txt; tests/fixtures/notes.json,"One cell with no note; a number is error 1004, a range of several cells error 5, a cell with a note 1004. Saved as Excel saves it, box and all."
 Range,AddCommentThreaded,method,AddCommentThreaded(Text As String) As CommentThreaded,,MISSING,,
 Range,AddIndent,property,As Variant,,PARTIAL,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,Measured with distributed alignment only.
 Range,Address,"property, read-only",As String,,PARTIAL,tests/fixtures/excel_model/probes.txt,"A1 or R1C1 style; a relative R1C1 part counts from RelativeTo, or from A1 when it is left out, whatever is selected."
@@ -611,17 +628,17 @@ Range,Cells,"property, read-only",As Range,,PARTIAL,tests/fixtures/excel_model/p
 Range,Characters,"property, read-only",As Characters,,MISSING,,
 Range,CheckSpelling,method,"CheckSpelling([CustomDictionary As Variant], [IgnoreUppercase As Variant], [AlwaysSuggest As Variant], [SpellLang As Variant]) As Variant",,MISSING,,
 Range,Clear,method,Clear() As Variant,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/row_formats/row_formats.json; tests/test_live_excel_model_gate.py; tests/fixtures/autofilter_edits.json,"A position a row or column format reaches keeps a cell in the default format. On a filtered sheet only the visible cells clear, and clearing a filter's whole header row turns the filter off."
-Range,ClearComments,method,ClearComments(),,MISSING,,
+Range,ClearComments,method,ClearComments(),,VERIFIED,tests/fixtures/excel_model/probes.txt,
 Range,ClearContents,method,ClearContents([RemoveControls As Variant]) As Variant,no RemoveControls,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/row_formats/row_formats.json; tests/fixtures/autofilter_edits.json,"An emptied cell in the format its row or column gives it goes. On a filtered sheet only the visible cells clear, and clearing a filter's whole header row turns the filter off."
 Range,ClearFormats,method,ClearFormats() As Variant,,VERIFIED,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py; tests/fixtures/row_formats/row_formats.json; tests/fixtures/autofilter_edits.json,"Whole rows and columns lose their own formats, and positions a column's or row's format still reaches get a cell in the default format. On a filtered sheet only the visible cells, and clearing a filter's whole header row turns the filter off."
 Range,ClearHyperlinks,method,ClearHyperlinks(),,MISSING,,
-Range,ClearNotes,method,ClearNotes() As Variant,,MISSING,,
+Range,ClearNotes,method,ClearNotes() As Variant,,VERIFIED,tests/fixtures/excel_model/probes.txt,The same as ClearComments.
 Range,ClearOutline,method,ClearOutline() As Variant,,MISSING,,
 Range,Column,"property, read-only",As Long,,PARTIAL,tests/fixtures/excel_model/probes.txt,
 Range,ColumnDifferences,method,ColumnDifferences(Comparison As Variant) As Range,,MISSING,,
 Range,Columns,"property, read-only",As Range,,PARTIAL,tests/fixtures/excel_model/probes.txt,
 Range,ColumnWidth,property,As Variant,,PARTIAL,tests/fixtures/dimensions.json; tests/fixtures/dimensions/dimensions_answers.json,Measured for Aptos Narrow 11 and Calibri 11 as the Normal font on a 96-DPI display; with another Normal font the file's own standard sizes stand. A read across several rows or columns compares inside the sheet's current used block; Excel's can stay larger for the rest of a session after a column is hidden.
-Range,Comment,"property, read-only",As Comment,,MISSING,,
+Range,Comment,"property, read-only",As Comment,,VERIFIED,tests/fixtures/excel_model/probes.txt,"Nothing for a range of several cells, whatever they hold."
 Range,CommentThreaded,"property, read-only",As CommentThreaded,,MISSING,,
 Range,Consolidate,method,"Consolidate([Sources As Variant], [Function As Variant], [TopRow As Variant], [LeftColumn As Variant], [CreateLinks As Variant]) As Variant",,MISSING,,
 Range,ConvertToLinkedDataType,method,"ConvertToLinkedDataType(ServiceID As Long, LanguageCulture As String)",,MISSING,,
@@ -703,7 +720,7 @@ Range,MergeCells,property,As Variant,,PARTIAL,tests/fixtures/range_merge.json,Mu
 Range,Name,property,As Variant,,PARTIAL,tests/fixtures/names_crud.json,
 Range,NavigateArrow,method,"NavigateArrow([TowardPrecedent As Variant], [ArrowNumber As Variant], [LinkNumber As Variant]) As Variant",,MISSING,,
 Range,Next,"property, read-only",As Range,,PARTIAL,tests/fixtures/excel_model/probes.txt,"The cell right of the top-left one, error 1004 past the last column; on a protected sheet, where it moves between unlocked cells, it reports itself unsupported."
-Range,NoteText,method,"NoteText([Text As Variant], [Start As Variant], [Length As Variant]) As String",,MISSING,,
+Range,NoteText,method,"NoteText([Text As Variant], [Start As Variant], [Length As Variant]) As String",,VERIFIED,tests/fixtures/excel_model/probes.txt,"The first cell's note: read from Start for Length, written from Start or over Length characters; written whole as """" it takes the note off."
 Range,NumberFormat,property,As Variant,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/row_formats/row_formats.json; tests/fixtures/typing_formats.json; tests/fixtures/autofilter_edits.json,"Whole rows, whole columns and the whole sheet are formatted through their own formats, as Excel keeps them. On a filtered sheet only the visible cells take a format, as Font, Interior, Borders and alignment do. A code is kept as Excel rewrites it -- a quoted $ bare, codes in their case, a lower-case exponent refused -- except the thousands separator Excel moves when a quoted literal splits the digits."
 Range,NumberFormatLocal,property,As Variant,,PARTIAL,tests/fixtures/excel_model/probes.txt,"The same as NumberFormat, as an English Excel has it; the model keeps the English spelling."
 Range,Offset,"property, read-only",As Range,,PARTIAL,tests/fixtures/excel_model/probes.txt,
@@ -713,7 +730,7 @@ Range,PageBreak,property,As Long,,MISSING,,
 Range,Parent,"property, read-only",As Object,,UNASSESSED,,
 Range,Parse,method,"Parse([ParseLine As Variant], [Destination As Variant]) As Variant",,MISSING,,
 Range,PastePictureInCell,method,PastePictureInCell(),,MISSING,,
-Range,PasteSpecial,method,"PasteSpecial([Paste As XlPasteType], [Operation As XlPasteSpecialOperation], [SkipBlanks As Variant], [Transpose As Variant]) As Variant",,PARTIAL,tests/fixtures/paste.json; tests/fixtures/autofilter_edits.json,"Everything, values, formulas, formats, number formats, all but borders and column widths, with operations, skipped blanks and transposing; comments and validation report themselves unsupported. A copy of several areas pastes closed up, each formula moved as far as its own cell; a filtered destination takes the paste whole."
+Range,PasteSpecial,method,"PasteSpecial([Paste As XlPasteType], [Operation As XlPasteSpecialOperation], [SkipBlanks As Variant], [Transpose As Variant]) As Variant",,PARTIAL,tests/fixtures/paste.json; tests/fixtures/autofilter_edits.json; tests/fixtures/excel_model/probes.txt,"Everything, values, formulas, formats, number formats, all but borders and column widths, with operations, skipped blanks and transposing; comments paste the notes alone, which everything takes along too; validation reports itself unsupported. A copy of several areas pastes closed up, each formula moved as far as its own cell; a filtered destination takes the paste whole."
 Range,Phonetic,"property, read-only",As Phonetic,,MISSING,,
 Range,Phonetics,"property, read-only",As Phonetics,,MISSING,,
 Range,PivotCell,"property, read-only",As PivotCell,,MISSING,,
@@ -758,7 +775,7 @@ Range,SortSpecial,method,"SortSpecial([SortMethod As XlSortMethod], [Key1 As Var
 Range,SoundNote,"property, read-only",As SoundNote,,MISSING,,
 Range,SparklineGroups,"property, read-only",As SparklineGroups,,MISSING,,
 Range,Speak,method,"Speak([SpeakDirection As Variant], [SpeakFormulas As Variant])",,MISSING,,
-Range,SpecialCells,method,"SpecialCells(Type As XlCellType, [Value As Variant]) As Range",,PARTIAL,tests/fixtures/special_cells.json,"Constants and formulas by kind, blanks, the last cell and visible cells, split into areas as Excel splits them; comments, validation and conditional formats report themselves unsupported."
+Range,SpecialCells,method,"SpecialCells(Type As XlCellType, [Value As Variant]) As Range",,PARTIAL,tests/fixtures/special_cells.json; tests/fixtures/excel_model/probes.txt,"Constants and formulas by kind, blanks, the last cell, visible cells and the cells with notes, split into areas as Excel splits them; validation and conditional formats report themselves unsupported."
 Range,SpillingToRange,"property, read-only",As Range,,VERIFIED,tests/fixtures/dynamic_arrays.json,The block a dynamic-array formula in the first cell spilled into; Nothing for any other cell.
 Range,SpillParent,"property, read-only",As Range,,VERIFIED,tests/fixtures/dynamic_arrays.json,The cell of the dynamic-array formula whose answer spilled over the first cell; Nothing where none did.
 Range,Style,property,As Variant,,MISSING,,
@@ -1425,7 +1442,7 @@ Worksheet,ClearArrows,method,ClearArrows(),,MISSING,,
 Worksheet,ClearCircles,method,ClearCircles(),,MISSING,,
 Worksheet,CodeName,"property, read-only",As String,,PARTIAL,tests/fixtures/events.json,"The codeName a file's sheetPr gives, else Sheet1, Sheet2 by place; Sheet1 for a new workbook's sheet, and nothing for a sheet a macro adds, as measured. It names the sheet in code, Sheet1.Range, and the sheet's own module. Only the VBE can change it."
 Worksheet,Columns,"property, read-only",As Range,,UNASSESSED,,
-Worksheet,Comments,"property, read-only",As Comments,,MISSING,,
+Worksheet,Comments,"property, read-only",As Comments,,VERIFIED,tests/fixtures/excel_model/probes.txt; tests/fixtures/notes.json,"Row by row, and in the saved file."
 Worksheet,CommentsThreaded,"property, read-only",As CommentsThreaded,,MISSING,,
 Worksheet,ConsolidationFunction,"property, read-only",As XlConsolidationFunction,,MISSING,,
 Worksheet,ConsolidationOptions,"property, read-only",As Variant,,MISSING,,

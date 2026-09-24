@@ -29,15 +29,8 @@ SETUP = "\n".join(line for line in RECORD["setup"].splitlines() if "Formula2" no
 FORMS = [(name, formula) for name, formulas in RECORD["forms"].items() for formula in formulas]
 
 _SPILLS = "a formula reaching a spilled range with # waits for dynamic arrays that spill"
-_CELL_NAMES = "Excel takes a name that looks like a cell, A1 or x1, as a LET's or a LAMBDA's name, and keeps its case; " \
-              "the model reads the cell"
-_OPTIONAL = "Excel's LAMBDA takes [name] for a parameter a call may leave out, and a call leaving out any other is " \
-            "#VALUE!; the model has no optional parameters and lets a call leave out any"
 #: Values the model does not show as Excel does, and why.
 VALUE_GAPS: dict[str, str] = {
-    **dict.fromkeys(("=LET(A1,1,A1)", "=LET(A1,5,A1)", "=LET(A1,5,A1+1)", "=LET(x1,5,x1)", "=LET($A$1,5,1)",
-                     "=LAMBDA(A1,1)", "=LAMBDA(A1,A1)(5)", "=LAMBDA(x1,x1)(5)"), _CELL_NAMES),
-    **dict.fromkeys(("=LAMBDA(x,x)()", "=LAMBDA(x,[y],x)(1)", "=LAMBDA([x],1)()"), _OPTIONAL),
     "=GETPIVOTDATA(A1,A1,A1)": "GETPIVOTDATA is not implemented",
 }
 

@@ -207,7 +207,10 @@ class _Walk:
     def _lambda(self, node: Call) -> None:
         """A LAMBDA's parameters stand for what it is given, cells or an array: its body cuts them."""
         *parameters, body = node.args or [None]
-        self.bound.append({one.name.upper(): True for one in parameters if isinstance(one, NameNode)})
+        names = [one.name for one in parameters if isinstance(one, NameNode)]
+        # A parameter a call may leave out is written in brackets, [y].
+        names += [one.first for one in parameters if isinstance(one, Structured) and one.first is not None]
+        self.bound.append({name.upper(): True for name in names})
         try:
             self.visit(body, HANDED)
         finally:

@@ -192,6 +192,57 @@ def tokenize(source: str, *, spaces: bool = False) -> list[Token]:
             kind = "name"
         out.append(Token(kind, match.group(0), match.start()))
     out.append(Token("eof", "", len(source)))
+    return _bind_cells(out)
+
+
+#: The functions that bind names, as a formula or a file spells them.
+_BINDERS: Final = {"LET": "LET", "_XLFN.LET": "LET", "LAMBDA": "LAMBDA", "_XLFN.LAMBDA": "LAMBDA"}
+#: A cell a LET or a LAMBDA can bind as a name: one, with no $ and no sheet.
+_CELL_NAME: Final = re.compile(r"[A-Za-z]{1,3}[0-9]{1,7}")
+
+
+@dataclass
+class _Binding:
+    """A bracket open while a formula is read, and what a LET or a LAMBDA opening it binds."""
+
+    binder: str = ""
+    bound: set[str] = field(default_factory=lambda: set())
+    argument: int = 0
+    starting: bool = True
+
+
+def _bind_cells(tokens: list[Token]) -> list[Token]:
+    """``tokens`` with each cell a LET or a LAMBDA binds, and each standing for it in its scope, made a name:
+    Excel takes LET(x1,5,x1) to be 5, x1 a name there, and keeps it as written (tests/fixtures/bound_names.json)."""
+    if not any(token.kind == "name" and token.text.upper() in _BINDERS for token in tokens):
+        return tokens
+    out = list(tokens)
+    solid = [index for index, token in enumerate(tokens) if token.kind != "ws"]
+    open_: list[_Binding] = []
+    for place, index in enumerate(solid):
+        token = tokens[index]
+        following = tokens[solid[place + 1]] if place + 1 < len(solid) else token
+        if token.kind == "ref" and _CELL_NAME.fullmatch(token.text) and _on_the_sheet(token.text):
+            key = token.text.upper()
+            inner = open_[-1] if open_ else None
+            if inner is not None and inner.binder and inner.starting and following.kind == "comma" \
+                    and (inner.binder == "LAMBDA" or inner.argument % 2 == 0):
+                inner.bound.add(key)
+                out[index] = Token("name", token.text, token.at)
+            elif any(key in bracket.bound for bracket in open_):
+                out[index] = Token("name", token.text, token.at)
+        if open_ and token.kind != "eof":
+            open_[-1].starting = False
+        if token.kind in ("open", "lbrace"):
+            previous = tokens[solid[place - 1]] if place else None
+            called = previous is not None and previous.kind == "name" and token.kind == "open" \
+                and token.at == previous.at + len(previous.text)
+            open_.append(_Binding(binder=_BINDERS.get(previous.text.upper(), "") if called and previous else ""))
+        elif token.kind in ("close", "rbrace") and open_:
+            open_.pop()
+        elif token.kind == "comma" and open_:
+            open_[-1].argument += 1
+            open_[-1].starting = True
     return out
 
 

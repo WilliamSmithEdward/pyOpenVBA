@@ -1683,7 +1683,7 @@ class Range(ExcelObject):
                 text = to_a1(value, anchor.top, anchor.left, names=True)
             except ValueError as exc:
                 raise error(1004, str(exc)) from None
-            spelled = spelled_formula(self.sheet, text, anchor.top, anchor.left, at=True)
+            spelled = spelled_formula(self.sheet, text, anchor.top, anchor.left, at=True, r1c1=True)
         else:
             spelled = written_formula(self.sheet, value, anchor.top, anchor.left, at=True)
         written = ""
@@ -1816,7 +1816,7 @@ class Range(ExcelObject):
                 a1 = to_a1(value, row, column, names=True)
             except ValueError as exc:
                 raise error(1004, str(exc)) from None
-            formula = spelled_formula(self.sheet, a1, row, column)
+            formula = spelled_formula(self.sheet, a1, row, column, r1c1=True)
             first = first or (formula, row, column)
             if self._put_formula(row, column, formula):
                 placed.append((row, column))
@@ -1869,7 +1869,7 @@ class Range(ExcelObject):
                                     else shift_text(item, extra_row, extra_column))
                         except ValueError as exc:
                             raise error(1004, str(exc)) from None
-                    self._put(row, column, item)
+                    self._put(row, column, item, r1c1=r1c1)
 
     @member
     def NumberFormat(self) -> object:
@@ -3046,11 +3046,13 @@ class Range(ExcelObject):
                                       "not implemented")
         return areas
 
-    def _put(self, row: int, column: int, value: object, *, raw: bool = False) -> None:
+    def _put(self, row: int, column: int, value: object, *, raw: bool = False, r1c1: bool = False) -> None:
+        """Write one cell as Value does; ``r1c1`` for a formula already turned from R1C1 into A1."""
         if not _merges.writable(self.sheet, row, column):
             return
         if isinstance(value, str) and _is_formula(value) and not self._keeps_text(row, column):
-            formula = written_formula(self.sheet, value, row, column)
+            formula = spelled_formula(self.sheet, value, row, column, r1c1=True) if r1c1 \
+                else written_formula(self.sheet, value, row, column)
             if self._put_formula(row, column, formula):
                 self._bring_format([(row, column)], formula, row, column)
         else:
@@ -3732,7 +3734,7 @@ def written_formula(sheet: Worksheet, formula: str, row: int, column: int, *, wh
         converted = to_a1(formula, row, column, names=True)
     except ValueError:
         raise error(1004, "Application-defined or object-defined error") from None
-    return spelled_formula(sheet, converted, row, column, whole=whole, at=at)
+    return spelled_formula(sheet, converted, row, column, whole=whole, at=at, r1c1=True)
 
 
 def _array_formula_text(sheet: Worksheet, formula: str, row: int, column: int) -> str:
@@ -3756,15 +3758,15 @@ def shown_formula(sheet: Worksheet, row: int, column: int, formula: str) -> str:
 
 
 def spelled_formula(sheet: Worksheet, formula: str, row: int = 0, column: int = 0, *, whole: bool = False,
-                    at: bool = False) -> str:
+                    at: bool = False, r1c1: bool = False) -> str:
     """A formula a macro writes to ``sheet``, at the cell in ``row`` and ``column`` where it has one, as Excel
     spells it back; error 1004 where Excel refuses it. ``whole`` for an array formula, ``at`` for one written
-    through Formula2, which may hold an @."""
+    through Formula2, which may hold an @, ``r1c1`` for one read in R1C1 and turned into A1."""
     from pyopenvba.formula._parse import FormulaError
     from pyopenvba.formula._spell import UnmodelledFormulaError, spelled
 
     try:
-        return spelled(formula, _BookNames(sheet, row, column), whole=whole, at=at)
+        return spelled(formula, _BookNames(sheet, row, column), whole=whole, at=at, r1c1=r1c1)
     except UnmodelledFormulaError as exc:
         raise VBAUnsupportedError(str(exc)) from None
     except FormulaError:

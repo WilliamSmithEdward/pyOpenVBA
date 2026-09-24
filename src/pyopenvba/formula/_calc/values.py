@@ -232,16 +232,20 @@ class Lambda(CellError):  # noqa: N818 - an error value, not an exception
     It is an error value, ``#CALC!``, because that is what Excel shows for
     a LAMBDA left uncalled in a cell; MAP, REDUCE and the rest, and a call
     such as ``LAMBDA(x,x*2)(4)``, use it as the function it is. It keeps
-    the names in scope where it was made.
+    the names in scope where it was made. ``optional`` are the parameters
+    written in brackets, ``[y]``, which a call may leave out.
     """
 
     parameters: tuple[str, ...] = ()
     body: Node | None = None
     closure: tuple[Scope, ...] = ()
+    optional: frozenset[str] = frozenset()
 
     @classmethod
-    def make(cls, parameters: tuple[str, ...], body: Node, closure: tuple[Scope, ...]) -> Lambda:
-        return cls(CALC.code, parameters, body, closure)
+    def make(
+        cls, parameters: tuple[str, ...], body: Node, closure: tuple[Scope, ...], optional: frozenset[str] = frozenset()
+    ) -> Lambda:
+        return cls(CALC.code, parameters, body, closure, optional)
 
 
 # ----------------------------------------------------------------------

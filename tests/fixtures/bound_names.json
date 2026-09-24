@@ -1,0 +1,170 @@
+[
+ {
+  "cell": "C1",
+  "written": "=LET(x1,5,x1)",
+  "read": "=LET(x1,5,x1)~=LET(x1,5,x1)~5",
+  "saved": "<f>_xlfn.LET(_xlpm.x1,5,_xlpm.x1)</f>",
+  "opened": "=LET(x1,5,x1)~5"
+ },
+ {
+  "cell": "C2",
+  "written": "=LET(A1,5,A1)",
+  "read": "=LET(A1,5,A1)~=LET(A1,5,A1)~5",
+  "saved": "<f>_xlfn.LET(_xlpm.A1,5,_xlpm.A1)</f>",
+  "opened": "=LET(A1,5,A1)~5"
+ },
+ {
+  "cell": "C3",
+  "written": "=LET(A1,5,A1+1)",
+  "read": "=LET(A1,5,A1+1)~=LET(A1,5,A1+1)~6",
+  "saved": "<f>_xlfn.LET(_xlpm.A1,5,_xlpm.A1+1)</f>",
+  "opened": "=LET(A1,5,A1+1)~6"
+ },
+ {
+  "cell": "C4",
+  "written": "=LET(a1,5,A1)",
+  "read": "=LET(a1,5,a1)~=LET(a1,5,a1)~5",
+  "saved": "<f>_xlfn.LET(_xlpm.a1,5,_xlpm.a1)</f>",
+  "opened": "=LET(a1,5,a1)~5"
+ },
+ {
+  "cell": "C5",
+  "written": "=LET(x1,5,y1,x1+1,y1)",
+  "read": "=LET(x1,5,y1,x1+1,y1)~=LET(x1,5,y1,x1+1,y1)~6",
+  "saved": "<f>_xlfn.LET(_xlpm.x1,5,_xlpm.y1,_xlpm.x1+1,_xlpm.y1)</f>",
+  "opened": "=LET(x1,5,y1,x1+1,y1)~6"
+ },
+ {
+  "cell": "C6",
+  "written": "=LET(x1,5,SUM(x1,A1))",
+  "read": "=LET(x1,5,SUM(x1,'A1'))~=LET(x1,5,SUM(x1,'A1'))~#NAME?",
+  "saved": "<f>_xlfn.LET(_xlpm.x1,5,SUM(_xlpm.x1,_xlnm.A1))</f>",
+  "opened": "=LET(x1,5,SUM(x1,'A1'))~#NAME?"
+ },
+ {
+  "cell": "C7",
+  "written": "=LET(R1C1,5,R1C1)",
+  "read": "=LET(R1C1,5,R1C1)~=LET(R1C1,5,R1C1)~5",
+  "saved": "<f>_xlfn.LET(_xlpm.R1C1,5,_xlpm.R1C1)</f>",
+  "opened": "=LET(R1C1,5,R1C1)~5"
+ },
+ {
+  "cell": "C8",
+  "written": "=LET(r,1,r)",
+  "read": "=LET(r,1,r)~=LET(r,1,r)~1",
+  "saved": "<f>_xlfn.LET(_xlpm.r,1,_xlpm.r)</f>",
+  "opened": "=LET(r,1,r)~1"
+ },
+ {
+  "cell": "C9",
+  "written": "=LET(C,2,C)",
+  "read": "=LET(C,2,C)~=LET(C,2,C)~2",
+  "saved": "<f>_xlfn.LET(_xlpm.C,2,_xlpm.C)</f>",
+  "opened": "=LET(C,2,C)~2"
+ },
+ {
+  "cell": "C10",
+  "written": "=LET(RC,3,RC)",
+  "read": "=LET(RC,3,RC)~=LET(RC,3,RC)~3",
+  "saved": "<f>_xlfn.LET(_xlpm.RC,3,_xlpm.RC)</f>",
+  "opened": "=LET(RC,3,RC)~3"
+ },
+ {
+  "cell": "C11",
+  "written": "=LET(x,5,LET(x1,x+1,x1))",
+  "read": "=LET(x,5,LET(x1,x+1,x1))~=LET(x,5,LET(x1,x+1,x1))~6",
+  "saved": "<f>_xlfn.LET(_xlpm.x,5,_xlfn.LET(_xlpm.x1,_xlpm.x+1,_xlpm.x1))</f>",
+  "opened": "=LET(x,5,LET(x1,x+1,x1))~6"
+ },
+ {
+  "cell": "C12",
+  "written": "=LAMBDA(A1,A1)(5)",
+  "read": "=LAMBDA(A1,A1)(5)~=@LAMBDA(A1,A1)(5)~5",
+  "saved": "<f>_xlfn.LAMBDA(_xlpm.A1,_xlpm.A1)(5)</f>",
+  "opened": "=LAMBDA(A1,A1)(5)~5"
+ },
+ {
+  "cell": "C13",
+  "written": "=LAMBDA(x1,x1*2)(5)",
+  "read": "=LAMBDA(x1,x1*2)(5)~=@LAMBDA(x1,@x1*2)(5)~10",
+  "saved": "<f>_xlfn.LAMBDA(_xlpm.x1,_xlpm.x1*2)(5)</f>",
+  "opened": "=LAMBDA(x1,x1*2)(5)~10"
+ },
+ {
+  "cell": "C14",
+  "written": "=MAP(A1:A2,LAMBDA(a1,a1*2))",
+  "read": "=MAP('A1':'A2',LAMBDA(a1,a1*2))~=@MAP('A1':'A2',LAMBDA(a1,@a1*2))~#NAME?",
+  "saved": "<f>_xlfn.MAP(_xlnm.A1:_xlnm.A2,_xlfn.LAMBDA(_xlpm.a1,_xlpm.a1*2))</f>",
+  "opened": "=MAP('A1':'A2',LAMBDA(a1,a1*2))~#NAME?"
+ },
+ {
+  "cell": "C15",
+  "written": "=LAMBDA(x,[y],x)(1)",
+  "read": "=LAMBDA(x,[y],x)(1)~=@LAMBDA(x,[y],x)(1)~1",
+  "saved": "<f>_xlfn.LAMBDA(_xlpm.x,_xlop.y,_xlpm.x)(1)</f>",
+  "opened": "=LAMBDA(x,[y],x)(1)~1"
+ },
+ {
+  "cell": "C16",
+  "written": "=LAMBDA([x],1)()",
+  "read": "=LAMBDA([x],1)()~=@LAMBDA([x],1)()~1",
+  "saved": "<f>_xlfn.LAMBDA(_xlop.x,1)()</f>",
+  "opened": "=LAMBDA([x],1)()~1"
+ },
+ {
+  "cell": "C17",
+  "written": "=LAMBDA(x,x)()",
+  "read": "=LAMBDA(x,x)()~=@LAMBDA(x,x)()~#VALUE!",
+  "saved": "<f>_xlfn.LAMBDA(_xlpm.x,_xlpm.x)()</f>",
+  "opened": "=LAMBDA(x,x)()~#VALUE!"
+ },
+ {
+  "cell": "C18",
+  "written": "=LAMBDA(x,[y],IF(ISOMITTED(y),x,y))(1)",
+  "read": "=LAMBDA(x,[y],IF(ISOMITTED(y),x,y))(1)~=@LAMBDA(x,[y],IF(ISOMITTED(y),x,y))(1)~1",
+  "saved": "<f>_xlfn.LAMBDA(_xlpm.x,_xlop.y,IF(_xlfn.ISOMITTED(_xlpm.y),_xlpm.x,_xlpm.y))(1)</f>",
+  "opened": "=LAMBDA(x,[y],IF(ISOMITTED(y),x,y))(1)~1"
+ },
+ {
+  "cell": "C19",
+  "written": "=LAMBDA(x,[y],IF(ISOMITTED(y),x,y))(1,2)",
+  "read": "=LAMBDA(x,[y],IF(ISOMITTED(y),x,y))(1,2)~=@LAMBDA(x,[y],IF(ISOMITTED(y),x,y))(1,2)~2",
+  "saved": "<f>_xlfn.LAMBDA(_xlpm.x,_xlop.y,IF(_xlfn.ISOMITTED(_xlpm.y),_xlpm.x,_xlpm.y))(1,2)</f>",
+  "opened": "=LAMBDA(x,[y],IF(ISOMITTED(y),x,y))(1,2)~2"
+ },
+ {
+  "cell": "C20",
+  "written": "=LAMBDA(x,[y],ISOMITTED(x))(1)",
+  "read": "=LAMBDA(x,[y],ISOMITTED(x))(1)~=@LAMBDA(x,[y],ISOMITTED(x))(1)~FALSE",
+  "saved": "<f>_xlfn.LAMBDA(_xlpm.x,_xlop.y,_xlfn.ISOMITTED(_xlpm.x))(1)</f>",
+  "opened": "=LAMBDA(x,[y],ISOMITTED(x))(1)~FALSE"
+ },
+ {
+  "cell": "C21",
+  "written": "=LAMBDA(x,y,x)(1,)",
+  "read": "=LAMBDA(x,y,x)(1,)~=@LAMBDA(x,y,x)(1,)~1",
+  "saved": "<f>_xlfn.LAMBDA(_xlpm.x,_xlpm.y,_xlpm.x)(1,)</f>",
+  "opened": "=LAMBDA(x,y,x)(1,)~1"
+ },
+ {
+  "cell": "C22",
+  "written": "=LAMBDA(x,[y],y)(1)",
+  "read": "=LAMBDA(x,[y],y)(1)~=@LAMBDA(x,[y],y)(1)~0",
+  "saved": "<f>_xlfn.LAMBDA(_xlpm.x,_xlop.y,_xlpm.y)(1)</f>",
+  "opened": "=LAMBDA(x,[y],y)(1)~0"
+ },
+ {
+  "cell": "C23",
+  "written": "=LAMBDA([x],[y],x+y)(,)",
+  "read": "=LAMBDA([x],[y],x+y)(,)~=@LAMBDA([x],[y],@x+@y)(,)~0",
+  "saved": "<f>_xlfn.LAMBDA(_xlop.x,_xlop.y,_xlpm.x+_xlpm.y)(,)</f>",
+  "opened": "=LAMBDA([x],[y],x+y)(,)~0"
+ },
+ {
+  "cell": "C24",
+  "written": "=LET(f,LAMBDA(a,[b],a),f(3))",
+  "read": "=LET(f,LAMBDA(a,[b],a),f(3))~=@LET(f,LAMBDA(a,[b],a),f(3))~3",
+  "saved": "<f>_xlfn.LET(_xlpm.f,_xlfn.LAMBDA(_xlpm.a,_xlop.b,_xlpm.a),_xlpm.f(3))</f>",
+  "opened": "=LET(f,LAMBDA(a,[b],a),f(3))~3"
+ }
+]

@@ -26,7 +26,9 @@ format through the display engine `Range.Text` uses.
 `apps/excel/_engine_book.py` gives the engine the model's workbook to
 read, and hands it each formula spelled as a file spells it but with a
 column's `@` kept escaped: a file writes a column named `@home` as
-`T[@home]`, which the engine's lexer reads as this row.
+`T[@home]`, which the engine's lexer reads as this row. A name a LET or
+a LAMBDA binds comes to it `_xlpm.x1`, as a file writes it, so that a
+name looking like a cell is not read as the cell.
 
 ## pyOpenVBA's changes
 
@@ -73,7 +75,9 @@ column's `@` kept escaped: a file writes a column named `@home` as
    want a chance and an alpha strictly between 0 and 1; XIRR of one
    payment is #N/A; TEXTJOIN takes 254 arguments, not 252; and BYROW and
    BYCOL given no function are #CALC!
-   (`tests/fixtures/formula_refusals.json`).
+   (`tests/fixtures/formula_refusals.json`); LAMBDA's parameter in
+   brackets, `[y]` or a file's `_xlop.y`, may be left out of a call, and
+   leaving out any other is #VALUE! (`tests/fixtures/bound_names.json`).
 8. **Values from VBA.** `nodes.Given` carries a value into a call from
    outside any formula, as WorksheetFunction hands one: a scalar, an array
    with blanks in it, or cells. `values.Omitted`, what an argument left

@@ -18,6 +18,7 @@ cells and calls RAND.
 
 from __future__ import annotations
 
+import re
 from collections.abc import Callable, Iterator
 from dataclasses import dataclass, field
 from typing import Final
@@ -25,6 +26,7 @@ from typing import Final
 from pyopenvba.formula._calc.catalog import is_excel_function
 from pyopenvba.formula._calc.nodes import function_key
 from pyopenvba.formula._parse import FormulaError, Token, tokenize
+from pyopenvba.formula._r1c1 import is_cell
 
 #: The functions a file writes as _xlfn.NAME: each Excel was measured writing so, of the 525 it has.
 _NEWER: Final = frozenset("""
@@ -53,6 +55,11 @@ _BINDERS: Final = frozenset({"LET", "LAMBDA"})
 _BOUND = "_xlpm."
 _FUNCTION = "_xlfn."
 _SHEET = "_xlfn._xlws."
+#: A LAMBDA's parameter a call may leave out, [y], which a file writes _xlop.y; and a name that looks like a cell,
+#: 'A1', which a file writes _xlnm.A1 (tests/fixtures/bound_names.json).
+_OPTIONAL = "_xlop."
+_NAMED = "_xlnm."
+_OPTIONAL_NAME = re.compile(r"\[([^\[\]\s]+)\]")
 
 
 @dataclass
@@ -69,7 +76,8 @@ class _Bracket:
 
 def _roles(tokens: list[Token]) -> Iterator[tuple[Token, str]]:
     """Each name of a formula with what it is: "bound" for a name a LET or a LAMBDA binds, where it is bound and
-    where it stands for that, "function" for a function called, "name" for anything else."""
+    where it stands for that, "optional" for a LAMBDA's parameter in brackets, [y], "function" for a function
+    called, "name" for anything else."""
     open_: list[_Bracket] = []
     for index, token in enumerate(tokens):
         following = tokens[index + 1] if index + 1 < len(tokens) else token
@@ -90,6 +98,13 @@ def _roles(tokens: list[Token]) -> Iterator[tuple[Token, str]]:
                 yield token, "function"
             else:
                 yield token, "name"
+        elif token.kind == "structured":
+            inner = open_[-1] if open_ else None
+            optional = _OPTIONAL_NAME.fullmatch(token.text)
+            if optional is not None and inner is not None and inner.binder == "LAMBDA" and inner.starting \
+                    and following.kind == "comma":
+                inner.bound.add(function_key(optional.group(1)))
+                yield token, "optional"
         if open_ and token.kind != "eof":
             open_[-1].starting = False
         if token.kind in ("open", "lbrace"):
@@ -133,8 +148,13 @@ def in_file(formula: str) -> str:
         return formula
     changes: list[tuple[Token, str]] = []
     for token, role in _roles(tokens):
+        head, bang, bare = token.text.rpartition("!")
         if role == "bound":
             changes.append((token, _BOUND + token.text))
+        elif role == "optional":
+            changes.append((token, _OPTIONAL + token.text[1:-1]))
+        elif role == "name" and bare.startswith("'"):
+            changes.append((token, head + bang + _NAMED + bare[1:-1].replace("''", "'")))
         elif role == "function" and "!" not in token.text and token.text.upper() == function_key(token.text):
             key = token.text.upper()
             if key in _SHEET_ONLY:
@@ -156,13 +176,19 @@ def from_file(formula: str) -> str:
     for token in tokens:
         if token.kind != "name":
             continue
-        text = token.text
-        for prefix in (_SHEET, _FUNCTION, _BOUND):
-            if text.lower().startswith(prefix.lower()):
-                text = text[len(prefix):]
-                break
-        if text != token.text:
-            changes.append((token, text))
+        head, bang, text = token.text.rpartition("!")
+        lower = text.lower()
+        if lower.startswith(_OPTIONAL):
+            text = f"[{text[len(_OPTIONAL):]}]"
+        elif lower.startswith(_NAMED) and is_cell(text[len(_NAMED):]):
+            text = "'" + text[len(_NAMED):] + "'"
+        else:
+            for prefix in (_SHEET, _FUNCTION, _BOUND):
+                if lower.startswith(prefix.lower()):
+                    text = text[len(prefix):]
+                    break
+        if head + bang + text != token.text:
+            changes.append((token, head + bang + text))
     return _replaced(formula, changes)
 
 
@@ -183,10 +209,10 @@ def calculated_always(formula: str, known: Callable[[str], bool]) -> bool:
 
 
 def bound(formula: str) -> set[int]:
-    """Where in ``formula``, without its =, each name a LET or a LAMBDA binds stands: where it is bound and where it
-    stands for that."""
+    """Where in ``formula``, without its =, each name a LET or a LAMBDA binds stands: where it is bound, a LAMBDA's
+    [y] among them, and where it stands for that."""
     tokens = _tokens("=" + formula)
-    return set() if tokens is None else {token.at for token, role in _roles(tokens) if role == "bound"}
+    return set() if tokens is None else {token.at for token, role in _roles(tokens) if role in ("bound", "optional")}
 
 
 def newer(name: str) -> bool:

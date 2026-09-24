@@ -4,7 +4,7 @@ from __future__ import annotations
 import re
 
 from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, column_letter, column_number
-from pyopenvba.formula._parse import STRUCTURED, split_sheet, tokenize
+from pyopenvba.formula._parse import STRUCTURED, FormulaError, split_sheet, tokenize
 
 _OFFSET = r"(?:\[-?\d+\]|\d+)?"
 _ROW = rf"R{_OFFSET}"
@@ -38,6 +38,17 @@ def refused_in_a1(name: str) -> bool:
     return number is None or 1 <= int(number) <= (MAX_ROWS if name[0] in "Rr" else MAX_COLUMNS)
 
 
+def _bound_cells(formula: str) -> set[int]:
+    """Where in ``formula`` a LET or a LAMBDA binds a cell as a name, x1, or stands for it: the tokenizer's names
+    that are cells. Nothing, where the tokenizer cannot read the formula."""
+    offset = 1 if formula.startswith("=") else 0
+    try:
+        tokens = tokenize(formula[offset:])
+    except FormulaError:
+        return set()
+    return {token.at + offset for token in tokens if token.kind == "name" and is_cell(token.text)}
+
+
 def is_cell(text: str) -> bool:
     """Whether ``text`` is one cell in A1, A1 or $XFD$1048576."""
     found = _A1.fullmatch(text)
@@ -63,12 +74,15 @@ def to_a1(formula: str, row: int, column: int, *, names: bool = False) -> str:
     reference with a $ in it is not R1C1 at all, raising ValueError
     (tests/fixtures/formula_notation.json).
     """
+    bound: set[int] = _bound_cells(formula) if names else set()
+
     def replace(match: re.Match[str]) -> str:
         text = match.group()
         if match.lastgroup == "cell":
             if "$" in text:
                 raise ValueError("an A1 reference in an R1C1 formula")
-            return f"'{text}'" if is_cell(text) else text
+            # A cell a LET or a LAMBDA binds, x1, is its name, as it is written (tests/fixtures/bound_names.json).
+            return f"'{text}'" if is_cell(text) and match.start() not in bound else text
         if match.lastgroup != "ref":
             return text
         _, reference = split_sheet(text)

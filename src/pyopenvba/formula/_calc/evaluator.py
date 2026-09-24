@@ -515,10 +515,13 @@ class Context:
 
     def apply(self, function: Lambda, args: list[Value]) -> Value:
         """A LAMBDA called with values: its parameters bound to them, in the
-        scope it was made in. Parameters left out read as blank, and
-        ISOMITTED says which they were; more arguments than parameters are
-        ``#VALUE!``."""
+        scope it was made in. Optional parameters left out read as blank,
+        and ISOMITTED says which they were; leaving out any other, or giving
+        more arguments than parameters, is ``#VALUE!`` (pyOpenVBA's
+        tests/fixtures/bound_names.json)."""
         if len(args) > len(function.parameters) or function.body is None:
+            return VALUE
+        if any(name not in function.optional for name in function.parameters[len(args) :]):
             return VALUE
         if self._depth >= _MAX_DEPTH:
             raise UnsupportedFormulaError(f"a LAMBDA calling itself more than {_MAX_DEPTH} deep")

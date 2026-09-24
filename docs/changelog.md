@@ -661,6 +661,19 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- The names a LET or a LAMBDA binds are read as Excel reads them. A name
+  that looks like a cell, `=LET(x1,5,x1)`, is the name, 5, not the cell:
+  A1 cannot read it, and Excel reads the formula as R1C1, where every
+  other cell written as A1 is a name too, `=LET(x1,5,SUM(x1,'A1'))` being
+  #NAME?. The model read the cells, and `x1` as `X1`. A bound name is
+  spelled everywhere as the formula binds it, `=LET(a1,5,A1)` reading
+  back as `=LET(a1,5,a1)`. LAMBDA's `[y]` is a parameter a call may leave
+  out, blank then and ISOMITTED, and a call leaving out any other is
+  #VALUE!; the model refused `[y]` and let a call leave out any
+  parameter. A file writes a bound name `_xlpm.x1`, an optional one
+  `_xlop.y` and a name that looks like a cell `_xlnm.A1`, as 24 formulas
+  saved in live Excel show (scripts/measure_bound_names.py), and the
+  model reads them back so. `=LET($A$1,5,1)` is refused.
 - A formula written in the other notation is read as Excel reads it.
   `Range.Formula`, `Formula2`, `Value` and `FormulaArray` read A1, and
   where A1 cannot, R1C1: `=R[-1]C+1` written to C8 is `=C7+1`, `=R1C1`

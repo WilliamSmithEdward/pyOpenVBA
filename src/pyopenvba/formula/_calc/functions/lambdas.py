@@ -17,7 +17,7 @@ from __future__ import annotations
 
 from pyopenvba.formula._calc.evaluator import Context
 from pyopenvba.formula._calc.functions.common import matrix
-from pyopenvba.formula._calc.nodes import NameReference, Node
+from pyopenvba.formula._calc.nodes import NameReference, Node, StructuredReference
 from pyopenvba.formula._calc.registry import LAZY, A, V, function
 from pyopenvba.formula._calc.values import (
     CALC,
@@ -35,11 +35,24 @@ from pyopenvba.formula._calc.values import (
 from pyopenvba.formula._calc.cells import CellError
 
 
-def _parameter(node: Node) -> str:
-    """A name LET or LAMBDA binds, as it is looked up."""
+#: How a file marks a LAMBDA's parameter a call may leave out, [y] on screen, and every other bound name.
+_OPTIONAL = "_XLOP."
+_BOUND = "_XLPM."
+
+
+def _parameter(node: Node) -> tuple[str, bool]:
+    """A name LET or LAMBDA binds, as it is looked up, and whether a call may leave it out: LAMBDA(x,[y],x), which
+    a file writes LAMBDA(_xlpm.x,_xlop.y,_xlpm.x), the name being _xlpm.y where it is used (pyOpenVBA's
+    tests/fixtures/bound_names.json)."""
+    if isinstance(node, StructuredReference) and node.table is None and not node.items and node.first is not None \
+            and node.first == node.last:
+        return node.first.upper(), True
     if not isinstance(node, NameReference) or node.prefix is not None:
         raise ExcelError(VALUE)
-    return node.name.upper()
+    name = node.name.upper()
+    if name.startswith(_OPTIONAL):
+        return _BOUND + name[len(_OPTIONAL) :], True
+    return name, False
 
 
 @function("LET", LAZY, minimum=3, maximum=253)
@@ -50,7 +63,10 @@ def LET(context: Context, *nodes: Node) -> Value:
     context.scopes.append(scope)
     try:
         for position in range(0, len(nodes) - 1, 2):
-            scope.values[_parameter(nodes[position])] = context.evaluate(nodes[position + 1])
+            name, optional = _parameter(nodes[position])
+            if optional:
+                return VALUE
+            scope.values[name] = context.evaluate(nodes[position + 1])
         return context.evaluate(nodes[-1])
     finally:
         context.scopes.pop()
@@ -58,10 +74,12 @@ def LET(context: Context, *nodes: Node) -> Value:
 
 @function("LAMBDA", LAZY, minimum=1, maximum=254)
 def LAMBDA(context: Context, *nodes: Node) -> Value:
-    parameters = tuple(_parameter(node) for node in nodes[:-1])
+    bound = [_parameter(node) for node in nodes[:-1]]
+    parameters = tuple(name for name, _ in bound)
     if len(set(parameters)) != len(parameters):
         return VALUE
-    return Lambda.make(parameters, nodes[-1], tuple(context.scopes))
+    optional = frozenset(name for name, left_out in bound if left_out)
+    return Lambda.make(parameters, nodes[-1], tuple(context.scopes), optional)
 
 
 @function("ISOMITTED", LAZY)

@@ -48,7 +48,7 @@ from pyopenvba.formula._deep import deep
 from pyopenvba.formula._parse import (REFERENCE_OPS, Binary, Call, FormulaError, Invoke, NameNode, Node, Reference,
                                       Structured, Token, Unary, literal, parse, read_structured, split_sheet, tokenize)
 from pyopenvba.formula._prefixes import bound
-from pyopenvba.formula._r1c1 import refused_in_a1
+from pyopenvba.formula._r1c1 import is_cell, refused_in_a1
 from pyopenvba.formula._structured import TableShape, one_cell, spelled as spelled_reference
 from pyopenvba.formula._values import number_text
 
@@ -177,14 +177,15 @@ class Names(Protocol):
         ...
 
 
-def spelled(formula: str, names: Names, *, whole: bool = False, at: bool = False) -> str:
+def spelled(formula: str, names: Names, *, whole: bool = False, at: bool = False, r1c1: bool = False) -> str:
     """``formula``, which starts with =, as Excel spells it back; ``whole`` for a formula worked out whole, as an
     array formula is, where no column is cut to this row; ``at`` for a formula written through Formula2, which may
-    cut a range to one value with @."""
-    return deep(lambda: _spelled(formula, names, whole=whole, at=at))
+    cut a range to one value with @; ``r1c1`` for one read in R1C1 and turned into A1, where a LET's or a LAMBDA's
+    name may be a cell, x1, which A1 cannot read."""
+    return deep(lambda: _spelled(formula, names, whole=whole, at=at, r1c1=r1c1))
 
 
-def _spelled(formula: str, names: Names, *, whole: bool, at: bool) -> str:
+def _spelled(formula: str, names: Names, *, whole: bool, at: bool, r1c1: bool) -> str:
     body = formula[1:]
     try:
         tokens = tokenize(body, spaces=True)
@@ -197,12 +198,17 @@ def _spelled(formula: str, names: Names, *, whole: bool, at: bool) -> str:
         raise UnmodelledFormulaError("'@' in a formula written through Range.Formula is not implemented")
     _within_limits(tokens)
     bound_at = bound(body)
+    if not r1c1 and any(token.kind == "name" and token.at in bound_at and is_cell(token.text) for token in tokens):
+        # LET(x1,5,x1): A1 cannot read a cell as a name, and Excel reads the formula as R1C1, where x1 is one and so
+        # is every other cell written as A1 (tests/fixtures/bound_names.json).
+        raise FormulaError("A1 cannot read a cell as a name a LET or a LAMBDA binds")
     tree = parse(formula)
     _check(tree)
     one_value: set[int] = set()
     if not whole:
         _one_value(tree, one=True, whole=False, found=one_value)
     pieces: list[str] = []
+    declared: dict[str, str] = {}
     array = 0
     previous: Token | None = None
     index = 0
@@ -230,6 +236,9 @@ def _spelled(formula: str, names: Names, *, whole: bool, at: bool) -> str:
             text = _number(text, negative=False)
         elif token.kind == "ref":
             text = _reference(text, names)
+        elif token.kind == "structured" and token.at in bound_at:
+            # A LAMBDA's parameter a call may leave out, [y], as it is written.
+            pass
         elif token.kind == "structured":
             following = tokens[index + 1]
             if following.kind in ("ref", "name", "structured") and following.at == token.at + len(token.text):
@@ -239,8 +248,12 @@ def _spelled(formula: str, names: Names, *, whole: bool, at: bool) -> str:
         elif token.kind == "error":
             head, _, error = text.rpartition("#")
             text = _prefix(head[:-1], names) + "!#" + error.upper() if head else text.upper()
+        elif token.kind == "name" and token.at in bound_at:
+            # A name a LET or a LAMBDA binds is spelled everywhere as the formula first writes it, where it is bound:
+            # LET(a1,5,A1) reads back as LET(a1,5,a1) (tests/fixtures/bound_names.json).
+            text = declared.setdefault(text.upper(), text)
         elif token.kind == "name":
-            text = _name(text, tokens[index + 1].kind == "open", names, bound=token.at in bound_at)
+            text = _name(text, tokens[index + 1].kind == "open", names)
         pieces.append(text)
         previous = token
         index += 1
@@ -306,9 +319,6 @@ def _referring(node: Node | None) -> bool:
 #: The most arguments LET and LAMBDA take: LET's names and values in pairs with its calculation last, LAMBDA's
 #: parameters with its body last.
 _MOST_BOUND: Final = {"LET": 253, "LAMBDA": 254}
-#: A cell a LET or a LAMBDA can take as a name, as Excel takes LET(A1,5,A1) to be 5: one cell, with no $ and no
-#: sheet (tests/fixtures/formula_refusals.json).
-_CELL_NAME: Final = re.compile(r"[A-Za-z]{1,3}[0-9]+")
 
 
 def _check_names(node: Call, name: str) -> None:
@@ -328,11 +338,10 @@ def _check_names(node: Call, name: str) -> None:
 
 def _bound(node: Node | None, *, optional: bool) -> str | None:
     """The name a LET or a LAMBDA binds where ``node`` stands, or None for one Excel does not take: a number, TRUE,
-    a name with a full stop in it, or cells other than one; ``optional`` for LAMBDA, whose [name] may be left out."""
+    a name with a full stop in it, or cells, $A$1 or A1:A2; ``optional`` for LAMBDA, whose [name] may be left out.
+    One cell with no $, x1, is a name the tokenizer has already made one (pyopenvba.formula._parse._bind_cells)."""
     if isinstance(node, NameNode) and not node.sheet:
         return None if node.name.upper() in ("TRUE", "FALSE") or "." in node.name else node.name
-    if isinstance(node, Reference) and not node.sheet and _CELL_NAME.fullmatch(node.text):
-        return node.text
     if optional and isinstance(node, Structured) and not node.table and not node.sheet and not node.items \
             and node.first is not None and node.first == node.last and "." not in node.first:
         return node.first
@@ -528,14 +537,14 @@ def _render(column: tuple[str, int] | None, row: tuple[str, int] | None) -> str:
     return (f"{column[0]}{column_letter(column[1])}" if column else "") + (f"{row[0]}{row[1]}" if row else "")
 
 
-def _name(text: str, called: bool, names: Names, *, bound: bool = False) -> str:
-    """A name as Excel spells it back; ``bound`` for one a LET or a LAMBDA binds, which may be R or C."""
+def _name(text: str, called: bool, names: Names) -> str:
+    """A name as Excel spells it back, one a LET or a LAMBDA binds aside."""
     head, bang, bare = text.rpartition("!")
     prefix = _prefix(head, names) + "!" if bang else ""
     if bare.startswith("'"):
         # A name that looks like a cell, which R1C1 read as a name: in quotes, as the workbook first saw it.
         return prefix + "'" + names.remembered(_unquoted(bare)).replace("'", "''") + "'"
-    if not called and not bound and refused_in_a1(bare):
+    if not called and refused_in_a1(bare):
         # R1C1, RC or R: A1 cannot read it, and Excel reads the formula as R1C1 instead.
         raise FormulaError(f"A1 cannot read the name {bare!r}")
     if _fixed(bare, called):

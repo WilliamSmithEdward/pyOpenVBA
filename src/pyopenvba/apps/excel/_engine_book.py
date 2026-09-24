@@ -127,10 +127,12 @@ class EngineBook:
 
     def read(self, formula: str) -> Node:
         """A formula as the model keeps it, Range.Formula's spelling with every table named, read into the engine's
-        tree: spelled as a file spells it, Table1[] and [#This Row], with a column's @ kept escaped."""
+        tree: spelled as a file spells it, Table1[] and [#This Row], with a column's @ kept escaped, and each name a
+        LET or a LAMBDA binds _xlpm.x, x1 among them, which the engine would otherwise read as a cell."""
+        from pyopenvba.formula._prefixes import in_file as prefixed
         from pyopenvba.formula._structured import in_file
 
-        return parse(in_file(formula, self.table_names(), at_escaped=True))
+        return parse(prefixed(in_file(formula, self.table_names(), at_escaped=True)))
 
     def cell(self, sheet: str, row: int, column: int) -> Scalar:
         return scalar(self.calculator.value_of(sheet, row, column))

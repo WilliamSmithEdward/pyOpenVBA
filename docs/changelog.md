@@ -5,6 +5,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ## [Unreleased]
 
+Nothing yet.
+
+## [6.1.1] - 2026-09-23
+
 ### Fixed
 
 - A workbook the library makes no longer names a folder on the machine

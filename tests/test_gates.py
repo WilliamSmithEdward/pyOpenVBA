@@ -196,15 +196,18 @@ class TestGate01_HostPackage:
                     continue
                 assert before.read(name) == after.read(name)
 
-    def test_xlsm_without_vba_project_raises_cleanly(
+    def test_xlsm_without_vba_project_opens_and_refuses_cleanly(
         self, live_empty_xlsm_path: Path
     ) -> None:
-        """An xlsm whose VBA project has never been initialised must raise
-        a structured ``VBAProjectError`` (not a bare ``KeyError`` from the
-        underlying ZIP layer)."""
-        from pyopenvba.exceptions import VBAProjectError
-        with pytest.raises(VBAProjectError, match=r"vbaProject\.bin"):
-            ExcelFile(live_empty_xlsm_path)
+        """An xlsm whose VBA project has never been initialised opens with
+        no project, and a read that needs one raises a structured
+        ``NoVBAProjectError`` (not a bare ``KeyError`` from the underlying
+        ZIP layer)."""
+        from pyopenvba.exceptions import NoVBAProjectError
+        with ExcelFile(live_empty_xlsm_path) as wb:
+            assert not wb.has_vba_project()
+            with pytest.raises(NoVBAProjectError):
+                wb.vba_project()
 
     def test_xlsb_round_trip_preserves_all_non_vba_entries(
         self, live_xlsb_path: Path, tmp_path: Path

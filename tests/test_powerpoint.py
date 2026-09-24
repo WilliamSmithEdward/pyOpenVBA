@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-from pyopenvba.exceptions import UnsupportedFormatError, VBAProjectError
+from pyopenvba.exceptions import NoVBAProjectError, UnsupportedFormatError, VBAProjectError
 from pyopenvba.powerpoint import PowerPointFile
 
 _VBA_ENTRY = "ppt/vbaProject.bin"
@@ -39,10 +39,12 @@ class TestPowerPointFileOpen:
         with pytest.raises(UnsupportedFormatError, match=r"\.txt"):
             PowerPointFile(p)
 
-    def test_pptm_without_vba_entry_raises(self, tmp_path: Path) -> None:
+    def test_pptm_without_vba_entry_opens_with_no_project(self, tmp_path: Path) -> None:
         path = _make_empty_zip_pptm(tmp_path, include_vba=False)
-        with pytest.raises(VBAProjectError, match=r"vbaProject\.bin"):
-            PowerPointFile(path)
+        with PowerPointFile(path) as prs:
+            assert not prs.has_vba_project()
+            with pytest.raises(NoVBAProjectError, match="PowerPoint"):
+                prs.get_module("Module1")
 
     def test_context_manager_pptm(self, tmp_path: Path) -> None:
         path = _make_empty_zip_pptm(tmp_path)
@@ -433,10 +435,14 @@ class TestPowerPointLegacyContainer:
 
 
 class TestPowerPointLegacyContainerErrors:
-    def test_presentation_without_vba_raises_project_error(
+    def test_a_presentation_whose_document_says_nothing_is_an_error(
         self, tmp_path: Path
     ) -> None:
-        """A macro-free .ppt must say so, not report a missing 'dir'."""
+        """Blanked, the document stream cannot say whether there is a
+        project, so the presentation is an error rather than one with no
+        project -- and says so, not reporting a missing 'dir'.  A .ppt
+        PowerPoint saved with no macros opens (tests/test_no_vba_project.py).
+        """
         from pyopenvba.cfb import CFB
 
         source = _LIVE_PPT if _LIVE_PPT.exists() else None
@@ -447,8 +453,9 @@ class TestPowerPointLegacyContainerErrors:
         outer.write_stream("PowerPoint Document", b"\x00" * 64)
         path = tmp_path / "no_macros.ppt"
         path.write_bytes(outer.to_bytes())
-        with pytest.raises(VBAProjectError, match="no VBA project"):
+        with pytest.raises(VBAProjectError, match="no VBA project") as raised:
             PowerPointFile(path)
+        assert not isinstance(raised.value, NoVBAProjectError)
 
 
 @pytest.mark.skipif(not _LIVE_PPT.exists(), reason="legacy .ppt fixture not present")

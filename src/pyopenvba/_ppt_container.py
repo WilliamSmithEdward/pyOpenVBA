@@ -33,7 +33,7 @@ import zlib
 from dataclasses import dataclass
 
 from pyopenvba.cfb import CFB
-from pyopenvba.exceptions import VBAProjectError
+from pyopenvba.exceptions import NoVBAProjectError, VBAProjectError
 
 CFB_MAGIC = b"\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1"
 
@@ -200,6 +200,12 @@ def vba_persist_id(doc: bytes, offsets: dict[int, int]) -> int | None:
     return None
 
 
+def reaches_document(doc: bytes, offsets: dict[int, int]) -> bool:
+    """Whether the edit chain reaches a DocumentContainer, which says whether there is a project."""
+    return any((record := read_header(doc, offset)) is not None and record.rec_type == RT_DOCUMENT_CONTAINER
+               for offset in offsets.values())
+
+
 # ---------------------------------------------------------------------------
 # Locating the storage
 # ---------------------------------------------------------------------------
@@ -281,9 +287,13 @@ def locate(outer: CFB) -> tuple[Record, bytes]:
     except KeyError:
         current_user = b""
     current_edit = current_edit_offset(current_user) if current_user else None
+    # Whether the document declares a project, where the edit chain reaches the document to tell.
+    declared: bool | None = None
     if current_edit is not None:
         offsets = walk_persist_chain(doc, current_edit)
         persist_id = vba_persist_id(doc, offsets)
+        if persist_id is not None or reaches_document(doc, offsets):
+            declared = persist_id is not None
         offset = offsets.get(persist_id) if persist_id is not None else None
         record = read_header(doc, offset) if offset is not None else None
         if record is not None and record.rec_type == RT_EX_OLE_OBJ_STG:
@@ -292,9 +302,12 @@ def locate(outer: CFB) -> tuple[Record, bytes]:
                 return record, storage
     located = scan_for_storage(doc)
     if located is None:
+        if declared is False:
+            # A presentation that never held a macro declares no project (tests/fixtures/no_vba/).
+            raise NoVBAProjectError("The presentation declares no VBA project.")
         raise VBAProjectError(
             "Presentation contains no VBA project (no ExOleObjStg record "
-            "holds one). Make sure the presentation has macros."
+            "holds one), though its document does not say it has none."
         )
     return located
 
@@ -306,8 +319,10 @@ def locate(outer: CFB) -> tuple[Record, bytes]:
 def extract_vba_storage(outer: CFB) -> bytes:
     """Return the embedded VBA project CFB of a binary ``.ppt``.
 
-    Raises :class:`~pyopenvba.exceptions.VBAProjectError` when the
-    presentation carries no VBA project.
+    Raises :class:`~pyopenvba.exceptions.NoVBAProjectError` when the
+    presentation declares no VBA project, and
+    :class:`~pyopenvba.exceptions.VBAProjectError` when one it may have
+    cannot be found.
     """
     return locate(outer)[1]
 

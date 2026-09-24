@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-from pyopenvba.exceptions import UnsupportedFormatError, VBAProjectError
+from pyopenvba.exceptions import NoVBAProjectError, UnsupportedFormatError
 from pyopenvba.word import WordFile
 
 _VBA_ENTRY = "word/vbaProject.bin"
@@ -39,10 +39,12 @@ class TestWordFileOpen:
         with pytest.raises(UnsupportedFormatError, match=r"\.txt"):
             WordFile(p)
 
-    def test_docm_without_vba_entry_raises(self, tmp_path: Path) -> None:
+    def test_docm_without_vba_entry_opens_with_no_project(self, tmp_path: Path) -> None:
         path = _make_empty_zip_docm(tmp_path, include_vba=False)
-        with pytest.raises(VBAProjectError, match=r"vbaProject\.bin"):
-            WordFile(path)
+        with WordFile(path) as doc:
+            assert not doc.has_vba_project()
+            with pytest.raises(NoVBAProjectError, match="Word"):
+                doc.get_module("Module1")
 
     def test_context_manager_docm(self, tmp_path: Path) -> None:
         path = _make_empty_zip_docm(tmp_path)

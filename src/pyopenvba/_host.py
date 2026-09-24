@@ -22,12 +22,13 @@ from typing import ClassVar, TypeVar
 from pyopenvba.cfb import CFB
 from pyopenvba._package_signature import signature_parts, without_signature
 from pyopenvba._references import ReferenceManager, module_offset, reference_spans
-from pyopenvba.exceptions import UnsupportedFormatError, VBAProjectError
+from pyopenvba.exceptions import NoVBAProjectError, UnsupportedFormatError, VBAProjectError
 from pyopenvba.forms import VBAForm, create_form, form_names, read_forms
 from pyopenvba.vba import (
     SignatureInfo,
     VBAModuleKind,
     VBAProject,
+    VBAReference,
     compress,
     detect_signature,
     invalidate_vba_project_cache,
@@ -64,18 +65,29 @@ class VBAHostFile(ReferenceManager):
     - ``_vba_entry``: ZIP entry path of ``vbaProject.bin``.
     - ``_host_noun``: "workbook" / "document" / "presentation", used in
       user-facing messages.
-    - ``_no_vba_hint``: sentence appended when the ZIP has no VBA entry.
+    - ``_application``: "Excel" / "Word" / "PowerPoint", the application
+      that creates a project when its first macro is written.
+    - ``_project_storage``: the storage at the root of the legacy
+      container that holds the project, or None where the project is
+      found another way.
 
     For ``.doc`` and ``.xls`` the legacy container *is* the VBA project's
     CFB, so the two extraction hooks below are identities.  ``.ppt``
     embeds the project deeper and overrides them.
+
+    A file saved before its first macro has no project at all: no
+    ``vbaProject.bin`` in a zip, no project storage in a legacy file
+    (tests/fixtures/no_vba/).  It opens all the same.  Listing reads
+    answer empty, and a read or write that needs the project raises
+    :class:`~pyopenvba.exceptions.NoVBAProjectError`.
     """
 
     _zip_formats: ClassVar[frozenset[str]]
     _cfb_formats: ClassVar[frozenset[str]]
     _vba_entry: ClassVar[str]
     _host_noun: ClassVar[str]
-    _no_vba_hint: ClassVar[str]
+    _application: ClassVar[str]
+    _project_storage: ClassVar[str | None]
 
     def __init__(self, path: str | Path) -> None:
         self._path = Path(path)
@@ -85,6 +97,7 @@ class VBAHostFile(ReferenceManager):
         self._project: VBAProject | None = None
         self._container_raw: bytes = b""
         self._forms: list[VBAForm] | None = None
+        self._has_project = True
         self._open()
 
     # ------------------------------------------------------------------
@@ -106,6 +119,18 @@ class VBAHostFile(ReferenceManager):
     # Public API
     # ------------------------------------------------------------------
 
+    def has_vba_project(self) -> bool:
+        """Whether the file has a VBA project, empty or not.
+
+        A macro-enabled file saved before its first macro, and a binary
+        file that never held one, have none.  That is their normal shape
+        rather than damage: listing reads answer empty, and a read or
+        write of the project, a module, a form or a reference raises
+        :class:`~pyopenvba.exceptions.NoVBAProjectError`.  A project that
+        holds no modules is still a project.
+        """
+        return self._has_project
+
     def vba_project(self) -> VBAProject:
         """Parse and return the VBAProject (cached after first call)."""
         if self._project is None:
@@ -117,6 +142,8 @@ class VBAHostFile(ReferenceManager):
         """Return the raw bytes of the VBA project CFB: the
         ``vbaProject.bin`` ZIP entry, or the project extracted from a
         legacy container."""
+        if not self._has_project:
+            raise NoVBAProjectError(self._no_project_message())
         if self._suffix in self._cfb_formats:
             return self._vba_cfb_bytes(self._path.read_bytes())
         assert self._zip is not None
@@ -140,8 +167,14 @@ class VBAHostFile(ReferenceManager):
     def _reference_forms(self) -> list[str]:
         return form_names(self._get_cfb())
 
+    def references(self) -> list[VBAReference]:
+        """Declared libraries in priority order; none in a file with no project."""
+        return super().references() if self._has_project else []
+
     def vba_modules(self) -> dict[str, str]:
         """Return a mapping of module name -> source code."""
+        if not self._has_project:
+            return {}
         return {m.name: m.source for m in self.vba_project().modules}
 
     def vba_signature(self) -> SignatureInfo:
@@ -152,6 +185,8 @@ class VBAHostFile(ReferenceManager):
         Excel, Word and PowerPoint keep one. A save that changes the
         project drops it.
         """
+        if not self._has_project:
+            return SignatureInfo()
         info = detect_signature(self._get_cfb())
         if self._zip is not None:
             parts = signature_parts(self._zip.namelist(), self._zip.read, self._vba_entry)
@@ -171,6 +206,8 @@ class VBAHostFile(ReferenceManager):
         The result is cached, so property edits made on it are the ones
         :meth:`save` writes back.
         """
+        if not self._has_project:
+            return []
         if self._forms is None:
             self._forms = read_forms(
                 self._get_cfb(), code_page=self.vba_project().code_page
@@ -213,6 +250,8 @@ class VBAHostFile(ReferenceManager):
 
     def module_names(self) -> list[str]:
         """Return the list of VBA module names."""
+        if not self._has_project:
+            return []
         return self.vba_project().module_names()
 
     def get_module(self, name: str) -> str:
@@ -264,6 +303,8 @@ class VBAHostFile(ReferenceManager):
 
     def validate(self) -> list[str]:
         """Return cross-structure inconsistency messages; empty list means OK."""
+        if not self._has_project:
+            return []
         return self.vba_project().validate(self._get_cfb())
 
     # ------------------------------------------------------------------
@@ -286,13 +327,14 @@ class VBAHostFile(ReferenceManager):
         format.  UserForm layout (``.frx``) is **not** exported — it is
         preserved verbatim inside the file on save.
 
-        Returns the list of file paths written.
+        Returns the list of file paths written, none for a file with no
+        project.
         """
         out_dir = Path(dest_dir)
         out_dir.mkdir(parents=True, exist_ok=True)
 
         written: list[Path] = []
-        for m in self.vba_project().modules:
+        for m in self.vba_project().modules if self._has_project else ():
             ext = _BAS_EXT if m.kind == VBAModuleKind.standard else _CLS_EXT
             target = out_dir / f"{m.name}{ext}"
             if target.exists() and not overwrite:
@@ -330,7 +372,9 @@ class VBAHostFile(ReferenceManager):
           unmatched file.
 
         Does **not** write to disk — call :meth:`save` afterwards to
-        persist.
+        persist.  A file with no VBA project refuses with
+        :class:`~pyopenvba.exceptions.NoVBAProjectError`: its first macro
+        has to be written in the host application.
 
         Returns the list of module names that were updated.
         """
@@ -411,7 +455,14 @@ class VBAHostFile(ReferenceManager):
           regenerates the cache on next open ([MS-OVBA] 2.3.4.1).  An edit
           to a UserForm's design counts: adding or removing a control
           changes the form class's members.
+
+        A file with no VBA project can hold no edit, since every write
+        refuses, so it is written out as it was read.
         """
+        if not self._has_project:
+            if dest is not None:
+                Path(dest).write_bytes(self._container_raw)
+            return
         cfb = self._get_cfb()
 
         # Designer edits land first, and count as a mutation: adding or
@@ -684,12 +735,10 @@ class VBAHostFile(ReferenceManager):
 
     def _open_zip(self) -> None:
         raw = self._path.read_bytes()
+        self._container_raw = raw
         self._zip = zipfile.ZipFile(io.BytesIO(raw), mode="r")
-        if self._vba_entry not in self._zip.namelist():
-            raise VBAProjectError(
-                f"{self._path.name!r} contains no {self._vba_entry!r}. "
-                + self._no_vba_hint
-            )
+        # Saved before its first macro, a macro-enabled file has no project part at all.
+        self._has_project = self._vba_entry in self._zip.namelist()
 
     def _vba_cfb_bytes(self, container: bytes) -> bytes:
         """Extract the VBA project CFB from a legacy container's bytes.
@@ -709,9 +758,29 @@ class VBAHostFile(ReferenceManager):
 
     def _open_cfb_direct(self) -> None:
         self._container_raw = self._path.read_bytes()
-        self._cfb = CFB.from_bytes(self._vba_cfb_bytes(self._container_raw))
+        try:
+            project = self._vba_cfb_bytes(self._container_raw)
+        except NoVBAProjectError:
+            self._has_project = False
+            return
+        cfb = CFB.from_bytes(project)
+        # A binary file that never held a macro has no project storage at its root.
+        storage = self._project_storage
+        if storage is not None and storage.casefold() not in {name.casefold() for name in cfb.list_storages_at()}:
+            self._has_project = False
+            return
+        self._cfb = cfb
+
+    def _no_project_message(self) -> str:
+        return (
+            f"{self._path.name!r} has no VBA project: it is a {self._host_noun} "
+            f"with no macros.  The first macro has to be written in "
+            f"{self._application}, which creates the project."
+        )
 
     def _get_cfb(self) -> CFB:
+        if not self._has_project:
+            raise NoVBAProjectError(self._no_project_message())
         if self._cfb is not None:
             return self._cfb
         if self._zip is None:

@@ -74,6 +74,7 @@ from pyopenvba.excel import ExcelFile
 from pyopenvba.exceptions import (
     CFBError,
     FormParseError,
+    NoVBAProjectError,
     PowerQueryError,
     PyOpenVBAError,
     UnsupportedFormatError,
@@ -235,6 +236,7 @@ __all__ = [
     "FormControl",
     "FormParseError",
     "IndexSpec",
+    "NoVBAProjectError",
     "PowerPointFile",
     "PowerQuery",
     "PowerQueryError",

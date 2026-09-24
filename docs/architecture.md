@@ -149,6 +149,7 @@ unimplemented shape kinds raise `VBAUnsupportedError`.
 | `UnsupportedFormatError` | `exceptions.py` | Bad extension / host           |
 | `CFBError`            | `exceptions.py` | Malformed CFB                     |
 | `VBAProjectError`     | `exceptions.py` | Malformed VBA / refused mutation  |
+| `NoVBAProjectError`   | `exceptions.py` | The file has no VBA project       |
 
 Internal-but-useful symbols (importable from `pyopenvba.vba` for
 advanced users):
@@ -322,9 +323,15 @@ shifting every absolute offset past the resized record. The two hooks
 `VBAHostFile._vba_cfb_bytes` / `._container_bytes` are the seam; they are
 identities for every other format.
 
-If a `.xlsm` exists but does not contain `xl/vbaProject.bin` (no VBA
-project has ever been created), `ExcelFile` raises a structured
-`VBAProjectError` with the workbook path; it is **not** a corruption.
+A file saved before its first macro has no VBA project: a `.xlsm`,
+`.docm` or `.pptm` has no `vbaProject.bin`, a `.xls` no
+`_VBA_PROJECT_CUR` storage, a `.doc` no `Macros` storage, and a `.ppt`
+declares no project in its document (tests/fixtures/no_vba/). That is
+**not** a corruption. The file opens, `has_vba_project()` is False,
+listing reads answer empty, and a read or write that needs the project
+raises `NoVBAProjectError`, which names the file and the application its
+first macro has to be written in. A project that is there but broken is
+still a `VBAProjectError` of its own.
 
 ---
 
@@ -444,6 +451,7 @@ PyOpenVBAError
     UnsupportedFormatError      bad extension / host
     CFBError                    malformed CFB structure
     VBAProjectError             malformed VBA project, or mutation refused
+        NoVBAProjectError       the file has no VBA project at all
 ```
 
 Rules:

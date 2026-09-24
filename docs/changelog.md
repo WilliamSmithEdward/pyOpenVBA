@@ -7,6 +7,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `has_vba_project()` on `ExcelFile`, `WordFile` and `PowerPointFile`,
+  which tells a file with no VBA project from one whose project is
+  empty, and `NoVBAProjectError`, a `VBAProjectError` raised by what
+  needs a project the file does not have.
+
 - `vba_signature()` on `ExcelFile`, `WordFile` and `PowerPointFile`: the
   VBA project's digital signature wherever the file keeps it, the parts
   beside `vbaProject.bin` included, with `SignatureInfo.parts` naming
@@ -674,6 +679,17 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Changed
 
+- A file saved before its first macro opens, as the ordinary file it is
+  (#26). `ExcelFile`, `WordFile` and `PowerPointFile` opening a
+  `.xlsm`, `.docm` or `.pptm` with no `vbaProject.bin` used to raise
+  `VBAProjectError`, with advice to save it as the format it already
+  was. A `.xls`, `.doc` or `.ppt` with no macros opened but called
+  itself "not a valid VBA project" on the first read. Now listing reads
+  answer empty, and a read or write that needs the project raises
+  `NoVBAProjectError`, naming the file and the application its first
+  macro has to be written in. A project that is there but broken is
+  still an error of its own. Files Excel, Word and PowerPoint saved with
+  no macros are the fixtures (scripts/measure_no_vba.py).
 - Cells are worked out by pyOfficeEditor's formula engine, which the
   library took in: 493 of Excel's 525 functions where the model had 122,
   Excel's coercion and comparisons, and arithmetic as the x87 does it.

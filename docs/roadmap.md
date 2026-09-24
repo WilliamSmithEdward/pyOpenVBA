@@ -64,7 +64,7 @@ done and what is not.
 | Gate | Title | Status | Notes |
 |------|-------|--------|-------|
 | 0 | Scope Declaration | PASS | `ExcelFile` rejects unsupported hosts; CFB and VBA layers separated; `vba_project_bytes()` exposes raw `vbaProject.bin`. |
-| 1 | Host Package | PASS | No-op + single-module-edit save preserves every other ZIP entry on both xlsm and xlsb. `xlsm` workbooks that have never had a VBA project initialised raise a structured `VBAProjectError` at open. "Opens in Excel without repair" is verified manually against the live corpus. |
+| 1 | Host Package | PASS | No-op + single-module-edit save preserves every other ZIP entry on both xlsm and xlsb. A file saved before its first macro opens with no project: `has_vba_project()` is False, listing reads answer empty, and a read or write that needs the project raises a structured `NoVBAProjectError`. "Opens in Excel without repair" is verified manually against the live corpus. |
 | 2 | OLE/CFB Container | PASS | Reader + writer round-trip; case-insensitive lookup; `CFB.remove_stream` / `drop_streams_in_storage` / `rename_stream_in_storage` / `add_stream_to_storage` all rebuild the directory subtree; SRP streams are auto-dropped on `ExcelFile.save`. |
 | 3 | Binary Parsing Discipline | PASS | Bounds-checked, signature-checked; `decompress()` carries `stream_name` + byte offset in `VBAProjectError` messages. |
 | 4 | Compression / Decompression | PASS | Spec-compliant chunk-based codec; randomized round-trips up to 32 KB. |

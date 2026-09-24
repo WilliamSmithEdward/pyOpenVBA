@@ -30,7 +30,13 @@ _STORED = 0
 
 
 def without_save_path(package: bytes) -> bytes:
-    """``package`` with the folder Excel saved it in taken out, or as it is where it records none."""
+    """``package`` with the folder Excel saved it in taken out, or as it is where it records none.
+
+    A file that is no zip, a binary .xls say, has no xl/workbook.xml and
+    comes back as it is.
+    """
+    if not package.startswith(b"PK\x03\x04"):
+        return package
     opc = OpcFile.parse(package)
     if not opc.has(WORKBOOK_PART):
         return package

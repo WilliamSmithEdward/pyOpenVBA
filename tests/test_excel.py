@@ -9,7 +9,7 @@ from pathlib import Path
 import pytest
 
 from pyopenvba.excel import ExcelFile
-from pyopenvba.exceptions import UnsupportedFormatError, VBAProjectError
+from pyopenvba.exceptions import NoVBAProjectError, UnsupportedFormatError
 from pyopenvba.vba import (
     CLASS_MODULE_CLSID,
     VBAModuleKind,
@@ -42,10 +42,12 @@ class TestExcelFileOpen:
         with pytest.raises(UnsupportedFormatError, match=r"\.csv"):
             ExcelFile(p)
 
-    def test_xlsm_without_vba_entry_raises(self, tmp_path: Path) -> None:
+    def test_xlsm_without_vba_entry_opens_with_no_project(self, tmp_path: Path) -> None:
         path = _make_empty_zip_xlsm(tmp_path, include_vba=False)
-        with pytest.raises(VBAProjectError, match=r"vbaProject\.bin"):
-            ExcelFile(path)
+        with ExcelFile(path) as wb:
+            assert not wb.has_vba_project()
+            with pytest.raises(NoVBAProjectError, match="Excel"):
+                wb.get_module("Module1")
 
     def test_context_manager(self, tmp_path: Path) -> None:
         path = _make_empty_zip_xlsm(tmp_path)

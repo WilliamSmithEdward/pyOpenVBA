@@ -13,6 +13,18 @@ class VBAProjectError(PyOpenVBAError):
     """Raised when the VBA project structure is invalid."""
 
 
+class NoVBAProjectError(VBAProjectError):
+    """Raised by a read or write that needs a VBA project the file does not have.
+
+    A macro-enabled file saved before its first macro, or a binary file
+    that never held one, has no VBA project at all. That is its normal
+    shape, not damage: ``has_vba_project()`` says False, listing reads
+    answer empty, and only a read or write of the project, a module, a
+    form or a reference raises this. The first macro has to be written
+    in the host application, which creates the project.
+    """
+
+
 class UnsupportedFormatError(PyOpenVBAError):
     """Raised for file formats that pyOpenVBA cannot handle."""
 

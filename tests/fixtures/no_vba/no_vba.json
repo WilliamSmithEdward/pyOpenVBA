@@ -1,0 +1,44 @@
+{
+ "workbook.xlsm": {
+  "container": "zip",
+  "vba_parts": []
+ },
+ "workbook.xls": {
+  "container": "cfb",
+  "root_storages": [],
+  "root_streams": [
+   "\u0005DocumentSummaryInformation",
+   "\u0005SummaryInformation",
+   "Workbook"
+  ]
+ },
+ "document.docm": {
+  "container": "zip",
+  "vba_parts": []
+ },
+ "document.doc": {
+  "container": "cfb",
+  "root_storages": [],
+  "root_streams": [
+   "\u0001CompObj",
+   "\u0005DocumentSummaryInformation",
+   "\u0005SummaryInformation",
+   "1Table",
+   "WordDocument"
+  ]
+ },
+ "presentation.pptm": {
+  "container": "zip",
+  "vba_parts": []
+ },
+ "presentation.ppt": {
+  "container": "cfb",
+  "root_storages": [],
+  "root_streams": [
+   "\u0005DocumentSummaryInformation",
+   "\u0005SummaryInformation",
+   "Current User",
+   "PowerPoint Document"
+  ]
+ }
+}

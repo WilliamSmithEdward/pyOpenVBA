@@ -856,6 +856,22 @@ outside the project, so it is read and written in every package above.
 | `.potm`   | Macro-enabled template       |  yes |  yes  |    no      |
 | `.ppt`    | Legacy (PowerPoint 97-2003)  |  yes |  yes  |    no      |
 
+### Files with no VBA project
+
+A file saved before its first macro has no VBA project: no
+`vbaProject.bin` in a `.xlsm`, `.docm` or `.pptm`, and no project storage
+in a binary file. That is its normal shape, and it opens like any other.
+`has_vba_project()` says False, listing reads such as `module_names()`,
+`vba_modules()`, `forms()` and `references()` answer empty, and a read or
+write that needs the project raises `NoVBAProjectError`, a kind of
+`VBAProjectError`:
+
+```python
+with ExcelFile("book.xlsm") as wb:
+    if wb.has_vba_project():
+        print(wb.module_names())
+```
+
 ### Access
 
 | Extension | What it is                   | Read | Write | create_new |

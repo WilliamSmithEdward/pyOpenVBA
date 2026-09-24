@@ -780,15 +780,15 @@ else:
 ### 18.4 Empty-VBA xlsm
 
 A `.xlsm` that has never had a VBA project initialized **does not
-contain** `xl/vbaProject.bin`. Raise a structured error:
+contain** `xl/vbaProject.bin`. Not having it is not a corruption signal;
+it's a first-class user-facing case, and the file opens. Listing reads
+answer empty, and a read or write that needs the project raises the
+structured `NoVBAProjectError`:
 
 ```text
-"<filename> contains no xl/vbaProject.bin. Make sure the workbook has
-a VBA project (save as .xlsm in Excel with at least one macro)."
+"'<filename>' has no VBA project: it is a workbook with no macros.  The
+first macro has to be written in Excel, which creates the project."
 ```
-
-Not having `vbaProject.bin` is not a corruption signal; it's a
-first-class user-facing case.
 
 ---
 
@@ -879,8 +879,9 @@ fixture (deterministic RNG seed for reproducibility).
 11. **Protected projects must not be silently re-saved.** Require an
     explicit opt-in.
 12. **CFB stream names are case-insensitive but case-preserving.**
-13. **A `.xlsm` with no VBA project has no `vbaProject.bin`.** Surface
-    a structured error.
+13. **A `.xlsm` with no VBA project has no `vbaProject.bin`.** Open it,
+    list nothing, and refuse only what needs the project, with a
+    structured error.
 14. **The `Attribute VB_Name = "..."` line inside the source must
     match `MODULENAME`.** Rename touches both.
 15. **Renaming a module renames the CFB stream too** (in

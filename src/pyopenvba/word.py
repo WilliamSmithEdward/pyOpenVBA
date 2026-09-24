@@ -43,9 +43,8 @@ class WordFile(VBAHostFile):
     _cfb_formats = _CFB_FORMATS
     _vba_entry = _VBA_ENTRY
     _host_noun = "document"
-    _no_vba_hint = (
-        "Make sure the document has a VBA project (save as .docm in Word)."
-    )
+    _application = "Word"
+    _project_storage = "Macros"
 
     @classmethod
     def create_new(cls, path: str | Path) -> WordFile:

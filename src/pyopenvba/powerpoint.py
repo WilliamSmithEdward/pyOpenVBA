@@ -46,10 +46,9 @@ class PowerPointFile(VBAHostFile):
     _cfb_formats = _CFB_FORMATS
     _vba_entry = _VBA_ENTRY
     _host_noun = "presentation"
-    _no_vba_hint = (
-        "Make sure the presentation has a VBA project "
-        "(save as .pptm in PowerPoint)."
-    )
+    _application = "PowerPoint"
+    # A binary presentation embeds its project in a record, found by _vba_cfb_bytes.
+    _project_storage = None
 
     # ------------------------------------------------------------------
     # Legacy container: the VBA project is embedded, not at the root

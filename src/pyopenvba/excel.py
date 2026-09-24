@@ -44,9 +44,8 @@ class ExcelFile(VBAHostFile):
     _cfb_formats = _CFB_FORMATS
     _vba_entry = _VBA_ENTRY
     _host_noun = "workbook"
-    _no_vba_hint = (
-        "Make sure the workbook has a VBA project (save as .xlsm in Excel)."
-    )
+    _application = "Excel"
+    _project_storage = "_VBA_PROJECT_CUR"
 
     @classmethod
     def create_new(cls, path: str | Path) -> ExcelFile:

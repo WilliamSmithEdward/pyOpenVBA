@@ -5,7 +5,21 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ## [Unreleased]
 
-Nothing yet.
+### Fixed
+
+- A workbook the library makes no longer names a folder on the machine
+  its template was made on. The .xlsm, .xlam and .xlsb templates behind
+  `ExcelFile.create_new`, from which the in-memory Excel also starts
+  every new workbook, .xlsx included, carried the folder Excel had saved
+  them in: an `x15ac:absPath` element in xl/workbook.xml, and in the
+  .xlsb a BrtAbsPath15 record between BrtACBegin and BrtACEnd in
+  xl/workbook.bin. The templates are baked again without it, and every
+  other part is as it was. A test decodes every template and finds no
+  user folder in any part, a VBA project's dir stream included.
+  scripts/fixture_workbook.py now takes the record out of a .xlsb too,
+  and scripts/bake_excel_template.py splices its section into the
+  templates module as the other bake scripts do, where it rewrote the
+  whole module and dropped the others.
 
 ## [6.1.0] - 2026-09-23
 

@@ -5,6 +5,19 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ## [Unreleased]
 
+Nothing yet.
+
+## [6.1.0] - 2026-09-23
+
+The in-memory Excel comes a long way toward Excel. Formulas are worked
+out by pyOfficeEditor's engine, 493 of Excel's functions, and dynamic
+arrays spill. Tables and structured references, AutoFilter, sorting,
+AutoFill, RemoveDuplicates, notes, data validation, protection, windows,
+events and Forms controls arrive too, each measured against live Excel
+and saved as Excel saves it. In the VBA file API, a file saved before
+its first macro opens and can be given a project, and a signed file
+whose code changes is saved without its stale signature.
+
 ### Added
 
 - `add_vba_project()` on `ExcelFile`, `WordFile` and `PowerPointFile`

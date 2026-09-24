@@ -1,0 +1,479 @@
+{
+ "setup": "ws.Name = \"Data\"\nws.Range(\"A1:C10\").Value = 1",
+ "cases": [
+  {
+   "member": "Formula",
+   "formula": "=R[-1]C+1",
+   "target": "C8",
+   "answer": "ok~=C7+1~=R[-1]C+1~2"
+  },
+  {
+   "member": "Formula",
+   "formula": "=R1C1",
+   "target": "C8",
+   "answer": "ok~=$A$1~=R1C1~1"
+  },
+  {
+   "member": "Formula",
+   "formula": "=RC[-1]",
+   "target": "C8",
+   "answer": "ok~=B8~=RC[-1]~1"
+  },
+  {
+   "member": "Formula",
+   "formula": "=SUM(R1C1:R2C2)",
+   "target": "C8",
+   "answer": "ok~=SUM($A$1:$B$2)~=SUM(R1C1:R2C2)~4"
+  },
+  {
+   "member": "Formula",
+   "formula": "=R1C1+A1",
+   "target": "C8",
+   "answer": "ok~=$A$1+'A1'~=R1C1+A1~#NAME?"
+  },
+  {
+   "member": "Formula",
+   "formula": "=RC",
+   "target": "C8",
+   "answer": "ok~=C8~=RC~0"
+  },
+  {
+   "member": "Formula",
+   "formula": "=R[1]C[1]*2",
+   "target": "C8",
+   "answer": "ok~=D9*2~=R[1]C[1]*2~0"
+  },
+  {
+   "member": "Formula",
+   "formula": "=rc[-1]",
+   "target": "C8",
+   "answer": "ok~=B8~=RC[-1]~1"
+  },
+  {
+   "member": "Formula",
+   "formula": "=R",
+   "target": "C8",
+   "answer": "ok~=8:8~=R~0"
+  },
+  {
+   "member": "Formula",
+   "formula": "=C",
+   "target": "C8",
+   "answer": "ok~=C:C~=C~0"
+  },
+  {
+   "member": "Formula",
+   "formula": "=R2",
+   "target": "C8",
+   "answer": "ok~=R2~=R[-6]C[15]~0"
+  },
+  {
+   "member": "Formula",
+   "formula": "=C3",
+   "target": "C8",
+   "answer": "ok~=C3~=R[-5]C~1"
+  },
+  {
+   "member": "Formula",
+   "formula": "=R2C",
+   "target": "C8",
+   "answer": "ok~=C$2~=R2C~1"
+  },
+  {
+   "member": "Formula",
+   "formula": "=RC2",
+   "target": "C8",
+   "answer": "ok~=RC2~=R[-6]C[468]~0"
+  },
+  {
+   "member": "Formula",
+   "formula": "=SUM(R:R)",
+   "target": "C8",
+   "answer": "ok~=SUM(R:R)~=SUM(C[15])~0"
+  },
+  {
+   "member": "Formula",
+   "formula": "=SUM(C:C)",
+   "target": "C8",
+   "answer": "ok~=SUM(C:C)~=SUM(C)~0"
+  },
+  {
+   "member": "Formula",
+   "formula": "=R1C1:R2C2",
+   "target": "C8",
+   "answer": "ok~=$A$1:$B$2~=R1C1:R2C2~#VALUE!"
+  },
+  {
+   "member": "Formula",
+   "formula": "=INDEX(R1C1:R3C1,2)",
+   "target": "C8",
+   "answer": "ok~=INDEX($A$1:$A$3,2)~=INDEX(R1C1:R3C1,2)~1"
+  },
+  {
+   "member": "Formula",
+   "formula": "=R[-1]C+A1",
+   "target": "C8",
+   "answer": "ok~=C7+'A1'~=R[-1]C+A1~#NAME?"
+  },
+  {
+   "member": "Formula",
+   "formula": "=LET(x,R1C1,x)",
+   "target": "C8",
+   "answer": "ok~=LET(x,$A$1,x)~=LET(x,R1C1,x)~1"
+  },
+  {
+   "member": "Formula",
+   "formula": "=Data!R1C1",
+   "target": "C8",
+   "answer": "ok~=Data!$A$1~=Data!R1C1~1"
+  },
+  {
+   "member": "Formula",
+   "formula": "=SUM(R1C1,R2C2)",
+   "target": "C8",
+   "answer": "ok~=SUM($A$1,$B$2)~=SUM(R1C1,R2C2)~2"
+  },
+  {
+   "member": "Formula",
+   "formula": "=R1C1&\"R1C1\"",
+   "target": "C8",
+   "answer": "ok~=$A$1&\"R1C1\"~=R1C1&\"R1C1\"~1R1C1"
+  },
+  {
+   "member": "Formula",
+   "formula": "=R[-1]C:R[1]C",
+   "target": "C8",
+   "answer": "ok~=C7:C9~=R[-1]C:R[1]C~0"
+  },
+  {
+   "member": "Formula",
+   "formula": "=SUM(R1:R2)",
+   "target": "C8",
+   "answer": "ok~=SUM(R1:R2)~=SUM(R[-7]C[15]:R[-6]C[15])~0"
+  },
+  {
+   "member": "Formula",
+   "formula": "=SUM(C1:C2)",
+   "target": "C8",
+   "answer": "ok~=SUM(C1:C2)~=SUM(R[-7]C:R[-6]C)~2"
+  },
+  {
+   "member": "Formula",
+   "formula": "=R[-7]C[-2]",
+   "target": "C8",
+   "answer": "ok~=A1~=R[-7]C[-2]~1"
+  },
+  {
+   "member": "Formula",
+   "formula": "=r1c1",
+   "target": "C8",
+   "answer": "ok~=$A$1~=R1C1~1"
+  },
+  {
+   "member": "Formula",
+   "formula": "=R1c1",
+   "target": "C8",
+   "answer": "ok~=$A$1~=R1C1~1"
+  },
+  {
+   "member": "Formula",
+   "formula": "=R0C1",
+   "target": "C8",
+   "answer": "ok~=R0C1~=R0C1~#NAME?"
+  },
+  {
+   "member": "Formula",
+   "formula": "=R1C0",
+   "target": "C8",
+   "answer": "!1004~read!1004"
+  },
+  {
+   "member": "Formula",
+   "formula": "=R1048577C1",
+   "target": "C8",
+   "answer": "ok~=R1048577C1~=R1048577C1~#NAME?"
+  },
+  {
+   "member": "Formula",
+   "formula": "=R[-8]C",
+   "target": "C8",
+   "answer": "ok~=C1048576~=R[1048568]C~0"
+  },
+  {
+   "member": "Formula",
+   "formula": "=RC[-3]",
+   "target": "C8",
+   "answer": "ok~=XFD8~=RC[16381]~0"
+  },
+  {
+   "member": "Formula",
+   "formula": "=R1C1 R1C2",
+   "target": "C8",
+   "answer": "ok~=$A$1 $B$1~=R1C1 R1C2~#NULL!"
+  },
+  {
+   "member": "Formula",
+   "formula": "=SUM(R[-7]C[-2]:R[-6]C[-1])",
+   "target": "C8",
+   "answer": "ok~=SUM(A1:B2)~=SUM(R[-7]C[-2]:R[-6]C[-1])~4"
+  },
+  {
+   "member": "Formula",
+   "formula": "=R[-1]C",
+   "target": "D2:D4",
+   "answer": "ok~=D1~=R[-1]C~0~=D2~=R[-1]C~0~=D3~=R[-1]C~0"
+  },
+  {
+   "member": "Formula",
+   "formula": "=R1C1",
+   "target": "D2:D4",
+   "answer": "ok~=$A$1~=R1C1~1~=$A$1~=R1C1~1~=$A$1~=R1C1~1"
+  },
+  {
+   "member": "Formula",
+   "formula": "=R[-1]C",
+   "target": "F2,F5",
+   "answer": "ok~=F1~=R[-1]C~0~=F4~=R[-1]C~0"
+  },
+  {
+   "member": "Formula2",
+   "formula": "=R[-1]C+1",
+   "target": "C8",
+   "answer": "ok~=C7+1~=R[-1]C+1~2"
+  },
+  {
+   "member": "Value",
+   "formula": "=R[-1]C+1",
+   "target": "C8",
+   "answer": "ok~=C7+1~=R[-1]C+1~2"
+  },
+  {
+   "member": "Value",
+   "formula": "=R1C1",
+   "target": "C8",
+   "answer": "ok~=$A$1~=R1C1~1"
+  },
+  {
+   "member": "FormulaArray",
+   "formula": "=R[-1]C+1",
+   "target": "C8",
+   "answer": "ok~=C7+1~=R[-1]C+1~2"
+  },
+  {
+   "member": "FormulaArray",
+   "formula": "=R1C1",
+   "target": "C8",
+   "answer": "ok~=$A$1~=R1C1~1"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=A1",
+   "target": "C8",
+   "answer": "ok~='A1'~=A1~#NAME?"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=A1+1",
+   "target": "C8",
+   "answer": "ok~='A1'+1~=A1+1~#NAME?"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=SUM(A1:B2)",
+   "target": "C8",
+   "answer": "ok~=SUM('A1':'B2')~=SUM(A1:B2)~#NAME?"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=B7+R1C1",
+   "target": "C8",
+   "answer": "ok~='B7'+$A$1~=B7+R1C1~#NAME?"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=$A$1",
+   "target": "C8",
+   "answer": "!1004~read!1004"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=Data!A1",
+   "target": "C8",
+   "answer": "ok~=Data!'A1'~=Data!A1~#NAME?"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=R1C1",
+   "target": "C8",
+   "answer": "ok~=$A$1~=R1C1~1"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=XFD1",
+   "target": "C8",
+   "answer": "ok~='XFD1'~=XFD1~#NAME?"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=XFE1",
+   "target": "C8",
+   "answer": "ok~=XFE1~=XFE1~#NAME?"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=A1048577",
+   "target": "C8",
+   "answer": "ok~=A1048577~=A1048577~#NAME?"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=a1",
+   "target": "C8",
+   "answer": "ok~='A1'~=A1~#NAME?"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=Tax1",
+   "target": "C8",
+   "answer": "ok~='Tax1'~=Tax1~#NAME?"
+  },
+  {
+   "member": "Formula",
+   "formula": "=A1B",
+   "target": "C8",
+   "answer": "ok~=A1B~=A1B~#NAME?"
+  },
+  {
+   "member": "Formula",
+   "formula": "=Q1Sales",
+   "target": "C8",
+   "answer": "ok~=Q1Sales~=Q1Sales~#NAME?"
+  },
+  {
+   "member": "Formula",
+   "formula": "=X1Y",
+   "target": "C8",
+   "answer": "ok~=X1Y~=X1Y~#NAME?"
+  },
+  {
+   "member": "Formula",
+   "formula": "=R1Foo",
+   "target": "C8",
+   "answer": "!1004~read!1004"
+  },
+  {
+   "member": "Formula",
+   "formula": "=AB12CD",
+   "target": "C8",
+   "answer": "ok~=AB12CD~=AB12CD~#NAME?"
+  },
+  {
+   "member": "Formula",
+   "formula": "=Tax1a",
+   "target": "C8",
+   "answer": "ok~=Tax1a~=Tax1a~#NAME?"
+  },
+  {
+   "member": "Formula",
+   "formula": "=A1_",
+   "target": "C8",
+   "answer": "ok~=A1_~=A1_~#NAME?"
+  },
+  {
+   "member": "Formula",
+   "formula": "=A1.B",
+   "target": "C8",
+   "answer": "ok~=A1.B~=R[-7]C[-2].B~#FIELD!"
+  },
+  {
+   "member": "Formula",
+   "formula": "=R1C",
+   "target": "C8",
+   "answer": "ok~=C$1~=R1C~1"
+  },
+  {
+   "member": "Formula",
+   "formula": "=C1R1",
+   "target": "C8",
+   "answer": "!1004~read!1004"
+  },
+  {
+   "member": "Formula",
+   "formula": "=RC1",
+   "target": "C8",
+   "answer": "ok~=RC1~=R[-7]C[468]~0"
+  },
+  {
+   "member": "Formula",
+   "formula": "=CR1",
+   "target": "C8",
+   "answer": "ok~=CR1~=R[-7]C[93]~0"
+  },
+  {
+   "member": "Formula",
+   "formula": "=RR",
+   "target": "C8",
+   "answer": "ok~=RR~=RR~#NAME?"
+  },
+  {
+   "member": "Formula",
+   "formula": "=CC",
+   "target": "C8",
+   "answer": "ok~=CC~=CC~#NAME?"
+  },
+  {
+   "member": "Formula",
+   "formula": "=r",
+   "target": "C8",
+   "answer": "ok~=8:8~=R~0"
+  },
+  {
+   "member": "Formula",
+   "formula": "=R_1",
+   "target": "C8",
+   "answer": "ok~=R_1~=R_1~#NAME?"
+  },
+  {
+   "member": "Formula",
+   "formula": "=R1C1C1",
+   "target": "C8",
+   "answer": "!1004~read!1004"
+  },
+  {
+   "member": "Formula",
+   "formula": "=XFD1048576x",
+   "target": "C8",
+   "answer": "ok~=XFD1048576x~=XFD1048576x~#NAME?"
+  },
+  {
+   "member": "Formula",
+   "formula": "=XFE1x",
+   "target": "C8",
+   "answer": "ok~=XFE1x~=XFE1x~#NAME?"
+  },
+  {
+   "member": "Formula",
+   "formula": "=A0x",
+   "target": "C8",
+   "answer": "ok~=A0x~=A0x~#NAME?"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=Q1Sales",
+   "target": "C8",
+   "answer": "ok~=Q1Sales~=Q1Sales~#NAME?"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=A1B",
+   "target": "C8",
+   "answer": "ok~=A1B~=A1B~#NAME?"
+  },
+  {
+   "member": "FormulaR1C1",
+   "formula": "=RC[-1]+A1",
+   "target": "C8",
+   "answer": "ok~=B8+'A1'~=RC[-1]+A1~#NAME?"
+  }
+ ]
+}

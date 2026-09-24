@@ -661,6 +661,17 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- A formula written in the other notation is read as Excel reads it.
+  `Range.Formula`, `Formula2`, `Value` and `FormulaArray` read A1, and
+  where A1 cannot, R1C1: `=R[-1]C+1` written to C8 is `=C7+1`, `=R1C1`
+  is `=$A$1` and `=R` the formula's row, where the model refused the
+  first with error 1004 and read `R1C1` as a name. A name that reads, or
+  starts, as an R1C1 reference is one A1 cannot read, `R1Foo` refused
+  in both; `R0C1`, `R_1` and a LET's `r` are names. `FormulaR1C1` reads
+  what looks like a cell in A1 as a name, spelled in quotes in A1,
+  `='A1'+1`, where the model read the cell, and refuses `$A$1`; what
+  only looks like one, `XFE1` or `A1048577`, is a name in both. 79
+  formulas measured in live Excel (scripts/measure_formula_notation.py).
 - `Range.Formula` and its kin refuse, with error 1004, what Excel refuses
   past a formula's syntax, all of which the model took: a function given
   too few or too many arguments, as each of Excel's 525 functions written

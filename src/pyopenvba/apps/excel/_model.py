@@ -1618,8 +1618,8 @@ class Range(ExcelObject):
                 continue
             if _is_formula(value) and not self._keeps_text(row, column):
                 if spelled is None:
-                    # Excel reads the formula once and writes it out again, as spelled_formula does.
-                    spelled = spelled_formula(self.sheet, value, anchor.top, anchor.left)
+                    # Excel reads the formula once and writes it out again, as written_formula does.
+                    spelled = written_formula(self.sheet, value, anchor.top, anchor.left)
                 if self._put_formula(row, column, shift_text(spelled, row - anchor.top, column - anchor.left)):
                     placed.append((row, column))
             else:
@@ -1678,13 +1678,14 @@ class Range(ExcelObject):
         if not isinstance(value, str) or not _is_formula(value):
             return value
         anchor = self.first
-        text = value
         if r1c1:
             try:
-                text = to_a1(value, anchor.top, anchor.left)
+                text = to_a1(value, anchor.top, anchor.left, names=True)
             except ValueError as exc:
                 raise error(1004, str(exc)) from None
-        spelled = spelled_formula(self.sheet, text, anchor.top, anchor.left, at=True)
+            spelled = spelled_formula(self.sheet, text, anchor.top, anchor.left, at=True)
+        else:
+            spelled = written_formula(self.sheet, value, anchor.top, anchor.left, at=True)
         written = ""
         try:
             written = legacy(spelled)
@@ -1812,7 +1813,7 @@ class Range(ExcelObject):
                 self._type_into(row, column, value)
                 continue
             try:
-                a1 = to_a1(value, row, column)
+                a1 = to_a1(value, row, column, names=True)
             except ValueError as exc:
                 raise error(1004, str(exc)) from None
             formula = spelled_formula(self.sheet, a1, row, column)
@@ -1864,7 +1865,7 @@ class Range(ExcelObject):
                         if r1c1 and array.size == 1:
                             extra_row = extra_column = 0
                         try:
-                            item = (to_a1(item, row + extra_row, column + extra_column) if r1c1
+                            item = (to_a1(item, row + extra_row, column + extra_column, names=True) if r1c1
                                     else shift_text(item, extra_row, extra_column))
                         except ValueError as exc:
                             raise error(1004, str(exc)) from None
@@ -3049,7 +3050,7 @@ class Range(ExcelObject):
         if not _merges.writable(self.sheet, row, column):
             return
         if isinstance(value, str) and _is_formula(value) and not self._keeps_text(row, column):
-            formula = spelled_formula(self.sheet, value, row, column)
+            formula = written_formula(self.sheet, value, row, column)
             if self._put_formula(row, column, formula):
                 self._bring_format([(row, column)], formula, row, column)
         else:
@@ -3718,27 +3719,28 @@ def _beyond(source: Area, destination: Area) -> Area | None:
 
 
 #: A name that is an R1C1 reference, which A1 will not take as a name: R1C1, RC2, R3C, R, C.
-_R1C1_NAME = re.compile(r"(?i)R(?:\d+|\[-?\d+\])?(?:C(?:\d+|\[-?\d+\])?)?|C(?:\d+|\[-?\d+\])?")
+def written_formula(sheet: Worksheet, formula: str, row: int, column: int, *, whole: bool = False,
+                    at: bool = False) -> str:
+    """A formula a macro writes in A1, as Excel spells it: read as R1C1 where A1 cannot read it, as Excel reads
+    =R[-1]C+1 written to C8 as =C7+1 and =R1C1 as =$A$1, what looks like a cell being a name there, 'A1'
+    (tests/fixtures/formula_notation.json). ``whole`` and ``at`` as for :func:`spelled_formula`."""
+    try:
+        return spelled_formula(sheet, formula, row, column, whole=whole, at=at)
+    except VBARuntimeError:
+        pass
+    try:
+        converted = to_a1(formula, row, column, names=True)
+    except ValueError:
+        raise error(1004, "Application-defined or object-defined error") from None
+    return spelled_formula(sheet, converted, row, column, whole=whole, at=at)
 
 
 def _array_formula_text(sheet: Worksheet, formula: str, row: int, column: int) -> str:
     """What FormulaArray is given, as Excel spells it: A1, or R1C1 where A1 cannot read it, =SUM(R1C1:R3C1)."""
-    from pyopenvba.formula._parse import FormulaError, tokenize
-
     try:
-        tokens = tokenize(formula[1:])
-    except FormulaError:
-        tokens = []
-    if not any(token.kind == "name" and _R1C1_NAME.fullmatch(token.text) for token in tokens):
-        try:
-            return spelled_formula(sheet, formula, row, column, whole=True)
-        except VBARuntimeError:
-            pass
-    try:
-        converted = to_a1(formula, row, column)
-    except ValueError:
+        return written_formula(sheet, formula, row, column, whole=True)
+    except VBARuntimeError:
         raise error(1004, "Unable to set the FormulaArray property of the Range class") from None
-    return spelled_formula(sheet, converted, row, column, whole=True)
 
 
 def shown_formula(sheet: Worksheet, row: int, column: int, formula: str) -> str:

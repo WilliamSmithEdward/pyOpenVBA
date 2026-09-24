@@ -153,7 +153,7 @@ _TOKEN: Final = re.compile(
   | (?P<structured>{STRUCTURED})
   | (?P<error>(?:{_SHEET})?(?i:\#N/A|\#NULL!|\#DIV/0!|\#VALUE!|\#REF!|\#NAME\?|\#NUM!|\#SPILL!|\#CALC!|\#GETTING_DATA))
   | (?P<ref>(?:{_SHEET})?(?:{_CELL}:{_CELL}|{_WHOLE_COLUMNS}|{_WHOLE_ROWS}|{_CELL})(?![A-Za-z0-9_.(]))
-  | (?P<name>(?:{_SHEET})?[A-Za-z_\\À-￿][A-Za-z0-9_.?\\À-￿]*)
+  | (?P<name>(?:{_SHEET})?(?:[A-Za-z_\\À-￿][A-Za-z0-9_.?\\À-￿]*|'(?:[^']|'')+'(?!!)))
   | (?P<number>(?:[0-9]+\.?[0-9]*|\.[0-9]+)(?:[eE][-+]?[0-9]+)?)
   | (?P<op><>|<=|>=|[=<>+\-*/^&%:@])
   | (?P<open>\()
@@ -186,9 +186,30 @@ def tokenize(source: str, *, spaces: bool = False) -> list[Token]:
         kind = match.lastgroup or ""
         if kind == "ws" and not spaces:
             continue
+        if kind == "ref" and not _on_the_sheet(match.group(0)):
+            # XFE1 and A1048577 are past the sheet's edge: names, as Excel reads them
+            # (tests/fixtures/formula_notation.json).
+            kind = "name"
         out.append(Token(kind, match.group(0), match.start()))
     out.append(Token("eof", "", len(source)))
     return out
+
+
+_ON_THE_SHEET = re.compile(r"\$?([A-Za-z]{1,3})?\$?([0-9]{1,7})?")
+
+
+def _on_the_sheet(text: str) -> bool:
+    """Whether each corner of a reference is on the sheet: its column XFD at most, its row 1048576 at most."""
+    from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, column_number
+
+    for corner in split_sheet(text)[1].split(":"):
+        found = _ON_THE_SHEET.fullmatch(corner)
+        if found is None:
+            return False
+        letters, digits = found.groups()
+        if letters and column_number(letters) > MAX_COLUMNS or digits and not 1 <= int(digits) <= MAX_ROWS:
+            return False
+    return True
 
 
 def literal(text: str) -> float:

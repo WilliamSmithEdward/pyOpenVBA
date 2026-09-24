@@ -182,6 +182,13 @@ def calculated_always(formula: str, known: Callable[[str], bool]) -> bool:
     return False
 
 
+def bound(formula: str) -> set[int]:
+    """Where in ``formula``, without its =, each name a LET or a LAMBDA binds stands: where it is bound and where it
+    stands for that."""
+    tokens = _tokens("=" + formula)
+    return set() if tokens is None else {token.at for token, role in _roles(tokens) if role == "bound"}
+
+
 def newer(name: str) -> bool:
     """Whether a file writes a call of the function ``name``, in capitals, behind _xlfn.: whether it is newer than
     Excel 2007."""
@@ -195,4 +202,4 @@ def calls(formula: str, name: str) -> bool:
                                       for token, role in _roles(tokens))
 
 
-__all__ = ["calculated_always", "calls", "from_file", "in_file", "newer"]
+__all__ = ["bound", "calculated_always", "calls", "from_file", "in_file", "newer"]

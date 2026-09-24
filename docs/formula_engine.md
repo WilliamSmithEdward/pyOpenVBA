@@ -80,3 +80,6 @@ column's `@` kept escaped: a file writes a column named `@home` as
    and reads back in VBA as 0, where a blank cell reads as Empty.
 9. **A `+` sign** reads cells as values, as `-` does: `ISREF(+A1)` is
    FALSE, and `=+A1:A3` is the cell in the formula's row.
+10. **A name in quotes.** `'A1'` and `Data!'A1'` are names, the way A1
+    spells a name R1C1 read where A1 reads a cell; with no such name
+    defined they are #NAME? (`tests/fixtures/formula_notation.json`).

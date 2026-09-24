@@ -47,6 +47,8 @@ from pyopenvba.formula._calc.registry import FUNCTIONS
 from pyopenvba.formula._deep import deep
 from pyopenvba.formula._parse import (REFERENCE_OPS, Binary, Call, FormulaError, Invoke, NameNode, Node, Reference,
                                       Structured, Token, Unary, literal, parse, read_structured, split_sheet, tokenize)
+from pyopenvba.formula._prefixes import bound
+from pyopenvba.formula._r1c1 import refused_in_a1
 from pyopenvba.formula._structured import TableShape, one_cell, spelled as spelled_reference
 from pyopenvba.formula._values import number_text
 
@@ -194,6 +196,7 @@ def _spelled(formula: str, names: Names, *, whole: bool, at: bool) -> str:
     if not at and any(token.kind == "op" and token.text == "@" for token in tokens):
         raise UnmodelledFormulaError("'@' in a formula written through Range.Formula is not implemented")
     _within_limits(tokens)
+    bound_at = bound(body)
     tree = parse(formula)
     _check(tree)
     one_value: set[int] = set()
@@ -237,7 +240,7 @@ def _spelled(formula: str, names: Names, *, whole: bool, at: bool) -> str:
             head, _, error = text.rpartition("#")
             text = _prefix(head[:-1], names) + "!#" + error.upper() if head else text.upper()
         elif token.kind == "name":
-            text = _name(text, tokens[index + 1].kind == "open", names)
+            text = _name(text, tokens[index + 1].kind == "open", names, bound=token.at in bound_at)
         pieces.append(text)
         previous = token
         index += 1
@@ -525,13 +528,25 @@ def _render(column: tuple[str, int] | None, row: tuple[str, int] | None) -> str:
     return (f"{column[0]}{column_letter(column[1])}" if column else "") + (f"{row[0]}{row[1]}" if row else "")
 
 
-def _name(text: str, called: bool, names: Names) -> str:
+def _name(text: str, called: bool, names: Names, *, bound: bool = False) -> str:
+    """A name as Excel spells it back; ``bound`` for one a LET or a LAMBDA binds, which may be R or C."""
     head, bang, bare = text.rpartition("!")
     prefix = _prefix(head, names) + "!" if bang else ""
+    if bare.startswith("'"):
+        # A name that looks like a cell, which R1C1 read as a name: in quotes, as the workbook first saw it.
+        return prefix + "'" + names.remembered(_unquoted(bare)).replace("'", "''") + "'"
+    if not called and not bound and refused_in_a1(bare):
+        # R1C1, RC or R: A1 cannot read it, and Excel reads the formula as R1C1 instead.
+        raise FormulaError(f"A1 cannot read the name {bare!r}")
     if _fixed(bare, called):
         return prefix + bare.upper()
     defined = None if called else names.defined(bare, split_sheet(head + "!")[0] if bang else names.home)
     return prefix + (defined if defined is not None else names.remembered(bare))
+
+
+def _unquoted(bare: str) -> str:
+    """A name in quotes, 'A1', without them."""
+    return bare[1:-1].replace("''", "'") if bare.startswith("'") else bare
 
 
 def _fixed(bare: str, called: bool) -> bool:
@@ -557,6 +572,7 @@ def remembered_names(formula: str, names: Names) -> list[str]:
         called = tokens[index + 1].kind == "open"
         if _fixed(bare, called):
             continue
+        bare = _unquoted(bare)
         if not called and names.defined(bare, split_sheet(head + "!")[0] if bang else names.home) is not None:
             continue
         out.append(bare)

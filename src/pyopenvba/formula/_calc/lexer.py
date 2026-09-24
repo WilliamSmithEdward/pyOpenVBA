@@ -207,7 +207,12 @@ class _Lexer:
             self.emit(Kind.OPERAND, end, self.structured(None, text[start + 1 : end - 1]))
             return
         if char == "'":
-            raise self.fail("a quoted name must be a sheet, followed by '!'")
+            # A name that looks like a cell, which R1C1 read as a name: 'A1' (tests/fixtures/formula_notation.json).
+            quoted = self.quoted_name(start, None)
+            if quoted is None:
+                raise self.fail("a quoted name is not closed")
+            self.emit(Kind.OPERAND, quoted[1], quoted[0])
+            return
 
         node, end = self.target(start, None)
         if node is not None:
@@ -295,10 +300,20 @@ class _Lexer:
                 return AxisReference(axis, prefix), columns.end()
         if prefix is None:
             return None, start
+        if text[start : start + 1] == "'":
+            quoted = self.quoted_name(start, prefix)
+            return (None, start) if quoted is None else quoted
         name = _NAME.match(text, start)
         if name is None:
             return None, start
         return NameReference(name.group(0), prefix), name.end()
+
+    def quoted_name(self, start: int, prefix: Prefix | None) -> tuple[NameReference, int] | None:
+        """The name in quotes at ``start``, 'A1', and where it ends; None if the quotes are not closed."""
+        end = _end_of_quoted(self.text, start, "'")
+        if end is None:
+            return None
+        return NameReference(self.text[start + 1 : end - 1].replace("''", "'"), prefix), end
 
     def structured(self, table: str | None, content: str) -> StructuredReference:
         try:

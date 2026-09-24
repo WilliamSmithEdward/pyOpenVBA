@@ -135,6 +135,36 @@ def test_a_formula_whose_answer_is_empty_text_reads_back_as_text(tmp_path: Path)
     assert _run(opened, "Application.Calculation = xlCalculationManual", reads) == "String|"
 
 
+#: Formulas that name a sheet, written to blocks and cut to another sheet (scripts/measure_shared_sheets.py).
+SHEETS: dict[str, Any] = json.loads((FIXTURES / "sheets.json").read_text(encoding="utf-8"))
+
+
+@pytest.fixture(scope="module")
+def named_sheets(tmp_path_factory: pytest.TempPathFactory) -> tuple[ExcelApplication, str]:
+    """The measurement's workbook made in the model, and its first sheet as the model saves it."""
+    app = ExcelApplication()
+    app.add_workbook()
+    app.add_module("Public Sub Make()\nDim ws As Object\nSet ws = ActiveWorkbook.Worksheets(1)\n" + SHEETS["setup"]
+                   + "\n" + SHEETS["writes"] + "End Sub\n", name="Make")
+    app.run("Make")
+    return app, _sheet_xml(app.save(tmp_path_factory.mktemp("sheets") / "sheets.xlsx"))
+
+
+@pytest.mark.parametrize("cell", list(SHEETS["cells"]))
+def test_a_formula_naming_a_sheet_is_stored_as_excel_stores_it(named_sheets: tuple[ExcelApplication, str],
+                                                               cell: str) -> None:
+    """No shared formula names a sheet, not even its own, and a group a cut sends a formula of to another sheet is
+    written a formula to each cell, the rest of the group's too: Excel refuses to open a file with one."""
+    found = re.search(rf'<c r="{cell}".*?</c>', named_sheets[1])
+    assert found is not None and found.group() == SHEETS["cells"][cell]
+
+
+@pytest.mark.parametrize("cell", list(SHEETS["formulas"]))
+def test_a_formula_naming_a_sheet_reads_as_excel_reads_it(named_sheets: tuple[ExcelApplication, str],
+                                                          cell: str) -> None:
+    assert named_sheets[0].sheet(1).formula(cell) == SHEETS["formulas"][cell]
+
+
 @pytest.mark.parametrize("name", [_param(name) for name in CASES])
 def test_a_save_stores_the_formulas_as_excel_stores_them(name: str, tmp_path: Path) -> None:
     if CASES[name]["base"]:

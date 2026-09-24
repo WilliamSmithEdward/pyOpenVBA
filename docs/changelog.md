@@ -702,6 +702,15 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- A formula that names a sheet, `=Other!A1*2` or even `=Data!A1*2` on
+  Data itself, written to several cells at once is saved as a formula in
+  each cell, as Excel saves it. The model saved one shared formula, and
+  Excel will not open a file with a shared formula that names a sheet. A
+  cut that sends the cells a shared formula reads to another sheet
+  leaves every cell of that group with a formula of its own too, the
+  ones still reading their own sheet included (scripts/
+  measure_shared_sheets.py). The workbook the filtered-edits live gate
+  makes, which cuts such cells, opens in Excel again.
 - `Range("A1:B2 B2:C3")`, two references with a space between them, is
   where they meet, B2, as in Excel. A comma binds looser,
   `Range("A1:C3 B2:D4,E5")` being B2:C3 and E5, and references that do

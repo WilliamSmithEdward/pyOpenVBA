@@ -24,6 +24,8 @@ from pathlib import Path
 
 from pyvbaharness import ExcelSession, HarnessConfig
 
+from fixture_workbook import copy_saved
+
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "tests" / "fixtures" / "at_sign.json"
 WORKBOOK = ROOT / "tests" / "fixtures" / "at_sign.xlsx"
@@ -111,7 +113,7 @@ def _saved(excel: ExcelSession, folder: Path) -> tuple[dict[str, str], dict[str,
         cell, _, read = answer.partition("~")
         reads[cell] = read
     # A workbook of its own, not the probe's, so the file carries no macro; the model opens it.
-    WORKBOOK.write_bytes(path.read_bytes())
+    copy_saved(path, WORKBOOK)
     parts: dict[str, str] = {}
     with zipfile.ZipFile(path) as package:
         for name in package.namelist():

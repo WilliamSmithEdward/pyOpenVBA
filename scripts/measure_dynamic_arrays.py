@@ -24,6 +24,8 @@ from pathlib import Path
 
 from pyvbaharness import ExcelSession, HarnessConfig
 
+from fixture_workbook import copy_saved
+
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "tests" / "fixtures" / "dynamic_arrays.json"
 WORKBOOK = ROOT / "tests" / "fixtures" / "dynamic_arrays.xlsx"
@@ -169,7 +171,7 @@ def _saved(excel: ExcelSession, folder: Path, writes: str = FILE_WRITES) -> dict
     assert result.ok, f"{result.outcome}: {result.message}"
     if writes == FILE_WRITES:
         # A workbook of its own, not the probe's, so the file carries no macro; the model opens it.
-        WORKBOOK.write_bytes(path.read_bytes())
+        copy_saved(path, WORKBOOK)
     parts: dict[str, str] = {}
     with zipfile.ZipFile(path) as package:
         for name in package.namelist():

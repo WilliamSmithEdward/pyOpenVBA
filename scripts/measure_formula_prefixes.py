@@ -29,6 +29,7 @@ from pathlib import Path
 
 from pyvbaharness import ExcelSession, HarnessConfig
 
+from fixture_workbook import strip_save_path
 from measure_cells_functions import FUNCTIONS, call
 from pyopenvba.formula._calc.catalog import EXCEL_FUNCTIONS
 
@@ -194,6 +195,8 @@ def main() -> None:
         volatile = Path(tempfile.mkdtemp()) / "volatile.xlsm"
         result_volatile = excel.run_vba(volatile_module(volatile), "Probe", timeout=300.0)
         assert result_volatile.ok, f"{result_volatile.outcome}: {result_volatile.message} {result_volatile.error}"
+    for saved in (path, every):
+        strip_save_path(saved)
     read = [part.split("~") for part in str(result.value).split("|")[:-1]]
     cells = formula_cells(path)
     records = [{"cell": f"C{row}", "written": formula, "saved": cells.get(f"C{row}", ""),

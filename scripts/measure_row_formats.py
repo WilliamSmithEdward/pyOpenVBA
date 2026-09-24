@@ -24,12 +24,13 @@ from __future__ import annotations
 
 import json
 import re
-import shutil
 import tempfile
 import zipfile
 from pathlib import Path
 
 from pyvbaharness import ExcelSession, HarnessConfig
+
+from fixture_workbook import copy_saved
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "tests" / "fixtures" / "row_formats"
@@ -487,9 +488,9 @@ def main() -> None:
                         "End Function"]
         loaded = run(excel, "\n".join(loaded_code + functions) + "\n", "Loaded").split("|")[: len(PLANTED)]
     OUT.mkdir(parents=True, exist_ok=True)
-    shutil.copyfile(authored, OUT / "row_formats.xlsx")
-    shutil.copyfile(planted, OUT / "planted_source.xlsx")
-    shutil.copyfile(resaved, OUT / "planted.xlsx")
+    copy_saved(authored, OUT / "row_formats.xlsx")
+    copy_saved(planted, OUT / "planted_source.xlsx")
+    copy_saved(resaved, OUT / "planted.xlsx")
     record = {
         "helper": HELPER,
         "cases": [{"name": name, "setup": setup, "reads": reads, "before": first, "after": second}

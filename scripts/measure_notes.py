@@ -25,6 +25,8 @@ from pathlib import Path
 
 from pyvbaharness import ExcelSession, HarnessConfig
 
+from fixture_workbook import copy_saved
+
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "tests" / "fixtures" / "notes.json"
 WORKBOOK = ROOT / "tests" / "fixtures" / "notes.xlsx"
@@ -146,7 +148,7 @@ def main() -> None:
         assert result.ok, f"{result.outcome}: {result.message}"
         author, notes, opened = _reads(str(result.value))
         # A workbook of its own, not the probe's, so the file carries no macro; the model opens it.
-        WORKBOOK.write_bytes(path.read_bytes())
+        copy_saved(path, WORKBOOK)
         with zipfile.ZipFile(path) as package:
             parts = {name: package.read(name).decode("utf-8") for name in package.namelist()
                      if name.startswith(("xl/worksheets/", "xl/comments", "xl/drawings/", "xl/ctrlProps/"))

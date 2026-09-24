@@ -226,6 +226,7 @@ def _rows(body: str, host: str) -> list[dict[str, str]]:
 def measure_excel() -> int:
     from pyvbaharness import ExcelSession
 
+    from fixture_workbook import strip_save_path
     from pyopenvba.excel import ExcelFile
 
     FOLDER.mkdir(parents=True, exist_ok=True)
@@ -244,6 +245,7 @@ def measure_excel() -> int:
             return 1
         body = str(result.value or "")
     seed.unlink(missing_ok=True)
+    strip_save_path(target)
     return _write("excel", body, target)
 
 

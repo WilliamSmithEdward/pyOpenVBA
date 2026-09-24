@@ -1,10 +1,11 @@
 """Measure Forms option-button grouping, values and linked cells in Excel."""
 import json
 from pathlib import Path
-from shutil import copyfile
 from zipfile import ZipFile
 
 from pyvbaharness import ExcelSession, HarnessConfig
+
+from fixture_workbook import copy_saved
 
 ROOT = Path(__file__).resolve().parent.parent
 PROBES = {
@@ -64,7 +65,7 @@ def main() -> None:
                 result = excel.run_vba(code, "Report", timeout=120.0)
                 assert result.ok, f"{boxed} {name}: {result.message}"
                 if boxed and name == "move_out":
-                    copyfile(target, ROOT / "tests/fixtures/shapes/radios_moved.xlsm")
+                    copy_saved(target, ROOT / "tests/fixtures/shapes/radios_moved.xlsm")
                 with ZipFile(target) as package:
                     parts = {part: package.read(part).decode() for part in package.namelist()
                              if part.startswith("xl/ctrlProps/") or part.endswith(".vml")}

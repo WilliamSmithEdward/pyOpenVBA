@@ -24,6 +24,8 @@ from pathlib import Path
 
 from pyvbaharness import ExcelSession, HarnessConfig
 
+from fixture_workbook import strip_save_path
+
 ROOT = Path(__file__).resolve().parent.parent
 FOLDER = ROOT / "tests" / "fixtures" / "formula_storage"
 
@@ -113,6 +115,8 @@ def main() -> None:
         excel.new_document()
         result = excel.run_vba(module(), "Probe", timeout=600.0)
         assert result.ok, f"{result.outcome}: {result.message} {result.error}"
+    for name in [name for name, _ in WRITTEN] + [name for name, _, _ in EDITS]:
+        strip_save_path(FOLDER / f"{name}.xlsx")
     read = dict(part.split("^", 1) for part in str(result.value).split("|") if part)
     cases = []
     for name, base, action in [(name, "", action) for name, action in WRITTEN] + EDITS:

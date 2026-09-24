@@ -18,6 +18,8 @@ from pathlib import Path
 
 from pyvbaharness import ExcelSession, HarnessConfig
 
+from fixture_workbook import strip_save_path
+
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "tests" / "fixtures" / "format"
 
@@ -151,6 +153,7 @@ def main() -> None:
         excel.new_document()
         result = excel.run_vba(code, "Build", timeout=240.0)
         assert result.ok, f"{result.outcome}: {result.message}"
+    strip_save_path(target)
     described = str(result.value).split("|")[:-1]
     answers = {name: dict(zip(READS, text.split(";")[:-1], strict=True))
                for name, text in zip(CASES, described, strict=True)}

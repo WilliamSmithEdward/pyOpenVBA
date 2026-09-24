@@ -1184,6 +1184,12 @@ All notable changes to pyOpenVBA are documented here. This project follows
   `tests/test_formula.py` replays all 493. AMORDEGRC and a LAMBDA called
   where it is written, the two whose answers still differ from Excel's,
   are strict expected failures with their reasons.
+- Fixture workbooks no longer carry the folder Excel saved them in, which
+  Excel writes into xl/workbook.xml as `x15ac:absPath`.
+  `scripts/strip_fixture_save_paths.py` took it out of the 246 committed
+  workbooks that had one and left every other byte of each package as it
+  was. The measurement scripts take it out as they save or copy a
+  workbook into tests/fixtures, through `scripts/fixture_workbook.py`.
 
 ### Removed
 

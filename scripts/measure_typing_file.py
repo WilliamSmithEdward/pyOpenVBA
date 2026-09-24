@@ -18,11 +18,12 @@ from __future__ import annotations
 
 import datetime
 import json
-import shutil
 import tempfile
 from pathlib import Path
 
 from pyvbaharness import ExcelSession, HarnessConfig
+
+from fixture_workbook import copy_saved
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "tests" / "fixtures" / "typing"
@@ -67,7 +68,7 @@ def main() -> None:
         result = excel.run_vba("\n".join(lines) + "\n", "Build", timeout=300.0)
         assert result.ok, f"{result.outcome}: {result.message} {result.error}"
     OUT.mkdir(parents=True, exist_ok=True)
-    shutil.copyfile(saved, OUT / "typing.xlsx")
+    copy_saved(saved, OUT / "typing.xlsx")
     # A date typed without a year falls in the year it was typed.
     record = {"year": datetime.date.today().year, "cases": CASES}
     (OUT / "typing.json").write_text(json.dumps(record, indent=1) + "\n", encoding="utf-8")

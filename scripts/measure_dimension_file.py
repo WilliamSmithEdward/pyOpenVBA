@@ -30,6 +30,8 @@ from pathlib import Path
 
 from pyvbaharness import ExcelSession, HarnessConfig
 
+from fixture_workbook import strip_save_path
+
 ROOT = Path(__file__).resolve().parent.parent
 FIXTURES = ROOT / "tests" / "fixtures" / "dimensions"
 sys.path.insert(0, str(ROOT / "src"))
@@ -238,6 +240,8 @@ def main() -> None:
                               f'wb.SaveAs Filename:="{calibri_edited}", FileFormat:=51\nwb.Close False\n'
                               f'Set wb = Workbooks.Open("{calibri_edited}")\nEdit = Describe(wb.Worksheets(1))\n'
                               "wb.Close False\nEnd Function\n", "Edit")
+    for fixture in (authored, planted, template_resaved, calibri):
+        strip_save_path(fixture)
     authored_parts = sheet_parts(authored)
     described = [block for block in answers.split("|") if block]
     payload = {

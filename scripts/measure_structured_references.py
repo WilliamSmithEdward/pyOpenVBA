@@ -31,6 +31,8 @@ from pathlib import Path
 
 from pyvbaharness import ExcelSession, HarnessConfig
 
+from fixture_workbook import strip_save_path
+
 ROOT = Path(__file__).resolve().parent.parent
 FOLDER = ROOT / "tests" / "fixtures" / "structured_references"
 
@@ -530,6 +532,8 @@ def main() -> None:
         excel.new_document()
         result = excel.run_vba(module(), "Probe", timeout=600.0)
         assert result.ok, f"{result.outcome}: {result.message} {result.error}"
+    for name in ("structured", "renamed"):
+        strip_save_path(FOLDER / f"{name}.xlsx")
     answers: dict[str, str] = {}
     for record in str(result.value).split("~|~"):
         if "~:~" in record:

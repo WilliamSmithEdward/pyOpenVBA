@@ -25,6 +25,7 @@ from pyvbaharness import ExcelSession, HarnessConfig
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts"))
+from fixture_workbook import strip_save_path  # noqa: E402
 from measure_autofilter import HELPER, NUMBERS, TABLE, filt  # noqa: E402
 
 OUT = ROOT / "tests" / "fixtures" / "autofilter_file"
@@ -131,6 +132,8 @@ def main() -> None:
         excel.new_document()
         result = excel.run_vba("\n".join(build) + "\n" + "".join(bodies), "Build", timeout=600.0)
         assert result.ok, f"{result.outcome}: {result.message} {result.error}"
+    for saved in (path, names_path):
+        strip_save_path(saved)
     before, after = str(result.value).split("#")
     readings = before.split("|")[: len(CASES)]
     reopened = after.split("|")[: len(CASES)]

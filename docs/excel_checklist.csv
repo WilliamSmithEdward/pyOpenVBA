@@ -663,9 +663,9 @@ Range,Font,"property, read-only",As Font,,PARTIAL,tests/fixtures/excel_model/pro
 Range,FormatConditions,"property, read-only",As FormatConditions,,MISSING,,
 Range,Formula,property,As Variant,,PARTIAL,tests/fixtures/formula_a1_arrays.json; tests/fixtures/excel_model/probes.txt; tests/fixtures/number_spelling.json; tests/fixtures/typing_formats.json; tests/fixtures/autofilter_edits.json,"A constant number reads back as Excel spells it there; what is not a formula is typed as Value types it, and a Text cell keeps even a formula as text. On a filtered sheet only the visible cells take it, the formula moving from the range's own top-left cell; a two-dimensional array written to several areas wider than one column reports itself unsupported."
 Range,Formula2,property,As Variant,,VERIFIED,tests/fixtures/implicit_intersection.json,"Reads a formula Range.Formula wrote with an @ where it cuts cells to one value, as 2100 live formulas show; writes a formula whose Formula2 is a legacy formula's as that, and any other as a dynamic-array formula, which spills (tests/fixtures/dynamic_arrays.json)."
-Range,Formula2Local,property,As Variant,,MISSING,,
+Range,Formula2Local,property,As Variant,,VERIFIED,tests/fixtures/excel_model/probes.txt,"The same as Formula2, as an English Excel has it; the model keeps the English spelling."
 Range,Formula2R1C1,property,As Variant,,VERIFIED,tests/fixtures/dynamic_arrays.json,"Formula2 in R1C1 notation, read and written as Formula2 is."
-Range,Formula2R1C1Local,property,As Variant,,MISSING,,
+Range,Formula2R1C1Local,property,As Variant,,VERIFIED,tests/fixtures/excel_model/probes.txt,"The same as Formula2R1C1, as an English Excel has it; the model keeps the English spelling."
 Range,FormulaArray,property,As Variant,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/formula_storage/formula_storage.json,"One formula worked out as an array over the block, each cell showing its item, in A1 or R1C1, 255 characters at most; one cell of an array rewrites it, part of one is error 1004. Read, it is the array's formula, the formula the cells share, or Null. Saved and read as Excel saves and reads it. Over several areas, or set to a value, it reports itself unsupported, and so do copying part of an array, filling, sorting, replacing and removing duplicates in one."
 Range,FormulaHidden,property,As Variant,,VERIFIED,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,
 Range,FormulaLocal,property,As Variant,,PARTIAL,tests/fixtures/excel_model/probes.txt,"The same as Formula, as an English Excel has it; the model keeps the English spelling."
@@ -727,7 +727,7 @@ Range,Previous,"property, read-only",As Range,,PARTIAL,tests/fixtures/excel_mode
 Range,PrintOut,method,"PrintOut([From As Variant], [To As Variant], [Copies As Variant], [Preview As Variant], [ActivePrinter As Variant], [PrintToFile As Variant], [Collate As Variant], [PrToFileName As Variant]) As Variant",,MISSING,,
 Range,PrintPreview,method,PrintPreview([EnableChanges As Variant]) As Variant,,MISSING,,
 Range,QueryTable,"property, read-only",As QueryTable,,MISSING,,
-Range,Range,"property, read-only",As Range,,MISSING,,
+Range,Range,"property, read-only",As Range,,PARTIAL,tests/fixtures/excel_model/probes.txt,"A reference read as though the range's first cell were A1, names, unions and intersections included; one Range alone, or a reference landing off the sheet, is error 1004. A reference on another sheet reports itself unsupported."
 Range,ReadingOrder,property,As Long,,VERIFIED,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,
 Range,RefreshLinkedDataType,method,RefreshLinkedDataType([DomainID As Variant]),,MISSING,,
 Range,RemoveControls,method,RemoveControls(),,MISSING,,
@@ -759,8 +759,8 @@ Range,SoundNote,"property, read-only",As SoundNote,,MISSING,,
 Range,SparklineGroups,"property, read-only",As SparklineGroups,,MISSING,,
 Range,Speak,method,"Speak([SpeakDirection As Variant], [SpeakFormulas As Variant])",,MISSING,,
 Range,SpecialCells,method,"SpecialCells(Type As XlCellType, [Value As Variant]) As Range",,PARTIAL,tests/fixtures/special_cells.json,"Constants and formulas by kind, blanks, the last cell and visible cells, split into areas as Excel splits them; comments, validation and conditional formats report themselves unsupported."
-Range,SpillingToRange,"property, read-only",As Range,,VERIFIED,tests/fixtures/dynamic_arrays.json,"The block a dynamic-array formula in the first cell spilled into; Nothing for any other cell."
-Range,SpillParent,"property, read-only",As Range,,VERIFIED,tests/fixtures/dynamic_arrays.json,"The cell of the dynamic-array formula whose answer spilled over the first cell; Nothing where none did."
+Range,SpillingToRange,"property, read-only",As Range,,VERIFIED,tests/fixtures/dynamic_arrays.json,The block a dynamic-array formula in the first cell spilled into; Nothing for any other cell.
+Range,SpillParent,"property, read-only",As Range,,VERIFIED,tests/fixtures/dynamic_arrays.json,The cell of the dynamic-array formula whose answer spilled over the first cell; Nothing where none did.
 Range,Style,property,As Variant,,MISSING,,
 Range,SubscribeTo,method,"SubscribeTo(Edition As String, [Format As XlSubscribeToFormat]) As Variant",,MISSING,,
 Range,Subtotal,method,"Subtotal(GroupBy As Long, Function As XlConsolidationFunction, TotalList As Variant, [Replace As Variant], [PageBreaks As Variant], [SummaryBelowData As XlSummaryRow]) As Variant",,MISSING,,

@@ -182,22 +182,36 @@ def _corner(text: str) -> tuple[int | None, int | None]:
 
 
 def parse_reference(text: str, *, sheet: str = "") -> list[Area]:
-    """Every rectangle in a reference, which a comma may list several of."""
+    """Every rectangle in a reference, which a comma may list several of. A space between two references is where
+    they meet, and binds tighter than a comma: A1:C3 B2:D4,E5 is B2:C3 and E5; references that do not meet are no
+    reference (tests/fixtures/excel_model/)."""
     pieces = [piece for piece in _split_areas(text) if piece.strip()]
     if not pieces:
         raise ValueError("an empty reference")
-    return [parse_area(piece, sheet=sheet) for piece in pieces]
+    return [_intersection(piece, sheet) for piece in pieces]
 
 
-def _split_areas(text: str) -> list[str]:
-    """Split on commas that are not inside a quoted sheet name."""
+def _intersection(text: str, sheet: str) -> Area:
+    """The rectangle where the references a space separates in ``text`` meet."""
+    first, *rest = [parse_area(part, sheet=sheet) for part in _split_areas(text, " ") if part]
+    for area in rest:
+        top, left = max(first.top, area.top), max(first.left, area.left)
+        bottom, right = min(first.bottom, area.bottom), min(first.right, area.right)
+        if area.sheet != first.sheet or top > bottom or left > right:
+            raise ValueError(f"{text!r} names references that do not meet")
+        first = Area(top, left, bottom, right, first.sheet)
+    return first
+
+
+def _split_areas(text: str, separator: str = ",") -> list[str]:
+    """Split on each ``separator`` that is not inside a quoted sheet name."""
     out: list[str] = []
     current: list[str] = []
     quoted = False
     for char in text:
         if char == "'":
             quoted = not quoted
-        if char == "," and not quoted:
+        if char == separator and not quoted:
             out.append("".join(current))
             current = []
             continue

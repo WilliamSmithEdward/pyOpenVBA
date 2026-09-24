@@ -262,6 +262,48 @@ Range("A1").FormulaLocal = "=1+2" ;; Range("A1").Value
 Range("A1").FormulaR1C1Local = "=R1C2*2": Range("B1").Value = 4 ;; Range("A1").Formula
 Range("A1").NumberFormatLocal = "0.0" ;; Range("A1").NumberFormat
 TypeName(Range("A1").Calculate)
+Range("B2").Formula2 = "=SEQUENCE(2)" ;; Range("B2").Formula2Local
+Range("B2").Formula2 = "=A5:A7" ;; Range("B2").Formula2R1C1Local
+Range("B2").Formula = "=A5:A7" ;; Range("B2").Formula2Local
+Range("B2").Formula2Local = "=@A5:A7" ;; Range("B2").Formula
+Range("B2").Formula2R1C1Local = "=R5C1:R7C1" ;; Range("B2").Formula2
+Range("B2").Formula2Local = "=SEQUENCE(2)" ;; Range("B3").Value
+
+# --- Range.Range: a reference read from the range's first cell, as recorded macros use it ---
+Range("B2:D5").Range("A1").Address
+Range("B2:D5").Range("B2:C3").Address
+Range("B2:D5").Range("$A$1").Address
+Range("B2:D5").Range("a1").Address
+Range("B2").Range("A1:A3").Address
+Range("B2:D5").Range("E6").Address
+Range("B2").Range("B1:A2").Address
+Range("B2").Range("A:A").Address
+Range("B2").Range("1:2").Address
+Range("B2").Range("A1", "B2").Address
+Range("B2").Range("A1:B2 B2:C3").Address
+Range("B2").Range("A1,C3").Address
+Range("B2:C3,E5").Range("A1").Address
+Range("E5,B2:C3").Range("A1").Address
+Rows(3).Range("A1").Address
+Columns(2).Range("A1").Address
+Range("XFD1").Range("B1").Address
+Range("A1048576").Range("A2").Address
+Range("B2").Range("").Address
+Range("B2").Range("A0").Address
+Range("B2").Range("R1C1").Address
+Range("B2").Range(Range("A1")).Address
+Range("B2").Range(Range("A1"), Range("B2")).Address
+Range("B2").Range("A1").Range("B1").Address
+TypeName(Range("B2").Range("A1"))
+Range("B2").Range("A1").Count
+Range("C3").Select ;; ActiveCell.Offset(1, 0).Range("A1").Address
+Range("B2").Range("A1").Value = 7 ;; Range("B2").Value
+ActiveWorkbook.Names.Add "Spot", "=$A$1" ;; Range("B2").Range("Spot").Address
+Range("A1:B2 B2:C3").Address
+Range("A1 C3").Address
+Range("A1:C3 B2:D4,E5").Address
+Range("A1:C3  B2:D4").Address
+Range("A:C 2:3").Address
 
 # --- the number format a formula takes from what it refers to ---
 # A1 holds a date, A2 a plain number; C1 gets the formula. Each answer is

@@ -1971,6 +1971,22 @@ class Range(ExcelObject):
         self._set_formula_r1c1(value)
         self.sheet.touched()
 
+    @member
+    def Formula2Local(self) -> object:
+        return self.Formula2()
+
+    @setter("Formula2Local")
+    def _set_formula2_local(self, value: object) -> None:
+        self._set_formula2(value)
+
+    @member
+    def Formula2R1C1Local(self) -> object:
+        return self.Formula2R1C1()
+
+    @setter("Formula2R1C1Local")
+    def _set_formula2_r1c1_local(self, value: object) -> None:
+        self._set_formula2_r1c1(value)
+
     # -- geometry
 
     @member
@@ -2113,6 +2129,27 @@ class Range(ExcelObject):
         if row < 1 or column < 1 or row > MAX_ROWS or column > MAX_COLUMNS:
             raise error(ERR_SUBSCRIPT_OUT_OF_RANGE)
         return Range(self.sheet, [Area(row, column, row, column, area.sheet)])
+
+    @member
+    def Range(self, Cell1: object = MISSING, Cell2: object = MISSING) -> object:
+        """A reference read as though the range's first cell were A1, as recorded macros use it:
+        Range("B2:D5").Range("B2:C3") is C3:D4, a dollar sign making no difference and a name moving as its cells
+        would. Two Ranges are corners read the same way; one alone is error 1004, as is anything that lands off
+        the sheet (tests/fixtures/excel_model/)."""
+        if Cell1 is MISSING:
+            raise error(449)
+        if isinstance(Cell1, Range) and Cell2 is MISSING:
+            raise error(1004, "Range.Range takes a reference, not a Range on its own")
+        found = self.sheet.Range(Cell1, Cell2)
+        assert isinstance(found, Range)
+        if found.sheet is not self.sheet:
+            raise VBAUnsupportedError("Range.Range given a reference on another sheet is not implemented")
+        down, across = self.first.top - 1, self.first.left - 1
+        areas = [Area(area.top + down, area.left + across, area.bottom + down, area.right + across, area.sheet)
+                 for area in found.areas]
+        if any(area.bottom > MAX_ROWS or area.right > MAX_COLUMNS for area in areas):
+            raise error(1004, "Range.Range would leave the sheet")
+        return Range(self.sheet, areas)
 
     @member
     def Offset(self, RowOffset: object = MISSING, ColumnOffset: object = MISSING) -> object:

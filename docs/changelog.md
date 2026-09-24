@@ -7,6 +7,16 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `Range.Range`, a reference read as though the range's first cell were
+  A1, as a macro recorded with relative references uses it:
+  `ActiveCell.Offset(1, 0).Range("A1")` is the cell below the active one,
+  and `Range("B2:D5").Range("B2:C3")` is C3:D4. A `$` makes no
+  difference, a name moves as its cells would, and a range of several
+  areas counts from its first. One Range alone, or a reference landing
+  off the sheet, is error 1004, as 29 probes in live Excel show.
+  `Range.Formula2Local` and `Formula2R1C1Local` read and write as
+  `Formula2` and `Formula2R1C1` do in an English Excel.
+
 - An `@` written through `Range.Formula`, `FormulaR1C1` or `Value`, and
   a call of SINGLE, which Excel writes as `@`. An `@` standing where the
   formula cuts to one value anyway is left out, `=@A1:A3` reading back
@@ -692,6 +702,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- `Range("A1:B2 B2:C3")`, two references with a space between them, is
+  where they meet, B2, as in Excel. A comma binds looser,
+  `Range("A1:C3 B2:D4,E5")` being B2:C3 and E5, and references that do
+  not meet are error 1004. The model refused every such range with error
+  1004.
 - A formula `Formula2` writes with an `@` is saved as Excel saves it: as
   a legacy formula wherever `Formula` would write it and read back the
   same, `=@A1`, `=SUM(@A1:A3)` and `=LET(x,A1:A3,@x)` among them, and as

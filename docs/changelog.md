@@ -742,6 +742,13 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- `PowerPointFile.create_new` makes a presentation whose VBA project
+  references what PowerPoint's own does, OLE Automation and Office. The
+  template's project referenced Microsoft Forms through a cache file in
+  the Temp folder of the machine that made it, so every new presentation
+  carried that folder's path, and it held a form's streams at its root.
+  The template is made again from a presentation PowerPoint saved with
+  one title slide and an empty Module1.
 - A signed `.xlsm`, `.docm` or `.pptm` whose code changes is saved
   without its signature, as Excel, Word and PowerPoint save it (#27).
   They keep the signature in parts beside `vbaProject.bin`, where the

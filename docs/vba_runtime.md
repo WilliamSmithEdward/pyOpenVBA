@@ -970,6 +970,17 @@ moved, a circular reference leaves a zero and is recorded, and manual
 calculation mode keeps the old value until something calls Calculate,
 which is what Excel shows until F9.
 
+A dynamic-array formula, one `Formula2` writes whose legacy reading would
+cut cells to one value, is worked out whole and spills (`_spills`): the
+cells it spills into hold its answer with no formula of their own, and
+the sheet keeps what each such formula wants to spill into, blocked or
+not. Unlike the rest, these formulas are worked out after each edit
+rather than when read, since what they spill changes what other cells
+hold; a write inside what one wants to spill into works it out again, and
+the cells it spilled into count as its own when anything reading them is
+marked stale. A save writes the metadata and rich values Excel keeps for
+them (`_dynamic_file`).
+
 493 of Excel's 525 worksheet functions are implemented, with Excel's
 precedence, coercion and comparisons and its arithmetic as the x87 does
 it: all 10,958 formulas of pyOfficeEditor's corpus come to what Excel

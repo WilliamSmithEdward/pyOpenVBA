@@ -108,7 +108,8 @@ def _matching(sheet: Worksheet, domain: Area, kind: int, flags: int) -> list[tup
             continue
         if kind == FORMULAS and cell.formula:
             value = sheet.book.calculator.value_of(sheet.name, row, column)
-        elif kind == CONSTANTS and not cell.formula and cell.value is not EMPTY:
+        elif kind == CONSTANTS and not cell.formula and cell.value is not EMPTY and cell.spilled_from is None:
+            # A cell a formula spilled into is neither a formula nor a constant (tests/fixtures/dynamic_arrays.json).
             value = cell.value
         else:
             continue

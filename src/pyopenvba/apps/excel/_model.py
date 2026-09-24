@@ -54,6 +54,7 @@ if TYPE_CHECKING:
     from pyopenvba.apps.excel._protection import BookProtection, Gate, SheetProtection
     from pyopenvba.apps.excel._clipboard import Clip
     from pyopenvba.apps.excel._sort import SortState
+    from pyopenvba.apps.excel._spills import Spill
     from pyopenvba.apps.excel._styles import Style, Stylesheet
     from pyopenvba.apps.excel._tables import Table
     from pyopenvba.apps.excel._typing import Typed
@@ -114,6 +115,10 @@ class Cell:
     xf: int = -1
     #: The shared formula the cell's formula belongs to, a key of its sheet's shared_groups; None for its own.
     shared: int | None = None
+    #: True for a dynamic-array formula, one Formula2 wrote that answers with what spills (see _spills).
+    dynamic: bool = False
+    #: The first cell of the dynamic-array formula whose answer this cell shows, where it spilled here.
+    spilled_from: tuple[int, int] | None = None
 
     @property
     def number_format(self) -> str:
@@ -838,6 +843,8 @@ class Worksheet(ExcelObject):
         self.shared_groups: dict[int, Area] = {}
         #: The array formulas: each one's block by its first cell, which holds the formula (see _arrays).
         self.array_formulas: dict[tuple[int, int], Area] = {}
+        #: What each dynamic-array formula's answer wants to spill into, by its first cell (see _spills).
+        self.spills: dict[tuple[int, int], Spill] = {}
         #: The sheet's tables, in the order its file lists them (see _tables).
         self.tables: list[Table] = []
         #: The sheet's data validation rules, in the order its file lists them (see _validation).
@@ -1047,10 +1054,27 @@ class Worksheet(ExcelObject):
             found = range_areas(self, text)
             if found is not None:
                 return found
+        if text.endswith("#"):
+            return self._spill_areas(text[:-1])
         try:
             return parse_reference(text, sheet=self.name)
         except ValueError:
             raise error(1004, f"{text!r} is not a reference this sheet knows") from None
+
+    def _spill_areas(self, text: str) -> list[Area]:
+        """What spilled from the cell ``text`` names, Range("E1#"); error 1004 where nothing spilled from it
+        (tests/fixtures/dynamic_arrays.json)."""
+        areas = self._as_area(text)
+        cell = areas[0]
+        if len(areas) != 1 or cell.rows != 1 or cell.columns != 1:
+            raise error(1004, f"{text}# is not a cell's spill")
+        owner = self.book.sheet_named(cell.sheet) if cell.sheet else self
+        assert owner is not None
+        owner.book.calculator.value_of(owner.name, cell.top, cell.left)
+        spill = owner.spills.get((cell.top, cell.left))
+        if spill is None or spill.blocked:
+            raise error(1004, f"nothing spilled from {text}")
+        return [Area(spill.area.top, spill.area.left, spill.area.bottom, spill.area.right, owner.name)]
 
     @member
     def Shapes(self, Index: object = MISSING) -> object:
@@ -1591,17 +1615,22 @@ class Range(ExcelObject):
         a formula is typed as Value types it, and a Text cell keeps even a
         formula as the text it is.
         """
+        _within_length(value)
+        self._formula_written(value)
+
+    def _formula_written(self, value: object, *, dynamic: bool = False) -> None:
+        """What Formula writes; ``dynamic`` for a dynamic-array formula Formula2 writes, which spills (see
+        _spills)."""
         from pyopenvba.apps.excel._protection import writing
 
-        _within_length(value)
         if not _arrays.write_admitted(self):
             return
         with writing(self.sheet):
-            self._write_formula(value)
+            self._write_formula(value, dynamic=dynamic)
         self._tables_follow()
         _events.after_edit(self)
 
-    def _write_formula(self, value: object) -> None:
+    def _write_formula(self, value: object, *, dynamic: bool = False) -> None:
         if isinstance(value, VBAArray):
             self._write_formula_array(value, r1c1=False)
             return
@@ -1619,14 +1648,16 @@ class Range(ExcelObject):
             if _is_formula(value) and not self._keeps_text(row, column):
                 if spelled is None:
                     # Excel reads the formula once and writes it out again, as written_formula does.
-                    spelled = written_formula(self.sheet, value, anchor.top, anchor.left)
-                if self._put_formula(row, column, shift_text(spelled, row - anchor.top, column - anchor.left)):
+                    spelled = written_formula(self.sheet, value, anchor.top, anchor.left, at=dynamic)
+                if self._put_formula(row, column, shift_text(spelled, row - anchor.top, column - anchor.left),
+                                     dynamic=dynamic):
                     placed.append((row, column))
             else:
                 self._type_into(row, column, value)
         if spelled is not None:
             self._bring_format(placed, spelled, anchor.top, anchor.left)
-            self._share(placed, spelled)
+            if not dynamic:
+                self._share(placed, spelled)
 
     @member
     def HasFormula(self) -> object:
@@ -1657,17 +1688,41 @@ class Range(ExcelObject):
     @setter("Formula2")
     def _set_formula2(self, value: object) -> None:
         _within_length(value)
-        self._set_formula(self._legacy(value, r1c1=False))
+        written, dynamic = self._legacy(value, r1c1=False)
+        self._formula_written(written, dynamic=dynamic)
 
     @setter("Formula2R1C1")
     def _set_formula2_r1c1(self, value: object) -> None:
         _within_length(value)
-        self._set_formula(self._legacy(value, r1c1=True))
+        written, dynamic = self._legacy(value, r1c1=True)
+        self._formula_written(written, dynamic=dynamic)
 
-    def _legacy(self, value: object, *, r1c1: bool) -> object:
-        """A formula Formula2 writes, as Formula would write it: with its @ taken out, where the formula Formula
-        writes reads back through Formula2 as written (tests/fixtures/implicit_intersection.json). Any other is a
-        dynamic-array formula, not implemented yet; a value is written as Formula writes one."""
+    @member
+    def HasSpill(self) -> object:
+        """Whether the range meets what a dynamic-array formula spilled (see _spills)."""
+        from pyopenvba.apps.excel._spills import has_spill
+
+        return has_spill(self)
+
+    @member
+    def SpillParent(self) -> object:
+        """The cell of the dynamic-array formula whose answer spilled over the range's first cell, or Nothing."""
+        from pyopenvba.apps.excel._spills import spill_parent
+
+        return spill_parent(self)
+
+    @member
+    def SpillingToRange(self) -> object:
+        """The block the dynamic-array formula in the range's first cell spilled into, or Nothing."""
+        from pyopenvba.apps.excel._spills import spilling_to
+
+        return spilling_to(self)
+
+    def _legacy(self, value: object, *, r1c1: bool) -> tuple[object, bool]:
+        """A formula Formula2 writes, and whether it is a dynamic-array formula. One whose Formula2, with the @
+        Formula would add, reads back as written is written as Formula would write it, its @ taken out
+        (tests/fixtures/implicit_intersection.json); any other is a dynamic-array formula, as written, which spills
+        (tests/fixtures/dynamic_arrays.json). A value is written as Formula writes one."""
         from pyopenvba.formula._formula2 import UnreadFormula2Error, formula2, legacy
         from pyopenvba.formula._parse import FormulaError
 
@@ -1676,7 +1731,7 @@ class Range(ExcelObject):
         if isinstance(value, VBAArray):
             raise VBAUnsupportedError("Range.Formula2 given an array is not implemented")
         if not isinstance(value, str) or not _is_formula(value):
-            return value
+            return value, False
         anchor = self.first
         if r1c1:
             try:
@@ -1692,10 +1747,7 @@ class Range(ExcelObject):
             same = formula2(written, self._named) == spelled
         except (FormulaError, UnreadFormula2Error):
             same = False
-        if not same:
-            raise VBAUnsupportedError(f"a dynamic-array formula, one Formula2 reads without the @ Formula would add, "
-                                      f"is not implemented: {value}")
-        return written
+        return (written, False) if same else (spelled, True)
 
     def _named(self, name: str) -> str | None:
         """A defined name's formula as this sheet finds the name, or None where it finds none."""
@@ -1726,12 +1778,14 @@ class Range(ExcelObject):
                 return ""
             if cell.formula:
                 text = shown_formula(self.sheet, row, column, cell.formula)
-                if at:
+                if at and not cell.dynamic:
+                    # A dynamic-array formula is kept as Formula2 writes it, with no @ to add.
                     text = self._formula2(text, whole=found is not None)
                 # R1C1 can spell a formula longer than Excel's 8192 characters, and reads only that many
                 # (tests/fixtures/long_chains.json).
                 return from_a1(text, row, column)[:LONGEST_FORMULA] if r1c1 else text
-            return _formula_text(cell.value)
+            # A cell a formula spilled into has neither a formula nor a constant of its own.
+            return "" if cell.spilled_from is not None else _formula_text(cell.value)
 
         area = self.first
         if self.single:
@@ -2376,10 +2430,14 @@ class Range(ExcelObject):
     def _clear_contents(self) -> None:
         """Every value and formula gone; a cell left with nothing to say goes with them."""
         for row, column in self.cell_positions():
-            cell = self.sheet.cells_[(row, column)]
+            cell = self.sheet.cells_.get((row, column))
+            if cell is None or cell.spilled_from is not None:
+                # Clearing a cell a formula spilled into leaves the spill as it is; clearing the formula takes it.
+                continue
             cell.value = EMPTY
             cell.formula = ""
             cell.stale = False
+            cell.dynamic = False
             self.sheet.settle(row, column)
             self.sheet.cell_changed(row, column)
         self.sheet.touched()
@@ -2834,11 +2892,12 @@ class Range(ExcelObject):
         def inside(at_row: int, at_column: int) -> bool:
             return 1 <= at_row <= MAX_ROWS and 1 <= at_column <= MAX_COLUMNS
 
-        # The neighbour decides which of the two journeys this is: along
-        # a run of filled cells to its last one, or across a gap to the
-        # next filled cell, or to the edge of the sheet if there is none.
+        # The cell and its neighbour decide which of the two journeys this
+        # is: from a filled cell along a run of filled cells to its last
+        # one, or across a gap, from an empty cell too, to the next filled
+        # cell, or to the edge of the sheet if there is none.
         step_row, step_column = row + down, column + across
-        if inside(step_row, step_column) and occupied(step_row, step_column):
+        if occupied(row, column) and inside(step_row, step_column) and occupied(step_row, step_column):
             while inside(row + down, column + across) and occupied(row + down, column + across):
                 row, column = row + down, column + across
         else:
@@ -3062,8 +3121,9 @@ class Range(ExcelObject):
         """Whether a position is a Text cell, which keeps whatever string is written to it as text."""
         return self.sheet.style_at(row, column).number_format == "@"
 
-    def _put_formula(self, row: int, column: int, formula: str) -> bool:
-        """Write one formula into one cell; False when a protected sheet held the cell back."""
+    def _put_formula(self, row: int, column: int, formula: str, *, dynamic: bool = False) -> bool:
+        """Write one formula into one cell, ``dynamic`` for a dynamic-array formula; False when a protected sheet
+        held the cell back."""
         gate = self.sheet.write_gate
         if gate is not None and not gate.admits(row, column):
             return False
@@ -3073,6 +3133,8 @@ class Range(ExcelObject):
         cell.stale = True
         cell.value = EMPTY
         cell.shared = None
+        cell.dynamic = dynamic
+        cell.spilled_from = None
         self.sheet.cell_changed(row, column)
         return True
 
@@ -3106,8 +3168,13 @@ class Range(ExcelObject):
         """Write one value into one cell as Excel types it: the value, the format it brings, and a prefix."""
         from pyopenvba.apps.excel._typing import typed
 
+        from pyopenvba.apps.excel._spills import keeps
+
         gate = self.sheet.write_gate
         if gate is not None and not gate.admits(row, column):
+            return
+        if keeps(self.sheet, row, column, value):
+            # An empty string or nothing written where a formula spilled leaves the spill as it is.
             return
         cell = self.sheet.cell(row, column, create=True)
         assert cell is not None
@@ -3123,6 +3190,8 @@ class Range(ExcelObject):
         cell.formula = ""
         cell.stale = False
         cell.shared = None
+        cell.dynamic = False
+        cell.spilled_from = None
         changed = style
         if result.number_format is not None:
             changed = applying(changed, "number_format", number_format=result.number_format)

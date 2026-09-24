@@ -127,6 +127,8 @@ class _Walk:
     marks: set[int] = field(default_factory=lambda: set())
     #: What each name a LET or a LAMBDA binds stands for: whether it can give several values.
     bound: list[dict[str, bool]] = field(default_factory=lambda: [])
+    #: How many calls the walk is inside.
+    calls: int = 0
 
     def visit(self, node: Node | None, where: str) -> bool:
         """Mark where ``node`` takes an @ standing ``where``, and say whether it can give several values then."""
@@ -158,6 +160,11 @@ class _Walk:
             if node.op == "@":
                 self.visit(node.operand, WHOLE)
                 return False
+            if node.op == "#":
+                # What spilled from a cell, E1#, is cut at the formula's top, =E1#+1 reading back =@E1#+1, and in no
+                # function's argument: SUM(E1#*2) and TRANSPOSE(E1#) take none (tests/fixtures/implicit_intersection.json).
+                self.visit(node.operand, WHOLE)
+                return self.calls == 0
             return self.visit(node.operand, WHOLE if where == WHOLE else VALUE) and where == WHOLE
         if isinstance(node, Binary):
             if node.op in (":", " ", ","):
@@ -231,6 +238,13 @@ class _Walk:
             self.bound.pop()
 
     def _call(self, node: Call, where: str) -> bool:
+        self.calls += 1
+        try:
+            return self._called(node, where)
+        finally:
+            self.calls -= 1
+
+    def _called(self, node: Call, where: str) -> bool:
         key = function_key(node.name)
         if key == "LET":
             return self._let(node)

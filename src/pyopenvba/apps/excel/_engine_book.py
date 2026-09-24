@@ -209,8 +209,16 @@ class EngineBook:
         return any(isinstance(one, Call) and one.function in _SUBTOTALS for one in walk(node))
 
     def spill(self, sheet: str, row: int, column: int) -> Area | None:
-        """The model has no dynamic-array formulas, so no block a formula spilled into."""
-        return None
+        """The block a dynamic-array formula in a cell spilled into, the formula worked out first; None for a cell
+        holding no such formula, or one whose answer is kept out (see _spills)."""
+        owner = self._sheet(sheet)
+        if (row, column) not in owner.spills:
+            return None
+        self.calculator.value_of(owner.name, row, column)
+        spill = owner.spills.get((row, column))
+        if spill is None or spill.blocked:
+            return None
+        return Area(owner.name, spill.area.top, spill.area.left, spill.area.bottom, spill.area.right)
 
     # --- what a formula reads -----------------------------------------------------------------
 

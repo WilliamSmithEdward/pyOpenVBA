@@ -301,7 +301,7 @@ def _referring(node: Node | None) -> bool:
     has not got is let through, since what it answers with is not known
     here.
     """
-    if isinstance(node, (Reference, Structured)):
+    if isinstance(node, (Reference, Structured)) or isinstance(node, Unary) and node.op == "#":
         return True
     if isinstance(node, Call):
         name = function_key(node.name)
@@ -414,7 +414,10 @@ def _within_limits(tokens: list[Token]) -> None:
             operand = False
         elif kind == "op":
             stack = waiting[-1]
-            if token.text == "%":
+            if token.text == "#":
+                # What spilled from a cell, E1#, is part of its operand.
+                pass
+            elif token.text == "%":
                 while stack and stack[-1] >= _SIGN:
                     stack.pop()
             elif not operand:
@@ -485,7 +488,8 @@ def _unary(previous: Token | None) -> bool:
     if previous is None:
         return True
     if previous.kind == "op":
-        return previous.text != "%"
+        # A percent sign and a spill's # follow an operand, E1#+1.
+        return previous.text not in ("%", "#")
     return previous.kind in ("open", "comma", "semicolon", "lbrace")
 
 

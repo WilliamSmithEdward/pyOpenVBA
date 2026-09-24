@@ -541,7 +541,23 @@ All notable changes to pyOpenVBA are documented here. This project follows
   of its functions with each argument a cell, a range and an operation on
   a range, and on 150 formulas more, 2100 in all. A formula written
   through Formula2 that Formula would write the same, the @ aside, is
-  written so; a dynamic-array formula, which spills, reports itself.
+  written so, and any other is a dynamic-array formula.
+- Dynamic arrays that spill. A formula `Formula2` writes that answers
+  with an array shows its first item in its own cell and spills the rest
+  below and beside it, into cells with no formula of their own, growing
+  and shrinking as the answer does; one of one item spills nowhere. A
+  cell in the way, a merged block or the sheet's edge makes it #SPILL!
+  until the way is clear; clearing a cell it spilled into, or writing an
+  empty string there, changes nothing, and writing anything else there
+  blocks it. `Range.HasSpill`, `SpillParent` and `SpillingToRange` answer
+  for a spill, `A1#` and `Range("A1#")` read what spilled from A1, in a
+  legacy formula too, and `UsedRange`, `End`, `CountA` and `SpecialCells`
+  see the spilled cells as Excel does. A file keeps a spill as Excel
+  does, an array formula with `cm="1"` and `xl/metadata.xml`, a #SPILL!
+  or an empty array's #CALC! as a rich value under `xl/richData`, and
+  `A1#` as `_xlfn.ANCHORARRAY(A1)`; a workbook Excel saved opens with its
+  spills. 42 cases of cells, 18 expressions and two saved workbooks
+  measured in live Excel (scripts/measure_dynamic_arrays.py).
 - A Forms control's link or list can be any formula that lands on cells,
   worked out by the cell engine as Excel works a name's formula out: the
   range operator, an intersection, brackets, LET, XLOOKUP, IFS, SWITCH.
@@ -661,6 +677,9 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- `Range.End` from an empty cell lands on the next filled cell, as
+  Ctrl and an arrow key do: `Range("E4").End(xlUp)` below E1:E3 is E3.
+  The model looked only at the neighbour and walked on to E1.
 - The names a LET or a LAMBDA binds are read as Excel reads them. A name
   that looks like a cell, `=LET(x1,5,x1)`, is the name, 5, not the cell:
   A1 cannot read it, and Excel reads the formula as R1C1, where every

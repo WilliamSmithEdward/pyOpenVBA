@@ -87,8 +87,10 @@ def calculated_all(book: Workbook) -> None:
 
 
 def after_edit(target: Range, *, calculate_first: bool = True) -> None:
-    """An edit's Change and the Calculate it brings, in the order Excel raises them."""
+    """An edit's Change and the Calculate it brings, in the order Excel raises them. What a dynamic-array formula
+    spills is in place after the edit, as Excel spills it, events or none."""
     book = target.sheet.book
+    book.calculator.settle_spills()
     if not _on(book):
         return
     if calculate_first:

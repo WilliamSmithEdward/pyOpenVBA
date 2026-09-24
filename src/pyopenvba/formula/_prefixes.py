@@ -59,6 +59,8 @@ _SHEET = "_xlfn._xlws."
 #: 'A1', which a file writes _xlnm.A1 (tests/fixtures/bound_names.json).
 _OPTIONAL = "_xlop."
 _NAMED = "_xlnm."
+#: What spilled from a cell, A1#, as a file writes it.
+_ANCHORED = "_xlfn.ANCHORARRAY"
 _OPTIONAL_NAME = re.compile(r"\[([^\[\]\s]+)\]")
 
 
@@ -161,6 +163,11 @@ def in_file(formula: str) -> str:
                 changes.append((token, _SHEET + token.text))
             elif key in _NEWER:
                 changes.append((token, _FUNCTION + token.text))
+    for index, token in enumerate(tokens[:-1]):
+        following = tokens[index + 1]
+        if token.kind == "ref" and following.kind == "op" and following.text == "#":
+            # What spilled from a cell, A1#, which a file writes _xlfn.ANCHORARRAY(A1) (tests/fixtures/dynamic_arrays.json).
+            changes += [(token, f"{_ANCHORED}({token.text})"), (following, "")]
     return _replaced(formula, changes)
 
 
@@ -173,8 +180,14 @@ def from_file(formula: str) -> str:
     if tokens is None:
         return formula
     changes: list[tuple[Token, str]] = []
-    for token in tokens:
-        if token.kind != "name":
+    spills = [index for index in range(len(tokens) - 3) if tokens[index].kind == "name"
+              and tokens[index].text.lower() == _ANCHORED.lower() and tokens[index + 1].kind == "open"
+              and tokens[index + 2].kind == "ref" and tokens[index + 3].kind == "close"]
+    for index in spills:
+        # _xlfn.ANCHORARRAY(A1) is what spilled from A1, A1#.
+        changes += [(tokens[index], ""), (tokens[index + 1], ""), (tokens[index + 3], "#")]
+    for index, token in enumerate(tokens):
+        if token.kind != "name" or index in spills:
             continue
         head, bang, text = token.text.rpartition("!")
         lower = text.lower()

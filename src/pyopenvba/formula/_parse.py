@@ -155,7 +155,7 @@ _TOKEN: Final = re.compile(
   | (?P<ref>(?:{_SHEET})?(?:{_CELL}:{_CELL}|{_WHOLE_COLUMNS}|{_WHOLE_ROWS}|{_CELL})(?![A-Za-z0-9_.(]))
   | (?P<name>(?:{_SHEET})?(?:[A-Za-z_\\À-￿][A-Za-z0-9_.?\\À-￿]*|'(?:[^']|'')+'(?!!)))
   | (?P<number>(?:[0-9]+\.?[0-9]*|\.[0-9]+)(?:[eE][-+]?[0-9]+)?)
-  | (?P<op><>|<=|>=|[=<>+\-*/^&%:@])
+  | (?P<op><>|<=|>=|[=<>+\-*/^&%:@#])
   | (?P<open>\()
   | (?P<close>\))
   | (?P<comma>,)
@@ -495,8 +495,9 @@ class Parser:
         return node
 
     def operand(self) -> Node:
-        """A primary with the reference operators that bind tightest: a range (``:``) and an intersection (a space)."""
-        node = self.primary()
+        """A primary with the reference operators that bind tightest: a range (``:``) and an intersection (a space).
+        A ``#`` after a cell is what spilled from it, A1#."""
+        node = self.spilled(self.primary())
         while True:
             if self.token.kind == "op" and self.token.text == ":":
                 self.advance()
@@ -508,6 +509,13 @@ class Parser:
             else:
                 return node
 
+    def spilled(self, node: Node) -> Node:
+        """``node`` and a ``#`` after it, what spilled from a cell: A1#."""
+        while self.token.kind == "op" and self.token.text == "#":
+            self.advance()
+            node = self.placed(Unary(op="#", operand=node), self.start(node))
+        return node
+
     def spaced(self) -> bool:
         """Whether white space stands between the last token read and the next."""
         if not self.at:
@@ -518,7 +526,7 @@ class Parser:
     def referable(self, node: Node) -> Node:
         """A reference operator's operand, which has to be a reference, a name or a call that might give one."""
         if isinstance(node, (Reference, Structured, NameNode, Call)) \
-                or (isinstance(node, Binary) and node.op in REFERENCE_OPS):
+                or (isinstance(node, Binary) and node.op in REFERENCE_OPS) or isinstance(node, Unary) and node.op == "#":
             return node
         raise FormulaError(f"a reference operator needs references in {self.source!r}")
 

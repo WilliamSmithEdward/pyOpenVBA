@@ -24,11 +24,9 @@ from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 
 FIXTURE = Path(__file__).parent / "fixtures" / "formula_refusals.json"
 RECORD: dict[str, Any] = json.loads(FIXTURE.read_text(encoding="utf-8"))
-#: The measurement's setup without the formula it spills into E1, which only E1# reads.
-SETUP = "\n".join(line for line in RECORD["setup"].splitlines() if "Formula2" not in line)
+SETUP: str = RECORD["setup"]
 FORMS = [(name, formula) for name, formulas in RECORD["forms"].items() for formula in formulas]
 
-_SPILLS = "a formula reaching a spilled range with # waits for dynamic arrays that spill"
 #: Values the model does not show as Excel does, and why.
 VALUE_GAPS: dict[str, str] = {
     "=GETPIVOTDATA(A1,A1,A1)": "GETPIVOTDATA is not implemented",
@@ -87,10 +85,7 @@ def test_a_function_wants_cells_where_excel_does(manual: ExcelApplication, name:
     assert {formula: _taken(manual, formula) for formula in measured} == measured
 
 
-@pytest.mark.parametrize(("name", "formula"), [
-    pytest.param(name, formula, id=formula,
-                 marks=[pytest.mark.xfail(reason=_SPILLS, strict=True)] if "E1#" in formula else [])
-    for name, formula in FORMS])
+@pytest.mark.parametrize(("name", "formula"), [pytest.param(name, formula, id=formula) for name, formula in FORMS])
 def test_where_cells_are_wanted_takes_what_excel_takes(manual: ExcelApplication, name: str, formula: str) -> None:
     assert _taken(manual, formula) == RECORD["forms"][name][formula]
 

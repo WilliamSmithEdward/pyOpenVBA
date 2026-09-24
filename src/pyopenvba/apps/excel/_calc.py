@@ -63,6 +63,8 @@ class Compiled:
     volatile: bool = False
     #: Why the parser could not read the formula.
     unread: str = ""
+    #: A dynamic-array formula, worked out whole and spilled (see _spills).
+    dynamic: bool = False
 
 
 class Calculator:
@@ -102,6 +104,8 @@ class Calculator:
     def remember(self, sheet: str, row: int, column: int, cell: Cell) -> None:
         """Take note of a cell's formula, or forget it if there is none."""
         key = (sheet.lower(), row, column)
+        if not cell.dynamic:
+            self._unspill(sheet, row, column)
         if not cell.formula:
             self._keep(key, None)
             return
@@ -111,7 +115,48 @@ class Calculator:
         except FormulaSyntaxError as failure:
             # One formula the parser cannot read stops no other from being worked out.
             compiled = Compiled(node=None, unread=str(failure))
+        compiled.dynamic = cell.dynamic
         self._keep(key, compiled)
+        owner = self._sheet_named(sheet)
+        if cell.dynamic and owner is not None and (row, column) not in owner.spills:
+            # Known to the sheet before it is first worked out, so that reading where it may spill works it out.
+            from pyopenvba.apps.excel._spills import Spill
+
+            owner.spills[(row, column)] = Spill(Area(row, column, row, column), blocked=True)
+
+    def settle_spills(self) -> None:
+        """Work out every stale dynamic-array formula, so what each spills is in place: Excel spills after each
+        edit."""
+        for owner in self.book.sheets_:
+            if owner.spills:
+                self._settle(owner)
+
+    def _settle(self, owner: Worksheet) -> None:
+        """Work out the stale dynamic-array formulas of a sheet, so what each spills is in place."""
+        if not self.automatic:
+            return
+        name = owner.name.lower()
+        for row, column in list(owner.spills):
+            cell = owner.cells_.get((row, column))
+            key = (name, row, column)
+            if cell is not None and cell.formula and cell.stale and key not in self._working \
+                    and key not in self._waiting:
+                self.value_of(owner.name, row, column)
+
+    def _unspill(self, sheet: str, row: int, column: int) -> None:
+        """A cell that holds no dynamic-array formula now: take back what its old one spilled."""
+        owner = self._sheet_named(sheet)
+        if owner is None or (row, column) not in owner.spills:
+            return
+        from pyopenvba.apps.excel._spills import remove
+
+        self._spilled_changed(sheet, remove(owner, (row, column)))
+
+    def _spilled_changed(self, sheet: str, positions: set[tuple[int, int]]) -> None:
+        """Cells a spill changed: mark whatever reads them as needing another look."""
+        if positions:
+            name = sheet.lower()
+            self._spoil({(name, row, column) for row, column in positions}, set())
 
     def _compiled(self, formula: str, sheet: str, row: int, column: int) -> Compiled:
         node = self.engine_book.read(formula)
@@ -119,7 +164,8 @@ class Calculator:
         return Compiled(node=node, precedents=precedents, volatile=volatile(node))
 
     def forget(self, sheet: str, row: int, column: int) -> None:
-        """A cell is gone: forget its formula."""
+        """A cell is gone: forget its formula, and take back what it spilled."""
+        self._unspill(sheet, row, column)
         self._keep((sheet.lower(), row, column), None)
 
     def _keep(self, key: CellKey, compiled: Compiled | None) -> None:
@@ -157,6 +203,11 @@ class Calculator:
         working out which ones moved is the same work as reading them
         all again.
         """
+        from pyopenvba.apps.excel._spills import reconcile
+
+        for owner in self.book.sheets_:
+            if owner.spills or any(cell.spilled_from is not None for cell in owner.cells_.values()):
+                reconcile(owner)
         self.compiled.clear()
         self._readers.clear()
         self._blocks.clear()
@@ -168,9 +219,21 @@ class Calculator:
                     cell.stale = True
 
     def wrote(self, sheet: str, row: int, column: int) -> None:
-        """A cell changed: mark whatever reads it as needing another look."""
+        """A cell changed: mark whatever reads it as needing another look, and a dynamic-array formula whose answer
+        wants the cell, which may now spill there or be kept out."""
         self.build()
-        self._spoil({(sheet.lower(), row, column)}, set())
+        changed = {(sheet.lower(), row, column)}
+        owner = self._sheet_named(sheet)
+        if owner is not None and owner.spills:
+            from pyopenvba.apps.excel._spills import wanted
+
+            for anchor in wanted(owner, row, column):
+                cell = owner.cells_.get(anchor)
+                if cell is not None and not cell.stale:
+                    cell.stale = True
+                    changed.add((sheet.lower(), *anchor))
+                    changed.update(self._members((sheet.lower(), *anchor)))
+        self._spoil(changed, set())
 
     def wrote_area(self, sheet: str, area: Area) -> None:
         """A block of cells changed at once, as a copy changes it: forget the formulas compiled there, and mark
@@ -294,6 +357,10 @@ class Calculator:
                 member = owner.cells_.get((row, column))
                 return EMPTY if member is None else member.value
         cell = self._cell(key)
+        if (cell is None or not cell.formula) and owner is not None and owner.spills:
+            # A dynamic-array formula to work out first may spill here, or have spilled here and shrunk.
+            self._settle(owner)
+            cell = self._cell(key)
         if cell is None:
             return EMPTY
         if not cell.formula:
@@ -339,9 +406,11 @@ class Calculator:
         block = owner.array_formulas.get((row, column))
         now = self.now()
         node = compiled.node
+        # A dynamic-array formula is worked out whole, as an array formula is, and spills.
+        whole_formula = block is not None or compiled.dynamic
 
         def context() -> EngineContext:
-            return EngineContext(self.engine_book, owner.name, row, column, array=block is not None, today=now.date(),
+            return EngineContext(self.engine_book, owner.name, row, column, array=whole_formula, today=now.date(),
                                  now=now)
 
         def one() -> Scalar:
@@ -354,10 +423,14 @@ class Calculator:
 
         try:
             # Worked out afresh on a deeper stack if the formula's tree is deeper than Python's.
+            if compiled.dynamic:
+                return self._spilling(owner, row, column, deep(whole))
             if block is None:
                 return model_value(deep(one))
             return _spread(owner, block, deep(whole))
         except EngineError as failure:
+            if compiled.dynamic:
+                return self._spilling(owner, row, column, Array([[failure.error]]))
             return model_value(failure.error) if block is None else _spread(owner, block, Array([[failure.error]]))
         except ExcelError as failure:
             if failure.name != "#CIRCULAR!":
@@ -369,10 +442,24 @@ class Calculator:
             self.circular.add((sheet.lower(), row, column))
             return 0.0
 
+    def _spilling(self, owner: Worksheet, row: int, column: int, answer: Array) -> object:
+        """A dynamic-array formula's answer spilled from its cell; the value the cell keeps."""
+        from pyopenvba.apps.excel._spills import place
+
+        value, changed = place(owner, (row, column), answer)
+        self._spilled_changed(owner.name, changed)
+        return value
+
     def _members(self, key: CellKey) -> set[CellKey]:
-        """The other cells of the array formula whose first cell is ``key``, if it is one."""
+        """The other cells of the array formula whose first cell is ``key``, or of the block its dynamic-array formula
+        spilled into, if it is one."""
         owner = self._sheet_named(key[0])
-        block = owner.array_formulas.get((key[1], key[2])) if owner is not None else None
+        if owner is None:
+            return set()
+        block = owner.array_formulas.get((key[1], key[2]))
+        spill = owner.spills.get((key[1], key[2]))
+        if block is None and spill is not None and not spill.blocked:
+            block = spill.area
         if block is None:
             return set()
         return {(key[0], row, column) for row in range(block.top, block.bottom + 1)

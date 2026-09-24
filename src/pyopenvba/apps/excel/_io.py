@@ -26,8 +26,10 @@ from pyopenvba._xml import escape as _escape
 from pyopenvba._xml import escape_text as _escape_text
 from pyopenvba._xml import tag_attributes as _tag_attributes
 from pyopenvba._xml import unescape as _unescape
+from pyopenvba.apps.excel._dynamic_file import Collector, Metadata, RichError
 from pyopenvba.exceptions import PyOpenVBAError
 from pyopenvba.formula import _prefixes as prefixes
+from pyopenvba.formula._values import ExcelError
 from pyopenvba.formula._prefixes import calculated_always
 from pyopenvba.formula._structured import from_file, in_file
 from pyopenvba.interpreter._values import EMPTY, VBADate, to_text
@@ -85,6 +87,9 @@ def load_workbook(application: Application, path: Path) -> Workbook:
     relationships = _relationship_map(package)
     strings = _shared_strings(package)
     stylesheet = book.stylesheet
+    from pyopenvba.apps.excel import _dynamic_file
+
+    metadata = _dynamic_file.read(package)
     found = re.search(r'<workbookPr\b[^>]*\bcodeName="([^"]*)"', workbook_xml)
     if found is not None:
         book.code_name = _unescape(found.group(1))
@@ -99,7 +104,7 @@ def load_workbook(application: Application, path: Path) -> Workbook:
             found = re.search(r'<sheetPr\b[^>]*\bcodeName="([^"]*)"', sheet_xml)
             if found is not None:
                 sheet.code_name = _unescape(found.group(1))
-            _read_sheet(sheet, sheet_xml, strings, stylesheet)
+            _read_sheet(sheet, sheet_xml, strings, stylesheet, metadata)
             _read_shapes(sheet, package, sheet_xml)
             _read_tables(sheet, package, sheet_xml)
             from pyopenvba.apps.excel._validation import read_rules
@@ -164,7 +169,8 @@ def read_stylesheet(package: OpcFile | None) -> Stylesheet:
     return Stylesheet(styles or _template_style_parts()[0], theme)
 
 
-def _read_sheet(sheet: Worksheet, xml: str, strings: list[str], stylesheet: Stylesheet) -> None:
+def _read_sheet(sheet: Worksheet, xml: str, strings: list[str], stylesheet: Stylesheet,
+                metadata: Metadata | None = None) -> None:
     for tag in re.findall(r"<mergeCell\b[^>]*/>", xml):
         reference = _tag_attributes(tag).get("ref", "")
         if reference:
@@ -180,7 +186,7 @@ def _read_sheet(sheet: Worksheet, xml: str, strings: list[str], stylesheet: Styl
     sheet.dims.load(xml)
     match = _SHEET_DATA.search(xml)
     if match and match.group(2) != "/>":
-        _read_cells(sheet, match.group(3) or "", strings, stylesheet)
+        _read_cells(sheet, match.group(3) or "", strings, stylesheet, metadata)
     stated = re.search(r"<dimension\b[^>]*/>", xml)
     if sheet.dims.tidied or (stated is not None and _with_dimension(stated.group(0), sheet) != stated.group(0)):
         # What Excel let go of on opening the file is gone from it when Excel saves, and the
@@ -188,13 +194,17 @@ def _read_sheet(sheet: Worksheet, xml: str, strings: list[str], stylesheet: Styl
         sheet.dirty = True
 
 
-def _read_cells(sheet: Worksheet, rows: str, strings: list[str], stylesheet: Stylesheet) -> None:
+def _read_cells(sheet: Worksheet, rows: str, strings: list[str], stylesheet: Stylesheet,
+                metadata: Metadata | None = None) -> None:
     from pyopenvba.apps.excel._model import Cell
     from pyopenvba.formula._parse import shift_text
 
     # A shared formula's text is in its first cell only; the others are filled in from it once all are read.
     firsts: dict[int, tuple[int, int, str]] = {}
     followers: list[tuple[int, int, Cell]] = []
+    #: Each dynamic-array formula's block, and the error only a dynamic array has that one shows.
+    dynamic: dict[tuple[int, int], Area] = {}
+    rich: dict[tuple[int, int], RichError] = {}
     for row_xml in _ROW.findall(rows):
         for cell_xml in _CELL.findall(row_xml):
             attributes = _tag_attributes(cell_xml)
@@ -208,6 +218,8 @@ def _read_cells(sheet: Worksheet, rows: str, strings: list[str], stylesheet: Sty
             style = stylesheet.style(xf) if xf else None
             formula = ""
             shared: int | None = None
+            cell_meta, value_meta = attributes.get("cm", ""), attributes.get("vm", "")
+            is_dynamic = metadata is not None and cell_meta.isdigit() and int(cell_meta) in metadata.dynamic
             formula_match = _FORMULA.search(cell_xml)
             if formula_match is not None:
                 body = (formula_match.group(2) or "").strip()
@@ -218,10 +230,18 @@ def _read_cells(sheet: Worksheet, rows: str, strings: list[str], stylesheet: Sty
                     if formula and element.get("ref"):
                         sheet.shared_groups[shared] = parse_area(element["ref"], sheet="")
                         firsts[shared] = (row, column, formula)
+                elif element.get("t") == "array" and formula and is_dynamic:
+                    # A dynamic-array formula: its first cell holds it, the rest of its block what it spilled.
+                    dynamic[(row, column)] = parse_area(element.get("ref") or reference, sheet="")
                 elif element.get("t") == "array" and formula:
                     # An array formula: its first cell holds it, the rest of its block the values it gave.
                     sheet.array_formulas[(row, column)] = parse_area(element.get("ref") or reference, sheet="")
             value = _cell_value(cell_xml, kind, strings)
+            error = metadata.errors.get(int(value_meta)) if metadata is not None and value_meta.isdigit() else None
+            if error is not None:
+                # #VALUE! in the cell, and the rich value behind it saying which error only a dynamic array has.
+                value = ExcelError(error.error)
+                rich[(row, column)] = error
             if value is EMPTY and formula_match is None \
                     and (style or stylesheet.default) == sheet.inherited_style(row, column):
                 # An empty cell in the format its row or column gives it says nothing, and Excel drops it.
@@ -231,7 +251,8 @@ def _read_cells(sheet: Worksheet, rows: str, strings: list[str], stylesheet: Sty
                 # A cell on the default format still has to read that format.
                 style = stylesheet.default
             cell = Cell(value=value, formula=formula, stale=bool(formula) and value is EMPTY, style=style,
-                        xf=xf if style is not None else -1, shared=shared)
+                        xf=xf if style is not None else -1, shared=shared,
+                        dynamic=bool(formula) and (row, column) in dynamic)
             sheet.cells_[(row, column)] = cell
             if shared is not None and not formula:
                 followers.append((row, column, cell))
@@ -243,7 +264,30 @@ def _read_cells(sheet: Worksheet, rows: str, strings: list[str], stylesheet: Sty
         top, left, text = first
         cell.formula = shift_text(text, row - top, column - left)
         cell.stale = cell.value is EMPTY
+    _read_spills(sheet, dynamic, rich)
     sheet.dims.settle_growth()
+
+
+def _read_spills(sheet: Worksheet, dynamic: dict[tuple[int, int], Area], rich: dict[tuple[int, int], RichError]) \
+        -> None:
+    """What each dynamic-array formula a file keeps spilled: its block's other cells show its answer, and a #SPILL!
+    wants the block its rich value says (see _spills, _dynamic_file)."""
+    from pyopenvba.apps.excel._spills import BEYOND_THE_EDGE, Spill
+
+    for (row, column), area in dynamic.items():
+        error = rich.get((row, column))
+        if error is not None and error.error == "#SPILL!":
+            wanted = Area(row, column, row + error.rows, column + error.columns)
+            sheet.spills[(row, column)] = Spill(wanted, blocked=True, why=error.why or BEYOND_THE_EDGE)
+        elif area.rows * area.columns > 1:
+            sheet.spills[(row, column)] = Spill(Area(area.top, area.left, area.bottom, area.right))
+            for each_row in range(area.top, area.bottom + 1):
+                for each_column in range(area.left, area.right + 1):
+                    member = sheet.cells_.get((each_row, each_column))
+                    if member is not None and (each_row, each_column) != (row, column):
+                        member.spilled_from = (row, column)
+        else:
+            sheet.spills[(row, column)] = Spill(Area(row, column, row, column), blocked=True)
 
 
 def _cell_value(cell_xml: str, kind: str, strings: list[str]) -> object:
@@ -942,6 +986,12 @@ def save_workbook(book: Workbook, target: Path) -> None:
     from pyopenvba.apps.excel._windows import saved, tabs_moved, with_book_view, with_view
 
     tabs = tabs_moved(book)
+    collector = Collector()
+    for sheet in book.sheets_:
+        if any(cell.dynamic for cell in sheet.cells_.values()):
+            # A dynamic-array formula's cm and vm number the metadata the save writes afresh, so its sheet is
+            # written afresh too.
+            sheet.dirty = True
     for sheet in book.sheets_:
         # A sheet nobody wrote to keeps the bytes it arrived with, its view too unless the window changed it.
         if not sheet.part_name or not (sheet.dirty or sheet.view.changed or tabs):
@@ -951,9 +1001,11 @@ def save_workbook(book: Workbook, target: Path) -> None:
             if package.has(sheet.part_name)
             else _EMPTY_SHEET
         )
-        patched = with_view(sheet, _patched_sheet(sheet, original, package) if sheet.dirty else original, tabs=tabs)
+        patched = with_view(sheet, _patched_sheet(sheet, original, package, collector) if sheet.dirty else original,
+                            tabs=tabs)
         if sheet.dirty or patched != original:
             package.write(sheet.part_name, patched.encode("utf-8"))
+    collector.write(package)
     if book.names_.changed:
         _write_names(book, package)
     if book.protection_changed and package.has("xl/workbook.xml"):
@@ -1246,8 +1298,9 @@ def _rename_sheets_in_workbook(book: Workbook, package: OpcFile, existing: list[
     package.write("xl/workbook.xml", text.encode("utf-8"))
 
 
-def _patched_sheet(sheet: Worksheet, original: str, package: OpcFile) -> str:
-    """The sheet's XML with the model's cells written into it."""
+def _patched_sheet(sheet: Worksheet, original: str, package: OpcFile, collector: Collector | None = None) -> str:
+    """The sheet's XML with the model's cells written into it; ``collector`` gathers the metadata its dynamic-array
+    formulas need, which the save writes after every sheet."""
     match = _SHEET_DATA.search(original)
     if not match:
         raise WorkbookFileError(f"{sheet.part_name} has no sheetData")
@@ -1275,13 +1328,18 @@ def _patched_sheet(sheet: Worksheet, original: str, package: OpcFile) -> str:
         return calculated_always(formula, knows)
 
     formulas = formula_elements(sheet, spell, always) | elements(sheet, spell, always)
+    dynamic: dict[tuple[int, int], tuple[str, str | None]] = {}
+    for position, cell in sheet.cells_.items():
+        if cell.dynamic and cell.formula:
+            formulas[position], dynamic[position] = _dynamic_element(sheet, position, cell, spell, always,
+                                                                      collector or Collector())
     for position, cell in sheet.cells_.items():
         if cell.formula and position not in formulas:
             volatile = ' ca="1"' if always(cell.formula) else ""
             formulas[position] = f"<f{volatile}>{spell(cell.formula[1:])}</f>"
     for row in set(rows) | set(by_row):
         rows[row] = _row_with_cells(rows.get(row, f'<row r="{row}"></row>'), row, by_row.get(row, []), stylesheet,
-                                    formulas)
+                                    formulas, dynamic)
     for row in set(sheet.dims.rows) | sheet.dims.shaped_rows():
         rows.setdefault(row, f'<row r="{row}"/>')
     rebuilt = _rows_as_excel_writes_them(sheet, original, rows)
@@ -1403,30 +1461,76 @@ def _with_dimension_parts(sheet: Worksheet, xml: str) -> str:
     return xml
 
 
+def _dynamic_element(sheet: Worksheet, position: tuple[int, int], cell: Cell, spell: Callable[[str], str],
+                     always: Callable[[str], bool], collector: Collector) -> tuple[str, tuple[str, str | None]]:
+    """A dynamic-array formula's <f>, an array formula over the block it spilled into, and its cell's cm and vm with
+    the <v> of an error only a dynamic array has: #SPILL!, aca="1" ca="1" over its own cell and a rich value saying
+    why and how far the answer reached, and #CALC! for an empty array (tests/fixtures/dynamic_arrays.json)."""
+    from pyopenvba.apps.excel._dynamic_file import EMPTY_ARRAY
+    from pyopenvba.apps.excel._spills import BEYOND_THE_EDGE, OBSTRUCTED
+    from pyopenvba.formula._prefixes import calls
+
+    row, column = position
+    here = f"{column_letter(column)}{row}"
+    text = spell(cell.formula[1:])
+    spill = sheet.spills.get(position)
+    marks = f' cm="{collector.cell()}"'
+    value = cell.value
+    if not cell.stale and isinstance(value, ExcelError) and value.name == "#SPILL!":
+        wanted = spill.area if spill is not None else Area(row, column, row, column)
+        why = spill.why if spill is not None else OBSTRUCTED
+        reach = (0, 0) if why == BEYOND_THE_EDGE else (wanted.rows - 1, wanted.columns - 1)
+        index = collector.value(RichError("#SPILL!", why, *reach))
+        return f'<f t="array" aca="1" ref="{here}" ca="1">{text}</f>', (f'{marks} vm="{index}"', "<v>#VALUE!</v>")
+    if not cell.stale and isinstance(value, ExcelError) and value.name == "#CALC!":
+        index = collector.value(RichError("#CALC!", EMPTY_ARRAY))
+        return f'<f t="array" ref="{here}">{text}</f>', (f'{marks} vm="{index}"', "<v>#VALUE!</v>")
+    block = spill.area if spill is not None and not spill.blocked else Area(row, column, row, column)
+    volatile = always(cell.formula)
+    whole = volatile and (block.rows * block.columns == 1 or not calls(cell.formula, "RAND"))
+    flags = (' aca="1"' if whole else "", ' ca="1"' if volatile else "")
+    return f'<f t="array"{flags[0]} ref="{block.address(absolute=False)}"{flags[1]}>{text}</f>', (marks, None)
+
+
 def _row_with_cells(row_xml: str, row: int, cells: list[tuple[int, Cell]], stylesheet: Stylesheet,
-                    formulas: dict[tuple[int, int], str]) -> str:
+                    formulas: dict[tuple[int, int], str],
+                    dynamic: dict[tuple[int, int], tuple[str, str | None]] | None = None) -> str:
     """A row with the model's cells written into it in column order, in place of the ones it had.
 
-    ``formulas`` is the ``<f>`` of each formula cell, a shared formula's included.
+    ``formulas`` is the ``<f>`` of each formula cell, a shared formula's included, and ``dynamic`` what each
+    dynamic-array formula's cell carries besides (see _cell_xml).
     """
     head_end = row_xml.index(">")
     closed = row_xml[head_end - 1] == "/"
     opening = row_xml[: head_end - 1] + ">" if closed else row_xml[: head_end + 1]
     rest = "" if closed else _CELL.sub("", row_xml[head_end + 1 : row_xml.rindex("</row>")])
+    extras = dynamic or {}
     written = "".join(_cell_xml(f"{column_letter(column)}{row}", cell, _style_for(cell, stylesheet),
-                                formulas.get((row, column)))
+                                formulas.get((row, column)), extras.get((row, column)))
                       for column, cell in cells)
     return f"{opening}{written}{rest}</row>"
 
 
-def _cell_xml(reference: str, cell: Cell, style: str, formula: str | None = None) -> str:
+def _cell_xml(reference: str, cell: Cell, style: str, formula: str | None = None,
+              dynamic: tuple[str, str | None] | None = None) -> str:
+    """A cell's <c>; ``dynamic`` for a dynamic-array formula's: its cm and vm, and the <v> of an error only a dynamic
+    array has, #VALUE! with the rich value its vm names (see _dynamic_file)."""
     attributes = f' s="{style}"' if style else ""
     if cell.formula:
         # A formula cell carries its last value in a <v>, never as an
         # inline string: a formula whose answer is text is t="str".
         kind, body = _formula_value(cell)
+        extra = ""
+        if dynamic is not None:
+            extra, rich = dynamic
+            if rich is not None:
+                kind, body = ' t="e"', rich
         element = formula or f"<f>{_formula_xml(cell.formula[1:], ())}</f>"
-        return f'<c r="{reference}"{attributes}{kind}>{element}{body}</c>'
+        return f'<c r="{reference}"{attributes}{kind}{extra}>{element}{body}</c>'
+    if cell.spilled_from is not None:
+        # A cell a formula spilled into keeps its value as a formula's is kept: text is t="str".
+        kind, body = _formula_value(cell)
+        return f'<c r="{reference}"{attributes}{kind}>{body}</c>' if body else f'<c r="{reference}"{attributes}/>'
     kind, body = _value_body(cell.value)
     if formula is not None:
         # Another cell of an array formula worked out whenever anything changes: <f ca="1"/> beside its value.

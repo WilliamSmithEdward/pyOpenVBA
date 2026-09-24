@@ -28,25 +28,20 @@ CASES: dict[str, tuple[str, str]] = {
     **{f"formula {written}": (written, read) for written, read in RECORD["formulas"].items()},
 }
 
-_SPILLS = "a formula reaching a spilled range with # waits for dynamic arrays that spill"
 _SINGLE = "Excel writes SINGLE(x) as @x when the formula is written; the model keeps SINGLE"
 #: Cases the model does not answer as Excel does, and why.
 GAPS: dict[str, str] = {
-    **{f"formula {written}": _SPILLS for written in RECORD["formulas"] if "#" in written},
     "SINGLE/cell": _SINGLE, "SINGLE/range": _SINGLE, "SINGLE/worked": _SINGLE,
     "formula =@A1:A3": "Range.Formula given an @ is not implemented: what Formula reads back is not measured",
 }
-
-#: The measurement's setup without the formula it spills into E1, which only the # cases read.
-SETUP = "\n".join(line for line in RECORD["setup"].splitlines() if "Formula2" not in line)
 
 
 @pytest.fixture(scope="module")
 def app() -> ExcelApplication:
     app = ExcelApplication()
     app.add_workbook()
-    app.add_module("Public Sub Setup()\nDim ws As Object\nSet ws = ActiveWorkbook.Worksheets(1)\n" + SETUP
-                   + "\nEnd Sub\n", name="Setup")
+    app.add_module("Public Sub Setup()\nDim ws As Object\nSet ws = ActiveWorkbook.Worksheets(1)\n"
+                   + RECORD["setup"] + "\nEnd Sub\n", name="Setup")
     app.run("Setup")
     return app
 
@@ -61,10 +56,6 @@ def _read(app: ExcelApplication, formula: str) -> str:
     except VBAUnsupportedError as gap:
         return f"unsupported: {gap}"
     return str(app.evaluate('Range("C8").Formula2'))
-
-
-def test_the_setup_leaves_out_only_the_spill() -> None:
-    assert len(SETUP.splitlines()) == len(RECORD["setup"].splitlines()) - 1
 
 
 @pytest.mark.parametrize("case", [

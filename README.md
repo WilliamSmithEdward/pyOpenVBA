@@ -324,7 +324,9 @@ form.remove_page("Page2", multipage="Wizard")
 ```
 
 A form can be built from nothing. `add_form` creates the designer storage
-and the code-behind module together:
+and the code-behind module together. A project with no Microsoft Forms
+reference gets the one the editor adds with a first form, so code that
+names `MSForms` types compiles:
 
 ```python
 with pyopenvba.ExcelFile("book.xlsm") as wb:

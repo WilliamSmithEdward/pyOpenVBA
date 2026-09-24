@@ -289,7 +289,9 @@ class VBAHostFile(ReferenceManager):
         a storage without a module is not a component the host will show,
         and a module without a storage is a class rather than a form.
         Geometry is in points; the defaults are the size Excel gives a new
-        form.
+        form.  A project that does not reference Microsoft Forms yet gets
+        the reference the editor adds with a first form, so code naming
+        ``MSForms`` types compiles.
 
         The form is returned ready to edit -- ``add_control`` and friends
         work on it straight away -- and lands on disk at :meth:`save`.
@@ -305,6 +307,8 @@ class VBAHostFile(ReferenceManager):
             code_page=project.code_page,
         )
         project.add_module(name, header, kind=VBAModuleKind.other)
+        # The editor declares Microsoft Forms with a project's first form, and code naming its types needs it.
+        self._ensure_forms_reference()
         # The cache was read before this form existed.
         self._forms = None
         return next(f for f in self.forms() if f.name == name)

@@ -1,0 +1,84 @@
+{
+ "excel": {
+  "reference_names": [
+   "stdole",
+   "Office",
+   "MSForms"
+  ],
+  "record_ids": [
+   "0x0016",
+   "0x003E",
+   "0x0033",
+   "0x002F",
+   "0x0016",
+   "0x003E",
+   "0x0030"
+  ],
+  "name": "MSForms",
+  "name_unicode": "MSForms",
+  "original_libid": "*\\G{0D452EE1-E08F-101A-852E-02608C4D0BB4}#2.0#0#C:\\WINDOWS\\system32\\FM20.DLL#Microsoft Forms 2.0 Object Library",
+  "twiddled_libid": "*\\G{00000000-0000-0000-0000-000000000000}#0.0#0##",
+  "twiddled_reserved": "000000000000",
+  "extended_libid": "*\\G{8F825DF8-D817-472B-A783-0F7948CF838C}#2.0#0#%TEMP%\\VBE\\MSForms.exd#Microsoft Forms 2.0 Object Library",
+  "extended_reserved": "000000000000",
+  "type_library_guid": "e12e450d8fe01a10852e02608c4d0bb4",
+  "cookie": 1,
+  "extended_size": 164,
+  "last_reference": true
+ },
+ "word": {
+  "reference_names": [
+   "stdole",
+   "Normal",
+   "Office",
+   "MSForms"
+  ],
+  "record_ids": [
+   "0x0016",
+   "0x003E",
+   "0x0033",
+   "0x002F",
+   "0x0016",
+   "0x003E",
+   "0x0030"
+  ],
+  "name": "MSForms",
+  "name_unicode": "MSForms",
+  "original_libid": "*\\G{0D452EE1-E08F-101A-852E-02608C4D0BB4}#2.0#0#C:\\WINDOWS\\system32\\FM20.DLL#Microsoft Forms 2.0 Object Library",
+  "twiddled_libid": "*\\G{00000000-0000-0000-0000-000000000000}#0.0#0##",
+  "twiddled_reserved": "000000000000",
+  "extended_libid": "*\\G{8F825DF8-D817-472B-A783-0F7948CF838C}#2.0#0#%TEMP%\\VBE\\MSForms.exd#Microsoft Forms 2.0 Object Library",
+  "extended_reserved": "000000000000",
+  "type_library_guid": "e12e450d8fe01a10852e02608c4d0bb4",
+  "cookie": 1,
+  "extended_size": 164,
+  "last_reference": true
+ },
+ "powerpoint": {
+  "reference_names": [
+   "stdole",
+   "Office",
+   "MSForms"
+  ],
+  "record_ids": [
+   "0x0016",
+   "0x003E",
+   "0x0033",
+   "0x002F",
+   "0x0016",
+   "0x003E",
+   "0x0030"
+  ],
+  "name": "MSForms",
+  "name_unicode": "MSForms",
+  "original_libid": "*\\G{0D452EE1-E08F-101A-852E-02608C4D0BB4}#2.0#0#C:\\WINDOWS\\system32\\FM20.DLL#Microsoft Forms 2.0 Object Library",
+  "twiddled_libid": "*\\G{00000000-0000-0000-0000-000000000000}#0.0#0##",
+  "twiddled_reserved": "000000000000",
+  "extended_libid": "*\\G{8F825DF8-D817-472B-A783-0F7948CF838C}#2.0#0#%TEMP%\\VBE\\MSForms.exd#Microsoft Forms 2.0 Object Library",
+  "extended_reserved": "000000000000",
+  "type_library_guid": "e12e450d8fe01a10852e02608c4d0bb4",
+  "cookie": 1,
+  "extended_size": 164,
+  "last_reference": true
+ }
+}

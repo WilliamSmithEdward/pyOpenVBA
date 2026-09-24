@@ -5,7 +5,19 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ## [Unreleased]
 
-Nothing yet.
+### Fixed
+
+- `add_form` gives a project that does not reference Microsoft Forms
+  the reference the editor adds with a first UserForm, so code naming
+  MSForms types compiles (#29). The form came without it, and Excel,
+  Word and PowerPoint stopped such code at "User-defined type not
+  defined": a form held As MSForms.UserForm, or a KeyPress handler's
+  KeyAscii As MSForms.ReturnInteger. The reference is the control
+  reference the three applications write, measured record for record
+  (scripts/measure_form_reference.py), except for its extended libid.
+  There they name a cache in the saving user's Temp folder, and the
+  library repeats the original libid instead. A live gate compiles such
+  code in all three.
 
 ## [6.1.1] - 2026-09-23
 

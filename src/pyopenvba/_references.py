@@ -9,6 +9,12 @@ from pyopenvba.exceptions import VBAProjectError
 from pyopenvba.vba import VBAReference, encoding_for_codepage
 
 MSFORMS_GUID = "{0D452EE1-E08F-101A-852E-02608C4D0BB4}"
+#: The Microsoft Forms library as the editor's reference names it, path included, whatever FM20.DLL's real
+#: location: the host resolves the library by GUID and version (tests/fixtures/form_reference.json).
+MSFORMS_LIBID = ("*\\G{0D452EE1-E08F-101A-852E-02608C4D0BB4}#2.0#0#C:\\WINDOWS\\system32\\FM20.DLL"
+                 "#Microsoft Forms 2.0 Object Library")
+#: A control reference's twiddled libid, which is the null one.
+_NULL_LIBID = "*\\G{00000000-0000-0000-0000-000000000000}#0.0#0##"
 VBA_GUID = "{000204EF-0000-0000-C000-000000000046}"
 
 
@@ -114,6 +120,32 @@ def registered_block(reference: VBAReference, code_page: int) -> bytes:
             + record(0xD, struct.pack("<I", len(libid)) + libid + bytes(6)))
 
 
+def is_msforms(reference: VBAReference) -> bool:
+    """Whether ``reference`` is the Microsoft Forms library, by name or GUID."""
+    return reference.name.lower() == "msforms" or reference.guid.upper() == MSFORMS_GUID
+
+
+def msforms_block(code_page: int) -> bytes:
+    """The Microsoft Forms reference the editor declares with a project's first UserForm.
+
+    Excel, Word and PowerPoint write the same control reference
+    (tests/fixtures/form_reference.json): the name, the original libid,
+    the null twiddled libid, the name again, and the extended record
+    with the type library's GUID and cookie 1. Their extended libid
+    names the .exd cache the editor keeps in the saving user's Temp
+    folder, under a GUID of that cache's own; here it repeats the
+    original libid, which the editor compiles against and Excel keeps
+    when it saves the file again, so no user's folder is written.
+    """
+    encoding = encoding_for_codepage(code_page)
+    name = record(0x16, "MSForms".encode(encoding)) + record(0x3E, "MSForms".encode("utf-16-le"))
+    original, twiddled = MSFORMS_LIBID.encode(encoding), _NULL_LIBID.encode(encoding)
+    extended = (struct.pack("<I", len(original)) + original + bytes(6) + UUID(MSFORMS_GUID).bytes_le
+                + struct.pack("<I", 1))
+    return (name + record(0x33, original) + record(0x2F, struct.pack("<I", len(twiddled)) + twiddled + bytes(6))
+            + name + record(0x30, extended))
+
+
 class ReferenceManager:
     """One public reference surface; subclasses supply only storage hooks."""
 
@@ -190,7 +222,7 @@ class ReferenceManager:
                 if span.reference.name.lower() == wanted or (guid and span.reference.guid.lower() == guid)]
         if not cuts:
             return False
-        if any(s.reference.name.lower() == "msforms" or s.reference.guid.upper() == MSFORMS_GUID for s in cuts):
+        if any(is_msforms(s.reference) for s in cuts):
             forms = self._reference_forms()
             if forms:
                 raise self._reference_error(f"Microsoft Forms is required by UserForms: {', '.join(forms)}")
@@ -202,6 +234,18 @@ class ReferenceManager:
         parts.append(raw[kept:])
         self._write_reference_data(b"".join(parts))
         return True
+
+    def _ensure_forms_reference(self) -> None:
+        """Declare Microsoft Forms as the editor does with a project's first UserForm, unless it is declared.
+
+        remove_reference refuses to take the library out while a form is
+        there; this is the other half of that rule.
+        """
+        raw, code_page = self._reference_data()
+        if any(is_msforms(span.reference) for span in reference_spans(raw)):
+            return
+        at = module_offset(raw)
+        self._write_reference_data(raw[:at] + msforms_block(code_page) + raw[at:])
 
     def drop_reference(self, name: str) -> None:
         """Compatibility spelling: remove, raising when the reference is absent."""

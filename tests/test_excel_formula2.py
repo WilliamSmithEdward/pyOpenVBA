@@ -30,20 +30,10 @@ CASES: dict[str, tuple[str, str]] = {
 
 _SPILLS = "a formula reaching a spilled range with # waits for dynamic arrays that spill"
 _SINGLE = "Excel writes SINGLE(x) as @x when the formula is written; the model keeps SINGLE"
-_CELLS = "Excel will not take an operation where this function reads cells; the model's list of such arguments " \
-         "does not have this function's yet"
 #: Cases the model does not answer as Excel does, and why.
 GAPS: dict[str, str] = {
     **{f"formula {written}": _SPILLS for written in RECORD["formulas"] if "#" in written},
     "SINGLE/cell": _SINGLE, "SINGLE/range": _SINGLE, "SINGLE/worked": _SINGLE,
-    **dict.fromkeys([f"{name}/worked" for name in ("DAVERAGE", "DCOUNT", "DCOUNTA", "DGET", "DMAX", "DMIN",
-                                                   "DPRODUCT", "DSTDEV", "DSTDEVP", "DSUM", "DVAR", "DVARP",
-                                                   "FORMULATEXT", "ISFORMULA", "PHONETIC", "MAXIFS", "MINIFS",
-                                                   "RANK", "RANK.AVG", "RANK.EQ")]
-                    + [f"{name}/wide_worked" for name in ("AGGREGATE", "CELL", "MAXIFS", "MINIFS", "RANK",
-                                                          "RANK.AVG", "RANK.EQ")], _CELLS),
-    **dict.fromkeys(("SORTBY/wide", "SORTBY/wide_worked"),
-                    "Excel will not take SORTBY with six arguments; the model does not check how many it takes"),
     "formula =@A1:A3": "Range.Formula given an @ is not implemented: what Formula reads back is not measured",
 }
 

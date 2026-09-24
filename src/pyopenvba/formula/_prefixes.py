@@ -182,6 +182,12 @@ def calculated_always(formula: str, known: Callable[[str], bool]) -> bool:
     return False
 
 
+def newer(name: str) -> bool:
+    """Whether a file writes a call of the function ``name``, in capitals, behind _xlfn.: whether it is newer than
+    Excel 2007."""
+    return name in _NEWER or name in _SHEET_ONLY
+
+
 def calls(formula: str, name: str) -> bool:
     """Whether a formula calls the function ``name``."""
     tokens = _tokens(formula)
@@ -189,4 +195,4 @@ def calls(formula: str, name: str) -> bool:
                                       for token, role in _roles(tokens))
 
 
-__all__ = ["calculated_always", "calls", "from_file", "in_file"]
+__all__ = ["calculated_always", "calls", "from_file", "in_file", "newer"]

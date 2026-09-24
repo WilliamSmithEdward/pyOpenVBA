@@ -62,8 +62,10 @@ if TYPE_CHECKING:
     from pyopenvba.interpreter._runtime import Interpreter
 
 _LIBRARY = "excel"
-#: The longest formula Excel keeps, in characters.
+#: The longest formula Excel keeps, in characters, and the longest FormulaArray takes
+#: (tests/fixtures/formula_refusals.json).
 LONGEST_FORMULA = 8192
+LONGEST_ARRAY_FORMULA = 255
 
 
 class ExcelObject(VBAObject):
@@ -1495,6 +1497,7 @@ class Range(ExcelObject):
     def _set_value(self, value: object) -> None:
         from pyopenvba.apps.excel._protection import writing
 
+        _within_length(value)
         if not _arrays.write_admitted(self):
             return
         with writing(self.sheet):
@@ -1520,6 +1523,7 @@ class Range(ExcelObject):
     def _set_value2(self, value: object) -> None:
         from pyopenvba.apps.excel._protection import writing
 
+        _within_length(value)
         if not _arrays.write_admitted(self):
             return
         with writing(self.sheet):
@@ -1589,6 +1593,7 @@ class Range(ExcelObject):
         """
         from pyopenvba.apps.excel._protection import writing
 
+        _within_length(value)
         if not _arrays.write_admitted(self):
             return
         with writing(self.sheet):
@@ -1651,10 +1656,12 @@ class Range(ExcelObject):
 
     @setter("Formula2")
     def _set_formula2(self, value: object) -> None:
+        _within_length(value)
         self._set_formula(self._legacy(value, r1c1=False))
 
     @setter("Formula2R1C1")
     def _set_formula2_r1c1(self, value: object) -> None:
+        _within_length(value)
         self._set_formula(self._legacy(value, r1c1=True))
 
     def _legacy(self, value: object, *, r1c1: bool) -> object:
@@ -1746,6 +1753,8 @@ class Range(ExcelObject):
         text = to_text(value.vba_value() if isinstance(value, VBAObject) else value)
         if not _is_formula(text):
             raise VBAUnsupportedError("FormulaArray set to a value rather than a formula is not implemented")
+        if len(text) > LONGEST_ARRAY_FORMULA:
+            raise error(1004, "Unable to set the FormulaArray property of the Range class")
         whole(self.sheet, self.areas, "Changing")
         _arrays.put(self, _array_formula_text(self.sheet, text, self.first.top, self.first.left))
         _events.after_edit(self)
@@ -1777,6 +1786,7 @@ class Range(ExcelObject):
     def _set_formula_r1c1(self, value: object) -> None:
         from pyopenvba.apps.excel._protection import writing
 
+        _within_length(value)
         if not _arrays.write_admitted(self):
             return
         with writing(self.sheet):
@@ -3685,6 +3695,13 @@ class _BookNames:
 def _is_formula(text: str) -> bool:
     """Whether a string written to a cell is a formula: it starts with =, and = alone is text."""
     return text.startswith("=") and text != "="
+
+
+def _within_length(value: object) -> None:
+    """Error 7, out of memory, for a formula longer than Excel keeps, written through Formula, Formula2,
+    FormulaR1C1 or Value (tests/fixtures/formula_refusals.json)."""
+    if isinstance(value, str) and _is_formula(value) and len(value) > LONGEST_FORMULA:
+        raise error(7, "Out of memory")
 
 
 def _beyond(source: Area, destination: Area) -> Area | None:

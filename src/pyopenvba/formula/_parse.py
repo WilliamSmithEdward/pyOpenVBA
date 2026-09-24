@@ -153,7 +153,7 @@ _TOKEN: Final = re.compile(
   | (?P<structured>{STRUCTURED})
   | (?P<error>(?:{_SHEET})?(?i:\#N/A|\#NULL!|\#DIV/0!|\#VALUE!|\#REF!|\#NAME\?|\#NUM!|\#SPILL!|\#CALC!|\#GETTING_DATA))
   | (?P<ref>(?:{_SHEET})?(?:{_CELL}:{_CELL}|{_WHOLE_COLUMNS}|{_WHOLE_ROWS}|{_CELL})(?![A-Za-z0-9_.(]))
-  | (?P<name>(?:{_SHEET})?[A-Za-z_\\À-￿][A-Za-z0-9_.À-￿]*)
+  | (?P<name>(?:{_SHEET})?[A-Za-z_\\À-￿][A-Za-z0-9_.?\\À-￿]*)
   | (?P<number>(?:[0-9]+\.?[0-9]*|\.[0-9]+)(?:[eE][-+]?[0-9]+)?)
   | (?P<op><>|<=|>=|[=<>+\-*/^&%:@])
   | (?P<open>\()

@@ -205,7 +205,7 @@ def CONCAT(context: Context, *parts: Value) -> Value:
     return _checked("".join(context.text(piece) for part in parts for piece in _pieces(context, part)))
 
 
-@function("TEXTJOIN", R, V, R, maximum=252)
+@function("TEXTJOIN", R, V, R, maximum=254)
 def TEXTJOIN(context: Context, delimiter: Value, ignore_empty: Scalar, *parts: Value) -> Value:
     separators = [context.text(piece) for piece in _pieces(context, delimiter)] or [""]
     skip = context.logical(ignore_empty)

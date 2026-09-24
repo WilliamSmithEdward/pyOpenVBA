@@ -39,6 +39,7 @@ from dataclasses import dataclass, replace
 from typing import Final, Protocol
 
 from pyopenvba._a1 import column_letter, column_number, quote_sheet
+from pyopenvba.formula._arity import takes
 from pyopenvba.formula._calc import functions as functions  # imported to register every function
 from pyopenvba.formula._calc.catalog import is_excel_function
 from pyopenvba.formula._calc.nodes import function_key
@@ -106,12 +107,20 @@ _OWN_PLACES: Final[dict[str, _Places]] = {
 _ARRAYS: Final[dict[str, _Places]] = {"SUMPRODUCT": _EVERY, "INDEX": _Places((0,))}
 #: Arguments that have to be cells. Excel will not take a formula with a value there (error 1004): a number, text,
 #: an array, an operator's answer, or a function that answers with a value, SUMIF(LEN(A1:A3),1). A name or a
-#: function that can answer with cells is taken, and is #VALUE! when it comes to a value instead.
+#: function that can answer with cells is taken, and is #VALUE! when it comes to a value instead. Each function
+#: Excel refused an operation in was written with one in each argument in turn (scripts/measure_formula_refusals.py,
+#: tests/fixtures/formula_refusals.json); AGGREGATE wants cells only from its fifth argument, where it can only be
+#: summing references, and a database function only its database.
 _CELLS: Final[dict[str, _Places]] = {
     "SUBTOTAL": _Places(start=1), "COUNTIF": _Places((0,)), "SUMIF": _Places((0, 2)), "AVERAGEIF": _Places((0, 2)),
     "COUNTIFS": _Places(start=0, step=2), "SUMIFS": _Places((0,), start=1, step=2),
-    "AVERAGEIFS": _Places((0,), start=1, step=2), "COUNTBLANK": _Places((0,)), "OFFSET": _Places((0,)),
-    "ROW": _Places((0,)), "COLUMN": _Places((0,)), "AREAS": _Places((0,)),
+    "AVERAGEIFS": _Places((0,), start=1, step=2), "MAXIFS": _Places((0,), start=1, step=2),
+    "MINIFS": _Places((0,), start=1, step=2), "COUNTBLANK": _Places((0,)), "OFFSET": _Places((0,)),
+    "ROW": _Places((0,)), "COLUMN": _Places((0,)), "AREAS": _Places((0,)), "AGGREGATE": _Places(start=4),
+    "CELL": _Places((1,)), "RANK": _Places((1,)), "RANK.AVG": _Places((1,)), "RANK.EQ": _Places((1,)),
+    "FORMULATEXT": _Places((0,)), "ISFORMULA": _Places((0,)), "PHONETIC": _Places((0,)),
+    **dict.fromkeys(("DAVERAGE", "DCOUNT", "DCOUNTA", "DGET", "DMAX", "DMIN", "DPRODUCT", "DSTDEV", "DSTDEVP", "DSUM",
+                     "DVAR", "DVARP"), _Places((0,))),
 }
 #: The functions that can answer with cells, the only ones Excel takes where cells are wanted: every other function
 #: the engine has is refused there (scripts/measure_cells_functions.py, tests/fixtures/formula/cells_functions.json).
@@ -184,6 +193,7 @@ def _spelled(formula: str, names: Names, *, whole: bool, at: bool) -> str:
         raise
     if not at and any(token.kind == "op" and token.text == "@" for token in tokens):
         raise UnmodelledFormulaError("'@' in a formula written through Range.Formula is not implemented")
+    _within_limits(tokens)
     tree = parse(formula)
     _check(tree)
     one_value: set[int] = set()
@@ -234,25 +244,26 @@ def _spelled(formula: str, names: Names, *, whole: bool, at: bool) -> str:
     return "=" + "".join(pieces)
 
 
-#: The fewest arguments a function that reads cells is taken with. Measured (scripts/measure_subtotal.py):
-#: SUBTOTAL(9) is error 1004 when written.
-_FEWEST: Final = {"SUBTOTAL": 2}
-
-
 def _check(node: Node | None) -> None:
-    """Refuse what Excel refuses in a formula past its syntax: a value where a function reads cells.
+    """Refuse what Excel refuses in a formula past its syntax: a function given too few or too many arguments, a
+    value where a function reads cells, and LET's and LAMBDA's names badly named.
 
-    Which arguments have to be cells is :data:`_CELLS`, measured in tests/fixtures/formula/probes.txt and by
-    scripts/measure_subtotal.py.
+    How many arguments each function takes is :func:`pyopenvba.formula._arity.takes`, and which arguments have to
+    be cells :data:`_CELLS`, measured in tests/fixtures/formula/probes.txt and
+    tests/fixtures/formula_refusals.json.
     """
     if isinstance(node, Call):
-        name = node.name.upper()
+        name = function_key(node.name)
+        count = len(node.args)
         if name == "ANCHORARRAY":
             # The file's spelling of A1#, which Excel does not take written as a call (tests/fixtures/formula/).
             raise FormulaError("ANCHORARRAY is not taken written as a call")
+        if name in ("LET", "LAMBDA"):
+            _check_names(node, name)
+        elif not takes(name, count):
+            raise FormulaError(f"{node.name} does not take {count} arguments")
         places = _CELLS.get(name)
-        if places is not None and (len(node.args) < _FEWEST.get(name, 0)
-                                   or not all(_referring(node.args[index]) for index in places.within(len(node.args)))):
+        if places is not None and not all(_referring(node.args[index]) for index in places.within(count)):
             raise FormulaError(f"{node.name} takes references")
         for argument in node.args:
             _check(argument)
@@ -287,6 +298,126 @@ def _referring(node: Node | None) -> bool:
     if isinstance(node, Binary):
         return node.op in (":", " ", ",") and _referring(node.left) and _referring(node.right)
     return False
+
+
+#: The most arguments LET and LAMBDA take: LET's names and values in pairs with its calculation last, LAMBDA's
+#: parameters with its body last.
+_MOST_BOUND: Final = {"LET": 253, "LAMBDA": 254}
+#: A cell a LET or a LAMBDA can take as a name, as Excel takes LET(A1,5,A1) to be 5: one cell, with no $ and no
+#: sheet (tests/fixtures/formula_refusals.json).
+_CELL_NAME: Final = re.compile(r"[A-Za-z]{1,3}[0-9]+")
+
+
+def _check_names(node: Call, name: str) -> None:
+    """Refuse a LET or a LAMBDA Excel refuses: LET without a calculation after its pairs, a LAMBDA with nothing,
+    or a name that is not one or is there twice."""
+    count = len(node.args)
+    if name == "LET" and (count < 3 or count % 2 == 0) or name == "LAMBDA" and count < 1 or count > _MOST_BOUND[name]:
+        raise FormulaError(f"{name} does not take {count} arguments")
+    names = node.args[0:-1:2] if name == "LET" else node.args[:-1]
+    seen: set[str] = set()
+    for argument in names:
+        bound = _bound(argument, optional=name == "LAMBDA")
+        if bound is None or bound.upper() in seen:
+            raise FormulaError(f"{name} cannot bind that name")
+        seen.add(bound.upper())
+
+
+def _bound(node: Node | None, *, optional: bool) -> str | None:
+    """The name a LET or a LAMBDA binds where ``node`` stands, or None for one Excel does not take: a number, TRUE,
+    a name with a full stop in it, or cells other than one; ``optional`` for LAMBDA, whose [name] may be left out."""
+    if isinstance(node, NameNode) and not node.sheet:
+        return None if node.name.upper() in ("TRUE", "FALSE") or "." in node.name else node.name
+    if isinstance(node, Reference) and not node.sheet and _CELL_NAME.fullmatch(node.text):
+        return node.text
+    if optional and isinstance(node, Structured) and not node.table and not node.sheet and not node.items \
+            and node.first is not None and node.first == node.last and "." not in node.first:
+        return node.first
+    return None
+
+
+#: The most characters a text in a formula holds; the most brackets open in one argument, a call's own bracket
+#: among them; the most calls one inside another; and the most signs and operators waiting on their operands in
+#: one bracket (scripts/measure_formula_refusals.py, tests/fixtures/formula_refusals.json).
+_LONGEST_TEXT: Final = 4095
+_MOST_BRACKETS: Final = 256
+_MOST_CALLS: Final = 65
+_MOST_WAITING: Final = 1024
+#: How tightly each operator binds, as Excel's operator stack sorts them out.
+_BINDING: Final = {"^": 4, "*": 3, "/": 3, "+": 2, "-": 2, "&": 1, "=": 0, "<>": 0, "<": 0, ">": 0, "<=": 0, ">=": 0,
+                   ":": 7, ",": 6}
+_SIGN: Final = 5
+
+
+def _within_limits(tokens: list[Token]) -> None:
+    """Refuse a formula past Excel's limits: a text too long, brackets or calls too deep, or too many signs and
+    operators waiting on their operands.
+
+    Each argument of a call counts its brackets afresh; the call's own
+    bracket counts in the argument it is in. Each bracket, a call's too,
+    waits on operators afresh.
+    """
+    brackets = [0]
+    waiting: list[list[int]] = [[]]
+    #: What each open bracket is: a call's, a bracket around a part of the formula, or an array constant's.
+    opened: list[str] = []
+    calls = 0
+    operand = False
+    previous: Token | None = None
+    for token in tokens:
+        kind = token.kind
+        if kind in ("ws", "eof"):
+            continue
+        if kind == "text" and len(token.text) - 2 - token.text[1:-1].count('""') > _LONGEST_TEXT:
+            raise FormulaError("a text in a formula holds 4095 characters")
+        if kind == "open":
+            call = previous is not None and previous.kind in ("name", "close")
+            brackets[-1] += 1
+            if brackets[-1] > _MOST_BRACKETS:
+                raise FormulaError("brackets go 256 deep")
+            if call:
+                calls += 1
+                if calls > _MOST_CALLS:
+                    raise FormulaError("calls go 65 deep")
+                brackets.append(0)
+            opened.append("call" if call else "bracket")
+            waiting.append([])
+            operand = False
+        elif kind == "lbrace":
+            opened.append("array")
+            waiting.append([])
+            operand = False
+        elif kind in ("close", "rbrace"):
+            closing = opened.pop() if opened else ""
+            if closing == "call":
+                brackets.pop()
+                calls -= 1
+            if closing in ("call", "bracket") and brackets[-1]:
+                brackets[-1] -= 1
+            if len(waiting) > 1:
+                waiting.pop()
+            operand = True
+        elif kind in ("comma", "semicolon") and opened:
+            waiting[-1].clear()
+            operand = False
+        elif kind == "op":
+            stack = waiting[-1]
+            if token.text == "%":
+                while stack and stack[-1] >= _SIGN:
+                    stack.pop()
+            elif not operand:
+                stack.append(_SIGN)
+            else:
+                binding = _BINDING.get(token.text, 0)
+                while stack and stack[-1] >= binding:
+                    stack.pop()
+                stack.append(binding)
+                operand = False
+            if len(stack) > _MOST_WAITING:
+                raise FormulaError("too many operators wait on their operands")
+        else:
+            operand = True
+        previous = token
 
 
 def _one_value(node: Node | None, *, one: bool, whole: bool, found: set[int]) -> None:

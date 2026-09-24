@@ -661,6 +661,22 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- `Range.Formula` and its kin refuse, with error 1004, what Excel refuses
+  past a formula's syntax, all of which the model took: a function given
+  too few or too many arguments, as each of Excel's 525 functions written
+  with 0 to 16 and 249 to 256 shows, one newer than Excel 2007 taking at
+  most 254 and SUMIFS and its kin only whole pairs; an operation where
+  MAXIFS, MINIFS, RANK, CELL, AGGREGATE past its fourth argument, a
+  database function, FORMULATEXT, ISFORMULA or PHONETIC reads cells; a
+  LET or a LAMBDA with a name that is none, TRUE or `x.y`, or with one
+  twice; a text of more than 4095 characters; more than 256 brackets open
+  in one argument, a call's own among them; calls more than 65 deep; and
+  more than 1024 signs and operators waiting on their operands. CALL,
+  REGISTER.ID and PY are refused however they are called. A formula
+  longer than 8192 characters is error 7, and one longer than 255 given
+  to `FormulaArray` error 1004, as 14,377 formulas measured in live Excel
+  show (scripts/measure_formula_refusals.py). TEXTJOIN takes 254 arguments,
+  not 252, and BYROW and BYCOL given no function are #CALC!, as there.
 - A long chain of cells comes to what Excel shows. A running total 300 rows
   down, `=A1+1` filled from A2, read 140 at the bottom: past about 140
   cells one inside another, Python ran out of stack, and the model took

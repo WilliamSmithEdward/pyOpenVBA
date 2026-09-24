@@ -69,8 +69,10 @@ column's `@` kept escaped: a file writes a column named `@home` as
    refuse labels alone, a database or criteria of one row, with #VALUE!;
    ACCRINTM settled the day it is issued is 0; CELL with an info type that
    is not one of its words, `CELL(1)`, is #VALUE!; BINOM.INV and CRITBINOM
-   want a chance and an alpha strictly between 0 and 1; and XIRR of one
-   payment is #N/A.
+   want a chance and an alpha strictly between 0 and 1; XIRR of one
+   payment is #N/A; TEXTJOIN takes 254 arguments, not 252; and BYROW and
+   BYCOL given no function are #CALC!
+   (`tests/fixtures/formula_refusals.json`).
 8. **Values from VBA.** `nodes.Given` carries a value into a call from
    outside any formula, as WorksheetFunction hands one: a scalar, an array
    with blanks in it, or cells. `values.Omitted`, what an argument left

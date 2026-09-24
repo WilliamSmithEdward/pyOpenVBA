@@ -12,7 +12,7 @@ with 1 to 3 in A1:A3 and names over it.
     python scripts/measure_implicit_intersection.py
 
 writes tests/fixtures/implicit_intersection.json, which
-tests/test_excel_dynamic_arrays.py replays.
+tests/test_excel_formula2.py replays.
 """
 
 from __future__ import annotations

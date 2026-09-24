@@ -142,15 +142,16 @@ def SCAN(context: Context, initial: Value, array: Value, step: Value) -> Value:
     return Array(rows)
 
 
-@function("BYROW", A, A)
-def BYROW(context: Context, array: Value, step: Value) -> Value:
+@function("BYROW", A, A, minimum=1)
+def BYROW(context: Context, array: Value, step: Value = CALC) -> Value:
+    # Given no function, BYROW and BYCOL are #CALC! (tests/fixtures/formula_refusals.json).
     call = _function(step)
     grid = matrix(context, array)
     return Array([[_single(context, context.apply(call, [Array([list(row)])]))] for row in grid.rows])
 
 
-@function("BYCOL", A, A)
-def BYCOL(context: Context, array: Value, step: Value) -> Value:
+@function("BYCOL", A, A, minimum=1)
+def BYCOL(context: Context, array: Value, step: Value = CALC) -> Value:
     call = _function(step)
     grid = matrix(context, array)
     columns = [Array([[row[column]] for row in grid.rows]) for column in range(grid.width)]

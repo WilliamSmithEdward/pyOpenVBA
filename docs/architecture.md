@@ -345,12 +345,16 @@ written one needs (`scripts/measure_first_macro.py`).
 
 ## 5a. UserForm designer streams
 
-A form's design lives beside the VBA storage, not inside it: a root
-storage named for the form, holding `f` (the sites: which controls, in
-what order), `o` (each control's own property record), and the
-`VBFrame` text. Containers nest into storages of their own, named
-for the site id -- a `Frame`'s children in `i02`, a `MultiPage`'s Pages
-in `i08` / `i09` under its own `i06`.
+A form's design lives beside the VBA storage, not inside it: a storage
+named for the form in the project's storage, holding `f` (the sites:
+which controls, in what order), `o` (each control's own property
+record), and the `VBFrame` text. Containers nest into storages of their
+own, named for the site id -- a `Frame`'s children in `i02`, a
+`MultiPage`'s Pages in `i08` / `i09` under its own `i06`. The project's
+storage is the root of `vbaProject.bin` and of a `.ppt`'s embedded
+project, and `_VBA_PROJECT_CUR` or `Macros` in a `.xls` or `.doc`, which
+hold the document too (`VBAHostFile._project_root`,
+tests/fixtures/binary_forms.json).
 
 `forms.py` reads that tree and writes it back; `_oforms_records.py`
 carries one property table per control class. It never guesses: every

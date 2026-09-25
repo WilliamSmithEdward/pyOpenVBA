@@ -5,7 +5,21 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ## [Unreleased]
 
-Nothing yet.
+### Fixed
+
+- A UserForm in a binary `.xls` or `.doc` is kept where Excel and Word
+  keep one, in the project's storage (`_VBA_PROJECT_CUR` or `Macros`)
+  beside `VBA/`. `add_form` put the form's storage at the root of the
+  file, next to the document's own streams, and Excel and Word refused
+  to open the file. `forms()` looked for forms at the root too, so it
+  listed none from a binary file, and `remove_reference("MSForms")` did
+  not see the forms that need it. Each application inserted a form into
+  a binary file it had saved, and scripts/measure_binary_forms.py
+  recorded where it went. The library's form now lands in the same
+  place, with the streams the editor writes, except for the caption
+  `add_form` sets. A live gate has Excel and Word open, show and compile
+  a form the library adds, and has the library read and edit a form
+  their editor adds.
 
 ## [6.1.2] - 2026-09-23
 

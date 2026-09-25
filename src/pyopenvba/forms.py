@@ -1775,16 +1775,18 @@ def create_form(
     width: float | None = None,
     height: float | None = None,
     code_page: int = 1252,
+    root: Sequence[str] = (),
 ) -> str:
     """Create an empty form's storage in a project's CFB.
 
-    Returns the attribute header the caller must give the form's
-    code-behind module; the form is not a form until that module exists
-    too, and declaring it is the host's job.
+    ``root`` is the path of the project's storage, as for
+    :func:`form_names`.  Returns the attribute header the caller must give
+    the form's code-behind module; the form is not a form until that
+    module exists too, and declaring it is the host's job.
     """
     from pyopenvba.vba import encoding_for_codepage
 
-    if name in form_names(cfb):
+    if name in form_names(cfb, root=root):
         raise FormParseError(f"the project already has a form named {name!r}")
     encoding = encoding_for_codepage(code_page)
     default_w, default_h = _DEFAULT_FORM_SIZE
@@ -1797,11 +1799,12 @@ def create_form(
     )
     # A top-level form's storage carries no CLSID -- unlike its containers,
     # which are bound by theirs.
-    cfb.add_substorage_at((), name)
-    cfb.add_stream_at([name], "f", f_bytes)
-    cfb.add_stream_at([name], "o", o_bytes)
-    cfb.add_stream_at([name], _COMPOBJ_STREAM, compobj)
-    cfb.add_stream_at([name], _VBFRAME_STREAM, vbframe)
+    path = [*root, name]
+    cfb.add_substorage_at(root, name)
+    cfb.add_stream_at(path, "f", f_bytes)
+    cfb.add_stream_at(path, "o", o_bytes)
+    cfb.add_stream_at(path, _COMPOBJ_STREAM, compobj)
+    cfb.add_stream_at(path, _VBFRAME_STREAM, vbframe)
     return header
 
 
@@ -1809,37 +1812,42 @@ def create_form(
 # Public API
 # ---------------------------------------------------------------------------
 
-def form_names(cfb: CFB) -> list[str]:
+def form_names(cfb: CFB, *, root: Sequence[str] = ()) -> list[str]:
     """Names of the designer storages in a project's CFB.
 
-    A form's storage sits at the root beside ``VBA/`` and holds an ``f``
-    stream; that is the structural test, because the dir stream types a
-    designer and a class module identically.
+    A form's storage sits in the project's storage beside ``VBA/`` and
+    holds an ``f`` stream; that is the structural test, because the dir
+    stream types a designer and a class module identically.  ``root`` is
+    the path of the project's storage: empty where the CFB is the
+    project, as ``vbaProject.bin`` is, and in a binary .xls or .doc,
+    which holds the document too, the project's own storage.
     """
     names: list[str] = []
-    for storage in cfb.list_storages_at():
+    for storage in cfb.list_storages_at(root):
         if storage.casefold() == "vba":
             continue
-        if "f" in {name.casefold() for name in cfb.list_streams_at([storage])}:
+        if "f" in {name.casefold() for name in cfb.list_streams_at([*root, storage])}:
             names.append(storage)
     return names
 
 
-def read_form(cfb: CFB, name: str, *, code_page: int = 1252) -> VBAForm:
+def read_form(cfb: CFB, name: str, *, code_page: int = 1252, root: Sequence[str] = ()) -> VBAForm:
     """Read one form's designer streams.
 
-    Raises :class:`FormParseError` when the streams do not reconcile,
-    rather than returning a guessed control list.
+    ``root`` is the path of the project's storage, as for
+    :func:`form_names`.  Raises :class:`FormParseError` when the streams
+    do not reconcile, rather than returning a guessed control list.
     """
     from pyopenvba.vba import encoding_for_codepage
 
     encoding = encoding_for_codepage(code_page)
+    path = [*root, name]
     try:
-        raw_designer = cfb.get_stream_at([name], _VBFRAME_STREAM)
+        raw_designer = cfb.get_stream_at(path, _VBFRAME_STREAM)
     except KeyError:
         raw_designer = b""
     levels: list[_Level] = []
-    controls = _read_level(cfb, [name], encoding, levels)
+    controls = _read_level(cfb, path, encoding, levels)
     return VBAForm(
         name=name,
         designer_source=raw_designer.decode(encoding, "replace"),
@@ -1849,9 +1857,9 @@ def read_form(cfb: CFB, name: str, *, code_page: int = 1252) -> VBAForm:
     )
 
 
-def read_forms(cfb: CFB, *, code_page: int = 1252) -> list[VBAForm]:
+def read_forms(cfb: CFB, *, code_page: int = 1252, root: Sequence[str] = ()) -> list[VBAForm]:
     """Read every form in a project's CFB, in directory order."""
-    return [read_form(cfb, name, code_page=code_page) for name in form_names(cfb)]
+    return [read_form(cfb, name, code_page=code_page, root=root) for name in form_names(cfb, root=root)]
 
 
 def _read_level(

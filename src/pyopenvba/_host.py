@@ -226,7 +226,7 @@ class VBAHostFile(ReferenceManager):
         return {"workbook": "excel", "document": "word", "presentation": "powerpoint"}[self._host_noun]
 
     def _reference_forms(self) -> list[str]:
-        return form_names(self._get_cfb())
+        return form_names(self._get_cfb(), root=self._project_root())
 
     def references(self) -> list[VBAReference]:
         """Declared libraries in priority order; none in a file with no project."""
@@ -271,7 +271,7 @@ class VBAHostFile(ReferenceManager):
             return []
         if self._forms is None:
             self._forms = read_forms(
-                self._get_cfb(), code_page=self.vba_project().code_page
+                self._get_cfb(), code_page=self.vba_project().code_page, root=self._project_root()
             )
         return self._forms
 
@@ -305,6 +305,7 @@ class VBAHostFile(ReferenceManager):
             width=width,
             height=height,
             code_page=project.code_page,
+            root=self._project_root(),
         )
         project.add_module(name, header, kind=VBAModuleKind.other)
         # The editor declares Microsoft Forms with a project's first form, and code naming its types needs it.
@@ -630,7 +631,7 @@ class VBAHostFile(ReferenceManager):
             module.dirty = False
             if module.kind == VBAModuleKind.standard:
                 decl_key = "Module"
-            elif module.name in form_names(cfb):
+            elif module.name in form_names(cfb, root=self._project_root()):
                 # A designer is declared BaseClass, not Class.  The
                 # test is structural -- its name is also a storage
                 # beside VBA/ -- which is the same one forms.py uses
@@ -901,3 +902,15 @@ class VBAHostFile(ReferenceManager):
         vba_bin = self._zip.read(self._vba_entry)
         self._cfb = CFB.from_bytes(vba_bin)
         return self._cfb
+
+    def _project_root(self) -> tuple[str, ...]:
+        """The path of the project's storage in the CFB ``_get_cfb`` returns.
+
+        Empty where that CFB is the project, as ``vbaProject.bin`` and a
+        .ppt's embedded project are.  A .xls or .doc holds the document
+        too, and Excel and Word keep a form's storage in the project's
+        storage beside ``VBA/`` (tests/fixtures/binary_forms.json).
+        """
+        if self._suffix in self._cfb_formats and self._project_storage is not None:
+            return (self._project_storage,)
+        return ()

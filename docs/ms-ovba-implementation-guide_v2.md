@@ -530,8 +530,10 @@ deprecated control surface.
 
 ## 11. UserForms / designer storages
 
-For each `BaseClass=` module there is a **sub-storage** at the CFB root
-with the same name as the module. It contains designer streams:
+For each `BaseClass=` module there is a **sub-storage** in the project's
+storage, beside `/VBA`, with the same name as the module: at the CFB
+root of `vbaProject.bin`, in `_VBA_PROJECT_CUR` in a `.xls` and in
+`Macros` in a `.doc`. It contains designer streams:
 typically `f`, `o`, `\x01CompObj`, `\x03VBFrame`, and sometimes more.
 
 Editing the **code-behind** of a UserForm is identical to editing any

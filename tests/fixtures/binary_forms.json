@@ -1,0 +1,165 @@
+{
+ "excel": {
+  "project_storage": "_VBA_PROJECT_CUR",
+  "base_tree": [
+   "PROJECT",
+   "PROJECTwm",
+   "VBA/",
+   "VBA/Module1",
+   "VBA/Sheet1",
+   "VBA/ThisWorkbook",
+   "VBA/_VBA_PROJECT",
+   "VBA/__SRP_0",
+   "VBA/__SRP_1",
+   "VBA/__SRP_2",
+   "VBA/__SRP_3",
+   "VBA/dir"
+  ],
+  "root": [
+   "_VBA_PROJECT_CUR",
+   "\u0001CompObj",
+   "\u0005DocumentSummaryInformation",
+   "\u0005SummaryInformation",
+   "Workbook"
+  ],
+  "tree": [
+   "PROJECT",
+   "PROJECTwm",
+   "UserForm1/",
+   "UserForm1/\u0001CompObj",
+   "UserForm1/\u0003VBFrame",
+   "UserForm1/f",
+   "UserForm1/o",
+   "VBA/",
+   "VBA/Module1",
+   "VBA/Sheet1",
+   "VBA/ThisWorkbook",
+   "VBA/UserForm1",
+   "VBA/_VBA_PROJECT",
+   "VBA/__SRP_0",
+   "VBA/__SRP_1",
+   "VBA/__SRP_2",
+   "VBA/__SRP_3",
+   "VBA/dir"
+  ],
+  "clsids": {
+   "UserForm1": "00000000000000000000000000000000",
+   "VBA": "00000000000000000000000000000000"
+  },
+  "form_entry": {
+   "state": "00000000",
+   "created_set": true,
+   "modified_set": true
+  },
+  "form_streams": {
+   "\u0001CompObj": "0100feff030a0000ffffffff00000000000000000000000000000000190000004d6963726f736f667420466f726d7320322e3020466f726d0010000000456d626564646564204f626a6563740000000000f439b271000000000000000000000000",
+   "\u0003VBFrame": "56455253494f4e20352e30300d0a426567696e207b43363241363946302d313644432d313143452d394539382d3030414130303537344134467d2055736572466f726d31200d0a20202043617074696f6e2020202020202020203d2020202255736572466f726d31220d0a202020436c69656e74486569676874202020203d202020333031350d0a202020436c69656e744c6566742020202020203d2020203132300d0a202020436c69656e74546f70202020202020203d2020203436350d0a202020436c69656e74576964746820202020203d202020343536300d0a20202053746172745570506f736974696f6e203d2020203120202743656e7465724f776e65720d0a456e640d0a",
+   "f": "00041800000c0008007d00006b1f0000c6140000000000000000000000000000000000000000",
+   "o": ""
+  },
+  "project_lines": [
+   "ID=\"{ED4EE69E-C8AB-4767-B4DB-30C183DE4CAF}\"",
+   "Document=ThisWorkbook/&H00000000",
+   "Document=Sheet1/&H00000000",
+   "Module=Module1",
+   "Package={AC9F2F90-E877-11CE-9F68-00AA00574A4F}",
+   "BaseClass=UserForm1",
+   "Name=\"VBAProject\"",
+   "HelpContextID=\"0\"",
+   "VersionCompatible32=\"393222000\"",
+   "CMG=\"363474CB8C354D394D394D394D39\"",
+   "DPB=\"F3F1B18E6F8F6F8F6F\"",
+   "GC=\"B0B2F2F5F3F5F30A\"",
+   "",
+   "[Host Extender Info]",
+   "&H00000001={3832D640-CF90-11CF-8E43-00A0C911005A};VBE;&H00000000",
+   "",
+   "[Workspace]",
+   "ThisWorkbook=0, 0, 0, 0, C",
+   "Sheet1=0, 0, 0, 0, C",
+   "Module1=104, 104, 614, 431, ",
+   "UserForm1=0, 0, 0, 0, C, 26, 26, 536, 353, C",
+   ""
+  ]
+ },
+ "word": {
+  "project_storage": "Macros",
+  "base_tree": [
+   "PROJECT",
+   "PROJECTwm",
+   "VBA/",
+   "VBA/Module1",
+   "VBA/ThisDocument",
+   "VBA/_VBA_PROJECT",
+   "VBA/__SRP_0",
+   "VBA/__SRP_1",
+   "VBA/__SRP_2",
+   "VBA/__SRP_3",
+   "VBA/dir"
+  ],
+  "root": [
+   "Macros",
+   "\u0001CompObj",
+   "\u0005DocumentSummaryInformation",
+   "\u0005SummaryInformation",
+   "1Table",
+   "WordDocument"
+  ],
+  "tree": [
+   "PROJECT",
+   "PROJECTwm",
+   "UserForm1/",
+   "UserForm1/\u0001CompObj",
+   "UserForm1/\u0003VBFrame",
+   "UserForm1/f",
+   "UserForm1/o",
+   "VBA/",
+   "VBA/Module1",
+   "VBA/ThisDocument",
+   "VBA/UserForm1",
+   "VBA/_VBA_PROJECT",
+   "VBA/__SRP_0",
+   "VBA/__SRP_1",
+   "VBA/__SRP_2",
+   "VBA/__SRP_3",
+   "VBA/dir"
+  ],
+  "clsids": {
+   "UserForm1": "00000000000000000000000000000000",
+   "VBA": "00000000000000000000000000000000"
+  },
+  "form_entry": {
+   "state": "00000000",
+   "created_set": true,
+   "modified_set": true
+  },
+  "form_streams": {
+   "\u0001CompObj": "0100feff030a0000ffffffff00000000000000000000000000000000190000004d6963726f736f667420466f726d7320322e3020466f726d0010000000456d626564646564204f626a6563740000000000f439b271000000000000000000000000",
+   "\u0003VBFrame": "56455253494f4e20352e30300d0a426567696e207b43363241363946302d313644432d313143452d394539382d3030414130303537344134467d2055736572466f726d31200d0a20202043617074696f6e2020202020202020203d2020202255736572466f726d31220d0a202020436c69656e74486569676874202020203d202020333031350d0a202020436c69656e744c6566742020202020203d2020203132300d0a202020436c69656e74546f70202020202020203d2020203436350d0a202020436c69656e74576964746820202020203d202020343536300d0a20202053746172745570506f736974696f6e203d2020203120202743656e7465724f776e65720d0a456e640d0a",
+   "f": "00041800000c0008007d00006b1f0000c6140000000000000000000000000000000000000000",
+   "o": ""
+  },
+  "project_lines": [
+   "ID=\"{DEB78835-56E4-4729-900D-7A6C1E4779B7}\"",
+   "Document=ThisDocument/&H00000000",
+   "Module=Module1",
+   "Package={AC9F2F90-E877-11CE-9F68-00AA00574A4F}",
+   "BaseClass=UserForm1",
+   "Name=\"Project\"",
+   "HelpContextID=\"0\"",
+   "VersionCompatible32=\"393222000\"",
+   "CMG=\"56548EE6927A587E587E587E587E\"",
+   "DPB=\"2022F8FBF9FBF9FB\"",
+   "GC=\"EAE8320AFD0BFD0B02\"",
+   "",
+   "[Host Extender Info]",
+   "&H00000001={3832D640-CF90-11CF-8E43-00A0C911005A};VBE;&H00000000",
+   "",
+   "[Workspace]",
+   "ThisDocument=0, 0, 0, 0, C",
+   "Module1=104, 104, 614, 431, Z",
+   "UserForm1=0, 0, 0, 0, C, 130, 130, 640, 457, C",
+   ""
+  ]
+ }
+}

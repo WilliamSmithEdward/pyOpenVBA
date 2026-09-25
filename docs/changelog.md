@@ -64,6 +64,9 @@ All notable changes to pyOpenVBA are documented here. This project follows
   the container's font too. scripts/measure_form_designer.py had each
   designer fill forms of their own fonts, and the tests compare the
   library's controls with the designer's, byte for byte.
+- A new Label is sited without TabStop, as the designers site one
+  (#31): a Label takes no focus, and they store its flags as 0x32 where
+  the library left the default, 0x33, which has TabStop set.
 
 ## [6.1.2] - 2026-09-23
 

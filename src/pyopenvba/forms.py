@@ -1359,6 +1359,11 @@ _NEW_CONTAINER_SITE_MASK = (
 # Visible and enabled, as Excel writes for a Frame -- taken from the
 # fixture's own containers rather than assembled from flag names.
 _CONTAINER_SITE_BITFLAGS = 262179
+# A Label takes no focus, and the designer sites one with the default flags
+# less fTabStop: 0x33 without bit 0 (tests/fixtures/form_designer.json).
+_LABEL_CLASS = 21
+_LABEL_SITE_BITFLAGS = 0x32
+_SITE_MASK_BITFLAGS = 1 << 4
 # A page that is not the selected one, which is the only way a new page's
 # BitFlags differ from the first page's.
 _INACTIVE_PAGE_BITFLAGS = 262177
@@ -1574,6 +1579,9 @@ def _new_site(name: str, site_id: int, cache_index: int, tab_index: int,
         site.values["BitFlags"] = _CONTAINER_SITE_BITFLAGS
     else:
         site.values["ObjectStreamSize"] = 0
+    if cache_index == _LABEL_CLASS:
+        site.mask |= _SITE_MASK_BITFLAGS
+        site.values["BitFlags"] = _LABEL_SITE_BITFLAGS
     site.values["TabIndex"] = tab_index
     site.values["ClsidCacheIndex"] = cache_index
     site.position = (left, top)

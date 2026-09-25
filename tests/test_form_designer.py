@@ -113,6 +113,28 @@ def test_a_new_control_takes_its_containers_font(host: str, form: str, container
         assert _text_props(added) == _text_props(office.control(theirs))
 
 
+def _site(form: VBAForm, name: str) -> Any:
+    """The site the form's ``f`` streams give a control: its flags, id and tab index, which the public
+    FormControl does not all carry."""
+    for level in form._levels:  # pyright: ignore[reportPrivateUsage]
+        for site in level.sites:
+            if site.name == name:
+                return site
+    raise KeyError(name)
+
+
+@pytest.mark.parametrize("host", HOSTS)
+@pytest.mark.parametrize("kind", ["Label", "CommandButton", "TextBox", "CheckBox", "Image", "ScrollBar"])
+def test_a_new_control_is_sited_with_the_designers_flags(host: str, kind: str, tmp_path: Path) -> None:
+    # A Label takes no focus: the designer stores its flags without TabStop (0x32), where every other kind
+    # leaves them at the default and stores none.
+    with ExcelFile(_office_form(host, "Plain", tmp_path)) as workbook:
+        office = _form(workbook, "Plain")
+        office.add_control(kind, "Added", left=0, top=0)
+        ours, theirs = _site(office, "Added"), _site(office, f"{kind}1")
+        assert (ours.mask, ours.values.get("BitFlags")) == (theirs.mask, theirs.values.get("BitFlags"))
+
+
 @pytest.mark.parametrize("host", HOSTS)
 @pytest.mark.parametrize(("form", "theirs"), [("Plain", "MultiPage1"), ("Fonted", "MultiPage1")])
 def test_a_new_multipages_tabs_show_the_containers_font(host: str, form: str, theirs: str,

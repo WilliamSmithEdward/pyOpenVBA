@@ -87,6 +87,15 @@ All notable changes to pyOpenVBA are documented here. This project follows
   which fell back to 72 by 24. A CheckBox or OptionButton is as tall
   as its font makes it, never under 18 points:
   scripts/measure_form_fonts.py measured 22 fonts in both applications.
+- A MultiPage's pages and tabs follow the MultiPage (#31). The library
+  gave every page 5080 by 3810 HIMETRIC at (53, 556), and the TabStrip
+  the same fixed size, whatever the MultiPage's size and font. The
+  designers make the TabStrip as large as the MultiPage and site each
+  page two pixels inside it, under tabs as tall as the MultiPage's font
+  makes them, so a page is 106 HIMETRIC narrower than its MultiPage.
+  `add_page` sizes a page the same way. The designer makes a MultiPage
+  at its default size and resizes it, and only the first page follows;
+  one the library makes at another size gets every page sized to it.
 
 ## [6.1.2] - 2026-09-23
 

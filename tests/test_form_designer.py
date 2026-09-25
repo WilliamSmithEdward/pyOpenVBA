@@ -254,6 +254,50 @@ def test_a_new_controls_size_follows_the_font(host: str, key: str, tmp_path: Pat
             assert size == Size(*measured["sizes"][name]), name
 
 
+def _pages(form: VBAForm, multipage: str) -> list[tuple[object, object]]:
+    """A MultiPage's TabStrip size, then where each page is sited and its size."""
+    tabstrip, *pages = form.control(multipage).children
+    return [("TabStrip", tabstrip.get("Size")),
+            *[(_site(form, page.name).position, page.get("DisplayedSize")) for page in pages]]
+
+
+@pytest.mark.parametrize("host", HOSTS)
+@pytest.mark.parametrize("form", ["Plain", "Nested"])
+def test_pages_sit_under_the_tabs_of_their_multipage(host: str, form: str, tmp_path: Path) -> None:
+    # The TabStrip is as large as the MultiPage; the pages sit two pixels inside it and under the tabs.
+    with ExcelFile(_office_form(host, form, tmp_path)) as workbook:
+        theirs = _pages(_form(workbook, form), "MultiPage1")
+    workbook, composed = _composed(tmp_path, form)
+    with workbook:
+        _compose(composed, STEPS[form])
+        assert _pages(composed, "MultiPage1") == theirs
+
+
+@pytest.mark.parametrize(("host", "key"), FONT_ROWS, ids=[f"{host}-{key}" for host, key in FONT_ROWS])
+def test_the_tabs_are_as_tall_as_the_font_makes_them(host: str, key: str, tmp_path: Path) -> None:
+    measured = FONTS[host][key]
+    stored: dict[str, Any] = measured["font"] or {"name": "Tahoma", "cy_size": 82500}
+    workbook, composed = _composed(tmp_path, "Fonted")
+    with workbook:
+        _with_font(composed, str(stored["name"]), int(stored["cy_size"]))
+        composed.add_control("MultiPage", "MultiPage1", left=0, top=0)
+        multipage = measured["multipage"]
+        assert _pages(composed, "MultiPage1") == [
+            ("TabStrip", Size(*multipage["tabstrip"])),
+            *[(tuple(page["position"]), Size(*page["size"])) for page in multipage["pages"]]]
+
+
+@pytest.mark.parametrize("host", HOSTS)
+def test_a_page_added_to_the_designers_multipage_is_the_one_it_adds(host: str, tmp_path: Path) -> None:
+    # The Fonted form's first MultiPage shows Arial 9.75 pt, and the designer added its Page3 with Pages.Add.
+    with ExcelFile(_office_form(host, "Fonted", tmp_path)) as workbook:
+        office = _form(workbook, "Fonted")
+        office.add_page("MultiPage1", name="Added")
+        added, theirs = office.control("Added"), office.control("Page3")
+        assert (_site(office, "Added").position, added.get("DisplayedSize")) == (
+            _site(office, "Page3").position, theirs.get("DisplayedSize"))
+
+
 @pytest.mark.parametrize("host", HOSTS)
 @pytest.mark.parametrize(("form", "theirs"), [("Plain", "MultiPage1"), ("Fonted", "MultiPage1")])
 def test_a_new_multipages_tabs_show_the_containers_font(host: str, form: str, theirs: str,

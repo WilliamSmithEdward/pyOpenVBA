@@ -427,7 +427,7 @@ class VBAForm:
                 clsid_cache_index=18,
                 tab_index=0,
                 object_stream_size=0,
-                record=_new_tabstrip_record(self._font_of(level)),
+                record=_new_tabstrip_record(self._font_of(level), self._multipage_size(level)),
             )
         )
         # The bookkeeping names the TabStrip's site id, not the MultiPage's.
@@ -500,8 +500,9 @@ class VBAForm:
                 f"{multipage!r} already has a page named {name!r}"
             )
 
+        left, top, width, height = self._page_box(level)
         site = _new_site(
-            name, page_id, 7, len(level.sites), *_DEFAULT_PAGE_ORIGIN,
+            name, page_id, 7, len(level.sites), left, top,
             encoding=self._encoding, container=True,
         )
         # Only the selected page carries the active flag, and that is the
@@ -515,7 +516,7 @@ class VBAForm:
             path=[*level.path, _storage_name(page_id)],
             f_raw=b"",
             o_raw=b"",
-            stream=_new_container_stream("Page", None, *_DEFAULT_PAGE_SIZE),
+            stream=_new_container_stream("Page", None, width, height),
             controls=[],
             created=True,
             clsid=_PAGE_CLSID,
@@ -585,6 +586,20 @@ class VBAForm:
         del level.stream.sites[index]
         level.stream.sites_structurally_changed = True
         self._reindex()
+
+    @staticmethod
+    def _multipage_size(level: _Level) -> Size:
+        """A MultiPage's size, which its TabStrip takes whole."""
+        return level.record.sizes.get("DisplayedSize", Size(*_DEFAULT_SIZE["MultiPage"]))
+
+    def _page_box(self, level: _Level) -> tuple[int, int, int, int]:
+        """Where the designer sites a page of the MultiPage at ``level``, and its size: two pixels inside
+        the MultiPage's border and under its tabs, whose height follows the MultiPage's font
+        (tests/fixtures/form_fonts.json).  Left, top, width, height, in HIMETRIC."""
+        size = self._multipage_size(level)
+        inset = _himetric_px(_PAGE_INSET_PX)
+        top = _himetric_px(_PAGE_INSET_PX + _tab_band_px(self._font_of(level)))
+        return inset, top, size.width - 2 * inset, size.height - top - inset
 
     @staticmethod
     def _take_tab_index(level: _Level, cache_index: int) -> int:
@@ -1722,11 +1737,8 @@ _MULTIPAGE_BOOLEAN_PROPERTIES = 0x0000C004
 # fmSpecialEffectEtched, which the designer stores on a new Frame.
 _FRAME_SPECIAL_EFFECT = 3
 
-# A page's own client area, as Excel sizes the two it creates with a
-# MultiPage.  HIMETRIC.
-_DEFAULT_PAGE_SIZE = (5080, 3810)
-# Where Excel sites a page inside its MultiPage's client area.  HIMETRIC.
-_DEFAULT_PAGE_ORIGIN = (53, 556)
+# The pixels between a MultiPage's border and its pages, on every side.
+_PAGE_INSET_PX = 2
 
 # The mask bit a fresh TabStrip carries that the record table does not
 # name.  Excel sets it on every TabStrip this has seen; the table stops at
@@ -1774,8 +1786,9 @@ def _new_container_stream(
     )
 
 
-def _new_tabstrip_record(font: _Font) -> ParsedRecord:
-    """The TabStrip a MultiPage owns, with no tabs yet, showing ``font``.
+def _new_tabstrip_record(font: _Font, size: Size) -> ParsedRecord:
+    """The TabStrip a MultiPage owns, with no tabs yet, showing ``font`` and
+    as large as the MultiPage.
 
     Not a control the caller ever names: MSForms sites it ahead of the
     pages and it holds the whole of the MultiPage's `o`, so a MultiPage
@@ -1784,7 +1797,7 @@ def _new_tabstrip_record(font: _Font) -> ParsedRecord:
     record = ParsedRecord(SPECS_BY_CACHE_INDEX[18], 0)
     record.mask |= 1 << _TABSTRIP_UNNAMED_BIT
     record.set_value("ListIndex", 0)
-    record.set_size(*_DEFAULT_PAGE_SIZE)
+    record.set_size(size.width, size.height)
     for _, size_field in _TAB_ARRAYS:
         record.set_value(size_field, 0)
     record.set_value("TabsAllocated", TAB_HEADROOM)

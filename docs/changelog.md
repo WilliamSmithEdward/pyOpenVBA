@@ -55,6 +55,15 @@ All notable changes to pyOpenVBA are documented here. This project follows
   containers are refused and layout editing is out of scope, while both
   methods handle Frames and MultiPages and the library writes a form's
   whole design. The README had dropped that line already.
+- A control `add_control` adds takes the font of the form, Frame or page
+  it lands on, as the Excel and Word designers give it (#31): the face,
+  the charset, bold, italic, underline and strikethrough, and the size
+  in whole twips. It took Tahoma 8.25 pt, or a copy of the first
+  control already there, alignment included, so a ToggleButton added
+  beside a CheckBox lost its centred text. A new MultiPage's tabs show
+  the container's font too. scripts/measure_form_designer.py had each
+  designer fill forms of their own fonts, and the tests compare the
+  library's controls with the designer's, byte for byte.
 
 ## [6.1.2] - 2026-09-23
 

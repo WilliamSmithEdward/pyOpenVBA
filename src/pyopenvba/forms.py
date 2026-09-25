@@ -44,7 +44,6 @@ from __future__ import annotations
 import struct
 import uuid
 from collections.abc import Sequence
-from copy import deepcopy
 from dataclasses import dataclass, field
 
 from pyopenvba._oforms_pages import (
@@ -386,8 +385,7 @@ class VBAForm:
             self._levels.append(child)
             record = child.stream.record
         else:
-            record = _new_record(kind, cache_index, name)
-            _adopt_font(record, level)
+            record = _new_record(kind, cache_index, name, self._font_of(level))
             record.set_size(size_w, size_h)
         level.stream.sites.append(site)
         level.stream.sites_structurally_changed = True
@@ -427,7 +425,7 @@ class VBAForm:
                 clsid_cache_index=18,
                 tab_index=0,
                 object_stream_size=0,
-                record=_new_tabstrip_record(),
+                record=_new_tabstrip_record(self._font_of(level)),
             )
         )
         # The bookkeeping names the TabStrip's site id, not the MultiPage's.
@@ -584,6 +582,25 @@ class VBAForm:
         del level.stream.sites[index]
         level.stream.sites_structurally_changed = True
         self._reindex()
+
+    def _font_of(self, level: _Level) -> _Font:
+        """The font a new control on ``level`` takes.
+
+        The container's own font if it stores one, else the one it shows
+        from the container it sits in, up to the form's; a form that
+        stores none shows Tahoma 8.25 pt.  A page stores none of its own,
+        so a control on one takes its MultiPage's.
+        """
+        path = level.path
+        while True:
+            holder = next((other for other in self._levels if other.path == path), None)
+            if holder is None:
+                return _DEFAULT_FONT
+            if holder.record.has("Font"):
+                font = _read_font(holder.stream.font_raw, self._encoding)
+                if font is not None:
+                    return font
+            path = path[:-1]
 
     def _find(self, name: str) -> tuple[_Level, FormControl]:
         """The level and control for a name, at any depth."""
@@ -1422,7 +1439,81 @@ _CACHE_INDEX_BY_KIND = {
 }
 
 
-def _new_record(kind: str, cache_index: int, name: str) -> ParsedRecord:
+@dataclass(frozen=True)
+class _Font:
+    """A form's or container's font, as its StdFont stores it.
+
+    ``size`` is in ten-thousandths of a point, StdFont's cySize; ``flags``
+    bits 1, 2 and 3 are italic, underline and strikethrough, and bold is a
+    weight of 700 ([MS-OFORMS] 2.4.12, tests/fixtures/form_properties.json).
+    """
+
+    name: str
+    size: int
+    charset: int = 0
+    flags: int = 0
+    weight: int = 400
+
+
+# A form that stores no font shows Tahoma 8.25 pt, and gives it to what is
+# added to it (tests/fixtures/form_designer.json, the Plain form).
+_DEFAULT_FONT = _Font("Tahoma", 82500)
+# TextProps FontEffects: bold, then italic, underline and strikethrough at
+# StdFont's own bits, and fAutoColor, which the designer sets with any of them.
+_EFFECT_BOLD = 1 << 0
+_EFFECT_STYLES = 0x0E
+_EFFECT_AUTO_COLOR = 1 << 30
+# The controls whose text the designer centres.
+_CENTRED = frozenset({"CommandButton", "ToggleButton"})
+
+
+def _read_font(blob: bytes, encoding: str) -> _Font | None:
+    """The font a FormStreamData font blob stores, a StdFont or a TextProps."""
+    if len(blob) < 16:
+        return None
+    tag = int.from_bytes(blob[:4], "little")
+    if tag == _GUID_STDFONT and len(blob) >= 27:
+        _, charset, flags, weight, size, length = struct.unpack_from("<BHBHIB", blob, 16)
+        return _Font(blob[27:27 + length].decode(encoding, "replace"), size, charset, flags, weight)
+    if tag == _GUID_TEXTPROPS:
+        record = parse_record(blob[16:], TEXT_PROPS_SPEC, encoding)
+        stored = record.strings.get("FontName")
+        effects = record.values.get("FontEffects", 0)
+        return _Font(
+            stored.text if stored is not None else _DEFAULT_FONT.name,
+            record.values.get("FontHeight", _DEFAULT_FONT.size // 500) * 500,
+            record.values.get("FontCharSet", 0),
+            effects & _EFFECT_STYLES,
+            record.values.get("FontWeight", 700 if effects & _EFFECT_BOLD else 400),
+        )
+    return None
+
+
+def _text_props_for(kind: str, font: _Font) -> ParsedRecord:
+    """The TextProps the designer gives a control of ``kind`` it adds to a
+    container showing ``font``.
+
+    The face, charset and effects are the container's, the height its size
+    in twips cut to a whole twip (Tahoma 7.875 pt is 157), and the pitch and
+    family always 2; only the buttons centre their text.  Nothing comes from
+    the controls already there (tests/fixtures/form_designer.json).
+    """
+    text_props = ParsedRecord(TEXT_PROPS_SPEC, 0)
+    text_props.set_string("FontName", font.name)
+    effects = (_EFFECT_BOLD if font.weight >= 700 else 0) | (font.flags & _EFFECT_STYLES)
+    if effects:
+        text_props.set_value("FontEffects", effects | _EFFECT_AUTO_COLOR)
+    text_props.set_value("FontHeight", font.size // 500)
+    text_props.set_value("FontCharSet", font.charset)
+    text_props.set_value("FontPitchAndFamily", 2)
+    if kind in _CENTRED:
+        text_props.set_value("ParagraphAlign", 3)
+    if font.weight != 400:
+        text_props.set_value("FontWeight", font.weight)
+    return text_props
+
+
+def _new_record(kind: str, cache_index: int, name: str, font: _Font) -> ParsedRecord:
     """The record a newly added control starts with.
 
     Deliberately close to what Excel itself writes.  MSForms stores only
@@ -1466,34 +1557,10 @@ def _new_record(kind: str, cache_index: int, name: str) -> ParsedRecord:
 
     if spec.text_props:
         # Every record whose class carries TextProps must hold one: the
-        # reader expects it right after the StreamData.  Excel writes
-        # Tahoma 8.25pt (165 twips) everywhere, and centres button text.
-        text_props = ParsedRecord(TEXT_PROPS_SPEC, 0)
-        text_props.set_string("FontName", "Tahoma")
-        text_props.set_value("FontHeight", 165)
-        text_props.set_value("FontCharSet", 0)
-        text_props.set_value("FontPitchAndFamily", 2)
-        if kind in ("CommandButton", "ToggleButton"):
-            text_props.set_value("ParagraphAlign", 3)
-        record.text_props = text_props
+        # reader expects it right after the StreamData, and MSForms will not
+        # load a record whose class declares TextProps but stores none.
+        record.text_props = _text_props_for(kind, font)
     return record
-
-
-def _adopt_font(record: ParsedRecord, level: _Level) -> None:
-    """Give a new control the font its siblings already carry.
-
-    A control's font lives in its own TextProps, and MSForms will not
-    load a record whose class declares TextProps but stores an empty one.
-    Copying a sibling's is also what the control would have inherited, so
-    the new control looks like the ones beside it rather than like a
-    default this module invented.
-    """
-    if record.text_props is None:
-        return
-    for other in level.controls:
-        if other.record is not None and other.record.text_props is not None:
-            record.text_props = deepcopy(other.record.text_props)
-            return
 
 
 def _new_site(name: str, site_id: int, cache_index: int, tab_index: int,
@@ -1613,8 +1680,8 @@ def _new_container_stream(
     )
 
 
-def _new_tabstrip_record() -> ParsedRecord:
-    """The TabStrip a MultiPage owns, with no tabs yet.
+def _new_tabstrip_record(font: _Font) -> ParsedRecord:
+    """The TabStrip a MultiPage owns, with no tabs yet, showing ``font``.
 
     Not a control the caller ever names: MSForms sites it ahead of the
     pages and it holds the whole of the MultiPage's `o`, so a MultiPage
@@ -1630,12 +1697,7 @@ def _new_tabstrip_record() -> ParsedRecord:
     record.set_value("TabData", 0)
     for name, _ in _TAB_ARRAYS:
         record.arrays[name] = b""
-    text_props = ParsedRecord(TEXT_PROPS_SPEC, 0)
-    text_props.set_string("FontName", "Tahoma")
-    text_props.set_value("FontHeight", 165)
-    text_props.set_value("FontCharSet", 0)
-    text_props.set_value("FontPitchAndFamily", 2)
-    record.text_props = text_props
+    record.text_props = _text_props_for("TabStrip", font)
     return record
 
 

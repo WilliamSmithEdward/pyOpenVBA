@@ -50,6 +50,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
   is when its length field is filled in, so
   `add_control("Label", "Hello").get("Caption")` gave `None` until the
   file was saved.
+- The `add_control` and `remove_control` docstrings and the
+  implementation guide describe form editing as it is (#31). They said
+  containers are refused and layout editing is out of scope, while both
+  methods handle Frames and MultiPages and the library writes a form's
+  whole design. The README had dropped that line already.
 
 ## [6.1.2] - 2026-09-23
 

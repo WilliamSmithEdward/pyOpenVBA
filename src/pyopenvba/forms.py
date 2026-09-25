@@ -322,9 +322,10 @@ class VBAForm:
         is what MSForms uses to name a container's storage, so it is
         advanced here exactly as the VBE advances it.
 
-        Containers (``Frame``, ``MultiPage``, ``Page``) are refused: each
-        needs a storage of its own, which is a structural change beyond
-        writing these two streams.
+        A ``Frame`` or ``MultiPage`` gets a storage of its own, named for
+        its id, and a MultiPage comes with its TabStrip and the two pages
+        the designer gives a new one.  A ``Page`` belongs to a MultiPage
+        and is added with :meth:`add_page`.
         """
         if not self._levels:
             raise FormParseError(f"form {self.name!r} has no parsed record")
@@ -440,9 +441,10 @@ class VBAForm:
     def remove_control(self, name: str) -> None:
         """Remove a control by name.
 
-        Containers are refused for the same reason they cannot be added:
-        their storage would be orphaned, and the next read would refuse
-        the form rather than quietly lose their children.
+        A container goes with its storage and everything in it: left
+        behind, a storage no site claims makes the next read refuse the
+        form rather than quietly lose its children.  A page is removed
+        with :meth:`remove_page`, which takes its tab too.
         """
         for level in self._levels:
             for index, control in enumerate(level.controls):

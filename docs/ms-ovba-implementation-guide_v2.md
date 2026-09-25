@@ -550,9 +550,10 @@ Editing the **code-behind** of a UserForm is identical to editing any
 other module's source: the form's *code* lives in `/VBA/<FormName>` and
 is round-tripped through the same compressed-source pipeline.
 
-Editing the **layout** (controls, properties, positions) requires the
-Office Forms binary format and is out of scope for v1. Preserve the
-designer sub-storage byte-for-byte.
+Editing the **layout** (controls, properties, positions) means writing
+the Office Forms binary format, [MS-OFORMS]. pyOpenVBA reads and writes
+it in `forms.py` (docs/architecture.md, section 5a). A writer that does
+not must preserve the designer sub-storage byte for byte.
 
 ---
 

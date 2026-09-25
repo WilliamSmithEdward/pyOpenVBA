@@ -115,6 +115,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
   property sheet edits. `set_property("Caption", ...)` wrote only the
   record's, so the form went on showing the old caption. It now writes
   both, as `add_form` does; clearing the caption clears the record's.
+- A CommandButton's TakeFocusOnClick is read and written (#31). The
+  designers store it as PropMask bit 9, set when it is False, with no
+  data; the property table did not name that bit, so `properties()`
+  did not report it and `set_property` could not set it.
 
 ## [6.1.2] - 2026-09-23
 

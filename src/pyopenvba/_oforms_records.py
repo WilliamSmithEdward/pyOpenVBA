@@ -69,6 +69,9 @@ class RecordSpec:
     text_props: bool = False
     raw_tail: bool = False
     """Bytes after TextProps (rgColumnInfo, TabStripTabFlags)."""
+    flags: tuple[tuple[int, str, bool], ...] = ()
+    """Mask bits that store a property with no data: (bit, name, the value
+    the bit stands for), the property's default when the bit is clear."""
 
 
 # ---------------------------------------------------------------------------
@@ -153,6 +156,9 @@ COMMAND_BUTTON_SPEC = RecordSpec(
     extra=(ExtraField(3, "Caption", "str"), ExtraField(5, "Size", "size8")),
     stream=((7, "Picture"), (10, "MouseIcon")),
     text_props=True,
+    # fTakeFocusOnClick: set when TakeFocusOnClick is False, with no data
+    # (tests/fixtures/form_properties.json).
+    flags=((9, "TakeFocusOnClick", False),),
 )
 
 LABEL_SPEC = RecordSpec(
@@ -390,6 +396,9 @@ class ParsedRecord:
         for extra in self.spec.extra:
             if extra.name == name:
                 return extra.bit
+        for bit, flag, _ in self.spec.flags:
+            if flag == name:
+                return bit
         return None
 
     def properties(self) -> dict[str, object]:
@@ -410,6 +419,9 @@ class ParsedRecord:
         # it is serialized, but it is stored all the same.
         for name, stored in self.strings.items():
             out.setdefault(name, stored.text)
+        for bit, name, value in self.spec.flags:
+            if self.mask & (1 << bit):
+                out[name] = value
         out.update(self.sizes)
         for name, blob in self.arrays.items():
             out[name] = f"<{len(blob)} bytes>"
@@ -421,7 +433,15 @@ class ParsedRecord:
     # -- mutation ---------------------------------------------------------
 
     def set_value(self, name: str, value: int | None) -> None:
-        """Set or clear a numeric DataBlock field, adjusting the mask."""
+        """Set or clear a numeric DataBlock field, adjusting the mask.
+
+        A flag, a property the mask stores with no data, is set when
+        ``value`` is the one its bit stands for and cleared otherwise.
+        """
+        flag = next(((bit, when) for bit, flag, when in self.spec.flags if flag == name), None)
+        if flag is not None:
+            self._set_bit(flag[0], value is not None and bool(value) == flag[1])
+            return
         spec_field = next(
             (f for f in self.spec.data if f.name == name and f.kind != "marker"),
             None,

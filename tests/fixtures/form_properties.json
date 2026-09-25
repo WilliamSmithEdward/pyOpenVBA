@@ -1,0 +1,562 @@
+{
+ "excel": {
+  "form": {
+   "properties": {
+    "NextAvailableID": 25,
+    "ScrollBars": 7,
+    "Font": 65535,
+    "ShapeCookie": 25,
+    "DrawBuffer": 32000,
+    "DisplayedSize": "Size(width=8043, height=5318)",
+    "LogicalSize": "Size(width=0, height=0)"
+   },
+   "font": {
+    "name": "Tahoma",
+    "cy_size": 82500,
+    "charset": 0,
+    "flags": 6,
+    "weight": 400
+   }
+  },
+  "controls": {
+   "Plain": {
+    "site": {
+     "ID": 1,
+     "ObjectStreamSize": 48,
+     "TabIndex": 0,
+     "ClsidCacheIndex": 17
+    },
+    "mask": 32,
+    "record": "00020c0020000000ec0900004f03000000021c00770000000600008006000040a5000000000203005461686f6d616500"
+   },
+   "NoFocus": {
+    "site": {
+     "ID": 2,
+     "ObjectStreamSize": 48,
+     "TabIndex": 1,
+     "ClsidCacheIndex": 17
+    },
+    "mask": 544,
+    "record": "00020c0020020000ec0900004f03000000021c00770000000600008006000040a5000000000203005461686f6d610000"
+   },
+   "AlignLeft": {
+    "site": {
+     "ID": 3,
+     "BitFlags": 50,
+     "ObjectStreamSize": 48,
+     "TabIndex": 2,
+     "ClsidCacheIndex": 21
+    },
+    "mask": 32,
+    "record": "00020c0020000000ec0900007b02000000021c00370000000600008006000040a5000000000200005461686f6d610000"
+   },
+   "AlignCenter": {
+    "site": {
+     "ID": 4,
+     "BitFlags": 50,
+     "ObjectStreamSize": 48,
+     "TabIndex": 3,
+     "ClsidCacheIndex": 21
+    },
+    "mask": 32,
+    "record": "00020c0020000000ec0900007b02000000021c00770000000600008006000040a5000000000203005461686f6d610000"
+   },
+   "AlignRight": {
+    "site": {
+     "ID": 5,
+     "BitFlags": 50,
+     "ObjectStreamSize": 48,
+     "TabIndex": 4,
+     "ClsidCacheIndex": 21
+    },
+    "mask": 32,
+    "record": "00020c0020000000ec0900007b02000000021c00770000000600008006000040a5000000000202005461686f6d610000"
+   },
+   "BoxRight": {
+    "site": {
+     "ID": 6,
+     "ObjectStreamSize": 72,
+     "TabIndex": 5,
+     "ClsidCacheIndex": 26
+    },
+    "mask": 2151678278,
+    "record": "0002240046014080000000000f000080120000800400000001000080e20e00007b0200003000000000021c00370000000600008006000040a5000000000200005461686f6d610000"
+   },
+   "BoxLeft": {
+    "site": {
+     "ID": 7,
+     "ObjectStreamSize": 76,
+     "TabIndex": 6,
+     "ClsidCacheIndex": 26
+    },
+    "mask": 2151678279,
+    "record": "0002280047014080000000001b28802c0f000080120000800400000001000080e20e00007b0200003000790000021c00370000000600008006000040a5000000000200005461686f6d610000"
+   },
+   "Combo": {
+    "site": {
+     "ID": 8,
+     "ObjectStreamSize": 60,
+     "TabIndex": 7,
+     "ClsidCacheIndex": 25
+    },
+    "mask": 2147811649,
+    "record": "0002180041010580000000001b48802c03010200ec0900007b02000000021c00370000000600008006000040a5000000000200005461686f6d616500"
+   },
+   "DropList": {
+    "site": {
+     "ID": 9,
+     "ObjectStreamSize": 56,
+     "TabIndex": 8,
+     "ClsidCacheIndex": 25
+    },
+    "mask": 2147811648,
+    "record": "00021400400105800000000007010200ec0900007b02000000021c00370000000600008006000040a5000000000200005461686f6d610000"
+   },
+   "Triple": {
+    "site": {
+     "ID": 10,
+     "ObjectStreamSize": 72,
+     "TabIndex": 9,
+     "ClsidCacheIndex": 26
+    },
+    "mask": 2153775430,
+    "record": "0002240046016080000000000f000080120000800401000001000080e20e00007b0200003000000000021c00370000000600008006000040a5000000000200005461686f6d610000"
+   },
+   "Columns": {
+    "site": {
+     "ID": 11,
+     "ObjectStreamSize": 96,
+     "TabIndex": 10,
+     "ClsidCacheIndex": 24
+    },
+    "mask": 2147590496,
+    "record": "0002180060a10180000000000302030003000000ec0900003c0a000000021c00370000000600008006000040a5000000000200005461686f6d6100000002080001000000830500000002080001000000220400000002080001000000c1020000"
+   },
+   "Disabled": {
+    "site": {
+     "ID": 12,
+     "BitFlags": 50,
+     "ObjectStreamSize": 52,
+     "TabIndex": 11,
+     "ClsidCacheIndex": 21
+    },
+    "mask": 36,
+    "record": "000210002400000019008000ec0900007b02000000021c00370000000600008006200040a5000000000200005461686f6d610000"
+   },
+   "DisabledList": {
+    "site": {
+     "ID": 13,
+     "ObjectStreamSize": 60,
+     "TabIndex": 12,
+     "ClsidCacheIndex": 24
+    },
+    "mask": 2147549537,
+    "record": "0002180061010180000000001908802c03020000ec090000ec09000000021c00370000000600008006000040a5000000000200005461686f6d610000"
+   },
+   "Italic": {
+    "site": {
+     "ID": 14,
+     "BitFlags": 50,
+     "ObjectStreamSize": 48,
+     "TabIndex": 13,
+     "ClsidCacheIndex": 21
+    },
+    "mask": 32,
+    "record": "00020c0020000000ec0900007b02000000021c00370000000600008006000040a5000000000200005461686f6d610000"
+   },
+   "Underline": {
+    "site": {
+     "ID": 15,
+     "BitFlags": 50,
+     "ObjectStreamSize": 48,
+     "TabIndex": 14,
+     "ClsidCacheIndex": 21
+    },
+    "mask": 32,
+    "record": "00020c0020000000ec0900007b02000000021c00370000000600008006000040a5000000000200005461686f6d610000"
+   },
+   "Strike": {
+    "site": {
+     "ID": 16,
+     "BitFlags": 50,
+     "ObjectStreamSize": 48,
+     "TabIndex": 15,
+     "ClsidCacheIndex": 21
+    },
+    "mask": 32,
+    "record": "00020c0020000000ec0900007b02000000021c0037000000060000800e000040a5000000000200005461686f6d610000"
+   },
+   "Bold": {
+    "site": {
+     "ID": 17,
+     "BitFlags": 50,
+     "ObjectStreamSize": 48,
+     "TabIndex": 16,
+     "ClsidCacheIndex": 21
+    },
+    "mask": 32,
+    "record": "00020c0020000000ec0900007b02000000021c00b70000000600008007000040a50000000002bc025461686f6d616500"
+   },
+   "Face": {
+    "site": {
+     "ID": 18,
+     "ObjectStreamSize": 72,
+     "TabIndex": 17,
+     "ClsidCacheIndex": 26
+    },
+    "mask": 2151678278,
+    "record": "0002240046014080000000000f000080120000800400000001000080e20e00007b0200003061686f00021c00270000000500008006000040a500000002000000417269616c610000"
+   },
+   "BorderThenEffect": {
+    "site": {
+     "ID": 19,
+     "ObjectStreamSize": 56,
+     "TabIndex": 18,
+     "ClsidCacheIndex": 23
+    },
+    "mask": 2147483905,
+    "record": "0002140001010080000000001b48802cec0900007b02000000021c00370000000600008006000040a5000000000200005461686f6d610000"
+   },
+   "EffectThenBorder": {
+    "site": {
+     "ID": 20,
+     "ObjectStreamSize": 64,
+     "TabIndex": 19,
+     "ClsidCacheIndex": 23
+    },
+    "mask": 2214592785,
+    "record": "00021c0011010084000000001b48802c0100000000000000ec0900007b02000000021c00370000000600008006000040a5000000000200005461686f6d610000"
+   },
+   "ImageBorderThenEffect": {
+    "site": {
+     "ID": 21,
+     "ObjectStreamSize": 20,
+     "TabIndex": 23,
+     "ClsidCacheIndex": 12
+    },
+    "mask": 800,
+    "record": "000210002003000000020000ec090000ec090000"
+   },
+   "ImageEffectThenBorder": {
+    "site": {
+     "ID": 22,
+     "ObjectStreamSize": 16,
+     "TabIndex": 24,
+     "ClsidCacheIndex": 12
+    },
+    "mask": 512,
+    "record": "00020c0000020000ec090000ec090000"
+   },
+   "BarDisabled": {
+    "site": {
+     "ID": 23,
+     "ObjectStreamSize": 32,
+     "TabIndex": 20,
+     "ClsidCacheIndex": 47
+    },
+    "mask": 9740,
+    "record": "00021c000c260000190000000000000000000000ffffffffc2010000ca080000"
+   },
+   "SpinDisabled": {
+    "site": {
+     "ID": 24,
+     "ObjectStreamSize": 32,
+     "TabIndex": 21,
+     "ClsidCacheIndex": 16
+    },
+    "mask": 2828,
+    "record": "00021c000c0b0000190000000000000000000000ffffffffc201000084030000"
+   },
+   "BarMin": {
+    "site": {
+     "ID": 25,
+     "ObjectStreamSize": 28,
+     "TabIndex": 22,
+     "ClsidCacheIndex": 47
+    },
+    "mask": 8360,
+    "record": "00021800a82000003200000032000000ffffffffc2010000ca080000"
+   }
+  }
+ },
+ "word": {
+  "form": {
+   "properties": {
+    "NextAvailableID": 25,
+    "ScrollBars": 7,
+    "Font": 65535,
+    "ShapeCookie": 25,
+    "DrawBuffer": 32000,
+    "DisplayedSize": "Size(width=8043, height=5318)",
+    "LogicalSize": "Size(width=0, height=0)"
+   },
+   "font": {
+    "name": "Tahoma",
+    "cy_size": 82500,
+    "charset": 0,
+    "flags": 6,
+    "weight": 400
+   }
+  },
+  "controls": {
+   "Plain": {
+    "site": {
+     "ID": 1,
+     "ObjectStreamSize": 48,
+     "TabIndex": 0,
+     "ClsidCacheIndex": 17
+    },
+    "mask": 32,
+    "record": "00020c0020000000ec0900004f03000000021c00770000000600008006000040a5000000000203005461686f6d610000"
+   },
+   "NoFocus": {
+    "site": {
+     "ID": 2,
+     "ObjectStreamSize": 48,
+     "TabIndex": 1,
+     "ClsidCacheIndex": 17
+    },
+    "mask": 544,
+    "record": "00020c0020020000ec0900004f03000000021c00770000000600008006000040a5000000000203005461686f6d610000"
+   },
+   "AlignLeft": {
+    "site": {
+     "ID": 3,
+     "BitFlags": 50,
+     "ObjectStreamSize": 48,
+     "TabIndex": 2,
+     "ClsidCacheIndex": 21
+    },
+    "mask": 32,
+    "record": "00020c0020000000ec0900007b02000000021c00370000000600008006000040a5000000000200005461686f6d610000"
+   },
+   "AlignCenter": {
+    "site": {
+     "ID": 4,
+     "BitFlags": 50,
+     "ObjectStreamSize": 48,
+     "TabIndex": 3,
+     "ClsidCacheIndex": 21
+    },
+    "mask": 32,
+    "record": "00020c0020000000ec0900007b02000000021c00770000000600008006000040a5000000000203005461686f6d610000"
+   },
+   "AlignRight": {
+    "site": {
+     "ID": 5,
+     "BitFlags": 50,
+     "ObjectStreamSize": 48,
+     "TabIndex": 4,
+     "ClsidCacheIndex": 21
+    },
+    "mask": 32,
+    "record": "00020c0020000000ec0900007b02000000021c00770000000600008006000040a5000000000202005461686f6d610000"
+   },
+   "BoxRight": {
+    "site": {
+     "ID": 6,
+     "ObjectStreamSize": 72,
+     "TabIndex": 5,
+     "ClsidCacheIndex": 26
+    },
+    "mask": 2151678278,
+    "record": "0002240046014080000000000f000080120000800400000001000080e20e00007b0200003098c86600021c00370000000600008006000040a5000000000200005461686f6d610000"
+   },
+   "BoxLeft": {
+    "site": {
+     "ID": 7,
+     "ObjectStreamSize": 76,
+     "TabIndex": 6,
+     "ClsidCacheIndex": 26
+    },
+    "mask": 2151678279,
+    "record": "0002280047014080000000001b28802c0f000080120000800400000001000080e20e00007b0200003061686f00021c00370000000600008006000040a5000000000200005461686f6d610000"
+   },
+   "Combo": {
+    "site": {
+     "ID": 8,
+     "ObjectStreamSize": 60,
+     "TabIndex": 7,
+     "ClsidCacheIndex": 25
+    },
+    "mask": 2147811649,
+    "record": "0002180041010580000000001b48802c03010200ec0900007b02000000021c00370000000600008006000040a5000000000200005461686f6d610000"
+   },
+   "DropList": {
+    "site": {
+     "ID": 9,
+     "ObjectStreamSize": 56,
+     "TabIndex": 8,
+     "ClsidCacheIndex": 25
+    },
+    "mask": 2147811648,
+    "record": "00021400400105800000000007010200ec0900007b02000000021c00370000000600008006000040a5000000000200005461686f6d610000"
+   },
+   "Triple": {
+    "site": {
+     "ID": 10,
+     "ObjectStreamSize": 72,
+     "TabIndex": 9,
+     "ClsidCacheIndex": 26
+    },
+    "mask": 2153775430,
+    "record": "0002240046016080000000000f000080120000800401000001000080e20e00007b0200003000000000021c00370000000600008006000040a5000000000200005461686f6d616375"
+   },
+   "Columns": {
+    "site": {
+     "ID": 11,
+     "ObjectStreamSize": 96,
+     "TabIndex": 10,
+     "ClsidCacheIndex": 24
+    },
+    "mask": 2147590496,
+    "record": "0002180060a10180000000000302030003000000ec0900003c0a000000021c00370000000600008006000040a5000000000200005461686f6d6100000002080001000000830500000002080001000000220400000002080001000000c1020000"
+   },
+   "Disabled": {
+    "site": {
+     "ID": 12,
+     "BitFlags": 50,
+     "ObjectStreamSize": 52,
+     "TabIndex": 11,
+     "ClsidCacheIndex": 21
+    },
+    "mask": 36,
+    "record": "000210002400000019008000ec0900007b02000000021c00370000000600008006200040a5000000000200005461686f6d610000"
+   },
+   "DisabledList": {
+    "site": {
+     "ID": 13,
+     "ObjectStreamSize": 60,
+     "TabIndex": 12,
+     "ClsidCacheIndex": 24
+    },
+    "mask": 2147549537,
+    "record": "0002180061010180000000001908802c03020000ec090000ec09000000021c00370000000600008006000040a5000000000200005461686f6d616375"
+   },
+   "Italic": {
+    "site": {
+     "ID": 14,
+     "BitFlags": 50,
+     "ObjectStreamSize": 48,
+     "TabIndex": 13,
+     "ClsidCacheIndex": 21
+    },
+    "mask": 32,
+    "record": "00020c0020000000ec0900007b02000000021c00370000000600008006000040a5000000000200005461686f6d610000"
+   },
+   "Underline": {
+    "site": {
+     "ID": 15,
+     "BitFlags": 50,
+     "ObjectStreamSize": 48,
+     "TabIndex": 14,
+     "ClsidCacheIndex": 21
+    },
+    "mask": 32,
+    "record": "00020c0020000000ec0900007b02000000021c00370000000600008006000040a5000000000200005461686f6d610000"
+   },
+   "Strike": {
+    "site": {
+     "ID": 16,
+     "BitFlags": 50,
+     "ObjectStreamSize": 48,
+     "TabIndex": 15,
+     "ClsidCacheIndex": 21
+    },
+    "mask": 32,
+    "record": "00020c0020000000ec0900007b02000000021c0037000000060000800e000040a5000000000200005461686f6d610000"
+   },
+   "Bold": {
+    "site": {
+     "ID": 17,
+     "BitFlags": 50,
+     "ObjectStreamSize": 48,
+     "TabIndex": 16,
+     "ClsidCacheIndex": 21
+    },
+    "mask": 32,
+    "record": "00020c0020000000ec0900007b02000000021c00b70000000600008007000040a50000000002bc025461686f6d610000"
+   },
+   "Face": {
+    "site": {
+     "ID": 18,
+     "ObjectStreamSize": 72,
+     "TabIndex": 17,
+     "ClsidCacheIndex": 26
+    },
+    "mask": 2151678278,
+    "record": "0002240046014080000000000f000080120000800400000001000080e20e00007b0200003061686f00021c00270000000500008006000040a500000002000000417269616c000000"
+   },
+   "BorderThenEffect": {
+    "site": {
+     "ID": 19,
+     "ObjectStreamSize": 56,
+     "TabIndex": 18,
+     "ClsidCacheIndex": 23
+    },
+    "mask": 2147483905,
+    "record": "0002140001010080000000001b48802cec0900007b02000000021c00370000000600008006000040a5000000000200005461686f6d610000"
+   },
+   "EffectThenBorder": {
+    "site": {
+     "ID": 20,
+     "ObjectStreamSize": 64,
+     "TabIndex": 19,
+     "ClsidCacheIndex": 23
+    },
+    "mask": 2214592785,
+    "record": "00021c0011010084000000001b48802c0100000000000000ec0900007b02000000021c00370000000600008006000040a5000000000200005461686f6d610000"
+   },
+   "ImageBorderThenEffect": {
+    "site": {
+     "ID": 21,
+     "ObjectStreamSize": 20,
+     "TabIndex": 23,
+     "ClsidCacheIndex": 12
+    },
+    "mask": 800,
+    "record": "000210002003000000020000ec090000ec090000"
+   },
+   "ImageEffectThenBorder": {
+    "site": {
+     "ID": 22,
+     "ObjectStreamSize": 16,
+     "TabIndex": 24,
+     "ClsidCacheIndex": 12
+    },
+    "mask": 512,
+    "record": "00020c0000020000ec090000ec090000"
+   },
+   "BarDisabled": {
+    "site": {
+     "ID": 23,
+     "ObjectStreamSize": 32,
+     "TabIndex": 20,
+     "ClsidCacheIndex": 47
+    },
+    "mask": 9740,
+    "record": "00021c000c260000190000000000000000000000ffffffffc2010000ca080000"
+   },
+   "SpinDisabled": {
+    "site": {
+     "ID": 24,
+     "ObjectStreamSize": 32,
+     "TabIndex": 21,
+     "ClsidCacheIndex": 16
+    },
+    "mask": 2828,
+    "record": "00021c000c0b0000190000000000000000000000ffffffffc201000084030000"
+   },
+   "BarMin": {
+    "site": {
+     "ID": 25,
+     "ObjectStreamSize": 28,
+     "TabIndex": 22,
+     "ClsidCacheIndex": 47
+    },
+    "mask": 8360,
+    "record": "00021800a82000003200000032000000ffffffffc2010000ca080000"
+   }
+  }
+ }
+}

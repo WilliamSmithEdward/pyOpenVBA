@@ -1206,6 +1206,41 @@ class TestDeletingAForm:
             office_file.add_form("Wizard")
 
 
+class TestFormCaption:
+    """A form has two captions: its record's, which Designer.Caption reads,
+    and its designer header's, which the running form shows and the
+    editor's property sheet edits (measured live in Excel and Word)."""
+
+    @staticmethod
+    def _made(tmp_path: Path) -> Path:
+        target = tmp_path / "caption.xlsm"
+        with ExcelFile.create_new(target) as workbook:
+            workbook.add_form("Wizard", caption="First")
+            workbook.save()
+        return target
+
+    def test_setting_it_writes_both(self, tmp_path: Path) -> None:
+        target = self._made(tmp_path)
+        with ExcelFile(target) as workbook:
+            workbook.forms()[0].set_property("Caption", 'Say "hi"')
+            workbook.save()
+        with ExcelFile(target) as workbook:
+            form = workbook.forms()[0]
+            assert form.get("Caption") == 'Say "hi"'
+            # VB doubles a quote inside a string, in the header as in code.
+            assert '   Caption         =   "Say ""hi"""' in form.designer_source.split("\r\n")
+
+    def test_clearing_it_leaves_the_header(self, tmp_path: Path) -> None:
+        target = self._made(tmp_path)
+        with ExcelFile(target) as workbook:
+            workbook.forms()[0].set_property("Caption", None)
+            workbook.save()
+        with ExcelFile(target) as workbook:
+            form = workbook.forms()[0]
+            assert form.get("Caption") is None
+            assert '   Caption         =   "First"' in form.designer_source.split("\r\n")
+
+
 class TestPropertiesBeforeSaving:
     """A string set in memory is reported before the record is serialized,
     which is when its length field is written."""

@@ -36,6 +36,8 @@ HOSTS: dict[str, tuple[str, Any, str, str, str, str, str]] = {
 MAKING = ('Set c = d.VBProject.VBComponents.Add(3)\nc.Name = "Fonted"\nSet f = c.Designer\n'
           'f.Font.Name = "Arial"\nf.Font.Size = 10\nSet g = f.Controls.Add("Forms.Frame.1", "Frame1")\n'
           'g.Font.Name = "Courier New"\ng.Font.Size = 9\nout = d.Name')
+SHOWS = ("Public Function Captions() As String\r\n    Fonted.Show vbModeless\r\n"
+         "    Captions = Fonted.Caption\r\n    Unload Fonted\r\nEnd Function\r\n")
 #: What the application reports for each expression on the form's designer, "C" standing for its Controls.
 EXPECTED: list[tuple[str, object]] = [
     ('C("AddedLabel").Font.Name', "Arial"),
@@ -92,6 +94,9 @@ def test_the_designer_reports_what_the_library_added(host: str, tmp_path: Path) 
         # The Image stays last in the tab order: the button added after it takes its place.
         stored = {control.name: control.tab_index for control in form.controls}
         assert stored["AddedImage"] == max(index or 0 for index in stored.values())
+        # The caption a running form shows is its header's, which setting Caption writes with the record's.
+        form.set_property("Caption", "Shown caption")
+        office_file.vba_project().add_module("Shows", SHOWS)
         office_file.save()
 
     controls = f'{active}.VBProject.VBComponents("Fonted").Designer.Controls'
@@ -100,7 +105,10 @@ def test_the_designer_reports_what_the_library_added(host: str, tmp_path: Path) 
         seen = [office.eval(expression.replace("C(", f"{controls}(", 1)) for expression, _ in EXPECTED]
         tab_indexes = {name: office.eval(f'{controls}("{name}").TabIndex')
                        for name in ("AddedButton", "AddedCheck", "AddedToggle")}
+        designer_caption = office.eval(f'{active}.VBProject.VBComponents("Fonted").Designer.Caption')
+        shown = office.run_macro("Shows.Captions")
         compiled = office.compile_project()
     assert [value for _, value in EXPECTED] == seen
     assert tab_indexes == {name: stored[name] for name in tab_indexes}
+    assert (designer_caption, shown.value) == ("Shown caption", "Shown caption")
     assert compiled.ok, f"{compiled.outcome}: {compiled.message} {compiled.dialog}"

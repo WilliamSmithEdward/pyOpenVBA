@@ -109,6 +109,12 @@ All notable changes to pyOpenVBA are documented here. This project follows
   in the same order, is the designer's form byte for byte in both
   applications, apart from the captions `add_control` gives and the
   padding the designer leaves as whatever was in memory.
+- Setting a form's Caption changes the caption the form shows (#31). A
+  form keeps two: its record's, which `Designer.Caption` reads, and its
+  designer header's, which the running form shows and the editor's
+  property sheet edits. `set_property("Caption", ...)` wrote only the
+  record's, so the form went on showing the old caption. It now writes
+  both, as `add_form` does; clearing the caption clears the record's.
 
 ## [6.1.2] - 2026-09-23
 

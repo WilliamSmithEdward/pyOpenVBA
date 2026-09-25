@@ -257,6 +257,7 @@ class VBAForm:
     _removed_storages: list[tuple[list[str], str]] = field(
         default_factory=lambda: [], repr=False
     )
+    _header_edited: bool = field(default=False, repr=False)
 
     @property
     def properties_set(self) -> int:
@@ -276,10 +277,30 @@ class VBAForm:
 
         The form's record heads its ``f`` stream rather than sitting in
         ``o``, but it is edited exactly like a control's.
+
+        A form has two captions: its record's, which ``Designer.Caption``
+        reads, and the one in the ``\\x03VBFrame`` header, which the form
+        shows when it runs and the editor's property sheet edits.  Setting
+        ``Caption`` writes both, as :meth:`VBAHostFile.add_form` does;
+        clearing it clears the record's and leaves the header's, which
+        every form has (tests/test_forms.py).
         """
         if not self._levels:
             raise FormParseError(f"form {self.name!r} has no parsed record")
         _set_on_record(self._levels[0].record, name, value, self.name)
+        if name == "Caption" and isinstance(value, str):
+            self._set_header_caption(value)
+
+    def _set_header_caption(self, text: str) -> None:
+        """Rewrite the header's Caption line, the caption the running form shows."""
+        lines = self.designer_source.split("\r\n")
+        at = next((i for i, line in enumerate(lines) if line.strip().startswith("Caption") and "=" in line), None)
+        if at is None:
+            raise FormParseError(f"form {self.name!r} has no Caption in its designer header")
+        head = lines[at][:lines[at].index("=") + 1]
+        lines[at] = f'{head}   "{text.replace(chr(34), chr(34) * 2)}"'
+        self.designer_source = "\r\n".join(lines)
+        self._header_edited = True
 
     def walk(self) -> list[FormControl]:
         """Every control, depth-first, containers before their children."""
@@ -826,6 +847,12 @@ class VBAForm:
             cfb.remove_storage_at(parent, name)
             changed = True
         self._removed_storages.clear()
+        if self._header_edited:
+            cfb.write_stream_at(
+                self._levels[0].path, _VBFRAME_STREAM, self.designer_source.encode(self._encoding, "replace")
+            )
+            self._header_edited = False
+            changed = True
         for level in self._levels:
             if not level.created:
                 continue

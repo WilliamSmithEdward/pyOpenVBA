@@ -100,6 +100,8 @@ All notable changes to pyOpenVBA are documented here. This project follows
   tab's empty tip, tag and accelerator as a count of zero, without the
   compression flag the library set on them, and the pages' tabs named
   from Tab3, where the library started a new MultiPage at Tab1.
+- A new TabStrip has the designers' two tabs, Tab1 and Tab2, with room
+  allocated for just those two (#31). The library's had no tabs.
 
 ## [6.1.2] - 2026-09-23
 

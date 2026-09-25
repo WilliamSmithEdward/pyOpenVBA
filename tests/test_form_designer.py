@@ -322,6 +322,15 @@ def test_a_multipages_tabs_are_the_designers(host: str, form: str, tmp_path: Pat
 
 
 @pytest.mark.parametrize("host", HOSTS)
+def test_a_new_tabstrip_has_the_designers_two_tabs(host: str, tmp_path: Path) -> None:
+    # Tab1 and Tab2, with room allocated for those two alone, where a MultiPage's TabStrip keeps two spare.
+    with ExcelFile(_office_form(host, "Plain", tmp_path)) as workbook:
+        office = _form(workbook, "Plain")
+        added = office.add_control("TabStrip", "Added", left=0, top=0)
+        assert _bytes(_record(added)) == _bytes(_record(office.control("TabStrip1")))
+
+
+@pytest.mark.parametrize("host", HOSTS)
 @pytest.mark.parametrize(("form", "theirs"), [("Plain", "MultiPage1"), ("Fonted", "MultiPage1")])
 def test_a_new_multipages_tabs_show_the_containers_font(host: str, form: str, theirs: str,
                                                          tmp_path: Path) -> None:

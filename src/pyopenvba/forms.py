@@ -389,6 +389,8 @@ class VBAForm:
         else:
             record = _new_record(kind, cache_index, name, font)
             record.set_size(size_w, size_h)
+            if kind == "TabStrip":
+                self._seed_tabstrip(record)
         level.stream.sites.append(site)
         level.stream.sites_structurally_changed = True
         control = FormControl(
@@ -437,6 +439,19 @@ class VBAForm:
         self._reindex()
         self.add_page(name, name="Page1")
         self.add_page(name, name="Page2")
+
+    def _seed_tabstrip(self, tabs: ParsedRecord) -> None:
+        """Give a new TabStrip the two tabs the designer gives one, Tab1 and
+        Tab2, with room for just those: unlike a MultiPage's, it keeps none
+        spare (tests/fixtures/form_designer.json)."""
+        for number in (1, 2):
+            self._set_tabs(
+                tabs,
+                {"Items": f"Tab{number}", "TabNames": f"Tab{number}", "TipStrings": "", "Tags": "",
+                 "Accelerators": ""},
+                add=True,
+            )
+        tabs.set_value("TabsAllocated", 2)
 
     def remove_control(self, name: str) -> None:
         """Remove a control by name.
@@ -1624,6 +1639,9 @@ def _new_record(kind: str, cache_index: int, name: str, font: _Font) -> ParsedRe
     spec = SPECS_BY_CACHE_INDEX.get(cache_index)
     if spec is None:
         raise FormParseError(f"no property table for {kind}")
+    if kind == "TabStrip":
+        # The same record a MultiPage's TabStrip starts as; add_control gives it its tabs.
+        return _new_tabstrip_record(font, Size(*_default_size(kind, font)))
     record = ParsedRecord(spec, 0)
     # fSize is set on every control record Excel writes.
     record.set_size(*_default_size(kind, font))

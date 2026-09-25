@@ -67,6 +67,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
 - A new Label is sited without TabStop, as the designers site one
   (#31): a Label takes no focus, and they store its flags as 0x32 where
   the library left the default, 0x33, which has TabStop set.
+- A new control takes its place in the tab order as the designers give
+  it (#31). They keep a container's Images last, in the order they were
+  added, so a control added after an Image goes before it, and the
+  Images move down one. The library numbered every control in the order
+  added.
 
 ## [6.1.2] - 2026-09-23
 

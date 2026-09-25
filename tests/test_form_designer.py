@@ -135,6 +135,33 @@ def test_a_new_control_is_sited_with_the_designers_flags(host: str, kind: str, t
         assert (ours.mask, ours.values.get("BitFlags")) == (theirs.mask, theirs.values.get("BitFlags"))
 
 
+def _composed(tmp_path: Path, form: str) -> tuple[ExcelFile, VBAForm]:
+    """A new workbook and a new form of that name, to compose as the designer composed its own."""
+    workbook = ExcelFile.create_new(tmp_path / f"{form}.xlsm")
+    return workbook, workbook.add_form(form)
+
+
+def _kind(name: str) -> str:
+    """The kind of a control the designer named: Label1 is a Label."""
+    return name.rstrip("0123456789")
+
+
+@pytest.mark.parametrize("host", HOSTS)
+@pytest.mark.parametrize("form", ["Tabs", "Plain"])
+def test_images_stay_last_in_the_tab_order(host: str, form: str, tmp_path: Path) -> None:
+    # The designer's forms had their controls added in the order their sites list them; the Images end up
+    # last in the tab order, whenever they were added.
+    with ExcelFile(_office_form(host, form, tmp_path)) as workbook:
+        office = _form(workbook, form)
+        names = [control.name for control in office.controls]
+        theirs = [_site(office, name).tab_index for name in names]
+    workbook, composed = _composed(tmp_path, form)
+    with workbook:
+        for name in names:
+            composed.add_control(_kind(name), name, left=0, top=0)
+        assert [_site(composed, name).tab_index for name in names] == theirs
+
+
 @pytest.mark.parametrize("host", HOSTS)
 @pytest.mark.parametrize(("form", "theirs"), [("Plain", "MultiPage1"), ("Fonted", "MultiPage1")])
 def test_a_new_multipages_tabs_show_the_containers_font(host: str, form: str, theirs: str,

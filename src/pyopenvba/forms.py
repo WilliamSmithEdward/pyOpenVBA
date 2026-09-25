@@ -358,7 +358,7 @@ class VBAForm:
             name,
             site_id,
             cache_index,
-            len(level.sites),
+            self._take_tab_index(level, cache_index),
             points_to_himetric(left),
             points_to_himetric(top),
             encoding=self._encoding,
@@ -582,6 +582,26 @@ class VBAForm:
         del level.stream.sites[index]
         level.stream.sites_structurally_changed = True
         self._reindex()
+
+    @staticmethod
+    def _take_tab_index(level: _Level, cache_index: int) -> int:
+        """The tab index the designer gives a control it adds to ``level``.
+
+        It keeps the Images, which take no focus, at the end of the tab
+        order in the order they were added: a new Image goes last, and any
+        other control goes after the rest and before the Images, which
+        move down one (tests/fixtures/form_designer.json, the Tabs form).
+        """
+        count = len(level.sites)
+        if cache_index == _IMAGE_CLASS:
+            return count
+        taken = count - sum(1 for site in level.sites if site.clsid_cache_index == _IMAGE_CLASS)
+        for site, control in zip(level.sites, level.controls, strict=True):
+            index = site.values.get("TabIndex")
+            if index is not None and index >= taken:
+                site.values["TabIndex"] = index + 1
+                control.tab_index = index + 1
+        return taken
 
     def _font_of(self, level: _Level) -> _Font:
         """The font a new control on ``level`` takes.
@@ -1361,6 +1381,7 @@ _NEW_CONTAINER_SITE_MASK = (
 _CONTAINER_SITE_BITFLAGS = 262179
 # A Label takes no focus, and the designer sites one with the default flags
 # less fTabStop: 0x33 without bit 0 (tests/fixtures/form_designer.json).
+_IMAGE_CLASS = 12
 _LABEL_CLASS = 21
 _LABEL_SITE_BITFLAGS = 0x32
 _SITE_MASK_BITFLAGS = 1 << 4

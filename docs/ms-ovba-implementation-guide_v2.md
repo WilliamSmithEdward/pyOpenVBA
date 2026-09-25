@@ -504,7 +504,8 @@ the Forms designer's package, once: immediately before the
 It never moves or removes the line afterwards, even when the last
 form goes, and a declaration added later goes after it as after any
 other. A project that declares a form without the line gets it only
-with its next new form.
+with its next new form. Keep every line a mutation does not touch
+byte for byte; a `[Workspace]` value can end in a space.
 
 ---
 

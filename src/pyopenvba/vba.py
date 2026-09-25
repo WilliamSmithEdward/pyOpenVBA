@@ -1658,9 +1658,10 @@ def serialize_project_stream(
     with a project's first form; an existing one stays where it is, even
     when no form is left (tests/fixtures/project_package.json).
 
-    Everything else (``ID``, ``Name``, ``CMG``, ``DPB``, ``GC``,
-    ``[Host Extender Info]``) is preserved byte-for-byte except for the
-    targeted substitutions.
+    Every line no substitution touches (``ID``, ``Name``, ``CMG``,
+    ``DPB``, ``GC``, ``[Host Extender Info]``, the untouched declarations
+    and ``[Workspace]`` entries) is preserved byte-for-byte, whitespace
+    included.
 
     ``code_page``:
         PROJECTCODEPAGE of the owning project.  The PROJECT stream is
@@ -1728,7 +1729,9 @@ def serialize_project_stream(
             if ws_key in seen_workspace:
                 continue
             seen_workspace.add(ws_key)
-            out_lines.append(f"{new_key}={value.strip()}")
+            # The value is a code window's place and state, and Excel ends one with a space when the state is
+            # empty: kept as written, whatever the key becomes.
+            out_lines.append(line if new_key == key_s else f"{new_key}={line.partition('=')[2]}")
             continue
         if key_s in ("Module", "Class", "BaseClass"):
             v = value.strip()
@@ -1739,7 +1742,7 @@ def serialize_project_stream(
             if decl_key in seen_decls:
                 continue
             seen_decls.add(decl_key)
-            out_lines.append(f"{key_s}={new_val}")
+            out_lines.append(line if new_val == v else f"{key_s}={new_val}")
             last_decl_idx = len(out_lines) - 1
             continue
         if key_s == "Document":
@@ -1751,7 +1754,7 @@ def serialize_project_stream(
             if decl_key in seen_decls:
                 continue
             seen_decls.add(decl_key)
-            out_lines.append(f"Document={new_name}{sep}{id_part}")
+            out_lines.append(line if new_name == name_part else f"Document={new_name}{sep}{id_part}")
             last_decl_idx = len(out_lines) - 1
             continue
         if key_s == "Package":

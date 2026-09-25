@@ -32,6 +32,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
 - Deleting a form's module takes the form's designer storage too, as
   the editor does. Left behind, the storage still read as a form:
   `forms()` listed it and a new form of its name was refused.
+- A save that rewrites the PROJECT stream keeps every line it does not
+  change byte for byte. A `[Workspace]` entry Excel ends with a space,
+  where a code window's state is empty, lost the space on any save that
+  added, renamed or deleted a module.
 
 ## [6.1.2] - 2026-09-23
 

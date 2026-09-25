@@ -9,7 +9,8 @@ never moves or removes it afterwards: not when a form or the last form goes,
 and not for a project that declares its forms without one. These tests run
 the same steps through the library, from the files each application saved
 with one module (tests/fixtures/binary_project/), and compare the
-declarations and the form storages after every save.
+declarations and the form storages after every save. Lines no step touches
+come back byte for byte, a [Workspace] entry's trailing space included.
 """
 
 from __future__ import annotations
@@ -146,3 +147,24 @@ def test_a_macro_enabled_file_gets_the_line_too(host: str, tmp_path: Path) -> No
         project = CFB.from_bytes(package.read(entry)).get_stream("PROJECT").decode("latin-1").split("\r\n")
     assert _declarations(project) == _declarations(RECORD[host]["states"]["first_form.macro"]["project"])
 
+
+@pytest.mark.parametrize("host", list(HOSTS))
+def test_untouched_lines_come_back_byte_for_byte(host: str, tmp_path: Path) -> None:
+    target = _copy(host, tmp_path)
+    before, _ = _project(host, target)
+    _run(host, target, ["module Extra"])
+    after, _ = _project(host, target)
+    # The only new lines are the module's declaration and its [Workspace] entry. Excel ends a [Workspace]
+    # entry with a space when the window state is empty, and it stays.
+    assert [line for line in after if line not in ("Module=Extra", "Extra=0, 0, 0, 0, C")] == before
+    assert len(after) == len(before) + 2
+
+
+def test_a_renamed_modules_workspace_entry_keeps_its_value(tmp_path: Path) -> None:
+    target = _copy("excel", tmp_path)
+    with ExcelFile(target) as workbook:
+        workbook.vba_project().rename_module("Module1", "Renamed")
+        workbook.save()
+    after, _ = _project("excel", target)
+    assert "Module=Renamed" in after
+    assert "Renamed=104, 104, 614, 431, " in after

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import struct
+from pathlib import Path
 
 import pytest
 
@@ -632,3 +633,75 @@ class TestCFBPathEditing:
         cfb = self._nested_cfb()
         with pytest.raises(ValueError, match="16 bytes"):
             cfb.add_substorage_at(["FrmNested"], "i99", b"\x00" * 8)
+
+
+class TestCFBPastTheHeaderDIFAT:
+    """The header lists 109 FAT sectors, which map about 7.1 MB of 512-byte
+    sectors; a larger file lists the rest of its FAT in DIFAT sectors
+    ([MS-CFB] 2.5).  The writer used to refuse such a file, so no
+    vbaProject.bin, .xls or .doc past 7.1 MB could be saved."""
+
+    _ENDOFCHAIN = 0xFFFFFFFE
+
+    @staticmethod
+    def _saved(size: int) -> tuple[bytes, bytes]:
+        cfb = CFB.from_bytes(_make_minimal_cfb())
+        blob = bytes(range(256)) * (size // 256)
+        cfb.add_stream_at((), "Big", blob)
+        return cfb.to_bytes(), blob
+
+    @staticmethod
+    def _header(raw: bytes) -> tuple[int, int, int]:
+        """The FAT sector count, the first DIFAT sector and the DIFAT sector count."""
+        n_fat = struct.unpack_from("<I", raw, 44)[0]
+        first_difat, n_difat = struct.unpack_from("<II", raw, 68)
+        return n_fat, first_difat, n_difat
+
+    @staticmethod
+    def _sector(raw: bytes, index: int) -> bytes:
+        return raw[512 + index * 512:512 + (index + 1) * 512]
+
+    def test_a_file_the_header_can_map_has_no_difat(self) -> None:
+        raw, blob = self._saved(6_900_000)
+        n_fat, first_difat, n_difat = self._header(raw)
+        assert n_fat <= 109
+        assert (first_difat, n_difat) == (self._ENDOFCHAIN, 0)
+        assert CFB.from_bytes(raw).get_stream("Big") == blob
+
+    def test_past_109_fat_sectors_the_rest_are_listed_in_a_difat_sector(self) -> None:
+        raw, blob = self._saved(7_300_000)
+        n_fat, first_difat, n_difat = self._header(raw)
+        assert n_fat > 109 and n_difat == 1
+        listed = struct.unpack_from("<128I", self._sector(raw, first_difat))
+        fat_sectors = [*struct.unpack_from("<109I", raw, 76), *(s for s in listed[:127] if s != 0xFFFFFFFF)]
+        assert len(fat_sectors) == n_fat
+        # The last DIFAT sector ends the chain where the next one's number would go.
+        assert listed[127] == self._ENDOFCHAIN
+        fat = b"".join(self._sector(raw, sector) for sector in fat_sectors)
+        entries = struct.unpack_from(f"<{len(fat) // 4}I", fat)
+        assert all(entries[sector] == 0xFFFFFFFD for sector in fat_sectors)  # FATSECT
+        assert entries[first_difat] == 0xFFFFFFFC  # DIFSECT
+        assert CFB.from_bytes(raw).get_stream("Big") == blob
+
+    def test_difat_sectors_chain_to_each_other(self) -> None:
+        raw, blob = self._saved(24_500_000)
+        n_fat, first_difat, n_difat = self._header(raw)
+        assert n_difat == -(-(n_fat - 109) // 127) >= 2
+        chain = [first_difat]
+        for _ in range(n_difat - 1):
+            chain.append(struct.unpack_from("<I", self._sector(raw, chain[-1]), 508)[0])
+        assert struct.unpack_from("<I", self._sector(raw, chain[-1]), 508)[0] == self._ENDOFCHAIN
+        assert CFB.from_bytes(raw).get_stream("Big") == blob
+
+    def test_windows_reads_what_the_writer_wrote(self, tmp_path: Path) -> None:
+        # Windows' own compound-file implementation, where pywin32 is installed.
+        pythoncom = pytest.importorskip("pythoncom")
+        raw, blob = self._saved(7_300_000)
+        path = tmp_path / "large.bin"
+        path.write_bytes(raw)
+        storage = pythoncom.StgOpenStorage(str(path), None, 0x10)  # STGM_READ | STGM_SHARE_EXCLUSIVE
+        stream = storage.OpenStream("Big", None, 0x10, 0)
+        read = bytearray()
+        while chunk := stream.Read(1 << 20):
+            read += chunk
+        assert bytes(read) == blob

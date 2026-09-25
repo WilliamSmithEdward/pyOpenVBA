@@ -38,6 +38,11 @@ _FATSECT: int = 0xFFFF_FFFD    # sector is part of the FAT
 _DIFSECT: int = 0xFFFF_FFFC    # sector is part of the DIFAT
 _NOSTREAM: int = 0xFFFF_FFFF   # no sibling / no child
 
+# FAT sector numbers the header lists, and a 512-byte DIFAT sector's after it
+# (the sector's last four bytes hold the next DIFAT sector's number).
+_HEADER_DIFAT = 109
+_DIFAT_PER_SECTOR = 127
+
 # Directory entry object types
 _OBJTYPE_EMPTY: int = 0
 _OBJTYPE_STORAGE: int = 1
@@ -836,11 +841,12 @@ class CFB:
         topology and per-entry metadata (CLSID, state, color, timestamps).
 
         Layout, in sector order:
-            [mini-stream data] [regular stream data] [directory] [mini-FAT] [FAT]
+            [mini-stream data] [regular stream data] [directory] [mini-FAT] [FAT] [DIFAT]
 
-        Files large enough to require a DIFAT chain (more than 109 FAT sectors,
-        about 27 MB of total payload) are rejected — vbaProject.bin is always
-        well under this limit.
+        The header lists the first 109 FAT sectors, which cover 109 x 128
+        sectors of 512 bytes, about 7.1 MB.  A larger file lists the rest in
+        DIFAT sectors ([MS-CFB] 2.5): 127 FAT sector numbers each, then the
+        number of the next DIFAT sector, the last one ending the chain.
         """
         SECTOR = 512
         MINI = 64
@@ -952,22 +958,22 @@ class CFB:
             minifat_first = _ENDOFCHAIN
             n_minifat_sectors = 0
 
-        # ---- 4. Decide how many FAT sectors we need (fixed-point) ----
+        # ---- 4. Decide how many FAT and DIFAT sectors we need (fixed-point) ----
+        # The FAT maps every sector, its own and the DIFAT's included, and the
+        # DIFAT lists the FAT sectors the header has no room for.
         n_data = len(sector_payloads)
         n_fat = 1
         while True:
-            needed = ((n_data + n_fat) + ENTRIES_PER_SECTOR - 1) // ENTRIES_PER_SECTOR
+            n_difat = -(-max(0, n_fat - _HEADER_DIFAT) // _DIFAT_PER_SECTOR)
+            needed = -(-(n_data + n_fat + n_difat) // ENTRIES_PER_SECTOR)
             if needed <= n_fat:
                 break
             n_fat = needed
-        if n_fat > 109:
-            raise CFBError(
-                "CFB writer requires DIFAT chain support for files this large; "
-                "not implemented."
-            )
 
         fat_first = n_data
         fat_sector_ids = list(range(fat_first, fat_first + n_fat))
+        difat_first = fat_first + n_fat
+        difat_sector_ids = list(range(difat_first, difat_first + n_difat))
 
         # ---- 5. Build the FAT ----
         fat = [_FREESECT] * (n_fat * ENTRIES_PER_SECTOR)
@@ -989,14 +995,26 @@ class CFB:
             chain(minifat_first, n_minifat_sectors)
         for s in fat_sector_ids:
             fat[s] = _FATSECT
+        for s in difat_sector_ids:
+            fat[s] = _DIFSECT
 
         fat_bytes = struct.pack(f"<{len(fat)}I", *fat)
         for k in range(n_fat):
             sector_payloads.append(fat_bytes[k * SECTOR:(k + 1) * SECTOR])
 
+        # The FAT sectors past the header's 109, 127 to a DIFAT sector, each
+        # sector ending with the next one's number.
+        rest = fat_sector_ids[_HEADER_DIFAT:]
+        for k in range(n_difat):
+            listed = rest[k * _DIFAT_PER_SECTOR:(k + 1) * _DIFAT_PER_SECTOR]
+            listed += [_FREESECT] * (_DIFAT_PER_SECTOR - len(listed))
+            following = difat_sector_ids[k + 1] if k + 1 < n_difat else _ENDOFCHAIN
+            sector_payloads.append(struct.pack(f"<{_DIFAT_PER_SECTOR + 1}I", *listed, following))
+
         # ---- 6. Build the header ----
-        difat = list(fat_sector_ids) + [_FREESECT] * (109 - len(fat_sector_ids))
-        difat_bytes = struct.pack("<109I", *difat)
+        difat = fat_sector_ids[:_HEADER_DIFAT]
+        difat += [_FREESECT] * (_HEADER_DIFAT - len(difat))
+        difat_bytes = struct.pack(f"<{_HEADER_DIFAT}I", *difat)
 
         header = struct.pack(
             _HEADER_FMT,
@@ -1015,8 +1033,8 @@ class CFB:
             CUTOFF,               # mini-stream cutoff size
             minifat_first,        # first mini-FAT sector
             n_minifat_sectors,    # num mini-FAT sectors
-            _ENDOFCHAIN,          # first DIFAT sector (none)
-            0,                    # num DIFAT sectors
+            difat_first if n_difat else _ENDOFCHAIN,  # first DIFAT sector
+            n_difat,              # num DIFAT sectors
             difat_bytes,          # 436-byte DIFAT array
         )
 

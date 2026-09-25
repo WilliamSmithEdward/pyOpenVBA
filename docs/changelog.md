@@ -36,6 +36,14 @@ All notable changes to pyOpenVBA are documented here. This project follows
   change byte for byte. A `[Workspace]` entry Excel ends with a space,
   where a code window's state is empty, lost the space on any save that
   added, renamed or deleted a module.
+- A compound file past about 7.1 MB can be saved: a large
+  `vbaProject.bin`, or a whole binary `.xls` or `.doc` (#31). The header
+  lists 109 FAT sectors, which map 7.1 MB, and the writer refused
+  anything that needed more, where [MS-CFB] lists the rest in DIFAT
+  sectors; its docstring put the limit at 27 MB. The writer now chains
+  DIFAT sectors. Windows' own compound-file API reads what it writes,
+  and a live gate has Excel and Word open a project past the limit that
+  the library saved, an Image with a 9.7 MB picture included.
 
 ## [6.1.2] - 2026-09-23
 

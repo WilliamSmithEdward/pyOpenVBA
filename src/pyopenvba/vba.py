@@ -1621,6 +1621,10 @@ def serialize_dir_stream(project: VBAProject) -> bytes:
 # PROJECT-stream writer (Gate 6 persistence)
 # ---------------------------------------------------------------------------
 
+#: The package of the Microsoft Forms designer, which a PROJECT stream names once for its UserForms.
+_FORMS_PACKAGE = "{AC9F2F90-E877-11CE-9F68-00AA00574A4F}"
+
+
 def serialize_project_stream(
     raw: bytes,
     rename_map: dict[str, str],
@@ -1648,6 +1652,11 @@ def serialize_project_stream(
         Logical names to remove.  Any ``Module=NAME`` / ``Class=NAME`` /
         ``BaseClass=NAME`` / ``Document=NAME/...`` line with a matching name
         is dropped, as is any ``[Workspace]`` key with that name.
+
+    A form added to a stream with no Forms ``Package=`` line gets one
+    immediately before its ``BaseClass=`` line, as the editor writes it
+    with a project's first form; an existing one stays where it is, even
+    when no form is left (tests/fixtures/project_package.json).
 
     Everything else (``ID``, ``Name``, ``CMG``, ``DPB``, ``GC``,
     ``[Host Extender Info]``) is preserved byte-for-byte except for the
@@ -1690,6 +1699,8 @@ def serialize_project_stream(
     # Track where [Workspace] block sits so we can append new entries to it.
     workspace_idx = -1
     workspace_end_idx = -1
+
+    has_forms_package = False
 
     for line in text.splitlines():
         stripped = line.strip()
@@ -1743,6 +1754,13 @@ def serialize_project_stream(
             out_lines.append(f"Document={new_name}{sep}{id_part}")
             last_decl_idx = len(out_lines) - 1
             continue
+        if key_s == "Package":
+            # A package is a project item as a module is: what the editor adds goes after it, even when it is
+            # left last with its forms removed (tests/fixtures/project_package.json).
+            has_forms_package = has_forms_package or value.strip().upper() == _FORMS_PACKAGE
+            out_lines.append(line)
+            last_decl_idx = len(out_lines) - 1
+            continue
         out_lines.append(line)
 
     # Splice in any newly-added module declarations after the last existing
@@ -1757,8 +1775,12 @@ def serialize_project_stream(
     ]
     if fresh_adds:
         insert_at = last_decl_idx + 1 if last_decl_idx >= 0 else _project_section_end(out_lines)
-        new_decl_lines = [f"Document={name}/&H00000000" if decl_key == "Document" else f"{decl_key}={name}"
-                          for name, decl_key in fresh_adds]
+        new_decl_lines: list[str] = []
+        for name, decl_key in fresh_adds:
+            if decl_key == "BaseClass" and not has_forms_package:
+                new_decl_lines.append(f"Package={_FORMS_PACKAGE}")
+                has_forms_package = True
+            new_decl_lines.append(f"Document={name}/&H00000000" if decl_key == "Document" else f"{decl_key}={name}")
         out_lines[insert_at:insert_at] = new_decl_lines
         for name, _ in fresh_adds:
             seen_decls.add(name.casefold())

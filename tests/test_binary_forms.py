@@ -116,10 +116,7 @@ def test_the_project_declares_it_as_a_designer(host: str, tmp_path: Path) -> Non
     def declarations(project: list[str]) -> list[str]:
         return project[1:next(i for i, line in enumerate(project) if line.startswith("Name="))]
 
-    # The editor also writes Package={AC9F2F90-E877-11CE-9F68-00AA00574A4F}, the Forms designer's package,
-    # before the first BaseClass line. The library writes that line in no file type yet.
-    assert declarations(lines) == [line for line in declarations(measured["project_lines"])
-                                   if not line.startswith("Package=")]
+    assert declarations(lines) == declarations(measured["project_lines"])
 
 
 @pytest.mark.parametrize("host", list(HOSTS))

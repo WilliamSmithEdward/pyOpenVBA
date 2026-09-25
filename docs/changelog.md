@@ -20,6 +20,15 @@ All notable changes to pyOpenVBA are documented here. This project follows
   `add_form` sets. A live gate has Excel and Word open, show and compile
   a form the library adds, and has the library read and edit a form
   their editor adds.
+- `add_form` writes the line the VBA editor declares a form's package
+  with, `Package={AC9F2F90-E877-11CE-9F68-00AA00574A4F}`, once,
+  immediately before the `BaseClass=` line of a project's first form.
+  No file type got it before. Like the editor, the library never moves
+  or removes the line, even when the last form goes, and gives it to a
+  project that declares a form without it only with its next new form.
+  scripts/measure_project_package.py had Excel and Word add and remove
+  forms and modules through their editors, saving after each step, and
+  the tests replay every state.
 
 ## [6.1.2] - 2026-09-23
 

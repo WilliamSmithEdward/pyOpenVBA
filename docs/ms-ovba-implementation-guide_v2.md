@@ -466,6 +466,7 @@ Document=ThisWorkbook/&H00000000
 Document=Sheet1/&H00000000
 Module=Module1
 Class=Class1
+Package={AC9F2F90-E877-11CE-9F68-00AA00574A4F}
 BaseClass=UserForm1
 Name="VBAProject"
 HelpContextID="0"
@@ -496,6 +497,14 @@ On mutation rewrite the declaration lines and the `[Workspace]`
 entries together. Do not create `Document=` lines (host-owned). Do
 not create `BaseClass=` lines unless you also emit a designer
 sub-storage.
+
+The editor writes `Package={AC9F2F90-E877-11CE-9F68-00AA00574A4F}`,
+the Forms designer's package, once: immediately before the
+`BaseClass=` line of a form added to a stream that has no such line.
+It never moves or removes the line afterwards, even when the last
+form goes, and a declaration added later goes after it as after any
+other. A project that declares a form without the line gets it only
+with its next new form.
 
 ---
 
@@ -731,7 +740,8 @@ For each operation, every step must succeed or you must abort.
 | Invalidate + drop SRP + signatures | as above |
 
 Forbidden: deleting `Document=` modules (host-owned), deleting
-designer modules without also removing their sub-storage.
+designer modules without also removing their sub-storage. The
+`Package=` line stays when the last form goes.
 
 ---
 

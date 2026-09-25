@@ -1,0 +1,1017 @@
+{
+ "excel": {
+  "project_storage": "_VBA_PROJECT_CUR",
+  "states": {
+   "module.macro": {
+    "project": [
+     "ID=\"{C3D846A6-F8C8-4E15-8A83-C21B22EA5332}\"",
+     "Document=ThisWorkbook/&H00000000",
+     "Document=Sheet1/&H00000000",
+     "Module=Module1",
+     "Name=\"VBAProject\"",
+     "HelpContextID=\"0\"",
+     "VersionCompatible32=\"393222000\"",
+     "CMG=\"2E2CF4280C783E7C3E7C3E7C3E7C\"",
+     "DPB=\"5C5E86169A459B459B45\"",
+     "GC=\"8A88504C7F4D7F4D80\"",
+     "",
+     "[Host Extender Info]",
+     "&H00000001={3832D640-CF90-11CF-8E43-00A0C911005A};VBE;&H00000000",
+     "",
+     "[Workspace]",
+     "ThisWorkbook=0, 0, 0, 0, C",
+     "Sheet1=0, 0, 0, 0, C",
+     "Module1=104, 104, 614, 431, ",
+     ""
+    ],
+    "storages": [],
+    "references": [
+     "stdole",
+     "Office"
+    ]
+   },
+   "module": {
+    "project": [
+     "ID=\"{C3D846A6-F8C8-4E15-8A83-C21B22EA5332}\"",
+     "Document=ThisWorkbook/&H00000000",
+     "Document=Sheet1/&H00000000",
+     "Module=Module1",
+     "Name=\"VBAProject\"",
+     "HelpContextID=\"0\"",
+     "VersionCompatible32=\"393222000\"",
+     "CMG=\"45479F9AE151E551E551E551E5\"",
+     "DPB=\"0002DADDDBDDDBDD\"",
+     "GC=\"BBB961281D291D29E2\"",
+     "",
+     "[Host Extender Info]",
+     "&H00000001={3832D640-CF90-11CF-8E43-00A0C911005A};VBE;&H00000000",
+     "",
+     "[Workspace]",
+     "ThisWorkbook=0, 0, 0, 0, C",
+     "Sheet1=0, 0, 0, 0, C",
+     "Module1=104, 104, 614, 431, ",
+     ""
+    ],
+    "storages": [],
+    "references": [
+     "stdole",
+     "Office"
+    ]
+   },
+   "first_form.macro": {
+    "project": [
+     "ID=\"{523B0D2A-B46F-447A-B998-E815441AD17F}\"",
+     "Document=ThisWorkbook/&H00000000",
+     "Document=Sheet1/&H00000000",
+     "Module=Module1",
+     "Package={AC9F2F90-E877-11CE-9F68-00AA00574A4F}",
+     "BaseClass=UserForm1",
+     "Name=\"VBAProject\"",
+     "HelpContextID=\"0\"",
+     "VersionCompatible32=\"393222000\"",
+     "CMG=\"51538D2B912B912B912B91\"",
+     "DPB=\"E7E53B57477BDC7CDC7CDC\"",
+     "GC=\"7D7FA1CDA162A262A29D\"",
+     "",
+     "[Host Extender Info]",
+     "&H00000001={3832D640-CF90-11CF-8E43-00A0C911005A};VBE;&H00000000",
+     "",
+     "[Workspace]",
+     "ThisWorkbook=0, 0, 0, 0, C",
+     "Sheet1=0, 0, 0, 0, C",
+     "Module1=104, 104, 614, 431, ",
+     "UserForm1=0, 0, 0, 0, C, 52, 52, 562, 379, C",
+     ""
+    ],
+    "storages": [
+     "UserForm1"
+    ],
+    "references": [
+     "stdole",
+     "Office",
+     "MSForms"
+    ]
+   },
+   "first_form": {
+    "project": [
+     "ID=\"{523B0D2A-B46F-447A-B998-E815441AD17F}\"",
+     "Document=ThisWorkbook/&H00000000",
+     "Document=Sheet1/&H00000000",
+     "Module=Module1",
+     "Package={AC9F2F90-E877-11CE-9F68-00AA00574A4F}",
+     "BaseClass=UserForm1",
+     "Name=\"VBAProject\"",
+     "HelpContextID=\"0\"",
+     "VersionCompatible32=\"393222000\"",
+     "CMG=\"80825C5A605A605A605A60\"",
+     "DPB=\"83815F5E635F635F63\"",
+     "GC=\"86845A635E65606660669F\"",
+     "",
+     "[Host Extender Info]",
+     "&H00000001={3832D640-CF90-11CF-8E43-00A0C911005A};VBE;&H00000000",
+     "",
+     "[Workspace]",
+     "ThisWorkbook=0, 0, 0, 0, C",
+     "Sheet1=0, 0, 0, 0, C",
+     "Module1=104, 104, 614, 431, ",
+     "UserForm1=0, 0, 0, 0, C, 52, 52, 562, 379, C",
+     ""
+    ],
+    "storages": [
+     "UserForm1"
+    ],
+    "references": [
+     "stdole",
+     "Office",
+     "MSForms"
+    ]
+   },
+   "module_after_form": {
+    "project": [
+     "ID=\"{523B0D2A-B46F-447A-B998-E815441AD17F}\"",
+     "Document=ThisWorkbook/&H00000000",
+     "Document=Sheet1/&H00000000",
+     "Module=Module1",
+     "Package={AC9F2F90-E877-11CE-9F68-00AA00574A4F}",
+     "BaseClass=UserForm1",
+     "Module=Module2",
+     "Name=\"VBAProject\"",
+     "HelpContextID=\"0\"",
+     "VersionCompatible32=\"393222000\"",
+     "CMG=\"7476A8BC78AE7CAE7CAE7CAE7C\"",
+     "DPB=\"6260BED2ADD3ADD3AD\"",
+     "GC=\"50528C2F8D2F8DD0\"",
+     "",
+     "[Host Extender Info]",
+     "&H00000001={3832D640-CF90-11CF-8E43-00A0C911005A};VBE;&H00000000",
+     "",
+     "[Workspace]",
+     "ThisWorkbook=0, 0, 0, 0, C",
+     "Sheet1=0, 0, 0, 0, C",
+     "Module1=104, 104, 614, 431, ",
+     "UserForm1=0, 0, 0, 0, C, 52, 52, 562, 379, C",
+     "Module2=0, 0, 510, 327, ",
+     ""
+    ],
+    "storages": [
+     "UserForm1"
+    ],
+    "references": [
+     "stdole",
+     "Office",
+     "MSForms"
+    ]
+   },
+   "second_form_later": {
+    "project": [
+     "ID=\"{523B0D2A-B46F-447A-B998-E815441AD17F}\"",
+     "Document=ThisWorkbook/&H00000000",
+     "Document=Sheet1/&H00000000",
+     "Module=Module1",
+     "Package={AC9F2F90-E877-11CE-9F68-00AA00574A4F}",
+     "BaseClass=UserForm1",
+     "Module=Module2",
+     "BaseClass=UserForm2",
+     "Name=\"VBAProject\"",
+     "HelpContextID=\"0\"",
+     "VersionCompatible32=\"393222000\"",
+     "CMG=\"181AC4F2C8F2C8F2C8F2C8\"",
+     "DPB=\"E0E23CBF3DBF3DBF\"",
+     "GC=\"A8AA748775877578\"",
+     "",
+     "[Host Extender Info]",
+     "&H00000001={3832D640-CF90-11CF-8E43-00A0C911005A};VBE;&H00000000",
+     "",
+     "[Workspace]",
+     "ThisWorkbook=0, 0, 0, 0, C",
+     "Sheet1=0, 0, 0, 0, C",
+     "Module1=104, 104, 614, 431, ",
+     "UserForm1=0, 0, 0, 0, C, 52, 52, 562, 379, C",
+     "Module2=0, 0, 510, 327, ",
+     "UserForm2=0, 0, 0, 0, C, 78, 78, 588, 405, C",
+     ""
+    ],
+    "storages": [
+     "UserForm1",
+     "UserForm2"
+    ],
+    "references": [
+     "stdole",
+     "Office",
+     "MSForms"
+    ]
+   },
+   "first_form_removed": {
+    "project": [
+     "ID=\"{523B0D2A-B46F-447A-B998-E815441AD17F}\"",
+     "Document=ThisWorkbook/&H00000000",
+     "Document=Sheet1/&H00000000",
+     "Module=Module1",
+     "Package={AC9F2F90-E877-11CE-9F68-00AA00574A4F}",
+     "Module=Module2",
+     "BaseClass=UserForm2",
+     "Name=\"VBAProject\"",
+     "HelpContextID=\"0\"",
+     "VersionCompatible32=\"393222000\"",
+     "CMG=\"3B39E7867E8A7E8A7E8A7E8A\"",
+     "DPB=\"CECC123B365DC85EC85EC8\"",
+     "GC=\"6163BD3EBE3EBEC1\"",
+     "",
+     "[Host Extender Info]",
+     "&H00000001={3832D640-CF90-11CF-8E43-00A0C911005A};VBE;&H00000000",
+     "",
+     "[Workspace]",
+     "ThisWorkbook=0, 0, 0, 0, C",
+     "Sheet1=0, 0, 0, 0, C",
+     "Module1=104, 104, 614, 431, ",
+     "Module2=0, 0, 510, 327, ",
+     "UserForm2=0, 0, 0, 0, C, 78, 78, 588, 405, C",
+     ""
+    ],
+    "storages": [
+     "UserForm2"
+    ],
+    "references": [
+     "stdole",
+     "Office",
+     "MSForms"
+    ]
+   },
+   "last_form_removed": {
+    "project": [
+     "ID=\"{523B0D2A-B46F-447A-B998-E815441AD17F}\"",
+     "Document=ThisWorkbook/&H00000000",
+     "Document=Sheet1/&H00000000",
+     "Module=Module1",
+     "Package={AC9F2F90-E877-11CE-9F68-00AA00574A4F}",
+     "Module=Module2",
+     "Name=\"VBAProject\"",
+     "HelpContextID=\"0\"",
+     "VersionCompatible32=\"393222000\"",
+     "CMG=\"C0C21C9A209A209A209A20\"",
+     "DPB=\"1F1DC3A67D5ADD5BDD5BDD\"",
+     "GC=\"7E7CA2075E39BC3ABC3A43\"",
+     "",
+     "[Host Extender Info]",
+     "&H00000001={3832D640-CF90-11CF-8E43-00A0C911005A};VBE;&H00000000",
+     "",
+     "[Workspace]",
+     "ThisWorkbook=0, 0, 0, 0, C",
+     "Sheet1=0, 0, 0, 0, C",
+     "Module1=104, 104, 614, 431, ",
+     "Module2=0, 0, 510, 327, ",
+     ""
+    ],
+    "storages": [],
+    "references": [
+     "stdole",
+     "Office",
+     "MSForms"
+    ]
+   },
+   "form_after_all_removed": {
+    "project": [
+     "ID=\"{523B0D2A-B46F-447A-B998-E815441AD17F}\"",
+     "Document=ThisWorkbook/&H00000000",
+     "Document=Sheet1/&H00000000",
+     "Module=Module1",
+     "Package={AC9F2F90-E877-11CE-9F68-00AA00574A4F}",
+     "Module=Module2",
+     "BaseClass=UserForm1",
+     "Name=\"VBAProject\"",
+     "HelpContextID=\"0\"",
+     "VersionCompatible32=\"393222000\"",
+     "CMG=\"B7B56BA89DD8D2DCD2DCD2DCD2DC\"",
+     "DPB=\"F0F22CCF2DCF2DCF\"",
+     "GC=\"292BF506F606F6F9\"",
+     "",
+     "[Host Extender Info]",
+     "&H00000001={3832D640-CF90-11CF-8E43-00A0C911005A};VBE;&H00000000",
+     "",
+     "[Workspace]",
+     "ThisWorkbook=0, 0, 0, 0, C",
+     "Sheet1=0, 0, 0, 0, C",
+     "Module1=104, 104, 614, 431, ",
+     "Module2=0, 0, 510, 327, ",
+     "UserForm1=0, 0, 0, 0, C, 104, 104, 614, 431, C",
+     ""
+    ],
+    "storages": [
+     "UserForm1"
+    ],
+    "references": [
+     "stdole",
+     "Office",
+     "MSForms"
+    ]
+   },
+   "two_forms_at_once": {
+    "project": [
+     "ID=\"{052D90FB-B8F6-4E9F-9D92-3B92BED00CFD}\"",
+     "Document=ThisWorkbook/&H00000000",
+     "Document=Sheet1/&H00000000",
+     "Module=Module1",
+     "Package={AC9F2F90-E877-11CE-9F68-00AA00574A4F}",
+     "BaseClass=UserForm1",
+     "BaseClass=UserForm2",
+     "Name=\"VBAProject\"",
+     "HelpContextID=\"0\"",
+     "VersionCompatible32=\"393222000\"",
+     "CMG=\"E9EBCF15D315D315D315D3\"",
+     "DPB=\"A9AB8FD090D090D0\"",
+     "GC=\"696B4F905090506F\"",
+     "",
+     "[Host Extender Info]",
+     "&H00000001={3832D640-CF90-11CF-8E43-00A0C911005A};VBE;&H00000000",
+     "",
+     "[Workspace]",
+     "ThisWorkbook=0, 0, 0, 0, C",
+     "Sheet1=0, 0, 0, 0, C",
+     "Module1=52, 52, 562, 379, ",
+     "UserForm1=0, 0, 0, 0, C, 78, 78, 588, 405, C",
+     "UserForm2=0, 0, 0, 0, C, 104, 104, 614, 431, C",
+     ""
+    ],
+    "storages": [
+     "UserForm1",
+     "UserForm2"
+    ],
+    "references": [
+     "stdole",
+     "Office",
+     "MSForms"
+    ]
+   },
+   "form_declared_last": {
+    "project": [
+     "ID=\"{803C0EAE-D4A3-4ADA-A7CA-675BF32E2E96}\"",
+     "Document=ThisWorkbook/&H00000000",
+     "Document=Sheet1/&H00000000",
+     "Module=Module1",
+     "Package={AC9F2F90-E877-11CE-9F68-00AA00574A4F}",
+     "BaseClass=UserForm1",
+     "Name=\"VBAProject\"",
+     "HelpContextID=\"0\"",
+     "VersionCompatible32=\"393222000\"",
+     "CMG=\"B0B291D795D795D795D795\"",
+     "DPB=\"F7F5D6515ADFA0E0A0E0A0\"",
+     "GC=\"3E3C1F1A21266927692796\"",
+     "",
+     "[Host Extender Info]",
+     "&H00000001={3832D640-CF90-11CF-8E43-00A0C911005A};VBE;&H00000000",
+     "",
+     "[Workspace]",
+     "ThisWorkbook=0, 0, 0, 0, C",
+     "Sheet1=0, 0, 0, 0, C",
+     "Module1=52, 52, 562, 379, ",
+     "UserForm1=0, 0, 0, 0, C, 78, 78, 588, 405, C",
+     ""
+    ],
+    "storages": [
+     "UserForm1"
+    ],
+    "references": [
+     "stdole",
+     "Office",
+     "MSForms"
+    ]
+   },
+   "package_left_last": {
+    "project": [
+     "ID=\"{803C0EAE-D4A3-4ADA-A7CA-675BF32E2E96}\"",
+     "Document=ThisWorkbook/&H00000000",
+     "Document=Sheet1/&H00000000",
+     "Module=Module1",
+     "Package={AC9F2F90-E877-11CE-9F68-00AA00574A4F}",
+     "Name=\"VBAProject\"",
+     "HelpContextID=\"0\"",
+     "VersionCompatible32=\"393222000\"",
+     "CMG=\"4042616765676567656765\"",
+     "DPB=\"424063636464646464\"",
+     "GC=\"44466565656666666699\"",
+     "",
+     "[Host Extender Info]",
+     "&H00000001={3832D640-CF90-11CF-8E43-00A0C911005A};VBE;&H00000000",
+     "",
+     "[Workspace]",
+     "ThisWorkbook=0, 0, 0, 0, C",
+     "Sheet1=0, 0, 0, 0, C",
+     "Module1=52, 52, 562, 379, ",
+     ""
+    ],
+    "storages": [],
+    "references": [
+     "stdole",
+     "Office",
+     "MSForms"
+    ]
+   },
+   "module_after_package": {
+    "project": [
+     "ID=\"{803C0EAE-D4A3-4ADA-A7CA-675BF32E2E96}\"",
+     "Document=ThisWorkbook/&H00000000",
+     "Document=Sheet1/&H00000000",
+     "Module=Module1",
+     "Package={AC9F2F90-E877-11CE-9F68-00AA00574A4F}",
+     "Module=Module2",
+     "Name=\"VBAProject\"",
+     "HelpContextID=\"0\"",
+     "VersionCompatible32=\"393222000\"",
+     "CMG=\"3032115715571557155715\"",
+     "DPB=\"1C1E3DD3C5BEC6BEC6BE\"",
+     "GC=\"080A292A2A2A2AD5\"",
+     "",
+     "[Host Extender Info]",
+     "&H00000001={3832D640-CF90-11CF-8E43-00A0C911005A};VBE;&H00000000",
+     "",
+     "[Workspace]",
+     "ThisWorkbook=0, 0, 0, 0, C",
+     "Sheet1=0, 0, 0, 0, C",
+     "Module1=52, 52, 562, 379, ",
+     "Module2=52, 52, 562, 379, ",
+     ""
+    ],
+    "storages": [],
+    "references": [
+     "stdole",
+     "Office",
+     "MSForms"
+    ]
+   },
+   "legacy_module_added.macro": {
+    "project": [
+     "ID=\"{D59DD72F-95AC-4B8C-8CF1-8A8DF7D75605}\"",
+     "Document=ThisWorkbook/&H00000000",
+     "Document=Sheet1/&H00000000",
+     "Module=Module1",
+     "BaseClass=UserForm1",
+     "Module=Module2",
+     "Name=\"VBAProject\"",
+     "HelpContextID=\"0\"",
+     "VersionCompatible32=\"393222000\"",
+     "CMG=\"56547135F1CD3BD13BD13BD13BD1\"",
+     "DPB=\"A4A683839FD0A0D0A0D0\"",
+     "GC=\"F2F0D559225A225ADD\"",
+     "",
+     "[Host Extender Info]",
+     "&H00000001={3832D640-CF90-11CF-8E43-00A0C911005A};VBE;&H00000000",
+     "",
+     "[Workspace]",
+     "ThisWorkbook=38, 38, 762, 1090, ",
+     "Sheet1=76, 76, 800, 1128, ",
+     "Module1=114, 114, 838, 1166, ",
+     "UserForm1=0, 0, 0, 0, C, 78, 78, 588, 405, ",
+     "Module2=104, 104, 614, 431, ",
+     ""
+    ],
+    "storages": [
+     "UserForm1"
+    ],
+    "references": [
+     "stdole",
+     "Office",
+     "MSForms"
+    ]
+   },
+   "legacy_second_form.macro": {
+    "project": [
+     "ID=\"{A9F7CC89-9725-4C87-9EC3-C939946ED544}\"",
+     "Document=ThisWorkbook/&H00000000",
+     "Document=Sheet1/&H00000000",
+     "Module=Module1",
+     "BaseClass=UserForm1",
+     "Module=Module2",
+     "Package={AC9F2F90-E877-11CE-9F68-00AA00574A4F}",
+     "BaseClass=UserForm2",
+     "Name=\"VBAProject\"",
+     "HelpContextID=\"0\"",
+     "VersionCompatible32=\"393222000\"",
+     "CMG=\"0B09F71C1420142014201420\"",
+     "DPB=\"2426D83BE855E955E955\"",
+     "GC=\"3D3FC122C33AC43AC4C5\"",
+     "",
+     "[Host Extender Info]",
+     "&H00000001={3832D640-CF90-11CF-8E43-00A0C911005A};VBE;&H00000000",
+     "",
+     "[Workspace]",
+     "ThisWorkbook=38, 38, 762, 1090, ",
+     "Sheet1=76, 76, 800, 1128, ",
+     "Module1=114, 114, 838, 1166, ",
+     "UserForm1=0, 0, 0, 0, C, 78, 78, 588, 405, ",
+     "Module2=104, 104, 614, 431, ",
+     "UserForm2=0, 0, 0, 0, C, 26, 26, 536, 353, C",
+     ""
+    ],
+    "storages": [
+     "UserForm1",
+     "UserForm2"
+    ],
+    "references": [
+     "stdole",
+     "Office",
+     "MSForms"
+    ]
+   }
+  }
+ },
+ "word": {
+  "project_storage": "Macros",
+  "states": {
+   "module.macro": {
+    "project": [
+     "ID=\"{E0052E09-135D-4B0F-8172-726AB9472508}\"",
+     "Document=ThisDocument/&H00000000",
+     "Module=Module1",
+     "Name=\"Project\"",
+     "HelpContextID=\"0\"",
+     "VersionCompatible32=\"393222000\"",
+     "CMG=\"9092062C0A2C0A2C0A2C0A\"",
+     "DPB=\"C0C2565957595759\"",
+     "GC=\"F0F2668967896776\"",
+     "",
+     "[Host Extender Info]",
+     "&H00000001={3832D640-CF90-11CF-8E43-00A0C911005A};VBE;&H00000000",
+     "",
+     "[Workspace]",
+     "ThisDocument=0, 0, 0, 0, C",
+     "Module1=104, 104, 614, 431, Z",
+     ""
+    ],
+    "storages": [],
+    "references": [
+     "stdole",
+     "Normal",
+     "Office"
+    ]
+   },
+   "module": {
+    "project": [
+     "ID=\"{E0052E09-135D-4B0F-8172-726AB9472508}\"",
+     "Document=ThisDocument/&H00000000",
+     "Module=Module1",
+     "Name=\"Project\"",
+     "HelpContextID=\"0\"",
+     "VersionCompatible32=\"393222000\"",
+     "CMG=\"2022B6BCBABCBABCBABCBA\"",
+     "DPB=\"4042D6D9D7D9D7D9\"",
+     "GC=\"6062F6F9F7F9F706\"",
+     "",
+     "[Host Extender Info]",
+     "&H00000001={3832D640-CF90-11CF-8E43-00A0C911005A};VBE;&H00000000",
+     "",
+     "[Workspace]",
+     "ThisDocument=0, 0, 0, 0, C",
+     "Module1=104, 104, 614, 431, Z",
+     ""
+    ],
+    "storages": [],
+    "references": [
+     "stdole",
+     "Normal",
+     "Office"
+    ]
+   },
+   "first_form.macro": {
+    "project": [
+     "ID=\"{E0052E09-135D-4B0F-8172-726AB9472508}\"",
+     "Document=ThisDocument/&H00000000",
+     "Module=Module1",
+     "Package={AC9F2F90-E877-11CE-9F68-00AA00574A4F}",
+     "BaseClass=UserForm1",
+     "Name=\"Project\"",
+     "HelpContextID=\"0\"",
+     "VersionCompatible32=\"393222000\"",
+     "CMG=\"E8EA7E8482848284828482\"",
+     "DPB=\"6664F084107C8F7D8F7D8F\"",
+     "GC=\"E4E672028E818F818F7E\"",
+     "",
+     "[Host Extender Info]",
+     "&H00000001={3832D640-CF90-11CF-8E43-00A0C911005A};VBE;&H00000000",
+     "",
+     "[Workspace]",
+     "ThisDocument=0, 0, 0, 0, C",
+     "Module1=104, 104, 614, 431, Z",
+     "UserForm1=0, 0, 0, 0, C, 130, 130, 640, 457, C",
+     ""
+    ],
+    "storages": [
+     "UserForm1"
+    ],
+    "references": [
+     "stdole",
+     "Normal",
+     "Office",
+     "MSForms"
+    ]
+   },
+   "first_form": {
+    "project": [
+     "ID=\"{E0052E09-135D-4B0F-8172-726AB9472508}\"",
+     "Document=ThisDocument/&H00000000",
+     "Module=Module1",
+     "Package={AC9F2F90-E877-11CE-9F68-00AA00574A4F}",
+     "BaseClass=UserForm1",
+     "Name=\"Project\"",
+     "HelpContextID=\"0\"",
+     "VersionCompatible32=\"393222000\"",
+     "CMG=\"6E6CF87C08848288828882888288\"",
+     "DPB=\"ECEE7AFA867987798779\"",
+     "GC=\"6A68FC807B817B8184\"",
+     "",
+     "[Host Extender Info]",
+     "&H00000001={3832D640-CF90-11CF-8E43-00A0C911005A};VBE;&H00000000",
+     "",
+     "[Workspace]",
+     "ThisDocument=0, 0, 0, 0, C",
+     "Module1=104, 104, 614, 431, Z",
+     "UserForm1=0, 0, 0, 0, C, 130, 130, 640, 457, C",
+     ""
+    ],
+    "storages": [
+     "UserForm1"
+    ],
+    "references": [
+     "stdole",
+     "Normal",
+     "Office",
+     "MSForms"
+    ]
+   },
+   "module_after_form": {
+    "project": [
+     "ID=\"{E0052E09-135D-4B0F-8172-726AB9472508}\"",
+     "Document=ThisDocument/&H00000000",
+     "Module=Module1",
+     "Package={AC9F2F90-E877-11CE-9F68-00AA00574A4F}",
+     "BaseClass=UserForm1",
+     "Module=Module2",
+     "Name=\"Project\"",
+     "HelpContextID=\"0\"",
+     "VersionCompatible32=\"393222000\"",
+     "CMG=\"6361F51CE420E420E420E420\"",
+     "DPB=\"4E4CD809281F1220122012\"",
+     "GC=\"393BAFD0B0D0B02F\"",
+     "",
+     "[Host Extender Info]",
+     "&H00000001={3832D640-CF90-11CF-8E43-00A0C911005A};VBE;&H00000000",
+     "",
+     "[Workspace]",
+     "ThisDocument=0, 0, 0, 0, C",
+     "Module1=104, 104, 614, 431, ",
+     "UserForm1=0, 0, 0, 0, C, 130, 130, 640, 457, C",
+     "Module2=0, 0, 510, 327, Z",
+     ""
+    ],
+    "storages": [
+     "UserForm1"
+    ],
+    "references": [
+     "stdole",
+     "Normal",
+     "Office",
+     "MSForms"
+    ]
+   },
+   "second_form_later": {
+    "project": [
+     "ID=\"{E0052E09-135D-4B0F-8172-726AB9472508}\"",
+     "Document=ThisDocument/&H00000000",
+     "Module=Module1",
+     "Package={AC9F2F90-E877-11CE-9F68-00AA00574A4F}",
+     "BaseClass=UserForm1",
+     "Module=Module2",
+     "BaseClass=UserForm2",
+     "Name=\"Project\"",
+     "HelpContextID=\"0\"",
+     "VersionCompatible32=\"393222000\"",
+     "CMG=\"B1B3274D2B4D2B4D2B4D2B\"",
+     "DPB=\"DBD94D457646764676\"",
+     "GC=\"050793B797E098E0981F\"",
+     "",
+     "[Host Extender Info]",
+     "&H00000001={3832D640-CF90-11CF-8E43-00A0C911005A};VBE;&H00000000",
+     "",
+     "[Workspace]",
+     "ThisDocument=0, 0, 0, 0, C",
+     "Module1=104, 104, 614, 431, ",
+     "UserForm1=0, 0, 0, 0, C, 130, 130, 640, 457, C",
+     "Module2=0, 0, 510, 327, Z",
+     "UserForm2=0, 0, 0, 0, C, 26, 26, 536, 353, C",
+     ""
+    ],
+    "storages": [
+     "UserForm1",
+     "UserForm2"
+    ],
+    "references": [
+     "stdole",
+     "Normal",
+     "Office",
+     "MSForms"
+    ]
+   },
+   "first_form_removed": {
+    "project": [
+     "ID=\"{E0052E09-135D-4B0F-8172-726AB9472508}\"",
+     "Document=ThisDocument/&H00000000",
+     "Module=Module1",
+     "Package={AC9F2F90-E877-11CE-9F68-00AA00574A4F}",
+     "Module=Module2",
+     "BaseClass=UserForm2",
+     "Name=\"Project\"",
+     "HelpContextID=\"0\"",
+     "VersionCompatible32=\"393222000\"",
+     "CMG=\"787AEE14F214F214F214F2\"",
+     "DPB=\"E0E2767977797779\"",
+     "GC=\"484ADEE1DFE1DF1E\"",
+     "",
+     "[Host Extender Info]",
+     "&H00000001={3832D640-CF90-11CF-8E43-00A0C911005A};VBE;&H00000000",
+     "",
+     "[Workspace]",
+     "ThisDocument=0, 0, 0, 0, C",
+     "Module1=104, 104, 614, 431, ",
+     "Module2=0, 0, 510, 327, Z",
+     "UserForm2=0, 0, 0, 0, C, 26, 26, 536, 353, C",
+     ""
+    ],
+    "storages": [
+     "UserForm2"
+    ],
+    "references": [
+     "stdole",
+     "Normal",
+     "Office",
+     "MSForms"
+    ]
+   },
+   "last_form_removed": {
+    "project": [
+     "ID=\"{E0052E09-135D-4B0F-8172-726AB9472508}\"",
+     "Document=ThisDocument/&H00000000",
+     "Module=Module1",
+     "Package={AC9F2F90-E877-11CE-9F68-00AA00574A4F}",
+     "Module=Module2",
+     "Name=\"Project\"",
+     "HelpContextID=\"0\"",
+     "VersionCompatible32=\"393222000\"",
+     "CMG=\"7775E19CEFA482A882A882A882A8\"",
+     "DPB=\"0E0C9835B85B4E5C4E5C4E\"",
+     "GC=\"A5A733AA5D405E405EBF\"",
+     "",
+     "[Host Extender Info]",
+     "&H00000001={3832D640-CF90-11CF-8E43-00A0C911005A};VBE;&H00000000",
+     "",
+     "[Workspace]",
+     "ThisDocument=0, 0, 0, 0, C",
+     "Module1=104, 104, 614, 431, ",
+     "Module2=0, 0, 510, 327, Z",
+     ""
+    ],
+    "storages": [],
+    "references": [
+     "stdole",
+     "Normal",
+     "Office",
+     "MSForms"
+    ]
+   },
+   "form_after_all_removed": {
+    "project": [
+     "ID=\"{E0052E09-135D-4B0F-8172-726AB9472508}\"",
+     "Document=ThisDocument/&H00000000",
+     "Module=Module1",
+     "Package={AC9F2F90-E877-11CE-9F68-00AA00574A4F}",
+     "Module=Module2",
+     "BaseClass=UserForm1",
+     "Name=\"Project\"",
+     "HelpContextID=\"0\"",
+     "VersionCompatible32=\"393222000\"",
+     "CMG=\"CDCF5BB3E78DEB8DEB8DEB8DEB\"",
+     "DPB=\"A3A135E10AE20AE20A\"",
+     "GC=\"797BEF10F010F0EF\"",
+     "",
+     "[Host Extender Info]",
+     "&H00000001={3832D640-CF90-11CF-8E43-00A0C911005A};VBE;&H00000000",
+     "",
+     "[Workspace]",
+     "ThisDocument=0, 0, 0, 0, C",
+     "Module1=104, 104, 614, 431, ",
+     "Module2=0, 0, 510, 327, Z",
+     "UserForm1=0, 0, 0, 0, C, 52, 52, 562, 379, C",
+     ""
+    ],
+    "storages": [
+     "UserForm1"
+    ],
+    "references": [
+     "stdole",
+     "Normal",
+     "Office",
+     "MSForms"
+    ]
+   },
+   "two_forms_at_once": {
+    "project": [
+     "ID=\"{A0B96D1E-F847-4CAE-9AFD-C494A413DE41}\"",
+     "Document=ThisDocument/&H00000000",
+     "Module=Module1",
+     "Package={AC9F2F90-E877-11CE-9F68-00AA00574A4F}",
+     "BaseClass=UserForm1",
+     "BaseClass=UserForm2",
+     "Name=\"Project\"",
+     "HelpContextID=\"0\"",
+     "VersionCompatible32=\"393222000\"",
+     "CMG=\"E4E6F97119E71DE71DE71DE71D\"",
+     "DPB=\"56544B03CF074008400840\"",
+     "GC=\"C8CAD5E6D6E6D619\"",
+     "",
+     "[Host Extender Info]",
+     "&H00000001={3832D640-CF90-11CF-8E43-00A0C911005A};VBE;&H00000000",
+     "",
+     "[Workspace]",
+     "ThisDocument=0, 0, 0, 0, C",
+     "Module1=78, 78, 588, 405, Z",
+     "UserForm1=0, 0, 0, 0, C, 104, 104, 614, 431, C",
+     "UserForm2=0, 0, 0, 0, C, 130, 130, 640, 457, C",
+     ""
+    ],
+    "storages": [
+     "UserForm1",
+     "UserForm2"
+    ],
+    "references": [
+     "stdole",
+     "Normal",
+     "Office",
+     "MSForms"
+    ]
+   },
+   "form_declared_last": {
+    "project": [
+     "ID=\"{84689861-0965-41D8-8AF0-5E041B603C5C}\"",
+     "Document=ThisDocument/&H00000000",
+     "Module=Module1",
+     "Package={AC9F2F90-E877-11CE-9F68-00AA00574A4F}",
+     "BaseClass=UserForm1",
+     "Name=\"Project\"",
+     "HelpContextID=\"0\"",
+     "VersionCompatible32=\"393222000\"",
+     "CMG=\"5456F3120D0511051105110511\"",
+     "DPB=\"4341E407D208D208D2\"",
+     "GC=\"32309538853985397A\"",
+     "",
+     "[Host Extender Info]",
+     "&H00000001={3832D640-CF90-11CF-8E43-00A0C911005A};VBE;&H00000000",
+     "",
+     "[Workspace]",
+     "ThisDocument=0, 0, 0, 0, C",
+     "Module1=0, 0, 510, 327, Z",
+     "UserForm1=0, 0, 0, 0, C, 26, 26, 536, 353, C",
+     ""
+    ],
+    "storages": [
+     "UserForm1"
+    ],
+    "references": [
+     "stdole",
+     "Normal",
+     "Office",
+     "MSForms"
+    ]
+   },
+   "package_left_last": {
+    "project": [
+     "ID=\"{84689861-0965-41D8-8AF0-5E041B603C5C}\"",
+     "Document=ThisDocument/&H00000000",
+     "Module=Module1",
+     "Package={AC9F2F90-E877-11CE-9F68-00AA00574A4F}",
+     "Name=\"Project\"",
+     "HelpContextID=\"0\"",
+     "VersionCompatible32=\"393222000\"",
+     "CMG=\"8A882D015F055F055F055F05\"",
+     "DPB=\"B8BA1F6020602060\"",
+     "GC=\"E6E441A541FD6EFE6EFE91\"",
+     "",
+     "[Host Extender Info]",
+     "&H00000001={3832D640-CF90-11CF-8E43-00A0C911005A};VBE;&H00000000",
+     "",
+     "[Workspace]",
+     "ThisDocument=0, 0, 0, 0, C",
+     "Module1=0, 0, 510, 327, Z",
+     ""
+    ],
+    "storages": [],
+    "references": [
+     "stdole",
+     "Normal",
+     "Office",
+     "MSForms"
+    ]
+   },
+   "module_after_package": {
+    "project": [
+     "ID=\"{84689861-0965-41D8-8AF0-5E041B603C5C}\"",
+     "Document=ThisDocument/&H00000000",
+     "Module=Module1",
+     "Package={AC9F2F90-E877-11CE-9F68-00AA00574A4F}",
+     "Module=Module2",
+     "Name=\"Project\"",
+     "HelpContextID=\"0\"",
+     "VersionCompatible32=\"393222000\"",
+     "CMG=\"6664C16741BFA9C3A9C3A9C3A9C3\"",
+     "DPB=\"D2D0751BE01CE01CE0\"",
+     "GC=\"3E3C998F6997D498D4982B\"",
+     "",
+     "[Host Extender Info]",
+     "&H00000001={3832D640-CF90-11CF-8E43-00A0C911005A};VBE;&H00000000",
+     "",
+     "[Workspace]",
+     "ThisDocument=0, 0, 0, 0, C",
+     "Module1=0, 0, 510, 327, ",
+     "Module2=52, 52, 562, 379, Z",
+     ""
+    ],
+    "storages": [],
+    "references": [
+     "stdole",
+     "Normal",
+     "Office",
+     "MSForms"
+    ]
+   },
+   "legacy_module_added.macro": {
+    "project": [
+     "ID=\"{56BCE5D7-5783-418A-B904-9AFAC7508496}\"",
+     "Document=ThisDocument/&H00000000",
+     "Module=Module1",
+     "BaseClass=UserForm1",
+     "Module=Module2",
+     "Name=\"Project\"",
+     "HelpContextID=\"0\"",
+     "VersionCompatible32=\"393222000\"",
+     "CMG=\"1614F6821A8E9492949294929492\"",
+     "DPB=\"8C8E6C18948F958F958F\"",
+     "GC=\"0200E29659975997A6\"",
+     "",
+     "[Host Extender Info]",
+     "&H00000001={3832D640-CF90-11CF-8E43-00A0C911005A};VBE;&H00000000",
+     "",
+     "[Workspace]",
+     "ThisDocument=38, 38, 762, 1030, ",
+     "Module1=152, 152, 876, 1144, ",
+     "UserForm1=0, 0, 0, 0, C, 130, 130, 640, 457, ",
+     "Module2=0, 0, 510, 327, Z",
+     ""
+    ],
+    "storages": [
+     "UserForm1"
+    ],
+    "references": [
+     "stdole",
+     "Normal",
+     "Office",
+     "MSForms"
+    ]
+   },
+   "legacy_second_form.macro": {
+    "project": [
+     "ID=\"{56BCE5D7-5783-418A-B904-9AFAC7508496}\"",
+     "Document=ThisDocument/&H00000000",
+     "Module=Module1",
+     "BaseClass=UserForm1",
+     "Module=Module2",
+     "Package={AC9F2F90-E877-11CE-9F68-00AA00574A4F}",
+     "BaseClass=UserForm2",
+     "Name=\"Project\"",
+     "HelpContextID=\"0\"",
+     "VersionCompatible32=\"393222000\"",
+     "CMG=\"969476D1BED367D767D767D767D7\"",
+     "DPB=\"3B39DBBC81BD81BD81\"",
+     "GC=\"E0E200C301C3013C\"",
+     "",
+     "[Host Extender Info]",
+     "&H00000001={3832D640-CF90-11CF-8E43-00A0C911005A};VBE;&H00000000",
+     "",
+     "[Workspace]",
+     "ThisDocument=38, 38, 762, 1030, ",
+     "Module1=152, 152, 876, 1144, ",
+     "UserForm1=0, 0, 0, 0, C, 130, 130, 640, 457, ",
+     "Module2=0, 0, 510, 327, Z",
+     "UserForm2=0, 0, 0, 0, C, 26, 26, 536, 353, C",
+     ""
+    ],
+    "storages": [
+     "UserForm1",
+     "UserForm2"
+    ],
+    "references": [
+     "stdole",
+     "Normal",
+     "Office",
+     "MSForms"
+    ]
+   }
+  }
+ }
+}

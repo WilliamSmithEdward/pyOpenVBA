@@ -352,9 +352,10 @@ class VBAForm:
         site_id = self._next_id(level)
         self._count_shape(level)
 
-        default_w, default_h = _DEFAULT_SIZE_PT.get(kind, _DEFAULT_SIZE_FALLBACK)
-        size_w = points_to_himetric(default_w if width is None else width)
-        size_h = points_to_himetric(default_h if height is None else height)
+        font = self._font_of(level)
+        default_w, default_h = _default_size(kind, font)
+        size_w = default_w if width is None else points_to_himetric(width)
+        size_h = default_h if height is None else points_to_himetric(height)
         site = _new_site(
             name,
             site_id,
@@ -386,7 +387,7 @@ class VBAForm:
             self._levels.append(child)
             record = child.stream.record
         else:
-            record = _new_record(kind, cache_index, name, self._font_of(level))
+            record = _new_record(kind, cache_index, name, font)
             record.set_size(size_w, size_h)
         level.stream.sites.append(site)
         level.stream.sites_structurally_changed = True
@@ -1428,21 +1429,64 @@ def _next_tab_name(tabs: ParsedRecord) -> str:
             highest = max(highest, int(digits))
     return f"Tab{highest + 1}"
 
-# Default sizes in points, as the VBE uses when you drop a control.
-_DEFAULT_SIZE_PT: dict[str, tuple[float, float]] = {
-    "CommandButton": (72, 24),
-    "Label": (72, 18),
-    "TextBox": (72, 18),
-    "ComboBox": (72, 18),
-    "ListBox": (72, 54),
-    "CheckBox": (108, 18),
-    "OptionButton": (108, 18),
-    "ToggleButton": (72, 24),
-    "Image": (72, 72),
-    "SpinButton": (13, 24),
-    "ScrollBar": (13, 72),
+# The size the designer gives a control Designer.Controls.Add adds, in
+# HIMETRIC (tests/fixtures/form_designer.json, the Plain form).  The two-
+# state boxes' height is the font's instead (_default_size).
+_DEFAULT_SIZE: dict[str, tuple[int, int]] = {
+    "Label": (2540, 635),
+    "CommandButton": (2540, 847),
+    "TextBox": (2540, 635),
+    "ComboBox": (2540, 635),
+    "ListBox": (2540, 2540),
+    "CheckBox": (3810, 635),
+    "OptionButton": (3810, 635),
+    "ToggleButton": (1270, 1411),
+    "Frame": (7620, 5080),
+    "MultiPage": (5080, 3810),
+    "Image": (2540, 2540),
+    "SpinButton": (450, 900),
+    "ScrollBar": (450, 2250),
+    "TabStrip": (5080, 3810),
 }
-_DEFAULT_SIZE_FALLBACK = (72, 24)
+_FONT_HEIGHTED = frozenset({"CheckBox", "OptionButton"})
+
+# A tab's height in pixels at 96 DPI, for a font by face and size in twips as
+# the designer stored it: what it lays a MultiPage's pages under, and grows a
+# CheckBox with.  It follows the face's metrics, so it is measured rather
+# than computed (tests/fixtures/form_fonts.json).
+_TAB_BAND_PX: dict[tuple[str, int], int] = {
+    ("tahoma", 165): 19, ("tahoma", 180): 20, ("tahoma", 195): 22, ("tahoma", 210): 23, ("tahoma", 240): 25,
+    ("arial", 165): 20, ("arial", 180): 21, ("arial", 195): 22, ("arial", 210): 22, ("arial", 225): 23,
+    ("arial", 240): 24,
+    ("segoe ui", 165): 19, ("segoe ui", 180): 21, ("segoe ui", 195): 23,
+    ("calibri", 195): 21, ("calibri", 225): 24, ("aptos", 210): 23, ("aptos", 225): 24,
+    ("microsoft sans serif", 165): 19, ("verdana", 165): 19, ("times new roman", 240): 25,
+    ("courier new", 180): 21,
+}
+
+
+def _tab_band_px(font: _Font) -> int:
+    """A tab's height in pixels for ``font``: as measured, or else estimated
+    from the size alone, which reproduces every Tahoma size measured and is
+    within a pixel of the rest."""
+    twips = font.size // 500
+    measured = _TAB_BAND_PX.get((font.name.casefold(), twips))
+    return measured if measured is not None else round(twips / 15 * 1.2) + 6
+
+
+def _himetric_px(pixels: int) -> int:
+    """Pixels at 96 DPI in HIMETRIC, rounded as the designer rounds them."""
+    return round(pixels * 2540 / 96)
+
+
+def _default_size(kind: str, font: _Font) -> tuple[int, int]:
+    """The size the designer gives a new control of ``kind`` on a container
+    showing ``font``: the kind's own, but a CheckBox or OptionButton at
+    least 24 pixels tall and four more than a tab in its font."""
+    width, height = _DEFAULT_SIZE.get(kind, _DEFAULT_SIZE["CommandButton"])
+    if kind in _FONT_HEIGHTED:
+        height = _himetric_px(max(24, _tab_band_px(font) + 4))
+    return width, height
 
 # MorphData's PropMask bit 31 is reserved and MUST be 1
 # ([MS-OFORMS] 2.2.5.2).
@@ -1566,8 +1610,7 @@ def _new_record(kind: str, cache_index: int, name: str, font: _Font) -> ParsedRe
         raise FormParseError(f"no property table for {kind}")
     record = ParsedRecord(spec, 0)
     # fSize is set on every control record Excel writes.
-    width, height = _DEFAULT_SIZE_PT.get(kind, _DEFAULT_SIZE_FALLBACK)
-    record.set_size(points_to_himetric(width), points_to_himetric(height))
+    record.set_size(*_default_size(kind, font))
     if kind in _CAPTIONED:
         record.set_string("Caption", name)
 

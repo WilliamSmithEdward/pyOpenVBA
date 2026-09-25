@@ -80,6 +80,13 @@ All notable changes to pyOpenVBA are documented here. This project follows
   container above it, and two for each page on its MultiPage alone; the
   library counted a MultiPage's tabs and pages against the form and
   left a new container's count unwritten.
+- A control added without a size gets the one the designers give it
+  (#31): a ListBox 72 by 72 points where the library gave 72 by 54, a
+  ToggleButton 36 by 40, a SpinButton and a ScrollBar 12.75 points
+  wide, a Frame 216 by 144, and a MultiPage or a TabStrip 144 by 108,
+  which fell back to 72 by 24. A CheckBox or OptionButton is as tall
+  as its font makes it, never under 18 points:
+  scripts/measure_form_fonts.py measured 22 fonts in both applications.
 
 ## [6.1.2] - 2026-09-23
 

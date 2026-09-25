@@ -19,7 +19,7 @@ from typing import Any
 import pytest
 
 from pyopenvba import ExcelFile
-from pyopenvba._oforms_records import ParsedRecord, serialize_record
+from pyopenvba._oforms_records import ParsedRecord, Size, serialize_record
 from pyopenvba.cfb import CFB
 from pyopenvba.forms import FormControl, VBAForm
 
@@ -205,6 +205,53 @@ def test_containers_count_what_the_designer_counts(host: str, form: str, tmp_pat
     with workbook:
         _compose(composed, STEPS[form])
         assert _counters(composed) == theirs
+
+
+def _size(control: FormControl) -> object:
+    return control.get("DisplayedSize" if control.is_container else "Size")
+
+
+@pytest.mark.parametrize("host", HOSTS)
+def test_a_new_control_takes_the_designers_size(host: str, tmp_path: Path) -> None:
+    with ExcelFile(_office_form(host, "Plain", tmp_path)) as workbook:
+        theirs = {control.name: _size(control) for control in _form(workbook, "Plain").controls}
+    workbook, composed = _composed(tmp_path, "Plain")
+    with workbook:
+        _compose(composed, STEPS["Plain"])
+        assert {control.name: _size(control) for control in composed.controls} == theirs
+
+
+FONTS: dict[str, dict[str, dict[str, Any]]] = json.loads((FIXTURES / "form_fonts.json").read_text(encoding="utf-8"))
+_STDFONT = bytes.fromhex("0352e30b918fce119de300aa004bb851")
+
+
+def _with_font(form: VBAForm, face: str, size: int) -> None:
+    """Give a composed form the StdFont the designer stored for one of its own; the library sets no form
+    font, so this writes the form's record as the designer left it."""
+    level = form._levels[0]  # pyright: ignore[reportPrivateUsage]
+    name = face.encode("cp1252")
+    level.stream.font_raw = _STDFONT + bytes([1, 0, 0, 0]) + (400).to_bytes(2, "little") \
+        + size.to_bytes(4, "little") + bytes([len(name)]) + name
+    level.record.mask |= 1 << 20
+    level.record.values["Font"] = 0xFFFF
+
+
+FONT_ROWS = [(host, key) for host in FONTS for key in FONTS[host]]
+
+
+@pytest.mark.parametrize(("host", "key"), FONT_ROWS, ids=[f"{host}-{key}" for host, key in FONT_ROWS])
+def test_a_new_controls_size_follows_the_font(host: str, key: str, tmp_path: Path) -> None:
+    # Each form was set to one font; a CheckBox or OptionButton is at least 24 pixels tall and grows with
+    # it, every other kind keeps its size.
+    measured = FONTS[host][key]
+    stored: dict[str, Any] = measured["font"] or {"name": "Tahoma", "cy_size": 82500}
+    workbook, composed = _composed(tmp_path, "Fonted")
+    with workbook:
+        _with_font(composed, str(stored["name"]), int(stored["cy_size"]))
+        for name in measured["sizes"]:
+            added = composed.add_control(_kind(name), name, left=0, top=0)
+            size = added.get("Size")
+            assert size == Size(*measured["sizes"][name]), name
 
 
 @pytest.mark.parametrize("host", HOSTS)

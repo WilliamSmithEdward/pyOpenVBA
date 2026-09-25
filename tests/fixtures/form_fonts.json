@@ -1,0 +1,3558 @@
+{
+ "excel": {
+  "Tahoma 7.875": {
+   "font": {
+    "name": "Tahoma",
+    "cy_size": 82500,
+    "charset": 0,
+    "flags": 0,
+    "weight": 400
+   },
+   "sizes": {
+    "Label1": [
+     2540,
+     635
+    ],
+    "CommandButton1": [
+     2540,
+     847
+    ],
+    "TextBox1": [
+     2540,
+     635
+    ],
+    "ComboBox1": [
+     2540,
+     635
+    ],
+    "ListBox1": [
+     2540,
+     2540
+    ],
+    "CheckBox1": [
+     3810,
+     635
+    ],
+    "OptionButton1": [
+     3810,
+     635
+    ],
+    "ToggleButton1": [
+     1270,
+     1411
+    ]
+   },
+   "multipage": {
+    "size": [
+     5080,
+     3810
+    ],
+    "tabstrip": [
+     5080,
+     3810
+    ],
+    "tab_font": {
+     "FontName": "Tahoma",
+     "FontHeight": 165,
+     "FontCharSet": 0,
+     "FontPitchAndFamily": 2
+    },
+    "pages": [
+     {
+      "position": [
+       53,
+       556
+      ],
+      "size": [
+       4974,
+       3201
+      ]
+     },
+     {
+      "position": [
+       53,
+       556
+      ],
+      "size": [
+       4974,
+       3201
+      ]
+     }
+    ]
+   }
+  },
+  "Tahoma 8.25": {
+   "font": {},
+   "sizes": {
+    "Label1": [
+     2540,
+     635
+    ],
+    "CommandButton1": [
+     2540,
+     847
+    ],
+    "TextBox1": [
+     2540,
+     635
+    ],
+    "ComboBox1": [
+     2540,
+     635
+    ],
+    "ListBox1": [
+     2540,
+     2540
+    ],
+    "CheckBox1": [
+     3810,
+     635
+    ],
+    "OptionButton1": [
+     3810,
+     635
+    ],
+    "ToggleButton1": [
+     1270,
+     1411
+    ]
+   },
+   "multipage": {
+    "size": [
+     5080,
+     3810
+    ],
+    "tabstrip": [
+     5080,
+     3810
+    ],
+    "tab_font": {
+     "FontName": "Tahoma",
+     "FontHeight": 165,
+     "FontCharSet": 0,
+     "FontPitchAndFamily": 2
+    },
+    "pages": [
+     {
+      "position": [
+       53,
+       556
+      ],
+      "size": [
+       4974,
+       3201
+      ]
+     },
+     {
+      "position": [
+       53,
+       556
+      ],
+      "size": [
+       4974,
+       3201
+      ]
+     }
+    ]
+   }
+  },
+  "Tahoma 9": {
+   "font": {
+    "name": "Tahoma",
+    "cy_size": 90000,
+    "charset": 0,
+    "flags": 0,
+    "weight": 400
+   },
+   "sizes": {
+    "Label1": [
+     2540,
+     635
+    ],
+    "CommandButton1": [
+     2540,
+     847
+    ],
+    "TextBox1": [
+     2540,
+     635
+    ],
+    "ComboBox1": [
+     2540,
+     635
+    ],
+    "ListBox1": [
+     2540,
+     2540
+    ],
+    "CheckBox1": [
+     3810,
+     635
+    ],
+    "OptionButton1": [
+     3810,
+     635
+    ],
+    "ToggleButton1": [
+     1270,
+     1411
+    ]
+   },
+   "multipage": {
+    "size": [
+     5080,
+     3810
+    ],
+    "tabstrip": [
+     5080,
+     3810
+    ],
+    "tab_font": {
+     "FontName": "Tahoma",
+     "FontHeight": 180,
+     "FontCharSet": 0,
+     "FontPitchAndFamily": 2
+    },
+    "pages": [
+     {
+      "position": [
+       53,
+       582
+      ],
+      "size": [
+       4974,
+       3175
+      ]
+     },
+     {
+      "position": [
+       53,
+       582
+      ],
+      "size": [
+       4974,
+       3175
+      ]
+     }
+    ]
+   }
+  },
+  "Tahoma 9.75": {
+   "font": {
+    "name": "Tahoma",
+    "cy_size": 97500,
+    "charset": 0,
+    "flags": 0,
+    "weight": 400
+   },
+   "sizes": {
+    "Label1": [
+     2540,
+     635
+    ],
+    "CommandButton1": [
+     2540,
+     847
+    ],
+    "TextBox1": [
+     2540,
+     635
+    ],
+    "ComboBox1": [
+     2540,
+     635
+    ],
+    "ListBox1": [
+     2540,
+     2540
+    ],
+    "CheckBox1": [
+     3810,
+     688
+    ],
+    "OptionButton1": [
+     3810,
+     688
+    ],
+    "ToggleButton1": [
+     1270,
+     1411
+    ]
+   },
+   "multipage": {
+    "size": [
+     5080,
+     3810
+    ],
+    "tabstrip": [
+     5080,
+     3810
+    ],
+    "tab_font": {
+     "FontName": "Tahoma",
+     "FontHeight": 195,
+     "FontCharSet": 0,
+     "FontPitchAndFamily": 2
+    },
+    "pages": [
+     {
+      "position": [
+       53,
+       635
+      ],
+      "size": [
+       4974,
+       3122
+      ]
+     },
+     {
+      "position": [
+       53,
+       635
+      ],
+      "size": [
+       4974,
+       3122
+      ]
+     }
+    ]
+   }
+  },
+  "Tahoma 10.125": {
+   "font": {
+    "name": "Tahoma",
+    "cy_size": 105000,
+    "charset": 0,
+    "flags": 0,
+    "weight": 400
+   },
+   "sizes": {
+    "Label1": [
+     2540,
+     635
+    ],
+    "CommandButton1": [
+     2540,
+     847
+    ],
+    "TextBox1": [
+     2540,
+     635
+    ],
+    "ComboBox1": [
+     2540,
+     635
+    ],
+    "ListBox1": [
+     2540,
+     2540
+    ],
+    "CheckBox1": [
+     3810,
+     714
+    ],
+    "OptionButton1": [
+     3810,
+     714
+    ],
+    "ToggleButton1": [
+     1270,
+     1411
+    ]
+   },
+   "multipage": {
+    "size": [
+     5080,
+     3810
+    ],
+    "tabstrip": [
+     5080,
+     3810
+    ],
+    "tab_font": {
+     "FontName": "Tahoma",
+     "FontHeight": 210,
+     "FontCharSet": 0,
+     "FontPitchAndFamily": 2
+    },
+    "pages": [
+     {
+      "position": [
+       53,
+       661
+      ],
+      "size": [
+       4974,
+       3096
+      ]
+     },
+     {
+      "position": [
+       53,
+       661
+      ],
+      "size": [
+       4974,
+       3096
+      ]
+     }
+    ]
+   }
+  },
+  "Tahoma 12": {
+   "font": {
+    "name": "Tahoma",
+    "cy_size": 120000,
+    "charset": 0,
+    "flags": 0,
+    "weight": 400
+   },
+   "sizes": {
+    "Label1": [
+     2540,
+     635
+    ],
+    "CommandButton1": [
+     2540,
+     847
+    ],
+    "TextBox1": [
+     2540,
+     635
+    ],
+    "ComboBox1": [
+     2540,
+     635
+    ],
+    "ListBox1": [
+     2540,
+     2540
+    ],
+    "CheckBox1": [
+     3810,
+     767
+    ],
+    "OptionButton1": [
+     3810,
+     767
+    ],
+    "ToggleButton1": [
+     1270,
+     1411
+    ]
+   },
+   "multipage": {
+    "size": [
+     5080,
+     3810
+    ],
+    "tabstrip": [
+     5080,
+     3810
+    ],
+    "tab_font": {
+     "FontName": "Tahoma",
+     "FontHeight": 240,
+     "FontCharSet": 0,
+     "FontPitchAndFamily": 2
+    },
+    "pages": [
+     {
+      "position": [
+       53,
+       714
+      ],
+      "size": [
+       4974,
+       3043
+      ]
+     },
+     {
+      "position": [
+       53,
+       714
+      ],
+      "size": [
+       4974,
+       3043
+      ]
+     }
+    ]
+   }
+  },
+  "Arial 8.25": {
+   "font": {
+    "name": "Arial",
+    "cy_size": 82500,
+    "charset": 0,
+    "flags": 0,
+    "weight": 400
+   },
+   "sizes": {
+    "Label1": [
+     2540,
+     635
+    ],
+    "CommandButton1": [
+     2540,
+     847
+    ],
+    "TextBox1": [
+     2540,
+     635
+    ],
+    "ComboBox1": [
+     2540,
+     635
+    ],
+    "ListBox1": [
+     2540,
+     2540
+    ],
+    "CheckBox1": [
+     3810,
+     635
+    ],
+    "OptionButton1": [
+     3810,
+     635
+    ],
+    "ToggleButton1": [
+     1270,
+     1411
+    ]
+   },
+   "multipage": {
+    "size": [
+     5080,
+     3810
+    ],
+    "tabstrip": [
+     5080,
+     3810
+    ],
+    "tab_font": {
+     "FontName": "Arial",
+     "FontHeight": 165,
+     "FontCharSet": 0,
+     "FontPitchAndFamily": 2
+    },
+    "pages": [
+     {
+      "position": [
+       53,
+       582
+      ],
+      "size": [
+       4974,
+       3175
+      ]
+     },
+     {
+      "position": [
+       53,
+       582
+      ],
+      "size": [
+       4974,
+       3175
+      ]
+     }
+    ]
+   }
+  },
+  "Arial 9": {
+   "font": {
+    "name": "Arial",
+    "cy_size": 90000,
+    "charset": 0,
+    "flags": 0,
+    "weight": 400
+   },
+   "sizes": {
+    "Label1": [
+     2540,
+     635
+    ],
+    "CommandButton1": [
+     2540,
+     847
+    ],
+    "TextBox1": [
+     2540,
+     635
+    ],
+    "ComboBox1": [
+     2540,
+     635
+    ],
+    "ListBox1": [
+     2540,
+     2540
+    ],
+    "CheckBox1": [
+     3810,
+     661
+    ],
+    "OptionButton1": [
+     3810,
+     661
+    ],
+    "ToggleButton1": [
+     1270,
+     1411
+    ]
+   },
+   "multipage": {
+    "size": [
+     5080,
+     3810
+    ],
+    "tabstrip": [
+     5080,
+     3810
+    ],
+    "tab_font": {
+     "FontName": "Arial",
+     "FontHeight": 180,
+     "FontCharSet": 0,
+     "FontPitchAndFamily": 2
+    },
+    "pages": [
+     {
+      "position": [
+       53,
+       609
+      ],
+      "size": [
+       4974,
+       3148
+      ]
+     },
+     {
+      "position": [
+       53,
+       609
+      ],
+      "size": [
+       4974,
+       3148
+      ]
+     }
+    ]
+   }
+  },
+  "Arial 9.75": {
+   "font": {
+    "name": "Arial",
+    "cy_size": 97500,
+    "charset": 0,
+    "flags": 0,
+    "weight": 400
+   },
+   "sizes": {
+    "Label1": [
+     2540,
+     635
+    ],
+    "CommandButton1": [
+     2540,
+     847
+    ],
+    "TextBox1": [
+     2540,
+     635
+    ],
+    "ComboBox1": [
+     2540,
+     635
+    ],
+    "ListBox1": [
+     2540,
+     2540
+    ],
+    "CheckBox1": [
+     3810,
+     688
+    ],
+    "OptionButton1": [
+     3810,
+     688
+    ],
+    "ToggleButton1": [
+     1270,
+     1411
+    ]
+   },
+   "multipage": {
+    "size": [
+     5080,
+     3810
+    ],
+    "tabstrip": [
+     5080,
+     3810
+    ],
+    "tab_font": {
+     "FontName": "Arial",
+     "FontHeight": 195,
+     "FontCharSet": 0,
+     "FontPitchAndFamily": 2
+    },
+    "pages": [
+     {
+      "position": [
+       53,
+       635
+      ],
+      "size": [
+       4974,
+       3122
+      ]
+     },
+     {
+      "position": [
+       53,
+       635
+      ],
+      "size": [
+       4974,
+       3122
+      ]
+     }
+    ]
+   }
+  },
+  "Arial 10.125": {
+   "font": {
+    "name": "Arial",
+    "cy_size": 105000,
+    "charset": 0,
+    "flags": 0,
+    "weight": 400
+   },
+   "sizes": {
+    "Label1": [
+     2540,
+     635
+    ],
+    "CommandButton1": [
+     2540,
+     847
+    ],
+    "TextBox1": [
+     2540,
+     635
+    ],
+    "ComboBox1": [
+     2540,
+     635
+    ],
+    "ListBox1": [
+     2540,
+     2540
+    ],
+    "CheckBox1": [
+     3810,
+     688
+    ],
+    "OptionButton1": [
+     3810,
+     688
+    ],
+    "ToggleButton1": [
+     1270,
+     1411
+    ]
+   },
+   "multipage": {
+    "size": [
+     5080,
+     3810
+    ],
+    "tabstrip": [
+     5080,
+     3810
+    ],
+    "tab_font": {
+     "FontName": "Arial",
+     "FontHeight": 210,
+     "FontCharSet": 0,
+     "FontPitchAndFamily": 2
+    },
+    "pages": [
+     {
+      "position": [
+       53,
+       635
+      ],
+      "size": [
+       4974,
+       3122
+      ]
+     },
+     {
+      "position": [
+       53,
+       635
+      ],
+      "size": [
+       4974,
+       3122
+      ]
+     }
+    ]
+   }
+  },
+  "Arial 12": {
+   "font": {
+    "name": "Arial",
+    "cy_size": 120000,
+    "charset": 0,
+    "flags": 0,
+    "weight": 400
+   },
+   "sizes": {
+    "Label1": [
+     2540,
+     635
+    ],
+    "CommandButton1": [
+     2540,
+     847
+    ],
+    "TextBox1": [
+     2540,
+     635
+    ],
+    "ComboBox1": [
+     2540,
+     635
+    ],
+    "ListBox1": [
+     2540,
+     2540
+    ],
+    "CheckBox1": [
+     3810,
+     741
+    ],
+    "OptionButton1": [
+     3810,
+     741
+    ],
+    "ToggleButton1": [
+     1270,
+     1411
+    ]
+   },
+   "multipage": {
+    "size": [
+     5080,
+     3810
+    ],
+    "tabstrip": [
+     5080,
+     3810
+    ],
+    "tab_font": {
+     "FontName": "Arial",
+     "FontHeight": 240,
+     "FontCharSet": 0,
+     "FontPitchAndFamily": 2
+    },
+    "pages": [
+     {
+      "position": [
+       53,
+       688
+      ],
+      "size": [
+       4974,
+       3069
+      ]
+     },
+     {
+      "position": [
+       53,
+       688
+      ],
+      "size": [
+       4974,
+       3069
+      ]
+     }
+    ]
+   }
+  },
+  "Segoe UI 8.25": {
+   "font": {
+    "name": "Segoe UI",
+    "cy_size": 82500,
+    "charset": 0,
+    "flags": 0,
+    "weight": 400
+   },
+   "sizes": {
+    "Label1": [
+     2540,
+     635
+    ],
+    "CommandButton1": [
+     2540,
+     847
+    ],
+    "TextBox1": [
+     2540,
+     635
+    ],
+    "ComboBox1": [
+     2540,
+     635
+    ],
+    "ListBox1": [
+     2540,
+     2540
+    ],
+    "CheckBox1": [
+     3810,
+     635
+    ],
+    "OptionButton1": [
+     3810,
+     635
+    ],
+    "ToggleButton1": [
+     1270,
+     1411
+    ]
+   },
+   "multipage": {
+    "size": [
+     5080,
+     3810
+    ],
+    "tabstrip": [
+     5080,
+     3810
+    ],
+    "tab_font": {
+     "FontName": "Segoe UI",
+     "FontHeight": 165,
+     "FontCharSet": 0,
+     "FontPitchAndFamily": 2
+    },
+    "pages": [
+     {
+      "position": [
+       53,
+       556
+      ],
+      "size": [
+       4974,
+       3201
+      ]
+     },
+     {
+      "position": [
+       53,
+       556
+      ],
+      "size": [
+       4974,
+       3201
+      ]
+     }
+    ]
+   }
+  },
+  "Segoe UI 9": {
+   "font": {
+    "name": "Segoe UI",
+    "cy_size": 90000,
+    "charset": 0,
+    "flags": 0,
+    "weight": 400
+   },
+   "sizes": {
+    "Label1": [
+     2540,
+     635
+    ],
+    "CommandButton1": [
+     2540,
+     847
+    ],
+    "TextBox1": [
+     2540,
+     635
+    ],
+    "ComboBox1": [
+     2540,
+     635
+    ],
+    "ListBox1": [
+     2540,
+     2540
+    ],
+    "CheckBox1": [
+     3810,
+     661
+    ],
+    "OptionButton1": [
+     3810,
+     661
+    ],
+    "ToggleButton1": [
+     1270,
+     1411
+    ]
+   },
+   "multipage": {
+    "size": [
+     5080,
+     3810
+    ],
+    "tabstrip": [
+     5080,
+     3810
+    ],
+    "tab_font": {
+     "FontName": "Segoe UI",
+     "FontHeight": 180,
+     "FontCharSet": 0,
+     "FontPitchAndFamily": 2
+    },
+    "pages": [
+     {
+      "position": [
+       53,
+       609
+      ],
+      "size": [
+       4974,
+       3148
+      ]
+     },
+     {
+      "position": [
+       53,
+       609
+      ],
+      "size": [
+       4974,
+       3148
+      ]
+     }
+    ]
+   }
+  },
+  "Segoe UI 9.75": {
+   "font": {
+    "name": "Segoe UI",
+    "cy_size": 97500,
+    "charset": 0,
+    "flags": 0,
+    "weight": 400
+   },
+   "sizes": {
+    "Label1": [
+     2540,
+     635
+    ],
+    "CommandButton1": [
+     2540,
+     847
+    ],
+    "TextBox1": [
+     2540,
+     635
+    ],
+    "ComboBox1": [
+     2540,
+     635
+    ],
+    "ListBox1": [
+     2540,
+     2540
+    ],
+    "CheckBox1": [
+     3810,
+     714
+    ],
+    "OptionButton1": [
+     3810,
+     714
+    ],
+    "ToggleButton1": [
+     1270,
+     1411
+    ]
+   },
+   "multipage": {
+    "size": [
+     5080,
+     3810
+    ],
+    "tabstrip": [
+     5080,
+     3810
+    ],
+    "tab_font": {
+     "FontName": "Segoe UI",
+     "FontHeight": 195,
+     "FontCharSet": 0,
+     "FontPitchAndFamily": 2
+    },
+    "pages": [
+     {
+      "position": [
+       53,
+       661
+      ],
+      "size": [
+       4974,
+       3096
+      ]
+     },
+     {
+      "position": [
+       53,
+       661
+      ],
+      "size": [
+       4974,
+       3096
+      ]
+     }
+    ]
+   }
+  },
+  "Calibri 9.75": {
+   "font": {
+    "name": "Calibri",
+    "cy_size": 97500,
+    "charset": 0,
+    "flags": 0,
+    "weight": 400
+   },
+   "sizes": {
+    "Label1": [
+     2540,
+     635
+    ],
+    "CommandButton1": [
+     2540,
+     847
+    ],
+    "TextBox1": [
+     2540,
+     635
+    ],
+    "ComboBox1": [
+     2540,
+     635
+    ],
+    "ListBox1": [
+     2540,
+     2540
+    ],
+    "CheckBox1": [
+     3810,
+     661
+    ],
+    "OptionButton1": [
+     3810,
+     661
+    ],
+    "ToggleButton1": [
+     1270,
+     1411
+    ]
+   },
+   "multipage": {
+    "size": [
+     5080,
+     3810
+    ],
+    "tabstrip": [
+     5080,
+     3810
+    ],
+    "tab_font": {
+     "FontName": "Calibri",
+     "FontHeight": 195,
+     "FontCharSet": 0,
+     "FontPitchAndFamily": 2
+    },
+    "pages": [
+     {
+      "position": [
+       53,
+       609
+      ],
+      "size": [
+       4974,
+       3148
+      ]
+     },
+     {
+      "position": [
+       53,
+       609
+      ],
+      "size": [
+       4974,
+       3148
+      ]
+     }
+    ]
+   }
+  },
+  "Calibri 11.25": {
+   "font": {
+    "name": "Calibri",
+    "cy_size": 112500,
+    "charset": 0,
+    "flags": 0,
+    "weight": 400
+   },
+   "sizes": {
+    "Label1": [
+     2540,
+     635
+    ],
+    "CommandButton1": [
+     2540,
+     847
+    ],
+    "TextBox1": [
+     2540,
+     635
+    ],
+    "ComboBox1": [
+     2540,
+     635
+    ],
+    "ListBox1": [
+     2540,
+     2540
+    ],
+    "CheckBox1": [
+     3810,
+     741
+    ],
+    "OptionButton1": [
+     3810,
+     741
+    ],
+    "ToggleButton1": [
+     1270,
+     1411
+    ]
+   },
+   "multipage": {
+    "size": [
+     5080,
+     3810
+    ],
+    "tabstrip": [
+     5080,
+     3810
+    ],
+    "tab_font": {
+     "FontName": "Calibri",
+     "FontHeight": 225,
+     "FontCharSet": 0,
+     "FontPitchAndFamily": 2
+    },
+    "pages": [
+     {
+      "position": [
+       53,
+       688
+      ],
+      "size": [
+       4974,
+       3069
+      ]
+     },
+     {
+      "position": [
+       53,
+       688
+      ],
+      "size": [
+       4974,
+       3069
+      ]
+     }
+    ]
+   }
+  },
+  "Aptos 10.125": {
+   "font": {
+    "name": "Arial",
+    "cy_size": 105000,
+    "charset": 0,
+    "flags": 0,
+    "weight": 400
+   },
+   "sizes": {
+    "Label1": [
+     2540,
+     635
+    ],
+    "CommandButton1": [
+     2540,
+     847
+    ],
+    "TextBox1": [
+     2540,
+     635
+    ],
+    "ComboBox1": [
+     2540,
+     635
+    ],
+    "ListBox1": [
+     2540,
+     2540
+    ],
+    "CheckBox1": [
+     3810,
+     688
+    ],
+    "OptionButton1": [
+     3810,
+     688
+    ],
+    "ToggleButton1": [
+     1270,
+     1411
+    ]
+   },
+   "multipage": {
+    "size": [
+     5080,
+     3810
+    ],
+    "tabstrip": [
+     5080,
+     3810
+    ],
+    "tab_font": {
+     "FontName": "Arial",
+     "FontHeight": 210,
+     "FontCharSet": 0,
+     "FontPitchAndFamily": 2
+    },
+    "pages": [
+     {
+      "position": [
+       53,
+       635
+      ],
+      "size": [
+       4974,
+       3122
+      ]
+     },
+     {
+      "position": [
+       53,
+       635
+      ],
+      "size": [
+       4974,
+       3122
+      ]
+     }
+    ]
+   }
+  },
+  "Aptos 11.25": {
+   "font": {
+    "name": "Arial",
+    "cy_size": 112500,
+    "charset": 0,
+    "flags": 0,
+    "weight": 400
+   },
+   "sizes": {
+    "Label1": [
+     2540,
+     635
+    ],
+    "CommandButton1": [
+     2540,
+     847
+    ],
+    "TextBox1": [
+     2540,
+     635
+    ],
+    "ComboBox1": [
+     2540,
+     635
+    ],
+    "ListBox1": [
+     2540,
+     2540
+    ],
+    "CheckBox1": [
+     3810,
+     714
+    ],
+    "OptionButton1": [
+     3810,
+     714
+    ],
+    "ToggleButton1": [
+     1270,
+     1411
+    ]
+   },
+   "multipage": {
+    "size": [
+     5080,
+     3810
+    ],
+    "tabstrip": [
+     5080,
+     3810
+    ],
+    "tab_font": {
+     "FontName": "Arial",
+     "FontHeight": 225,
+     "FontCharSet": 0,
+     "FontPitchAndFamily": 2
+    },
+    "pages": [
+     {
+      "position": [
+       53,
+       661
+      ],
+      "size": [
+       4974,
+       3096
+      ]
+     },
+     {
+      "position": [
+       53,
+       661
+      ],
+      "size": [
+       4974,
+       3096
+      ]
+     }
+    ]
+   }
+  },
+  "Microsoft Sans Serif 8.25": {
+   "font": {
+    "name": "Microsoft Sans Serif",
+    "cy_size": 82500,
+    "charset": 0,
+    "flags": 0,
+    "weight": 400
+   },
+   "sizes": {
+    "Label1": [
+     2540,
+     635
+    ],
+    "CommandButton1": [
+     2540,
+     847
+    ],
+    "TextBox1": [
+     2540,
+     635
+    ],
+    "ComboBox1": [
+     2540,
+     635
+    ],
+    "ListBox1": [
+     2540,
+     2540
+    ],
+    "CheckBox1": [
+     3810,
+     635
+    ],
+    "OptionButton1": [
+     3810,
+     635
+    ],
+    "ToggleButton1": [
+     1270,
+     1411
+    ]
+   },
+   "multipage": {
+    "size": [
+     5080,
+     3810
+    ],
+    "tabstrip": [
+     5080,
+     3810
+    ],
+    "tab_font": {
+     "FontName": "Microsoft Sans Serif",
+     "FontHeight": 165,
+     "FontCharSet": 0,
+     "FontPitchAndFamily": 2
+    },
+    "pages": [
+     {
+      "position": [
+       53,
+       556
+      ],
+      "size": [
+       4974,
+       3201
+      ]
+     },
+     {
+      "position": [
+       53,
+       556
+      ],
+      "size": [
+       4974,
+       3201
+      ]
+     }
+    ]
+   }
+  },
+  "Verdana 8.25": {
+   "font": {
+    "name": "Verdana",
+    "cy_size": 82500,
+    "charset": 0,
+    "flags": 0,
+    "weight": 400
+   },
+   "sizes": {
+    "Label1": [
+     2540,
+     635
+    ],
+    "CommandButton1": [
+     2540,
+     847
+    ],
+    "TextBox1": [
+     2540,
+     635
+    ],
+    "ComboBox1": [
+     2540,
+     635
+    ],
+    "ListBox1": [
+     2540,
+     2540
+    ],
+    "CheckBox1": [
+     3810,
+     635
+    ],
+    "OptionButton1": [
+     3810,
+     635
+    ],
+    "ToggleButton1": [
+     1270,
+     1411
+    ]
+   },
+   "multipage": {
+    "size": [
+     5080,
+     3810
+    ],
+    "tabstrip": [
+     5080,
+     3810
+    ],
+    "tab_font": {
+     "FontName": "Verdana",
+     "FontHeight": 165,
+     "FontCharSet": 0,
+     "FontPitchAndFamily": 2
+    },
+    "pages": [
+     {
+      "position": [
+       53,
+       556
+      ],
+      "size": [
+       4974,
+       3201
+      ]
+     },
+     {
+      "position": [
+       53,
+       556
+      ],
+      "size": [
+       4974,
+       3201
+      ]
+     }
+    ]
+   }
+  },
+  "Times New Roman 12": {
+   "font": {
+    "name": "Times New Roman",
+    "cy_size": 120000,
+    "charset": 0,
+    "flags": 0,
+    "weight": 400
+   },
+   "sizes": {
+    "Label1": [
+     2540,
+     635
+    ],
+    "CommandButton1": [
+     2540,
+     847
+    ],
+    "TextBox1": [
+     2540,
+     635
+    ],
+    "ComboBox1": [
+     2540,
+     635
+    ],
+    "ListBox1": [
+     2540,
+     2540
+    ],
+    "CheckBox1": [
+     3810,
+     767
+    ],
+    "OptionButton1": [
+     3810,
+     767
+    ],
+    "ToggleButton1": [
+     1270,
+     1411
+    ]
+   },
+   "multipage": {
+    "size": [
+     5080,
+     3810
+    ],
+    "tabstrip": [
+     5080,
+     3810
+    ],
+    "tab_font": {
+     "FontName": "Times New Roman",
+     "FontHeight": 240,
+     "FontCharSet": 0,
+     "FontPitchAndFamily": 2
+    },
+    "pages": [
+     {
+      "position": [
+       53,
+       714
+      ],
+      "size": [
+       4974,
+       3043
+      ]
+     },
+     {
+      "position": [
+       53,
+       714
+      ],
+      "size": [
+       4974,
+       3043
+      ]
+     }
+    ]
+   }
+  },
+  "Courier New 9": {
+   "font": {
+    "name": "Courier New",
+    "cy_size": 90000,
+    "charset": 0,
+    "flags": 0,
+    "weight": 400
+   },
+   "sizes": {
+    "Label1": [
+     2540,
+     635
+    ],
+    "CommandButton1": [
+     2540,
+     847
+    ],
+    "TextBox1": [
+     2540,
+     635
+    ],
+    "ComboBox1": [
+     2540,
+     635
+    ],
+    "ListBox1": [
+     2540,
+     2540
+    ],
+    "CheckBox1": [
+     3810,
+     661
+    ],
+    "OptionButton1": [
+     3810,
+     661
+    ],
+    "ToggleButton1": [
+     1270,
+     1411
+    ]
+   },
+   "multipage": {
+    "size": [
+     5080,
+     3810
+    ],
+    "tabstrip": [
+     5080,
+     3810
+    ],
+    "tab_font": {
+     "FontName": "Courier New",
+     "FontHeight": 180,
+     "FontCharSet": 0,
+     "FontPitchAndFamily": 2
+    },
+    "pages": [
+     {
+      "position": [
+       53,
+       609
+      ],
+      "size": [
+       4974,
+       3148
+      ]
+     },
+     {
+      "position": [
+       53,
+       609
+      ],
+      "size": [
+       4974,
+       3148
+      ]
+     }
+    ]
+   }
+  }
+ },
+ "word": {
+  "Tahoma 7.875": {
+   "font": {
+    "name": "Tahoma",
+    "cy_size": 82500,
+    "charset": 0,
+    "flags": 0,
+    "weight": 400
+   },
+   "sizes": {
+    "Label1": [
+     2540,
+     635
+    ],
+    "CommandButton1": [
+     2540,
+     847
+    ],
+    "TextBox1": [
+     2540,
+     635
+    ],
+    "ComboBox1": [
+     2540,
+     635
+    ],
+    "ListBox1": [
+     2540,
+     2540
+    ],
+    "CheckBox1": [
+     3810,
+     635
+    ],
+    "OptionButton1": [
+     3810,
+     635
+    ],
+    "ToggleButton1": [
+     1270,
+     1411
+    ]
+   },
+   "multipage": {
+    "size": [
+     5080,
+     3810
+    ],
+    "tabstrip": [
+     5080,
+     3810
+    ],
+    "tab_font": {
+     "FontName": "Tahoma",
+     "FontHeight": 165,
+     "FontCharSet": 0,
+     "FontPitchAndFamily": 2
+    },
+    "pages": [
+     {
+      "position": [
+       53,
+       556
+      ],
+      "size": [
+       4974,
+       3201
+      ]
+     },
+     {
+      "position": [
+       53,
+       556
+      ],
+      "size": [
+       4974,
+       3201
+      ]
+     }
+    ]
+   }
+  },
+  "Tahoma 8.25": {
+   "font": {},
+   "sizes": {
+    "Label1": [
+     2540,
+     635
+    ],
+    "CommandButton1": [
+     2540,
+     847
+    ],
+    "TextBox1": [
+     2540,
+     635
+    ],
+    "ComboBox1": [
+     2540,
+     635
+    ],
+    "ListBox1": [
+     2540,
+     2540
+    ],
+    "CheckBox1": [
+     3810,
+     635
+    ],
+    "OptionButton1": [
+     3810,
+     635
+    ],
+    "ToggleButton1": [
+     1270,
+     1411
+    ]
+   },
+   "multipage": {
+    "size": [
+     5080,
+     3810
+    ],
+    "tabstrip": [
+     5080,
+     3810
+    ],
+    "tab_font": {
+     "FontName": "Tahoma",
+     "FontHeight": 165,
+     "FontCharSet": 0,
+     "FontPitchAndFamily": 2
+    },
+    "pages": [
+     {
+      "position": [
+       53,
+       556
+      ],
+      "size": [
+       4974,
+       3201
+      ]
+     },
+     {
+      "position": [
+       53,
+       556
+      ],
+      "size": [
+       4974,
+       3201
+      ]
+     }
+    ]
+   }
+  },
+  "Tahoma 9": {
+   "font": {
+    "name": "Tahoma",
+    "cy_size": 90000,
+    "charset": 0,
+    "flags": 0,
+    "weight": 400
+   },
+   "sizes": {
+    "Label1": [
+     2540,
+     635
+    ],
+    "CommandButton1": [
+     2540,
+     847
+    ],
+    "TextBox1": [
+     2540,
+     635
+    ],
+    "ComboBox1": [
+     2540,
+     635
+    ],
+    "ListBox1": [
+     2540,
+     2540
+    ],
+    "CheckBox1": [
+     3810,
+     635
+    ],
+    "OptionButton1": [
+     3810,
+     635
+    ],
+    "ToggleButton1": [
+     1270,
+     1411
+    ]
+   },
+   "multipage": {
+    "size": [
+     5080,
+     3810
+    ],
+    "tabstrip": [
+     5080,
+     3810
+    ],
+    "tab_font": {
+     "FontName": "Tahoma",
+     "FontHeight": 180,
+     "FontCharSet": 0,
+     "FontPitchAndFamily": 2
+    },
+    "pages": [
+     {
+      "position": [
+       53,
+       582
+      ],
+      "size": [
+       4974,
+       3175
+      ]
+     },
+     {
+      "position": [
+       53,
+       582
+      ],
+      "size": [
+       4974,
+       3175
+      ]
+     }
+    ]
+   }
+  },
+  "Tahoma 9.75": {
+   "font": {
+    "name": "Tahoma",
+    "cy_size": 97500,
+    "charset": 0,
+    "flags": 0,
+    "weight": 400
+   },
+   "sizes": {
+    "Label1": [
+     2540,
+     635
+    ],
+    "CommandButton1": [
+     2540,
+     847
+    ],
+    "TextBox1": [
+     2540,
+     635
+    ],
+    "ComboBox1": [
+     2540,
+     635
+    ],
+    "ListBox1": [
+     2540,
+     2540
+    ],
+    "CheckBox1": [
+     3810,
+     688
+    ],
+    "OptionButton1": [
+     3810,
+     688
+    ],
+    "ToggleButton1": [
+     1270,
+     1411
+    ]
+   },
+   "multipage": {
+    "size": [
+     5080,
+     3810
+    ],
+    "tabstrip": [
+     5080,
+     3810
+    ],
+    "tab_font": {
+     "FontName": "Tahoma",
+     "FontHeight": 195,
+     "FontCharSet": 0,
+     "FontPitchAndFamily": 2
+    },
+    "pages": [
+     {
+      "position": [
+       53,
+       635
+      ],
+      "size": [
+       4974,
+       3122
+      ]
+     },
+     {
+      "position": [
+       53,
+       635
+      ],
+      "size": [
+       4974,
+       3122
+      ]
+     }
+    ]
+   }
+  },
+  "Tahoma 10.125": {
+   "font": {
+    "name": "Tahoma",
+    "cy_size": 105000,
+    "charset": 0,
+    "flags": 0,
+    "weight": 400
+   },
+   "sizes": {
+    "Label1": [
+     2540,
+     635
+    ],
+    "CommandButton1": [
+     2540,
+     847
+    ],
+    "TextBox1": [
+     2540,
+     635
+    ],
+    "ComboBox1": [
+     2540,
+     635
+    ],
+    "ListBox1": [
+     2540,
+     2540
+    ],
+    "CheckBox1": [
+     3810,
+     714
+    ],
+    "OptionButton1": [
+     3810,
+     714
+    ],
+    "ToggleButton1": [
+     1270,
+     1411
+    ]
+   },
+   "multipage": {
+    "size": [
+     5080,
+     3810
+    ],
+    "tabstrip": [
+     5080,
+     3810
+    ],
+    "tab_font": {
+     "FontName": "Tahoma",
+     "FontHeight": 210,
+     "FontCharSet": 0,
+     "FontPitchAndFamily": 2
+    },
+    "pages": [
+     {
+      "position": [
+       53,
+       661
+      ],
+      "size": [
+       4974,
+       3096
+      ]
+     },
+     {
+      "position": [
+       53,
+       661
+      ],
+      "size": [
+       4974,
+       3096
+      ]
+     }
+    ]
+   }
+  },
+  "Tahoma 12": {
+   "font": {
+    "name": "Tahoma",
+    "cy_size": 120000,
+    "charset": 0,
+    "flags": 0,
+    "weight": 400
+   },
+   "sizes": {
+    "Label1": [
+     2540,
+     635
+    ],
+    "CommandButton1": [
+     2540,
+     847
+    ],
+    "TextBox1": [
+     2540,
+     635
+    ],
+    "ComboBox1": [
+     2540,
+     635
+    ],
+    "ListBox1": [
+     2540,
+     2540
+    ],
+    "CheckBox1": [
+     3810,
+     767
+    ],
+    "OptionButton1": [
+     3810,
+     767
+    ],
+    "ToggleButton1": [
+     1270,
+     1411
+    ]
+   },
+   "multipage": {
+    "size": [
+     5080,
+     3810
+    ],
+    "tabstrip": [
+     5080,
+     3810
+    ],
+    "tab_font": {
+     "FontName": "Tahoma",
+     "FontHeight": 240,
+     "FontCharSet": 0,
+     "FontPitchAndFamily": 2
+    },
+    "pages": [
+     {
+      "position": [
+       53,
+       714
+      ],
+      "size": [
+       4974,
+       3043
+      ]
+     },
+     {
+      "position": [
+       53,
+       714
+      ],
+      "size": [
+       4974,
+       3043
+      ]
+     }
+    ]
+   }
+  },
+  "Arial 8.25": {
+   "font": {
+    "name": "Arial",
+    "cy_size": 82500,
+    "charset": 0,
+    "flags": 0,
+    "weight": 400
+   },
+   "sizes": {
+    "Label1": [
+     2540,
+     635
+    ],
+    "CommandButton1": [
+     2540,
+     847
+    ],
+    "TextBox1": [
+     2540,
+     635
+    ],
+    "ComboBox1": [
+     2540,
+     635
+    ],
+    "ListBox1": [
+     2540,
+     2540
+    ],
+    "CheckBox1": [
+     3810,
+     635
+    ],
+    "OptionButton1": [
+     3810,
+     635
+    ],
+    "ToggleButton1": [
+     1270,
+     1411
+    ]
+   },
+   "multipage": {
+    "size": [
+     5080,
+     3810
+    ],
+    "tabstrip": [
+     5080,
+     3810
+    ],
+    "tab_font": {
+     "FontName": "Arial",
+     "FontHeight": 165,
+     "FontCharSet": 0,
+     "FontPitchAndFamily": 2
+    },
+    "pages": [
+     {
+      "position": [
+       53,
+       582
+      ],
+      "size": [
+       4974,
+       3175
+      ]
+     },
+     {
+      "position": [
+       53,
+       582
+      ],
+      "size": [
+       4974,
+       3175
+      ]
+     }
+    ]
+   }
+  },
+  "Arial 9": {
+   "font": {
+    "name": "Arial",
+    "cy_size": 90000,
+    "charset": 0,
+    "flags": 0,
+    "weight": 400
+   },
+   "sizes": {
+    "Label1": [
+     2540,
+     635
+    ],
+    "CommandButton1": [
+     2540,
+     847
+    ],
+    "TextBox1": [
+     2540,
+     635
+    ],
+    "ComboBox1": [
+     2540,
+     635
+    ],
+    "ListBox1": [
+     2540,
+     2540
+    ],
+    "CheckBox1": [
+     3810,
+     661
+    ],
+    "OptionButton1": [
+     3810,
+     661
+    ],
+    "ToggleButton1": [
+     1270,
+     1411
+    ]
+   },
+   "multipage": {
+    "size": [
+     5080,
+     3810
+    ],
+    "tabstrip": [
+     5080,
+     3810
+    ],
+    "tab_font": {
+     "FontName": "Arial",
+     "FontHeight": 180,
+     "FontCharSet": 0,
+     "FontPitchAndFamily": 2
+    },
+    "pages": [
+     {
+      "position": [
+       53,
+       609
+      ],
+      "size": [
+       4974,
+       3148
+      ]
+     },
+     {
+      "position": [
+       53,
+       609
+      ],
+      "size": [
+       4974,
+       3148
+      ]
+     }
+    ]
+   }
+  },
+  "Arial 9.75": {
+   "font": {
+    "name": "Arial",
+    "cy_size": 97500,
+    "charset": 0,
+    "flags": 0,
+    "weight": 400
+   },
+   "sizes": {
+    "Label1": [
+     2540,
+     635
+    ],
+    "CommandButton1": [
+     2540,
+     847
+    ],
+    "TextBox1": [
+     2540,
+     635
+    ],
+    "ComboBox1": [
+     2540,
+     635
+    ],
+    "ListBox1": [
+     2540,
+     2540
+    ],
+    "CheckBox1": [
+     3810,
+     688
+    ],
+    "OptionButton1": [
+     3810,
+     688
+    ],
+    "ToggleButton1": [
+     1270,
+     1411
+    ]
+   },
+   "multipage": {
+    "size": [
+     5080,
+     3810
+    ],
+    "tabstrip": [
+     5080,
+     3810
+    ],
+    "tab_font": {
+     "FontName": "Arial",
+     "FontHeight": 195,
+     "FontCharSet": 0,
+     "FontPitchAndFamily": 2
+    },
+    "pages": [
+     {
+      "position": [
+       53,
+       635
+      ],
+      "size": [
+       4974,
+       3122
+      ]
+     },
+     {
+      "position": [
+       53,
+       635
+      ],
+      "size": [
+       4974,
+       3122
+      ]
+     }
+    ]
+   }
+  },
+  "Arial 10.125": {
+   "font": {
+    "name": "Arial",
+    "cy_size": 105000,
+    "charset": 0,
+    "flags": 0,
+    "weight": 400
+   },
+   "sizes": {
+    "Label1": [
+     2540,
+     635
+    ],
+    "CommandButton1": [
+     2540,
+     847
+    ],
+    "TextBox1": [
+     2540,
+     635
+    ],
+    "ComboBox1": [
+     2540,
+     635
+    ],
+    "ListBox1": [
+     2540,
+     2540
+    ],
+    "CheckBox1": [
+     3810,
+     688
+    ],
+    "OptionButton1": [
+     3810,
+     688
+    ],
+    "ToggleButton1": [
+     1270,
+     1411
+    ]
+   },
+   "multipage": {
+    "size": [
+     5080,
+     3810
+    ],
+    "tabstrip": [
+     5080,
+     3810
+    ],
+    "tab_font": {
+     "FontName": "Arial",
+     "FontHeight": 210,
+     "FontCharSet": 0,
+     "FontPitchAndFamily": 2
+    },
+    "pages": [
+     {
+      "position": [
+       53,
+       635
+      ],
+      "size": [
+       4974,
+       3122
+      ]
+     },
+     {
+      "position": [
+       53,
+       635
+      ],
+      "size": [
+       4974,
+       3122
+      ]
+     }
+    ]
+   }
+  },
+  "Arial 12": {
+   "font": {
+    "name": "Arial",
+    "cy_size": 120000,
+    "charset": 0,
+    "flags": 0,
+    "weight": 400
+   },
+   "sizes": {
+    "Label1": [
+     2540,
+     635
+    ],
+    "CommandButton1": [
+     2540,
+     847
+    ],
+    "TextBox1": [
+     2540,
+     635
+    ],
+    "ComboBox1": [
+     2540,
+     635
+    ],
+    "ListBox1": [
+     2540,
+     2540
+    ],
+    "CheckBox1": [
+     3810,
+     741
+    ],
+    "OptionButton1": [
+     3810,
+     741
+    ],
+    "ToggleButton1": [
+     1270,
+     1411
+    ]
+   },
+   "multipage": {
+    "size": [
+     5080,
+     3810
+    ],
+    "tabstrip": [
+     5080,
+     3810
+    ],
+    "tab_font": {
+     "FontName": "Arial",
+     "FontHeight": 240,
+     "FontCharSet": 0,
+     "FontPitchAndFamily": 2
+    },
+    "pages": [
+     {
+      "position": [
+       53,
+       688
+      ],
+      "size": [
+       4974,
+       3069
+      ]
+     },
+     {
+      "position": [
+       53,
+       688
+      ],
+      "size": [
+       4974,
+       3069
+      ]
+     }
+    ]
+   }
+  },
+  "Segoe UI 8.25": {
+   "font": {
+    "name": "Segoe UI",
+    "cy_size": 82500,
+    "charset": 0,
+    "flags": 0,
+    "weight": 400
+   },
+   "sizes": {
+    "Label1": [
+     2540,
+     635
+    ],
+    "CommandButton1": [
+     2540,
+     847
+    ],
+    "TextBox1": [
+     2540,
+     635
+    ],
+    "ComboBox1": [
+     2540,
+     635
+    ],
+    "ListBox1": [
+     2540,
+     2540
+    ],
+    "CheckBox1": [
+     3810,
+     635
+    ],
+    "OptionButton1": [
+     3810,
+     635
+    ],
+    "ToggleButton1": [
+     1270,
+     1411
+    ]
+   },
+   "multipage": {
+    "size": [
+     5080,
+     3810
+    ],
+    "tabstrip": [
+     5080,
+     3810
+    ],
+    "tab_font": {
+     "FontName": "Segoe UI",
+     "FontHeight": 165,
+     "FontCharSet": 0,
+     "FontPitchAndFamily": 2
+    },
+    "pages": [
+     {
+      "position": [
+       53,
+       556
+      ],
+      "size": [
+       4974,
+       3201
+      ]
+     },
+     {
+      "position": [
+       53,
+       556
+      ],
+      "size": [
+       4974,
+       3201
+      ]
+     }
+    ]
+   }
+  },
+  "Segoe UI 9": {
+   "font": {
+    "name": "Segoe UI",
+    "cy_size": 90000,
+    "charset": 0,
+    "flags": 0,
+    "weight": 400
+   },
+   "sizes": {
+    "Label1": [
+     2540,
+     635
+    ],
+    "CommandButton1": [
+     2540,
+     847
+    ],
+    "TextBox1": [
+     2540,
+     635
+    ],
+    "ComboBox1": [
+     2540,
+     635
+    ],
+    "ListBox1": [
+     2540,
+     2540
+    ],
+    "CheckBox1": [
+     3810,
+     661
+    ],
+    "OptionButton1": [
+     3810,
+     661
+    ],
+    "ToggleButton1": [
+     1270,
+     1411
+    ]
+   },
+   "multipage": {
+    "size": [
+     5080,
+     3810
+    ],
+    "tabstrip": [
+     5080,
+     3810
+    ],
+    "tab_font": {
+     "FontName": "Segoe UI",
+     "FontHeight": 180,
+     "FontCharSet": 0,
+     "FontPitchAndFamily": 2
+    },
+    "pages": [
+     {
+      "position": [
+       53,
+       609
+      ],
+      "size": [
+       4974,
+       3148
+      ]
+     },
+     {
+      "position": [
+       53,
+       609
+      ],
+      "size": [
+       4974,
+       3148
+      ]
+     }
+    ]
+   }
+  },
+  "Segoe UI 9.75": {
+   "font": {
+    "name": "Segoe UI",
+    "cy_size": 97500,
+    "charset": 0,
+    "flags": 0,
+    "weight": 400
+   },
+   "sizes": {
+    "Label1": [
+     2540,
+     635
+    ],
+    "CommandButton1": [
+     2540,
+     847
+    ],
+    "TextBox1": [
+     2540,
+     635
+    ],
+    "ComboBox1": [
+     2540,
+     635
+    ],
+    "ListBox1": [
+     2540,
+     2540
+    ],
+    "CheckBox1": [
+     3810,
+     714
+    ],
+    "OptionButton1": [
+     3810,
+     714
+    ],
+    "ToggleButton1": [
+     1270,
+     1411
+    ]
+   },
+   "multipage": {
+    "size": [
+     5080,
+     3810
+    ],
+    "tabstrip": [
+     5080,
+     3810
+    ],
+    "tab_font": {
+     "FontName": "Segoe UI",
+     "FontHeight": 195,
+     "FontCharSet": 0,
+     "FontPitchAndFamily": 2
+    },
+    "pages": [
+     {
+      "position": [
+       53,
+       661
+      ],
+      "size": [
+       4974,
+       3096
+      ]
+     },
+     {
+      "position": [
+       53,
+       661
+      ],
+      "size": [
+       4974,
+       3096
+      ]
+     }
+    ]
+   }
+  },
+  "Calibri 9.75": {
+   "font": {
+    "name": "Calibri",
+    "cy_size": 97500,
+    "charset": 0,
+    "flags": 0,
+    "weight": 400
+   },
+   "sizes": {
+    "Label1": [
+     2540,
+     635
+    ],
+    "CommandButton1": [
+     2540,
+     847
+    ],
+    "TextBox1": [
+     2540,
+     635
+    ],
+    "ComboBox1": [
+     2540,
+     635
+    ],
+    "ListBox1": [
+     2540,
+     2540
+    ],
+    "CheckBox1": [
+     3810,
+     661
+    ],
+    "OptionButton1": [
+     3810,
+     661
+    ],
+    "ToggleButton1": [
+     1270,
+     1411
+    ]
+   },
+   "multipage": {
+    "size": [
+     5080,
+     3810
+    ],
+    "tabstrip": [
+     5080,
+     3810
+    ],
+    "tab_font": {
+     "FontName": "Calibri",
+     "FontHeight": 195,
+     "FontCharSet": 0,
+     "FontPitchAndFamily": 2
+    },
+    "pages": [
+     {
+      "position": [
+       53,
+       609
+      ],
+      "size": [
+       4974,
+       3148
+      ]
+     },
+     {
+      "position": [
+       53,
+       609
+      ],
+      "size": [
+       4974,
+       3148
+      ]
+     }
+    ]
+   }
+  },
+  "Calibri 11.25": {
+   "font": {
+    "name": "Calibri",
+    "cy_size": 112500,
+    "charset": 0,
+    "flags": 0,
+    "weight": 400
+   },
+   "sizes": {
+    "Label1": [
+     2540,
+     635
+    ],
+    "CommandButton1": [
+     2540,
+     847
+    ],
+    "TextBox1": [
+     2540,
+     635
+    ],
+    "ComboBox1": [
+     2540,
+     635
+    ],
+    "ListBox1": [
+     2540,
+     2540
+    ],
+    "CheckBox1": [
+     3810,
+     741
+    ],
+    "OptionButton1": [
+     3810,
+     741
+    ],
+    "ToggleButton1": [
+     1270,
+     1411
+    ]
+   },
+   "multipage": {
+    "size": [
+     5080,
+     3810
+    ],
+    "tabstrip": [
+     5080,
+     3810
+    ],
+    "tab_font": {
+     "FontName": "Calibri",
+     "FontHeight": 225,
+     "FontCharSet": 0,
+     "FontPitchAndFamily": 2
+    },
+    "pages": [
+     {
+      "position": [
+       53,
+       688
+      ],
+      "size": [
+       4974,
+       3069
+      ]
+     },
+     {
+      "position": [
+       53,
+       688
+      ],
+      "size": [
+       4974,
+       3069
+      ]
+     }
+    ]
+   }
+  },
+  "Aptos 10.125": {
+   "font": {
+    "name": "Aptos",
+    "cy_size": 105000,
+    "charset": 0,
+    "flags": 0,
+    "weight": 400
+   },
+   "sizes": {
+    "Label1": [
+     2540,
+     635
+    ],
+    "CommandButton1": [
+     2540,
+     847
+    ],
+    "TextBox1": [
+     2540,
+     635
+    ],
+    "ComboBox1": [
+     2540,
+     635
+    ],
+    "ListBox1": [
+     2540,
+     2540
+    ],
+    "CheckBox1": [
+     3810,
+     714
+    ],
+    "OptionButton1": [
+     3810,
+     714
+    ],
+    "ToggleButton1": [
+     1270,
+     1411
+    ]
+   },
+   "multipage": {
+    "size": [
+     5080,
+     3810
+    ],
+    "tabstrip": [
+     5080,
+     3810
+    ],
+    "tab_font": {
+     "FontName": "Aptos",
+     "FontHeight": 210,
+     "FontCharSet": 0,
+     "FontPitchAndFamily": 2
+    },
+    "pages": [
+     {
+      "position": [
+       53,
+       661
+      ],
+      "size": [
+       4974,
+       3096
+      ]
+     },
+     {
+      "position": [
+       53,
+       661
+      ],
+      "size": [
+       4974,
+       3096
+      ]
+     }
+    ]
+   }
+  },
+  "Aptos 11.25": {
+   "font": {
+    "name": "Aptos",
+    "cy_size": 112500,
+    "charset": 0,
+    "flags": 0,
+    "weight": 400
+   },
+   "sizes": {
+    "Label1": [
+     2540,
+     635
+    ],
+    "CommandButton1": [
+     2540,
+     847
+    ],
+    "TextBox1": [
+     2540,
+     635
+    ],
+    "ComboBox1": [
+     2540,
+     635
+    ],
+    "ListBox1": [
+     2540,
+     2540
+    ],
+    "CheckBox1": [
+     3810,
+     741
+    ],
+    "OptionButton1": [
+     3810,
+     741
+    ],
+    "ToggleButton1": [
+     1270,
+     1411
+    ]
+   },
+   "multipage": {
+    "size": [
+     5080,
+     3810
+    ],
+    "tabstrip": [
+     5080,
+     3810
+    ],
+    "tab_font": {
+     "FontName": "Aptos",
+     "FontHeight": 225,
+     "FontCharSet": 0,
+     "FontPitchAndFamily": 2
+    },
+    "pages": [
+     {
+      "position": [
+       53,
+       688
+      ],
+      "size": [
+       4974,
+       3069
+      ]
+     },
+     {
+      "position": [
+       53,
+       688
+      ],
+      "size": [
+       4974,
+       3069
+      ]
+     }
+    ]
+   }
+  },
+  "Microsoft Sans Serif 8.25": {
+   "font": {
+    "name": "Microsoft Sans Serif",
+    "cy_size": 82500,
+    "charset": 0,
+    "flags": 0,
+    "weight": 400
+   },
+   "sizes": {
+    "Label1": [
+     2540,
+     635
+    ],
+    "CommandButton1": [
+     2540,
+     847
+    ],
+    "TextBox1": [
+     2540,
+     635
+    ],
+    "ComboBox1": [
+     2540,
+     635
+    ],
+    "ListBox1": [
+     2540,
+     2540
+    ],
+    "CheckBox1": [
+     3810,
+     635
+    ],
+    "OptionButton1": [
+     3810,
+     635
+    ],
+    "ToggleButton1": [
+     1270,
+     1411
+    ]
+   },
+   "multipage": {
+    "size": [
+     5080,
+     3810
+    ],
+    "tabstrip": [
+     5080,
+     3810
+    ],
+    "tab_font": {
+     "FontName": "Microsoft Sans Serif",
+     "FontHeight": 165,
+     "FontCharSet": 0,
+     "FontPitchAndFamily": 2
+    },
+    "pages": [
+     {
+      "position": [
+       53,
+       556
+      ],
+      "size": [
+       4974,
+       3201
+      ]
+     },
+     {
+      "position": [
+       53,
+       556
+      ],
+      "size": [
+       4974,
+       3201
+      ]
+     }
+    ]
+   }
+  },
+  "Verdana 8.25": {
+   "font": {
+    "name": "Verdana",
+    "cy_size": 82500,
+    "charset": 0,
+    "flags": 0,
+    "weight": 400
+   },
+   "sizes": {
+    "Label1": [
+     2540,
+     635
+    ],
+    "CommandButton1": [
+     2540,
+     847
+    ],
+    "TextBox1": [
+     2540,
+     635
+    ],
+    "ComboBox1": [
+     2540,
+     635
+    ],
+    "ListBox1": [
+     2540,
+     2540
+    ],
+    "CheckBox1": [
+     3810,
+     635
+    ],
+    "OptionButton1": [
+     3810,
+     635
+    ],
+    "ToggleButton1": [
+     1270,
+     1411
+    ]
+   },
+   "multipage": {
+    "size": [
+     5080,
+     3810
+    ],
+    "tabstrip": [
+     5080,
+     3810
+    ],
+    "tab_font": {
+     "FontName": "Verdana",
+     "FontHeight": 165,
+     "FontCharSet": 0,
+     "FontPitchAndFamily": 2
+    },
+    "pages": [
+     {
+      "position": [
+       53,
+       556
+      ],
+      "size": [
+       4974,
+       3201
+      ]
+     },
+     {
+      "position": [
+       53,
+       556
+      ],
+      "size": [
+       4974,
+       3201
+      ]
+     }
+    ]
+   }
+  },
+  "Times New Roman 12": {
+   "font": {
+    "name": "Times New Roman",
+    "cy_size": 120000,
+    "charset": 0,
+    "flags": 0,
+    "weight": 400
+   },
+   "sizes": {
+    "Label1": [
+     2540,
+     635
+    ],
+    "CommandButton1": [
+     2540,
+     847
+    ],
+    "TextBox1": [
+     2540,
+     635
+    ],
+    "ComboBox1": [
+     2540,
+     635
+    ],
+    "ListBox1": [
+     2540,
+     2540
+    ],
+    "CheckBox1": [
+     3810,
+     767
+    ],
+    "OptionButton1": [
+     3810,
+     767
+    ],
+    "ToggleButton1": [
+     1270,
+     1411
+    ]
+   },
+   "multipage": {
+    "size": [
+     5080,
+     3810
+    ],
+    "tabstrip": [
+     5080,
+     3810
+    ],
+    "tab_font": {
+     "FontName": "Times New Roman",
+     "FontHeight": 240,
+     "FontCharSet": 0,
+     "FontPitchAndFamily": 2
+    },
+    "pages": [
+     {
+      "position": [
+       53,
+       714
+      ],
+      "size": [
+       4974,
+       3043
+      ]
+     },
+     {
+      "position": [
+       53,
+       714
+      ],
+      "size": [
+       4974,
+       3043
+      ]
+     }
+    ]
+   }
+  },
+  "Courier New 9": {
+   "font": {
+    "name": "Courier New",
+    "cy_size": 90000,
+    "charset": 0,
+    "flags": 0,
+    "weight": 400
+   },
+   "sizes": {
+    "Label1": [
+     2540,
+     635
+    ],
+    "CommandButton1": [
+     2540,
+     847
+    ],
+    "TextBox1": [
+     2540,
+     635
+    ],
+    "ComboBox1": [
+     2540,
+     635
+    ],
+    "ListBox1": [
+     2540,
+     2540
+    ],
+    "CheckBox1": [
+     3810,
+     661
+    ],
+    "OptionButton1": [
+     3810,
+     661
+    ],
+    "ToggleButton1": [
+     1270,
+     1411
+    ]
+   },
+   "multipage": {
+    "size": [
+     5080,
+     3810
+    ],
+    "tabstrip": [
+     5080,
+     3810
+    ],
+    "tab_font": {
+     "FontName": "Courier New",
+     "FontHeight": 180,
+     "FontCharSet": 0,
+     "FontPitchAndFamily": 2
+    },
+    "pages": [
+     {
+      "position": [
+       53,
+       609
+      ],
+      "size": [
+       4974,
+       3148
+      ]
+     },
+     {
+      "position": [
+       53,
+       609
+      ],
+      "size": [
+       4974,
+       3148
+      ]
+     }
+    ]
+   }
+  }
+ }
+}

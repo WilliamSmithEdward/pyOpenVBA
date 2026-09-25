@@ -346,7 +346,10 @@ None)` clears a property, so the control goes back to its default.
 MSForms stores a property only when it differs from the control's
 default, so `properties()` returns what the developer set, which no live
 host can tell you. Writing is lossless: an unedited form saves back byte
-for byte.
+for byte. The stored fields are not always named as VBA names them:
+[docs/userforms.md](docs/userforms.md) says where the designers store a
+property that differs, such as `TextAlign`, and what setting one changes
+besides.
 
 The command line shows the tree:
 
@@ -1015,6 +1018,7 @@ For more:
 - [docs/architecture.md](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/docs/architecture.md): internal layout and conventions.
 - [docs/access_engine.md](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/docs/access_engine.md): the Access file format as measured, and what the engine reproduces.
 - [docs/power_query.md](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/docs/power_query.md): how Excel stores Power Query, and how each rule was measured.
+- [docs/userforms.md](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/docs/userforms.md): where the form designers store the UserForm properties VBA names otherwise, as measured.
 - [docs/ms-ovba-implementation-guide_v2.md](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/docs/ms-ovba-implementation-guide_v2.md): a language-agnostic guide to re-implementing MS-OVBA.
 - [docs/roadmap.md](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/docs/roadmap.md): per-feature status.
 - [docs/host_completeness.md](docs/host_completeness.md): whole-host completion criteria and the Excel coverage audit; Excel, then Word, then PowerPoint.

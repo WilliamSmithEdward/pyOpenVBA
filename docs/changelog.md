@@ -119,6 +119,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
   designers store it as PropMask bit 9, set when it is False, with no
   data; the property table did not name that bit, so `properties()`
   did not report it and `set_property` could not set it.
+- docs/userforms.md says where the designers store the UserForm
+  properties VBA names otherwise, such as `TextAlign`, `Style` and
+  `TripleState`, and what setting one changes besides, as measured in
+  Excel and Word (#31). `set_property` writes the one field it names.
 
 ## [6.1.2] - 2026-09-23
 

@@ -5,7 +5,8 @@ pyOpenVBA reads and writes a form's design as [MS-OFORMS] stores it.
 record stores, which are not always the properties VBA shows. Where the
 two differ, this page says where Excel's and Word's designers store a
 property set through VBA, and what setting it changes besides. Both
-applications wrote the same bytes for every case here.
+applications wrote the same records for every case here, but for the
+alignment padding, which holds whatever was in memory.
 
 The measurement is `scripts/measure_form_properties.py`, its record
 `tests/fixtures/form_properties.json`, and `tests/test_form_properties.py`

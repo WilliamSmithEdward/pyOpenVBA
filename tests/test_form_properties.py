@@ -2,8 +2,9 @@
 
 tests/fixtures/form_properties.json is what scripts/measure_form_properties.py
 saw when each designer set one property per control through VBA and saved:
-each control's record as the library's reader takes it apart. The two
-applications wrote the same bytes. The form's own font was set italic and
+each control's site, mask and record bytes, which the tests take apart. The
+two applications wrote the same records but for the alignment padding, which
+holds whatever was in memory. The form's own font was set italic and
 underlined first, so every control carries those two effects and the
 fAutoColor flag that comes with any effect. docs/userforms.md lists these
 as the reference for writing the stored fields.

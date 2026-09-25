@@ -958,15 +958,15 @@ class _FormStream:
 def _compose_depths(count: int) -> bytes:
     """SiteDepthsAndTypes for ``count`` uniform sites (depth 0, ST_Ole).
 
-    Written in the run-length form Excel itself always uses: one counted
-    entry per run of up to 127.  The per-entry form is spec-legal too, but
-    matching the only producer MSForms is tested against costs nothing.
+    Written as the designers write it: one counted entry per run of up to
+    127 sites, and a lone site as a plain entry, its depth and its type
+    with no count (tests/fixtures/form_designer.json).
     """
     entries = bytearray()
     remaining = count
     while remaining > 0:
         run = min(remaining, 0x7F)
-        entries += bytes((0x00, 0x80 | run, 0x01))
+        entries += bytes((0x00, 0x80 | run, 0x01)) if run > 1 else bytes((0x00, 0x01))
         remaining -= run
     over = len(entries) % 4
     return bytes(entries) + bytes(4 - over if over else 0)

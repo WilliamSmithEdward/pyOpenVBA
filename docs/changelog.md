@@ -102,6 +102,13 @@ All notable changes to pyOpenVBA are documented here. This project follows
   from Tab3, where the library started a new MultiPage at Tab1.
 - A new TabStrip has the designers' two tabs, Tab1 and Tab2, with room
   allocated for just those two (#31). The library's had no tabs.
+- A container holding a single control lists it the way the designers
+  do (#31): a plain SiteDepthsAndTypes entry, where the library wrote
+  the counted form the designers keep for a run of two or more. With
+  that, a form the library composes of the controls a designer added,
+  in the same order, is the designer's form byte for byte in both
+  applications, apart from the captions `add_control` gives and the
+  padding the designer leaves as whatever was in memory.
 
 ## [6.1.2] - 2026-09-23
 

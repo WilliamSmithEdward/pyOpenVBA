@@ -19,7 +19,7 @@ from typing import Any
 import pytest
 
 from pyopenvba import ExcelFile
-from pyopenvba._oforms_pages import parse_string_array
+from pyopenvba._oforms_pages import parse_string_array, serialize_string_array
 from pyopenvba._oforms_records import ParsedRecord, Size, serialize_record
 from pyopenvba.cfb import CFB
 from pyopenvba.forms import FormControl, VBAForm
@@ -173,6 +173,8 @@ STEPS: dict[str, list[tuple[str, str, str | None]]] = {
     "Plain": [(kind, f"{kind}1", None) for kind in
               ("Label", "CommandButton", "TextBox", "ComboBox", "ListBox", "CheckBox", "OptionButton",
                "ToggleButton", "Frame", "MultiPage", "Image", "SpinButton", "ScrollBar", "TabStrip")],
+    "Tabs": [("Image", "Image1", None), ("Label", "Label1", None), ("Image", "Image2", None),
+             ("CommandButton", "CommandButton1", None), ("TextBox", "TextBox1", None)],
 }
 
 
@@ -328,6 +330,67 @@ def test_a_new_tabstrip_has_the_designers_two_tabs(host: str, tmp_path: Path) ->
         office = _form(workbook, "Plain")
         added = office.add_control("TabStrip", "Added", left=0, top=0)
         assert _bytes(_record(added)) == _bytes(_record(office.control("TabStrip1")))
+
+
+#: The kinds add_control gives a caption, their name, where the designer's Controls.Add gives none.
+CAPTIONED = frozenset({"Label", "CommandButton", "ToggleButton", "CheckBox", "OptionButton", "Frame"})
+
+
+def _unpadded_depths(raw: bytes, sites: int) -> bytes:
+    """SiteDepthsAndTypes with the alignment after its entries zeroed."""
+    at = covered = 0
+    while covered < sites:
+        counted = bool(raw[at + 1] & 0x80)
+        covered += raw[at + 1] & 0x7F if counted else 1
+        at += 3 if counted else 2
+    return raw[:at] + bytes(len(raw) - at)
+
+
+def _streams(form: VBAForm) -> dict[str, tuple[bytes, bytes]]:
+    """Every container's ``f`` and ``o`` as the library writes them, by path below the form, with the
+    alignment padding zeroed wherever the designer leaves whatever was in memory."""
+    levels = form._levels  # pyright: ignore[reportPrivateUsage]
+    below = len(levels[0].path)
+    out: dict[str, tuple[bytes, bytes]] = {}
+    for level in levels:
+        level.record.pads = {}
+        if level.stream.depths_raw:  # a container read from a file; a new one composes its own
+            level.stream.depths_raw = _unpadded_depths(level.stream.depths_raw, len(level.sites))
+        for site in level.sites:
+            site.pads = {}
+        for control in level.controls:
+            record = control.record
+            if record is None:
+                continue
+            record.pads = {}
+            if record.text_props is not None:
+                record.text_props = replace(record.text_props, pads={})
+            for name, blob in record.arrays.items():
+                entries = parse_string_array(blob, "cp1252")
+                for entry in entries:
+                    entry.pad = b""
+                record.arrays[name] = serialize_string_array(entries, "cp1252")
+        out["/".join(level.path[below:])] = level.serialize("cp1252")
+    return out
+
+
+@pytest.mark.parametrize("host", HOSTS)
+@pytest.mark.parametrize("form", list(STEPS))
+def test_a_composed_form_is_the_designers_byte_for_byte(host: str, form: str, tmp_path: Path) -> None:
+    # Every container's f and o, the form's own included, as the designer wrote them for the same controls
+    # added in the same order: all but the captions add_form and add_control give on purpose, cleared here,
+    # and the alignment the designer leaves as whatever was in memory. A lone site is listed in the plain
+    # form of SiteDepthsAndTypes, and a run of them in the counted form.
+    with ExcelFile(_office_form(host, form, tmp_path)) as workbook:
+        theirs = _streams(_form(workbook, form))
+    workbook, composed = _composed(tmp_path, form)
+    with workbook:
+        _compose(composed, STEPS[form])
+        composed.set_property("Caption", None)
+        for control in composed.walk():
+            if control.kind.rpartition(".")[2] in CAPTIONED:
+                control.set_property("Caption", None)
+        assert _streams(composed) == theirs
 
 
 @pytest.mark.parametrize("host", HOSTS)

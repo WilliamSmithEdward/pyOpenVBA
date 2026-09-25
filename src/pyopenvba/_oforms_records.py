@@ -406,6 +406,10 @@ class ParsedRecord:
                 out[name] = f"<{len(self.pictures[name])} bytes>"
             else:
                 out[name] = value
+        # A string set since the record was read has no length field until
+        # it is serialized, but it is stored all the same.
+        for name, stored in self.strings.items():
+            out.setdefault(name, stored.text)
         out.update(self.sizes)
         for name, blob in self.arrays.items():
             out[name] = f"<{len(blob)} bytes>"

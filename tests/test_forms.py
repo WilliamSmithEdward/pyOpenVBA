@@ -1204,3 +1204,26 @@ class TestDeletingAForm:
             # Nothing needs Microsoft Forms any more, and the name is free.
             assert office_file.remove_reference("MSForms")
             office_file.add_form("Wizard")
+
+
+class TestPropertiesBeforeSaving:
+    """A string set in memory is reported before the record is serialized,
+    which is when its length field is written."""
+
+    def test_a_new_controls_caption_is_reported(self, tmp_path: Path) -> None:
+        with ExcelFile.create_new(tmp_path / "unsaved.xlsm") as workbook:
+            label = workbook.add_form("Wizard").add_control("Label", "Hello")
+            assert label.get("Caption") == "Hello"
+
+    def test_a_string_the_control_did_not_have(self, tmp_path: Path) -> None:
+        with ExcelFile.create_new(tmp_path / "unsaved.xlsm") as workbook:
+            form = workbook.add_form("Wizard")
+            box = form.add_control("TextBox", "Answer")
+            assert box.get("Value") is None
+            box.set_property("Value", "typed")
+            assert box.get("Value") == "typed"
+            box.set_property("Value", None)
+            assert box.get("Value") is None
+            form.set_property("Caption", None)
+            form.set_property("Caption", "Again")
+            assert form.get("Caption") == "Again"

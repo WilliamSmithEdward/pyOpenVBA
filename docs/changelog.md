@@ -44,6 +44,12 @@ All notable changes to pyOpenVBA are documented here. This project follows
   DIFAT sectors. Windows' own compound-file API reads what it writes,
   and a live gate has Excel and Word open a project past the limit that
   the library saved, an Image with a 9.7 MB picture included.
+- A control's or form's `properties()` and `get()` report a string set
+  since the record was read, a new control's caption included (#31).
+  They listed a string only once the record had been written out, which
+  is when its length field is filled in, so
+  `add_control("Label", "Hello").get("Caption")` gave `None` until the
+  file was saved.
 
 ## [6.1.2] - 2026-09-23
 

@@ -72,6 +72,14 @@ All notable changes to pyOpenVBA are documented here. This project follows
   added, so a control added after an Image goes before it, and the
   Images move down one. The library numbered every control in the order
   added.
+- A new Frame, MultiPage or page carries the defaults and counters the
+  designers give it (#31). A Frame is etched, SpecialEffect 3. No
+  container stores a NextAvailableID or a ShapeCookie until something is
+  added beneath it, where the library wrote NextAvailableID 1. The
+  ShapeCookie counts one for each control on the container and every
+  container above it, and two for each page on its MultiPage alone; the
+  library counted a MultiPage's tabs and pages against the form and
+  left a new container's count unwritten.
 
 ## [6.1.2] - 2026-09-23
 

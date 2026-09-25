@@ -350,6 +350,7 @@ class VBAForm:
         # left the field at 14. Using the field as-is collides with the
         # last control, and MSForms then refuses to load the form.
         site_id = self._next_id(level)
+        self._count_shape(level)
 
         default_w, default_h = _DEFAULT_SIZE_PT.get(kind, _DEFAULT_SIZE_FALLBACK)
         size_w = points_to_himetric(default_w if width is None else width)
@@ -487,6 +488,7 @@ class VBAForm:
         book = self._bookkeeping(level)
 
         page_id = self._next_id(level)
+        self._count_shape(level, page=True)
         name = name or f"Page{len(book.page_ids) + 1}"
         # Page names are scoped to their MultiPage, not to the form: Excel
         # gives a second MultiPage its own Page1 and Page2 while the first
@@ -647,12 +649,24 @@ class VBAForm:
         for ancestor in self._levels:
             if target.path[:len(ancestor.path)] == ancestor.path:
                 ancestor.record.set_value("NextAvailableID", site_id)
-                if ancestor.record.has("ShapeCookie"):
-                    ancestor.record.set_value(
-                        "ShapeCookie",
-                        ancestor.record.values.get("ShapeCookie", 0) + 1,
-                    )
         return site_id
+
+    def _count_shape(self, level: _Level, *, page: bool = False) -> None:
+        """Count a control added to ``level`` in the ShapeCookie the designer keeps.
+
+        A control counts one on its container and on every container
+        holding that one, up to the form; a page counts two on its
+        MultiPage and nothing above it; a MultiPage's TabStrip counts
+        nothing.  A container stores no ShapeCookie until something is
+        counted in it (tests/fixtures/form_designer.json).
+        """
+        holders = [level] if page else [
+            ancestor for ancestor in self._levels
+            if level.path[:len(ancestor.path)] == ancestor.path
+        ]
+        for holder in holders:
+            count = holder.record.values.get("ShapeCookie", 0)
+            holder.record.set_value("ShapeCookie", count + (2 if page else 1))
 
     @staticmethod
     def _tabstrip(level: _Level) -> ParsedRecord:
@@ -1662,6 +1676,8 @@ _MULTIPAGE_TRAILER = bytes.fromhex("0002 0c00 19000000 fc8f0000 ff010000")
 # 0xC004 for a MultiPage.
 _FRAME_BOOLEAN_PROPERTIES = 0x00008004
 _MULTIPAGE_BOOLEAN_PROPERTIES = 0x0000C004
+# fmSpecialEffectEtched, which the designer stores on a new Frame.
+_FRAME_SPECIAL_EFFECT = 3
 
 # A page's own client area, as Excel sizes the two it creates with a
 # MultiPage.  HIMETRIC.
@@ -1684,9 +1700,15 @@ _CONTAINER_DRAW_BUFFER = 32000
 def _new_container_stream(
     kind: str, caption: str | None, width: int, height: int
 ) -> _FormStream:
-    """The minimal FormControl an Excel-authored container carries."""
+    """The FormControl the designer gives a new container.
+
+    It stores no NextAvailableID or ShapeCookie until something is added
+    beneath it, and a Frame is etched, SpecialEffect 3
+    (tests/fixtures/form_designer.json).
+    """
     record = ParsedRecord(FORM_SPEC, 0)
-    record.set_value("NextAvailableID", 1)
+    if kind == "Frame":
+        record.set_value("SpecialEffect", _FRAME_SPECIAL_EFFECT)
     record.set_value(
         "BooleanProperties",
         _MULTIPAGE_BOOLEAN_PROPERTIES

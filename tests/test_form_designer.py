@@ -162,6 +162,51 @@ def test_images_stay_last_in_the_tab_order(host: str, form: str, tmp_path: Path)
         assert [_site(composed, name).tab_index for name in names] == theirs
 
 
+#: How the designer built a form, as the library's calls: (kind, name, container), a kind of "Page" adding a
+#: page named ``name`` to the MultiPage named in place of a container.
+STEPS: dict[str, list[tuple[str, str, str | None]]] = {
+    "Frames": [("Frame", "Frame1", None), ("Frame", "Frame2", None), ("Label", "Label1", "Frame2")],
+    "Nested": [("MultiPage", "MultiPage1", None), ("Frame", "Frame1", "Page1"), ("Label", "Label1", "Frame1"),
+               ("Page", "Page3", "MultiPage1"), ("Page", "Page4", "MultiPage1"),
+               ("CommandButton", "CommandButton1", "Page2")],
+    "Plain": [(kind, f"{kind}1", None) for kind in
+              ("Label", "CommandButton", "TextBox", "ComboBox", "ListBox", "CheckBox", "OptionButton",
+               "ToggleButton", "Frame", "MultiPage", "Image", "SpinButton", "ScrollBar", "TabStrip")],
+}
+
+
+def _compose(form: VBAForm, steps: list[tuple[str, str, str | None]]) -> None:
+    for kind, name, container in steps:
+        if kind == "Page":
+            assert container is not None
+            form.add_page(container, name=name)
+        else:
+            form.add_control(kind, name, container=container, left=0, top=0)
+
+
+def _counters(form: VBAForm) -> dict[str, tuple[object, ...]]:
+    """What the form and each Frame, MultiPage and page store of their counters and their effect."""
+    fields = ("NextAvailableID", "ShapeCookie", "SpecialEffect")
+    out = {"": tuple(form.get(name) for name in fields)}
+    for control in form.walk():
+        if control.is_container:
+            out[control.name] = tuple(control.get(name) for name in fields)
+    return out
+
+
+@pytest.mark.parametrize("host", HOSTS)
+@pytest.mark.parametrize("form", list(STEPS))
+def test_containers_count_what_the_designer_counts(host: str, form: str, tmp_path: Path) -> None:
+    # A new Frame is etched and stores no NextAvailableID or ShapeCookie until something is added to it; a
+    # control counts one in its container and every container above it, a page two in its MultiPage alone.
+    with ExcelFile(_office_form(host, form, tmp_path)) as workbook:
+        theirs = _counters(_form(workbook, form))
+    workbook, composed = _composed(tmp_path, form)
+    with workbook:
+        _compose(composed, STEPS[form])
+        assert _counters(composed) == theirs
+
+
 @pytest.mark.parametrize("host", HOSTS)
 @pytest.mark.parametrize(("form", "theirs"), [("Plain", "MultiPage1"), ("Fonted", "MultiPage1")])
 def test_a_new_multipages_tabs_show_the_containers_font(host: str, form: str, theirs: str,

@@ -106,8 +106,13 @@ def serialize_string_array(entries: list[TabString], encoding: str) -> bytes:
 
 
 def new_tab_string(text: str) -> TabString:
-    """A fresh entry, compressed when every character fits one byte."""
-    return TabString(text, all(ord(c) <= 0xFF for c in text))
+    """A fresh entry, compressed when every character fits one byte.
+
+    An empty one is stored with no compression flag, a count of zero and
+    nothing else, as the designers store a tab's empty tip, tag and
+    accelerator (tests/fixtures/form_designer.json).
+    """
+    return TabString(text, bool(text) and all(ord(c) <= 0xFF for c in text))
 
 
 @dataclass

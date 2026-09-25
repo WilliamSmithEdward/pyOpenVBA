@@ -1434,10 +1434,11 @@ def _next_tab_name(tabs: ParsedRecord) -> str:
     """The internal tab name Excel would use next: Tab3, Tab4, Tab5...
 
     A counter that continues past the highest existing suffix rather than
-    tracking the page count, which is what the fixture's Tab3/Tab4 on a
-    two-page MultiPage shows.
+    tracking the page count.  It starts past Tab2, the TabStrip's own two
+    tabs: the designers name a new MultiPage's pages Tab3 and Tab4, and
+    the pages added after them Tab5 on (tests/fixtures/form_designer.json).
     """
-    highest = 0
+    highest = 2
     for entry in parse_string_array(tabs.arrays.get("TabNames", b""), "latin-1"):
         digits = entry.text[3:]
         if entry.text[:3].casefold() == "tab" and digits.isdigit():

@@ -19,6 +19,7 @@ from typing import Any
 import pytest
 
 from pyopenvba import ExcelFile
+from pyopenvba._oforms_pages import parse_string_array
 from pyopenvba._oforms_records import ParsedRecord, Size, serialize_record
 from pyopenvba.cfb import CFB
 from pyopenvba.forms import FormControl, VBAForm
@@ -296,6 +297,28 @@ def test_a_page_added_to_the_designers_multipage_is_the_one_it_adds(host: str, t
         added, theirs = office.control("Added"), office.control("Page3")
         assert (_site(office, "Added").position, added.get("DisplayedSize")) == (
             _site(office, "Page3").position, theirs.get("DisplayedSize"))
+
+
+def _tab_arrays(control: FormControl) -> dict[str, object]:
+    """A TabStrip's five arrays: each entry's text and compression, then each array's bytes, whose
+    alignment after an entry like "Page1" is whatever the designer had in memory."""
+    record = _record(control)
+    entries = {name: [(entry.text, entry.compressed) for entry in parse_string_array(blob, "cp1252")]
+               for name, blob in record.arrays.items()}
+    exact = {f"{name} bytes": blob for name, blob in record.arrays.items() if name != "Items"}
+    return {**entries, **exact}
+
+
+@pytest.mark.parametrize("host", HOSTS)
+@pytest.mark.parametrize("form", ["Plain", "Nested"])
+def test_a_multipages_tabs_are_the_designers(host: str, form: str, tmp_path: Path) -> None:
+    # A tab's empty tip, tag and accelerator are stored as a count of zero with no compression flag.
+    with ExcelFile(_office_form(host, form, tmp_path)) as workbook:
+        theirs = _tab_arrays(_form(workbook, form).control("MultiPage1").children[0])
+    workbook, composed = _composed(tmp_path, form)
+    with workbook:
+        _compose(composed, STEPS[form])
+        assert _tab_arrays(composed.control("MultiPage1").children[0]) == theirs
 
 
 @pytest.mark.parametrize("host", HOSTS)

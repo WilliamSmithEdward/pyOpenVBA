@@ -96,6 +96,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
   `add_page` sizes a page the same way. The designer makes a MultiPage
   at its default size and resizes it, and only the first page follows;
   one the library makes at another size gets every page sized to it.
+- A MultiPage's tabs are stored as the designers store them (#31): a
+  tab's empty tip, tag and accelerator as a count of zero, without the
+  compression flag the library set on them, and the pages' tabs named
+  from Tab3, where the library started a new MultiPage at Tab1.
 
 ## [6.1.2] - 2026-09-23
 

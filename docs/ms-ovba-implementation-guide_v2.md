@@ -737,6 +737,7 @@ For each operation, every step must succeed or you must abort.
 | Drop declaration line | `PROJECT` |
 | Drop `[Workspace]` entry | `PROJECT` |
 | Drop NAMEMAP pair | `PROJECTwm` |
+| Remove a form's designer sub-storage | beside `/VBA` |
 | Invalidate + drop SRP + signatures | as above |
 
 Forbidden: deleting `Document=` modules (host-owned), deleting

@@ -1172,3 +1172,35 @@ class TestFormsAcrossHosts:
             presentation.save()
         with PowerPointFile(target) as presentation:
             self._check(presentation)
+
+
+class TestDeletingAForm:
+    """Deleting a form's module takes its designer storage, as the editor
+    removes a form: left behind, the storage still reads as a form that
+    holds its name (tests/fixtures/project_package.json has the editor's
+    storages after each removal)."""
+
+    @pytest.mark.parametrize(
+        ("opener", "suffix"),
+        [(ExcelFile, "xlsm"), (WordFile, "docm"), (PowerPointFile, "pptm")],
+    )
+    def test_the_storage_goes_with_the_module(
+        self,
+        opener: type[ExcelFile] | type[WordFile] | type[PowerPointFile],
+        suffix: str,
+        tmp_path: Path,
+    ) -> None:
+        target = tmp_path / f"deleted.{suffix}"
+        with opener.create_new(target) as office_file:
+            office_file.add_form("Wizard")
+            office_file.save()
+        with opener(target) as office_file:
+            office_file.vba_project().delete_module("Wizard")
+            office_file.save()
+        with opener(target) as office_file:
+            storages = CFB.from_bytes(office_file.vba_project_bytes()).list_storages_at()
+            assert "Wizard" not in storages
+            assert office_file.forms() == []
+            # Nothing needs Microsoft Forms any more, and the name is free.
+            assert office_file.remove_reference("MSForms")
+            office_file.add_form("Wizard")

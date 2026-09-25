@@ -643,12 +643,19 @@ class VBAHostFile(ReferenceManager):
                 decl_key = "Class"
             add_modules_for_project.append((module.name, decl_key))
 
-        # 3. Delete streams the user removed in-memory.
+        # 3. Delete streams the user removed in-memory.  A form goes with its
+        #    designer storage, as the editor removes one; left behind, the
+        #    storage still reads as a form that holds its name.
+        root = self._project_root()
+        forms = {name.casefold(): name for name in form_names(cfb, root=root)}
         for name in sorted(delete_names):
             try:
                 cfb.remove_stream_in_storage("VBA", name)
             except KeyError:
                 pass
+            if name.casefold() in forms:
+                cfb.remove_storage_at(root, forms[name.casefold()])
+                self._forms = None
 
         project.pending_renames.clear()
         project.pending_adds.clear()

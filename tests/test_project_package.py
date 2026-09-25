@@ -34,8 +34,11 @@ HOSTS: dict[str, tuple[type[ExcelFile] | type[WordFile], str, str, str]] = {
 }
 #: The measured chains as the library runs them: each state and the steps that lead to it from the one before.
 CHAIN = [("first_form", ["form UserForm1"]), ("module_after_form", ["module Module2"]),
-         ("second_form_later", ["form UserForm2"])]
+         ("second_form_later", ["form UserForm2"]), ("first_form_removed", ["remove UserForm1"]),
+         ("last_form_removed", ["remove UserForm2"]), ("form_after_all_removed", ["form UserForm1"])]
 AT_ONCE = [("two_forms_at_once", ["form UserForm1", "form UserForm2"])]
+PACKAGE_LAST = [("form_declared_last", ["form UserForm1"]), ("package_left_last", ["remove UserForm1"]),
+                ("module_after_package", ["module Module2"])]
 LEGACY = [("legacy_module_added.macro", ["module Module2"]), ("legacy_second_form.macro", ["form UserForm2"])]
 
 
@@ -112,6 +115,11 @@ def test_a_module_goes_after_a_package_left_last(host: str) -> None:
     written = serialize_project_stream(raw, {}, add_modules=[("Module2", "Module")])
     assert _declarations(written.decode("latin-1").split("\r\n")) == _declarations(
         states["module_after_package"]["project"])
+
+
+@pytest.mark.parametrize("host", list(HOSTS))
+def test_the_package_stays_when_its_forms_go(host: str, tmp_path: Path) -> None:
+    _replay(host, _copy(host, tmp_path), PACKAGE_LAST)
 
 
 @pytest.mark.parametrize("host", list(HOSTS))

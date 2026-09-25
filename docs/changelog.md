@@ -29,6 +29,9 @@ All notable changes to pyOpenVBA are documented here. This project follows
   scripts/measure_project_package.py had Excel and Word add and remove
   forms and modules through their editors, saving after each step, and
   the tests replay every state.
+- Deleting a form's module takes the form's designer storage too, as
+  the editor does. Left behind, the storage still read as a form:
+  `forms()` listed it and a new form of its name was refused.
 
 ## [6.1.2] - 2026-09-23
 

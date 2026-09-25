@@ -225,6 +225,9 @@ with ExcelFile("workbook.xlsm") as wb:
     wb.save("out.xlsm")
 ```
 
+Deleting a UserForm's module takes the form's design with it, as the
+editor does.
+
 ```python
 from pyopenvba import AccessDatabase, VBAModuleKind
 

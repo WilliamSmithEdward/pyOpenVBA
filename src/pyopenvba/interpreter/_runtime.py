@@ -947,6 +947,9 @@ class Interpreter:
             raise error(ERR_MEMBER_NOT_FOUND, "Set needs an object on the right")
         if statement.kind == "let" and isinstance(value, VBAObject):
             value = value.vba_value()
+        elif statement.kind == "let" and value is NOTHING:
+            # Nothing has no value to let: v = Range("A1:B1").Style, whose cells differ, is error 91.
+            raise error(ERR_OBJECT_VARIABLE_NOT_SET)
         target = self.resolve_target(statement.target, frame)
         target.put(value, statement.kind == "set")
 

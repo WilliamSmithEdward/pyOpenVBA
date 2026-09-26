@@ -47,6 +47,9 @@ All notable changes to pyOpenVBA are documented here. This project follows
   the parts. Two forms Excel misreads into numbers report themselves
   unsupported: a space before a month's name and a time, as in
   ` 2-Jan 12:30`, and digits after AM or PM and a point, as in `12 PM .5`.
+- Letting Nothing into a variable, as `v = Range("A1:A2").Style` does
+  where the cells' styles differ, is error 91, as in VBA, where the
+  variable took Nothing.
 
 ## [6.1.3] - 2026-09-25
 

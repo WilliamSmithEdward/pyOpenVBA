@@ -428,6 +428,19 @@ def test_resume_next_inside_a_loop_carries_on_with_the_loop() -> None:
     ) == [" 1 ", "caught 2", " 2 ", " 3 "]
 
 
+def test_letting_nothing_is_error_91() -> None:
+    """Nothing has no value to let, as Excel's v = Range("A1:A2").Style is error 91 where the
+    cells' styles differ (tests/fixtures/cell_styles)."""
+    assert printed(
+        "Sub Main()\n"
+        "    Dim o As Object, v As Variant\n"
+        "    On Error Resume Next\n"
+        "    v = o\n"
+        "    Debug.Print Err.Number\n"
+        "End Sub\n"
+    ) == [" 91 "]
+
+
 def test_err_clears_after_the_handler_resumes() -> None:
     assert printed(
         "Sub Main()\n"

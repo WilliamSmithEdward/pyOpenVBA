@@ -8,6 +8,10 @@ holds whatever was in memory. The form's own font was set italic and
 underlined first, so every control carries those two effects and the
 fAutoColor flag that comes with any effect. docs/userforms.md lists these
 as the reference for writing the stored fields.
+
+tests/fixtures/uncoupled_edge.json is what scripts/measure_uncoupled_edge.py
+saw Excel and Word do with a TextBox the library gave both a border and its
+sunken effect, which the designers never write.
 """
 
 from __future__ import annotations
@@ -23,6 +27,8 @@ from pyopenvba._oforms_records import SPECS_BY_CACHE_INDEX, ParsedRecord, parse_
 
 RECORD: dict[str, dict[str, Any]] = json.loads(
     (Path(__file__).parent / "fixtures" / "form_properties.json").read_text(encoding="utf-8"))
+EDGE: dict[str, dict[str, Any]] = json.loads(
+    (Path(__file__).parent / "fixtures" / "uncoupled_edge.json").read_text(encoding="utf-8"))
 HOSTS = list(RECORD)
 AUTO_COLOR, DISABLED = 1 << 30, 1 << 13
 
@@ -136,6 +142,19 @@ def test_border_style_and_special_effect_clear_each_other(host: str) -> None:
     assert stored("EffectThenBorder") == (1, 0)
     assert stored("ImageBorderThenEffect") == (0, 2)
     assert stored("ImageEffectThenBorder") == (None, None)
+
+
+@pytest.mark.parametrize("host", HOSTS)
+def test_a_textbox_given_a_border_alone_keeps_both_and_shows_the_effect(host: str) -> None:
+    # set_property("BorderStyle", 1) leaves a TextBox sunken. Excel and Word report both at run time, paint
+    # the TextBox's corner as they paint a plain sunken one and not as the designers' bordered one, and a
+    # designer that rewrites the form saves both back.
+    measured = EDGE[host]
+    assert measured["written"]["Both"] == {"BorderStyle": 1, "SpecialEffect": None}
+    shown = measured["run_time"]
+    assert (shown["Both"]["BorderStyle"], shown["Both"]["SpecialEffect"]) == (1, 2)
+    assert shown["Both"]["corner"] == shown["Effect"]["corner"] != shown["Border"]["corner"]
+    assert measured["resaved"] == measured["written"]
 
 
 @pytest.mark.parametrize("host", HOSTS)

@@ -4,13 +4,16 @@ pyOpenVBA reads and writes a form's design as [MS-OFORMS] stores it.
 `properties()`, `get()` and `set_property()` name the fields a control's
 record stores, which are not always the properties VBA shows. Where the
 two differ, this page says where Excel's and Word's designers store a
-property set through VBA, and what setting it changes besides. Both
-applications wrote the same records for every case here, but for the
-alignment padding, which holds whatever was in memory.
+property set through VBA, what setting it changes besides, and how they
+lay out a MultiPage's pages. For the properties, both applications wrote
+the same records, but for the alignment padding, which holds whatever
+was in memory.
 
-The measurement is `scripts/measure_form_properties.py`, its record
-`tests/fixtures/form_properties.json`, and `tests/test_form_properties.py`
-checks each statement below against it.
+The measurements are `scripts/measure_form_properties.py` and
+`scripts/measure_uncoupled_edge.py`, which `tests/test_form_properties.py`
+replays, and `scripts/measure_multipage_resize.py`, which
+`tests/test_multipage_resize.py` replays. Each statement below about
+properties and pages is checked against one of them.
 
 ## Where a property is stored
 
@@ -46,6 +49,35 @@ with some properties, and a caller who wants their result sets those too:
 - `Enabled = False` on a ScrollBar or SpinButton sets `PrevEnabled` and
   `NextEnabled` to 0.
 - `Min` above the `Position` moves the `Position` up to it.
+
+A TextBox given `BorderStyle = 1` alone keeps its sunken effect, a state
+the designers never write. Excel and Word load it as it is: they report
+both at run time, draw only the sunken effect, and save both back when
+their designer rewrites the form. Set `SpecialEffect` to 0 as well for a
+single border.
+
+## A MultiPage's pages
+
+A MultiPage's TabStrip is as large as the MultiPage, and the designers
+lay out only the page it shows: two pixels inside the TabStrip, under
+tabs as tall as the MultiPage's font makes them. The font is the one set
+on the MultiPage, which its TabStrip keeps, or else the one it shows from
+its container. Every other page keeps the layout it was added with,
+which is always the default size's, so a MultiPage that VBA sizes after
+adding it keeps its second page laid out for the default size.
+`add_control` and `add_page` lay pages out the same way. A running form
+lays out again each page it shows, and shows that second page whole.
+
+The designers round the TabStrip to whole pixels at 96 DPI and scale
+each pixel edge back by the TabStrip's own HIMETRIC per pixel, so the
+page's top moves a unit or two with the MultiPage's size. Word differs
+from Excel in one case: setting a font on a MultiPage puts its TabStrip
+back to the default size and keeps it there whatever size the MultiPage
+takes, and the page shown follows the TabStrip.
+
+Setting a MultiPage's size with `set_property` writes the size alone,
+where the designers would also size the TabStrip and lay out the page
+shown again.
 
 ## A form's two captions
 

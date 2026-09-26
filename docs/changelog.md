@@ -132,6 +132,9 @@ All notable changes to pyOpenVBA are documented here. This project follows
   properties VBA names otherwise, such as `TextAlign`, `Style` and
   `TripleState`, and what setting one changes besides, as measured in
   Excel and Word (#31). `set_property` writes the one field it names.
+  It also says what Excel and Word do with a TextBox given a border
+  alone, which keeps its sunken effect: they keep both and draw the
+  effect. And it says how the designers lay out a MultiPage's pages.
 
 ## [6.1.2] - 2026-09-23
 

@@ -50,6 +50,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
 - Letting Nothing into a variable, as `v = Range("A1:A2").Style` does
   where the cells' styles differ, is error 91, as in VBA, where the
   variable took Nothing.
+- An edge two cells both draw, as cell styles leave them, reads as the
+  stronger line, and between two of one style as the darker colour,
+  where a cell read its own side first; 415 pairs of cells in live
+  Excel show the order (scripts/measure_shared_edges.py).
 
 ## [6.1.3] - 2026-09-25
 

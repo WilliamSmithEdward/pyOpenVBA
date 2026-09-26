@@ -23,7 +23,7 @@ from __future__ import annotations
 
 from collections.abc import Callable, Iterable
 from dataclasses import replace
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Final
 
 from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area
 from pyopenvba.apps.excel import _row_formats
@@ -561,17 +561,41 @@ def own_side(sheet: Worksheet, row: int, column: int, side: str) -> S.Side:
 
 
 def effective_side(sheet: Worksheet, row: int, column: int, side: str) -> S.Side:
-    """The edge a cell shows: its own side, else its neighbour's side facing it."""
+    """The edge a cell shows: its own side, else its neighbour's side facing it.
+
+    Two cells can both draw the edge between them where their cell styles
+    give it -- a macro's border clears the neighbour's -- and then the
+    stronger line shows, and between two of one line style the darker
+    colour (tests/fixtures/cell_styles/shared_edges.json).
+    """
     mine = own_side(sheet, row, column, side)
-    if mine.style:
-        return mine
     opposite, down, across = _OPPOSITE[side]
     row, column = row + down, column + across
-    if 1 <= row <= MAX_ROWS and 1 <= column <= MAX_COLUMNS:
-        theirs = own_side(sheet, row, column, opposite)
-        if theirs.style:
-            return theirs
-    return S.NO_SIDE
+    theirs = own_side(sheet, row, column, opposite) if 1 <= row <= MAX_ROWS and 1 <= column <= MAX_COLUMNS \
+        else S.NO_SIDE
+    if mine.style and theirs.style and mine != theirs:
+        return _stronger(sheet.book.stylesheet.colors, mine, theirs)
+    return mine if mine.style else theirs if theirs.style else S.NO_SIDE
+
+
+#: The file's line styles from the weakest to the one that shows over every other on an edge two cells draw.
+_LINE_STRENGTH: Final = ("hair", "dashDotDot", "dashDot", "dotted", "dashed", "thin", "mediumDashDotDot",
+                         "slantDashDot", "mediumDashDot", "mediumDashed", "medium", "thick", "double")
+
+
+def _stronger(colors: S.Colors, one: S.Side, other: S.Side) -> S.Side:
+    """Which of two sides shows on an edge: the stronger line style, then the darker colour, 2R + 5G + B."""
+
+    def strength(side: S.Side) -> tuple[int, int]:
+        rrggbb = colors.rrggbb(side.color, "000000")
+        red, green, blue = (int(rrggbb[index:index + 2], 16) for index in (0, 2, 4))
+        return _LINE_STRENGTH.index(side.style) if side.style in _LINE_STRENGTH else -1, -(2 * red + 5 * green + blue)
+
+    first, second = strength(one), strength(other)
+    if first == second:
+        raise VBAUnsupportedError("which of two borders shows on an edge two cells draw in different colours of "
+                                  "one darkness is not implemented")
+    return one if first > second else other
 
 
 def _diagonal(border: S.Border, index: int) -> S.Side:

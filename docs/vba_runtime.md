@@ -806,6 +806,12 @@ first whenever one is used.
   neighbour's copy. An inside border is written on both cells, and one
   that only one of them stored comes out in the automatic colour, which
   the file writes `auto="1"`.
+* Cell styles can leave both cells drawing the edge between them, and
+  then the stronger line style shows -- double, thick, medium, the
+  medium dashes, slanted dash-dot, thin, dashed, dotted, dash-dot,
+  dash-dot-dot, hair -- and between two of one style the darker colour,
+  by 2R + 5G + B, as 415 pairs of cells in live Excel show
+  (`tests/fixtures/cell_styles/shared_edges.json`).
 * `LineStyle` and `Weight` pair into the thirteen line styles the file
   has; a style keeps the current weight when the pair exists and takes
   its own default otherwise.

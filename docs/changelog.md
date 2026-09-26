@@ -35,8 +35,21 @@ All notable changes to pyOpenVBA are documented here. This project follows
   only while a cell uses it, in Excel's own order and the theme's fonts,
   and every style a macro added. 11,147 reads in live Excel and 27
   workbooks it saved pin the rules (scripts/measure_cell_styles.py).
-  Changing a style, `Style.Delete` and `Styles.Merge` report themselves
-  unsupported.
+- Changing a cell style, `Style.Delete` and `Styles.Merge`. A property
+  set on a style changes it, and each format that did not set the part
+  itself follows while the style includes the part; including it again
+  brings the style's part back. Normal's font is the file's first, so a
+  change to it reaches cells of any style; its colours and strikethrough
+  change, while its size, face, bold, italic and underline, which the
+  sheets' geometry rests on, report themselves unsupported. A deleted
+  style's cells go to Normal, a built-in one staying in the file hidden;
+  a merged style named as one here takes its place and its cells. A
+  protected sheet makes either error 1004, and a style of a workbook
+  that is not the active one, which Excel changes in the active one,
+  reports itself unsupported. 6,459 reads in live Excel and 18 workbooks
+  it saved pin the rules (scripts/measure_style_changes.py).
+- `Font.ThemeFont` reads on a range: 1 for the theme's heading font, 2
+  for its body font, 0 for any other.
 
 ### Fixed
 
@@ -68,6 +81,17 @@ All notable changes to pyOpenVBA are documented here. This project follows
   stronger line, and between two of one style as the darker colour,
   where a cell read its own side first; 415 pairs of cells in live
   Excel show the order (scripts/measure_shared_edges.py).
+- A save writes the stylesheet in the order Excel's tables hold it: the
+  file's own entries, then the built-in styles' parts, then what the
+  session made, in the order it made them, leaving out what nothing
+  uses. A red font, which Warning Text has, now comes where Excel puts
+  it, and cell xfs come in the order they were made, where a save wrote
+  them in the order it met them. A custom number format takes its id
+  when it is made. Opening a file numbers its custom formats from 164,
+  works each cell xf's apply flags out afresh and merges xfs that then
+  agree, as Excel does, where the model kept a file's entries as it read
+  them. A save that follows no change to a format leaves the stylesheet
+  as it was.
 
 ## [6.1.3] - 2026-09-25
 

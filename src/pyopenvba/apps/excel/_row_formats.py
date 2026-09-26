@@ -93,10 +93,12 @@ def _put(sheet: Worksheet, row: int, column: int, style: S.Style) -> None:
 
     default = sheet.book.stylesheet.default
     sheet.cells_[(row, column)] = Cell(style=None if style == default else style)
+    sheet.book.stylesheet.meet(style)
 
 
 def _restyle_cell(sheet: Worksheet, row: int, column: int, cell: Cell, style: S.Style) -> None:
     cell.style, cell.xf = (None if style == sheet.book.stylesheet.default else style), -1
+    sheet.book.stylesheet.meet(cell.style)
 
 
 def _set_row(sheet: Worksheet, row: int, style: S.Style | None) -> None:
@@ -106,6 +108,7 @@ def _set_row(sheet: Worksheet, row: int, style: S.Style | None) -> None:
         return
     record = dims.touch_row(row)
     record.style, record.xf = style, -1
+    sheet.book.stylesheet.meet(style)
     dims.fonts_changed(row)
     dims.settle_row(row)
 
@@ -117,6 +120,7 @@ def _set_column(sheet: Worksheet, column: int, style: S.Style | None) -> None:
         return
     record = dims.touch_column(column)
     record.style, record.xf = (None if style == sheet.book.stylesheet.default else style), -1
+    sheet.book.stylesheet.meet(record.style)
     dims.settle_column(column)
 
 

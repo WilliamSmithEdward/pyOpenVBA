@@ -1001,6 +1001,7 @@ class SheetDimensions:
             record.height, record.height_as_read = (found.height, found.height_as_read) if found else (None, "")
             record.style = found.style if found is not None else None
             record.xf = found.xf if found is not None and same_book else -1
+            self.sheet.book.stylesheet.meet(record.style)
             self.fonts_changed(row)
             self.settle_row(row)
 
@@ -1016,6 +1017,7 @@ class SheetDimensions:
                 record.width, record.custom, record.width_as_read = None, False, ""
             record.style = found.style if found is not None else None
             record.xf = found.xf if found is not None and same_book else -1
+            self.sheet.book.stylesheet.meet(record.style)
             self.settle_column(column)
         self.column_fonts_changed()
 

@@ -443,6 +443,7 @@ class _Plan:
         else:
             value = content
         cell = Cell(value=value, formula=formula, stale=bool(formula), style=None if style == default else style)
+        sheet.book.stylesheet.meet(cell.style)
         sheet.cells_[at] = cell
         sheet.settle(*at)
         sheet.cell_changed(*at)

@@ -1755,3 +1755,40 @@ def test_excel_reads_the_workbook_protection_this_wrote(tmp_path: Path) -> None:
     for case in record["files"]:
         assert read[case["name"]] == case["read"], case["name"]
     assert read["password trial"] == "1004,True,0,False"
+
+
+def test_excel_reads_the_cell_styles_this_changed(tmp_path: Path) -> None:
+    """Workbooks tests/fixtures/cell_styles/style_changes.json saved, made by the model -- styles changed,
+    deleted and merged, and files opened again -- opened in Excel: every style and cell reads as in Excel's own
+    file of it."""
+    import json
+
+    harness = pytest.importorskip("pyvbaharness")
+    folder = Path(__file__).parent / "fixtures" / "cell_styles"
+    record = json.loads((folder / "style_changes.json").read_text(encoding="utf-8"))
+    saved = {"Follow": "follow", "Normal": "normal", "Setting": "setting", "Delete": "delete", "Merge": "merge",
+             "Quirks": "quirks", "AfterDelete": "after_delete", "Reopened": "reopen_changed",
+             "Planted": "planted_saved", "Duplicates": "duplicates_saved"}
+    for section in saved:
+        app = ExcelApplication()
+        app.add_workbook()
+        app.add_module(record["module"], name="Probe")
+        target, source = str(tmp_path) + os.sep, str(folder) + os.sep
+        app.run(section, *{"target": (target,), "both": (source, target)}[record["sections"][section]])
+    module: str = record["module"]
+    reader = module[:module.index("Public Function Follow")] + (
+        "Public Function Describe() As String\nDim wb As Object, s As Object, c As Object, out As String\n"
+        'Set wb = ActiveWorkbook\nout = Listing(wb) & "~"\n'
+        'For Each s In wb.Styles\nout = out & StyleProps(s) & "^"\nNext\n'
+        'For Each c In wb.Worksheets(1).Range("A1:C21").Cells\nout = out & Look(c) & "^"\nNext\n'
+        "Describe = out\nEnd Function\n")
+    read: dict[Path, str] = {}
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+        for name in saved.values():
+            for path in (tmp_path / f"{name}.xlsx", folder / f"{name}.xlsx"):
+                excel.open_document(path)
+                result = excel.run_vba(reader, "Describe", timeout=600.0)
+                assert result.ok, f"{path.name}: {result.message}"
+                read[path] = str(result.value)
+    for name in saved.values():
+        assert read[tmp_path / f"{name}.xlsx"] == read[folder / f"{name}.xlsx"], name

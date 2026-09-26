@@ -172,7 +172,7 @@ def test_a_class_whose_members_sit_on_its_interface_still_tells_a_gap_from_a_typ
         macro(app, '    Range("A1").AdvancedFiltr 1', name="Typo")
     assert typo.value.number == 438
     with pytest.raises(VBAUnsupportedError):
-        macro(app, '    x = Range("A1").Font.ThemeFont', name="ExcelOnly")
+        macro(app, '    x = Range("A1").Font.Background', name="ExcelOnly")
 
 
 def test_a_worksheet_function_this_lacks_says_which_one() -> None:

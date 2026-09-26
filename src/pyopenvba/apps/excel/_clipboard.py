@@ -358,6 +358,7 @@ def _paste_one(target: Range, kind: int, op: str, at: tuple[int, int], source: t
     assert fresh is not None
     fresh.value, fresh.formula, fresh.stale = (EMPTY, formula, True) if formula else (content, "", False)
     fresh.style, fresh.xf = (None if style == default else style), -1
+    sheet.book.stylesheet.meet(fresh.style)
     sheet.settle(row, column)
     sheet.cell_changed(row, column)
 

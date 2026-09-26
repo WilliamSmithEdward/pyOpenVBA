@@ -1146,17 +1146,19 @@ def save_workbook(book: Workbook, target: Path) -> None:
         if sheet.notes_changed:
             # A note's row and cell are written in the sheet (see _notes_file).
             sheet.dirty = True
+    # The save leaves out the file's xfs nothing uses any more, which moves the ones after them.
+    moves = book.stylesheet.moved_from_file()
     for sheet in book.sheets_:
         # A sheet nobody wrote to keeps the bytes it arrived with, its view too unless the window changed it.
-        if not sheet.part_name or not (sheet.dirty or sheet.view.changed or tabs):
+        if not sheet.part_name or not (sheet.dirty or sheet.view.changed or tabs or moves):
             continue
         original = (
             package.read(sheet.part_name).decode("utf-8", errors="replace")
             if package.has(sheet.part_name)
             else _EMPTY_SHEET
         )
-        patched = with_view(sheet, _patched_sheet(sheet, original, package, collector) if sheet.dirty else original,
-                            tabs=tabs)
+        patched = with_view(sheet, _patched_sheet(sheet, original, package, collector) if sheet.dirty
+                            else _restyled_sheet(original, moves), tabs=tabs)
         if sheet.dirty or patched != original:
             package.write(sheet.part_name, patched.encode("utf-8"))
     collector.write(package)
@@ -1796,14 +1798,26 @@ def _number_text(value: float) -> str:
 
 
 def _write_styles(book: Workbook, package: OpcFile) -> None:
-    """Add the formats the sheets now use to the stylesheet part, leaving every entry it had alone."""
+    """Write the stylesheet as Excel writes it at a save: what is in use, in the order its tables hold it."""
+    from pyopenvba.apps.excel._cell_styles import finish_save
+
     stylesheet = book.stylesheet
-    if not stylesheet.dirty:
-        return
-    if not package.has("xl/styles.xml"):
-        raise WorkbookFileError("the workbook has no styles part to add the new cell formats to")
-    package.write("xl/styles.xml", stylesheet.written().encode("utf-8"))
-    stylesheet.saved()
+    if stylesheet.dirty:
+        if not package.has("xl/styles.xml"):
+            raise WorkbookFileError("the workbook has no styles part to write the cell formats to")
+        package.write("xl/styles.xml", stylesheet.written().encode("utf-8"))
+    finish_save(book, stylesheet.saved())
+
+
+#: A cell's, a row's and a column's format in a sheet's XML, which a save that moves the file's xfs renumbers.
+_STYLE_ATTRIBUTE = re.compile(r'(<(?:c|row)\b[^>]*?\bs="|<col\b[^>]*?\bstyle=")(\d+)(")')
+
+
+def _restyled_sheet(xml: str, moved: dict[int, int]) -> str:
+    """A sheet no macro changed, its formats pointing where the save put the file's xfs."""
+    return _STYLE_ATTRIBUTE.sub(lambda match: match.group(1) + str(moved.get(int(match.group(2)),
+                                                                             int(match.group(2)))) + match.group(3),
+                                xml)
 
 
 def _style_for(cell: Cell, stylesheet: Stylesheet) -> str:

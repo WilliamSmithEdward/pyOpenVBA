@@ -343,6 +343,15 @@ class Font(ExcelObject):
         self._write(change)
 
     @member
+    def ThemeFont(self) -> object:
+        """xlThemeFontMajor (1) for the theme's heading font, xlThemeFontMinor (2) for its body font, else 0."""
+        return self._read(lambda font: _long({"major": 1, "minor": 2}.get(font.scheme, 0)))
+
+    @setter("ThemeFont")
+    def _set_theme_font(self, value: object) -> None:
+        raise VBAUnsupportedError(f"Font.ThemeFont = {to_text(value)} on a range is not implemented")
+
+    @member
     def Parent(self) -> object:
         return self.target
 
@@ -417,6 +426,14 @@ class Interior(ExcelObject):
 
         restyle(self.target, apply)
 
+    def _colored(self, fill: S.Fill, color: S.Color) -> S.Fill:
+        """The fill with a new cell colour, as a cell takes one."""
+        return with_cell_color(fill, color)
+
+    def _patterned(self, fill: S.Fill, pattern: str) -> S.Fill:
+        """The fill with a new pattern, as a cell takes one."""
+        return with_pattern(fill, pattern)
+
     def _answer(self, pick: Callable[[S.Fill], S.Color], what: str, mixed: object) -> object:
         fills = self._fills()
         colors = {pick(fill) for fill in fills}
@@ -440,7 +457,7 @@ class Interior(ExcelObject):
     @setter("Color")
     def _set_color(self, value: object) -> None:
         color = S.Color.from_bgr(int(to_integer(value, "Long")))
-        self._write(lambda fill: with_cell_color(fill, color))
+        self._write(lambda fill: self._colored(fill, color))
 
     @member
     def ColorIndex(self) -> object:
@@ -452,7 +469,7 @@ class Interior(ExcelObject):
             self._write(lambda _: S.Fill())
             return
         color = _palette_color(value) or S.BACKGROUND
-        self._write(lambda fill: with_cell_color(fill, color))
+        self._write(lambda fill: self._colored(fill, color))
 
     @member
     def ThemeColor(self) -> object:
@@ -461,7 +478,7 @@ class Interior(ExcelObject):
     @setter("ThemeColor")
     def _set_theme_color(self, value: object) -> None:
         color = _theme_color(value)
-        self._write(lambda fill: with_cell_color(fill, color))
+        self._write(lambda fill: self._colored(fill, color))
 
     @member
     def TintAndShade(self) -> object:
@@ -477,7 +494,7 @@ class Interior(ExcelObject):
             color = cell_color(fill)
             if color in (S.FOREGROUND, S.BACKGROUND) or color.kind == "auto":
                 raise VBAUnsupportedError("TintAndShade on an automatic fill colour is not implemented")
-            return with_cell_color(fill, replace(color, tint=tint))
+            return self._colored(fill, replace(color, tint=tint))
 
         self._write(change)
 
@@ -494,7 +511,7 @@ class Interior(ExcelObject):
         if wanted not in _PATTERN_OF:
             raise VBAUnsupportedError(f"Interior.Pattern = {wanted} is not implemented")
         pattern = _PATTERN_OF[wanted]
-        self._write(lambda fill: with_pattern(fill, pattern))
+        self._write(lambda fill: self._patterned(fill, pattern))
 
     @member
     def PatternColor(self) -> object:
@@ -700,7 +717,7 @@ def side_answer(colors: S.Colors, side: S.Side, what: str) -> object:
     return _color_answer(colors, side.color, "000000", what)
 
 
-def _side_change(what: str, value: object) -> Callable[[S.Side], S.Side]:
+def side_change(what: str, value: object) -> Callable[[S.Side], S.Side]:
     """How setting one Border property changes a side."""
     if what == "LineStyle":
         line_style = int(to_integer(value, "Long"))
@@ -777,7 +794,7 @@ class Border(ExcelObject):
         return side_answer(_colors(self.target), self.side(), what)
 
     def assign(self, what: str, value: object) -> None:
-        self.apply(_side_change(what, value))
+        self.apply(side_change(what, value))
 
     def apply(self, change: Callable[[S.Side], S.Side]) -> None:
         """Set the border on each area -- each visible area, on a filtered sheet, measured for the bottom edge."""
@@ -1047,11 +1064,11 @@ def write_alignment(target: Range, what: str, value: object) -> None:
         restyle(target, lambda style: S.applying(style, "protection",
                                                  protection=replace(style.protection, **{field_name: on})))
         return
-    change = _alignment_change(what, value)
+    change = alignment_change(what, value)
     restyle(target, lambda style: S.applying(style, "alignment", alignment=change(style.alignment)))
 
 
-def _alignment_change(what: str, value: object) -> Callable[[S.Alignment], S.Alignment]:
+def alignment_change(what: str, value: object) -> Callable[[S.Alignment], S.Alignment]:
     if what in ("WrapText", "ShrinkToFit", "AddIndent"):
         on = to_bool(value)
         name = {"WrapText": "wrap", "ShrinkToFit": "shrink", "AddIndent": "justify_last_line"}[what]

@@ -61,8 +61,8 @@ def test_an_excel_authored_format_reads_back(excel_authored: ExcelApplication, r
 
 
 @pytest.fixture(scope="module")
-def model_authored(tmp_path_factory: pytest.TempPathFactory) -> ExcelApplication:
-    """The same cases set by the model, saved, and opened again."""
+def model_saved(tmp_path_factory: pytest.TempPathFactory) -> Path:
+    """The same cases set by the model and saved."""
     app = ExcelApplication()
     app.add_workbook()
     lines = ["Public Sub Build()", "Dim c As Object"]
@@ -75,7 +75,13 @@ def model_authored(tmp_path_factory: pytest.TempPathFactory) -> ExcelApplication
     app.run("Build")
     path = tmp_path_factory.mktemp("formats") / "formats.xlsm"
     app.save(path)
-    reopened = ExcelApplication.open(path, with_vba=False)
+    return path
+
+
+@pytest.fixture(scope="module")
+def model_authored(model_saved: Path) -> ExcelApplication:
+    """The model's workbook opened again."""
+    reopened = ExcelApplication.open(model_saved, with_vba=False)
     _reader(reopened)
     return reopened
 
@@ -83,6 +89,18 @@ def model_authored(tmp_path_factory: pytest.TempPathFactory) -> ExcelApplication
 @pytest.mark.parametrize("row,name", ROWS, ids=CASES)
 def test_a_model_authored_format_survives_a_save(model_authored: ExcelApplication, row: int, name: str) -> None:
     assert _described(model_authored, row) == ANSWERS["answers"][name]
+
+
+def test_the_model_writes_the_stylesheet_excel_wrote(model_saved: Path) -> None:
+    """Every entry in Excel's order: a red font first among the fonts the cases made, in Warning Text's place
+    in Excel's table, and each cell xf in the order it was made."""
+
+    def styles(path: Path) -> str:
+        with zipfile.ZipFile(path) as package:
+            text = package.read("xl/styles.xml").decode("utf-8")
+        return text[text.index("<numFmts") if "<numFmts" in text else text.index("<fonts"):text.index("<dxfs")]
+
+    assert styles(model_saved) == styles(FIXTURES / "format" / "formats.xlsx")
 
 
 @pytest.mark.parametrize("record", STORAGE["cases"], ids=[record["name"] for record in STORAGE["cases"]])

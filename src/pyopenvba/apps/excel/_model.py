@@ -1406,6 +1406,7 @@ class Worksheet(ExcelObject):
                 return
             found = self.cells_[(row, column)] = Cell()
         found.style, found.xf = (None if style == self.book.stylesheet.default else style), -1
+        self.book.stylesheet.meet(found.style)
         self.settle(row, column)
         self.touched()
         self.dims.fonts_changed(row)

@@ -783,10 +783,9 @@ protection properties, `NumberFormat` and `ClearFormats` read and write a
 cell's format the way Excel does; 161 probes of live Excel pin the
 answers (`tests/fixtures/range_format.json`). A workbook's `styles.xml`
 is read into one format per cell, so a file Excel formatted reads back
-exactly as Excel reads it, and a save appends only the entries the file
-lacks, spelled as Excel spells them: for the same edits the stylesheet
-comes out byte for byte as Excel's, except that Excel writes a red font
-first whenever one is used.
+exactly as Excel reads it, and a save writes the stylesheet the way Excel
+writes it (see **The stylesheet** below): for the same edits it comes out
+byte for byte as Excel's (`tests/fixtures/format/formats.xlsx`).
 
 * A property read over several cells answers the shared value or Null.
   Colours compare as colours, and a mixed `Interior.Color` or
@@ -820,9 +819,11 @@ first whenever one is used.
   the indent. `ClearFormats` unmerges.
 
 **Cell styles.** `Range.Style`, the `Styles` collection and the `Style`
-object answer as Excel's do over 11,147 reads in live Excel, and 27
-workbooks Excel saved along the way are written the same by the model
-(`tests/fixtures/cell_styles/`).
+object answer as Excel's do over 11,147 reads in live Excel
+(`tests/fixtures/cell_styles/cell_styles.json`), and styles a macro
+changes, deletes and merges over 6,459 more (`style_changes.json`, made
+by `scripts/measure_style_changes.py`). The 45 workbooks Excel saved on
+the way are written the same by the model, entry for entry.
 
 * A new workbook lists Excel's 47 built-in styles, and its file holds
   only Normal until a cell uses another. Styles are listed in the order
@@ -837,19 +838,61 @@ workbooks Excel saved along the way are written the same by the model
   that does not allow formatting cells.
 * `Styles.Add` copies Normal, or the first cell of `BasedOn`, leaving out
   the parts the range's cells do not share.
+* A style's properties set as a range's do. The style changes, and each
+  cell, row and column format that did not set the part itself follows,
+  while the style includes the part; including a part again brings the
+  style's part back to them. A built-in style a macro touches, even to
+  set what it was, is written `customBuiltin`.
+* Normal's font is the file's first font, which every format in it points
+  at, so a change to it reaches cells of any style that did not set their
+  font. The model takes its colours and strikethrough, and reports its
+  size, face, bold, italic and underline unsupported: the sheets' column
+  widths and row heights rest on them.
 * A style's `Borders` are its edges by `xlLeft`, `xlRight`, `xlTop` and
-  `xlBottom`, while `xlEdgeLeft` and the like answer Null, and its
-  pattern colour is white where a cell's is black.
-* A save writes a built-in style only while a cell uses it, and every
-  style a macro added: after the file's own, the built-in ones in
-  Excel's order and then the rest in the order they were made, each in
-  the theme's fonts. Excel numbers cell xfs in the order it made them,
-  and rewrites a file's own xfs when it opens one; the model keeps a
-  file's xfs as read and numbers new ones in the order a save meets
-  them.
+  `xlBottom` and its diagonals by 5 and 6; `Borders(7)` to `Borders(12)`
+  read -4142 and 2 where the edge in that turn has a line in the
+  automatic colour, else Null, and setting one does nothing. A style's
+  automatic pattern colour stays white or black, where a cell's turns
+  black. `Superscript` and `Subscript` read False while the style leaves
+  its font out, and `IndentLevel` is Null unless the style aligns left,
+  right or distributed and does not turn its text.
+* `Style.Delete` moves its cells to Normal, each part they did not set
+  themselves following Normal from then on; a built-in style stays in
+  the file, hidden, a held `Style` of it is error 424, and Normal is
+  error 1004. `Styles.Merge` brings another workbook's styles in: one
+  named as one here takes its place and reaches the cells that follow
+  it, keeping this workbook's spelling, and the rest come in the order
+  their names sort.
+* A protected sheet in the workbook makes a change or a delete error
+  1004, whatever the protection allows. A macro that changes a style of
+  a workbook that is not the active one changes the active workbook's
+  style of that name in Excel; the model reports that unsupported.
+* A save writes a built-in style while a cell uses it, a macro changed
+  it or deleted it, and every style a macro added: after the file's own,
+  the built-in ones in Excel's order and then the rest in the order they
+  were made, each in the theme's fonts.
 
-Changing a style, `Style.Delete`, `Styles.Merge` and conditional formats
-are not implemented yet; the operation checklist,
+**The stylesheet.** Excel keeps a workbook's number formats, fonts,
+fills, borders, cell styles and cell xfs as tables in the order they
+came -- the file's own, then the parts of its built-in styles, then what
+the session made -- and a save writes the ones in use in that order and
+leaves the rest out. The model keeps the same tables
+(`tests/fixtures/cell_styles/order.xlsx`).
+
+* A new part equal to a built-in style's takes that style's place: a red
+  font, which Warning Text has, comes ahead of the fonts a macro made
+  before it.
+* A custom number format takes its id when it is made, and a save leaves
+  a gap where one was made and then dropped. Opening a file numbers its
+  custom formats from 164 in the order it lists them.
+* A cell xf changes in place when its style changes, and two that come
+  to say the same stay apart. Opening a file, Excel works each xf's apply
+  flags out afresh and takes an xf that then points at what an earlier
+  one points at as that one; a font the file holds twice stays two.
+* A save that follows no change to a format leaves the stylesheet as the
+  file had it, as it leaves a sheet no macro wrote to.
+
+Conditional formats are not implemented yet; the operation checklist,
 `docs/excel_checklist.csv`, records each member's status.
 
 **Typing.** A string written through `Value`, `Value2`, `Formula` or an

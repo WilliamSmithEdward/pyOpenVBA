@@ -104,6 +104,31 @@ def test_a_multipage_made_at_a_size_is_the_one_the_designer_sizes(host: str, for
 
 
 @pytest.mark.parametrize("host", HOSTS)
+@pytest.mark.parametrize("multipage", ["MP01", "MP04"])
+def test_a_page_is_added_as_to_a_multipage_of_the_default_size(host: str, multipage: str, tmp_path: Path) -> None:
+    # MP01 was sized to 300 x 200 points before the designer added its Page3, MP04 to 100 x 60: that page has
+    # the default size's layout either way, larger than MP04 itself.
+    with ExcelFile(_office_form(host, "Added", tmp_path)) as workbook:
+        office = _form(workbook, "Added")
+        office.add_page(multipage, name="Page4")
+        assert _layout(office, multipage)[-1] == _layout(office, multipage)[-2]
+
+
+@pytest.mark.parametrize("host", HOSTS)
+@pytest.mark.parametrize("multipage", ["MP01", "MP04"])
+def test_a_multipage_made_at_a_size_takes_a_page_as_the_designers_does(host: str, multipage: str,
+                                                                        tmp_path: Path) -> None:
+    # The designer added each MultiPage, sized it and added a page: the library's MultiPage made at that
+    # size, given a page, is laid out the same, page for page.
+    with ExcelFile(_office_form(host, "Added", tmp_path)) as workbook:
+        office = _form(workbook, "Added")
+        width, height = _size(office.control(multipage))
+        office.add_control("MultiPage", "New", left=0, top=0, width=width, height=height)
+        office.add_page("New", name="Page3")
+        assert _layout(office, "New") == _layout(office, multipage)
+
+
+@pytest.mark.parametrize("host", HOSTS)
 def test_a_page_goes_under_tabs_in_the_font_set_on_its_multipage(host: str, tmp_path: Path) -> None:
     # MP01 was set to Tahoma 14 pt, which its TabStrip keeps; MP03 was set the same, and the designer then
     # added its Page3.
@@ -130,3 +155,18 @@ def test_the_page_shown_is_laid_out_in_the_tabstrip(host: str, form: str, tmp_pa
             assert isinstance(shown, int) and isinstance(size, Size)
             left, top, width, height = office._page_box(level, size)  # pyright: ignore[reportPrivateUsage]
             assert _layout(office, name)[1 + shown] == ((left, top), Size(width, height)), name
+
+
+@pytest.mark.parametrize("host", HOSTS)
+def test_a_designer_lays_out_pages_at_its_own_dpi(host: str, tmp_path: Path) -> None:
+    # The library laid every page of both MultiPages out 542 HIMETRIC down, as a designer at 192 DPI does
+    # for Tahoma 7.875 pt (#31's sample). The designer at 96 DPI laid out again the page it showed, put the
+    # page it added where it lays one out itself, and left the other page where it was: it copies nothing
+    # from the pages already there, and the library's add_page does as it does.
+    ours, planted = ((53, 556), Size(4974, 3201)), ((53, 542), Size(4974, 3215))
+    with ExcelFile(_office_form(host, "Planted", tmp_path)) as workbook:
+        office = _form(workbook, "Planted")
+        assert _layout(office, "MPA")[1:] == [ours, planted, ours]
+        assert _layout(office, "MPB")[1:] == [ours, planted]
+        office.add_page("MPB", name="Page3")
+        assert _layout(office, "MPB")[-1] == ours

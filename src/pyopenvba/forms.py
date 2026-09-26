@@ -469,7 +469,7 @@ class VBAForm:
             # VBA sizes it after: the TabStrip and the page it shows, the
             # first, follow, and the second keeps the default size's layout
             # (tests/fixtures/multipage_resize.json, the Sizes form).
-            self._lay_out_page(level, 1, Size(*_DEFAULT_SIZE["MultiPage"]))
+            self._lay_out_page(level, 0, size)
 
     def _seed_tabstrip(self, tabs: ParsedRecord) -> None:
         """Give a new TabStrip the two tabs the designer gives one, Tab1 and
@@ -524,6 +524,10 @@ class VBAForm:
         A page is a container control *and* a tab, so this writes both:
         a site and a storage of its own, and an entry in each of the
         MultiPage's five TabStrip arrays plus its page bookkeeping.
+
+        The page is laid out as the designer's ``Pages.Add`` lays one out:
+        for a MultiPage of the default size, whatever size this one has,
+        under tabs as tall as the MultiPage's font makes them.
         """
         parent, control = self._find(multipage)
         if control.clsid_cache_index != 57:
@@ -546,7 +550,11 @@ class VBAForm:
                 f"{multipage!r} already has a page named {name!r}"
             )
 
-        left, top, width, height = self._page_box(level, self._multipage_size(level))
+        # The designer's Pages.Add lays a page out as for a MultiPage of the
+        # default size, whatever size the MultiPage has: only the page shown
+        # follows a MultiPage that changes size
+        # (tests/fixtures/multipage_resize.json, the Added form).
+        left, top, width, height = self._page_box(level, Size(*_DEFAULT_SIZE["MultiPage"]))
         site = _new_site(
             name, page_id, 7, len(level.sites), left, top,
             encoding=self._encoding, container=True,

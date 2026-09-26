@@ -5,6 +5,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ## [Unreleased]
 
+Nothing yet.
+
+## [6.2.0] - 2026-09-26
+
 ### Added
 
 - `Range.TextToColumns`, as Excel splits a column of text and types what

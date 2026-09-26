@@ -1547,6 +1547,7 @@ macros, which the model does not write.
 | `apps/excel/_dimensions.py` | Row heights, column widths and hidden rows and columns, on a 96-DPI display |
 | `apps/excel/_row_formats.py` | Formats a whole row, a whole column or the whole sheet carries, and how a change spreads |
 | `apps/excel/_font_rows.py` | How tall each measured font makes a row, baked from `tests/fixtures/font_rows.json` |
+| `_relationships.py` | The order Office writes a part's relationships in |
 | `apps/word/` | Word's object model, its bridge and its file |
 | `apps/powerpoint/` | PowerPoint's, the same three |
 | `shapes/_values.py` | What a shape is, in all three hosts' words |

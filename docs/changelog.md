@@ -53,6 +53,15 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- A sheet's relationships are listed in the order Excel lists them,
+  where they came in the order they were added. Office reads a part's
+  relationships out of a table that splits as it grows, which puts
+  `rId3 rId2 rId1` first, and places each id by its characters read in
+  base 101 and put through one step of C's `rand()` generator;
+  `pyopenvba._relationships` does the same. Excel's orders for every
+  count to 160 and 17 larger ones up to 65,530, the most hyperlinks a
+  sheet holds, pin the rules (scripts/measure_relationship_order.py); a
+  part of more than 65,536 keeps the order it has.
 - A typed date may mix `/` and `-` and have spaces round them, as Excel
   reads `1/2-2020` and `1 / 2 / 2020`, where a cell kept them as text.
   A part of three digits makes it text, as in `001/2/2020`, which a cell

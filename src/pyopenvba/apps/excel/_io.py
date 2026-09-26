@@ -21,6 +21,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import Area, column_letter, column_number, parse_area, parse_reference, split_sheet
+from pyopenvba._relationships import in_office_order
 from pyopenvba._xml import attributes as _attributes
 from pyopenvba._xml import escape as _escape
 from pyopenvba._xml import escape_text as _escape_text
@@ -480,7 +481,7 @@ def _write_notes(book: Workbook, package: OpcFile) -> None:
         drawn = with_notes(sheet, vml or empty_vml(vml_block(sheet)))
         if sheet.notes:
             if not comments_at:
-                comments_at = _new_comments(package, sheet, vml_at)
+                comments_at = _new_comments(package, sheet)
             listed = [(f"{column_letter(column)}{row}", note) for (row, column), note in in_order(sheet)]
             package.write(comments_at, comments_part(listed).encode("utf-8"))
         else:
@@ -536,9 +537,9 @@ def _new_notes_vml(package: OpcFile, sheet: Worksheet, block: int) -> str:
     return part
 
 
-def _new_comments(package: OpcFile, sheet: Worksheet, vml_part: str) -> str:
-    """A comments part for a sheet's notes: named in the content types before the document's own properties, and
-    related to the sheet ahead of its VML part, as Excel lists them (tests/fixtures/notes.json)."""
+def _new_comments(package: OpcFile, sheet: Worksheet) -> str:
+    """A comments part for a sheet's notes, named in the content types before the document's own properties, and
+    related to the sheet after its VML part (tests/fixtures/notes.json)."""
     from pyopenvba.apps.excel._notes_file import COMMENTS_RELATIONSHIP, COMMENTS_TYPE
 
     taken = set(package.names())
@@ -552,17 +553,7 @@ def _new_comments(package: OpcFile, sheet: Worksheet, vml_part: str) -> str:
     at = types.find('<Override PartName="/docProps/')
     at = at if at >= 0 else types.rfind("</Types>")
     package.write("[Content_Types].xml", (types[:at] + override + types[at:]).encode("utf-8"))
-    relationship = _add_sheet_relationship(package, sheet.part_name, f"../comments{number}.xml", COMMENTS_RELATIONSHIP)
-    folder, _, name = sheet.part_name.rpartition("/")
-    rels = f"{folder}/_rels/{name}.rels"
-    text = package.read(rels).decode("utf-8", errors="replace")
-    elements = re.findall(r"<Relationship\b[^>]*/>", text)
-    mine = next(one for one in elements if _attributes(one).get("Id") == relationship)
-    vml_target = f"../drawings/{vml_part.rpartition('/')[2]}"
-    theirs = next((one for one in elements if _attributes(one).get("Target") == vml_target), None)
-    if theirs is not None:
-        text = text.replace(mine, "").replace(theirs, mine + theirs)
-        package.write(rels, text.encode("utf-8"))
+    _add_sheet_relationship(package, sheet.part_name, f"../comments{number}.xml", COMMENTS_RELATIONSHIP)
     return part
 
 
@@ -789,7 +780,7 @@ def _remove_sheet_relationship(package: OpcFile, sheet_part: str, relationship: 
         text = package.read(part).decode("utf-8")
         text = re.sub(r"<Relationship\b[^>]*/>",
                       lambda m: "" if _attributes(m.group(0)).get("Id") == relationship else m.group(0), text)
-        package.write(part, text.encode("utf-8"))
+        package.write(part, in_office_order(text).encode("utf-8"))
 
 
 def _remove_unreferenced_part(package: OpcFile, part: str) -> None:
@@ -1061,7 +1052,10 @@ def _add_sheet_relationship(package: OpcFile, sheet_part: str, target: str, kind
         number += 1
     identifier = f"rId{number}"
     element = f'<Relationship Id="{identifier}" Type="{kind}" Target="{target}"/>'
-    package.write(rels, text.replace("</Relationships>", element + "</Relationships>").encode("utf-8"))
+    # Office writes a part's relationships in its own order, which puts a comments part ahead of its sheet's VML
+    # part (see pyopenvba._relationships).
+    package.write(rels, in_office_order(text.replace("</Relationships>", element + "</Relationships>"))
+                  .encode("utf-8"))
     return identifier
 
 

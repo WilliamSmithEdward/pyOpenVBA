@@ -93,6 +93,8 @@ All notable changes to pyOpenVBA are documented here. This project follows
   designers make the TabStrip as large as the MultiPage and site each
   page two pixels inside it, under tabs as tall as the MultiPage's font
   makes them, so a page is 106 HIMETRIC narrower than its MultiPage.
+  That font is the one set on the MultiPage, which its TabStrip keeps,
+  or else the one it shows from the form or Frame it sits on.
   `add_page` sizes a page the same way. The designer makes a MultiPage
   at its default size and resizes it, and only the first page follows;
   one the library makes at another size gets every page sized to it.

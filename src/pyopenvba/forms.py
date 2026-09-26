@@ -634,8 +634,17 @@ class VBAForm:
         (tests/fixtures/form_fonts.json).  Left, top, width, height, in HIMETRIC."""
         size = self._multipage_size(level)
         inset = _himetric_px(_PAGE_INSET_PX)
-        top = _himetric_px(_PAGE_INSET_PX + _tab_band_px(self._font_of(level)))
+        top = _himetric_px(_PAGE_INSET_PX + _tab_band_px(self._multipage_font(level)))
         return inset, top, size.width - 2 * inset, size.height - top - inset
+
+    def _multipage_font(self, level: _Level) -> _Font:
+        """The font the tabs of the MultiPage at ``level`` show: its TabStrip's, which is where the
+        designer keeps a font set on the MultiPage (tests/fixtures/multipage_resize.json, the Refont
+        form), else the one the MultiPage shows from its container."""
+        text_props = self._tabstrip(level).text_props
+        if text_props is not None and "FontHeight" in text_props.values:
+            return _font_from_text_props(text_props)
+        return self._font_of(level)
 
     @staticmethod
     def _take_tab_index(level: _Level, cache_index: int) -> int:
@@ -1511,9 +1520,11 @@ _FONT_HEIGHTED = frozenset({"CheckBox", "OptionButton"})
 # A tab's height in pixels at 96 DPI, for a font by face and size in twips as
 # the designer stored it: what it lays a MultiPage's pages under, and grows a
 # CheckBox with.  It follows the face's metrics, so it is measured rather
-# than computed (tests/fixtures/form_fonts.json).
+# than computed (tests/fixtures/form_fonts.json; Tahoma 14 pt, which a
+# MultiPage's own font keeps as set, tests/fixtures/multipage_resize.json).
 _TAB_BAND_PX: dict[tuple[str, int], int] = {
     ("tahoma", 165): 19, ("tahoma", 180): 20, ("tahoma", 195): 22, ("tahoma", 210): 23, ("tahoma", 240): 25,
+    ("tahoma", 280): 29,
     ("arial", 165): 20, ("arial", 180): 21, ("arial", 195): 22, ("arial", 210): 22, ("arial", 225): 23,
     ("arial", 240): 24,
     ("segoe ui", 165): 19, ("segoe ui", 180): 21, ("segoe ui", 195): 23,
@@ -1618,17 +1629,21 @@ def _read_font(blob: bytes, encoding: str) -> _Font | None:
         _, charset, flags, weight, size, length = struct.unpack_from("<BHBHIB", blob, 16)
         return _Font(blob[27:27 + length].decode(encoding, "replace"), size, charset, flags, weight)
     if tag == _GUID_TEXTPROPS:
-        record = parse_record(blob[16:], TEXT_PROPS_SPEC, encoding)
-        stored = record.strings.get("FontName")
-        effects = record.values.get("FontEffects", 0)
-        return _Font(
-            stored.text if stored is not None else _DEFAULT_FONT.name,
-            record.values.get("FontHeight", _DEFAULT_FONT.size // 500) * 500,
-            record.values.get("FontCharSet", 0),
-            effects & _EFFECT_STYLES,
-            record.values.get("FontWeight", 700 if effects & _EFFECT_BOLD else 400),
-        )
+        return _font_from_text_props(parse_record(blob[16:], TEXT_PROPS_SPEC, encoding))
     return None
+
+
+def _font_from_text_props(record: ParsedRecord) -> _Font:
+    """The font a TextProps record describes."""
+    stored = record.strings.get("FontName")
+    effects = record.values.get("FontEffects", 0)
+    return _Font(
+        stored.text if stored is not None else _DEFAULT_FONT.name,
+        record.values.get("FontHeight", _DEFAULT_FONT.size // 500) * 500,
+        record.values.get("FontCharSet", 0),
+        effects & _EFFECT_STYLES,
+        record.values.get("FontWeight", 700 if effects & _EFFECT_BOLD else 400),
+    )
 
 
 def _text_props_for(kind: str, font: _Font) -> ParsedRecord:

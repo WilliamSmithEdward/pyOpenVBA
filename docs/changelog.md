@@ -50,6 +50,28 @@ All notable changes to pyOpenVBA are documented here. This project follows
   it saved pin the rules (scripts/measure_style_changes.py).
 - `Font.ThemeFont` reads on a range: 1 for the theme's heading font, 2
   for its body font, 0 for any other.
+- Hyperlinks: `Worksheet.Hyperlinks`, `Range.Hyperlinks`,
+  `Range.ClearHyperlinks` and the `Hyperlink` object. `Hyperlinks.Add`
+  puts a link on each area of its anchor, over the very cells of a link
+  taking its place; the cells take the Hyperlink style, made the first
+  time as Excel makes it, and the first cell the text to show or, when
+  empty, the address. An address is tidied as Excel tidies it -- an http
+  address's scheme and host in lower case, its path resolved, a `#`
+  splitting off the subaddress -- and saved as Excel saves it, a DOS path
+  relative to the workbook's folder. A link's name follows its address
+  until it is given a text to show; `SubAddress` takes the address away;
+  `EmailSubject` reads and writes a mailto address's subject. A range's
+  links are those inside one of its areas, and for one area the link it
+  lies in: `Clear`, `ClearContents`, an empty value, `ClearHyperlinks`
+  and a copy landing on them take them away, `Delete` with their formats,
+  and copies, pastes of everything, cuts, inserts, deletes, sorts and
+  copies of the sheet move them as Excel does. A formula whose first
+  function is HYPERLINK gives its cells the Hyperlink style. A save
+  writes each link, its display and its relationship as Excel writes
+  them. 26 sections of live Excel and the 21 workbooks it saved pin the
+  rules (scripts/measure_hyperlinks.py). A link on a shape, `EmailSubject`
+  on a link with no address, which leaves Excel refusing every change
+  after it, and `Follow` report themselves unsupported.
 
 ### Fixed
 

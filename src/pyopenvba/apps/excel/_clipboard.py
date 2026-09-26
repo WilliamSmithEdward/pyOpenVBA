@@ -320,7 +320,27 @@ def paste_special(target: Range, what: object, operation: object, skip_blanks: o
         # The notes come along with everything, and on their own as comments; values and formats leave the notes
         # where they land as they are (tests/fixtures/excel_model/).
         _notes.copied(sheet, notes, [Area(corner.top, corner.left, corner.top + height - 1, corner.left + width - 1)])
+    if kind in _EVERYTHING and (source_sheet.hyperlinks or sheet.hyperlinks):
+        _paste_links(source_sheet, made, sheet, corner, height, width, turned)
     return True
+
+
+def _paste_links(source: Worksheet, made: Block, sheet: Worksheet, corner: Area, height: int, width: int,
+                 turned: bool) -> None:
+    """Everything pasted brings the links it copied, tile by tile, as a copy does; values and formats bring none
+    (tests/fixtures/hyperlinks/pastes.xlsx)."""
+    from pyopenvba.apps.excel import _hyperlinks
+
+    areas = [area for area, _, _ in made.parts]
+    if turned or len(areas) > 1:
+        if _hyperlinks.touches(source, areas):
+            raise VBAUnsupportedError("pasting hyperlinks turned or from several areas is not implemented")
+        return
+    area = areas[0]
+    for top in range(corner.top, corner.top + height, made.rows):
+        for left in range(corner.left, corner.left + width, made.columns):
+            _hyperlinks.copied(source, Area(area.top, area.left, area.bottom, area.right), sheet,
+                               Area(top, left, top + made.rows - 1, left + made.columns - 1))
 
 
 def _snapshot(cell: Cell) -> Cell:
@@ -456,6 +476,10 @@ def move(source: Range, area: Area, destination: Range) -> None:
         from pyopenvba.apps.excel._notes import cut as cut_notes
 
         cut_notes(sheet, area, target, down, across)
+    if sheet.hyperlinks or target.hyperlinks:
+        from pyopenvba.apps.excel._hyperlinks import cut as cut_links
+
+        cut_links(sheet, area, target, down, across)
     from pyopenvba.apps.excel._autofilter import filter_moved
 
     filter_moved(sheet, area, target, down, across)

@@ -443,6 +443,31 @@ GroupShapes,Creator,"property, read-only",As XlCreator,,MISSING,,
 GroupShapes,Item,method,Item(Index As Variant) As Shape,,UNASSESSED,,
 GroupShapes,Parent,"property, read-only",As Object,,MISSING,,
 GroupShapes,Range,"property, read-only",As ShapeRange,,MISSING,,
+Hyperlink,Address,property,As String,,PARTIAL,tests/fixtures/hyperlinks/hyperlinks.json; tests/test_live_excel_model_gate.py,"Kept as Excel tidies it -- an http, https or ftp address's scheme and host in lower case, its path resolved, a # splitting off the subaddress -- for the kinds of address measured; saved with a DOS path relative to the workbook's folder. Setting it keeps the subaddress unless the new address has a # of its own."
+Hyperlink,AddToFavorites,method,AddToFavorites(),,EXCLUDED,,Adds the address to the browser's favourites.
+Hyperlink,Application,"property, read-only",As Application,,VERIFIED,tests/fixtures/hyperlinks/hyperlinks.json,
+Hyperlink,CreateNewDocument,method,"CreateNewDocument(Filename As String, EditNow As Boolean, Overwrite As Boolean)",,EXCLUDED,,Creates and opens a document of another application.
+Hyperlink,Creator,"property, read-only",As XlCreator,,VERIFIED,tests/fixtures/hyperlinks/hyperlinks.json,
+Hyperlink,Delete,method,Delete(),,VERIFIED,tests/fixtures/hyperlinks/hyperlinks.json,"Its cells go back to the default format, merges kept. On a protected sheet a locked cell keeps its link, error 1004."
+Hyperlink,EmailSubject,property,As String,,PARTIAL,tests/fixtures/hyperlinks/hyperlinks.json,"The subject of a mailto address, which setting it writes in, in place of one it names, or takes out; """" for no address; another address fails. Set on a link with no address, which leaves Excel refusing every change after it, it reports unsupported."
+Hyperlink,Follow,method,"Follow([NewWindow As Variant], [AddHistory As Variant], [ExtraInfo As Variant], [Method As Variant], [HeaderInfo As Variant])",,EXCLUDED,,Opens the address in another application.
+Hyperlink,Name,"property, read-only",As String,,VERIFIED,tests/fixtures/hyperlinks/hyperlinks.json,"The text to show it was given, or ""address - subaddress"", which follows a new address; read from a file without a display, its cell's text. Setting it is error 450."
+Hyperlink,Parent,"property, read-only",As Object,,VERIFIED,tests/fixtures/hyperlinks/hyperlinks.json,Its cells.
+Hyperlink,Range,"property, read-only",As Range,,VERIFIED,tests/fixtures/hyperlinks/hyperlinks.json,
+Hyperlink,ScreenTip,property,As String,,VERIFIED,tests/fixtures/hyperlinks/hyperlinks.json; tests/test_live_excel_model_gate.py,
+Hyperlink,Shape,"property, read-only",As Shape,,PARTIAL,tests/fixtures/hyperlinks/hyperlinks.json,Error 1004 for a link on cells; a link on a shape is not implemented.
+Hyperlink,SubAddress,property,As String,,VERIFIED,tests/fixtures/hyperlinks/hyperlinks.json; tests/test_live_excel_model_gate.py,Setting it takes the address away.
+Hyperlink,TextToDisplay,property,As String,,VERIFIED,tests/fixtures/hyperlinks/hyperlinks.json; tests/test_live_excel_model_gate.py,"The text the first cell holds, """" for a number or a formula; setting it writes the first cell and names the link, """" doing nothing."
+Hyperlink,Type,"property, read-only",As Long,,PARTIAL,tests/fixtures/hyperlinks/hyperlinks.json,0 for a link on cells; a link on a shape is not implemented.
+Hyperlinks,_Default,"property, read-only",As Hyperlink,,MISSING,,
+Hyperlinks,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
+Hyperlinks,Add,method,"Add(Anchor As Object, Address As String, [SubAddress As Variant], [ScreenTip As Variant], [TextToDisplay As Variant]) As Object",,PARTIAL,tests/fixtures/hyperlinks/hyperlinks.json; tests/test_live_excel_model_gate.py,"A link on each area of the anchor, the last answered; over the very cells of a link it takes that link's place. The cells take the Hyperlink style, and the first the text to show or, when empty, the address. SubAddress, ScreenTip and TextToDisplay not strings are error 5. A protected sheet needs AllowInsertingHyperlinks and unlocked cells. A shape anchor reports unsupported."
+Hyperlinks,Application,"property, read-only",As Application,,VERIFIED,tests/fixtures/hyperlinks/hyperlinks.json,
+Hyperlinks,Count,"property, read-only",As Long,,VERIFIED,tests/fixtures/hyperlinks/hyperlinks.json,
+Hyperlinks,Creator,"property, read-only",As XlCreator,,VERIFIED,tests/fixtures/hyperlinks/hyperlinks.json,
+Hyperlinks,Delete,method,Delete(),,VERIFIED,tests/fixtures/hyperlinks/hyperlinks.json,"Every link the collection holds goes, its cells back to the default format."
+Hyperlinks,Item,"property, read-only",As Hyperlink,,VERIFIED,tests/fixtures/hyperlinks/hyperlinks.json,"By place in the sheet's order or by name; 0, past the last and an unknown name are error 9."
+Hyperlinks,Parent,"property, read-only",As Object,,VERIFIED,tests/fixtures/hyperlinks/hyperlinks.json,"The worksheet, a range's collection's too."
 Interior,Application,"property, read-only",As Application,,UNASSESSED,,
 Interior,Color,property,As Variant,,PARTIAL,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,A gradient fill reports unsupported.
 Interior,ColorIndex,property,As Variant,,PARTIAL,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,A gradient fill reports unsupported.
@@ -631,7 +656,7 @@ Range,Clear,method,Clear() As Variant,,PARTIAL,tests/fixtures/excel_model/probes
 Range,ClearComments,method,ClearComments(),,VERIFIED,tests/fixtures/excel_model/probes.txt,
 Range,ClearContents,method,ClearContents([RemoveControls As Variant]) As Variant,no RemoveControls,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/row_formats/row_formats.json; tests/fixtures/autofilter_edits.json,"An emptied cell in the format its row or column gives it goes. On a filtered sheet only the visible cells clear, and clearing a filter's whole header row turns the filter off."
 Range,ClearFormats,method,ClearFormats() As Variant,,VERIFIED,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py; tests/fixtures/row_formats/row_formats.json; tests/fixtures/autofilter_edits.json,"Whole rows and columns lose their own formats, and positions a column's or row's format still reaches get a cell in the default format. On a filtered sheet only the visible cells, and clearing a filter's whole header row turns the filter off."
-Range,ClearHyperlinks,method,ClearHyperlinks(),,MISSING,,
+Range,ClearHyperlinks,method,ClearHyperlinks(),,VERIFIED,tests/fixtures/hyperlinks/hyperlinks.json,The links the range holds go; their cells keep their formats.
 Range,ClearNotes,method,ClearNotes() As Variant,,VERIFIED,tests/fixtures/excel_model/probes.txt,The same as ClearComments.
 Range,ClearOutline,method,ClearOutline() As Variant,,MISSING,,
 Range,Column,"property, read-only",As Long,,PARTIAL,tests/fixtures/excel_model/probes.txt,
@@ -697,7 +722,7 @@ Range,HasSpill,"property, read-only",As Variant,,VERIFIED,tests/fixtures/dynamic
 Range,Height,"property, read-only",As Variant,,PARTIAL,tests/fixtures/dimensions.json; tests/fixtures/dimensions/dimensions_answers.json; tests/fixtures/font_rows.json,"A row grows with its fonts from a measured table of eleven families; one resting on another font, a mix of tables, super- or subscript, or wrapped or turned text keeps its file's height until it changes, then reports unsupported."
 Range,Hidden,property,As Variant,,PARTIAL,tests/fixtures/dimensions.json; tests/fixtures/dimensions/dimensions_answers.json; tests/fixtures/autofilter_edits.json,"Hiding every row, or rows down to the last one, makes hidden the sheet's default as Excel does; a block that stops short of the last row is hidden row by row, and whether Excel switches over for a large one was not measured. On a filtered sheet a block with shown rows reaches only those, so showing it does nothing; showing columns there over hidden ones reports itself unsupported."
 Range,HorizontalAlignment,property,As Variant,,VERIFIED,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,
-Range,Hyperlinks,"property, read-only",As Hyperlinks,,MISSING,,
+Range,Hyperlinks,"property, read-only",As Hyperlinks,,VERIFIED,tests/fixtures/hyperlinks/hyperlinks.json,"The links inside one of its areas, and for one area the link it lies in."
 Range,ID,property,As String,,MISSING,,
 Range,IndentLevel,property,As Variant,,VERIFIED,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,
 Range,Insert,method,"Insert([Shift As Variant], [CopyOrigin As Variant]) As Variant",,PARTIAL,tests/fixtures/range_edit.json; tests/fixtures/excel_model/probes.txt; tests/fixtures/row_formats/row_formats.json; tests/fixtures/autofilter_edits.json; tests/fixtures/cell_shifts.json,"Whole rows and columns rewrite references, and a new row or column takes the formats beside it. Cells shifted down or right rewrite references as Excel does and take the formats above or to the left; with no Shift a range taller than it is wide shifts right. Sheets with merges or shapes and several areas of cells report unsupported. Shifting cells on a sheet whose rows or columns carry formats, and CopyOrigin:=xlFormatFromRightOrBelow, report unsupported. On a filtered sheet whole rows go in as many as the range shows, at its top, and inserting cells is error 1004."
@@ -1506,7 +1531,7 @@ Worksheet,ExportAsFixedFormat,method,"ExportAsFixedFormat(Type As XlFixedFormatT
 Worksheet,FilterMode,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/autofilter.json; tests/fixtures/autofilter_file/autofilter_file.json; tests/test_live_excel_model_gate.py,
 Worksheet,FollowHyperlink,event,FollowHyperlink(Target As Hyperlink),,MISSING,,
 Worksheet,HPageBreaks,"property, read-only",As HPageBreaks,,MISSING,,
-Worksheet,Hyperlinks,"property, read-only",As Hyperlinks,,MISSING,,
+Worksheet,Hyperlinks,"property, read-only",As Hyperlinks,,VERIFIED,tests/fixtures/hyperlinks/hyperlinks.json; tests/test_live_excel_model_gate.py,"In the order they were added, a link replaced keeping its place."
 Worksheet,Index,"property, read-only",As Long,,PARTIAL,tests/fixtures/excel_model/probes.txt,
 Worksheet,LensGalleryRenderComplete,event,LensGalleryRenderComplete(),,MISSING,,
 Worksheet,ListObjects,"property, read-only",As ListObjects,,PARTIAL,tests/fixtures/tables/tables.json,"The sheet's tables, read from a file or made by ListObjects.Add."

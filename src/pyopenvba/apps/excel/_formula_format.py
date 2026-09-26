@@ -72,6 +72,24 @@ def _brought_format(sheet: Worksheet, formula: str, row: int, column: int) -> st
     return _format_of(node, context, sheet)
 
 
+def first_call(sheet: Worksheet, formula: str) -> str:
+    """The function a formula starts with, looking through brackets, signs and the left of an operator: HYPERLINK
+    for =(HYPERLINK(a))&"x", IF for =IF(1,HYPERLINK(a)); "" for none (tests/fixtures/hyperlinks/formulas.xlsx)."""
+    try:
+        node: Node = deep(lambda: sheet.book.calculator.engine_book.read("=" + formula.removeprefix("=")))
+    except FormulaSyntaxError:
+        return ""
+    while True:
+        if isinstance(node, Paren):
+            node = node.inner
+        elif isinstance(node, Unary):
+            node = node.operand
+        elif isinstance(node, Binary):
+            node = node.left
+        else:
+            return node.function if isinstance(node, Call) else ""
+
+
 def _format_of(node: Node, context: Context, sheet: Worksheet) -> str:
     if isinstance(node, _CELLS) or (isinstance(node, Binary) and node.op in (":", " ", ",")):
         return _cells_format(node, context, sheet)

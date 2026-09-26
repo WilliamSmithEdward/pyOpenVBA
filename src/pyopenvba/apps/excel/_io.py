@@ -84,6 +84,7 @@ def load_workbook(application: Application, path: Path) -> Workbook:
     package = OpcFile.parse(path.read_bytes())
     book = Workbook(application, path.name, str(path.parent))
     book.package = package
+    book.links_folder = str(path.resolve().parent)
     workbook_xml = package.read("xl/workbook.xml").decode("utf-8", errors="replace")
     relationships = _relationship_map(package)
     strings = _shared_strings(package)
@@ -108,6 +109,9 @@ def load_workbook(application: Application, path: Path) -> Workbook:
             _read_sheet(sheet, sheet_xml, strings, stylesheet, metadata)
             _read_shapes(sheet, package, sheet_xml)
             _read_notes(sheet, package)
+            from pyopenvba.apps.excel._hyperlinks_file import read as read_links
+
+            sheet.hyperlinks = read_links(sheet, sheet_xml, _sheet_relationships(package, part))
             _read_tables(sheet, package, sheet_xml)
             from pyopenvba.apps.excel._validation import read_rules
             from pyopenvba.apps.excel._windows import read_view
@@ -490,6 +494,21 @@ def _write_notes(book: Workbook, package: OpcFile) -> None:
             package.write(vml_at, drawn.encode("utf-8"))
         else:
             _drop_sheet_part(package, sheet, vml_at)
+
+
+def _write_links(book: Workbook, package: OpcFile, folder: str) -> None:
+    """Every sheet whose links changed -- or, saved in another folder than before, has a DOS path a link saves
+    relative to the folder -- its hyperlinks element and its relationships written again (see _hyperlinks_file),
+    after every other part the save relates to the sheet, which the links number ahead of."""
+    from pyopenvba.apps.excel._hyperlinks_file import follows_folder, write
+
+    moved = folder != book.links_folder
+    for sheet in book.sheets_:
+        wanted = sheet.links_changed or (moved and any(follows_folder(link.address) for link in sheet.hyperlinks))
+        if wanted and sheet.part_name and package.has(sheet.part_name):
+            write(sheet, package, folder)
+            sheet.links_changed = False
+    book.links_folder = folder
 
 
 def _new_vml_parts(book: Workbook, package: OpcFile) -> None:
@@ -1173,6 +1192,7 @@ def save_workbook(book: Workbook, target: Path) -> None:
     _new_vml_parts(book, package)
     _write_shapes(book, package)
     _write_notes(book, package)
+    _write_links(book, package, str(target.resolve().parent))
     _write_styles(book, package)
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_bytes(package.serialize())

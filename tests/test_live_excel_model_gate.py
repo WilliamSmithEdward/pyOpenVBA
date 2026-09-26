@@ -1792,3 +1792,55 @@ def test_excel_reads_the_cell_styles_this_changed(tmp_path: Path) -> None:
                 read[path] = str(result.value)
     for name in saved.values():
         assert read[tmp_path / f"{name}.xlsx"] == read[folder / f"{name}.xlsx"], name
+
+
+LINKS_READ = """Public Function Describe() As String
+    Dim ws As Object, h As Object, c As Object, out As String
+    On Error Resume Next
+    For Each ws In ActiveWorkbook.Worksheets
+        out = out & ws.Name & "~"
+        For Each h In ws.Hyperlinks
+            out = out & h.Range.Address & "`" & h.Address & "`" & h.SubAddress & "`" & h.ScreenTip & "`" _
+                & h.TextToDisplay & "`" & h.Name & "^"
+        Next
+        out = out & "~"
+        For Each c In ws.UsedRange.Cells
+            out = out & c.Address & "`" & c.Style.Name & "`" & c.Font.Underline & "`" & CStr(c.Value) & "^"
+        Next
+        out = out & "~"
+    Next
+    Describe = out
+End Function
+"""
+
+
+def test_excel_reads_the_links_this_saved(tmp_path: Path) -> None:
+    """Workbooks tests/fixtures/hyperlinks/hyperlinks.json saved, made by the model, opened in Excel: every link and
+    cell reads as in Excel's own file of it, a DOS path relative to the folder each was saved in."""
+    import json
+
+    from pyopenvba.apps.excel._hyperlinks_file import saved_address
+
+    harness = pytest.importorskip("pyvbaharness")
+    folder = Path(__file__).parent / "fixtures" / "hyperlinks"
+    record = json.loads((folder / "hyperlinks.json").read_text(encoding="utf-8"))
+    for section, saves in record["sections"].items():
+        if not saves:
+            continue
+        app = ExcelApplication()
+        app.add_workbook()
+        app.add_module(record["module"], name="Probe")
+        app.run(section, str(tmp_path) + os.sep)
+    names = sorted(path.name for path in folder.glob("*.xlsx"))
+    read: dict[Path, str] = {}
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+        for name in names:
+            for path in (tmp_path / name, folder / name):
+                excel.open_document(path)
+                result = excel.run_vba(LINKS_READ, "Describe", timeout=600.0)
+                assert result.ok, f"{path.name}: {result.message}"
+                read[path] = str(result.value)
+    ours = saved_address("C:\\docs\\file.xlsx", str(tmp_path.resolve()))
+    theirs = saved_address("C:\\docs\\file.xlsx", "C:\\a\\b\\c\\d\\e\\f")
+    for name in names:
+        assert read[tmp_path / name].replace(ours, theirs) == read[folder / name], name

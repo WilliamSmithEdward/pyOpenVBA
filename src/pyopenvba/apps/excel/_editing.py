@@ -21,7 +21,7 @@ from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, column_letter, column_number
 from pyopenvba._xml import attributes
-from pyopenvba.apps.excel import _arrays, _shared, _tables, _validation, _windows
+from pyopenvba.apps.excel import _arrays, _hyperlinks, _shared, _tables, _validation, _windows
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.formula._parse import split_sheet, tokenize
 from pyopenvba.interpreter._values import error
@@ -145,6 +145,8 @@ def edit(target: Range, *, delete: bool) -> None:
                                               delete=delete), rows=rows)
     _validation.moved(sheet, lambda text: rewrite(text, sheet.name, sheet.name, rows=rows, start=start, count=count,
                                                   delete=delete))
+    _hyperlinks.moved(sheet, lambda text: rewrite(text, sheet.name, sheet.name, rows=rows, start=start, count=count,
+                                                  delete=delete))
     _windows.edited(sheet, rows=rows, start=start, count=count, delete=delete)
     if rows:
         sheet.dims.shift_rows(start, count, delete)
@@ -248,6 +250,7 @@ def shift_cells(target: Range, area: Area, *, delete: bool, vertical: bool, thro
             sheet.book.names_.changed = True
     _shared.moved(sheet, lambda text: rewrite_shift(text, sheet.name, sheet.name, shift))
     _validation.moved(sheet, lambda text: rewrite_shift(text, sheet.name, sheet.name, shift))
+    _hyperlinks.moved(sheet, lambda text: rewrite_shift(text, sheet.name, sheet.name, shift))
     if notes:
         from pyopenvba.apps.excel._notes import cells_moved
 

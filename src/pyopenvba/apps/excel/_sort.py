@@ -177,6 +177,11 @@ def sort_area(sheet: Worksheet, area: Area, keys: list[Key], *, header: bool, ma
             cell.formula = shift_text(cell.formula, *shift)
             cell.stale, cell.value = True, EMPTY
         sheet.cells_[new] = cell
+    if sheet.hyperlinks:
+        from pyopenvba.apps.excel._hyperlinks import sorted_lines
+
+        # A link one line high moves with its line; one over several stays (tests/fixtures/hyperlinks/).
+        sorted_lines(sheet, block, destination, across=across)
     sheet.touched()
     calculator.rebuild()
 

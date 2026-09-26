@@ -47,7 +47,7 @@ def copy_sheet(source: Worksheet, before: object, after: object) -> object:
         raise VBAUnsupportedError("Worksheet.Copy with notes is not implemented")
     if source.book.package is not None and source.part_name:
         xml = source.book.package.read(source.part_name).decode("utf-8")
-        if any(f"<{tag}" in xml for tag in ("tableParts", "conditionalFormatting", "dataValidations", "hyperlinks", "legacyDrawing")):
+        if any(f"<{tag}" in xml for tag in ("tableParts", "conditionalFormatting", "dataValidations", "legacyDrawing")):
             raise VBAUnsupportedError("Worksheet.Copy with tables, validation, comments or conditional formatting is not implemented")
     destination = anchor.book if isinstance(anchor, Worksheet) else Workbook(app, app.workbooks_.next_name())
     name, number = source.name, 2
@@ -99,6 +99,10 @@ def copy_sheet(source: Worksheet, before: object, after: object) -> object:
     copied.dims = source.dims.copied(copied)
     copied.merged_areas = [Area(a.top, a.left, a.bottom, a.right, name) for a in source.merged_areas]
     copied.merges_dirty = bool(copied.merged_areas)
+    from pyopenvba.apps.excel._hyperlinks import sheet_copied
+
+    # The copy has the sheet's links, in their order (tests/fixtures/hyperlinks/structure.xlsx).
+    sheet_copied(source, copied)
     # A protected sheet's copy is protected the same way (tests/fixtures/protection.json).
     copied.protection = source.protection
     copied.protection_allows = source.protection_allows

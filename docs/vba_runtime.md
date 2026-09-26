@@ -1338,6 +1338,48 @@ a workbook Excel saved opens with its notes and saves them back as they
 came. Sorting or removing duplicates over a note, and threaded comments,
 report themselves unsupported.
 
+**Hyperlinks.** `Worksheet.Hyperlinks`, `Range.Hyperlinks`,
+`Range.ClearHyperlinks` and the `Hyperlink` object answer as Excel's do
+(`tests/fixtures/hyperlinks/`, 26 sections of live Excel and the 21
+workbooks it saved along the way; `_hyperlinks`, `_hyperlinks_file`).
+`Hyperlinks.Add` puts a link on each area of its anchor and answers the
+last; one over the very cells of a link takes that link's place in the
+list, one over any other cells goes at the end, overlapping or not. The
+anchor's cells take the style named Hyperlink, the built-in one made the
+first time among the styles a session makes, and the first cell the
+text to show or, when it is empty, the address, a number staying a
+number. An address is kept as Excel tidies it: spaces round it and tabs
+in it dropped, a `#` splitting off the subaddress, an http, https or ftp
+address's scheme and host in lower case, its path's `.` and `..`
+resolved and its escapes of letters, digits and spaces undone; `file:///C:/x`
+becomes `C:\x`. A link is named by the text to show it was given, or by
+"address - subaddress", which follows a new address; one read from a
+file without a display is named by its cell's text until a new address
+names it. `TextToDisplay` reads the first cell's text, "" for a number or
+a formula. Setting `SubAddress` takes the address away, and `Address`
+keeps the subaddress unless the new one has a `#` of its own.
+`EmailSubject` is a mailto address's subject, which setting it writes in.
+A range's collection holds the links inside one of its areas, and for a
+range of one area the link it lies in; `Clear`, `ClearContents`, an empty
+value, `ClearHyperlinks` and a copy landing on them take those links
+away, and `Delete` takes them with their cells' formats, merges kept. A
+copy or a paste of everything brings the links it meets over the cells it
+copies, a cut moves them in place, inserts and deletes move them as they
+move a reference, a sort moves a link one line high with its line, and a
+copy of the sheet has them all. On a protected sheet a link needs
+AllowInsertingHyperlinks and unlocked cells. A formula whose first
+function is HYPERLINK gives its cells the Hyperlink style. A save writes
+the hyperlinks element as Excel does, with a display where the name is
+not the text the cell holds, and each address as a relationship's
+target, escaped as Excel escapes it, a DOS path relative to the
+workbook's folder; the relationships number the links first, and a
+part's relationships come in the order Office lists them, a table
+placing each id by its characters in base 101 through a step of C's
+`rand()` (`pyopenvba._relationships`, measured to 65,530). A link on a shape,
+`EmailSubject` set on a link with no address -- which leaves Excel
+refusing every change after it -- and `Follow` report themselves
+unsupported.
+
 **Windows and sheet views.** `ActiveWindow`, `Windows`,
 `Workbook.Windows` and `Goto` behave as Excel does with its window shown
 (`tests/fixtures/windows/`, 113 workbooks). Each sheet has its own view,
@@ -1547,6 +1589,8 @@ macros, which the model does not write.
 | `apps/excel/_dimensions.py` | Row heights, column widths and hidden rows and columns, on a 96-DPI display |
 | `apps/excel/_row_formats.py` | Formats a whole row, a whole column or the whole sheet carries, and how a change spreads |
 | `apps/excel/_font_rows.py` | How tall each measured font makes a row, baked from `tests/fixtures/font_rows.json` |
+| `apps/excel/_hyperlinks.py` | A sheet's hyperlinks, as a macro reaches them, and what edits do to them |
+| `apps/excel/_hyperlinks_file.py` | Hyperlink addresses as Excel keeps and saves them, and the sheet's hyperlinks element |
 | `_relationships.py` | The order Office writes a part's relationships in |
 | `apps/word/` | Word's object model, its bridge and its file |
 | `apps/powerpoint/` | PowerPoint's, the same three |

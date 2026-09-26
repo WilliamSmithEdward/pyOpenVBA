@@ -154,6 +154,10 @@ STANDARD: Final[tuple[tuple[str, int, str, int, str | None, str, str], ...]] = (
         *((f"{shade}% - Accent{accent}", 26 + accent * 4 + step, "FP", 0, _BODY, _tinted(accent + 3, tint),
            _NO_BORDER) for step, (shade, tint) in enumerate(zip((20, 40, 60), _TINTS, strict=True)))))
 )
+#: The Hyperlink style's font, underlined in the theme's hyperlink colour, which Excel writes for the style it makes
+#: the first time a link or the HYPERLINK function needs it (tests/fixtures/hyperlinks/links.xlsx).
+_LINK_FONT: Final = ('<font><u/><sz val="11"/><color theme="10"/><name val="{minor}"/><family val="2"/>'
+                     '<scheme val="minor"/></font>')
 #: The standard styles' places in Excel's order, Normal being 0, by name in lower case.
 _RANKS: Final = {name.casefold(): rank for rank, (name, *_) in enumerate(STANDARD, start=1)}
 #: The theme typefaces Excel writes with family 2, the only ones a built-in style is written in here.
@@ -283,6 +287,24 @@ def set_style(target: Range, value: object) -> None:
         raise error(450)
     place, entry = index, book.stylesheet.cell_styles[index]
     restyle(target, lambda style: given(book.stylesheet, style, place, entry))
+
+
+def give_link_style(target: Range) -> None:
+    """Give the cells the style named Hyperlink, as a link or the HYPERLINK function does: one of that name the
+    workbook has, even one a macro made, or else the built-in one, made now as Excel makes it -- among the styles
+    made while the workbook was open, where a save writes it (tests/fixtures/hyperlinks/style_order_made.xlsx)."""
+    from pyopenvba.apps.excel._formats import restyle
+
+    stylesheet = target.sheet.book.stylesheet
+    place = stylesheet.named("Hyperlink")
+    if place is None:
+        font = S.parse_font(_LINK_FONT.replace("{minor}", _typeface(stylesheet.theme_fonts[1])))
+        own = S.Style(number_format=stylesheet.number_formats[0], font=font, fill=S.parse_fill(_NO_FILL),
+                      border=S.parse_border(_NO_BORDER))
+        place = stylesheet.add_cell_style(S.CellStyle(own, frozenset({"font"}), name="Hyperlink", builtin=8))
+        stylesheet.touch()
+    found, entry = place, stylesheet.cell_styles[place]
+    restyle(target, lambda style: given(stylesheet, style, found, entry))
 
 
 def prepare_save(book: Workbook) -> None:

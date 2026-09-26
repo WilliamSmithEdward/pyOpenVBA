@@ -66,7 +66,8 @@ def test_a_part_with_ids_of_another_form_is_left_as_it_is(first: str) -> None:
     assert in_office_order(text) == text
 
 
-@pytest.mark.parametrize("workbook", ["notes.xlsx", "row_formats/row_formats.xlsx", "formula_corpus/inputs.xlsx"])
+@pytest.mark.parametrize("workbook", ["hyperlinks/links.xlsx", "hyperlinks/rels.xlsx", "hyperlinks/canon.xlsx",
+                                      "notes.xlsx", "row_formats/row_formats.xlsx", "formula_corpus/inputs.xlsx"])
 def test_the_parts_excel_wrote_are_in_its_order(workbook: str) -> None:
     with zipfile.ZipFile(FIXTURES / workbook) as package:
         parts = [package.read(name).decode("utf-8") for name in package.namelist() if name.endswith(".rels")]

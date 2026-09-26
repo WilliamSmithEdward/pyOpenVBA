@@ -54,6 +54,7 @@ if TYPE_CHECKING:
     from pyopenvba.apps.excel._autofilter import SheetFilter
     from pyopenvba.apps.excel._protection import BookProtection, Gate, SheetProtection
     from pyopenvba.apps.excel._clipboard import Clip
+    from pyopenvba.apps.excel._hyperlinks import Link
     from pyopenvba.apps.excel._notes import Note
     from pyopenvba.apps.excel._sort import SortState
     from pyopenvba.apps.excel._spills import Spill
@@ -534,6 +535,9 @@ class Workbook(ExcelObject):
         self.name = name
         self.path = path
         self.saved = True
+        #: The folder the workbook's links were read from or last written for, which a DOS path a link names is
+        #: saved relative to (see _hyperlinks_file).
+        self.links_folder = ""
         #: The name the workbook's own module goes by in VBA, as ThisWorkbook.CodeName gives it.
         self.code_name = "ThisWorkbook"
         self.sheets_: list[Worksheet] = []
@@ -908,6 +912,10 @@ class Worksheet(ExcelObject):
         #: _notes); True once one is added, changed, moved or removed, so a save writes them again.
         self.notes: dict[tuple[int, int], Note] = {}
         self.notes_changed = False
+        #: The sheet's hyperlinks in the order Worksheet.Hyperlinks lists them (see _hyperlinks); True once one is
+        #: added, changed, moved or removed, so a save writes them again.
+        self.hyperlinks: list[Link] = []
+        self.links_changed = False
         #: The block of ids the sheet's VML part numbers its notes and form controls from, 0 until it has one, and
         #: the last id it gave (see _notes.next_shape_id).
         self.vml_block = 0
@@ -1141,6 +1149,14 @@ class Worksheet(ExcelObject):
 
         notes = Comments(self)
         return notes if Index is MISSING else notes.vba_get("Item", [Index])
+
+    @member
+    def Hyperlinks(self, Index: object = MISSING) -> object:
+        """The sheet's hyperlinks (see _hyperlinks)."""
+        from pyopenvba.apps.excel._hyperlinks import Hyperlinks
+
+        links = Hyperlinks(self)
+        return links if Index is MISSING else links.vba_get("Item", [Index])
 
     @member
     def UsedRange(self) -> object:
@@ -1555,6 +1571,7 @@ class Range(ExcelObject):
         with writing(self.sheet):
             self._write(value)
         self._tables_follow()
+        self._links_emptied(value)
         _events.after_edit(self)
 
     def _tables_follow(self) -> None:
@@ -1581,6 +1598,7 @@ class Range(ExcelObject):
         with writing(self.sheet):
             self._write(value, raw=True)
         self._tables_follow()
+        self._links_emptied(value)
         _events.after_edit(self)
 
     def _values(self, *, raw: bool) -> object:
@@ -1656,6 +1674,7 @@ class Range(ExcelObject):
         with writing(self.sheet):
             self._write_formula(value, dynamic=dynamic)
         self._tables_follow()
+        self._links_emptied(value)
         _events.after_edit(self)
 
     def _write_formula(self, value: object, *, dynamic: bool = False) -> None:
@@ -1878,6 +1897,7 @@ class Range(ExcelObject):
         with writing(self.sheet):
             self._write_formula_r1c1(value)
         self._tables_follow()
+        self._links_emptied(value)
         _events.after_edit(self)
 
     def _write_formula_r1c1(self, value: object) -> None:
@@ -2492,6 +2512,10 @@ class Range(ExcelObject):
 
             # Clear takes the cells out of their validation rules too; ClearContents leaves them.
             remove(self.sheet, [Area(area.top, area.left, area.bottom, area.right) for area in target.areas])
+        if self.sheet.hyperlinks:
+            from pyopenvba.apps.excel._hyperlinks import cleared
+
+            cleared(self.sheet, list(target.areas))
         _events.after_edit(self)
         return EMPTY
 
@@ -2509,6 +2533,11 @@ class Range(ExcelObject):
         _arrays.clear_admitted(target)
         target._clear_contents()
         header_cleared(target)
+        if self.sheet.hyperlinks:
+            from pyopenvba.apps.excel._hyperlinks import cleared
+
+            # ClearContents takes the links too, the formats they gave staying (tests/fixtures/hyperlinks/).
+            cleared(self.sheet, list(target.areas))
         _events.after_edit(self)
         return EMPTY
 
@@ -2550,6 +2579,31 @@ class Range(ExcelObject):
     def ClearNotes(self) -> object:
         """The same as ClearComments, as Excel does it (tests/fixtures/excel_model/)."""
         return self.ClearComments()
+
+    # -- hyperlinks (see _hyperlinks)
+
+    @member
+    def Hyperlinks(self, Index: object = MISSING) -> object:
+        """The links the range holds: those inside one of its areas, and for one area the link it lies in."""
+        from pyopenvba.apps.excel._hyperlinks import Hyperlinks
+
+        links = Hyperlinks(self.sheet, list(self.areas))
+        return links if Index is MISSING else links.vba_get("Item", [Index])
+
+    @method
+    def ClearHyperlinks(self) -> object:
+        from pyopenvba.apps.excel._hyperlinks import clear_links
+
+        clear_links(self)
+        return EMPTY
+
+    def _links_emptied(self, value: object) -> None:
+        """A value that empties the cells takes their links away, as ClearContents does."""
+        if self.sheet.hyperlinks:
+            from pyopenvba.apps.excel._hyperlinks import cleared, empties
+
+            if empties(value):
+                cleared(self.sheet, list(self.areas))
 
     @method
     def NoteText(self, Text: object = MISSING, Start: object = MISSING, Length: object = MISSING) -> object:
@@ -2830,6 +2884,16 @@ class Range(ExcelObject):
                 for tile_column in range(target.left, right + 1, area.columns):
                     copied(self.sheet, Area(area.top, area.left, area.bottom, area.right), Destination.sheet,
                            Area(tile_row, tile_column, tile_row + area.rows - 1, tile_column + area.columns - 1))
+        if self.sheet.hyperlinks or Destination.sheet.hyperlinks:
+            from pyopenvba.apps.excel import _hyperlinks
+
+            # Each tile brings the links the copy meets, and takes off the links it lands on
+            # (tests/fixtures/hyperlinks/).
+            for tile_row in range(target.top, bottom + 1, area.rows):
+                for tile_column in range(target.left, right + 1, area.columns):
+                    _hyperlinks.copied(self.sheet, Area(area.top, area.left, area.bottom, area.right),
+                                       Destination.sheet, Area(tile_row, tile_column, tile_row + area.rows - 1,
+                                                               tile_column + area.columns - 1))
         if self.sheet.notes or Destination.sheet.notes:
             from pyopenvba.apps.excel import _notes
 
@@ -3295,7 +3359,15 @@ class Range(ExcelObject):
         top left of the range, and gives it to every cell of the write.
         """
         from pyopenvba.apps.excel._formula_format import brought_format
+        from pyopenvba.apps.excel._hyperlinks import styles_as_link
 
+        if placed and styles_as_link(self.sheet, formula):
+            from pyopenvba.apps.excel._cell_styles import give_link_style
+
+            # A formula whose first function is HYPERLINK gives its cells the Hyperlink style
+            # (tests/fixtures/hyperlinks/formulas.xlsx).
+            give_link_style(Range(self.sheet, [Area(one_row, one_column, one_row, one_column)
+                                               for one_row, one_column in placed]))
         code = brought_format(self.sheet, formula, row, column) if placed else ""
         if not code:
             return

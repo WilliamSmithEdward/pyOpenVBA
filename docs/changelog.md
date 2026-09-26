@@ -5,6 +5,25 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ## [Unreleased]
 
+### Added
+
+- `Range.TextToColumns`, as Excel splits a column of text and types what
+  it finds. Delimited, by tab, semicolon, comma, space and another
+  character, several at once, a run of them as one where asked, a field
+  in quotes or apostrophes kept whole; or at fixed widths. Every row of
+  the block is written across the widest line, a missing or empty field
+  clearing its cell, and a Destination moves the block on the source's
+  own sheet. A field is typed as typing types it, keeping a format the
+  cell has; one starting with `=` is a formula, `5-` is text unless
+  TrailingMinusNumbers is True, and a number past Excel's largest stays
+  text. FieldInfo gives the columns text, a skip or a date order, which
+  reads a field its own way before typing takes it: `1.5` is 1 May in a
+  DMY column and `5/2020` 20 May 2020 in an MDY one. Other decimal and
+  thousands separators read numbers written with them. 57 cases in live
+  Excel pin the rules (scripts/measure_text_to_columns.py); FieldInfo
+  whose pairs do not number the columns 1, 2, 3 in order does something
+  in Excel not worked out and reports itself unsupported.
+
 ### Fixed
 
 - A typed date may mix `/` and `-` and have spaces round them, as Excel

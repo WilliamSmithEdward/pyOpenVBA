@@ -2514,6 +2514,19 @@ class Range(ExcelObject):
         return EMPTY
 
     @method
+    def TextToColumns(self, Destination: object = MISSING, DataType: object = MISSING,
+                      TextQualifier: object = MISSING, ConsecutiveDelimiter: object = MISSING, Tab: object = MISSING,
+                      Semicolon: object = MISSING, Comma: object = MISSING, Space: object = MISSING,
+                      Other: object = MISSING, OtherChar: object = MISSING, FieldInfo: object = MISSING,
+                      DecimalSeparator: object = MISSING, ThousandsSeparator: object = MISSING,
+                      TrailingMinusNumbers: object = MISSING) -> object:
+        from pyopenvba.apps.excel._text_columns import text_to_columns
+
+        return text_to_columns(self, Destination, DataType, TextQualifier, ConsecutiveDelimiter, Tab, Semicolon,
+                               Comma, Space, Other, OtherChar, FieldInfo, DecimalSeparator, ThousandsSeparator,
+                               TrailingMinusNumbers)
+
+    @method
     def ClearNotes(self) -> object:
         """The same as ClearComments, as Excel does it (tests/fixtures/excel_model/)."""
         return self.ClearComments()
@@ -3287,6 +3300,14 @@ class Range(ExcelObject):
         assert cell is not None
         style = cell.style or self.sheet.book.stylesheet.default
         self._store(row, column, typed(value, style.number_format, raw=raw))
+
+    def store_typed(self, row: int, column: int, result: Typed) -> None:
+        """Put what a feature typed into one cell, as a write puts it (see _store): TextToColumns's fields."""
+        self._store(row, column, result)
+
+    def put_as_value(self, row: int, column: int, value: object) -> None:
+        """Write one cell as Value writes it, a formula as a formula (see _put)."""
+        self._put(row, column, value)
 
     def _store(self, row: int, column: int, result: Typed) -> None:
         """Put what typing made of a write into one cell: its value, the format it ends with, and a prefix."""

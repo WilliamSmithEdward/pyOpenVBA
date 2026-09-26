@@ -199,7 +199,7 @@ def _date_text(serial: float) -> str:
     return format_value(serial, code)
 
 
-def _serial(year: int, month: int, day: int) -> float | None:
+def date_serial(year: int, month: int, day: int) -> float | None:
     """A date's serial on Excel's calendar, or None where it has no such date."""
     if not 1900 <= year <= 9999:
         return None
@@ -216,6 +216,16 @@ def _serial(year: int, month: int, day: int) -> float | None:
 def _this_year() -> int:
     """The year a date typed without one falls in."""
     return _dt.date.today().year
+
+
+def this_year() -> int:
+    """The year a date read without one falls in, held where a test holds the one typing uses."""
+    return _this_year()
+
+
+def month_number(name: str) -> int | None:
+    """A month's number from its name or abbreviation as typing reads them, Sept included, or None."""
+    return _MONTHS.get(name.lower())
 
 
 def typed_text(text: str, *, fractions: bool = False) -> Typed:
@@ -322,7 +332,7 @@ def _moment(body: str) -> Typed | None:
     return None
 
 
-def _year(text: str) -> int:
+def typed_year(text: str) -> int:
     """A typed year: two digits before 30 are this century's, from 30 the last one's."""
     year = int(text)
     if len(text) <= 2:
@@ -341,18 +351,18 @@ def _numeric_date(body: str) -> tuple[float, str] | None:
         return None
     if third is not None:
         if len(first) == 4:
-            serial = _serial(int(first), int(second), int(third))
+            serial = date_serial(int(first), int(second), int(third))
         else:
-            serial = _serial(_year(third), int(first), int(second))
+            serial = date_serial(typed_year(third), int(first), int(second))
         return None if serial is None else (serial, "m/d/yyyy")
     month, number = int(first), int(second)
     if len(first) > 2 or not 1 <= month <= 12:
         return None
-    serial = _serial(_this_year(), month, number) if len(second) <= 2 else None
+    serial = date_serial(_this_year(), month, number) if len(second) <= 2 else None
     if serial is not None:
         return serial, "d-mmm"
     # A number that cannot be the month's day is its year.
-    serial = _serial(_year(second), month, 1)
+    serial = date_serial(typed_year(second), month, 1)
     return None if serial is None else (serial, "mmm-yy")
 
 
@@ -369,14 +379,14 @@ def _date(body: str) -> Typed | None:
         month = _MONTHS.get(month_text.lower())
         if month is None:
             continue
-        year = _year(year_text) if year_text else _this_year()
-        serial = _serial(year, month, int(day_text))
+        year = typed_year(year_text) if year_text else _this_year()
+        serial = date_serial(year, month, int(day_text))
         if serial is not None:
             return Typed(serial, "d-mmm-yy" if year_text else "d-mmm")
     found = _MONTH_YEAR.fullmatch(body)
     if found is not None:
         month = _MONTHS.get(found.group(1).lower())
-        serial = _serial(int(found.group(2)), month, 1) if month is not None else None
+        serial = date_serial(int(found.group(2)), month, 1) if month is not None else None
         if serial is not None:
             return Typed(serial, "mmm-yy")
     return None

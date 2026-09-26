@@ -572,6 +572,49 @@ does (`tests/fixtures/remove_duplicates.json`, 98 layouts).
   merged cells, row and column formats, and a destination that runs on
   in two directions at once report themselves unsupported.
 
+**Text to columns.** `Range.TextToColumns` splits a column of text as
+Excel does (`tests/fixtures/text_to_columns.json`, 57 cases).
+
+* Only a range of one column splits; more is error 1004. Each line splits
+  at any of the delimiters asked for, OtherChar giving only its first
+  character, and with none asked for it stays whole. ConsecutiveDelimiter
+  reads a run of them as one, though a field in quotes, `""` included, is
+  a field of its own. A field in the text qualifier, a double quote
+  unless TextQualifier asks for a single one or none, keeps the
+  delimiters in it and reads a doubled qualifier as one.
+* Every row of the block is written across the widest line: a field that
+  is empty, or that a shorter line lacks, clears its cell and leaves its
+  format. A number or a blank in the source column stays as it is. A
+  Destination moves the block's corner, on the source's sheet whichever
+  sheet it names.
+* A field is typed as typing a cell types it, into a number, a date, a
+  time, TRUE or an error, with the format typing brings where the cell's
+  own is General. A format of the cell's own stays, and a cell formatted
+  Text still takes the number. A field starting with `=` is a formula.
+  `5-` is text unless TrailingMinusNumbers is True, `-0` is 0, and a
+  number past Excel's largest stays text. DecimalSeparator and
+  ThousandsSeparator read numbers written with other separators.
+* FieldInfo gives the columns, in order, a kind: xlTextFormat keeps the
+  field as it is and formats the cell Text, a date order reads the field
+  as that order's date, and xlSkipColumn drops the column. With DataType
+  xlFixedWidth each line is cut where the pairs start, counted from 0.
+* A date column fills its day, month and year in its order from runs of
+  digits split at `/`, `-`, `.` or a space, a run of separators counting
+  as one: two digits to a day or a month and four to a year, the rest
+  spilling into the next part, so `5/2020` in an MDY column is 20 May
+  2020. A month's name fills a month. A run of digits with no separator
+  is cut by its length: four digits two and two, five with one for the
+  month, six two each, eight at the parts' widths. Three parts make an
+  m/d/yyyy date if they are one. Two go by a fixed table, not the
+  letters' order: DMY, YMD and YDM read a day and its month, else a year
+  and its month; MDY, MYD and DYM a month and its day, else a month and
+  its year; a day read so falls in the current year. A field the column
+  reads no date in is typed as a General column types it.
+* FieldInfo pairs that do not number the columns 1, 2, 3 in order, a
+  column holding formulas and a sheet with merged cells report
+  themselves unsupported. An omitted argument takes its default; whether
+  Excel carries one over from an earlier call is not measured.
+
 **The clipboard.** `Range.Copy` and `Range.Cut` with no destination put
 the range on the clipboard, and `Application.CutCopyMode` reads 1 after
 a copy, 2 after a cut and 0 once it is cleared; setting it to False

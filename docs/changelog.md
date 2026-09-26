@@ -5,6 +5,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ## [Unreleased]
 
+Nothing yet.
+
+## [6.1.3] - 2026-09-25
+
 ### Fixed
 
 - A UserForm in a binary `.xls` or `.doc` is kept where Excel and Word

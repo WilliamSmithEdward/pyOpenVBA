@@ -1206,6 +1206,89 @@ class TestDeletingAForm:
             office_file.add_form("Wizard")
 
 
+#: Each kind of file a form can be added to: the host, the extension, and the fixture a binary one starts from.
+_FORM_FILES = [
+    (ExcelFile, "xlsm", None),
+    (WordFile, "docm", None),
+    (PowerPointFile, "pptm", None),
+    (ExcelFile, "xls", "workbook.xls"),
+    (WordFile, "doc", "document.doc"),
+]
+_Opener = type[ExcelFile] | type[WordFile] | type[PowerPointFile]
+
+
+class TestFormEditsSurviveOtherFormChanges:
+    """An edit made through a form object is saved whatever happens to the
+    other forms first: adding a form used to reread every form, and saving
+    a form's deletion to drop them all, so the objects already handed out
+    were no longer the ones a save wrote back, and their edits were lost."""
+
+    @staticmethod
+    def _file(opener: _Opener, suffix: str, source: str | None, tmp_path: Path) -> Path:
+        target = tmp_path / f"forms.{suffix}"
+        if source is not None:
+            shutil.copyfile(_HERE / "fixtures" / "binary_project" / source, target)
+        else:
+            with opener.create_new(target) as office_file:
+                office_file.save()
+        return target
+
+    @staticmethod
+    def _controls(opener: _Opener, target: Path) -> dict[str, list[str]]:
+        with opener(target) as office_file:
+            return {form.name: [control.name for control in form.walk()] for form in office_file.forms()}
+
+    @pytest.mark.parametrize(("opener", "suffix", "source"), _FORM_FILES)
+    def test_an_edit_made_before_another_form_is_added(
+        self, opener: _Opener, suffix: str, source: str | None, tmp_path: Path
+    ) -> None:
+        target = self._file(opener, suffix, source, tmp_path)
+        with opener(target) as office_file:
+            office_file.add_form("First").add_control("Label", "Early")
+            second = office_file.add_form("Second")
+            second.add_control("Label", "Late")
+            assert any(form is second for form in office_file.forms())
+            listed = [form.name for form in office_file.forms()]
+            office_file.save()
+        saved = self._controls(opener, target)
+        assert (saved["First"], saved["Second"]) == (["Early"], ["Late"])
+        assert list(saved) == listed
+
+    @pytest.mark.parametrize(("opener", "suffix", "source"), _FORM_FILES)
+    def test_an_edit_to_a_form_read_before_another_is_added(
+        self, opener: _Opener, suffix: str, source: str | None, tmp_path: Path
+    ) -> None:
+        target = self._file(opener, suffix, source, tmp_path)
+        with opener(target) as office_file:
+            office_file.add_form("Old")
+            office_file.save()
+        with opener(target) as office_file:
+            old = next(form for form in office_file.forms() if form.name == "Old")
+            old.add_control("Label", "Kept")
+            office_file.add_form("New")
+            assert any(form is old for form in office_file.forms())
+            office_file.save()
+        assert self._controls(opener, target)["Old"] == ["Kept"]
+
+    @pytest.mark.parametrize(("opener", "suffix", "source"), _FORM_FILES)
+    def test_an_edit_after_a_save_that_deleted_another_form(
+        self, opener: _Opener, suffix: str, source: str | None, tmp_path: Path
+    ) -> None:
+        target = self._file(opener, suffix, source, tmp_path)
+        with opener(target) as office_file:
+            office_file.add_form("Keep")
+            office_file.add_form("Drop")
+            office_file.save()
+        with opener(target) as office_file:
+            keep = next(form for form in office_file.forms() if form.name == "Keep")
+            office_file.vba_project().delete_module("Drop")
+            office_file.save()
+            assert [form.name for form in office_file.forms()] == ["Keep"]
+            keep.add_control("Label", "Kept")
+            office_file.save()
+        assert self._controls(opener, target) == {"Keep": ["Kept"]}
+
+
 class TestFormCaption:
     """A form has two captions: its record's, which Designer.Caption reads,
     and its designer header's, which the running form shows and the

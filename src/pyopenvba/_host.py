@@ -24,7 +24,7 @@ from pyopenvba._new_project import with_project
 from pyopenvba._package_signature import signature_parts, without_signature
 from pyopenvba._references import ReferenceManager, module_offset, reference_spans
 from pyopenvba.exceptions import NoVBAProjectError, UnsupportedFormatError, VBAProjectError
-from pyopenvba.forms import VBAForm, create_form, form_names, read_forms
+from pyopenvba.forms import VBAForm, create_form, form_names, read_form, read_forms
 from pyopenvba.vba import (
     SignatureInfo,
     VBAModuleKind,
@@ -265,7 +265,8 @@ class VBAHostFile(ReferenceManager):
         streams do not reconcile.
 
         The result is cached, so property edits made on it are the ones
-        :meth:`save` writes back.
+        :meth:`save` writes back.  Adding a form and saving keep the same
+        objects, and with them the edits made through each.
         """
         if not self._has_project:
             return []
@@ -294,7 +295,8 @@ class VBAHostFile(ReferenceManager):
         ``MSForms`` types compiles.
 
         The form is returned ready to edit -- ``add_control`` and friends
-        work on it straight away -- and lands on disk at :meth:`save`.
+        work on it straight away -- and lands on disk at :meth:`save`.  The
+        forms read or added before it are left as they are, edits included.
         """
         project = self.vba_project()
         cfb = self._get_cfb()
@@ -310,9 +312,16 @@ class VBAHostFile(ReferenceManager):
         project.add_module(name, header, kind=VBAModuleKind.other)
         # The editor declares Microsoft Forms with a project's first form, and code naming its types needs it.
         self._ensure_forms_reference()
-        # The cache was read before this form existed.
-        self._forms = None
-        return next(f for f in self.forms() if f.name == name)
+        if self._forms is None:
+            # Nothing read yet, so nothing edited: reading every form reads this one too.
+            return next(f for f in self.forms() if f.name == name)
+        # The forms read before keep their objects, and with them any edit made through one and not saved
+        # yet: only the new form is read, and the cache keeps the directory order read_forms gives.
+        root = self._project_root()
+        cached = {form.name: form for form in self._forms}
+        cached[name] = read_form(cfb, name, code_page=project.code_page, root=root)
+        self._forms = [cached[each] for each in form_names(cfb, root=root)]
+        return cached[name]
 
     def module_names(self) -> list[str]:
         """Return the list of VBA module names."""
@@ -655,7 +664,10 @@ class VBAHostFile(ReferenceManager):
                 pass
             if name.casefold() in forms:
                 cfb.remove_storage_at(root, forms[name.casefold()])
-                self._forms = None
+                if self._forms is not None:
+                    # Only that form leaves the cache: the others keep their objects, so an edit made
+                    # through one after this save still saves.
+                    self._forms = [form for form in self._forms if form.name != forms[name.casefold()]]
 
         project.pending_renames.clear()
         project.pending_adds.clear()

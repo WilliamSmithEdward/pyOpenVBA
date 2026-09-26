@@ -135,6 +135,14 @@ All notable changes to pyOpenVBA are documented here. This project follows
   It also says what Excel and Word do with a TextBox given a border
   alone, which keeps its sunken effect: they keep both and draw the
   effect. And it says how the designers lay out a MultiPage's pages.
+- An edit made through a form is saved whatever happens to the other
+  forms first. `add_form` read every form again, so an unsaved edit to
+  a form that `forms()` or an earlier `add_form` had returned never
+  reached the file; saving a form's deletion dropped every form object
+  the same way, and an edit made through one afterwards was lost at the
+  next save. `add_form` now reads only the new form, and a deletion
+  drops only its own, in every host and in binary `.xls` and `.doc`
+  files alike.
 
 ## [6.1.2] - 2026-09-23
 

@@ -344,8 +344,11 @@ class VBAForm:
 
         A ``Frame`` or ``MultiPage`` gets a storage of its own, named for
         its id, and a MultiPage comes with its TabStrip and the two pages
-        the designer gives a new one.  A ``Page`` belongs to a MultiPage
-        and is added with :meth:`add_page`.
+        the designer gives a new one.  At another size than the default, a
+        MultiPage is laid out as the designer lays out one that VBA sizes
+        after adding it: the TabStrip and the first page take the size, and
+        the second page keeps the default size's layout.  A ``Page``
+        belongs to a MultiPage and is added with :meth:`add_page`.
         """
         if not self._levels:
             raise FormParseError(f"form {self.name!r} has no parsed record")
@@ -460,6 +463,13 @@ class VBAForm:
         self._reindex()
         self.add_page(name, name="Page1")
         self.add_page(name, name="Page2")
+        size = self._multipage_size(level)
+        if size != Size(*_DEFAULT_SIZE["MultiPage"]):
+            # Designer.Controls.Add makes a MultiPage at the default size and
+            # VBA sizes it after: the TabStrip and the page it shows, the
+            # first, follow, and the second keeps the default size's layout
+            # (tests/fixtures/multipage_resize.json, the Sizes form).
+            self._lay_out_page(level, 1, Size(*_DEFAULT_SIZE["MultiPage"]))
 
     def _seed_tabstrip(self, tabs: ParsedRecord) -> None:
         """Give a new TabStrip the two tabs the designer gives one, Tab1 and
@@ -536,7 +546,7 @@ class VBAForm:
                 f"{multipage!r} already has a page named {name!r}"
             )
 
-        left, top, width, height = self._page_box(level)
+        left, top, width, height = self._page_box(level, self._multipage_size(level))
         site = _new_site(
             name, page_id, 7, len(level.sites), left, top,
             encoding=self._encoding, container=True,
@@ -628,14 +638,20 @@ class VBAForm:
         """A MultiPage's size, which its TabStrip takes whole."""
         return level.record.sizes.get("DisplayedSize", Size(*_DEFAULT_SIZE["MultiPage"]))
 
-    def _page_box(self, level: _Level) -> tuple[int, int, int, int]:
-        """Where the designer sites a page of the MultiPage at ``level``, and its size: two pixels inside
-        the MultiPage's border and under its tabs, whose height follows the MultiPage's font
-        (tests/fixtures/form_fonts.json).  Left, top, width, height, in HIMETRIC."""
-        size = self._multipage_size(level)
-        inset = _himetric_px(_PAGE_INSET_PX)
-        top = _himetric_px(_PAGE_INSET_PX + _tab_band_px(self._multipage_font(level)))
-        return inset, top, size.width - 2 * inset, size.height - top - inset
+    def _page_box(self, level: _Level, size: Size) -> tuple[int, int, int, int]:
+        """Where the designer lays out a page of the MultiPage at ``level`` in a TabStrip of ``size``, and
+        the page's size: two pixels inside the TabStrip's border and under its tabs, whose height follows
+        the MultiPage's font (tests/fixtures/form_fonts.json).  The designer rounds the TabStrip to whole
+        pixels at 96 DPI and turns each pixel edge back into HIMETRIC at the TabStrip's own HIMETRIC per
+        pixel, so the page's top moves a unit or two with the size (tests/fixtures/multipage_resize.json).
+        Left, top, width, height, in HIMETRIC."""
+        wide = max(1, _mul_div(size.width, 96, 2540))
+        tall = max(1, _mul_div(size.height, 96, 2540))
+        under = _PAGE_INSET_PX + _tab_band_px(self._multipage_font(level))
+        left, top = _mul_div(_PAGE_INSET_PX, size.width, wide), _mul_div(under, size.height, tall)
+        right = _mul_div(wide - _PAGE_INSET_PX, size.width, wide)
+        bottom = _mul_div(tall - _PAGE_INSET_PX, size.height, tall)
+        return left, top, right - left, bottom - top
 
     def _multipage_font(self, level: _Level) -> _Font:
         """The font the tabs of the MultiPage at ``level`` show: its TabStrip's, which is where the
@@ -645,6 +661,15 @@ class VBAForm:
         if text_props is not None and "FontHeight" in text_props.values:
             return _font_from_text_props(text_props)
         return self._font_of(level)
+
+    def _lay_out_page(self, level: _Level, index: int, size: Size) -> None:
+        """Lay the ``index``-th page of the MultiPage at ``level`` out in a TabStrip of ``size``."""
+        site = [site for site in level.sites if site.clsid_cache_index == 7][index]
+        page = self._child_level(level, site.id)
+        assert page is not None
+        left, top, width, height = self._page_box(level, size)
+        site.position = (left, top)
+        page.record.set_size(width, height)
 
     @staticmethod
     def _take_tab_index(level: _Level, cache_index: int) -> int:
@@ -1546,6 +1571,12 @@ def _tab_band_px(font: _Font) -> int:
 def _himetric_px(pixels: int) -> int:
     """Pixels at 96 DPI in HIMETRIC, rounded as the designer rounds them."""
     return round(pixels * 2540 / 96)
+
+
+def _mul_div(number: int, numerator: int, denominator: int) -> int:
+    """``number * numerator / denominator`` rounded half up, as Windows'
+    MulDiv rounds a positive result."""
+    return (2 * number * numerator + denominator) // (2 * denominator)
 
 
 def _default_size(kind: str, font: _Font) -> tuple[int, int]:

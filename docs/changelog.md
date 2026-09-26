@@ -90,14 +90,19 @@ All notable changes to pyOpenVBA are documented here. This project follows
 - A MultiPage's pages and tabs follow the MultiPage (#31). The library
   gave every page 5080 by 3810 HIMETRIC at (53, 556), and the TabStrip
   the same fixed size, whatever the MultiPage's size and font. The
-  designers make the TabStrip as large as the MultiPage and site each
-  page two pixels inside it, under tabs as tall as the MultiPage's font
-  makes them, so a page is 106 HIMETRIC narrower than its MultiPage.
-  That font is the one set on the MultiPage, which its TabStrip keeps,
-  or else the one it shows from the form or Frame it sits on.
-  `add_page` sizes a page the same way. The designer makes a MultiPage
-  at its default size and resizes it, and only the first page follows;
-  one the library makes at another size gets every page sized to it.
+  designers make the TabStrip as large as the MultiPage and site the
+  page it shows two pixels inside it, under tabs as tall as the
+  MultiPage's font makes them, so a page is 106 HIMETRIC narrower than
+  its MultiPage. That font is the one set on the MultiPage, which its
+  TabStrip keeps, or else the one it shows from the form or Frame it
+  sits on. `add_page` sizes a page the same way. VBA sizes a MultiPage
+  after `Designer.Controls.Add` makes it at the default size, so its
+  second page keeps the default size's layout; one the library makes at
+  another size is laid out the same way. The designers round the
+  TabStrip to whole pixels and scale the page's pixel edges back by its
+  own HIMETRIC per pixel, so the page's top moves a unit or two with the
+  size (scripts/measure_multipage_resize.py). A running form lays out
+  again each page it shows, and shows that second page whole.
 - A MultiPage's tabs are stored as the designers store them (#31): a
   tab's empty tip, tag and accelerator as a count of zero, without the
   compression flag the library set on them, and the pages' tabs named

@@ -22,6 +22,7 @@ from typing import Any
 import pytest
 
 from pyopenvba import ExcelFile
+from pyopenvba._oforms_records import Size
 from pyopenvba.cfb import CFB
 from pyopenvba.forms import FormControl, VBAForm
 
@@ -29,6 +30,8 @@ RECORD: dict[str, dict[str, dict[str, Any]]] = json.loads(
     (Path(__file__).parent / "fixtures" / "multipage_resize.json").read_text(encoding="utf-8"))
 HOSTS = list(RECORD)
 PART = "xl/vbaProject.bin"
+#: The forms whose MultiPages were only sized, each under its own font.
+SIZED = ["Sizes", "Arial", "Tahoma9", "Courier", "Tahoma12"]
 
 
 def _office_form(host: str, form: str, tmp_path: Path) -> Path:
@@ -76,6 +79,30 @@ def _layout(form: VBAForm, multipage: str) -> list[tuple[object, object]]:
               for site in level.sites if site.clsid_cache_index == 7]]
 
 
+def _multipages(form: VBAForm) -> list[str]:
+    return [control.name for control in form.controls if control.clsid_cache_index == 57]
+
+
+def _size(control: FormControl) -> tuple[float, float]:
+    """A control's size in points, which add_control takes."""
+    size = control.get("DisplayedSize")
+    assert isinstance(size, Size)
+    return size.width * 72 / 2540, size.height * 72 / 2540
+
+
+@pytest.mark.parametrize("host", HOSTS)
+@pytest.mark.parametrize("form", SIZED)
+def test_a_multipage_made_at_a_size_is_the_one_the_designer_sizes(host: str, form: str, tmp_path: Path) -> None:
+    # Each MultiPage was added at the default size and sized after; the TabStrip and the first page, the
+    # one shown, followed it, and the page's top moved a unit or two with the size.
+    with ExcelFile(_office_form(host, form, tmp_path)) as workbook:
+        office = _form(workbook, form)
+        for index, name in enumerate(_multipages(office)):
+            width, height = _size(office.control(name))
+            office.add_control("MultiPage", f"New{index}", left=0, top=0, width=width, height=height)
+            assert _layout(office, f"New{index}") == _layout(office, name), name
+
+
 @pytest.mark.parametrize("host", HOSTS)
 def test_a_page_goes_under_tabs_in_the_font_set_on_its_multipage(host: str, tmp_path: Path) -> None:
     # MP01 was set to Tahoma 14 pt, which its TabStrip keeps; MP03 was set the same, and the designer then
@@ -84,3 +111,22 @@ def test_a_page_goes_under_tabs_in_the_font_set_on_its_multipage(host: str, tmp_
         office = _form(workbook, "Refont")
         office.add_page("MP01", name="Page3")
         assert _layout(office, "MP01")[-1] == _layout(office, "MP03")[-1]
+
+
+ROWS = [(host, form) for host in HOSTS for form in RECORD[host]]
+
+
+@pytest.mark.parametrize(("host", "form"), ROWS, ids=[f"{host}-{form}" for host, form in ROWS])
+def test_the_page_shown_is_laid_out_in_the_tabstrip(host: str, form: str, tmp_path: Path) -> None:
+    # Whatever changed -- the size, the page shown, the font -- the page the TabStrip's ListIndex names sits
+    # where the library lays a page out in a TabStrip of that size. Word leaves the TabStrip at the default
+    # size once a font is set on the MultiPage (the Refont form), and the page follows the TabStrip.
+    with ExcelFile(_office_form(host, form, tmp_path)) as workbook:
+        office = _form(workbook, form)
+        for name in _multipages(office):
+            level = _level(office, office.control(name).id)
+            tabstrip = _tabstrip(level)
+            shown, size = tabstrip.get("ListIndex") or 0, tabstrip.get("Size")
+            assert isinstance(shown, int) and isinstance(size, Size)
+            left, top, width, height = office._page_box(level, size)  # pyright: ignore[reportPrivateUsage]
+            assert _layout(office, name)[1 + shown] == ((left, top), Size(width, height)), name

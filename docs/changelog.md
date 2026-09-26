@@ -5,7 +5,15 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ## [Unreleased]
 
-Nothing yet.
+### Fixed
+
+- A typed date may mix `/` and `-` and have spaces round them, as Excel
+  reads `1/2-2020` and `1 / 2 / 2020`, where a cell kept them as text.
+  A part of three digits makes it text, as in `001/2/2020`, which a cell
+  read as a date (scripts/measure_value_typing.py).
+- A month's name typed straight against its numbers makes a date, as
+  Excel reads `5May2020`, `May2020` and `May5`, where a cell kept them
+  as text; Sept is a month's name as well as Sep.
 
 ## [6.1.3] - 2026-09-25
 

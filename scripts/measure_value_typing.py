@@ -67,6 +67,14 @@ TEXTS = [
     # More than one space where typing takes one.
     '"1/2/2020  12:30"', '"1/2/2020   1:00 PM"', '"12:30  PM"', '"1/2/2020 12:30  PM"', '"Jan  2, 2020"',
     '"Jan 2,  2020"', '"2  Jan  2020"', '"1  1/2"', '"$  5"', '"-  5"', '"5  %"', '"Jan  2020"', '"12  PM"',
+    # Dates whose two separators differ, with spaces round a separator, or with a part of three digits.
+    '"1/2-2020"', '"1-2/2020"', '"1/2-20"', '"2020/1-2"', '"2020-1/2"', '"12/31-2020"', '"1/ 2/2020"', '"1 /2/2020"',
+    '"1 / 2 / 2020"', '"1/ 2"', '"12/ 2020"', '"2020 /1/2"', '"1/2 2020"', '"001/2/2020"', '"1/002/2020"',
+    '"2020/001/2"', '"2020/1/002"', '"001-2-2020"', '"1/2/020"', '"001/2"', '"1/002"',
+    # A month's name run straight into the numbers either side of it, Sept among the names.
+    '"May2020"', '"5May2020"', '"5May"', '"May5"', '"May20"', '"5May20"', '"5-May2020"', '"5May-2020"', '"Jan2020"',
+    '"January2020"', '"5January2020"', '"May5 2020"', '"May5, 2020"', '"5 May2020"', '"5May 2020"', '"May202"',
+    '"May02020"', '"05May2020"', '"5May0020"', '"Sept2020"', '"5Sept2020"', '"May 5,2020"', '"5May1899"',
     # Values a macro computes rather than types.
     "#1/2/2020#", "#1/2/2020 12:30:00 PM#", "#12:30:00 PM#", "CCur(5.5)", "CCur(1000)", "CDec(1.5)", "CInt(5)",
     "CSng(1.5)", "True", "CVErr(2042)",

@@ -673,6 +673,182 @@
    "answers": "String:Double;String:Double:0.5;String:12:00 PM;String:0.5;String:;String:h:mm AM/PM;Boolean:False;Boolean:False;"
   },
   {
+   "text": "\"1/2-2020\"",
+   "answers": "String:Date;String:Date:1/2/2020;String:1/2/2020;String:43832;String:;String:m/d/yyyy;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"1-2/2020\"",
+   "answers": "String:Date;String:Date:1/2/2020;String:1/2/2020;String:43832;String:;String:m/d/yyyy;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"1/2-20\"",
+   "answers": "String:Date;String:Date:1/2/2020;String:1/2/2020;String:43832;String:;String:m/d/yyyy;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"2020/1-2\"",
+   "answers": "String:Date;String:Date:1/2/2020;String:1/2/2020;String:43832;String:;String:m/d/yyyy;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"2020-1/2\"",
+   "answers": "String:Date;String:Date:1/2/2020;String:1/2/2020;String:43832;String:;String:m/d/yyyy;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"12/31-2020\"",
+   "answers": "String:Date;String:Date:12/31/2020;String:12/31/2020;String:44196;String:;String:m/d/yyyy;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"1/ 2/2020\"",
+   "answers": "String:Date;String:Date:1/2/2020;String:1/2/2020;String:43832;String:;String:m/d/yyyy;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"1 /2/2020\"",
+   "answers": "String:Date;String:Date:1/2/2020;String:1/2/2020;String:43832;String:;String:m/d/yyyy;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"1 / 2 / 2020\"",
+   "answers": "String:Date;String:Date:1/2/2020;String:1/2/2020;String:43832;String:;String:m/d/yyyy;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"1/ 2\"",
+   "answers": "String:Date;String:Date:1/2/2026;String:2-Jan;String:46024;String:;String:d-mmm;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"12/ 2020\"",
+   "answers": "String:Date;String:Date:12/1/2020;String:Dec-20;String:44166;String:;String:mmm-yy;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"2020 /1/2\"",
+   "answers": "String:Date;String:Date:1/2/2020;String:1/2/2020;String:43832;String:;String:m/d/yyyy;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"1/2 2020\"",
+   "answers": "String:String;String:String:1/2 2020;String:1/2 2020;String:1/2 2020;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"001/2/2020\"",
+   "answers": "String:String;String:String:001/2/2020;String:001/2/2020;String:001/2/2020;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"1/002/2020\"",
+   "answers": "String:String;String:String:1/002/2020;String:1/002/2020;String:1/002/2020;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"2020/001/2\"",
+   "answers": "String:String;String:String:2020/001/2;String:2020/001/2;String:2020/001/2;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"2020/1/002\"",
+   "answers": "String:String;String:String:2020/1/002;String:2020/1/002;String:2020/1/002;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"001-2-2020\"",
+   "answers": "String:String;String:String:001-2-2020;String:001-2-2020;String:001-2-2020;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"1/2/020\"",
+   "answers": "String:String;String:String:1/2/020;String:1/2/020;String:1/2/020;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"001/2\"",
+   "answers": "String:String;String:String:001/2;String:001/2;String:001/2;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"1/002\"",
+   "answers": "String:String;String:String:1/002;String:1/002;String:1/002;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"May2020\"",
+   "answers": "String:Date;String:Date:5/1/2020;String:May-20;String:43952;String:;String:mmm-yy;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"5May2020\"",
+   "answers": "String:Date;String:Date:5/5/2020;String:5-May-20;String:43956;String:;String:d-mmm-yy;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"5May\"",
+   "answers": "String:Date;String:Date:5/5/2026;String:5-May;String:46147;String:;String:d-mmm;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"May5\"",
+   "answers": "String:Date;String:Date:5/5/2026;String:5-May;String:46147;String:;String:d-mmm;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"May20\"",
+   "answers": "String:Date;String:Date:5/20/2026;String:20-May;String:46162;String:;String:d-mmm;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"5May20\"",
+   "answers": "String:Date;String:Date:5/5/2020;String:5-May-20;String:43956;String:;String:d-mmm-yy;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"5-May2020\"",
+   "answers": "String:Date;String:Date:5/5/2020;String:5-May-20;String:43956;String:;String:d-mmm-yy;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"5May-2020\"",
+   "answers": "String:Date;String:Date:5/5/2020;String:5-May-20;String:43956;String:;String:d-mmm-yy;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"Jan2020\"",
+   "answers": "String:Date;String:Date:1/1/2020;String:Jan-20;String:43831;String:;String:mmm-yy;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"January2020\"",
+   "answers": "String:Date;String:Date:1/1/2020;String:Jan-20;String:43831;String:;String:mmm-yy;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"5January2020\"",
+   "answers": "String:Date;String:Date:1/5/2020;String:5-Jan-20;String:43835;String:;String:d-mmm-yy;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"May5 2020\"",
+   "answers": "String:String;String:String:May5 2020;String:May5 2020;String:May5 2020;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"May5, 2020\"",
+   "answers": "String:Date;String:Date:5/5/2020;String:5-May-20;String:43956;String:;String:d-mmm-yy;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"5 May2020\"",
+   "answers": "String:Date;String:Date:5/5/2020;String:5-May-20;String:43956;String:;String:d-mmm-yy;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"5May 2020\"",
+   "answers": "String:Date;String:Date:5/5/2020;String:5-May-20;String:43956;String:;String:d-mmm-yy;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"May202\"",
+   "answers": "String:String;String:String:May202;String:May202;String:May202;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"May02020\"",
+   "answers": "String:String;String:String:May02020;String:May02020;String:May02020;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"05May2020\"",
+   "answers": "String:Date;String:Date:5/5/2020;String:5-May-20;String:43956;String:;String:d-mmm-yy;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"5May0020\"",
+   "answers": "String:String;String:String:5May0020;String:5May0020;String:5May0020;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"Sept2020\"",
+   "answers": "String:Date;String:Date:9/1/2020;String:Sep-20;String:44075;String:;String:mmm-yy;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"5Sept2020\"",
+   "answers": "String:Date;String:Date:9/5/2020;String:5-Sep-20;String:44079;String:;String:d-mmm-yy;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"May 5,2020\"",
+   "answers": "String:String;String:String:May 5,2020;String:May 5,2020;String:May 5,2020;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
+   "text": "\"5May1899\"",
+   "answers": "String:String;String:String:5May1899;String:5May1899;String:5May1899;String:;String:General;Boolean:False;Boolean:False;"
+  },
+  {
    "text": "#1/2/2020#",
    "answers": "String:Date;String:Date:1/2/2020;String:1/2/2020;String:43832;String:;String:m/d/yyyy;Boolean:False;Boolean:False;"
   },

@@ -54,17 +54,19 @@ from pyopenvba.interpreter._values import EMPTY, VBACurrency, VBADate, VBAErrorV
 _TYPED_ERRORS = ("#NULL!", "#DIV/0!", "#VALUE!", "#REF!", "#NAME?", "#NUM!", "#N/A")
 _MONTHS = {name: index for index, names in enumerate(
     (("jan", "january"), ("feb", "february"), ("mar", "march"), ("apr", "april"), ("may",), ("jun", "june"),
-     ("jul", "july"), ("aug", "august"), ("sep", "september"), ("oct", "october"), ("nov", "november"),
+     ("jul", "july"), ("aug", "august"), ("sep", "sept", "september"), ("oct", "october"), ("nov", "november"),
      ("dec", "december")), start=1) for name in names}
 
 _PLAIN = re.compile(r"(?P<whole>\d+(?:,\d{3,})*)?(?P<point>\.(?P<fraction>\d*))?")
 _EXPONENT = re.compile(r"(?:\d+\.?\d*|\.\d+)[eE][+-]?\d+")
 _MIXED = re.compile(r"(\d+) (\d+)/(\d+)")
 _FRACTION = re.compile(r"(\d+)/(\d+)")
-_NUMERIC_DATE = re.compile(r"(\d{1,4})([/-])(\d{1,4})(?:\2(\d{1,4}))?")
-_DAY_MONTH = re.compile(r"(\d{1,2})[ -]([A-Za-z]+)(?:[ -](\d{2,4}))?")
-_MONTH_DAY = re.compile(r"([A-Za-z]+) (\d{1,2})(?:, (\d{2,4}))?")
-_MONTH_YEAR = re.compile(r"([A-Za-z]+)[ -](\d{4})")
+# The two separators need not match, and spaces may stand round either (tests/fixtures/value_typing.json).
+_NUMERIC_DATE = re.compile(r"(\d{1,4}) *[/-] *(\d{1,4})(?: *[/-] *(\d{1,4}))?")
+# A month's name may run straight into the numbers either side of it: 5May2020, May5, May2020.
+_DAY_MONTH = re.compile(r"(\d{1,2})[ -]?([A-Za-z]+)(?:[ -]?(\d{2,4}))?")
+_MONTH_DAY = re.compile(r"([A-Za-z]+) ?(\d{1,2})(?:, (\d{2,4}))?")
+_MONTH_YEAR = re.compile(r"([A-Za-z]+)[ -]?(\d{4})")
 #: h:m, h:m:s, either with a fraction of a second -- m:s.f when there are two parts -- and AM or PM.
 _TIME = re.compile(r"(\d{1,4}):(\d{1,4})(?::(\d{1,4}))?(\.\d+)?(?: ([AaPp][Mm]?))?")
 _HOUR = re.compile(r"(\d{1,4}) ([AaPp][Mm]?)")
@@ -333,7 +335,10 @@ def _numeric_date(body: str) -> tuple[float, str] | None:
     found = _NUMERIC_DATE.fullmatch(body)
     if found is None:
         return None
-    first, _, second, third = found.groups()
+    first, second, third = found.groups()
+    if any(part is not None and len(part) == 3 for part in (first, second, third)):
+        # No part of a typed date has three digits: 001/2/2020 is text.
+        return None
     if third is not None:
         if len(first) == 4:
             serial = _serial(int(first), int(second), int(third))

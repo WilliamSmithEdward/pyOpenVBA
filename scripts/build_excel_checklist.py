@@ -37,6 +37,7 @@ def bound_classes() -> dict[str, type]:
     """The model class behind each Excel type, one per type name."""
     from pyopenvba.apps.excel import (
         _autofilter,
+        _cell_styles,
         _formats,
         _model,
         _notes,
@@ -50,11 +51,16 @@ def bound_classes() -> dict[str, type]:
     from pyopenvba.interpreter._objects import VBAObject
 
     found: dict[str, type] = {}
-    for module in (_model, _shapes, _formats, _sort, _autofilter, _protection, _tables, _validation, _windows, _notes):
+    for module in (_model, _shapes, _formats, _sort, _autofilter, _protection, _tables, _validation, _windows, _notes,
+                   _cell_styles):
         for cls in vars(module).values():
             if not inspect.isclass(cls) or cls.__module__ != module.__name__:
                 continue
             if not issubclass(cls, VBAObject) or not cls._vba_members:
+                continue
+            if module is _cell_styles and cls.vba_type_name in found:
+                # A cell style's Font, Interior and Borders are views of the style, as Rows and Columns are of
+                # Range: the range's classes stand for those types.
                 continue
             # Rows and Columns views share Range's type name; the class
             # with the most members is the one that stands for the type.

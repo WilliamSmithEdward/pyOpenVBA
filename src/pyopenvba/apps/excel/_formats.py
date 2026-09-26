@@ -367,7 +367,10 @@ def with_cell_color(fill: S.Fill, color: S.Color) -> S.Fill:
     if fill.pattern == "none":
         return S.Fill("solid", foreground=color, background=S.FOREGROUND)
     if fill.pattern == "solid":
-        return replace(fill, foreground=color)
+        # A cell style's fill keeps its automatic pattern colour as the system background, which a macro's
+        # colour turns into the foreground, as every fill a macro makes has it (tests/fixtures/cell_styles).
+        lines = S.FOREGROUND if fill.background == S.BACKGROUND else fill.background
+        return replace(fill, foreground=color, background=lines, bare=False)
     return replace(fill, background=color)
 
 
@@ -379,6 +382,9 @@ def with_pattern(fill: S.Fill, pattern: str) -> S.Fill:
         cell, lines = S.BACKGROUND, S.FOREGROUND
     else:
         cell, lines = cell_color(fill), pattern_color(fill)
+        if lines == S.BACKGROUND:
+            # A cell style's automatic pattern colour, which a macro's pattern writes as a fill of its own would.
+            lines = S.FOREGROUND
     if pattern == "solid":
         return S.Fill(pattern, foreground=cell, background=lines)
     return S.Fill(pattern, foreground=lines, background=cell)
@@ -416,12 +422,15 @@ class Interior(ExcelObject):
         colors = {pick(fill) for fill in fills}
         if len(colors) != 1:
             return mixed
-        color = next(iter(colors))
+        color: S.Color | None = next(iter(colors))
         automatic = "FFFFFF" if pick is cell_color else "000000"
+        if pick is not cell_color and color == S.BACKGROUND:
+            # A cell style's solid fill keeps its pattern colour as the system background: automatic, black.
+            color = None
         if what in ("ColorIndex", "ThemeColor") and all(fill.pattern == "none" for fill in fills):
             return _long(XL_NONE)
         if what == "ThemeColor":
-            return _long(int(color.value) + 1 if color.kind == "theme" else 0)
+            return _long(int(color.value) + 1 if color is not None and color.kind == "theme" else 0)
         return _color_answer(_colors(self.target), color, automatic, what)
 
     @member
@@ -1002,11 +1011,11 @@ def border_around(target: Range, line_style: object, weight: object, color_index
 
 
 def read_alignment(target: Range, what: str) -> object:
-    values = [_alignment_answer(style, what) for style in styles_of(target)]
+    values = [alignment_answer(style, what) for style in styles_of(target)]
     return uniform(values)
 
 
-def _alignment_answer(style: S.Style, what: str) -> object:
+def alignment_answer(style: S.Style, what: str) -> object:
     alignment = style.alignment
     if what == "HorizontalAlignment":
         return _long(HORIZONTAL.get(alignment.horizontal, 1))

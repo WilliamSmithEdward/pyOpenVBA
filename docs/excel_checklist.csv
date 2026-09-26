@@ -778,7 +778,7 @@ Range,Speak,method,"Speak([SpeakDirection As Variant], [SpeakFormulas As Variant
 Range,SpecialCells,method,"SpecialCells(Type As XlCellType, [Value As Variant]) As Range",,PARTIAL,tests/fixtures/special_cells.json; tests/fixtures/excel_model/probes.txt,"Constants and formulas by kind, blanks, the last cell, visible cells and the cells with notes, split into areas as Excel splits them; validation and conditional formats report themselves unsupported."
 Range,SpillingToRange,"property, read-only",As Range,,VERIFIED,tests/fixtures/dynamic_arrays.json,The block a dynamic-array formula in the first cell spilled into; Nothing for any other cell.
 Range,SpillParent,"property, read-only",As Range,,VERIFIED,tests/fixtures/dynamic_arrays.json,The cell of the dynamic-array formula whose answer spilled over the first cell; Nothing where none did.
-Range,Style,property,As Variant,,MISSING,,
+Range,Style,property,As Variant,,PARTIAL,tests/fixtures/cell_styles/cell_styles.json,"The cells' style, Nothing where they differ; set by name in any case or by Style object, the parts the style includes replaced and the rest kept. Error 450 for any other name or value, and on a protected sheet unless AllowFormattingCells."
 Range,SubscribeTo,method,"SubscribeTo(Edition As String, [Format As XlSubscribeToFormat]) As Variant",,MISSING,,
 Range,Subtotal,method,"Subtotal(GroupBy As Long, Function As XlConsolidationFunction, TotalList As Variant, [Replace As Variant], [PageBreaks As Variant], [SummaryBelowData As XlSummaryRow]) As Variant",,MISSING,,
 Range,Summary,"property, read-only",As Variant,,MISSING,,
@@ -1031,6 +1031,46 @@ SortFields,Count,"property, read-only",As Long,,VERIFIED,tests/fixtures/sort.jso
 SortFields,Creator,"property, read-only",As XlCreator,,MISSING,,
 SortFields,Item,"property, read-only",As SortField,,UNASSESSED,,
 SortFields,Parent,"property, read-only",As Object,,MISSING,,
+Style,_Default,"property, read-only",As String,,PARTIAL,tests/fixtures/cell_styles/cell_styles.json,
+Style,AddIndent,property,As Boolean,no setter,PARTIAL,tests/fixtures/cell_styles/cell_styles.json,Read; setting it reports unsupported.
+Style,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/cell_styles/cell_styles.json,
+Style,Borders,"property, read-only",As Borders,,PARTIAL,tests/fixtures/cell_styles/cell_styles.json,"xlLeft, xlRight, xlTop and xlBottom, and 1 to 4, are its edges; xlEdgeLeft to xlInsideHorizontal answer Null. Setting a border reports unsupported."
+Style,BuiltIn,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/cell_styles/cell_styles.json,
+Style,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/cell_styles/cell_styles.json,
+Style,Delete,method,Delete() As Variant,,MISSING,,
+Style,Font,"property, read-only",As Font,,PARTIAL,tests/fixtures/cell_styles/cell_styles.json,Setting a property of it reports unsupported.
+Style,FormulaHidden,property,As Boolean,no setter,PARTIAL,tests/fixtures/cell_styles/cell_styles.json,Read; setting it reports unsupported.
+Style,HorizontalAlignment,property,As XlHAlign,no setter,PARTIAL,tests/fixtures/cell_styles/cell_styles.json,Read; setting it reports unsupported.
+Style,IncludeAlignment,property,As Boolean,no setter,PARTIAL,tests/fixtures/cell_styles/cell_styles.json,Read; setting it reports unsupported.
+Style,IncludeBorder,property,As Boolean,no setter,PARTIAL,tests/fixtures/cell_styles/cell_styles.json,Read; setting it reports unsupported.
+Style,IncludeFont,property,As Boolean,no setter,PARTIAL,tests/fixtures/cell_styles/cell_styles.json,Read; setting it reports unsupported.
+Style,IncludeNumber,property,As Boolean,no setter,PARTIAL,tests/fixtures/cell_styles/cell_styles.json,Read; setting it reports unsupported.
+Style,IncludePatterns,property,As Boolean,no setter,PARTIAL,tests/fixtures/cell_styles/cell_styles.json,Read; setting it reports unsupported.
+Style,IncludeProtection,property,As Boolean,no setter,PARTIAL,tests/fixtures/cell_styles/cell_styles.json,Read; setting it reports unsupported.
+Style,IndentLevel,property,As Long,no setter,PARTIAL,tests/fixtures/cell_styles/cell_styles.json,Read; setting it reports unsupported.
+Style,Interior,"property, read-only",As Interior,,PARTIAL,tests/fixtures/cell_styles/cell_styles.json,Its pattern colour answers as white. Setting a property of it reports unsupported.
+Style,Locked,property,As Boolean,no setter,PARTIAL,tests/fixtures/cell_styles/cell_styles.json,Read; setting it reports unsupported.
+Style,MergeCells,property,As Variant,no setter,PARTIAL,tests/fixtures/cell_styles/cell_styles.json,"Error 1004, as Excel's is."
+Style,Name,"property, read-only",As String,,PARTIAL,tests/fixtures/cell_styles/cell_styles.json,
+Style,NameLocal,"property, read-only",As String,,PARTIAL,tests/fixtures/cell_styles/cell_styles.json,
+Style,NumberFormat,property,As String,no setter,PARTIAL,tests/fixtures/cell_styles/cell_styles.json,Read; setting it reports unsupported.
+Style,NumberFormatLocal,property,As String,no setter,PARTIAL,tests/fixtures/cell_styles/cell_styles.json,Read; setting it reports unsupported.
+Style,Orientation,property,As XlOrientation,no setter,PARTIAL,tests/fixtures/cell_styles/cell_styles.json,Read; setting it reports unsupported.
+Style,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/cell_styles/cell_styles.json,
+Style,ReadingOrder,property,As Long,no setter,PARTIAL,tests/fixtures/cell_styles/cell_styles.json,Read; setting it reports unsupported.
+Style,ShrinkToFit,property,As Boolean,no setter,PARTIAL,tests/fixtures/cell_styles/cell_styles.json,Read; setting it reports unsupported.
+Style,Value,"property, read-only",As String,,PARTIAL,tests/fixtures/cell_styles/cell_styles.json,
+Style,VerticalAlignment,property,As XlVAlign,no setter,PARTIAL,tests/fixtures/cell_styles/cell_styles.json,Read; setting it reports unsupported.
+Style,WrapText,property,As Boolean,no setter,PARTIAL,tests/fixtures/cell_styles/cell_styles.json,Read; setting it reports unsupported.
+Styles,_Default,"property, read-only",As Style,,MISSING,,
+Styles,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
+Styles,Add,method,"Add(Name As String, [BasedOn As Variant]) As Style",,PARTIAL,tests/fixtures/cell_styles/cell_styles.json,"A copy of Normal, or of the first cell of BasedOn without the parts its cells do not share. A name with no characters (Excel's Style 1), or one a macro deleted, reports unsupported."
+Styles,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/cell_styles/cell_styles.json,
+Styles,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/cell_styles/cell_styles.json,
+Styles,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/cell_styles/cell_styles.json,
+Styles,Item,"property, read-only",As Style,,PARTIAL,tests/fixtures/cell_styles/cell_styles.json,By name in any case or by place in the sorted list.
+Styles,Merge,method,Merge(Workbook As Variant) As Variant,,MISSING,,
+Styles,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/cell_styles/cell_styles.json,
 TextFrame,Application,"property, read-only",As Application,,MISSING,,
 TextFrame,AutoMargins,property,As Boolean,,MISSING,,
 TextFrame,AutoSize,property,As Boolean,no setter,UNASSESSED,,
@@ -1366,7 +1406,7 @@ Workbook,ShowPivotTableFieldList,property,As Boolean,,MISSING,,
 Workbook,Signatures,"property, read-only",As SignatureSet,,MISSING,,
 Workbook,SlicerCaches,"property, read-only",As SlicerCaches,,MISSING,,
 Workbook,SmartDocument,"property, read-only",As SmartDocument,,MISSING,,
-Workbook,Styles,"property, read-only",As Styles,,MISSING,,
+Workbook,Styles,"property, read-only",As Styles,,PARTIAL,tests/fixtures/cell_styles/cell_styles.json,"Excel's 47 built-in styles and every one the file or a macro adds, in the order Windows word sort puts their names."
 Workbook,Sync,event,Sync(SyncEventType As MsoSyncEventType),,MISSING,,
 Workbook,TableStyles,"property, read-only",As TableStyles,,MISSING,,
 Workbook,TemplateRemoveExtData,property,As Boolean,,MISSING,,
@@ -1933,3 +1973,5 @@ WorksheetFunction,YieldDisc,method,"YieldDisc(Arg1 As Variant, Arg2 As Variant, 
 WorksheetFunction,YieldMat,method,"YieldMat(Arg1 As Variant, Arg2 As Variant, Arg3 As Variant, Arg4 As Variant, Arg5 As Variant, [Arg6 As Variant]) As Double",,UNASSESSED,,
 WorksheetFunction,Z_Test,method,"Z_Test(Arg1 As Variant, Arg2 As Double, [Arg3 As Variant]) As Double",,UNASSESSED,,
 WorksheetFunction,ZTest,method,"ZTest(Arg1 As Variant, Arg2 As Double, [Arg3 As Variant]) As Double",,UNASSESSED,,
+_StylePart,Application,not in the type library,,,UNASSESSED,,
+_StylePart,Parent,not in the type library,,,UNASSESSED,,

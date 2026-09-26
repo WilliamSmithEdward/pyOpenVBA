@@ -1131,9 +1131,12 @@ def save_workbook(book: Workbook, target: Path) -> None:
         _match_sheets_to_package(book, package)
     else:
         _sync_sheets(book, package)
+    from pyopenvba.apps.excel._cell_styles import prepare_save
     from pyopenvba.apps.excel._windows import saved, tabs_moved, with_book_view, with_view
 
     tabs = tabs_moved(book)
+    # A style a cell uses is written before the cells' formats, whose parts follow its own.
+    prepare_save(book)
     collector = Collector()
     for sheet in book.sheets_:
         if any(cell.dynamic for cell in sheet.cells_.values()):

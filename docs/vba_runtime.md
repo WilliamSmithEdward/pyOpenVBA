@@ -819,22 +819,59 @@ first whenever one is used.
   left-aligned, and choosing an alignment that cannot be indented drops
   the indent. `ClearFormats` unmerges.
 
-`Range.Style`, the `Styles` collection and conditional formats are not
-implemented yet; the operation checklist, `docs/excel_checklist.csv`,
-records each member's status.
+**Cell styles.** `Range.Style`, the `Styles` collection and the `Style`
+object answer as Excel's do over 11,147 reads in live Excel, and 27
+workbooks Excel saved along the way are written the same by the model
+(`tests/fixtures/cell_styles/`).
+
+* A new workbook lists Excel's 47 built-in styles, and its file holds
+  only Normal until a cell uses another. Styles are listed in the order
+  Windows word sort puts their names, and a name finds its style in any
+  case.
+* Giving a range a style replaces the parts of its cells' formats the
+  style includes -- `IncludeNumber`, `IncludeFont`, `IncludeAlignment`,
+  `IncludeBorder`, `IncludePatterns`, `IncludeProtection` -- and keeps
+  the rest; a border the style includes replaces all four sides. A range
+  whose cells have different styles answers Nothing. Anything but the
+  name of a style or a `Style` is error 450, and so is a protected sheet
+  that does not allow formatting cells.
+* `Styles.Add` copies Normal, or the first cell of `BasedOn`, leaving out
+  the parts the range's cells do not share.
+* A style's `Borders` are its edges by `xlLeft`, `xlRight`, `xlTop` and
+  `xlBottom`, while `xlEdgeLeft` and the like answer Null, and its
+  pattern colour is white where a cell's is black.
+* A save writes a built-in style only while a cell uses it, and every
+  style a macro added: after the file's own, the built-in ones in
+  Excel's order and then the rest in the order they were made, each in
+  the theme's fonts. Excel numbers cell xfs in the order it made them,
+  and rewrites a file's own xfs when it opens one; the model keeps a
+  file's xfs as read and numbers new ones in the order a save meets
+  them.
+
+Changing a style, `Style.Delete`, `Styles.Merge` and conditional formats
+are not implemented yet; the operation checklist,
+`docs/excel_checklist.csv`, records each member's status.
 
 **Typing.** A string written through `Value`, `Value2`, `Formula` or an
 array is typed the way Excel types what someone enters in a cell, and a
 Date or Currency a macro computes brings a format of its own. 3,723
 writes in live Excel pin the rules (`tests/fixtures/value_typing.json`,
 `tests/fixtures/typing_formats.json`), with 49 more in a workbook Excel
-saved (`tests/fixtures/typing/`).
+saved (`tests/fixtures/typing/`) and 911 dates and times in
+`tests/fixtures/typed_dates.json`.
 
 * `"5%"` is 0.05 in the 0% format, `"$1,000.50"` a dollar amount,
   `"1e3"` scientific, `"1 3/16"` a fraction, `"12:30:45.5"` a time to the
   tenth of a second, and `"1/2"` the second of January this year. Dates
   run month first on Excel's own calendar, which has a 29 February 1900,
   from 1900 to 9999; a date that does not exist stays text.
+* A month's name may stand before or after its day, parted from it by a
+  slash, a dash, a space or nothing, and a date and a time may come
+  either way round, with numbers after them read past. A space before a
+  date or a time keeps it text, except before a day and a month's name.
+  Excel misreads a space before a month's name and a time, and digits
+  after AM or PM and a point, into numbers; those report themselves
+  unsupported.
 * A cell keeps its own format unless it is General, or one of Excel's
   built-in currency, accounting, percent, scientific, fraction, date and
   time formats and the typed value is of another kind; a number with

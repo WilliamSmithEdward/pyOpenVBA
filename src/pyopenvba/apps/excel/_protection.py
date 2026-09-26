@@ -401,12 +401,18 @@ _RANGE_FREE = frozenset({"Value", "Value2", "Formula", "FormulaR1C1", "FormulaLo
 def check_range_set(target: Range, member: str) -> None:
     """Refuse setting a Range property where a protected sheet refuses it."""
     sheet = target.sheet
-    if enforced(sheet) is None or member in _RANGE_FREE:
+    found = enforced(sheet)
+    if found is None or member in _RANGE_FREE:
         return
     if member == "Hidden":
         rows = target.whole == "rows" or (not target.whole and all(
             area.left == 1 and area.right == MAX_COLUMNS for area in target.areas))
         refuse(sheet, refused_format("Range", member), "AllowFormattingRows" if rows else "AllowFormattingColumns")
+        return
+    if member == "Style":
+        if "AllowFormattingCells" not in found.allows:
+            # A protected sheet refuses a cell style as it refuses a style no workbook has (tests/fixtures/cell_styles).
+            raise error(450)
         return
     if member not in _RANGE_FORMATS:
         raise VBAUnsupportedError(f"setting Range.{member} on a protected sheet is not implemented")

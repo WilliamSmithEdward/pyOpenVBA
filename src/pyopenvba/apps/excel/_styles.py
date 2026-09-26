@@ -33,6 +33,7 @@ from pyopenvba._xml import attributes as _attributes
 from pyopenvba._xml import escape as _escape
 from pyopenvba._xml import unescape as _unescape
 from pyopenvba.apps.excel._number_format import BUILTIN, SPELLED_OUT, from_file, to_file
+from pyopenvba.exceptions import VBAUnsupportedError
 
 _T = TypeVar("_T")
 
@@ -350,6 +351,13 @@ class Fill:
     foreground: Color = FOREGROUND
     background: Color = BACKGROUND
     gradient: str = ""
+    #: Whether the file writes it without a bgColor, as Excel writes most of its built-in cell styles' fills;
+    #: only a fill with the default background can be, and Excel writes every other one with its bgColor.
+    bare: bool = False
+
+    def __post_init__(self) -> None:
+        if self.bare and (self.background != BACKGROUND or self.pattern in ("none", "gradient")):
+            object.__setattr__(self, "bare", False)
 
 
 @dataclass(frozen=True, slots=True)
@@ -405,7 +413,8 @@ class Style:
     border: Border = field(default_factory=Border)
     alignment: Alignment = field(default_factory=Alignment)
     protection: Protection = field(default_factory=Protection)
-    #: The cell style it derives from, the xf's xfId.
+    #: The cell style it derives from: the index of its xf in cellStyleXfs, or for a style the file does not
+    #: hold yet the place the stylesheet keeps it until a save writes it (Stylesheet.cell_styles).
     base: int = 0
     quote_prefix: bool = False
     #: The parts of the format it applies itself, the xf's apply flags: each
@@ -415,16 +424,22 @@ class Style:
     #: that went through that stays; a file's flags are not read, since
     #: Excel takes a format that differs only in them as the same one.
     applied: frozenset[str] = frozenset()
+    #: The parts it takes from its cell style, which its xf points at by the
+    #: style's own entries: Excel keeps a second copy of the Normal font that
+    #: some styles use, and a cell given one of them points at the copy.
+    styled: frozenset[str] = frozenset()
 
 
 #: The parts of a format, in the order an xf's apply flags are written.
 APPLY_FLAGS: Final = {"number_format": "applyNumberFormat", "font": "applyFont", "fill": "applyFill",
                       "border": "applyBorder", "alignment": "applyAlignment", "protection": "applyProtection"}
+PARTS: Final = frozenset(APPLY_FLAGS)
 
 
 def applying(style: Style, part: str, **changes: object) -> Style:
     """The format with one part set by a macro: changed as asked, and applied from now on."""
-    return replace(style, applied=style.applied | {part}, **changes)  # type: ignore[arg-type]
+    return replace(style, applied=style.applied | {part}, styled=style.styled - {part},
+                   **changes)  # type: ignore[arg-type]
 
 
 # --- reading a stylesheet -------------------------------------------------------------------------
@@ -476,6 +491,7 @@ def parse_fill(xml: str) -> Fill:
         pattern=kind,
         foreground=(parse_color(foreground.group(0)) if foreground else None) or FOREGROUND,
         background=(parse_color(background.group(0)) if background else None) or BACKGROUND,
+        bare=foreground is not None and background is None,
     )
 
 
@@ -588,7 +604,9 @@ def fill_xml(fill: Fill) -> str:
         return '<fill><patternFill patternType="none"/></fill>'
     foreground = fill.foreground != FOREGROUND
     background = fill.background != BACKGROUND
-    if fill.pattern == "solid" or foreground:
+    if fill.bare:
+        colors = color_xml("fgColor", fill.foreground)
+    elif fill.pattern == "solid" or foreground:
         colors = color_xml("fgColor", fill.foreground) + color_xml("bgColor", fill.background)
     elif background:
         colors = color_xml("bgColor", fill.background)
@@ -654,10 +672,24 @@ def protection_xml(protection: Protection) -> str:
 # --- the stylesheet -----------------------------------------------------------------------------------
 
 _SECTION = {"numFmts": "numFmt", "fonts": "font", "fills": "fill", "borders": "border",
-            "cellStyleXfs": "xf", "cellXfs": "xf"}
+            "cellStyleXfs": "xf", "cellXfs": "xf", "cellStyles": "cellStyle"}
 #: The order a stylesheet's children come in, for adding a section a file lacks.
 _ORDER: Final = ("numFmts", "fonts", "fills", "borders", "cellStyleXfs", "cellXfs", "cellStyles", "dxfs",
                  "tableStyles", "colors", "extLst")
+#: The currency and accounting formats Excel spells out, in the order its own table holds them: a save that
+#: gives the file several new cell styles using them writes them in this order (tests/fixtures/cell_styles).
+_SPELLED_ORDER: Final = (5, 6, 7, 8, 42, 41, 44, 43)
+#: The theme's heading and body fonts where a workbook carries no theme part.
+DEFAULT_THEME_FONTS: Final = ("Aptos Display", "Aptos Narrow")
+
+
+def parse_theme_fonts(xml: str) -> tuple[str, str]:
+    """The theme's heading and body fonts: the Latin typefaces of its major and minor fonts."""
+    found: list[str] = []
+    for kind, default in zip(("major", "minor"), DEFAULT_THEME_FONTS, strict=True):
+        latin = re.search(rf'<a:{kind}Font>\s*<a:latin typeface="([^"]*)"', xml)
+        found.append(_unescape(latin.group(1)) if latin else default)
+    return found[0], found[1]
 
 
 def _children(xml: str, section: str) -> list[str]:
@@ -670,7 +702,8 @@ def _children(xml: str, section: str) -> list[str]:
 
 @dataclass(slots=True)
 class _BaseStyle:
-    """A cell style's xf, which decides the apply flags of the xfs that derive from it."""
+    """A cell style's xf as the file has it: its parts by index, which decide the apply flags of the xfs
+    that derive from it."""
 
     number_format: int = 0
     font: int = 0
@@ -680,8 +713,35 @@ class _BaseStyle:
     protection: Protection = Protection()
 
 
+@dataclass(slots=True)
+class CellStyle:
+    """A cell style: the format it gives a cell, the parts of a format it gives, its name, and its xf.
+
+    Every xf in the file's cellStyleXfs is one, named where the file's
+    cellStyles name it. One the file does not hold yet -- a built-in style
+    a cell was just given, or one a macro added -- waits with no xf until a
+    save writes it.
+    """
+
+    #: The format a cell takes from it; its base is its own place in Stylesheet.cell_styles.
+    format: Style
+    #: The parts of a cell's format it sets, IncludeNumber to IncludeProtection.
+    includes: frozenset[str] = PARTS
+    #: Its name; "" for an xf the file's cellStyles do not name.
+    name: str = ""
+    #: Excel's builtinId, None for a style a user made.
+    builtin: int | None = None
+    #: Its xf in the file's cellStyleXfs, once the file holds it.
+    xf: int | None = None
+    #: Where it comes in Excel's own order of its standard built-in styles, which a save writes new ones in;
+    #: -1 for any other style.
+    rank: int = -1
+    #: The order the styles made while the workbook was open came in, which a save writes the rest in.
+    made: int = 0
+
+
 class Stylesheet:
-    """``xl/styles.xml`` read into formats, and the entries a save has to add to it."""
+    """``xl/styles.xml`` read into formats and cell styles, and the entries a save has to add to it."""
 
     def __init__(self, xml: str, theme_xml: str = "") -> None:
         self.xml = xml
@@ -691,6 +751,8 @@ class Stylesheet:
         )
         self.colors = Colors(parse_theme(theme_xml) if theme_xml else DEFAULT_THEME,
                              palette if len(palette) >= 64 else ())
+        #: The theme's heading and body typefaces, which Excel's built-in cell styles are written in.
+        self.theme_fonts = parse_theme_fonts(theme_xml) if theme_xml else DEFAULT_THEME_FONTS
         #: Every format by id, as Range.NumberFormat spells it; the file's own spelling is read through from_file.
         self.number_formats: dict[int, str] = dict(BUILTIN)
         #: The ids the file's numFmts spell out, which a save does not spell out again.
@@ -706,12 +768,33 @@ class Stylesheet:
         self.fonts = [parse_font(one) for one in _children(xml, "fonts")] or [Font()]
         self.fills = [parse_fill(one) for one in _children(xml, "fills")] or [Fill()]
         self.borders = [parse_border(one) for one in _children(xml, "borders")] or [Border()]
-        self.bases = [self._base(one) for one in _children(xml, "cellStyleXfs")] or [_BaseStyle()]
+        style_xfs = _children(xml, "cellStyleXfs")
+        self._file_style_xfs = len(style_xfs)
+        self.bases = [self._base(one) for one in style_xfs] or [_BaseStyle()]
+        #: Every cell style: the file's xfs in cellStyleXfs order, then those waiting for a save.
+        self.cell_styles = [self._cell_style(one, index) for index, one in enumerate(style_xfs)] or [
+            CellStyle(Style(font=self.fonts[0], styled=PARTS), name="Normal", builtin=0, xf=0)]
+        #: The file's cellStyles elements in order, with those a save adds put in by name.
+        self._named = _children(xml, "cellStyles")
+        for element in self._named:
+            found = _attributes(element)
+            try:
+                xf = int(found.get("xfId", ""))
+            except ValueError:
+                continue
+            if 0 <= xf < len(self.cell_styles) and not self.cell_styles[xf].name:
+                entry = self.cell_styles[xf]
+                entry.name = _unescape(found.get("name", ""))
+                builtin = found.get("builtinId", "")
+                entry.builtin = int(builtin) if builtin.isdigit() else None
+        self._named_changed = False
+        self._made = 0
         self.styles = [self._style(one) for one in _children(xml, "cellXfs")] or [Style(font=self.fonts[0])]
         self._index: dict[Style, int] = {}
         for index, style in enumerate(self.styles):
             self._index.setdefault(style, index)
-        self._added: dict[str, list[str]] = {name: [] for name in ("numFmts", "fonts", "fills", "borders", "cellXfs")}
+        self._added: dict[str, list[str]] = {
+            name: [] for name in ("numFmts", "fonts", "fills", "borders", "cellStyleXfs", "cellXfs")}
 
     # -- reading
 
@@ -729,6 +812,23 @@ class Stylesheet:
             protection=parse_protection(element),
         )
 
+    def _cell_style(self, element: str, index: int) -> CellStyle:
+        """A cellStyleXfs xf: the format it gives, and the parts it gives, those its apply flags do not turn off."""
+        base = self.bases[index]
+        found = _attributes(element)
+        includes = frozenset(part for part, flag in APPLY_FLAGS.items() if found.get(flag, "1") not in _BOOL_OFF)
+        own = Style(
+            number_format=self.number_formats.get(base.number_format, "General"),
+            font=self._part(self.fonts, base.font, self.fonts[0]),
+            fill=self._part(self.fills, base.fill, Fill()),
+            border=self._part(self.borders, base.border, Border()),
+            alignment=base.alignment,
+            protection=base.protection,
+            base=index,
+            styled=PARTS,
+        )
+        return CellStyle(own, includes, xf=index)
+
     def _style(self, element: str) -> Style:
         found = _attributes(element)
         number = int(found.get("numFmtId", "0") or 0)
@@ -739,6 +839,7 @@ class Stylesheet:
         differs = {"number_format": number != base.number_format, "font": font != base.font,
                    "fill": fill != base.fill, "border": border != base.border,
                    "alignment": alignment != base.alignment, "protection": protection != base.protection}
+        applied = frozenset(part for part, yes in differs.items() if yes)
         return Style(
             number_format=self.number_formats.get(number, "General"),
             font=self._part(self.fonts, font, self.fonts[0]),
@@ -748,7 +849,8 @@ class Stylesheet:
             protection=protection,
             base=base_index,
             quote_prefix=found.get("quotePrefix", "0") in ("1", "true"),
-            applied=frozenset(part for part, yes in differs.items() if yes),
+            applied=applied,
+            styled=PARTS - applied,
         )
 
     @property
@@ -757,6 +859,85 @@ class Stylesheet:
 
     def style(self, index: int) -> Style:
         return self.styles[index] if 0 <= index < len(self.styles) else self.styles[0]
+
+    # -- cell styles
+
+    def named(self, name: str) -> int | None:
+        """The place of the cell style a name names, in any case, among the ones the stylesheet holds."""
+        key = name.casefold()
+        for index, entry in enumerate(self.cell_styles):
+            if entry.name and entry.name.casefold() == key:
+                return index
+        return None
+
+    def add_cell_style(self, entry: CellStyle) -> int:
+        """Hold a cell style the file does not have yet, which a save writes when it has to; its place."""
+        self._made += 1
+        entry.made = self._made
+        self.cell_styles.append(entry)
+        index = len(self.cell_styles) - 1
+        entry.format = replace(entry.format, base=index, styled=PARTS)
+        return index
+
+    def write_cell_styles(self, in_use: set[int], lead_font: Font | None = None) -> None:
+        """Give the file the cell styles a save writes that it lacks.
+
+        Each style a user made is written, used or not; a built-in one only
+        while a cell uses it. The standard built-in styles come in Excel's
+        own order, then the rest in the order they were made. ``lead_font``
+        is the one Excel's own table holds ahead of every built-in style's,
+        the theme's body font, written first where a style uses it as it is.
+        """
+        waiting = [entry for index, entry in enumerate(self.cell_styles)
+                   if entry.xf is None and (entry.builtin is None or index in in_use)]
+        waiting.sort(key=lambda entry: (entry.rank < 0, entry.rank, entry.made))
+        if lead_font is not None and any(entry.format.font == lead_font for entry in waiting):
+            self._entry("fonts", self.fonts, lead_font, font_xml, start=1)
+        codes = {entry.format.number_format for entry in waiting}
+        for identifier in _SPELLED_ORDER:
+            code = self.number_formats.get(identifier, "")
+            if identifier not in self._declared and code in codes:
+                self._declare(identifier, code)
+        for entry in waiting:
+            self._register(entry)
+
+    def _register(self, entry: CellStyle) -> None:
+        """Write a cell style's xf, its parts and its name.
+
+        A style's font is never the file's first one: where the Normal font
+        is what it wants, Excel gives it a copy of that font.
+        """
+        if not self._file_style_xfs:
+            raise VBAUnsupportedError("adding a cell style to a stylesheet with no cellStyleXfs is not implemented")
+        own = entry.format
+        number = self._number_format_id(own.number_format)
+        font = self._entry("fonts", self.fonts, own.font, font_xml, start=1)
+        fill = self._entry("fills", self.fills, own.fill, fill_xml)
+        border = self._entry("borders", self.borders, own.border, border_xml)
+        head = f'<xf numFmtId="{number}" fontId="{font}" fillId="{fill}" borderId="{border}"'
+        for part, name in APPLY_FLAGS.items():
+            if part not in entry.includes:
+                head += f' {name}="0"'
+        inner = alignment_xml(own.alignment) + protection_xml(own.protection)
+        self._added["cellStyleXfs"].append(head + (f">{inner}</xf>" if inner else "/>"))
+        self.bases.append(_BaseStyle(number, font, fill, border, own.alignment, own.protection))
+        entry.xf = len(self.bases) - 1
+        element = (f'<cellStyle name="{_escape(entry.name)}" xfId="{entry.xf}"'
+                   + (f' builtinId="{entry.builtin}"' if entry.builtin is not None else "") + "/>")
+        self._name(element, entry.name)
+
+    def _name(self, element: str, name: str) -> None:
+        """Put a new cellStyle among the file's, which Excel keeps in the order the Styles collection lists."""
+        from pyopenvba.apps.excel._sort import text_key
+
+        key = text_key(name, False)
+        for position, existing in enumerate(self._named):
+            if text_key(_unescape(_attributes(existing).get("name", "")), False) > key:
+                self._named.insert(position, element)
+                break
+        else:
+            self._named.append(element)
+        self._named_changed = True
 
     # -- adding
 
@@ -767,16 +948,28 @@ class Stylesheet:
         return self.index_of(style)
 
     def index_of(self, style: Style) -> int:
-        """The xf for ``style``, reusing an equal one or adding what the stylesheet lacks."""
+        """The xf for ``style``, reusing an equal one or adding what the stylesheet lacks.
+
+        A part the format takes from its cell style, and still holds as the
+        style has it, points at the style's own entry.
+        """
         found = self._index.get(style)
         if found is not None:
             return found
-        base = self.bases[style.base] if 0 <= style.base < len(self.bases) else _BaseStyle()
-        number = self._number_format_id(style.number_format)
-        font = self._entry("fonts", self.fonts, style.font, font_xml)
-        fill = self._entry("fills", self.fills, style.fill, fill_xml)
-        border = self._entry("borders", self.borders, style.border, border_xml)
-        head = (f'<xf numFmtId="{number}" fontId="{font}" fillId="{fill}" borderId="{border}" xfId="{style.base}"'
+        entry = self.cell_styles[style.base] if 0 <= style.base < len(self.cell_styles) else self.cell_styles[0]
+        if entry.xf is None:
+            self._register(entry)
+        assert entry.xf is not None
+        base = self.bases[entry.xf]
+
+        def taken(part: str) -> bool:
+            return part in style.styled and getattr(style, part) == getattr(entry.format, part)
+
+        number = base.number_format if taken("number_format") else self._number_format_id(style.number_format)
+        font = base.font if taken("font") else self._entry("fonts", self.fonts, style.font, font_xml)
+        fill = base.fill if taken("fill") else self._entry("fills", self.fills, style.fill, fill_xml)
+        border = base.border if taken("border") else self._entry("borders", self.borders, style.border, border_xml)
+        head = (f'<xf numFmtId="{number}" fontId="{font}" fillId="{fill}" borderId="{border}" xfId="{entry.xf}"'
                 + (' quotePrefix="1"' if style.quote_prefix else ""))
         differs = {"number_format": number != base.number_format, "font": font != base.font,
                    "fill": fill != base.fill, "border": border != base.border,
@@ -791,13 +984,14 @@ class Stylesheet:
         self._index[style] = index
         return index
 
-    def _entry(self, section: str, items: list[_T], item: _T, render: Callable[[_T], str]) -> int:
-        try:
-            return items.index(item)
-        except ValueError:
-            items.append(item)
-            self._added[section].append(render(item))
-            return len(items) - 1
+    def _entry(self, section: str, items: list[_T], item: _T, render: Callable[[_T], str], *, start: int = 0) -> int:
+        """The index of the first entry from ``start`` on equal to ``item``, adding it when there is none."""
+        for index in range(start, len(items)):
+            if items[index] == item:
+                return index
+        items.append(item)
+        self._added[section].append(render(item))
+        return len(items) - 1
 
     def _number_format_id(self, code: str) -> int:
         """The id a format is written with: a built-in one where it has one, else the file's own or a new one.
@@ -824,7 +1018,7 @@ class Stylesheet:
 
     @property
     def dirty(self) -> bool:
-        return any(self._added.values())
+        return any(self._added.values()) or self._named_changed
 
     def written(self) -> str:
         """The stylesheet XML with every added entry in its section."""
@@ -832,6 +1026,8 @@ class Stylesheet:
         for section, entries in self._added.items():
             if entries:
                 text = _append(text, section, entries)
+        if self._named_changed:
+            text = _replaced(text, "cellStyles", self._named)
         return text
 
     def saved(self) -> None:
@@ -839,6 +1035,7 @@ class Stylesheet:
         self.xml = self.written()
         for entries in self._added.values():
             entries.clear()
+        self._named_changed = False
 
 
 def _append(text: str, section: str, entries: list[str]) -> str:
@@ -860,3 +1057,12 @@ def _append(text: str, section: str, entries: list[str]) -> str:
         return text[:match.start()] + opened + "".join(entries) + f"</{section}>" + text[match.end():]
     closing = text.index(f"</{section}>", match.end())
     return text[:match.start()] + opened + text[match.end():closing] + "".join(entries) + text[closing:]
+
+
+def _replaced(text: str, section: str, entries: list[str]) -> str:
+    """The stylesheet with a section's entries replaced by ``entries``, its count following."""
+    match = re.search(rf"<{section}\b[^>]*?(?:/>|>.*?</{section}>)", text, re.DOTALL)
+    if match is None:
+        return _append(text, section, entries)
+    block = f'<{section} count="{len(entries)}">{"".join(entries)}</{section}>'
+    return text[:match.start()] + block + text[match.end():]

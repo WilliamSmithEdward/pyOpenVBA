@@ -23,6 +23,20 @@ All notable changes to pyOpenVBA are documented here. This project follows
   Excel pin the rules (scripts/measure_text_to_columns.py); FieldInfo
   whose pairs do not number the columns 1, 2, 3 in order does something
   in Excel not worked out and reports itself unsupported.
+- Named cell styles: `Range.Style`, `Workbook.Styles` and the `Style`
+  object. A new workbook lists Excel's 47 built-in styles, in the order
+  Windows word sort puts their names, and a name finds its style in any
+  case. Giving a range a style replaces the parts of its cells' formats
+  the style includes and keeps the rest, and a range whose cells differ
+  answers Nothing. `Styles.Add` copies Normal, or the first cell of the
+  range it is based on. A style's properties read as Excel's do, its
+  `Borders` by `xlLeft` to `xlBottom`. A save writes the styles and
+  stylesheet entries Excel writes for the same edits: a built-in style
+  only while a cell uses it, in Excel's own order and the theme's fonts,
+  and every style a macro added. 11,147 reads in live Excel and 27
+  workbooks it saved pin the rules (scripts/measure_cell_styles.py).
+  Changing a style, `Style.Delete` and `Styles.Merge` report themselves
+  unsupported.
 
 ### Fixed
 

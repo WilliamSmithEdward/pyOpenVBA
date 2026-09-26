@@ -643,6 +643,13 @@ class Workbook(ExcelObject):
         return self.queries_ if Index is MISSING else self.queries_.vba_get("Item", [Index])
 
     @member
+    def Styles(self, Index: object = MISSING) -> object:
+        from pyopenvba.apps.excel._cell_styles import Styles
+
+        styles = Styles(self)
+        return styles if Index is MISSING else styles.vba_get("Item", [Index])
+
+    @member
     def VBProject(self) -> object:
         raise VBAUnsupportedError(
             "Workbook.VBProject edits the project from inside itself; use pyopenvba.ExcelFile instead"
@@ -1961,6 +1968,18 @@ class Range(ExcelObject):
 
         text = normalized(to_text(value))
         restyle(self, lambda style: applying(style, "number_format", number_format=text))
+
+    @member
+    def Style(self) -> object:
+        from pyopenvba.apps.excel._cell_styles import style_of
+
+        return style_of(self)
+
+    @setter("Style")
+    def _set_style(self, value: object) -> None:
+        from pyopenvba.apps.excel._cell_styles import set_style
+
+        set_style(self, value)
 
     # The Local spellings are in the language of the user's settings, which the model keeps English: the same
     # text as the plain ones, as an English Excel has them (tests/fixtures/excel_model/probes.txt).

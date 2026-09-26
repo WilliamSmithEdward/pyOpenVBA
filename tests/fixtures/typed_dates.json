@@ -1,0 +1,9152 @@
+{
+ "year": 2026,
+ "reads": [
+  "TypeName(c.Value)",
+  "CStr(c.Value)",
+  "CStr(c.Value2)",
+  "c.NumberFormat",
+  "c.Text"
+ ],
+ "cases": [
+  {
+   "text": " 1/2/2020",
+   "answer": [
+    "String",
+    " 1/2/2020",
+    " 1/2/2020",
+    "General",
+    " 1/2/2020"
+   ]
+  },
+  {
+   "text": "  1/2/2020",
+   "answer": [
+    "String",
+    "  1/2/2020",
+    "  1/2/2020",
+    "General",
+    "  1/2/2020"
+   ]
+  },
+  {
+   "text": " 1/2",
+   "answer": [
+    "String",
+    " 1/2",
+    " 1/2",
+    "General",
+    " 1/2"
+   ]
+  },
+  {
+   "text": " 1-2-2020",
+   "answer": [
+    "String",
+    " 1-2-2020",
+    " 1-2-2020",
+    "General",
+    " 1-2-2020"
+   ]
+  },
+  {
+   "text": " 2020-1-2",
+   "answer": [
+    "String",
+    " 2020-1-2",
+    " 2020-1-2",
+    "General",
+    " 2020-1-2"
+   ]
+  },
+  {
+   "text": " 2020/1/2",
+   "answer": [
+    "String",
+    " 2020/1/2",
+    " 2020/1/2",
+    "General",
+    " 2020/1/2"
+   ]
+  },
+  {
+   "text": " 12/2020",
+   "answer": [
+    "String",
+    " 12/2020",
+    " 12/2020",
+    "General",
+    " 12/2020"
+   ]
+  },
+  {
+   "text": " Jan 2",
+   "answer": [
+    "String",
+    " Jan 2",
+    " Jan 2",
+    "General",
+    " Jan 2"
+   ]
+  },
+  {
+   "text": " Jan 2, 2020",
+   "answer": [
+    "String",
+    " Jan 2, 2020",
+    " Jan 2, 2020",
+    "General",
+    " Jan 2, 2020"
+   ]
+  },
+  {
+   "text": " 2-Jan",
+   "answer": [
+    "Date",
+    "1/2/2026",
+    "46024",
+    "d-mmm",
+    "2-Jan"
+   ]
+  },
+  {
+   "text": " 2 Jan 2020",
+   "answer": [
+    "String",
+    " 2 Jan 2020",
+    " 2 Jan 2020",
+    "General",
+    " 2 Jan 2020"
+   ]
+  },
+  {
+   "text": " Jan 2020",
+   "answer": [
+    "String",
+    " Jan 2020",
+    " Jan 2020",
+    "General",
+    " Jan 2020"
+   ]
+  },
+  {
+   "text": " May2020",
+   "answer": [
+    "String",
+    " May2020",
+    " May2020",
+    "General",
+    " May2020"
+   ]
+  },
+  {
+   "text": " 5May2020",
+   "answer": [
+    "String",
+    " 5May2020",
+    " 5May2020",
+    "General",
+    " 5May2020"
+   ]
+  },
+  {
+   "text": " January 2",
+   "answer": [
+    "String",
+    " January 2",
+    " January 2",
+    "General",
+    " January 2"
+   ]
+  },
+  {
+   "text": " 12:30",
+   "answer": [
+    "String",
+    " 12:30",
+    " 12:30",
+    "General",
+    " 12:30"
+   ]
+  },
+  {
+   "text": " 12:30:45",
+   "answer": [
+    "String",
+    " 12:30:45",
+    " 12:30:45",
+    "General",
+    " 12:30:45"
+   ]
+  },
+  {
+   "text": " 12:30 PM",
+   "answer": [
+    "String",
+    " 12:30 PM",
+    " 12:30 PM",
+    "General",
+    " 12:30 PM"
+   ]
+  },
+  {
+   "text": " 12 PM",
+   "answer": [
+    "String",
+    " 12 PM",
+    " 12 PM",
+    "General",
+    " 12 PM"
+   ]
+  },
+  {
+   "text": " 1:2:3",
+   "answer": [
+    "String",
+    " 1:2:3",
+    " 1:2:3",
+    "General",
+    " 1:2:3"
+   ]
+  },
+  {
+   "text": " 12:30:45.5",
+   "answer": [
+    "String",
+    " 12:30:45.5",
+    " 12:30:45.5",
+    "General",
+    " 12:30:45.5"
+   ]
+  },
+  {
+   "text": " 1/2/2020 12:30",
+   "answer": [
+    "String",
+    " 1/2/2020 12:30",
+    " 1/2/2020 12:30",
+    "General",
+    " 1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": " 1,000",
+   "answer": [
+    "Double",
+    "1000",
+    "1000",
+    "#,##0",
+    "1,000"
+   ]
+  },
+  {
+   "text": " 1e3",
+   "answer": [
+    "Double",
+    "1000",
+    "1000",
+    "0.00E+00",
+    "1.00E+03"
+   ]
+  },
+  {
+   "text": " (5)",
+   "answer": [
+    "Double",
+    "-5",
+    "-5",
+    "General",
+    "-5"
+   ]
+  },
+  {
+   "text": " -5",
+   "answer": [
+    "Double",
+    "-5",
+    "-5",
+    "General",
+    "-5"
+   ]
+  },
+  {
+   "text": " 1 1/2",
+   "answer": [
+    "Double",
+    "1.5",
+    "1.5",
+    "# ?/?",
+    "1 1/2"
+   ]
+  },
+  {
+   "text": " .5",
+   "answer": [
+    "Double",
+    "0.5",
+    "0.5",
+    "General",
+    "0.5"
+   ]
+  },
+  {
+   "text": " $5",
+   "answer": [
+    "Currency",
+    "5",
+    "5",
+    "$#,##0_);[Red]($#,##0)",
+    "$5 "
+   ]
+  },
+  {
+   "text": "1/2/2020 ",
+   "answer": [
+    "Date",
+    "1/2/2020",
+    "43832",
+    "m/d/yyyy",
+    "1/2/2020"
+   ]
+  },
+  {
+   "text": "1/2 ",
+   "answer": [
+    "Date",
+    "1/2/2026",
+    "46024",
+    "d-mmm",
+    "2-Jan"
+   ]
+  },
+  {
+   "text": "Jan 2 ",
+   "answer": [
+    "Date",
+    "1/2/2026",
+    "46024",
+    "d-mmm",
+    "2-Jan"
+   ]
+  },
+  {
+   "text": "2-Jan ",
+   "answer": [
+    "Date",
+    "1/2/2026",
+    "46024",
+    "d-mmm",
+    "2-Jan"
+   ]
+  },
+  {
+   "text": "12:30 ",
+   "answer": [
+    "Double",
+    "0.520833333333333",
+    "0.520833333333333",
+    "h:mm",
+    "12:30"
+   ]
+  },
+  {
+   "text": "12 PM ",
+   "answer": [
+    "Double",
+    "0.5",
+    "0.5",
+    "h:mm AM/PM",
+    "12:00 PM"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 ",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "Jan 2020 ",
+   "answer": [
+    "Date",
+    "1/1/2020",
+    "43831",
+    "mmm-yy",
+    "Jan-20"
+   ]
+  },
+  {
+   "text": "1 1/2 ",
+   "answer": [
+    "Double",
+    "1.5",
+    "1.5",
+    "# ?/?",
+    "1 1/2"
+   ]
+  },
+  {
+   "text": "1/2/2020  ",
+   "answer": [
+    "Date",
+    "1/2/2020",
+    "43832",
+    "m/d/yyyy",
+    "1/2/2020"
+   ]
+  },
+  {
+   "text": " 1/2/2020 ",
+   "answer": [
+    "String",
+    " 1/2/2020 ",
+    " 1/2/2020 ",
+    "General",
+    " 1/2/2020 "
+   ]
+  },
+  {
+   "text": " 2-Jan-2020",
+   "answer": [
+    "String",
+    " 2-Jan-2020",
+    " 2-Jan-2020",
+    "General",
+    " 2-Jan-2020"
+   ]
+  },
+  {
+   "text": " 2-Jan-20",
+   "answer": [
+    "String",
+    " 2-Jan-20",
+    " 2-Jan-20",
+    "General",
+    " 2-Jan-20"
+   ]
+  },
+  {
+   "text": " 2/Jan",
+   "answer": [
+    "Date",
+    "1/2/2026",
+    "46024",
+    "d-mmm",
+    "2-Jan"
+   ]
+  },
+  {
+   "text": " 2 Jan",
+   "answer": [
+    "Date",
+    "1/2/2026",
+    "46024",
+    "d-mmm",
+    "2-Jan"
+   ]
+  },
+  {
+   "text": " 2Jan",
+   "answer": [
+    "Date",
+    "1/2/2026",
+    "46024",
+    "d-mmm",
+    "2-Jan"
+   ]
+  },
+  {
+   "text": " 2-January",
+   "answer": [
+    "Date",
+    "1/2/2026",
+    "46024",
+    "d-mmm",
+    "2-Jan"
+   ]
+  },
+  {
+   "text": " 12-Jan",
+   "answer": [
+    "Date",
+    "1/12/2026",
+    "46034",
+    "d-mmm",
+    "12-Jan"
+   ]
+  },
+  {
+   "text": " Jan-2",
+   "answer": [
+    "String",
+    " Jan-2",
+    " Jan-2",
+    "General",
+    " Jan-2"
+   ]
+  },
+  {
+   "text": " Jan-2020",
+   "answer": [
+    "String",
+    " Jan-2020",
+    " Jan-2020",
+    "General",
+    " Jan-2020"
+   ]
+  },
+  {
+   "text": " Jan/2",
+   "answer": [
+    "String",
+    " Jan/2",
+    " Jan/2",
+    "General",
+    " Jan/2"
+   ]
+  },
+  {
+   "text": " 2-Jan 12:30",
+   "answer": [
+    "Double",
+    "40904.3055555556",
+    "40904.3055555556",
+    "General",
+    "40904.30556"
+   ]
+  },
+  {
+   "text": "  2-Jan",
+   "answer": [
+    "Date",
+    "1/2/2026",
+    "46024",
+    "d-mmm",
+    "2-Jan"
+   ]
+  },
+  {
+   "text": " 2-Jan ",
+   "answer": [
+    "Date",
+    "1/2/2026",
+    "46024",
+    "d-mmm",
+    "2-Jan"
+   ]
+  },
+  {
+   "text": " 2 - Jan",
+   "answer": [
+    "Date",
+    "1/2/2026",
+    "46024",
+    "d-mmm",
+    "2-Jan"
+   ]
+  },
+  {
+   "text": " 2- Jan",
+   "answer": [
+    "Date",
+    "1/2/2026",
+    "46024",
+    "d-mmm",
+    "2-Jan"
+   ]
+  },
+  {
+   "text": " 2 -Jan",
+   "answer": [
+    "Date",
+    "1/2/2026",
+    "46024",
+    "d-mmm",
+    "2-Jan"
+   ]
+  },
+  {
+   "text": " 5-May",
+   "answer": [
+    "Date",
+    "5/5/2026",
+    "46147",
+    "d-mmm",
+    "5-May"
+   ]
+  },
+  {
+   "text": " 2-Jan 2020",
+   "answer": [
+    "String",
+    " 2-Jan 2020",
+    " 2-Jan 2020",
+    "General",
+    " 2-Jan 2020"
+   ]
+  },
+  {
+   "text": " 2-Feb",
+   "answer": [
+    "Date",
+    "2/2/2026",
+    "46055",
+    "d-mmm",
+    "2-Feb"
+   ]
+  },
+  {
+   "text": " 31-Jan",
+   "answer": [
+    "Date",
+    "1/31/2026",
+    "46053",
+    "d-mmm",
+    "31-Jan"
+   ]
+  },
+  {
+   "text": " 32-Jan",
+   "answer": [
+    "String",
+    " 32-Jan",
+    " 32-Jan",
+    "General",
+    " 32-Jan"
+   ]
+  },
+  {
+   "text": " 1-2",
+   "answer": [
+    "String",
+    " 1-2",
+    " 1-2",
+    "General",
+    " 1-2"
+   ]
+  },
+  {
+   "text": " 1-2020",
+   "answer": [
+    "String",
+    " 1-2020",
+    " 1-2020",
+    "General",
+    " 1-2020"
+   ]
+  },
+  {
+   "text": " 12-2020",
+   "answer": [
+    "String",
+    " 12-2020",
+    " 12-2020",
+    "General",
+    " 12-2020"
+   ]
+  },
+  {
+   "text": " 2-Jan-2020 12:30",
+   "answer": [
+    "String",
+    " 2-Jan-2020 12:30",
+    " 2-Jan-2020 12:30",
+    "General",
+    " 2-Jan-2020 12:30"
+   ]
+  },
+  {
+   "text": " 2-jan",
+   "answer": [
+    "Date",
+    "1/2/2026",
+    "46024",
+    "d-mmm",
+    "2-Jan"
+   ]
+  },
+  {
+   "text": " 2-Sept",
+   "answer": [
+    "Date",
+    "9/2/2026",
+    "46267",
+    "d-mmm",
+    "2-Sep"
+   ]
+  },
+  {
+   "text": " 2/Jan/2020",
+   "answer": [
+    "String",
+    " 2/Jan/2020",
+    " 2/Jan/2020",
+    "General",
+    " 2/Jan/2020"
+   ]
+  },
+  {
+   "text": " 5May",
+   "answer": [
+    "Date",
+    "5/5/2026",
+    "46147",
+    "d-mmm",
+    "5-May"
+   ]
+  },
+  {
+   "text": " May5",
+   "answer": [
+    "String",
+    " May5",
+    " May5",
+    "General",
+    " May5"
+   ]
+  },
+  {
+   "text": " 2-Jan/2020",
+   "answer": [
+    "String",
+    " 2-Jan/2020",
+    " 2-Jan/2020",
+    "General",
+    " 2-Jan/2020"
+   ]
+  },
+  {
+   "text": " 1-Jan",
+   "answer": [
+    "Date",
+    "1/1/2026",
+    "46023",
+    "d-mmm",
+    "1-Jan"
+   ]
+  },
+  {
+   "text": " 01-Jan",
+   "answer": [
+    "Date",
+    "1/1/2026",
+    "46023",
+    "d-mmm",
+    "1-Jan"
+   ]
+  },
+  {
+   "text": " 2-Jan-2020 ",
+   "answer": [
+    "String",
+    " 2-Jan-2020 ",
+    " 2-Jan-2020 ",
+    "General",
+    " 2-Jan-2020 "
+   ]
+  },
+  {
+   "text": " 2-Jan, 2020",
+   "answer": [
+    "String",
+    " 2-Jan, 2020",
+    " 2-Jan, 2020",
+    "General",
+    " 2-Jan, 2020"
+   ]
+  },
+  {
+   "text": " 2-Jan-99",
+   "answer": [
+    "String",
+    " 2-Jan-99",
+    " 2-Jan-99",
+    "General",
+    " 2-Jan-99"
+   ]
+  },
+  {
+   "text": " 45-Jan",
+   "answer": [
+    "String",
+    " 45-Jan",
+    " 45-Jan",
+    "General",
+    " 45-Jan"
+   ]
+  },
+  {
+   "text": " 2-",
+   "answer": [
+    "String",
+    " 2-",
+    " 2-",
+    "General",
+    " 2-"
+   ]
+  },
+  {
+   "text": " -Jan",
+   "answer": [
+    "String",
+    " -Jan",
+    " -Jan",
+    "General",
+    " -Jan"
+   ]
+  },
+  {
+   "text": " 2-Jan-",
+   "answer": [
+    "String",
+    " 2-Jan-",
+    " 2-Jan-",
+    "General",
+    " 2-Jan-"
+   ]
+  },
+  {
+   "text": " 2-Jan 1:00",
+   "answer": [
+    "Date",
+    "12/26/2000 1:20:00 AM",
+    "36886.0555555556",
+    "m/d/yyyy h:mm",
+    "12/26/2000 1:20"
+   ]
+  },
+  {
+   "text": " 2-Jan 0:00",
+   "answer": [
+    "Date",
+    "12/26/1999 1:20:00 AM",
+    "36520.0555555556",
+    "m/d/yyyy h:mm",
+    "12/26/1999 1:20"
+   ]
+  },
+  {
+   "text": " 3-Jan 12:30",
+   "answer": [
+    "Double",
+    "40905.3055555556",
+    "40905.3055555556",
+    "General",
+    "40905.30556"
+   ]
+  },
+  {
+   "text": " 2-Feb 12:30",
+   "answer": [
+    "Double",
+    "40935.3055555556",
+    "40935.3055555556",
+    "General",
+    "40935.30556"
+   ]
+  },
+  {
+   "text": " 2-Jan 12:31",
+   "answer": [
+    "Double",
+    "40904.3472222222",
+    "40904.3472222222",
+    "General",
+    "40904.34722"
+   ]
+  },
+  {
+   "text": " 2-Jan 13:30",
+   "answer": [
+    "Double",
+    "41270.3055555556",
+    "41270.3055555556",
+    "General",
+    "41270.30556"
+   ]
+  },
+  {
+   "text": " 2 Jan 12:30",
+   "answer": [
+    "Double",
+    "40904.3055555556",
+    "40904.3055555556",
+    "General",
+    "40904.30556"
+   ]
+  },
+  {
+   "text": " 2Jan 12:30",
+   "answer": [
+    "Double",
+    "40904.3055555556",
+    "40904.3055555556",
+    "General",
+    "40904.30556"
+   ]
+  },
+  {
+   "text": " 2-Jan 12 PM",
+   "answer": [
+    "Double",
+    "178997872.847222",
+    "178997872.847222",
+    "General",
+    "178997872.8"
+   ]
+  },
+  {
+   "text": " 2-Jan 12:30 PM",
+   "answer": [
+    "String",
+    " 2-Jan 12:30 PM",
+    " 2-Jan 12:30 PM",
+    "d-mmm-yy",
+    " 2-Jan 12:30 PM"
+   ]
+  },
+  {
+   "text": " 2-Jan 12:30:45",
+   "answer": [
+    "Double",
+    "40911.1655092593",
+    "40911.1655092593",
+    "General",
+    "40911.16551"
+   ]
+  },
+  {
+   "text": " 5-May 12:30",
+   "answer": [
+    "Double",
+    "41028.3055555556",
+    "41028.3055555556",
+    "General",
+    "41028.30556"
+   ]
+  },
+  {
+   "text": " 2/Jan 12:30",
+   "answer": [
+    "Double",
+    "40904.3055555556",
+    "40904.3055555556",
+    "General",
+    "40904.30556"
+   ]
+  },
+  {
+   "text": " 2-Jan 1:2:3",
+   "answer": [
+    "Date",
+    "1/1/2001 11:16:20 PM",
+    "36892.9696759259",
+    "m/d/yyyy h:mm",
+    "1/1/2001 23:16"
+   ]
+  },
+  {
+   "text": " 2-Jan 0:30",
+   "answer": [
+    "Double",
+    "36521.3055555556",
+    "36521.3055555556",
+    "General",
+    "36521.30556"
+   ]
+  },
+  {
+   "text": " 2-Jan 0:0:1",
+   "answer": [
+    "Date",
+    "1/1/2000 9:14:20 PM",
+    "36526.8849537037",
+    "m/d/yyyy h:mm",
+    "1/1/2000 21:14"
+   ]
+  },
+  {
+   "text": " 2-Jan 1:00 AM",
+   "answer": [
+    "Double",
+    "3019509.04675926",
+    "3019509.04675926",
+    "General",
+    "3019509.047"
+   ]
+  },
+  {
+   "text": " 2-Jan 23:59",
+   "answer": [
+    "Double",
+    "44923.5138888889",
+    "44923.5138888889",
+    "General",
+    "44923.51389"
+   ]
+  },
+  {
+   "text": " 2-Jan 24:00",
+   "answer": [
+    "Date",
+    "12/26/2023 1:20:00 AM",
+    "45286.0555555556",
+    "m/d/yyyy h:mm",
+    "12/26/2023 1:20"
+   ]
+  },
+  {
+   "text": " 2-Jan 12:30:45.5",
+   "answer": [
+    "Double",
+    "40911.2813078704",
+    "40911.2813078704",
+    "mm:ss.0",
+    "45:05.0"
+   ]
+  },
+  {
+   "text": " 12:30 2-Jan",
+   "answer": [
+    "String",
+    " 12:30 2-Jan",
+    " 12:30 2-Jan",
+    "General",
+    " 12:30 2-Jan"
+   ]
+  },
+  {
+   "text": " 2-Jan  12:30",
+   "answer": [
+    "Double",
+    "40904.3055555556",
+    "40904.3055555556",
+    "General",
+    "40904.30556"
+   ]
+  },
+  {
+   "text": "  2-Jan 12:30",
+   "answer": [
+    "Double",
+    "40904.3055555556",
+    "40904.3055555556",
+    "General",
+    "40904.30556"
+   ]
+  },
+  {
+   "text": " 29-Feb",
+   "answer": [
+    "String",
+    " 29-Feb",
+    " 29-Feb",
+    "General",
+    " 29-Feb"
+   ]
+  },
+  {
+   "text": " 30-Feb",
+   "answer": [
+    "String",
+    " 30-Feb",
+    " 30-Feb",
+    "General",
+    " 30-Feb"
+   ]
+  },
+  {
+   "text": " 2 January",
+   "answer": [
+    "Date",
+    "1/2/2026",
+    "46024",
+    "d-mmm",
+    "2-Jan"
+   ]
+  },
+  {
+   "text": " 2-Jan 5",
+   "answer": [
+    "String",
+    " 2-Jan 5",
+    " 2-Jan 5",
+    "General",
+    " 2-Jan 5"
+   ]
+  },
+  {
+   "text": " 2-Jan abc",
+   "answer": [
+    "String",
+    " 2-Jan abc",
+    " 2-Jan abc",
+    "General",
+    " 2-Jan abc"
+   ]
+  },
+  {
+   "text": " 2 -  Jan",
+   "answer": [
+    "Date",
+    "1/2/2026",
+    "46024",
+    "d-mmm",
+    "2-Jan"
+   ]
+  },
+  {
+   "text": " 2-Jan  ",
+   "answer": [
+    "Date",
+    "1/2/2026",
+    "46024",
+    "d-mmm",
+    "2-Jan"
+   ]
+  },
+  {
+   "text": " 2 Jan ",
+   "answer": [
+    "Date",
+    "1/2/2026",
+    "46024",
+    "d-mmm",
+    "2-Jan"
+   ]
+  },
+  {
+   "text": " 28-Feb",
+   "answer": [
+    "Date",
+    "2/28/2026",
+    "46081",
+    "d-mmm",
+    "28-Feb"
+   ]
+  },
+  {
+   "text": " Jan 2 12:30",
+   "answer": [
+    "String",
+    " Jan 2 12:30",
+    " Jan 2 12:30",
+    "General",
+    " Jan 2 12:30"
+   ]
+  },
+  {
+   "text": " Jan 12:30",
+   "answer": [
+    "Double",
+    "46028.3055555556",
+    "46028.3055555556",
+    "General",
+    "46028.30556"
+   ]
+  },
+  {
+   "text": " 5 12:30",
+   "answer": [
+    "String",
+    " 5 12:30",
+    " 5 12:30",
+    "General",
+    " 5 12:30"
+   ]
+  },
+  {
+   "text": " 1/2 12:30",
+   "answer": [
+    "String",
+    " 1/2 12:30",
+    " 1/2 12:30",
+    "General",
+    " 1/2 12:30"
+   ]
+  },
+  {
+   "text": " 2-Jan-20 12:30",
+   "answer": [
+    "String",
+    " 2-Jan-20 12:30",
+    " 2-Jan-20 12:30",
+    "General",
+    " 2-Jan-20 12:30"
+   ]
+  },
+  {
+   "text": " 2-Jan 5:00",
+   "answer": [
+    "Date",
+    "12/26/2004 1:20:00 AM",
+    "38347.0555555556",
+    "m/d/yyyy h:mm",
+    "12/26/2004 1:20"
+   ]
+  },
+  {
+   "text": " 2-Jan 5 PM",
+   "answer": [
+    "Double",
+    "178995316.847222",
+    "178995316.847222",
+    "General",
+    "178995316.8"
+   ]
+  },
+  {
+   "text": " 2-Jan 12:30 5",
+   "answer": [
+    "Double",
+    "40911.2534722222",
+    "40911.2534722222",
+    "General",
+    "40911.25347"
+   ]
+  },
+  {
+   "text": " 2-Jan 1/2/2020",
+   "answer": [
+    "String",
+    " 2-Jan 1/2/2020",
+    " 2-Jan 1/2/2020",
+    "General",
+    " 2-Jan 1/2/2020"
+   ]
+  },
+  {
+   "text": " 2 12:30",
+   "answer": [
+    "String",
+    " 2 12:30",
+    " 2 12:30",
+    "General",
+    " 2 12:30"
+   ]
+  },
+  {
+   "text": " 12:30 5",
+   "answer": [
+    "String",
+    " 12:30 5",
+    " 12:30 5",
+    "General",
+    " 12:30 5"
+   ]
+  },
+  {
+   "text": " 2-Jan 12:30:45 PM",
+   "answer": [
+    "String",
+    " 2-Jan 12:30:45 PM",
+    " 2-Jan 12:30:45 PM",
+    "General",
+    " 2-Jan 12:30:45 PM"
+   ]
+  },
+  {
+   "text": " 2-Jan 30:00",
+   "answer": [
+    "Date",
+    "12/26/1929 1:20:00 AM",
+    "10953.0555555556",
+    "m/d/yyyy h:mm",
+    "12/26/1929 1:20"
+   ]
+  },
+  {
+   "text": " 2-Jan 99:30",
+   "answer": [
+    "Double",
+    "36156.3055555556",
+    "36156.3055555556",
+    "General",
+    "36156.30556"
+   ]
+  },
+  {
+   "text": " 2-Jan 1:1:1:1",
+   "answer": [
+    "String",
+    " 2-Jan 1:1:1:1",
+    " 2-Jan 1:1:1:1",
+    "General",
+    " 2-Jan 1:1:1:1"
+   ]
+  },
+  {
+   "text": " 2-Jan 5 6",
+   "answer": [
+    "String",
+    " 2-Jan 5 6",
+    " 2-Jan 5 6",
+    "General",
+    " 2-Jan 5 6"
+   ]
+  },
+  {
+   "text": " 2-Jan -5",
+   "answer": [
+    "String",
+    " 2-Jan -5",
+    " 2-Jan -5",
+    "General",
+    " 2-Jan -5"
+   ]
+  },
+  {
+   "text": " 2-Jan 12:30abc",
+   "answer": [
+    "String",
+    " 2-Jan 12:30abc",
+    " 2-Jan 12:30abc",
+    "General",
+    " 2-Jan 12:30abc"
+   ]
+  },
+  {
+   "text": " 2-Jan 10000:00",
+   "answer": [
+    "String",
+    " 2-Jan 10000:00",
+    " 2-Jan 10000:00",
+    "General",
+    " 2-Jan 10000:00"
+   ]
+  },
+  {
+   "text": "Jan/2",
+   "answer": [
+    "Date",
+    "1/2/2026",
+    "46024",
+    "d-mmm",
+    "2-Jan"
+   ]
+  },
+  {
+   "text": "Jan/ 2",
+   "answer": [
+    "Date",
+    "1/2/2026",
+    "46024",
+    "d-mmm",
+    "2-Jan"
+   ]
+  },
+  {
+   "text": "Jan /2",
+   "answer": [
+    "Date",
+    "1/2/2026",
+    "46024",
+    "d-mmm",
+    "2-Jan"
+   ]
+  },
+  {
+   "text": "Jan / 2",
+   "answer": [
+    "Date",
+    "1/2/2026",
+    "46024",
+    "d-mmm",
+    "2-Jan"
+   ]
+  },
+  {
+   "text": "Jan/2/2020",
+   "answer": [
+    "String",
+    "Jan/2/2020",
+    "Jan/2/2020",
+    "General",
+    "Jan/2/2020"
+   ]
+  },
+  {
+   "text": "Jan/2020",
+   "answer": [
+    "Date",
+    "1/1/2020",
+    "43831",
+    "mmm-yy",
+    "Jan-20"
+   ]
+  },
+  {
+   "text": "Jan/20",
+   "answer": [
+    "Date",
+    "1/20/2026",
+    "46042",
+    "d-mmm",
+    "20-Jan"
+   ]
+  },
+  {
+   "text": "2/Jan",
+   "answer": [
+    "Date",
+    "1/2/2026",
+    "46024",
+    "d-mmm",
+    "2-Jan"
+   ]
+  },
+  {
+   "text": "2/Jan/2020",
+   "answer": [
+    "Date",
+    "1/2/2020",
+    "43832",
+    "d-mmm-yy",
+    "2-Jan-20"
+   ]
+  },
+  {
+   "text": "2/Jan/20",
+   "answer": [
+    "Date",
+    "1/2/2020",
+    "43832",
+    "d-mmm-yy",
+    "2-Jan-20"
+   ]
+  },
+  {
+   "text": "Jan-2",
+   "answer": [
+    "Date",
+    "1/2/2026",
+    "46024",
+    "d-mmm",
+    "2-Jan"
+   ]
+  },
+  {
+   "text": "Jan-2-2020",
+   "answer": [
+    "String",
+    "Jan-2-2020",
+    "Jan-2-2020",
+    "General",
+    "Jan-2-2020"
+   ]
+  },
+  {
+   "text": "Jan-2-20",
+   "answer": [
+    "String",
+    "Jan-2-20",
+    "Jan-2-20",
+    "General",
+    "Jan-2-20"
+   ]
+  },
+  {
+   "text": "Jan-20",
+   "answer": [
+    "Date",
+    "1/20/2026",
+    "46042",
+    "d-mmm",
+    "20-Jan"
+   ]
+  },
+  {
+   "text": "2020/Jan/2",
+   "answer": [
+    "String",
+    "2020/Jan/2",
+    "2020/Jan/2",
+    "General",
+    "2020/Jan/2"
+   ]
+  },
+  {
+   "text": "2020-Jan-2",
+   "answer": [
+    "String",
+    "2020-Jan-2",
+    "2020-Jan-2",
+    "General",
+    "2020-Jan-2"
+   ]
+  },
+  {
+   "text": "2020 Jan 2",
+   "answer": [
+    "String",
+    "2020 Jan 2",
+    "2020 Jan 2",
+    "General",
+    "2020 Jan 2"
+   ]
+  },
+  {
+   "text": "Jan.2",
+   "answer": [
+    "String",
+    "Jan.2",
+    "Jan.2",
+    "General",
+    "Jan.2"
+   ]
+  },
+  {
+   "text": "2.Jan",
+   "answer": [
+    "String",
+    "2.Jan",
+    "2.Jan",
+    "General",
+    "2.Jan"
+   ]
+  },
+  {
+   "text": "Jan. 2",
+   "answer": [
+    "String",
+    "Jan. 2",
+    "Jan. 2",
+    "General",
+    "Jan. 2"
+   ]
+  },
+  {
+   "text": "Jan. 2, 2020",
+   "answer": [
+    "String",
+    "Jan. 2, 2020",
+    "Jan. 2, 2020",
+    "General",
+    "Jan. 2, 2020"
+   ]
+  },
+  {
+   "text": "Jan, 2",
+   "answer": [
+    "String",
+    "Jan, 2",
+    "Jan, 2",
+    "General",
+    "Jan, 2"
+   ]
+  },
+  {
+   "text": "Jan,2",
+   "answer": [
+    "String",
+    "Jan,2",
+    "Jan,2",
+    "General",
+    "Jan,2"
+   ]
+  },
+  {
+   "text": "Jan 2,2020",
+   "answer": [
+    "String",
+    "Jan 2,2020",
+    "Jan 2,2020",
+    "General",
+    "Jan 2,2020"
+   ]
+  },
+  {
+   "text": "Jan-02",
+   "answer": [
+    "Date",
+    "1/2/2026",
+    "46024",
+    "d-mmm",
+    "2-Jan"
+   ]
+  },
+  {
+   "text": "Jan/02/2020",
+   "answer": [
+    "String",
+    "Jan/02/2020",
+    "Jan/02/2020",
+    "General",
+    "Jan/02/2020"
+   ]
+  },
+  {
+   "text": "2-Jan 2020",
+   "answer": [
+    "Date",
+    "1/2/2020",
+    "43832",
+    "d-mmm-yy",
+    "2-Jan-20"
+   ]
+  },
+  {
+   "text": "Jan 2-2020",
+   "answer": [
+    "String",
+    "Jan 2-2020",
+    "Jan 2-2020",
+    "General",
+    "Jan 2-2020"
+   ]
+  },
+  {
+   "text": "Jan 2/2020",
+   "answer": [
+    "String",
+    "Jan 2/2020",
+    "Jan 2/2020",
+    "General",
+    "Jan 2/2020"
+   ]
+  },
+  {
+   "text": "Jan-2 2020",
+   "answer": [
+    "String",
+    "Jan-2 2020",
+    "Jan-2 2020",
+    "General",
+    "Jan-2 2020"
+   ]
+  },
+  {
+   "text": "2/Jan 2020",
+   "answer": [
+    "Date",
+    "1/2/2020",
+    "43832",
+    "d-mmm-yy",
+    "2-Jan-20"
+   ]
+  },
+  {
+   "text": "2 Jan-2020",
+   "answer": [
+    "Date",
+    "1/2/2020",
+    "43832",
+    "d-mmm-yy",
+    "2-Jan-20"
+   ]
+  },
+  {
+   "text": "2 Jan/2020",
+   "answer": [
+    "Date",
+    "1/2/2020",
+    "43832",
+    "d-mmm-yy",
+    "2-Jan-20"
+   ]
+  },
+  {
+   "text": "Jan 2 /2020",
+   "answer": [
+    "String",
+    "Jan 2 /2020",
+    "Jan 2 /2020",
+    "General",
+    "Jan 2 /2020"
+   ]
+  },
+  {
+   "text": "2 Jan, 2020",
+   "answer": [
+    "String",
+    "2 Jan, 2020",
+    "2 Jan, 2020",
+    "General",
+    "2 Jan, 2020"
+   ]
+  },
+  {
+   "text": "2, Jan 2020",
+   "answer": [
+    "String",
+    "2, Jan 2020",
+    "2, Jan 2020",
+    "General",
+    "2, Jan 2020"
+   ]
+  },
+  {
+   "text": "Jan 2nd",
+   "answer": [
+    "String",
+    "Jan 2nd",
+    "Jan 2nd",
+    "General",
+    "Jan 2nd"
+   ]
+  },
+  {
+   "text": "2nd Jan",
+   "answer": [
+    "String",
+    "2nd Jan",
+    "2nd Jan",
+    "General",
+    "2nd Jan"
+   ]
+  },
+  {
+   "text": "January-2",
+   "answer": [
+    "Date",
+    "1/2/2026",
+    "46024",
+    "d-mmm",
+    "2-Jan"
+   ]
+  },
+  {
+   "text": "Jan 2 20",
+   "answer": [
+    "String",
+    "Jan 2 20",
+    "Jan 2 20",
+    "General",
+    "Jan 2 20"
+   ]
+  },
+  {
+   "text": "Jan 02 2020",
+   "answer": [
+    "String",
+    "Jan 02 2020",
+    "Jan 02 2020",
+    "General",
+    "Jan 02 2020"
+   ]
+  },
+  {
+   "text": "2020 Jan",
+   "answer": [
+    "String",
+    "2020 Jan",
+    "2020 Jan",
+    "General",
+    "2020 Jan"
+   ]
+  },
+  {
+   "text": "2020-Jan",
+   "answer": [
+    "String",
+    "2020-Jan",
+    "2020-Jan",
+    "General",
+    "2020-Jan"
+   ]
+  },
+  {
+   "text": "2020/Jan",
+   "answer": [
+    "String",
+    "2020/Jan",
+    "2020/Jan",
+    "General",
+    "2020/Jan"
+   ]
+  },
+  {
+   "text": "Jan- 2",
+   "answer": [
+    "Date",
+    "1/2/2026",
+    "46024",
+    "d-mmm",
+    "2-Jan"
+   ]
+  },
+  {
+   "text": "Jan -2",
+   "answer": [
+    "Date",
+    "1/2/2026",
+    "46024",
+    "d-mmm",
+    "2-Jan"
+   ]
+  },
+  {
+   "text": "Jan - 2",
+   "answer": [
+    "Date",
+    "1/2/2026",
+    "46024",
+    "d-mmm",
+    "2-Jan"
+   ]
+  },
+  {
+   "text": "2 /Jan",
+   "answer": [
+    "Date",
+    "1/2/2026",
+    "46024",
+    "d-mmm",
+    "2-Jan"
+   ]
+  },
+  {
+   "text": "2/ Jan",
+   "answer": [
+    "Date",
+    "1/2/2026",
+    "46024",
+    "d-mmm",
+    "2-Jan"
+   ]
+  },
+  {
+   "text": "Jan/ 2020",
+   "answer": [
+    "Date",
+    "1/1/2020",
+    "43831",
+    "mmm-yy",
+    "Jan-20"
+   ]
+  },
+  {
+   "text": "Jan /2020",
+   "answer": [
+    "Date",
+    "1/1/2020",
+    "43831",
+    "mmm-yy",
+    "Jan-20"
+   ]
+  },
+  {
+   "text": "Jan-/2",
+   "answer": [
+    "String",
+    "Jan-/2",
+    "Jan-/2",
+    "General",
+    "Jan-/2"
+   ]
+  },
+  {
+   "text": "Jan//2",
+   "answer": [
+    "String",
+    "Jan//2",
+    "Jan//2",
+    "General",
+    "Jan//2"
+   ]
+  },
+  {
+   "text": "/Jan 2",
+   "answer": [
+    "String",
+    "/Jan 2",
+    "/Jan 2",
+    "General",
+    "/Jan 2"
+   ]
+  },
+  {
+   "text": "Jan 2/",
+   "answer": [
+    "String",
+    "Jan 2/",
+    "Jan 2/",
+    "General",
+    "Jan 2/"
+   ]
+  },
+  {
+   "text": "Jan-2-",
+   "answer": [
+    "String",
+    "Jan-2-",
+    "Jan-2-",
+    "General",
+    "Jan-2-"
+   ]
+  },
+  {
+   "text": "-Jan-2",
+   "answer": [
+    "String",
+    "-Jan-2",
+    "-Jan-2",
+    "General",
+    "-Jan-2"
+   ]
+  },
+  {
+   "text": "Jan 45",
+   "answer": [
+    "Date",
+    "1/1/1945",
+    "16438",
+    "mmm-yy",
+    "Jan-45"
+   ]
+  },
+  {
+   "text": "Jan-45",
+   "answer": [
+    "Date",
+    "1/1/1945",
+    "16438",
+    "mmm-yy",
+    "Jan-45"
+   ]
+  },
+  {
+   "text": "Jan/45",
+   "answer": [
+    "Date",
+    "1/1/1945",
+    "16438",
+    "mmm-yy",
+    "Jan-45"
+   ]
+  },
+  {
+   "text": "Jan 32",
+   "answer": [
+    "Date",
+    "1/1/1932",
+    "11689",
+    "mmm-yy",
+    "Jan-32"
+   ]
+  },
+  {
+   "text": "Feb 30",
+   "answer": [
+    "Date",
+    "2/1/1930",
+    "10990",
+    "mmm-yy",
+    "Feb-30"
+   ]
+  },
+  {
+   "text": "Feb 29",
+   "answer": [
+    "Date",
+    "2/1/2029",
+    "47150",
+    "mmm-yy",
+    "Feb-29"
+   ]
+  },
+  {
+   "text": "Feb-29",
+   "answer": [
+    "Date",
+    "2/1/2029",
+    "47150",
+    "mmm-yy",
+    "Feb-29"
+   ]
+  },
+  {
+   "text": "2/29",
+   "answer": [
+    "Date",
+    "2/1/2029",
+    "47150",
+    "mmm-yy",
+    "Feb-29"
+   ]
+  },
+  {
+   "text": "2-29",
+   "answer": [
+    "Date",
+    "2/1/2029",
+    "47150",
+    "mmm-yy",
+    "Feb-29"
+   ]
+  },
+  {
+   "text": "32-Jan",
+   "answer": [
+    "String",
+    "32-Jan",
+    "32-Jan",
+    "General",
+    "32-Jan"
+   ]
+  },
+  {
+   "text": "32 Jan",
+   "answer": [
+    "String",
+    "32 Jan",
+    "32 Jan",
+    "General",
+    "32 Jan"
+   ]
+  },
+  {
+   "text": "0-Jan",
+   "answer": [
+    "String",
+    "0-Jan",
+    "0-Jan",
+    "General",
+    "0-Jan"
+   ]
+  },
+  {
+   "text": "Jan 0",
+   "answer": [
+    "Date",
+    "1/1/2000",
+    "36526",
+    "mmm-yy",
+    "Jan-00"
+   ]
+  },
+  {
+   "text": "Jan-0",
+   "answer": [
+    "Date",
+    "1/1/2000",
+    "36526",
+    "mmm-yy",
+    "Jan-00"
+   ]
+  },
+  {
+   "text": "Jan 00",
+   "answer": [
+    "Date",
+    "1/1/2000",
+    "36526",
+    "mmm-yy",
+    "Jan-00"
+   ]
+  },
+  {
+   "text": "Jan 99",
+   "answer": [
+    "Date",
+    "1/1/1999",
+    "36161",
+    "mmm-yy",
+    "Jan-99"
+   ]
+  },
+  {
+   "text": "Jan 100",
+   "answer": [
+    "String",
+    "Jan 100",
+    "Jan 100",
+    "General",
+    "Jan 100"
+   ]
+  },
+  {
+   "text": "Jan 1899",
+   "answer": [
+    "String",
+    "Jan 1899",
+    "Jan 1899",
+    "General",
+    "Jan 1899"
+   ]
+  },
+  {
+   "text": "Jan 1900",
+   "answer": [
+    "Date",
+    "12/31/1899",
+    "1",
+    "mmm-yy",
+    "Jan-00"
+   ]
+  },
+  {
+   "text": "Jan 9999",
+   "answer": [
+    "Date",
+    "1/1/9999",
+    "2958101",
+    "mmm-yy",
+    "Jan-99"
+   ]
+  },
+  {
+   "text": "Jan 10000",
+   "answer": [
+    "String",
+    "Jan 10000",
+    "Jan 10000",
+    "General",
+    "Jan 10000"
+   ]
+  },
+  {
+   "text": "Jan 202",
+   "answer": [
+    "String",
+    "Jan 202",
+    "Jan 202",
+    "General",
+    "Jan 202"
+   ]
+  },
+  {
+   "text": "Jan/202",
+   "answer": [
+    "String",
+    "Jan/202",
+    "Jan/202",
+    "General",
+    "Jan/202"
+   ]
+  },
+  {
+   "text": "Jan 02020",
+   "answer": [
+    "String",
+    "Jan 02020",
+    "Jan 02020",
+    "General",
+    "Jan 02020"
+   ]
+  },
+  {
+   "text": "45-Jan",
+   "answer": [
+    "String",
+    "45-Jan",
+    "45-Jan",
+    "General",
+    "45-Jan"
+   ]
+  },
+  {
+   "text": "Jan 29",
+   "answer": [
+    "Date",
+    "1/29/2026",
+    "46051",
+    "d-mmm",
+    "29-Jan"
+   ]
+  },
+  {
+   "text": "Jan 30",
+   "answer": [
+    "Date",
+    "1/30/2026",
+    "46052",
+    "d-mmm",
+    "30-Jan"
+   ]
+  },
+  {
+   "text": "2/30",
+   "answer": [
+    "Date",
+    "2/1/1930",
+    "10990",
+    "mmm-yy",
+    "Feb-30"
+   ]
+  },
+  {
+   "text": "4/31",
+   "answer": [
+    "Date",
+    "4/1/1931",
+    "11414",
+    "mmm-yy",
+    "Apr-31"
+   ]
+  },
+  {
+   "text": "Apr 31",
+   "answer": [
+    "Date",
+    "4/1/1931",
+    "11414",
+    "mmm-yy",
+    "Apr-31"
+   ]
+  },
+  {
+   "text": "31-Apr",
+   "answer": [
+    "String",
+    "31-Apr",
+    "31-Apr",
+    "General",
+    "31-Apr"
+   ]
+  },
+  {
+   "text": "Jan-2, 2020",
+   "answer": [
+    "Date",
+    "1/2/2020",
+    "43832",
+    "d-mmm-yy",
+    "2-Jan-20"
+   ]
+  },
+  {
+   "text": "Jan/2, 2020",
+   "answer": [
+    "Date",
+    "1/2/2020",
+    "43832",
+    "d-mmm-yy",
+    "2-Jan-20"
+   ]
+  },
+  {
+   "text": "Jan - 2, 2020",
+   "answer": [
+    "Date",
+    "1/2/2020",
+    "43832",
+    "d-mmm-yy",
+    "2-Jan-20"
+   ]
+  },
+  {
+   "text": "January 2, 20",
+   "answer": [
+    "Date",
+    "1/2/2020",
+    "43832",
+    "d-mmm-yy",
+    "2-Jan-20"
+   ]
+  },
+  {
+   "text": "Jan 2, 20",
+   "answer": [
+    "Date",
+    "1/2/2020",
+    "43832",
+    "d-mmm-yy",
+    "2-Jan-20"
+   ]
+  },
+  {
+   "text": "Jan 2 , 2020",
+   "answer": [
+    "Date",
+    "1/2/2020",
+    "43832",
+    "d-mmm-yy",
+    "2-Jan-20"
+   ]
+  },
+  {
+   "text": "Jan 2 ,2020",
+   "answer": [
+    "String",
+    "Jan 2 ,2020",
+    "Jan 2 ,2020",
+    "General",
+    "Jan 2 ,2020"
+   ]
+  },
+  {
+   "text": "Jan2,2020",
+   "answer": [
+    "String",
+    "Jan2,2020",
+    "Jan2,2020",
+    "General",
+    "Jan2,2020"
+   ]
+  },
+  {
+   "text": "Jan-2,2020",
+   "answer": [
+    "String",
+    "Jan-2,2020",
+    "Jan-2,2020",
+    "General",
+    "Jan-2,2020"
+   ]
+  },
+  {
+   "text": "Jan 2, 99",
+   "answer": [
+    "Date",
+    "1/2/1999",
+    "36162",
+    "d-mmm-yy",
+    "2-Jan-99"
+   ]
+  },
+  {
+   "text": "Jan 2, 1899",
+   "answer": [
+    "String",
+    "Jan 2, 1899",
+    "Jan 2, 1899",
+    "General",
+    "Jan 2, 1899"
+   ]
+  },
+  {
+   "text": "Jan 2, 202",
+   "answer": [
+    "String",
+    "Jan 2, 202",
+    "Jan 2, 202",
+    "General",
+    "Jan 2, 202"
+   ]
+  },
+  {
+   "text": "Jan 2, 02020",
+   "answer": [
+    "String",
+    "Jan 2, 02020",
+    "Jan 2, 02020",
+    "General",
+    "Jan 2, 02020"
+   ]
+  },
+  {
+   "text": "Jan 45, 2020",
+   "answer": [
+    "String",
+    "Jan 45, 2020",
+    "Jan 45, 2020",
+    "General",
+    "Jan 45, 2020"
+   ]
+  },
+  {
+   "text": "Jan 2, 2020,",
+   "answer": [
+    "String",
+    "Jan 2, 2020,",
+    "Jan 2, 2020,",
+    "General",
+    "Jan 2, 2020,"
+   ]
+  },
+  {
+   "text": "Jan 2, 2020 ",
+   "answer": [
+    "Date",
+    "1/2/2020",
+    "43832",
+    "d-mmm-yy",
+    "2-Jan-20"
+   ]
+  },
+  {
+   "text": "Jan 2 2020,",
+   "answer": [
+    "String",
+    "Jan 2 2020,",
+    "Jan 2 2020,",
+    "General",
+    "Jan 2 2020,"
+   ]
+  },
+  {
+   "text": "2Jan2020",
+   "answer": [
+    "Date",
+    "1/2/2020",
+    "43832",
+    "d-mmm-yy",
+    "2-Jan-20"
+   ]
+  },
+  {
+   "text": "2-Jan/2020",
+   "answer": [
+    "Date",
+    "1/2/2020",
+    "43832",
+    "d-mmm-yy",
+    "2-Jan-20"
+   ]
+  },
+  {
+   "text": "2/Jan-2020",
+   "answer": [
+    "Date",
+    "1/2/2020",
+    "43832",
+    "d-mmm-yy",
+    "2-Jan-20"
+   ]
+  },
+  {
+   "text": "2 Jan 20",
+   "answer": [
+    "Date",
+    "1/2/2020",
+    "43832",
+    "d-mmm-yy",
+    "2-Jan-20"
+   ]
+  },
+  {
+   "text": "2 Jan 99",
+   "answer": [
+    "Date",
+    "1/2/1999",
+    "36162",
+    "d-mmm-yy",
+    "2-Jan-99"
+   ]
+  },
+  {
+   "text": "2-Jan-99",
+   "answer": [
+    "Date",
+    "1/2/1999",
+    "36162",
+    "d-mmm-yy",
+    "2-Jan-99"
+   ]
+  },
+  {
+   "text": "2-Jan-1899",
+   "answer": [
+    "String",
+    "2-Jan-1899",
+    "2-Jan-1899",
+    "General",
+    "2-Jan-1899"
+   ]
+  },
+  {
+   "text": "2-Jan-202",
+   "answer": [
+    "String",
+    "2-Jan-202",
+    "2-Jan-202",
+    "General",
+    "2-Jan-202"
+   ]
+  },
+  {
+   "text": "2 - Jan - 2020",
+   "answer": [
+    "Date",
+    "1/2/2020",
+    "43832",
+    "d-mmm-yy",
+    "2-Jan-20"
+   ]
+  },
+  {
+   "text": "2 / Jan / 2020",
+   "answer": [
+    "Date",
+    "1/2/2020",
+    "43832",
+    "d-mmm-yy",
+    "2-Jan-20"
+   ]
+  },
+  {
+   "text": "2-January-2020",
+   "answer": [
+    "Date",
+    "1/2/2020",
+    "43832",
+    "d-mmm-yy",
+    "2-Jan-20"
+   ]
+  },
+  {
+   "text": "32-Jan-2020",
+   "answer": [
+    "String",
+    "32-Jan-2020",
+    "32-Jan-2020",
+    "General",
+    "32-Jan-2020"
+   ]
+  },
+  {
+   "text": "2 Jan2020",
+   "answer": [
+    "Date",
+    "1/2/2020",
+    "43832",
+    "d-mmm-yy",
+    "2-Jan-20"
+   ]
+  },
+  {
+   "text": "2Jan 2020",
+   "answer": [
+    "Date",
+    "1/2/2020",
+    "43832",
+    "d-mmm-yy",
+    "2-Jan-20"
+   ]
+  },
+  {
+   "text": "2-Jan-02020",
+   "answer": [
+    "String",
+    "2-Jan-02020",
+    "2-Jan-02020",
+    "General",
+    "2-Jan-02020"
+   ]
+  },
+  {
+   "text": "2-Jan-0",
+   "answer": [
+    "Date",
+    "1/2/2000",
+    "36527",
+    "d-mmm-yy",
+    "2-Jan-00"
+   ]
+  },
+  {
+   "text": "2-Jan-00",
+   "answer": [
+    "Date",
+    "1/2/2000",
+    "36527",
+    "d-mmm-yy",
+    "2-Jan-00"
+   ]
+  },
+  {
+   "text": "2-Jan-2",
+   "answer": [
+    "Date",
+    "1/2/2002",
+    "37258",
+    "d-mmm-yy",
+    "2-Jan-02"
+   ]
+  },
+  {
+   "text": "29-Feb",
+   "answer": [
+    "String",
+    "29-Feb",
+    "29-Feb",
+    "General",
+    "29-Feb"
+   ]
+  },
+  {
+   "text": "29 Feb",
+   "answer": [
+    "String",
+    "29 Feb",
+    "29 Feb",
+    "General",
+    "29 Feb"
+   ]
+  },
+  {
+   "text": "30-Feb",
+   "answer": [
+    "String",
+    "30-Feb",
+    "30-Feb",
+    "General",
+    "30-Feb"
+   ]
+  },
+  {
+   "text": "29-Feb-2020",
+   "answer": [
+    "Date",
+    "2/29/2020",
+    "43890",
+    "d-mmm-yy",
+    "29-Feb-20"
+   ]
+  },
+  {
+   "text": "29-Feb-2021",
+   "answer": [
+    "String",
+    "29-Feb-2021",
+    "29-Feb-2021",
+    "General",
+    "29-Feb-2021"
+   ]
+  },
+  {
+   "text": "29-Feb-20",
+   "answer": [
+    "Date",
+    "2/29/2020",
+    "43890",
+    "d-mmm-yy",
+    "29-Feb-20"
+   ]
+  },
+  {
+   "text": "31-Jun",
+   "answer": [
+    "String",
+    "31-Jun",
+    "31-Jun",
+    "General",
+    "31-Jun"
+   ]
+  },
+  {
+   "text": "Feb 29, 2021",
+   "answer": [
+    "String",
+    "Feb 29, 2021",
+    "Feb 29, 2021",
+    "General",
+    "Feb 29, 2021"
+   ]
+  },
+  {
+   "text": "Feb 29, 2020",
+   "answer": [
+    "Date",
+    "2/29/2020",
+    "43890",
+    "d-mmm-yy",
+    "29-Feb-20"
+   ]
+  },
+  {
+   "text": "Jan 2, 2",
+   "answer": [
+    "Date",
+    "1/2/2002",
+    "37258",
+    "d-mmm-yy",
+    "2-Jan-02"
+   ]
+  },
+  {
+   "text": "Jan 2, 0",
+   "answer": [
+    "Date",
+    "1/2/2000",
+    "36527",
+    "d-mmm-yy",
+    "2-Jan-00"
+   ]
+  },
+  {
+   "text": "Jan 2 ,  2020",
+   "answer": [
+    "Date",
+    "1/2/2020",
+    "43832",
+    "d-mmm-yy",
+    "2-Jan-20"
+   ]
+  },
+  {
+   "text": "Jun 31",
+   "answer": [
+    "Date",
+    "6/1/1931",
+    "11475",
+    "mmm-yy",
+    "Jun-31"
+   ]
+  },
+  {
+   "text": "Feb 28",
+   "answer": [
+    "Date",
+    "2/28/2026",
+    "46081",
+    "d-mmm",
+    "28-Feb"
+   ]
+  },
+  {
+   "text": "29Feb",
+   "answer": [
+    "String",
+    "29Feb",
+    "29Feb",
+    "General",
+    "29Feb"
+   ]
+  },
+  {
+   "text": "Feb29",
+   "answer": [
+    "Date",
+    "2/1/2029",
+    "47150",
+    "mmm-yy",
+    "Feb-29"
+   ]
+  },
+  {
+   "text": "May2020 12:30",
+   "answer": [
+    "Date",
+    "5/1/2020 12:30:00 PM",
+    "43952.5208333333",
+    "m/d/yyyy h:mm",
+    "5/1/2020 12:30"
+   ]
+  },
+  {
+   "text": "Jan 2 12:30",
+   "answer": [
+    "Date",
+    "1/2/2026 12:30:00 PM",
+    "46024.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2026 12:30"
+   ]
+  },
+  {
+   "text": "Jan 2, 2020 12:30",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "2 Jan 2020 12:30",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "2-Jan 12:30",
+   "answer": [
+    "Date",
+    "1/2/2026 12:30:00 PM",
+    "46024.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2026 12:30"
+   ]
+  },
+  {
+   "text": "2-Jan-2020 12:30",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "Jan 2020 12:30",
+   "answer": [
+    "Date",
+    "1/1/2020 12:30:00 PM",
+    "43831.5208333333",
+    "m/d/yyyy h:mm",
+    "1/1/2020 12:30"
+   ]
+  },
+  {
+   "text": "Jan-2020 12:30",
+   "answer": [
+    "Date",
+    "1/1/2020 12:30:00 PM",
+    "43831.5208333333",
+    "m/d/yyyy h:mm",
+    "1/1/2020 12:30"
+   ]
+  },
+  {
+   "text": "January 2 12:30",
+   "answer": [
+    "Date",
+    "1/2/2026 12:30:00 PM",
+    "46024.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2026 12:30"
+   ]
+  },
+  {
+   "text": "Jan 2 2020 12:30",
+   "answer": [
+    "String",
+    "Jan 2 2020 12:30",
+    "Jan 2 2020 12:30",
+    "General",
+    "Jan 2 2020 12:30"
+   ]
+  },
+  {
+   "text": "5May2020 12:30",
+   "answer": [
+    "Date",
+    "5/5/2020 12:30:00 PM",
+    "43956.5208333333",
+    "m/d/yyyy h:mm",
+    "5/5/2020 12:30"
+   ]
+  },
+  {
+   "text": "May5 12:30",
+   "answer": [
+    "Date",
+    "5/5/2026 12:30:00 PM",
+    "46147.5208333333",
+    "m/d/yyyy h:mm",
+    "5/5/2026 12:30"
+   ]
+  },
+  {
+   "text": "May2020 12:30:45",
+   "answer": [
+    "Date",
+    "5/1/2020 12:30:45 PM",
+    "43952.5213541667",
+    "m/d/yyyy h:mm",
+    "5/1/2020 12:30"
+   ]
+  },
+  {
+   "text": "Jan 2 12 PM",
+   "answer": [
+    "Date",
+    "1/2/2026 12:00:00 PM",
+    "46024.5",
+    "m/d/yyyy h:mm",
+    "1/2/2026 12:00"
+   ]
+  },
+  {
+   "text": "Jan 2 12:30 PM",
+   "answer": [
+    "Date",
+    "1/2/2026 12:30:00 PM",
+    "46024.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2026 12:30"
+   ]
+  },
+  {
+   "text": "2-Jan-20 12:30",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "Jan 2, 2020 12:30:45.5",
+   "answer": [
+    "Double",
+    "43832.5213599537",
+    "43832.5213599537",
+    "mm:ss.0",
+    "30:45.5"
+   ]
+  },
+  {
+   "text": "1/2 12:30",
+   "answer": [
+    "Date",
+    "1/2/2026 12:30:00 PM",
+    "46024.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2026 12:30"
+   ]
+  },
+  {
+   "text": "12/2020 12:30",
+   "answer": [
+    "Date",
+    "12/1/2020 12:30:00 PM",
+    "44166.5208333333",
+    "m/d/yyyy h:mm",
+    "12/1/2020 12:30"
+   ]
+  },
+  {
+   "text": "1/2020 12:30",
+   "answer": [
+    "Date",
+    "1/1/2020 12:30:00 PM",
+    "43831.5208333333",
+    "m/d/yyyy h:mm",
+    "1/1/2020 12:30"
+   ]
+  },
+  {
+   "text": "1-2 12:30",
+   "answer": [
+    "Date",
+    "1/2/2026 12:30:00 PM",
+    "46024.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2026 12:30"
+   ]
+  },
+  {
+   "text": "1/2/2020 12 PM",
+   "answer": [
+    "Date",
+    "1/2/2020 12:00:00 PM",
+    "43832.5",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:00"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30:45.5",
+   "answer": [
+    "Double",
+    "43832.5213599537",
+    "43832.5213599537",
+    "mm:ss.0",
+    "30:45.5"
+   ]
+  },
+  {
+   "text": "1/2/2020 25:00",
+   "answer": [
+    "Double",
+    "43833.0416666667",
+    "43833.0416666667",
+    "General",
+    "43833.04167"
+   ]
+  },
+  {
+   "text": "1/2/2020 1:60",
+   "answer": [
+    "Double",
+    "43832.0833333333",
+    "43832.0833333333",
+    "General",
+    "43832.08333"
+   ]
+  },
+  {
+   "text": "1/2 25:00",
+   "answer": [
+    "Double",
+    "46025.0416666667",
+    "46025.0416666667",
+    "General",
+    "46025.04167"
+   ]
+  },
+  {
+   "text": "12:30 1/2/2020",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "12:30 Jan 2",
+   "answer": [
+    "Date",
+    "1/2/2026 12:30:00 PM",
+    "46024.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2026 12:30"
+   ]
+  },
+  {
+   "text": "12:30 PM 1/2/2020",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "12 PM 1/2/2020",
+   "answer": [
+    "Date",
+    "1/2/2020 12:00:00 PM",
+    "43832.5",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:00"
+   ]
+  },
+  {
+   "text": "Jan 2020 12 PM",
+   "answer": [
+    "Date",
+    "1/1/2020 12:00:00 PM",
+    "43831.5",
+    "m/d/yyyy h:mm",
+    "1/1/2020 12:00"
+   ]
+  },
+  {
+   "text": "May2020 25:00",
+   "answer": [
+    "Double",
+    "43953.0416666667",
+    "43953.0416666667",
+    "General",
+    "43953.04167"
+   ]
+  },
+  {
+   "text": "Jan 2 1:2:3",
+   "answer": [
+    "Date",
+    "1/2/2026 1:02:03 AM",
+    "46024.0430902778",
+    "m/d/yyyy h:mm",
+    "1/2/2026 1:02"
+   ]
+  },
+  {
+   "text": "2 Jan 12:30",
+   "answer": [
+    "Date",
+    "1/2/2026 12:30:00 PM",
+    "46024.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2026 12:30"
+   ]
+  },
+  {
+   "text": "12:30 1/2",
+   "answer": [
+    "Date",
+    "1/2/2026 12:30:00 PM",
+    "46024.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2026 12:30"
+   ]
+  },
+  {
+   "text": "12:30 12/2020",
+   "answer": [
+    "Date",
+    "12/1/2020 12:30:00 PM",
+    "44166.5208333333",
+    "m/d/yyyy h:mm",
+    "12/1/2020 12:30"
+   ]
+  },
+  {
+   "text": "12:30:45.5 1/2/2020",
+   "answer": [
+    "Double",
+    "43832.5213599537",
+    "43832.5213599537",
+    "mm:ss.0",
+    "30:45.5"
+   ]
+  },
+  {
+   "text": "25:00 1/2/2020",
+   "answer": [
+    "Double",
+    "43833.0416666667",
+    "43833.0416666667",
+    "General",
+    "43833.04167"
+   ]
+  },
+  {
+   "text": "12:30 2-Jan-2020",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 1/2/2020",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "12:30 12:30",
+   "answer": [
+    "String",
+    "12:30 12:30",
+    "12:30 12:30",
+    "General",
+    "12:30 12:30"
+   ]
+  },
+  {
+   "text": "1/2/2020 5",
+   "answer": [
+    "String",
+    "1/2/2020 5",
+    "1/2/2020 5",
+    "General",
+    "1/2/2020 5"
+   ]
+  },
+  {
+   "text": "1/2/2020 5 PM",
+   "answer": [
+    "Date",
+    "1/2/2020 5:00:00 PM",
+    "43832.7083333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 17:00"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 5",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "Jan 2 25:00",
+   "answer": [
+    "Double",
+    "46025.0416666667",
+    "46025.0416666667",
+    "General",
+    "46025.04167"
+   ]
+  },
+  {
+   "text": "Jan 2 12:30:45.5",
+   "answer": [
+    "Double",
+    "46024.5213599537",
+    "46024.5213599537",
+    "mm:ss.0",
+    "30:45.5"
+   ]
+  },
+  {
+   "text": "12:30 Jan 2, 2020",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "12:30 May2020",
+   "answer": [
+    "Date",
+    "5/1/2020 12:30:00 PM",
+    "43952.5208333333",
+    "m/d/yyyy h:mm",
+    "5/1/2020 12:30"
+   ]
+  },
+  {
+   "text": "1/2/2020 0:00",
+   "answer": [
+    "Date",
+    "1/2/2020",
+    "43832",
+    "m/d/yyyy h:mm",
+    "1/2/2020 0:00"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:00 AM",
+   "answer": [
+    "Date",
+    "1/2/2020",
+    "43832",
+    "m/d/yyyy h:mm",
+    "1/2/2020 0:00"
+   ]
+  },
+  {
+   "text": "2-Jan 12:30:45.5",
+   "answer": [
+    "Double",
+    "46024.5213599537",
+    "46024.5213599537",
+    "mm:ss.0",
+    "30:45.5"
+   ]
+  },
+  {
+   "text": "12:30 PM Jan 2",
+   "answer": [
+    "Date",
+    "1/2/2026 12:30:00 PM",
+    "46024.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2026 12:30"
+   ]
+  },
+  {
+   "text": "1/2/2020 13:30 PM",
+   "answer": [
+    "String",
+    "1/2/2020 13:30 PM",
+    "1/2/2020 13:30 PM",
+    "m/d/yyyy",
+    "1/2/2020 13:30 PM"
+   ]
+  },
+  {
+   "text": "Jan 2 13 PM",
+   "answer": [
+    "String",
+    "Jan 2 13 PM",
+    "Jan 2 13 PM",
+    "d-mmm",
+    "Jan 2 13 PM"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30am",
+   "answer": [
+    "String",
+    "1/2/2020 12:30am",
+    "1/2/2020 12:30am",
+    "General",
+    "1/2/2020 12:30am"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30:45 PM",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:45 PM",
+    "43832.5213541667",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "1/2 12:30:45",
+   "answer": [
+    "Date",
+    "1/2/2026 12:30:45 PM",
+    "46024.5213541667",
+    "m/d/yyyy h:mm",
+    "1/2/2026 12:30"
+   ]
+  },
+  {
+   "text": "12:30:45 1/2",
+   "answer": [
+    "Date",
+    "1/2/2026 12:30:45 PM",
+    "46024.5213541667",
+    "m/d/yyyy h:mm",
+    "1/2/2026 12:30"
+   ]
+  },
+  {
+   "text": "1/2/2020 12",
+   "answer": [
+    "String",
+    "1/2/2020 12",
+    "1/2/2020 12",
+    "General",
+    "1/2/2020 12"
+   ]
+  },
+  {
+   "text": "1/2/2020 1:60 PM",
+   "answer": [
+    "String",
+    "1/2/2020 1:60 PM",
+    "1/2/2020 1:60 PM",
+    "m/d/yyyy",
+    "1/2/2020 1:60 PM"
+   ]
+  },
+  {
+   "text": "1/2/2020 99:00",
+   "answer": [
+    "Double",
+    "43836.125",
+    "43836.125",
+    "General",
+    "43836.125"
+   ]
+  },
+  {
+   "text": "1/2/2020 9999:00",
+   "answer": [
+    "Double",
+    "44248.625",
+    "44248.625",
+    "General",
+    "44248.625"
+   ]
+  },
+  {
+   "text": "1/2/2020 0:60",
+   "answer": [
+    "Double",
+    "43832.0416666667",
+    "43832.0416666667",
+    "General",
+    "43832.04167"
+   ]
+  },
+  {
+   "text": "1/2/2020 0:0:60",
+   "answer": [
+    "Double",
+    "43832.0006944444",
+    "43832.0006944444",
+    "General",
+    "43832.00069"
+   ]
+  },
+  {
+   "text": "12/31/9999 23:59",
+   "answer": [
+    "Date",
+    "12/31/9999 11:59:00 PM",
+    "2958465.99930556",
+    "m/d/yyyy h:mm",
+    "12/31/9999 23:59"
+   ]
+  },
+  {
+   "text": "12/31/9999 24:00",
+   "answer": [
+    "Double",
+    "2958466",
+    "2958466",
+    "General",
+    "2958466"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30:45.25",
+   "answer": [
+    "Double",
+    "43832.5213570602",
+    "43832.5213570602",
+    "mm:ss.0",
+    "30:45.2"
+   ]
+  },
+  {
+   "text": "1/2/2020 1:2.5",
+   "answer": [
+    "Double",
+    "43832.0007233796",
+    "43832.0007233796",
+    "mm:ss.0",
+    "01:02.5"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30:45.5 PM",
+   "answer": [
+    "Double",
+    "43832.5213599537",
+    "43832.5213599537",
+    "mm:ss.0",
+    "30:45.5"
+   ]
+  },
+  {
+   "text": "12 PM Jan 2",
+   "answer": [
+    "Date",
+    "1/2/2026 12:00:00 PM",
+    "46024.5",
+    "m/d/yyyy h:mm",
+    "1/2/2026 12:00"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 PM ",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "1/0/2020 12:30",
+   "answer": [
+    "String",
+    "1/0/2020 12:30",
+    "1/0/2020 12:30",
+    "General",
+    "1/0/2020 12:30"
+   ]
+  },
+  {
+   "text": "1/2/2020  12:30  PM",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "12:30  1/2/2020",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30:45.5 ",
+   "answer": [
+    "Double",
+    "43832.5213599537",
+    "43832.5213599537",
+    "mm:ss.0",
+    "30:45.5"
+   ]
+  },
+  {
+   "text": "13:30 PM",
+   "answer": [
+    "String",
+    "13:30 PM",
+    "13:30 PM",
+    "General",
+    "13:30 PM"
+   ]
+  },
+  {
+   "text": "1:60 PM",
+   "answer": [
+    "String",
+    "1:60 PM",
+    "1:60 PM",
+    "General",
+    "1:60 PM"
+   ]
+  },
+  {
+   "text": "13 PM",
+   "answer": [
+    "String",
+    "13 PM",
+    "13 PM",
+    "General",
+    "13 PM"
+   ]
+  },
+  {
+   "text": "0:30 AM",
+   "answer": [
+    "Double",
+    "2.08333333333333E-02",
+    "2.08333333333333E-02",
+    "h:mm AM/PM",
+    "12:30 AM"
+   ]
+  },
+  {
+   "text": "13:30 AM",
+   "answer": [
+    "String",
+    "13:30 AM",
+    "13:30 AM",
+    "General",
+    "13:30 AM"
+   ]
+  },
+  {
+   "text": "12:60 AM",
+   "answer": [
+    "String",
+    "12:60 AM",
+    "12:60 AM",
+    "General",
+    "12:60 AM"
+   ]
+  },
+  {
+   "text": "0 PM",
+   "answer": [
+    "Double",
+    "0.5",
+    "0.5",
+    "h:mm AM/PM",
+    "12:00 PM"
+   ]
+  },
+  {
+   "text": "1/2/2020 25:00 PM",
+   "answer": [
+    "String",
+    "1/2/2020 25:00 PM",
+    "1/2/2020 25:00 PM",
+    "m/d/yyyy",
+    "1/2/2020 25:00 PM"
+   ]
+  },
+  {
+   "text": "Jan 2 1:60 PM",
+   "answer": [
+    "String",
+    "Jan 2 1:60 PM",
+    "Jan 2 1:60 PM",
+    "d-mmm",
+    "Jan 2 1:60 PM"
+   ]
+  },
+  {
+   "text": "12/2020 13 PM",
+   "answer": [
+    "String",
+    "12/2020 13 PM",
+    "12/2020 13 PM",
+    "mmm-yy",
+    "12/2020 13 PM"
+   ]
+  },
+  {
+   "text": "1/2/2020 13:30:45.5 PM",
+   "answer": [
+    "String",
+    "1/2/2020 13:30:45.5 PM",
+    "1/2/2020 13:30:45.5 PM",
+    "m/d/yyyy",
+    "1/2/2020 13:30:45.5 PM"
+   ]
+  },
+  {
+   "text": "13:30:45 PM",
+   "answer": [
+    "String",
+    "13:30:45 PM",
+    "13:30:45 PM",
+    "General",
+    "13:30:45 PM"
+   ]
+  },
+  {
+   "text": "1/2 13 PM",
+   "answer": [
+    "String",
+    "1/2 13 PM",
+    "1/2 13 PM",
+    "d-mmm",
+    "1/2 13 PM"
+   ]
+  },
+  {
+   "text": "13:30 PM 1/2/2020",
+   "answer": [
+    "String",
+    "13:30 PM 1/2/2020",
+    "13:30 PM 1/2/2020",
+    "m/d/yyyy",
+    "13:30 PM 1/2/2020"
+   ]
+  },
+  {
+   "text": "13 PM 1/2/2020",
+   "answer": [
+    "String",
+    "13 PM 1/2/2020",
+    "13 PM 1/2/2020",
+    "m/d/yyyy",
+    "13 PM 1/2/2020"
+   ]
+  },
+  {
+   "text": "1/2/2020 0 PM",
+   "answer": [
+    "Date",
+    "1/2/2020 12:00:00 PM",
+    "43832.5",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:00"
+   ]
+  },
+  {
+   "text": "Jan 2020 13 PM",
+   "answer": [
+    "String",
+    "Jan 2020 13 PM",
+    "Jan 2020 13 PM",
+    "mmm-yy",
+    "Jan 2020 13 PM"
+   ]
+  },
+  {
+   "text": "2-Jan 13:30 PM",
+   "answer": [
+    "String",
+    "2-Jan 13:30 PM",
+    "2-Jan 13:30 PM",
+    "d-mmm",
+    "2-Jan 13:30 PM"
+   ]
+  },
+  {
+   "text": "12:30 5",
+   "answer": [
+    "String",
+    "12:30 5",
+    "12:30 5",
+    "General",
+    "12:30 5"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 abc",
+   "answer": [
+    "String",
+    "1/2/2020 12:30 abc",
+    "1/2/2020 12:30 abc",
+    "General",
+    "1/2/2020 12:30 abc"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 5 6",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 1/3/2021",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "1/2 12:30 5",
+   "answer": [
+    "Date",
+    "1/2/2026 12:30:00 PM",
+    "46024.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2026 12:30"
+   ]
+  },
+  {
+   "text": "Jan 2 12:30 5",
+   "answer": [
+    "Date",
+    "1/2/2026 12:30:00 PM",
+    "46024.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2026 12:30"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30:45 5",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:45 PM",
+    "43832.5213541667",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 PM 5",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 99",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "12:30 1/2/2020 5",
+   "answer": [
+    "String",
+    "12:30 1/2/2020 5",
+    "12:30 1/2/2020 5",
+    "General",
+    "12:30 1/2/2020 5"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 Jan",
+   "answer": [
+    "String",
+    "1/2/2020 12:30 Jan",
+    "1/2/2020 12:30 Jan",
+    "General",
+    "1/2/2020 12:30 Jan"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 12:30",
+   "answer": [
+    "String",
+    "1/2/2020 12:30 12:30",
+    "1/2/2020 12:30 12:30",
+    "General",
+    "1/2/2020 12:30 12:30"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 -5",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 5%",
+   "answer": [
+    "String",
+    "1/2/2020 12:30 5%",
+    "1/2/2020 12:30 5%",
+    "General",
+    "1/2/2020 12:30 5%"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 PM PM",
+   "answer": [
+    "String",
+    "1/2/2020 12:30 PM PM",
+    "1/2/2020 12:30 PM PM",
+    "General",
+    "1/2/2020 12:30 PM PM"
+   ]
+  },
+  {
+   "text": "12:30 5 1/2/2020",
+   "answer": [
+    "String",
+    "12:30 5 1/2/2020",
+    "12:30 5 1/2/2020",
+    "General",
+    "12:30 5 1/2/2020"
+   ]
+  },
+  {
+   "text": "1/2/2020 5 12:30",
+   "answer": [
+    "String",
+    "1/2/2020 5 12:30",
+    "1/2/2020 5 12:30",
+    "General",
+    "1/2/2020 5 12:30"
+   ]
+  },
+  {
+   "text": "12:30 PM 5",
+   "answer": [
+    "String",
+    "12:30 PM 5",
+    "12:30 PM 5",
+    "General",
+    "12:30 PM 5"
+   ]
+  },
+  {
+   "text": "12:30 1/2/2020 12:30",
+   "answer": [
+    "String",
+    "12:30 1/2/2020 12:30",
+    "12:30 1/2/2020 12:30",
+    "General",
+    "12:30 1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 5:00",
+   "answer": [
+    "String",
+    "1/2/2020 12:30 5:00",
+    "1/2/2020 12:30 5:00",
+    "General",
+    "1/2/2020 12:30 5:00"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 1234567",
+   "answer": [
+    "String",
+    "1/2/2020 12:30 1234567",
+    "1/2/2020 12:30 1234567",
+    "General",
+    "1/2/2020 12:30 1234567"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 5.5",
+   "answer": [
+    "String",
+    "1/2/2020 12:30 5.5",
+    "1/2/2020 12:30 5.5",
+    "General",
+    "1/2/2020 12:30 5.5"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 2020",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "12:30 abc",
+   "answer": [
+    "String",
+    "12:30 abc",
+    "12:30 abc",
+    "General",
+    "12:30 abc"
+   ]
+  },
+  {
+   "text": "12:30 PM abc",
+   "answer": [
+    "String",
+    "12:30 PM abc",
+    "12:30 PM abc",
+    "General",
+    "12:30 PM abc"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 05",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "5 1/2/2020",
+   "answer": [
+    "String",
+    "5 1/2/2020",
+    "5 1/2/2020",
+    "General",
+    "5 1/2/2020"
+   ]
+  },
+  {
+   "text": "abc 1/2/2020",
+   "answer": [
+    "String",
+    "abc 1/2/2020",
+    "abc 1/2/2020",
+    "General",
+    "abc 1/2/2020"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30,",
+   "answer": [
+    "String",
+    "1/2/2020 12:30,",
+    "1/2/2020 12:30,",
+    "General",
+    "1/2/2020 12:30,"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 ,5",
+   "answer": [
+    "String",
+    "1/2/2020 12:30 ,5",
+    "1/2/2020 12:30 ,5",
+    "General",
+    "1/2/2020 12:30 ,5"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 12345",
+   "answer": [
+    "String",
+    "1/2/2020 12:30 12345",
+    "1/2/2020 12:30 12345",
+    "General",
+    "1/2/2020 12:30 12345"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 123456",
+   "answer": [
+    "String",
+    "1/2/2020 12:30 123456",
+    "1/2/2020 12:30 123456",
+    "General",
+    "1/2/2020 12:30 123456"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 123",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 /5",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 5/",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 5-",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 5-6-7-8",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 5 6 7 8 9",
+   "answer": [
+    "String",
+    "1/2/2020 12:30 5 6 7 8 9",
+    "1/2/2020 12:30 5 6 7 8 9",
+    "General",
+    "1/2/2020 12:30 5 6 7 8 9"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 +5",
+   "answer": [
+    "String",
+    "1/2/2020 12:30 +5",
+    "1/2/2020 12:30 +5",
+    "General",
+    "1/2/2020 12:30 +5"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 (5)",
+   "answer": [
+    "String",
+    "1/2/2020 12:30 (5)",
+    "1/2/2020 12:30 (5)",
+    "General",
+    "1/2/2020 12:30 (5)"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 $5",
+   "answer": [
+    "String",
+    "1/2/2020 12:30 $5",
+    "1/2/2020 12:30 $5",
+    "General",
+    "1/2/2020 12:30 $5"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 5 PM",
+   "answer": [
+    "String",
+    "1/2/2020 12:30 5 PM",
+    "1/2/2020 12:30 5 PM",
+    "General",
+    "1/2/2020 12:30 5 PM"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30:45 PM 5 6",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:45 PM",
+    "43832.5213541667",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "Jan 2, 2020 12:30 5",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "2-Jan-2020 12:30 5",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "May2020 12:30 5",
+   "answer": [
+    "Date",
+    "5/1/2020 12:30:00 PM",
+    "43952.5208333333",
+    "m/d/yyyy h:mm",
+    "5/1/2020 12:30"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30:45.5 5",
+   "answer": [
+    "Double",
+    "43832.5213599537",
+    "43832.5213599537",
+    "mm:ss.0",
+    "30:45.5"
+   ]
+  },
+  {
+   "text": "1/2/2020 25:00 5",
+   "answer": [
+    "Double",
+    "43833.0416666667",
+    "43833.0416666667",
+    "General",
+    "43833.04167"
+   ]
+  },
+  {
+   "text": "1/2/2020 12 PM 5",
+   "answer": [
+    "Date",
+    "1/2/2020 12:00:00 PM",
+    "43832.5",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:00"
+   ]
+  },
+  {
+   "text": "Jan 2 12 PM 5",
+   "answer": [
+    "Date",
+    "1/2/2026 12:00:00 PM",
+    "46024.5",
+    "m/d/yyyy h:mm",
+    "1/2/2026 12:00"
+   ]
+  },
+  {
+   "text": "1/2 12:30 1/2",
+   "answer": [
+    "Date",
+    "1/2/2026 12:30:00 PM",
+    "46024.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2026 12:30"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 0",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 00000",
+   "answer": [
+    "String",
+    "1/2/2020 12:30 00000",
+    "1/2/2020 12:30 00000",
+    "General",
+    "1/2/2020 12:30 00000"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 5  6",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 5 ",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 - 5",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 -",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 /",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 5//6",
+   "answer": [
+    "String",
+    "1/2/2020 12:30 5//6",
+    "1/2/2020 12:30 5//6",
+    "General",
+    "1/2/2020 12:30 5//6"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 --5",
+   "answer": [
+    "String",
+    "1/2/2020 12:30 --5",
+    "1/2/2020 12:30 --5",
+    "General",
+    "1/2/2020 12:30 --5"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 5 -6",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 1/2/2020 12:30",
+   "answer": [
+    "String",
+    "1/2/2020 12:30 1/2/2020 12:30",
+    "1/2/2020 12:30 1/2/2020 12:30",
+    "General",
+    "1/2/2020 12:30 1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 13 PM",
+   "answer": [
+    "String",
+    "1/2/2020 12:30 13 PM",
+    "1/2/2020 12:30 13 PM",
+    "General",
+    "1/2/2020 12:30 13 PM"
+   ]
+  },
+  {
+   "text": "1/2/2020 13:30 PM 5",
+   "answer": [
+    "String",
+    "1/2/2020 13:30 PM 5",
+    "1/2/2020 13:30 PM 5",
+    "m/d/yyyy",
+    "1/2/2020 13:30 PM 5"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 9999",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 10000",
+   "answer": [
+    "String",
+    "1/2/2020 12:30 10000",
+    "1/2/2020 12:30 10000",
+    "General",
+    "1/2/2020 12:30 10000"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 1-2-3-4-5-6",
+   "answer": [
+    "String",
+    "1/2/2020 12:30 1-2-3-4-5-6",
+    "1/2/2020 12:30 1-2-3-4-5-6",
+    "General",
+    "1/2/2020 12:30 1-2-3-4-5-6"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 5.",
+   "answer": [
+    "String",
+    "1/2/2020 12:30 5.",
+    "1/2/2020 12:30 5.",
+    "General",
+    "1/2/2020 12:30 5."
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 .5",
+   "answer": [
+    "Double",
+    "43832.0086863426",
+    "43832.0086863426",
+    "mm:ss.0",
+    "12:30.5"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 1 1/2",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "12/2020 12:30 5",
+   "answer": [
+    "Date",
+    "12/1/2020 12:30:00 PM",
+    "44166.5208333333",
+    "m/d/yyyy h:mm",
+    "12/1/2020 12:30"
+   ]
+  },
+  {
+   "text": "1/2/2020 1:60 5",
+   "answer": [
+    "Double",
+    "43832.0833333333",
+    "43832.0833333333",
+    "General",
+    "43832.08333"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 5-Jan",
+   "answer": [
+    "String",
+    "1/2/2020 12:30 5-Jan",
+    "1/2/2020 12:30 5-Jan",
+    "General",
+    "1/2/2020 12:30 5-Jan"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 5 abc",
+   "answer": [
+    "String",
+    "1/2/2020 12:30 5 abc",
+    "1/2/2020 12:30 5 abc",
+    "General",
+    "1/2/2020 12:30 5 abc"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 5 1234567",
+   "answer": [
+    "String",
+    "1/2/2020 12:30 5 1234567",
+    "1/2/2020 12:30 5 1234567",
+    "General",
+    "1/2/2020 12:30 5 1234567"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 1/2/2020 5",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 5 1/2",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 0005",
+   "answer": [
+    "String",
+    "1/2/2020 12:30 0005",
+    "1/2/2020 12:30 0005",
+    "General",
+    "1/2/2020 12:30 0005"
+   ]
+  },
+  {
+   "text": "1/2 12:30 5 6 7 8 9",
+   "answer": [
+    "Date",
+    "1/2/2026 12:30:00 PM",
+    "46024.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2026 12:30"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30:45 5 6 7 8",
+   "answer": [
+    "String",
+    "1/2/2020 12:30:45 5 6 7 8",
+    "1/2/2020 12:30:45 5 6 7 8",
+    "General",
+    "1/2/2020 12:30:45 5 6 7 8"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 0123",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 0999",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 1899",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 1900",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 1000",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 0020",
+   "answer": [
+    "String",
+    "1/2/2020 12:30 0020",
+    "1/2/2020 12:30 0020",
+    "General",
+    "1/2/2020 12:30 0020"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 020",
+   "answer": [
+    "String",
+    "1/2/2020 12:30 020",
+    "1/2/2020 12:30 020",
+    "General",
+    "1/2/2020 12:30 020"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 999",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 000",
+   "answer": [
+    "String",
+    "1/2/2020 12:30 000",
+    "1/2/2020 12:30 000",
+    "General",
+    "1/2/2020 12:30 000"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 00",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 5 0005",
+   "answer": [
+    "String",
+    "1/2/2020 12:30 5 0005",
+    "1/2/2020 12:30 5 0005",
+    "General",
+    "1/2/2020 12:30 5 0005"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 0005 5",
+   "answer": [
+    "String",
+    "1/2/2020 12:30 0005 5",
+    "1/2/2020 12:30 0005 5",
+    "General",
+    "1/2/2020 12:30 0005 5"
+   ]
+  },
+  {
+   "text": "1/2 12:30 0005",
+   "answer": [
+    "String",
+    "1/2 12:30 0005",
+    "1/2 12:30 0005",
+    "General",
+    "1/2 12:30 0005"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 5-0005",
+   "answer": [
+    "String",
+    "1/2/2020 12:30 5-0005",
+    "1/2/2020 12:30 5-0005",
+    "General",
+    "1/2/2020 12:30 5-0005"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 3000",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 12 31",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 99 99 99 99",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 13/45/2020",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 9999 9999",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 5 5 5 5",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "12:30 1/2/2020 -",
+   "answer": [
+    "String",
+    "12:30 1/2/2020 -",
+    "12:30 1/2/2020 -",
+    "General",
+    "12:30 1/2/2020 -"
+   ]
+  },
+  {
+   "text": "12:30 1/2/2020 /",
+   "answer": [
+    "String",
+    "12:30 1/2/2020 /",
+    "12:30 1/2/2020 /",
+    "General",
+    "12:30 1/2/2020 /"
+   ]
+  },
+  {
+   "text": "1/2 12:30 5 6 7 8",
+   "answer": [
+    "Date",
+    "1/2/2026 12:30:00 PM",
+    "46024.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2026 12:30"
+   ]
+  },
+  {
+   "text": "1/2 12:30 1 2 3 4 5 6 7",
+   "answer": [
+    "String",
+    "1/2 12:30 1 2 3 4 5 6 7",
+    "1/2 12:30 1 2 3 4 5 6 7",
+    "General",
+    "1/2 12:30 1 2 3 4 5 6 7"
+   ]
+  },
+  {
+   "text": "12/2020 12:30 5 6 7 8 9",
+   "answer": [
+    "Date",
+    "12/1/2020 12:30:00 PM",
+    "44166.5208333333",
+    "m/d/yyyy h:mm",
+    "12/1/2020 12:30"
+   ]
+  },
+  {
+   "text": "12/2020 12:30 5 6 7 8",
+   "answer": [
+    "Date",
+    "12/1/2020 12:30:00 PM",
+    "44166.5208333333",
+    "m/d/yyyy h:mm",
+    "12/1/2020 12:30"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 PM 5 6 7 8",
+   "answer": [
+    "String",
+    "1/2/2020 12:30 PM 5 6 7 8",
+    "1/2/2020 12:30 PM 5 6 7 8",
+    "General",
+    "1/2/2020 12:30 PM 5 6 7 8"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 PM 5 6 7",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30:45 5 6 7",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:45 PM",
+    "43832.5213541667",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 0999 5",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 1234",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 0100",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 0001",
+   "answer": [
+    "String",
+    "1/2/2020 12:30 0001",
+    "1/2/2020 12:30 0001",
+    "General",
+    "1/2/2020 12:30 0001"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 1/2/0005",
+   "answer": [
+    "String",
+    "1/2/2020 12:30 1/2/0005",
+    "1/2/2020 12:30 1/2/0005",
+    "General",
+    "1/2/2020 12:30 1/2/0005"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 1/2/1899",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 13/2",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30:45.5 5 6 7",
+   "answer": [
+    "String",
+    "1/2/2020 12:30:45.5 5 6 7",
+    "1/2/2020 12:30:45.5 5 6 7",
+    "General",
+    "1/2/2020 12:30:45.5 5 6 7"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30:45.5 5 6",
+   "answer": [
+    "Double",
+    "43832.5213599537",
+    "43832.5213599537",
+    "mm:ss.0",
+    "30:45.5"
+   ]
+  },
+  {
+   "text": "Jan 2, 2020 12:30 5 6 7 8 9",
+   "answer": [
+    "String",
+    "Jan 2, 2020 12:30 5 6 7 8 9",
+    "Jan 2, 2020 12:30 5 6 7 8 9",
+    "General",
+    "Jan 2, 2020 12:30 5 6 7 8 9"
+   ]
+  },
+  {
+   "text": "Jan 2, 2020 12:30 5 6 7 8",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "2-Jan-2020 12:30 5 6 7 8 9",
+   "answer": [
+    "String",
+    "2-Jan-2020 12:30 5 6 7 8 9",
+    "2-Jan-2020 12:30 5 6 7 8 9",
+    "General",
+    "2-Jan-2020 12:30 5 6 7 8 9"
+   ]
+  },
+  {
+   "text": "2-Jan-2020 12:30 5 6 7 8",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "Jan 2 12:30 5 6 7 8 9 1",
+   "answer": [
+    "String",
+    "Jan 2 12:30 5 6 7 8 9 1",
+    "Jan 2 12:30 5 6 7 8 9 1",
+    "General",
+    "Jan 2 12:30 5 6 7 8 9 1"
+   ]
+  },
+  {
+   "text": "Jan 2 12:30 5 6 7 8 9",
+   "answer": [
+    "Date",
+    "1/2/2026 12:30:00 PM",
+    "46024.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2026 12:30"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 .5 5 6 7",
+   "answer": [
+    "Double",
+    "43832.0086863426",
+    "43832.0086863426",
+    "mm:ss.0",
+    "12:30.5"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 .5 5 6",
+   "answer": [
+    "Double",
+    "43832.0086863426",
+    "43832.0086863426",
+    "mm:ss.0",
+    "12:30.5"
+   ]
+  },
+  {
+   "text": "May2020 12:30 5 6 7 8 9",
+   "answer": [
+    "Date",
+    "5/1/2020 12:30:00 PM",
+    "43952.5208333333",
+    "m/d/yyyy h:mm",
+    "5/1/2020 12:30"
+   ]
+  },
+  {
+   "text": "May2020 12:30 5 6 7 8 9 1",
+   "answer": [
+    "String",
+    "May2020 12:30 5 6 7 8 9 1",
+    "May2020 12:30 5 6 7 8 9 1",
+    "General",
+    "May2020 12:30 5 6 7 8 9 1"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 5 Jan",
+   "answer": [
+    "String",
+    "1/2/2020 12:30 5 Jan",
+    "1/2/2020 12:30 5 Jan",
+    "General",
+    "1/2/2020 12:30 5 Jan"
+   ]
+  },
+  {
+   "text": "Jan 2 12:30 Feb",
+   "answer": [
+    "String",
+    "Jan 2 12:30 Feb",
+    "Jan 2 12:30 Feb",
+    "General",
+    "Jan 2 12:30 Feb"
+   ]
+  },
+  {
+   "text": "12:30 Jan 2 5",
+   "answer": [
+    "String",
+    "12:30 Jan 2 5",
+    "12:30 Jan 2 5",
+    "General",
+    "12:30 Jan 2 5"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 Jan 5",
+   "answer": [
+    "String",
+    "1/2/2020 12:30 Jan 5",
+    "1/2/2020 12:30 Jan 5",
+    "General",
+    "1/2/2020 12:30 Jan 5"
+   ]
+  },
+  {
+   "text": "1/2/2020 10000:00",
+   "answer": [
+    "String",
+    "1/2/2020 10000:00",
+    "1/2/2020 10000:00",
+    "General",
+    "1/2/2020 10000:00"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30:45:5",
+   "answer": [
+    "String",
+    "1/2/2020 12:30:45:5",
+    "1/2/2020 12:30:45:5",
+    "General",
+    "1/2/2020 12:30:45:5"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:",
+   "answer": [
+    "Date",
+    "1/2/2020 12:00:00 PM",
+    "43832.5",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:00"
+   ]
+  },
+  {
+   "text": "1/2/2020 :30",
+   "answer": [
+    "String",
+    "1/2/2020 :30",
+    "1/2/2020 :30",
+    "General",
+    "1/2/2020 :30"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30:",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "1/2/2020 12::30",
+   "answer": [
+    "String",
+    "1/2/2020 12::30",
+    "1/2/2020 12::30",
+    "General",
+    "1/2/2020 12::30"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 P",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 A",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 AM",
+    "43832.0208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 0:30"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 AMPM",
+   "answer": [
+    "String",
+    "1/2/2020 12:30 AMPM",
+    "1/2/2020 12:30 AMPM",
+    "General",
+    "1/2/2020 12:30 AMPM"
+   ]
+  },
+  {
+   "text": "1/2/2020 12.30",
+   "answer": [
+    "String",
+    "1/2/2020 12.30",
+    "1/2/2020 12.30",
+    "General",
+    "1/2/2020 12.30"
+   ]
+  },
+  {
+   "text": "1/2/2020 13 AM",
+   "answer": [
+    "String",
+    "1/2/2020 13 AM",
+    "1/2/2020 13 AM",
+    "m/d/yyyy",
+    "1/2/2020 13 AM"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 pm",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "12:",
+   "answer": [
+    "Double",
+    "0.5",
+    "0.5",
+    "h:mm",
+    "12:00"
+   ]
+  },
+  {
+   "text": "12:30:",
+   "answer": [
+    "Double",
+    "0.520833333333333",
+    "0.520833333333333",
+    "h:mm",
+    "12:30"
+   ]
+  },
+  {
+   "text": "1:2:",
+   "answer": [
+    "Double",
+    "4.30555555555556E-02",
+    "4.30555555555556E-02",
+    "h:mm",
+    "1:02"
+   ]
+  },
+  {
+   "text": "12: PM",
+   "answer": [
+    "String",
+    "12: PM",
+    "12: PM",
+    "General",
+    "12: PM"
+   ]
+  },
+  {
+   "text": "12:30 .5",
+   "answer": [
+    "Double",
+    "8.68634259259259E-03",
+    "8.68634259259259E-03",
+    "mm:ss.0",
+    "12:30.5"
+   ]
+  },
+  {
+   "text": "12:30:45 .5",
+   "answer": [
+    "Double",
+    "0.521359953703704",
+    "0.521359953703704",
+    "mm:ss.0",
+    "30:45.5"
+   ]
+  },
+  {
+   "text": "12:30 . 5",
+   "answer": [
+    "Double",
+    "8.68634259259259E-03",
+    "8.68634259259259E-03",
+    "mm:ss.0",
+    "12:30.5"
+   ]
+  },
+  {
+   "text": "12:30.5 PM",
+   "answer": [
+    "Double",
+    "0.508686342592593",
+    "0.508686342592593",
+    "mm:ss.0",
+    "12:30.5"
+   ]
+  },
+  {
+   "text": "12 :30",
+   "answer": [
+    "Double",
+    "0.520833333333333",
+    "0.520833333333333",
+    "h:mm",
+    "12:30"
+   ]
+  },
+  {
+   "text": "12: 30",
+   "answer": [
+    "Double",
+    "0.520833333333333",
+    "0.520833333333333",
+    "h:mm",
+    "12:30"
+   ]
+  },
+  {
+   "text": "12 : 30",
+   "answer": [
+    "Double",
+    "0.520833333333333",
+    "0.520833333333333",
+    "h:mm",
+    "12:30"
+   ]
+  },
+  {
+   "text": "12:30 :45",
+   "answer": [
+    "Double",
+    "0.521354166666667",
+    "0.521354166666667",
+    "h:mm:ss",
+    "12:30:45"
+   ]
+  },
+  {
+   "text": "12:30: 45",
+   "answer": [
+    "Double",
+    "0.521354166666667",
+    "0.521354166666667",
+    "h:mm:ss",
+    "12:30:45"
+   ]
+  },
+  {
+   "text": "12:30 45",
+   "answer": [
+    "String",
+    "12:30 45",
+    "12:30 45",
+    "General",
+    "12:30 45"
+   ]
+  },
+  {
+   "text": "0:",
+   "answer": [
+    "Double",
+    "0",
+    "0",
+    "h:mm",
+    "0:00"
+   ]
+  },
+  {
+   "text": "25:",
+   "answer": [
+    "Double",
+    "1.04166666666667",
+    "1.04166666666667",
+    "[h]:mm:ss",
+    "25:00:00"
+   ]
+  },
+  {
+   "text": "12:PM",
+   "answer": [
+    "String",
+    "12:PM",
+    "12:PM",
+    "General",
+    "12:PM"
+   ]
+  },
+  {
+   "text": "12:30:PM",
+   "answer": [
+    "String",
+    "12:30:PM",
+    "12:30:PM",
+    "General",
+    "12:30:PM"
+   ]
+  },
+  {
+   "text": "12:30.",
+   "answer": [
+    "Double",
+    "0.520833333333333",
+    "0.520833333333333",
+    "h:mm",
+    "12:30"
+   ]
+  },
+  {
+   "text": "12:30.5.",
+   "answer": [
+    "String",
+    "12:30.5.",
+    "12:30.5.",
+    "General",
+    "12:30.5."
+   ]
+  },
+  {
+   "text": ":30",
+   "answer": [
+    "String",
+    ":30",
+    ":30",
+    "General",
+    ":30"
+   ]
+  },
+  {
+   "text": "12:30 .",
+   "answer": [
+    "Double",
+    "0.520833333333333",
+    "0.520833333333333",
+    "h:mm",
+    "12:30"
+   ]
+  },
+  {
+   "text": "12:30 .5 PM",
+   "answer": [
+    "Double",
+    "0.508686342592593",
+    "0.508686342592593",
+    "mm:ss.0",
+    "12:30.5"
+   ]
+  },
+  {
+   "text": "12:30 PM .5",
+   "answer": [
+    "Double",
+    "49710.7902256944",
+    "49710.7902256944",
+    "mm:ss.0",
+    "57:55.5"
+   ]
+  },
+  {
+   "text": "99:",
+   "answer": [
+    "Double",
+    "4.125",
+    "4.125",
+    "[h]:mm:ss",
+    "99:00:00"
+   ]
+  },
+  {
+   "text": "12:30 .50",
+   "answer": [
+    "Double",
+    "8.68634259259259E-03",
+    "8.68634259259259E-03",
+    "mm:ss.0",
+    "12:30.5"
+   ]
+  },
+  {
+   "text": "12:30 .123456",
+   "answer": [
+    "Double",
+    "8.68197916666667E-03",
+    "8.68197916666667E-03",
+    "mm:ss.0",
+    "12:30.1"
+   ]
+  },
+  {
+   "text": "1/2/2020 12: PM",
+   "answer": [
+    "String",
+    "1/2/2020 12: PM",
+    "1/2/2020 12: PM",
+    "General",
+    "1/2/2020 12: PM"
+   ]
+  },
+  {
+   "text": "1/2/2020 12 :30",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "1/2/2020 12: 30",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 .5 5",
+   "answer": [
+    "Double",
+    "43832.0086863426",
+    "43832.0086863426",
+    "mm:ss.0",
+    "12:30.5"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 . 5",
+   "answer": [
+    "Double",
+    "43832.0086863426",
+    "43832.0086863426",
+    "mm:ss.0",
+    "12:30.5"
+   ]
+  },
+  {
+   "text": "12: 1/2/2020",
+   "answer": [
+    "Date",
+    "2/1/2020 12:01:00 PM",
+    "43862.5006944444",
+    "m/d/yyyy h:mm",
+    "2/1/2020 12:01"
+   ]
+  },
+  {
+   "text": "12:30 .5 1/2/2020",
+   "answer": [
+    "Double",
+    "43832.0086863426",
+    "43832.0086863426",
+    "mm:ss.0",
+    "12:30.5"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30:45 .5",
+   "answer": [
+    "Double",
+    "43832.5213599537",
+    "43832.5213599537",
+    "mm:ss.0",
+    "30:45.5"
+   ]
+  },
+  {
+   "text": "1/2/2020 25:",
+   "answer": [
+    "Double",
+    "43833.0416666667",
+    "43833.0416666667",
+    "General",
+    "43833.04167"
+   ]
+  },
+  {
+   "text": "12:  30",
+   "answer": [
+    "Double",
+    "0.520833333333333",
+    "0.520833333333333",
+    "h:mm",
+    "12:30"
+   ]
+  },
+  {
+   "text": "12:30:45.5.5",
+   "answer": [
+    "String",
+    "12:30:45.5.5",
+    "12:30:45.5.5",
+    "General",
+    "12:30:45.5.5"
+   ]
+  },
+  {
+   "text": "1/2/2020 12: 5",
+   "answer": [
+    "Date",
+    "1/2/2020 12:05:00 PM",
+    "43832.5034722222",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:05"
+   ]
+  },
+  {
+   "text": "12: 5 1/2/2020",
+   "answer": [
+    "Date",
+    "1/2/2020 12:05:00 PM",
+    "43832.5034722222",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:05"
+   ]
+  },
+  {
+   "text": "12:30: 45 1/2/2020",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:45 PM",
+    "43832.5213541667",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "12: 1/2",
+   "answer": [
+    "String",
+    "12: 1/2",
+    "12: 1/2",
+    "General",
+    "12: 1/2"
+   ]
+  },
+  {
+   "text": "12: 30 1/2/2020",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "1/2/2020 12: 1/2",
+   "answer": [
+    "Date",
+    "1/2/2020 12:01:00 PM",
+    "43832.5006944444",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:01"
+   ]
+  },
+  {
+   "text": "12: 12/2020",
+   "answer": [
+    "String",
+    "12: 12/2020",
+    "12: 12/2020",
+    "General",
+    "12: 12/2020"
+   ]
+  },
+  {
+   "text": "12: Jan 2",
+   "answer": [
+    "String",
+    "12: Jan 2",
+    "12: Jan 2",
+    "General",
+    "12: Jan 2"
+   ]
+  },
+  {
+   "text": "12:30: 1/2/2020",
+   "answer": [
+    "Date",
+    "2/1/2020 12:30:01 PM",
+    "43862.5208449074",
+    "m/d/yyyy h:mm",
+    "2/1/2020 12:30"
+   ]
+  },
+  {
+   "text": "12:30: 1/2",
+   "answer": [
+    "String",
+    "12:30: 1/2",
+    "12:30: 1/2",
+    "General",
+    "12:30: 1/2"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30: 5",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:05 PM",
+    "43832.5208912037",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "12:30 /1/2/2020",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "12:30 -1/2/2020",
+   "answer": [
+    "Date",
+    "1/2/2020 12:30:00 PM",
+    "43832.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "12:30 /2/2020",
+   "answer": [
+    "Date",
+    "2/1/2020 12:30:00 PM",
+    "43862.5208333333",
+    "m/d/yyyy h:mm",
+    "2/1/2020 12:30"
+   ]
+  },
+  {
+   "text": "/1/2/2020 12:30",
+   "answer": [
+    "String",
+    "/1/2/2020 12:30",
+    "/1/2/2020 12:30",
+    "General",
+    "/1/2/2020 12:30"
+   ]
+  },
+  {
+   "text": "12:30 1/2/2020 PM",
+   "answer": [
+    "String",
+    "12:30 1/2/2020 PM",
+    "12:30 1/2/2020 PM",
+    "General",
+    "12:30 1/2/2020 PM"
+   ]
+  },
+  {
+   "text": "12:30 /Jan 2",
+   "answer": [
+    "Date",
+    "1/2/2026 12:30:00 PM",
+    "46024.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2026 12:30"
+   ]
+  },
+  {
+   "text": "12:30 -2-Jan",
+   "answer": [
+    "Date",
+    "1/2/2026 12:30:00 PM",
+    "46024.5208333333",
+    "m/d/yyyy h:mm",
+    "1/2/2026 12:30"
+   ]
+  },
+  {
+   "text": "12:30 AM .5",
+   "answer": [
+    "Double",
+    "49710.7902141204",
+    "49710.7902141204",
+    "mm:ss.0",
+    "57:54.5"
+   ]
+  },
+  {
+   "text": "1/2/2020 12:30 PM .5",
+   "answer": [
+    "Double",
+    "93542.7902256945",
+    "93542.7902256945",
+    "mm:ss.0",
+    "57:55.5"
+   ]
+  },
+  {
+   "text": "12 PM .5",
+   "answer": [
+    "Double",
+    "49710.2777256944",
+    "49710.2777256944",
+    "mm:ss.0",
+    "39:55.5"
+   ]
+  },
+  {
+   "text": "12:30:45 PM .5",
+   "answer": [
+    "String",
+    "12:30:45 PM .5",
+    "12:30:45 PM .5",
+    "General",
+    "12:30:45 PM .5"
+   ]
+  },
+  {
+   "text": "10 am. Meeting",
+   "answer": [
+    "String",
+    "10 am. Meeting",
+    "10 am. Meeting",
+    "General",
+    "10 am. Meeting"
+   ]
+  },
+  {
+   "text": "12.5 PM",
+   "answer": [
+    "String",
+    "12.5 PM",
+    "12.5 PM",
+    "General",
+    "12.5 PM"
+   ]
+  },
+  {
+   "text": "12 .5 PM",
+   "answer": [
+    "String",
+    "12 .5 PM",
+    "12 .5 PM",
+    "General",
+    "12 .5 PM"
+   ]
+  },
+  {
+   "text": " Meeting on Jan 2 at 10:30",
+   "answer": [
+    "String",
+    " Meeting on Jan 2 at 10:30",
+    " Meeting on Jan 2 at 10:30",
+    "General",
+    " Meeting on Jan 2 at 10:30"
+   ]
+  },
+  {
+   "text": " (Jan 2 12:30)",
+   "answer": [
+    "String",
+    " (Jan 2 12:30)",
+    " (Jan 2 12:30)",
+    "General",
+    " (Jan 2 12:30)"
+   ]
+  },
+  {
+   "text": "5 PM .5 note",
+   "answer": [
+    "String",
+    "5 PM .5 note",
+    "5 PM .5 note",
+    "General",
+    "5 PM .5 note"
+   ]
+  },
+  {
+   "text": "12 PM .5 abc",
+   "answer": [
+    "String",
+    "12 PM .5 abc",
+    "12 PM .5 abc",
+    "General",
+    "12 PM .5 abc"
+   ]
+  },
+  {
+   "text": "10 am.",
+   "answer": [
+    "Double",
+    "0.416666666666667",
+    "0.416666666666667",
+    "h:mm AM/PM",
+    "10:00 AM"
+   ]
+  },
+  {
+   "text": "10 am .",
+   "answer": [
+    "Double",
+    "0.416666666666667",
+    "0.416666666666667",
+    "h:mm AM/PM",
+    "10:00 AM"
+   ]
+  },
+  {
+   "text": "12:30 PM.",
+   "answer": [
+    "Double",
+    "0.520833333333333",
+    "0.520833333333333",
+    "h:mm AM/PM",
+    "12:30 PM"
+   ]
+  },
+  {
+   "text": "Jan 2 at 12:30",
+   "answer": [
+    "String",
+    "Jan 2 at 12:30",
+    "Jan 2 at 12:30",
+    "General",
+    "Jan 2 at 12:30"
+   ]
+  },
+  {
+   "text": "12:30 on Jan 2",
+   "answer": [
+    "String",
+    "12:30 on Jan 2",
+    "12:30 on Jan 2",
+    "General",
+    "12:30 on Jan 2"
+   ]
+  },
+  {
+   "text": " Jan 2 at 10:30",
+   "answer": [
+    "String",
+    " Jan 2 at 10:30",
+    " Jan 2 at 10:30",
+    "General",
+    " Jan 2 at 10:30"
+   ]
+  },
+  {
+   "text": " on Jan 2 12:30",
+   "answer": [
+    "String",
+    " on Jan 2 12:30",
+    " on Jan 2 12:30",
+    "General",
+    " on Jan 2 12:30"
+   ]
+  },
+  {
+   "text": "12.5 AM",
+   "answer": [
+    "String",
+    "12.5 AM",
+    "12.5 AM",
+    "General",
+    "12.5 AM"
+   ]
+  },
+  {
+   "text": "1/2/2020 12.5 PM",
+   "answer": [
+    "String",
+    "1/2/2020 12.5 PM",
+    "1/2/2020 12.5 PM",
+    "General",
+    "1/2/2020 12.5 PM"
+   ]
+  },
+  {
+   "text": "5.5 PM",
+   "answer": [
+    "String",
+    "5.5 PM",
+    "5.5 PM",
+    "General",
+    "5.5 PM"
+   ]
+  },
+  {
+   "text": "12:30.5",
+   "answer": [
+    "Double",
+    "8.68634259259259E-03",
+    "8.68634259259259E-03",
+    "mm:ss.0",
+    "12:30.5"
+   ]
+  },
+  {
+   "text": "12 PM.5",
+   "answer": [
+    "Double",
+    "49710.2777256944",
+    "49710.2777256944",
+    "mm:ss.0",
+    "39:55.5"
+   ]
+  },
+  {
+   "text": "12 PM. 5",
+   "answer": [
+    "Double",
+    "49710.2777256944",
+    "49710.2777256944",
+    "mm:ss.0",
+    "39:55.5"
+   ]
+  },
+  {
+   "text": "12 PM .",
+   "answer": [
+    "Double",
+    "0.5",
+    "0.5",
+    "h:mm AM/PM",
+    "12:00 PM"
+   ]
+  },
+  {
+   "text": " 2-Jan 10 am.",
+   "answer": [
+    "Double",
+    "178997142.805556",
+    "178997142.805556",
+    "General",
+    "178997142.8"
+   ]
+  },
+  {
+   "text": " (2-Jan 12:30)",
+   "answer": [
+    "String",
+    " (2-Jan 12:30)",
+    " (2-Jan 12:30)",
+    "General",
+    " (2-Jan 12:30)"
+   ]
+  },
+  {
+   "text": " 2-Jan.12:30",
+   "answer": [
+    "String",
+    " 2-Jan.12:30",
+    " 2-Jan.12:30",
+    "General",
+    " 2-Jan.12:30"
+   ]
+  },
+  {
+   "text": " -2-Jan 12:30",
+   "answer": [
+    "Double",
+    "40904.3055555556",
+    "40904.3055555556",
+    "General",
+    "40904.30556"
+   ]
+  },
+  {
+   "text": " 2-Jan 12:30 x",
+   "answer": [
+    "String",
+    " 2-Jan 12:30 x",
+    " 2-Jan 12:30 x",
+    "General",
+    " 2-Jan 12:30 x"
+   ]
+  },
+  {
+   "text": " x 2-Jan 12:30",
+   "answer": [
+    "String",
+    " x 2-Jan 12:30",
+    " x 2-Jan 12:30",
+    "General",
+    " x 2-Jan 12:30"
+   ]
+  },
+  {
+   "text": "32,Jan",
+   "answer": [
+    "String",
+    "32,Jan",
+    "32,Jan",
+    "General",
+    "32,Jan"
+   ]
+  },
+  {
+   "text": "3:4 P",
+   "answer": [
+    "Double",
+    "0.627777777777778",
+    "0.627777777777778",
+    "h:mm AM/PM",
+    "3:04 PM"
+   ]
+  },
+  {
+   "text": "10202",
+   "answer": [
+    "Double",
+    "10202",
+    "10202",
+    "General",
+    "10202"
+   ]
+  },
+  {
+   "text": "0:00",
+   "answer": [
+    "Double",
+    "0",
+    "0",
+    "h:mm",
+    "0:00"
+   ]
+  },
+  {
+   "text": " 12:30:45.25",
+   "answer": [
+    "String",
+    " 12:30:45.25",
+    " 12:30:45.25",
+    "General",
+    " 12:30:45.25"
+   ]
+  },
+  {
+   "text": "45-9 1 13:00 PM x",
+   "answer": [
+    "String",
+    "45-9 1 13:00 PM x",
+    "45-9 1 13:00 PM x",
+    "General",
+    "45-9 1 13:00 PM x"
+   ]
+  },
+  {
+   "text": "7 AM November - 15, 20",
+   "answer": [
+    "Date",
+    "11/15/2020 7:00:00 AM",
+    "44150.2916666667",
+    "m/d/yyyy h:mm",
+    "11/15/2020 7:00"
+   ]
+  },
+  {
+   "text": "July.2020 7 AM /",
+   "answer": [
+    "String",
+    "July.2020 7 AM /",
+    "July.2020 7 AM /",
+    "General",
+    "July.2020 7 AM /"
+   ]
+  },
+  {
+   "text": " 19999.32 13:00 PM",
+   "answer": [
+    "String",
+    " 19999.32 13:00 PM",
+    " 19999.32 13:00 PM",
+    "General",
+    " 19999.32 13:00 PM"
+   ]
+  },
+  {
+   "text": "MAR /02020",
+   "answer": [
+    "String",
+    "MAR /02020",
+    "MAR /02020",
+    "General",
+    "MAR /02020"
+   ]
+  },
+  {
+   "text": "Sep,9999 1:05:09 0099",
+   "answer": [
+    "String",
+    "Sep,9999 1:05:09 0099",
+    "Sep,9999 1:05:09 0099",
+    "General",
+    "Sep,9999 1:05:09 0099"
+   ]
+  },
+  {
+   "text": "7 AM",
+   "answer": [
+    "Double",
+    "0.291666666666667",
+    "0.291666666666667",
+    "h:mm AM/PM",
+    "7:00 AM"
+   ]
+  },
+  {
+   "text": "15 may 190023:59:59",
+   "answer": [
+    "String",
+    "15 may 190023:59:59",
+    "15 may 190023:59:59",
+    "General",
+    "15 may 190023:59:59"
+   ]
+  },
+  {
+   "text": "Sept,1900 12:30",
+   "answer": [
+    "String",
+    "Sept,1900 12:30",
+    "Sept,1900 12:30",
+    "General",
+    "Sept,1900 12:30"
+   ]
+  },
+  {
+   "text": "6.28 ",
+   "answer": [
+    "Double",
+    "6.28",
+    "6.28",
+    "General",
+    "6.28"
+   ]
+  },
+  {
+   "text": "2020 /10/0 9:15.5",
+   "answer": [
+    "String",
+    "2020 /10/0 9:15.5",
+    "2020 /10/0 9:15.5",
+    "General",
+    "2020 /10/0 9:15.5"
+   ]
+  },
+  {
+   "text": "may - 45 100:00",
+   "answer": [
+    "Double",
+    "16562.1666666667",
+    "16562.1666666667",
+    "General",
+    "16562.16667"
+   ]
+  },
+  {
+   "text": "2 /0, 1900",
+   "answer": [
+    "String",
+    "2 /0, 1900",
+    "2 /0, 1900",
+    "General",
+    "2 /0, 1900"
+   ]
+  },
+  {
+   "text": "12:30 09-April / 20",
+   "answer": [
+    "Date",
+    "4/9/2020 12:30:00 PM",
+    "43930.5208333333",
+    "m/d/yyyy h:mm",
+    "4/9/2020 12:30"
+   ]
+  },
+  {
+   "text": "1:05:09",
+   "answer": [
+    "Double",
+    "4.52430555555556E-02",
+    "4.52430555555556E-02",
+    "h:mm:ss",
+    "1:05:09"
+   ]
+  },
+  {
+   "text": "0//feb - 2020 ",
+   "answer": [
+    "String",
+    "0//feb - 2020 ",
+    "0//feb - 2020 ",
+    "General",
+    "0//feb - 2020 "
+   ]
+  },
+  {
+   "text": "12:00 AM - 7- Jan",
+   "answer": [
+    "Date",
+    "1/7/2026",
+    "46029",
+    "m/d/yyyy h:mm",
+    "1/7/2026 0:00"
+   ]
+  },
+  {
+   "text": "1900, 5/1",
+   "answer": [
+    "String",
+    "1900, 5/1",
+    "1900, 5/1",
+    "General",
+    "1900, 5/1"
+   ]
+  },
+  {
+   "text": "1900/3, 1",
+   "answer": [
+    "String",
+    "1900/3, 1",
+    "1900/3, 1",
+    "General",
+    "1900/3, 1"
+   ]
+  },
+  {
+   "text": "1:75",
+   "answer": [
+    "Double",
+    "0.09375",
+    "0.09375",
+    "General",
+    "0.09375"
+   ]
+  },
+  {
+   "text": "7, 09/2021",
+   "answer": [
+    "String",
+    "7, 09/2021",
+    "7, 09/2021",
+    "General",
+    "7, 09/2021"
+   ]
+  },
+  {
+   "text": "13 - 9912:00 AM",
+   "answer": [
+    "String",
+    "13 - 9912:00 AM",
+    "13 - 9912:00 AM",
+    "General",
+    "13 - 9912:00 AM"
+   ]
+  },
+  {
+   "text": "0:00 /13-2",
+   "answer": [
+    "String",
+    "0:00 /13-2",
+    "0:00 /13-2",
+    "General",
+    "0:00 /13-2"
+   ]
+  },
+  {
+   "text": "7, 111 pm",
+   "answer": [
+    "String",
+    "7, 111 pm",
+    "7, 111 pm",
+    "General",
+    "7, 111 pm"
+   ]
+  },
+  {
+   "text": "12:30:45.25 - feb//28 , 1999",
+   "answer": [
+    "String",
+    "12:30:45.25 - feb//28 , 1999",
+    "12:30:45.25 - feb//28 , 1999",
+    "General",
+    "12:30:45.25 - feb//28 , 1999"
+   ]
+  },
+  {
+   "text": "may-4523:59:59",
+   "answer": [
+    "String",
+    "may-4523:59:59",
+    "may-4523:59:59",
+    "General",
+    "may-4523:59:59"
+   ]
+  },
+  {
+   "text": "0:00 2//5 ",
+   "answer": [
+    "String",
+    "0:00 2//5 ",
+    "0:00 2//5 ",
+    "General",
+    "0:00 2//5 "
+   ]
+  },
+  {
+   "text": "100:00 /Sep//32, 1999",
+   "answer": [
+    "String",
+    "100:00 /Sep//32, 1999",
+    "100:00 /Sep//32, 1999",
+    "General",
+    "100:00 /Sep//32, 1999"
+   ]
+  },
+  {
+   "text": "80",
+   "answer": [
+    "Double",
+    "80",
+    "80",
+    "General",
+    "80"
+   ]
+  },
+  {
+   "text": "100:00 /may,2",
+   "answer": [
+    "String",
+    "100:00 /may,2",
+    "100:00 /may,2",
+    "General",
+    "100:00 /may,2"
+   ]
+  },
+  {
+   "text": "12:30:45.25",
+   "answer": [
+    "Double",
+    "0.521357060185185",
+    "0.521357060185185",
+    "mm:ss.0",
+    "30:45.3"
+   ]
+  },
+  {
+   "text": "1:75 - 7- 7",
+   "answer": [
+    "Double",
+    "46210.09375",
+    "46210.09375",
+    "General",
+    "46210.09375"
+   ]
+  },
+  {
+   "text": "MAR / 29, 202 7 AM",
+   "answer": [
+    "String",
+    "MAR / 29, 202 7 AM",
+    "MAR / 29, 202 7 AM",
+    "General",
+    "MAR / 29, 202 7 AM"
+   ]
+  },
+  {
+   "text": "Dec.1900",
+   "answer": [
+    "String",
+    "Dec.1900",
+    "Dec.1900",
+    "General",
+    "Dec.1900"
+   ]
+  },
+  {
+   "text": "20/4 29",
+   "answer": [
+    "String",
+    "20/4 29",
+    "20/4 29",
+    "General",
+    "20/4 29"
+   ]
+  },
+  {
+   "text": "13:00 PM ",
+   "answer": [
+    "String",
+    "13:00 PM ",
+    "13:00 PM ",
+    "General",
+    "13:00 PM "
+   ]
+  },
+  {
+   "text": "MAR-29,1999",
+   "answer": [
+    "String",
+    "MAR-29,1999",
+    "MAR-29,1999",
+    "General",
+    "MAR-29,1999"
+   ]
+  },
+  {
+   "text": "7,Aug 12:00 AM /",
+   "answer": [
+    "String",
+    "7,Aug 12:00 AM /",
+    "7,Aug 12:00 AM /",
+    "General",
+    "7,Aug 12:00 AM /"
+   ]
+  },
+  {
+   "text": "7- 9999 1:05:09 4/5/6/7",
+   "answer": [
+    "Date",
+    "7/1/9999 1:05:09 AM",
+    "2958282.04524306",
+    "m/d/yyyy h:mm",
+    "7/1/9999 1:05"
+   ]
+  },
+  {
+   "text": "feb /0,1999 12 : 30",
+   "answer": [
+    "String",
+    "feb /0,1999 12 : 30",
+    "feb /0,1999 12 : 30",
+    "General",
+    "feb /0,1999 12 : 30"
+   ]
+  },
+  {
+   "text": "12: 5",
+   "answer": [
+    "Double",
+    "0.503472222222222",
+    "0.503472222222222",
+    "h:mm",
+    "12:05"
+   ]
+  },
+  {
+   "text": "3:4 P - 8//2021",
+   "answer": [
+    "String",
+    "3:4 P - 8//2021",
+    "3:4 P - 8//2021",
+    "General",
+    "3:4 P - 8//2021"
+   ]
+  },
+  {
+   "text": "12:30",
+   "answer": [
+    "Double",
+    "0.520833333333333",
+    "0.520833333333333",
+    "h:mm",
+    "12:30"
+   ]
+  },
+  {
+   "text": "1 / 11899 23:59:59 7 8",
+   "answer": [
+    "String",
+    "1 / 11899 23:59:59 7 8",
+    "1 / 11899 23:59:59 7 8",
+    "General",
+    "1 / 11899 23:59:59 7 8"
+   ]
+  },
+  {
+   "text": "23:59:59",
+   "answer": [
+    "Double",
+    "0.999988425925926",
+    "0.999988425925926",
+    "h:mm:ss",
+    "23:59:59"
+   ]
+  },
+  {
+   "text": "12:30 a",
+   "answer": [
+    "Double",
+    "2.08333333333333E-02",
+    "2.08333333333333E-02",
+    "h:mm AM/PM",
+    "12:30 AM"
+   ]
+  },
+  {
+   "text": "6/20 11 pm",
+   "answer": [
+    "Date",
+    "6/20/2026 11:00:00 PM",
+    "46193.9583333333",
+    "m/d/yyyy h:mm",
+    "6/20/2026 23:00"
+   ]
+  },
+  {
+   "text": "2-28",
+   "answer": [
+    "Date",
+    "2/28/2026",
+    "46081",
+    "d-mmm",
+    "28-Feb"
+   ]
+  },
+  {
+   "text": "Jun, 2020",
+   "answer": [
+    "String",
+    "Jun, 2020",
+    "Jun, 2020",
+    "General",
+    "Jun, 2020"
+   ]
+  },
+  {
+   "text": "09 - MAR 0:00 2021",
+   "answer": [
+    "Date",
+    "3/9/2026",
+    "46090",
+    "m/d/yyyy h:mm",
+    "3/9/2026 0:00"
+   ]
+  },
+  {
+   "text": "12: 5 /13/5",
+   "answer": [
+    "String",
+    "12: 5 /13/5",
+    "12: 5 /13/5",
+    "General",
+    "12: 5 /13/5"
+   ]
+  },
+  {
+   "text": "320",
+   "answer": [
+    "Double",
+    "320",
+    "320",
+    "General",
+    "320"
+   ]
+  },
+  {
+   "text": "12:30 a - 11.0",
+   "answer": [
+    "String",
+    "12:30 a - 11.0",
+    "12:30 a - 11.0",
+    "General",
+    "12:30 a - 11.0"
+   ]
+  },
+  {
+   "text": "11- 99 1:75 7 8",
+   "answer": [
+    "Double",
+    "36465.09375",
+    "36465.09375",
+    "General",
+    "36465.09375"
+   ]
+  },
+  {
+   "text": "0:00 - 1.09,20",
+   "answer": [
+    "String",
+    "0:00 - 1.09,20",
+    "0:00 - 1.09,20",
+    "General",
+    "0:00 - 1.09,20"
+   ]
+  },
+  {
+   "text": "12:00 AM - oct//30",
+   "answer": [
+    "String",
+    "12:00 AM - oct//30",
+    "12:00 AM - oct//30",
+    "General",
+    "12:00 AM - oct//30"
+   ]
+  },
+  {
+   "text": "6//32/9999 5:06:07 AM 4/5/6/7",
+   "answer": [
+    "String",
+    "6//32/9999 5:06:07 AM 4/5/6/7",
+    "6//32/9999 5:06:07 AM 4/5/6/7",
+    "General",
+    "6//32/9999 5:06:07 AM 4/5/6/7"
+   ]
+  },
+  {
+   "text": "8- 1899",
+   "answer": [
+    "String",
+    "8- 1899",
+    "8- 1899",
+    "General",
+    "8- 1899"
+   ]
+  },
+  {
+   "text": "13:00 PM /2,November",
+   "answer": [
+    "String",
+    "13:00 PM /2,November",
+    "13:00 PM /2,November",
+    "General",
+    "13:00 PM /2,November"
+   ]
+  },
+  {
+   "text": "20 9-712:30",
+   "answer": [
+    "String",
+    "20 9-712:30",
+    "20 9-712:30",
+    "General",
+    "20 9-712:30"
+   ]
+  },
+  {
+   "text": "may / 1, 20",
+   "answer": [
+    "Date",
+    "5/1/2020",
+    "43952",
+    "d-mmm-yy",
+    "1-May-20"
+   ]
+  },
+  {
+   "text": "10/4523:59:59",
+   "answer": [
+    "String",
+    "10/4523:59:59",
+    "10/4523:59:59",
+    "General",
+    "10/4523:59:59"
+   ]
+  },
+  {
+   "text": "7 - 18991:75",
+   "answer": [
+    "String",
+    "7 - 18991:75",
+    "7 - 18991:75",
+    "General",
+    "7 - 18991:75"
+   ]
+  },
+  {
+   "text": "7 AM - 9 / 1999",
+   "answer": [
+    "Date",
+    "9/1/1999 7:00:00 AM",
+    "36404.2916666667",
+    "m/d/yyyy h:mm",
+    "9/1/1999 7:00"
+   ]
+  },
+  {
+   "text": "November /1999",
+   "answer": [
+    "Date",
+    "11/1/1999",
+    "36465",
+    "mmm-yy",
+    "Nov-99"
+   ]
+  },
+  {
+   "text": "31-Aug ",
+   "answer": [
+    "Date",
+    "8/31/2026",
+    "46265",
+    "d-mmm",
+    "31-Aug"
+   ]
+  },
+  {
+   "text": "45.2- 28",
+   "answer": [
+    "String",
+    "45.2- 28",
+    "45.2- 28",
+    "General",
+    "45.2- 28"
+   ]
+  },
+  {
+   "text": "11 pm /32.oct/9999",
+   "answer": [
+    "String",
+    "11 pm /32.oct/9999",
+    "11 pm /32.oct/9999",
+    "General",
+    "11 pm /32.oct/9999"
+   ]
+  },
+  {
+   "text": "25:30 /30-April-20",
+   "answer": [
+    "Double",
+    "43952.0625",
+    "43952.0625",
+    "General",
+    "43952.0625"
+   ]
+  },
+  {
+   "text": "12 : 30 - 09,July-02020",
+   "answer": [
+    "String",
+    "12 : 30 - 09,July-02020",
+    "12 : 30 - 09,July-02020",
+    "General",
+    "12 : 30 - 09,July-02020"
+   ]
+  },
+  {
+   "text": "23:59:59 - 31 /Jun",
+   "answer": [
+    "String",
+    "23:59:59 - 31 /Jun",
+    "23:59:59 - 31 /Jun",
+    "General",
+    "23:59:59 - 31 /Jun"
+   ]
+  },
+  {
+   "text": "13:00 PM - 2//Jan5",
+   "answer": [
+    "String",
+    "13:00 PM - 2//Jan5",
+    "13:00 PM - 2//Jan5",
+    "General",
+    "13:00 PM - 2//Jan5"
+   ]
+  },
+  {
+   "text": "12: 5 MAR.02020",
+   "answer": [
+    "String",
+    "12: 5 MAR.02020",
+    "12: 5 MAR.02020",
+    "General",
+    "12: 5 MAR.02020"
+   ]
+  },
+  {
+   "text": "3/202 3:4 P ",
+   "answer": [
+    "String",
+    "3/202 3:4 P ",
+    "3/202 3:4 P ",
+    "General",
+    "3/202 3:4 P "
+   ]
+  },
+  {
+   "text": "09- Sep / 1900 12:30 a 7-",
+   "answer": [
+    "Date",
+    "9/9/1900 12:30:00 AM",
+    "253.020833333333",
+    "m/d/yyyy h:mm",
+    "9/9/1900 0:30"
+   ]
+  },
+  {
+   "text": "100:00 - 30Sep",
+   "answer": [
+    "Double",
+    "46299.1666666667",
+    "46299.1666666667",
+    "General",
+    "46299.16667"
+   ]
+  },
+  {
+   "text": "12:30 - 9//285 ",
+   "answer": [
+    "String",
+    "12:30 - 9//285 ",
+    "12:30 - 9//285 ",
+    "General",
+    "12:30 - 9//285 "
+   ]
+  },
+  {
+   "text": "9//20 11 pm",
+   "answer": [
+    "String",
+    "9//20 11 pm",
+    "9//20 11 pm",
+    "General",
+    "9//20 11 pm"
+   ]
+  },
+  {
+   "text": "1- may",
+   "answer": [
+    "Date",
+    "5/1/2026",
+    "46143",
+    "d-mmm",
+    "1-May"
+   ]
+  },
+  {
+   "text": "12: 5 - 15/Sept- 1999",
+   "answer": [
+    "Date",
+    "9/15/1999 12:05:00 PM",
+    "36418.5034722222",
+    "m/d/yyyy h:mm",
+    "9/15/1999 12:05"
+   ]
+  },
+  {
+   "text": "1900,3/32 12:30:45.25 7",
+   "answer": [
+    "String",
+    "1900,3/32 12:30:45.25 7",
+    "1900,3/32 12:30:45.25 7",
+    "General",
+    "1900,3/32 12:30:45.25 7"
+   ]
+  },
+  {
+   "text": "12 : 30 67 9999",
+   "answer": [
+    "String",
+    "12 : 30 67 9999",
+    "12 : 30 67 9999",
+    "General",
+    "12 : 30 67 9999"
+   ]
+  },
+  {
+   "text": "Sep / 0 0:00",
+   "answer": [
+    "Date",
+    "9/1/2000",
+    "36770",
+    "m/d/yyyy h:mm",
+    "9/1/2000 0:00"
+   ]
+  },
+  {
+   "text": "9:15.5",
+   "answer": [
+    "Double",
+    "6.42939814814815E-03",
+    "6.42939814814815E-03",
+    "mm:ss.0",
+    "09:15.5"
+   ]
+  },
+  {
+   "text": "100:00",
+   "answer": [
+    "Double",
+    "4.16666666666667",
+    "4.16666666666667",
+    "[h]:mm:ss",
+    "100:00:00"
+   ]
+  },
+  {
+   "text": "oct//9999 1:75 7-",
+   "answer": [
+    "String",
+    "oct//9999 1:75 7-",
+    "oct//9999 1:75 7-",
+    "General",
+    "oct//9999 1:75 7-"
+   ]
+  },
+  {
+   "text": " 7 / 2- 202",
+   "answer": [
+    "String",
+    " 7 / 2- 202",
+    " 7 / 2- 202",
+    "General",
+    " 7 / 2- 202"
+   ]
+  },
+  {
+   "text": "25:30 - Sep,0",
+   "answer": [
+    "String",
+    "25:30 - Sep,0",
+    "25:30 - Sep,0",
+    "General",
+    "25:30 - Sep,0"
+   ]
+  },
+  {
+   "text": "13 2021 13:00 PM 7 8",
+   "answer": [
+    "String",
+    "13 2021 13:00 PM 7 8",
+    "13 2021 13:00 PM 7 8",
+    "General",
+    "13 2021 13:00 PM 7 8"
+   ]
+  },
+  {
+   "text": "100:00 - Sep 20",
+   "answer": [
+    "Double",
+    "46289.1666666667",
+    "46289.1666666667",
+    "General",
+    "46289.16667"
+   ]
+  },
+  {
+   "text": " 1 2 /1899 12 : 30",
+   "answer": [
+    "String",
+    " 1 2 /1899 12 : 30",
+    " 1 2 /1899 12 : 30",
+    "General",
+    " 1 2 /1899 12 : 30"
+   ]
+  },
+  {
+   "text": "9 /2-1999 12:30 a",
+   "answer": [
+    "Date",
+    "9/2/1999 12:30:00 AM",
+    "36405.0208333333",
+    "m/d/yyyy h:mm",
+    "9/2/1999 0:30"
+   ]
+  },
+  {
+   "text": "4 / 31 - 2011 pm",
+   "answer": [
+    "String",
+    "4 / 31 - 2011 pm",
+    "4 / 31 - 2011 pm",
+    "General",
+    "4 / 31 - 2011 pm"
+   ]
+  },
+  {
+   "text": "12:00 AM - oct /29 99",
+   "answer": [
+    "String",
+    "12:00 AM - oct /29 99",
+    "12:00 AM - oct /29 99",
+    "General",
+    "12:00 AM - oct /29 99"
+   ]
+  },
+  {
+   "text": "5:06:07 AM",
+   "answer": [
+    "Double",
+    "0.212581018518519",
+    "0.212581018518519",
+    "h:mm:ss AM/PM",
+    "5:06:07 AM"
+   ]
+  },
+  {
+   "text": " 9999,6 / 2912:30:45.25",
+   "answer": [
+    "String",
+    " 9999,6 / 2912:30:45.25",
+    " 9999,6 / 2912:30:45.25",
+    "General",
+    " 9999,6 / 2912:30:45.25"
+   ]
+  },
+  {
+   "text": "09.July,1900",
+   "answer": [
+    "String",
+    "09.July,1900",
+    "09.July,1900",
+    "General",
+    "09.July,1900"
+   ]
+  },
+  {
+   "text": " 30.oct 12:30 a 7:00",
+   "answer": [
+    "String",
+    " 30.oct 12:30 a 7:00",
+    " 30.oct 12:30 a 7:00",
+    "General",
+    " 30.oct 12:30 a 7:00"
+   ]
+  },
+  {
+   "text": "4 / 307 AM",
+   "answer": [
+    "String",
+    "4 / 307 AM",
+    "4 / 307 AM",
+    "General",
+    "4 / 307 AM"
+   ]
+  },
+  {
+   "text": "19992 / 7",
+   "answer": [
+    "String",
+    "19992 / 7",
+    "19992 / 7",
+    "General",
+    "19992 / 7"
+   ]
+  },
+  {
+   "text": "25:30",
+   "answer": [
+    "Double",
+    "1.0625",
+    "1.0625",
+    "[h]:mm:ss",
+    "25:30:00"
+   ]
+  },
+  {
+   "text": "5 /9 0 13:00 PM -3",
+   "answer": [
+    "String",
+    "5 /9 0 13:00 PM -3",
+    "5 /9 0 13:00 PM -3",
+    "General",
+    "5 /9 0 13:00 PM -3"
+   ]
+  },
+  {
+   "text": "1:05:09 /Ma-32",
+   "answer": [
+    "String",
+    "1:05:09 /Ma-32",
+    "1:05:09 /Ma-32",
+    "General",
+    "1:05:09 /Ma-32"
+   ]
+  },
+  {
+   "text": "62 /2020 12:00 AM",
+   "answer": [
+    "String",
+    "62 /2020 12:00 AM",
+    "62 /2020 12:00 AM",
+    "General",
+    "62 /2020 12:00 AM"
+   ]
+  },
+  {
+   "text": "11 pm - 11, 1899",
+   "answer": [
+    "String",
+    "11 pm - 11, 1899",
+    "11 pm - 11, 1899",
+    "General",
+    "11 pm - 11, 1899"
+   ]
+  },
+  {
+   "text": "4 2",
+   "answer": [
+    "String",
+    "4 2",
+    "4 2",
+    "General",
+    "4 2"
+   ]
+  },
+  {
+   "text": "may/02020",
+   "answer": [
+    "String",
+    "may/02020",
+    "may/02020",
+    "General",
+    "may/02020"
+   ]
+  },
+  {
+   "text": "3 - 2, 02020100:00",
+   "answer": [
+    "String",
+    "3 - 2, 02020100:00",
+    "3 - 2, 02020100:00",
+    "General",
+    "3 - 2, 02020100:00"
+   ]
+  },
+  {
+   "text": "9:15.5 Sept.7,02020",
+   "answer": [
+    "String",
+    "9:15.5 Sept.7,02020",
+    "9:15.5 Sept.7,02020",
+    "General",
+    "9:15.5 Sept.7,02020"
+   ]
+  },
+  {
+   "text": "11/1 1:05:09 ",
+   "answer": [
+    "Date",
+    "11/1/2026 1:05:09 AM",
+    "46327.0452430556",
+    "m/d/yyyy h:mm",
+    "11/1/2026 1:05"
+   ]
+  },
+  {
+   "text": "Ma / 202112:30",
+   "answer": [
+    "String",
+    "Ma / 202112:30",
+    "Ma / 202112:30",
+    "General",
+    "Ma / 202112:30"
+   ]
+  },
+  {
+   "text": "may, 15 0:00",
+   "answer": [
+    "String",
+    "may, 15 0:00",
+    "may, 15 0:00",
+    "General",
+    "may, 15 0:00"
+   ]
+  },
+  {
+   "text": "0 - 2/31",
+   "answer": [
+    "String",
+    "0 - 2/31",
+    "0 - 2/31",
+    "General",
+    "0 - 2/31"
+   ]
+  },
+  {
+   "text": "2 Aug",
+   "answer": [
+    "Date",
+    "8/2/2026",
+    "46236",
+    "d-mmm",
+    "2-Aug"
+   ]
+  },
+  {
+   "text": "0 /11 30",
+   "answer": [
+    "String",
+    "0 /11 30",
+    "0 /11 30",
+    "General",
+    "0 /11 30"
+   ]
+  },
+  {
+   "text": "02020 /3 /15",
+   "answer": [
+    "String",
+    "02020 /3 /15",
+    "02020 /3 /15",
+    "General",
+    "02020 /3 /15"
+   ]
+  },
+  {
+   "text": "11 pm",
+   "answer": [
+    "Double",
+    "0.958333333333333",
+    "0.958333333333333",
+    "h:mm AM/PM",
+    "11:00 PM"
+   ]
+  },
+  {
+   "text": "4 / 32 23:59:59 12/31",
+   "answer": [
+    "Date",
+    "4/1/1932 11:59:59 PM",
+    "11780.9999884259",
+    "m/d/yyyy h:mm",
+    "4/1/1932 23:59"
+   ]
+  },
+  {
+   "text": "1:05:09 7//32",
+   "answer": [
+    "String",
+    "1:05:09 7//32",
+    "1:05:09 7//32",
+    "General",
+    "1:05:09 7//32"
+   ]
+  },
+  {
+   "text": "April - 09 , 20219:15.5",
+   "answer": [
+    "String",
+    "April - 09 , 20219:15.5",
+    "April - 09 , 20219:15.5",
+    "General",
+    "April - 09 , 20219:15.5"
+   ]
+  },
+  {
+   "text": "12:00 AM - 9999//8,15",
+   "answer": [
+    "String",
+    "12:00 AM - 9999//8,15",
+    "12:00 AM - 9999//8,15",
+    "General",
+    "12:00 AM - 9999//8,15"
+   ]
+  },
+  {
+   "text": "feb / 2020 12 : 30 7:00",
+   "answer": [
+    "String",
+    "feb / 2020 12 : 30 7:00",
+    "feb / 2020 12 : 30 7:00",
+    "General",
+    "feb / 2020 12 : 30 7:00"
+   ]
+  },
+  {
+   "text": "12:30:45.25 /15/may",
+   "answer": [
+    "Double",
+    "46157.5213570602",
+    "46157.5213570602",
+    "mm:ss.0",
+    "30:45.2"
+   ]
+  },
+  {
+   "text": "12:30:45.25 November 02020",
+   "answer": [
+    "String",
+    "12:30:45.25 November 02020",
+    "12:30:45.25 November 02020",
+    "General",
+    "12:30:45.25 November 02020"
+   ]
+  },
+  {
+   "text": "12 : 30 /215",
+   "answer": [
+    "String",
+    "12 : 30 /215",
+    "12 : 30 /215",
+    "General",
+    "12 : 30 /215"
+   ]
+  },
+  {
+   "text": " 12:30 a",
+   "answer": [
+    "String",
+    " 12:30 a",
+    " 12:30 a",
+    "General",
+    " 12:30 a"
+   ]
+  },
+  {
+   "text": "10:30 .5 - 1899-3, 1",
+   "answer": [
+    "String",
+    "10:30 .5 - 1899-3, 1",
+    "10:30 .5 - 1899-3, 1",
+    "General",
+    "10:30 .5 - 1899-3, 1"
+   ]
+  },
+  {
+   "text": "Jun / 20 12: 5 /",
+   "answer": [
+    "Date",
+    "6/20/2026 12:05:00 PM",
+    "46193.5034722222",
+    "m/d/yyyy h:mm",
+    "6/20/2026 12:05"
+   ]
+  },
+  {
+   "text": "2/1899 5:06:07 AM",
+   "answer": [
+    "String",
+    "2/1899 5:06:07 AM",
+    "2/1899 5:06:07 AM",
+    "General",
+    "2/1899 5:06:07 AM"
+   ]
+  },
+  {
+   "text": " 12 : 30",
+   "answer": [
+    "String",
+    " 12 : 30",
+    " 12 : 30",
+    "General",
+    " 12 : 30"
+   ]
+  },
+  {
+   "text": "12:00 AM",
+   "answer": [
+    "Double",
+    "0",
+    "0",
+    "h:mm AM/PM",
+    "12:00 AM"
+   ]
+  },
+  {
+   "text": "2020, 12.0 12:",
+   "answer": [
+    "String",
+    "2020, 12.0 12:",
+    "2020, 12.0 12:",
+    "General",
+    "2020, 12.0 12:"
+   ]
+  },
+  {
+   "text": "MAR 1, 20 1:05:09 7-",
+   "answer": [
+    "Date",
+    "3/1/2020 1:05:09 AM",
+    "43891.0452430556",
+    "m/d/yyyy h:mm",
+    "3/1/2020 1:05"
+   ]
+  },
+  {
+   "text": "0 4.31",
+   "answer": [
+    "String",
+    "0 4.31",
+    "0 4.31",
+    "General",
+    "0 4.31"
+   ]
+  },
+  {
+   "text": "10:30 .5",
+   "answer": [
+    "Double",
+    "7.2974537037037E-03",
+    "7.2974537037037E-03",
+    "mm:ss.0",
+    "10:30.5"
+   ]
+  },
+  {
+   "text": "1-1,0 10:30 .5 -3",
+   "answer": [
+    "String",
+    "1-1,0 10:30 .5 -3",
+    "1-1,0 10:30 .5 -3",
+    "General",
+    "1-1,0 10:30 .5 -3"
+   ]
+  },
+  {
+   "text": "11/1510:30 .5",
+   "answer": [
+    "String",
+    "11/1510:30 .5",
+    "11/1510:30 .5",
+    "General",
+    "11/1510:30 .5"
+   ]
+  },
+  {
+   "text": " 2021 - 12 /7 23:59:59 -3",
+   "answer": [
+    "String",
+    " 2021 - 12 /7 23:59:59 -3",
+    " 2021 - 12 /7 23:59:59 -3",
+    "General",
+    " 2021 - 12 /7 23:59:59 -3"
+   ]
+  },
+  {
+   "text": "April /202 3:4 P -3",
+   "answer": [
+    "String",
+    "April /202 3:4 P -3",
+    "April /202 3:4 P -3",
+    "General",
+    "April /202 3:4 P -3"
+   ]
+  },
+  {
+   "text": " 11 pm - Sep.09",
+   "answer": [
+    "String",
+    " 11 pm - Sep.09",
+    " 11 pm - Sep.09",
+    "General",
+    " 11 pm - Sep.09"
+   ]
+  },
+  {
+   "text": "28 /MAR - 9999 5:06:07 AM 12/31 ",
+   "answer": [
+    "Date",
+    "3/28/9999 5:06:07 AM",
+    "2958187.21258102",
+    "m/d/yyyy h:mm",
+    "3/28/9999 5:06"
+   ]
+  },
+  {
+   "text": "1,15 23:59:59 x",
+   "answer": [
+    "String",
+    "1,15 23:59:59 x",
+    "1,15 23:59:59 x",
+    "General",
+    "1,15 23:59:59 x"
+   ]
+  },
+  {
+   "text": "1999 3-2 10:30 .5",
+   "answer": [
+    "String",
+    "1999 3-2 10:30 .5",
+    "1999 3-2 10:30 .5",
+    "General",
+    "1999 3-2 10:30 .5"
+   ]
+  },
+  {
+   "text": "3, 1899 13:00 PM",
+   "answer": [
+    "String",
+    "3, 1899 13:00 PM",
+    "3, 1899 13:00 PM",
+    "General",
+    "3, 1899 13:00 PM"
+   ]
+  },
+  {
+   "text": " 12:30:45.25 /Ma-45",
+   "answer": [
+    "String",
+    " 12:30:45.25 /Ma-45",
+    " 12:30:45.25 /Ma-45",
+    "General",
+    " 12:30:45.25 /Ma-45"
+   ]
+  },
+  {
+   "text": "1899//8//281:05:09",
+   "answer": [
+    "String",
+    "1899//8//281:05:09",
+    "1899//8//281:05:09",
+    "General",
+    "1899//8//281:05:09"
+   ]
+  },
+  {
+   "text": "9:15.5 - 2- Sept ",
+   "answer": [
+    "Double",
+    "46267.0064293981",
+    "46267.0064293981",
+    "mm:ss.0",
+    "09:15.5"
+   ]
+  },
+  {
+   "text": "Jun/2",
+   "answer": [
+    "Date",
+    "6/2/2026",
+    "46175",
+    "d-mmm",
+    "2-Jun"
+   ]
+  },
+  {
+   "text": "Sept5",
+   "answer": [
+    "Date",
+    "9/5/2026",
+    "46270",
+    "d-mmm",
+    "5-Sep"
+   ]
+  },
+  {
+   "text": "Ma / 4512 : 30",
+   "answer": [
+    "String",
+    "Ma / 4512 : 30",
+    "Ma / 4512 : 30",
+    "General",
+    "Ma / 4512 : 30"
+   ]
+  },
+  {
+   "text": "202111- 32 100:00 / ",
+   "answer": [
+    "String",
+    "202111- 32 100:00 / ",
+    "202111- 32 100:00 / ",
+    "General",
+    "202111- 32 100:00 / "
+   ]
+  },
+  {
+   "text": "1:05:09 /November 1900",
+   "answer": [
+    "Date",
+    "11/1/1900 1:05:09 AM",
+    "306.045243055556",
+    "m/d/yyyy h:mm",
+    "11/1/1900 1:05"
+   ]
+  },
+  {
+   "text": "Ma//20",
+   "answer": [
+    "String",
+    "Ma//20",
+    "Ma//20",
+    "General",
+    "Ma//20"
+   ]
+  },
+  {
+   "text": " Dec202112:30:45.25",
+   "answer": [
+    "String",
+    " Dec202112:30:45.25",
+    " Dec202112:30:45.25",
+    "General",
+    " Dec202112:30:45.25"
+   ]
+  },
+  {
+   "text": "Juneau-45",
+   "answer": [
+    "String",
+    "Juneau-45",
+    "Juneau-45",
+    "General",
+    "Juneau-45"
+   ]
+  },
+  {
+   "text": " July /2020 100:00",
+   "answer": [
+    "String",
+    " July /2020 100:00",
+    " July /2020 100:00",
+    "General",
+    " July /2020 100:00"
+   ]
+  },
+  {
+   "text": " 1:75",
+   "answer": [
+    "String",
+    " 1:75",
+    " 1:75",
+    "General",
+    " 1:75"
+   ]
+  },
+  {
+   "text": "6-1999 5:06:07 AM",
+   "answer": [
+    "Date",
+    "6/1/1999 5:06:07 AM",
+    "36312.2125810185",
+    "m/d/yyyy h:mm",
+    "6/1/1999 5:06"
+   ]
+  },
+  {
+   "text": "1:75 /12- 30",
+   "answer": [
+    "Double",
+    "46386.09375",
+    "46386.09375",
+    "General",
+    "46386.09375"
+   ]
+  },
+  {
+   "text": "3999912 : 30",
+   "answer": [
+    "String",
+    "3999912 : 30",
+    "3999912 : 30",
+    "General",
+    "3999912 : 30"
+   ]
+  },
+  {
+   "text": "feb2021 12:30:45.25 7",
+   "answer": [
+    "Double",
+    "44228.5213570602",
+    "44228.5213570602",
+    "mm:ss.0",
+    "30:45.2"
+   ]
+  },
+  {
+   "text": "feb, 1900 7 AM 7:00",
+   "answer": [
+    "String",
+    "feb, 1900 7 AM 7:00",
+    "feb, 1900 7 AM 7:00",
+    "General",
+    "feb, 1900 7 AM 7:00"
+   ]
+  },
+  {
+   "text": "10,2 12: 7-",
+   "answer": [
+    "String",
+    "10,2 12: 7-",
+    "10,2 12: 7-",
+    "General",
+    "10,2 12: 7-"
+   ]
+  },
+  {
+   "text": "5:06:07 AM may-7",
+   "answer": [
+    "Date",
+    "5/7/2026 5:06:07 AM",
+    "46149.2125810185",
+    "m/d/yyyy h:mm",
+    "5/7/2026 5:06"
+   ]
+  },
+  {
+   "text": "11 / 999912:30 a",
+   "answer": [
+    "String",
+    "11 / 999912:30 a",
+    "11 / 999912:30 a",
+    "General",
+    "11 / 999912:30 a"
+   ]
+  },
+  {
+   "text": "6 - 1899 23:59:59 x",
+   "answer": [
+    "String",
+    "6 - 1899 23:59:59 x",
+    "6 - 1899 23:59:59 x",
+    "General",
+    "6 - 1899 23:59:59 x"
+   ]
+  },
+  {
+   "text": "20//4//15 7 AM",
+   "answer": [
+    "String",
+    "20//4//15 7 AM",
+    "20//4//15 7 AM",
+    "General",
+    "20//4//15 7 AM"
+   ]
+  },
+  {
+   "text": "3-2,02020",
+   "answer": [
+    "String",
+    "3-2,02020",
+    "3-2,02020",
+    "General",
+    "3-2,02020"
+   ]
+  },
+  {
+   "text": "13:00 PM",
+   "answer": [
+    "String",
+    "13:00 PM",
+    "13:00 PM",
+    "General",
+    "13:00 PM"
+   ]
+  },
+  {
+   "text": "Ma, 29,9912:30 a",
+   "answer": [
+    "String",
+    "Ma, 29,9912:30 a",
+    "Ma, 29,9912:30 a",
+    "General",
+    "Ma, 29,9912:30 a"
+   ]
+  },
+  {
+   "text": "23:59:59 /1900.127",
+   "answer": [
+    "String",
+    "23:59:59 /1900.127",
+    "23:59:59 /1900.127",
+    "General",
+    "23:59:59 /1900.127"
+   ]
+  },
+  {
+   "text": "5 - 3223:59:59",
+   "answer": [
+    "String",
+    "5 - 3223:59:59",
+    "5 - 3223:59:59",
+    "General",
+    "5 - 3223:59:59"
+   ]
+  },
+  {
+   "text": "13- 2020 12:00 AM 0099",
+   "answer": [
+    "String",
+    "13- 2020 12:00 AM 0099",
+    "13- 2020 12:00 AM 0099",
+    "General",
+    "13- 2020 12:00 AM 0099"
+   ]
+  },
+  {
+   "text": "12 45 1:05:09 4/5/6/7",
+   "answer": [
+    "String",
+    "12 45 1:05:09 4/5/6/7",
+    "12 45 1:05:09 4/5/6/7",
+    "General",
+    "12 45 1:05:09 4/5/6/7"
+   ]
+  },
+  {
+   "text": "3:4 P 30 - oct-20",
+   "answer": [
+    "Date",
+    "10/30/2020 3:04:00 PM",
+    "44134.6277777778",
+    "m/d/yyyy h:mm",
+    "10/30/2020 15:04"
+   ]
+  },
+  {
+   "text": "7 AM oct//99",
+   "answer": [
+    "String",
+    "7 AM oct//99",
+    "7 AM oct//99",
+    "General",
+    "7 AM oct//99"
+   ]
+  },
+  {
+   "text": "9:15.5 /32- Dec 5",
+   "answer": [
+    "String",
+    "9:15.5 /32- Dec 5",
+    "9:15.5 /32- Dec 5",
+    "General",
+    "9:15.5 /32- Dec 5"
+   ]
+  },
+  {
+   "text": "11 / 30 - 202123:59:59",
+   "answer": [
+    "String",
+    "11 / 30 - 202123:59:59",
+    "11 / 30 - 202123:59:59",
+    "General",
+    "11 / 30 - 202123:59:59"
+   ]
+  },
+  {
+   "text": "8/29 /1899 12:",
+   "answer": [
+    "String",
+    "8/29 /1899 12:",
+    "8/29 /1899 12:",
+    "General",
+    "8/29 /1899 12:"
+   ]
+  },
+  {
+   "text": "1:05:09 Juneau//5",
+   "answer": [
+    "String",
+    "1:05:09 Juneau//5",
+    "1:05:09 Juneau//5",
+    "General",
+    "1:05:09 Juneau//5"
+   ]
+  },
+  {
+   "text": "45.915 12 : 30",
+   "answer": [
+    "String",
+    "45.915 12 : 30",
+    "45.915 12 : 30",
+    "General",
+    "45.915 12 : 30"
+   ]
+  },
+  {
+   "text": "1, 29 /45 5:06:07 AM",
+   "answer": [
+    "String",
+    "1, 29 /45 5:06:07 AM",
+    "1, 29 /45 5:06:07 AM",
+    "General",
+    "1, 29 /45 5:06:07 AM"
+   ]
+  },
+  {
+   "text": "12 : 30 - Ma 7",
+   "answer": [
+    "String",
+    "12 : 30 - Ma 7",
+    "12 : 30 - Ma 7",
+    "General",
+    "12 : 30 - Ma 7"
+   ]
+  },
+  {
+   "text": "Sept,29,1899 25:30 7",
+   "answer": [
+    "String",
+    "Sept,29,1899 25:30 7",
+    "Sept,29,1899 25:30 7",
+    "General",
+    "Sept,29,1899 25:30 7"
+   ]
+  },
+  {
+   "text": "10:30 .5 /31 /feb",
+   "answer": [
+    "String",
+    "10:30 .5 /31 /feb",
+    "10:30 .5 /31 /feb",
+    "General",
+    "10:30 .5 /31 /feb"
+   ]
+  },
+  {
+   "text": " 29, MAR",
+   "answer": [
+    "String",
+    " 29, MAR",
+    " 29, MAR",
+    "General",
+    " 29, MAR"
+   ]
+  },
+  {
+   "text": "12: 5 /20, 12, 15",
+   "answer": [
+    "String",
+    "12: 5 /20, 12, 15",
+    "12: 5 /20, 12, 15",
+    "General",
+    "12: 5 /20, 12, 15"
+   ]
+  },
+  {
+   "text": "3:4 P 4 02020",
+   "answer": [
+    "String",
+    "3:4 P 4 02020",
+    "3:4 P 4 02020",
+    "General",
+    "3:4 P 4 02020"
+   ]
+  },
+  {
+   "text": "12: 5 - 8- 5",
+   "answer": [
+    "Date",
+    "8/5/2026 12:05:00 PM",
+    "46239.5034722222",
+    "m/d/yyyy h:mm",
+    "8/5/2026 12:05"
+   ]
+  },
+  {
+   "text": "November, 29 12:30 12/31",
+   "answer": [
+    "String",
+    "November, 29 12:30 12/31",
+    "November, 29 12:30 12/31",
+    "General",
+    "November, 29 12:30 12/31"
+   ]
+  },
+  {
+   "text": "Dec - 30 13:00 PM ",
+   "answer": [
+    "String",
+    "Dec - 30 13:00 PM ",
+    "Dec - 30 13:00 PM ",
+    "d-mmm",
+    "Dec - 30 13:00 PM "
+   ]
+  },
+  {
+   "text": "0-137 12: 5 ",
+   "answer": [
+    "String",
+    "0-137 12: 5 ",
+    "0-137 12: 5 ",
+    "General",
+    "0-137 12: 5 "
+   ]
+  },
+  {
+   "text": " 117//2021 13:00 PM 2021",
+   "answer": [
+    "String",
+    " 117//2021 13:00 PM 2021",
+    " 117//2021 13:00 PM 2021",
+    "General",
+    " 117//2021 13:00 PM 2021"
+   ]
+  },
+  {
+   "text": " 3,2 1:05:09",
+   "answer": [
+    "String",
+    " 3,2 1:05:09",
+    " 3,2 1:05:09",
+    "General",
+    " 3,2 1:05:09"
+   ]
+  },
+  {
+   "text": "oct.1899 12:30 2021",
+   "answer": [
+    "String",
+    "oct.1899 12:30 2021",
+    "oct.1899 12:30 2021",
+    "General",
+    "oct.1899 12:30 2021"
+   ]
+  },
+  {
+   "text": "31 / may /45 11 pm",
+   "answer": [
+    "Date",
+    "5/31/1945 11:00:00 PM",
+    "16588.9583333333",
+    "m/d/yyyy h:mm",
+    "5/31/1945 23:00"
+   ]
+  },
+  {
+   "text": "4 - 28 / 99 25:30",
+   "answer": [
+    "Double",
+    "36279.0625",
+    "36279.0625",
+    "General",
+    "36279.0625"
+   ]
+  },
+  {
+   "text": "Sep-0 11 pm",
+   "answer": [
+    "Date",
+    "9/1/2000 11:00:00 PM",
+    "36770.9583333333",
+    "m/d/yyyy h:mm",
+    "9/1/2000 23:00"
+   ]
+  },
+  {
+   "text": "7 April.1899 12: 5 7- ",
+   "answer": [
+    "String",
+    "7 April.1899 12: 5 7- ",
+    "7 April.1899 12: 5 7- ",
+    "General",
+    "7 April.1899 12: 5 7- "
+   ]
+  },
+  {
+   "text": "7- Sep- 1899 10:30 .5 0099",
+   "answer": [
+    "String",
+    "7- Sep- 1899 10:30 .5 0099",
+    "7- Sep- 1899 10:30 .5 0099",
+    "General",
+    "7- Sep- 1899 10:30 .5 0099"
+   ]
+  },
+  {
+   "text": "100:00 11-30",
+   "answer": [
+    "Double",
+    "46360.1666666667",
+    "46360.1666666667",
+    "General",
+    "46360.16667"
+   ]
+  },
+  {
+   "text": "Dec 02020",
+   "answer": [
+    "String",
+    "Dec 02020",
+    "Dec 02020",
+    "General",
+    "Dec 02020"
+   ]
+  },
+  {
+   "text": "1899.1-7 10:30 .5 x",
+   "answer": [
+    "String",
+    "1899.1-7 10:30 .5 x",
+    "1899.1-7 10:30 .5 x",
+    "General",
+    "1899.1-7 10:30 .5 x"
+   ]
+  },
+  {
+   "text": "April//32 12: 5 7 8",
+   "answer": [
+    "String",
+    "April//32 12: 5 7 8",
+    "April//32 12: 5 7 8",
+    "General",
+    "April//32 12: 5 7 8"
+   ]
+  },
+  {
+   "text": "1:75 - Ma30, 1900",
+   "answer": [
+    "String",
+    "1:75 - Ma30, 1900",
+    "1:75 - Ma30, 1900",
+    "General",
+    "1:75 - Ma30, 1900"
+   ]
+  },
+  {
+   "text": "7- 202 25:30",
+   "answer": [
+    "String",
+    "7- 202 25:30",
+    "7- 202 25:30",
+    "General",
+    "7- 202 25:30"
+   ]
+  },
+  {
+   "text": "Jan- 2812:00 AM",
+   "answer": [
+    "String",
+    "Jan- 2812:00 AM",
+    "Jan- 2812:00 AM",
+    "General",
+    "Jan- 2812:00 AM"
+   ]
+  },
+  {
+   "text": "28- Aug",
+   "answer": [
+    "Date",
+    "8/28/2026",
+    "46262",
+    "d-mmm",
+    "28-Aug"
+   ]
+  },
+  {
+   "text": "25:30 July,30",
+   "answer": [
+    "String",
+    "25:30 July,30",
+    "25:30 July,30",
+    "General",
+    "25:30 July,30"
+   ]
+  },
+  {
+   "text": "Sept- 28 , 2021 25:30 -3 ",
+   "answer": [
+    "Double",
+    "44468.0625",
+    "44468.0625",
+    "General",
+    "44468.0625"
+   ]
+  },
+  {
+   "text": " 20-13,31 12:30",
+   "answer": [
+    "String",
+    " 20-13,31 12:30",
+    " 20-13,31 12:30",
+    "General",
+    " 20-13,31 12:30"
+   ]
+  },
+  {
+   "text": "30//Jan, 0 3:4 P x",
+   "answer": [
+    "String",
+    "30//Jan, 0 3:4 P x",
+    "30//Jan, 0 3:4 P x",
+    "General",
+    "30//Jan, 0 3:4 P x"
+   ]
+  },
+  {
+   "text": "may,1 , 2021",
+   "answer": [
+    "String",
+    "may,1 , 2021",
+    "may,1 , 2021",
+    "General",
+    "may,1 , 2021"
+   ]
+  },
+  {
+   "text": "2- Sept, 1999 12:30:45.25",
+   "answer": [
+    "String",
+    "2- Sept, 1999 12:30:45.25",
+    "2- Sept, 1999 12:30:45.25",
+    "General",
+    "2- Sept, 1999 12:30:45.25"
+   ]
+  },
+  {
+   "text": "MAR /012:30 a",
+   "answer": [
+    "String",
+    "MAR /012:30 a",
+    "MAR /012:30 a",
+    "General",
+    "MAR /012:30 a"
+   ]
+  },
+  {
+   "text": "31Juneau",
+   "answer": [
+    "String",
+    "31Juneau",
+    "31Juneau",
+    "General",
+    "31Juneau"
+   ]
+  },
+  {
+   "text": "2020- 12.2825:30 ",
+   "answer": [
+    "String",
+    "2020- 12.2825:30 ",
+    "2020- 12.2825:30 ",
+    "General",
+    "2020- 12.2825:30 "
+   ]
+  },
+  {
+   "text": "2,29-02020 5:06:07 AM",
+   "answer": [
+    "String",
+    "2,29-02020 5:06:07 AM",
+    "2,29-02020 5:06:07 AM",
+    "General",
+    "2,29-02020 5:06:07 AM"
+   ]
+  },
+  {
+   "text": "10, 0//2021",
+   "answer": [
+    "String",
+    "10, 0//2021",
+    "10, 0//2021",
+    "General",
+    "10, 0//2021"
+   ]
+  },
+  {
+   "text": "July//09 2020 10:30 .5 4/5/6/7",
+   "answer": [
+    "String",
+    "July//09 2020 10:30 .5 4/5/6/7",
+    "July//09 2020 10:30 .5 4/5/6/7",
+    "General",
+    "July//09 2020 10:30 .5 4/5/6/7"
+   ]
+  },
+  {
+   "text": "Sep//202025:30",
+   "answer": [
+    "String",
+    "Sep//202025:30",
+    "Sep//202025:30",
+    "General",
+    "Sep//202025:30"
+   ]
+  },
+  {
+   "text": "April, 30 12: 12/31",
+   "answer": [
+    "String",
+    "April, 30 12: 12/31",
+    "April, 30 12: 12/31",
+    "General",
+    "April, 30 12: 12/31"
+   ]
+  },
+  {
+   "text": "Sept.2021 12:30:45.25",
+   "answer": [
+    "String",
+    "Sept.2021 12:30:45.25",
+    "Sept.2021 12:30:45.25",
+    "General",
+    "Sept.2021 12:30:45.25"
+   ]
+  },
+  {
+   "text": "10.5 ",
+   "answer": [
+    "Double",
+    "10.5",
+    "10.5",
+    "General",
+    "10.5"
+   ]
+  },
+  {
+   "text": " 4- 31",
+   "answer": [
+    "String",
+    " 4- 31",
+    " 4- 31",
+    "General",
+    " 4- 31"
+   ]
+  },
+  {
+   "text": "Jun- 2012: ",
+   "answer": [
+    "String",
+    "Jun- 2012: ",
+    "Jun- 2012: ",
+    "General",
+    "Jun- 2012: "
+   ]
+  },
+  {
+   "text": "July- 30 0:00 x",
+   "answer": [
+    "String",
+    "July- 30 0:00 x",
+    "July- 30 0:00 x",
+    "General",
+    "July- 30 0:00 x"
+   ]
+  },
+  {
+   "text": "8- 7",
+   "answer": [
+    "Date",
+    "8/7/2026",
+    "46241",
+    "d-mmm",
+    "7-Aug"
+   ]
+  },
+  {
+   "text": "2, 09 02020 25:30 7 8",
+   "answer": [
+    "String",
+    "2, 09 02020 25:30 7 8",
+    "2, 09 02020 25:30 7 8",
+    "General",
+    "2, 09 02020 25:30 7 8"
+   ]
+  },
+  {
+   "text": "23:59:59 /1- 0//1899",
+   "answer": [
+    "String",
+    "23:59:59 /1- 0//1899",
+    "23:59:59 /1- 0//1899",
+    "General",
+    "23:59:59 /1- 0//1899"
+   ]
+  },
+  {
+   "text": " 1999/7, 31 5:06:07 AM 99999",
+   "answer": [
+    "String",
+    " 1999/7, 31 5:06:07 AM 99999",
+    " 1999/7, 31 5:06:07 AM 99999",
+    "General",
+    " 1999/7, 31 5:06:07 AM 99999"
+   ]
+  },
+  {
+   "text": "10,02020 12:30 12/31",
+   "answer": [
+    "String",
+    "10,02020 12:30 12/31",
+    "10,02020 12:30 12/31",
+    "General",
+    "10,02020 12:30 12/31"
+   ]
+  },
+  {
+   "text": "1:75 - 2 - 7- 20",
+   "answer": [
+    "Double",
+    "43868.09375",
+    "43868.09375",
+    "General",
+    "43868.09375"
+   ]
+  },
+  {
+   "text": " 11.202012:30",
+   "answer": [
+    "String",
+    " 11.202012:30",
+    " 11.202012:30",
+    "General",
+    " 11.202012:30"
+   ]
+  },
+  {
+   "text": "2021//8, 112 : 30",
+   "answer": [
+    "String",
+    "2021//8, 112 : 30",
+    "2021//8, 112 : 30",
+    "General",
+    "2021//8, 112 : 30"
+   ]
+  },
+  {
+   "text": "1:75 - 31 / Juneau1900",
+   "answer": [
+    "String",
+    "1:75 - 31 / Juneau1900",
+    "1:75 - 31 / Juneau1900",
+    "General",
+    "1:75 - 31 / Juneau1900"
+   ]
+  },
+  {
+   "text": "1:05:09 - 1131 202",
+   "answer": [
+    "String",
+    "1:05:09 - 1131 202",
+    "1:05:09 - 1131 202",
+    "General",
+    "1:05:09 - 1131 202"
+   ]
+  },
+  {
+   "text": "28Juneau 12:30:45.25 2021",
+   "answer": [
+    "String",
+    "28Juneau 12:30:45.25 2021",
+    "28Juneau 12:30:45.25 2021",
+    "General",
+    "28Juneau 12:30:45.25 2021"
+   ]
+  },
+  {
+   "text": "Ma09 12:00 AM",
+   "answer": [
+    "String",
+    "Ma09 12:00 AM",
+    "Ma09 12:00 AM",
+    "General",
+    "Ma09 12:00 AM"
+   ]
+  },
+  {
+   "text": "6//7 12:30 4/5/6/7",
+   "answer": [
+    "String",
+    "6//7 12:30 4/5/6/7",
+    "6//7 12:30 4/5/6/7",
+    "General",
+    "6//7 12:30 4/5/6/7"
+   ]
+  },
+  {
+   "text": "25:30 /1900, 5- 31",
+   "answer": [
+    "String",
+    "25:30 /1900, 5- 31",
+    "25:30 /1900, 5- 31",
+    "General",
+    "25:30 /1900, 5- 31"
+   ]
+  },
+  {
+   "text": "5 /30- 45 13:00 PM",
+   "answer": [
+    "String",
+    "5 /30- 45 13:00 PM",
+    "5 /30- 45 13:00 PM",
+    "m/d/yyyy",
+    "5 /30- 45 13:00 PM"
+   ]
+  },
+  {
+   "text": "09 Ma12:30 a",
+   "answer": [
+    "String",
+    "09 Ma12:30 a",
+    "09 Ma12:30 a",
+    "General",
+    "09 Ma12:30 a"
+   ]
+  },
+  {
+   "text": "may - 2 12: 5 0099",
+   "answer": [
+    "String",
+    "may - 2 12: 5 0099",
+    "may - 2 12: 5 0099",
+    "General",
+    "may - 2 12: 5 0099"
+   ]
+  },
+  {
+   "text": "2, 1",
+   "answer": [
+    "String",
+    "2, 1",
+    "2, 1",
+    "General",
+    "2, 1"
+   ]
+  },
+  {
+   "text": "29//Jan-99 1:05:09",
+   "answer": [
+    "String",
+    "29//Jan-99 1:05:09",
+    "29//Jan-99 1:05:09",
+    "General",
+    "29//Jan-99 1:05:09"
+   ]
+  },
+  {
+   "text": "45 100:00 /",
+   "answer": [
+    "String",
+    "45 100:00 /",
+    "45 100:00 /",
+    "General",
+    "45 100:00 /"
+   ]
+  },
+  {
+   "text": "5/5 12:",
+   "answer": [
+    "Date",
+    "5/5/2026 12:00:00 PM",
+    "46147.5",
+    "m/d/yyyy h:mm",
+    "5/5/2026 12:00"
+   ]
+  },
+  {
+   "text": "13,1899",
+   "answer": [
+    "Double",
+    "131899",
+    "131899",
+    "#,##0",
+    "131,899"
+   ]
+  },
+  {
+   "text": "31 /MAR",
+   "answer": [
+    "Date",
+    "3/31/2026",
+    "46112",
+    "d-mmm",
+    "31-Mar"
+   ]
+  },
+  {
+   "text": "Dec-28,45 12:30 7-",
+   "answer": [
+    "String",
+    "Dec-28,45 12:30 7-",
+    "Dec-28,45 12:30 7-",
+    "General",
+    "Dec-28,45 12:30 7-"
+   ]
+  },
+  {
+   "text": "5:06:07 AM - 29 /Dec",
+   "answer": [
+    "Date",
+    "12/29/2026 5:06:07 AM",
+    "46385.2125810185",
+    "m/d/yyyy h:mm",
+    "12/29/2026 5:06"
+   ]
+  },
+  {
+   "text": "6 /2 12: 5 ",
+   "answer": [
+    "Date",
+    "6/2/2026 12:05:00 PM",
+    "46175.5034722222",
+    "m/d/yyyy h:mm",
+    "6/2/2026 12:05"
+   ]
+  },
+  {
+   "text": "0:00 10 /1999",
+   "answer": [
+    "Date",
+    "10/1/1999",
+    "36434",
+    "m/d/yyyy h:mm",
+    "10/1/1999 0:00"
+   ]
+  },
+  {
+   "text": "1:75 - April.99",
+   "answer": [
+    "String",
+    "1:75 - April.99",
+    "1:75 - April.99",
+    "General",
+    "1:75 - April.99"
+   ]
+  },
+  {
+   "text": "5.31",
+   "answer": [
+    "Double",
+    "5.31",
+    "5.31",
+    "General",
+    "5.31"
+   ]
+  },
+  {
+   "text": "13 - 093:4 P ",
+   "answer": [
+    "String",
+    "13 - 093:4 P ",
+    "13 - 093:4 P ",
+    "General",
+    "13 - 093:4 P "
+   ]
+  },
+  {
+   "text": "12 : 30 3//31",
+   "answer": [
+    "String",
+    "12 : 30 3//31",
+    "12 : 30 3//31",
+    "General",
+    "12 : 30 3//31"
+   ]
+  },
+  {
+   "text": "3:4 P /5-13, 09",
+   "answer": [
+    "String",
+    "3:4 P /5-13, 09",
+    "3:4 P /5-13, 09",
+    "General",
+    "3:4 P /5-13, 09"
+   ]
+  },
+  {
+   "text": "30/April",
+   "answer": [
+    "Date",
+    "4/30/2026",
+    "46142",
+    "d-mmm",
+    "30-Apr"
+   ]
+  },
+  {
+   "text": "23:59:59 - 4 / 32 /99",
+   "answer": [
+    "String",
+    "23:59:59 - 4 / 32 /99",
+    "23:59:59 - 4 / 32 /99",
+    "General",
+    "23:59:59 - 4 / 32 /99"
+   ]
+  },
+  {
+   "text": "MAR - 30,2021 12:30:45.25",
+   "answer": [
+    "String",
+    "MAR - 30,2021 12:30:45.25",
+    "MAR - 30,2021 12:30:45.25",
+    "General",
+    "MAR - 30,2021 12:30:45.25"
+   ]
+  },
+  {
+   "text": "April 2020",
+   "answer": [
+    "Date",
+    "4/1/2020",
+    "43922",
+    "mmm-yy",
+    "Apr-20"
+   ]
+  },
+  {
+   "text": "5:06:07 AM - 7- 1,99",
+   "answer": [
+    "String",
+    "5:06:07 AM - 7- 1,99",
+    "5:06:07 AM - 7- 1,99",
+    "General",
+    "5:06:07 AM - 7- 1,99"
+   ]
+  },
+  {
+   "text": "10//15 12:30:45.25 /",
+   "answer": [
+    "String",
+    "10//15 12:30:45.25 /",
+    "10//15 12:30:45.25 /",
+    "General",
+    "10//15 12:30:45.25 /"
+   ]
+  },
+  {
+   "text": "25:30 - 4 0",
+   "answer": [
+    "String",
+    "25:30 - 4 0",
+    "25:30 - 4 0",
+    "General",
+    "25:30 - 4 0"
+   ]
+  },
+  {
+   "text": "2 / 202 12: 7:00",
+   "answer": [
+    "String",
+    "2 / 202 12: 7:00",
+    "2 / 202 12: 7:00",
+    "General",
+    "2 / 202 12: 7:00"
+   ]
+  },
+  {
+   "text": "7 AM /7 / Ma - 1899",
+   "answer": [
+    "String",
+    "7 AM /7 / Ma - 1899",
+    "7 AM /7 / Ma - 1899",
+    "General",
+    "7 AM /7 / Ma - 1899"
+   ]
+  },
+  {
+   "text": "0:00 Sep-31, 0",
+   "answer": [
+    "String",
+    "0:00 Sep-31, 0",
+    "0:00 Sep-31, 0",
+    "General",
+    "0:00 Sep-31, 0"
+   ]
+  },
+  {
+   "text": "Juneau/9999",
+   "answer": [
+    "String",
+    "Juneau/9999",
+    "Juneau/9999",
+    "General",
+    "Juneau/9999"
+   ]
+  },
+  {
+   "text": "10 /21900 12:00 AM",
+   "answer": [
+    "String",
+    "10 /21900 12:00 AM",
+    "10 /21900 12:00 AM",
+    "General",
+    "10 /21900 12:00 AM"
+   ]
+  },
+  {
+   "text": "10, 455:06:07 AM",
+   "answer": [
+    "String",
+    "10, 455:06:07 AM",
+    "10, 455:06:07 AM",
+    "General",
+    "10, 455:06:07 AM"
+   ]
+  },
+  {
+   "text": "7 - 2020 12:30 7-",
+   "answer": [
+    "Date",
+    "7/1/2020 12:30:00 PM",
+    "44013.5208333333",
+    "m/d/yyyy h:mm",
+    "7/1/2020 12:30"
+   ]
+  },
+  {
+   "text": "1900- 9, 31 0:00 12/31",
+   "answer": [
+    "String",
+    "1900- 9, 31 0:00 12/31",
+    "1900- 9, 31 0:00 12/31",
+    "General",
+    "1900- 9, 31 0:00 12/31"
+   ]
+  },
+  {
+   "text": "11//3113:00 PM",
+   "answer": [
+    "String",
+    "11//3113:00 PM",
+    "11//3113:00 PM",
+    "General",
+    "11//3113:00 PM"
+   ]
+  },
+  {
+   "text": "15 /April",
+   "answer": [
+    "Date",
+    "4/15/2026",
+    "46127",
+    "d-mmm",
+    "15-Apr"
+   ]
+  },
+  {
+   "text": "MAR- 31 3:4 P 7 8",
+   "answer": [
+    "Date",
+    "3/31/2026 3:04:00 PM",
+    "46112.6277777778",
+    "m/d/yyyy h:mm",
+    "3/31/2026 15:04"
+   ]
+  },
+  {
+   "text": "April,2, 0 12:30 7",
+   "answer": [
+    "String",
+    "April,2, 0 12:30 7",
+    "April,2, 0 12:30 7",
+    "General",
+    "April,2, 0 12:30 7"
+   ]
+  },
+  {
+   "text": "2//Jun 9:15.5 7-",
+   "answer": [
+    "String",
+    "2//Jun 9:15.5 7-",
+    "2//Jun 9:15.5 7-",
+    "General",
+    "2//Jun 9:15.5 7-"
+   ]
+  },
+  {
+   "text": "November2020 11 pm",
+   "answer": [
+    "Date",
+    "11/1/2020 11:00:00 PM",
+    "44136.9583333333",
+    "m/d/yyyy h:mm",
+    "11/1/2020 23:00"
+   ]
+  },
+  {
+   "text": "1900.2 - 2 12:30",
+   "answer": [
+    "String",
+    "1900.2 - 2 12:30",
+    "1900.2 - 2 12:30",
+    "General",
+    "1900.2 - 2 12:30"
+   ]
+  },
+  {
+   "text": "8 / 02020",
+   "answer": [
+    "String",
+    "8 / 02020",
+    "8 / 02020",
+    "General",
+    "8 / 02020"
+   ]
+  },
+  {
+   "text": "\t5",
+   "expression": "vbTab & \"5\"",
+   "answer": [
+    "String",
+    "\t5",
+    "\t5",
+    "General",
+    "\t5"
+   ]
+  },
+  {
+   "text": "5\t",
+   "expression": "\"5\" & vbTab",
+   "answer": [
+    "String",
+    "5\t",
+    "5\t",
+    "General",
+    "5\t"
+   ]
+  },
+  {
+   "text": " 5",
+   "expression": "Chr(160) & \"5\"",
+   "answer": [
+    "String",
+    " 5",
+    " 5",
+    "General",
+    " 5"
+   ]
+  },
+  {
+   "text": "\t1/2/2020",
+   "expression": "vbTab & \"1/2/2020\"",
+   "answer": [
+    "String",
+    "\t1/2/2020",
+    "\t1/2/2020",
+    "General",
+    "\t1/2/2020"
+   ]
+  },
+  {
+   "text": " 1/2/2020",
+   "expression": "Chr(160) & \"1/2/2020\"",
+   "answer": [
+    "String",
+    " 1/2/2020",
+    " 1/2/2020",
+    "General",
+    " 1/2/2020"
+   ]
+  },
+  {
+   "text": " 1/2",
+   "format": "0.00",
+   "answer": [
+    "Double",
+    "0.5",
+    "0.5",
+    "0.00",
+    "0.50"
+   ]
+  },
+  {
+   "text": " 1/2/2020",
+   "format": "0.00",
+   "answer": [
+    "String",
+    " 1/2/2020",
+    " 1/2/2020",
+    "0.00",
+    " 1/2/2020"
+   ]
+  },
+  {
+   "text": " 12:30",
+   "format": "0.00",
+   "answer": [
+    "String",
+    " 12:30",
+    " 12:30",
+    "0.00",
+    " 12:30"
+   ]
+  },
+  {
+   "text": " 2-Jan",
+   "format": "0.00",
+   "answer": [
+    "Double",
+    "46024",
+    "46024",
+    "0.00",
+    "46024.00"
+   ]
+  },
+  {
+   "text": " 1 1/2",
+   "format": "0.00",
+   "answer": [
+    "Double",
+    "1.5",
+    "1.5",
+    "0.00",
+    "1.50"
+   ]
+  },
+  {
+   "text": " 1/2",
+   "format": "# ?/?",
+   "answer": [
+    "Double",
+    "0.5",
+    "0.5",
+    "# ?/?",
+    " 1/2"
+   ]
+  },
+  {
+   "text": " 1/2/2020",
+   "format": "# ?/?",
+   "answer": [
+    "String",
+    " 1/2/2020",
+    " 1/2/2020",
+    "# ?/?",
+    " 1/2/2020"
+   ]
+  },
+  {
+   "text": " 12:30",
+   "format": "# ?/?",
+   "answer": [
+    "String",
+    " 12:30",
+    " 12:30",
+    "# ?/?",
+    " 12:30"
+   ]
+  },
+  {
+   "text": " 2-Jan",
+   "format": "# ?/?",
+   "answer": [
+    "Date",
+    "1/2/2026",
+    "46024",
+    "d-mmm",
+    "2-Jan"
+   ]
+  },
+  {
+   "text": " 1 1/2",
+   "format": "# ?/?",
+   "answer": [
+    "Double",
+    "1.5",
+    "1.5",
+    "# ?/?",
+    "1 1/2"
+   ]
+  },
+  {
+   "text": " 1/2",
+   "format": "@",
+   "answer": [
+    "String",
+    " 1/2",
+    " 1/2",
+    "@",
+    " 1/2"
+   ]
+  },
+  {
+   "text": " 1/2/2020",
+   "format": "@",
+   "answer": [
+    "String",
+    " 1/2/2020",
+    " 1/2/2020",
+    "@",
+    " 1/2/2020"
+   ]
+  },
+  {
+   "text": " 12:30",
+   "format": "@",
+   "answer": [
+    "String",
+    " 12:30",
+    " 12:30",
+    "@",
+    " 12:30"
+   ]
+  },
+  {
+   "text": " 2-Jan",
+   "format": "@",
+   "answer": [
+    "String",
+    " 2-Jan",
+    " 2-Jan",
+    "@",
+    " 2-Jan"
+   ]
+  },
+  {
+   "text": " 1 1/2",
+   "format": "@",
+   "answer": [
+    "String",
+    " 1 1/2",
+    " 1 1/2",
+    "@",
+    " 1 1/2"
+   ]
+  },
+  {
+   "text": " 1/2",
+   "format": "m/d/yyyy",
+   "answer": [
+    "String",
+    " 1/2",
+    " 1/2",
+    "m/d/yyyy",
+    " 1/2"
+   ]
+  },
+  {
+   "text": " 1/2/2020",
+   "format": "m/d/yyyy",
+   "answer": [
+    "String",
+    " 1/2/2020",
+    " 1/2/2020",
+    "m/d/yyyy",
+    " 1/2/2020"
+   ]
+  },
+  {
+   "text": " 12:30",
+   "format": "m/d/yyyy",
+   "answer": [
+    "String",
+    " 12:30",
+    " 12:30",
+    "m/d/yyyy",
+    " 12:30"
+   ]
+  },
+  {
+   "text": " 2-Jan",
+   "format": "m/d/yyyy",
+   "answer": [
+    "Date",
+    "1/2/2026",
+    "46024",
+    "m/d/yyyy",
+    "1/2/2026"
+   ]
+  },
+  {
+   "text": " 1 1/2",
+   "format": "m/d/yyyy",
+   "answer": [
+    "Double",
+    "1.5",
+    "1.5",
+    "# ?/?",
+    "1 1/2"
+   ]
+  },
+  {
+   "text": " 1/2",
+   "format": "h:mm",
+   "answer": [
+    "String",
+    " 1/2",
+    " 1/2",
+    "h:mm",
+    " 1/2"
+   ]
+  },
+  {
+   "text": " 1/2/2020",
+   "format": "h:mm",
+   "answer": [
+    "String",
+    " 1/2/2020",
+    " 1/2/2020",
+    "h:mm",
+    " 1/2/2020"
+   ]
+  },
+  {
+   "text": " 12:30",
+   "format": "h:mm",
+   "answer": [
+    "String",
+    " 12:30",
+    " 12:30",
+    "h:mm",
+    " 12:30"
+   ]
+  },
+  {
+   "text": " 2-Jan",
+   "format": "h:mm",
+   "answer": [
+    "Date",
+    "1/2/2026",
+    "46024",
+    "d-mmm",
+    "2-Jan"
+   ]
+  },
+  {
+   "text": " 1 1/2",
+   "format": "h:mm",
+   "answer": [
+    "Double",
+    "1.5",
+    "1.5",
+    "# ?/?",
+    "1 1/2"
+   ]
+  }
+ ]
+}

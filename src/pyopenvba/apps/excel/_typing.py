@@ -2,8 +2,8 @@
 
 Writing a string through ``Range.Value`` is typing it: Excel parses it as
 it parses what someone types into the cell, on this model's US English
-system. Every rule here was measured (scripts/measure_value_typing.py and
-scripts/measure_typing_formats.py):
+system. Every rule here was measured (scripts/measure_value_typing.py,
+scripts/measure_typing_formats.py and scripts/measure_typed_dates.py):
 
 - "" leaves the cell empty; a string of spaces, tabs or no-break spaces
   stays text, and so does text with spaces around it, unless it reads as
@@ -18,11 +18,20 @@ scripts/measure_typing_formats.py):
   Digits past the fifteenth significant one are cut off, not rounded.
 - Dates read month first, with two-digit years before 30 in this century
   and years from 1900 to 9999 on Excel's calendar, which has a 29 February
-  1900; a month and a number that cannot be its day is a month and year;
-  month names, times with or without seconds, AM/PM and fractions of a
-  second, and a date with a time each bring their own formats. A date
-  that does not exist stays text. A run of spaces between the parts of a
-  date or a time counts as one space, though not in a fraction.
+  1900; a month, by its number or its name, and a number that cannot be
+  its day is a month and year; month names, times with or without
+  seconds, AM/PM and fractions of a second each bring their own formats.
+  A date that does not exist stays text. A run of spaces between the
+  parts of a date or a time counts as one space, though not in a fraction.
+- A date and a time may come either way round and bring m/d/yyyy h:mm, or
+  the time's own format where that is a fraction of a second's or General.
+  After them Excel reads past numbers, up to nine numbers and words in
+  all. A time AM or PM cannot hold, beside a date, leaves the text with
+  the date's format.
+- A space before a date or a time keeps it text, except before a day and
+  a month's name. Excel misreads a space before a month's name and a
+  time, and digits after AM or PM and a point, into numbers no rule
+  gives; those are refused.
 
 What the cell already holds decides the rest. A Text cell (``@``) keeps
 every string as it is written and turns a Date or a Currency a macro
@@ -45,6 +54,7 @@ import re
 from dataclasses import dataclass
 from decimal import Decimal
 
+from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.formula._display import clock, format_value
 from pyopenvba.formula._parse import literal
 from pyopenvba.formula._values import ERRORS, ExcelError, number_text
@@ -62,14 +72,22 @@ _EXPONENT = re.compile(r"(?:\d+\.?\d*|\.\d+)[eE][+-]?\d+")
 _MIXED = re.compile(r"(\d+) (\d+)/(\d+)")
 _FRACTION = re.compile(r"(\d+)/(\d+)")
 # The two separators need not match, and spaces may stand round either (tests/fixtures/value_typing.json).
-_NUMERIC_DATE = re.compile(r"(\d{1,4}) *[/-] *(\d{1,4})(?: *[/-] *(\d{1,4}))?")
-# A month's name may run straight into the numbers either side of it: 5May2020, May5, May2020.
-_DAY_MONTH = re.compile(r"(\d{1,2})[ -]?([A-Za-z]+)(?:[ -]?(\d{2,4}))?")
-_MONTH_DAY = re.compile(r"([A-Za-z]+) ?(\d{1,2})(?:, (\d{2,4}))?")
-_MONTH_YEAR = re.compile(r"([A-Za-z]+)[ -]?(\d{4})")
-#: h:m, h:m:s, either with a fraction of a second -- m:s.f when there are two parts -- and AM or PM.
-_TIME = re.compile(r"(\d{1,4}):(\d{1,4})(?::(\d{1,4}))?(\.\d+)?(?: ([AaPp][Mm]?))?")
-_HOUR = re.compile(r"(\d{1,4}) ([AaPp][Mm]?)")
+_NUMERIC_DATE = re.compile(r"(\d{1,4}) ?[/-] ?(\d{1,4})(?: ?[/-] ?(\d{1,4}))?")
+# Beside a month's name a slash or a dash, a space round either, a space alone or nothing parts the numbers:
+# 2/Jan, Jan - 2, 5May2020 (tests/fixtures/typed_dates.json). Only a comma and a space part a year after a day.
+_APART = r"(?: ?[/-] ?| )?"
+_DAY_MONTH = re.compile(rf"(\d{{1,2}}){_APART}([A-Za-z]+)(?:{_APART}(\d{{1,2}}|\d{{4}}))?")
+_MONTH_DAY = re.compile(rf"([A-Za-z]+){_APART}(\d{{1,2}})(?: ?, (\d{{1,2}}|\d{{4}}))?")
+_MONTH_YEAR = re.compile(rf"([A-Za-z]+){_APART}(\d{{4}})")
+_FIELD = re.compile(r"\d+")
+_COLON = re.compile(r" ?: ?")
+_POINT = re.compile(r" ?\. ?")
+_HALF = re.compile(r" ([AaPp][Mm]?)(?![A-Za-z])")
+_HALVES = frozenset(("a", "am", "p", "pm"))
+#: The numbers and words a date and a time are read from, nine at most.
+_TOKENS = re.compile(r"\d+|[A-Za-z]+")
+#: What Excel reads past after a date and a time, once the spaces round slashes and dashes are gone.
+_READ_PAST = re.compile(r"[/-]?\d+(?:[/ -]\d+)*[/-]?|[/-]")
 
 #: The formats typing gives a dollar amount, and the one a Currency value brings.
 TYPED_CURRENCY = ("$#,##0_);[Red]($#,##0)", "$#,##0.00_);[Red]($#,##0.00)")
@@ -242,7 +260,7 @@ def typed_text(text: str, *, fractions: bool = False) -> Typed:
     body = text.strip(" ")
     if not body:
         return Typed(text)
-    found = _number(body, fractions=fractions) or _moment(body)
+    found = _number(body, fractions=fractions) or (_after_space(body) if text[0] == " " else _moment(body))
     if found is None:
         return Typed(text)
     return found if found.value is not None else Typed(text, found.number_format)
@@ -316,20 +334,88 @@ def _number(body: str, *, fractions: bool) -> Typed | None:
 
 
 def _moment(body: str) -> Typed | None:
-    """A typed date, time, or date and time, or None; a run of spaces separates as one space does."""
+    """A typed date, time, or date and time, or None; a run of spaces separates as one space does.
+
+    A value of None is text that still brings a format: a date with a time
+    AM or PM cannot hold keeps the text, with the date's format.
+    """
     body = re.sub(" {2,}", " ", body)
-    time = _time(body)
-    if time is not None:
-        return time
+    if len(_TOKENS.findall(body)) > 9:
+        # Excel reads no more than nine numbers and words into a date and a time.
+        return None
+    time = _clock(body, 0)
+    if time is not None and time.end == len(body):
+        held = _clock_value(time)
+        return None if held is None else Typed(*held)
     date = _date(body)
     if date is not None:
         return date
-    head, _, tail = body.partition(" ")
-    if tail:
-        day, clock = _numeric_date(head), _time(tail)
-        if day is not None and clock is not None and isinstance(clock.value, float):
-            return Typed(day[0] + clock.value, "m/d/yyyy h:mm")
+    # The date first and the time after it, with numbers Excel reads past after that.
+    for space in re.finditer(" ", body):
+        date = _date(body[:space.start()])
+        after = _clock(body, space.end()) if date is not None else None
+        if date is not None and after is not None and _read_past(body[after.end:]):
+            return _dated(date, after)
+    # The time first and the date after it, a slash or a dash between them if there is one.
+    if time is not None and body[time.end] in " /-":
+        date = _date(re.sub(r"^ ?(?:[/-] ?)?", "", body[time.end:]))
+        if date is not None:
+            return _dated(date, time)
     return None
+
+
+def _after_space(body: str) -> Typed | None:
+    """A date or time typed after a space: Excel reads only a day and a month's name there, d-mmm.
+
+    Every other date or time with a space before it stays text, except a
+    month's name with a time, in a string of nothing but numbers, month's
+    names, AM or PM and separators: Excel misreads that into a number, as
+    ``" 2-Jan 12:30"`` into 27 December 2011 at 7:20, which is not
+    modelled. Words that are none of those keep the whole string text.
+    """
+    body = re.sub(" {2,}", " ", body)
+    found = _DAY_MONTH.fullmatch(body)
+    month = _MONTHS.get(found.group(2).lower()) if found is not None and found.group(3) is None else None
+    if found is not None and month is not None:
+        serial = date_serial(_this_year(), month, int(found.group(1)))
+        if serial is not None:
+            return Typed(serial, "d-mmm")
+    words = [word.lower() for word in re.findall("[A-Za-z]+", body)]
+    dated = body.lstrip("/-")[:1].isalnum() and all(word in _MONTHS or word in _HALVES for word in words)
+    if dated and any(word in _MONTHS for word in words) and (":" in body or any(word in _HALVES for word in words)):
+        raise VBAUnsupportedError(f"typing {' ' + body!r}, a space before a month's name and a time, is not "
+                                  "implemented")
+    return None
+
+
+def _dated(date: Typed, time: _Clock) -> Typed:
+    """A date and a time typed together: m/d/yyyy h:mm, or the time's own format where that is not a clock's."""
+    held = _clock_value(time)
+    if held is None:
+        # A time AM or PM cannot hold leaves the text, with the date's format.
+        return Typed(None, date.number_format)
+    value, code = held
+    if code != "mm:ss.0":
+        # Past 23 hours, or 59 minutes or seconds, the number is General as a time's would be.
+        code = "General" if code in ("General", "[h]:mm:ss") else "m/d/yyyy h:mm"
+    assert isinstance(date.value, float)
+    return Typed(date.value + value, code)
+
+
+def _read_past(rest: str) -> bool:
+    """Whether what follows a date and a time is nothing, or numbers Excel reads past.
+
+    Up to the nine numbers and words a date and time may hold, apart by
+    slashes, dashes or spaces, a separator before or after them allowed
+    but not two together, each of up to two digits or 100 to 9999.
+    """
+    if not rest:
+        return True
+    if rest[0] not in " /-":
+        return False
+    rest = re.sub(r" ?([/-]) ?", r"\1", rest.lstrip(" "))
+    return _READ_PAST.fullmatch(rest) is not None and all(
+        len(number) <= 2 or (len(number) <= 4 and int(number) >= 100) for number in re.findall(r"\d+", rest))
 
 
 def typed_year(text: str) -> int:
@@ -367,22 +453,21 @@ def _numeric_date(body: str) -> tuple[float, str] | None:
 
 
 def _date(body: str) -> Typed | None:
+    """A typed date alone: in digits, or with a month's name before or after its day.
+
+    A day first must be one of its month's, and the year after it has one,
+    two or four digits. A month's name first takes its year only after a
+    comma and a space, and a number that cannot be its day is its year.
+    """
     numeric = _numeric_date(body)
     if numeric is not None:
         return Typed(numeric[0], numeric[1])
-    for pattern, order in ((_DAY_MONTH, "dmy"), (_MONTH_DAY, "mdy")):
-        found = pattern.fullmatch(body)
-        if found is None:
-            continue
-        day_text, month_text, year_text = (found.group(1), found.group(2), found.group(3)) if order == "dmy" \
-            else (found.group(2), found.group(1), found.group(3))
-        month = _MONTHS.get(month_text.lower())
-        if month is None:
-            continue
-        year = typed_year(year_text) if year_text else _this_year()
-        serial = date_serial(year, month, int(day_text))
-        if serial is not None:
-            return Typed(serial, "d-mmm-yy" if year_text else "d-mmm")
+    found = _DAY_MONTH.fullmatch(body)
+    if found is not None:
+        return _named(found.group(2), found.group(1), found.group(3), day_first=True)
+    found = _MONTH_DAY.fullmatch(body)
+    if found is not None:
+        return _named(found.group(1), found.group(2), found.group(3), day_first=False)
     found = _MONTH_YEAR.fullmatch(body)
     if found is not None:
         month = _MONTHS.get(found.group(1).lower())
@@ -392,44 +477,108 @@ def _date(body: str) -> Typed | None:
     return None
 
 
-def _time(body: str) -> Typed | None:
-    """A typed time: h:mm, h:mm:ss, m:ss.0 or h:mm:ss.0, any of them with AM or PM, or an hour with AM or PM.
+def _named(month_text: str, day_text: str, year_text: str | None, *, day_first: bool) -> Typed | None:
+    """A date with a month's name, its day and perhaps its year."""
+    month = _MONTHS.get(month_text.lower())
+    if month is None:
+        return None
+    serial = date_serial(typed_year(year_text) if year_text else _this_year(), month, int(day_text))
+    if serial is not None:
+        return Typed(serial, "d-mmm-yy" if year_text else "d-mmm")
+    if day_first or year_text is not None:
+        return None
+    # A number that cannot be the month's day is its year: Jan 45 is January 1945, as 1/45 is.
+    serial = date_serial(typed_year(day_text), month, 1)
+    return None if serial is None else Typed(serial, "mmm-yy")
 
-    Each part runs to 9999; a minute or second past 59 makes the number
-    General, and an hour past 23 an elapsed time. With AM or PM the hour
-    runs from 0 to 12 and the minutes and seconds stop at 59.
+
+@dataclass(frozen=True, slots=True)
+class _Clock:
+    """A time typed within a longer string, and where it stops."""
+
+    #: The hour, minute and second as far as they are typed; a colon with nothing after it adds none.
+    fields: tuple[int, ...]
+    #: The digits after a point, where one is typed.
+    fraction: str
+    #: A, AM, P or PM as typed.
+    half: str | None
+    end: int
+
+
+def _clock(text: str, start: int) -> _Clock | None:
+    """The time typed at ``start``: up to three numbers apart by colons, a fraction of a second, AM or PM.
+
+    A space may stand either side of a colon or before the point, and a
+    space after a colon takes the number that follows; a colon or a point
+    with no number after it ends the string. A time has a colon, or AM or
+    PM after a space. Each number runs to four digits.
     """
-    found = _TIME.fullmatch(body)
-    if found is not None:
-        first, second, third, fraction, half = found.groups()
-        if third is None and fraction is not None:
-            hours, minutes, seconds = 0, int(first), int(second)
-        else:
-            hours, minutes, seconds = int(first), int(second), int(third or 0)
-        with_seconds = third is not None
-    else:
-        found = _HOUR.fullmatch(body)
+    found = _FIELD.match(text, start)
+    if found is None:
+        return None
+    fields, at, colons = [found.group()], found.end(), 0
+    while colons < 2 and (colon := _COLON.match(text, at)) is not None:
+        colons, at = colons + 1, colon.end()
+        found = _FIELD.match(text, at)
         if found is None:
+            if at < len(text):
+                return None
+            break
+        fields.append(found.group())
+        at = found.end()
+    fraction = ""
+    point = _POINT.match(text, at)
+    if point is not None:
+        found = _FIELD.match(text, point.end())
+        if found is None and point.end() < len(text):
             return None
-        hours, minutes, seconds, fraction, half, with_seconds = int(found.group(1)), 0, 0, None, found.group(2), False
+        fraction, at = (found.group(), found.end()) if found is not None else ("", point.end())
+    half = _HALF.match(text, at)
     if half is not None:
+        at = half.end()
+        point = _POINT.match(text, at)
+        after = _FIELD.match(text, point.end()) if point is not None else None
+        if point is not None and point.end() == len(text):
+            # A point after AM or PM with nothing after it is passed over: 10 am.
+            at = point.end()
+        elif after is not None and _read_past(text[after.end():]):
+            raise VBAUnsupportedError(f"typing {text!r}, a fraction of a second after AM or PM, is not implemented")
+    if any(len(field) > 4 for field in fields) or not (colons or half is not None) or (fraction and not colons):
+        return None
+    return _Clock(tuple(int(field) for field in fields), fraction, half.group(1) if half is not None else None, at)
+
+
+def _clock_value(time: _Clock) -> tuple[float, str] | None:
+    """A typed time's day fraction and format, or None where AM or PM cannot hold it.
+
+    h:mm, h:mm:ss, m:ss.0 or h:mm:ss.0, any of them with AM or PM, or an
+    hour with AM or PM. Each part runs to 9999; a minute or second past 59
+    makes the number General, and an hour past 23 an elapsed time. With AM
+    or PM the hour runs from 0 to 12 and the minutes and seconds stop at 59.
+    """
+    fields = time.fields
+    if time.fraction and len(fields) == 2:
+        hours, minutes, seconds = 0, *fields
+    else:
+        hours, minutes, seconds = (*fields, 0, 0)[:3]
+    if time.half is not None:
         if hours > 12 or minutes >= 60 or seconds >= 60:
             return None
-        hours = hours % 12 + (12 if half[0] in "Pp" else 0)
+        hours = hours % 12 + (12 if time.half[0] in "Pp" else 0)
     # Excel keeps a typed fraction of a second to the millisecond.
-    part = round(float(fraction), 3) if fraction else 0
+    part = round(float("0." + time.fraction), 3) if time.fraction else 0
     value = (hours * 3600 + minutes * 60 + seconds + part) / 86400
-    if fraction:
+    if time.fraction:
         code = "mm:ss.0"
-    elif half is not None:
-        code = "h:mm:ss AM/PM" if with_seconds else "h:mm AM/PM"
+    elif time.half is not None:
+        code = "h:mm:ss AM/PM" if len(fields) == 3 else "h:mm AM/PM"
     elif minutes >= 60 or seconds >= 60:
         code = "General"
     elif hours >= 24:
         code = "[h]:mm:ss"
     else:
-        code = "h:mm:ss" if with_seconds else "h:mm"
-    return Typed(value, code)
+        code = "h:mm:ss" if len(fields) == 3 else "h:mm"
+    return value, code
 
 
 # --- the text a cell is edited as ------------------------------------------------------------------

@@ -33,6 +33,20 @@ All notable changes to pyOpenVBA are documented here. This project follows
 - A month's name typed straight against its numbers makes a date, as
   Excel reads `5May2020`, `May2020` and `May5`, where a cell kept them
   as text; Sept is a month's name as well as Sep.
+- A date with a space before it is text, as in Excel, where a cell read
+  ` 1/2/2020` as a date; only a day and a month's name, ` 2-Jan`, stay a
+  date after a space. A month's name with a time, `May2020 12:30` or
+  `Jan 2, 2020 12:30`, and a time before its date, `12:30 1/2/2020`, are
+  dates and times, where a cell kept them as text. `Jan/2`, `2/Jan` and
+  `Jan - 2` are dates, and `Jan 45` is January 1945, as `1/45` is. A date
+  and a time with a fraction of a second takes `mm:ss.0`, and one past 23
+  hours is General, where a cell gave both `m/d/yyyy h:mm`. A space may
+  stand round a time's colon, and numbers after a date and a time are
+  read past, as Excel does. 911 strings measured in live Excel pin the
+  rules (scripts/measure_typed_dates.py), 287 of them made at random from
+  the parts. Two forms Excel misreads into numbers report themselves
+  unsupported: a space before a month's name and a time, as in
+  ` 2-Jan 12:30`, and digits after AM or PM and a point, as in `12 PM .5`.
 
 ## [6.1.3] - 2026-09-25
 

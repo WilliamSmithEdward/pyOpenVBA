@@ -709,7 +709,9 @@ it, and a save adds only the stylesheet entries the file lacks, spelled
 as Excel spells them. Formatting whole rows, whole columns or the whole
 sheet keeps the row, column and sheet formats Excel keeps, with the
 cells Excel makes where they cross, and saves them as Excel does. Named
-cell styles and conditional formats are not implemented yet.
+cell styles (`Range.Style`, `Workbook.Styles` and the `Style` object)
+and hyperlinks (`Hyperlinks.Add` and the `Hyperlink` object) behave and
+save as Excel's do. Conditional formats are not implemented yet.
 
 Row heights, column widths and hidden rows and columns behave as they do
 in Excel on a 96-DPI display, the one the model emulates: `RowHeight = 20`

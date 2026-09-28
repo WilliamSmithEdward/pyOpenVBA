@@ -72,9 +72,11 @@ from pyopenvba.access._designs import (
     OBJECT_TYPES,
     AccessDesign,
     parse_design,
+    rethemed_design,
     template,
     with_guid,
 )
+from pyopenvba.access._themes import OFFICE_2023, Theme, parse_theme
 from pyopenvba.access._facade import (
     AccessForm,
     AccessVBAProject,
@@ -2702,11 +2704,28 @@ class AccessDatabase(ReferenceManager):
             elif left != payload:
                 storage.update_row(rid, {"Lv": left})
 
+    def design_theme(self) -> Theme:
+        """The Office theme this database's forms and reports are drawn
+        with: the `.thmx` in ``MSysResources`` that MSysDb's
+        ``Theme Resource Name`` property names.  A database with none yet
+        answers the theme Access installs with its first form or report,
+        Office's 2023 theme."""
+        name = self.database_properties().get("Theme Resource Name")
+        if isinstance(name, str) and "MSysResources" in self.table_names(include_system=True):
+            resources = self.table("MSysResources")
+            for row in resources.rows():
+                if row.get("Name") == name and str(row.get("Type")).lower() == "thmx":
+                    key = row.get("Data")
+                    for attachment in resources.attachments("Data", key) if isinstance(key, int) else ():
+                        return parse_theme(attachment.data)
+        return OFFICE_2023
+
     def _create_design(self, kind: str, name: str, *, updated: object | None) -> AccessDesign:
         """The design itself comes from a captured template -- an empty one
         as Access writes it -- with a GUID of its own patched in, since the
         catalog row repeats it and two objects sharing one is not something
-        Access writes."""
+        Access writes.  Its face and colours are the database's theme's
+        (`design_theme`), as Access takes them."""
         if not name or len(name) > 64:
             raise AccessError(f"a {kind} name is 1 to 64 characters")
         if any(found.name.lower() == name.lower() for found in self._designs(kind)):
@@ -2738,7 +2757,7 @@ class AccessDatabase(ReferenceManager):
         )
         folder_id = next(_as_int(r["Id"]) for rid, r in storage.rows_with_ids() if rid == folder_rid)
         for stream, payload in (
-            ("Blob", with_guid(template(kind, "blob"), guid)),
+            ("Blob", rethemed_design(with_guid(template(kind, "blob"), guid), self.design_theme())),
             ("TypeInfo", template(kind, "typeinfo")),
             ("BlobDelta", None),
             ("PropData", NEW_DESIGN_PROP_DATA),
@@ -2816,6 +2835,7 @@ class AccessDatabase(ReferenceManager):
                     height=height,
                     caption=caption,
                     kind=kind,
+                    theme=self.design_theme(),
                 ),
             ),
         )

@@ -23,6 +23,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
   `CMG`, `DPB` and `GC` encrypted against that ID. Access takes a project
   whose records are keyed to another ID for a protected one. A live gate
   has Access list and run the modules of a project made this way.
+- `AccessDatabase.design_theme()`: the Office theme a database's forms
+  and reports are drawn with, read from the `.thmx` it keeps in
+  `MSysResources`, or Office's 2023 theme for a database that has none
+  yet.
 - `AccessDatabase.has_vba_project()`, `dir_stream()`,
   `project_streams()` and `module_streams()`, and
   `Table.long_value_home()`: whether a database holds a VBA project, its
@@ -124,6 +128,18 @@ All notable changes to pyOpenVBA are documented here. This project follows
   reports that Access made in copies of the second. `forms()`,
   `reports()` and `macros()` follow the list, so objects the library
   makes now come back in that order too.
+- A form or report is drawn in its database's Office theme, as Access
+  draws it. The library's designs and control defaults were captured on
+  Office's 2007 theme and were written unchanged, so in a database on
+  another theme a new form came out in Calibri and the old palette. Now a
+  font follows its theme font, with the family byte the face takes, and
+  a colour is worked out from its theme slot, tint and shade. A database
+  with no theme gets the 2023 theme Access installs with its first form.
+  The first form in such a database matches Access's record for record.
+  So do the control defaults of every type the library writes in one on
+  the 2023 theme. A tab control's strip is still sized for Calibri, and a
+  colour of a theme not measured can differ by one where it falls on a
+  half.
 - A database's first VBA project adds `HasOfflineLists` and `ProjVer` to
   MSysDb's properties and stamps the row, as Access does. MSysDb's
   properties now match Access's byte for byte after a first module or

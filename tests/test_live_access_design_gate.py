@@ -141,6 +141,15 @@ Public Function ReadProperties(ByVal name As String) As Variant
     ReadProperties = out
 End Function
 
+Public Function ReadTheme(ByVal name As String) As Variant
+    Dim f As Object
+    DoCmd.OpenForm name, acDesign
+    Set f = Forms(name)
+    ReadTheme = f("Title").FontName & "|" & f("Go").FontName & "|" & f("Go").BackColor & "|" & _
+        f("Go").BorderColor & "|" & f("Title").ForeColor
+    DoCmd.Close acForm, name, acSaveNo
+End Function
+
 Public Function ReadCaptions(ByVal name As String) As Variant
     Dim f As Object, out As String
     DoCmd.OpenForm name, acDesign
@@ -279,6 +288,27 @@ def test_a_first_form_in_a_database_without_code_opens(tmp_path: Path) -> None:
     assert str(ask(out, "OpenFormDesign", "Plain")).startswith("Plain|")
     assert str(ask(out, "RunForm", "Plain")).startswith("Plain|")
     assert str(ask(out, "OpenReportDesign", "Sheet")).startswith("Sheet|")
+
+
+def test_a_form_in_a_database_on_the_2023_theme_is_drawn_in_it(tmp_path: Path) -> None:
+    """A form and its controls in a database on Office's 2023 theme take
+    Aptos and the theme's colours, which Access reads back, and the form
+    runs."""
+    out = tmp_path / "themed.accdb"
+    shutil.copyfile(Path(__file__).parent / "live_access_test" / "first_form.accdb", out)
+    database = AccessDatabase(out)
+    database.create_form("Themed")
+    database.add_control("Themed", "Label", "Title", caption="Hello", top=100)
+    database.add_control("Themed", "CommandButton", "Go", caption="Go", top=600)
+    database.save()
+
+    label_font, button_font, back, border, fore = str(ask(out, "ReadTheme", "Themed")).split("|")
+    assert (label_font, button_font) == ("Aptos", "Aptos")
+    # accent1 lightened 40% on this theme is 46B1E1; Access answers BGR.
+    assert (int(back), int(border)) == (0xE1B146, 0xE1B146)
+    # Text 1 lightened 40%, the same on every theme with a black text colour.
+    assert int(fore) == 0x666666
+    assert str(ask(out, "RunForm", "Themed")).startswith("Themed|")
 
 
 def test_a_form_we_write_runs(blank: Path, tmp_path: Path) -> None:

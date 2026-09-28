@@ -989,6 +989,27 @@ scans the file on its own, for a marker Access keeps no row of.
   button and command button; `set_property` writes the same companions, so
   a colour set here shows, where before the defaults object's theme index
   overrode it. The six hover and pressed slots joined the button's schema.
+* **A design is drawn in its database's theme.** The templates and the
+  control defaults were captured on Office's 2007 theme, the blank
+  database's. Access builds them from the theme the database keeps, the
+  `.thmx` in `MSysResources` that MSysDb's `Theme Resource Name` names,
+  and a database with none gets Office's 2023 theme with its first form
+  or report (`design_theme()`). In a defaults object a font follows its
+  `ThemeFontIndex`, 0 the heading face and 1 the body face, with the
+  face's `TextFontFamily` byte (0 for Aptos and Aptos Display), and each
+  colour is worked out from the slot, tint and shade beside it: in HSL a
+  tint takes luminance to L*t + (1 - t) and a shade to L*s. The design
+  itself carries the body face, that face's family byte (code 244) and
+  the theme's Background 2 (code 319). Measured by having Access build a
+  form and a report holding a control of every type in a database on the
+  2023 theme (`designs_aptos.accdb`) and by asking it for each slot of
+  both themes at every whole tint and shade, 4,444 colours
+  (`theme_tints_*.csv`). The library's first form and its defaults objects
+  match Access's record for record on both themes. Where a channel lands
+  on a half, Access rounds as its own arithmetic falls: the 148 answers
+  that differ from rounding half up are carried as measured, so a colour
+  of a theme not measured can differ by one there. A tab control's strip
+  is sized by the face's metrics, which are not reproduced.
 * **`UseTheme` off is the Windows button.** A command button with
   `UseTheme` False is drawn by Windows and ignores its fill and hover
   colours (white face, grey border, the system hover blue) -- Access's own

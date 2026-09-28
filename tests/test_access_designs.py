@@ -43,6 +43,7 @@ from pyopenvba.access._designs import (
     with_guid,
 )
 from pyopenvba.access._props import parse_property_blob
+from pyopenvba.access._themes import OFFICE_2007, OFFICE_2023, Theme, theme_color
 
 PROPERTY_CODES_BY_NUMBER = {code: name for name, code in PROPERTY_CODES.items()}
 from pyopenvba.access._storage import dir_data_entries
@@ -1658,3 +1659,88 @@ def test_the_page_the_stream_is_read_in(code_page_names: AccessDatabase) -> None
     assert type_info_code_page(stream, names, "cp1251") == "cp1252"
     # With nothing to go on, the project's page stands.
     assert type_info_code_page(stream, [], "cp1251") == "cp1251"
+
+
+# --- the database's theme -------------------------------------------------------
+# A design is drawn in the Office theme its database keeps.  The templates
+# were captured on Office's 2007 theme, the shipped blank database's; the
+# fixtures below come from Access on Office's 2023 theme, which it installs
+# with a database's first form (`_theme_designs.ps1`, `_theme_tints.ps1`).
+
+THEMED = FIXTURES / "designs_aptos.accdb"
+FIRST_FORM = FIXTURES / "first_form.accdb"
+NO_PROJECT = FIXTURES / "no_project.accdb"
+#: What differs between any two designs Access makes: the GUIDs, the time
+#: stamp, and the size of the designer window it was made in.
+PER_DESIGN = {PROPERTY_CODES["GUID"], 364, 129, 12}
+
+
+def test_a_database_s_theme_is_the_one_it_holds() -> None:
+    """The `.thmx` MSysDb names; a database with none yet gets the theme
+    Access would install with its first form."""
+    assert AccessDatabase(TEMPLATE).design_theme() == OFFICE_2007
+    assert AccessDatabase(FIRST_FORM).design_theme() == OFFICE_2023
+    assert AccessDatabase(NO_PROJECT).design_theme() == OFFICE_2023
+
+
+def lasting_records(blob: bytes) -> list[list[tuple[int, int, bytes]]]:
+    _header, objects, _trailer = parse_design(blob)
+    return [[(r.id, r.code, r.value) for r in o.records if r.code not in PER_DESIGN] for o in objects]
+
+
+def test_a_first_form_is_drawn_in_the_theme_access_installs(tmp_path: Path) -> None:
+    """Given its first form, a database Access made gets Office's 2023
+    theme and a form drawn in it: Aptos with its family byte, and the
+    theme's Background 2.  The library's matches Access's record for
+    record."""
+    db = opened(NO_PROJECT, tmp_path, FIRST_FORM.name)
+    db.create_form("Form1")
+    ours, theirs = design_blobs(db, "form"), design_blobs(AccessDatabase(FIRST_FORM), "form")
+    assert lasting_records(ours[0]) == lasting_records(theirs[0])
+
+
+def defaults_objects(blob: bytes) -> dict[int, list[tuple[int, int, bytes]]]:
+    _header, objects, _trailer = parse_design(blob)
+    ahead = [o for o in objects[1:] if not o.is_section and o.name is None and o.type is not None]
+    return {o.type: [(r.id, r.code, r.value) for r in o.records] for o in ahead if o.type is not None}
+
+
+@pytest.mark.parametrize("kind", ["form", "report"])
+def test_control_defaults_are_drawn_in_the_database_s_theme(tmp_path: Path, kind: str) -> None:
+    """Every control type the library writes brings the defaults object
+    Access writes in a database on Office's 2023 theme: fonts by their
+    ThemeFontIndex with the family byte beside them, and colours worked
+    out from their slot, tint and shade."""
+    db = opened(FIRST_FORM, tmp_path, "themed.accdb")
+    existing = design_blobs(db, kind)
+    (db.create_form if kind == "form" else db.create_report)("Probe")
+    access = defaults_objects(design_blobs(AccessDatabase(THEMED), kind)[0])
+    for number, type_code in enumerate(sorted(access), start=1):
+        name = CONTROL_TYPES[type_code]
+        if name not in CONTROL_SLOTS or name == "Page":
+            continue
+        db.add_control("Probe", name, f"Control{number}", kind=kind, top=400 * number)
+    (probe,) = [blob for blob in design_blobs(db, kind) if blob not in existing]
+    ours = defaults_objects(probe)
+    assert len(ours) >= 13
+    for type_code, records in ours.items():
+        assert records == access[type_code], CONTROL_TYPES[type_code]
+
+
+@pytest.mark.parametrize(
+    ("theme", "answers"),
+    [(OFFICE_2007, "theme_tints_2007.csv"), (OFFICE_2023, "theme_tints_2023.csv")],
+    ids=["2007", "2023"],
+)
+def test_theme_colours_are_the_ones_access_works_out(theme: Theme, answers: str) -> None:
+    """Each slot of an Office theme at every whole tint and shade, as
+    Access answered for a command button's BackColor."""
+    lines = (FIXTURES / answers).read_text().split()
+    assert len(lines) == 12 * 101 * 2
+    for line in lines:
+        slot, kind, percent, answer = line.split(",")
+        bgr = int(answer)
+        expected = bytes((bgr & 0xFF, bgr >> 8 & 0xFF, bgr >> 16 & 0xFF, 0))
+        value = float(percent)
+        tint, shade = (value, 100.0) if kind == "tint" else (100.0, value)
+        assert theme_color(theme, int(slot), tint, shade) == expected, line

@@ -35,10 +35,11 @@ import re
 import struct
 import unicodedata
 from collections.abc import Iterable, Mapping, Sequence
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import NamedTuple
 
+from pyopenvba.access._themes import OFFICE_2007, Theme, theme_color
 from pyopenvba.access_read import AccessError
 
 #: `<u32 id><u16 code><u32 type><u32 width><u32 length>`.
@@ -2185,21 +2186,134 @@ _PROTOTYPES: dict[str, dict[int, tuple[DesignRecord, ...]]] = {}
 DEFAULTS_FREE = frozenset({118})
 
 
-def prototype_records(kind: str, type_code: int) -> tuple[DesignRecord, ...]:
+def prototype_records(kind: str, type_code: int, theme: Theme = OFFICE_2007) -> tuple[DesignRecord, ...]:
     """The records of the control-defaults object for `type_code` on a
-    design of `kind`; refused for a type the fixture did not hold."""
+    design of `kind`, as `theme` gives them; refused for a type the
+    fixture did not hold."""
     if kind not in _PROTOTYPES:
         _header, objects, _trailer = parse_design(template(kind, "prototypes"))
         _PROTOTYPES[kind] = {o.type: o.records for o in objects[1:] if o.type is not None}
     try:
-        return _PROTOTYPES[kind][type_code]
+        records = _PROTOTYPES[kind][type_code]
     except KeyError:
         name = CONTROL_TYPES.get(type_code, type_code)
         raise AccessError(f"no control defaults were captured for a {name} on a {kind}") from None
+    type_name = CONTROL_TYPES.get(type_code, "")
+    measured = PROPERTY_SLOTS.get(type_name, {}).get("TextFontFamily")
+    return rethemed(records, theme, measured[0] if measured else FAMILY_IDS.get(type_name))
+
+
+# --- what a design takes from its database's theme -------------------------------
+# The templates and the control defaults were captured in a database on
+# Office's 2007 theme.  Access builds the same objects from whatever theme
+# the database holds (`_themes`), and the differences are these, measured
+# by having Access make one form and one report with a control of every
+# type in a database on each Office theme:
+#
+# * a font comes from the theme by its ThemeFontIndex, 0 the heading face
+#   and 1 the body face, with the face's family byte beside it
+#   (TextFontFamily) unless it is the default a sans face takes;
+# * a colour is worked out again from the slot, tint and shade beside it;
+# * the design itself carries the body face, its family byte and the
+#   theme's Background 2 colour.
+#
+# Access also sizes a tab control's strip and pages by the face's metrics,
+# which is not reproduced here.
+
+#: A defaults object's family-byte slot where the measured slots have none.
+FAMILY_IDS = {"NavigationButton": 368}
+THEME_FONT_INDEX = PROPERTY_CODES["ThemeFontIndex"]
+FONT_NAME = PROPERTY_CODES["FontName"]
+TEXT_FONT_FAMILY = PROPERTY_CODES["TextFontFamily"]
+#: The design's own face, its family byte's slot, and its Background 2.
+DESIGN_FONT = 160
+DESIGN_FONT_FAMILY_SLOT = (56, 244, 2, 1)
+DESIGN_BACKGROUND = 319
+BACKGROUND_2 = 3
+#: Each themed colour beside the slot, tint and shade it is worked out from.
+THEMED_COLORS = tuple(
+    (
+        PROPERTY_CODES[f"{part}Color"],
+        PROPERTY_CODES[f"{part}ThemeColorIndex"],
+        PROPERTY_CODES.get(f"{part}Tint"),
+        PROPERTY_CODES.get(f"{part}Shade"),
+    )
+    for part in ("Back", "Border", "Fore", "Gridline", "Hover", "Pressed", "HoverFore", "PressedFore")
+)
+
+
+def _signed(record: DesignRecord) -> int:
+    return int.from_bytes(record.value, "little", signed=True)
+
+
+def _themed_face(
+    out: dict[int, DesignRecord], face: str, family: DesignRecord | None, family_slot: tuple[int, ...] | None
+) -> None:
+    """Set the family byte `face` takes: none for the default, else the
+    record at `family_slot`, `(id, code, value type, width)`."""
+    byte = FONT_FAMILIES.get(face)
+    if byte is None:
+        if family is not None:
+            del out[family.id]
+    elif family is not None:
+        out[family.id] = replace(family, value=bytes((byte,)))
+    elif family_slot is not None:
+        slot_id, code, value_type, width = family_slot[:4]
+        out[slot_id] = DesignRecord(slot_id, code, value_type, width, bytes((byte,)))
+
+
+def rethemed(records: Sequence[DesignRecord], theme: Theme, family_id: int | None) -> tuple[DesignRecord, ...]:
+    """Records captured on Office's 2007 theme, as `theme` gives them.
+    `family_id` is where the object's family byte goes when the theme's
+    face needs one and the object has none."""
+    if theme == OFFICE_2007:
+        return tuple(records)
+    by_code = {r.code: r for r in records}
+    out = {r.id: r for r in records}
+    index = by_code.get(THEME_FONT_INDEX)
+    font = by_code.get(FONT_NAME)
+    if index is not None and font is not None and _signed(index) in (0, 1):
+        face = theme.major_font if _signed(index) == 0 else theme.minor_font
+        out[font.id] = replace(font, value=face.encode("utf-16-le"))
+        slot = None if family_id is None else (family_id, TEXT_FONT_FAMILY, 2, 1)
+        _themed_face(out, face, by_code.get(TEXT_FONT_FAMILY), slot)
+    for color, slot_code, tint_code, shade_code in THEMED_COLORS:
+        found, slot_record = by_code.get(color), by_code.get(slot_code)
+        if found is None or slot_record is None or _signed(slot_record) < 0:
+            continue
+        tint = by_code.get(tint_code) if tint_code is not None else None
+        shade = by_code.get(shade_code) if shade_code is not None else None
+        out[found.id] = replace(found, value=theme_color(
+            theme,
+            _signed(slot_record),
+            struct.unpack("<f", tint.value)[0] if tint is not None else 100.0,
+            struct.unpack("<f", shade.value)[0] if shade is not None else 100.0,
+        ))
+    return tuple(out[record_id] for record_id in sorted(out))
+
+
+def rethemed_design(blob: bytes, theme: Theme) -> bytes:
+    """An empty design from the templates, as `theme` gives it."""
+    if theme == OFFICE_2007:
+        return blob
+    header, objects, trailer = parse_design(blob)
+    own = {r.id: r for r in objects[0].records}
+    by_code = {r.code: r for r in objects[0].records}
+    font = by_code.get(DESIGN_FONT)
+    if font is not None:
+        own[font.id] = replace(font, value=theme.minor_font.encode("utf-16-le"))
+    background = by_code.get(DESIGN_BACKGROUND)
+    if background is not None:
+        own[background.id] = replace(background, value=theme_color(theme, BACKGROUND_2))
+    family = next((r for r in objects[0].records if r.code == DESIGN_FONT_FAMILY_SLOT[1]), None)
+    _themed_face(own, theme.minor_font, family, DESIGN_FONT_FAMILY_SLOT)
+    design = replace(objects[0], records=tuple(own[record_id] for record_id in sorted(own)))
+    rest = tuple(replace(o, records=rethemed(o.records, theme, None)) for o in objects[1:])
+    return build_design(header, (design, *rest), trailer)
 
 
 def with_prototype(
-    objects: tuple[DesignObject, ...], kind: str, type_code: int
+    objects: tuple[DesignObject, ...], kind: str, type_code: int, theme: Theme = OFFICE_2007
 ) -> tuple[DesignObject, ...]:
     """The design with the control-defaults object for `type_code` in
     place: inserted in type order among the ones there, the run of
@@ -2208,7 +2322,7 @@ def with_prototype(
     ahead = list(objects[1:first_section])
     if type_code in DEFAULTS_FREE or any(o.type == type_code for o in ahead):
         return objects
-    fresh = DesignObject(None, type_code, None, prototype_records(kind, type_code))
+    fresh = DesignObject(None, type_code, None, prototype_records(kind, type_code, theme))
     at = next((i for i, o in enumerate(ahead) if (o.type or 0) > type_code), len(ahead))
     ahead.insert(at, fresh)
     sections = [(i, o) for i, o in enumerate(objects) if o.is_section]
@@ -2301,6 +2415,8 @@ BUTTON_FILL_COMPANIONS: tuple[tuple[str, object], ...] = (("Gradient", 0),)
 #: from the installed font; these are the values it wrote for the fonts
 #: below (measured on 24 fonts), and a font not listed gets its name alone.
 FONT_FAMILIES: dict[str, int] = {
+    "Aptos": 0,
+    "Aptos Display": 0,
     "Book Antiqua": 18,
     "Cambria": 18,
     "Comic Sans MS": 66,
@@ -2472,6 +2588,7 @@ def add_control(
     height: int = 240,
     caption: str | None = None,
     kind: str = "form",
+    theme: Theme = OFFICE_2007,
 ) -> bytes:
     """A design with one more control on it.
 
@@ -2485,7 +2602,8 @@ def add_control(
     the section's.
 
     The first control of a type also brings the type's control-defaults
-    object ahead of the sections, as it does in Access (`with_prototype`).
+    object ahead of the sections, as it does in Access (`with_prototype`),
+    in the fonts and colours of `theme`, the database's.
     """
     header, objects, trailer = parse_design(blob)
     if any(o.name == name for o in objects):
@@ -2517,7 +2635,7 @@ def add_control(
     )
     # The first control of a type brings the type's control-defaults object
     # ahead of the sections, which moves the sections along.
-    objects = with_prototype(objects, kind, TYPE_CODES[control_type])
+    objects = with_prototype(objects, kind, TYPE_CODES[control_type], theme)
     at = next(i for i, o in enumerate(objects) if o.is_section and o.name == section)
     end = at + 1
     while end < len(objects) and not objects[end].is_section:

@@ -12,7 +12,6 @@ or report, `OFFICE_2023`.
 
 from __future__ import annotations
 
-import colorsys
 import io
 import math
 import re
@@ -132,17 +131,70 @@ def tinted(color: str, tint: float = 100.0, shade: float = 100.0) -> str:
         if found is not None:
             return found
     red, green, blue = (int(color[at : at + 2], 16) / 255 for at in (0, 2, 4))
-    hue, luminance, saturation = colorsys.rgb_to_hls(red, green, blue)
+    hue, luminance, saturation = _to_hls(red, green, blue)
     # In this order: the table above corrects exactly this arithmetic.
     if tint != 100:
         fraction = tint / 100
         luminance = luminance * fraction + (1 - fraction)
     if shade != 100:
         luminance = luminance * (shade / 100)
-    channels = colorsys.hls_to_rgb(hue, luminance, saturation)
+    channels = _from_hls(hue, luminance, saturation)
     return "".join(f"{math.floor(channel * 255 + 0.5):02X}" for channel in channels)
 
 
 def theme_color(theme: Theme, index: int, tint: float = 100.0, shade: float = 100.0) -> bytes:
     """A slot's colour as a design record holds it: red, green, blue, 0."""
     return bytes.fromhex(tinted(theme.colors[index], tint, shade)) + b"\x00"
+
+
+# The conversions are `colorsys`'s, step for step as Python 3.11 and later
+# take them.  Python 3.10 works a light colour's saturation out as
+# spread / (2 - (high + low)) rather than spread / (2 - high - low), which
+# can move a channel that lands on a half, so the arithmetic is kept here.
+_ONE_THIRD = 1.0 / 3.0
+_ONE_SIXTH = 1.0 / 6.0
+_TWO_THIRDS = 2.0 / 3.0
+
+
+def _to_hls(red: float, green: float, blue: float) -> tuple[float, float, float]:
+    high = max(red, green, blue)
+    low = min(red, green, blue)
+    total = high + low
+    spread = high - low
+    luminance = total / 2.0
+    if low == high:
+        return 0.0, luminance, 0.0
+    saturation = spread / total if luminance <= 0.5 else spread / (2.0 - high - low)
+    from_red = (high - red) / spread
+    from_green = (high - green) / spread
+    from_blue = (high - blue) / spread
+    if red == high:
+        hue = from_blue - from_green
+    elif green == high:
+        hue = 2.0 + from_red - from_blue
+    else:
+        hue = 4.0 + from_green - from_red
+    return (hue / 6.0) % 1.0, luminance, saturation
+
+
+def _from_hls(hue: float, luminance: float, saturation: float) -> tuple[float, float, float]:
+    if saturation == 0.0:
+        return luminance, luminance, luminance
+    top = luminance * (1.0 + saturation) if luminance <= 0.5 else luminance + saturation - (luminance * saturation)
+    bottom = 2.0 * luminance - top
+    return (
+        _channel(bottom, top, hue + _ONE_THIRD),
+        _channel(bottom, top, hue),
+        _channel(bottom, top, hue - _ONE_THIRD),
+    )
+
+
+def _channel(bottom: float, top: float, hue: float) -> float:
+    hue = hue % 1.0
+    if hue < _ONE_SIXTH:
+        return bottom + (top - bottom) * hue * 6.0
+    if hue < 0.5:
+        return top
+    if hue < _TWO_THIRDS:
+        return bottom + (top - bottom) * (_TWO_THIRDS - hue) * 6.0
+    return bottom

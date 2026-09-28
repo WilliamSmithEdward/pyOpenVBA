@@ -2,13 +2,13 @@
 
 Everything else about a written module can be checked from the file and
 still be wrong: the dir stream can list a module Access refuses to name,
-the storage rows can be complete and the folder still be called something
-Access will not look under.  Three defects were caught only here, and all
-three had agreed with Access by accident on every fixture used before --
-the storage folder's name, the `MSysObjects` id step, and a folder left
-behind by a delete.  So this gate asks Access itself, and asks for the
-strongest answer available: **run the code and compare the value it
-returns**.
+the storage rows can be complete and `\\x03DirData` still name a folder
+the module is not in.  Defects of that kind were caught only here -- the
+folder `\\x03DirData` names, and a folder left behind by a delete -- and
+a project whose protection records are keyed to another project's ID,
+which Access takes for a protected one.  So this gate asks Access itself,
+and asks for the strongest answer available: **run the code and compare
+the value it returns**.
 
 Opt-in: set ``RUN_LIVE_ACCESS_VBA=1`` on a Windows machine with desktop
 Access and ``pyvbaharness`` installed.  Skipped everywhere else,
@@ -183,6 +183,26 @@ class TestAccessRunsWhatWeCreate:
 
         assert ask(out, "CallProc", "UseWidget") == 15
 
+    def test_modules_in_two_digit_folders_are_listed_and_run(
+        self, blank: Path, tmp_path: Path
+    ) -> None:
+        """Eleven modules take the template's folders `1` to `11`, the last
+        two named as Access names them, where the library once wrote `:`
+        and `;` (GitHub issue #34)."""
+        names = [f"Extra{i}" for i in range(11)]
+
+        def build(db: AccessDatabase) -> None:
+            for i, name in enumerate(names):
+                db.create_module(
+                    name, f"Public Function {name}Go() As Variant\n    {name}Go = {100 + i}\nEnd Function"
+                )
+
+        out = written(blank, tmp_path / "past_nine.accdb", build)
+
+        assert modules(out) == {"Module1", *names}
+        assert ask(out, "CallProc", "Extra9Go") == 109
+        assert ask(out, "CallProc", "Extra10Go") == 110
+
     def test_the_project_still_takes_an_edit_afterwards(
         self, blank: Path, tmp_path: Path
     ) -> None:
@@ -326,3 +346,39 @@ def test_code_page_punctuation_reaches_access_intact(blank: Path, tmp_path: Path
 
     assert ask(out, "CallProc", "Punctuated") == sample
     assert sample in str(ask(out, "ReadLines", "Punctuation"))
+
+
+_NO_PROJECT = Path(__file__).parent / "live_access_test" / "no_project.accdb"
+
+
+class TestAFirstProject:
+    """A database Access made and never gave code, given its first project
+    by `add_vba_project` rather than by Access."""
+
+    def test_its_modules_are_listed_and_run(self, tmp_path: Path) -> None:
+        out = tmp_path / "first.accdb"
+        shutil.copyfile(_NO_PROJECT, out)
+        database = AccessDatabase(out)
+        database.add_vba_project()
+        database.add_module("Adder", ADDER)
+        database.add_module(
+            "Doubler", "Public Function DoublerGo() As Variant\n    DoublerGo = 77\nEnd Function"
+        )
+        database.save()
+
+        assert modules(out) == {"Adder", "Doubler"}
+        assert ask(out, "CallProc", "AdderGo") == 4242
+        assert ask(out, "CallProc", "DoublerGo") == 77
+
+    def test_a_project_with_no_modules_takes_access_s_own(self, tmp_path: Path) -> None:
+        """The harness adds its own modules to the project it runs code
+        in, so a probe running at all is Access adding modules to the
+        empty project this wrote."""
+        out = tmp_path / "empty.accdb"
+        shutil.copyfile(_NO_PROJECT, out)
+        database = AccessDatabase(out)
+        database.add_vba_project()
+        database.save()
+
+        assert modules(out) == set()
+        assert "stdole" in str(ask(out, "ReferenceNames")).split(";")

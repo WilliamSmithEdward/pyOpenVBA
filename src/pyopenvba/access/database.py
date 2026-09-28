@@ -12,11 +12,13 @@ from __future__ import annotations
 import datetime as dt
 import random
 import struct
+import uuid
 from collections.abc import Callable, Collection, Generator, Iterator, Mapping, Sequence
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 from pyopenvba._references import ReferenceManager
+from pyopenvba.exceptions import NoVBAProjectError, UnsupportedFormatError, VBAProjectError
 
 from pyopenvba.access._alloc import (
     GLOBAL_USAGE_MAP_PAGE,
@@ -66,6 +68,7 @@ from pyopenvba.access._designs import (
     type_info,
     CONTAINERS,
     NAV_TYPES,
+    NEW_DESIGN_PROP_DATA,
     OBJECT_TYPES,
     AccessDesign,
     parse_design,
@@ -103,22 +106,28 @@ from pyopenvba.access._pages import (
     row_slots,
 )
 from pyopenvba.access._vba import (
+    ACCESS_2000_STORAGE,
     CRLF as VBA_CRLF,
+    EMPTY_VBA_DATA,
+    PROJECT_CODE_PAGE_PROPERTY,
+    PROJECT_DATABASE_PROPERTIES,
+    PROJECTCOOKIE,
+    PROJECTNAME,
     PROP_DATA_HAS_MODULE,
     TYPE_INFO_CLSID,
+    VBA_DATA,
     add_to_project_documents,
+    code_page,
     document_attributes,
     encoding_of,
     MODULETYPE,
-    NAV_MODULE_GROUP,
     NAV_MODULE_TYPE,
-    OBJECT_ID_STEP,
     PROP_DATA,
     STORAGE_TABLE,
+    ModuleStream,
     VBAModule,
     add_to_dir,
     add_to_dir_data,
-    add_to_folder_list,
     add_to_project,
     add_to_project_wm,
     attribute_lines,
@@ -127,8 +136,10 @@ from pyopenvba.access._vba import (
     module_blocks,
     module_offset_at,
     module_stream,
+    new_project_text,
     next_folder,
     read_source,
+    refile_in_folder_list,
     remove_from_dir,
     remove_from_dir_data,
     remove_from_folder_list,
@@ -139,13 +150,18 @@ from pyopenvba.access._vba import (
     rename_in_dir,
     rename_project,
     rename_project_wm,
+    replace_record,
     set_module_offset,
     split_source,
     stream_name_of,
     stream_row_name,
+    with_module_count,
+    with_root_property,
+    without_empty_workspace,
 )
 from pyopenvba.access._storage import (
     DIR_DATA,
+    LIST_HEADER,
     TYPE_FOLDER,
     TYPE_VALUE,
     dir_data_entries,
@@ -234,7 +250,7 @@ from pyopenvba.access._validate import Rules, apply_defaults
 from pyopenvba.access._validate import check as check_rules
 from pyopenvba.access._validate import read as read_rules
 from pyopenvba.access_read import AccessError
-from pyopenvba.vba import VBAModuleKind, compress, decompress, encode_mbcs, parse_project_stream
+from pyopenvba.vba import VBAModuleKind, VBAReference, compress, decompress, encode_mbcs, parse_project_stream
 
 MSYS_OBJECTS_PAGE = 2
 
@@ -745,6 +761,19 @@ class Table:
     def rows_with_ids(self) -> Iterator[tuple[RowId, dict[str, object]]]:
         for page, slot, data in self.raw_rows():
             yield RowId(page, slot), self.decode(split_row(self.definition, data))
+
+    def long_value_home(self, rid: RowId, column: str) -> RowId:
+        """Where a row's long value starts: the long-value row holding its
+        first byte, or the row itself when the value is short enough to
+        sit inline."""
+        data = self.fetch_row(rid.page, rid.slot)
+        if data is None:
+            raise AccessError(f"row ({rid.page}, {rid.slot}) of {self.name!r} is deleted")
+        raw = split_row(self.definition, data).values.get(self.definition.column(column).number)
+        if raw is None:
+            raise AccessError(f"row ({rid.page}, {rid.slot}) of {self.name!r} holds no {column!r}")
+        ref = decode_long_value_ref(raw)
+        return rid if ref.kind == LongValueRef.KIND_INLINE else RowId(ref.page, ref.row)
 
     def decode(self, raw: RawRow) -> dict[str, object]:
         out: dict[str, object] = {}
@@ -2321,9 +2350,13 @@ class AccessDatabase(ReferenceManager):
 
     _reference_error: type[Exception] = AccessError
 
+    def references(self) -> list[VBAReference]:
+        """The project's references; none for a database with no project."""
+        return super().references() if self._project_present() else []
+
     def _reference_data(self) -> tuple[bytes, int]:
+        self._require_vba_project()
         raw = self._vba_dir()[1]
-        from pyopenvba.access._vba import code_page
         return raw, code_page(raw)
 
     def _reference_host(self) -> str:
@@ -2376,6 +2409,9 @@ class AccessDatabase(ReferenceManager):
         if any(found.name.lower() == name.lower() for found in self.macros()):
             raise AccessError(f"a macro named {name!r} already exists")
         blob = build_macro(tuple(actions))
+        if not self._project_present():
+            # Access makes the VBA project with a database's first macro too.
+            self.add_vba_project(updated=updated)
 
         scripts = self._scripts_id()
         storage = self.table(STORAGE_TABLE)
@@ -2385,7 +2421,7 @@ class AccessDatabase(ReferenceManager):
             for r in rows
             if _as_int(r["ParentId"]) == scripts and _as_int(r["Type"]) == TYPE_FOLDER
         }
-        folder = next_folder("Scripts", folders)
+        folder = next_folder(folders)
         when = (
             updated
             if isinstance(updated, (dt.datetime, float))
@@ -2401,36 +2437,14 @@ class AccessDatabase(ReferenceManager):
             {"ParentId": folder_id, "Name": "Blob", "Type": TYPE_VALUE, "Lv": blob,
              "DateCreate": when, "DateUpdate": when}
         )
-        listing = next(
-            (
-                (rid, row.get("Lv"))
-                for rid, row in storage.rows_with_ids()
-                if _as_int(row["ParentId"]) == scripts and str(row["Name"]) == DIR_DATA
-            ),
-            None,
-        )
-        if listing is None:
-            # A database's first macro brings the listing with it.
-            storage.insert_row(
-                {"ParentId": scripts, "Name": DIR_DATA, "Type": TYPE_VALUE,
-                 "Lv": add_to_dir_data(bytes(4), name, folder),
-                 "DateCreate": when, "DateUpdate": when}
-            )
-        else:
-            rid, payload = listing
-            storage.update_row(
-                rid,
-                {"Lv": add_to_dir_data(payload if isinstance(payload, bytes) else bytes(4), name, folder)},
-            )
+        self._list_in_container(scripts, name, folder, when)
 
         objects = self.table("MSysObjects")
         container = next(e.id for e in self.catalog() if e.name == "Scripts" and e.type == 3)
-        owner = next((e.owner for e in self.catalog() if e.owner), None)
-        # A macro's object id steps by one; a module's steps by four.
         object_id = max((e.id for e in self.catalog() if e.id < 0), default=-(2**31)) + 1
         objects.insert_row(
             {"Id": object_id, "ParentId": container, "Name": name, "Type": OBJECT_MACRO,
-             "Flags": 0, "Owner": owner, "LvProp": _macro_properties(),
+             "Flags": 0, "Owner": self._default_owner(), "LvProp": _macro_properties(),
              "DateCreate": when, "DateUpdate": when}
         )
         self.table("MSysNavPaneObjectIDs").insert_row(
@@ -2444,7 +2458,7 @@ class AccessDatabase(ReferenceManager):
         found = self.macro(name)
         scripts = self._scripts_id()
         storage = self.table(STORAGE_TABLE)
-        listing_rid, listing_payload = next(
+        _listing_rid, listing_payload = next(
             (rid, payload)
             for rid, row in storage.rows_with_ids()
             if _as_int(row["ParentId"]) == scripts
@@ -2462,9 +2476,7 @@ class AccessDatabase(ReferenceManager):
         for rid, row in list(storage.rows_with_ids()):
             if _as_int(row["Id"]) in doomed or _as_int(row["ParentId"]) in doomed:
                 storage.delete_row(rid, retire_empty=False)
-        storage.update_row(
-            listing_rid, {"Lv": remove_from_dir_data(listing_payload, found.name)}
-        )
+        self._unlist_in_container(scripts, found.name, folder)
 
         objects = self.table("MSysObjects")
         for rid, row in list(objects.rows_with_ids()):
@@ -2613,39 +2625,82 @@ class AccessDatabase(ReferenceManager):
     def _list_in_container(
         self, container: int, name: str, folder: str, when: dt.datetime | float
     ) -> None:
-        """Name an object in its container's listing and claim its folder
-        in the container's folder list, creating either stream when the
-        container has none yet.
+        """Name an object in its container's ``\\x03DirData``, creating the
+        stream when the container has none yet.
 
-        A container that has never held an object carries neither, so a
+        A container that has never held an object carries none, so a
         module added to a project with none went unlisted, and Access
         showed nothing under `AllModules` for a module its VBE still
-        listed (GitHub issue #21).
+        listed (GitHub issue #21).  The container's ``PropData`` folder
+        list is not written: Access adds an object's entry there, and its
+        navigation-pane group row, the next time it opens the database,
+        not when it makes the object.
         """
         storage = self.table(STORAGE_TABLE)
-        adders: tuple[tuple[str, Callable[[bytes], bytes]], ...] = (
-            (DIR_DATA, lambda payload: add_to_dir_data(payload, name, folder)),
-            ("PropData", lambda payload: add_to_folder_list(payload, folder)),
+        found = next(
+            (
+                (rid, row.get("Lv"))
+                for rid, row in storage.rows_with_ids()
+                if _as_int(row["ParentId"]) == container and str(row["Name"]) == DIR_DATA
+            ),
+            None,
         )
-        for stream, add in adders:
-            found = next(
-                (
-                    (rid, row.get("Lv"))
-                    for rid, row in storage.rows_with_ids()
-                    if _as_int(row["ParentId"]) == container and str(row["Name"]) == stream
-                ),
-                None,
+        if found is None:
+            storage.insert_row(
+                {"ParentId": container, "Name": DIR_DATA, "Type": TYPE_VALUE,
+                 "Lv": add_to_dir_data(bytes(4), name, folder), "DateCreate": when, "DateUpdate": when}
             )
-            if found is None:
-                storage.insert_row(
-                    {"ParentId": container, "Name": stream, "Type": TYPE_VALUE,
-                     "Lv": add(bytes(4)), "DateCreate": when, "DateUpdate": when}
-                )
+            return
+        rid, payload = found
+        storage.update_row(
+            rid, {"Lv": add_to_dir_data(payload if isinstance(payload, bytes) else bytes(4), name, folder)}
+        )
+
+    def _rename_in_container(self, container: int, old: str, new: str, *, refile: bool) -> None:
+        """Rename an object in its container's ``\\x03DirData``, which Access
+        does by erasing the old name and inserting the new, so the entry
+        moves.  With `refile`, the object's folder line in ``PropData``,
+        where Access has written one, is erased and inserted again too:
+        `DoCmd.Rename` does that, while a module renamed in the VBE, as
+        `rename_module` renames one, leaves ``PropData`` alone."""
+        if new == old:
+            return
+        storage = self.table(STORAGE_TABLE)
+        rows = [
+            (rid, payload, str(row["Name"]))
+            for rid, row in storage.rows_with_ids()
+            if _as_int(row["ParentId"]) == container and isinstance(payload := row.get("Lv"), bytes) and payload
+        ]
+        listing = next((payload for _rid, payload, name in rows if name == DIR_DATA), None)
+        folder = dict(dir_data_entries(listing)).get(old) if listing is not None else None
+        for rid, payload, name in rows:
+            if name == DIR_DATA:
+                storage.update_row(rid, {"Lv": rename_dir_data(payload, old, new)})
+            elif name == "PropData" and refile and folder is not None:
+                refiled = refile_in_folder_list(payload, folder)
+                if refiled != payload:
+                    storage.update_row(rid, {"Lv": refiled})
+
+    def _unlist_in_container(self, container: int, name: str, folder: str) -> None:
+        """Take an object out of its container's ``\\x03DirData`` and, where
+        Access has written one, its ``PropData`` folder list.  A list left
+        empty goes, row and all, as Access removes one with the container's
+        last object."""
+        storage = self.table(STORAGE_TABLE)
+        for rid, row in list(storage.rows_with_ids()):
+            payload = row.get("Lv")
+            if _as_int(row["ParentId"]) != container or not isinstance(payload, bytes):
+                continue
+            if str(row["Name"]) == DIR_DATA:
+                left = remove_from_dir_data(payload, name)
+            elif str(row["Name"]) == "PropData":
+                left = remove_from_folder_list(payload, folder)
             else:
-                rid, payload = found
-                storage.update_row(
-                    rid, {"Lv": add(payload if isinstance(payload, bytes) else bytes(4))}
-                )
+                continue
+            if len(left) <= LIST_HEADER:
+                storage.delete_row(rid, retire_empty=False)
+            elif left != payload:
+                storage.update_row(rid, {"Lv": left})
 
     def _create_design(self, kind: str, name: str, *, updated: object | None) -> AccessDesign:
         """The design itself comes from a captured template -- an empty one
@@ -2656,6 +2711,10 @@ class AccessDatabase(ReferenceManager):
             raise AccessError(f"a {kind} name is 1 to 64 characters")
         if any(found.name.lower() == name.lower() for found in self._designs(kind)):
             raise AccessError(f"a {kind} named {name!r} already exists")
+        if not self._project_present():
+            # Access makes the VBA project with a database's first form or
+            # report, as it does with its first module.
+            self.add_vba_project(updated=updated)
 
         container = self._design_container(kind)
         storage = self.table(STORAGE_TABLE)
@@ -2665,7 +2724,7 @@ class AccessDatabase(ReferenceManager):
             for r in rows
             if _as_int(r["ParentId"]) == container and _as_int(r["Type"]) == TYPE_FOLDER
         }
-        folder = next_folder(CONTAINERS[kind], folders)
+        folder = next_folder(folders)
         when = (
             updated
             if isinstance(updated, (dt.datetime, float))
@@ -2682,7 +2741,7 @@ class AccessDatabase(ReferenceManager):
             ("Blob", with_guid(template(kind, "blob"), guid)),
             ("TypeInfo", template(kind, "typeinfo")),
             ("BlobDelta", None),
-            ("PropData", template(kind, "propdata")),
+            ("PropData", NEW_DESIGN_PROP_DATA),
         ):
             values: dict[str, object] = {
                 "ParentId": folder_id, "Name": stream, "Type": TYPE_VALUE,
@@ -2696,11 +2755,10 @@ class AccessDatabase(ReferenceManager):
 
         objects = self.table("MSysObjects")
         parent = next(e.id for e in self.catalog() if e.name == CATALOG_CONTAINERS[kind] and e.type == 3)
-        owner = next((e.owner for e in self.catalog() if e.owner), None)
         object_id = max((e.id for e in self.catalog() if e.id < 0), default=-(2**31)) + 1
         objects.insert_row(
             {"Id": object_id, "ParentId": parent, "Name": name, "Type": OBJECT_TYPES[kind],
-             "Flags": 0, "Owner": owner, "LvProp": _design_properties(kind, guid),
+             "Flags": 0, "Owner": self._default_owner(), "LvProp": _design_properties(kind, guid),
              "DateCreate": when, "DateUpdate": when}
         )
         self.table("MSysNavPaneObjectIDs").insert_row(
@@ -2896,15 +2954,14 @@ class AccessDatabase(ReferenceManager):
         CLSID shared between the design's `TypeInfo` and the module's
         `VB_Base`.
         """
+        self._require_vba_project()
         found = self._design(kind, design)
         name = self.DESIGN_MODULE_PREFIX[kind] + found.name
         if any(module.name.lower() == name.lower() for module in self.modules()):
             self.set_module_source(name, code)
             return self.module(name)
 
-        import uuid as _uuid
-
-        clsid = _uuid.uuid4()
+        clsid = uuid.uuid4()
         rng = random.Random()
         storage = self.table(STORAGE_TABLE)
         _modules, project_id, streams_id = self._vba_storage_ids()
@@ -2984,6 +3041,7 @@ class AccessDatabase(ReferenceManager):
                 raw = bytearray(payload)
                 raw[PROP_DATA_HAS_MODULE] = 1
                 storage.update_row(rid, {"Lv": bytes(raw)})
+        self._count_modules()
         self._drop_srp()
         return self.module(name)
 
@@ -3022,6 +3080,7 @@ class AccessDatabase(ReferenceManager):
                 fixed = remove_from_project(text, module.name)
                 if fixed != text:
                     storage.update_row(rid, {"Lv": encode_mbcs(fixed, encoding)})
+        self._count_modules()
         self._drop_srp()
 
     def _design_module(self, kind: str, name: str) -> VBAModule | None:
@@ -3066,17 +3125,7 @@ class AccessDatabase(ReferenceManager):
         if module is not None:
             self._rename_module_streams(module, self.DESIGN_MODULE_PREFIX[kind] + new_name)
 
-        container = self._design_container(kind)
-        storage = self.table(STORAGE_TABLE)
-        for rid, row in list(storage.rows_with_ids()):
-            value = row.get("Lv")
-            if (
-                isinstance(value, bytes)
-                and value
-                and str(row["Name"]) == DIR_DATA
-                and _as_int(row["ParentId"]) == container
-            ):
-                storage.update_row(rid, {"Lv": rename_dir_data(value, found.name, new_name)})
+        self._rename_in_container(self._design_container(kind), found.name, new_name, refile=True)
         self._rename_catalog_rows(found.name, new_name, OBJECT_TYPES[kind])
         self.forget_catalog()
         self._drop_srp()
@@ -3100,7 +3149,7 @@ class AccessDatabase(ReferenceManager):
             self._delete_module_streams(module)
         container = self._design_container(kind)
         storage = self.table(STORAGE_TABLE)
-        listing_rid, listing_payload = next(
+        _listing_rid, listing_payload = next(
             (rid, payload)
             for rid, row in storage.rows_with_ids()
             if _as_int(row["ParentId"]) == container
@@ -3118,17 +3167,7 @@ class AccessDatabase(ReferenceManager):
         for rid, row in list(storage.rows_with_ids()):
             if _as_int(row["Id"]) == folder_id or _as_int(row["ParentId"]) == folder_id:
                 storage.delete_row(rid, retire_empty=False)
-        storage.update_row(
-            listing_rid, {"Lv": remove_from_dir_data(listing_payload, found.name)}
-        )
-        for rid, row in list(storage.rows_with_ids()):
-            payload = row.get("Lv")
-            if (
-                _as_int(row["ParentId"]) == container
-                and str(row["Name"]) == "PropData"
-                and isinstance(payload, bytes)
-            ):
-                storage.update_row(rid, {"Lv": remove_from_folder_list(payload, folder)})
+        self._unlist_in_container(container, found.name, folder)
 
         objects = self.table("MSysObjects")
         for rid, row in list(objects.rows_with_ids()):
@@ -3984,32 +4023,249 @@ class AccessDatabase(ReferenceManager):
             storage.delete_row(rid, retire_empty=False)
         return len(doomed)
 
+    def has_vba_project(self) -> bool:
+        """Whether the database holds a VBA project where Access 2002 and
+        later keep one, a ``dir`` stream in ``MSysAccessStorage``.
+
+        A database that never held code has none: its storage stops at an
+        empty ``VBA`` folder.  That is its normal shape rather than damage:
+        listing reads answer empty, a read or write of the project, a
+        module or a reference raises
+        :class:`~pyopenvba.exceptions.NoVBAProjectError`, and
+        :meth:`add_vba_project` gives it one.  An Access 2000 file keeps
+        its project in ``MSysAccessObjects``, a layout this does not read,
+        and those calls refuse it instead.
+        """
+        if STORAGE_TABLE not in self.table_names(include_system=True):
+            return False
+        return any(str(row["Name"]) == "dir" for row in self.table(STORAGE_TABLE).rows())
+
+    def _project_present(self) -> bool:
+        """Whether there is a VBA project to act on.  An Access 2000 file
+        is refused rather than answered as though it had none, since the
+        modules it may hold are only out of reach."""
+        if self.has_vba_project():
+            return True
+        tables = self.table_names(include_system=True)
+        if STORAGE_TABLE not in tables and ACCESS_2000_STORAGE in tables:
+            raise UnsupportedFormatError(
+                f"{self._file_name()!r} keeps its VBA project in {ACCESS_2000_STORAGE}, "
+                "the Access 2000 layout, which pyOpenVBA does not read"
+            )
+        return False
+
+    def _require_vba_project(self) -> None:
+        if not self._project_present():
+            raise NoVBAProjectError(
+                f"{self._file_name()!r} has no VBA project: it is a database that has "
+                "never held code.  The first module has to be written in Access, which "
+                "creates the project, or add_vba_project() gives it one."
+            )
+
+    def _file_name(self) -> str:
+        return self.path.name if self.path is not None else "database"
+
+    def add_vba_project(self, *, updated: object | None = None) -> AccessVBAProject:
+        """Give a database that has never held code the VBA project Access
+        makes with its first module, form, report or macro; modules are
+        added to it as to any.  Creating a form, report or macro in such a
+        database calls this first, as Access makes the project then too.
+
+        Measured by having Access give such a database its first module,
+        form, report and macro (``tests/live_access_test/_first_project.ps1``).
+        The project is a ``VBAProject`` folder under ``VBA`` holding
+        ``PROJECT``, ``PROJECTwm`` and a folder of its own streams, ``dir``
+        and ``_VBA_PROJECT``; ``AcessVBAData`` beside it counts no modules,
+        and the root's property list gains the project's code page.
+        ``PROJECT`` has no ``[Workspace]`` section until a module or form
+        code needs one.  The
+        project is named after the database's file up to its first dot, as
+        Access names it, and gets an ``ID`` and a PROJECTCOOKIE of its own,
+        with ``CMG``, ``DPB`` and ``GC`` encrypted against that ID as Access
+        encrypts them: not protected, no password, visible.  Its references,
+        code page (1252) and version are those of the library's template,
+        which Access wrote.
+
+        Access also writes compiled caches, which are runtime state rather
+        than a function of the file.  Here the cache is marked stale, so VBA
+        compiles the project the next time Access opens it, as after any
+        module written here.
+
+        A database that has a project already raises
+        :class:`~pyopenvba.exceptions.VBAProjectError`.
+        """
+        if self._project_present():
+            raise VBAProjectError(f"{self._file_name()!r} already has a VBA project.")
+        if STORAGE_TABLE not in self.table_names(include_system=True):
+            raise UnsupportedFormatError(
+                f"{self._file_name()!r} holds none of Access's own objects; "
+                "Access gives a database those the first time it opens it"
+            )
+        from pyopenvba._templates import EMPTY_ACCDB_BYTES
+
+        template = AccessDatabase(EMPTY_ACCDB_BYTES)
+        _dir_rid, template_dir = template._vba_dir()
+        template_streams = {
+            str(row["Name"]): row.get("Lv") for row in template.table(STORAGE_TABLE).rows()
+        }
+        encoding = encoding_of(template_dir)
+        stem = self.path.name.split(".")[0] if self.path is not None else ""
+        name = stem or "Database"
+        rng = random.Random()
+        dir_stream = template_dir
+        for module_name, _stream_name, _kind in module_blocks(template_dir):
+            dir_stream = remove_from_dir(dir_stream, module_name)
+        dir_stream = replace_record(dir_stream, PROJECTNAME, encode_mbcs(name, encoding))
+        dir_stream = replace_record(dir_stream, PROJECTCOOKIE, rng.randbytes(2))
+        template_project = template_streams["PROJECT"]
+        cache = template_streams["_VBA_PROJECT"]
+        assert isinstance(template_project, bytes) and isinstance(cache, bytes)
+        text = template_project.decode(encoding, errors="replace")
+        for module_name, _stream_name, _kind in module_blocks(template_dir):
+            text = remove_from_project(text, module_name)
+        project_id = "{" + str(uuid.uuid4()).upper() + "}"
+        project_text = without_empty_workspace(new_project_text(text, name, project_id, rng))
+
+        when = (
+            updated
+            if isinstance(updated, (dt.datetime, float))
+            else dt.datetime.now().replace(microsecond=0)
+        )
+        storage = self.table(STORAGE_TABLE)
+        rows = [(rid, row) for rid, row in storage.rows_with_ids()]
+        root = next(_as_int(row["Id"]) for _rid, row in rows if str(row["Name"]) == "MSysAccessStorage_ROOT")
+        vba = next(
+            (
+                _as_int(row["Id"])
+                for _rid, row in rows
+                if _as_int(row["ParentId"]) == root and str(row["Name"]) == "VBA"
+                and _as_int(row["Type"]) == TYPE_FOLDER
+            ),
+            None,
+        )
+        if vba is None:
+            raise AccessError("MSysAccessStorage has no 'VBA' folder")
+
+        def insert(parent: int, row_name: str, value: bytes | None) -> int:
+            fields: dict[str, object] = {
+                "ParentId": parent, "Name": row_name,
+                "Type": TYPE_FOLDER if value is None else TYPE_VALUE,
+                "DateCreate": when, "DateUpdate": when,
+            }
+            if value is not None:
+                fields["Lv"] = value
+            rid = storage.insert_row(fields)
+            return next(_as_int(r["Id"]) for found, r in storage.rows_with_ids() if found == rid)
+
+        # In the order Access creates them, its compiled caches left out.
+        project = insert(vba, "VBAProject", None)
+        streams = insert(project, "VBA", None)
+        insert(vba, VBA_DATA, EMPTY_VBA_DATA)
+        insert(streams, "_VBA_PROJECT", invalidate_cache(cache))
+        insert(streams, "dir", compress(dir_stream))
+        insert(project, "PROJECTwm", bytes(2))
+        insert(project, "PROJECT", encode_mbcs(project_text, encoding))
+        for rid, row in storage.rows_with_ids():
+            payload = row.get("Lv")
+            if _as_int(row["ParentId"]) == root and str(row["Name"]) == "PropData" and isinstance(payload, bytes):
+                storage.update_row(
+                    rid, {"Lv": with_root_property(payload, PROJECT_CODE_PAGE_PROPERTY, code_page(dir_stream))}
+                )
+                break
+        # MSysDb records the project too, and keeps what a database that
+        # held one before already says; Access stamps the row as it writes.
+        present = self.database_properties()
+        added = {prop: value for prop, value in PROJECT_DATABASE_PROPERTIES.items() if prop not in present}
+        if added:
+            self.set_database_properties(added)
+            objects = self.table("MSysObjects")
+            for rid, row in objects.rows_with_ids():
+                if row["Name"] == "MSysDb":
+                    objects.update_row(rid, {"DateUpdate": when})
+                    break
+        self._vba_changed = True
+        return self.vba_project()
+
+    def _count_modules(self) -> None:
+        """Keep ``AcessVBAData`` counting the project's modules, as Access
+        does whenever one comes or goes."""
+        count = len(module_blocks(self._vba_dir()[1]))
+        storage = self.table(STORAGE_TABLE)
+        for rid, row in storage.rows_with_ids():
+            payload = row.get("Lv")
+            if str(row["Name"]) == VBA_DATA and isinstance(payload, bytes) and len(payload) >= 12:
+                if int.from_bytes(payload[8:12], "little") != count:
+                    storage.update_row(rid, {"Lv": with_module_count(payload, count)})
+                return
+
+    def dir_stream(self) -> tuple[bytes, RowId]:
+        """The project's dir stream, decompressed, and where its stored
+        value starts (see :meth:`Table.long_value_home`)."""
+        self._require_vba_project()
+        rid, stream = self._vba_dir()
+        return stream, self.table(STORAGE_TABLE).long_value_home(rid, "Lv")
+
+    def project_streams(self) -> list[tuple[str, bytes, RowId]]:
+        """Every stream in the VBA project's ``VBA`` folder -- the dir
+        stream, ``_VBA_PROJECT``, the ``__SRP_*`` caches and each module's
+        own -- as ``(name, value, home)``, in the order the storage table
+        holds them.  ``home`` is where the value starts (see
+        :meth:`Table.long_value_home`).
+
+        This, and not a scan of the long-value pages, is the way to a
+        stream.  The pages also hold values Access has let go of, which it
+        releases with their bytes left in place; a value of 64 bytes or
+        fewer is not on them at all but inside its row; and a longer one is
+        a chain whose first row opens with a pointer (GitHub issue #33).
+        """
+        if not self._project_present():
+            return []
+        _modules, _project, streams = self._vba_storage_ids()
+        storage = self.table(STORAGE_TABLE)
+        out: list[tuple[str, bytes, RowId]] = []
+        for rid, row in storage.rows_with_ids():
+            value = row.get("Lv")
+            if _as_int(row["ParentId"]) == streams and isinstance(value, bytes):
+                out.append((str(row["Name"]), value, storage.long_value_home(rid, "Lv")))
+        return out
+
+    def module_streams(self) -> list[ModuleStream]:
+        """Every module's stream, in dir-stream order, found as Access finds
+        it: the dir stream names the module's row under the project's
+        ``VBA`` folder, and its MODULEOFFSET says where the compressed
+        source starts in that row's value."""
+        if not self._project_present():
+            return []
+        _dir_rid, dir_stream = self._vba_dir()
+        encoding = encoding_of(dir_stream)
+        stored = {name: (value, home) for name, value, home in self.project_streams()}
+        out: list[ModuleStream] = []
+        for name, stream_name, kind in module_blocks(dir_stream):
+            at = module_offset_at(dir_stream, name)
+            offset = int.from_bytes(dir_stream[at : at + 4], "little")
+            found = stored.get(stream_name)
+            if found is None:
+                out.append(ModuleStream(name, kind, stream_name, b"", offset, encoding, None))
+                continue
+            value, home = found
+            out.append(ModuleStream(name, kind, stream_name, value, offset, encoding, (home.page, home.slot)))
+        return out
+
     def modules(self) -> list[VBAModule]:
         """Every module in the database's VBA project, in dir-stream order.
 
         ``source`` is the body without the leading ``Attribute`` block, so
         it reads as the VBE shows it.
         """
-        _dir_rid, dir_stream = self._vba_dir()
-        encoding = encoding_of(dir_stream)
-        _modules, _project, streams = self._vba_storage_ids()
-        payloads = {
-            str(row["Name"]): row.get("Lv")
-            for _rid, row in self.table(STORAGE_TABLE).rows_with_ids()
-            if _as_int(row["ParentId"]) == streams
-        }
         out: list[VBAModule] = []
-        for name, stream_name, kind in module_blocks(dir_stream):
-            payload = payloads.get(stream_name)
-            at = module_offset_at(dir_stream, name)
-            offset = int.from_bytes(dir_stream[at : at + 4], "little")
-            text = read_source(payload, offset, encoding) if isinstance(payload, bytes) else ""
-            _attributes, body = split_source(text)
-            out.append(VBAModule(name, kind, stream_name, VBA_CRLF.join(body)))
+        for stream in self.module_streams():
+            _attributes, body = split_source(stream.text)
+            out.append(VBAModule(stream.name, stream.kind, stream.stream_name, VBA_CRLF.join(body)))
         return out
 
     def module(self, name: str) -> VBAModule:
         """One module by name, case-insensitively as VBA compares names."""
+        self._require_vba_project()
         for module in self.modules():
             if module.name.lower() == name.lower():
                 return module
@@ -4046,6 +4302,7 @@ class AccessDatabase(ReferenceManager):
         """The VBA project with the shape a host's ``vba_project()`` has:
         ``modules``, ``references``, ``add_module``, ``rename_module`` and
         ``delete_module``, each acting on the database at once."""
+        self._require_vba_project()
         return AccessVBAProject(self)
 
     def pull_modules(self, dest_dir: str | Path, *, encoding: str = "utf-8", overwrite: bool = True) -> list[Path]:
@@ -4059,6 +4316,7 @@ class AccessDatabase(ReferenceManager):
         ``src_dir``; a file matching no module is skipped, or refused with
         ``strict``.  Nothing reaches disk until :meth:`save`.  Returns the
         names updated."""
+        self._require_vba_project()
         return _push_modules(self, src_dir, encoding=encoding, strict=strict)
 
     def create_module(
@@ -4076,6 +4334,7 @@ class AccessDatabase(ReferenceManager):
         different MODULETYPE.  The project is marked for recompilation, so
         the code has to compile when Access next opens the database.
         """
+        self._require_vba_project()
         if kind not in MODULETYPE:
             raise AccessError(f"kind must be 'module' or 'class', not {kind!r}")
         if not name or len(name) > 64:
@@ -4100,7 +4359,7 @@ class AccessDatabase(ReferenceManager):
             for r in rows
             if _as_int(r["ParentId"]) == modules_id and _as_int(r["Type"]) == 1
         }
-        folder = next_folder("Modules", folders)
+        folder = next_folder(folders)
         when = (
             updated
             if isinstance(updated, (dt.datetime, float))
@@ -4156,23 +4415,21 @@ class AccessDatabase(ReferenceManager):
         objects = self.table("MSysObjects")
         container = next(e.id for e in self.catalog() if e.name == "Modules" and e.type == 3)
         owner = next((e.owner for e in self.catalog() if e.type == OBJECT_MODULE and e.owner), None)
-        object_id = max((e.id for e in self.catalog() if e.id < 0), default=-(2**31)) + OBJECT_ID_STEP
+        if owner is None:
+            # A database's first module takes its container's owner, as Access gives it.
+            owner = next((e.owner for e in self.catalog() if e.id == container), None)
+        object_id = max((e.id for e in self.catalog() if e.id < 0), default=-(2**31)) + 1
         objects.insert_row(
             {"Id": object_id, "ParentId": container, "Name": name, "Type": OBJECT_MODULE,
              "Flags": 0, "Owner": owner, "DateCreate": when, "DateUpdate": when}
         )
+        # Its navigation-pane group row comes from Access, which files an
+        # object under a group the next time it opens the database.
         self.table("MSysNavPaneObjectIDs").insert_row(
             {"Id": object_id, "Name": name, "Type": NAV_MODULE_TYPE}
         )
-        groups = self.table("MSysNavPaneGroupToObjects")
-        peers = [
-            r for _rid, r in groups.rows_with_ids() if _as_int(r["GroupID"]) == NAV_MODULE_GROUP
-        ]
-        groups.insert_row(
-            {"GroupID": NAV_MODULE_GROUP, "ObjectID": object_id, "Flags": 0, "Icon": 0,
-             "Position": max((_as_int(r["Position"]) for r in peers), default=-1) + 1}
-        )
 
+        self._count_modules()
         self._drop_srp()
         self._catalog = None
         return self.module(name)
@@ -4185,6 +4442,7 @@ class AccessDatabase(ReferenceManager):
         writer cannot emit -- ``Const``, arrays, ``Static``, fixed-length
         strings, a whole new procedure -- reachable.
         """
+        self._require_vba_project()
         dir_rid, dir_stream = self._vba_dir()
         encoding = encoding_of(dir_stream)
         rid, payload, offset = self._module_stream_row(dir_stream, name)
@@ -4259,17 +4517,7 @@ class AccessDatabase(ReferenceManager):
             raise AccessError(f"a module named {new_name!r} already exists")
 
         self._rename_module_streams(module, new_name)
-        storage = self.table(STORAGE_TABLE)
-        modules_id = self._vba_storage_ids()[0]
-        for row_rid, row in list(storage.rows_with_ids()):
-            value = row.get("Lv")
-            if (
-                isinstance(value, bytes)
-                and value
-                and str(row["Name"]) == DIR_DATA
-                and _as_int(row["ParentId"]) == modules_id
-            ):
-                storage.update_row(row_rid, {"Lv": rename_dir_data(value, module.name, new_name)})
+        self._rename_in_container(self._vba_storage_ids()[0], module.name, new_name, refile=False)
         self._rename_catalog_rows(module.name, new_name, OBJECT_MODULE)
         self._drop_srp()
         self._catalog = None
@@ -4330,10 +4578,6 @@ class AccessDatabase(ReferenceManager):
                 )
             elif row_name == "_VBA_PROJECT":
                 storage.update_row(rid, {"Lv": invalidate_cache(value)})
-            elif row_name == "\x03DirData" and parent == modules_id:
-                storage.update_row(rid, {"Lv": remove_from_dir_data(value, module.name)})
-            elif row_name == "PropData" and parent == modules_id:
-                storage.update_row(rid, {"Lv": remove_from_folder_list(value, folder_name)})
             elif row_name == "PROJECTwm" and parent == project_id:
                 storage.update_row(rid, {"Lv": remove_from_project_wm(value, module.name, encoding)})
             elif row_name == "PROJECT" and parent == project_id:
@@ -4341,7 +4585,9 @@ class AccessDatabase(ReferenceManager):
                 fixed = remove_from_project(text, module.name)
                 if fixed != text:
                     storage.update_row(rid, {"Lv": encode_mbcs(fixed, encoding)})
+        self._unlist_in_container(modules_id, module.name, folder_name)
 
+        # The module's navigation-pane group row stays, as Access leaves it.
         objects = self.table("MSysObjects")
         for rid, row in list(objects.rows_with_ids()):
             if row["Type"] == OBJECT_MODULE and str(row["Name"]) == module.name:
@@ -4351,11 +4597,8 @@ class AccessDatabase(ReferenceManager):
                 for nav_rid, nav_row in list(nav.rows_with_ids()):
                     if _as_int(nav_row["Id"]) == object_id:
                         nav.delete_row(nav_rid, retire_empty=False)
-                groups = self.table("MSysNavPaneGroupToObjects")
-                for group_rid, group_row in list(groups.rows_with_ids()):
-                    if _as_int(group_row["ObjectID"]) == object_id:
-                        groups.delete_row(group_rid, retire_empty=False)
                 break
+        self._count_modules()
         self._drop_srp()
         self._catalog = None
 

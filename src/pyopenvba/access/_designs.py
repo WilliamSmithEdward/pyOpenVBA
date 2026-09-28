@@ -107,6 +107,11 @@ NAME_CODES = (20, 21)
 
 #: Where the captured designs live, one folder stream each.
 TEMPLATES = Path(__file__).parents[1] / "_templates" / "designs"
+#: A new form's or report's own `PropData` as Access writes it when it
+#: makes one: property 1, the flag `set_design_code` sets, and nothing
+#: else.  A design saved again in a later session gains property 0 as
+#: well, which is how the captured designs carried it.
+NEW_DESIGN_PROP_DATA = bytes.fromhex("00000000" "02" "01000000" "00000000")
 #: The record that carries a design's GUID, which the catalog row repeats.
 GUID_RECORD = 208
 GUID_LENGTH = 16

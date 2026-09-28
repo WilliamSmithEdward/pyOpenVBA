@@ -720,11 +720,18 @@ What it writes:
   `Modules`, a 13-byte `PropData` under it, and the module's stream under
   `VBA` with a row name of 28 random capitals
 * an entry in `Modules/PropData`, the list of those folders:
-  `05 09 02 <folder name, one UTF-16 character> "CB0"`, eleven bytes each
+  `05 09 02 <folder name, one UTF-16 character> "CB0"`, eleven bytes each.
+  The `09` and `02` are sizes, of the rest of the entry and of the name,
+  so a two-digit folder is `05 0b 04 "10" "CB0"` (GitHub issue #34).
+  *2026-09-27:* Access writes this entry, and the module's
+  `MSysNavPaneGroupToObjects` row, the next time it opens the database,
+  not when it adds the module, so the library now leaves both to it
+  (`tests/live_access_test/first_module_reopened.accdb`)
 * a dir block of eleven records and PROJECTMODULES up by one
 * entries in DirData, PROJECTwm and PROJECT
 * an `MSysObjects` row of type -32761, a `MSysNavPaneObjectIDs` row and a
-  `MSysNavPaneGroupToObjects` row in group 8
+  `MSysNavPaneGroupToObjects` row in group 8 (the last, since 2026-09-27,
+  left to Access, which adds it on its next open)
 * the `Version` word of `_VBA_PROJECT` set to a value VBA does not know
 
 It works on the shipped blank template too, which an earlier note had
@@ -732,6 +739,20 @@ written off: its `_VBA_PROJECT` is a stub, and marking the stub stale is
 all it needed.
 
 ### Three allocations that are computed, not chosen
+
+> **Corrected 2026-09-27.** The folder base of `4` and the id step of four
+> below were measured with Access driven through pyvbaharness, which
+> injects three modules of its own (`PyVbaHarnessRunner`,
+> `PyVbaHarnessCall`, `PyVbaUserCode`) into the project it runs code in.
+> While they exist they hold folders `1`, `2`, `3` and the next three ids,
+> so the module Access added took `4` and an id four higher; the `{0, 5}`
+> case reusing `4` is the same effect.  Access driven over COM alone gives
+> the lowest free folder counting from `0` and the next id
+> (`tests/live_access_test/modules_added.accdb`), the library now does
+> the same, and the live gate lists and runs modules in folders `1` and
+> up.  The `AllModules(i).Name` failures that seemed to confirm the old
+> rules came from `\x03DirData` naming folder `4` for every module, which
+> was fixed the same day.
 
 Both were found the same way -- a created module that the VBE listed and
 ran, while `CurrentProject.AllModules(i).Name` failed with "refers to an
@@ -743,7 +764,10 @@ not folders>)`. `Modules` holds four such rows -- `PropData`,
 `PropDataCopy`, `DirData` and `DirDataCopy` -- so its folders start at
 `4`, which is why the second module in a database gets `4` and never `1`.
 Only the computed name works: on the blank template `1`, `9` and `A` all
-fail while `4` succeeds.
+fail while `4` succeeds. Past `9` the name is the number in decimal,
+`10`, not the character after `9`: Access filled every container of the
+template past folder 9 and named them `10`, `11` and `12` (GitHub issue
+#34, `tests/live_access_test/folders_past_nine.accdb`).
 
 Two rules fit the first four measurements and only one fits all six. A
 count, `chr(0x30 + children - 1)`, works while folders stay contiguous.
@@ -764,6 +788,66 @@ inside the range another object holds. A macro, by contrast, takes the
 next id: the step is what an object reserves, not a global stride.
 
 That last line is the whole trick, and it is why the list is short.
+
+### The order of `\x03DirData` and `PropData`: an `std::unordered_map`
+
+Access does not append a new object's entry. Adding `Macro1` to
+`Macro11` gave `Macro1`, `Macro10`, `Macro2`, `Macro11`, `Macro3` and on
+to `Macro9`, in one session or in eleven. Forms named `Macro1` to
+`Macro11` come out the same way and macros named `Form1` to `Form11` in
+order, so the order follows the names. Adding `Mod2` to `Mod13` one
+session each, with a copy of the file after every session, showed
+entries that the session never touched changing places:
+
+```
+after Mod5    Module1 Mod2 Mod3 Mod4 Mod5
+after Mod6    Mod6 Module1 Mod2 Mod3 Mod4 Mod5
+after Mod7    Module1 Mod6 Mod2 Mod3 Mod4 Mod5 Mod7
+after Mod11   Module1 Mod6 Mod11 Mod2 Mod3 Mod4 Mod5 Mod7 Mod8 Mod9 Mod10
+after Mod13   Module1 Mod6 Mod11 Mod2 Mod12 Mod3 Mod13 Mod4 Mod5 Mod7 Mod8 Mod9 Mod10
+```
+
+Guessing the hash from orders like these went nowhere, so the answer
+came from `MSACCESS.EXE`. The storage names sit in a table beside a
+stream class whose reader inserts each entry it reads into a container
+that guards itself with "unordered_map/set too long". A container's
+`\x03DirData` is an MSVC `std::unordered_map` keyed by object name, its
+`PropData` folder list another keyed by folder name, and each stream is
+the map's own order. From the code, and checked against every probe:
+
+- **The hash** (at `0x14006c060`) is 16 bits: for each character that
+  counts, `h = (h << 5) + (h >> 13) + 1 + (c & 0x1f)`. So case does not
+  matter and `0` hashes as `P`. A byte table decides what counts among
+  ASCII characters: `"`, `'`, `~` and control characters are skipped,
+  and a space or tab counts as 0. A leading `.` is skipped. From the
+  first character past ASCII, the rest of the name goes through the
+  system code page (`WideCharToMultiByte`, no best fit) and
+  `LCMapStringA` upper-casing, a byte at a time, every byte above 1
+  counting. A Turkish UI turns two bytes into `I`, which is not
+  reproduced.
+- **The map** starts with 8 buckets; a key's bucket is `hash & (buckets
+  - 1)`. A new key goes in front of the first key of its bucket, or at
+  the end when its bucket is empty. An insert that would leave more keys
+  than buckets first grows the map to a power of two at least the new
+  size, and eightfold while it is under 512 buckets. The rehash walks the
+  list and moves each key to the front of its new bucket.
+- **Loading** inserts the stored entries in their order. That is why a
+  session reverses some pairs and not others: the ninth entry grows the
+  map, so the first eight are reversed twice and the rest once.
+- **Writing** happens only when the map changed. A delete erases; a
+  rename erases and inserts, in both lists under `DoCmd.Rename`, while a
+  module renamed in the VBE leaves `PropData` alone. A new object's
+  `PropData` line waits for the next open, when the missing lines are
+  inserted in DirData's order.
+
+Checked on 13 histories, every snapshot included: 36 one-character names
+made in one session forwards and backwards and then reopened, `Mod2` to
+`Mod13` one session each, `Macro1` to `Macro11` both ways, the forms and
+reports, `modules_added.accdb` and three small fixtures. Also on a
+delete, two renames, seven names past ASCII and four with skipped
+characters, and on `_container_order.ps1`'s delete and rename of
+modules, a form and a report in copies of `folders_past_nine.accdb`.
+The library writes these orders (`_storage.access_order`).
 
 ### `_VBA_PROJECT` is a cache, so invalidate it instead of forging it
 

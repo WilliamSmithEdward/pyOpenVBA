@@ -899,6 +899,18 @@ A project its application would not write is not written here either:
 Excel writes only the code names for one with no code in it, and
 PowerPoint nothing for one with no module.
 
+An Access database answers the same way until its first module, since
+Access makes no project for a database that has never held code.
+`AccessDatabase.add_vba_project()` gives it the one Access makes:
+
+```python
+with AccessDatabase("orders.accdb") as db:
+    if not db.has_vba_project():
+        db.add_vba_project()
+    db.add_module("Module1", "Public Function Ping() As Long\r\n    Ping = 1\r\nEnd Function")
+    db.save()
+```
+
 ### Access
 
 | Extension | What it is                   | Read | Write | create_new |

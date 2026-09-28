@@ -266,6 +266,21 @@ def test_access_opens_a_report_we_write_in_the_designer(blank: Path, tmp_path: P
     assert int(height) > 0
 
 
+def test_a_first_form_in_a_database_without_code_opens(tmp_path: Path) -> None:
+    """The form brings the VBA project with it, as Access's first form
+    does; Access opens it in the designer and runs it."""
+    out = tmp_path / "first_form.accdb"
+    shutil.copyfile(Path(__file__).parent / "live_access_test" / "no_project.accdb", out)
+    database = AccessDatabase(out)
+    database.create_form("Plain")
+    database.create_report("Sheet")
+    database.save()
+
+    assert str(ask(out, "OpenFormDesign", "Plain")).startswith("Plain|")
+    assert str(ask(out, "RunForm", "Plain")).startswith("Plain|")
+    assert str(ask(out, "OpenReportDesign", "Sheet")).startswith("Sheet|")
+
+
 def test_a_form_we_write_runs(blank: Path, tmp_path: Path) -> None:
     """Opening it in form view, not just the designer."""
     out = written(blank, tmp_path / "run.accdb", lambda db: db.create_form("Plain"))
@@ -286,6 +301,20 @@ def test_two_forms_both_open(blank: Path, tmp_path: Path) -> None:
 
     assert str(ask(out, "OpenFormDesign", "First")).startswith("First|")
     assert str(ask(out, "OpenFormDesign", "Second")).startswith("Second|")
+
+
+def test_a_form_and_a_report_in_folder_ten_open(blank: Path, tmp_path: Path) -> None:
+    """The eleventh of each takes folder `10` (GitHub issue #34)."""
+
+    def build(db: AccessDatabase) -> None:
+        for i in range(11):
+            db.create_form(f"Form{i}")
+            db.create_report(f"Report{i}")
+
+    out = written(blank, tmp_path / "past_nine.accdb", build)
+
+    assert str(ask(out, "OpenFormDesign", "Form10")).startswith("Form10|")
+    assert str(ask(out, "OpenReportDesign", "Report10")).startswith("Report10|")
 
 
 def test_a_deleted_design_is_gone_from_access(blank: Path, tmp_path: Path) -> None:

@@ -316,6 +316,33 @@ def test_a_report_can_be_deleted(blank: AccessDatabase) -> None:
     }
 
 
+@pytest.mark.parametrize("kind", ["form", "report"])
+def test_the_eleventh_design_goes_to_folder_ten(
+    blank: AccessDatabase, tmp_path: Path, kind: str
+) -> None:
+    """Past `9` a folder's name is its number in decimal, as Access names
+    them (GitHub issue #34); the character after `9` failed outright."""
+    create = blank.create_form if kind == "form" else blank.create_report
+    names = [f"D{i}" for i in range(11)]
+    for name in names:
+        create(name)
+
+    container = blank._design_container(kind)  # pyright: ignore[reportPrivateUsage]
+    listing = next(
+        r["Lv"]
+        for _rid, r in blank.table("MSysAccessStorage").rows_with_ids()
+        if r["ParentId"] == container and str(r["Name"]) == "\x03DirData"
+    )
+    assert isinstance(listing, bytes)
+    assert dir_data_entries(listing)[-2:] == [("D9", "9"), ("D10", "10")]
+
+    out = tmp_path / "written.accdb"
+    blank.save(out)
+    reopened = AccessDatabase(out)
+    designs = reopened.forms() if kind == "form" else reopened.reports()
+    assert [design.name for design in designs] == names
+
+
 def test_a_design_created_after_a_delete_reuses_the_folder(blank: AccessDatabase) -> None:
     blank.create_form("One")
     blank.create_form("Two")

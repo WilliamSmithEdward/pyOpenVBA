@@ -184,6 +184,24 @@ def test_macro_folders_start_at_zero_and_run_on(blank: AccessDatabase) -> None:
     assert dir_data_entries(listing) == [("One", "0"), ("Two", "1"), ("Three", "2")]
 
 
+def test_the_eleventh_macro_goes_to_folder_ten(blank: AccessDatabase, tmp_path: Path) -> None:
+    """Past `9` a folder's name is its number in decimal, as Access names
+    them (GitHub issue #34); the character after `9` failed outright."""
+    names = [f"M{i}" for i in range(11)]
+    for name in names:
+        blank.create_macro(name, [MacroAction("Beep")])
+    listing = next(r["Lv"] for r in scripts_rows(blank) if str(r["Name"]) == "\x03DirData")
+    assert isinstance(listing, bytes)
+    folders = dict(dir_data_entries(listing))
+    assert (folders["M9"], folders["M10"]) == ("9", "10")
+
+    out = tmp_path / "written.accdb"
+    blank.save(out)
+    # Listed as `\x03DirData` holds them, in Access's order, not the order made.
+    assert [m.name for m in AccessDatabase(out).macros()] == list(folders)
+    assert sorted(folders) == sorted(names)
+
+
 def test_a_created_macro_survives_a_save(blank: AccessDatabase, tmp_path: Path) -> None:
     blank.create_macro(
         "Probe", [MacroAction("SetTempVar", ("probe", "42")), MacroAction("Beep")]

@@ -70,11 +70,9 @@ ACTION_IDS: dict[str, int] = {
 }
 ACTION_NAMES: dict[int, str] = {value: key for key, value in ACTION_IDS.items()}
 
-#: `MSysObjects.Type` and `MSysNavPaneObjectIDs.Type` for a macro.  A
-#: macro's object id steps by one where a module's steps by four.
+#: `MSysObjects.Type` and `MSysNavPaneObjectIDs.Type` for a macro.
 OBJECT_MACRO = -32766
 NAV_MACRO_TYPE = 32770
-OBJECT_ID_STEP = 1
 
 
 @dataclass(frozen=True)

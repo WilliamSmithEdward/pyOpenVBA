@@ -31,13 +31,17 @@ a module that does not.
 
 from __future__ import annotations
 
+import random
 import re
 from collections.abc import Iterator
 from dataclasses import dataclass
 
+from pyopenvba.access._props import PropertyValue
 from pyopenvba.access._storage import (
+    LIST_HEADER,
     PROP_DATA,
     STORAGE_TABLE,
+    access_order,
     add_to_dir_data,
     dir_data_entries,
     next_folder,
@@ -64,6 +68,8 @@ __all__ = [
 #: The one record whose size field is not a size.
 PROJECTVERSION = 0x0009
 PROJECTCODEPAGE = 0x0003
+PROJECTNAME = 0x0004
+PROJECTCOOKIE = 0x0013
 PROJECTMODULES = 0x000F
 TERMINATOR = 0x0010
 MODULENAME = 0x0019
@@ -108,20 +114,35 @@ CLASS_ATTRIBUTES = (
 )
 
 # --- the storage rows a module occupies --------------------------------------
-#: One folder's line in ``Modules/PropData``, before its name.
-FOLDER_ENTRY = bytes.fromhex("050902")
+#: One folder's line in ``Modules/PropData`` opens with this tag, then the
+#: size of the rest of the line and the size of the folder's name.
+FOLDER_TAG = 0x05
 FOLDER_SUFFIX = "CB0".encode("utf-16-le")
 
 # --- the catalog -------------------------------------------------------------
 OBJECT_MODULE = -32761
 NAV_MODULE_TYPE = 32775
-#: The navigation-pane group Access files modules under.
-NAV_MODULE_GROUP = 8
-#: Access hands out object ids four at a time: ``Module1`` at
-#: -2147483640, then -2147483635, -2147483631, -2147483627, -2147483623 as
-#: a project grew.  Taking max + 1 lands inside the range another object
-#: holds, and ``AllModules(i).Name`` then fails.
-OBJECT_ID_STEP = 4
+
+# --- the project's own rows -------------------------------------------------
+#: `VBA/AcessVBAData`, in Access's spelling: two words that are always 1,
+#: then how many modules the project holds, the code behind a form or
+#: report included.  Access keeps the count as modules come and go (13 in
+#: a project of 13, 0 once the last is deleted).
+VBA_DATA = "AcessVBAData"
+EMPTY_VBA_DATA = bytes.fromhex("01000000" "01000000" "00000000")
+#: The root `PropData` gains this property, the project's code page, when
+#: a database gets its first VBA project.
+PROJECT_CODE_PAGE_PROPERTY = 0x6A
+ROOT_PROPERTY_TAG = 0x02
+#: And MSysDb's properties gain these two, as Access 16 writes them:
+#: `HasOfflineLists` 70 and `ProjVer` 142, both typed Integer, the second
+#: four bytes long all the same.
+PROJECT_DATABASE_PROPERTIES = {
+    "HasOfflineLists": PropertyValue(3, 0, bytes.fromhex("4600")),
+    "ProjVer": PropertyValue(3, 0, bytes.fromhex("8e000000")),
+}
+#: Where an Access 2000 file keeps its VBA project, a layout not read here.
+ACCESS_2000_STORAGE = "MSysAccessObjects"
 
 
 @dataclass(frozen=True)
@@ -136,6 +157,33 @@ class VBAModule:
     @property
     def is_class(self) -> bool:
         return self.kind == "class"
+
+
+@dataclass(frozen=True)
+class ModuleStream:
+    """A module's stream as the project's storage holds it.
+
+    ``data`` is the storage row's whole value: the compiled cache when the
+    module has one, then from ``offset``, its MODULEOFFSET, the compressed
+    source.  ``home`` is where that value starts, as ``(page, slot)``: its
+    first long-value row, or the storage row itself when the value is
+    short enough to sit inline.  A module whose row is missing has no data
+    and no home.
+    """
+
+    name: str
+    kind: str
+    stream_name: str
+    data: bytes
+    offset: int
+    encoding: str
+    home: tuple[int, int] | None
+
+    @property
+    def text(self) -> str:
+        """The source in the project's code page, ``Attribute`` lines
+        included; empty when the row is missing."""
+        return read_source(self.data, self.offset, self.encoding) if self.data else ""
 
 
 def records(stream: bytes) -> Iterator[tuple[int, int, int, bytes]]:
@@ -311,6 +359,81 @@ def set_module_offset(stream: bytes, name: str, offset: int) -> bytes:
     return bytes(out)
 
 
+def replace_record(stream: bytes, ident: int, payload: bytes) -> bytes:
+    """The dir stream with its first ``ident`` record holding ``payload``."""
+    for at, found, size, _old in records(stream):
+        if found == ident:
+            return stream[:at] + _record(ident, payload) + stream[at + 6 + size :]
+    raise AccessError(f"the dir stream has no {ident:#06x} record")
+
+
+# --- the project's own rows -------------------------------------------------
+
+
+def with_module_count(payload: bytes, count: int) -> bytes:
+    """``AcessVBAData`` counting ``count`` modules."""
+    return payload[:8] + count.to_bytes(4, "little") + payload[12:]
+
+
+def with_root_property(payload: bytes, ident: int, value: int) -> bytes:
+    """The root ``PropData`` with property ``ident`` set, appended as
+    ``02 <u32 id> <u32 value>`` when it is not there, which is how the
+    code page arrives with a first project."""
+    at = 4
+    while at + 9 <= len(payload) and payload[at] == ROOT_PROPERTY_TAG:
+        if int.from_bytes(payload[at + 1 : at + 5], "little") == ident:
+            return payload[: at + 5] + value.to_bytes(4, "little") + payload[at + 9 :]
+        at += 9
+    entry = bytes((ROOT_PROPERTY_TAG,)) + ident.to_bytes(4, "little") + value.to_bytes(4, "little")
+    return payload + entry
+
+
+#: What a new project's ``CMG``, ``DPB`` and ``GC`` records hold, as every
+#: project Access wrote here holds them: not protected, no password,
+#: visible.
+UNPROTECTED = {"CMG": bytes(4), "DPB": bytes(1), "GC": b"\xff"}
+
+
+def encrypt_project_data(data: bytes, project_id: str, rng: random.Random) -> str:
+    """One of ``PROJECT``'s ``CMG``, ``DPB`` and ``GC`` values ([MS-OVBA]
+    2.4.3.2): a random seed, then each byte XORed with a running sum that
+    starts from the project key, the byte sum of the ``ID`` text with its
+    braces.  The key is what ties the record to its project -- decrypted
+    against the ID of every project Access wrote here, the records carried
+    exactly that sum -- and VBA takes a project whose key does not match
+    for a protected one."""
+    seed = rng.randrange(256)
+    key = sum(project_id.encode("ascii")) & 0xFF
+    version_enc, key_enc = seed ^ 2, seed ^ key
+    out = bytearray((seed, version_enc, key_enc))
+    plain_prev, enc1, enc2 = key, key_enc, version_enc
+    ignored = rng.randbytes((seed & 6) // 2)
+    for byte in ignored + len(data).to_bytes(4, "little") + data:
+        byte_enc = byte ^ ((enc2 + plain_prev) & 0xFF)
+        out.append(byte_enc)
+        enc2, enc1, plain_prev = enc1, byte_enc, byte
+    return out.hex().upper()
+
+
+def new_project_text(text: str, name: str, project_id: str, rng: random.Random) -> str:
+    """A ``PROJECT`` stream for a new project, from one Access wrote with
+    its modules taken out: the opening block's ``ID`` and ``Name`` lines
+    rewritten, and its ``CMG``, ``DPB`` and ``GC`` encrypted afresh against
+    the new ID, the rest as it stood."""
+    lines = text.split(CRLF)
+    for i, line in enumerate(lines):
+        if line.startswith("["):
+            break
+        key = line.split("=", 1)[0]
+        if key == "ID":
+            lines[i] = "ID=" + QUOTE + project_id + QUOTE
+        elif key == "Name":
+            lines[i] = "Name=" + QUOTE + name + QUOTE
+        elif key in UNPROTECTED:
+            lines[i] = key + "=" + QUOTE + encrypt_project_data(UNPROTECTED[key], project_id, rng) + QUOTE
+    return CRLF.join(lines)
+
+
 # --- the compiled cache ------------------------------------------------------
 
 
@@ -408,15 +531,38 @@ def add_to_project(text: str, name: str, kind: str) -> str:
     line, which is where the first one goes.
     """
     lines = text.split(CRLF)
-    entry = ("Class=" if kind == "class" else "Module=") + name
+    _list_module(lines, ("Class=" if kind == "class" else "Module=") + name)
+    _add_workspace_line(lines, f"{name}=38, 38, 1786, 1030, ")
+    return CRLF.join(lines)
+
+
+def _list_module(lines: list[str], entry: str) -> None:
+    """After the block's last module line, or right below ``ID=`` when the
+    block is empty."""
     listed = [i for i, line in enumerate(lines) if line.startswith(MODULE_KEYWORDS)]
     if listed:
         lines.insert(max(listed) + 1, entry)
     else:
         opener = next((i for i, line in enumerate(lines) if line.startswith("ID=")), -1)
         lines.insert(opener + 1, entry)
-    if any(line.strip() == "[Workspace]" for line in lines):
-        lines.insert(len(lines) - 1, f"{name}=38, 38, 1786, 1030, ")
+
+
+def _add_workspace_line(lines: list[str], line: str) -> None:
+    """A window rectangle under ``[Workspace]``.  A project that has never
+    held a module has no such section, and Access opens one for the first
+    module or form code, after a blank line."""
+    if not any(existing.strip() == "[Workspace]" for existing in lines):
+        lines[-1:-1] = ["", "[Workspace]"]
+    lines.insert(len(lines) - 1, line)
+
+
+def without_empty_workspace(text: str) -> str:
+    """``PROJECT`` without an empty ``[Workspace]`` section, as Access
+    writes a project it made for a form, report or macro rather than a
+    module."""
+    lines = text.split(CRLF)
+    if lines[-3:] == ["", "[Workspace]", ""]:
+        lines[-3:] = [""]
     return CRLF.join(lines)
 
 
@@ -456,13 +602,49 @@ def rename_project(text: str, old: str, new: str) -> str:
 # --- the folder list ---------------------------------------------------------
 
 
-def add_to_folder_list(payload: bytes, folder: str) -> bytes:
-    return payload + FOLDER_ENTRY + folder.encode("utf-16-le") + FOLDER_SUFFIX
+def folder_entry(folder: str) -> bytes:
+    """A folder's line in the list: ``05 09 02 "4" "CB0"`` for folder `4`,
+    and ``05 0b 04 "10" "CB0"`` for folder `10`, both as Access wrote them.
+    The two sizes are what grow with the name."""
+    name = folder.encode("utf-16-le")
+    return bytes((FOLDER_TAG, 1 + len(name) + len(FOLDER_SUFFIX), len(name))) + name + FOLDER_SUFFIX
+
+
+def _folder_list_parts(payload: bytes) -> tuple[list[str], dict[str, bytes], bytes]:
+    """The folders in stored order, each folder's whole line, and whatever
+    follows the last line."""
+    folders: list[str] = []
+    lines: dict[str, bytes] = {}
+    at = LIST_HEADER
+    while at + 3 <= len(payload) and payload[at] == FOLDER_TAG:
+        end = at + 2 + payload[at + 1]
+        folder = payload[at + 3 : at + 3 + payload[at + 2]].decode("utf-16-le")
+        folders.append(folder)
+        lines[folder] = payload[at:end]
+        at = end
+    return folders, lines, payload[at:]
+
+
+def _in_folder_list(payload: bytes, folder: str, *, again: bool) -> bytes:
+    """The list with `folder`'s line erased, and inserted again when
+    `again`, in the order Access writes it after (see `access_order`).  A
+    list without the line is left alone, as Access leaves it."""
+    folders, lines, tail = _folder_list_parts(payload)
+    if folder not in lines:
+        return payload
+    added = (folder,) if again else ()
+    order = access_order(folders, remove=(folder,), add=added)
+    return payload[:LIST_HEADER] + b"".join(lines[name] for name in order) + tail
 
 
 def remove_from_folder_list(payload: bytes, folder: str) -> bytes:
-    entry = FOLDER_ENTRY + folder.encode("utf-16-le") + FOLDER_SUFFIX
-    return payload.replace(entry, b"", 1)
+    return _in_folder_list(payload, folder, again=False)
+
+
+def refile_in_folder_list(payload: bytes, folder: str) -> bytes:
+    """A renamed object's line: Access erases it and inserts it again, so
+    it moves though the folder keeps its name."""
+    return _in_folder_list(payload, folder, again=True)
 
 
 # --- code behind a form or report ---------------------------------------------
@@ -504,10 +686,8 @@ def document_attributes(name: str, clsid: str) -> list[str]:
 def add_to_project_documents(text: str, name: str) -> str:
     """A `DocClass=` line, and a window rectangle under `[Workspace]`."""
     lines = text.split(CRLF)
-    last = max(i for i, line in enumerate(lines) if line.startswith(MODULE_KEYWORDS))
-    lines.insert(last + 1, f"{DOC_CLASS}={name}{DOC_CLASS_SUFFIX}")
-    if any(line.strip() == "[Workspace]" for line in lines):
-        lines.insert(len(lines) - 1, f"{name}={DOC_WORKSPACE}")
+    _list_module(lines, f"{DOC_CLASS}={name}{DOC_CLASS_SUFFIX}")
+    _add_workspace_line(lines, f"{name}={DOC_WORKSPACE}")
     return CRLF.join(lines)
 
 

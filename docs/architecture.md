@@ -230,7 +230,8 @@ follows and how it was measured is in
 [docs/access_engine.md](access_engine.md).
 
 `AccessDatabase` exposes the same surface as the other hosts:
-`module_names()`, `get_module()`, `set_module()`, `vba_project()` with
+`has_vba_project()` and `add_vba_project()` for a database that has
+never held code, `module_names()`, `get_module()`, `set_module()`, `vba_project()` with
 `add_module` / `rename_module` / `delete_module`, `pull_modules()` /
 `push_modules()`, `forms()` and `add_form()` with `add_control` /
 `remove_control` / `set_property` on the result, `save()`, `create_new()`.

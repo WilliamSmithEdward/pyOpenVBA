@@ -5,7 +5,98 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ## [Unreleased]
 
-Nothing yet.
+### Added
+
+- `AccessDatabase.add_vba_project()` gives a database that has never
+  held code the VBA project Access makes for a first module, and modules
+  are added to it as to any project. A database Access creates has no
+  project until its first module, form, report or macro: its storage
+  stops at an empty `VBA` folder, and creating a form, report or macro in
+  it now brings the project, as Access's first ones do. Access gave such
+  a database its first module over COM
+  (tests/live_access_test/_first_project.ps1), and the library's project
+  and module match what it wrote, catalog row and object id included.
+  The exceptions are what differs between any two projects Access makes
+  and the compiled caches, which VBA rebuilds on the next open. The
+  project is named after the database's file up to its first dot, as
+  Access names it. It gets an `ID` and a PROJECTCOOKIE of its own, and
+  `CMG`, `DPB` and `GC` encrypted against that ID. Access takes a project
+  whose records are keyed to another ID for a protected one. A live gate
+  has Access list and run the modules of a project made this way.
+- `AccessDatabase.has_vba_project()`, `dir_stream()`,
+  `project_streams()` and `module_streams()`, and
+  `Table.long_value_home()`: whether a database holds a VBA project, its
+  dir stream, each of the project's streams and each module's as the
+  storage holds them, and where a long value starts. `modules()` and
+  `AccessReader` read through them.
+
+### Fixed
+
+- A database with no VBA project answers as the other hosts' files do.
+  `modules()`, `module_names()`, `references()`, `pull_modules()` and
+  the new stream listings answer empty. A read or write that needs the
+  project raises `NoVBAProjectError`, naming the file and
+  `add_vba_project()`. They had failed with "MSysAccessStorage has no
+  'dir' row", while `forms()`, `reports()` and `macros()` answered
+  empty. An Access 2000 file, whose project lives in `MSysAccessObjects`,
+  is refused rather than answered as empty.
+- A module the library adds takes the storage folder and object id
+  Access gives it: the lowest free folder counting from `0`, and the
+  next id. The library had started `Modules` at folder `4` and stepped
+  ids by four. Those rules were measured through pyvbaharness, whose
+  three injected modules held the lowest folders and the next ids while
+  Access added the module it was asked for. Access driven over COM alone
+  gave the template's new modules folders `1`, `2` and `3` and
+  consecutive ids, and a module added after a middle one was deleted took
+  the freed folder and a new id (tests/live_access_test/modules_added.accdb).
+  The live gate's modules now sit in those folders, and Access lists and
+  runs them.
+- `AcessVBAData` counts the project's modules as Access keeps it,
+  through every add and delete, the code behind a form or report
+  included. The library never updated it.
+- Creating a module, form, report or macro writes what Access writes
+  when it makes one, and leaves the rest to Access's next open. The
+  library had also written the object's entry in its container's
+  `PropData` folder list and its navigation-pane group row. Access adds
+  both the next time it opens the database, even when it only opens and
+  closes it (tests/live_access_test/first_module_reopened.accdb). A
+  delete leaves the group row, as Access's does, and takes a container's
+  `\x03DirData` and `PropData` rows with its last object. A new form's or
+  report's own `PropData` is the 13 bytes Access writes when it makes one.
+  A project made with a form, report or macro has no `[Workspace]`
+  section in `PROJECT`, and the first module or form code opens one after
+  a blank line, as Access does.
+- An Access object's storage folder past `9` is named `10`, `11` and on,
+  as Access names it (#34). The library went on from `9` to `:`, so the
+  eleventh module, macro, form or report in a container raised
+  `ValueError`, and on the blank template the seventh module added did.
+  A folder's entry in `Modules/PropData` holds the name's size, so it
+  grows with a two-digit name, as Access's does. Access filled every
+  container of the template past folder 9, and the tests read its folder
+  names and entries (tests/live_access_test/folders_past_nine.accdb). A
+  live gate has Access list and run modules in folders 10 and 11, run an
+  eleventh macro, and open an eleventh form and report.
+- A container's `\x03DirData` and `PropData` list its objects in the
+  order Access writes them. Access keeps each list in an MSVC
+  `std::unordered_map`, keyed by object name and by folder name, with a
+  16-bit name hash read from `MSACCESS.EXE`, and writes it in the map's
+  order. A new object goes in front of the first entry of its hash
+  bucket, which is often not the end. Loading a list inserts its entries
+  again, so a delete moves entries it never named, and a rename moves
+  its own entry as well. The library had appended new entries and edited
+  others in place. Replaying the changes that built
+  `modules_added.accdb` and `folders_past_nine.accdb` now gives their
+  lists exactly. So do the deletes and renames of modules, forms and
+  reports that Access made in copies of the second. `forms()`,
+  `reports()` and `macros()` follow the list, so objects the library
+  makes now come back in that order too.
+- A database's first VBA project adds `HasOfflineLists` and `ProjVer` to
+  MSysDb's properties and stamps the row, as Access does. MSysDb's
+  properties now match Access's byte for byte after a first module or
+  macro.
+- A macro, form or report the library makes is owned by the database's
+  creator, the owner on MSysDb, as Access gives it. They had taken the
+  owner of the first catalog row that had one, which is the engine's.
 
 ## [6.2.0] - 2026-09-26
 

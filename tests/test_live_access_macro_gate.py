@@ -110,6 +110,31 @@ def test_access_runs_a_macro_we_write(blank: Path, tmp_path: Path) -> None:
     assert ask(out, "RunAndRead", "Probe", "probe") == 42
 
 
+def test_a_first_macro_in_a_database_without_code_runs(tmp_path: Path) -> None:
+    """The macro brings the VBA project with it, as Access's first macro
+    does."""
+    out = tmp_path / "first_macro.accdb"
+    shutil.copyfile(Path(__file__).parent / "live_access_test" / "no_project.accdb", out)
+    database = AccessDatabase(out)
+    database.create_macro("Probe", [MacroAction("SetTempVar", ("probe", "7"))])
+    database.save()
+
+    assert ask(out, "RunAndRead", "Probe", "probe") == 7
+
+
+def test_a_macro_in_folder_ten_runs(blank: Path, tmp_path: Path) -> None:
+    """The eleventh macro takes folder `10` (GitHub issue #34)."""
+
+    def build(db: AccessDatabase) -> None:
+        for i in range(10):
+            db.create_macro(f"Filler{i}", [MacroAction("Beep")])
+        db.create_macro("Eleventh", [MacroAction("SetTempVar", ("probe", "11"))])
+
+    out = written(blank, tmp_path / "past_nine.accdb", build)
+
+    assert ask(out, "RunAndRead", "Eleventh", "probe") == 11
+
+
 def test_an_argument_that_is_an_expression_is_evaluated(blank: Path, tmp_path: Path) -> None:
     out = written(
         blank,

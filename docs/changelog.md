@@ -76,6 +76,18 @@ All notable changes to pyOpenVBA are documented here. This project follows
   names and entries (tests/live_access_test/folders_past_nine.accdb). A
   live gate has Access list and run modules in folders 10 and 11, run an
   eleventh macro, and open an eleventh form and report.
+- Compressed module source and dir streams come out as Office writes
+  them. Office chooses its copy tokens as Windows' own LZNT1 compressor
+  does (`RtlCompressBuffer` in ntdll, standard engine). It remembers only
+  the position where a token starts, two to each of 4096 buckets hashed
+  from the next three bytes, and takes the longer of the two matches.
+  After a chunk whose last flag byte is full it writes one more, empty.
+  The library had searched every earlier position for the longest match.
+  Its bytes were Office's for 32 of the 148 streams Office wrote in the
+  fixtures, and for none of their dir streams. All 148 now come back
+  byte for byte, from Access, Excel, Word and PowerPoint, `.xls`, `.xlsb`
+  and `.doc` included. On Windows a test also checks the tokens against
+  ntdll's on generated input.
 - A container's `\x03DirData` and `PropData` list its objects in the
   order Access writes them. Access keeps each list in an MSVC
   `std::unordered_map`, keyed by object name and by folder name, with a

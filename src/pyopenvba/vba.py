@@ -247,7 +247,8 @@ def _decompress(
 
 def compress(data: bytes) -> bytes:
     """
-    Compress data using the MS-OVBA compression algorithm.
+    Compress data using the MS-OVBA compression algorithm, choosing every
+    token as Office does (see :func:`_encode_lz`).
 
     [MS-OVBA] 2.4.1 — write path.
 
@@ -270,7 +271,7 @@ def compress(data: bytes) -> bytes:
         chunk = data[cursor: cursor + 4096]
         cursor += len(chunk)
 
-        encoded = _encode_token_chunk(chunk)
+        encoded = _encode_lz(chunk)
         if len(encoded) <= 4096:
             # header: flag=1, sig=0b011, size-1 = len(encoded)-1
             # 0x8000 | 0x3000 = 0xB000
@@ -296,61 +297,35 @@ def compress(data: bytes) -> bytes:
     return bytes(out)
 
 
-def _encode_token_chunk(chunk: bytes) -> bytes:
-    # Always run the greedy LZ encoder. Microsoft Access byte-validates
-    # the OVBA cache blob and rejects modules whose CompressedChunk bytes
-    # don't match what its own compressor would have produced -- even
-    # when the decompressed plaintext is identical. A literal-only
-    # fast-path (legal per [MS-OVBA] 2.4.1) emits valid-but-different
-    # bytes for short chunks (<= 3640 bytes) and trips Access's
-    # "Error accessing file. Network connection may have been lost."
-    # in the VBE. Empirically the greedy LZ encoder produces output
-    # that matches Access's encoding byte-for-byte on samples 010-051.
-    # If LZ encoding overflows 4096 bytes (adversarial high-entropy
-    # input), fall back to a raw chunk -- this only fires for inputs
-    # that cannot be represented as a token-compressed chunk at all.
-    encoded = _encode_lz(chunk)
-    if len(encoded) <= 4096:
-        return encoded
-    # Caller will see len > 4096 and emit a raw chunk if the chunk is
-    # exactly 4096 bytes. This branch is unreachable for realistic VBA
-    # source text.
-    return encoded
-
-
 def _encode_lz(chunk: bytes) -> bytes:
-    """Greedy LZ encoder for token-compressed chunks.
+    """Token-compress one chunk, choosing every token as Office does, so
+    that a stream the library writes is the one Office would have saved.
 
-    Byte-for-byte equivalent to the naive full-window scan (each
-    position considers every earlier position, ascending, keeping the
-    first candidate with a strictly greater capped match length -- so
-    ties go to the FARTHEST candidate), but replaces the O(window) scan
-    with a 3-gram position index.  The reduction is sound because:
+    Office chooses as the LZNT1 standard engine Windows ships in ntdll
+    (``RtlCompressBuffer``) does, with one difference at the end of a
+    chunk.  Measured against every module and dir stream Office wrote in
+    the fixtures, from Access, Excel, Word and PowerPoint, and against
+    ntdll on generated input:
 
-    * a copy token requires a match length of at least 3, so any
-      winning candidate shares its first three bytes with the target
-      and appears in the index bucket for that 3-gram;
-    * candidates outside the bucket match at most 2 bytes and can
-      neither win nor influence the strict-improvement tie-break;
-    * within a 4096-byte chunk ``copy_token_help``'s offset range
-      always covers the whole chunk-so-far, so bucket entries never
-      expire and ascending bucket order equals ascending scan order.
-
-    The byte-exactness matters: Access validates the OVBA cache blob
-    against its own compressor's output (see ``_encode_token_chunk``),
-    and ``test_compress_byte_exact_against_access_sample_040`` plus the
-    naive-oracle equivalence tests pin this property.
+    * Only a position where a token starts is remembered.  The bytes a
+      copy token covers are never candidates later.
+    * A position is remembered in one of 4096 buckets, picked by a hash
+      of the three bytes that start there, and a bucket holds two: the
+      newest position and the one before it.  Different three-byte runs
+      can share a bucket and push each other out.
+    * A lookup measures both remembered positions, each up to the
+      longest match a token at this position can express, and takes the
+      longer; the newer wins a tie.  A match under three bytes makes a
+      literal.  A position with fewer than three bytes left is a literal
+      and is not remembered.
+    * When a chunk's last token fills its flag byte, Office writes one
+      more flag byte, empty.  ntdll does not.
     """
     out = bytearray()
     pos = 0
     chunk_len = len(chunk)
-
-    # 3-gram index: int key (little-endian packed three bytes) -> list
-    # of positions in ascending order.  ``indexed_to`` marks how far the
-    # index has been populated; positions are added lazily as the
-    # encoder passes them, including positions inside copied regions.
-    index: dict[int, list[int]] = {}
-    indexed_to = 0
+    newest = [-1] * 4096
+    older = [-1] * 4096
 
     while pos < chunk_len:
         flag_bits = 0
@@ -361,36 +336,24 @@ def _encode_lz(chunk: bytes) -> bytes:
                 break
 
             length_mask, offset_mask, bit_count = copy_token_help(pos, 0)
-            max_length = length_mask + 3
-
             best_len = 0
             best_offset = 0
             if pos + 3 <= chunk_len:
-                while indexed_to < pos:
-                    if indexed_to + 3 <= chunk_len:
-                        key = (
-                            chunk[indexed_to]
-                            | chunk[indexed_to + 1] << 8
-                            | chunk[indexed_to + 2] << 16
-                        )
-                        index.setdefault(key, []).append(indexed_to)
-                    indexed_to += 1
-                limit = max_length
-                if chunk_len - pos < limit:
-                    limit = chunk_len - pos
-                target_key = chunk[pos] | chunk[pos + 1] << 8 | chunk[pos + 2] << 16
-                for candidate in index.get(target_key, ()):
-                    match_len = 3
+                run = (chunk[pos] << 8) ^ (chunk[pos + 1] << 4) ^ chunk[pos + 2]
+                bucket = ((40543 * run) >> 4) & 0xFFF
+                candidates = (newest[bucket], older[bucket])
+                newest[bucket], older[bucket] = pos, candidates[0]
+                limit = min(length_mask + 3, chunk_len - pos)
+                for candidate in candidates:
+                    if candidate < 0:
+                        continue
+                    match_len = 0
                     while (match_len < limit
                            and chunk[candidate + match_len] == chunk[pos + match_len]):
                         match_len += 1
                     if match_len > best_len:
                         best_len = match_len
                         best_offset = pos - candidate
-                        if best_len >= limit:
-                            # No later candidate can strictly improve on
-                            # the cap; the naive scan would keep this one.
-                            break
 
             if best_len >= 3:
                 flag_bits |= (1 << bit)
@@ -405,6 +368,8 @@ def _encode_lz(chunk: bytes) -> bytes:
         out.append(flag_bits)
         for tok in tokens:
             out.extend(tok)
+        if len(tokens) == 8 and pos >= chunk_len:
+            out.append(0)
 
     return bytes(out)
 

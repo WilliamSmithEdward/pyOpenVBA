@@ -76,6 +76,28 @@ All notable changes to pyOpenVBA are documented here. This project follows
   names and entries (tests/live_access_test/folders_past_nine.accdb). A
   live gate has Access list and run modules in folders 10 and 11, run an
   eleventh macro, and open an eleventh form and report.
+- `AccessReader` reads the catalog and the compiled streams through the
+  storage engine too. Its own `MSysObjects` decoder skipped a row moved
+  to an overflow page, cut names short (`Macro10` read `Macro1`) and
+  dropped others, forms and macros among them. `identifiers()` found
+  nothing once `_VBA_PROJECT` was longer than one long-value row, as it
+  is in a project with forms or a dozen modules. Its page scans read a
+  deleted long-value row as live, so `iter_pcode_streams()` returned
+  copies of neighbouring rows: 72 rows for a project's 27 streams.
+  `find_interned_strings()` returned the literals of deleted code.
+  `MSYS_TYPE_REPORT` held the macro type, -32766; Access writes -32764
+  for a report.
+- `AccessReader` reads a module as `AccessDatabase` does, from the row
+  in `MSysAccessStorage` that the project's dir stream names, and decodes
+  it in the project's code page (#33). It had scanned the long-value
+  pages and decoded as latin-1. So cp1252 punctuation and every
+  double-byte code page read wrong, on files Access saved too. An edited
+  module could read as the old copy Access releases with its bytes left
+  in place. A module stored in 64 bytes or fewer, kept inside its row,
+  was missing. And `read_project_info` failed once the dir stream no
+  longer fitted one page, at about forty modules. `access-ls`,
+  `access-pull` and `pull_access` read through it, and `export_modules`
+  writes the project's code page.
 - Compressed module source and dir streams come out as Office writes
   them. Office chooses its copy tokens as Windows' own LZNT1 compressor
   does (`RtlCompressBuffer` in ntdll, standard engine). It remembers only

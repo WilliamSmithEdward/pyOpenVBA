@@ -30,7 +30,6 @@ from pyopenvba.access._tdef import (
     TYPE_TEXT,
     parse_table_definition,
 )
-from pyopenvba.access_read import AccessReader
 
 FIXTURES = Path(__file__).parent / "live_access_test"
 TEMPLATES = Path(__file__).parents[1] / "src" / "pyopenvba" / "_templates" / "blank_files"
@@ -156,37 +155,18 @@ def test_every_table_counts_to_its_definition(path: Path) -> None:
             assert set(row) == set(table.column_names)
 
 
-def test_catalog_agrees_with_the_shipped_reader_on_every_row() -> None:
-    """Two independent decoders of MSysObjects must agree, ids compared as
-    the unsigned values the old reader reports."""
-    for path in AUTHORED:
-        db = AccessDatabase(path)
-        mine = {
-            e.id & 0xFFFFFFFF: (e.name, e.type, e.parent_id & 0xFFFFFFFF)
-            for e in db.catalog()
-        }
-        with AccessReader(path) as old:
-            theirs = {o.id_: (o.name, o.type_, o.parent_id) for o in old.msys_objects()}
-        # The old reader skips rows it cannot place; ours must cover them.
-        assert set(theirs) <= set(mine), path.name
-        for key, value in theirs.items():
-            if path == LARGE and key == 145:
-                # The old reader mis-bounds the one row that lives on an
-                # overflow page and reads garbage after its name.
-                assert value[0].startswith("Table2") and value[0] != "Table2"
-                assert mine[key] == ("Table2", 1, 251658241)
-                continue
-            assert mine[key] == value, (path.name, key)
-
-
 def test_overflow_rows_are_followed() -> None:
-    """MSysObjects on the 1 MB fixture keeps one row on another page; the
-    old reader never saw it, so 'Table2' is the proof the pointer works."""
+    """MSysObjects on the 1 MB fixture keeps one row on another page, and
+    'Table2', whole and in place, is the proof the pointer works.  The
+    reader's old hand decoder skipped that row, so `AccessReader` now
+    reads the catalog through this."""
     db = AccessDatabase(LARGE)
-    names = {e.name for e in db.catalog()}
-    assert "Table2" in names and "MSysNameMap" in names
-    with AccessReader(LARGE) as old:
-        assert "Table2" not in {o.name for o in old.msys_objects()}
+    entries = {
+        e.id & 0xFFFFFFFF: (e.name, e.type, e.parent_id & 0xFFFFFFFF)
+        for e in db.catalog()
+    }
+    assert entries[145] == ("Table2", 1, 251658241)
+    assert "MSysNameMap" in {name for name, _type, _parent in entries.values()}
 
 
 def test_user_and_system_tables_are_told_apart() -> None:

@@ -921,6 +921,7 @@ def test_a_first_project_reads_back_and_takes_a_second(bare: AccessDatabase, tmp
     reopened = AccessDatabase(out)
     assert [m.name for m in reopened.modules()] == ["Adder", "Other"]
     assert reopened.module("Adder").source == ADDER.replace("\n", "\r\n")
+    assert [m.name for m in AccessReader(out).iter_vba_modules()] == ["Adder", "Other"]
     assert module_places(reopened) == {"Adder": ("0", -2147483638), "Other": ("1", -2147483637)}
 
 

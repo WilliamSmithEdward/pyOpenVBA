@@ -43,8 +43,10 @@ write the VBA project through the same writer (un-parking the 2026-08
 research); queries, relationships and properties; forms, reports and
 macros; a SQL executor over the lot.
 
-`AccessReader` keeps its public API and will be rebuilt on the engine once
-the engine finds the same rows it does today.
+`AccessReader` keeps its public API and reads through the engine: its
+modules, the project's streams and `MSysObjects` come from the rows the
+engine finds them in (GitHub issue #33).  Only `iter_source_rows` still
+scans the file on its own, for a marker Access keeps no row of.
 
 ## Ground truth, in order of authority
 

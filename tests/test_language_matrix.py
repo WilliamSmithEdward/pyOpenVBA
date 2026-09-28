@@ -333,6 +333,10 @@ def test_access_module_source_survives_full_database_cycle(
     assert "?" not in back.replace("Probe()", ""), (
         f"{label} (cp{code_page}) source was substituted on write"
     )
+    # The standalone reader decoded as latin-1 until issue #33.
+    assert AccessReader(database).read_vba_module("Module1") == back, (
+        f"{label} (cp{code_page}) reads differently through AccessReader"
+    )
 
 
 @pytest.mark.parametrize(("code_page", "label", "name"), NAME_MATRIX, ids=_NAME_IDS)

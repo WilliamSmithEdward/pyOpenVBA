@@ -247,11 +247,12 @@ the project from the module streams on the next open, as Access's own
 `/decompile` does. The code has to compile; a live gate has Access run
 what was written and compares the value the code returns.
 
-`AccessReader` predates the engine: a page scanner that finds the MS-OVBA
-blobs by signature and decodes `MSysObjects` on its own. It keeps its
-read API (`get_module`, `vba_modules`, `read_project_info`, `identifiers`,
-`disassemble_module`, the catalog readers, `pull_modules`) and
-`pull_access` still uses it; it writes nothing. The chronicle of the
+`AccessReader` predates the engine and now reads through it: modules,
+the project's streams and `MSysObjects` come from the rows the engine
+finds them in, and text is decoded in the project's code page.  It keeps
+its read API (`get_module`, `vba_modules`, `read_project_info`,
+`identifiers`, `disassemble_module`, the catalog readers,
+`pull_modules`) and `pull_access` still uses it; it writes nothing. The chronicle of the
 attempts that came before the engine is
 [docs/msaccess_lessons_learned.md](msaccess_lessons_learned.md).
 
@@ -489,9 +490,9 @@ tests/
   test_powerpoint.py           PowerPointFile facade, end-to-end
   test_pull_push.py            Disk workflow
   test_gates.py                Per-roadmap-gate regression tests
-  test_access.py               AccessReader read path: page walk,
-                               LVAL chain walk, MS-OVBA blob decode,
-                               byte-for-byte oracle parity (EXPERIMENTAL)
+  test_access.py               AccessReader read path: modules through
+                               MSysAccessStorage, code pages,
+                               byte-for-byte oracle parity
   test_access_engine.py        Storage engine read layer against the
                                Access-authored fixtures
   test_live_access_engine_gate.py

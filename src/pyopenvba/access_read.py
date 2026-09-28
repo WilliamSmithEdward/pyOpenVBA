@@ -6,13 +6,13 @@ Status
 READ-ONLY. This module exposes a read-only view of Access VBA storage:
 
     * Read 4 KiB ACE page format (Access 2007+ / Jet 4).
-    * Discover VBA modules by locating their MS-OVBA compressed blobs.
-    * Walk LVAL page chains to reassemble multi-page blobs.
-    * Decompress blobs to plain VBA source via :func:`pyopenvba.vba.decompress`.
+    * Find the VBA project and its modules through ``MSysAccessStorage``,
+      as Access does, using the storage engine in :mod:`pyopenvba.access`.
+    * Decompress module streams to plain VBA source via
+      :func:`pyopenvba.vba.decompress`, in the project's code page.
     * Disassemble Access's flavour of VBA p-code (see :mod:`pyopenvba.vba_pcode`).
 
-Writing Access VBA is intentionally out of scope; see
-``docs/msaccess_lessons_learned.md`` for the reasoning.
+Writing Access VBA is :class:`pyopenvba.access.AccessDatabase`'s job.
 
 Format notes (all reverse engineered against published Jet/ACE references plus
 direct inspection -- no external Microsoft dependency at runtime):
@@ -36,8 +36,10 @@ VBA storage
 -----------
 Each VBA module's source is stored as a single MS-OVBA compressed stream --
 the **same** RLE format used by Excel/Word VBA projects (see
-:mod:`pyopenvba.vba`). The stream is laid out across one or more LVAL data
-pages chained by a next-page pointer in each page header.
+:mod:`pyopenvba.vba`) -- in its own ``MSysAccessStorage`` row, which the
+project's dir stream names.  A value of 64 bytes or fewer sits inside the
+row; a longer one is laid out across one or more LVAL data pages chained by
+a next-page pointer in each page header.
 
 On the **starting** page of a stream, the OVBA signature byte ``0x01`` is
 immediately followed by chunk headers and the bytes ``"Attribute VB_Name = ...
@@ -57,14 +59,20 @@ from __future__ import annotations
 from collections.abc import Iterator
 from dataclasses import dataclass
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from pyopenvba.exceptions import PyOpenVBAError, UnsupportedFormatError
-from pyopenvba.vba import VBAReference, encoding_for_codepage
+from pyopenvba.vba import VBAReference, encode_mbcs, encoding_for_codepage
 from pyopenvba.vba import decompress as _ovba_decompress
 from pyopenvba.vba_pcode import (
     DisassembledModule,
     disassemble_module_stream,
 )
+
+if TYPE_CHECKING:
+    # The storage engine imports this module, so it is imported where used.
+    from pyopenvba.access._vba import ModuleStream
+    from pyopenvba.access.database import AccessDatabase
 
 ACE_PAGE_SIZE = 4096
 ACE_SIGNATURE = b"Standard ACE DB\x00"
@@ -83,56 +91,20 @@ PAGE_TYPE_LVAL = 0x08
 #
 # Every .accdb file embeds a system table named ``MSysObjects`` that lists
 # every persistent object Access knows about: tables, queries, forms,
-# reports, macros, modules, relationships, etc. Its TDEF lives at page 2
-# (always, regardless of database age) and its data rows live on
-# DATA-type pages whose ``owner_tdef_pn`` field equals 2.
-#
-# Schema (17 columns; column index follows TDEF definition order):
-#   fixed: Id (u32), ParentId (u32), Type (i16),
-#          DateCreate (8B), DateUpdate (8B), Flags (u32)
-#   variable: Connect, Database, ForeignName, LvExtra, LvModule, LvProp,
-#             Name, Owner, RmtInfoLong, RmtInfoShort, (+ 1 system slot)
-#
-# Row layout (verified across all 25 RE-corpus samples):
-#   off 00..02  col_count (u16, always 17 for MSysObjects)
-#   off 02..06  Id
-#   off 06..0A  ParentId
-#   off 0A..0C  Type (signed)
-#   off 0C..14  DateCreate
-#   off 14..1C  DateUpdate
-#   off 1C..20  Flags
-#   off 20..JT  variable-column data, packed back-to-front
-#   off JT..JT+22  jump table: 11 u16 entries giving the START offset of
-#                  each variable column, in REVERSE column order
-#                  (jt[10] is the FIRST var col laid down in memory).
-#   off JT+22..JT+24  var_col_count (u16, always 11)
-#   off JT+24..JT+27  null bitmap (3 bytes, ceil(17/8))
-#
-# Empirically: variable column index 10 == ``Name`` (UTF-16-LE). Length
-# of the Name field = jt[9] - jt[10].
-_MSYS_OBJECTS_TDEF_PAGE = 2
-_MSYS_COL_COUNT = 17
-_MSYS_VAR_COL_COUNT = 11
-_MSYS_NULL_MASK_BYTES = 3  # ceil(17 / 8)
-_MSYS_NAME_VAR_INDEX = 10  # which variable column holds the Name field
+# reports, macros, modules, relationships, etc.  The storage engine in
+# `pyopenvba.access` reads it (see :meth:`AccessReader.iter_msys_objects`).
 
 # MSysObjects ``Type`` values (signed i16). Positive types are
 # system-defined container objects; negative types (high bit set)
-# tag user content. Only the values verified against the live RE
-# corpus are surfaced as named constants.
+# tag user content.  Each is what Access writes for the object.
 MSYS_TYPE_FORM = -32768          # 0x8000
-MSYS_TYPE_REPORT = -32766        # 0x8002
-MSYS_TYPE_MACRO = -32766         # alias (Access reuses 0x8002 historically)
+MSYS_TYPE_MACRO = -32766         # 0x8002
+MSYS_TYPE_REPORT = -32764        # 0x8004
 MSYS_TYPE_MODULE = -32761        # 0x8007  -- VBA CodeModule
 MSYS_TYPE_CONTAINER = 3          # e.g. "Modules", "Forms", "Reports" hubs
 MSYS_TYPE_TABLE = 1
 MSYS_TYPE_QUERY = 5
 MSYS_TYPE_DATABASE = 8
-
-# Row offset-table entry flags inside a Jet/ACE DATA page.
-_ROW_OFFSET_MASK = 0x1FFF
-_ROW_DELETED_FLAG = 0x8000
-_ROW_OVERFLOW_FLAG = 0x4000
 
 # VBA source-row markers, reverse engineered from live .accdb fixtures.
 #
@@ -298,207 +270,44 @@ class AccessReader:
         return None
 
     # ------------------------------------------------------------------
-    # VBA module discovery & extraction
-    # ------------------------------------------------------------------
-
-    # ------------------------------------------------------------------
-    # LVAL page / slot decoding (Phase 2 RE, 2026-05).
+    # The VBA project, through MSysAccessStorage.
     # ------------------------------------------------------------------
     #
-    # Each LVAL page lays out as:
-    #     [0]      page_type 0x01
-    #     [1]      0x01 (subtype)
-    #     [2:4]    checksum / version
-    #     [4:8]    'LVAL'
-    #     [8:12]   reserved (zero)
-    #     [12:14]  u16 LE slot count N
-    #     [14:14+2N]  u16 LE slot table; top nibble 0xD = tombstone,
-    #                 else low 12 bits = byte offset of row in page.
-    # Rows grow downward from PAGE end. Row END = next-higher slot offset
-    # in the table, or PAGE_SIZE for the top-most row.
-    #
-    # A long-value stored across multiple chunks places each chunk in one
-    # slot. The first 4 bytes of such a chunk are
-    #     [0]      next_slot (u8)
-    #     [1:4]    next_page (u24 LE)
-    #     [4:]     chunk payload
-    # with (0, 0) marking the last chunk. Long-values that fit in a
-    # single chunk are stored WITHOUT a continuation prefix (the row IS
-    # the payload).
-    #
-    # Both forms occur in the wild: the canonical 1 MB fixture stores its
-    # entire VBA project state in ONE chained long-value of 21 chunks; a
-    # small .accdb with one tiny module stores ~6 separate standalone
-    # long-values, one per VBA project section.
+    # Access keeps the project as one `MSysAccessStorage` row per stream:
+    # the standard MS-OVBA "dir" stream (section 2.3.4.2 of MS-OVBA),
+    # which parses with `pyopenvba.vba`, and a row per module that the dir
+    # stream names.  The storage engine in `pyopenvba.access` reads that
+    # table, so the project is found where Access looks for it.  A scan of
+    # the long-value pages is no substitute: they keep copies Access has
+    # let go of, a short value sits inside its row instead, and a long one
+    # is a chain whose head starts with a pointer (GitHub issue #33).
 
-    def _lval_slot_count(self, page_num: int) -> int:
-        base = page_num * ACE_PAGE_SIZE
-        return int.from_bytes(self._data[base + 12 : base + 14], "little")
+    def _database(self) -> AccessDatabase | None:
+        """The storage engine over this file's bytes, or ``None`` when the
+        file holds no VBA project (see
+        :meth:`pyopenvba.access.AccessDatabase.has_vba_project`)."""
+        from pyopenvba.access.database import AccessDatabase  # it imports this module
 
-    def _lval_slot_offsets(self, page_num: int) -> list[int]:
-        """Return the slot table for an LVAL page, as raw u16 values
-        (including the 0xD000 tombstone flag)."""
-        base = page_num * ACE_PAGE_SIZE
-        n = self._lval_slot_count(page_num)
-        return [
-            int.from_bytes(self._data[base + 14 + 2 * i : base + 16 + 2 * i], "little")
-            for i in range(n)
-        ]
-
-    def _lval_row_bytes(self, page_num: int, slot: int) -> bytes:
-        """Return the raw bytes of one LVAL row including any
-        4-byte continuation prefix. Raises if the slot is a tombstone
-        or out of range."""
-        slots = self._lval_slot_offsets(page_num)
-        if slot < 0 or slot >= len(slots):
-            raise AccessError(
-                f"slot {slot} out of range on page {page_num} (n={len(slots)})"
-            )
-        raw = slots[slot]
-        if (raw & 0xF000) == 0xD000:
-            raise AccessError(
-                f"slot {slot} on page {page_num} is a tombstone"
-            )
-        start = raw & 0x0FFF
-        end = ACE_PAGE_SIZE
-        for other in slots:
-            if (other & 0xF000) == 0xD000:
-                continue
-            o = other & 0x0FFF
-            if o > start and o < end:
-                end = o
-        base = page_num * ACE_PAGE_SIZE
-        return bytes(self._data[base + start : base + end])
-
-    def _walk_lval_chain(
-        self, page_num: int, slot: int, max_chunks: int = 4096
-    ) -> bytes:
-        """Treat (page_num, slot) as the head of a chained long-value
-        and return the concatenated payload of every chunk in the chain,
-        stripping the 4-byte (next_slot, u24 next_page) prefix from each
-        chunk. Stops when the prefix is (0, 0).
-
-        Raises :class:`AccessError` if the chain is malformed (cycle,
-        out-of-range page, etc.).
-        """
-        out = bytearray()
-        seen: set[tuple[int, int]] = set()
-        cur_p, cur_s = page_num, slot
-        for _ in range(max_chunks):
-            if (cur_p, cur_s) in seen:
-                raise AccessError(
-                    f"LVAL chain cycle at ({cur_p}, {cur_s})"
-                )
-            seen.add((cur_p, cur_s))
-            row = self._lval_row_bytes(cur_p, cur_s)
-            if len(row) < 4:
-                raise AccessError(
-                    f"LVAL row ({cur_p}, {cur_s}) too short to hold chain prefix"
-                )
-            next_s = row[0]
-            next_p = int.from_bytes(row[1:4], "little")
-            out.extend(row[4:])
-            if next_p == 0 and next_s == 0:
-                return bytes(out)
-            if next_p >= self.page_count:
-                raise AccessError(
-                    f"LVAL chain references out-of-range page {next_p}"
-                )
-            cur_p, cur_s = next_p, next_s
-        raise AccessError(f"LVAL chain exceeded max_chunks={max_chunks}")
-
-    def _iter_lval_pages(self) -> Iterator[int]:
-        for p in range(self.page_count):
-            base = p * ACE_PAGE_SIZE
-            if (
-                self._data[base] == 0x01
-                and bytes(self._data[base + 4 : base + 8]) == b"LVAL"
-            ):
-                yield p
-
-    def _iter_lval_rows(self) -> Iterator[tuple[int, int, bytes]]:
-        """Yield ``(page, slot, row_bytes)`` for every non-tombstone
-        slot on every LVAL page in the database, in page-then-slot
-        order."""
-        for page in self._iter_lval_pages():
-            slots = self._lval_slot_offsets(page)
-            for slot, raw in enumerate(slots):
-                if (raw & 0xF000) == 0xD000:
-                    continue
-                yield page, slot, self._lval_row_bytes(page, slot)
-
-    # ------------------------------------------------------------------
-    # LVAL row mutation primitives (Phase 5 write path, 2026-05).
-    # ------------------------------------------------------------------
-    #
-    # Resize/rewrite an LVAL row in place by reflowing the page's
-    # slot table and shifting adjacent rows. Tombstone bits are
-    # preserved. Operates within a single page; chain growth onto a
-    # fresh page is handled at a higher level (and currently raises
-    # ``AccessError`` if no chain tail capacity is available).
-
-
-    # ------------------------------------------------------------------
-    # MS-OVBA dir-stream catalog (Phase 3 RE, 2026-05).
-    # ------------------------------------------------------------------
-    #
-    # Access embeds a standard MS-OVBA "dir" stream (section 2.3.4.2 of
-    # MS-OVBA) into exactly one LVAL row of every database that contains
-    # a VBA project. The row is OVBA-RLE-compressed in the usual way;
-    # decompressed, it parses byte-for-byte with our existing dir-stream
-    # parser in `pyopenvba.vba`.
-    #
-    # We locate it by attempting OVBA decompression on each LVAL row and
-    # accepting the one whose decompressed bytes start with the
-    # PROJECTSYSKIND record header `01 00 04 00 00 00`. That signature
-    # is fully deterministic and avoids any reliance on the slot index
-    # (which is not stable across .accdb files).
-
-    _DIR_STREAM_MAGIC = b"\x01\x00\x04\x00\x00\x00"
-
-    def _find_catalog_row(self) -> tuple[int, int, bytes] | None:
-        """Return ``(page, slot, decompressed_dir_stream_bytes)`` for the
-        single LVAL row that holds the project's MS-OVBA dir stream, or
-        ``None`` if no such row is present (e.g. databases with no VBA
-        project initialized)."""
-        for page, slot, row in self._iter_lval_rows():
-            if not row or row[0] != 0x01 or len(row) < 3:
-                continue
-            hdr = int.from_bytes(row[1:3], "little")
-            if ((hdr >> 12) & 0x7) != 0b011:
-                continue
-            try:
-                raw = _ovba_decompress(
-                    bytes(row), stream_name=f"accdb_catalog@({page},{slot})"
-                )
-            except Exception:
-                continue
-            if raw.startswith(self._DIR_STREAM_MAGIC):
-                return page, slot, raw
-        return None
+        database = AccessDatabase(bytes(self._data))
+        return database if database.has_vba_project() else None
 
     def read_project_info(self) -> AccessVBAProject:
         """Parse and return the project-level VBA metadata embedded in
         this database.
 
-        Raises :class:`AccessError` if no VBA dir-stream catalog row is
-        present (the database has no VBA project, or the catalog row
-        could not be located -- file an issue with the fixture).
+        Raises :class:`AccessError` if the database holds no VBA project.
         """
         from pyopenvba.vba import parse_dir_stream
 
-        found = self._find_catalog_row()
-        if found is None:
-            raise AccessError(
-                f"no MS-OVBA dir-stream catalog row found in "
-                f"{self.path.name!r}; this database may have no VBA project"
-            )
-        page, slot, raw = found
+        database = self._database()
+        if database is None:
+            raise AccessError(f"{self.path.name!r} holds no VBA project")
+        raw, home = database.dir_stream()
         info, mods = parse_dir_stream(raw)
         return AccessVBAProject(
-            catalog_page=page,
-            catalog_slot=slot,
-            catalog_raw_size=raw.__len__(),
+            catalog_page=home.page,
+            catalog_slot=home.slot,
+            catalog_raw_size=len(raw),
             sys_kind=info.sys_kind,
             lcid=info.lcid,
             code_page=info.code_page,
@@ -517,16 +326,30 @@ class AccessReader:
             ),
         )
 
+    def _project_streams(self) -> list[tuple[str, bytes, int, int]]:
+        """The project's streams as ``(name, value, page, slot)``, ordered
+        by where each value starts; empty when there is no VBA project.
+        See :meth:`pyopenvba.access.AccessDatabase.project_streams`."""
+        database = self._database()
+        if database is None:
+            return []
+        streams = [
+            (name, value, home.page, home.slot)
+            for name, value, home in database.project_streams()
+        ]
+        return sorted(streams, key=lambda stream: (stream[2], stream[3]))
+
     # ------------------------------------------------------------------
     # Phase 4 RE: authoritative VBA p-code stream
     # ------------------------------------------------------------------
     #
-    # Every Access database with a VBA project carries one LVAL row whose
-    # raw bytes begin with the magic header `72 55 40 ...` ("rU@"). This
-    # row is the authoritative compiled-bytecode store -- decompiling and
-    # re-displaying VBA source in the Access editor reads from this row,
-    # not from the OVBA cache. The OVBA cache (row found by
-    # `iter_vba_modules`) is a passive plaintext mirror Access keeps for
+    # A database whose VBA Access has compiled carries `__SRP_*` streams
+    # whose bytes begin with the magic header `72 55 40 ...` ("rU@"), and
+    # each compiled module has one marked module-active.  That row is the
+    # authoritative compiled-bytecode store -- decompiling and
+    # re-displaying VBA source in the Access editor reads from it, not
+    # from the OVBA cache. The OVBA cache (the stream `iter_vba_modules`
+    # reads) is a passive plaintext mirror Access keeps for
     # version-control and import/export tools.
     #
     # Evidence captured by the corpus (May 2026):
@@ -545,9 +368,9 @@ class AccessReader:
     # Full opcode field guide is still in progress; this method is the
     # entry point that exposes the raw bytes for further RE work.
 
-    # The p-code row header is 12 bytes. Every rU@-headed LVAL row
-    # starts with the 4-byte signature ``72 55 40 00`` followed by 8
-    # more bytes whose structure encodes the row's role:
+    # The p-code header is 12 bytes. Every rU@-headed stream starts
+    # with the 4-byte signature ``72 55 40 00`` followed by 8 more
+    # bytes whose structure encodes the stream's role:
     #
     #   bytes  0..3   : signature 'rU@\x00'
     #   bytes  4..7   : reserved / zero in the corpus
@@ -555,55 +378,51 @@ class AccessReader:
     #                   bytecode row, 0 for every other rU@ row
     #
     # The 0x4000 at offset 10 is the deterministic structural marker
-    # that distinguishes the row Access actually executes from older
-    # stubs and project/system bootstrap rows kept alongside it.
-    # Verified across the 15-sample corpus (samples 010-051).
+    # that distinguishes a row Access actually executes from the stubs
+    # and project/system bootstrap rows kept alongside it.  Verified
+    # across the 15-sample corpus (samples 010-051), and on databases
+    # Access wrote with two and with thirteen compiled modules, which
+    # carry that many.
     _PCODE_MAGIC = b"\x72\x55\x40\x00"   # 'rU@\x00'
     _PCODE_ACTIVE_PREFIX = (
         b"\x72\x55\x40\x00\x00\x00\x00\x00\x00\x00\x40\x00"
     )
 
-    def _find_pcode_rows(self) -> list[tuple[int, int, bytes]]:
-        """Return ``(page, slot, raw_bytes)`` for every LVAL row that
-        carries the VBA p-code magic header. The corpus shows 2-3 such
-        rows per database with VBA enabled."""
-        hits: list[tuple[int, int, bytes]] = []
-        for page, slot, row in self._iter_lval_rows():
-            if row.startswith(self._PCODE_MAGIC):
-                hits.append((page, slot, bytes(row)))
-        return hits
-
     def iter_pcode_streams(self) -> tuple[AccessVBAPCodeStream, ...]:
-        """Return every ``rU@``-headed VBA p-code row in the database.
+        """Return every ``rU@``-headed VBA p-code stream the project holds.
 
-        Exactly one of these rows is the *module-active* bytecode that
-        Access executes; the others are stale stubs or project/system
-        bootstrap rows. Use :meth:`read_module_pcode_stream` to fetch
-        the active row directly.
+        Each compiled module has one *module-active* stream, the
+        bytecode Access executes; the others are stubs or project/system
+        bootstrap streams. :meth:`read_module_pcode_stream` fetches the
+        active one of a project with a single compiled module.
 
-        Raises :class:`AccessError` if no p-code rows can be located.
+        Raises :class:`AccessError` if the project holds none, as a
+        project written only as source does until Access compiles it.
         """
-        hits = self._find_pcode_rows()
+        hits = [
+            AccessVBAPCodeStream(page=page, slot=slot, raw=value)
+            for _name, value, page, slot in self._project_streams()
+            if value.startswith(self._PCODE_MAGIC)
+        ]
         if not hits:
             raise AccessError(
-                f"no VBA p-code rows (header 'rU@') found in "
-                f"{self.path.name!r}; this database may have no VBA project"
+                f"no VBA p-code streams (header 'rU@') found in "
+                f"{self.path.name!r}; its VBA may never have been compiled"
             )
-        return tuple(
-            AccessVBAPCodeStream(page=p, slot=s, raw=r) for p, s, r in hits
-        )
+        return tuple(hits)
 
     def read_module_pcode_stream(self) -> AccessVBAPCodeStream:
-        """Return the *module-active* VBA p-code row, identified by the
+        """Return the *module-active* VBA p-code stream, identified by the
         structural 12-byte prefix ``72 55 40 00 00 00 00 00 00 00 40
         00`` (byte at offset 10 is ``0x40`` rather than ``0x00``).
 
         This is the deterministic discriminator that separates the
-        active compiled bytecode from the stale stub and bootstrap
-        rows Access keeps alongside it.
+        active compiled bytecode from the stub and bootstrap streams
+        Access keeps alongside it.
 
-        Raises :class:`AccessError` if zero or more than one row
-        matches the active prefix.
+        Raises :class:`AccessError` if no stream matches the active
+        prefix, or if several do, as they do when more than one module
+        is compiled.
         """
         matches = [
             s for s in self.iter_pcode_streams()
@@ -624,38 +443,46 @@ class AccessReader:
         return matches[0]
 
     # String-literal interning table -- see docs/access_pcode_re.md.
-    # Inside the project symbol-table row each string literal is stored
-    # as: ``0B <u32 LE byte-count> <UTF-16-LE bytes>``. The leading
-    # ``0B`` tag distinguishes literal records from other entries in
-    # the same row.
+    # Each string literal is stored as ``0B <u32 LE byte-count>
+    # <UTF-16-LE bytes>``.  The leading ``0B`` tag distinguishes literal
+    # records from the other entries in the same stream.
     _STRING_LITERAL_TAG = 0x0B
 
     def find_interned_strings(self) -> tuple[AccessVBAInternedString, ...]:
-        """Scan every LVAL row for VBA string-literal records of the
-        form ``0B <u32 LE byte-count> <UTF-16-LE bytes>``.
+        """Scan the project's streams for VBA string-literal records of
+        the form ``0B <u32 LE byte-count> <UTF-16-LE bytes>``.
 
-        This is a deterministic content-based scan -- no slot
-        coordinates are hard-coded. The intern table lives in a
-        per-project row alongside reference/module metadata; the
-        decoder simply walks every LVAL row and yields each valid
-        literal record it finds.
+        Access writes them into the ``__SRP_0`` stream it keeps beside a
+        compiled project's ``rU@`` execodes, one for each literal the
+        compiled code holds, a doubled quote made one, among entries of
+        other kinds.  The empty literal is a record of zero bytes, which
+        this scan does not report.  A project saved without its
+        ``__SRP_*`` streams has no such table, and its literals are only
+        in each module's own p-code, as ``LitStr`` instructions (see
+        :meth:`disassemble_module`).
+
+        This is a deterministic content-based scan -- no offsets are
+        hard-coded.  The decoder walks every stream the project holds,
+        each whole, and yields each valid literal record it finds.  Only
+        streams the project still holds count: the long-value pages also
+        keep the literals of code that was deleted, and those are not the
+        project's.
 
         A record is accepted only when:
 
         * the byte-count is even and non-zero,
-        * the byte-count fits in the row,
+        * the byte-count fits in the stream,
         * the decoded UTF-16-LE bytes form a valid Python ``str``,
         * and the decoded string contains no NUL characters
           (filters out structural padding that happens to start with
           ``0B``).
 
         Returns a tuple of :class:`AccessVBAInternedString` records,
-        each carrying the source page, slot, in-row byte offset, and
-        decoded value.
+        each carrying where the stream starts, the record's byte offset
+        in the stream, and the decoded value.
         """
         out: list[AccessVBAInternedString] = []
-        for page, slot, row in self._iter_lval_rows():
-            buf = bytes(row)
+        for _name, buf, page, slot in self._project_streams():
             n = len(buf)
             i = 0
             while i < n - 5:
@@ -692,9 +519,9 @@ class AccessReader:
     # ------------------------------------------------------------------
     # Standard VBA module-stream p-code (Phase 4d RE, 2026-05).
     # ------------------------------------------------------------------
-    # In every Access database we inspected, the LVAL row carrying the
-    # OVBA-compressed VBA source ALSO contains -- at a content-dependent
-    # offset earlier in the same row -- the standard Office VBA module
+    # In every Access database we inspected, the stream carrying a
+    # module's OVBA-compressed VBA source ALSO contains -- ahead of the
+    # source, before its MODULEOFFSET -- the standard Office VBA module
     # stream's "PerformanceCache" region, recognisable by the
     # well-known ``0xCAFE`` magic word. This is the same per-line
     # p-code layout described in [MS-OVBA] section 2.3.4.3 and
@@ -709,9 +536,9 @@ class AccessReader:
         """Return the standard Office VBA module-stream bytes for
         every VBA module in the database.
 
-        For each VBA module, the LVAL row containing its OVBA-
-        compressed source also contains -- at an earlier offset in
-        the same row -- the standard module stream's binary
+        For each VBA module, the stream containing its OVBA-
+        compressed source also contains -- ahead of the source -- the
+        standard module stream's binary
         ``PerformanceCache`` region. That region is recognisable by
         the ``0xCAFE`` magic word and contains the canonical VBA7
         p-code (per-line opcodes), in the exact layout defined by
@@ -723,70 +550,34 @@ class AccessReader:
         fed directly to any disassembler that expects an Office VBA
         module stream.
 
-        This is a deterministic content-based scan: we identify
-        carrier rows by intersecting "row decompresses to a valid
-        VBA source attribute prefix" with "row contains a single
-        ``0xCAFE`` word".
+        Each stream is the one the project's dir stream names, and the
+        ``0xCAFE`` word is looked for only ahead of its MODULEOFFSET,
+        where the compiled region ends.  A module stored as source alone,
+        as :class:`pyopenvba.access.AccessDatabase` writes one, has no
+        compiled region until Access compiles it, and is left out.
         """
-        carriers = self._module_carrier_rows()
+        database = self._database()
+        if database is None:
+            return ()
         results: list[AccessVBAModuleStream] = []
-        for module in self.iter_vba_modules():
-            found = carriers.get(module.name)
-            if found is None:
+        for stream in database.module_streams():
+            if stream.home is None:
                 continue
-            page, slot, raw = found
-            cafe = raw.find(b"\xfe\xca")
+            cafe = stream.data.find(b"\xfe\xca", 0, stream.offset)
             if cafe < 0:
                 continue
+            page, slot = stream.home
             results.append(
                 AccessVBAModuleStream(
-                    page=page, slot=slot, raw=raw, cafe_offset=cafe,
-                    name=module.name,
+                    page=page, slot=slot, raw=stream.data, cafe_offset=cafe,
+                    name=stream.name,
                 )
             )
         return tuple(results)
 
-    def _module_carrier_rows(self) -> dict[str, tuple[int, int, bytes]]:
-        """Map module name to the LVAL row carrying its module stream.
-
-        :meth:`iter_vba_modules` records only the *page* a module was
-        found on, but Access routinely stores several modules on one
-        page, so a page does not identify a module's row. Re-scan the
-        rows and key them by the ``Attribute VB_Name`` each decompresses
-        to, which does.
-        """
-        out: dict[str, tuple[int, int, bytes]] = {}
-        for page, slot, row in self._iter_lval_rows():
-            for blob_kind, blob in self._candidate_blobs(page, slot, row):
-                try:
-                    raw = _ovba_decompress(
-                        blob, stream_name=f"accdb@({page},{slot}):{blob_kind}"
-                    )
-                except Exception:
-                    continue
-                if not raw.startswith(b"Attribute VB_Name = "):
-                    continue
-                header = raw.decode("latin-1").split("\r\n", 1)[0]
-                if '"' in header:
-                    # A module too large for one 4 KiB page is chained
-                    # across several rows. The stream is the assembled
-                    # chain; the head row on its own decodes to nothing
-                    # usable, because every line offset points past it.
-                    stream = bytes(row)
-                    if self._looks_like_chain_head(stream):
-                        try:
-                            stream = self._walk_lval_chain(page, slot)
-                        except AccessError:
-                            pass
-                    out.setdefault(
-                        header.split('"', 2)[1], (page, slot, stream)
-                    )
-                break
-        return out
-
     def identifiers(self) -> tuple[AccessVBAIdentifier, ...]:
         """Enumerate every project-level identifier name decoded from
-        the ``_VBA_PROJECT``-equivalent LVAL row.
+        the project's ``_VBA_PROJECT`` stream.
 
         Returns a tuple of :class:`AccessVBAIdentifier` records in
         on-disk order. The list contains:
@@ -800,8 +591,8 @@ class AccessReader:
         * Intrinsic VBA function names referenced from compiled code
           (``MsgBox``, ``_Evaluate``, etc.).
 
-        Returns an empty tuple if no ``CC 61`` row is present
-        (corrupted / non-VBA-enabled database).
+        Returns an empty tuple if the project holds no ``_VBA_PROJECT``
+        stream opening with ``CC 61`` (no VBA project, or a damaged one).
 
         Note: this is a project-wide *inventory*; the ``name_id``
         u16 operands in p-code do **NOT** index into this table
@@ -810,15 +601,13 @@ class AccessReader:
         diagnostic and auditing purposes (e.g. listing every
         intrinsic a project calls).
         """
-        rows = list(self._iter_lval_rows())
-        stream = _find_vba_project_row(rows)
-        if stream is None:
+        stream = next(
+            (value for name, value, _page, _slot in self._project_streams() if name == "_VBA_PROJECT"),
+            None,
+        )
+        if stream is None or not stream.startswith(b"\xcc\x61"):
             return ()
-        try:
-            code_page = self.read_project_info().code_page
-        except AccessError:
-            code_page = 1252
-        return _parse_vba_project_identifiers(stream, code_page)
+        return _parse_vba_project_identifiers(stream, self.read_project_info().code_page)
 
     def disassemble_module(
         self, name: str, *, is_64bit: bool = True
@@ -852,7 +641,7 @@ class AccessReader:
         stream = by_name.get(name)
         if stream is not None:
             return disassemble_module_stream(stream.raw, is_64bit=is_64bit)
-        if any(module.name == name for module in self.iter_vba_modules()):
+        if name in self.vba_module_names():
             raise AccessError(
                 f"module {name!r} has no compiled p-code "
                 "(no 0xCAFE region in carrier row)"
@@ -881,149 +670,50 @@ class AccessReader:
 
     def iter_vba_modules(self) -> Iterator[VBAModule]:
         """
-        Discover and yield every VBA module embedded in this database.
+        Yield every VBA module in this database, in the order its
+        project lists them.
 
-        Implementation strategy
-        -----------------------
-        Each VBA module's source is stored as an MS-OVBA compressed stream
-        held in one LVAL row, possibly chained across multiple LVAL
-        chunks (see Phase 2 RE notes above).
-
-        We iterate every non-tombstone LVAL row in the database and try
-        TWO interpretations:
-
-        * **Standalone**: the entire row is an OVBA stream. Try to
-          decompress ``row[:]`` directly.
-        * **Chained**: the row's first 4 bytes are a
-          ``<u8 next_slot><u24 next_page>`` continuation prefix; walk
-          the chain accumulating ``row[4:]`` from each chunk, then
-          decompress.
-
-        Accept any result that decompresses to a stream starting with
-        ``Attribute VB_Name = "..."``. This avoids any dependency on
-        parsing the Access system catalog (MSysObjects /
-        MSysAccessStorage) -- a reasonable trade-off until write support
-        requires us to allocate / re-link LVAL chunks.
+        Each module is found as Access finds it: the project's dir stream
+        names the ``MSysAccessStorage`` row holding the module's stream,
+        and its MODULEOFFSET says where the compressed source starts.  The
+        text is decoded in the project's code page, not as latin-1.  A
+        module the dir stream lists whose row is missing is left out, and
+        a database with no VBA project yields nothing.
         """
-        yielded: set[str] = set()
-        for page, slot, row in self._iter_lval_rows():
-            for blob_kind, blob in self._candidate_blobs(page, slot, row):
-                try:
-                    raw = _ovba_decompress(
-                        blob, stream_name=f"accdb@({page},{slot}):{blob_kind}"
-                    )
-                except Exception:
-                    continue
-                if not raw.startswith(b"Attribute VB_Name = "):
-                    continue
-                text = raw.decode("latin-1")
-                lines = text.split("\r\n")
-                body_start = 0
-                module_name = ""
-                for idx, ln in enumerate(lines):
-                    if ln.startswith("Attribute "):
-                        if ln.startswith('Attribute VB_Name = "'):
-                            module_name = ln.split('"', 2)[1]
-                    else:
-                        body_start = idx
-                        break
-                # A chained module is reachable from more than one row --
-                # its head, and the row its compressed source starts in --
-                # so key on the name to yield each module exactly once.
-                if module_name in yielded:
-                    break
-                yielded.add(module_name)
-                body = "\r\n".join(lines[body_start:])
-                yield VBAModule(
-                    name=module_name,
-                    start_offset=page * ACE_PAGE_SIZE,
-                    raw_blob_size=len(blob),
-                    decompressed_size=len(raw),
-                    attributes_text="\r\n".join(lines[:body_start]),
-                    source=body,
-                )
-                break  # don't double-yield from the alternative interpretation
+        for _stream, module in self._read_modules():
+            yield module
 
-    def _candidate_blobs(
-        self, page: int, slot: int, row: bytes
-    ) -> Iterator[tuple[str, bytes]]:
-        """Yield ``(label, candidate_ovba_blob)`` for the row.
+    def _read_modules(self) -> Iterator[tuple[ModuleStream, VBAModule]]:
+        """Each module's stream beside the module it reads as."""
+        from pyopenvba.access._vba import split_source
 
-        Two interpretations are tried:
-
-        * **Standalone**: scan the row for any OVBA signature (sig byte
-          ``0x01`` followed by a chunk header with signature bits
-          ``0b011``) and yield the suffix of the row from that offset.
-        * **Chained**: if the first 4 bytes of the row form a valid
-          ``(slot, page)`` continuation prefix pointing to another LVAL
-          row, walk the chain and then scan the assembled blob for OVBA
-          signatures the same way.
-        """
-        for off in self._scan_ovba_signatures(row):
-            yield f"standalone@({page},{slot})+{off}", row[off:]
-        if len(row) >= 4 and self._looks_like_chain_head(row):
-            try:
-                blob = self._walk_lval_chain(page, slot)
-            except AccessError:
-                return
-            for off in self._scan_ovba_signatures(blob):
-                yield f"chained@({page},{slot})+{off}", blob[off:]
-
-    def _looks_like_chain_head(self, row: bytes) -> bool:
-        """Heuristic: row[0:4] is a plausible (slot, u24 page) chain
-        prefix iff the page number is in range and is itself an LVAL
-        page."""
-        if len(row) < 4:
-            return False
-        next_p = int.from_bytes(row[1:4], "little")
-        if next_p == 0 or next_p >= self.page_count:
-            return False
-        base = next_p * ACE_PAGE_SIZE
-        return (
-            self._data[base] == 0x01
-            and bytes(self._data[base + 4 : base + 8]) == b"LVAL"
-        )
-
-    @staticmethod
-    def _scan_ovba_signatures(row: bytes) -> list[int]:
-        """Return every offset inside ``row`` that plausibly begins an
-        MS-OVBA stream (sig byte ``0x01`` + chunk header with signature
-        bits ``0b011``)."""
-        out: list[int] = []
-        i = 0
-        n = len(row)
-        while i + 3 <= n:
-            j = row.find(b"\x01", i)
-            if j < 0 or j + 3 > n:
-                break
-            hdr = int.from_bytes(row[j + 1 : j + 3], "little")
-            if ((hdr >> 12) & 0x7) == 0b011:
-                out.append(j)
-            i = j + 1
-        return out
+        database = self._database()
+        if database is None:
+            return
+        for stream in database.module_streams():
+            if stream.home is None:
+                continue
+            raw = _ovba_decompress(stream.data[stream.offset :], stream_name=stream.stream_name)
+            attributes, body = split_source(raw.decode(stream.encoding, errors="replace"))
+            yield stream, VBAModule(
+                name=stream.name,
+                start_offset=stream.home[0] * ACE_PAGE_SIZE,
+                raw_blob_size=len(stream.data) - stream.offset,
+                decompressed_size=len(raw),
+                attributes_text="\r\n".join(attributes),
+                source="\r\n".join(body),
+            )
 
     def vba_module_names(self) -> list[str]:
         """
-        Return the names of every distinct VBA module in this database, in
-        the order they are first encountered.
-
-        When the MS-OVBA dir-stream catalog can be located (the normal
-        case), its authoritative module ordering is returned and shadow /
-        undo copies of edited modules are ignored. Otherwise this falls
-        back to scanning every OVBA stream for ``Attribute VB_Name`` and
-        deduplicating in encounter order.
+        Return the name of every VBA module in this database, in the
+        order its project's dir stream lists them; empty when the
+        database holds no VBA project.
         """
-        try:
-            project = self.read_project_info()
-        except AccessError:
-            project = None
-        if project is not None:
-            return [m.name for m in project.modules]
-        seen: list[str] = []
-        for m in self.iter_vba_modules():
-            if m.name and m.name not in seen:
-                seen.append(m.name)
-        return seen
+        database = self._database()
+        if database is None:
+            return []
+        return [stream.name for stream in database.module_streams()]
 
     def read_vba_module(self, name: str) -> str:
         """
@@ -1031,19 +721,15 @@ class AccessReader:
         the leading ``Attribute VB_*`` preamble lines, with ``\\r\\n``
         line endings preserved).
 
-        When Access has shadow copies of the same module on disk, the copy
-        with the highest file offset is returned (this is the most recent
-        write).
-
         Raises :class:`AccessError` if no module with that name is found.
         """
-        candidates = [m for m in self.iter_vba_modules() if m.name == name]
-        if not candidates:
-            raise AccessError(
-                f"VBA module {name!r} not found in {self.path.name!r}"
-            )
-        candidates.sort(key=lambda m: m.start_offset)
-        return candidates[-1].source
+        return self._vba_module(name).source
+
+    def _vba_module(self, name: str) -> VBAModule:
+        for module in self.iter_vba_modules():
+            if module.name == name:
+                return module
+        raise AccessError(f"VBA module {name!r} not found in {self.path.name!r}")
 
     # ------------------------------------------------------------------
     # Write path (EXPERIMENTAL).
@@ -1088,13 +774,7 @@ class AccessReader:
 
         Raises :class:`AccessError` if no module with that name exists.
         """
-        candidates = [m for m in self.iter_vba_modules() if m.name == name]
-        if not candidates:
-            raise AccessError(
-                f"VBA module {name!r} not found in {self.path.name!r}"
-            )
-        candidates.sort(key=lambda m: m.start_offset)
-        m = candidates[-1]
+        m = self._vba_module(name)
         attrs = m.attributes_text
         if attrs and not attrs.endswith("\r\n"):
             attrs = attrs + "\r\n"
@@ -1114,14 +794,7 @@ class AccessReader:
     def vba_modules(self) -> dict[str, str]:
         """Return ``{module_name: body_source}`` for every module in
         the catalog. Excel-parallel."""
-        out: dict[str, str] = {}
-        seen: set[str] = set()
-        for m in self.iter_vba_modules():
-            if m.name in seen:
-                continue
-            seen.add(m.name)
-            out[m.name] = m.source
-        return out
+        return {m.name: m.source for m in self.iter_vba_modules()}
 
     def pull_modules(
         self,
@@ -1138,39 +811,15 @@ class AccessReader:
         visible *body* (no ``Attribute VB_*`` preamble). To include the
         preamble use :meth:`export_modules` with
         ``include_attributes=True``.
+
+        It is :meth:`pyopenvba.access.AccessDatabase.pull_modules`, so the
+        two write the same files.
         """
-        out_dir = Path(dest_dir)
-        out_dir.mkdir(parents=True, exist_ok=True)
-        # Classify and extract once: read_project_info() and
-        # vba_modules() each walk every LVAL row in the file, so the
-        # overwrite check and the write loop share one scan of each.
-        class_names: set[str] = set()
-        try:
-            class_names = {
-                m.name for m in self.read_project_info().modules
-                if m.is_class_module
-            }
-        except AccessError:
-            pass
-        modules = self.vba_modules()
-        if not overwrite:
-            for module_name in modules:
-                ext = ".cls" if module_name in class_names else ".bas"
-                target = out_dir / (module_name + ext)
-                if target.exists():
-                    raise FileExistsError(
-                        f"Refusing to overwrite {target} "
-                        f"(overwrite=False)."
-                    )
-        written: list[Path] = []
-        for module_name, body in modules.items():
-            ext = ".cls" if module_name in class_names else ".bas"
-            target = out_dir / (module_name + ext)
-            text = body.replace("\r\n", "\n").replace("\r", "\n")
-            data = text.replace("\n", "\r\n").encode(encoding, errors="replace")
-            target.write_bytes(data)
-            written.append(target)
-        return written
+        database = self._database()
+        if database is None:
+            Path(dest_dir).mkdir(parents=True, exist_ok=True)
+            return []
+        return database.pull_modules(dest_dir, encoding=encoding, overwrite=overwrite)
 
 
     # ------------------------------------------------------------------
@@ -1196,28 +845,18 @@ class AccessReader:
         Class modules are written as ``<name>.cls``; everything else as
         ``<name>.bas``. The leading ``Attribute VB_*`` preamble is omitted
         by default (this matches what the VBA editor shows on screen); set
-        ``include_attributes=True`` to round-trip the raw stream.
+        ``include_attributes=True`` to round-trip the raw stream.  The
+        text is written in the project's code page, the bytes the stream
+        holds.
 
         Returns the list of files written. The destination directory is
         created if it does not exist.
         """
         out_dir = Path(dest_dir)
         out_dir.mkdir(parents=True, exist_ok=True)
-        class_names: set[str] = set()
-        try:
-            project = self.read_project_info()
-            class_names = {
-                m.name for m in project.modules if m.is_class_module
-            }
-        except AccessError:
-            pass
         written: list[Path] = []
-        seen: set[str] = set()
-        for module in self.iter_vba_modules():
-            if module.name in seen:
-                continue
-            seen.add(module.name)
-            ext = ".cls" if module.name in class_names else ".bas"
+        for stream, module in self._read_modules():
+            ext = ".cls" if stream.kind == "class" else ".bas"
             target = out_dir / (module.name + ext)
             if include_attributes:
                 attrs = module.attributes_text
@@ -1226,7 +865,7 @@ class AccessReader:
                 body = attrs + module.source
             else:
                 body = module.source
-            target.write_bytes(body.encode("latin-1"))
+            target.write_bytes(encode_mbcs(body, stream.encoding))
             written.append(target)
         return written
 
@@ -1235,128 +874,33 @@ class AccessReader:
     # MSysObjects (Jet/ACE system catalog) -- read path
     # ------------------------------------------------------------------
 
-    def _iter_msys_data_pages(self) -> Iterator[int]:
-        """Yield page numbers of every DATA page whose owner is the
-        MSysObjects TDEF at page 2."""
-        page_count = len(self._data) // ACE_PAGE_SIZE
-        for pn in range(1, page_count):
-            base = pn * ACE_PAGE_SIZE
-            if self._data[base] != PAGE_TYPE_DATA:
-                continue
-            owner = int.from_bytes(self._data[base + 4 : base + 8], "little")
-            if owner != _MSYS_OBJECTS_TDEF_PAGE:
-                continue
-            yield pn
-
-    def _decode_msys_row(
-        self, row: bytes, *, page: int, slot: int
-    ) -> AccessSysObject | None:
-        """Decode one MSysObjects row. Returns ``None`` for rows that
-        do not match the expected 17-column / 11-var-column schema
-        (such rows are silently skipped to keep the reader robust
-        across unanticipated catalog variants)."""
-        # Need at least: 32 fixed bytes + jump table + var_count + null_mask.
-        min_len = 32 + 2 * _MSYS_VAR_COL_COUNT + 2 + _MSYS_NULL_MASK_BYTES
-        if len(row) < min_len:
-            return None
-        cols = int.from_bytes(row[0:2], "little")
-        if cols != _MSYS_COL_COUNT:
-            return None
-        id_ = int.from_bytes(row[2:6], "little")
-        parent_id = int.from_bytes(row[6:10], "little")
-        type_ = int.from_bytes(row[10:12], "little", signed=True)
-        flags = int.from_bytes(row[28:32], "little")
-
-        tail_off = len(row) - _MSYS_NULL_MASK_BYTES - 2
-        var_col_count = int.from_bytes(row[tail_off : tail_off + 2], "little")
-        if var_col_count != _MSYS_VAR_COL_COUNT:
-            return None
-        jt_start = tail_off - 2 * var_col_count
-        if jt_start < 32:
-            return None
-        # Jump table stores u16 offsets, one per variable column. The
-        # table is laid down such that variable column index i STARTS
-        # at row offset jt[i]; the column with the HIGHEST index is
-        # placed first in physical memory (lowest row offset). A
-        # variable column's END is therefore at jt[i-1] (the start of
-        # the column with the next-lower index), or at the start of
-        # the jump table itself for column index 0.
-        jt = [
-            int.from_bytes(row[jt_start + 2 * i : jt_start + 2 * i + 2], "little")
-            for i in range(var_col_count)
-        ]
-        name_start = jt[_MSYS_NAME_VAR_INDEX]
-        # Name's end is the start of the variable column with the
-        # next-lower index. _MSYS_NAME_VAR_INDEX is 10 (the highest
-        # populated variable-column index in MSysObjects), so the
-        # preceding-index lookup is always valid.
-        name_end = jt[_MSYS_NAME_VAR_INDEX - 1]
-        if not (32 <= name_start <= name_end <= jt_start):
-            return None
-        if (name_end - name_start) % 2 != 0:
-            return None
-        try:
-            name = row[name_start:name_end].decode("utf-16-le")
-        except UnicodeDecodeError:
-            return None
-        return AccessSysObject(
-            id_=id_,
-            parent_id=parent_id,
-            type_=type_,
-            flags=flags,
-            name=name,
-            page=page,
-            slot=slot,
-        )
-
     def iter_msys_objects(self) -> Iterator[AccessSysObject]:
         """Iterate every persistent object listed in the .accdb's
         ``MSysObjects`` system catalog.
 
-        Yields one :class:`AccessSysObject` per non-deleted row across
-        every DATA page owned by the MSysObjects TDEF. Each row
-        identifies a Table, Query, Form, Report, Macro, VBA Module,
-        or system Container.
+        Yields one :class:`AccessSysObject` per live row, read by the
+        storage engine, a row moved to an overflow page included. Each
+        row identifies a Table, Query, Form, Report, Macro, VBA Module,
+        or system Container.  A hand decoder here once skipped moved
+        rows, cut some names short and dropped others it could not
+        bound.
 
         Use :meth:`find_msys_module` for the common case of locating
         a single VBA code module by name. Use :meth:`iter_msys_modules`
         to enumerate only VBA module rows.
         """
-        for pn in self._iter_msys_data_pages():
-            base = pn * ACE_PAGE_SIZE
-            page_bytes = bytes(
-                self._data[base : base + ACE_PAGE_SIZE]
+        from pyopenvba.access.database import AccessDatabase  # it imports this module
+
+        for entry in AccessDatabase(bytes(self._data)).catalog():
+            yield AccessSysObject(
+                id_=entry.id & 0xFFFFFFFF,
+                parent_id=entry.parent_id & 0xFFFFFFFF,
+                type_=entry.type,
+                flags=entry.flags,
+                name=entry.name,
+                page=entry.page,
+                slot=entry.row,
             )
-            row_count = int.from_bytes(page_bytes[12:14], "little")
-            # First pass: collect non-deleted offsets so we can determine
-            # each row's length from the next-higher offset.
-            entries: list[tuple[int, int]] = []  # (slot, offset)
-            for slot in range(row_count):
-                ent = int.from_bytes(
-                    page_bytes[14 + 2 * slot : 16 + 2 * slot], "little"
-                )
-                if ent & (_ROW_DELETED_FLAG | _ROW_OVERFLOW_FLAG):
-                    continue
-                off = ent & _ROW_OFFSET_MASK
-                entries.append((slot, off))
-            if not entries:
-                continue
-            # Each row runs from its offset up to the next-higher offset
-            # (or to the end of the page for the highest-offset row).
-            sorted_offs = sorted({off for _, off in entries})
-            next_after: dict[int, int] = {}
-            for i, off in enumerate(sorted_offs):
-                next_after[off] = (
-                    sorted_offs[i + 1]
-                    if i + 1 < len(sorted_offs)
-                    else ACE_PAGE_SIZE
-                )
-            for slot, off in entries:
-                end = next_after[off]
-                row = page_bytes[off:end]
-                obj = self._decode_msys_row(row, page=pn, slot=slot)
-                if obj is not None:
-                    yield obj
 
     def msys_objects(self) -> tuple[AccessSysObject, ...]:
         """Return all MSysObjects rows as a tuple (materialised list of
@@ -1396,20 +940,6 @@ class AccessReader:
         exists in the system catalog."""
         return self.find_msys_object(name, type_=MSYS_TYPE_MODULE)
 
-    # ------------------------------------------------------------------
-    # MSysObjects (Jet/ACE system catalog) -- write path
-    # ------------------------------------------------------------------
-    #
-    # Updating MSysObjects rows is required to make module-catalog
-    # mutations (rename / delete / add) visible to the live Access
-    # engine (and hence the VBA editor and the Navigation Pane).
-    #
-    # The underlying DATA pages share the row offset-table format used
-    # by LVAL pages, but with different tombstone semantics:
-    #   * LVAL  pages: top nibble 0xD = tombstone (preserves low 12 bits)
-    #   * DATA  pages: bit 0x8000 = deleted, bit 0x4000 = overflow
-    # so we cannot reuse the LVAL helpers verbatim.
-
 
 @dataclass(frozen=True)
 class AccessSysObject:
@@ -1435,7 +965,8 @@ class AccessSysObject:
             VBA code module.
         flags: ``Flags`` column (u32).
         name: ``Name`` column (decoded UTF-16-LE).
-        page: ACE 4 KiB page number where this row lives.
+        page: ACE 4 KiB page number of the row's home slot, where index
+            entries name it; a row moved to an overflow page keeps it.
         slot: Slot index within ``page``.
     """
 
@@ -1530,9 +1061,9 @@ class AccessVBAProject:
     """Project-level VBA metadata parsed from the .accdb dir-stream catalog.
 
     See [MS-OVBA] section 2.3.4.2 for the underlying record layout. The
-    dir stream is stored inside Access as a single OVBA-compressed LVAL
-    row; ``catalog_page`` / ``catalog_slot`` identify that row in the
-    database for diagnostic purposes.
+    dir stream is stored OVBA-compressed in its ``MSysAccessStorage`` row;
+    ``catalog_page`` / ``catalog_slot`` say where that value starts, its
+    first LVAL row, for diagnostic purposes.
     """
 
     catalog_page: int
@@ -1549,14 +1080,15 @@ class AccessVBAProject:
 @dataclass(frozen=True)
 class AccessVBAPCodeStream:
     """The raw authoritative VBA p-code bytes for an Access database,
-    together with the LVAL row coordinates from which they were read.
+    together with where the stream holding them starts.
 
     The first four bytes are always ``72 55 40 00`` ('rU@\\x00'). The
     full opcode field guide is being reverse-engineered; see
     ``docs/access_pcode_re.md``.
 
     Attributes:
-        page: ACE 4 KiB page number containing the LVAL row.
+        page: ACE 4 KiB page number of the LVAL row where the stream
+            starts.
         slot: Slot index within ``page``.
         raw: Compiled bytecode payload (variable length; typically
             ~150-500 bytes for a single short procedure).
@@ -1570,8 +1102,7 @@ class AccessVBAPCodeStream:
 @dataclass(frozen=True)
 class AccessVBAModuleStream:
     """Standard Office VBA module-stream bytes for a single VBA module,
-    extracted from the LVAL row that also carries its OVBA-compressed
-    source.
+    from the storage row that also carries its OVBA-compressed source.
 
     Recognisable by the ``0xCAFE`` magic word in ``raw[cafe_offset:]``
     that marks the start of the per-line p-code region (see [MS-OVBA]
@@ -1584,16 +1115,16 @@ class AccessVBAModuleStream:
     :class:`AccessVBAPCodeStream`).
 
     Attributes:
-        page: ACE 4 KiB page number containing the LVAL row.
+        page: ACE 4 KiB page number containing the LVAL row where the
+            stream starts.
         slot: Slot index within ``page``. Several modules commonly share
             a page, so ``page`` alone does not identify a module.
-        raw: The module stream: the carrier row's bytes, or the
-            assembled chain when the module is too large for one page.
+        raw: The module stream, whole, however many LVAL rows it spans.
             The module-stream-format region runs from offset 0 through
             the start of the OVBA compressed source.
         cafe_offset: In-row byte offset of the ``0xCAFE`` magic word
             that opens the p-code region.
-        name: Module name, from the row's ``Attribute VB_Name``.
+        name: Module name, from the project's dir stream.
     """
 
     page: int
@@ -1609,15 +1140,16 @@ class AccessVBAInternedString:
     intern table.
 
     Each literal is stored as a ``0B <u32 LE byte-count> <UTF-16-LE>``
-    record inside one of the database's LVAL rows. See
-    ``docs/access_pcode_re.md`` Phase 4 for the structural rationale
-    (compiled p-code is fully anonymised; literals live here and are
-    referenced from bytecode by slot id only).
+    record in the ``__SRP_0`` stream of a compiled project (see
+    :meth:`AccessReader.find_interned_strings`).  The ``rU@`` execodes
+    refer to a literal by its slot; its text is here, and in its
+    module's own p-code as a ``LitStr`` instruction.
 
     Attributes:
-        page: ACE page number of the LVAL row carrying the record.
+        page: ACE page number of the LVAL row where the stream carrying
+            the record starts.
         slot: Slot index within ``page``.
-        offset: Byte offset of the ``0B`` tag within the row.
+        offset: Byte offset of the ``0B`` tag within the stream.
         value: Decoded string value.
     """
 
@@ -1632,9 +1164,9 @@ class AccessVBAIdentifier:
     """A single identifier name decoded from the project's
     ``_VBA_PROJECT``-equivalent stream.
 
-    The Access ``_VBA_PROJECT`` payload is stored uncompressed in an
-    LVAL row whose first two bytes are the magic ``CC 61``. Near the
-    tail of that row the host emits a list of identifier records, one
+    The Access ``_VBA_PROJECT`` payload is stored uncompressed, and its
+    first two bytes are the magic ``CC 61``. Near the tail of the
+    stream the host emits a list of identifier records, one
     per typelib reference, project name, module, procedure, variable,
     and intrinsic. Each record uses the layout::
 
@@ -1679,16 +1211,6 @@ class AccessVBAIdentifier:
     id_low: int
     prefix: bytes
     slot: int | None = None
-
-
-def _find_vba_project_row(rows: list[tuple[int, int, bytes]]) -> bytes | None:
-    """Return the ``_VBA_PROJECT``-equivalent row payload, or ``None``
-    if no row starts with the ``CC 61`` magic."""
-    for _page, _slot, row in rows:
-        b = bytes(row)
-        if b.startswith(b"\xcc\x61"):
-            return b
-    return None
 
 
 def _parse_vba_project_identifiers(

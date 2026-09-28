@@ -272,6 +272,16 @@ VBA string literals are **not** stored inline in the p-code. They live
 in a separate per-project intern table, in one of the database's LVAL
 rows alongside the reference / module-metadata blob.
 
+Correction (2026-09-27): that holds for the `rU@` execodes only. The
+table is the project's `__SRP_0` stream, where the records sit among
+entries of other kinds and the empty literal is a record of zero bytes.
+Each module's canonical p-code, the `0xCAFE` region ahead of its source,
+does hold every literal inline, as a `LitStr` instruction: `B9 00 <u16
+byte-count> <bytes in the project's code page>`, padded to even length.
+A project saved without its `__SRP_*` streams has no table at all, and
+its literals are only there (tests/live_access_test/string_literals.accdb
+has both; `New Microsoft Access Database.accdb` has the p-code alone).
+
 Record format (locked by regression tests on corpus samples 040, 041,
 042, 043):
 

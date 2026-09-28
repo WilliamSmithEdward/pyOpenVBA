@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from pyopenvba import ExcelFile, PowerPointFile, WordFile
+from pyopenvba import AccessDatabase, ExcelFile, PowerPointFile, WordFile
 from pyopenvba.__main__ import main
 
 _ACCDB = (
@@ -88,6 +88,20 @@ class TestPullPush:
         assert main(["pull", str(target), str(vba_dir)]) == 0
         assert (vba_dir / "Module1.bas").exists()
         capsys.readouterr()
+
+
+class TestAccessLs:
+    def test_access_ls_lists_a_module_kept_inside_its_row(
+        self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """A stream this short sits in its storage row, where the old page
+        scan never looked (GitHub issue #33)."""
+        target = tmp_path / "db.accdb"
+        db = AccessDatabase.create_new(target)
+        db.add_module("Short", "' x")
+        db.save()
+        assert main(["access-ls", str(target)]) == 0
+        assert capsys.readouterr().out.split() == ["Module1", "Short"]
 
 
 @pytest.mark.skipif(not _ACCDB.exists(), reason="live .accdb fixture not present")

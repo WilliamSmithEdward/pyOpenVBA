@@ -5,6 +5,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ## [Unreleased]
 
+Nothing yet.
+
+## [6.3.0] - 2026-09-27
+
 ### Added
 
 - `AccessDatabase.add_vba_project()` gives a database that has never
@@ -40,10 +44,12 @@ All notable changes to pyOpenVBA are documented here. This project follows
   `modules()`, `module_names()`, `references()`, `pull_modules()` and
   the new stream listings answer empty. A read or write that needs the
   project raises `NoVBAProjectError`, naming the file and
-  `add_vba_project()`. They had failed with "MSysAccessStorage has no
-  'dir' row", while `forms()`, `reports()` and `macros()` answered
-  empty. An Access 2000 file, whose project lives in `MSysAccessObjects`,
-  is refused rather than answered as empty.
+  `add_vba_project()`. They had raised `AccessError`, "MSysAccessStorage
+  has no 'dir' row", while `forms()`, `reports()` and `macros()`
+  answered empty. `NoVBAProjectError` is not an `AccessError`: code that
+  caught the old error there catches `NoVBAProjectError` now, or
+  `PyOpenVBAError` for both. An Access 2000 file, whose project lives in
+  `MSysAccessObjects`, is refused rather than answered as empty.
 - A module the library adds takes the storage folder and object id
   Access gives it: the lowest free folder counting from `0`, and the
   next id. The library had started `Modules` at folder `4` and stepped

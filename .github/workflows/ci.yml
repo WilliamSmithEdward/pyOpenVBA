@@ -108,3 +108,22 @@ jobs:
           name: dist
           path: dist/
           if-no-files-found: error
+
+  # The one check branch protection requires. The matrix jobs are named
+  # after their Python and runner, which change; this name does not. It
+  # fails unless every job above passed, a skipped one included.
+  ci-passed:
+    name: CI passed
+    if: always()
+    needs: [test, languages, build]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Check every CI job passed
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "Results: $RESULTS"
+          for result in $RESULTS; do
+            [ "$result" = success ] || exit 1
+          done

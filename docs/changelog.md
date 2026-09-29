@@ -5,6 +5,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ## [Unreleased]
 
+Nothing yet.
+
+## [6.3.2] - 2026-09-28
+
 ### Added
 
 - `VBAForm.layout_dpi` selects the target designer DPI for newly generated

@@ -7,6 +7,23 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 Nothing yet.
 
+## [6.3.3] - 2026-09-28
+
+### Fixed
+
+- Removed old test comments from the shipped `blank_database.accdb`
+  reference file. Its active p-code decoded only `Option Compare Database`,
+  but its module cache still held 999 copies of a deleted comment. The
+  module is now source-only at MODULEOFFSET 0, and the database was rebuilt
+  with Compact and Repair so unused pages do not retain the old bytes.
+  The module's source is preserved. The embedded Access template used by
+  `create_new()` was not affected and is unchanged.
+- Template regression checks now include every shipped reference and
+  embedded template, scanning raw file bytes, decompressed ZIP members,
+  and assembled Access VBA streams for the removed comments. Access engine
+  skeletons are checked for the absence of VBA; the cleaned blank reference
+  is checked for its exact source and zero module offset.
+
 ## [6.3.2] - 2026-09-28
 
 ### Added

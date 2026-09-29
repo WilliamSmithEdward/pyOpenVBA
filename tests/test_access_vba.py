@@ -22,9 +22,8 @@ import pytest
 from pyopenvba.access import AccessDatabase, ColumnSpec, MacroAction
 from pyopenvba.access._storage import access_order, dir_data_entries, name_hash, next_folder
 from pyopenvba.access._vba import (
-    CRLF,
-    CRLF as VBA_CRLF,
     CLASS_BASE,
+    CRLF,
     MODULETYPE_CLASS,
     STALE_VERSION,
     add_to_project,
@@ -35,6 +34,9 @@ from pyopenvba.access._vba import (
     records,
     remove_from_project,
     rename_project,
+)
+from pyopenvba.access._vba import (
+    CRLF as VBA_CRLF,
 )
 from pyopenvba.access_read import AccessError, AccessReader
 from pyopenvba.exceptions import NoVBAProjectError, UnsupportedFormatError, VBAProjectError
@@ -198,7 +200,8 @@ def test_a_created_module_carries_no_pcode(db: AccessDatabase) -> None:
     assert b"\xfe\xca" not in stream_named(db, module.stream_name)
 
 
-def test_create_marks_the_compiled_cache_stale(db: AccessDatabase) -> None:
+def test_create_marks_the_compiled_cache_stale() -> None:
+    db = AccessDatabase(Path(__file__).parent / "fixtures" / "access_compiled_blank.accdb")
     before = stream_named(db, "_VBA_PROJECT")
     db.create_module("Adder", ADDER)
     after = stream_named(db, "_VBA_PROJECT")
@@ -303,9 +306,10 @@ def test_setting_source_keeps_the_attribute_block(db: AccessDatabase) -> None:
     assert f'Attribute VB_Base = "{CLASS_BASE}"' in source
 
 
-def test_setting_source_drops_any_compiled_region(db: AccessDatabase) -> None:
+def test_setting_source_drops_any_compiled_region() -> None:
     """The template's `Module1` arrives with p-code; replacing its source
     leaves the stream source-only with MODULEOFFSET back at zero."""
+    db = AccessDatabase(Path(__file__).parent / "fixtures" / "access_compiled_blank.accdb")
     before = db.module("Module1")
     assert b"\xfe\xca" in stream_named(db, before.stream_name)
 
@@ -1002,7 +1006,7 @@ def protect(db: AccessDatabase) -> None:
         payload = row.get("Lv")
         if str(row["Name"]) == "PROJECT" and isinstance(payload, bytes):
             text = payload.decode("latin-1")
-            before = [line for line in text.split(CRLF) if line.startswith("DPB=")][0]
+            before = next(line for line in text.split(CRLF) if line.startswith("DPB="))
             storage.update_row(
                 rid, {"Lv": text.replace(before, 'DPB="' + "AB" * 40 + '"').encode("latin-1")}
             )

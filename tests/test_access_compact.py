@@ -15,8 +15,8 @@ from pathlib import Path
 import pytest
 
 from pyopenvba.access import AccessDatabase, ColumnSpec, IndexSpec
-from pyopenvba.access_read import AccessError
 from pyopenvba.access._pages import PAGE_SIZE
+from pyopenvba.access_read import AccessError
 
 
 def filled(path: Path, rows: int = 2000) -> AccessDatabase:
@@ -374,10 +374,9 @@ def test_compact_and_repair_keeps_the_creation_date_and_the_owners(related_db: A
 # page:kind, a definition page's kind being the column count its bytes hold.
 
 
-#: The template Access starts a database from; ``create_new`` uses a
-#: smaller one, and the engine's layouts below were read off compactions
-#: of databases made from this one.
-_TEMPLATE = Path(__file__).resolve().parents[1] / "src" / "pyopenvba" / "_templates" / "blank_files" / "blank_database.accdb"
+#: Historical fixture used for the measured engine page layouts below.
+#: It retains its compiled cache for those measurements, but does not ship.
+_TEMPLATE = Path(__file__).parent / "fixtures" / "access_compiled_blank.accdb"
 
 
 def _wide_columns(count: int, memo: bool = False) -> list[ColumnSpec]:

@@ -330,7 +330,7 @@ def written(tmp_path: Path) -> Path:
     one-line module and a fifty-line one, all carrying cp1252
     punctuation."""
     target = tmp_path / "written.accdb"
-    shutil.copyfile(TEMPLATE, target)
+    shutil.copyfile(Path(__file__).parent / "fixtures" / "access_compiled_blank.accdb", target)
     db = AccessDatabase(target)
     db.set_module_source("Module1", f"' edited: {SAMPLE}\r\n")
     db.add_module("Short", f"' {SAMPLE}\r\n")
@@ -350,7 +350,8 @@ def test_an_edited_module_reads_as_its_new_text(written: Path) -> None:
     """Module1's old source is still in the file: a replaced chain's pages
     are released with their bytes in place, by Access and by the engine,
     and the last of them, where the source sits, is not taken again."""
-    old = next(s for s in AccessDatabase(TEMPLATE).module_streams() if s.name == "Module1")
+    original = AccessDatabase(Path(__file__).parent / "fixtures" / "access_compiled_blank.accdb")
+    old = next(s for s in original.module_streams() if s.name == "Module1")
     assert old.data[old.offset :] in written.read_bytes()
     assert AccessReader(written).read_vba_module("Module1") == f"' edited: {SAMPLE}\r\n"
 

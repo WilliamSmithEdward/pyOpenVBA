@@ -13,12 +13,12 @@ from decimal import Decimal
 from pathlib import Path
 
 import pytest
+from test_access_write import check_indexes
 
 from pyopenvba.access import AccessDatabase, ColumnSpec, IndexSpec, Table
 from pyopenvba.access._pages import GLOBAL_USAGE_MAP_PAGE, GLOBAL_USAGE_MAP_ROW, read_usage_map, read_usage_map_ref
 from pyopenvba.access._tdef import parse_table_definition
 from pyopenvba.access_read import AccessError
-from test_access_write import check_indexes
 
 TEMPLATE = Path(__file__).parents[1] / "src" / "pyopenvba" / "_templates" / "blank_files" / "blank_database.accdb"
 WHEN = dt.datetime(2026, 9, 2, 12, 0, 0)
@@ -307,8 +307,8 @@ def test_pages_released_in_a_session_are_reused_only_after_reopening() -> None:
     """The engine passes over pages it released earlier in the same session
     and hands them out again, lowest first, once the database is reopened.
     The page numbers are the ones DAO produced for this very sequence on
-    the blank template."""
-    db = AccessDatabase(TEMPLATE)
+    the original compiled blank fixture."""
+    db = AccessDatabase(Path(__file__).parent / "fixtures" / "access_compiled_blank.accdb")
     spec = [ColumnSpec("Id", "Long", autonumber=True), ColumnSpec("N", "Long")]
     key = [IndexSpec("PK", ("Id",), primary=True)]
 

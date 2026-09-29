@@ -5,6 +5,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ## [Unreleased]
 
+Nothing yet.
+
+## [6.3.1] - 2026-09-28
+
 ### Added
 
 - Every release carries a security report,

@@ -32,10 +32,8 @@ sys.path.insert(0, str(ROOT / "src"))
 def _strip_module1(xlsm_bytes: bytes) -> bytes:
     """Open the workbook, blank Module1 and drop its p-code, return the new .xlsm bytes.
 
-    A save keeps an edited module's p-code, compiled from the source it had
-    before, so a blanked source alone leaves the old code readable in the
-    file.  Module1 goes out as a new module does: its source alone, at
-    MODULEOFFSET 0.
+    The shared save path writes edited modules as source alone at
+    MODULEOFFSET 0, so removed text cannot survive in their old p-code.
     """
     from pyopenvba.excel import ExcelFile
 
@@ -52,9 +50,6 @@ def _strip_module1(xlsm_bytes: bytes) -> bytes:
         else:
             m.source = 'Attribute VB_Name = "Module1"\r\n'
             m.dirty = True
-            m.prefix_bytes = b""
-            m.text_offset = 0
-            proj.dir_structure_dirty = True
         wb.save(scratch_out)
         return scratch_out.read_bytes()
     finally:

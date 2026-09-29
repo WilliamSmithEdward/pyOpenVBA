@@ -258,6 +258,23 @@ class VBAForm:
         default_factory=lambda: [], repr=False
     )
     _header_edited: bool = field(default=False, repr=False)
+    _layout_dpi: int = field(default=96, init=False, repr=False)
+
+    @property
+    def layout_dpi(self) -> int:
+        """Target designer DPI for newly laid-out controls and pages (default 96).
+
+        Other DPIs use estimates scaled from measured 96-DPI font metrics.
+        This setting is not stored in the file and does not change existing
+        geometry or fonts. Set it again after reopening a form.
+        """
+        return self._layout_dpi
+
+    @layout_dpi.setter
+    def layout_dpi(self, value: int) -> None:
+        if type(value) is not int or value <= 0:
+            raise ValueError("layout_dpi must be a positive integer")
+        self._layout_dpi = value
 
     @property
     def properties_set(self) -> int:
@@ -377,7 +394,7 @@ class VBAForm:
         self._count_shape(level)
 
         font = self._font_of(level)
-        default_w, default_h = _default_size(kind, font)
+        default_w, default_h = _default_size(kind, font, self.layout_dpi)
         size_w = default_w if width is None else points_to_himetric(width)
         size_h = default_h if height is None else points_to_himetric(height)
         site = _new_site(
@@ -648,17 +665,19 @@ class VBAForm:
 
     def _page_box(self, level: _Level, size: Size) -> tuple[int, int, int, int]:
         """Where the designer lays out a page of the MultiPage at ``level`` in a TabStrip of ``size``, and
-        the page's size: two pixels inside the TabStrip's border and under its tabs, whose height follows
-        the MultiPage's font (tests/fixtures/form_fonts.json).  The designer rounds the TabStrip to whole
-        pixels at 96 DPI and turns each pixel edge back into HIMETRIC at the TabStrip's own HIMETRIC per
-        pixel, so the page's top moves a unit or two with the size (tests/fixtures/multipage_resize.json).
-        Left, top, width, height, in HIMETRIC."""
-        wide = max(1, _mul_div(size.width, 96, 2540))
-        tall = max(1, _mul_div(size.height, 96, 2540))
-        under = _PAGE_INSET_PX + _tab_band_px(self._multipage_font(level))
-        left, top = _mul_div(_PAGE_INSET_PX, size.width, wide), _mul_div(under, size.height, tall)
-        right = _mul_div(wide - _PAGE_INSET_PX, size.width, wide)
-        bottom = _mul_div(tall - _PAGE_INSET_PX, size.height, tall)
+        the page's size: a scaled two-pixel inset under the tabs in the MultiPage's font.
+        At 96 DPI this is measured (tests/fixtures/form_fonts.json and multipage_resize.json);
+        other DPIs use scaled estimates. Round the TabStrip to whole target pixels and turn
+        each edge back into HIMETRIC at its own HIMETRIC per pixel, so the page's top
+        moves a unit or two with the size. Left, top, width, height, in HIMETRIC."""
+        dpi = self.layout_dpi
+        wide = max(1, _mul_div(size.width, dpi, 2540))
+        tall = max(1, _mul_div(size.height, dpi, 2540))
+        inset = _mul_div(_PAGE_INSET_PX, dpi, 96)
+        under = inset + _tab_band_px(self._multipage_font(level), dpi)
+        left, top = _mul_div(inset, size.width, wide), _mul_div(under, size.height, tall)
+        right = _mul_div(wide - inset, size.width, wide)
+        bottom = _mul_div(tall - inset, size.height, tall)
         return left, top, right - left, bottom - top
 
     def _multipage_font(self, level: _Level) -> _Font:
@@ -1567,18 +1586,22 @@ _TAB_BAND_PX: dict[tuple[str, int], int] = {
 }
 
 
-def _tab_band_px(font: _Font) -> int:
-    """A tab's height in pixels for ``font``: as measured, or else estimated
-    from the size alone, which reproduces every Tahoma size measured and is
-    within a pixel of the rest."""
+def _tab_band_px(font: _Font, dpi: int = 96) -> int:
+    """Measured at 96 DPI; scaled estimates elsewhere, including pixel rounding.
+
+    Unknown fonts use an estimated line height plus scaled tab padding.
+    This is deterministic, not a query of the machine's installed fonts.
+    """
     twips = font.size // 500
     measured = _TAB_BAND_PX.get((font.name.casefold(), twips))
-    return measured if measured is not None else round(twips / 15 * 1.2) + 6
+    if measured is not None:
+        return _mul_div(measured, dpi, 96)
+    return round(twips / 15 * 1.2 * dpi / 96) + _mul_div(6, dpi, 96)
 
 
-def _himetric_px(pixels: int) -> int:
-    """Pixels at 96 DPI in HIMETRIC, rounded as the designer rounds them."""
-    return round(pixels * 2540 / 96)
+def _himetric_px(pixels: int, dpi: int = 96) -> int:
+    """Target-display pixels in HIMETRIC, with the measured 96-DPI rounding."""
+    return round(pixels * 2540 / dpi)
 
 
 def _mul_div(number: int, numerator: int, denominator: int) -> int:
@@ -1587,13 +1610,14 @@ def _mul_div(number: int, numerator: int, denominator: int) -> int:
     return (2 * number * numerator + denominator) // (2 * denominator)
 
 
-def _default_size(kind: str, font: _Font) -> tuple[int, int]:
+def _default_size(kind: str, font: _Font, dpi: int = 96) -> tuple[int, int]:
     """The size the designer gives a new control of ``kind`` on a container
     showing ``font``: the kind's own, but a CheckBox or OptionButton at
-    least 24 pixels tall and four more than a tab in its font."""
+    least 24 baseline pixels tall and four more than a tab in its font.
+    Baseline pixels scale from 96 DPI before rounding to target pixels."""
     width, height = _DEFAULT_SIZE.get(kind, _DEFAULT_SIZE["CommandButton"])
     if kind in _FONT_HEIGHTED:
-        height = _himetric_px(max(24, _tab_band_px(font) + 4))
+        height = _himetric_px(max(_mul_div(24, dpi, 96), _tab_band_px(font, dpi) + _mul_div(4, dpi, 96)), dpi)
     return width, height
 
 # MorphData's PropMask bit 31 is reserved and MUST be 1

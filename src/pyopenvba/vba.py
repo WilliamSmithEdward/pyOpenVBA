@@ -1467,18 +1467,14 @@ _encoding_for_codepage = encoding_for_codepage
 
 
 def rebuild_module_stream(module: VBAModule, code_page: int) -> bytes:
-    """
-    Rebuild a module stream by preserving the original ``[0:text_offset]``
-    performance-cache prefix and replacing ``[text_offset:]`` with a freshly
-    compressed copy of ``module.source``.
+    """Compress source without the old compiled performance cache.
 
-    The replacement is byte-exact in the prefix region, so any cache-
-    invalidation logic that Office performs on the prefix remains valid.
+    A rewritten module starts at MODULEOFFSET 0. The caller must update
+    its metadata and the project's dir stream when replacing an old stream.
+    Keeping the old prefix would leave removed source text recoverable.
     """
     encoding = _encoding_for_codepage(code_page)
-    source_bytes = encode_mbcs(module.source, encoding)
-    compressed = compress(source_bytes)
-    return module.prefix_bytes + compressed
+    return compress(encode_mbcs(module.source, encoding))
 
 
 def write_back_modules(cfb: CFB, project: VBAProject) -> None:
@@ -1491,6 +1487,10 @@ def write_back_modules(cfb: CFB, project: VBAProject) -> None:
             continue
         new_stream = rebuild_module_stream(m, project.code_page)
         cfb.write_stream_in_storage("VBA", m.stream_name, new_stream)
+        if m.text_offset:
+            project.dir_structure_dirty = True
+        m.text_offset = 0
+        m.prefix_bytes = b""
         m.dirty = False
 
 

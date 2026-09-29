@@ -382,7 +382,7 @@ class TestGate04_Compression:
 # ===========================================================================
 
 class TestGate05_PerformanceCache:
-    """Performance cache is preserved verbatim and never consulted for source."""
+    """Unedited module caches are preserved and never consulted for source."""
 
     def test_module_prefix_preserved_across_unedited_save(
         self, live_xlsm_path: Path, tmp_path: Path
@@ -409,6 +409,10 @@ class TestGate05_PerformanceCache:
             wb.save(out)
         with ExcelFile(out) as wb2:
             for m in wb2.vba_project().modules:
+                if m.name == "Module1":
+                    assert m.prefix_bytes == b""
+                    assert m.text_offset == 0
+                    continue
                 assert m.prefix_bytes == before[m.name], (
                     f"non-target module {m.name!r} had cache prefix mutated"
                 )
@@ -763,16 +767,15 @@ class TestGate12_ModuleStream:
                 f"module {m.name!r} source missing VB_Name attribute"
             )
 
-    def test_rebuild_module_stream_preserves_prefix(
+    def test_rebuild_module_stream_drops_prefix(
         self, live_vba_bin: bytes
     ) -> None:
         cfb = CFB.from_bytes(live_vba_bin)
         proj = parse_vba_project(cfb)
         m = proj.get_module("Module1")
         new_stream = rebuild_module_stream(m, proj.code_page)
-        assert new_stream.startswith(m.prefix_bytes), (
-            "rebuilt module stream must preserve the cache-prefix bytes verbatim"
-        )
+        assert m.prefix_bytes  # Exercise a genuinely compiled module.
+        assert decompress(new_stream).decode("cp1252") == m.source
 
     def test_write_back_then_reparse_yields_same_source(
         self, live_xlsm_path: Path, tmp_path: Path

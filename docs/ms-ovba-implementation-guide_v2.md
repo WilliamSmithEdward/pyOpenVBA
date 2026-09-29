@@ -399,7 +399,7 @@ that you need the `PROJECT` stream (Section 8).
 Each module's source lives at `/VBA/<MODULESTREAMNAME>`. Layout:
 
 ```
-[ PerformanceCache prefix ]  MODULEOFFSET bytes (opaque; preserve)
+[ PerformanceCache prefix ]  MODULEOFFSET bytes (preserve only for unedited modules)
 [ CompressedSourceCode    ]  bytes from MODULEOFFSET to EOF
 ```
 
@@ -415,12 +415,18 @@ text = decode(raw, code_page=project.code_page)
 **Write (in-place source replacement):**
 
 ```pseudo
-old      = cfb.get_stream_in_storage("VBA", module.stream_name)
-prefix   = old[:module.text_offset]                          # preserve verbatim
 new_raw  = encode(new_text, code_page=project.code_page)
 new_body = ovba_compress(new_raw)
-cfb.write_stream_in_storage("VBA", module.stream_name, prefix + new_body)
+cfb.write_stream_in_storage("VBA", module.stream_name, new_body)
+module.text_offset = 0
+module.prefix_bytes = b""
+# Rewrite the dir stream with this module's MODULEOFFSET = 0.
 ```
+
+An edited module is source-only: retaining its old compiled prefix would
+leave removed comments and string literals readable in the saved file.
+Unedited modules keep their streams, including their cached p-code.
+The project cache is invalidated as before so Office compiles the source.
 
 **Write (new module):**
 

@@ -93,3 +93,42 @@ The designers store a form's or Frame's font size in whole pixels of the
 display they run on: at 96 DPI in steps of 0.75 point, so 10 point is stored
 as 9.75, and at 192 DPI in steps of 0.375. A control added to it takes that
 size in twips, cut to a whole twip.
+
+
+## Target designer DPI
+
+The default layout is the measured 96-DPI layout. To target another display,
+set the form's `layout_dpi` before adding controls or pages:
+
+```python
+with WordFile("input.docm") as document:
+    form = document.forms()[0]
+    form.layout_dpi = 192  # 200%; use 144 for 150%
+    form.add_control("MultiPage", "Choices", width=300, height=200)
+    form.add_page("Choices", name="Details")
+    form.add_control("CheckBox", "Remember")
+    document.save("output.docm")
+```
+
+`layout_dpi` must be a positive integer. It controls pixel rounding for
+new MultiPage pages and the default heights of new CheckBox and OptionButton
+controls. Explicit dimensions remain in points. Changing it does not rewrite
+existing controls, stored fonts, or page geometry. It is a generation setting,
+not a serialized form property; set it again after reopening a file. The
+library never reads the build machine's screen DPI.
+
+**Accuracy:** 96-DPI metrics are measured in Excel and Word. At other DPIs,
+metrics are estimates: scale the measured font band and border/padding by
+`dpi / 96`, round to whole target pixels, and convert geometry back to
+HIMETRIC. For an unmeasured font, estimate its line height from its point size
+and add scaled tab padding. The reported Tahoma 7.875-pt sample at 192 DPI
+(157 whole twips in the TabStrip) gives the expected page origin `(53, 542)`.
+The broader 144/192-DPI matrix has not been measured in Office; font hinting,
+font substitution, and Office versions can still produce pixel differences.
+This option does not claim byte-for-byte designer equivalence at those DPIs.
+
+The scaling model follows Microsoft's [DPI and device-independent pixels](https://learn.microsoft.com/en-us/windows/win32/learnwin32/dpi-and-device-independent-pixels):
+points are 1/72 inch and pixel dimensions scale with target DPI. That document
+explains Windows scaling, not MSForms' private layout algorithm. Our padding
+and font-band estimates are inferred from the repository's 96-DPI measurements
+and the reported 192-DPI sample.

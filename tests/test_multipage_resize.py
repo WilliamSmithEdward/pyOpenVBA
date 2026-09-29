@@ -170,3 +170,61 @@ def test_a_designer_lays_out_pages_at_its_own_dpi(host: str, tmp_path: Path) -> 
         assert _layout(office, "MPB")[1:] == [ours, planted]
         office.add_page("MPB", name="Page3")
         assert _layout(office, "MPB")[-1] == ours
+
+
+@pytest.mark.parametrize("host", HOSTS)
+def test_explicit_192_dpi_reproduces_reported_page_origin(host: str, tmp_path: Path) -> None:
+    # The reported Word sample has Tahoma 7.875 pt (157 whole twips on
+    # the TabStrip). Its 192-DPI page is (53, 542), not (53, 556).
+    with ExcelFile(_office_form(host, "Planted", tmp_path)) as workbook:
+        form = _form(workbook, "Planted")
+        level = _level(form, form.control("MPB").id)
+        tabs = _tabstrip(level).record
+        assert tabs is not None and tabs.text_props is not None
+        tabs.text_props.set_value("FontHeight", 157)
+        before = _layout(form, "MPB")
+        form.layout_dpi = 192
+        assert _layout(form, "MPB") == before
+        form.add_page("MPB", name="HighDpiPage")
+        assert _layout(form, "MPB")[:-1] == before
+        assert _layout(form, "MPB")[-1] == ((53, 542), Size(4974, 3215))
+        workbook.save()
+    with ExcelFile(tmp_path / "Planted.xlsm") as reopened:
+        assert _layout(_form(reopened, "Planted"), "MPB")[-1] == ((53, 542), Size(4974, 3215))
+        assert _form(reopened, "Planted").layout_dpi == 96
+
+
+@pytest.mark.parametrize("dpi", [120, 144, 192])
+def test_target_dpi_keeps_control_dimensions_in_points(dpi: int, tmp_path: Path) -> None:
+    # Scaling changes pixel rounding, not the logical size of a control.
+    with ExcelFile.create_new(tmp_path / "scaled.xlsm") as workbook:
+        form = workbook.add_form("Scaled")
+        form.layout_dpi = dpi
+        form.add_control("MultiPage", "Pages", width=300, height=200)
+        for kind in ("CheckBox", "OptionButton"):
+            box = form.add_control(kind, kind)
+            assert box.get("Size") == Size(3810, 635)
+        assert form.control("Pages").get("DisplayedSize") == Size(10583, 7056)
+        layout = _layout(form, "Pages")
+        form.layout_dpi = 96
+        assert _layout(form, "Pages") == layout
+
+
+@pytest.mark.parametrize("dpi", [0, -96, True, 144.5, "192", None])
+def test_invalid_layout_dpi_is_rejected(dpi: Any) -> None:
+    form = VBAForm("Invalid", "")
+    with pytest.raises(ValueError, match="positive integer"):
+        form.layout_dpi = dpi
+    assert form.layout_dpi == 96
+
+
+@pytest.mark.parametrize(("dpi", "height"), [(96, 767), (144, 776), (192, 767)])
+def test_large_font_checkbox_uses_target_pixel_rounding(dpi: int, height: int, tmp_path: Path) -> None:
+    # These are the estimator's contract, not measurements at 144/192 DPI.
+    # At 150%, a 25-pixel tab band rounds to 38 pixels before adding padding.
+    with ExcelFile(_office_form("excel", "Tahoma12", tmp_path)) as workbook:
+        form = _form(workbook, "Tahoma12")
+        form.layout_dpi = dpi
+        for kind in ("CheckBox", "OptionButton"):
+            assert form.add_control(kind, kind).get("Size") == Size(3810, height)
+        assert form.add_control("CheckBox", "Explicit", height=20).get("Size") == Size(3810, 706)

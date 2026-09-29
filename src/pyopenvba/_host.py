@@ -19,10 +19,10 @@ import zipfile
 from pathlib import Path
 from typing import ClassVar, TypeVar
 
-from pyopenvba.cfb import CFB
 from pyopenvba._new_project import with_project
 from pyopenvba._package_signature import signature_parts, without_signature
 from pyopenvba._references import ReferenceManager, module_offset, reference_spans
+from pyopenvba.cfb import CFB
 from pyopenvba.exceptions import NoVBAProjectError, UnsupportedFormatError, VBAProjectError
 from pyopenvba.forms import VBAForm, create_form, form_names, read_form, read_forms
 from pyopenvba.vba import (
@@ -677,7 +677,7 @@ class VBAHostFile(ReferenceManager):
         write_back_modules(cfb, project)
 
         # 5. Rewrite the dir + PROJECT streams when the module set's
-        #    identity has changed (add / rename / delete).  PROJECT is
+        #    identity or a module's source offset has changed. PROJECT is
         #    always rewritten on a structural save so that any duplicate
         #    declarations or stale ``[Workspace]`` entries left behind by
         #    earlier buggy writes are scrubbed via the dedup pass in

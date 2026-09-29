@@ -5,12 +5,26 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ## [Unreleased]
 
+### Added
+
+- `VBAForm.layout_dpi` selects the target designer DPI for newly generated
+  page geometry and CheckBox/OptionButton default heights. The default
+  remains the measured 96-DPI behavior; other DPIs use documented estimates.
+  Existing geometry and fonts are preserved. Resolves #32 with estimated
+  high-DPI support, not a claim of exact high-DPI Office measurements.
+
 ### Fixed
+
+- Saving an edited VBA module discards its old compiled p-code and writes
+  its compressed source at MODULEOFFSET 0. Removed comments and string
+  literals no longer remain in that module's cache. Unedited module streams
+  retain their caches. Applies to the shared Excel, Word and PowerPoint save
+  path, including binary Excel/Word containers (#35).
 
 - The `.xlsm` template behind `ExcelFile.create_new()` held a comment in
   Module1's p-code, `TESTING ONLY DO NOT INCLUDE THIS IN FINAL OUTPUT`,
   and so did every workbook made from it. Module1's source had been
-  blanked when the template was first baked, in 1.1.0, and a save keeps
+  blanked when the template was first baked, in 1.1.0, and saves then kept
   an edited module's p-code, so pcodedmp, olevba and
   `VBAModule.disassemble()` still read the comment. Excel never showed or
   ran it: the save invalidates the project's cache, and Excel compiles

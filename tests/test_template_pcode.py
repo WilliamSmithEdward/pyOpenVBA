@@ -1,8 +1,8 @@
 """No template the library ships keeps p-code for code its source lacks.
 
 A template's modules hold no code, so their p-code holds no instruction.
-A save keeps an edited module's p-code, compiled from the source it had
-before, and the .xlsm template's Module1 had its source blanked that way:
+Saves formerly kept edited modules' p-code, compiled from their old source,
+and the .xlsm template's Module1 had its source blanked that way:
 every workbook create_new made carried a comment, TESTING ONLY DO NOT
 INCLUDE THIS IN FINAL OUTPUT, that pcodedmp and olevba read back. The
 blank files the templates are baked from ship in the wheel as well, so

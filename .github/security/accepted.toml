@@ -49,11 +49,11 @@ chosen collision does not apply.
 [[notice]]
 tool = "Semgrep"
 id = "Syntax error"
-contains = "excel_macro_test.yml"
+contains = "excel-macro-test.yml"
 reason = """
 Two of Semgrep's GitHub Actions rules, curl-eval and gha-curl-pipe-shell,
 read every run: block as Bash. The failure-screenshot step in
-excel_macro_test.yml is PowerShell, so they cannot parse it. Both look
+excel-macro-test.yml is PowerShell, so they cannot parse it. Both look
 for a download piped into a shell, which that step does not do: it loads
 four scripts from the checkout and takes a screenshot.
 """

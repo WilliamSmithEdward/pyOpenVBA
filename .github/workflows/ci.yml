@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   test:
-    name: test (py${{ matrix.python-version }} / ${{ matrix.os }})
+    name: Test (Python ${{ matrix.python-version }}, ${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -83,7 +83,7 @@ jobs:
         run: pytest tests/test_language_matrix.py -p no:randomly -q
 
   build:
-    name: build sdist + wheel
+    name: Build sdist and wheel
     runs-on: ubuntu-24.04
     needs: test
     steps:

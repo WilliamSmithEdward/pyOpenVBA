@@ -134,3 +134,19 @@ jobs:
           name: security-report
           path: security-report/
           if-no-files-found: error
+
+  security-passed:
+    name: Security passed
+    if: always()
+    needs: [codeql, semgrep, report]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Check every security job passed
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "Results: $RESULTS"
+          for result in $RESULTS; do
+            [ "$result" = success ] || exit 1
+          done

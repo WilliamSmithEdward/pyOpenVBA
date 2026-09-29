@@ -1,4 +1,4 @@
-name: Build Test
+name: Excel macro test
 
 on:
   workflow_dispatch:
@@ -9,7 +9,7 @@ on:
       - 'scripts/build_excel_fixtures.py'
       - 'scripts/run_excel_fixtures.py'
       - 'scripts/utils/**'
-      - '.github/workflows/excel_macro_test.yml'
+      - '.github/workflows/excel-macro-test.yml'
   pull_request:
     branches: [main]
     paths:
@@ -17,7 +17,7 @@ on:
       - 'scripts/build_excel_fixtures.py'
       - 'scripts/run_excel_fixtures.py'
       - 'scripts/utils/**'
-      - '.github/workflows/excel_macro_test.yml'
+      - '.github/workflows/excel-macro-test.yml'
 
 permissions:
   contents: read

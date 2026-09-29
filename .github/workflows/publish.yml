@@ -1,4 +1,4 @@
-name: Publish to PyPI
+name: Publish
 
 on:
   push:
@@ -61,7 +61,7 @@ jobs:
   # accepted list the same way.
   malware:
     name: Malware scan
-    uses: ./.github/workflows/malware.yml
+    uses: ./.github/workflows/malware-scan.yml
     permissions:
       contents: read
 

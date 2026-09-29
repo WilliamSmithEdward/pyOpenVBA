@@ -2,7 +2,7 @@
 # pinned to a commit with its release named in a comment, and the Semgrep
 # and ClamAV images the scans run, each pinned by digest in a one-line
 # Dockerfile. The YARA-X engine and the YARA Forge rules are release
-# downloads Dependabot cannot follow; yara-update.yml proposes those. The
+# downloads Dependabot cannot follow; update-yara-rules.yml proposes those. The
 # package itself depends on nothing, and its development tools are minimum
 # versions that CI installs at their latest.
 #

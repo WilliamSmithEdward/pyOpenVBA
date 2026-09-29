@@ -46,8 +46,20 @@ fails the scan unless
 with the reason it is accepted, and an entry there that no longer
 matches fails it too.
 
-A release is published only after its commit passes the scan, and it
-carries the report as `pyopenvba-<version>-security-report.md`, beside
-the SARIF the report was made from. Every action the workflows use is
-pinned to a commit, and Dependabot proposes updates to the actions and
-to the pinned Semgrep.
+ClamAV and YARA-X scan every file the repository holds, test fixtures
+included, on every push to main, every pull request, every day, and
+before every release. ClamAV fetches its current signatures on each run.
+YARA-X runs the full YARA Forge collection, which gathers the public
+YARA rule sets, at a pinned release; a weekly workflow proposes each new
+release in a pull request, and the scans check that pull request before
+it is merged. A match fails the scan unless
+[.github/security/malware-accepted.toml](.github/security/malware-accepted.toml)
+names the rule and the file with the reason.
+
+A release is published only after its commit passes both scans. It
+carries `pyopenvba-<version>-security-report.md` and
+`pyopenvba-<version>-malware-report.md`, beside what each report was
+made from. Every action the workflows use is pinned to a commit, the
+Semgrep and ClamAV images by digest, the runners by operating system
+release, and the YARA downloads by SHA-256. Dependabot proposes updates to the actions and
+images, and the weekly workflow to the YARA pins.

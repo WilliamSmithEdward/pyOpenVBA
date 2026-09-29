@@ -1,0 +1,61 @@
+name: YARA rules update
+
+# Weekly: move the YARA pins in .github/security/yara.env to YARA Forge's
+# newest release and to the newest YARA-X release that is a week old, and
+# propose the change in a pull request. A pull request opened with this
+# workflow's token starts no other workflow, so this starts the Security
+# and Malware scans on the branch itself; they scan it with the new rules
+# before anyone merges it. Opening it needs the repository setting "Allow
+# GitHub Actions to create and approve pull requests".
+
+on:
+  schedule:
+    - cron: "17 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: yara-update
+
+jobs:
+  propose:
+    name: Propose new YARA pins
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      pull-requests: write
+      actions: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Move the pins
+        id: pins
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/security/yara_update.py .github/security/yara.env
+
+      - name: Propose the change
+        if: steps.pins.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TITLE: ${{ steps.pins.outputs.title }}
+        run: |
+          set -euo pipefail
+          source .github/security/yara.env
+          branch="yara-update/forge-$YARA_FORGE_RELEASE-yara-x-$YARA_X_VERSION"
+          if git ls-remote --exit-code --heads origin "$branch" > /dev/null; then
+            echo "$branch is already proposed."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch --create "$branch"
+          git commit --all --message "$TITLE"
+          git push origin "$branch"
+          gh pr create --base main --head "$branch" --title "$TITLE" --body \
+            "The weekly YARA update. Each new pin's SHA-256 is the digest GitHub records for the release asset. The Security and Malware scans run on this branch; if YARA Forge's new rules match a file, the Malware scan fails until the match is read and fixed or accepted in .github/security/malware-accepted.toml."
+          gh workflow run security.yml --ref "$branch"
+          gh workflow run malware.yml --ref "$branch"

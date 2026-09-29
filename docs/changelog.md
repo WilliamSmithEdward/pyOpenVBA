@@ -5,7 +5,21 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ## [Unreleased]
 
-Nothing yet.
+### Added
+
+- Every release also carries a malware report,
+  `pyopenvba-<version>-malware-report.md`. ClamAV, with the signatures
+  freshclam fetches on each run, and YARA-X, with the full YARA Forge
+  collection of public rules, scan every file the repository holds on
+  every push to main, every pull request, every day and before each
+  release. A match that `.github/security/malware-accepted.toml` does not
+  name fails the scan and stops the release. Two YARA Forge rules match
+  and are accepted there with their reasons: one written from a single
+  TA505 spreadsheet matches the VBA reference paths any binary Office
+  file records, and one for PowerShell spelled in odd letter case matches
+  documentation. A weekly workflow proposes new YARA Forge and YARA-X
+  releases in a pull request that the scans check. Semgrep now runs from
+  its pinned image, and the workflows run on named runner images.
 
 ## [6.3.3] - 2026-09-28
 

@@ -24,7 +24,7 @@ permissions:
 jobs:
   codeql:
     name: CodeQL (${{ matrix.language }})
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 60
     permissions:
       contents: read
@@ -60,7 +60,7 @@ jobs:
 
   semgrep:
     name: Semgrep
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     permissions:
       contents: read
@@ -68,20 +68,19 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
-        with:
-          python-version: "3.12"
-
-      - name: Install Semgrep
-        run: python -m pip install -r .github/security/requirements.txt
+      - name: Build the pinned Semgrep image
+        run: docker build --quiet --tag semgrep-pinned .github/security/semgrep
 
       # --metrics=off: nothing about the scan leaves the runner.
       # --disable-nosem: a `nosemgrep` comment cannot hide a finding, so
       # accepting one goes through .github/security/accepted.toml. The long
       # timeout lets every rule finish on the largest files, since a rule
-      # that times out has not checked that file.
+      # that times out has not checked that file. The runner's user owns
+      # the checkout, so Semgrep runs as that user to read it through git.
       - name: Scan
         run: >-
+          docker run --rm --user "$(id -u):$(id -g)" --env HOME=/tmp
+          --volume "$PWD:/src" --workdir /src semgrep-pinned
           semgrep scan --metrics=off --disable-version-check --disable-nosem
           --timeout 120 --timeout-threshold 0
           --config p/default --config p/python --config p/security-audit
@@ -103,14 +102,10 @@ jobs:
   report:
     name: Security report
     needs: [codeql, semgrep]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
-        with:
-          python-version: "3.12"
 
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
@@ -118,9 +113,10 @@ jobs:
           path: security-report
           merge-multiple: true
 
+      # The runner's own Python 3.12, fixed by the pinned ubuntu-24.04 image.
       - name: Hold the findings to the accepted list
         run: >-
-          python scripts/security/security_report.py security-report
+          python3 scripts/security/security_report.py security-report
           --accepted .github/security/accepted.toml
           --out security-report/security-report.md
           --require codeql-python --require codeql-actions --require semgrep

@@ -1,3 +1,0 @@
-# Semgrep for the Security workflow, pinned so a scan is repeatable.
-# Dependabot proposes each new release.
-semgrep==1.178.0

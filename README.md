@@ -4,6 +4,7 @@
 [![Python versions](https://img.shields.io/pypi/pyversions/pyOpenVBA.svg)](https://pypi.org/project/pyOpenVBA/)
 [![CI](https://github.com/WilliamSmithEdward/pyOpenVBA/actions/workflows/ci.yml/badge.svg)](https://github.com/WilliamSmithEdward/pyOpenVBA/actions/workflows/ci.yml)
 [![Security](https://github.com/WilliamSmithEdward/pyOpenVBA/actions/workflows/security.yml/badge.svg)](https://github.com/WilliamSmithEdward/pyOpenVBA/actions/workflows/security.yml)
+[![Malware scan](https://github.com/WilliamSmithEdward/pyOpenVBA/actions/workflows/malware.yml/badge.svg)](https://github.com/WilliamSmithEdward/pyOpenVBA/actions/workflows/malware.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/LICENSE.md)
 [![Downloads](https://static.pepy.tech/badge/pyOpenVBA/month)](https://pepy.tech/project/pyOpenVBA)
 
@@ -1079,7 +1080,8 @@ not in a public issue.
 [SECURITY.md](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/SECURITY.md)
 says what to report, which versions get fixes and how the code is
 checked. CodeQL and Semgrep scan every push to main and every pull
-request, and every release carries its security report.
+request, ClamAV and YARA-X scan every file daily as well, and every
+release carries both reports.
 
 ---
 

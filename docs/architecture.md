@@ -85,11 +85,12 @@ Other files:
   {pull,push,ls,forms,access-ls,access-pull,access-push,access-disasm,disasm}`.
   `disasm` / `access-disasm` accept `--with-source` to interleave
   the original VBA source with the decoded p-code.
-- `_templates/__init__.py`: generated module embedding a
-  zlib-compressed base85 blob of a freshly Excel-authored empty `.xlsm`,
-  consumed by `ExcelFile.create_new()`. Regenerated from
-  `tests/live_excel_testing/freshly_touched.xlsm` by
-  `scripts/bake_empty_template.py`. No binary fixtures ship in the wheel.
+- `_templates/__init__.py`: generated module embedding, as
+  zlib-compressed base85 blobs, the empty files each host's
+  `create_new()` starts from. The `.xlsm` section is baked by
+  `scripts/bake_excel_template.py` from
+  `_templates/blank_files/blank_workbook.xlsm`, with Module1 written as
+  source alone, and the other bake scripts splice in theirs.
 
 ### 1.1 Layer rules
 

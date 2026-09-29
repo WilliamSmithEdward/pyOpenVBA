@@ -5,7 +5,21 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ## [Unreleased]
 
-Nothing yet.
+### Fixed
+
+- The `.xlsm` template behind `ExcelFile.create_new()` held a comment in
+  Module1's p-code, `TESTING ONLY DO NOT INCLUDE THIS IN FINAL OUTPUT`,
+  and so did every workbook made from it. Module1's source had been
+  blanked when the template was first baked, in 1.1.0, and a save keeps
+  an edited module's p-code, so pcodedmp, olevba and
+  `VBAModule.disassemble()` still read the comment. Excel never showed or
+  ran it: the save invalidates the project's cache, and Excel compiles
+  Module1's empty source. `scripts/bake_excel_template.py` now writes
+  Module1 as a new module is written, its source alone at MODULEOFFSET 0.
+  The template, and the reference file in `_templates/blank_files/` that
+  ships in the wheel with it, differ from the old ones in that stream and
+  that record only. `tests/test_template_pcode.py` finds no p-code
+  instruction in any template or reference file.
 
 ## [6.3.1] - 2026-09-28
 

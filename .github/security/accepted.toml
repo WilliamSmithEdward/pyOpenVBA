@@ -1,10 +1,10 @@
 # What the security scans are expected to report, and why each is accepted.
 #
-# scripts/security_report.py fails a scan on any finding, or any warning
-# a tool raises about the scan, that this file does not list, and on any
-# entry here that no longer matches. A finding is matched by tool, rule,
-# file and the text of the line it flags, so it follows code that moves
-# and comes back up for review when the line itself changes.
+# scripts/security/security_report.py fails a scan on any finding, or any
+# warning a tool raises about the scan, that this file does not list, and
+# on any entry here that no longer matches. A finding is matched by tool,
+# rule, file and the text of the line it flags, so it follows code that
+# moves and comes back up for review when the line itself changes.
 #
 # Add an entry only with a reason a reviewer can check. Fixing the code
 # is the better answer wherever there is one.

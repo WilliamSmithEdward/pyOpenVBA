@@ -14,7 +14,7 @@ it was made from.
 
 Usage::
 
-    python scripts/security_report.py SARIF_DIR --accepted FILE --out FILE
+    python scripts/security/security_report.py SARIF_DIR --accepted FILE --out FILE
         [--require NAME]... [--source-root DIR]
 
 A scan is named after its SARIF file, ``codeql-python.sarif`` making the

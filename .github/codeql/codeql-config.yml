@@ -2,7 +2,8 @@
 # the package, the workflows that build and publish it, and the script that
 # holds the scans to the accepted list. Tests and the measurement scripts
 # are left out: they run only on a maintainer's machine or in CI, on files
-# the repository holds.
+# the repository holds. Each path is a folder, since the Python extractor
+# walks folders and fails on a file.
 name: pyOpenVBA security
 
 queries:
@@ -11,4 +12,4 @@ queries:
 paths:
   - src
   - .github
-  - scripts/security_report.py
+  - scripts/security

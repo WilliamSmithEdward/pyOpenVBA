@@ -1,8 +1,8 @@
 name: Security
 
 # CodeQL and Semgrep over the package and the workflows that build and
-# publish it. scripts/security_report.py then holds every finding, and
-# every warning a tool raises about its scan, to
+# publish it. scripts/security/security_report.py then holds every
+# finding, and every warning a tool raises about its scan, to
 # .github/security/accepted.toml, and fails on anything that file does not
 # account for. The publish workflow calls this one, so a release waits on
 # it and carries the report it writes.
@@ -87,7 +87,7 @@ jobs:
           --config p/default --config p/python --config p/security-audit
           --config p/secrets --config p/github-actions
           --sarif-output=semgrep.sarif
-          src .github scripts/security_report.py
+          src .github scripts/security
 
       - uses: github/codeql-action/upload-sarif@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4.38.2
         with:
@@ -120,7 +120,7 @@ jobs:
 
       - name: Hold the findings to the accepted list
         run: >-
-          python scripts/security_report.py security-report
+          python scripts/security/security_report.py security-report
           --accepted .github/security/accepted.toml
           --out security-report/security-report.md
           --require codeql-python --require codeql-actions --require semgrep

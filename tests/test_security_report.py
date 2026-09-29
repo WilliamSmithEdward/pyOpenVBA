@@ -1,4 +1,4 @@
-"""scripts/security_report.py, the check a release's security scans pass.
+"""scripts/security/security_report.py, the check a release's security scans pass.
 
 Every finding and every tool warning has to be one the accepted list
 names, an accepted entry that matches nothing fails as well, and so does a
@@ -20,7 +20,7 @@ import pytest
 pytest.importorskip("tomllib")
 
 ROOT = Path(__file__).parents[1]
-SCRIPT = ROOT / "scripts" / "security_report.py"
+SCRIPT = ROOT / "scripts" / "security" / "security_report.py"
 ACCEPTED = ROOT / ".github" / "security" / "accepted.toml"
 
 

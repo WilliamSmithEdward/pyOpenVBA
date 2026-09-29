@@ -1,0 +1,140 @@
+name: Security
+
+# CodeQL and Semgrep over the package and the workflows that build and
+# publish it. scripts/security_report.py then holds every finding, and
+# every warning a tool raises about its scan, to
+# .github/security/accepted.toml, and fails on anything that file does not
+# account for. The publish workflow calls this one, so a release waits on
+# it and carries the report it writes.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    # Weekly, so new queries and rules reach code that has not changed.
+    - cron: "23 5 * * 1"
+  workflow_dispatch:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  codeql:
+    name: CodeQL (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [python, actions]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: github/codeql-action/init@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4.38.2
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: none
+          config-file: ./.github/codeql/codeql-config.yml
+
+      - uses: github/codeql-action/analyze@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4.38.2
+        with:
+          category: /language:${{ matrix.language }}
+          output: sarif
+
+      - name: Name the SARIF after its scan
+        env:
+          LANGUAGE: ${{ matrix.language }}
+        run: mv sarif/*.sarif "codeql-$LANGUAGE.sarif"
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: sarif-codeql-${{ matrix.language }}
+          path: codeql-${{ matrix.language }}.sarif
+          if-no-files-found: error
+
+  semgrep:
+    name: Semgrep
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+
+      - name: Install Semgrep
+        run: python -m pip install -r .github/security/requirements.txt
+
+      # --metrics=off: nothing about the scan leaves the runner.
+      # --disable-nosem: a `nosemgrep` comment cannot hide a finding, so
+      # accepting one goes through .github/security/accepted.toml. The long
+      # timeout lets every rule finish on the largest files, since a rule
+      # that times out has not checked that file.
+      - name: Scan
+        run: >-
+          semgrep scan --metrics=off --disable-version-check --disable-nosem
+          --timeout 120 --timeout-threshold 0
+          --config p/default --config p/python --config p/security-audit
+          --config p/secrets --config p/github-actions
+          --sarif-output=semgrep.sarif
+          src .github scripts/security_report.py
+
+      - uses: github/codeql-action/upload-sarif@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4.38.2
+        with:
+          sarif_file: semgrep.sarif
+          category: semgrep
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: sarif-semgrep
+          path: semgrep.sarif
+          if-no-files-found: error
+
+  report:
+    name: Security report
+    needs: [codeql, semgrep]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: sarif-*
+          path: security-report
+          merge-multiple: true
+
+      - name: Hold the findings to the accepted list
+        run: >-
+          python scripts/security_report.py security-report
+          --accepted .github/security/accepted.toml
+          --out security-report/security-report.md
+          --require codeql-python --require codeql-actions --require semgrep
+
+      - name: Show the report on the run
+        if: always()
+        run: |
+          if [ -f security-report/security-report.md ]; then
+            cat security-report/security-report.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: always()
+        with:
+          name: security-report
+          path: security-report/
+          if-no-files-found: error

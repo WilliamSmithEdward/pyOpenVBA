@@ -1,0 +1,59 @@
+# What the security scans are expected to report, and why each is accepted.
+#
+# scripts/security_report.py fails a scan on any finding, or any warning
+# a tool raises about the scan, that this file does not list, and on any
+# entry here that no longer matches. A finding is matched by tool, rule,
+# file and the text of the line it flags, so it follows code that moves
+# and comes back up for review when the line itself changes.
+#
+# Add an entry only with a reason a reviewer can check. Fixing the code
+# is the better answer wherever there is one.
+
+[[finding]]
+tool = "Semgrep"
+rule = "python.lang.security.use-defused-xml.use-defused-xml"
+where = [
+    { path = "src/pyopenvba/access/_themes.py", line = "from xml.etree import ElementTree" },
+    { path = "src/pyopenvba/apps/excel/_io.py", line = "from xml.etree import ElementTree as ET" },
+    { path = "src/pyopenvba/powerquery/_metadata.py", line = "from xml.etree import ElementTree" },
+    { path = "src/pyopenvba/powerquery/workbook.py", line = "from xml.etree import ElementTree" },
+]
+reason = """
+Four XML parts are parsed with the standard library's ElementTree: an
+Access database's theme, a workbook's workbook.xml, and Power Query's
+metadata and workbook parts. The rest of the library reads XML as text
+or with html.parser, and neither processes a DTD, so a file cannot
+declare an entity there. defusedxml would be the package's first
+dependency, against its promise of none. ElementTree loads no external
+entity and no external DTD, so a file cannot make it read other files
+or reach the network. Expat 2.4.1 and later limits how far entities may
+expand; CPython bundles it on Windows and macOS, and current Linux
+distributions ship it. A Python built against an older system expat is
+still open to a file whose entities expand without limit.
+"""
+
+[[finding]]
+tool = "Semgrep"
+rule = "python.lang.security.insecure-hash-algorithms.insecure-hash-algorithm-sha1"
+where = [
+    { path = "src/pyopenvba/vba.py", line = "h = hashlib.sha1()" },
+]
+reason = """
+compute_v3_content_hash() fingerprints a project's module source so a
+caller can tell whether it changed. Its docstring and docs/roadmap.md
+(gate 15) say it is not the VBE's signature hash. Nothing in pyOpenVBA
+signs, verifies or protects anything with it, so SHA-1's weakness to a
+chosen collision does not apply.
+"""
+
+[[notice]]
+tool = "Semgrep"
+id = "Syntax error"
+contains = "excel_macro_test.yml"
+reason = """
+Two of Semgrep's GitHub Actions rules, curl-eval and gha-curl-pipe-shell,
+read every run: block as Bash. The failure-screenshot step in
+excel_macro_test.yml is PowerShell, so they cannot parse it. Both look
+for a download piped into a shell, which that step does not do: it loads
+four scripts from the checkout and takes a screenshot.
+"""

@@ -1,0 +1,31 @@
+# Dependabot keeps the pinned tools current: the workflows' actions, each
+# pinned to a commit with its release named in a comment, and the Semgrep
+# release the Security workflow installs. The package itself depends on
+# nothing, and its development tools are minimum versions that CI installs
+# at their latest.
+#
+# A release waits a week before it is proposed, long enough for most
+# hijacked or broken releases to be found and pulled first. Security
+# updates do not wait.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: ci
+    groups:
+      actions:
+        patterns: ["*"]
+
+  - package-ecosystem: pip
+    directory: /.github/security
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: ci

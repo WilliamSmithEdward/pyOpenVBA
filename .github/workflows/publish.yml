@@ -14,9 +14,9 @@ jobs:
     name: Build distributions
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: actions/setup-python@v7
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: "3.12"
 
@@ -40,15 +40,24 @@ jobs:
         run: python -m twine check dist/*
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: dist
           path: dist/
           if-no-files-found: error
 
+  # The tagged commit's scans. A finding the accepted list does not account
+  # for fails this job, and nothing is published.
+  security:
+    name: Security scans
+    uses: ./.github/workflows/security.yml
+    permissions:
+      contents: read
+      security-events: write
+
   publish:
     name: Publish to PyPI
-    needs: build
+    needs: [build, security]
     runs-on: ubuntu-latest
     environment:
       name: pypi
@@ -58,28 +67,43 @@ jobs:
       id-token: write
     steps:
       - name: Download artifact
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: dist
           path: dist/
 
       - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
+        uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # v1.14.2
 
   github-release:
     name: Create GitHub Release
-    needs: publish
+    needs: [publish, security]
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Download artifact
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: dist
           path: dist/
+
+      - name: Download the security report
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: security-report
+          path: security-report/
+
+      # The report and the SARIF it was made from, named for the release:
+      # pyopenvba-6.4.0-security-report.md, pyopenvba-6.4.0-semgrep.sarif.
+      - name: Name the security report after the release
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          for file in security-report/*; do
+            mv "$file" "security-report/pyopenvba-$VERSION-$(basename "$file")"
+          done
 
       - name: Extract changelog section for this tag
         id: notes
@@ -98,10 +122,12 @@ jobs:
           echo "notes_file=release_notes.md" >> "$GITHUB_OUTPUT"
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v3
+        uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
         with:
           name: ${{ github.ref_name }}
           tag_name: ${{ github.ref_name }}
           body_path: ${{ steps.notes.outputs.notes_file }}
-          files: dist/*
+          files: |
+            dist/*
+            security-report/*
           fail_on_unmatched_files: true

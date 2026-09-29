@@ -1,0 +1,14 @@
+# CodeQL for the Security workflow: GitHub's security-extended queries over
+# the package, the workflows that build and publish it, and the script that
+# holds the scans to the accepted list. Tests and the measurement scripts
+# are left out: they run only on a maintainer's machine or in CI, on files
+# the repository holds.
+name: pyOpenVBA security
+
+queries:
+  - uses: security-extended
+
+paths:
+  - src
+  - .github
+  - scripts/security_report.py

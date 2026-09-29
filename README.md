@@ -1067,7 +1067,18 @@ $env:RUN_LIVE_POWER_QUERY = "1"; pytest tests/test_live_powerquery_gate.py
 
 CI runs the test matrix on Python 3.10 through 3.14 on Linux, plus 3.12
 on Windows and macOS, on every push and pull request. Releases go to
-PyPI when a `v*.*.*` tag is pushed.
+PyPI when a `v*.*.*` tag is pushed and the tagged commit passes the
+security scans.
+
+## Security
+
+Please report a vulnerability privately with
+[Report a vulnerability](https://github.com/WilliamSmithEdward/pyOpenVBA/security/advisories/new),
+not in a public issue.
+[SECURITY.md](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/SECURITY.md)
+says what to report, which versions get fixes and how the code is
+checked. CodeQL and Semgrep scan every push to main and every pull
+request, and every release carries its security report.
 
 ---
 

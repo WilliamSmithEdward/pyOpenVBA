@@ -5,8 +5,20 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ## [Unreleased]
 
+## [6.3.4] - 2026-09-30
+
+No change to the package's code.
+
 ### Added
 
+- Releases carry signed build provenance. The Publish workflow signs each
+  wheel and sdist with GitHub's artifact attestations before uploading to
+  PyPI, and attaches the signed bundle to the GitHub release as
+  `pyopenvba-<version>.sigstore.json`. `gh attestation verify <file> --owner
+  WilliamSmithEdward` names the commit and workflow run that built a file;
+  SECURITY.md has the steps. PyPI's own provenance is unchanged.
+- OpenSSF Scorecard rates the repository's security practices on every
+  change to main and weekly, and the README shows its badge.
 - Every release also carries a malware report,
   `pyopenvba-<version>-malware-report.md`. ClamAV, with the signatures
   freshclam fetches on each run, and YARA-X, with the full YARA Forge

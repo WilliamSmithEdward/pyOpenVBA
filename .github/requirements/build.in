@@ -1,0 +1,7 @@
+# Build tooling for the CI build job and the Publish workflow, pinned so a
+# build is repeatable. build.txt is compiled from this file with hashes for
+# every package in the tree:
+#   uv pip compile build.in --universal --generate-hashes --python-version 3.12 -o build.txt
+# Dependabot proposes each new release.
+build==1.6.1
+twine==7.0.0

@@ -1,0 +1,5 @@
+# The Excel macro test drives Excel through COM. Windows only. excel.txt is
+# compiled from this file with hashes for every package in the tree:
+#   uv pip compile excel.in --universal --generate-hashes --python-version 3.12 -o excel.txt
+# Dependabot proposes each new release.
+pywin32==312

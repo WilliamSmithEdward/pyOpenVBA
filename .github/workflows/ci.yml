@@ -41,8 +41,10 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: pip
 
-      - name: Install package + dev tools
-        run: python -m pip install -e ".[dev]"
+      - name: Install the test tools, then the package
+        run: |
+          python -m pip install --require-hashes -r .github/requirements/test.txt
+          python -m pip install --no-deps --no-build-isolation -e .
 
       - name: Run Pyright (strict)
         run: pyright src tests
@@ -76,8 +78,10 @@ jobs:
           python-version: "3.12"
           cache: pip
 
-      - name: Install package + dev tools
-        run: python -m pip install -e ".[dev]"
+      - name: Install the test tools, then the package
+        run: |
+          python -m pip install --require-hashes -r .github/requirements/test.txt
+          python -m pip install --no-deps --no-build-isolation -e .
 
       - name: Run language matrix
         run: pytest tests/test_language_matrix.py -p no:randomly -q

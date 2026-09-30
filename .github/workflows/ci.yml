@@ -40,9 +40,7 @@ jobs:
           cache: pip
 
       - name: Install package + dev tools
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install -e ".[dev]"
+        run: python -m pip install -e ".[dev]"
 
       - name: Run Pyright (strict)
         run: pyright src tests
@@ -60,7 +58,7 @@ jobs:
   # above so a code-page regression names its own OS instead of hiding
   # inside a general run, and mirrors the job in the xlide_vscode port.
   languages:
-    name: Language matrix (${{ matrix.os }})
+    name: VBA language tests (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -75,9 +73,7 @@ jobs:
           cache: pip
 
       - name: Install package + dev tools
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install -e ".[dev]"
+        run: python -m pip install -e ".[dev]"
 
       - name: Run language matrix
         run: pytest tests/test_language_matrix.py -p no:randomly -q
@@ -94,7 +90,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install build tooling
-        run: python -m pip install --upgrade build twine
+        run: python -m pip install -r .github/requirements/build.txt
 
       - name: Build distributions
         run: python -m build

@@ -1,0 +1,4 @@
+# Build tooling for the CI build job and the Publish workflow, pinned so a
+# build is repeatable. Dependabot proposes each new release.
+build==1.6.1
+twine==7.0.0

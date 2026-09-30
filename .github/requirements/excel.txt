@@ -1,0 +1,3 @@
+# The Excel macro test drives Excel through COM. Windows only.
+# Dependabot proposes each new release.
+pywin32==312

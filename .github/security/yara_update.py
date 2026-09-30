@@ -65,14 +65,19 @@ SHA256 = re.compile(r"[0-9a-f]{64}")
 Api = Callable[..., Any]
 
 
+class ApiError(RuntimeError):
+    pass
+
+
 def gh_api(endpoint: str, method: str = "GET", payload: Any = None) -> Any:
     args = ["gh", "api", "--method", method, endpoint]
     if payload is not None:
         args += ["--input", "-"]
-    out = subprocess.run(args, input=json.dumps(payload) if payload is not None else None,
-                         capture_output=True, text=True, encoding="utf-8", check=True,
-                         timeout=120).stdout
-    return json.loads(out) if out.strip() else None
+    result = subprocess.run(args, input=json.dumps(payload) if payload is not None else None,
+                            capture_output=True, text=True, encoding="utf-8", timeout=120)
+    if result.returncode != 0:
+        raise ApiError(f"{method} {endpoint}: {(result.stdout + result.stderr).strip()}")
+    return json.loads(result.stdout) if result.stdout.strip() else None
 
 
 def asset_pin(release: dict[str, Any], asset_template: str, repo: str) -> dict[str, str]:
@@ -220,9 +225,17 @@ def propose(root: Path, inp: Path, repository: str, base_sha: str, api: Api = gh
         pull = api(f"{base}/pulls", "POST", {
             "title": expected_title, "head": branch, "base": "main",
             "body": (inp / "body.md").read_text(encoding="utf-8")})
+    # Every scan is started even if one refuses, and any refusal then fails
+    # the run, so a pull request never sits unchecked without anyone knowing.
+    failed = []
     for workflow in DISPATCH:
         if (root / ".github" / "workflows" / workflow).exists():
-            api(f"{base}/actions/workflows/{workflow}/dispatches", "POST", {"ref": branch})
+            try:
+                api(f"{base}/actions/workflows/{workflow}/dispatches", "POST", {"ref": branch})
+            except ApiError as exc:
+                failed.append(str(exc))
+    if failed:
+        raise ApiError(f"{pull['html_url']} is open, but these scans did not start:\n" + "\n".join(failed))
     return pull["html_url"]
 
 

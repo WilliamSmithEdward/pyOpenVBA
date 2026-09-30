@@ -51,8 +51,9 @@ import os
 import re
 import subprocess
 import sys
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 PIN_PATH = ".github/security/yara.json"
 SOURCES = {
@@ -122,10 +123,12 @@ def new_pins(pins: dict[str, Any], api: Api, now: dt.datetime) -> tuple[dict[str
             raise ValueError(f"{PIN_PATH} has an unknown entry {key!r}")
         source = SOURCES[key]
         releases = api(f"repos/{source['repo']}/releases?per_page=30")
-        candidate = asset_pin(choose(releases, source["cooldown_days"], now), pin["asset"], source["repo"])
+        newest = choose(releases, source["cooldown_days"], now)
+        candidate = asset_pin(newest, pin["asset"], source["repo"])
         if candidate["release"] == pin["release"]:
             if candidate["sha256"] != pin["sha256"]:
-                raise ValueError(f"{source['name']} {pin['release']} changed its SHA-256 since it was pinned")
+                raise ValueError(
+                    f"{source['name']} {pin['release']} changed its SHA-256 since it was pinned")
             continue
         if release_key(candidate["release"]) < release_key(pin["release"]):
             raise ValueError(f"{source['name']} newest allowed release {candidate['release']} "
@@ -166,7 +169,8 @@ def body(moved: list[str], new: dict[str, Any]) -> str:
     lines = ["The weekly YARA update, proposed by `update-yara-rules.yml`.", ""]
     lines += [f"- {m}" for m in moved]
     lines += ["", "| Pin | Release | SHA-256 (GitHub's record of the asset) |", "|---|---|---|"]
-    lines += [f"| {SOURCES[k]['name']} | [{p['release']}]({p['url']}) | `{p['sha256']}` |" for k, p in new.items()]
+    lines += [f"| {SOURCES[k]['name']} | [{p['release']}]({p['url']}) | `{p['sha256']}` |"
+              for k, p in new.items()]
     lines += ["",
               "CI, Security and Malware scan run on this branch. If a new rule matches a file, the "
               "Malware scan fails until the match is fixed or accepted with a reason. Nothing here "
@@ -235,7 +239,8 @@ def propose(root: Path, inp: Path, repository: str, base_sha: str, api: Api = gh
             except ApiError as exc:
                 failed.append(str(exc))
     if failed:
-        raise ApiError(f"{pull['html_url']} is open, but these scans did not start:\n" + "\n".join(failed))
+        raise ApiError(f"{pull['html_url']} is open, but these scans did not start:\n"
+                       + "\n".join(failed))
     return pull["html_url"]
 
 

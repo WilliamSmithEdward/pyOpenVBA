@@ -1,7 +1,7 @@
 name: Publish
 
 # A version tag publishes to PyPI and creates the GitHub release. Started by
-# hand, it is a dry run unless dry_run is unticked: it builds, scans and
+# hand, it is always a dry run: it builds, scans and
 # assembles the release files exactly as a release would, and uploads them as
 # the release-preview artifact instead of publishing anything.
 
@@ -10,11 +10,6 @@ on:
     tags:
       - "v*.*.*"
   workflow_dispatch:
-    inputs:
-      dry_run:
-        description: Build, scan and assemble the release, but publish nothing
-        type: boolean
-        default: true
 
 permissions:
   contents: read
@@ -33,7 +28,7 @@ jobs:
           python-version: "3.12"
 
       - name: Verify tag matches package version
-        if: ${{ !(github.event_name == 'workflow_dispatch' && inputs.dry_run) }}
+        if: ${{ github.event_name != 'workflow_dispatch' }}
         run: |
           TAG="${GITHUB_REF_NAME#v}"
           PKG=$(python -c "import tomllib; f=open('pyproject.toml','rb'); d=tomllib.load(f); print(d['project']['version'])")
@@ -79,7 +74,7 @@ jobs:
   publish:
     name: Publish to PyPI
     needs: [build, security, malware-scan]
-    if: ${{ !(github.event_name == 'workflow_dispatch' && inputs.dry_run) }}
+    if: ${{ github.event_name != 'workflow_dispatch' }}
     runs-on: ubuntu-24.04
     environment:
       name: pypi
@@ -106,12 +101,12 @@ jobs:
       ${{ !cancelled() && needs.build.result == 'success'
       && needs.security.result == 'success' && needs.malware-scan.result == 'success'
       && (needs.publish.result == 'success'
-      || (github.event_name == 'workflow_dispatch' && inputs.dry_run)) }}
+      || github.event_name == 'workflow_dispatch') }}
     runs-on: ubuntu-24.04
     permissions:
       contents: write
     env:
-      DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run }}
+      DRY_RUN: ${{ github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:

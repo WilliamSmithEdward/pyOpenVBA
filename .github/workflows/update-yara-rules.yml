@@ -29,7 +29,9 @@ jobs:
       pull-requests: write
       actions: write
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # Keeps the checkout's credentials: the job pushes the update branch with
+      # git. It uploads no artifacts, so they cannot leak that way.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1 # zizmor: ignore[artipacked]
 
       - name: Move the pins
         id: pins

@@ -1,10 +1,10 @@
 name: Security
 
 # CodeQL and Semgrep over the package and the workflows that build and
-# publish it. scripts/security/security_report.py then holds every
-# finding, and every warning a tool raises about its scan, to
-# .github/security/accepted.toml, and fails on anything that file does not
-# account for. The publish workflow calls this one, so a release waits on
+# publish it, and zizmor over the workflows. scripts/security/security_report.py
+# holds every CodeQL and Semgrep finding, and every warning they raise about
+# their scans, to .github/security/accepted.toml, and fails on anything that
+# file does not account for. zizmor keeps its own exceptions (see its job). The publish workflow calls this one, so a release waits on
 # it and carries the report it writes.
 
 on:
@@ -35,6 +35,8 @@ jobs:
         language: [python, actions]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - uses: github/codeql-action/init@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4.38.2
         with:
@@ -67,6 +69,8 @@ jobs:
       security-events: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Build the pinned Semgrep image
         run: docker build --quiet --tag semgrep-pinned .github/security/semgrep
@@ -99,6 +103,47 @@ jobs:
           path: semgrep.sarif
           if-no-files-found: error
 
+  # zizmor audits the workflows themselves: template injection, credential
+  # persistence, over-broad permissions, dangerous triggers, and actions with
+  # known advisories or impostor commits. Findings it should not raise are
+  # turned off in .github/zizmor.yml or ignored inline, each with its reason;
+  # anything else fails the job.
+  zizmor:
+    name: zizmor
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12.14"
+
+      - name: Install zizmor
+        run: python -m pip install --require-hashes -r .github/requirements/zizmor.txt
+
+      # The token lets the online audits look up advisories and check that each
+      # pinned SHA belongs to the action it names.
+      - name: Audit the workflows
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          status=0
+          zizmor --format sarif .github/workflows > zizmor.sarif || status=$?
+          zizmor --format plain .github/workflows || true
+          exit "$status"
+
+      - uses: github/codeql-action/upload-sarif@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4.38.2
+        if: ${{ !cancelled() }}
+        with:
+          sarif_file: zizmor.sarif
+          category: zizmor
+
   report:
     name: Security report
     needs: [codeql, semgrep]
@@ -106,6 +151,8 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
@@ -138,7 +185,7 @@ jobs:
   security-passed:
     name: Security passed
     if: always()
-    needs: [codeql, semgrep, report]
+    needs: [codeql, semgrep, zizmor, report]
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:

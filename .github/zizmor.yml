@@ -1,0 +1,12 @@
+# zizmor audits the workflows in the Security workflow. Each rule turned off
+# here says why and when it comes back.
+rules:
+  # Asks for GitHub's `$/` self-repository syntax in `uses:` (July 2026).
+  # Adopted once GitHub's own documentation confirms it for reusable
+  # workflows called from publish.yml.
+  self-repository:
+    disable: true
+  # Asks for `gh release create` in place of softprops/action-gh-release in
+  # publish.yml. The release path is changed only after it can be dry-run.
+  superfluous-actions:
+    disable: true

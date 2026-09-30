@@ -1,0 +1,14 @@
+{
+  "yara_forge": {
+    "release": "20260927",
+    "asset": "yara-forge-rules-full.zip",
+    "url": "https://github.com/YARAHQ/yara-forge/releases/download/20260927/yara-forge-rules-full.zip",
+    "sha256": "35453c2009c2ba4e88e4b883c16122410885e4808b8c26a4657b92598f939dff"
+  },
+  "yara_x": {
+    "release": "v1.20.0",
+    "asset": "yara-x-{release}-x86_64-unknown-linux-gnu.tar.gz",
+    "url": "https://github.com/VirusTotal/yara-x/releases/download/v1.20.0/yara-x-v1.20.0-x86_64-unknown-linux-gnu.tar.gz",
+    "sha256": "cabb8df46492fff59c51261302c71ed9cb2cef393d3f0ca560801a34a8e24cbe"
+  }
+}

@@ -85,17 +85,28 @@ class Package:
         parts: list[Part] = []
         at = 0
         while raw[at : at + 4] == b"PK\x03\x04":
+            if len(raw) < at + 30:
+                raise PowerQueryError("the package ends inside a part's header")
             (_need, _flags, method, dos_time, dos_date, _crc, csize, usize, nlen, xlen) = struct.unpack_from(
                 "<HHHHHIIIHH", raw, at + 4
             )
-            name = raw[at + 30 : at + 30 + nlen].decode("utf-8")
             body_at = at + 30 + nlen + xlen
+            if len(raw) < body_at + csize:
+                raise PowerQueryError("the package ends inside a part")
+            try:
+                name = raw[at + 30 : at + 30 + nlen].decode("utf-8")
+            except UnicodeDecodeError as exc:
+                raise PowerQueryError(f"a package part's name is not UTF-8: {exc}") from exc
             body = raw[body_at : body_at + csize]
             if method == 0:
                 data = body
             elif method == DEFLATED:
+                # Inflate no more than the size the header states, plus one
+                # byte to tell a longer part, so a small part cannot expand
+                # without limit.
+                inflater = zlib.decompressobj(-15)
                 try:
-                    data = zlib.decompress(body, -15)
+                    data = inflater.decompress(body, usize + 1)
                 except zlib.error as exc:
                     raise PowerQueryError(f"the package part {name!r} does not inflate: {exc}") from exc
             else:

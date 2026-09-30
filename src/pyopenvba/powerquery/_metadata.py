@@ -468,7 +468,7 @@ def parse_items(xml: bytes) -> list[Item]:
     """The items a ``LocalPackageMetadataFile`` document lists."""
     try:
         root = ElementTree.fromstring(xml.decode("utf-8-sig"))
-    except ElementTree.ParseError as exc:
+    except (ElementTree.ParseError, UnicodeDecodeError) as exc:
         raise PowerQueryError(f"the metadata XML does not parse: {exc}") from exc
     if root.tag.rsplit("}", 1)[-1] != _ROOT:
         raise PowerQueryError(f"the metadata document is <{root.tag}>, not <{_ROOT}>")

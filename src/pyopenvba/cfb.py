@@ -254,6 +254,11 @@ class CFB:
 
         if major_ver not in (3, 4):
             raise CFBError(f"Unsupported CFB major version: {major_ver}")
+        # [MS-CFB] 2.2: sectors are 512 or 4096 bytes and mini sectors 64.
+        if sector_size_pow not in (9, 12) or mini_sector_size_pow != 6:
+            raise CFBError(
+                f"Unsupported CFB sector sizes: shift {sector_size_pow}, mini shift {mini_sector_size_pow}."
+            )
 
         self.sector_size = 1 << sector_size_pow          # 512 or 4096
         self.mini_sector_size = 1 << mini_sector_size_pow  # 64
@@ -264,11 +269,22 @@ class CFB:
 
         # Follow DIFAT chain for large files (> 109 FAT sectors)
         if difat_start != _ENDOFCHAIN and num_difat_sectors > 0:
+            # The header's count is only a claim: a file cannot hold more
+            # sectors than its size allows, and a chain that returns to a
+            # sector it has visited would otherwise loop for that count.
+            if num_difat_sectors > max(0, len(self._data) - _HEADER_SIZE) // self.sector_size:
+                raise CFBError(f"The header claims {num_difat_sectors} DIFAT sectors; the file is too short.")
             sector = difat_start
+            seen: set[int] = set()
             for _ in range(num_difat_sectors):
                 if sector in (_ENDOFCHAIN, _FREESECT):
                     break
+                if sector in seen:
+                    raise CFBError(f"The DIFAT chain returns to sector {sector}.")
+                seen.add(sector)
                 sector_data = self._sector(sector)
+                if len(sector_data) < self.sector_size:
+                    raise CFBError(f"DIFAT sector {sector} lies past the end of the file.")
                 entries_per_difat = (self.sector_size // 4) - 1
                 extra = [int(x) for x in struct.unpack_from(f"<{entries_per_difat}I", sector_data)]
                 difat.extend(extra)

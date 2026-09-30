@@ -5,6 +5,29 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ## [Unreleased]
 
+### Fixed
+
+- A Power Query package cut short inside a part raised `struct.error`, and
+  a part name that is not UTF-8 raised `UnicodeDecodeError`; both now raise
+  `PowerQueryError`. A part no longer inflates past the size its header
+  states, so a small part cannot expand without limit.
+- An M formula nested past Python's recursion limit raised `RecursionError`;
+  it now raises `MSyntaxError`.
+- Power Query metadata whose XML is not UTF-8 raised `UnicodeDecodeError`;
+  it now raises `PowerQueryError`.
+- A compound file whose header claimed more DIFAT sectors than the file
+  holds, or whose DIFAT chain returned to a sector it had visited, could use
+  memory without limit; both now raise `CFBError`, as do a DIFAT sector past
+  the end of the file and a sector size other than the 512 or 4096 bytes
+  [MS-CFB] allows, which raised `struct.error`.
+
+### Added
+
+- Coverage-guided fuzzing with Atheris of the CFB, VBA and Power Query
+  parsers and the M formula parser, which found both fixes above.
+  `fuzz/fuzz_parsers.py` holds the targets and the Fuzz workflow runs them
+  daily and on every change to the parsers.
+
 ## [6.3.4] - 2026-09-30
 
 No change to the package's code.

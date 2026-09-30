@@ -1730,6 +1730,21 @@ class TestGate23_Fuzz:
                 parse_projectwm(data)
             except (VBAProjectError, UnicodeDecodeError):
                 pass
+        elif target == "mashup":
+            from pyopenvba.exceptions import PowerQueryError
+            from pyopenvba.powerquery._mashup import Mashup
+
+            try:
+                Mashup.parse(data)
+            except PowerQueryError:
+                pass
+        elif target == "mformula":
+            from pyopenvba.mlang._parse import MSyntaxError, parse
+
+            try:
+                parse(data.decode("utf-8", errors="replace"))
+            except MSyntaxError:
+                pass
         else:
             raise AssertionError(
                 f"unknown fuzz target {target!r} (add a dispatch branch)"
@@ -1741,7 +1756,7 @@ class TestGate23_Fuzz:
             f"fuzz corpus directory missing: {self._CORPUS_DIR}.  "
             f"Run: python scripts/seed_fuzz_corpus.py"
         )
-        expected = {"cfb", "decompress", "dir", "project", "projectwm"}
+        expected = {"cfb", "decompress", "dir", "project", "projectwm", "mashup", "mformula"}
         present = {
             p.name
             for p in self._CORPUS_DIR.iterdir()

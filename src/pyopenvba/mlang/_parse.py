@@ -624,4 +624,10 @@ def parse(source: str) -> Node:
     body = source.strip()
     if not body:
         raise MSyntaxError("an empty formula")
-    return Parser(tokenize(body), body).parse()
+    try:
+        return Parser(tokenize(body), body).parse()
+    except RecursionError:
+        # The parser descends once per nesting level, so a formula nested
+        # past Python's recursion limit, as a hostile workbook can hold, is
+        # refused like any other malformed formula.
+        raise MSyntaxError("the formula nests too deeply to parse") from None

@@ -63,3 +63,18 @@ made from. Every action the workflows use is pinned to a commit, the
 Semgrep and ClamAV images by digest, the runners by operating system
 release, and the YARA downloads by SHA-256. Dependabot proposes updates to the actions and
 images, and the weekly workflow to the YARA pins.
+
+## Verifying a download
+
+Every file on PyPI carries PyPI's own provenance, which names this
+repository's `publish.yml` as the publisher; the file's page on PyPI shows it.
+Releases published after 2026-09-30 also carry a GitHub build provenance
+attestation, which you can check against any copy of the file, from PyPI or
+from the GitHub release:
+
+```
+pip download pyopenvba --no-deps -d check
+gh attestation verify check/<file> --owner WilliamSmithEdward
+```
+
+The output names the commit and workflow run that built the file.

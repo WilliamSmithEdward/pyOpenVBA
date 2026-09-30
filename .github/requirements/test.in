@@ -1,0 +1,13 @@
+# Test tooling for the CI test jobs, pinned with hashes so a run installs
+# exactly what was reviewed. The package itself installs afterwards with
+# --no-deps --no-build-isolation: it has no runtime dependencies, and
+# hatchling, its build backend, comes from this lock with editables, which
+# hatchling needs for an editable install. Compiled for the oldest Python
+# the test matrix runs, so one lock serves 3.10 to 3.14:
+#   uv pip compile test.in --universal --generate-hashes --python-version 3.10 -o test.txt
+# Dependabot proposes each new release.
+pytest==9.1.1
+pyright==1.1.414
+openpyxl==3.1.5
+hatchling==1.32.4
+editables==0.6

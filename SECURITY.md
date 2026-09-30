@@ -64,6 +64,12 @@ Semgrep and ClamAV images by digest, the runners by operating system
 release, and the YARA downloads by SHA-256. Dependabot proposes updates to the actions and
 images, and the weekly workflow to the YARA pins.
 
+[OpenSSF Scorecard](https://scorecard.dev/viewer/?uri=github.com/WilliamSmithEdward/pyOpenVBA)
+rates these practices on every change to main and weekly, and publishes
+the result the README badge shows. Some of its checks assume more than one
+maintainer, such as a second person approving every change, so a
+single-maintainer project cannot score full marks on them.
+
 ## Verifying a download
 
 Every file on PyPI carries PyPI's own provenance, which names this
@@ -77,4 +83,7 @@ pip download pyopenvba --no-deps -d check
 gh attestation verify check/<file> --owner WilliamSmithEdward
 ```
 
-The output names the commit and workflow run that built the file.
+The output names the commit and workflow run that built the file. The
+signed bundle is also attached to the GitHub release as
+`pyopenvba-<version>.sigstore.json`, so the check works without asking
+GitHub for it: add `--bundle pyopenvba-<version>.sigstore.json`.

@@ -1,0 +1,9 @@
+# Fuzzing for the Fuzz workflow: Atheris, Google's coverage-guided fuzzer
+# for Python, which ships Linux wheels for CPython 3.12 to 3.14. The package
+# installs afterwards with --no-deps --no-build-isolation, so hatchling and
+# editables come from this lock too. fuzz.txt is compiled from this file:
+#   uv pip compile fuzz.in --universal --generate-hashes --python-version 3.12 -o fuzz.txt
+# Dependabot proposes each new release.
+atheris==3.1.0
+hatchling==1.32.4
+editables==0.6

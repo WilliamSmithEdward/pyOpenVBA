@@ -113,6 +113,12 @@ def test_source_that_is_not_m_is_a_syntax_error() -> None:
         run("let x = in x")
 
 
+def test_a_formula_nested_past_the_recursion_limit_is_a_syntax_error() -> None:
+    # Found by fuzzing: deep nesting raised RecursionError, not MSyntaxError.
+    with pytest.raises(MSyntaxError, match="nests too deeply"):
+        run("(" * 5000 + "1" + ")" * 5000)
+
+
 # --- the library ----------------------------------------------------------------------
 
 

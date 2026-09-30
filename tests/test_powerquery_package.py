@@ -95,6 +95,24 @@ def test_a_package_that_is_not_one_is_refused() -> None:
         Package.parse(b"not a zip at all")
 
 
+def test_a_package_cut_short_is_refused() -> None:
+    # Found by fuzzing: a part signature with no header after it raised
+    # struct.error rather than PowerQueryError.
+    whole = new_package("section Section1;").serialize()
+    with pytest.raises(PowerQueryError, match="inside a part's header"):
+        Package.parse(b"PK\x03\x04")
+    with pytest.raises(PowerQueryError, match="ends inside a part"):
+        Package.parse(whole[:40])
+
+
+def test_a_part_that_inflates_past_its_stated_size_is_refused() -> None:
+    raw = bytearray(new_package("section Section1;").serialize())
+    # Shrink the first part's stated uncompressed size to one byte.
+    raw[22:26] = (1).to_bytes(4, "little")
+    with pytest.raises(PowerQueryError, match="not 1"):
+        Package.parse(bytes(raw))
+
+
 def test_a_missing_part_is_refused() -> None:
     with pytest.raises(PowerQueryError, match="no part named"):
         new_package("section Section1;").read("Formulas/Nothing.m")

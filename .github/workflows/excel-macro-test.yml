@@ -49,7 +49,7 @@ jobs:
       - name: Install pywin32
         shell: pwsh
         run: |
-          pip install --require-hashes -r .github/requirements/excel.txt
+          python -m pip install --require-hashes -r .github/requirements/excel.txt
           python -m Scripts.pywin32_postinstall -install
 
       - name: Run Excel macros and verify output

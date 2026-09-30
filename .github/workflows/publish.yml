@@ -1,10 +1,20 @@
 name: Publish
 
+# A version tag publishes to PyPI and creates the GitHub release. Started by
+# hand, it is a dry run unless dry_run is unticked: it builds, scans and
+# assembles the release files exactly as a release would, and uploads them as
+# the release-preview artifact instead of publishing anything.
+
 on:
   push:
     tags:
       - "v*.*.*"
   workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Build, scan and assemble the release, but publish nothing
+        type: boolean
+        default: true
 
 permissions:
   contents: read
@@ -23,6 +33,7 @@ jobs:
           python-version: "3.12"
 
       - name: Verify tag matches package version
+        if: ${{ !(github.event_name == 'workflow_dispatch' && inputs.dry_run) }}
         run: |
           TAG="${GITHUB_REF_NAME#v}"
           PKG=$(python -c "import tomllib; f=open('pyproject.toml','rb'); d=tomllib.load(f); print(d['project']['version'])")
@@ -36,7 +47,7 @@ jobs:
         run: python -m pip install --require-hashes -r .github/requirements/build.txt
 
       - name: Build sdist + wheel
-        run: python -m build
+        run: python -m build --no-isolation
 
       - name: Validate metadata
         run: python -m twine check dist/*
@@ -68,6 +79,7 @@ jobs:
   publish:
     name: Publish to PyPI
     needs: [build, security, malware-scan]
+    if: ${{ !(github.event_name == 'workflow_dispatch' && inputs.dry_run) }}
     runs-on: ubuntu-24.04
     environment:
       name: pypi
@@ -85,12 +97,21 @@ jobs:
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # v1.14.2
 
+  # On a dry run `publish` is skipped; this job still assembles the release
+  # and uploads it as an artifact, and only the last step is skipped.
   github-release:
     name: Create GitHub release
-    needs: [publish, security, malware-scan]
+    needs: [build, publish, security, malware-scan]
+    if: >-
+      ${{ !cancelled() && needs.build.result == 'success'
+      && needs.security.result == 'success' && needs.malware-scan.result == 'success'
+      && (needs.publish.result == 'success'
+      || (github.event_name == 'workflow_dispatch' && inputs.dry_run)) }}
     runs-on: ubuntu-24.04
     permissions:
       contents: write
+    env:
+      DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -120,6 +141,9 @@ jobs:
       - name: Name the reports after the release
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
+          if [ "$DRY_RUN" = true ]; then
+            VERSION=$(python3 -c "import tomllib; print(tomllib.load(open('pyproject.toml','rb'))['project']['version'])")
+          fi
           for file in security-report/*; do
             mv "$file" "security-report/pyopenvba-$VERSION-$(basename "$file")"
           done
@@ -128,6 +152,9 @@ jobs:
         id: notes
         run: |
           TAG="${GITHUB_REF_NAME#v}"
+          if [ "$DRY_RUN" = true ]; then
+            TAG=$(python3 -c "import tomllib; print(tomllib.load(open('pyproject.toml','rb'))['project']['version'])")
+          fi
           if [ -f docs/changelog.md ]; then
             awk -v ver="$TAG" '
               $0 ~ "^## \\[" ver "\\]" { capture=1; next }
@@ -140,7 +167,19 @@ jobs:
           fi
           echo "notes_file=release_notes.md" >> "$GITHUB_OUTPUT"
 
+      - name: Keep what the release would carry
+        if: env.DRY_RUN == 'true'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: release-preview
+          path: |
+            dist/
+            security-report/
+            release_notes.md
+          if-no-files-found: error
+
       - name: Create GitHub Release
+        if: env.DRY_RUN != 'true'
         uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
         with:
           name: ${{ github.ref_name }}

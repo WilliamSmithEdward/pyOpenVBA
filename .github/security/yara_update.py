@@ -24,7 +24,8 @@ Rules, from the standard:
 - YARA-X: the newest full release at least seven days old.
 - Every SHA-256 is the digest GitHub records for the release asset, never
   one worked out from a download. A pinned release whose digest changed is an
-  error, not an update. A release older than the pin is never proposed.
+  error, not an update. A release older than the pin is never proposed; a pin
+  moved ahead of the cooldown by hand is kept.
 
 Usage, from the two jobs of update-yara-rules.yml:
 
@@ -131,8 +132,11 @@ def new_pins(pins: dict[str, Any], api: Api, now: dt.datetime) -> tuple[dict[str
                     f"{source['name']} {pin['release']} changed its SHA-256 since it was pinned")
             continue
         if release_key(candidate["release"]) < release_key(pin["release"]):
-            raise ValueError(f"{source['name']} newest allowed release {candidate['release']} "
-                             f"is older than the pin {pin['release']}")
+            # The pin was moved ahead by hand (for a fix the cooldown would
+            # delay). Keep it; never propose going back.
+            print(f"{source['name']} {pin['release']} is newer than the newest release "
+                  f"the cooldown allows ({candidate['release']}); keeping it.")
+            continue
         updated[key] = candidate
         moved.append(f"{source['name']} {pin['release']} -> {candidate['release']}")
     return updated, moved

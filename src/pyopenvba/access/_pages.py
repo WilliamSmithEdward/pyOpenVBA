@@ -409,6 +409,8 @@ def row_bytes(
     target with ``overflow_target=True``, where the 0x8000 bit marks the
     moved row rather than a deletion."""
     slots = row_slots(page)
+    if not 0 <= slot < len(slots):
+        raise AccessError(f"slot {slot} out of range (0..{len(slots) - 1})")
     entry = slots[slot]
     if entry & ROW_DELETED and not overflow_target:
         return None

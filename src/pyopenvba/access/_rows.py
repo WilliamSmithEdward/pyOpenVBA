@@ -184,9 +184,13 @@ def encode_text(text: str) -> bytes:
 
 def decode_datetime(raw: bytes) -> _dt.datetime:
     value = struct.unpack("<d", raw)[0]
-    days = int(value)
-    fraction = abs(value - days)
-    return EPOCH + _dt.timedelta(days=days) + _dt.timedelta(days=fraction)
+    try:
+        days = int(value)
+        fraction = abs(value - days)
+        return EPOCH + _dt.timedelta(days=days) + _dt.timedelta(days=fraction)
+    except (OverflowError, ValueError):
+        # Out of the year 1 to 9999, or not a number: a damaged value.
+        raise AccessError(f"date value {value!r} is outside the range a date can hold") from None
 
 
 def encode_datetime(value: _dt.datetime) -> bytes:
@@ -455,11 +459,23 @@ def encode_row(
     return bytes(row)
 
 
+#: The bytes a fixed-size type's value takes; any other length is a damaged row.
+_SCALAR_SIZES = {
+    TYPE_BYTE: 1, TYPE_INT: 2, TYPE_LONG: 4, TYPE_MONEY: 8, TYPE_FLOAT: 4, TYPE_DOUBLE: 8,
+    TYPE_DATETIME: 8, TYPE_GUID: 16, TYPE_COMPLEX: 4, TYPE_BIGINT: 8,
+}
+
+
 def decode_scalar(column: ColumnDef, raw: bytes) -> object:
     """Decode a non-long-value column.  ``raw`` is the present value."""
     code = column.type_code
     if code == TYPE_BOOLEAN:
         return True
+    size = _SCALAR_SIZES.get(code, 0)
+    if size and len(raw) != size:
+        raise AccessError(
+            f"column {column.name!r} holds {len(raw)} bytes where its type takes {size}; the row is damaged"
+        )
     if code == TYPE_BYTE:
         return raw[0]
     if code == TYPE_INT:

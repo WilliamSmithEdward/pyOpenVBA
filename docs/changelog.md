@@ -74,6 +74,12 @@ No change to the package's code.
   give a module, such as `Print`, `Date`, `Me` and `Array` (#40). Excel
   compiles a project holding one, but code can never name that module.
   The list is `VBE_REFUSED_MODULE_NAMES` in `pyopenvba.vba`.
+- A damaged Access database is refused with an `AccessError` that says
+  what is wrong, where Python's own error text used to reach the caller
+  (#45). A column an engine table lacks, a fixed-size value of the wrong
+  length, a date no date can hold, a name of odd length or one cut off in
+  a table definition, a usage-map block cut short, and a row slot past
+  the row table are each named.
 
 ## [6.3.3] - 2026-09-28
 

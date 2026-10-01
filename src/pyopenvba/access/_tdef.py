@@ -333,10 +333,14 @@ def read_definition_bytes(store: PageStore, page: int) -> tuple[bytes, list[int]
 
 def _read_name(buf: bytes, pos: int) -> tuple[str, int]:
     """A name is prefixed by its length as a word, and stored as UTF-16."""
+    if pos + 2 > len(buf):
+        raise AccessError("name runs past the end of the definition")
     length = struct.unpack_from("<H", buf, pos)[0]
     raw = buf[pos + 2 : pos + 2 + length]
     if len(raw) != length:
         raise AccessError("name runs past the end of the definition")
+    if length % 2:
+        raise AccessError(f"name is {length} bytes, an odd length for UTF-16")
     return raw.decode("utf-16-le"), pos + 2 + length
 
 
@@ -463,6 +467,10 @@ def parse_table_definition(store: PageStore, page: int) -> TableDefinition:
         pos += 2
         if number == INDEX_COLUMN_UNUSED:
             break
+        if pos + 8 > len(buf):
+            raise AccessError(
+                f"table definition at page {page} ends inside its usage-map block"
+            )
         column_usage_maps[number] = (u32(pos), u32(pos + 4))
         pos += 8
 

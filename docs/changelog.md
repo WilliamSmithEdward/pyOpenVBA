@@ -5,6 +5,12 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ## [Unreleased]
 
+### Changed
+
+- The Malware scan builds the wheel and sdist with the hash-locked build
+  tools, as a release builds them, and ClamAV and YARA-X scan them beside
+  the committed files.
+
 ## [6.3.5] - 2026-09-30
 
 ### Fixed

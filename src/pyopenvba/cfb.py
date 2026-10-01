@@ -254,8 +254,9 @@ class CFB:
 
         if major_ver not in (3, 4):
             raise CFBError(f"Unsupported CFB major version: {major_ver}")
-        # [MS-CFB] 2.2: sectors are 512 or 4096 bytes and mini sectors 64.
-        if sector_size_pow not in (9, 12) or mini_sector_size_pow != 6:
+        # [MS-CFB] 2.2: 512-byte sectors in version 3, 4096 in version 4, and
+        # 64-byte mini sectors in both.
+        if sector_size_pow != (9 if major_ver == 3 else 12) or mini_sector_size_pow != 6:
             raise CFBError(
                 f"Unsupported CFB sector sizes: shift {sector_size_pow}, mini shift {mini_sector_size_pow}."
             )
@@ -272,7 +273,7 @@ class CFB:
             # The header's count is only a claim: a file cannot hold more
             # sectors than its size allows, and a chain that returns to a
             # sector it has visited would otherwise loop for that count.
-            if num_difat_sectors > max(0, len(self._data) - _HEADER_SIZE) // self.sector_size:
+            if num_difat_sectors > max(0, len(self._data) // self.sector_size - 1):
                 raise CFBError(f"The header claims {num_difat_sectors} DIFAT sectors; the file is too short.")
             sector = difat_start
             seen: set[int] = set()
@@ -326,7 +327,10 @@ class CFB:
                 self._mini_stream = bytes(ms_raw)
 
     def _sector(self, index: int) -> bytes:
-        offset = _HEADER_SIZE + index * self.sector_size
+        # The header takes the whole first sector: 512 bytes in version 3, and
+        # 512 bytes padded to 4096 in version 4 ([MS-CFB] 2.2), so sector n
+        # starts at (n + 1) * sector_size, not after the 512 header bytes.
+        offset = (index + 1) * self.sector_size
         return self._data[offset: offset + self.sector_size]
 
     def _chain(self, start: int) -> list[int]:

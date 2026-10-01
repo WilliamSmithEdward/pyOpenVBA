@@ -20,6 +20,12 @@ All notable changes to pyOpenVBA are documented here. This project follows
   memory without limit; both now raise `CFBError`, as do a DIFAT sector past
   the end of the file and a sector size other than the 512 or 4096 bytes
   [MS-CFB] allows, which raised `struct.error`.
+- A version 4 compound file, with 4096-byte sectors, was read from the wrong
+  offsets and failed with `CFBError`. Its 512-byte header takes the whole
+  first sector, so sector n starts at (n + 1) x 4096, not 512 + n x 4096 as
+  for version 3. A sector size the file's version does not have, such as
+  4096 bytes in version 3, now raises `CFBError`. Office saves VBA projects
+  as version 3, so this reached only files other tools wrote.
 
 ### Added
 

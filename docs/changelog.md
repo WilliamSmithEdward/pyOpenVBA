@@ -5,8 +5,13 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ## [Unreleased]
 
+## [6.3.5] - 2026-09-30
+
 ### Fixed
 
+- An M text escape naming a code past Unicode, such as `#(ee2220)`, raised
+  `chr()`'s `ValueError`. It is now kept as written, as an escape M does
+  not know is.
 - A Power Query package cut short inside a part raised `struct.error`, and
   a part name that is not UTF-8 raised `UnicodeDecodeError`; both now raise
   `PowerQueryError`. A part no longer inflates past the size its header

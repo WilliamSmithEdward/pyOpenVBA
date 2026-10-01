@@ -68,6 +68,13 @@ No change to the package's code.
   `UnsupportedFormatError`, since no writer for them has been measured.
   `.ppa` is a different container and is still refused.
 
+### Fixed
+
+- `add_module` and `rename_module` refuse the 17 names the VBE will not
+  give a module, such as `Print`, `Date`, `Me` and `Array` (#40). Excel
+  compiles a project holding one, but code can never name that module.
+  The list is `VBE_REFUSED_MODULE_NAMES` in `pyopenvba.vba`.
+
 ## [6.3.3] - 2026-09-28
 
 ### Fixed

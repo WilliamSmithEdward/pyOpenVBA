@@ -219,7 +219,7 @@ def text_value(raw: str) -> str:
                 for piece in body[index + 2 : close].split(","):
                     if piece in _ESCAPES:
                         out.append(_ESCAPES[piece])
-                    elif re.fullmatch(r"[0-9A-Fa-f]{4,8}", piece):
+                    elif re.fullmatch(r"[0-9A-Fa-f]{4,8}", piece) and int(piece, 16) <= 0x10FFFF:
                         out.append(chr(int(piece, 16)))
                     else:
                         out.append(f"#({piece})")

@@ -104,6 +104,12 @@ def test_text_escapes_are_read() -> None:
     assert run('"a#(lf)b"') == "a\nb"
 
 
+def test_a_code_past_unicode_stays_as_written() -> None:
+    # Found by fuzzing: #(ee2220) raised chr()'s ValueError. A code no
+    # character has is kept as written, like any escape that is not one.
+    assert run('"a#(ee2220)b#(0041)"') == "a#(ee2220)bA"
+
+
 def test_a_date_literal_is_a_date() -> None:
     assert run("#date(2021, 3, 4)") == _dt.date(2021, 3, 4)
 

@@ -179,12 +179,18 @@ _HOST_BY_SUFFIX: dict[str, type] = {
     ".xlsm": ExcelFile,
     ".xlsb": ExcelFile,
     ".xlam": ExcelFile,
+    ".xltm": ExcelFile,
     ".xls": ExcelFile,
+    ".xlt": ExcelFile,
+    ".xla": ExcelFile,
     ".docm": WordFile,
     ".dotm": WordFile,
     ".doc": WordFile,
+    ".dot": WordFile,
     ".pptm": PowerPointFile,
     ".potm": PowerPointFile,
+    ".ppsm": PowerPointFile,
+    ".ppam": PowerPointFile,
     ".ppt": PowerPointFile,
 }
 

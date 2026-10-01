@@ -5,6 +5,7 @@ Supports:
   - .docm  (OOXML macro-enabled document -- ZIP containing word/vbaProject.bin)
   - .dotm  (OOXML macro-enabled template -- ZIP containing word/vbaProject.bin)
   - .doc   (Legacy Word -- the entire file is a CFB)
+  - .dot   (Legacy template -- the .doc container; read only)
 
 Usage
 -----
@@ -25,7 +26,7 @@ from pathlib import Path
 from pyopenvba._host import VBAHostFile
 
 _ZIP_FORMATS = frozenset({".docm", ".dotm"})
-_CFB_FORMATS = frozenset({".doc"})
+_CFB_FORMATS = frozenset({".doc", ".dot"})
 _VBA_ENTRY = "word/vbaProject.bin"
 
 
@@ -46,6 +47,7 @@ class WordFile(VBAHostFile):
     _application = "Word"
     _project_storage = "Macros"
     _project_formats = frozenset({".docm"})
+    _read_only_formats = frozenset({".dot"})
     _main_part = "word/document.xml"
 
     # A new project, as Word makes one: ThisDocument, from the Normal

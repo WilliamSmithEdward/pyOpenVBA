@@ -18,9 +18,9 @@ Works on Windows, macOS and Linux. Python 3.10 or newer.
 
 VBA, four hosts and one API:
 
-* Excel (`.xlsm`, `.xlsb`, `.xlam`, `.xls`)
-* Word (`.docm`, `.dotm`, `.doc`)
-* PowerPoint (`.pptm`, `.potm`, `.ppt`)
+* Excel (`.xlsm`, `.xlsb`, `.xlam`, `.xls`; `.xltm`, `.xlt`, `.xla` read only)
+* Word (`.docm`, `.dotm`, `.doc`; `.dot` read only)
+* PowerPoint (`.pptm`, `.potm`, `.ppt`; `.ppsm`, `.ppam` read only)
 * Access (`.accdb`, `.mdb`)
 
 Power Query, in any Excel package:
@@ -850,6 +850,9 @@ implemented, what is not, and how it was measured is in
 | `.xlsb`   | Binary workbook              | yes |     yes     |    yes     |
 | `.xlam`   | Macro-enabled add-in         | yes |     yes     |    yes     |
 | `.xls`    | Legacy (Excel 97-2003)       | yes |      -      |    no      |
+| `.xltm`   | Macro-enabled template       | read |    yes     |    no      |
+| `.xlt`    | Legacy template              | read |     -      |    no      |
+| `.xla`    | Legacy add-in                | read |     -      |    no      |
 
 A `.xlsx` file has no VBA project by design, and Power Query lives
 outside the project, so it is read and written in every package above.
@@ -861,6 +864,7 @@ outside the project, so it is read and written in every package above.
 | `.docm`   | Macro-enabled document       |  yes |  yes  |    yes     |
 | `.dotm`   | Macro-enabled template       |  yes |  yes  |    no      |
 | `.doc`    | Legacy (Word 97-2003)        |  yes |  yes  |    no      |
+| `.dot`    | Legacy template              |  yes |   no  |    no      |
 
 ### PowerPoint
 
@@ -868,6 +872,8 @@ outside the project, so it is read and written in every package above.
 |-----------|------------------------------|:----:|:-----:|:----------:|
 | `.pptm`   | Macro-enabled presentation   |  yes |  yes  |    yes     |
 | `.potm`   | Macro-enabled template       |  yes |  yes  |    no      |
+| `.ppsm`   | Macro-enabled show           |  yes |   no  |    no      |
+| `.ppam`   | Macro-enabled add-in         |  yes |   no  |    no      |
 | `.ppt`    | Legacy (PowerPoint 97-2003)  |  yes |  yes  |    no      |
 
 ### Files with no VBA project

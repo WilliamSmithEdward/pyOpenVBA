@@ -61,6 +61,12 @@ No change to the package's code.
   documentation. A weekly workflow proposes new YARA Forge and YARA-X
   releases in a pull request that the scans check. Semgrep now runs from
   its pinned image, and the workflows run on named runner images.
+- Templates and add-ins open read only (#39): `.xltm`, `.xlt` and `.xla`
+  in `ExcelFile`, `.dot` in `WordFile`, and `.ppsm` and `.ppam` in
+  `PowerPointFile`. Each is the container of a format already read, so
+  its modules read the same way. Saving one raises
+  `UnsupportedFormatError`, since no writer for them has been measured.
+  `.ppa` is a different container and is still refused.
 
 ## [6.3.3] - 2026-09-28
 

@@ -2,7 +2,7 @@
 
 [![PyPI version](https://img.shields.io/pypi/v/pyOpenVBA)](https://pypi.org/project/pyOpenVBA/)
 [![Python versions](https://img.shields.io/pypi/pyversions/pyOpenVBA)](https://pypi.org/project/pyOpenVBA/)
-[![Downloads](https://img.shields.io/pypi/dm/pyOpenVBA)](https://pypistats.org/packages/pyopenvba)
+[![Downloads](https://static.pepy.tech/badge/pyOpenVBA/month)](https://pepy.tech/projects/pyOpenVBA)
 [![CI](https://github.com/WilliamSmithEdward/pyOpenVBA/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/WilliamSmithEdward/pyOpenVBA/actions/workflows/ci.yml)
 [![Security](https://github.com/WilliamSmithEdward/pyOpenVBA/actions/workflows/security.yml/badge.svg?branch=main)](https://github.com/WilliamSmithEdward/pyOpenVBA/actions/workflows/security.yml)
 [![Malware scan](https://github.com/WilliamSmithEdward/pyOpenVBA/actions/workflows/malware-scan.yml/badge.svg?branch=main)](https://github.com/WilliamSmithEdward/pyOpenVBA/actions/workflows/malware-scan.yml)

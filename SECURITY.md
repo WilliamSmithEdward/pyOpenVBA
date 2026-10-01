@@ -64,9 +64,10 @@ rules reach files that have not changed.
 - **Malware:** ClamAV, with signatures freshclam fetches and verifies on
   every run, and YARA-X, with the YARA Forge rules pinned to a release and
   its SHA-256, scan every file the commit holds, test fixtures and the
-  fuzz corpus included. YARA-X runs YARA Forge's full rule set, which
-  gathers the public YARA rule collections into one. A scan error fails
-  the report as a match does.
+  fuzz corpus included, and the wheel and sdist built from it with the
+  hash-locked build tools, as a release builds them. YARA-X runs YARA
+  Forge's full rule set, which gathers the public YARA rule collections
+  into one. A scan error fails the report as a match does.
 - **Fuzzing:** Atheris drives the parsers that read untrusted input, seven
   targets in `fuzz/fuzz_parsers.py`: the compound file reader, VBA
   decompression, the `dir`, `PROJECT` and `PROJECTwm` streams, Power

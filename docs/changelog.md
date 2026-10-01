@@ -26,8 +26,25 @@ All notable changes to pyOpenVBA are documented here. This project follows
   for version 3. A sector size the file's version does not have, such as
   4096 bytes in version 3, now raises `CFBError`. Office saves VBA projects
   as version 3, so this reached only files other tools wrote.
+- `add_module` and `rename_module` refuse the 17 names the VBE will not
+  give a module, such as `Print`, `Date`, `Me` and `Array` (#40). Excel
+  compiles a project holding one, but code can never name that module.
+  The list is `VBE_REFUSED_MODULE_NAMES` in `pyopenvba.vba`.
+- A damaged Access database is refused with an `AccessError` that says
+  what is wrong, where Python's own error text used to reach the caller
+  (#45). A column an engine table lacks, a fixed-size value of the wrong
+  length, a date no date can hold, a name of odd length or one cut off in
+  a table definition, a usage-map block cut short, and a row slot past
+  the row table are each named.
 
 ### Added
+
+- Templates and add-ins open read only (#39): `.xltm`, `.xlt` and `.xla`
+  in `ExcelFile`, `.dot` in `WordFile`, and `.ppsm` and `.ppam` in
+  `PowerPointFile`. Each is the container of a format already read, so
+  its modules read the same way. Saving one raises
+  `UnsupportedFormatError`, since no writer for them has been measured.
+  `.ppa` is a different container and is still refused.
 
 - Coverage-guided fuzzing with Atheris of the CFB, VBA and Power Query
   parsers and the M formula parser, which found both fixes above.

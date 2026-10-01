@@ -280,3 +280,28 @@ class TestCreateNewXlam:
         with ExcelFile.create_new(tmp_path / "a.xlam") as wb:
             source = wb.get_module("Module1")
         assert source.strip() == 'Attribute VB_Name = "Module1"'
+
+
+class TestModuleNamesTheVBERefuses:
+    """Issue #40: names VBComponents will not create are refused, by add and by rename."""
+
+    @pytest.mark.parametrize("name", ["Print", "Date", "Circle", "Me", "Array", "LBound", "print"])
+    def test_add_module_refuses(self, tmp_path: Path, name: str) -> None:
+        with ExcelFile.create_new(tmp_path / "book.xlsm") as wb:
+            project = wb.vba_project()
+            with pytest.raises(ValueError, match="VBE refuses"):
+                project.add_module(name, "Sub Hi()\r\nEnd Sub\r\n")
+            assert name not in project.module_names()
+
+    def test_rename_module_refuses(self, tmp_path: Path) -> None:
+        with ExcelFile.create_new(tmp_path / "book.xlsm") as wb:
+            project = wb.vba_project()
+            with pytest.raises(ValueError, match="VBE refuses"):
+                project.rename_module("Module1", "Stop")
+            assert "Module1" in project.module_names()
+
+    @pytest.mark.parametrize("name", ["Line", "Width", "Name", "Err", "Mid", "Time", "Error", "Unload"])
+    def test_names_the_vbe_accepts_still_add(self, tmp_path: Path, name: str) -> None:
+        with ExcelFile.create_new(tmp_path / "book.xlsm") as wb:
+            wb.vba_project().add_module(name, "Sub Hi()\r\nEnd Sub\r\n")
+            assert name in wb.module_names()

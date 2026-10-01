@@ -91,6 +91,8 @@ class VBAHostFile(ReferenceManager):
     _project_storage: ClassVar[str | None]
     #: The formats add_vba_project gives a project to, each measured against its application.
     _project_formats: ClassVar[frozenset[str]] = frozenset()
+    #: Formats that open and read but do not save: a writer for them has not been measured.
+    _read_only_formats: ClassVar[frozenset[str]] = frozenset()
     #: The package part a zip-based file's project is related from.
     _main_part: ClassVar[str] = ""
 
@@ -533,7 +535,15 @@ class VBAHostFile(ReferenceManager):
 
         A file with no VBA project can hold no edit, since every write
         refuses, so it is written out as it was read.
+
+        Templates and add-ins that share a supported layout (``.xltm``,
+        ``.xlt``, ``.xla``, ``.dot``, ``.ppsm``, ``.ppam``) open read only:
+        saving one raises :class:`~pyopenvba.exceptions.UnsupportedFormatError`.
         """
+        if self._suffix in self._read_only_formats:
+            raise UnsupportedFormatError(
+                f"Saving a {self._suffix} file is not supported; it opens read only."
+            )
         if not self._has_project:
             if dest is not None:
                 Path(dest).write_bytes(self._container_raw)

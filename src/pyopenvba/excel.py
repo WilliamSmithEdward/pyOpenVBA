@@ -6,6 +6,8 @@ Supports:
   - .xlsb  (Binary workbook — ZIP containing xl/vbaProject.bin)
   - .xlam  (Macro-enabled add-in — same ZIP container as .xlsm)
   - .xls   (Legacy BIFF8 — the entire file is a CFB)
+  - .xltm, .xlt, .xla  (templates and the legacy add-in: the .xlsm and
+            .xls containers; read only)
 
 Usage
 -----
@@ -27,8 +29,8 @@ from pyopenvba._host import VBAHostFile
 from pyopenvba._new_project import WORKBOOK_BASE, document_header, excel_code_name_edits, excel_code_names
 from pyopenvba.vba import VBAProject, split_attribute_header
 
-_ZIP_FORMATS = frozenset({".xlsm", ".xlsb", ".xlam"})
-_CFB_FORMATS = frozenset({".xls"})
+_ZIP_FORMATS = frozenset({".xlsm", ".xlsb", ".xlam", ".xltm"})
+_CFB_FORMATS = frozenset({".xls", ".xlt", ".xla"})
 _VBA_ENTRY = "xl/vbaProject.bin"
 
 
@@ -49,6 +51,7 @@ class ExcelFile(VBAHostFile):
     _application = "Excel"
     _project_storage = "_VBA_PROJECT_CUR"
     _project_formats = frozenset({".xlsm"})
+    _read_only_formats = frozenset({".xltm", ".xlt", ".xla"})
     _main_part = "xl/workbook.xml"
 
     # ------------------------------------------------------------------

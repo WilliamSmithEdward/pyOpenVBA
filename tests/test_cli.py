@@ -43,13 +43,14 @@ class TestLs:
         assert main(["ls", str(tmp_path / "notes.txt")]) == 2
         assert "unsupported file type" in capsys.readouterr().err
 
-    def test_xltm_is_not_advertised(
-        self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
-    ) -> None:
-        # .xltm was previously listed for disasm but rejected by ExcelFile;
-        # the suffix map now only carries extensions the facades accept.
-        assert main(["disasm", str(tmp_path / "t.xltm")]) == 2
-        assert "unsupported file type" in capsys.readouterr().err
+    def test_suffix_map_is_what_the_facades_accept(self) -> None:
+        # .xltm was once listed for disasm but rejected by ExcelFile; the
+        # map carries exactly the extensions each facade opens.
+        from pyopenvba.__main__ import _HOST_BY_SUFFIX  # pyright: ignore[reportPrivateUsage]
+
+        for host in (ExcelFile, WordFile, PowerPointFile):
+            accepted = getattr(host, "_zip_formats") | getattr(host, "_cfb_formats")
+            assert {s for s, h in _HOST_BY_SUFFIX.items() if h is host} == accepted
 
 
 class TestPullPush:

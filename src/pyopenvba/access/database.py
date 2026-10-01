@@ -430,6 +430,22 @@ class Index:
         return encode_key(key_values, self.columns)
 
 
+class Row(dict[str, object]):
+    """A decoded row: every column the table defines, by name.
+
+    A column the definition does not hold is an AccessError, not a bare
+    KeyError: when an engine table lacks one of its own columns, the
+    definition is damaged, and the message should say so (issue #45).
+    """
+
+    def __init__(self, table: str = "") -> None:
+        super().__init__()
+        self.table = table
+
+    def __missing__(self, column: str) -> object:
+        raise AccessError(f"table {self.table!r} has no column {column!r}; its definition is damaged")
+
+
 class Table:
     """A table: its definition plus the rows on its owned pages."""
 
@@ -778,7 +794,7 @@ class Table:
         return rid if ref.kind == LongValueRef.KIND_INLINE else RowId(ref.page, ref.row)
 
     def decode(self, raw: RawRow) -> dict[str, object]:
-        out: dict[str, object] = {}
+        out = Row(self.name)
         for column in self.columns:
             value = raw.values.get(column.number)
             if value is None:

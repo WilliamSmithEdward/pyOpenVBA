@@ -4,6 +4,7 @@ PowerPoint file handler.
 Supports:
   - .pptm  (OOXML macro-enabled presentation -- ZIP containing ppt/vbaProject.bin)
   - .potm  (OOXML macro-enabled template -- ZIP containing ppt/vbaProject.bin)
+  - .ppsm, .ppam  (show and add-in -- the .pptm container; read only)
   - .ppt   (Legacy PowerPoint -- a CFB whose 'PowerPoint Document' stream
             embeds the VBA project as a deflated CFB; see
             :mod:`pyopenvba._ppt_container`)
@@ -28,7 +29,7 @@ from pyopenvba._host import VBAHostFile
 from pyopenvba.cfb import CFB
 from pyopenvba.vba import VBAProject
 
-_ZIP_FORMATS = frozenset({".pptm", ".potm"})
+_ZIP_FORMATS = frozenset({".pptm", ".potm", ".ppsm", ".ppam"})
 _CFB_FORMATS = frozenset({".ppt"})
 _VBA_ENTRY = "ppt/vbaProject.bin"
 
@@ -51,6 +52,7 @@ class PowerPointFile(VBAHostFile):
     # A binary presentation embeds its project in a record, found by _vba_cfb_bytes.
     _project_storage = None
     _project_formats = frozenset({".pptm"})
+    _read_only_formats = frozenset({".ppsm", ".ppam"})
     _main_part = "ppt/presentation.xml"
 
     # A new project, as PowerPoint makes one: empty, and not written until

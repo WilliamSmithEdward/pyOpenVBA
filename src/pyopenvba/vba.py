@@ -892,6 +892,23 @@ class VBAModule:
         )
 
 
+#: Names the VBE will not give a module (VBComponents.Add fails with
+#: 0x800AC3D4), measured in 64-bit Excel 16.0 (issue #40), and refused by a
+#: rename too, which would make the same module.  A
+#: module so named still compiles, but code can never name it: ``Print.Hi``
+#: is a syntax error and ``Me.Hi`` an invalid use of Me.  Line, Width, Name,
+#: Err, Mid, Time, Error, Reset, Beep, Load and Unload are accepted.
+VBE_REFUSED_MODULE_NAMES = frozenset({
+    "circle", "pset", "scale", "print", "seek", "input", "get", "put", "open",
+    "tab", "spc", "debug", "me", "array", "lbound", "date", "stop",
+})
+
+
+def _check_module_name(name: str) -> None:
+    if name.casefold() in VBE_REFUSED_MODULE_NAMES:
+        raise ValueError(f"The VBE refuses {name!r} as a module name.")
+
+
 @dataclass
 class VBAProject:
     """Represents a parsed VBA project."""
@@ -963,8 +980,10 @@ class VBAProject:
         ``Attribute VB_Base`` ensured), so ``.cls`` files exported from
         the VBE are accepted as-is.  See :func:`normalize_class_source`.
 
-        Raises ``ValueError`` if a module with that name already exists.
+        Raises ``ValueError`` if a module with that name already exists, or
+        if the VBE refuses the name (see :data:`VBE_REFUSED_MODULE_NAMES`).
         """
+        _check_module_name(name)
         needle = name.casefold()
         if any(m.name.casefold() == needle for m in self.modules):
             raise ValueError(f"Module already exists: {name!r}")
@@ -1030,6 +1049,7 @@ class VBAProject:
         module = self.get_module(old_name)
         if module.name == new_name:
             return module
+        _check_module_name(new_name)
         needle = new_name.casefold()
         if needle != module.name.casefold() and any(
             m.name.casefold() == needle for m in self.modules

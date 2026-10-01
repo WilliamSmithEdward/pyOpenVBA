@@ -1,14 +1,14 @@
 ﻿# pyOpenVBA
 
-[![PyPI version](https://img.shields.io/pypi/v/pyOpenVBA.svg)](https://pypi.org/project/pyOpenVBA/)
-[![Python versions](https://img.shields.io/pypi/pyversions/pyOpenVBA.svg)](https://pypi.org/project/pyOpenVBA/)
-[![CI](https://github.com/WilliamSmithEdward/pyOpenVBA/actions/workflows/ci.yml/badge.svg)](https://github.com/WilliamSmithEdward/pyOpenVBA/actions/workflows/ci.yml)
-[![Security](https://github.com/WilliamSmithEdward/pyOpenVBA/actions/workflows/security.yml/badge.svg)](https://github.com/WilliamSmithEdward/pyOpenVBA/actions/workflows/security.yml)
-[![Malware scan](https://github.com/WilliamSmithEdward/pyOpenVBA/actions/workflows/malware-scan.yml/badge.svg)](https://github.com/WilliamSmithEdward/pyOpenVBA/actions/workflows/malware-scan.yml)
+[![PyPI version](https://img.shields.io/pypi/v/pyOpenVBA)](https://pypi.org/project/pyOpenVBA/)
+[![Python versions](https://img.shields.io/pypi/pyversions/pyOpenVBA)](https://pypi.org/project/pyOpenVBA/)
+[![Downloads](https://img.shields.io/pypi/dm/pyOpenVBA)](https://pypistats.org/packages/pyopenvba)
+[![CI](https://github.com/WilliamSmithEdward/pyOpenVBA/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/WilliamSmithEdward/pyOpenVBA/actions/workflows/ci.yml)
+[![Security](https://github.com/WilliamSmithEdward/pyOpenVBA/actions/workflows/security.yml/badge.svg?branch=main)](https://github.com/WilliamSmithEdward/pyOpenVBA/actions/workflows/security.yml)
+[![Malware scan](https://github.com/WilliamSmithEdward/pyOpenVBA/actions/workflows/malware-scan.yml/badge.svg?branch=main)](https://github.com/WilliamSmithEdward/pyOpenVBA/actions/workflows/malware-scan.yml)
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/WilliamSmithEdward/pyOpenVBA/badge)](https://scorecard.dev/viewer/?uri=github.com/WilliamSmithEdward/pyOpenVBA)
 [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/15116/badge)](https://www.bestpractices.dev/projects/15116)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/LICENSE.md)
-[![Downloads](https://static.pepy.tech/badge/pyOpenVBA/month)](https://pepy.tech/project/pyOpenVBA)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/LICENSE.md)
 
 **Read and write the code inside Office files, in pure Python: VBA macros
 in four hosts, and Power Query in Excel.**

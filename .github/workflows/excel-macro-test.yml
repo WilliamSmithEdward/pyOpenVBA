@@ -37,7 +37,9 @@ jobs:
 
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
-          python-version: "3.12"
+          # The newest 3.12 with a Windows build: 3.12 ships security fixes as
+          # source only, so actions/python-versions has none past 3.12.10.
+          python-version: "3.12.10"
           cache: pip
 
       - name: Build Excel fixtures

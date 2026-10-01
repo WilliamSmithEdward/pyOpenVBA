@@ -75,7 +75,9 @@ jobs:
 
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
-          python-version: "3.12"
+          # 3.12 ships security fixes as source only, so actions/python-versions
+          # has no Windows build past 3.12.10. Both legs run that one.
+          python-version: "3.12.10"
           cache: pip
 
       - name: Install the test tools, then the package
@@ -97,7 +99,7 @@ jobs:
 
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
-          python-version: "3.12"
+          python-version: "3.12.14"
 
       - name: Install build tooling
         run: python -m pip install --require-hashes -r .github/requirements/build.txt

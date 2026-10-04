@@ -313,6 +313,13 @@ For the ZIP case, the VBA project is at the fixed path
 `xl/vbaProject.bin`. On save, exactly that entry is replaced while
 every other ZIP entry is preserved byte-for-byte including its
 compression method, external attributes, create system, and timestamp.
+By default, unchanged parts keep their compressed bytes (`_package_copy.py`),
+avoiding decompression and recompression. They are not checked for damaged
+compressed data or CRC mismatches. `save(full_rebuild=True)` uses the previous
+`zipfile` writer, which decompresses and rewrites every retained part and
+refuses damaged ones. ZIP64 and other unsupported packages fall back to that
+writer automatically. Copying still takes time proportional to compressed
+package size; it avoids work proportional to the expanded content.
 
 For `.xls` and `.doc`, the entire file *is* the CFB; `cfb.to_bytes()`
 is written straight to the output path.

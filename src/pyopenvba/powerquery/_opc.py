@@ -81,7 +81,9 @@ class OpcFile:
         end = raw.rfind(_END)
         if end < 0:
             raise PowerQueryError("this file has no ZIP end record; it is not an Office package")
-        if raw.rfind(_END64_LOCATOR) >= 0:
+        # A ZIP64 locator immediately precedes the end record. Its magic
+        # inside a stored part is ordinary content, not an archive marker.
+        if raw[max(0, end - 20) : end - 16] == _END64_LOCATOR:
             raise PowerQueryError("ZIP64 packages are not handled here")
         count, _size, offset = struct.unpack_from("<HII", raw, end + 10)
         entries: list[Entry] = []

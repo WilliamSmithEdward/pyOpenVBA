@@ -1,0 +1,107 @@
+{
+  "measured_at": "2026-10-04T22:37:03.750005+00:00",
+  "excel_version_build": "16.0|20430",
+  "document": "Public Marker As Long\nPublic Sub Mark(ByVal value As Long)\nMarker = value\nEnd Sub\nPublic Sub ExportMarker()\nRange(\"B1\").Value = Marker\nEnd Sub\n",
+  "probes": [
+    {
+      "name": "unmaterialized",
+      "action": "",
+      "result": "#book:|Sheet1:|#component:ThisWorkbook:100:0|#component:Sheet1:100:0|#after:Sheet1:Sheet1:|#modules:2#error:0"
+    },
+    {
+      "name": "unmaterialized_add",
+      "action": "Set added = target.Worksheets.Add",
+      "result": "#book:|Sheet2:|Sheet1:|#component:ThisWorkbook:100:0|#component:Sheet1:100:0|#component:Sheet2:100:0|#after:Sheet2:Sheet1:|#after:Sheet1:Sheet2:|#added:Sheet2:Sheet1#modules:3#error:0"
+    },
+    {
+      "name": "initial",
+      "action": "",
+      "result": "#book:ThisWorkbook|Sheet1:Sheet1|#component:ThisWorkbook:100:0|#component:Sheet1:100:8|#after:Sheet1:Sheet1:|#modules:2#error:0"
+    },
+    {
+      "name": "add_one",
+      "action": "Set added = target.Worksheets.Add",
+      "result": "#book:ThisWorkbook|Sheet2:|Sheet1:Sheet1|#component:ThisWorkbook:100:0|#component:Sheet1:100:8|#component:Sheet2:100:0|#after:Sheet2:Sheet2:|#after:Sheet1:Sheet1:|#added:Sheet2:Sheet2#modules:3#error:0"
+    },
+    {
+      "name": "add_two",
+      "action": "Set added = target.Worksheets.Add(Count:=2)",
+      "result": "#book:ThisWorkbook|Sheet3:|Sheet2:|Sheet1:Sheet1|#component:ThisWorkbook:100:0|#component:Sheet1:100:8|#component:Sheet2:100:0|#component:Sheet3:100:0|#after:Sheet3:Sheet2:|#after:Sheet2:Sheet3:|#after:Sheet1:Sheet1:|#added:Sheet3:Sheet2#modules:4#error:0"
+    },
+    {
+      "name": "add_fraction",
+      "action": "Set added = target.Worksheets.Add(Count:=1.5)",
+      "result": "#book:ThisWorkbook|Sheet2:|Sheet1:Sheet1|#component:ThisWorkbook:100:0|#component:Sheet1:100:8|#component:Sheet2:100:0|#after:Sheet2:Sheet2:|#after:Sheet1:Sheet1:|#added:Sheet2:Sheet2#modules:3#error:0"
+    },
+    {
+      "name": "add_fraction_two",
+      "action": "Set added = target.Worksheets.Add(Count:=2.9)",
+      "result": "#book:ThisWorkbook|Sheet3:|Sheet2:|Sheet1:Sheet1|#component:ThisWorkbook:100:0|#component:Sheet1:100:8|#component:Sheet2:100:0|#component:Sheet3:100:0|#after:Sheet3:Sheet2:|#after:Sheet2:Sheet3:|#after:Sheet1:Sheet1:|#added:Sheet3:Sheet2#modules:4#error:0"
+    },
+    {
+      "name": "add_zero",
+      "action": "On Error Resume Next\nSet added = target.Worksheets.Add(Count:=0)\nnumber = Err.Number\nOn Error GoTo 0",
+      "result": "#book:ThisWorkbook|Sheet1:Sheet1|#component:ThisWorkbook:100:0|#component:Sheet1:100:8|#after:Sheet1:Sheet1:|#modules:2#error:1004"
+    },
+    {
+      "name": "add_negative",
+      "action": "On Error Resume Next\nSet added = target.Worksheets.Add(Count:=-1)\nnumber = Err.Number\nOn Error GoTo 0",
+      "result": "#book:ThisWorkbook|Sheet1:Sheet1|#component:ThisWorkbook:100:0|#component:Sheet1:100:8|#after:Sheet1:Sheet1:|#modules:2#error:1004"
+    },
+    {
+      "name": "rename_visible_then_add",
+      "action": "target.Worksheets(1).Name = \"Sheet7\"\nSet added = target.Worksheets.Add",
+      "result": "#book:ThisWorkbook|Sheet2:|Sheet7:Sheet1|#component:ThisWorkbook:100:0|#component:Sheet1:100:8|#component:Sheet2:100:0|#after:Sheet2:Sheet2:|#after:Sheet7:Sheet1:|#added:Sheet2:Sheet2#modules:3#error:0"
+    },
+    {
+      "name": "delete_latest_then_add",
+      "action": "Set added = target.Worksheets.Add\nadded.Delete\nSet added = target.Worksheets.Add",
+      "result": "#book:ThisWorkbook|Sheet3:|Sheet1:Sheet1|#component:ThisWorkbook:100:0|#component:Sheet1:100:8|#component:Sheet2:100:0|#after:Sheet3:Sheet2:|#after:Sheet1:Sheet1:|#added:Sheet3:Sheet2#modules:3#error:0"
+    },
+    {
+      "name": "delete_first_then_add",
+      "action": "Set added = target.Worksheets.Add\ntarget.Worksheets(\"Sheet1\").Delete\nSet added = target.Worksheets.Add",
+      "result": "#book:ThisWorkbook|Sheet3:|Sheet2:|#component:ThisWorkbook:100:0|#component:Sheet2:100:0|#component:Sheet3:100:0|#after:Sheet3:Sheet2:|#after:Sheet2:Sheet3:|#added:Sheet3:Sheet2#modules:3#error:0"
+    },
+    {
+      "name": "rename_code_then_add",
+      "action": "target.VBProject.VBComponents(\"Sheet1\").Name = \"Info\"\nSet added = target.Worksheets.Add",
+      "result": "#book:ThisWorkbook|Sheet2:|Sheet1:Info|#component:ThisWorkbook:100:0|#component:Info:100:8|#component:Sheet2:100:0|#after:Sheet2:Sheet2:|#after:Sheet1:Info:|#added:Sheet2:Sheet2#modules:3#error:0"
+    },
+    {
+      "name": "copy_same_book",
+      "action": "target.Worksheets(1).Copy After:=target.Worksheets(1)",
+      "result": "#book:ThisWorkbook|Sheet1:Sheet1|Sheet1 (2):Sheet2|#component:ThisWorkbook:100:0|#component:Sheet1:100:8|#component:Sheet2:100:8|#after:Sheet1:Sheet1:|#after:Sheet1 (2):Sheet2:|#modules:3#error:0"
+    },
+    {
+      "name": "copy_custom_code",
+      "action": "target.VBProject.VBComponents(\"Sheet1\").Name = \"Info\"\ntarget.Worksheets(1).Copy After:=target.Worksheets(1)",
+      "result": "#book:ThisWorkbook|Sheet1:Info|Sheet1 (2):Info1|#component:ThisWorkbook:100:0|#component:Info:100:8|#component:Info1:100:8|#after:Sheet1:Info:|#after:Sheet1 (2):Info1:|#modules:3#error:0"
+    },
+    {
+      "name": "copy_marker_reset",
+      "action": "Application.Run \"'\" & target.Name & \"'!Sheet1.Mark\", 42\nApplication.Run \"'\" & target.Name & \"'!Sheet1.ExportMarker\"\ntarget.Worksheets(1).Copy After:=target.Worksheets(1)\nApplication.Run \"'\" & target.Name & \"'!\" & ActiveSheet.CodeName & \".ExportMarker\"",
+      "result": "#book:ThisWorkbook|Sheet1:Sheet1|Sheet1 (2):Sheet2|#component:ThisWorkbook:100:0|#component:Sheet1:100:8|#component:Sheet2:100:8|#after:Sheet1:Sheet1:42|#after:Sheet1 (2):Sheet2:0|#modules:3#error:0"
+    },
+    {
+      "name": "copy_then_add",
+      "action": "target.Worksheets(1).Copy After:=target.Worksheets(1)\nSet added = target.Worksheets.Add",
+      "result": "#book:ThisWorkbook|Sheet1:Sheet1|Sheet3:|Sheet1 (2):Sheet2|#component:ThisWorkbook:100:0|#component:Sheet1:100:8|#component:Sheet2:100:8|#component:Sheet3:100:0|#after:Sheet1:Sheet1:|#after:Sheet3:Sheet3:|#after:Sheet1 (2):Sheet2:|#added:Sheet3:Sheet3#modules:4#error:0"
+    },
+    {
+      "name": "copy_new_book",
+      "action": "target.Worksheets(1).Copy\nSet other = target\nSet target = ActiveWorkbook",
+      "result": "#book:|Sheet1:Sheet1|#component:Sheet1:100:8|#component:ThisWorkbook:100:0|#after:Sheet1:Sheet1:|#modules:2#error:0"
+    },
+    {
+      "name": "copy_other_book",
+      "action": "Set other = Workbooks.Add\ntarget.Worksheets(1).Copy After:=other.Worksheets(1)\nSet original = target\nSet target = other\nSet other = original",
+      "result": "#book:|Sheet1:|Sheet1 (2):Sheet1|#component:Sheet1:100:8|#component:ThisWorkbook:100:0|#component:Sheet2:100:0|#after:Sheet1:Sheet2:|#after:Sheet1 (2):Sheet1:|#modules:3#error:0"
+    },
+    {
+      "name": "delete_document",
+      "action": "Set added = target.Worksheets.Add\ntarget.Worksheets(\"Sheet1\").Delete",
+      "result": "#book:ThisWorkbook|Sheet2:|#component:ThisWorkbook:100:0|#component:Sheet2:100:0|#after:Sheet2:Sheet2:|#added:Sheet2:Sheet2#modules:2#error:0"
+    }
+  ]
+}

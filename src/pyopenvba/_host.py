@@ -771,11 +771,15 @@ class VBAHostFile(ReferenceManager):
                          package_edits: dict[str, bytes | None], *, full_rebuild: bool = False) -> None:
         """Write the file with ``new_cfb_bytes`` as its project and ``package_edits`` applied."""
         out_path = Path(dest) if dest is not None else self._path
+        out_path.write_bytes(self._serialized_container(new_cfb_bytes, package_edits, full_rebuild=full_rebuild))
+
+    def _serialized_container(self, new_cfb_bytes: bytes | None,
+                              package_edits: dict[str, bytes | None], *, full_rebuild: bool = False) -> bytes:
+        """Build the container after the ordinary save has applied its safety gates."""
 
         if self._suffix in self._cfb_formats:
             assert new_cfb_bytes is not None
-            out_path.write_bytes(self._container_bytes(new_cfb_bytes))
-            return
+            return self._container_bytes(new_cfb_bytes)
 
         if self._zip is None:
             raise RuntimeError(f"{type(self).__name__} is not open.")
@@ -800,8 +804,7 @@ class VBAHostFile(ReferenceManager):
                 edits[self._vba_entry] = new_cfb_bytes
             packed = copy_package(self._container_raw, self._zip.infolist(), edits, added)
             if packed is not None:
-                out_path.write_bytes(packed)
-                return
+                return packed
 
         buf = io.BytesIO()
         with zipfile.ZipFile(buf, "w") as out_zip:
@@ -835,7 +838,7 @@ class VBAHostFile(ReferenceManager):
                 out_info = zipfile.ZipInfo(filename=name, date_time=(1980, 1, 1, 0, 0, 0))
                 out_info.compress_type = zipfile.ZIP_DEFLATED
                 out_zip.writestr(out_info, data)
-        out_path.write_bytes(buf.getvalue())
+        return buf.getvalue()
 
     # ------------------------------------------------------------------
     # Internal helpers

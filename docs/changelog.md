@@ -7,6 +7,13 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Runtime-added standard, class and workbook/worksheet document modules
+  now persist in macro-enabled Excel saves, and replacing a module updates
+  its saved source. Native Excel executes the saved project in a live gate.
+  Unchanged projects retain their VBA bytes; edits reuse the file writer's
+  protection gates, signature removal warnings and compiled-cache invalidation.
+  The current single-project ownership limit remains; source is not copied
+  into another open workbook, and XLSX saves omit it.
 - Workbook BeforeSave, AfterSave and BeforeClose events, with cancellable
   ByRef flags delivered to workbook sinks, document modules and application
   sinks in Excel's order. Twenty-two live cases cover cancellation, reversal,

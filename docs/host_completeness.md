@@ -37,8 +37,17 @@ Save/close lifecycle work adds 22 native cases for BeforeSave, AfterSave
 and BeforeClose, and a live persistence gate for XLSX/XLSM conversion and
 VBA-project presence. Workbook_Open, independent workbook project contexts,
 save prompts, omitted filenames, other SaveAs formats and parameters,
-persisting modules added through the runtime API into saved VBA projects,
 additional event sources and complete signature validation remain gaps.
+
+Runtime source persistence now writes added standard, class and document
+modules and edits to existing modules into the owning workbook's VBA
+project. A native Excel gate opens the result and executes a macro that
+calls all three module kinds. Unchanged projects keep their original bytes;
+mutations use the file writer's protection, signature and compiled-cache
+handling. Macro-free saves omit runtime source. Another open workbook does
+not receive the owning project's modules. Independent project contexts,
+module deletion, runtime-created form designers, and complete format
+coverage remain separate gaps.
 
 ## What counts as complete
 

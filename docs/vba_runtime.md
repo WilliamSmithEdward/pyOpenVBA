@@ -1477,6 +1477,24 @@ selection, Deactivate then Activate with another sheet made active,
 and NewSheet with Worksheets.Add, which then deactivates the sheet it
 was placed beside or the active one.
 
+Class, document and form modules can declare `WithEvents` variables and
+handle `variable_Event` procedures. Binding attaches a listener; rebinding,
+including to the same object, moves it to the end of the delivery order.
+Setting it to `Nothing` detaches it. A subscription does not keep a listener
+alive after its own references disappear. Custom `RaiseEvent` calls share
+ByRef argument storage across handlers and isolate ByVal arguments.
+Fifteen real Excel cases replay in `tests/test_vba_withevents.py`.
+
+Excel's worksheet sinks run before the worksheet's own module, workbook
+sinks before the workbook's own module, and application sinks last.
+Change, Calculate, SelectionChange, Activate, Deactivate and NewSheet use
+this dispatcher, including reentrant edits and EnableEvents suppression.
+Fourteen isolated live Excel cases replay in `tests/test_excel_event_sinks.py`.
+An explicit `Application.Calculate` raises events for sheets whose stale or
+volatile formulas it calculates, rather than every sheet with a formula.
+Full event signature validation and event sources the host does not yet
+implement remain gaps.
+
 **Power Query is evaluated.** `pyopenvba.mlang` is an M evaluator, so
 `WorkbookQuery.Refresh` works out the query's rows and writes them to
 the sheet it loads to; the table and its queryTable follow, and a save
@@ -1548,11 +1566,10 @@ macros, which the model does not write.
   counts include constants and types and do not establish conformance;
   see the [coverage audit](host_completeness.md#reproducible-discovery-inventory).
   Missing names are reported as gaps.
-- **Events from sheets and the workbook only.** A sheet's and the
-  workbook's own modules hear Change, Calculate, SelectionChange,
-  Activate, Deactivate and NewSheet, as the events section says.
-  `WithEvents` sinks are not connected, `RaiseEvent` says so, and
-  Workbook_Open, BeforeClose and BeforeSave are not raised.
+- **Partial event coverage.** Document modules and WithEvents sinks hear
+  the events described above; additional host event sources and complete
+  signature validation remain gaps. Workbook_Open, BeforeClose,
+  BeforeSave and AfterSave are not yet raised.
 - **Nothing outside the model.** File I/O, the file system verbs, the
   registry, `Shell`, `SendKeys`, `CreateObject` and `Declare` into a DLL
   all report themselves unsupported rather than reaching the real
@@ -1630,7 +1647,7 @@ library's own public API; the decision and remaining API work are
 recorded in [`roadmap.md`](roadmap.md#shape-support-in-both-libraries).
 
 Excel's completeness audit comes first. Known gaps include the
-workbook's open, close and save events, `WithEvents`, spilling arrays, pivot tables,
+workbook's open, close and save events, full event validation, spilling arrays, pivot tables,
 the remaining shape operations and M library coverage. A passing
 MS-OVBA file-editing gate does not establish runtime completeness.
 Word's tables and headers and PowerPoint's slide masters are examples

@@ -23,6 +23,7 @@ from dataclasses import dataclass, field
 from decimal import Decimal
 from functools import lru_cache
 from typing import Any, Callable, Final
+from weakref import ReferenceType, ref
 
 from pyopenvba.exceptions import VBACompileError, VBARuntimeError, VBAUnsupportedError
 from pyopenvba.interpreter import _ast as A
@@ -125,6 +126,21 @@ class Slot:
 
     def set(self, value: object) -> None:
         self.value = coerce(value, self.declared)
+
+
+class EventSlot(Slot):
+    """A class's WithEvents variable; rebinding changes its subscription order."""
+
+    def __init__(self, owner: UserClassInstance, name: str, declared: str) -> None:
+        super().__init__(NOTHING, declared)
+        self.owner = ref(owner)
+        self.name = name
+
+    def set(self, value: object) -> None:
+        super().set(value)
+        owner = self.owner()
+        if owner is not None:
+            owner.interpreter.bind_event_sink(owner, self.name)
 
 
 @dataclass(slots=True)
@@ -479,7 +495,11 @@ class UserClassInstance(VBAObject):
         self.variables: dict[str, Slot] = {}
         for group in module.parsed.variables:
             for declaration in group.decls:
-                self.variables[declaration.name.lower()] = interpreter.make_slot(declaration, module)
+                key = declaration.name.lower()
+                self.variables[key] = (
+                    EventSlot(self, key, declaration.declared) if declaration.with_events
+                    else interpreter.make_slot(declaration, module)
+                )
 
     def vba_member(self, name: str) -> Any:
         return None
@@ -595,6 +615,7 @@ class Interpreter:
         self._rnd_state = 0x50000
         self._line_open = False
         self._intrinsics = _load_intrinsics()
+        self.event_sinks: list[tuple[ReferenceType[UserClassInstance], str]] = []
 
     # --- loading ---------------------------------------------------------------------
 
@@ -1187,17 +1208,42 @@ class Interpreter:
         target.put(text[: start - 1] + replacement[:width] + text[start - 1 + width :], False)
 
     def _do_raise_event(self, statement: A.RaiseEvent, frame: Frame) -> None:
-        args = [self.evaluate(argument.value, frame) for argument in statement.args if argument.value is not None]
         if isinstance(frame.me, UserClassInstance):
+            event = next((event for event in frame.module.parsed.events if event.name.lower() == statement.name.lower()), None)
+            if event is None:
+                raise VBACompileError(f"event {statement.name} is not declared in {frame.module.name}")
+            # Binding a synthetic procedure supplies typed, shared ByRef storage even
+            # when the caller passes an expression rather than a variable.
+            signature = A.Procedure(name=event.name, params=event.params)
+            positional, named = self._arguments(statement.args, frame, procedure=signature)
+            arguments = Frame(signature, frame.module)
+            self._bind_arguments(arguments, signature, positional, named)
+            args: list[object] = [arguments.locals[param.name.lower()] for param in event.params]
             self.raise_event(frame.me, statement.name, args)
             return
-        raise VBAUnsupportedError("RaiseEvent outside a class module is not implemented by pyOpenVBA")
+        raise VBACompileError("RaiseEvent requires a class module")
+
+    def bind_event_sink(self, owner: UserClassInstance, name: str) -> None:
+        """Remove the old binding before appending the new one; do not retain a listener."""
+        self.event_sinks = [(held, key) for held, key in self.event_sinks
+                            if held() is not None and not (held() is owner and key == name)]
+        if owner.variables[name].get() is not NOTHING:
+            self.event_sinks.append((ref(owner), name))
 
     def raise_event(self, source: object, name: str, args: list[object]) -> None:
-        """Events are recognised and not delivered: nothing is listening."""
-        raise VBAUnsupportedError(
-            f"RaiseEvent {name}: pyOpenVBA does not connect WithEvents sinks"
-        )
+        """Deliver in binding order, sharing ByRef event arguments between sinks."""
+        for held, key in list(self.event_sinks):
+            owner = held()
+            if owner is None or owner.variables[key].get() is not source:
+                continue
+            handler = owner.module.procedure(f"{key}_{name}")
+            if handler is not None:
+                self.call(handler, owner.module, args, {}, me=owner)
+
+    def listens_for_event(self, source: object, name: str) -> bool:
+        return any(owner is not None and owner.variables[key].get() is source
+                   and owner.module.procedure(f"{key}_{name}") is not None
+                   for held, key in self.event_sinks for owner in (held(),))
 
     def _do_unsupported(self, statement: A.Unsupported, frame: Frame) -> None:
         raise VBAUnsupportedError(

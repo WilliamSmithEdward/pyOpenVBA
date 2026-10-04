@@ -1,0 +1,86 @@
+{
+  "measured_at": "2026-10-04T21:13:25.457131+00:00",
+  "excel_version_build": "16.0|20430",
+  "modules": {
+    "EventSource": "Public Event Updated(ByRef Value As Long)\nPublic Event Observed(ByVal Value As Long)\nPublic Function Fire(ByVal n As Long) As Long\n    RaiseEvent Updated(n)\n    Fire = n\nEnd Function\nPublic Function FireValue(ByVal n As Long) As Long\n    RaiseEvent Observed(n)\n    FireValue = n\nEnd Function\n",
+    "EventSink": "Public WithEvents Source As EventSource, OtherSource As EventSource\nPublic Label As String\nPublic Increment As Long\nPublic Disconnect As Boolean\nPublic Peer As EventSink\nPublic DisconnectPeer As Boolean\nPublic RebindPeer As Boolean\nPublic Reenter As Boolean\nPrivate Sub Source_Updated(ByRef Value As Long)\n    Log = Log & Label & \":\" & CStr(Value) & \"|\"\n    Value = Value + Increment\n    If Disconnect Then Set Source = Nothing\n    If DisconnectPeer Then Set Peer.Source = Nothing\n    If RebindPeer Then Set Peer.Source = Source\n    If Reenter Then\n        Reenter = False\n        Value = Source.Fire(Value)\n    End If\nEnd Sub\nPrivate Sub Source_Observed(ByVal Value As Long)\n    Log = Log & Label & \":\" & CStr(Value) & \"|\"\n    Value = Value + Increment\nEnd Sub\nPrivate Sub OtherSource_Updated(ByRef Value As Long)\n    Log = Log & \"other:\" & CStr(Value) & \"|\"\n    Value = Value + 1000\nEnd Sub\n",
+    "EventLog": "Public Log As String\n"
+  },
+  "probes": [
+    {
+      "name": "no_listener",
+      "source": "Function Probe() As String\nDim source As New EventSource, other As New EventSource\nDim a As New EventSink, b As New EventSink\na.Label = \"A\": a.Increment = 10\nb.Label = \"B\": b.Increment = 100\nLog = \"\"\nProbe = CStr(source.Fire(1))\nEnd Function\n",
+      "result": "1"
+    },
+    {
+      "name": "one_listener",
+      "source": "Function Probe() As String\nDim source As New EventSource, other As New EventSource\nDim a As New EventSink, b As New EventSink\na.Label = \"A\": a.Increment = 10\nb.Label = \"B\": b.Increment = 100\nLog = \"\"\nSet a.Source = source\nProbe = CStr(source.Fire(1)) & \":\" & Log\nEnd Function\n",
+      "result": "11:A:1|"
+    },
+    {
+      "name": "two_listeners",
+      "source": "Function Probe() As String\nDim source As New EventSource, other As New EventSource\nDim a As New EventSink, b As New EventSink\na.Label = \"A\": a.Increment = 10\nb.Label = \"B\": b.Increment = 100\nLog = \"\"\nSet a.Source = source\nSet b.Source = source\nProbe = CStr(source.Fire(1)) & \":\" & Log\nEnd Function\n",
+      "result": "111:A:1|B:11|"
+    },
+    {
+      "name": "reverse_binding",
+      "source": "Function Probe() As String\nDim source As New EventSource, other As New EventSource\nDim a As New EventSink, b As New EventSink\na.Label = \"A\": a.Increment = 10\nb.Label = \"B\": b.Increment = 100\nLog = \"\"\nSet b.Source = source\nSet a.Source = source\nProbe = CStr(source.Fire(1)) & \":\" & Log\nEnd Function\n",
+      "result": "111:B:1|A:101|"
+    },
+    {
+      "name": "detach",
+      "source": "Function Probe() As String\nDim source As New EventSource, other As New EventSource\nDim a As New EventSink, b As New EventSink\na.Label = \"A\": a.Increment = 10\nb.Label = \"B\": b.Increment = 100\nLog = \"\"\nSet a.Source = source\nSet a.Source = Nothing\nProbe = CStr(source.Fire(1)) & \":\" & Log\nEnd Function\n",
+      "result": "1:"
+    },
+    {
+      "name": "rebind",
+      "source": "Function Probe() As String\nDim source As New EventSource, other As New EventSource\nDim a As New EventSink, b As New EventSink\na.Label = \"A\": a.Increment = 10\nb.Label = \"B\": b.Increment = 100\nLog = \"\"\nSet a.Source = source\nSet a.Source = other\nProbe = CStr(source.Fire(1)) & \":\" & CStr(other.Fire(2)) & \":\" & Log\nEnd Function\n",
+      "result": "1:12:A:2|"
+    },
+    {
+      "name": "repeat_binding",
+      "source": "Function Probe() As String\nDim source As New EventSource, other As New EventSource\nDim a As New EventSink, b As New EventSink\na.Label = \"A\": a.Increment = 10\nb.Label = \"B\": b.Increment = 100\nLog = \"\"\nSet a.Source = source\nSet b.Source = source\nSet a.Source = source\nProbe = CStr(source.Fire(1)) & \":\" & Log\nEnd Function\n",
+      "result": "111:B:1|A:101|"
+    },
+    {
+      "name": "disconnect_in_handler",
+      "source": "Function Probe() As String\nDim source As New EventSource, other As New EventSource\nDim a As New EventSink, b As New EventSink\na.Label = \"A\": a.Increment = 10\nb.Label = \"B\": b.Increment = 100\nLog = \"\"\nSet a.Source = source\nSet b.Source = source\na.Disconnect = True\nProbe = CStr(source.Fire(1)) & \":\" & CStr(source.Fire(2)) & \":\" & Log\nEnd Function\n",
+      "result": "111:102:A:1|B:11|B:2|"
+    },
+    {
+      "name": "disconnect_later_listener",
+      "source": "Function Probe() As String\nDim source As New EventSource, other As New EventSource\nDim a As New EventSink, b As New EventSink\na.Label = \"A\": a.Increment = 10\nb.Label = \"B\": b.Increment = 100\nLog = \"\"\nSet a.Source = source\nSet b.Source = source\nSet a.Peer = b\na.DisconnectPeer = True\nProbe = CStr(source.Fire(1)) & \":\" & Log\nEnd Function\n",
+      "result": "11:A:1|"
+    },
+    {
+      "name": "disconnect_earlier_listener",
+      "source": "Function Probe() As String\nDim source As New EventSource, other As New EventSource\nDim a As New EventSink, b As New EventSink\na.Label = \"A\": a.Increment = 10\nb.Label = \"B\": b.Increment = 100\nLog = \"\"\nSet a.Source = source\nSet b.Source = source\nSet b.Peer = a\nb.DisconnectPeer = True\nProbe = CStr(source.Fire(1)) & \":\" & Log\nEnd Function\n",
+      "result": "111:A:1|B:11|"
+    },
+    {
+      "name": "byval_event",
+      "source": "Function Probe() As String\nDim source As New EventSource, other As New EventSource\nDim a As New EventSink, b As New EventSink\na.Label = \"A\": a.Increment = 10\nb.Label = \"B\": b.Increment = 100\nLog = \"\"\nSet a.Source = source\nSet b.Source = source\nProbe = CStr(source.FireValue(1)) & \":\" & Log\nEnd Function\n",
+      "result": "1:A:1|B:1|"
+    },
+    {
+      "name": "listener_scope",
+      "source": "Function Probe() As String\nDim source As New EventSource, other As New EventSource\nDim a As New EventSink, b As New EventSink\na.Label = \"A\": a.Increment = 10\nb.Label = \"B\": b.Increment = 100\nLog = \"\"\nSet a.Source = source\nSet a = Nothing\nProbe = CStr(source.Fire(1)) & \":\" & Log\nEnd Function\n",
+      "result": "1:"
+    },
+    {
+      "name": "rebind_later_listener",
+      "source": "Function Probe() As String\nDim source As New EventSource, other As New EventSource\nDim a As New EventSink, b As New EventSink\na.Label = \"A\": a.Increment = 10\nb.Label = \"B\": b.Increment = 100\nLog = \"\"\nSet a.Source = source\nSet b.Source = source\nSet a.Peer = b\na.RebindPeer = True\nProbe = CStr(source.Fire(1)) & \":\" & Log\nEnd Function\n",
+      "result": "111:A:1|B:11|"
+    },
+    {
+      "name": "nested_event",
+      "source": "Function Probe() As String\nDim source As New EventSource, other As New EventSource\nDim a As New EventSink, b As New EventSink\na.Label = \"A\": a.Increment = 10\nb.Label = \"B\": b.Increment = 100\nLog = \"\"\nSet a.Source = source\nSet b.Source = source\na.Reenter = True\nProbe = CStr(source.Fire(1)) & \":\" & Log\nEnd Function\n",
+      "result": "221:A:1|A:11|B:21|B:121|"
+    },
+    {
+      "name": "multiple_declarations",
+      "source": "Function Probe() As String\nDim source As New EventSource, other As New EventSource\nDim a As New EventSink, b As New EventSink\na.Label = \"A\": a.Increment = 10\nb.Label = \"B\": b.Increment = 100\nLog = \"\"\nSet a.OtherSource = source\nProbe = CStr(source.Fire(1)) & \":\" & Log\nEnd Function\n",
+      "result": "1:"
+    }
+  ]
+}

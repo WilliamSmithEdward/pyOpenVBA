@@ -123,6 +123,7 @@ class VarDecl:
     bounds: list[tuple[Expr | None, Expr]] = field(default_factory=lambda: [])
     is_array: bool = False
     as_new: bool = False
+    with_events: bool = False
 
 
 @dataclass(slots=True)

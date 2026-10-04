@@ -7,6 +7,14 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Class-module `WithEvents` subscriptions and custom `RaiseEvent` delivery,
+  with shared ByRef arguments, isolated ByVal arguments, binding order,
+  rebinding, detachment, listener lifetime and nested delivery measured in
+  15 real Excel cases. Worksheet, workbook and application sinks now hear
+  the model's Change, Calculate, SelectionChange, Activate, Deactivate and
+  NewSheet events, with 14 measured Excel cases establishing delivery order.
+  Unimplemented event sources, lifecycle events and complete signature
+  validation remain tracked gaps.
 - Execute `GoSub`, `On ... GoSub` and `Return` using the current procedure's
   variables and a separate return stack per call. Nesting, loop call sites,
   numeric labels, procedure exits and error handlers replay 42 real Excel
@@ -16,6 +24,9 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- `Application.Calculate` raises Calculate events only for sheets it
+  recalculates; formulas already current no longer cause spurious events.
+  Explicit calculation also recalculates volatile formulas in manual mode.
 - `On ... GoTo` and `On ... GoSub` coerce their index to Integer and reject
   values outside 0–255 as Excel does, including overflow and half-to-even
   rounding. Previously `On ... GoTo` silently skipped invalid indices.

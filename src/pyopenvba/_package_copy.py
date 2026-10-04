@@ -18,10 +18,12 @@ existed.
 faithfully, and the caller then writes it with ``zipfile`` as it always
 has.  That covers ZIP64, a part compressed some other way than deflate
 that has to be written anew, an encrypted part, a part name that is not
-UTF-8, and a package naming one part twice.  It also covers a package
-whose two directories disagree -- a part's own header naming it
+UTF-8, an unknown compression method, unsupported patched-data or
+strong-encryption flags, and a package naming one part twice. It also
+covers a package whose two directories disagree -- a part's own header naming it
 differently, giving it other sizes in a ZIP64 record, or placing it over
-another part -- which ``zipfile`` refuses, and so still does.
+another part or the central directory -- which ``zipfile`` refuses,
+and so still does.
 """
 
 from __future__ import annotations
@@ -39,6 +41,9 @@ _STORED = 0
 _DEFLATED = 8
 #: General purpose bit 0: the part is encrypted.
 _ENCRYPTED = 0x0001
+#: Patched data and strong encryption are refused by zipfile when reading.
+_UNSUPPORTED_FLAGS = 0x0060
+_UTF8 = 0x0800
 #: General purpose bit 3: the sizes follow the part's bytes instead of standing in its header.
 _DESCRIPTOR = 0x0008
 #: The date ``zipfile`` gives a part with none, 1980-01-01, as [APPNOTE] 4.4.6 packs one.
@@ -91,6 +96,7 @@ def copy_package(
     """
     try:
         package = OpcFile.parse(raw)
+        central_start = struct.unpack_from("<I", raw, raw.rfind(b"PK\x05\x06") + 16)[0]
     except (PowerQueryError, UnicodeDecodeError, struct.error):
         return None
     if len(package.entries) != len(infos) or len({info.filename for info in infos}) != len(infos):
@@ -106,7 +112,8 @@ def copy_package(
             or len(entry.body) != info.compress_size
             or entry.uncompressed_size != info.file_size
             or entry.crc != info.CRC
-            or entry.flags & _ENCRYPTED
+            or entry.method not in (zipfile.ZIP_STORED, zipfile.ZIP_DEFLATED, zipfile.ZIP_BZIP2, zipfile.ZIP_LZMA)
+            or entry.flags & (_ENCRYPTED | _UNSUPPORTED_FLAGS)
             or info.compress_size >= _ZIP64
             or info.file_size >= _ZIP64
             or _has_zip64(entry.local_extra)
@@ -118,7 +125,12 @@ def copy_package(
         named = info.header_offset + 30
         if info.header_offset < end or raw[named : named + len(name) + len(entry.local_extra)] != name + entry.local_extra:
             return None
+        local_flags = struct.unpack_from("<H", raw, info.header_offset + 6)[0]
+        if (local_flags ^ entry.flags) & _UTF8:
+            return None
         end = named + len(name) + len(entry.local_extra) + len(entry.body)
+        if end > central_start:
+            return None
         # The sizes are written in the header, so nothing follows the part's bytes to say them again.
         flags = entry.flags & ~_DESCRIPTOR
         if entry.name in edits:

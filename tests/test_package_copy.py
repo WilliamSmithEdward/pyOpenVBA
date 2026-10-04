@@ -376,3 +376,41 @@ def test_a_damaged_part_the_save_does_not_change_is_carried_over(tmp_path: Path)
         assert book.get_module(name).endswith(MARK)
     with zipfile.ZipFile(out) as package, pytest.raises(zipfile.BadZipFile):
         package.read(victim.filename)
+
+
+@pytest.mark.parametrize("flag", [0x20, 0x40])
+def test_unsupported_flags_are_left_to_zipfile(flag: int) -> None:
+    raw = bytearray(_zip(PARTS))
+    struct.pack_into("<H", raw, _central(bytes(raw), "c.xml") + 8, flag)
+    damaged = bytes(raw)
+    with zipfile.ZipFile(io.BytesIO(damaged)) as package, pytest.raises(NotImplementedError):
+        package.read("c.xml")
+    assert copy_package(damaged, _infos(damaged), {}, {}) is None
+
+
+def test_a_part_overlapping_the_central_directory_is_left_to_zipfile() -> None:
+    raw = bytearray(_zip(PARTS))
+    info = _infos(bytes(raw))[-1]
+    struct.pack_into("<I", raw, _central(bytes(raw), "c.xml") + 20, info.compress_size + 4)
+    damaged = bytes(raw)
+    with zipfile.ZipFile(io.BytesIO(damaged)) as package, pytest.raises(zipfile.BadZipFile):
+        package.read("c.xml")
+    assert copy_package(damaged, _infos(damaged), {}, {}) is None
+
+
+def test_local_filename_encoding_disagreement_is_left_to_zipfile() -> None:
+    raw = bytearray(_zip({"\u00e9.xml": b"data"}))
+    struct.pack_into("<H", raw, 6, 0)
+    damaged = bytes(raw)
+    with zipfile.ZipFile(io.BytesIO(damaged)) as package, pytest.raises(zipfile.BadZipFile):
+        package.read("\u00e9.xml")
+    assert copy_package(damaged, _infos(damaged), {}, {}) is None
+
+
+def test_an_unknown_compression_method_is_left_to_zipfile() -> None:
+    raw = bytearray(_zip(PARTS))
+    struct.pack_into("<H", raw, _central(bytes(raw), "c.xml") + 10, 99)
+    damaged = bytes(raw)
+    with zipfile.ZipFile(io.BytesIO(damaged)) as package, pytest.raises(NotImplementedError):
+        package.read("c.xml")
+    assert copy_package(damaged, _infos(damaged), {}, {}) is None

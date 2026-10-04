@@ -1275,7 +1275,7 @@ Workbook,Charts,"property, read-only",As Sheets,,MISSING,,
 Workbook,CheckCompatibility,property,As Boolean,,MISSING,,
 Workbook,CheckIn,method,"CheckIn([SaveChanges As Variant], [Comments As Variant], [MakePublic As Variant])",,MISSING,,
 Workbook,CheckInWithVersion,method,"CheckInWithVersion([SaveChanges As Variant], [Comments As Variant], [MakePublic As Variant], [VersionType As Variant])",,MISSING,,
-Workbook,Close,method,"Close([SaveChanges As Variant], [Filename As Variant], [RouteWorkbook As Variant])",,UNASSESSED,,
+Workbook,Close,method,"Close([SaveChanges As Variant], [Filename As Variant], [RouteWorkbook As Variant])",,PARTIAL,tests/fixtures/workbook_lifecycle.json,"Cancellation and explicit saving order measured; omitted SaveChanges on a changed workbook requires an unimplemented prompt; RouteWorkbook unassessed"
 Workbook,CodeName,"property, read-only",As String,,PARTIAL,tests/fixtures/events.json,"ThisWorkbook, or the codeName a file's workbookPr gives; the name of the workbook's own module, which ThisWorkbook names in code."
 Workbook,Colors,property,As Variant,,MISSING,,
 Workbook,CommandBars,"property, read-only",As CommandBars,,MISSING,,
@@ -1315,7 +1315,7 @@ Workbook,Excel8CompatibilityMode,"property, read-only",As Boolean,,MISSING,,
 Workbook,ExclusiveAccess,method,ExclusiveAccess() As Boolean,,MISSING,,
 Workbook,ExportAsFixedFormat,method,"ExportAsFixedFormat(Type As XlFixedFormatType, [Filename As Variant], [Quality As Variant], [IncludeDocProperties As Variant], [IgnorePrintAreas As Variant], [From As Variant], [To As Variant], [OpenAfterPublish As Variant], [FixedFormatExtClassPtr As Variant], [WorkIdentity As Variant])",,MISSING,,
 Workbook,ExternalCodeServiceTimeout,property,As Long,,MISSING,,
-Workbook,FileFormat,"property, read-only",As XlFileFormat,,MISSING,,
+Workbook,FileFormat,"property, read-only",As XlFileFormat,,PARTIAL,tests/fixtures/workbook_lifecycle.json,"51/52 values and Long type measured including failed saves; other formats unassessed"
 Workbook,Final,property,As Boolean,,MISSING,,
 Workbook,FollowHyperlink,method,"FollowHyperlink(Address As String, [SubAddress As Variant], [NewWindow As Variant], [AddHistory As Variant], [ExtraInfo As Variant], [Method As Variant], [HeaderInfo As Variant])",,MISSING,,
 Workbook,ForceFullCalculation,property,As Boolean,,MISSING,,
@@ -1391,8 +1391,8 @@ Workbook,ResetColors,method,ResetColors(),,MISSING,,
 Workbook,RevisionNumber,"property, read-only",As Long,,MISSING,,
 Workbook,RowsetComplete,event,"RowsetComplete(Description As String, Sheet As String, Success As Boolean)",,MISSING,,
 Workbook,RunAutoMacros,method,RunAutoMacros(Which As XlRunAutoMacro),,MISSING,,
-Workbook,Save,method,Save(),,UNASSESSED,,
-Workbook,SaveAs,method,"SaveAs([Filename As Variant], [FileFormat As Variant], [Password As Variant], [WriteResPassword As Variant], [ReadOnlyRecommended As Variant], [CreateBackup As Variant], [AccessMode As XlSaveAsAccessMode], [ConflictResolution As Variant], [AddToMru As Variant], [TextCodepage As Variant], [TextVisualLayout As Variant], [Local As Variant], [WorkIdentity As Variant])","no FileFormat, Password, WriteResPassword, ReadOnlyRecommended, CreateBackup, AccessMode, ConflictResolution, AddToMru, TextCodepage, TextVisualLayout, Local, WorkIdentity",UNASSESSED,,
+Workbook,Save,method,Save(),,PARTIAL,tests/fixtures/workbook_lifecycle.json,"Save events and cancellation measured; uncancelled unnamed Save requires an unimplemented dialog"
+Workbook,SaveAs,method,"SaveAs([Filename As Variant], [FileFormat As Variant], [Password As Variant], [WriteResPassword As Variant], [ReadOnlyRecommended As Variant], [CreateBackup As Variant], [AccessMode As XlSaveAsAccessMode], [ConflictResolution As Variant], [AddToMru As Variant], [TextCodepage As Variant], [TextVisualLayout As Variant], [Local As Variant], [WorkIdentity As Variant])","no Password, WriteResPassword, ReadOnlyRecommended, CreateBackup, AccessMode, ConflictResolution, AddToMru, TextCodepage, TextVisualLayout, Local, WorkIdentity",PARTIAL,tests/fixtures/workbook_lifecycle.json,"51/52 writes and cancellation measured with a native Excel persistence gate; other formats and omitted filenames remain gaps"
 Workbook,SaveAsXMLData,method,"SaveAsXMLData(Filename As String, Map As XmlMap)",,MISSING,,
 Workbook,SaveCopyAs,method,SaveCopyAs([Filename As Variant]),,MISSING,,
 Workbook,Saved,property,As Boolean,,UNASSESSED,,

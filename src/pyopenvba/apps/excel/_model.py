@@ -535,6 +535,8 @@ class Workbook(ExcelObject):
         self.name = name
         self.path = path
         self.saved = True
+        #: A validated SaveAs changes FileFormat even if the subsequent file write fails.
+        self.format_code: int | None = None
         #: The folder the workbook's links were read from or last written for, which a DOS path a link names is
         #: saved relative to (see _hyperlinks_file).
         self.links_folder = ""
@@ -693,36 +695,85 @@ class Workbook(ExcelObject):
 
     @method
     def Close(self, SaveChanges: object = MISSING, Filename: object = MISSING, RouteWorkbook: object = MISSING) -> object:
-        if SaveChanges is not MISSING and to_bool(SaveChanges):
-            if Filename is not MISSING:
-                self.SaveAs(Filename)
-            else:
-                self.Save()
+        saving = SaveChanges is not MISSING and to_bool(SaveChanges) and not self.saved
+        # Filename asks Excel to save first, before it raises BeforeClose.
+        if saving and Filename is not MISSING:
+            if not self._save_as(Filename):
+                return EMPTY
+        if not _events.before_close(self):
+            return EMPTY
+        if SaveChanges is MISSING and not self.saved:
+            raise VBAUnsupportedError("Closing a changed workbook requires a save prompt; specify SaveChanges")
+        if saving and Filename is MISSING:
+            if not self._save():
+                return EMPTY
         self.application.workbooks_.remove(self)
         return EMPTY
 
     @method
     def Save(self) -> object:
-        from pyopenvba.apps.excel._io import save_workbook
-
-        if not self.path:
-            raise error(ERR_APPLICATION_DEFINED, "this workbook has never been saved, so Save has no path")
-        save_workbook(self, Path(self.path) / self.name)
-        self.saved = True
+        self._save()
         return EMPTY
+
+    def _save(self) -> bool:
+        if not self.path:
+            if not _events.before_save(self, save_as_ui=True):
+                _events.after_save(self, False)
+                return False
+            raise VBAUnsupportedError("Saving an unnamed workbook requires a save dialog; use SaveAs with a filename")
+        return self.save_to(Path(self.path) / self.name)
 
     @method
-    def SaveAs(self, Filename: object = MISSING) -> object:
-        from pyopenvba.apps.excel._io import save_workbook
+    def SaveAs(self, Filename: object = MISSING, FileFormat: object = MISSING) -> object:
+        self._save_as(Filename, FileFormat)
+        return EMPTY
 
+    def _save_as(self, Filename: object, FileFormat: object = MISSING) -> bool:
         if Filename is MISSING:
-            raise error(449)
+            if not _events.before_save(self):
+                _events.after_save(self, False)
+                return False
+            raise VBAUnsupportedError("SaveAs without a filename is not implemented; supply Filename")
         target = Path(to_text(Filename))
-        save_workbook(self, target)
-        self.path = str(target.parent)
+        chosen = int(to_integer(FileFormat if FileFormat is not MISSING else self.FileFormat(), "Long"))
+        expected = {51: ".xlsx", 52: ".xlsm"}.get(chosen)
+        if expected is None:
+            raise VBAUnsupportedError(f"SaveAs FileFormat {chosen} is not implemented by the Excel cell model")
+        if not target.suffix:
+            target = target.with_suffix(expected)
+        if not _events.before_save(self):
+            _events.after_save(self, False)
+            return False
+        if target.suffix.lower() != expected:
+            _events.after_save(self, False)
+            raise error(1004, "SaveAs filename does not match FileFormat")
+        return self.save_to(target, before=False, file_format=chosen)
+
+    def save_to(self, target: Path, *, before: bool = True, file_format: int | None = None, create_parents: bool = False) -> bool:
+        from pyopenvba.apps.excel._io import prepare_format, save_workbook
+
+        if before and not _events.before_save(self):
+            _events.after_save(self, False)
+            return False
+        if file_format is not None:
+            prepare_format(self, file_format)
+        if not create_parents and not target.parent.is_dir():
+            raise error(1004, "the save directory does not exist")
+        try:
+            save_workbook(self, target)
+        except OSError as failure:
+            raise error(1004, str(failure)) from failure
+        self.path = str(target.resolve().parent)
         self.name = target.name
         self.saved = True
-        return EMPTY
+        _events.after_save(self, True)
+        return True
+
+    @member
+    def FileFormat(self) -> object:
+        from pyopenvba.apps.excel._io import workbook_format
+
+        return VBAInt(workbook_format(self), "Long")
 
     @method
     def Calculate(self) -> object:

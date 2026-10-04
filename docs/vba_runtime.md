@@ -1495,6 +1495,29 @@ volatile formulas it calculates, rather than every sheet with a formula.
 Full event signature validation and event sources the host does not yet
 implement remain gaps.
 
+BeforeSave, AfterSave and BeforeClose reach workbook sinks, the workbook's
+own module and then application sinks. Cancel is shared ByRef; a later
+handler can reverse it. This Excel build raises AfterSave(False) for a
+cancelled save but no AfterSave for a filesystem failure. Closing with an
+explicit Filename saves before BeforeClose; otherwise BeforeClose precedes
+the save. A cancelled save leaves the workbook open. Twenty-two recorded
+cases in `tests/fixtures/workbook_lifecycle.json` replay event traces, open
+workbook counts, FileFormat values and types, and created files.
+
+SaveAs supports FileFormat 51 (XLSX) and 52 (XLSM). FileFormat defaults to
+the workbook's current format, initially 51, and must match a recognized
+filename extension. A validated format changes even when the file write
+fails. XLSX conversion removes the VBA project and its signature parts;
+XML workbook conversion preserves unrelated parts. The live gate
+`tests/test_live_workbook_save_gate.py` opens the results in native Excel.
+Other SaveAs formats and parameters remain gaps. Filename-omitted SaveAs,
+uncancelled Save of an unnamed workbook, and closing a changed workbook
+without SaveChanges still report unsupported input/dialog behavior.
+
+The Python `ExcelApplication.save()` convenience API fires save events too.
+If a handler cancels, it raises `VBARuntimeError(1004)` and does not write
+the requested file; the VBA methods return normally on cancellation.
+
 **Power Query is evaluated.** `pyopenvba.mlang` is an M evaluator, so
 `WorkbookQuery.Refresh` works out the query's rows and writes them to
 the sheet it loads to; the table and its queryTable follow, and a save
@@ -1568,8 +1591,7 @@ macros, which the model does not write.
   Missing names are reported as gaps.
 - **Partial event coverage.** Document modules and WithEvents sinks hear
   the events described above; additional host event sources and complete
-  signature validation remain gaps. Workbook_Open, BeforeClose,
-  BeforeSave and AfterSave are not yet raised.
+  signature validation remain gaps. Workbook_Open is not yet raised.
 - **Nothing outside the model.** File I/O, the file system verbs, the
   registry, `Shell`, `SendKeys`, `CreateObject` and `Declare` into a DLL
   all report themselves unsupported rather than reaching the real

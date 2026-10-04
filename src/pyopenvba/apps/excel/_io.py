@@ -1230,6 +1230,65 @@ def _fresh_package(suffix: str) -> OpcFile:
     return package
 
 
+_CONTENT_OVERRIDE = re.compile(r"<(?:[\w.-]+:)?Override\b[^>]*>")
+_CONTENT_ATTRIBUTE = re.compile(r'''\b([\w:.-]+)\s*=\s*(["'])(.*?)\2''')
+
+
+def _content_attributes(tag: str) -> dict[str, str]:
+    return {match.group(1): _unescape(match.group(3)) for match in _CONTENT_ATTRIBUTE.finditer(tag)}
+
+
+def workbook_format(book: Workbook) -> int:
+    if book.format_code is not None:
+        return book.format_code
+    if book.package is None:
+        return 51
+    content = book.package.read("[Content_Types].xml").decode("utf-8")
+    for element in _CONTENT_OVERRIDE.findall(content):
+        attributes = _content_attributes(element)
+        if attributes.get("PartName") == "/xl/workbook.xml":
+            return {
+                "application/vnd.ms-excel.sheet.macroEnabled.main+xml": 52,
+                "application/vnd.ms-excel.addin.macroEnabled.main+xml": 55,
+                "application/vnd.ms-excel.template.macroEnabled.main+xml": 53,
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.template.main+xml": 54,
+            }.get(attributes.get("ContentType", ""), 51)
+    return 51
+
+
+def prepare_format(book: Workbook, file_format: int) -> None:
+    """Convert existing XML workbook packaging for the supported SaveAs formats."""
+    package = book.package
+    previous = workbook_format(book)
+    book.format_code = file_format
+    if package is None or previous == file_format:
+        return
+    if file_format == 51:
+        from pyopenvba._package_signature import relationships_part, without_signature
+
+        for part, data in without_signature(list(package.names()), package.read, "xl/vbaProject.bin").items():
+            if data is None:
+                package.remove(part)
+            else:
+                package.write(part, data)
+        rels = relationships_part("xl/vbaProject.bin")
+        if package.has(rels):
+            package.remove(rels)
+        _make_macro_free(package)
+    content = package.read("[Content_Types].xml").decode("utf-8")
+    main = ("application/vnd.ms-excel.sheet.macroEnabled.main+xml" if file_format == 52
+            else "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml")
+    def changed(match: re.Match[str]) -> str:
+        tag = match.group(0)
+        if _content_attributes(tag).get("PartName") != "/xl/workbook.xml":
+            return tag
+        return re.sub(r'''(\bContentType\s*=\s*(["']))(.*?)\2''',
+                      lambda attribute: attribute.group(1) + main + attribute.group(2), tag)
+
+    content = _CONTENT_OVERRIDE.sub(changed, content)
+    package.write("[Content_Types].xml", content.encode("utf-8"))
+
+
 def _make_macro_free(package: OpcFile) -> None:
     """Turn the macro-enabled template into a plain xlsx."""
     if package.has("xl/vbaProject.bin"):

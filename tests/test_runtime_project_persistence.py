@@ -52,6 +52,17 @@ def test_runtime_project_is_not_copied_into_another_workbook(tmp_path: Path) -> 
         assert "RuntimeCode" not in host.vba_modules()
 
 
+def test_close_save_changes_persists_source_edits(tmp_path: Path) -> None:
+    path = make_runtime().save(tmp_path / "runtime.xlsm")
+    app = ExcelApplication.open(path)
+    assert app.workbook.saved
+    app.add_module('Public Function Answer() As Long\nAnswer = 123\nEnd Function', name="RuntimeCode")
+    assert not app.workbook.saved
+    app.workbook.Close(SaveChanges=True)
+    assert not app.workbooks()
+    assert ExcelApplication.open(path).run("Answer") == 123
+
+
 def test_macro_free_save_does_not_persist_runtime_source(tmp_path: Path) -> None:
     path = make_runtime().save(tmp_path / "macro-free.xlsx")
     with zipfile.ZipFile(path) as package:

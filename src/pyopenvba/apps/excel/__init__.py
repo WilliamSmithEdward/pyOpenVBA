@@ -359,6 +359,8 @@ class ExcelApplication(NamedRangeAPI):
         if target.suffix.lower() not in (".xlsm", ".xlsb", ".xlam", ".xls"):
             return []
         names: list[str] = []
+        owner = self.application.ThisWorkbook()
+        was_saved = owner.saved if isinstance(owner, Workbook) else True
         try:
             with ExcelFile(target) as host:
                 project = host.vba_project()
@@ -372,6 +374,9 @@ class ExcelApplication(NamedRangeAPI):
                     names.append(module.name)
         except PyOpenVBAError:
             return names
+        finally:
+            if isinstance(owner, Workbook):
+                owner.saved = was_saved
         return names
 
     def add_workbook(self) -> Workbook:
@@ -403,12 +408,16 @@ class ExcelApplication(NamedRangeAPI):
         module's by name, and code outside reaches the module's Public members
         through it, as Sheet1.MyMacro.
         """
+        previous = self.interpreter.modules.get(name.lower())
         runtime = self.interpreter.add_module(source, name=name, kind=kind)
         if kind == "document":
             host = self.interpreter.host.global_object(runtime.name.lower())
             if not isinstance(host, VBAObject):
                 raise ValueError(f"no sheet or workbook has the code name {runtime.name!r}")
             self.interpreter.bind_document(runtime.name, host)
+        owner = self.application.ThisWorkbook()
+        if isinstance(owner, Workbook) and (previous is None or previous.parsed.source != runtime.parsed.source):
+            owner.saved = False
         return runtime
 
     # --- running --------------------------------------------------------------------

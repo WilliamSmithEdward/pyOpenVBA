@@ -1,0 +1,242 @@
+{
+  "measured_at": "2026-10-04T23:01:49.920413+00:00",
+  "excel_version_build": "16.0|20430",
+  "initial_source": "Option Explicit\nPublic Marker As Long\n\nPublic Function ReadMarker() As Long\nReadMarker = Marker\nEnd Function",
+  "probes": [
+    {
+      "name": "empty",
+      "action": "",
+      "result": "#error:0#extra:#project:VBAProject|ThisWorkbook:100:0|Sheet1:100:0#sheet:Sheet1#saved:True"
+    },
+    {
+      "name": "add_standard",
+      "action": "Set part = parts.Add(1)",
+      "result": "#error:0#extra:#project:VBAProject|ThisWorkbook:100:0|Sheet1:100:0|Module1:1:0#sheet:Sheet1#saved:False"
+    },
+    {
+      "name": "add_class",
+      "action": "Set part = parts.Add(2)",
+      "result": "#error:0#extra:#project:VBAProject|ThisWorkbook:100:0|Sheet1:100:0|Class1:2:0#sheet:Sheet1#saved:False"
+    },
+    {
+      "name": "add_document",
+      "action": "Set part = parts.Add(100)",
+      "result": "#error:440#extra:#project:VBAProject|ThisWorkbook:100:0|Sheet1:100:0#sheet:Sheet1#saved:True"
+    },
+    {
+      "name": "add_unknown",
+      "action": "Set part = parts.Add(999)",
+      "result": "#error:440#extra:#project:VBAProject|ThisWorkbook:100:0|Sheet1:100:0#sheet:Sheet1#saved:True"
+    },
+    {
+      "name": "lookup_zero",
+      "action": "Set part = parts.Item(0)",
+      "result": "#error:9#extra:#project:VBAProject|ThisWorkbook:100:0|Sheet1:100:0#sheet:Sheet1#saved:True"
+    },
+    {
+      "name": "lookup_fraction",
+      "action": "Set part = parts.Item(1.5)",
+      "result": "#error:0#extra:#project:VBAProject|ThisWorkbook:100:0|Sheet1:100:0#sheet:Sheet1#saved:True"
+    },
+    {
+      "name": "lookup_missing",
+      "action": "Set part = parts.Item(\"missing\")",
+      "result": "#error:9#extra:#project:VBAProject|ThisWorkbook:100:0|Sheet1:100:0#sheet:Sheet1#saved:True"
+    },
+    {
+      "name": "remove_document",
+      "action": "parts.Remove parts.Item(1)",
+      "result": "#error:5#extra:#project:VBAProject|ThisWorkbook:100:0|Sheet1:100:0#sheet:Sheet1#saved:True"
+    },
+    {
+      "name": "remove_standard",
+      "action": "Set part = parts.Add(1)\nparts.Remove part\nSet part = Nothing",
+      "result": "#error:0#extra:#project:VBAProject|ThisWorkbook:100:0|Sheet1:100:0#sheet:Sheet1#saved:False"
+    },
+    {
+      "name": "rename_document",
+      "action": "parts.Item(\"Sheet1\").Name = \"Info\"",
+      "result": "#error:0#extra:#project:VBAProject|ThisWorkbook:100:0|Info:100:0#sheet:Info#saved:False"
+    },
+    {
+      "name": "rename_invalid",
+      "action": "parts.Item(\"Sheet1\").Name = \"bad name\"",
+      "result": "#error:50132#extra:#project:VBAProject|ThisWorkbook:100:0|Sheet1:100:0#sheet:Sheet1#saved:True"
+    },
+    {
+      "name": "rename_collision",
+      "action": "parts.Item(\"Sheet1\").Name = \"ThisWorkbook\"",
+      "result": "#error:32813#extra:#project:VBAProject|ThisWorkbook:100:0|Sheet1:100:0#sheet:Sheet1#saved:True"
+    },
+    {
+      "name": "rename_case",
+      "action": "parts.Item(\"Sheet1\").Name = \"sHeEt1\"",
+      "result": "#error:0#extra:#project:VBAProject|ThisWorkbook:100:0|Sheet1:100:0#sheet:Sheet1#saved:True"
+    },
+    {
+      "name": "project_rename",
+      "action": "project.Name = \"OtherProject\"",
+      "result": "#error:0#extra:#project:OtherProject|ThisWorkbook:100:0|Sheet1:100:0#sheet:Sheet1#saved:False"
+    },
+    {
+      "name": "project_invalid",
+      "action": "project.Name = \"bad name\"",
+      "result": "#error:50132#extra:#project:VBAProject|ThisWorkbook:100:0|Sheet1:100:0#sheet:Sheet1#saved:True"
+    },
+    {
+      "name": "source_initial",
+      "action": "",
+      "result": "#error:0#extra:#project:VBAProject|ThisWorkbook:100:0|Sheet1:100:0|Module1:1:6#decl:2#source:Option Explicit\nPublic Marker As Long\n\nPublic Function ReadMarker() As Long\nReadMarker = Marker\nEnd Function#sheet:Sheet1#saved:False"
+    },
+    {
+      "name": "source_add",
+      "action": "code.AddFromString \"Public Added As Long\"",
+      "result": "#error:0#extra:#project:VBAProject|ThisWorkbook:100:0|Sheet1:100:0|Module1:1:7#decl:3#source:Option Explicit\nPublic Marker As Long\nPublic Added As Long\n\nPublic Function ReadMarker() As Long\nReadMarker = Marker\nEnd Function#sheet:Sheet1#saved:False"
+    },
+    {
+      "name": "source_add_empty",
+      "action": "code.AddFromString \"\"",
+      "result": "#error:0#extra:#project:VBAProject|ThisWorkbook:100:0|Sheet1:100:0|Module1:1:6#decl:2#source:Option Explicit\nPublic Marker As Long\n\nPublic Function ReadMarker() As Long\nReadMarker = Marker\nEnd Function#sheet:Sheet1#saved:False"
+    },
+    {
+      "name": "source_add_invalid",
+      "action": "code.AddFromString \"this is invalid syntax\"",
+      "result": "#error:0#extra:#project:VBAProject|ThisWorkbook:100:0|Sheet1:100:0|Module1:1:7#decl:3#source:Option Explicit\nPublic Marker As Long\nthis is invalid syntax\n\nPublic Function ReadMarker() As Long\nReadMarker = Marker\nEnd Function#sheet:Sheet1#saved:False"
+    },
+    {
+      "name": "source_add_missing_end",
+      "action": "code.AddFromString \"Public Sub Broken()\"",
+      "result": "#error:0#extra:#project:VBAProject|ThisWorkbook:100:0|Sheet1:100:0|Module1:1:7#decl:2#source:Option Explicit\nPublic Marker As Long\nPublic Sub Broken()\n\nPublic Function ReadMarker() As Long\nReadMarker = Marker\nEnd Function#sheet:Sheet1#saved:False"
+    },
+    {
+      "name": "source_add_attribute",
+      "action": "code.AddFromString \"Attribute VB_Name = \"\"Other\"\"\"",
+      "result": "#error:0#extra:#project:VBAProject|ThisWorkbook:100:0|Sheet1:100:0|Module1:1:7#decl:3#source:Option Explicit\nPublic Marker As Long\nAttribute VB_Name = \"Other\"\n\nPublic Function ReadMarker() As Long\nReadMarker = Marker\nEnd Function#sheet:Sheet1#saved:False"
+    },
+    {
+      "name": "source_insert_blank",
+      "action": "code.InsertLines 3, \"\"",
+      "result": "#error:0#extra:#project:VBAProject|ThisWorkbook:100:0|Sheet1:100:0|Module1:1:7#decl:2#source:Option Explicit\nPublic Marker As Long\n\n\nPublic Function ReadMarker() As Long\nReadMarker = Marker\nEnd Function#sheet:Sheet1#saved:False"
+    },
+    {
+      "name": "source_insert_first",
+      "action": "code.InsertLines 1, \"Public Added As Long\"",
+      "result": "#error:0#extra:#project:VBAProject|ThisWorkbook:100:0|Sheet1:100:0|Module1:1:7#decl:3#source:Public Added As Long\nOption Explicit\nPublic Marker As Long\n\nPublic Function ReadMarker() As Long\nReadMarker = Marker\nEnd Function#sheet:Sheet1#saved:False"
+    },
+    {
+      "name": "source_insert_zero",
+      "action": "code.InsertLines 0, \"Public Added As Long\"",
+      "result": "#error:-2147024809#extra:#project:VBAProject|ThisWorkbook:100:0|Sheet1:100:0|Module1:1:6#decl:2#source:Option Explicit\nPublic Marker As Long\n\nPublic Function ReadMarker() As Long\nReadMarker = Marker\nEnd Function#sheet:Sheet1#saved:False"
+    },
+    {
+      "name": "source_insert_negative",
+      "action": "code.InsertLines -1, \"Public Added As Long\"",
+      "result": "#error:-2147024809#extra:#project:VBAProject|ThisWorkbook:100:0|Sheet1:100:0|Module1:1:6#decl:2#source:Option Explicit\nPublic Marker As Long\n\nPublic Function ReadMarker() As Long\nReadMarker = Marker\nEnd Function#sheet:Sheet1#saved:False"
+    },
+    {
+      "name": "source_insert_after",
+      "action": "code.InsertLines 999, \"Public Added As Long\"",
+      "result": "#error:0#extra:#project:VBAProject|ThisWorkbook:100:0|Sheet1:100:0|Module1:1:7#decl:2#source:Option Explicit\nPublic Marker As Long\n\nPublic Function ReadMarker() As Long\nReadMarker = Marker\nEnd Function\nPublic Added As Long#sheet:Sheet1#saved:False"
+    },
+    {
+      "name": "source_replace_first",
+      "action": "code.ReplaceLine 1, \"Option Base 1\"",
+      "result": "#error:0#extra:#project:VBAProject|ThisWorkbook:100:0|Sheet1:100:0|Module1:1:6#decl:2#source:Option Base 1\nPublic Marker As Long\n\nPublic Function ReadMarker() As Long\nReadMarker = Marker\nEnd Function#sheet:Sheet1#saved:False"
+    },
+    {
+      "name": "source_replace_zero",
+      "action": "code.ReplaceLine 0, \"Option Base 1\"",
+      "result": "#error:-2147024809#extra:#project:VBAProject|ThisWorkbook:100:0|Sheet1:100:0|Module1:1:6#decl:2#source:Option Explicit\nPublic Marker As Long\n\nPublic Function ReadMarker() As Long\nReadMarker = Marker\nEnd Function#sheet:Sheet1#saved:False"
+    },
+    {
+      "name": "source_replace_after",
+      "action": "code.ReplaceLine 999, \"Option Base 1\"",
+      "result": "#error:-2147024809#extra:#project:VBAProject|ThisWorkbook:100:0|Sheet1:100:0|Module1:1:6#decl:2#source:Option Explicit\nPublic Marker As Long\n\nPublic Function ReadMarker() As Long\nReadMarker = Marker\nEnd Function#sheet:Sheet1#saved:False"
+    },
+    {
+      "name": "source_delete_first",
+      "action": "code.DeleteLines 1",
+      "result": "#error:0#extra:#project:VBAProject|ThisWorkbook:100:0|Sheet1:100:0|Module1:1:5#decl:1#source:Public Marker As Long\n\nPublic Function ReadMarker() As Long\nReadMarker = Marker\nEnd Function#sheet:Sheet1#saved:False"
+    },
+    {
+      "name": "source_delete_zero",
+      "action": "code.DeleteLines 0",
+      "result": "#error:5#extra:#project:VBAProject|ThisWorkbook:100:0|Sheet1:100:0|Module1:1:6#decl:2#source:Option Explicit\nPublic Marker As Long\n\nPublic Function ReadMarker() As Long\nReadMarker = Marker\nEnd Function#sheet:Sheet1#saved:False"
+    },
+    {
+      "name": "source_delete_after",
+      "action": "code.DeleteLines 999",
+      "result": "#error:-2147024809#extra:#project:VBAProject|ThisWorkbook:100:0|Sheet1:100:0|Module1:1:6#decl:2#source:Option Explicit\nPublic Marker As Long\n\nPublic Function ReadMarker() As Long\nReadMarker = Marker\nEnd Function#sheet:Sheet1#saved:False"
+    },
+    {
+      "name": "source_delete_oversized",
+      "action": "code.DeleteLines 2, 999",
+      "result": "#error:-2147024809#extra:#project:VBAProject|ThisWorkbook:100:0|Sheet1:100:0|Module1:1:6#decl:2#source:Option Explicit\nPublic Marker As Long\n\nPublic Function ReadMarker() As Long\nReadMarker = Marker\nEnd Function#sheet:Sheet1#saved:False"
+    },
+    {
+      "name": "source_delete_count_zero",
+      "action": "code.DeleteLines 2, 0",
+      "result": "#error:0#extra:#project:VBAProject|ThisWorkbook:100:0|Sheet1:100:0|Module1:1:6#decl:2#source:Option Explicit\nPublic Marker As Long\n\nPublic Function ReadMarker() As Long\nReadMarker = Marker\nEnd Function#sheet:Sheet1#saved:False"
+    },
+    {
+      "name": "source_delete_count_negative",
+      "action": "code.DeleteLines 2, -1",
+      "result": "#error:5#extra:#project:VBAProject|ThisWorkbook:100:0|Sheet1:100:0|Module1:1:6#decl:2#source:Option Explicit\nPublic Marker As Long\n\nPublic Function ReadMarker() As Long\nReadMarker = Marker\nEnd Function#sheet:Sheet1#saved:False"
+    },
+    {
+      "name": "source_lines_zero",
+      "action": "extra = code.Lines(0, 1)",
+      "result": "#error:-2147024809#extra:#project:VBAProject|ThisWorkbook:100:0|Sheet1:100:0|Module1:1:6#decl:2#source:Option Explicit\nPublic Marker As Long\n\nPublic Function ReadMarker() As Long\nReadMarker = Marker\nEnd Function#sheet:Sheet1#saved:False"
+    },
+    {
+      "name": "source_lines_after",
+      "action": "extra = code.Lines(999, 1)",
+      "result": "#error:0#extra:#project:VBAProject|ThisWorkbook:100:0|Sheet1:100:0|Module1:1:6#decl:2#source:Option Explicit\nPublic Marker As Long\n\nPublic Function ReadMarker() As Long\nReadMarker = Marker\nEnd Function#sheet:Sheet1#saved:False"
+    },
+    {
+      "name": "source_lines_oversized",
+      "action": "extra = code.Lines(2, 999)",
+      "result": "#error:0#extra:Public Marker As Long\n\nPublic Function ReadMarker() As Long\nReadMarker = Marker\nEnd Function\n#project:VBAProject|ThisWorkbook:100:0|Sheet1:100:0|Module1:1:6#decl:2#source:Option Explicit\nPublic Marker As Long\n\nPublic Function ReadMarker() As Long\nReadMarker = Marker\nEnd Function#sheet:Sheet1#saved:False"
+    },
+    {
+      "name": "source_lines_count_zero",
+      "action": "extra = code.Lines(2, 0)",
+      "result": "#error:-2147024809#extra:#project:VBAProject|ThisWorkbook:100:0|Sheet1:100:0|Module1:1:6#decl:2#source:Option Explicit\nPublic Marker As Long\n\nPublic Function ReadMarker() As Long\nReadMarker = Marker\nEnd Function#sheet:Sheet1#saved:False"
+    },
+    {
+      "name": "source_lines_count_negative",
+      "action": "extra = code.Lines(2, -1)",
+      "result": "#error:-2147024809#extra:#project:VBAProject|ThisWorkbook:100:0|Sheet1:100:0|Module1:1:6#decl:2#source:Option Explicit\nPublic Marker As Long\n\nPublic Function ReadMarker() As Long\nReadMarker = Marker\nEnd Function#sheet:Sheet1#saved:False"
+    },
+    {
+      "name": "source_proc_start",
+      "action": "extra = CStr(code.ProcStartLine(\"ReadMarker\", 0))",
+      "result": "#error:0#extra:3#project:VBAProject|ThisWorkbook:100:0|Sheet1:100:0|Module1:1:6#decl:2#source:Option Explicit\nPublic Marker As Long\n\nPublic Function ReadMarker() As Long\nReadMarker = Marker\nEnd Function#sheet:Sheet1#saved:False"
+    },
+    {
+      "name": "source_proc_body",
+      "action": "extra = CStr(code.ProcBodyLine(\"ReadMarker\", 0))",
+      "result": "#error:0#extra:4#project:VBAProject|ThisWorkbook:100:0|Sheet1:100:0|Module1:1:6#decl:2#source:Option Explicit\nPublic Marker As Long\n\nPublic Function ReadMarker() As Long\nReadMarker = Marker\nEnd Function#sheet:Sheet1#saved:False"
+    },
+    {
+      "name": "source_proc_count",
+      "action": "extra = CStr(code.ProcCountLines(\"ReadMarker\", 0))",
+      "result": "#error:0#extra:4#project:VBAProject|ThisWorkbook:100:0|Sheet1:100:0|Module1:1:6#decl:2#source:Option Explicit\nPublic Marker As Long\n\nPublic Function ReadMarker() As Long\nReadMarker = Marker\nEnd Function#sheet:Sheet1#saved:False"
+    },
+    {
+      "name": "source_proc_of_decl",
+      "action": "extra = code.ProcOfLine(2, 0)",
+      "result": "#error:0#extra:#project:VBAProject|ThisWorkbook:100:0|Sheet1:100:0|Module1:1:6#decl:2#source:Option Explicit\nPublic Marker As Long\n\nPublic Function ReadMarker() As Long\nReadMarker = Marker\nEnd Function#sheet:Sheet1#saved:False"
+    },
+    {
+      "name": "source_proc_of_body",
+      "action": "extra = code.ProcOfLine(5, 0)",
+      "result": "#error:0#extra:ReadMarker#project:VBAProject|ThisWorkbook:100:0|Sheet1:100:0|Module1:1:6#decl:2#source:Option Explicit\nPublic Marker As Long\n\nPublic Function ReadMarker() As Long\nReadMarker = Marker\nEnd Function#sheet:Sheet1#saved:False"
+    },
+    {
+      "name": "source_proc_missing",
+      "action": "extra = CStr(code.ProcStartLine(\"Missing\", 0))",
+      "result": "#error:35#extra:#project:VBAProject|ThisWorkbook:100:0|Sheet1:100:0|Module1:1:6#decl:2#source:Option Explicit\nPublic Marker As Long\n\nPublic Function ReadMarker() As Long\nReadMarker = Marker\nEnd Function#sheet:Sheet1#saved:False"
+    }
+  ]
+}

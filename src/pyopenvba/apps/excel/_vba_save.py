@@ -4,12 +4,13 @@ from __future__ import annotations
 
 import io
 import zipfile
+import re
+from xml.sax.saxutils import escape
 from pathlib import Path
 from collections.abc import Sequence
 
 from pyopenvba.apps.excel._model import Workbook
 from pyopenvba.excel import ExcelFile
-from pyopenvba.interpreter._runtime import ModuleRuntime
 from pyopenvba.powerquery._opc import OpcFile
 from pyopenvba.vba import VBAModuleKind, split_attribute_header
 
@@ -31,24 +32,32 @@ class MemoryExcelFile(ExcelFile):
                          package_edits: dict[str, bytes | None], *, full_rebuild: bool = False) -> None:
         self.output_bytes = self._serialized_container(new_cfb_bytes, package_edits, full_rebuild=full_rebuild)
 
-    def persist_modules(self, modules: Sequence[ModuleRuntime]) -> bool:
+    def persist_sources(self, sources: Sequence[tuple[str, str, str]], deleted: set[str] | None = None) -> bool:
         documents = dict(self._new_documents())
         project = self.vba_project() if self._has_project else self.add_vba_project()
         self._document_names.update(name.casefold() for name in documents)
         existing = {module.name.casefold(): module for module in project.modules}
         changed = self._project_added
-        for runtime in modules:
-            source = runtime.parsed.source
-            kind = VBAModuleKind.standard if runtime.parsed.kind == "standard" else VBAModuleKind.other
-            if runtime.parsed.kind == "document":
-                header = next((value for name, value in documents.items() if name.casefold() == runtime.name.casefold()), None)
+        for name in deleted or ():
+            if name.casefold() in existing:
+                project.delete_module(existing.pop(name.casefold()).name)
+                changed = True
+        for name, header in documents.items():
+            if name.casefold() not in existing:
+                module = project.add_module(name, header or "", kind=VBAModuleKind.other)
+                existing[name.casefold()] = module
+                changed = True
+        for module_name, source, module_kind in sources:
+            kind = VBAModuleKind.standard if module_kind == "standard" else VBAModuleKind.other
+            if module_kind == "document":
+                header = next((value for name, value in documents.items() if name.casefold() == module_name.casefold()), None)
                 if header is None:
-                    raise ValueError(f"No workbook or sheet document module named {runtime.name!r}")
+                    raise ValueError(f"No workbook or sheet document module named {module_name!r}")
                 if not split_attribute_header(source)[0]:
                     source = header + source
-            old = existing.get(runtime.name.casefold())
+            old = existing.get(module_name.casefold())
             if old is None:
-                project.add_module(runtime.name, source, kind=kind)
+                project.add_module(module_name, source, kind=kind)
                 changed = True
             else:
                 # A bare body preserves the original attributes, including
@@ -72,10 +81,38 @@ def persist_project(book: Workbook, package: OpcFile) -> OpcFile:
     interpreter = book.project_runtime
     if interpreter is None or workbook_format(book) == 51:
         return package
-    modules = list(interpreter.modules.values())
-    if not modules:
+    sources = [(runtime.name, runtime.parsed.source, runtime.parsed.kind) for runtime in interpreter.modules.values()]
+    sources.extend((name, source, "document") for name, source in book.pending_document_sources.items())
+    if not sources and not book.deleted_document_names:
         return package
+    from pyopenvba.apps.excel._documents import materialize
+
+    materialize(book)
+    _code_names(book, package)
     with MemoryExcelFile(package.serialize()) as host:
-        if not host.persist_modules(modules):
+        if not host.persist_sources(sources, book.deleted_document_names):
             return package
         return OpcFile.parse(host.output_bytes)
+
+
+def _with_code_name(text: str, property_name: str, root: str, name: str) -> str:
+    value = escape(name, {'"': '&quot;'})
+    found = re.search(rf'<{property_name}\b[^>]*>', text)
+    if found is None:
+        return re.sub(rf'(<{root}\b[^>]*>)', rf'\1<{property_name} codeName="{value}"/>', text, count=1)
+    tag = found.group()
+    if re.search(r'\bcodeName="[^"]*"', tag):
+        tag = re.sub(r'\bcodeName="[^"]*"', f'codeName="{value}"', tag)
+    else:
+        tag = re.sub(r'(/?>)$', rf' codeName="{value}"\1', tag)
+    return text[:found.start()] + tag + text[found.end():]
+
+
+def _code_names(book: Workbook, package: OpcFile) -> None:
+    for part, property_name, root, name in [("xl/workbook.xml", "workbookPr", "workbook", book.code_name),
+                                            *[(sheet.part_name, "sheetPr", "worksheet", sheet.code_name) for sheet in book.sheets_]]:
+        if part and package.has(part):
+            text = package.read(part).decode("utf-8")
+            changed = _with_code_name(text, property_name, root, name)
+            if changed != text:
+                package.write(part, changed.encode("utf-8"))

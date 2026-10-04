@@ -36,6 +36,8 @@ ACTIONS = {
     "copy_then_add": 'target.Worksheets(1).Copy After:=target.Worksheets(1)\nSet added = target.Worksheets.Add',
     "copy_new_book": 'target.Worksheets(1).Copy\nSet other = target\nSet target = ActiveWorkbook',
     "copy_other_book": 'Set other = Workbooks.Add\ntarget.Worksheets(1).Copy After:=other.Worksheets(1)\nSet original = target\nSet target = other\nSet other = original',
+    "move_other_book": 'Set other = Workbooks.Add\ntarget.Worksheets(1).Move After:=other.Worksheets(1)\nSet target = other\nSet other = Nothing',
+    "move_marker_reset": 'Application.Run "\'" & target.Name & "\'!Sheet1.Mark", 42\nApplication.Run "\'" & target.Name & "\'!Sheet1.ExportMarker"\nSet other = Workbooks.Add\ntarget.Worksheets(1).Move After:=other.Worksheets(1)\nSet target = other\nSet other = Nothing\nApplication.Run "\'" & target.Name & "\'!" & ActiveSheet.CodeName & ".ExportMarker"',
     "delete_document": 'Set added = target.Worksheets.Add\ntarget.Worksheets("Sheet1").Delete',
 }
 

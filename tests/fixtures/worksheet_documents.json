@@ -1,5 +1,5 @@
 {
-  "measured_at": "2026-10-04T22:37:03.750005+00:00",
+  "measured_at": "2026-10-04T22:51:55.457235+00:00",
   "excel_version_build": "16.0|20430",
   "document": "Public Marker As Long\nPublic Sub Mark(ByVal value As Long)\nMarker = value\nEnd Sub\nPublic Sub ExportMarker()\nRange(\"B1\").Value = Marker\nEnd Sub\n",
   "probes": [
@@ -97,6 +97,16 @@
       "name": "copy_other_book",
       "action": "Set other = Workbooks.Add\ntarget.Worksheets(1).Copy After:=other.Worksheets(1)\nSet original = target\nSet target = other\nSet other = original",
       "result": "#book:|Sheet1:|Sheet1 (2):Sheet1|#component:Sheet1:100:8|#component:ThisWorkbook:100:0|#component:Sheet2:100:0|#after:Sheet1:Sheet2:|#after:Sheet1 (2):Sheet1:|#modules:3#error:0"
+    },
+    {
+      "name": "move_other_book",
+      "action": "Set other = Workbooks.Add\ntarget.Worksheets(1).Move After:=other.Worksheets(1)\nSet target = other\nSet other = Nothing",
+      "result": "#book:|Sheet1:|Sheet1 (2):Sheet1|#component:Sheet1:100:8|#component:ThisWorkbook:100:0|#component:Sheet2:100:0|#after:Sheet1:Sheet2:|#after:Sheet1 (2):Sheet1:|#modules:3#error:0"
+    },
+    {
+      "name": "move_marker_reset",
+      "action": "Application.Run \"'\" & target.Name & \"'!Sheet1.Mark\", 42\nApplication.Run \"'\" & target.Name & \"'!Sheet1.ExportMarker\"\nSet other = Workbooks.Add\ntarget.Worksheets(1).Move After:=other.Worksheets(1)\nSet target = other\nSet other = Nothing\nApplication.Run \"'\" & target.Name & \"'!\" & ActiveSheet.CodeName & \".ExportMarker\"",
+      "result": "#book:|Sheet1:|Sheet1 (2):Sheet1|#component:Sheet1:100:8|#component:ThisWorkbook:100:0|#component:Sheet2:100:0|#after:Sheet1:Sheet2:|#after:Sheet1 (2):Sheet1:0|#modules:3#error:0"
     },
     {
       "name": "delete_document",

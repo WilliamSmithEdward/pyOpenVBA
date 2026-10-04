@@ -1004,7 +1004,7 @@ Shapes,Range,"property, read-only",As ShapeRange,,PARTIAL,tests/fixtures/excel_m
 Shapes,SelectAll,method,SelectAll(),,UNASSESSED,,
 Sheets,_Default,"property, read-only",As Object,,MISSING,,
 Sheets,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
-Sheets,Add,method,"Add([Before As Variant], [After As Variant], [Count As Variant], [Type As Variant]) As Object",,PARTIAL,tests/fixtures/excel_model/probes.txt,
+Sheets,Add,method,"Add([Before As Variant], [After As Variant], [Count As Variant], [Type As Variant]) As Object",,PARTIAL,tests/fixtures/worksheet_documents.json; tests/test_worksheet_documents.py,"Multiple worksheets, fractional Count truncation, lazy code names and caption counters measured. Grouped-sheet defaults, wider Count/Type/anchor cases and event ordering remain incomplete."
 Sheets,Add2,method,"Add2([Before As Variant], [After As Variant], [Count As Variant], [NewLayout As Variant]) As Object",,MISSING,,
 Sheets,Application,"property, read-only",As Application,,UNASSESSED,,
 Sheets,Copy,method,"Copy([Before As Variant], [After As Variant])",,MISSING,,
@@ -1276,7 +1276,7 @@ Workbook,CheckCompatibility,property,As Boolean,,MISSING,,
 Workbook,CheckIn,method,"CheckIn([SaveChanges As Variant], [Comments As Variant], [MakePublic As Variant])",,MISSING,,
 Workbook,CheckInWithVersion,method,"CheckInWithVersion([SaveChanges As Variant], [Comments As Variant], [MakePublic As Variant], [VersionType As Variant])",,MISSING,,
 Workbook,Close,method,"Close([SaveChanges As Variant], [Filename As Variant], [RouteWorkbook As Variant])",,PARTIAL,tests/fixtures/workbook_lifecycle.json,Cancellation and explicit saving order measured; omitted SaveChanges on a changed workbook requires an unimplemented prompt; RouteWorkbook unassessed
-Workbook,CodeName,"property, read-only",As String,,PARTIAL,tests/fixtures/events.json,"ThisWorkbook, or the codeName a file's workbookPr gives; the name of the workbook's own module, which ThisWorkbook names in code."
+Workbook,CodeName,"property, read-only",As String,,PARTIAL,tests/fixtures/worksheet_documents.json; tests/test_worksheet_documents.py,Loaded workbookPr identity; fresh code name stays empty until project materialization. Lazy allocation measured with native Excel; VBIDE renaming remains incomplete.
 Workbook,Colors,property,As Variant,,MISSING,,
 Workbook,CommandBars,"property, read-only",As CommandBars,,MISSING,,
 Workbook,CompatibilityVersion,property,As Long,,MISSING,,
@@ -1505,18 +1505,18 @@ Worksheet,CircleInvalid,method,CircleInvalid(),,MISSING,,
 Worksheet,CircularReference,"property, read-only",As Range,,MISSING,,
 Worksheet,ClearArrows,method,ClearArrows(),,MISSING,,
 Worksheet,ClearCircles,method,ClearCircles(),,MISSING,,
-Worksheet,CodeName,"property, read-only",As String,,PARTIAL,tests/fixtures/events.json,"The codeName a file's sheetPr gives, else Sheet1, Sheet2 by place; Sheet1 for a new workbook's sheet, and nothing for a sheet a macro adds, as measured. It names the sheet in code, Sheet1.Range, and the sheet's own module. Only the VBE can change it."
+Worksheet,CodeName,"property, read-only",As String,,PARTIAL,tests/fixtures/worksheet_documents.json; tests/test_worksheet_documents.py,"Loaded sheetPr identity; fresh names remain empty until project materialization, then allocate in tab order with collision/history handling. Copy/Move allocation measured; VBIDE renaming remains incomplete."
 Worksheet,Columns,"property, read-only",As Range,,UNASSESSED,,
 Worksheet,Comments,"property, read-only",As Comments,,VERIFIED,tests/fixtures/excel_model/probes.txt; tests/fixtures/notes.json,"Row by row, and in the saved file."
 Worksheet,CommentsThreaded,"property, read-only",As CommentsThreaded,,MISSING,,
 Worksheet,ConsolidationFunction,"property, read-only",As XlConsolidationFunction,,MISSING,,
 Worksheet,ConsolidationOptions,"property, read-only",As Variant,,MISSING,,
 Worksheet,ConsolidationSources,"property, read-only",As Variant,,MISSING,,
-Worksheet,Copy,method,"Copy([Before As Variant], [After As Variant])",,PARTIAL,tests/fixtures/workbook_copy.json,"Sheets with drawings, controls, tables, validation, conditional formats or comments, and name clashes, report unsupported."
+Worksheet,Copy,method,"Copy([Before As Variant], [After As Variant])",,PARTIAL,tests/fixtures/worksheet_documents.json; tests/test_worksheet_documents.py,"Transfers document source with fresh fields, including unloaded source, and persists executable code. Native persistence gate. Drawings, controls, tables, validation, conditional formats, comments and name clashes remain unsupported."
 Worksheet,Creator,"property, read-only",As XlCreator,,MISSING,,
 Worksheet,CustomProperties,"property, read-only",As CustomProperties,,MISSING,,
 Worksheet,Deactivate,event,Deactivate(),,MISSING,,
-Worksheet,Delete,method,Delete(),,UNASSESSED,,
+Worksheet,Delete,method,Delete(),,PARTIAL,tests/fixtures/worksheet_documents.json; tests/test_worksheet_documents.py,"Removes worksheet runtime document and saved VBA module; native persistence gate. Last-visible-sheet rules, event/object lifetime and dialog conformance remain incomplete."
 Worksheet,DisplayPageBreaks,property,As Boolean,,MISSING,,
 Worksheet,DisplayRightToLeft,property,As Boolean,,MISSING,,
 Worksheet,DrawingObjects,not in the type library,,,UNASSESSED,,
@@ -1536,7 +1536,7 @@ Worksheet,Index,"property, read-only",As Long,,PARTIAL,tests/fixtures/excel_mode
 Worksheet,LensGalleryRenderComplete,event,LensGalleryRenderComplete(),,MISSING,,
 Worksheet,ListObjects,"property, read-only",As ListObjects,,PARTIAL,tests/fixtures/tables/tables.json,"The sheet's tables, read from a file or made by ListObjects.Add."
 Worksheet,MailEnvelope,"property, read-only",As MsoEnvelope,,MISSING,,
-Worksheet,Move,method,"Move([Before As Variant], [After As Variant])",,PARTIAL,tests/fixtures/sheet_move.json,"Moves needing external links, name clashes, drawings or reserved sheet names report unsupported."
+Worksheet,Move,method,"Move([Before As Variant], [After As Variant])",,PARTIAL,tests/fixtures/worksheet_documents.json; tests/test_worksheet_documents.py,"Cross-book moves transfer document source with fresh fields and remove the source module; same-book moves retain identity. External links, name clashes, drawings and reserved sheet names remain unsupported."
 Worksheet,Name,property,As String,,PARTIAL,tests/fixtures/excel_model/probes.txt,
 Worksheet,NamedSheetViews,"property, read-only",As NamedSheetViewCollection,,MISSING,,
 Worksheet,Names,"property, read-only",As Names,,PARTIAL,tests/fixtures/names_crud.json,

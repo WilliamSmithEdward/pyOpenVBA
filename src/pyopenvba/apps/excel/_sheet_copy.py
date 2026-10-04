@@ -92,6 +92,9 @@ def copy_sheet(source: Worksheet, before: object, after: object) -> object:
         app.workbooks_.books.append(destination)
     at = destination.sheets_.index(anchor) + (0 if before is not MISSING else 1) if isinstance(anchor, Worksheet) else None
     copied = destination.add_sheet(name, at=at)
+    from pyopenvba.apps.excel._documents import copy_document
+
+    copy_document(source, copied)
     copied.cells_ = cells
     # The copied cells keep their shared formulas, so the copy keeps the blocks those name, and its arrays.
     copied.shared_groups = dict(source.shared_groups)

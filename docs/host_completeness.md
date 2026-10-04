@@ -59,6 +59,17 @@ Project references and qualified types, full compile-time checks, project
 unload/lifetime behavior, event errors and events whose handlers change
 windows or event settings still need conformance work.
 
+Worksheet document work uses 22 native measurements for lazy code-name
+allocation, Count truncation, sheet caption counters and copied/deleted
+modules. Copy and cross-book Move transfer document source into the target
+project with fresh fields; Delete removes the runtime and saved module.
+Unloaded source copies without execution, and a native gate executes saved
+copied code and checks deleted modules. VBIDE's runtime object model, code
+name renaming, project component order/line-count fidelity, grouped-sheet
+Add defaults, wider Count/Type/anchor conformance and complete copied sheet
+content remain gaps; these measurements do not establish all 22 operations
+as implemented runtime interfaces.
+
 ## What counts as complete
 
 Every headless feature must have a recorded implementation status and

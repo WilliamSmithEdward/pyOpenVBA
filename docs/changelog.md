@@ -7,6 +7,28 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Changed
 
+- **Saving a `.xlsm`, `.xlsb`, `.xlam`, `.docm` or `.pptm` no longer takes
+  longer the larger the file is.** `save()` read every part out of the
+  package and deflated it again to change `vbaProject.bin`. A part the save
+  does not change is now copied as the bytes it was stored as, as a Power
+  Query save already copies it (`_package_copy.py`, over
+  `powerquery/_opc.py`). Editing one module and saving, measured by
+  `scripts/benchmark_save.py`: 139 ms to 6 ms for a 1.3 MB workbook,
+  1.27 s to 46 ms for 13 MB, and 8.6 s to 0.23 s for 66 MB. The
+  project is written as before, and deflated by zlib as before, so
+  `vbaProject.bin` is stored as the same bytes. Two things differ in the
+  file. An unchanged part keeps its stored bytes instead of zlib's
+  rendering of them, and every part keeps the header it had (attributes,
+  flags, versions, extra field) where `zipfile` wrote its own, which gave
+  a part Office wrote with no attributes a Unix file mode. And a part
+  that is not read is not checked: one whose stored bytes are damaged
+  used to stop the save with `zipfile.BadZipFile`, and is now carried
+  over as it is. A package the copy does not cover is written through
+  `zipfile` as before: ZIP64, a changed part compressed some other way
+  than deflate, an encrypted part, a part name that is not UTF-8, or one
+  name used twice. `tests/test_package_copy.py` holds the two writers to
+  the same parts, content, methods and dates over the 47 zip-based files
+  in the repository.
 - The Malware scan builds the wheel and sdist with the hash-locked build
   tools, as a release builds them, and ClamAV and YARA-X scan them beside
   the committed files.

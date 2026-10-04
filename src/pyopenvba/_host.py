@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import ClassVar, TypeVar
 
 from pyopenvba._new_project import with_project
+from pyopenvba._package_copy import copy_package
 from pyopenvba._package_signature import signature_parts, without_signature
 from pyopenvba._references import ReferenceManager, module_offset, reference_spans
 from pyopenvba.cfb import CFB
@@ -510,7 +511,10 @@ class VBAHostFile(ReferenceManager):
         Only the ``vbaProject.bin`` entry is rewritten; every other ZIP
         entry is preserved byte-for-byte along with its compression
         method and metadata so the file's non-VBA structure remains
-        intact.  Legacy raw-CFB formats write the CFB bytes directly.
+        intact.  An entry the save does not change is copied as the
+        bytes it was stored as, without being read, so the time a save
+        takes does not grow with the rest of the file.  Legacy raw-CFB
+        formats write the CFB bytes directly.
 
         Safety gates:
 
@@ -766,6 +770,17 @@ class VBAHostFile(ReferenceManager):
             if self._writes_project(self._project):
                 package_edits.update(with_project(self._zip.namelist(), self._zip.read, self._main_part))
                 added[self._vba_entry] = new_cfb_bytes
+
+        # A part the save does not change is carried over as the bytes it was
+        # stored as, which costs nothing however large the file (see
+        # _package_copy.py).  A package that cannot be carried that way is
+        # written through zipfile below, which reads and deflates every part.
+        packed = copy_package(
+            self._container_raw, self._zip.infolist(), {**package_edits, self._vba_entry: new_cfb_bytes}, added
+        )
+        if packed is not None:
+            out_path.write_bytes(packed)
+            return
 
         buf = io.BytesIO()
         with zipfile.ZipFile(buf, "w") as out_zip:

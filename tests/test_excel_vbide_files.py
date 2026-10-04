@@ -25,7 +25,7 @@ def test_native_source_file_operations(probe: dict[str, str | None], tmp_path: P
     if name == 'export_missing_folder':
         # Native measurements use Windows separators. Keep the missing
         # parent-directory condition on POSIX runners as well.
-        source = source.replace('\\missing\\module.bas', os.sep + 'missing' + os.sep + 'module.bas')
+        source = source.replace('\\missing\\source.bas', os.sep + 'missing' + os.sep + 'source.bas')
     app = ExcelApplication()
     app.add_workbook()
     app.add_module(source, name='Harness')

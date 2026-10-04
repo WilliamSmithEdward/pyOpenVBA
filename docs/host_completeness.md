@@ -65,8 +65,8 @@ modules. Copy and cross-book Move transfer document source into the target
 project with fresh fields; Delete removes the runtime and saved module.
 Unloaded source copies without execution, and a native gate executes saved
 copied code and checks deleted modules. Complete project component order/
-line-count fidelity, grouped-sheet
-Add defaults, wider Count/Type/anchor conformance and complete copied sheet
+line-count fidelity, grouped-sheet Add defaults, wider Count/Type/anchor
+conformance and complete copied sheet
 content remain gaps; these measurements do not establish all 22 operations
 as implemented runtime interfaces.
 
@@ -80,7 +80,10 @@ line operations and procedure queries are implemented for the measured
 cases. References, designers, import/export, Find/CreateEventProc, complete
 procedure boundaries (continuations/conditional code), ByRef procedure-kind
 queries, project reset/lifetime and protected-project conformance still
-need work. This is a partial VBIDE model, not proof of the full interface.
+need work. The generated `docs/vbide_checklist.csv` records all 228 VBIDE
+members, including missing interfaces. Its source is the pyVBAReference
+checkout at `a6c39d0617085297e88bec7de0ee8afb7aa0746b`. This is a partial
+VBIDE model, not proof of the full interface.
 
 ## What counts as complete
 

@@ -13,7 +13,7 @@ from collections.abc import Sequence
 from pyopenvba.apps.excel._model import Workbook
 from pyopenvba.excel import ExcelFile
 from pyopenvba.powerquery._opc import OpcFile
-from pyopenvba.vba import VBAModuleKind, encoding_for_codepage, split_attribute_header
+from pyopenvba.vba import VBAModuleKind, encoding_for_codepage, parse_project_stream, split_attribute_header
 
 
 class MemoryExcelFile(ExcelFile):
@@ -32,6 +32,14 @@ class MemoryExcelFile(ExcelFile):
     def _write_container(self, dest: str | Path | None, new_cfb_bytes: bytes | None,
                          package_edits: dict[str, bytes | None], *, full_rebuild: bool = False) -> None:
         self.output_bytes = self._serialized_container(new_cfb_bytes, package_edits, full_rebuild=full_rebuild)
+
+    def component_kinds(self) -> dict[str, str]:
+        project = self.vba_project()
+        information = parse_project_stream(self._get_cfb().get_stream('PROJECT'), code_page=project.code_page)
+        return {**{name.casefold(): 'standard' for name in information.standard_modules},
+                **{name.casefold(): 'class' for name in information.class_modules},
+                **{name.casefold(): 'document' for name, _ in information.document_modules},
+                **{name.casefold(): 'form' for name in information.base_classes}}
 
     def persist_sources(self, sources: Sequence[tuple[str, str, str]], deleted: set[str] | None = None,
                         *, renames: dict[str, str] | None = None, project_name: str = '') -> bool:

@@ -58,9 +58,10 @@ class VBProject(VBAObject):
                 self.name = project.name or self.name
                 self.original_name = self.name
                 self.protected = bool(project.protection and project.protection.has_password)
+                kinds = host.component_kinds()
                 documents = {book.code_name.casefold(), *(sheet.code_name.casefold() for sheet in book.sheets_)}
                 for module in project.modules:
-                    kind = 'document' if module.name.casefold() in documents else 'standard' if module.kind.value == 0x21 else 'class'
+                    kind = kinds.get(module.name.casefold(), 'document' if module.name.casefold() in documents else 'standard' if module.kind.value == 0x21 else 'class')
                     self.components.entries.append(VBComponent(self, module.name, kind, module.source))
         self.components.synchronize()
 

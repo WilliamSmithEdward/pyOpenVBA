@@ -4,12 +4,14 @@ from __future__ import annotations
 import json
 import importlib
 import os
+import zipfile
 from pathlib import Path
 
 import pytest
 
 from pyopenvba.apps.excel import ExcelApplication
 from pyopenvba.exceptions import VBACompileError
+from pyopenvba.exceptions import VBARuntimeError
 from pyopenvba.excel import ExcelFile
 from pyopenvba.apps.excel._vbide import VBProject, VBComponent, CodeModule
 
@@ -121,6 +123,39 @@ def test_invalid_pending_source_can_be_saved_without_compiling(tmp_path: Path) -
     path = app.save(tmp_path / 'invalid.xlsm')
     with ExcelFile(path) as host:
         assert 'this is invalid syntax' in host.get_module('Module1')
+
+
+def test_catalog_reads_preserve_signed_project_bytes(tmp_path: Path) -> None:
+    source = Path(__file__).parent / 'fixtures/signature_parts/excel.xlsm'
+    app = ExcelApplication.open(source)
+    project = app.workbook.VBProject()
+    assert isinstance(project, VBProject)
+    assert project.components.vba_items()
+    target = app.save(tmp_path / 'read-only.xlsm')
+    with zipfile.ZipFile(source) as before, zipfile.ZipFile(target) as after:
+        assert before.read('xl/vbaProject.bin') == after.read('xl/vbaProject.bin')
+    with ExcelFile(target) as host:
+        assert host.vba_signature().present
+
+
+def test_protected_project_catalog_is_not_exposed() -> None:
+    source = Path(__file__).parent / 'live_excel_testing/workbook_with_password_protected_vba_modules.xlsm'
+    app = ExcelApplication.open(source)
+    project = app.workbook.VBProject()
+    assert isinstance(project, VBProject)
+    assert project.Protection() == 1
+    with pytest.raises(VBARuntimeError) as failure:
+        project.VBComponents()
+    assert failure.value.number == 50289
+
+
+def test_existing_userform_component_retains_designer_type() -> None:
+    app = ExcelApplication.open(Path(__file__).parent / 'live_excel_testing/nested_form.xlsm')
+    project = app.workbook.VBProject()
+    assert isinstance(project, VBProject)
+    form = project.components.vba_get('Item', ['FrmNested'])
+    assert isinstance(form, VBComponent)
+    assert form.Type() == 3
 
 
 def test_copy_pending_document_source_and_python_edits_override_staged_source(tmp_path: Path) -> None:

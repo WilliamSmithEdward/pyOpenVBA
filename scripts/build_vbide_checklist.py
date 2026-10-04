@@ -1,4 +1,4 @@
-"""Generate the VBIDE member coverage table from the pinned local typelib dump."""
+"""Generate the VBIDE member coverage table from the local typelib dump."""
 from __future__ import annotations
 
 import csv

@@ -18,9 +18,10 @@ def project_bytes(path: Path) -> bytes:
         return package.read("xl/vbaProject.bin")
 
 
-def make_runtime() -> ExcelApplication:
-    app = ExcelApplication()
-    app.add_workbook()
+def make_runtime(app: ExcelApplication | None = None) -> ExcelApplication:
+    if app is None:
+        app = ExcelApplication()
+        app.add_workbook()
     app.add_module('Public Function Twice(ByVal n As Long) As Long\nTwice = n * 2\nEnd Function', name="Multiplier", kind="class")
     app.add_module('Public Function SheetAnswer() As Long\nSheetAnswer = 3\nEnd Function', name="Sheet1", kind="document")
     app.add_module('Public Function BookAnswer() As Long\nBookAnswer = 4\nEnd Function', name="ThisWorkbook", kind="document")
@@ -108,9 +109,13 @@ def test_unchanged_userform_designer_survives_source_edit(tmp_path: Path) -> Non
 
 
 @pytest.mark.skipif(os.environ.get("RUN_LIVE_EXCEL") != "1", reason="requires isolated real Excel")
-def test_native_excel_executes_runtime_project(tmp_path: Path) -> None:
+@pytest.mark.parametrize("new_project", [False, True])
+def test_native_excel_executes_runtime_project(tmp_path: Path, new_project: bool) -> None:
     harness = importlib.import_module("pyvbaharness")
-    path = make_runtime().save(tmp_path / "runtime.xlsm")
+    app = make_runtime()
+    if new_project:
+        app = make_runtime(ExcelApplication.open(app.save(tmp_path / "macro-free.xlsx")))
+    path = app.save(tmp_path / "runtime.xlsm")
     with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=30.0)) as excel:
         excel.new_document()
         source = ('Function Probe() As Long\nDim book As Workbook\nSet book = Workbooks.Open("'

@@ -21,7 +21,8 @@ where = [
 reason = """
 Four XML parts are parsed with the standard library's ElementTree: an
 Access database's theme, a workbook's workbook.xml, and Power Query's
-metadata and workbook parts. The rest of the library reads XML as text
+metadata and workbook parts. Outside the integrity checker (accepted
+separately below), the rest of the library reads XML as text
 or with html.parser, and neither processes a DTD, so a file cannot
 declare an entity there. defusedxml would be the package's first
 dependency, against its promise of none. ElementTree loads no external
@@ -30,6 +31,30 @@ or reach the network. Expat 2.4.1 and later limits how far entities may
 expand; CPython bundles it on Windows and macOS, and current Linux
 distributions ship it. A Python built against an older system expat is
 still open to a file whose entities expand without limit.
+"""
+
+[[finding]]
+tool = "Semgrep"
+rule = "python.lang.security.use-defused-xml.use-defused-xml"
+where = [
+    { path = "src/pyopenvba/integrity.py", line = "from xml.parsers import expat" },
+]
+reason = """
+The file integrity checker uses Expat for namespace-aware XML syntax and
+OPC attributes without adding a runtime dependency. Before Parse is called,
+StartDoctypeDeclHandler raises at the start of every DOCTYPE, before the
+internal subset; EntityDeclHandler and ExternalEntityRefHandler also raise,
+and parameter entity parsing is set to XML_PARAM_ENTITY_PARSING_NEVER.
+No external resolver or child parser is created. Thus DTDs, declared entity
+expansion, and external file/network access are refused, rather than relying
+on an Expat version's entity amplification limits. Encoded XML is passed as
+bytes, so UTF-16 DOCTYPE declarations reach the same rejecting handler.
+Tests cover internal entities, UTF-16 DTDs, and external DTD/entity references.
+XML payload sizes are bounded by the checker before parsing. Expat's other
+native-parser vulnerabilities still require an updated Python/Expat runtime;
+this acceptance addresses the rule's DTD/entity risk, not every parser bug.
+See https://docs.python.org/3/library/pyexpat.html#xmlparser.StartDoctypeDeclHandler
+and https://docs.python.org/3/library/pyexpat.html#xmlparser.SetParamEntityParsing.
 """
 
 [[finding]]

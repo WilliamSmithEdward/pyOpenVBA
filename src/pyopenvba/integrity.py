@@ -18,7 +18,7 @@ import zipfile
 import zlib
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Literal
+from typing import Literal, NoReturn
 from urllib.parse import unquote, urlsplit
 from xml.parsers import expat
 
@@ -105,12 +105,15 @@ def _xml(data: bytes) -> tuple[str, list[tuple[str, dict[str, str]]]]:
         nonlocal depth
         depth -= 1
 
-    def refuse_dtd(*_args: object) -> None:
+    def refuse_dtd(*_args: object) -> NoReturn:
         raise ValueError("DTDs and declared entities are not supported")
 
     parser.StartElementHandler = start
     parser.EndElementHandler = end
     parser.StartDoctypeDeclHandler = refuse_dtd
+    parser.EntityDeclHandler = refuse_dtd
+    parser.ExternalEntityRefHandler = refuse_dtd
+    parser.SetParamEntityParsing(expat.XML_PARAM_ENTITY_PARSING_NEVER)
     parser.Parse(data, True)
     return root, children
 

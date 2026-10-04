@@ -98,7 +98,7 @@ def test_external_and_percent_encoded_relationships(tmp_path: Path) -> None:
     assert check_file(path).ok
 
 
-@pytest.mark.parametrize("xml", [b"<broken>", b'<!DOCTYPE a [<!ENTITY e "hello">]><a>&e;</a>', '<!DOCTYPE a><a/>'.encode("utf-16")])
+@pytest.mark.parametrize("xml", [b"<broken>", b'<!DOCTYPE a [<!ENTITY e "hello">]><a>&e;</a>', '<!DOCTYPE a><a/>'.encode("utf-16"), b'<!DOCTYPE a SYSTEM "file:///nonexistent.dtd"><a/>', b'<!DOCTYPE a [<!ENTITY e SYSTEM "https://example.com/entity">]><a>&e;</a>'])
 def test_xml_damage_and_dtd_rejected(tmp_path: Path, xml: bytes) -> None:
     path = tmp_path / "book.xlsm"
     package(path, **{"bad.xml": xml})

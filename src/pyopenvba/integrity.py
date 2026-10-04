@@ -373,21 +373,33 @@ def _check(raw: bytes, path: Path, max_part_bytes: int, max_total_bytes: int) ->
                             raise ValueError("Missing local ZIP header")
                         flags, method = struct.unpack_from("<HH", header, 6)
                         crc, compressed, size = struct.unpack_from("<III", header, 14)
+                        name_size, extra_size = struct.unpack_from("<HH", header, 26)
+                        extra_start = info.header_offset + 30 + name_size
+                        extra = raw[extra_start:extra_start + extra_size]
+                        extra_offset = 0
+                        zip64 = False
+                        while extra_offset < len(extra):
+                            if extra_offset + 4 > len(extra):
+                                raise ValueError("Truncated local ZIP extra-field header")
+                            kind, length = struct.unpack_from("<HH", extra, extra_offset)
+                            extra_offset += 4 + length
+                            if extra_offset > len(extra):
+                                raise ValueError("Truncated local ZIP extra-field payload")
+                            zip64 |= kind == 1
                         if flags != info.flag_bits or method != info.compress_type:
                             issues.append(FileIssue("zip.local_header", "error", name, "Local flags or compression method disagree with central directory"))
                         if flags & 8:
                             if crc not in {0, info.CRC} or compressed not in {0, 0xFFFFFFFF, info.compress_size} or size not in {0, 0xFFFFFFFF, info.file_size}:
                                 issues.append(FileIssue("zip.local_header", "error", name, "Local data-descriptor metadata disagrees with central directory"))
-                            name_size, extra_size = struct.unpack_from("<HH", header, 26)
                             offset = info.header_offset + 30 + name_size + extra_size + info.compress_size
                             expected = struct.pack("<III", info.CRC, info.compress_size, info.file_size) if max(info.compress_size, info.file_size) <= 0xFFFFFFFF else b""
-                            if compressed == 0xFFFFFFFF or size == 0xFFFFFFFF or not expected:
+                            if zip64 or compressed == 0xFFFFFFFF or size == 0xFFFFFFFF or not expected:
                                 issues.append(FileIssue("check.zip64", "warning", name, "ZIP64 payload checked; data descriptor not checked"))
                                 complete = False
                             elif raw[offset:offset + 12] != expected and raw[offset:offset + 16] != b"PK\x07\x08" + expected:
                                 issues.append(FileIssue("zip.descriptor", "error", name, "Missing or inconsistent ZIP data descriptor"))
                         else:
-                            if compressed == 0xFFFFFFFF or size == 0xFFFFFFFF:
+                            if zip64 or compressed == 0xFFFFFFFF or size == 0xFFFFFFFF:
                                 issues.append(FileIssue("check.zip64", "warning", name, "ZIP64 payload checked; local size metadata not checked"))
                                 complete = False
                             elif (crc, compressed, size) != (info.CRC, info.compress_size, info.file_size):

@@ -221,13 +221,22 @@ def test_data_descriptor_checked(tmp_path: Path) -> None:
         repair_file(path, output=tmp_path / "out.xlsm")
 
 
-def test_zip64_partial_check_refuses_repair(tmp_path: Path) -> None:
+@pytest.mark.parametrize("ordinary_sizes", [False, True])
+def test_zip64_partial_check_refuses_repair(tmp_path: Path, ordinary_sizes: bool) -> None:
     path = tmp_path / "book.xlsm"
     with zipfile.ZipFile(path, "w") as archive:
         archive.writestr("[Content_Types].xml", CT)
         with archive.open("doc.xml", "w", force_zip64=True) as stream:
             stream.write(b"<document/>")
         archive.writestr("_rels/.rels", ROOT_REL)
+    if ordinary_sizes:
+        # Python 3.10 can retain ZIP64 extra fields alongside ordinary 32-bit
+        # local sizes. Coverage must depend on the extra fields as well.
+        raw = bytearray(path.read_bytes())
+        with zipfile.ZipFile(io.BytesIO(raw)) as archive:
+            info = archive.getinfo("doc.xml")
+        struct.pack_into("<II", raw, info.header_offset + 18, info.compress_size, info.file_size)
+        path.write_bytes(raw)
     report = check_file(path)
     assert not report.complete and not report.errors
     assert any(issue.code == "check.zip64" for issue in report.warnings)

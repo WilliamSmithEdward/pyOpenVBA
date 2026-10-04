@@ -22,6 +22,7 @@ import pyopenvba._host as host_module
 from pyopenvba import ExcelFile, PowerPointFile, WordFile
 from pyopenvba._host import VBAHostFile
 from pyopenvba._package_copy import copy_package
+from pyopenvba.exceptions import VBAProjectError
 from pyopenvba.powerquery._opc import OpcFile
 
 ROOT = Path(__file__).parent.parent
@@ -504,3 +505,41 @@ def test_full_rebuild_also_rebuilds_a_package_without_vba(
         book.save(tmp_path / ("copied" + suffix))
         with pytest.raises(zipfile.BadZipFile):
             book.save(tmp_path / ("rebuilt" + suffix), full_rebuild=True)
+
+
+@pytest.mark.parametrize("full_rebuild", [False, True])
+def test_protected_form_edit_stays_guarded_after_a_refused_save(full_rebuild: bool, tmp_path: Path) -> None:
+    fixture = ROOT / "tests" / "live_excel_testing" / "workbook_with_password_protected_vba_modules.xlsm"
+    seed, out = tmp_path / "seed.xlsm", tmp_path / "out.xlsm"
+    with ExcelFile(fixture) as book:
+        book.add_form("ProtectedForm", caption="Original")
+        book.save(seed, allow_protected=True)
+    with ExcelFile(seed) as book:
+        book.forms()[0].set_property("Caption", "Changed")
+        for _ in range(2):
+            with pytest.raises(VBAProjectError, match="password-protected"):
+                book.save(out, full_rebuild=full_rebuild)
+            assert not out.exists()
+        book.save(out, allow_protected=True, full_rebuild=full_rebuild)
+        # A subsequent unedited save is allowed: only unsaved mutations need permission.
+        book.save(out, full_rebuild=full_rebuild)
+    with ExcelFile(out) as saved:
+        assert saved.forms()[0].get("Caption") == "Changed"
+
+
+@pytest.mark.parametrize("full_rebuild", [False, True])
+def test_protected_source_edit_stays_guarded_after_a_failed_write(full_rebuild: bool, tmp_path: Path) -> None:
+    fixture = ROOT / "tests" / "live_excel_testing" / "workbook_with_password_protected_vba_modules.xlsm"
+    out = tmp_path / "out.xlsm"
+    with ExcelFile(fixture) as book:
+        name = "PasswordTest"
+        edited = book.get_module(name) + "' retained after failure\r\n"
+        book.set_module(name, edited)
+        with pytest.raises(OSError):
+            book.save(tmp_path, allow_protected=True, full_rebuild=full_rebuild)
+        with pytest.raises(VBAProjectError, match="password-protected"):
+            book.save(out, full_rebuild=full_rebuild)
+        assert not out.exists()
+        book.save(out, allow_protected=True, full_rebuild=full_rebuild)
+    with ExcelFile(out) as saved:
+        assert saved.get_module(name) == edited

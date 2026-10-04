@@ -15,6 +15,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
   preserve existing corruption; a full rebuild detects damage but does not
   repair it. Unsupported packages automatically use the full rebuild path.
   Based on PR #55 by @swsammy, with local-header length validation added.
+- Pending mutations stay guarded after a refused or failed save. A second
+  form-only save could previously bypass the protected-project gate; a
+  source-edit retry after a failed write could do the same. Both continue
+  to require `allow_protected=True` until a write succeeds.
 - Repeated VBA saves and retries after a failed write no longer restore
   stale package signature parts removed by an earlier edit. Signature
   inspection on the open object also reflects that removal.

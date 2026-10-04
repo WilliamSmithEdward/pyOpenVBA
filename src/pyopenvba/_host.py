@@ -112,6 +112,9 @@ class VBAHostFile(ReferenceManager):
         # Package signature edits survive repeated saves and failed writes;
         # the original ZIP remains the source of unchanged parts.
         self._signature_edits: dict[str, bytes | None] = {}
+        # Edits already applied to the in-memory CFB are still mutations
+        # until a write succeeds, even if their dirty flags were consumed.
+        self._pending_mutation = False
         self._open()
 
     # ------------------------------------------------------------------
@@ -575,7 +578,9 @@ class VBAHostFile(ReferenceManager):
         for form in self._forms or ():
             # Not any(...): that short-circuits, and every form has to be
             # written, not just the first dirty one.
-            forms_dirty |= form.write_back(cfb)
+            changed = form.write_back(cfb)
+            forms_dirty |= changed
+            self._pending_mutation |= changed
         # What the package's other parts need: None drops a part.
         package_edits = dict(self._signature_edits)
 
@@ -589,7 +594,8 @@ class VBAHostFile(ReferenceManager):
             delete_names = set(project.pending_deletes)
             has_source_edits = any(m.dirty for m in project.modules)
             mutating = bool(
-                rename_map
+                self._pending_mutation
+                or rename_map
                 or add_names
                 or delete_names
                 or has_source_edits
@@ -612,6 +618,8 @@ class VBAHostFile(ReferenceManager):
                     f"the {self._host_noun} inconsistent)."
                 )
 
+            self._pending_mutation |= mutating
+
             # Safety gate 2: any change invalidates a present digital
             # signature.  Drop it and warn.
             if mutating:
@@ -632,6 +640,7 @@ class VBAHostFile(ReferenceManager):
             pass
         new_cfb_bytes = cfb.to_bytes()
         self._write_container(dest, new_cfb_bytes, package_edits, full_rebuild=full_rebuild)
+        self._pending_mutation = False
 
     def _apply_project(self, cfb: CFB, project: VBAProject, *, mutating: bool) -> None:
         """Write ``project``'s pending renames, adds, deletes and edits into ``cfb``."""

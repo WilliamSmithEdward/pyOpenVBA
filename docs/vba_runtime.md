@@ -1573,8 +1573,14 @@ document export and CodeModule.AddFromFile, using 29 native file/editor
 probes. Class export headers are converted before persistence, and a native
 gate executes imported standard and class code from the saved workbook.
 Blank/leading/trailing editor lines keep their counts after save/reopen.
-UserForm files, wider encodings/extensions/attributes and deferred compilation
-when opening an invalid-source file still need work.
+UserForm files and wider encodings/extensions/attributes still need work.
+Opening an invalid-source workbook preserves the entire editable source
+project without requiring successful compilation. Execution retries pending
+source; saving and repairing it remain available. Explicit Python `load_vba`
+imports still validate all source before installing any module. Eleven native
+lifecycle probes verify that edits and component renames reset the affected
+module on subsequent execution while preserving other modules. Pending edits
+during event dispatch and wider reset/lifetime behavior need more work.
 
 Standard modules can qualify their functions, public variables/arrays,
 constants and properties (`Helpers.Answer()`, `Helpers.Value = 3`). Eighteen

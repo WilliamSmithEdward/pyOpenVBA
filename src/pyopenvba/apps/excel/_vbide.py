@@ -305,6 +305,7 @@ class VBComponent(VBAObject):
             book.pending_document_sources[name] = book.pending_document_sources.pop(old)
         self.name = name
         self.source = re.sub(r'(?m)^(Attribute VB_Name\s*=\s*)"[^"]*"', lambda match: match.group(1) + '"' + name + '"', self.source)
+        self.pending = True
         book.saved = False
 
     @member

@@ -345,7 +345,9 @@ class ExcelApplication(NamedRangeAPI):
         attach_project(book)
         app.application.activate_book(book, events=False)
         if with_vba:
-            app.load_vba(path)
+            from pyopenvba.apps.excel._projects import load_project
+
+            load_project(book)
         from pyopenvba.apps.excel import _events
 
         _events.opened(book)

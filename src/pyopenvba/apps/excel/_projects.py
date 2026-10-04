@@ -6,6 +6,7 @@ from contextlib import contextmanager
 
 from pyopenvba.apps.excel._bridge import ExcelBridge
 from pyopenvba.apps.excel._model import Application, Workbook
+from pyopenvba.exceptions import VBACompileError
 from pyopenvba.interpreter import _ast as A
 from pyopenvba.interpreter._objects import VBAObject
 from pyopenvba.interpreter._parse import parse_module
@@ -164,7 +165,17 @@ def load_project(book: Workbook) -> list[str]:
     if project is None or book.package is None or not book.package.has("xl/vbaProject.bin"):
         return []
     with MemoryExcelFile(book.package.serialize()) as host:
-        return project.load_project(host.vba_project())
+        try:
+            return project.load_project(host.vba_project())
+        except VBACompileError:
+            # Opening is not compilation. Keep the complete original
+            # project editable; execution will retry its pending source.
+            from pyopenvba.apps.excel._vbide import project_for
+
+            editable = project_for(book)
+            for entry in editable.components.entries:
+                entry.pending = True
+            return [entry.name for entry in editable.components.entries]
 
 
 def run_macro(application: Application, macro: str, args: list[object]) -> object:

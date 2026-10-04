@@ -7,6 +7,13 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Invalid-source Excel workbooks open with their complete editable VBA
+  project, allowing inspection, saving and repair before execution retries
+  compilation. Explicit Python source imports remain strict and atomic.
+  Eleven native lifecycle probes verify that edits and component renames
+  reset the affected module while other module variables survive. Wider
+  event/compilation/lifetime conformance remains incomplete.
+
 - VBIDE standard/class source import, standard/class/document export and
   `CodeModule.AddFromFile`, guided by 29 native file/editor probes. Export
   headers differ from stored class streams; imported class code is verified

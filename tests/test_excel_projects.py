@@ -72,7 +72,7 @@ def test_nested_project_error_restores_the_caller(tmp_path: Path) -> None:
     assert not app.application.executing_projects
 
 
-def test_failed_project_import_does_not_leave_an_open_partial_workbook(tmp_path: Path) -> None:
+def test_invalid_project_opens_as_a_complete_editable_project(tmp_path: Path) -> None:
     path = tmp_path / "broken.xlsm"
     with ExcelFile.create_new(path) as host:
         host.set_module("Module1", 'Public Function ValidAnswer() As Long\nValidAnswer = 42\nEnd Function')
@@ -80,18 +80,20 @@ def test_failed_project_import_does_not_leave_an_open_partial_workbook(tmp_path:
         host.save()
     app = ExcelApplication()
     original = app.add_workbook()
+    opened = app.open_workbook(path)
+    assert app.workbooks() == [original, opened]
+    assert app.workbook is opened
+    from pyopenvba.apps.excel._vbide import VBProject
+
+    project = opened.VBProject()
+    assert isinstance(project, VBProject)
+    assert {'module1', 'brokenmodule'} <= {entry.name.casefold() for entry in project.components.entries}
     with pytest.raises(VBACompileError):
-        app.open_workbook(path)
-    assert app.workbooks() == [original]
-    assert app.workbook is original
-    with pytest.raises(VBARuntimeError) as failure:
-        app.run("ValidAnswer")
-    assert failure.value.number == 35
+        app.run("'broken.xlsm'!ValidAnswer")
     blank = ExcelApplication()
-    with pytest.raises(VBACompileError):
-        blank.open_workbook(path)
-    assert not blank.workbooks()
-    assert blank.interpreter.bridge.workbook is None
+    other = blank.open_workbook(path)
+    assert blank.workbooks() == [other]
+    assert blank.interpreter.bridge.workbook is other
 
 
 def test_closed_workbook_cannot_be_called_by_name(tmp_path: Path) -> None:

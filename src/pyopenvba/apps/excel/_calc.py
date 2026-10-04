@@ -288,20 +288,9 @@ class Calculator:
         """Whether the application recalculates as things change."""
         return self.book.application.calculation != -4135  # xlCalculationManual
 
-    def calculate_all(self) -> None:
-        """Work out every stale cell, as F9 does."""
+    def calculate_all(self) -> list[Worksheet]:
+        """Work out stale and volatile formulas, even in manual mode; report sheets actually calculated."""
         self.build()
-        for sheet in self.book.sheets_:
-            for (row, column), cell in list(sheet.cells_.items()):
-                if cell.formula and cell.stale:
-                    self.value_of(sheet.name, row, column, force=True)
-
-    def recalculated(self) -> list[Worksheet]:
-        """Work out every formula an edit left stale, and the volatile ones, as Excel does after the edit; the
-        sheets that had formulas worked out, in order. Nothing, in manual calculation."""
-        self.build()
-        if not self.automatic:
-            return []
         worked: list[Worksheet] = []
         for sheet in self.book.sheets_:
             did = False
@@ -315,6 +304,10 @@ class Calculator:
             if did:
                 worked.append(sheet)
         return worked
+
+    def recalculated(self) -> list[Worksheet]:
+        """Calculate after an edit, unless the application is in manual mode."""
+        return self.calculate_all() if self.automatic else []
 
     def value_of(self, sheet: str, row: int, column: int, *, force: bool = False) -> object:
         """A cell's value, worked out first if it needs to be; a cell of an array formula, by working out the array.

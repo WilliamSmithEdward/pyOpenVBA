@@ -316,13 +316,17 @@ class Parser:
     def _parse_dim(self, *, scope: str, line: int, static: bool = False) -> A.Dim:
         decls: list[A.VarDecl] = []
         while True:
-            decls.append(self._parse_var_decl())
+            declaration = self._parse_var_decl()
+            if declaration.with_events and (scope == "local" or self.module_kind not in ("class", "document", "form")):
+                self.fail("WithEvents requires a class-level variable")
+            decls.append(declaration)
             if not self.accept_op(","):
                 break
         self.end_statement()
         return A.Dim(line=line, decls=decls, scope=scope, static=static)
 
     def _parse_var_decl(self) -> A.VarDecl:
+        with_events = self.accept_word("withevents")
         if self.token.kind != "ident":
             self.fail(f"expected a variable name but found {self.token.text!r}")
         token = self.advance()
@@ -347,7 +351,12 @@ class Parser:
             if self.accept_word("new"):
                 as_new = True
             declared = self._parse_type_name()
-        return A.VarDecl(name=name, declared=declared, bounds=bounds, is_array=is_array, as_new=as_new)
+        if with_events and (is_array or as_new or declared.lower() in (
+            "variant", "object", "byte", "integer", "long", "longlong", "longptr",
+            "single", "double", "currency", "decimal", "boolean", "date", "string",
+        )):
+            self.fail("WithEvents requires a specific object type, without New or array bounds")
+        return A.VarDecl(name=name, declared=declared, bounds=bounds, is_array=is_array, as_new=as_new, with_events=with_events)
 
     def _parse_type_name(self) -> str:
         if self.token.kind != "ident":

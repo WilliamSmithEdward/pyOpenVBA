@@ -1,0 +1,79 @@
+{
+  "measured_at": "2026-10-04T21:14:40.353200+00:00",
+  "sheet_codename_excel_version_build": "Sheet1|16.0|20430",
+  "sink": "Public WithEvents Sheet As Worksheet\nPublic WithEvents Book As Workbook\nPublic WithEvents App As Application\nPrivate Sub Sheet_Change(ByVal Target As Range)\nLog = Log & \"sheet-sink:\" & Target.Address(False, False) & \"|\"\nEnd Sub\nPrivate Sub Book_SheetChange(ByVal Sh As Object, ByVal Target As Range)\nLog = Log & \"book-sink:\" & Sh.Name & \"!\" & Target.Address(False, False) & \"|\"\nEnd Sub\nPrivate Sub App_SheetChange(ByVal Sh As Object, ByVal Target As Range)\nLog = Log & \"app-sink:\" & Sh.Name & \"!\" & Target.Address(False, False) & \"|\"\nEnd Sub\nPrivate Sub Sheet_Calculate()\nLog = Log & \"sheet-sink-Calculate\" & \"|\"\nEnd Sub\nPrivate Sub Book_SheetCalculate(ByVal Sh As Object)\nLog = Log & \"book-sink-Calculate:\" & Sh.Name & \"|\"\nEnd Sub\nPrivate Sub App_SheetCalculate(ByVal Sh As Object)\nLog = Log & \"app-sink-Calculate:\" & Sh.Name & \"|\"\nEnd Sub\nPrivate Sub Sheet_Activate()\nLog = Log & \"sheet-sink-Activate\" & \"|\"\nEnd Sub\nPrivate Sub Book_SheetActivate(ByVal Sh As Object)\nLog = Log & \"book-sink-Activate:\" & Sh.Name & \"|\"\nEnd Sub\nPrivate Sub App_SheetActivate(ByVal Sh As Object)\nLog = Log & \"app-sink-Activate:\" & Sh.Name & \"|\"\nEnd Sub\nPrivate Sub Sheet_Deactivate()\nLog = Log & \"sheet-sink-Deactivate\" & \"|\"\nEnd Sub\nPrivate Sub Book_SheetDeactivate(ByVal Sh As Object)\nLog = Log & \"book-sink-Deactivate:\" & Sh.Name & \"|\"\nEnd Sub\nPrivate Sub App_SheetDeactivate(ByVal Sh As Object)\nLog = Log & \"app-sink-Deactivate:\" & Sh.Name & \"|\"\nEnd Sub\nPrivate Sub Sheet_SelectionChange(ByVal Target As Range)\nLog = Log & \"sheet-sink-SelectionChange\" & \":\" & Target.Address(False, False) & \"|\"\nEnd Sub\nPrivate Sub Book_SheetSelectionChange(ByVal Sh As Object, ByVal Target As Range)\nLog = Log & \"book-sink-SelectionChange:\" & Sh.Name & \":\" & Target.Address(False, False) & \"|\"\nEnd Sub\nPrivate Sub App_SheetSelectionChange(ByVal Sh As Object, ByVal Target As Range)\nLog = Log & \"app-sink-SelectionChange:\" & Sh.Name & \":\" & Target.Address(False, False) & \"|\"\nEnd Sub\nPrivate Sub Book_NewSheet(ByVal Sh As Object)\nLog = Log & \"book-sink-NewSheet:\" & Sh.Name & \"|\"\nEnd Sub\nPrivate Sub App_WorkbookNewSheet(ByVal Wb As Workbook, ByVal Sh As Object)\nLog = Log & \"app-sink-NewSheet:\" & Sh.Name & \"|\"\nEnd Sub\n",
+  "sheet": "Private Sub Worksheet_Change(ByVal Target As Range)\nLog = Log & \"sheet-own:\" & Target.Address(False, False) & \"|\"\nEnd Sub\nPrivate Sub Worksheet_Calculate()\nLog = Log & \"sheet-own-Calculate\" & \"|\"\nEnd Sub\nPrivate Sub Worksheet_Activate()\nLog = Log & \"sheet-own-Activate\" & \"|\"\nEnd Sub\nPrivate Sub Worksheet_Deactivate()\nLog = Log & \"sheet-own-Deactivate\" & \"|\"\nEnd Sub\nPrivate Sub Worksheet_SelectionChange(ByVal Target As Range)\nLog = Log & \"sheet-own-SelectionChange\" & \":\" & Target.Address(False, False) & \"|\"\nEnd Sub\n",
+  "book": "Private Sub Workbook_SheetChange(ByVal Sh As Object, ByVal Target As Range)\nLog = Log & \"book-own:\" & Sh.Name & \"!\" & Target.Address(False, False) & \"|\"\nEnd Sub\nPrivate Sub Workbook_SheetCalculate(ByVal Sh As Object)\nLog = Log & \"book-own-Calculate:\" & Sh.Name & \"|\"\nEnd Sub\nPrivate Sub Workbook_SheetActivate(ByVal Sh As Object)\nLog = Log & \"book-own-Activate:\" & Sh.Name & \"|\"\nEnd Sub\nPrivate Sub Workbook_SheetDeactivate(ByVal Sh As Object)\nLog = Log & \"book-own-Deactivate:\" & Sh.Name & \"|\"\nEnd Sub\nPrivate Sub Workbook_SheetSelectionChange(ByVal Sh As Object, ByVal Target As Range)\nLog = Log & \"book-own-SelectionChange:\" & Sh.Name & \":\" & Target.Address(False, False) & \"|\"\nEnd Sub\nPrivate Sub Workbook_NewSheet(ByVal Sh As Object)\nLog = Log & \"book-own-NewSheet:\" & Sh.Name & \"|\"\nEnd Sub\n",
+  "probes": [
+    {
+      "name": "all_sinks",
+      "source": "Function Probe() As String\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nDim i As Long\nFor i = Worksheets.Count To 1 Step -1\nIf Worksheets(i).Name <> \"Sheet1\" Then Worksheets(i).Delete\nNext\nWorksheets(\"Sheet1\").Activate\nCells.Clear\nRange(\"A1\").Select\nDim sink As New ExcelSink\nSet sink.Sheet = ActiveSheet\nSet sink.Book = ActiveWorkbook\nSet sink.App = Application\nApplication.EnableEvents = True\nLog = \"\"\nRange(\"A1\").Value = 5\nProbe = Log\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "sheet-sink:A1|sheet-own:A1|book-sink:Sheet1!A1|book-own:Sheet1!A1|app-sink:Sheet1!A1|"
+    },
+    {
+      "name": "events_disabled",
+      "source": "Function Probe() As String\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nDim i As Long\nFor i = Worksheets.Count To 1 Step -1\nIf Worksheets(i).Name <> \"Sheet1\" Then Worksheets(i).Delete\nNext\nWorksheets(\"Sheet1\").Activate\nCells.Clear\nRange(\"A1\").Select\nDim sink As New ExcelSink\nSet sink.Sheet = ActiveSheet\nSet sink.Book = ActiveWorkbook\nSet sink.App = Application\nApplication.EnableEvents = True\nLog = \"\"\nApplication.EnableEvents = False\nRange(\"A1\").Value = 5\nProbe = Log\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": ""
+    },
+    {
+      "name": "sheet_sink_detached",
+      "source": "Function Probe() As String\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nDim i As Long\nFor i = Worksheets.Count To 1 Step -1\nIf Worksheets(i).Name <> \"Sheet1\" Then Worksheets(i).Delete\nNext\nWorksheets(\"Sheet1\").Activate\nCells.Clear\nRange(\"A1\").Select\nDim sink As New ExcelSink\nSet sink.Sheet = ActiveSheet\nSet sink.Book = ActiveWorkbook\nSet sink.App = Application\nApplication.EnableEvents = True\nLog = \"\"\nSet sink.Sheet = Nothing\nRange(\"A1\").Value = 5\nProbe = Log\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "sheet-own:A1|book-sink:Sheet1!A1|book-own:Sheet1!A1|app-sink:Sheet1!A1|"
+    },
+    {
+      "name": "book_sink_detached",
+      "source": "Function Probe() As String\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nDim i As Long\nFor i = Worksheets.Count To 1 Step -1\nIf Worksheets(i).Name <> \"Sheet1\" Then Worksheets(i).Delete\nNext\nWorksheets(\"Sheet1\").Activate\nCells.Clear\nRange(\"A1\").Select\nDim sink As New ExcelSink\nSet sink.Sheet = ActiveSheet\nSet sink.Book = ActiveWorkbook\nSet sink.App = Application\nApplication.EnableEvents = True\nLog = \"\"\nSet sink.Book = Nothing\nRange(\"A1\").Value = 5\nProbe = Log\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "sheet-sink:A1|sheet-own:A1|book-own:Sheet1!A1|app-sink:Sheet1!A1|"
+    },
+    {
+      "name": "app_sink_detached",
+      "source": "Function Probe() As String\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nDim i As Long\nFor i = Worksheets.Count To 1 Step -1\nIf Worksheets(i).Name <> \"Sheet1\" Then Worksheets(i).Delete\nNext\nWorksheets(\"Sheet1\").Activate\nCells.Clear\nRange(\"A1\").Select\nDim sink As New ExcelSink\nSet sink.Sheet = ActiveSheet\nSet sink.Book = ActiveWorkbook\nSet sink.App = Application\nApplication.EnableEvents = True\nLog = \"\"\nSet sink.App = Nothing\nRange(\"A1\").Value = 5\nProbe = Log\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "sheet-sink:A1|sheet-own:A1|book-sink:Sheet1!A1|book-own:Sheet1!A1|"
+    },
+    {
+      "name": "multiple_areas",
+      "source": "Function Probe() As String\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nDim i As Long\nFor i = Worksheets.Count To 1 Step -1\nIf Worksheets(i).Name <> \"Sheet1\" Then Worksheets(i).Delete\nNext\nWorksheets(\"Sheet1\").Activate\nCells.Clear\nRange(\"A1\").Select\nDim sink As New ExcelSink\nSet sink.Sheet = ActiveSheet\nSet sink.Book = ActiveWorkbook\nSet sink.App = Application\nApplication.EnableEvents = True\nLog = \"\"\nRange(\"A1,C3\").Value = 5\nProbe = Log\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "sheet-sink:A1,C3|sheet-own:A1,C3|book-sink:Sheet1!A1,C3|book-own:Sheet1!A1,C3|app-sink:Sheet1!A1,C3|"
+    },
+    {
+      "name": "calculate_after_edit",
+      "source": "Function Probe() As String\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nDim i As Long\nFor i = Worksheets.Count To 1 Step -1\nIf Worksheets(i).Name <> \"Sheet1\" Then Worksheets(i).Delete\nNext\nWorksheets(\"Sheet1\").Activate\nCells.Clear\nRange(\"A1\").Select\nDim sink As New ExcelSink\nSet sink.Sheet = ActiveSheet\nSet sink.Book = ActiveWorkbook\nSet sink.App = Application\nApplication.EnableEvents = True\nLog = \"\"\nRange(\"D1\").Formula = \"=A1*2\"\nLog = \"\"\nRange(\"A1\").Value = 5\nProbe = Log\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "sheet-sink-Calculate|sheet-own-Calculate|book-sink-Calculate:Sheet1|book-own-Calculate:Sheet1|app-sink-Calculate:Sheet1|sheet-sink:A1|sheet-own:A1|book-sink:Sheet1!A1|book-own:Sheet1!A1|app-sink:Sheet1!A1|"
+    },
+    {
+      "name": "calculate_all",
+      "source": "Function Probe() As String\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nDim i As Long\nFor i = Worksheets.Count To 1 Step -1\nIf Worksheets(i).Name <> \"Sheet1\" Then Worksheets(i).Delete\nNext\nWorksheets(\"Sheet1\").Activate\nCells.Clear\nRange(\"A1\").Select\nDim sink As New ExcelSink\nSet sink.Sheet = ActiveSheet\nSet sink.Book = ActiveWorkbook\nSet sink.App = Application\nApplication.EnableEvents = True\nLog = \"\"\nRange(\"D1\").Formula = \"=A1*2\"\nLog = \"\"\nApplication.Calculate\nProbe = Log\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": ""
+    },
+    {
+      "name": "calculate_manual",
+      "source": "Function Probe() As String\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nDim i As Long\nFor i = Worksheets.Count To 1 Step -1\nIf Worksheets(i).Name <> \"Sheet1\" Then Worksheets(i).Delete\nNext\nWorksheets(\"Sheet1\").Activate\nCells.Clear\nRange(\"A1\").Select\nDim sink As New ExcelSink\nSet sink.Sheet = ActiveSheet\nSet sink.Book = ActiveWorkbook\nSet sink.App = Application\nApplication.EnableEvents = True\nLog = \"\"\nRange(\"D1\").Formula = \"=A1*2\"\nApplication.Calculation = -4135\nRange(\"A1\").Value = 5\nLog = \"\"\nApplication.Calculate\nProbe = Log\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "sheet-sink-Calculate|sheet-own-Calculate|book-sink-Calculate:Sheet1|book-own-Calculate:Sheet1|app-sink-Calculate:Sheet1|"
+    },
+    {
+      "name": "calculate_volatile",
+      "source": "Function Probe() As String\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nDim i As Long\nFor i = Worksheets.Count To 1 Step -1\nIf Worksheets(i).Name <> \"Sheet1\" Then Worksheets(i).Delete\nNext\nWorksheets(\"Sheet1\").Activate\nCells.Clear\nRange(\"A1\").Select\nDim sink As New ExcelSink\nSet sink.Sheet = ActiveSheet\nSet sink.Book = ActiveWorkbook\nSet sink.App = Application\nApplication.EnableEvents = True\nLog = \"\"\nRange(\"D1\").Formula = \"=RAND()\"\nLog = \"\"\nApplication.Calculate\nProbe = Log\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "sheet-sink-Calculate|sheet-own-Calculate|book-sink-Calculate:Sheet1|book-own-Calculate:Sheet1|app-sink-Calculate:Sheet1|"
+    },
+    {
+      "name": "calculate_manual_volatile",
+      "source": "Function Probe() As String\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nDim i As Long\nFor i = Worksheets.Count To 1 Step -1\nIf Worksheets(i).Name <> \"Sheet1\" Then Worksheets(i).Delete\nNext\nWorksheets(\"Sheet1\").Activate\nCells.Clear\nRange(\"A1\").Select\nDim sink As New ExcelSink\nSet sink.Sheet = ActiveSheet\nSet sink.Book = ActiveWorkbook\nSet sink.App = Application\nApplication.EnableEvents = True\nLog = \"\"\nRange(\"D1\").Formula = \"=RAND()\"\nApplication.Calculation = -4135\nLog = \"\"\nApplication.Calculate\nProbe = Log\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "sheet-sink-Calculate|sheet-own-Calculate|book-sink-Calculate:Sheet1|book-own-Calculate:Sheet1|app-sink-Calculate:Sheet1|"
+    },
+    {
+      "name": "selection_change",
+      "source": "Function Probe() As String\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nDim i As Long\nFor i = Worksheets.Count To 1 Step -1\nIf Worksheets(i).Name <> \"Sheet1\" Then Worksheets(i).Delete\nNext\nWorksheets(\"Sheet1\").Activate\nCells.Clear\nRange(\"A1\").Select\nDim sink As New ExcelSink\nSet sink.Sheet = ActiveSheet\nSet sink.Book = ActiveWorkbook\nSet sink.App = Application\nApplication.EnableEvents = True\nLog = \"\"\nRange(\"B2\").Select\nProbe = Log\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "sheet-sink-SelectionChange:B2|sheet-own-SelectionChange:B2|book-sink-SelectionChange:Sheet1:B2|book-own-SelectionChange:Sheet1:B2|app-sink-SelectionChange:Sheet1:B2|"
+    },
+    {
+      "name": "new_sheet",
+      "source": "Function Probe() As String\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nDim i As Long\nFor i = Worksheets.Count To 1 Step -1\nIf Worksheets(i).Name <> \"Sheet1\" Then Worksheets(i).Delete\nNext\nWorksheets(\"Sheet1\").Activate\nCells.Clear\nRange(\"A1\").Select\nDim sink As New ExcelSink\nSet sink.Sheet = ActiveSheet\nSet sink.Book = ActiveWorkbook\nSet sink.App = Application\nApplication.EnableEvents = True\nLog = \"\"\nWorksheets.Add\nProbe = Log\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "book-sink-NewSheet:Sheet2|book-own-NewSheet:Sheet2|app-sink-NewSheet:Sheet2|sheet-sink-Deactivate|sheet-own-Deactivate|book-sink-Deactivate:Sheet1|book-own-Deactivate:Sheet1|app-sink-Deactivate:Sheet1|book-sink-Activate:Sheet2|book-own-Activate:Sheet2|app-sink-Activate:Sheet2|"
+    },
+    {
+      "name": "activation",
+      "source": "Function Probe() As String\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nDim i As Long\nFor i = Worksheets.Count To 1 Step -1\nIf Worksheets(i).Name <> \"Sheet1\" Then Worksheets(i).Delete\nNext\nWorksheets(\"Sheet1\").Activate\nCells.Clear\nRange(\"A1\").Select\nDim sink As New ExcelSink\nSet sink.Sheet = ActiveSheet\nSet sink.Book = ActiveWorkbook\nSet sink.App = Application\nApplication.EnableEvents = True\nLog = \"\"\nWorksheets.Add\nLog = \"\"\nWorksheets(\"Sheet1\").Activate\nProbe = Log\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "book-sink-Deactivate:Sheet2|book-own-Deactivate:Sheet2|app-sink-Deactivate:Sheet2|sheet-sink-Activate|sheet-own-Activate|book-sink-Activate:Sheet1|book-own-Activate:Sheet1|app-sink-Activate:Sheet1|"
+    }
+  ]
+}

@@ -393,8 +393,8 @@ class Application(ExcelObject):
     @method
     def Calculate(self) -> object:
         for book in self.workbooks_.books:
-            book.calculator.calculate_all()
-            _events.calculated_all(book)
+            worked = book.calculator.calculate_all()
+            _events.calculated_all(book, worked)
         return EMPTY
 
     @method

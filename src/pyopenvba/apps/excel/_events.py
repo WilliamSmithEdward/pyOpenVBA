@@ -1,9 +1,10 @@
 """The events Excel raises in a sheet's and the workbook's own modules.
 
-Measured in live Excel (scripts/measure_events.py, tests/fixtures/events.json).
-Each event runs its handler in the sheet's module first -- Worksheet_Change
--- and then the workbook's -- Workbook_SheetChange, the sheet first among
-its arguments -- and none of them while Application.EnableEvents is False.
+Measured in live Excel (scripts/measure_events.py and measure_excel_event_sinks.py).
+Each event reaches worksheet sinks, Worksheet_Change, workbook sinks,
+Workbook_SheetChange and application sinks, in that order, and none while
+Application.EnableEvents is False. The sheet is first among workbook and
+application handler arguments.
 A handler that edits a sheet raises that edit's events inside its own, as
 Excel does.
 
@@ -17,7 +18,7 @@ Excel does.
 * Calculate: after an edit that worked formulas out, for each sheet
   whose formulas it worked out -- before the Change, except after an
   insert, which changes first, and after Replace, which calculates last.
-  Application.Calculate raises it for every sheet that holds a formula.
+  Application.Calculate raises it for sheets with stale or volatile formulas.
 * SelectionChange: a Select that moves the selection.
 * Deactivate, then Activate: another sheet made active; a new sheet is
   NewSheet first, and deactivates the sheet it was placed beside, or the
@@ -48,12 +49,22 @@ def _handle(owner: VBAObject, procedure: str, args: list[object]) -> None:
         document.interpreter.call(found, document.module, args, {}, me=document)
 
 
+def _sinks(book: Workbook, source: VBAObject, event: str, args: list[object]) -> None:
+    interpreter = book.application.interpreter
+    if interpreter is not None:
+        interpreter.raise_event(source, event, args)
+
+
 def _both(sheet: Worksheet, event: str, args: list[object]) -> None:
     """One event, in the sheet's module and then in its workbook's."""
     if not _on(sheet.book):
         return
+    _sinks(sheet.book, sheet, event, args)
     _handle(sheet, f"Worksheet_{event}", args)
-    _handle(sheet.book, f"Workbook_Sheet{event}", [sheet, *args])
+    combined = [sheet, *args]
+    _sinks(sheet.book, sheet.book, f"Sheet{event}", combined)
+    _handle(sheet.book, f"Workbook_Sheet{event}", combined)
+    _sinks(sheet.book, sheet.book.application, f"Sheet{event}", combined)
 
 
 def changed(target: Range) -> None:
@@ -77,13 +88,12 @@ def recalculated(book: Workbook) -> None:
         _both(sheet, "Calculate", [])
 
 
-def calculated_all(book: Workbook) -> None:
-    """Application.Calculate: Calculate for every sheet that holds a formula."""
+def calculated_all(book: Workbook, worked: list[Worksheet]) -> None:
+    """Application.Calculate: events for sheets with stale or volatile formulas."""
     if not _on(book):
         return
-    for sheet in list(book.sheets_):
-        if any(cell.formula for cell in sheet.cells_.values()):
-            _both(sheet, "Calculate", [])
+    for sheet in worked:
+        _both(sheet, "Calculate", [])
 
 
 def after_edit(target: Range, *, calculate_first: bool = True) -> None:
@@ -114,11 +124,19 @@ def new_sheet(book: Workbook, sheet: Worksheet, left: Worksheet | None) -> None:
     """A sheet added: NewSheet, then the sheet it left deactivates and the new one activates."""
     if not _on(book):
         return
+    _sinks(book, book, "NewSheet", [sheet])
     _handle(book, "Workbook_NewSheet", [sheet])
+    _sinks(book, book.application, "WorkbookNewSheet", [book, sheet])
     activated(book, left, sheet)
 
 
 def _listening_for_calculate(book: Workbook) -> bool:
+    interpreter = book.application.interpreter
+    if interpreter is not None:
+        if interpreter.listens_for_event(book, "SheetCalculate") or interpreter.listens_for_event(book.application, "SheetCalculate"):
+            return True
+        if any(interpreter.listens_for_event(sheet, "Calculate") for sheet in book.sheets_):
+            return True
     for owner in [book, *book.sheets_]:
         document = owner.vba_document
         if document is not None and (document.module.procedure("Worksheet_Calculate") is not None

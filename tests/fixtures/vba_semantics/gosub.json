@@ -1,0 +1,216 @@
+{
+  "measured_at": "2026-10-04T21:00:17.460465+00:00",
+  "excel_version_build_country": "16.0|20430|1",
+  "probes": [
+    {
+      "name": "nested",
+      "source": "Function Probe() As String\nDim s As String\ns = \"A\"\nGoSub First\nProbe = s & \"Z\"\nExit Function\nFirst:\ns = s & \"B\"\nGoSub Second\ns = s & \"D\"\nReturn\nSecond:\ns = s & \"C\"\nReturn\nEnd Function\n",
+      "result": "ABCDZ"
+    },
+    {
+      "name": "loop",
+      "source": "Function Probe() As String\nDim i As Long, s As String\nFor i = 1 To 3\n    GoSub Append\n    s = s & \"!\"\nNext\nProbe = s\nExit Function\nAppend:\ns = s & CStr(i)\nReturn\nEnd Function\n",
+      "result": "1!2!3!"
+    },
+    {
+      "name": "goto_in_subroutine",
+      "source": "Function Probe() As String\nGoSub First\nProbe = Probe & \"Z\"\nExit Function\nFirst:\nProbe = \"A\"\nGoTo Second\nSecond:\nProbe = Probe & \"B\"\nReturn\nEnd Function\n",
+      "result": "ABZ"
+    },
+    {
+      "name": "early_exit",
+      "source": "Function Probe() As String\nGoSub First\nProbe = \"wrong\"\nExit Function\nFirst:\nProbe = \"exit\"\nExit Function\nEnd Function\n",
+      "result": "exit"
+    },
+    {
+      "name": "return_without_gosub",
+      "source": "Function Probe() As String\nOn Error Resume Next\nReturn\nProbe = CStr(Err.Number)\nEnd Function\n",
+      "result": "3"
+    },
+    {
+      "name": "resume_next",
+      "source": "Function Probe() As String\nOn Error Resume Next\nGoSub First\nProbe = Probe & \"Z\"\nExit Function\nFirst:\nErr.Raise 11\nProbe = CStr(Err.Number)\nReturn\nEnd Function\n",
+      "result": "11Z"
+    },
+    {
+      "name": "handler_resume",
+      "source": "Function Probe() As String\nOn Error GoTo Handler\nGoSub First\nProbe = Probe & \"Z\"\nExit Function\nFirst:\nErr.Raise 11\nProbe = Probe & \"B\"\nReturn\nHandler:\nProbe = CStr(Err.Number)\nResume Next\nEnd Function\n",
+      "result": "11BZ"
+    },
+    {
+      "name": "handler_return",
+      "source": "Function Probe() As String\nOn Error GoTo Handler\nGoSub First\nProbe = Probe & \"Z:\" & CStr(Err.Number)\nExit Function\nFirst:\nErr.Raise 11\nProbe = \"wrong\"\nReturn\nHandler:\nProbe = CStr(Err.Number)\nReturn\nEnd Function\n",
+      "result": "11Z:11"
+    },
+    {
+      "name": "numeric_label",
+      "source": "Function Probe() As String\nGoSub 100\nProbe = Probe & \"Z\"\nExit Function\n100 Probe = \"N\"\nReturn\nEnd Function\n",
+      "result": "NZ"
+    },
+    {
+      "name": "fall_off_procedure",
+      "source": "Function Probe() As String\nGoSub Last\nProbe = \"wrong\"\nExit Function\nLast:\nProbe = \"end\"\nEnd Function\n",
+      "result": "end"
+    },
+    {
+      "name": "conditional_return",
+      "source": "Function Probe() As String\nDim n As Long\nGoSub First\nGoSub First\nProbe = CStr(n)\nExit Function\nFirst:\nn = n + 1\nIf n = 1 Then\n    Return\nEnd If\nn = n + 10\nReturn\nEnd Function\n",
+      "result": "12"
+    },
+    {
+      "name": "gosub_from_handler",
+      "source": "Function Probe() As String\nOn Error GoTo Handler\nErr.Raise 11\nProbe = Probe & \"Z\"\nExit Function\nWorker:\nProbe = Probe & \"W\"\nReturn\nHandler:\nProbe = \"H\"\nGoSub Worker\nResume Next\nEnd Function\n",
+      "result": "HWZ"
+    },
+    {
+      "name": "returned_stack_empty",
+      "source": "Function Probe() As String\nOn Error Resume Next\nGoSub Worker\nReturn\nProbe = CStr(Err.Number)\nExit Function\nWorker:\nReturn\nEnd Function\n",
+      "result": "3"
+    },
+    {
+      "name": "goto_after_error",
+      "source": "Function Probe() As String\nOn Error GoTo Handler\nGoSub Worker\nProbe = Probe & \"Z\"\nExit Function\nWorker:\nErr.Raise 11\nReturn\nHandler:\nProbe = \"H\"\nGoTo Finish\nFinish:\nProbe = Probe & \"F\"\nReturn\nEnd Function\n",
+      "result": "HFZ"
+    },
+    {
+      "name": "on_gosub_-1",
+      "source": "Function Probe() As String\nOn Error Resume Next\nOn -1 GoSub First, Second\nProbe = Probe & \"Z:\" & CStr(Err.Number)\nExit Function\nFirst:\nProbe = \"A\"\nReturn\nSecond:\nProbe = \"B\"\nReturn\nEnd Function\n",
+      "result": "Z:5"
+    },
+    {
+      "name": "on_gosub_0",
+      "source": "Function Probe() As String\nOn Error Resume Next\nOn 0 GoSub First, Second\nProbe = Probe & \"Z:\" & CStr(Err.Number)\nExit Function\nFirst:\nProbe = \"A\"\nReturn\nSecond:\nProbe = \"B\"\nReturn\nEnd Function\n",
+      "result": "Z:0"
+    },
+    {
+      "name": "on_gosub_1",
+      "source": "Function Probe() As String\nOn Error Resume Next\nOn 1 GoSub First, Second\nProbe = Probe & \"Z:\" & CStr(Err.Number)\nExit Function\nFirst:\nProbe = \"A\"\nReturn\nSecond:\nProbe = \"B\"\nReturn\nEnd Function\n",
+      "result": "AZ:0"
+    },
+    {
+      "name": "on_gosub_2",
+      "source": "Function Probe() As String\nOn Error Resume Next\nOn 2 GoSub First, Second\nProbe = Probe & \"Z:\" & CStr(Err.Number)\nExit Function\nFirst:\nProbe = \"A\"\nReturn\nSecond:\nProbe = \"B\"\nReturn\nEnd Function\n",
+      "result": "BZ:0"
+    },
+    {
+      "name": "on_gosub_3",
+      "source": "Function Probe() As String\nOn Error Resume Next\nOn 3 GoSub First, Second\nProbe = Probe & \"Z:\" & CStr(Err.Number)\nExit Function\nFirst:\nProbe = \"A\"\nReturn\nSecond:\nProbe = \"B\"\nReturn\nEnd Function\n",
+      "result": "Z:0"
+    },
+    {
+      "name": "on_gosub_255",
+      "source": "Function Probe() As String\nOn Error Resume Next\nOn 255 GoSub First, Second\nProbe = Probe & \"Z:\" & CStr(Err.Number)\nExit Function\nFirst:\nProbe = \"A\"\nReturn\nSecond:\nProbe = \"B\"\nReturn\nEnd Function\n",
+      "result": "Z:0"
+    },
+    {
+      "name": "on_gosub_256",
+      "source": "Function Probe() As String\nOn Error Resume Next\nOn 256 GoSub First, Second\nProbe = Probe & \"Z:\" & CStr(Err.Number)\nExit Function\nFirst:\nProbe = \"A\"\nReturn\nSecond:\nProbe = \"B\"\nReturn\nEnd Function\n",
+      "result": "Z:5"
+    },
+    {
+      "name": "on_gosub_0.5",
+      "source": "Function Probe() As String\nOn Error Resume Next\nOn 0.5 GoSub First, Second\nProbe = Probe & \"Z:\" & CStr(Err.Number)\nExit Function\nFirst:\nProbe = \"A\"\nReturn\nSecond:\nProbe = \"B\"\nReturn\nEnd Function\n",
+      "result": "Z:0"
+    },
+    {
+      "name": "on_gosub_1.5",
+      "source": "Function Probe() As String\nOn Error Resume Next\nOn 1.5 GoSub First, Second\nProbe = Probe & \"Z:\" & CStr(Err.Number)\nExit Function\nFirst:\nProbe = \"A\"\nReturn\nSecond:\nProbe = \"B\"\nReturn\nEnd Function\n",
+      "result": "BZ:0"
+    },
+    {
+      "name": "on_gosub_2.5",
+      "source": "Function Probe() As String\nOn Error Resume Next\nOn 2.5 GoSub First, Second\nProbe = Probe & \"Z:\" & CStr(Err.Number)\nExit Function\nFirst:\nProbe = \"A\"\nReturn\nSecond:\nProbe = \"B\"\nReturn\nEnd Function\n",
+      "result": "BZ:0"
+    },
+    {
+      "name": "on_gosub_Null",
+      "source": "Function Probe() As String\nOn Error Resume Next\nOn Null GoSub First, Second\nProbe = Probe & \"Z:\" & CStr(Err.Number)\nExit Function\nFirst:\nProbe = \"A\"\nReturn\nSecond:\nProbe = \"B\"\nReturn\nEnd Function\n",
+      "result": "Z:94"
+    },
+    {
+      "name": "on_gosub_\"2\"",
+      "source": "Function Probe() As String\nOn Error Resume Next\nOn \"2\" GoSub First, Second\nProbe = Probe & \"Z:\" & CStr(Err.Number)\nExit Function\nFirst:\nProbe = \"A\"\nReturn\nSecond:\nProbe = \"B\"\nReturn\nEnd Function\n",
+      "result": "BZ:0"
+    },
+    {
+      "name": "on_gosub_32768",
+      "source": "Function Probe() As String\nOn Error Resume Next\nOn 32768 GoSub First, Second\nProbe = Probe & \"Z:\" & CStr(Err.Number)\nExit Function\nFirst:\nProbe = \"A\"\nReturn\nSecond:\nProbe = \"B\"\nReturn\nEnd Function\n",
+      "result": "Z:6"
+    },
+    {
+      "name": "on_gosub_True",
+      "source": "Function Probe() As String\nOn Error Resume Next\nOn True GoSub First, Second\nProbe = Probe & \"Z:\" & CStr(Err.Number)\nExit Function\nFirst:\nProbe = \"A\"\nReturn\nSecond:\nProbe = \"B\"\nReturn\nEnd Function\n",
+      "result": "Z:5"
+    },
+    {
+      "name": "on_goto_-1",
+      "source": "Function Probe() As String\nOn Error Resume Next\nOn -1 GoTo First, Second\nProbe = Probe & \"Z:\" & CStr(Err.Number)\nExit Function\nFirst:\nProbe = \"A\"\nProbe = Probe & \"Z\": Exit Function\nSecond:\nProbe = \"B\"\nProbe = Probe & \"Z\": Exit Function\nEnd Function\n",
+      "result": "Z:5"
+    },
+    {
+      "name": "on_goto_0",
+      "source": "Function Probe() As String\nOn Error Resume Next\nOn 0 GoTo First, Second\nProbe = Probe & \"Z:\" & CStr(Err.Number)\nExit Function\nFirst:\nProbe = \"A\"\nProbe = Probe & \"Z\": Exit Function\nSecond:\nProbe = \"B\"\nProbe = Probe & \"Z\": Exit Function\nEnd Function\n",
+      "result": "Z:0"
+    },
+    {
+      "name": "on_goto_1",
+      "source": "Function Probe() As String\nOn Error Resume Next\nOn 1 GoTo First, Second\nProbe = Probe & \"Z:\" & CStr(Err.Number)\nExit Function\nFirst:\nProbe = \"A\"\nProbe = Probe & \"Z\": Exit Function\nSecond:\nProbe = \"B\"\nProbe = Probe & \"Z\": Exit Function\nEnd Function\n",
+      "result": "AZ"
+    },
+    {
+      "name": "on_goto_2",
+      "source": "Function Probe() As String\nOn Error Resume Next\nOn 2 GoTo First, Second\nProbe = Probe & \"Z:\" & CStr(Err.Number)\nExit Function\nFirst:\nProbe = \"A\"\nProbe = Probe & \"Z\": Exit Function\nSecond:\nProbe = \"B\"\nProbe = Probe & \"Z\": Exit Function\nEnd Function\n",
+      "result": "BZ"
+    },
+    {
+      "name": "on_goto_3",
+      "source": "Function Probe() As String\nOn Error Resume Next\nOn 3 GoTo First, Second\nProbe = Probe & \"Z:\" & CStr(Err.Number)\nExit Function\nFirst:\nProbe = \"A\"\nProbe = Probe & \"Z\": Exit Function\nSecond:\nProbe = \"B\"\nProbe = Probe & \"Z\": Exit Function\nEnd Function\n",
+      "result": "Z:0"
+    },
+    {
+      "name": "on_goto_255",
+      "source": "Function Probe() As String\nOn Error Resume Next\nOn 255 GoTo First, Second\nProbe = Probe & \"Z:\" & CStr(Err.Number)\nExit Function\nFirst:\nProbe = \"A\"\nProbe = Probe & \"Z\": Exit Function\nSecond:\nProbe = \"B\"\nProbe = Probe & \"Z\": Exit Function\nEnd Function\n",
+      "result": "Z:0"
+    },
+    {
+      "name": "on_goto_256",
+      "source": "Function Probe() As String\nOn Error Resume Next\nOn 256 GoTo First, Second\nProbe = Probe & \"Z:\" & CStr(Err.Number)\nExit Function\nFirst:\nProbe = \"A\"\nProbe = Probe & \"Z\": Exit Function\nSecond:\nProbe = \"B\"\nProbe = Probe & \"Z\": Exit Function\nEnd Function\n",
+      "result": "Z:5"
+    },
+    {
+      "name": "on_goto_0.5",
+      "source": "Function Probe() As String\nOn Error Resume Next\nOn 0.5 GoTo First, Second\nProbe = Probe & \"Z:\" & CStr(Err.Number)\nExit Function\nFirst:\nProbe = \"A\"\nProbe = Probe & \"Z\": Exit Function\nSecond:\nProbe = \"B\"\nProbe = Probe & \"Z\": Exit Function\nEnd Function\n",
+      "result": "Z:0"
+    },
+    {
+      "name": "on_goto_1.5",
+      "source": "Function Probe() As String\nOn Error Resume Next\nOn 1.5 GoTo First, Second\nProbe = Probe & \"Z:\" & CStr(Err.Number)\nExit Function\nFirst:\nProbe = \"A\"\nProbe = Probe & \"Z\": Exit Function\nSecond:\nProbe = \"B\"\nProbe = Probe & \"Z\": Exit Function\nEnd Function\n",
+      "result": "BZ"
+    },
+    {
+      "name": "on_goto_2.5",
+      "source": "Function Probe() As String\nOn Error Resume Next\nOn 2.5 GoTo First, Second\nProbe = Probe & \"Z:\" & CStr(Err.Number)\nExit Function\nFirst:\nProbe = \"A\"\nProbe = Probe & \"Z\": Exit Function\nSecond:\nProbe = \"B\"\nProbe = Probe & \"Z\": Exit Function\nEnd Function\n",
+      "result": "BZ"
+    },
+    {
+      "name": "on_goto_Null",
+      "source": "Function Probe() As String\nOn Error Resume Next\nOn Null GoTo First, Second\nProbe = Probe & \"Z:\" & CStr(Err.Number)\nExit Function\nFirst:\nProbe = \"A\"\nProbe = Probe & \"Z\": Exit Function\nSecond:\nProbe = \"B\"\nProbe = Probe & \"Z\": Exit Function\nEnd Function\n",
+      "result": "Z:94"
+    },
+    {
+      "name": "on_goto_\"2\"",
+      "source": "Function Probe() As String\nOn Error Resume Next\nOn \"2\" GoTo First, Second\nProbe = Probe & \"Z:\" & CStr(Err.Number)\nExit Function\nFirst:\nProbe = \"A\"\nProbe = Probe & \"Z\": Exit Function\nSecond:\nProbe = \"B\"\nProbe = Probe & \"Z\": Exit Function\nEnd Function\n",
+      "result": "BZ"
+    },
+    {
+      "name": "on_goto_32768",
+      "source": "Function Probe() As String\nOn Error Resume Next\nOn 32768 GoTo First, Second\nProbe = Probe & \"Z:\" & CStr(Err.Number)\nExit Function\nFirst:\nProbe = \"A\"\nProbe = Probe & \"Z\": Exit Function\nSecond:\nProbe = \"B\"\nProbe = Probe & \"Z\": Exit Function\nEnd Function\n",
+      "result": "Z:6"
+    },
+    {
+      "name": "on_goto_True",
+      "source": "Function Probe() As String\nOn Error Resume Next\nOn True GoTo First, Second\nProbe = Probe & \"Z:\" & CStr(Err.Number)\nExit Function\nFirst:\nProbe = \"A\"\nProbe = Probe & \"Z\": Exit Function\nSecond:\nProbe = \"B\"\nProbe = Probe & \"Z\": Exit Function\nEnd Function\n",
+      "result": "Z:5"
+    }
+  ]
+}

@@ -12,6 +12,20 @@ Excel is not feature complete. The existing
 file editing. Neither passing those gates nor passing the current test
 suite establishes completeness of Excel's object model or runtime.
 
+The owner renewed this as an active implementation goal on 2026-10-04,
+without a time or effort budget. Work continues through measured, reviewable
+increments against this checklist. pyOfficeEditor is a reference for Excel
+file surfaces; the initial reference revision is
+`4723383e5d3039763e64ecd2a3ee092786c91bb5`. Adaptations must share the
+runtime's state and pass the same Office conformance and persistence gates.
+
+The first increment implements outer-body `GoSub`/`Return` and computed
+subroutine calls, with 42 measured Excel probes in
+`tests/fixtures/vba_semantics/gosub.json`. It also fixes computed `GoTo`
+index coercion and bounds. Arbitrary jumps into structured blocks still
+need implementation and measurements; this is partial language coverage,
+not a completed Excel milestone.
+
 ## What counts as complete
 
 Every headless feature must have a recorded implementation status and

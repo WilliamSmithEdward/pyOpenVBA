@@ -234,13 +234,28 @@ it, and that shapes drawn here are the shapes Office reads back.
 
 ## What is implemented
 
-**The language.** Every statement form: the declarations, `If` in both
+**The language.** The declarations, `If` in both
 shapes, `For`, `For Each`, `Do` in all four, `While`, `Select Case`,
-`With`, `Exit`, `GoTo` and labels, `On Error` with `Resume`, `ReDim`,
+`With`, `Exit`, `GoTo`, `GoSub`, `On ... GoTo/GoSub`, `Return` and labels,
+`On Error` with `Resume`, `ReDim`,
 `Erase`, the `Mid` statement, `Type` and `Enum`, class modules with
 `Property Get/Let/Set` and `Class_Initialize`, `ByRef` and `ByVal`,
 `Optional` with defaults, `ParamArray`, named arguments, `Static`
 locals, and conditional compilation.
+
+`GoSub` uses the current procedure's variables and returns to the statement
+after its call, including inside a loop. Nested calls return in reverse
+order; another procedure cannot consume the caller's pending return.
+`Return` without `GoSub` raises error 3. Falling through the procedure's end
+or executing `Exit Sub/Function/Property` ends the procedure even if a return
+is pending. These behaviors and error-handler interactions replay 42 live
+Excel probes in `tests/fixtures/vba_semantics/gosub.json`, recorded by
+`scripts/measure_vba_gosub.py`. Computed jumps convert the index to Integer
+before checking 0–255; larger values cause error 5, Integer overflow error 6.
+Procedure and subroutine nesting share the interpreter's 160-entry safety
+limit, which reports error 28 rather than exhausting Python's stack.
+Jump targets inside structured blocks remain unsupported: currently targets
+must be labels in the procedure's outer body, for both `GoTo` and `GoSub`.
 
 `On Error GoTo` does not unwind the stack: the handler runs where the
 error happened, so `Resume Next` hands control back to the statement

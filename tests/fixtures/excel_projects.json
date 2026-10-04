@@ -1,0 +1,85 @@
+{
+  "measured_at": "2026-10-04T21:57:31.026758+00:00",
+  "excel_version_build": "16.0|20430",
+  "module": "Public Function Echo() As String\nEcho = ThisWorkbook.Name & \":\" & ActiveWorkbook.Name\nEnd Function\nPrivate Function PrivateAnswer() As Long\nPrivateAnswer = 42\nEnd Function\nPublic Function CallOther() As String\nCallOther = Application.Run(\"'beta.xlsm'!Echo\") & \"|\" & ThisWorkbook.Name\nEnd Function\n",
+  "probes": [
+    {
+      "name": "unqualified_active_alpha",
+      "action": "alpha.Activate\nanswer = Application.Run(\"Echo\")",
+      "result": "#error:1004",
+      "caller_source": ""
+    },
+    {
+      "name": "unqualified_active_beta",
+      "action": "beta.Activate\nanswer = Application.Run(\"Echo\")",
+      "result": "#error:1004",
+      "caller_source": ""
+    },
+    {
+      "name": "qualified_alpha",
+      "action": "beta.Activate\nanswer = Application.Run(\"'alpha.xlsm'!Echo\")",
+      "result": "alpha.xlsm:beta.xlsm#error:0",
+      "caller_source": ""
+    },
+    {
+      "name": "qualified_beta",
+      "action": "alpha.Activate\nanswer = Application.Run(\"'beta.xlsm'!Echo\")",
+      "result": "beta.xlsm:alpha.xlsm#error:0",
+      "caller_source": ""
+    },
+    {
+      "name": "qualified_module",
+      "action": "beta.Activate\nanswer = Application.Run(\"'alpha.xlsm'!Library.Echo\")",
+      "result": "alpha.xlsm:beta.xlsm#error:0",
+      "caller_source": ""
+    },
+    {
+      "name": "private_function",
+      "action": "beta.Activate\nanswer = Application.Run(\"'alpha.xlsm'!PrivateAnswer\")",
+      "result": "42#error:0",
+      "caller_source": ""
+    },
+    {
+      "name": "missing_workbook",
+      "action": "answer = Application.Run(\"'absent.xlsm'!Echo\")",
+      "result": "#error:1004",
+      "caller_source": ""
+    },
+    {
+      "name": "missing_macro",
+      "action": "answer = Application.Run(\"'alpha.xlsm'!Absent\")",
+      "result": "#error:1004",
+      "caller_source": ""
+    },
+    {
+      "name": "nested_project_call",
+      "action": "alpha.Activate\nanswer = Application.Run(\"'alpha.xlsm'!CallOther\")",
+      "result": "beta.xlsm:alpha.xlsm|alpha.xlsm#error:0",
+      "caller_source": ""
+    },
+    {
+      "name": "unqualified_caller_active",
+      "action": "ThisWorkbook.Activate\nanswer = Application.Run(\"Echo\")",
+      "result": "#error:1004",
+      "caller_source": ""
+    },
+    {
+      "name": "unqualified_single_project",
+      "action": "beta.Close False\nalpha.Activate\nanswer = Application.Run(\"Echo\")",
+      "result": "#error:1004",
+      "caller_source": ""
+    },
+    {
+      "name": "unqualified_caller_project",
+      "action": "beta.Activate\nanswer = Application.Run(\"Echo\")",
+      "result": "caller#error:0",
+      "caller_source": "Public Function Echo() As String\nEcho = \"caller\"\nEnd Function"
+    },
+    {
+      "name": "qualified_case_insensitive",
+      "action": "beta.Activate\nanswer = Application.Run(\"'ALPHA.XLSM'!library.eCHO\")",
+      "result": "alpha.xlsm:beta.xlsm#error:0",
+      "caller_source": ""
+    }
+  ]
+}

@@ -69,9 +69,18 @@ def test_python_save_respects_cancelled_save(tmp_path: Path) -> None:
     app = ExcelApplication()
     book = app.add_workbook()
     app.add_module("Private Sub Workbook_BeforeSave(ByVal SaveAsUI As Boolean, Cancel As Boolean)\nCancel = True\nEnd Sub", name=book.code_name, kind="document")
-    path = tmp_path / "cancelled.xlsx"
+    path = tmp_path / "not-created" / "cancelled.xlsx"
     with pytest.raises(VBARuntimeError, match="cancelled") as caught:
         app.save(path)
     assert caught.value.number == 1004
     assert not path.exists()
+    assert not path.parent.exists()
     assert book.path == ""
+
+
+def test_python_save_keeps_creating_parent_directories(tmp_path: Path) -> None:
+    app = ExcelApplication()
+    app.add_workbook()
+    path = tmp_path / "created" / "saved.xlsx"
+    assert app.save(path) == path
+    assert path.exists()

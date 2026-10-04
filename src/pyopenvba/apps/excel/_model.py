@@ -749,7 +749,7 @@ class Workbook(ExcelObject):
             raise error(1004, "SaveAs filename does not match FileFormat")
         return self.save_to(target, before=False, file_format=chosen)
 
-    def save_to(self, target: Path, *, before: bool = True, file_format: int | None = None) -> bool:
+    def save_to(self, target: Path, *, before: bool = True, file_format: int | None = None, create_parents: bool = False) -> bool:
         from pyopenvba.apps.excel._io import prepare_format, save_workbook
 
         if before and not _events.before_save(self):
@@ -757,7 +757,7 @@ class Workbook(ExcelObject):
             return False
         if file_format is not None:
             prepare_format(self, file_format)
-        if not target.parent.is_dir():
+        if not create_parents and not target.parent.is_dir():
             raise error(1004, "the save directory does not exist")
         try:
             save_workbook(self, target)

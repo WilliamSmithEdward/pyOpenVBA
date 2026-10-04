@@ -15,6 +15,7 @@ import io
 import posixpath
 import struct
 import zipfile
+import zlib
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
@@ -112,6 +113,31 @@ def _xml(data: bytes) -> tuple[str, list[tuple[str, dict[str, str]]]]:
     parser.StartDoctypeDeclHandler = refuse_dtd
     parser.Parse(data, True)
     return root, children
+
+
+def _verify_deflate(raw: bytes, info: zipfile.ZipInfo, limit: int) -> None:
+    """Do not trust file_size: ZipExtFile can trim output to that size."""
+    name_size, extra_size = struct.unpack_from("<HH", raw, info.header_offset + 26)
+    start = info.header_offset + 30 + name_size + extra_size
+    end = start + info.compress_size
+    if end > len(raw):
+        raise ValueError("Truncated compressed payload")
+    decoder = zlib.decompressobj(-15)
+    size = 0
+    crc = 0
+    for offset in range(start, end, 1024 * 1024):
+        chunk = raw[offset:min(end, offset + 1024 * 1024)]
+        while chunk:
+            output = decoder.decompress(chunk, min(1024 * 1024, limit - size + 1))
+            size += len(output)
+            if size > limit:
+                raise ValueError("Actual decompressed payload exceeds byte limit")
+            crc = zlib.crc32(output, crc)
+            chunk = decoder.unconsumed_tail
+            if decoder.unused_data:
+                raise ValueError("Trailing bytes within compressed payload")
+    if not decoder.eof or size != info.file_size or crc != info.CRC:
+        raise ValueError("Actual deflate payload size or CRC disagrees with central directory")
 
 
 def _cfb_check(raw: bytes) -> None:
@@ -298,6 +324,10 @@ def _check(raw: bytes, path: Path, max_part_bytes: int, max_total_bytes: int) ->
                     if (info.orig_filename != name or "\\" in name or name.startswith("/")
                             or posixpath.normpath(name.rstrip("/")) != name.rstrip("/")):
                         issues.append(FileIssue("opc.part_name", "error", name, "Ambiguous or invalid package part name"))
+                    if info.compress_type not in {zipfile.ZIP_STORED, zipfile.ZIP_DEFLATED} or info.flag_bits & 1:
+                        issues.append(FileIssue("check.compression", "warning", name, "Encrypted or unsupported compression; payload not checked"))
+                        complete = False
+                        continue
                     if info.file_size > max_part_bytes or total + info.file_size > max_total_bytes:
                         issues.append(FileIssue("check.limit", "warning", name, "Decompression byte limit exceeded"))
                         complete = False
@@ -317,6 +347,10 @@ def _check(raw: bytes, path: Path, max_part_bytes: int, max_total_bytes: int) ->
                                     raise ValueError("Decompressed part exceeds byte limit")
                                 chunks.append(chunk)
                         data = b"".join(chunks)
+                        if info.compress_type == zipfile.ZIP_DEFLATED:
+                            _verify_deflate(raw, info, max_part_bytes)
+                        elif info.compress_type == zipfile.ZIP_STORED and info.compress_size != info.file_size:
+                            raise ValueError("Stored payload compressed and uncompressed sizes disagree")
                         checked += 1
                         # Keep only XML for cross-part checks; binary payloads need no tree.
                         if name.lower().endswith((".xml", ".rels")):
@@ -350,7 +384,7 @@ def _check(raw: bytes, path: Path, max_part_bytes: int, max_total_bytes: int) ->
                     except Exception as exc:
                         issues.append(FileIssue("zip.part", "error", name, str(exc)))
                 _package_xml(parts, names, issues)
-            if not any(issue.code == "check.limit" for issue in issues):
+            if complete:
                 if not _host_check(path, raw, issues):
                     issues.append(FileIssue("check.vba_scope", "warning", path.name, "VBA validation is unavailable for this extension"))
                     complete = False

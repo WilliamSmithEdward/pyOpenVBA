@@ -322,3 +322,37 @@ def test_lazy_vba_source_damage_is_not_missed(tmp_path: Path) -> None:
     assert not report.ok and report.errors
     with pytest.raises(FileRepairError):
         repair_file(path, output=tmp_path / "out.xlsm")
+
+
+def test_false_central_size_does_not_hide_payload(tmp_path: Path) -> None:
+    path = tmp_path / "book.xlsm"
+    with zipfile.ZipFile(path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+        archive.writestr("[Content_Types].xml", CT)
+        archive.writestr("payload.bin", b"content that must not disappear")
+    raw = bytearray(path.read_bytes())
+    with zipfile.ZipFile(io.BytesIO(raw)) as archive:
+        info = archive.getinfo("payload.bin")
+    offset = raw.index(b"PK\x01\x02", raw.index(b"PK\x01\x02") + 4)
+    struct.pack_into("<I", raw, offset + 16, 0)  # central CRC
+    struct.pack_into("<I", raw, offset + 24, 0)  # central uncompressed size
+    struct.pack_into("<I", raw, info.header_offset + 14, 0)
+    struct.pack_into("<I", raw, info.header_offset + 22, 0)
+    path.write_bytes(raw)
+    # zipfile alone accepts the zero-sized prefix and hides real payload data.
+    with zipfile.ZipFile(path) as archive:
+        assert archive.read("payload.bin") == b""
+    assert any(issue.code == "zip.part" for issue in check_file(path).errors)
+    with pytest.raises(FileRepairError):
+        repair_file(path, output=tmp_path / "out.xlsm")
+
+
+def test_unsupported_compression_is_incomplete(tmp_path: Path) -> None:
+    path = tmp_path / "book.xlsm"
+    package(path)
+    with zipfile.ZipFile(path, "a", compression=zipfile.ZIP_BZIP2) as archive:
+        archive.writestr("payload.bin", b"data")
+    report = check_file(path)
+    assert not report.complete and not report.ok
+    assert any(issue.code == "check.compression" for issue in report.warnings)
+    with pytest.raises(FileRepairError):
+        repair_file(path, output=tmp_path / "out.xlsm")

@@ -1004,6 +1004,9 @@ coverage are also explicit warnings: Access checks its catalog and VBA, not
 every table row or allocation map. Access's existing `compact_and_repair()`
 returns a rebuilt database and remains a separate operation.
 
+Encrypted ZIP parts and compression methods other than stored/deflate are
+reported as incomplete and cannot be repaired by this API.
+
 `save()` enforces the following protection and signature gates.
 
 ### Password-protected projects

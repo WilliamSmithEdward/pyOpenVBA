@@ -1510,6 +1510,14 @@ filename extension. A validated format changes even when the file write
 fails. XLSX conversion removes the VBA project and its signature parts;
 XML workbook conversion preserves unrelated parts. The live gate
 `tests/test_live_workbook_save_gate.py` opens the results in native Excel.
+Macro-enabled saves also persist modules added or replaced through
+`ExcelApplication.add_module()`. Standard and class modules and bound
+workbook/worksheet document modules reopen in the headless engine and
+execute in native Excel (`tests/test_runtime_project_persistence.py`).
+An unchanged project keeps its bytes and signatures; changed source uses
+the file writer's protection gates and drops stale signatures with a warning.
+The interpreter still belongs to one workbook; saving another open workbook
+preserves its own project rather than copying the interpreter's modules.
 Other SaveAs formats and parameters remain gaps. Filename-omitted SaveAs,
 uncancelled Save of an unnamed workbook, and closing a changed workbook
 without SaveChanges still report unsupported input/dialog behavior.

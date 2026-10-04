@@ -1194,8 +1194,12 @@ def save_workbook(book: Workbook, target: Path) -> None:
     _write_notes(book, package)
     _write_links(book, package, str(target.resolve().parent))
     _write_styles(book, package)
+    from pyopenvba.apps.excel._vba_save import persist_project
+
+    package = persist_project(book, package)
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_bytes(package.serialize())
+    book.package = package
     saved(book)
 
 

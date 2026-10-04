@@ -9,6 +9,7 @@ the same fixture, which opens before the entry is added and raises after
 
 from __future__ import annotations
 
+import io
 import shutil
 import warnings
 import zipfile
@@ -16,6 +17,7 @@ from pathlib import Path
 
 import pytest
 
+from pyopenvba.exceptions import PowerQueryError
 from pyopenvba.powerquery import PowerQueryWorkbook
 from pyopenvba.powerquery._opc import OpcFile
 
@@ -92,3 +94,26 @@ def test_an_ordinary_workbook_warns_about_nothing(tmp_path: Path) -> None:
         PowerQueryWorkbook(out).save()
 
     assert caught == []
+
+
+
+def test_zip64_locator_magic_in_content_is_not_an_archive_marker() -> None:
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(buffer, "w", zipfile.ZIP_STORED) as package:
+        package.writestr("attachment.bin", b"PK\x06\x07" + bytes(16))
+    raw = buffer.getvalue()
+    parsed = OpcFile.parse(raw)
+    assert parsed.read("attachment.bin") == b"PK\x06\x07" + bytes(16)
+    assert parsed.serialize() == raw
+
+
+def test_a_real_zip64_locator_is_still_refused(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(zipfile, "ZIP64_LIMIT", 0)
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(buffer, "w") as package:
+        package.writestr("attachment.bin", b"data")
+    raw = buffer.getvalue()
+    end = raw.rfind(b"PK\x05\x06")
+    assert raw[end - 20 : end - 16] == b"PK\x06\x07"
+    with pytest.raises(PowerQueryError, match="ZIP64"):
+        OpcFile.parse(raw)

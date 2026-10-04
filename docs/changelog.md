@@ -7,6 +7,20 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Changed
 
+- **Faster VBA saves for ZIP-based Office files.** Unchanged package parts
+  now retain their compressed bytes instead of being decompressed and
+  recompressed. `save(full_rebuild=True)` selects the previous full rebuild
+  path, including for ZIP files without a VBA project. The default does not
+  check untouched parts for decompression errors or CRC mismatches and can
+  preserve existing corruption; a full rebuild detects damage but does not
+  repair it. Unsupported packages automatically use the full rebuild path.
+  Based on PR #55 by @swsammy, with local-header length validation added.
+- Repeated VBA saves and retries after a failed write no longer restore
+  stale package signature parts removed by an earlier edit. Signature
+  inspection on the open object also reflects that removal.
+- ZIP64 locator bytes inside package content no longer make a normal ZIP
+  look like ZIP64, avoiding unnecessary fallback during VBA saves and false
+  refusals by the shared Office package reader.
 - The Malware scan builds the wheel and sdist with the hash-locked build
   tools, as a release builds them, and ClamAV and YARA-X scan them beside
   the committed files.

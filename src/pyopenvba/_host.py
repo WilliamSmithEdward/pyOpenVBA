@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import ClassVar, TypeVar
 
 from pyopenvba._new_project import with_project
+from pyopenvba._package_copy import copy_package
 from pyopenvba._package_signature import signature_parts, without_signature
 from pyopenvba._references import ReferenceManager, module_offset, reference_spans
 from pyopenvba.cfb import CFB
@@ -108,6 +109,9 @@ class VBAHostFile(ReferenceManager):
         # Set by add_vba_project: the project is not in the package yet, and these are its document modules.
         self._project_added = False
         self._document_names: set[str] = set()
+        # Package signature edits survive repeated saves and failed writes;
+        # the original ZIP remains the source of unchanged parts.
+        self._signature_edits: dict[str, bytes | None] = {}
         self._open()
 
     # ------------------------------------------------------------------
@@ -251,7 +255,7 @@ class VBAHostFile(ReferenceManager):
         if not self._has_project:
             return SignatureInfo()
         info = detect_signature(self._get_cfb())
-        if self._zip is not None:
+        if self._zip is not None and not self._signature_edits:
             parts = signature_parts(self._zip.namelist(), self._zip.read, self._vba_entry)
             info.kinds += [kind for kind in dict.fromkeys(parts.values()) if kind not in info.kinds]
             info.parts = list(parts)
@@ -501,6 +505,7 @@ class VBAHostFile(ReferenceManager):
         *,
         allow_protected: bool = False,
         allow_invalidate_signature: bool = False,
+        full_rebuild: bool = False,
     ) -> None:
         """
         Save the file, applying any pending module edits.
@@ -510,7 +515,14 @@ class VBAHostFile(ReferenceManager):
         Only the ``vbaProject.bin`` entry is rewritten; every other ZIP
         entry is preserved byte-for-byte along with its compression
         method and metadata so the file's non-VBA structure remains
-        intact.  Legacy raw-CFB formats write the CFB bytes directly.
+        intact. By default, unchanged parts keep their compressed bytes;
+        they are not decompressed or checked for corruption. Set
+        ``full_rebuild=True`` to decompress and rewrite every retained
+        part, checking its compressed data and CRC in the process. This
+        detects damage; it does not repair it. Packages the copying writer
+        cannot handle safely fall back to a full rebuild automatically.
+        Legacy raw-CFB formats write the CFB bytes directly and ignore
+        ``full_rebuild``.
 
         Safety gates:
 
@@ -533,8 +545,8 @@ class VBAHostFile(ReferenceManager):
           to a UserForm's design counts: adding or removing a control
           changes the form class's members.
 
-        A file with no VBA project can hold no edit, since every write
-        refuses, so it is written out as it was read.
+        A file with no VBA project is copied as read unless
+        ``full_rebuild=True`` requests rebuilding its ZIP container.
 
         Templates and add-ins that share a supported layout (``.xltm``,
         ``.xlt``, ``.xla``, ``.dot``, ``.ppsm``, ``.ppam``) open read only:
@@ -545,7 +557,9 @@ class VBAHostFile(ReferenceManager):
                 f"Saving a {self._suffix} file is not supported; it opens read only."
             )
         if not self._has_project:
-            if dest is not None:
+            if full_rebuild and self._suffix in self._zip_formats:
+                self._write_container(dest, None, {}, full_rebuild=True)
+            elif dest is not None:
                 Path(dest).write_bytes(self._container_raw)
             return
         cfb = self._get_cfb()
@@ -563,7 +577,7 @@ class VBAHostFile(ReferenceManager):
             # written, not just the first dirty one.
             forms_dirty |= form.write_back(cfb)
         # What the package's other parts need: None drops a part.
-        package_edits: dict[str, bytes | None] = {}
+        package_edits = dict(self._signature_edits)
 
         if self._project is not None:
             project = self._project
@@ -617,7 +631,7 @@ class VBAHostFile(ReferenceManager):
         except KeyError:
             pass
         new_cfb_bytes = cfb.to_bytes()
-        self._write_container(dest, new_cfb_bytes, package_edits)
+        self._write_container(dest, new_cfb_bytes, package_edits, full_rebuild=full_rebuild)
 
     def _apply_project(self, cfb: CFB, project: VBAProject, *, mutating: bool) -> None:
         """Write ``project``'s pending renames, adds, deletes and edits into ``cfb``."""
@@ -744,12 +758,13 @@ class VBAHostFile(ReferenceManager):
         if mutating:
             invalidate_vba_project_cache(cfb)
 
-    def _write_container(self, dest: str | Path | None, new_cfb_bytes: bytes,
-                         package_edits: dict[str, bytes | None]) -> None:
+    def _write_container(self, dest: str | Path | None, new_cfb_bytes: bytes | None,
+                         package_edits: dict[str, bytes | None], *, full_rebuild: bool = False) -> None:
         """Write the file with ``new_cfb_bytes`` as its project and ``package_edits`` applied."""
         out_path = Path(dest) if dest is not None else self._path
 
         if self._suffix in self._cfb_formats:
+            assert new_cfb_bytes is not None
             out_path.write_bytes(self._container_bytes(new_cfb_bytes))
             return
 
@@ -765,12 +780,24 @@ class VBAHostFile(ReferenceManager):
             package_edits.update(self._project_edits())
             if self._writes_project(self._project):
                 package_edits.update(with_project(self._zip.namelist(), self._zip.read, self._main_part))
+                assert new_cfb_bytes is not None
                 added[self._vba_entry] = new_cfb_bytes
+
+        # Avoid inflating and recompressing untouched parts. Unsupported
+        # packages and an explicit full rebuild retain the zipfile path.
+        if not full_rebuild:
+            edits = dict(package_edits)
+            if new_cfb_bytes is not None:
+                edits[self._vba_entry] = new_cfb_bytes
+            packed = copy_package(self._container_raw, self._zip.infolist(), edits, added)
+            if packed is not None:
+                out_path.write_bytes(packed)
+                return
 
         buf = io.BytesIO()
         with zipfile.ZipFile(buf, "w") as out_zip:
             for info in self._zip.infolist():
-                if info.filename == self._vba_entry:
+                if info.filename == self._vba_entry and new_cfb_bytes is not None:
                     out_info = zipfile.ZipInfo(
                         filename=info.filename,
                         date_time=info.date_time,
@@ -812,6 +839,8 @@ class VBAHostFile(ReferenceManager):
         zip-based file keeps beside it come back as the package's edits,
         None for each part that goes (see :mod:`pyopenvba._package_signature`).
         """
+        if self._signature_edits:
+            return dict(self._signature_edits)
         found = detect_signature(cfb)
         if found.present:
             for sig_stream in (
@@ -834,6 +863,7 @@ class VBAHostFile(ReferenceManager):
             kinds += [kind for kind in signature_parts(names, self._zip.read, self._vba_entry).values()
                       if kind not in kinds]
             edits = without_signature(names, self._zip.read, self._vba_entry)
+        self._signature_edits.update(edits)
         if kinds and not allow_invalidate_signature:
             warnings.warn(
                 f"Dropped the stale VBA digital signature ({', '.join(kinds)}) "

@@ -147,3 +147,45 @@ def test_a_project_whose_relationships_name_no_signature_is_left_alone() -> None
             "</Relationships>"})
     assert without_signature(names, data.__getitem__, "word/vbaProject.bin") == {}
     assert without_signature(["[Content_Types].xml"], data.__getitem__, "xl/vbaProject.bin") == {}
+
+
+@pytest.mark.parametrize("host", list(RECORD))
+@pytest.mark.parametrize("first_rebuild,second_rebuild", [(False, False), (False, True), (True, False), (True, True)])
+def test_repeated_saves_do_not_restore_a_dropped_signature(
+    host: str, first_rebuild: bool, second_rebuild: bool, tmp_path: Path,
+) -> None:
+    record = RECORD[host]
+    first, second = tmp_path / ("first_" + record["file"]), tmp_path / ("second_" + record["file"])
+    with OPENERS[host](FIXTURES / record["file"]) as book:
+        module = record["module"]
+        book.set_module(module, book.get_module(module) + "' edited\r\n")
+        with pytest.warns(UserWarning, match="signature"):
+            book.save(first, full_rebuild=first_rebuild)
+        assert not book.vba_signature().present
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
+            book.save(second, full_rebuild=second_rebuild)
+            # A further edit should neither resurrect nor warn again about the old signature.
+            book.set_module(module, book.get_module(module) + "' another edit\r\n")
+            book.save(second, full_rebuild=second_rebuild)
+    assert _saved_texts(first, record["project"]) == record["edited_save"]
+    assert _saved_texts(second, record["project"]) == record["edited_save"]
+
+
+@pytest.mark.parametrize("full_rebuild", [False, True])
+def test_a_failed_write_retry_keeps_the_signature_removed(full_rebuild: bool, tmp_path: Path) -> None:
+    record = RECORD["excel"]
+    out = tmp_path / record["file"]
+    with ExcelFile(FIXTURES / record["file"]) as book:
+        module = record["module"]
+        book.set_module(module, book.get_module(module) + "' edited\r\n")
+        # Writing to a directory fails after pending source edits have been applied.
+        with pytest.warns(UserWarning, match="signature"), pytest.raises(OSError):
+            book.save(tmp_path, full_rebuild=full_rebuild)
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
+            book.save(out, full_rebuild=full_rebuild)
+    assert _saved_texts(out, record["project"]) == record["edited_save"]
+    with ExcelFile(out) as saved:
+        assert not saved.vba_signature().present
+        assert saved.get_module(module).endswith("' edited\r\n")

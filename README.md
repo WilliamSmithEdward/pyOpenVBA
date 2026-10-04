@@ -948,7 +948,15 @@ Every save is verified to reopen in the host application without the
 
 ## Safety guards
 
-`save()` refuses to silently produce a broken file.
+ZIP-based VBA saves copy untouched compressed parts by default, avoiding
+recompression of the rest of the document. Existing corruption in those parts
+is preserved without checking their compressed data or CRC. Use
+`wb.save(full_rebuild=True)` (also on `WordFile` and `PowerPointFile`) to
+decompress and rewrite every retained part and detect such damage. This does
+not repair damaged parts. Unsupported packages fall back to a full rebuild;
+legacy binary formats ignore this flag.
+
+`save()` enforces the following protection and signature gates.
 
 ### Password-protected projects
 

@@ -81,6 +81,9 @@ from pyopenvba.exceptions import (
     VBAProjectError,
 )
 from pyopenvba.forms import FormControl, Size, VBAForm
+from pyopenvba.integrity import (
+    FileCheckReport, FileIssue, FileRepairError, FileRepairResult, check_file, repair_file,
+)
 from pyopenvba.powerpoint import PowerPointFile
 from pyopenvba.powerquery import PowerQuery, PowerQueryWorkbook, QueryGroup, RefreshSettings
 from pyopenvba.powerquery import pull_queries as _pull_queries
@@ -228,6 +231,12 @@ def push_access(
 
 
 __all__ = [
+    "FileCheckReport",
+    "FileIssue",
+    "FileRepairError",
+    "FileRepairResult",
+    "check_file",
+    "repair_file",
     "AccessDatabase",
     "AccessReader",
     "CFBError",
@@ -293,4 +302,4 @@ def push_power_query(
     """
     return _push_queries(src_dir, workbook, out=out, encoding=encoding, remove_missing=remove_missing)
 
-__version__ = "6.4.0"
+__version__ = "6.5.0"

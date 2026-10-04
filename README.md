@@ -956,6 +956,57 @@ decompress and rewrite every retained part and detect such damage. This does
 not repair damaged parts. Unsupported packages fall back to a full rebuild;
 legacy binary formats ignore this flag.
 
+### File integrity checks and conservative repair
+
+Check a file explicitly before or after editing, independently of the fast
+save path:
+
+```python
+from pyopenvba import check_file, repair_file, FileRepairError
+
+report = check_file("book.xlsm")
+for issue in report.issues:
+    print(issue.severity, issue.code, issue.location, issue.message)
+
+if report.ok:
+    print("All supported integrity checks passed")
+elif report.complete and report.errors and all(i.repairable for i in report.errors):
+    try:
+        result = repair_file("book.xlsm", output="book.repaired.xlsm")
+        print(result.changes, result.after.ok)
+    except FileRepairError as exc:
+        print(exc.report.issues)
+```
+
+`check_file()` returns a `FileCheckReport` containing `errors`, `warnings`,
+`checked_parts`, and `complete`. `ok` requires no errors and complete coverage
+of the supported checks. ZIP parts are decompressed and CRC checked; local
+headers, data descriptors, XML, content types, and internal relationships are
+checked too. CFB directory pointers and stream sizes are checked, and supported
+VBA projects have their module sources and forms parsed. VBA is never executed.
+These checks do not prove that Office can open the document, compile its VBA,
+or verify its digital signatures.
+
+Repair initially supports **stale local ZIP CRC/size fields only**, when the
+actual payload passes central-directory verification. It preserves every
+other byte and checks the candidate before writing a new file. It refuses
+missing parts, corrupt payloads, ambiguous entries, and incomplete checks;
+`FileRepairError.report` explains the refusal. An existing output is never
+overwritten, and a healthy input can be copied without changes.
+
+The default limits are 256 MiB per uncompressed part and 1 GiB for both input
+size and the sum of declared uncompressed sizes. Raise `max_part_bytes` and
+`max_total_bytes` explicitly for trusted larger files. Invalid limits, oversized
+input, missing paths, and filesystem failures raise exceptions. A skipped part
+is reported as incomplete. ZIP64 payloads are verified, but local ZIP64 size
+metadata is currently reported as incomplete. Unknown VBA formats and Access
+coverage are also explicit warnings: Access checks its catalog and VBA, not
+every table row or allocation map. Access's existing `compact_and_repair()`
+returns a rebuilt database and remains a separate operation.
+
+Encrypted ZIP parts and compression methods other than stored/deflate are
+reported as incomplete and cannot be repaired by this API.
+
 `save()` enforces the following protection and signature gates.
 
 ### Password-protected projects

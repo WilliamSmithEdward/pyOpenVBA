@@ -14,12 +14,16 @@ from pyopenvba import ExcelFile, FileRepairError, check_file, repair_file
 
 CT = b'<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="xml" ContentType="application/xml"/><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="bin" ContentType="application/octet-stream"/></Types>'
 REL = '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">{}</Relationships>'
+MAIN_TYPE = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument"
+ROOT_REL = REL.format(f'<Relationship Id="main" Type="{MAIN_TYPE}" Target="doc.xml"/>').encode()
 
 
 def package(path: Path, **parts: bytes) -> bytes:
     with zipfile.ZipFile(path, "w", compression=zipfile.ZIP_STORED) as archive:
         archive.writestr("[Content_Types].xml", CT)
         archive.writestr("doc.xml", b"<document/>")
+        if "_rels/.rels" not in parts:
+            archive.writestr("_rels/.rels", ROOT_REL)
         for name, data in parts.items():
             archive.writestr(name, data)
     return path.read_bytes()
@@ -89,7 +93,7 @@ def test_dangling_relationship_refused(tmp_path: Path, target: str) -> None:
 
 def test_external_and_percent_encoded_relationships(tmp_path: Path) -> None:
     path = tmp_path / "book.xlsm"
-    relationships = '<Relationship Id="rId1" Type="type" Target="https://example.com" TargetMode="External"/><Relationship Id="rId2" Type="type" Target="/doc%2Exml"/>'
+    relationships = f'<Relationship Id="rId1" Type="type" Target="https://example.com" TargetMode="External"/><Relationship Id="rId2" Type="{MAIN_TYPE}" Target="/doc%2Exml"/>'
     package(path, **{"_rels/.rels": REL.format(relationships).encode()})
     assert check_file(path).ok
 
@@ -182,6 +186,7 @@ def test_compressed_corruption_and_local_name_mismatch(tmp_path: Path) -> None:
     with zipfile.ZipFile(path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
         archive.writestr("[Content_Types].xml", CT)
         archive.writestr("doc.xml", b"<document>" + b"a" * 10000 + b"</document>")
+        archive.writestr("_rels/.rels", ROOT_REL)
     raw = bytearray(path.read_bytes())
     with zipfile.ZipFile(io.BytesIO(raw)) as archive:
         info = archive.getinfo("doc.xml")
@@ -204,6 +209,7 @@ def test_data_descriptor_checked(tmp_path: Path) -> None:
     with zipfile.ZipFile(stream, "w", compression=zipfile.ZIP_DEFLATED) as archive:
         archive.writestr("[Content_Types].xml", CT)
         archive.writestr("doc.xml", b"<document/>")
+        archive.writestr("_rels/.rels", ROOT_REL)
     raw = bytearray(stream.getvalue())
     path.write_bytes(raw)
     assert check_file(path).ok
@@ -221,6 +227,7 @@ def test_zip64_partial_check_refuses_repair(tmp_path: Path) -> None:
         archive.writestr("[Content_Types].xml", CT)
         with archive.open("doc.xml", "w", force_zip64=True) as stream:
             stream.write(b"<document/>")
+        archive.writestr("_rels/.rels", ROOT_REL)
     report = check_file(path)
     assert not report.complete and not report.errors
     assert any(issue.code == "check.zip64" for issue in report.warnings)
@@ -329,6 +336,8 @@ def test_false_central_size_does_not_hide_payload(tmp_path: Path) -> None:
     with zipfile.ZipFile(path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
         archive.writestr("[Content_Types].xml", CT)
         archive.writestr("payload.bin", b"content that must not disappear")
+        archive.writestr("doc.xml", b"<document/>")
+        archive.writestr("_rels/.rels", ROOT_REL)
     raw = bytearray(path.read_bytes())
     with zipfile.ZipFile(io.BytesIO(raw)) as archive:
         info = archive.getinfo("payload.bin")
@@ -356,3 +365,11 @@ def test_unsupported_compression_is_incomplete(tmp_path: Path) -> None:
     assert any(issue.code == "check.compression" for issue in report.warnings)
     with pytest.raises(FileRepairError):
         repair_file(path, output=tmp_path / "out.xlsm")
+
+
+def test_missing_package_relationships(tmp_path: Path) -> None:
+    path = tmp_path / "book.xlsm"
+    with zipfile.ZipFile(path, "w") as archive:
+        archive.writestr("[Content_Types].xml", CT)
+        archive.writestr("doc.xml", b"<document/>")
+    assert any(issue.code == "opc.relationships" for issue in check_file(path).errors)

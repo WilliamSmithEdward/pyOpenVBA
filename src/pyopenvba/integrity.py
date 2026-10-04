@@ -244,6 +244,8 @@ def _package_xml(parts: dict[str, bytes], names: set[str], issues: list[FileIssu
                 issues.append(FileIssue("opc.xml", "error", name, str(exc)))
     if "[Content_Types].xml" not in names:
         issues.append(FileIssue("opc.content_types", "error", "[Content_Types].xml", "Missing content types part"))
+    if "_rels/.rels" not in names:
+        issues.append(FileIssue("opc.relationships", "error", "_rels/.rels", "Missing package relationships part"))
     for name, (root, children) in parsed.items():
         if name.endswith(".rels"):
             if root != _REL_NS + "Relationships":
@@ -251,6 +253,12 @@ def _package_xml(parts: dict[str, bytes], names: set[str], issues: list[FileIssu
                 continue
             if name == "_rels/.rels":
                 folder = ""
+                main = [attrs for tag, attrs in children if tag == _REL_NS + "Relationship" and attrs.get("Type") in {
+                    "http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument",
+                    "http://purl.oclc.org/ooxml/officeDocument/relationships/officeDocument",
+                }]
+                if len(main) != 1 or main[0].get("TargetMode", "Internal") != "Internal":
+                    issues.append(FileIssue("opc.main_relationship", "error", name, "Expected one internal Office document relationship"))
             else:
                 parent, leaf = posixpath.split(name)
                 if posixpath.basename(parent) != "_rels":

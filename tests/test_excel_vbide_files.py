@@ -22,6 +22,10 @@ def test_native_source_file_operations(probe: dict[str, str | None], tmp_path: P
     input_path.write_bytes(MEASURED['cls' if name.endswith('class') else 'bas'].encode('cp1252'))
     output_path = tmp_path / 'output.txt'
     source = str(probe['macro']).replace('"INPUT"', '"' + str(input_path).replace('"', '""') + '"').replace('"OUTPUT"', '"' + str(output_path).replace('"', '""') + '"')
+    if name == 'export_missing_folder':
+        # Native measurements use Windows separators. Keep the missing
+        # parent-directory condition on POSIX runners as well.
+        source = source.replace('\\missing\\module.bas', os.sep + 'missing' + os.sep + 'module.bas')
     app = ExcelApplication()
     app.add_workbook()
     app.add_module(source, name='Harness')

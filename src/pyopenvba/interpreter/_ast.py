@@ -103,6 +103,8 @@ class Argument:
     value: Expr | None = None
     name: str = ""
 
+    by_value: bool = False
+
     @property
     def omitted(self) -> bool:
         return self.value is None

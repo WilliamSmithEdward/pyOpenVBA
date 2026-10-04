@@ -1,0 +1,241 @@
+{
+  "measured_at": "2026-10-04T23:35:51.934756+00:00",
+  "excel_version_build": "16.0|20430",
+  "body": "Option Explicit\nPublic Marker As Long\n\nPublic Function Answer() As Long\nAnswer = 42\nEnd Function",
+  "bas": "Attribute VB_Name = \"Imported\"\r\nOption Explicit\r\nPublic Marker As Long\r\n\r\nPublic Function Answer() As Long\r\nAnswer = 42\r\nEnd Function\r\n",
+  "cls": "VERSION 1.0 CLASS\r\nBEGIN\r\n  MultiUse = -1  'True\r\nEND\r\nAttribute VB_Name = \"ImportedClass\"\r\nAttribute VB_GlobalNameSpace = False\r\nAttribute VB_Creatable = False\r\nAttribute VB_PredeclaredId = False\r\nAttribute VB_Exposed = False\r\nOption Explicit\r\nPublic Marker As Long\r\n\r\nPublic Function Answer() As Long\r\nAnswer = 42\r\nEnd Function\r\n",
+  "probes": [
+    {
+      "name": "export_standard",
+      "setup": "Set part = parts.Add(1)\npart.Name = \"Source\"",
+      "action": "part.Export outputPath",
+      "macro": "Function Probe() As String\nDim target As Workbook, project As Object, parts As Object\nDim part As Object, item As Object, code As Object, number As Long, extra As String\nDim inputPath As String, outputPath As String\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nSet target = Workbooks.Add\nSet project = target.VBProject\nSet parts = project.VBComponents\ninputPath = \"INPUT\"\noutputPath = \"OUTPUT\"\nSet part = parts.Add(1)\npart.Name = \"Source\"\npart.CodeModule.AddFromString \"Option Explicit\" & vbCrLf & \"Public Marker As Long\" & vbCrLf & \"\" & vbCrLf & \"Public Function Answer() As Long\" & vbCrLf & \"Answer = 42\" & vbCrLf & \"End Function\"\nOn Error Resume Next\npart.Export outputPath\nnumber = Err.Number\nOn Error GoTo 0\nProbe = \"#error:\" & CStr(number) & \"#extra:\" & extra\nFor Each item In parts\nProbe = Probe & \"|\" & item.Name & \":\" & CStr(item.Type) & \":\" & CStr(item.CodeModule.CountOfLines)\nNext\nIf Not part Is Nothing Then\nSet code = part.CodeModule\nProbe = Probe & \"#part:\" & part.Name & \"#decl:\" & CStr(code.CountOfDeclarationLines)\nIf code.CountOfLines > 0 Then Probe = Probe & \"#source:\" & code.Lines(1, code.CountOfLines)\nEnd If\nProbe = Probe & \"#saved:\" & CStr(target.Saved)\ntarget.Close False\nEnd Function",
+      "result": "#error:0#extra:|ThisWorkbook:100:0|Sheet1:100:0|Source:1:6#part:Source#decl:2#source:Option Explicit\nPublic Marker As Long\n\nPublic Function Answer() As Long\nAnswer = 42\nEnd Function#saved:False",
+      "exported": "Attribute VB_Name = \"Source\"\r\nOption Explicit\r\nPublic Marker As Long\r\n\r\nPublic Function Answer() As Long\r\nAnswer = 42\r\nEnd Function\r\n"
+    },
+    {
+      "name": "export_class",
+      "setup": "Set part = parts.Add(2)\npart.Name = \"Source\"",
+      "action": "part.Export outputPath",
+      "macro": "Function Probe() As String\nDim target As Workbook, project As Object, parts As Object\nDim part As Object, item As Object, code As Object, number As Long, extra As String\nDim inputPath As String, outputPath As String\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nSet target = Workbooks.Add\nSet project = target.VBProject\nSet parts = project.VBComponents\ninputPath = \"INPUT\"\noutputPath = \"OUTPUT\"\nSet part = parts.Add(2)\npart.Name = \"Source\"\npart.CodeModule.AddFromString \"Option Explicit\" & vbCrLf & \"Public Marker As Long\" & vbCrLf & \"\" & vbCrLf & \"Public Function Answer() As Long\" & vbCrLf & \"Answer = 42\" & vbCrLf & \"End Function\"\nOn Error Resume Next\npart.Export outputPath\nnumber = Err.Number\nOn Error GoTo 0\nProbe = \"#error:\" & CStr(number) & \"#extra:\" & extra\nFor Each item In parts\nProbe = Probe & \"|\" & item.Name & \":\" & CStr(item.Type) & \":\" & CStr(item.CodeModule.CountOfLines)\nNext\nIf Not part Is Nothing Then\nSet code = part.CodeModule\nProbe = Probe & \"#part:\" & part.Name & \"#decl:\" & CStr(code.CountOfDeclarationLines)\nIf code.CountOfLines > 0 Then Probe = Probe & \"#source:\" & code.Lines(1, code.CountOfLines)\nEnd If\nProbe = Probe & \"#saved:\" & CStr(target.Saved)\ntarget.Close False\nEnd Function",
+      "result": "#error:0#extra:|ThisWorkbook:100:0|Sheet1:100:0|Source:2:6#part:Source#decl:2#source:Option Explicit\nPublic Marker As Long\n\nPublic Function Answer() As Long\nAnswer = 42\nEnd Function#saved:False",
+      "exported": "VERSION 1.0 CLASS\r\nBEGIN\r\n  MultiUse = -1  'True\r\nEND\r\nAttribute VB_Name = \"Source\"\r\nAttribute VB_GlobalNameSpace = False\r\nAttribute VB_Creatable = False\r\nAttribute VB_PredeclaredId = False\r\nAttribute VB_Exposed = False\r\nOption Explicit\r\nPublic Marker As Long\r\n\r\nPublic Function Answer() As Long\r\nAnswer = 42\r\nEnd Function\r\n"
+    },
+    {
+      "name": "export_document",
+      "setup": "Set part = parts.Item(\"Sheet1\")",
+      "action": "part.Export outputPath",
+      "macro": "Function Probe() As String\nDim target As Workbook, project As Object, parts As Object\nDim part As Object, item As Object, code As Object, number As Long, extra As String\nDim inputPath As String, outputPath As String\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nSet target = Workbooks.Add\nSet project = target.VBProject\nSet parts = project.VBComponents\ninputPath = \"INPUT\"\noutputPath = \"OUTPUT\"\nSet part = parts.Item(\"Sheet1\")\npart.CodeModule.AddFromString \"Option Explicit\" & vbCrLf & \"Public Marker As Long\" & vbCrLf & \"\" & vbCrLf & \"Public Function Answer() As Long\" & vbCrLf & \"Answer = 42\" & vbCrLf & \"End Function\"\nOn Error Resume Next\npart.Export outputPath\nnumber = Err.Number\nOn Error GoTo 0\nProbe = \"#error:\" & CStr(number) & \"#extra:\" & extra\nFor Each item In parts\nProbe = Probe & \"|\" & item.Name & \":\" & CStr(item.Type) & \":\" & CStr(item.CodeModule.CountOfLines)\nNext\nIf Not part Is Nothing Then\nSet code = part.CodeModule\nProbe = Probe & \"#part:\" & part.Name & \"#decl:\" & CStr(code.CountOfDeclarationLines)\nIf code.CountOfLines > 0 Then Probe = Probe & \"#source:\" & code.Lines(1, code.CountOfLines)\nEnd If\nProbe = Probe & \"#saved:\" & CStr(target.Saved)\ntarget.Close False\nEnd Function",
+      "result": "#error:0#extra:|ThisWorkbook:100:0|Sheet1:100:6#part:Sheet1#decl:2#source:Option Explicit\nPublic Marker As Long\n\nPublic Function Answer() As Long\nAnswer = 42\nEnd Function#saved:False",
+      "exported": "VERSION 1.0 CLASS\r\nBEGIN\r\n  MultiUse = -1  'True\r\nEND\r\nAttribute VB_Name = \"Sheet1\"\r\nAttribute VB_GlobalNameSpace = False\r\nAttribute VB_Creatable = False\r\nAttribute VB_PredeclaredId = True\r\nAttribute VB_Exposed = True\r\nOption Explicit\r\nPublic Marker As Long\r\n\r\nPublic Function Answer() As Long\r\nAnswer = 42\r\nEnd Function\r\n"
+    },
+    {
+      "name": "export_existing",
+      "setup": "Set part = parts.Add(1)",
+      "action": "part.Export outputPath\npart.Export outputPath",
+      "macro": "Function Probe() As String\nDim target As Workbook, project As Object, parts As Object\nDim part As Object, item As Object, code As Object, number As Long, extra As String\nDim inputPath As String, outputPath As String\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nSet target = Workbooks.Add\nSet project = target.VBProject\nSet parts = project.VBComponents\ninputPath = \"INPUT\"\noutputPath = \"OUTPUT\"\nSet part = parts.Add(1)\npart.CodeModule.AddFromString \"Option Explicit\" & vbCrLf & \"Public Marker As Long\" & vbCrLf & \"\" & vbCrLf & \"Public Function Answer() As Long\" & vbCrLf & \"Answer = 42\" & vbCrLf & \"End Function\"\nOn Error Resume Next\npart.Export outputPath\npart.Export outputPath\nnumber = Err.Number\nOn Error GoTo 0\nProbe = \"#error:\" & CStr(number) & \"#extra:\" & extra\nFor Each item In parts\nProbe = Probe & \"|\" & item.Name & \":\" & CStr(item.Type) & \":\" & CStr(item.CodeModule.CountOfLines)\nNext\nIf Not part Is Nothing Then\nSet code = part.CodeModule\nProbe = Probe & \"#part:\" & part.Name & \"#decl:\" & CStr(code.CountOfDeclarationLines)\nIf code.CountOfLines > 0 Then Probe = Probe & \"#source:\" & code.Lines(1, code.CountOfLines)\nEnd If\nProbe = Probe & \"#saved:\" & CStr(target.Saved)\ntarget.Close False\nEnd Function",
+      "result": "#error:0#extra:|ThisWorkbook:100:0|Sheet1:100:0|Module1:1:6#part:Module1#decl:2#source:Option Explicit\nPublic Marker As Long\n\nPublic Function Answer() As Long\nAnswer = 42\nEnd Function#saved:False",
+      "exported": "Attribute VB_Name = \"Module1\"\r\nOption Explicit\r\nPublic Marker As Long\r\n\r\nPublic Function Answer() As Long\r\nAnswer = 42\r\nEnd Function\r\n"
+    },
+    {
+      "name": "export_missing_folder",
+      "setup": "Set part = parts.Add(1)",
+      "action": "part.Export outputPath & \"\\missing\\source.bas\"",
+      "macro": "Function Probe() As String\nDim target As Workbook, project As Object, parts As Object\nDim part As Object, item As Object, code As Object, number As Long, extra As String\nDim inputPath As String, outputPath As String\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nSet target = Workbooks.Add\nSet project = target.VBProject\nSet parts = project.VBComponents\ninputPath = \"INPUT\"\noutputPath = \"OUTPUT\"\nSet part = parts.Add(1)\npart.CodeModule.AddFromString \"Option Explicit\" & vbCrLf & \"Public Marker As Long\" & vbCrLf & \"\" & vbCrLf & \"Public Function Answer() As Long\" & vbCrLf & \"Answer = 42\" & vbCrLf & \"End Function\"\nOn Error Resume Next\npart.Export outputPath & \"\\missing\\source.bas\"\nnumber = Err.Number\nOn Error GoTo 0\nProbe = \"#error:\" & CStr(number) & \"#extra:\" & extra\nFor Each item In parts\nProbe = Probe & \"|\" & item.Name & \":\" & CStr(item.Type) & \":\" & CStr(item.CodeModule.CountOfLines)\nNext\nIf Not part Is Nothing Then\nSet code = part.CodeModule\nProbe = Probe & \"#part:\" & part.Name & \"#decl:\" & CStr(code.CountOfDeclarationLines)\nIf code.CountOfLines > 0 Then Probe = Probe & \"#source:\" & code.Lines(1, code.CountOfLines)\nEnd If\nProbe = Probe & \"#saved:\" & CStr(target.Saved)\ntarget.Close False\nEnd Function",
+      "result": "#error:50012#extra:|ThisWorkbook:100:0|Sheet1:100:0|Module1:1:6#part:Module1#decl:2#source:Option Explicit\nPublic Marker As Long\n\nPublic Function Answer() As Long\nAnswer = 42\nEnd Function#saved:False",
+      "exported": null
+    },
+    {
+      "name": "import_standard",
+      "setup": "",
+      "action": "Set part = parts.Import(inputPath)",
+      "macro": "Function Probe() As String\nDim target As Workbook, project As Object, parts As Object\nDim part As Object, item As Object, code As Object, number As Long, extra As String\nDim inputPath As String, outputPath As String\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nSet target = Workbooks.Add\nSet project = target.VBProject\nSet parts = project.VBComponents\ninputPath = \"INPUT\"\noutputPath = \"OUTPUT\"\n\nOn Error Resume Next\nSet part = parts.Import(inputPath)\nnumber = Err.Number\nOn Error GoTo 0\nProbe = \"#error:\" & CStr(number) & \"#extra:\" & extra\nFor Each item In parts\nProbe = Probe & \"|\" & item.Name & \":\" & CStr(item.Type) & \":\" & CStr(item.CodeModule.CountOfLines)\nNext\nIf Not part Is Nothing Then\nSet code = part.CodeModule\nProbe = Probe & \"#part:\" & part.Name & \"#decl:\" & CStr(code.CountOfDeclarationLines)\nIf code.CountOfLines > 0 Then Probe = Probe & \"#source:\" & code.Lines(1, code.CountOfLines)\nEnd If\nProbe = Probe & \"#saved:\" & CStr(target.Saved)\ntarget.Close False\nEnd Function",
+      "result": "#error:0#extra:|ThisWorkbook:100:0|Sheet1:100:0|Imported:1:6#part:Imported#decl:2#source:Option Explicit\nPublic Marker As Long\n\nPublic Function Answer() As Long\nAnswer = 42\nEnd Function#saved:False",
+      "exported": null
+    },
+    {
+      "name": "import_class",
+      "setup": "",
+      "action": "Set part = parts.Import(inputPath)",
+      "macro": "Function Probe() As String\nDim target As Workbook, project As Object, parts As Object\nDim part As Object, item As Object, code As Object, number As Long, extra As String\nDim inputPath As String, outputPath As String\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nSet target = Workbooks.Add\nSet project = target.VBProject\nSet parts = project.VBComponents\ninputPath = \"INPUT\"\noutputPath = \"OUTPUT\"\n\nOn Error Resume Next\nSet part = parts.Import(inputPath)\nnumber = Err.Number\nOn Error GoTo 0\nProbe = \"#error:\" & CStr(number) & \"#extra:\" & extra\nFor Each item In parts\nProbe = Probe & \"|\" & item.Name & \":\" & CStr(item.Type) & \":\" & CStr(item.CodeModule.CountOfLines)\nNext\nIf Not part Is Nothing Then\nSet code = part.CodeModule\nProbe = Probe & \"#part:\" & part.Name & \"#decl:\" & CStr(code.CountOfDeclarationLines)\nIf code.CountOfLines > 0 Then Probe = Probe & \"#source:\" & code.Lines(1, code.CountOfLines)\nEnd If\nProbe = Probe & \"#saved:\" & CStr(target.Saved)\ntarget.Close False\nEnd Function",
+      "result": "#error:0#extra:|ThisWorkbook:100:0|Sheet1:100:0|ImportedClass:2:6#part:ImportedClass#decl:2#source:Option Explicit\nPublic Marker As Long\n\nPublic Function Answer() As Long\nAnswer = 42\nEnd Function#saved:False",
+      "exported": null
+    },
+    {
+      "name": "import_twice",
+      "setup": "Set part = parts.Import(inputPath)",
+      "action": "Set part = parts.Import(inputPath)",
+      "macro": "Function Probe() As String\nDim target As Workbook, project As Object, parts As Object\nDim part As Object, item As Object, code As Object, number As Long, extra As String\nDim inputPath As String, outputPath As String\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nSet target = Workbooks.Add\nSet project = target.VBProject\nSet parts = project.VBComponents\ninputPath = \"INPUT\"\noutputPath = \"OUTPUT\"\nSet part = parts.Import(inputPath)\nOn Error Resume Next\nSet part = parts.Import(inputPath)\nnumber = Err.Number\nOn Error GoTo 0\nProbe = \"#error:\" & CStr(number) & \"#extra:\" & extra\nFor Each item In parts\nProbe = Probe & \"|\" & item.Name & \":\" & CStr(item.Type) & \":\" & CStr(item.CodeModule.CountOfLines)\nNext\nIf Not part Is Nothing Then\nSet code = part.CodeModule\nProbe = Probe & \"#part:\" & part.Name & \"#decl:\" & CStr(code.CountOfDeclarationLines)\nIf code.CountOfLines > 0 Then Probe = Probe & \"#source:\" & code.Lines(1, code.CountOfLines)\nEnd If\nProbe = Probe & \"#saved:\" & CStr(target.Saved)\ntarget.Close False\nEnd Function",
+      "result": "#error:0#extra:|ThisWorkbook:100:0|Sheet1:100:0|Imported:1:6|Imported1:1:6#part:Imported1#decl:2#source:Option Explicit\nPublic Marker As Long\n\nPublic Function Answer() As Long\nAnswer = 42\nEnd Function#saved:False",
+      "exported": null
+    },
+    {
+      "name": "import_missing",
+      "setup": "",
+      "action": "Set part = parts.Import(inputPath & \".missing\")",
+      "macro": "Function Probe() As String\nDim target As Workbook, project As Object, parts As Object\nDim part As Object, item As Object, code As Object, number As Long, extra As String\nDim inputPath As String, outputPath As String\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nSet target = Workbooks.Add\nSet project = target.VBProject\nSet parts = project.VBComponents\ninputPath = \"INPUT\"\noutputPath = \"OUTPUT\"\n\nOn Error Resume Next\nSet part = parts.Import(inputPath & \".missing\")\nnumber = Err.Number\nOn Error GoTo 0\nProbe = \"#error:\" & CStr(number) & \"#extra:\" & extra\nFor Each item In parts\nProbe = Probe & \"|\" & item.Name & \":\" & CStr(item.Type) & \":\" & CStr(item.CodeModule.CountOfLines)\nNext\nIf Not part Is Nothing Then\nSet code = part.CodeModule\nProbe = Probe & \"#part:\" & part.Name & \"#decl:\" & CStr(code.CountOfDeclarationLines)\nIf code.CountOfLines > 0 Then Probe = Probe & \"#source:\" & code.Lines(1, code.CountOfLines)\nEnd If\nProbe = Probe & \"#saved:\" & CStr(target.Saved)\ntarget.Close False\nEnd Function",
+      "result": "#error:53#extra:|ThisWorkbook:100:0|Sheet1:100:0#saved:True",
+      "exported": null
+    },
+    {
+      "name": "add_file_standard",
+      "setup": "Set part = parts.Add(1)",
+      "action": "part.CodeModule.AddFromFile inputPath",
+      "macro": "Function Probe() As String\nDim target As Workbook, project As Object, parts As Object\nDim part As Object, item As Object, code As Object, number As Long, extra As String\nDim inputPath As String, outputPath As String\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nSet target = Workbooks.Add\nSet project = target.VBProject\nSet parts = project.VBComponents\ninputPath = \"INPUT\"\noutputPath = \"OUTPUT\"\nSet part = parts.Add(1)\nOn Error Resume Next\npart.CodeModule.AddFromFile inputPath\nnumber = Err.Number\nOn Error GoTo 0\nProbe = \"#error:\" & CStr(number) & \"#extra:\" & extra\nFor Each item In parts\nProbe = Probe & \"|\" & item.Name & \":\" & CStr(item.Type) & \":\" & CStr(item.CodeModule.CountOfLines)\nNext\nIf Not part Is Nothing Then\nSet code = part.CodeModule\nProbe = Probe & \"#part:\" & part.Name & \"#decl:\" & CStr(code.CountOfDeclarationLines)\nIf code.CountOfLines > 0 Then Probe = Probe & \"#source:\" & code.Lines(1, code.CountOfLines)\nEnd If\nProbe = Probe & \"#saved:\" & CStr(target.Saved)\ntarget.Close False\nEnd Function",
+      "result": "#error:0#extra:|ThisWorkbook:100:0|Sheet1:100:0|Imported:1:6#part:Imported#decl:2#source:Option Explicit\nPublic Marker As Long\n\nPublic Function Answer() As Long\nAnswer = 42\nEnd Function#saved:False",
+      "exported": null
+    },
+    {
+      "name": "add_file_class",
+      "setup": "Set part = parts.Add(1)",
+      "action": "part.CodeModule.AddFromFile inputPath",
+      "macro": "Function Probe() As String\nDim target As Workbook, project As Object, parts As Object\nDim part As Object, item As Object, code As Object, number As Long, extra As String\nDim inputPath As String, outputPath As String\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nSet target = Workbooks.Add\nSet project = target.VBProject\nSet parts = project.VBComponents\ninputPath = \"INPUT\"\noutputPath = \"OUTPUT\"\nSet part = parts.Add(1)\nOn Error Resume Next\npart.CodeModule.AddFromFile inputPath\nnumber = Err.Number\nOn Error GoTo 0\nProbe = \"#error:\" & CStr(number) & \"#extra:\" & extra\nFor Each item In parts\nProbe = Probe & \"|\" & item.Name & \":\" & CStr(item.Type) & \":\" & CStr(item.CodeModule.CountOfLines)\nNext\nIf Not part Is Nothing Then\nSet code = part.CodeModule\nProbe = Probe & \"#part:\" & part.Name & \"#decl:\" & CStr(code.CountOfDeclarationLines)\nIf code.CountOfLines > 0 Then Probe = Probe & \"#source:\" & code.Lines(1, code.CountOfLines)\nEnd If\nProbe = Probe & \"#saved:\" & CStr(target.Saved)\ntarget.Close False\nEnd Function",
+      "result": "#error:0#extra:|ThisWorkbook:100:0|Sheet1:100:0|ImportedClass:1:10#part:ImportedClass#decl:6#source:VERSION 1.0 CLASS\nBEGIN\n  MultiUse = -1  'True\nEnd\nOption Explicit\nPublic Marker As Long\n\nPublic Function Answer() As Long\nAnswer = 42\nEnd Function#saved:False",
+      "exported": null
+    },
+    {
+      "name": "add_file_missing",
+      "setup": "Set part = parts.Add(1)",
+      "action": "part.CodeModule.AddFromFile inputPath & \".missing\"",
+      "macro": "Function Probe() As String\nDim target As Workbook, project As Object, parts As Object\nDim part As Object, item As Object, code As Object, number As Long, extra As String\nDim inputPath As String, outputPath As String\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nSet target = Workbooks.Add\nSet project = target.VBProject\nSet parts = project.VBComponents\ninputPath = \"INPUT\"\noutputPath = \"OUTPUT\"\nSet part = parts.Add(1)\nOn Error Resume Next\npart.CodeModule.AddFromFile inputPath & \".missing\"\nnumber = Err.Number\nOn Error GoTo 0\nProbe = \"#error:\" & CStr(number) & \"#extra:\" & extra\nFor Each item In parts\nProbe = Probe & \"|\" & item.Name & \":\" & CStr(item.Type) & \":\" & CStr(item.CodeModule.CountOfLines)\nNext\nIf Not part Is Nothing Then\nSet code = part.CodeModule\nProbe = Probe & \"#part:\" & part.Name & \"#decl:\" & CStr(code.CountOfDeclarationLines)\nIf code.CountOfLines > 0 Then Probe = Probe & \"#source:\" & code.Lines(1, code.CountOfLines)\nEnd If\nProbe = Probe & \"#saved:\" & CStr(target.Saved)\ntarget.Close False\nEnd Function",
+      "result": "#error:53#extra:|ThisWorkbook:100:0|Sheet1:100:0|Module1:1:0#part:Module1#decl:0#saved:False",
+      "exported": null
+    },
+    {
+      "name": "insert_empty",
+      "setup": "Set part = parts.Add(1)",
+      "action": "part.CodeModule.InsertLines 1, \"\"",
+      "macro": "Function Probe() As String\nDim target As Workbook, project As Object, parts As Object\nDim part As Object, item As Object, code As Object, number As Long, extra As String\nDim inputPath As String, outputPath As String\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nSet target = Workbooks.Add\nSet project = target.VBProject\nSet parts = project.VBComponents\ninputPath = \"INPUT\"\noutputPath = \"OUTPUT\"\nSet part = parts.Add(1)\nOn Error Resume Next\npart.CodeModule.InsertLines 1, \"\"\nnumber = Err.Number\nOn Error GoTo 0\nProbe = \"#error:\" & CStr(number) & \"#extra:\" & extra\nFor Each item In parts\nProbe = Probe & \"|\" & item.Name & \":\" & CStr(item.Type) & \":\" & CStr(item.CodeModule.CountOfLines)\nNext\nIf Not part Is Nothing Then\nSet code = part.CodeModule\nProbe = Probe & \"#part:\" & part.Name & \"#decl:\" & CStr(code.CountOfDeclarationLines)\nIf code.CountOfLines > 0 Then Probe = Probe & \"#source:\" & code.Lines(1, code.CountOfLines)\nEnd If\nProbe = Probe & \"#saved:\" & CStr(target.Saved)\ntarget.Close False\nEnd Function",
+      "result": "#error:0#extra:|ThisWorkbook:100:0|Sheet1:100:0|Module1:1:1#part:Module1#decl:1#source:#saved:False",
+      "exported": null
+    },
+    {
+      "name": "insert_newline",
+      "setup": "Set part = parts.Add(1)",
+      "action": "part.CodeModule.InsertLines 1, vbCrLf",
+      "macro": "Function Probe() As String\nDim target As Workbook, project As Object, parts As Object\nDim part As Object, item As Object, code As Object, number As Long, extra As String\nDim inputPath As String, outputPath As String\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nSet target = Workbooks.Add\nSet project = target.VBProject\nSet parts = project.VBComponents\ninputPath = \"INPUT\"\noutputPath = \"OUTPUT\"\nSet part = parts.Add(1)\nOn Error Resume Next\npart.CodeModule.InsertLines 1, vbCrLf\nnumber = Err.Number\nOn Error GoTo 0\nProbe = \"#error:\" & CStr(number) & \"#extra:\" & extra\nFor Each item In parts\nProbe = Probe & \"|\" & item.Name & \":\" & CStr(item.Type) & \":\" & CStr(item.CodeModule.CountOfLines)\nNext\nIf Not part Is Nothing Then\nSet code = part.CodeModule\nProbe = Probe & \"#part:\" & part.Name & \"#decl:\" & CStr(code.CountOfDeclarationLines)\nIf code.CountOfLines > 0 Then Probe = Probe & \"#source:\" & code.Lines(1, code.CountOfLines)\nEnd If\nProbe = Probe & \"#saved:\" & CStr(target.Saved)\ntarget.Close False\nEnd Function",
+      "result": "#error:0#extra:|ThisWorkbook:100:0|Sheet1:100:0|Module1:1:2#part:Module1#decl:2#source:\n#saved:False",
+      "exported": null
+    },
+    {
+      "name": "insert_double_newline",
+      "setup": "Set part = parts.Add(1)",
+      "action": "part.CodeModule.InsertLines 1, vbCrLf & vbCrLf",
+      "macro": "Function Probe() As String\nDim target As Workbook, project As Object, parts As Object\nDim part As Object, item As Object, code As Object, number As Long, extra As String\nDim inputPath As String, outputPath As String\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nSet target = Workbooks.Add\nSet project = target.VBProject\nSet parts = project.VBComponents\ninputPath = \"INPUT\"\noutputPath = \"OUTPUT\"\nSet part = parts.Add(1)\nOn Error Resume Next\npart.CodeModule.InsertLines 1, vbCrLf & vbCrLf\nnumber = Err.Number\nOn Error GoTo 0\nProbe = \"#error:\" & CStr(number) & \"#extra:\" & extra\nFor Each item In parts\nProbe = Probe & \"|\" & item.Name & \":\" & CStr(item.Type) & \":\" & CStr(item.CodeModule.CountOfLines)\nNext\nIf Not part Is Nothing Then\nSet code = part.CodeModule\nProbe = Probe & \"#part:\" & part.Name & \"#decl:\" & CStr(code.CountOfDeclarationLines)\nIf code.CountOfLines > 0 Then Probe = Probe & \"#source:\" & code.Lines(1, code.CountOfLines)\nEnd If\nProbe = Probe & \"#saved:\" & CStr(target.Saved)\ntarget.Close False\nEnd Function",
+      "result": "#error:0#extra:|ThisWorkbook:100:0|Sheet1:100:0|Module1:1:3#part:Module1#decl:3#source:\n\n#saved:False",
+      "exported": null
+    },
+    {
+      "name": "add_empty",
+      "setup": "Set part = parts.Add(1)",
+      "action": "part.CodeModule.AddFromString \"\"",
+      "macro": "Function Probe() As String\nDim target As Workbook, project As Object, parts As Object\nDim part As Object, item As Object, code As Object, number As Long, extra As String\nDim inputPath As String, outputPath As String\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nSet target = Workbooks.Add\nSet project = target.VBProject\nSet parts = project.VBComponents\ninputPath = \"INPUT\"\noutputPath = \"OUTPUT\"\nSet part = parts.Add(1)\nOn Error Resume Next\npart.CodeModule.AddFromString \"\"\nnumber = Err.Number\nOn Error GoTo 0\nProbe = \"#error:\" & CStr(number) & \"#extra:\" & extra\nFor Each item In parts\nProbe = Probe & \"|\" & item.Name & \":\" & CStr(item.Type) & \":\" & CStr(item.CodeModule.CountOfLines)\nNext\nIf Not part Is Nothing Then\nSet code = part.CodeModule\nProbe = Probe & \"#part:\" & part.Name & \"#decl:\" & CStr(code.CountOfDeclarationLines)\nIf code.CountOfLines > 0 Then Probe = Probe & \"#source:\" & code.Lines(1, code.CountOfLines)\nEnd If\nProbe = Probe & \"#saved:\" & CStr(target.Saved)\ntarget.Close False\nEnd Function",
+      "result": "#error:0#extra:|ThisWorkbook:100:0|Sheet1:100:0|Module1:1:0#part:Module1#decl:0#saved:False",
+      "exported": null
+    },
+    {
+      "name": "replace_blank_only",
+      "setup": "Set part = parts.Add(1)\npart.CodeModule.InsertLines 1, \"x\"",
+      "action": "part.CodeModule.ReplaceLine 1, \"\"",
+      "macro": "Function Probe() As String\nDim target As Workbook, project As Object, parts As Object\nDim part As Object, item As Object, code As Object, number As Long, extra As String\nDim inputPath As String, outputPath As String\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nSet target = Workbooks.Add\nSet project = target.VBProject\nSet parts = project.VBComponents\ninputPath = \"INPUT\"\noutputPath = \"OUTPUT\"\nSet part = parts.Add(1)\npart.CodeModule.InsertLines 1, \"x\"\nOn Error Resume Next\npart.CodeModule.ReplaceLine 1, \"\"\nnumber = Err.Number\nOn Error GoTo 0\nProbe = \"#error:\" & CStr(number) & \"#extra:\" & extra\nFor Each item In parts\nProbe = Probe & \"|\" & item.Name & \":\" & CStr(item.Type) & \":\" & CStr(item.CodeModule.CountOfLines)\nNext\nIf Not part Is Nothing Then\nSet code = part.CodeModule\nProbe = Probe & \"#part:\" & part.Name & \"#decl:\" & CStr(code.CountOfDeclarationLines)\nIf code.CountOfLines > 0 Then Probe = Probe & \"#source:\" & code.Lines(1, code.CountOfLines)\nEnd If\nProbe = Probe & \"#saved:\" & CStr(target.Saved)\ntarget.Close False\nEnd Function",
+      "result": "#error:0#extra:|ThisWorkbook:100:0|Sheet1:100:0|Module1:1:1#part:Module1#decl:1#source:#saved:False",
+      "exported": null
+    },
+    {
+      "name": "delete_blank_only",
+      "setup": "Set part = parts.Add(1)\npart.CodeModule.InsertLines 1, \"\"",
+      "action": "part.CodeModule.DeleteLines 1",
+      "macro": "Function Probe() As String\nDim target As Workbook, project As Object, parts As Object\nDim part As Object, item As Object, code As Object, number As Long, extra As String\nDim inputPath As String, outputPath As String\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nSet target = Workbooks.Add\nSet project = target.VBProject\nSet parts = project.VBComponents\ninputPath = \"INPUT\"\noutputPath = \"OUTPUT\"\nSet part = parts.Add(1)\npart.CodeModule.InsertLines 1, \"\"\nOn Error Resume Next\npart.CodeModule.DeleteLines 1\nnumber = Err.Number\nOn Error GoTo 0\nProbe = \"#error:\" & CStr(number) & \"#extra:\" & extra\nFor Each item In parts\nProbe = Probe & \"|\" & item.Name & \":\" & CStr(item.Type) & \":\" & CStr(item.CodeModule.CountOfLines)\nNext\nIf Not part Is Nothing Then\nSet code = part.CodeModule\nProbe = Probe & \"#part:\" & part.Name & \"#decl:\" & CStr(code.CountOfDeclarationLines)\nIf code.CountOfLines > 0 Then Probe = Probe & \"#source:\" & code.Lines(1, code.CountOfLines)\nEnd If\nProbe = Probe & \"#saved:\" & CStr(target.Saved)\ntarget.Close False\nEnd Function",
+      "result": "#error:0#extra:|ThisWorkbook:100:0|Sheet1:100:0|Module1:1:0#part:Module1#decl:0#saved:False",
+      "exported": null
+    },
+    {
+      "name": "remove_add",
+      "setup": "Set part = parts.Add(1)\nparts.Remove part",
+      "action": "Set part = parts.Add(1)",
+      "macro": "Function Probe() As String\nDim target As Workbook, project As Object, parts As Object\nDim part As Object, item As Object, code As Object, number As Long, extra As String\nDim inputPath As String, outputPath As String\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nSet target = Workbooks.Add\nSet project = target.VBProject\nSet parts = project.VBComponents\ninputPath = \"INPUT\"\noutputPath = \"OUTPUT\"\nSet part = parts.Add(1)\nparts.Remove part\nOn Error Resume Next\nSet part = parts.Add(1)\nnumber = Err.Number\nOn Error GoTo 0\nProbe = \"#error:\" & CStr(number) & \"#extra:\" & extra\nFor Each item In parts\nProbe = Probe & \"|\" & item.Name & \":\" & CStr(item.Type) & \":\" & CStr(item.CodeModule.CountOfLines)\nNext\nIf Not part Is Nothing Then\nSet code = part.CodeModule\nProbe = Probe & \"#part:\" & part.Name & \"#decl:\" & CStr(code.CountOfDeclarationLines)\nIf code.CountOfLines > 0 Then Probe = Probe & \"#source:\" & code.Lines(1, code.CountOfLines)\nEnd If\nProbe = Probe & \"#saved:\" & CStr(target.Saved)\ntarget.Close False\nEnd Function",
+      "result": "#error:0#extra:|ThisWorkbook:100:0|Sheet1:100:0|Module1:1:0#part:Module1#decl:0#saved:False",
+      "exported": null
+    },
+    {
+      "name": "rename_reference_vba",
+      "setup": "Set part = parts.Add(1)",
+      "action": "part.Name = \"VBA\"",
+      "macro": "Function Probe() As String\nDim target As Workbook, project As Object, parts As Object\nDim part As Object, item As Object, code As Object, number As Long, extra As String\nDim inputPath As String, outputPath As String\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nSet target = Workbooks.Add\nSet project = target.VBProject\nSet parts = project.VBComponents\ninputPath = \"INPUT\"\noutputPath = \"OUTPUT\"\nSet part = parts.Add(1)\nOn Error Resume Next\npart.Name = \"VBA\"\nnumber = Err.Number\nOn Error GoTo 0\nProbe = \"#error:\" & CStr(number) & \"#extra:\" & extra\nFor Each item In parts\nProbe = Probe & \"|\" & item.Name & \":\" & CStr(item.Type) & \":\" & CStr(item.CodeModule.CountOfLines)\nNext\nIf Not part Is Nothing Then\nSet code = part.CodeModule\nProbe = Probe & \"#part:\" & part.Name & \"#decl:\" & CStr(code.CountOfDeclarationLines)\nIf code.CountOfLines > 0 Then Probe = Probe & \"#source:\" & code.Lines(1, code.CountOfLines)\nEnd If\nProbe = Probe & \"#saved:\" & CStr(target.Saved)\ntarget.Close False\nEnd Function",
+      "result": "#error:32813#extra:|ThisWorkbook:100:0|Sheet1:100:0|Module1:1:0#part:Module1#decl:0#saved:False",
+      "exported": null
+    },
+    {
+      "name": "rename_reference_stdole",
+      "setup": "Set part = parts.Add(1)",
+      "action": "part.Name = \"stdole\"",
+      "macro": "Function Probe() As String\nDim target As Workbook, project As Object, parts As Object\nDim part As Object, item As Object, code As Object, number As Long, extra As String\nDim inputPath As String, outputPath As String\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nSet target = Workbooks.Add\nSet project = target.VBProject\nSet parts = project.VBComponents\ninputPath = \"INPUT\"\noutputPath = \"OUTPUT\"\nSet part = parts.Add(1)\nOn Error Resume Next\npart.Name = \"stdole\"\nnumber = Err.Number\nOn Error GoTo 0\nProbe = \"#error:\" & CStr(number) & \"#extra:\" & extra\nFor Each item In parts\nProbe = Probe & \"|\" & item.Name & \":\" & CStr(item.Type) & \":\" & CStr(item.CodeModule.CountOfLines)\nNext\nIf Not part Is Nothing Then\nSet code = part.CodeModule\nProbe = Probe & \"#part:\" & part.Name & \"#decl:\" & CStr(code.CountOfDeclarationLines)\nIf code.CountOfLines > 0 Then Probe = Probe & \"#source:\" & code.Lines(1, code.CountOfLines)\nEnd If\nProbe = Probe & \"#saved:\" & CStr(target.Saved)\ntarget.Close False\nEnd Function",
+      "result": "#error:32813#extra:|ThisWorkbook:100:0|Sheet1:100:0|Module1:1:0#part:Module1#decl:0#saved:False",
+      "exported": null
+    },
+    {
+      "name": "rename_reference_office",
+      "setup": "Set part = parts.Add(1)",
+      "action": "part.Name = \"Office\"",
+      "macro": "Function Probe() As String\nDim target As Workbook, project As Object, parts As Object\nDim part As Object, item As Object, code As Object, number As Long, extra As String\nDim inputPath As String, outputPath As String\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nSet target = Workbooks.Add\nSet project = target.VBProject\nSet parts = project.VBComponents\ninputPath = \"INPUT\"\noutputPath = \"OUTPUT\"\nSet part = parts.Add(1)\nOn Error Resume Next\npart.Name = \"Office\"\nnumber = Err.Number\nOn Error GoTo 0\nProbe = \"#error:\" & CStr(number) & \"#extra:\" & extra\nFor Each item In parts\nProbe = Probe & \"|\" & item.Name & \":\" & CStr(item.Type) & \":\" & CStr(item.CodeModule.CountOfLines)\nNext\nIf Not part Is Nothing Then\nSet code = part.CodeModule\nProbe = Probe & \"#part:\" & part.Name & \"#decl:\" & CStr(code.CountOfDeclarationLines)\nIf code.CountOfLines > 0 Then Probe = Probe & \"#source:\" & code.Lines(1, code.CountOfLines)\nEnd If\nProbe = Probe & \"#saved:\" & CStr(target.Saved)\ntarget.Close False\nEnd Function",
+      "result": "#error:32813#extra:|ThisWorkbook:100:0|Sheet1:100:0|Module1:1:0#part:Module1#decl:0#saved:False",
+      "exported": null
+    },
+    {
+      "name": "file_name",
+      "setup": "Set part = parts.Add(1)",
+      "action": "extra = project.FileName",
+      "macro": "Function Probe() As String\nDim target As Workbook, project As Object, parts As Object\nDim part As Object, item As Object, code As Object, number As Long, extra As String\nDim inputPath As String, outputPath As String\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nSet target = Workbooks.Add\nSet project = target.VBProject\nSet parts = project.VBComponents\ninputPath = \"INPUT\"\noutputPath = \"OUTPUT\"\nSet part = parts.Add(1)\nOn Error Resume Next\nextra = project.FileName\nnumber = Err.Number\nOn Error GoTo 0\nProbe = \"#error:\" & CStr(number) & \"#extra:\" & extra\nFor Each item In parts\nProbe = Probe & \"|\" & item.Name & \":\" & CStr(item.Type) & \":\" & CStr(item.CodeModule.CountOfLines)\nNext\nIf Not part Is Nothing Then\nSet code = part.CodeModule\nProbe = Probe & \"#part:\" & part.Name & \"#decl:\" & CStr(code.CountOfDeclarationLines)\nIf code.CountOfLines > 0 Then Probe = Probe & \"#source:\" & code.Lines(1, code.CountOfLines)\nEnd If\nProbe = Probe & \"#saved:\" & CStr(target.Saved)\ntarget.Close False\nEnd Function",
+      "result": "#error:76#extra:|ThisWorkbook:100:0|Sheet1:100:0|Module1:1:0#part:Module1#decl:0#saved:False",
+      "exported": null
+    },
+    {
+      "name": "project_type",
+      "setup": "Set part = parts.Add(1)",
+      "action": "extra = CStr(project.Type)",
+      "macro": "Function Probe() As String\nDim target As Workbook, project As Object, parts As Object\nDim part As Object, item As Object, code As Object, number As Long, extra As String\nDim inputPath As String, outputPath As String\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nSet target = Workbooks.Add\nSet project = target.VBProject\nSet parts = project.VBComponents\ninputPath = \"INPUT\"\noutputPath = \"OUTPUT\"\nSet part = parts.Add(1)\nOn Error Resume Next\nextra = CStr(project.Type)\nnumber = Err.Number\nOn Error GoTo 0\nProbe = \"#error:\" & CStr(number) & \"#extra:\" & extra\nFor Each item In parts\nProbe = Probe & \"|\" & item.Name & \":\" & CStr(item.Type) & \":\" & CStr(item.CodeModule.CountOfLines)\nNext\nIf Not part Is Nothing Then\nSet code = part.CodeModule\nProbe = Probe & \"#part:\" & part.Name & \"#decl:\" & CStr(code.CountOfDeclarationLines)\nIf code.CountOfLines > 0 Then Probe = Probe & \"#source:\" & code.Lines(1, code.CountOfLines)\nEnd If\nProbe = Probe & \"#saved:\" & CStr(target.Saved)\ntarget.Close False\nEnd Function",
+      "result": "#error:0#extra:100|ThisWorkbook:100:0|Sheet1:100:0|Module1:1:0#part:Module1#decl:0#saved:False",
+      "exported": null
+    },
+    {
+      "name": "project_mode",
+      "setup": "Set part = parts.Add(1)",
+      "action": "extra = CStr(project.Mode)",
+      "macro": "Function Probe() As String\nDim target As Workbook, project As Object, parts As Object\nDim part As Object, item As Object, code As Object, number As Long, extra As String\nDim inputPath As String, outputPath As String\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nSet target = Workbooks.Add\nSet project = target.VBProject\nSet parts = project.VBComponents\ninputPath = \"INPUT\"\noutputPath = \"OUTPUT\"\nSet part = parts.Add(1)\nOn Error Resume Next\nextra = CStr(project.Mode)\nnumber = Err.Number\nOn Error GoTo 0\nProbe = \"#error:\" & CStr(number) & \"#extra:\" & extra\nFor Each item In parts\nProbe = Probe & \"|\" & item.Name & \":\" & CStr(item.Type) & \":\" & CStr(item.CodeModule.CountOfLines)\nNext\nIf Not part Is Nothing Then\nSet code = part.CodeModule\nProbe = Probe & \"#part:\" & part.Name & \"#decl:\" & CStr(code.CountOfDeclarationLines)\nIf code.CountOfLines > 0 Then Probe = Probe & \"#source:\" & code.Lines(1, code.CountOfLines)\nEnd If\nProbe = Probe & \"#saved:\" & CStr(target.Saved)\ntarget.Close False\nEnd Function",
+      "result": "#error:0#extra:0|ThisWorkbook:100:0|Sheet1:100:0|Module1:1:0#part:Module1#decl:0#saved:False",
+      "exported": null
+    },
+    {
+      "name": "project_protection",
+      "setup": "Set part = parts.Add(1)",
+      "action": "extra = CStr(project.Protection)",
+      "macro": "Function Probe() As String\nDim target As Workbook, project As Object, parts As Object\nDim part As Object, item As Object, code As Object, number As Long, extra As String\nDim inputPath As String, outputPath As String\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nSet target = Workbooks.Add\nSet project = target.VBProject\nSet parts = project.VBComponents\ninputPath = \"INPUT\"\noutputPath = \"OUTPUT\"\nSet part = parts.Add(1)\nOn Error Resume Next\nextra = CStr(project.Protection)\nnumber = Err.Number\nOn Error GoTo 0\nProbe = \"#error:\" & CStr(number) & \"#extra:\" & extra\nFor Each item In parts\nProbe = Probe & \"|\" & item.Name & \":\" & CStr(item.Type) & \":\" & CStr(item.CodeModule.CountOfLines)\nNext\nIf Not part Is Nothing Then\nSet code = part.CodeModule\nProbe = Probe & \"#part:\" & part.Name & \"#decl:\" & CStr(code.CountOfDeclarationLines)\nIf code.CountOfLines > 0 Then Probe = Probe & \"#source:\" & code.Lines(1, code.CountOfLines)\nEnd If\nProbe = Probe & \"#saved:\" & CStr(target.Saved)\ntarget.Close False\nEnd Function",
+      "result": "#error:0#extra:0|ThisWorkbook:100:0|Sheet1:100:0|Module1:1:0#part:Module1#decl:0#saved:False",
+      "exported": null
+    },
+    {
+      "name": "save_blank",
+      "setup": "Set part = parts.Add(1)\npart.CodeModule.InsertLines 1, \"\"",
+      "action": "target.SaveAs outputPath & \".xlsm\", 52\ntarget.Close False\nSet target = Workbooks.Open(outputPath & \".xlsm\")\nSet project = target.VBProject\nSet parts = project.VBComponents\nSet part = parts.Item(\"Module1\")",
+      "macro": "Function Probe() As String\nDim target As Workbook, project As Object, parts As Object\nDim part As Object, item As Object, code As Object, number As Long, extra As String\nDim inputPath As String, outputPath As String\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nSet target = Workbooks.Add\nSet project = target.VBProject\nSet parts = project.VBComponents\ninputPath = \"INPUT\"\noutputPath = \"OUTPUT\"\nSet part = parts.Add(1)\npart.CodeModule.InsertLines 1, \"\"\nOn Error Resume Next\ntarget.SaveAs outputPath & \".xlsm\", 52\ntarget.Close False\nSet target = Workbooks.Open(outputPath & \".xlsm\")\nSet project = target.VBProject\nSet parts = project.VBComponents\nSet part = parts.Item(\"Module1\")\nnumber = Err.Number\nOn Error GoTo 0\nProbe = \"#error:\" & CStr(number) & \"#extra:\" & extra\nFor Each item In parts\nProbe = Probe & \"|\" & item.Name & \":\" & CStr(item.Type) & \":\" & CStr(item.CodeModule.CountOfLines)\nNext\nIf Not part Is Nothing Then\nSet code = part.CodeModule\nProbe = Probe & \"#part:\" & part.Name & \"#decl:\" & CStr(code.CountOfDeclarationLines)\nIf code.CountOfLines > 0 Then Probe = Probe & \"#source:\" & code.Lines(1, code.CountOfLines)\nEnd If\nProbe = Probe & \"#saved:\" & CStr(target.Saved)\ntarget.Close False\nEnd Function",
+      "result": "#error:0#extra:|ThisWorkbook:100:0|Sheet1:100:0|Module1:1:1#part:Module1#decl:1#source:#saved:True",
+      "exported": null
+    },
+    {
+      "name": "save_trailing",
+      "setup": "Set part = parts.Add(1)\npart.CodeModule.AddFromString \"Public Value As Long\" & vbCrLf",
+      "action": "target.SaveAs outputPath & \".xlsm\", 52\ntarget.Close False\nSet target = Workbooks.Open(outputPath & \".xlsm\")\nSet project = target.VBProject\nSet parts = project.VBComponents\nSet part = parts.Item(\"Module1\")",
+      "macro": "Function Probe() As String\nDim target As Workbook, project As Object, parts As Object\nDim part As Object, item As Object, code As Object, number As Long, extra As String\nDim inputPath As String, outputPath As String\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nSet target = Workbooks.Add\nSet project = target.VBProject\nSet parts = project.VBComponents\ninputPath = \"INPUT\"\noutputPath = \"OUTPUT\"\nSet part = parts.Add(1)\npart.CodeModule.AddFromString \"Public Value As Long\" & vbCrLf\nOn Error Resume Next\ntarget.SaveAs outputPath & \".xlsm\", 52\ntarget.Close False\nSet target = Workbooks.Open(outputPath & \".xlsm\")\nSet project = target.VBProject\nSet parts = project.VBComponents\nSet part = parts.Item(\"Module1\")\nnumber = Err.Number\nOn Error GoTo 0\nProbe = \"#error:\" & CStr(number) & \"#extra:\" & extra\nFor Each item In parts\nProbe = Probe & \"|\" & item.Name & \":\" & CStr(item.Type) & \":\" & CStr(item.CodeModule.CountOfLines)\nNext\nIf Not part Is Nothing Then\nSet code = part.CodeModule\nProbe = Probe & \"#part:\" & part.Name & \"#decl:\" & CStr(code.CountOfDeclarationLines)\nIf code.CountOfLines > 0 Then Probe = Probe & \"#source:\" & code.Lines(1, code.CountOfLines)\nEnd If\nProbe = Probe & \"#saved:\" & CStr(target.Saved)\ntarget.Close False\nEnd Function",
+      "result": "#error:0#extra:|ThisWorkbook:100:0|Sheet1:100:0|Module1:1:2#part:Module1#decl:2#source:Public Value As Long\n#saved:True",
+      "exported": null
+    },
+    {
+      "name": "save_leading",
+      "setup": "Set part = parts.Add(1)\npart.CodeModule.InsertLines 1, vbCrLf & \"Public Value As Long\"",
+      "action": "target.SaveAs outputPath & \".xlsm\", 52\ntarget.Close False\nSet target = Workbooks.Open(outputPath & \".xlsm\")\nSet project = target.VBProject\nSet parts = project.VBComponents\nSet part = parts.Item(\"Module1\")",
+      "macro": "Function Probe() As String\nDim target As Workbook, project As Object, parts As Object\nDim part As Object, item As Object, code As Object, number As Long, extra As String\nDim inputPath As String, outputPath As String\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nSet target = Workbooks.Add\nSet project = target.VBProject\nSet parts = project.VBComponents\ninputPath = \"INPUT\"\noutputPath = \"OUTPUT\"\nSet part = parts.Add(1)\npart.CodeModule.InsertLines 1, vbCrLf & \"Public Value As Long\"\nOn Error Resume Next\ntarget.SaveAs outputPath & \".xlsm\", 52\ntarget.Close False\nSet target = Workbooks.Open(outputPath & \".xlsm\")\nSet project = target.VBProject\nSet parts = project.VBComponents\nSet part = parts.Item(\"Module1\")\nnumber = Err.Number\nOn Error GoTo 0\nProbe = \"#error:\" & CStr(number) & \"#extra:\" & extra\nFor Each item In parts\nProbe = Probe & \"|\" & item.Name & \":\" & CStr(item.Type) & \":\" & CStr(item.CodeModule.CountOfLines)\nNext\nIf Not part Is Nothing Then\nSet code = part.CodeModule\nProbe = Probe & \"#part:\" & part.Name & \"#decl:\" & CStr(code.CountOfDeclarationLines)\nIf code.CountOfLines > 0 Then Probe = Probe & \"#source:\" & code.Lines(1, code.CountOfLines)\nEnd If\nProbe = Probe & \"#saved:\" & CStr(target.Saved)\ntarget.Close False\nEnd Function",
+      "result": "#error:0#extra:|ThisWorkbook:100:0|Sheet1:100:0|Module1:1:2#part:Module1#decl:2#source:\nPublic Value As Long#saved:True",
+      "exported": null
+    }
+  ]
+}

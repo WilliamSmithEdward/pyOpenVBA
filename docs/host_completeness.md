@@ -77,13 +77,30 @@ invalid edits remain inspectable and can be saved. Native Excel opens a
 saved edited workbook, recognizes renamed project/document identities and
 executes both document and standard code. Component/project naming, basic
 line operations and procedure queries are implemented for the measured
-cases. References, designers, import/export, Find/CreateEventProc, complete
+cases. References, designers, complete import/export, Find/CreateEventProc, complete
 procedure boundaries (continuations/conditional code), ByRef procedure-kind
 queries, project reset/lifetime and protected-project conformance still
 need work. The generated `docs/vbide_checklist.csv` records all 228 VBIDE
 members, including missing interfaces. Its source is the pyVBAReference
 checkout at `a6c39d0617085297e88bec7de0ee8afb7aa0746b`. This is a partial
 VBIDE model, not proof of the full interface.
+
+Source-file work adds 29 native probes in `vbide_source_files.json` for
+standard/class imports, standard/class/document exports, AddFromFile,
+reference-name collisions and physical/editor line boundaries. Native Excel
+executes saved imported standard and class code. Exported class headers are
+converted to their stream form for persistence. Incomplete source stays
+editable; blank/leading/trailing lines survive save/reopen. UserForm files,
+wider extensions, attribute/collision/encoding behavior and opening invalid
+source without compilation remain gaps.
+
+Eighteen native probes in `module_namespaces.json` establish a measured slice
+of standard-module qualification and ByRef argument binding. Public module
+variables and array elements alias storage; class public fields pass a
+temporary property value. Parenthesized arguments likewise use temporary
+values. References, qualified types/enums, full name resolution and compile
+checks, UDT/member references and broader default-member binding remain
+incomplete.
 
 ## What counts as complete
 

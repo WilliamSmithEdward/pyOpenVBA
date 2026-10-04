@@ -128,6 +128,22 @@ class Slot:
         self.value = coerce(value, self.declared)
 
 
+class ArrayElementSlot(Slot):
+    """A ByRef alias to an array element, retaining its evaluated indices."""
+
+    def __init__(self, array: VBAArray, indices: list[int]) -> None:
+        self.array = array
+        self.indices = indices
+        super().__init__(array.get(indices), array.element_type)
+
+    def get(self) -> object:
+        return self.array.get(self.indices)
+
+    def set(self, value: object) -> None:
+        self.array.set(self.indices, value)
+        self.value = self.array.get(self.indices)
+
+
 class EventSlot(Slot):
     """A class's WithEvents variable; rebinding changes its subscription order."""
 
@@ -481,6 +497,65 @@ class UserTypeValue(VBAObject):
     def describe(self, indent: str = "") -> str:
         inner = ", ".join(f"{name}={_short(slot.get())}" for name, slot in self.fields.items())
         return f"{indent}{self.vba_type_name}({inner})"
+
+
+class StandardModuleNamespace(VBAObject):
+    """A compiler namespace for a standard module, reached only before a dot."""
+
+    def __init__(self, module: ModuleRuntime, interpreter: Interpreter, caller: ModuleRuntime | None) -> None:
+        self.module = module
+        self.interpreter = interpreter
+        self.caller = caller
+
+    def procedure(self, name: str, kind: str = '') -> A.Procedure | None:
+        procedure = self.module.procedure(name, kind)
+        if procedure is not None and procedure.scope == 'private' and self.caller is not self.module:
+            raise VBACompileError(f'Member is private: {self.module.name}.{name}')
+        return procedure
+
+    def variable(self, name: str) -> Slot | None:
+        key = name.casefold()
+        self.module.initialise()
+        slot = self.module.variables.get(key)
+        if slot is not None and self.caller is not self.module and not any(
+            group.scope in ('public', 'global') and any(declaration.name.casefold() == key for declaration in group.decls)
+            for group in self.module.parsed.variables
+        ):
+            raise VBACompileError(f'Member is private: {self.module.name}.{name}')
+        return slot
+
+    def vba_get(self, name: str, args: Sequence[object] = (), named: dict[str, object] | None = None) -> object:
+        procedure = self.procedure(name, 'get') or self.procedure(name)
+        if procedure is not None and procedure.kind in ('get', 'function', 'sub'):
+            return self.interpreter.call(procedure, self.module, list(args), named or {})
+        slot = self.variable(name)
+        if slot is not None:
+            value = slot.get()
+            return value.get([int(to_integer(one, 'Long')) for one in args]) if args and isinstance(value, VBAArray) else value
+        key = name.casefold()
+        if key in self.module.constants:
+            if self.caller is not self.module and not any(group.scope == 'public' and any(item[0].casefold() == key for item in group.names) for group in self.module.parsed.constants):
+                raise VBACompileError(f'Member is private: {self.module.name}.{name}')
+            return self.module.constants[key]
+        if key in self.module.enum_members:
+            if self.caller is not self.module and not any(definition.scope == 'public' and any(item[0].casefold() == key for item in definition.members) for definition in self.module.parsed.enums):
+                raise VBACompileError(f'Member is private: {self.module.name}.{name}')
+            return self.module.enum_members[key]
+        raise VBACompileError(f'Member not found: {self.module.name}.{name}')
+
+    def vba_set(self, name: str, value: object, args: Sequence[object] = (),
+                named: dict[str, object] | None = None, *, by_ref: bool = False) -> None:
+        procedure = self.procedure(name, 'set' if by_ref else 'let')
+        if procedure is not None:
+            self.interpreter.call(procedure, self.module, [*args, value], named or {})
+            return
+        slot = self.variable(name)
+        if slot is None:
+            raise VBACompileError(f'Member not found: {self.module.name}.{name}')
+        if args and isinstance(slot.value, VBAArray):
+            slot.value.set([int(to_integer(one, 'Long')) for one in args], value)
+        else:
+            slot.set(value)
 
 
 class UserClassInstance(VBAObject):
@@ -1434,6 +1509,13 @@ class Interpreter:
             if frame is None or not frame.with_stack:
                 raise error(91, "a leading dot needs an open With block")
             return frame.with_stack[-1]
+        if isinstance(expression, A.Member) and isinstance(expression.target, A.Name):
+            key = expression.target.name.casefold()
+            module = self.modules.get(key)
+            shadowed = frame is not None and (key in frame.locals or key in frame.module.variables or key in frame.module.constants or
+                                             isinstance(frame.me, UserClassInstance) and key in frame.me.variables)
+            if module is not None and not module.is_class and not shadowed:
+                return StandardModuleNamespace(module, self, frame.module if frame is not None else None)
         value = self.evaluate(expression.target, frame, want_object=True)
         if value is NOTHING:
             raise error(ERR_OBJECT_VARIABLE_NOT_SET)
@@ -1464,7 +1546,8 @@ class Interpreter:
             return self._call_name(callee, args, frame, statement_context=statement_context)
         if isinstance(callee, A.Member):
             target = self._member_target(callee, frame)
-            positional, named = self._arguments(args, frame, target=target, name=callee.name)
+            procedure = target.procedure(callee.name) if isinstance(target, StandardModuleNamespace) else target.module.procedure(callee.name) if isinstance(target, UserClassInstance) else None
+            positional, named = self._arguments(args, frame, procedure=procedure, target=target, name=callee.name)
             return _dispatch_get(target, callee.name, positional, named)
         if isinstance(callee, A.Index):
             inner = self.evaluate_call(callee.target, callee.args, frame)
@@ -1592,14 +1675,41 @@ class Interpreter:
                     continue
                 positional.append(MISSING)
                 continue
-            wants_slot = procedure is not None and by_ref(index, argument.name)
+            wants_slot = procedure is not None and by_ref(index, argument.name) and not argument.by_value
             value: object
             if wants_slot and isinstance(argument.value, A.Name):
-                slot = self.lookup(argument.value.name, frame, want_slot=True)
-                if isinstance(slot, Slot):
-                    value = slot
+                value = self.lookup(argument.value.name, frame, want_slot=True)
+                if value is UNRESOLVED:
+                    raise self._undefined(argument.value.name, frame, argument.value)
+            elif wants_slot and isinstance(argument.value, A.Member):
+                owner = self._member_target(argument.value, frame)
+                slot = self.member_variable(owner, argument.value.name, frame)
+                value = slot if slot is not None else _dispatch_get(owner, argument.value.name, [], {})
+            elif wants_slot and isinstance(argument.value, A.Index):
+                expression = argument.value
+                slot = None
+                owner = None
+                if isinstance(expression.target, A.Name):
+                    key = expression.target.name.casefold()
+                    if frame is not None:
+                        slot = frame.locals.get(key) or frame.module.variables.get(key)
+                        if slot is None and isinstance(frame.me, UserClassInstance):
+                            slot = frame.me.variables.get(key)
+                    if slot is None:
+                        slot = next((runtime.variables[key] for runtime in self.modules.values() if not runtime.is_class and key in runtime.variables), None)
+                elif isinstance(expression.target, A.Member):
+                    owner = self._member_target(expression.target, frame)
+                    slot = self.member_variable(owner, expression.target.name, frame)
+                array = slot.get() if slot is not None else None
+                if isinstance(array, VBAArray):
+                    indices, _ = self._arguments(expression.args, frame)
+                    value = ArrayElementSlot(array, [int(to_integer(one, 'Long')) for one in indices])
+                elif owner is not None and isinstance(expression.target, A.Member):
+                    procedure = owner.procedure(expression.target.name) if isinstance(owner, StandardModuleNamespace) else owner.module.procedure(expression.target.name) if isinstance(owner, UserClassInstance) else None
+                    positional_inner, named_inner = self._arguments(expression.args, frame, procedure=procedure)
+                    value = _dispatch_get(owner, expression.target.name, positional_inner, named_inner)
                 else:
-                    value = self.evaluate(argument.value, frame, want_object=True)
+                    value = self.evaluate(expression, frame, want_object=True)
             else:
                 value = self.evaluate(argument.value, frame, want_object=True)
             if argument.name:
@@ -1607,6 +1717,13 @@ class Interpreter:
             else:
                 positional.append(value)
         return positional, named
+
+    def member_variable(self, owner: object, name: str, frame: Frame | None) -> Slot | None:
+        if isinstance(owner, StandardModuleNamespace):
+            return owner.variable(name)
+        # A class/document's public field is exposed as a property: VBA
+        # passes its returned value temporarily, rather than its storage.
+        return None
 
     def call_named(
         self,

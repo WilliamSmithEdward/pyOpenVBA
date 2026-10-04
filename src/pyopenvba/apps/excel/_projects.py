@@ -80,6 +80,8 @@ class ExcelInterpreter(Interpreter):
             if isinstance(book.vbide_project, VBProject):
                 for entry in book.vbide_project.components.entries:
                     if entry.name.casefold() == runtime.name.casefold():
+                        if entry.source != runtime.parsed.source:
+                            entry.code_module.editor_lines = None
                         entry.source = runtime.parsed.source
                         entry.pending = False
         if book is not None and (previous is None or previous.parsed.source != runtime.parsed.source):
@@ -130,6 +132,8 @@ class ExcelInterpreter(Interpreter):
                 if isinstance(book.vbide_project, VBProject):
                     for entry in book.vbide_project.components.entries:
                         if entry.name.casefold() == runtime.name.casefold():
+                            if entry.source != runtime.parsed.source:
+                                entry.code_module.editor_lines = None
                             entry.source = runtime.parsed.source
                             entry.pending = False
         return [runtime.name for runtime in staged]

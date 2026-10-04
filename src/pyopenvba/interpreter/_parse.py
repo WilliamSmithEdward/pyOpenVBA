@@ -1054,6 +1054,8 @@ class Parser:
             args = self._parse_print_arguments()
         elif isinstance(target, A.Index) and self.at_eos():
             args = target.args
+            if len(args) == 1:
+                args[0].by_value = True
             inner = target.target
             if inner is not None:
                 target = inner
@@ -1236,7 +1238,8 @@ class Parser:
             if self.token.kind == "ident" and self.peek().kind == "op" and self.peek().text == ":=":
                 name = self.advance().text
                 self.advance()
-            args.append(A.Argument(value=self._parse_expression(), name=name))
+            by_value = self.at_op("(")
+            args.append(A.Argument(value=self._parse_expression(), name=name, by_value=by_value))
             if self.accept_op(","):
                 continue
             break

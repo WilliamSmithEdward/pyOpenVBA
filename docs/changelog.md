@@ -22,11 +22,12 @@ All notable changes to pyOpenVBA are documented here. This project follows
   flags, versions, extra field) where `zipfile` wrote its own, which gave
   a part Office wrote with no attributes a Unix file mode. And a part
   that is not read is not checked: one whose stored bytes are damaged
-  used to stop the save with `zipfile.BadZipFile`, and is now carried
-  over as it is. A package the copy does not cover is written through
-  `zipfile` as before: ZIP64, a changed part compressed some other way
-  than deflate, an encrypted part, a part name that is not UTF-8, or one
-  name used twice. `tests/test_package_copy.py` holds the two writers to
+  used to stop the save with `zipfile.BadZipFile` or `zlib.error`, and
+  is now carried over as it is. A package the copy does not cover is
+  written through `zipfile` as before: ZIP64, a changed part compressed
+  some other way than deflate, an encrypted part, a part name that is
+  not UTF-8, one name used twice, or a package whose central directory
+  and part headers disagree on a part's name, size or place. `tests/test_package_copy.py` holds the two writers to
   the same parts, content, methods and dates over the 47 zip-based files
   in the repository.
 - The Malware scan builds the wheel and sdist with the hash-locked build

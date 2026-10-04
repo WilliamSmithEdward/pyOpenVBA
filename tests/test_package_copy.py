@@ -251,6 +251,7 @@ def test_sizes_written_after_a_part_move_into_its_header() -> None:
 
 
 def test_a_part_compressed_another_way_is_copied_but_not_written() -> None:
+    pytest.importorskip("bz2")
     raw = _zip(PARTS, method=zipfile.ZIP_BZIP2)
     assert copy_package(raw, _infos(raw), {"a.xml": b"new"}, {}) is None
     packed = copy_package(raw, _infos(raw), {}, {})
@@ -284,6 +285,48 @@ def test_packages_left_to_zipfile() -> None:
     central = raw.rfind(b"PK\x01\x02")
     encrypted[central + 8] |= 0x01
     assert copy_package(bytes(encrypted), _infos(raw), {}, {}) is None
+
+
+def _central(raw: bytes, name: str) -> int:
+    """Where the central directory's record for ``name`` starts."""
+    at = raw.index(b"PK")
+    while raw[at + 46 : at + 46 + len(name)] != name.encode():
+        at = raw.index(b"PK", at + 4)
+    return at
+
+
+def test_directories_that_disagree_are_left_to_zipfile() -> None:
+    """The part's own header and the central directory each describe it, and a copy needs both to be right."""
+    raw = _zip(PARTS)
+    infos = _infos(raw)
+    assert copy_package(raw, infos, {}, {}) is not None
+
+    # The part's own header names it differently.
+    renamed = bytearray(raw)
+    renamed[infos[1].header_offset + 30] ^= 0x01
+    assert copy_package(bytes(renamed), infos, {}, {}) is None
+    with zipfile.ZipFile(io.BytesIO(bytes(renamed))) as package, pytest.raises(zipfile.BadZipFile):
+        package.read("b.bin")
+
+    # Two entries of the directory point at the same bytes.
+    overlapping = bytearray(raw)
+    struct.pack_into("<I", overlapping, _central(raw, "c.xml") + 42, infos[0].header_offset)
+    struct.pack_into("<III", overlapping, _central(raw, "c.xml") + 16,
+                     infos[0].CRC, infos[0].compress_size, infos[0].file_size)
+    assert copy_package(bytes(overlapping), _infos(bytes(overlapping)), {}, {}) is None
+
+
+def test_a_size_held_in_a_zip64_record_is_left_to_zipfile() -> None:
+    """A part may keep its size in a ZIP64 record in a package with no ZIP64 end records to give it away."""
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as package:
+        with package.open("a.xml", "w", force_zip64=True) as part:
+            part.write(PARTS["a.xml"])
+        package.writestr("b.bin", PARTS["b.bin"])
+    raw = buffer.getvalue()
+    assert b"PK" not in raw
+    assert copy_package(raw, _infos(raw), {}, {}) is None
+    assert copy_package(raw, _infos(raw), {"a.xml": b"new"}, {}) is None
 
 
 def test_a_package_left_to_zipfile_still_saves(tmp_path: Path) -> None:

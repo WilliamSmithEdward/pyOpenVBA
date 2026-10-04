@@ -18,7 +18,10 @@ existed.
 faithfully, and the caller then writes it with ``zipfile`` as it always
 has.  That covers ZIP64, a part compressed some other way than deflate
 that has to be written anew, an encrypted part, a part name that is not
-UTF-8, and a package naming one part twice.
+UTF-8, and a package naming one part twice.  It also covers a package
+whose two directories disagree -- a part's own header naming it
+differently, giving it other sizes in a ZIP64 record, or placing it over
+another part -- which ``zipfile`` refuses, and so still does.
 """
 
 from __future__ import annotations
@@ -42,6 +45,21 @@ _DESCRIPTOR = 0x0008
 _NO_DATE = 0x0021
 #: A size or offset of this much is held in a ZIP64 record instead.
 _ZIP64 = 0xFFFFFFFF
+#: The extra field record that holds one.
+_ZIP64_RECORD = 0x0001
+
+
+def _has_zip64(extra: bytes) -> bool:
+    """Whether an extra field holds a ZIP64 record, or cannot be read to say."""
+    at = 0
+    while at < len(extra):
+        if at + 4 > len(extra):
+            return True
+        kind, size = struct.unpack_from("<HH", extra, at)
+        if kind == _ZIP64_RECORD:
+            return True
+        at += 4 + size
+    return False
 
 
 def _pack(data: bytes, method: int) -> bytes | None:
@@ -79,16 +97,28 @@ def copy_package(
         return None
 
     entries: list[Entry] = []
+    # Where the last part's bytes ended: each part has to start past the one before it.
+    end = 0
     for entry, info in zip(package.entries, infos, strict=True):
         # The two readers have to agree on what the part is, or an edit could land on the wrong one.
         if (
             entry.name != info.filename
             or len(entry.body) != info.compress_size
+            or entry.uncompressed_size != info.file_size
+            or entry.crc != info.CRC
             or entry.flags & _ENCRYPTED
             or info.compress_size >= _ZIP64
             or info.file_size >= _ZIP64
+            or _has_zip64(entry.local_extra)
+            or _has_zip64(entry.central_extra)
         ):
             return None
+        # So do the part's own header and the directory: on its name, and on parts not lying over each other.
+        name = entry.name.encode("utf-8")
+        named = info.header_offset + 30
+        if info.header_offset < end or raw[named : named + len(name) + len(entry.local_extra)] != name + entry.local_extra:
+            return None
+        end = named + len(name) + len(entry.local_extra) + len(entry.body)
         # The sizes are written in the header, so nothing follows the part's bytes to say them again.
         flags = entry.flags & ~_DESCRIPTOR
         if entry.name in edits:

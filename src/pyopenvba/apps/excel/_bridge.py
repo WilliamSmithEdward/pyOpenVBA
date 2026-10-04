@@ -20,14 +20,15 @@ from pyopenvba.interpreter._runtime import HostBridge, UNRESOLVED
 from pyopenvba.interpreter._values import VBAInt
 
 if TYPE_CHECKING:
-    from pyopenvba.apps.excel._model import Application
+    from pyopenvba.apps.excel._model import Application, Workbook
 
 
 class ExcelBridge(HostBridge):
     """The Excel host, seen from inside a VBA project."""
 
-    def __init__(self, application: Application) -> None:
+    def __init__(self, application: Application, workbook: Workbook | None = None) -> None:
         self.application = application
+        self.workbook = workbook
         self._global_members = members_of("Global", "excel")
 
     def global_object(self, name: str) -> object:
@@ -36,7 +37,7 @@ class ExcelBridge(HostBridge):
         from pyopenvba.apps.excel._model import Workbook
 
         # A code name, Sheet1 or ThisWorkbook, is the sheet or the workbook of the project's own workbook.
-        book = self.application.vba_get("ThisWorkbook")
+        book = self.workbook or self.application.vba_get("ThisWorkbook")
         if isinstance(book, Workbook):
             if book.code_name.lower() == name:
                 return book

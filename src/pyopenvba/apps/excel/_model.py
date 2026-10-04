@@ -150,6 +150,7 @@ class Application(ExcelObject):
         self.clipboard: Clip | None = None
         self.user_name = "pyOpenVBA"
         self.interpreter: Interpreter | None = None
+        self.executing_projects: list[Interpreter] = []
         self.active_book: Workbook | None = None
         #: The workbooks whose windows have been to the front, front first (see _windows).
         self.window_order: list[Workbook] = []
@@ -279,6 +280,12 @@ class Application(ExcelObject):
 
     @member
     def ThisWorkbook(self) -> object:
+        from pyopenvba.apps.excel._projects import ExcelInterpreter
+
+        if self.executing_projects:
+            project = self.executing_projects[-1]
+            if isinstance(project, ExcelInterpreter) and project.bridge.workbook is not None:
+                return project.bridge.workbook
         book = self._this_workbook or self.active_book
         return book if book is not None else NOTHING
 
@@ -362,9 +369,9 @@ class Application(ExcelObject):
 
     @method
     def Run(self, Macro: object = MISSING, *args: object) -> object:
-        if self.interpreter is None:
-            raise error(ERR_APPLICATION_DEFINED, "no VBA project is loaded")
-        return self.interpreter.run(to_text(Macro), list(args))
+        from pyopenvba.apps.excel._projects import run_macro
+
+        return run_macro(self, to_text(Macro), list(args))
 
     @method
     def Intersect(self, Arg1: object = MISSING, Arg2: object = MISSING, *rest: object) -> object:
@@ -431,13 +438,16 @@ class Application(ExcelObject):
             raise error(ERR_APPLICATION_DEFINED, "no sheet is active")
         return sheet
 
-    def activate_book(self, book: Workbook) -> None:
+    def activate_book(self, book: Workbook, *, events: bool = True) -> None:
         from pyopenvba.apps.excel._windows import brought_forward
 
+        before = self.active_book
         brought_forward(self, book)
         self.active_book = book
         if self._this_workbook is None:
             self._this_workbook = book
+        if events:
+            _events.book_activated(book, before)
 
     def describe(self, indent: str = "") -> str:
         lines = [f"{indent}Excel {self.vba_get('Version')} ({len(self.workbooks_.books)} workbook(s))"]
@@ -484,16 +494,23 @@ class Workbooks(VBACollection, ExcelObject):
         book = Workbook(self.application, self.next_name())
         book.add_sheet("Sheet1").code_name = "Sheet1"
         self.books.append(book)
+        from pyopenvba.apps.excel._projects import attach_project
+
+        attach_project(book)
         self.application.activate_book(book)
         return book
 
     @method
     def Open(self, Filename: object = MISSING) -> object:
-        from pyopenvba.apps.excel._io import load_workbook
-
         if Filename is MISSING:
             raise error(449)
-        path = Path(to_text(Filename)).resolve()
+        return self.open_file(Path(to_text(Filename)))
+
+    def open_file(self, path: Path, *, with_vba: bool = True) -> Workbook:
+        from pyopenvba.apps.excel._io import load_workbook
+        from pyopenvba.apps.excel._projects import attach_project, load_project
+
+        path = path.resolve()
         existing = next((book for book in self.books if book.path and (Path(book.path) / book.name).resolve() == path), None)
         if existing is not None:
             self.application.activate_book(existing)
@@ -502,7 +519,24 @@ class Workbooks(VBACollection, ExcelObject):
             raise error(1004, "A workbook with that name is already open")
         book = load_workbook(self.application, path)
         self.books.append(book)
-        self.application.activate_book(book)
+        try:
+            if with_vba:
+                load_project(book)
+            else:
+                attach_project(book)
+        except Exception:
+            self.books.remove(book)
+            from pyopenvba.apps.excel._projects import ExcelInterpreter
+
+            root = self.application.interpreter
+            if isinstance(root, ExcelInterpreter) and root.bridge.workbook is book:
+                root.bridge.workbook = None
+            raise
+        before = self.application.active_book
+        self.application.activate_book(book, events=False)
+        _events.opened(book)
+        if self.application.active_book is book:
+            _events.book_activated(book, before)
         return book
 
     @member
@@ -535,6 +569,7 @@ class Workbook(ExcelObject):
         self.name = name
         self.path = path
         self.saved = True
+        self.project_runtime: Interpreter | None = None
         #: A validated SaveAs changes FileFormat even if the subsequent file write fails.
         self.format_code: int | None = None
         #: The folder the workbook's links were read from or last written for, which a DOS path a link names is

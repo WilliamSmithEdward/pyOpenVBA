@@ -1,0 +1,30 @@
+{
+  "measured_at": "2026-10-04T22:08:38.218440+00:00",
+  "excel_version_build": "16.0|20430",
+  "log": "Public EventLog As String\nPublic Sub Record(ByVal text As String)\nEventLog = EventLog & text & \"|\"\nEnd Sub\n",
+  "sink": "Public WithEvents Source As Application\nPrivate Sub Source_WorkbookOpen(ByVal Wb As Workbook)\nIf Wb.Name = \"target.xlsm\" Then Record \"app-open:\" & Wb.Name & \":\" & CStr(Wb.Worksheets(1).Range(\"A1\").Value)\nEnd Sub\nPrivate Sub Source_WorkbookActivate(ByVal Wb As Workbook)\nIf Wb.Name = \"target.xlsm\" Then Record \"app-book-activate:\" & Wb.Name\nEnd Sub\nPrivate Sub Source_WorkbookDeactivate(ByVal Wb As Workbook)\nIf Wb.Name = \"target.xlsm\" Then Record \"app-book-deactivate:\" & Wb.Name\nEnd Sub\nPrivate Sub Source_SheetActivate(ByVal Sh As Object)\nIf Sh.Parent.Name = \"target.xlsm\" Then Record \"app-sheet-activate:\" & Sh.Name\nEnd Sub\nPrivate Sub Source_SheetChange(ByVal Sh As Object, ByVal Target As Range)\nIf Sh.Parent.Name = \"target.xlsm\" Then Record \"app-change:\" & Sh.Name\nEnd Sub\n",
+  "book": "Private Sub Workbook_Open()\nApplication.Run \"'caller.xlsm'!Record\", \"book-open:\" & ThisWorkbook.Name & \":\" & ActiveWorkbook.Name\nWorksheets(1).Range(\"A1\").Value = 41\nEnd Sub\nPrivate Sub Workbook_Activate()\nApplication.Run \"'caller.xlsm'!Record\", \"book-activate:\" & ThisWorkbook.Name\nEnd Sub\nPrivate Sub Workbook_Deactivate()\nApplication.Run \"'caller.xlsm'!Record\", \"book-deactivate:\" & ThisWorkbook.Name\nEnd Sub\nPrivate Sub Workbook_SheetChange(ByVal Sh As Object, ByVal Target As Range)\nApplication.Run \"'caller.xlsm'!Record\", \"book-change:\" & Sh.Name\nEnd Sub\n",
+  "sheet": "Private Sub Worksheet_Activate()\nApplication.Run \"'caller.xlsm'!Record\", \"sheet-activate:\" & Me.Name\nEnd Sub\nPrivate Sub Worksheet_Change(ByVal Target As Range)\nApplication.Run \"'caller.xlsm'!Record\", \"sheet-change:\" & Me.Name\nEnd Sub\n",
+  "probes": [
+    {
+      "name": "open_enabled",
+      "source": "Function Probe() As String\nDim sink As New OpenSink, target As Workbook\nSet sink.Source = Application\nEventLog = \"\"\nApplication.EnableEvents = True\nSet target = Workbooks.Open(\"{TARGET}\")\nProbe = EventLog & \"#value:\" & CStr(target.Worksheets(1).Range(\"A1\").Value)\nApplication.EnableEvents = False\ntarget.Close False\nEnd Function",
+      "result": "book-open:target.xlsm:target.xlsm|sheet-change:Sheet1|book-change:Sheet1|app-change:Sheet1|app-open:target.xlsm:41|book-activate:target.xlsm|app-book-activate:target.xlsm|#value:41"
+    },
+    {
+      "name": "open_disabled",
+      "source": "Function Probe() As String\nDim sink As New OpenSink, target As Workbook\nSet sink.Source = Application\nEventLog = \"\"\nApplication.EnableEvents = False\nSet target = Workbooks.Open(\"{TARGET}\")\nProbe = EventLog & \"#value:\" & CStr(target.Worksheets(1).Range(\"A1\").Value)\nApplication.EnableEvents = False\ntarget.Close False\nEnd Function",
+      "result": "#value:"
+    },
+    {
+      "name": "open_twice",
+      "source": "Function Probe() As String\nDim sink As New OpenSink, target As Workbook\nSet sink.Source = Application\nEventLog = \"\"\nApplication.EnableEvents = True\nSet target = Workbooks.Open(\"{TARGET}\")\nEventLog = \"\"\nSet target = Workbooks.Open(\"{TARGET}\")\nProbe = EventLog & \"#value:\" & CStr(target.Worksheets(1).Range(\"A1\").Value)\nApplication.EnableEvents = False\ntarget.Close False\nEnd Function",
+      "result": "#value:41"
+    },
+    {
+      "name": "switch_books",
+      "source": "Function Probe() As String\nDim sink As New OpenSink, target As Workbook\nSet sink.Source = Application\nEventLog = \"\"\nApplication.EnableEvents = True\nSet target = Workbooks.Open(\"{TARGET}\")\nEventLog = \"\"\nThisWorkbook.Activate\ntarget.Activate\nProbe = EventLog & \"#value:\" & CStr(target.Worksheets(1).Range(\"A1\").Value)\nApplication.EnableEvents = False\ntarget.Close False\nEnd Function",
+      "result": "book-deactivate:target.xlsm|app-book-deactivate:target.xlsm|book-activate:target.xlsm|app-book-activate:target.xlsm|#value:41"
+    }
+  ]
+}

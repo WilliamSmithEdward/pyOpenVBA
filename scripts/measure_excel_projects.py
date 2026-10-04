@@ -18,6 +18,31 @@ End Function
 Public Function CallOther() As String
 CallOther = Application.Run("'beta.xlsm'!Echo") & "|" & ThisWorkbook.Name
 End Function
+Public Function HandledError() As Long
+On Error Resume Next
+Err.Raise 5
+HandledError = Err.Number
+End Function
+Public Function ErrorAtEntry() As Long
+ErrorAtEntry = Err.Number
+End Function
+Public Function ClearError() As Long
+Err.Clear
+ClearError = Err.Number
+End Function
+'''
+CLASS = '''Public Function StaticAnswer() As Long
+StaticAnswer = 42
+End Function
+'''
+DOCUMENT = '''Public Function DocumentAnswer() As String
+Me.Worksheets(1).Range("A1").Value = 99
+DocumentAnswer = Me.Name & ":" & ThisWorkbook.Name
+End Function
+Public Function DocumentArg(ByVal n As Long) As Long
+Me.Worksheets(1).Range("A1").Value = n
+DocumentArg = n
+End Function
 '''
 ACTIONS = {
     "unqualified_active_alpha": 'alpha.Activate\nanswer = Application.Run("Echo")',
@@ -33,6 +58,14 @@ ACTIONS = {
     "unqualified_single_project": 'beta.Close False\nalpha.Activate\nanswer = Application.Run("Echo")',
     "unqualified_caller_project": 'beta.Activate\nanswer = Application.Run("Echo")',
     "qualified_case_insensitive": 'beta.Activate\nanswer = Application.Run("\'ALPHA.XLSM\'!library.eCHO")',
+    "callee_clears_error": 'Err.Raise 5\nanswer = Application.Run("\'alpha.xlsm\'!Echo")',
+    "callee_handled_error": 'answer = Application.Run("\'alpha.xlsm\'!HandledError")',
+    "callee_entry_error": 'Err.Raise 5\nanswer = Application.Run("\'alpha.xlsm\'!ErrorAtEntry")',
+    "callee_explicit_clear": 'Err.Raise 5\nanswer = Application.Run("\'alpha.xlsm\'!ClearError")',
+    "ordinary_class_macro": 'answer = Application.Run("\'alpha.xlsm\'!Box.StaticAnswer")',
+    "workbook_document_macro": 'answer = Application.Run("\'alpha.xlsm\'!ThisWorkbook.DocumentAnswer")',
+    "document_macro_side_effect": 'answer = CStr(Application.Run("\'alpha.xlsm\'!ThisWorkbook.DocumentAnswer")) & "#cell:" & CStr(alpha.Worksheets(1).Range("A1").Value)',
+    "document_macro_argument": 'answer = CStr(Application.Run("\'alpha.xlsm\'!ThisWorkbook.DocumentArg", 42)) & "#cell:" & CStr(alpha.Worksheets(1).Range("A1").Value)',
 }
 
 
@@ -51,6 +84,12 @@ def main() -> None:
                                   'item.Name = "Library"'])
                     source = ' & vbCrLf & '.join('"' + line.replace('"', '""') + '"' for line in MODULE.splitlines())
                     lines.append('item.CodeModule.AddFromString ' + source)
+                    lines += [f'Set item = {variable}.VBProject.VBComponents.Add(2)', 'item.Name = "Box"']
+                    source = ' & vbCrLf & '.join('"' + line.replace('"', '""') + '"' for line in CLASS.splitlines())
+                    lines.append('item.CodeModule.AddFromString ' + source)
+                    lines.append(f'Set item = {variable}.VBProject.VBComponents("ThisWorkbook")')
+                    source = ' & vbCrLf & '.join('"' + line.replace('"', '""') + '"' for line in DOCUMENT.splitlines())
+                    lines.append('item.CodeModule.AddFromString ' + source)
                     lines.append(f'{variable}.SaveAs "{Path(folder) / (variable + ".xlsm")}", 52')
                 lines.extend(['On Error Resume Next', action, 'number = Err.Number', 'On Error GoTo 0',
                               'Probe = CStr(answer) & "#error:" & CStr(number)',
@@ -66,7 +105,8 @@ def main() -> None:
             version = excel.run_vba('Function VersionBuild() As String\nVersionBuild = Application.Version & "|" & Application.Build\nEnd Function', 'VersionBuild')
             assert version.ok, version
     OUT.write_text(json.dumps({"measured_at": datetime.now(timezone.utc).isoformat(),
-                               "excel_version_build": version.value, "module": MODULE, "probes": rows}, indent=2) + '\n', encoding='utf-8')
+                               "excel_version_build": version.value, "module": MODULE, "class": CLASS,
+                               "document": DOCUMENT, "probes": rows}, indent=2) + '\n', encoding='utf-8')
 
 
 if __name__ == "__main__":

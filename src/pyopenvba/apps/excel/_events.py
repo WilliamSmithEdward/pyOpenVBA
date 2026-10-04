@@ -82,6 +82,20 @@ def before_close(book: Workbook) -> bool:
     return not to_bool(cancel.get())
 
 
+def opened(book: Workbook) -> None:
+    """Workbook_Open precedes application WorkbookOpen and activation."""
+    _workbook(book, "Open", [])
+
+
+def book_activated(book: Workbook, before: Workbook | None) -> None:
+    """Changing workbook windows does not re-activate their active sheet."""
+    if before is book:
+        return
+    if before is not None:
+        _workbook(before, "Deactivate", [])
+    _workbook(book, "Activate", [])
+
+
 def _both(sheet: Worksheet, event: str, args: list[object]) -> None:
     """One event, in the sheet's module and then in its workbook's."""
     if not _on(sheet.book):

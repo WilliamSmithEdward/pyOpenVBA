@@ -1,85 +1,135 @@
 {
-  "measured_at": "2026-10-04T21:57:31.026758+00:00",
+  "measured_at": "2026-10-04T22:17:13.215232+00:00",
   "excel_version_build": "16.0|20430",
-  "module": "Public Function Echo() As String\nEcho = ThisWorkbook.Name & \":\" & ActiveWorkbook.Name\nEnd Function\nPrivate Function PrivateAnswer() As Long\nPrivateAnswer = 42\nEnd Function\nPublic Function CallOther() As String\nCallOther = Application.Run(\"'beta.xlsm'!Echo\") & \"|\" & ThisWorkbook.Name\nEnd Function\n",
+  "module": "Public Function Echo() As String\nEcho = ThisWorkbook.Name & \":\" & ActiveWorkbook.Name\nEnd Function\nPrivate Function PrivateAnswer() As Long\nPrivateAnswer = 42\nEnd Function\nPublic Function CallOther() As String\nCallOther = Application.Run(\"'beta.xlsm'!Echo\") & \"|\" & ThisWorkbook.Name\nEnd Function\nPublic Function HandledError() As Long\nOn Error Resume Next\nErr.Raise 5\nHandledError = Err.Number\nEnd Function\nPublic Function ErrorAtEntry() As Long\nErrorAtEntry = Err.Number\nEnd Function\nPublic Function ClearError() As Long\nErr.Clear\nClearError = Err.Number\nEnd Function\n",
+  "class": "Public Function StaticAnswer() As Long\nStaticAnswer = 42\nEnd Function\n",
+  "document": "Public Function DocumentAnswer() As String\nMe.Worksheets(1).Range(\"A1\").Value = 99\nDocumentAnswer = Me.Name & \":\" & ThisWorkbook.Name\nEnd Function\nPublic Function DocumentArg(ByVal n As Long) As Long\nMe.Worksheets(1).Range(\"A1\").Value = n\nDocumentArg = n\nEnd Function\n",
   "probes": [
     {
       "name": "unqualified_active_alpha",
       "action": "alpha.Activate\nanswer = Application.Run(\"Echo\")",
-      "result": "#error:1004",
-      "caller_source": ""
+      "caller_source": "",
+      "result": "#error:1004"
     },
     {
       "name": "unqualified_active_beta",
       "action": "beta.Activate\nanswer = Application.Run(\"Echo\")",
-      "result": "#error:1004",
-      "caller_source": ""
+      "caller_source": "",
+      "result": "#error:1004"
     },
     {
       "name": "qualified_alpha",
       "action": "beta.Activate\nanswer = Application.Run(\"'alpha.xlsm'!Echo\")",
-      "result": "alpha.xlsm:beta.xlsm#error:0",
-      "caller_source": ""
+      "caller_source": "",
+      "result": "alpha.xlsm:beta.xlsm#error:0"
     },
     {
       "name": "qualified_beta",
       "action": "alpha.Activate\nanswer = Application.Run(\"'beta.xlsm'!Echo\")",
-      "result": "beta.xlsm:alpha.xlsm#error:0",
-      "caller_source": ""
+      "caller_source": "",
+      "result": "beta.xlsm:alpha.xlsm#error:0"
     },
     {
       "name": "qualified_module",
       "action": "beta.Activate\nanswer = Application.Run(\"'alpha.xlsm'!Library.Echo\")",
-      "result": "alpha.xlsm:beta.xlsm#error:0",
-      "caller_source": ""
+      "caller_source": "",
+      "result": "alpha.xlsm:beta.xlsm#error:0"
     },
     {
       "name": "private_function",
       "action": "beta.Activate\nanswer = Application.Run(\"'alpha.xlsm'!PrivateAnswer\")",
-      "result": "42#error:0",
-      "caller_source": ""
+      "caller_source": "",
+      "result": "42#error:0"
     },
     {
       "name": "missing_workbook",
       "action": "answer = Application.Run(\"'absent.xlsm'!Echo\")",
-      "result": "#error:1004",
-      "caller_source": ""
+      "caller_source": "",
+      "result": "#error:1004"
     },
     {
       "name": "missing_macro",
       "action": "answer = Application.Run(\"'alpha.xlsm'!Absent\")",
-      "result": "#error:1004",
-      "caller_source": ""
+      "caller_source": "",
+      "result": "#error:1004"
     },
     {
       "name": "nested_project_call",
       "action": "alpha.Activate\nanswer = Application.Run(\"'alpha.xlsm'!CallOther\")",
-      "result": "beta.xlsm:alpha.xlsm|alpha.xlsm#error:0",
-      "caller_source": ""
+      "caller_source": "",
+      "result": "beta.xlsm:alpha.xlsm|alpha.xlsm#error:0"
     },
     {
       "name": "unqualified_caller_active",
       "action": "ThisWorkbook.Activate\nanswer = Application.Run(\"Echo\")",
-      "result": "#error:1004",
-      "caller_source": ""
+      "caller_source": "",
+      "result": "#error:1004"
     },
     {
       "name": "unqualified_single_project",
       "action": "beta.Close False\nalpha.Activate\nanswer = Application.Run(\"Echo\")",
-      "result": "#error:1004",
-      "caller_source": ""
+      "caller_source": "",
+      "result": "#error:1004"
     },
     {
       "name": "unqualified_caller_project",
       "action": "beta.Activate\nanswer = Application.Run(\"Echo\")",
-      "result": "caller#error:0",
-      "caller_source": "Public Function Echo() As String\nEcho = \"caller\"\nEnd Function"
+      "caller_source": "Public Function Echo() As String\nEcho = \"caller\"\nEnd Function",
+      "result": "caller#error:0"
     },
     {
       "name": "qualified_case_insensitive",
       "action": "beta.Activate\nanswer = Application.Run(\"'ALPHA.XLSM'!library.eCHO\")",
-      "result": "alpha.xlsm:beta.xlsm#error:0",
-      "caller_source": ""
+      "caller_source": "",
+      "result": "alpha.xlsm:beta.xlsm#error:0"
+    },
+    {
+      "name": "callee_clears_error",
+      "action": "Err.Raise 5\nanswer = Application.Run(\"'alpha.xlsm'!Echo\")",
+      "caller_source": "",
+      "result": "alpha.xlsm:beta.xlsm#error:5"
+    },
+    {
+      "name": "callee_handled_error",
+      "action": "answer = Application.Run(\"'alpha.xlsm'!HandledError\")",
+      "caller_source": "",
+      "result": "5#error:5"
+    },
+    {
+      "name": "callee_entry_error",
+      "action": "Err.Raise 5\nanswer = Application.Run(\"'alpha.xlsm'!ErrorAtEntry\")",
+      "caller_source": "",
+      "result": "5#error:5"
+    },
+    {
+      "name": "callee_explicit_clear",
+      "action": "Err.Raise 5\nanswer = Application.Run(\"'alpha.xlsm'!ClearError\")",
+      "caller_source": "",
+      "result": "0#error:0"
+    },
+    {
+      "name": "ordinary_class_macro",
+      "action": "answer = Application.Run(\"'alpha.xlsm'!Box.StaticAnswer\")",
+      "caller_source": "",
+      "result": "#error:1004"
+    },
+    {
+      "name": "workbook_document_macro",
+      "action": "answer = Application.Run(\"'alpha.xlsm'!ThisWorkbook.DocumentAnswer\")",
+      "caller_source": "",
+      "result": "#error:0"
+    },
+    {
+      "name": "document_macro_side_effect",
+      "action": "answer = CStr(Application.Run(\"'alpha.xlsm'!ThisWorkbook.DocumentAnswer\")) & \"#cell:\" & CStr(alpha.Worksheets(1).Range(\"A1\").Value)",
+      "caller_source": "",
+      "result": "#cell:99#error:0"
+    },
+    {
+      "name": "document_macro_argument",
+      "action": "answer = CStr(Application.Run(\"'alpha.xlsm'!ThisWorkbook.DocumentArg\", 42)) & \"#cell:\" & CStr(alpha.Worksheets(1).Range(\"A1\").Value)",
+      "caller_source": "",
+      "result": "#cell:42#error:0"
     }
   ]
 }

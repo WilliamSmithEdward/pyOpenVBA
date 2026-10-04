@@ -5,6 +5,8 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ## [Unreleased]
 
+## [6.4.0] - 2026-10-04
+
 ### Changed
 
 - **Faster VBA saves for ZIP-based Office files.** Unchanged package parts
@@ -15,6 +17,12 @@ All notable changes to pyOpenVBA are documented here. This project follows
   preserve existing corruption; a full rebuild detects damage but does not
   repair it. Unsupported packages automatically use the full rebuild path.
   Based on PR #55 by @swsammy, with local-header length validation added.
+- The Malware scan builds the wheel and sdist with the hash-locked build
+  tools, as a release builds them, and ClamAV and YARA-X scan them beside
+  the committed files.
+
+### Fixed
+
 - Pending mutations stay guarded after a refused or failed save. A second
   form-only save could previously bypass the protected-project gate; a
   source-edit retry after a failed write could do the same. Both continue
@@ -25,9 +33,6 @@ All notable changes to pyOpenVBA are documented here. This project follows
 - ZIP64 locator bytes inside package content no longer make a normal ZIP
   look like ZIP64, avoiding unnecessary fallback during VBA saves and false
   refusals by the shared Office package reader.
-- The Malware scan builds the wheel and sdist with the hash-locked build
-  tools, as a release builds them, and ClamAV and YARA-X scan them beside
-  the committed files.
 
 ## [6.3.5] - 2026-09-30
 

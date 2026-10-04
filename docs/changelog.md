@@ -5,6 +5,28 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ## [Unreleased]
 
+## [6.5.0] - 2026-10-04
+
+### Added
+
+- `check_file(path)` checks a disk snapshot independently of opening a host
+  object or saving it. Reports include structured error/warning codes,
+  locations, supported repair flags, checked part counts, and completeness.
+  Checks cover ZIP payload decompression and CRCs, local headers and data
+  descriptors, XML without DTDs, OPC content types and internal relationships,
+  CFB stream sizes and directory pointers, and supported VBA sources and forms.
+  Configurable byte limits bound input and decompressed parts. Access catalog
+  and VBA inspection is explicitly partial; ZIP64 local metadata and unknown
+  VBA formats are reported as incomplete rather than certified healthy.
+- `repair_file(path, output=...)` conservatively repairs stale ZIP local-header
+  CRC/size fields only after verifying the payload against the central
+  directory. All other bytes remain unchanged, including compressed content
+  and signature parts. Other damage or incomplete checks are refused with
+  `FileRepairError.report`. The original and existing output files are never
+  overwritten; the candidate is checked before writing. Healthy files can be
+  copied without changes. This does not recover corrupt content or rebuild
+  Access databases; Access retains its existing `compact_and_repair()` API.
+
 ## [6.4.0] - 2026-10-04
 
 ### Changed

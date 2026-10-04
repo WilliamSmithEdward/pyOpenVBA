@@ -1,7 +1,9 @@
 """Native module resets and opening/editing incomplete VBA source."""
 from __future__ import annotations
 
+import importlib
 import json
+import os
 from pathlib import Path
 
 import pytest
@@ -64,3 +66,19 @@ def test_explicit_python_source_import_remains_atomic_and_strict(tmp_path: Path)
         app.load_vba(path)
     assert app.interpreter.modules == before
     assert app.run('Original.Original') == 31
+
+
+@pytest.mark.skipif(os.environ.get('RUN_LIVE_EXCEL') != '1', reason='requires isolated real Excel')
+def test_native_excel_executes_repaired_invalid_workbook(tmp_path: Path) -> None:
+    test_invalid_open_can_be_inspected_saved_repaired_and_executed(tmp_path)
+    path = tmp_path / 'repaired.xlsm'
+    harness = importlib.import_module('pyvbaharness')
+    source = ('Function Probe() As Long\nDim target As Workbook\nApplication.EnableEvents = False\n'
+              'Set target = Workbooks.Open("' + str(path).replace('"', '""') + '")\n'
+              'Probe = Application.Run("\'repaired.xlsm\'!Module1.Answer")\n'
+              'target.Close False\nEnd Function')
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=30.0)) as excel:
+        excel.new_document()
+        result = excel.run_vba(source, 'Probe', timeout=30.0)
+        assert result.ok and not result.dialogs, result
+        assert result.value == 47

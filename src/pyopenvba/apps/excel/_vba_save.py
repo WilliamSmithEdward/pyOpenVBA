@@ -5,7 +5,7 @@ from __future__ import annotations
 import io
 import zipfile
 import re
-from xml.sax.saxutils import escape
+from html import escape
 from pathlib import Path
 from collections.abc import Sequence
 
@@ -96,7 +96,7 @@ def persist_project(book: Workbook, package: OpcFile) -> OpcFile:
 
 
 def _with_code_name(text: str, property_name: str, root: str, name: str) -> str:
-    value = escape(name, {'"': '&quot;'})
+    value = escape(name, quote=True)
     found = re.search(rf'<{property_name}\b[^>]*>', text)
     if found is None:
         return re.sub(rf'(<{root}\b[^>]*>)', rf'\1<{property_name} codeName="{value}"/>', text, count=1)

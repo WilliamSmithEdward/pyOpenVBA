@@ -505,15 +505,15 @@ class ExcelApplication(NamedRangeAPI):
 
     def save(self, path: str | Path | None = None, *, workbook: Workbook | None = None) -> Path:
         """Write the workbook out, keeping every part this does not model."""
-        from pyopenvba.apps.excel._io import save_workbook
+        from pyopenvba.exceptions import VBARuntimeError
 
         book = workbook or self.workbook
         if book not in self.application.workbooks_.books:
             raise ValueError("Workbook is not open in this application")
         target = Path(path) if path is not None else Path(book.path) / book.name
-        save_workbook(book, target)
-        book.path, book.name = str(target.resolve().parent), target.name
-        book.saved = True
+        format_code = {".xlsx": 51, ".xlsm": 52}.get(target.suffix.lower())
+        if not book.save_to(target, file_format=format_code):
+            raise VBARuntimeError(1004, "Save cancelled by a VBA event handler")
         return target
 
     def __repr__(self) -> str:

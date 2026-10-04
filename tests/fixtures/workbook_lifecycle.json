@@ -1,0 +1,157 @@
+{
+  "measured_at": "2026-10-04T21:32:58.959372+00:00",
+  "excel_version_build": "16.0|20430",
+  "log": "Public Log As String\nPublic CancelInDocument As Boolean\n",
+  "sink": "Public WithEvents Book As Workbook\nPublic WithEvents App As Application\nPublic CancelSave As Boolean\nPublic CancelClose As Boolean\nPublic AppCancelSave As Boolean\nPublic AppCancelClose As Boolean\nPublic UndoCancel As Boolean\nPublic SwitchEventsOff As Boolean\nPrivate Sub Book_BeforeSave(ByVal SaveAsUI As Boolean, Cancel As Boolean)\nLog = Log & \"book-before-save:\" & CStr(SaveAsUI) & \":\" & CStr(Cancel) & \"|\"\nIf CancelSave Then Cancel = True\nIf SwitchEventsOff Then Application.EnableEvents = False\nEnd Sub\nPrivate Sub App_WorkbookBeforeSave(ByVal Wb As Workbook, ByVal SaveAsUI As Boolean, Cancel As Boolean)\nIf Not Wb Is Book Then Exit Sub\nLog = Log & \"app-before-save:\" & CStr(SaveAsUI) & \":\" & CStr(Cancel) & \"|\"\nIf AppCancelSave Then Cancel = True\nIf UndoCancel Then Cancel = False\nEnd Sub\nPrivate Sub Book_AfterSave(ByVal Success As Boolean)\nLog = Log & \"book-after-save:\" & CStr(Success) & \"|\"\nEnd Sub\nPrivate Sub App_WorkbookAfterSave(ByVal Wb As Workbook, ByVal Success As Boolean)\nIf Not Wb Is Book Then Exit Sub\nLog = Log & \"app-after-save:\" & CStr(Success) & \"|\"\nEnd Sub\nPrivate Sub Book_BeforeClose(Cancel As Boolean)\nLog = Log & \"book-before-close:\" & CStr(Cancel) & \"|\"\nIf CancelClose Then Cancel = True\nEnd Sub\nPrivate Sub App_WorkbookBeforeClose(ByVal Wb As Workbook, Cancel As Boolean)\nIf Not Wb Is Book Then Exit Sub\nLog = Log & \"app-before-close:\" & CStr(Cancel) & \"|\"\nIf AppCancelClose Then Cancel = True\nEnd Sub\n",
+  "book": "Private Sub Workbook_BeforeSave(ByVal SaveAsUI As Boolean, Cancel As Boolean)\nLog = Log & \"own-before-save:\" & CStr(SaveAsUI) & \":\" & CStr(Cancel) & \"|\"\nIf CancelInDocument Then Cancel = True\nEnd Sub\nPrivate Sub Workbook_AfterSave(ByVal Success As Boolean)\nLog = Log & \"own-after-save:\" & CStr(Success) & \"|\"\nEnd Sub\nPrivate Sub Workbook_BeforeClose(Cancel As Boolean)\nLog = Log & \"own-before-close:\" & CStr(Cancel) & \"|\"\nIf CancelInDocument Then Cancel = True\nEnd Sub\n",
+  "probes": [
+    {
+      "name": "save_as",
+      "source": "Function Probe() As String\nDim target As Workbook, sink As New LifecycleSink\nDim startCount As Long\nstartCount = Workbooks.Count\nSet target = ThisWorkbook\nSet sink.Book = target\nSet sink.App = Application\nApplication.EnableEvents = True\nLog = \"\"\ntarget.SaveAs Filename:=\"{OUTPUT}\", FileFormat:=52\nProbe = Log & \"#count:\" & CStr(Workbooks.Count - startCount) & \"#format:\" & CStr(ThisWorkbook.FileFormat) & \":\" & TypeName(ThisWorkbook.FileFormat)\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "book-before-save:False:False|own-before-save:False:False|app-before-save:False:False|book-after-save:True|own-after-save:True|app-after-save:True|#count:0#format:52:Long",
+      "output_suffixes": [
+        ""
+      ]
+    },
+    {
+      "name": "cancel_save_sink",
+      "source": "Function Probe() As String\nDim target As Workbook, sink As New LifecycleSink\nDim startCount As Long\nstartCount = Workbooks.Count\nSet target = ThisWorkbook\nSet sink.Book = target\nSet sink.App = Application\nApplication.EnableEvents = True\nLog = \"\"\nsink.CancelSave = True\ntarget.SaveAs Filename:=\"{OUTPUT}\", FileFormat:=52\nProbe = Log & \"#count:\" & CStr(Workbooks.Count - startCount) & \"#format:\" & CStr(ThisWorkbook.FileFormat) & \":\" & TypeName(ThisWorkbook.FileFormat)\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "book-before-save:False:False|own-before-save:False:True|app-before-save:False:True|book-after-save:False|own-after-save:False|app-after-save:False|#count:0#format:51:Long",
+      "output_suffixes": []
+    },
+    {
+      "name": "cancel_save_unnamed",
+      "source": "Function Probe() As String\nDim target As Workbook, sink As New LifecycleSink\nDim startCount As Long\nstartCount = Workbooks.Count\nSet target = ThisWorkbook\nSet sink.Book = target\nSet sink.App = Application\nApplication.EnableEvents = True\nLog = \"\"\nsink.CancelSave = True\ntarget.Save\nProbe = Log & \"#count:\" & CStr(Workbooks.Count - startCount) & \"#format:\" & CStr(ThisWorkbook.FileFormat) & \":\" & TypeName(ThisWorkbook.FileFormat)\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "book-before-save:True:False|own-before-save:True:True|app-before-save:True:True|book-after-save:False|own-after-save:False|app-after-save:False|#count:0#format:51:Long",
+      "output_suffixes": []
+    },
+    {
+      "name": "cancel_saveas_dialog",
+      "source": "Function Probe() As String\nDim target As Workbook, sink As New LifecycleSink\nDim startCount As Long\nstartCount = Workbooks.Count\nSet target = ThisWorkbook\nSet sink.Book = target\nSet sink.App = Application\nApplication.EnableEvents = True\nLog = \"\"\nsink.CancelSave = True\ntarget.SaveAs\nProbe = Log & \"#count:\" & CStr(Workbooks.Count - startCount) & \"#format:\" & CStr(ThisWorkbook.FileFormat) & \":\" & TypeName(ThisWorkbook.FileFormat)\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "book-before-save:False:False|own-before-save:False:True|app-before-save:False:True|book-after-save:False|own-after-save:False|app-after-save:False|#count:0#format:51:Long",
+      "output_suffixes": []
+    },
+    {
+      "name": "cancel_save_document",
+      "source": "Function Probe() As String\nDim target As Workbook, sink As New LifecycleSink\nDim startCount As Long\nstartCount = Workbooks.Count\nSet target = ThisWorkbook\nSet sink.Book = target\nSet sink.App = Application\nApplication.EnableEvents = True\nLog = \"\"\nCancelInDocument = True\ntarget.SaveAs Filename:=\"{OUTPUT}\", FileFormat:=52\nProbe = Log & \"#count:\" & CStr(Workbooks.Count - startCount) & \"#format:\" & CStr(ThisWorkbook.FileFormat) & \":\" & TypeName(ThisWorkbook.FileFormat)\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "book-before-save:False:False|own-before-save:False:False|app-before-save:False:True|book-after-save:False|own-after-save:False|app-after-save:False|#count:0#format:51:Long",
+      "output_suffixes": []
+    },
+    {
+      "name": "cancel_save_app",
+      "source": "Function Probe() As String\nDim target As Workbook, sink As New LifecycleSink\nDim startCount As Long\nstartCount = Workbooks.Count\nSet target = ThisWorkbook\nSet sink.Book = target\nSet sink.App = Application\nApplication.EnableEvents = True\nLog = \"\"\nsink.AppCancelSave = True\ntarget.SaveAs Filename:=\"{OUTPUT}\", FileFormat:=52\nProbe = Log & \"#count:\" & CStr(Workbooks.Count - startCount) & \"#format:\" & CStr(ThisWorkbook.FileFormat) & \":\" & TypeName(ThisWorkbook.FileFormat)\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "book-before-save:False:False|own-before-save:False:False|app-before-save:False:False|book-after-save:False|own-after-save:False|app-after-save:False|#count:0#format:51:Long",
+      "output_suffixes": []
+    },
+    {
+      "name": "reverse_save_cancel",
+      "source": "Function Probe() As String\nDim target As Workbook, sink As New LifecycleSink\nDim startCount As Long\nstartCount = Workbooks.Count\nSet target = ThisWorkbook\nSet sink.Book = target\nSet sink.App = Application\nApplication.EnableEvents = True\nLog = \"\"\nsink.CancelSave = True\nsink.UndoCancel = True\ntarget.SaveAs Filename:=\"{OUTPUT}\", FileFormat:=52\nProbe = Log & \"#count:\" & CStr(Workbooks.Count - startCount) & \"#format:\" & CStr(ThisWorkbook.FileFormat) & \":\" & TypeName(ThisWorkbook.FileFormat)\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "book-before-save:False:False|own-before-save:False:True|app-before-save:False:True|book-after-save:True|own-after-save:True|app-after-save:True|#count:0#format:52:Long",
+      "output_suffixes": [
+        ""
+      ]
+    },
+    {
+      "name": "save_events_disabled",
+      "source": "Function Probe() As String\nDim target As Workbook, sink As New LifecycleSink\nDim startCount As Long\nstartCount = Workbooks.Count\nSet target = ThisWorkbook\nSet sink.Book = target\nSet sink.App = Application\nApplication.EnableEvents = True\nLog = \"\"\nApplication.EnableEvents = False\ntarget.SaveAs Filename:=\"{OUTPUT}\", FileFormat:=52\nProbe = Log & \"#count:\" & CStr(Workbooks.Count - startCount) & \"#format:\" & CStr(ThisWorkbook.FileFormat) & \":\" & TypeName(ThisWorkbook.FileFormat)\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "#count:0#format:52:Long",
+      "output_suffixes": [
+        ""
+      ]
+    },
+    {
+      "name": "save_disable_events_in_sink",
+      "source": "Function Probe() As String\nDim target As Workbook, sink As New LifecycleSink\nDim startCount As Long\nstartCount = Workbooks.Count\nSet target = ThisWorkbook\nSet sink.Book = target\nSet sink.App = Application\nApplication.EnableEvents = True\nLog = \"\"\nsink.SwitchEventsOff = True\ntarget.SaveAs Filename:=\"{OUTPUT}\", FileFormat:=52\nProbe = Log & \"#count:\" & CStr(Workbooks.Count - startCount) & \"#format:\" & CStr(ThisWorkbook.FileFormat) & \":\" & TypeName(ThisWorkbook.FileFormat)\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "book-before-save:False:False|own-before-save:False:False|#count:0#format:52:Long",
+      "output_suffixes": [
+        ""
+      ]
+    },
+    {
+      "name": "save_existing",
+      "source": "Function Probe() As String\nDim target As Workbook, sink As New LifecycleSink\nDim startCount As Long\nstartCount = Workbooks.Count\nSet target = ThisWorkbook\nSet sink.Book = target\nSet sink.App = Application\nApplication.EnableEvents = True\nLog = \"\"\nApplication.EnableEvents = False\ntarget.SaveAs Filename:=\"{OUTPUT}\", FileFormat:=52\nApplication.EnableEvents = True\ntarget.Sheets(1).Range(\"A1\").Value = 2\nLog = \"\"\ntarget.Save\nProbe = Log & \"#count:\" & CStr(Workbooks.Count - startCount) & \"#format:\" & CStr(ThisWorkbook.FileFormat) & \":\" & TypeName(ThisWorkbook.FileFormat)\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "book-before-save:False:False|own-before-save:False:False|app-before-save:False:False|book-after-save:True|own-after-save:True|app-after-save:True|#count:0#format:52:Long",
+      "output_suffixes": [
+        ""
+      ]
+    },
+    {
+      "name": "save_failure",
+      "source": "Function Probe() As String\nDim target As Workbook, sink As New LifecycleSink\nDim startCount As Long\nstartCount = Workbooks.Count\nSet target = ThisWorkbook\nSet sink.Book = target\nSet sink.App = Application\nApplication.EnableEvents = True\nLog = \"\"\nOn Error Resume Next\ntarget.SaveAs Filename:=\"{OUTPUT}.missing/failed.xlsm\", FileFormat:=52\nLog = Log & \"error:\" & CStr(Err.Number) & \"|\"\nProbe = Log & \"#count:\" & CStr(Workbooks.Count - startCount) & \"#format:\" & CStr(ThisWorkbook.FileFormat) & \":\" & TypeName(ThisWorkbook.FileFormat)\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "book-before-save:False:False|own-before-save:False:False|app-before-save:False:False|error:1004|#count:0#format:52:Long",
+      "output_suffixes": []
+    },
+    {
+      "name": "save_default_format",
+      "source": "Function Probe() As String\nDim target As Workbook, sink As New LifecycleSink\nDim startCount As Long\nstartCount = Workbooks.Count\nSet target = ThisWorkbook\nSet sink.Book = target\nSet sink.App = Application\nApplication.EnableEvents = True\nLog = \"\"\nOn Error Resume Next\ntarget.SaveAs Filename:=\"{OUTPUT}\"\nLog = Log & \"error:\" & CStr(Err.Number) & \"|\"\nProbe = Log & \"#count:\" & CStr(Workbooks.Count - startCount) & \"#format:\" & CStr(ThisWorkbook.FileFormat) & \":\" & TypeName(ThisWorkbook.FileFormat)\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "book-before-save:False:False|own-before-save:False:False|app-before-save:False:False|book-after-save:False|own-after-save:False|app-after-save:False|error:1004|#count:0#format:51:Long",
+      "output_suffixes": []
+    },
+    {
+      "name": "save_mismatched_format",
+      "source": "Function Probe() As String\nDim target As Workbook, sink As New LifecycleSink\nDim startCount As Long\nstartCount = Workbooks.Count\nSet target = ThisWorkbook\nSet sink.Book = target\nSet sink.App = Application\nApplication.EnableEvents = True\nLog = \"\"\nOn Error Resume Next\ntarget.SaveAs Filename:=\"{OUTPUT}.xlsx\", FileFormat:=52\nLog = Log & \"error:\" & CStr(Err.Number) & \"|\"\nProbe = Log & \"#count:\" & CStr(Workbooks.Count - startCount) & \"#format:\" & CStr(ThisWorkbook.FileFormat) & \":\" & TypeName(ThisWorkbook.FileFormat)\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "book-before-save:False:False|own-before-save:False:False|app-before-save:False:False|book-after-save:False|own-after-save:False|app-after-save:False|error:1004|#count:0#format:51:Long",
+      "output_suffixes": []
+    },
+    {
+      "name": "cancel_close_sink",
+      "source": "Function Probe() As String\nDim target As Workbook, sink As New LifecycleSink\nDim startCount As Long\nstartCount = Workbooks.Count\nSet target = ThisWorkbook\nSet sink.Book = target\nSet sink.App = Application\nApplication.EnableEvents = True\nLog = \"\"\nsink.CancelClose = True\ntarget.Close SaveChanges:=False\nProbe = Log & \"#count:\" & CStr(Workbooks.Count - startCount) & \"#format:\" & CStr(ThisWorkbook.FileFormat) & \":\" & TypeName(ThisWorkbook.FileFormat)\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "book-before-close:False|own-before-close:True|app-before-close:True|#count:0#format:51:Long",
+      "output_suffixes": []
+    },
+    {
+      "name": "cancel_close_document",
+      "source": "Function Probe() As String\nDim target As Workbook, sink As New LifecycleSink\nDim startCount As Long\nstartCount = Workbooks.Count\nSet target = ThisWorkbook\nSet sink.Book = target\nSet sink.App = Application\nApplication.EnableEvents = True\nLog = \"\"\nCancelInDocument = True\ntarget.Close SaveChanges:=False\nProbe = Log & \"#count:\" & CStr(Workbooks.Count - startCount) & \"#format:\" & CStr(ThisWorkbook.FileFormat) & \":\" & TypeName(ThisWorkbook.FileFormat)\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "book-before-close:False|own-before-close:False|app-before-close:True|#count:0#format:51:Long",
+      "output_suffixes": []
+    },
+    {
+      "name": "cancel_close_app",
+      "source": "Function Probe() As String\nDim target As Workbook, sink As New LifecycleSink\nDim startCount As Long\nstartCount = Workbooks.Count\nSet target = ThisWorkbook\nSet sink.Book = target\nSet sink.App = Application\nApplication.EnableEvents = True\nLog = \"\"\nsink.AppCancelClose = True\ntarget.Close SaveChanges:=False\nProbe = Log & \"#count:\" & CStr(Workbooks.Count - startCount) & \"#format:\" & CStr(ThisWorkbook.FileFormat) & \":\" & TypeName(ThisWorkbook.FileFormat)\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "book-before-close:False|own-before-close:False|app-before-close:False|#count:0#format:51:Long",
+      "output_suffixes": []
+    },
+    {
+      "name": "cancel_close_before_save",
+      "source": "Function Probe() As String\nDim target As Workbook, sink As New LifecycleSink\nDim startCount As Long\nstartCount = Workbooks.Count\nSet target = ThisWorkbook\nSet sink.Book = target\nSet sink.App = Application\nApplication.EnableEvents = True\nLog = \"\"\nsink.CancelClose = True\ntarget.Close SaveChanges:=True\nProbe = Log & \"#count:\" & CStr(Workbooks.Count - startCount) & \"#format:\" & CStr(ThisWorkbook.FileFormat) & \":\" & TypeName(ThisWorkbook.FileFormat)\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "book-before-close:False|own-before-close:True|app-before-close:True|#count:0#format:51:Long",
+      "output_suffixes": []
+    },
+    {
+      "name": "cancel_close_invalid_filename",
+      "source": "Function Probe() As String\nDim target As Workbook, sink As New LifecycleSink\nDim startCount As Long\nstartCount = Workbooks.Count\nSet target = ThisWorkbook\nSet sink.Book = target\nSet sink.App = Application\nApplication.EnableEvents = True\nLog = \"\"\nsink.CancelClose = True\nOn Error Resume Next\ntarget.Close SaveChanges:=True, Filename:=\"{OUTPUT}\"\nLog = Log & \"error:\" & CStr(Err.Number) & \"|\"\nProbe = Log & \"#count:\" & CStr(Workbooks.Count - startCount) & \"#format:\" & CStr(ThisWorkbook.FileFormat) & \":\" & TypeName(ThisWorkbook.FileFormat)\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "book-before-save:False:False|own-before-save:False:False|app-before-save:False:False|book-after-save:False|own-after-save:False|app-after-save:False|error:1004|#count:0#format:51:Long",
+      "output_suffixes": []
+    },
+    {
+      "name": "close_other_book",
+      "source": "Function Probe() As String\nDim target As Workbook, sink As New LifecycleSink\nDim startCount As Long\nstartCount = Workbooks.Count\nSet target = ThisWorkbook\nSet sink.Book = target\nSet sink.App = Application\nApplication.EnableEvents = True\nLog = \"\"\nApplication.EnableEvents = False\nSet target = Workbooks.Add\nSet sink.Book = target\nApplication.EnableEvents = True\ntarget.Close SaveChanges:=False\nProbe = Log & \"#count:\" & CStr(Workbooks.Count - startCount) & \"#format:\" & CStr(ThisWorkbook.FileFormat) & \":\" & TypeName(ThisWorkbook.FileFormat)\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "book-before-close:False|app-before-close:False|#count:0#format:51:Long",
+      "output_suffixes": []
+    },
+    {
+      "name": "close_other_save_filename",
+      "source": "Function Probe() As String\nDim target As Workbook, sink As New LifecycleSink\nDim startCount As Long\nstartCount = Workbooks.Count\nSet target = ThisWorkbook\nSet sink.Book = target\nSet sink.App = Application\nApplication.EnableEvents = True\nLog = \"\"\nApplication.EnableEvents = False\nSet target = Workbooks.Add\nSet sink.Book = target\ntarget.Sheets(1).Range(\"A1\").Value = 2\nApplication.EnableEvents = True\ntarget.Close SaveChanges:=True, Filename:=\"{OUTPUT}.xlsx\"\nProbe = Log & \"#count:\" & CStr(Workbooks.Count - startCount) & \"#format:\" & CStr(ThisWorkbook.FileFormat) & \":\" & TypeName(ThisWorkbook.FileFormat)\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "book-before-save:False:False|app-before-save:False:False|book-after-save:True|app-after-save:True|book-before-close:False|app-before-close:False|#count:0#format:51:Long",
+      "output_suffixes": [
+        ".xlsx"
+      ]
+    },
+    {
+      "name": "cancel_other_close_save_filename",
+      "source": "Function Probe() As String\nDim target As Workbook, sink As New LifecycleSink\nDim startCount As Long\nstartCount = Workbooks.Count\nSet target = ThisWorkbook\nSet sink.Book = target\nSet sink.App = Application\nApplication.EnableEvents = True\nLog = \"\"\nApplication.EnableEvents = False\nSet target = Workbooks.Add\nSet sink.Book = target\ntarget.Sheets(1).Range(\"A1\").Value = 2\nsink.CancelClose = True\nApplication.EnableEvents = True\ntarget.Close SaveChanges:=True, Filename:=\"{OUTPUT}.xlsx\"\nProbe = Log & \"#count:\" & CStr(Workbooks.Count - startCount) & \"#format:\" & CStr(ThisWorkbook.FileFormat) & \":\" & TypeName(ThisWorkbook.FileFormat)\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "book-before-save:False:False|app-before-save:False:False|book-after-save:True|app-after-save:True|book-before-close:False|app-before-close:True|#count:1#format:51:Long",
+      "output_suffixes": [
+        ".xlsx"
+      ]
+    },
+    {
+      "name": "close_cancel_save",
+      "source": "Function Probe() As String\nDim target As Workbook, sink As New LifecycleSink\nDim startCount As Long\nstartCount = Workbooks.Count\nSet target = ThisWorkbook\nSet sink.Book = target\nSet sink.App = Application\nApplication.EnableEvents = True\nLog = \"\"\nApplication.EnableEvents = False\nSet target = Workbooks.Add\nSet sink.Book = target\ntarget.SaveAs Filename:=\"{OUTPUT}.xlsx\", FileFormat:=51\ntarget.Sheets(1).Range(\"A1\").Value = 2\nsink.CancelSave = True\nApplication.EnableEvents = True\nOn Error Resume Next\ntarget.Close SaveChanges:=True\nLog = Log & \"error:\" & CStr(Err.Number) & \"|\"\nProbe = Log & \"#count:\" & CStr(Workbooks.Count - startCount) & \"#format:\" & CStr(ThisWorkbook.FileFormat) & \":\" & TypeName(ThisWorkbook.FileFormat)\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "book-before-close:False|app-before-close:False|book-before-save:False:False|app-before-save:False:True|book-after-save:False|app-after-save:False|error:0|#count:1#format:51:Long",
+      "output_suffixes": [
+        ".xlsx"
+      ]
+    }
+  ]
+}

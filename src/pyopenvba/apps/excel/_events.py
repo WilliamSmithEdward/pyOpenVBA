@@ -30,6 +30,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from pyopenvba.interpreter._objects import VBAObject
+from pyopenvba.interpreter._runtime import Slot
+from pyopenvba.interpreter._values import to_bool
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Range, Workbook, Worksheet
@@ -53,6 +55,31 @@ def _sinks(book: Workbook, source: VBAObject, event: str, args: list[object]) ->
     interpreter = book.application.interpreter
     if interpreter is not None:
         interpreter.raise_event(source, event, args)
+
+
+def _workbook(book: Workbook, event: str, args: list[object]) -> None:
+    if not _on(book):
+        return
+    _sinks(book, book, event, args)
+    _handle(book, f"Workbook_{event}", args)
+    if _on(book):
+        _sinks(book, book.application, f"Workbook{event}", [book, *args])
+
+
+def before_save(book: Workbook, save_as_ui: bool = False) -> bool:
+    cancel = Slot(False, "Boolean")
+    _workbook(book, "BeforeSave", [save_as_ui, cancel])
+    return not to_bool(cancel.get())
+
+
+def after_save(book: Workbook, success: bool) -> None:
+    _workbook(book, "AfterSave", [success])
+
+
+def before_close(book: Workbook) -> bool:
+    cancel = Slot(False, "Boolean")
+    _workbook(book, "BeforeClose", [cancel])
+    return not to_bool(cancel.get())
 
 
 def _both(sheet: Worksheet, event: str, args: list[object]) -> None:

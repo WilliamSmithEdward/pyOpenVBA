@@ -7,13 +7,25 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Workbook BeforeSave, AfterSave and BeforeClose events, with cancellable
+  ByRef flags delivered to workbook sinks, document modules and application
+  sinks in Excel's order. Twenty-two live cases cover cancellation, reversal,
+  SaveAsUI, changed FileFormat after a failed write, Close saving order,
+  event suppression, workbook counts and created files. The Python `save()`
+  convenience API also respects cancellation, raising `VBARuntimeError(1004)`
+  if a handler prevents the requested write; VBA Save/SaveAs return normally
+  when cancelled. Save prompts and filename-omitted SaveAs remain gaps.
+- `Workbook.FileFormat` and the SaveAs FileFormat argument, currently for
+  XLSX (51) and XLSM (52) writes. Converting to XLSX removes the VBA project
+  and its signature parts; converting XML workbook packaging preserves
+  unrelated parts. A live Excel gate verifies formats and project presence.
 - Class-module `WithEvents` subscriptions and custom `RaiseEvent` delivery,
   with shared ByRef arguments, isolated ByVal arguments, binding order,
   rebinding, detachment, listener lifetime and nested delivery measured in
   15 real Excel cases. Worksheet, workbook and application sinks now hear
   the model's Change, Calculate, SelectionChange, Activate, Deactivate and
   NewSheet events, with 14 measured Excel cases establishing delivery order.
-  Unimplemented event sources, lifecycle events and complete signature
+  Unimplemented event sources and complete signature
   validation remain tracked gaps.
 - Execute `GoSub`, `On ... GoSub` and `Return` using the current procedure's
   variables and a separate return stack per call. Nesting, loop call sites,

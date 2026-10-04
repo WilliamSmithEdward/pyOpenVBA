@@ -1447,7 +1447,7 @@ Workbook,UserStatus,"property, read-only",As Variant,,MISSING,,
 Workbook,UseWholeCellCriteria,"property, read-only",As Boolean,,MISSING,,
 Workbook,UseWildcards,"property, read-only",As Boolean,,MISSING,,
 Workbook,VBASigned,"property, read-only",As Boolean,,MISSING,,
-Workbook,VBProject,"property, read-only",As VBProject,,UNASSESSED,,
+Workbook,VBProject,"property, read-only",As VBProject,,PARTIAL,tests/fixtures/vbide_projects.json; tests/test_excel_vbide.py,"In-memory component/source buffers, delayed compilation and guarded persistence; 128 native probes and native execution gate. References/designers/import/export, complete procedure queries and reset/lifetime semantics remain incomplete."
 Workbook,WebOptions,"property, read-only",As WebOptions,,MISSING,,
 Workbook,WebPagePreview,method,WebPagePreview(),,MISSING,,
 Workbook,WindowActivate,event,WindowActivate(Wn As Window),,MISSING,,

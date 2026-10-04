@@ -1550,11 +1550,23 @@ in tab order. Worksheets.Add supports multiple sheets and truncates a
 fractional Count, and in-session sheet captions do not reuse deleted names.
 Twenty-two native measurements in `tests/fixtures/worksheet_documents.json`
 guide this behavior, with a native copy/delete persistence gate in
-`tests/test_worksheet_documents.py`. VBIDE operations, grouped-sheet defaults,
+`tests/test_worksheet_documents.py`. Complete VBIDE conformance, grouped-sheet defaults,
 additional Type/Count/anchor cases and full copied content remain incomplete.
 Other SaveAs formats and parameters remain gaps. Filename-omitted SaveAs,
 uncancelled Save of an unnamed workbook, and closing a changed workbook
 without SaveChanges still report unsupported input/dialog behavior.
+
+`Workbook.VBProject` exposes an in-memory component collection and editable
+`CodeModule` buffers. Standard/class components can be added and removed;
+document/component/project names can be edited. `AddFromString`, InsertLines,
+DeleteLines, ReplaceLine, Lines, declaration counts and basic procedure-line
+queries follow 128 native Excel probes. Incomplete source remains editable
+and is compiled on entry to its project. Saving preserves pending source
+without requiring compilation and uses the ordinary writer's protection,
+signature and cache gates. A native save/reopen test executes new standard
+code and edited document code and checks both renamed identities. References,
+designer operations, import/export, Find/CreateEventProc, wider procedure
+boundaries and reset/lifetime semantics remain incomplete.
 
 The Python `ExcelApplication.save()` convenience API fires save events too.
 If a handler cancels, it raises `VBARuntimeError(1004)` and does not write

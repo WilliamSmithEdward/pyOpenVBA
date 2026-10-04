@@ -25,7 +25,7 @@ ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_REFERENCE = ROOT.parent / "pyVBAReference"
 
 #: The libraries whose members the interpreter needs to know about.
-LIBRARIES = ("excel", "word", "powerpoint", "access", "office", "vba", "msforms", "stdole", "scripting")
+LIBRARIES = ("excel", "word", "powerpoint", "access", "office", "vba", "msforms", "stdole", "scripting", "vbide")
 
 #: The libraries whose enumerations become named constants.
 CONSTANT_LIBRARIES = ("excel", "vba", "office")

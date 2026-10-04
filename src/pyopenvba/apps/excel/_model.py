@@ -46,6 +46,7 @@ from pyopenvba.interpreter._values import (
     error,
     to_bool,
     to_integer,
+    to_number,
     to_text,
     type_name,
 )
@@ -492,7 +493,8 @@ class Workbooks(VBACollection, ExcelObject):
         if Template is not MISSING and Template != -4167:
             raise VBAUnsupportedError("Only worksheet workbooks are supported by Workbooks.Add")
         book = Workbook(self.application, self.next_name())
-        book.add_sheet("Sheet1").code_name = "Sheet1"
+        book.add_sheet("Sheet1")
+        book.saved = True
         self.books.append(book)
         from pyopenvba.apps.excel._projects import attach_project
 
@@ -576,7 +578,11 @@ class Workbook(ExcelObject):
         #: saved relative to (see _hyperlinks_file).
         self.links_folder = ""
         #: The name the workbook's own module goes by in VBA, as ThisWorkbook.CodeName gives it.
-        self.code_name = "ThisWorkbook"
+        self.code_name = ""
+        self.sheet_name_counter = 1
+        self.used_code_names: set[str] = set()
+        self.deleted_document_names: set[str] = set()
+        self.pending_document_sources: dict[str, str] = {}
         self.sheets_: list[Worksheet] = []
         self.names_ = Names(self)
         self.queries_ = Queries(self)
@@ -847,14 +853,19 @@ class Workbook(ExcelObject):
         else:
             self.sheets_.insert(at, sheet)
         self.saved = False
+        self.sheet_name_counter = max(self.sheet_name_counter, len(self.sheets_))
         return sheet
 
     def _next_sheet_name(self) -> str:
         taken = {sheet.name.lower() for sheet in self.sheets_}
-        number = len(self.sheets_) + 1
+        number = self.sheet_name_counter + 1
         while f"sheet{number}" in taken:
             number += 1
+        self.sheet_name_counter = number
         return f"Sheet{number}"
+
+    def allocate_sheet_names(self, count: int) -> list[str]:
+        return [self._next_sheet_name() for _ in range(count)]
 
     def sheet_named(self, name: str) -> Worksheet:
         for sheet in self.sheets_:
@@ -900,6 +911,11 @@ class Sheets(VBACollection, ExcelObject):
         from pyopenvba.apps.excel._protection import ADDING, refuse_structure
 
         refuse_structure(self.book, ADDING)
+        count = 1 if Count is MISSING else int(to_number(Count))
+        if count <= 0:
+            raise error(1004, "Count must be positive")
+        if Type is not MISSING and to_integer(Type, "Long") != -4167:
+            raise VBAUnsupportedError("Worksheets.Add supports worksheet Type only")
         at: int | None = None
         # Measured: the sheet the new one is placed beside is the one that deactivates, else the active one.
         left = self.book.active_sheet
@@ -911,10 +927,15 @@ class Sheets(VBACollection, ExcelObject):
             left = After
         elif self.book.active_sheet is not None:
             at = self.book.sheets_.index(self.book.active_sheet)
-        sheet = self.book.add_sheet(at=at)
-        self.book.activate_sheet(sheet)
-        _events.new_sheet(self.book, sheet, left)
-        return sheet
+        names = self.book.allocate_sheet_names(count)
+        added: list[Worksheet] = []
+        for offset, name in enumerate(reversed(names)):
+            sheet = self.book.add_sheet(name, at=None if at is None else at + offset)
+            added.append(sheet)
+            self.book.activate_sheet(sheet)
+            _events.new_sheet(self.book, sheet, left)
+        self.book.activate_sheet(added[0])
+        return added[0]
 
     @member
     def Application(self) -> object:
@@ -1348,6 +1369,11 @@ class Worksheet(ExcelObject):
         from pyopenvba.apps.excel._protection import DELETING, refuse_structure
 
         refuse_structure(self.book, DELETING)
+        if len(self.book.sheets_) == 1:
+            raise error(1004, "Cannot delete the only worksheet")
+        from pyopenvba.apps.excel._documents import remove_document
+
+        remove_document(self)
         self.book.sheets_.remove(self)
         self.book.saved = False
         return EMPTY

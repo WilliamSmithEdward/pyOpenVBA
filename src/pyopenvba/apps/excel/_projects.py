@@ -42,9 +42,13 @@ class ExcelInterpreter(Interpreter):
             return super().call(procedure, module, args, named, me=me, reset_error=reset_error)
 
     def add_module(self, source: str, *, name: str = "", kind: str = "standard") -> ModuleRuntime:
+        from pyopenvba.apps.excel._documents import materialize
+
+        if self.bridge.workbook is not None:
+            materialize(self.bridge.workbook)
         parsed = parse_module(source, name=name, kind=kind)
         if not parsed.name:
-            parsed.name = name or f"Module{len(self.modules) + 1}"
+            parsed.name = "ThisWorkbook" if kind == "document" else name or f"Module{len(self.modules) + 1}"
         key = parsed.name.casefold()
         previous = self.modules.get(key)
         owner = self.bridge.global_object(parsed.name.casefold()) if kind == "document" else None
@@ -64,11 +68,17 @@ class ExcelInterpreter(Interpreter):
                 self.modules[key] = previous
             raise
         book = self.bridge.workbook
+        if book is not None:
+            book.pending_document_sources.pop(runtime.name, None)
         if book is not None and (previous is None or previous.parsed.source != runtime.parsed.source):
             book.saved = False
         return runtime
 
     def load_project(self, project: VBAProject) -> list[str]:
+        from pyopenvba.apps.excel._documents import materialize
+
+        if self.bridge.workbook is not None:
+            materialize(self.bridge.workbook)
         staged: list[ModuleRuntime] = []
         book = self.bridge.workbook
         was_saved = book.saved if book is not None else True
@@ -100,6 +110,9 @@ class ExcelInterpreter(Interpreter):
         finally:
             if book is not None:
                 book.saved = was_saved
+        if book is not None:
+            for runtime in staged:
+                book.pending_document_sources.pop(runtime.name, None)
         return [runtime.name for runtime in staged]
 
 

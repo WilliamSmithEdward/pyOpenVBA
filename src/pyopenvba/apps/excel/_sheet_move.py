@@ -70,6 +70,9 @@ def move_sheet(source: Worksheet, before: object, after: object) -> object:
     # Excel replaces the COM objects across workbooks; old VBA references fail.
     for entry in local_entries:
         entry.invalidated = True
+    from pyopenvba.apps.excel._documents import remove_document
+
+    remove_document(source)
     origin.sheets_.remove(source)
     origin.names_.entries = [entry for entry in origin.names_.entries
                              if not any(entry is local for local in local_entries)]

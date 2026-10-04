@@ -1540,6 +1540,18 @@ Source syntax errors are reported rather than silently importing a partial
 project. Project references/types, full compile checks, unload/lifetime
 behavior and errors or window/event-setting changes inside handlers remain
 gaps.
+
+Worksheet code follows the tab's Copy/Move/Delete lifecycle. A copied
+document gets fresh variables and its own interpreter binding; a deleted
+tab's VBA module is removed on save. Copies made with `with_vba=False`
+preserve unloaded source without executing it. New code names remain empty
+until project editing materializes them; pending sheet names are allocated
+in tab order. Worksheets.Add supports multiple sheets and truncates a
+fractional Count, and in-session sheet captions do not reuse deleted names.
+Twenty-two native measurements in `tests/fixtures/worksheet_documents.json`
+guide this behavior, with a native copy/delete persistence gate in
+`tests/test_worksheet_documents.py`. VBIDE operations, grouped-sheet defaults,
+additional Type/Count/anchor cases and full copied content remain incomplete.
 Other SaveAs formats and parameters remain gaps. Filename-omitted SaveAs,
 uncancelled Save of an unnamed workbook, and closing a changed workbook
 without SaveChanges still report unsupported input/dialog behavior.

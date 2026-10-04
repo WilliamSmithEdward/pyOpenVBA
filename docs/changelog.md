@@ -7,6 +7,16 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Worksheet document code follows Copy and cross-workbook Move into the
+  destination project with fresh document variables. Delete removes its
+  runtime and saved VBA module. Copies preserve unloaded code when opened
+  with `with_vba=False`, without executing it. A native Excel gate executes
+  copied code and verifies deleted modules are absent.
+- Lazy workbook/worksheet code-name allocation, monotonic in-session sheet
+  captions and multiple-sheet `Worksheets.Add(Count)` with fractional
+  truncation, backed by 22 native document-lifecycle measurements. VBA
+  project editing materializes pending code names in tab order. A fresh
+  empty workbook starts Saved=True. Other sheet types report unsupported.
 - Independent VBA projects for each open Excel workbook, including module
   globals, class instances, document bindings and saved source. `add_module`
   and `load_vba` accept an explicit `workbook`; `open_workbook` imports its

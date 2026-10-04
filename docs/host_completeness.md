@@ -64,11 +64,23 @@ allocation, Count truncation, sheet caption counters and copied/deleted
 modules. Copy and cross-book Move transfer document source into the target
 project with fresh fields; Delete removes the runtime and saved module.
 Unloaded source copies without execution, and a native gate executes saved
-copied code and checks deleted modules. VBIDE's runtime object model, code
-name renaming, project component order/line-count fidelity, grouped-sheet
+copied code and checks deleted modules. Complete project component order/
+line-count fidelity, grouped-sheet
 Add defaults, wider Count/Type/anchor conformance and complete copied sheet
 content remain gaps; these measurements do not establish all 22 operations
 as implemented runtime interfaces.
+
+VBIDE project/component and source-buffer operations have 128 native Excel
+measurements in `tests/fixtures/vbide_projects.json`, exercised through VBA
+in `tests/test_excel_vbide.py`. Pending text is independent of compilation;
+invalid edits remain inspectable and can be saved. Native Excel opens a
+saved edited workbook, recognizes renamed project/document identities and
+executes both document and standard code. Component/project naming, basic
+line operations and procedure queries are implemented for the measured
+cases. References, designers, import/export, Find/CreateEventProc, complete
+procedure boundaries (continuations/conditional code), ByRef procedure-kind
+queries, project reset/lifetime and protected-project conformance still
+need work. This is a partial VBIDE model, not proof of the full interface.
 
 ## What counts as complete
 

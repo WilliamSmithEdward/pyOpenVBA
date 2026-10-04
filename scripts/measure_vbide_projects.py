@@ -24,11 +24,21 @@ ACTIONS = {
     "rename_invalid": 'parts.Item("Sheet1").Name = "bad name"',
     "rename_collision": 'parts.Item("Sheet1").Name = "ThisWorkbook"',
     "rename_case": 'parts.Item("Sheet1").Name = "sHeEt1"',
+    "rename_underscore": 'parts.Item("Sheet1").Name = "_Info"',
+    "rename_unicode": 'parts.Item("Sheet1").Name = "Café"',
+    "rename_keyword": 'parts.Item("Sheet1").Name = "For"',
+    "rename_length_31": 'parts.Item("Sheet1").Name = String(31, "A")',
+    "rename_length_32": 'parts.Item("Sheet1").Name = String(32, "A")',
     "project_rename": 'project.Name = "OtherProject"',
     "project_invalid": 'project.Name = "bad name"',
     "source_initial": "",
     "source_add": 'code.AddFromString "Public Added As Long"',
     "source_add_empty": 'code.AddFromString ""',
+    "source_add_trailing": 'code.AddFromString "Public Added As Long" & vbCrLf',
+    "source_insert_trailing": 'code.InsertLines 999, "Public Added As Long" & vbCrLf',
+    "source_insert_blank_after": 'code.InsertLines 999, ""',
+    "source_replace_blank": 'code.ReplaceLine 2, ""',
+    "source_proc_trailing_count": 'code.InsertLines 999, vbCrLf\nextra = CStr(code.ProcCountLines("ReadMarker", 0))',
     "source_add_invalid": 'code.AddFromString "this is invalid syntax"',
     "source_add_missing_end": 'code.AddFromString "Public Sub Broken()"',
     "source_add_attribute": 'code.AddFromString "Attribute VB_Name = ""Other"""',
@@ -58,6 +68,16 @@ ACTIONS = {
     "source_proc_of_body": 'extra = code.ProcOfLine(5, 0)',
     "source_proc_missing": 'extra = CStr(code.ProcStartLine("Missing", 0))',
 }
+NAME_PROBES = ('If', 'Then', 'Else', 'End', 'For', 'Next', 'Do', 'Loop', 'While', 'Wend',
+               'Sub', 'Function', 'Property', 'Get', 'Let', 'Set', 'Dim', 'Const', 'Public',
+               'Private', 'Friend', 'Static', 'Option', 'Explicit', 'Base', 'Compare',
+               'Select', 'Case', 'With', 'As', 'New', 'Nothing', 'True', 'False', 'Null',
+               'Empty', 'Boolean', 'Byte', 'Integer', 'Long', 'String', 'Variant', 'Object',
+               'Date', 'Debug', 'Me', 'Print', 'Rem', 'Optional', 'ByRef', 'ByVal', 'Call',
+               'Type', 'Enum', 'ReDim', 'Preserve', 'On', 'Error', 'Resume', 'GoTo', 'Exit',
+               'And', 'Or', 'Not', 'Xor', 'Is', 'Like', 'Mod', 'Range', 'Global', 'Excel')
+for candidate in NAME_PROBES:
+    ACTIONS[f'name_{candidate.lower()}'] = f'parts.Item("Sheet1").Name = "{candidate}"'
 
 
 def literal(text: str) -> str:

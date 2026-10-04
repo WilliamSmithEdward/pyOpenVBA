@@ -34,6 +34,11 @@ class ExcelInterpreter(Interpreter):
 
     def initialise(self) -> None:
         with self.execution_context():
+            from pyopenvba.apps.excel._vbide import VBProject
+
+            book = self.bridge.workbook
+            if book is not None and isinstance(book.vbide_project, VBProject):
+                book.vbide_project.compile_pending()
             super().initialise()
 
     def call(self, procedure: A.Procedure, module: ModuleRuntime, args: list[object],
@@ -70,6 +75,13 @@ class ExcelInterpreter(Interpreter):
         book = self.bridge.workbook
         if book is not None:
             book.pending_document_sources.pop(runtime.name, None)
+            from pyopenvba.apps.excel._vbide import VBProject
+
+            if isinstance(book.vbide_project, VBProject):
+                for entry in book.vbide_project.components.entries:
+                    if entry.name.casefold() == runtime.name.casefold():
+                        entry.source = runtime.parsed.source
+                        entry.pending = False
         if book is not None and (previous is None or previous.parsed.source != runtime.parsed.source):
             book.saved = False
         return runtime
@@ -113,6 +125,13 @@ class ExcelInterpreter(Interpreter):
         if book is not None:
             for runtime in staged:
                 book.pending_document_sources.pop(runtime.name, None)
+                from pyopenvba.apps.excel._vbide import VBProject
+
+                if isinstance(book.vbide_project, VBProject):
+                    for entry in book.vbide_project.components.entries:
+                        if entry.name.casefold() == runtime.name.casefold():
+                            entry.source = runtime.parsed.source
+                            entry.pending = False
         return [runtime.name for runtime in staged]
 
 
@@ -162,6 +181,7 @@ def run_macro(application: Application, macro: str, args: list[object]) -> objec
         project = application.interpreter
     if project is None:
         raise error(1004, f"Cannot run macro {macro!r}")
+    project.initialise()
     module_name, _, _ = macro.rpartition(".")
     if module_name and module_name.casefold() not in project.modules:
         raise error(1004, f"Cannot run macro {macro!r}")

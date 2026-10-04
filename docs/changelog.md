@@ -7,6 +7,15 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- In-memory `Workbook.VBProject`, component lookup/enumeration, standard
+  and class component creation/removal, document/component/project renaming,
+  and editable `CodeModule` buffers. Source edits compile on execution;
+  incomplete source can be inspected, corrected and saved. Line operations
+  and procedure queries are guided by 128 native Excel probes. A native
+  persistence gate verifies renamed project/document identities and executes
+  edited document code and a newly added standard module. References,
+  designers, import/export, Find, full procedure-boundary conformance and
+  project reset/lifetime behavior remain incomplete.
 - Worksheet document code follows Copy and cross-workbook Move into the
   destination project with fresh document variables. Delete removes its
   runtime and saved VBA module. Copies preserve unloaded code when opened

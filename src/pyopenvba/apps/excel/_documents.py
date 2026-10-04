@@ -55,7 +55,23 @@ def copy_document(source: Worksheet, copied: Worksheet) -> None:
     copied.code_name = name
     reserved.add(name.casefold())
     original = source.vba_document
-    if original is not None and project is not None:
+    from pyopenvba.apps.excel._vbide import VBProject, VBComponent
+
+    vbide = source.book.vbide_project
+    pending = next((entry for entry in vbide.components.entries if entry.name.casefold() == source.code_name.casefold() and entry.pending), None) if isinstance(vbide, VBProject) else None
+    if pending is not None:
+        target = copied.book.vbide_project
+        if not isinstance(target, VBProject):
+            target = VBProject(copied.book)
+            copied.book.vbide_project = target
+        target.components.synchronize()
+        entry = next((entry for entry in target.components.entries if entry.name.casefold() == name.casefold()), None)
+        if entry is None:
+            entry = VBComponent(target, name, 'document', '')
+            target.components.entries.append(entry)
+        entry.source = split_attribute_header(pending.source)[1]
+        entry.pending = True
+    elif original is not None and project is not None:
         # The new document gets fresh fields/statics; only source transfers.
         body = split_attribute_header(original.module.parsed.source)[1]
         from pyopenvba.interpreter._runtime import Interpreter

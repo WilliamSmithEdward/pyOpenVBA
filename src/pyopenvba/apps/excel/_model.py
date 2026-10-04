@@ -583,6 +583,7 @@ class Workbook(ExcelObject):
         self.used_code_names: set[str] = set()
         self.deleted_document_names: set[str] = set()
         self.pending_document_sources: dict[str, str] = {}
+        self.vbide_project: VBAObject | None = None
         self.sheets_: list[Worksheet] = []
         self.names_ = Names(self)
         self.queries_ = Queries(self)
@@ -698,9 +699,9 @@ class Workbook(ExcelObject):
 
     @member
     def VBProject(self) -> object:
-        raise VBAUnsupportedError(
-            "Workbook.VBProject edits the project from inside itself; use pyopenvba.ExcelFile instead"
-        )
+        from pyopenvba.apps.excel._vbide import project_for
+
+        return project_for(self)
 
     # -- methods
 

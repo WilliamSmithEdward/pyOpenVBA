@@ -5,6 +5,7 @@ from __future__ import annotations
 import io
 import zipfile
 import re
+import struct
 from html import escape
 from pathlib import Path
 from collections.abc import Sequence
@@ -12,7 +13,7 @@ from collections.abc import Sequence
 from pyopenvba.apps.excel._model import Workbook
 from pyopenvba.excel import ExcelFile
 from pyopenvba.powerquery._opc import OpcFile
-from pyopenvba.vba import VBAModuleKind, split_attribute_header
+from pyopenvba.vba import VBAModuleKind, encoding_for_codepage, split_attribute_header
 
 
 class MemoryExcelFile(ExcelFile):
@@ -32,12 +33,39 @@ class MemoryExcelFile(ExcelFile):
                          package_edits: dict[str, bytes | None], *, full_rebuild: bool = False) -> None:
         self.output_bytes = self._serialized_container(new_cfb_bytes, package_edits, full_rebuild=full_rebuild)
 
-    def persist_sources(self, sources: Sequence[tuple[str, str, str]], deleted: set[str] | None = None) -> bool:
+    def persist_sources(self, sources: Sequence[tuple[str, str, str]], deleted: set[str] | None = None,
+                        *, renames: dict[str, str] | None = None, project_name: str = '') -> bool:
         documents = dict(self._new_documents())
         project = self.vba_project() if self._has_project else self.add_vba_project()
         self._document_names.update(name.casefold() for name in documents)
         existing = {module.name.casefold(): module for module in project.modules}
         changed = self._project_added
+        for old, new in (renames or {}).items():
+            if old.casefold() in existing:
+                module = project.rename_module(existing.pop(old.casefold()).name, new)
+                existing[new.casefold()] = module
+                changed = True
+        if project_name and project_name != project.name:
+            encoding = encoding_for_codepage(project.code_page)
+            old = project.name.encode(encoding)
+            new = project_name.encode(encoding)
+            record = struct.pack('<HI', 4, len(old)) + old
+            prefix = project.dir_raw[:project.dir_modules_offset]
+            if prefix.count(record) != 1:
+                raise ValueError('Cannot identify the VBA project name record')
+            updated = prefix.replace(record, struct.pack('<HI', 4, len(new)) + new, 1)
+            project.dir_raw = updated + project.dir_raw[project.dir_modules_offset:]
+            project.dir_modules_offset = len(updated)
+            cfb = self._get_cfb()
+            text = cfb.get_stream('PROJECT').decode(encoding)
+            text, count = re.subn(r'(?m)^Name="[^"]*"', lambda _: f'Name="{project_name}"', text, count=1)
+            if count != 1:
+                raise ValueError('Cannot identify the PROJECT stream name')
+            cfb.write_stream('PROJECT', text.encode(encoding))
+            project.name = project_name
+            project.dir_structure_dirty = True
+            self._pending_mutation = True
+            changed = True
         for name in deleted or ():
             if name.casefold() in existing:
                 project.delete_module(existing.pop(name.casefold()).name)
@@ -83,14 +111,22 @@ def persist_project(book: Workbook, package: OpcFile) -> OpcFile:
         return package
     sources = [(runtime.name, runtime.parsed.source, runtime.parsed.kind) for runtime in interpreter.modules.values()]
     sources.extend((name, source, "document") for name, source in book.pending_document_sources.items())
-    if not sources and not book.deleted_document_names:
+    from pyopenvba.apps.excel._vbide import VBProject
+
+    vbide = book.vbide_project if isinstance(book.vbide_project, VBProject) else None
+    if vbide is not None:
+        vbide.components.synchronize()
+        sources = [(entry.name, entry.source, entry.kind) for entry in vbide.components.entries]
+    if not sources and not book.deleted_document_names and vbide is None:
         return package
     from pyopenvba.apps.excel._documents import materialize
 
     materialize(book)
     _code_names(book, package)
     with MemoryExcelFile(package.serialize()) as host:
-        if not host.persist_sources(sources, book.deleted_document_names):
+        if not host.persist_sources(sources, book.deleted_document_names,
+                                    renames=vbide.renames if vbide is not None else None,
+                                    project_name=vbide.name if vbide is not None else ''):
             return package
         return OpcFile.parse(host.output_bytes)
 

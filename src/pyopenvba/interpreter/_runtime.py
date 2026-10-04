@@ -705,8 +705,13 @@ class Interpreter:
 
     # --- running ---------------------------------------------------------------------
 
-    def run(self, procedure_name: str, args: Sequence[object] = (), *, module: str = "") -> object:
-        """Run one procedure by name, as Application.Run would."""
+    def run(self, procedure_name: str, args: Sequence[object] = (), *, module: str = "",
+            preserve_error: bool = False) -> object:
+        """Run one procedure by name.
+
+        Excel's Application.Run preserves Err on entry; ordinary VBA calls
+        clear it. Hosts request that distinction with preserve_error.
+        """
         self.initialise()
         target, runtime = self.find_procedure(procedure_name, module)
         if target is None or runtime is None:
@@ -715,7 +720,7 @@ class Interpreter:
             )
         try:
             # A sheet's or the workbook's own module runs as that object's code.
-            return self.call(target, runtime, list(args), {}, me=runtime.document)
+            return self.call(target, runtime, list(args), {}, me=runtime.document, reset_error=not preserve_error)
         except _EndSignal:
             return EMPTY
 
@@ -741,6 +746,7 @@ class Interpreter:
         named: dict[str, object],
         *,
         me: object = None,
+        reset_error: bool = True,
     ) -> object:
         """Call one procedure and give back what it returns."""
         if len(self.frames) + sum(active.gosub_depth for active in self.frames) >= MAX_DEPTH:
@@ -749,7 +755,8 @@ class Interpreter:
         frame = Frame(procedure=procedure, module=module, me=me)
         self._bind_arguments(frame, procedure, args, named)
         # A procedure starts with no error, whatever its caller's Err held; what it leaves in Err stays after it.
-        self.err.reset()
+        if reset_error:
+            self.err.reset()
         if procedure.kind in ("function", "get"):
             frame.locals[procedure.name.lower()] = Slot(
                 default_for(procedure.returns), procedure.returns
@@ -1225,8 +1232,8 @@ class Interpreter:
 
     def bind_event_sink(self, owner: UserClassInstance, name: str) -> None:
         """Remove the old binding before appending the new one; do not retain a listener."""
-        self.event_sinks = [(held, key) for held, key in self.event_sinks
-                            if held() is not None and not (held() is owner and key == name)]
+        self.event_sinks[:] = [(held, key) for held, key in self.event_sinks
+                               if held() is not None and not (held() is owner and key == name)]
         if owner.variables[name].get() is not NOTHING:
             self.event_sinks.append((ref(owner), name))
 
@@ -1238,7 +1245,7 @@ class Interpreter:
                 continue
             handler = owner.module.procedure(f"{key}_{name}")
             if handler is not None:
-                self.call(handler, owner.module, args, {}, me=owner)
+                owner.interpreter.call(handler, owner.module, args, {}, me=owner)
 
     def listens_for_event(self, source: object, name: str) -> bool:
         return any(owner is not None and owner.variables[key].get() is source

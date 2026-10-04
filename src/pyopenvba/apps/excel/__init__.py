@@ -29,7 +29,6 @@ import datetime as _dt
 from pathlib import Path
 from typing import Any
 
-from pyopenvba.apps.excel._bridge import ExcelBridge
 from pyopenvba.apps.excel._model import (
     Application,
     Cell,
@@ -37,7 +36,6 @@ from pyopenvba.apps.excel._model import (
     Workbook,
     Worksheet,
 )
-from pyopenvba.interpreter._objects import VBAObject
 from pyopenvba.interpreter._runtime import Interpreter, ModuleRuntime
 from pyopenvba.interpreter._values import EMPTY, MISSING, to_text
 from pyopenvba.shapes import Shape
@@ -326,8 +324,10 @@ class ExcelApplication(NamedRangeAPI):
     """Excel, in memory: workbooks, sheets, cells, and the macros that move them."""
 
     def __init__(self) -> None:
+        from pyopenvba.apps.excel._projects import ExcelInterpreter
+
         self.application = Application()
-        self.interpreter = Interpreter(ExcelBridge(self.application))
+        self.interpreter = ExcelInterpreter(self.application)
         self.application.interpreter = self.interpreter
 
     # --- state in -------------------------------------------------------------------
@@ -340,44 +340,43 @@ class ExcelApplication(NamedRangeAPI):
         app = cls()
         book = load_workbook(app.application, Path(path))
         app.application.workbooks_.books.append(book)
-        app.application.activate_book(book)
+        from pyopenvba.apps.excel._projects import attach_project
+
+        attach_project(book)
+        app.application.activate_book(book, events=False)
         if with_vba:
             app.load_vba(path)
+        from pyopenvba.apps.excel import _events
+
+        _events.opened(book)
+        if app.application.active_book is book:
+            _events.book_activated(book, None)
         return app
 
-    def load_vba(self, path: str | Path) -> list[str]:
+    def load_vba(self, path: str | Path, *, workbook: Workbook | None = None) -> list[str]:
         """Add every module of the file's VBA project to the interpreter.
 
         A workbook with no project is ordinary rather than an error, so
         this comes back with an empty list rather than raising.
         """
         from pyopenvba.excel import ExcelFile
-        from pyopenvba.exceptions import PyOpenVBAError
-        from pyopenvba.vba import VBAModuleKind
+        from pyopenvba.exceptions import NoVBAProjectError
+        from pyopenvba.apps.excel._projects import attach_project
 
         target = Path(path)
+        if workbook is not None and workbook not in self.application.workbooks_.books:
+            raise ValueError("Workbook is not open in this application")
         if target.suffix.lower() not in (".xlsm", ".xlsb", ".xlam", ".xls"):
             return []
-        names: list[str] = []
-        owner = self.application.ThisWorkbook()
-        was_saved = owner.saved if isinstance(owner, Workbook) else True
+        owner = workbook or self.interpreter.bridge.workbook
+        runtime = attach_project(owner) if owner is not None else self.interpreter
+        if runtime is None:
+            return []
         try:
             with ExcelFile(target) as host:
-                project = host.vba_project()
-                for module in project.modules:
-                    kind = "standard" if module.kind is VBAModuleKind.standard else "class"
-                    # A sheet's or the workbook's own module is named by its code name.
-                    host = self.interpreter.host.global_object(module.name.lower())
-                    if kind == "class" and isinstance(host, VBAObject) and host is not self.application:
-                        kind = "document"
-                    self.add_module(module.source, name=module.name, kind=kind)
-                    names.append(module.name)
-        except PyOpenVBAError:
-            return names
-        finally:
-            if isinstance(owner, Workbook):
-                owner.saved = was_saved
-        return names
+                return runtime.load_project(host.vba_project())
+        except NoVBAProjectError:
+            return []
 
     def add_workbook(self) -> Workbook:
         """A new empty workbook with one sheet, as Excel's New does."""
@@ -385,11 +384,9 @@ class ExcelApplication(NamedRangeAPI):
         assert isinstance(book, Workbook)
         return book
 
-    def open_workbook(self, path: str | Path) -> Workbook:
-        """Open another workbook without importing its VBA modules."""
-        book = self.application.workbooks_.Open(Filename=str(path))
-        assert isinstance(book, Workbook)
-        return book
+    def open_workbook(self, path: str | Path, *, with_vba: bool = True) -> Workbook:
+        """Open another workbook with its own independent VBA project."""
+        return self.application.workbooks_.open_file(Path(path), with_vba=with_vba)
 
     def workbooks(self) -> list[Workbook]:
         return list(self.application.workbooks_.books)
@@ -399,7 +396,8 @@ class ExcelApplication(NamedRangeAPI):
             raise ValueError("Workbook is not open in this application")
         book.Activate()
 
-    def add_module(self, source: str, *, name: str = "", kind: str = "standard") -> ModuleRuntime:
+    def add_module(self, source: str, *, name: str = "", kind: str = "standard",
+                   workbook: Workbook | None = None) -> ModuleRuntime:
         """Parse VBA and add it to the project this instance runs.
 
         A ``kind="document"`` module is a sheet's or the workbook's own code,
@@ -407,23 +405,26 @@ class ExcelApplication(NamedRangeAPI):
         project belongs to: Me is that sheet or workbook, its members are the
         module's by name, and code outside reaches the module's Public members
         through it, as Sheet1.MyMacro.
+
+        ``workbook`` selects another open workbook's project; omitting it
+        keeps targeting this facade's original project.
         """
-        previous = self.interpreter.modules.get(name.lower())
-        runtime = self.interpreter.add_module(source, name=name, kind=kind)
-        if kind == "document":
-            host = self.interpreter.host.global_object(runtime.name.lower())
-            if not isinstance(host, VBAObject):
-                raise ValueError(f"no sheet or workbook has the code name {runtime.name!r}")
-            self.interpreter.bind_document(runtime.name, host)
-        owner = self.application.ThisWorkbook()
-        if isinstance(owner, Workbook) and (previous is None or previous.parsed.source != runtime.parsed.source):
-            owner.saved = False
-        return runtime
+        from pyopenvba.apps.excel._projects import attach_project
+
+        if workbook is None:
+            return self.interpreter.add_module(source, name=name, kind=kind)
+        if workbook not in self.application.workbooks_.books:
+            raise ValueError("Workbook is not open in this application")
+        project = attach_project(workbook)
+        assert project is not None
+        return project.add_module(source, name=name, kind=kind)
 
     # --- running --------------------------------------------------------------------
 
     def run(self, macro: str, *args: object) -> object:
         """Run a macro by name, as Application.Run would."""
+        if "!" in macro:
+            return _plain(self.application.Run(macro, *args))
         return _plain(self.interpreter.run(macro, list(args)))
 
     def evaluate(self, expression: str) -> object:

@@ -1516,8 +1516,30 @@ workbook/worksheet document modules reopen in the headless engine and
 execute in native Excel (`tests/test_runtime_project_persistence.py`).
 An unchanged project keeps its bytes and signatures; changed source uses
 the file writer's protection gates and drops stale signatures with a warning.
-The interpreter still belongs to one workbook; saving another open workbook
-preserves its own project rather than copying the interpreter's modules.
+Each workbook has its own interpreter; globals, classes, document modules
+and saved source remain local to that project. `open_workbook(path)` imports
+that project's source by default; `with_vba=False` leaves it unexecuted.
+`add_module(..., workbook=book)` and `load_vba(..., workbook=book)` explicitly
+target another open workbook. Unqualified Python `run()` calls the facade's
+original project; workbook-qualified names use Excel's Application.Run.
+Inside VBA, unqualified Application.Run searches the caller's project.
+Qualified calls enter the named project and restore the caller afterward.
+ThisWorkbook, including Application.ThisWorkbook, follows that context.
+Native Application.Run preserves Err on entry, invokes private standard
+module functions, rejects ordinary class modules and discards document
+procedure return values while passing arguments and executing side effects.
+These behaviors replay 21 probes in `tests/fixtures/excel_projects.json`.
+
+Workbook_Open and application WorkbookOpen run after source import and
+before workbook activation; EnableEvents suppresses them. Reopening an
+already open workbook does not raise Open again. Workbook window switches
+raise workbook Deactivate/Activate, without re-activating their sheets.
+Four native traces in `tests/fixtures/workbook_open.json` replay that order;
+live gates execute the saved open handlers and two projects' subscriptions.
+Source syntax errors are reported rather than silently importing a partial
+project. Project references/types, full compile checks, unload/lifetime
+behavior and errors or window/event-setting changes inside handlers remain
+gaps.
 Other SaveAs formats and parameters remain gaps. Filename-omitted SaveAs,
 uncancelled Save of an unnamed workbook, and closing a changed workbook
 without SaveChanges still report unsupported input/dialog behavior.
@@ -1599,7 +1621,8 @@ macros, which the model does not write.
   Missing names are reported as gaps.
 - **Partial event coverage.** Document modules and WithEvents sinks hear
   the events described above; additional host event sources and complete
-  signature validation remain gaps. Workbook_Open is not yet raised.
+  signature validation remain gaps. Workbook_Open and workbook activation
+  have measured implementations; other host event sources remain partial.
 - **Nothing outside the model.** File I/O, the file system verbs, the
   registry, `Shell`, `SendKeys`, `CreateObject` and `Declare` into a DLL
   all report themselves unsupported rather than reaching the real

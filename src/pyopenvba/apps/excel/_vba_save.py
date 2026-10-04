@@ -14,7 +14,7 @@ from pyopenvba.powerquery._opc import OpcFile
 from pyopenvba.vba import VBAModuleKind, split_attribute_header
 
 
-class _MemoryExcelFile(ExcelFile):
+class MemoryExcelFile(ExcelFile):
     """Use the file writer's protection, signature and cache handling in memory."""
 
     def __init__(self, raw: bytes) -> None:
@@ -65,18 +65,17 @@ class _MemoryExcelFile(ExcelFile):
 def persist_project(book: Workbook, package: OpcFile) -> OpcFile:
     """Save the interpreter's owning project; other open books retain theirs.
 
-    The current application has one interpreter. Separate project contexts
-    remain necessary before another workbook's macros can be imported safely.
+    Each open workbook's interpreter holds only that project's modules.
     """
     from pyopenvba.apps.excel._io import workbook_format
 
-    interpreter = book.application.interpreter
-    if interpreter is None or book is not book.application.ThisWorkbook() or workbook_format(book) == 51:
+    interpreter = book.project_runtime
+    if interpreter is None or workbook_format(book) == 51:
         return package
     modules = list(interpreter.modules.values())
     if not modules:
         return package
-    with _MemoryExcelFile(package.serialize()) as host:
+    with MemoryExcelFile(package.serialize()) as host:
         if not host.persist_modules(modules):
             return package
         return OpcFile.parse(host.output_bytes)

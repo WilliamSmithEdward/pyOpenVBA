@@ -7,13 +7,26 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Independent VBA projects for each open Excel workbook, including module
+  globals, class instances, document bindings and saved source. `add_module`
+  and `load_vba` accept an explicit `workbook`; `open_workbook` imports its
+  project by default and accepts `with_vba=False`. Twenty-one native probes
+  cover Application.Run lookup, caller/callee ThisWorkbook, nested calls,
+  private functions, class rejection, document-module return values and Err
+  propagation. Shared application event subscriptions execute in each
+  subscriber's project. Native Excel gates execute the saved subscriptions
+  and workbook/worksheet code.
+- Workbook_Open and application WorkbookOpen, followed by workbook
+  activation, plus workbook Activate/Deactivate callbacks on window changes.
+  Four native traces cover open, suppression, repeated open and activation;
+  opening a workbook twice does not run Open again. VBA syntax failures
+  during import are reported and a failed new open is rolled back.
 - Runtime-added standard, class and workbook/worksheet document modules
   now persist in macro-enabled Excel saves, and replacing a module updates
   its saved source. Native Excel executes the saved project in a live gate.
   Unchanged projects retain their VBA bytes; edits reuse the file writer's
   protection gates, signature removal warnings and compiled-cache invalidation.
-  The current single-project ownership limit remains; source is not copied
-  into another open workbook, and XLSX saves omit it.
+  Source is not copied into another open workbook, and XLSX saves omit it.
 - Workbook BeforeSave, AfterSave and BeforeClose events, with cancellable
   ByRef flags delivered to workbook sinks, document modules and application
   sinks in Excel's order. Twenty-two live cases cover cancellation, reversal,

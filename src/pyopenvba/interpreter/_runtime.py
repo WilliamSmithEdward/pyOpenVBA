@@ -95,6 +95,10 @@ class _GotoSignal(_Signal):
         self.label = label
 
 
+class _ReturnSignal(_Signal):
+    """Return to the most recent GoSub in this procedure frame."""
+
+
 class _ResumeSignal(_Signal):
     def __init__(self, mode: str, label: str = "") -> None:
         super().__init__(mode)
@@ -135,6 +139,7 @@ class Frame:
     handler: str = "none"
     handler_label: str = ""
     in_handler: bool = False
+    gosub_depth: int = 0
     args_named: dict[str, Slot] = field(default_factory=lambda: {})
 
     def slot(self, name: str) -> Slot | None:
@@ -717,7 +722,7 @@ class Interpreter:
         me: object = None,
     ) -> object:
         """Call one procedure and give back what it returns."""
-        if len(self.frames) >= MAX_DEPTH:
+        if len(self.frames) + sum(active.gosub_depth for active in self.frames) >= MAX_DEPTH:
             raise error(28)
         module.initialise()
         frame = Frame(procedure=procedure, module=module, me=me)
@@ -1101,18 +1106,41 @@ class Interpreter:
 
     def _do_goto(self, statement: A.GoTo, frame: Frame) -> None:
         if statement.gosub:
-            raise VBAUnsupportedError("GoSub is not implemented by pyOpenVBA")
+            self._gosub(statement.label, frame)
+            return
         raise _GotoSignal(statement.label)
 
     def _do_on_goto(self, statement: A.OnGoto, frame: Frame) -> None:
-        index = int(to_integer(self.evaluate(statement.value, frame), "Long"))
-        if statement.gosub:
-            raise VBAUnsupportedError("On ... GoSub is not implemented by pyOpenVBA")
+        # VBA first coerces to Integer (including overflow), then checks 0..255.
+        index = int(to_integer(self.evaluate(statement.value, frame), "Integer"))
+        if not 0 <= index <= 255:
+            raise error(5)
         if 1 <= index <= len(statement.labels):
+            if statement.gosub:
+                self._gosub(statement.labels[index - 1], frame)
+                return
             raise _GotoSignal(statement.labels[index - 1])
 
     def _do_return(self, statement: A.ReturnStmt, frame: Frame) -> None:
-        raise VBAUnsupportedError("Return, the GoSub kind, is not implemented by pyOpenVBA")
+        if not frame.gosub_depth:
+            raise error(3)
+        raise _ReturnSignal()
+
+    def _gosub(self, label: str, frame: Frame) -> None:
+        index = _label_index(frame.procedure.body, label)
+        if index is None:
+            raise self._unknown_label(label, frame)
+        if len(self.frames) + sum(active.gosub_depth for active in self.frames) >= MAX_DEPTH:
+            raise error(28)
+        frame.gosub_depth += 1
+        try:
+            self._execute_block(frame.procedure.body, frame, start=index)
+            # Reaching End Sub/Function ends the procedure, even with a pending Return.
+            raise _ExitSignal(_exit_word(frame.procedure.kind))
+        except _ReturnSignal:
+            pass
+        finally:
+            frame.gosub_depth -= 1
 
     def _do_label(self, statement: A.Label, frame: Frame) -> None:
         return None

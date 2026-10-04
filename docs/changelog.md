@@ -5,6 +5,21 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ## [Unreleased]
 
+### Added
+
+- Execute `GoSub`, `On ... GoSub` and `Return` using the current procedure's
+  variables and a separate return stack per call. Nesting, loop call sites,
+  numeric labels, procedure exits and error handlers replay 42 real Excel
+  measurements. `Return` without a pending subroutine raises VBA error 3.
+  Jump targets currently must be labels in the procedure's outer body;
+  jumping into a structured block remains a control-flow gap.
+
+### Fixed
+
+- `On ... GoTo` and `On ... GoSub` coerce their index to Integer and reject
+  values outside 0–255 as Excel does, including overflow and half-to-even
+  rounding. Previously `On ... GoTo` silently skipped invalid indices.
+
 ## [6.5.0] - 2026-10-04
 
 ### Added

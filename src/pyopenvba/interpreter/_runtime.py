@@ -2016,12 +2016,25 @@ class Interpreter:
             raise error(ERR_MEMBER_NOT_FOUND, f"{name} has no Property Let")
         self.call(procedure, module, [*args, value], named)
 
-    def make_array(self, bounds: list[tuple[int, int]], declared: str, module: ModuleRuntime, *, fixed: bool = False) -> VBAArray:
+    def record_type(self, declared: str, module: ModuleRuntime) -> tuple[A.TypeDef, ModuleRuntime] | None:
+        """Resolve a record together with the module that defines its fields."""
         key = declared.lower()
-        owner = module if key in module.types else next((runtime for runtime in self.modules.values() if key in runtime.types), None)
+        if '.' in key:
+            prefix, _, key = key.rpartition('.')
+            owner = next((runtime for runtime in self.modules.values() if runtime.name.lower() == prefix), None)
+            if owner is not None and key in owner.types:
+                return owner.types[key], owner
+            return None
+        if key in module.types:
+            return module.types[key], module
+        return next(((runtime.types[key], runtime) for runtime in self.modules.values()
+                     if key in runtime.types and runtime.types[key].scope == 'public'), None)
+
+    def make_array(self, bounds: list[tuple[int, int]], declared: str, module: ModuleRuntime, *, fixed: bool = False) -> VBAArray:
+        record = self.record_type(declared, module)
         factory: Callable[[], object] | None = None
-        if owner is not None:
-            definition = owner.types[key]
+        if record is not None:
+            definition, owner = record
             factory = lambda: UserTypeValue(definition, self, owner)
         return VBAArray(bounds, element_type=declared, fixed=fixed, element_factory=factory)
 
@@ -2035,12 +2048,10 @@ class Interpreter:
             return Slot(self.make_array([(0, -1)], declared, module), "Variant")
         if declaration.as_new:
             return Slot(self.create(declared), declared)
-        lower = declared.lower()
-        if lower in module.types:
-            return Slot(UserTypeValue(module.types[lower], self, module), declared)
-        for runtime in self.modules.values():
-            if lower in runtime.types:
-                return Slot(UserTypeValue(runtime.types[lower], self, runtime), declared)
+        record = self.record_type(declared, module)
+        if record is not None:
+            definition, owner = record
+            return Slot(UserTypeValue(definition, self, owner), declared)
         return Slot(default_for(declared), declared)
 
     def _bounds(

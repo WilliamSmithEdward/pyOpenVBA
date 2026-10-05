@@ -45,15 +45,8 @@ def validate_record_arguments(interpreter: Interpreter, module: ModuleRuntime, p
         return next((runtime for runtime in interpreter.modules.values() if runtime.name.lower() == name.lower()), None)
 
     def record_for(name: str, owner: ModuleRuntime) -> A.TypeDef | None:
-        if '.' in name:
-            prefix, _, key = name.rpartition('.')
-            target = runtime_for(prefix)
-            return target.types.get(key.lower()) if target is not None else None
-        key = name.lower()
-        if key in owner.types:
-            return owner.types[key]
-        return next((runtime.types[key] for runtime in interpreter.modules.values()
-                     if key in runtime.types and runtime.types[key].scope == 'public'), None)
+        record = interpreter.record_type(name, owner)
+        return record[0] if record is not None else None
 
     def callable_for(expression: A.Expr | None) -> tuple[A.Procedure, ModuleRuntime] | None:
         if isinstance(expression, A.Name) and (expression.name.lower() not in local or expression.name.lower() == procedure.name.lower()):

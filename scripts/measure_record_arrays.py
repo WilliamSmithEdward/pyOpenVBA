@@ -11,6 +11,15 @@ Values(0 To 1) As Long
 End Type
 Private Stored() As RecordData
 Private Failure As Long
+Private Replacement As RecordData
+Public Sub ReplaceCell(ByRef number As Long)
+Stored(1) = Replacement
+number = number + 10
+End Sub
+Public Sub FailBorrow(ByRef number As Long)
+number = number + 10
+Err.Raise 5
+End Sub
 Public Sub Bump(ByRef number As Long)
 number = number + 10
 End Sub
@@ -22,6 +31,11 @@ On Error GoTo 0
 number = number + 10
 End Sub'''
 CASES = {
+    'independent_elements': 'Dim items(0 To 1) As RecordData\nitems(0).Value = 5\nProbe = CStr(items(1).Value)',
+    'multidimensional': 'Dim items(0 To 1, 0 To 1) As RecordData\nitems(1, 1).Value = 5\nProbe = CStr(items(0, 1).Value) & ":" & CStr(items(1, 1).Value)',
+    'borrowed_field_cell_copy': 'ReDim Stored(0 To 1)\nStored(1).Value = 5\nReplacement.Value = 1\nReplaceCell Stored(1).Value\nProbe = CStr(Stored(1).Value)',
+    'borrowed_nested_array_cell_copy': 'ReDim Stored(0 To 1)\nStored(1).Values(1) = 5\nReplacement.Values(1) = 1\nReplaceCell Stored(1).Values(1)\nProbe = CStr(Stored(1).Values(1))',
+    'field_borrow_released_after_error': 'ReDim Stored(0 To 1)\nStored(1).Value = 5\nOn Error Resume Next\nFailBorrow Stored(1).Value\nOn Error GoTo 0\nReDim Preserve Stored(0 To 2)\nProbe = CStr(Stored(1).Value) & ":" & CStr(Stored(2).Value)',
     'fixed': 'Dim items(0 To 1) As RecordData\nitems(1).Value = 5\nProbe = CStr(items(1).Value)',
     'dynamic': 'Dim items() As RecordData\nReDim items(0 To 1)\nitems(1).Value = 5\nProbe = CStr(items(1).Value)',
     'byref_field': 'Dim items(0 To 1) As RecordData\nitems(1).Value = 5\nBump items(1).Value\nProbe = CStr(items(1).Value)',

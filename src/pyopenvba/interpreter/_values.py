@@ -39,7 +39,8 @@ import math
 import re
 import struct
 from decimal import ROUND_HALF_EVEN, ROUND_HALF_UP, Decimal, InvalidOperation, localcontext
-from typing import Any, Final
+from typing import Any, Callable, Final
+from weakref import ReferenceType
 
 from pyopenvba.exceptions import VBARuntimeError
 
@@ -311,7 +312,7 @@ class VBAArray:
     computed the way VBA lays it out rather than the way Python would.
     """
 
-    __slots__ = ("bounds", "items", "element_type", "fixed", "borrowed_elements")
+    __slots__ = ("bounds", "items", "element_type", "fixed", "borrowed_elements", "element_factory", "parent_array", "__weakref__")
 
     def __init__(
         self,
@@ -320,15 +321,22 @@ class VBAArray:
         element_type: str = "Variant",
         fixed: bool = False,
         items: list[object] | None = None,
+        element_factory: Callable[[], object] | None = None,
     ) -> None:
         for lower, upper in bounds:
             if upper < lower - 1:
                 raise error(ERR_SUBSCRIPT_OUT_OF_RANGE)
         self.borrowed_elements = 0
+        self.element_factory = element_factory
+        self.parent_array: ReferenceType[VBAArray] | None = None
         self.bounds = bounds
         self.element_type = element_type
         self.fixed = fixed
-        self.items = items if items is not None else [default_for(element_type) for _ in range(self.size)]
+        self.items = items if items is not None else [element_factory() if element_factory is not None else default_for(element_type) for _ in range(self.size)]
+        for item in self.items:
+            binder = getattr(item, "vba_bind_array", None)
+            if callable(binder):
+                binder(self)
 
     @property
     def size(self) -> int:
@@ -357,7 +365,31 @@ class VBAArray:
         return self.items[self.offset(subscripts)]
 
     def set(self, subscripts: list[int], value: object) -> None:
-        self.items[self.offset(subscripts)] = copy_value(coerce(value, self.element_type))
+        offset = self.offset(subscripts)
+        value = coerce(value, self.element_type)
+        assigner = getattr(self.items[offset], "vba_assign_value", None)
+        if callable(assigner):
+            assigner(value)
+        else:
+            self.items[offset] = copy_value(value)
+            binder = getattr(self.items[offset], "vba_bind_array", None)
+            if callable(binder):
+                binder(self)
+
+    def copy_from(self, source: VBAArray) -> None:
+        """Copy fixed record-field storage without replacing element addresses."""
+        if self.bounds != source.bounds or self.element_type != source.element_type:
+            raise error(ERR_TYPE_MISMATCH)
+        for index, item in enumerate(source.items):
+            self.set(self._subscripts(index), item)
+
+    def borrow_arrays(self) -> list[VBAArray]:
+        arrays: list[VBAArray] = [self]
+        parent = self.parent_array() if self.parent_array is not None else None
+        while parent is not None and parent not in arrays:
+            arrays.append(parent)
+            parent = parent.parent_array() if parent.parent_array is not None else None
+        return arrays
 
     def resized(self, bounds: list[tuple[int, int]], *, preserve: bool) -> VBAArray:
         """A new array of ``bounds``, carrying the old contents if asked.
@@ -365,7 +397,7 @@ class VBAArray:
         VBA's Preserve keeps elements by subscript, and only the last
         dimension may change size; anything else is error 9.
         """
-        fresh = VBAArray(bounds, element_type=self.element_type)
+        fresh = VBAArray(bounds, element_type=self.element_type, element_factory=self.element_factory)
         if not preserve:
             return fresh
         if len(bounds) != len(self.bounds):
@@ -773,7 +805,7 @@ def copy_value(value: object) -> object:
     """Copy VBA value containers while retaining contained object references."""
     if isinstance(value, VBAArray):
         return VBAArray(list(value.bounds), element_type=value.element_type, fixed=value.fixed,
-                        items=[copy_value(item) for item in value.items])
+                        items=[copy_value(item) for item in value.items], element_factory=value.element_factory)
     copier = getattr(value, "vba_copy_value", None)
     return copier() if callable(copier) else value
 

@@ -122,7 +122,10 @@ class VBProject(VBAObject):
         runtime = attach_project(self.book)
         if runtime is None:
             return
-        pending = [entry for entry in self.components.entries if entry.pending]
+        # ReplaceLine changes saved source, but native Excel keeps a module's
+        # already compiled code until an insertion/deletion/rename invalidates it.
+        pending = [entry for entry in self.components.entries if entry.pending and
+                   (entry.compile_invalidated or runtime.modules.get(entry.name.casefold()) not in runtime.executed_modules)]
         if pending:
             # Install the whole parsed set before binding documents, so
             # document declarations can reference classes added afterward.
@@ -132,6 +135,7 @@ class VBProject(VBAObject):
             runtime.load_project(project)
         for entry in pending:
             entry.pending = False
+            entry.compile_invalidated = False
 
 
 class VBComponents(VBACollection):
@@ -262,6 +266,7 @@ class VBComponent(VBAObject):
         self.kind = kind
         self.source = source
         self.pending = False
+        self.compile_invalidated = False
         self.invalidated = False
         self.code_module = CodeModule(self)
 
@@ -306,6 +311,7 @@ class VBComponent(VBAObject):
         self.name = name
         self.source = re.sub(r'(?m)^(Attribute VB_Name\s*=\s*)"[^"]*"', lambda match: match.group(1) + '"' + name + '"', self.source)
         self.pending = True
+        self.compile_invalidated = True
         book.saved = False
 
     @member
@@ -353,13 +359,14 @@ class CodeModule(VBAObject):
     def lines(self) -> list[str]:
         return list(self.editor_lines) if self.editor_lines is not None else body_lines(self.component.source)
 
-    def edit(self, lines: list[str]) -> None:
+    def edit(self, lines: list[str], *, invalidate: bool = True) -> None:
         header = editor_source_parts(self.component.source)[0]
         source = header + '\r\n'.join(lines)
         if source != self.component.source or lines != self.lines():
             self.editor_lines = list(lines)
             self.component.source = source
             self.component.pending = True
+            self.component.compile_invalidated |= invalidate
             self.component.project.book.saved = False
 
     @member
@@ -437,7 +444,7 @@ class CodeModule(VBAObject):
         lines = self.lines()
         if line <= 0 or line > len(lines):
             raise error(INVALID_ARGUMENT)
-        self.edit(lines[:line - 1] + to_text(String).replace('\r\n', '\n').replace('\r', '\n').split('\n') + lines[line:])
+        self.edit(lines[:line - 1] + to_text(String).replace('\r\n', '\n').replace('\r', '\n').split('\n') + lines[line:], invalidate=False)
         return EMPTY
 
     def procedures(self) -> list[tuple[str, int, int, int, int]]:

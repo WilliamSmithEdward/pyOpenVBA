@@ -7,6 +7,13 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- VBIDE structural source edits refresh worksheet event handlers before
+  dispatch. Twelve native probes cover handler additions, replacement, removal
+  and per-module compiled source caching. `ReplaceLine` preserves already
+  executed code until a structural edit invalidates it, while updating the
+  editable and saved text. Modules not yet executed use the replacement.
+  Wider compilation and instance-lifetime behavior remain incomplete.
+
 - Invalid-source Excel workbooks open with their complete editable VBA
   project, allowing inspection, saving and repair before execution retries
   compilation. Explicit Python source imports remain strict and atomic.

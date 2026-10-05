@@ -1,0 +1,46 @@
+{
+  "excel_version_build": "16.0|20430",
+  "measured_at": "2026-10-04T23:57:18.010637+00:00",
+  "probes": [
+    {
+      "name": "unchanged",
+      "macro": "Function Probe() As String\nDim target As Workbook, code As Object\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nSet target = Workbooks.Add\nSet code = target.VBProject.VBComponents(\"Sheet1\").CodeModule\ncode.AddFromString \"Private Sub Worksheet_Change(ByVal Target As Range)\" & vbCrLf & \"Application.EnableEvents = False\" & vbCrLf & \"Range(\"\"B1\"\").Value = 1\" & vbCrLf & \"Application.EnableEvents = True\" & vbCrLf & \"End Sub\"\nApplication.EnableEvents = True\ntarget.Worksheets(1).Range(\"A1\").Value = 5\nApplication.EnableEvents = False\ntarget.Worksheets(1).Range(\"B1\").ClearContents\nApplication.EnableEvents = True\ntarget.Worksheets(1).Range(\"A1\").Value = 7\nProbe = CStr(target.Worksheets(1).Range(\"B1\").Value)\nApplication.EnableEvents = False\ntarget.Close False\nApplication.EnableEvents = True\nEnd Function",
+      "result": "1"
+    },
+    {
+      "name": "new_handler",
+      "macro": "Function Probe() As String\nDim target As Workbook, code As Object\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nSet target = Workbooks.Add\nSet code = target.VBProject.VBComponents(\"Sheet1\").CodeModule\ncode.AddFromString \"Private Sub Worksheet_Change(ByVal Target As Range)\" & vbCrLf & \"Application.EnableEvents = False\" & vbCrLf & \"Range(\"\"B1\"\").Value = 2\" & vbCrLf & \"Application.EnableEvents = True\" & vbCrLf & \"End Sub\"\ntarget.Worksheets(1).Range(\"B1\").ClearContents\nApplication.EnableEvents = True\ntarget.Worksheets(1).Range(\"A1\").Value = 7\nProbe = CStr(target.Worksheets(1).Range(\"B1\").Value)\nApplication.EnableEvents = False\ntarget.Close False\nApplication.EnableEvents = True\nEnd Function",
+      "result": "2"
+    },
+    {
+      "name": "replace_handler",
+      "macro": "Function Probe() As String\nDim target As Workbook, code As Object\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nSet target = Workbooks.Add\nSet code = target.VBProject.VBComponents(\"Sheet1\").CodeModule\ncode.AddFromString \"Private Sub Worksheet_Change(ByVal Target As Range)\" & vbCrLf & \"Application.EnableEvents = False\" & vbCrLf & \"Range(\"\"B1\"\").Value = 1\" & vbCrLf & \"Application.EnableEvents = True\" & vbCrLf & \"End Sub\"\nApplication.EnableEvents = True\ntarget.Worksheets(1).Range(\"A1\").Value = 5\nApplication.EnableEvents = False\ncode.DeleteLines 1, code.CountOfLines\ncode.AddFromString \"Private Sub Worksheet_Change(ByVal Target As Range)\" & vbCrLf & \"Application.EnableEvents = False\" & vbCrLf & \"Range(\"\"B1\"\").Value = 2\" & vbCrLf & \"Application.EnableEvents = True\" & vbCrLf & \"End Sub\"\ntarget.Worksheets(1).Range(\"B1\").ClearContents\nApplication.EnableEvents = True\ntarget.Worksheets(1).Range(\"A1\").Value = 7\nProbe = CStr(target.Worksheets(1).Range(\"B1\").Value)\nApplication.EnableEvents = False\ntarget.Close False\nApplication.EnableEvents = True\nEnd Function",
+      "result": "2"
+    },
+    {
+      "name": "replace_line",
+      "macro": "Function Probe() As String\nDim target As Workbook, code As Object\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nSet target = Workbooks.Add\nSet code = target.VBProject.VBComponents(\"Sheet1\").CodeModule\ncode.AddFromString \"Private Sub Worksheet_Change(ByVal Target As Range)\" & vbCrLf & \"Application.EnableEvents = False\" & vbCrLf & \"Range(\"\"B1\"\").Value = 1\" & vbCrLf & \"Application.EnableEvents = True\" & vbCrLf & \"End Sub\"\nApplication.EnableEvents = True\ntarget.Worksheets(1).Range(\"A1\").Value = 5\nApplication.EnableEvents = False\ncode.ReplaceLine 3, \"Range(\"\"B1\"\").Value = 3\"\ntarget.Worksheets(1).Range(\"B1\").ClearContents\nApplication.EnableEvents = True\ntarget.Worksheets(1).Range(\"A1\").Value = 7\nProbe = CStr(target.Worksheets(1).Range(\"B1\").Value)\nApplication.EnableEvents = False\ntarget.Close False\nApplication.EnableEvents = True\nEnd Function",
+      "result": "1"
+    },
+    {
+      "name": "remove_handler",
+      "macro": "Function Probe() As String\nDim target As Workbook, code As Object\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nSet target = Workbooks.Add\nSet code = target.VBProject.VBComponents(\"Sheet1\").CodeModule\ncode.AddFromString \"Private Sub Worksheet_Change(ByVal Target As Range)\" & vbCrLf & \"Application.EnableEvents = False\" & vbCrLf & \"Range(\"\"B1\"\").Value = 1\" & vbCrLf & \"Application.EnableEvents = True\" & vbCrLf & \"End Sub\"\nApplication.EnableEvents = True\ntarget.Worksheets(1).Range(\"A1\").Value = 5\nApplication.EnableEvents = False\ncode.DeleteLines 1, code.CountOfLines\ntarget.Worksheets(1).Range(\"B1\").ClearContents\nApplication.EnableEvents = True\ntarget.Worksheets(1).Range(\"A1\").Value = 7\nProbe = CStr(target.Worksheets(1).Range(\"B1\").Value)\nApplication.EnableEvents = False\ntarget.Close False\nApplication.EnableEvents = True\nEnd Function",
+      "result": ""
+    },
+    {
+      "name": "rename_document",
+      "macro": "Function Probe() As String\nDim target As Workbook, code As Object\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nSet target = Workbooks.Add\nSet code = target.VBProject.VBComponents(\"Sheet1\").CodeModule\ncode.AddFromString \"Private Sub Worksheet_Change(ByVal Target As Range)\" & vbCrLf & \"Application.EnableEvents = False\" & vbCrLf & \"Range(\"\"B1\"\").Value = 1\" & vbCrLf & \"Application.EnableEvents = True\" & vbCrLf & \"End Sub\"\nApplication.EnableEvents = True\ntarget.Worksheets(1).Range(\"A1\").Value = 5\nApplication.EnableEvents = False\ntarget.VBProject.VBComponents(\"Sheet1\").Name = \"Info\"\ntarget.Worksheets(1).Range(\"B1\").ClearContents\nApplication.EnableEvents = True\ntarget.Worksheets(1).Range(\"A1\").Value = 7\nProbe = CStr(target.Worksheets(1).Range(\"B1\").Value)\nApplication.EnableEvents = False\ntarget.Close False\nApplication.EnableEvents = True\nEnd Function",
+      "result": "1"
+    },
+    {
+      "name": "replace_line_then_insert",
+      "macro": "Function Probe() As String\nDim target As Workbook, code As Object\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nSet target = Workbooks.Add\nSet code = target.VBProject.VBComponents(\"Sheet1\").CodeModule\ncode.AddFromString \"Private Sub Worksheet_Change(ByVal Target As Range)\" & vbCrLf & \"Application.EnableEvents = False\" & vbCrLf & \"Range(\"\"B1\"\").Value = 1\" & vbCrLf & \"Application.EnableEvents = True\" & vbCrLf & \"End Sub\"\nApplication.EnableEvents = True\ntarget.Worksheets(1).Range(\"A1\").Value = 5\nApplication.EnableEvents = False\ncode.ReplaceLine 3, \"Range(\"\"B1\"\").Value = 3\"\ncode.InsertLines 1, \"Private Extra As Long\"\ntarget.Worksheets(1).Range(\"B1\").ClearContents\nApplication.EnableEvents = True\ntarget.Worksheets(1).Range(\"A1\").Value = 7\nProbe = CStr(target.Worksheets(1).Range(\"B1\").Value)\nApplication.EnableEvents = False\ntarget.Close False\nApplication.EnableEvents = True\nEnd Function",
+      "result": "3"
+    },
+    {
+      "name": "replace_line_then_add",
+      "macro": "Function Probe() As String\nDim target As Workbook, code As Object\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nSet target = Workbooks.Add\nSet code = target.VBProject.VBComponents(\"Sheet1\").CodeModule\ncode.AddFromString \"Private Sub Worksheet_Change(ByVal Target As Range)\" & vbCrLf & \"Application.EnableEvents = False\" & vbCrLf & \"Range(\"\"B1\"\").Value = 1\" & vbCrLf & \"Application.EnableEvents = True\" & vbCrLf & \"End Sub\"\nApplication.EnableEvents = True\ntarget.Worksheets(1).Range(\"A1\").Value = 5\nApplication.EnableEvents = False\ncode.ReplaceLine 3, \"Range(\"\"B1\"\").Value = 3\"\ncode.AddFromString \"Private Extra As Long\"\ntarget.Worksheets(1).Range(\"B1\").ClearContents\nApplication.EnableEvents = True\ntarget.Worksheets(1).Range(\"A1\").Value = 7\nProbe = CStr(target.Worksheets(1).Range(\"B1\").Value)\nApplication.EnableEvents = False\ntarget.Close False\nApplication.EnableEvents = True\nEnd Function",
+      "result": "3"
+    }
+  ]
+}

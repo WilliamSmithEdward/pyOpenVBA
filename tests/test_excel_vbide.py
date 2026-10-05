@@ -58,7 +58,7 @@ def test_edited_code_compiles_when_run_and_invalid_edits_remain_inspectable() ->
     code.vba_get('AddFromString', ['Function Answer() As Long\nAnswer = 42\nEnd Function'])
     assert app.run('Module1.Answer') == 42
     code.vba_get('ReplaceLine', [2, 'Answer = 71'])
-    assert app.run('Module1.Answer') == 71
+    assert app.run('Module1.Answer') == 42  # Native Excel keeps compiled code until invalidated.
     code.vba_get('InsertLines', [1, 'this is invalid syntax'])
     assert 'this is invalid syntax' in str(code.vba_get('Lines', [1, 100]))
     with pytest.raises(VBACompileError):

@@ -32,9 +32,14 @@ def main() -> None:
                 member_name = entry['name']
                 implemented = cls is not None and member_name.lower() in cls._vba_members
                 covered = member_name.lower() in measured.get(name, set())
+                evidence = 'tests/fixtures/vbide_projects.json; tests/fixtures/vbide_source_files.json; tests/test_excel_vbide.py; tests/test_excel_vbide_files.py'
+                if (name == 'CodeModule' and member_name.lower() in {'addfromstring', 'insertlines', 'deletelines', 'replaceline'}) or (name == 'VBComponent' and member_name.lower() == 'name'):
+                    evidence += '; tests/fixtures/vbide_event_edits.json; tests/fixtures/vbide_compiled_cache.json; tests/test_excel_vbide_event_compilation.py'
+                if member_name.lower() in {'name', 'add', 'remove', 'addfromstring', 'lines'}:
+                    evidence += '; tests/fixtures/vbide_compile_lifecycle.json; tests/test_excel_vbide_lifecycle.py'
                 rows.append({'object': name, 'member': member_name, 'kind': entry.get('kind', category[:-1]),
                              'status': 'PARTIAL' if implemented and covered else 'UNASSESSED' if implemented else 'MISSING',
-                             'evidence': 'tests/fixtures/vbide_projects.json; tests/fixtures/vbide_source_files.json; tests/test_excel_vbide.py; tests/test_excel_vbide_files.py' if implemented and covered else '',
+                             'evidence': evidence if implemented and covered else '',
                              'note': 'Measured cases only; wider input, lifetime and source-format conformance remains incomplete.' if implemented and covered else ''})
     output = ROOT / 'docs/vbide_checklist.csv'
     with output.open('w', newline='', encoding='utf-8') as stream:

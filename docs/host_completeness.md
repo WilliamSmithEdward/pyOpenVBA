@@ -100,7 +100,16 @@ renaming the project and reading source preserve existing module state.
 Opening an invalid-source workbook retains its complete editable project;
 it can be inspected, saved and repaired before execution retries compilation.
 Explicit Python `load_vba` imports remain strict and atomic. Full compilation
-checks, pending edits during events and wider project lifetime remain gaps.
+checks and wider project lifetime remain gaps.
+
+Twelve native probes in `vbide_event_edits.json` and
+`vbide_compiled_cache.json` cover adding, replacing, removing and renaming
+worksheet handlers and per-module compiled source caching. Structural edits
+refresh handler bindings before dispatch. `ReplaceLine` updates editable and
+saved text while preserving an already executed module until an insertion,
+deletion or rename invalidates it, matching native Excel. Modules not yet
+executed use the replacement. Unrelated invalid source during events,
+class-instance lifetime and broader compiler invalidation still need work.
 
 Eighteen native probes in `module_namespaces.json` establish a measured slice
 of standard-module qualification and ByRef argument binding. Public module

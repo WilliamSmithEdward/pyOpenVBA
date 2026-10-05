@@ -43,6 +43,19 @@ def _on(book: Workbook) -> bool:
 
 def _handle(owner: VBAObject, procedure: str, args: list[object]) -> None:
     """Run ``procedure`` of ``owner``'s own module, if it has one; a module without it is simply not listening."""
+    from pyopenvba.apps.excel._model import Workbook, Worksheet
+    from pyopenvba.apps.excel._vbide import VBProject
+
+    book = owner if isinstance(owner, Workbook) else owner.book if isinstance(owner, Worksheet) else None
+    if book is not None and isinstance(owner, (Workbook, Worksheet)) and isinstance(book.vbide_project, VBProject):
+        entry = next((entry for entry in book.vbide_project.components.entries
+                      if entry.name.casefold() == owner.code_name.casefold()), None)
+        if entry is not None and entry.pending:
+            old = owner.vba_document
+            has_handler = old is not None and old.module.procedure(procedure) is not None
+            has_handler |= any(row[0].casefold() == procedure.casefold() for row in entry.code_module.procedures())
+            if has_handler:
+                book.vbide_project.compile_pending()
     document = owner.vba_document
     if document is None:
         return

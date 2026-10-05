@@ -1,0 +1,26 @@
+{
+  "excel_version_build": "16.0|20430",
+  "measured_at": "2026-10-04T23:59:28.714158+00:00",
+  "probes": [
+    {
+      "name": "replace_after_run",
+      "macro": "Function Probe() As String\nDim target As Workbook, part As Object, other As Object, first As Long\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nSet target = Workbooks.Add\nSet part = target.VBProject.VBComponents.Add(1)\npart.Name = \"Helpers\"\npart.CodeModule.AddFromString \"Function Answer() As Long\" & vbCrLf & \"Answer = 1\" & vbCrLf & \"End Function\"\nfirst = Application.Run(\"'\" & target.Name & \"'!Helpers.Answer\")\npart.CodeModule.ReplaceLine 2, \"Answer = 3\"\nProbe = CStr(Application.Run(\"'\" & target.Name & \"'!Helpers.Answer\"))\ntarget.Close False\nEnd Function",
+      "result": "1"
+    },
+    {
+      "name": "replace_before_run",
+      "macro": "Function Probe() As String\nDim target As Workbook, part As Object, other As Object, first As Long\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nSet target = Workbooks.Add\nSet part = target.VBProject.VBComponents.Add(1)\npart.Name = \"Helpers\"\npart.CodeModule.AddFromString \"Function Answer() As Long\" & vbCrLf & \"Answer = 1\" & vbCrLf & \"End Function\"\npart.CodeModule.ReplaceLine 2, \"Answer = 3\"\nProbe = CStr(Application.Run(\"'\" & target.Name & \"'!Helpers.Answer\"))\ntarget.Close False\nEnd Function",
+      "result": "3"
+    },
+    {
+      "name": "replace_then_insert",
+      "macro": "Function Probe() As String\nDim target As Workbook, part As Object, other As Object, first As Long\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nSet target = Workbooks.Add\nSet part = target.VBProject.VBComponents.Add(1)\npart.Name = \"Helpers\"\npart.CodeModule.AddFromString \"Function Answer() As Long\" & vbCrLf & \"Answer = 1\" & vbCrLf & \"End Function\"\nfirst = Application.Run(\"'\" & target.Name & \"'!Helpers.Answer\")\npart.CodeModule.ReplaceLine 2, \"Answer = 3\"\npart.CodeModule.InsertLines 1, \"Private Extra As Long\"\nProbe = CStr(Application.Run(\"'\" & target.Name & \"'!Helpers.Answer\"))\ntarget.Close False\nEnd Function",
+      "result": "3"
+    },
+    {
+      "name": "replace_after_other_module",
+      "macro": "Function Probe() As String\nDim target As Workbook, part As Object, other As Object, first As Long\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nSet target = Workbooks.Add\nSet part = target.VBProject.VBComponents.Add(1)\npart.Name = \"Helpers\"\npart.CodeModule.AddFromString \"Function Answer() As Long\" & vbCrLf & \"Answer = 1\" & vbCrLf & \"End Function\"\nSet other = target.VBProject.VBComponents.Add(1)\nother.Name = \"Other\"\nother.CodeModule.AddFromString \"Function Answer() As Long\" & vbCrLf & \"Answer = 9\" & vbCrLf & \"End Function\"\nfirst = Application.Run(\"'\" & target.Name & \"'!Other.Answer\")\npart.CodeModule.ReplaceLine 2, \"Answer = 3\"\nProbe = CStr(Application.Run(\"'\" & target.Name & \"'!Helpers.Answer\"))\ntarget.Close False\nEnd Function",
+      "result": "3"
+    }
+  ]
+}

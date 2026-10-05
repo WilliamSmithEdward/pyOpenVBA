@@ -14,19 +14,19 @@ Addins,Update,method,MISSING,,
 Application,Version,property,MISSING,,
 CodeModule,Parent,property,UNASSESSED,,
 CodeModule,VBE,property,MISSING,,
-CodeModule,Lines,property,PARTIAL,tests/fixtures/vbide_projects.json; tests/test_excel_vbide.py,"Measured cases only; wider input, lifetime and source-format conformance remains incomplete."
-CodeModule,CountOfLines,property,PARTIAL,tests/fixtures/vbide_projects.json; tests/test_excel_vbide.py,"Measured cases only; wider input, lifetime and source-format conformance remains incomplete."
-CodeModule,ProcStartLine,property,PARTIAL,tests/fixtures/vbide_projects.json; tests/test_excel_vbide.py,"Measured cases only; wider input, lifetime and source-format conformance remains incomplete."
-CodeModule,ProcCountLines,property,PARTIAL,tests/fixtures/vbide_projects.json; tests/test_excel_vbide.py,"Measured cases only; wider input, lifetime and source-format conformance remains incomplete."
-CodeModule,ProcBodyLine,property,PARTIAL,tests/fixtures/vbide_projects.json; tests/test_excel_vbide.py,"Measured cases only; wider input, lifetime and source-format conformance remains incomplete."
-CodeModule,ProcOfLine,property,PARTIAL,tests/fixtures/vbide_projects.json; tests/test_excel_vbide.py,"Measured cases only; wider input, lifetime and source-format conformance remains incomplete."
-CodeModule,CountOfDeclarationLines,property,PARTIAL,tests/fixtures/vbide_projects.json; tests/test_excel_vbide.py,"Measured cases only; wider input, lifetime and source-format conformance remains incomplete."
+CodeModule,Lines,property,PARTIAL,tests/fixtures/vbide_projects.json; tests/fixtures/vbide_source_files.json; tests/test_excel_vbide.py; tests/test_excel_vbide_files.py,"Measured cases only; wider input, lifetime and source-format conformance remains incomplete."
+CodeModule,CountOfLines,property,PARTIAL,tests/fixtures/vbide_projects.json; tests/fixtures/vbide_source_files.json; tests/test_excel_vbide.py; tests/test_excel_vbide_files.py,"Measured cases only; wider input, lifetime and source-format conformance remains incomplete."
+CodeModule,ProcStartLine,property,PARTIAL,tests/fixtures/vbide_projects.json; tests/fixtures/vbide_source_files.json; tests/test_excel_vbide.py; tests/test_excel_vbide_files.py,"Measured cases only; wider input, lifetime and source-format conformance remains incomplete."
+CodeModule,ProcCountLines,property,PARTIAL,tests/fixtures/vbide_projects.json; tests/fixtures/vbide_source_files.json; tests/test_excel_vbide.py; tests/test_excel_vbide_files.py,"Measured cases only; wider input, lifetime and source-format conformance remains incomplete."
+CodeModule,ProcBodyLine,property,PARTIAL,tests/fixtures/vbide_projects.json; tests/fixtures/vbide_source_files.json; tests/test_excel_vbide.py; tests/test_excel_vbide_files.py,"Measured cases only; wider input, lifetime and source-format conformance remains incomplete."
+CodeModule,ProcOfLine,property,PARTIAL,tests/fixtures/vbide_projects.json; tests/fixtures/vbide_source_files.json; tests/test_excel_vbide.py; tests/test_excel_vbide_files.py,"Measured cases only; wider input, lifetime and source-format conformance remains incomplete."
+CodeModule,CountOfDeclarationLines,property,PARTIAL,tests/fixtures/vbide_projects.json; tests/fixtures/vbide_source_files.json; tests/test_excel_vbide.py; tests/test_excel_vbide_files.py,"Measured cases only; wider input, lifetime and source-format conformance remains incomplete."
 CodeModule,CodePane,property,MISSING,,
-CodeModule,AddFromString,method,PARTIAL,tests/fixtures/vbide_projects.json; tests/test_excel_vbide.py,"Measured cases only; wider input, lifetime and source-format conformance remains incomplete."
-CodeModule,AddFromFile,method,MISSING,,
-CodeModule,InsertLines,method,PARTIAL,tests/fixtures/vbide_projects.json; tests/test_excel_vbide.py,"Measured cases only; wider input, lifetime and source-format conformance remains incomplete."
-CodeModule,DeleteLines,method,PARTIAL,tests/fixtures/vbide_projects.json; tests/test_excel_vbide.py,"Measured cases only; wider input, lifetime and source-format conformance remains incomplete."
-CodeModule,ReplaceLine,method,PARTIAL,tests/fixtures/vbide_projects.json; tests/test_excel_vbide.py,"Measured cases only; wider input, lifetime and source-format conformance remains incomplete."
+CodeModule,AddFromString,method,PARTIAL,tests/fixtures/vbide_projects.json; tests/fixtures/vbide_source_files.json; tests/test_excel_vbide.py; tests/test_excel_vbide_files.py,"Measured cases only; wider input, lifetime and source-format conformance remains incomplete."
+CodeModule,AddFromFile,method,PARTIAL,tests/fixtures/vbide_projects.json; tests/fixtures/vbide_source_files.json; tests/test_excel_vbide.py; tests/test_excel_vbide_files.py,"Measured cases only; wider input, lifetime and source-format conformance remains incomplete."
+CodeModule,InsertLines,method,PARTIAL,tests/fixtures/vbide_projects.json; tests/fixtures/vbide_source_files.json; tests/test_excel_vbide.py; tests/test_excel_vbide_files.py,"Measured cases only; wider input, lifetime and source-format conformance remains incomplete."
+CodeModule,DeleteLines,method,PARTIAL,tests/fixtures/vbide_projects.json; tests/fixtures/vbide_source_files.json; tests/test_excel_vbide.py; tests/test_excel_vbide_files.py,"Measured cases only; wider input, lifetime and source-format conformance remains incomplete."
+CodeModule,ReplaceLine,method,PARTIAL,tests/fixtures/vbide_projects.json; tests/fixtures/vbide_source_files.json; tests/test_excel_vbide.py; tests/test_excel_vbide_files.py,"Measured cases only; wider input, lifetime and source-format conformance remains incomplete."
 CodeModule,CreateEventProc,method,MISSING,,
 CodeModule,Find,method,MISSING,,
 CodePane,Collection,property,MISSING,,
@@ -115,16 +115,16 @@ SelectedComponents,Parent,property,MISSING,,
 SelectedComponents,Count,property,MISSING,,
 SelectedComponents,Item,method,MISSING,,
 VBComponent,Saved,property,MISSING,,
-VBComponent,Name,property,PARTIAL,tests/fixtures/vbide_projects.json; tests/test_excel_vbide.py,"Measured cases only; wider input, lifetime and source-format conformance remains incomplete."
+VBComponent,Name,property,PARTIAL,tests/fixtures/vbide_projects.json; tests/fixtures/vbide_source_files.json; tests/test_excel_vbide.py; tests/test_excel_vbide_files.py,"Measured cases only; wider input, lifetime and source-format conformance remains incomplete."
 VBComponent,Designer,property,MISSING,,
-VBComponent,CodeModule,property,PARTIAL,tests/fixtures/vbide_projects.json; tests/test_excel_vbide.py,"Measured cases only; wider input, lifetime and source-format conformance remains incomplete."
-VBComponent,Type,property,PARTIAL,tests/fixtures/vbide_projects.json; tests/test_excel_vbide.py,"Measured cases only; wider input, lifetime and source-format conformance remains incomplete."
+VBComponent,CodeModule,property,PARTIAL,tests/fixtures/vbide_projects.json; tests/fixtures/vbide_source_files.json; tests/test_excel_vbide.py; tests/test_excel_vbide_files.py,"Measured cases only; wider input, lifetime and source-format conformance remains incomplete."
+VBComponent,Type,property,PARTIAL,tests/fixtures/vbide_projects.json; tests/fixtures/vbide_source_files.json; tests/test_excel_vbide.py; tests/test_excel_vbide_files.py,"Measured cases only; wider input, lifetime and source-format conformance remains incomplete."
 VBComponent,VBE,property,MISSING,,
 VBComponent,Collection,property,UNASSESSED,,
 VBComponent,HasOpenDesigner,property,MISSING,,
 VBComponent,Properties,property,MISSING,,
 VBComponent,DesignerID,property,MISSING,,
-VBComponent,Export,method,MISSING,,
+VBComponent,Export,method,PARTIAL,tests/fixtures/vbide_projects.json; tests/fixtures/vbide_source_files.json; tests/test_excel_vbide.py; tests/test_excel_vbide_files.py,"Measured cases only; wider input, lifetime and source-format conformance remains incomplete."
 VBComponent,DesignerWindow,method,MISSING,,
 VBComponent,Activate,method,MISSING,,
 VBComponent_Old,Saved,property,MISSING,,
@@ -140,12 +140,12 @@ VBComponent_Old,Export,method,MISSING,,
 VBComponent_Old,DesignerWindow,method,MISSING,,
 VBComponent_Old,Activate,method,MISSING,,
 VBComponents,Parent,property,UNASSESSED,,
-VBComponents,Count,property,PARTIAL,tests/fixtures/vbide_projects.json; tests/test_excel_vbide.py,"Measured cases only; wider input, lifetime and source-format conformance remains incomplete."
+VBComponents,Count,property,PARTIAL,tests/fixtures/vbide_projects.json; tests/fixtures/vbide_source_files.json; tests/test_excel_vbide.py; tests/test_excel_vbide_files.py,"Measured cases only; wider input, lifetime and source-format conformance remains incomplete."
 VBComponents,VBE,property,MISSING,,
-VBComponents,Item,method,PARTIAL,tests/fixtures/vbide_projects.json; tests/test_excel_vbide.py,"Measured cases only; wider input, lifetime and source-format conformance remains incomplete."
-VBComponents,Remove,method,PARTIAL,tests/fixtures/vbide_projects.json; tests/test_excel_vbide.py,"Measured cases only; wider input, lifetime and source-format conformance remains incomplete."
-VBComponents,Add,method,PARTIAL,tests/fixtures/vbide_projects.json; tests/test_excel_vbide.py,"Measured cases only; wider input, lifetime and source-format conformance remains incomplete."
-VBComponents,Import,method,MISSING,,
+VBComponents,Item,method,PARTIAL,tests/fixtures/vbide_projects.json; tests/fixtures/vbide_source_files.json; tests/test_excel_vbide.py; tests/test_excel_vbide_files.py,"Measured cases only; wider input, lifetime and source-format conformance remains incomplete."
+VBComponents,Remove,method,PARTIAL,tests/fixtures/vbide_projects.json; tests/fixtures/vbide_source_files.json; tests/test_excel_vbide.py; tests/test_excel_vbide_files.py,"Measured cases only; wider input, lifetime and source-format conformance remains incomplete."
+VBComponents,Add,method,PARTIAL,tests/fixtures/vbide_projects.json; tests/fixtures/vbide_source_files.json; tests/test_excel_vbide.py; tests/test_excel_vbide_files.py,"Measured cases only; wider input, lifetime and source-format conformance remains incomplete."
+VBComponents,Import,method,PARTIAL,tests/fixtures/vbide_projects.json; tests/fixtures/vbide_source_files.json; tests/test_excel_vbide.py; tests/test_excel_vbide_files.py,"Measured cases only; wider input, lifetime and source-format conformance remains incomplete."
 VBComponents,AddCustom,method,MISSING,,
 VBComponents_Old,Parent,property,MISSING,,
 VBComponents_Old,Count,property,MISSING,,
@@ -169,16 +169,16 @@ VBE,Addins,property,MISSING,,
 VBProject,HelpFile,property,MISSING,,
 VBProject,HelpContextID,property,MISSING,,
 VBProject,Description,property,MISSING,,
-VBProject,Mode,property,UNASSESSED,,
+VBProject,Mode,property,PARTIAL,tests/fixtures/vbide_projects.json; tests/fixtures/vbide_source_files.json; tests/test_excel_vbide.py; tests/test_excel_vbide_files.py,"Measured cases only; wider input, lifetime and source-format conformance remains incomplete."
 VBProject,References,property,MISSING,,
-VBProject,Name,property,PARTIAL,tests/fixtures/vbide_projects.json; tests/test_excel_vbide.py,"Measured cases only; wider input, lifetime and source-format conformance remains incomplete."
+VBProject,Name,property,PARTIAL,tests/fixtures/vbide_projects.json; tests/fixtures/vbide_source_files.json; tests/test_excel_vbide.py; tests/test_excel_vbide_files.py,"Measured cases only; wider input, lifetime and source-format conformance remains incomplete."
 VBProject,VBE,property,MISSING,,
 VBProject,Collection,property,MISSING,,
-VBProject,Protection,property,UNASSESSED,,
+VBProject,Protection,property,PARTIAL,tests/fixtures/vbide_projects.json; tests/fixtures/vbide_source_files.json; tests/test_excel_vbide.py; tests/test_excel_vbide_files.py,"Measured cases only; wider input, lifetime and source-format conformance remains incomplete."
 VBProject,Saved,property,MISSING,,
-VBProject,VBComponents,property,PARTIAL,tests/fixtures/vbide_projects.json; tests/test_excel_vbide.py,"Measured cases only; wider input, lifetime and source-format conformance remains incomplete."
-VBProject,Type,property,UNASSESSED,,
-VBProject,FileName,property,UNASSESSED,,
+VBProject,VBComponents,property,PARTIAL,tests/fixtures/vbide_projects.json; tests/fixtures/vbide_source_files.json; tests/test_excel_vbide.py; tests/test_excel_vbide_files.py,"Measured cases only; wider input, lifetime and source-format conformance remains incomplete."
+VBProject,Type,property,PARTIAL,tests/fixtures/vbide_projects.json; tests/fixtures/vbide_source_files.json; tests/test_excel_vbide.py; tests/test_excel_vbide_files.py,"Measured cases only; wider input, lifetime and source-format conformance remains incomplete."
+VBProject,FileName,property,PARTIAL,tests/fixtures/vbide_projects.json; tests/fixtures/vbide_source_files.json; tests/test_excel_vbide.py; tests/test_excel_vbide_files.py,"Measured cases only; wider input, lifetime and source-format conformance remains incomplete."
 VBProject,BuildFileName,property,MISSING,,
 VBProject,SaveAs,method,MISSING,,
 VBProject,MakeCompiledFile,method,MISSING,,

@@ -124,7 +124,7 @@ def persist_project(book: Workbook, package: OpcFile) -> OpcFile:
     vbide = book.vbide_project if isinstance(book.vbide_project, VBProject) else None
     if vbide is not None:
         vbide.components.synchronize()
-        sources = [(entry.name, entry.source, entry.kind) for entry in vbide.components.entries]
+        sources = [(entry.name, entry.persisted_source(), entry.kind) for entry in vbide.components.entries]
     if not sources and not book.deleted_document_names and vbide is None:
         return package
     from pyopenvba.apps.excel._documents import materialize

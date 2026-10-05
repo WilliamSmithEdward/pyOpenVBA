@@ -7,6 +7,19 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- VBIDE standard/class source import, standard/class/document export and
+  `CodeModule.AddFromFile`, guided by 29 native file/editor probes. Export
+  headers differ from stored class streams; imported class code is verified
+  by native Excel execution after saving. Blank, leading and trailing editor
+  lines retain their native counts through save/reopen. UserForm file
+  import/export and wider file-format/encoding cases remain incomplete.
+- Standard-module qualified calls, variables, arrays, constants and
+  properties. Eighteen native probes cover namespace lookup, shadowing,
+  private calls inside their owning module, ByRef variables/array elements,
+  class calls and parenthesized arguments. Parentheses pass a temporary
+  value; public class fields behave as property values rather than direct
+  storage aliases. Wider name/reference/type-checking conformance remains
+  incomplete.
 - In-memory `Workbook.VBProject`, component lookup/enumeration, standard
   and class component creation/removal, document/component/project renaming,
   and editable `CodeModule` buffers. Source edits compile on execution;

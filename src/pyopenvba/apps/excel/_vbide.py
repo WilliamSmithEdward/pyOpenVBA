@@ -6,13 +6,14 @@ Pending source is compiled when execution enters the owning project.
 from __future__ import annotations
 
 import re
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.interpreter._objects import VBACollection, VBAObject, member, method, setter
 from pyopenvba.interpreter._runtime import Slot
 from pyopenvba.interpreter._values import EMPTY, MISSING, VBAInt, error, to_integer, to_text
-from pyopenvba.vba import VBAModule, VBAModuleKind, VBAProject, VBE_REFUSED_MODULE_NAMES, split_attribute_header
+from pyopenvba.vba import VBAModule, VBAModuleKind, VBAProject, VBE_REFUSED_MODULE_NAMES, encode_mbcs, encoding_for_codepage, normalize_class_source, split_attribute_header
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Workbook
@@ -29,9 +30,21 @@ xor is like mod global
 '''.split())
 
 
+def editor_source_parts(source: str) -> tuple[str, str]:
+    prefix = ''
+    body = source
+    if body.startswith('VERSION ') and ' CLASS' in body[:64]:
+        found = re.search(r'(?:\r\n|\n|\r)END(?:\r\n|\n|\r)', body)
+        if found is not None:
+            prefix = body[:found.end()]
+            body = body[found.end():]
+    found = re.match(r'(?:Attribute [^\r\n]*(?:\r\n|\n|\r|$))*', body)
+    assert found is not None
+    return prefix + found.group(), body[found.end():]
+
+
 def body_lines(source: str) -> list[str]:
-    body = split_attribute_header(source)[1].replace('\r\n', '\n').replace('\r', '\n')
-    return body.split('\n') if body else []
+    return editor_source_parts(source)[1].splitlines()
 
 
 def valid_name(name: str) -> None:
@@ -47,6 +60,7 @@ class VBProject(VBAObject):
         self.book = book
         self.name = 'VBAProject'
         self.original_name = self.name
+        self.code_page = 1252
         self.components = VBComponents(self)
         self.renames: dict[str, str] = {}
         self.protected = False
@@ -57,6 +71,7 @@ class VBProject(VBAObject):
                 project = host.vba_project()
                 self.name = project.name or self.name
                 self.original_name = self.name
+                self.code_page = project.code_page
                 self.protected = bool(project.protection and project.protection.has_password)
                 kinds = host.component_kinds()
                 documents = {book.code_name.casefold(), *(sheet.code_name.casefold() for sheet in book.sheets_)}
@@ -94,7 +109,9 @@ class VBProject(VBAObject):
 
     @member
     def FileName(self) -> object:
-        return str(self.book.FullName()) if self.book.path else ''
+        if not self.book.path:
+            raise error(76)
+        return str(self.book.FullName())
 
     @member
     def Protection(self) -> object:
@@ -143,6 +160,8 @@ class VBComponents(VBACollection):
                     self.entries.append(entry)
                     names[entry.name.casefold()] = entry
                 elif not entry.pending:
+                    if entry.source != module.parsed.source:
+                        entry.code_module.editor_lines = None
                     entry.source = module.parsed.source
         for name in [book.code_name, *(sheet.code_name for sheet in book.sheets_)]:
             if name and name.casefold() not in names:
@@ -206,6 +225,32 @@ class VBComponents(VBACollection):
         book.saved = False
         return EMPTY
 
+    @method
+    def Import(self, FileName: object) -> object:
+        path = Path(to_text(FileName))
+        text = read_source_file(path, self.project.code_page)
+        if path.suffix.casefold() == '.frm':
+            raise VBAUnsupportedError('VBComponents.Import(UserForm) is not implemented')
+        kind = 'class' if path.suffix.casefold() == '.cls' else 'standard'
+        if kind == 'class':
+            text = normalize_class_source(text)
+        found = re.search(r'(?im)^Attribute VB_Name\s*=\s*"([^"]*)"', text)
+        name = found.group(1) if found else path.stem
+        valid_name(name)
+        self.synchronize()
+        names = {entry.name.casefold() for entry in self.entries}
+        prefix = name
+        counter = 1
+        while name.casefold() in names:
+            name = f'{prefix}{counter}'
+            counter += 1
+        entry = VBComponent(self.project, name, kind, '')
+        self.entries.append(entry)
+        entry.code_module.load_file_text(text)
+        entry.pending = True
+        self.project.book.saved = False
+        return entry
+
 
 class VBComponent(VBAObject):
     vba_type_name = 'VBComponent'
@@ -220,6 +265,13 @@ class VBComponent(VBAObject):
         self.invalidated = False
         self.code_module = CodeModule(self)
 
+    def persisted_source(self) -> str:
+        if self.code_module.editor_lines is None:
+            return self.source
+        header = editor_source_parts(self.source)[0]
+        lines = self.code_module.editor_lines
+        return header + '\r\n'.join(lines) + ('\r\n' if lines else '')
+
     @member
     def Name(self) -> object:
         return self.name
@@ -230,7 +282,7 @@ class VBComponent(VBAObject):
         valid_name(name)
         if name.casefold() == self.name.casefold():
             return
-        if name.casefold() == 'excel' or any(entry.name.casefold() == name.casefold() for entry in self.project.components.entries):
+        if name.casefold() in {'excel', 'vba', 'stdole', 'office'} or any(entry.name.casefold() == name.casefold() for entry in self.project.components.entries):
             raise error(32813)
         book = self.project.book
         old = self.name
@@ -267,20 +319,44 @@ class VBComponent(VBAObject):
     def Collection(self) -> object:
         return self.project.components
 
+    @method
+    def Export(self, FileName: object) -> object:
+        header = split_attribute_header(self.source)[0]
+        attributes = {match.group(1).casefold(): match.group(2) for match in re.finditer(r'(?im)^Attribute (\w+)\s*=\s*([^\r\n]*)', header)}
+        if self.kind == 'form':
+            raise VBAUnsupportedError('VBComponent.Export(UserForm) is not implemented')
+        lines = [f'Attribute VB_Name = "{self.name}"']
+        if self.kind != 'standard':
+            defaults = {'VB_GlobalNameSpace': 'False', 'VB_Creatable': 'False',
+                        'VB_PredeclaredId': str(self.kind == 'document'), 'VB_Exposed': str(self.kind == 'document')}
+            lines = ['VERSION 1.0 CLASS', 'BEGIN', "  MultiUse = -1  'True", 'END', *lines]
+            lines.extend(f'Attribute {name} = {attributes.get(name.casefold(), value)}' for name, value in defaults.items())
+        excluded = {'vb_name', 'vb_base', 'vb_templatederived', 'vb_customizable', 'vb_globalnamespace', 'vb_creatable', 'vb_predeclaredid', 'vb_exposed'}
+        lines.extend(line for line in header.splitlines() if line.startswith('Attribute ') and line.split()[1].casefold() not in excluded)
+        lines.extend(self.code_module.lines())
+        text = '\r\n'.join(lines) + '\r\n'
+        try:
+            Path(to_text(FileName)).write_bytes(encode_mbcs(text, encoding_for_codepage(self.project.code_page)))
+        except OSError:
+            raise error(50012, 'Unable to export component') from None
+        return EMPTY
+
 class CodeModule(VBAObject):
     vba_type_name = 'CodeModule'
     vba_library = 'vbide'
 
     def __init__(self, component: VBComponent) -> None:
         self.component = component
+        self.editor_lines: list[str] | None = None
 
     def lines(self) -> list[str]:
-        return body_lines(self.component.source)
+        return list(self.editor_lines) if self.editor_lines is not None else body_lines(self.component.source)
 
     def edit(self, lines: list[str]) -> None:
-        header = split_attribute_header(self.component.source)[0]
+        header = editor_source_parts(self.component.source)[0]
         source = header + '\r\n'.join(lines)
-        if source != self.component.source:
+        if source != self.component.source or lines != self.lines():
+            self.editor_lines = list(lines)
             self.component.source = source
             self.component.pending = True
             self.component.project.book.saved = False
@@ -318,6 +394,28 @@ class CodeModule(VBAObject):
         text = to_text(String)
         if text:
             self.InsertLines(int(self.CountOfDeclarationLines()) + 1, text)
+        return EMPTY
+
+    def load_file_text(self, text: str, *, rename: bool = False) -> None:
+        attributes = [line for line in text.splitlines() if line.startswith('Attribute ')]
+        if rename:
+            found = next((re.search(r'^Attribute VB_Name\s*=\s*"([^"]*)"', line) for line in attributes if line.startswith('Attribute VB_Name')), None)
+            if found is not None:
+                self.component.set_name(found.group(1))
+        body = [line if line != 'END' else 'End' for line in text.splitlines() if not line.startswith('Attribute ')]
+        header = '\r\n'.join(attributes)
+        if header:
+            header = re.sub(r'(?m)^(Attribute VB_Name\s*=\s*)"[^"]*"', lambda match: match.group(1) + '"' + self.component.name + '"', header)
+            header += '\r\n'
+        self.component.source = header + '\r\n'.join(self.lines())
+        if body:
+            position = int(self.CountOfDeclarationLines())
+            lines = self.lines()
+            self.edit(lines[:position] + body + lines[position:])
+
+    @method
+    def AddFromFile(self, FileName: object) -> object:
+        self.load_file_text(read_source_file(Path(to_text(FileName)), self.component.project.code_page), rename=True)
         return EMPTY
 
     @method
@@ -418,3 +516,12 @@ def require_component(value: object) -> VBComponent:
     if not isinstance(value, VBComponent):
         raise error(5)
     return value
+
+
+def read_source_file(path: Path, code_page: int) -> str:
+    try:
+        return path.read_bytes().decode(encoding_for_codepage(code_page))
+    except FileNotFoundError:
+        raise error(53) from None
+    except OSError:
+        raise error(75) from None

@@ -1565,8 +1565,25 @@ and is compiled on entry to its project. Saving preserves pending source
 without requiring compilation and uses the ordinary writer's protection,
 signature and cache gates. A native save/reopen test executes new standard
 code and edited document code and checks both renamed identities. References,
-designer operations, import/export, Find/CreateEventProc, wider procedure
+designer operations, complete import/export, Find/CreateEventProc, wider procedure
 boundaries and reset/lifetime semantics remain incomplete.
+
+Source-file import/export is implemented for standard/class modules, with
+document export and CodeModule.AddFromFile, using 29 native file/editor
+probes. Class export headers are converted before persistence, and a native
+gate executes imported standard and class code from the saved workbook.
+Blank/leading/trailing editor lines keep their counts after save/reopen.
+UserForm files, wider encodings/extensions/attributes and deferred compilation
+when opening an invalid-source file still need work.
+
+Standard modules can qualify their functions, public variables/arrays,
+constants and properties (`Helpers.Answer()`, `Helpers.Value = 3`). Eighteen
+native namespace/argument probes cover ordinary, named and parenthesized
+arguments, array element aliases, class calls and local name shadowing.
+Module variables/array elements passed ByRef update their storage; class
+public fields and parenthesized expressions pass temporary values. Complete
+reference/type/enum qualification, compile checks and wider member/UDT
+argument binding remain incomplete.
 
 The Python `ExcelApplication.save()` convenience API fires save events too.
 If a handler cancels, it raises `VBARuntimeError(1004)` and does not write

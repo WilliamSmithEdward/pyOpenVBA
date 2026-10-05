@@ -15,11 +15,11 @@ def main() -> None:
 
     classes = {cls.vba_type_name: cls for cls in (VBProject, VBComponents, VBComponent, CodeModule)}
     measured = {
-        'VBProject': {'name', 'vbcomponents'},
-        'VBComponents': {'count', 'item', 'add', 'remove'},
-        'VBComponent': {'name', 'type', 'codemodule'},
+        'VBProject': {'name', 'vbcomponents', 'filename', 'type', 'mode', 'protection'},
+        'VBComponents': {'count', 'item', 'add', 'remove', 'import'},
+        'VBComponent': {'name', 'type', 'codemodule', 'export'},
         'CodeModule': {'lines', 'countoflines', 'countofdeclarationlines', 'addfromstring', 'insertlines',
-                       'deletelines', 'replaceline', 'procstartline', 'procbodyline', 'proccountlines', 'procofline'},
+                       'deletelines', 'replaceline', 'procstartline', 'procbodyline', 'proccountlines', 'procofline', 'addfromfile'},
     }
     reference = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT.parent / 'pyVBAReference'
     rows: list[dict[str, str]] = []
@@ -34,7 +34,7 @@ def main() -> None:
                 covered = member_name.lower() in measured.get(name, set())
                 rows.append({'object': name, 'member': member_name, 'kind': entry.get('kind', category[:-1]),
                              'status': 'PARTIAL' if implemented and covered else 'UNASSESSED' if implemented else 'MISSING',
-                             'evidence': 'tests/fixtures/vbide_projects.json; tests/test_excel_vbide.py' if implemented and covered else '',
+                             'evidence': 'tests/fixtures/vbide_projects.json; tests/fixtures/vbide_source_files.json; tests/test_excel_vbide.py; tests/test_excel_vbide_files.py' if implemented and covered else '',
                              'note': 'Measured cases only; wider input, lifetime and source-format conformance remains incomplete.' if implemented and covered else ''})
     output = ROOT / 'docs/vbide_checklist.csv'
     with output.open('w', newline='', encoding='utf-8') as stream:

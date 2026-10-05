@@ -1625,6 +1625,13 @@ repeated after module replacement or renaming. Full name/type/visibility
 validation, references, overload/default-member resolution, compiler
 signatures and broader expression inference remain incomplete.
 
+Eight native probes in `tests/fixtures/record_qualification.json` cover
+module-qualified record declarations, including scalar, fixed/dynamic array
+and nested record fields, and whole-record expression compile errors.
+Allocation and demand validation share record-type lookup and construct
+fields in their defining module. Broader reference and visibility checking
+remains incomplete.
+
 The Python `ExcelApplication.save()` convenience API fires save events too.
 If a handler cancels, it raises `VBARuntimeError(1004)` and does not write
 the requested file; the VBA methods return normally on cancellation.

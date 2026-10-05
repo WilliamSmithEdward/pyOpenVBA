@@ -7,6 +7,13 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Module-qualified record declarations (`As Helpers.RecordData`) allocate
+  scalar, fixed-array and dynamic-array values with the defining module's
+  field types. Eight native Excel probes cover nested records, ByRef calls
+  and parenthesized record-expression compile errors. Runtime allocation
+  and demand validation share record-type lookup; broader reference and
+  visibility checking remains incomplete.
+
 - Procedure-demand validation of statically known whole-record arguments
   forced to temporary values by parentheses. Nine native compiler probes
   cover implicit/explicit calls, dead branches, deferred unused procedures

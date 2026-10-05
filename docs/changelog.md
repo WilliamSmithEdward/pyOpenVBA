@@ -7,6 +7,13 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Procedure-demand validation of statically known whole-record arguments
+  forced to temporary values by parentheses. Nine native compiler probes
+  cover implicit/explicit calls, dead branches, deferred unused procedures
+  and accepted function-result temporaries. Checks precede body execution
+  and revalidate after dependency changes. Full static name/type/visibility
+  checks and wider expression/member inference remain incomplete.
+
 - Arrays of records allocate independent fixed/dynamic/multidimensional
   elements and preserve their type factory through copies, ReDim and Erase.
   Thirteen native probes verify copying, preservation and borrowed field

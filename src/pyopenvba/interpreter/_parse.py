@@ -367,7 +367,7 @@ class Parser:
         if self.at_op("*"):
             # Fixed-length string: "String * 10".
             self.advance()
-            self.advance()
+            name += '*' + self.advance().text
         return name
 
     def _parse_const(self, scope: str, line: int) -> A.ConstDecl:

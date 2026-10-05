@@ -498,6 +498,33 @@ class UserTypeValue(VBAObject):
         # Records are values, despite sharing the member-dispatch interface.
         return self
 
+    def record_layout(self, *, binary: bool) -> tuple[int, int]:
+        """Native 64-bit VBA record width and maximum field alignment."""
+        total, alignment = 0, 1
+        for slot in self.fields.values():
+            value, declared = slot.get(), slot.declared
+            count = 1
+            if isinstance(value, VBAArray):
+                if not value.fixed or not value.items:
+                    raise VBAUnsupportedError('Record lengths with dynamic or empty array fields are not measured')
+                declared = value.element_type
+                count, value = value.size, value.items[0]
+            if isinstance(value, UserTypeValue):
+                width, field_alignment = value.record_layout(binary=binary)
+            elif declared.startswith('String*'):
+                width = int(declared.partition('*')[2]) * (2 if binary else 1)
+                field_alignment = 2 if binary else 1
+            else:
+                width = STORAGE_WIDTH.get(declared, {'String': 8, 'Variant': 24}.get(declared, 8))
+                field_alignment = min(width, 8)
+            alignment = max(alignment, field_alignment)
+            if binary:
+                total = (total + field_alignment - 1) // field_alignment * field_alignment
+            total += width * count
+        if binary:
+            total = (total + alignment - 1) // alignment * alignment
+        return total, alignment
+
     def vba_copy_value(self) -> UserTypeValue:
         result = UserTypeValue.__new__(UserTypeValue)
         result.defined = self.defined
@@ -2040,6 +2067,7 @@ class Interpreter:
         return None
 
     def make_array(self, bounds: list[tuple[int, int]], declared: str, module: ModuleRuntime, *, fixed: bool = False) -> VBAArray:
+        declared = self.storage_declaration(declared, module)
         record = self.record_type(declared, module)
         factory: Callable[[], object] | None = None
         if record is not None:
@@ -2049,7 +2077,7 @@ class Interpreter:
 
     def make_slot(self, declaration: A.VarDecl, module: ModuleRuntime) -> Slot:
         """A fresh variable, array bounds and all."""
-        declared = declaration.declared
+        declared = self.storage_declaration(declaration.declared, module)
         if declaration.is_array:
             if declaration.bounds:
                 bounds = self._bounds(declaration, None, module=module)
@@ -2062,6 +2090,16 @@ class Interpreter:
             definition, owner = record
             return Slot(UserTypeValue(definition, self, owner), declared)
         return Slot(default_for(declared), declared)
+
+    def storage_declaration(self, declared: str, module: ModuleRuntime) -> str:
+        if declared.startswith('String*'):
+            from pyopenvba.interpreter._parse import parse_expression
+
+            width = int(to_integer(self.evaluate_constant(parse_expression(declared.partition('*')[2]), module), 'Long'))
+            if not 1 <= width <= 65535:
+                raise VBACompileError('Invalid fixed-length string size', where=module.name)
+            return f'String*{width}'
+        return declared
 
     def _bounds(
         self, declaration: A.VarDecl, frame: Frame | None, *, module: ModuleRuntime | None = None

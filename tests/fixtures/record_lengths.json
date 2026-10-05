@@ -1,0 +1,87 @@
+{
+  "excel_version_build": "16.0|20430",
+  "measured_at": "2026-10-05T01:34:36.961097+00:00",
+  "probes": [
+    {
+      "name": "byte",
+      "macro": "Public Type InnerData\nA As Byte\nB As Long\nEnd Type\nPublic Type RecordData\nA As Byte\nEnd Type\nFunction Probe() As String\nDim item As RecordData\nProbe = CStr(Len(item)) & \"|\" & CStr(LenB(item))\nEnd Function",
+      "result": "1|1"
+    },
+    {
+      "name": "byte_long",
+      "macro": "Public Type InnerData\nA As Byte\nB As Long\nEnd Type\nPublic Type RecordData\nA As Byte\nB As Long\nEnd Type\nFunction Probe() As String\nDim item As RecordData\nProbe = CStr(Len(item)) & \"|\" & CStr(LenB(item))\nEnd Function",
+      "result": "5|8"
+    },
+    {
+      "name": "long_byte",
+      "macro": "Public Type InnerData\nA As Byte\nB As Long\nEnd Type\nPublic Type RecordData\nA As Long\nB As Byte\nEnd Type\nFunction Probe() As String\nDim item As RecordData\nProbe = CStr(Len(item)) & \"|\" & CStr(LenB(item))\nEnd Function",
+      "result": "5|8"
+    },
+    {
+      "name": "byte_integer",
+      "macro": "Public Type InnerData\nA As Byte\nB As Long\nEnd Type\nPublic Type RecordData\nA As Byte\nB As Integer\nEnd Type\nFunction Probe() As String\nDim item As RecordData\nProbe = CStr(Len(item)) & \"|\" & CStr(LenB(item))\nEnd Function",
+      "result": "3|4"
+    },
+    {
+      "name": "integers",
+      "macro": "Public Type InnerData\nA As Byte\nB As Long\nEnd Type\nPublic Type RecordData\nA As Integer\nB As Integer\nEnd Type\nFunction Probe() As String\nDim item As RecordData\nProbe = CStr(Len(item)) & \"|\" & CStr(LenB(item))\nEnd Function",
+      "result": "4|4"
+    },
+    {
+      "name": "byte_double",
+      "macro": "Public Type InnerData\nA As Byte\nB As Long\nEnd Type\nPublic Type RecordData\nA As Byte\nB As Double\nEnd Type\nFunction Probe() As String\nDim item As RecordData\nProbe = CStr(Len(item)) & \"|\" & CStr(LenB(item))\nEnd Function",
+      "result": "9|16"
+    },
+    {
+      "name": "boolean_single",
+      "macro": "Public Type InnerData\nA As Byte\nB As Long\nEnd Type\nPublic Type RecordData\nA As Boolean\nB As Single\nEnd Type\nFunction Probe() As String\nDim item As RecordData\nProbe = CStr(Len(item)) & \"|\" & CStr(LenB(item))\nEnd Function",
+      "result": "6|8"
+    },
+    {
+      "name": "currency_date",
+      "macro": "Public Type InnerData\nA As Byte\nB As Long\nEnd Type\nPublic Type RecordData\nA As Currency\nB As Date\nEnd Type\nFunction Probe() As String\nDim item As RecordData\nProbe = CStr(Len(item)) & \"|\" & CStr(LenB(item))\nEnd Function",
+      "result": "16|16"
+    },
+    {
+      "name": "longptr",
+      "macro": "Public Type InnerData\nA As Byte\nB As Long\nEnd Type\nPublic Type RecordData\nA As LongPtr\nEnd Type\nFunction Probe() As String\nDim item As RecordData\nProbe = CStr(Len(item)) & \"|\" & CStr(LenB(item))\nEnd Function",
+      "result": "8|8"
+    },
+    {
+      "name": "object",
+      "macro": "Public Type InnerData\nA As Byte\nB As Long\nEnd Type\nPublic Type RecordData\nA As Object\nEnd Type\nFunction Probe() As String\nDim item As RecordData\nProbe = CStr(Len(item)) & \"|\" & CStr(LenB(item))\nEnd Function",
+      "result": "8|8"
+    },
+    {
+      "name": "variant",
+      "macro": "Public Type InnerData\nA As Byte\nB As Long\nEnd Type\nPublic Type RecordData\nA As Variant\nEnd Type\nFunction Probe() As String\nDim item As RecordData\nProbe = CStr(Len(item)) & \"|\" & CStr(LenB(item))\nEnd Function",
+      "result": "24|24"
+    },
+    {
+      "name": "variable_string",
+      "macro": "Public Type InnerData\nA As Byte\nB As Long\nEnd Type\nPublic Type RecordData\nA As String\nEnd Type\nFunction Probe() As String\nDim item As RecordData\nProbe = CStr(Len(item)) & \"|\" & CStr(LenB(item))\nEnd Function",
+      "result": "8|8"
+    },
+    {
+      "name": "fixed_string",
+      "macro": "Public Type InnerData\nA As Byte\nB As Long\nEnd Type\nPublic Type RecordData\nA As String * 3\nEnd Type\nFunction Probe() As String\nDim item As RecordData\nProbe = CStr(Len(item)) & \"|\" & CStr(LenB(item))\nEnd Function",
+      "result": "3|6"
+    },
+    {
+      "name": "long_array_byte",
+      "macro": "Public Type InnerData\nA As Byte\nB As Long\nEnd Type\nPublic Type RecordData\nA(0 To 1) As Long\nB As Byte\nEnd Type\nFunction Probe() As String\nDim item As RecordData\nProbe = CStr(Len(item)) & \"|\" & CStr(LenB(item))\nEnd Function",
+      "result": "9|12"
+    },
+    {
+      "name": "nested",
+      "macro": "Public Type InnerData\nA As Byte\nB As Long\nEnd Type\nPublic Type RecordData\nA As Byte\nB As InnerData\nEnd Type\nFunction Probe() As String\nDim item As RecordData\nProbe = CStr(Len(item)) & \"|\" & CStr(LenB(item))\nEnd Function",
+      "result": "6|12"
+    },
+    {
+      "name": "fixed_string_storage",
+      "macro": "Private Type RecordData\nText As String * 3\nEnd Type\nFunction Probe() As String\nDim first As RecordData, second As RecordData\nProbe = CStr(AscW(Mid$(first.Text, 1, 1))) & \"|\"\nfirst.Text = \"abcd\"\nsecond = first\nfirst.Text = \"x\"\nProbe = Probe & first.Text & \"|\" & second.Text & \"|\" & Len(first) & \"|\" & LenB(first)\nEnd Function",
+      "result": "0|x  |abc|3|6",
+      "measured_at": "2026-10-05T01:40:55.974092+00:00"
+    }
+  ]
+}

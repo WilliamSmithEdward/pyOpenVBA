@@ -1615,6 +1615,16 @@ record element factory for future allocation. Wider record layouts, type and
 fixed-array checks, coercion, scope/reference resolution and compiler
 validation remain incomplete.
 
+Nine native probes in `tests/fixtures/compile_demand.json` establish demand
+compilation for whole-record call arguments. Before executing a procedure,
+the engine checks statically known record arguments forced to temporary
+values by parentheses, including dead branches. Unused invalid procedures
+and modules stay deferred; ordinary function-result records remain accepted
+as temporaries. Successful checks track weak module dependencies and are
+repeated after module replacement or renaming. Full name/type/visibility
+validation, references, overload/default-member resolution, compiler
+signatures and broader expression inference remain incomplete.
+
 The Python `ExcelApplication.save()` convenience API fires save events too.
 If a handler cancels, it raises `VBARuntimeError(1004)` and does not write
 the requested file; the VBA methods return normally on cancellation.

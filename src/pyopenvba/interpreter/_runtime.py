@@ -223,6 +223,7 @@ class ModuleRuntime:
         #: A document module's one instance, bound to the object it is the code of (see bind_document).
         self.document: UserClassInstance | None = None
         self._initialised = False
+        self.record_checks: dict[int, tuple[tuple[str, ReferenceType[ModuleRuntime]], ...]] = {}
         for procedure in parsed.procedures:
             self.procedures.setdefault(procedure.name.lower(), []).append(procedure)
         for defined in parsed.types:
@@ -895,6 +896,9 @@ class Interpreter:
         """Call one procedure and give back what it returns."""
         if len(self.frames) + sum(active.gosub_depth for active in self.frames) >= MAX_DEPTH:
             raise error(28)
+        from pyopenvba.interpreter._compile import validate_record_arguments
+
+        validate_record_arguments(self, module, procedure)
         module.initialise()
         frame = Frame(procedure=procedure, module=module, me=me)
         try:

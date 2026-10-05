@@ -311,7 +311,7 @@ class VBAArray:
     computed the way VBA lays it out rather than the way Python would.
     """
 
-    __slots__ = ("bounds", "items", "element_type", "fixed")
+    __slots__ = ("bounds", "items", "element_type", "fixed", "borrowed_elements")
 
     def __init__(
         self,
@@ -324,6 +324,7 @@ class VBAArray:
         for lower, upper in bounds:
             if upper < lower - 1:
                 raise error(ERR_SUBSCRIPT_OUT_OF_RANGE)
+        self.borrowed_elements = 0
         self.bounds = bounds
         self.element_type = element_type
         self.fixed = fixed
@@ -356,7 +357,7 @@ class VBAArray:
         return self.items[self.offset(subscripts)]
 
     def set(self, subscripts: list[int], value: object) -> None:
-        self.items[self.offset(subscripts)] = coerce(value, self.element_type)
+        self.items[self.offset(subscripts)] = copy_value(coerce(value, self.element_type))
 
     def resized(self, bounds: list[tuple[int, int]], *, preserve: bool) -> VBAArray:
         """A new array of ``bounds``, carrying the old contents if asked.
@@ -547,7 +548,10 @@ def to_number(value: object, *, context: str = "") -> int | float | Decimal:
     from pyopenvba.interpreter._objects import VBAObject
 
     if isinstance(value, VBAObject):
-        return to_number(value.vba_value(), context=context)
+        default = value.vba_value()
+        if default is value:
+            raise error(ERR_TYPE_MISMATCH)
+        return to_number(default, context=context)
     raise error(ERR_TYPE_MISMATCH, f"cannot read {type_name(value)} as a number{context}")
 
 
@@ -650,7 +654,10 @@ def to_text(value: object, *, context: str = "") -> str:
     from pyopenvba.interpreter._objects import VBAObject
 
     if isinstance(value, VBAObject):
-        return to_text(value.vba_value(), context=context)
+        default = value.vba_value()
+        if default is value:
+            raise error(ERR_TYPE_MISMATCH)
+        return to_text(default, context=context)
     raise error(ERR_TYPE_MISMATCH, f"cannot read {type_name(value)} as a string{context}")
 
 
@@ -760,6 +767,15 @@ def to_integer(value: object, kind: str = "Long") -> VBAInt:
     if not low <= whole <= high:
         raise error(ERR_OVERFLOW)
     return VBAInt(whole, kind)
+
+
+def copy_value(value: object) -> object:
+    """Copy VBA value containers while retaining contained object references."""
+    if isinstance(value, VBAArray):
+        return VBAArray(list(value.bounds), element_type=value.element_type, fixed=value.fixed,
+                        items=[copy_value(item) for item in value.items])
+    copier = getattr(value, "vba_copy_value", None)
+    return copier() if callable(copier) else value
 
 
 def coerce(value: object, declared: str) -> object:

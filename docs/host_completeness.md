@@ -123,7 +123,17 @@ verify ByRef aliases to fixed/dynamic/Variant arrays inside class and worksheet
 instances and to user-defined record fields, nested fields and array elements.
 Local arrays shadow instance fields, named arguments retain aliases and
 parenthesized record fields use temporary values. Full static argument-type
-checks, record value-copy semantics and broader member binding remain gaps.
+checks and broader member binding remain gaps.
+
+Twenty-four native probes in `record_copy.json` and `array_copy.json` cover
+record assignment/returns, nested records/fixed arrays, retained object
+references, Variant/typed array assignment, ByVal and parenthesized copies,
+ParamArray storage references and borrowed array-element locks. Record copies
+write existing field storage so active scalar/nested/array-element aliases
+remain valid. Array replacement, ReDim and Erase report error 10 while an
+element is borrowed, and locks release when a handler unwinds a failed call.
+Complete static type checks, arrays of records, fixed-array assignment rules,
+record layout/Len/LenB and wider coercion/locking behavior remain gaps.
 
 ## What counts as complete
 

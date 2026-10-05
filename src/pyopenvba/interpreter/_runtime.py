@@ -125,6 +125,9 @@ class Slot:
     def get(self) -> object:
         return self.value
 
+    def borrow_arrays(self) -> list[VBAArray]:
+        return []
+
     def set(self, value: object) -> None:
         if isinstance(self.value, UserTypeValue):
             if not isinstance(value, UserTypeValue):
@@ -136,6 +139,18 @@ class Slot:
         self.value = copy_value(coerce(value, self.declared))
 
 
+class RecordFieldSlot(Slot):
+    """A field whose address can belong to an enclosing record array."""
+
+    def __init__(self, value: object, declared: str) -> None:
+        super().__init__(value, declared)
+        self.array_owner: ReferenceType[VBAArray] | None = None
+
+    def borrow_arrays(self) -> list[VBAArray]:
+        owner = self.array_owner() if self.array_owner is not None else None
+        return owner.borrow_arrays() if owner is not None else []
+
+
 class ArrayElementSlot(Slot):
     """A ByRef alias to an array element, retaining its evaluated indices."""
 
@@ -143,6 +158,9 @@ class ArrayElementSlot(Slot):
         self.array = array
         self.indices = indices
         super().__init__(array.get(indices), array.element_type)
+
+    def borrow_arrays(self) -> list[VBAArray]:
+        return self.array.borrow_arrays()
 
     def get(self) -> object:
         return self.array.get(self.indices)
@@ -472,7 +490,8 @@ class UserTypeValue(VBAObject):
                 bounds=field_.bounds,
                 is_array=field_.is_array,
             )
-            self.fields[field_.name.lower()] = interpreter.make_slot(declaration, module)
+            slot = interpreter.make_slot(declaration, module)
+            self.fields[field_.name.lower()] = RecordFieldSlot(slot.get(), slot.declared)
 
     def vba_value(self) -> object:
         # Records are values, despite sharing the member-dispatch interface.
@@ -482,8 +501,23 @@ class UserTypeValue(VBAObject):
         result = UserTypeValue.__new__(UserTypeValue)
         result.defined = self.defined
         result.vba_type_name = self.vba_type_name
-        result.fields = {name: Slot(copy_value(slot.get()), slot.declared) for name, slot in self.fields.items()}
+        result.fields = {name: RecordFieldSlot(copy_value(slot.get()), slot.declared) for name, slot in self.fields.items()}
         return result
+
+    def vba_bind_array(self, array: VBAArray) -> None:
+        for slot in self.fields.values():
+            if isinstance(slot, RecordFieldSlot):
+                slot.array_owner = ref(array)
+            value = slot.get()
+            if isinstance(value, UserTypeValue):
+                value.vba_bind_array(array)
+            elif isinstance(value, VBAArray) and value.fixed:
+                value.parent_array = ref(array)
+
+    def vba_assign_value(self, value: object) -> None:
+        if not isinstance(value, UserTypeValue):
+            raise error(ERR_TYPE_MISMATCH)
+        self.copy_from(value)
 
     def copy_from(self, source: UserTypeValue) -> None:
         if self.defined is not source.defined:
@@ -496,7 +530,7 @@ class UserTypeValue(VBAObject):
             if isinstance(target, VBAArray) and isinstance(value, VBAArray):
                 # A record copy writes existing fixed storage, preserving any
                 # ByRef alias to one of its elements.
-                target.items[:] = [copy_value(item) for item in value.items]
+                target.copy_from(value)
             else:
                 target_slot.set(value)
 
@@ -937,9 +971,9 @@ class Interpreter:
                     )
                 continue
             if isinstance(given, Slot) and not parameter.by_val:
-                if isinstance(given, ArrayElementSlot):
-                    given.array.borrowed_elements += 1
-                    frame.locked_arrays.append(given.array)
+                for array in given.borrow_arrays():
+                    array.borrowed_elements += 1
+                    frame.locked_arrays.append(array)
                 frame.locals[parameter.name.lower()] = given
                 continue
             value = self._by_value(given)
@@ -1126,6 +1160,8 @@ class Interpreter:
             bounds = self._bounds(declaration, frame)
             target = self.resolve_target(A.Name(line=statement.line, name=declaration.name), frame)
             current = target.take()
+            if isinstance(current, VBAArray) and current.borrowed_elements:
+                raise error(10, "This array is fixed or temporarily locked")
             element = declaration.declared if declaration.declared != "Variant" else "Variant"
             if statement.preserve and isinstance(current, VBAArray):
                 target.put(current.resized(bounds, preserve=True), False)
@@ -1133,18 +1169,20 @@ class Interpreter:
                 if statement.preserve and not isinstance(current, VBAArray):
                     raise error(ERR_TYPE_MISMATCH, "ReDim Preserve needs an array")
                 keep = current.element_type if isinstance(current, VBAArray) else element
-                target.put(VBAArray(bounds, element_type=keep), False)
+                target.put(self.make_array(bounds, keep, frame.module), False)
 
     def _do_erase(self, statement: A.Erase, frame: Frame) -> None:
         for name in statement.names:
             target = self.resolve_target(name, frame)
             current = target.take()
             if isinstance(current, VBAArray):
+                if current.borrowed_elements:
+                    raise error(10, "This array is fixed or temporarily locked")
                 if current.fixed:
-                    fresh = VBAArray(current.bounds, element_type=current.element_type, fixed=True)
+                    fresh = self.make_array(current.bounds, current.element_type, frame.module, fixed=True)
                     target.put(fresh, False)
                 else:
-                    target.put(VBAArray([(0, -1)], element_type=current.element_type), False)
+                    target.put(self.make_array([(0, -1)], current.element_type, frame.module), False)
 
     def _do_if(self, statement: A.If, frame: Frame) -> None:
         for branch in statement.branches:
@@ -1974,14 +2012,23 @@ class Interpreter:
             raise error(ERR_MEMBER_NOT_FOUND, f"{name} has no Property Let")
         self.call(procedure, module, [*args, value], named)
 
+    def make_array(self, bounds: list[tuple[int, int]], declared: str, module: ModuleRuntime, *, fixed: bool = False) -> VBAArray:
+        key = declared.lower()
+        owner = module if key in module.types else next((runtime for runtime in self.modules.values() if key in runtime.types), None)
+        factory: Callable[[], object] | None = None
+        if owner is not None:
+            definition = owner.types[key]
+            factory = lambda: UserTypeValue(definition, self, owner)
+        return VBAArray(bounds, element_type=declared, fixed=fixed, element_factory=factory)
+
     def make_slot(self, declaration: A.VarDecl, module: ModuleRuntime) -> Slot:
         """A fresh variable, array bounds and all."""
         declared = declaration.declared
         if declaration.is_array:
             if declaration.bounds:
                 bounds = self._bounds(declaration, None, module=module)
-                return Slot(VBAArray(bounds, element_type=declared, fixed=True), "Variant")
-            return Slot(VBAArray([(0, -1)], element_type=declared), "Variant")
+                return Slot(self.make_array(bounds, declared, module, fixed=True), "Variant")
+            return Slot(self.make_array([(0, -1)], declared, module), "Variant")
         if declaration.as_new:
             return Slot(self.create(declared), declared)
         lower = declared.lower()

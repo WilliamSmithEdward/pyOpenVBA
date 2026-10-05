@@ -1603,9 +1603,17 @@ records/arrays, object references retained within copied records, ByVal and
 parenthesized array copies and ParamArray array-storage references. Record
 copies preserve existing field slots, including borrowed scalar/nested/array
 elements. Replacing, resizing or erasing an array whose element is borrowed
-reports error 10; failed calls release those borrows during unwinding. Arrays
-of records, static/fixed-array assignment checks, record layout/Len/LenB and
+reports error 10; failed calls release those borrows during unwinding. Static/fixed-array assignment checks, record layout/Len/LenB and
 wider coercion/locking conformance remain incomplete.
+
+Thirteen native record-array probes in `tests/fixtures/record_arrays.json`
+cover fixed/dynamic/multidimensional allocation, independent record elements,
+assignment, ReDim Preserve, Erase and fields borrowed during cell copying,
+resizing and error unwinding. Record fields and nested fixed-array elements
+retain their enclosing array storage ownership; array copies retain the
+record element factory for future allocation. Wider record layouts, type and
+fixed-array checks, coercion, scope/reference resolution and compiler
+validation remain incomplete.
 
 The Python `ExcelApplication.save()` convenience API fires save events too.
 If a handler cancels, it raises `VBARuntimeError(1004)` and does not write

@@ -132,8 +132,17 @@ ParamArray storage references and borrowed array-element locks. Record copies
 write existing field storage so active scalar/nested/array-element aliases
 remain valid. Array replacement, ReDim and Erase report error 10 while an
 element is borrowed, and locks release when a handler unwinds a failed call.
-Complete static type checks, arrays of records, fixed-array assignment rules,
+Complete static type checks and fixed-array assignment rules,
 record layout/Len/LenB and wider coercion/locking behavior remain gaps.
+
+Thirteen native record-array probes in `tests/fixtures/record_arrays.json`
+cover fixed/dynamic/multidimensional allocation, independent record elements,
+assignment, ReDim Preserve, Erase and fields borrowed during cell copying,
+resizing and error unwinding. Record fields and nested fixed-array elements
+retain their enclosing array storage ownership; array copies retain the
+record element factory for future allocation. Wider record layouts, type and
+fixed-array checks, coercion, scope/reference resolution and compiler
+validation remain incomplete.
 
 ## What counts as complete
 

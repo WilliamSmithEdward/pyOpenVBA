@@ -7,13 +7,21 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Arrays of records allocate independent fixed/dynamic/multidimensional
+  elements and preserve their type factory through copies, ReDim and Erase.
+  Thirteen native probes verify copying, preservation and borrowed field
+  storage. Borrowed scalar fields and nested fixed-array elements lock the
+  containing record array; cell copies retain their field addresses and
+  failed calls release locks. Wider layout, type and compiler checks remain
+  incomplete.
+
 - Record and array value copying, guided by 24 native Excel probes. Record
   assignment and function returns copy nested fields/arrays while retaining
   contained object references and active field aliases. Array assignments,
   ByVal and parenthesized arguments copy values; ParamArray array elements
   retain their native storage references. Borrowed array elements prevent
   replacement, ReDim and Erase with error 10, and failed calls release the
-  borrows. Full static/fixed-array checks, arrays of records and record layout
+  borrows. Full static/fixed-array checks and record layout
   operations remain incomplete.
 
 - ByRef aliases to class/document instance array elements and user-defined

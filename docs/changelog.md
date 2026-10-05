@@ -7,6 +7,13 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Record-valued functions and Property Get procedures start with initialized
+  record storage, allowing direct writes to scalar, nested and fixed-array
+  return fields. Twelve native probes also verify private type visibility,
+  qualified disambiguation and local type precedence. Known inaccessible
+  or ambiguous record declarations fail before the called procedure body;
+  general static type/reference checking remains incomplete.
+
 - Module-qualified record declarations (`As Helpers.RecordData`) allocate
   scalar, fixed-array and dynamic-array values with the defining module's
   field types. Eight native Excel probes cover nested records, ByRef calls

@@ -40,6 +40,10 @@ def validate_record_arguments(interpreter: Interpreter, module: ModuleRuntime, p
     for node in body:
         if isinstance(node, (A.Dim, A.ReDim)):
             local.update({decl.name.lower(): (decl.declared, decl.is_array) for decl in node.decls})
+    # Declaration errors are compile errors even when their statement is
+    # unreachable. Leave unused procedures deferred, as native VBA does.
+    for declared, _ in local.values():
+        interpreter.record_type(declared, module)
 
     def runtime_for(name: str) -> ModuleRuntime | None:
         return next((runtime for runtime in interpreter.modules.values() if runtime.name.lower() == name.lower()), None)

@@ -911,8 +911,8 @@ class Interpreter:
         if reset_error:
             self.err.reset()
         if procedure.kind in ("function", "get"):
-            frame.locals[procedure.name.lower()] = Slot(
-                default_for(procedure.returns), procedure.returns
+            frame.locals[procedure.name.lower()] = self.make_slot(
+                A.VarDecl(name=procedure.name, declared=procedure.returns), module
             )
         self.frames.append(frame)
         try:
@@ -2023,12 +2023,21 @@ class Interpreter:
             prefix, _, key = key.rpartition('.')
             owner = next((runtime for runtime in self.modules.values() if runtime.name.lower() == prefix), None)
             if owner is not None and key in owner.types:
+                if owner is not module and owner.types[key].scope != 'public':
+                    raise VBACompileError('User-defined type not defined', where=declared)
                 return owner.types[key], owner
             return None
         if key in module.types:
             return module.types[key], module
-        return next(((runtime.types[key], runtime) for runtime in self.modules.values()
-                     if key in runtime.types and runtime.types[key].scope == 'public'), None)
+        matches = [(runtime.types[key], runtime) for runtime in self.modules.values()
+                   if key in runtime.types and runtime.types[key].scope == 'public']
+        if len(matches) > 1:
+            raise VBACompileError(f'Ambiguous name detected: {declared}', where=module.name)
+        if matches:
+            return matches[0]
+        if any(key in runtime.types for runtime in self.modules.values()):
+            raise VBACompileError('User-defined type not defined', where=declared)
+        return None
 
     def make_array(self, bounds: list[tuple[int, int]], declared: str, module: ModuleRuntime, *, fixed: bool = False) -> VBAArray:
         record = self.record_type(declared, module)

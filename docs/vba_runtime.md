@@ -1597,8 +1597,15 @@ Twelve more native probes verify ByRef aliases to private instance arrays
 (fixed, dynamic and Variant), document arrays and user-defined record fields,
 including nested fields and fixed array elements. Local arrays retain priority
 over instance fields; parenthesized record fields pass a temporary value.
-Full static argument-type checks, record value copying and broader member
-binding still need work.
+Full static argument-type checks and broader member binding still need work.
+Twenty-four native probes cover record/array assignment and returns, nested
+records/arrays, object references retained within copied records, ByVal and
+parenthesized array copies and ParamArray array-storage references. Record
+copies preserve existing field slots, including borrowed scalar/nested/array
+elements. Replacing, resizing or erasing an array whose element is borrowed
+reports error 10; failed calls release those borrows during unwinding. Arrays
+of records, static/fixed-array assignment checks, record layout/Len/LenB and
+wider coercion/locking conformance remain incomplete.
 
 The Python `ExcelApplication.save()` convenience API fires save events too.
 If a handler cancels, it raises `VBARuntimeError(1004)` and does not write

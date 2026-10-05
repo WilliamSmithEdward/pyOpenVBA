@@ -490,14 +490,13 @@ class UserTypeValue(VBAObject):
             raise error(ERR_TYPE_MISMATCH)
         if self is source:
             return
-        snapshot = source.vba_copy_value()
-        for name, source_slot in snapshot.fields.items():
+        for name, source_slot in source.fields.items():
             target_slot = self.fields[name]
             target, value = target_slot.get(), source_slot.get()
             if isinstance(target, VBAArray) and isinstance(value, VBAArray):
                 # A record copy writes existing fixed storage, preserving any
                 # ByRef alias to one of its elements.
-                target.items[:] = value.items
+                target.items[:] = [copy_value(item) for item in value.items]
             else:
                 target_slot.set(value)
 

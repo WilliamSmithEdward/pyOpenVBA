@@ -7,12 +7,21 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Record and array value copying, guided by 24 native Excel probes. Record
+  assignment and function returns copy nested fields/arrays while retaining
+  contained object references and active field aliases. Array assignments,
+  ByVal and parenthesized arguments copy values; ParamArray array elements
+  retain their native storage references. Borrowed array elements prevent
+  replacement, ReDim and Erase with error 10, and failed calls release the
+  borrows. Full static/fixed-array checks, arrays of records and record layout
+  operations remain incomplete.
+
 - ByRef aliases to class/document instance array elements and user-defined
   record fields, including nested fields and fixed array elements. Twelve
   native Excel probes cover fixed/dynamic/Variant arrays, named arguments,
   local shadowing and parenthesized temporary values. Instance arrays now
   bind their owning instance rather than duplicate module storage. Static
-  argument-type checks and record value-copy semantics remain incomplete.
+  argument-type checks and wider record/value-copy conformance remain incomplete.
 
 - VBIDE structural source edits refresh worksheet event handlers before
   dispatch. Twelve native probes cover handler additions, replacement, removal

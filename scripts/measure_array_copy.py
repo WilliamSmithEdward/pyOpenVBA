@@ -23,6 +23,27 @@ Stored = Replacement
 Failure = Err.Number
 On Error GoTo 0
 number = number + 10
+End Sub
+Public Sub BorrowAndFail(ByRef number As Long)
+number = number + 10
+Err.Raise 5
+End Sub
+Public Sub BorrowResize(ByRef number As Long)
+On Error Resume Next
+ReDim Stored(0 To 2)
+Failure = Err.Number
+On Error GoTo 0
+number = number + 10
+End Sub
+Public Sub BorrowErase(ByRef number As Long)
+On Error Resume Next
+Erase Stored
+Failure = Err.Number
+On Error GoTo 0
+number = number + 10
+End Sub
+Public Sub ChangePacked(ParamArray items() As Variant)
+ChangeReference items(0)
 End Sub'''
 CASES = {
     'variant_assignment': 'first = Array(0, 5)\nsecond = first\nsecond(1) = 15\nProbe = CStr(first(1)) & ":" & CStr(second(1))',
@@ -33,6 +54,11 @@ CASES = {
     'parenthesized_variant': 'first = Array(0, 5)\nChangeReference (first)\nProbe = CStr(first(1))',
     'function_result': 'ReDim Stored(0 To 1)\nStored(1) = 5\nfirst = MakeValues()\nfirst(1) = 15\nProbe = CStr(Stored(1)) & ":" & CStr(first(1))',
     'object_reference': 'Dim held As New Collection\nfirst = Array(held)\nsecond = first\nsecond(0).Add 1\nProbe = CStr(first(0).Count)',
+    'paramarray_reference': 'first = Array(0, 5)\nChangePacked first\nProbe = CStr(first(1))',
+    'nested_array_copy': 'Dim inner As Variant\ninner = Array(0, 5)\nfirst = Array(inner)\nsecond = first\ninner = second(0)\ninner(1) = 15\nsecond(0) = inner\ninner = first(0)\nProbe = CStr(inner(1))',
+    'released_after_error': 'ReDim Stored(0 To 1)\nReDim Replacement(0 To 1)\nStored(1) = 5\nReplacement(1) = 1\nOn Error Resume Next\nBorrowAndFail Stored(1)\nOn Error GoTo 0\nStored = Replacement\nProbe = CStr(Stored(1))',
+    'element_locked_resize': 'ReDim Stored(0 To 1)\nStored(1) = 5\nBorrowResize Stored(1)\nProbe = CStr(Failure) & ":" & CStr(Stored(1))',
+    'element_locked_erase': 'ReDim Stored(0 To 1)\nStored(1) = 5\nBorrowErase Stored(1)\nProbe = CStr(Failure) & ":" & CStr(Stored(1))',
     'element_locked_assignment': 'ReDim Stored(0 To 1)\nReDim Replacement(0 To 1)\nStored(1) = 5\nReplacement(1) = 1\nBorrow Stored(1)\nProbe = CStr(Failure) & ":" & CStr(Stored(1))',
 }
 def literal(line: str) -> str:

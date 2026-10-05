@@ -1,0 +1,36 @@
+{
+  "excel_version_build": "16.0|20430",
+  "measured_at": "2026-10-05T00:05:38.947957+00:00",
+  "probes": [
+    {
+      "name": "fixed_class",
+      "macro": "Function Probe() As Long\nDim target As Workbook, part As Object\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nSet target = Workbooks.Add\nSet part = target.VBProject.VBComponents.Add(1)\npart.Name = \"Helpers\"\npart.CodeModule.AddFromString \"Public Sub Bump(ByRef number As Long)\" & vbCrLf & \"number = number + 10\" & vbCrLf & \"End Sub\"\nSet part = target.VBProject.VBComponents.Add(1)\npart.Name = \"Caller\"\npart.CodeModule.AddFromString \"Function Probe() As Long\" & vbCrLf & \"Dim instance As New Thing\" & vbCrLf & \"Probe = instance.Check()\" & vbCrLf & \"End Function\"\nSet part = target.VBProject.VBComponents.Add(2)\npart.Name = \"Thing\"\npart.CodeModule.AddFromString \"Private values(0 To 1) As Long\" & vbCrLf & \"Public Function Check() As Long\" & vbCrLf & \"values(1) = 5\" & vbCrLf & \"Helpers.Bump values(1)\" & vbCrLf & \"Check = values(1)\" & vbCrLf & \"End Function\"\nProbe = Application.Run(\"'\" & target.Name & \"'!Caller.Probe\")\ntarget.Close False\nEnd Function",
+      "result": 15
+    },
+    {
+      "name": "dynamic_class",
+      "macro": "Function Probe() As Long\nDim target As Workbook, part As Object\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nSet target = Workbooks.Add\nSet part = target.VBProject.VBComponents.Add(1)\npart.Name = \"Helpers\"\npart.CodeModule.AddFromString \"Public Sub Bump(ByRef number As Long)\" & vbCrLf & \"number = number + 10\" & vbCrLf & \"End Sub\"\nSet part = target.VBProject.VBComponents.Add(1)\npart.Name = \"Caller\"\npart.CodeModule.AddFromString \"Function Probe() As Long\" & vbCrLf & \"Dim instance As New Thing\" & vbCrLf & \"Probe = instance.Check()\" & vbCrLf & \"End Function\"\nSet part = target.VBProject.VBComponents.Add(2)\npart.Name = \"Thing\"\npart.CodeModule.AddFromString \"Private values() As Long\" & vbCrLf & \"Public Function Check() As Long\" & vbCrLf & \"ReDim values(0 To 1)\" & vbCrLf & \"values(1) = 5\" & vbCrLf & \"Helpers.Bump values(1)\" & vbCrLf & \"Check = values(1)\" & vbCrLf & \"End Function\"\nProbe = Application.Run(\"'\" & target.Name & \"'!Caller.Probe\")\ntarget.Close False\nEnd Function",
+      "result": 15
+    },
+    {
+      "name": "variant_class",
+      "macro": "Function Probe() As Long\nDim target As Workbook, part As Object\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nSet target = Workbooks.Add\nSet part = target.VBProject.VBComponents.Add(1)\npart.Name = \"Helpers\"\npart.CodeModule.AddFromString \"Public Sub Bump(ByRef number As Variant)\" & vbCrLf & \"number = number + 10\" & vbCrLf & \"End Sub\"\nSet part = target.VBProject.VBComponents.Add(1)\npart.Name = \"Caller\"\npart.CodeModule.AddFromString \"Function Probe() As Long\" & vbCrLf & \"Dim instance As New Thing\" & vbCrLf & \"Probe = instance.Check()\" & vbCrLf & \"End Function\"\nSet part = target.VBProject.VBComponents.Add(2)\npart.Name = \"Thing\"\npart.CodeModule.AddFromString \"Private values As Variant\" & vbCrLf & \"Public Function Check() As Long\" & vbCrLf & \"values = Array(0, 5)\" & vbCrLf & \"Helpers.Bump values(1)\" & vbCrLf & \"Check = values(1)\" & vbCrLf & \"End Function\"\nProbe = Application.Run(\"'\" & target.Name & \"'!Caller.Probe\")\ntarget.Close False\nEnd Function",
+      "result": 15
+    },
+    {
+      "name": "named_class",
+      "macro": "Function Probe() As Long\nDim target As Workbook, part As Object\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nSet target = Workbooks.Add\nSet part = target.VBProject.VBComponents.Add(1)\npart.Name = \"Helpers\"\npart.CodeModule.AddFromString \"Public Sub Bump(ByRef number As Long)\" & vbCrLf & \"number = number + 10\" & vbCrLf & \"End Sub\"\nSet part = target.VBProject.VBComponents.Add(1)\npart.Name = \"Caller\"\npart.CodeModule.AddFromString \"Function Probe() As Long\" & vbCrLf & \"Dim instance As New Thing\" & vbCrLf & \"Probe = instance.Check()\" & vbCrLf & \"End Function\"\nSet part = target.VBProject.VBComponents.Add(2)\npart.Name = \"Thing\"\npart.CodeModule.AddFromString \"Private values(0 To 1) As Long\" & vbCrLf & \"Public Function Check() As Long\" & vbCrLf & \"values(1) = 5\" & vbCrLf & \"Helpers.Bump number:=values(1)\" & vbCrLf & \"Check = values(1)\" & vbCrLf & \"End Function\"\nProbe = Application.Run(\"'\" & target.Name & \"'!Caller.Probe\")\ntarget.Close False\nEnd Function",
+      "result": 15
+    },
+    {
+      "name": "local_shadow",
+      "macro": "Function Probe() As Long\nDim target As Workbook, part As Object\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nSet target = Workbooks.Add\nSet part = target.VBProject.VBComponents.Add(1)\npart.Name = \"Helpers\"\npart.CodeModule.AddFromString \"Public Sub Bump(ByRef number As Long)\" & vbCrLf & \"number = number + 10\" & vbCrLf & \"End Sub\"\nSet part = target.VBProject.VBComponents.Add(1)\npart.Name = \"Caller\"\npart.CodeModule.AddFromString \"Function Probe() As Long\" & vbCrLf & \"Dim instance As New Thing\" & vbCrLf & \"Probe = instance.Check()\" & vbCrLf & \"End Function\"\nSet part = target.VBProject.VBComponents.Add(2)\npart.Name = \"Thing\"\npart.CodeModule.AddFromString \"Private values(0 To 1) As Long\" & vbCrLf & \"Public Function Check() As Long\" & vbCrLf & \"Dim values(0 To 1) As Long\" & vbCrLf & \"values(1) = 5\" & vbCrLf & \"Helpers.Bump values(1)\" & vbCrLf & \"Check = values(1)\" & vbCrLf & \"End Function\"\nProbe = Application.Run(\"'\" & target.Name & \"'!Caller.Probe\")\ntarget.Close False\nEnd Function",
+      "result": 15
+    },
+    {
+      "name": "fixed_document",
+      "macro": "Function Probe() As Long\nDim target As Workbook, part As Object\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nSet target = Workbooks.Add\nSet part = target.VBProject.VBComponents.Add(1)\npart.Name = \"Helpers\"\npart.CodeModule.AddFromString \"Public Sub Bump(ByRef number As Long)\" & vbCrLf & \"number = number + 10\" & vbCrLf & \"End Sub\"\ntarget.VBProject.VBComponents(\"Sheet1\").CodeModule.AddFromString \"Private values(0 To 1) As Long\" & vbCrLf & \"Public Function Check() As Long\" & vbCrLf & \"values(1) = 5\" & vbCrLf & \"Helpers.Bump values(1)\" & vbCrLf & \"Check = values(1)\" & vbCrLf & \"End Function\" & vbCrLf & \"Public Sub ExportValue()\" & vbCrLf & \"Range(\"\"A1\"\").Value = Check()\" & vbCrLf & \"End Sub\"\nApplication.Run \"'\" & target.Name & \"'!Sheet1.ExportValue\"\nProbe = target.Worksheets(1).Range(\"A1\").Value\ntarget.Close False\nEnd Function",
+      "result": 15
+    }
+  ]
+}

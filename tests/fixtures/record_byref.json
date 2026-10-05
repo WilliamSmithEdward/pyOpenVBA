@@ -1,0 +1,36 @@
+{
+  "excel_version_build": "16.0|20430",
+  "measured_at": "2026-10-05T00:07:33.807135+00:00",
+  "probes": [
+    {
+      "name": "local_field",
+      "macro": "Function Probe() As Long\nDim target As Workbook, part As Object\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nSet target = Workbooks.Add\nSet part = target.VBProject.VBComponents.Add(1)\npart.Name = \"Helpers\"\npart.CodeModule.AddFromString \"Public Type InnerData\" & vbCrLf & \"Value As Long\" & vbCrLf & \"End Type\" & vbCrLf & \"Public Type RecordData\" & vbCrLf & \"Value As Long\" & vbCrLf & \"Nested As InnerData\" & vbCrLf & \"Values(0 To 1) As Long\" & vbCrLf & \"End Type\" & vbCrLf & \"Public Stored As RecordData\" & vbCrLf & \"Public Sub Bump(ByRef number As Long)\" & vbCrLf & \"number = number + 10\" & vbCrLf & \"End Sub\"\nSet part = target.VBProject.VBComponents.Add(1)\npart.Name = \"Caller\"\npart.CodeModule.AddFromString \"Function Probe() As Long\" & vbCrLf & \"Dim item As RecordData\" & vbCrLf & \"item.Value = 5\" & vbCrLf & \"Helpers.Bump item.Value\" & vbCrLf & \"Probe = item.Value\" & vbCrLf & \"End Function\"\nProbe = Application.Run(\"'\" & target.Name & \"'!Caller.Probe\")\ntarget.Close False\nEnd Function",
+      "result": 15
+    },
+    {
+      "name": "nested_field",
+      "macro": "Function Probe() As Long\nDim target As Workbook, part As Object\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nSet target = Workbooks.Add\nSet part = target.VBProject.VBComponents.Add(1)\npart.Name = \"Helpers\"\npart.CodeModule.AddFromString \"Public Type InnerData\" & vbCrLf & \"Value As Long\" & vbCrLf & \"End Type\" & vbCrLf & \"Public Type RecordData\" & vbCrLf & \"Value As Long\" & vbCrLf & \"Nested As InnerData\" & vbCrLf & \"Values(0 To 1) As Long\" & vbCrLf & \"End Type\" & vbCrLf & \"Public Stored As RecordData\" & vbCrLf & \"Public Sub Bump(ByRef number As Long)\" & vbCrLf & \"number = number + 10\" & vbCrLf & \"End Sub\"\nSet part = target.VBProject.VBComponents.Add(1)\npart.Name = \"Caller\"\npart.CodeModule.AddFromString \"Function Probe() As Long\" & vbCrLf & \"Dim item As RecordData\" & vbCrLf & \"item.Nested.Value = 5\" & vbCrLf & \"Helpers.Bump item.Nested.Value\" & vbCrLf & \"Probe = item.Nested.Value\" & vbCrLf & \"End Function\"\nProbe = Application.Run(\"'\" & target.Name & \"'!Caller.Probe\")\ntarget.Close False\nEnd Function",
+      "result": 15
+    },
+    {
+      "name": "array_field",
+      "macro": "Function Probe() As Long\nDim target As Workbook, part As Object\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nSet target = Workbooks.Add\nSet part = target.VBProject.VBComponents.Add(1)\npart.Name = \"Helpers\"\npart.CodeModule.AddFromString \"Public Type InnerData\" & vbCrLf & \"Value As Long\" & vbCrLf & \"End Type\" & vbCrLf & \"Public Type RecordData\" & vbCrLf & \"Value As Long\" & vbCrLf & \"Nested As InnerData\" & vbCrLf & \"Values(0 To 1) As Long\" & vbCrLf & \"End Type\" & vbCrLf & \"Public Stored As RecordData\" & vbCrLf & \"Public Sub Bump(ByRef number As Long)\" & vbCrLf & \"number = number + 10\" & vbCrLf & \"End Sub\"\nSet part = target.VBProject.VBComponents.Add(1)\npart.Name = \"Caller\"\npart.CodeModule.AddFromString \"Function Probe() As Long\" & vbCrLf & \"Dim item As RecordData\" & vbCrLf & \"item.Values(1) = 5\" & vbCrLf & \"Helpers.Bump item.Values(1)\" & vbCrLf & \"Probe = item.Values(1)\" & vbCrLf & \"End Function\"\nProbe = Application.Run(\"'\" & target.Name & \"'!Caller.Probe\")\ntarget.Close False\nEnd Function",
+      "result": 15
+    },
+    {
+      "name": "named_field",
+      "macro": "Function Probe() As Long\nDim target As Workbook, part As Object\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nSet target = Workbooks.Add\nSet part = target.VBProject.VBComponents.Add(1)\npart.Name = \"Helpers\"\npart.CodeModule.AddFromString \"Public Type InnerData\" & vbCrLf & \"Value As Long\" & vbCrLf & \"End Type\" & vbCrLf & \"Public Type RecordData\" & vbCrLf & \"Value As Long\" & vbCrLf & \"Nested As InnerData\" & vbCrLf & \"Values(0 To 1) As Long\" & vbCrLf & \"End Type\" & vbCrLf & \"Public Stored As RecordData\" & vbCrLf & \"Public Sub Bump(ByRef number As Long)\" & vbCrLf & \"number = number + 10\" & vbCrLf & \"End Sub\"\nSet part = target.VBProject.VBComponents.Add(1)\npart.Name = \"Caller\"\npart.CodeModule.AddFromString \"Function Probe() As Long\" & vbCrLf & \"Dim item As RecordData\" & vbCrLf & \"item.Value = 5\" & vbCrLf & \"Helpers.Bump number:=item.Value\" & vbCrLf & \"Probe = item.Value\" & vbCrLf & \"End Function\"\nProbe = Application.Run(\"'\" & target.Name & \"'!Caller.Probe\")\ntarget.Close False\nEnd Function",
+      "result": 15
+    },
+    {
+      "name": "parenthesized_field",
+      "macro": "Function Probe() As Long\nDim target As Workbook, part As Object\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nSet target = Workbooks.Add\nSet part = target.VBProject.VBComponents.Add(1)\npart.Name = \"Helpers\"\npart.CodeModule.AddFromString \"Public Type InnerData\" & vbCrLf & \"Value As Long\" & vbCrLf & \"End Type\" & vbCrLf & \"Public Type RecordData\" & vbCrLf & \"Value As Long\" & vbCrLf & \"Nested As InnerData\" & vbCrLf & \"Values(0 To 1) As Long\" & vbCrLf & \"End Type\" & vbCrLf & \"Public Stored As RecordData\" & vbCrLf & \"Public Sub Bump(ByRef number As Long)\" & vbCrLf & \"number = number + 10\" & vbCrLf & \"End Sub\"\nSet part = target.VBProject.VBComponents.Add(1)\npart.Name = \"Caller\"\npart.CodeModule.AddFromString \"Function Probe() As Long\" & vbCrLf & \"Dim item As RecordData\" & vbCrLf & \"item.Value = 5\" & vbCrLf & \"Helpers.Bump (item.Value)\" & vbCrLf & \"Probe = item.Value\" & vbCrLf & \"End Function\"\nProbe = Application.Run(\"'\" & target.Name & \"'!Caller.Probe\")\ntarget.Close False\nEnd Function",
+      "result": 5
+    },
+    {
+      "name": "qualified_field",
+      "macro": "Function Probe() As Long\nDim target As Workbook, part As Object\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nSet target = Workbooks.Add\nSet part = target.VBProject.VBComponents.Add(1)\npart.Name = \"Helpers\"\npart.CodeModule.AddFromString \"Public Type InnerData\" & vbCrLf & \"Value As Long\" & vbCrLf & \"End Type\" & vbCrLf & \"Public Type RecordData\" & vbCrLf & \"Value As Long\" & vbCrLf & \"Nested As InnerData\" & vbCrLf & \"Values(0 To 1) As Long\" & vbCrLf & \"End Type\" & vbCrLf & \"Public Stored As RecordData\" & vbCrLf & \"Public Sub Bump(ByRef number As Long)\" & vbCrLf & \"number = number + 10\" & vbCrLf & \"End Sub\"\nSet part = target.VBProject.VBComponents.Add(1)\npart.Name = \"Caller\"\npart.CodeModule.AddFromString \"Function Probe() As Long\" & vbCrLf & \"Helpers.Stored.Value = 5\" & vbCrLf & \"Helpers.Bump Helpers.Stored.Value\" & vbCrLf & \"Probe = Helpers.Stored.Value\" & vbCrLf & \"End Function\"\nProbe = Application.Run(\"'\" & target.Name & \"'!Caller.Probe\")\ntarget.Close False\nEnd Function",
+      "result": 15
+    }
+  ]
+}

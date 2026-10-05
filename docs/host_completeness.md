@@ -116,8 +116,14 @@ of standard-module qualification and ByRef argument binding. Public module
 variables and array elements alias storage; class public fields pass a
 temporary property value. Parenthesized arguments likewise use temporary
 values. References, qualified types/enums, full name resolution and compile
-checks, UDT/member references and broader default-member binding remain
-incomplete.
+checks and broader default-member binding remain incomplete.
+
+Twelve native probes in `instance_array_byref.json` and `record_byref.json`
+verify ByRef aliases to fixed/dynamic/Variant arrays inside class and worksheet
+instances and to user-defined record fields, nested fields and array elements.
+Local arrays shadow instance fields, named arguments retain aliases and
+parenthesized record fields use temporary values. Full static argument-type
+checks, record value-copy semantics and broader member binding remain gaps.
 
 ## What counts as complete
 

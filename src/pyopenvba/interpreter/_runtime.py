@@ -45,6 +45,7 @@ from pyopenvba.interpreter._values import (
     VBAInt,
     add,
     coerce,
+    copy_value,
     compare,
     concat,
     default_for,
@@ -125,7 +126,14 @@ class Slot:
         return self.value
 
     def set(self, value: object) -> None:
-        self.value = coerce(value, self.declared)
+        if isinstance(self.value, UserTypeValue):
+            if not isinstance(value, UserTypeValue):
+                raise error(ERR_TYPE_MISMATCH)
+            self.value.copy_from(value)
+            return
+        if isinstance(self.value, VBAArray) and self.value.borrowed_elements:
+            raise error(10, "This array is fixed or temporarily locked")
+        self.value = copy_value(coerce(value, self.declared))
 
 
 class ArrayElementSlot(Slot):
@@ -173,6 +181,7 @@ class Frame:
     in_handler: bool = False
     gosub_depth: int = 0
     args_named: dict[str, Slot] = field(default_factory=lambda: {})
+    locked_arrays: list[VBAArray] = field(default_factory=lambda: [])
 
     def slot(self, name: str) -> Slot | None:
         return self.locals.get(name.lower())
@@ -464,6 +473,33 @@ class UserTypeValue(VBAObject):
                 is_array=field_.is_array,
             )
             self.fields[field_.name.lower()] = interpreter.make_slot(declaration, module)
+
+    def vba_value(self) -> object:
+        # Records are values, despite sharing the member-dispatch interface.
+        return self
+
+    def vba_copy_value(self) -> UserTypeValue:
+        result = UserTypeValue.__new__(UserTypeValue)
+        result.defined = self.defined
+        result.vba_type_name = self.vba_type_name
+        result.fields = {name: Slot(copy_value(slot.get()), slot.declared) for name, slot in self.fields.items()}
+        return result
+
+    def copy_from(self, source: UserTypeValue) -> None:
+        if self.defined is not source.defined:
+            raise error(ERR_TYPE_MISMATCH)
+        if self is source:
+            return
+        snapshot = source.vba_copy_value()
+        for name, source_slot in snapshot.fields.items():
+            target_slot = self.fields[name]
+            target, value = target_slot.get(), source_slot.get()
+            if isinstance(target, VBAArray) and isinstance(value, VBAArray):
+                # A record copy writes existing fixed storage, preserving any
+                # ByRef alias to one of its elements.
+                target.items[:] = value.items
+            else:
+                target_slot.set(value)
 
     def vba_get(self, name: str, args: Sequence[object] = (), named: dict[str, object] | None = None) -> object:
         slot = self.fields.get(name.lower())
@@ -828,7 +864,12 @@ class Interpreter:
             raise error(28)
         module.initialise()
         frame = Frame(procedure=procedure, module=module, me=me)
-        self._bind_arguments(frame, procedure, args, named)
+        try:
+            self._bind_arguments(frame, procedure, args, named)
+        except BaseException:
+            for array in frame.locked_arrays:
+                array.borrowed_elements -= 1
+            raise
         # A procedure starts with no error, whatever its caller's Err held; what it leaves in Err stays after it.
         if reset_error:
             self.err.reset()
@@ -848,6 +889,8 @@ class Interpreter:
             raise error(28) from None
         finally:
             self.frames.pop()
+            for array in frame.locked_arrays:
+                array.borrowed_elements -= 1
         if procedure.kind in ("function", "get"):
             return frame.locals[procedure.name.lower()].get()
         return EMPTY
@@ -895,11 +938,14 @@ class Interpreter:
                     )
                 continue
             if isinstance(given, Slot) and not parameter.by_val:
+                if isinstance(given, ArrayElementSlot):
+                    given.array.borrowed_elements += 1
+                    frame.locked_arrays.append(given.array)
                 frame.locals[parameter.name.lower()] = given
                 continue
             value = self._by_value(given)
             frame.locals[parameter.name.lower()] = Slot(
-                coerce(value, parameter.declared), parameter.declared
+                copy_value(coerce(value, parameter.declared)), parameter.declared
             )
 
     @staticmethod

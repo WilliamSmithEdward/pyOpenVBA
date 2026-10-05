@@ -1632,6 +1632,13 @@ Allocation and demand validation share record-type lookup and construct
 fields in their defining module. Broader reference and visibility checking
 remains incomplete.
 
+Twelve native probes in `record_scope.json` and `record_returns.json` cover
+private record visibility, qualified duplicate public types, local type
+precedence and initialized function/Property Get return fields. Known
+inaccessible or ambiguous record declarations are checked before executing
+the procedure body, including declarations in dead branches. Unknown type
+names, project references and full static type validation remain gaps.
+
 The Python `ExcelApplication.save()` convenience API fires save events too.
 If a handler cancels, it raises `VBARuntimeError(1004)` and does not write
 the requested file; the VBA methods return normally on cancellation.

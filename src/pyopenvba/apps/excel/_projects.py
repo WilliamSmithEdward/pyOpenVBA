@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from collections.abc import Generator
 from contextlib import contextmanager
+from weakref import WeakSet
 
 from pyopenvba.apps.excel._bridge import ExcelBridge
 from pyopenvba.apps.excel._model import Application, Workbook
@@ -21,6 +22,7 @@ class ExcelInterpreter(Interpreter):
     def __init__(self, application: Application, workbook: Workbook | None = None) -> None:
         self.bridge = ExcelBridge(application, workbook)
         super().__init__(self.bridge)
+        self.executed_modules: WeakSet[ModuleRuntime] = WeakSet()
 
     @contextmanager
     def execution_context(self) -> Generator[None, None, None]:
@@ -45,6 +47,7 @@ class ExcelInterpreter(Interpreter):
     def call(self, procedure: A.Procedure, module: ModuleRuntime, args: list[object],
              named: dict[str, object], *, me: object = None, reset_error: bool = True) -> object:
         with self.execution_context():
+            self.executed_modules.add(module)
             return super().call(procedure, module, args, named, me=me, reset_error=reset_error)
 
     def add_module(self, source: str, *, name: str = "", kind: str = "standard") -> ModuleRuntime:
@@ -85,6 +88,7 @@ class ExcelInterpreter(Interpreter):
                             entry.code_module.editor_lines = None
                         entry.source = runtime.parsed.source
                         entry.pending = False
+                        entry.compile_invalidated = False
         if book is not None and (previous is None or previous.parsed.source != runtime.parsed.source):
             book.saved = False
         return runtime
@@ -137,6 +141,7 @@ class ExcelInterpreter(Interpreter):
                                 entry.code_module.editor_lines = None
                             entry.source = runtime.parsed.source
                             entry.pending = False
+                            entry.compile_invalidated = False
         return [runtime.name for runtime in staged]
 
 

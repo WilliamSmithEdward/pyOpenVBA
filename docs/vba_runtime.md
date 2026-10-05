@@ -1579,8 +1579,12 @@ project without requiring successful compilation. Execution retries pending
 source; saving and repairing it remain available. Explicit Python `load_vba`
 imports still validate all source before installing any module. Eleven native
 lifecycle probes verify that edits and component renames reset the affected
-module on subsequent execution while preserving other modules. Pending edits
-during event dispatch and wider reset/lifetime behavior need more work.
+module on subsequent execution while preserving other modules. Structural edits refresh worksheet handlers before dispatch. Twelve more
+native probes verify handler addition/replacement/removal and compiled module
+caching. `ReplaceLine` updates text and persistence but keeps already executed
+code until a structural edit invalidates it; a module not yet executed uses
+the replacement. Unrelated invalid source during events, class-instance
+lifetime and broader reset/compilation behavior need more work.
 
 Standard modules can qualify their functions, public variables/arrays,
 constants and properties (`Helpers.Answer()`, `Helpers.Value = 3`). Eighteen

@@ -459,6 +459,10 @@ def vba_randomize(interpreter: Interpreter, value: object) -> object:
 
 @intrinsic("Len", "Expression", minimum=1)
 def vba_len(interpreter: Interpreter, value: object) -> object:
+    from pyopenvba.interpreter._runtime import UserTypeValue
+
+    if isinstance(value, UserTypeValue):
+        return VBAInt(value.record_layout(binary=False)[0], 'Long')
     if value is NULL:
         return NULL
     if isinstance(value, VBAObject):
@@ -470,6 +474,10 @@ def vba_len(interpreter: Interpreter, value: object) -> object:
 
 @intrinsic("LenB", "Expression", minimum=1)
 def vba_lenb(interpreter: Interpreter, value: object) -> object:
+    from pyopenvba.interpreter._runtime import UserTypeValue
+
+    if isinstance(value, UserTypeValue):
+        return VBAInt(value.record_layout(binary=True)[0], 'Long')
     if value is NULL:
         return NULL
     return VBAInt(len(to_text(value)) * 2, "Long")

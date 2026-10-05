@@ -1648,6 +1648,21 @@ reports error 1004 for a target module containing a ByVal record signature;
 direct execution reports the native compile error. Broader macro eligibility,
 array parameter and general static argument checks remain incomplete.
 
+Fifteen native probes in `record_array_arguments.json` and
+`record_variant_calls.json` cover typed record-array matching and standard
+module record Variant barriers. Known array/scalar mismatches and forced
+array temporaries fail before procedure execution, as do Variant assignments,
+Variant parameters and TypeName applied to these records. Broader intrinsic,
+host late-bound call and public object-module marshaling rules remain gaps.
+
+Sixteen native 64-bit Excel probes in `record_lengths.json` cover record
+Len/LenB widths, numeric alignment, pointer/object/Variant/string storage,
+fixed arrays and nested records. Fixed-length strings preserve their width,
+pad/truncate storage and resolve constant sizes in the defining module.
+Fixed strings initialize with null characters and pad short assignments
+with spaces. LongPtr uses 64-bit LongLong storage. Dynamic array field lengths, enum
+layouts, 32-bit layouts and wider fixed-string coercion remain incomplete.
+
 The Python `ExcelApplication.save()` convenience API fires save events too.
 If a handler cancels, it raises `VBARuntimeError(1004)` and does not write
 the requested file; the VBA methods return normally on cancellation.

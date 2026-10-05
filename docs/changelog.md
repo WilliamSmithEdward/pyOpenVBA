@@ -7,6 +7,20 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Typed record-array parameter checks and standard-module record Variant
+  barriers, guided by fifteen native Excel probes. Fixed/dynamic matching
+  arrays remain mutable ByRef; mismatched types, scalar/array substitutions,
+  parenthesized array arguments, Variant assignment/parameters and TypeName
+  report their native compile errors before body execution.
+
+- Record Len/LenB widths and 64-bit memory padding, guided by sixteen native
+  probes covering numeric fields, pointers, objects, variants, strings,
+  fixed arrays and nested records. Fixed-length string declarations retain
+  their size, initialize with null characters and pad/truncate assignments;
+  constant sizes resolve in the defining
+  module. LongPtr uses 64-bit LongLong storage. Dynamic array field lengths,
+  enum layouts, 32-bit layouts and broader marshaling rules remain incomplete.
+
 - Nominal record type checks reject statically known mismatched ByRef
   arguments and assignments before procedure execution. Records with
   identical layouts remain distinct types. Eight native probes cover

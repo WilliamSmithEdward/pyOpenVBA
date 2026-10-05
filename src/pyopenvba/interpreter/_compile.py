@@ -13,6 +13,8 @@ if TYPE_CHECKING:
     from pyopenvba.interpreter._runtime import Interpreter, ModuleRuntime
 
 Info = tuple[str, bool, 'ModuleRuntime']
+VARIANT_RECORD_ERROR = ('Only user-defined types defined in public object modules can be coerced to or from '
+                        'a variant or passed to late-bound functions')
 
 def nodes(value: object) -> Iterator[object]:
     if isinstance(value, (list, tuple)):
@@ -58,6 +60,10 @@ def validate_record_arguments(interpreter: Interpreter, module: ModuleRuntime, p
     def record_for(name: str, owner: ModuleRuntime) -> A.TypeDef | None:
         record = interpreter.record_type(name, owner)
         return record[0] if record is not None else None
+
+    def cannot_marshal(info: Info) -> bool:
+        record = interpreter.record_type(info[0], info[2])
+        return record is not None and (not record[1].is_class or record[0].scope != 'public')
 
     def callable_for(expression: A.Expr | None) -> tuple[A.Procedure, ModuleRuntime] | None:
         if isinstance(expression, A.Name) and (expression.name.lower() not in local or expression.name.lower() == procedure.name.lower()):
@@ -124,6 +130,10 @@ def validate_record_arguments(interpreter: Interpreter, module: ModuleRuntime, p
     for node in body:
         if isinstance(node, A.Assign) and node.kind == 'let':
             target, value = expression_info(node.target), expression_info(node.value)
+            if target is not None and value is not None:
+                if ((target[0].lower() == 'variant' and cannot_marshal(value)) or
+                        (value[0].lower() == 'variant' and cannot_marshal(target))):
+                    raise VBACompileError(VARIANT_RECORD_ERROR, where=f'{module.name}.{procedure.name} line {node.line}')
             if target is not None and value is not None and not target[1] and not value[1]:
                 target_record, value_record = record_for(target[0], target[2]), record_for(value[0], value[2])
                 if target_record is not None and value_record is not None and target_record is not value_record:
@@ -136,18 +146,33 @@ def validate_record_arguments(interpreter: Interpreter, module: ModuleRuntime, p
             continue
         call = callable_for(callee)
         if call is None:
+            if isinstance(callee, A.Name) and callee.name.lower() == 'typename':
+                for argument in arguments:
+                    info = expression_info(argument.value)
+                    if info is not None and cannot_marshal(info):
+                        raise VBACompileError(VARIANT_RECORD_ERROR, where=f'{module.name}.{procedure.name} line {getattr(node, "line", procedure.line)}')
             continue
         called, owner = call
         if record_byval_signature(interpreter, owner, called):
             raise VBACompileError('User-defined type may not be passed ByVal', where=f'{owner.name}.{called.name}')
         for index, argument in enumerate(arguments):
             parameter = next((param for param in called.params if param.name.lower() == argument.name.lower()), None) if argument.name else called.params[index] if index < len(called.params) else None
-            if parameter is None or parameter.by_val or parameter.is_array or parameter.param_array:
+            if parameter is None or parameter.param_array:
+                continue
+            info = expression_info(argument.value)
+            if info is not None and parameter.declared.lower() == 'variant' and cannot_marshal(info):
+                raise VBACompileError(VARIANT_RECORD_ERROR, where=f'{module.name}.{procedure.name} line {getattr(node, "line", procedure.line)}')
+            if parameter.by_val:
                 continue
             expected = record_for(parameter.declared, owner)
             if expected is None:
                 continue
-            info = expression_info(argument.value)
+            if info is not None:
+                actual = record_for(info[0], info[2])
+                if parameter.is_array and (not info[1] or argument.by_value):
+                    raise VBACompileError('Type mismatch: array or user-defined type expected', where=f'{module.name}.{procedure.name} line {getattr(node, "line", procedure.line)}')
+                if actual is not None and (actual is not expected or info[1] != parameter.is_array):
+                    raise VBACompileError('ByRef argument type mismatch', where=f'{module.name}.{procedure.name} line {getattr(node, "line", procedure.line)}')
             if info is not None and not info[1]:
                 actual = record_for(info[0], info[2])
                 if actual is not None and actual is not expected:

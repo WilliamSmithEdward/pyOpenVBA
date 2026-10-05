@@ -472,6 +472,7 @@ STORAGE_WIDTH: Final[dict[str, int]] = {
     "Integer": 2,
     "Long": 4,
     "LongLong": 8,
+    "LongPtr": 8,
     "Single": 4,
     "Double": 8,
     "Currency": 8,
@@ -522,6 +523,10 @@ def type_name(value: object) -> str:
 def default_for(declared: str) -> object:
     """What a variable of ``declared`` holds before anything is assigned."""
     base = declared.rstrip("()")
+    if base == 'LongPtr':
+        base = 'LongLong'
+    if base.startswith('String*'):
+        return '\x00' * int(base.partition('*')[2])
     if base in ("Variant", ""):
         return EMPTY
     if base == "String":
@@ -817,6 +822,11 @@ def coerce(value: object, declared: str) -> object:
     Integer stores 2, and assigning 40000 raises 6 rather than widening.
     """
     base = declared.rstrip("()")
+    if base == 'LongPtr':
+        base = 'LongLong'
+    if base.startswith('String*'):
+        width = int(base.partition('*')[2])
+        return to_text(value)[:width].ljust(width)
     if base in ("Variant", "", "Any"):
         return value
     if value is NULL:

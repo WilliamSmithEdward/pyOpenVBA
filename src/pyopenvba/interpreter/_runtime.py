@@ -1692,9 +1692,11 @@ class Interpreter:
                 if isinstance(expression.target, A.Name):
                     key = expression.target.name.casefold()
                     if frame is not None:
-                        slot = frame.locals.get(key) or frame.module.variables.get(key)
+                        slot = frame.locals.get(key)
                         if slot is None and isinstance(frame.me, UserClassInstance):
                             slot = frame.me.variables.get(key)
+                        if slot is None:
+                            slot = frame.module.variables.get(key)
                     if slot is None:
                         slot = next((runtime.variables[key] for runtime in self.modules.values() if not runtime.is_class and key in runtime.variables), None)
                 elif isinstance(expression.target, A.Member):
@@ -1721,6 +1723,8 @@ class Interpreter:
     def member_variable(self, owner: object, name: str, frame: Frame | None) -> Slot | None:
         if isinstance(owner, StandardModuleNamespace):
             return owner.variable(name)
+        if isinstance(owner, UserTypeValue):
+            return owner.fields.get(name.casefold())
         # A class/document's public field is exposed as a property: VBA
         # passes its returned value temporarily, rather than its storage.
         return None

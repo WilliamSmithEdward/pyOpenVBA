@@ -7,6 +7,13 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- ByRef aliases to class/document instance array elements and user-defined
+  record fields, including nested fields and fixed array elements. Twelve
+  native Excel probes cover fixed/dynamic/Variant arrays, named arguments,
+  local shadowing and parenthesized temporary values. Instance arrays now
+  bind their owning instance rather than duplicate module storage. Static
+  argument-type checks and record value-copy semantics remain incomplete.
+
 - VBIDE structural source edits refresh worksheet event handlers before
   dispatch. Twelve native probes cover handler additions, replacement, removal
   and per-module compiled source caching. `ReplaceLine` preserves already

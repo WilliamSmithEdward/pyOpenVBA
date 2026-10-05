@@ -1592,8 +1592,13 @@ native namespace/argument probes cover ordinary, named and parenthesized
 arguments, array element aliases, class calls and local name shadowing.
 Module variables/array elements passed ByRef update their storage; class
 public fields and parenthesized expressions pass temporary values. Complete
-reference/type/enum qualification, compile checks and wider member/UDT
-argument binding remain incomplete.
+reference/type/enum qualification and compile checks remain incomplete.
+Twelve more native probes verify ByRef aliases to private instance arrays
+(fixed, dynamic and Variant), document arrays and user-defined record fields,
+including nested fields and fixed array elements. Local arrays retain priority
+over instance fields; parenthesized record fields pass a temporary value.
+Full static argument-type checks, record value copying and broader member
+binding still need work.
 
 The Python `ExcelApplication.save()` convenience API fires save events too.
 If a handler cancels, it raises `VBARuntimeError(1004)` and does not write

@@ -168,6 +168,15 @@ inaccessible or ambiguous record declarations are checked before executing
 the procedure body, including declarations in dead branches. Unknown type
 names, project references and full static type validation remain gaps.
 
+Eight native probes in `tests/fixtures/record_type_checks.json` cover nominal
+record argument and assignment types, matching function-result temporaries
+and prohibited ByVal record signatures. Statically known mismatches fail
+before executing the called procedure body. Expression inference retains
+the defining module when resolving fields and return types. Application.Run
+reports error 1004 for a target module containing a ByVal record signature;
+direct execution reports the native compile error. Broader macro eligibility,
+array parameter and general static argument checks remain incomplete.
+
 ## What counts as complete
 
 Every headless feature must have a recorded implementation status and

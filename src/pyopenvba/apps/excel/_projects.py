@@ -208,6 +208,10 @@ def run_macro(application: Application, macro: str, args: list[object]) -> objec
     procedure, runtime = project.find_procedure(macro, "")
     if procedure is None or runtime is None or (runtime.is_class and runtime.document is None):
         raise error(1004, f"Cannot run macro {macro!r}")
+    from pyopenvba.interpreter._compile import record_byval_signature
+
+    if any(record_byval_signature(project, runtime, item) for item in runtime.parsed.procedures):
+        raise error(1004, f"Cannot run macro {macro!r}")
     result = project.run(macro, args, preserve_error=True)
     # Excel runs a document module's procedure and passes its arguments,
     # but Application.Run discards its return value (native probes).

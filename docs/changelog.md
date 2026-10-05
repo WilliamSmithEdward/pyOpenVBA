@@ -7,6 +7,14 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Nominal record type checks reject statically known mismatched ByRef
+  arguments and assignments before procedure execution. Records with
+  identical layouts remain distinct types. Eight native probes cover
+  variables, array elements, function results, assignment and prohibited
+  ByVal record signatures; Application.Run reports error 1004 for a target
+  module with such a signature. Expression inference retains the defining
+  module of fields and return types. Wider static checking remains incomplete.
+
 - Record-valued functions and Property Get procedures start with initialized
   record storage, allowing direct writes to scalar, nested and fixed-array
   return fields. Twelve native probes also verify private type visibility,

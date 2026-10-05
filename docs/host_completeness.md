@@ -91,8 +91,16 @@ reference-name collisions and physical/editor line boundaries. Native Excel
 executes saved imported standard and class code. Exported class headers are
 converted to their stream form for persistence. Incomplete source stays
 editable; blank/leading/trailing lines survive save/reopen. UserForm files,
-wider extensions, attribute/collision/encoding behavior and opening invalid
-source without compilation remain gaps.
+wider extensions and attribute/collision/encoding behavior remain gaps.
+
+Eleven native lifecycle probes in `vbide_compile_lifecycle.json` verify that
+editing or renaming a component resets its module variables on subsequent
+execution while preserving other modules. Adding/removing components,
+renaming the project and reading source preserve existing module state.
+Opening an invalid-source workbook retains its complete editable project;
+it can be inspected, saved and repaired before execution retries compilation.
+Explicit Python `load_vba` imports remain strict and atomic. Full compilation
+checks, pending edits during events and wider project lifetime remain gaps.
 
 Eighteen native probes in `module_namespaces.json` establish a measured slice
 of standard-module qualification and ByRef argument binding. Public module

@@ -22,6 +22,11 @@ on:
 permissions:
   contents: read
 
+# A new push to a pull request cancels the run it replaces.
+concurrency:
+  group: excel-macro-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   test:
     name: Build and test Excel fixtures

@@ -10,6 +10,12 @@ on:
 permissions:
   contents: read
 
+# A new push to a pull request cancels the run it replaces. A push to main
+# runs every time.
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   test:
     name: Test (Python ${{ matrix.python-version }}, ${{ matrix.os }})
@@ -46,11 +52,14 @@ jobs:
           python -m pip install --require-hashes -r .github/requirements/test.txt
           python -m pip install --no-deps --no-build-isolation -e .
 
+      # pyproject.toml pins pythonVersion, so Pyright gives every Linux leg
+      # the same answer; only the platform changes it. One leg per OS runs it.
       - name: Run Pyright (strict)
+        if: matrix.python-version == '3.12'
         run: pyright src tests
 
       - name: Run pytest
-        run: pytest -p no:randomly -q
+        run: pytest -p no:randomly -q -n auto
 
   # Non-ASCII text through the real engine for every supported code page
   # (the issue-#11 bug class): Thai, Japanese, Chinese (both), Korean,

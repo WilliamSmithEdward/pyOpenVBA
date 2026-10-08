@@ -39,12 +39,23 @@ def filled(path: Path, rows: int = 2000) -> AccessDatabase:
     return db
 
 
-@pytest.fixture
-def db(tmp_path: Path) -> AccessDatabase:
-    path = tmp_path / "orders.accdb"
-    database = filled(path)
-    database.save(path)
+def reopened(data: bytes, path: Path) -> AccessDatabase:
+    """A test's own copy of a database built once for the module. Each
+    builder ends by saving and reopening, so its bytes are the database."""
+    path.write_bytes(data)
     return AccessDatabase(path)
+
+
+@pytest.fixture(scope="module")
+def filled_bytes(tmp_path_factory: pytest.TempPathFactory) -> bytes:
+    path = tmp_path_factory.mktemp("filled") / "orders.accdb"
+    filled(path).save(path)
+    return path.read_bytes()
+
+
+@pytest.fixture
+def db(tmp_path: Path, filled_bytes: bytes) -> AccessDatabase:
+    return reopened(filled_bytes, tmp_path / "orders.accdb")
 
 
 def test_a_dropped_table_leaves_pages_compact_gives_back(db: AccessDatabase) -> None:
@@ -139,9 +150,16 @@ def emptied(path: Path, rows: int = 2000, keep: int = 10) -> AccessDatabase:
     return AccessDatabase(path)
 
 
+@pytest.fixture(scope="module")
+def emptied_bytes(tmp_path_factory: pytest.TempPathFactory) -> bytes:
+    path = tmp_path_factory.mktemp("emptied") / "wide.accdb"
+    emptied(path)
+    return path.read_bytes()
+
+
 @pytest.fixture
-def emptied_db(tmp_path: Path) -> AccessDatabase:
-    return emptied(tmp_path / "wide.accdb")
+def emptied_db(tmp_path: Path, emptied_bytes: bytes) -> AccessDatabase:
+    return reopened(emptied_bytes, tmp_path / "wide.accdb")
 
 
 def test_deleting_rows_does_not_shrink_a_table(emptied_db: AccessDatabase) -> None:
@@ -240,9 +258,9 @@ def test_a_refusal_leaves_the_database_alone(tmp_path: Path) -> None:
     assert db.to_bytes() == kept
 
 
-def test_compacting_with_rebuild_leaves_a_refused_table_alone(tmp_path: Path) -> None:
+def test_compacting_with_rebuild_leaves_a_refused_table_alone(tmp_path: Path, emptied_bytes: bytes) -> None:
     """One table it will not touch does not stop the rest of the file."""
-    db = emptied(tmp_path / "mixed.accdb")
+    db = reopened(emptied_bytes, tmp_path / "mixed.accdb")
     db.create_table("Parent", [ColumnSpec("Id", "Long")], [IndexSpec("PK2", ("Id",), primary=True)])
     db.create_table("Child", [ColumnSpec("Id", "Long"), ColumnSpec("ParentId", "Long")],
                     [IndexSpec("PK3", ("Id",), primary=True)])
@@ -295,9 +313,16 @@ def related(path: Path) -> AccessDatabase:
     return AccessDatabase(path)
 
 
+@pytest.fixture(scope="module")
+def related_bytes(tmp_path_factory: pytest.TempPathFactory) -> bytes:
+    path = tmp_path_factory.mktemp("related") / "related.accdb"
+    related(path)
+    return path.read_bytes()
+
+
 @pytest.fixture
-def related_db(tmp_path: Path) -> AccessDatabase:
-    return related(tmp_path / "related.accdb")
+def related_db(tmp_path: Path, related_bytes: bytes) -> AccessDatabase:
+    return reopened(related_bytes, tmp_path / "related.accdb")
 
 
 def test_the_skeleton_is_the_bare_engine_database() -> None:

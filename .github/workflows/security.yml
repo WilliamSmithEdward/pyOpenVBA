@@ -21,6 +21,12 @@ on:
 permissions:
   contents: read
 
+# A new push to a pull request cancels the run it replaces. Every other run,
+# a release's call included, has a group of its own.
+concurrency:
+  group: security-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   codeql:
     name: CodeQL (${{ matrix.language }})

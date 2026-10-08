@@ -20,6 +20,11 @@ on:
 permissions:
   contents: read
 
+# A new push to a pull request cancels the run it replaces.
+concurrency:
+  group: fuzz-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   fuzz:
     name: Fuzz (${{ matrix.target }})
@@ -28,7 +33,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [cfb, decompress, dir, project, projectwm, mashup, mformula]
+        # A pull request fuzzes every target in turn on one runner, so its
+        # required checks are not left waiting for runners behind seven fuzz
+        # jobs. Every other run gives each target its own job. The two lists
+        # name the same targets.
+        target: ${{ fromJSON(github.event_name == 'pull_request' && '["all"]' || '["cfb", "decompress", "dir", "project", "projectwm", "mashup", "mformula"]') }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -48,13 +57,22 @@ jobs:
           TARGET: ${{ matrix.target }}
           SECONDS_TO_RUN: ${{ github.event_name == 'schedule' && '300' || '60' }}
         run: |
-          # The fuzzer adds what it learns to the first corpus directory, so
-          # it works on a copy and the checked-in seeds stay as they are.
-          mkdir -p "$RUNNER_TEMP/corpus" findings
-          cp -r "tests/fuzz_corpus/$TARGET/." "$RUNNER_TEMP/corpus/"
-          python fuzz/fuzz_parsers.py "$TARGET" \
-            -max_total_time="$SECONDS_TO_RUN" -timeout=10 -rss_limit_mb=2048 \
-            -artifact_prefix=findings/ "$RUNNER_TEMP/corpus"
+          targets="$TARGET"
+          if [ "$TARGET" = all ]; then
+            targets="cfb decompress dir project projectwm mashup mformula"
+          fi
+          mkdir -p findings
+          status=0
+          for target in $targets; do
+            # The fuzzer adds what it learns to the first corpus directory, so
+            # it works on a copy and the checked-in seeds stay as they are.
+            mkdir -p "$RUNNER_TEMP/corpus/$target"
+            cp -r "tests/fuzz_corpus/$target/." "$RUNNER_TEMP/corpus/$target/"
+            python fuzz/fuzz_parsers.py "$target" \
+              -max_total_time="$SECONDS_TO_RUN" -timeout=10 -rss_limit_mb=2048 \
+              -artifact_prefix="findings/$target-" "$RUNNER_TEMP/corpus/$target" || status=1
+          done
+          exit "$status"
 
       - name: Keep the finding
         if: failure()

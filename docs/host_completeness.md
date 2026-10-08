@@ -154,6 +154,44 @@ repeated after module replacement or renaming. Full name/type/visibility
 validation, references, overload/default-member resolution, compiler
 signatures and broader expression inference remain incomplete.
 
+Eight native probes in `tests/fixtures/record_qualification.json` cover
+module-qualified record declarations, including scalar, fixed/dynamic array
+and nested record fields, and whole-record expression compile errors.
+Allocation and demand validation share record-type lookup and construct
+fields in their defining module. Broader reference and visibility checking
+remains incomplete.
+
+Twelve native probes in `record_scope.json` and `record_returns.json` cover
+private record visibility, qualified duplicate public types, local type
+precedence and initialized function/Property Get return fields. Known
+inaccessible or ambiguous record declarations are checked before executing
+the procedure body, including declarations in dead branches. Unknown type
+names, project references and full static type validation remain gaps.
+
+Eight native probes in `tests/fixtures/record_type_checks.json` cover nominal
+record argument and assignment types, matching function-result temporaries
+and prohibited ByVal record signatures. Statically known mismatches fail
+before executing the called procedure body. Expression inference retains
+the defining module when resolving fields and return types. Application.Run
+reports error 1004 for a target module containing a ByVal record signature;
+direct execution reports the native compile error. Broader macro eligibility,
+array parameter and general static argument checks remain incomplete.
+
+Fifteen native probes in `record_array_arguments.json` and
+`record_variant_calls.json` cover typed record-array matching and standard
+module record Variant barriers. Known array/scalar mismatches and forced
+array temporaries fail before procedure execution, as do Variant assignments,
+Variant parameters and TypeName applied to these records. Broader intrinsic,
+host late-bound call and public object-module marshaling rules remain gaps.
+
+Sixteen native 64-bit Excel probes in `record_lengths.json` cover record
+Len/LenB widths, numeric alignment, pointer/object/Variant/string storage,
+fixed arrays and nested records. Fixed-length strings preserve their width,
+pad/truncate storage and resolve constant sizes in the defining module.
+Fixed strings initialize with null characters and pad short assignments
+with spaces. LongPtr uses 64-bit LongLong storage. Dynamic array field lengths, enum
+layouts, 32-bit layouts and wider fixed-string coercion remain incomplete.
+
 ## What counts as complete
 
 Every headless feature must have a recorded implementation status and

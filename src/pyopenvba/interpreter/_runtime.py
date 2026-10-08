@@ -498,6 +498,33 @@ class UserTypeValue(VBAObject):
         # Records are values, despite sharing the member-dispatch interface.
         return self
 
+    def record_layout(self, *, binary: bool) -> tuple[int, int]:
+        """Native 64-bit VBA record width and maximum field alignment."""
+        total, alignment = 0, 1
+        for slot in self.fields.values():
+            value, declared = slot.get(), slot.declared
+            count = 1
+            if isinstance(value, VBAArray):
+                if not value.fixed or not value.items:
+                    raise VBAUnsupportedError('Record lengths with dynamic or empty array fields are not measured')
+                declared = value.element_type
+                count, value = value.size, value.items[0]
+            if isinstance(value, UserTypeValue):
+                width, field_alignment = value.record_layout(binary=binary)
+            elif declared.startswith('String*'):
+                width = int(declared.partition('*')[2]) * (2 if binary else 1)
+                field_alignment = 2 if binary else 1
+            else:
+                width = STORAGE_WIDTH.get(declared, {'String': 8, 'Variant': 24}.get(declared, 8))
+                field_alignment = min(width, 8)
+            alignment = max(alignment, field_alignment)
+            if binary:
+                total = (total + field_alignment - 1) // field_alignment * field_alignment
+            total += width * count
+        if binary:
+            total = (total + alignment - 1) // alignment * alignment
+        return total, alignment
+
     def vba_copy_value(self) -> UserTypeValue:
         result = UserTypeValue.__new__(UserTypeValue)
         result.defined = self.defined
@@ -911,8 +938,8 @@ class Interpreter:
         if reset_error:
             self.err.reset()
         if procedure.kind in ("function", "get"):
-            frame.locals[procedure.name.lower()] = Slot(
-                default_for(procedure.returns), procedure.returns
+            frame.locals[procedure.name.lower()] = self.make_slot(
+                A.VarDecl(name=procedure.name, declared=procedure.returns), module
             )
         self.frames.append(frame)
         try:
@@ -2016,18 +2043,41 @@ class Interpreter:
             raise error(ERR_MEMBER_NOT_FOUND, f"{name} has no Property Let")
         self.call(procedure, module, [*args, value], named)
 
-    def make_array(self, bounds: list[tuple[int, int]], declared: str, module: ModuleRuntime, *, fixed: bool = False) -> VBAArray:
+    def record_type(self, declared: str, module: ModuleRuntime) -> tuple[A.TypeDef, ModuleRuntime] | None:
+        """Resolve a record together with the module that defines its fields."""
         key = declared.lower()
-        owner = module if key in module.types else next((runtime for runtime in self.modules.values() if key in runtime.types), None)
+        if '.' in key:
+            prefix, _, key = key.rpartition('.')
+            owner = next((runtime for runtime in self.modules.values() if runtime.name.lower() == prefix), None)
+            if owner is not None and key in owner.types:
+                if owner is not module and owner.types[key].scope != 'public':
+                    raise VBACompileError('User-defined type not defined', where=declared)
+                return owner.types[key], owner
+            return None
+        if key in module.types:
+            return module.types[key], module
+        matches = [(runtime.types[key], runtime) for runtime in self.modules.values()
+                   if key in runtime.types and runtime.types[key].scope == 'public']
+        if len(matches) > 1:
+            raise VBACompileError(f'Ambiguous name detected: {declared}', where=module.name)
+        if matches:
+            return matches[0]
+        if any(key in runtime.types for runtime in self.modules.values()):
+            raise VBACompileError('User-defined type not defined', where=declared)
+        return None
+
+    def make_array(self, bounds: list[tuple[int, int]], declared: str, module: ModuleRuntime, *, fixed: bool = False) -> VBAArray:
+        declared = self.storage_declaration(declared, module)
+        record = self.record_type(declared, module)
         factory: Callable[[], object] | None = None
-        if owner is not None:
-            definition = owner.types[key]
+        if record is not None:
+            definition, owner = record
             factory = lambda: UserTypeValue(definition, self, owner)
         return VBAArray(bounds, element_type=declared, fixed=fixed, element_factory=factory)
 
     def make_slot(self, declaration: A.VarDecl, module: ModuleRuntime) -> Slot:
         """A fresh variable, array bounds and all."""
-        declared = declaration.declared
+        declared = self.storage_declaration(declaration.declared, module)
         if declaration.is_array:
             if declaration.bounds:
                 bounds = self._bounds(declaration, None, module=module)
@@ -2035,13 +2085,21 @@ class Interpreter:
             return Slot(self.make_array([(0, -1)], declared, module), "Variant")
         if declaration.as_new:
             return Slot(self.create(declared), declared)
-        lower = declared.lower()
-        if lower in module.types:
-            return Slot(UserTypeValue(module.types[lower], self, module), declared)
-        for runtime in self.modules.values():
-            if lower in runtime.types:
-                return Slot(UserTypeValue(runtime.types[lower], self, runtime), declared)
+        record = self.record_type(declared, module)
+        if record is not None:
+            definition, owner = record
+            return Slot(UserTypeValue(definition, self, owner), declared)
         return Slot(default_for(declared), declared)
+
+    def storage_declaration(self, declared: str, module: ModuleRuntime) -> str:
+        if declared.startswith('String*'):
+            from pyopenvba.interpreter._parse import parse_expression
+
+            width = int(to_integer(self.evaluate_constant(parse_expression(declared.partition('*')[2]), module), 'Long'))
+            if not 1 <= width <= 65535:
+                raise VBACompileError('Invalid fixed-length string size', where=module.name)
+            return f'String*{width}'
+        return declared
 
     def _bounds(
         self, declaration: A.VarDecl, frame: Frame | None, *, module: ModuleRuntime | None = None

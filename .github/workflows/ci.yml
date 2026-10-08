@@ -52,14 +52,34 @@ jobs:
           python -m pip install --require-hashes -r .github/requirements/test.txt
           python -m pip install --no-deps --no-build-isolation -e .
 
-      # pyproject.toml pins pythonVersion, so Pyright gives every Linux leg
-      # the same answer; only the platform changes it. One leg per OS runs it.
-      - name: Run Pyright (strict)
-        if: matrix.python-version == '3.12'
-        run: pyright src tests
-
       - name: Run pytest
         run: pytest -p no:randomly -q -n auto
+
+  # pyproject.toml pins pythonVersion, so Pyright's answer depends only on
+  # the platform it checks for. One job checks all three, beside the tests.
+  pyright:
+    name: Pyright (strict)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12.14"
+          cache: pip
+
+      - name: Install the test tools, then the package
+        run: |
+          python -m pip install --require-hashes -r .github/requirements/test.txt
+          python -m pip install --no-deps --no-build-isolation -e .
+
+      - name: Run Pyright for Linux, Windows and macOS
+        run: |
+          for platform in Linux Windows Darwin; do
+            pyright --pythonplatform "$platform" src tests
+          done
 
   # Non-ASCII text through the real engine for every supported code page
   # (the issue-#11 bug class): Thai, Japanese, Chinese (both), Korean,
@@ -100,7 +120,6 @@ jobs:
   build:
     name: Build sdist and wheel
     runs-on: ubuntu-24.04
-    needs: test
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -132,7 +151,7 @@ jobs:
   ci-passed:
     name: CI passed
     if: always()
-    needs: [test, languages, build]
+    needs: [test, pyright, languages, build]
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:

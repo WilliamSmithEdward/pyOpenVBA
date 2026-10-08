@@ -173,11 +173,7 @@ def validate_record_arguments(interpreter: Interpreter, module: ModuleRuntime, p
                     raise VBACompileError('Type mismatch: array or user-defined type expected', where=f'{module.name}.{procedure.name} line {getattr(node, "line", procedure.line)}')
                 if actual is not None and (actual is not expected or info[1] != parameter.is_array):
                     raise VBACompileError('ByRef argument type mismatch', where=f'{module.name}.{procedure.name} line {getattr(node, "line", procedure.line)}')
-            if info is not None and not info[1]:
-                actual = record_for(info[0], info[2])
-                if actual is not None and actual is not expected:
-                    raise VBACompileError('ByRef argument type mismatch', where=f'{module.name}.{procedure.name} line {getattr(node, "line", procedure.line)}')
-                if actual is not None and argument.by_value:
+                if actual is not None and not info[1] and argument.by_value:
                     raise VBACompileError("Variable required - can't assign to this expression",
                                       where=f"{module.name}.{procedure.name} line {getattr(node, 'line', procedure.line)}")
     module.record_checks[id(procedure)] = scope

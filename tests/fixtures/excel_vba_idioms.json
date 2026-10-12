@@ -1,6 +1,6 @@
 {
   "excel_version_build": "16.0|20430",
-  "measured_at": "2026-10-12T22:15:25.937151+00:00",
+  "measured_at": "2026-10-12T22:33:07.228199+00:00",
   "classes": {},
   "probes": [
     {
@@ -147,6 +147,11 @@
       "name": "value_error_cells",
       "macro": "\nFunction Probe() As String\nDim ws As Worksheet\nSet ws = Worksheets.Add\nOn Error Resume Next\nws.Range(\"A1\").Formula = \"=1/0\"\nws.Range(\"A2\").Formula = \"=NA()\"\nDim v\nv = ws.Range(\"A1:A2\").Value\nProbe = IsError(v(1, 1)) & \"|\" & CStr(v(1, 1)) & \"|\" & (v(2, 1) = CVErr(xlErrNA)) & \"|\" & ws.Range(\"A1\").Text\nEnd Function\n",
       "result": "True|Error 2007|True|#DIV/0!"
+    },
+    {
+      "name": "listrow_range_item",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet\nSet ws = Worksheets.Add\nOn Error Resume Next\nws.Range(\"A1:B2\").Value = 1\nDim lo As ListObject\nSet lo = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:B2\"), , xlYes)\nDim r As ListRow\nSet r = lo.ListRows.Add\nr.Range(1, 2).Value = \"c\"\nProbe = lo.ListRows.Count & \"|\" & r.Range(1, 2).Address & \"|\" & ws.Range(\"B3\").Value\nEnd Function\n",
+      "result": "2|$B$3|c"
     },
     {
       "name": "match_not_found",

@@ -323,6 +323,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
   something that cannot be assigned. A procedure's `Const` can size its
   `Dim`; it was "Variable not defined". `(Not a) = -1` finds an unallocated
   array; it was an error. 35 native probes in `tests/fixtures/vba_arrays.json`.
+- `lr.Range(1, 2)` on a ListRow, or any host property without parameters that
+  answers a Range, is that Range's `Item(1, 2)`; it went to `Value` and was
+  error 450. 29 table, name, copy, find and replace idioms were swept with
+  it, and all match but `ListObject.Unlist`, which stays unimplemented.
 
 ## [6.5.0] - 2026-10-04
 

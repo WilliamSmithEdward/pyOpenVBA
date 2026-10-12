@@ -346,7 +346,8 @@ class VBAArray:
     computed the way VBA lays it out rather than the way Python would.
     """
 
-    __slots__ = ("bounds", "items", "element_type", "fixed", "borrowed_elements", "element_factory", "parent_array", "__weakref__")
+    __slots__ = ("bounds", "items", "element_type", "fixed", "borrowed_elements", "element_factory", "parent_array",
+                 "auto_new", "__weakref__")
 
     def __init__(
         self,
@@ -362,6 +363,8 @@ class VBAArray:
                 raise error(ERR_SUBSCRIPT_OUT_OF_RANGE)
         self.borrowed_elements = 0
         self.element_factory = element_factory
+        #: For an array declared As New: what makes an element the first time it is read while Nothing.
+        self.auto_new: Callable[[], object] | None = None
         self.parent_array: ReferenceType[VBAArray] | None = None
         self.bounds = bounds
         self.element_type = element_type
@@ -405,7 +408,12 @@ class VBAArray:
         return index
 
     def get(self, subscripts: list[int]) -> object:
-        return self.items[self.offset(subscripts)]
+        offset = self.offset(subscripts)
+        item = self.items[offset]
+        if item is NOTHING and self.auto_new is not None:
+            # Dim c(1) As New Collection makes c(1) where it is first used (native probe).
+            item = self.items[offset] = self.auto_new()
+        return item
 
     def set(self, subscripts: list[int], value: object) -> None:
         offset = self.offset(subscripts)
@@ -441,6 +449,7 @@ class VBAArray:
         dimension may change size; anything else is error 9.
         """
         fresh = VBAArray(bounds, element_type=self.element_type, element_factory=self.element_factory)
+        fresh.auto_new = self.auto_new
         if not preserve or not self.bounds:
             # Preserving an unallocated array keeps nothing (native probe).
             return fresh
@@ -1191,19 +1200,37 @@ def coerce(value: object, declared: str) -> object:
 # --- operators --------------------------------------------------------------------
 
 
-def _wider(left: object, right: object) -> str:
-    """The type VBA computes in when the two operands differ."""
-    kinds: list[str] = []
-    for value in (left, right):
-        name = type_name(value)
-        if name in ("Boolean", "Empty", "Error"):
-            name = "Integer"
-        elif name == "Date":
-            name = "Double"
-        elif name == "String":
-            name = "Double"
-        kinds.append(name)
-    return max(kinds, key=lambda name: _WIDENING.index(name) if name in _WIDENING else len(_WIDENING))
+_WHOLE_ORDER: Final = ("Byte", "Integer", "Long", "LongLong")
+#: What divides to a Single rather than a Double, once a Single is in it.
+_SINGLE_DIVISION: Final = frozenset({"Single", "Byte", "Integer", "Boolean", "Empty"})
+
+
+def _result_kind(left: object, right: object, op: str) -> str:
+    """The type ``+``, ``-``, ``*`` or ``/`` computes in, as a matrix of every
+    pair of types measured in live Excel has it (tests/fixtures/vba_runtime_edges.json):
+    Decimal wins; ``/`` is a Double but for Singles among small whole numbers;
+    a Date stays a Date through ``+`` and ``-`` (Date - Date is a Double) and
+    is a Double to ``*``; a Currency wins over a Double, except that ``*`` with
+    a Single, Double or String is a Double; a Single beside a Long is a Double;
+    and Empty takes the other side's whole-number type."""
+    first, second = (type_name(value) for value in (left, right))
+    kinds = {first, second}
+    if "Decimal" in kinds:
+        return "Decimal"
+    if op == "/":
+        return "Single" if "Single" in kinds and kinds <= _SINGLE_DIVISION else "Double"
+    if "Date" in kinds:
+        return "Double" if op == "*" or (op == "-" and first == second) else "Date"
+    if "Currency" in kinds:
+        return "Double" if op == "*" and kinds & {"Single", "Double", "String"} else "Currency"
+    if kinds & {"String", "Double"}:
+        return "Double"
+    if "Single" in kinds:
+        return "Double" if kinds & {"Long", "LongLong"} else "Single"
+    if op == "-" and first == "Empty" and second == "Byte":
+        return "Integer"
+    whole = ["Integer" if kind in ("Boolean", "Error") else kind for kind in (first, second) if kind != "Empty"]
+    return max(whole, key=_WHOLE_ORDER.index) if whole else "Integer"
 
 
 def _decimal_context() -> AbstractContextManager[Context]:
@@ -1225,14 +1252,16 @@ def _as_kind(value: int | float | Decimal, kind: str) -> object:
         return VBACurrency(value)
     if kind == "Decimal":
         return VBADecimal(str(value))
+    if kind == "Date":
+        return VBADate(float(value))
     result = float(value)
     if result in (float("inf"), float("-inf")):
         raise error(ERR_OVERFLOW)
     return result
 
 
-def _both_numbers(left: object, right: object) -> tuple[Any, Any, str]:
-    kind = _wider(left, right)
+def _both_numbers(left: object, right: object, op: str) -> tuple[Any, Any, str]:
+    kind = _result_kind(left, right, op)
     first = to_number(left)
     second = to_number(right)
     if kind in ("Currency", "Decimal"):
@@ -1252,9 +1281,7 @@ def add(left: object, right: object) -> object:
         return right
     if right is EMPTY and isinstance(left, str):
         return left
-    if isinstance(left, VBADate) or isinstance(right, VBADate):
-        return VBADate(float(to_number(left)) + float(to_number(right)))
-    first, second, kind = _both_numbers(left, right)
+    first, second, kind = _both_numbers(left, right, "+")
     with _decimal_context():
         return _as_kind(first + second, kind)
 
@@ -1262,11 +1289,7 @@ def add(left: object, right: object) -> object:
 def subtract(left: object, right: object) -> object:
     if left is NULL or right is NULL:
         return NULL
-    if isinstance(left, VBADate) and isinstance(right, VBADate):
-        return float(left.serial) - float(right.serial)
-    if isinstance(left, VBADate):
-        return VBADate(left.serial - float(to_number(right)))
-    first, second, kind = _both_numbers(left, right)
+    first, second, kind = _both_numbers(left, right, "-")
     with _decimal_context():
         return _as_kind(first - second, kind)
 
@@ -1274,7 +1297,7 @@ def subtract(left: object, right: object) -> object:
 def multiply(left: object, right: object) -> object:
     if left is NULL or right is NULL:
         return NULL
-    first, second, kind = _both_numbers(left, right)
+    first, second, kind = _both_numbers(left, right, "*")
     with _decimal_context():
         return _as_kind(first * second, kind)
 
@@ -1283,16 +1306,16 @@ def divide(left: object, right: object) -> object:
     """``/``, which is always a floating division even between Integers."""
     if left is NULL or right is NULL:
         return NULL
-    first, second, kind = _both_numbers(left, right)
+    first, second, kind = _both_numbers(left, right, "/")
     if second == 0:
         # 0 / 0 is an overflow, as the floating-point NaN it makes, except between
         # Decimals; any other number over zero is division by zero (native probes).
         raise error(ERR_OVERFLOW if first == 0 and kind != "Decimal" else ERR_DIVISION_BY_ZERO)
-    if kind in ("Currency", "Decimal"):
+    if kind == "Decimal":
         with localcontext() as context:
             context.prec = 30
             return _as_kind(Decimal(first) / Decimal(second), kind)
-    return float(first) / float(second)
+    return _as_kind(float(first) / float(second), kind)
 
 
 def _whole_width(left: object, right: object) -> str:
@@ -1302,6 +1325,8 @@ def _whole_width(left: object, right: object) -> str:
     Integer only where both sides already were one.
     """
     kinds = {type_name(left), type_name(right)}
+    if kinds == {"Byte"}:
+        return "Byte"
     if kinds <= {"Byte", "Integer", "Boolean", "Empty"}:
         return "Integer"
     if "LongLong" in kinds:
@@ -1344,6 +1369,9 @@ def power(left: object, right: object) -> object:
     exponent = float(to_number(right))
     try:
         result = base**exponent
+    except ZeroDivisionError:
+        # 0 ^ -1 is an invalid procedure call (native probes).
+        raise error(ERR_INVALID_PROCEDURE_CALL) from None
     except (OverflowError, ValueError):
         raise error(ERR_OVERFLOW) from None
     if isinstance(result, complex):
@@ -1368,10 +1396,13 @@ def negate(value: object) -> object:
         return NULL
     number = to_number(value)
     kind = type_name(value)
-    if kind in ("Boolean", "Empty"):
+    if kind in ("Boolean", "Empty", "Byte"):
+        # -CByte(2) is an Integer, and a negated Date stays a Date (native probes).
         kind = "Integer"
-    elif kind in ("String", "Date"):
-        kind = type_name(number)
+    elif kind == "Date":
+        return VBADate(-float(number))
+    elif kind == "String":
+        kind = "Double"
     return _as_kind(-number, kind if kind in _WIDENING else "Double")
 
 
@@ -1381,7 +1412,10 @@ def logical_not(value: object) -> object:
         return NULL
     if isinstance(value, bool):
         return not value
-    return _as_kind(~int(to_integer(value, "LongLong")), _whole_width(value, value))
+    kind = _whole_width(value, value)
+    result = ~int(to_integer(value, "LongLong"))
+    # A Byte has no sign bit: Not CByte(12) is 243 (native probes).
+    return _as_kind(result & 0xFF if kind == "Byte" else result, kind)
 
 
 def _bitwise(left: object, right: object, op: str) -> object:
@@ -1401,7 +1435,7 @@ def _bitwise(left: object, right: object, op: str) -> object:
         result = ~first | second
     if booleans:
         return result != 0
-    return _as_kind(result, kind)
+    return _as_kind(result & 0xFF if kind == "Byte" else result, kind)
 
 
 def logical_and(left: object, right: object) -> object:
@@ -1560,7 +1594,8 @@ def like_match(text: str, pattern: str, *, text_compare: bool = False) -> bool:
             match = _LIKE_CLASS.match(pattern, index)
             if not match:
                 raise error(93)
-            body = match.group(2).replace("\\", "\\\\").replace("^", "\\^")
+            # Escape what a Python set reads as its own syntax: "[[]" is a set holding "[".
+            body = re.sub(r"([\\^\[&~|])", r"\\\1", match.group(2))
             regex.append(f"[{'^' if match.group(1) else ''}{body}]")
             index = match.end()
             continue

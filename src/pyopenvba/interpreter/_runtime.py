@@ -2429,7 +2429,10 @@ class Interpreter:
         if declaration.is_array:
             if declaration.bounds:
                 bounds = self._bounds(declaration, None, module=module)
-                return Slot(self.make_array(bounds, declared, module, fixed=True), "Variant")
+                array = self.make_array(bounds, declared, module, fixed=True)
+                if declaration.as_new:
+                    array.auto_new = lambda: self.create(declared)
+                return Slot(array, "Variant")
             # Unallocated until a ReDim: no dimensions, so LBound and UBound are error 9.
             return Slot(self.make_array([], declared, module), "Variant", declared)
         if declaration.as_new:

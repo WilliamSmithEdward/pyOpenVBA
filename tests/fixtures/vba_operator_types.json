@@ -1,0 +1,87 @@
+{
+  "excel_version_build": "16.0|20430",
+  "measured_at": "2026-10-12T22:22:58.499264+00:00",
+  "classes": {},
+  "probes": [
+    {
+      "name": "types_add",
+      "macro": "\nFunction Probe() As String\nDim v(11) As Variant, i As Long, j As Long, s As String, r As Variant\nv(0) = CByte(2): v(1) = CInt(2): v(2) = CLng(2): v(3) = CLngLng(2): v(4) = CSng(2): v(5) = CDbl(2)\nv(6) = CCur(2): v(7) = CDec(2): v(8) = CDate(2): v(9) = \"2\": v(10) = True: v(11) = Empty\nOn Error Resume Next\nFor i = 0 To 11\nFor j = 0 To 11\nErr.Clear\nr = Empty\nr = v(i) + v(j)\nIf Err.Number Then s = s & \"e\" & Err.Number & \",\" Else s = s & Left(TypeName(r), 3) & \",\"\nNext\ns = s & \";\"\nNext\nProbe = s\nEnd Function\n",
+      "result": "Byt,Int,Lon,Lon,Sin,Dou,Cur,Dec,Dat,Dou,Int,Byt,;Int,Int,Lon,Lon,Sin,Dou,Cur,Dec,Dat,Dou,Int,Int,;Lon,Lon,Lon,Lon,Dou,Dou,Cur,Dec,Dat,Dou,Lon,Lon,;Lon,Lon,Lon,Lon,Dou,Dou,Cur,Dec,Dat,Dou,Lon,Lon,;Sin,Sin,Dou,Dou,Sin,Dou,Cur,Dec,Dat,Dou,Sin,Sin,;Dou,Dou,Dou,Dou,Dou,Dou,Cur,Dec,Dat,Dou,Dou,Dou,;Cur,Cur,Cur,Cur,Cur,Cur,Cur,Dec,Dat,Cur,Cur,Cur,;Dec,Dec,Dec,Dec,Dec,Dec,Dec,Dec,Dec,Dec,Dec,Dec,;Dat,Dat,Dat,Dat,Dat,Dat,Dat,Dec,Dat,Dat,Dat,Dat,;Dou,Dou,Dou,Dou,Dou,Dou,Cur,Dec,Dat,Str,Dou,Str,;Int,Int,Lon,Lon,Sin,Dou,Cur,Dec,Dat,Dou,Int,Int,;Byt,Int,Lon,Lon,Sin,Dou,Cur,Dec,Dat,Str,Int,Int,;"
+    },
+    {
+      "name": "types_sub",
+      "macro": "\nFunction Probe() As String\nDim v(11) As Variant, i As Long, j As Long, s As String, r As Variant\nv(0) = CByte(2): v(1) = CInt(2): v(2) = CLng(2): v(3) = CLngLng(2): v(4) = CSng(2): v(5) = CDbl(2)\nv(6) = CCur(2): v(7) = CDec(2): v(8) = CDate(2): v(9) = \"2\": v(10) = True: v(11) = Empty\nOn Error Resume Next\nFor i = 0 To 11\nFor j = 0 To 11\nErr.Clear\nr = Empty\nr = v(i) - v(j)\nIf Err.Number Then s = s & \"e\" & Err.Number & \",\" Else s = s & Left(TypeName(r), 3) & \",\"\nNext\ns = s & \";\"\nNext\nProbe = s\nEnd Function\n",
+      "result": "Byt,Int,Lon,Lon,Sin,Dou,Cur,Dec,Dat,Dou,Int,Byt,;Int,Int,Lon,Lon,Sin,Dou,Cur,Dec,Dat,Dou,Int,Int,;Lon,Lon,Lon,Lon,Dou,Dou,Cur,Dec,Dat,Dou,Lon,Lon,;Lon,Lon,Lon,Lon,Dou,Dou,Cur,Dec,Dat,Dou,Lon,Lon,;Sin,Sin,Dou,Dou,Sin,Dou,Cur,Dec,Dat,Dou,Sin,Sin,;Dou,Dou,Dou,Dou,Dou,Dou,Cur,Dec,Dat,Dou,Dou,Dou,;Cur,Cur,Cur,Cur,Cur,Cur,Cur,Dec,Dat,Cur,Cur,Cur,;Dec,Dec,Dec,Dec,Dec,Dec,Dec,Dec,Dec,Dec,Dec,Dec,;Dat,Dat,Dat,Dat,Dat,Dat,Dat,Dec,Dou,Dat,Dat,Dat,;Dou,Dou,Dou,Dou,Dou,Dou,Cur,Dec,Dat,Dou,Dou,Dou,;Int,Int,Lon,Lon,Sin,Dou,Cur,Dec,Dat,Dou,Int,Int,;Int,Int,Lon,Lon,Sin,Dou,Cur,Dec,Dat,Dou,Int,Int,;"
+    },
+    {
+      "name": "types_mul",
+      "macro": "\nFunction Probe() As String\nDim v(11) As Variant, i As Long, j As Long, s As String, r As Variant\nv(0) = CByte(2): v(1) = CInt(2): v(2) = CLng(2): v(3) = CLngLng(2): v(4) = CSng(2): v(5) = CDbl(2)\nv(6) = CCur(2): v(7) = CDec(2): v(8) = CDate(2): v(9) = \"2\": v(10) = True: v(11) = Empty\nOn Error Resume Next\nFor i = 0 To 11\nFor j = 0 To 11\nErr.Clear\nr = Empty\nr = v(i) * v(j)\nIf Err.Number Then s = s & \"e\" & Err.Number & \",\" Else s = s & Left(TypeName(r), 3) & \",\"\nNext\ns = s & \";\"\nNext\nProbe = s\nEnd Function\n",
+      "result": "Byt,Int,Lon,Lon,Sin,Dou,Cur,Dec,Dou,Dou,Int,Byt,;Int,Int,Lon,Lon,Sin,Dou,Cur,Dec,Dou,Dou,Int,Int,;Lon,Lon,Lon,Lon,Dou,Dou,Cur,Dec,Dou,Dou,Lon,Lon,;Lon,Lon,Lon,Lon,Dou,Dou,Cur,Dec,Dou,Dou,Lon,Lon,;Sin,Sin,Dou,Dou,Sin,Dou,Dou,Dec,Dou,Dou,Sin,Sin,;Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dec,Dou,Dou,Dou,Dou,;Cur,Cur,Cur,Cur,Dou,Dou,Cur,Dec,Dou,Dou,Cur,Cur,;Dec,Dec,Dec,Dec,Dec,Dec,Dec,Dec,Dec,Dec,Dec,Dec,;Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dec,Dou,Dou,Dou,Dou,;Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dec,Dou,Dou,Dou,Dou,;Int,Int,Lon,Lon,Sin,Dou,Cur,Dec,Dou,Dou,Int,Int,;Byt,Int,Lon,Lon,Sin,Dou,Cur,Dec,Dou,Dou,Int,Int,;"
+    },
+    {
+      "name": "types_div",
+      "macro": "\nFunction Probe() As String\nDim v(11) As Variant, i As Long, j As Long, s As String, r As Variant\nv(0) = CByte(2): v(1) = CInt(2): v(2) = CLng(2): v(3) = CLngLng(2): v(4) = CSng(2): v(5) = CDbl(2)\nv(6) = CCur(2): v(7) = CDec(2): v(8) = CDate(2): v(9) = \"2\": v(10) = True: v(11) = Empty\nOn Error Resume Next\nFor i = 0 To 11\nFor j = 0 To 11\nErr.Clear\nr = Empty\nr = v(i) / v(j)\nIf Err.Number Then s = s & \"e\" & Err.Number & \",\" Else s = s & Left(TypeName(r), 3) & \",\"\nNext\ns = s & \";\"\nNext\nProbe = s\nEnd Function\n",
+      "result": "Dou,Dou,Dou,Dou,Sin,Dou,Dou,Dec,Dou,Dou,Dou,e11,;Dou,Dou,Dou,Dou,Sin,Dou,Dou,Dec,Dou,Dou,Dou,e11,;Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dec,Dou,Dou,Dou,e11,;Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dec,Dou,Dou,Dou,e11,;Sin,Sin,Dou,Dou,Sin,Dou,Dou,Dec,Dou,Dou,Sin,e11,;Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dec,Dou,Dou,Dou,e11,;Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dec,Dou,Dou,Dou,e11,;Dec,Dec,Dec,Dec,Dec,Dec,Dec,Dec,Dec,Dec,Dec,e11,;Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dec,Dou,Dou,Dou,e11,;Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dec,Dou,Dou,Dou,e11,;Dou,Dou,Dou,Dou,Sin,Dou,Dou,Dec,Dou,Dou,Dou,e11,;Dou,Dou,Dou,Dou,Sin,Dou,Dou,Dec,Dou,Dou,Dou,e6,;"
+    },
+    {
+      "name": "types_idiv",
+      "macro": "\nFunction Probe() As String\nDim v(11) As Variant, i As Long, j As Long, s As String, r As Variant\nv(0) = CByte(2): v(1) = CInt(2): v(2) = CLng(2): v(3) = CLngLng(2): v(4) = CSng(2): v(5) = CDbl(2)\nv(6) = CCur(2): v(7) = CDec(2): v(8) = CDate(2): v(9) = \"2\": v(10) = True: v(11) = Empty\nOn Error Resume Next\nFor i = 0 To 11\nFor j = 0 To 11\nErr.Clear\nr = Empty\nr = v(i) \\ v(j)\nIf Err.Number Then s = s & \"e\" & Err.Number & \",\" Else s = s & Left(TypeName(r), 3) & \",\"\nNext\ns = s & \";\"\nNext\nProbe = s\nEnd Function\n",
+      "result": "Byt,Int,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Int,e11,;Int,Int,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Int,e11,;Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,e11,;Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,e11,;Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,e11,;Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,e11,;Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,e11,;Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,e11,;Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,e11,;Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,e11,;Int,Int,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Int,e11,;Int,Int,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Int,e11,;"
+    },
+    {
+      "name": "types_mod",
+      "macro": "\nFunction Probe() As String\nDim v(11) As Variant, i As Long, j As Long, s As String, r As Variant\nv(0) = CByte(2): v(1) = CInt(2): v(2) = CLng(2): v(3) = CLngLng(2): v(4) = CSng(2): v(5) = CDbl(2)\nv(6) = CCur(2): v(7) = CDec(2): v(8) = CDate(2): v(9) = \"2\": v(10) = True: v(11) = Empty\nOn Error Resume Next\nFor i = 0 To 11\nFor j = 0 To 11\nErr.Clear\nr = Empty\nr = v(i) Mod v(j)\nIf Err.Number Then s = s & \"e\" & Err.Number & \",\" Else s = s & Left(TypeName(r), 3) & \",\"\nNext\ns = s & \";\"\nNext\nProbe = s\nEnd Function\n",
+      "result": "Byt,Int,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Int,e11,;Int,Int,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Int,e11,;Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,e11,;Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,e11,;Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,e11,;Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,e11,;Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,e11,;Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,e11,;Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,e11,;Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,e11,;Int,Int,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Int,e11,;Int,Int,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Int,e11,;"
+    },
+    {
+      "name": "types_pow",
+      "macro": "\nFunction Probe() As String\nDim v(11) As Variant, i As Long, j As Long, s As String, r As Variant\nv(0) = CByte(2): v(1) = CInt(2): v(2) = CLng(2): v(3) = CLngLng(2): v(4) = CSng(2): v(5) = CDbl(2)\nv(6) = CCur(2): v(7) = CDec(2): v(8) = CDate(2): v(9) = \"2\": v(10) = True: v(11) = Empty\nOn Error Resume Next\nFor i = 0 To 11\nFor j = 0 To 11\nErr.Clear\nr = Empty\nr = v(i) ^ v(j)\nIf Err.Number Then s = s & \"e\" & Err.Number & \",\" Else s = s & Left(TypeName(r), 3) & \",\"\nNext\ns = s & \";\"\nNext\nProbe = s\nEnd Function\n",
+      "result": "Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,;Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,;Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,;Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,;Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,;Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,;Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,;Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,;Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,;Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,;Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,;Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,e5,Dou,;"
+    },
+    {
+      "name": "types_neg",
+      "macro": "\nFunction Probe() As String\nDim v(11) As Variant, i As Long, j As Long, s As String, r As Variant\nv(0) = CByte(2): v(1) = CInt(2): v(2) = CLng(2): v(3) = CLngLng(2): v(4) = CSng(2): v(5) = CDbl(2)\nv(6) = CCur(2): v(7) = CDec(2): v(8) = CDate(2): v(9) = \"2\": v(10) = True: v(11) = Empty\nOn Error Resume Next\nFor i = 0 To 11\nFor j = 0 To 11\nErr.Clear\nr = Empty\nr = -v(i)\nIf Err.Number Then s = s & \"e\" & Err.Number & \",\" Else s = s & Left(TypeName(r), 3) & \",\"\nNext\ns = s & \";\"\nNext\nProbe = s\nEnd Function\n",
+      "result": "Int,Int,Int,Int,Int,Int,Int,Int,Int,Int,Int,Int,;Int,Int,Int,Int,Int,Int,Int,Int,Int,Int,Int,Int,;Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,;Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,Lon,;Sin,Sin,Sin,Sin,Sin,Sin,Sin,Sin,Sin,Sin,Sin,Sin,;Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,;Cur,Cur,Cur,Cur,Cur,Cur,Cur,Cur,Cur,Cur,Cur,Cur,;Dec,Dec,Dec,Dec,Dec,Dec,Dec,Dec,Dec,Dec,Dec,Dec,;Dat,Dat,Dat,Dat,Dat,Dat,Dat,Dat,Dat,Dat,Dat,Dat,;Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,Dou,;Int,Int,Int,Int,Int,Int,Int,Int,Int,Int,Int,Int,;Int,Int,Int,Int,Int,Int,Int,Int,Int,Int,Int,Int,;"
+    },
+    {
+      "name": "byte_bitwise",
+      "macro": "\nFunction Probe() As String\nDim a As Byte, b As Byte\na = 12: b = 10\nProbe = TypeName(a And b) & TypeName(a Or b) & TypeName(a Xor b) & TypeName(Not a) & \"|\" & (Not a) & \"|\" & TypeName(a And 1)\nEnd Function\n",
+      "result": "ByteByteByteByte|243|Integer"
+    },
+    {
+      "name": "hex_literals",
+      "macro": "\nFunction Probe() As String\nProbe = &H8000 & \"|\" & &H8000& & \"|\" & &HFFFF & \"|\" & &H10000 & \"|\" & &O777 & \"|\" & TypeName(&H8000) & TypeName(&H10000) & TypeName(&H8000&) & \"|\" & &HFFFFFFFF & \"|\" & &HFFFF&\nEnd Function\n",
+      "result": "-32768|32768|-1|65536|511|IntegerLongLong|-1|65535"
+    },
+    {
+      "name": "zero_to_negative_power",
+      "macro": "\nFunction Probe() As String\nOn Error Resume Next\nDim r As Double\nr = 0 ^ -1\nProbe = Err.Number\nEnd Function\n",
+      "result": "5"
+    },
+    {
+      "name": "mid_statement",
+      "macro": "\nFunction Probe() As String\nDim s As String\ns = \"abcdef\"\nMid(s, 2, 3) = \"XYZW\"\nProbe = s\nMid(s, 5) = \"12345\"\nProbe = Probe & \"|\" & s\nMid$(s, 1, 1) = \"q\"\nProbe = Probe & \"|\" & s\nEnd Function\n",
+      "result": "aXYZef|aXYZ12|qXYZ12"
+    },
+    {
+      "name": "as_new_array",
+      "macro": "\nFunction Probe() As String\nDim c(1) As New Collection\nWith c(1)\n.Add 1\n.Add 2\nEnd With\nProbe = c(1).Count & \"|\" & c(0).Count & \"|\" & TypeName(c) & \"|\" & (c(0) Is Nothing)\nEnd Function\n",
+      "result": "2|0|Object()|False"
+    },
+    {
+      "name": "like_bracket_edges",
+      "macro": "\nFunction Probe() As String\nOn Error Resume Next\nDim r As Boolean\nr = (\"a\" Like \"[\")\nProbe = Err.Number & \"|\" & r\nErr.Clear\nr = (\"-\" Like \"[-a]\")\nProbe = Probe & \"|\" & r & (\"b\" Like \"[a-]\") & (\"[\" Like \"[[]\") & (\"^\" Like \"[^]\") & (\"&\" Like \"[&]\")\nEnd Function\n",
+      "result": "93|False|TrueFalseTrueTrueTrue"
+    },
+    {
+      "name": "date_arithmetic",
+      "macro": "\nFunction Probe() As String\nDim d As Date\nd = #1/1/2024#\nProbe = TypeName(d + 1) & TypeName(d - 1) & TypeName(d - d) & TypeName(d * 1) & TypeName(1 - d) & TypeName(-d) & \"|\" & (d + 1) & \"|\" & (d - #12/31/2023#) & \"|\" & (5 - d)\nEnd Function\n",
+      "result": "DateDateDoubleDoubleDateDate|1/2/2024|1|1/2/1776"
+    },
+    {
+      "name": "currency_arithmetic",
+      "macro": "\nFunction Probe() As String\nDim c As Currency\nc = 1.5\nProbe = TypeName(c + 1.5) & TypeName(c * 1.5) & TypeName(c / 2) & TypeName(c * 2) & \"|\" & (c + 0.123456) & \"|\" & (c * 1.5)\nEnd Function\n",
+      "result": "CurrencyDoubleDoubleCurrency|1.6235|2.25"
+    }
+  ]
+}

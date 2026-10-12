@@ -305,6 +305,17 @@ All notable changes to pyOpenVBA are documented here. This project follows
 - Two Error values compare by number: `v = CVErr(xlErrNA)` was error 13. An
   Error beside any other value, Null included, is error 13, and so is
   `"x" & CVErr(2042)`, which the emulator spelled out.
+- Arithmetic gives the type Excel gives, cell for cell over a measured matrix
+  of twelve operand types and eight operators. The emulator ranked Double
+  above Currency and Decimal, so `CCur(1.5) + 1.5` was a Double and
+  `CDec(2) + 1#` a Double; a Currency divided to a Currency, a Single beside
+  a Long stayed a Single, `x - aDate` lost the Date and `Decimal + Date` kept
+  it. `0 ^ -1` is error 5, where a Python `ZeroDivisionError` escaped.
+- `Not` and the bitwise operators on Bytes stay a Byte (`Not` overflowed),
+  `&H8000&` is 32768, `Mid$(s, 1, 1) = "q"` is the Mid statement, a fixed
+  `As New` array makes each element where it is first used, and `Like`'s
+  `"[[]"` no longer warns from Python's regular expressions. 16 native probes
+  in `tests/fixtures/vba_operator_types.json`.
 
 ## [6.5.0] - 2026-10-04
 

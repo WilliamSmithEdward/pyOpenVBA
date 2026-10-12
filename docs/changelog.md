@@ -333,6 +333,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
   Decimal. `CByte(True)` and `b = True` give 255; they overflowed. Every other
   cell of an 11-function, 32-input conversion matrix already matched. 16
   native probes in `tests/fixtures/vba_conversions.json`.
+- `Replace(Null, ...)` and `InStrRev(Null, ...)` are error 94 (they gave
+  Null), and `String(2, Null)` is Null (it was error 94). The other 104 edge
+  calls of the string functions already matched; 11 native probes in
+  `tests/fixtures/vba_string_functions.json`.
 
 ## [6.5.0] - 2026-10-04
 

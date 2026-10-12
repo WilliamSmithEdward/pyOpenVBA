@@ -36,6 +36,7 @@ from pyopenvba.interpreter._values import (
     EMPTY,
     ERROR_TEXT,
     ERR_INVALID_PROCEDURE_CALL,
+    ERR_INVALID_USE_OF_NULL,
     ERR_SUBSCRIPT_OUT_OF_RANGE,
     ERR_TYPE_MISMATCH,
     MISSING,
@@ -693,6 +694,9 @@ def vba_string(interpreter: Interpreter, count: object, character: object) -> ob
     times = int(to_integer(count, "Long"))
     if times < 0:
         raise error(ERR_INVALID_PROCEDURE_CALL)
+    if character is NULL:
+        # A Null character makes a Null, where a Null count is error 94 (native probes).
+        return NULL
     if isinstance(character, str):
         if not character:
             raise error(ERR_INVALID_PROCEDURE_CALL)
@@ -842,7 +846,10 @@ def vba_instr(
 def vba_instrrev(
     interpreter: Interpreter, haystack: object, needle: object, start: object, compare: object
 ) -> object:
-    if haystack is NULL or needle is NULL:
+    if haystack is NULL:
+        # Unlike InStr, InStrRev refuses a Null to search (native probe).
+        raise error(ERR_INVALID_USE_OF_NULL)
+    if needle is NULL:
         return NULL
     body = to_text(haystack)
     wanted = to_text(needle)
@@ -890,7 +897,8 @@ def vba_replace(
     compare: object,
 ) -> object:
     if text is NULL:
-        return NULL
+        # Replace returns a String, so Null has nowhere to go (native probe).
+        raise error(ERR_INVALID_USE_OF_NULL)
     body = to_text(text)
     wanted = to_text(find)
     replacement = to_text(put)

@@ -1340,10 +1340,10 @@ def vba_typename(interpreter: Interpreter, value: object) -> object:
 
 @intrinsic("VarType", "VarName", minimum=1)
 def vba_vartype(interpreter: Interpreter, value: object) -> object:
-    from pyopenvba.interpreter._values import VAR_TYPES
+    from pyopenvba.interpreter._values import VAR_TYPES, holds_objects
 
     if isinstance(value, VBAArray):
-        return VBAInt(8192 + VAR_TYPES.get(value.element_type, 12), "Integer")
+        return VBAInt(8192 + (9 if holds_objects(value) else VAR_TYPES.get(value.element_type, 12)), "Integer")
     if isinstance(value, VBAObject):
         return VBAInt(9, "Integer")
     return VBAInt(VAR_TYPES.get(type_name(value), 12), "Integer")

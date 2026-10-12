@@ -68,8 +68,6 @@ _UNSUPPORTED: Final[dict[str, str]] = {
     "sendkeys": "sending keystrokes to a window",
     "appactivate": "activating another application's window",
     "beep": "the PC speaker",
-    "lset": "LSet",
-    "rset": "RSet",
 }
 
 #: The types a declaration may name, beyond the classes a host provides.
@@ -711,6 +709,20 @@ class Parser:
         value = self._parse_expression()
         self.end_statement()
         return A.Assign(line=line, target=target, value=value, kind="let")
+
+    def _stmt_lset(self, line: int) -> A.Stmt:
+        return self._padding_assignment(line, "lset")
+
+    def _stmt_rset(self, line: int) -> A.Stmt:
+        return self._padding_assignment(line, "rset")
+
+    def _padding_assignment(self, line: int, kind: str) -> A.Stmt:
+        self.advance()
+        target = self._parse_target()
+        self.expect_op("=")
+        value = self._parse_expression()
+        self.end_statement()
+        return A.Assign(line=line, target=target, value=value, kind=kind)
 
     def _parse_target(self) -> A.Expr:
         """The left of an assignment, where ``=`` ends it rather than compares."""

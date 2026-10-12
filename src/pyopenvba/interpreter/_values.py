@@ -340,6 +340,9 @@ class VBAArray:
 
     @property
     def size(self) -> int:
+        if not self.bounds:
+            # A dynamic array no ReDim has sized: unallocated, so it holds nothing.
+            return 0
         total = 1
         for lower, upper in self.bounds:
             total *= max(0, upper - lower + 1)
@@ -398,7 +401,8 @@ class VBAArray:
         dimension may change size; anything else is error 9.
         """
         fresh = VBAArray(bounds, element_type=self.element_type, element_factory=self.element_factory)
-        if not preserve:
+        if not preserve or not self.bounds:
+            # Preserving an unallocated array keeps nothing (native probe).
             return fresh
         if len(bounds) != len(self.bounds):
             raise error(ERR_SUBSCRIPT_OUT_OF_RANGE)
@@ -564,6 +568,51 @@ _NUMBER_TEXT = re.compile(
 )
 
 
+#: The digits of a number a US-English Office reads: commas anywhere after
+#: the first digit, even after the point, then an optional exponent.
+_DECORATED_BODY = re.compile(r"(?:\d[\d,]*(?:\.[\d,]*)?|\.\d[\d,]*)(?:[eEdD][-+]?\d+)?")
+
+
+def _decorated_number(text: str) -> int | float | None:
+    """A number written as a US-English Office reads one, beyond the plain
+    form: ``1,000``, ``$5``, ``5$``, ``5-``, ``(5)``, ``($5)``, ``$(5)``.
+
+    Measured over 52 strings, with IsNumeric, CDbl, CLng and arithmetic
+    agreeing on every one: a currency sign once, before or after, inside or
+    outside parentheses; a sign once, before or after; parentheses for a
+    negative, never with a sign; spaces and tabs between the parts but not
+    inside the digits. ``,5``, ``$$5``, ``--5``, ``(-5)``, ``5%`` are not
+    numbers. Returns None for text that is not one.
+    """
+    rest = text.strip(" \t")
+    currency = sign = 0
+    negative = parens = False
+    if rest[:1] == "$":
+        currency, rest = 1, rest[1:].strip(" \t")
+    elif rest[-1:] == "$" and rest[:1] == "(":
+        currency, rest = 1, rest[:-1].strip(" \t")
+    if len(rest) >= 2 and rest[0] == "(" and rest[-1] == ")":
+        parens = negative = True
+        rest = rest[1:-1].strip(" \t")
+    for end in (0, -1):
+        while rest and rest[end] in "+-$":
+            mark = rest[end]
+            rest = (rest[1:] if end == 0 else rest[:-1]).strip(" \t")
+            if mark == "$":
+                currency += 1
+            else:
+                sign += 1
+                negative = mark == "-"
+    if currency > 1 or sign > 1 or (parens and sign) or not _DECORATED_BODY.fullmatch(rest):
+        return None
+    body = rest.replace(",", "").lower().replace("d", "e")
+    if "." not in body and "e" not in body:
+        whole = -int(body) if negative else int(body)
+        return VBAInt(whole, "Long" if abs(whole) > 32767 else "Integer")
+    value = float(body)
+    return -value if negative else value
+
+
 def to_number(value: object, *, context: str = "") -> int | float | Decimal:
     """``value`` as a number, the way VBA reads one from a Variant."""
     if isinstance(value, bool):
@@ -600,7 +649,10 @@ def text_to_number(text: str) -> int | float:
     """
     match = _NUMBER_TEXT.match(text)
     if not match:
-        raise error(ERR_TYPE_MISMATCH)
+        decorated = _decorated_number(text)
+        if decorated is None:
+            raise error(ERR_TYPE_MISMATCH)
+        return decorated
     sign = -1 if match.group("sign") == "-" else 1
     if match.group("hex") is not None:
         return VBAInt(sign * int(match.group("hex"), 16), "Long")
@@ -688,6 +740,8 @@ def to_text(value: object, *, context: str = "") -> str:
         return number_text(value)
     if isinstance(value, VBAErrorValue):
         return f"Error {value.number}"
+    if isinstance(value, VBAArray) and value.element_type == "Byte" and value.dimensions <= 1:
+        return bytes_text(value)
     from pyopenvba.interpreter._objects import VBAObject
 
     if isinstance(value, VBAObject):
@@ -696,6 +750,19 @@ def to_text(value: object, *, context: str = "") -> str:
             raise error(ERR_TYPE_MISMATCH)
         return to_text(default, context=context)
     raise error(ERR_TYPE_MISMATCH, f"cannot read {type_name(value)} as a string{context}")
+
+
+def bytes_text(array: VBAArray) -> str:
+    """A Byte array as a String: its bytes read as UTF-16LE, two to a character (native probe)."""
+    data = bytes(int(to_integer(item, "Byte")) for item in array.items)
+    return data[: len(data) // 2 * 2].decode("utf-16-le", errors="surrogatepass")
+
+
+def text_bytes(text: str) -> VBAArray:
+    """A String as a Byte array: two UTF-16LE bytes per character (native probe)."""
+    data = text.encode("utf-16-le", errors="surrogatepass")
+    return VBAArray([(0, len(data) - 1)] if data else [(0, -1)], element_type="Byte",
+                    items=[VBAInt(byte, "Byte") for byte in data])
 
 
 def date_text(value: VBADate) -> str:

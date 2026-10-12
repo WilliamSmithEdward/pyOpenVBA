@@ -189,6 +189,21 @@ All notable changes to pyOpenVBA are documented here. This project follows
   An enum field was counted as 8 bytes and a dynamic array field was refused
   as unsupported.
 
+- `StrConv`, `Error` and `Error$` work; they reported themselves
+  unsupported or undefined. `LSet` and `RSet` pad and cut text; they were
+  refused. 109 native probes in `tests/fixtures/vba_builtins.json`.
+- Numeric text reads as Office reads it: `1,000`, `$5`, `5-`, `(5)` and the
+  other forms 52 native strings show are numbers to `IsNumeric`, `CDbl`,
+  `CLng` and arithmetic alike. `CDbl("$1,000")` was a type mismatch and
+  `IsNumeric` disagreed with `CDbl`.
+- A dynamic array is unallocated until a ReDim and after an Erase, so
+  `UBound` of it is error 9 as in VBA; it answered -1. `For Each` over it is
+  error 92.
+- A String assigned to a dynamic Byte array is its bytes, and a Byte array
+  reads as a String; both were type mismatches.
+- `CallByName(c, "Count", VbMethod)` reads a Collection's count, where it
+  was error 438, and `VbGet` is now error 438, as in VBA.
+
 ## [6.5.0] - 2026-10-04
 
 ### Added

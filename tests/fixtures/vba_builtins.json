@@ -1,0 +1,551 @@
+{
+  "excel_version_build": "16.0|20430",
+  "measured_at": "2026-10-12T18:13:23.469333+00:00",
+  "probes": [
+    {
+      "name": "proper_after_space",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nDim s As String\ns = StrConv(\"ab\" & Chr(32) & \"cd\", vbProperCase)\nProbe = Asc(Mid$(s, 1, 1)) & \",\" & Asc(Mid$(s, Len(s) - 1, 1))\nEnd Function\n",
+      "result": "65,67"
+    },
+    {
+      "name": "proper_after_tab",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nDim s As String\ns = StrConv(\"ab\" & Chr(9) & \"cd\", vbProperCase)\nProbe = Asc(Mid$(s, 1, 1)) & \",\" & Asc(Mid$(s, Len(s) - 1, 1))\nEnd Function\n",
+      "result": "65,67"
+    },
+    {
+      "name": "proper_after_nul",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nDim s As String\ns = StrConv(\"ab\" & Chr(0) & \"cd\", vbProperCase)\nProbe = Asc(Mid$(s, 1, 1)) & \",\" & Asc(Mid$(s, Len(s) - 1, 1))\nEnd Function\n",
+      "result": "65,67"
+    },
+    {
+      "name": "proper_after_cr",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nDim s As String\ns = StrConv(\"ab\" & Chr(13) & \"cd\", vbProperCase)\nProbe = Asc(Mid$(s, 1, 1)) & \",\" & Asc(Mid$(s, Len(s) - 1, 1))\nEnd Function\n",
+      "result": "65,67"
+    },
+    {
+      "name": "proper_after_lf",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nDim s As String\ns = StrConv(\"ab\" & Chr(10) & \"cd\", vbProperCase)\nProbe = Asc(Mid$(s, 1, 1)) & \",\" & Asc(Mid$(s, Len(s) - 1, 1))\nEnd Function\n",
+      "result": "65,67"
+    },
+    {
+      "name": "proper_after_dash",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nDim s As String\ns = StrConv(\"ab\" & \"-\" & \"cd\", vbProperCase)\nProbe = Asc(Mid$(s, 1, 1)) & \",\" & Asc(Mid$(s, Len(s) - 1, 1))\nEnd Function\n",
+      "result": "65,99"
+    },
+    {
+      "name": "proper_after_dot",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nDim s As String\ns = StrConv(\"ab\" & \".\" & \"cd\", vbProperCase)\nProbe = Asc(Mid$(s, 1, 1)) & \",\" & Asc(Mid$(s, Len(s) - 1, 1))\nEnd Function\n",
+      "result": "65,99"
+    },
+    {
+      "name": "proper_after_comma",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nDim s As String\ns = StrConv(\"ab\" & \",\" & \"cd\", vbProperCase)\nProbe = Asc(Mid$(s, 1, 1)) & \",\" & Asc(Mid$(s, Len(s) - 1, 1))\nEnd Function\n",
+      "result": "65,99"
+    },
+    {
+      "name": "proper_after_apos",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nDim s As String\ns = StrConv(\"ab\" & \"'\" & \"cd\", vbProperCase)\nProbe = Asc(Mid$(s, 1, 1)) & \",\" & Asc(Mid$(s, Len(s) - 1, 1))\nEnd Function\n",
+      "result": "65,99"
+    },
+    {
+      "name": "proper_after_digit",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nDim s As String\ns = StrConv(\"ab\" & \"1\" & \"cd\", vbProperCase)\nProbe = Asc(Mid$(s, 1, 1)) & \",\" & Asc(Mid$(s, Len(s) - 1, 1))\nEnd Function\n",
+      "result": "65,99"
+    },
+    {
+      "name": "proper_after_under",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nDim s As String\ns = StrConv(\"ab\" & \"_\" & \"cd\", vbProperCase)\nProbe = Asc(Mid$(s, 1, 1)) & \",\" & Asc(Mid$(s, Len(s) - 1, 1))\nEnd Function\n",
+      "result": "65,99"
+    },
+    {
+      "name": "proper_after_nbsp",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nDim s As String\ns = StrConv(\"ab\" & ChrW(160) & \"cd\", vbProperCase)\nProbe = Asc(Mid$(s, 1, 1)) & \",\" & Asc(Mid$(s, Len(s) - 1, 1))\nEnd Function\n",
+      "result": "65,99"
+    },
+    {
+      "name": "proper_after_ff",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nDim s As String\ns = StrConv(\"ab\" & Chr(12) & \"cd\", vbProperCase)\nProbe = Asc(Mid$(s, 1, 1)) & \",\" & Asc(Mid$(s, Len(s) - 1, 1))\nEnd Function\n",
+      "result": "65,67"
+    },
+    {
+      "name": "proper_after_vt",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nDim s As String\ns = StrConv(\"ab\" & Chr(11) & \"cd\", vbProperCase)\nProbe = Asc(Mid$(s, 1, 1)) & \",\" & Asc(Mid$(s, Len(s) - 1, 1))\nEnd Function\n",
+      "result": "65,67"
+    },
+    {
+      "name": "proper_after_paren",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nDim s As String\ns = StrConv(\"ab\" & \"(\" & \"cd\", vbProperCase)\nProbe = Asc(Mid$(s, 1, 1)) & \",\" & Asc(Mid$(s, Len(s) - 1, 1))\nEnd Function\n",
+      "result": "65,99"
+    },
+    {
+      "name": "proper_after_slash",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nDim s As String\ns = StrConv(\"ab\" & \"/\" & \"cd\", vbProperCase)\nProbe = Asc(Mid$(s, 1, 1)) & \",\" & Asc(Mid$(s, Len(s) - 1, 1))\nEnd Function\n",
+      "result": "65,99"
+    },
+    {
+      "name": "strconv_cases",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = StrConv(\"hELLO wORLD-x y\", vbProperCase) & \"|\" & StrConv(\"abc\", vbUpperCase) & \"|\" & StrConv(\"AbC\", vbLowerCase) & \"|\" & StrConv(\"a b\", 3)\nEnd Function\n",
+      "result": "Hello World-x Y|ABC|abc|A B"
+    },
+    {
+      "name": "strconv_proper_accents",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nDim s As String\ns = StrConv(ChrW(233) & \"lan \" & ChrW(201) & \"COLE \" & ChrW(223) & \"a\", vbProperCase)\nProbe = AscW(Mid$(s, 1, 1)) & \",\" & AscW(Mid$(s, 6, 1)) & \",\" & Mid$(s, 7, 4) & \",\" & AscW(Mid$(s, 12, 1))\nEnd Function\n",
+      "result": "201,201,cole,223"
+    },
+    {
+      "name": "strconv_proper_leading",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = \"[\" & StrConv(\"  ab\", vbProperCase) & \"][\" & StrConv(\"\", vbProperCase) & \"]\"\nEnd Function\n",
+      "result": "[  Ab][]"
+    },
+    {
+      "name": "strconv_from_unicode",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nDim b() As Byte\nb = StrConv(\"AB\", vbFromUnicode)\nProbe = UBound(b) & \"|\" & b(0) & \"|\" & StrConv(b, vbUnicode)\nEnd Function\n",
+      "result": "1|65|AB"
+    },
+    {
+      "name": "strconv_from_unicode_unmappable",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nDim b() As Byte\nb = StrConv(ChrW(8364) & ChrW(&H4E2D) & ChrW(233), vbFromUnicode)\nProbe = UBound(b) & \"|\" & b(0) & \",\" & b(1) & \",\" & b(2)\nEnd Function\n",
+      "result": "2|128,63,233"
+    },
+    {
+      "name": "strconv_unicode_bytes",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nDim b(2) As Byte\nb(0) = 65: b(1) = 128: b(2) = 233\nProbe = AscW(Mid$(StrConv(b, vbUnicode), 2, 1)) & \",\" & AscW(Mid$(StrConv(b, vbUnicode), 3, 1))\nEnd Function\n",
+      "result": "8364,233"
+    },
+    {
+      "name": "strconv_null",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = IsNull(StrConv(Null, vbUpperCase))\nEnd Function\n",
+      "result": "True"
+    },
+    {
+      "name": "strconv_number",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = StrConv(12.5, vbUpperCase) & \"|\" & TypeName(StrConv(12.5, vbUpperCase))\nEnd Function\n",
+      "result": "12.5|String"
+    },
+    {
+      "name": "strconv_flag_4",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nDim s As String\ns = StrConv(\"a\", 4)\nProbe = s\nEnd Function\n",
+      "error": 5
+    },
+    {
+      "name": "strconv_case_with_bytes",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nDim b() As Byte\nb = StrConv(\"ab\", vbUpperCase + vbFromUnicode)\nProbe = b(0)\nEnd Function\n",
+      "error": 5
+    },
+    {
+      "name": "strconv_locale",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = StrConv(\"ab\", vbUpperCase, 1033)\nEnd Function\n",
+      "result": "AB"
+    },
+    {
+      "name": "error_of_number",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Error(11) & \"|\" & Error$(9) & \"|\" & Error(13) & \"|\" & Error$(1000) & \"|\" & Error(0) & \"|\" & TypeName(Error(5))\nEnd Function\n",
+      "result": "Division by zero|Subscript out of range|Type mismatch|Application-defined or object-defined error||String"
+    },
+    {
+      "name": "error_numbers",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Error(3) & \"|\" & Error(20) & \"|\" & Error(52) & \"|\" & Error(91) & \"|\" & Error(424) & \"|\" & Error(1004)\nEnd Function\n",
+      "result": "Return without GoSub|Resume without error|Bad file name or number|Object variable or With block variable not set|Object required|Application-defined or object-defined error"
+    },
+    {
+      "name": "error_current",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nOn Error Resume Next\nErr.Raise 6\nProbe = Error() & \"|\" & Error\nEnd Function\n",
+      "result": "Overflow|Overflow"
+    },
+    {
+      "name": "error_after_clear",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nOn Error Resume Next\nErr.Raise 11\nErr.Clear\nProbe = \"[\" & Error & \"]\"\nEnd Function\n",
+      "result": "[]"
+    },
+    {
+      "name": "error_negative",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Error(-1)\nEnd Function\n",
+      "result": "Application-defined or object-defined error"
+    },
+    {
+      "name": "error_overflow",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nDim s As String\ns = Error(70000)\nProbe = s\nEnd Function\n",
+      "error": 6
+    },
+    {
+      "name": "error_text_argument",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Error(\"11\")\nEnd Function\n",
+      "result": "Division by zero"
+    },
+    {
+      "name": "lset_rset_strings",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nDim s As String, t As String\ns = \"abcdef\"\nLSet s = \"xy\"\nt = \"123456\"\nRSet t = \"xy\"\nProbe = \"[\" & s & \"][\" & t & \"]\"\nEnd Function\n",
+      "result": "[xy    ][    xy]"
+    },
+    {
+      "name": "lset_rset_truncate",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nDim s As String, t As String\ns = \"abc\"\nLSet s = \"wxyz12\"\nt = \"abc\"\nRSet t = \"wxyz12\"\nProbe = \"[\" & s & \"][\" & t & \"]\"\nEnd Function\n",
+      "result": "[wxy][wxy]"
+    },
+    {
+      "name": "lset_fixed_string",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nDim f As String * 5\nf = \"12345\"\nLSet f = \"ab\"\nProbe = \"[\" & f & \"]\"\nEnd Function\n",
+      "result": "[ab   ]"
+    },
+    {
+      "name": "rset_number",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nDim s As String\ns = \"abcde\"\nRSet s = 12\nProbe = \"[\" & s & \"]\"\nEnd Function\n",
+      "result": "[   12]"
+    },
+    {
+      "name": "lset_variant",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nDim v As Variant\nv = \"abcd\"\nLSet v = \"x\"\nProbe = \"[\" & v & \"]\"\nEnd Function\n",
+      "result": "[x   ]"
+    },
+    {
+      "name": "rset_empty_target",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nDim s As String\nRSet s = \"abc\"\nProbe = \"[\" & s & \"]\" & Len(s)\nEnd Function\n",
+      "result": "[]0"
+    },
+    {
+      "name": "lset_null",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nOn Error Resume Next\nDim s As String\ns = \"abc\"\nLSet s = Null\nProbe = Err.Number & \"[\" & s & \"]\"\nEnd Function\n",
+      "result": "94[abc]"
+    },
+    {
+      "name": "unallocated_ubound",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nDim a() As Long\nProbe = UBound(a)\nEnd Function\n",
+      "error": 9
+    },
+    {
+      "name": "unallocated_lbound",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nDim a() As String\nProbe = LBound(a)\nEnd Function\n",
+      "error": 9
+    },
+    {
+      "name": "unallocated_index",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nDim a() As Long\nProbe = a(0)\nEnd Function\n",
+      "error": 9
+    },
+    {
+      "name": "unallocated_after_erase",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nDim a() As Long\nReDim a(3)\nErase a\nProbe = UBound(a)\nEnd Function\n",
+      "error": 9
+    },
+    {
+      "name": "unallocated_for_each",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nDim a() As Long, v As Variant\nFor Each v In a\nNext\nProbe = \"done\"\nEnd Function\n",
+      "error": 92
+    },
+    {
+      "name": "unallocated_to_variant",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nDim a() As Long, v As Variant\nv = a\nOn Error Resume Next\nDim n As Long\nn = UBound(v)\nProbe = TypeName(v) & \"|\" & Err.Number\nEnd Function\n",
+      "result": "Long()|9"
+    },
+    {
+      "name": "unallocated_join",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nDim a() As String\nProbe = \"[\" & Join(a, \",\") & \"]\"\nEnd Function\n",
+      "result": "[]"
+    },
+    {
+      "name": "unallocated_isarray",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nDim a() As Long\nProbe = IsArray(a) & \"|\" & TypeName(a)\nEnd Function\n",
+      "result": "True|Long()"
+    },
+    {
+      "name": "unallocated_redim_preserve",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nDim a() As Long\nReDim Preserve a(2)\nProbe = UBound(a)\nEnd Function\n",
+      "result": "2"
+    },
+    {
+      "name": "erase_then_redim",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nDim a() As Long\nReDim a(2)\nErase a\nReDim a(1)\nProbe = UBound(a)\nEnd Function\n",
+      "result": "1"
+    },
+    {
+      "name": "erase_fixed",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nDim a(3) As Long\na(1) = 5\nErase a\nProbe = UBound(a) & \"|\" & a(1)\nEnd Function\n",
+      "result": "3|0"
+    },
+    {
+      "name": "empty_split_and_array",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nDim a As Variant, b As Variant\na = Split(\"\")\nb = Array()\nProbe = LBound(a) & \"|\" & UBound(a) & \"|\" & LBound(b) & \"|\" & UBound(b)\nEnd Function\n",
+      "result": "0|-1|0|-1"
+    },
+    {
+      "name": "byte_array_from_string",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nDim b() As Byte\nb = \"AB\"\nProbe = UBound(b) & \"|\" & b(0) & \",\" & b(1) & \",\" & b(2)\nEnd Function\n",
+      "result": "3|65,0,66"
+    },
+    {
+      "name": "string_from_byte_array",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nDim b(3) As Byte, s As String\nb(0) = 72: b(2) = 105\ns = b\nProbe = s & \"|\" & Len(s)\nEnd Function\n",
+      "result": "Hi|2"
+    },
+    {
+      "name": "collection_count_method",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nDim c As New Collection\nc.Add 5\nProbe = CallByName(c, \"Count\", VbMethod) & \"|\" & c.Count() & \"|\" & c.Count\nEnd Function\n",
+      "result": "1|1|1"
+    },
+    {
+      "name": "collection_count_get",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nDim c As New Collection\nc.Add 5\nProbe = CallByName(c, \"Count\", VbGet)\nEnd Function\n",
+      "error": 438
+    },
+    {
+      "name": "number_text_00",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"1,000\")\nEnd Function\n",
+      "result": "T|1000|1000:Double|1000"
+    },
+    {
+      "name": "number_text_01",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\",5\")\nEnd Function\n",
+      "result": "F|e13|e13|e13"
+    },
+    {
+      "name": "number_text_02",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"5,\")\nEnd Function\n",
+      "result": "T|5|5:Double|5"
+    },
+    {
+      "name": "number_text_03",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"1,2\")\nEnd Function\n",
+      "result": "T|12|12:Double|12"
+    },
+    {
+      "name": "number_text_04",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"$\")\nEnd Function\n",
+      "result": "F|e13|e13|e13"
+    },
+    {
+      "name": "number_text_05",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"(5\")\nEnd Function\n",
+      "result": "F|e13|e13|e13"
+    },
+    {
+      "name": "number_text_06",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"5)\")\nEnd Function\n",
+      "result": "F|e13|e13|e13"
+    },
+    {
+      "name": "number_text_07",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"(-5)\")\nEnd Function\n",
+      "result": "F|e13|e13|e13"
+    },
+    {
+      "name": "number_text_08",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"-(5)\")\nEnd Function\n",
+      "result": "F|e13|e13|e13"
+    },
+    {
+      "name": "number_text_09",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"$-5\")\nEnd Function\n",
+      "result": "T|-5|-5:Double|-5"
+    },
+    {
+      "name": "number_text_10",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"-$5\")\nEnd Function\n",
+      "result": "T|-5|-5:Double|-5"
+    },
+    {
+      "name": "number_text_11",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"5-\")\nEnd Function\n",
+      "result": "T|-5|-5:Double|-5"
+    },
+    {
+      "name": "number_text_12",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"5 -\")\nEnd Function\n",
+      "result": "T|-5|-5:Double|-5"
+    },
+    {
+      "name": "number_text_13",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"+5\")\nEnd Function\n",
+      "result": "T|5|5:Double|5"
+    },
+    {
+      "name": "number_text_14",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"5+\")\nEnd Function\n",
+      "result": "T|5|5:Double|5"
+    },
+    {
+      "name": "number_text_15",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"- 5\")\nEnd Function\n",
+      "result": "T|-5|-5:Double|-5"
+    },
+    {
+      "name": "number_text_16",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"$ 5\")\nEnd Function\n",
+      "result": "T|5|5:Double|5"
+    },
+    {
+      "name": "number_text_17",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"5$\")\nEnd Function\n",
+      "result": "T|5|5:Double|5"
+    },
+    {
+      "name": "number_text_18",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"5 $\")\nEnd Function\n",
+      "result": "T|5|5:Double|5"
+    },
+    {
+      "name": "number_text_19",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"$$5\")\nEnd Function\n",
+      "result": "F|e13|e13|e13"
+    },
+    {
+      "name": "number_text_20",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"1e3\")\nEnd Function\n",
+      "result": "T|1000|1000:Double|1000"
+    },
+    {
+      "name": "number_text_21",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"(1e3)\")\nEnd Function\n",
+      "result": "T|-1000|-1000:Double|-1000"
+    },
+    {
+      "name": "number_text_22",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"1,000.5\")\nEnd Function\n",
+      "result": "T|1000.5|1000.5:Double|1000"
+    },
+    {
+      "name": "number_text_23",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"1.000,5\")\nEnd Function\n",
+      "result": "T|1.0005|1.0005:Double|1"
+    },
+    {
+      "name": "number_text_24",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"  5  \")\nEnd Function\n",
+      "result": "T|5|5:Double|5"
+    },
+    {
+      "name": "number_text_25",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"5%\")\nEnd Function\n",
+      "result": "F|e13|e13|e13"
+    },
+    {
+      "name": "number_text_26",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"\" & ChrW(8364) & \"5\")\nEnd Function\n",
+      "result": "F|e13|e13|e13"
+    },
+    {
+      "name": "number_text_27",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"1d2\")\nEnd Function\n",
+      "result": "T|100|100:Double|100"
+    },
+    {
+      "name": "number_text_28",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"&H10\")\nEnd Function\n",
+      "result": "T|16|16:Double|16"
+    },
+    {
+      "name": "number_text_29",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"(&H10)\")\nEnd Function\n",
+      "result": "F|e13|e13|e13"
+    },
+    {
+      "name": "number_text_30",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"$&H10\")\nEnd Function\n",
+      "result": "F|e13|e13|e13"
+    },
+    {
+      "name": "number_text_31",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"1,0e2\")\nEnd Function\n",
+      "result": "T|1000|1000:Double|1000"
+    },
+    {
+      "name": "number_text_32",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"--5\")\nEnd Function\n",
+      "result": "F|e13|e13|e13"
+    },
+    {
+      "name": "number_text_33",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"5--\")\nEnd Function\n",
+      "result": "F|e13|e13|e13"
+    },
+    {
+      "name": "number_text_34",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"(5)-\")\nEnd Function\n",
+      "result": "F|e13|e13|e13"
+    },
+    {
+      "name": "number_text_35",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"1 000\")\nEnd Function\n",
+      "result": "F|e13|e13|e13"
+    },
+    {
+      "name": "number_text_36",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"1.\")\nEnd Function\n",
+      "result": "T|1|1:Double|1"
+    },
+    {
+      "name": "number_text_37",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\".5\")\nEnd Function\n",
+      "result": "T|0.5|0.5:Double|0"
+    },
+    {
+      "name": "number_text_38",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"-.5\")\nEnd Function\n",
+      "result": "T|-0.5|-0.5:Double|0"
+    },
+    {
+      "name": "number_text_39",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"5.-\")\nEnd Function\n",
+      "result": "T|-5|-5:Double|-5"
+    },
+    {
+      "name": "number_text_40",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"($5)\")\nEnd Function\n",
+      "result": "T|-5|-5:Double|-5"
+    },
+    {
+      "name": "number_text_41",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"$(5)\")\nEnd Function\n",
+      "result": "T|-5|-5:Double|-5"
+    },
+    {
+      "name": "number_text_42",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"(5$)\")\nEnd Function\n",
+      "result": "T|-5|-5:Double|-5"
+    },
+    {
+      "name": "number_text_43",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"1,000,000\")\nEnd Function\n",
+      "result": "T|1000000|1000000:Double|1000000"
+    },
+    {
+      "name": "number_text_44",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"1e3,0\")\nEnd Function\n",
+      "result": "F|e13|e13|e13"
+    },
+    {
+      "name": "number_text_45",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"5-$\")\nEnd Function\n",
+      "result": "T|-5|-5:Double|-5"
+    },
+    {
+      "name": "number_text_46",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"$5-\")\nEnd Function\n",
+      "result": "T|-5|-5:Double|-5"
+    },
+    {
+      "name": "number_text_47",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\" (5) \")\nEnd Function\n",
+      "result": "T|-5|-5:Double|-5"
+    },
+    {
+      "name": "number_text_48",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"(+5)\")\nEnd Function\n",
+      "result": "F|e13|e13|e13"
+    },
+    {
+      "name": "number_text_49",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"+(5)\")\nEnd Function\n",
+      "result": "F|e13|e13|e13"
+    },
+    {
+      "name": "number_text_50",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"\" & ChrW(9) & \"5\")\nEnd Function\n",
+      "result": "T|5|5:Double|5"
+    },
+    {
+      "name": "number_text_51",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"5\" & ChrW(9) & \"\")\nEnd Function\n",
+      "result": "T|5|5:Double|5"
+    }
+  ]
+}

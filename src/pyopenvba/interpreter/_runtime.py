@@ -31,6 +31,7 @@ from pyopenvba.interpreter._objects import VBACollection, VBAObject, member, met
 from pyopenvba.interpreter._parse import parse_module
 from pyopenvba.interpreter._values import (
     EMPTY,
+    ERR_INVALID_USE_OF_NULL,
     ERR_MEMBER_NOT_FOUND,
     ERR_OBJECT_VARIABLE_NOT_SET,
     ERR_SUBSCRIPT_OUT_OF_RANGE,
@@ -67,6 +68,7 @@ from pyopenvba.interpreter._values import (
     subtract,
     to_bool,
     to_integer,
+    text_bytes,
     to_text,
     type_name,
 )
@@ -121,6 +123,9 @@ class Slot:
 
     value: object = EMPTY
     declared: str = "Variant"
+    #: The element type of a variable declared as a dynamic array (``Dim b() As Byte``), where
+    #: ``declared`` is Variant; empty for every other variable.
+    array_of: str = ""
 
     def get(self) -> object:
         return self.value
@@ -136,14 +141,17 @@ class Slot:
             return
         if isinstance(self.value, VBAArray) and self.value.borrowed_elements:
             raise error(10, "This array is fixed or temporarily locked")
+        if self.array_of == "Byte" and isinstance(value, str):
+            # A String assigned to a Byte array is its UTF-16LE bytes (native probe).
+            value = text_bytes(value)
         self.value = copy_value(coerce(value, self.declared))
 
 
 class RecordFieldSlot(Slot):
     """A field whose address can belong to an enclosing record array."""
 
-    def __init__(self, value: object, declared: str) -> None:
-        super().__init__(value, declared)
+    def __init__(self, value: object, declared: str, array_of: str = "") -> None:
+        super().__init__(value, declared, array_of)
         self.array_owner: ReferenceType[VBAArray] | None = None
 
     def borrow_arrays(self) -> list[VBAArray]:
@@ -473,6 +481,16 @@ class Collection(VBACollection):
             raise error(449)
         return self.vba_lookup(Index, self._items)
 
+    #: VBA's Collection takes CallByName's call type to the letter: VbGet on
+    #: Count, a method here, is error 438 (native probe), where a host's
+    #: objects take either.
+    vba_strict_call_types = True
+
+    @method
+    def Count(self) -> object:
+        """A method in VBA's Collection: CallByName(c, "Count", VbMethod) reads it (native probe)."""
+        return VBAInt(len(self._items), "Long")
+
     def describe(self, indent: str = "") -> str:
         return f"{indent}Collection ({len(self._items)} items)"
 
@@ -492,7 +510,7 @@ class UserTypeValue(VBAObject):
                 is_array=field_.is_array,
             )
             slot = interpreter.make_slot(declaration, module)
-            self.fields[field_.name.lower()] = RecordFieldSlot(slot.get(), slot.declared)
+            self.fields[field_.name.lower()] = RecordFieldSlot(slot.get(), slot.declared, slot.array_of)
 
     def vba_value(self) -> object:
         # Records are values, despite sharing the member-dispatch interface.
@@ -531,7 +549,7 @@ class UserTypeValue(VBAObject):
         result = UserTypeValue.__new__(UserTypeValue)
         result.defined = self.defined
         result.vba_type_name = self.vba_type_name
-        result.fields = {name: RecordFieldSlot(copy_value(slot.get()), slot.declared) for name, slot in self.fields.items()}
+        result.fields = {name: RecordFieldSlot(copy_value(slot.get()), slot.declared, slot.array_of) for name, slot in self.fields.items()}
         return result
 
     def vba_bind_array(self, array: VBAArray) -> None:
@@ -1183,6 +1201,9 @@ class Interpreter:
         handler(self, statement, frame)
 
     def _do_assign(self, statement: A.Assign, frame: Frame) -> None:
+        if statement.kind in ("lset", "rset"):
+            self._pad_assign(statement, frame)
+            return
         value = self.evaluate(statement.value, frame, want_object=statement.kind == "set")
         if statement.kind == "set" and not is_object(value) and value is not NOTHING:
             raise error(ERR_MEMBER_NOT_FOUND, "Set needs an object on the right")
@@ -1193,6 +1214,20 @@ class Interpreter:
             raise error(ERR_OBJECT_VARIABLE_NOT_SET)
         target = self.resolve_target(statement.target, frame)
         target.put(value, statement.kind == "set")
+
+    def _pad_assign(self, statement: A.Assign, frame: Frame) -> None:
+        """LSet and RSet: the text cut or padded with spaces to the length the
+        target holds now, left- or right-aligned (native probes)."""
+        value = self.evaluate(statement.value, frame)
+        if value is NULL:
+            raise error(ERR_INVALID_USE_OF_NULL)
+        target = self.resolve_target(statement.target, frame)
+        current = target.take()
+        if isinstance(current, UserTypeValue) or isinstance(value, UserTypeValue):
+            raise VBAUnsupportedError("LSet of one record onto another copies its bytes, which is not implemented")
+        width = len(to_text(current))
+        text = to_text(value)[:width]
+        target.put(text.ljust(width) if statement.kind == "lset" else text.rjust(width), False)
 
     def _do_call(self, statement: A.CallStmt, frame: Frame) -> None:
         self.evaluate_call(statement.callee, statement.args, frame, statement_context=True)
@@ -1237,7 +1272,8 @@ class Interpreter:
                     fresh = self.make_array(current.bounds, current.element_type, frame.module, fixed=True)
                     target.put(fresh, False)
                 else:
-                    target.put(self.make_array([(0, -1)], current.element_type, frame.module), False)
+                    # An erased dynamic array is unallocated again: UBound is error 9.
+                    target.put(self.make_array([], current.element_type, frame.module), False)
 
     def _do_if(self, statement: A.If, frame: Frame) -> None:
         for branch in statement.branches:
@@ -1273,6 +1309,8 @@ class Interpreter:
     def _do_for_each(self, statement: A.ForEach, frame: Frame) -> None:
         target = self.resolve_target(statement.target, frame)
         subject = self.evaluate(statement.collection, frame, want_object=True)
+        if isinstance(subject, VBAArray) and not subject.bounds:
+            raise error(92, "For loop not initialized")
         for item in _iterate(subject):
             target.put(item, isinstance(item, VBAObject))
             try:
@@ -2140,7 +2178,8 @@ class Interpreter:
             if declaration.bounds:
                 bounds = self._bounds(declaration, None, module=module)
                 return Slot(self.make_array(bounds, declared, module, fixed=True), "Variant")
-            return Slot(self.make_array([(0, -1)], declared, module), "Variant")
+            # Unallocated until a ReDim: no dimensions, so LBound and UBound are error 9.
+            return Slot(self.make_array([], declared, module), "Variant", declared)
         if declaration.as_new:
             return Slot(self.create(declared), declared)
         record = self.record_type(declared, module)

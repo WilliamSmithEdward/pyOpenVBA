@@ -1731,6 +1731,34 @@ Range.Formula reads each back without the prefixes. Excel also keeps a
 hidden `_xlpm.x` name for each bound name in a workbook saved with its
 macros, which the model does not write.
 
+Built-ins measured together in `tests/fixtures/vba_builtins.json` (109
+native probes, `scripts/measure_vba_builtins.py`):
+
+- `StrConv` changes case and converts to and from bytes. Proper case starts
+  a word after a space, tab, NUL, LF, VT, FF or CR, and after no other
+  character. `vbFromUnicode` writes Windows-1252 bytes, `?` for a character
+  the code page lacks. A case flag with a byte flag, and the East Asian
+  flags, are error 5, as on a Western Office.
+- `Error` and `Error$` give the text of an error number, or of the current
+  error with no argument; an unknown number gives "Application-defined or
+  object-defined error", and one past an Integer overflows.
+- `LSet` and `RSet` cut or pad text with spaces to the length the target
+  holds. LSet of one record onto another, which copies its bytes, reports
+  itself unsupported.
+- Numeric text reads as a US-English Office reads it, the same for
+  `IsNumeric`, `CDbl`, `CLng` and arithmetic: commas after the first digit,
+  a `$` before or after, a sign before or after, parentheses for a negative.
+- A dynamic array is unallocated until a ReDim and after an Erase: `LBound`,
+  `UBound` and an index are error 9, `For Each` over it is error 92, `Join`
+  of it is "". `Split("")` and `Array()` are allocated and empty.
+- A String assigned to a dynamic `Byte` array is its UTF-16LE bytes, and a
+  Byte array read as a String decodes them.
+- VBA's `Collection.Count` is a method: `CallByName(c, "Count", VbMethod)`
+  reads it and `VbGet` is error 438.
+
+Under `On Error Resume Next`, VBA resumes a `For Each` over an unallocated
+array inside the loop's body; this resumes after the loop.
+
 ## What is not
 
 - **Spills are not measured through a sort, an insert or a delete.** A

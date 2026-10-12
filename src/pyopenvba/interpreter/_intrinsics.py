@@ -28,10 +28,11 @@ from collections.abc import Callable
 from decimal import Decimal
 from typing import TYPE_CHECKING, Any, Final
 
-from pyopenvba.exceptions import VBAUnsupportedError
+from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.interpreter._objects import VBAObject
 from pyopenvba.interpreter._values import (
     EMPTY,
+    ERROR_TEXT,
     ERR_INVALID_PROCEDURE_CALL,
     ERR_SUBSCRIPT_OUT_OF_RANGE,
     ERR_TYPE_MISMATCH,
@@ -102,7 +103,6 @@ UNIMPLEMENTED: Final[dict[str, str]] = {
     "ppmt": "is not implemented yet",
     "npv": "is not implemented yet",
     "qbcolor": "is not implemented yet",
-    "strconv": "is not implemented yet",
     "partition": "is not implemented yet",
 }
 
@@ -177,6 +177,9 @@ def _call_by_name(interpreter: Interpreter, args: list[object], named: dict[str,
         target.vba_set(name, rest[-1], rest[:-1], {}, by_ref=bool(kind & _SET))
         return EMPTY
     if not kind & (_METHOD | _GET) or (kind == _METHOD and spec is not None and spec.kind != "method"):
+        raise error(438, f"{target.vba_type_name} has no such member as {name}")
+    strict = getattr(target, "vba_strict_call_types", False)
+    if strict and kind == _GET and spec is not None and spec.kind == "method":
         raise error(438, f"{target.vba_type_name} has no such member as {name}")
     return target.vba_get(name, rest, {})
 
@@ -563,6 +566,69 @@ def vba_string(interpreter: Interpreter, count: object, character: object) -> ob
             raise error(ERR_INVALID_PROCEDURE_CALL)
         return character[0] * times
     return chr(int(to_integer(character, "Long")) & 0xFF) * times
+
+
+#: The characters after which StrConv's vbProperCase starts a word (native
+#: probes: space, tab, NUL, LF, VT, FF and CR; no punctuation, digit or NBSP).
+_WORD_BREAKS: Final = frozenset(" \t\x00\n\x0b\x0c\r")
+
+
+def _proper_case(text: str) -> str:
+    out: list[str] = []
+    starts = True
+    for char in text:
+        changed = char.upper() if starts else char.lower()
+        # VBA maps one character to one: a case that would grow (ß) stays.
+        out.append(changed if len(changed) == 1 else char)
+        starts = char in _WORD_BREAKS
+    return "".join(out)
+
+
+def _ansi_bytes(text: str) -> list[int]:
+    """Text as Windows-1252 bytes, '?' for what the code page lacks (native probe)."""
+    return list(text.encode("cp1252", errors="replace"))
+
+
+def _ansi_text(data: list[int]) -> str:
+    """Windows-1252 bytes as text; the five bytes it leaves undefined keep their value."""
+    return "".join(bytes([byte]).decode("cp1252", errors="ignore") or chr(byte) for byte in data)
+
+
+@intrinsic("StrConv", "String", "Conversion", "LocaleID", minimum=2)
+def vba_strconv(interpreter: Interpreter, value: object, conversion: object, locale: object) -> object:
+    """Case and byte conversions. A case flag with a byte flag, and the East
+    Asian flags, are error 5 here, as on a Western Office (native probes)."""
+    flags = int(to_integer(conversion, "Long"))
+    case, unicode = flags & 3, flags & ~3
+    if unicode not in (0, 64, 128) or (case and unicode):
+        raise error(ERR_INVALID_PROCEDURE_CALL)
+    if value is NULL:
+        return NULL
+    if unicode == 64:
+        data = value.items if isinstance(value, VBAArray) else [ord(char) & 0xFF for char in to_text(value)]
+        return _ansi_text([int(to_integer(byte, "Byte")) for byte in data])
+    text = to_text(value)
+    if unicode == 128:
+        data = _ansi_bytes(text)
+        return VBAArray([(0, len(data) - 1)], element_type="Byte", items=[VBAInt(byte, "Byte") for byte in data])
+    if case == 1:
+        return text.upper()
+    if case == 2:
+        return text.lower()
+    if case == 3:
+        return _proper_case(text)
+    return text
+
+
+@intrinsic("Error", "ErrorNumber")
+def vba_error(interpreter: Interpreter, number: object) -> object:
+    """The text of an error number, or of the current error with no argument."""
+    if number is MISSING:
+        return interpreter.err.description
+    code = int(to_integer(number, "Integer"))
+    if code == 0:
+        return ""
+    return ERROR_TEXT.get(code, ERROR_TEXT[1004])
 
 
 @intrinsic("StrReverse", "String", minimum=1)
@@ -1041,15 +1107,15 @@ def vba_ismissing(interpreter: Interpreter, value: object) -> object:
 
 @intrinsic("IsNumeric", "Expression", minimum=1)
 def vba_isnumeric(interpreter: Interpreter, value: object) -> object:
-    """IsNumeric is looser than CDbl: it allows the digit grouping."""
+    """Whether CDbl would read the value: the same text forms, measured."""
     if isinstance(value, (bool, int, float, Decimal)):
         return True
     if value is EMPTY:
         return False
     if isinstance(value, str):
         try:
-            to_number(value.replace(",", ""))
-        except Exception:
+            to_number(value)
+        except VBARuntimeError:
             return False
         return True
     return False

@@ -517,6 +517,9 @@ class Parser:
         procedure.params = self._parse_params()
         if self.accept_word("as"):
             procedure.returns = self._parse_type_name()
+            if self.accept_op("("):
+                self.expect_op(")")
+                procedure.returns_array = True
         self.end_statement()
         closing = "sub" if kind == "sub" else ("function" if kind == "function" else "property")
         procedure.body = self._parse_block(ends=(closing,))

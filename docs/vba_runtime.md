@@ -1773,14 +1773,30 @@ Text reads as a date as a US-English Office reads it, for `CDate`, `IsDate`,
 `DateValue` and `TimeValue`, over 182 native strings in
 `tests/fixtures/date_text.json` (`scripts/measure_date_text.py`). Numbers,
 month names (any prefix of three letters or more) and AM/PM are separated by
-`/`, `-`, `,` or spaces; weekday names and `.` between numbers are not read.
+`/`, `-`, `,` or spaces; weekday names are not read.
 Three numbers are month-day-year, else year-month-day, else day-month-year,
 whichever is first a real date; two are month-day, day-month, month-year or
 year-month, in this year when there is none. With a month name the first
 number is the day unless it is past 31. A year under 100 is 1950 to 2049. A
 time, `h:mm[:ss]` or an hour beside AM/PM, comes before or after the date,
-set off by spaces. `CDate` of a number in text, `CDate("2024")`, is that
-serial, though `IsDate` says False.
+set off by spaces. A dot separates a time's parts as a colon does, so
+`CDate("1.5")` is 1:05 AM and `"1.5.2024"` is no date; text whose parts
+are no time (`"24.00"`, `"1.60"`) is read as a number
+(`tests/fixtures/vba_runtime_edges.json`). `CDate` of a number in text,
+`CDate("2024")`, is that serial, though `IsDate` says False, as it does
+for any number that is not a Date.
+
+`Round` of a Double scales by ten to the digits in floating point, rounds
+half to even there and scales back, so `Round(2.345, 2)` is 2.35 (2.345 \* 100
+is 234.50000000000003) and `Round(1.255, 2)` 1.25; a Currency or Decimal
+rounds its exact value. A zero result keeps a minus sign only from a tie
+(`Round(-0.5)` is -0, `Round(-0.4)` 0), and `Fix` and `Int` keep a zero's
+sign (`Fix(-0.5)` is -0). `0 / 0` is error 6, an overflow, except between
+Decimals; another number over zero is error 11. A Collection key has to be a
+String (a number, Date, Empty or Null is error 13), `Before` with `After` is
+error 5, and a position in an empty Collection is error 5 where a filled one
+says 9 (`tests/fixtures/vba_runtime_edges.json`,
+`scripts/measure_vba_runtime_edges.py`).
 
 `Format` is VBA's own engine, `pyopenvba/interpreter/_format.py`, held to
 245 native calls in `tests/fixtures/vba_format.json`. A section with a `0`

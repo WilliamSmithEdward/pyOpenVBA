@@ -274,6 +274,24 @@ All notable changes to pyOpenVBA are documented here. This project follows
   in Excel; it read the range's values and indexed the array. 26 native
   probes in `tests/fixtures/excel_vba_idioms.json`.
 
+- A function can return a typed array: `Function F() As Long()` was a
+  compile error.
+- `Round` of a Double rounds as VBA does, in floating point after scaling:
+  `Round(2.345, 2)` is 2.35 and `Round(1.255, 2)` 1.25, where the emulator
+  rounded the shortest decimal text. `Fix`, `Int` and a tie in `Round`
+  keep a zero's minus sign; `Abs` drops it.
+- `0 / 0` is error 6, not 11. `Val` reads hex text at a literal's width
+  (`Val("&HFFFF")` is -1). `AscW` past 32767 is negative. `IsDate` of a
+  number is False.
+- A dot separates a time's parts in date text: `CDate("1.5")` is 1:05 AM,
+  not the number 1.5.
+- A Collection key that is not a String is error 13; `Before` with `After`
+  is error 5; a position in an empty Collection is error 5.
+- `FormatNumber`, `FormatCurrency` and `FormatPercent` take their
+  leading-digit, parentheses and grouping arguments (they were refused), and
+  -1 digits means 2; `FormatDateTime`'s long date writes `March 5`, not
+  `March 05`. 51 native probes in `tests/fixtures/vba_runtime_edges.json`.
+
 ## [6.5.0] - 2026-10-04
 
 ### Added

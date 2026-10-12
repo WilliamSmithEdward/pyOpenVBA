@@ -290,12 +290,18 @@ def vba_val(interpreter: Interpreter, value: object) -> object:
         raise error(ERR_TYPE_MISMATCH)
     text = to_text(value).replace(" ", "").replace("\t", "")
     if text[:2].lower() in ("&h", "&o"):
-        for stop in range(len(text), 2, -1):
-            try:
-                return float(int(text[2:stop], 16 if text[1] in "hH" else 8))
-            except ValueError:
-                continue
-        return 0.0
+        # Read at a literal's width: up to &HFFFF an Integer, up to &HFFFFFFFF a
+        # Long, so Val("&HFFFF") is -1 and Val("&H8000") -32768, while a trailing
+        # & makes it a Long: Val("&HFFFF&") is 65535 (native probes).
+        digits = re.match(r"[0-9a-f]*" if text[1] in "hH" else r"[0-7]*", text[2:], re.IGNORECASE)
+        assert digits is not None
+        if not digits.group():
+            return 0.0
+        raw = int(digits.group(), 16 if text[1] in "hH" else 8)
+        bits = 16 if raw <= 0xFFFF and not text[2 + digits.end():].startswith("&") else 32
+        if raw <= 0xFFFFFFFF and raw >= 1 << (bits - 1):
+            raw -= 1 << bits
+        return float(raw)
     for stop in range(len(text), 0, -1):
         try:
             return float(text[:stop])
@@ -372,6 +378,8 @@ def vba_abs(interpreter: Interpreter, value: object) -> object:
     if value is NULL:
         return NULL
     number = to_number(value)
+    if isinstance(number, float) and number == 0.0:
+        return _same_kind(number, 0.0)
     if number >= 0:
         return number
     if isinstance(number, VBAInt):
@@ -397,7 +405,8 @@ def vba_int(interpreter: Interpreter, value: object) -> object:
         return number
     if isinstance(number, Decimal):
         return _same_kind(number, Decimal(math.floor(number)))
-    return _same_kind(number, float(math.floor(number)))
+    # Int and Fix keep a zero's sign: Fix(-0.5) is -0 (native probes).
+    return _same_kind(number, math.copysign(math.floor(number), number))
 
 
 @intrinsic("Fix", "Number", minimum=1)
@@ -409,7 +418,7 @@ def vba_fix(interpreter: Interpreter, value: object) -> object:
         return number
     if isinstance(number, Decimal):
         return _same_kind(number, Decimal(int(number)))
-    return _same_kind(number, float(int(number)))
+    return _same_kind(number, math.copysign(int(number), number))
 
 
 @intrinsic("Round", "Number", "NumDigitsAfterDecimal", minimum=1)
@@ -778,7 +787,9 @@ def vba_ascw(interpreter: Interpreter, text: object) -> object:
     body = to_text(text)
     if not body:
         raise error(ERR_INVALID_PROCEDURE_CALL)
-    return VBAInt(ord(body[0]), "Integer")
+    # An Integer, so code points past 32767 come back negative: AscW(ChrW(&HFFFF)) is -1 (native probes).
+    code = ord(body[0])
+    return VBAInt(code - 65536 if code > 32767 else code, "Integer")
 
 
 @intrinsic("Chr", "CharCode", minimum=1)
@@ -968,25 +979,48 @@ def vba_format(
     return format_value(value, pattern, day, week)
 
 
-@intrinsic("FormatNumber", "Expression", "NumDigitsAfterDecimal", minimum=1)
-def vba_format_number(interpreter: Interpreter, value: object, digits: object) -> object:
+def _tristate(value: object, default: bool) -> bool:
+    """A vbTriState argument: missing or vbUseDefault (-2) takes the locale's choice."""
+    if value is MISSING or int(to_integer(value, "Long")) == -2:
+        return default
+    return to_bool(value)
+
+
+def _format_numeric(interpreter: Interpreter, value: object, digits: object, leading: object, parens: object,
+                    group: object, *, prefix: str = "", suffix: str = "", parens_default: bool = False) -> object:
+    """FormatNumber, FormatCurrency and FormatPercent as a Format pattern: -1
+    digits is the locale's 2, False leading digit drops the 0 before the
+    point, parentheses wrap a negative and False grouping drops the
+    thousands separator. Only the currency format puts negatives in
+    parentheses by default (native probes, en-US)."""
     places = 2 if digits is MISSING else int(to_integer(digits, "Long"))
-    pattern = "#,##0" + ("." + "0" * places if places else "")
+    if places == -1:
+        places = 2
+    whole = "0" if _tristate(leading, True) else "#"
+    body = prefix + ("#,##" + whole if _tristate(group, True) else whole) + ("." + "0" * places if places else "") + suffix
+    pattern = f"{body};({body})" if _tristate(parens, parens_default) else body
     return vba_format(interpreter, value, pattern, MISSING, MISSING)
 
 
-@intrinsic("FormatCurrency", "Expression", "NumDigitsAfterDecimal", minimum=1)
-def vba_format_currency(interpreter: Interpreter, value: object, digits: object) -> object:
-    places = 2 if digits is MISSING else int(to_integer(digits, "Long"))
-    pattern = "$#,##0" + ("." + "0" * places if places else "")
-    return vba_format(interpreter, value, pattern, MISSING, MISSING)
+@intrinsic("FormatNumber", "Expression", "NumDigitsAfterDecimal", "IncludeLeadingDigit",
+           "UseParensForNegativeNumbers", "GroupDigits", minimum=1)
+def vba_format_number(interpreter: Interpreter, value: object, digits: object, leading: object, parens: object,
+                      group: object) -> object:
+    return _format_numeric(interpreter, value, digits, leading, parens, group)
 
 
-@intrinsic("FormatPercent", "Expression", "NumDigitsAfterDecimal", minimum=1)
-def vba_format_percent(interpreter: Interpreter, value: object, digits: object) -> object:
-    places = 2 if digits is MISSING else int(to_integer(digits, "Long"))
-    pattern = "0" + ("." + "0" * places if places else "") + "%"
-    return vba_format(interpreter, value, pattern, MISSING, MISSING)
+@intrinsic("FormatCurrency", "Expression", "NumDigitsAfterDecimal", "IncludeLeadingDigit",
+           "UseParensForNegativeNumbers", "GroupDigits", minimum=1)
+def vba_format_currency(interpreter: Interpreter, value: object, digits: object, leading: object, parens: object,
+                        group: object) -> object:
+    return _format_numeric(interpreter, value, digits, leading, parens, group, prefix="$", parens_default=True)
+
+
+@intrinsic("FormatPercent", "Expression", "NumDigitsAfterDecimal", "IncludeLeadingDigit",
+           "UseParensForNegativeNumbers", "GroupDigits", minimum=1)
+def vba_format_percent(interpreter: Interpreter, value: object, digits: object, leading: object, parens: object,
+                       group: object) -> object:
+    return _format_numeric(interpreter, value, digits, leading, parens, group, suffix="%")
 
 
 @intrinsic("FormatDateTime", "Date", "NamedFormat", minimum=1)
@@ -994,7 +1028,7 @@ def vba_format_datetime(interpreter: Interpreter, value: object, named: object) 
     which = 0 if named is MISSING else int(to_integer(named, "Long"))
     patterns = {
         0: "",
-        1: "dddd, mmmm dd, yyyy",
+        1: "dddd, mmmm d, yyyy",
         2: "m/d/yyyy",
         3: "h:mm:ss AM/PM",
         4: "hh:mm",
@@ -1280,8 +1314,7 @@ def vba_isdate(interpreter: Interpreter, value: object) -> object:
         return True
     if isinstance(value, str):
         return parse_date_text(value) is not None
-    if isinstance(value, (int, float)) and not isinstance(value, bool):
-        return -657434.0 <= float(value) < 2958466.0
+    # A number is not a date, though CDate takes it: IsDate(45000) is False (native probes).
     return False
 
 

@@ -67,6 +67,7 @@ from pyopenvba.interpreter._values import (
     negate,
     power,
     subtract,
+    condition,
     to_bool,
     to_integer,
     text_bytes,
@@ -149,6 +150,28 @@ class Slot:
         self.value = copy_value(coerce(as_declared(value, self.declared), self.declared))
 
 
+class ParamArrayValues(VBAArray):
+    """A ParamArray's array: an argument passed as a variable is that variable,
+    so ``xs(0) = xs(0) * 2`` changes the caller's; an expression, ``(a)``
+    included, is a copy (native probes)."""
+
+    __slots__ = ()
+
+    def get(self, subscripts: list[int]) -> object:
+        item = super().get(subscripts)
+        return item.get() if isinstance(item, Slot) else item
+
+    def set(self, subscripts: list[int], value: object) -> None:
+        item = self.items[self.offset(subscripts)]
+        if isinstance(item, Slot):
+            item.set(value)
+        else:
+            super().set(subscripts, value)
+
+    def elements(self) -> list[object]:
+        return [item.get() if isinstance(item, Slot) else item for item in self.items]
+
+
 class AutoNewSlot(Slot):
     """A variable declared ``As New``: the object is made where the variable is
     first used, not where it is declared, and made again after ``Set x = Nothing``,
@@ -223,6 +246,8 @@ class Frame:
     handler_label: str = ""
     in_handler: bool = False
     gosub_depth: int = 0
+    #: The last numbered line run in this procedure, which Erl reports for an error it handles.
+    line_number: int = 0
     args_named: dict[str, Slot] = field(default_factory=lambda: {})
     locked_arrays: list[VBAArray] = field(default_factory=lambda: [])
 
@@ -314,6 +339,9 @@ class ErrObject(VBAObject):
         self.source = ""
         self.help_file = ""
         self.help_context = 0
+        #: What Erl reports: the last numbered line run in the procedure that
+        #: handled the error. Err.Clear keeps it (native probes).
+        self.erl = 0
 
     @member
     def Number(self) -> object:
@@ -1091,6 +1119,7 @@ class Interpreter:
         # A procedure starts with no error, whatever its caller's Err held; what it leaves in Err stays after it.
         if reset_error:
             self.err.reset()
+            self.err.erl = 0
         if procedure.kind in ("function", "get"):
             frame.locals[procedure.name.lower()] = self.make_slot(
                 A.VarDecl(name=procedure.name, declared=procedure.returns), module
@@ -1131,8 +1160,9 @@ class Interpreter:
                 raise error(448, f"{procedure.name} has no argument named {key}")
         for index, parameter in enumerate(params):
             if parameter.param_array:
-                rest = [self._by_value(one) for one in laid[index:]]
-                array = VBAArray(
+                # A variable stays its Slot, so the element aliases it.
+                rest = [one if isinstance(one, Slot) else self._by_value(one) for one in laid[index:]]
+                array = ParamArrayValues(
                     [(0, len(rest) - 1)] if rest else [(0, -1)],
                     items=rest if rest else [],
                 )
@@ -1201,7 +1231,7 @@ class Interpreter:
             if isinstance(statement, A.Dim):
                 for declaration in statement.decls:
                     key = declaration.name.lower()
-                    if statement.static:
+                    if statement.static or frame.procedure.static:
                         store = frame.module.statics.setdefault(frame.procedure.name.lower(), {})
                         if key not in store:
                             store[key] = self.make_slot(declaration, frame.module)
@@ -1247,6 +1277,7 @@ class Interpreter:
         if frame.in_handler or frame.handler == "none":
             return "raise"
         self.err.capture(failure)
+        self.err.erl = frame.line_number
         if frame.handler == "resume_next":
             return "next"
         index = _label_index(frame.procedure.body, frame.handler_label)
@@ -1393,7 +1424,7 @@ class Interpreter:
 
     def _do_if(self, statement: A.If, frame: Frame) -> None:
         for branch in statement.branches:
-            if to_bool(self.evaluate(branch.condition, frame)):
+            if condition(self.evaluate(branch.condition, frame)):
                 self._execute_block(branch.body, frame)
                 return
         if statement.otherwise:
@@ -1450,7 +1481,7 @@ class Interpreter:
     def _do_do(self, statement: A.DoLoop, frame: Frame) -> None:
         while True:
             if not statement.at_end and statement.test:
-                truth = to_bool(self.evaluate(statement.condition, frame))
+                truth = condition(self.evaluate(statement.condition, frame))
                 if statement.test == "while" and not truth:
                     return
                 if statement.test == "until" and truth:
@@ -1462,14 +1493,14 @@ class Interpreter:
                     return
                 raise
             if statement.at_end and statement.test:
-                truth = to_bool(self.evaluate(statement.condition, frame))
+                truth = condition(self.evaluate(statement.condition, frame))
                 if statement.test == "while" and not truth:
                     return
                 if statement.test == "until" and truth:
                     return
 
     def _do_while(self, statement: A.WhileLoop, frame: Frame) -> None:
-        while to_bool(self.evaluate(statement.condition, frame)):
+        while condition(self.evaluate(statement.condition, frame)):
             try:
                 self._execute_block(statement.body, frame)
             except _ExitSignal as signal:
@@ -1504,15 +1535,15 @@ class Interpreter:
             return ("variant", self._static_kind(expression, frame))
 
         if clause.kind == "value":
-            return to_bool(compare("=", subject, self.evaluate(clause.value, frame), text_compare=text,
+            return condition(compare("=", subject, self.evaluate(clause.value, frame), text_compare=text,
                                    kinds=kinds(clause.value)))
         if clause.kind == "range":
             low = self.evaluate(clause.value, frame)
             high = self.evaluate(clause.upper, frame)
-            return to_bool(compare(">=", subject, low, text_compare=text, kinds=kinds(clause.value))) and to_bool(
+            return condition(compare(">=", subject, low, text_compare=text, kinds=kinds(clause.value))) and condition(
                 compare("<=", subject, high, text_compare=text, kinds=kinds(clause.upper))
             )
-        return to_bool(compare(clause.op, subject, self.evaluate(clause.value, frame), text_compare=text,
+        return condition(compare(clause.op, subject, self.evaluate(clause.value, frame), text_compare=text,
                                kinds=kinds(clause.value)))
 
     def _do_exit(self, statement: A.ExitStmt, frame: Frame) -> None:
@@ -1557,12 +1588,17 @@ class Interpreter:
             frame.gosub_depth -= 1
 
     def _do_label(self, statement: A.Label, frame: Frame) -> None:
-        return None
+        if statement.name.isdigit():
+            frame.line_number = int(statement.name)
 
     def _do_on_error(self, statement: A.OnError, frame: Frame) -> None:
         # Every On Error statement clears Err (tests/fixtures/vba_semantics/err_lifetime.json).
         self.err.reset()
-        if statement.mode == "clear":
+        if statement.mode == "reset":
+            # On Error GoTo -1: the current error is over, so a new On Error
+            # can take effect inside the handler (native probes).
+            frame.in_handler = False
+        elif statement.mode == "clear":
             frame.handler = "none"
             frame.handler_label = ""
         elif statement.mode == "resume_next":
@@ -2614,8 +2650,12 @@ def _by_ref_positions(procedure: A.Procedure | None) -> Callable[[int, str], boo
                 if parameter.name.lower() == name.lower():
                     return not parameter.by_val
             return False
-        if index < len(procedure.params):
-            return not procedure.params[index].by_val
+        params = procedure.params
+        if params and params[-1].param_array and index >= len(params) - 1:
+            # Every argument a ParamArray gathers is passed ByRef (native probes).
+            return True
+        if index < len(params):
+            return not params[index].by_val
         return False
 
     return wanted

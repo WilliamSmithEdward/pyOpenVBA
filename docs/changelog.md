@@ -249,6 +249,25 @@ All notable changes to pyOpenVBA are documented here. This project follows
   `CStr`, `CDec` of text and arithmetic keep all 29 digits of the largest
   one, which lost its last digit.
 
+- Null as an If, ElseIf, While, Do, IIf or Case condition is False, as in
+  VBA; it was error 94. `^` groups left to right (`2 ^ 3 ^ 2` is 64, it was
+  512).
+- `Static Function` keeps all its locals; `On Error GoTo -1` parses and ends
+  the current error; a ParamArray's elements are the caller's variables, so
+  changing one changes theirs; `Show (a), b` passes `(a)` as the first
+  argument rather than indexing the result of `Show(a)`.
+- `DateDiff` counts hour, minute and second boundaries as it counts days;
+  `DateAdd` past the years a Date holds is error 5, where a Python
+  `ValueError` escaped.
+- `Str` writes no zero before the point (`" .5"`) and keeps True and dates
+  as text; `InStr` and `InStrRev` follow VBA with an empty search and a start
+  past the end; `Chr` is Windows-1252 0 to 255 and `Asc` its code; `ChrW`
+  out of range is error 5; `IsNumeric(Empty)` is True; `Split` honours
+  `vbTextCompare`; hex text is read at the target's width
+  (`CInt("&HFFFF")` is -1).
+- `LeftB`, `RightB`, `MidB`, `AscB`, `InStrB` and `Erl` exist; a numbered
+  line written `40:` is a label.
+
 ## [6.5.0] - 2026-10-04
 
 ### Added

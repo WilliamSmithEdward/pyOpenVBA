@@ -113,6 +113,25 @@ CASES.update({
     "currency_kept": 'Probe = TypeName(2.5@) & TypeName(Fix(2.5@)) & TypeName(Int(2.5@)) & TypeName(Abs(-2.5@)) & TypeName(2.5@ + 1) & TypeName(2.5@ * 2.5)',
     "decimal_29_digits": 'Probe = CStr(CDec("79228162514264337593543950335")) & "|" & CStr(CDec("7.9228162514264337593543950335"))',
     "decimal_arithmetic": 'Dim d As Variant\nd = CDec("79228162514264337593543950334")\nProbe = CStr(d + 1) & "|" & TypeName(d + 1) & "|" & CStr(CDec("0.1") * 3)',
+    # Str, InStr and InStrRev at their edges.
+    "str_values": 'Probe = "[" & Str(0.5) & "][" & Str(-0.5) & "][" & Str(1E+20) & "][" & Str(1.5@) & "][" & Str(#1/2/2003#) & "][" & Str(CSng(0.25)) & "][" & Str(0) & "][" & Str(Empty) & "]"',
+    "str_bool_null": 'Probe = "[" & Str(True) & "][" & Str(False) & "]" & IsNull(Str(Null))',
+    "instr_empty_search": 'Probe = InStr(4, "abc", "") & InStr(5, "abc", "") & InStr(3, "abc", "") & InStr("", "")',
+    "instrrev_start": 'Probe = InStrRev("abc", "c", 3) & InStrRev("abc", "c", 2) & InStrRev("abc", "c", -1) & InStrRev("abc", "", 2) & InStrRev("", "") & InStrRev("abc", "", 5) & InStrRev("abcabc", "bc") & InStrRev("abcabc", "bc", 4)',
+    "instrrev_start_zero": 'Dim n As Long\nn = InStrRev("abc", "c", 0)\nProbe = n',
+    # Chr is Windows-1252 0 to 255, ChrW -32768 to 65535, Asc the 1252 code.
+    "chr_255": 'Probe = AscW(Chr(255)) & "|" & AscW(Chr(128)) & "|" & Asc(ChrW(8364)) & "|" & Asc(ChrW(&H4E2D))',
+    "chr_256": 'Probe = Chr(256)',
+    "chr_negative": 'Probe = Chr(-1)',
+    "chrw_past": 'Probe = ChrW(65536)',
+    "chrw_below": 'Probe = ChrW(-32769)',
+    "isnumeric_kinds": 'Probe = IsNumeric(Empty) & IsNumeric(Null) & IsNumeric(True) & IsNumeric(#1/1/2000#) & IsNumeric(CVErr(5)) & IsNumeric(Array(1))',
+    "split_text_compare": 'Probe = UBound(Split("aXbxc", "x", , vbTextCompare)) & "|" & UBound(Split("aXbxc", "x", , vbBinaryCompare)) & "|" & Join(Split("aXbxc", "X", , 1), "-")',
+    # Hex text in a conversion is read at the target's width.
+    "hex_text_widths": 'Probe = CLng("&HFF") & "|" & CLng("&O10") & "|" & CInt("&HFFFF") & "|" & CLng("&HFFFF") & "|" & CLng("&HFFFFFFFF") & "|" & CDbl("&H10")',
+    "hex_text_suffix": 'Probe = CLng("&HFFFF&")',
+    # The byte functions read a String's UTF-16 bytes.
+    "byte_functions": 'Probe = LeftB("abc", 2) & "|" & LenB("abc") & "|" & RightB("abc", 2) & "|" & MidB("abc", 3, 2) & "|" & AscB("A") & "|" & InStrB("abc", "b")',
 })
 
 

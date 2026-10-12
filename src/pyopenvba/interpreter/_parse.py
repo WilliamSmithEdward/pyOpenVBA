@@ -105,7 +105,8 @@ _PRECEDENCE: Final[dict[str, int]] = {
     "imp": -1,
 }
 
-_RIGHT_ASSOCIATIVE: Final = frozenset({"^"})
+#: Every binary operator groups left to right in VBA, ^ too: 2 ^ 3 ^ 2 is 64 (native probe).
+_RIGHT_ASSOCIATIVE: Final[frozenset[str]] = frozenset()
 
 
 class Parser:
@@ -576,9 +577,12 @@ class Parser:
         line = self.token.line
         token = self.token
 
-        if token.kind == "number" and self.peek().kind not in ("eos", "eof"):
-            # An old-style line number, which is a label.
+        if token.kind == "number":
+            # An old-style line number, which is a label: "10 x = 1", "40: x = 1"
+            # or a number alone on its line.
             self.advance()
+            if self.token.kind == "eos" and self.token.text == ":":
+                self.advance()
             return A.Label(line=line, name=token.text)
 
         if token.kind == "ident":
@@ -976,6 +980,11 @@ class Parser:
                 return A.OnError(line=line, mode="resume_next")
             if not self.accept_word("goto"):
                 self.fail("On Error has to be followed by GoTo or Resume Next")
+            if self.accept_op("-"):
+                if self.advance().text != "1":
+                    self.fail("On Error GoTo takes a label, 0 or -1")
+                self.end_statement()
+                return A.OnError(line=line, mode="reset")
             label = self.advance()
             self.end_statement()
             if label.kind == "number" and label.text == "0":
@@ -1103,6 +1112,15 @@ class Parser:
             inner = target.target
             if inner is not None:
                 target = inner
+        elif (isinstance(target, A.Index) and len(target.args) == 1 and target.target is not None
+              and self.at_op(",")):
+            # "Show (a), b": the parenthesised expression is the first argument,
+            # passed by value, and the rest follow (native probe).
+            first = target.args[0]
+            first.by_value = True
+            self.advance()
+            args = [first, *self._parse_arguments(closing=False)]
+            target = target.target
         elif not self.at_eos():
             args = self._parse_arguments(closing=False)
         self.end_statement()

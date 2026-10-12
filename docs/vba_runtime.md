@@ -1799,6 +1799,13 @@ by Python's cycle collector at a time of its own. `As New` makes the object
 at its first use and again after `Set x = Nothing`. A `For Each` that runs
 to its end leaves its variable Empty, or Nothing; `Exit For` keeps it.
 
+A variable typed as an interface a class `Implements` holds an
+`InterfaceView` (18 native probes in `tests/fixtures/vba_interfaces.json`):
+its calls go to the class's `Interface_Member` procedures, an Object or
+Variant it is set on to keeps the view, setting it on to the class's own
+type gives the class back, and setting a class that does not implement the
+interface is error 13. `Is`, `TypeName` and `TypeOf` see the object.
+
 Two lifetime cases are known to differ: an error raised in `Class_Terminate`,
 which VBA reports to the code that released the object even under `On Error
 Resume Next`, is dropped here; and `Log = Log & (x Is Nothing)`, where `x`

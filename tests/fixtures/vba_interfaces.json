@@ -1,0 +1,101 @@
+{
+  "excel_version_build": "16.0|20430",
+  "measured_at": "2026-10-12T19:36:02.726953+00:00",
+  "classes": {
+    "IShape": "Public Name As String\nPublic Function Area() As Double\nEnd Function\nPublic Sub Grow(ByVal f As Double)\nEnd Sub\n",
+    "CSquare": "Implements IShape\nPublic Side As Double\nPrivate mName As String\nPrivate Function IShape_Area() As Double\nIShape_Area = Side * Side\nEnd Function\nPrivate Sub IShape_Grow(ByVal f As Double)\nSide = Side * f\nEnd Sub\nPrivate Property Get IShape_Name() As String\nIShape_Name = \"sq:\" & mName\nEnd Property\nPrivate Property Let IShape_Name(ByVal v As String)\nmName = v\nEnd Property\nPublic Function Area() As String\nArea = \"own area\"\nEnd Function\n",
+    "CPlain": "Public Side As Double\n"
+  },
+  "probes": [
+    {
+      "name": "call_through_interface",
+      "macro": "\nPrivate Function Describe(ByVal sh As IShape) As String\nDescribe = TypeName(sh) & \":\" & sh.Area\nEnd Function\nPrivate Function AsShape(ByVal sq As CSquare) As IShape\nSet AsShape = sq\nEnd Function\n\nFunction Probe() As String\nDim s As New CSquare, sh As IShape\ns.Side = 3\nSet sh = s\nProbe = sh.Area & \"|\" & s.Area\nEnd Function\n",
+      "result": "9|own area"
+    },
+    {
+      "name": "is_identity",
+      "macro": "\nPrivate Function Describe(ByVal sh As IShape) As String\nDescribe = TypeName(sh) & \":\" & sh.Area\nEnd Function\nPrivate Function AsShape(ByVal sq As CSquare) As IShape\nSet AsShape = sq\nEnd Function\n\nFunction Probe() As String\nDim s As New CSquare, sh As IShape\nSet sh = s\nProbe = (sh Is s) & \"|\" & (s Is sh)\nEnd Function\n",
+      "result": "True|True"
+    },
+    {
+      "name": "typename_typeof",
+      "macro": "\nPrivate Function Describe(ByVal sh As IShape) As String\nDescribe = TypeName(sh) & \":\" & sh.Area\nEnd Function\nPrivate Function AsShape(ByVal sq As CSquare) As IShape\nSet AsShape = sq\nEnd Function\n\nFunction Probe() As String\nDim s As New CSquare, sh As IShape\nSet sh = s\nProbe = TypeName(sh) & \"|\" & (TypeOf sh Is CSquare) & \"|\" & (TypeOf s Is IShape) & \"|\" & (TypeOf sh Is IShape)\nEnd Function\n",
+      "result": "CSquare|True|True|True"
+    },
+    {
+      "name": "typeof_not_implemented",
+      "macro": "\nPrivate Function Describe(ByVal sh As IShape) As String\nDescribe = TypeName(sh) & \":\" & sh.Area\nEnd Function\nPrivate Function AsShape(ByVal sq As CSquare) As IShape\nSet AsShape = sq\nEnd Function\n\nFunction Probe() As String\nDim p As New CPlain\nProbe = (TypeOf p Is IShape)\nEnd Function\n",
+      "result": "False"
+    },
+    {
+      "name": "interface_property",
+      "macro": "\nPrivate Function Describe(ByVal sh As IShape) As String\nDescribe = TypeName(sh) & \":\" & sh.Area\nEnd Function\nPrivate Function AsShape(ByVal sq As CSquare) As IShape\nSet AsShape = sq\nEnd Function\n\nFunction Probe() As String\nDim s As New CSquare, sh As IShape\nSet sh = s\nsh.Name = \"a\"\nProbe = sh.Name\nEnd Function\n",
+      "result": "sq:a"
+    },
+    {
+      "name": "interface_sub",
+      "macro": "\nPrivate Function Describe(ByVal sh As IShape) As String\nDescribe = TypeName(sh) & \":\" & sh.Area\nEnd Function\nPrivate Function AsShape(ByVal sq As CSquare) As IShape\nSet AsShape = sq\nEnd Function\n\nFunction Probe() As String\nDim s As New CSquare, sh As IShape\ns.Side = 2\nSet sh = s\nsh.Grow 3\nProbe = s.Side\nEnd Function\n",
+      "result": "6"
+    },
+    {
+      "name": "parameter_interface",
+      "macro": "\nPrivate Function Describe(ByVal sh As IShape) As String\nDescribe = TypeName(sh) & \":\" & sh.Area\nEnd Function\nPrivate Function AsShape(ByVal sq As CSquare) As IShape\nSet AsShape = sq\nEnd Function\n\nFunction Probe() As String\nDim s As New CSquare\ns.Side = 4\nProbe = Describe(s)\nEnd Function\n",
+      "result": "CSquare:16"
+    },
+    {
+      "name": "return_interface",
+      "macro": "\nPrivate Function Describe(ByVal sh As IShape) As String\nDescribe = TypeName(sh) & \":\" & sh.Area\nEnd Function\nPrivate Function AsShape(ByVal sq As CSquare) As IShape\nSet AsShape = sq\nEnd Function\n\nFunction Probe() As String\nDim s As New CSquare\ns.Side = 5\nProbe = AsShape(s).Area\nEnd Function\n",
+      "result": "25"
+    },
+    {
+      "name": "cast_back",
+      "macro": "\nPrivate Function Describe(ByVal sh As IShape) As String\nDescribe = TypeName(sh) & \":\" & sh.Area\nEnd Function\nPrivate Function AsShape(ByVal sq As CSquare) As IShape\nSet AsShape = sq\nEnd Function\n\nFunction Probe() As String\nDim s As New CSquare, sh As IShape, s2 As CSquare\ns.Side = 6\nSet sh = s\nSet s2 = sh\nProbe = s2.Side & \"|\" & s2.Area\nEnd Function\n",
+      "result": "6|own area"
+    },
+    {
+      "name": "object_keeps_interface",
+      "macro": "\nPrivate Function Describe(ByVal sh As IShape) As String\nDescribe = TypeName(sh) & \":\" & sh.Area\nEnd Function\nPrivate Function AsShape(ByVal sq As CSquare) As IShape\nSet AsShape = sq\nEnd Function\n\nFunction Probe() As String\nDim s As New CSquare, sh As IShape, o As Object\ns.Side = 7\nSet sh = s\nSet o = sh\nProbe = o.Area\nEnd Function\n",
+      "result": "49"
+    },
+    {
+      "name": "object_class_member_missing",
+      "macro": "\nPrivate Function Describe(ByVal sh As IShape) As String\nDescribe = TypeName(sh) & \":\" & sh.Area\nEnd Function\nPrivate Function AsShape(ByVal sq As CSquare) As IShape\nSet AsShape = sq\nEnd Function\n\nFunction Probe() As String\nDim s As New CSquare, sh As IShape, o As Object\ns.Side = 7\nSet sh = s\nSet o = sh\nProbe = o.Side\nEnd Function\n",
+      "error": 438
+    },
+    {
+      "name": "variant_keeps_interface",
+      "macro": "\nPrivate Function Describe(ByVal sh As IShape) As String\nDescribe = TypeName(sh) & \":\" & sh.Area\nEnd Function\nPrivate Function AsShape(ByVal sq As CSquare) As IShape\nSet AsShape = sq\nEnd Function\n\nFunction Probe() As String\nDim s As New CSquare, sh As IShape, v As Variant\ns.Side = 7\nSet sh = s\nSet v = sh\nProbe = v.Area\nEnd Function\n",
+      "result": "49"
+    },
+    {
+      "name": "not_implemented_mismatch",
+      "macro": "\nPrivate Function Describe(ByVal sh As IShape) As String\nDescribe = TypeName(sh) & \":\" & sh.Area\nEnd Function\nPrivate Function AsShape(ByVal sq As CSquare) As IShape\nSet AsShape = sq\nEnd Function\n\nFunction Probe() As String\nDim p As New CPlain, sh As IShape\nOn Error Resume Next\nSet sh = p\nProbe = Err.Number & \"|\" & (sh Is Nothing)\nEnd Function\n",
+      "result": "13|True"
+    },
+    {
+      "name": "for_each_interface",
+      "macro": "\nPrivate Function Describe(ByVal sh As IShape) As String\nDescribe = TypeName(sh) & \":\" & sh.Area\nEnd Function\nPrivate Function AsShape(ByVal sq As CSquare) As IShape\nSet AsShape = sq\nEnd Function\n\nFunction Probe() As String\nDim c As New Collection, sh As IShape, s As CSquare, t As Double\nSet s = New CSquare: s.Side = 1: c.Add s\nSet s = New CSquare: s.Side = 2: c.Add s\nFor Each sh In c\nt = t + sh.Area\nNext\nProbe = t\nEnd Function\n",
+      "result": "5"
+    },
+    {
+      "name": "collection_item_interface",
+      "macro": "\nPrivate Function Describe(ByVal sh As IShape) As String\nDescribe = TypeName(sh) & \":\" & sh.Area\nEnd Function\nPrivate Function AsShape(ByVal sq As CSquare) As IShape\nSet AsShape = sq\nEnd Function\n\nFunction Probe() As String\nDim c As New Collection, s As New CSquare, sh As IShape\ns.Side = 3\nc.Add s\nSet sh = c(1)\nProbe = sh.Area\nEnd Function\n",
+      "result": "9"
+    },
+    {
+      "name": "interface_class_itself",
+      "macro": "\nPrivate Function Describe(ByVal sh As IShape) As String\nDescribe = TypeName(sh) & \":\" & sh.Area\nEnd Function\nPrivate Function AsShape(ByVal sq As CSquare) As IShape\nSet AsShape = sq\nEnd Function\n\nFunction Probe() As String\nDim i As New IShape\ni.Name = \"x\"\nProbe = i.Name & \"|\" & i.Area\nEnd Function\n",
+      "result": "x|0"
+    },
+    {
+      "name": "nothing_interface_call",
+      "macro": "\nPrivate Function Describe(ByVal sh As IShape) As String\nDescribe = TypeName(sh) & \":\" & sh.Area\nEnd Function\nPrivate Function AsShape(ByVal sq As CSquare) As IShape\nSet AsShape = sq\nEnd Function\n\nFunction Probe() As String\nDim sh As IShape\nOn Error Resume Next\nDim a As Double\na = sh.Area\nProbe = Err.Number\nEnd Function\n",
+      "result": "91"
+    },
+    {
+      "name": "callbyname_interface",
+      "macro": "\nPrivate Function Describe(ByVal sh As IShape) As String\nDescribe = TypeName(sh) & \":\" & sh.Area\nEnd Function\nPrivate Function AsShape(ByVal sq As CSquare) As IShape\nSet AsShape = sq\nEnd Function\n\nFunction Probe() As String\nDim s As New CSquare, sh As IShape\ns.Side = 3\nSet sh = s\nProbe = CallByName(sh, \"Area\", VbMethod)\nEnd Function\n",
+      "result": "9"
+    }
+  ]
+}

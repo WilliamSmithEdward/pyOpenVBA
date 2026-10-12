@@ -233,6 +233,22 @@ All notable changes to pyOpenVBA are documented here. This project follows
   releasing the last element. 26 native probes in
   `tests/fixtures/vba_object_lifetime.json`.
 
+- `Implements` works: a variable typed as an interface calls the class's
+  `Interface_Member` procedures, and so does an Object or Variant it is set
+  on to; `Is`, `TypeName` and `TypeOf` see the object, setting a class that
+  does not implement the interface is error 13, and setting the view back
+  on to the class's own type gives the class's members. Calls through the
+  interface were error 438. 18 native probes in
+  `tests/fixtures/vba_interfaces.json`.
+- `Rnd` and `Randomize` give Excel's numbers: a negative argument seeds from
+  the number's Single bits, and `Randomize` replaces the seed's middle 16
+  bits as VBA does. Every `Rnd(-n)` gave the same number.
+- `Round` with negative digits is error 5. `Round`, `Fix`, `Int` and `Abs`
+  keep a Currency or a Single; they gave a Decimal or a Double.
+- A Decimal holds what VBA's does, a 96-bit integer and up to 28 places:
+  `CStr`, `CDec` of text and arithmetic keep all 29 digits of the largest
+  one, which lost its last digit.
+
 ## [6.5.0] - 2026-10-04
 
 ### Added

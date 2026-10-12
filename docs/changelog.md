@@ -300,6 +300,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
   `Is` on Empty, Null or a number is error 424; an array of an object type
   is `Object()` to `TypeName` and 8201 to `VarType`. 39 native probes in
   `tests/fixtures/vba_class_objects.json`.
+- `Range("A1:B2").Value` over empty cells is a 2 by 2 array; the emulator
+  clipped it to the sheet's used cells, so `v(2, 2)` was error 9.
+- Two Error values compare by number: `v = CVErr(xlErrNA)` was error 13. An
+  Error beside any other value, Null included, is error 13, and so is
+  `"x" & CVErr(2042)`, which the emulator spelled out.
 
 ## [6.5.0] - 2026-10-04
 

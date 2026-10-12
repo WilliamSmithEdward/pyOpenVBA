@@ -1799,7 +1799,13 @@ Decimals; another number over zero is error 11. A Collection key has to be a
 String (a number, Date, Empty or Null is error 13), `Before` with `After` is
 error 5, and a position in an empty Collection is error 5 where a filled one
 says 9 (`tests/fixtures/vba_runtime_edges.json`,
-`scripts/measure_vba_runtime_edges.py`).
+`scripts/measure_vba_runtime_edges.py`). Two Error values compare by their
+numbers, so `v = CVErr(xlErrNA)` tests a cell's error; an Error beside any
+other value, Null included, is error 13 to a comparison and to `&`.
+
+`Range.Value` of more than one cell is an array of the range's own shape,
+empty cells included, up to a whole column's worth of cells; past that it is
+clipped to the sheet's used cells (`tests/fixtures/excel_vba_idioms.json`).
 
 `Format` is VBA's own engine, `pyopenvba/interpreter/_format.py`, held to
 245 native calls in `tests/fixtures/vba_format.json`. A section with a `0`

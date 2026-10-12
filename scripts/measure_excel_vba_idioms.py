@@ -1,5 +1,6 @@
 """Measure everyday Excel object-model idioms from VBA that the sweep found the
-emulator getting wrong: sheet-name rules and a Range's default member with arguments.
+emulator getting wrong: sheet-name rules, a Range's default member with arguments,
+the shape of Range.Value over empty cells and Error values read from cells.
 
 Each probe works on a sheet of its own and is recorded as a value or a run-time
 error number (see vba_probe_fixture.py).
@@ -26,6 +27,10 @@ CASES.update({
     "range_call_value": PRE + 'ws.Range("B2").Value = 7\nDim x As Variant\nx = ws.Range("B2:C3")(1)\nProbe = TypeName(x) & "|" & x',
     "cells_call": PRE + 'Probe = ws.Cells(2, 2)(2).Address & "|" & ws.Cells(1)(3).Address',
     "cells_item_index": PRE + 'Probe = ws.Range("B2:C3").Cells(2, 2).Address & "|" & ws.Range("B2:C3").Cells(3).Address & "|" & ws.Range("B2:C3")(1).Address & "|" & ws.Range("B2:C3").Item(2, 1).Address',
+    "value_of_empty_cells": PRE + 'Dim v\nv = ws.Range("A1:B2").Value\nProbe = TypeName(v) & "|" & UBound(v, 1) & UBound(v, 2) & "|" & IsEmpty(v(2, 2))',
+    "value_past_used_cells": PRE + 'ws.Range("A1").Value = 1\nDim v\nv = ws.Range("A1:C3").Value\nProbe = UBound(v, 1) & UBound(v, 2) & "|" & v(1, 1) & "|" & IsEmpty(v(3, 3)) & "|" & UBound(ws.Range("D5:E6").Value, 1)',
+    "value_error_cells": PRE + 'ws.Range("A1").Formula = "=1/0"\nws.Range("A2").Formula = "=NA()"\nDim v\nv = ws.Range("A1:A2").Value\nProbe = IsError(v(1, 1)) & "|" & CStr(v(1, 1)) & "|" & (v(2, 1) = CVErr(xlErrNA)) & "|" & ws.Range("A1").Text',
+    "match_not_found": PRE + 'ws.Range("A1:A3").Value = 1\nDim v\nv = Application.Match("zz", ws.Range("A1:A3"), 0)\nProbe = IsError(v) & "|" & (v = CVErr(xlErrNA)) & "|" & TypeName(v)',
 })
 
 

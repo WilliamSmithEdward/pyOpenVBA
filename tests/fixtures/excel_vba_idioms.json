@@ -1,6 +1,6 @@
 {
   "excel_version_build": "16.0|20430",
-  "measured_at": "2026-10-12T21:00:51.064808+00:00",
+  "measured_at": "2026-10-12T22:15:25.937151+00:00",
   "classes": {},
   "probes": [
     {
@@ -132,6 +132,26 @@
       "name": "cells_item_index",
       "macro": "\nFunction Probe() As String\nDim ws As Worksheet\nSet ws = Worksheets.Add\nOn Error Resume Next\nProbe = ws.Range(\"B2:C3\").Cells(2, 2).Address & \"|\" & ws.Range(\"B2:C3\").Cells(3).Address & \"|\" & ws.Range(\"B2:C3\")(1).Address & \"|\" & ws.Range(\"B2:C3\").Item(2, 1).Address\nEnd Function\n",
       "result": "$C$3|$B$3|$B$2|$B$3"
+    },
+    {
+      "name": "value_of_empty_cells",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet\nSet ws = Worksheets.Add\nOn Error Resume Next\nDim v\nv = ws.Range(\"A1:B2\").Value\nProbe = TypeName(v) & \"|\" & UBound(v, 1) & UBound(v, 2) & \"|\" & IsEmpty(v(2, 2))\nEnd Function\n",
+      "result": "Variant()|22|True"
+    },
+    {
+      "name": "value_past_used_cells",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet\nSet ws = Worksheets.Add\nOn Error Resume Next\nws.Range(\"A1\").Value = 1\nDim v\nv = ws.Range(\"A1:C3\").Value\nProbe = UBound(v, 1) & UBound(v, 2) & \"|\" & v(1, 1) & \"|\" & IsEmpty(v(3, 3)) & \"|\" & UBound(ws.Range(\"D5:E6\").Value, 1)\nEnd Function\n",
+      "result": "33|1|True|2"
+    },
+    {
+      "name": "value_error_cells",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet\nSet ws = Worksheets.Add\nOn Error Resume Next\nws.Range(\"A1\").Formula = \"=1/0\"\nws.Range(\"A2\").Formula = \"=NA()\"\nDim v\nv = ws.Range(\"A1:A2\").Value\nProbe = IsError(v(1, 1)) & \"|\" & CStr(v(1, 1)) & \"|\" & (v(2, 1) = CVErr(xlErrNA)) & \"|\" & ws.Range(\"A1\").Text\nEnd Function\n",
+      "result": "True|Error 2007|True|#DIV/0!"
+    },
+    {
+      "name": "match_not_found",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet\nSet ws = Worksheets.Add\nOn Error Resume Next\nws.Range(\"A1:A3\").Value = 1\nDim v\nv = Application.Match(\"zz\", ws.Range(\"A1:A3\"), 0)\nProbe = IsError(v) & \"|\" & (v = CVErr(xlErrNA)) & \"|\" & TypeName(v)\nEnd Function\n",
+      "result": "True|True|Error"
     }
   ]
 }

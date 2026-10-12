@@ -1,6 +1,6 @@
 {
   "excel_version_build": "16.0|20430",
-  "measured_at": "2026-10-12T22:33:07.228199+00:00",
+  "measured_at": "2026-10-12T23:03:24.481588+00:00",
   "classes": {},
   "probes": [
     {
@@ -157,6 +157,81 @@
       "name": "match_not_found",
       "macro": "\nFunction Probe() As String\nDim ws As Worksheet\nSet ws = Worksheets.Add\nOn Error Resume Next\nws.Range(\"A1:A3\").Value = 1\nDim v\nv = Application.Match(\"zz\", ws.Range(\"A1:A3\"), 0)\nProbe = IsError(v) & \"|\" & (v = CVErr(xlErrNA)) & \"|\" & TypeName(v)\nEnd Function\n",
       "result": "True|True|Error"
+    },
+    {
+      "name": "resize_past_the_sheet",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet\nSet ws = Worksheets.Add\nOn Error Resume Next\nOn Error Resume Next\nDim r As Range, s As String\nSet r = ws.Range(\"A1048576\").Resize(2)\ns = Err.Number & \";\"\nErr.Clear\nSet r = ws.Range(\"XFD1\").Resize(1, 2)\ns = s & Err.Number & \";\"\nErr.Clear\nSet r = ws.Range(\"A1048575\").Resize(2)\ns = s & Err.Number & r.Address\nProbe = s\nEnd Function\n",
+      "result": "1004;1004;0$A$1048575:$A$1048576"
+    },
+    {
+      "name": "union_00",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet\nSet ws = Worksheets.Add\nOn Error Resume Next\nProbe = Application.Union(ws.Range(\"A1\"), ws.Range(\"A2\")).Address\nEnd Function\n",
+      "result": "$A$1:$A$2"
+    },
+    {
+      "name": "union_01",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet\nSet ws = Worksheets.Add\nOn Error Resume Next\nProbe = Application.Union(ws.Range(\"A1\"), ws.Range(\"A2\"), ws.Range(\"A3\")).Address\nEnd Function\n",
+      "result": "$A$1:$A$3"
+    },
+    {
+      "name": "union_02",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet\nSet ws = Worksheets.Add\nOn Error Resume Next\nProbe = Application.Union(ws.Range(\"A1:A2\"), ws.Range(\"B1:B2\")).Address\nEnd Function\n",
+      "result": "$A$1:$B$2"
+    },
+    {
+      "name": "union_03",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet\nSet ws = Worksheets.Add\nOn Error Resume Next\nProbe = Application.Union(ws.Range(\"A1\"), ws.Range(\"B2\")).Address\nEnd Function\n",
+      "result": "$A$1,$B$2"
+    },
+    {
+      "name": "union_04",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet\nSet ws = Worksheets.Add\nOn Error Resume Next\nProbe = Application.Union(ws.Range(\"A1:A3\"), ws.Range(\"A2:A4\")).Address\nEnd Function\n",
+      "result": "$A$1:$A$4"
+    },
+    {
+      "name": "union_05",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet\nSet ws = Worksheets.Add\nOn Error Resume Next\nProbe = Application.Union(ws.Range(\"A1:B1\"), ws.Range(\"A2\")).Address\nEnd Function\n",
+      "result": "$A$1:$B$1,$A$2"
+    },
+    {
+      "name": "union_06",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet\nSet ws = Worksheets.Add\nOn Error Resume Next\nProbe = Application.Union(ws.Range(\"A1:B2\"), ws.Range(\"A1\")).Address\nEnd Function\n",
+      "result": "$A$1:$B$2"
+    },
+    {
+      "name": "union_07",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet\nSet ws = Worksheets.Add\nOn Error Resume Next\nProbe = Application.Union(ws.Range(\"A1\"), ws.Range(\"A1:B2\")).Address\nEnd Function\n",
+      "result": "$A$1:$B$2"
+    },
+    {
+      "name": "union_08",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet\nSet ws = Worksheets.Add\nOn Error Resume Next\nProbe = Application.Union(ws.Range(\"B1\"), ws.Range(\"A1\")).Address\nEnd Function\n",
+      "result": "$A$1:$B$1"
+    },
+    {
+      "name": "union_09",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet\nSet ws = Worksheets.Add\nOn Error Resume Next\nProbe = Application.Union(ws.Range(\"A1\"), ws.Range(\"C1\"), ws.Range(\"B1\")).Address\nEnd Function\n",
+      "result": "$A$1:$C$1"
+    },
+    {
+      "name": "union_10",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet\nSet ws = Worksheets.Add\nOn Error Resume Next\nProbe = Application.Union(ws.Range(\"A1:A2\"), ws.Range(\"B1:B3\")).Address\nEnd Function\n",
+      "result": "$A$1:$A$2,$B$1:$B$3"
+    },
+    {
+      "name": "union_11",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet\nSet ws = Worksheets.Add\nOn Error Resume Next\nProbe = Application.Union(ws.Range(\"A1:B2\"), ws.Range(\"A3:B3\"), ws.Range(\"A4:B4\")).Address\nEnd Function\n",
+      "result": "$A$1:$B$4"
+    },
+    {
+      "name": "union_12",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet\nSet ws = Worksheets.Add\nOn Error Resume Next\nProbe = Application.Union(ws.Range(\"A1:A2,C1\"), ws.Range(\"A3\")).Address\nEnd Function\n",
+      "result": "$C$1,$A$1:$A$3"
+    },
+    {
+      "name": "union_13",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet\nSet ws = Worksheets.Add\nOn Error Resume Next\nProbe = Application.Union(ws.Range(\"A1:B2\"), ws.Range(\"B2:C3\")).Address\nEnd Function\n",
+      "result": "$A$1:$B$2,$B$2:$C$3"
     }
   ]
 }

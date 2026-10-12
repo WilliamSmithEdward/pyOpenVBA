@@ -137,6 +137,41 @@ class Cell:
 # --- Application ------------------------------------------------------------------------
 
 
+def _coalesced(areas: list[Area]) -> list[Area]:
+    """Union's areas as Excel leaves them: two areas merge while one holds the
+    other, or they share their rows or their columns and touch or overlap; the
+    merged area goes to the end, so A1:A2,C1 with A3 is C1,A1:A3 (native probes)."""
+    pending = list(areas)
+    while True:
+        for first in range(len(pending)):
+            for second in range(first + 1, len(pending)):
+                merged = _merged(pending[first], pending[second])
+                if merged is not None:
+                    pending = [one for index, one in enumerate(pending) if index not in (first, second)] + [merged]
+                    break
+            else:
+                continue
+            break
+        else:
+            return pending
+
+
+def _merged(one: Area, other: Area) -> Area | None:
+    def holds(outer: Area, inner: Area) -> bool:
+        return (outer.top <= inner.top and inner.bottom <= outer.bottom
+                and outer.left <= inner.left and inner.right <= outer.right)
+
+    if holds(one, other):
+        return one
+    if holds(other, one):
+        return other
+    if (one.left, one.right) == (other.left, other.right) and one.top <= other.bottom + 1 and other.top <= one.bottom + 1:
+        return Area(min(one.top, other.top), one.left, max(one.bottom, other.bottom), one.right, one.sheet)
+    if (one.top, one.bottom) == (other.top, other.bottom) and one.left <= other.right + 1 and other.left <= one.right + 1:
+        return Area(one.top, min(one.left, other.left), one.bottom, max(one.right, other.right), one.sheet)
+    return None
+
+
 class Application(ExcelObject):
     """The Excel instance: the root of everything a macro can reach."""
 
@@ -405,7 +440,7 @@ class Application(ExcelObject):
         areas: list[Area] = []
         for one in ranges:
             areas.extend(one.areas)
-        return Range(ranges[0].sheet, areas)
+        return Range(ranges[0].sheet, _coalesced(areas))
 
     @method
     def Calculate(self) -> object:
@@ -2390,6 +2425,9 @@ class Range(ExcelObject):
         columns = area.columns if ColumnSize is MISSING else int(to_integer(ColumnSize, "Long"))
         if rows < 1 or columns < 1:
             raise error(ERR_APPLICATION_DEFINED, "Resize needs at least one row and column")
+        if area.top + rows - 1 > MAX_ROWS or area.left + columns - 1 > MAX_COLUMNS:
+            # Past the sheet's last row or column is error 1004 (native probes).
+            raise error(ERR_APPLICATION_DEFINED, "Resize goes past the sheet")
         return Range(self.sheet, [Area(area.top, area.left, area.top + rows - 1, area.left + columns - 1, area.sheet)])
 
     @member

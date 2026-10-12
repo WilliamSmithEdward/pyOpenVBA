@@ -69,7 +69,9 @@ ERR_ARGUMENT_NOT_OPTIONAL: Final = 449
 ERR_NOT_A_COLLECTION: Final = 451
 ERR_APPLICATION_DEFINED: Final = 1004
 
-#: The text the VBA IDE shows beside each of the error numbers it raises.
+#: The text Err.Description and Error() give for each error number VBA names, measured
+#: in live Excel for 1 to 1000 (scripts/measure_vba_error_text.py); any other is
+#: "Application-defined or object-defined error".
 ERROR_TEXT: Final[dict[int, str]] = {
     3: "Return without GoSub",
     5: "Invalid procedure call or argument",
@@ -86,6 +88,7 @@ ERROR_TEXT: Final[dict[int, str]] = {
     20: "Resume without error",
     28: "Out of stack space",
     35: "Sub or Function not defined",
+    47: "Too many DLL application clients",
     48: "Error in loading DLL",
     49: "Bad DLL calling convention",
     51: "Internal error",
@@ -110,14 +113,32 @@ ERROR_TEXT: Final[dict[int, str]] = {
     92: "For loop not initialized",
     93: "Invalid pattern string",
     94: "Invalid use of Null",
+    96: ("Unable to sink events of object because the object is already firing events to the maximum number of "
+         "event receivers that it supports"),
+    97: "Can not call friend function on object which is not an instance of defining class",
+    98: ("A property or method call cannot include a reference to a private object, either as an argument or as a "
+         "return value"),
+    321: "Invalid file format",
     322: "Can't create necessary temporary file",
+    325: "Invalid format in resource file",
+    380: "Invalid property value",
+    381: "Invalid property array index",
+    382: "Set not supported at runtime",
+    383: "Set not supported (read-only property)",
+    385: "Need property array index",
+    387: "Set not permitted",
+    393: "Get not supported at runtime",
+    394: "Get not supported (write-only property)",
+    422: "Property not found",
+    423: "Property or method not found",
     424: "Object required",
     429: "ActiveX component can't create object",
-    430: "Class doesn't support Automation",
+    430: "Class does not support Automation or does not support expected interface",
     432: "File name or class name not found during Automation operation",
     438: "Object doesn't support this property or method",
     440: "Automation error",
-    442: "Connection to type library or object library for remote process has been lost",
+    442: ("Connection to type library or object library for remote process has been lost. Press OK for dialog to "
+          "remove reference."),
     443: "Automation object does not have a default value",
     445: "Object doesn't support this action",
     446: "Object doesn't support named arguments",
@@ -133,10 +154,15 @@ ERROR_TEXT: Final[dict[int, str]] = {
     457: "This key is already associated with an element of this collection",
     458: "Variable uses an Automation type not supported in Visual Basic",
     459: "Object or class does not support the set of events",
-    460: "Invalid Clipboard format",
+    460: "Invalid clipboard format",
     461: "Method or data member not found",
     462: "The remote server machine does not exist or is unavailable",
     463: "Class not registered on local machine",
+    481: "Invalid picture",
+    482: "Printer error",
+    735: "Can't save file to TEMP",
+    744: "Search text not found",
+    746: "Replacements too long",
     1004: "Application-defined or object-defined error",
 }
 

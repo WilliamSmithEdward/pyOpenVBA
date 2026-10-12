@@ -356,6 +356,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
   left stale, with its events. Change, SelectionChange, Activate, NewSheet,
   workbook and application sinks, EnableEvents and re-entry already matched.
   28 native probes in `tests/fixtures/excel_vba_events.json`.
+- `Err.Description` and `Error(n)` give Excel's text for every error number
+  from 1 to 1000, measured: 21 numbers, 380 "Invalid property value" among
+  them, fell back to "Application-defined or object-defined error", and 430,
+  442 and 460 were worded differently. `tests/fixtures/vba_error_text.json`.
 
 ## [6.5.0] - 2026-10-04
 

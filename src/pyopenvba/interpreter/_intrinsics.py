@@ -53,6 +53,7 @@ from pyopenvba.interpreter._values import (
     parse_date_text,
     round_half_even,
     condition,
+    decimal_of,
     to_bool,
     to_date,
     to_integer,
@@ -254,7 +255,7 @@ def vba_cdec(interpreter: Interpreter, value: object) -> object:
             exact = None
         if exact is not None and exact.is_finite():
             return VBADecimal(exact)
-    return VBADecimal(str(to_number(value)))
+    return VBADecimal(decimal_of(to_number(value)))
 
 
 @intrinsic("CStr", "Expression", minimum=1)

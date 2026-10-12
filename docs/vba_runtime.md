@@ -1815,6 +1815,14 @@ Double, and `-` makes a Byte an Integer. `Not` and the bitwise operators on
 Bytes stay within a Byte (`Not CByte(12)` is 243). `&H8000&` is 32768: the
 `&` suffix makes a hex literal a Long.
 
+The conversion functions follow a matrix of 32 inputs through `CBool` to
+`CVar` (`tests/fixtures/vba_conversions.json`,
+`scripts/measure_vba_conversions.py`). A Double becomes a Decimal through
+its 15 significant digits and a Single through its 7, in `CDec` and in
+arithmetic beside a Decimal alike: `CDec(1 / 3)` is 0.333333333333333 and
+`CDec(CSng(0.1))` is 0.1. One past the Decimal's range is error 6. True
+into a Byte is 255.
+
 Arrays follow 35 native probes in `tests/fixtures/vba_arrays.json`
 (`scripts/measure_vba_arrays.py`). `Split` and `Filter` return a String
 array. A typed dynamic array takes only an array of its own element type:

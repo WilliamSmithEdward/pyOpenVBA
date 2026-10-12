@@ -327,6 +327,12 @@ All notable changes to pyOpenVBA are documented here. This project follows
   answers a Range, is that Range's `Item(1, 2)`; it went to `Value` and was
   error 450. 29 table, name, copy, find and replace idioms were swept with
   it, and all match but `ListObject.Unlist`, which stays unimplemented.
+- A Double becomes a Decimal through its 15 significant digits and a Single
+  through its 7: `CDec(1 / 3)` was 0.3333333333333333 and `CDec(CSng(0.1))`
+  0.10000000149011612. `CDec(CSng(3.4E+38))` is error 6; it made a 39-digit
+  Decimal. `CByte(True)` and `b = True` give 255; they overflowed. Every other
+  cell of an 11-function, 32-input conversion matrix already matched. 16
+  native probes in `tests/fixtures/vba_conversions.json`.
 
 ## [6.5.0] - 2026-10-04
 

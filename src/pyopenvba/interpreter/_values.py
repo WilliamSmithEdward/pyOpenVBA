@@ -250,6 +250,10 @@ class VBADecimal(Decimal):
             context.prec = 60
             exact = Decimal(repr(value)) if isinstance(value, float) else Decimal(value)
             if exact.is_finite():
+                if abs(exact) > cls.LARGEST:
+                    # Too large at any scale, whatever exponent it is written with:
+                    # CDec(CSng(3.4E+38)) is error 6 (native probe).
+                    raise error(ERR_OVERFLOW)
                 if _places(exact) > 28:
                     exact = exact.quantize(Decimal(1).scaleb(-28), rounding=ROUND_HALF_EVEN)
                 while abs(exact.scaleb(_places(exact))) > cls.LARGEST:
@@ -257,6 +261,17 @@ class VBADecimal(Decimal):
                         raise error(ERR_OVERFLOW)
                     exact = exact.quantize(Decimal(1).scaleb(1 - _places(exact)), rounding=ROUND_HALF_EVEN)
         return super().__new__(cls, exact)
+
+
+def decimal_of(number: object) -> Decimal:
+    """A number as the Decimal VBA makes of it: a Double through its 15
+    significant digits and a Single through its 7, so CDec(1 / 3) is
+    0.333333333333333 and CDec(CSng(0.1)) is 0.1 (native probes)."""
+    if isinstance(number, VBASingle):
+        return Decimal(format(float(number), ".7g"))
+    if isinstance(number, float):
+        return Decimal(format(number, ".15g"))
+    return Decimal(str(number))
 
 
 def _places(value: Decimal) -> int:
@@ -1139,6 +1154,9 @@ def to_integer(value: object, kind: str = "Long") -> VBAInt:
         wrapped = _hex_text_integer(value, kind)
         if wrapped is not None:
             return wrapped
+    if value is True and kind == "Byte":
+        # True is all bits set, which a Byte reads as 255: CByte(True) and b = True (native probes).
+        return VBAInt(255, kind)
     number = to_number(value)
     if isinstance(number, int) and not isinstance(number, bool):
         whole = int(number)
@@ -1267,7 +1285,9 @@ def _both_numbers(left: object, right: object, op: str) -> tuple[Any, Any, str]:
     kind = _result_kind(left, right, op)
     first = to_number(left)
     second = to_number(right)
-    if kind in ("Currency", "Decimal"):
+    if kind == "Decimal":
+        return decimal_of(first), decimal_of(second), kind
+    if kind == "Currency":
         return Decimal(str(first)), Decimal(str(second)), kind
     if kind in INTEGER_LIMITS:
         return int(first), int(second), kind

@@ -1,0 +1,141 @@
+{
+  "excel_version_build": "16.0|20430",
+  "measured_at": "2026-10-12T19:21:28.061753+00:00",
+  "probes": [
+    {
+      "name": "string_var_lt_num",
+      "macro": "\nPrivate Function VStr() As Variant\nVStr = \"a\"\nEnd Function\nPrivate Function SStr() As String\nSStr = \"a\"\nEnd Function\nPrivate Function VNum() As Variant\nVNum = 5\nEnd Function\nPrivate Function Inner3() As Long\nErr.Raise 9999, \"Inner3\", \"deep\"\nEnd Function\n\nFunction Probe() As String\nDim s As String\ns = \"a\"\nOn Error Resume Next\nDim r As Boolean\nr = s < 0\nProbe = Err.Number & \"|\" & r\nEnd Function\n",
+      "result": "13|False"
+    },
+    {
+      "name": "variant_str_lt_num",
+      "macro": "\nPrivate Function VStr() As Variant\nVStr = \"a\"\nEnd Function\nPrivate Function SStr() As String\nSStr = \"a\"\nEnd Function\nPrivate Function VNum() As Variant\nVNum = 5\nEnd Function\nPrivate Function Inner3() As Long\nErr.Raise 9999, \"Inner3\", \"deep\"\nEnd Function\n\nFunction Probe() As String\nDim v As Variant\nv = \"a\"\nOn Error Resume Next\nDim r As Boolean\nr = v < 0\nProbe = Err.Number & \"|\" & r\nEnd Function\n",
+      "result": "0|False"
+    },
+    {
+      "name": "variant_str_gt_num",
+      "macro": "\nPrivate Function VStr() As Variant\nVStr = \"a\"\nEnd Function\nPrivate Function SStr() As String\nSStr = \"a\"\nEnd Function\nPrivate Function VNum() As Variant\nVNum = 5\nEnd Function\nPrivate Function Inner3() As Long\nErr.Raise 9999, \"Inner3\", \"deep\"\nEnd Function\n\nFunction Probe() As String\nDim v As Variant\nv = \"a\"\nProbe = (v > 0) & (v = 0) & (v <> 0) & (0 < v)\nEnd Function\n",
+      "result": "TrueFalseTrueTrue"
+    },
+    {
+      "name": "literal_str_lt_num",
+      "macro": "\nPrivate Function VStr() As Variant\nVStr = \"a\"\nEnd Function\nPrivate Function SStr() As String\nSStr = \"a\"\nEnd Function\nPrivate Function VNum() As Variant\nVNum = 5\nEnd Function\nPrivate Function Inner3() As Long\nErr.Raise 9999, \"Inner3\", \"deep\"\nEnd Function\n\nFunction Probe() As String\nOn Error Resume Next\nDim r As Boolean\nr = \"a\" < 0\nProbe = Err.Number & \"|\" & r\nEnd Function\n",
+      "result": "13|False"
+    },
+    {
+      "name": "variant_both",
+      "macro": "\nPrivate Function VStr() As Variant\nVStr = \"a\"\nEnd Function\nPrivate Function SStr() As String\nSStr = \"a\"\nEnd Function\nPrivate Function VNum() As Variant\nVNum = 5\nEnd Function\nPrivate Function Inner3() As Long\nErr.Raise 9999, \"Inner3\", \"deep\"\nEnd Function\n\nFunction Probe() As String\nDim v As Variant, w As Variant\nv = \"a\": w = 0\nProbe = (v > w) & \"|\" & (w < v)\nEnd Function\n",
+      "result": "True|True"
+    },
+    {
+      "name": "variant_numeric_text_vs_num",
+      "macro": "\nPrivate Function VStr() As Variant\nVStr = \"a\"\nEnd Function\nPrivate Function SStr() As String\nSStr = \"a\"\nEnd Function\nPrivate Function VNum() As Variant\nVNum = 5\nEnd Function\nPrivate Function Inner3() As Long\nErr.Raise 9999, \"Inner3\", \"deep\"\nEnd Function\n\nFunction Probe() As String\nDim v As Variant\nv = \"10\"\nProbe = (v > 9) & \"|\" & (v = 10) & \"|\" & (v > 100)\nEnd Function\n",
+      "result": "True|True|False"
+    },
+    {
+      "name": "variant_numeric_text_vs_variant_num",
+      "macro": "\nPrivate Function VStr() As Variant\nVStr = \"a\"\nEnd Function\nPrivate Function SStr() As String\nSStr = \"a\"\nEnd Function\nPrivate Function VNum() As Variant\nVNum = 5\nEnd Function\nPrivate Function Inner3() As Long\nErr.Raise 9999, \"Inner3\", \"deep\"\nEnd Function\n\nFunction Probe() As String\nDim v As Variant, w As Variant\nv = \"10\": w = 100\nProbe = (v > w) & \"|\" & (v = 10)\nEnd Function\n",
+      "result": "True|True"
+    },
+    {
+      "name": "string_numeric_text_vs_variant_num",
+      "macro": "\nPrivate Function VStr() As Variant\nVStr = \"a\"\nEnd Function\nPrivate Function SStr() As String\nSStr = \"a\"\nEnd Function\nPrivate Function VNum() As Variant\nVNum = 5\nEnd Function\nPrivate Function Inner3() As Long\nErr.Raise 9999, \"Inner3\", \"deep\"\nEnd Function\n\nFunction Probe() As String\nDim s As String, w As Variant\ns = \"10\": w = 100\nProbe = (s > w) & \"|\" & (s < w)\nEnd Function\n",
+      "result": "False|True"
+    },
+    {
+      "name": "fn_variant_str",
+      "macro": "\nPrivate Function VStr() As Variant\nVStr = \"a\"\nEnd Function\nPrivate Function SStr() As String\nSStr = \"a\"\nEnd Function\nPrivate Function VNum() As Variant\nVNum = 5\nEnd Function\nPrivate Function Inner3() As Long\nErr.Raise 9999, \"Inner3\", \"deep\"\nEnd Function\n\nFunction Probe() As String\nOn Error Resume Next\nDim r As Boolean\nr = VStr() < 0\nProbe = Err.Number & \"|\" & r\nEnd Function\n",
+      "result": "0|False"
+    },
+    {
+      "name": "fn_string_str",
+      "macro": "\nPrivate Function VStr() As Variant\nVStr = \"a\"\nEnd Function\nPrivate Function SStr() As String\nSStr = \"a\"\nEnd Function\nPrivate Function VNum() As Variant\nVNum = 5\nEnd Function\nPrivate Function Inner3() As Long\nErr.Raise 9999, \"Inner3\", \"deep\"\nEnd Function\n\nFunction Probe() As String\nOn Error Resume Next\nDim r As Boolean\nr = SStr() < 0\nProbe = Err.Number & \"|\" & r\nEnd Function\n",
+      "result": "13|False"
+    },
+    {
+      "name": "variant_num_vs_string_var",
+      "macro": "\nPrivate Function VStr() As Variant\nVStr = \"a\"\nEnd Function\nPrivate Function SStr() As String\nSStr = \"a\"\nEnd Function\nPrivate Function VNum() As Variant\nVNum = 5\nEnd Function\nPrivate Function Inner3() As Long\nErr.Raise 9999, \"Inner3\", \"deep\"\nEnd Function\n\nFunction Probe() As String\nDim s As String\ns = \"a\"\nOn Error Resume Next\nDim r As Boolean\nr = VNum() < s\nProbe = Err.Number & \"|\" & r\nEnd Function\n",
+      "result": "0|True"
+    },
+    {
+      "name": "select_variant",
+      "macro": "\nPrivate Function VStr() As Variant\nVStr = \"a\"\nEnd Function\nPrivate Function SStr() As String\nSStr = \"a\"\nEnd Function\nPrivate Function VNum() As Variant\nVNum = 5\nEnd Function\nPrivate Function Inner3() As Long\nErr.Raise 9999, \"Inner3\", \"deep\"\nEnd Function\n\nFunction Probe() As String\nDim v As Variant, s As String\nv = \"a\"\nSelect Case v\nCase Is < 0: s = \"lt\"\nCase 1 To 10: s = \"range\"\nCase Else: s = \"else\"\nEnd Select\nProbe = s\nEnd Function\n",
+      "result": "else"
+    },
+    {
+      "name": "select_string",
+      "macro": "\nPrivate Function VStr() As Variant\nVStr = \"a\"\nEnd Function\nPrivate Function SStr() As String\nSStr = \"a\"\nEnd Function\nPrivate Function VNum() As Variant\nVNum = 5\nEnd Function\nPrivate Function Inner3() As Long\nErr.Raise 9999, \"Inner3\", \"deep\"\nEnd Function\n\nFunction Probe() As String\nDim v As String, s As String\nv = \"a\"\nOn Error Resume Next\nSelect Case v\nCase Is < 0: s = \"lt\"\nCase Else: s = \"else\"\nEnd Select\nProbe = Err.Number & \"|\" & s\nEnd Function\n",
+      "result": "0|else"
+    },
+    {
+      "name": "select_mixed_list",
+      "macro": "\nPrivate Function VStr() As Variant\nVStr = \"a\"\nEnd Function\nPrivate Function SStr() As String\nSStr = \"a\"\nEnd Function\nPrivate Function VNum() As Variant\nVNum = 5\nEnd Function\nPrivate Function Inner3() As Long\nErr.Raise 9999, \"Inner3\", \"deep\"\nEnd Function\n\nFunction Probe() As String\nDim s As String, x As Variant\nFor Each x In Array(-1, 0, 5, 10, 11, \"a\")\nSelect Case x\nCase Is < 0: s = s & \"n\"\nCase 0, 1 To 10: s = s & \"r\"\nCase Else: s = s & \"e\"\nEnd Select\nNext\nProbe = s\nEnd Function\n",
+      "result": "nrrree"
+    },
+    {
+      "name": "array_element_variant",
+      "macro": "\nPrivate Function VStr() As Variant\nVStr = \"a\"\nEnd Function\nPrivate Function SStr() As String\nSStr = \"a\"\nEnd Function\nPrivate Function VNum() As Variant\nVNum = 5\nEnd Function\nPrivate Function Inner3() As Long\nErr.Raise 9999, \"Inner3\", \"deep\"\nEnd Function\n\nFunction Probe() As String\nDim a As Variant\na = Array(\"a\", 1)\nProbe = (a(0) > a(1)) & \"|\" & (a(0) > 1)\nEnd Function\n",
+      "result": "True|True"
+    },
+    {
+      "name": "collection_item",
+      "macro": "\nPrivate Function VStr() As Variant\nVStr = \"a\"\nEnd Function\nPrivate Function SStr() As String\nSStr = \"a\"\nEnd Function\nPrivate Function VNum() As Variant\nVNum = 5\nEnd Function\nPrivate Function Inner3() As Long\nErr.Raise 9999, \"Inner3\", \"deep\"\nEnd Function\n\nFunction Probe() As String\nDim c As New Collection\nc.Add \"a\"\nOn Error Resume Next\nDim r As Boolean\nr = c(1) > 1\nProbe = Err.Number & \"|\" & r\nEnd Function\n",
+      "result": "0|True"
+    },
+    {
+      "name": "empty_vs_string_num",
+      "macro": "\nPrivate Function VStr() As Variant\nVStr = \"a\"\nEnd Function\nPrivate Function SStr() As String\nSStr = \"a\"\nEnd Function\nPrivate Function VNum() As Variant\nVNum = 5\nEnd Function\nPrivate Function Inner3() As Long\nErr.Raise 9999, \"Inner3\", \"deep\"\nEnd Function\n\nFunction Probe() As String\nDim v As Variant\nProbe = (v < \"1\") & \"|\" & (v = \"\") & \"|\" & (v < 1)\nEnd Function\n",
+      "result": "True|True|True"
+    },
+    {
+      "name": "date_vs_string",
+      "macro": "\nPrivate Function VStr() As Variant\nVStr = \"a\"\nEnd Function\nPrivate Function SStr() As String\nSStr = \"a\"\nEnd Function\nPrivate Function VNum() As Variant\nVNum = 5\nEnd Function\nPrivate Function Inner3() As Long\nErr.Raise 9999, \"Inner3\", \"deep\"\nEnd Function\n\nFunction Probe() As String\nDim d As Date, v As Variant\nd = #1/1/2024#\nv = \"x\"\nProbe = (v > d) & \"|\" & (d < v)\nEnd Function\n",
+      "result": "True|True"
+    },
+    {
+      "name": "bool_vs_variant_str",
+      "macro": "\nPrivate Function VStr() As Variant\nVStr = \"a\"\nEnd Function\nPrivate Function SStr() As String\nSStr = \"a\"\nEnd Function\nPrivate Function VNum() As Variant\nVNum = 5\nEnd Function\nPrivate Function Inner3() As Long\nErr.Raise 9999, \"Inner3\", \"deep\"\nEnd Function\n\nFunction Probe() As String\nDim v As Variant\nv = \"True\"\nProbe = (v = True) & \"|\" & (True = v)\nEnd Function\n",
+      "result": "True|True"
+    },
+    {
+      "name": "cell_value_text",
+      "macro": "\nPrivate Function VStr() As Variant\nVStr = \"a\"\nEnd Function\nPrivate Function SStr() As String\nSStr = \"a\"\nEnd Function\nPrivate Function VNum() As Variant\nVNum = 5\nEnd Function\nPrivate Function Inner3() As Long\nErr.Raise 9999, \"Inner3\", \"deep\"\nEnd Function\n\nFunction Probe() As String\nRange(\"A1\").Value = \"a\"\nOn Error Resume Next\nDim r As Boolean\nr = Range(\"A1\").Value > 1\nProbe = Err.Number & \"|\" & r\nEnd Function\n",
+      "result": "0|True"
+    },
+    {
+      "name": "err_source_runtime",
+      "macro": "\nPrivate Function VStr() As Variant\nVStr = \"a\"\nEnd Function\nPrivate Function SStr() As String\nSStr = \"a\"\nEnd Function\nPrivate Function VNum() As Variant\nVNum = 5\nEnd Function\nPrivate Function Inner3() As Long\nErr.Raise 9999, \"Inner3\", \"deep\"\nEnd Function\n\nFunction Probe() As String\nOn Error Resume Next\nDim x As Long\nx = 1 / 0\nProbe = Err.Number & \"|\" & Err.Source\nEnd Function\n",
+      "result": "11|VBAProject"
+    },
+    {
+      "name": "err_source_raise",
+      "macro": "\nPrivate Function VStr() As Variant\nVStr = \"a\"\nEnd Function\nPrivate Function SStr() As String\nSStr = \"a\"\nEnd Function\nPrivate Function VNum() As Variant\nVNum = 5\nEnd Function\nPrivate Function Inner3() As Long\nErr.Raise 9999, \"Inner3\", \"deep\"\nEnd Function\n\nFunction Probe() As String\nOn Error Resume Next\nErr.Raise 11\nProbe = Err.Description & \"|\" & Err.Source\nEnd Function\n",
+      "result": "Division by zero|VBAProject"
+    },
+    {
+      "name": "err_source_given",
+      "macro": "\nPrivate Function VStr() As Variant\nVStr = \"a\"\nEnd Function\nPrivate Function SStr() As String\nSStr = \"a\"\nEnd Function\nPrivate Function VNum() As Variant\nVNum = 5\nEnd Function\nPrivate Function Inner3() As Long\nErr.Raise 9999, \"Inner3\", \"deep\"\nEnd Function\n\nFunction Probe() As String\nOn Error Resume Next\nInner3\nProbe = Err.Number & \"|\" & Err.Source & \"|\" & Err.Description\nEnd Function\n",
+      "result": "9999|Inner3|deep"
+    },
+    {
+      "name": "err_source_cleared",
+      "macro": "\nPrivate Function VStr() As Variant\nVStr = \"a\"\nEnd Function\nPrivate Function SStr() As String\nSStr = \"a\"\nEnd Function\nPrivate Function VNum() As Variant\nVNum = 5\nEnd Function\nPrivate Function Inner3() As Long\nErr.Raise 9999, \"Inner3\", \"deep\"\nEnd Function\n\nFunction Probe() As String\nOn Error Resume Next\nErr.Raise 5\nErr.Clear\nProbe = \"[\" & Err.Source & \"]\"\nEnd Function\n",
+      "result": "[]"
+    },
+    {
+      "name": "datepart_ww",
+      "macro": "\nPrivate Function VStr() As Variant\nVStr = \"a\"\nEnd Function\nPrivate Function SStr() As String\nSStr = \"a\"\nEnd Function\nPrivate Function VNum() As Variant\nVNum = 5\nEnd Function\nPrivate Function Inner3() As Long\nErr.Raise 9999, \"Inner3\", \"deep\"\nEnd Function\n\nFunction Probe() As String\nProbe = DatePart(\"ww\", #1/1/2021#) & \"|\" & DatePart(\"ww\", #1/1/2021#, vbMonday, vbFirstFourDays) & \"|\" & DatePart(\"ww\", #12/31/2024#, vbMonday, vbFirstFullWeek) & \"|\" & DatePart(\"ww\", #3/4/2024#) & \"|\" & DatePart(\"ww\", #1/3/2021#, vbMonday, vbFirstFullWeek)\nEnd Function\n",
+      "result": "1|53|53|10|52"
+    },
+    {
+      "name": "datepart_ww_more",
+      "macro": "\nPrivate Function VStr() As Variant\nVStr = \"a\"\nEnd Function\nPrivate Function SStr() As String\nSStr = \"a\"\nEnd Function\nPrivate Function VNum() As Variant\nVNum = 5\nEnd Function\nPrivate Function Inner3() As Long\nErr.Raise 9999, \"Inner3\", \"deep\"\nEnd Function\n\nFunction Probe() As String\nProbe = DatePart(\"ww\", #12/31/2020#, vbSunday, vbFirstFourDays) & \"|\" & DatePart(\"ww\", #1/4/2021#, vbMonday, vbFirstFourDays) & \"|\" & DatePart(\"ww\", #12/28/2026#, vbMonday, vbFirstFourDays) & \"|\" & DatePart(\"ww\", #1/7/2024#, vbSaturday, vbFirstFullWeek)\nEnd Function\n",
+      "result": "53|1|53|1"
+    },
+    {
+      "name": "format_ww_first_day",
+      "macro": "\nPrivate Function VStr() As Variant\nVStr = \"a\"\nEnd Function\nPrivate Function SStr() As String\nSStr = \"a\"\nEnd Function\nPrivate Function VNum() As Variant\nVNum = 5\nEnd Function\nPrivate Function Inner3() As Long\nErr.Raise 9999, \"Inner3\", \"deep\"\nEnd Function\n\nFunction Probe() As String\nProbe = Format(#1/1/2021#, \"ww\", vbMonday, vbFirstFourDays) & \"|\" & Format(#3/4/2024#, \"w\", vbMonday)\nEnd Function\n",
+      "result": "53|1"
+    }
+  ]
+}

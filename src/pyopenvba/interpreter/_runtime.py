@@ -814,6 +814,8 @@ class Interpreter:
         self.modules: dict[str, ModuleRuntime] = {}
         self.host = host if host is not None else HostBridge()
         self.err = ErrObject()
+        #: The VBA project's name: Err.Source of an error raised without one (native probe).
+        self.project_name = "VBAProject"
         self.debug = DebugObject(self)
         self.console: list[str] = []
         self.assertions: list[str] = []
@@ -1128,6 +1130,8 @@ class Interpreter:
         if not failure.where:
             failure.where = f"{frame.module.name}.{frame.procedure.name} line {statement.line}"
             failure.args = (f"{failure.where}: {failure.message}",)
+        if not failure.source:
+            failure.source = self.project_name
         if frame.in_handler or frame.handler == "none":
             return "raise"
         self.err.capture(failure)
@@ -1369,16 +1373,24 @@ class Interpreter:
             self._execute_block(statement.otherwise, frame)
 
     def _case_matches(self, clause: A.CaseClause, subject: object, frame: Frame) -> bool:
+        # Select Case holds its subject as a Variant, even a String variable:
+        # Case Is < 0 against "a" is False, not a type mismatch (native probe).
         text = self.option_compare_text
+
+        def kinds(expression: A.Expr | None) -> tuple[str, str]:
+            return ("variant", self._static_kind(expression, frame))
+
         if clause.kind == "value":
-            return to_bool(compare("=", subject, self.evaluate(clause.value, frame), text_compare=text))
+            return to_bool(compare("=", subject, self.evaluate(clause.value, frame), text_compare=text,
+                                   kinds=kinds(clause.value)))
         if clause.kind == "range":
             low = self.evaluate(clause.value, frame)
             high = self.evaluate(clause.upper, frame)
-            return to_bool(compare(">=", subject, low, text_compare=text)) and to_bool(
-                compare("<=", subject, high, text_compare=text)
+            return to_bool(compare(">=", subject, low, text_compare=text, kinds=kinds(clause.value))) and to_bool(
+                compare("<=", subject, high, text_compare=text, kinds=kinds(clause.upper))
             )
-        return to_bool(compare(clause.op, subject, self.evaluate(clause.value, frame), text_compare=text))
+        return to_bool(compare(clause.op, subject, self.evaluate(clause.value, frame), text_compare=text,
+                               kinds=kinds(clause.value)))
 
     def _do_exit(self, statement: A.ExitStmt, frame: Frame) -> None:
         raise _ExitSignal(statement.what)
@@ -1592,7 +1604,59 @@ class Interpreter:
             return logical_eqv(left, right)
         if op == "imp":
             return logical_imp(left, right)
-        return compare(op, left, right, text_compare=self.option_compare_text)
+        kinds = None
+        if isinstance(left, str) != isinstance(right, str):
+            kinds = (self._static_kind(expression.left, frame), self._static_kind(expression.right, frame))
+        return compare(op, left, right, text_compare=self.option_compare_text, kinds=kinds)
+
+    def _static_kind(self, expression: A.Expr | None, frame: Frame | None) -> str:
+        """An expression's static type as a comparison sees it: "string",
+        "number" or "variant". A String against a number is read as one or is
+        a type mismatch; a Variant decides by what it holds (native probes)."""
+        if isinstance(expression, A.Literal):
+            return "string" if isinstance(expression.value, str) else "number"
+        if isinstance(expression, A.Binary):
+            if expression.op == "&":
+                return "string"
+            return "number" if expression.op in ("=", "<>", "<", ">", "<=", ">=", "like", "is") else "variant"
+        if isinstance(expression, A.Name):
+            return self._name_kind(expression.name, frame, called=False)
+        if isinstance(expression, A.Index) and isinstance(expression.target, A.Name):
+            return self._name_kind(expression.target.name, frame, called=True)
+        return "variant"
+
+    def _name_kind(self, name: str, frame: Frame | None, *, called: bool) -> str:
+        suffix = name[-1:]
+        if suffix == "$":
+            return "string"
+        if suffix in ("%", "&", "!", "#", "@"):
+            return "number"
+        if frame is None:
+            return "variant"
+        key = _bare(name)
+        slot = frame.locals.get(key)
+        if slot is None and isinstance(frame.me, UserClassInstance):
+            slot = frame.me.variables.get(key)
+        module = frame.module
+        if slot is None and key in module.constants:
+            return "string" if isinstance(module.constants[key], str) else "number"
+        if slot is None:
+            slot = module.variables.get(key)
+        if slot is None:
+            slot = next((runtime.variables[key] for runtime in self.modules.values()
+                         if not runtime.is_class and key in runtime.variables), None)
+        if slot is not None:
+            if slot.array_of:
+                return _declared_kind(slot.array_of) if called else "variant"
+            value = slot.get()
+            if isinstance(value, VBAArray):
+                return _declared_kind(value.element_type) if called else "variant"
+            return _declared_kind(slot.declared)
+        procedure = module.procedure(key) or next(
+            (runtime.procedure(key) for runtime in self.modules.values() if not runtime.is_class and runtime.procedure(key)), None)
+        if procedure is not None:
+            return _declared_kind(procedure.returns)
+        return "variant"
 
     def _unary(self, expression: A.Unary, frame: Frame | None) -> object:
         value = self.evaluate(expression.operand, frame)
@@ -2262,6 +2326,19 @@ class HostBridge:
 
     def evaluate_bracket(self, text: str) -> object:
         raise VBAUnsupportedError("[] needs a host that can evaluate it")
+
+
+_NUMERIC_DECLARATIONS: Final = frozenset({
+    "byte", "integer", "long", "longlong", "longptr", "single", "double", "currency", "decimal", "date", "boolean",
+})
+
+
+def _declared_kind(declared: str) -> str:
+    """A declared type as a comparison sees it: "string", "number" or "variant"."""
+    base = declared.rstrip("()").lower()
+    if base == "string" or base.startswith("string*"):
+        return "string"
+    return "number" if base in _NUMERIC_DECLARATIONS else "variant"
 
 
 def _bare(name: str) -> str:

@@ -813,24 +813,12 @@ def vba_filter(
 def vba_format(
     interpreter: Interpreter, value: object, pattern: object, first_day: object, first_week: object
 ) -> object:
-    """Format, shared with the Access engine: the same function in Office."""
-    from pyopenvba.access._format import format_value
+    """VBA's own Format (pyopenvba.interpreter._format), not Access's field formats."""
+    from pyopenvba.interpreter._format import vba_format as format_value
 
-    if value is NULL:
-        return NULL
-    if pattern is MISSING:
-        return to_text(value)
-    return format_value(_for_format(value), to_text(pattern))
-
-
-def _for_format(value: object) -> object:
-    if isinstance(value, VBADate):
-        return value.to_datetime()
-    if isinstance(value, VBAInt):
-        return int(value)
-    if isinstance(value, VBASingle):
-        return float(value)
-    return value
+    day = 1 if first_day is MISSING else int(to_integer(first_day, "Integer")) or 1
+    week = 1 if first_week is MISSING else int(to_integer(first_week, "Integer")) or 1
+    return format_value(value, pattern, day, week)
 
 
 @intrinsic("FormatNumber", "Expression", "NumDigitsAfterDecimal", minimum=1)
@@ -1077,7 +1065,11 @@ def vba_datepart(
     if unit == "w":
         return vba_weekday(interpreter, VBADate.from_datetime(when), week_start)
     if unit == "ww":
-        return VBAInt(int(when.strftime("%U")) + 1, "Integer")
+        from pyopenvba.interpreter._format import week_of_year
+
+        day = 1 if week_start is MISSING else int(to_integer(week_start, "Integer")) or 1
+        week = 1 if year_start is MISSING else int(to_integer(year_start, "Integer")) or 1
+        return VBAInt(week_of_year(when.date(), day, week), "Integer")
     if unit == "h":
         return VBAInt(when.hour, "Integer")
     if unit == "n":

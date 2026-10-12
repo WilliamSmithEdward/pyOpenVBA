@@ -1343,13 +1343,19 @@ def logical_imp(left: object, right: object) -> object:
     return _bitwise(left, right, "imp")
 
 
-def compare(op: str, left: object, right: object, *, text_compare: bool = False) -> object:
-    """A comparison, with Null answering Null rather than True or False."""
+def compare(op: str, left: object, right: object, *, text_compare: bool = False,
+            kinds: tuple[str, str] | None = None) -> object:
+    """A comparison, with Null answering Null rather than True or False.
+
+    ``kinds`` gives each operand's static type, "string", "number" or
+    "variant", where the caller knows it; it decides a string against a
+    number (see :func:`_mixed_order`).
+    """
     if left is NULL or right is NULL:
         return NULL
     if op == "is":
         return left is right
-    order = _order(left, right, text_compare=text_compare)
+    order = _order(left, right, text_compare=text_compare, kinds=kinds)
     if op == "=":
         return order == 0
     if op == "<>":
@@ -1365,7 +1371,7 @@ def compare(op: str, left: object, right: object, *, text_compare: bool = False)
     raise error(ERR_TYPE_MISMATCH, f"unknown comparison {op!r}")
 
 
-def _order(left: object, right: object, *, text_compare: bool) -> int:
+def _order(left: object, right: object, *, text_compare: bool, kinds: tuple[str, str] | None = None) -> int:
     from pyopenvba.interpreter._objects import VBAObject
 
     if isinstance(left, VBAObject):
@@ -1383,12 +1389,38 @@ def _order(left: object, right: object, *, text_compare: bool) -> int:
             left = "" if left is EMPTY else left
             right = "" if right is EMPTY else right
             return _order(left, right, text_compare=text_compare)
+        if kinds is not None and "variant" in kinds:
+            return _mixed_order(left, right, kinds)
     first_number = to_number(left)
     second_number = to_number(right)
     if isinstance(first_number, Decimal) or isinstance(second_number, Decimal):
         first_number = Decimal(str(first_number))
         second_number = Decimal(str(second_number))
     return (first_number > second_number) - (first_number < second_number)
+
+
+def _mixed_order(left: object, right: object, kinds: tuple[str, str]) -> int:
+    """A string against a number where a Variant holds one of them (19 native probes).
+
+    Both in Variants: the number is less than the string, unread. One in a
+    Variant: the string is read as a number when it is one ("10" = 10, "True"
+    = True), and otherwise the number is less. Neither: the caller's type
+    mismatch rule applies.
+    """
+    text, number, text_first = (left, right, True) if isinstance(left, str) else (right, left, False)
+    text_kind, number_kind = kinds if text_first else (kinds[1], kinds[0])
+    read: object = None
+    if not (text_kind == "variant" and number_kind == "variant"):
+        try:
+            read = to_number(text)
+        except VBARuntimeError:
+            if str(text).strip().lower() in ("true", "false"):
+                read = VBAInt(-1 if str(text).strip().lower() == "true" else 0, "Integer")
+    if read is None:
+        return 1 if text_first else -1
+    if text_first:
+        return _order(read, number, text_compare=False)
+    return _order(number, read, text_compare=False)
 
 
 _LIKE_CLASS = re.compile(r"\[(!?)((?:[^\]])*)\]")

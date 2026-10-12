@@ -1,0 +1,1476 @@
+{
+  "excel_version_build": "16.0|20430",
+  "measured_at": "2026-10-12T19:10:44.354363+00:00",
+  "probes": [
+    {
+      "value": "Empty",
+      "format": "\"0\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(Empty, \"0\")\nEnd Function\n",
+      "result": "String:"
+    },
+    {
+      "value": "Empty",
+      "format": "\"\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(Empty, \"\")\nEnd Function\n",
+      "result": "String:"
+    },
+    {
+      "value": "Empty",
+      "format": "\"#\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(Empty, \"#\")\nEnd Function\n",
+      "result": "String:"
+    },
+    {
+      "value": "Empty",
+      "format": "\"0;-0;Z\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(Empty, \"0;-0;Z\")\nEnd Function\n",
+      "result": "String:"
+    },
+    {
+      "value": "Empty",
+      "format": "\"yyyy\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(Empty, \"yyyy\")\nEnd Function\n",
+      "result": "String:"
+    },
+    {
+      "value": "Empty",
+      "format": "\"@\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(Empty, \"@\")\nEnd Function\n",
+      "result": "String:"
+    },
+    {
+      "value": "Null",
+      "format": "\"0\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(Null, \"0\")\nEnd Function\n",
+      "result": "String:"
+    },
+    {
+      "value": "Null",
+      "format": "\"0;-0;Z;N\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(Null, \"0;-0;Z;N\")\nEnd Function\n",
+      "result": "String:N"
+    },
+    {
+      "value": "Null",
+      "format": "\"\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(Null, \"\")\nEnd Function\n",
+      "result": "String:"
+    },
+    {
+      "value": "\"\"",
+      "format": "\"0\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(\"\", \"0\")\nEnd Function\n",
+      "result": "String:"
+    },
+    {
+      "value": "\"abc\"",
+      "format": "\"0\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(\"abc\", \"0\")\nEnd Function\n",
+      "result": "String:abc"
+    },
+    {
+      "value": "\"12abc\"",
+      "format": "\"0\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(\"12abc\", \"0\")\nEnd Function\n",
+      "result": "String:12abc"
+    },
+    {
+      "value": "\"12\"",
+      "format": "\"0.00\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(\"12\", \"0.00\")\nEnd Function\n",
+      "result": "String:12.00"
+    },
+    {
+      "value": "\"-12.5\"",
+      "format": "\"0.0\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(\"-12.5\", \"0.0\")\nEnd Function\n",
+      "result": "String:-12.5"
+    },
+    {
+      "value": "\"abc\"",
+      "format": "\"yyyy\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(\"abc\", \"yyyy\")\nEnd Function\n",
+      "result": "String:abc"
+    },
+    {
+      "value": "\"3/4/2024\"",
+      "format": "\"yyyy-mm-dd\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(\"3/4/2024\", \"yyyy-mm-dd\")\nEnd Function\n",
+      "result": "String:2024-03-04"
+    },
+    {
+      "value": "True",
+      "format": "\"0\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(True, \"0\")\nEnd Function\n",
+      "result": "String:-1"
+    },
+    {
+      "value": "False",
+      "format": "\"0.0\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(False, \"0.0\")\nEnd Function\n",
+      "result": "String:0.0"
+    },
+    {
+      "value": "True",
+      "format": "\"\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(True, \"\")\nEnd Function\n",
+      "result": "String:True"
+    },
+    {
+      "value": "True",
+      "format": "\"Yes/No\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(True, \"Yes/No\")\nEnd Function\n",
+      "result": "String:Yes"
+    },
+    {
+      "value": "1234.5678",
+      "format": "\"\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(1234.5678, \"\")\nEnd Function\n",
+      "result": "String:1234.5678"
+    },
+    {
+      "value": "1234.5678",
+      "format": "Empty",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(1234.5678, Empty)\nEnd Function\n",
+      "result": "String:1234.5678"
+    },
+    {
+      "value": "CSng(1/3)",
+      "format": "\"\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(CSng(1/3), \"\")\nEnd Function\n",
+      "result": "String:0.3333333"
+    },
+    {
+      "value": "CCur(1.5)",
+      "format": "\"\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(CCur(1.5), \"\")\nEnd Function\n",
+      "result": "String:1.5"
+    },
+    {
+      "value": "#3/4/2024#",
+      "format": "\"\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024#, \"\")\nEnd Function\n",
+      "result": "String:3/4/2024"
+    },
+    {
+      "value": "#3/4/2024 1:05:09 PM#",
+      "format": "\"\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 1:05:09 PM#, \"\")\nEnd Function\n",
+      "result": "String:3/4/2024 1:05:09 PM"
+    },
+    {
+      "value": "-0.5",
+      "format": "\"\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(-0.5, \"\")\nEnd Function\n",
+      "result": "String:-0.5"
+    },
+    {
+      "value": "1E+20",
+      "format": "\"\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(1E+20, \"\")\nEnd Function\n",
+      "result": "String:1E+20"
+    },
+    {
+      "value": "12345678901234567",
+      "format": "\"\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(12345678901234567, \"\")\nEnd Function\n",
+      "result": "String:1.23456789012346E+16"
+    },
+    {
+      "value": "1234.5",
+      "format": "\"General Number\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(1234.5, \"General Number\")\nEnd Function\n",
+      "result": "String:1234.5"
+    },
+    {
+      "value": "1234.5",
+      "format": "\"Currency\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(1234.5, \"Currency\")\nEnd Function\n",
+      "result": "String:$1,234.50"
+    },
+    {
+      "value": "-1234.5",
+      "format": "\"Currency\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(-1234.5, \"Currency\")\nEnd Function\n",
+      "result": "String:($1,234.50)"
+    },
+    {
+      "value": "1234.5",
+      "format": "\"Fixed\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(1234.5, \"Fixed\")\nEnd Function\n",
+      "result": "String:1234.50"
+    },
+    {
+      "value": "-1234.567",
+      "format": "\"Fixed\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(-1234.567, \"Fixed\")\nEnd Function\n",
+      "result": "String:-1234.57"
+    },
+    {
+      "value": "1234.5",
+      "format": "\"Standard\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(1234.5, \"Standard\")\nEnd Function\n",
+      "result": "String:1,234.50"
+    },
+    {
+      "value": "0.1234",
+      "format": "\"Percent\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(0.1234, \"Percent\")\nEnd Function\n",
+      "result": "String:12.34%"
+    },
+    {
+      "value": "1234.5",
+      "format": "\"Scientific\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(1234.5, \"Scientific\")\nEnd Function\n",
+      "result": "String:1.23E+03"
+    },
+    {
+      "value": "0",
+      "format": "\"Yes/No\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(0, \"Yes/No\")\nEnd Function\n",
+      "result": "String:No"
+    },
+    {
+      "value": "5",
+      "format": "\"True/False\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(5, \"True/False\")\nEnd Function\n",
+      "result": "String:True"
+    },
+    {
+      "value": "1",
+      "format": "\"On/Off\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(1, \"On/Off\")\nEnd Function\n",
+      "result": "String:On"
+    },
+    {
+      "value": "0",
+      "format": "\"On/Off\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(0, \"On/Off\")\nEnd Function\n",
+      "result": "String:Off"
+    },
+    {
+      "value": "-3",
+      "format": "\"Yes/No\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(-3, \"Yes/No\")\nEnd Function\n",
+      "result": "String:Yes"
+    },
+    {
+      "value": "-0.4",
+      "format": "\"0\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(-0.4, \"0\")\nEnd Function\n",
+      "result": "String:0"
+    },
+    {
+      "value": "-0.4",
+      "format": "\"#\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(-0.4, \"#\")\nEnd Function\n",
+      "result": "String:"
+    },
+    {
+      "value": "0",
+      "format": "\"#\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(0, \"#\")\nEnd Function\n",
+      "result": "String:"
+    },
+    {
+      "value": "0.5",
+      "format": "\"#\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(0.5, \"#\")\nEnd Function\n",
+      "result": "String:1"
+    },
+    {
+      "value": "1.5",
+      "format": "\"0\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(1.5, \"0\")\nEnd Function\n",
+      "result": "String:2"
+    },
+    {
+      "value": "2.5",
+      "format": "\"0\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(2.5, \"0\")\nEnd Function\n",
+      "result": "String:3"
+    },
+    {
+      "value": "-2.5",
+      "format": "\"0\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(-2.5, \"0\")\nEnd Function\n",
+      "result": "String:-3"
+    },
+    {
+      "value": "0.125",
+      "format": "\"0.00\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(0.125, \"0.00\")\nEnd Function\n",
+      "result": "String:0.13"
+    },
+    {
+      "value": "0.135",
+      "format": "\"0.00\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(0.135, \"0.00\")\nEnd Function\n",
+      "result": "String:0.14"
+    },
+    {
+      "value": "1.005",
+      "format": "\"0.00\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(1.005, \"0.00\")\nEnd Function\n",
+      "result": "String:1.01"
+    },
+    {
+      "value": "1E+20",
+      "format": "\"0\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(1E+20, \"0\")\nEnd Function\n",
+      "result": "String:100000000000000000000"
+    },
+    {
+      "value": "1E-20",
+      "format": "\"0.00\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(1E-20, \"0.00\")\nEnd Function\n",
+      "result": "String:0.00"
+    },
+    {
+      "value": "123",
+      "format": "\"00000\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(123, \"00000\")\nEnd Function\n",
+      "result": "String:00123"
+    },
+    {
+      "value": "123.456",
+      "format": "\"#.##\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(123.456, \"#.##\")\nEnd Function\n",
+      "result": "String:123.46"
+    },
+    {
+      "value": "123",
+      "format": "\"#.##\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(123, \"#.##\")\nEnd Function\n",
+      "result": "String:123."
+    },
+    {
+      "value": "0.5",
+      "format": "\"#.##\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(0.5, \"#.##\")\nEnd Function\n",
+      "result": "String:.5"
+    },
+    {
+      "value": "0.5",
+      "format": "\"0.##\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(0.5, \"0.##\")\nEnd Function\n",
+      "result": "String:0.5"
+    },
+    {
+      "value": "10",
+      "format": "\"0.##\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(10, \"0.##\")\nEnd Function\n",
+      "result": "String:10."
+    },
+    {
+      "value": "0",
+      "format": "\"0.##\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(0, \"0.##\")\nEnd Function\n",
+      "result": "String:0."
+    },
+    {
+      "value": "0",
+      "format": "\"#.##\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(0, \"#.##\")\nEnd Function\n",
+      "result": "String:."
+    },
+    {
+      "value": "5",
+      "format": "\".\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(5, \".\")\nEnd Function\n",
+      "result": "String:5."
+    },
+    {
+      "value": "5",
+      "format": "\"0.\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(5, \"0.\")\nEnd Function\n",
+      "result": "String:5."
+    },
+    {
+      "value": "0.5",
+      "format": "\".0\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(0.5, \".0\")\nEnd Function\n",
+      "result": "String:.5"
+    },
+    {
+      "value": "5",
+      "format": "\"#\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(5, \"#\")\nEnd Function\n",
+      "result": "String:5"
+    },
+    {
+      "value": "123",
+      "format": "\"0#0\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(123, \"0#0\")\nEnd Function\n",
+      "result": "String:123"
+    },
+    {
+      "value": "12345",
+      "format": "\"##\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(12345, \"##\")\nEnd Function\n",
+      "result": "String:12345"
+    },
+    {
+      "value": "-12345",
+      "format": "\"00\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(-12345, \"00\")\nEnd Function\n",
+      "result": "String:-12345"
+    },
+    {
+      "value": "0.0001",
+      "format": "\"0.000\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(0.0001, \"0.000\")\nEnd Function\n",
+      "result": "String:0.000"
+    },
+    {
+      "value": "-0.0001",
+      "format": "\"0.000\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(-0.0001, \"0.000\")\nEnd Function\n",
+      "result": "String:0.000"
+    },
+    {
+      "value": "-0.0001",
+      "format": "\"0.000;(0.000)\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(-0.0001, \"0.000;(0.000)\")\nEnd Function\n",
+      "result": "String:0.000"
+    },
+    {
+      "value": "1234567",
+      "format": "\"#,##0\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(1234567, \"#,##0\")\nEnd Function\n",
+      "result": "String:1,234,567"
+    },
+    {
+      "value": "1234567",
+      "format": "\"#,##0,\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(1234567, \"#,##0,\")\nEnd Function\n",
+      "result": "String:1,235"
+    },
+    {
+      "value": "1234567",
+      "format": "\"#,##0,,\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(1234567, \"#,##0,,\")\nEnd Function\n",
+      "result": "String:1"
+    },
+    {
+      "value": "1234567",
+      "format": "\"0.0,,\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(1234567, \"0.0,,\")\nEnd Function\n",
+      "result": "String:1234567.0"
+    },
+    {
+      "value": "1234567",
+      "format": "\"0,.0\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(1234567, \"0,.0\")\nEnd Function\n",
+      "result": "String:1234.6"
+    },
+    {
+      "value": "1234567.891",
+      "format": "\"#,##0.00\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(1234567.891, \"#,##0.00\")\nEnd Function\n",
+      "result": "String:1,234,567.89"
+    },
+    {
+      "value": "1234",
+      "format": "\"#,#\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(1234, \"#,#\")\nEnd Function\n",
+      "result": "String:1,234"
+    },
+    {
+      "value": "1234",
+      "format": "\"0,0\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(1234, \"0,0\")\nEnd Function\n",
+      "result": "String:1,234"
+    },
+    {
+      "value": "999",
+      "format": "\"#,##0\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(999, \"#,##0\")\nEnd Function\n",
+      "result": "String:999"
+    },
+    {
+      "value": "-1234567",
+      "format": "\"#,##0\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(-1234567, \"#,##0\")\nEnd Function\n",
+      "result": "String:-1,234,567"
+    },
+    {
+      "value": "1234567",
+      "format": "\"#,\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(1234567, \"#,\")\nEnd Function\n",
+      "result": "String:1235"
+    },
+    {
+      "value": "1234567",
+      "format": "\"0,000\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(1234567, \"0,000\")\nEnd Function\n",
+      "result": "String:1,234,567"
+    },
+    {
+      "value": "5",
+      "format": "\"0%\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(5, \"0%\")\nEnd Function\n",
+      "result": "String:500%"
+    },
+    {
+      "value": "0.05",
+      "format": "\"0.0%\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(0.05, \"0.0%\")\nEnd Function\n",
+      "result": "String:5.0%"
+    },
+    {
+      "value": "0.05",
+      "format": "\"%0\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(0.05, \"%0\")\nEnd Function\n",
+      "result": "String:%0"
+    },
+    {
+      "value": "0.0567",
+      "format": "\"0.00%\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(0.0567, \"0.00%\")\nEnd Function\n",
+      "result": "String:5.67%"
+    },
+    {
+      "value": "12",
+      "format": "\"0.0E+00\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(12, \"0.0E+00\")\nEnd Function\n",
+      "result": "String:1.2E+01"
+    },
+    {
+      "value": "12",
+      "format": "\"0.0E-00\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(12, \"0.0E-00\")\nEnd Function\n",
+      "result": "String:1.2E01"
+    },
+    {
+      "value": "0.00012",
+      "format": "\"0.0e-00\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(0.00012, \"0.0e-00\")\nEnd Function\n",
+      "result": "String:1.2e-04"
+    },
+    {
+      "value": "12",
+      "format": "\"##0.0E+0\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(12, \"##0.0E+0\")\nEnd Function\n",
+      "result": "String:120.0E-1"
+    },
+    {
+      "value": "123456",
+      "format": "\"0.00E+00\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(123456, \"0.00E+00\")\nEnd Function\n",
+      "result": "String:1.23E+05"
+    },
+    {
+      "value": "-0.00012",
+      "format": "\"0.00E+00\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(-0.00012, \"0.00E+00\")\nEnd Function\n",
+      "result": "String:-1.20E-04"
+    },
+    {
+      "value": "0",
+      "format": "\"0.0E+00\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(0, \"0.0E+00\")\nEnd Function\n",
+      "result": "String:0.0E+00"
+    },
+    {
+      "value": "12",
+      "format": "\"0E+0\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(12, \"0E+0\")\nEnd Function\n",
+      "result": "String:1E+1"
+    },
+    {
+      "value": "1234",
+      "format": "\"#E+#\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(1234, \"#E+#\")\nEnd Function\n",
+      "result": "String:1E+3"
+    },
+    {
+      "value": "-5",
+      "format": "\"0;(0)\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(-5, \"0;(0)\")\nEnd Function\n",
+      "result": "String:(5)"
+    },
+    {
+      "value": "0",
+      "format": "\"0;(0);\\z\\e\\r\\o\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(0, \"0;(0);\\z\\e\\r\\o\")\nEnd Function\n",
+      "result": "String:zero"
+    },
+    {
+      "value": "5",
+      "format": "\"0;(0);\\z\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(5, \"0;(0);\\z\")\nEnd Function\n",
+      "result": "String:5"
+    },
+    {
+      "value": "-5",
+      "format": "\"0;;\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(-5, \"0;;\")\nEnd Function\n",
+      "result": "String:-5"
+    },
+    {
+      "value": "5",
+      "format": "\";;;\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(5, \";;;\")\nEnd Function\n",
+      "result": "String:"
+    },
+    {
+      "value": "-5",
+      "format": "\";;;\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(-5, \";;;\")\nEnd Function\n",
+      "result": "String:"
+    },
+    {
+      "value": "0",
+      "format": "\"0;;\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(0, \"0;;\")\nEnd Function\n",
+      "result": "String:0"
+    },
+    {
+      "value": "-5",
+      "format": "\"0;\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(-5, \"0;\")\nEnd Function\n",
+      "result": "String:-5"
+    },
+    {
+      "value": "-5",
+      "format": "\"#;#\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(-5, \"#;#\")\nEnd Function\n",
+      "result": "String:5"
+    },
+    {
+      "value": "0",
+      "format": "\"0;-0\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(0, \"0;-0\")\nEnd Function\n",
+      "result": "String:0"
+    },
+    {
+      "value": "-0.4",
+      "format": "\"0;-0;\\z\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(-0.4, \"0;-0;\\z\")\nEnd Function\n",
+      "result": "String:z"
+    },
+    {
+      "value": "0.4",
+      "format": "\"0;-0;\\z\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(0.4, \"0;-0;\\z\")\nEnd Function\n",
+      "result": "String:z"
+    },
+    {
+      "value": "-5",
+      "format": "\"0;-0;\\z;\\n\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(-5, \"0;-0;\\z;\\n\")\nEnd Function\n",
+      "result": "String:-5"
+    },
+    {
+      "value": "5",
+      "format": "\"\\$0\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(5, \"\\$0\")\nEnd Function\n",
+      "result": "String:$5"
+    },
+    {
+      "value": "5",
+      "format": "\"\"\"USD \"\"0\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(5, \"\"\"USD \"\"0\")\nEnd Function\n",
+      "result": "String:USD 5"
+    },
+    {
+      "value": "5",
+      "format": "\"0 \\x\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(5, \"0 \\x\")\nEnd Function\n",
+      "result": "String:5 x"
+    },
+    {
+      "value": "5",
+      "format": "\"$0\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(5, \"$0\")\nEnd Function\n",
+      "result": "String:$5"
+    },
+    {
+      "value": "-5",
+      "format": "\"$#,##0.00\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(-5, \"$#,##0.00\")\nEnd Function\n",
+      "result": "String:-$5.00"
+    },
+    {
+      "value": "5",
+      "format": "\"0.00 \"\"pts\"\"\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(5, \"0.00 \"\"pts\"\"\")\nEnd Function\n",
+      "result": "String:5.00 pts"
+    },
+    {
+      "value": "1234.5",
+      "format": "\"#,##0.00 ;(#,##0.00)\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(1234.5, \"#,##0.00 ;(#,##0.00)\")\nEnd Function\n",
+      "result": "String:1,234.50 "
+    },
+    {
+      "value": "-5",
+      "format": "\"(0)\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(-5, \"(0)\")\nEnd Function\n",
+      "result": "String:-(5)"
+    },
+    {
+      "value": "5",
+      "format": "\"+0\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(5, \"+0\")\nEnd Function\n",
+      "result": "String:+5"
+    },
+    {
+      "value": "-5",
+      "format": "\"+0\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(-5, \"+0\")\nEnd Function\n",
+      "result": "String:-+5"
+    },
+    {
+      "value": "5",
+      "format": "\"0-\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(5, \"0-\")\nEnd Function\n",
+      "result": "String:5-"
+    },
+    {
+      "value": "5",
+      "format": "\"[Red]0\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(5, \"[Red]0\")\nEnd Function\n",
+      "result": "String:5"
+    },
+    {
+      "value": "-5",
+      "format": "\"0;[Red]-0\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(-5, \"0;[Red]-0\")\nEnd Function\n",
+      "result": "String:-5"
+    },
+    {
+      "value": "5",
+      "format": "\"x0y\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(5, \"x0y\")\nEnd Function\n",
+      "result": "String:x5y"
+    },
+    {
+      "value": "5",
+      "format": "\"ab0\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(5, \"ab0\")\nEnd Function\n",
+      "result": "String:ab5"
+    },
+    {
+      "value": "12",
+      "format": "\"0 0\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(12, \"0 0\")\nEnd Function\n",
+      "result": "String:1 2"
+    },
+    {
+      "value": "5",
+      "format": "\"0 hrs\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(5, \"0 hrs\")\nEnd Function\n",
+      "result": "String:5 hrs"
+    },
+    {
+      "value": "-5",
+      "format": "\"\"\"a\"\"0\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(-5, \"\"\"a\"\"0\")\nEnd Function\n",
+      "result": "String:-a5"
+    },
+    {
+      "value": "0",
+      "format": "\"#,##0.00;;\\-\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(0, \"#,##0.00;;\\-\")\nEnd Function\n",
+      "result": "String:-"
+    },
+    {
+      "value": "1",
+      "format": "\"#,##0.00;;\\-\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(1, \"#,##0.00;;\\-\")\nEnd Function\n",
+      "result": "String:1.00"
+    },
+    {
+      "value": "\"abc\"",
+      "format": "\">\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(\"abc\", \">\")\nEnd Function\n",
+      "result": "String:ABC"
+    },
+    {
+      "value": "\"ABC\"",
+      "format": "\"<\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(\"ABC\", \"<\")\nEnd Function\n",
+      "result": "String:abc"
+    },
+    {
+      "value": "\"12345\"",
+      "format": "\"@@@-@@\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(\"12345\", \"@@@-@@\")\nEnd Function\n",
+      "result": "String:123-45"
+    },
+    {
+      "value": "\"ab\"",
+      "format": "\"@@@@\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(\"ab\", \"@@@@\")\nEnd Function\n",
+      "result": "String:  ab"
+    },
+    {
+      "value": "\"ab\"",
+      "format": "\"!@@@@\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(\"ab\", \"!@@@@\")\nEnd Function\n",
+      "result": "String:ab  "
+    },
+    {
+      "value": "\"abcdef\"",
+      "format": "\"@@@\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(\"abcdef\", \"@@@\")\nEnd Function\n",
+      "result": "String:abcdef"
+    },
+    {
+      "value": "\"ab\"",
+      "format": "\"&&&&\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(\"ab\", \"&&&&\")\nEnd Function\n",
+      "result": "String:ab"
+    },
+    {
+      "value": "\"ab\"",
+      "format": "\"@-@-@\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(\"ab\", \"@-@-@\")\nEnd Function\n",
+      "result": "String: -a-b"
+    },
+    {
+      "value": "123",
+      "format": "\"@@@@@\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(123, \"@@@@@\")\nEnd Function\n",
+      "result": "String:  123"
+    },
+    {
+      "value": "\"abcdef\"",
+      "format": "\"!@@@\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(\"abcdef\", \"!@@@\")\nEnd Function\n",
+      "result": "String:def"
+    },
+    {
+      "value": "\"ab\"",
+      "format": "\"(@@@)\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(\"ab\", \"(@@@)\")\nEnd Function\n",
+      "result": "String:( ab)"
+    },
+    {
+      "value": "\"ab\"",
+      "format": "\"@@@@;x\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(\"ab\", \"@@@@;x\")\nEnd Function\n",
+      "result": "String:  ab"
+    },
+    {
+      "value": "\"aB\"",
+      "format": "\">@@@\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(\"aB\", \">@@@\")\nEnd Function\n",
+      "result": "String: AB"
+    },
+    {
+      "value": "\"ab\"",
+      "format": "\"\\@@@@\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(\"ab\", \"\\@@@@\")\nEnd Function\n",
+      "result": "String:@ ab"
+    },
+    {
+      "value": "#3/4/2024 1:05:09 PM#",
+      "format": "\"h hh n nn s ss AM/PM\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 1:05:09 PM#, \"h hh n nn s ss AM/PM\")\nEnd Function\n",
+      "result": "String:13 01 5 05 9 09 PM"
+    },
+    {
+      "value": "#3/4/2024 1:05:09 PM#",
+      "format": "\"h:nn\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 1:05:09 PM#, \"h:nn\")\nEnd Function\n",
+      "result": "String:13:05"
+    },
+    {
+      "value": "#3/4/2024 1:05:09 PM#",
+      "format": "\"hh:nn am/pm\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 1:05:09 PM#, \"hh:nn am/pm\")\nEnd Function\n",
+      "result": "String:01:05 pm"
+    },
+    {
+      "value": "#3/4/2024 1:05:09 PM#",
+      "format": "\"h:nn A/P\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 1:05:09 PM#, \"h:nn A/P\")\nEnd Function\n",
+      "result": "String:1:05 P"
+    },
+    {
+      "value": "#3/4/2024 1:05:09 PM#",
+      "format": "\"h:nn a/p\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 1:05:09 PM#, \"h:nn a/p\")\nEnd Function\n",
+      "result": "String:1:05 p"
+    },
+    {
+      "value": "#3/4/2024 1:05:09 PM#",
+      "format": "\"h:nn AMPM\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 1:05:09 PM#, \"h:nn AMPM\")\nEnd Function\n",
+      "result": "String:1:05 PM"
+    },
+    {
+      "value": "#3/4/2024 1:05:09 PM#",
+      "format": "\"h AM/PM\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 1:05:09 PM#, \"h AM/PM\")\nEnd Function\n",
+      "result": "String:1 PM"
+    },
+    {
+      "value": "#3/4/2024 1:05:09 PM#",
+      "format": "\"hh AM/PM\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 1:05:09 PM#, \"hh AM/PM\")\nEnd Function\n",
+      "result": "String:01 PM"
+    },
+    {
+      "value": "#3/4/2024 1:05:09 PM#",
+      "format": "\"AM/PM h\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 1:05:09 PM#, \"AM/PM h\")\nEnd Function\n",
+      "result": "String:PM 1"
+    },
+    {
+      "value": "#3/4/2024 1:05:09 PM#",
+      "format": "\"h\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 1:05:09 PM#, \"h\")\nEnd Function\n",
+      "result": "String:13"
+    },
+    {
+      "value": "#3/4/2024 1:05:09 PM#",
+      "format": "\"hh\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 1:05:09 PM#, \"hh\")\nEnd Function\n",
+      "result": "String:13"
+    },
+    {
+      "value": "#3/4/2024 1:05:09 PM#",
+      "format": "\"h n\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 1:05:09 PM#, \"h n\")\nEnd Function\n",
+      "result": "String:13 5"
+    },
+    {
+      "value": "#3/4/2024 9:07:03 AM#",
+      "format": "\"h hh AM/PM\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 9:07:03 AM#, \"h hh AM/PM\")\nEnd Function\n",
+      "result": "String:9 09 AM"
+    },
+    {
+      "value": "#3/4/2024 9:07:03 AM#",
+      "format": "\"hh:nn:ss AM/PM\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 9:07:03 AM#, \"hh:nn:ss AM/PM\")\nEnd Function\n",
+      "result": "String:09:07:03 AM"
+    },
+    {
+      "value": "#12:00:00 AM#",
+      "format": "\"hh:nn AM/PM\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#12:00:00 AM#, \"hh:nn AM/PM\")\nEnd Function\n",
+      "result": "String:12:00 AM"
+    },
+    {
+      "value": "#12:30:00 PM#",
+      "format": "\"h AM/PM\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#12:30:00 PM#, \"h AM/PM\")\nEnd Function\n",
+      "result": "String:12 PM"
+    },
+    {
+      "value": "#12:30:00 AM#",
+      "format": "\"h AM/PM\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#12:30:00 AM#, \"h AM/PM\")\nEnd Function\n",
+      "result": "String:12 AM"
+    },
+    {
+      "value": "#3/4/2024 1:05:09 PM#",
+      "format": "\"ttttt\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 1:05:09 PM#, \"ttttt\")\nEnd Function\n",
+      "result": "String:1:05:09 PM"
+    },
+    {
+      "value": "#3/4/2024 1:05:09 PM#",
+      "format": "\"c\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 1:05:09 PM#, \"c\")\nEnd Function\n",
+      "result": "String:3/4/2024 1:05:09 PM"
+    },
+    {
+      "value": "#3/4/2024#",
+      "format": "\"c\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024#, \"c\")\nEnd Function\n",
+      "result": "String:3/4/2024"
+    },
+    {
+      "value": "#1:05:09 PM#",
+      "format": "\"c\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#1:05:09 PM#, \"c\")\nEnd Function\n",
+      "result": "String:1:05:09 PM"
+    },
+    {
+      "value": "#3/4/2024 1:05:09 PM#",
+      "format": "\"ddddd\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 1:05:09 PM#, \"ddddd\")\nEnd Function\n",
+      "result": "String:3/4/2024"
+    },
+    {
+      "value": "#3/4/2024 1:05:09 PM#",
+      "format": "\"dddddd\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 1:05:09 PM#, \"dddddd\")\nEnd Function\n",
+      "result": "String:Monday, March 4, 2024"
+    },
+    {
+      "value": "#3/4/2024 1:05:09 PM#",
+      "format": "\"mmmmm\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 1:05:09 PM#, \"mmmmm\")\nEnd Function\n",
+      "result": "String:March3"
+    },
+    {
+      "value": "#3/4/2024 1:05:09 PM#",
+      "format": "\"m/d/yy\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 1:05:09 PM#, \"m/d/yy\")\nEnd Function\n",
+      "result": "String:3/4/24"
+    },
+    {
+      "value": "#3/4/2024 1:05:09 PM#",
+      "format": "\"mm/dd/yyyy hh:mm:ss\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 1:05:09 PM#, \"mm/dd/yyyy hh:mm:ss\")\nEnd Function\n",
+      "result": "String:03/04/2024 13:05:09"
+    },
+    {
+      "value": "#3/4/2024 1:05:09 PM#",
+      "format": "\"hh:mm\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 1:05:09 PM#, \"hh:mm\")\nEnd Function\n",
+      "result": "String:13:05"
+    },
+    {
+      "value": "#3/4/2024 1:05:09 PM#",
+      "format": "\"mm\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 1:05:09 PM#, \"mm\")\nEnd Function\n",
+      "result": "String:03"
+    },
+    {
+      "value": "#3/4/2024 1:05:09 PM#",
+      "format": "\"m\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 1:05:09 PM#, \"m\")\nEnd Function\n",
+      "result": "String:3"
+    },
+    {
+      "value": "#3/4/2024 1:05:09 PM#",
+      "format": "\"n\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 1:05:09 PM#, \"n\")\nEnd Function\n",
+      "result": "String:5"
+    },
+    {
+      "value": "#3/4/2024 1:05:09 PM#",
+      "format": "\"yyy\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 1:05:09 PM#, \"yyy\")\nEnd Function\n",
+      "result": "String:2464"
+    },
+    {
+      "value": "#3/4/2024 1:05:09 PM#",
+      "format": "\"y\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 1:05:09 PM#, \"y\")\nEnd Function\n",
+      "result": "String:64"
+    },
+    {
+      "value": "#3/4/2024 1:05:09 PM#",
+      "format": "\"w ww\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 1:05:09 PM#, \"w ww\")\nEnd Function\n",
+      "result": "String:2 10"
+    },
+    {
+      "value": "#1/1/2021#",
+      "format": "\"ww\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#1/1/2021#, \"ww\")\nEnd Function\n",
+      "result": "String:1"
+    },
+    {
+      "value": "#3/4/2024 1:05:09 PM#",
+      "format": "\"q\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 1:05:09 PM#, \"q\")\nEnd Function\n",
+      "result": "String:1"
+    },
+    {
+      "value": "#3/4/2024 1:05:09 PM#",
+      "format": "\"dddd, mmmm d\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 1:05:09 PM#, \"dddd, mmmm d\")\nEnd Function\n",
+      "result": "String:Monday, March 4"
+    },
+    {
+      "value": "#3/4/2024 1:05:09 PM#",
+      "format": "\"\\d\\a\\y d\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 1:05:09 PM#, \"\\d\\a\\y d\")\nEnd Function\n",
+      "result": "String:day 4"
+    },
+    {
+      "value": "#3/4/2024 1:05:09 PM#",
+      "format": "\"d dd ddd dddd\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 1:05:09 PM#, \"d dd ddd dddd\")\nEnd Function\n",
+      "result": "String:4 04 Mon Monday"
+    },
+    {
+      "value": "#3/4/2024 1:05:09 PM#",
+      "format": "\"m mm mmm mmmm\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 1:05:09 PM#, \"m mm mmm mmmm\")\nEnd Function\n",
+      "result": "String:3 03 Mar March"
+    },
+    {
+      "value": "#3/4/2024 1:05:09 PM#",
+      "format": "\"yy yyyy q w ww y\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 1:05:09 PM#, \"yy yyyy q w ww y\")\nEnd Function\n",
+      "result": "String:24 2024 1 2 10 64"
+    },
+    {
+      "value": "#3/4/2024 1:05:09 PM#",
+      "format": "\"s:mm\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 1:05:09 PM#, \"s:mm\")\nEnd Function\n",
+      "result": "String:9:03"
+    },
+    {
+      "value": "#3/4/2024 1:05:09 PM#",
+      "format": "\"h:m:s\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 1:05:09 PM#, \"h:m:s\")\nEnd Function\n",
+      "result": "String:13:5:9"
+    },
+    {
+      "value": "#3/4/2024 1:05:09 PM#",
+      "format": "\"hh:mm:ss\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 1:05:09 PM#, \"hh:mm:ss\")\nEnd Function\n",
+      "result": "String:13:05:09"
+    },
+    {
+      "value": "#3/4/2024 1:05:09 PM#",
+      "format": "\"mm:ss\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 1:05:09 PM#, \"mm:ss\")\nEnd Function\n",
+      "result": "String:03:09"
+    },
+    {
+      "value": "#3/4/2024 1:05:09 PM#",
+      "format": "\"[h]:mm\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 1:05:09 PM#, \"[h]:mm\")\nEnd Function\n",
+      "result": "String::03"
+    },
+    {
+      "value": "#3/4/2024 1:05:09 PM#",
+      "format": "\"yyyy-mm-ddThh:nn:ss\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 1:05:09 PM#, \"yyyy-mm-ddThh:nn:ss\")\nEnd Function\n",
+      "result": "String:2024-03-04T13:05:09"
+    },
+    {
+      "value": "#3/4/2024 1:05:09 PM#",
+      "format": "\"dd.mm.yyyy\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 1:05:09 PM#, \"dd.mm.yyyy\")\nEnd Function\n",
+      "result": "String:04.03.2024"
+    },
+    {
+      "value": "#3/4/2024 1:05:09 PM#",
+      "format": "\"\"\"Day \"\"d\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 1:05:09 PM#, \"\"\"Day \"\"d\")\nEnd Function\n",
+      "result": "String:Day 4"
+    },
+    {
+      "value": "#3/4/2024 1:05:09 PM#",
+      "format": "\"/\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 1:05:09 PM#, \"/\")\nEnd Function\n",
+      "result": "String:/"
+    },
+    {
+      "value": "#3/4/2024 1:05:09 PM#",
+      "format": "\":\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 1:05:09 PM#, \":\")\nEnd Function\n",
+      "result": "String::"
+    },
+    {
+      "value": "#3/4/2024 1:05:09 PM#",
+      "format": "\"Short Date\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 1:05:09 PM#, \"Short Date\")\nEnd Function\n",
+      "result": "String:3/4/2024"
+    },
+    {
+      "value": "#3/4/2024 1:05:09 PM#",
+      "format": "\"Long Date\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 1:05:09 PM#, \"Long Date\")\nEnd Function\n",
+      "result": "String:Monday, March 4, 2024"
+    },
+    {
+      "value": "#3/4/2024 1:05:09 PM#",
+      "format": "\"Medium Date\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 1:05:09 PM#, \"Medium Date\")\nEnd Function\n",
+      "result": "String:04-Mar-24"
+    },
+    {
+      "value": "#3/4/2024 1:05:09 PM#",
+      "format": "\"Short Time\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 1:05:09 PM#, \"Short Time\")\nEnd Function\n",
+      "result": "String:13:05"
+    },
+    {
+      "value": "#3/4/2024 1:05:09 PM#",
+      "format": "\"Medium Time\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 1:05:09 PM#, \"Medium Time\")\nEnd Function\n",
+      "result": "String:01:05 PM"
+    },
+    {
+      "value": "#3/4/2024 1:05:09 PM#",
+      "format": "\"Long Time\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 1:05:09 PM#, \"Long Time\")\nEnd Function\n",
+      "result": "String:1:05:09 PM"
+    },
+    {
+      "value": "#3/4/2024 1:05:09 PM#",
+      "format": "\"General Date\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 1:05:09 PM#, \"General Date\")\nEnd Function\n",
+      "result": "String:3/4/2024 1:05:09 PM"
+    },
+    {
+      "value": "#3/4/2024#",
+      "format": "\"General Date\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024#, \"General Date\")\nEnd Function\n",
+      "result": "String:3/4/2024"
+    },
+    {
+      "value": "#1:05:09 PM#",
+      "format": "\"General Date\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#1:05:09 PM#, \"General Date\")\nEnd Function\n",
+      "result": "String:1:05:09 PM"
+    },
+    {
+      "value": "45355.5",
+      "format": "\"dd/mm/yyyy\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(45355.5, \"dd/mm/yyyy\")\nEnd Function\n",
+      "result": "String:04/03/2024"
+    },
+    {
+      "value": "1.5",
+      "format": "\"hh:nn\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(1.5, \"hh:nn\")\nEnd Function\n",
+      "result": "String:12:00"
+    },
+    {
+      "value": "-1",
+      "format": "\"yyyy-mm-dd\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(-1, \"yyyy-mm-dd\")\nEnd Function\n",
+      "result": "String:1899-12-29"
+    },
+    {
+      "value": "-1.5",
+      "format": "\"yyyy-mm-dd hh:nn\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(-1.5, \"yyyy-mm-dd hh:nn\")\nEnd Function\n",
+      "result": "String:1899-12-29 12:00"
+    },
+    {
+      "value": "45355.5",
+      "format": "\"0.0\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(45355.5, \"0.0\")\nEnd Function\n",
+      "result": "String:45355.5"
+    },
+    {
+      "value": "#3/4/2024 1:05:09 PM#",
+      "format": "\"0.00\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 1:05:09 PM#, \"0.00\")\nEnd Function\n",
+      "result": "String:45355.55"
+    },
+    {
+      "value": "2958466",
+      "format": "\"yyyy\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(2958466, \"yyyy\")\nEnd Function\n",
+      "result": "e6"
+    },
+    {
+      "value": "#12/31/9999#",
+      "format": "\"dddddd\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#12/31/9999#, \"dddddd\")\nEnd Function\n",
+      "result": "String:Friday, December 31, 9999"
+    },
+    {
+      "value": "#3/4/2024 1:05:09 PM#",
+      "format": "\"YYYY-MM-DD\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 1:05:09 PM#, \"YYYY-MM-DD\")\nEnd Function\n",
+      "result": "String:2024-03-04"
+    },
+    {
+      "value": "#3/4/2024 1:05:09 PM#",
+      "format": "\"DDDD MMMM\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 1:05:09 PM#, \"DDDD MMMM\")\nEnd Function\n",
+      "result": "String:Monday March"
+    },
+    {
+      "value": "#3/4/2024 1:05:09 PM#",
+      "format": "\"HH:NN:SS\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 1:05:09 PM#, \"HH:NN:SS\")\nEnd Function\n",
+      "result": "String:13:05:09"
+    },
+    {
+      "value": "#3/4/2024 1:05:09 PM#",
+      "format": "\"Hh:Nn\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 1:05:09 PM#, \"Hh:Nn\")\nEnd Function\n",
+      "result": "String:13:05"
+    },
+    {
+      "value": "#3/4/2024 1:05:09 PM#",
+      "format": "\"Q W WW Y\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 1:05:09 PM#, \"Q W WW Y\")\nEnd Function\n",
+      "result": "String:1 2 10 64"
+    },
+    {
+      "value": "#3/4/2024 1:05:09 PM#",
+      "format": "\"C\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 1:05:09 PM#, \"C\")\nEnd Function\n",
+      "result": "String:3/4/2024 1:05:09 PM"
+    },
+    {
+      "value": "#3/4/2024 1:05:09 PM#",
+      "format": "\"short date\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 1:05:09 PM#, \"short date\")\nEnd Function\n",
+      "result": "String:3/4/2024"
+    },
+    {
+      "value": "1234.5",
+      "format": "\"currency\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(1234.5, \"currency\")\nEnd Function\n",
+      "result": "String:$1,234.50"
+    },
+    {
+      "value": "1234.5",
+      "format": "\"STANDARD\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(1234.5, \"STANDARD\")\nEnd Function\n",
+      "result": "String:1,234.50"
+    },
+    {
+      "value": "5",
+      "format": "\"abc\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(5, \"abc\")\nEnd Function\n",
+      "result": "String:ab1/4/1900"
+    },
+    {
+      "value": "5",
+      "format": "\"\\a\\b\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(5, \"\\a\\b\")\nEnd Function\n",
+      "result": "String:ab"
+    },
+    {
+      "value": "-5",
+      "format": "\"abc\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(-5, \"abc\")\nEnd Function\n",
+      "result": "String:ab12/25/1899"
+    },
+    {
+      "value": "0",
+      "format": "\"abc\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(0, \"abc\")\nEnd Function\n",
+      "result": "String:ab12:00:00 AM"
+    },
+    {
+      "value": "#3/4/2024 1:05:09 PM#",
+      "format": "\"abc\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 1:05:09 PM#, \"abc\")\nEnd Function\n",
+      "result": "String:ab3/4/2024 1:05:09 PM"
+    },
+    {
+      "value": "#1/1/100#",
+      "format": "\"yyyy\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#1/1/100#, \"yyyy\")\nEnd Function\n",
+      "result": "String:0100"
+    },
+    {
+      "value": "#1/1/100#",
+      "format": "\"yy\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#1/1/100#, \"yy\")\nEnd Function\n",
+      "result": "String:00"
+    },
+    {
+      "value": "#3/4/999#",
+      "format": "\"m/d/yyyy\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/999#, \"m/d/yyyy\")\nEnd Function\n",
+      "result": "String:3/4/0999"
+    },
+    {
+      "value": "#3/4/2024 1:05:09 PM#",
+      "format": "\"@\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(#3/4/2024 1:05:09 PM#, \"@\")\nEnd Function\n",
+      "result": "String:3/4/2024 1:05:09 PM"
+    },
+    {
+      "value": "45355",
+      "format": "\"@@@@@@\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(45355, \"@@@@@@\")\nEnd Function\n",
+      "result": "String: 45355"
+    },
+    {
+      "value": "5",
+      "format": "\"yyyy\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(5, \"yyyy\")\nEnd Function\n",
+      "result": "String:1900"
+    },
+    {
+      "value": "\"12\"",
+      "format": "\"@@@@\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(\"12\", \"@@@@\")\nEnd Function\n",
+      "result": "String:  12"
+    },
+    {
+      "value": "-5",
+      "format": "\"@@@\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(-5, \"@@@\")\nEnd Function\n",
+      "result": "String: -5"
+    },
+    {
+      "value": "True",
+      "format": "\"@\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(True, \"@\")\nEnd Function\n",
+      "result": "String:True"
+    },
+    {
+      "value": "CCur(-1234.5)",
+      "format": "\"Currency\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(CCur(-1234.5), \"Currency\")\nEnd Function\n",
+      "result": "String:($1,234.50)"
+    },
+    {
+      "value": "0",
+      "format": "\"Currency\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(0, \"Currency\")\nEnd Function\n",
+      "result": "String:$0.00"
+    },
+    {
+      "value": "-0.004",
+      "format": "\"Currency\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(-0.004, \"Currency\")\nEnd Function\n",
+      "result": "String:$0.00"
+    },
+    {
+      "value": "1234.5",
+      "format": "\"General Number;x\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(1234.5, \"General Number;x\")\nEnd Function\n",
+      "result": "String:Ge0eral 0u5ber"
+    },
+    {
+      "value": "1E+16",
+      "format": "\"General Number\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(1E+16, \"General Number\")\nEnd Function\n",
+      "result": "String:1E+16"
+    },
+    {
+      "value": "0.1",
+      "format": "\"Scientific\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(0.1, \"Scientific\")\nEnd Function\n",
+      "result": "String:1.00E-01"
+    },
+    {
+      "value": "CDec(\"79228162514264337593543950335\")",
+      "format": "\"0\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(CDec(\"79228162514264337593543950335\"), \"0\")\nEnd Function\n",
+      "result": "String:79228162514264337593543950335"
+    },
+    {
+      "value": "-5",
+      "format": "\"0.0;\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(-5, \"0.0;\")\nEnd Function\n",
+      "result": "String:-5.0"
+    },
+    {
+      "value": "0",
+      "format": "\";-0;\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(0, \";-0;\")\nEnd Function\n",
+      "result": "String:"
+    },
+    {
+      "value": "5",
+      "format": "\"0;-0;0;0\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(5, \"0;-0;0;0\")\nEnd Function\n",
+      "result": "String:5"
+    },
+    {
+      "value": "0",
+      "format": "\"#;-#;\"",
+      "macro": "\nPrivate Function F(v As Variant, fmt As Variant) As String\nOn Error Resume Next\nDim r As Variant\nr = Format(v, fmt)\nIf Err.Number Then F = \"e\" & Err.Number Else F = TypeName(r) & \":\" & CStr(r)\nEnd Function\n\nFunction Probe() As String\nProbe = F(0, \"#;-#;\")\nEnd Function\n",
+      "result": "String:"
+    }
+  ]
+}

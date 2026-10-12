@@ -67,6 +67,8 @@ if TYPE_CHECKING:
     from pyopenvba.interpreter._runtime import Interpreter
 
 _LIBRARY = "excel"
+#: The cells Range.Value reads in full: a whole column, 1,048,576 rows.
+_WHOLE_COLUMN_CELLS = 1_048_576
 #: The longest formula Excel keeps, in characters, and the longest FormulaArray takes
 #: (tests/fixtures/formula_refusals.json).
 LONGEST_FORMULA = 8192
@@ -1727,12 +1729,19 @@ class Range(ExcelObject):
     def _values(self, *, raw: bool) -> object:
         if self.single:
             return self._read(self.first.top, self.first.left, raw=raw)
-        area = self.bounded()
+        # The array has the range's own shape, empty cells and all: Range("A1:B2").Value
+        # of an empty sheet is 2 by 2 (native probes). Past a whole column's worth of
+        # cells it is clipped to what the sheet uses, as walking it would mean nothing.
+        area = self.first if self.first.rows * self.first.columns <= _WHOLE_COLUMN_CELLS else self.bounded()
+        used = self.sheet.used_bounds()
         items: list[object] = []
         # VBA lays a two-dimensional array out column by column.
         for column in range(area.left, area.right + 1):
             for row in range(area.top, area.bottom + 1):
-                items.append(self._read(row, column, raw=raw))
+                if used is None or not (used[0] <= row <= used[2] and used[1] <= column <= used[3]):
+                    items.append(EMPTY)
+                else:
+                    items.append(self._read(row, column, raw=raw))
         return VBAArray([(1, area.rows), (1, area.columns)], items=items)
 
     @member

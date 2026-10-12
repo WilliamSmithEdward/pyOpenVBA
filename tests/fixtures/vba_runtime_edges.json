@@ -1,6 +1,6 @@
 {
   "excel_version_build": "16.0|20430",
-  "measured_at": "2026-10-12T21:59:03.221070+00:00",
+  "measured_at": "2026-10-12T22:15:20.163454+00:00",
   "classes": {},
   "probes": [
     {
@@ -257,6 +257,61 @@
       "name": "date_text_31",
       "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nOn Error Resume Next\nDim d As Date\nd = CDate(\"1.5%\")\nIf Err.Number <> 0 Then Probe = IsDate(\"1.5%\") & \"|err\" & Err.Number Else Probe = IsDate(\"1.5%\") & \"|\" & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nEnd Function\n",
       "result": "False|err13"
+    },
+    {
+      "name": "error_value_00",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nOn Error Resume Next\nDim r\nr = (CVErr(2042) = CVErr(2042))\nIf Err.Number Then Probe = \"e\" & Err.Number Else Probe = TypeName(r) & \":\" & r\nEnd Function\n",
+      "result": "Boolean:True"
+    },
+    {
+      "name": "error_value_01",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nOn Error Resume Next\nDim r\nr = (CVErr(2042) = CVErr(2007))\nIf Err.Number Then Probe = \"e\" & Err.Number Else Probe = TypeName(r) & \":\" & r\nEnd Function\n",
+      "result": "Boolean:False"
+    },
+    {
+      "name": "error_value_02",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nOn Error Resume Next\nDim r\nr = (CVErr(2007) < CVErr(2042))\nIf Err.Number Then Probe = \"e\" & Err.Number Else Probe = TypeName(r) & \":\" & r\nEnd Function\n",
+      "result": "Boolean:True"
+    },
+    {
+      "name": "error_value_03",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nOn Error Resume Next\nDim r\nr = (CVErr(2042) <> CVErr(2042))\nIf Err.Number Then Probe = \"e\" & Err.Number Else Probe = TypeName(r) & \":\" & r\nEnd Function\n",
+      "result": "Boolean:False"
+    },
+    {
+      "name": "error_value_04",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nOn Error Resume Next\nDim r\nr = (CVErr(2042) = 2042)\nIf Err.Number Then Probe = \"e\" & Err.Number Else Probe = TypeName(r) & \":\" & r\nEnd Function\n",
+      "result": "e13"
+    },
+    {
+      "name": "error_value_05",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nOn Error Resume Next\nDim r\nr = (CVErr(2042) = \"Error 2042\")\nIf Err.Number Then Probe = \"e\" & Err.Number Else Probe = TypeName(r) & \":\" & r\nEnd Function\n",
+      "result": "e13"
+    },
+    {
+      "name": "error_value_06",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nOn Error Resume Next\nDim r\nr = (CVErr(2042) = Empty)\nIf Err.Number Then Probe = \"e\" & Err.Number Else Probe = TypeName(r) & \":\" & r\nEnd Function\n",
+      "result": "e13"
+    },
+    {
+      "name": "error_value_07",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nOn Error Resume Next\nDim r\nr = (IsNull(CVErr(2042) = Null))\nIf Err.Number Then Probe = \"e\" & Err.Number Else Probe = TypeName(r) & \":\" & r\nEnd Function\n",
+      "result": "e13"
+    },
+    {
+      "name": "error_value_08",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nOn Error Resume Next\nDim r\nr = (\"x\" & CVErr(2042))\nIf Err.Number Then Probe = \"e\" & Err.Number Else Probe = TypeName(r) & \":\" & r\nEnd Function\n",
+      "result": "e13"
+    },
+    {
+      "name": "error_value_09",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nOn Error Resume Next\nDim r\nr = (CStr(CVErr(2042)))\nIf Err.Number Then Probe = \"e\" & Err.Number Else Probe = TypeName(r) & \":\" & r\nEnd Function\n",
+      "result": "String:Error 2042"
+    },
+    {
+      "name": "error_value_select_case",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nDim v\nv = CVErr(2042)\nSelect Case v\nCase CVErr(2007): Probe = \"a\"\nCase CVErr(2042): Probe = \"b\"\nCase Else: Probe = \"c\"\nEnd Select\nEnd Function\n",
+      "result": "b"
     }
   ]
 }

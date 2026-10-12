@@ -1,7 +1,8 @@
 """Measure VBA run-time edges the differential sweep found: typed-array return
 types, Collection keys and positions, Round on a Double, negative zero, 0 / 0,
-Val of hex text, AscW, IsDate of a number, dotted time text and the optional
-arguments of FormatNumber, FormatCurrency and FormatPercent.
+Val of hex text, AscW, IsDate of a number, dotted time text, the optional
+arguments of FormatNumber, FormatCurrency and FormatPercent, and comparing
+or joining Error values.
 
 Each probe is a module whose ``Function Probe() As String`` the fixture records
 as a value or a run-time error number (see vba_probe_fixture.py).
@@ -67,6 +68,17 @@ CASES = {
     "datevalue_timevalue_dotted": 'On Error Resume Next\nProbe = Format(DateValue("1.5"), "yyyy-mm-dd") & "|" & Err.Number\nErr.Clear\nProbe = Probe & "|" & Format(TimeValue("1.5"), "hh:nn:ss") & "|" & Err.Number',
 }
 CASES.update({f"date_text_{index:02d}": date_text(text) for index, text in enumerate(DATE_TEXTS)})
+# Error values: two compare by number, anything else beside one is a type mismatch.
+ERROR_EXPRESSIONS = ["CVErr(2042) = CVErr(2042)", "CVErr(2042) = CVErr(2007)", "CVErr(2007) < CVErr(2042)",
+                     "CVErr(2042) <> CVErr(2042)", "CVErr(2042) = 2042", 'CVErr(2042) = "Error 2042"',
+                     "CVErr(2042) = Empty", "IsNull(CVErr(2042) = Null)", '"x" & CVErr(2042)', "CStr(CVErr(2042))"]
+CASES.update({f"error_value_{index:02d}": f'On Error Resume Next\nDim r\nr = ({expression})\n'
+              'If Err.Number Then Probe = "e" & Err.Number Else Probe = TypeName(r) & ":" & r'
+              for index, expression in enumerate(ERROR_EXPRESSIONS)})
+CASES.update({
+    "error_value_select_case": 'Dim v\nv = CVErr(2042)\nSelect Case v\nCase CVErr(2007): Probe = "a"\n'
+                               'Case CVErr(2042): Probe = "b"\nCase Else: Probe = "c"\nEnd Select',
+})
 
 
 def macro(name: str) -> str:

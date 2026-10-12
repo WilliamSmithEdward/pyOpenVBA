@@ -1353,6 +1353,9 @@ def power(left: object, right: object) -> object:
 
 def concat(left: object, right: object) -> object:
     """``&``, which reads Null as an empty string unless both sides are Null."""
+    if isinstance(left, VBAErrorValue) or isinstance(right, VBAErrorValue):
+        # "x" & CVErr(2042) is a type mismatch, though CStr spells one (native probes).
+        raise error(ERR_TYPE_MISMATCH)
     if left is NULL and right is NULL:
         return NULL
     first = "" if left is NULL else to_text(left)
@@ -1462,6 +1465,12 @@ def compare(op: str, left: object, right: object, *, text_compare: bool = False,
             raise error(424)
         # An interface view and its object are one object, as COM's identity makes them.
         return getattr(left, "vba_identity", left) is getattr(right, "vba_identity", right)
+    if isinstance(left, VBAErrorValue) or isinstance(right, VBAErrorValue):
+        # Two Error values compare by their numbers; an Error beside anything
+        # else is a type mismatch, Null included (native probes).
+        if not (isinstance(left, VBAErrorValue) and isinstance(right, VBAErrorValue)):
+            raise error(ERR_TYPE_MISMATCH)
+        left, right = left.number, right.number
     if left is NULL or right is NULL:
         return NULL
     order = _order(left, right, text_compare=text_compare, kinds=kinds)

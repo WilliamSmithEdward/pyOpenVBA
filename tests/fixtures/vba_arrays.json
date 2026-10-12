@@ -1,0 +1,182 @@
+{
+  "excel_version_build": "16.0|20430",
+  "measured_at": "2026-10-12T22:30:51.659616+00:00",
+  "classes": {},
+  "probes": [
+    {
+      "name": "unallocated_checks",
+      "macro": "\nPrivate Sub FillByRef(a() As Long)\n    ReDim a(1 To 2)\n    a(2) = 7\nEnd Sub\n\nPrivate Sub TouchVariant(ByVal v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Sub TouchVariantRef(v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Function CountDims(v As Variant) As Long\n    Dim d As Long, n As Long\n    On Error GoTo Done\n    For d = 1 To 60\n        n = UBound(v, d)\n    Next\nDone:\n    CountDims = d - 1\nEnd Function\n\nPrivate Function SumAll(ParamArray xs() As Variant) As Double\n    Dim x\n    For Each x In xs\n        SumAll = SumAll + x\n    Next\nEnd Function\n\nFunction Probe() As String\nDim a() As Long\nOn Error Resume Next\nDim n As Long\nn = UBound(a)\nProbe = Err.Number & \"|\" & IsArray(a) & \"|\" & (Not a) & \"|\" & TypeName(a)\nEnd Function\n",
+      "result": "9|True|-1|Long()"
+    },
+    {
+      "name": "ubound_on_non_array",
+      "macro": "\nPrivate Sub FillByRef(a() As Long)\n    ReDim a(1 To 2)\n    a(2) = 7\nEnd Sub\n\nPrivate Sub TouchVariant(ByVal v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Sub TouchVariantRef(v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Function CountDims(v As Variant) As Long\n    Dim d As Long, n As Long\n    On Error GoTo Done\n    For d = 1 To 60\n        n = UBound(v, d)\n    Next\nDone:\n    CountDims = d - 1\nEnd Function\n\nPrivate Function SumAll(ParamArray xs() As Variant) As Double\n    Dim x\n    For Each x In xs\n        SumAll = SumAll + x\n    Next\nEnd Function\n\nFunction Probe() As String\nDim v As Variant\nOn Error Resume Next\nDim n As Long\nn = UBound(v)\nProbe = Err.Number\nErr.Clear\nv = \"abc\"\nn = UBound(v)\nProbe = Probe & \"|\" & Err.Number\nEnd Function\n",
+      "result": "13|13"
+    },
+    {
+      "name": "redim_fixed_runtime",
+      "macro": "\nPrivate Sub FillByRef(a() As Long)\n    ReDim a(1 To 2)\n    a(2) = 7\nEnd Sub\n\nPrivate Sub TouchVariant(ByVal v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Sub TouchVariantRef(v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Function CountDims(v As Variant) As Long\n    Dim d As Long, n As Long\n    On Error GoTo Done\n    For d = 1 To 60\n        n = UBound(v, d)\n    Next\nDone:\n    CountDims = d - 1\nEnd Function\n\nPrivate Function SumAll(ParamArray xs() As Variant) As Double\n    Dim x\n    For Each x In xs\n        SumAll = SumAll + x\n    Next\nEnd Function\n\nFunction Probe() As String\nDim v As Variant\nv = Array(1, 2)\nReDim Preserve v(0 To 3)\nProbe = UBound(v) & \"|\" & v(1) & \"|\" & IsEmpty(v(3))\nEnd Function\n",
+      "result": "3|2|True"
+    },
+    {
+      "name": "redim_preserve_lower_bound_change",
+      "macro": "\nPrivate Sub FillByRef(a() As Long)\n    ReDim a(1 To 2)\n    a(2) = 7\nEnd Sub\n\nPrivate Sub TouchVariant(ByVal v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Sub TouchVariantRef(v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Function CountDims(v As Variant) As Long\n    Dim d As Long, n As Long\n    On Error GoTo Done\n    For d = 1 To 60\n        n = UBound(v, d)\n    Next\nDone:\n    CountDims = d - 1\nEnd Function\n\nPrivate Function SumAll(ParamArray xs() As Variant) As Double\n    Dim x\n    For Each x In xs\n        SumAll = SumAll + x\n    Next\nEnd Function\n\nFunction Probe() As String\nDim a() As Long\nReDim a(1 To 3)\nOn Error Resume Next\nReDim Preserve a(0 To 3)\nProbe = Err.Number & \"|\" & LBound(a)\nEnd Function\n",
+      "result": "9|1"
+    },
+    {
+      "name": "redim_preserve_2d_last_dim",
+      "macro": "\nPrivate Sub FillByRef(a() As Long)\n    ReDim a(1 To 2)\n    a(2) = 7\nEnd Sub\n\nPrivate Sub TouchVariant(ByVal v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Sub TouchVariantRef(v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Function CountDims(v As Variant) As Long\n    Dim d As Long, n As Long\n    On Error GoTo Done\n    For d = 1 To 60\n        n = UBound(v, d)\n    Next\nDone:\n    CountDims = d - 1\nEnd Function\n\nPrivate Function SumAll(ParamArray xs() As Variant) As Double\n    Dim x\n    For Each x In xs\n        SumAll = SumAll + x\n    Next\nEnd Function\n\nFunction Probe() As String\nDim a() As Long\nReDim a(1 To 2, 1 To 2)\na(2, 2) = 5\nReDim Preserve a(1 To 2, 1 To 4)\nProbe = a(2, 2) & \"|\" & UBound(a, 2)\nOn Error Resume Next\nReDim Preserve a(1 To 3, 1 To 4)\nProbe = Probe & \"|\" & Err.Number\nEnd Function\n",
+      "result": "5|4|9"
+    },
+    {
+      "name": "redim_change_dims",
+      "macro": "\nPrivate Sub FillByRef(a() As Long)\n    ReDim a(1 To 2)\n    a(2) = 7\nEnd Sub\n\nPrivate Sub TouchVariant(ByVal v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Sub TouchVariantRef(v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Function CountDims(v As Variant) As Long\n    Dim d As Long, n As Long\n    On Error GoTo Done\n    For d = 1 To 60\n        n = UBound(v, d)\n    Next\nDone:\n    CountDims = d - 1\nEnd Function\n\nPrivate Function SumAll(ParamArray xs() As Variant) As Double\n    Dim x\n    For Each x In xs\n        SumAll = SumAll + x\n    Next\nEnd Function\n\nFunction Probe() As String\nDim a() As Long\nReDim a(2)\nReDim a(1, 1)\nProbe = CountDims(a)\nOn Error Resume Next\nReDim Preserve a(1, 1, 1)\nProbe = Probe & \"|\" & Err.Number\nEnd Function\n",
+      "result": "2|9"
+    },
+    {
+      "name": "erase_dynamic_then_ubound",
+      "macro": "\nPrivate Sub FillByRef(a() As Long)\n    ReDim a(1 To 2)\n    a(2) = 7\nEnd Sub\n\nPrivate Sub TouchVariant(ByVal v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Sub TouchVariantRef(v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Function CountDims(v As Variant) As Long\n    Dim d As Long, n As Long\n    On Error GoTo Done\n    For d = 1 To 60\n        n = UBound(v, d)\n    Next\nDone:\n    CountDims = d - 1\nEnd Function\n\nPrivate Function SumAll(ParamArray xs() As Variant) As Double\n    Dim x\n    For Each x In xs\n        SumAll = SumAll + x\n    Next\nEnd Function\n\nFunction Probe() As String\nDim a() As String\nReDim a(2)\nErase a\nOn Error Resume Next\nDim n As Long\nn = UBound(a)\nProbe = Err.Number & \"|\" & LBound(Split(\"\"))\nEnd Function\n",
+      "result": "9|0"
+    },
+    {
+      "name": "erase_variant_array",
+      "macro": "\nPrivate Sub FillByRef(a() As Long)\n    ReDim a(1 To 2)\n    a(2) = 7\nEnd Sub\n\nPrivate Sub TouchVariant(ByVal v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Sub TouchVariantRef(v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Function CountDims(v As Variant) As Long\n    Dim d As Long, n As Long\n    On Error GoTo Done\n    For d = 1 To 60\n        n = UBound(v, d)\n    Next\nDone:\n    CountDims = d - 1\nEnd Function\n\nPrivate Function SumAll(ParamArray xs() As Variant) As Double\n    Dim x\n    For Each x In xs\n        SumAll = SumAll + x\n    Next\nEnd Function\n\nFunction Probe() As String\nDim v As Variant\nv = Array(1, 2)\nOn Error Resume Next\nErase v\nProbe = Err.Number & \"|\" & TypeName(v) & \"|\" & IsArray(v)\nEnd Function\n",
+      "result": "0|Variant()|True"
+    },
+    {
+      "name": "byref_array_param_redim",
+      "macro": "\nPrivate Sub FillByRef(a() As Long)\n    ReDim a(1 To 2)\n    a(2) = 7\nEnd Sub\n\nPrivate Sub TouchVariant(ByVal v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Sub TouchVariantRef(v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Function CountDims(v As Variant) As Long\n    Dim d As Long, n As Long\n    On Error GoTo Done\n    For d = 1 To 60\n        n = UBound(v, d)\n    Next\nDone:\n    CountDims = d - 1\nEnd Function\n\nPrivate Function SumAll(ParamArray xs() As Variant) As Double\n    Dim x\n    For Each x In xs\n        SumAll = SumAll + x\n    Next\nEnd Function\n\nFunction Probe() As String\nDim a() As Long\nFillByRef a\nProbe = LBound(a) & UBound(a) & \"|\" & a(2)\nEnd Function\n",
+      "result": "12|7"
+    },
+    {
+      "name": "variant_array_byval_byref",
+      "macro": "\nPrivate Sub FillByRef(a() As Long)\n    ReDim a(1 To 2)\n    a(2) = 7\nEnd Sub\n\nPrivate Sub TouchVariant(ByVal v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Sub TouchVariantRef(v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Function CountDims(v As Variant) As Long\n    Dim d As Long, n As Long\n    On Error GoTo Done\n    For d = 1 To 60\n        n = UBound(v, d)\n    Next\nDone:\n    CountDims = d - 1\nEnd Function\n\nPrivate Function SumAll(ParamArray xs() As Variant) As Double\n    Dim x\n    For Each x In xs\n        SumAll = SumAll + x\n    Next\nEnd Function\n\nFunction Probe() As String\nDim v As Variant\nv = Array(1, 2)\nTouchVariant v\nProbe = v(0)\nTouchVariantRef v\nProbe = Probe & \"|\" & v(0)\nEnd Function\n",
+      "result": "1|99"
+    },
+    {
+      "name": "count_dims",
+      "macro": "\nPrivate Sub FillByRef(a() As Long)\n    ReDim a(1 To 2)\n    a(2) = 7\nEnd Sub\n\nPrivate Sub TouchVariant(ByVal v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Sub TouchVariantRef(v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Function CountDims(v As Variant) As Long\n    Dim d As Long, n As Long\n    On Error GoTo Done\n    For d = 1 To 60\n        n = UBound(v, d)\n    Next\nDone:\n    CountDims = d - 1\nEnd Function\n\nPrivate Function SumAll(ParamArray xs() As Variant) As Double\n    Dim x\n    For Each x In xs\n        SumAll = SumAll + x\n    Next\nEnd Function\n\nFunction Probe() As String\nDim a(1, 2, 3) As Byte, b\nb = Array(1)\nProbe = CountDims(a) & CountDims(b)\nEnd Function\n",
+      "result": "31"
+    },
+    {
+      "name": "array_in_array_assign",
+      "macro": "\nPrivate Sub FillByRef(a() As Long)\n    ReDim a(1 To 2)\n    a(2) = 7\nEnd Sub\n\nPrivate Sub TouchVariant(ByVal v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Sub TouchVariantRef(v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Function CountDims(v As Variant) As Long\n    Dim d As Long, n As Long\n    On Error GoTo Done\n    For d = 1 To 60\n        n = UBound(v, d)\n    Next\nDone:\n    CountDims = d - 1\nEnd Function\n\nPrivate Function SumAll(ParamArray xs() As Variant) As Double\n    Dim x\n    For Each x In xs\n        SumAll = SumAll + x\n    Next\nEnd Function\n\nFunction Probe() As String\nDim outer(1) As Variant\nouter(0) = Array(1, 2)\nouter(0)(1) = 9\nProbe = outer(0)(1)\nEnd Function\n",
+      "result": "9"
+    },
+    {
+      "name": "fixed_array_assign_error",
+      "macro": "\nPrivate Sub FillByRef(a() As Long)\n    ReDim a(1 To 2)\n    a(2) = 7\nEnd Sub\n\nPrivate Sub TouchVariant(ByVal v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Sub TouchVariantRef(v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Function CountDims(v As Variant) As Long\n    Dim d As Long, n As Long\n    On Error GoTo Done\n    For d = 1 To 60\n        n = UBound(v, d)\n    Next\nDone:\n    CountDims = d - 1\nEnd Function\n\nPrivate Function SumAll(ParamArray xs() As Variant) As Double\n    Dim x\n    For Each x In xs\n        SumAll = SumAll + x\n    Next\nEnd Function\n\nFunction Probe() As String\nDim a(2) As Long, b(2) As Long\nb(1) = 4\nOn Error Resume Next\nDim v As Variant\nv = b\nProbe = v(1) & \"|\" & TypeName(v)\nEnd Function\n",
+      "result": "4|Long()"
+    },
+    {
+      "name": "multidim_iteration_order",
+      "macro": "\nPrivate Sub FillByRef(a() As Long)\n    ReDim a(1 To 2)\n    a(2) = 7\nEnd Sub\n\nPrivate Sub TouchVariant(ByVal v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Sub TouchVariantRef(v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Function CountDims(v As Variant) As Long\n    Dim d As Long, n As Long\n    On Error GoTo Done\n    For d = 1 To 60\n        n = UBound(v, d)\n    Next\nDone:\n    CountDims = d - 1\nEnd Function\n\nPrivate Function SumAll(ParamArray xs() As Variant) As Double\n    Dim x\n    For Each x In xs\n        SumAll = SumAll + x\n    Next\nEnd Function\n\nFunction Probe() As String\nDim a(1 To 2, 1 To 2) As Long, x, s As String\na(1, 1) = 1: a(2, 1) = 2: a(1, 2) = 3: a(2, 2) = 4\nFor Each x In a: s = s & x: Next\nProbe = s\nEnd Function\n",
+      "result": "1234"
+    },
+    {
+      "name": "lbound_ubound_dims",
+      "macro": "\nPrivate Sub FillByRef(a() As Long)\n    ReDim a(1 To 2)\n    a(2) = 7\nEnd Sub\n\nPrivate Sub TouchVariant(ByVal v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Sub TouchVariantRef(v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Function CountDims(v As Variant) As Long\n    Dim d As Long, n As Long\n    On Error GoTo Done\n    For d = 1 To 60\n        n = UBound(v, d)\n    Next\nDone:\n    CountDims = d - 1\nEnd Function\n\nPrivate Function SumAll(ParamArray xs() As Variant) As Double\n    Dim x\n    For Each x In xs\n        SumAll = SumAll + x\n    Next\nEnd Function\n\nFunction Probe() As String\nDim a(-2 To 2, 5 To 7) As Long\nOn Error Resume Next\nProbe = LBound(a) & UBound(a) & LBound(a, 2) & UBound(a, 2)\nDim n As Long\nn = UBound(a, 3)\nProbe = Probe & \"|\" & Err.Number\nEnd Function\n",
+      "result": "-2257|9"
+    },
+    {
+      "name": "paramarray_sum",
+      "macro": "\nPrivate Sub FillByRef(a() As Long)\n    ReDim a(1 To 2)\n    a(2) = 7\nEnd Sub\n\nPrivate Sub TouchVariant(ByVal v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Sub TouchVariantRef(v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Function CountDims(v As Variant) As Long\n    Dim d As Long, n As Long\n    On Error GoTo Done\n    For d = 1 To 60\n        n = UBound(v, d)\n    Next\nDone:\n    CountDims = d - 1\nEnd Function\n\nPrivate Function SumAll(ParamArray xs() As Variant) As Double\n    Dim x\n    For Each x In xs\n        SumAll = SumAll + x\n    Next\nEnd Function\n\nFunction Probe() As String\nProbe = SumAll(1, 2, 3) & \"|\" & SumAll() & \"|\" & SumAll(1.5, \"2\")\nEnd Function\n",
+      "result": "6|0|3.5"
+    },
+    {
+      "name": "array_function_types",
+      "macro": "\nPrivate Sub FillByRef(a() As Long)\n    ReDim a(1 To 2)\n    a(2) = 7\nEnd Sub\n\nPrivate Sub TouchVariant(ByVal v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Sub TouchVariantRef(v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Function CountDims(v As Variant) As Long\n    Dim d As Long, n As Long\n    On Error GoTo Done\n    For d = 1 To 60\n        n = UBound(v, d)\n    Next\nDone:\n    CountDims = d - 1\nEnd Function\n\nPrivate Function SumAll(ParamArray xs() As Variant) As Double\n    Dim x\n    For Each x In xs\n        SumAll = SumAll + x\n    Next\nEnd Function\n\nFunction Probe() As String\nDim v\nv = Array()\nProbe = UBound(v) & \"|\" & TypeName(v) & \"|\" & TypeName(Array(1)(0)) & \"|\" & TypeName(Array(\"a\"))\nEnd Function\n",
+      "result": "-1|Variant()|Integer|Variant()"
+    },
+    {
+      "name": "split_limit_compare",
+      "macro": "\nPrivate Sub FillByRef(a() As Long)\n    ReDim a(1 To 2)\n    a(2) = 7\nEnd Sub\n\nPrivate Sub TouchVariant(ByVal v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Sub TouchVariantRef(v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Function CountDims(v As Variant) As Long\n    Dim d As Long, n As Long\n    On Error GoTo Done\n    For d = 1 To 60\n        n = UBound(v, d)\n    Next\nDone:\n    CountDims = d - 1\nEnd Function\n\nPrivate Function SumAll(ParamArray xs() As Variant) As Double\n    Dim x\n    For Each x In xs\n        SumAll = SumAll + x\n    Next\nEnd Function\n\nFunction Probe() As String\nDim v\nv = Split(\"aXbxc\", \"x\", -1, vbTextCompare)\nProbe = UBound(v) & \"|\" & Join(v, \"|\")\nv = Split(\"a  b\", \" \")\nProbe = Probe & \"|\" & UBound(v)\nEnd Function\n",
+      "result": "2|a|b|c|2"
+    },
+    {
+      "name": "join_numbers_and_errors",
+      "macro": "\nPrivate Sub FillByRef(a() As Long)\n    ReDim a(1 To 2)\n    a(2) = 7\nEnd Sub\n\nPrivate Sub TouchVariant(ByVal v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Sub TouchVariantRef(v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Function CountDims(v As Variant) As Long\n    Dim d As Long, n As Long\n    On Error GoTo Done\n    For d = 1 To 60\n        n = UBound(v, d)\n    Next\nDone:\n    CountDims = d - 1\nEnd Function\n\nPrivate Function SumAll(ParamArray xs() As Variant) As Double\n    Dim x\n    For Each x In xs\n        SumAll = SumAll + x\n    Next\nEnd Function\n\nFunction Probe() As String\nOn Error Resume Next\nProbe = Join(Array(1, 2.5, True), \"-\")\nDim s As String\ns = Join(Array(1, Null), \"-\")\nProbe = Probe & \"|\" & Err.Number\nEnd Function\n",
+      "result": "1-2.5-True|94"
+    },
+    {
+      "name": "filter_case",
+      "macro": "\nPrivate Sub FillByRef(a() As Long)\n    ReDim a(1 To 2)\n    a(2) = 7\nEnd Sub\n\nPrivate Sub TouchVariant(ByVal v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Sub TouchVariantRef(v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Function CountDims(v As Variant) As Long\n    Dim d As Long, n As Long\n    On Error GoTo Done\n    For d = 1 To 60\n        n = UBound(v, d)\n    Next\nDone:\n    CountDims = d - 1\nEnd Function\n\nPrivate Function SumAll(ParamArray xs() As Variant) As Double\n    Dim x\n    For Each x In xs\n        SumAll = SumAll + x\n    Next\nEnd Function\n\nFunction Probe() As String\nDim v\nv = Filter(Array(\"Apple\", \"banana\", \"APPLE pie\"), \"apple\", True, vbTextCompare)\nProbe = UBound(v) & \"|\" & Join(v, \",\")\nv = Filter(Array(\"Apple\", \"banana\"), \"a\", False)\nProbe = Probe & \"|\" & Join(v, \",\")\nEnd Function\n",
+      "result": "1|Apple,APPLE pie|Apple"
+    },
+    {
+      "name": "array_compare_error",
+      "macro": "\nPrivate Sub FillByRef(a() As Long)\n    ReDim a(1 To 2)\n    a(2) = 7\nEnd Sub\n\nPrivate Sub TouchVariant(ByVal v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Sub TouchVariantRef(v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Function CountDims(v As Variant) As Long\n    Dim d As Long, n As Long\n    On Error GoTo Done\n    For d = 1 To 60\n        n = UBound(v, d)\n    Next\nDone:\n    CountDims = d - 1\nEnd Function\n\nPrivate Function SumAll(ParamArray xs() As Variant) As Double\n    Dim x\n    For Each x In xs\n        SumAll = SumAll + x\n    Next\nEnd Function\n\nFunction Probe() As String\nDim a, b\na = Array(1): b = Array(1)\nOn Error Resume Next\nDim r As Boolean\nr = (a = b)\nProbe = Err.Number\nEnd Function\n",
+      "result": "13"
+    },
+    {
+      "name": "array_assign_to_typed",
+      "macro": "\nPrivate Sub FillByRef(a() As Long)\n    ReDim a(1 To 2)\n    a(2) = 7\nEnd Sub\n\nPrivate Sub TouchVariant(ByVal v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Sub TouchVariantRef(v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Function CountDims(v As Variant) As Long\n    Dim d As Long, n As Long\n    On Error GoTo Done\n    For d = 1 To 60\n        n = UBound(v, d)\n    Next\nDone:\n    CountDims = d - 1\nEnd Function\n\nPrivate Function SumAll(ParamArray xs() As Variant) As Double\n    Dim x\n    For Each x In xs\n        SumAll = SumAll + x\n    Next\nEnd Function\n\nFunction Probe() As String\nDim a() As String\nOn Error Resume Next\na = Split(\"x,y\", \",\")\nProbe = UBound(a) & \"|\" & Err.Number\nDim b() As Long\nb = Array(1, 2)\nProbe = Probe & \"|\" & Err.Number\nEnd Function\n",
+      "result": "1|0|13"
+    },
+    {
+      "name": "typed_to_typed_assign",
+      "macro": "\nPrivate Sub FillByRef(a() As Long)\n    ReDim a(1 To 2)\n    a(2) = 7\nEnd Sub\n\nPrivate Sub TouchVariant(ByVal v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Sub TouchVariantRef(v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Function CountDims(v As Variant) As Long\n    Dim d As Long, n As Long\n    On Error GoTo Done\n    For d = 1 To 60\n        n = UBound(v, d)\n    Next\nDone:\n    CountDims = d - 1\nEnd Function\n\nPrivate Function SumAll(ParamArray xs() As Variant) As Double\n    Dim x\n    For Each x In xs\n        SumAll = SumAll + x\n    Next\nEnd Function\n\nFunction Probe() As String\nDim a() As Long, b() As Long\nReDim b(1 To 2)\nb(2) = 8\na = b\nb(2) = 1\nProbe = a(2) & \"|\" & LBound(a)\nEnd Function\n",
+      "result": "8|1"
+    },
+    {
+      "name": "redim_with_variable_bounds",
+      "macro": "\nPrivate Sub FillByRef(a() As Long)\n    ReDim a(1 To 2)\n    a(2) = 7\nEnd Sub\n\nPrivate Sub TouchVariant(ByVal v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Sub TouchVariantRef(v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Function CountDims(v As Variant) As Long\n    Dim d As Long, n As Long\n    On Error GoTo Done\n    For d = 1 To 60\n        n = UBound(v, d)\n    Next\nDone:\n    CountDims = d - 1\nEnd Function\n\nPrivate Function SumAll(ParamArray xs() As Variant) As Double\n    Dim x\n    For Each x In xs\n        SumAll = SumAll + x\n    Next\nEnd Function\n\nFunction Probe() As String\nDim n As Long, a() As Double\nn = 4\nReDim a(n - 1)\nProbe = UBound(a) & \"|\" & TypeName(a(0))\nEnd Function\n",
+      "result": "3|Double"
+    },
+    {
+      "name": "dim_array_const_bound",
+      "macro": "\nPrivate Sub FillByRef(a() As Long)\n    ReDim a(1 To 2)\n    a(2) = 7\nEnd Sub\n\nPrivate Sub TouchVariant(ByVal v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Sub TouchVariantRef(v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Function CountDims(v As Variant) As Long\n    Dim d As Long, n As Long\n    On Error GoTo Done\n    For d = 1 To 60\n        n = UBound(v, d)\n    Next\nDone:\n    CountDims = d - 1\nEnd Function\n\nPrivate Function SumAll(ParamArray xs() As Variant) As Double\n    Dim x\n    For Each x In xs\n        SumAll = SumAll + x\n    Next\nEnd Function\n\nFunction Probe() As String\nConst N As Long = 3\nDim a(1 To N) As String\nProbe = UBound(a) & \"|\" & Len(a(1))\nEnd Function\n",
+      "result": "3|0"
+    },
+    {
+      "name": "isarray_ismissing",
+      "macro": "\nPrivate Sub FillByRef(a() As Long)\n    ReDim a(1 To 2)\n    a(2) = 7\nEnd Sub\n\nPrivate Sub TouchVariant(ByVal v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Sub TouchVariantRef(v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Function CountDims(v As Variant) As Long\n    Dim d As Long, n As Long\n    On Error GoTo Done\n    For d = 1 To 60\n        n = UBound(v, d)\n    Next\nDone:\n    CountDims = d - 1\nEnd Function\n\nPrivate Function SumAll(ParamArray xs() As Variant) As Double\n    Dim x\n    For Each x In xs\n        SumAll = SumAll + x\n    Next\nEnd Function\n\nFunction Probe() As String\nDim v As Variant\nProbe = IsArray(Array()) & IsArray(v) & IsArray(\"x\")\nEnd Function\n",
+      "result": "TrueFalseFalse"
+    },
+    {
+      "name": "for_each_empty_array",
+      "macro": "\nPrivate Sub FillByRef(a() As Long)\n    ReDim a(1 To 2)\n    a(2) = 7\nEnd Sub\n\nPrivate Sub TouchVariant(ByVal v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Sub TouchVariantRef(v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Function CountDims(v As Variant) As Long\n    Dim d As Long, n As Long\n    On Error GoTo Done\n    For d = 1 To 60\n        n = UBound(v, d)\n    Next\nDone:\n    CountDims = d - 1\nEnd Function\n\nPrivate Function SumAll(ParamArray xs() As Variant) As Double\n    Dim x\n    For Each x In xs\n        SumAll = SumAll + x\n    Next\nEnd Function\n\nFunction Probe() As String\nDim v, x, n As Long\nv = Array()\nFor Each x In v: n = n + 1: Next\nProbe = n & \"|\" & IsEmpty(x)\nEnd Function\n",
+      "result": "0|True"
+    },
+    {
+      "name": "array_of_arrays_ubound",
+      "macro": "\nPrivate Sub FillByRef(a() As Long)\n    ReDim a(1 To 2)\n    a(2) = 7\nEnd Sub\n\nPrivate Sub TouchVariant(ByVal v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Sub TouchVariantRef(v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Function CountDims(v As Variant) As Long\n    Dim d As Long, n As Long\n    On Error GoTo Done\n    For d = 1 To 60\n        n = UBound(v, d)\n    Next\nDone:\n    CountDims = d - 1\nEnd Function\n\nPrivate Function SumAll(ParamArray xs() As Variant) As Double\n    Dim x\n    For Each x In xs\n        SumAll = SumAll + x\n    Next\nEnd Function\n\nFunction Probe() As String\nDim v\nv = Array(Array(1, 2, 3), Array())\nProbe = UBound(v(0)) & \"|\" & UBound(v(1))\nEnd Function\n",
+      "result": "2|-1"
+    },
+    {
+      "name": "redim_preserve_shrink_strings",
+      "macro": "\nPrivate Sub FillByRef(a() As Long)\n    ReDim a(1 To 2)\n    a(2) = 7\nEnd Sub\n\nPrivate Sub TouchVariant(ByVal v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Sub TouchVariantRef(v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Function CountDims(v As Variant) As Long\n    Dim d As Long, n As Long\n    On Error GoTo Done\n    For d = 1 To 60\n        n = UBound(v, d)\n    Next\nDone:\n    CountDims = d - 1\nEnd Function\n\nPrivate Function SumAll(ParamArray xs() As Variant) As Double\n    Dim x\n    For Each x In xs\n        SumAll = SumAll + x\n    Next\nEnd Function\n\nFunction Probe() As String\nDim a() As String\nReDim a(3)\na(0) = \"a\": a(3) = \"d\"\nReDim Preserve a(1)\nProbe = UBound(a) & a(0)\nEnd Function\n",
+      "result": "1a"
+    },
+    {
+      "name": "array_index_rounding",
+      "macro": "\nPrivate Sub FillByRef(a() As Long)\n    ReDim a(1 To 2)\n    a(2) = 7\nEnd Sub\n\nPrivate Sub TouchVariant(ByVal v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Sub TouchVariantRef(v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Function CountDims(v As Variant) As Long\n    Dim d As Long, n As Long\n    On Error GoTo Done\n    For d = 1 To 60\n        n = UBound(v, d)\n    Next\nDone:\n    CountDims = d - 1\nEnd Function\n\nPrivate Function SumAll(ParamArray xs() As Variant) As Double\n    Dim x\n    For Each x In xs\n        SumAll = SumAll + x\n    Next\nEnd Function\n\nFunction Probe() As String\nDim a(3) As Long\na(2) = 5\nProbe = a(1.5) & \"|\" & a(2.5) & \"|\" & a(\"2\")\nEnd Function\n",
+      "result": "5|5|5"
+    },
+    {
+      "name": "array_returner_types",
+      "macro": "\nPrivate Sub FillByRef(a() As Long)\n    ReDim a(1 To 2)\n    a(2) = 7\nEnd Sub\n\nPrivate Sub TouchVariant(ByVal v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Sub TouchVariantRef(v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Function CountDims(v As Variant) As Long\n    Dim d As Long, n As Long\n    On Error GoTo Done\n    For d = 1 To 60\n        n = UBound(v, d)\n    Next\nDone:\n    CountDims = d - 1\nEnd Function\n\nPrivate Function SumAll(ParamArray xs() As Variant) As Double\n    Dim x\n    For Each x In xs\n        SumAll = SumAll + x\n    Next\nEnd Function\n\nFunction Probe() As String\nProbe = TypeName(Split(\"a b\")) & \"|\" & TypeName(Split(\"\")) & \"|\" & TypeName(Filter(Array(\"a\"), \"a\")) & \"|\" & TypeName(Filter(Split(\"a b\"), \"a\")) & \"|\" & TypeName(Array()) & \"|\" & TypeName(Application.Transpose(Array(1)))\nEnd Function\n",
+      "result": "String()|String()|String()|String()|Variant()|Variant()"
+    },
+    {
+      "name": "split_element_coerce",
+      "macro": "\nPrivate Sub FillByRef(a() As Long)\n    ReDim a(1 To 2)\n    a(2) = 7\nEnd Sub\n\nPrivate Sub TouchVariant(ByVal v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Sub TouchVariantRef(v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Function CountDims(v As Variant) As Long\n    Dim d As Long, n As Long\n    On Error GoTo Done\n    For d = 1 To 60\n        n = UBound(v, d)\n    Next\nDone:\n    CountDims = d - 1\nEnd Function\n\nPrivate Function SumAll(ParamArray xs() As Variant) As Double\n    Dim x\n    For Each x In xs\n        SumAll = SumAll + x\n    Next\nEnd Function\n\nFunction Probe() As String\nDim v\nv = Split(\"a b\")\nv(0) = 5\nProbe = TypeName(v(0)) & \"|\" & VarType(v)\nEnd Function\n",
+      "result": "String|8200"
+    },
+    {
+      "name": "split_into_typed",
+      "macro": "\nPrivate Sub FillByRef(a() As Long)\n    ReDim a(1 To 2)\n    a(2) = 7\nEnd Sub\n\nPrivate Sub TouchVariant(ByVal v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Sub TouchVariantRef(v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Function CountDims(v As Variant) As Long\n    Dim d As Long, n As Long\n    On Error GoTo Done\n    For d = 1 To 60\n        n = UBound(v, d)\n    Next\nDone:\n    CountDims = d - 1\nEnd Function\n\nPrivate Function SumAll(ParamArray xs() As Variant) As Double\n    Dim x\n    For Each x In xs\n        SumAll = SumAll + x\n    Next\nEnd Function\n\nFunction Probe() As String\nDim a() As String, b() As Variant\nOn Error Resume Next\na = Split(\"x,y\", \",\")\nProbe = UBound(a) & \"|\" & Err.Number\nb = Split(\"x,y\", \",\")\nProbe = Probe & \"|\" & Err.Number\nDim c() As Long\nc = Split(\"1,2\", \",\")\nProbe = Probe & \"|\" & Err.Number\nEnd Function\n",
+      "result": "1|0|13|13"
+    },
+    {
+      "name": "variant_array_into_variant_dyn",
+      "macro": "\nPrivate Sub FillByRef(a() As Long)\n    ReDim a(1 To 2)\n    a(2) = 7\nEnd Sub\n\nPrivate Sub TouchVariant(ByVal v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Sub TouchVariantRef(v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Function CountDims(v As Variant) As Long\n    Dim d As Long, n As Long\n    On Error GoTo Done\n    For d = 1 To 60\n        n = UBound(v, d)\n    Next\nDone:\n    CountDims = d - 1\nEnd Function\n\nPrivate Function SumAll(ParamArray xs() As Variant) As Double\n    Dim x\n    For Each x In xs\n        SumAll = SumAll + x\n    Next\nEnd Function\n\nFunction Probe() As String\nDim a() As Variant\nOn Error Resume Next\na = Array(1, 2)\nProbe = Err.Number & \"|\" & UBound(a)\nEnd Function\n",
+      "result": "0|1"
+    },
+    {
+      "name": "filter_into_string_array",
+      "macro": "\nPrivate Sub FillByRef(a() As Long)\n    ReDim a(1 To 2)\n    a(2) = 7\nEnd Sub\n\nPrivate Sub TouchVariant(ByVal v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Sub TouchVariantRef(v As Variant)\n    v(0) = 99\nEnd Sub\n\nPrivate Function CountDims(v As Variant) As Long\n    Dim d As Long, n As Long\n    On Error GoTo Done\n    For d = 1 To 60\n        n = UBound(v, d)\n    Next\nDone:\n    CountDims = d - 1\nEnd Function\n\nPrivate Function SumAll(ParamArray xs() As Variant) As Double\n    Dim x\n    For Each x In xs\n        SumAll = SumAll + x\n    Next\nEnd Function\n\nFunction Probe() As String\nDim a() As String\nOn Error Resume Next\na = Filter(Array(\"ab\", \"c\"), \"a\")\nProbe = Err.Number\nEnd Function\n",
+      "result": "0"
+    }
+  ]
+}

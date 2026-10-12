@@ -1815,6 +1815,36 @@ Double, and `-` makes a Byte an Integer. `Not` and the bitwise operators on
 Bytes stay within a Byte (`Not CByte(12)` is 243). `&H8000&` is 32768: the
 `&` suffix makes a hex literal a Long.
 
+The conversion functions follow a matrix of 32 inputs through `CBool` to
+`CVar` (`tests/fixtures/vba_conversions.json`,
+`scripts/measure_vba_conversions.py`). A Double becomes a Decimal through
+its 15 significant digits and a Single through its 7, in `CDec` and in
+arithmetic beside a Decimal alike: `CDec(1 / 3)` is 0.333333333333333 and
+`CDec(CSng(0.1))` is 0.1. One past the Decimal's range is error 6. True
+into a Byte is 255.
+
+The date functions follow a matrix in `tests/fixtures/vba_date_functions.json`
+(`scripts/measure_vba_date_functions.py`). A Date before 12/30/1899 counts
+its day back and its time forward, so 12/29/1899 6:00 AM is -1.25, and
+`DateAdd` and the part functions read it so. `DateAdd` cuts a fractional
+number to a whole one, `DateDiff("w")` counts whole weeks toward zero, and
+`DateSerial` reads a year under 100 in the 1950 to 2049 window (-1 is 1999).
+`TimeSerial`'s parts are Integers. With four-day first weeks, the last days of
+December that begin next year's first week are week 1 to `DatePart`;
+`Format`'s `ww` keeps the defect that shows the week's first day as 53 when
+next year is a leap year (12/29/2003 with Monday).
+
+Arrays follow 35 native probes in `tests/fixtures/vba_arrays.json`
+(`scripts/measure_vba_arrays.py`). `Split` and `Filter` return a String
+array. A typed dynamic array takes only an array of its own element type:
+`b() As Long = Array(1, 2)` and `b() As Variant = Split(...)` are error 13.
+`ReDim Preserve` may move only the last dimension's upper bound; changing
+its lower bound is error 9. `outer(0)(1) = 9` writes into the array that
+`outer(0)` holds. A procedure's constants are known on entry, so `Const N =
+3` sizes `Dim a(1 To N)`. `Not` of an unallocated array is -1, the idiom
+that tests for one; `Not` of an allocated array, which VBA takes from the
+array descriptor's address, is 0 here.
+
 `Range.Value` of more than one cell is an array of the range's own shape,
 empty cells included, up to a whole column's worth of cells; past that it is
 clipped to the sheet's used cells (`tests/fixtures/excel_vba_idioms.json`).

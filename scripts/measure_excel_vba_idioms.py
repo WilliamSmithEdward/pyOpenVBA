@@ -30,7 +30,8 @@ CASES.update({
     "value_of_empty_cells": PRE + 'Dim v\nv = ws.Range("A1:B2").Value\nProbe = TypeName(v) & "|" & UBound(v, 1) & UBound(v, 2) & "|" & IsEmpty(v(2, 2))',
     "value_past_used_cells": PRE + 'ws.Range("A1").Value = 1\nDim v\nv = ws.Range("A1:C3").Value\nProbe = UBound(v, 1) & UBound(v, 2) & "|" & v(1, 1) & "|" & IsEmpty(v(3, 3)) & "|" & UBound(ws.Range("D5:E6").Value, 1)',
     "value_error_cells": PRE + 'ws.Range("A1").Formula = "=1/0"\nws.Range("A2").Formula = "=NA()"\nDim v\nv = ws.Range("A1:A2").Value\nProbe = IsError(v(1, 1)) & "|" & CStr(v(1, 1)) & "|" & (v(2, 1) = CVErr(xlErrNA)) & "|" & ws.Range("A1").Text',
-    "match_not_found": PRE + 'ws.Range("A1:A3").Value = 1\nDim v\nv = Application.Match("zz", ws.Range("A1:A3"), 0)\nProbe = IsError(v) & "|" & (v = CVErr(xlErrNA)) & "|" & TypeName(v)',
+    "listrow_range_item": PRE + 'ws.Range("A1:B2").Value = 1\nDim lo As ListObject\nSet lo = ws.ListObjects.Add(xlSrcRange, ws.Range("A1:B2"), , xlYes)\nDim r As ListRow\nSet r = lo.ListRows.Add\nr.Range(1, 2).Value = "c"\nProbe = lo.ListRows.Count & "|" & r.Range(1, 2).Address & "|" & ws.Range("B3").Value',
+    "match_not_found": PRE +'ws.Range("A1:A3").Value = 1\nDim v\nv = Application.Match("zz", ws.Range("A1:A3"), 0)\nProbe = IsError(v) & "|" & (v = CVErr(xlErrNA)) & "|" & TypeName(v)',
 })
 
 

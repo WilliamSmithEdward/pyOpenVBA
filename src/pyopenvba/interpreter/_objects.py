@@ -189,6 +189,10 @@ class VBAObject:
             found = spec.getter(self)
             if isinstance(found, VBAArray):
                 return found.get([int(to_integer(one, "Long")) for one in args])
+            caller = getattr(found, "vba_default_call", None)
+            if callable(caller):
+                # ListRow.Range(1, 1) is the Range's Item(1, 1), as Range(...)(1, 1) is (native probe).
+                return caller(list(args), {})
             default = found.vba_default_member() if isinstance(found, VBAObject) else None
             if isinstance(found, VBAObject) and default is not None:
                 return found.vba_get(default.name, args)

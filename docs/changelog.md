@@ -316,6 +316,38 @@ All notable changes to pyOpenVBA are documented here. This project follows
   `As New` array makes each element where it is first used, and `Like`'s
   `"[[]"` no longer warns from Python's regular expressions. 16 native probes
   in `tests/fixtures/vba_operator_types.json`.
+- `Split` and `Filter` return String arrays (they were Variant arrays), and a
+  typed dynamic array takes only an array of its own type: `b() As Long =
+  Array(1, 2)` is error 13. `ReDim Preserve` that moves a lower bound is
+  error 9. `outer(0)(1) = 9` writes into the nested array; it was refused as
+  something that cannot be assigned. A procedure's `Const` can size its
+  `Dim`; it was "Variable not defined". `(Not a) = -1` finds an unallocated
+  array; it was an error. 35 native probes in `tests/fixtures/vba_arrays.json`.
+- `lr.Range(1, 2)` on a ListRow, or any host property without parameters that
+  answers a Range, is that Range's `Item(1, 2)`; it went to `Value` and was
+  error 450. 29 table, name, copy, find and replace idioms were swept with
+  it, and all match but `ListObject.Unlist`, which stays unimplemented.
+- A Double becomes a Decimal through its 15 significant digits and a Single
+  through its 7: `CDec(1 / 3)` was 0.3333333333333333 and `CDec(CSng(0.1))`
+  0.10000000149011612. `CDec(CSng(3.4E+38))` is error 6; it made a 39-digit
+  Decimal. `CByte(True)` and `b = True` give 255; they overflowed. Every other
+  cell of an 11-function, 32-input conversion matrix already matched. 16
+  native probes in `tests/fixtures/vba_conversions.json`.
+- `Replace(Null, ...)` and `InStrRev(Null, ...)` are error 94 (they gave
+  Null), and `String(2, Null)` is Null (it was error 94). The other 104 edge
+  calls of the string functions already matched; 11 native probes in
+  `tests/fixtures/vba_string_functions.json`.
+- A Date before 12/30/1899 made from its parts counts its time forward:
+  12/29/1899 6:00 AM is -1.25, not -0.75, so `Hour(#12/29/1899 6:00 PM#)`
+  was 6 and `DateAdd` around day zero landed on the wrong day.
+- `DateAdd` cuts its number (`1.5` days is one, it was two) and gives Null for
+  a Null date; `DateDiff("w")` backwards counts toward zero; `DateSerial(30,
+  1, 1)` is 2030 (it was 1930); `TimeSerial(0, 0, 86400)` is error 6; the
+  part functions give error 13 for a number past the Date range.
+- With Monday and four-day weeks, `DatePart("ww", #12/31/2024#, 2, 2)` is 1;
+  it was 53. `Format`'s `ww` keeps Excel's defect of 53 for the week's first
+  day when next year is a leap year, as measured over 496 year-end days. 14
+  native probes in `tests/fixtures/vba_date_functions.json`.
 
 ## [6.5.0] - 2026-10-04
 

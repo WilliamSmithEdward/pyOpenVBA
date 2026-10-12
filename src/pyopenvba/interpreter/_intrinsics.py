@@ -36,6 +36,7 @@ from pyopenvba.interpreter._values import (
     EMPTY,
     ERROR_TEXT,
     ERR_INVALID_PROCEDURE_CALL,
+    ERR_INVALID_USE_OF_NULL,
     ERR_SUBSCRIPT_OUT_OF_RANGE,
     ERR_TYPE_MISMATCH,
     MISSING,
@@ -53,6 +54,7 @@ from pyopenvba.interpreter._values import (
     parse_date_text,
     round_half_even,
     condition,
+    decimal_of,
     to_bool,
     to_date,
     to_integer,
@@ -254,7 +256,7 @@ def vba_cdec(interpreter: Interpreter, value: object) -> object:
             exact = None
         if exact is not None and exact.is_finite():
             return VBADecimal(exact)
-    return VBADecimal(str(to_number(value)))
+    return VBADecimal(decimal_of(to_number(value)))
 
 
 @intrinsic("CStr", "Expression", minimum=1)
@@ -692,6 +694,9 @@ def vba_string(interpreter: Interpreter, count: object, character: object) -> ob
     times = int(to_integer(count, "Long"))
     if times < 0:
         raise error(ERR_INVALID_PROCEDURE_CALL)
+    if character is NULL:
+        # A Null character makes a Null, where a Null count is error 94 (native probes).
+        return NULL
     if isinstance(character, str):
         if not character:
             raise error(ERR_INVALID_PROCEDURE_CALL)
@@ -841,7 +846,10 @@ def vba_instr(
 def vba_instrrev(
     interpreter: Interpreter, haystack: object, needle: object, start: object, compare: object
 ) -> object:
-    if haystack is NULL or needle is NULL:
+    if haystack is NULL:
+        # Unlike InStr, InStrRev refuses a Null to search (native probe).
+        raise error(ERR_INVALID_USE_OF_NULL)
+    if needle is NULL:
         return NULL
     body = to_text(haystack)
     wanted = to_text(needle)
@@ -889,7 +897,8 @@ def vba_replace(
     compare: object,
 ) -> object:
     if text is NULL:
-        return NULL
+        # Replace returns a String, so Null has nowhere to go (native probe).
+        raise error(ERR_INVALID_USE_OF_NULL)
     body = to_text(text)
     wanted = to_text(find)
     replacement = to_text(put)
@@ -938,7 +947,8 @@ def vba_split(
         # vbTextCompare matches the delimiter in any case (native probe).
         flags = re.IGNORECASE if vba_text_mode(interpreter, compare) else 0
         pieces = re.split(re.escape(separator), body, maxsplit=max(0, count - 1), flags=flags)
-    return VBAArray([(0, len(pieces) - 1)] if pieces else [(0, -1)], items=list(pieces))
+    # A String array, as TypeName(Split(...)) says (native probe).
+    return VBAArray([(0, len(pieces) - 1)] if pieces else [(0, -1)], element_type="String", items=list(pieces))
 
 
 @intrinsic("Join", "SourceArray", "Delimiter", minimum=1)
@@ -964,7 +974,8 @@ def vba_filter(
         hit = (wanted.lower() in body.lower()) if text_mode else (wanted in body)
         if hit == keep:
             found.append(item)
-    return VBAArray([(0, len(found) - 1)] if found else [(0, -1)], items=found)
+    return VBAArray([(0, len(found) - 1)] if found else [(0, -1)], element_type="String",
+                    items=[to_text(item) for item in found])
 
 
 @intrinsic("Format", "Expression", "Format", "FirstDayOfWeek", "FirstWeekOfYear", minimum=1)
@@ -1071,7 +1082,8 @@ def vba_dateserial(interpreter: Interpreter, year: object, month: object, day: o
     m = int(to_integer(month, "Long"))
     d = int(to_integer(day, "Long"))
     if y < 100:
-        y += 1900 if y >= 30 else 2000
+        # The same window as a two-digit year in text: 30 is 2030, 99 is 1999, -1 is 1999 (native probes).
+        y += 2000 if y < 50 else 1900
     # Out-of-range months and days roll over, as VBA's do.
     y += (m - 1) // 12
     m = (m - 1) % 12 + 1
@@ -1084,10 +1096,11 @@ def vba_dateserial(interpreter: Interpreter, year: object, month: object, day: o
 
 @intrinsic("TimeSerial", "Hour", "Minute", "Second", minimum=3)
 def vba_timeserial(interpreter: Interpreter, hour: object, minute: object, second: object) -> object:
+    # Each part is an Integer: TimeSerial(0, 0, 86400) is error 6 (native probe).
     seconds = (
-        int(to_integer(hour, "Long")) * 3600
-        + int(to_integer(minute, "Long")) * 60
-        + int(to_integer(second, "Long"))
+        int(to_integer(hour, "Integer")) * 3600
+        + int(to_integer(minute, "Integer")) * 60
+        + int(to_integer(second, "Integer"))
     )
     return VBADate(seconds / 86400.0)
 
@@ -1104,34 +1117,45 @@ def vba_timevalue(interpreter: Interpreter, value: object) -> object:
     return VBADate(when.serial - math.floor(when.serial))
 
 
+def _moment(value: object) -> _dt.datetime:
+    """The moment Year, Month, Day, Hour, Minute and Second read: a number past
+    the years a Date holds is a type mismatch to them, not an overflow (native probe)."""
+    try:
+        return to_date(value).to_datetime()
+    except VBARuntimeError as failure:
+        if failure.number == 6 and not isinstance(value, (str, VBADate)):
+            raise error(ERR_TYPE_MISMATCH) from None
+        raise
+
+
 @intrinsic("Year", "Date", minimum=1)
 def vba_year(interpreter: Interpreter, value: object) -> object:
-    return NULL if value is NULL else VBAInt(to_date(value).to_datetime().year, "Integer")
+    return NULL if value is NULL else VBAInt(_moment(value).year, "Integer")
 
 
 @intrinsic("Month", "Date", minimum=1)
 def vba_month(interpreter: Interpreter, value: object) -> object:
-    return NULL if value is NULL else VBAInt(to_date(value).to_datetime().month, "Integer")
+    return NULL if value is NULL else VBAInt(_moment(value).month, "Integer")
 
 
 @intrinsic("Day", "Date", minimum=1)
 def vba_day(interpreter: Interpreter, value: object) -> object:
-    return NULL if value is NULL else VBAInt(to_date(value).to_datetime().day, "Integer")
+    return NULL if value is NULL else VBAInt(_moment(value).day, "Integer")
 
 
 @intrinsic("Hour", "Time", minimum=1)
 def vba_hour(interpreter: Interpreter, value: object) -> object:
-    return NULL if value is NULL else VBAInt(to_date(value).to_datetime().hour, "Integer")
+    return NULL if value is NULL else VBAInt(_moment(value).hour, "Integer")
 
 
 @intrinsic("Minute", "Time", minimum=1)
 def vba_minute(interpreter: Interpreter, value: object) -> object:
-    return NULL if value is NULL else VBAInt(to_date(value).to_datetime().minute, "Integer")
+    return NULL if value is NULL else VBAInt(_moment(value).minute, "Integer")
 
 
 @intrinsic("Second", "Time", minimum=1)
 def vba_second(interpreter: Interpreter, value: object) -> object:
-    return NULL if value is NULL else VBAInt(to_date(value).to_datetime().second, "Integer")
+    return NULL if value is NULL else VBAInt(_moment(value).second, "Integer")
 
 
 @intrinsic("Weekday", "Date", "FirstDayOfWeek", minimum=1)
@@ -1172,7 +1196,10 @@ def vba_dateadd(interpreter: Interpreter, interval: object, count: object, value
     unit = to_text(interval).lower()
     if unit not in _INTERVALS:
         raise error(5)
-    how_many = int(to_integer(count, "Long"))
+    if value is NULL and count is not NULL:
+        return NULL
+    # The number is cut to a whole one, not rounded: DateAdd("d", 1.5, x) adds one day (native probes).
+    how_many = int(to_integer(math.trunc(to_number(count)) if count is not NULL else count, "Long"))
     when = to_date(value).to_datetime()
     try:
         if unit in ("yyyy", "q", "m"):
@@ -1221,7 +1248,8 @@ def vba_datediff(
     if unit in ("d", "y"):
         return VBAInt((stop.date() - start.date()).days, "Long")
     if unit == "w":
-        return VBAInt((stop.date() - start.date()).days // 7, "Long")
+        # Whole weeks, cut toward zero either way: 430 days back is -61 (native probe).
+        return VBAInt(math.trunc((stop.date() - start.date()).days / 7), "Long")
     if unit == "ww":
         begin = 1 if week_start is MISSING else int(to_integer(week_start, "Long")) or 1
         return VBAInt((_week_start(stop.date(), begin) - _week_start(start.date(), begin)).days // 7, "Long")

@@ -417,6 +417,11 @@ def week_of_year(day: _dt.date, first_day: int = 1, first_week: int = 1) -> int:
             start += _dt.timedelta(days=7)
         return start
 
+    if first_week == 2 and day >= week_one(day.year + 1):
+        # With four-day weeks, the last few days that start next year's first
+        # week are week 1: 12/31/2024 with Monday (native probe); with weeks
+        # from 1 January they stay week 53.
+        return 1
     start = week_one(day.year)
     if day < start:
         start = week_one(day.year - 1)
@@ -530,7 +535,15 @@ def _token_text(token: str, when: _dt.datetime, value: VBADate, previous: str | 
     if token == "w":
         return str(weekday_number(when.date(), first_day))
     if token == "ww":
-        return str(week_of_year(when.date(), first_day, first_week))
+        week = week_of_year(when.date(), first_day, first_week)
+        following = when.year + 1
+        if (week == 1 and when.month == 12 and first_week == 2 and weekday_number(when.date(), first_day) == 1
+                and (following % 4 == 0 and (following % 100 != 0 or following % 400 == 0))):
+            # Format keeps a defect DatePart has not: the first day of a December
+            # week that is next year's week 1 shows 53 when next year is a leap
+            # year, as 12/29/2003 with Monday and four days does (56 native probes).
+            return "53"
+        return str(week)
     if token in ("m", "mm"):
         # A minute right after an hour, a month anywhere else (native probes).
         number = when.minute if previous in ("h", "hh") else when.month

@@ -1772,6 +1772,23 @@ time, `h:mm[:ss]` or an hour beside AM/PM, comes before or after the date,
 set off by spaces. `CDate` of a number in text, `CDate("2024")`, is that
 serial, though `IsDate` says False.
 
+`Format` is VBA's own engine, `pyopenvba/interpreter/_format.py`, held to
+245 native calls in `tests/fixtures/vba_format.json`. A section with a `0`
+or `#` is a number format, one with `@`, `&`, `<` or `>` a text format, one
+with a date token or AM/PM a date format, anything else a number format.
+Numbers round half away from zero on their decimal digits; a negative that
+rounds to zero loses its sign; commas between placeholders group, before
+the point scale by a thousand, after it do nothing. `m` is a minute only
+straight after an hour token. An AM/PM marker makes the hour before it
+12-hour, and every hour after it.
+
+A String against a number, in a comparison or Select Case, is a type
+mismatch only when neither side is a Variant (`tests/fixtures/vba_language.json`):
+a Variant holding text that reads as a number compares as that number, text
+that does not is greater than any number, and Select Case holds its subject
+as a Variant. Whether a side is a Variant is read from the expression: a
+variable's or function's declared type, a literal, a `$` function, `&`.
+
 ## What is not
 
 - **Spills are not measured through a sort, an insert or a delete.** A

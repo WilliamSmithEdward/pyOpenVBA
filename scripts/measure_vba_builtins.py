@@ -5,11 +5,8 @@ Each probe is the body of ``Function Probe() As String``; the fixture records it
 value, or the number of the run-time error it stops with.
 """
 from __future__ import annotations
-import json
-import re
-from datetime import datetime, timezone
 from pathlib import Path
-from pyvbaharness import ExcelSession, HarnessConfig
+from vba_probe_fixture import record
 
 OUT = Path(__file__).resolve().parents[1] / 'tests/fixtures/vba_builtins.json'
 
@@ -105,34 +102,7 @@ def macro(name: str) -> str:
 
 
 def main() -> None:
-    probes = []
-    version_value = None
-    excel: ExcelSession | None = None
-    try:
-        for name in CASES:
-            if excel is None:
-                excel = ExcelSession(HarnessConfig(lock_wait_s=30.0))
-                excel.__enter__()
-                excel.new_document()
-                version = excel.run_vba('Function VersionBuild() As String\nVersionBuild = Application.Version & "|" & Application.Build\nEnd Function', 'VersionBuild')
-                assert version.ok and not version.dialogs, version
-                version_value = version.value
-            result = excel.run_vba(macro(name), 'Probe', timeout=30.0)
-            assert not result.dialogs, (name, result)
-            if result.ok:
-                probe = {'name': name, 'macro': macro(name), 'result': result.value}
-            else:
-                found = re.search(r'VBA error (\d+)', str(result.error))
-                assert found, (name, result)
-                probe = {'name': name, 'macro': macro(name), 'error': int(found.group(1))}
-                excel.__exit__(None, None, None)
-                excel = None
-            probes.append(probe)
-            print(name, probe.get('result', probe.get('error')), flush=True)
-    finally:
-        if excel is not None:
-            excel.__exit__(None, None, None)
-    OUT.write_text(json.dumps({'excel_version_build': version_value, 'measured_at': datetime.now(timezone.utc).isoformat(), 'probes': probes}, indent=2) + '\n', encoding='utf-8')
+    record({name: macro(name) for name in CASES}, OUT)
 
 
 if __name__ == '__main__':

@@ -211,6 +211,19 @@ All notable changes to pyOpenVBA are documented here. This project follows
   then year-month-day then day-month-year, two-digit years 1950 to 2049, a
   time before or after the date. 182 native strings.
 
+- `Format` is VBA's own: number, date and text formats, sections, named
+  formats and AM/PM as native Excel formats them over 245 calls
+  (`tests/fixtures/vba_format.json`). It went through Access's field
+  formats, where `#.##` pads with zeros, `\x` shows its backslash, `E+`,
+  `c`, `ttttt` and `ddddd` are not tokens and Empty is an error.
+- A String against a number compares as VBA does: a type mismatch only
+  when neither is a Variant. A Variant holding text is read as a number
+  when it is one and is otherwise greater, and Select Case holds its
+  subject as a Variant. 20 native probes in `tests/fixtures/vba_language.json`.
+- `Err.Source` of an error raised without one is the project's name.
+- `DatePart("ww")` follows its first day and first week arguments; it
+  ignored both. `Format`'s `w` and `ww` take them too.
+
 ## [6.5.0] - 2026-10-04
 
 ### Added

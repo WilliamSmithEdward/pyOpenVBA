@@ -98,6 +98,7 @@ class ExcelInterpreter(Interpreter):
 
         if self.bridge.workbook is not None:
             materialize(self.bridge.workbook)
+        self.project_name = project.name or self.project_name
         staged: list[ModuleRuntime] = []
         book = self.bridge.workbook
         was_saved = book.saved if book is not None else True

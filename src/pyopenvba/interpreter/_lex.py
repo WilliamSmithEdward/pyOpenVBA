@@ -224,8 +224,9 @@ def tokenize(source: str, *, module: str = "") -> list[Token]:
                 value = int(digits, base)
                 # The width comes from how many digits were written, not
                 # from the value: &HFFFF is -1 as an Integer and
-                # &HFFFFFFFF is -1 as a Long.
-                narrow = len(digits) <= (4 if base == 16 else 6)
+                # &HFFFFFFFF is -1 as a Long. A trailing & makes it a Long:
+                # &H8000& is 32768 (native probes).
+                narrow = len(digits) <= (4 if base == 16 else 6) and not match.group(0).endswith("&")
                 if narrow and value > 0x7FFF:
                     value -= 0x10000
                 elif not narrow and value > 0x7FFFFFFF:

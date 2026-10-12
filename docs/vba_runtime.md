@@ -1803,6 +1803,18 @@ says 9 (`tests/fixtures/vba_runtime_edges.json`,
 numbers, so `v = CVErr(xlErrNA)` tests a cell's error; an Error beside any
 other value, Null included, is error 13 to a comparison and to `&`.
 
+Each arithmetic operator gives the type a matrix of every pair of operand
+types measured in live Excel says (`tests/fixtures/vba_operator_types.json`,
+`scripts/measure_vba_operator_types.py`). A Decimal wins. `/` is a Double,
+or a Single when a Single meets only Bytes, Integers, Booleans, Empty and
+Singles. A Date stays a Date through `+` and `-`, Date - Date being a
+Double, and is a Double to `*`. A Currency wins over a Double for `+` and
+`-`, but `*` with a Single, Double or String is a Double. A Single beside a
+Long is a Double, a Byte with a Byte or Empty stays a Byte, `^` is always a
+Double, and `-` makes a Byte an Integer. `Not` and the bitwise operators on
+Bytes stay within a Byte (`Not CByte(12)` is 243). `&H8000&` is 32768: the
+`&` suffix makes a hex literal a Long.
+
 `Range.Value` of more than one cell is an array of the range's own shape,
 empty cells included, up to a whole column's worth of cells; past that it is
 clipped to the sheet's used cells (`tests/fixtures/excel_vba_idioms.json`).

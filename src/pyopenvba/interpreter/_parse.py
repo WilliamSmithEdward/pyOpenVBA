@@ -589,7 +589,8 @@ class Parser:
             return A.Label(line=line, name=token.text)
 
         if token.kind == "ident":
-            lower = token.lower
+            # Mid$(s, 1, 1) = "q" is the Mid statement too (native probe).
+            lower = token.lower[:-1] if token.lower in ("mid$", "midb$") else token.lower
             if self.peek().kind == "eos" and self.peek().text == ":" and lower not in STATEMENT_KEYWORDS:
                 self.advance()
                 self.advance()

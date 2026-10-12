@@ -1082,7 +1082,8 @@ def vba_dateserial(interpreter: Interpreter, year: object, month: object, day: o
     m = int(to_integer(month, "Long"))
     d = int(to_integer(day, "Long"))
     if y < 100:
-        y += 1900 if y >= 30 else 2000
+        # The same window as a two-digit year in text: 30 is 2030, 99 is 1999, -1 is 1999 (native probes).
+        y += 2000 if y < 50 else 1900
     # Out-of-range months and days roll over, as VBA's do.
     y += (m - 1) // 12
     m = (m - 1) % 12 + 1
@@ -1095,10 +1096,11 @@ def vba_dateserial(interpreter: Interpreter, year: object, month: object, day: o
 
 @intrinsic("TimeSerial", "Hour", "Minute", "Second", minimum=3)
 def vba_timeserial(interpreter: Interpreter, hour: object, minute: object, second: object) -> object:
+    # Each part is an Integer: TimeSerial(0, 0, 86400) is error 6 (native probe).
     seconds = (
-        int(to_integer(hour, "Long")) * 3600
-        + int(to_integer(minute, "Long")) * 60
-        + int(to_integer(second, "Long"))
+        int(to_integer(hour, "Integer")) * 3600
+        + int(to_integer(minute, "Integer")) * 60
+        + int(to_integer(second, "Integer"))
     )
     return VBADate(seconds / 86400.0)
 
@@ -1115,34 +1117,45 @@ def vba_timevalue(interpreter: Interpreter, value: object) -> object:
     return VBADate(when.serial - math.floor(when.serial))
 
 
+def _moment(value: object) -> _dt.datetime:
+    """The moment Year, Month, Day, Hour, Minute and Second read: a number past
+    the years a Date holds is a type mismatch to them, not an overflow (native probe)."""
+    try:
+        return to_date(value).to_datetime()
+    except VBARuntimeError as failure:
+        if failure.number == 6 and not isinstance(value, (str, VBADate)):
+            raise error(ERR_TYPE_MISMATCH) from None
+        raise
+
+
 @intrinsic("Year", "Date", minimum=1)
 def vba_year(interpreter: Interpreter, value: object) -> object:
-    return NULL if value is NULL else VBAInt(to_date(value).to_datetime().year, "Integer")
+    return NULL if value is NULL else VBAInt(_moment(value).year, "Integer")
 
 
 @intrinsic("Month", "Date", minimum=1)
 def vba_month(interpreter: Interpreter, value: object) -> object:
-    return NULL if value is NULL else VBAInt(to_date(value).to_datetime().month, "Integer")
+    return NULL if value is NULL else VBAInt(_moment(value).month, "Integer")
 
 
 @intrinsic("Day", "Date", minimum=1)
 def vba_day(interpreter: Interpreter, value: object) -> object:
-    return NULL if value is NULL else VBAInt(to_date(value).to_datetime().day, "Integer")
+    return NULL if value is NULL else VBAInt(_moment(value).day, "Integer")
 
 
 @intrinsic("Hour", "Time", minimum=1)
 def vba_hour(interpreter: Interpreter, value: object) -> object:
-    return NULL if value is NULL else VBAInt(to_date(value).to_datetime().hour, "Integer")
+    return NULL if value is NULL else VBAInt(_moment(value).hour, "Integer")
 
 
 @intrinsic("Minute", "Time", minimum=1)
 def vba_minute(interpreter: Interpreter, value: object) -> object:
-    return NULL if value is NULL else VBAInt(to_date(value).to_datetime().minute, "Integer")
+    return NULL if value is NULL else VBAInt(_moment(value).minute, "Integer")
 
 
 @intrinsic("Second", "Time", minimum=1)
 def vba_second(interpreter: Interpreter, value: object) -> object:
-    return NULL if value is NULL else VBAInt(to_date(value).to_datetime().second, "Integer")
+    return NULL if value is NULL else VBAInt(_moment(value).second, "Integer")
 
 
 @intrinsic("Weekday", "Date", "FirstDayOfWeek", minimum=1)
@@ -1183,7 +1196,10 @@ def vba_dateadd(interpreter: Interpreter, interval: object, count: object, value
     unit = to_text(interval).lower()
     if unit not in _INTERVALS:
         raise error(5)
-    how_many = int(to_integer(count, "Long"))
+    if value is NULL and count is not NULL:
+        return NULL
+    # The number is cut to a whole one, not rounded: DateAdd("d", 1.5, x) adds one day (native probes).
+    how_many = int(to_integer(math.trunc(to_number(count)) if count is not NULL else count, "Long"))
     when = to_date(value).to_datetime()
     try:
         if unit in ("yyyy", "q", "m"):
@@ -1232,7 +1248,8 @@ def vba_datediff(
     if unit in ("d", "y"):
         return VBAInt((stop.date() - start.date()).days, "Long")
     if unit == "w":
-        return VBAInt((stop.date() - start.date()).days // 7, "Long")
+        # Whole weeks, cut toward zero either way: 430 days back is -61 (native probe).
+        return VBAInt(math.trunc((stop.date() - start.date()).days / 7), "Long")
     if unit == "ww":
         begin = 1 if week_start is MISSING else int(to_integer(week_start, "Long")) or 1
         return VBAInt((_week_start(stop.date(), begin) - _week_start(start.date(), begin)).days // 7, "Long")

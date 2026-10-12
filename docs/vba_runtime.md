@@ -1823,6 +1823,17 @@ arithmetic beside a Decimal alike: `CDec(1 / 3)` is 0.333333333333333 and
 `CDec(CSng(0.1))` is 0.1. One past the Decimal's range is error 6. True
 into a Byte is 255.
 
+The date functions follow a matrix in `tests/fixtures/vba_date_functions.json`
+(`scripts/measure_vba_date_functions.py`). A Date before 12/30/1899 counts
+its day back and its time forward, so 12/29/1899 6:00 AM is -1.25, and
+`DateAdd` and the part functions read it so. `DateAdd` cuts a fractional
+number to a whole one, `DateDiff("w")` counts whole weeks toward zero, and
+`DateSerial` reads a year under 100 in the 1950 to 2049 window (-1 is 1999).
+`TimeSerial`'s parts are Integers. With four-day first weeks, the last days of
+December that begin next year's first week are week 1 to `DatePart`;
+`Format`'s `ww` keeps the defect that shows the week's first day as 53 when
+next year is a leap year (12/29/2003 with Monday).
+
 Arrays follow 35 native probes in `tests/fixtures/vba_arrays.json`
 (`scripts/measure_vba_arrays.py`). `Split` and `Filter` return a String
 array. A typed dynamic array takes only an array of its own element type:

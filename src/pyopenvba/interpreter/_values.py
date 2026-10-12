@@ -296,8 +296,11 @@ class VBADate:
     @classmethod
     def from_datetime(cls, when: _dt.datetime | _dt.date | _dt.time) -> VBADate:
         if isinstance(when, _dt.datetime):
-            delta = when - cls.EPOCH
-            return cls(delta.days + delta.seconds / 86400.0 + delta.microseconds / 86400e6)
+            days = (when.date() - cls.EPOCH.date()).days
+            fraction = (when.hour * 3600 + when.minute * 60 + when.second) / 86400.0 + when.microsecond / 86400e6
+            # Before day zero the day counts back and the time forward, so
+            # 1899-12-29 06:00 is -1.25, not -0.75 (native probes).
+            return cls(days + fraction if days >= 0 else days - fraction)
         if isinstance(when, _dt.date):
             return cls((when - cls.EPOCH.date()).days)
         seconds = when.hour * 3600 + when.minute * 60 + when.second

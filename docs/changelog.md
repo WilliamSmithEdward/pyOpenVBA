@@ -337,6 +337,17 @@ All notable changes to pyOpenVBA are documented here. This project follows
   Null), and `String(2, Null)` is Null (it was error 94). The other 104 edge
   calls of the string functions already matched; 11 native probes in
   `tests/fixtures/vba_string_functions.json`.
+- A Date before 12/30/1899 made from its parts counts its time forward:
+  12/29/1899 6:00 AM is -1.25, not -0.75, so `Hour(#12/29/1899 6:00 PM#)`
+  was 6 and `DateAdd` around day zero landed on the wrong day.
+- `DateAdd` cuts its number (`1.5` days is one, it was two) and gives Null for
+  a Null date; `DateDiff("w")` backwards counts toward zero; `DateSerial(30,
+  1, 1)` is 2030 (it was 1930); `TimeSerial(0, 0, 86400)` is error 6; the
+  part functions give error 13 for a number past the Date range.
+- With Monday and four-day weeks, `DatePart("ww", #12/31/2024#, 2, 2)` is 1;
+  it was 53. `Format`'s `ww` keeps Excel's defect of 53 for the week's first
+  day when next year is a leap year, as measured over 496 year-end days. 14
+  native probes in `tests/fixtures/vba_date_functions.json`.
 
 ## [6.5.0] - 2026-10-04
 

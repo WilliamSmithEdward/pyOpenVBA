@@ -291,6 +291,15 @@ All notable changes to pyOpenVBA are documented here. This project follows
   leading-digit, parentheses and grouping arguments (they were refused), and
   -1 digits means 2; `FormatDateTime`'s long date writes `March 5`, not
   `March 05`. 51 native probes in `tests/fixtures/vba_runtime_edges.json`.
+- Calling a class object's member leaves `Err` as the caller had it; the
+  emulator cleared it as it does for a call into a standard module.
+- Arguments a member takes none of go to what it returns: `b.All(3)` on a
+  parameterless `Property Get All() As Collection` was error 450, and
+  `p.Items(1)` on a public Collection field was error 449.
+- `q = p` or `o = 5` into an object variable holding Nothing is error 91;
+  `Is` on Empty, Null or a number is error 424; an array of an object type
+  is `Object()` to `TypeName` and 8201 to `VarType`. 39 native probes in
+  `tests/fixtures/vba_class_objects.json`.
 
 ## [6.5.0] - 2026-10-04
 

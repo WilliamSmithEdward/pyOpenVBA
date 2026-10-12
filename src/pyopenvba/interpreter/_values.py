@@ -556,12 +556,18 @@ def type_name(value: object) -> str:
     if isinstance(value, VBAErrorValue):
         return "Error"
     if isinstance(value, VBAArray):
-        return f"{value.element_type}()"
+        return "Object()" if holds_objects(value) else f"{value.element_type}()"
     from pyopenvba.interpreter._objects import VBAObject
 
     if isinstance(value, VBAObject):
         return value.vba_type_name
     return "Variant"
+
+
+def holds_objects(array: VBAArray) -> bool:
+    """Whether an array is of an object type, class, Collection or Range alike,
+    which TypeName calls "Object()" and VarType 8201 (native probes)."""
+    return array.element_factory is None and default_for(array.element_type) is NOTHING
 
 
 def default_for(declared: str) -> object:
@@ -1448,11 +1454,16 @@ def compare(op: str, left: object, right: object, *, text_compare: bool = False,
     "variant", where the caller knows it; it decides a string against a
     number (see :func:`_mixed_order`).
     """
-    if left is NULL or right is NULL:
-        return NULL
     if op == "is":
+        from pyopenvba.interpreter._objects import VBAObject
+
+        # Both sides have to be objects: Empty, Null or a number is error 424 (native probes).
+        if not all(isinstance(side, VBAObject) or side is NOTHING for side in (left, right)):
+            raise error(424)
         # An interface view and its object are one object, as COM's identity makes them.
         return getattr(left, "vba_identity", left) is getattr(right, "vba_identity", right)
+    if left is NULL or right is NULL:
+        return NULL
     order = _order(left, right, text_compare=text_compare, kinds=kinds)
     if op == "=":
         return order == 0

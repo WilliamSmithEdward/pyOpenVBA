@@ -1,0 +1,207 @@
+{
+  "excel_version_build": "16.0|20430",
+  "measured_at": "2026-10-12T22:09:16.566671+00:00",
+  "classes": {
+    "CPoint": "Option Explicit\nPrivate mX As Double\nPrivate mY As Double\nPublic Tag As String\nPublic Items As Collection\nPublic Event Moved(ByVal dx As Double)\n\nPublic Property Get X() As Double\n    X = mX\nEnd Property\nPublic Property Let X(ByVal v As Double)\n    If v < 0 Then Err.Raise vbObjectError + 1, \"CPoint\", \"negative\"\n    mX = v\nEnd Property\nPublic Property Get Y() As Double\n    Y = mY\nEnd Property\nPublic Property Let Y(ByVal v As Double)\n    mY = v\nEnd Property\nPublic Function Length() As Double\n    Length = Sqr(mX * mX + mY * mY)\nEnd Function\nPublic Sub Move(ByVal dx As Double, Optional ByVal dy As Double = 0)\n    mX = mX + dx\n    mY = mY + dy\n    RaiseEvent Moved(dx)\nEnd Sub\nPublic Function Clone() As CPoint\n    Dim p As New CPoint\n    p.X = mX: p.Y = mY\n    Set Clone = p\nEnd Function\nPublic Property Get Self() As CPoint\n    Set Self = Me\nEnd Property\nPrivate Sub Class_Initialize()\n    Tag = \"init\"\nEnd Sub\n",
+    "CBag": "Option Explicit\nPrivate mItems As Collection\nPrivate Sub Class_Initialize()\n    Set mItems = New Collection\nEnd Sub\nPublic Sub Add(ByVal v As Variant)\n    mItems.Add v\nEnd Sub\nPublic Property Get Count() As Long\n    Count = mItems.Count\nEnd Property\nPublic Property Get Item(ByVal i As Long) As Variant\n    Item = mItems(i)\nEnd Property\nPublic Property Let Item(ByVal i As Long, ByVal v As Variant)\n    mItems.Remove i\n    If i > mItems.Count Then mItems.Add v Else mItems.Add v, , i\nEnd Property\nPublic Property Get All() As Collection\n    Set All = mItems\nEnd Property\n",
+    "CWatcher": "Option Explicit\nPublic WithEvents P As CPoint\nPublic Log As String\nPrivate Sub P_Moved(ByVal dx As Double)\n    Log = Log & \"moved \" & dx & \";\"\nEnd Sub\n",
+    "CErrProbe": "Option Explicit\nPublic Field As Long\nPublic Property Get Value() As Long\n    Value = Err.Number\nEnd Property\nPublic Function Peek() As String\n    Peek = \"inside \" & Err.Number\nEnd Function\nPublic Sub Touch()\n    Field = Err.Number\nEnd Sub\nPublic Function Handled() As String\n    On Error Resume Next\n    Handled = \"inside \" & Err.Number\nEnd Function\nPublic Function Raises() As String\n    On Error Resume Next\n    Err.Raise 1004\n    Raises = \"inside \" & Err.Number\nEnd Function\n"
+  },
+  "probes": [
+    {
+      "name": "class_props",
+      "macro": "\nPrivate Function Plain() As String\n    Plain = \"inside \" & Err.Number\nEnd Function\n\nFunction Probe() As String\nDim p As New CPoint\np.X = 3: p.Y = 4\nProbe = p.Length & \"|\" & p.Tag & \"|\" & TypeName(p) & \"|\" & (TypeOf p Is CPoint)\nEnd Function\n",
+      "result": "5|init|CPoint|True"
+    },
+    {
+      "name": "class_prop_error",
+      "macro": "\nPrivate Function Plain() As String\n    Plain = \"inside \" & Err.Number\nEnd Function\n\nFunction Probe() As String\nDim p As New CPoint\nOn Error Resume Next\np.X = -1\nProbe = Err.Number - vbObjectError & \"|\" & Err.Source & \"|\" & Err.Description & \"|\" & p.X\nEnd Function\n",
+      "result": "1|CPoint|negative|0"
+    },
+    {
+      "name": "class_clone_identity",
+      "macro": "\nPrivate Function Plain() As String\n    Plain = \"inside \" & Err.Number\nEnd Function\n\nFunction Probe() As String\nDim p As New CPoint, q As CPoint\np.X = 1\nSet q = p.Clone\nq.X = 5\nProbe = p.X & \"|\" & q.X & \"|\" & (p Is q) & \"|\" & (p Is p.Self)\nEnd Function\n",
+      "result": "1|5|False|True"
+    },
+    {
+      "name": "class_nothing_errors",
+      "macro": "\nPrivate Function Plain() As String\n    Plain = \"inside \" & Err.Number\nEnd Function\n\nFunction Probe() As String\nDim p As CPoint\nOn Error Resume Next\nDim x As Double\nx = p.X\nProbe = Err.Number & \"|\" & (p Is Nothing) & \"|\" & TypeName(p)\nEnd Function\n",
+      "result": "91|True|Nothing"
+    },
+    {
+      "name": "class_param_property",
+      "macro": "\nPrivate Function Plain() As String\n    Plain = \"inside \" & Err.Number\nEnd Function\n\nFunction Probe() As String\nDim b As New CBag\nb.Add \"a\": b.Add \"b\": b.Add \"c\"\nb.Item(2) = \"z\"\nProbe = b.Count & \"|\" & b.Item(1) & b.Item(2) & b.Item(3)\nEnd Function\n",
+      "result": "3|azc"
+    },
+    {
+      "name": "class_property_returns_collection",
+      "macro": "\nPrivate Function Plain() As String\n    Plain = \"inside \" & Err.Number\nEnd Function\n\nFunction Probe() As String\nDim b As New CBag, v, s As String\nb.Add 1: b.Add 2\nFor Each v In b.All: s = s & v: Next\nb.All.Add 3\nProbe = s & \"|\" & b.Count & \"|\" & b.All(3)\nEnd Function\n",
+      "result": "12|3|3"
+    },
+    {
+      "name": "class_with_block",
+      "macro": "\nPrivate Function Plain() As String\n    Plain = \"inside \" & Err.Number\nEnd Function\n\nFunction Probe() As String\nDim p As New CPoint\nWith p\n.X = 6\n.Y = 8\nProbe = .Length & \"|\" & .Tag\nEnd With\nEnd Function\n",
+      "result": "10|init"
+    },
+    {
+      "name": "class_events",
+      "macro": "\nPrivate Function Plain() As String\n    Plain = \"inside \" & Err.Number\nEnd Function\n\nFunction Probe() As String\nDim w As New CWatcher\nSet w.P = New CPoint\nw.P.Move 2\nw.P.Move 3, 1\nProbe = w.Log & \"|\" & w.P.X & \"|\" & w.P.Y\nEnd Function\n",
+      "result": "moved 2;moved 3;|5|1"
+    },
+    {
+      "name": "class_events_unhooked",
+      "macro": "\nPrivate Function Plain() As String\n    Plain = \"inside \" & Err.Number\nEnd Function\n\nFunction Probe() As String\nDim w As New CWatcher, p As New CPoint\nSet w.P = p\np.Move 1\nSet w.P = Nothing\np.Move 1\nProbe = w.Log & \"|\" & p.X\nEnd Function\n",
+      "result": "moved 1;|2"
+    },
+    {
+      "name": "class_public_field_object",
+      "macro": "\nPrivate Function Plain() As String\n    Plain = \"inside \" & Err.Number\nEnd Function\n\nFunction Probe() As String\nDim p As New CPoint\nSet p.Items = New Collection\np.Items.Add \"q\"\nProbe = p.Items.Count & \"|\" & p.Items(1)\nEnd Function\n",
+      "result": "1|q"
+    },
+    {
+      "name": "class_callbyname",
+      "macro": "\nPrivate Function Plain() As String\n    Plain = \"inside \" & Err.Number\nEnd Function\n\nFunction Probe() As String\nDim p As New CPoint\nCallByName p, \"X\", VbLet, 7\nCallByName p, \"Move\", VbMethod, 1, 2\nProbe = CallByName(p, \"X\", VbGet) & \"|\" & CallByName(p, \"Y\", VbGet) & \"|\" & CallByName(p, \"Length\", VbMethod)\nEnd Function\n",
+      "result": "8|2|8.24621125123532"
+    },
+    {
+      "name": "class_callbyname_missing",
+      "macro": "\nPrivate Function Plain() As String\n    Plain = \"inside \" & Err.Number\nEnd Function\n\nFunction Probe() As String\nDim p As New CPoint\nOn Error Resume Next\nDim v\nv = CallByName(p, \"Nope\", VbGet)\nProbe = Err.Number\nEnd Function\n",
+      "result": "438"
+    },
+    {
+      "name": "class_array_of_objects",
+      "macro": "\nPrivate Function Plain() As String\n    Plain = \"inside \" & Err.Number\nEnd Function\n\nFunction Probe() As String\nDim a(1 To 3) As CPoint, i As Long, s As Double\nFor i = 1 To 3\nSet a(i) = New CPoint\na(i).X = i\nNext\nFor i = 1 To 3: s = s + a(i).X: Next\nProbe = s & \"|\" & TypeName(a) & \"|\" & TypeName(a(1))\nEnd Function\n",
+      "result": "6|Object()|CPoint"
+    },
+    {
+      "name": "class_in_collection_foreach",
+      "macro": "\nPrivate Function Plain() As String\n    Plain = \"inside \" & Err.Number\nEnd Function\n\nFunction Probe() As String\nDim c As New Collection, p As CPoint, i As Long, s As String\nFor i = 1 To 3\nSet p = New CPoint\np.X = i\nc.Add p\nNext\nFor Each p In c: s = s & p.X: Next\nProbe = s\nEnd Function\n",
+      "result": "123"
+    },
+    {
+      "name": "class_object_compare_eq",
+      "macro": "\nPrivate Function Plain() As String\n    Plain = \"inside \" & Err.Number\nEnd Function\n\nFunction Probe() As String\nDim p As New CPoint\nOn Error Resume Next\nDim b As Boolean\nb = (p = p)\nProbe = Err.Number\nEnd Function\n",
+      "result": "438"
+    },
+    {
+      "name": "class_variant_holding_object",
+      "macro": "\nPrivate Function Plain() As String\n    Plain = \"inside \" & Err.Number\nEnd Function\n\nFunction Probe() As String\nDim v As Variant\nSet v = New CPoint\nv.X = 2\nProbe = TypeName(v) & \"|\" & IsObject(v) & \"|\" & v.X & \"|\" & VarType(v)\nEnd Function\n",
+      "result": "CPoint|True|2|9"
+    },
+    {
+      "name": "class_method_optional",
+      "macro": "\nPrivate Function Plain() As String\n    Plain = \"inside \" & Err.Number\nEnd Function\n\nFunction Probe() As String\nDim p As New CPoint\np.Move 1\np.Move dy:=5, dx:=2\nProbe = p.X & \"|\" & p.Y\nEnd Function\n",
+      "result": "3|5"
+    },
+    {
+      "name": "as_new_reinit",
+      "macro": "\nPrivate Function Plain() As String\n    Plain = \"inside \" & Err.Number\nEnd Function\n\nFunction Probe() As String\nDim p As New CPoint\np.X = 5\nSet p = Nothing\nProbe = p.X & \"|\" & (p Is Nothing)\nEnd Function\n",
+      "result": "0|False"
+    },
+    {
+      "name": "typeof_checks",
+      "macro": "\nPrivate Function Plain() As String\n    Plain = \"inside \" & Err.Number\nEnd Function\n\nFunction Probe() As String\nDim o As Object, c As New Collection\nSet o = c\nProbe = (TypeOf o Is Collection) & \"|\" & (TypeOf o Is CPoint) & \"|\" & (TypeOf o Is Object)\nEnd Function\n",
+      "result": "True|False|True"
+    },
+    {
+      "name": "object_variable_late_bound",
+      "macro": "\nPrivate Function Plain() As String\n    Plain = \"inside \" & Err.Number\nEnd Function\n\nFunction Probe() As String\nDim o As Object\nSet o = New CPoint\no.X = 3\nOn Error Resume Next\no.Nope = 1\nProbe = o.X & \"|\" & Err.Number\nEnd Function\n",
+      "result": "3|438"
+    },
+    {
+      "name": "nested_with",
+      "macro": "\nPrivate Function Plain() As String\n    Plain = \"inside \" & Err.Number\nEnd Function\n\nFunction Probe() As String\nDim w As New CWatcher\nSet w.P = New CPoint\nWith w\nWith .P\n.X = 9\nEnd With\nProbe = .P.X\nEnd With\nEnd Function\n",
+      "result": "9"
+    },
+    {
+      "name": "with_new_object",
+      "macro": "\nPrivate Function Plain() As String\n    Plain = \"inside \" & Err.Number\nEnd Function\n\nFunction Probe() As String\nDim s As String\nWith New CPoint\n.X = 4\ns = .Tag & .X\nEnd With\nProbe = s\nEnd Function\n",
+      "result": "init4"
+    },
+    {
+      "name": "err_early_property_get",
+      "macro": "\nPrivate Function Plain() As String\n    Plain = \"inside \" & Err.Number\nEnd Function\n\nFunction Probe() As String\nDim c As New CErrProbe\nOn Error Resume Next\nErr.Raise 7\nProbe = c.Value & \" / after \" & Err.Number\nEnd Function\n",
+      "result": "7 / after 7"
+    },
+    {
+      "name": "err_early_function",
+      "macro": "\nPrivate Function Plain() As String\n    Plain = \"inside \" & Err.Number\nEnd Function\n\nFunction Probe() As String\nDim c As New CErrProbe\nOn Error Resume Next\nErr.Raise 7\nProbe = c.Peek() & \" / after \" & Err.Number\nEnd Function\n",
+      "result": "inside 7 / after 7"
+    },
+    {
+      "name": "err_early_sub",
+      "macro": "\nPrivate Function Plain() As String\n    Plain = \"inside \" & Err.Number\nEnd Function\n\nFunction Probe() As String\nDim c As New CErrProbe\nOn Error Resume Next\nErr.Raise 7\nc.Touch\nProbe = c.Field & \" / after \" & Err.Number\nEnd Function\n",
+      "result": "7 / after 7"
+    },
+    {
+      "name": "err_early_handled",
+      "macro": "\nPrivate Function Plain() As String\n    Plain = \"inside \" & Err.Number\nEnd Function\n\nFunction Probe() As String\nDim c As New CErrProbe\nOn Error Resume Next\nErr.Raise 7\nProbe = c.Handled() & \" / after \" & Err.Number\nEnd Function\n",
+      "result": "inside 0 / after 0"
+    },
+    {
+      "name": "err_early_raises",
+      "macro": "\nPrivate Function Plain() As String\n    Plain = \"inside \" & Err.Number\nEnd Function\n\nFunction Probe() As String\nDim c As New CErrProbe\nOn Error Resume Next\nErr.Raise 7\nProbe = c.Raises() & \" / after \" & Err.Number\nEnd Function\n",
+      "result": "inside 1004 / after 1004"
+    },
+    {
+      "name": "err_late_property_get",
+      "macro": "\nPrivate Function Plain() As String\n    Plain = \"inside \" & Err.Number\nEnd Function\n\nFunction Probe() As String\nDim o As Object\nSet o = New CErrProbe\nOn Error Resume Next\nErr.Raise 7\nProbe = o.Value & \" / after \" & Err.Number\nEnd Function\n",
+      "result": "7 / after 7"
+    },
+    {
+      "name": "err_late_function",
+      "macro": "\nPrivate Function Plain() As String\n    Plain = \"inside \" & Err.Number\nEnd Function\n\nFunction Probe() As String\nDim o As Object\nSet o = New CErrProbe\nOn Error Resume Next\nErr.Raise 7\nProbe = o.Peek() & \" / after \" & Err.Number\nEnd Function\n",
+      "result": "inside 7 / after 7"
+    },
+    {
+      "name": "err_variant_function",
+      "macro": "\nPrivate Function Plain() As String\n    Plain = \"inside \" & Err.Number\nEnd Function\n\nFunction Probe() As String\nDim v As Variant\nSet v = New CErrProbe\nOn Error Resume Next\nErr.Raise 7\nProbe = v.Peek() & \" / after \" & Err.Number\nEnd Function\n",
+      "result": "inside 7 / after 7"
+    },
+    {
+      "name": "err_plain_call",
+      "macro": "\nPrivate Function Plain() As String\n    Plain = \"inside \" & Err.Number\nEnd Function\n\nFunction Probe() As String\nOn Error Resume Next\nErr.Raise 7\nProbe = Plain() & \" / after \" & Err.Number\nEnd Function\n",
+      "result": "inside 0 / after 0"
+    },
+    {
+      "name": "err_as_new_first_use",
+      "macro": "\nPrivate Function Plain() As String\n    Plain = \"inside \" & Err.Number\nEnd Function\n\nFunction Probe() As String\nOn Error Resume Next\nErr.Raise 7\nDim c As New CErrProbe\nProbe = c.Peek() & \" / after \" & Err.Number\nEnd Function\n",
+      "result": "inside 7 / after 7"
+    },
+    {
+      "name": "err_callbyname_member",
+      "macro": "\nPrivate Function Plain() As String\n    Plain = \"inside \" & Err.Number\nEnd Function\n\nFunction Probe() As String\nDim c As New CErrProbe\nOn Error Resume Next\nErr.Raise 7\nProbe = CallByName(c, \"Peek\", VbMethod) & \" / after \" & Err.Number\nEnd Function\n",
+      "result": "inside 7 / after 7"
+    },
+    {
+      "name": "typename_object_arrays",
+      "macro": "\nPrivate Function Plain() As String\n    Plain = \"inside \" & Err.Number\nEnd Function\n\nFunction Probe() As String\nDim a(1) As CPoint, b() As CPoint, c(1) As Collection, d(1) As Object, e(1) As Worksheet, f(1) As Range\nReDim b(2)\nProbe = TypeName(a) & \"|\" & TypeName(b) & \"|\" & TypeName(c) & \"|\" & TypeName(d) & \"|\" & TypeName(e) & \"|\" & TypeName(f)\nEnd Function\n",
+      "result": "Object()|Object()|Object()|Object()|Object()|Object()"
+    },
+    {
+      "name": "typename_object_array_in_variant",
+      "macro": "\nPrivate Function Plain() As String\n    Plain = \"inside \" & Err.Number\nEnd Function\n\nFunction Probe() As String\nDim a(1) As CPoint, v As Variant\nv = a\nProbe = TypeName(v) & \"|\" & VarType(a) & \"|\" & VarType(v)\nEnd Function\n",
+      "result": "Object()|8201|8201"
+    },
+    {
+      "name": "let_into_nothing_class",
+      "macro": "\nPrivate Function Plain() As String\n    Plain = \"inside \" & Err.Number\nEnd Function\n\nFunction Probe() As String\nDim p As New CPoint, q As CPoint\nOn Error Resume Next\nq = p\nProbe = Err.Number\nEnd Function\n",
+      "result": "91"
+    },
+    {
+      "name": "let_into_set_class",
+      "macro": "\nPrivate Function Plain() As String\n    Plain = \"inside \" & Err.Number\nEnd Function\n\nFunction Probe() As String\nDim p As New CPoint, q As CPoint\nSet q = New CPoint\nOn Error Resume Next\nq = p\nProbe = Err.Number\nEnd Function\n",
+      "result": "438"
+    },
+    {
+      "name": "let_number_into_object",
+      "macro": "\nPrivate Function Plain() As String\n    Plain = \"inside \" & Err.Number\nEnd Function\n\nFunction Probe() As String\nDim o As Object\nOn Error Resume Next\no = 5\nProbe = Err.Number\nEnd Function\n",
+      "result": "91"
+    },
+    {
+      "name": "is_on_values",
+      "macro": "\nPrivate Function Plain() As String\n    Plain = \"inside \" & Err.Number\nEnd Function\n\nFunction Probe() As String\nDim v As Variant, r As Boolean, s As String\nOn Error Resume Next\nr = v Is Nothing\ns = Err.Number\nErr.Clear\nv = Null\nr = v Is Nothing\ns = s & \"|\" & Err.Number\nErr.Clear\nv = 5\nr = v Is Nothing\ns = s & \"|\" & Err.Number\nErr.Clear\nSet v = Nothing\nr = v Is Nothing\ns = s & \"|\" & Err.Number & r\nProbe = s\nEnd Function\n",
+      "result": "424|424|424|0True"
+    }
+  ]
+}

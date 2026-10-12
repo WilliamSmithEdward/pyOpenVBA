@@ -792,12 +792,16 @@ class UserClassInstance(VBAObject):
     def vba_get(self, name: str, args: Sequence[object] = (), named: dict[str, object] | None = None) -> object:
         procedure = self.module.procedure(name, "get") or self.module.procedure(name)
         if procedure is not None and procedure.kind in ("get", "function", "sub"):
+            if (args or named) and not procedure.params:
+                # Arguments a member takes none of go to what it returns: b.All(3)
+                # is the third item of the Collection All returns (native probe).
+                return _call_value(self.interpreter.call(procedure, self.module, [], {}, me=self), list(args), named or {})
             return self.interpreter.call(procedure, self.module, list(args), named or {}, me=self)
         slot = self.variables.get(name.lower())
         if slot is not None:
             value = slot.get()
-            if args and isinstance(value, VBAArray):
-                return value.get([int(to_integer(one, "Long")) for one in args])
+            if args or named:
+                return _call_value(value, list(args), named or {})
             return value
         constant = self.module.constants.get(name.lower())
         if constant is not None:
@@ -1124,7 +1128,9 @@ class Interpreter:
                 array.borrowed_elements -= 1
             raise
         # A procedure starts with no error, whatever its caller's Err held; what it leaves in Err stays after it.
-        if reset_error:
+        # A class object's member is the exception: it starts with the caller's Err, early or late bound
+        # (native probes, tests/fixtures/vba_class_objects.json).
+        if reset_error and not (isinstance(me, UserClassInstance) and me.host is None):
             self.err.reset()
             self.err.erl = 0
         if procedure.kind in ("function", "get"):
@@ -1358,6 +1364,8 @@ class Interpreter:
         if statement.kind in ("lset", "rset"):
             self._pad_assign(statement, frame)
             return
+        if statement.kind == "let" and isinstance(statement.target, A.Name):
+            self._check_let_into_object(statement.target.name, frame)
         value = self.evaluate(statement.value, frame, want_object=statement.kind == "set")
         if statement.kind == "set" and not is_object(value) and value is not NOTHING:
             raise error(ERR_MEMBER_NOT_FOUND, "Set needs an object on the right")
@@ -1368,6 +1376,20 @@ class Interpreter:
             raise error(ERR_OBJECT_VARIABLE_NOT_SET)
         target = self.resolve_target(statement.target, frame)
         target.put(value, statement.kind == "set")
+
+    def _check_let_into_object(self, name: str, frame: Frame) -> None:
+        """A Let into an object variable assigns its object's default member, so one
+        that holds Nothing is error 91 before the value is looked at: q = p and
+        o = 5 alike (native probes)."""
+        key = _bare(name)
+        slot = frame.locals.get(key)
+        if slot is None and isinstance(frame.me, UserClassInstance):
+            slot = frame.me.variables.get(key)
+        if slot is None:
+            slot = frame.module.variables.get(key)
+        if (type(slot) is Slot and not slot.array_of and slot.declared not in ("Variant", "")
+                and default_for(slot.declared) is NOTHING and slot.value is NOTHING):
+            raise error(ERR_OBJECT_VARIABLE_NOT_SET)
 
     def _pad_assign(self, statement: A.Assign, frame: Frame) -> None:
         """LSet and RSet: the text cut or padded with spaces to the length the

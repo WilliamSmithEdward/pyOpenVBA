@@ -268,7 +268,10 @@ the macro starts, on every `On Error` statement, on `Resume`, and on
 leaving a procedure from its error handler. What a procedure leaves in
 it otherwise stays after the procedure returns, so a function that
 handles an error with `On Error Resume Next` hands it to its caller, and
-a built-in function or an object's member leaves it alone.
+a built-in function or an object's member leaves it alone. A class
+module's own member is an object's member too: `c.Peek()` starts with the
+caller's `Err`, early or late bound, where a call into a standard module
+starts with none (`tests/fixtures/vba_class_objects.json`).
 
 **The runtime library.** The conversion, maths, string, date, array and
 information functions, `Format` (shared with the Access engine, which is
@@ -1831,6 +1834,17 @@ its calls go to the class's `Interface_Member` procedures, an Object or
 Variant it is set on to keeps the view, setting it on to the class's own
 type gives the class back, and setting a class that does not implement the
 interface is error 13. `Is`, `TypeName` and `TypeOf` see the object.
+
+Class objects follow 39 native probes in `tests/fixtures/vba_class_objects.json`
+(`scripts/measure_vba_class_objects.py`). Arguments a member takes none of go
+to what it returns: `b.All(3)` is the third item of the Collection a
+parameterless `Property Get All` returns, and `p.Items(1)` indexes a public
+Collection field. A Let into an object variable that holds Nothing is error
+91 before its value is looked at (`q = p`, `o = 5`). `Is` with an operand
+that is not an object, Empty, Null or a number, is error 424. An array of an
+object type, a class, Collection or Range alike, is `Object()` to
+`TypeName` and 8201 to `VarType`. `ObjPtr` is not implemented, as it hands
+out a memory address.
 
 Two lifetime cases are known to differ: an error raised in `Class_Terminate`,
 which VBA reports to the code that released the object even under `On Error

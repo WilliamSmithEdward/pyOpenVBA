@@ -367,6 +367,12 @@ All notable changes to pyOpenVBA are documented here. This project follows
   other 23 navigation idioms swept with them (End across gaps, UsedRange,
   Intersect, CurrentRegion, SpecialCells, Address forms, CountLarge) already
   matched. 15 more probes in `tests/fixtures/excel_vba_idioms.json`.
+- `Err.Raise` keeps its HelpFile and HelpContext, VBA's own errors carry
+  HelpContext 1000000 and their number (`Err.Raise 9` leaves 1000009), and
+  `Err.Raise 0` or a number past 65535 is error 5; they were raised as given.
+  `Err.LastDllError` is 0. Error passing, Resume, handlers in loops and
+  class members already matched. 19 native probes in
+  `tests/fixtures/vba_error_handling.json`.
 
 ## [6.5.0] - 2026-10-04
 

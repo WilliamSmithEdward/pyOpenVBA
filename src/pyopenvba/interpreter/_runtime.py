@@ -32,6 +32,7 @@ from pyopenvba.interpreter._objects import VBACollection, VBAObject, member, met
 from pyopenvba.interpreter._parse import parse_module
 from pyopenvba.interpreter._values import (
     EMPTY,
+    ERROR_TEXT,
     ERR_INVALID_USE_OF_NULL,
     ERR_MEMBER_NOT_FOUND,
     ERR_OBJECT_VARIABLE_NOT_SET,
@@ -349,6 +350,8 @@ class ErrObject(VBAObject):
         self.source = ""
         self.help_file = ""
         self.help_context = 0
+        #: HelpFile and HelpContext an Err.Raise gave, for the error it raises.
+        self._raised_help: tuple[str, int] | None = None
         #: What Erl reports: the last numbered line run in the procedure that
         #: handled the error. Err.Clear keeps it (native probes).
         self.erl = 0
@@ -388,6 +391,11 @@ class ErrObject(VBAObject):
     def HelpContext(self) -> object:
         return VBAInt(self.help_context, "Long")
 
+    @member
+    def LastDllError(self) -> object:
+        """No DLL is called here, so no DLL left an error: 0, a Long, as natively after none."""
+        return VBAInt(0, "Long")
+
     @method
     def Clear(self) -> object:
         self.reset()
@@ -399,6 +407,8 @@ class ErrObject(VBAObject):
         self.number = 0
         self.description = ""
         self.source = ""
+        self.help_file = ""
+        self.help_context = 0
 
     @method
     def Raise(
@@ -412,13 +422,24 @@ class ErrObject(VBAObject):
         if Number is MISSING:
             raise error(449)
         number = int(to_integer(Number, "Long"))
+        if number == 0 or number > 65535:
+            # 0 and numbers past 65535 are not error numbers: Err.Raise 70000 is error 5 (native probes).
+            raise error(5)
         text = to_text(Description) if Description is not MISSING else ""
+        self._raised_help = (to_text(HelpFile) if HelpFile is not MISSING else "",
+                             int(to_integer(HelpContext, "Long")) if HelpContext is not MISSING else -1)
         raise error(number, text, source=to_text(Source) if Source is not MISSING else "")
 
     def capture(self, failure: VBARuntimeError) -> None:
         self.number = failure.number
         self.description = failure.description
         self.source = failure.source
+        raised, self._raised_help = self._raised_help, None
+        # VBA's own errors carry a help topic of 1000000 and their number: Err.Raise 9
+        # leaves HelpContext 1000009 (native probes).
+        own = 1000000 + failure.number if failure.number <= 1000 and failure.number in ERROR_TEXT else 0
+        self.help_file = raised[0] if raised else ""
+        self.help_context = raised[1] if raised and raised[1] >= 0 else own
 
     def describe(self, indent: str = "") -> str:
         if not self.number:

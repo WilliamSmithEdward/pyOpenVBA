@@ -1789,6 +1789,22 @@ that does not is greater than any number, and Select Case holds its subject
 as a Variant. Whether a side is a Variant is read from the expression: a
 variable's or function's declared type, a literal, a `$` function, `&`.
 
+Objects live as long as something refers to them, held to 26 native probes
+in `tests/fixtures/vba_object_lifetime.json`. VBA counts references and so
+does CPython, so `Class_Terminate` runs where the last reference goes: `Set x
+= Nothing`, a reassignment, the end of the procedure that held it, `Erase`,
+or a collection or array being freed, which releases its items first to
+last. An object in a reference cycle, which VBA never terminates, is freed
+by Python's cycle collector at a time of its own. `As New` makes the object
+at its first use and again after `Set x = Nothing`. A `For Each` that runs
+to its end leaves its variable Empty, or Nothing; `Exit For` keeps it.
+
+Two lifetime cases are known to differ: an error raised in `Class_Terminate`,
+which VBA reports to the code that released the object even under `On Error
+Resume Next`, is dropped here; and `Log = Log & (x Is Nothing)`, where `x`
+is a fresh `As New` variable whose `Class_Initialize` also appends to `Log`,
+leaves `FalseFalse` natively and `False` here.
+
 ## What is not
 
 - **Spills are not measured through a sort, an insert or a delete.** A

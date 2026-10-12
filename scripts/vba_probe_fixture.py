@@ -20,8 +20,13 @@ VERSION_PROBE = ('Function VersionBuild() As String\n'
                  'VersionBuild = Application.Version & "|" & Application.Build\nEnd Function')
 
 
-def record(modules: dict[str, str], out: Path) -> None:
-    """Run every module's Probe in native Excel and write the fixture to ``out``."""
+def record(modules: dict[str, str], out: Path, classes: dict[str, str] | None = None) -> None:
+    """Run every module's Probe in native Excel and write the fixture to ``out``.
+
+    ``classes`` are class modules every probe can use, added to each session
+    after a first macro has run (the harness installs its runner then) and
+    kept in the fixture for the tests to add the same way.
+    """
     probes: list[dict[str, object]] = []
     version_value = None
     excel: ExcelSession | None = None
@@ -34,6 +39,8 @@ def record(modules: dict[str, str], out: Path) -> None:
                 version = excel.run_vba(VERSION_PROBE, 'VersionBuild')
                 assert version.ok and not version.dialogs, version
                 version_value = version.value
+                for class_name, source in (classes or {}).items():
+                    excel.add_module(class_name, source, kind='class')
             result = excel.run_vba(module, 'Probe', timeout=30.0)
             assert not result.dialogs, (name, result)
             if result.ok:
@@ -50,4 +57,4 @@ def record(modules: dict[str, str], out: Path) -> None:
         if excel is not None:
             excel.__exit__(None, None, None)
     out.write_text(json.dumps({'excel_version_build': version_value, 'measured_at': datetime.now(timezone.utc).isoformat(),
-                               'probes': probes}, indent=2) + '\n', encoding='utf-8')
+                               'classes': classes or {}, 'probes': probes}, indent=2) + '\n', encoding='utf-8')

@@ -1,0 +1,139 @@
+{
+  "excel_version_build": "16.0|20430",
+  "measured_at": "2026-10-12T19:28:32.616395+00:00",
+  "classes": {
+    "CItem": "Public Name As String\nPublic Child As CItem\nPrivate Sub Class_Initialize()\nLogText = LogText & \"+\"\nEnd Sub\nPrivate Sub Class_Terminate()\nLogText = LogText & \"-\" & Name & \";\"\nEnd Sub\n"
+  },
+  "probes": [
+    {
+      "name": "set_nothing",
+      "macro": "\nPublic LogText As String\nPrivate Function Make(ByVal n As String) As CItem\nDim it As New CItem\nit.Name = n\nSet Make = it\nEnd Function\nPrivate Sub UseLocal()\nDim it As New CItem\nit.Name = \"local\"\nLogText = LogText & \"use;\"\nEnd Sub\nPrivate Sub HoldNothing()\nDim it As CItem\nLogText = LogText & \"hold;\"\nEnd Sub\n\nFunction Probe() As String\nLogText = \"\"\nDim p As CItem\nSet p = New CItem\np.Name = \"p\"\nSet p = Nothing\nProbe = LogText\nEnd Function\n",
+      "result": "+-p;"
+    },
+    {
+      "name": "as_new_lazy",
+      "macro": "\nPublic LogText As String\nPrivate Function Make(ByVal n As String) As CItem\nDim it As New CItem\nit.Name = n\nSet Make = it\nEnd Function\nPrivate Sub UseLocal()\nDim it As New CItem\nit.Name = \"local\"\nLogText = LogText & \"use;\"\nEnd Sub\nPrivate Sub HoldNothing()\nDim it As CItem\nLogText = LogText & \"hold;\"\nEnd Sub\n\nFunction Probe() As String\nLogText = \"\"\nDim p As New CItem\nLogText = LogText & \"before;\"\np.Name = \"q\"\nProbe = LogText\nEnd Function\n",
+      "result": "before;+"
+    },
+    {
+      "name": "scope_exit",
+      "macro": "\nPublic LogText As String\nPrivate Function Make(ByVal n As String) As CItem\nDim it As New CItem\nit.Name = n\nSet Make = it\nEnd Function\nPrivate Sub UseLocal()\nDim it As New CItem\nit.Name = \"local\"\nLogText = LogText & \"use;\"\nEnd Sub\nPrivate Sub HoldNothing()\nDim it As CItem\nLogText = LogText & \"hold;\"\nEnd Sub\n\nFunction Probe() As String\nLogText = \"\"\nUseLocal\nLogText = LogText & \"after;\"\nProbe = LogText\nEnd Function\n",
+      "result": "+use;-local;after;"
+    },
+    {
+      "name": "unused_as_new",
+      "macro": "\nPublic LogText As String\nPrivate Function Make(ByVal n As String) As CItem\nDim it As New CItem\nit.Name = n\nSet Make = it\nEnd Function\nPrivate Sub UseLocal()\nDim it As New CItem\nit.Name = \"local\"\nLogText = LogText & \"use;\"\nEnd Sub\nPrivate Sub HoldNothing()\nDim it As CItem\nLogText = LogText & \"hold;\"\nEnd Sub\n\nFunction Probe() As String\nLogText = \"\"\nHoldNothing\nDim x As New CItem\nLogText = LogText & \"end;\"\nProbe = LogText\nEnd Function\n",
+      "result": "hold;end;"
+    },
+    {
+      "name": "returned_object",
+      "macro": "\nPublic LogText As String\nPrivate Function Make(ByVal n As String) As CItem\nDim it As New CItem\nit.Name = n\nSet Make = it\nEnd Function\nPrivate Sub UseLocal()\nDim it As New CItem\nit.Name = \"local\"\nLogText = LogText & \"use;\"\nEnd Sub\nPrivate Sub HoldNothing()\nDim it As CItem\nLogText = LogText & \"hold;\"\nEnd Sub\n\nFunction Probe() As String\nLogText = \"\"\nDim a As CItem\nSet a = Make(\"ret\")\nLogText = LogText & \"got;\"\nSet a = Nothing\nProbe = LogText\nEnd Function\n",
+      "result": "+got;-ret;"
+    },
+    {
+      "name": "returned_discarded",
+      "macro": "\nPublic LogText As String\nPrivate Function Make(ByVal n As String) As CItem\nDim it As New CItem\nit.Name = n\nSet Make = it\nEnd Function\nPrivate Sub UseLocal()\nDim it As New CItem\nit.Name = \"local\"\nLogText = LogText & \"use;\"\nEnd Sub\nPrivate Sub HoldNothing()\nDim it As CItem\nLogText = LogText & \"hold;\"\nEnd Sub\n\nFunction Probe() As String\nLogText = \"\"\nMake \"tmp\"\nLogText = LogText & \"after;\"\nProbe = LogText\nEnd Function\n",
+      "result": "+-tmp;after;"
+    },
+    {
+      "name": "returned_member",
+      "macro": "\nPublic LogText As String\nPrivate Function Make(ByVal n As String) As CItem\nDim it As New CItem\nit.Name = n\nSet Make = it\nEnd Function\nPrivate Sub UseLocal()\nDim it As New CItem\nit.Name = \"local\"\nLogText = LogText & \"use;\"\nEnd Sub\nPrivate Sub HoldNothing()\nDim it As CItem\nLogText = LogText & \"hold;\"\nEnd Sub\n\nFunction Probe() As String\nLogText = \"\"\nDim n As String\nn = Make(\"m\").Name\nLogText = LogText & \"after;\"\nProbe = LogText & n\nEnd Function\n",
+      "result": "+-m;after;m"
+    },
+    {
+      "name": "reassign",
+      "macro": "\nPublic LogText As String\nPrivate Function Make(ByVal n As String) As CItem\nDim it As New CItem\nit.Name = n\nSet Make = it\nEnd Function\nPrivate Sub UseLocal()\nDim it As New CItem\nit.Name = \"local\"\nLogText = LogText & \"use;\"\nEnd Sub\nPrivate Sub HoldNothing()\nDim it As CItem\nLogText = LogText & \"hold;\"\nEnd Sub\n\nFunction Probe() As String\nLogText = \"\"\nDim a As CItem\nSet a = New CItem\na.Name = \"one\"\nSet a = New CItem\na.Name = \"two\"\nLogText = LogText & \"mid;\"\nSet a = Nothing\nProbe = LogText\nEnd Function\n",
+      "result": "++-one;mid;-two;"
+    },
+    {
+      "name": "collection_holds",
+      "macro": "\nPublic LogText As String\nPrivate Function Make(ByVal n As String) As CItem\nDim it As New CItem\nit.Name = n\nSet Make = it\nEnd Function\nPrivate Sub UseLocal()\nDim it As New CItem\nit.Name = \"local\"\nLogText = LogText & \"use;\"\nEnd Sub\nPrivate Sub HoldNothing()\nDim it As CItem\nLogText = LogText & \"hold;\"\nEnd Sub\n\nFunction Probe() As String\nLogText = \"\"\nDim c As New Collection, a As CItem\nSet a = New CItem\na.Name = \"c\"\nc.Add a\nSet a = Nothing\nLogText = LogText & \"held;\"\nc.Remove 1\nLogText = LogText & \"removed;\"\nProbe = LogText\nEnd Function\n",
+      "result": "+held;-c;removed;"
+    },
+    {
+      "name": "collection_released",
+      "macro": "\nPublic LogText As String\nPrivate Function Make(ByVal n As String) As CItem\nDim it As New CItem\nit.Name = n\nSet Make = it\nEnd Function\nPrivate Sub UseLocal()\nDim it As New CItem\nit.Name = \"local\"\nLogText = LogText & \"use;\"\nEnd Sub\nPrivate Sub HoldNothing()\nDim it As CItem\nLogText = LogText & \"hold;\"\nEnd Sub\n\nFunction Probe() As String\nLogText = \"\"\nDim c As Collection\nSet c = New Collection\nc.Add Make(\"x\")\nc.Add Make(\"y\")\nLogText = LogText & \"full;\"\nSet c = Nothing\nProbe = LogText\nEnd Function\n",
+      "result": "++full;-x;-y;"
+    },
+    {
+      "name": "array_erase",
+      "macro": "\nPublic LogText As String\nPrivate Function Make(ByVal n As String) As CItem\nDim it As New CItem\nit.Name = n\nSet Make = it\nEnd Function\nPrivate Sub UseLocal()\nDim it As New CItem\nit.Name = \"local\"\nLogText = LogText & \"use;\"\nEnd Sub\nPrivate Sub HoldNothing()\nDim it As CItem\nLogText = LogText & \"hold;\"\nEnd Sub\n\nFunction Probe() As String\nLogText = \"\"\nDim arr(1) As CItem\nSet arr(0) = Make(\"a0\")\nSet arr(1) = Make(\"a1\")\nLogText = LogText & \"set;\"\nErase arr\nProbe = LogText\nEnd Function\n",
+      "result": "++set;-a0;-a1;"
+    },
+    {
+      "name": "array_element_replace",
+      "macro": "\nPublic LogText As String\nPrivate Function Make(ByVal n As String) As CItem\nDim it As New CItem\nit.Name = n\nSet Make = it\nEnd Function\nPrivate Sub UseLocal()\nDim it As New CItem\nit.Name = \"local\"\nLogText = LogText & \"use;\"\nEnd Sub\nPrivate Sub HoldNothing()\nDim it As CItem\nLogText = LogText & \"hold;\"\nEnd Sub\n\nFunction Probe() As String\nLogText = \"\"\nDim arr(0) As CItem\nSet arr(0) = Make(\"e1\")\nSet arr(0) = Make(\"e2\")\nLogText = LogText & \"mid;\"\nSet arr(0) = Nothing\nProbe = LogText\nEnd Function\n",
+      "result": "++-e1;mid;-e2;"
+    },
+    {
+      "name": "variant_holds",
+      "macro": "\nPublic LogText As String\nPrivate Function Make(ByVal n As String) As CItem\nDim it As New CItem\nit.Name = n\nSet Make = it\nEnd Function\nPrivate Sub UseLocal()\nDim it As New CItem\nit.Name = \"local\"\nLogText = LogText & \"use;\"\nEnd Sub\nPrivate Sub HoldNothing()\nDim it As CItem\nLogText = LogText & \"hold;\"\nEnd Sub\n\nFunction Probe() As String\nLogText = \"\"\nDim v As Variant\nSet v = Make(\"v\")\nLogText = LogText & \"v;\"\nv = 5\nProbe = LogText\nEnd Function\n",
+      "result": "+v;-v;"
+    },
+    {
+      "name": "child_chain",
+      "macro": "\nPublic LogText As String\nPrivate Function Make(ByVal n As String) As CItem\nDim it As New CItem\nit.Name = n\nSet Make = it\nEnd Function\nPrivate Sub UseLocal()\nDim it As New CItem\nit.Name = \"local\"\nLogText = LogText & \"use;\"\nEnd Sub\nPrivate Sub HoldNothing()\nDim it As CItem\nLogText = LogText & \"hold;\"\nEnd Sub\n\nFunction Probe() As String\nLogText = \"\"\nDim p As CItem\nSet p = Make(\"parent\")\nSet p.Child = Make(\"child\")\nLogText = LogText & \"built;\"\nSet p = Nothing\nProbe = LogText\nEnd Function\n",
+      "result": "++built;-parent;-child;"
+    },
+    {
+      "name": "cycle_never_terminates",
+      "macro": "\nPublic LogText As String\nPrivate Function Make(ByVal n As String) As CItem\nDim it As New CItem\nit.Name = n\nSet Make = it\nEnd Function\nPrivate Sub UseLocal()\nDim it As New CItem\nit.Name = \"local\"\nLogText = LogText & \"use;\"\nEnd Sub\nPrivate Sub HoldNothing()\nDim it As CItem\nLogText = LogText & \"hold;\"\nEnd Sub\n\nFunction Probe() As String\nLogText = \"\"\nDim a As CItem, b As CItem\nSet a = Make(\"A\")\nSet b = Make(\"B\")\nSet a.Child = b\nSet b.Child = a\nSet a = Nothing\nSet b = Nothing\nLogText = LogText & \"dropped;\"\nProbe = LogText\nEnd Function\n",
+      "result": "++dropped;"
+    },
+    {
+      "name": "as_new_recreate",
+      "macro": "\nPublic LogText As String\nPrivate Function Make(ByVal n As String) As CItem\nDim it As New CItem\nit.Name = n\nSet Make = it\nEnd Function\nPrivate Sub UseLocal()\nDim it As New CItem\nit.Name = \"local\"\nLogText = LogText & \"use;\"\nEnd Sub\nPrivate Sub HoldNothing()\nDim it As CItem\nLogText = LogText & \"hold;\"\nEnd Sub\n\nFunction Probe() As String\nLogText = \"\"\nDim a As New CItem\na.Name = \"first\"\nSet a = Nothing\nLogText = LogText & \"gap;\"\na.Name = \"second\"\nLogText = LogText & (a Is Nothing) & \";\"\nProbe = LogText\nEnd Function\n",
+      "result": "+-first;gap;+False;"
+    },
+    {
+      "name": "as_new_typename",
+      "macro": "\nPublic LogText As String\nPrivate Function Make(ByVal n As String) As CItem\nDim it As New CItem\nit.Name = n\nSet Make = it\nEnd Function\nPrivate Sub UseLocal()\nDim it As New CItem\nit.Name = \"local\"\nLogText = LogText & \"use;\"\nEnd Sub\nPrivate Sub HoldNothing()\nDim it As CItem\nLogText = LogText & \"hold;\"\nEnd Sub\n\nFunction Probe() As String\nLogText = \"\"\nDim a As New CItem\nDim n As String\nn = TypeName(a)\nLogText = LogText & n & \";\"\nProbe = LogText\nEnd Function\n",
+      "result": "+CItem;"
+    },
+    {
+      "name": "two_variables_same",
+      "macro": "\nPublic LogText As String\nPrivate Function Make(ByVal n As String) As CItem\nDim it As New CItem\nit.Name = n\nSet Make = it\nEnd Function\nPrivate Sub UseLocal()\nDim it As New CItem\nit.Name = \"local\"\nLogText = LogText & \"use;\"\nEnd Sub\nPrivate Sub HoldNothing()\nDim it As CItem\nLogText = LogText & \"hold;\"\nEnd Sub\n\nFunction Probe() As String\nLogText = \"\"\nDim a As CItem, b As CItem\nSet a = Make(\"s\")\nSet b = a\nSet a = Nothing\nLogText = LogText & \"one;\"\nSet b = Nothing\nProbe = LogText\nEnd Function\n",
+      "result": "+one;-s;"
+    },
+    {
+      "name": "with_block_temp",
+      "macro": "\nPublic LogText As String\nPrivate Function Make(ByVal n As String) As CItem\nDim it As New CItem\nit.Name = n\nSet Make = it\nEnd Function\nPrivate Sub UseLocal()\nDim it As New CItem\nit.Name = \"local\"\nLogText = LogText & \"use;\"\nEnd Sub\nPrivate Sub HoldNothing()\nDim it As CItem\nLogText = LogText & \"hold;\"\nEnd Sub\n\nFunction Probe() As String\nLogText = \"\"\nWith Make(\"w\")\n.Name = \"w2\"\nLogText = LogText & \"in;\"\nEnd With\nLogText = LogText & \"out;\"\nProbe = LogText\nEnd Function\n",
+      "result": "+in;-w2;out;"
+    },
+    {
+      "name": "for_each_releases_last",
+      "macro": "\nPublic LogText As String\nPrivate Function Make(ByVal n As String) As CItem\nDim it As New CItem\nit.Name = n\nSet Make = it\nEnd Function\nPrivate Sub UseLocal()\nDim it As New CItem\nit.Name = \"local\"\nLogText = LogText & \"use;\"\nEnd Sub\nPrivate Sub HoldNothing()\nDim it As CItem\nLogText = LogText & \"hold;\"\nEnd Sub\n\nFunction Probe() As String\nLogText = \"\"\nDim c As New Collection, it As CItem\nc.Add Make(\"f1\")\nc.Add Make(\"f2\")\nFor Each it In c\nNext\nLogText = LogText & \"looped;\"\nSet c = Nothing\nLogText = LogText & \"cnull;\"\nSet it = Nothing\nProbe = LogText\nEnd Function\n",
+      "result": "++looped;-f1;-f2;cnull;"
+    },
+    {
+      "name": "for_each_variant_after_loop",
+      "macro": "\nPublic LogText As String\nPrivate Function Make(ByVal n As String) As CItem\nDim it As New CItem\nit.Name = n\nSet Make = it\nEnd Function\nPrivate Sub UseLocal()\nDim it As New CItem\nit.Name = \"local\"\nLogText = LogText & \"use;\"\nEnd Sub\nPrivate Sub HoldNothing()\nDim it As CItem\nLogText = LogText & \"hold;\"\nEnd Sub\n\nFunction Probe() As String\nDim v As Variant\nFor Each v In Array(1, 2)\nNext\nProbe = TypeName(v) & \"|\" & IsEmpty(v)\nEnd Function\n",
+      "result": "Empty|True"
+    },
+    {
+      "name": "for_each_variant_after_exit",
+      "macro": "\nPublic LogText As String\nPrivate Function Make(ByVal n As String) As CItem\nDim it As New CItem\nit.Name = n\nSet Make = it\nEnd Function\nPrivate Sub UseLocal()\nDim it As New CItem\nit.Name = \"local\"\nLogText = LogText & \"use;\"\nEnd Sub\nPrivate Sub HoldNothing()\nDim it As CItem\nLogText = LogText & \"hold;\"\nEnd Sub\n\nFunction Probe() As String\nDim v As Variant\nFor Each v In Array(1, 2)\nExit For\nNext\nProbe = TypeName(v) & \"|\" & v\nEnd Function\n",
+      "result": "Integer|1"
+    },
+    {
+      "name": "for_each_object_after_loop",
+      "macro": "\nPublic LogText As String\nPrivate Function Make(ByVal n As String) As CItem\nDim it As New CItem\nit.Name = n\nSet Make = it\nEnd Function\nPrivate Sub UseLocal()\nDim it As New CItem\nit.Name = \"local\"\nLogText = LogText & \"use;\"\nEnd Sub\nPrivate Sub HoldNothing()\nDim it As CItem\nLogText = LogText & \"hold;\"\nEnd Sub\n\nFunction Probe() As String\nDim c As New Collection, o As Object\nc.Add New Collection\nFor Each o In c\nNext\nProbe = (o Is Nothing)\nEnd Function\n",
+      "result": "True"
+    },
+    {
+      "name": "for_each_object_after_exit",
+      "macro": "\nPublic LogText As String\nPrivate Function Make(ByVal n As String) As CItem\nDim it As New CItem\nit.Name = n\nSet Make = it\nEnd Function\nPrivate Sub UseLocal()\nDim it As New CItem\nit.Name = \"local\"\nLogText = LogText & \"use;\"\nEnd Sub\nPrivate Sub HoldNothing()\nDim it As CItem\nLogText = LogText & \"hold;\"\nEnd Sub\n\nFunction Probe() As String\nDim c As New Collection, o As Object\nc.Add New Collection\nFor Each o In c\nExit For\nNext\nProbe = (o Is Nothing)\nEnd Function\n",
+      "result": "False"
+    },
+    {
+      "name": "for_each_empty_collection",
+      "macro": "\nPublic LogText As String\nPrivate Function Make(ByVal n As String) As CItem\nDim it As New CItem\nit.Name = n\nSet Make = it\nEnd Function\nPrivate Sub UseLocal()\nDim it As New CItem\nit.Name = \"local\"\nLogText = LogText & \"use;\"\nEnd Sub\nPrivate Sub HoldNothing()\nDim it As CItem\nLogText = LogText & \"hold;\"\nEnd Sub\n\nFunction Probe() As String\nDim c As New Collection, v As Variant\nv = 5\nFor Each v In c\nNext\nProbe = TypeName(v) & \"|\" & v\nEnd Function\n",
+      "result": "Empty|"
+    },
+    {
+      "name": "for_each_goto_out",
+      "macro": "\nPublic LogText As String\nPrivate Function Make(ByVal n As String) As CItem\nDim it As New CItem\nit.Name = n\nSet Make = it\nEnd Function\nPrivate Sub UseLocal()\nDim it As New CItem\nit.Name = \"local\"\nLogText = LogText & \"use;\"\nEnd Sub\nPrivate Sub HoldNothing()\nDim it As CItem\nLogText = LogText & \"hold;\"\nEnd Sub\n\nFunction Probe() As String\nDim v As Variant\nFor Each v In Array(1, 2)\nIf v = 2 Then GoTo done\nNext\ndone:\nProbe = TypeName(v) & \"|\" & v\nEnd Function\n",
+      "result": "Integer|2"
+    }
+  ]
+}

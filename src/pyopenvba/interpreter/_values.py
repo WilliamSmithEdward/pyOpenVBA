@@ -38,7 +38,8 @@ import datetime as _dt
 import math
 import re
 import struct
-from decimal import ROUND_HALF_EVEN, ROUND_HALF_UP, Decimal, InvalidOperation, localcontext
+from contextlib import AbstractContextManager
+from decimal import ROUND_HALF_EVEN, ROUND_HALF_UP, Context, Decimal, InvalidOperation, localcontext
 from typing import Any, Callable, Final
 from weakref import ReferenceType
 
@@ -232,9 +233,36 @@ class VBACurrency(Decimal):
 
 
 class VBADecimal(Decimal):
-    """The Variant-only Decimal subtype: 28 significant digits, no more."""
+    """The Variant-only Decimal subtype: a 96-bit integer and a scale of 0 to 28.
+
+    So at most 28 decimal places, and a mantissa no larger than
+    79228162514264337593543950335: CDec(1) / 3 has 28 threes, and the largest
+    Decimal keeps all 29 digits (native probes). A value is rounded half to
+    even to fit; one too large for any scale is error 6.
+    """
 
     __slots__ = ()
+
+    LARGEST: Final = 79228162514264337593543950335
+
+    def __new__(cls, value: str | int | float | Decimal = "0") -> VBADecimal:
+        with localcontext() as context:
+            context.prec = 60
+            exact = Decimal(repr(value)) if isinstance(value, float) else Decimal(value)
+            if exact.is_finite():
+                if _places(exact) > 28:
+                    exact = exact.quantize(Decimal(1).scaleb(-28), rounding=ROUND_HALF_EVEN)
+                while abs(exact.scaleb(_places(exact))) > cls.LARGEST:
+                    if _places(exact) <= 0:
+                        raise error(ERR_OVERFLOW)
+                    exact = exact.quantize(Decimal(1).scaleb(1 - _places(exact)), rounding=ROUND_HALF_EVEN)
+        return super().__new__(cls, exact)
+
+
+def _places(value: Decimal) -> int:
+    """The decimal places a finite Decimal is written with: its negated exponent."""
+    exponent = value.as_tuple().exponent
+    return -exponent if isinstance(exponent, int) else 0
 
 
 class VBADate:
@@ -707,7 +735,10 @@ def number_text(value: int | float | Decimal) -> str:
     if isinstance(value, int):
         return str(int(value))
     if isinstance(value, Decimal):
-        plain = format(value.normalize(), "f")
+        with localcontext() as context:
+            # A Decimal holds 29 digits; the default context would round the last away.
+            context.prec = 60
+            plain = format(value.normalize(), "f")
         return plain if plain != "-0" else "0"
     if value != value:  # NaN
         return "-1.#IND"
@@ -1127,6 +1158,13 @@ def _wider(left: object, right: object) -> str:
     return max(kinds, key=lambda name: _WIDENING.index(name) if name in _WIDENING else len(_WIDENING))
 
 
+def _decimal_context() -> AbstractContextManager[Context]:
+    """Decimal arithmetic at the 29 digits a VBA Decimal holds, where the
+    default context would round the last away (native probe: max - 1 + 1)."""
+    context = Context(prec=29, rounding=ROUND_HALF_EVEN)
+    return localcontext(context)
+
+
 def _as_kind(value: int | float | Decimal, kind: str) -> object:
     if kind in INTEGER_LIMITS:
         low, high = INTEGER_LIMITS[kind]
@@ -1169,7 +1207,8 @@ def add(left: object, right: object) -> object:
     if isinstance(left, VBADate) or isinstance(right, VBADate):
         return VBADate(float(to_number(left)) + float(to_number(right)))
     first, second, kind = _both_numbers(left, right)
-    return _as_kind(first + second, kind)
+    with _decimal_context():
+        return _as_kind(first + second, kind)
 
 
 def subtract(left: object, right: object) -> object:
@@ -1180,14 +1219,16 @@ def subtract(left: object, right: object) -> object:
     if isinstance(left, VBADate):
         return VBADate(left.serial - float(to_number(right)))
     first, second, kind = _both_numbers(left, right)
-    return _as_kind(first - second, kind)
+    with _decimal_context():
+        return _as_kind(first - second, kind)
 
 
 def multiply(left: object, right: object) -> object:
     if left is NULL or right is NULL:
         return NULL
     first, second, kind = _both_numbers(left, right)
-    return _as_kind(first * second, kind)
+    with _decimal_context():
+        return _as_kind(first * second, kind)
 
 
 def divide(left: object, right: object) -> object:
@@ -1366,7 +1407,8 @@ def compare(op: str, left: object, right: object, *, text_compare: bool = False,
     if left is NULL or right is NULL:
         return NULL
     if op == "is":
-        return left is right
+        # An interface view and its object are one object, as COM's identity makes them.
+        return getattr(left, "vba_identity", left) is getattr(right, "vba_identity", right)
     order = _order(left, right, text_compare=text_compare, kinds=kinds)
     if op == "=":
         return order == 0

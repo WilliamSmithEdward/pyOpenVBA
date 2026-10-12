@@ -95,6 +95,25 @@ CASES.update({
     "collection_count_get": 'Dim c As New Collection\nc.Add 5\nProbe = CallByName(c, "Count", VbGet)',
 })
 CASES.update({f"number_text_{index:02d}": f'Probe = Try("{literal(text)}")' for index, text in enumerate(NUMBER_TEXTS)})
+CASES.update({
+    # Rnd's generator and Randomize's seeding, value for value.
+    "rnd_negative_seeds": 'Probe = Rnd(-1) & "|" & Rnd(-2) & "|" & Rnd(-0.5) & "|" & Rnd(-1000000) & "|" & Rnd(-1E-10)',
+    "rnd_after_seed": 'Dim a As Single\na = Rnd(-1)\nProbe = Rnd & "|" & Rnd & "|" & Rnd(0) & "|" & Rnd(5)',
+    "randomize_5": 'Rnd -1\nRandomize 5\nProbe = Rnd & "|" & Rnd',
+    "randomize_1_5": 'Rnd -1\nRandomize 1.5\nProbe = Rnd & "|" & Rnd',
+    "randomize_negative": 'Rnd -1\nRandomize -3\nProbe = Rnd',
+    "randomize_big": 'Rnd -1\nRandomize 1000000\nProbe = Rnd',
+    "randomize_0": 'Rnd -1\nRandomize 0\nProbe = Rnd',
+    "randomize_after_other_seed": 'Rnd -2\nRandomize 5\nProbe = Rnd',
+    "randomize_twice": 'Rnd -1\nRandomize 5\nRandomize 5\nProbe = Rnd',
+    "rnd_dice": 'Rnd -7\nDim i As Long, s As String\nFor i = 1 To 6\ns = s & Int(Rnd * 6) + 1\nNext\nProbe = s',
+    # Round, Fix, Int and Abs keep the number's type; Decimal keeps 29 digits.
+    "round_negative_digits": 'Dim x As Double\nx = Round(12345.6789, -2)\nProbe = x',
+    "round_types": 'Probe = TypeName(Round(2.5)) & TypeName(Round(2.5@)) & TypeName(Round(CSng(2.5))) & TypeName(Round(2)) & TypeName(Round("2.5")) & "|" & Round(2.5@) & "|" & Round(CDec(2.45), 1)',
+    "currency_kept": 'Probe = TypeName(2.5@) & TypeName(Fix(2.5@)) & TypeName(Int(2.5@)) & TypeName(Abs(-2.5@)) & TypeName(2.5@ + 1) & TypeName(2.5@ * 2.5)',
+    "decimal_29_digits": 'Probe = CStr(CDec("79228162514264337593543950335")) & "|" & CStr(CDec("7.9228162514264337593543950335"))',
+    "decimal_arithmetic": 'Dim d As Variant\nd = CDec("79228162514264337593543950334")\nProbe = CStr(d + 1) & "|" & TypeName(d + 1) & "|" & CStr(CDec("0.1") * 3)',
+})
 
 
 def macro(name: str) -> str:

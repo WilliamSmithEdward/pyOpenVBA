@@ -146,7 +146,7 @@ class Slot:
         if self.array_of == "Byte" and isinstance(value, str):
             # A String assigned to a Byte array is its UTF-16LE bytes (native probe).
             value = text_bytes(value)
-        self.value = copy_value(coerce(value, self.declared))
+        self.value = copy_value(coerce(as_declared(value, self.declared), self.declared))
 
 
 class AutoNewSlot(Slot):
@@ -818,6 +818,80 @@ class UserClassInstance(VBAObject):
         return f"{indent}{self.vba_type_name}({inner})"
 
 
+class InterfaceView(VBAObject):
+    """An object seen through an interface its class ``Implements``.
+
+    A variable typed as the interface holds this, and so does any Object or
+    Variant it is assigned on to: ``sh.Area`` runs the class's private
+    ``IShape_Area``, late-bound ``v.Area`` too, and a member only the class has
+    is error 438. ``Is``, ``TypeName`` and ``TypeOf`` see the object itself
+    (native probes).
+    """
+
+    def __init__(self, instance: UserClassInstance, interface: str) -> None:
+        self.instance = instance
+        self.interface = interface
+        self.vba_type_name = instance.vba_type_name
+
+    @property
+    def vba_identity(self) -> UserClassInstance:
+        return self.instance
+
+    def _procedure(self, name: str, kind: str = "") -> A.Procedure | None:
+        return self.instance.module.procedure(f"{self.interface}_{name}", kind)
+
+    def vba_member(self, name: str) -> Any:
+        return None
+
+    def vba_get(self, name: str, args: Sequence[object] = (), named: dict[str, object] | None = None) -> object:
+        procedure = self._procedure(name, "get") or self._procedure(name)
+        if procedure is None or procedure.kind not in ("get", "function", "sub"):
+            raise error(ERR_MEMBER_NOT_FOUND, f"{self.interface} has no member named {name}")
+        instance = self.instance
+        return instance.interpreter.call(procedure, instance.module, list(args), named or {}, me=instance)
+
+    def vba_set(
+        self,
+        name: str,
+        value: object,
+        args: Sequence[object] = (),
+        named: dict[str, object] | None = None,
+        *,
+        by_ref: bool = False,
+    ) -> None:
+        procedure = self._procedure(name, "set" if by_ref else "let") or (self._procedure(name, "let") if by_ref else None)
+        if procedure is None:
+            raise error(ERR_MEMBER_NOT_FOUND, f"{self.interface} has no member named {name}")
+        instance = self.instance
+        instance.interpreter.call(procedure, instance.module, [*args, value], named or {}, me=instance)
+
+    def describe(self, indent: str = "") -> str:
+        return f"{indent}{self.interface} of {self.instance.describe()}"
+
+
+def as_declared(value: object, declared: str) -> object:
+    """An object as a variable of type ``declared`` holds it (native probes):
+
+    - a class's own type: the object itself, so ``Set s2 = sh`` reads ``s2.Area`` as the class's;
+    - an interface the class Implements: its view;
+    - another class module: error 13;
+    - Object, Variant or any other type: what was assigned, view and all.
+    """
+    instance = value.instance if isinstance(value, InterfaceView) else value
+    if not isinstance(instance, UserClassInstance):
+        return value
+    key = declared.rpartition(".")[2].lower()
+    if key == instance.module.name.lower():
+        return instance
+    implemented = next((name for name in instance.module.parsed.implements if name.lower() == key), None)
+    if implemented is not None:
+        return InterfaceView(instance, implemented)
+    target = instance.interpreter.modules.get(key)
+    if target is not None and target.is_class:
+        raise error(ERR_TYPE_MISMATCH)
+    return value
+
+
 def _short(value: object) -> str:
     if isinstance(value, str):
         return f'"{value}"'
@@ -1090,7 +1164,7 @@ class Interpreter:
                 continue
             value = self._by_value(given)
             frame.locals[parameter.name.lower()] = Slot(
-                copy_value(coerce(value, declared)), declared
+                copy_value(coerce(as_declared(value, declared), declared)), declared
             )
 
     @staticmethod
@@ -2483,6 +2557,12 @@ def _iterate(subject: object) -> Iterator[object]:
 def _is_type(value: object, wanted: str) -> bool:
     if value is NOTHING:
         return False
+    if isinstance(value, InterfaceView):
+        value = value.instance
+    if isinstance(value, UserClassInstance) and any(
+            name.lower() == wanted.rpartition(".")[2].lower() for name in value.module.parsed.implements):
+        # TypeOf x Is IShape for a class that Implements IShape (native probes).
+        return True
     if isinstance(value, VBAObject):
         if value.vba_type_name.lower() == wanted.lower():
             return True

@@ -23,9 +23,10 @@ from __future__ import annotations
 
 import datetime as _dt
 import math
+import struct
 import time
 from collections.abc import Callable
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 from typing import TYPE_CHECKING, Any, Final
 
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
@@ -242,6 +243,16 @@ def vba_ccur(interpreter: Interpreter, value: object) -> object:
 
 @intrinsic("CDec", "Expression", minimum=1)
 def vba_cdec(interpreter: Interpreter, value: object) -> object:
+    """Text is read as a Decimal directly, all 29 digits of it, not through a
+    Double (native probe: CDec("7.9228162514264337593543950335"))."""
+    if isinstance(value, str):
+        plain = value.strip().replace(",", "")
+        try:
+            exact = Decimal(plain)
+        except InvalidOperation:
+            exact = None
+        if exact is not None and exact.is_finite():
+            return VBADecimal(exact)
     return VBADecimal(str(to_number(value)))
 
 
@@ -329,6 +340,20 @@ def vba_oct(interpreter: Interpreter, value: object) -> object:
 # --- maths ----------------------------------------------------------------------------
 
 
+def _same_kind(number: object, result: Decimal | float) -> object:
+    """``result`` in ``number``'s type: Abs, Int, Fix and Round of a Currency are
+    Currency, of a Single a Single, of a Decimal a Decimal (native probes)."""
+    if isinstance(number, VBACurrency):
+        return VBACurrency(result)
+    if isinstance(number, VBADecimal):
+        return VBADecimal(result)
+    if isinstance(number, VBASingle):
+        return VBASingle(float(result))
+    if isinstance(number, Decimal):
+        return VBADecimal(result)
+    return float(result)
+
+
 @intrinsic("Abs", "Number", minimum=1)
 def vba_abs(interpreter: Interpreter, value: object) -> object:
     """Abs keeps the width it was given: Abs of an Integer is an Integer."""
@@ -339,9 +364,7 @@ def vba_abs(interpreter: Interpreter, value: object) -> object:
         return number
     if isinstance(number, VBAInt):
         return VBAInt(-int(number), number.kind)
-    if isinstance(number, VBASingle):
-        return VBASingle(-float(number))
-    return -number
+    return _same_kind(number, -number)
 
 
 @intrinsic("Sgn", "Number", minimum=1)
@@ -361,8 +384,8 @@ def vba_int(interpreter: Interpreter, value: object) -> object:
     if isinstance(number, int):
         return number
     if isinstance(number, Decimal):
-        return VBADecimal(math.floor(number))
-    return float(math.floor(number))
+        return _same_kind(number, Decimal(math.floor(number)))
+    return _same_kind(number, float(math.floor(number)))
 
 
 @intrinsic("Fix", "Number", minimum=1)
@@ -373,19 +396,22 @@ def vba_fix(interpreter: Interpreter, value: object) -> object:
     if isinstance(number, int):
         return number
     if isinstance(number, Decimal):
-        return VBADecimal(int(number))
-    return float(int(number))
+        return _same_kind(number, Decimal(int(number)))
+    return _same_kind(number, float(int(number)))
 
 
 @intrinsic("Round", "Number", "NumDigitsAfterDecimal", minimum=1)
 def vba_round(interpreter: Interpreter, value: object, digits: object) -> object:
+    """Half to even, in the number's own type; negative digits are error 5 (native probes)."""
     if value is NULL:
         return NULL
     places = 0 if digits is MISSING else int(to_integer(digits, "Long"))
+    if places < 0:
+        raise error(ERR_INVALID_PROCEDURE_CALL)
     number = to_number(value)
     if isinstance(number, int):
         return number
-    return round_half_even(number, places)
+    return _same_kind(number, round_half_even(number, places))
 
 
 @intrinsic("Sqr", "Number", minimum=1)
@@ -434,26 +460,35 @@ def vba_atn(interpreter: Interpreter, value: object) -> object:
 
 @intrinsic("Rnd", "Number")
 def vba_rnd(interpreter: Interpreter, value: object) -> object:
-    """VBA's own generator, so a seeded run gives Excel's numbers."""
+    """VBA's own generator, so a seeded run gives Excel's numbers (native probes).
+
+    A 24-bit linear congruence: seed * 0x43FD43FD + 0xC39EC3. A negative
+    argument seeds it from the number's Single bits, the bits plus their top
+    byte, then steps; 0 repeats the last number.
+    """
     state = getattr(interpreter, "_rnd_state", 0x50000)
     if value is not MISSING:
         number = float(to_number(value))
         if number < 0:
-            state = int(abs(number) * (1 << 24)) & 0xFFFFFF
-            state = (state * 1140671485 + 12820163) & 0xFFFFFF
-            interpreter._rnd_state = state  # type: ignore[attr-defined]
+            bits = struct.unpack("<I", struct.pack("<f", number))[0]
+            state = (bits + (bits >> 24)) & 0xFFFFFF
+        elif number == 0:
             return VBASingle(state / (1 << 24))
-        if number == 0:
-            return VBASingle(state / (1 << 24))
-    state = (state * 1140671485 + 12820163) & 0xFFFFFF
+    state = (state * 0x43FD43FD + 0xC39EC3) & 0xFFFFFF
     interpreter._rnd_state = state  # type: ignore[attr-defined]
     return VBASingle(state / (1 << 24))
 
 
 @intrinsic("Randomize", "Number")
 def vba_randomize(interpreter: Interpreter, value: object) -> object:
-    seed = int(time.time() * 1000) & 0xFFFFFF if value is MISSING else int(to_number(value)) & 0xFFFFFF
-    interpreter._rnd_state = seed  # type: ignore[attr-defined]
+    """Replace the seed's middle 16 bits with the high word of the number's
+    Double, folded on itself; the outer bytes stay (native probes). With no
+    number, the number is Timer."""
+    number = time.time() % 86400 if value is MISSING else float(to_number(value))
+    high = struct.unpack("<Q", struct.pack("<d", number))[0] >> 32
+    middle = ((high & 0xFFFF) ^ (high >> 16)) << 8
+    state = getattr(interpreter, "_rnd_state", 0x50000)
+    interpreter._rnd_state = (state & 0xFF0000FF) | (middle & 0x00FFFF00)  # type: ignore[attr-defined]
     return EMPTY
 
 

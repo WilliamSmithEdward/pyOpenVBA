@@ -1,6 +1,7 @@
 {
   "excel_version_build": "16.0|20430",
-  "measured_at": "2026-10-12T18:13:23.469333+00:00",
+  "measured_at": "2026-10-12T19:37:09.151718+00:00",
+  "classes": {},
   "probes": [
     {
       "name": "proper_after_space",
@@ -546,6 +547,81 @@
       "name": "number_text_51",
       "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"5\" & ChrW(9) & \"\")\nEnd Function\n",
       "result": "T|5|5:Double|5"
+    },
+    {
+      "name": "rnd_negative_seeds",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Rnd(-1) & \"|\" & Rnd(-2) & \"|\" & Rnd(-0.5) & \"|\" & Rnd(-1000000) & \"|\" & Rnd(-1E-10)\nEnd Function\n",
+      "result": "0.224007|0.7133257|0.724007|0.8186707|0.6986654"
+    },
+    {
+      "name": "rnd_after_seed",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nDim a As Single\na = Rnd(-1)\nProbe = Rnd & \"|\" & Rnd & \"|\" & Rnd(0) & \"|\" & Rnd(5)\nEnd Function\n",
+      "result": "3.584582E-02|8.635235E-02|8.635235E-02|0.1642639"
+    },
+    {
+      "name": "randomize_5",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nRnd -1\nRandomize 5\nProbe = Rnd & \"|\" & Rnd\nEnd Function\n",
+      "result": "0.8944274|0.6981077"
+    },
+    {
+      "name": "randomize_1_5",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nRnd -1\nRandomize 1.5\nProbe = Rnd & \"|\" & Rnd\nEnd Function\n",
+      "result": "0.4582091|0.3192625"
+    },
+    {
+      "name": "randomize_negative",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nRnd -1\nRandomize -3\nProbe = Rnd\nEnd Function\n",
+      "result": "0.2074767"
+    },
+    {
+      "name": "randomize_big",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nRnd -1\nRandomize 1000000\nProbe = Rnd\nEnd Function\n",
+      "result": "0.235034"
+    },
+    {
+      "name": "randomize_0",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nRnd -1\nRandomize 0\nProbe = Rnd\nEnd Function\n",
+      "result": "0.3328429"
+    },
+    {
+      "name": "randomize_after_other_seed",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nRnd -2\nRandomize 5\nProbe = Rnd\nEnd Function\n",
+      "result": "0.9264714"
+    },
+    {
+      "name": "randomize_twice",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nRnd -1\nRandomize 5\nRandomize 5\nProbe = Rnd\nEnd Function\n",
+      "result": "0.8944274"
+    },
+    {
+      "name": "rnd_dice",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nRnd -7\nDim i As Long, s As String\nFor i = 1 To 6\ns = s & Int(Rnd * 6) + 1\nNext\nProbe = s\nEnd Function\n",
+      "result": "411636"
+    },
+    {
+      "name": "round_negative_digits",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nDim x As Double\nx = Round(12345.6789, -2)\nProbe = x\nEnd Function\n",
+      "error": 5
+    },
+    {
+      "name": "round_types",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = TypeName(Round(2.5)) & TypeName(Round(2.5@)) & TypeName(Round(CSng(2.5))) & TypeName(Round(2)) & TypeName(Round(\"2.5\")) & \"|\" & Round(2.5@) & \"|\" & Round(CDec(2.45), 1)\nEnd Function\n",
+      "result": "DoubleCurrencySingleIntegerDouble|2|2.4"
+    },
+    {
+      "name": "currency_kept",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = TypeName(2.5@) & TypeName(Fix(2.5@)) & TypeName(Int(2.5@)) & TypeName(Abs(-2.5@)) & TypeName(2.5@ + 1) & TypeName(2.5@ * 2.5)\nEnd Function\n",
+      "result": "CurrencyCurrencyCurrencyCurrencyCurrencyDouble"
+    },
+    {
+      "name": "decimal_29_digits",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = CStr(CDec(\"79228162514264337593543950335\")) & \"|\" & CStr(CDec(\"7.9228162514264337593543950335\"))\nEnd Function\n",
+      "result": "79228162514264337593543950335|7.9228162514264337593543950335"
+    },
+    {
+      "name": "decimal_arithmetic",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsNumeric(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Double\nd = CDbl(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(d)\nErr.Clear\nr = r & \"|\"\nDim v As Variant\nv = s + 0\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(v) & \":\" & TypeName(v)\nErr.Clear\nr = r & \"|\"\nDim l As Long\nl = CLng(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & CStr(l)\nTry = r\nEnd Function\n\nFunction Probe() As String\nDim d As Variant\nd = CDec(\"79228162514264337593543950334\")\nProbe = CStr(d + 1) & \"|\" & TypeName(d + 1) & \"|\" & CStr(CDec(\"0.1\") * 3)\nEnd Function\n",
+      "result": "79228162514264337593543950335|Decimal|0.3"
     }
   ]
 }

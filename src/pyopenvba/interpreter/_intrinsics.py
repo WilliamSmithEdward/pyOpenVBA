@@ -938,7 +938,8 @@ def vba_split(
         # vbTextCompare matches the delimiter in any case (native probe).
         flags = re.IGNORECASE if vba_text_mode(interpreter, compare) else 0
         pieces = re.split(re.escape(separator), body, maxsplit=max(0, count - 1), flags=flags)
-    return VBAArray([(0, len(pieces) - 1)] if pieces else [(0, -1)], items=list(pieces))
+    # A String array, as TypeName(Split(...)) says (native probe).
+    return VBAArray([(0, len(pieces) - 1)] if pieces else [(0, -1)], element_type="String", items=list(pieces))
 
 
 @intrinsic("Join", "SourceArray", "Delimiter", minimum=1)
@@ -964,7 +965,8 @@ def vba_filter(
         hit = (wanted.lower() in body.lower()) if text_mode else (wanted in body)
         if hit == keep:
             found.append(item)
-    return VBAArray([(0, len(found) - 1)] if found else [(0, -1)], items=found)
+    return VBAArray([(0, len(found) - 1)] if found else [(0, -1)], element_type="String",
+                    items=[to_text(item) for item in found])
 
 
 @intrinsic("Format", "Expression", "Format", "FirstDayOfWeek", "FirstWeekOfYear", minimum=1)

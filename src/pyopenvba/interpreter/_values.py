@@ -457,6 +457,9 @@ class VBAArray:
             raise error(ERR_SUBSCRIPT_OUT_OF_RANGE)
         if any(old != new for old, new in zip(self.bounds[:-1], bounds[:-1])):
             raise error(ERR_SUBSCRIPT_OUT_OF_RANGE)
+        if bounds[-1][0] != self.bounds[-1][0]:
+            # Only the last dimension's upper bound may move: (1 To 3) to (0 To 3) is error 9 (native probe).
+            raise error(ERR_SUBSCRIPT_OUT_OF_RANGE)
         for flat in range(self.size):
             subscripts = self._subscripts(flat)
             if all(lower <= value <= upper for value, (lower, upper) in zip(subscripts, bounds)):
@@ -1412,6 +1415,11 @@ def logical_not(value: object) -> object:
         return NULL
     if isinstance(value, bool):
         return not value
+    if isinstance(value, VBAArray):
+        # Not of an array complements its descriptor's address, so the idiom
+        # (Not a) = -1 finds an unallocated one (native probe); an allocated
+        # one answers 0 here, which keeps Not Not a nonzero.
+        return VBAInt(-1 if not value.bounds else 0, "Long")
     kind = _whole_width(value, value)
     result = ~int(to_integer(value, "LongLong"))
     # A Byte has no sign bit: Not CByte(12) is 243 (native probes).

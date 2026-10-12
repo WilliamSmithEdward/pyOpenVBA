@@ -316,6 +316,13 @@ All notable changes to pyOpenVBA are documented here. This project follows
   `As New` array makes each element where it is first used, and `Like`'s
   `"[[]"` no longer warns from Python's regular expressions. 16 native probes
   in `tests/fixtures/vba_operator_types.json`.
+- `Split` and `Filter` return String arrays (they were Variant arrays), and a
+  typed dynamic array takes only an array of its own type: `b() As Long =
+  Array(1, 2)` is error 13. `ReDim Preserve` that moves a lower bound is
+  error 9. `outer(0)(1) = 9` writes into the nested array; it was refused as
+  something that cannot be assigned. A procedure's `Const` can size its
+  `Dim`; it was "Variable not defined". `(Not a) = -1` finds an unallocated
+  array; it was an error. 35 native probes in `tests/fixtures/vba_arrays.json`.
 
 ## [6.5.0] - 2026-10-04
 

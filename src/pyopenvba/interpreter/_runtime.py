@@ -147,6 +147,12 @@ class Slot:
         if self.array_of == "Byte" and isinstance(value, str):
             # A String assigned to a Byte array is its UTF-16LE bytes (native probe).
             value = text_bytes(value)
+        elif (isinstance(value, VBAArray) and self.array_of and value.element_type != self.array_of
+              and default_for(self.array_of) is not NOTHING):
+            # An array of another type does not go into a typed dynamic array: b() As Long
+            # = Array(1, 2) and b() As Variant = Split(...) are error 13, while
+            # a() As String = Split(...) fits (native probes).
+            raise error(ERR_TYPE_MISMATCH)
         self.value = copy_value(coerce(as_declared(value, self.declared), self.declared))
 
 
@@ -1247,11 +1253,14 @@ class Interpreter:
                     if statement.static or frame.procedure.static:
                         store = frame.module.statics.setdefault(frame.procedure.name.lower(), {})
                         if key not in store:
-                            store[key] = self.make_slot(declaration, frame.module)
+                            store[key] = self.make_slot(declaration, frame.module, frame)
                         frame.locals[key] = store[key]
                     elif key not in frame.locals:
-                        frame.locals[key] = self.make_slot(declaration, frame.module)
+                        frame.locals[key] = self.make_slot(declaration, frame.module, frame)
             elif isinstance(statement, A.ConstDecl):
+                # A constant is known before anything runs, so a Dim's bounds can use it:
+                # Const N = 3 then Dim a(1 To N) (native probe).
+                self._do_const(statement, frame)
                 continue
             for nested in _nested_bodies(statement):
                 self._declare_locals(frame, nested)
@@ -1412,7 +1421,7 @@ class Interpreter:
         for declaration in statement.decls:
             key = declaration.name.lower()
             if key not in frame.locals:
-                frame.locals[key] = self.make_slot(declaration, frame.module)
+                frame.locals[key] = self.make_slot(declaration, frame.module, frame)
 
     def _do_const(self, statement: A.ConstDecl, frame: Frame) -> None:
         for name, declared, expression in statement.names:
@@ -2344,6 +2353,14 @@ class Interpreter:
                 put=lambda put, by_ref: _dispatch_set(held, "Item", put, positional, named, by_ref),
                 take=lambda: _dispatch_get(held, "Item", positional, named),
             )
+        if isinstance(value, VBAArray):
+            # outer(0)(1) = 9 writes into the array outer(0) holds (native probe).
+            nested = value
+            indexes = [int(to_integer(one, "Long")) for one in positional]
+            return Assignable(
+                put=lambda put, by_ref: nested.set(indexes, put),
+                take=lambda: nested.get(indexes),
+            )
         raise VBACompileError("this cannot be assigned to")
 
     def _property_put(
@@ -2423,12 +2440,13 @@ class Interpreter:
             factory = lambda: UserTypeValue(definition, self, owner)
         return VBAArray(bounds, element_type=declared, fixed=fixed, element_factory=factory)
 
-    def make_slot(self, declaration: A.VarDecl, module: ModuleRuntime) -> Slot:
-        """A fresh variable, array bounds and all."""
+    def make_slot(self, declaration: A.VarDecl, module: ModuleRuntime, frame: Frame | None = None) -> Slot:
+        """A fresh variable, array bounds and all; frame is the procedure a local
+        one belongs to, whose constants its bounds may name."""
         declared = self.storage_declaration(declaration.declared, module)
         if declaration.is_array:
             if declaration.bounds:
-                bounds = self._bounds(declaration, None, module=module)
+                bounds = self._bounds(declaration, frame, module=module)
                 array = self.make_array(bounds, declared, module, fixed=True)
                 if declaration.as_new:
                     array.auto_new = lambda: self.create(declared)

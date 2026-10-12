@@ -1815,6 +1815,17 @@ Double, and `-` makes a Byte an Integer. `Not` and the bitwise operators on
 Bytes stay within a Byte (`Not CByte(12)` is 243). `&H8000&` is 32768: the
 `&` suffix makes a hex literal a Long.
 
+Arrays follow 35 native probes in `tests/fixtures/vba_arrays.json`
+(`scripts/measure_vba_arrays.py`). `Split` and `Filter` return a String
+array. A typed dynamic array takes only an array of its own element type:
+`b() As Long = Array(1, 2)` and `b() As Variant = Split(...)` are error 13.
+`ReDim Preserve` may move only the last dimension's upper bound; changing
+its lower bound is error 9. `outer(0)(1) = 9` writes into the array that
+`outer(0)` holds. A procedure's constants are known on entry, so `Const N =
+3` sizes `Dim a(1 To N)`. `Not` of an unallocated array is -1, the idiom
+that tests for one; `Not` of an allocated array, which VBA takes from the
+array descriptor's address, is 0 here.
+
 `Range.Value` of more than one cell is an array of the range's own shape,
 empty cells included, up to a whole column's worth of cells; past that it is
 clipped to the sheet's used cells (`tests/fixtures/excel_vba_idioms.json`).

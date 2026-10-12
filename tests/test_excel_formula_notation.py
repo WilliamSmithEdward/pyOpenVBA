@@ -56,13 +56,26 @@ def app() -> ExcelApplication:
     return app
 
 
+@pytest.fixture(scope="module")
+def answers(app: ExcelApplication) -> dict[str, str]:
+    """Every case written in the order the measurement wrote them, in one workbook.
+
+    The order is part of the answer: a workbook keeps the first spelling of a
+    name it does not know, so =a1 through FormulaR1C1 reads 'A1' because =A1
+    came before it. Replaying the whole sequence once keeps each answer the
+    same whichever cases a test run, or a pytest-xdist worker, picks.
+    """
+    found: dict[str, str] = {}
+    for key, case in CASES.items():
+        try:
+            found[key] = str(app.run("Probe", case["member"], case["formula"], case["target"]))
+        except VBARuntimeError as failure:
+            found[key] = f"!{failure.number}~read!{failure.number}"
+    return found
+
+
 @pytest.mark.parametrize("key", [
     pytest.param(key, marks=[pytest.mark.xfail(reason=GAPS[key], strict=True)] if key in GAPS else [])
     for key in CASES])
-def test_a_formula_in_the_other_notation_reads_as_in_excel(app: ExcelApplication, key: str) -> None:
-    case = CASES[key]
-    try:
-        found = str(app.run("Probe", case["member"], case["formula"], case["target"]))
-    except VBARuntimeError as failure:
-        found = f"!{failure.number}~read!{failure.number}"
-    assert found == case["answer"]
+def test_a_formula_in_the_other_notation_reads_as_in_excel(answers: dict[str, str], key: str) -> None:
+    assert answers[key] == CASES[key]["answer"]

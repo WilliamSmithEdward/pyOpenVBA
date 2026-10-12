@@ -45,7 +45,7 @@ def validate_record_arguments(interpreter: Interpreter, module: ModuleRuntime, p
     body = list(nodes(procedure.body))
     local = variables(module)
     local.update({param.name.lower(): (param.declared, param.is_array, module) for param in procedure.params})
-    local[procedure.name.lower()] = (procedure.returns, False, module)
+    local[procedure.name.lower()] = (procedure.returns, procedure.returns_array, module)
     for node in body:
         if isinstance(node, A.Dim):
             local.update({decl.name.lower(): (decl.declared, decl.is_array, module) for decl in node.decls})

@@ -490,7 +490,13 @@ class Collection(VBACollection):
     ) -> object:
         if Item is MISSING:
             raise error(449)
-        key = to_text(Key) if Key is not MISSING else None
+        # A key that is not String text (a number, Date, Empty or Null) is error 13;
+        # Before and After together are error 5 (native probes).
+        if Key is not MISSING and not isinstance(Key, str):
+            raise error(13)
+        if Before is not MISSING and After is not MISSING:
+            raise error(5)
+        key = Key if isinstance(Key, str) else None
         if key is not None and any(existing is not None and existing.lower() == key.lower() for existing in self._keys):
             raise error(457)
         at = len(self._items)
@@ -517,7 +523,8 @@ class Collection(VBACollection):
             raise error(5)
         at = int(to_integer(index, "Long"))
         if not 1 <= at <= len(self._items):
-            raise error(ERR_SUBSCRIPT_OUT_OF_RANGE)
+            # An empty collection reports any position as error 5, a filled one as 9 (native probes).
+            raise error(ERR_SUBSCRIPT_OUT_OF_RANGE if self._items else 5)
         return at
 
     def vba_lookup(self, index: object, items: list[object]) -> object:
@@ -1122,7 +1129,7 @@ class Interpreter:
             self.err.erl = 0
         if procedure.kind in ("function", "get"):
             frame.locals[procedure.name.lower()] = self.make_slot(
-                A.VarDecl(name=procedure.name, declared=procedure.returns), module
+                A.VarDecl(name=procedure.name, declared=procedure.returns, is_array=procedure.returns_array), module
             )
         self.frames.append(frame)
         try:
@@ -1814,7 +1821,7 @@ class Interpreter:
         procedure = module.procedure(key) or next(
             (runtime.procedure(key) for runtime in self.modules.values() if not runtime.is_class and runtime.procedure(key)), None)
         if procedure is not None:
-            return _declared_kind(procedure.returns)
+            return "variant" if procedure.returns_array else _declared_kind(procedure.returns)
         return "variant"
 
     def _unary(self, expression: A.Unary, frame: Frame | None) -> object:

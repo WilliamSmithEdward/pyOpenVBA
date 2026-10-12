@@ -901,7 +901,9 @@ def _date_tokens(text: str) -> list[_DateToken] | None:
         elif char in "/-,":
             tokens.append(("sep", char, spaced))
             end = at + 1
-        elif char == ":":
+        elif char in ":.":
+            # A dot separates a time's parts as a colon does: CDate("1.5") is 1:05 AM,
+            # and "1. 5" too (native probes).
             tokens.append((":", char, spaced))
             end = at + 1
         else:
@@ -917,7 +919,7 @@ def _date_from_tokens(tokens: list[_DateToken]) -> VBADate | None:
     while index < len(tokens):
         if tokens[index][0] == "num" and index + 1 < len(tokens) and tokens[index + 1][0] == ":":
             end = index + 1
-            while end + 1 < len(tokens) and tokens[end][0] == ":" and tokens[end + 1][0] == "num" and not tokens[end + 1][2] and not tokens[end][2]:
+            while end + 1 < len(tokens) and tokens[end][0] == ":" and tokens[end + 1][0] == "num" and (not tokens[end + 1][2] or tokens[end][1] == ".") and not tokens[end][2]:
                 end += 2
             if tokens[end - 1][0] != "num" or (end < len(tokens) and tokens[end][0] == ":"):
                 return None
@@ -1075,13 +1077,22 @@ def round_half_even(value: float | Decimal, places: int = 0) -> float | Decimal:
         with localcontext() as context:
             context.prec = 40
             return value.quantize(Decimal(1).scaleb(-places), rounding=ROUND_HALF_EVEN)
-    if value != value or value in (float("inf"), float("-inf")):
-        raise error(ERR_OVERFLOW)
+    # A Double is scaled by 10^places in floating point, rounded half to even
+    # there and scaled back, so Round(2.345, 2) is 2.35 (2.345 * 100 is
+    # 234.50000000000003) and Round(1.255, 2) is 1.25 (native probes). A zero
+    # keeps a minus sign only from a tie: Round(-0.5) is -0, Round(-0.4) and
+    # Round(-0#) are 0.
     try:
-        quantized = Decimal(repr(value)).quantize(Decimal(1).scaleb(-places), rounding=ROUND_HALF_EVEN)
-    except (InvalidOperation, ArithmeticError):
-        raise error(ERR_OVERFLOW) from None
-    return float(quantized)
+        scale = 10.0 ** places
+    except OverflowError:
+        return value
+    scaled = value * scale
+    if scaled != scaled or scaled in (float("inf"), float("-inf")):
+        raise error(ERR_OVERFLOW)
+    whole = round(scaled)
+    if scaled - math.floor(scaled) == 0.5 and whole == 0:
+        return math.copysign(0.0, scaled) / scale
+    return whole / scale or 0.0
 
 
 _SIGNED_WIDTH: Final = {"Integer": 16, "Long": 32, "LongLong": 64}
@@ -1268,7 +1279,9 @@ def divide(left: object, right: object) -> object:
         return NULL
     first, second, kind = _both_numbers(left, right)
     if second == 0:
-        raise error(ERR_DIVISION_BY_ZERO)
+        # 0 / 0 is an overflow, as the floating-point NaN it makes, except between
+        # Decimals; any other number over zero is division by zero (native probes).
+        raise error(ERR_OVERFLOW if first == 0 and kind != "Decimal" else ERR_DIVISION_BY_ZERO)
     if kind in ("Currency", "Decimal"):
         with localcontext() as context:
             context.prec = 30

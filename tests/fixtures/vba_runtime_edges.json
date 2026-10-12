@@ -1,0 +1,262 @@
+{
+  "excel_version_build": "16.0|20430",
+  "measured_at": "2026-10-12T21:59:03.221070+00:00",
+  "classes": {},
+  "probes": [
+    {
+      "name": "typed_array_return",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nDim a() As Long\na = LongArr()\nProbe = LBound(a) & UBound(a) & \"|\" & a(2) & \"|\" & TypeName(a) & \"|\" & TypeName(LongArr()) & \"|\" & Join(Words(), \"\")\nEnd Function\n",
+      "result": "13|20|Long()|Long()|abc"
+    },
+    {
+      "name": "function_returns_array",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nDim v\nv = MakeArr()\nProbe = UBound(v) & \"|\" & v(1) & \"|\" & MakeArr()(2) & \"|\" & TypeName(v)\nEnd Function\n",
+      "result": "2|two|3.5|Variant()"
+    },
+    {
+      "name": "collection_missing",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nDim c As New Collection\nOn Error Resume Next\nDim x\nx = c(\"nope\")\nProbe = Err.Number\nErr.Clear\nx = c(1)\nProbe = Probe & \"|\" & Err.Number\nErr.Clear\nc.Remove 1\nProbe = Probe & \"|\" & Err.Number\nEnd Function\n",
+      "result": "5|5|5"
+    },
+    {
+      "name": "collection_index_errors",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nDim c As New Collection\nc.Add 1: c.Add 2\nOn Error Resume Next\nDim x\nx = c(3)\nProbe = Err.Number\nErr.Clear\nx = c(0)\nProbe = Probe & \"|\" & Err.Number\nErr.Clear\nc.Remove 3\nProbe = Probe & \"|\" & Err.Number\nErr.Clear\nc.Remove \"zz\"\nProbe = Probe & \"|\" & Err.Number\nErr.Clear\nx = c(1.6)\nProbe = Probe & \"|\" & Err.Number & \"|\" & x\nEnd Function\n",
+      "result": "9|9|9|5|0|2"
+    },
+    {
+      "name": "collection_key_types",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nDim c As New Collection\nOn Error Resume Next\nc.Add \"a\", 7&\nProbe = Err.Number\nErr.Clear\nc.Add \"b\", True\nProbe = Probe & \"|\" & Err.Number\nErr.Clear\nc.Add \"c\", 1.5\nProbe = Probe & \"|\" & Err.Number\nErr.Clear\nDim k As Variant\nk = \"v\"\nc.Add \"d\", k\nProbe = Probe & \"|\" & Err.Number & \"|\" & c.Count\nErr.Clear\nc.Add \"e\", \"\"\nProbe = Probe & \"|\" & Err.Number & \"|\" & c.Count\nEnd Function\n",
+      "result": "13|13|13|0|1|0|2"
+    },
+    {
+      "name": "collection_key_empty_null_date",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nDim c As New Collection\nOn Error Resume Next\nc.Add \"a\", Empty\nProbe = Err.Number & \"|\" & c.Count\nErr.Clear\nc.Add \"b\", Null\nProbe = Probe & \"|\" & Err.Number & \"|\" & c.Count\nErr.Clear\nDim d As Date\nc.Add \"c\", d\nProbe = Probe & \"|\" & Err.Number\nEnd Function\n",
+      "result": "13|0|13|0|13"
+    },
+    {
+      "name": "collection_before_after",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nDim c As New Collection\nc.Add 1\nOn Error Resume Next\nc.Add 2, , 5\nProbe = Err.Number\nErr.Clear\nc.Add 2, , \"nokey\"\nProbe = Probe & \"|\" & Err.Number\nErr.Clear\nc.Add 3, , 1, 1\nProbe = Probe & \"|\" & Err.Number & \"|\" & c.Count\nEnd Function\n",
+      "result": "9|5|5|1"
+    },
+    {
+      "name": "round_values",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nDim s As String\ns = s & CStr(Round(2.345, 2)) & \";\"\ns = s & CStr(Round(2.675, 2)) & \";\"\ns = s & CStr(Round(1.005, 2)) & \";\"\ns = s & CStr(Round(0.125, 2)) & \";\"\ns = s & CStr(Round(0.375, 2)) & \";\"\ns = s & CStr(Round(1.115, 2)) & \";\"\ns = s & CStr(Round(2.5, 0)) & \";\"\ns = s & CStr(Round(0.285, 2)) & \";\"\ns = s & CStr(Round(1.255, 2)) & \";\"\ns = s & CStr(Round(8.345, 2)) & \";\"\ns = s & CStr(Round(4.355, 2)) & \";\"\ns = s & CStr(Round(0.045, 2)) & \";\"\ns = s & CStr(Round(1234.5675, 3)) & \";\"\ns = s & CStr(Round(0.0005, 3)) & \";\"\ns = s & CStr(Round(-2.345, 2)) & \";\"\ns = s & CStr(Round(-0.125, 2)) & \";\"\ns = s & CStr(Round(5.015, 2)) & \";\"\ns = s & CStr(Round(3.14159, 4)) & \";\"\ns = s & CStr(Round(10.005, 2)) & \";\"\ns = s & CStr(Round(-0.4, 0)) & \";\"\ns = s & CStr(Round(-0.5, 0)) & \";\"\ns = s & CStr(Round(-0.6, 0)) & \";\"\ns = s & CStr(Round(-0.05, 1)) & \";\"\ns = s & CStr(Round(-0.04, 1)) & \";\"\ns = s & CStr(Round(-0.005, 2)) & \";\"\ns = s & CStr(Round(-0#, 0)) & \";\"\ns = s & CStr(Round(-1E-300, 0)) & \";\"\ns = s & CStr(Round(-0.25, 1)) & \";\"\ns = s & CStr(Round(CSng(-0.5), 0)) & \";\"\ns = s & CStr(Round(CSng(2.345), 2)) & \";\"\ns = s & CStr(Round(CCur(2.345), 2)) & \";\"\ns = s & CStr(Round(CDec(\"2.345\"), 2)) & \";\"\nProbe = s\nEnd Function\n",
+      "result": "2.35;2.68;1;0.12;0.38;1.12;2;0.28;1.25;8.35;4.36;0.04;1234.568;0;-2.35;-0.12;5.01;3.1416;10.01;0;-0;-1;-0;0;-0;0;0;-0.2;-0;2.35;2.34;2.34;"
+    },
+    {
+      "name": "negative_zero",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nDim x As Double\nx = -0.5\nProbe = Fix(x) & \"|\" & CStr(-0#) & \"|\" & (0 * -1) & \"|\" & Fix(-0.2) & \"|\" & Int(-0#) & \"|\" & Format(Fix(-0.5)) & \"|\" & Str(Fix(-0.5)) & \"|\" & CSng(-0.25 * 0)\nEnd Function\n",
+      "result": "-0|-0|0|-0|-0|-0|-0|-0"
+    },
+    {
+      "name": "negative_zero_ops",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nDim z As Double\nz = Fix(-0.5)\nProbe = (z = 0) & \"|\" & Sgn(z) & \"|\" & (z + 0) & \"|\" & (z * 1) & \"|\" & CLng(z) & \"|\" & TypeName(z) & \"|\" & Abs(z)\nEnd Function\n",
+      "result": "True|0|0|-0|0|Double|0"
+    },
+    {
+      "name": "zero_division_kinds",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nOn Error Resume Next\nDim v, n As Long\nv = 0 / 0\nProbe = Err.Number\nErr.Clear\nv = 0# / 0#\nProbe = Probe & \"|\" & Err.Number\nErr.Clear\nv = 0 \\ 0\nProbe = Probe & \"|\" & Err.Number\nErr.Clear\nv = 0 Mod 0\nProbe = Probe & \"|\" & Err.Number\nErr.Clear\nv = CDec(0) / CDec(0)\nProbe = Probe & \"|\" & Err.Number\nErr.Clear\nv = CCur(0) / 0\nProbe = Probe & \"|\" & Err.Number\nErr.Clear\nv = n / n\nProbe = Probe & \"|\" & Err.Number\nErr.Clear\nv = 1 / CDec(0)\nProbe = Probe & \"|\" & Err.Number\nErr.Clear\nv = -1 / 0\nProbe = Probe & \"|\" & Err.Number\nEnd Function\n",
+      "result": "6|6|11|11|11|6|6|11|11"
+    },
+    {
+      "name": "val_hex_widths",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nProbe = Val(\"&HFFFF\") & \"|\" & Val(\"&H7FFF\") & \"|\" & Val(\"&H8000\") & \"|\" & Val(\"&H10000\") & \"|\" & Val(\"&HFFFFFFFF\") & \"|\" & Val(\"&H80000000\") & \"|\" & Val(\"&o177777\") & \"|\" & Val(\"&HFFFF&\") & \"|\" & TypeName(Val(\"&HFFFF\"))\nEnd Function\n",
+      "result": "-1|32767|-32768|65536|-1|-2147483648|-1|65535|Double"
+    },
+    {
+      "name": "ascw_signed",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nProbe = AscW(ChrW(&HFFFF)) & \"|\" & AscW(ChrW(40000)) & \"|\" & AscW(ChrW(32767)) & \"|\" & TypeName(AscW(\"a\")) & \"|\" & Asc(ChrW(8364)) & \"|\" & Asc(ChrW(40000))\nEnd Function\n",
+      "result": "-1|-25536|32767|Integer|128|63"
+    },
+    {
+      "name": "isdate_numbers",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nDim d As Date\nd = 45000\nProbe = IsDate(45000) & IsDate(45000.5) & IsDate(d) & IsDate(CVar(d)) & IsDate(\"45000\") & IsDate(CCur(1)) & IsDate(True) & IsDate(Empty) & IsDate(Null) & IsDate(\"1.5\") & IsDate(\"2024\")\nEnd Function\n",
+      "result": "FalseFalseTrueTrueFalseFalseFalseFalseFalseTrueFalse"
+    },
+    {
+      "name": "formatnumber_args",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nProbe = FormatNumber(0.5, 2, vbFalse) & \"|\" & FormatNumber(-0.5, 0, , vbTrue) & \"|\" & FormatNumber(1234567.891, 1, , , vbFalse) & \"|\" & FormatNumber(-1234.5, 2, vbTrue, vbFalse, vbTrue) & \"|\" & FormatNumber(0.25) & \"|\" & FormatNumber(-0.25, -1, vbFalse, vbTrue) & \"|\" & FormatNumber(1234.5, 0)\nEnd Function\n",
+      "result": ".50|(1)|1234567.9|-1,234.50|0.25|(.25)|1,235"
+    },
+    {
+      "name": "formatpercent_args",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nProbe = FormatPercent(0.005, 2, vbFalse) & \"|\" & FormatPercent(-0.5, 0, , vbTrue) & \"|\" & FormatPercent(12.345, 1, , , vbFalse) & \"|\" & FormatPercent(0.5)\nEnd Function\n",
+      "result": ".50%|(50%)|1234.5%|50.00%"
+    },
+    {
+      "name": "formatcurrency_args",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nProbe = FormatCurrency(-12.5) & \"|\" & FormatCurrency(-12.5, 1, , vbFalse) & \"|\" & FormatCurrency(0.5, 2, vbFalse) & \"|\" & FormatCurrency(1234567, 0, , , vbFalse) & \"|\" & FormatCurrency(1234.5, -1)\nEnd Function\n",
+      "result": "($12.50)|-$12.5|$.50|$1234567|$1,234.50"
+    },
+    {
+      "name": "formatdatetime_long_date",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nProbe = FormatDateTime(#3/5/2024 1:02:03 PM#, vbLongDate) & \"|\" & FormatDateTime(#1/2/2024#, vbLongDate) & \"|\" & FormatDateTime(#12/25/2024 11:05:00 PM#)\nEnd Function\n",
+      "result": "Tuesday, March 5, 2024|Tuesday, January 2, 2024|12/25/2024 11:05:00 PM"
+    },
+    {
+      "name": "datevalue_timevalue_dotted",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nOn Error Resume Next\nProbe = Format(DateValue(\"1.5\"), \"yyyy-mm-dd\") & \"|\" & Err.Number\nErr.Clear\nProbe = Probe & \"|\" & Format(TimeValue(\"1.5\"), \"hh:nn:ss\") & \"|\" & Err.Number\nEnd Function\n",
+      "result": "1899-12-30|0|01:05:00|0"
+    },
+    {
+      "name": "date_text_00",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nOn Error Resume Next\nDim d As Date\nd = CDate(\"1.5\")\nIf Err.Number <> 0 Then Probe = IsDate(\"1.5\") & \"|err\" & Err.Number Else Probe = IsDate(\"1.5\") & \"|\" & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nEnd Function\n",
+      "result": "True|1899-12-30 01:05:00"
+    },
+    {
+      "name": "date_text_01",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nOn Error Resume Next\nDim d As Date\nd = CDate(\"1.5.2024\")\nIf Err.Number <> 0 Then Probe = IsDate(\"1.5.2024\") & \"|err\" & Err.Number Else Probe = IsDate(\"1.5.2024\") & \"|\" & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nEnd Function\n",
+      "result": "False|err13"
+    },
+    {
+      "name": "date_text_02",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nOn Error Resume Next\nDim d As Date\nd = CDate(\"3.14\")\nIf Err.Number <> 0 Then Probe = IsDate(\"3.14\") & \"|err\" & Err.Number Else Probe = IsDate(\"3.14\") & \"|\" & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nEnd Function\n",
+      "result": "True|1899-12-30 03:14:00"
+    },
+    {
+      "name": "date_text_03",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nOn Error Resume Next\nDim d As Date\nd = CDate(\"12.31\")\nIf Err.Number <> 0 Then Probe = IsDate(\"12.31\") & \"|err\" & Err.Number Else Probe = IsDate(\"12.31\") & \"|\" & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nEnd Function\n",
+      "result": "True|1899-12-30 12:31:00"
+    },
+    {
+      "name": "date_text_04",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nOn Error Resume Next\nDim d As Date\nd = CDate(\"13.1\")\nIf Err.Number <> 0 Then Probe = IsDate(\"13.1\") & \"|err\" & Err.Number Else Probe = IsDate(\"13.1\") & \"|\" & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nEnd Function\n",
+      "result": "True|1899-12-30 13:01:00"
+    },
+    {
+      "name": "date_text_05",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nOn Error Resume Next\nDim d As Date\nd = CDate(\"1.5.24\")\nIf Err.Number <> 0 Then Probe = IsDate(\"1.5.24\") & \"|err\" & Err.Number Else Probe = IsDate(\"1.5.24\") & \"|\" & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nEnd Function\n",
+      "result": "True|1899-12-30 01:05:24"
+    },
+    {
+      "name": "date_text_06",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nOn Error Resume Next\nDim d As Date\nd = CDate(\"0.5\")\nIf Err.Number <> 0 Then Probe = IsDate(\"0.5\") & \"|err\" & Err.Number Else Probe = IsDate(\"0.5\") & \"|\" & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nEnd Function\n",
+      "result": "True|1899-12-30 00:05:00"
+    },
+    {
+      "name": "date_text_07",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nOn Error Resume Next\nDim d As Date\nd = CDate(\"1.0\")\nIf Err.Number <> 0 Then Probe = IsDate(\"1.0\") & \"|err\" & Err.Number Else Probe = IsDate(\"1.0\") & \"|\" & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nEnd Function\n",
+      "result": "True|1899-12-30 01:00:00"
+    },
+    {
+      "name": "date_text_08",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nOn Error Resume Next\nDim d As Date\nd = CDate(\"1. 5\")\nIf Err.Number <> 0 Then Probe = IsDate(\"1. 5\") & \"|err\" & Err.Number Else Probe = IsDate(\"1. 5\") & \"|\" & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nEnd Function\n",
+      "result": "True|1899-12-30 01:05:00"
+    },
+    {
+      "name": "date_text_09",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nOn Error Resume Next\nDim d As Date\nd = CDate(\"1.5.\")\nIf Err.Number <> 0 Then Probe = IsDate(\"1.5.\") & \"|err\" & Err.Number Else Probe = IsDate(\"1.5.\") & \"|\" & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nEnd Function\n",
+      "result": "False|err13"
+    },
+    {
+      "name": "date_text_10",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nOn Error Resume Next\nDim d As Date\nd = CDate(\"10.30\")\nIf Err.Number <> 0 Then Probe = IsDate(\"10.30\") & \"|err\" & Err.Number Else Probe = IsDate(\"10.30\") & \"|\" & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nEnd Function\n",
+      "result": "True|1899-12-30 10:30:00"
+    },
+    {
+      "name": "date_text_11",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nOn Error Resume Next\nDim d As Date\nd = CDate(\"2.30\")\nIf Err.Number <> 0 Then Probe = IsDate(\"2.30\") & \"|err\" & Err.Number Else Probe = IsDate(\"2.30\") & \"|\" & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nEnd Function\n",
+      "result": "True|1899-12-30 02:30:00"
+    },
+    {
+      "name": "date_text_12",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nOn Error Resume Next\nDim d As Date\nd = CDate(\" 2.5 \")\nIf Err.Number <> 0 Then Probe = IsDate(\" 2.5 \") & \"|err\" & Err.Number Else Probe = IsDate(\" 2.5 \") & \"|\" & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nEnd Function\n",
+      "result": "True|1899-12-30 02:05:00"
+    },
+    {
+      "name": "date_text_13",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nOn Error Resume Next\nDim d As Date\nd = CDate(\"1.5AM\")\nIf Err.Number <> 0 Then Probe = IsDate(\"1.5AM\") & \"|err\" & Err.Number Else Probe = IsDate(\"1.5AM\") & \"|\" & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nEnd Function\n",
+      "result": "True|1899-12-30 01:05:00"
+    },
+    {
+      "name": "date_text_14",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nOn Error Resume Next\nDim d As Date\nd = CDate(\"1.5 PM\")\nIf Err.Number <> 0 Then Probe = IsDate(\"1.5 PM\") & \"|err\" & Err.Number Else Probe = IsDate(\"1.5 PM\") & \"|\" & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nEnd Function\n",
+      "result": "True|1899-12-30 13:05:00"
+    },
+    {
+      "name": "date_text_15",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nOn Error Resume Next\nDim d As Date\nd = CDate(\"23.59\")\nIf Err.Number <> 0 Then Probe = IsDate(\"23.59\") & \"|err\" & Err.Number Else Probe = IsDate(\"23.59\") & \"|\" & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nEnd Function\n",
+      "result": "True|1899-12-30 23:59:00"
+    },
+    {
+      "name": "date_text_16",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nOn Error Resume Next\nDim d As Date\nd = CDate(\"24.00\")\nIf Err.Number <> 0 Then Probe = IsDate(\"24.00\") & \"|err\" & Err.Number Else Probe = IsDate(\"24.00\") & \"|\" & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nEnd Function\n",
+      "result": "False|1900-01-23 00:00:00"
+    },
+    {
+      "name": "date_text_17",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nOn Error Resume Next\nDim d As Date\nd = CDate(\"1.60\")\nIf Err.Number <> 0 Then Probe = IsDate(\"1.60\") & \"|err\" & Err.Number Else Probe = IsDate(\"1.60\") & \"|\" & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nEnd Function\n",
+      "result": "False|1899-12-31 14:24:00"
+    },
+    {
+      "name": "date_text_18",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nOn Error Resume Next\nDim d As Date\nd = CDate(\"1.5.60\")\nIf Err.Number <> 0 Then Probe = IsDate(\"1.5.60\") & \"|err\" & Err.Number Else Probe = IsDate(\"1.5.60\") & \"|\" & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nEnd Function\n",
+      "result": "False|err13"
+    },
+    {
+      "name": "date_text_19",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nOn Error Resume Next\nDim d As Date\nd = CDate(\"1.255\")\nIf Err.Number <> 0 Then Probe = IsDate(\"1.255\") & \"|err\" & Err.Number Else Probe = IsDate(\"1.255\") & \"|\" & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nEnd Function\n",
+      "result": "False|1899-12-31 06:07:12"
+    },
+    {
+      "name": "date_text_20",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nOn Error Resume Next\nDim d As Date\nd = CDate(\"001.05\")\nIf Err.Number <> 0 Then Probe = IsDate(\"001.05\") & \"|err\" & Err.Number Else Probe = IsDate(\"001.05\") & \"|\" & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nEnd Function\n",
+      "result": "True|1899-12-30 01:05:00"
+    },
+    {
+      "name": "date_text_21",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nOn Error Resume Next\nDim d As Date\nd = CDate(\"+1.5\")\nIf Err.Number <> 0 Then Probe = IsDate(\"+1.5\") & \"|err\" & Err.Number Else Probe = IsDate(\"+1.5\") & \"|\" & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nEnd Function\n",
+      "result": "False|1899-12-31 12:00:00"
+    },
+    {
+      "name": "date_text_22",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nOn Error Resume Next\nDim d As Date\nd = CDate(\"12.30.45\")\nIf Err.Number <> 0 Then Probe = IsDate(\"12.30.45\") & \"|err\" & Err.Number Else Probe = IsDate(\"12.30.45\") & \"|\" & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nEnd Function\n",
+      "result": "True|1899-12-30 12:30:45"
+    },
+    {
+      "name": "date_text_23",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nOn Error Resume Next\nDim d As Date\nd = CDate(\"1.5 1/2/2024\")\nIf Err.Number <> 0 Then Probe = IsDate(\"1.5 1/2/2024\") & \"|err\" & Err.Number Else Probe = IsDate(\"1.5 1/2/2024\") & \"|\" & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nEnd Function\n",
+      "result": "True|2024-01-02 01:05:00"
+    },
+    {
+      "name": "date_text_24",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nOn Error Resume Next\nDim d As Date\nd = CDate(\"1/2/2024 1.5\")\nIf Err.Number <> 0 Then Probe = IsDate(\"1/2/2024 1.5\") & \"|err\" & Err.Number Else Probe = IsDate(\"1/2/2024 1.5\") & \"|\" & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nEnd Function\n",
+      "result": "True|2024-01-02 01:05:00"
+    },
+    {
+      "name": "date_text_25",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nOn Error Resume Next\nDim d As Date\nd = CDate(\"1.5:30\")\nIf Err.Number <> 0 Then Probe = IsDate(\"1.5:30\") & \"|err\" & Err.Number Else Probe = IsDate(\"1.5:30\") & \"|\" & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nEnd Function\n",
+      "result": "True|1899-12-30 01:05:30"
+    },
+    {
+      "name": "date_text_26",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nOn Error Resume Next\nDim d As Date\nd = CDate(\"12:30.45\")\nIf Err.Number <> 0 Then Probe = IsDate(\"12:30.45\") & \"|err\" & Err.Number Else Probe = IsDate(\"12:30.45\") & \"|\" & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nEnd Function\n",
+      "result": "True|1899-12-30 12:30:45"
+    },
+    {
+      "name": "date_text_27",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nOn Error Resume Next\nDim d As Date\nd = CDate(\"25.1\")\nIf Err.Number <> 0 Then Probe = IsDate(\"25.1\") & \"|err\" & Err.Number Else Probe = IsDate(\"25.1\") & \"|\" & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nEnd Function\n",
+      "result": "False|1900-01-24 02:24:00"
+    },
+    {
+      "name": "date_text_28",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nOn Error Resume Next\nDim d As Date\nd = CDate(\"23.59.60\")\nIf Err.Number <> 0 Then Probe = IsDate(\"23.59.60\") & \"|err\" & Err.Number Else Probe = IsDate(\"23.59.60\") & \"|\" & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nEnd Function\n",
+      "result": "False|err13"
+    },
+    {
+      "name": "date_text_29",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nOn Error Resume Next\nDim d As Date\nd = CDate(\"1.5.2024 10.30\")\nIf Err.Number <> 0 Then Probe = IsDate(\"1.5.2024 10.30\") & \"|err\" & Err.Number Else Probe = IsDate(\"1.5.2024 10.30\") & \"|\" & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nEnd Function\n",
+      "result": "False|err13"
+    },
+    {
+      "name": "date_text_30",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nOn Error Resume Next\nDim d As Date\nd = CDate(\"45000\")\nIf Err.Number <> 0 Then Probe = IsDate(\"45000\") & \"|err\" & Err.Number Else Probe = IsDate(\"45000\") & \"|\" & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nEnd Function\n",
+      "result": "False|2023-03-15 00:00:00"
+    },
+    {
+      "name": "date_text_31",
+      "macro": "\nPrivate Function MakeArr() As Variant\n    MakeArr = Array(1, \"two\", 3.5)\nEnd Function\n\nPrivate Function LongArr() As Long()\n    Dim a(1 To 3) As Long\n    a(1) = 10: a(2) = 20: a(3) = 30\n    LongArr = a\nEnd Function\n\nPrivate Function Words() As String()\n    Words = Split(\"a b c\")\nEnd Function\n\nFunction Probe() As String\nOn Error Resume Next\nDim d As Date\nd = CDate(\"1.5%\")\nIf Err.Number <> 0 Then Probe = IsDate(\"1.5%\") & \"|err\" & Err.Number Else Probe = IsDate(\"1.5%\") & \"|\" & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nEnd Function\n",
+      "result": "False|err13"
+    }
+  ]
+}

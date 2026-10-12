@@ -20,12 +20,15 @@ VERSION_PROBE = ('Function VersionBuild() As String\n'
                  'VersionBuild = Application.Version & "|" & Application.Build\nEnd Function')
 
 
-def record(modules: dict[str, str], out: Path, classes: dict[str, str] | None = None) -> None:
+def record(modules: dict[str, str], out: Path, classes: dict[str, str] | None = None, *,
+           line_numbers: bool = True) -> None:
     """Run every module's Probe in native Excel and write the fixture to ``out``.
 
     ``classes`` are class modules every probe can use, added to each session
     after a first macro has run (the harness installs its runner then) and
-    kept in the fixture for the tests to add the same way.
+    kept in the fixture for the tests to add the same way. ``line_numbers``
+    False stops the harness numbering every line for its error reports, which
+    Erl would otherwise read.
     """
     probes: list[dict[str, object]] = []
     version_value = None
@@ -41,7 +44,7 @@ def record(modules: dict[str, str], out: Path, classes: dict[str, str] | None = 
                 version_value = version.value
                 for class_name, source in (classes or {}).items():
                     excel.add_module(class_name, source, kind='class')
-            result = excel.run_vba(module, 'Probe', timeout=30.0)
+            result = excel.run_vba(module, 'Probe', timeout=30.0, line_numbers=line_numbers)
             assert not result.dialogs, (name, result)
             if result.ok:
                 probe: dict[str, object] = {'name': name, 'macro': module, 'result': result.value}

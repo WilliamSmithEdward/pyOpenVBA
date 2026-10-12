@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import datetime as _dt
 import math
+import re
 import struct
 import time
 from collections.abc import Callable
@@ -51,6 +52,7 @@ from pyopenvba.interpreter._values import (
     number_text,
     parse_date_text,
     round_half_even,
+    condition,
     to_bool,
     to_date,
     to_integer,
@@ -96,7 +98,6 @@ UNIMPLEMENTED: Final[dict[str, str]] = {
     "environ": "reads the machine's environment",
     "doevents": "yields to a message pump this does not have",
     "getobject": "attaches to a running application",
-    "erl": "reports the last numbered line",
     "rate": "is an iterative financial solver",
     "irr": "is an iterative financial solver",
     "mirr": "is an iterative financial solver",
@@ -305,8 +306,19 @@ def vba_val(interpreter: Interpreter, value: object) -> object:
 
 @intrinsic("Str", "Number", minimum=1)
 def vba_str(interpreter: Interpreter, value: object) -> object:
-    """Str keeps a leading space where the number is not negative."""
+    """Str: a leading space where a number is not negative, and no zero before
+    the point (" .5", "-.5"); True and dates as their text, Null as Null (native probes)."""
+    if value is NULL:
+        return NULL
+    if isinstance(value, bool):
+        return "True" if value else "False"
+    if isinstance(value, VBADate):
+        return to_text(value)
     text = number_text(to_number(value))
+    if text.startswith("0."):
+        text = text[1:]
+    elif text.startswith("-0."):
+        text = "-" + text[2:]
     return text if text.startswith("-") else f" {text}"
 
 
@@ -510,6 +522,81 @@ def vba_len(interpreter: Interpreter, value: object) -> object:
     return VBAInt(len(to_text(value)), "Long")
 
 
+def _string_bytes(value: object) -> bytes:
+    return to_text(value).encode("utf-16-le", errors="surrogatepass")
+
+
+def _bytes_string(data: bytes) -> str:
+    """UTF-16LE bytes as text. VBA can hold an odd byte as half a character;
+    here a trailing odd byte stands as a character of its own."""
+    text = data[: len(data) // 2 * 2].decode("utf-16-le", errors="surrogatepass")
+    return text + chr(data[-1]) if len(data) % 2 else text
+
+
+@intrinsic("LeftB", "String", "Length", minimum=2)
+def vba_leftb(interpreter: Interpreter, value: object, length: object) -> object:
+    if value is NULL:
+        return NULL
+    count = int(to_integer(length, "Long"))
+    if count < 0:
+        raise error(ERR_INVALID_PROCEDURE_CALL)
+    return _bytes_string(_string_bytes(value)[:count])
+
+
+@intrinsic("RightB", "String", "Length", minimum=2)
+def vba_rightb(interpreter: Interpreter, value: object, length: object) -> object:
+    if value is NULL:
+        return NULL
+    count = int(to_integer(length, "Long"))
+    if count < 0:
+        raise error(ERR_INVALID_PROCEDURE_CALL)
+    data = _string_bytes(value)
+    return _bytes_string(data[max(0, len(data) - count):])
+
+
+@intrinsic("MidB", "String", "Start", "Length", minimum=2)
+def vba_midb(interpreter: Interpreter, value: object, start: object, length: object) -> object:
+    if value is NULL:
+        return NULL
+    first = int(to_integer(start, "Long"))
+    if first < 1:
+        raise error(ERR_INVALID_PROCEDURE_CALL)
+    data = _string_bytes(value)[first - 1:]
+    if length is not MISSING:
+        count = int(to_integer(length, "Long"))
+        if count < 0:
+            raise error(ERR_INVALID_PROCEDURE_CALL)
+        data = data[:count]
+    return _bytes_string(data)
+
+
+@intrinsic("AscB", "String", minimum=1)
+def vba_ascb(interpreter: Interpreter, value: object) -> object:
+    data = _string_bytes(value)
+    if not data:
+        raise error(ERR_INVALID_PROCEDURE_CALL)
+    return VBAInt(data[0], "Integer")
+
+
+@intrinsic("InStrB", "Start", "String1", "String2", "Compare")
+def vba_instrb(interpreter: Interpreter, first: object, second: object, third: object, compare: object) -> object:
+    """InStr on the bytes: a 1-based byte position, a match at any byte (InStrB("abc", "b") is 3)."""
+    if third is MISSING and compare is MISSING:
+        start, haystack, needle = 1, first, second
+    else:
+        start, haystack, needle = int(to_integer(first, "Long")), second, third
+    if haystack is NULL or needle is NULL:
+        return NULL
+    if start < 1:
+        raise error(ERR_INVALID_PROCEDURE_CALL)
+    body, wanted = _string_bytes(haystack), _string_bytes(needle)
+    if not body:
+        return VBAInt(0, "Long")
+    if not wanted:
+        return VBAInt(start, "Long")
+    return VBAInt(body.find(wanted, start - 1) + 1, "Long")
+
+
 @intrinsic("LenB", "Expression", minimum=1)
 def vba_lenb(interpreter: Interpreter, value: object) -> object:
     from pyopenvba.interpreter._runtime import UserTypeValue
@@ -655,6 +742,12 @@ def vba_strconv(interpreter: Interpreter, value: object, conversion: object, loc
     return text
 
 
+@intrinsic("Erl")
+def vba_erl(interpreter: Interpreter) -> object:
+    """The last numbered line run in the procedure that handled the last error, 0 for none."""
+    return VBAInt(interpreter.err.erl, "Long")
+
+
 @intrinsic("Error", "ErrorNumber")
 def vba_error(interpreter: Interpreter, number: object) -> object:
     """The text of an error number, or of the current error with no argument."""
@@ -673,11 +766,11 @@ def vba_strreverse(interpreter: Interpreter, text: object) -> object:
 
 @intrinsic("Asc", "String", minimum=1)
 def vba_asc(interpreter: Interpreter, text: object) -> object:
+    """The first character's Windows-1252 code, 63 ("?") for one the code page lacks."""
     body = to_text(text)
     if not body:
         raise error(ERR_INVALID_PROCEDURE_CALL)
-    code = ord(body[0])
-    return VBAInt(code if code <= 0x7FFF else code - 0x10000, "Integer")
+    return VBAInt(_ansi_bytes(body[0])[0], "Integer")
 
 
 @intrinsic("AscW", "String", minimum=1)
@@ -690,15 +783,19 @@ def vba_ascw(interpreter: Interpreter, text: object) -> object:
 
 @intrinsic("Chr", "CharCode", minimum=1)
 def vba_chr(interpreter: Interpreter, code: object) -> object:
+    """The Windows-1252 character with this code, 0 to 255; anything else is error 5 (native probes)."""
     number = int(to_integer(code, "Long"))
-    if not -32768 <= number <= 65535:
+    if not 0 <= number <= 255:
         raise error(ERR_INVALID_PROCEDURE_CALL)
-    return chr(number & 0xFFFF if number < 0 else number)
+    return _ansi_text([number])
 
 
 @intrinsic("ChrW", "CharCode", minimum=1)
 def vba_chrw(interpreter: Interpreter, code: object) -> object:
+    """The UTF-16 unit -32768 to 65535, a negative one counted from 65536; else error 5 (native probes)."""
     number = int(to_integer(code, "Long"))
+    if not -32768 <= number <= 65535:
+        raise error(ERR_INVALID_PROCEDURE_CALL)
     return chr(number & 0xFFFF if number < 0 else number)
 
 
@@ -719,6 +816,11 @@ def vba_instr(
     wanted = "" if needle is EMPTY or needle is MISSING else to_text(needle)
     if vba_text_mode(interpreter, mode):
         body, wanted = body.lower(), wanted.lower()
+    # Empty text is 0; an empty search is the start, past the end too (native probes).
+    if not body:
+        return VBAInt(0, "Long")
+    if not wanted:
+        return VBAInt(start, "Long")
     if start > len(body):
         return VBAInt(0, "Long")
     return VBAInt(body.find(wanted, int(start) - 1) + 1, "Long")
@@ -734,9 +836,17 @@ def vba_instrrev(
     wanted = to_text(needle)
     if vba_text_mode(interpreter, compare):
         body, wanted = body.lower(), wanted.lower()
-    end = len(body) if start is MISSING else int(to_integer(start, "Long"))
+    # Start -1 is the end; 0 or below -1 is error 5; past the end finds nothing;
+    # an empty search is the start (native probes).
+    end = -1 if start is MISSING else int(to_integer(start, "Long"))
+    if end == 0 or end < -1:
+        raise error(ERR_INVALID_PROCEDURE_CALL)
     if end == -1:
         end = len(body)
+    if not body or end > len(body):
+        return VBAInt(0, "Long")
+    if not wanted:
+        return VBAInt(end, "Long")
     return VBAInt(body.rfind(wanted, 0, end) + 1, "Long")
 
 
@@ -811,10 +921,12 @@ def vba_split(
         pieces = []
     elif not separator:
         pieces = [body]
-    elif count == -1:
-        pieces = body.split(separator)
+    elif count == 0:
+        pieces = []
     else:
-        pieces = body.split(separator, count - 1) if count > 0 else []
+        # vbTextCompare matches the delimiter in any case (native probe).
+        flags = re.IGNORECASE if vba_text_mode(interpreter, compare) else 0
+        pieces = re.split(re.escape(separator), body, maxsplit=max(0, count - 1), flags=flags)
     return VBAArray([(0, len(pieces) - 1)] if pieces else [(0, -1)], items=list(pieces))
 
 
@@ -1028,14 +1140,22 @@ def vba_dateadd(interpreter: Interpreter, interval: object, count: object, value
         raise error(5)
     how_many = int(to_integer(count, "Long"))
     when = to_date(value).to_datetime()
-    if unit in ("yyyy", "q", "m"):
-        months = how_many * (12 if unit == "yyyy" else 3 if unit == "q" else 1)
-        total = when.year * 12 + when.month - 1 + months
-        year, month = divmod(total, 12)
-        day = min(when.day, _days_in_month(year, month + 1))
-        return VBADate.from_datetime(when.replace(year=year, month=month + 1, day=day))
-    seconds = {"d": 86400, "y": 86400, "w": 86400, "ww": 604800, "h": 3600, "n": 60, "s": 1}[unit]
-    return VBADate.from_datetime(when + _dt.timedelta(seconds=how_many * seconds))
+    try:
+        if unit in ("yyyy", "q", "m"):
+            months = how_many * (12 if unit == "yyyy" else 3 if unit == "q" else 1)
+            total = when.year * 12 + when.month - 1 + months
+            year, month = divmod(total, 12)
+            day = min(when.day, _days_in_month(year, month + 1))
+            result = when.replace(year=year, month=month + 1, day=day)
+        else:
+            seconds = {"d": 86400, "y": 86400, "w": 86400, "ww": 604800, "h": 3600, "n": 60, "s": 1}[unit]
+            result = when + _dt.timedelta(seconds=how_many * seconds)
+    except (ValueError, OverflowError):
+        result = None
+    # Past the years a Date holds is error 5, not 6 (native probes).
+    if result is None or not 100 <= result.year <= 9999:
+        raise error(ERR_INVALID_PROCEDURE_CALL)
+    return VBADate.from_datetime(result)
 
 
 def _days_in_month(year: int, month: int) -> int:
@@ -1064,7 +1184,6 @@ def vba_datediff(
         return VBAInt((stop.year * 4 + (stop.month - 1) // 3) - (start.year * 4 + (start.month - 1) // 3), "Long")
     if unit == "m":
         return VBAInt((stop.year * 12 + stop.month) - (start.year * 12 + start.month), "Long")
-    delta = stop - start
     if unit in ("d", "y"):
         return VBAInt((stop.date() - start.date()).days, "Long")
     if unit == "w":
@@ -1072,8 +1191,14 @@ def vba_datediff(
     if unit == "ww":
         begin = 1 if week_start is MISSING else int(to_integer(week_start, "Long")) or 1
         return VBAInt((_week_start(stop.date(), begin) - _week_start(start.date(), begin)).days // 7, "Long")
-    seconds = delta.days * 86400 + delta.seconds
-    return VBAInt(seconds // {"h": 3600, "n": 60, "s": 1}[unit], "Long")
+    # Boundaries crossed, as for days: 11:59:59 PM to midnight is one hour (native probes).
+    size = {"h": 3600, "n": 60, "s": 1}[unit]
+    return VBAInt(_seconds_since_epoch(stop) // size - _seconds_since_epoch(start) // size, "Long")
+
+
+def _seconds_since_epoch(when: _dt.datetime) -> int:
+    delta = when - VBADate.EPOCH
+    return delta.days * 86400 + delta.seconds
 
 
 def _week_start(day: _dt.date, first: int) -> _dt.date:
@@ -1134,11 +1259,12 @@ def vba_ismissing(interpreter: Interpreter, value: object) -> object:
 
 @intrinsic("IsNumeric", "Expression", minimum=1)
 def vba_isnumeric(interpreter: Interpreter, value: object) -> object:
-    """Whether CDbl would read the value: the same text forms, measured."""
+    """Whether CDbl would read the value: the same text forms, measured. Empty
+    is numeric, as zero is; Null and a Date are not (native probes)."""
     if isinstance(value, (bool, int, float, Decimal)):
         return True
     if value is EMPTY:
-        return False
+        return True
     if isinstance(value, str):
         try:
             to_number(value)
@@ -1225,7 +1351,7 @@ def vba_iif(interpreter: Interpreter, args: list[object], named: dict[str, objec
     """IIf evaluates both arms, as VBA's does, so both can still fail."""
     if len(args) != 3:
         raise error(450, "IIf takes three arguments")
-    return args[1] if to_bool(args[0]) else args[2]
+    return args[1] if condition(args[0]) else args[2]
 
 
 INTRINSICS["iif"] = vba_iif

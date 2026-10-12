@@ -1759,6 +1759,16 @@ native probes, `scripts/measure_vba_builtins.py`):
 Under `On Error Resume Next`, VBA resumes a `For Each` over an unallocated
 array inside the loop's body; this resumes after the loop.
 
+Null as a condition (If, ElseIf, While, Do, IIf, Case) is False rather than
+error 94 (`tests/fixtures/vba_language.json`). `Erl` is the last numbered
+line run in the procedure that handled the last error, kept by `Err.Clear`
+(`tests/fixtures/vba_erl.json`, recorded with the harness's own numbering
+off). One case differs: an error on the first executable line after a
+numbered `Dim` reports the Dim's number natively, the erroring line's here.
+The byte functions read a String's UTF-16 bytes; an odd byte count, which
+VBA holds as half a character, keeps its last byte as a whole character
+here, and `ChrB`, which makes such a string, is not implemented.
+
 Text reads as a date as a US-English Office reads it, for `CDate`, `IsDate`,
 `DateValue` and `TimeValue`, over 182 native strings in
 `tests/fixtures/date_text.json` (`scripts/measure_date_text.py`). Numbers,

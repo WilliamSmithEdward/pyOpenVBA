@@ -704,6 +704,13 @@ def text_to_number(text: str) -> int | float:
     return sign * float(body)
 
 
+def condition(value: object) -> bool:
+    """A value as an If, ElseIf, While, Do, IIf or Case reads it: Null is False
+    there, not error 94, so If Null takes the Else and Do Until Null loops on
+    (native probes). Assigning Null to a Boolean is still error 94."""
+    return False if value is NULL else to_bool(value)
+
+
 def to_bool(value: object) -> bool:
     """``value`` as a condition: anything non-zero is True."""
     if isinstance(value, bool):
@@ -1077,8 +1084,32 @@ def round_half_even(value: float | Decimal, places: int = 0) -> float | Decimal:
     return float(quantized)
 
 
+_SIGNED_WIDTH: Final = {"Integer": 16, "Long": 32, "LongLong": 64}
+
+
+def _hex_text_integer(text: str, kind: str) -> VBAInt | None:
+    """Hex or octal text read at the target's width: CInt("&HFFFF") is -1 and
+    CLng("&HFFFFFFFF") is -1, while CLng("&HFFFF") is 65535 (native probes).
+    More bits than the width hold is error 6. None for other text."""
+    match = _NUMBER_TEXT.match(text)
+    if match is None or (match.group("hex") is None and match.group("octal") is None):
+        return None
+    raw = int(match.group("hex"), 16) if match.group("hex") is not None else int(match.group("octal"), 8)
+    width = _SIGNED_WIDTH.get(kind)
+    if width is None:
+        return None
+    if raw >= 1 << width:
+        raise error(ERR_OVERFLOW)
+    signed = raw - (1 << width) if raw >= 1 << (width - 1) else raw
+    return VBAInt(-signed if match.group("sign") == "-" else signed, kind)
+
+
 def to_integer(value: object, kind: str = "Long") -> VBAInt:
     """``value`` as one of the integer widths, rounding half to even."""
+    if isinstance(value, str):
+        wrapped = _hex_text_integer(value, kind)
+        if wrapped is not None:
+            return wrapped
     number = to_number(value)
     if isinstance(number, int) and not isinstance(number, bool):
         whole = int(number)

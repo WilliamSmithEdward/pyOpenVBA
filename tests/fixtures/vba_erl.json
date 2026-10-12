@@ -1,0 +1,42 @@
+{
+  "excel_version_build": "16.0|20430",
+  "measured_at": "2026-10-12T20:53:08.023058+00:00",
+  "classes": {},
+  "probes": [
+    {
+      "name": "erl_unnumbered",
+      "macro": "\nFunction Probe() As String\nOn Error Resume Next\nDim x As Long\nx = 1 / 0\nProbe = Erl & \"|\" & Err.Number\nEnd Function\n",
+      "result": "0|11"
+    },
+    {
+      "name": "erl_after_unnumbered",
+      "macro": "\nFunction Probe() As String\nOn Error Resume Next\n10 Dim x As Long\nx = 1 / 0\nProbe = Erl\nEnd Function\n",
+      "result": "10"
+    },
+    {
+      "name": "erl_handler",
+      "macro": "\nFunction Probe() As String\nOn Error GoTo h\n100 Dim y As Long\n110 y = 1\n120 Err.Raise 5\nExit Function\nh:\nProbe = Erl\nEnd Function\n",
+      "result": "120"
+    },
+    {
+      "name": "erl_after_clear",
+      "macro": "\nFunction Probe() As String\nOn Error Resume Next\n10 Err.Raise 5\nErr.Clear\nProbe = Erl\nEnd Function\n",
+      "result": "10"
+    },
+    {
+      "name": "erl_no_error",
+      "macro": "\nFunction Probe() As String\n10 Dim x As Long\n20 x = 1\nProbe = Erl\nEnd Function\n",
+      "result": "0"
+    },
+    {
+      "name": "erl_label_with_colon",
+      "macro": "\nFunction Probe() As String\nOn Error Resume Next\n40: Err.Raise 5\nProbe = Erl\nEnd Function\n",
+      "result": "40"
+    },
+    {
+      "name": "erl_after_executable_line",
+      "macro": "\nFunction Probe() As String\nOn Error Resume Next\n10 Dim x As Long\n15 x = 5\n20 x = 1 / 0\n30 Probe = Erl\nEnd Function\n",
+      "result": "20"
+    }
+  ]
+}

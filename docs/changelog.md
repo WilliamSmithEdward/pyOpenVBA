@@ -175,6 +175,19 @@ All notable changes to pyOpenVBA are documented here. This project follows
 - `On ... GoTo` and `On ... GoSub` coerce their index to Integer and reject
   values outside 0–255 as Excel does, including overflow and half-to-even
   rounding. Previously `On ... GoTo` silently skipped invalid indices.
+- A variable, parameter, function result, array or record field typed as an
+  enum is a Long, as in VBA. It was treated as an object reference: it
+  started as Nothing and every assignment failed with error 13. An enum's
+  member now reads through the enum's name (`Colour.Blue`) and through its
+  module (`Palette.Shade.Light`); an enum type qualified by its module is the
+  compile error VBA gives. Eleven native probes.
+- `ReDim` resizes a record's dynamic array field: `ReDim r.B(0 To 9)`, nested
+  fields, an array element's field and `.B` inside a With block, with or
+  without Preserve. It was a syntax error. Six native probes.
+- `Len` and `LenB` of a record measure an enum field as a Long and a dynamic
+  array field as an 8-byte pointer, as Excel does over 14 more native probes.
+  An enum field was counted as 8 bytes and a dynamic array field was refused
+  as unsupported.
 
 ## [6.5.0] - 2026-10-04
 

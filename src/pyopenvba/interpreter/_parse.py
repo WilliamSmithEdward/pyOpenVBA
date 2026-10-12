@@ -645,12 +645,44 @@ class Parser:
         self.advance()
         preserve = self.accept_word("preserve")
         decls: list[A.VarDecl] = []
+        targets: list[A.Member | None] = []
         while True:
-            decls.append(self._parse_var_decl())
+            # A record's array field: item.B(...), a(1).B(...), a.b.C(...) or .B(...) in a With.
+            in_with = self.accept_op(".")
+            owner: A.Expr | None = None
+            while self._redim_owner_ahead():
+                name = strip_suffix(self.advance().text)
+                owner = A.Member(line=line, target=owner, name=name) if in_with or owner is not None else A.Name(line=line, name=name)
+                if self.accept_op("("):
+                    owner = A.Index(line=line, target=owner, args=self._parse_arguments(closing=True))
+                self.advance()
+            declaration = self._parse_var_decl()
+            decls.append(declaration)
+            targets.append(A.Member(line=line, target=owner, name=declaration.name) if in_with or owner is not None else None)
             if not self.accept_op(","):
                 break
         self.end_statement()
-        return A.ReDim(line=line, preserve=preserve, decls=decls)
+        return A.ReDim(line=line, preserve=preserve, decls=decls, targets=targets)
+
+    def _redim_owner_ahead(self) -> bool:
+        """Whether the next name, with any subscript, is followed by '.':
+        part of the path to the field a ReDim resizes."""
+        if self.token.kind != "ident":
+            return False
+        at = self.at + 1
+        if self.tokens[at].kind == "op" and self.tokens[at].text == "(":
+            depth = 0
+            while at < len(self.tokens) and self.tokens[at].kind != "eof":
+                token = self.tokens[at]
+                if token.kind == "op" and token.text == "(":
+                    depth += 1
+                elif token.kind == "op" and token.text == ")":
+                    depth -= 1
+                    if depth == 0:
+                        break
+                at += 1
+            at += 1
+        return at < len(self.tokens) and self.tokens[at].kind == "op" and self.tokens[at].text == "."
 
     def _stmt_erase(self, line: int) -> A.Stmt:
         self.advance()

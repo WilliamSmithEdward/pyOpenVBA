@@ -1,0 +1,61 @@
+{
+  "excel_version_build": "16.0|20430",
+  "measured_at": "2026-10-12T17:44:58.988233+00:00",
+  "probes": [
+    {
+      "name": "default",
+      "macro": "Public Enum Colour\nRed\nBlue = 5\nEnd Enum\nPublic Type Holder\nB As Byte\nC As Colour\nEnd Type\nFunction Probe() As String\nDim c As Colour\nProbe = TypeName(c) & \"|\" & VarType(c) & \"|\" & c\nEnd Function\nFunction Pick(ByVal c As Colour) As Colour\nPick = c + 1\nEnd Function\nSub Bump(ByRef c As Colour)\nc = c + 1\nEnd Sub",
+      "result": "Long|3|0"
+    },
+    {
+      "name": "assign_double",
+      "macro": "Public Enum Colour\nRed\nBlue = 5\nEnd Enum\nPublic Type Holder\nB As Byte\nC As Colour\nEnd Type\nFunction Probe() As String\nDim c As Colour\nc = 3.7\nProbe = TypeName(c) & \"|\" & c\nEnd Function\nFunction Pick(ByVal c As Colour) As Colour\nPick = c + 1\nEnd Function\nSub Bump(ByRef c As Colour)\nc = c + 1\nEnd Sub",
+      "result": "Long|4"
+    },
+    {
+      "name": "assign_text",
+      "macro": "Public Enum Colour\nRed\nBlue = 5\nEnd Enum\nPublic Type Holder\nB As Byte\nC As Colour\nEnd Type\nFunction Probe() As String\nDim c As Colour\nc = \"12\"\nProbe = TypeName(c) & \"|\" & c\nEnd Function\nFunction Pick(ByVal c As Colour) As Colour\nPick = c + 1\nEnd Function\nSub Bump(ByRef c As Colour)\nc = c + 1\nEnd Sub",
+      "result": "Long|12"
+    },
+    {
+      "name": "overflow",
+      "macro": "Public Enum Colour\nRed\nBlue = 5\nEnd Enum\nPublic Type Holder\nB As Byte\nC As Colour\nEnd Type\nFunction Probe() As String\nDim c As Colour\nOn Error Resume Next\nc = 3000000000#\nProbe = Err.Number & \"|\" & c\nEnd Function\nFunction Pick(ByVal c As Colour) As Colour\nPick = c + 1\nEnd Function\nSub Bump(ByRef c As Colour)\nc = c + 1\nEnd Sub",
+      "result": "6|0"
+    },
+    {
+      "name": "param_return",
+      "macro": "Public Enum Colour\nRed\nBlue = 5\nEnd Enum\nPublic Type Holder\nB As Byte\nC As Colour\nEnd Type\nFunction Probe() As String\nProbe = TypeName(Pick(Blue)) & \"|\" & Pick(2.6)\nEnd Function\nFunction Pick(ByVal c As Colour) As Colour\nPick = c + 1\nEnd Function\nSub Bump(ByRef c As Colour)\nc = c + 1\nEnd Sub",
+      "result": "Long|4"
+    },
+    {
+      "name": "byref",
+      "macro": "Public Enum Colour\nRed\nBlue = 5\nEnd Enum\nPublic Type Holder\nB As Byte\nC As Colour\nEnd Type\nFunction Probe() As String\nDim c As Colour\nc = Blue\nBump c\nProbe = c\nEnd Function\nFunction Pick(ByVal c As Colour) As Colour\nPick = c + 1\nEnd Function\nSub Bump(ByRef c As Colour)\nc = c + 1\nEnd Sub",
+      "result": "6"
+    },
+    {
+      "name": "byref_long_to_enum",
+      "macro": "Public Enum Colour\nRed\nBlue = 5\nEnd Enum\nPublic Type Holder\nB As Byte\nC As Colour\nEnd Type\nFunction Probe() As String\nDim n As Long\nn = 4\nBump n\nProbe = n\nEnd Function\nFunction Pick(ByVal c As Colour) As Colour\nPick = c + 1\nEnd Function\nSub Bump(ByRef c As Colour)\nc = c + 1\nEnd Sub",
+      "result": "5"
+    },
+    {
+      "name": "array",
+      "macro": "Public Enum Colour\nRed\nBlue = 5\nEnd Enum\nPublic Type Holder\nB As Byte\nC As Colour\nEnd Type\nFunction Probe() As String\nDim a(1) As Colour\na(0) = 2.5\nProbe = TypeName(a) & \"|\" & TypeName(a(0)) & \"|\" & a(0)\nEnd Function\nFunction Pick(ByVal c As Colour) As Colour\nPick = c + 1\nEnd Function\nSub Bump(ByRef c As Colour)\nc = c + 1\nEnd Sub",
+      "result": "Long()|Long|2"
+    },
+    {
+      "name": "record_field",
+      "macro": "Public Enum Colour\nRed\nBlue = 5\nEnd Enum\nPublic Type Holder\nB As Byte\nC As Colour\nEnd Type\nFunction Probe() As String\nDim r As Holder\nr.C = 7.5\nProbe = TypeName(r.C) & \"|\" & r.C & \"|\" & Len(r) & \"|\" & LenB(r)\nEnd Function\nFunction Pick(ByVal c As Colour) As Colour\nPick = c + 1\nEnd Function\nSub Bump(ByRef c As Colour)\nc = c + 1\nEnd Sub",
+      "result": "Long|8|5|8"
+    },
+    {
+      "name": "member_through_enum",
+      "macro": "Public Enum Colour\nRed\nBlue = 5\nEnd Enum\nPublic Type Holder\nB As Byte\nC As Colour\nEnd Type\nFunction Probe() As String\nProbe = TypeName(Colour.Blue) & \"|\" & Colour.Blue & \"|\" & Colour.Red\nEnd Function\nFunction Pick(ByVal c As Colour) As Colour\nPick = c + 1\nEnd Function\nSub Bump(ByRef c As Colour)\nc = c + 1\nEnd Sub",
+      "result": "Long|5|0"
+    },
+    {
+      "name": "member_through_enum_in_expression",
+      "macro": "Public Enum Colour\nRed\nBlue = 5\nEnd Enum\nPublic Type Holder\nB As Byte\nC As Colour\nEnd Type\nFunction Probe() As String\nDim c As Colour\nc = Colour.Blue + 1\nProbe = c & \"|\" & (c = Colour.Blue)\nEnd Function\nFunction Pick(ByVal c As Colour) As Colour\nPick = c + 1\nEnd Function\nSub Bump(ByRef c As Colour)\nc = c + 1\nEnd Sub",
+      "result": "6|False"
+    }
+  ]
+}

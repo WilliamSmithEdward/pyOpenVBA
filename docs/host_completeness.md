@@ -184,13 +184,15 @@ array temporaries fail before procedure execution, as do Variant assignments,
 Variant parameters and TypeName applied to these records. Broader intrinsic,
 host late-bound call and public object-module marshaling rules remain gaps.
 
-Sixteen native 64-bit Excel probes in `record_lengths.json` cover record
+Thirty native 64-bit Excel probes in `record_lengths.json` cover record
 Len/LenB widths, numeric alignment, pointer/object/Variant/string storage,
-fixed arrays and nested records. Fixed-length strings preserve their width,
-pad/truncate storage and resolve constant sizes in the defining module.
-Fixed strings initialize with null characters and pad short assignments
-with spaces. LongPtr uses 64-bit LongLong storage. Dynamic array field lengths, enum
-layouts, 32-bit layouts and wider fixed-string coercion remain incomplete.
+fixed arrays, nested records, enums and dynamic arrays. Fixed-length strings
+preserve their width, pad/truncate storage and resolve constant sizes in the
+defining module. LongPtr uses 64-bit LongLong storage. Enum-typed variables,
+parameters, results, arrays and fields are Longs, with members read through
+the enum's name (11 probes in `enum_storage.json`), and ReDim resizes a
+record's dynamic array field (6 probes in `record_field_redim.json`). 32-bit
+layouts and wider fixed-string coercion remain incomplete.
 
 ## What counts as complete
 

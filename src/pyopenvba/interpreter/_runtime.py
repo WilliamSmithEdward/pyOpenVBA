@@ -504,12 +504,14 @@ class UserTypeValue(VBAObject):
         for slot in self.fields.values():
             value, declared = slot.get(), slot.declared
             count = 1
-            if isinstance(value, VBAArray):
-                if not value.fixed or not value.items:
-                    raise VBAUnsupportedError('Record lengths with dynamic or empty array fields are not measured')
+            if isinstance(value, VBAArray) and value.fixed:
                 declared = value.element_type
                 count, value = value.size, value.items[0]
-            if isinstance(value, UserTypeValue):
+            if isinstance(value, VBAArray):
+                # A dynamic array field holds a pointer to its array, whatever
+                # its element type or bounds (native probes, ReDim included).
+                width = field_alignment = 8
+            elif isinstance(value, UserTypeValue):
                 width, field_alignment = value.record_layout(binary=binary)
             elif declared.startswith('String*'):
                 width = int(declared.partition('*')[2]) * (2 if binary else 1)
@@ -596,6 +598,21 @@ class UserTypeValue(VBAObject):
         return f"{indent}{self.vba_type_name}({inner})"
 
 
+class EnumNamespace(VBAObject):
+    """An enum's name before a dot: ``Shade.Light`` or ``Palette.Shade.Light``
+    reads the member (native probes)."""
+
+    def __init__(self, name: str, members: dict[str, object]) -> None:
+        self.name = name
+        self.members = members
+
+    def vba_get(self, name: str, args: Sequence[object] = (), named: dict[str, object] | None = None) -> object:
+        key = name.casefold()
+        if args or key not in self.members:
+            raise VBACompileError(f'Method or data member not found: {self.name}.{name}')
+        return self.members[key]
+
+
 class StandardModuleNamespace(VBAObject):
     """A compiler namespace for a standard module, reached only before a dot."""
 
@@ -638,6 +655,11 @@ class StandardModuleNamespace(VBAObject):
             if self.caller is not self.module and not any(definition.scope == 'public' and any(item[0].casefold() == key for item in definition.members) for definition in self.module.parsed.enums):
                 raise VBACompileError(f'Member is private: {self.module.name}.{name}')
             return self.module.enum_members[key]
+        enum = next((definition for definition in self.module.parsed.enums if definition.name.casefold() == key), None)
+        if enum is not None and not args:
+            if self.caller is not self.module and enum.scope != 'public':
+                raise VBACompileError(f'Member is private: {self.module.name}.{name}')
+            return EnumNamespace(enum.name, self.module.enums[key])
         raise VBACompileError(f'Member not found: {self.module.name}.{name}')
 
     def vba_set(self, name: str, value: object, args: Sequence[object] = (),
@@ -985,6 +1007,7 @@ class Interpreter:
                 frame.locals[parameter.name.lower()] = Slot(array, "Variant")
                 return
             given = laid[index] if index < len(laid) else MISSING
+            declared = self.storage_declaration(parameter.declared, frame.module)
             if given is MISSING or given is None:
                 if not parameter.optional and parameter.default is None:
                     if index < len(laid):
@@ -992,13 +1015,13 @@ class Interpreter:
                     raise error(449, f"{procedure.name} needs an argument for {parameter.name}")
                 if parameter.default is not None:
                     frame.locals[parameter.name.lower()] = Slot(
-                        coerce(self.evaluate_constant(parameter.default, frame.module), parameter.declared),
-                        parameter.declared,
+                        coerce(self.evaluate_constant(parameter.default, frame.module), declared),
+                        declared,
                     )
                 else:
                     frame.locals[parameter.name.lower()] = Slot(
-                        MISSING if parameter.declared == "Variant" else default_for(parameter.declared),
-                        "Variant" if parameter.declared == "Variant" else parameter.declared,
+                        MISSING if declared == "Variant" else default_for(declared),
+                        declared,
                     )
                 continue
             if isinstance(given, Slot) and not parameter.by_val:
@@ -1009,7 +1032,7 @@ class Interpreter:
                 continue
             value = self._by_value(given)
             frame.locals[parameter.name.lower()] = Slot(
-                copy_value(coerce(value, parameter.declared)), parameter.declared
+                copy_value(coerce(value, declared)), declared
             )
 
     @staticmethod
@@ -1187,9 +1210,10 @@ class Interpreter:
             )
 
     def _do_redim(self, statement: A.ReDim, frame: Frame) -> None:
-        for declaration in statement.decls:
+        for index, declaration in enumerate(statement.decls):
             bounds = self._bounds(declaration, frame)
-            target = self.resolve_target(A.Name(line=statement.line, name=declaration.name), frame)
+            field_ = statement.targets[index] if index < len(statement.targets) else None
+            target = self.resolve_target(field_ or A.Name(line=statement.line, name=declaration.name), frame)
             current = target.take()
             if isinstance(current, VBAArray) and current.borrowed_elements:
                 raise error(10, "This array is fixed or temporarily locked")
@@ -1630,6 +1654,9 @@ class Interpreter:
                                              isinstance(frame.me, UserClassInstance) and key in frame.me.variables)
             if module is not None and not module.is_class and not shadowed:
                 return StandardModuleNamespace(module, self, frame.module if frame is not None else None)
+            enum = self.visible_enum(key, frame.module) if frame is not None and not shadowed else None
+            if enum is not None:
+                return enum
         value = self.evaluate(expression.target, frame, want_object=True)
         if value is NOTHING:
             raise error(ERR_OBJECT_VARIABLE_NOT_SET)
@@ -2066,6 +2093,37 @@ class Interpreter:
             raise VBACompileError('User-defined type not defined', where=declared)
         return None
 
+    def _enum_definition(self, key: str, module: ModuleRuntime) -> tuple[A.EnumDef, ModuleRuntime] | None:
+        """The enum named ``key`` that ``module`` sees: its own, else a public one."""
+        owners = [module, *(runtime for runtime in self.modules.values() if runtime is not module)]
+        for owner in owners:
+            for enum in owner.parsed.enums:
+                if enum.name.casefold() == key and (owner is module or enum.scope == 'public'):
+                    return enum, owner
+        return None
+
+    def visible_enum(self, key: str, module: ModuleRuntime) -> EnumNamespace | None:
+        found = self._enum_definition(key, module)
+        if found is None:
+            return None
+        enum, owner = found
+        owner.initialise()
+        return EnumNamespace(enum.name, owner.enums[key])
+
+    def is_enum_type(self, declared: str, module: ModuleRuntime) -> bool:
+        """Whether ``declared`` names an enum ``module`` can see: its own, or a
+        public one elsewhere. Native VBA refuses an enum type qualified by its
+        module (``As Palette.Shade``) with "User-defined type not defined",
+        though it takes ``Palette.Light`` as a value."""
+        key = declared.lower()
+        if '.' in key:
+            prefix, _, key = key.rpartition('.')
+            owner = next((runtime for runtime in self.modules.values() if runtime.name.lower() == prefix), None)
+            if owner is not None and any(enum.name.lower() == key for enum in owner.parsed.enums):
+                raise VBACompileError('User-defined type not defined', where=declared)
+            return False
+        return self._enum_definition(key, module) is not None
+
     def make_array(self, bounds: list[tuple[int, int]], declared: str, module: ModuleRuntime, *, fixed: bool = False) -> VBAArray:
         declared = self.storage_declaration(declared, module)
         record = self.record_type(declared, module)
@@ -2092,6 +2150,13 @@ class Interpreter:
         return Slot(default_for(declared), declared)
 
     def storage_declaration(self, declared: str, module: ModuleRuntime) -> str:
+        """The type a declaration stores: a fixed string's width resolved, an
+        enum as the Long it holds (native probes: TypeName and VarType say
+        Long, assignments round and overflow as a Long's do)."""
+        if declared in STORAGE_WIDTH or declared in ('', 'Variant', 'String', 'Object'):
+            return declared
+        if self.is_enum_type(declared, module):
+            return 'Long'
         if declared.startswith('String*'):
             from pyopenvba.interpreter._parse import parse_expression
 

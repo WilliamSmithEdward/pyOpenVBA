@@ -233,7 +233,14 @@ class Application(ExcelObject):
 
     @setter("Calculation")
     def _set_calculation(self, value: object) -> None:
+        before = self.calculation
         self.calculation = int(to_integer(value, "Long"))
+        if before != self.calculation and self.calculation == -4105:  # xlCalculationAutomatic
+            # Back to automatic works out what manual mode left stale, with its
+            # Calculate events (native probe). Whether volatile formulas go too
+            # depends on what calculated before, which is not modelled.
+            for book in self.workbooks_.books:
+                _events.calculated_all(book, book.calculator.calculate_all(volatile=False))
 
     @member
     def StatusBar(self) -> object:
@@ -406,6 +413,10 @@ class Application(ExcelObject):
             worked = book.calculator.calculate_all()
             _events.calculated_all(book, worked)
         return EMPTY
+
+    def vba_sink_attached(self) -> None:
+        for book in self.workbooks_.books:
+            book.vba_sink_attached()
 
     @method
     def Quit(self) -> object:
@@ -821,8 +832,14 @@ class Workbook(ExcelObject):
 
     @method
     def Calculate(self) -> object:
-        self.calculator.calculate_all()
+        _events.calculated_all(self, self.calculator.calculate_all())
         return EMPTY
+
+    def vba_sink_attached(self) -> None:
+        """A WithEvents variable now hears this workbook: formulas written while
+        nobody listened are worked out first, as Excel worked them out when
+        they were written, so the next edit's Calculate is only its own."""
+        self.calculator.calculate_all(volatile=False)
 
     @method
     def RefreshAll(self) -> object:
@@ -1415,8 +1432,14 @@ class Worksheet(ExcelObject):
 
     @method
     def Calculate(self) -> object:
-        self.book.calculator.calculate_all()
+        """Work this sheet's stale and volatile formulas out, and raise its
+        Calculate if there were any (native probes: none for a sheet whose
+        formulas are worked out already)."""
+        _events.calculated_all(self.book, self.book.calculator.calculate_all(self))
         return EMPTY
+
+    def vba_sink_attached(self) -> None:
+        self.book.vba_sink_attached()
 
     @method
     def Evaluate(self, Name: object = MISSING) -> object:
@@ -2270,9 +2293,14 @@ class Range(ExcelObject):
     def Calculate(self) -> object:
         """Work the range's formulas out again; Excel answers Null."""
         calculator = self.sheet.book.calculator
+        worked = False
         for row, column in self.cell_positions():
             if self.sheet.cells_[(row, column)].formula:
                 calculator.value_of(self.sheet.name, row, column, force=True)
+                worked = True
+        if worked:
+            # Range("A1").Calculate on a formula raises the sheet's Calculate (native probe).
+            _events.calculated_all(self.sheet.book, [self.sheet])
         return NULL
 
     @member

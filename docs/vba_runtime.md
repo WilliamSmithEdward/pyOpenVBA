@@ -1495,6 +1495,18 @@ this dispatcher, including reentrant edits and EnableEvents suppression.
 Fourteen isolated live Excel cases replay in `tests/test_excel_event_sinks.py`.
 An explicit `Application.Calculate` raises events for sheets whose stale or
 volatile formulas it calculates, rather than every sheet with a formula.
+`Worksheet.Calculate` works out only its own sheet and raises Calculate when
+it had a stale or volatile formula to work out, and `Range.Calculate` raises
+it for a range holding a formula. An edit raises Calculate only when a
+formula reading the cell, or a volatile one, is worked out again: the model
+works a formula out when it is read, so one written while nothing listened
+is worked out as a WithEvents variable binds to the sheet, workbook or
+application, as Excel worked it out on writing. Setting Calculation back to
+automatic works out what manual mode left stale, with its events
+(`tests/fixtures/excel_vba_events.json`, 28 probes,
+`scripts/measure_excel_vba_events.py`). Whether volatile formulas are worked
+out on that switch too depends on what calculated before it (a sheet or
+application Calculate, not a range's), which is not modelled.
 Full event signature validation and event sources the host does not yet
 implement remain gaps.
 

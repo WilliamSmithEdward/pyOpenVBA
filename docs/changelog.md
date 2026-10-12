@@ -348,6 +348,14 @@ All notable changes to pyOpenVBA are documented here. This project follows
   it was 53. `Format`'s `ww` keeps Excel's defect of 53 for the week's first
   day when next year is a leap year, as measured over 496 year-end days. 14
   native probes in `tests/fixtures/vba_date_functions.json`.
+- Calculate events as Excel raises them: `Worksheet.Calculate` and
+  `Range.Calculate` raise the sheet's Calculate when they work a formula out
+  (they raised none); an edit no longer raises it for a formula that does not
+  read the cell but was still waiting to be worked out from before a sink
+  bound; and setting Calculation back to automatic works out what manual mode
+  left stale, with its events. Change, SelectionChange, Activate, NewSheet,
+  workbook and application sinks, EnableEvents and re-entry already matched.
+  28 native probes in `tests/fixtures/excel_vba_events.json`.
 
 ## [6.5.0] - 2026-10-04
 

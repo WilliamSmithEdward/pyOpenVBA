@@ -237,6 +237,10 @@ class EventSlot(Slot):
         owner = self.owner()
         if owner is not None:
             owner.interpreter.bind_event_sink(owner, self.name)
+        attached = getattr(value, "vba_sink_attached", None)
+        if callable(attached):
+            # A host object that does work lazily brings it up to date for its new listener.
+            attached()
 
 
 @dataclass(slots=True)

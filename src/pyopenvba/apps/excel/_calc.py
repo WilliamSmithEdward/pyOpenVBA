@@ -288,17 +288,22 @@ class Calculator:
         """Whether the application recalculates as things change."""
         return self.book.application.calculation != -4135  # xlCalculationManual
 
-    def calculate_all(self) -> list[Worksheet]:
-        """Work out stale and volatile formulas, even in manual mode; report sheets actually calculated."""
+    def calculate_all(self, only: Worksheet | None = None, *, volatile: bool = True) -> list[Worksheet]:
+        """Work out stale and volatile formulas, even in manual mode; report sheets actually calculated.
+
+        only limits the work to one sheet, as Worksheet.Calculate does;
+        volatile False leaves volatile formulas be, which is how pending
+        formulas are settled without an edit (see Excel object vba_sink_attached).
+        """
         self.build()
         worked: list[Worksheet] = []
-        for sheet in self.book.sheets_:
+        for sheet in self.book.sheets_ if only is None else [only]:
             did = False
             for (row, column), cell in list(sheet.cells_.items()):
                 if not cell.formula:
                     continue
                 compiled = self.compiled.get((sheet.name.lower(), row, column))
-                if cell.stale or (compiled is not None and compiled.volatile):
+                if cell.stale or (volatile and compiled is not None and compiled.volatile):
                     self.value_of(sheet.name, row, column, force=True)
                     did = True
             if did:

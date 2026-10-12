@@ -1,0 +1,152 @@
+{
+  "excel_version_build": "16.0|20430",
+  "measured_at": "2026-10-12T22:54:08.871334+00:00",
+  "classes": {
+    "CSheetSink": "Option Explicit\nPublic WithEvents Ws As Worksheet\nPublic Log As String\nPrivate Sub Ws_Change(ByVal Target As Range)\n    Log = Log & \"chg:\" & Target.Address & \";\"\nEnd Sub\nPrivate Sub Ws_SelectionChange(ByVal Target As Range)\n    Log = Log & \"sel:\" & Target.Address & \";\"\nEnd Sub\nPrivate Sub Ws_Calculate()\n    Log = Log & \"calc;\"\nEnd Sub\nPrivate Sub Ws_Activate()\n    Log = Log & \"act;\"\nEnd Sub\nPrivate Sub Ws_Deactivate()\n    Log = Log & \"deact;\"\nEnd Sub\n",
+    "CBookSink": "Option Explicit\nPublic WithEvents Wb As Workbook\nPublic Log As String\nPrivate Sub Wb_SheetChange(ByVal Sh As Object, ByVal Target As Range)\n    Log = Log & \"sheetchg:\" & Target.Address & \";\"\nEnd Sub\nPrivate Sub Wb_NewSheet(ByVal Sh As Object)\n    Log = Log & \"new:\" & TypeName(Sh) & \";\"\nEnd Sub\nPrivate Sub Wb_SheetActivate(ByVal Sh As Object)\n    Log = Log & \"sheetact;\"\nEnd Sub\n",
+    "CAppSink": "Option Explicit\nPublic WithEvents App As Application\nPublic Log As String\nPrivate Sub App_SheetChange(ByVal Sh As Object, ByVal Target As Range)\n    Log = Log & \"appchg:\" & Target.Address & \";\"\nEnd Sub\nPrivate Sub App_WorkbookNewSheet(ByVal Wb As Workbook, ByVal Sh As Object)\n    Log = Log & \"appnew;\"\nEnd Sub\n",
+    "CReentry": "Option Explicit\nPublic WithEvents Ws As Worksheet\nPublic Count As Long\nPrivate Sub Ws_Change(ByVal Target As Range)\n    Count = Count + 1\n    If Count < 5 Then Target.Offset(1, 0).Value = Count\nEnd Sub\n"
+  },
+  "probes": [
+    {
+      "name": "change_single",
+      "macro": "\nFunction Probe() As String\nApplication.EnableEvents = True\nDim ws As Worksheet\nSet ws = Worksheets.Add\nDim s As New CSheetSink\nSet s.Ws = ws\nws.Range(\"B2\").Value = 1\nProbe = s.Log\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "chg:$B$2;"
+    },
+    {
+      "name": "change_block",
+      "macro": "\nFunction Probe() As String\nApplication.EnableEvents = True\nDim ws As Worksheet\nSet ws = Worksheets.Add\nDim s As New CSheetSink\nSet s.Ws = ws\nws.Range(\"A1:C2\").Value = 1\nProbe = s.Log\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "chg:$A$1:$C$2;"
+    },
+    {
+      "name": "change_formula",
+      "macro": "\nFunction Probe() As String\nApplication.EnableEvents = True\nDim ws As Worksheet\nSet ws = Worksheets.Add\nDim s As New CSheetSink\nSet s.Ws = ws\nws.Range(\"A1\").Formula = \"=1+1\"\nProbe = s.Log\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "calc;chg:$A$1;"
+    },
+    {
+      "name": "change_clear",
+      "macro": "\nFunction Probe() As String\nApplication.EnableEvents = True\nDim ws As Worksheet\nSet ws = Worksheets.Add\nws.Range(\"A1\").Value = 1\nDim s As New CSheetSink\nSet s.Ws = ws\nws.Range(\"A1\").ClearContents\nws.Range(\"B1:B3\").Clear\nProbe = s.Log\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "chg:$A$1;chg:$B$1:$B$3;"
+    },
+    {
+      "name": "change_events_off",
+      "macro": "\nFunction Probe() As String\nApplication.EnableEvents = True\nDim ws As Worksheet\nSet ws = Worksheets.Add\nDim s As New CSheetSink\nSet s.Ws = ws\nApplication.EnableEvents = False\nws.Range(\"A1\").Value = 1\nApplication.EnableEvents = True\nws.Range(\"A2\").Value = 1\nProbe = s.Log\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "chg:$A$2;"
+    },
+    {
+      "name": "change_select",
+      "macro": "\nFunction Probe() As String\nApplication.EnableEvents = True\nDim ws As Worksheet\nSet ws = Worksheets.Add\nDim s As New CSheetSink\nSet s.Ws = ws\nws.Range(\"C3\").Select\nws.Range(\"D4:E5\").Select\nProbe = s.Log\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "sel:$C$3;sel:$D$4:$E$5;"
+    },
+    {
+      "name": "calculate_event",
+      "macro": "\nFunction Probe() As String\nApplication.EnableEvents = True\nDim ws As Worksheet\nSet ws = Worksheets.Add\nDim s As New CSheetSink\nSet s.Ws = ws\nws.Range(\"A1\").Formula = \"=NOW()\"\nws.Calculate\nProbe = s.Log\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "calc;chg:$A$1;calc;"
+    },
+    {
+      "name": "activate_events",
+      "macro": "\nFunction Probe() As String\nApplication.EnableEvents = True\nDim ws As Worksheet\nSet ws = Worksheets.Add\nDim other As Worksheet\nSet other = Worksheets.Add\nDim s As New CSheetSink\nSet s.Ws = ws\nws.Activate\nother.Activate\nProbe = s.Log\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "act;deact;"
+    },
+    {
+      "name": "book_sheetchange",
+      "macro": "\nFunction Probe() As String\nApplication.EnableEvents = True\nDim ws As Worksheet\nSet ws = Worksheets.Add\nDim b As New CBookSink\nSet b.Wb = ThisWorkbook\nws.Range(\"A1\").Value = 1\nWorksheets.Add\nProbe = b.Log\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "sheetchg:$A$1;new:Worksheet;sheetact;"
+    },
+    {
+      "name": "app_sheetchange",
+      "macro": "\nFunction Probe() As String\nApplication.EnableEvents = True\nDim ws As Worksheet\nSet ws = Worksheets.Add\nDim a As New CAppSink\nSet a.App = Application\nws.Range(\"A1\").Value = 1\nWorksheets.Add\nProbe = a.Log\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "appchg:$A$1;appnew;"
+    },
+    {
+      "name": "reentry",
+      "macro": "\nFunction Probe() As String\nApplication.EnableEvents = True\nDim ws As Worksheet\nSet ws = Worksheets.Add\nDim r As New CReentry\nSet r.Ws = ws\nws.Range(\"A1\").Value = 0\nProbe = r.Count & \"|\" & ws.Range(\"A5\").Value & \"|\" & ws.Range(\"A6\").Value\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "5|4|"
+    },
+    {
+      "name": "unhook",
+      "macro": "\nFunction Probe() As String\nApplication.EnableEvents = True\nDim ws As Worksheet\nSet ws = Worksheets.Add\nDim s As New CSheetSink\nSet s.Ws = ws\nws.Range(\"A1\").Value = 1\nSet s.Ws = Nothing\nws.Range(\"A2\").Value = 1\nProbe = s.Log\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "chg:$A$1;"
+    },
+    {
+      "name": "change_insert_delete",
+      "macro": "\nFunction Probe() As String\nApplication.EnableEvents = True\nDim ws As Worksheet\nSet ws = Worksheets.Add\nDim s As New CSheetSink\nSet s.Ws = ws\nws.Rows(2).Insert\nws.Columns(1).Delete\nProbe = s.Log\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "chg:$2:$2;chg:$A:$A;"
+    },
+    {
+      "name": "change_copy_paste",
+      "macro": "\nFunction Probe() As String\nApplication.EnableEvents = True\nDim ws As Worksheet\nSet ws = Worksheets.Add\nws.Range(\"A1\").Value = 1\nDim s As New CSheetSink\nSet s.Ws = ws\nws.Range(\"A1\").Copy ws.Range(\"C1:C2\")\nProbe = s.Log\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "chg:$C$1:$C$2;"
+    },
+    {
+      "name": "calc_no_formulas",
+      "macro": "\nFunction Probe() As String\nApplication.EnableEvents = True\nDim ws As Worksheet\nSet ws = Worksheets.Add\nws.Range(\"A1\").Value = 1\nDim s As New CSheetSink\nSet s.Ws = ws\nws.Calculate\nProbe = \"[\" & s.Log & \"]\"\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "[]"
+    },
+    {
+      "name": "calc_plain_formula",
+      "macro": "\nFunction Probe() As String\nApplication.EnableEvents = True\nDim ws As Worksheet\nSet ws = Worksheets.Add\nws.Range(\"A1\").Formula = \"=1+1\"\nDim s As New CSheetSink\nSet s.Ws = ws\nws.Calculate\nProbe = \"[\" & s.Log & \"]\"\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "[]"
+    },
+    {
+      "name": "calc_volatile",
+      "macro": "\nFunction Probe() As String\nApplication.EnableEvents = True\nDim ws As Worksheet\nSet ws = Worksheets.Add\nws.Range(\"A1\").Formula = \"=RAND()\"\nDim s As New CSheetSink\nSet s.Ws = ws\nws.Calculate\nws.Calculate\nProbe = \"[\" & s.Log & \"]\"\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "[calc;calc;]"
+    },
+    {
+      "name": "calc_application",
+      "macro": "\nFunction Probe() As String\nApplication.EnableEvents = True\nDim ws As Worksheet\nSet ws = Worksheets.Add\nws.Range(\"A1\").Formula = \"=RAND()\"\nDim s As New CSheetSink\nSet s.Ws = ws\nApplication.Calculate\nProbe = \"[\" & s.Log & \"]\"\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "[calc;]"
+    },
+    {
+      "name": "calc_range",
+      "macro": "\nFunction Probe() As String\nApplication.EnableEvents = True\nDim ws As Worksheet\nSet ws = Worksheets.Add\nws.Range(\"A1\").Formula = \"=RAND()\"\nDim s As New CSheetSink\nSet s.Ws = ws\nws.Range(\"A1\").Calculate\nProbe = \"[\" & s.Log & \"]\"\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "[calc;]"
+    },
+    {
+      "name": "calc_dependent_write",
+      "macro": "\nFunction Probe() As String\nApplication.EnableEvents = True\nDim ws As Worksheet\nSet ws = Worksheets.Add\nws.Range(\"A1\").Value = 1\nws.Range(\"B1\").Formula = \"=A1*2\"\nDim s As New CSheetSink\nSet s.Ws = ws\nws.Range(\"A1\").Value = 2\nProbe = \"[\" & s.Log & \"]\"\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "[calc;chg:$A$1;]"
+    },
+    {
+      "name": "calc_independent_write",
+      "macro": "\nFunction Probe() As String\nApplication.EnableEvents = True\nDim ws As Worksheet\nSet ws = Worksheets.Add\nws.Range(\"B1\").Formula = \"=1+1\"\nDim s As New CSheetSink\nSet s.Ws = ws\nws.Range(\"A1\").Value = 2\nProbe = \"[\" & s.Log & \"]\"\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "[chg:$A$1;]"
+    },
+    {
+      "name": "calc_volatile_write",
+      "macro": "\nFunction Probe() As String\nApplication.EnableEvents = True\nDim ws As Worksheet\nSet ws = Worksheets.Add\nws.Range(\"B1\").Formula = \"=RAND()\"\nDim s As New CSheetSink\nSet s.Ws = ws\nws.Range(\"A1\").Value = 2\nProbe = \"[\" & s.Log & \"]\"\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "[calc;chg:$A$1;]"
+    },
+    {
+      "name": "calc_empty_sheet",
+      "macro": "\nFunction Probe() As String\nApplication.EnableEvents = True\nDim ws As Worksheet\nSet ws = Worksheets.Add\nDim s As New CSheetSink\nSet s.Ws = ws\nws.Calculate\nProbe = \"[\" & s.Log & \"]\"\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "[]"
+    },
+    {
+      "name": "manual_dependent_write",
+      "macro": "\nFunction Probe() As String\nApplication.EnableEvents = True\nDim ws As Worksheet\nSet ws = Worksheets.Add\nws.Range(\"A1\").Value = 1\nws.Range(\"B1\").Formula = \"=A1*2\"\nApplication.Calculation = xlCalculationManual\nDim s As New CSheetSink\nSet s.Ws = ws\nws.Range(\"A1\").Value = 2\nws.Calculate\nApplication.Calculation = xlCalculationAutomatic\nProbe = \"[\" & s.Log & \"]\"\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "[chg:$A$1;calc;]"
+    },
+    {
+      "name": "manual_independent_write",
+      "macro": "\nFunction Probe() As String\nApplication.EnableEvents = True\nDim ws As Worksheet\nSet ws = Worksheets.Add\nws.Range(\"B1\").Formula = \"=1+1\"\nApplication.Calculation = xlCalculationManual\nDim s As New CSheetSink\nSet s.Ws = ws\nws.Range(\"A1\").Value = 2\nws.Calculate\nApplication.Calculation = xlCalculationAutomatic\nProbe = \"[\" & s.Log & \"]\"\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "[chg:$A$1;]"
+    },
+    {
+      "name": "manual_no_formulas",
+      "macro": "\nFunction Probe() As String\nApplication.EnableEvents = True\nDim ws As Worksheet\nSet ws = Worksheets.Add\nws.Range(\"A1\").Value = 1\nApplication.Calculation = xlCalculationManual\nDim s As New CSheetSink\nSet s.Ws = ws\nws.Range(\"A1\").Value = 2\nws.Calculate\nApplication.Calculation = xlCalculationAutomatic\nProbe = \"[\" & s.Log & \"]\"\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "[chg:$A$1;]"
+    },
+    {
+      "name": "manual_range_calc",
+      "macro": "\nFunction Probe() As String\nApplication.EnableEvents = True\nDim ws As Worksheet\nSet ws = Worksheets.Add\nws.Range(\"B1\").Formula = \"=RAND()\"\nApplication.Calculation = xlCalculationManual\nDim s As New CSheetSink\nSet s.Ws = ws\nws.Range(\"B1\").Calculate\nApplication.Calculation = xlCalculationAutomatic\nProbe = \"[\" & s.Log & \"]\"\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "[calc;]"
+    },
+    {
+      "name": "manual_back_to_auto",
+      "macro": "\nFunction Probe() As String\nApplication.EnableEvents = True\nDim ws As Worksheet\nSet ws = Worksheets.Add\nws.Range(\"A1\").Value = 1\nws.Range(\"B1\").Formula = \"=A1*2\"\nApplication.Calculation = xlCalculationManual\nDim s As New CSheetSink\nSet s.Ws = ws\nws.Range(\"A1\").Value = 2\nApplication.Calculation = xlCalculationAutomatic\nProbe = \"[\" & s.Log & \"]|\" & ws.Range(\"B1\").Value\nApplication.EnableEvents = False\nEnd Function\n",
+      "result": "[chg:$A$1;calc;]|4"
+    }
+  ]
+}

@@ -787,44 +787,214 @@ def _time_text(when: _dt.datetime) -> str:
     return f"{hour}:{when.minute:02d}:{when.second:02d} {suffix}"
 
 
-_DATE_PATTERNS: Final = (
-    "%m/%d/%Y %H:%M:%S",
-    "%m/%d/%Y %I:%M:%S %p",
-    "%m/%d/%Y %I:%M %p",
-    "%m/%d/%Y %H:%M",
-    "%m/%d/%Y",
-    "%m/%d/%y",
-    "%m-%d-%Y",
-    "%Y-%m-%d %H:%M:%S",
-    "%Y-%m-%d",
-    "%Y/%m/%d",
-    "%B %d, %Y",
-    "%d %B %Y",
-    "%b %d, %Y",
-    "%H:%M:%S",
-    "%I:%M:%S %p",
-    "%I:%M %p",
-    "%H:%M",
-)
-
-
 def parse_date_text(text: str) -> VBADate | None:
     """``text`` as a Date, or None where VBA would not read one.
 
-    The list is the US order Office's own date literals use; a locale's
-    day-first order is a separate question this does not answer.
+    Reads text as a US-English Office does (CDate, IsDate, DateValue),
+    measured over 182 strings in ``tests/fixtures/date_text.json``:
+
+    - Numbers, month names (any prefix of three letters or more, a dot
+      after one allowed), AM/PM (``AM``, ``PM``, ``A``, ``P``), separated by
+      ``/``, ``-``, ``,`` or spaces. Weekday names are not read.
+    - Three numbers are month-day-year, else year-month-day, else
+      day-month-year: the first that is a real date. Two are month-day,
+      day-month, month-year or year-month, the year this one when there is
+      none. With a month name, the first number is the day unless it is
+      past 31; one number past 31 is the year, the day then the 1st.
+    - A year under 100 is 1950 to 2049; 100 to 9999 is itself.
+    - A time is ``h:mm[:ss]``, or an hour beside AM/PM, before or after the
+      date and set off by spaces; AM/PM may come before it.
     """
-    stripped = text.strip()
-    if not stripped:
+    tokens = _date_tokens(text)
+    if tokens is None:
         return None
-    for pattern in _DATE_PATTERNS:
-        try:
-            when = _dt.datetime.strptime(stripped, pattern)
-        except ValueError:
+    return _date_from_tokens(tokens)
+
+
+_MONTH_NAMES: Final = ("january", "february", "march", "april", "may", "june", "july",
+                       "august", "september", "october", "november", "december")
+_AM_PM: Final = {"am": "am", "a": "am", "pm": "pm", "p": "pm"}
+
+#: A token of date text: (kind, value, spaced). kind is "num" (value the digits),
+#: "month" (1-12), "ampm", "sep" (/ - ,) or ":"; spaced says whitespace came before it.
+_DateToken = tuple[str, object, bool]
+
+
+def _date_tokens(text: str) -> list[_DateToken] | None:
+    tokens: list[_DateToken] = []
+    at, spaced = 0, False
+    while at < len(text):
+        char = text[at]
+        if char in " \t":
+            at, spaced = at + 1, True
             continue
-        if "%Y" not in pattern and "%y" not in pattern:
-            return VBADate.from_datetime(when.time())
-        return VBADate.from_datetime(when)
+        if char.isdigit():
+            end = at
+            while end < len(text) and text[end].isdigit():
+                end += 1
+            tokens.append(("num", text[at:end], spaced))
+        elif char.isalpha():
+            end = at
+            while end < len(text) and text[end].isalpha():
+                end += 1
+            word = text[at:end].lower()
+            if word in _AM_PM:
+                tokens.append(("ampm", _AM_PM[word], spaced))
+            else:
+                month = next((index for index, name in enumerate(_MONTH_NAMES, 1)
+                              if len(word) >= 3 and name.startswith(word)), None)
+                if month is None:
+                    return None
+                tokens.append(("month", month, spaced))
+                if end < len(text) and text[end] == ".":
+                    end += 1
+        elif char in "/-,":
+            tokens.append(("sep", char, spaced))
+            end = at + 1
+        elif char == ":":
+            tokens.append((":", char, spaced))
+            end = at + 1
+        else:
+            return None
+        at, spaced = end, False
+    return tokens
+
+
+def _date_from_tokens(tokens: list[_DateToken]) -> VBADate | None:
+    # The time: numbers joined by colons, or one number beside AM/PM.
+    times: list[tuple[int, int]] = []  # (start, end) token spans
+    index = 0
+    while index < len(tokens):
+        if tokens[index][0] == "num" and index + 1 < len(tokens) and tokens[index + 1][0] == ":":
+            end = index + 1
+            while end + 1 < len(tokens) and tokens[end][0] == ":" and tokens[end + 1][0] == "num" and not tokens[end + 1][2] and not tokens[end][2]:
+                end += 2
+            if tokens[end - 1][0] != "num" or (end < len(tokens) and tokens[end][0] == ":"):
+                return None
+            times.append((index, end))
+            index = end
+        else:
+            index += 1
+    marks = [at for at, token in enumerate(tokens) if token[0] == "ampm"]
+    if len(marks) > 1 or len(times) > 1:
+        return None
+    if marks:
+        mark = marks[0]
+        if times and times[0][1] == mark:
+            times = [(times[0][0], mark + 1)]
+        elif times and times[0][0] == mark + 1:
+            times = [(mark, times[0][1])]
+        elif not times and mark > 0 and tokens[mark - 1][0] == "num":
+            times = [(mark - 1, mark + 1)]
+        elif not times and mark + 1 < len(tokens) and tokens[mark + 1][0] == "num":
+            times = [(mark, mark + 2)]
+        else:
+            return None
+    clock: _dt.time | None = None
+    rest = tokens
+    if times:
+        start, end = times[0]
+        part = tokens[start:end]
+        # Set off by spaces from the date, never by a separator.
+        if (start > 0 and (tokens[start - 1][0] == "sep" or not part[0][2])) or \
+                (end < len(tokens) and (tokens[end][0] == "sep" or not tokens[end][2])):
+            return None
+        clock = _clock(part)
+        if clock is None:
+            return None
+        rest = tokens[:start] + tokens[end:]
+    items = _date_items(rest)
+    if items is None:
+        return None
+    if not items:
+        return VBADate.from_datetime(clock) if clock is not None else None
+    day = _calendar_day(items)
+    if day is None:
+        return None
+    if clock is None:
+        return VBADate.from_datetime(day)
+    return VBADate.from_datetime(_dt.datetime.combine(day, clock))
+
+
+def _clock(part: list[_DateToken]) -> _dt.time | None:
+    mark = next((str(token[1]) for token in part if token[0] == "ampm"), None)
+    numbers = [int(str(token[1])) for token in part if token[0] == "num"]
+    if len(numbers) > 3:
+        return None
+    hour, minute, second = (numbers + [0, 0])[:3]
+    if not 0 <= hour <= 23 or not 0 <= minute <= 59 or not 0 <= second <= 59:
+        return None
+    if mark == "pm" and hour < 12:
+        hour += 12
+    elif mark == "am" and hour == 12:
+        hour = 0
+    return _dt.time(hour, minute, second)
+
+
+def _date_items(tokens: list[_DateToken]) -> list[_DateToken] | None:
+    """The numbers and month names of the date, separators checked and dropped."""
+    items: list[_DateToken] = []
+    expect_item = True
+    for token in tokens:
+        if token[0] == "sep":
+            if expect_item:
+                return None
+            expect_item = True
+        elif token[0] in ("num", "month"):
+            items.append(token)
+            expect_item = False
+        else:
+            return None
+    if items and expect_item:
+        return None
+    return items
+
+
+def _year(value: int) -> int:
+    """A year as written: under 100 is 1950 to 2049 (native probes)."""
+    return value + (2000 if value < 50 else 1900) if value < 100 else value
+
+
+def _real_day(year: int, month: int, day: int) -> _dt.date | None:
+    if not 100 <= year <= 9999:
+        return None
+    try:
+        return _dt.date(year, month, day)
+    except ValueError:
+        return None
+
+
+def _calendar_day(items: list[_DateToken]) -> _dt.date | None:
+    months = [int(str(token[1])) for token in items if token[0] == "month"]
+    numbers = [int(str(token[1])) for token in items if token[0] == "num"]
+    this_year = _dt.date.today().year
+    if len(months) > 1 or len(items) > 3:
+        return None
+    if months:
+        month = months[0]
+        if len(numbers) == 1:
+            value = numbers[0]
+            return _real_day(this_year, month, value) if value <= 31 else _real_day(_year(value), month, 1)
+        if len(numbers) == 2:
+            first, second = numbers
+            if first > 31:
+                return _real_day(_year(first), month, second)
+            return _real_day(_year(second), month, first)
+        return None
+    if len(numbers) == 3:
+        a, b, c = numbers
+        for year, month, day in ((c, a, b), (a, b, c), (c, b, a)):
+            found = _real_day(_year(year), month, day)
+            if found is not None:
+                return found
+        return None
+    if len(numbers) == 2:
+        a, b = numbers
+        for year, month, day in ((this_year, a, b), (this_year, b, a), (_year(b), a, 1), (_year(a), b, 1)):
+            found = _real_day(year, month, day)
+            if found is not None:
+                return found
+        return None
     return None
 
 
@@ -839,7 +1009,11 @@ def to_date(value: object) -> VBADate:
     if isinstance(value, str):
         parsed = parse_date_text(value)
         if parsed is None:
-            raise error(ERR_TYPE_MISMATCH, f"{value!r} is not a date")
+            try:
+                # CDate("2024") is the serial 2024, though IsDate says False (native probe).
+                return VBADate(float(text_to_number(value)))
+            except VBARuntimeError:
+                raise error(ERR_TYPE_MISMATCH, f"{value!r} is not a date") from None
         return parsed
     number = to_number(value)
     return VBADate(float(number))

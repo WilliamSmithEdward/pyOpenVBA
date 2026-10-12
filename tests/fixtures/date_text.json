@@ -1,0 +1,917 @@
+{
+  "excel_version_build": "16.0|20430",
+  "measured_year": 2026,
+  "measured_at": "2026-10-12T18:21:14.328880+00:00",
+  "probes": [
+    {
+      "text": "3/4/2024",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"3/4/2024\")\nEnd Function\n",
+      "result": "T|2024-03-04 00:00:00"
+    },
+    {
+      "text": "3/4/24",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"3/4/24\")\nEnd Function\n",
+      "result": "T|2024-03-04 00:00:00"
+    },
+    {
+      "text": "3/4",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"3/4\")\nEnd Function\n",
+      "result": "T|2026-03-04 00:00:00"
+    },
+    {
+      "text": "13/4/2024",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"13/4/2024\")\nEnd Function\n",
+      "result": "T|2024-04-13 00:00:00"
+    },
+    {
+      "text": "3/13/2024",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"3/13/2024\")\nEnd Function\n",
+      "result": "T|2024-03-13 00:00:00"
+    },
+    {
+      "text": "31/12/2024",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"31/12/2024\")\nEnd Function\n",
+      "result": "T|2024-12-31 00:00:00"
+    },
+    {
+      "text": "2024/3/4",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"2024/3/4\")\nEnd Function\n",
+      "result": "T|2024-03-04 00:00:00"
+    },
+    {
+      "text": "3-4-2024",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"3-4-2024\")\nEnd Function\n",
+      "result": "T|2024-03-04 00:00:00"
+    },
+    {
+      "text": "3.4.2024",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"3.4.2024\")\nEnd Function\n",
+      "result": "F|e13"
+    },
+    {
+      "text": "03/04/2024",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"03/04/2024\")\nEnd Function\n",
+      "result": "T|2024-03-04 00:00:00"
+    },
+    {
+      "text": "3/4/1",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"3/4/1\")\nEnd Function\n",
+      "result": "T|2001-03-04 00:00:00"
+    },
+    {
+      "text": "3/4/29",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"3/4/29\")\nEnd Function\n",
+      "result": "T|2029-03-04 00:00:00"
+    },
+    {
+      "text": "3/4/30",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"3/4/30\")\nEnd Function\n",
+      "result": "T|2030-03-04 00:00:00"
+    },
+    {
+      "text": "3/4/99",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"3/4/99\")\nEnd Function\n",
+      "result": "T|1999-03-04 00:00:00"
+    },
+    {
+      "text": "3/4/100",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"3/4/100\")\nEnd Function\n",
+      "result": "T|0100-03-04 00:00:00"
+    },
+    {
+      "text": "3/4/9999",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"3/4/9999\")\nEnd Function\n",
+      "result": "T|9999-03-04 00:00:00"
+    },
+    {
+      "text": "3/4/10000",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"3/4/10000\")\nEnd Function\n",
+      "result": "F|e13"
+    },
+    {
+      "text": "0/4/2024",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"0/4/2024\")\nEnd Function\n",
+      "result": "F|e13"
+    },
+    {
+      "text": "2/30/2024",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"2/30/2024\")\nEnd Function\n",
+      "result": "F|e13"
+    },
+    {
+      "text": "2/29/2023",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"2/29/2023\")\nEnd Function\n",
+      "result": "F|e13"
+    },
+    {
+      "text": "2/29/2024",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"2/29/2024\")\nEnd Function\n",
+      "result": "T|2024-02-29 00:00:00"
+    },
+    {
+      "text": "13/13/2024",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"13/13/2024\")\nEnd Function\n",
+      "result": "F|e13"
+    },
+    {
+      "text": "4/31/2024",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"4/31/2024\")\nEnd Function\n",
+      "result": "F|e13"
+    },
+    {
+      "text": "2024-03-04",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"2024-03-04\")\nEnd Function\n",
+      "result": "T|2024-03-04 00:00:00"
+    },
+    {
+      "text": "2024-3-4",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"2024-3-4\")\nEnd Function\n",
+      "result": "T|2024-03-04 00:00:00"
+    },
+    {
+      "text": "2024-03-04 13:00",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"2024-03-04 13:00\")\nEnd Function\n",
+      "result": "T|2024-03-04 13:00:00"
+    },
+    {
+      "text": "2024-03-04 13:00:05",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"2024-03-04 13:00:05\")\nEnd Function\n",
+      "result": "T|2024-03-04 13:00:05"
+    },
+    {
+      "text": "2024-03-04T13:00",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"2024-03-04T13:00\")\nEnd Function\n",
+      "result": "F|e13"
+    },
+    {
+      "text": "2024-03-04 1:05 PM",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"2024-03-04 1:05 PM\")\nEnd Function\n",
+      "result": "T|2024-03-04 13:05:00"
+    },
+    {
+      "text": "2024-13-01",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"2024-13-01\")\nEnd Function\n",
+      "result": "F|e13"
+    },
+    {
+      "text": "24-03-04",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"24-03-04\")\nEnd Function\n",
+      "result": "T|2024-03-04 00:00:00"
+    },
+    {
+      "text": "2024-04-31",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"2024-04-31\")\nEnd Function\n",
+      "result": "F|e13"
+    },
+    {
+      "text": "Mar 4 2024",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"Mar 4 2024\")\nEnd Function\n",
+      "result": "T|2024-03-04 00:00:00"
+    },
+    {
+      "text": "March 4, 2024",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"March 4, 2024\")\nEnd Function\n",
+      "result": "T|2024-03-04 00:00:00"
+    },
+    {
+      "text": "4 Mar 2024",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"4 Mar 2024\")\nEnd Function\n",
+      "result": "T|2024-03-04 00:00:00"
+    },
+    {
+      "text": "4-Mar-2024",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"4-Mar-2024\")\nEnd Function\n",
+      "result": "T|2024-03-04 00:00:00"
+    },
+    {
+      "text": "4-Mar-24",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"4-Mar-24\")\nEnd Function\n",
+      "result": "T|2024-03-04 00:00:00"
+    },
+    {
+      "text": "Mar-2024",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"Mar-2024\")\nEnd Function\n",
+      "result": "T|2024-03-01 00:00:00"
+    },
+    {
+      "text": "March 2024",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"March 2024\")\nEnd Function\n",
+      "result": "T|2024-03-01 00:00:00"
+    },
+    {
+      "text": "Mar 4",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"Mar 4\")\nEnd Function\n",
+      "result": "T|2026-03-04 00:00:00"
+    },
+    {
+      "text": "4 March",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"4 March\")\nEnd Function\n",
+      "result": "T|2026-03-04 00:00:00"
+    },
+    {
+      "text": "Mar. 4, 2024",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"Mar. 4, 2024\")\nEnd Function\n",
+      "result": "T|2024-03-04 00:00:00"
+    },
+    {
+      "text": "Sept 4 2024",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"Sept 4 2024\")\nEnd Function\n",
+      "result": "T|2024-09-04 00:00:00"
+    },
+    {
+      "text": "Sep 4 2024",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"Sep 4 2024\")\nEnd Function\n",
+      "result": "T|2024-09-04 00:00:00"
+    },
+    {
+      "text": "Mon, Mar 4 2024",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"Mon, Mar 4 2024\")\nEnd Function\n",
+      "result": "F|e13"
+    },
+    {
+      "text": "Monday, March 4, 2024",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"Monday, March 4, 2024\")\nEnd Function\n",
+      "result": "F|e13"
+    },
+    {
+      "text": "mar 4 2024",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"mar 4 2024\")\nEnd Function\n",
+      "result": "T|2024-03-04 00:00:00"
+    },
+    {
+      "text": "MARCH 4 2024",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"MARCH 4 2024\")\nEnd Function\n",
+      "result": "T|2024-03-04 00:00:00"
+    },
+    {
+      "text": "Marc 4 2024",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"Marc 4 2024\")\nEnd Function\n",
+      "result": "T|2024-03-04 00:00:00"
+    },
+    {
+      "text": "2024 Mar 4",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"2024 Mar 4\")\nEnd Function\n",
+      "result": "T|2024-03-04 00:00:00"
+    },
+    {
+      "text": "4 2024 Mar",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"4 2024 Mar\")\nEnd Function\n",
+      "result": "T|2024-03-04 00:00:00"
+    },
+    {
+      "text": "Mar 2024 4",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"Mar 2024 4\")\nEnd Function\n",
+      "result": "T|2024-03-04 00:00:00"
+    },
+    {
+      "text": "Ma 4 2024",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"Ma 4 2024\")\nEnd Function\n",
+      "result": "F|e13"
+    },
+    {
+      "text": "Febr 4 2024",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"Febr 4 2024\")\nEnd Function\n",
+      "result": "T|2024-02-04 00:00:00"
+    },
+    {
+      "text": "June 31 2024",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"June 31 2024\")\nEnd Function\n",
+      "result": "F|e13"
+    },
+    {
+      "text": "Mar 4 24",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"Mar 4 24\")\nEnd Function\n",
+      "result": "T|2024-03-04 00:00:00"
+    },
+    {
+      "text": "Mar 32 2024",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"Mar 32 2024\")\nEnd Function\n",
+      "result": "F|e13"
+    },
+    {
+      "text": "13:05",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"13:05\")\nEnd Function\n",
+      "result": "T|1899-12-30 13:05:00"
+    },
+    {
+      "text": "1:05 PM",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"1:05 PM\")\nEnd Function\n",
+      "result": "T|1899-12-30 13:05:00"
+    },
+    {
+      "text": "1:05PM",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"1:05PM\")\nEnd Function\n",
+      "result": "T|1899-12-30 13:05:00"
+    },
+    {
+      "text": "1 PM",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"1 PM\")\nEnd Function\n",
+      "result": "T|1899-12-30 13:00:00"
+    },
+    {
+      "text": "1PM",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"1PM\")\nEnd Function\n",
+      "result": "T|1899-12-30 13:00:00"
+    },
+    {
+      "text": "13:05:07",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"13:05:07\")\nEnd Function\n",
+      "result": "T|1899-12-30 13:05:07"
+    },
+    {
+      "text": "13:05:07.5",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"13:05:07.5\")\nEnd Function\n",
+      "result": "F|e13"
+    },
+    {
+      "text": "25:00",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"25:00\")\nEnd Function\n",
+      "result": "F|e13"
+    },
+    {
+      "text": "12:60",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"12:60\")\nEnd Function\n",
+      "result": "F|e13"
+    },
+    {
+      "text": "0:00",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"0:00\")\nEnd Function\n",
+      "result": "T|1899-12-30 00:00:00"
+    },
+    {
+      "text": "12:00 AM",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"12:00 AM\")\nEnd Function\n",
+      "result": "T|1899-12-30 00:00:00"
+    },
+    {
+      "text": "12:00 PM",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"12:00 PM\")\nEnd Function\n",
+      "result": "T|1899-12-30 12:00:00"
+    },
+    {
+      "text": "13:00 PM",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"13:00 PM\")\nEnd Function\n",
+      "result": "T|1899-12-30 13:00:00"
+    },
+    {
+      "text": "1:05 a",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"1:05 a\")\nEnd Function\n",
+      "result": "T|1899-12-30 01:05:00"
+    },
+    {
+      "text": "1:05 p",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"1:05 p\")\nEnd Function\n",
+      "result": "T|1899-12-30 13:05:00"
+    },
+    {
+      "text": "1:05 am",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"1:05 am\")\nEnd Function\n",
+      "result": "T|1899-12-30 01:05:00"
+    },
+    {
+      "text": "1:5",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"1:5\")\nEnd Function\n",
+      "result": "T|1899-12-30 01:05:00"
+    },
+    {
+      "text": "1:05:60",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"1:05:60\")\nEnd Function\n",
+      "result": "F|e13"
+    },
+    {
+      "text": "24:00",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"24:00\")\nEnd Function\n",
+      "result": "F|e13"
+    },
+    {
+      "text": "23:59:59",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"23:59:59\")\nEnd Function\n",
+      "result": "T|1899-12-30 23:59:59"
+    },
+    {
+      "text": "3/4/2024 13:05",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"3/4/2024 13:05\")\nEnd Function\n",
+      "result": "T|2024-03-04 13:05:00"
+    },
+    {
+      "text": "3/4/2024 1:05 PM",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"3/4/2024 1:05 PM\")\nEnd Function\n",
+      "result": "T|2024-03-04 13:05:00"
+    },
+    {
+      "text": "1:05 PM 3/4/2024",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"1:05 PM 3/4/2024\")\nEnd Function\n",
+      "result": "T|2024-03-04 13:05:00"
+    },
+    {
+      "text": "3/4/2024 1 PM",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"3/4/2024 1 PM\")\nEnd Function\n",
+      "result": "T|2024-03-04 13:00:00"
+    },
+    {
+      "text": "March 4, 2024 1:05:07 PM",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"March 4, 2024 1:05:07 PM\")\nEnd Function\n",
+      "result": "T|2024-03-04 13:05:07"
+    },
+    {
+      "text": "3/4/2024 25:00",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"3/4/2024 25:00\")\nEnd Function\n",
+      "result": "F|e13"
+    },
+    {
+      "text": "13:05 Mar 4 2024",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"13:05 Mar 4 2024\")\nEnd Function\n",
+      "result": "T|2024-03-04 13:05:00"
+    },
+    {
+      "text": "2024",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"2024\")\nEnd Function\n",
+      "result": "F|1905-07-16 00:00:00"
+    },
+    {
+      "text": "3",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"3\")\nEnd Function\n",
+      "result": "F|1900-01-02 00:00:00"
+    },
+    {
+      "text": "3/4/2024 x",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"3/4/2024 x\")\nEnd Function\n",
+      "result": "F|e13"
+    },
+    {
+      "text": "20240304",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"20240304\")\nEnd Function\n",
+      "result": "F|e13"
+    },
+    {
+      "text": "2024.03.04",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"2024.03.04\")\nEnd Function\n",
+      "result": "F|e13"
+    },
+    {
+      "text": "4.3.2024",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"4.3.2024\")\nEnd Function\n",
+      "result": "F|e13"
+    },
+    {
+      "text": "1/1/100",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"1/1/100\")\nEnd Function\n",
+      "result": "T|0100-01-01 00:00:00"
+    },
+    {
+      "text": "12/31/9999",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"12/31/9999\")\nEnd Function\n",
+      "result": "T|9999-12-31 00:00:00"
+    },
+    {
+      "text": "1/1/99",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"1/1/99\")\nEnd Function\n",
+      "result": "T|1999-01-01 00:00:00"
+    },
+    {
+      "text": "1/1/1899",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"1/1/1899\")\nEnd Function\n",
+      "result": "T|1899-01-01 00:00:00"
+    },
+    {
+      "text": "today",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"today\")\nEnd Function\n",
+      "result": "F|e13"
+    },
+    {
+      "text": "  3/4/2024  ",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"  3/4/2024  \")\nEnd Function\n",
+      "result": "T|2024-03-04 00:00:00"
+    },
+    {
+      "text": "3 / 4 / 2024",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"3 / 4 / 2024\")\nEnd Function\n",
+      "result": "T|2024-03-04 00:00:00"
+    },
+    {
+      "text": "3//4/2024",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"3//4/2024\")\nEnd Function\n",
+      "result": "F|e13"
+    },
+    {
+      "text": "3/4/2024/5",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"3/4/2024/5\")\nEnd Function\n",
+      "result": "F|e13"
+    },
+    {
+      "text": "-3/4/2024",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"-3/4/2024\")\nEnd Function\n",
+      "result": "F|e13"
+    },
+    {
+      "text": "3,4,2024",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"3,4,2024\")\nEnd Function\n",
+      "result": "T|2024-03-04 00:00:00"
+    },
+    {
+      "text": "3 4 2024",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"3 4 2024\")\nEnd Function\n",
+      "result": "T|2024-03-04 00:00:00"
+    },
+    {
+      "text": "3/4/2024 PM",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"3/4/2024 PM\")\nEnd Function\n",
+      "result": "F|e13"
+    },
+    {
+      "text": "PM 1:05",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"PM 1:05\")\nEnd Function\n",
+      "result": "T|1899-12-30 13:05:00"
+    },
+    {
+      "text": "1:05 PM PM",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"1:05 PM PM\")\nEnd Function\n",
+      "result": "F|e13"
+    },
+    {
+      "text": "12/30/1899",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"12/30/1899\")\nEnd Function\n",
+      "result": "T|1899-12-30 00:00:00"
+    },
+    {
+      "text": "1/0/2024",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"1/0/2024\")\nEnd Function\n",
+      "result": "F|e13"
+    },
+    {
+      "text": "1/1/49",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"1/1/49\")\nEnd Function\n",
+      "result": "T|2049-01-01 00:00:00"
+    },
+    {
+      "text": "1/1/50",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"1/1/50\")\nEnd Function\n",
+      "result": "T|1950-01-01 00:00:00"
+    },
+    {
+      "text": "1/1/48",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"1/1/48\")\nEnd Function\n",
+      "result": "T|2048-01-01 00:00:00"
+    },
+    {
+      "text": "1/1/51",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"1/1/51\")\nEnd Function\n",
+      "result": "T|1951-01-01 00:00:00"
+    },
+    {
+      "text": "3/2024",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"3/2024\")\nEnd Function\n",
+      "result": "T|2024-03-01 00:00:00"
+    },
+    {
+      "text": "13/4",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"13/4\")\nEnd Function\n",
+      "result": "T|2026-04-13 00:00:00"
+    },
+    {
+      "text": "4/13",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"4/13\")\nEnd Function\n",
+      "result": "T|2026-04-13 00:00:00"
+    },
+    {
+      "text": "Mar",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"Mar\")\nEnd Function\n",
+      "result": "F|e13"
+    },
+    {
+      "text": "March 4 2024 5",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"March 4 2024 5\")\nEnd Function\n",
+      "result": "F|e13"
+    },
+    {
+      "text": "Mar 24 4",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"Mar 24 4\")\nEnd Function\n",
+      "result": "T|2004-03-24 00:00:00"
+    },
+    {
+      "text": "Mar 4 1",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"Mar 4 1\")\nEnd Function\n",
+      "result": "T|2001-03-04 00:00:00"
+    },
+    {
+      "text": "Mar 2 4",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"Mar 2 4\")\nEnd Function\n",
+      "result": "T|2004-03-02 00:00:00"
+    },
+    {
+      "text": "4 Mar",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"4 Mar\")\nEnd Function\n",
+      "result": "T|2026-03-04 00:00:00"
+    },
+    {
+      "text": "2024 4 Mar",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"2024 4 Mar\")\nEnd Function\n",
+      "result": "T|2024-03-04 00:00:00"
+    },
+    {
+      "text": "4 24 Mar",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"4 24 Mar\")\nEnd Function\n",
+      "result": "T|2024-03-04 00:00:00"
+    },
+    {
+      "text": "Mar 32",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"Mar 32\")\nEnd Function\n",
+      "result": "T|2032-03-01 00:00:00"
+    },
+    {
+      "text": "Mar 99",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"Mar 99\")\nEnd Function\n",
+      "result": "T|1999-03-01 00:00:00"
+    },
+    {
+      "text": "Mar 100",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"Mar 100\")\nEnd Function\n",
+      "result": "T|0100-03-01 00:00:00"
+    },
+    {
+      "text": "2024-03",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"2024-03\")\nEnd Function\n",
+      "result": "T|2024-03-01 00:00:00"
+    },
+    {
+      "text": "03-2024",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"03-2024\")\nEnd Function\n",
+      "result": "T|2024-03-01 00:00:00"
+    },
+    {
+      "text": "1 1 1",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"1 1 1\")\nEnd Function\n",
+      "result": "T|2001-01-01 00:00:00"
+    },
+    {
+      "text": "13 13 13",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"13 13 13\")\nEnd Function\n",
+      "result": "F|e13"
+    },
+    {
+      "text": "Mar 4, 2024, 1:05",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"Mar 4, 2024, 1:05\")\nEnd Function\n",
+      "result": "F|e13"
+    },
+    {
+      "text": "3/4/2024, 13:05",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"3/4/2024, 13:05\")\nEnd Function\n",
+      "result": "F|e13"
+    },
+    {
+      "text": "3/4/2024 -",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"3/4/2024 -\")\nEnd Function\n",
+      "result": "F|e13"
+    },
+    {
+      "text": "Mar 4 2024 Apr",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"Mar 4 2024 Apr\")\nEnd Function\n",
+      "result": "F|e13"
+    },
+    {
+      "text": "1:05:07 PM 3/4/2024",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"1:05:07 PM 3/4/2024\")\nEnd Function\n",
+      "result": "T|2024-03-04 13:05:07"
+    },
+    {
+      "text": "3/4/2024 1:05:07 AM",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"3/4/2024 1:05:07 AM\")\nEnd Function\n",
+      "result": "T|2024-03-04 01:05:07"
+    },
+    {
+      "text": "1:05 3/4/2024 PM",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"1:05 3/4/2024 PM\")\nEnd Function\n",
+      "result": "F|e13"
+    },
+    {
+      "text": "3/4/2024 13",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"3/4/2024 13\")\nEnd Function\n",
+      "result": "F|e13"
+    },
+    {
+      "text": "3/4/2024 1",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"3/4/2024 1\")\nEnd Function\n",
+      "result": "F|e13"
+    },
+    {
+      "text": "Sat 3/4/2024",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"Sat 3/4/2024\")\nEnd Function\n",
+      "result": "F|e13"
+    },
+    {
+      "text": "3/4/2024 Mon",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"3/4/2024 Mon\")\nEnd Function\n",
+      "result": "F|e13"
+    },
+    {
+      "text": "Feb 29 2023",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"Feb 29 2023\")\nEnd Function\n",
+      "result": "F|e13"
+    },
+    {
+      "text": "Feb 29 2024",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"Feb 29 2024\")\nEnd Function\n",
+      "result": "T|2024-02-29 00:00:00"
+    },
+    {
+      "text": "may 4 2024",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"may 4 2024\")\nEnd Function\n",
+      "result": "T|2024-05-04 00:00:00"
+    },
+    {
+      "text": "Ju 4 2024",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"Ju 4 2024\")\nEnd Function\n",
+      "result": "F|e13"
+    },
+    {
+      "text": "Jul 4 2024",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"Jul 4 2024\")\nEnd Function\n",
+      "result": "T|2024-07-04 00:00:00"
+    },
+    {
+      "text": "Augu 4 2024",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"Augu 4 2024\")\nEnd Function\n",
+      "result": "T|2024-08-04 00:00:00"
+    },
+    {
+      "text": "Decem 4 2024",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"Decem 4 2024\")\nEnd Function\n",
+      "result": "T|2024-12-04 00:00:00"
+    },
+    {
+      "text": "Dece 4 2024",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"Dece 4 2024\")\nEnd Function\n",
+      "result": "T|2024-12-04 00:00:00"
+    },
+    {
+      "text": "Decembe 4 2024",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"Decembe 4 2024\")\nEnd Function\n",
+      "result": "T|2024-12-04 00:00:00"
+    },
+    {
+      "text": "Decemberx 4 2024",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"Decemberx 4 2024\")\nEnd Function\n",
+      "result": "F|e13"
+    },
+    {
+      "text": "Marc. 4 2024",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"Marc. 4 2024\")\nEnd Function\n",
+      "result": "T|2024-03-04 00:00:00"
+    },
+    {
+      "text": "Mar 4. 2024",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"Mar 4. 2024\")\nEnd Function\n",
+      "result": "F|e13"
+    },
+    {
+      "text": "4.Mar.2024",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"4.Mar.2024\")\nEnd Function\n",
+      "result": "F|e13"
+    },
+    {
+      "text": "4/Mar/2024",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"4/Mar/2024\")\nEnd Function\n",
+      "result": "T|2024-03-04 00:00:00"
+    },
+    {
+      "text": "Mar/4/2024",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"Mar/4/2024\")\nEnd Function\n",
+      "result": "T|2024-03-04 00:00:00"
+    },
+    {
+      "text": "4-mar-2024",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"4-mar-2024\")\nEnd Function\n",
+      "result": "T|2024-03-04 00:00:00"
+    },
+    {
+      "text": "2024-Mar-04",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"2024-Mar-04\")\nEnd Function\n",
+      "result": "T|2024-03-04 00:00:00"
+    },
+    {
+      "text": "1/1/0",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"1/1/0\")\nEnd Function\n",
+      "result": "T|2000-01-01 00:00:00"
+    },
+    {
+      "text": "1/1/00",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"1/1/00\")\nEnd Function\n",
+      "result": "T|2000-01-01 00:00:00"
+    },
+    {
+      "text": "1/1/000",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"1/1/000\")\nEnd Function\n",
+      "result": "T|2000-01-01 00:00:00"
+    },
+    {
+      "text": "1/1/0100",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"1/1/0100\")\nEnd Function\n",
+      "result": "T|0100-01-01 00:00:00"
+    },
+    {
+      "text": "1/1/99999",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"1/1/99999\")\nEnd Function\n",
+      "result": "F|e13"
+    },
+    {
+      "text": "100/1/1",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"100/1/1\")\nEnd Function\n",
+      "result": "T|0100-01-01 00:00:00"
+    },
+    {
+      "text": "99/1/1",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"99/1/1\")\nEnd Function\n",
+      "result": "T|1999-01-01 00:00:00"
+    },
+    {
+      "text": "32/1/1",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"32/1/1\")\nEnd Function\n",
+      "result": "T|2032-01-01 00:00:00"
+    },
+    {
+      "text": "31/1/1",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"31/1/1\")\nEnd Function\n",
+      "result": "T|2031-01-01 00:00:00"
+    },
+    {
+      "text": "12/31/1",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"12/31/1\")\nEnd Function\n",
+      "result": "T|2001-12-31 00:00:00"
+    },
+    {
+      "text": "0:5",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"0:5\")\nEnd Function\n",
+      "result": "T|1899-12-30 00:05:00"
+    },
+    {
+      "text": "00:00:00",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"00:00:00\")\nEnd Function\n",
+      "result": "T|1899-12-30 00:00:00"
+    },
+    {
+      "text": "1:2:3",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"1:2:3\")\nEnd Function\n",
+      "result": "T|1899-12-30 01:02:03"
+    },
+    {
+      "text": "1:02:03:04",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"1:02:03:04\")\nEnd Function\n",
+      "result": "F|e13"
+    },
+    {
+      "text": "12 AM",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"12 AM\")\nEnd Function\n",
+      "result": "T|1899-12-30 00:00:00"
+    },
+    {
+      "text": "0 AM",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"0 AM\")\nEnd Function\n",
+      "result": "T|1899-12-30 00:00:00"
+    },
+    {
+      "text": "0 PM",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"0 PM\")\nEnd Function\n",
+      "result": "T|1899-12-30 12:00:00"
+    },
+    {
+      "text": "12 PM",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"12 PM\")\nEnd Function\n",
+      "result": "T|1899-12-30 12:00:00"
+    },
+    {
+      "text": "11 PM",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"11 PM\")\nEnd Function\n",
+      "result": "T|1899-12-30 23:00:00"
+    },
+    {
+      "text": "a 1:05",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"a 1:05\")\nEnd Function\n",
+      "result": "T|1899-12-30 01:05:00"
+    },
+    {
+      "text": "1:05 A.M.",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"1:05 A.M.\")\nEnd Function\n",
+      "result": "F|e13"
+    },
+    {
+      "text": "1:05 AM.",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"1:05 AM.\")\nEnd Function\n",
+      "result": "F|e13"
+    },
+    {
+      "text": "13 AM",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"13 AM\")\nEnd Function\n",
+      "result": "T|1899-12-30 13:00:00"
+    },
+    {
+      "text": "1 2",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"1 2\")\nEnd Function\n",
+      "result": "T|2026-01-02 00:00:00"
+    },
+    {
+      "text": "1/2 PM",
+      "macro": "\nPrivate Function Try(ByVal s As String) As String\nDim r As String\nr = IIf(IsDate(s), \"T\", \"F\") & \"|\"\nOn Error Resume Next\nDim d As Date\nd = CDate(s)\nIf Err.Number Then r = r & \"e\" & Err.Number Else r = r & Format(d, \"yyyy-mm-dd hh:nn:ss\")\nTry = r\nEnd Function\n\nFunction Probe() As String\nProbe = Try(\"1/2 PM\")\nEnd Function\n",
+      "result": "F|e13"
+    }
+  ]
+}

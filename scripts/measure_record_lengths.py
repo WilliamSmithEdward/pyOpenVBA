@@ -23,9 +23,27 @@ CASES = {
     'long_array_byte': 'A(0 To 1) As Long\nB As Byte',
     'nested': 'A As Byte\nB As InnerData',
     'fixed_string_storage': 'Text As String * 3',
+    'enum': 'A As Colour',
+    'byte_enum': 'A As Byte\nB As Colour',
+    'enum_byte': 'A As Colour\nB As Byte',
+    'dynamic_long': 'A() As Long',
+    'byte_dynamic_long': 'A As Byte\nB() As Long',
+    'byte_dynamic_byte': 'A As Byte\nB() As Byte',
+    'dynamic_string': 'A() As String',
+    'dynamic_variant': 'A() As Variant',
+    'dynamic_record': 'A() As InnerData',
+    'dynamic_long_redim': 'A As Byte\nB() As Long',
+    'record_array': 'A(0 To 2) As InnerData',
+    'fixed_string_array': 'A(0 To 1) As String * 3',
+    'byte_object': 'A As Byte\nB As Collection',
+    'boolean_byte': 'A As Boolean\nB As Byte',
 }
 
 def macro(name: str) -> str:
+    if name == 'dynamic_long_redim':
+        return ('Public Type RecordData\n' + CASES[name] + '\nEnd Type\nFunction Probe() As String\n'
+                'Dim item As RecordData\nProbe = CStr(Len(item)) & "|" & CStr(LenB(item))\n'
+                'ReDim item.B(0 To 9)\nProbe = Probe & "|" & CStr(Len(item)) & "|" & CStr(LenB(item))\nEnd Function')
     if name == 'fixed_string_storage':
         return '''Private Type RecordData
 Text As String * 3
@@ -38,7 +56,8 @@ second = first
 first.Text = "x"
 Probe = Probe & first.Text & "|" & second.Text & "|" & Len(first) & "|" & LenB(first)
 End Function'''
-    return ('Public Type InnerData\nA As Byte\nB As Long\nEnd Type\nPublic Type RecordData\n' + CASES[name] +
+    return ('Public Enum Colour\nRed\nBlue\nEnd Enum\n'
+            'Public Type InnerData\nA As Byte\nB As Long\nEnd Type\nPublic Type RecordData\n' + CASES[name] +
             '\nEnd Type\nFunction Probe() As String\nDim item As RecordData\n'
             'Probe = CStr(Len(item)) & "|" & CStr(LenB(item))\nEnd Function')
 

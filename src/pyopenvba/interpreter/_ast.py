@@ -288,6 +288,9 @@ class Resume(Stmt):
 class ReDim(Stmt):
     preserve: bool = False
     decls: list[VarDecl] = field(default_factory=lambda: [])
+    #: Per declaration, the field it resizes (``item.B``, or ``.B`` in a
+    #: With block), or None for a variable named by the declaration.
+    targets: list[Member | None] = field(default_factory=lambda: [])
 
 
 @dataclass(slots=True)

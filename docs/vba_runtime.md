@@ -1655,13 +1655,25 @@ array temporaries fail before procedure execution, as do Variant assignments,
 Variant parameters and TypeName applied to these records. Broader intrinsic,
 host late-bound call and public object-module marshaling rules remain gaps.
 
-Sixteen native 64-bit Excel probes in `record_lengths.json` cover record
+Thirty native 64-bit Excel probes in `record_lengths.json` cover record
 Len/LenB widths, numeric alignment, pointer/object/Variant/string storage,
-fixed arrays and nested records. Fixed-length strings preserve their width,
-pad/truncate storage and resolve constant sizes in the defining module.
-Fixed strings initialize with null characters and pad short assignments
-with spaces. LongPtr uses 64-bit LongLong storage. Dynamic array field lengths, enum
-layouts, 32-bit layouts and wider fixed-string coercion remain incomplete.
+fixed arrays, nested records, enums and dynamic arrays. Fixed-length strings
+preserve their width, pad/truncate storage and resolve constant sizes in the
+defining module. Fixed strings initialize with null characters and pad short
+assignments with spaces. LongPtr uses 64-bit LongLong storage. An enum field
+is a Long. A dynamic array field is an 8-byte pointer whatever its element
+type, and a ReDim does not change the record's length. 32-bit layouts and
+wider fixed-string coercion remain incomplete.
+
+A variable, parameter, function result, array or record field typed as an
+enum is a Long: `TypeName` and `VarType` say so, and assignments round and
+overflow as a Long's do, over 11 native probes in `enum_storage.json`. An
+enum's member reads through the enum's name, `Colour.Blue`, or through its
+module too, `Palette.Shade.Light`. Native VBA refuses an enum type qualified
+by its module, `As Palette.Shade`, with "User-defined type not defined".
+`ReDim` resizes a record's dynamic array field -- `ReDim r.B(0 To 9)`,
+nested fields, an element's field `ReDim a(1).B(4)`, `.B` inside a With
+block, and Preserve -- over 6 native probes in `record_field_redim.json`.
 
 The Python `ExcelApplication.save()` convenience API fires save events too.
 If a handler cancels, it raises `VBARuntimeError(1004)` and does not write

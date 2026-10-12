@@ -47,8 +47,13 @@ def validate_record_arguments(interpreter: Interpreter, module: ModuleRuntime, p
     local.update({param.name.lower(): (param.declared, param.is_array, module) for param in procedure.params})
     local[procedure.name.lower()] = (procedure.returns, False, module)
     for node in body:
-        if isinstance(node, (A.Dim, A.ReDim)):
+        if isinstance(node, A.Dim):
             local.update({decl.name.lower(): (decl.declared, decl.is_array, module) for decl in node.decls})
+        elif isinstance(node, A.ReDim):
+            # A ReDim of a record's field (item.B) declares no local.
+            local.update({decl.name.lower(): (decl.declared, decl.is_array, module)
+                          for index, decl in enumerate(node.decls)
+                          if index >= len(node.targets) or node.targets[index] is None})
     # Declaration errors are compile errors even when their statement is
     # unreachable. Leave unused procedures deferred, as native VBA does.
     for declared, _, owner in local.values():

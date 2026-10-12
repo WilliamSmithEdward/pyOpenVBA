@@ -1,0 +1,36 @@
+{
+  "excel_version_build": "16.0|20430",
+  "measured_at": "2026-10-12T17:39:34.910978+00:00",
+  "probes": [
+    {
+      "name": "field",
+      "macro": "Public Type Inner\nV() As Long\nEnd Type\nPublic Type Outer\nB() As Long\nI As Inner\nS() As String\nEnd Type\nDim B As Long\nFunction Probe() As String\nDim r As Outer\nReDim r.B(0 To 9)\nr.B(9) = 7\nProbe = LBound(r.B) & \"|\" & UBound(r.B) & \"|\" & r.B(9) & \"|\" & B\nEnd Function",
+      "result": "0|9|7|0"
+    },
+    {
+      "name": "nested",
+      "macro": "Public Type Inner\nV() As Long\nEnd Type\nPublic Type Outer\nB() As Long\nI As Inner\nS() As String\nEnd Type\nDim B As Long\nFunction Probe() As String\nDim r As Outer\nReDim r.I.V(2 To 4)\nr.I.V(4) = 3\nProbe = LBound(r.I.V) & \"|\" & UBound(r.I.V) & \"|\" & r.I.V(4)\nEnd Function",
+      "result": "2|4|3"
+    },
+    {
+      "name": "preserve",
+      "macro": "Public Type Inner\nV() As Long\nEnd Type\nPublic Type Outer\nB() As Long\nI As Inner\nS() As String\nEnd Type\nDim B As Long\nFunction Probe() As String\nDim r As Outer\nReDim r.B(0 To 1)\nr.B(1) = 5\nReDim Preserve r.B(0 To 3)\nProbe = UBound(r.B) & \"|\" & r.B(1)\nEnd Function",
+      "result": "3|5"
+    },
+    {
+      "name": "with",
+      "macro": "Public Type Inner\nV() As Long\nEnd Type\nPublic Type Outer\nB() As Long\nI As Inner\nS() As String\nEnd Type\nDim B As Long\nFunction Probe() As String\nDim r As Outer\nWith r\nReDim .S(1)\n.S(1) = \"x\"\nEnd With\nProbe = UBound(r.S) & \"|\" & r.S(1)\nEnd Function",
+      "result": "1|x"
+    },
+    {
+      "name": "two",
+      "macro": "Public Type Inner\nV() As Long\nEnd Type\nPublic Type Outer\nB() As Long\nI As Inner\nS() As String\nEnd Type\nDim B As Long\nFunction Probe() As String\nDim r As Outer\nReDim r.B(1), r.S(2)\nProbe = UBound(r.B) & \"|\" & UBound(r.S) & \"|\" & TypeName(r.S)\nEnd Function",
+      "result": "1|2|String()"
+    },
+    {
+      "name": "array_element",
+      "macro": "Public Type Inner\nV() As Long\nEnd Type\nPublic Type Outer\nB() As Long\nI As Inner\nS() As String\nEnd Type\nDim B As Long\nFunction Probe() As String\nDim a(1) As Outer\nReDim a(1).B(0 To 4)\nProbe = UBound(a(1).B)\nEnd Function",
+      "result": "4"
+    }
+  ]
+}

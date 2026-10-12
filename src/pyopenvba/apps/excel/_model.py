@@ -1111,6 +1111,11 @@ class Worksheet(ExcelObject):
 
         refuse_structure(self.book, APPLICATION_DEFINED)
         wanted = to_text(value)
+        # Native probes: empty, past 31 characters, any of \ / ? * [ ] :, an
+        # apostrophe first or last, and History in any case are refused.
+        if (not wanted or len(wanted) > 31 or any(char in wanted for char in "\\/?*[]:")
+                or wanted[0] == "'" or wanted[-1] == "'" or wanted.lower() == "history"):
+            raise error(1004, f"{wanted!r} is not a name a sheet can have")
         if any(sheet is not self and sheet.name.lower() == wanted.lower() for sheet in self.book.sheets_):
             raise error(1004, f"a sheet called {wanted} is already there")
         self.name = wanted
@@ -1669,6 +1674,11 @@ class Range(ExcelObject):
         )
 
     # -- value
+
+    def vba_default_call(self, args: list[object], named: dict[str, object]) -> object:
+        """``rng(i)`` and ``rng(r, c)``: Range's default member with arguments
+        is Item, so Range("B2:C3")(5) is B4 (native probes)."""
+        return self.vba_get("Item", args, named)
 
     @member(default=True)
     def Value(self, RangeValueDataType: object = MISSING) -> object:

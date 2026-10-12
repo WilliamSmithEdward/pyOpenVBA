@@ -268,6 +268,12 @@ All notable changes to pyOpenVBA are documented here. This project follows
 - `LeftB`, `RightB`, `MidB`, `AscB`, `InStrB` and `Erl` exist; a numbered
   line written `40:` is a label.
 
+- A sheet name Excel refuses is error 1004: empty, past 31 characters, any
+  of `\ / ? * [ ] :`, an apostrophe first or last, or History in any case.
+  The emulator took any name. `Range("B2:C3")(5)` is `Range.Item(5)`, B4, as
+  in Excel; it read the range's values and indexed the array. 26 native
+  probes in `tests/fixtures/excel_vba_idioms.json`.
+
 ## [6.5.0] - 2026-10-04
 
 ### Added

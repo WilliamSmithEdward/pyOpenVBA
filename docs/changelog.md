@@ -204,6 +204,13 @@ All notable changes to pyOpenVBA are documented here. This project follows
 - `CallByName(c, "Count", VbMethod)` reads a Collection's count, where it
   was error 438, and `VbGet` is now error 438, as in VBA.
 
+- Text reads as a date as Office reads it. `CDate` and `IsDate` took a
+  fixed list of 17 patterns, so `2024-03-04 13:00`, `Mar 4 2024`,
+  `4-Mar-24`, `13/4/2024`, `1PM` and most other forms were type mismatches.
+  They follow Office's own rules now: month names by prefix, month-day-year
+  then year-month-day then day-month-year, two-digit years 1950 to 2049, a
+  time before or after the date. 182 native strings.
+
 ## [6.5.0] - 2026-10-04
 
 ### Added

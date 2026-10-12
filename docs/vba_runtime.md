@@ -1759,6 +1759,19 @@ native probes, `scripts/measure_vba_builtins.py`):
 Under `On Error Resume Next`, VBA resumes a `For Each` over an unallocated
 array inside the loop's body; this resumes after the loop.
 
+Text reads as a date as a US-English Office reads it, for `CDate`, `IsDate`,
+`DateValue` and `TimeValue`, over 182 native strings in
+`tests/fixtures/date_text.json` (`scripts/measure_date_text.py`). Numbers,
+month names (any prefix of three letters or more) and AM/PM are separated by
+`/`, `-`, `,` or spaces; weekday names and `.` between numbers are not read.
+Three numbers are month-day-year, else year-month-day, else day-month-year,
+whichever is first a real date; two are month-day, day-month, month-year or
+year-month, in this year when there is none. With a month name the first
+number is the day unless it is past 31. A year under 100 is 1950 to 2049. A
+time, `h:mm[:ss]` or an hour beside AM/PM, comes before or after the date,
+set off by spaces. `CDate` of a number in text, `CDate("2024")`, is that
+serial, though `IsDate` says False.
+
 ## What is not
 
 - **Spills are not measured through a sort, an insert or a delete.** A

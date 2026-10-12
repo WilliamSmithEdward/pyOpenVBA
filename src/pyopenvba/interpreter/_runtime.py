@@ -2569,6 +2569,11 @@ def _call_value(value: object, args: list[object], named: dict[str, object]) -> 
     if isinstance(value, VBAObject):
         if not args and not named:
             return value
+        caller = getattr(value, "vba_default_call", None)
+        if callable(caller):
+            # An object whose default member with arguments is another member:
+            # Range("B2:C3")(1) is Range.Item(1), not Value(1) (native probes).
+            return caller(args, named)
         spec = value.vba_default_member()
         if spec is None:
             raise error(ERR_MEMBER_NOT_FOUND, f"{value.vba_type_name} has no default member")

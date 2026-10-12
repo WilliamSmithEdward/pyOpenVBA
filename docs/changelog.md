@@ -356,6 +356,17 @@ All notable changes to pyOpenVBA are documented here. This project follows
   left stale, with its events. Change, SelectionChange, Activate, NewSheet,
   workbook and application sinks, EnableEvents and re-entry already matched.
   28 native probes in `tests/fixtures/excel_vba_events.json`.
+- `Err.Description` and `Error(n)` give Excel's text for every error number
+  from 1 to 1000, measured: 21 numbers, 380 "Invalid property value" among
+  them, fell back to "Application-defined or object-defined error", and 430,
+  442 and 460 were worded differently. `tests/fixtures/vba_error_text.json`.
+- `Application.Union` merges areas as Excel does: one inside another, or two
+  sharing their rows or columns that touch or overlap, become one, the merged
+  area moving to the end (`Union(A1:A2, A3)` is `$A$1:$A$3`; it stayed two
+  areas). `Resize` past the sheet's last row or column is error 1004. The
+  other 23 navigation idioms swept with them (End across gaps, UsedRange,
+  Intersect, CurrentRegion, SpecialCells, Address forms, CountLarge) already
+  matched. 15 more probes in `tests/fixtures/excel_vba_idioms.json`.
 
 ## [6.5.0] - 2026-10-04
 

@@ -18,6 +18,7 @@ gets the semantics wrong:
 
 from __future__ import annotations
 
+import sys
 from collections.abc import Iterator, Sequence
 from dataclasses import dataclass, field
 from decimal import Decimal
@@ -69,6 +70,7 @@ from pyopenvba.interpreter._values import (
     to_bool,
     to_integer,
     text_bytes,
+    release_in_order,
     to_text,
     type_name,
 )
@@ -145,6 +147,21 @@ class Slot:
             # A String assigned to a Byte array is its UTF-16LE bytes (native probe).
             value = text_bytes(value)
         self.value = copy_value(coerce(value, self.declared))
+
+
+class AutoNewSlot(Slot):
+    """A variable declared ``As New``: the object is made where the variable is
+    first used, not where it is declared, and made again after ``Set x = Nothing``,
+    so ``x Is Nothing`` is never True (native probes)."""
+
+    def __init__(self, declared: str, interpreter: Interpreter) -> None:
+        super().__init__(NOTHING, declared)
+        self.interpreter = interpreter
+
+    def get(self) -> object:
+        if self.value is NOTHING:
+            self.value = self.interpreter.create(self.declared)
+        return self.value
 
 
 class RecordFieldSlot(Slot):
@@ -426,6 +443,11 @@ class Collection(VBACollection):
     def __init__(self) -> None:
         self._items: list[object] = []
         self._keys: list[str | None] = []
+
+    def __del__(self) -> None:
+        # VBA releases a freed collection's items first to last, so their
+        # Class_Terminate runs in that order; Python's list would go last to first.
+        release_in_order(self._items)
 
     def vba_items(self) -> list[object]:
         return self._items
@@ -715,6 +737,22 @@ class UserClassInstance(VBAObject):
 
     def vba_member(self, name: str) -> Any:
         return None
+
+    def __del__(self) -> None:
+        """Class_Terminate, when the last reference goes. VBA counts references and
+        so does CPython: Set x = Nothing, a reassignment or the end of the
+        procedure that held it runs it there, as native probes show. An object in
+        a reference cycle, which VBA never terminates, is freed by Python's cycle
+        collector at a time of its own."""
+        if sys.is_finalizing() or self.host is not None or not self.module.is_class:
+            return
+        procedure = self.module.procedure("Class_Terminate")
+        if procedure is None:
+            return
+        try:
+            self.interpreter.call(procedure, self.module, [], {}, me=self)
+        except Exception:  # noqa: BLE001 - nothing can catch an error raised while freeing an object here
+            pass
 
     def vba_get(self, name: str, args: Sequence[object] = (), named: dict[str, object] | None = None) -> object:
         procedure = self.module.procedure(name, "get") or self.module.procedure(name)
@@ -1323,6 +1361,17 @@ class Interpreter:
                 if signal.what == "for":
                     return
                 raise
+        # A loop that runs to its end leaves the variable Empty, or Nothing for
+        # an object variable, releasing the last element (native probes); Exit
+        # For and GoTo keep it.
+        declared = "Variant"
+        if isinstance(statement.target, A.Name):
+            slot = self.lookup(statement.target.name, frame, want_slot=True)
+            declared = slot.declared if isinstance(slot, Slot) else "Variant"
+        if declared in ("Variant", ""):
+            target.put(EMPTY, False)
+        else:
+            target.put(NOTHING, True)
 
     def _do_do(self, statement: A.DoLoop, frame: Frame) -> None:
         while True:
@@ -2245,7 +2294,7 @@ class Interpreter:
             # Unallocated until a ReDim: no dimensions, so LBound and UBound are error 9.
             return Slot(self.make_array([], declared, module), "Variant", declared)
         if declaration.as_new:
-            return Slot(self.create(declared), declared)
+            return AutoNewSlot(declared, self)
         record = self.record_type(declared, module)
         if record is not None:
             definition, owner = record

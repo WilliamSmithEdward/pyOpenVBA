@@ -224,6 +224,15 @@ All notable changes to pyOpenVBA are documented here. This project follows
 - `DatePart("ww")` follows its first day and first week arguments; it
   ignored both. `Format`'s `w` and `ww` take them too.
 
+- `Class_Terminate` runs when an object's last reference goes, as in VBA:
+  `Set x = Nothing`, a reassignment, the end of the procedure that held it,
+  `Erase`, a collection or array freed (its items first to last). It never
+  ran. A variable declared `As New` makes its object where it is first used,
+  not where it is declared, and makes it again after `Set x = Nothing`. A
+  `For Each` that runs to its end leaves its variable Empty, or Nothing,
+  releasing the last element. 26 native probes in
+  `tests/fixtures/vba_object_lifetime.json`.
+
 ## [6.5.0] - 2026-10-04
 
 ### Added

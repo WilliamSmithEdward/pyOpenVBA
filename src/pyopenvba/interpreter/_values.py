@@ -304,6 +304,12 @@ class VBAErrorValue:
         return hash(("VBAErrorValue", self.number))
 
 
+def release_in_order(items: list[object]) -> None:
+    """Drop each item's reference first to last, so objects are freed in that order."""
+    for index in range(len(items)):
+        items[index] = None
+
+
 class VBAArray:
     """A VBA array: bounds per dimension, and a flat store in VBA's order.
 
@@ -337,6 +343,12 @@ class VBAArray:
             binder = getattr(item, "vba_bind_array", None)
             if callable(binder):
                 binder(self)
+
+    def __del__(self) -> None:
+        # An array that can hold objects releases them first to last, as VBA's
+        # Erase and end of scope do (native probes); a list would go last to first.
+        if self.element_type not in STORAGE_WIDTH and not self.element_type.startswith("String"):
+            release_in_order(self.items)
 
     @property
     def size(self) -> int:

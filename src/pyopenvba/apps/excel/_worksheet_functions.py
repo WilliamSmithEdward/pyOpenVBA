@@ -40,6 +40,7 @@ from pyopenvba.interpreter._values import (
     VBAInt,
     VBASingle,
     error,
+    to_text,
 )
 
 if TYPE_CHECKING:
@@ -134,9 +135,11 @@ def _given_item(value: object) -> Scalar:
 
     if value is EMPTY or isinstance(value, (bool, str, VBAErrorValue)):
         return scalar(value)
-    if isinstance(value, VBADate):
-        return value.serial
-    if isinstance(value, (VBACurrency, Decimal, VBAInt, VBASingle, int, float)):
+    if isinstance(value, (VBADate, VBACurrency)):
+        # A Date or Currency reaches Excel as its text: IsText(Date) is TRUE, AND passes it
+        # over as it passes text over, and SUM reads the number back (native probes).
+        return to_text(value)
+    if isinstance(value, (Decimal, VBAInt, VBASingle, int, float)):
         return float(value)
     raise error(13, "Type mismatch")
 

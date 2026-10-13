@@ -519,6 +519,9 @@ class Gate:
 @contextmanager
 def writing(sheet: Worksheet) -> Generator[None]:
     """A write of values or formulas: every unlocked cell takes it, and a locked one among them refuses it after."""
+    if sheet.book.application.udf_callers:
+        # A function a cell's formula calls cannot change cells: error 1004 (native probe).
+        raise error(1004, "a worksheet function cannot change cells")
     if enforced(sheet) is None or sheet.write_gate is not None:
         yield
         return

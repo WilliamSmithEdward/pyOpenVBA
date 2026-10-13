@@ -1861,6 +1861,24 @@ array descriptor's address, is 0 here.
 empty cells included, up to a whole column's worth of cells; past that it is
 clipped to the sheet's used cells (`tests/fixtures/excel_vba_idioms.json`).
 
+A cell's formula can call a VBA Function of the project, a user-defined
+function, as Excel's can (`apps/excel/_udf.py`; 51 probes in
+`tests/fixtures/excel_vba_udfs.json`, `scripts/measure_excel_vba_udfs.py`).
+The formula engine hands a function name it does not know to the workbook,
+which finds a Function of that name in a standard module, Private or not and
+in any case. A reference arrives as a Range, a number as a Double, an array as
+a Variant array from 1 (one row a one-dimensional array), and an argument
+left out as missing. What comes back goes into the cell: an array's corner in
+a legacy formula and the whole array spilled through `Formula2`, an Error
+value as that error, a run-time error the function does not handle as
+#VALUE!. While it runs, `Application.Caller` is the cell (outside one it is
+`CVErr(2023)`), and writing to a cell is error 1004. It is called as any
+procedure is, so it starts with no error and leaves what it ends with in the
+macro's Err, and an error it does not handle leaves 40040 there; a formula
+that calls one is worked out as it is written, as Excel works it out. It is
+worked out again when a cell its arguments name changes, not when one it
+reads by itself does. `Application.Volatile` is not modelled.
+
 `Format` is VBA's own engine, `pyopenvba/interpreter/_format.py`, held to
 245 native calls in `tests/fixtures/vba_format.json`. A section with a `0`
 or `#` is a number format, one with `@`, `&`, `<` or `>` a text format, one

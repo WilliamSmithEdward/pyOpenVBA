@@ -24,7 +24,7 @@ from typing import TYPE_CHECKING
 from pyopenvba._a1 import Area
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.apps.excel._arrays import array_at
-from pyopenvba.apps.excel._engine_book import ERROR_NUMBERS, EngineBook, model_value, volatile
+from pyopenvba.apps.excel._engine_book import ERROR_NUMBERS, EngineBook, calls_user, model_value, volatile
 from pyopenvba.formula._calc.evaluator import Context as EngineContext
 from pyopenvba.formula._calc.lexer import FormulaSyntaxError
 from pyopenvba.formula._calc.nodes import Node
@@ -61,6 +61,8 @@ class Compiled:
     node: Node | None
     precedents: list[Area] = field(default_factory=lambda: [])
     volatile: bool = False
+    #: The formula calls a function Excel does not have, a VBA Function maybe (see _udf).
+    calls_user: bool = False
     #: Why the parser could not read the formula.
     unread: str = ""
     #: A dynamic-array formula, worked out whole and spilled (see _spills).
@@ -75,6 +77,8 @@ class Calculator:
         #: The workbook as the formula engine reads it.
         self.engine_book = EngineBook(self)
         self.compiled: dict[CellKey, Compiled] = {}
+        #: The formulas that call a function Excel does not have, which are worked out as they are written.
+        self._user_calls: set[CellKey] = set()
         #: Which formulas read each cell a formula names on its own, and the blocks of cells each other formula reads,
         #: so that a change finds what reads it without going through every formula.
         self._readers: dict[CellKey, set[CellKey]] = {}
@@ -161,7 +165,7 @@ class Calculator:
     def _compiled(self, formula: str, sheet: str, row: int, column: int) -> Compiled:
         node = self.engine_book.read(formula)
         precedents = self.engine_book.precedents(node, sheet, row, column)
-        return Compiled(node=node, precedents=precedents, volatile=volatile(node))
+        return Compiled(node=node, precedents=precedents, volatile=volatile(node), calls_user=calls_user(node))
 
     def forget(self, sheet: str, row: int, column: int) -> None:
         """A cell is gone: forget its formula, and take back what it spilled."""
@@ -171,6 +175,7 @@ class Calculator:
     def _keep(self, key: CellKey, compiled: Compiled | None) -> None:
         """Keep ``compiled`` as the formula at ``key``, or none, and note which cells it reads."""
         old = self.compiled.pop(key, None)
+        self._user_calls.discard(key)
         if old is not None:
             for area in old.precedents:
                 readers = self._readers.get((area.sheet.lower(), area.top, area.left))
@@ -180,6 +185,8 @@ class Calculator:
         if compiled is None:
             return
         self.compiled[key] = compiled
+        if compiled.calls_user:
+            self._user_calls.add(key)
         blocks: list[Area] = []
         for area in compiled.precedents:
             if area.top == area.bottom and area.left == area.right:
@@ -209,6 +216,7 @@ class Calculator:
             if owner.spills or any(cell.spilled_from is not None for cell in owner.cells_.values()):
                 reconcile(owner)
         self.compiled.clear()
+        self._user_calls.clear()
         self._readers.clear()
         self._blocks.clear()
         self.circular.clear()
@@ -309,6 +317,17 @@ class Calculator:
             if did:
                 worked.append(sheet)
         return worked
+
+    def settle_user_calls(self) -> None:
+        """Work out the waiting formulas that call a VBA Function now, as Excel works one out when it is written:
+        the function runs then, and what it leaves in Err the macro sees (native probes)."""
+        if not self._user_calls:
+            return
+        for name, row, column in sorted(self._user_calls):
+            cell = self._cell((name, row, column))
+            owner = self._sheet_named(name)
+            if cell is not None and cell.stale and owner is not None:
+                self.value_of(owner.name, row, column)
 
     def recalculated(self) -> list[Worksheet]:
         """Calculate after an edit, unless the application is in manual mode."""

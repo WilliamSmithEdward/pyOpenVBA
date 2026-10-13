@@ -47,6 +47,8 @@ from pyopenvba.interpreter._values import EMPTY as NOTHING_THERE, VBADate, VBAEr
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._calc import Calculator
     from pyopenvba.apps.excel._model import Worksheet
+    from pyopenvba.formula._calc.evaluator import Context
+    from pyopenvba.formula._calc.values import Value
 
 #: The functions whose cells SUBTOTAL and AGGREGATE leave out.
 _SUBTOTALS = frozenset({"SUBTOTAL", "AGGREGATE"})
@@ -136,6 +138,12 @@ class EngineBook:
 
     def cell(self, sheet: str, row: int, column: int) -> Scalar:
         return scalar(self.calculator.value_of(sheet, row, column))
+
+    def user_function(self, context: Context, name: str, args: tuple[Node, ...]) -> Value | None:
+        """A function the engine does not know, worked out by the project's VBA Function of the name, if any."""
+        from pyopenvba.apps.excel._udf import call_user_function
+
+        return call_user_function(self.book, context, name, args)
 
     def cells(self, area: Area) -> Iterator[tuple[int, int, Scalar]]:
         """The cells of an area that hold something, row by row."""
@@ -291,6 +299,14 @@ def volatile(node: Node) -> bool:
     return False
 
 
+def calls_user(node: Node) -> bool:
+    """Whether a formula calls a function the engine does not have, which a VBA Function may answer."""
+    from pyopenvba.formula._calc.catalog import is_excel_function
+
+    return any(isinstance(one, Call) and one.function not in registry.FUNCTIONS and not is_excel_function(one.name)
+               for one in walk(node))
+
+
 def _check_absolute(text: str) -> None:
     """A defined name whose formula has a relative reference reports itself, a lone reference such as Sheet1!A1
     too."""
@@ -304,4 +320,4 @@ def _check_absolute(text: str) -> None:
             raise VBAUnsupportedError("a defined name whose formula has a relative reference is not implemented")
 
 
-__all__ = ["ERROR_NUMBERS", "EngineBook", "model_value", "scalar", "volatile"]
+__all__ = ["ERROR_NUMBERS", "EngineBook", "calls_user", "model_value", "scalar", "volatile"]

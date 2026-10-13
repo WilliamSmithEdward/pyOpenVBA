@@ -108,8 +108,6 @@ The current entries:
 - YARA-X `ARKBIRD_SOLG_TA505_Maldoc_21Nov_2`, on binary `.xls` and `.doc`
   fixtures and fuzz seeds made from them, which match on the reference
   paths every Office VBA project records.
-- YARA-X `SIGNATURE_BASE_Powershell_Case_Anomaly`, on the README and two
-  test files that name PowerShell in ordinary prose and commands.
 - zizmor's `self-repository` and `superfluous-actions` rules are turned
   off in `.github/zizmor.yml`, each with its reason and when it comes back.
 

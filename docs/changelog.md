@@ -7,6 +7,14 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- User-defined functions: a cell's formula calls a VBA Function of the
+  project, `=Twice(A1)`, as in Excel. References arrive as Ranges, arrays as
+  Variant arrays, a left-out argument as missing; the result, an array, an
+  Error value or a run-time error (#VALUE!) goes into the cell;
+  `Application.Caller` is the calling cell; a UDF cannot write to cells; and
+  what it leaves in Err reaches the macro that wrote the formula. They were
+  all #NAME?. 51 native probes in `tests/fixtures/excel_vba_udfs.json`.
+
 - Typed record-array parameter checks and standard-module record Variant
   barriers, guided by fifteen native Excel probes. Fixed/dynamic matching
   arrays remain mutable ByRef; mismatched types, scalar/array substitutions,

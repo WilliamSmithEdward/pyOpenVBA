@@ -155,6 +155,7 @@ def after_edit(target: Range, *, calculate_first: bool = True) -> None:
     spills is in place after the edit, as Excel spills it, events or none."""
     book = target.sheet.book
     book.calculator.settle_spills()
+    book.calculator.settle_user_calls()
     if not _on(book):
         return
     if calculate_first:

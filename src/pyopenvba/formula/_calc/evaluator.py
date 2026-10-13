@@ -500,6 +500,12 @@ class Context:
             found = self._name(NameReference(node.function))
             if isinstance(found, Lambda):
                 return self._invoke(found, node.args)
+            # A host's own function, a VBA Function in Excel, if the workbook has one by the name.
+            user_function = getattr(self.book, "user_function", None)
+            if user_function is not None:
+                answer = user_function(self, node.name, node.args)
+                if answer is not None:
+                    return answer
             return NAME
         if not entry.minimum <= len(node.args) <= entry.maximum:
             return VALUE

@@ -189,6 +189,8 @@ class Application(ExcelObject):
         self.user_name = "pyOpenVBA"
         self.interpreter: Interpreter | None = None
         self.executing_projects: list[Interpreter] = []
+        #: The cells whose formulas are running a VBA Function now, innermost last (see _udf).
+        self.udf_callers: list[Range] = []
         self.active_book: Workbook | None = None
         #: The workbooks whose windows have been to the front, front first (see _windows).
         self.window_order: list[Workbook] = []
@@ -265,6 +267,14 @@ class Application(ExcelObject):
     @member
     def Calculation(self) -> object:
         return VBAInt(self.calculation, "Long")
+
+    @member
+    def Caller(self, Index: object = MISSING) -> object:
+        """The cell whose formula is running the VBA Function that asks (see _udf)."""
+        if self.udf_callers:
+            return self.udf_callers[-1]
+        # A macro no cell or control called: the error value #REF! (native probe).
+        return VBAErrorValue(2023)
 
     @setter("Calculation")
     def _set_calculation(self, value: object) -> None:

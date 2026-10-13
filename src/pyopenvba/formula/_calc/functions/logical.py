@@ -71,7 +71,11 @@ def _logicals(context: Context, args: tuple[Value, ...]) -> list[bool]:
             # Text that says neither is passed over, as text in a range is: AND(TRUE,"x") and AND(TRUE,"1") are TRUE,
             # and AND("x") has nothing logical (pyOpenVBA's tests/fixtures/formula/).
             continue
-        elif not isinstance(arg, Empty):
+        elif isinstance(arg, Empty):
+            # An argument left out is FALSE: AND(TRUE,) and OR(,) are FALSE (native probes,
+            # pyOpenVBA's tests/fixtures/vba_worksheet_function_args.json).
+            found.append(False)
+        else:
             found.append(context.logical(arg))
     if not found:
         raise ExcelError(VALUE)

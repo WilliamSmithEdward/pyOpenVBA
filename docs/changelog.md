@@ -373,6 +373,13 @@ All notable changes to pyOpenVBA are documented here. This project follows
   `Err.LastDllError` is 0. Error passing, Resume, handlers in loops and
   class members already matched. 19 native probes in
   `tests/fixtures/vba_error_handling.json`.
+- AND, OR and XOR read an argument left out as FALSE: `=AND(TRUE,)` and
+  `=OR(,)` are FALSE (they were TRUE and #VALUE!), in a cell and through
+  `Application.And(Empty, True)` alike. A Date or Currency handed to a
+  worksheet function from VBA reaches it as its text, as in Excel:
+  `IsText(#1/2/2024#)` is TRUE, AND passes it over, SUM reads the number
+  back. All 296 measured calls now match;
+  19 native probes in `tests/fixtures/vba_worksheet_function_args.json`.
 
 ## [6.5.0] - 2026-10-04
 

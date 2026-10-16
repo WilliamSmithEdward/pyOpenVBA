@@ -218,6 +218,8 @@ def _shape_of(
         left, top, width, height = _anchor_box(anchor, grid) or (left, top, width, height)
     if kind == "shape" and _TXBOX.search(markup):
         kind = "textBox"
+    if kind == "chart" and 'http://schemas.openxmlformats.org/drawingml/2006/diagram' in markup:
+        kind = 'smartArt'
     macro = _MACRO.search(markup)
     geometry = dml.geometry(markup)
     shape = Shape(

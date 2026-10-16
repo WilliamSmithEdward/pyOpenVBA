@@ -1700,7 +1700,9 @@ ChartTitle, SeriesCollection and Series expose eight common chart kinds,
 titles, legends, literal/range data and basic row/column source inference.
 Thirty-two native probes in `tests/fixtures/excel_chart_objects.json`
 exercise the slice; the two cases that ask Excel to center a chart in
-its native window remain explicit expected gaps. New chart parts,
+its native window remain explicit expected gaps. An Excel-authored
+SmartArt fixture keeps non-chart graphic frames
+out of the collection. New chart parts,
 relationships and cached values save and reopen; eight model-written
 chart kinds are opened and read by native Excel. Changed linked caches
 are updated without replacing the rest of an imported chart's XML.

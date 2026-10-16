@@ -81,6 +81,12 @@ def test_linked_cache_updates_without_replacing_chart_formatting(tmp_path: Path)
         assert old.replace(b'<c:v>2</c:v>', b'<c:v>20</c:v>') == new
 
 
+def test_native_smart_art_is_not_an_embedded_chart() -> None:
+    app = ExcelApplication.open(Path(__file__).parent / 'fixtures/charts/smart_art.xlsx')
+    app.add_module('Function Probe() As String\nProbe = ActiveSheet.ChartObjects.Count & ":" & ActiveSheet.Shapes(1).HasChart & ":" & ActiveSheet.Shapes(1).Type\nEnd Function', name='Harness')
+    assert app.run('Harness.Probe') == '0:0:24'
+
+
 @pytest.mark.skipif(os.environ.get('RUN_LIVE_EXCEL') != '1' or importlib.util.find_spec('pyvbaharness') is None,
                     reason='requires explicitly enabled native Excel')
 @pytest.mark.parametrize('chart_type', [51, 57, 4, 65, 5, -4120, -4169, 1])

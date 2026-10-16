@@ -19,6 +19,8 @@ All notable changes to pyOpenVBA are documented here. This project follows
   4723383e5d3039763e64ecd2a3ee092786c91bb5. Imported chart-content mutation,
   richer source inference, axes/formatting, chart sheets, structural edits,
   object lifetimes and automatic window placement remain incomplete.
+  An Excel-authored SmartArt fixture also verifies that non-chart graphic
+  frames are excluded and report their native SmartArt shape type.
 
 - Application.Volatile registers the calling UDF formula for recalculation,
   with False to opt out. Cached reads stay cached, dependents calculate once,

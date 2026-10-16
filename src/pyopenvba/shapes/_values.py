@@ -31,6 +31,7 @@ KINDS: frozenset[str] = frozenset(
         "line",  # a line or connector: msoLine
         "picture",  # msoPicture
         "chart",  # a chart in a graphic frame: msoChart
+        "smartArt",  # a diagram in a graphic frame: msoSmartArt
         "group",  # msoGroup, holding others
         "formControl",  # Excel's own button, check box, drop-down
         "activeX",  # an OLE control, listed but not made here
@@ -50,6 +51,7 @@ MSO_TYPE: dict[str, int] = {
     "picture": 13,
     "textBox": 17,
     "chart": 3,
+    "smartArt": 24,
     "activeX": 12,
     "placeholder": 14,
     "table": 19,

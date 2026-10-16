@@ -28,7 +28,7 @@ from typing import TYPE_CHECKING, Any
 from pyopenvba.apps.excel._engine_book import ERROR_NUMBERS
 from pyopenvba.exceptions import VBARuntimeError
 from pyopenvba.formula._calc.cells import CellError
-from pyopenvba.formula._calc.nodes import Missing, Node
+from pyopenvba.formula._calc.nodes import Call, Missing, Node, walk
 from pyopenvba.formula._calc.values import EMPTY as ENGINE_EMPTY
 from pyopenvba.formula._calc.values import VALUE, Array, Empty, Reference, Scalar, Value
 from pyopenvba.interpreter._values import (
@@ -46,6 +46,22 @@ from pyopenvba.interpreter._values import (
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Application, Range, Workbook
     from pyopenvba.formula._calc.evaluator import Context
+
+
+def has_user_function(book: Workbook, node: Node | None) -> bool:
+    """Unknown formula names alone do not require manual-mode UDF entry evaluation."""
+    from pyopenvba.apps.excel._projects import attach_project
+
+    interpreter = attach_project(book)
+    if interpreter is None or node is None:
+        return False
+    interpreter.initialise()
+    for entry in walk(node):
+        if isinstance(entry, Call) and '.' not in entry.name:
+            procedure, runtime = interpreter.find_procedure(entry.name)
+            if procedure is not None and runtime is not None and procedure.kind == 'function':
+                return True
+    return False
 
 
 def call_user_function(book: Workbook, context: Context, name: str, nodes: tuple[Node, ...]) -> Value | None:

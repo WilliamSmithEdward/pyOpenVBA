@@ -370,6 +370,11 @@ class Calculator:
             compiled = self.compiled.get((name, row, column))
             if cell is not None and cell.stale and owner is not None and compiled is not None \
                     and (self.automatic or compiled.udf_initial):
+                if not self.automatic:
+                    from pyopenvba.apps.excel._udf import has_user_function
+
+                    if not has_user_function(self.book, compiled.node):
+                        continue
                 self.value_of(owner.name, row, column, force=True)
                 worked.add((name, row, column))
         return worked

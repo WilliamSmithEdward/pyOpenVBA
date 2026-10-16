@@ -7,6 +7,21 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Embedded ChartObjects, Chart, SeriesCollection, Series and ChartTitle
+  objects share worksheet drawing state: creation, naming, geometry,
+  deletion, eight common chart kinds, literal/range series and basic row/
+  column source-data inference. Thirty-two native probes cover these
+  interfaces; two window-dependent placement cases remain expected gaps.
+  Chart parts, relationships and caches persist, linked caches refresh
+  without replacing unrelated chart XML, and eight model-written chart
+  kinds open and report their data in native Excel. The writer reuses
+  pyOfficeEditor's measured chart markup at revision
+  4723383e5d3039763e64ecd2a3ee092786c91bb5. Imported chart-content mutation,
+  richer source inference, axes/formatting, chart sheets, structural edits,
+  object lifetimes and automatic window placement remain incomplete.
+  An Excel-authored SmartArt fixture also verifies that non-chart graphic
+  frames are excluded and report their native SmartArt shape type.
+
 - Application.Volatile registers the calling UDF formula for recalculation,
   with False to opt out. Cached reads stay cached, dependents calculate once,
   manual-mode entry and later edits retain their native calculation phases,

@@ -1694,6 +1694,23 @@ The Python `ExcelApplication.save()` convenience API fires save events too.
 If a handler cancels, it raises `VBARuntimeError(1004)` and does not write
 the requested file; the VBA methods return normally on cancellation.
 
+**Embedded charts.** `Worksheet.ChartObjects` adds, looks up, renames,
+moves, resizes and deletes charts in the existing drawing state. Chart,
+ChartTitle, SeriesCollection and Series expose eight common chart kinds,
+titles, legends, literal/range data and basic row/column source inference.
+Thirty-two native probes in `tests/fixtures/excel_chart_objects.json`
+exercise the slice; the two cases that ask Excel to center a chart in
+its native window remain explicit expected gaps. An Excel-authored
+SmartArt fixture keeps non-chart graphic frames
+out of the collection. New chart parts,
+relationships and cached values save and reopen; eight model-written
+chart kinds are opened and read by native Excel. Changed linked caches
+are updated without replacing the rest of an imported chart's XML.
+The writer adapts pyOfficeEditor's measured markup at revision
+`4723383e5d3039763e64ecd2a3ee092786c91bb5`. Imported chart-content editing,
+richer source/reference inference, axes/formatting, errors/lifetimes,
+chart sheets, copying and structural edits remain incomplete.
+
 **Power Query is evaluated.** `pyopenvba.mlang` is an M evaluator, so
 `WorkbookQuery.Refresh` works out the query's rows and writes them to
 the sheet it loads to; the table and its queryTable follow, and a save

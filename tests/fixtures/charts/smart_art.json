@@ -1,0 +1,6 @@
+{
+  "macro": "Function Probe() As String\nApplication.DisplayAlerts = False\nDim item As Shape\nSet item = ActiveSheet.Shapes.AddSmartArt(Application.SmartArtLayouts(1), 0, 0, 200, 100)\nitem.Name = \"Diagram\"\nProbe = ActiveSheet.ChartObjects.Count & \":\" & item.HasChart & \":\" & item.Type\nActiveWorkbook.SaveAs \"F:\\GitHub\\pyOpenVBA\\tests\\fixtures\\charts\\smart_art.xlsx\", xlOpenXMLWorkbook\nEnd Function",
+  "result": "0:0:24",
+  "excel_version_build": "16.0|20430",
+  "measured_at": "2026-10-16T21:44:16.502772+00:00"
+}

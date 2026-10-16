@@ -21,8 +21,8 @@ where = [
 reason = """
 Four XML parts are parsed with the standard library's ElementTree: an
 Access database's theme, a workbook's workbook.xml, and Power Query's
-metadata and workbook parts. Outside the integrity checker (accepted
-separately below), the rest of the library reads XML as text
+metadata and workbook parts. Outside the integrity checker and chart reader
+(accepted separately below), the rest of the library reads XML as text
 or with html.parser, and neither processes a DTD, so a file cannot
 declare an entity there. defusedxml would be the package's first
 dependency, against its promise of none. ElementTree loads no external
@@ -69,6 +69,29 @@ caller can tell whether it changed. Its docstring and docs/roadmap.md
 (gate 15) say it is not the VBE's signature hash. Nothing in pyOpenVBA
 signs, verifies or protects anything with it, so SHA-1's weakness to a
 chosen collision does not apply.
+"""
+
+[[finding]]
+tool = "Semgrep"
+rule = "python.lang.security.use-defused-xml.use-defused-xml"
+where = [
+    { path = "src/pyopenvba/apps/excel/_charts_file.py", line = "import xml.etree.ElementTree as ET" },
+    { path = "src/pyopenvba/apps/excel/_charts_file.py", line = "from xml.parsers import expat" },
+]
+reason = """
+The chart reader uses ElementTree only as a TreeBuilder, never as an XML
+parser. All three tree-reading sites call xml_tree, whose actual Expat
+parser raises from StartDoctypeDeclHandler before a DTD's internal subset,
+EntityDeclHandler and ExternalEntityRefHandler. Parameter entity parsing
+is XML_PARAM_ENTITY_PARSING_NEVER; no resolver or child parser is created.
+Thus declared entities, external DTDs and file/network entity resolution
+are refused rather than relying on an Expat version's expansion limits.
+Tests exercise internal/external/parameter entities and external DTDs in
+UTF-8 and UTF-16, plus valid namespaces and predefined entities. This is a
+narrow import-rule false positive after explicit parser hardening, not a
+claim to fix ZIP expansion limits or every native-parser vulnerability;
+an updated Python/Expat runtime is still required. This preserves the
+library's zero-runtime-dependency API without enabling DTD processing.
 """
 
 [[notice]]

@@ -1,0 +1,167 @@
+{
+  "excel_version_build": "16.0|20430",
+  "measured_at": "2026-10-16T21:33:38.965807+00:00",
+  "classes": {},
+  "probes": [
+    {
+      "name": "empty_collection",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, item As ChartObject\nSet ws = Worksheets.Add\nws.Name = \"ChartData\" & Worksheets.Count\nProbe = ws.ChartObjects.Count & \":\" & TypeName(ws.ChartObjects)\nEnd Function",
+      "result": "0:ChartObjects"
+    },
+    {
+      "name": "created_identity",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, item As ChartObject\nSet ws = Worksheets.Add\nws.Name = \"ChartData\" & Worksheets.Count\nSet item = ws.ChartObjects.Add(10, 20, 300, 180)\nProbe = item.Name & \":\" & TypeName(item) & \":\" & TypeName(item.Chart) & \":\" & TypeName(item.Parent) & \":\" & ws.ChartObjects.Count & \":\" & ws.Shapes.Count\nEnd Function",
+      "result": "Chart 1:ChartObject:Chart:Worksheet:1:1"
+    },
+    {
+      "name": "created_defaults",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, item As ChartObject\nSet ws = Worksheets.Add\nws.Name = \"ChartData\" & Worksheets.Count\nSet item = ws.ChartObjects.Add(10, 20, 300, 180)\nProbe = item.Chart.ChartType & \":\" & item.Chart.HasTitle & \":\" & item.Chart.HasLegend & \":\" & item.Chart.SeriesCollection.Count\nEnd Function",
+      "result": "51:False:True:0"
+    },
+    {
+      "name": "geometry_types",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, item As ChartObject\nSet ws = Worksheets.Add\nws.Name = \"ChartData\" & Worksheets.Count\nSet item = ws.ChartObjects.Add(10, 20, 300, 180)\nProbe = item.Left & \":\" & item.Top & \":\" & item.Width & \":\" & item.Height & \":\" & TypeName(item.Left) & \":\" & TypeName(item.Width)\nEnd Function",
+      "result": "10:20:300:180:Double:Double"
+    },
+    {
+      "name": "geometry_mutation",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, item As ChartObject\nSet ws = Worksheets.Add\nws.Name = \"ChartData\" & Worksheets.Count\nSet item = ws.ChartObjects.Add(10, 20, 300, 180)\nitem.Left = 12.25\nitem.Top = 31.5\nitem.Width = 400.125\nitem.Height = 210.25\nProbe = item.Left & \":\" & item.Top & \":\" & item.Width & \":\" & item.Height\nEnd Function",
+      "result": "12.25:31.5:400.125030517578:210.25"
+    },
+    {
+      "name": "negative_position",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, item As ChartObject\nSet ws = Worksheets.Add\nws.Name = \"ChartData\" & Worksheets.Count\nSet item = ws.ChartObjects.Add(-10, -20, 300, 180)\nProbe = item.Left & \":\" & item.Top\nEnd Function",
+      "result": "290.25:126"
+    },
+    {
+      "name": "zero_size",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, item As ChartObject\nSet ws = Worksheets.Add\nws.Name = \"ChartData\" & Worksheets.Count\nOn Error Resume Next\nSet item = ws.ChartObjects.Add(10, 20, 0, 0)\nProbe = CStr(Err.Number)\nIf Err.Number = 0 Then Probe = Probe & \":\" & item.Width & \":\" & item.Height\nEnd Function",
+      "result": "0:0:0"
+    },
+    {
+      "name": "negative_size",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, item As ChartObject\nSet ws = Worksheets.Add\nws.Name = \"ChartData\" & Worksheets.Count\nOn Error Resume Next\nSet item = ws.ChartObjects.Add(10, 20, -30, -40)\nProbe = CStr(Err.Number)\nIf Err.Number = 0 Then Probe = Probe & \":\" & item.Width & \":\" & item.Height\nEnd Function",
+      "result": "0:360:216"
+    },
+    {
+      "name": "missing_index",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, item As ChartObject\nSet ws = Worksheets.Add\nws.Name = \"ChartData\" & Worksheets.Count\nOn Error Resume Next\nSet item = ws.ChartObjects(1)\nProbe = Err.Number\nEnd Function",
+      "result": "1004"
+    },
+    {
+      "name": "zero_index",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, item As ChartObject\nSet ws = Worksheets.Add\nws.Name = \"ChartData\" & Worksheets.Count\nSet item = ws.ChartObjects.Add(10, 20, 300, 180)\nOn Error Resume Next\nSet item = ws.ChartObjects(0)\nProbe = Err.Number\nEnd Function",
+      "result": "1004"
+    },
+    {
+      "name": "missing_name",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, item As ChartObject\nSet ws = Worksheets.Add\nws.Name = \"ChartData\" & Worksheets.Count\nSet item = ws.ChartObjects.Add(10, 20, 300, 180)\nOn Error Resume Next\nSet item = ws.ChartObjects(\"Absent\")\nProbe = Err.Number\nEnd Function",
+      "result": "-2147024809"
+    },
+    {
+      "name": "renamed_lookup",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, item As ChartObject\nSet ws = Worksheets.Add\nws.Name = \"ChartData\" & Worksheets.Count\nSet item = ws.ChartObjects.Add(10, 20, 300, 180)\nitem.Name = \"Revenue\"\nProbe = ws.ChartObjects(\"revenue\").Name & \":\" & ws.Shapes(\"Revenue\").Type & \":\" & item.Chart.Parent.Name\nEnd Function",
+      "result": "Revenue:3:Revenue"
+    },
+    {
+      "name": "delete",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, item As ChartObject\nSet ws = Worksheets.Add\nws.Name = \"ChartData\" & Worksheets.Count\nSet item = ws.ChartObjects.Add(10, 20, 300, 180)\nitem.Delete\nProbe = ws.ChartObjects.Count & \":\" & ws.Shapes.Count\nEnd Function",
+      "result": "0:0"
+    },
+    {
+      "name": "name_after_delete",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, item As ChartObject\nSet ws = Worksheets.Add\nws.Name = \"ChartData\" & Worksheets.Count\nSet item = ws.ChartObjects.Add(10, 20, 300, 180)\nitem.Delete\nSet item = ws.ChartObjects.Add(10, 20, 300, 180)\nProbe = item.Name & \":\" & item.Index\nEnd Function",
+      "result": "Chart 2:1"
+    },
+    {
+      "name": "shape_chart_shared_identity",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, item As ChartObject\nSet ws = Worksheets.Add\nws.Name = \"ChartData\" & Worksheets.Count\nws.Shapes.AddShape msoShapeRectangle, 0, 0, 20, 20\nSet item = ws.ChartObjects.Add(10, 20, 300, 180)\nProbe = item.Name & \":\" & item.Index & \":\" & ws.Shapes(2).Name & \":\" & item.ShapeRange.Type\nEnd Function",
+      "result": "Chart 2:1:Chart 2:3"
+    },
+    {
+      "name": "chart_type_change",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, item As ChartObject\nSet ws = Worksheets.Add\nws.Name = \"ChartData\" & Worksheets.Count\nSet item = ws.ChartObjects.Add(10, 20, 300, 180)\nitem.Chart.ChartType = xlLine\nProbe = item.Chart.ChartType\nEnd Function",
+      "result": "65"
+    },
+    {
+      "name": "title_creation",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, item As ChartObject\nSet ws = Worksheets.Add\nws.Name = \"ChartData\" & Worksheets.Count\nSet item = ws.ChartObjects.Add(10, 20, 300, 180)\nitem.Chart.HasTitle = True\nProbe = item.Chart.ChartTitle.Text\nitem.Chart.ChartTitle.Text = \"Revenue\"\nProbe = Probe & \":\" & item.Chart.ChartTitle.Text\nEnd Function",
+      "result": "Chart Title:Revenue"
+    },
+    {
+      "name": "new_series",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, item As ChartObject\nSet ws = Worksheets.Add\nws.Name = \"ChartData\" & Worksheets.Count\nSet item = ws.ChartObjects.Add(10, 20, 300, 180)\nDim series As Series\nSet series = item.Chart.SeriesCollection.NewSeries\nProbe = series.Name & \":\" & series.Formula & \":\" & item.Chart.SeriesCollection.Count\nEnd Function",
+      "result": "Series1:=SERIES(,,,1):1"
+    },
+    {
+      "name": "literal_series",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, item As ChartObject\nSet ws = Worksheets.Add\nws.Name = \"ChartData\" & Worksheets.Count\nSet item = ws.ChartObjects.Add(10, 20, 300, 180)\nDim series As Series\nSet series = item.Chart.SeriesCollection.NewSeries\nseries.Name = \"Revenue\"\nseries.Values = Array(2, 4)\nseries.XValues = Array(\"a\", \"b\")\nProbe = series.Formula\nEnd Function",
+      "result": "=SERIES(\"Revenue\",{\"a\",\"b\"},{2,4},1)"
+    },
+    {
+      "name": "source_data",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, item As ChartObject\nSet ws = Worksheets.Add\nws.Name = \"ChartData\" & Worksheets.Count\nws.Range(\"A1\").Value = \"Category\"\nws.Range(\"B1\").Value = \"Revenue\"\nws.Range(\"A2\").Value = \"a\"\nws.Range(\"A3\").Value = \"b\"\nws.Range(\"B2\").Value = 2\nws.Range(\"B3\").Value = 4\nSet item = ws.ChartObjects.Add(10, 20, 300, 180)\nitem.Chart.SetSourceData Source:=ws.Range(\"A1:B3\"), PlotBy:=xlColumns\nProbe = item.Chart.SeriesCollection.Count & \":\" & item.Chart.SeriesCollection(1).Name & \":\" & Replace(item.Chart.SeriesCollection(1).Formula, ws.Name, \"Data\")\nEnd Function",
+      "result": "1:Revenue:=SERIES(Data!$B$1,Data!$A$2:$A$3,Data!$B$2:$B$3,1)"
+    },
+    {
+      "name": "identity",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, item As ChartObject\nSet ws = Worksheets.Add\nws.Name = \"ChartData\" & Worksheets.Count\nSet item = ws.ChartObjects.Add(10, 20, 300, 180)\nDim other As ChartObject\nSet other = ws.ChartObjects(1)\nProbe = (item Is other) & \":\" & (item.Chart.Parent Is item)\nEnd Function",
+      "result": "False:False"
+    },
+    {
+      "name": "type_with_series",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, item As ChartObject\nSet ws = Worksheets.Add\nws.Name = \"ChartData\" & Worksheets.Count\nSet item = ws.ChartObjects.Add(10, 20, 300, 180)\nitem.Chart.SeriesCollection.NewSeries.Values = Array(1, 2)\nitem.Chart.ChartType = xlLine\nProbe = item.Chart.ChartType\nEnd Function",
+      "result": "4"
+    },
+    {
+      "name": "negative_position_window",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, item As ChartObject\nSet ws = Worksheets.Add\nws.Name = \"ChartData\" & Worksheets.Count\nSet item = ws.ChartObjects.Add(-10, -20, 300, 180)\nProbe = item.Left & \":\" & item.Top & \":\" & ActiveWindow.UsableWidth & \":\" & ActiveWindow.UsableHeight\nEnd Function",
+      "result": "290.25:126:960:483"
+    },
+    {
+      "name": "two_empty_series",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, item As ChartObject\nSet ws = Worksheets.Add\nws.Name = \"ChartData\" & Worksheets.Count\nSet item = ws.ChartObjects.Add(10, 20, 300, 180)\nDim first As Series, second As Series\nSet first = item.Chart.SeriesCollection.NewSeries\nSet second = item.Chart.SeriesCollection.NewSeries\nProbe = first.Name & \":\" & second.Name & \":\" & first.Formula & \":\" & second.Formula\nEnd Function",
+      "result": "Series1:Series2:=SERIES(,,,1):=SERIES(,,,2)"
+    },
+    {
+      "name": "fractional_creation",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, item As ChartObject\nSet ws = Worksheets.Add\nws.Name = \"ChartData\" & Worksheets.Count\nSet item = ws.ChartObjects.Add(12.25, 31.5, 400.125, 210.25)\nProbe = item.Left & \":\" & item.Top & \":\" & item.Width & \":\" & item.Height\nEnd Function",
+      "result": "12.25:31.5:400.125030517578:210.25"
+    },
+    {
+      "name": "series_value_arrays",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, item As ChartObject\nSet ws = Worksheets.Add\nws.Name = \"ChartData\" & Worksheets.Count\nSet item = ws.ChartObjects.Add(10, 20, 300, 180)\nDim series As Series, values As Variant, categories As Variant\nSet series = item.Chart.SeriesCollection.NewSeries\nseries.Values = Array(2, 4)\nvalues = series.Values\ncategories = series.XValues\nProbe = TypeName(values) & \":\" & LBound(values) & \":\" & UBound(values) & \":\" & TypeName(values(1)) & \":\" & categories(1) & \":\" & categories(2)\nEnd Function",
+      "result": "Variant():1:2:Double:1:2"
+    },
+    {
+      "name": "empty_series_values",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, item As ChartObject\nSet ws = Worksheets.Add\nws.Name = \"ChartData\" & Worksheets.Count\nSet item = ws.ChartObjects.Add(10, 20, 300, 180)\nDim series As Series, values As Variant\nSet series = item.Chart.SeriesCollection.NewSeries\nOn Error Resume Next\nvalues = series.Values\nProbe = Err.Number & \":\" & TypeName(values)\nEnd Function",
+      "result": "0:Variant()"
+    },
+    {
+      "name": "rows_source",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, item As ChartObject\nSet ws = Worksheets.Add\nws.Name = \"ChartData\" & Worksheets.Count\nws.Cells(1, 1).Value = \"\"\nws.Cells(1, 2).Value = \"Jan\"\nws.Cells(1, 3).Value = \"Feb\"\nws.Cells(2, 1).Value = \"Revenue\"\nws.Cells(2, 2).Value = 2\nws.Cells(2, 3).Value = 4\nws.Cells(3, 1).Value = \"Costs\"\nws.Cells(3, 2).Value = 3\nws.Cells(3, 3).Value = 1\nSet item = ws.ChartObjects.Add(10, 20, 300, 180)\nitem.Chart.SetSourceData ws.Range(ws.Cells(1, 1), ws.Cells(3, 3)), xlRows\nProbe = item.Chart.PlotBy & \":\" & item.Chart.SeriesCollection.Count\nDim i As Long\nFor i = 1 To item.Chart.SeriesCollection.Count\nProbe = Probe & \"|\" & Replace(item.Chart.SeriesCollection(i).Formula, ws.Name, \"Data\")\nNext\nEnd Function",
+      "result": "1:2|=SERIES(Data!$A$2,Data!$B$1:$C$1,Data!$B$2:$C$2,1)|=SERIES(Data!$A$3,Data!$B$1:$C$1,Data!$B$3:$C$3,2)"
+    },
+    {
+      "name": "rows_default",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, item As ChartObject\nSet ws = Worksheets.Add\nws.Name = \"ChartData\" & Worksheets.Count\nws.Cells(1, 1).Value = \"\"\nws.Cells(1, 2).Value = \"Jan\"\nws.Cells(1, 3).Value = \"Feb\"\nws.Cells(2, 1).Value = \"Revenue\"\nws.Cells(2, 2).Value = 2\nws.Cells(2, 3).Value = 4\nws.Cells(3, 1).Value = \"Costs\"\nws.Cells(3, 2).Value = 3\nws.Cells(3, 3).Value = 1\nSet item = ws.ChartObjects.Add(10, 20, 300, 180)\nitem.Chart.SetSourceData ws.Range(ws.Cells(1, 1), ws.Cells(3, 3))\nProbe = item.Chart.PlotBy & \":\" & item.Chart.SeriesCollection.Count\nDim i As Long\nFor i = 1 To item.Chart.SeriesCollection.Count\nProbe = Probe & \"|\" & Replace(item.Chart.SeriesCollection(i).Formula, ws.Name, \"Data\")\nNext\nEnd Function",
+      "result": "1:2|=SERIES(Data!$A$2,Data!$B$1:$C$1,Data!$B$2:$C$2,1)|=SERIES(Data!$A$3,Data!$B$1:$C$1,Data!$B$3:$C$3,2)"
+    },
+    {
+      "name": "numeric_source",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, item As ChartObject\nSet ws = Worksheets.Add\nws.Name = \"ChartData\" & Worksheets.Count\nws.Cells(1, 1).Value = 1\nws.Cells(1, 2).Value = 2\nws.Cells(2, 1).Value = 3\nws.Cells(2, 2).Value = 4\nws.Cells(3, 1).Value = 5\nws.Cells(3, 2).Value = 6\nSet item = ws.ChartObjects.Add(10, 20, 300, 180)\nitem.Chart.SetSourceData ws.Range(ws.Cells(1, 1), ws.Cells(3, 2)), xlColumns\nProbe = item.Chart.PlotBy & \":\" & item.Chart.SeriesCollection.Count\nDim i As Long\nFor i = 1 To item.Chart.SeriesCollection.Count\nProbe = Probe & \"|\" & Replace(item.Chart.SeriesCollection(i).Formula, ws.Name, \"Data\")\nNext\nEnd Function",
+      "result": "2:2|=SERIES(,,Data!$A$1:$A$3,1)|=SERIES(,,Data!$B$1:$B$3,2)"
+    },
+    {
+      "name": "labels_without_headers",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, item As ChartObject\nSet ws = Worksheets.Add\nws.Name = \"ChartData\" & Worksheets.Count\nws.Cells(1, 1).Value = \"a\"\nws.Cells(1, 2).Value = 2\nws.Cells(2, 1).Value = \"b\"\nws.Cells(2, 2).Value = 4\nSet item = ws.ChartObjects.Add(10, 20, 300, 180)\nitem.Chart.SetSourceData ws.Range(ws.Cells(1, 1), ws.Cells(2, 2)), xlColumns\nProbe = item.Chart.PlotBy & \":\" & item.Chart.SeriesCollection.Count\nDim i As Long\nFor i = 1 To item.Chart.SeriesCollection.Count\nProbe = Probe & \"|\" & Replace(item.Chart.SeriesCollection(i).Formula, ws.Name, \"Data\")\nNext\nEnd Function",
+      "result": "2:1|=SERIES(,Data!$A$1:$A$2,Data!$B$1:$B$2,1)"
+    },
+    {
+      "name": "numeric_labels_with_headers",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, item As ChartObject\nSet ws = Worksheets.Add\nws.Name = \"ChartData\" & Worksheets.Count\nws.Cells(1, 1).Value = \"Year\"\nws.Cells(1, 2).Value = \"Revenue\"\nws.Cells(2, 1).Value = 2020\nws.Cells(2, 2).Value = 2\nws.Cells(3, 1).Value = 2021\nws.Cells(3, 2).Value = 4\nSet item = ws.ChartObjects.Add(10, 20, 300, 180)\nitem.Chart.SetSourceData ws.Range(ws.Cells(1, 1), ws.Cells(3, 2)), xlColumns\nProbe = item.Chart.PlotBy & \":\" & item.Chart.SeriesCollection.Count\nDim i As Long\nFor i = 1 To item.Chart.SeriesCollection.Count\nProbe = Probe & \"|\" & Replace(item.Chart.SeriesCollection(i).Formula, ws.Name, \"Data\")\nNext\nEnd Function",
+      "result": "2:2|=SERIES(Data!$A$1,,Data!$A$2:$A$3,1)|=SERIES(Data!$B$1,,Data!$B$2:$B$3,2)"
+    }
+  ]
+}

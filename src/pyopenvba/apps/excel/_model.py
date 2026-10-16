@@ -52,6 +52,7 @@ from pyopenvba.interpreter._values import (
 )
 
 if TYPE_CHECKING:
+    from pyopenvba.apps.excel._charts import ChartState
     from pyopenvba.apps.excel._autofilter import SheetFilter
     from pyopenvba.apps.excel._protection import BookProtection, Gate, SheetProtection
     from pyopenvba.apps.excel._clipboard import Clip
@@ -1076,6 +1077,8 @@ class Worksheet(ExcelObject):
         self.dirty = False
         #: The shapes on the sheet, in the order the drawing holds them.
         self.shapes_: list[ShapeState] = []
+        self.chart_states: dict[int, ChartState] = {}
+        self.deleted_chart_parts: set[str] = set()
         #: How many shapes have been added here, which is where the next
         #: one's number comes from.  It does not go back down when one
         #: is deleted, and it belongs to the sheet rather than to the
@@ -1290,6 +1293,13 @@ class Worksheet(ExcelObject):
 
         shapes = ShapesCollection(self)
         return shapes if Index is MISSING else shapes.vba_get("Item", [Index])
+
+    @member
+    def ChartObjects(self, Index: object = MISSING) -> object:
+        from pyopenvba.apps.excel._charts import ChartObjects
+
+        charts = ChartObjects(self)
+        return charts if Index is MISSING else charts.vba_get('Item', [Index])
 
     @member
     def DrawingObjects(self, Index: object = MISSING) -> object:

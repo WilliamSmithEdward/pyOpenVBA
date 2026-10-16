@@ -425,6 +425,9 @@ def _read_shapes(sheet: Worksheet, package: OpcFile, sheet_xml: str) -> None:
     # Anchors are read against the model's own rows and columns, the ones
     # a save writes them against, so a shape nobody moved stays put.
     sheet.shapes_ = read_drawing(sheet.drawing_xml, sheet.drawing_grid())
+    from pyopenvba.apps.excel import _charts_file
+
+    _charts_file.read(sheet, package)
     # The counter a new shape's name comes from carries on from what is
     # already there rather than starting again at one.
     sheet.shape_count = len(sheet.shapes_)
@@ -714,8 +717,10 @@ def _write_tables(book: Workbook, package: OpcFile) -> None:
 def _write_shapes(book: Workbook, package: OpcFile) -> None:
     """Write back the drawing of every sheet whose shapes changed."""
     from pyopenvba.shapes._xlsx import EMPTY_DRAWING, read_drawing, written
+    from pyopenvba.apps.excel import _charts_file
 
     for sheet in book.sheets_:
+        _charts_file.refresh(sheet, package)
         if not sheet.drawing_dirty:
             continue
         part = sheet.drawing_part or _new_drawing(book, package, sheet)
@@ -723,6 +728,7 @@ def _write_shapes(book: Workbook, package: OpcFile) -> None:
             continue
         original = sheet.drawing_xml or EMPTY_DRAWING
         before = read_drawing(original, sheet.drawing_grid())
+        _charts_file.write(sheet, package, part)
         package.write(part, written(sheet.shapes_, original, sheet.drawing_grid()).encode("utf-8"))
         sheet.drawing_part = part
         sheet.drawing_xml = package.read(part).decode("utf-8", errors="replace")

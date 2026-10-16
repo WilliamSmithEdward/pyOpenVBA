@@ -12,6 +12,7 @@ import xml.etree.ElementTree as ET
 from typing import TYPE_CHECKING
 
 from pyopenvba._xml import attributes, unescape
+from pyopenvba._relationships import in_office_order
 from pyopenvba._a1 import parse_reference
 from pyopenvba.apps.excel._chart_xml import CHART_KINDS, CT_CHART, SeriesData, cache_markup, chart_frame, chart_part
 from pyopenvba.apps.excel._charts import CHART_TYPES, Chart, ChartState, Series, SeriesState, referenced_values
@@ -131,6 +132,17 @@ def _number(value: object) -> float | None:
         return None
     return float(to_number(value))
 
+def source_format(sheet: Worksheet, formula: str) -> str:
+    from pyopenvba.apps.excel._model import Range
+
+    if not formula:
+        return 'General'
+    area = parse_reference(formula)[0]
+    owner = sheet.book.sheet_named(area.sheet) if area.sheet else sheet
+    from pyopenvba._a1 import Area
+
+    return to_text(Range(owner, [Area(area.top, area.left, area.top, area.left)]).NumberFormat())
+
 def refresh(sheet: Worksheet, package: OpcFile) -> None:
     """Refresh only changed reference caches; leave every other chart byte alone."""
     if not any(owner.dirty for owner in sheet.book.sheets_):
@@ -149,6 +161,7 @@ def refresh(sheet: Worksheet, package: OpcFile) -> None:
             try:
                 source = referenced_values(sheet, unescape(formula.group(1)))
                 values: list[str | float | None] = [_number(value) if numeric else to_text(value) for value in source]
+                wanted_code = source_format(sheet, unescape(formula.group(1))) if numeric else 'General'
             except (ValueError, KeyError, VBAUnsupportedError, VBARuntimeError):
                 # Unknown/external chart reference expressions retain their original caches.
                 return raw
@@ -164,10 +177,10 @@ def refresh(sheet: Worksheet, package: OpcFile) -> None:
                             for index, value in expected.items()))
             except ValueError:
                 same = False
-            if same:
-                return raw
             code = root.findtext('.//c:formatCode', default='General', namespaces=NS)
-            replacement = cache_markup(values, numeric=numeric, code=code)
+            if same and (not numeric or code == wanted_code):
+                return raw
+            replacement = cache_markup(values, numeric=numeric, code=wanted_code)
             return raw[:cached.start()] + replacement + raw[cached.end():]
         updated = re.sub(r'<c:(numRef|strRef)>.*?</c:\1>', update, original)
         if updated != original:
@@ -182,9 +195,11 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
         categories = series.categories()
         numeric = bool(categories) and all(isinstance(value, (int, float)) and not isinstance(value, bool) for value in categories)
         data.append(SeriesData(values=item.value_reference, value_cache=[_number(value) for value in series.values()],
+                               value_format=source_format(sheet, item.value_reference),
                                name=item.name_reference or None, name_cache=to_text(series.Name()) if item.name_reference else item.name,
                                categories=item.category_reference or ('' if item.categories else None),
                                category_cache=[_number(value) if numeric else to_text(value) for value in categories],
+                               category_format=source_format(sheet, item.category_reference),
                                numeric_categories=numeric))
     kind = CHART_TYPES.get(chart.state.chart_type)
     if kind not in CHART_KINDS:
@@ -222,17 +237,19 @@ def write(sheet: Worksheet, package: OpcFile, drawing: str) -> None:
         if shape.kind != 'chart' or shape.shape_id not in sheet.chart_states:
             continue
         chart = sheet.chart_states[shape.shape_id]
+        generated = markup(sheet, shape.shape_id) if chart.dirty and not chart.original else None
         if not chart.part:
             number = 1
             while package.has(f'xl/charts/chart{number}.xml'):
                 number += 1
             chart.part = f'xl/charts/chart{number}.xml'
             identifier = add_relationship(package, rels, REL_CHART, posixpath.relpath(chart.part, posixpath.dirname(drawing)))
+            package.write(rels, in_office_order(package.read(rels).decode('utf-8')).encode('utf-8'))
             shape.source = chart_frame(shape_id=shape.shape_id, name=shape.name, relationship=identifier,
                                        left=shape.left, top=shape.top, width=shape.width, height=shape.height,
                                        grid=sheet.drawing_grid())
-        if chart.dirty and not chart.original:
-            package.write(chart.part, markup(sheet, shape.shape_id).encode('utf-8'))
+        if generated is not None:
+            package.write(chart.part, generated.encode('utf-8'))
             add_content_type(package, chart.part, CT_CHART)
             chart.dirty = False
     sheet.deleted_chart_parts.clear()

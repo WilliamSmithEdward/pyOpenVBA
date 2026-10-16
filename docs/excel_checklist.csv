@@ -383,8 +383,8 @@ Chart,ChartColor,property,As Variant,,MISSING,,
 Chart,ChartGroups,method,ChartGroups([Index As Variant]) As Object,,MISSING,,
 Chart,ChartObjects,method,ChartObjects([Index As Variant]) As Object,,MISSING,,
 Chart,ChartStyle,property,As Variant,,MISSING,,
-Chart,ChartTitle,"property, read-only",As ChartTitle,,UNASSESSED,,
-Chart,ChartType,property,As XlChartType,,UNASSESSED,,
+Chart,ChartTitle,"property, read-only",As ChartTitle,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
+Chart,ChartType,property,As XlChartType,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
 Chart,ChartWizard,method,"ChartWizard([Source As Variant], [Gallery As Variant], [Format As Variant], [PlotBy As Variant], [CategoryLabels As Variant], [SeriesLabels As Variant], [HasLegend As Variant], [Title As Variant], [CategoryTitle As Variant], [ValueTitle As Variant], [ExtraTitle As Variant])",,MISSING,,
 Chart,CheckSpelling,method,"CheckSpelling([CustomDictionary As Variant], [IgnoreUppercase As Variant], [AlwaysSuggest As Variant], [SpellLang As Variant])",,MISSING,,
 Chart,ClearToMatchColorStyle,method,ClearToMatchColorStyle(),,MISSING,,
@@ -410,8 +410,8 @@ Chart,GetChartElement,method,"GetChartElement(x As Long, y As Long, ElementID As
 Chart,GetProperty,method,GetProperty(ID As String) As Variant,,MISSING,,
 Chart,HasAxis,property,As Variant,,MISSING,,
 Chart,HasDataTable,property,As Boolean,,MISSING,,
-Chart,HasLegend,property,As Boolean,,UNASSESSED,,
-Chart,HasTitle,property,As Boolean,,UNASSESSED,,
+Chart,HasLegend,property,As Boolean,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
+Chart,HasTitle,property,As Boolean,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
 Chart,HeightPercent,property,As Long,,MISSING,,
 Chart,Hyperlinks,"property, read-only",As Hyperlinks,,MISSING,,
 Chart,Index,"property, read-only",As Long,,MISSING,,
@@ -426,12 +426,12 @@ Chart,Name,property,As String,,MISSING,,
 Chart,Next,"property, read-only",As Object,,MISSING,,
 Chart,OLEObjects,method,OLEObjects([Index As Variant]) As Object,,MISSING,,
 Chart,PageSetup,"property, read-only",As PageSetup,,MISSING,,
-Chart,Parent,"property, read-only",As Object,,UNASSESSED,,
+Chart,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
 Chart,Paste,method,Paste([Type As Variant]),,MISSING,,
 Chart,Perspective,property,As Long,,MISSING,,
 Chart,PivotLayout,"property, read-only",As PivotLayout,,MISSING,,
 Chart,PlotArea,"property, read-only",As PlotArea,,MISSING,,
-Chart,PlotBy,property,As XlRowCol,,MISSING,,
+Chart,PlotBy,property,As XlRowCol,no setter,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
 Chart,PlotVisibleOnly,property,As Boolean,,MISSING,,
 Chart,Previous,"property, read-only",As Object,,MISSING,,
 Chart,PrintedCommentPages,"property, read-only",As Long,,MISSING,,
@@ -452,13 +452,13 @@ Chart,SaveAs,method,"SaveAs(Filename As String, [FileFormat As Variant], [Passwo
 Chart,SaveChartTemplate,method,SaveChartTemplate(Filename As String),,MISSING,,
 Chart,Select,event,"Select(ElementID As Long, Arg1 As Long, Arg2 As Long)",,MISSING,,
 Chart,SeriesChange,event,"SeriesChange(SeriesIndex As Long, PointIndex As Long)",,MISSING,,
-Chart,SeriesCollection,method,SeriesCollection([Index As Variant]) As Object,,UNASSESSED,,
+Chart,SeriesCollection,method,SeriesCollection([Index As Variant]) As Object,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
 Chart,SeriesNameLevel,property,As XlSeriesNameLevel,,MISSING,,
 Chart,SetBackgroundPicture,method,SetBackgroundPicture(Filename As String),,MISSING,,
 Chart,SetDefaultChart,method,SetDefaultChart(Name As Variant),,MISSING,,
 Chart,SetElement,method,SetElement(Element As MsoChartElementType),,MISSING,,
 Chart,SetProperty,method,"SetProperty(ID As String, Value As Variant)",,MISSING,,
-Chart,SetSourceData,method,"SetSourceData(Source As Range, [PlotBy As Variant])",,UNASSESSED,,
+Chart,SetSourceData,method,"SetSourceData(Source As Range, [PlotBy As Variant])",,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
 Chart,Shapes,"property, read-only",As Shapes,,MISSING,,
 Chart,ShowAllFieldButtons,property,As Boolean,,MISSING,,
 Chart,ShowAxisFieldButtons,property,As Boolean,,MISSING,,
@@ -476,19 +476,19 @@ ChartObject,Activate,method,Activate() As Variant,,MISSING,,
 ChartObject,Application,"property, read-only",As Application,,MISSING,,
 ChartObject,BottomRightCell,"property, read-only",As Range,,MISSING,,
 ChartObject,BringToFront,method,BringToFront() As Variant,,MISSING,,
-ChartObject,Chart,"property, read-only",As Chart,,UNASSESSED,,
+ChartObject,Chart,"property, read-only",As Chart,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
 ChartObject,Copy,method,Copy() As Variant,,MISSING,,
 ChartObject,CopyPicture,method,"CopyPicture([Appearance As XlPictureAppearance], [Format As XlCopyPictureFormat]) As Variant",,MISSING,,
 ChartObject,Creator,"property, read-only",As XlCreator,,MISSING,,
 ChartObject,Cut,method,Cut() As Variant,,MISSING,,
-ChartObject,Delete,method,Delete() As Variant,,UNASSESSED,,
+ChartObject,Delete,method,Delete() As Variant,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
 ChartObject,Duplicate,method,Duplicate() As Object,,MISSING,,
-ChartObject,Height,property,As Double,,UNASSESSED,,
-ChartObject,Index,"property, read-only",As Long,,UNASSESSED,,
-ChartObject,Left,property,As Double,,UNASSESSED,,
+ChartObject,Height,property,As Double,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
+ChartObject,Index,"property, read-only",As Long,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
+ChartObject,Left,property,As Double,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
 ChartObject,Locked,property,As Boolean,,MISSING,,
-ChartObject,Name,property,As String,,UNASSESSED,,
-ChartObject,Parent,"property, read-only",As Object,,UNASSESSED,,
+ChartObject,Name,property,As String,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
+ChartObject,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
 ChartObject,Placement,property,As Variant,,MISSING,,
 ChartObject,PrintObject,property,As Boolean,,MISSING,,
 ChartObject,ProtectChartObject,property,As Boolean,,MISSING,,
@@ -496,25 +496,25 @@ ChartObject,RoundedCorners,property,As Boolean,,MISSING,,
 ChartObject,Select,method,Select([Replace As Variant]) As Variant,,MISSING,,
 ChartObject,SendToBack,method,SendToBack() As Variant,,MISSING,,
 ChartObject,Shadow,property,As Boolean,,MISSING,,
-ChartObject,ShapeRange,"property, read-only",As ShapeRange,,UNASSESSED,,
-ChartObject,Top,property,As Double,,UNASSESSED,,
+ChartObject,ShapeRange,"property, read-only",As ShapeRange,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
+ChartObject,Top,property,As Double,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
 ChartObject,TopLeftCell,"property, read-only",As Range,,MISSING,,
 ChartObject,Visible,property,As Boolean,,MISSING,,
-ChartObject,Width,property,As Double,,UNASSESSED,,
+ChartObject,Width,property,As Double,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
 ChartObject,ZOrder,"property, read-only",As Long,,MISSING,,
 ChartObjects,_Default,method,_Default(Index As Variant) As Object,,MISSING,,
 ChartObjects,_NewEnum,method,_NewEnum() As IUnknown,,MISSING,,
-ChartObjects,Add,method,"Add(Left As Double, Top As Double, Width As Double, Height As Double) As ChartObject",,UNASSESSED,,
+ChartObjects,Add,method,"Add(Left As Double, Top As Double, Width As Double, Height As Double) As ChartObject",,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
 ChartObjects,Application,"property, read-only",As Application,,MISSING,,
 ChartObjects,Copy,method,Copy() As Variant,,MISSING,,
 ChartObjects,CopyPicture,method,"CopyPicture([Appearance As XlPictureAppearance], [Format As XlCopyPictureFormat]) As Variant",,MISSING,,
-ChartObjects,Count,"property, read-only",As Long,,UNASSESSED,,
+ChartObjects,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
 ChartObjects,Creator,"property, read-only",As XlCreator,,MISSING,,
 ChartObjects,Cut,method,Cut() As Variant,,MISSING,,
-ChartObjects,Delete,method,Delete() As Variant,,UNASSESSED,,
+ChartObjects,Delete,method,Delete() As Variant,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
 ChartObjects,Duplicate,method,Duplicate() As Object,,MISSING,,
 ChartObjects,Height,property,As Double,,MISSING,,
-ChartObjects,Item,method,Item(Index As Variant) As Object,,UNASSESSED,,
+ChartObjects,Item,method,Item(Index As Variant) As Object,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
 ChartObjects,Left,property,As Double,,MISSING,,
 ChartObjects,Locked,property,As Boolean,,MISSING,,
 ChartObjects,Parent,"property, read-only",As Object,,MISSING,,
@@ -549,7 +549,7 @@ ChartTitle,ReadingOrder,property,As Long,,MISSING,,
 ChartTitle,Select,method,Select() As Variant,,MISSING,,
 ChartTitle,SetProperty,method,"SetProperty(ID As String, Value As Variant)",,MISSING,,
 ChartTitle,Shadow,property,As Boolean,,MISSING,,
-ChartTitle,Text,property,As String,,UNASSESSED,,
+ChartTitle,Text,property,As String,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
 ChartTitle,Top,property,As Double,,MISSING,,
 ChartTitle,VerticalAlignment,property,As Variant,,MISSING,,
 ChartTitle,Width,"property, read-only",As Double,,MISSING,,
@@ -1033,7 +1033,7 @@ Series,ErrorBar,method,"ErrorBar(Direction As XlErrorBarDirection, Include As Xl
 Series,ErrorBars,"property, read-only",As ErrorBars,,MISSING,,
 Series,Explosion,property,As Long,,MISSING,,
 Series,Format,"property, read-only",As ChartFormat,,MISSING,,
-Series,Formula,property,As String,no setter,UNASSESSED,,
+Series,Formula,property,As String,no setter,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
 Series,FormulaLocal,property,As String,,MISSING,,
 Series,FormulaR1C1,property,As String,,MISSING,,
 Series,FormulaR1C1Local,property,As String,,MISSING,,
@@ -1055,7 +1055,7 @@ Series,MarkerForegroundColor,property,As Long,,MISSING,,
 Series,MarkerForegroundColorIndex,property,As XlColorIndex,,MISSING,,
 Series,MarkerSize,property,As Long,,MISSING,,
 Series,MarkerStyle,property,As XlMarkerStyle,,MISSING,,
-Series,Name,property,As String,,UNASSESSED,,
+Series,Name,property,As String,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
 Series,Parent,"property, read-only",As Object,,MISSING,,
 Series,ParentDataLabelOption,property,As XlParentDataLabelOptions,,MISSING,,
 Series,Paste,method,Paste() As Variant,,MISSING,,
@@ -1076,18 +1076,18 @@ Series,Shadow,property,As Boolean,,MISSING,,
 Series,Smooth,property,As Boolean,,MISSING,,
 Series,Trendlines,method,Trendlines([Index As Variant]) As Object,,MISSING,,
 Series,Type,property,As Long,,MISSING,,
-Series,Values,property,As Variant,,UNASSESSED,,
+Series,Values,property,As Variant,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
 Series,ValueSortOrder,property,As XlValueSortOrder,,MISSING,,
-Series,XValues,property,As Variant,,UNASSESSED,,
+Series,XValues,property,As Variant,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
 SeriesCollection,_Default,method,_Default(Index As Variant) As Series,,MISSING,,
 SeriesCollection,_NewEnum,method,_NewEnum() As IUnknown,,MISSING,,
 SeriesCollection,Add,method,"Add(Source As Variant, [Rowcol As XlRowCol], [SeriesLabels As Variant], [CategoryLabels As Variant], [Replace As Variant]) As Series",,MISSING,,
 SeriesCollection,Application,"property, read-only",As Application,,MISSING,,
-SeriesCollection,Count,"property, read-only",As Long,,UNASSESSED,,
+SeriesCollection,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
 SeriesCollection,Creator,"property, read-only",As XlCreator,,MISSING,,
 SeriesCollection,Extend,method,"Extend(Source As Variant, [Rowcol As Variant], [CategoryLabels As Variant]) As Variant",,MISSING,,
-SeriesCollection,Item,method,Item(Index As Variant) As Series,,UNASSESSED,,
-SeriesCollection,NewSeries,method,NewSeries() As Series,,UNASSESSED,,
+SeriesCollection,Item,method,Item(Index As Variant) As Series,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
+SeriesCollection,NewSeries,method,NewSeries() As Series,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
 SeriesCollection,Parent,"property, read-only",As Object,,MISSING,,
 SeriesCollection,Paste,method,"Paste([Rowcol As XlRowCol], [SeriesLabels As Variant], [CategoryLabels As Variant], [Replace As Variant], [NewSeries As Variant]) As Variant",,MISSING,,
 Shape,Adjustments,"property, read-only",As Adjustments,,MISSING,,
@@ -1233,7 +1233,7 @@ ShapeRange,TextFrame2,"property, read-only",As TextFrame2,,MISSING,,
 ShapeRange,ThreeD,"property, read-only",As ThreeDFormat,,MISSING,,
 ShapeRange,Title,property,As String,,MISSING,,
 ShapeRange,Top,property,As Single,,MISSING,,
-ShapeRange,Type,"property, read-only",As MsoShapeType,,UNASSESSED,,
+ShapeRange,Type,"property, read-only",As MsoShapeType,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
 ShapeRange,Ungroup,method,Ungroup() As ShapeRange,,MISSING,,
 ShapeRange,VerticalFlip,"property, read-only",As MsoTriState,,MISSING,,
 ShapeRange,Vertices,"property, read-only",As Variant,,MISSING,,
@@ -1764,7 +1764,7 @@ Worksheet,BeforeRightClick,event,"BeforeRightClick(Target As Range, Cancel As Bo
 Worksheet,Calculate,event,Calculate(),,UNASSESSED,,
 Worksheet,Cells,"property, read-only",As Range,,UNASSESSED,,
 Worksheet,Change,event,Change(Target As Range),,MISSING,,
-Worksheet,ChartObjects,method,ChartObjects([Index As Variant]) As Object,,UNASSESSED,,
+Worksheet,ChartObjects,method,ChartObjects([Index As Variant]) As Object,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
 Worksheet,CheckSpelling,method,"CheckSpelling([CustomDictionary As Variant], [IgnoreUppercase As Variant], [AlwaysSuggest As Variant], [SpellLang As Variant])",,MISSING,,
 Worksheet,CircleInvalid,method,CircleInvalid(),,MISSING,,
 Worksheet,CircularReference,"property, read-only",As Range,,MISSING,,

@@ -32,6 +32,8 @@ CASES = {
     'negative_position_window': 'Set item = ws.ChartObjects.Add(-10, -20, 300, 180)\nProbe = item.Left & ":" & item.Top & ":" & ActiveWindow.UsableWidth & ":" & ActiveWindow.UsableHeight',
     'two_empty_series': ADD + 'Dim first As Series, second As Series\nSet first = item.Chart.SeriesCollection.NewSeries\nSet second = item.Chart.SeriesCollection.NewSeries\nProbe = first.Name & ":" & second.Name & ":" & first.Formula & ":" & second.Formula',
     'fractional_creation': 'Set item = ws.ChartObjects.Add(12.25, 31.5, 400.125, 210.25)\nProbe = item.Left & ":" & item.Top & ":" & item.Width & ":" & item.Height',
+    'series_value_arrays': ADD + 'Dim series As Series, values As Variant, categories As Variant\nSet series = item.Chart.SeriesCollection.NewSeries\nseries.Values = Array(2, 4)\nvalues = series.Values\ncategories = series.XValues\nProbe = TypeName(values) & ":" & LBound(values) & ":" & UBound(values) & ":" & TypeName(values(1)) & ":" & categories(1) & ":" & categories(2)',
+    'empty_series_values': ADD + 'Dim series As Series, values As Variant\nSet series = item.Chart.SeriesCollection.NewSeries\nOn Error Resume Next\nvalues = series.Values\nProbe = Err.Number & ":" & TypeName(values)',
 }
 
 for label, grid, plot in (

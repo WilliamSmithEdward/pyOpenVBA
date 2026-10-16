@@ -16,6 +16,7 @@ chart's data.
 from __future__ import annotations
 
 import random
+import math
 import uuid
 from collections.abc import Sequence
 from dataclasses import dataclass
@@ -26,6 +27,8 @@ from pyopenvba.shapes._xlsx import SheetGrid
 
 # Adapted from William's pyOfficeEditor at 4723383e5d3039763e64ecd2a3ee092786c91bb5.
 def format_number(value: int | float) -> str:
+    if not math.isfinite(value):
+        raise ValueError('Non-finite chart data cannot be written')
     if isinstance(value, int) or value.is_integer() and abs(value) < 1e15:
         return str(int(value))
     return repr(value)

@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from decimal import Decimal
+import math
 from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import Area, parse_reference
@@ -76,6 +78,8 @@ class ChartObjects(VBACollection):
         if any(value is MISSING for value in (Left, Top, Width, Height)):
             raise error(449, 'Argument not optional')
         left, top, width, height = (float(to_number(value)) for value in (Left, Top, Width, Height))
+        if not all(math.isfinite(value) for value in (left, top, width, height)):
+            raise error(1004, 'Invalid chart geometry')
         if left < 0 or top < 0:
             raise VBAUnsupportedError('Chart placement centered in a native window is not implemented')
         if width < 0 or height < 0:
@@ -159,7 +163,10 @@ class ChartObject(VBAObject):
         from pyopenvba.apps.excel._protection import guard_drawing
 
         guard_drawing(self.sheet, f'ChartObject.{name}')
-        quantized = float(VBASingle(points(emu(float(to_number(value))))))
+        number = float(to_number(value))
+        if not math.isfinite(number):
+            raise error(1004, 'Invalid chart geometry')
+        quantized = float(VBASingle(points(emu(number))))
         setattr(self.shape, name, quantized)
         self.sheet.drawing_changed()
 
@@ -339,7 +346,9 @@ class Series(VBAObject):
 
     @member
     def Values(self) -> object:
-        return VBAArray([(1, len(self.values()))], items=self.values())
+        values = [float(value) if isinstance(value, (int, float, Decimal)) and not isinstance(value, bool) else value
+                  for value in self.values()]
+        return VBAArray([(1, len(values))], items=values)
 
     @setter('Values')
     def _values(self, value: object) -> None:
@@ -360,7 +369,9 @@ class Series(VBAObject):
         return referenced_values(self.chart.sheet, self.entry.value_reference) if self.entry.value_reference else self.entry.values
 
     def categories(self) -> list[object]:
-        return referenced_values(self.chart.sheet, self.entry.category_reference) if self.entry.category_reference else self.entry.categories
+        if self.entry.category_reference:
+            return referenced_values(self.chart.sheet, self.entry.category_reference)
+        return self.entry.categories or [float(index + 1) for index in range(len(self.values()))]
 
     @member
     def Formula(self) -> object:
@@ -407,5 +418,5 @@ def referenced_values(sheet: Worksheet, formula: str) -> list[object]:
         owner = sheet.book.sheet_named(area.sheet) if area.sheet else sheet
         for row in range(area.top, area.bottom + 1):
             for column in range(area.left, area.right + 1):
-                result.append(Range(owner, [Area(row, column, row, column)]).Value())
+                result.append(Range(owner, [Area(row, column, row, column)]).Value2())
     return result

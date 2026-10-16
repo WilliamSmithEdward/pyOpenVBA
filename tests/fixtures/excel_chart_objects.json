@@ -1,6 +1,6 @@
 {
   "excel_version_build": "16.0|20430",
-  "measured_at": "2026-10-16T21:31:14.251618+00:00",
+  "measured_at": "2026-10-16T21:33:38.965807+00:00",
   "classes": {},
   "probes": [
     {
@@ -127,6 +127,16 @@
       "name": "fractional_creation",
       "macro": "Function Probe() As String\nDim ws As Worksheet, item As ChartObject\nSet ws = Worksheets.Add\nws.Name = \"ChartData\" & Worksheets.Count\nSet item = ws.ChartObjects.Add(12.25, 31.5, 400.125, 210.25)\nProbe = item.Left & \":\" & item.Top & \":\" & item.Width & \":\" & item.Height\nEnd Function",
       "result": "12.25:31.5:400.125030517578:210.25"
+    },
+    {
+      "name": "series_value_arrays",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, item As ChartObject\nSet ws = Worksheets.Add\nws.Name = \"ChartData\" & Worksheets.Count\nSet item = ws.ChartObjects.Add(10, 20, 300, 180)\nDim series As Series, values As Variant, categories As Variant\nSet series = item.Chart.SeriesCollection.NewSeries\nseries.Values = Array(2, 4)\nvalues = series.Values\ncategories = series.XValues\nProbe = TypeName(values) & \":\" & LBound(values) & \":\" & UBound(values) & \":\" & TypeName(values(1)) & \":\" & categories(1) & \":\" & categories(2)\nEnd Function",
+      "result": "Variant():1:2:Double:1:2"
+    },
+    {
+      "name": "empty_series_values",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, item As ChartObject\nSet ws = Worksheets.Add\nws.Name = \"ChartData\" & Worksheets.Count\nSet item = ws.ChartObjects.Add(10, 20, 300, 180)\nDim series As Series, values As Variant\nSet series = item.Chart.SeriesCollection.NewSeries\nOn Error Resume Next\nvalues = series.Values\nProbe = Err.Number & \":\" & TypeName(values)\nEnd Function",
+      "result": "0:Variant()"
     },
     {
       "name": "rows_source",

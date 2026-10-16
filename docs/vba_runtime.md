@@ -1877,7 +1877,16 @@ procedure is, so it starts with no error and leaves what it ends with in the
 macro's Err, and an error it does not handle leaves 40040 there; a formula
 that calls one is worked out as it is written, as Excel works it out. It is
 worked out again when a cell its arguments name changes, not when one it
-reads by itself does. `Application.Volatile` is not modelled.
+reads by itself does, unless it calls `Application.Volatile`. Twenty-four
+native probes in `tests/fixtures/excel_udf_volatility.json` cover that
+registration, opting out with False, helper calls, returned error values,
+cached reads, dependents and worksheet/workbook scope. New UDF formulas get
+their initial value even in manual mode; subsequent input edits remain
+cached until calculation. Returning to automatic calculates volatile UDFs
+in the active workbook. Event suppression does not suppress calculation.
+Each cell uses its owning VBA project, including source added through
+VBIDE. General calculation-chain ordering, source-edit lifetime, external
+project lookup and wider UDF/error interactions remain incomplete.
 
 `Format` is VBA's own engine, `pyopenvba/interpreter/_format.py`, held to
 245 native calls in `tests/fixtures/vba_format.json`. A section with a `0`

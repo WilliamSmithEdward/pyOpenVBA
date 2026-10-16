@@ -50,9 +50,12 @@ if TYPE_CHECKING:
 
 def call_user_function(book: Workbook, context: Context, name: str, nodes: tuple[Node, ...]) -> Value | None:
     """The value of ``name(nodes)`` worked out by the project's Function of that name, or None without one."""
-    interpreter = book.application.interpreter
+    from pyopenvba.apps.excel._projects import attach_project
+
+    interpreter = attach_project(book)
     if interpreter is None or "." in name:
         return None
+    interpreter.initialise()
     procedure, runtime = interpreter.find_procedure(name)
     if procedure is None or runtime is None or procedure.kind != "function":
         return None

@@ -282,10 +282,11 @@ class Application(ExcelObject):
         self.calculation = int(to_integer(value, "Long"))
         if before != self.calculation and self.calculation == -4105:  # xlCalculationAutomatic
             # Back to automatic works out what manual mode left stale, with its
-            # Calculate events (native probe). Whether volatile formulas go too
-            # depends on what calculated before, which is not modelled.
+            # Calculate events. Volatile UDFs in the active workbook run too;
+            # built-in volatile phases remain a separate conformance surface.
             for book in self.workbooks_.books:
-                _events.calculated_all(book, book.calculator.calculate_all(volatile=False))
+                _events.calculated_all(book, book.calculator.calculate_all(
+                    volatile=False, udf_volatile=book is self.active_book))
 
     @member
     def StatusBar(self) -> object:
@@ -476,6 +477,11 @@ class Application(ExcelObject):
 
     @method
     def Volatile(self, Volatile: object = MISSING) -> object:
+        if self.udf_callers:
+            caller = self.udf_callers[-1]
+            area = caller.first
+            caller.sheet.book.calculator.set_udf_volatile(
+                caller.sheet.name, area.top, area.left, True if Volatile is MISSING else to_bool(Volatile))
         return EMPTY
 
     # -- Python side

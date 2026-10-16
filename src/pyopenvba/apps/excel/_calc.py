@@ -11,8 +11,8 @@ same engine.
 Calculation is on demand.  Reading a stale cell computes it, and
 computing it computes whatever it reads, so nothing is ordered up front
 and a formula that reaches through INDIRECT is no harder than one that
-does not.  In manual mode nothing is computed at all: the cell keeps the
-value it last had, which is what Excel shows until F9.
+does not. Manual mode keeps cached values until explicit calculation,
+except that entering a UDF formula obtains its initial value immediately.
 """
 
 from __future__ import annotations
@@ -63,6 +63,11 @@ class Compiled:
     volatile: bool = False
     #: The formula calls a function Excel does not have, a VBA Function maybe (see _udf).
     calls_user: bool = False
+    #: Volatility declared by a VBA UDF while this formula runs; reads still use the cache.
+    udf_volatile: bool = False
+    #: New UDF formulas get their initial value immediately, then join the next calculation.
+    udf_pending: bool = False
+    udf_initial: bool = True
     #: Why the parser could not read the formula.
     unread: str = ""
     #: A dynamic-array formula, worked out whole and spilled (see _spills).
@@ -79,6 +84,7 @@ class Calculator:
         self.compiled: dict[CellKey, Compiled] = {}
         #: The formulas that call a function Excel does not have, which are worked out as they are written.
         self._user_calls: set[CellKey] = set()
+        self._volatile_udfs: set[CellKey] = set()
         #: Which formulas read each cell a formula names on its own, and the blocks of cells each other formula reads,
         #: so that a change finds what reads it without going through every formula.
         self._readers: dict[CellKey, set[CellKey]] = {}
@@ -90,6 +96,7 @@ class Calculator:
         #: The cells being worked out, one inside another, and how many.
         self._working: set[CellKey] = set()
         self._depth = 0
+        self._calculation_depth = 0
         #: The cells put off until a cell too deep to work out inside them is worked out.
         self._waiting: set[CellKey] = set()
 
@@ -165,7 +172,9 @@ class Calculator:
     def _compiled(self, formula: str, sheet: str, row: int, column: int) -> Compiled:
         node = self.engine_book.read(formula)
         precedents = self.engine_book.precedents(node, sheet, row, column)
-        return Compiled(node=node, precedents=precedents, volatile=volatile(node), calls_user=calls_user(node))
+        user = calls_user(node)
+        return Compiled(node=node, precedents=precedents, volatile=volatile(node), calls_user=user,
+                        udf_pending=user and not self.automatic)
 
     def forget(self, sheet: str, row: int, column: int) -> None:
         """A cell is gone: forget its formula, and take back what it spilled."""
@@ -176,6 +185,7 @@ class Calculator:
         """Keep ``compiled`` as the formula at ``key``, or none, and note which cells it reads."""
         old = self.compiled.pop(key, None)
         self._user_calls.discard(key)
+        self._volatile_udfs.discard(key)
         if old is not None:
             for area in old.precedents:
                 readers = self._readers.get((area.sheet.lower(), area.top, area.left))
@@ -217,6 +227,7 @@ class Calculator:
                 reconcile(owner)
         self.compiled.clear()
         self._user_calls.clear()
+        self._volatile_udfs.clear()
         self._readers.clear()
         self._blocks.clear()
         self.circular.clear()
@@ -296,7 +307,8 @@ class Calculator:
         """Whether the application recalculates as things change."""
         return self.book.application.calculation != -4135  # xlCalculationManual
 
-    def calculate_all(self, only: Worksheet | None = None, *, volatile: bool = True) -> list[Worksheet]:
+    def calculate_all(self, only: Worksheet | None = None, *, volatile: bool = True,
+                      settled: set[CellKey] | None = None, udf_volatile: bool | None = None) -> list[Worksheet]:
         """Work out stale and volatile formulas, even in manual mode; report sheets actually calculated.
 
         only limits the work to one sheet, as Worksheet.Calculate does;
@@ -304,34 +316,72 @@ class Calculator:
         formulas are settled without an edit (see Excel object vba_sink_attached).
         """
         self.build()
+        volatile_users = volatile if udf_volatile is None else udf_volatile
+        roots: set[CellKey] = set()
+        for key, compiled in self.compiled.items():
+            if only is not None and key[0] != only.name.lower():
+                continue
+            if (compiled.udf_pending or (volatile_users and compiled.udf_volatile)) and key not in (settled or ()):
+                cell = self._cell(key)
+                if cell is not None:
+                    cell.stale = True
+                    roots.add(key)
+        self._spoil(roots, set(roots))
         worked: list[Worksheet] = []
-        for sheet in self.book.sheets_ if only is None else [only]:
-            did = False
-            for (row, column), cell in list(sheet.cells_.items()):
-                if not cell.formula:
-                    continue
-                compiled = self.compiled.get((sheet.name.lower(), row, column))
-                if cell.stale or (volatile and compiled is not None and compiled.volatile):
-                    self.value_of(sheet.name, row, column, force=True)
-                    did = True
-            if did:
-                worked.append(sheet)
+        self._calculation_depth += 1
+        try:
+            for sheet in self.book.sheets_ if only is None else [only]:
+                did = False
+                # Excel's newly entered independent UDFs calculate in reverse entry order.
+                for (row, column), cell in reversed(list(sheet.cells_.items())):
+                    if not cell.formula:
+                        continue
+                    compiled = self.compiled.get((sheet.name.lower(), row, column))
+                    if cell.stale or (volatile and compiled is not None and compiled.volatile):
+                        self.value_of(sheet.name, row, column, force=True)
+                        did = True
+                if did:
+                    worked.append(sheet)
+        finally:
+            self._calculation_depth -= 1
         return worked
 
-    def settle_user_calls(self) -> None:
+    @property
+    def has_volatile_udfs(self) -> bool:
+        return bool(self._volatile_udfs)
+
+    def set_udf_volatile(self, sheet: str, row: int, column: int, enabled: bool) -> None:
+        key = (sheet.lower(), row, column)
+        compiled = self.compiled.get(key)
+        if compiled is not None:
+            compiled.udf_volatile = enabled
+            if enabled:
+                self._volatile_udfs.add(key)
+            else:
+                self._volatile_udfs.discard(key)
+
+    def settle_user_calls(self) -> set[CellKey]:
         """Work out the waiting formulas that call a VBA Function now, as Excel works one out when it is written:
         the function runs then, and what it leaves in Err the macro sees (native probes)."""
-        if not self._user_calls:
-            return
+        worked: set[CellKey] = set()
         for name, row, column in sorted(self._user_calls):
             cell = self._cell((name, row, column))
             owner = self._sheet_named(name)
-            if cell is not None and cell.stale and owner is not None:
-                self.value_of(owner.name, row, column)
+            compiled = self.compiled.get((name, row, column))
+            if cell is not None and cell.stale and owner is not None and compiled is not None \
+                    and (self.automatic or compiled.udf_initial):
+                if not self.automatic:
+                    from pyopenvba.apps.excel._udf import has_user_function
 
-    def recalculated(self) -> list[Worksheet]:
+                    if not has_user_function(self.book, compiled.node):
+                        continue
+                self.value_of(owner.name, row, column, force=True)
+                worked.add((name, row, column))
+        return worked
+
+    def recalculated(self, *, settled: set[CellKey] | None = None) -> list[Worksheet]:
         """Calculate after an edit, unless the application is in manual mode."""
-        return self.calculate_all() if self.automatic else []
+        return self.calculate_all(settled=settled) if self.automatic else []
 
     def value_of(self, sheet: str, row: int, column: int, *, force: bool = False) -> object:
         """A cell's value, worked out first if it needs to be; a cell of an array formula, by working out the array.
@@ -388,7 +438,7 @@ class Calculator:
             compiled = self.compiled[key]
         if not (cell.stale or compiled.volatile or force):
             return cell.value
-        if not self.automatic and not force:
+        if not self.automatic and not force and not self._calculation_depth:
             return cell.value
         if key in self._working or key in self._waiting:
             self.circular.add(key)
@@ -404,6 +454,9 @@ class Calculator:
             self._working.discard(key)
         cell.value = value
         cell.stale = False
+        compiled.udf_initial = False
+        if self._calculation_depth:
+            compiled.udf_pending = False
         from pyopenvba.apps.excel._controls import cell_changed
 
         owner = next(one for one in self.book.sheets_ if one.name.lower() == sheet.lower())

@@ -278,7 +278,7 @@ Application,Value,"property, read-only",As String,,MISSING,,
 Application,VBE,"property, read-only",As VBE,,MISSING,,
 Application,Version,"property, read-only",As String,,UNASSESSED,,
 Application,Visible,property,As Boolean,,UNASSESSED,,
-Application,Volatile,method,Volatile([Volatile As Variant]),,UNASSESSED,,
+Application,Volatile,method,Volatile([Volatile As Variant]),,PARTIAL,tests/fixtures/excel_udf_volatility.json,Native UDF registration and opt-out; cached reads and calculation scopes; wider lifetime and scheduling remain incomplete
 Application,Wait,method,Wait(Time As Variant) As Boolean,,UNASSESSED,,
 Application,WarnOnFunctionNameConflict,property,As Boolean,,MISSING,,
 Application,Watches,"property, read-only",As Watches,,MISSING,,

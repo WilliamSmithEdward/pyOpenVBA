@@ -129,17 +129,18 @@ def selected(sheet: Worksheet, target: Range) -> None:
     _both(sheet, "SelectionChange", [target])
 
 
-def recalculated(book: Workbook) -> None:
+def recalculated(book: Workbook, *, settled: set[tuple[str, int, int]] | None = None) -> None:
     """Work out what an edit left to work out, and raise Calculate for each sheet it worked out formulas on.
 
     The model works a formula out when something reads it; Excel works
     them out after each edit, which only shows through this event, so the
     work is done here only when a module is listening for it.
     """
-    if not _on(book) or not _listening_for_calculate(book):
+    if not book.calculator.has_volatile_udfs and (not _on(book) or not _listening_for_calculate(book)):
         return
-    for sheet in book.calculator.recalculated():
-        _both(sheet, "Calculate", [])
+    for sheet in book.calculator.recalculated(settled=settled):
+        if _on(book):
+            _both(sheet, "Calculate", [])
 
 
 def calculated_all(book: Workbook, worked: list[Worksheet]) -> None:
@@ -155,15 +156,16 @@ def after_edit(target: Range, *, calculate_first: bool = True) -> None:
     spills is in place after the edit, as Excel spills it, events or none."""
     book = target.sheet.book
     book.calculator.settle_spills()
-    book.calculator.settle_user_calls()
+    settled = book.calculator.settle_user_calls()
     if not _on(book):
+        recalculated(book, settled=settled)
         return
     if calculate_first:
-        recalculated(book)
+        recalculated(book, settled=settled)
         changed(target)
     else:
         changed(target)
-        recalculated(book)
+        recalculated(book, settled=settled)
 
 
 def activated(book: Workbook, before: Worksheet | None, after: Worksheet) -> None:

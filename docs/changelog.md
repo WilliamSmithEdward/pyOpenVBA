@@ -7,6 +7,16 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Application.Volatile registers the calling UDF formula for recalculation,
+  with False to opt out. Cached reads stay cached, dependents calculate once,
+  manual-mode entry and later edits retain their native calculation phases,
+  and disabled events do not prevent calculation. UDF lookup uses the owning
+  workbook's project, including pending VBIDE source. Twenty-four native
+  probes cover registration, helper calls, errors returned as values,
+  worksheet/workbook scope and switching back to automatic calculation.
+  General calculation-chain scheduling, source-edit lifetime and wider
+  UDF/error interactions remain incomplete.
+
 - User-defined functions: a cell's formula calls a VBA Function of the
   project, `=Twice(A1)`, as in Excel. References arrive as Ranges, arrays as
   Variant arrays, a left-out argument as missing; the result, an array, an

@@ -9,7 +9,8 @@ from __future__ import annotations
 import posixpath
 import re
 import xml.etree.ElementTree as ET
-from typing import TYPE_CHECKING
+from xml.parsers import expat
+from typing import TYPE_CHECKING, NoReturn
 
 from pyopenvba._xml import attributes, unescape
 from pyopenvba._relationships import in_office_order
@@ -28,6 +29,28 @@ NS = {'c': 'http://schemas.openxmlformats.org/drawingml/2006/chart',
       'a': 'http://schemas.openxmlformats.org/drawingml/2006/main'}
 REL_CHART = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/chart'
 
+def xml_tree(data: str | bytes) -> ET.Element:
+    """Build a read-only tree with DTDs and all declared entities refused."""
+    parser = expat.ParserCreate(namespace_separator='}')
+    builder = ET.TreeBuilder()
+    def expanded(name: str) -> str:
+        return '{' + name if '}' in name else name
+    def start(name: str, attrs: dict[str, str]) -> None:
+        builder.start(expanded(name), {expanded(key): value for key, value in attrs.items()})
+    def end(name: str) -> None:
+        builder.end(expanded(name))
+    def refuse(*_args: object) -> NoReturn:
+        raise ValueError('Chart XML must not contain DTDs or declared entities')
+    parser.StartElementHandler = start
+    parser.EndElementHandler = end
+    parser.CharacterDataHandler = builder.data
+    parser.StartDoctypeDeclHandler = refuse
+    parser.EntityDeclHandler = refuse
+    parser.ExternalEntityRefHandler = refuse
+    parser.SetParamEntityParsing(expat.XML_PARAM_ENTITY_PARSING_NEVER)
+    parser.Parse(data, True)
+    return builder.close()
+
 def rels_part(part: str) -> str:
     folder, name = posixpath.split(part)
     return f'{folder}/_rels/{name}.rels'
@@ -36,7 +59,7 @@ def _targets(package: OpcFile, part: str) -> dict[str, str]:
     rels = rels_part(part)
     if not package.has(rels):
         return {}
-    root = ET.fromstring(package.read(rels))
+    root = xml_tree(package.read(rels))
     return {entry.attrib.get('Id', ''): posixpath.normpath(posixpath.join(posixpath.dirname(part), entry.attrib['Target']))
             if not entry.attrib['Target'].startswith('/') else entry.attrib['Target'][1:]
             for entry in root if entry.attrib.get('Type') == REL_CHART and 'Target' in entry.attrib}
@@ -56,7 +79,7 @@ def read(sheet: Worksheet, package: OpcFile) -> None:
             sheet.chart_states[shape.shape_id] = read_chart(xml, part)
 
 def read_chart(xml: str, part: str) -> ChartState:
-    root = ET.fromstring(xml)
+    root = xml_tree(xml)
     result = ChartState(part=part, original=xml, dirty=False, chart_type=0)
     title = root.find('c:chart/c:title', NS)
     result.title = ''.join(title.itertext()) if title is not None else None
@@ -165,7 +188,7 @@ def refresh(sheet: Worksheet, package: OpcFile) -> None:
             except (ValueError, KeyError, VBAUnsupportedError, VBARuntimeError):
                 # Unknown/external chart reference expressions retain their original caches.
                 return raw
-            root = ET.fromstring(f'<root xmlns:c="{NS["c"]}">{cached.group(0)}</root>')
+            root = xml_tree(f'<root xmlns:c="{NS["c"]}">{cached.group(0)}</root>')
             count = root.find('.//c:ptCount', NS)
             points = {int(point.attrib['idx']): point.findtext('c:v', default='', namespaces=NS)
                       for point in root.findall('.//c:pt', NS)}

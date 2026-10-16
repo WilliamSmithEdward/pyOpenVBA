@@ -266,6 +266,9 @@ class Shapes(VBACollection):
         self.sheet.drawing_changed()
         return shape
 
+    def new_chart_shape(self, left: float, top: float, width: float, height: float) -> Shape:
+        return self._made(kind='chart', geometry='', stem='Chart', box=(left, top, width, height))
+
     def _free_name(self, stem: str) -> str:
         """The name Excel would give the next shape.
 
@@ -293,6 +296,11 @@ class ShapeRange(VBACollection):
     def vba_items(self) -> list[object]:
         return list(self.shapes)
 
+    @member
+    def Type(self) -> object:
+        kinds = {shape.shape.mso_type for shape in self.shapes}
+        return VBAInt(next(iter(kinds)) if len(kinds) == 1 else -2, 'Long')
+
     @method
     def Group(self) -> object:
         raise _unsupported("grouping shapes")
@@ -312,6 +320,18 @@ class ShapeObject(_Drawn):
     def __init__(self, sheet: Worksheet, shape: Shape) -> None:
         self.sheet = sheet
         self.shape = shape
+
+    @member
+    def HasChart(self) -> object:
+        return VBAInt(-1 if self.shape.kind == 'chart' else 0, 'Long')
+
+    @member
+    def Chart(self) -> object:
+        from pyopenvba.apps.excel._charts import Chart
+
+        if self.shape.kind != 'chart':
+            raise error(1004, 'This shape is not a chart')
+        return Chart(self.sheet, self.shape)
 
     # -- what it is
 
@@ -439,6 +459,10 @@ class ShapeObject(_Drawn):
 
         guard_drawing(self.sheet, "Shape.Delete")
         deleting(self.sheet, self.shape)
+        if self.shape.kind == 'chart':
+            chart = self.sheet.chart_states.pop(self.shape.shape_id, None)
+            if chart is not None and chart.part:
+                self.sheet.deleted_chart_parts.add(chart.part)
         self.sheet.shapes_ = [one for one in self.sheet.shapes_ if one is not self.shape]
         self.sheet.drawing_changed()
         return EMPTY

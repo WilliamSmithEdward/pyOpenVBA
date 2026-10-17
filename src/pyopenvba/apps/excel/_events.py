@@ -36,6 +36,7 @@ from pyopenvba.interpreter._values import to_bool
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Range, Workbook, Worksheet
+    from pyopenvba.apps.excel._pivots import PivotTable
 
 
 def _on(book: Workbook) -> bool:
@@ -127,6 +128,10 @@ def _both(sheet: Worksheet, event: str, args: list[object]) -> None:
 
 def changed(target: Range) -> None:
     _both(target.sheet, "Change", [target])
+
+
+def pivot_updated(table: PivotTable) -> None:
+    _both(table.sheet, "PivotTableUpdate", [table])
 
 
 def selected(sheet: Worksheet, target: Range) -> None:

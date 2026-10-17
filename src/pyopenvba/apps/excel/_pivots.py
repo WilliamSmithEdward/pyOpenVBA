@@ -1,8 +1,8 @@
-"""Runtime views of PivotTables already stored in an OOXML workbook.
+"""Runtime PivotTable views and worksheet-source cache/report creation.
 
 Relationship traversal follows pyOfficeEditor's pivot reader. Original XML stays
-in the package unchanged. Creation, refresh, grouping and layout edits remain
-explicitly unsupported until the engine can build and persist their caches.
+in the package unchanged. Worksheet sources can build new caches and empty
+reports. Refresh, aggregation, grouping and layout edits remain unsupported.
 """
 from __future__ import annotations
 
@@ -15,6 +15,7 @@ from pyopenvba._a1 import Area, parse_area
 from pyopenvba.apps.excel._model import ExcelObject, Range
 from pyopenvba.apps.excel._charts_file import XmlElement, xml_tree
 from pyopenvba.exceptions import VBAUnsupportedError
+from pyopenvba.formula._values import number_text
 from pyopenvba.interpreter._objects import VBACollection, member, method
 from pyopenvba.interpreter._values import MISSING, NULL, VBADate, VBAErrorValue, VBAInt, error, to_integer, to_text
 
@@ -70,6 +71,7 @@ def read(book: Workbook) -> None:
         if not part:
             continue
         cache = PivotCache(book, part, xml_tree(package.read(part)), len(book.pivot_caches) + 1)
+        cache.cache_id = int(entry.get('cacheId', '0'))
         book.pivot_caches.append(cache)
         by_part[part] = cache
     for sheet in book.sheets_:
@@ -83,7 +85,9 @@ def read(book: Workbook) -> None:
             caches = _parts(package, part, 'pivotCacheDefinition')
             cache = by_part.get(caches[0][1]) if caches else None
             if cache is not None:
-                sheet.pivot_tables.append(PivotTable(sheet, cache, xml_tree(package.read(part))))
+                table = PivotTable(sheet, cache, xml_tree(package.read(part)))
+                table.part = part
+                sheet.pivot_tables.append(table)
 
 
 class _Collection(VBACollection, ExcelObject):
@@ -113,6 +117,14 @@ class _Collection(VBACollection, ExcelObject):
 class PivotCaches(_Collection):
     vba_type_name = 'PivotCaches'
 
+    @method
+    def Create(self, SourceType: object, SourceData: object = MISSING, Version: object = MISSING) -> object:
+        from pyopenvba.apps.excel._pivot_create import create_cache
+        from pyopenvba.apps.excel._model import Workbook
+
+        assert isinstance(self.parent, Workbook)
+        return create_cache(self.parent, SourceType, SourceData, Version)
+
     def vba_lookup(self, index: object, items: list[object]) -> object:
         # Cache indices are numeric; numeric strings receive normal Long coercion.
         return super().vba_lookup(to_integer(index, 'Long'), items)
@@ -131,6 +143,25 @@ class PivotCache(ExcelObject):
 
     def __init__(self, book: Workbook, part: str, root: XmlElement, index: int) -> None:
         self.book, self.part, self.root, self.index = book, part, root, index
+        self.pending_source: object = None
+        self.source_text: str | None = None
+        self.cache_id = 0
+        self.records: XmlElement | None = None
+        self.records_part = ''
+        self.changed = False
+
+    @method
+    def CreatePivotTable(self, TableDestination: object, TableName: object = MISSING,
+                         ReadData: object = MISSING, DefaultVersion: object = MISSING) -> object:
+        from pyopenvba.apps.excel._pivot_create import create_table
+
+        return create_table(self, TableDestination, TableName, ReadData, DefaultVersion)
+
+    @method
+    def Refresh(self) -> object:
+        if self.index == 0:
+            raise error(1004)
+        raise VBAUnsupportedError('Refreshing populated pivot reports is not implemented')
 
     @member
     def Parent(self) -> object:
@@ -152,6 +183,8 @@ class PivotCache(ExcelObject):
 
     @member
     def SourceData(self) -> object:
+        if self.source_text is not None:
+            return self.source_text
         source = self.root.find(f'{NS}cacheSource/{NS}worksheetSource')
         if source is None:
             raise error(1004)
@@ -188,6 +221,8 @@ class PivotTable(ExcelObject):
                  report_owner: PivotTable | None = None) -> None:
         self.sheet, self.cache, self.root = sheet, cache, root
         self.entry = report_owner if report_owner is not None else self
+        self.part = ''
+        self.changed = False
         # Report definitions are immutable until layout/refresh writers exist.
         # Cache metadata only: GETPIVOTDATA reads each result cell afresh.
         self.report_metadata: PivotReport | None = None
@@ -214,6 +249,10 @@ class PivotTable(ExcelObject):
     @member
     def Name(self) -> object:
         return decode_text(self.root.get('name', ''))
+
+    @member
+    def Version(self) -> object:
+        return VBAInt(int(self.root.get('createdVersion', '0')), 'Long')
 
     @member
     def Parent(self) -> object:
@@ -486,10 +525,14 @@ class PivotField(ExcelObject):
         if not entries:
             # Numeric fields can omit sharedItems and store values in each record.
             package = self.table.sheet.book.package
-            records = _parts(package, self.table.cache.part, 'pivotCacheRecords')
-            if records:
+            rows = self.table.cache.records
+            if rows is None and package is not None:
+                records = _parts(package, self.table.cache.part, 'pivotCacheRecords')
+                if records:
+                    rows = xml_tree(package.read(records[0][1]))
+            if rows is not None:
                 seen: set[tuple[str, tuple[tuple[str, str], ...]]] = set()
-                for row in xml_tree(package.read(records[0][1])):
+                for row in rows:
                     if self.index < len(row):
                         value = row[self.index]
                         key = (value.tag, tuple(sorted(value.attrib.items())))
@@ -528,6 +571,8 @@ class PivotItem(ExcelObject):
         value = self.root.get('v', '')
         if self.root.tag == NS + 'b':
             return 'TRUE' if value == '1' else 'FALSE'
+        if self.root.tag == NS + 'n':
+            return number_text(float(value))
         if self.root.tag == NS + 'd':
             raise VBAUnsupportedError('Date PivotItem captions are not implemented')
         return decode_text(value)

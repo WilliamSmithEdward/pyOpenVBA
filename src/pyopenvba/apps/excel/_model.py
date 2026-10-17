@@ -2822,6 +2822,12 @@ class Range(ExcelObject):
 
     @method
     def ClearContents(self) -> object:
+        self.clear_contents_checked()
+        _events.after_edit(self)
+        return EMPTY
+
+    def clear_contents_checked(self) -> None:
+        """Validate and clear contents before the caller publishes its edit events."""
         from pyopenvba.apps.excel._autofilter import header_cleared
         from pyopenvba.apps.excel._protection import PROTECTED, any_locked, enforced
         from pyopenvba.apps.excel._visible import visible
@@ -2839,8 +2845,6 @@ class Range(ExcelObject):
 
             # ClearContents takes the links too, the formats they gave staying (tests/fixtures/hyperlinks/).
             cleared(self.sheet, list(target.areas))
-        _events.after_edit(self)
-        return EMPTY
 
     # -- notes, which VBA calls comments (see _notes)
 

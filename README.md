@@ -1105,6 +1105,7 @@ For more:
 - [docs/ms-ovba-implementation-guide_v2.md](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/docs/ms-ovba-implementation-guide_v2.md): a language-agnostic guide to re-implementing MS-OVBA.
 - [docs/roadmap.md](https://github.com/WilliamSmithEdward/pyOpenVBA/blob/main/docs/roadmap.md): per-feature status.
 - [docs/host_completeness.md](docs/host_completeness.md): whole-host completion criteria and the Excel coverage audit; Excel, then Word, then PowerPoint.
+- [docs/in_memory_engine/excel_api_coverage.md](docs/in_memory_engine/excel_api_coverage.md): Excel API completion status grouped by functionality, with member counts and remaining gaps.
 
 ---
 

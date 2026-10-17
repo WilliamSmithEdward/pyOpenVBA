@@ -32,6 +32,12 @@ REL_CHART = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships
 # Shared with the pivot reader: constructing a node does not parse XML.
 XmlElement = ET.Element
 
+
+def xml_bytes(root: XmlElement) -> bytes:
+    """Serialize an already constructed tree; this never parses XML."""
+    return ET.tostring(root, encoding='utf-8', xml_declaration=True)
+
+
 def xml_tree(data: str | bytes) -> ET.Element:
     """Build a read-only tree with DTDs and all declared entities refused."""
     parser = expat.ParserCreate(namespace_separator='}')

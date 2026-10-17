@@ -1,0 +1,445 @@
+{
+  "measured_at": "2026-10-17T13:58:30.979010+00:00",
+  "probes": [
+    {
+      "name": "default",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:B6\"))\nProbe=State(c)\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\")\nProbe=Probe & \"|after:\" & State(c) & \"|tables:\" & CStr(ws.PivotTables.Count) & \"|name:\" & p.Name & \"|range:\" & p.TableRange1.Address & \"|body:\" & p.DataBodyRange.Address\nFor Each f In p.PivotFields\nProbe=Probe & \"|field:\" & f.Name\nNext\nExit Function\nFailed:\nProbe=Probe & \"|ERR:\" & CStr(Err.Number) & \"|caches:\" & CStr(ThisWorkbook.PivotCaches.Count)\nEnd Function\nPrivate Function State(c As PivotCache) As String\nOn Error GoTo Failed\nState=\"count=\" & CStr(ThisWorkbook.PivotCaches.Count) & \",records=\" & CStr(c.RecordCount) & \",version=\" & CStr(c.Version) & \",index=\" & CStr(c.Index)\nExit Function\nFailed:\nState=State & \",ERR=\" & CStr(Err.Number)\nEnd Function",
+      "result": "count=0,records=0,version=8,index=0|after:count=1,records=5,version=8,index=1|tables:1|name:Made|range:$E$3:$G$20|body:$E$4:$G$20|field:Region|field:Amount"
+    },
+    {
+      "name": "version3",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:B6\"),3)\nProbe=State(c)\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\",True,3)\nProbe=Probe & \"|after:\" & State(c) & \"|tables:\" & CStr(ws.PivotTables.Count) & \"|name:\" & p.Name & \"|range:\" & p.TableRange1.Address & \"|body:\" & p.DataBodyRange.Address\nFor Each f In p.PivotFields\nProbe=Probe & \"|field:\" & f.Name\nNext\nExit Function\nFailed:\nProbe=Probe & \"|ERR:\" & CStr(Err.Number) & \"|caches:\" & CStr(ThisWorkbook.PivotCaches.Count)\nEnd Function\nPrivate Function State(c As PivotCache) As String\nOn Error GoTo Failed\nState=\"count=\" & CStr(ThisWorkbook.PivotCaches.Count) & \",records=\" & CStr(c.RecordCount) & \",version=\" & CStr(c.Version) & \",index=\" & CStr(c.Index)\nExit Function\nFailed:\nState=State & \",ERR=\" & CStr(Err.Number)\nEnd Function",
+      "result": "count=0,records=0,version=3,index=0|after:count=1,records=5,version=3,index=1|tables:1|name:Made|range:$E$3:$G$20|body:$E$4:$G$20|field:Region|field:Amount"
+    },
+    {
+      "name": "version4",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:B6\"),4)\nProbe=State(c)\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\",True,4)\nProbe=Probe & \"|after:\" & State(c) & \"|tables:\" & CStr(ws.PivotTables.Count) & \"|name:\" & p.Name & \"|range:\" & p.TableRange1.Address & \"|body:\" & p.DataBodyRange.Address\nFor Each f In p.PivotFields\nProbe=Probe & \"|field:\" & f.Name\nNext\nExit Function\nFailed:\nProbe=Probe & \"|ERR:\" & CStr(Err.Number) & \"|caches:\" & CStr(ThisWorkbook.PivotCaches.Count)\nEnd Function\nPrivate Function State(c As PivotCache) As String\nOn Error GoTo Failed\nState=\"count=\" & CStr(ThisWorkbook.PivotCaches.Count) & \",records=\" & CStr(c.RecordCount) & \",version=\" & CStr(c.Version) & \",index=\" & CStr(c.Index)\nExit Function\nFailed:\nState=State & \",ERR=\" & CStr(Err.Number)\nEnd Function",
+      "result": "count=0,records=0,version=4,index=0|after:count=1,records=5,version=4,index=1|tables:1|name:Made|range:$E$3:$G$20|body:$E$4:$G$20|field:Region|field:Amount"
+    },
+    {
+      "name": "version-current",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:B6\"),-1)\nProbe=Probe & \"|after:\" & State(c) & \"|tables:\" & CStr(ws.PivotTables.Count) & \"|name:\" & p.Name & \"|range:\" & p.TableRange1.Address & \"|body:\" & p.DataBodyRange.Address\nFor Each f In p.PivotFields\nProbe=Probe & \"|field:\" & f.Name\nNext\nExit Function\nFailed:\nProbe=Probe & \"|ERR:\" & CStr(Err.Number) & \"|caches:\" & CStr(ThisWorkbook.PivotCaches.Count)\nEnd Function\nPrivate Function State(c As PivotCache) As String\nOn Error GoTo Failed\nState=\"count=\" & CStr(ThisWorkbook.PivotCaches.Count) & \",records=\" & CStr(c.RecordCount) & \",version=\" & CStr(c.Version) & \",index=\" & CStr(c.Index)\nExit Function\nFailed:\nState=State & \",ERR=\" & CStr(Err.Number)\nEnd Function",
+      "result": "|ERR:5|caches:0"
+    },
+    {
+      "name": "refresh-pending",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:B6\"))\nProbe=State(c)\nc.Refresh\nProbe=Probe & \"|refreshed:\" & State(c)\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\")\nProbe=Probe & \"|after:\" & State(c) & \"|tables:\" & CStr(ws.PivotTables.Count) & \"|name:\" & p.Name & \"|range:\" & p.TableRange1.Address & \"|body:\" & p.DataBodyRange.Address\nFor Each f In p.PivotFields\nProbe=Probe & \"|field:\" & f.Name\nNext\nExit Function\nFailed:\nProbe=Probe & \"|ERR:\" & CStr(Err.Number) & \"|caches:\" & CStr(ThisWorkbook.PivotCaches.Count)\nEnd Function\nPrivate Function State(c As PivotCache) As String\nOn Error GoTo Failed\nState=\"count=\" & CStr(ThisWorkbook.PivotCaches.Count) & \",records=\" & CStr(c.RecordCount) & \",version=\" & CStr(c.Version) & \",index=\" & CStr(c.Index)\nExit Function\nFailed:\nState=State & \",ERR=\" & CStr(Err.Number)\nEnd Function",
+      "result": "count=0,records=0,version=8,index=0|ERR:1004|caches:0"
+    },
+    {
+      "name": "read-false",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:B6\"))\nProbe=State(c)\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\",False)\nProbe=Probe & \"|after:\" & State(c) & \"|tables:\" & CStr(ws.PivotTables.Count) & \"|name:\" & p.Name & \"|range:\" & p.TableRange1.Address & \"|body:\" & p.DataBodyRange.Address\nFor Each f In p.PivotFields\nProbe=Probe & \"|field:\" & f.Name\nNext\nExit Function\nFailed:\nProbe=Probe & \"|ERR:\" & CStr(Err.Number) & \"|caches:\" & CStr(ThisWorkbook.PivotCaches.Count)\nEnd Function\nPrivate Function State(c As PivotCache) As String\nOn Error GoTo Failed\nState=\"count=\" & CStr(ThisWorkbook.PivotCaches.Count) & \",records=\" & CStr(c.RecordCount) & \",version=\" & CStr(c.Version) & \",index=\" & CStr(c.Index)\nExit Function\nFailed:\nState=State & \",ERR=\" & CStr(Err.Number)\nEnd Function",
+      "result": "count=0,records=0,version=8,index=0|ERR:1004|caches:0"
+    },
+    {
+      "name": "twice",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:B6\"))\nProbe=State(c)\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\")\nSet p=c.CreatePivotTable(ws.Range(\"J3\"),\"Second\")\nProbe=Probe & \"|after:\" & State(c) & \"|tables:\" & CStr(ws.PivotTables.Count) & \"|name:\" & p.Name & \"|range:\" & p.TableRange1.Address & \"|body:\" & p.DataBodyRange.Address\nFor Each f In p.PivotFields\nProbe=Probe & \"|field:\" & f.Name\nNext\nExit Function\nFailed:\nProbe=Probe & \"|ERR:\" & CStr(Err.Number) & \"|caches:\" & CStr(ThisWorkbook.PivotCaches.Count)\nEnd Function\nPrivate Function State(c As PivotCache) As String\nOn Error GoTo Failed\nState=\"count=\" & CStr(ThisWorkbook.PivotCaches.Count) & \",records=\" & CStr(c.RecordCount) & \",version=\" & CStr(c.Version) & \",index=\" & CStr(c.Index)\nExit Function\nFailed:\nState=State & \",ERR=\" & CStr(Err.Number)\nEnd Function",
+      "result": "count=0,records=0,version=8,index=0|after:count=1,records=5,version=8,index=1|tables:2|name:Second|range:$J$3:$L$20|body:$J$4:$L$20|field:Region|field:Amount"
+    },
+    {
+      "name": "bad-source",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,\"bogus\")\nProbe=State(c)\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\")\nProbe=Probe & \"|after:\" & State(c) & \"|tables:\" & CStr(ws.PivotTables.Count) & \"|name:\" & p.Name & \"|range:\" & p.TableRange1.Address & \"|body:\" & p.DataBodyRange.Address\nFor Each f In p.PivotFields\nProbe=Probe & \"|field:\" & f.Name\nNext\nExit Function\nFailed:\nProbe=Probe & \"|ERR:\" & CStr(Err.Number) & \"|caches:\" & CStr(ThisWorkbook.PivotCaches.Count)\nEnd Function\nPrivate Function State(c As PivotCache) As String\nOn Error GoTo Failed\nState=\"count=\" & CStr(ThisWorkbook.PivotCaches.Count) & \",records=\" & CStr(c.RecordCount) & \",version=\" & CStr(c.Version) & \",index=\" & CStr(c.Index)\nExit Function\nFailed:\nState=State & \",ERR=\" & CStr(Err.Number)\nEnd Function",
+      "result": "count=0,records=0,version=8,index=0|ERR:1004|caches:0"
+    },
+    {
+      "name": "empty-name",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:B6\"))\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"\")\nProbe=Probe & \"|after:\" & State(c) & \"|tables:\" & CStr(ws.PivotTables.Count) & \"|name:\" & p.Name & \"|range:\" & p.TableRange1.Address & \"|body:\" & p.DataBodyRange.Address\nFor Each f In p.PivotFields\nProbe=Probe & \"|field:\" & f.Name\nNext\nExit Function\nFailed:\nProbe=Probe & \"|ERR:\" & CStr(Err.Number) & \"|caches:\" & CStr(ThisWorkbook.PivotCaches.Count)\nEnd Function\nPrivate Function State(c As PivotCache) As String\nOn Error GoTo Failed\nState=\"count=\" & CStr(ThisWorkbook.PivotCaches.Count) & \",records=\" & CStr(c.RecordCount) & \",version=\" & CStr(c.Version) & \",index=\" & CStr(c.Index)\nExit Function\nFailed:\nState=State & \",ERR=\" & CStr(Err.Number)\nEnd Function",
+      "result": "|ERR:1004|caches:0"
+    },
+    {
+      "name": "space-name",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:B6\"))\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"A B\")\nProbe=Probe & \"|after:\" & State(c) & \"|tables:\" & CStr(ws.PivotTables.Count) & \"|name:\" & p.Name & \"|range:\" & p.TableRange1.Address & \"|body:\" & p.DataBodyRange.Address\nFor Each f In p.PivotFields\nProbe=Probe & \"|field:\" & f.Name\nNext\nExit Function\nFailed:\nProbe=Probe & \"|ERR:\" & CStr(Err.Number) & \"|caches:\" & CStr(ThisWorkbook.PivotCaches.Count)\nEnd Function\nPrivate Function State(c As PivotCache) As String\nOn Error GoTo Failed\nState=\"count=\" & CStr(ThisWorkbook.PivotCaches.Count) & \",records=\" & CStr(c.RecordCount) & \",version=\" & CStr(c.Version) & \",index=\" & CStr(c.Index)\nExit Function\nFailed:\nState=State & \",ERR=\" & CStr(Err.Number)\nEnd Function",
+      "result": "|after:count=1,records=5,version=8,index=1|tables:1|name:A B|range:$E$3:$G$20|body:$E$4:$G$20|field:Region|field:Amount"
+    },
+    {
+      "name": "missing-name",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:B6\"))\nSet p=c.CreatePivotTable(ws.Range(\"E3\"))\nProbe=Probe & \"|after:\" & State(c) & \"|tables:\" & CStr(ws.PivotTables.Count) & \"|name:\" & p.Name & \"|range:\" & p.TableRange1.Address & \"|body:\" & p.DataBodyRange.Address\nFor Each f In p.PivotFields\nProbe=Probe & \"|field:\" & f.Name\nNext\nExit Function\nFailed:\nProbe=Probe & \"|ERR:\" & CStr(Err.Number) & \"|caches:\" & CStr(ThisWorkbook.PivotCaches.Count)\nEnd Function\nPrivate Function State(c As PivotCache) As String\nOn Error GoTo Failed\nState=\"count=\" & CStr(ThisWorkbook.PivotCaches.Count) & \",records=\" & CStr(c.RecordCount) & \",version=\" & CStr(c.Version) & \",index=\" & CStr(c.Index)\nExit Function\nFailed:\nState=State & \",ERR=\" & CStr(Err.Number)\nEnd Function",
+      "result": "|after:count=1,records=5,version=8,index=1|tables:1|name:PivotTable1|range:$E$3:$G$20|body:$E$4:$G$20|field:Region|field:Amount"
+    },
+    {
+      "name": "destination-string",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:B6\"))\nSet p=c.CreatePivotTable(\"Sheet1!R3C5\",\"Made\")\nProbe=Probe & \"|after:\" & State(c) & \"|tables:\" & CStr(ws.PivotTables.Count) & \"|name:\" & p.Name & \"|range:\" & p.TableRange1.Address & \"|body:\" & p.DataBodyRange.Address\nFor Each f In p.PivotFields\nProbe=Probe & \"|field:\" & f.Name\nNext\nExit Function\nFailed:\nProbe=Probe & \"|ERR:\" & CStr(Err.Number) & \"|caches:\" & CStr(ThisWorkbook.PivotCaches.Count)\nEnd Function\nPrivate Function State(c As PivotCache) As String\nOn Error GoTo Failed\nState=\"count=\" & CStr(ThisWorkbook.PivotCaches.Count) & \",records=\" & CStr(c.RecordCount) & \",version=\" & CStr(c.Version) & \",index=\" & CStr(c.Index)\nExit Function\nFailed:\nState=State & \",ERR=\" & CStr(Err.Number)\nEnd Function",
+      "result": "|after:count=1,records=5,version=8,index=1|tables:1|name:Made|range:$E$3:$G$20|body:$E$4:$G$20|field:Region|field:Amount"
+    },
+    {
+      "name": "destination-block",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:B6\"))\nSet p=c.CreatePivotTable(ws.Range(\"E3:F4\"),\"Made\")\nProbe=Probe & \"|after:\" & State(c) & \"|tables:\" & CStr(ws.PivotTables.Count) & \"|name:\" & p.Name & \"|range:\" & p.TableRange1.Address & \"|body:\" & p.DataBodyRange.Address\nFor Each f In p.PivotFields\nProbe=Probe & \"|field:\" & f.Name\nNext\nExit Function\nFailed:\nProbe=Probe & \"|ERR:\" & CStr(Err.Number) & \"|caches:\" & CStr(ThisWorkbook.PivotCaches.Count)\nEnd Function\nPrivate Function State(c As PivotCache) As String\nOn Error GoTo Failed\nState=\"count=\" & CStr(ThisWorkbook.PivotCaches.Count) & \",records=\" & CStr(c.RecordCount) & \",version=\" & CStr(c.Version) & \",index=\" & CStr(c.Index)\nExit Function\nFailed:\nState=State & \",ERR=\" & CStr(Err.Number)\nEnd Function",
+      "result": "|after:count=1,records=5,version=8,index=1|tables:1|name:Made|range:$E$3:$G$20|body:$E$4:$G$20|field:Region|field:Amount"
+    },
+    {
+      "name": "missing-source",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nOn Error GoTo Failed\nSet c=ThisWorkbook.PivotCaches.Create(1)\nProbe=\"created|version:\" & CStr(c.Version) & \"|source:\" & CStr(c.SourceData)\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\")\nProbe=Probe & \"|records:\" & CStr(c.RecordCount)\nExit Function\nFailed:\nProbe=Probe & \"|ERR:\" & CStr(Err.Number)\nEnd Function",
+      "result": "|ERR:5"
+    },
+    {
+      "name": "empty-source",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nOn Error GoTo Failed\nSet c=ThisWorkbook.PivotCaches.Create(1,Empty)\nProbe=\"created|version:\" & CStr(c.Version) & \"|source:\" & CStr(c.SourceData)\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\")\nProbe=Probe & \"|records:\" & CStr(c.RecordCount)\nExit Function\nFailed:\nProbe=Probe & \"|ERR:\" & CStr(Err.Number)\nEnd Function",
+      "result": "|ERR:5"
+    },
+    {
+      "name": "null-source",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nOn Error GoTo Failed\nSet c=ThisWorkbook.PivotCaches.Create(1,Null)\nProbe=\"created|version:\" & CStr(c.Version) & \"|source:\" & CStr(c.SourceData)\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\")\nProbe=Probe & \"|records:\" & CStr(c.RecordCount)\nExit Function\nFailed:\nProbe=Probe & \"|ERR:\" & CStr(Err.Number)\nEnd Function",
+      "result": "|ERR:5"
+    },
+    {
+      "name": "version0",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nOn Error GoTo Failed\nSet c=ThisWorkbook.PivotCaches.Create(1,ws.Range(\"A1:B3\"),0)\nProbe=\"created|version:\" & CStr(c.Version) & \"|source:\" & CStr(c.SourceData)\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\")\nProbe=Probe & \"|records:\" & CStr(c.RecordCount)\nExit Function\nFailed:\nProbe=Probe & \"|ERR:\" & CStr(Err.Number)\nEnd Function",
+      "result": "created|version:0|source:Sheet1!R1C1:R3C2|records:2"
+    },
+    {
+      "name": "version8",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nOn Error GoTo Failed\nSet c=ThisWorkbook.PivotCaches.Create(1,ws.Range(\"A1:B3\"),8)\nProbe=\"created|version:\" & CStr(c.Version) & \"|source:\" & CStr(c.SourceData)\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\")\nProbe=Probe & \"|records:\" & CStr(c.RecordCount)\nExit Function\nFailed:\nProbe=Probe & \"|ERR:\" & CStr(Err.Number)\nEnd Function",
+      "result": "created|version:8|source:Sheet1!R1C1:R3C2|records:2"
+    },
+    {
+      "name": "version9",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nOn Error GoTo Failed\nSet c=ThisWorkbook.PivotCaches.Create(1,ws.Range(\"A1:B3\"),9)\nProbe=\"created|version:\" & CStr(c.Version) & \"|source:\" & CStr(c.SourceData)\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\")\nProbe=Probe & \"|records:\" & CStr(c.RecordCount)\nExit Function\nFailed:\nProbe=Probe & \"|ERR:\" & CStr(Err.Number)\nEnd Function",
+      "result": "|ERR:5"
+    },
+    {
+      "name": "version999",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nOn Error GoTo Failed\nSet c=ThisWorkbook.PivotCaches.Create(1,ws.Range(\"A1:B3\"),999)\nProbe=\"created|version:\" & CStr(c.Version) & \"|source:\" & CStr(c.SourceData)\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\")\nProbe=Probe & \"|records:\" & CStr(c.RecordCount)\nExit Function\nFailed:\nProbe=Probe & \"|ERR:\" & CStr(Err.Number)\nEnd Function",
+      "result": "|ERR:5"
+    },
+    {
+      "name": "type0",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nOn Error GoTo Failed\nSet c=ThisWorkbook.PivotCaches.Create(0,ws.Range(\"A1:B3\"))\nProbe=\"created|version:\" & CStr(c.Version) & \"|source:\" & CStr(c.SourceData)\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\")\nProbe=Probe & \"|records:\" & CStr(c.RecordCount)\nExit Function\nFailed:\nProbe=Probe & \"|ERR:\" & CStr(Err.Number)\nEnd Function",
+      "result": "|ERR:5"
+    },
+    {
+      "name": "type9",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nOn Error GoTo Failed\nSet c=ThisWorkbook.PivotCaches.Create(9,ws.Range(\"A1:B3\"))\nProbe=\"created|version:\" & CStr(c.Version) & \"|source:\" & CStr(c.SourceData)\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\")\nProbe=Probe & \"|records:\" & CStr(c.RecordCount)\nExit Function\nFailed:\nProbe=Probe & \"|ERR:\" & CStr(Err.Number)\nEnd Function",
+      "result": "|ERR:5"
+    },
+    {
+      "name": "source-a1",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nOn Error GoTo Failed\nSet c=ThisWorkbook.PivotCaches.Create(1,\"Sheet1!A1:B3\")\nProbe=\"created|version:\" & CStr(c.Version) & \"|source:\" & CStr(c.SourceData)\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\")\nProbe=Probe & \"|records:\" & CStr(c.RecordCount)\nExit Function\nFailed:\nProbe=Probe & \"|ERR:\" & CStr(Err.Number)\nEnd Function",
+      "result": "created|version:8|source:Sheet1!R1C1:R3C2|records:2"
+    },
+    {
+      "name": "source-local",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nOn Error GoTo Failed\nSet c=ThisWorkbook.PivotCaches.Create(1,\"A1:B3\")\nProbe=\"created|version:\" & CStr(c.Version) & \"|source:\" & CStr(c.SourceData)\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\")\nProbe=Probe & \"|records:\" & CStr(c.RecordCount)\nExit Function\nFailed:\nProbe=Probe & \"|ERR:\" & CStr(Err.Number)\nEnd Function",
+      "result": "created|version:8|source:Sheet1!R1C1:R3C2|records:2"
+    },
+    {
+      "name": "source-union",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nOn Error GoTo Failed\nSet c=ThisWorkbook.PivotCaches.Create(1,ws.Range(\"A1:A3,C1:C3\"))\nProbe=\"created|version:\" & CStr(c.Version) & \"|source:\" & CStr(c.SourceData)\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\")\nProbe=Probe & \"|records:\" & CStr(c.RecordCount)\nExit Function\nFailed:\nProbe=Probe & \"|ERR:\" & CStr(Err.Number)\nEnd Function",
+      "result": "created|version:8|source:$A$1:$A$3,[Book12]Sheet1!$C$1:$C$3|ERR:1004"
+    },
+    {
+      "name": "header-date",
+      "source": "Function Probe() As String\nDim ws As Worksheet,c As PivotCache,p As PivotTable,f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A1\").Value=DateSerial(2025,1,1)\nws.Range(\"A1\").NumberFormat=\"m/d/yyyy\"\nOn Error GoTo Failed\nSet c=ThisWorkbook.PivotCaches.Create(1,ws.Range(\"A1:B2\"))\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\")\nFor Each f In p.PivotFields\nProbe=Probe & f.Name & \"|\"\nNext\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function",
+      "result": "1/1/2025|Amount|"
+    },
+    {
+      "name": "header-date-narrow",
+      "source": "Function Probe() As String\nDim ws As Worksheet,c As PivotCache,p As PivotTable,f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A1\").Value=DateSerial(2025,1,1)\nws.Range(\"A1\").NumberFormat=\"m/d/yyyy\"\nws.Columns(1).ColumnWidth=2\nOn Error GoTo Failed\nSet c=ThisWorkbook.PivotCaches.Create(1,ws.Range(\"A1:B2\"))\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\")\nFor Each f In p.PivotFields\nProbe=Probe & f.Name & \"|\"\nNext\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function",
+      "result": "1/1/2025|Amount|"
+    },
+    {
+      "name": "header-currency",
+      "source": "Function Probe() As String\nDim ws As Worksheet,c As PivotCache,p As PivotTable,f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A1\").Value2=10.123456\nws.Range(\"A1\").NumberFormat=\"$0.00\"\nOn Error GoTo Failed\nSet c=ThisWorkbook.PivotCaches.Create(1,ws.Range(\"A1:B2\"))\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\")\nFor Each f In p.PivotFields\nProbe=Probe & f.Name & \"|\"\nNext\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function",
+      "result": "$10.12|Amount|"
+    },
+    {
+      "name": "header-percent",
+      "source": "Function Probe() As String\nDim ws As Worksheet,c As PivotCache,p As PivotTable,f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A1\").Value2=0.12345\nws.Range(\"A1\").NumberFormat=\"0.0%\"\nOn Error GoTo Failed\nSet c=ThisWorkbook.PivotCaches.Create(1,ws.Range(\"A1:B2\"))\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\")\nFor Each f In p.PivotFields\nProbe=Probe & f.Name & \"|\"\nNext\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function",
+      "result": "12.3%|Amount|"
+    },
+    {
+      "name": "header-boolean",
+      "source": "Function Probe() As String\nDim ws As Worksheet,c As PivotCache,p As PivotTable,f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A1\").Value2=True\nOn Error GoTo Failed\nSet c=ThisWorkbook.PivotCaches.Create(1,ws.Range(\"A1:B2\"))\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\")\nFor Each f In p.PivotFields\nProbe=Probe & f.Name & \"|\"\nNext\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function",
+      "result": "TRUE|Amount|"
+    },
+    {
+      "name": "header-error",
+      "source": "Function Probe() As String\nDim ws As Worksheet,c As PivotCache,p As PivotTable,f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A1\").Value=CVErr(2042)\nOn Error GoTo Failed\nSet c=ThisWorkbook.PivotCaches.Create(1,ws.Range(\"A1:B2\"))\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\")\nFor Each f In p.PivotFields\nProbe=Probe & f.Name & \"|\"\nNext\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function",
+      "result": "#N/A|Amount|"
+    },
+    {
+      "name": "header-space",
+      "source": "Function Probe() As String\nDim ws As Worksheet,c As PivotCache,p As PivotTable,f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A1\").Value=\" \"\nOn Error GoTo Failed\nSet c=ThisWorkbook.PivotCaches.Create(1,ws.Range(\"A1:B2\"))\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\")\nFor Each f In p.PivotFields\nProbe=Probe & f.Name & \"|\"\nNext\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function",
+      "result": " |Amount|"
+    },
+    {
+      "name": "header-collision",
+      "source": "Function Probe() As String\nDim ws As Worksheet,c As PivotCache,p As PivotTable,f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A1\").ClearContents\nws.Range(\"B1\").Value=\"Field1\"\nOn Error GoTo Failed\nSet c=ThisWorkbook.PivotCaches.Create(1,ws.Range(\"A1:B2\"))\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\")\nFor Each f In p.PivotFields\nProbe=Probe & f.Name & \"|\"\nNext\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function",
+      "result": "Field12|Field1|"
+    },
+    {
+      "name": "header-case-duplicate",
+      "source": "Function Probe() As String\nDim ws As Worksheet,c As PivotCache,p As PivotTable,f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A1\").Value=\"NAME\"\nws.Range(\"B1\").Value=\"name\"\nOn Error GoTo Failed\nSet c=ThisWorkbook.PivotCaches.Create(1,ws.Range(\"A1:B2\"))\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\")\nFor Each f In p.PivotFields\nProbe=Probe & f.Name & \"|\"\nNext\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function",
+      "result": "NAME|name2|"
+    },
+    {
+      "name": "shared-changed-header",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:B6\"))\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"First\")\nws.Range(\"A1\").Value=\"Changed\"\nSet p=c.CreatePivotTable(ws.Range(\"J3\"),\"Second\")\nProbe=CStr(c.RecordCount) & \"|\" & p.PivotFields(1).Name & \"|\" & ws.PivotTables(1).Name & \"|\" & CStr(ws.Range(\"J3\").Value) & \"|\" & CStr(ws.Range(\"K4\").Value)\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function",
+      "result": "5|Region|Second||"
+    },
+    {
+      "name": "shared-changed-count",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:B6\"))\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"First\")\nws.Range(\"A7:B7\").Value=Array(\"North\",60)\nws.Range(\"A6:B6\").ClearContents\nSet p=c.CreatePivotTable(ws.Range(\"J3\"),\"Second\")\nProbe=CStr(c.RecordCount) & \"|\" & p.PivotFields(1).Name & \"|\" & ws.PivotTables(1).Name & \"|\" & CStr(ws.Range(\"J3\").Value) & \"|\" & CStr(ws.Range(\"K4\").Value)\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function",
+      "result": "5|Region|Second||"
+    },
+    {
+      "name": "shared-occupied-destination",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:B6\"))\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"First\")\nws.Range(\"J3:L20\").Value=123\nSet p=c.CreatePivotTable(ws.Range(\"J3\"),\"Second\")\nProbe=CStr(c.RecordCount) & \"|\" & p.PivotFields(1).Name & \"|\" & ws.PivotTables(1).Name & \"|\" & CStr(ws.Range(\"J3\").Value) & \"|\" & CStr(ws.Range(\"K4\").Value)\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function",
+      "result": "5|Region|Second||"
+    },
+    {
+      "name": "shared-source-overlap",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:B6\"))\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"First\")\n\nSet p=c.CreatePivotTable(ws.Range(\"A2\"),\"Second\")\nProbe=CStr(c.RecordCount) & \"|\" & p.PivotFields(1).Name & \"|\" & ws.PivotTables(1).Name & \"|\" & CStr(ws.Range(\"J3\").Value) & \"|\" & CStr(ws.Range(\"K4\").Value)\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function",
+      "result": "5|Region|Second||"
+    },
+    {
+      "name": "empty-items",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:B6\"))\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\")\n\nDim cell As Range, i As PivotItem\nProbe=p.TableRange1.Address & \"|fields:\"\nFor Each f In p.PivotFields\nProbe=Probe & f.Name & \":\" & CStr(f.Orientation) & \":\" & CStr(f.PivotItems.Count) & \";\"\nNext\nProbe=Probe & \"|cells:\"\nFor Each cell In p.TableRange1.Cells\nIf Not IsEmpty(cell.Value2) Then Probe=Probe & cell.Address & \"=\" & CStr(cell.Value2) & \";\"\nNext\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number) & \":\" & Err.Description\nEnd Function",
+      "result": "$E$3:$G$20|fields:Region:0:2;Amount:0:5;|cells:"
+    },
+    {
+      "name": "source-table",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\nws.ListObjects.Add(xlSrcRange,ws.Range(\"A1:B6\"),,xlYes).Name=\"Sales\"\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,\"Sales\")\nProbe=CStr(c.SourceData)\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\")\nProbe=Probe & \"|\" & p.TableRange1.Address & \"|\" & p.PivotFields(1).Name & \"|\" & CStr(ws.Range(\"F3:G3\").MergeCells) & \"|records:\" & CStr(c.RecordCount) & \"|after:\" & CStr(c.SourceData)\nExit Function\nFailed:\nProbe=Probe & \"|ERR:\" & CStr(Err.Number) & \"|caches:\" & CStr(ThisWorkbook.PivotCaches.Count) & \"|tables:\" & CStr(ws.PivotTables.Count)\nEnd Function",
+      "result": "Sales|$E$3:$G$20|Region|False|records:5|after:Sales"
+    },
+    {
+      "name": "source-table-all",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\nws.ListObjects.Add(xlSrcRange,ws.Range(\"A1:B6\"),,xlYes).Name=\"Sales\"\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,\"Sales[#All]\")\nProbe=CStr(c.SourceData)\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\")\nProbe=Probe & \"|\" & p.TableRange1.Address & \"|\" & p.PivotFields(1).Name & \"|\" & CStr(ws.Range(\"F3:G3\").MergeCells) & \"|records:\" & CStr(c.RecordCount) & \"|after:\" & CStr(c.SourceData)\nExit Function\nFailed:\nProbe=Probe & \"|ERR:\" & CStr(Err.Number) & \"|caches:\" & CStr(ThisWorkbook.PivotCaches.Count) & \"|tables:\" & CStr(ws.PivotTables.Count)\nEnd Function",
+      "result": "Sales[#All]|$E$3:$G$20|Region|False|records:5|after:Sales"
+    },
+    {
+      "name": "source-table-data",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\nws.ListObjects.Add(xlSrcRange,ws.Range(\"A1:B6\"),,xlYes).Name=\"Sales\"\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,\"Sales[#Data]\")\nProbe=CStr(c.SourceData)\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\")\nProbe=Probe & \"|\" & p.TableRange1.Address & \"|\" & p.PivotFields(1).Name & \"|\" & CStr(ws.Range(\"F3:G3\").MergeCells) & \"|records:\" & CStr(c.RecordCount) & \"|after:\" & CStr(c.SourceData)\nExit Function\nFailed:\nProbe=Probe & \"|ERR:\" & CStr(Err.Number) & \"|caches:\" & CStr(ThisWorkbook.PivotCaches.Count) & \"|tables:\" & CStr(ws.PivotTables.Count)\nEnd Function",
+      "result": "Sales[#Data]|$E$3:$G$20|Region|False|records:5|after:Sales"
+    },
+    {
+      "name": "source-table-headers",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\nws.ListObjects.Add(xlSrcRange,ws.Range(\"A1:B6\"),,xlYes).Name=\"Sales\"\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,\"Sales[#Headers]\")\nProbe=CStr(c.SourceData)\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\")\nProbe=Probe & \"|\" & p.TableRange1.Address & \"|\" & p.PivotFields(1).Name & \"|\" & CStr(ws.Range(\"F3:G3\").MergeCells) & \"|records:\" & CStr(c.RecordCount) & \"|after:\" & CStr(c.SourceData)\nExit Function\nFailed:\nProbe=Probe & \"|ERR:\" & CStr(Err.Number) & \"|caches:\" & CStr(ThisWorkbook.PivotCaches.Count) & \"|tables:\" & CStr(ws.PivotTables.Count)\nEnd Function",
+      "result": "Sales[#Headers]|ERR:1004|caches:0|tables:0"
+    },
+    {
+      "name": "source-table-column",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\nws.ListObjects.Add(xlSrcRange,ws.Range(\"A1:B6\"),,xlYes).Name=\"Sales\"\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,\"Sales[Amount]\")\nProbe=CStr(c.SourceData)\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\")\nProbe=Probe & \"|\" & p.TableRange1.Address & \"|\" & p.PivotFields(1).Name & \"|\" & CStr(ws.Range(\"F3:G3\").MergeCells) & \"|records:\" & CStr(c.RecordCount) & \"|after:\" & CStr(c.SourceData)\nExit Function\nFailed:\nProbe=Probe & \"|ERR:\" & CStr(Err.Number) & \"|caches:\" & CStr(ThisWorkbook.PivotCaches.Count) & \"|tables:\" & CStr(ws.PivotTables.Count)\nEnd Function",
+      "result": "Sales[Amount]|$E$3:$G$20|Amount|False|records:5|after:Sales[Amount]"
+    },
+    {
+      "name": "source-table-totals",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\nws.ListObjects.Add(xlSrcRange,ws.Range(\"A1:B6\"),,xlYes).Name=\"Sales\"\nws.ListObjects(\"Sales\").ShowTotals=True\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,\"Sales[#All]\")\nProbe=CStr(c.SourceData)\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\")\nProbe=Probe & \"|\" & p.TableRange1.Address & \"|\" & p.PivotFields(1).Name & \"|\" & CStr(ws.Range(\"F3:G3\").MergeCells) & \"|records:\" & CStr(c.RecordCount) & \"|after:\" & CStr(c.SourceData)\nExit Function\nFailed:\nProbe=Probe & \"|ERR:\" & CStr(Err.Number) & \"|caches:\" & CStr(ThisWorkbook.PivotCaches.Count) & \"|tables:\" & CStr(ws.PivotTables.Count)\nEnd Function",
+      "result": "Sales[#All]|$E$3:$G$20|Region|False|records:5|after:Sales"
+    },
+    {
+      "name": "source-name",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\nThisWorkbook.Names.Add \"DataSource\",\"=Sheet1!$A$1:$B$6\"\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,\"DataSource\")\nProbe=CStr(c.SourceData)\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\")\nProbe=Probe & \"|\" & p.TableRange1.Address & \"|\" & p.PivotFields(1).Name & \"|\" & CStr(ws.Range(\"F3:G3\").MergeCells) & \"|records:\" & CStr(c.RecordCount) & \"|after:\" & CStr(c.SourceData)\nExit Function\nFailed:\nProbe=Probe & \"|ERR:\" & CStr(Err.Number) & \"|caches:\" & CStr(ThisWorkbook.PivotCaches.Count) & \"|tables:\" & CStr(ws.PivotTables.Count)\nEnd Function",
+      "result": "DataSource|$E$3:$G$20|Region|False|records:5|after:DataSource"
+    },
+    {
+      "name": "source-name-lower",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\nThisWorkbook.Names.Add \"DataSource\",\"=Sheet1!$A$1:$B$6\"\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,\"datasource\")\nProbe=CStr(c.SourceData)\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\")\nProbe=Probe & \"|\" & p.TableRange1.Address & \"|\" & p.PivotFields(1).Name & \"|\" & CStr(ws.Range(\"F3:G3\").MergeCells) & \"|records:\" & CStr(c.RecordCount) & \"|after:\" & CStr(c.SourceData)\nExit Function\nFailed:\nProbe=Probe & \"|ERR:\" & CStr(Err.Number) & \"|caches:\" & CStr(ThisWorkbook.PivotCaches.Count) & \"|tables:\" & CStr(ws.PivotTables.Count)\nEnd Function",
+      "result": "datasource|$E$3:$G$20|Region|False|records:5|after:datasource"
+    },
+    {
+      "name": "source-qualified-name",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\nThisWorkbook.Names.Add \"DataSource\",\"=Sheet1!$A$1:$B$6\"\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,\"Sheet1!DataSource\")\nProbe=CStr(c.SourceData)\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\")\nProbe=Probe & \"|\" & p.TableRange1.Address & \"|\" & p.PivotFields(1).Name & \"|\" & CStr(ws.Range(\"F3:G3\").MergeCells) & \"|records:\" & CStr(c.RecordCount) & \"|after:\" & CStr(c.SourceData)\nExit Function\nFailed:\nProbe=Probe & \"|ERR:\" & CStr(Err.Number) & \"|caches:\" & CStr(ThisWorkbook.PivotCaches.Count) & \"|tables:\" & CStr(ws.PivotTables.Count)\nEnd Function",
+      "result": "DataSource|$E$3:$G$20|Region|False|records:5|after:DataSource"
+    },
+    {
+      "name": "source-space-sheet",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\nws.Name=\"Data Sheet\"\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,\"'Data Sheet'!R1C1:R6C2\")\nProbe=CStr(c.SourceData)\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\")\nProbe=Probe & \"|\" & p.TableRange1.Address & \"|\" & p.PivotFields(1).Name & \"|\" & CStr(ws.Range(\"F3:G3\").MergeCells) & \"|records:\" & CStr(c.RecordCount) & \"|after:\" & CStr(c.SourceData)\nExit Function\nFailed:\nProbe=Probe & \"|ERR:\" & CStr(Err.Number) & \"|caches:\" & CStr(ThisWorkbook.PivotCaches.Count) & \"|tables:\" & CStr(ws.PivotTables.Count)\nEnd Function",
+      "result": "'Data Sheet'!R1C1:R6C2|$E$3:$G$20|Region|False|records:5|after:'Data Sheet'!R1C1:R6C2"
+    },
+    {
+      "name": "source-destination-union",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\n\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:B6\"))\nProbe=CStr(c.SourceData)\nSet p=c.CreatePivotTable(ws.Range(\"E3,J3\"),\"Made\")\nProbe=Probe & \"|\" & p.TableRange1.Address & \"|\" & p.PivotFields(1).Name & \"|\" & CStr(ws.Range(\"F3:G3\").MergeCells) & \"|records:\" & CStr(c.RecordCount) & \"|after:\" & CStr(c.SourceData)\nExit Function\nFailed:\nProbe=Probe & \"|ERR:\" & CStr(Err.Number) & \"|caches:\" & CStr(ThisWorkbook.PivotCaches.Count) & \"|tables:\" & CStr(ws.PivotTables.Count)\nEnd Function",
+      "result": "Sheet1!R1C1:R6C2|$E$3:$G$20|Region|False|records:5|after:Sheet1!R1C1:R6C2"
+    },
+    {
+      "name": "source-destination-protected",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\nws.Protect\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:B6\"))\nProbe=CStr(c.SourceData)\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\")\nProbe=Probe & \"|\" & p.TableRange1.Address & \"|\" & p.PivotFields(1).Name & \"|\" & CStr(ws.Range(\"F3:G3\").MergeCells) & \"|records:\" & CStr(c.RecordCount) & \"|after:\" & CStr(c.SourceData)\nExit Function\nFailed:\nProbe=Probe & \"|ERR:\" & CStr(Err.Number) & \"|caches:\" & CStr(ThisWorkbook.PivotCaches.Count) & \"|tables:\" & CStr(ws.PivotTables.Count)\nEnd Function",
+      "result": "Sheet1!R1C1:R6C2|ERR:1004|caches:0|tables:0"
+    },
+    {
+      "name": "source-destination-merged",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\nws.Range(\"F3:G3\").Merge\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:B6\"))\nProbe=CStr(c.SourceData)\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\")\nProbe=Probe & \"|\" & p.TableRange1.Address & \"|\" & p.PivotFields(1).Name & \"|\" & CStr(ws.Range(\"F3:G3\").MergeCells) & \"|records:\" & CStr(c.RecordCount) & \"|after:\" & CStr(c.SourceData)\nExit Function\nFailed:\nProbe=Probe & \"|ERR:\" & CStr(Err.Number) & \"|caches:\" & CStr(ThisWorkbook.PivotCaches.Count) & \"|tables:\" & CStr(ws.PivotTables.Count)\nEnd Function",
+      "result": "Sheet1!R1C1:R6C2|$E$3|Region|True|records:5|after:Sheet1!R1C1:R6C2"
+    },
+    {
+      "name": "edge-merge-anchor",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\nws.Range(\"E3:F3\").Merge\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:B6\"))\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\")\nProbe=p.TableRange1.Address & \"|cacheVersion:\" & CStr(c.Version) & \"|tableVersion:\" & CStr(p.Version)\nIf p.DataBodyRange Is Nothing Then\nProbe=Probe & \"|body:Nothing\"\nElse\nProbe=Probe & \"|body:\" & p.DataBodyRange.Address\nProbe=Probe & \"|value:\" & CStr(p.DataBodyRange.Cells(1,1).Value2) & \"|text:\" & p.DataBodyRange.Cells(1,1).Text\nEnd If\nExit Function\nFailed:\nProbe=Probe & \"|ERR:\" & CStr(Err.Number) & \"|caches:\" & CStr(ThisWorkbook.PivotCaches.Count) & \"|tables:\" & CStr(ws.PivotTables.Count)\nEnd Function",
+      "result": "|ERR:1004|caches:0|tables:0"
+    },
+    {
+      "name": "edge-merge-inner",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\nws.Range(\"F4:G4\").Merge\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:B6\"))\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\")\nProbe=p.TableRange1.Address & \"|cacheVersion:\" & CStr(c.Version) & \"|tableVersion:\" & CStr(p.Version)\nIf p.DataBodyRange Is Nothing Then\nProbe=Probe & \"|body:Nothing\"\nElse\nProbe=Probe & \"|body:\" & p.DataBodyRange.Address\nProbe=Probe & \"|value:\" & CStr(p.DataBodyRange.Cells(1,1).Value2) & \"|text:\" & p.DataBodyRange.Cells(1,1).Text\nEnd If\nExit Function\nFailed:\nProbe=Probe & \"|ERR:\" & CStr(Err.Number) & \"|caches:\" & CStr(ThisWorkbook.PivotCaches.Count) & \"|tables:\" & CStr(ws.PivotTables.Count)\nEnd Function",
+      "result": "$E$3|cacheVersion:8|tableVersion:8|body:$E$3|value:Error 2045|text:#SPILL!"
+    },
+    {
+      "name": "edge-merge-vertical",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\nws.Range(\"E3:E4\").Merge\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:B6\"))\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\")\nProbe=p.TableRange1.Address & \"|cacheVersion:\" & CStr(c.Version) & \"|tableVersion:\" & CStr(p.Version)\nIf p.DataBodyRange Is Nothing Then\nProbe=Probe & \"|body:Nothing\"\nElse\nProbe=Probe & \"|body:\" & p.DataBodyRange.Address\nProbe=Probe & \"|value:\" & CStr(p.DataBodyRange.Cells(1,1).Value2) & \"|text:\" & p.DataBodyRange.Cells(1,1).Text\nEnd If\nExit Function\nFailed:\nProbe=Probe & \"|ERR:\" & CStr(Err.Number) & \"|caches:\" & CStr(ThisWorkbook.PivotCaches.Count) & \"|tables:\" & CStr(ws.PivotTables.Count)\nEnd Function",
+      "result": "|ERR:1004|caches:0|tables:0"
+    },
+    {
+      "name": "edge-merge-outside-right",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\nws.Range(\"H3:I3\").Merge\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:B6\"))\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\")\nProbe=p.TableRange1.Address & \"|cacheVersion:\" & CStr(c.Version) & \"|tableVersion:\" & CStr(p.Version)\nIf p.DataBodyRange Is Nothing Then\nProbe=Probe & \"|body:Nothing\"\nElse\nProbe=Probe & \"|body:\" & p.DataBodyRange.Address\nProbe=Probe & \"|value:\" & CStr(p.DataBodyRange.Cells(1,1).Value2) & \"|text:\" & p.DataBodyRange.Cells(1,1).Text\nEnd If\nExit Function\nFailed:\nProbe=Probe & \"|ERR:\" & CStr(Err.Number) & \"|caches:\" & CStr(ThisWorkbook.PivotCaches.Count) & \"|tables:\" & CStr(ws.PivotTables.Count)\nEnd Function",
+      "result": "$E$3:$G$20|cacheVersion:8|tableVersion:8|body:$E$4:$G$20|value:|text:"
+    },
+    {
+      "name": "edge-merge-outside-bottom",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\nws.Range(\"E21:F21\").Merge\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:B6\"))\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\")\nProbe=p.TableRange1.Address & \"|cacheVersion:\" & CStr(c.Version) & \"|tableVersion:\" & CStr(p.Version)\nIf p.DataBodyRange Is Nothing Then\nProbe=Probe & \"|body:Nothing\"\nElse\nProbe=Probe & \"|body:\" & p.DataBodyRange.Address\nProbe=Probe & \"|value:\" & CStr(p.DataBodyRange.Cells(1,1).Value2) & \"|text:\" & p.DataBodyRange.Cells(1,1).Text\nEnd If\nExit Function\nFailed:\nProbe=Probe & \"|ERR:\" & CStr(Err.Number) & \"|caches:\" & CStr(ThisWorkbook.PivotCaches.Count) & \"|tables:\" & CStr(ws.PivotTables.Count)\nEnd Function",
+      "result": "$E$3:$G$20|cacheVersion:8|tableVersion:8|body:$E$4:$G$20|value:|text:"
+    },
+    {
+      "name": "edge-table-version0",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\n\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:B6\"))\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\",True,0)\nProbe=p.TableRange1.Address & \"|cacheVersion:\" & CStr(c.Version) & \"|tableVersion:\" & CStr(p.Version)\nIf p.DataBodyRange Is Nothing Then\nProbe=Probe & \"|body:Nothing\"\nElse\nProbe=Probe & \"|body:\" & p.DataBodyRange.Address\nProbe=Probe & \"|value:\" & CStr(p.DataBodyRange.Cells(1,1).Value2) & \"|text:\" & p.DataBodyRange.Cells(1,1).Text\nEnd If\nExit Function\nFailed:\nProbe=Probe & \"|ERR:\" & CStr(Err.Number) & \"|caches:\" & CStr(ThisWorkbook.PivotCaches.Count) & \"|tables:\" & CStr(ws.PivotTables.Count)\nEnd Function",
+      "result": "|ERR:5|caches:0|tables:0"
+    },
+    {
+      "name": "edge-table-version3",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\n\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:B6\"))\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\",True,3)\nProbe=p.TableRange1.Address & \"|cacheVersion:\" & CStr(c.Version) & \"|tableVersion:\" & CStr(p.Version)\nIf p.DataBodyRange Is Nothing Then\nProbe=Probe & \"|body:Nothing\"\nElse\nProbe=Probe & \"|body:\" & p.DataBodyRange.Address\nProbe=Probe & \"|value:\" & CStr(p.DataBodyRange.Cells(1,1).Value2) & \"|text:\" & p.DataBodyRange.Cells(1,1).Text\nEnd If\nExit Function\nFailed:\nProbe=Probe & \"|ERR:\" & CStr(Err.Number) & \"|caches:\" & CStr(ThisWorkbook.PivotCaches.Count) & \"|tables:\" & CStr(ws.PivotTables.Count)\nEnd Function",
+      "result": "|ERR:5|caches:0|tables:0"
+    },
+    {
+      "name": "edge-table-version4",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\n\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:B6\"))\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\",True,4)\nProbe=p.TableRange1.Address & \"|cacheVersion:\" & CStr(c.Version) & \"|tableVersion:\" & CStr(p.Version)\nIf p.DataBodyRange Is Nothing Then\nProbe=Probe & \"|body:Nothing\"\nElse\nProbe=Probe & \"|body:\" & p.DataBodyRange.Address\nProbe=Probe & \"|value:\" & CStr(p.DataBodyRange.Cells(1,1).Value2) & \"|text:\" & p.DataBodyRange.Cells(1,1).Text\nEnd If\nExit Function\nFailed:\nProbe=Probe & \"|ERR:\" & CStr(Err.Number) & \"|caches:\" & CStr(ThisWorkbook.PivotCaches.Count) & \"|tables:\" & CStr(ws.PivotTables.Count)\nEnd Function",
+      "result": "|ERR:5|caches:0|tables:0"
+    },
+    {
+      "name": "edge-table-version8",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\n\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:B6\"))\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\",True,8)\nProbe=p.TableRange1.Address & \"|cacheVersion:\" & CStr(c.Version) & \"|tableVersion:\" & CStr(p.Version)\nIf p.DataBodyRange Is Nothing Then\nProbe=Probe & \"|body:Nothing\"\nElse\nProbe=Probe & \"|body:\" & p.DataBodyRange.Address\nProbe=Probe & \"|value:\" & CStr(p.DataBodyRange.Cells(1,1).Value2) & \"|text:\" & p.DataBodyRange.Cells(1,1).Text\nEnd If\nExit Function\nFailed:\nProbe=Probe & \"|ERR:\" & CStr(Err.Number) & \"|caches:\" & CStr(ThisWorkbook.PivotCaches.Count) & \"|tables:\" & CStr(ws.PivotTables.Count)\nEnd Function",
+      "result": "$E$3:$G$20|cacheVersion:8|tableVersion:8|body:$E$4:$G$20|value:|text:"
+    },
+    {
+      "name": "edge-last-row",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\n\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:B6\"))\nSet p=c.CreatePivotTable(ws.Range(\"E1048576\"),\"Made\")\nProbe=p.TableRange1.Address & \"|cacheVersion:\" & CStr(c.Version) & \"|tableVersion:\" & CStr(p.Version)\nIf p.DataBodyRange Is Nothing Then\nProbe=Probe & \"|body:Nothing\"\nElse\nProbe=Probe & \"|body:\" & p.DataBodyRange.Address\nProbe=Probe & \"|value:\" & CStr(p.DataBodyRange.Cells(1,1).Value2) & \"|text:\" & p.DataBodyRange.Cells(1,1).Text\nEnd If\nExit Function\nFailed:\nProbe=Probe & \"|ERR:\" & CStr(Err.Number) & \"|caches:\" & CStr(ThisWorkbook.PivotCaches.Count) & \"|tables:\" & CStr(ws.PivotTables.Count)\nEnd Function",
+      "result": "$E$1048576|cacheVersion:8|tableVersion:8|body:$E$1048576|value:Error 2045|text:#SPILL!"
+    },
+    {
+      "name": "edge-last-column",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\n\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:B6\"))\nSet p=c.CreatePivotTable(ws.Range(\"XFD3\"),\"Made\")\nProbe=p.TableRange1.Address & \"|cacheVersion:\" & CStr(c.Version) & \"|tableVersion:\" & CStr(p.Version)\nIf p.DataBodyRange Is Nothing Then\nProbe=Probe & \"|body:Nothing\"\nElse\nProbe=Probe & \"|body:\" & p.DataBodyRange.Address\nProbe=Probe & \"|value:\" & CStr(p.DataBodyRange.Cells(1,1).Value2) & \"|text:\" & p.DataBodyRange.Cells(1,1).Text\nEnd If\nExit Function\nFailed:\nProbe=Probe & \"|ERR:\" & CStr(Err.Number) & \"|caches:\" & CStr(ThisWorkbook.PivotCaches.Count) & \"|tables:\" & CStr(ws.PivotTables.Count)\nEnd Function",
+      "result": "$XFD$3|cacheVersion:8|tableVersion:8|body:$XFD$3|value:Error 2045|text:#SPILL!"
+    },
+    {
+      "name": "version-cache0-tableNone",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:B6\"),0)\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\")\nProbe=CStr(c.Version) & \"|\" & CStr(p.Version)\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number) & \"|cacheVersion:\" & CStr(c.Version) & \"|count:\" & CStr(ThisWorkbook.PivotCaches.Count)\nEnd Function",
+      "result": "0|0"
+    },
+    {
+      "name": "version-cache0-table0",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:B6\"),0)\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\",True,0)\nProbe=CStr(c.Version) & \"|\" & CStr(p.Version)\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number) & \"|cacheVersion:\" & CStr(c.Version) & \"|count:\" & CStr(ThisWorkbook.PivotCaches.Count)\nEnd Function",
+      "result": "0|0"
+    },
+    {
+      "name": "version-cache0-table3",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:B6\"),0)\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\",True,3)\nProbe=CStr(c.Version) & \"|\" & CStr(p.Version)\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number) & \"|cacheVersion:\" & CStr(c.Version) & \"|count:\" & CStr(ThisWorkbook.PivotCaches.Count)\nEnd Function",
+      "result": "ERR:5|cacheVersion:0|count:0"
+    },
+    {
+      "name": "version-cache0-table4",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:B6\"),0)\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\",True,4)\nProbe=CStr(c.Version) & \"|\" & CStr(p.Version)\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number) & \"|cacheVersion:\" & CStr(c.Version) & \"|count:\" & CStr(ThisWorkbook.PivotCaches.Count)\nEnd Function",
+      "result": "ERR:5|cacheVersion:0|count:0"
+    },
+    {
+      "name": "version-cache0-table8",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:B6\"),0)\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\",True,8)\nProbe=CStr(c.Version) & \"|\" & CStr(p.Version)\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number) & \"|cacheVersion:\" & CStr(c.Version) & \"|count:\" & CStr(ThisWorkbook.PivotCaches.Count)\nEnd Function",
+      "result": "ERR:5|cacheVersion:0|count:0"
+    },
+    {
+      "name": "version-cache3-tableNone",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:B6\"),3)\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\")\nProbe=CStr(c.Version) & \"|\" & CStr(p.Version)\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number) & \"|cacheVersion:\" & CStr(c.Version) & \"|count:\" & CStr(ThisWorkbook.PivotCaches.Count)\nEnd Function",
+      "result": "3|3"
+    },
+    {
+      "name": "version-cache3-table0",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:B6\"),3)\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\",True,0)\nProbe=CStr(c.Version) & \"|\" & CStr(p.Version)\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number) & \"|cacheVersion:\" & CStr(c.Version) & \"|count:\" & CStr(ThisWorkbook.PivotCaches.Count)\nEnd Function",
+      "result": "ERR:5|cacheVersion:3|count:0"
+    },
+    {
+      "name": "version-cache3-table3",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:B6\"),3)\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\",True,3)\nProbe=CStr(c.Version) & \"|\" & CStr(p.Version)\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number) & \"|cacheVersion:\" & CStr(c.Version) & \"|count:\" & CStr(ThisWorkbook.PivotCaches.Count)\nEnd Function",
+      "result": "3|3"
+    },
+    {
+      "name": "version-cache3-table4",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:B6\"),3)\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\",True,4)\nProbe=CStr(c.Version) & \"|\" & CStr(p.Version)\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number) & \"|cacheVersion:\" & CStr(c.Version) & \"|count:\" & CStr(ThisWorkbook.PivotCaches.Count)\nEnd Function",
+      "result": "ERR:5|cacheVersion:3|count:0"
+    },
+    {
+      "name": "version-cache3-table8",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:B6\"),3)\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\",True,8)\nProbe=CStr(c.Version) & \"|\" & CStr(p.Version)\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number) & \"|cacheVersion:\" & CStr(c.Version) & \"|count:\" & CStr(ThisWorkbook.PivotCaches.Count)\nEnd Function",
+      "result": "ERR:5|cacheVersion:3|count:0"
+    },
+    {
+      "name": "version-cache4-tableNone",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:B6\"),4)\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\")\nProbe=CStr(c.Version) & \"|\" & CStr(p.Version)\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number) & \"|cacheVersion:\" & CStr(c.Version) & \"|count:\" & CStr(ThisWorkbook.PivotCaches.Count)\nEnd Function",
+      "result": "4|4"
+    },
+    {
+      "name": "version-cache4-table0",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:B6\"),4)\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\",True,0)\nProbe=CStr(c.Version) & \"|\" & CStr(p.Version)\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number) & \"|cacheVersion:\" & CStr(c.Version) & \"|count:\" & CStr(ThisWorkbook.PivotCaches.Count)\nEnd Function",
+      "result": "ERR:5|cacheVersion:4|count:0"
+    },
+    {
+      "name": "version-cache4-table3",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:B6\"),4)\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\",True,3)\nProbe=CStr(c.Version) & \"|\" & CStr(p.Version)\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number) & \"|cacheVersion:\" & CStr(c.Version) & \"|count:\" & CStr(ThisWorkbook.PivotCaches.Count)\nEnd Function",
+      "result": "ERR:5|cacheVersion:4|count:0"
+    },
+    {
+      "name": "version-cache4-table4",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:B6\"),4)\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\",True,4)\nProbe=CStr(c.Version) & \"|\" & CStr(p.Version)\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number) & \"|cacheVersion:\" & CStr(c.Version) & \"|count:\" & CStr(ThisWorkbook.PivotCaches.Count)\nEnd Function",
+      "result": "4|4"
+    },
+    {
+      "name": "version-cache4-table8",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:B6\"),4)\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\",True,8)\nProbe=CStr(c.Version) & \"|\" & CStr(p.Version)\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number) & \"|cacheVersion:\" & CStr(c.Version) & \"|count:\" & CStr(ThisWorkbook.PivotCaches.Count)\nEnd Function",
+      "result": "ERR:5|cacheVersion:4|count:0"
+    },
+    {
+      "name": "version-cache8-tableNone",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:B6\"),8)\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\")\nProbe=CStr(c.Version) & \"|\" & CStr(p.Version)\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number) & \"|cacheVersion:\" & CStr(c.Version) & \"|count:\" & CStr(ThisWorkbook.PivotCaches.Count)\nEnd Function",
+      "result": "8|8"
+    },
+    {
+      "name": "version-cache8-table0",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:B6\"),8)\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\",True,0)\nProbe=CStr(c.Version) & \"|\" & CStr(p.Version)\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number) & \"|cacheVersion:\" & CStr(c.Version) & \"|count:\" & CStr(ThisWorkbook.PivotCaches.Count)\nEnd Function",
+      "result": "ERR:5|cacheVersion:8|count:0"
+    },
+    {
+      "name": "version-cache8-table3",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:B6\"),8)\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\",True,3)\nProbe=CStr(c.Version) & \"|\" & CStr(p.Version)\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number) & \"|cacheVersion:\" & CStr(c.Version) & \"|count:\" & CStr(ThisWorkbook.PivotCaches.Count)\nEnd Function",
+      "result": "ERR:5|cacheVersion:8|count:0"
+    },
+    {
+      "name": "version-cache8-table4",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:B6\"),8)\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\",True,4)\nProbe=CStr(c.Version) & \"|\" & CStr(p.Version)\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number) & \"|cacheVersion:\" & CStr(c.Version) & \"|count:\" & CStr(ThisWorkbook.PivotCaches.Count)\nEnd Function",
+      "result": "ERR:5|cacheVersion:8|count:0"
+    },
+    {
+      "name": "version-cache8-table8",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nOn Error GoTo Failed\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:B6\"),8)\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\",True,8)\nProbe=CStr(c.Version) & \"|\" & CStr(p.Version)\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number) & \"|cacheVersion:\" & CStr(c.Version) & \"|count:\" & CStr(ThisWorkbook.PivotCaches.Count)\nEnd Function",
+      "result": "8|8"
+    },
+    {
+      "name": "event-empty",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\n\nDim s As New PivotSink\nSet s.Ws=ws\nApplication.EnableEvents=True\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:B6\"))\nProbe=\"cache:\" & s.Log\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\")\nProbe=Probe & \"|table:\" & s.Log\nApplication.EnableEvents=False\nEnd Function",
+      "result": "cache:|table:change:$E$3:$G$20:1;pivot:Made;",
+      "classes": {
+        "PivotSink": "Public WithEvents Ws As Worksheet\nPublic Log As String\nPrivate Sub Ws_Change(ByVal Target As Range)\nLog=Log & \"change:\" & Target.Address & \":\" & CStr(Ws.PivotTables.Count) & \";\"\nEnd Sub\nPrivate Sub Ws_PivotTableUpdate(ByVal Target As PivotTable)\nLog=Log & \"pivot:\" & Target.Name & \";\"\nEnd Sub"
+      }
+    },
+    {
+      "name": "event-occupied",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\nws.Range(\"E3:G20\").Value=123\nDim s As New PivotSink\nSet s.Ws=ws\nApplication.EnableEvents=True\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:B6\"))\nProbe=\"cache:\" & s.Log\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\")\nProbe=Probe & \"|table:\" & s.Log\nApplication.EnableEvents=False\nEnd Function",
+      "result": "cache:|table:change:$E$3:$G$20:1;pivot:Made;",
+      "classes": {
+        "PivotSink": "Public WithEvents Ws As Worksheet\nPublic Log As String\nPrivate Sub Ws_Change(ByVal Target As Range)\nLog=Log & \"change:\" & Target.Address & \":\" & CStr(Ws.PivotTables.Count) & \";\"\nEnd Sub\nPrivate Sub Ws_PivotTableUpdate(ByVal Target As PivotTable)\nLog=Log & \"pivot:\" & Target.Name & \";\"\nEnd Sub"
+      }
+    },
+    {
+      "name": "event-disabled",
+      "source": "Function Probe() As String\nDim ws As Worksheet, c As PivotCache, p As PivotTable, f As PivotField\nSet ws=Worksheets(1)\nws.Range(\"A1:B1\").Value=Array(\"Region\",\"Amount\")\nws.Range(\"A2:B2\").Value=Array(\"East\",10)\nws.Range(\"A3:B3\").Value=Array(\"West\",20)\nws.Range(\"A4:B4\").Value=Array(\"East\",30)\nws.Range(\"A5:B5\").Value=Array(\"West\",40)\nws.Range(\"A6:B6\").Value=Array(\"East\",50)\n\nDim s As New PivotSink\nSet s.Ws=ws\nApplication.EnableEvents=False\nSet c=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:B6\"))\nProbe=\"cache:\" & s.Log\nSet p=c.CreatePivotTable(ws.Range(\"E3\"),\"Made\")\nProbe=Probe & \"|table:\" & s.Log\nApplication.EnableEvents=False\nEnd Function",
+      "result": "cache:|table:",
+      "classes": {
+        "PivotSink": "Public WithEvents Ws As Worksheet\nPublic Log As String\nPrivate Sub Ws_Change(ByVal Target As Range)\nLog=Log & \"change:\" & Target.Address & \":\" & CStr(Ws.PivotTables.Count) & \";\"\nEnd Sub\nPrivate Sub Ws_PivotTableUpdate(ByVal Target As PivotTable)\nLog=Log & \"pivot:\" & Target.Name & \";\"\nEnd Sub"
+      }
+    }
+  ],
+  "excel_version_build": "16.0|20430"
+}

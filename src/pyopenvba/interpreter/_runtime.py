@@ -1,6 +1,6 @@
 """The interpreter: a parsed module, executed against a host.
 
-Execution is a walk of the tree with one frame per call.  Three things
+Execution uses procedure-wide instructions with one frame per call.  Three things
 are worth stating, because they are where a VBA interpreter usually
 gets the semantics wrong:
 
@@ -28,6 +28,7 @@ from weakref import ReferenceType, ref
 
 from pyopenvba.exceptions import VBACompileError, VBARuntimeError, VBAUnsupportedError
 from pyopenvba.interpreter import _ast as A
+from pyopenvba.interpreter import _flow as F
 from pyopenvba.interpreter._objects import VBACollection, VBAObject, member, method, setter
 from pyopenvba.interpreter._parse import parse_module
 from pyopenvba.interpreter._values import (
@@ -75,6 +76,7 @@ from pyopenvba.interpreter._values import (
     release_in_order,
     to_text,
     type_name,
+    to_number,
 )
 
 #: How deep a call chain may go before this reports VBA's error 28.
@@ -101,10 +103,6 @@ class _GotoSignal(_Signal):
     def __init__(self, label: str) -> None:
         super().__init__(label)
         self.label = label
-
-
-class _ReturnSignal(_Signal):
-    """Return to the most recent GoSub in this procedure frame."""
 
 
 class _ResumeSignal(_Signal):
@@ -253,6 +251,12 @@ class Frame:
     locals: dict[str, Slot] = field(default_factory=lambda: {})
     me: object = None
     with_stack: list[object] = field(default_factory=lambda: [])
+    program: F.Program | None = None
+    with_values: dict[int, object] = field(default_factory=lambda: {})
+    select_values: dict[int, object] = field(default_factory=lambda: {})
+    numeric_loops: dict[int, NumericLoop] = field(default_factory=lambda: {})
+    each_loops: dict[int, EachLoop] = field(default_factory=lambda: {})
+    gosub_returns: list[int] = field(default_factory=lambda: [])
     handler: str = "none"
     handler_label: str = ""
     in_handler: bool = False
@@ -285,6 +289,8 @@ class ModuleRuntime:
         self.document: UserClassInstance | None = None
         self._initialised = False
         self.record_checks: dict[int, tuple[tuple[str, ReferenceType[ModuleRuntime]], ...]] = {}
+        self.programs: dict[int, F.Program] = {}
+        self.programs_compiled = False
         for procedure in parsed.procedures:
             self.procedures.setdefault(procedure.name.lower(), []).append(procedure)
         for defined in parsed.types:
@@ -296,6 +302,7 @@ class ModuleRuntime:
 
     def initialise(self) -> None:
         """Give every module-level declaration its starting value."""
+        self.compile_programs()
         if self._initialised:
             return
         self._initialised = True
@@ -320,6 +327,24 @@ class ModuleRuntime:
                 self.variables[declaration.name.lower()] = interpreter.make_slot(declaration, self)
         for declare in self.parsed.declares:
             self.declares[declare.name.lower()] = declare
+
+    def compile_programs(self) -> None:
+        """Validate the whole module before executable initialization."""
+        if self.programs_compiled:
+            return
+        for procedure in self.parsed.procedures:
+            key = id(procedure)
+            if key not in self.programs:
+                self.programs[key] = F.compile_program(procedure, f'{self.name}.{procedure.name}',
+                                                       self.parsed.variables, self.flow_value_type)
+        self.programs_compiled = True
+
+    def flow_value_type(self, declared: str) -> bool:
+        if declared in ('', 'Variant', 'Object'):
+            return False
+        return (declared in STORAGE_WIDTH or declared in ('String', 'LongPtr', 'LongLong', 'Decimal')
+                or declared.startswith('String*') or self.interpreter.is_enum_type(declared, self)
+                or self.interpreter.record_type(declared, self) is not None)
 
     def procedure(self, name: str, kind: str = "") -> A.Procedure | None:
         found = self.procedures.get(name.lower())
@@ -989,6 +1014,27 @@ class Assignable:
     take: Callable[[], object]
 
 
+@dataclass(slots=True)
+class NumericLoop:
+    target: Assignable
+    limit: object
+    step: object
+
+
+@dataclass(slots=True)
+class EachLoop:
+    target: Assignable
+    iterator: Iterator[object] | None
+    declared: str
+    array: VBAArray | None = None
+
+    def close(self) -> None:
+        if self.array is not None:
+            self.array.borrowed_elements -= 1
+            self.array = None
+        self.iterator = None
+
+
 # --- the interpreter -------------------------------------------------------------------
 
 
@@ -1044,6 +1090,8 @@ class Interpreter:
         return instance
 
     def initialise(self) -> None:
+        for runtime in list(self.modules.values()):
+            runtime.compile_programs()
         for runtime in list(self.modules.values()):
             if not runtime.is_class:
                 runtime.initialise()
@@ -1181,6 +1229,12 @@ class Interpreter:
             raise error(28) from None
         finally:
             self.frames.pop()
+            frame.numeric_loops.clear()
+            for loop in frame.each_loops.values():
+                loop.close()
+            frame.each_loops.clear()
+            frame.with_values.clear()
+            frame.with_stack.clear()
             for array in frame.locked_arrays:
                 array.borrowed_elements -= 1
         if procedure.kind in ("function", "get"):
@@ -1247,18 +1301,210 @@ class Interpreter:
         return given.get() if isinstance(given, Slot) else given
 
     def _run_body(self, frame: Frame) -> None:
-        body = frame.procedure.body
-        self._declare_locals(frame, body)
-        at = 0
-        while at < len(body):
+        key = id(frame.procedure)
+        program = frame.module.programs.get(key)
+        if program is None:
+            program = F.compile_program(frame.procedure, f'{frame.module.name}.{frame.procedure.name}',
+                                        frame.module.parsed.variables, frame.module.flow_value_type)
+            frame.module.programs[key] = program
+        frame.program = program
+        self._declare_locals(frame, frame.procedure.body)
+        self._run_flow(frame)
+
+    def _run_flow(self, frame: Frame, start: int = 0) -> None:
+        program = frame.program
+        assert program is not None
+        pc = start
+        scopes: tuple[int, ...] | None = None
+        while pc < len(program.instructions):
+            instruction = program.instructions[pc]
+            # Lexical With context is independent of the path used to reach
+            # this instruction. A skipped initializer leaves a Nothing slot.
+            if scopes != instruction.scopes:
+                frame.with_stack[:] = [frame.with_values.get(key, NOTHING) for key in instruction.scopes]
+                scopes = instruction.scopes
             try:
-                self._execute_block(body, frame, start=at)
-                return
+                try:
+                    if instruction.kind == 'exec':
+                        self._execute(instruction.statement, frame)
+                        following = pc + 1
+                    else:
+                        following = self._flow_step(instruction, frame, pc)
+                except VBARuntimeError as failure:
+                    outcome = self._handle(failure, frame, instruction.statement)
+                    # A handler may have traversed different With scopes.
+                    scopes = None
+                    if outcome == 'next':
+                        following = instruction.resume_next if instruction.resume_next >= 0 else pc + 1
+                    elif outcome == 'same':
+                        following = pc
+                    else:
+                        raise
             except _GotoSignal as jump:
-                index = _label_index(body, jump.label)
-                if index is None:
+                if F.label_key(jump.label) not in program.labels:
                     raise self._unknown_label(jump.label, frame) from None
-                at = index
+                following = program.labels[F.label_key(jump.label)]
+                scopes = None
+            pc = following
+
+    def _flow_step(self, instruction: F.Instruction, frame: Frame, pc: int) -> int:
+        statement, kind = instruction.statement, instruction.kind
+        if kind == 'jump':
+            return instruction.target
+        if kind == 'if':
+            assert isinstance(statement, A.If)
+            return instruction.target if condition(self.evaluate(statement.branches[0].condition, frame)) else instruction.otherwise
+        if kind == 'select':
+            assert isinstance(statement, A.SelectCase)
+            frame.select_values[id(statement)] = self._flow_value(statement.subject, frame)
+        elif kind == 'select_end':
+            frame.select_values.pop(id(statement), None)
+        elif kind == 'case':
+            subject = frame.select_values.get(id(statement), EMPTY)
+            return instruction.target if any(self._case_matches(clause, subject, frame) for clause in instruction.clauses) else instruction.otherwise
+        elif kind in ('for_init', 'for_next'):
+            assert isinstance(statement, A.For)
+            key = id(statement)
+            if kind == 'for_init':
+                target = self.resolve_target(statement.target, frame)
+                first = self._flow_value(statement.start, frame)
+                limit = self._flow_value(statement.limit, frame)
+                step = self._flow_value(statement.step, frame) if statement.step is not None else VBAInt(1, 'Integer')
+                declared = self._loop_declaration(statement.target, frame)
+                if declared in ('Variant', ''):
+                    declared = self._for_kind(first, limit)
+                    if statement.step is not None:
+                        declared = self._for_kind(coerce(first, declared), step, asymmetric=False)
+                first, limit, step = (coerce(value, declared) for value in (first, limit, step))
+                target.put(first, False)
+                state = NumericLoop(target, limit, step)
+                frame.numeric_loops[key] = state
+            else:
+                state = frame.numeric_loops.get(key)
+                if state is None:
+                    target = self.resolve_target(statement.target, frame)
+                    declared = self._loop_declaration(statement.target, frame)
+                    if declared in ('Variant', ''):
+                        raise error(92, 'For loop not initialized')
+                    zero = default_for(declared)
+                    step = VBAInt(1, 'Integer') if declared in ('Integer', 'Long') and statement.step is None else zero
+                    state = NumericLoop(target, zero, step)
+                    frame.numeric_loops[key] = state
+                state.target.put(add(state.target.take(), state.step), False)
+            upward = not to_bool(compare('<', state.step, VBAInt(0, 'Integer')))
+            finished = to_bool(compare('>' if upward else '<', state.target.take(), state.limit))
+            return instruction.otherwise if finished else instruction.target
+        elif kind in ('each_init', 'each_next'):
+            assert isinstance(statement, A.ForEach)
+            key = id(statement)
+            if kind == 'each_init':
+                target = self.resolve_target(statement.target, frame)
+                subject = self.evaluate(statement.collection, frame, want_object=True)
+                self._close_each(frame, key)
+                declared = self._loop_declaration(statement.target, frame)
+                if isinstance(subject, VBAArray) and not subject.bounds:
+                    raise error(92, 'For loop not initialized')
+                if isinstance(subject, VBAArray) and declared not in ('Variant', ''):
+                    raise error(424, 'Object required')
+                each = EachLoop(target, _iterate(subject), declared)
+                if isinstance(subject, VBAArray):
+                    subject.borrowed_elements += 1
+                    each.array = subject
+                frame.each_loops[key] = each
+            else:
+                each = frame.each_loops.get(key)
+                if each is None:
+                    raise error(92, 'For loop not initialized')
+            try:
+                assert each.iterator is not None
+                item = next(each.iterator)
+            except StopIteration:
+                each.target.put(EMPTY if each.declared in ('Variant', '') else NOTHING, each.declared not in ('Variant', ''))
+                return instruction.otherwise
+            if each.declared not in ('Variant', '') and not is_object(item) and item is not NOTHING:
+                raise error(424, 'Object required')
+            each.target.put(item, isinstance(item, VBAObject))
+            return instruction.target
+        elif kind == 'each_end':
+            self._close_each(frame, id(statement))
+        elif kind == 'loop_test':
+            assert isinstance(statement, (A.DoLoop, A.WhileLoop))
+            truth = condition(self.evaluate(statement.condition, frame))
+            if isinstance(statement, A.DoLoop) and statement.test == 'until':
+                truth = not truth
+            return instruction.target if truth else instruction.otherwise
+        elif kind == 'with_init':
+            assert isinstance(statement, A.With)
+            frame.with_values[id(statement)] = self.evaluate(statement.subject, frame, want_object=True)
+        elif kind == 'with_end':
+            frame.with_values.pop(id(statement), None)
+        elif kind == 'exit_loop':
+            return instruction.target
+        elif kind in ('goto', 'computed'):
+            assert isinstance(statement, (A.GoTo, A.OnGoto))
+            if isinstance(statement, A.OnGoto):
+                index = int(to_integer(self.evaluate(statement.value, frame), 'Integer'))
+                if not 0 <= index <= 255:
+                    raise error(5)
+                if not 1 <= index <= len(statement.labels):
+                    return pc + 1
+                label = statement.labels[index - 1]
+            else:
+                label = statement.label
+            if statement.gosub:
+                if len(self.frames) + sum(active.gosub_depth for active in self.frames) >= MAX_DEPTH:
+                    raise error(28)
+                frame.gosub_returns.append(pc + 1)
+                frame.gosub_depth += 1
+            assert frame.program is not None
+            return frame.program.labels[F.label_key(label)]
+        elif kind == 'return':
+            if not frame.gosub_returns:
+                raise error(3)
+            frame.gosub_depth -= 1
+            return frame.gosub_returns.pop()
+        else:
+            raise AssertionError(kind)
+        return pc + 1
+
+    def _flow_value(self, expression: A.Expr | None, frame: Frame) -> object:
+        """Capture a header's value before evaluating the next expression."""
+        value = self.evaluate(expression, frame)
+        for _ in range(MAX_DEPTH):
+            if not isinstance(value, VBAObject):
+                return value
+            default = value.vba_value()
+            if default is value:
+                raise error(ERR_TYPE_MISMATCH)
+            value = default
+        raise error(28)
+
+    @staticmethod
+    def _for_kind(first: object, second: object, *, asymmetric: bool = True) -> str:
+        """Variant For promotion, including native Decimal's asymmetric case."""
+        kinds = [type_name(value) for value in (first, second)]
+        if asymmetric and kinds[0] == 'Decimal' and kinds[1] != 'Decimal':
+            return 'Date'
+        order = ('Byte', 'Integer', 'Long', 'LongLong', 'Double', 'Currency', 'Date', 'Decimal')
+        normalized: list[str] = []
+        for value, kind in zip((first, second), kinds, strict=True):
+            to_number(value)  # Validate even when another operand dominates.
+            kind = 'Double' if kind in ('String', 'Single') else 'Integer' if kind in ('Empty', 'Boolean') else kind
+            normalized.append(kind)
+        return max(normalized, key=order.index)
+
+    def _loop_declaration(self, target: A.Expr | None, frame: Frame) -> str:
+        if isinstance(target, A.Name):
+            slot = self.lookup(target.name, frame, want_slot=True)
+            if isinstance(slot, Slot):
+                return slot.declared
+        return 'Variant'
+
+    @staticmethod
+    def _close_each(frame: Frame, key: int) -> None:
+        each = frame.each_loops.pop(key, None)
+        if each is not None:
+            each.close()
 
     def _unknown_label(self, label: str, frame: Frame) -> Exception:
         return VBACompileError(
@@ -1288,32 +1534,10 @@ class Interpreter:
                 # Const N = 3 then Dim a(1 To N) (native probe).
                 self._do_const(statement, frame)
                 continue
-            for nested in _nested_bodies(statement):
+            for nested in F.nested_bodies(statement):
                 self._declare_locals(frame, nested)
 
     # --- statements --------------------------------------------------------------------
-
-    def _execute_block(self, body: Sequence[A.Stmt], frame: Frame, *, start: int = 0) -> None:
-        at = start
-        while at < len(body):
-            statement = body[at]
-            try:
-                self._execute(statement, frame)
-            except VBARuntimeError as failure:
-                outcome = self._handle(failure, frame, statement)
-                if outcome == "next":
-                    at += 1
-                    continue
-                if outcome == "same":
-                    continue
-                raise
-            except _GotoSignal as jump:
-                index = _label_index(body, jump.label)
-                if index is None:
-                    raise
-                at = index
-                continue
-            at += 1
 
     def _handle(self, failure: VBARuntimeError, frame: Frame, statement: A.Stmt) -> str:
         """What to do with a run-time error: resume, run a handler, or pass it on."""
@@ -1328,12 +1552,13 @@ class Interpreter:
         self.err.erl = frame.line_number
         if frame.handler == "resume_next":
             return "next"
-        index = _label_index(frame.procedure.body, frame.handler_label)
+        assert frame.program is not None
+        index = frame.program.labels.get(F.label_key(frame.handler_label))
         if index is None:
             raise self._unknown_label(frame.handler_label, frame) from failure
         frame.in_handler = True
         try:
-            self._execute_block(frame.procedure.body, frame, start=index)
+            self._run_flow(frame, start=index)
         except _ResumeSignal as resume:
             frame.in_handler = False
             self.err.reset(clear_erl=True)
@@ -1357,7 +1582,7 @@ class Interpreter:
 
     @classmethod
     def statement_handlers(cls) -> dict[type, Callable[..., None]]:
-        """Which method runs each kind of statement."""
+        """Leaf-statement handlers; structured control is compiled by _flow."""
         table: dict[type, Callable[..., None]] = {
             A.Assign: cls._do_assign,
             A.CallStmt: cls._do_call,
@@ -1365,17 +1590,7 @@ class Interpreter:
             A.ConstDecl: cls._do_const,
             A.ReDim: cls._do_redim,
             A.Erase: cls._do_erase,
-            A.If: cls._do_if,
-            A.For: cls._do_for,
-            A.ForEach: cls._do_for_each,
-            A.DoLoop: cls._do_do,
-            A.WhileLoop: cls._do_while,
-            A.With: cls._do_with,
-            A.SelectCase: cls._do_select,
             A.ExitStmt: cls._do_exit,
-            A.GoTo: cls._do_goto,
-            A.OnGoto: cls._do_on_goto,
-            A.ReturnStmt: cls._do_return,
             A.Label: cls._do_label,
             A.OnError: cls._do_on_error,
             A.Resume: cls._do_resume,
@@ -1486,110 +1701,6 @@ class Interpreter:
                     # An erased dynamic array is unallocated again: UBound is error 9.
                     target.put(self.make_array([], current.element_type, frame.module), False)
 
-    def _do_if(self, statement: A.If, frame: Frame) -> None:
-        for branch in statement.branches:
-            if condition(self.evaluate(branch.condition, frame)):
-                self._execute_block(branch.body, frame)
-                return
-        if statement.otherwise:
-            self._execute_block(statement.otherwise, frame)
-
-    def _do_for(self, statement: A.For, frame: Frame) -> None:
-        target = self.resolve_target(statement.target, frame)
-        start = self.evaluate(statement.start, frame)
-        limit = self.evaluate(statement.limit, frame)
-        step = self.evaluate(statement.step, frame) if statement.step is not None else VBAInt(1, "Integer")
-        counter = start
-        target.put(counter, False)
-        going_up = not to_bool(compare("<", step, VBAInt(0, "Integer")))
-        while True:
-            current = target.take()
-            if going_up:
-                if to_bool(compare(">", current, limit)):
-                    return
-            elif to_bool(compare("<", current, limit)):
-                return
-            try:
-                self._execute_block(statement.body, frame)
-            except _ExitSignal as signal:
-                if signal.what == "for":
-                    return
-                raise
-            target.put(add(target.take(), step), False)
-
-    def _do_for_each(self, statement: A.ForEach, frame: Frame) -> None:
-        target = self.resolve_target(statement.target, frame)
-        subject = self.evaluate(statement.collection, frame, want_object=True)
-        if isinstance(subject, VBAArray) and not subject.bounds:
-            raise error(92, "For loop not initialized")
-        for item in _iterate(subject):
-            target.put(item, isinstance(item, VBAObject))
-            try:
-                self._execute_block(statement.body, frame)
-            except _ExitSignal as signal:
-                if signal.what == "for":
-                    return
-                raise
-        # A loop that runs to its end leaves the variable Empty, or Nothing for
-        # an object variable, releasing the last element (native probes); Exit
-        # For and GoTo keep it.
-        declared = "Variant"
-        if isinstance(statement.target, A.Name):
-            slot = self.lookup(statement.target.name, frame, want_slot=True)
-            declared = slot.declared if isinstance(slot, Slot) else "Variant"
-        if declared in ("Variant", ""):
-            target.put(EMPTY, False)
-        else:
-            target.put(NOTHING, True)
-
-    def _do_do(self, statement: A.DoLoop, frame: Frame) -> None:
-        while True:
-            if not statement.at_end and statement.test:
-                truth = condition(self.evaluate(statement.condition, frame))
-                if statement.test == "while" and not truth:
-                    return
-                if statement.test == "until" and truth:
-                    return
-            try:
-                self._execute_block(statement.body, frame)
-            except _ExitSignal as signal:
-                if signal.what == "do":
-                    return
-                raise
-            if statement.at_end and statement.test:
-                truth = condition(self.evaluate(statement.condition, frame))
-                if statement.test == "while" and not truth:
-                    return
-                if statement.test == "until" and truth:
-                    return
-
-    def _do_while(self, statement: A.WhileLoop, frame: Frame) -> None:
-        while condition(self.evaluate(statement.condition, frame)):
-            try:
-                self._execute_block(statement.body, frame)
-            except _ExitSignal as signal:
-                if signal.what == "do":
-                    return
-                raise
-
-    def _do_with(self, statement: A.With, frame: Frame) -> None:
-        subject = self.evaluate(statement.subject, frame, want_object=True)
-        frame.with_stack.append(subject)
-        try:
-            self._execute_block(statement.body, frame)
-        finally:
-            frame.with_stack.pop()
-
-    def _do_select(self, statement: A.SelectCase, frame: Frame) -> None:
-        subject = self.evaluate(statement.subject, frame)
-        for block in statement.blocks:
-            for clause in block.clauses:
-                if self._case_matches(clause, subject, frame):
-                    self._execute_block(block.body, frame)
-                    return
-        if statement.otherwise is not None:
-            self._execute_block(statement.otherwise, frame)
-
     def _case_matches(self, clause: A.CaseClause, subject: object, frame: Frame) -> bool:
         # Select Case holds its subject as a Variant, even a String variable:
         # Case Is < 0 against "a" is False, not a type mismatch (native probe).
@@ -1612,44 +1723,6 @@ class Interpreter:
 
     def _do_exit(self, statement: A.ExitStmt, frame: Frame) -> None:
         raise _ExitSignal(statement.what)
-
-    def _do_goto(self, statement: A.GoTo, frame: Frame) -> None:
-        if statement.gosub:
-            self._gosub(statement.label, frame)
-            return
-        raise _GotoSignal(statement.label)
-
-    def _do_on_goto(self, statement: A.OnGoto, frame: Frame) -> None:
-        # VBA first coerces to Integer (including overflow), then checks 0..255.
-        index = int(to_integer(self.evaluate(statement.value, frame), "Integer"))
-        if not 0 <= index <= 255:
-            raise error(5)
-        if 1 <= index <= len(statement.labels):
-            if statement.gosub:
-                self._gosub(statement.labels[index - 1], frame)
-                return
-            raise _GotoSignal(statement.labels[index - 1])
-
-    def _do_return(self, statement: A.ReturnStmt, frame: Frame) -> None:
-        if not frame.gosub_depth:
-            raise error(3)
-        raise _ReturnSignal()
-
-    def _gosub(self, label: str, frame: Frame) -> None:
-        index = _label_index(frame.procedure.body, label)
-        if index is None:
-            raise self._unknown_label(label, frame)
-        if len(self.frames) + sum(active.gosub_depth for active in self.frames) >= MAX_DEPTH:
-            raise error(28)
-        frame.gosub_depth += 1
-        try:
-            self._execute_block(frame.procedure.body, frame, start=index)
-            # Reaching End Sub/Function ends the procedure, even with a pending Return.
-            raise _ExitSignal(_exit_word(frame.procedure.kind))
-        except _ReturnSignal:
-            pass
-        finally:
-            frame.gosub_depth -= 1
 
     def _do_label(self, statement: A.Label, frame: Frame) -> None:
         if statement.name.isdigit():
@@ -2694,27 +2767,6 @@ def _is_type(value: object, wanted: str) -> bool:
             return True
         return any(base.__name__.lower() == wanted.lower() for base in type(value).__mro__)
     return type_name(value).lower() == wanted.lower()
-
-
-def _label_index(body: Sequence[A.Stmt], label: str) -> int | None:
-    for index, statement in enumerate(body):
-        if isinstance(statement, A.Label) and statement.name.lower() == label.lower():
-            return index
-    return None
-
-
-def _nested_bodies(statement: A.Stmt) -> Iterator[list[A.Stmt]]:
-    if isinstance(statement, A.If):
-        for branch in statement.branches:
-            yield branch.body
-        yield statement.otherwise
-    elif isinstance(statement, (A.For, A.ForEach, A.DoLoop, A.WhileLoop, A.With)):
-        yield statement.body
-    elif isinstance(statement, A.SelectCase):
-        for block in statement.blocks:
-            yield block.body
-        if statement.otherwise is not None:
-            yield statement.otherwise
 
 
 def _default_button(style: int) -> int:

@@ -22,9 +22,13 @@ runtime's state and pass the same Office conformance and persistence gates.
 The first increment implements outer-body `GoSub`/`Return` and computed
 subroutine calls, with 42 measured Excel probes in
 `tests/fixtures/vba_semantics/gosub.json`. It also fixes computed `GoTo`
-index coercion and bounds. Arbitrary jumps into structured blocks still
-need implementation and measurements; this is partial language coverage,
-not a completed Excel milestone.
+index coercion and bounds. Labels inside structured blocks now support direct
+and computed jumps,
+GoSub returns, error handlers and Resume through procedure-wide instructions.
+A further 253 raw native traces cover skipped headers, loop reentry, lexical
+With context, array enumeration locks, header coercion and Select Case value
+capture. This remains partial language coverage: compiler type checking,
+DefType defaults, references and object lifetime need further conformance work.
 
 The next increment connects class `WithEvents` subscriptions and custom
 `RaiseEvent`, with 15 live Excel cases, and worksheet/workbook/application

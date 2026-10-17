@@ -1,0 +1,1525 @@
+{
+  "excel_version_build": "16.0|20430",
+  "instrumentation": "none",
+  "probes": [
+    {
+      "name": "entry_goto_if_false",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim log As String, i As Long, count As Long, v As Variant, values As Variant, obj As Object\nSet obj = ActiveSheet\nvalues = Array(1, 2)\nlog = \"start;\"\nGoTo Target\nlog = log & \"returned;\"\nGoTo Done\nIf False Then\nTarget:\nlog = log & \"inside;\"\ncount = count + 1\n\nEnd If\nlog = log & \"tail;\"\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "start;inside;tail;|1:0",
+      "measured_at": "2026-10-17T06:43:03.144671+00:00"
+    },
+    {
+      "name": "entry_goto_if_else",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim log As String, i As Long, count As Long, v As Variant, values As Variant, obj As Object\nSet obj = ActiveSheet\nvalues = Array(1, 2)\nlog = \"start;\"\nGoTo Target\nlog = log & \"returned;\"\nGoTo Done\nIf True Then\nlog = log & \"wrong;\"\nElse\nTarget:\nlog = log & \"inside;\"\ncount = count + 1\n\nEnd If\nlog = log & \"tail;\"\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "start;inside;tail;|1:0",
+      "measured_at": "2026-10-17T06:43:03.292120+00:00"
+    },
+    {
+      "name": "entry_goto_if_elseif",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim log As String, i As Long, count As Long, v As Variant, values As Variant, obj As Object\nSet obj = ActiveSheet\nvalues = Array(1, 2)\nlog = \"start;\"\nGoTo Target\nlog = log & \"returned;\"\nGoTo Done\nIf False Then\nlog = log & \"wrong;\"\nElseIf False Then\nTarget:\nlog = log & \"inside;\"\ncount = count + 1\n\nEnd If\nlog = log & \"tail;\"\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "start;inside;tail;|1:0",
+      "measured_at": "2026-10-17T06:43:03.445450+00:00"
+    },
+    {
+      "name": "entry_goto_select",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim log As String, i As Long, count As Long, v As Variant, values As Variant, obj As Object\nSet obj = ActiveSheet\nvalues = Array(1, 2)\nlog = \"start;\"\nGoTo Target\nlog = log & \"returned;\"\nGoTo Done\nSelect Case 0\nCase 1\nTarget:\nlog = log & \"inside;\"\ncount = count + 1\n\nCase Else\nlog = log & \"wrong;\"\nEnd Select\nlog = log & \"tail;\"\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "start;inside;tail;|1:0",
+      "measured_at": "2026-10-17T06:43:03.599066+00:00"
+    },
+    {
+      "name": "entry_goto_for",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim log As String, i As Long, count As Long, v As Variant, values As Variant, obj As Object\nSet obj = ActiveSheet\nvalues = Array(1, 2)\nlog = \"start;\"\nGoTo Target\nlog = log & \"returned;\"\nGoTo Done\nFor i = 1 To 2\nTarget:\nlog = log & \"inside;\"\ncount = count + 1\n\nNext i\nlog = log & \"tail;\"\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "start;inside;tail;|1:1",
+      "measured_at": "2026-10-17T06:43:03.759928+00:00"
+    },
+    {
+      "name": "entry_goto_foreach",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim log As String, i As Long, count As Long, v As Variant, values As Variant, obj As Object\nSet obj = ActiveSheet\nvalues = Array(1, 2)\nlog = \"start;\"\nGoTo Target\nlog = log & \"returned;\"\nGoTo Done\nFor Each v In values\nTarget:\nlog = log & \"inside;\"\ncount = count + 1\n\nNext v\nlog = log & \"tail;\"\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "start;inside;|E92:1:0",
+      "measured_at": "2026-10-17T06:43:03.923125+00:00"
+    },
+    {
+      "name": "entry_goto_while",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim log As String, i As Long, count As Long, v As Variant, values As Variant, obj As Object\nSet obj = ActiveSheet\nvalues = Array(1, 2)\nlog = \"start;\"\nGoTo Target\nlog = log & \"returned;\"\nGoTo Done\nWhile False\nTarget:\nlog = log & \"inside;\"\ncount = count + 1\n\nWend\nlog = log & \"tail;\"\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "start;inside;tail;|1:0",
+      "measured_at": "2026-10-17T06:43:04.091034+00:00"
+    },
+    {
+      "name": "entry_goto_do_pre",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim log As String, i As Long, count As Long, v As Variant, values As Variant, obj As Object\nSet obj = ActiveSheet\nvalues = Array(1, 2)\nlog = \"start;\"\nGoTo Target\nlog = log & \"returned;\"\nGoTo Done\nDo While False\nTarget:\nlog = log & \"inside;\"\ncount = count + 1\n\nLoop\nlog = log & \"tail;\"\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "start;inside;tail;|1:0",
+      "measured_at": "2026-10-17T06:43:04.253080+00:00"
+    },
+    {
+      "name": "entry_goto_do_post",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim log As String, i As Long, count As Long, v As Variant, values As Variant, obj As Object\nSet obj = ActiveSheet\nvalues = Array(1, 2)\nlog = \"start;\"\nGoTo Target\nlog = log & \"returned;\"\nGoTo Done\nDo\nTarget:\nlog = log & \"inside;\"\ncount = count + 1\n\nLoop While False\nlog = log & \"tail;\"\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "start;inside;tail;|1:0",
+      "measured_at": "2026-10-17T06:43:04.406806+00:00"
+    },
+    {
+      "name": "entry_goto_do_exit",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim log As String, i As Long, count As Long, v As Variant, values As Variant, obj As Object\nSet obj = ActiveSheet\nvalues = Array(1, 2)\nlog = \"start;\"\nGoTo Target\nlog = log & \"returned;\"\nGoTo Done\nDo\nTarget:\nlog = log & \"inside;\"\ncount = count + 1\n\nIf count > 1 Then Exit Do\nLoop\nlog = log & \"tail;\"\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "start;inside;inside;tail;|2:0",
+      "measured_at": "2026-10-17T06:43:04.558453+00:00"
+    },
+    {
+      "name": "entry_goto_with",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim log As String, i As Long, count As Long, v As Variant, values As Variant, obj As Object\nSet obj = ActiveSheet\nvalues = Array(1, 2)\nlog = \"start;\"\nGoTo Target\nlog = log & \"returned;\"\nGoTo Done\nWith obj\nTarget:\nlog = log & \"inside;\"\ncount = count + 1\nlog = log & \"name:\" & .Name & \";\"\n\nEnd With\nlog = log & \"tail;\"\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "start;inside;|E91:1:0",
+      "measured_at": "2026-10-17T06:43:04.707858+00:00"
+    },
+    {
+      "name": "entry_goto_nested_if_select",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim log As String, i As Long, count As Long, v As Variant, values As Variant, obj As Object\nSet obj = ActiveSheet\nvalues = Array(1, 2)\nlog = \"start;\"\nGoTo Target\nlog = log & \"returned;\"\nGoTo Done\nSelect Case 0\nCase 1\nIf False Then\nTarget:\nlog = log & \"inside;\"\ncount = count + 1\n\nEnd If\nEnd Select\nlog = log & \"tail;\"\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "start;inside;tail;|1:0",
+      "measured_at": "2026-10-17T06:43:04.872820+00:00"
+    },
+    {
+      "name": "entry_goto_nested_for_if",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim log As String, i As Long, count As Long, v As Variant, values As Variant, obj As Object\nSet obj = ActiveSheet\nvalues = Array(1, 2)\nlog = \"start;\"\nGoTo Target\nlog = log & \"returned;\"\nGoTo Done\nFor i = 1 To 2\nIf False Then\nTarget:\nlog = log & \"inside;\"\ncount = count + 1\n\nEnd If\nNext i\nlog = log & \"tail;\"\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "start;inside;tail;|1:1",
+      "measured_at": "2026-10-17T06:43:05.026559+00:00"
+    },
+    {
+      "name": "entry_goto_nested_with_if",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim log As String, i As Long, count As Long, v As Variant, values As Variant, obj As Object\nSet obj = ActiveSheet\nvalues = Array(1, 2)\nlog = \"start;\"\nGoTo Target\nlog = log & \"returned;\"\nGoTo Done\nWith obj\nIf False Then\nTarget:\nlog = log & \"inside;\"\ncount = count + 1\nlog = log & \"name:\" & .Name & \";\"\n\nEnd If\nEnd With\nlog = log & \"tail;\"\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "start;inside;|E91:1:0",
+      "measured_at": "2026-10-17T06:43:05.181780+00:00"
+    },
+    {
+      "name": "entry_gosub_if_false",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim log As String, i As Long, count As Long, v As Variant, values As Variant, obj As Object\nSet obj = ActiveSheet\nvalues = Array(1, 2)\nlog = \"start;\"\nGoSub Target\nlog = log & \"returned;\"\nGoTo Done\nIf False Then\nTarget:\nlog = log & \"inside;\"\ncount = count + 1\nReturn\n\nEnd If\nlog = log & \"tail;\"\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "start;inside;returned;|1:0",
+      "measured_at": "2026-10-17T06:43:05.338360+00:00"
+    },
+    {
+      "name": "entry_gosub_if_else",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim log As String, i As Long, count As Long, v As Variant, values As Variant, obj As Object\nSet obj = ActiveSheet\nvalues = Array(1, 2)\nlog = \"start;\"\nGoSub Target\nlog = log & \"returned;\"\nGoTo Done\nIf True Then\nlog = log & \"wrong;\"\nElse\nTarget:\nlog = log & \"inside;\"\ncount = count + 1\nReturn\n\nEnd If\nlog = log & \"tail;\"\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "start;inside;returned;|1:0",
+      "measured_at": "2026-10-17T06:43:05.497136+00:00"
+    },
+    {
+      "name": "entry_gosub_if_elseif",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim log As String, i As Long, count As Long, v As Variant, values As Variant, obj As Object\nSet obj = ActiveSheet\nvalues = Array(1, 2)\nlog = \"start;\"\nGoSub Target\nlog = log & \"returned;\"\nGoTo Done\nIf False Then\nlog = log & \"wrong;\"\nElseIf False Then\nTarget:\nlog = log & \"inside;\"\ncount = count + 1\nReturn\n\nEnd If\nlog = log & \"tail;\"\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "start;inside;returned;|1:0",
+      "measured_at": "2026-10-17T06:43:05.646774+00:00"
+    },
+    {
+      "name": "entry_gosub_select",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim log As String, i As Long, count As Long, v As Variant, values As Variant, obj As Object\nSet obj = ActiveSheet\nvalues = Array(1, 2)\nlog = \"start;\"\nGoSub Target\nlog = log & \"returned;\"\nGoTo Done\nSelect Case 0\nCase 1\nTarget:\nlog = log & \"inside;\"\ncount = count + 1\nReturn\n\nCase Else\nlog = log & \"wrong;\"\nEnd Select\nlog = log & \"tail;\"\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "start;inside;returned;|1:0",
+      "measured_at": "2026-10-17T06:43:05.801033+00:00"
+    },
+    {
+      "name": "entry_gosub_for",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim log As String, i As Long, count As Long, v As Variant, values As Variant, obj As Object\nSet obj = ActiveSheet\nvalues = Array(1, 2)\nlog = \"start;\"\nGoSub Target\nlog = log & \"returned;\"\nGoTo Done\nFor i = 1 To 2\nTarget:\nlog = log & \"inside;\"\ncount = count + 1\nReturn\n\nNext i\nlog = log & \"tail;\"\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "start;inside;returned;|1:0",
+      "measured_at": "2026-10-17T06:43:05.955890+00:00"
+    },
+    {
+      "name": "entry_gosub_foreach",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim log As String, i As Long, count As Long, v As Variant, values As Variant, obj As Object\nSet obj = ActiveSheet\nvalues = Array(1, 2)\nlog = \"start;\"\nGoSub Target\nlog = log & \"returned;\"\nGoTo Done\nFor Each v In values\nTarget:\nlog = log & \"inside;\"\ncount = count + 1\nReturn\n\nNext v\nlog = log & \"tail;\"\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "start;inside;returned;|1:0",
+      "measured_at": "2026-10-17T06:43:06.106421+00:00"
+    },
+    {
+      "name": "entry_gosub_while",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim log As String, i As Long, count As Long, v As Variant, values As Variant, obj As Object\nSet obj = ActiveSheet\nvalues = Array(1, 2)\nlog = \"start;\"\nGoSub Target\nlog = log & \"returned;\"\nGoTo Done\nWhile False\nTarget:\nlog = log & \"inside;\"\ncount = count + 1\nReturn\n\nWend\nlog = log & \"tail;\"\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "start;inside;returned;|1:0",
+      "measured_at": "2026-10-17T06:43:06.255026+00:00"
+    },
+    {
+      "name": "entry_gosub_do_pre",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim log As String, i As Long, count As Long, v As Variant, values As Variant, obj As Object\nSet obj = ActiveSheet\nvalues = Array(1, 2)\nlog = \"start;\"\nGoSub Target\nlog = log & \"returned;\"\nGoTo Done\nDo While False\nTarget:\nlog = log & \"inside;\"\ncount = count + 1\nReturn\n\nLoop\nlog = log & \"tail;\"\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "start;inside;returned;|1:0",
+      "measured_at": "2026-10-17T06:43:06.406669+00:00"
+    },
+    {
+      "name": "entry_gosub_do_post",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim log As String, i As Long, count As Long, v As Variant, values As Variant, obj As Object\nSet obj = ActiveSheet\nvalues = Array(1, 2)\nlog = \"start;\"\nGoSub Target\nlog = log & \"returned;\"\nGoTo Done\nDo\nTarget:\nlog = log & \"inside;\"\ncount = count + 1\nReturn\n\nLoop While False\nlog = log & \"tail;\"\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "start;inside;returned;|1:0",
+      "measured_at": "2026-10-17T06:43:06.558239+00:00"
+    },
+    {
+      "name": "entry_gosub_do_exit",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim log As String, i As Long, count As Long, v As Variant, values As Variant, obj As Object\nSet obj = ActiveSheet\nvalues = Array(1, 2)\nlog = \"start;\"\nGoSub Target\nlog = log & \"returned;\"\nGoTo Done\nDo\nTarget:\nlog = log & \"inside;\"\ncount = count + 1\nReturn\n\nIf count > 1 Then Exit Do\nLoop\nlog = log & \"tail;\"\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "start;inside;returned;|1:0",
+      "measured_at": "2026-10-17T06:43:06.706030+00:00"
+    },
+    {
+      "name": "entry_gosub_with",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim log As String, i As Long, count As Long, v As Variant, values As Variant, obj As Object\nSet obj = ActiveSheet\nvalues = Array(1, 2)\nlog = \"start;\"\nGoSub Target\nlog = log & \"returned;\"\nGoTo Done\nWith obj\nTarget:\nlog = log & \"inside;\"\ncount = count + 1\nlog = log & \"name:\" & .Name & \";\"\nReturn\n\nEnd With\nlog = log & \"tail;\"\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "start;inside;|E91:1:0",
+      "measured_at": "2026-10-17T06:43:06.884221+00:00"
+    },
+    {
+      "name": "entry_gosub_nested_if_select",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim log As String, i As Long, count As Long, v As Variant, values As Variant, obj As Object\nSet obj = ActiveSheet\nvalues = Array(1, 2)\nlog = \"start;\"\nGoSub Target\nlog = log & \"returned;\"\nGoTo Done\nSelect Case 0\nCase 1\nIf False Then\nTarget:\nlog = log & \"inside;\"\ncount = count + 1\nReturn\n\nEnd If\nEnd Select\nlog = log & \"tail;\"\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "start;inside;returned;|1:0",
+      "measured_at": "2026-10-17T06:43:07.038961+00:00"
+    },
+    {
+      "name": "entry_gosub_nested_for_if",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim log As String, i As Long, count As Long, v As Variant, values As Variant, obj As Object\nSet obj = ActiveSheet\nvalues = Array(1, 2)\nlog = \"start;\"\nGoSub Target\nlog = log & \"returned;\"\nGoTo Done\nFor i = 1 To 2\nIf False Then\nTarget:\nlog = log & \"inside;\"\ncount = count + 1\nReturn\n\nEnd If\nNext i\nlog = log & \"tail;\"\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "start;inside;returned;|1:0",
+      "measured_at": "2026-10-17T06:43:07.191103+00:00"
+    },
+    {
+      "name": "entry_gosub_nested_with_if",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim log As String, i As Long, count As Long, v As Variant, values As Variant, obj As Object\nSet obj = ActiveSheet\nvalues = Array(1, 2)\nlog = \"start;\"\nGoSub Target\nlog = log & \"returned;\"\nGoTo Done\nWith obj\nIf False Then\nTarget:\nlog = log & \"inside;\"\ncount = count + 1\nlog = log & \"name:\" & .Name & \";\"\nReturn\n\nEnd If\nEnd With\nlog = log & \"tail;\"\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "start;inside;|E91:1:0",
+      "measured_at": "2026-10-17T06:43:07.345068+00:00"
+    },
+    {
+      "name": "numeric_byte_default",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim i As Byte, count As Long, log As String, delta As Long\ndelta = 2\nGoTo Target\nFor i = 1 To 2\nTarget:\ncount = count + 1\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\nIf count >= 3 Then GoTo Done\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Byte:0;Byte:0;Byte:0;|3:0",
+      "measured_at": "2026-10-17T06:43:07.501202+00:00"
+    },
+    {
+      "name": "numeric_byte_literal_two",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim i As Byte, count As Long, log As String, delta As Long\ndelta = 2\nGoTo Target\nFor i = 1 To 2 Step 2\nTarget:\ncount = count + 1\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\nIf count >= 3 Then GoTo Done\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Byte:0;Byte:0;Byte:0;|3:0",
+      "measured_at": "2026-10-17T06:43:07.658455+00:00"
+    },
+    {
+      "name": "numeric_byte_literal_negative",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim i As Byte, count As Long, log As String, delta As Long\ndelta = 2\nGoTo Target\nFor i = 1 To 2 Step -1\nTarget:\ncount = count + 1\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\nIf count >= 3 Then GoTo Done\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Byte:0;Byte:0;Byte:0;|3:0",
+      "measured_at": "2026-10-17T06:43:07.852271+00:00"
+    },
+    {
+      "name": "numeric_byte_variable",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim i As Byte, count As Long, log As String, delta As Long\ndelta = 2\nGoTo Target\nFor i = 1 To 2 Step delta\nTarget:\ncount = count + 1\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\nIf count >= 3 Then GoTo Done\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Byte:0;Byte:0;Byte:0;|3:0",
+      "measured_at": "2026-10-17T06:43:08.101058+00:00"
+    },
+    {
+      "name": "numeric_integer_default",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim i As Integer, count As Long, log As String, delta As Long\ndelta = 2\nGoTo Target\nFor i = 1 To 2\nTarget:\ncount = count + 1\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\nIf count >= 3 Then GoTo Done\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Integer:0;|1:1",
+      "measured_at": "2026-10-17T06:43:08.312204+00:00"
+    },
+    {
+      "name": "numeric_integer_literal_two",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim i As Integer, count As Long, log As String, delta As Long\ndelta = 2\nGoTo Target\nFor i = 1 To 2 Step 2\nTarget:\ncount = count + 1\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\nIf count >= 3 Then GoTo Done\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Integer:0;Integer:0;Integer:0;|3:0",
+      "measured_at": "2026-10-17T06:43:08.476948+00:00"
+    },
+    {
+      "name": "numeric_integer_literal_negative",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim i As Integer, count As Long, log As String, delta As Long\ndelta = 2\nGoTo Target\nFor i = 1 To 2 Step -1\nTarget:\ncount = count + 1\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\nIf count >= 3 Then GoTo Done\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Integer:0;Integer:0;Integer:0;|3:0",
+      "measured_at": "2026-10-17T06:43:08.638729+00:00"
+    },
+    {
+      "name": "numeric_integer_variable",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim i As Integer, count As Long, log As String, delta As Long\ndelta = 2\nGoTo Target\nFor i = 1 To 2 Step delta\nTarget:\ncount = count + 1\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\nIf count >= 3 Then GoTo Done\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Integer:0;Integer:0;Integer:0;|3:0",
+      "measured_at": "2026-10-17T06:43:08.805333+00:00"
+    },
+    {
+      "name": "numeric_long_default",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim i As Long, count As Long, log As String, delta As Long\ndelta = 2\nGoTo Target\nFor i = 1 To 2\nTarget:\ncount = count + 1\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\nIf count >= 3 Then GoTo Done\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Long:0;|1:1",
+      "measured_at": "2026-10-17T06:43:08.971325+00:00"
+    },
+    {
+      "name": "numeric_long_literal_two",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim i As Long, count As Long, log As String, delta As Long\ndelta = 2\nGoTo Target\nFor i = 1 To 2 Step 2\nTarget:\ncount = count + 1\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\nIf count >= 3 Then GoTo Done\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Long:0;Long:0;Long:0;|3:0",
+      "measured_at": "2026-10-17T06:43:09.124884+00:00"
+    },
+    {
+      "name": "numeric_long_literal_negative",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim i As Long, count As Long, log As String, delta As Long\ndelta = 2\nGoTo Target\nFor i = 1 To 2 Step -1\nTarget:\ncount = count + 1\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\nIf count >= 3 Then GoTo Done\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Long:0;Long:0;Long:0;|3:0",
+      "measured_at": "2026-10-17T06:43:09.275246+00:00"
+    },
+    {
+      "name": "numeric_long_variable",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim i As Long, count As Long, log As String, delta As Long\ndelta = 2\nGoTo Target\nFor i = 1 To 2 Step delta\nTarget:\ncount = count + 1\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\nIf count >= 3 Then GoTo Done\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Long:0;Long:0;Long:0;|3:0",
+      "measured_at": "2026-10-17T06:43:09.431503+00:00"
+    },
+    {
+      "name": "numeric_single_default",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim i As Single, count As Long, log As String, delta As Long\ndelta = 2\nGoTo Target\nFor i = 1 To 2\nTarget:\ncount = count + 1\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\nIf count >= 3 Then GoTo Done\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Single:0;Single:0;Single:0;|3:0",
+      "measured_at": "2026-10-17T06:43:09.585318+00:00"
+    },
+    {
+      "name": "numeric_single_literal_two",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim i As Single, count As Long, log As String, delta As Long\ndelta = 2\nGoTo Target\nFor i = 1 To 2 Step 2\nTarget:\ncount = count + 1\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\nIf count >= 3 Then GoTo Done\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Single:0;Single:0;Single:0;|3:0",
+      "measured_at": "2026-10-17T06:43:09.739368+00:00"
+    },
+    {
+      "name": "numeric_single_literal_negative",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim i As Single, count As Long, log As String, delta As Long\ndelta = 2\nGoTo Target\nFor i = 1 To 2 Step -1\nTarget:\ncount = count + 1\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\nIf count >= 3 Then GoTo Done\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Single:0;Single:0;Single:0;|3:0",
+      "measured_at": "2026-10-17T06:43:09.896642+00:00"
+    },
+    {
+      "name": "numeric_single_variable",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim i As Single, count As Long, log As String, delta As Long\ndelta = 2\nGoTo Target\nFor i = 1 To 2 Step delta\nTarget:\ncount = count + 1\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\nIf count >= 3 Then GoTo Done\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Single:0;Single:0;Single:0;|3:0",
+      "measured_at": "2026-10-17T06:43:10.052514+00:00"
+    },
+    {
+      "name": "numeric_double_default",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim i As Double, count As Long, log As String, delta As Long\ndelta = 2\nGoTo Target\nFor i = 1 To 2\nTarget:\ncount = count + 1\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\nIf count >= 3 Then GoTo Done\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Double:0;Double:0;Double:0;|3:0",
+      "measured_at": "2026-10-17T06:43:10.204318+00:00"
+    },
+    {
+      "name": "numeric_double_literal_two",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim i As Double, count As Long, log As String, delta As Long\ndelta = 2\nGoTo Target\nFor i = 1 To 2 Step 2\nTarget:\ncount = count + 1\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\nIf count >= 3 Then GoTo Done\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Double:0;Double:0;Double:0;|3:0",
+      "measured_at": "2026-10-17T06:43:10.357930+00:00"
+    },
+    {
+      "name": "numeric_double_literal_negative",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim i As Double, count As Long, log As String, delta As Long\ndelta = 2\nGoTo Target\nFor i = 1 To 2 Step -1\nTarget:\ncount = count + 1\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\nIf count >= 3 Then GoTo Done\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Double:0;Double:0;Double:0;|3:0",
+      "measured_at": "2026-10-17T06:43:10.518889+00:00"
+    },
+    {
+      "name": "numeric_double_variable",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim i As Double, count As Long, log As String, delta As Long\ndelta = 2\nGoTo Target\nFor i = 1 To 2 Step delta\nTarget:\ncount = count + 1\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\nIf count >= 3 Then GoTo Done\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Double:0;Double:0;Double:0;|3:0",
+      "measured_at": "2026-10-17T06:43:10.677308+00:00"
+    },
+    {
+      "name": "numeric_currency_default",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim i As Currency, count As Long, log As String, delta As Long\ndelta = 2\nGoTo Target\nFor i = 1 To 2\nTarget:\ncount = count + 1\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\nIf count >= 3 Then GoTo Done\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Currency:0;Currency:0;Currency:0;|3:0",
+      "measured_at": "2026-10-17T06:43:10.841899+00:00"
+    },
+    {
+      "name": "numeric_currency_literal_two",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim i As Currency, count As Long, log As String, delta As Long\ndelta = 2\nGoTo Target\nFor i = 1 To 2 Step 2\nTarget:\ncount = count + 1\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\nIf count >= 3 Then GoTo Done\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Currency:0;Currency:0;Currency:0;|3:0",
+      "measured_at": "2026-10-17T06:43:11.004906+00:00"
+    },
+    {
+      "name": "numeric_currency_literal_negative",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim i As Currency, count As Long, log As String, delta As Long\ndelta = 2\nGoTo Target\nFor i = 1 To 2 Step -1\nTarget:\ncount = count + 1\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\nIf count >= 3 Then GoTo Done\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Currency:0;Currency:0;Currency:0;|3:0",
+      "measured_at": "2026-10-17T06:43:11.161148+00:00"
+    },
+    {
+      "name": "numeric_currency_variable",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim i As Currency, count As Long, log As String, delta As Long\ndelta = 2\nGoTo Target\nFor i = 1 To 2 Step delta\nTarget:\ncount = count + 1\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\nIf count >= 3 Then GoTo Done\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Currency:0;Currency:0;Currency:0;|3:0",
+      "measured_at": "2026-10-17T06:43:11.314456+00:00"
+    },
+    {
+      "name": "numeric_variant_default",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim i As Variant, count As Long, log As String, delta As Long\ndelta = 2\nGoTo Target\nFor i = 1 To 2\nTarget:\ncount = count + 1\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\nIf count >= 3 Then GoTo Done\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Empty:;|E92:1:",
+      "measured_at": "2026-10-17T06:43:11.466088+00:00"
+    },
+    {
+      "name": "numeric_variant_literal_two",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim i As Variant, count As Long, log As String, delta As Long\ndelta = 2\nGoTo Target\nFor i = 1 To 2 Step 2\nTarget:\ncount = count + 1\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\nIf count >= 3 Then GoTo Done\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Empty:;|E92:1:",
+      "measured_at": "2026-10-17T06:43:11.619457+00:00"
+    },
+    {
+      "name": "numeric_variant_literal_negative",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim i As Variant, count As Long, log As String, delta As Long\ndelta = 2\nGoTo Target\nFor i = 1 To 2 Step -1\nTarget:\ncount = count + 1\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\nIf count >= 3 Then GoTo Done\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Empty:;|E92:1:",
+      "measured_at": "2026-10-17T06:43:11.777411+00:00"
+    },
+    {
+      "name": "numeric_variant_variable",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim i As Variant, count As Long, log As String, delta As Long\ndelta = 2\nGoTo Target\nFor i = 1 To 2 Step delta\nTarget:\ncount = count + 1\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\nIf count >= 3 Then GoTo Done\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Empty:;|E92:1:",
+      "measured_at": "2026-10-17T06:43:11.934218+00:00"
+    },
+    {
+      "name": "reentry_with_jump_goto",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim log As String, count As Long, phase As Long, i As Long, v As Variant, values As Variant, obj As Object\nWorksheets(1).Name = \"First\"\nSet obj = Worksheets(1)\nvalues = Array(1, 2)\nWith obj\nTarget:\nlog = log & \"in:\" & .Name & \";\"\ncount = count + 1\nIf count >= 5 Then GoTo Done\nIf phase = 0 Then\nphase = 1\nGoTo Outside\nEnd If\nEnd With\nIf phase = 0 Then\nphase = 2\nGoTo Outside\nEnd If\nGoTo Done\nOutside:\nlog = log & \"out;\"\nGoTo Target\nlog = log & \"returned;\"\nGoTo Done\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i) & \":\" & CStr(v)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i) & \":\" & CStr(v)\nEnd Function",
+      "result": "in:First;out;in:First;|2:0:",
+      "measured_at": "2026-10-17T06:43:12.097854+00:00"
+    },
+    {
+      "name": "reentry_with_jump_gosub",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim log As String, count As Long, phase As Long, i As Long, v As Variant, values As Variant, obj As Object\nWorksheets(1).Name = \"First\"\nSet obj = Worksheets(1)\nvalues = Array(1, 2)\nWith obj\nTarget:\nlog = log & \"in:\" & .Name & \";\"\ncount = count + 1\nIf count >= 5 Then GoTo Done\nIf phase = 0 Then\nphase = 1\nGoTo Outside\nEnd If\nEnd With\nIf phase = 0 Then\nphase = 2\nGoTo Outside\nEnd If\nGoTo Done\nOutside:\nlog = log & \"out;\"\nGoSub Target\nlog = log & \"returned;\"\nGoTo Done\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i) & \":\" & CStr(v)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i) & \":\" & CStr(v)\nEnd Function",
+      "result": "in:First;out;in:First;|2:0:",
+      "measured_at": "2026-10-17T06:43:12.267964+00:00"
+    },
+    {
+      "name": "reentry_with_complete_goto",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim log As String, count As Long, phase As Long, i As Long, v As Variant, values As Variant, obj As Object\nWorksheets(1).Name = \"First\"\nSet obj = Worksheets(1)\nvalues = Array(1, 2)\nWith obj\nTarget:\nlog = log & \"in:\" & .Name & \";\"\ncount = count + 1\nIf count >= 5 Then GoTo Done\nEnd With\nIf phase = 0 Then\nphase = 2\nGoTo Outside\nEnd If\nGoTo Done\nOutside:\nlog = log & \"out;\"\nGoTo Target\nlog = log & \"returned;\"\nGoTo Done\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i) & \":\" & CStr(v)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i) & \":\" & CStr(v)\nEnd Function",
+      "result": "in:First;out;|E91:1:0:",
+      "measured_at": "2026-10-17T06:43:12.425868+00:00"
+    },
+    {
+      "name": "reentry_with_complete_gosub",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim log As String, count As Long, phase As Long, i As Long, v As Variant, values As Variant, obj As Object\nWorksheets(1).Name = \"First\"\nSet obj = Worksheets(1)\nvalues = Array(1, 2)\nWith obj\nTarget:\nlog = log & \"in:\" & .Name & \";\"\ncount = count + 1\nIf count >= 5 Then GoTo Done\nEnd With\nIf phase = 0 Then\nphase = 2\nGoTo Outside\nEnd If\nGoTo Done\nOutside:\nlog = log & \"out;\"\nGoSub Target\nlog = log & \"returned;\"\nGoTo Done\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i) & \":\" & CStr(v)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i) & \":\" & CStr(v)\nEnd Function",
+      "result": "in:First;out;|E91:1:0:",
+      "measured_at": "2026-10-17T06:43:12.578276+00:00"
+    },
+    {
+      "name": "reentry_each_jump_goto",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim log As String, count As Long, phase As Long, i As Long, v As Variant, values As Variant, obj As Object\nWorksheets(1).Name = \"First\"\nSet obj = Worksheets(1)\nvalues = Array(1, 2)\nFor Each v In values\nTarget:\nlog = log & \"in:\" & CStr(v) & \";\"\ncount = count + 1\nIf count >= 5 Then GoTo Done\nIf phase = 0 Then\nphase = 1\nGoTo Outside\nEnd If\nNext v\nIf phase = 0 Then\nphase = 2\nGoTo Outside\nEnd If\nGoTo Done\nOutside:\nlog = log & \"out;\"\nGoTo Target\nlog = log & \"returned;\"\nGoTo Done\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i) & \":\" & CStr(v)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i) & \":\" & CStr(v)\nEnd Function",
+      "result": "in:1;out;in:1;in:2;|3:0:",
+      "measured_at": "2026-10-17T06:43:12.734144+00:00"
+    },
+    {
+      "name": "reentry_each_jump_gosub",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim log As String, count As Long, phase As Long, i As Long, v As Variant, values As Variant, obj As Object\nWorksheets(1).Name = \"First\"\nSet obj = Worksheets(1)\nvalues = Array(1, 2)\nFor Each v In values\nTarget:\nlog = log & \"in:\" & CStr(v) & \";\"\ncount = count + 1\nIf count >= 5 Then GoTo Done\nIf phase = 0 Then\nphase = 1\nGoTo Outside\nEnd If\nNext v\nIf phase = 0 Then\nphase = 2\nGoTo Outside\nEnd If\nGoTo Done\nOutside:\nlog = log & \"out;\"\nGoSub Target\nlog = log & \"returned;\"\nGoTo Done\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i) & \":\" & CStr(v)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i) & \":\" & CStr(v)\nEnd Function",
+      "result": "in:1;out;in:1;in:2;|3:0:",
+      "measured_at": "2026-10-17T06:43:12.902301+00:00"
+    },
+    {
+      "name": "reentry_each_complete_goto",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim log As String, count As Long, phase As Long, i As Long, v As Variant, values As Variant, obj As Object\nWorksheets(1).Name = \"First\"\nSet obj = Worksheets(1)\nvalues = Array(1, 2)\nFor Each v In values\nTarget:\nlog = log & \"in:\" & CStr(v) & \";\"\ncount = count + 1\nIf count >= 5 Then GoTo Done\nNext v\nIf phase = 0 Then\nphase = 2\nGoTo Outside\nEnd If\nGoTo Done\nOutside:\nlog = log & \"out;\"\nGoTo Target\nlog = log & \"returned;\"\nGoTo Done\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i) & \":\" & CStr(v)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i) & \":\" & CStr(v)\nEnd Function",
+      "result": "in:1;in:2;out;in:;|E92:3:0:",
+      "measured_at": "2026-10-17T06:43:13.055995+00:00"
+    },
+    {
+      "name": "reentry_each_complete_gosub",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim log As String, count As Long, phase As Long, i As Long, v As Variant, values As Variant, obj As Object\nWorksheets(1).Name = \"First\"\nSet obj = Worksheets(1)\nvalues = Array(1, 2)\nFor Each v In values\nTarget:\nlog = log & \"in:\" & CStr(v) & \";\"\ncount = count + 1\nIf count >= 5 Then GoTo Done\nNext v\nIf phase = 0 Then\nphase = 2\nGoTo Outside\nEnd If\nGoTo Done\nOutside:\nlog = log & \"out;\"\nGoSub Target\nlog = log & \"returned;\"\nGoTo Done\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i) & \":\" & CStr(v)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i) & \":\" & CStr(v)\nEnd Function",
+      "result": "in:1;in:2;out;in:;|E92:3:0:",
+      "measured_at": "2026-10-17T06:43:13.222758+00:00"
+    },
+    {
+      "name": "reentry_each_exit_goto",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim log As String, count As Long, phase As Long, i As Long, v As Variant, values As Variant, obj As Object\nWorksheets(1).Name = \"First\"\nSet obj = Worksheets(1)\nvalues = Array(1, 2)\nFor Each v In values\nTarget:\nlog = log & \"in:\" & CStr(v) & \";\"\ncount = count + 1\nIf count >= 5 Then GoTo Done\nIf phase = 0 Then\nphase = 1\nExit For\nEnd If\nNext v\nIf phase = 0 Or phase = 1 Then\nphase = 2\nGoTo Outside\nEnd If\nGoTo Done\nOutside:\nlog = log & \"out;\"\nGoTo Target\nlog = log & \"returned;\"\nGoTo Done\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i) & \":\" & CStr(v)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i) & \":\" & CStr(v)\nEnd Function",
+      "result": "in:1;out;in:1;|E92:2:0:1",
+      "measured_at": "2026-10-17T06:43:13.458376+00:00"
+    },
+    {
+      "name": "reentry_each_exit_gosub",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim log As String, count As Long, phase As Long, i As Long, v As Variant, values As Variant, obj As Object\nWorksheets(1).Name = \"First\"\nSet obj = Worksheets(1)\nvalues = Array(1, 2)\nFor Each v In values\nTarget:\nlog = log & \"in:\" & CStr(v) & \";\"\ncount = count + 1\nIf count >= 5 Then GoTo Done\nIf phase = 0 Then\nphase = 1\nExit For\nEnd If\nNext v\nIf phase = 0 Or phase = 1 Then\nphase = 2\nGoTo Outside\nEnd If\nGoTo Done\nOutside:\nlog = log & \"out;\"\nGoSub Target\nlog = log & \"returned;\"\nGoTo Done\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i) & \":\" & CStr(v)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i) & \":\" & CStr(v)\nEnd Function",
+      "result": "in:1;out;in:1;|E92:2:0:1",
+      "measured_at": "2026-10-17T06:43:13.740503+00:00"
+    },
+    {
+      "name": "reentry_long_jump_goto",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim log As String, count As Long, phase As Long, i As Long, v As Variant, values As Variant, obj As Object\nWorksheets(1).Name = \"First\"\nSet obj = Worksheets(1)\nvalues = Array(1, 2)\nFor i = 1 To 4 Step 2\nTarget:\nlog = log & \"in:\" & CStr(i) & \";\"\ncount = count + 1\nIf count >= 5 Then GoTo Done\nIf phase = 0 Then\nphase = 1\nGoTo Outside\nEnd If\nNext i\nIf phase = 0 Then\nphase = 2\nGoTo Outside\nEnd If\nGoTo Done\nOutside:\nlog = log & \"out;\"\nGoTo Target\nlog = log & \"returned;\"\nGoTo Done\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i) & \":\" & CStr(v)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i) & \":\" & CStr(v)\nEnd Function",
+      "result": "in:1;out;in:1;in:3;|3:5:",
+      "measured_at": "2026-10-17T06:43:14.004736+00:00"
+    },
+    {
+      "name": "reentry_long_jump_gosub",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim log As String, count As Long, phase As Long, i As Long, v As Variant, values As Variant, obj As Object\nWorksheets(1).Name = \"First\"\nSet obj = Worksheets(1)\nvalues = Array(1, 2)\nFor i = 1 To 4 Step 2\nTarget:\nlog = log & \"in:\" & CStr(i) & \";\"\ncount = count + 1\nIf count >= 5 Then GoTo Done\nIf phase = 0 Then\nphase = 1\nGoTo Outside\nEnd If\nNext i\nIf phase = 0 Then\nphase = 2\nGoTo Outside\nEnd If\nGoTo Done\nOutside:\nlog = log & \"out;\"\nGoSub Target\nlog = log & \"returned;\"\nGoTo Done\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i) & \":\" & CStr(v)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i) & \":\" & CStr(v)\nEnd Function",
+      "result": "in:1;out;in:1;in:3;|3:5:",
+      "measured_at": "2026-10-17T06:43:14.603818+00:00"
+    },
+    {
+      "name": "reentry_long_complete_goto",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim log As String, count As Long, phase As Long, i As Long, v As Variant, values As Variant, obj As Object\nWorksheets(1).Name = \"First\"\nSet obj = Worksheets(1)\nvalues = Array(1, 2)\nFor i = 1 To 4 Step 2\nTarget:\nlog = log & \"in:\" & CStr(i) & \";\"\ncount = count + 1\nIf count >= 5 Then GoTo Done\nNext i\nIf phase = 0 Then\nphase = 2\nGoTo Outside\nEnd If\nGoTo Done\nOutside:\nlog = log & \"out;\"\nGoTo Target\nlog = log & \"returned;\"\nGoTo Done\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i) & \":\" & CStr(v)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i) & \":\" & CStr(v)\nEnd Function",
+      "result": "in:1;in:3;out;in:5;|3:7:",
+      "measured_at": "2026-10-17T06:43:14.957999+00:00"
+    },
+    {
+      "name": "reentry_long_complete_gosub",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim log As String, count As Long, phase As Long, i As Long, v As Variant, values As Variant, obj As Object\nWorksheets(1).Name = \"First\"\nSet obj = Worksheets(1)\nvalues = Array(1, 2)\nFor i = 1 To 4 Step 2\nTarget:\nlog = log & \"in:\" & CStr(i) & \";\"\ncount = count + 1\nIf count >= 5 Then GoTo Done\nNext i\nIf phase = 0 Then\nphase = 2\nGoTo Outside\nEnd If\nGoTo Done\nOutside:\nlog = log & \"out;\"\nGoSub Target\nlog = log & \"returned;\"\nGoTo Done\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i) & \":\" & CStr(v)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i) & \":\" & CStr(v)\nEnd Function",
+      "result": "in:1;in:3;out;in:5;|3:7:",
+      "measured_at": "2026-10-17T06:43:15.159326+00:00"
+    },
+    {
+      "name": "reentry_long_exit_goto",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim log As String, count As Long, phase As Long, i As Long, v As Variant, values As Variant, obj As Object\nWorksheets(1).Name = \"First\"\nSet obj = Worksheets(1)\nvalues = Array(1, 2)\nFor i = 1 To 4 Step 2\nTarget:\nlog = log & \"in:\" & CStr(i) & \";\"\ncount = count + 1\nIf count >= 5 Then GoTo Done\nIf phase = 0 Then\nphase = 1\nExit For\nEnd If\nNext i\nIf phase = 0 Or phase = 1 Then\nphase = 2\nGoTo Outside\nEnd If\nGoTo Done\nOutside:\nlog = log & \"out;\"\nGoTo Target\nlog = log & \"returned;\"\nGoTo Done\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i) & \":\" & CStr(v)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i) & \":\" & CStr(v)\nEnd Function",
+      "result": "in:1;out;in:1;in:3;|3:5:",
+      "measured_at": "2026-10-17T06:43:15.313748+00:00"
+    },
+    {
+      "name": "reentry_long_exit_gosub",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim log As String, count As Long, phase As Long, i As Long, v As Variant, values As Variant, obj As Object\nWorksheets(1).Name = \"First\"\nSet obj = Worksheets(1)\nvalues = Array(1, 2)\nFor i = 1 To 4 Step 2\nTarget:\nlog = log & \"in:\" & CStr(i) & \";\"\ncount = count + 1\nIf count >= 5 Then GoTo Done\nIf phase = 0 Then\nphase = 1\nExit For\nEnd If\nNext i\nIf phase = 0 Or phase = 1 Then\nphase = 2\nGoTo Outside\nEnd If\nGoTo Done\nOutside:\nlog = log & \"out;\"\nGoSub Target\nlog = log & \"returned;\"\nGoTo Done\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i) & \":\" & CStr(v)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i) & \":\" & CStr(v)\nEnd Function",
+      "result": "in:1;out;in:1;in:3;|3:5:",
+      "measured_at": "2026-10-17T06:43:15.469973+00:00"
+    },
+    {
+      "name": "reentry_variant_jump_goto",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim log As String, count As Long, phase As Long, i As Long, v As Variant, values As Variant, obj As Object\nWorksheets(1).Name = \"First\"\nSet obj = Worksheets(1)\nvalues = Array(1, 2)\nFor v = 1 To 4 Step 2\nTarget:\nlog = log & \"in:\" & CStr(v) & \";\"\ncount = count + 1\nIf count >= 5 Then GoTo Done\nIf phase = 0 Then\nphase = 1\nGoTo Outside\nEnd If\nNext v\nIf phase = 0 Then\nphase = 2\nGoTo Outside\nEnd If\nGoTo Done\nOutside:\nlog = log & \"out;\"\nGoTo Target\nlog = log & \"returned;\"\nGoTo Done\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i) & \":\" & CStr(v)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i) & \":\" & CStr(v)\nEnd Function",
+      "result": "in:1;out;in:1;in:3;|3:0:5",
+      "measured_at": "2026-10-17T06:43:15.632263+00:00"
+    },
+    {
+      "name": "reentry_variant_jump_gosub",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim log As String, count As Long, phase As Long, i As Long, v As Variant, values As Variant, obj As Object\nWorksheets(1).Name = \"First\"\nSet obj = Worksheets(1)\nvalues = Array(1, 2)\nFor v = 1 To 4 Step 2\nTarget:\nlog = log & \"in:\" & CStr(v) & \";\"\ncount = count + 1\nIf count >= 5 Then GoTo Done\nIf phase = 0 Then\nphase = 1\nGoTo Outside\nEnd If\nNext v\nIf phase = 0 Then\nphase = 2\nGoTo Outside\nEnd If\nGoTo Done\nOutside:\nlog = log & \"out;\"\nGoSub Target\nlog = log & \"returned;\"\nGoTo Done\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i) & \":\" & CStr(v)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i) & \":\" & CStr(v)\nEnd Function",
+      "result": "in:1;out;in:1;in:3;|3:0:5",
+      "measured_at": "2026-10-17T06:43:15.784598+00:00"
+    },
+    {
+      "name": "reentry_variant_complete_goto",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim log As String, count As Long, phase As Long, i As Long, v As Variant, values As Variant, obj As Object\nWorksheets(1).Name = \"First\"\nSet obj = Worksheets(1)\nvalues = Array(1, 2)\nFor v = 1 To 4 Step 2\nTarget:\nlog = log & \"in:\" & CStr(v) & \";\"\ncount = count + 1\nIf count >= 5 Then GoTo Done\nNext v\nIf phase = 0 Then\nphase = 2\nGoTo Outside\nEnd If\nGoTo Done\nOutside:\nlog = log & \"out;\"\nGoTo Target\nlog = log & \"returned;\"\nGoTo Done\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i) & \":\" & CStr(v)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i) & \":\" & CStr(v)\nEnd Function",
+      "result": "in:1;in:3;out;in:5;|3:0:7",
+      "measured_at": "2026-10-17T06:43:15.938722+00:00"
+    },
+    {
+      "name": "reentry_variant_complete_gosub",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim log As String, count As Long, phase As Long, i As Long, v As Variant, values As Variant, obj As Object\nWorksheets(1).Name = \"First\"\nSet obj = Worksheets(1)\nvalues = Array(1, 2)\nFor v = 1 To 4 Step 2\nTarget:\nlog = log & \"in:\" & CStr(v) & \";\"\ncount = count + 1\nIf count >= 5 Then GoTo Done\nNext v\nIf phase = 0 Then\nphase = 2\nGoTo Outside\nEnd If\nGoTo Done\nOutside:\nlog = log & \"out;\"\nGoSub Target\nlog = log & \"returned;\"\nGoTo Done\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i) & \":\" & CStr(v)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i) & \":\" & CStr(v)\nEnd Function",
+      "result": "in:1;in:3;out;in:5;|3:0:7",
+      "measured_at": "2026-10-17T06:43:16.093381+00:00"
+    },
+    {
+      "name": "reentry_variant_exit_goto",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim log As String, count As Long, phase As Long, i As Long, v As Variant, values As Variant, obj As Object\nWorksheets(1).Name = \"First\"\nSet obj = Worksheets(1)\nvalues = Array(1, 2)\nFor v = 1 To 4 Step 2\nTarget:\nlog = log & \"in:\" & CStr(v) & \";\"\ncount = count + 1\nIf count >= 5 Then GoTo Done\nIf phase = 0 Then\nphase = 1\nExit For\nEnd If\nNext v\nIf phase = 0 Or phase = 1 Then\nphase = 2\nGoTo Outside\nEnd If\nGoTo Done\nOutside:\nlog = log & \"out;\"\nGoTo Target\nlog = log & \"returned;\"\nGoTo Done\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i) & \":\" & CStr(v)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i) & \":\" & CStr(v)\nEnd Function",
+      "result": "in:1;out;in:1;in:3;|3:0:5",
+      "measured_at": "2026-10-17T06:43:16.251164+00:00"
+    },
+    {
+      "name": "reentry_variant_exit_gosub",
+      "source": "Function Probe() As String\nOn Error GoTo Bad\nDim log As String, count As Long, phase As Long, i As Long, v As Variant, values As Variant, obj As Object\nWorksheets(1).Name = \"First\"\nSet obj = Worksheets(1)\nvalues = Array(1, 2)\nFor v = 1 To 4 Step 2\nTarget:\nlog = log & \"in:\" & CStr(v) & \";\"\ncount = count + 1\nIf count >= 5 Then GoTo Done\nIf phase = 0 Then\nphase = 1\nExit For\nEnd If\nNext v\nIf phase = 0 Or phase = 1 Then\nphase = 2\nGoTo Outside\nEnd If\nGoTo Done\nOutside:\nlog = log & \"out;\"\nGoSub Target\nlog = log & \"returned;\"\nGoTo Done\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i) & \":\" & CStr(v)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i) & \":\" & CStr(v)\nEnd Function",
+      "result": "in:1;out;in:1;in:3;|3:0:5",
+      "measured_at": "2026-10-17T06:43:16.461060+00:00"
+    },
+    {
+      "name": "resume_if_condition",
+      "source": "Function BadValue() As Variant\nErr.Raise 13, \"bad-value\", \"bad-value\"\nEnd Function\nFunction Probe() As String\nDim log As String, i As Long, count As Long, v As Variant, values() As Variant, text As String\nOn Error Resume Next\nIf BadValue() Then\nlog = log & \"true;\"\nElse\nlog = log & \"false;\"\nEnd If\nlog = log & \"tail;\"\nDone:\nProbe = log & \"|\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "true;tail;|13:0:0",
+      "measured_at": "2026-10-17T06:43:16.620343+00:00"
+    },
+    {
+      "name": "resume_elseif_condition",
+      "source": "Function BadValue() As Variant\nErr.Raise 13, \"bad-value\", \"bad-value\"\nEnd Function\nFunction Probe() As String\nDim log As String, i As Long, count As Long, v As Variant, values() As Variant, text As String\nOn Error Resume Next\nIf False Then\nlog = log & \"wrong;\"\nElseIf BadValue() Then\nlog = log & \"true;\"\nElse\nlog = log & \"false;\"\nEnd If\nlog = log & \"tail;\"\nDone:\nProbe = log & \"|\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "true;tail;|13:0:0",
+      "measured_at": "2026-10-17T06:43:16.780809+00:00"
+    },
+    {
+      "name": "resume_select_subject",
+      "source": "Function BadValue() As Variant\nErr.Raise 13, \"bad-value\", \"bad-value\"\nEnd Function\nFunction Probe() As String\nDim log As String, i As Long, count As Long, v As Variant, values() As Variant, text As String\nOn Error Resume Next\nSelect Case BadValue()\nCase 0\nlog = log & \"zero;\"\nCase Else\nlog = log & \"else;\"\nEnd Select\nlog = log & \"tail;\"\nDone:\nProbe = log & \"|\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "tail;|13:0:0",
+      "measured_at": "2026-10-17T06:43:16.993358+00:00"
+    },
+    {
+      "name": "resume_case_expression",
+      "source": "Function BadValue() As Variant\nErr.Raise 13, \"bad-value\", \"bad-value\"\nEnd Function\nFunction Probe() As String\nDim log As String, i As Long, count As Long, v As Variant, values() As Variant, text As String\nOn Error Resume Next\nSelect Case 1\nCase BadValue()\nlog = log & \"bad-case;\"\nCase Else\nlog = log & \"else;\"\nEnd Select\nlog = log & \"tail;\"\nDone:\nProbe = log & \"|\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "bad-case;tail;|13:0:0",
+      "measured_at": "2026-10-17T06:43:17.154765+00:00"
+    },
+    {
+      "name": "resume_for_start",
+      "source": "Function BadValue() As Variant\nErr.Raise 13, \"bad-value\", \"bad-value\"\nEnd Function\nFunction Probe() As String\nDim log As String, i As Long, count As Long, v As Variant, values() As Variant, text As String\nOn Error Resume Next\nFor i = BadValue() To 2\nlog = log & CStr(i) & \";\"\ncount = count + 1\nIf count >= 3 Then GoTo Done\nNext i\nlog = log & \"tail;\"\nDone:\nProbe = log & \"|\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "0;tail;|13:1:1",
+      "measured_at": "2026-10-17T06:43:17.316335+00:00"
+    },
+    {
+      "name": "resume_for_limit",
+      "source": "Function BadValue() As Variant\nErr.Raise 13, \"bad-value\", \"bad-value\"\nEnd Function\nFunction Probe() As String\nDim log As String, i As Long, count As Long, v As Variant, values() As Variant, text As String\nOn Error Resume Next\nFor i = 1 To BadValue()\nlog = log & CStr(i) & \";\"\ncount = count + 1\nIf count >= 3 Then GoTo Done\nNext i\nlog = log & \"tail;\"\nDone:\nProbe = log & \"|\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "0;tail;|13:1:1",
+      "measured_at": "2026-10-17T06:43:17.470981+00:00"
+    },
+    {
+      "name": "resume_for_step",
+      "source": "Function BadValue() As Variant\nErr.Raise 13, \"bad-value\", \"bad-value\"\nEnd Function\nFunction Probe() As String\nDim log As String, i As Long, count As Long, v As Variant, values() As Variant, text As String\nOn Error Resume Next\nFor i = 1 To 2 Step BadValue()\nlog = log & CStr(i) & \";\"\ncount = count + 1\nIf count >= 3 Then GoTo Done\nNext i\nlog = log & \"tail;\"\nDone:\nProbe = log & \"|\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "0;0;0;|13:3:0",
+      "measured_at": "2026-10-17T06:43:17.637951+00:00"
+    },
+    {
+      "name": "resume_foreach_unallocated",
+      "source": "Function BadValue() As Variant\nErr.Raise 13, \"bad-value\", \"bad-value\"\nEnd Function\nFunction Probe() As String\nDim log As String, i As Long, count As Long, v As Variant, values() As Variant, text As String\nOn Error Resume Next\nFor Each v In values\nlog = log & \"body;\"\ncount = count + 1\nIf count >= 3 Then GoTo Done\nNext v\nlog = log & \"tail;\"\nDone:\nProbe = log & \"|\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "body;tail;|92:1:0",
+      "measured_at": "2026-10-17T06:43:17.805089+00:00"
+    },
+    {
+      "name": "resume_while_condition",
+      "source": "Function BadValue() As Variant\nErr.Raise 13, \"bad-value\", \"bad-value\"\nEnd Function\nFunction Probe() As String\nDim log As String, i As Long, count As Long, v As Variant, values() As Variant, text As String\nOn Error Resume Next\nWhile BadValue()\nlog = log & \"body;\"\ncount = count + 1\nIf count >= 3 Then GoTo Done\nWend\nlog = log & \"tail;\"\nDone:\nProbe = log & \"|\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "body;body;body;|13:3:0",
+      "measured_at": "2026-10-17T06:43:17.972370+00:00"
+    },
+    {
+      "name": "resume_do_pre_condition",
+      "source": "Function BadValue() As Variant\nErr.Raise 13, \"bad-value\", \"bad-value\"\nEnd Function\nFunction Probe() As String\nDim log As String, i As Long, count As Long, v As Variant, values() As Variant, text As String\nOn Error Resume Next\nDo While BadValue()\nlog = log & \"body;\"\ncount = count + 1\nIf count >= 3 Then GoTo Done\nLoop\nlog = log & \"tail;\"\nDone:\nProbe = log & \"|\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "body;body;body;|13:3:0",
+      "measured_at": "2026-10-17T06:43:18.136875+00:00"
+    },
+    {
+      "name": "resume_do_post_condition",
+      "source": "Function BadValue() As Variant\nErr.Raise 13, \"bad-value\", \"bad-value\"\nEnd Function\nFunction Probe() As String\nDim log As String, i As Long, count As Long, v As Variant, values() As Variant, text As String\nOn Error Resume Next\nDo\nlog = log & \"body;\"\ncount = count + 1\nIf count >= 3 Then GoTo Done\nLoop While BadValue()\nlog = log & \"tail;\"\nDone:\nProbe = log & \"|\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "body;tail;|13:1:0",
+      "measured_at": "2026-10-17T06:43:18.293602+00:00"
+    },
+    {
+      "name": "resume_with_subject",
+      "source": "Function BadValue() As Variant\nErr.Raise 13, \"bad-value\", \"bad-value\"\nEnd Function\nFunction Probe() As String\nDim log As String, i As Long, count As Long, v As Variant, values() As Variant, text As String\nOn Error Resume Next\nWith BadValue()\nlog = log & \"body;\"\ntext = .Name\nlog = log & \"after-member;\"\nEnd With\nlog = log & \"tail;\"\nDone:\nProbe = log & \"|\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "body;after-member;tail;|91:0:0",
+      "measured_at": "2026-10-17T06:43:18.457217+00:00"
+    },
+    {
+      "name": "handlers_next_overflow_next",
+      "source": "Function Probe() As String\nDim i As Byte, count As Long, log As String\nOn Error GoTo Bad\nFor i = 254 To 255\ncount = count + 1\nlog = log & CStr(i) & \";\"\nIf count >= 3 Then GoTo Done\nNext i\nlog = log & \"tail;\"\nDone:\nProbe = log & \"|\" & CStr(Err.Number) & \":\" & CStr(i)\nExit Function\nBad:\nlog = log & \"bad:\" & CStr(Err.Number) & \";\"\ni = 0\nResume Next\nEnd Function",
+      "result": "254;255;bad:6;tail;|0:0",
+      "measured_at": "2026-10-17T06:43:18.626097+00:00"
+    },
+    {
+      "name": "handlers_next_overflow_same",
+      "source": "Function Probe() As String\nDim i As Byte, count As Long, log As String\nOn Error GoTo Bad\nFor i = 254 To 255\ncount = count + 1\nlog = log & CStr(i) & \";\"\nIf count >= 3 Then GoTo Done\nNext i\nlog = log & \"tail;\"\nDone:\nProbe = log & \"|\" & CStr(Err.Number) & \":\" & CStr(i)\nExit Function\nBad:\nlog = log & \"bad:\" & CStr(Err.Number) & \";\"\ni = 0\nResume \nEnd Function",
+      "result": "254;255;bad:6;1;|0:1",
+      "measured_at": "2026-10-17T06:43:18.796682+00:00"
+    },
+    {
+      "name": "handlers_handler_inside_if",
+      "source": "Function Probe() As String\nDim log As String\nOn Error GoTo Bad\nErr.Raise 13\nlog = log & \"resumed:\" & CStr(Err.Number) & \";\"\nGoTo Done\nIf False Then\nBad:\nlog = log & \"bad:\" & CStr(Err.Number) & \";\"\nResume Next\nEnd If\nDone:\nProbe = log\nEnd Function",
+      "result": "bad:13;resumed:0;",
+      "measured_at": "2026-10-17T06:43:18.955264+00:00"
+    },
+    {
+      "name": "handlers_handler_inside_for",
+      "source": "Function Probe() As String\nDim log As String, i As Long\nOn Error GoTo Bad\nErr.Raise 13\nlog = log & \"resumed:\" & CStr(Err.Number) & \";\"\nGoTo Done\nFor i = 1 To 2\nBad:\nlog = log & \"bad:\" & CStr(Err.Number) & \";\"\nResume Next\nNext i\nDone:\nProbe = log\nEnd Function",
+      "result": "bad:13;resumed:0;",
+      "measured_at": "2026-10-17T06:43:19.110779+00:00"
+    },
+    {
+      "name": "handlers_handler_gosub_nested",
+      "source": "Function Probe() As String\nDim log As String\nOn Error GoTo Bad\nErr.Raise 13\nlog = log & \"resumed:\" & CStr(Err.Number) & \";\"\nGoTo Done\nIf False Then\nBad:\nlog = log & \"bad:\" & CStr(Err.Number) & \";\"\nGoSub Work\nResume Next\nEnd If\nIf False Then\nWork:\nlog = log & \"work:\" & CStr(Err.Number) & \";\"\nReturn\nEnd If\nDone:\nProbe = log\nEnd Function",
+      "result": "bad:13;work:13;resumed:0;",
+      "measured_at": "2026-10-17T06:43:19.274772+00:00"
+    },
+    {
+      "name": "handlers_resume_active_with",
+      "source": "Function Probe() As String\nDim log As String\nOn Error GoTo Bad\nWith ActiveSheet\nErr.Raise 13\nlog = log & .Name & \":\" & CStr(Err.Number)\nEnd With\nGoTo Done\nIf False Then\nBad:\nlog = log & \"bad;\"\nResume Next\nEnd If\nDone:\nProbe = log\nEnd Function",
+      "result": "bad;Sheet1:0",
+      "measured_at": "2026-10-17T06:43:19.445933+00:00"
+    },
+    {
+      "name": "handlers_retry_each_init",
+      "source": "Function Probe() As String\nDim values() As Variant, v As Variant, log As String\nOn Error GoTo Bad\nFor Each v In values\nlog = log & CStr(v) & \";\"\nNext v\nProbe = log & \"|\" & CStr(Err.Number)\nExit Function\nBad:\nlog = log & \"bad:\" & CStr(Err.Number) & \";\"\nReDim values(0 To 0)\nvalues(0) = 7\nResume\nEnd Function",
+      "result": "bad:92;7;|0",
+      "measured_at": "2026-10-17T06:43:19.602268+00:00"
+    },
+    {
+      "name": "handlers_resume_label_nested",
+      "source": "Function Probe() As String\nDim log As String\nOn Error GoTo Bad\nErr.Raise 13\nProbe = \"wrong\"\nExit Function\nIf False Then\nTarget:\nProbe = log & \"target:\" & CStr(Err.Number)\nExit Function\nEnd If\nBad:\nlog = \"bad;\"\nResume Target\nEnd Function",
+      "result": "bad;target:0",
+      "measured_at": "2026-10-17T06:43:19.787158+00:00"
+    },
+    {
+      "name": "labels_leading_zero_definition",
+      "source": "Function Probe() As String\nGoTo 10\nProbe = \"wrong\"\nExit Function\n010 Probe = \"target\"\nEnd Function",
+      "result": "target",
+      "measured_at": "2026-10-17T06:43:19.963669+00:00"
+    },
+    {
+      "name": "labels_leading_zero_reference",
+      "source": "Function Probe() As String\nGoSub 010\nProbe = Probe & \"returned\"\nExit Function\n10 If True Then\nProbe = \"target;\"\nReturn\nEnd If\nEnd Function",
+      "result": "target;returned",
+      "measured_at": "2026-10-17T06:43:20.144019+00:00"
+    },
+    {
+      "name": "labels_duplicate_number",
+      "source": "Function Probe() As String\n10 Probe = \"one\"\n010 Probe = \"two\"\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T06:43:20.920498+00:00"
+    },
+    {
+      "name": "labels_duplicate_nested",
+      "source": "Function Probe() As String\nSame:\nIf False Then\nSame:\nProbe = \"two\"\nEnd If\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T06:43:22.461442+00:00"
+    },
+    {
+      "name": "labels_exit_for_outside",
+      "source": "Function Probe() As String\nIf False Then\nExit For\nEnd If\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T06:43:23.687552+00:00"
+    },
+    {
+      "name": "labels_exit_do_in_while",
+      "source": "Function Probe() As String\nWhile False\nExit Do\nWend\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T06:43:24.936546+00:00"
+    },
+    {
+      "name": "labels_exit_function_in_sub",
+      "source": "Sub Worker()\nExit Function\nEnd Sub\nFunction Probe() As String\nWorker\nProbe = \"done\"\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T06:43:26.188396+00:00"
+    },
+    {
+      "name": "labels_exit_sub_in_function",
+      "source": "Function Probe() As String\nExit Sub\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T06:43:27.404693+00:00"
+    },
+    {
+      "name": "labels_missing_goto",
+      "source": "Function Probe() As String\nGoTo Missing\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T06:43:28.656784+00:00"
+    },
+    {
+      "name": "labels_missing_resume",
+      "source": "Function Probe() As String\nOn Error Resume Next\nResume Missing\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T06:43:29.873471+00:00"
+    },
+    {
+      "name": "labels_exit_outer_do",
+      "source": "Function Probe() As String\nDim count As Long, log As String\nDo\ncount = count + 1\nWhile True\nExit Do\nWend\nlog = log & \"after;\"\nIf count >= 3 Then GoTo Done\nLoop\nDone:\nProbe = CStr(count) & \":\" & log\nEnd Function",
+      "result": "1:",
+      "measured_at": "2026-10-17T06:43:30.624830+00:00"
+    },
+    {
+      "name": "array_locks_active_redim",
+      "source": "Function Probe() As String\nDim values() As Variant, v As Variant, seen As String, log As String, count As Long\nReDim values(0 To 1)\nvalues(0) = 1\nvalues(1) = 2\nOn Error Resume Next\nFor Each v In values\nErr.Clear\nReDim values(0 To 0)\nseen = CStr(Err.Number)\nExit For\nNext v\nErr.Clear\nReDim values(0 To 2)\nProbe = log & \"|\" & seen & \":\" & CStr(Err.Number) & \":\" & CStr(count)\nEnd Function",
+      "result": "|10:0:0",
+      "measured_at": "2026-10-17T06:43:30.761000+00:00"
+    },
+    {
+      "name": "array_locks_active_erase",
+      "source": "Function Probe() As String\nDim values() As Variant, v As Variant, seen As String, log As String, count As Long\nReDim values(0 To 1)\nvalues(0) = 1\nvalues(1) = 2\nOn Error Resume Next\nFor Each v In values\nErr.Clear\nErase values\nseen = CStr(Err.Number)\nExit For\nNext v\nErr.Clear\nReDim values(0 To 2)\nProbe = log & \"|\" & seen & \":\" & CStr(Err.Number) & \":\" & CStr(count)\nEnd Function",
+      "result": "|10:0:0",
+      "measured_at": "2026-10-17T06:43:30.890836+00:00"
+    },
+    {
+      "name": "array_locks_active_assign",
+      "source": "Function Probe() As String\nDim values() As Variant, v As Variant, seen As String, log As String, count As Long\nReDim values(0 To 1)\nvalues(0) = 1\nvalues(1) = 2\nOn Error Resume Next\nFor Each v In values\nErr.Clear\nvalues = Array(3, 4)\nseen = CStr(Err.Number)\nExit For\nNext v\nErr.Clear\nReDim values(0 To 2)\nProbe = log & \"|\" & seen & \":\" & CStr(Err.Number) & \":\" & CStr(count)\nEnd Function",
+      "result": "|10:0:0",
+      "measured_at": "2026-10-17T06:43:31.015853+00:00"
+    },
+    {
+      "name": "array_locks_after_jump",
+      "source": "Function Probe() As String\nDim values() As Variant, v As Variant, seen As String, log As String, count As Long\nReDim values(0 To 1)\nvalues(0) = 1\nvalues(1) = 2\nOn Error Resume Next\nFor Each v In values\nGoTo Outside\nNext v\nOutside:\nErr.Clear\nReDim values(0 To 0)\nseen = CStr(Err.Number)\nErr.Clear\nReDim values(0 To 2)\nProbe = log & \"|\" & seen & \":\" & CStr(Err.Number) & \":\" & CStr(count)\nEnd Function",
+      "result": "|10:10:0",
+      "measured_at": "2026-10-17T06:43:31.137932+00:00"
+    },
+    {
+      "name": "array_locks_after_exit",
+      "source": "Function Probe() As String\nDim values() As Variant, v As Variant, seen As String, log As String, count As Long\nReDim values(0 To 1)\nvalues(0) = 1\nvalues(1) = 2\nOn Error Resume Next\nFor Each v In values\nExit For\nNext v\nOutside:\nErr.Clear\nReDim values(0 To 0)\nseen = CStr(Err.Number)\nErr.Clear\nReDim values(0 To 2)\nProbe = log & \"|\" & seen & \":\" & CStr(Err.Number) & \":\" & CStr(count)\nEnd Function",
+      "result": "|0:0:0",
+      "measured_at": "2026-10-17T06:43:31.263386+00:00"
+    },
+    {
+      "name": "array_locks_after_complete",
+      "source": "Function Probe() As String\nDim values() As Variant, v As Variant, seen As String, log As String, count As Long\nReDim values(0 To 1)\nvalues(0) = 1\nvalues(1) = 2\nOn Error Resume Next\nFor Each v In values\ncount = count + 1\nNext v\nOutside:\nErr.Clear\nReDim values(0 To 0)\nseen = CStr(Err.Number)\nErr.Clear\nReDim values(0 To 2)\nProbe = log & \"|\" & seen & \":\" & CStr(Err.Number) & \":\" & CStr(count)\nEnd Function",
+      "result": "|0:0:2",
+      "measured_at": "2026-10-17T06:43:31.386884+00:00"
+    },
+    {
+      "name": "array_locks_object_numbers",
+      "source": "Function Probe() As String\nDim values As Variant, v As Object, seen As String, log As String, count As Long\nReDim values(0 To 1)\nvalues(0) = 1\nvalues(1) = 2\nOn Error Resume Next\nFor Each v In values\nlog = log & TypeName(v) & \":\" & CStr(Err.Number) & \";\"\ncount = count + 1\nIf count >= 3 Then GoTo Outside\nNext v\nOutside:\nseen = CStr(Err.Number)\nErr.Clear\nReDim values(0 To 2)\nProbe = log & \"|\" & seen & \":\" & CStr(Err.Number) & \":\" & CStr(count)\nEnd Function",
+      "result": "Nothing:424;|92:0:1",
+      "measured_at": "2026-10-17T06:43:31.508235+00:00"
+    },
+    {
+      "name": "array_locks_object_mixed",
+      "source": "Function Probe() As String\nDim values As Variant, v As Object, seen As String, log As String, count As Long\nReDim values(0 To 1)\nSet values(0) = ActiveSheet\nvalues(1) = 2\nOn Error Resume Next\nFor Each v In values\nlog = log & TypeName(v) & \":\" & CStr(Err.Number) & \";\"\ncount = count + 1\nIf count >= 3 Then GoTo Outside\nNext v\nOutside:\nseen = CStr(Err.Number)\nErr.Clear\nReDim values(0 To 2)\nProbe = log & \"|\" & seen & \":\" & CStr(Err.Number) & \":\" & CStr(count)\nEnd Function",
+      "result": "Nothing:424;|92:0:1",
+      "measured_at": "2026-10-17T06:43:31.629500+00:00"
+    },
+    {
+      "name": "numeric_inputs_integer_1.5_default",
+      "source": "Function Probe() As String\nDim i As Integer, count As Long, log As String\nOn Error GoTo Bad\n\nFor i = 1 To 1.5\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\ncount = count + 1\nIf count >= 8 Then GoTo Done\n\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Integer:1;Integer:2;|2:3",
+      "measured_at": "2026-10-17T06:43:31.749589+00:00"
+    },
+    {
+      "name": "numeric_inputs_integer_1.5_fraction",
+      "source": "Function Probe() As String\nDim i As Integer, count As Long, log As String\nOn Error GoTo Bad\n\nFor i = 1 To 1.5 Step 1.5\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\ncount = count + 1\nIf count >= 8 Then GoTo Done\n\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Integer:1;|1:3",
+      "measured_at": "2026-10-17T06:43:31.868792+00:00"
+    },
+    {
+      "name": "numeric_inputs_integer_2.5_default",
+      "source": "Function Probe() As String\nDim i As Integer, count As Long, log As String\nOn Error GoTo Bad\n\nFor i = 1 To 2.5\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\ncount = count + 1\nIf count >= 8 Then GoTo Done\n\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Integer:1;Integer:2;|2:3",
+      "measured_at": "2026-10-17T06:43:31.989460+00:00"
+    },
+    {
+      "name": "numeric_inputs_integer_2.5_fraction",
+      "source": "Function Probe() As String\nDim i As Integer, count As Long, log As String\nOn Error GoTo Bad\n\nFor i = 1 To 2.5 Step 1.5\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\ncount = count + 1\nIf count >= 8 Then GoTo Done\n\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Integer:1;|1:3",
+      "measured_at": "2026-10-17T06:43:32.107207+00:00"
+    },
+    {
+      "name": "numeric_inputs_integer_3.5_default",
+      "source": "Function Probe() As String\nDim i As Integer, count As Long, log As String\nOn Error GoTo Bad\n\nFor i = 1 To 3.5\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\ncount = count + 1\nIf count >= 8 Then GoTo Done\n\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Integer:1;Integer:2;Integer:3;Integer:4;|4:5",
+      "measured_at": "2026-10-17T06:43:32.227128+00:00"
+    },
+    {
+      "name": "numeric_inputs_integer_3.5_fraction",
+      "source": "Function Probe() As String\nDim i As Integer, count As Long, log As String\nOn Error GoTo Bad\n\nFor i = 1 To 3.5 Step 1.5\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\ncount = count + 1\nIf count >= 8 Then GoTo Done\n\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Integer:1;Integer:3;|2:5",
+      "measured_at": "2026-10-17T06:43:32.347428+00:00"
+    },
+    {
+      "name": "numeric_inputs_long_1.5_default",
+      "source": "Function Probe() As String\nDim i As Long, count As Long, log As String\nOn Error GoTo Bad\n\nFor i = 1 To 1.5\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\ncount = count + 1\nIf count >= 8 Then GoTo Done\n\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Long:1;Long:2;|2:3",
+      "measured_at": "2026-10-17T06:43:32.468234+00:00"
+    },
+    {
+      "name": "numeric_inputs_long_1.5_fraction",
+      "source": "Function Probe() As String\nDim i As Long, count As Long, log As String\nOn Error GoTo Bad\n\nFor i = 1 To 1.5 Step 1.5\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\ncount = count + 1\nIf count >= 8 Then GoTo Done\n\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Long:1;|1:3",
+      "measured_at": "2026-10-17T06:43:32.588613+00:00"
+    },
+    {
+      "name": "numeric_inputs_long_2.5_default",
+      "source": "Function Probe() As String\nDim i As Long, count As Long, log As String\nOn Error GoTo Bad\n\nFor i = 1 To 2.5\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\ncount = count + 1\nIf count >= 8 Then GoTo Done\n\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Long:1;Long:2;|2:3",
+      "measured_at": "2026-10-17T06:43:32.709165+00:00"
+    },
+    {
+      "name": "numeric_inputs_long_2.5_fraction",
+      "source": "Function Probe() As String\nDim i As Long, count As Long, log As String\nOn Error GoTo Bad\n\nFor i = 1 To 2.5 Step 1.5\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\ncount = count + 1\nIf count >= 8 Then GoTo Done\n\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Long:1;|1:3",
+      "measured_at": "2026-10-17T06:43:32.831407+00:00"
+    },
+    {
+      "name": "numeric_inputs_long_3.5_default",
+      "source": "Function Probe() As String\nDim i As Long, count As Long, log As String\nOn Error GoTo Bad\n\nFor i = 1 To 3.5\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\ncount = count + 1\nIf count >= 8 Then GoTo Done\n\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Long:1;Long:2;Long:3;Long:4;|4:5",
+      "measured_at": "2026-10-17T06:43:32.950079+00:00"
+    },
+    {
+      "name": "numeric_inputs_long_3.5_fraction",
+      "source": "Function Probe() As String\nDim i As Long, count As Long, log As String\nOn Error GoTo Bad\n\nFor i = 1 To 3.5 Step 1.5\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\ncount = count + 1\nIf count >= 8 Then GoTo Done\n\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Long:1;Long:3;|2:5",
+      "measured_at": "2026-10-17T06:43:33.065824+00:00"
+    },
+    {
+      "name": "numeric_inputs_single_1.5_default",
+      "source": "Function Probe() As String\nDim i As Single, count As Long, log As String\nOn Error GoTo Bad\n\nFor i = 1 To 1.5\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\ncount = count + 1\nIf count >= 8 Then GoTo Done\n\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Single:1;|1:2",
+      "measured_at": "2026-10-17T06:43:33.182678+00:00"
+    },
+    {
+      "name": "numeric_inputs_single_1.5_fraction",
+      "source": "Function Probe() As String\nDim i As Single, count As Long, log As String\nOn Error GoTo Bad\n\nFor i = 1 To 1.5 Step 1.5\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\ncount = count + 1\nIf count >= 8 Then GoTo Done\n\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Single:1;|1:2.5",
+      "measured_at": "2026-10-17T06:43:33.300951+00:00"
+    },
+    {
+      "name": "numeric_inputs_single_2.5_default",
+      "source": "Function Probe() As String\nDim i As Single, count As Long, log As String\nOn Error GoTo Bad\n\nFor i = 1 To 2.5\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\ncount = count + 1\nIf count >= 8 Then GoTo Done\n\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Single:1;Single:2;|2:3",
+      "measured_at": "2026-10-17T06:43:33.419242+00:00"
+    },
+    {
+      "name": "numeric_inputs_single_2.5_fraction",
+      "source": "Function Probe() As String\nDim i As Single, count As Long, log As String\nOn Error GoTo Bad\n\nFor i = 1 To 2.5 Step 1.5\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\ncount = count + 1\nIf count >= 8 Then GoTo Done\n\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Single:1;Single:2.5;|2:4",
+      "measured_at": "2026-10-17T06:43:33.539074+00:00"
+    },
+    {
+      "name": "numeric_inputs_single_3.5_default",
+      "source": "Function Probe() As String\nDim i As Single, count As Long, log As String\nOn Error GoTo Bad\n\nFor i = 1 To 3.5\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\ncount = count + 1\nIf count >= 8 Then GoTo Done\n\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Single:1;Single:2;Single:3;|3:4",
+      "measured_at": "2026-10-17T06:43:33.659428+00:00"
+    },
+    {
+      "name": "numeric_inputs_single_3.5_fraction",
+      "source": "Function Probe() As String\nDim i As Single, count As Long, log As String\nOn Error GoTo Bad\n\nFor i = 1 To 3.5 Step 1.5\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\ncount = count + 1\nIf count >= 8 Then GoTo Done\n\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Single:1;Single:2.5;|2:4",
+      "measured_at": "2026-10-17T06:43:33.779839+00:00"
+    },
+    {
+      "name": "numeric_inputs_double_1.5_default",
+      "source": "Function Probe() As String\nDim i As Double, count As Long, log As String\nOn Error GoTo Bad\n\nFor i = 1 To 1.5\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\ncount = count + 1\nIf count >= 8 Then GoTo Done\n\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Double:1;|1:2",
+      "measured_at": "2026-10-17T06:43:33.898626+00:00"
+    },
+    {
+      "name": "numeric_inputs_double_1.5_fraction",
+      "source": "Function Probe() As String\nDim i As Double, count As Long, log As String\nOn Error GoTo Bad\n\nFor i = 1 To 1.5 Step 1.5\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\ncount = count + 1\nIf count >= 8 Then GoTo Done\n\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Double:1;|1:2.5",
+      "measured_at": "2026-10-17T06:43:34.016493+00:00"
+    },
+    {
+      "name": "numeric_inputs_double_2.5_default",
+      "source": "Function Probe() As String\nDim i As Double, count As Long, log As String\nOn Error GoTo Bad\n\nFor i = 1 To 2.5\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\ncount = count + 1\nIf count >= 8 Then GoTo Done\n\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Double:1;Double:2;|2:3",
+      "measured_at": "2026-10-17T06:43:34.134552+00:00"
+    },
+    {
+      "name": "numeric_inputs_double_2.5_fraction",
+      "source": "Function Probe() As String\nDim i As Double, count As Long, log As String\nOn Error GoTo Bad\n\nFor i = 1 To 2.5 Step 1.5\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\ncount = count + 1\nIf count >= 8 Then GoTo Done\n\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Double:1;Double:2.5;|2:4",
+      "measured_at": "2026-10-17T06:43:34.254424+00:00"
+    },
+    {
+      "name": "numeric_inputs_double_3.5_default",
+      "source": "Function Probe() As String\nDim i As Double, count As Long, log As String\nOn Error GoTo Bad\n\nFor i = 1 To 3.5\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\ncount = count + 1\nIf count >= 8 Then GoTo Done\n\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Double:1;Double:2;Double:3;|3:4",
+      "measured_at": "2026-10-17T06:43:34.374485+00:00"
+    },
+    {
+      "name": "numeric_inputs_double_3.5_fraction",
+      "source": "Function Probe() As String\nDim i As Double, count As Long, log As String\nOn Error GoTo Bad\n\nFor i = 1 To 3.5 Step 1.5\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\ncount = count + 1\nIf count >= 8 Then GoTo Done\n\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Double:1;Double:2.5;|2:4",
+      "measured_at": "2026-10-17T06:43:34.494736+00:00"
+    },
+    {
+      "name": "numeric_inputs_currency_1.5_default",
+      "source": "Function Probe() As String\nDim i As Currency, count As Long, log As String\nOn Error GoTo Bad\n\nFor i = 1 To 1.5\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\ncount = count + 1\nIf count >= 8 Then GoTo Done\n\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Currency:1;|1:2",
+      "measured_at": "2026-10-17T06:43:34.612454+00:00"
+    },
+    {
+      "name": "numeric_inputs_currency_1.5_fraction",
+      "source": "Function Probe() As String\nDim i As Currency, count As Long, log As String\nOn Error GoTo Bad\n\nFor i = 1 To 1.5 Step 1.5\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\ncount = count + 1\nIf count >= 8 Then GoTo Done\n\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Currency:1;|1:2.5",
+      "measured_at": "2026-10-17T06:43:34.730974+00:00"
+    },
+    {
+      "name": "numeric_inputs_currency_2.5_default",
+      "source": "Function Probe() As String\nDim i As Currency, count As Long, log As String\nOn Error GoTo Bad\n\nFor i = 1 To 2.5\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\ncount = count + 1\nIf count >= 8 Then GoTo Done\n\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Currency:1;Currency:2;|2:3",
+      "measured_at": "2026-10-17T06:43:34.850398+00:00"
+    },
+    {
+      "name": "numeric_inputs_currency_2.5_fraction",
+      "source": "Function Probe() As String\nDim i As Currency, count As Long, log As String\nOn Error GoTo Bad\n\nFor i = 1 To 2.5 Step 1.5\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\ncount = count + 1\nIf count >= 8 Then GoTo Done\n\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Currency:1;Currency:2.5;|2:4",
+      "measured_at": "2026-10-17T06:43:34.971046+00:00"
+    },
+    {
+      "name": "numeric_inputs_currency_3.5_default",
+      "source": "Function Probe() As String\nDim i As Currency, count As Long, log As String\nOn Error GoTo Bad\n\nFor i = 1 To 3.5\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\ncount = count + 1\nIf count >= 8 Then GoTo Done\n\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Currency:1;Currency:2;Currency:3;|3:4",
+      "measured_at": "2026-10-17T06:43:35.091853+00:00"
+    },
+    {
+      "name": "numeric_inputs_currency_3.5_fraction",
+      "source": "Function Probe() As String\nDim i As Currency, count As Long, log As String\nOn Error GoTo Bad\n\nFor i = 1 To 3.5 Step 1.5\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\ncount = count + 1\nIf count >= 8 Then GoTo Done\n\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Currency:1;Currency:2.5;|2:4",
+      "measured_at": "2026-10-17T06:43:35.211119+00:00"
+    },
+    {
+      "name": "numeric_inputs_variant_1.5_default",
+      "source": "Function Probe() As String\nDim i As Variant, count As Long, log As String\nOn Error GoTo Bad\n\nFor i = 1 To 1.5\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\ncount = count + 1\nIf count >= 8 Then GoTo Done\n\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Double:1;|1:2",
+      "measured_at": "2026-10-17T06:43:35.336441+00:00"
+    },
+    {
+      "name": "numeric_inputs_variant_1.5_fraction",
+      "source": "Function Probe() As String\nDim i As Variant, count As Long, log As String\nOn Error GoTo Bad\n\nFor i = 1 To 1.5 Step 1.5\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\ncount = count + 1\nIf count >= 8 Then GoTo Done\n\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Double:1;|1:2.5",
+      "measured_at": "2026-10-17T06:43:35.462292+00:00"
+    },
+    {
+      "name": "numeric_inputs_variant_2.5_default",
+      "source": "Function Probe() As String\nDim i As Variant, count As Long, log As String\nOn Error GoTo Bad\n\nFor i = 1 To 2.5\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\ncount = count + 1\nIf count >= 8 Then GoTo Done\n\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Double:1;Double:2;|2:3",
+      "measured_at": "2026-10-17T06:43:35.581080+00:00"
+    },
+    {
+      "name": "numeric_inputs_variant_2.5_fraction",
+      "source": "Function Probe() As String\nDim i As Variant, count As Long, log As String\nOn Error GoTo Bad\n\nFor i = 1 To 2.5 Step 1.5\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\ncount = count + 1\nIf count >= 8 Then GoTo Done\n\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Double:1;Double:2.5;|2:4",
+      "measured_at": "2026-10-17T06:43:35.699071+00:00"
+    },
+    {
+      "name": "numeric_inputs_variant_3.5_default",
+      "source": "Function Probe() As String\nDim i As Variant, count As Long, log As String\nOn Error GoTo Bad\n\nFor i = 1 To 3.5\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\ncount = count + 1\nIf count >= 8 Then GoTo Done\n\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Double:1;Double:2;Double:3;|3:4",
+      "measured_at": "2026-10-17T06:43:35.820537+00:00"
+    },
+    {
+      "name": "numeric_inputs_variant_3.5_fraction",
+      "source": "Function Probe() As String\nDim i As Variant, count As Long, log As String\nOn Error GoTo Bad\n\nFor i = 1 To 3.5 Step 1.5\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\ncount = count + 1\nIf count >= 8 Then GoTo Done\n\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Double:1;Double:2.5;|2:4",
+      "measured_at": "2026-10-17T06:43:35.940627+00:00"
+    },
+    {
+      "name": "numeric_inputs_variant_strings",
+      "source": "Function Probe() As String\nDim i As Variant, count As Long, log As String\nOn Error GoTo Bad\n\nFor i = \"1\" To \"3\" Step \"1\"\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\ncount = count + 1\nIf count >= 8 Then GoTo Done\n\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Double:1;Double:2;Double:3;|3:4",
+      "measured_at": "2026-10-17T06:43:36.059946+00:00"
+    },
+    {
+      "name": "numeric_inputs_variant_currency",
+      "source": "Function Probe() As String\nDim i As Variant, count As Long, log As String\nOn Error GoTo Bad\n\nFor i = CCur(1) To CCur(2) Step CCur(0.5)\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\ncount = count + 1\nIf count >= 8 Then GoTo Done\n\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Currency:1;Currency:1.5;Currency:2;|3:2.5",
+      "measured_at": "2026-10-17T06:43:36.179924+00:00"
+    },
+    {
+      "name": "numeric_inputs_variant_decimal",
+      "source": "Function Probe() As String\nDim i As Variant, count As Long, log As String\nOn Error GoTo Bad\n\nFor i = CDec(1) To CDec(2) Step CDec(0.5)\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\ncount = count + 1\nIf count >= 8 Then GoTo Done\n\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Decimal:1;Decimal:1.5;Decimal:2;|3:2.5",
+      "measured_at": "2026-10-17T06:43:36.300483+00:00"
+    },
+    {
+      "name": "numeric_inputs_range_limit",
+      "source": "Function Probe() As String\nDim i As Long, count As Long, log As String\nOn Error GoTo Bad\nRange(\"A1\").Value2 = 3\nFor i = 1 To Range(\"A1\")\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\ncount = count + 1\nIf count >= 8 Then GoTo Done\nRange(\"A1\").Value2 = 1\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Long:1;Long:2;Long:3;|3:4",
+      "measured_at": "2026-10-17T06:43:36.421765+00:00"
+    },
+    {
+      "name": "numeric_inputs_range_step",
+      "source": "Function Probe() As String\nDim i As Long, count As Long, log As String\nOn Error GoTo Bad\nRange(\"A1\").Value2 = 1\nFor i = 1 To 3 Step Range(\"A1\")\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\ncount = count + 1\nIf count >= 8 Then GoTo Done\nRange(\"A1\").Value2 = 2\nNext i\nDone:\nProbe = log & \"|\" & CStr(count) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number) & \":\" & CStr(count) & \":\" & CStr(i)\nEnd Function",
+      "result": "Long:1;Long:2;Long:3;|3:4",
+      "measured_at": "2026-10-17T06:43:36.545470+00:00"
+    },
+    {
+      "name": "variant_promotion_integer_long",
+      "source": "Function Probe() As String\nDim i As Variant, log As String, count As Long\nOn Error GoTo Bad\nFor i = CInt(1) To CLng(2)\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\ncount = count + 1\nIf count >= 8 Then GoTo Done\nNext i\nDone:\nProbe = log & \"|\" & TypeName(i) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number)\nEnd Function",
+      "result": "Long:1;Long:2;|Long:3",
+      "measured_at": "2026-10-17T06:43:36.665258+00:00"
+    },
+    {
+      "name": "variant_promotion_long_single",
+      "source": "Function Probe() As String\nDim i As Variant, log As String, count As Long\nOn Error GoTo Bad\nFor i = CLng(1) To CSng(2)\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\ncount = count + 1\nIf count >= 8 Then GoTo Done\nNext i\nDone:\nProbe = log & \"|\" & TypeName(i) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number)\nEnd Function",
+      "result": "Double:1;Double:2;|Double:3",
+      "measured_at": "2026-10-17T06:43:36.785371+00:00"
+    },
+    {
+      "name": "variant_promotion_single_double",
+      "source": "Function Probe() As String\nDim i As Variant, log As String, count As Long\nOn Error GoTo Bad\nFor i = CSng(1) To CDbl(2)\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\ncount = count + 1\nIf count >= 8 Then GoTo Done\nNext i\nDone:\nProbe = log & \"|\" & TypeName(i) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number)\nEnd Function",
+      "result": "Double:1;Double:2;|Double:3",
+      "measured_at": "2026-10-17T06:43:36.905870+00:00"
+    },
+    {
+      "name": "variant_promotion_currency_double",
+      "source": "Function Probe() As String\nDim i As Variant, log As String, count As Long\nOn Error GoTo Bad\nFor i = CCur(1) To CDbl(2)\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\ncount = count + 1\nIf count >= 8 Then GoTo Done\nNext i\nDone:\nProbe = log & \"|\" & TypeName(i) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number)\nEnd Function",
+      "result": "Currency:1;Currency:2;|Currency:3",
+      "measured_at": "2026-10-17T06:43:37.029092+00:00"
+    },
+    {
+      "name": "variant_promotion_decimal_currency",
+      "source": "Function Probe() As String\nDim i As Variant, log As String, count As Long\nOn Error GoTo Bad\nFor i = CDec(1) To CCur(2)\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\ncount = count + 1\nIf count >= 8 Then GoTo Done\nNext i\nDone:\nProbe = log & \"|\" & TypeName(i) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number)\nEnd Function",
+      "result": "Date:12/31/1899;Date:1/1/1900;|Date:1/2/1900",
+      "measured_at": "2026-10-17T06:43:37.147698+00:00"
+    },
+    {
+      "name": "variant_promotion_date_date",
+      "source": "Function Probe() As String\nDim i As Variant, log As String, count As Long\nOn Error GoTo Bad\nFor i = CDate(1) To CDate(2)\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\ncount = count + 1\nIf count >= 8 Then GoTo Done\nNext i\nDone:\nProbe = log & \"|\" & TypeName(i) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number)\nEnd Function",
+      "result": "Date:12/31/1899;Date:1/1/1900;|Date:1/2/1900",
+      "measured_at": "2026-10-17T06:43:37.267443+00:00"
+    },
+    {
+      "name": "variant_promotion_date_double",
+      "source": "Function Probe() As String\nDim i As Variant, log As String, count As Long\nOn Error GoTo Bad\nFor i = CDate(1) To CDbl(2)\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\ncount = count + 1\nIf count >= 8 Then GoTo Done\nNext i\nDone:\nProbe = log & \"|\" & TypeName(i) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number)\nEnd Function",
+      "result": "Date:12/31/1899;Date:1/1/1900;|Date:1/2/1900",
+      "measured_at": "2026-10-17T06:43:37.389205+00:00"
+    },
+    {
+      "name": "variant_promotion_long_date",
+      "source": "Function Probe() As String\nDim i As Variant, log As String, count As Long\nOn Error GoTo Bad\nFor i = CLng(1) To CDate(2)\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\ncount = count + 1\nIf count >= 8 Then GoTo Done\nNext i\nDone:\nProbe = log & \"|\" & TypeName(i) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number)\nEnd Function",
+      "result": "Date:12/31/1899;Date:1/1/1900;|Date:1/2/1900",
+      "measured_at": "2026-10-17T06:43:37.508170+00:00"
+    },
+    {
+      "name": "variant_promotion_boolean_integer",
+      "source": "Function Probe() As String\nDim i As Variant, log As String, count As Long\nOn Error GoTo Bad\nFor i = True To CInt(2)\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\ncount = count + 1\nIf count >= 8 Then GoTo Done\nNext i\nDone:\nProbe = log & \"|\" & TypeName(i) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number)\nEnd Function",
+      "result": "Integer:-1;Integer:0;Integer:1;Integer:2;|Integer:3",
+      "measured_at": "2026-10-17T06:43:37.631149+00:00"
+    },
+    {
+      "name": "variant_promotion_empty_double",
+      "source": "Function Probe() As String\nDim i As Variant, log As String, count As Long\nOn Error GoTo Bad\nFor i = Empty To CDbl(2)\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\ncount = count + 1\nIf count >= 8 Then GoTo Done\nNext i\nDone:\nProbe = log & \"|\" & TypeName(i) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number)\nEnd Function",
+      "result": "Double:0;Double:1;Double:2;|Double:3",
+      "measured_at": "2026-10-17T06:43:37.756522+00:00"
+    },
+    {
+      "name": "variant_promotion_string_currency",
+      "source": "Function Probe() As String\nDim i As Variant, log As String, count As Long\nOn Error GoTo Bad\nFor i = \"1\" To CCur(2)\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\ncount = count + 1\nIf count >= 8 Then GoTo Done\nNext i\nDone:\nProbe = log & \"|\" & TypeName(i) & \":\" & CStr(i)\nExit Function\nBad:\nProbe = log & \"|E\" & CStr(Err.Number)\nEnd Function",
+      "result": "Currency:1;Currency:2;|Currency:3",
+      "measured_at": "2026-10-17T06:43:37.880853+00:00"
+    },
+    {
+      "name": "more_promotion_integer_decimal_False",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = CInt(1) To CDec(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Decimal:1",
+      "measured_at": "2026-10-17T06:43:38.003953+00:00"
+    },
+    {
+      "name": "more_promotion_integer_decimal_True",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = CDec(1) To CInt(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Date:12/31/1899",
+      "measured_at": "2026-10-17T06:43:38.133675+00:00"
+    },
+    {
+      "name": "more_promotion_integer_currency_False",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = CInt(1) To CCur(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Currency:1",
+      "measured_at": "2026-10-17T06:43:38.253741+00:00"
+    },
+    {
+      "name": "more_promotion_integer_currency_True",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = CCur(1) To CInt(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Currency:1",
+      "measured_at": "2026-10-17T06:43:38.379135+00:00"
+    },
+    {
+      "name": "more_promotion_long_decimal_False",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = CLng(1) To CDec(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Decimal:1",
+      "measured_at": "2026-10-17T06:43:38.498476+00:00"
+    },
+    {
+      "name": "more_promotion_long_decimal_True",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = CDec(1) To CLng(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Date:12/31/1899",
+      "measured_at": "2026-10-17T06:43:38.617758+00:00"
+    },
+    {
+      "name": "more_promotion_long_currency_False",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = CLng(1) To CCur(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Currency:1",
+      "measured_at": "2026-10-17T06:43:38.737653+00:00"
+    },
+    {
+      "name": "more_promotion_long_currency_True",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = CCur(1) To CLng(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Currency:1",
+      "measured_at": "2026-10-17T06:43:38.856709+00:00"
+    },
+    {
+      "name": "more_promotion_single_decimal_False",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = CSng(1) To CDec(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Decimal:1",
+      "measured_at": "2026-10-17T06:43:38.975548+00:00"
+    },
+    {
+      "name": "more_promotion_single_decimal_True",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = CDec(1) To CSng(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Date:12/31/1899",
+      "measured_at": "2026-10-17T06:43:39.097849+00:00"
+    },
+    {
+      "name": "more_promotion_single_currency_False",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = CSng(1) To CCur(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Currency:1",
+      "measured_at": "2026-10-17T06:43:39.218829+00:00"
+    },
+    {
+      "name": "more_promotion_single_currency_True",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = CCur(1) To CSng(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Currency:1",
+      "measured_at": "2026-10-17T06:43:39.340956+00:00"
+    },
+    {
+      "name": "more_promotion_double_decimal_False",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = CDbl(1) To CDec(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Decimal:1",
+      "measured_at": "2026-10-17T06:43:39.464347+00:00"
+    },
+    {
+      "name": "more_promotion_double_decimal_True",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = CDec(1) To CDbl(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Date:12/31/1899",
+      "measured_at": "2026-10-17T06:43:39.586158+00:00"
+    },
+    {
+      "name": "more_promotion_double_currency_False",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = CDbl(1) To CCur(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Currency:1",
+      "measured_at": "2026-10-17T06:43:39.708135+00:00"
+    },
+    {
+      "name": "more_promotion_double_currency_True",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = CCur(1) To CDbl(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Currency:1",
+      "measured_at": "2026-10-17T06:43:39.829758+00:00"
+    },
+    {
+      "name": "more_promotion_currency_decimal_False",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = CCur(1) To CDec(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Decimal:1",
+      "measured_at": "2026-10-17T06:43:39.950371+00:00"
+    },
+    {
+      "name": "more_promotion_currency_decimal_True",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = CDec(1) To CCur(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Date:12/31/1899",
+      "measured_at": "2026-10-17T06:43:40.075480+00:00"
+    },
+    {
+      "name": "more_promotion_currency_currency_False",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = CCur(1) To CCur(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Currency:1",
+      "measured_at": "2026-10-17T06:43:40.200539+00:00"
+    },
+    {
+      "name": "more_promotion_currency_currency_True",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = CCur(1) To CCur(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Currency:1",
+      "measured_at": "2026-10-17T06:43:40.323085+00:00"
+    },
+    {
+      "name": "more_promotion_decimal_decimal_False",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = CDec(1) To CDec(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Decimal:1",
+      "measured_at": "2026-10-17T06:43:40.452360+00:00"
+    },
+    {
+      "name": "more_promotion_decimal_decimal_True",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = CDec(1) To CDec(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Decimal:1",
+      "measured_at": "2026-10-17T06:43:40.578213+00:00"
+    },
+    {
+      "name": "more_promotion_decimal_currency_False",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = CDec(1) To CCur(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Date:12/31/1899",
+      "measured_at": "2026-10-17T06:43:40.703001+00:00"
+    },
+    {
+      "name": "more_promotion_decimal_currency_True",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = CCur(1) To CDec(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Decimal:1",
+      "measured_at": "2026-10-17T06:43:40.824856+00:00"
+    },
+    {
+      "name": "more_promotion_date_decimal_False",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = CDate(1) To CDec(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Decimal:1",
+      "measured_at": "2026-10-17T06:43:40.948692+00:00"
+    },
+    {
+      "name": "more_promotion_date_decimal_True",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = CDec(1) To CDate(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Date:12/31/1899",
+      "measured_at": "2026-10-17T06:43:41.080490+00:00"
+    },
+    {
+      "name": "more_promotion_date_currency_False",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = CDate(1) To CCur(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Date:12/31/1899",
+      "measured_at": "2026-10-17T06:43:41.201341+00:00"
+    },
+    {
+      "name": "more_promotion_date_currency_True",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = CCur(1) To CDate(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Date:12/31/1899",
+      "measured_at": "2026-10-17T06:43:41.321563+00:00"
+    },
+    {
+      "name": "more_promotion_byte_decimal_False",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = CByte(1) To CDec(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Decimal:1",
+      "measured_at": "2026-10-17T06:43:41.442736+00:00"
+    },
+    {
+      "name": "more_promotion_byte_decimal_True",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = CDec(1) To CByte(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Date:12/31/1899",
+      "measured_at": "2026-10-17T06:43:41.561644+00:00"
+    },
+    {
+      "name": "more_promotion_byte_currency_False",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = CByte(1) To CCur(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Currency:1",
+      "measured_at": "2026-10-17T06:43:41.679578+00:00"
+    },
+    {
+      "name": "more_promotion_byte_currency_True",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = CCur(1) To CByte(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Currency:1",
+      "measured_at": "2026-10-17T06:43:41.804607+00:00"
+    },
+    {
+      "name": "more_decimal_step_integer",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = CDec(1) To CDec(2) Step CInt(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Decimal:1",
+      "measured_at": "2026-10-17T06:43:41.927364+00:00"
+    },
+    {
+      "name": "more_integer_step_integer",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = 1 To 2 Step CInt(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Integer:1",
+      "measured_at": "2026-10-17T06:43:42.050678+00:00"
+    },
+    {
+      "name": "more_decimal_step_long",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = CDec(1) To CDec(2) Step CLng(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Decimal:1",
+      "measured_at": "2026-10-17T06:43:42.180008+00:00"
+    },
+    {
+      "name": "more_integer_step_long",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = 1 To 2 Step CLng(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Long:1",
+      "measured_at": "2026-10-17T06:43:42.300538+00:00"
+    },
+    {
+      "name": "more_decimal_step_single",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = CDec(1) To CDec(2) Step CSng(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Decimal:1",
+      "measured_at": "2026-10-17T06:43:42.418652+00:00"
+    },
+    {
+      "name": "more_integer_step_single",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = 1 To 2 Step CSng(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Double:1",
+      "measured_at": "2026-10-17T06:43:42.537250+00:00"
+    },
+    {
+      "name": "more_decimal_step_double",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = CDec(1) To CDec(2) Step CDbl(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Decimal:1",
+      "measured_at": "2026-10-17T06:43:42.661077+00:00"
+    },
+    {
+      "name": "more_integer_step_double",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = 1 To 2 Step CDbl(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Double:1",
+      "measured_at": "2026-10-17T06:43:42.780995+00:00"
+    },
+    {
+      "name": "more_decimal_step_currency",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = CDec(1) To CDec(2) Step CCur(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Decimal:1",
+      "measured_at": "2026-10-17T06:43:42.901738+00:00"
+    },
+    {
+      "name": "more_integer_step_currency",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = 1 To 2 Step CCur(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Currency:1",
+      "measured_at": "2026-10-17T06:43:43.020792+00:00"
+    },
+    {
+      "name": "more_decimal_step_decimal",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = CDec(1) To CDec(2) Step CDec(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Decimal:1",
+      "measured_at": "2026-10-17T06:43:43.142574+00:00"
+    },
+    {
+      "name": "more_integer_step_decimal",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = 1 To 2 Step CDec(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Decimal:1",
+      "measured_at": "2026-10-17T06:43:43.263461+00:00"
+    },
+    {
+      "name": "more_decimal_step_date",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = CDec(1) To CDec(2) Step CDate(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Decimal:1",
+      "measured_at": "2026-10-17T06:43:43.385835+00:00"
+    },
+    {
+      "name": "more_integer_step_date",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = 1 To 2 Step CDate(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Date:12/31/1899",
+      "measured_at": "2026-10-17T06:43:43.507858+00:00"
+    },
+    {
+      "name": "more_decimal_step_byte",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = CDec(1) To CDec(2) Step CByte(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Decimal:1",
+      "measured_at": "2026-10-17T06:43:43.627652+00:00"
+    },
+    {
+      "name": "more_integer_step_byte",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = 1 To 2 Step CByte(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Integer:1",
+      "measured_at": "2026-10-17T06:43:43.748219+00:00"
+    },
+    {
+      "name": "more_select_range_snapshot",
+      "source": "Function Change() As Long\nRange(\"A1\").Value2 = 2\nChange = 0\nEnd Function\nFunction Probe() As String\nRange(\"A1\").Value2 = 1\nSelect Case Range(\"A1\")\nCase Change()\nProbe = \"zero\"\nCase 2\nProbe = \"two\"\nCase Else\nProbe = \"else\"\nEnd Select\nEnd Function",
+      "result": "else",
+      "measured_at": "2026-10-17T06:43:43.871148+00:00"
+    },
+    {
+      "name": "more_counter_change_Variant",
+      "source": "Function Probe() As String\nDim i As Variant, count As Long, log As String\nFor i = 1 To 2\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\ncount = count + 1\nIf count >= 3 Then Exit For\ni = \"1\"\nNext\nProbe = log\nEnd Function",
+      "result": "Integer:1;Double:2;Double:2;",
+      "measured_at": "2026-10-17T06:43:43.991175+00:00"
+    },
+    {
+      "name": "more_counter_change_Long",
+      "source": "Function Probe() As String\nDim i As Long, count As Long, log As String\nFor i = 1 To 2\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\ncount = count + 1\nIf count >= 3 Then Exit For\ni = \"1\"\nNext\nProbe = log\nEnd Function",
+      "result": "Long:1;Long:2;Long:2;",
+      "measured_at": "2026-10-17T06:43:44.110536+00:00"
+    },
+    {
+      "name": "more_counter_change_Date",
+      "source": "Function Probe() As String\nDim i As Date, count As Long, log As String\nFor i = 1 To 2\nlog = log & TypeName(i) & \":\" & CStr(i) & \";\"\ncount = count + 1\nIf count >= 3 Then Exit For\ni = \"1\"\nNext\nProbe = log\nEnd Function",
+      "result": "Date:12/31/1899;Date:1/1/1900;Date:1/1/1900;",
+      "measured_at": "2026-10-17T06:43:44.228659+00:00"
+    },
+    {
+      "name": "variant_kinds_integer_same",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = CInt(1) To CInt(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Integer:1",
+      "measured_at": "2026-10-17T06:43:44.349274+00:00"
+    },
+    {
+      "name": "variant_kinds_integer_start",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = CInt(1) To 1\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Integer:1",
+      "measured_at": "2026-10-17T06:43:44.469256+00:00"
+    },
+    {
+      "name": "variant_kinds_integer_limit",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = 1 To CInt(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Integer:1",
+      "measured_at": "2026-10-17T06:43:44.589803+00:00"
+    },
+    {
+      "name": "variant_kinds_integer_step",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = 1 To 1 Step CInt(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Integer:1",
+      "measured_at": "2026-10-17T06:43:44.708537+00:00"
+    },
+    {
+      "name": "variant_kinds_long_same",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = CLng(1) To CLng(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Long:1",
+      "measured_at": "2026-10-17T06:43:44.827814+00:00"
+    },
+    {
+      "name": "variant_kinds_long_start",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = CLng(1) To 1\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Long:1",
+      "measured_at": "2026-10-17T06:43:44.949446+00:00"
+    },
+    {
+      "name": "variant_kinds_long_limit",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = 1 To CLng(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Long:1",
+      "measured_at": "2026-10-17T06:43:45.074236+00:00"
+    },
+    {
+      "name": "variant_kinds_long_step",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = 1 To 1 Step CLng(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Long:1",
+      "measured_at": "2026-10-17T06:43:45.199587+00:00"
+    },
+    {
+      "name": "variant_kinds_single_same",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = CSng(1) To CSng(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Double:1",
+      "measured_at": "2026-10-17T06:43:45.321890+00:00"
+    },
+    {
+      "name": "variant_kinds_single_start",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = CSng(1) To 1\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Double:1",
+      "measured_at": "2026-10-17T06:43:45.452009+00:00"
+    },
+    {
+      "name": "variant_kinds_single_limit",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = 1 To CSng(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Double:1",
+      "measured_at": "2026-10-17T06:43:45.578390+00:00"
+    },
+    {
+      "name": "variant_kinds_single_step",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = 1 To 1 Step CSng(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Double:1",
+      "measured_at": "2026-10-17T06:43:45.704646+00:00"
+    },
+    {
+      "name": "variant_kinds_double_same",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = CDbl(1) To CDbl(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Double:1",
+      "measured_at": "2026-10-17T06:43:45.830127+00:00"
+    },
+    {
+      "name": "variant_kinds_double_start",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = CDbl(1) To 1\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Double:1",
+      "measured_at": "2026-10-17T06:43:45.949935+00:00"
+    },
+    {
+      "name": "variant_kinds_double_limit",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = 1 To CDbl(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Double:1",
+      "measured_at": "2026-10-17T06:43:46.067321+00:00"
+    },
+    {
+      "name": "variant_kinds_double_step",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = 1 To 1 Step CDbl(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Double:1",
+      "measured_at": "2026-10-17T06:43:46.185368+00:00"
+    },
+    {
+      "name": "variant_kinds_currency_same",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = CCur(1) To CCur(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Currency:1",
+      "measured_at": "2026-10-17T06:43:46.300787+00:00"
+    },
+    {
+      "name": "variant_kinds_currency_start",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = CCur(1) To 1\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Currency:1",
+      "measured_at": "2026-10-17T06:43:46.416452+00:00"
+    },
+    {
+      "name": "variant_kinds_currency_limit",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = 1 To CCur(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Currency:1",
+      "measured_at": "2026-10-17T06:43:46.553330+00:00"
+    },
+    {
+      "name": "variant_kinds_currency_step",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = 1 To 1 Step CCur(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Currency:1",
+      "measured_at": "2026-10-17T06:43:46.677588+00:00"
+    },
+    {
+      "name": "variant_kinds_decimal_same",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = CDec(1) To CDec(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Decimal:1",
+      "measured_at": "2026-10-17T06:43:46.805915+00:00"
+    },
+    {
+      "name": "variant_kinds_decimal_start",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = CDec(1) To 1\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Date:12/31/1899",
+      "measured_at": "2026-10-17T06:43:46.924869+00:00"
+    },
+    {
+      "name": "variant_kinds_decimal_limit",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = 1 To CDec(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Decimal:1",
+      "measured_at": "2026-10-17T06:43:47.106793+00:00"
+    },
+    {
+      "name": "variant_kinds_decimal_step",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = 1 To 1 Step CDec(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Decimal:1",
+      "measured_at": "2026-10-17T06:43:47.242934+00:00"
+    },
+    {
+      "name": "variant_kinds_date_same",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = CDate(1) To CDate(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Date:12/31/1899",
+      "measured_at": "2026-10-17T06:43:47.362108+00:00"
+    },
+    {
+      "name": "variant_kinds_date_start",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = CDate(1) To 1\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Date:12/31/1899",
+      "measured_at": "2026-10-17T06:43:47.491525+00:00"
+    },
+    {
+      "name": "variant_kinds_date_limit",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = 1 To CDate(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Date:12/31/1899",
+      "measured_at": "2026-10-17T06:43:47.621973+00:00"
+    },
+    {
+      "name": "variant_kinds_date_step",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = 1 To 1 Step CDate(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Date:12/31/1899",
+      "measured_at": "2026-10-17T06:43:47.749329+00:00"
+    },
+    {
+      "name": "variant_kinds_byte_same",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = CByte(1) To CByte(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Byte:1",
+      "measured_at": "2026-10-17T06:43:47.878880+00:00"
+    },
+    {
+      "name": "variant_kinds_byte_start",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = CByte(1) To 1\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Integer:1",
+      "measured_at": "2026-10-17T06:43:48.018535+00:00"
+    },
+    {
+      "name": "variant_kinds_byte_limit",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = 1 To CByte(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Integer:1",
+      "measured_at": "2026-10-17T06:43:48.165210+00:00"
+    },
+    {
+      "name": "variant_kinds_byte_step",
+      "source": "Function Probe() As String\nDim i As Variant\nFor i = 1 To 1 Step CByte(1)\nProbe = TypeName(i) & \":\" & CStr(i)\nExit For\nNext\nEnd Function",
+      "result": "Integer:1",
+      "measured_at": "2026-10-17T06:43:48.287180+00:00"
+    }
+  ],
+  "measured_at": "2026-10-17T06:43:50.852364+00:00"
+}

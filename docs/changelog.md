@@ -7,6 +7,12 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- Procedure-wide VBA control flow supports labels inside structured blocks,
+  including GoSub returns, computed jumps and error-handler Resume. Native
+  loop reentry, skipped headers, enumeration locks, For header coercion and
+  Select Case value capture replay 253 uninstrumented Excel traces. Duplicate
+  or missing labels and invalid Exit statements fail before execution.
+
 - Ordinary VBA calls and successful worksheet UDFs preserve Err. Raw native
   remeasurement corrects five lifetime expectations and one class/UDF control
   each that had reflected injected On Error handlers. Probe recording now

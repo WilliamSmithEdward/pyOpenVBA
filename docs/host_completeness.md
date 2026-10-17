@@ -37,6 +37,9 @@ malformed-body diagnostics without blocking unrelated valid calls, while the
 explicit parser stays strict. Fifty-three additional native controls cover body
 recovery and ampersand syntax; malformed module boundaries, broader reference
 typing and VBE import normalization remain further work.
+Numeric For bounds now respect typed array elements, UDT fields and qualified
+module variables; Next reevaluates indices and follows resized array storage.
+Thirty-one native controls cover those targets and skipped initialization.
 
 The next increment connects class `WithEvents` subscriptions and custom
 `RaiseEvent`, with 15 live Excel cases, and worksheet/workbook/application

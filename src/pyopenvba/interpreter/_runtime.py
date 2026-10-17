@@ -1045,6 +1045,7 @@ class Assignable:
 
     put: Callable[[object, bool], None]
     take: Callable[[], object]
+    declared: str = 'Variant'
 
 
 @dataclass(slots=True)
@@ -1405,7 +1406,7 @@ class Interpreter:
                 first = self._flow_value(statement.start, frame)
                 limit = self._flow_value(statement.limit, frame)
                 step = self._flow_value(statement.step, frame) if statement.step is not None else VBAInt(1, 'Integer')
-                declared = self._loop_declaration(statement.target, frame)
+                declared = target.declared
                 if declared in ('Variant', ''):
                     declared = self._for_kind(first, limit)
                     if statement.step is not None:
@@ -1416,15 +1417,18 @@ class Interpreter:
                 frame.numeric_loops[key] = state
             else:
                 state = frame.numeric_loops.get(key)
+                # Native Next resolves an element's current subscript and
+                # storage again, including an array replaced by ReDim.
+                target = self.resolve_target(statement.target, frame)
                 if state is None:
-                    target = self.resolve_target(statement.target, frame)
-                    declared = self._loop_declaration(statement.target, frame)
+                    declared = target.declared
                     if declared in ('Variant', ''):
                         raise error(92, 'For loop not initialized')
                     zero = default_for(declared)
                     step = VBAInt(1, 'Integer') if declared in ('Integer', 'Long') and statement.step is None else zero
                     state = NumericLoop(target, zero, step)
                     frame.numeric_loops[key] = state
+                state.target = target
                 state.target.put(add(state.target.take(), state.step), False)
             upward = not to_bool(compare('<', state.step, VBAInt(0, 'Integer')))
             finished = to_bool(compare('>' if upward else '<', state.target.take(), state.limit))
@@ -2379,9 +2383,11 @@ class Interpreter:
         if isinstance(expression, A.Member):
             target = self._member_target(expression, frame)
             name = expression.name
+            slot = self.member_variable(target, name, frame)
             return Assignable(
                 put=lambda value, by_ref: _dispatch_set(target, name, value, [], {}, by_ref),
                 take=lambda: _dispatch_get(target, name, [], {}),
+                declared=slot.declared if slot is not None else 'Variant',
             )
         if isinstance(expression, A.Index):
             return self._index_target(expression, frame)
@@ -2447,7 +2453,7 @@ class Interpreter:
                 )
             slot = self._implicit_slot(expression.name, frame)
         target = slot
-        return Assignable(put=lambda value, by_ref: target.set(value), take=target.get)
+        return Assignable(put=lambda value, by_ref: target.set(value), take=target.get, declared=target.declared)
 
     def _implicit_slot(self, name: str, frame: Frame) -> Slot:
         key = _bare(name)
@@ -2484,6 +2490,7 @@ class Interpreter:
                 return Assignable(
                     put=lambda value, by_ref: array.set(subscripts, value),
                     take=lambda: array.get(subscripts),
+                    declared=array.element_type,
                 )
             if slot is not None and isinstance(slot.value, VBAObject):
                 held = slot.value
@@ -2510,9 +2517,12 @@ class Interpreter:
         if isinstance(inner, A.Member):
             target = self._member_target(inner, frame)
             name = inner.name
+            slot = self.member_variable(target, name, frame)
+            declared = slot.value.element_type if slot is not None and isinstance(slot.value, VBAArray) else 'Variant'
             return Assignable(
                 put=lambda value, by_ref: _dispatch_set(target, name, value, positional, named, by_ref),
                 take=lambda: _dispatch_get(target, name, positional, named),
+                declared=declared,
             )
         value = self.evaluate(inner, frame, want_object=True)
         if isinstance(value, VBAObject):
@@ -2528,6 +2538,7 @@ class Interpreter:
             return Assignable(
                 put=lambda put, by_ref: nested.set(indexes, put),
                 take=lambda: nested.get(indexes),
+                declared=nested.element_type,
             )
         raise VBACompileError("this cannot be assigned to")
 

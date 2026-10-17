@@ -30,6 +30,14 @@ xor is like mod global
 '''.split())
 
 
+def _udf_changed(book: Workbook, name: str, *, removed: bool = False) -> None:
+    from pyopenvba.apps.excel._projects import attach_project
+
+    runtime = attach_project(book)
+    if runtime is not None:
+        runtime.udf_source_changed(name, removed=removed)
+
+
 def editor_source_parts(source: str) -> tuple[str, str]:
     prefix = ''
     body = source
@@ -117,15 +125,17 @@ class VBProject(VBAObject):
     def Protection(self) -> object:
         return VBAInt(int(self.protected), 'Long')
 
-    def compile_pending(self) -> None:
+    def compile_pending(self, *, for_udf: bool = False) -> None:
         from pyopenvba.apps.excel._projects import attach_project
         runtime = attach_project(self.book)
         if runtime is None:
             return
         # ReplaceLine changes saved source, but native Excel keeps a module's
         # already compiled code until an insertion/deletion/rename invalidates it.
-        pending = [entry for entry in self.components.entries if entry.pending and
-                   (entry.compile_invalidated or runtime.modules.get(entry.name.casefold()) not in runtime.executed_modules)]
+        # UDFs have a separate boundary: after the editing macro returns,
+        # their next calculation reads all project text with fresh globals.
+        pending = [entry for entry in self.components.entries if (for_udf and runtime.udf_refresh) or
+                   (entry.pending and (entry.compile_invalidated or runtime.modules.get(entry.name.casefold()) not in runtime.executed_modules))]
         if pending:
             # Install the whole parsed set before binding documents, so
             # document declarations can reference classes added afterward.
@@ -136,6 +146,8 @@ class VBProject(VBAObject):
         for entry in pending:
             entry.pending = False
             entry.compile_invalidated = False
+        if for_udf:
+            runtime.udf_refresh = False
 
 
 class VBComponents(VBACollection):
@@ -224,6 +236,7 @@ class VBComponents(VBACollection):
         component.invalidated = True
         book = self.project.book
         if book.project_runtime is not None:
+            _udf_changed(book, component.name, removed=True)
             book.project_runtime.modules.pop(component.name.casefold(), None)
         book.deleted_document_names.add(component.name)
         book.saved = False
@@ -312,6 +325,8 @@ class VBComponent(VBAObject):
         self.source = re.sub(r'(?m)^(Attribute VB_Name\s*=\s*)"[^"]*"', lambda match: match.group(1) + '"' + name + '"', self.source)
         self.pending = True
         self.compile_invalidated = True
+        if book.project_runtime is not None:
+            _udf_changed(book, name)
         book.saved = False
 
     @member
@@ -363,6 +378,9 @@ class CodeModule(VBAObject):
         header = editor_source_parts(self.component.source)[0]
         source = header + '\r\n'.join(lines)
         if source != self.component.source or lines != self.lines():
+            runtime = self.component.project.book.project_runtime
+            if runtime is not None:
+                _udf_changed(self.component.project.book, self.component.name)
             self.editor_lines = list(lines)
             self.component.source = source
             self.component.pending = True

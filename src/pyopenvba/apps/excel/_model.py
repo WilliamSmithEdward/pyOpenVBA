@@ -1847,8 +1847,8 @@ class Range(ExcelObject):
 
     @member
     def Text(self) -> object:
-        # Reading what a cell shows calculates it first, as looking at
-        # one in Excel does; read raw, since a Date too large to hold still shows.
+        # Read the current value (the cache in manual mode) before formatting;
+        # read raw, since a Date too large to hold still shows.
         self._read(self.first.top, self.first.left, raw=True)
         cell = self.sheet.cell(self.first.top, self.first.left)
         if cell is None:
@@ -4187,7 +4187,7 @@ def _display_text(cell: Cell, characters: float) -> str:
     from pyopenvba.formula._values import ExcelError
 
     value = cell.value.serial if isinstance(cell.value, VBADate) else cell.value
-    if cell.stale or value is EMPTY:
+    if value is EMPTY:
         return ""
     if isinstance(value, ExcelError):
         return value.name

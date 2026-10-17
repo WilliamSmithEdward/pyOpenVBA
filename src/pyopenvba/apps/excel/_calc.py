@@ -373,6 +373,16 @@ class Calculator:
     def has_volatile_udfs(self) -> bool:
         return bool(self._volatile_udfs)
 
+    @property
+    def has_pending_udfs(self) -> bool:
+        return any(self.compiled[key].udf_pending for key in self._user_calls)
+
+    def udf_source_changed(self) -> None:
+        """Keep cached results, but reconsider user functions at the next calculation."""
+        self.build()
+        for key in self._user_calls:
+            self.compiled[key].udf_pending = True
+
     def set_udf_volatile(self, sheet: str, row: int, column: int, enabled: bool) -> None:
         key = (sheet.lower(), row, column)
         compiled = self.compiled.get(key)

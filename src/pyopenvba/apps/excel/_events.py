@@ -137,7 +137,8 @@ def recalculated(book: Workbook, *, settled: set[tuple[str, int, int]] | None = 
     them out after each edit, which only shows through this event, so the
     work is done here only when a module is listening for it.
     """
-    if not book.calculator.has_volatile_udfs and (not _on(book) or not _listening_for_calculate(book)):
+    if not (book.calculator.has_volatile_udfs or book.calculator.has_pending_udfs) \
+            and (not _on(book) or not _listening_for_calculate(book)):
         return
     worked = book.calculator.recalculated(settled=settled)
     prior = already_calculated or set()

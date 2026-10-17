@@ -23,6 +23,11 @@ class ExcelInterpreter(Interpreter):
         self.bridge = ExcelBridge(application, workbook)
         super().__init__(self.bridge)
         self.executed_modules: WeakSet[ModuleRuntime] = WeakSet()
+        # Worksheet functions retain edited bindings for the running macro;
+        # subsequent UDF calculation resets the project from its editable text.
+        self.udf_modules: dict[str, ModuleRuntime] = {}
+        self.udf_edited = False
+        self.udf_refresh = False
 
     @contextmanager
     def execution_context(self) -> Generator[None, None, None]:
@@ -46,9 +51,49 @@ class ExcelInterpreter(Interpreter):
 
     def call(self, procedure: A.Procedure, module: ModuleRuntime, args: list[object],
              named: dict[str, object], *, me: object = None, reset_error: bool = True) -> object:
-        with self.execution_context():
-            self.executed_modules.add(module)
-            return super().call(procedure, module, args, named, me=me, reset_error=reset_error)
+        try:
+            with self.execution_context():
+                self.executed_modules.add(module)
+                return super().call(procedure, module, args, named, me=me, reset_error=reset_error)
+        finally:
+            application = self.bridge.application
+            if not application.executing_projects:
+                for book in application.workbooks_.books:
+                    project = book.project_runtime
+                    if isinstance(project, ExcelInterpreter) and project.udf_edited:
+                        project.udf_modules.clear()
+                        project.udf_edited = False
+                        project.udf_refresh = True
+                        book.calculator.udf_source_changed()
+
+    def udf_source_changed(self, name: str, *, removed: bool = False) -> None:
+        """UDF bindings survive source edits until the enclosing macro returns."""
+        key = name.casefold()
+        runtime = self.modules.get(key)
+        active = bool(self.bridge.application.executing_projects)
+        if not active:
+            self.udf_modules.clear()
+            self.udf_refresh = True
+        elif removed:
+            self.udf_modules.pop(key, None)
+        elif runtime is not None and runtime in self.executed_modules:
+            self.udf_modules.setdefault(key, runtime)
+        self.udf_edited |= active
+        if self.bridge.workbook is not None:
+            self.bridge.workbook.calculator.udf_source_changed()
+
+    @contextmanager
+    def udf_bindings(self) -> Generator[None, None, None]:
+        """Call an edited module's old UDF code while its editing macro is active."""
+        if not self.udf_modules:
+            yield
+            return
+        current = self.modules
+        self.modules = {key: self.udf_modules.get(key, module) for key, module in current.items()}
+        try:
+            yield
+        finally:
+            self.modules = current
 
     def add_module(self, source: str, *, name: str = "", kind: str = "standard") -> ModuleRuntime:
         from pyopenvba.apps.excel._documents import materialize
@@ -91,6 +136,7 @@ class ExcelInterpreter(Interpreter):
                         entry.compile_invalidated = False
         if book is not None and (previous is None or previous.parsed.source != runtime.parsed.source):
             book.saved = False
+            book.calculator.udf_source_changed()
         return runtime
 
     def load_project(self, project: VBAProject) -> list[str]:

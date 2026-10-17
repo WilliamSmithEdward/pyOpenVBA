@@ -303,7 +303,9 @@ accept `$`. A conflicting implicit type character fails before the body runs.
 Typed member lookup strips the syntax suffix while preserving ByRef argument
 metadata, array elements and property setters. Object/Variant member access
 ignores the suffix, matching late-bound native dispatch. Literal strings
-passed to `CallByName` retain their exact names. Sixty-nine native controls in
+passed to `CallByName` retain their exact names. `Me` and `With New` also retain
+their declared class context. Member spelling remains intact in unsupported
+operation diagnostics. Seventy-three native controls in
 `type_characters.json`, remeasured by `scripts/measure_type_characters.py`,
 also distinguish measured intrinsic rules: core functions such as CLng and Abs
 can ignore type characters, while Trim/Left require their string suffix and

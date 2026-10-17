@@ -76,6 +76,8 @@ def validate_type_characters(interpreter: Interpreter, module: ModuleRuntime, pr
 
     def name_info(name: str, *, declare: bool) -> Info | None:
         key = strip_suffix(name).lower()
+        if key == 'me' and module.is_class:
+            return module.name, False, module
         if key in local:
             return local[key]
         if key in constants:
@@ -125,6 +127,8 @@ def validate_type_characters(interpreter: Interpreter, module: ModuleRuntime, pr
         return (variables(owner).get(key) or function_info(owner, key)) if owner is not None else None
 
     def visit(value: object, context: Info | None = None, *, callee: bool = False) -> Info | None:
+        if isinstance(value, A.NewExpr):
+            return value.type_name, False, module
         if isinstance(value, A.Name):
             key = strip_suffix(value.name).lower()
             info = name_info(value.name, declare=not callee)

@@ -29,7 +29,7 @@ from weakref import ReferenceType, ref
 from pyopenvba.exceptions import VBACompileError, VBARuntimeError, VBAUnsupportedError
 from pyopenvba.interpreter import _ast as A
 from pyopenvba.interpreter import _flow as F
-from pyopenvba.interpreter._lex import default_type
+from pyopenvba.interpreter._lex import default_type, strip_suffix
 from pyopenvba.interpreter._objects import VBACollection, VBAObject, member, method, setter
 from pyopenvba.interpreter._parse import parse_module
 from pyopenvba.interpreter._values import (
@@ -2153,7 +2153,7 @@ class Interpreter:
             return self._call_name(callee, args, frame, statement_context=statement_context)
         if isinstance(callee, A.Member):
             target = self._member_target(callee, frame)
-            procedure = target.procedure(_bare(callee.name)) if isinstance(target, StandardModuleNamespace) else target.module.procedure(_bare(callee.name)) if isinstance(target, UserClassInstance) else None
+            procedure = target.procedure(strip_suffix(callee.name)) if isinstance(target, StandardModuleNamespace) else target.module.procedure(strip_suffix(callee.name)) if isinstance(target, UserClassInstance) else None
             positional, named = self._arguments(args, frame, procedure=procedure, target=target, name=callee.name)
             return _dispatch_get(target, callee.name, positional, named)
         if isinstance(callee, A.Index):
@@ -2316,7 +2316,7 @@ class Interpreter:
                     indices, _ = self._arguments(expression.args, frame)
                     value = ArrayElementSlot(array, [int(to_integer(one, 'Long')) for one in indices])
                 elif owner is not None and isinstance(expression.target, A.Member):
-                    procedure = owner.procedure(_bare(expression.target.name)) if isinstance(owner, StandardModuleNamespace) else owner.module.procedure(_bare(expression.target.name)) if isinstance(owner, UserClassInstance) else None
+                    procedure = owner.procedure(strip_suffix(expression.target.name)) if isinstance(owner, StandardModuleNamespace) else owner.module.procedure(strip_suffix(expression.target.name)) if isinstance(owner, UserClassInstance) else None
                     positional_inner, named_inner = self._arguments(expression.args, frame, procedure=procedure)
                     value = _dispatch_get(owner, expression.target.name, positional_inner, named_inner)
                 else:
@@ -2330,7 +2330,7 @@ class Interpreter:
         return positional, named
 
     def member_variable(self, owner: object, name: str, frame: Frame | None) -> Slot | None:
-        name = _bare(name)
+        name = strip_suffix(name)
         if isinstance(owner, StandardModuleNamespace):
             return owner.variable(name)
         if isinstance(owner, UserTypeValue):
@@ -2736,8 +2736,6 @@ def _declared_kind(declared: str) -> str:
 
 
 def _bare(name: str) -> str:
-    from pyopenvba.interpreter._lex import strip_suffix
-
     return strip_suffix(name).lower()
 
 
@@ -2777,7 +2775,7 @@ def _scalar(value: object) -> object:
 
 
 def _dispatch_get(target: object, name: str, args: list[object], named: dict[str, object]) -> object:
-    name = _bare(name)
+    name = strip_suffix(name)
     if isinstance(target, VBAObject):
         return target.vba_get(name, args, named)
     if target is NOTHING:
@@ -2788,7 +2786,7 @@ def _dispatch_get(target: object, name: str, args: list[object], named: dict[str
 def _dispatch_set(
     target: object, name: str, value: object, args: list[object], named: dict[str, object], by_ref: bool
 ) -> None:
-    name = _bare(name)
+    name = strip_suffix(name)
     if isinstance(target, VBAObject):
         target.vba_set(name, value, args, named, by_ref=by_ref)
         return

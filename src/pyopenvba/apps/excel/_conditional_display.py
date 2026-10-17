@@ -95,6 +95,18 @@ class _DisplayFont(formats.Font):
     def guard_set(self, member: str) -> None:
         formats.Font(self.original).guard_set(member)
 
+    def _read(self, get: Callable[[styles.Font], object]) -> object:
+        from pyopenvba.apps.excel._conditional_stats import conditional_read
+
+        with conditional_read():
+            return super()._read(get)
+
+    def _color(self, what: str) -> object:
+        from pyopenvba.apps.excel._conditional_stats import conditional_read
+
+        with conditional_read():
+            return super()._color(what)
+
     def _write(self, change: Callable[[styles.Font], styles.Font]) -> None:
         # Native DisplayFormat.Font setters change the underlying Font while
         # matching conditional rules continue to control what is displayed.
@@ -117,6 +129,12 @@ class _DisplayInterior(formats.Interior):
 
     def guard_set(self, member: str) -> None:
         raise error(1004)
+
+    def _fills(self) -> list[styles.Fill]:
+        from pyopenvba.apps.excel._conditional_stats import conditional_read
+
+        with conditional_read():
+            return super()._fills()
 
     def _write(self, change: Callable[[styles.Fill], styles.Fill]) -> None:
         raise error(1004)
@@ -143,6 +161,12 @@ class _DisplayBorder(formats.Border):
         raise error(1004)
 
     def sides(self) -> list[styles.Side]:
+        from pyopenvba.apps.excel._conditional_stats import conditional_read
+
+        with conditional_read():
+            return self._sides()
+
+    def _sides(self) -> list[styles.Side]:
         area = self.original.first
         if self.index in (5, 6):
             # Diagonals belong to each cell, not its right-hand edge. Distinct
@@ -196,6 +220,12 @@ class _DisplayBorders(formats.Borders):
         return _DisplayBorder(self.target, aliases[number])
 
     def _all(self, what: str) -> object:
+        from pyopenvba.apps.excel._conditional_stats import conditional_read
+
+        with conditional_read():
+            return self._read_all(what)
+
+    def _read_all(self, what: str) -> object:
         colors = self.target.sheet.book.stylesheet.colors
         found = formats.uniform(formats.side_answer(colors, side, what) for index in self._indexes()
                           for side in _DisplayBorder(self.target, index).sides())

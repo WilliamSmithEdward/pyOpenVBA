@@ -63,7 +63,7 @@ def bound_classes() -> dict[str, type]:
                 continue
             if module is _pivots and cls.__name__ == '_Collection':
                 continue
-            if module is _conditional_display and cls.__name__.startswith('_'):
+            if module in (_conditional, _conditional_display) and cls.__name__.startswith('_'):
                 continue
             if not issubclass(cls, VBAObject) or not cls._vba_members:
                 continue

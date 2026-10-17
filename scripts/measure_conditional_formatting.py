@@ -1,4 +1,4 @@
-"""Reproduce independent native conditional-formatting API controls."""
+"""Reproduce native controls; ChrW keeps non-ASCII text out of VBE source conversion."""
 from __future__ import annotations
 
 import datetime as dt
@@ -19,6 +19,7 @@ def main() -> None:
         for path in sorted(directory.glob('*.json')):
             record = json.loads(path.read_text(encoding='utf-8'))
             for case in record['probes']:
+                assert case['source'].isascii(), (case['name'], 'Use ChrW UTF-16 units for non-ASCII VBA strings')
                 excel.new_document()
                 result = excel.run_vba(case['source'], 'Probe', line_numbers=False)
                 assert result.ok and not result.dialogs and result.value == case['result'], (case['name'], result)

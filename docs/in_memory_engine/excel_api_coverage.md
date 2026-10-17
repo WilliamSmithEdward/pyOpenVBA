@@ -2,7 +2,7 @@
 
 Snapshot: **17 October 2026**, covering the current source tree, including the
 worksheet-source PivotCache creation, compact PivotTable axes, and ordinary
-conditional formatting rules and display evaluation. This is a functionality summary for the
+conditional formatting rules, statistical rule APIs and display evaluation. This is a functionality summary for the
 in-memory Excel engine. **No functional area is complete yet.** Common worksheet
 operations have substantially more support than advanced Excel automation.
 
@@ -30,7 +30,7 @@ is a percentage of working macros or complete functionality.
 | Formulas and calculation | Partial | 388 / 463 | 0 | Broad worksheet-function exposure, dependency calculation, UDFs, arrays and calculation modes. Registered functions still need behavioral audits; remaining functions and Excel numerical edge cases are incomplete. |
 | Defined names | Partial | 15 / 30 | 0 | Workbook/sheet names and reference evaluation. Full expression, relative-reference, external-reference and lifecycle behavior remains incomplete. |
 | Cell formatting and styles | Partial | 103 / 206 | 20 | Fonts, fills, borders, number formats, alignment and named styles. Ordinary conditional DisplayFormat views are supported. Rich text, gradients, advanced display formats and remaining formatting APIs need work. |
-| Conditional formatting | Partial | 22 / 212 | 0 | Ordinary cell-value/expression rules, priorities, applicability ranges, differential styles, displayed formatting and conditional number formats. Native controls cover relative formulas, rule composition, clear and worksheet copy. Advanced rule families, range copy/paste and structural edits remain incomplete. |
+| Conditional formatting | Partial | 73 / 212 | 0 | Cell-value/expression, top/bottom, above/below average/deviation and duplicate/unique rules, with specialized objects, lifecycle, differential styles, displayed formatting and conditional number formats. Native controls cover typed populations, ties, criteria, relative formulas, priorities, copying and persistence. Text/time predicates, color scales, bars, icon sets, pivot scopes and affected range transfers/structural edits remain incomplete. |
 | Excel tables | Partial | 45 / 155 | 25 | ListObjects, rows/columns, structured references, resizing and totals. Table-style objects and broader table-operation fidelity remain incomplete. |
 | Sorting, filtering and outlines | Partial | 28 / 66 | 6 | Common sorts and AutoFilter operations. Advanced criteria, sort variants and outline/grouping APIs remain incomplete. |
 | Data validation | Partial | 19 / 21 | 14 | Validation rules, formulas, input/error messages and persistence. Remaining members and full rule/error behavior need auditing. |
@@ -47,7 +47,7 @@ is a percentage of working macros or complete functionality.
 | Printing and publishing | Missing | 0 / 152 | 0 | No full PageSetup, print rendering, page-break or publishing automation. |
 | Add-ins and embedded automation | Missing | 0 / 124 | 0 | No full Excel AddIns, embedded OLE/ActiveX or external automation-host implementation. |
 | Legacy features and utilities | Missing | 0 / 386 | 0 | Legacy menus/toolbars, dialog/module-sheet utilities, SmartTags, scenarios and assorted web/research services remain. |
-| **Total** | **Incomplete** | **1,098 / 7,542** | **148** | **14.6% of reference members have registrations; 2.0% are checklist-verified. These are API inventory ratios, not compatibility scores.** |
+| **Total** | **Incomplete** | **1,149 / 7,542** | **148** | **15.2% of reference members have registrations; 2.0% are checklist-verified. These are API inventory ratios, not compatibility scores.** |
 
 † Excel events use the interpreter's event dispatcher and sinks rather than
 ordinary registered object members. The registration counter therefore does not
@@ -154,6 +154,28 @@ need auditing. See
 [native controls](../../tests/fixtures/conditional) and their
 [replay script](../../scripts/measure_conditional_formatting.py).
 
+Statistical conditional rules expose native Top10, AboveAverage and UniqueValues
+objects, including top/bottom percentages, ties, inclusive average/deviation
+boundaries and duplicate/unique selection. Native controls establish numeric,
+logical, error, text, empty-string and blank distinctions, disjoint/overlapping
+areas, hidden rows, 15-digit numeric comparisons and asymmetric wildcard criteria.
+Lossless `ChrW` controls distinguish ordinary canonical Unicode equality from
+wildcard matching over raw UTF-16 units. Measurement sources stay ASCII so the
+VBA editor's source-code conversion cannot silently change the input text.
+Measured numeric-text/date parsing and linguistic comparisons do not establish
+complete locale fidelity. Macro-free native samples test imports; generated
+workbooks test native rule inspection and displayed formats after copying.
+Population summaries are shared within one range-property read and discarded
+afterward, so later edits cannot reuse an old summary. Sparse whole-column rules
+count blank partners analytically. Each distinct wildcard query can still scan
+the text population, and repeated scalar queries can rebuild summaries. Pivot
+scopes and recursive or rule-mutating statistical reads are explicitly unsupported.
+See [API tests](../../tests/test_excel_conditional_statistics.py),
+[statistical evaluator tests](../../tests/test_excel_conditional_stats_eval.py),
+[native import tests](../../tests/test_excel_conditional_statistics_native_import.py),
+[copy tests](../../tests/test_excel_conditional_statistics_copy.py) and
+[population-read tests](../../tests/test_excel_conditional_statistics_reads.py).
+
 ## Inventory scope and maintenance
 
 The reference is the Microsoft Excel 16.0 object-library dump in
@@ -165,8 +187,8 @@ counts unique member names per remaining type. Every remaining type is assigned
 to one functional area. Properties, methods and events count as member names;
 enum constants are outside this table.
 
-The checklist contains **2,642 entries across 65 implemented model types**:
-148 verified, 528 partial, 426 unassessed, 1,537 missing and 3 excluded. Its 1,102
+The checklist contains **2,701 entries across 68 implemented model types**:
+148 verified, 579 partial, 426 unassessed, 1,545 missing and 3 excluded. Its 1,153
 registered entries include four helpers/entries without a matching reference
 member; the table's numerator excludes those four. Entirely unimplemented types
 are included in this table's denominator even though they are absent from the

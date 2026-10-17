@@ -1,0 +1,261 @@
+{
+  "measured_at": "2026-10-17T17:32:44.944818+00:00",
+  "instrumentation": "none; line_numbers=False",
+  "probes": [
+    {
+      "name": "duplicate-greater",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").NumberFormat=\"@\"\nRange(\"A1\").Value=\">0\"\nRange(\"A2\").Value=1\nRange(\"A3\").Value=2\nSet f=Range(\"A1:A3\").FormatConditions.AddUniqueValues\nf.DupeUnique=1\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A3\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "000",
+      "inspection_range": "Range(\"A1:A3\")"
+    },
+    {
+      "name": "duplicate-greater-equal",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").NumberFormat=\"@\"\nRange(\"A1\").Value=\">=1\"\nRange(\"A2\").Value=1\nRange(\"A3\").Value=2\nSet f=Range(\"A1:A3\").FormatConditions.AddUniqueValues\nf.DupeUnique=1\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A3\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "000",
+      "inspection_range": "Range(\"A1:A3\")"
+    },
+    {
+      "name": "duplicate-less",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").NumberFormat=\"@\"\nRange(\"A1\").Value=\"<2\"\nRange(\"A2\").Value=0\nRange(\"A3\").Value=1\nSet f=Range(\"A1:A3\").FormatConditions.AddUniqueValues\nf.DupeUnique=1\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A3\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "000",
+      "inspection_range": "Range(\"A1:A3\")"
+    },
+    {
+      "name": "duplicate-not-equal",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").NumberFormat=\"@\"\nRange(\"A1\").Value=\"<>x\"\nRange(\"A2\").NumberFormat=\"@\"\nRange(\"A2\").Value=\"y\"\nRange(\"A3\").NumberFormat=\"@\"\nRange(\"A3\").Value=\"z\"\nSet f=Range(\"A1:A3\").FormatConditions.AddUniqueValues\nf.DupeUnique=1\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A3\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "000",
+      "inspection_range": "Range(\"A1:A3\")"
+    },
+    {
+      "name": "duplicate-equal-text",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").NumberFormat=\"@\"\nRange(\"A1\").Value=\"=abc\"\nRange(\"A2\").NumberFormat=\"@\"\nRange(\"A2\").Value=\"abc\"\nRange(\"A3\").NumberFormat=\"@\"\nRange(\"A3\").Value=\"ABC\"\nSet f=Range(\"A1:A3\").FormatConditions.AddUniqueValues\nf.DupeUnique=1\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A3\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "011",
+      "inspection_range": "Range(\"A1:A3\")"
+    },
+    {
+      "name": "duplicate-not-empty",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").NumberFormat=\"@\"\nRange(\"A1\").Value=\"<>\"\nRange(\"A2\").NumberFormat=\"@\"\nRange(\"A2\").Value=\"foo\"\nRange(\"A3\").NumberFormat=\"@\"\nRange(\"A3\").Value=\"bar\"\nSet f=Range(\"A1:A3\").FormatConditions.AddUniqueValues\nf.DupeUnique=1\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A3\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "000",
+      "inspection_range": "Range(\"A1:A3\")"
+    },
+    {
+      "name": "duplicate-empty",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").NumberFormat=\"@\"\nRange(\"A1\").Value=\"=\"\nRange(\"A3\").Formula=\"=\"\"\"\"\"\nSet f=Range(\"A1:A3\").FormatConditions.AddUniqueValues\nf.DupeUnique=1\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A3\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "001",
+      "inspection_range": "Range(\"A1:A3\")"
+    },
+    {
+      "name": "duplicate-numeric-errors",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").NumberFormat=\"@\"\nRange(\"A1\").Value=\">=0\"\nRange(\"A2\").Value=CVErr(2042)\nRange(\"A3\").Value=0\nRange(\"A4\").Value=1\nSet f=Range(\"A1:A4\").FormatConditions.AddUniqueValues\nf.DupeUnique=1\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A4\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "0000",
+      "inspection_range": "Range(\"A1:A4\")"
+    },
+    {
+      "name": "duplicate-error-equal",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").NumberFormat=\"@\"\nRange(\"A1\").Value=\"=#N/A\"\nRange(\"A2\").Value=CVErr(2042)\nRange(\"A3\").Value=CVErr(2042)\nSet f=Range(\"A1:A3\").FormatConditions.AddUniqueValues\nf.DupeUnique=1\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A3\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "011",
+      "inspection_range": "Range(\"A1:A3\")"
+    },
+    {
+      "name": "duplicate-error-text",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").Value=CVErr(2042)\nRange(\"A2\").NumberFormat=\"@\"\nRange(\"A2\").Value=\"#N/A\"\nSet f=Range(\"A1:A2\").FormatConditions.AddUniqueValues\nf.DupeUnique=1\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A2\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "00",
+      "inspection_range": "Range(\"A1:A2\")"
+    },
+    {
+      "name": "duplicate-error-different",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").Value=CVErr(2042)\nRange(\"A2\").NumberFormat=\"@\"\nRange(\"A2\").Value=\"#DIV/0!\"\nSet f=Range(\"A1:A2\").FormatConditions.AddUniqueValues\nf.DupeUnique=1\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A2\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "00",
+      "inspection_range": "Range(\"A1:A2\")"
+    },
+    {
+      "name": "duplicate-numeric-equal",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").NumberFormat=\"@\"\nRange(\"A1\").Value=\"=1\"\nRange(\"A2\").Value=1\nRange(\"A3\").NumberFormat=\"@\"\nRange(\"A3\").Value=\"1\"\nSet f=Range(\"A1:A3\").FormatConditions.AddUniqueValues\nf.DupeUnique=1\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A3\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "011",
+      "inspection_range": "Range(\"A1:A3\")"
+    },
+    {
+      "name": "duplicate-numeric-not-equal",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").NumberFormat=\"@\"\nRange(\"A1\").Value=\"<>1\"\nRange(\"A2\").Value=2\nRange(\"A3\").Value=3\nSet f=Range(\"A1:A3\").FormatConditions.AddUniqueValues\nf.DupeUnique=1\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A3\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "000",
+      "inspection_range": "Range(\"A1:A3\")"
+    },
+    {
+      "name": "duplicate-escaped-greater",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").NumberFormat=\"@\"\nRange(\"A1\").Value=\"~>0\"\nRange(\"A2\").NumberFormat=\"@\"\nRange(\"A2\").Value=\">0\"\nRange(\"A3\").NumberFormat=\"@\"\nRange(\"A3\").Value=\">0\"\nSet f=Range(\"A1:A3\").FormatConditions.AddUniqueValues\nf.DupeUnique=1\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A3\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "011",
+      "inspection_range": "Range(\"A1:A3\")"
+    },
+    {
+      "name": "duplicate-tilde",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").NumberFormat=\"@\"\nRange(\"A1\").Value=\"~\"\nRange(\"A2\").NumberFormat=\"@\"\nRange(\"A2\").Value=\"~\"\nSet f=Range(\"A1:A2\").FormatConditions.AddUniqueValues\nf.DupeUnique=1\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A2\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "11",
+      "inspection_range": "Range(\"A1:A2\")"
+    },
+    {
+      "name": "duplicate-escaped-tilde",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").NumberFormat=\"@\"\nRange(\"A1\").Value=\"~~\"\nRange(\"A2\").NumberFormat=\"@\"\nRange(\"A2\").Value=\"~\"\nSet f=Range(\"A1:A2\").FormatConditions.AddUniqueValues\nf.DupeUnique=1\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A2\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "00",
+      "inspection_range": "Range(\"A1:A2\")"
+    },
+    {
+      "name": "duplicate-tilde-before-letter",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").NumberFormat=\"@\"\nRange(\"A1\").Value=\"~a\"\nRange(\"A2\").NumberFormat=\"@\"\nRange(\"A2\").Value=\"a\"\nRange(\"A3\").NumberFormat=\"@\"\nRange(\"A3\").Value=\"a\"\nSet f=Range(\"A1:A3\").FormatConditions.AddUniqueValues\nf.DupeUnique=1\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A3\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "011",
+      "inspection_range": "Range(\"A1:A3\")"
+    },
+    {
+      "name": "duplicate-wildcard-only",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").NumberFormat=\"@\"\nRange(\"A1\").Value=\"*\"\nRange(\"A2\").NumberFormat=\"@\"\nRange(\"A2\").Value=\"abc\"\nRange(\"A3\").NumberFormat=\"@\"\nRange(\"A3\").Value=\"def\"\nSet f=Range(\"A1:A3\").FormatConditions.AddUniqueValues\nf.DupeUnique=1\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A3\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "100",
+      "inspection_range": "Range(\"A1:A3\")"
+    },
+    {
+      "name": "duplicate-equal-wildcard",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").NumberFormat=\"@\"\nRange(\"A1\").Value=\"=a*\"\nRange(\"A2\").NumberFormat=\"@\"\nRange(\"A2\").Value=\"abc\"\nRange(\"A3\").NumberFormat=\"@\"\nRange(\"A3\").Value=\"abd\"\nSet f=Range(\"A1:A3\").FormatConditions.AddUniqueValues\nf.DupeUnique=1\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A3\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "100",
+      "inspection_range": "Range(\"A1:A3\")"
+    },
+    {
+      "name": "duplicate-not-wildcard",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").NumberFormat=\"@\"\nRange(\"A1\").Value=\"<>a*\"\nRange(\"A2\").NumberFormat=\"@\"\nRange(\"A2\").Value=\"abc\"\nRange(\"A3\").NumberFormat=\"@\"\nRange(\"A3\").Value=\"xyz\"\nSet f=Range(\"A1:A3\").FormatConditions.AddUniqueValues\nf.DupeUnique=1\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A3\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "100",
+      "inspection_range": "Range(\"A1:A3\")"
+    },
+    {
+      "name": "duplicate-comparison-wildcard",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").NumberFormat=\"@\"\nRange(\"A1\").Value=\">a*\"\nRange(\"A2\").NumberFormat=\"@\"\nRange(\"A2\").Value=\"abc\"\nRange(\"A3\").NumberFormat=\"@\"\nRange(\"A3\").Value=\"xyz\"\nSet f=Range(\"A1:A3\").FormatConditions.AddUniqueValues\nf.DupeUnique=1\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A3\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "100",
+      "inspection_range": "Range(\"A1:A3\")"
+    },
+    {
+      "name": "unique-greater",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").NumberFormat=\"@\"\nRange(\"A1\").Value=\">0\"\nRange(\"A2\").Value=1\nRange(\"A3\").Value=2\nSet f=Range(\"A1:A3\").FormatConditions.AddUniqueValues\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A3\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "111",
+      "inspection_range": "Range(\"A1:A3\")"
+    },
+    {
+      "name": "unique-greater-equal",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").NumberFormat=\"@\"\nRange(\"A1\").Value=\">=1\"\nRange(\"A2\").Value=1\nRange(\"A3\").Value=2\nSet f=Range(\"A1:A3\").FormatConditions.AddUniqueValues\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A3\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "111",
+      "inspection_range": "Range(\"A1:A3\")"
+    },
+    {
+      "name": "unique-less",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").NumberFormat=\"@\"\nRange(\"A1\").Value=\"<2\"\nRange(\"A2\").Value=0\nRange(\"A3\").Value=1\nSet f=Range(\"A1:A3\").FormatConditions.AddUniqueValues\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A3\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "111",
+      "inspection_range": "Range(\"A1:A3\")"
+    },
+    {
+      "name": "unique-not-equal",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").NumberFormat=\"@\"\nRange(\"A1\").Value=\"<>x\"\nRange(\"A2\").NumberFormat=\"@\"\nRange(\"A2\").Value=\"y\"\nRange(\"A3\").NumberFormat=\"@\"\nRange(\"A3\").Value=\"z\"\nSet f=Range(\"A1:A3\").FormatConditions.AddUniqueValues\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A3\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "111",
+      "inspection_range": "Range(\"A1:A3\")"
+    },
+    {
+      "name": "unique-equal-text",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").NumberFormat=\"@\"\nRange(\"A1\").Value=\"=abc\"\nRange(\"A2\").NumberFormat=\"@\"\nRange(\"A2\").Value=\"abc\"\nRange(\"A3\").NumberFormat=\"@\"\nRange(\"A3\").Value=\"ABC\"\nSet f=Range(\"A1:A3\").FormatConditions.AddUniqueValues\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A3\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "100",
+      "inspection_range": "Range(\"A1:A3\")"
+    },
+    {
+      "name": "unique-not-empty",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").NumberFormat=\"@\"\nRange(\"A1\").Value=\"<>\"\nRange(\"A2\").NumberFormat=\"@\"\nRange(\"A2\").Value=\"foo\"\nRange(\"A3\").NumberFormat=\"@\"\nRange(\"A3\").Value=\"bar\"\nSet f=Range(\"A1:A3\").FormatConditions.AddUniqueValues\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A3\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "111",
+      "inspection_range": "Range(\"A1:A3\")"
+    },
+    {
+      "name": "unique-empty",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").NumberFormat=\"@\"\nRange(\"A1\").Value=\"=\"\nRange(\"A3\").Formula=\"=\"\"\"\"\"\nSet f=Range(\"A1:A3\").FormatConditions.AddUniqueValues\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A3\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "100",
+      "inspection_range": "Range(\"A1:A3\")"
+    },
+    {
+      "name": "unique-numeric-errors",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").NumberFormat=\"@\"\nRange(\"A1\").Value=\">=0\"\nRange(\"A2\").Value=CVErr(2042)\nRange(\"A3\").Value=0\nRange(\"A4\").Value=1\nSet f=Range(\"A1:A4\").FormatConditions.AddUniqueValues\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A4\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "1111",
+      "inspection_range": "Range(\"A1:A4\")"
+    },
+    {
+      "name": "unique-error-equal",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").NumberFormat=\"@\"\nRange(\"A1\").Value=\"=#N/A\"\nRange(\"A2\").Value=CVErr(2042)\nRange(\"A3\").Value=CVErr(2042)\nSet f=Range(\"A1:A3\").FormatConditions.AddUniqueValues\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A3\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "100",
+      "inspection_range": "Range(\"A1:A3\")"
+    },
+    {
+      "name": "unique-error-text",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").Value=CVErr(2042)\nRange(\"A2\").NumberFormat=\"@\"\nRange(\"A2\").Value=\"#N/A\"\nSet f=Range(\"A1:A2\").FormatConditions.AddUniqueValues\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A2\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "11",
+      "inspection_range": "Range(\"A1:A2\")"
+    },
+    {
+      "name": "unique-error-different",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").Value=CVErr(2042)\nRange(\"A2\").NumberFormat=\"@\"\nRange(\"A2\").Value=\"#DIV/0!\"\nSet f=Range(\"A1:A2\").FormatConditions.AddUniqueValues\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A2\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "11",
+      "inspection_range": "Range(\"A1:A2\")"
+    },
+    {
+      "name": "unique-numeric-equal",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").NumberFormat=\"@\"\nRange(\"A1\").Value=\"=1\"\nRange(\"A2\").Value=1\nRange(\"A3\").NumberFormat=\"@\"\nRange(\"A3\").Value=\"1\"\nSet f=Range(\"A1:A3\").FormatConditions.AddUniqueValues\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A3\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "100",
+      "inspection_range": "Range(\"A1:A3\")"
+    },
+    {
+      "name": "unique-numeric-not-equal",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").NumberFormat=\"@\"\nRange(\"A1\").Value=\"<>1\"\nRange(\"A2\").Value=2\nRange(\"A3\").Value=3\nSet f=Range(\"A1:A3\").FormatConditions.AddUniqueValues\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A3\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "111",
+      "inspection_range": "Range(\"A1:A3\")"
+    },
+    {
+      "name": "unique-escaped-greater",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").NumberFormat=\"@\"\nRange(\"A1\").Value=\"~>0\"\nRange(\"A2\").NumberFormat=\"@\"\nRange(\"A2\").Value=\">0\"\nRange(\"A3\").NumberFormat=\"@\"\nRange(\"A3\").Value=\">0\"\nSet f=Range(\"A1:A3\").FormatConditions.AddUniqueValues\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A3\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "100",
+      "inspection_range": "Range(\"A1:A3\")"
+    },
+    {
+      "name": "unique-tilde",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").NumberFormat=\"@\"\nRange(\"A1\").Value=\"~\"\nRange(\"A2\").NumberFormat=\"@\"\nRange(\"A2\").Value=\"~\"\nSet f=Range(\"A1:A2\").FormatConditions.AddUniqueValues\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A2\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "00",
+      "inspection_range": "Range(\"A1:A2\")"
+    },
+    {
+      "name": "unique-escaped-tilde",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").NumberFormat=\"@\"\nRange(\"A1\").Value=\"~~\"\nRange(\"A2\").NumberFormat=\"@\"\nRange(\"A2\").Value=\"~\"\nSet f=Range(\"A1:A2\").FormatConditions.AddUniqueValues\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A2\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "11",
+      "inspection_range": "Range(\"A1:A2\")"
+    },
+    {
+      "name": "unique-tilde-before-letter",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").NumberFormat=\"@\"\nRange(\"A1\").Value=\"~a\"\nRange(\"A2\").NumberFormat=\"@\"\nRange(\"A2\").Value=\"a\"\nRange(\"A3\").NumberFormat=\"@\"\nRange(\"A3\").Value=\"a\"\nSet f=Range(\"A1:A3\").FormatConditions.AddUniqueValues\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A3\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "100",
+      "inspection_range": "Range(\"A1:A3\")"
+    },
+    {
+      "name": "unique-wildcard-only",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").NumberFormat=\"@\"\nRange(\"A1\").Value=\"*\"\nRange(\"A2\").NumberFormat=\"@\"\nRange(\"A2\").Value=\"abc\"\nRange(\"A3\").NumberFormat=\"@\"\nRange(\"A3\").Value=\"def\"\nSet f=Range(\"A1:A3\").FormatConditions.AddUniqueValues\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A3\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "011",
+      "inspection_range": "Range(\"A1:A3\")"
+    },
+    {
+      "name": "unique-equal-wildcard",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").NumberFormat=\"@\"\nRange(\"A1\").Value=\"=a*\"\nRange(\"A2\").NumberFormat=\"@\"\nRange(\"A2\").Value=\"abc\"\nRange(\"A3\").NumberFormat=\"@\"\nRange(\"A3\").Value=\"abd\"\nSet f=Range(\"A1:A3\").FormatConditions.AddUniqueValues\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A3\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "011",
+      "inspection_range": "Range(\"A1:A3\")"
+    },
+    {
+      "name": "unique-not-wildcard",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").NumberFormat=\"@\"\nRange(\"A1\").Value=\"<>a*\"\nRange(\"A2\").NumberFormat=\"@\"\nRange(\"A2\").Value=\"abc\"\nRange(\"A3\").NumberFormat=\"@\"\nRange(\"A3\").Value=\"xyz\"\nSet f=Range(\"A1:A3\").FormatConditions.AddUniqueValues\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A3\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "011",
+      "inspection_range": "Range(\"A1:A3\")"
+    },
+    {
+      "name": "unique-comparison-wildcard",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").NumberFormat=\"@\"\nRange(\"A1\").Value=\">a*\"\nRange(\"A2\").NumberFormat=\"@\"\nRange(\"A2\").Value=\"abc\"\nRange(\"A3\").NumberFormat=\"@\"\nRange(\"A3\").Value=\"xyz\"\nSet f=Range(\"A1:A3\").FormatConditions.AddUniqueValues\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A3\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "011",
+      "inspection_range": "Range(\"A1:A3\")"
+    }
+  ],
+  "excel_version_build": "16.0|20430",
+  "source_transport": "ASCII VBA; non-ASCII text constructed with ChrW UTF-16 units",
+  "remeasured_at": "2026-10-17T17:28:28.204665+00:00"
+}

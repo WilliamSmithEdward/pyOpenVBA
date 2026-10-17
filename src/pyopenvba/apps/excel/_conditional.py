@@ -235,11 +235,15 @@ def _made(target: Range, Type: object, Operator: object, Formula1: object, Formu
     if Type is MISSING:
         raise error(449)
     kind = int(to_integer(Type, 'Long'))
+    if kind in (5, 8, 12):
+        attributes = {5: {'type': 'top10', 'rank': '10'}, 8: {'type': 'uniqueValues'},
+                      12: {'type': 'aboveAverage', 'stopIfTrue': '1'}}[kind]
+        return XmlElement(NS + 'cfRule', attributes)
     if kind not in (1, 2):
         if kind in (3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 16, 17):
             raise VBAUnsupportedError('This conditional formatting rule type is not implemented')
         raise error(5)
-    attributes = {'type': 'cellIs' if kind == 1 else 'expression'}
+    attributes = {'type': 'cellIs' if kind == 1 else 'expression', 'stopIfTrue': '1'}
     count = 1
     if kind == 1:
         if Operator is MISSING:
@@ -271,7 +275,7 @@ class FormatConditions(VBACollection, ExcelObject):
     def vba_items(self) -> list[object]:
         rules = [rule for rule in self.sheet.conditional_formats if not rule.deleted
                  and any(_meets(one, area) for one in rule.areas for area in self.target.areas)]
-        return [FormatCondition(self.sheet, rule) for rule in sorted(rules, key=_priority)]
+        return [_wrapper(self.sheet, rule) for rule in sorted(rules, key=_priority)]
 
     def vba_lookup(self, index: object, items: list[object]) -> object:
         position = int(to_integer(index, 'Long'))
@@ -288,12 +292,29 @@ class FormatConditions(VBACollection, ExcelObject):
             Formula2: object = MISSING) -> object:
         _guard(self.sheet)
         root = _made(self.target, Type, Operator, Formula1, Formula2)
+        return self._append(root)
+
+    def _append(self, root: XmlElement) -> object:
         root.set('priority', str(max((_priority(rule) for rule in self.sheet.conditional_formats), default=0) + 1))
-        root.set('stopIfTrue', '1')
         rule = Rule([Area(area.top, area.left, area.bottom, area.right) for area in self.target.areas], root)
         self.sheet.conditional_formats.append(rule)
         _changed(self.sheet)
-        return FormatCondition(self.sheet, rule)
+        return _wrapper(self.sheet, rule)
+
+    @method
+    def AddTop10(self) -> object:
+        _guard(self.sheet)
+        return self._append(_made(self.target, 5, MISSING, MISSING, MISSING))
+
+    @method
+    def AddAboveAverage(self) -> object:
+        _guard(self.sheet)
+        return self._append(_made(self.target, 12, MISSING, MISSING, MISSING))
+
+    @method
+    def AddUniqueValues(self) -> object:
+        _guard(self.sheet)
+        return self._append(_made(self.target, 8, MISSING, MISSING, MISSING))
 
     @method
     def Delete(self) -> object:
@@ -302,8 +323,8 @@ class FormatConditions(VBACollection, ExcelObject):
         return EMPTY
 
 
-class FormatCondition(ExcelObject):
-    vba_type_name = 'FormatCondition'
+class _ConditionalRule(ExcelObject):
+    vba_type_name = ''
 
     def __init__(self, sheet: Worksheet, rule: Rule) -> None:
         self.sheet, self.rule = sheet, rule
@@ -312,32 +333,6 @@ class FormatCondition(ExcelObject):
     def Parent(self) -> object:
         return self.AppliesTo()
 
-    @member
-    def Type(self) -> object:
-        kind = self.rule.root.get('type', '')
-        if kind not in ('cellIs', 'expression'):
-            raise VBAUnsupportedError('This conditional formatting rule type is not implemented')
-        return VBAInt(1 if kind == 'cellIs' else 2, 'Long')
-
-    @member
-    def Operator(self) -> object:
-        if self.rule.root.get('type') != 'cellIs':
-            raise error(1004)
-        return VBAInt(OPERATORS.index(self.rule.root.get('operator', 'between')) + 1, 'Long')
-
-    def _formula(self, number: int) -> str:
-        formulas = self.rule.root.findall(NS + 'formula')
-        if len(formulas) < number or formulas[number - 1].text is None:
-            raise error(1004)
-        return '=' + decode(formulas[number - 1].text or '')
-
-    @member
-    def Formula1(self) -> object:
-        return self._formula(1)
-
-    @member
-    def Formula2(self) -> object:
-        return self._formula(2)
 
     @member
     def AppliesTo(self) -> object:
@@ -397,27 +392,6 @@ class FormatCondition(ExcelObject):
         _changed(self.sheet)
         return EMPTY
 
-    @method
-    def Modify(self, Type: object = MISSING, Operator: object = MISSING, Formula1: object = MISSING,
-               Formula2: object = MISSING) -> object:
-        _guard(self.sheet)
-        if Type is MISSING:
-            raise error(450)
-        if Type is not MISSING and int(to_integer(Type, 'Long')) not in (1, 2):
-            return EMPTY
-        target = self.AppliesTo()
-        assert isinstance(target, Range)
-        made = _made(target, Type, Operator, Formula1, Formula2)
-        self.rule.root.attrib.pop('operator', None)
-        self.rule.root.attrib.update(made.attrib)
-        self.rule.root.set('priority', str(max((_priority(rule) for rule in self.sheet.conditional_formats), default=0) + 1))
-        self.rule.root.set('stopIfTrue', '1')
-        for child in self.rule.root.findall(NS + 'formula'):
-            self.rule.root.remove(child)
-        for index, child in enumerate(made):
-            self.rule.root.insert(index, child)
-        _changed(self.sheet)
-        return EMPTY
 
     @method
     def ModifyAppliesToRange(self, Range: object = MISSING) -> object:
@@ -473,3 +447,209 @@ class FormatCondition(ExcelObject):
         _guard(self.sheet)
         set_number_format(self._dxf(), value, self.sheet.book.stylesheet)
         self._style_changed()
+
+
+class FormatCondition(_ConditionalRule):
+    vba_type_name = 'FormatCondition'
+
+    @member
+    def Type(self) -> object:
+        kind = self.rule.root.get('type', '')
+        if kind not in ('cellIs', 'expression'):
+            raise VBAUnsupportedError('This conditional formatting rule type is not implemented')
+        return VBAInt(1 if kind == 'cellIs' else 2, 'Long')
+
+
+    @member
+    def Operator(self) -> object:
+        if self.rule.root.get('type') != 'cellIs':
+            raise error(1004)
+        return VBAInt(OPERATORS.index(self.rule.root.get('operator', 'between')) + 1, 'Long')
+
+
+    def _formula(self, number: int) -> str:
+        formulas = self.rule.root.findall(NS + 'formula')
+        if len(formulas) < number or formulas[number - 1].text is None:
+            raise error(1004)
+        return '=' + decode(formulas[number - 1].text or '')
+
+
+    @member
+    def Formula1(self) -> object:
+        return self._formula(1)
+
+
+    @member
+    def Formula2(self) -> object:
+        return self._formula(2)
+
+
+    @method
+    def Modify(self, Type: object = MISSING, Operator: object = MISSING, Formula1: object = MISSING,
+               Formula2: object = MISSING) -> object:
+        _guard(self.sheet)
+        if Type is MISSING:
+            raise error(450)
+        if Type is not MISSING and int(to_integer(Type, 'Long')) not in (1, 2):
+            return EMPTY
+        target = self.AppliesTo()
+        assert isinstance(target, Range)
+        made = _made(target, Type, Operator, Formula1, Formula2)
+        self.rule.root.attrib.pop('operator', None)
+        self.rule.root.attrib.update(made.attrib)
+        self.rule.root.set('priority', str(max((_priority(rule) for rule in self.sheet.conditional_formats), default=0) + 1))
+        self.rule.root.set('stopIfTrue', '1')
+        for child in self.rule.root.findall(NS + 'formula'):
+            self.rule.root.remove(child)
+        for index, child in enumerate(made):
+            self.rule.root.insert(index, child)
+        _changed(self.sheet)
+        return EMPTY
+
+
+def _stat_long(value: object) -> int:
+    # These specialized COM properties reject Null as a type mismatch.
+    if value is NULL:
+        raise error(13)
+    return int(to_integer(value, 'Long'))
+
+
+class _StatisticalRule(_ConditionalRule):
+    vba_type_name = ''
+
+    @member
+    def ScopeType(self) -> object:
+        # A range-based rule has no PivotTable selection scope.
+        raise error(5)
+
+    @setter('ScopeType')
+    def set_scope_type(self, value: object) -> None:
+        _guard(self.sheet)
+        _stat_long(value)
+        raise error(1004)
+
+
+class Top10(_StatisticalRule):
+    vba_type_name = 'Top10'
+
+    @member
+    def Type(self) -> object:
+        return VBAInt(5, 'Long')
+
+    @member
+    def TopBottom(self) -> object:
+        return VBAInt(0 if self.rule.root.get('bottom', '0') in ('1', 'true') else 1, 'Long')
+
+    @setter('TopBottom')
+    def set_top_bottom(self, value: object) -> None:
+        _guard(self.sheet)
+        chosen = _stat_long(value)
+        if chosen not in (0, 1):
+            raise error(5)
+        self.rule.root.attrib.pop('bottom', None)
+        if chosen == 0:
+            self.rule.root.set('bottom', '1')
+        _changed(self.sheet)
+
+    @member
+    def Rank(self) -> object:
+        return VBAInt(int(self.rule.root.get('rank', '10')), 'Long')
+
+    @setter('Rank')
+    def set_rank(self, value: object) -> None:
+        _guard(self.sheet)
+        chosen = _stat_long(value)
+        if not 1 <= chosen <= (100 if self.Percent() else 1000):
+            raise error(5)
+        self.rule.root.set('rank', str(chosen))
+        _changed(self.sheet)
+
+    @member
+    def Percent(self) -> object:
+        return self.rule.root.get('percent', '0') in ('1', 'true')
+
+    @setter('Percent')
+    def set_percent(self, value: object) -> None:
+        _guard(self.sheet)
+        if value is NULL:
+            raise error(13)
+        selected = to_bool(value)
+        self.rule.root.attrib.pop('percent', None)
+        if selected:
+            self.rule.root.set('percent', '1')
+            self.rule.root.set('rank', str(min(100, int(self.Rank()))))
+        _changed(self.sheet)
+
+
+class AboveAverage(_StatisticalRule):
+    vba_type_name = 'AboveAverage'
+
+    @member
+    def Type(self) -> object:
+        return VBAInt(12, 'Long')
+
+    @member
+    def AboveBelow(self) -> object:
+        below = self.rule.root.get('aboveAverage', '1') in ('0', 'false')
+        standard = int(self.rule.root.get('stdDev', '0')) > 0
+        equal = self.rule.root.get('equalAverage', '0') in ('1', 'true')
+        return VBAInt((4 if standard else 2 if equal else 0) + int(below), 'Long')
+
+    @setter('AboveBelow')
+    def set_above_below(self, value: object) -> None:
+        _guard(self.sheet)
+        chosen = _stat_long(value)
+        if chosen not in range(6):
+            raise error(5)
+        if chosen == int(self.AboveBelow()):
+            return
+        for attribute in ('aboveAverage', 'equalAverage', 'stdDev'):
+            self.rule.root.attrib.pop(attribute, None)
+        if chosen % 2:
+            self.rule.root.set('aboveAverage', '0')
+        if chosen in (2, 3):
+            self.rule.root.set('equalAverage', '1')
+        elif chosen in (4, 5):
+            self.rule.root.set('stdDev', '1')
+        _changed(self.sheet)
+
+    @member
+    def NumStdDev(self) -> object:
+        return VBAInt(int(self.rule.root.get('stdDev', '1')), 'Long')
+
+    @setter('NumStdDev')
+    def set_num_std_dev(self, value: object) -> None:
+        _guard(self.sheet)
+        chosen = _stat_long(value)
+        if int(self.AboveBelow()) not in (4, 5) or chosen not in (1, 2, 3):
+            raise error(5)
+        self.rule.root.set('stdDev', str(chosen))
+        _changed(self.sheet)
+
+
+class UniqueValues(_StatisticalRule):
+    vba_type_name = 'UniqueValues'
+
+    @member
+    def Type(self) -> object:
+        return VBAInt(8, 'Long')
+
+    @member
+    def DupeUnique(self) -> object:
+        return VBAInt(int(self.rule.root.get('type') == 'duplicateValues'), 'Long')
+
+    @setter('DupeUnique')
+    def set_dupe_unique(self, value: object) -> None:
+        _guard(self.sheet)
+        chosen = _stat_long(value)
+        if chosen not in (0, 1):
+            raise error(5)
+        self.rule.root.set('type', 'duplicateValues' if chosen else 'uniqueValues')
+        _changed(self.sheet)
+
+
+def _wrapper(sheet: Worksheet, rule: Rule) -> _ConditionalRule:
+    kind = rule.root.get('type', '')
+    factory = {'top10': Top10, 'aboveAverage': AboveAverage, 'uniqueValues': UniqueValues,
+               'duplicateValues': UniqueValues}.get(kind, FormatCondition)
+    return factory(sheet, rule)

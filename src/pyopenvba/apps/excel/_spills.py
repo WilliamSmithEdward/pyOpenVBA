@@ -109,14 +109,16 @@ def remove(sheet: Worksheet, anchor: tuple[int, int]) -> set[tuple[int, int]]:
 
 def reconcile(sheet: Worksheet) -> None:
     """After cells moved, as a cut or an inserted row moves them: forget each spill whose first cell holds no
-    dynamic-array formula now, with what it spilled, and empty each cell showing an answer no formula spills there;
-    a dynamic-array formula that moved spills again from where it is."""
+    dynamic-array formula now, with what it spilled, and empty each cell showing an answer no formula spills there.
+    Inserted rows can carry children beyond the old spill's bounds even when its anchor stays in place; those
+    displaced cached answers must also go before the formula spills again."""
     for anchor in list(sheet.spills):
         cell = sheet.cells_.get(anchor)
         if cell is None or not cell.dynamic or not cell.formula:
             remove(sheet, anchor)
     for position, cell in list(sheet.cells_.items()):
-        if cell.spilled_from is not None and cell.spilled_from not in sheet.spills:
+        spill = sheet.spills.get(cell.spilled_from) if cell.spilled_from is not None else None
+        if cell.spilled_from is not None and (spill is None or spill.blocked or not spill.area.contains(*position)):
             cell.value, cell.spilled_from = EMPTY, None
             sheet.settle(*position)
 

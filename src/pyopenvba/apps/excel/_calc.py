@@ -138,6 +138,7 @@ class Calculator:
     def settle_spills(self) -> None:
         """Work out every stale dynamic-array formula, so what each spills is in place: Excel spills after each
         edit."""
+        self.build()
         for owner in self.book.sheets_:
             if owner.spills:
                 self._settle(owner)
@@ -262,6 +263,26 @@ class Calculator:
         for key in [key for key in self.compiled if key[0] == name and area.contains(key[1], key[2])]:
             self._keep(key, None)
         reading: set[CellKey] = set()
+        owner = self._sheet_named(sheet)
+        if owner is not None:
+            for (row, column), cell in list(owner.cells_.items()):
+                if area.contains(row, column) and cell.dynamic and cell.formula:
+                    self.remember(sheet, row, column, cell)
+        if owner is not None and owner.spills:
+            from pyopenvba.apps.excel._spills import reconcile
+
+            reconcile(owner)
+            # A bulk write can obstruct an existing spill just as a single-cell write can.
+            # Recalculate its anchor before newly copied formulas try to spill over its old output.
+            for anchor, spill in owner.spills.items():
+                if (area.top <= spill.area.bottom and spill.area.top <= area.bottom
+                        and area.left <= spill.area.right and spill.area.left <= area.right):
+                    cell = owner.cells_.get(anchor)
+                    if cell is not None:
+                        cell.stale = True
+                        key = (name, *anchor)
+                        reading.add(key)
+                        reading.update(self._members(key))
         for key, compiled in self.compiled.items():
             if any(one.sheet.lower() == name and one.top <= area.bottom and area.top <= one.bottom
                    and one.left <= area.right and area.left <= one.right for one in compiled.precedents):

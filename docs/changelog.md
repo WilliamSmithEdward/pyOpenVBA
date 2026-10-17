@@ -5,6 +5,15 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ## [Unreleased]
 
+### Fixed
+
+- Dynamic-array edits now clear cached spill children displaced beyond the
+  old spill bounds. Sorting spill output raises error 1004 before changing
+  cells. Copies carry the formula without treating its spilled output as
+  independent values; overlapping bulk copies invalidate affected spills.
+  Thirty-five native Excel cases cover row/column and partial-cell edits,
+  sorting, cuts and copies, with offline save/reopen regressions.
+
 ### Added
 
 - Embedded ChartObjects, Chart, SeriesCollection, Series and ChartTitle

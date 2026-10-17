@@ -1958,10 +1958,14 @@ leaves `FalseFalse` natively and `False` here.
 
 ## What is not
 
-- **Spills are not measured through a sort, an insert or a delete.** A
+- **Dynamic arrays still need broader edit conformance.** Thirty-five native
+  cases cover whole-row/column and partial-cell insertion/deletion, refused
+  sorts, and cuts/copies including overlapping copies
+  (`tests/fixtures/spill_edits.json`). A
   dynamic-array formula spills, grows, shrinks and is #SPILL! as Excel's
-  is (`tests/fixtures/dynamic_arrays.json`), but sorting, inserting or
-  deleting rows through what it spilled has not been held to Excel.
+  is (`tests/fixtures/dynamic_arrays.json`); interactions with tables,
+  merged cells, filtering, manual calculation and more complex dependencies
+  during structural edits still need measurements.
   Implicit intersection is applied wherever a formula wants one value,
   as Excel's `@` does; `Range.Formula2` reads a formula back with that
   `@` (`tests/fixtures/implicit_intersection.json`, 2100 live formulas),
@@ -1997,8 +2001,9 @@ leaves `FalseFalse` natively and `False` here.
 - **Grouping is not done here.** A group in a file is read, and its
   members are reachable through `GroupItems`, but `ShapeRange.Group`
   reports itself rather than making one.
-- **A picture or a chart is read, not made.** `AddPicture` says so;
-  the media and the chart parts a new one needs are not written.
+- **Pictures cannot yet be created.** `AddPicture` reports itself unsupported.
+  Excel embedded charts can be created and saved for eight common chart kinds;
+  editing imported chart contents and broader chart formatting remain incomplete.
 - A type-suffixed name is the same variable as the name without it, so
   the implicit-typing trick where `a%` and `a$` are two variables is not
   modelled.

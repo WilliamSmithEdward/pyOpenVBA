@@ -3,7 +3,7 @@
 tests/fixtures/vba_semantics/err_lifetime.json is what
 scripts/measure_err_lifetime.py saw in live Excel: small programs that
 raise, handle and call, and Err.Number at the points that matter. Err
-clears when a procedure of the macro starts, on every On Error statement,
+is preserved by ordinary procedure calls and clears on every On Error statement,
 on Resume and on leaving a procedure from its error handler; it keeps
 what a procedure left in it after the procedure returns, and a call to a
 built-in function or an object's member leaves it alone.

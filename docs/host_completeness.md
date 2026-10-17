@@ -29,7 +29,7 @@ not a completed Excel milestone.
 The next increment connects class `WithEvents` subscriptions and custom
 `RaiseEvent`, with 15 live Excel cases, and worksheet/workbook/application
 sinks for existing events, with 14 isolated live cases. Event signatures,
-handler errors and missing host sources still
+broader handler error/debugger behavior and missing host sources still
 need conformance work. Calculation events report newly calculated sheets and pending notifications
 from earlier disabled or limited calculation cycles.
 Another 12 native traces verify that attaching sheet, workbook or application
@@ -39,9 +39,14 @@ Eighteen native traces distinguish EnableEvents changes within an emitted
 event from suppression of the following workbook/application notification.
 Another 42 cover bounded Calculate-handler reentry, input edits, volatile UDF
 call counts and the following calculation cycle.
-Another 12 native traces verify that attaching sheet, workbook or application
-listeners retains dirty manual-mode caches and UDF call counts until the next
-calculation request, including the listener's subsequent Calculate event.
+Another 78 uninstrumented traces distinguish local recovery from unhandled
+host/custom callbacks, caller and event-raiser error policies, prior Err state
+and ByRef arguments passed to later subscribers. Ordinary calls preserve Err;
+23 lifetime cases, class controls and worksheet UDFs were remeasured without
+the harness's injected On Error handlers. Native debugger/reset choices remain
+outside the headless API, which raises VBARuntimeError for an escaped callback.
+Ten raw Erl controls distinguish language error-policy transitions from
+Err.Clear and assigning zero to Err.Number, which retain the line context.
 
 Save/close lifecycle work adds 22 native cases for BeforeSave, AfterSave
 and BeforeClose, and a live persistence gate for XLSX/XLSM conversion and

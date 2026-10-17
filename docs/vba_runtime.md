@@ -263,15 +263,34 @@ after it even inside a loop, which is what a loop-and-skip macro
 depends on.
 
 `Err` clears where VBA clears it, measured in live Excel
-(`tests/fixtures/vba_semantics/err_lifetime.json`): when a procedure of
-the macro starts, on every `On Error` statement, on `Resume`, and on
+(`tests/fixtures/vba_semantics/err_lifetime.json`): on every `On Error`
+statement, on `Resume`, and on
 leaving a procedure from its error handler. What a procedure leaves in
 it otherwise stays after the procedure returns, so a function that
 handles an error with `On Error Resume Next` hands it to its caller, and
 a built-in function or an object's member leaves it alone. A class
-module's own member is an object's member too: `c.Peek()` starts with the
-caller's `Err`, early or late bound, where a call into a standard module
-starts with none (`tests/fixtures/vba_class_objects.json`).
+module's own member and an ordinary standard-module call both preserve
+the caller's `Err`, early or late bound (`tests/fixtures/vba_class_objects.json`).
+The 23 lifetime cases run as independent, uninstrumented programs. Earlier
+measurements injected per-procedure error handlers, which cleared Err and
+incorrectly suggested that procedure entry cleared it. The shared VBA probe
+recorder now defaults to untouched source; class and UDF fixtures were also
+remeasured without injected handlers.
+
+Event callbacks have an independent error-handling boundary. Errors recovered
+inside a handler allow later listeners to run; an error that escapes it stops
+delivery and cannot be recovered by the invoking macro's or event raiser's
+`On Error`. The API raises `VBARuntimeError` with the original number, source
+and description. This follows [MS-VBAL section 5.4.2.20](https://download.microsoft.com/download/0/a/6/0a6f7755-9af5-448b-907d-13985accf53e/%5Bms-vbal%5D.pdf)
+and 78 raw Excel traces in `tests/fixtures/event_errors.json`: 66 host cases
+cover Calculate, Change and SelectionChange across class/document listeners,
+and 12 custom RaiseEvent cases cover caller/raiser error policies, local
+recovery and ByRef arguments shared with later subscribers. Complete traces
+reproduced in a second fresh Excel session. The headless API does not open
+the VBE debugger or simulate its End/Debug choices.
+Ten additional raw line-context controls distinguish Erl clearing on `On Error`,
+`Resume` and leaving an active handler from `Err.Clear` or assigning zero to
+Err.Number, which preserve Erl. Ordinary calls preserve both Err and Erl.
 
 **The runtime library.** The conversion, maths, string, date, array and
 information functions, `Format` (shared with the Access engine, which is
@@ -1995,7 +2014,7 @@ a legacy formula and the whole array spilled through `Formula2`, an Error
 value as that error, a run-time error the function does not handle as
 #VALUE!. While it runs, `Application.Caller` is the cell (outside one it is
 `CVErr(2023)`), and writing to a cell is error 1004. It is called as any
-procedure is, so it starts with no error and leaves what it ends with in the
+procedure is, so it preserves the current error and leaves what it ends with in the
 macro's Err, and an error it does not handle leaves 40040 there; a formula
 that calls one is worked out as it is written, as Excel works it out. It is
 worked out again when a cell its arguments name changes, not when one it

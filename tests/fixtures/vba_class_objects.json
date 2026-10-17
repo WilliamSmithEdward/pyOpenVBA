@@ -1,6 +1,7 @@
 {
   "excel_version_build": "16.0|20430",
-  "measured_at": "2026-10-12T22:09:16.566671+00:00",
+  "measured_at": "2026-10-17T05:31:31.174438+00:00",
+  "instrumentation": "none",
   "classes": {
     "CPoint": "Option Explicit\nPrivate mX As Double\nPrivate mY As Double\nPublic Tag As String\nPublic Items As Collection\nPublic Event Moved(ByVal dx As Double)\n\nPublic Property Get X() As Double\n    X = mX\nEnd Property\nPublic Property Let X(ByVal v As Double)\n    If v < 0 Then Err.Raise vbObjectError + 1, \"CPoint\", \"negative\"\n    mX = v\nEnd Property\nPublic Property Get Y() As Double\n    Y = mY\nEnd Property\nPublic Property Let Y(ByVal v As Double)\n    mY = v\nEnd Property\nPublic Function Length() As Double\n    Length = Sqr(mX * mX + mY * mY)\nEnd Function\nPublic Sub Move(ByVal dx As Double, Optional ByVal dy As Double = 0)\n    mX = mX + dx\n    mY = mY + dy\n    RaiseEvent Moved(dx)\nEnd Sub\nPublic Function Clone() As CPoint\n    Dim p As New CPoint\n    p.X = mX: p.Y = mY\n    Set Clone = p\nEnd Function\nPublic Property Get Self() As CPoint\n    Set Self = Me\nEnd Property\nPrivate Sub Class_Initialize()\n    Tag = \"init\"\nEnd Sub\n",
     "CBag": "Option Explicit\nPrivate mItems As Collection\nPrivate Sub Class_Initialize()\n    Set mItems = New Collection\nEnd Sub\nPublic Sub Add(ByVal v As Variant)\n    mItems.Add v\nEnd Sub\nPublic Property Get Count() As Long\n    Count = mItems.Count\nEnd Property\nPublic Property Get Item(ByVal i As Long) As Variant\n    Item = mItems(i)\nEnd Property\nPublic Property Let Item(ByVal i As Long, ByVal v As Variant)\n    mItems.Remove i\n    If i > mItems.Count Then mItems.Add v Else mItems.Add v, , i\nEnd Property\nPublic Property Get All() As Collection\n    Set All = mItems\nEnd Property\n",
@@ -161,7 +162,7 @@
     {
       "name": "err_plain_call",
       "macro": "\nPrivate Function Plain() As String\n    Plain = \"inside \" & Err.Number\nEnd Function\n\nFunction Probe() As String\nOn Error Resume Next\nErr.Raise 7\nProbe = Plain() & \" / after \" & Err.Number\nEnd Function\n",
-      "result": "inside 0 / after 0"
+      "result": "inside 7 / after 7"
     },
     {
       "name": "err_as_new_first_use",

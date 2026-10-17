@@ -50,7 +50,7 @@ class ExcelInterpreter(Interpreter):
             super().initialise()
 
     def call(self, procedure: A.Procedure, module: ModuleRuntime, args: list[object],
-             named: dict[str, object], *, me: object = None, reset_error: bool = True) -> object:
+             named: dict[str, object], *, me: object = None, reset_error: bool = False) -> object:
         try:
             with self.execution_context():
                 self.executed_modules.add(module)

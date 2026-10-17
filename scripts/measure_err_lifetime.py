@@ -11,6 +11,7 @@ tests/test_vba_err_lifetime.py holds the interpreter to.
 from __future__ import annotations
 
 import json
+from datetime import datetime, timezone
 from pathlib import Path
 
 from pyvbaharness import ExcelSession, HarnessConfig
@@ -153,13 +154,21 @@ def module() -> str:
 
 
 def main() -> None:
-    with ExcelSession(HarnessConfig(lock_wait_s=1200.0)) as excel:
+    cases = []
+    with ExcelSession(HarnessConfig(lock_wait_s=30.0)) as excel:
         excel.new_document()
-        result = excel.run_vba(module(), "Probe", timeout=300.0)
-        assert result.ok, f"{result.outcome}: {result.message} {result.error}"
-    answers = dict(part.split("=", 1) for part in str(result.value).split("|") if "=" in part)
-    record = {"helpers": HELPERS, "cases": [{"name": name, "body": body, "answer": answers[name]}
-                                            for name, body in CASES]}
+        version = excel.run_vba('Function VersionBuild() As String\nVersionBuild = Application.Version & "|" & Application.Build\nEnd Function', 'VersionBuild', line_numbers=False)
+        assert version.ok and not version.dialogs, version
+        for name, body in CASES:
+            # Per-procedure handler injection changes Err. Run untouched source
+            # in a fresh workbook, matching the replay test's independent cases.
+            excel.new_document()
+            source = HELPERS + '\nPublic Function Probe() As String\nDim out As String\n' + body + '\nProbe = out\nEnd Function'
+            excel.add_module('Harness', source, line_numbers=False)
+            cases.append({'name': name, 'body': body, 'answer': excel.run_raw('Harness.Probe')})
+        assert not any(event.get('dialogs') for event in excel.events)
+    record = {"helpers": HELPERS, "cases": cases, 'excel_version_build': version.value,
+              'measured_at': datetime.now(timezone.utc).isoformat(), 'instrumentation': 'none'}
     OUT.write_text(json.dumps(record, indent=1) + "\n", encoding="utf-8")
     for case in record["cases"]:
         print(f"{case['name']:36} {case['answer']}")

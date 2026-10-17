@@ -24,12 +24,12 @@
   {
    "name": "caller_error_through_plain_call",
    "body": "On Error Resume Next\nErr.Raise 7\nout = \"before \" & Err.Number & \" / \" & Plain() & \" / after \" & Err.Number",
-   "answer": "before 7 / inside 0 / after 0"
+   "answer": "before 7 / inside 7 / after 7"
   },
   {
    "name": "caller_error_through_plain_exit",
    "body": "On Error Resume Next\nErr.Raise 7\nout = \"before \" & Err.Number & \" / \" & PlainExit() & \" / after \" & Err.Number",
-   "answer": "before 7 / inside 0 / after 0"
+   "answer": "before 7 / inside 7 / after 7"
   },
   {
    "name": "caller_error_through_handled_call",
@@ -79,17 +79,17 @@
   {
    "name": "caller_error_through_sub",
    "body": "On Error Resume Next\nErr.Raise 7\nPlainSub\nout = \"after \" & Err.Number",
-   "answer": "after 0"
+   "answer": "after 7"
   },
   {
    "name": "set_then_call",
    "body": "Err.Number = 5\nout = \"before \" & Err.Number & \" / \" & Plain() & \" / after \" & Err.Number",
-   "answer": "before 5 / inside 0 / after 0"
+   "answer": "before 5 / inside 5 / after 5"
   },
   {
    "name": "nested_calls",
    "body": "On Error Resume Next\nErr.Raise 7\nout = Outer() & \" / after \" & Err.Number",
-   "answer": "outer sees 0, inside 0 / after 0"
+   "answer": "outer sees 7, inside 7 / after 7"
   },
   {
    "name": "handler_label",
@@ -116,5 +116,8 @@
    "body": "On Error Resume Next\nErr.Raise 7\nErr.Raise 9\nout = \"after \" & Err.Number",
    "answer": "after 9"
   }
- ]
+ ],
+ "excel_version_build": "16.0|20430",
+ "measured_at": "2026-10-17T05:31:38.734982+00:00",
+ "instrumentation": "none"
 }

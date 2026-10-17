@@ -1,6 +1,7 @@
 {
   "excel_version_build": "16.0|20430",
-  "measured_at": "2026-10-13T00:11:15.464339+00:00",
+  "measured_at": "2026-10-17T05:32:55.371944+00:00",
+  "instrumentation": "none",
   "classes": {},
   "probes": [
     {
@@ -241,7 +242,7 @@
     {
       "name": "ok_udf_err_kept",
       "macro": "\nPublic Function Twice(x As Variant) As Variant\n    Twice = x * 2\nEnd Function\n\nPublic Function CountCells(r As Range) As Long\n    CountCells = r.Cells.Count\nEnd Function\n\nPublic Function CallerAddress() As String\n    CallerAddress = Application.Caller.Address\nEnd Function\n\nPublic Function Joined(ParamArray xs() As Variant) As String\n    Dim x As Variant\n    For Each x In xs\n        Joined = Joined & \"[\" & TypeName(x) & \"]\"\n    Next\nEnd Function\n\nPublic Function Fails() As Double\n    Fails = 1 / 0\nEnd Function\n\nPublic Function Returns2D() As Variant\n    Dim a(1 To 2, 1 To 2) As Variant\n    a(1, 1) = 1: a(1, 2) = 2: a(2, 1) = 3: a(2, 2) = 4\n    Returns2D = a\nEnd Function\n\nPublic Function ErrValue() As Variant\n    ErrValue = CVErr(xlErrNA)\nEnd Function\n\nPublic Function OptionalArg(Optional n As Variant) As String\n    OptionalArg = IsMissing(n) & \"|\" & TypeName(n)\nEnd Function\n\nPublic Function SumRange(r As Range) As Double\n    Dim c As Range\n    For Each c In r\n        SumRange = SumRange + c.Value\n    Next\nEnd Function\n\nPublic Function WhatType(v As Variant) As String\n    WhatType = TypeName(v)\nEnd Function\n\nPublic Function Volatile1() As Double\n    Application.Volatile\n    Volatile1 = 1\nEnd Function\n\nPublic Function TouchCell() As String\n    On Error Resume Next\n    Range(\"Z1\").Value = 5\n    TouchCell = \"err \" & Err.Number\nEnd Function\n\nPrivate Function Hidden() As Long\n    Hidden = 1\nEnd Function\n\nPublic Function ArrayShape(v As Variant) As String\n    ArrayShape = LBound(v, 1) & UBound(v, 1) & \"/\" & LBound(v, 2) & UBound(v, 2)\nEnd Function\n\nPublic Function ADate() As Date\n    ADate = #1/2/2024#\nEnd Function\n\nPublic Function Nothing1() As Variant\nEnd Function\n\nPublic Function ARange() As Range\n    Set ARange = Range(\"A2\")\nEnd Function\n\nPublic Function ReadsA2() As Double\n    ReadsA2 = ActiveSheet.Range(\"A2\").Value\nEnd Function\n\nPublic Function UsesTwice(x As Variant) As Variant\n    UsesTwice = Twice(x) + 1\nEnd Function\n\nPublic Function NumText() As String\n    NumText = \"42\"\nEnd Function\n\nPublic Function LongResult() As Long\n    LongResult = 7\nEnd Function\n\nPublic Function BoolResult() As Boolean\n    BoolResult = True\nEnd Function\n\nPublic Function OneD() As Variant\n    OneD = Array(5, 6, 7)\nEnd Function\n\nPublic Function ByRefArg(ByRef x As Variant) As Variant\n    x = 99\n    ByRefArg = 1\nEnd Function\n\nPublic Function MyCaller() As String\n    MyCaller = TypeName(Application.Caller)\nEnd Function\n\nPublic Function OneDimShape(v As Variant) As String\n    OneDimShape = LBound(v) & UBound(v) & \"|\" & TypeName(v)\nEnd Function\n\nPublic Function Handled() As Variant\n    On Error Resume Next\n    Err.Raise 13\n    Handled = Err.Number\nEnd Function\n\nFunction Probe() As String\nDim ws As Worksheet\nSet ws = Worksheets.Add\nws.Range(\"A1\").Value = 3\nws.Range(\"A2\").Value = 4\nOn Error Resume Next\nErr.Raise 7\nws.Range(\"C3\").Formula = \"=Twice(A1)\"\nProbe = Err.Number & \"|\" & ws.Range(\"C3\").Text\nEnd Function\n",
-      "result": "0|6"
+      "result": "7|6"
     },
     {
       "name": "handled_udf_err",

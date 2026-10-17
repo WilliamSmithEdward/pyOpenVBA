@@ -66,7 +66,8 @@ class VBARuntimeError(VBAError):
     """Raised for an error VBA would raise while running.
 
     Carries the same number and description the ``Err`` object would, and
-    is the only one of the three that ``On Error`` can trap.
+    is the only one of the three that ``On Error`` can trap. An error that
+    escapes an event callback bypasses the invoking procedure's handler.
     """
 
     def __init__(
@@ -81,6 +82,9 @@ class VBARuntimeError(VBAError):
         self.number = number
         self.description = description
         self.source = source
+        # Event callbacks have their own error policy. Once an error escapes
+        # that boundary, a calling procedure's On Error cannot recover it.
+        self.unhandled_event = False
 
 
 class VBAUnsupportedError(VBAError):

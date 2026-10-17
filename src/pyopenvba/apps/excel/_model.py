@@ -921,8 +921,10 @@ class Workbook(ExcelObject):
     def vba_sink_attached(self) -> None:
         """A WithEvents variable now hears this workbook: formulas written while
         nobody listened are worked out first, as Excel worked them out when
-        they were written, so the next edit's Calculate is only its own."""
-        self.calculator.calculate_all(volatile=False)
+        they were written, so the next edit's Calculate is only its own.
+        Manual calculation retains its existing caches until requested."""
+        if self.calculator.automatic:
+            self.calculator.calculate_all(volatile=False)
 
     @method
     def RefreshAll(self) -> object:

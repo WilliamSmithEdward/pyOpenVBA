@@ -7,6 +7,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- Attaching Worksheet, Workbook or Application WithEvents listeners preserves
+  dirty formula caches in manual calculation mode. Twelve native Excel traces
+  cover ordinary formulas, UDF call counts and the next Calculate event.
+
 - Calculation scopes preserve foreign-sheet caches for worksheet requests
   and resolve dependencies inside manual range requests. Automatic range
   requests calculate the workbook. A shared queue spans tabs, learns

@@ -1173,6 +1173,12 @@ their dirty flags. Calculation or a new dependency change clears the saved
 override. Complete event error/reentrancy,
 project lifetime and cross-workbook scheduling remain separate gaps.
 
+Attaching a Worksheet, Workbook or Application WithEvents listener does not
+calculate dirty manual-mode formulas. Their cached values and UDF call counts
+remain unchanged until a calculation request, which then delivers the new
+listener's event. Twelve native traces in `tests/fixtures/sink_calculation.json`
+cover these attachments with ordinary formulas and UDFs in both modes.
+
 Changing row visibility, including through RowHeight or UseStandardHeight,
 invalidates SUBTOTAL, AGGREGATE and their dependents. Nested defined names
 retain this sensitivity. Filter application, reapplication and removal also

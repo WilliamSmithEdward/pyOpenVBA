@@ -32,6 +32,12 @@ sinks for existing events, with 14 isolated live cases. Event signatures,
 handler errors and missing host sources still
 need conformance work. Calculation events report newly calculated sheets and pending notifications
 from earlier disabled or limited calculation cycles.
+Another 12 native traces verify that attaching sheet, workbook or application
+listeners retains dirty manual-mode caches and UDF call counts until the next
+calculation request, including the listener's subsequent Calculate event.
+Another 12 native traces verify that attaching sheet, workbook or application
+listeners retains dirty manual-mode caches and UDF call counts until the next
+calculation request, including the listener's subsequent Calculate event.
 
 Save/close lifecycle work adds 22 native cases for BeforeSave, AfterSave
 and BeforeClose, and a live persistence gate for XLSX/XLSM conversion and

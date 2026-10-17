@@ -40,6 +40,11 @@ typing and VBE import normalization remain further work.
 Numeric For bounds now respect typed array elements, UDT fields and qualified
 module variables; Next reevaluates indices and follows resized array storage.
 Thirty-one native controls cover those targets and skipped initialization.
+Fifty-nine further compiler controls cover numeric counter storage and
+implicit bindings. Validation rejects invalid counters before execution while
+preserving nested UDT fields, With temporaries and unused invalid routines;
+global source edits invalidate cached checks. General declaration and
+function/member reference typing still need work.
 
 The next increment connects class `WithEvents` subscriptions and custom
 `RaiseEvent`, with 15 live Excel cases, and worksheet/workbook/application

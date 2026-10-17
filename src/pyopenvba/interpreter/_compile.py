@@ -9,6 +9,8 @@ from typing import TYPE_CHECKING, cast
 from weakref import ref
 from pyopenvba.exceptions import VBACompileError
 from pyopenvba.interpreter import _ast as A
+from pyopenvba.interpreter._flow import nested_bodies
+from pyopenvba.interpreter._lex import SUFFIX_TYPES, default_type, strip_suffix
 if TYPE_CHECKING:
     from pyopenvba.interpreter._runtime import Interpreter, ModuleRuntime
 
@@ -32,6 +34,172 @@ def variables(module: ModuleRuntime) -> dict[str, Info]:
 def record_byval_signature(interpreter: Interpreter, module: ModuleRuntime, procedure: A.Procedure) -> bool:
     return any(param.by_val and interpreter.record_type(param.declared, module) is not None
                for param in procedure.params)
+
+
+def validate_numeric_loops(interpreter: Interpreter, module: ModuleRuntime, procedure: A.Procedure,
+                           implicit_arrays: Sequence[A.VarDecl]) -> None:
+    """A numeric counter must name numeric storage, not a property value.
+
+    Keep this demand check before argument binding and execution, including
+    counters in unreachable blocks. With can hold a temporary UDT as well
+    as an ordinary variable; its fields still provide writable storage.
+    """
+    # program_for has just refreshed the project's symbol scope. Reuse its
+    # snapshot instead of rebuilding weak references on every VBA call.
+    scope = module.program_scope
+    # Host-created synthetic procedures are not retained by the module and
+    # can reuse ids; validate them without retaining a reusable-id cache key.
+    cacheable = id(procedure) in module.programs
+    if cacheable and module.numeric_checks.get(id(procedure)) == scope:
+        return
+    body = list(nodes(procedure.body))
+    if not any(isinstance(node, A.For) for node in body):
+        if cacheable:
+            module.numeric_checks[id(procedure)] = scope
+        return
+    local = {name: info for runtime in interpreter.modules.values() if not runtime.is_class and runtime is not module
+             for name, info in variables(runtime).items() if name in runtime.public_variables}
+    local.update(variables(module))
+    local.update({param.name.lower(): (param.declared, param.is_array, module) for param in procedure.params})
+    if procedure.kind in ('function', 'get'):
+        local[procedure.name.lower()] = (procedure.returns, procedure.returns_array, module)
+    for node in body:
+        if isinstance(node, A.Dim):
+            local.update({decl.name.lower(): (decl.declared, decl.is_array, module) for decl in node.decls})
+    for decl in implicit_arrays:
+        local.setdefault(decl.name.lower(), (decl.declared, True, module))
+    constants = {strip_suffix(name).lower() for node in body if isinstance(node, A.ConstDecl)
+                 for name, _, _ in node.names}
+    for runtime in interpreter.modules.values():
+        if runtime is module or not runtime.is_class:
+            constants.update(name.lower() for group in runtime.parsed.constants
+                             if runtime is module or group.scope == 'public' for name, _, _ in group.names)
+            constants.update(name.lower() for definition in runtime.parsed.enums
+                             if runtime is module or definition.scope == 'public' for name, _ in definition.members)
+
+    def runtime_for(name: str) -> ModuleRuntime | None:
+        return next((runtime for runtime in interpreter.modules.values() if runtime.name.lower() == name.lower()), None)
+
+    def member_info(expression: A.Member, context: Info | None) -> Info | None:
+        if isinstance(expression.target, A.Name) and strip_suffix(expression.target.name).lower() not in local:
+            owner = runtime_for(expression.target.name)
+            if owner is not None and not owner.is_class:
+                key = strip_suffix(expression.name).lower()
+                if owner is module or key in owner.public_variables:
+                    return variables(owner).get(key)
+                return None
+        parent = expression_info(expression.target, context) if expression.target is not None else context
+        if parent is not None and not parent[1]:
+            record = interpreter.record_type(parent[0], parent[2])
+            if record is not None:
+                definition, owner = record
+                field = next((field for field in definition.fields if field.name.lower() == strip_suffix(expression.name).lower()), None)
+                if field is not None:
+                    return field.declared, field.is_array, owner
+        # Class/document members, including public fields, are properties.
+        return None
+
+    def callable_info(expression: A.Expr | None) -> Info | None:
+        name = ''
+        owner = module
+        if isinstance(expression, A.Name):
+            name = strip_suffix(expression.name)
+            if name.lower() in local:
+                return None
+            found = module.procedure(name)
+            if found is not None:
+                return found.returns, found.returns_array, module
+            for candidate in interpreter.modules.values():
+                found = candidate.procedure(name)
+                if not candidate.is_class and found is not None and found.scope == 'public':
+                    return found.returns, found.returns_array, candidate
+        elif isinstance(expression, A.Member) and isinstance(expression.target, A.Name):
+            key = strip_suffix(expression.target.name).lower()
+            parent = local.get(key)
+            candidate = runtime_for(parent[0] if parent is not None else key)
+            if candidate is not None:
+                owner, name = candidate, strip_suffix(expression.name)
+        found = owner.procedure(name)
+        return (found.returns, found.returns_array, owner) if found is not None else None
+
+    def expression_info(expression: A.Expr | None, context: Info | None) -> Info | None:
+        if isinstance(expression, A.Name):
+            return local.get(strip_suffix(expression.name).lower()) or callable_info(expression)
+        if isinstance(expression, A.Member):
+            return member_info(expression, context) or callable_info(expression)
+        if isinstance(expression, A.Index):
+            parent = expression_info(expression.target, context)
+            if parent is not None and parent[1]:
+                return parent[0], False, parent[2]
+            return callable_info(expression.target)
+        return None
+
+    def counter_info(expression: A.Expr | None, context: Info | None) -> Info | None:
+        if isinstance(expression, A.Name):
+            key = strip_suffix(expression.name).lower()
+            if key in local:
+                return local[key]
+            if key in constants or callable_info(expression) is not None or module.parsed.option_explicit:
+                return None
+            return default_type(expression.name, module.parsed.default_types), False, module
+        if isinstance(expression, A.Member):
+            return member_info(expression, context)
+        if isinstance(expression, A.Index):
+            parent = counter_info(expression.target, context)
+            if parent is not None and parent[1]:
+                return parent[0], False, parent[2]
+        return None
+
+    implicit: set[str] = set()
+
+    def infer_names(value: object) -> None:
+        if isinstance(value, A.Name):
+            key = strip_suffix(value.name).lower()
+            suffix = SUFFIX_TYPES.get(value.name[-1:])
+            if key in implicit and suffix is not None and local[key][0] != suffix:
+                raise VBACompileError('Type-declaration character does not match declared data type',
+                                      where=f'{module.name}.{procedure.name} line {value.line}')
+            if (not module.parsed.option_explicit and key not in local and key not in constants
+                    and runtime_for(key) is None and callable_info(value) is None):
+                local[key] = default_type(value.name, module.parsed.default_types), False, module
+                implicit.add(key)
+        elif isinstance(value, A.ConstDecl):
+            return  # A constant expression cannot introduce implicit storage.
+        elif isinstance(value, (list, tuple)):
+            for child in cast(Sequence[object], value):
+                infer_names(child)
+        elif isinstance(value, (A.Stmt, A.Expr, A.Argument, A.IfBranch, A.CaseBlock, A.CaseClause)):
+            for attribute in fields(value):
+                child = getattr(value, attribute.name)
+                # Calls do not declare their bare function names as variables.
+                if ((isinstance(value, A.Index) and attribute.name == 'target') or
+                        (isinstance(value, A.CallStmt) and attribute.name == 'callee')) and isinstance(child, A.Name):
+                    continue
+                infer_names(child)
+
+    infer_names(procedure.body)
+
+    def validate(body: Sequence[A.Stmt], context: Info | None = None) -> None:
+        for statement in body:
+            if isinstance(statement, A.For):
+                info = counter_info(statement.target, context)
+                if info is None or info[1]:
+                    raise VBACompileError("Variable required - can't assign to this expression",
+                                          where=f'{module.name}.{procedure.name} line {statement.line}')
+                declared, _, owner = info
+                if declared not in ('', 'Variant', 'Byte', 'Integer', 'Long', 'LongLong', 'LongPtr',
+                                     'Single', 'Double', 'Currency', 'Date') and not interpreter.is_enum_type(declared, owner):
+                    raise VBACompileError('For control variable must be numeric',
+                                          where=f'{module.name}.{procedure.name} line {statement.line}')
+            if isinstance(statement, A.With):
+                validate(statement.body, expression_info(statement.subject, context))
+            else:
+                for child in nested_bodies(statement):
+                    validate(child, context)
+
+    validate(procedure.body)
+    if cacheable:
+        module.numeric_checks[id(procedure)] = scope
 
 
 def validate_record_arguments(interpreter: Interpreter, module: ModuleRuntime, procedure: A.Procedure) -> None:

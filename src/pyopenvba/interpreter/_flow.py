@@ -1,12 +1,13 @@
 """Procedure-wide control flow, including labels inside structured statements."""
 from __future__ import annotations
 
-from collections.abc import Callable, Iterator, Sequence
-from dataclasses import dataclass, field
+from collections.abc import Callable, Iterator, Mapping, Sequence
+from dataclasses import dataclass, field, fields
+from typing import cast
 
 from pyopenvba.exceptions import VBACompileError
 from pyopenvba.interpreter import _ast as A
-from pyopenvba.interpreter._lex import SUFFIX_TYPES, strip_suffix
+from pyopenvba.interpreter._lex import default_type, strip_suffix
 
 
 @dataclass(slots=True)
@@ -25,6 +26,7 @@ class Instruction:
 class Program:
     instructions: list[Instruction] = field(default_factory=lambda: [])
     labels: dict[str, int] = field(default_factory=lambda: {})
+    arrays: list[A.VarDecl] = field(default_factory=lambda: [])
 
 
 @dataclass(slots=True)
@@ -52,7 +54,12 @@ def nested_bodies(statement: A.Stmt) -> Iterator[list[A.Stmt]]:
 
 
 def compile_program(procedure: A.Procedure, where: str, global_declarations: Sequence[A.Dim] = (),
-                    value_type: Callable[[str], bool] | None = None) -> Program:
+                    value_type: Callable[[str], bool] | None = None, defaults: Mapping[str, str] | None = None) -> Program:
+    for parameter in procedure.params:
+        if parameter.param_array and (not parameter.is_array or parameter.declared != 'Variant'):
+            raise VBACompileError('ParamArray must be an array of Variant', where=where)
+        if parameter.optional and parameter.default is None and parameter.declared != 'Variant':
+            raise VBACompileError('Optional typed arguments require a default value', where=where)
     program = Program()
     loops: list[Loop] = []
     declarations = {item.name.lower(): (item.declared, item.is_array)
@@ -71,7 +78,64 @@ def compile_program(procedure: A.Procedure, where: str, global_declarations: Seq
         declarations[procedure.name.lower()] = (procedure.returns, procedure.returns_array)
 
     def declaration(name: str) -> tuple[str, bool]:
-        return declarations.get(strip_suffix(name).lower(), (SUFFIX_TYPES.get(name[-1:], 'Variant'), False))
+        return declarations.get(strip_suffix(name).lower(), (default_type(name, defaults or {}), False))
+
+    used: set[str] = set()
+
+    def read_names(value: object) -> None:
+        if isinstance(value, A.Name):
+            used.add(strip_suffix(value.name).lower())
+        elif isinstance(value, (list, tuple)):
+            for child in cast(Sequence[object], value):
+                read_names(child)
+        elif isinstance(value, (A.Expr, A.Argument, A.CaseClause, A.VarDecl)):
+            for field_ in fields(value):
+                if isinstance(value, A.Index) and field_.name == 'target' and isinstance(value.target, A.Name):
+                    continue  # A call's bare name is not an implicit scalar.
+                read_names(getattr(value, field_.name))
+
+    def validate_arrays(body: Sequence[A.Stmt]) -> None:
+        for statement in body:
+            if isinstance(statement, A.ReDim):
+                for index, item in enumerate(statement.decls):
+                    if index < len(statement.targets) and statement.targets[index] is not None:
+                        continue
+                    key = item.name.lower()
+                    known = declarations.get(key)
+                    if known is None:
+                        if key in used:
+                            raise VBACompileError('Expected array', where=where)
+                        declarations[key] = (item.declared, True)
+                        program.arrays.append(A.VarDecl(name=item.name, declared=item.declared, is_array=True))
+                    elif not known[1] and known[0] not in ('', 'Variant'):
+                        raise VBACompileError('Expected array', where=where)
+                    elif known[1] and item.explicit_type and known[0] != item.declared:
+                        raise VBACompileError("Can't change data types of array elements", where=where)
+            if isinstance(statement, A.If):
+                for branch in statement.branches:
+                    read_names(branch.condition)
+                    validate_arrays(branch.body)
+                validate_arrays(statement.otherwise)
+            elif isinstance(statement, A.SelectCase):
+                read_names(statement.subject)
+                for case in statement.blocks:
+                    read_names(case.clauses)
+                    validate_arrays(case.body)
+                if statement.otherwise is not None:
+                    validate_arrays(statement.otherwise)
+            else:
+                for field_ in fields(statement):
+                    if isinstance(statement, A.CallStmt) and field_.name == 'callee':
+                        continue
+                    if isinstance(statement, A.DoLoop) and statement.at_end and field_.name == 'condition':
+                        continue
+                    read_names(getattr(statement, field_.name))
+                for child in nested_bodies(statement):
+                    validate_arrays(child)
+                if isinstance(statement, A.DoLoop) and statement.at_end:
+                    read_names(statement.condition)
+
+    validate_arrays(procedure.body)
 
     def emit(kind: str, statement: A.Stmt, scopes: tuple[int, ...], **kwargs: object) -> Instruction:
         instruction = Instruction(kind, statement, scopes)
@@ -82,6 +146,8 @@ def compile_program(procedure: A.Procedure, where: str, global_declarations: Seq
 
     def block(body: Sequence[A.Stmt], scopes: tuple[int, ...]) -> None:
         for statement in body:
+            if isinstance(statement, A.InvalidStmt):
+                raise VBACompileError(statement.message, where=f'{where} line {statement.line}')
             if isinstance(statement, A.Label):
                 key = label_key(statement.name)
                 if key in program.labels:

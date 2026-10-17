@@ -27,8 +27,12 @@ and computed jumps,
 GoSub returns, error handlers and Resume through procedure-wide instructions.
 A further 253 raw native traces cover skipped headers, loop reentry, lexical
 With context, array enumeration locks, header coercion and Select Case value
-capture. This remains partial language coverage: compiler type checking,
-DefType defaults, references and object lifetime need further conformance work.
+capture. Module-level DefType defaults now apply to declarations, implicit
+variables, arrays, parameters and function returns, with explicit type
+precedence, ReDim declaration/retyping rules and compiler restrictions over
+105 additional native probes. Project edits refresh cached bindings. This
+remains partial language coverage: full compiler type checking, references
+and object lifetime need further conformance work.
 
 The next increment connects class `WithEvents` subscriptions and custom
 `RaiseEvent`, with 15 live Excel cases, and worksheet/workbook/application

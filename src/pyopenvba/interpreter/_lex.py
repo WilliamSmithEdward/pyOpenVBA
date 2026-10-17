@@ -22,6 +22,7 @@ goes wrong:
 from __future__ import annotations
 
 import re
+from collections.abc import Mapping
 from dataclasses import dataclass, replace
 from typing import Final
 
@@ -303,3 +304,8 @@ def tokenize(source: str, *, module: str = "") -> list[Token]:
 def strip_suffix(name: str) -> str:
     """A name without its type-declaration character."""
     return name[:-1] if name and name[-1] in TYPE_SUFFIXES else name
+
+
+def default_type(name: str, defaults: Mapping[str, str]) -> str:
+    """A type character overrides the module's initial-letter defaults."""
+    return SUFFIX_TYPES.get(name[-1:], defaults.get(name[:1].lower(), 'Variant'))

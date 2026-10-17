@@ -7,11 +7,21 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- VBA DefType directives now supply module-local type defaults for untyped
+  declarations, implicit variables, parameters, function returns and arrays.
+  Explicit types take precedence and constants retain expression inference.
+  Native compiler restrictions, skipped ReDim declarations and array retyping
+  replay 105 fresh Excel probes. Project edits refresh cached symbol bindings;
+  ReDim Preserve rejects element-type changes with error 13. Procedure-local
+  compile errors remain deferred until a call requires the affected procedure,
+  including errors in unused optional signatures or body directives.
+
 - Procedure-wide VBA control flow supports labels inside structured blocks,
   including GoSub returns, computed jumps and error-handler Resume. Native
   loop reentry, skipped headers, enumeration locks, For header coercion and
   Select Case value capture replay 253 uninstrumented Excel traces. Duplicate
-  or missing labels and invalid Exit statements fail before execution.
+  or missing labels and invalid Exit statements fail before the affected
+  procedure executes.
 
 - Ordinary VBA calls and successful worksheet UDFs preserve Err. Raw native
   remeasurement corrects five lifetime expectations and one class/UDF control

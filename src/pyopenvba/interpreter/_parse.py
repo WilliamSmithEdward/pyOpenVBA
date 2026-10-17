@@ -1,8 +1,8 @@
 """The VBA parser: tokens in, a :class:`~pyopenvba.interpreter._ast.Module` out.
 
-A module is parsed whole when it is loaded, the way the VBA compiler
-does it, so bad source is refused before anything runs rather than when
-execution happens to reach it.
+A module is parsed whole when it is loaded. Recognized procedure-specific
+diagnostics can be retained for native compile-on-demand behavior; the
+remaining parser is strict about body syntax rather than fully deferred.
 
 Statements this understands but does not implement -- the file I/O verbs
 and the handful of others listed in ``_UNSUPPORTED`` -- parse into an
@@ -17,7 +17,7 @@ from typing import Final, NoReturn
 
 from pyopenvba.exceptions import VBACompileError
 from pyopenvba.interpreter import _ast as A
-from pyopenvba.interpreter._lex import Token, strip_suffix, tokenize
+from pyopenvba.interpreter._lex import Token, default_type, strip_suffix, tokenize
 from pyopenvba.interpreter._values import (
     EMPTY,
     NOTHING,
@@ -78,6 +78,12 @@ BUILTIN_TYPES: Final = frozenset(
     """.split()
 )
 
+_DEF_TYPES: Final = {
+    'defbool': 'Boolean', 'defbyte': 'Byte', 'defint': 'Integer', 'deflng': 'Long',
+    'deflnglng': 'LongLong', 'deflngptr': 'LongPtr', 'defsng': 'Single', 'defdbl': 'Double',
+    'defcur': 'Currency', 'defdate': 'Date', 'defstr': 'String', 'defobj': 'Object', 'defvar': 'Variant',
+}
+
 _ASSIGN_OPS: Final = frozenset({"=", "<>", "<", ">", "<=", ">="})
 
 #: Binary operators, tightest binding first.
@@ -118,6 +124,8 @@ class Parser:
         self.module_name = module
         self.module_kind = kind
         self._pending_next: list[str] = []
+        self.default_types: dict[str, str] = {}
+        self._declarations_started = False
         #: Greater than zero while parsing the statements a single-line
         #: If carries, where the line's end closes the If rather than
         #: the statement.
@@ -206,7 +214,7 @@ class Parser:
     # --- module --------------------------------------------------------------------
 
     def parse_module(self, source: str = "") -> A.Module:
-        module = A.Module(name=self.module_name, kind=self.module_kind, source=source)
+        module = A.Module(name=self.module_name, kind=self.module_kind, source=source, default_types=self.default_types)
         self.skip_blank()
         while not self.at_end():
             self._parse_module_member(module)
@@ -217,6 +225,7 @@ class Parser:
 
     def _parse_module_member(self, module: A.Module) -> None:
         line = self.token.line
+        start = self.at
         scope = "public"
         static = False
         while self.at_word("public", "private", "global", "friend", "static"):
@@ -229,6 +238,14 @@ class Parser:
                 scope = "public"
             else:
                 scope = word
+
+        if self._at_def_type():
+            if self._declarations_started or self.at != start:
+                self.fail('DefType statements must precede declarations')
+            self._parse_default_types()
+            return
+        if not self.at_word('option', 'attribute'):
+            self._declarations_started = True
 
         if self.at_word("sub", "function", "property"):
             module.procedures.append(self._parse_procedure(scope=scope, static=static, line=line))
@@ -278,37 +295,30 @@ class Parser:
             self.advance()
             module.variables.append(self._parse_dim(scope="private" if scope == "public" else scope, line=line))
             return
-        if self.at_word("deftype") or self._at_def_type():
-            # DefInt A-Z and friends: recognised, and their effect on
-            # untyped names is not modelled.
-            while not self.at_eos():
-                self.advance()
-            self.end_statement()
-            return
         if self.token.kind == "ident":
             module.variables.append(self._parse_dim(scope=scope, line=line, static=static))
             return
         self.fail(f"unexpected {self.token.text!r} outside a procedure")
 
     def _at_def_type(self) -> bool:
-        if self.token.kind != "ident":
-            return False
-        lower = self.token.lower
-        return lower.startswith("def") and lower[3:] in (
-            "int",
-            "lng",
-            "sng",
-            "dbl",
-            "cur",
-            "str",
-            "byte",
-            "bool",
-            "date",
-            "obj",
-            "var",
-            "dec",
-            "lnglng",
-        )
+        return self.token.kind == 'ident' and self.token.lower in _DEF_TYPES
+
+    def _parse_default_types(self) -> None:
+        declared = _DEF_TYPES[self.advance().lower]
+        while True:
+            first = self.expect_name().lower()
+            last = self.expect_name().lower() if self.accept_op('-') else first
+            if any(len(letter) != 1 or not 'a' <= letter <= 'z' for letter in (first, last)):
+                self.fail('DefType ranges require single letters A-Z')
+            low, high = sorted((ord(first), ord(last)))
+            for code in range(low, high + 1):
+                letter = chr(code)
+                if letter in self.default_types:
+                    self.fail('duplicate DefType letter')
+                self.default_types[letter] = declared
+            if not self.accept_op(','):
+                break
+        self.end_statement()
 
     # --- declarations ---------------------------------------------------------------
 
@@ -324,13 +334,14 @@ class Parser:
         self.end_statement()
         return A.Dim(line=line, decls=decls, scope=scope, static=static)
 
-    def _parse_var_decl(self) -> A.VarDecl:
+    def _parse_var_decl(self, *, require_as: bool = False) -> A.VarDecl:
         with_events = self.accept_word("withevents")
         if self.token.kind != "ident":
             self.fail(f"expected a variable name but found {self.token.text!r}")
         token = self.advance()
         name = strip_suffix(token.text)
-        declared = token.declared or "Variant"
+        declared = default_type(token.text, self.default_types)
+        explicit_type = bool(token.declared)
         bounds: list[tuple[A.Expr | None, A.Expr]] = []
         is_array = False
         if self.at_op("("):
@@ -346,7 +357,10 @@ class Parser:
                     break
             self.expect_op(")")
         as_new = False
+        if require_as and (token.declared or not self.at_word('as')):
+            self.fail('Type fields require an As clause without a type character')
         if self.accept_word("as"):
+            explicit_type = True
             if self.accept_word("new"):
                 as_new = True
             declared = self._parse_type_name()
@@ -355,7 +369,7 @@ class Parser:
             "single", "double", "currency", "decimal", "boolean", "date", "string",
         )):
             self.fail("WithEvents requires a specific object type, without New or array bounds")
-        return A.VarDecl(name=name, declared=declared, bounds=bounds, is_array=is_array, as_new=as_new, with_events=with_events)
+        return A.VarDecl(name=name, declared=declared, bounds=bounds, is_array=is_array, as_new=as_new, with_events=with_events, explicit_type=explicit_type)
 
     def _parse_type_name(self) -> str:
         if self.token.kind != "ident":
@@ -393,7 +407,7 @@ class Parser:
         while not (self.at_word("end") and self.peek().kind == "ident" and self.peek().lower == "type"):
             if self.at_end():
                 self.fail("a Type block is not closed")
-            field = self._parse_var_decl()
+            field = self._parse_var_decl(require_as=True)
             defined.fields.append(
                 A.TypeField(
                     name=field.name,
@@ -448,7 +462,7 @@ class Parser:
         if self.accept_word("alias") and self.token.kind == "string":
             alias = self.advance().text
         params = self._parse_params()
-        returns = "Variant"
+        returns = default_type(name, self.default_types)
         if self.accept_word("as"):
             returns = self._parse_type_name()
         self.end_statement()
@@ -480,7 +494,7 @@ class Parser:
             if token.kind != "ident":
                 self.fail(f"expected a parameter name but found {token.text!r}")
             param.name = strip_suffix(token.text)
-            param.declared = token.declared or "Variant"
+            param.declared = default_type(token.text, self.default_types)
             if self.at_op("("):
                 self.advance()
                 self.expect_op(")")
@@ -490,6 +504,8 @@ class Parser:
             if self.accept_op("="):
                 param.default = self._parse_expression()
                 param.optional = True
+            if param.param_array and (not param.is_array or param.declared != 'Variant'):
+                self.fail('ParamArray must be an array of Variant')
             params.append(param)
             if not self.accept_op(","):
                 break
@@ -512,7 +528,7 @@ class Parser:
             scope=scope,
             static=static,
             line=line,
-            returns=name_token.declared or "Variant",
+            returns=default_type(name_token.text, self.default_types),
         )
         procedure.params = self._parse_params()
         if self.accept_word("as"):
@@ -579,6 +595,12 @@ class Parser:
     def _parse_statement(self) -> A.Stmt:
         line = self.token.line
         token = self.token
+
+        if self._at_def_type() or self.at_word('deftype'):
+            while not self.at_eos():
+                self.advance()
+            self.end_statement()
+            return A.InvalidStmt(line=line, message='DefType is invalid inside a procedure')
 
         if token.kind == "number":
             # An old-style line number, which is a label: "10 x = 1", "40: x = 1"
